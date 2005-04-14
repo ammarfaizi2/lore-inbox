@@ -1,57 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbVDNIuU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVDNJEr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261474AbVDNIuU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 04:50:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVDNIuU
+	id S261455AbVDNJEr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 05:04:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbVDNJEr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 04:50:20 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:33513 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261474AbVDNIuO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 04:50:14 -0400
-Subject: Re: encrypted swap (was Re: [PATCH encrypted swsusp 1/3] core
-	functionality)
-From: Arjan van de Ven <arjan@infradead.org>
+	Thu, 14 Apr 2005 05:04:47 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:4007 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261455AbVDNJEo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 05:04:44 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
 To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Andy Isaacson <adi@hexapodia.org>, Pavel Machek <pavel@ucw.cz>,
-       Andreas Steinmetz <ast@domdv.de>, rjw@sisk.pl,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050414083801.GA13540@gondor.apana.org.au>
-References: <20050413233904.GA31174@gondor.apana.org.au>
-	 <20050414083119.GB24892@hexapodia.org>
-	 <20050414083801.GA13540@gondor.apana.org.au>
-Content-Type: text/plain
-Date: Thu, 14 Apr 2005 10:49:51 +0200
-Message-Id: <1113468592.6293.43.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
+Date: Thu, 14 Apr 2005 11:04:39 +0200
+User-Agent: KMail/1.7.1
+Cc: Pavel Machek <pavel@ucw.cz>, Matt Mackall <mpm@selenic.com>,
+       Andreas Steinmetz <ast@domdv.de>, linux-kernel@vger.kernel.org
+References: <E1DLgWi-0003Ag-00@gondolin.me.apana.org.au> <20050414065124.GA1357@elf.ucw.cz> <20050414080837.GA1264@gondor.apana.org.au>
+In-Reply-To: <20050414080837.GA1264@gondor.apana.org.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200504141104.40389.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+On Thursday, 14 of April 2005 10:08, Herbert Xu wrote:
+> On Thu, Apr 14, 2005 at 08:51:25AM +0200, Pavel Machek wrote:
+> >
+> > > This solution is all wrong.
+> > > 
+> > > If you want security of the suspend image while "suspended", encrypt
+> > > with dm-crypt. If you want security of the swap image after resume,
+> > > zero out the portion of swap used. If you want both, do both.
 > 
-> >  * the key is automatically regenerated every 2 hours (or whatever); as
-> >    pages encrypted under the old key age out, it can be freed eventually
+> Pavel, you're not answering our questions.
 > 
-> This'll require changes to dmcrypt but it's doable.
+> How is the proposed patch any more secure compared to swsusp over dmcrypt?
 
-but it's not useful since linux actually generally keeps the pages also
-in swap even when they're back in memory (so that if there's memory
-pressure again they can just be swapped out cheap again), this leads to
-very very long lived swap pages
+It is for different purpose.  It is to prevent swsusp from leaving a readable
+memory snapshot on the disk _after_ resume, even if the resume has _failed_
+(ie if you encrypt the image during suspend and then destroy the key after
+reading the image during resume, you don't need to zero out the swap partition,
+which you can't do anyway if the resume has failed).  IOW, please treat it as
+a more sophisticated method of zeroing out the swap partition. :-)
+
+Arguably, using dm-crypt is more secure, but it is also more complicated from
+the Joe User POV.  IMHO we should not force users to set up dm-crypt, remember
+passwords etc., to get some basic security.
+
+Greets,
+Rafael
 
 
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

@@ -1,61 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261457AbVDNIMY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261459AbVDNIR2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261457AbVDNIMY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 04:12:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261459AbVDNIMX
+	id S261459AbVDNIR2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 04:17:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbVDNIR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 04:12:23 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:36111 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261457AbVDNIMT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 04:12:19 -0400
-Date: Thu, 14 Apr 2005 18:08:37 +1000
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Matt Mackall <mpm@selenic.com>, Andreas Steinmetz <ast@domdv.de>,
-       rjw@sisk.pl, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
-Message-ID: <20050414080837.GA1264@gondor.apana.org.au>
-References: <E1DLgWi-0003Ag-00@gondolin.me.apana.org.au> <425D17B0.8070109@domdv.de> <20050413212731.GA27091@gondor.apana.org.au> <425D9D50.9050507@domdv.de> <20050413231044.GA31005@gondor.apana.org.au> <20050413232431.GF27197@elf.ucw.cz> <20050413233904.GA31174@gondor.apana.org.au> <20050413234602.GA10210@elf.ucw.cz> <20050414003506.GQ25554@waste.org> <20050414065124.GA1357@elf.ucw.cz>
+	Thu, 14 Apr 2005 04:17:28 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:10688 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261459AbVDNIRX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 04:17:23 -0400
+Date: Thu, 14 Apr 2005 10:17:05 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Marco Gaddoni <marco.gaddoni@teknolab.net>
+Cc: linux-kernel@vger.kernel.org, video4linux-list@redhat.com
+Subject: Re: swsuspend scheduling while atomic
+Message-ID: <20050414081705.GA1360@elf.ucw.cz>
+References: <42596B7F.4000808@teknolab.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050414065124.GA1357@elf.ucw.cz>
+In-Reply-To: <42596B7F.4000808@teknolab.net>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040907i
-From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 14, 2005 at 08:51:25AM +0200, Pavel Machek wrote:
->
-> > This solution is all wrong.
-> > 
-> > If you want security of the suspend image while "suspended", encrypt
-> > with dm-crypt. If you want security of the swap image after resume,
-> > zero out the portion of swap used. If you want both, do both.
+Hi!
 
-Pavel, you're not answering our questions.
+> i am playing a little with swsuspend and getting
+> "scheduling while atomic: bash/0x00000001/5244"
+> messages while the system is resuming.
+> Apparently  the  resume  work  correctly.
+> Do i have to fear for my data?
 
-How is the proposed patch any more secure compared to swsusp over dmcrypt?
+It should be ok.
 
-In fact if anything it is less secure.  If I understand correctly the
-proposal is to store the key used to encrypt the swsusp image in the
-swap device.  This means that anybody who gains access to the swap
-device can trivially decrypt it.
+> Some data about my system:
 
-Compare this to the properly setup dmcrypt case where the swap
-device can only be decrypted with a passphrase obtained from the
-user at resume time.
+> ACPI: PCI Interrupt Link [ALKA] BIOS reported IRQ 0, using IRQ 20
+> ACPI: PCI Interrupt Link [ALKB] BIOS reported IRQ 0, using IRQ 21
+> ACPI: PCI Interrupt Link [ALKD] BIOS reported IRQ 0, using IRQ 23
+> APIC error on CPU0: 00(00)
+> ACPI: PCI interrupt 0000:00:09.0[A] -> GSI 17 (level, low) -> IRQ 17
+> ACPI: PCI interrupt 0000:00:0b.0[A] -> GSI 19 (level, low) -> IRQ 19
+> bttv0: reset, reinitialize
+> bttv0: PLL: 28636363 => 35468950 .<3>scheduling while atomic: 
+> bash/0x00000001/4686
+> [<c04310ef>] schedule+0x44f/0x500
+> [<c011a5b5>] call_console_drivers+0x65/0x140
+> [<c0123775>] __mod_timer+0x1e5/0x1f0
+> [<c0431b8d>] schedule_timeout+0x5d/0xb0
+> [<c01241e0>] process_timeout+0x0/0x10
+> [<c01245cf>] msleep+0x2f/0x40
+> [<e0921233>] set_pll+0x63/0x1a0 [bttv]
+> [<e09213b7>] bt848A_set_timing+0x47/0x140 [bttv]
+> [<e09219c7>] set_tvnorm+0x87/0xb0 [bttv]
+> [<e0921aa4>] set_input+0xb4/0xf0 [bttv]
+> [<e0921d57>] bttv_reinit_bt848+0x77/0xb0 [bttv]
+> [<e0927aca>] bttv_resume+0x4a/0x170 [bttv]
+> [<c02300a7>] kobject_get+0x17/0x20
 
-> I want security of the swap image, and "just zeroing" is hard to do in
-> failed suspend case, see previous discussion.
+You need to fix bttv.
 
-As to the failed suspend case, the two approaches yield identical
-results.  In both cases we will be storing potentially sensitive
-data encrypted on a physical storage device.
-
-Cheers,
+And BTW thanks, I'll fix maintainers file.
+								Pavel
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Boycott Kodak -- for their patent abuse against Java.

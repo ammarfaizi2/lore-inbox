@@ -1,75 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbVDNXNZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261645AbVDNXPg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261636AbVDNXNZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 19:13:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261643AbVDNXNY
+	id S261645AbVDNXPg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 19:15:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbVDNXPf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 19:13:24 -0400
-Received: from mail.dif.dk ([193.138.115.101]:59265 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261636AbVDNXNK (ORCPT
+	Thu, 14 Apr 2005 19:15:35 -0400
+Received: from mail.zmailer.org ([62.78.96.67]:17846 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id S261645AbVDNXPR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 19:13:10 -0400
-Date: Fri, 15 Apr 2005 01:15:58 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>,
-       James Morris <jmorris@intercode.com.au>, linux-crypto@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] crypto: resource release functions ought to check for NULL
- (crypto_free_tfm)
-Message-ID: <Pine.LNX.4.62.0504150106420.3466@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 14 Apr 2005 19:15:17 -0400
+Date: Fri, 15 Apr 2005 02:15:13 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: abonilla <abonilla@linuxwireless.org>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>, linux-kernel@vger.kernel.org
+Subject: Re: IBM Thinkpad T42 - Looking for a Developer.
+Message-ID: <20050414231513.GN3858@mea-ext.zmailer.org>
+References: <003901c54136$6ba545c0$9f0cc60a@amer.sykes.com> <Pine.LNX.4.62.0504142317480.3466@dragon.hyggekrogen.localhost> <20050414223641.M49815@linuxwireless.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050414223641.M49815@linuxwireless.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Apr 14, 2005 at 06:40:16PM -0400, abonilla wrote:
+> On Thu, 14 Apr 2005 23:20:19 +0200 (CEST), Jesper Juhl wrote
+> > On Thu, 14 Apr 2005, Alejandro Bonilla wrote:
+...
+> > >  This is located in my home PC, Won't be the fastest downloads...
+> > >  
+> > >  http://wifitux.com/finger/
+> >  
+> > Under what terms did you obtain these documents and from where? Are 
+> > they completely freely distributable or are there strings attached?
+> 
+> I emailed the guys and they told me, "Hey, here you go, let me know if you
+> want more information"
+> 
+> I guess it can't be more distributable. But as far as I got to read. The
+> documents don't have too much information like for us to do a great Job. I
+> think it also requires the making of a firmware.
+> 
+> I don't want to dissapoint you, but I hope I'm lost and that a driver can be
+> done out of this.
 
-As far as I'm aware there's a general concensus that functions that are 
-responsible for freeing resources should be able to cope with being passed 
-a NULL pointer. This makes sense as it removes the need for all callers to 
-check for NULL, thus elliminating the bugs that happen when some forget 
-(safer to just check centrally in the freeing function) and it also makes 
-for smaller code all over due to the lack of all those NULL checks.
-This patch makes it safe to pass the crypto_free_tfm() function a NULL 
-pointer. Once this patch is applied we can start removing the NULL checks 
-from the callers.  
-Please consider applying.
+There were two PDF documents.
+The more useful one tells that there are two possible interfaces:
+ - Async serial
+ - USB
 
-Please CC: me on replies as I'm not subscribed to linux-crypto
-
-
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
----
-
- api.c |   10 ++++++++--
- 1 files changed, 8 insertions(+), 2 deletions(-)
-
---- linux-2.6.12-rc2-mm3-orig/crypto/api.c	2005-04-11 21:20:39.000000000 +0200
-+++ linux-2.6.12-rc2-mm3/crypto/api.c	2005-04-15 01:05:52.000000000 +0200
-@@ -163,8 +163,14 @@ out:
+Could you show what    /sbin/lsusb -vv    tells in your T42 ?
+Do that without external devices attached.
  
- void crypto_free_tfm(struct crypto_tfm *tfm)
- {
--	struct crypto_alg *alg = tfm->__crt_alg;
--	int size = sizeof(*tfm) + alg->cra_ctxsize;
-+	struct crypto_alg *alg;
-+	int size;
-+
-+	if (!tfm)
-+		return;
-+
-+	alg = tfm->__crt_alg;
-+	size = sizeof(*tfm) + alg->cra_ctxsize;
- 
- 	crypto_exit_ops(tfm);
- 	crypto_alg_put(alg);
+> > -- 
+> > Jesper
 
-
-
--- 
-Jesper Juhl
-
-PS. Please CC: me on replies to linux-crypto as I'm not subscribed to that 
-list.
-
-
+/Matti Aarnio

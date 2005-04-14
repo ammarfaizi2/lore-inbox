@@ -1,31 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVDNDUY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261424AbVDNDfS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261246AbVDNDUY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 23:20:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261424AbVDNDUY
+	id S261424AbVDNDfS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 23:35:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbVDNDfS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 23:20:24 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:6528 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S261246AbVDNDUW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 23:20:22 -0400
-Message-ID: <425DE171.5050607@rtr.ca>
-Date: Wed, 13 Apr 2005 23:20:17 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Jonas Diemer <diemer@gmx.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: security issue: hard disk lock
-References: <200504041942.10976.diemer@gmx.de> <1113233800.9875.47.camel@localhost.localdomain> <200504111801.16647.diemer@gmx.de>
-In-Reply-To: <200504111801.16647.diemer@gmx.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 13 Apr 2005 23:35:18 -0400
+Received: from vms044pub.verizon.net ([206.46.252.44]:28872 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S261424AbVDNDfN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 23:35:13 -0400
+Date: Wed, 13 Apr 2005 23:35:12 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: iproute/iptables best?
+To: linux-kernel@vger.kernel.org
+Message-id: <200504132335.12324.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hdparm-6.0 is currently winding through release channels,
-and includes support for freezing/managing the security status.
+Scenario:
 
-Cheers
+1 machine, two net cards, two networks
+
+How can we make the reply to an action go back out through the route 
+it came in on?  As it exists, queries, ssh sessions etc coming in 
+thru a vpn from one router are being replied to on the default 
+gateways card that hits the other network.
+
+Is iptables the best tool, or is iproute2 the best tool to do this?
+
+Pointers to good docs etc appreciated.  Thanks.
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.34% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

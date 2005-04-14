@@ -1,68 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261459AbVDNIR2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261460AbVDNIXL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261459AbVDNIR2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 04:17:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbVDNIR2
+	id S261460AbVDNIXL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 04:23:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVDNIXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 04:17:28 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:10688 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261459AbVDNIRX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 04:17:23 -0400
-Date: Thu, 14 Apr 2005 10:17:05 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Marco Gaddoni <marco.gaddoni@teknolab.net>
-Cc: linux-kernel@vger.kernel.org, video4linux-list@redhat.com
-Subject: Re: swsuspend scheduling while atomic
-Message-ID: <20050414081705.GA1360@elf.ucw.cz>
-References: <42596B7F.4000808@teknolab.net>
+	Thu, 14 Apr 2005 04:23:11 -0400
+Received: from wproxy.gmail.com ([64.233.184.207]:47343 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261460AbVDNIXG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 04:23:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LxzlNqXlNIa7ZH5G6DzrvHSpJ9hdsmhCz5ezW7Bv0H1rUkkoo/mTi8/z7OWuTFPVs+ciCiWNFTjrrDuwkWLD388CZnwEnbeA3emJPW8ZQ0MxOmzT/T94xWhRwC1d6i5OF1e3u2QH72l9oDhmHSv+IFItw0sNBpNKKBksRGYrAUg=
+Message-ID: <2cd57c900504140123181cd94c@mail.gmail.com>
+Date: Thu, 14 Apr 2005 16:23:02 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+Reply-To: Coywolf Qi Hunt <coywolf@gmail.com>
+To: Iwan Sanders <iwan.sanders@tuxproject.info>
+Subject: Re: Kernel messages
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <425E23CC.2010509@tuxproject.info>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <42596B7F.4000808@teknolab.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+References: <425E23CC.2010509@tuxproject.info>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On 4/14/05, Iwan Sanders <iwan.sanders@tuxproject.info> wrote:
+> Can someone explain to me what just happend? I would really like to know
+>   :-)
+> I think that the machine ran out of memory and the OOM killer shot some
+> processes, this is what I found
+> in my logfiles:
+> 
+> 1 Time(s): Active:48588 inactive:152 dirty:0 writeback:7 unstable:0 free:502 slab:13664 mapped:48620 pagetables:325
+> 1 Time(s): DMA free:1008kB min:28kB low:56kB high:84kB active:7364kB inactive:0kB present:16384kB
+> 1 Time(s): DMA per-cpu:
+> 1 Time(s): DMA: 0*4kB 0*8kB 1*16kB 7*32kB 4*64kB 0*128kB 0*256kB 1*512kB 0*1024kB 0*2048kB 0*4096kB = 1008kB
+> 1 Time(s): Free pages:        2008kB (0kB HighMem)
+> 1 Time(s): HighMem free:0kB min:128kB low:256kB high:384kB active:0kB inactive:0kB present:0kB
+> 1 Time(s): HighMem per-cpu: empty
+> 1 Time(s): HighMem: empty
+> 1 Time(s): Normal free:1000kB min:476kB low:952kB high:1428kB active:186988kB inactive:608kB present:245120kB
+> 1 Time(s): Normal per-cpu:
+> 1 Time(s): Normal: 14*4kB 2*8kB 0*16kB 1*32kB 2*64kB 0*128kB 1*256kB 1*512kB 0*1024kB 0*2048kB 0*4096kB = 1000kB
+> 1 Time(s): Swap cache: add 0, delete 0, find 0/0, race 0+0
+> 1 Time(s): cpu 0 cold: low 0, high 2, batch 1
+> 1 Time(s): cpu 0 cold: low 0, high 28, batch 14
+> 1 Time(s): cpu 0 hot: low 2, high 6, batch 1
+> 1 Time(s): cpu 0 hot: low 28, high 84, batch 14
+> 1 Time(s): oom-killer: gfp_mask=0x1d2
+> 1 Time(s): protections[]: 0 0 0
+> 1 Time(s): protections[]: 0 238 238
+> 1 Time(s): protections[]: 14 252 252
+> 
+> Cheers,
+> 
+> Iwan Sanders
+> 
 
-> i am playing a little with swsuspend and getting
-> "scheduling while atomic: bash/0x00000001/5244"
-> messages while the system is resuming.
-> Apparently  the  resume  work  correctly.
-> Do i have to fear for my data?
+Yes, oom, and your kernel is a bit old.
 
-It should be ok.
-
-> Some data about my system:
-
-> ACPI: PCI Interrupt Link [ALKA] BIOS reported IRQ 0, using IRQ 20
-> ACPI: PCI Interrupt Link [ALKB] BIOS reported IRQ 0, using IRQ 21
-> ACPI: PCI Interrupt Link [ALKD] BIOS reported IRQ 0, using IRQ 23
-> APIC error on CPU0: 00(00)
-> ACPI: PCI interrupt 0000:00:09.0[A] -> GSI 17 (level, low) -> IRQ 17
-> ACPI: PCI interrupt 0000:00:0b.0[A] -> GSI 19 (level, low) -> IRQ 19
-> bttv0: reset, reinitialize
-> bttv0: PLL: 28636363 => 35468950 .<3>scheduling while atomic: 
-> bash/0x00000001/4686
-> [<c04310ef>] schedule+0x44f/0x500
-> [<c011a5b5>] call_console_drivers+0x65/0x140
-> [<c0123775>] __mod_timer+0x1e5/0x1f0
-> [<c0431b8d>] schedule_timeout+0x5d/0xb0
-> [<c01241e0>] process_timeout+0x0/0x10
-> [<c01245cf>] msleep+0x2f/0x40
-> [<e0921233>] set_pll+0x63/0x1a0 [bttv]
-> [<e09213b7>] bt848A_set_timing+0x47/0x140 [bttv]
-> [<e09219c7>] set_tvnorm+0x87/0xb0 [bttv]
-> [<e0921aa4>] set_input+0xb4/0xf0 [bttv]
-> [<e0921d57>] bttv_reinit_bt848+0x77/0xb0 [bttv]
-> [<e0927aca>] bttv_resume+0x4a/0x170 [bttv]
-> [<c02300a7>] kobject_get+0x17/0x20
-
-You need to fix bttv.
-
-And BTW thanks, I'll fix maintainers file.
-								Pavel
 -- 
-Boycott Kodak -- for their patent abuse against Java.
+Coywolf Qi Hunt
+http://sosdg.org/~coywolf/

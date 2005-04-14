@@ -1,35 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVDNJEr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbVDNJGU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261455AbVDNJEr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 05:04:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbVDNJEr
+	id S261476AbVDNJGU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 05:06:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVDNJGT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 05:04:47 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:4007 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261455AbVDNJEo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 05:04:44 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
+	Thu, 14 Apr 2005 05:06:19 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:20904 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261458AbVDNJFp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 05:05:45 -0400
+Date: Thu, 14 Apr 2005 11:05:24 +0200
+From: Pavel Machek <pavel@ucw.cz>
 To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Matt Mackall <mpm@selenic.com>, Andreas Steinmetz <ast@domdv.de>,
+       rjw@sisk.pl, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
-Date: Thu, 14 Apr 2005 11:04:39 +0200
-User-Agent: KMail/1.7.1
-Cc: Pavel Machek <pavel@ucw.cz>, Matt Mackall <mpm@selenic.com>,
-       Andreas Steinmetz <ast@domdv.de>, linux-kernel@vger.kernel.org
-References: <E1DLgWi-0003Ag-00@gondolin.me.apana.org.au> <20050414065124.GA1357@elf.ucw.cz> <20050414080837.GA1264@gondor.apana.org.au>
-In-Reply-To: <20050414080837.GA1264@gondor.apana.org.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+Message-ID: <20050414090524.GA1706@elf.ucw.cz>
+References: <425D17B0.8070109@domdv.de> <20050413212731.GA27091@gondor.apana.org.au> <425D9D50.9050507@domdv.de> <20050413231044.GA31005@gondor.apana.org.au> <20050413232431.GF27197@elf.ucw.cz> <20050413233904.GA31174@gondor.apana.org.au> <20050413234602.GA10210@elf.ucw.cz> <20050414003506.GQ25554@waste.org> <20050414065124.GA1357@elf.ucw.cz> <20050414080837.GA1264@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Message-Id: <200504141104.40389.rjw@sisk.pl>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050414080837.GA1264@gondor.apana.org.au>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Thursday, 14 of April 2005 10:08, Herbert Xu wrote:
+On Čt 14-04-05 18:08:37, Herbert Xu wrote:
 > On Thu, Apr 14, 2005 at 08:51:25AM +0200, Pavel Machek wrote:
 > >
 > > > This solution is all wrong.
@@ -40,24 +38,30 @@ On Thursday, 14 of April 2005 10:08, Herbert Xu wrote:
 > 
 > Pavel, you're not answering our questions.
 > 
-> How is the proposed patch any more secure compared to swsusp over dmcrypt?
+> How is the proposed patch any more secure compared to swsusp over
+> dmcrypt?
 
-It is for different purpose.  It is to prevent swsusp from leaving a readable
-memory snapshot on the disk _after_ resume, even if the resume has _failed_
-(ie if you encrypt the image during suspend and then destroy the key after
-reading the image during resume, you don't need to zero out the swap partition,
-which you can't do anyway if the resume has failed).  IOW, please treat it as
-a more sophisticated method of zeroing out the swap partition. :-)
+It is not "more secure". It solves completely different problem.
 
-Arguably, using dm-crypt is more secure, but it is also more complicated from
-the Joe User POV.  IMHO we should not force users to set up dm-crypt, remember
-passwords etc., to get some basic security.
+> In fact if anything it is less secure.  If I understand correctly the
+> proposal is to store the key used to encrypt the swsusp image in the
+> swap device.  This means that anybody who gains access to the swap
+> device can trivially decrypt it.
 
-Greets,
-Rafael
+Yes. It also means that key is gone after resume.
 
+> Compare this to the properly setup dmcrypt case where the swap
+> device can only be decrypted with a passphrase obtained from the
+> user at resume time.
 
+Solution above does not require passphrase (so users will actually use
+it) and dmcrypt with passphrase does not destroy the key after resume,
+so data can still be recovered.
+
+They are orthogonal. You want both.
+
+If something is still unclear, we can talk on irc somewhere, if you
+agree to write FAQ entry afterwards ;-).
+								Pavel
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Boycott Kodak -- for their patent abuse against Java.

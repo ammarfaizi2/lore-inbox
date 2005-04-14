@@ -1,48 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbVDNTxd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261274AbVDNTzh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261610AbVDNTxd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 15:53:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbVDNTxd
+	id S261274AbVDNTzh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 15:55:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbVDNTzh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 15:53:33 -0400
-Received: from wproxy.gmail.com ([64.233.184.197]:51588 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261610AbVDNTxa convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 15:53:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=n0bnkzNarE51pXTkfaO7NHgkx7IanOPX3iWO7IWKIfHMHUIz096UsaWUhlE9Hp5wflBYiHQzuu8YcuY9ooicVJySxJhLz9S1+n+Jsb6SbKH77J7fdI9S7nBqGvjtsjkwSWFXF8kCgqBKqqMyXqBt+Yo8r+gwMCoc61Dtix4YLxU=
-Message-ID: <17d798805041412536dcd9325@mail.gmail.com>
-Date: Thu, 14 Apr 2005 19:53:29 +0000
-From: Allison <fireflyblue@gmail.com>
-Reply-To: Allison <fireflyblue@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel module_list
+	Thu, 14 Apr 2005 15:55:37 -0400
+Received: from waste.org ([216.27.176.166]:2699 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261274AbVDNTzX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 15:55:23 -0400
+Date: Thu, 14 Apr 2005 12:53:52 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: Stefan Seyfried <seife@suse.de>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, Pavel Machek <pavel@ucw.cz>,
+       Andreas Steinmetz <ast@domdv.de>, linux-kernel@vger.kernel.org,
+       "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
+Message-ID: <20050414195352.GM3174@waste.org>
+References: <E1DLgWi-0003Ag-00@gondolin.me.apana.org.au> <20050414065124.GA1357@elf.ucw.cz> <20050414080837.GA1264@gondor.apana.org.au> <200504141104.40389.rjw@sisk.pl> <20050414171127.GL3174@waste.org> <425EC41A.4020307@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <425EC41A.4020307@suse.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Apr 14, 2005 at 09:27:22PM +0200, Stefan Seyfried wrote:
+> Matt Mackall wrote:
+> 
+> > Any sensible solution here is going to require remembering passwords.
+> > And arguably anywhere the user needs encrypted suspend, they'll want
+> > encrypted swap as well.
+> 
+> But after entering the password and resuming, the encrypted swap is
+> accessible again and my ssh-key may be lying around in it, right?
 
-I am trying to access the module list kernel data structure from a
-kernel module. If I gather correctly, module_list is the symbol that
-is the head pointer of this list.
+No. Because it's been zeroed in the resume process.
+ 
+> So we would need to zero out the suspend image in swap to prevent the
+> retrieval of this data from the running machine (imagine a
+> remote-root-hole).
+>
+> Zeroing out the suspend image means "write lots of megabytes to the
+> disk" which takes a lot of time.
 
-This module compiles fine but when I try to insmod it, it say
-module_list is unresolved symbol.
+Zero only the mlocked regions. This should take essentially no time at
+all. Swsusp knows which these are because they have to be mlocked
+after resume as well. If it's not mlocked, it's liable to be swapped
+out anyway.
 
-Does this symbol have to show up in the /proc/ksyms  ? 
-It currently show up in the System.map file. 
+Again:
 
-What do I need to do to access this symbol.
+Use dm-crypt swap with password prompt to handle "stolen while
+suspended"
 
-Also, what do the three columns in the System.map file stand for ?
-First col looks like the virtual address  and third looks like
-function/symbol name. How do I read the second ?
+Zero out mlocked regions on resume for "stolen while running".
 
-thanks,
-Allison
+Reinitialize swap or use a different swap session keys for "booting
+without resume".
+
+There are more refinements here, like generating session keys per boot
+for swap. We want to do this anyway. We can encrypt the session key
+with the user password for suspend purposes. Booting without resume
+loses the old (encrypted) session key.
+
+But this is all solvable without resorting to yet another encrypted
+block device scheme. Such a scheme shouldn't even be considered until
+all the other options are thoroughly explored. Any scheme that's
+encrypting the suspend image and then storing the key in the clear is
+either obviously broken or obviously doesn't actually need encryption.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

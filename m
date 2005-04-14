@@ -1,29 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261519AbVDNPKr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbVDNPSj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261519AbVDNPKr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 11:10:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbVDNPKr
+	id S261522AbVDNPSj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 11:18:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbVDNPSj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 11:10:47 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:2783 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S261519AbVDNPKo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 11:10:44 -0400
-Message-Id: <9516141739.5522740@hydra.convex.com>
-Date: Thu, 14 Apr 2005 12:22:05 -0200
-From: "Reggie Baker " <fortmann@gmx.net>
-To: <kernel@vger.kernel.org>
-Subject: FW:FW:Your attention is needed NOW!
-X-Mailer: Mew version 3.2 on Emacs 21.3 / Mule 5.0 (SAKAKI)
+	Thu, 14 Apr 2005 11:18:39 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:55222 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S261522AbVDNPSi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 11:18:38 -0400
+Date: Thu, 14 Apr 2005 11:18:37 -0400
+To: Jeremy Muise <jeremy.muise@gmail.com>
+Cc: aeriksson@fastmail.fm, linux-kernel@vger.kernel.org
+Subject: Re: DVD writer and IDE support...
+Message-ID: <20050414151837.GT521@csclub.uwaterloo.ca>
+References: <20050413181421.5C20E240480@latitude.mynet.no-ip.org> <20050413183722.GQ17865@csclub.uwaterloo.ca> <20050413190756.54474240480@latitude.mynet.no-ip.org> <20050413193924.GN521@csclub.uwaterloo.ca> <20050413205949.E987A240480@latitude.mynet.no-ip.org> <20050414124226.GQ521@csclub.uwaterloo.ca> <20050414133523.6D747240480@latitude.mynet.no-ip.org> <20050414143420.GR521@csclub.uwaterloo.ca> <8d64c8f005041408024d1c6843@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8d64c8f005041408024d1c6843@mail.gmail.com>
+User-Agent: Mutt/1.3.28i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You have been pre-approved for a $400,000 Home Loan at a 3.25% Fixed Rate.
-This offer is being extended to you unconditionally and your credit is in no way a factor.
+On Thu, Apr 14, 2005 at 12:02:14PM -0300, Jeremy Muise wrote:
+> > > It's an AOPEN  DUW1608/ARR
+> I just thought I should chime in because I have the same burner running
+> under a 2.6.11 kernel, and using ide-cd. The drive burns just fine, linux
+> support was good, but I did run into two problems:
+> 1) I had to shop around till I found a brand of DVD-R (I haven't tried RW yet)
+>     that would work, finally settled on TDK.
+> 2) it failed to write to slower media, I think anything below 4 it had
+> trouble with
 
-To take Advantage of this Limited Time opportunity
+So it is a very picky drive, or the firmware is still in need of fixes
+(I saw at least 4 firmware updates each adding improved media
+compatibility, so perhaps it is something they are working on).
 
-All we ask is that you visit our Website and complete
-The 1 minute post Approval Form 
+Perhaps not the best writer around, but I bet the price is nice.
 
-http://www.lendersx.com/index2.php?refid=phade
+Len Sorensen

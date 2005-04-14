@@ -1,67 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbVDNCTM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261442AbVDNCVr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261417AbVDNCTM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 22:19:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbVDNCTM
+	id S261442AbVDNCVr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 22:21:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbVDNCVr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 22:19:12 -0400
-Received: from mail1.webmaster.com ([216.152.64.168]:37644 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S261417AbVDNCTI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 22:19:08 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Catalin Marinas" <catalin.marinas@arm.com>
-Cc: "linux kernel mailing list" <linux-kernel@vger.kernel.org>
-Subject: RE: Why system call need to copy the date from the userspace before using it
-Date: Wed, 13 Apr 2005 19:18:03 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKAEHODCAB.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <425DD105.7010304@haha.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Wed, 13 Apr 2005 19:17:10 -0700
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Wed, 13 Apr 2005 19:17:11 -0700
+	Wed, 13 Apr 2005 22:21:47 -0400
+Received: from fmr23.intel.com ([143.183.121.15]:30392 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261442AbVDNCVO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 22:21:14 -0400
+Date: Wed, 13 Apr 2005 19:21:04 -0700
+From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+To: john stultz <johnstul@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>
+Subject: Re: [RFC][PATCH] X86_64: no legacy HPET fix
+Message-ID: <20050413192103.A27092@unix-os.sc.intel.com>
+References: <1113360197.19541.43.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1113360197.19541.43.camel@cog.beaverton.ibm.com>; from johnstul@us.ibm.com on Tue, Apr 12, 2005 at 07:43:16PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Catalin Marinas wrote:
 
-> >Tomko <tomko@haha.com> wrote:
-
-> >>Inside the system call , the kernel often copy the data by calling
-> >>copy_from_user() rather than just using strcpy(), is it because the
-> >>memory mapping in kenel space is different from user space?
-
-> >No, it is because this function checks whether the access to the user
-> >space address is OK. There are situations when it can also sleep (page
-> >not present).
-
-> what u means "OK"?  kernel space should have right to access any memory
-> address , can u expained in details what u means "OK"?
-
-	Kernel space does have the right to access any memory but user space
-doesn't, so the kernel can't just take an address from user space and use
-it. Consider:
-
-int i=open("/dev/null", O_RDWR);
-write(i, NULL, 4);
-
-	Are you seriously suggesting the kernel should just read from address zero
-because a user-space program asked it to?
-
-	DS
+This adds another timer combination of PIT/HPET to go with
+HPET/HPET, HPET/TSC and PIT/TSC!
+This system that has HPET and doesn't have Legacy support, does it support
+routing HPET interrupts through IOAPIC in standard routing option? If yes,
+then I think adding support to route HPET interrupts in a non-legacy way
+(using IRQs other than IRQ 0) is another option here. I looked at that 
+when adding initial HPET support on i386, but dropped that idea after looking
+at all the changes required and also due to the reason that all HPET capable
+systems I had also had Legacy Support.
 
 
+Some comments on the patch inlined below..
+
+On Tue, Apr 12, 2005 at 07:43:16PM -0700, john stultz wrote:
+> 
+> Its likely a similar patch will be necessary for i386.
+Yes. Pretty much similar change will be required in i386 as well..
+
+> linux-2.6.12-rc2_hpet-nolegacy-fix_A0
+> =====================================
+> diff -Nru a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
+> --- a/arch/x86_64/kernel/time.c	2005-04-12 19:31:50 -07:00
+> +++ b/arch/x86_64/kernel/time.c	2005-04-12 19:31:50 -07:00
+> @@ -373,8 +374,10 @@
+>  
+>  	write_seqlock(&xtime_lock);
+>  
+> -	if (vxtime.hpet_address) {
+> -		offset = hpet_readl(HPET_T0_CMP) - hpet_tick;
+> +	if (vxtime.hpet_address)
+> +		offset = hpet_readl(HPET_COUNTER);
+> +
+> +	if (hpet_use_timer) {
+>  		delay = hpet_readl(HPET_COUNTER) - offset;
+
+Probably this has to change to use HPET_T0_CMP for offset, when hpet_use_timer.
+Otherwise we will always have delay close to zero in case of hpet_use_timer,
+which is a change in behaviour.
+
+>  	} else {
+>  		spin_lock(&i8253_lock);
+> @@ -732,7 +735,7 @@
+>  	struct hpet_data	hd;
+>  	unsigned int 		ntimer;
+>  
+> -	if (!vxtime.hpet_address)
+> +	if (!hpet_use_timer)
+>            return -1;
+
+We may need to do some initialization here even in case of !hpet_use_timer.
+Like reserving particular HPET timer for timer use. Otherwise, someone
+else (/dev/hpet) can overwrite the counter. I think we just need to skip 
+setting the interupts part.
+
+
+Thanks,
+Venki

@@ -1,75 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261619AbVDNWtw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261622AbVDNWvW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261619AbVDNWtw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 18:49:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261620AbVDNWtw
+	id S261622AbVDNWvW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 18:51:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261625AbVDNWvW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 18:49:52 -0400
-Received: from waste.org ([216.27.176.166]:36783 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261619AbVDNWtd (ORCPT
+	Thu, 14 Apr 2005 18:51:22 -0400
+Received: from vsmtp3alice.tin.it ([212.216.176.143]:63899 "EHLO vsmtp3.tin.it")
+	by vger.kernel.org with ESMTP id S261622AbVDNWvA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 18:49:33 -0400
-Date: Thu, 14 Apr 2005 15:48:46 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: Andy Isaacson <adi@hexapodia.org>
-Cc: Stefan Seyfried <seife@suse.de>, Herbert Xu <herbert@gondor.apana.org.au>,
-       Pavel Machek <pavel@ucw.cz>, Andreas Steinmetz <ast@domdv.de>,
-       linux-kernel@vger.kernel.org, "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
-Message-ID: <20050414224846.GQ3174@waste.org>
-References: <E1DLgWi-0003Ag-00@gondolin.me.apana.org.au> <20050414065124.GA1357@elf.ucw.cz> <20050414080837.GA1264@gondor.apana.org.au> <200504141104.40389.rjw@sisk.pl> <20050414171127.GL3174@waste.org> <425EC41A.4020307@suse.de> <20050414195352.GM3174@waste.org> <20050414221153.GE27881@hexapodia.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050414221153.GE27881@hexapodia.org>
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 14 Apr 2005 18:51:00 -0400
+Message-ID: <425EF2A3.1070007@tin.it>
+Date: Thu, 14 Apr 2005 17:45:55 -0500
+From: "Franco \"Sensei\"" <senseiwa@tin.it>
+Reply-To: Sensei <senseiwa@tin.it>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041207 Thunderbird/1.0 Mnenhy/0.7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+CC: David Lang <dlang@digitalinsight.com>, Krzysztof Halasa <khc@pm.waw.pl>,
+       Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+Subject: Re: [INFO] Kernel strict versioning
+References: <200504142034.j3EKYqmS005113@laptop11.inf.utfsm.cl>
+In-Reply-To: <200504142034.j3EKYqmS005113@laptop11.inf.utfsm.cl>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig89AACFC4BF2B7F58D8CE564E"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 14, 2005 at 03:11:53PM -0700, Andy Isaacson wrote:
-> On Thu, Apr 14, 2005 at 12:53:52PM -0700, Matt Mackall wrote:
-> > On Thu, Apr 14, 2005 at 09:27:22PM +0200, Stefan Seyfried wrote:
-> > > Matt Mackall wrote:
-> > > > Any sensible solution here is going to require remembering passwords.
-> > > > And arguably anywhere the user needs encrypted suspend, they'll want
-> > > > encrypted swap as well.
-> > > 
-> > > But after entering the password and resuming, the encrypted swap is
-> > > accessible again and my ssh-key may be lying around in it, right?
-> > 
-> > No. Because it's been zeroed in the resume process.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig89AACFC4BF2B7F58D8CE564E
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Horst von Brand wrote:
+>>No I'm not confusing. As long as the .config has an influence on the 
+>>makefiles I get different symbols names.
 > 
-> Zeroing the entire swsusp region is a big job, especially if you want to
-> do it in a FIPS-conformant manner.  Hard to test that you've done it
-> right and not missed any bits.
+> Nope.
+
+I don't understand. The .config drives the kernel build, I don't get XFS 
+functions and names if I don't compile it. I have different symbol 
+names... At least, that's what I understand... and that's what 
+happens... Never the same names on different kernels.
+
+> And kernels compiled with one compiler are different than those compiled
+> with another. And if you have preemption they are different. Don't forget
+> about clasic i386 vs i486 vs ... vs i686 (spinlocks generate different
+> code!). Then let's consider memory split: 2/2, 3/1, 3.5/0.5, ... Now throw
+> in assorted debugging options. On some architectures you have several
+> possible (reasonable!) page sizes.
+
+Yes, ok.
+
+> Define "simple environment". Even Red Hat (they are /very/ interested in a
+> single kernel image, as it cuts down testing and bug tracking etc!) ships
+> half a dozen different kernels, tailored for different configurations. And
+> you'll find external modules (like for NTFS) compiled separately for each
+> of them.
+
+Yes, but as long as you keep with the same configuration, no problem 
+should arise in changing the kernel version.
+
+> Or having /your/ standard kernel on all 100 machines, compile once and copy
+> around. No need for /me/ to run your exact same configuration.
+
+I probably expressed myself badly. I don't mean anyone having the same 
+configuration... why on earth should it be?
+
+>>Source compatibility is there.
 > 
-> Much much easier to securely erase just the key storage.
+> Sort of.
+
+I hope! :)
+
+> And A doesn't have some options I'd like, and others you loathe.
+
+That's why you recompile, but why should you throw your other modules 
+not included in the kernel release?
+
+>>             creating the kernel with additions and patches, and 
+>>distributing them. Modules .A should work on .B,
 > 
-> And unless I'm missing something, you meant to say "it will have been
-> zeroed" (after the patch under discussion is merged), right?  The
-> current state of the art (as of 2.6.12-rc2) is that mlocked regions are
-> written to the swsusp region and may linger there indefinitely after
-> resume.
+> Iff nothing changes. That isn't usually the case.
 
-I was referring not to the current implementation but to an ideal
-solution. Which is:
+That's weird... why should things really change so drastically if the 
+external interface still remains the same? It's probably a matter of 
+abstraction...
 
-- use dm-crypt for swap and suspend
-- overwrite mlocked regions on resume
-- use per-boot session keys for the swap partition
-- password protect the session key on suspend
+> The problem is that giving that guarantee costs developer time and
+> flexibility. The gain (given that source for recompilation is freely
+> available) is so minuscule that the consensus is that it just isn't worth
+> any extra hassle /at all/.
 
-This doesn't have great FIPS-secure deletion properties if the
-attacker can steal the box after resume but while it's still running
-(though it's not too bad). As we currently have no solution for
-protecting the in-memory ssh-agent, as opposed to the one in the
-suspend image, this attack vector is not all that important.
+Ok.
 
-A much more likely vector is stealing the laptop while it's suspended.
-And the encrypted swsusp patch has -zero- security here: it writes the
-key in the header in the clear. It's rather odd that everyone's hung
-up on the "box rooted after resume" attack and completely ignoring the
-much more common "stole my laptop" attack.
+> And the decision to design thusly is completely conscicious, it is not a
+> random "it just turned out this way by mistake".
+> 
+>>I just see advantages on ABI, and I think it's not bad talking about it...
+> 
+> I see many disadvantages to ABI, and it wouldn't be bad to look at them too.
+
+I'd really like to know... I'm naive? Yes :) Of course, other than 
+``more work'', but technical disadvantages...
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+Sensei <mailto:senseiwa@tin.it> <pgp:8998A2DB>
+        <icqnum:241572242>
+        <yahoo!:sensei_sen>
+        <msn-id:sensei_sen@hotmail.com>
+
+--------------enig89AACFC4BF2B7F58D8CE564E
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCXvKm4LBKhYmYotsRAouoAJ46W3clMK7D9NgmJ/iYvhfhpX38PACfeLRf
+gO8+yMQgxqyM57NbG/SxZrg=
+=5Xam
+-----END PGP SIGNATURE-----
+
+--------------enig89AACFC4BF2B7F58D8CE564E--

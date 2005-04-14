@@ -1,48 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbVDNVKa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbVDNVPU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261570AbVDNVKa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 17:10:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbVDNVKa
+	id S261190AbVDNVPU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 17:15:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbVDNVPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 17:10:30 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:41172
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S261570AbVDNVKQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 17:10:16 -0400
-Reply-To: <abonilla@linuxwireless.org>
-From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
-To: "'Shawn Starr'" <shawn.starr@rogers.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Linux support for IBM ThinkPad Disk shock prevention update...
-Date: Thu, 14 Apr 2005 15:10:06 -0600
-Message-ID: <003801c54136$55bff4d0$9f0cc60a@amer.sykes.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
+	Thu, 14 Apr 2005 17:15:20 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:8164 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261190AbVDNVPR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 17:15:17 -0400
+Subject: Re: Linux support for IBM ThinkPad Disk shock prevention update...
+From: Lee Revell <rlrevell@joe-job.com>
+To: Shawn Starr <shawn.starr@rogers.com>
+Cc: linux-kernel@vger.kernel.org
 In-Reply-To: <200504141658.50135.shawn.starr@rogers.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-Importance: Normal
+References: <200504141658.50135.shawn.starr@rogers.com>
+Content-Type: text/plain
+Date: Thu, 14 Apr 2005 17:15:16 -0400
+Message-Id: <1113513316.19373.22.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2005-04-14 at 16:58 -0400, Shawn Starr wrote:
+> We just need to figure
+> out to get the specs from IBM 
 
->
-> Has anyone started on such a project or would like to? We
-> just need to figure
-> out to get the specs from IBM I think such support would be good.
->
-> Shawn.
-> -
+Best bet is probably reverse engineering it...
 
-I believe I have emailed IBM about 20 times about this, and have sent emails
-to the people from IBM Research and the same guys that did the Security chip
-Encryption project for Linux and they tried looking into it, but never heard
-really anything back. Maybe now that they are with Lenovo, they probably
-could release some more specs...
-
-- Alejandro
+Lee
 

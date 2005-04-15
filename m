@@ -1,76 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261755AbVDOHc0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbVDOHey@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261755AbVDOHc0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 03:32:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbVDOHc0
+	id S261759AbVDOHey (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 03:34:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbVDOHey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 03:32:26 -0400
-Received: from mailgw1.fraunhofer.de ([153.96.1.62]:30903 "EHLO
-	mailgw1.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S261755AbVDOHcU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 03:32:20 -0400
-Message-ID: <425F6E27.6040903@gmx.de>
-Date: Fri, 15 Apr 2005 09:32:55 +0200
-From: Andre Bender <andre.bender@gmx.de>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tomasz Chmielewski <mangoo@interia.pl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: poor SATA performance under 2.6.11 (with < 2.6.11 is OK)?
-References: <425E9902.8000804@interia.pl> <20050414165535.GA15440@irc.pl> <425EE9CF.4030202@interia.pl> <20050414223417.GA23013@shell0.pdx.osdl.net> <425F6C48.9060505@interia.pl>
-In-Reply-To: <425F6C48.9060505@interia.pl>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Fraunhofer-Email-Policy: accepted
+	Fri, 15 Apr 2005 03:34:54 -0400
+Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:24037 "EHLO
+	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S261759AbVDOHet convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 03:34:49 -0400
+Message-ID: <33007639.1113550489129.JavaMail.tomcat@pne-ps4-sn1>
+Date: Fri, 15 Apr 2005 09:34:49 +0200 (MEST)
+From: gabriel <gabriel.j@telia.com>
+Reply-To: gabriel <gabriel.j@telia.com>
+To: linux-kernel@vger.kernel.org
+Subject: Sv: RE: Booting from USB with initrd
+Mime-Version: 1.0
+Content-Type: text/plain;charset="ISO-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-Mailer: CP Presentation Server
+X-clientstamp: [83.227.221.136]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Um yes it is.
+How could I otherwise have booted far enough to get the panic?
+My boot partition is on the usb I cant boot from hard drive.
 
-Tomasz Chmielewski wrote:
-> 
-> OK so Tomasz Torch suggested that my drive was blacklisted somewhere
-> after 2.6.8.1 (it's the last kernel on which I have good performance).
-> 
-> Does drive blacklisting = very poor performance?
-> And no drive blacklisting = good performance, and possibly data corruption?
-> 
+----Ursprungligt meddelande----
+Från: Jason.Jones@monteith2.areur.army.mil
+Datum: Apr 15, 2005 9:29:06 AM
+Till: gabriel <gabriel.j@telia.com>
+Ärende: RE: Booting from USB with initrd
 
-That's what has already been told some posts ago. The kernel developers
-don't blacklist anything that works just for fun. There seems to be a
-serious problem when combining this pieces of hardware so the
-combination is blacklisted to get it working properly but with (much)
-less performance.
+Is USB even an option to boot off of in the BIOS?  How could the OS boot to
+something that isn't detected in the bios?  IMHO.
 
-cu
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of gabriel
+Sent: Friday, April 15, 2005 9:28 AM
+To: linux-kernel@vger.kernel.org
+Subject: Booting from USB with initrd
 
-- --
+Hi Im trying to boot an encrypted file system using an initrd on a USB. 
+I use syslinux for the actual boot process as I couldnt get Grub to boot
+of it for some reason. This is the .cfg
 
-- -----BEGIN GEEK CODE BLOCK-----
-Version: 3.1
-GCS d-(--) s++:-a- c++(++) UL+++(+) P--- L++ ! EW++ !N !o K? w--- O@ M?
-V? PS+
-PE- Y+ PGP+++ t+ 5++ X++ R+ tv+ b++ DI- D+ Ge+++ hr(-) y+(+)
-- ------END GEEK CODE BLOCK------
+ default vmlinuz
+ timeout 100
+ prompt 1
+ label linux
+ kernel vmlinuz
+ append initrd=/initrd.gz root=/dev/ram0 rootfstype=minix init=/linuxrc
 
-They say that when you play a Microsoft CD backwards you can hear
-demonic voices...
-But that's nothing - When you play it forwards it installs Windows
+As far as I can tell this should load the initrd but that never happens.
+Everything seems to boot fine. Syslinux loads the kernel and I get to 
+the point where initrd should be mounted only to get this error.
 
-- -------------------------------
+Kernel panic - not syncing: VFS: Unable to mount root fs on
+unknown-block(1,0)
+followed by the USB information and stop.
+<5> Vendor SWISSBIT Mode: Victorinox 2.0 Rev 2.00
+Type Direct-Access ANSI SCSI Revision: 02
+SCSI device sdb: 1022720 512 byte hdwr sectors (524mb)
+sdb: Write Protect is off
+sdb: asuming driver cache: write-through
 
-My public key can be found at
-     http://www.keyserver.net
-my fingerprint is
-     302C FD91 2CE0 487E E086 EEBC D8D9 2865 E32F 4D56
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (MingW32)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+I have support for minix, vfat, ext2 and ext3 in the kernel. I have
+recompiled the 
+kernel 
+like 20 times to test different things. So what Im thinking is that the 
+USB device doesn't 
+get realized before syslinux tries to load it?
 
-iD8DBQFCX24m29koZeMvTVYRAharAJ4r4aCCuDNt+B0zjv88tGgOEQIGMACgsVYm
-xibnwIYSV+8LUcnXaMImorE=
-=NHfy
------END PGP SIGNATURE-----
+Oh I do have the ramdisk in the kernel and everything.
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+

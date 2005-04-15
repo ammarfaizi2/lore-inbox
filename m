@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262327AbVDOXgj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262332AbVDOXgt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262327AbVDOXgj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 19:36:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262332AbVDOXgf
+	id S262332AbVDOXgt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 19:36:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbVDOXgt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 19:36:35 -0400
-Received: from mail-in-09.arcor-online.net ([151.189.21.49]:17338 "EHLO
-	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262327AbVDOXge (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 19:36:34 -0400
-From: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
-	<7eggert@gmx.de>
-Subject: Re: [SATA] status reports updated
-To: 7eggert@gmx.de, Tomasz Chmielewski <mangoo@interia.pl>,
-       Andre Tomt <andre@tomt.net>, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Sat, 16 Apr 2005 01:36:05 +0200
-References: <3THXg-6HX-5@gated-at.bofh.it> <3THXg-6HX-7@gated-at.bofh.it> <3THXg-6HX-9@gated-at.bofh.it> <3THXg-6HX-11@gated-at.bofh.it> <3THXg-6HX-3@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1DMaM1-0001WQ-C6@be1.7eggert.dyndns.org>
+	Fri, 15 Apr 2005 19:36:49 -0400
+Received: from fmr21.intel.com ([143.183.121.13]:51144 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262332AbVDOXgp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 19:36:45 -0400
+Date: Fri, 15 Apr 2005 16:36:33 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, mingo@elte.hu,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] sched: fix sched domain degenerate
+Message-ID: <20050415163633.C7296@unix-os.sc.intel.com>
+References: <20050413192616.A28163@unix-os.sc.intel.com> <425FBB98.2000200@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <425FBB98.2000200@yahoo.com.au>; from nickpiggin@yahoo.com.au on Fri, Apr 15, 2005 at 11:03:20PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org> wrote:
-> Tomasz Chmielewski <mangoo@interia.pl> wrote:
+On Fri, Apr 15, 2005 at 11:03:20PM +1000, Nick Piggin wrote:
+> Index: linux-2.6/kernel/sched.c
+> ===================================================================
+> --- linux-2.6.orig/kernel/sched.c	2005-04-15 22:52:25.000000000 +1000
+> +++ linux-2.6/kernel/sched.c	2005-04-15 22:58:54.000000000 +1000
+> @@ -4844,7 +4844,14 @@ static int __devinit sd_parent_degenerat
+>  	/* WAKE_BALANCE is a subset of WAKE_AFFINE */
+>  	if (cflags & SD_WAKE_AFFINE)
+>  		pflags &= ~SD_WAKE_BALANCE;
+> -	if ((~sd->flags) & parent->flags)
+> +	/* Flags needing groups don't count if only 1 group in parent */
+> +	if (parent->groups == parent->groups->next) {
+> +		pflags &= ~(SD_LOAD_BALANCE |
+> +				SD_BALANCE_NEWIDLE |
+> +				SD_BALANCE_FORK |
+> +				SD_BALANCE_EXEC);
+> +	}
 
->> Is there a way to check what firmware a drive has
-> 
-> The obvious one: hdparm
+This patch works fine and I like this fix. But should n't we be adding 
+SD_WAKE_AFFINE and SD_WAKE_BALANCE to this list?
 
-<Ingrid>
-Or, since hdparm doesn't work for SCSI devices,
-cat /sys/block/sd$n/device/rev
+And about SD_BALANCE_FORK, now that we have multi level sbe/sbf, we should 
+add this flag to SD_CPU/SIBLING_INIT too..
 
-(might depend on the vendor)
--- 
-Funny quotes:
-21. Support bacteria - they're the only culture some people have.
-
-Friﬂ, Spammer: admin@outplay986biz.us 4FMe@vDkmGd.7eggert.dyndns.org
+thanks,
+suresh

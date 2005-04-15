@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbVDOTPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261936AbVDOTRP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261929AbVDOTPn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 15:15:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbVDOTPn
+	id S261936AbVDOTRP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 15:17:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVDOTRP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 15:15:43 -0400
-Received: from wproxy.gmail.com ([64.233.184.206]:4750 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261929AbVDOTPg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 15:15:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=kX5QfQJMwllUeS2pEDbOcbFXlNCazODT7S83uwVZbYPo6BgBm2HFk4w/+r9SrkdueB8DR6jz2gTsAx2rot4U499OuG/Ito42RpBpgMaF0w2G2Vvzokq1TKv3nF/OBTzF5KVwZKWwH65R+b+s1ha/z4JBbBL0gCoffzDdGat4Qmg=
-Message-ID: <17d7988050415121537c8fac1@mail.gmail.com>
-Date: Fri, 15 Apr 2005 19:15:36 +0000
-From: Allison <fireflyblue@gmail.com>
-Reply-To: Allison <fireflyblue@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Rootkits
+	Fri, 15 Apr 2005 15:17:15 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:25823 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id S261931AbVDOTQl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 15:16:41 -0400
+Date: Fri, 15 Apr 2005 21:16:39 +0200
+From: Petr Baudis <pasky@ucw.cz>
+To: Tom.Duffy@Sun.COM
+Cc: Maciej Soltysiak <solt2@dns.toxicfilms.tv>, linux-kernel@vger.kernel.org
+Subject: Re: Re: where is current kernel ?
+Message-ID: <20050415191639.GD7417@pasky.ji.cz>
+References: <186538393.20050415133345@dns.toxicfilms.tv> <20050415190955.GC7417@pasky.ji.cz> <f873ca1c3f12.425fb044@bos-mail1.sfbay.sun.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <f873ca1c3f12.425fb044@bos-mail1.sfbay.sun.com>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Isn't the kernel code segment marked read-only ? How can the module
-write into the function text in the kernel ? Shouldn't this cause some
-kind of protection fault ?
+Dear diary, on Fri, Apr 15, 2005 at 09:15:00PM CEST, I got a letter
+where Tom.Duffy@Sun.COM told me that...
+> From: Petr Baudis <pasky@ucw.cz>
+> > Linus stopped merging stuff to his kernel for few days in order to
+> > develop his (at least temporary) alternative to BK, called "git".
+> > See the mailing list archives for details.
+> 
+> I have received many GIT commits recently to the old bk-commits mailing list.
 
-thanks,
-Allison
+And they are clearly marked as "GIT testing". It isn't nothing official
+and they can go away randomly - they are mainly for testing git and they
+are not guaranteed to stay around. :-)
 
-Lee Revell wrote:
-> On Fri, 2005-04-15 at 18:15 +0000, Allison wrote:
-> > Once these are loaded into the kernel, is there no way the kernel
-> > functions can be protected ?
-> 
-> No.  If the attacker can load arbitrary code into the kernel, game over.
-> Think about it.
-> 
-> Lee
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+C++: an octopus made by nailing extra legs onto a dog. -- Steve Taylor

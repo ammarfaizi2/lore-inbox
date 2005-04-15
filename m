@@ -1,79 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261899AbVDOSfq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261918AbVDOSh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261899AbVDOSfq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 14:35:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbVDOSfc
+	id S261918AbVDOSh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 14:37:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261921AbVDOSfy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 14:35:32 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:44510 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S261922AbVDOSdb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 14:33:31 -0400
-Date: Fri, 15 Apr 2005 20:33:27 +0200
-From: Petr Baudis <pasky@ucw.cz>
+	Fri, 15 Apr 2005 14:35:54 -0400
+Received: from wproxy.gmail.com ([64.233.184.200]:64599 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261893AbVDOSeb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 14:34:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=J7PFtV5gwhqjSPKfB7HzvfatzVMfEmDauIfqrgyXRqXzUoiCEjAxW16oABdujEUcKzBWg8Adi9J5Ie89lZXqYGq60lPqw2FruJfkn7+S4EzW5HlDw2wfRLA+FTdHHdchcK0spb4cp+aJ089m5JW6dF9xDGXPiQfywl99pG7n++4=
+Message-ID: <e1e1d5f405041511342af714c1@mail.gmail.com>
+Date: Fri, 15 Apr 2005 11:34:29 -0700
+From: Daniel Souza <thehazard@gmail.com>
+Reply-To: Daniel Souza <thehazard@gmail.com>
 To: Allison <fireflyblue@gmail.com>
+Subject: Re: Kernel Rootkits
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: Kernel Rootkits
-Message-ID: <20050415183327.GA7422@pasky.ji.cz>
-References: <17d79880504151115744c47bd@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <17d79880504151115744c47bd@mail.gmail.com>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <17d79880504151115744c47bd@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Fri, Apr 15, 2005 at 08:15:37PM CEST, I got a letter
-where Allison <fireflyblue@gmail.com> told me that...
-> hi,
+In fact, LKM's are not the unique way to make code run in kernel. In
+fact, we can install a kernel rootkit even when LKM support is
+disabled. For example, by patching the kernel memory, you can modify
+the behavior of kernel on-the-fly without restart the machine, just
+inserting code in the right memory addresses (generally writing to
+/dev/mem or /dev/kmem or using another methods like set a userspace
+memory limit to KERNEL_DS and write to addressable kernel memory. You
+can also insert code into existing kernel modules (for example, your
+NIC driver) to be executed when the kernel shuts up). LKMs have the
+advantage of relocation (i.e., the kernel's internal function adresses
+are "readressed" to fit the existent function addresses and a call to
+printk will point to the start of printk function at kernel memory).
+Inject executable code at kernel memory can be done without LKM
+support, but also, is not automatically relocated. There are some
+tricks to make injected code work fine like use only non-global
+variables and allocate needed memory space in the stack, or made a
+hard relocation of binary code to be injected before the injection,
+etc.
 
-Hello,
-
-> I got the terminology mixed up. I guess what I really want to know is,
-> what are the different types of exploits by which rootkits
-> (specifically the ones that modify the kernel) can get installed on
-> your system.(other than buffer overflow and somebody stealing the root
-> password)
-> 
-> I know that SucKIT is a rootkit that gets loaded as a kernel module
-> and adds new system calls. Some other rootkits change machine
-> instructions in several kernel functions.
-
-I think you are still confused. You are mixing two things:
-
-(1) Getting enough access to the machine to load the rootkit
-
-(2) Loading the rootkit smart enough to slip any detectors
-
-The first part basically involves getting root access to the machine.
-This is so broad area that it is out of scope of this mail, I guess, but
-innumerable types of vulnerabilities exist, ranging from silly bugs in
-programs running as root, to in-kernel bugs which let you elevate your
-permissions from a regular user to superuser (root).
-
-The second part is very broad too, I think you would be better off by
-doing some research on your own - there are plenty of resources on the
-net w.r.t. this. (I hope you are asking only in order to defend
-yourself! ;-) Basically, rootkits can range from a set of
-custom-tailored binaries like ps and ls which will hide the cracker's
-files from you, to linux kernel modules which the attacker will load as
-a regular kernel module, but which will then usually hide itself and
-then again hide the cracker's files from you, only better. These are
-already kind of old-fashioned now, though. E.g. the SucKIT rootkit
-installs itself to the kernel by bypassing the traditional kernel module
-installing mechanism and writing itself directly to the memory,
-overriding certain kernel structures and therefore taking control over
-it.
-
-> Once these are loaded into the kernel, is there no way the kernel
-> functions can be protected ?
-
-once they are in the kernel, they can do anything they want. That's the
-point of being in the kernel, after all.
+Google for things like "suckit". phrack is also a good start.
 
 -- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-C++: an octopus made by nailing extra legs onto a dog. -- Steve Taylor
+# (perl -e "while (1) { print "\x90"; }") | dd of=/dev/evil

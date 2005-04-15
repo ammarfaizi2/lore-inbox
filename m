@@ -1,56 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261885AbVDOSKS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261891AbVDOSLe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261885AbVDOSKS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 14:10:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbVDOSKQ
+	id S261891AbVDOSLe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 14:11:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbVDOSLa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 14:10:16 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:38341 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261885AbVDOSIQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 14:08:16 -0400
-Subject: Re: Kernel Rootkits
-From: Lee Revell <rlrevell@joe-job.com>
-To: "Malita, Florin" <Florin.Malita@Glenayre.com>
-Cc: linux-os@analogic.com, Allison <fireflyblue@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1113586421.26941.121.camel@scox.glenatl.glenayre.com>
-References: <1113586421.26941.121.camel@scox.glenatl.glenayre.com>
-Content-Type: text/plain
-Date: Fri, 15 Apr 2005 14:08:14 -0400
-Message-Id: <1113588494.23659.9.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	Fri, 15 Apr 2005 14:11:30 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61830 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261891AbVDOSLU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 14:11:20 -0400
+Message-ID: <42600375.9080108@pobox.com>
+Date: Fri, 15 Apr 2005 14:09:57 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [SATA] status reports updated
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Warning: 24.25.22.197 is listed at orbz.gst-group.uk.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-04-15 at 13:33 -0400, Malita, Florin wrote:
-> On Fri, 2005-04-15 at 13:16 -0400, Richard B. Johnson wrote:
-> > I'm not sure there really are any "kernel" rootkits. You need to be 
-> > root to install a module and you need to be root to replace a kernel 
-> > with a new (possibly altered) one. If you are root, you don't 
-> > need an exploit.
-> 
-> rootkit != exploit
-> 
-> The exploit is used to gain root privileges while the rootkit is used
-> after that to install & hide backdoors, sniffers, keyloggers etc.
-> 
-> http://en.wikipedia.org/wiki/Rootkit
-> 
 
-"Rootkit" is sometimes used to refer to the all-in-one bundle, that
-contains the exploit and the tools the attacker installs once they are
-in.
+My Linux SATA software/hardware status reports have just been updated. 
+To see where libata (SATA) support stands for a particular piece of 
+hardware, or a particular feature, go to
 
-OT: the dumbest rootkit I ever came across came from someone who cracked
-one of our nameservers via an openssh hole.  They were careful to
-replace netstat, ps, etc but apparently didn't know about lsof, which
-was the first thing I tried of course.  Then they hid the old binaries
-in a subdirectory of /dev (because no one would ever look there).
-Thanks to the "l33t skillz" of the author, I didn't even have to wipe
-the machine to recover it.
+	http://linux.yyz.us/sata/
 
-Lee
+I've still got several patches from EMC (Brett) and IBM (Albert) to go 
+through, as well as a few scattered ones from random authors.
+
+I'm still working in BitKeeper for the time being.
+
+	Jeff
+
+
 

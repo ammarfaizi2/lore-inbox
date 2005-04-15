@@ -1,40 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261926AbVDOTPI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbVDOTPn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261926AbVDOTPI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 15:15:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbVDOTPI
+	id S261929AbVDOTPn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 15:15:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbVDOTPn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 15:15:08 -0400
-Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:46500 "EHLO
-	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
-	id S261926AbVDOTPF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 15:15:05 -0400
-Date: Fri, 15 Apr 2005 12:15:00 -0700
-From: Tom.Duffy@Sun.COM
-Subject: Re: where is current kernel ?
-In-reply-to: <20050415190955.GC7417@pasky.ji.cz>
-To: Petr Baudis <pasky@ucw.cz>
-Cc: Maciej Soltysiak <solt2@dns.toxicfilms.tv>, linux-kernel@vger.kernel.org
-Reply-to: Tom.Duffy@Sun.COM
-Message-id: <f873ca1c3f12.425fb044@bos-mail1.sfbay.sun.com>
-MIME-version: 1.0
-X-Mailer: Sun Java(tm) System Messenger Express 6.2 HotFix 0.05 (built Jan 10
- 2005)
-Content-type: text/plain; charset=us-ascii
-Content-language: en
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-X-Accept-Language: en
-References: <186538393.20050415133345@dns.toxicfilms.tv>
- <20050415190955.GC7417@pasky.ji.cz>
+	Fri, 15 Apr 2005 15:15:43 -0400
+Received: from wproxy.gmail.com ([64.233.184.206]:4750 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261929AbVDOTPg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 15:15:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=kX5QfQJMwllUeS2pEDbOcbFXlNCazODT7S83uwVZbYPo6BgBm2HFk4w/+r9SrkdueB8DR6jz2gTsAx2rot4U499OuG/Ito42RpBpgMaF0w2G2Vvzokq1TKv3nF/OBTzF5KVwZKWwH65R+b+s1ha/z4JBbBL0gCoffzDdGat4Qmg=
+Message-ID: <17d7988050415121537c8fac1@mail.gmail.com>
+Date: Fri, 15 Apr 2005 19:15:36 +0000
+From: Allison <fireflyblue@gmail.com>
+Reply-To: Allison <fireflyblue@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Rootkits
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Petr Baudis <pasky@ucw.cz>
-> Linus stopped merging stuff to his kernel for few days in order to
-> develop his (at least temporary) alternative to BK, called "git".
-> See the mailing list archives for details.
+Isn't the kernel code segment marked read-only ? How can the module
+write into the function text in the kernel ? Shouldn't this cause some
+kind of protection fault ?
 
-I have received many GIT commits recently to the old bk-commits mailing list.
+thanks,
+Allison
 
--tduffy
+Lee Revell wrote:
+> On Fri, 2005-04-15 at 18:15 +0000, Allison wrote:
+> > Once these are loaded into the kernel, is there no way the kernel
+> > functions can be protected ?
+> 
+> No.  If the attacker can load arbitrary code into the kernel, game over.
+> Think about it.
+> 
+> Lee
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

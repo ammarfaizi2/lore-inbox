@@ -1,90 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261729AbVDODWg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261730AbVDODZ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261729AbVDODWg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 23:22:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbVDODWc
+	id S261730AbVDODZ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 23:25:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbVDODZ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 23:22:32 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:61834
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S261729AbVDODWZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 23:22:25 -0400
-Message-ID: <425F33E4.1070303@linuxwireless.org>
-Date: Thu, 14 Apr 2005 22:24:20 -0500
-From: Alejandro Bonilla <abonilla@linuxwireless.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Shawn Starr <shawn.starr@rogers.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux support for IBM ThinkPad Disk shock prevention update...
-References: <200504141658.50135.shawn.starr@rogers.com>	 <1113513316.19373.22.camel@mindpipe>	 <20050414224215.M94640@linuxwireless.org> <1113519832.19830.20.camel@mindpipe>
-In-Reply-To: <1113519832.19830.20.camel@mindpipe>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 14 Apr 2005 23:25:28 -0400
+Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:59261 "HELO
+	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261730AbVDODZY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 23:25:24 -0400
+Subject: Re: [PATCH] sched: fix never executed code due to expression
+	always false
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>, Ingo Molnar <mingo@elte.hu>, rml@tech9.net,
+       torvalds@osdl.org, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <E1DMH3H-0006Jg-00@gondolin.me.apana.org.au>
+References: <E1DMH3H-0006Jg-00@gondolin.me.apana.org.au>
+Content-Type: text/plain
+Date: Fri, 15 Apr 2005 13:25:20 +1000
+Message-Id: <1113535520.6517.18.camel@npiggin-nld.site>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-05-04-14 at 16:58 -0400, Shawn Starr wrote:
+On Fri, 2005-04-15 at 12:59 +1000, Herbert Xu wrote:
+> Jesper Juhl <juhl-lkml@dif.dk> wrote:
+> >
+> > -               if (unlikely((long long)now - prev->timestamp < 0))
+> > +               if (unlikely(((long long)now - (long long)prev->timestamp) < 0))
+> 
+> You can write this as
+> 
+> (long long)(now - prev->timestamp)
+> 
 
->>>>We just need to figure
->>>>out to get the specs from IBM
->>>>        
->>>>
->>>Best bet is probably reverse engineering it...
->>>      
->>>
->> 
->>Lee, 
->>
->>I know this is far from easy... but, What do we need to do this? I haven't
->>seen such a cooler feature in a Thinkpad like the HDAPS. (Well, maybe the
->>fingerprint reader) But, how can we / I help, if this is ever done?
->>
->>    
->>
->
->Please see:
->
->http://dxr3.sourceforge.net/re.html
->
->I have discovered several previously unknown emu10k1 hardware features
->using this procedure to reverse engineer the Windows drivers, including
->a per channel half loop interrupt, and added support to the Linux driver
->for some of them.
->
->It may be much easier to find the read and write register subroutines
->than in the above guide.  The Windows driver I was working with had
->exactly one subroutine that used the inb, inl, inw, outb, outw, outl
->instructions, so it was trivial to set breakpoints to log all the port
->I/O.  I later found it was even easier, the version of SoftIce I was
->using allows you to set I/O breakpoints, so all you need to start
->logging the register activity is the port.
->
->I had a little trouble loading the IDA symbols into SoftICE at first,
->just because the first few scripts I found on the net didn't work.
->
->Some devices use memory mapped IO, I have no idea how you would RE
->these.  Maybe someone else has some pointers?
->
->Lee
->  
->
+True. Combined that with Matt's suggestion, and we probably have
+the cleanest solution. Thanks.
 
-The only thing I got back from IBM was:
 
-       Please be advised, that the e-mail forum you
-       have reached is provided for non-technical
-       support and web registration issues of IBM.
-       ave reached is provided for non-technical
 
-       Please send your research proposal to IBM at
-       T.J Watson Research Center at 914-945-3167.
-
-I don't think I'm l33t enough like to call there and discuss for what we 
-are looking for. Also they will probably tell me, " Ahh, well we 
-currenly don't want to release anything because of legal issue" (Like I 
-was already told)
-
-- Alejandro

@@ -1,48 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbVDOBOM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbVDOBT7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261704AbVDOBOM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 21:14:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbVDOBOM
+	id S261705AbVDOBT7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 21:19:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbVDOBT7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 21:14:12 -0400
-Received: from wproxy.gmail.com ([64.233.184.205]:57110 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261704AbVDOBOJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 21:14:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jMzEk8bsso2s7HNniC8BXWVRm1uZRq9WHpDE+GBoFuCT4V7AmVOBW2d5huO/xjN3eFpirfcUoW6jcqXuiUTa+djYeh/MdGzrQZJzwBBvVcCV867io9IETuzCF2WKI1UzXgjcN/V0xe0yIOWot7Cn85X928myJDfuX1QX1VkHaVU=
-Message-ID: <c26b95920504141814722cb5ed@mail.gmail.com>
-Date: Fri, 15 Apr 2005 06:44:06 +0530
-From: Imanpreet Arora <imanpreet@gmail.com>
-Reply-To: Imanpreet Arora <imanpreet@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Question On TSS
-In-Reply-To: <c26b959205041417163acf174@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <c26b959205041417163acf174@mail.gmail.com>
+	Thu, 14 Apr 2005 21:19:59 -0400
+Received: from downeast.net ([204.176.212.2]:60406 "EHLO downeast.net")
+	by vger.kernel.org with ESMTP id S261705AbVDOBT5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 21:19:57 -0400
+From: Patrick McFarland <pmcfarland@downeast.net>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: alsa es1371's joystick functionality broken in 2.6.11-mm4
+Date: Thu, 14 Apr 2005 21:18:59 -0400
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <200503201557.58055.pmcfarland@downeast.net> <200503302359.39200.pmcfarland@downeast.net> <200504070717.34113.pmcfarland@downeast.net>
+In-Reply-To: <200504070717.34113.pmcfarland@downeast.net>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2005090.hLGWua6RhM";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200504142119.04527.pmcfarland@downeast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Never mind, I was missing something really simple.
+--nextPart2005090.hLGWua6RhM
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
+On Thursday 07 April 2005 07:17 am, Patrick McFarland wrote:
+> Nope, 2.6.7 is also fubar. Now to 2.6.6.
 
+I haven't tested 2.6.6 yet, but 2.6.12-rc2-mm3 is broken too.
 
-On 4/15/05, Imanpreet Arora <imanpreet@gmail.com> wrote:
-> Hello,
-> 
-> I am a bit confused about the TSS. The documentation says that it
-> includes 3 fields SS0, SS1 and SS2 for privilige levels 0, 1, 2
-> respectively. And are set up when a task is first created, I can't
-> figure out why these fields are necessary. I think that these fileds
-> are necessary when we have moved from PL 3 to PL0 and these would
-> contain information about upper 3 stacks so that information can be
-> retrived.
+=2D-=20
+Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
+e'd=20
+all be running around in darkened rooms, munching magic pills and listening=
+ to
+repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
 
--- 
+--nextPart2005090.hLGWua6RhM
+Content-Type: application/pgp-signature
 
-Imanpreet Singh Arora
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBCXxaI8Gvouk7G1cURAhTnAJwIxof7/XXQ5qgHX9NZq4JkTcv0+wCfe2AL
+O0VCzOMLVQKNPNrOVL55zgY=
+=AZbL
+-----END PGP SIGNATURE-----
+
+--nextPart2005090.hLGWua6RhM--

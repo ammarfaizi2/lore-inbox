@@ -1,41 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbVDOAS7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbVDOAV1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261681AbVDOAS7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 20:18:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261676AbVDOARl
+	id S261677AbVDOAV1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 20:21:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbVDOATY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 20:17:41 -0400
-Received: from wproxy.gmail.com ([64.233.184.206]:52355 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261677AbVDOAQ2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 20:16:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=XIVzeq1rShxR7DlemsfSSJQB/ys3fw+as8cGpTnGdRqPem9uKrcFffAHBAiH9m3edWiSHxgSWwd5YhtktyI2gzXak7jJ+RzS5WetWyURooPgVLfyiAnt7EMHOjPY3ATliSyTFlZQDIkUnl+JgHV17eN/mEL8ENUAAphQxhzbgxg=
-Message-ID: <c26b959205041417163acf174@mail.gmail.com>
-Date: Fri, 15 Apr 2005 05:46:22 +0530
-From: Imanpreet Arora <imanpreet@gmail.com>
-Reply-To: Imanpreet Arora <imanpreet@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Question On TSS
+	Thu, 14 Apr 2005 20:19:24 -0400
+Received: from mail.zmailer.org ([62.78.96.67]:8656 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id S261677AbVDOARv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 20:17:51 -0400
+Date: Fri, 15 Apr 2005 03:17:47 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: abonilla <abonilla@linuxwireless.org>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>, linux-kernel@vger.kernel.org
+Subject: Re: IBM Thinkpad T42 - Looking for a Developer.
+Message-ID: <20050415001747.GO3858@mea-ext.zmailer.org>
+References: <003901c54136$6ba545c0$9f0cc60a@amer.sykes.com> <Pine.LNX.4.62.0504142317480.3466@dragon.hyggekrogen.localhost> <20050414223641.M49815@linuxwireless.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20050414223641.M49815@linuxwireless.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, Apr 14, 2005 at 06:40:16PM -0400, abonilla wrote:
+> On Thu, 14 Apr 2005 23:20:19 +0200 (CEST), Jesper Juhl wrote
+> > >  This is located in my home PC, Won't be the fastest downloads...
+> > >  
+> > >  http://wifitux.com/finger/
+> > >  
+> > Under what terms did you obtain these documents and from where? Are 
+> > they completely freely distributable or are there strings attached?
+> 
+> I emailed the guys and they told me, "Hey, here you go, let me know if you
+> want more information"
 
-I am a bit confused about the TSS. The documentation says that it
-includes 3 fields SS0, SS1 and SS2 for privilige levels 0, 1, 2
-respectively. And are set up when a task is first created, I can't
-figure out why these fields are necessary. I think that these fileds
-are necessary when we have moved from PL 3 to PL0 and these would
-contain information about upper 3 stacks so that information can be
-retrived.
+Those documents and files are downloadable also from   www.upek.com
+They are rather scattered out there, but still...
 
--- 
+In Linux environment we do need to define and implement our own
+interface to the the device.  There is  BioAPI (www.bioapi.org)
+interface specification, but that is rather high up in the application
+stack.  (There exists also NIST written Linux version at that site,
+and it seems to be "BSD with advertisement clause" licensed...)
 
-Imanpreet Singh Arora
+My reading so far seems to indicate, that this is mostly doable
+in the application space without needing kernel space drivers.
+
+Implementing BioAPI interface library with device specific backends
+(much in the same manner as SANE works) is the way, I do think.
+To how large an extent the existing source code can be used
+in this is so far unknown.
+
+To be able to do the device specific backends, I do need to have
+the detailed USB interface protocol descriptions, not just a windows
+library binary wrapping them up into BioAPI.   I can handle NDA 
+documents as long as the resulting source code into Linux (and any
+other UNIX-like system capable to use it) can be published.
+
+> > -- 
+> > Jesper
+
+/Matti Aarnio

@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbVDOSlx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261927AbVDOSo1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261920AbVDOSlx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 14:41:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbVDOSk2
+	id S261927AbVDOSo1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 14:44:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbVDOSmU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 14:40:28 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:32659 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S261893AbVDOShm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 14:37:42 -0400
-Date: Fri, 15 Apr 2005 14:37:38 -0400
+	Fri, 15 Apr 2005 14:42:20 -0400
+Received: from wproxy.gmail.com ([64.233.184.192]:26545 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261893AbVDOSlA convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 14:41:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=japRbWaK6ClkoRCZg1l6MhCjEgVpCoz2SybHyKNIMrSf+2aAQjxkW7Vcs+csibPkznZOIz8uRTtDrX/0B6l3dwuGkAhN6pb6BVWCJE85a39shDRgvdAsUm5V3ZkQEdFTdk0/4NHAHOneyKy8P9TQHMG7aPi9/h7pOyf1wm7An80=
+Message-ID: <e1e1d5f40504151140411a3387@mail.gmail.com>
+Date: Fri, 15 Apr 2005 11:40:57 -0700
+From: Daniel Souza <thehazard@gmail.com>
+Reply-To: Daniel Souza <thehazard@gmail.com>
 To: Allison <fireflyblue@gmail.com>
-Cc: linux-kernel@vger.kernel.org
 Subject: Re: Kernel Rootkits
-Message-ID: <20050415183738.GR17865@csclub.uwaterloo.ca>
-References: <17d79880504151115744c47bd@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Cc: linux-kernel@vger.kernel.org
 In-Reply-To: <17d79880504151115744c47bd@mail.gmail.com>
-User-Agent: Mutt/1.3.28i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <17d79880504151115744c47bd@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 15, 2005 at 06:15:37PM +0000, Allison wrote:
-> I got the terminology mixed up. I guess what I really want to know is,
-> what are the different types of exploits by which rootkits
-> (specifically the ones that modify the kernel) can get installed on
-> your system.(other than buffer overflow and somebody stealing the root
-> password)
-> 
-> I know that SucKIT is a rootkit that gets loaded as a kernel module
-> and adds new system calls. Some other rootkits change machine
-> instructions in several kernel functions.
-> 
-> Once these are loaded into the kernel, is there no way the kernel
-> functions can be protected ?
+PS: suckit is not loaded as a kernel module. it uses interrupt gates
+to allocate kernel memory and install itself in that memory block,
+patching some syscalls and doing other stuffs.
 
-Well you could build a monilithic kernel with module loading turned off
-entirely, but that doesn't prevent replacing libc which most programs
-use to make those system calls.  Could make the filesystem readonly,
-that would prevent writing a module to load into the kernel, and
-replacing libc as long as you make it imposible to remount the
-filesystem at all.
+A way to "protect" system calls is, after boot a trusted kernel image,
+take a MD5 of the syscalls functions implementations (the opcodes that
+are part of sys_read for example) and store it in a secure place. To
+verify the integrity of system calls, we can check the current
+checksum with the stored ones. Of course, there are other ways to trap
+syscalls and hook the system instead of just replace the syscall table
+or add JMPs to the start of functions implementation. In that way,
+everytime somebody will find another way to trick the system and
+bypass this 'protection'.
 
-Len Sorensen
+-- 
+# (perl -e "while (1) { print "\x90"; }") | dd of=/dev/evil

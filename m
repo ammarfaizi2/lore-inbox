@@ -1,141 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261738AbVDOGNt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261744AbVDOG1O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261738AbVDOGNt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 02:13:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbVDOGNt
+	id S261744AbVDOG1O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 02:27:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261745AbVDOG1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 02:13:49 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:32447 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261738AbVDOGNn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 02:13:43 -0400
-Message-ID: <425F5BA3.3050001@in.ibm.com>
-Date: Fri, 15 Apr 2005 11:43:55 +0530
-From: Hariprasad Nellitheertha <hari@in.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: ak@muc.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [RFC][x86_64] Introducing the memmap= kernel command line option
-Content-Type: multipart/mixed;
- boundary="------------060305020503030206030308"
+	Fri, 15 Apr 2005 02:27:13 -0400
+Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:18664 "EHLO
+	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
+	id S261744AbVDOG1G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 02:27:06 -0400
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <b86e6e6214dbc3ebe14bf1ec472a1202@cs.stanford.edu>
+Content-Transfer-Encoding: 7bit
+Cc: Bryan Fulton <bryan@coverity.com>, mc@cs.stanford.edu
+From: Ted Kremenek <kremenek@cs.stanford.edu>
+Subject: [CHECKER] possible missing capability check in ioctl function, drivers/net/cris/eth_v10.c, kernel 2.6.11
+Date: Thu, 14 Apr 2005 23:27:01 -0700
+To: linux-kernel@vger.kernel.org
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060305020503030206030308
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Hello,
 
-Hi Andi,
+I'm a researcher in the Stanford Metacompilation group.  I am 
+collaborating with Bryan Fulton at Coverity on using static analysis to 
+find capability related security errors.  We're currently looking into 
+creating a checker using statistical analysis to detect improper or 
+missing capability checks in the Linux kernel.
 
-In order to port kdump to x86_64, we need to have the 
-memmap= kernel command line option available. This is so 
-that the dump-capture kernel can be booted with a custom 
-memory map.
+Here's an example of what we think might be a bug (kernel version 
+2.6.11):
 
-The attached patch adds the memmap= functionality to the 
-x86_64 kernel. It is against 2.6.12-rc2-mm3. I have done 
-some amount of testing and it is working fine.
+In several network drivers that handle the ioctl command SIOCSMIIREG 
+(writes a register on the network card) most implementations check for 
+the CAP_NET_ADMIN capability.  Several drivers use the function 
+"generic_mii_ioctl" to process this command (defined in 
+drivers/net/mii.c).  In mii.c, we see:
 
-Could you kindly review this patch and let me know your 
-thoughts on it.
+line 291
+	case SIOCSMIIREG: {
+		u16 val = mii_data->val_in;
 
-Thanks and Regards,
-Hari
+		if (!capable(CAP_NET_ADMIN))
+			return -EPERM;
 
---------------060305020503030206030308
-Content-Type: text/plain;
- name="x8664-memmap-command-line-option.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="x8664-memmap-command-line-option.patch"
+		if (mii_data->phy_id == mii_if->phy_id) {
+			switch(mii_data->reg_num) {
+			case MII_BMCR: {
+...
 
+Here the capability check is clearly executed before any state is 
+modified.
 
-This patch adds the 'memmap=' kernel command line option for the
-x86_64 kernel.
+In drivers/net/cris/eth_v10.c, the capability check is elided in 
+e100_ioctl:
 
-Signed-off-by: Hariprasad Nellitheertha <hari@in.ibm.com>
----
+static int
+e100_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+{
+	struct mii_ioctl_data *data = if_mii(ifr);
+	struct net_local *np = netdev_priv(dev);
 
- linux-2.6.12-rc2-hari/Documentation/kernel-parameters.txt |    2 -
- linux-2.6.12-rc2-hari/arch/x86_64/kernel/e820.c           |   25 ++++++++++++++
- linux-2.6.12-rc2-hari/arch/x86_64/kernel/setup.c          |    3 +
- linux-2.6.12-rc2-hari/include/asm-x86_64/e820.h           |    2 +
- 4 files changed, 31 insertions(+), 1 deletion(-)
+	spin_lock(&np->lock); /* Preempt protection */
+	switch (cmd) {
+		case SIOCETHTOOL:
+			return e100_ethtool_ioctl(dev,ifr);
+		case SIOCGMIIPHY: /* Get PHY address */
+			data->phy_id = mdio_phy_addr;
+			break;
+		case SIOCGMIIREG: /* Read MII register */
+			data->val_out = e100_get_mdio_reg(dev, mdio_phy_addr, data->reg_num);
+			break;
+		case SIOCSMIIREG: /* Write MII register */    <===== MISSING 
+CAPABILITY CHECK
+			e100_set_mdio_reg(dev, mdio_phy_addr, data->reg_num, data->val_in);
+			break;
+...
 
-diff -puN arch/x86_64/kernel/e820.c~x8664-memmap-command-line-option arch/x86_64/kernel/e820.c
---- linux-2.6.12-rc2/arch/x86_64/kernel/e820.c~x8664-memmap-command-line-option	2005-04-15 10:15:04.000000000 +0530
-+++ linux-2.6.12-rc2-hari/arch/x86_64/kernel/e820.c	2005-04-15 10:17:23.000000000 +0530
-@@ -513,6 +513,31 @@ void __init parse_memopt(char *p, char *
- 	end_user_pfn >>= PAGE_SHIFT;	
- } 
- 
-+void __init parse_memmapopt(char *p, char **from)
-+{
-+	if (!memcmp(p, "exactmap", 8)) {
-+		p += 8;
-+		e820.nr_map = 0;
-+	} else {
-+		unsigned long long start_at, mem_size;
-+
-+		mem_size = memparse(p, from);
-+		p = *from;
-+		if (*p == '@') {
-+			start_at = memparse(p+1, from);
-+			add_memory_region(start_at, mem_size, E820_RAM);
-+		} else if (*p == '#') {
-+			start_at = memparse(p+1, from);
-+			add_memory_region(start_at, mem_size, E820_ACPI);
-+		} else if (*p == '$') {
-+			start_at = memparse(p+1, from);
-+			add_memory_region(start_at, mem_size, E820_RESERVED);
-+		} else {
-+			end_user_pfn = (mem_size >> PAGE_SHIFT);
-+		}
-+	}
-+}
-+
- unsigned long pci_mem_start = 0xaeedbabe;
- 
- /*
-diff -puN arch/x86_64/kernel/setup.c~x8664-memmap-command-line-option arch/x86_64/kernel/setup.c
---- linux-2.6.12-rc2/arch/x86_64/kernel/setup.c~x8664-memmap-command-line-option	2005-04-15 10:15:04.000000000 +0530
-+++ linux-2.6.12-rc2-hari/arch/x86_64/kernel/setup.c	2005-04-15 10:15:04.000000000 +0530
-@@ -349,6 +349,9 @@ static __init void parse_cmdline_early (
- 		if (!memcmp(from, "mem=", 4))
- 			parse_memopt(from+4, &from); 
- 
-+		if (!memcmp(from, "memmap=", 7))
-+			parse_memmapopt(from+7, &from);
-+
- #ifdef CONFIG_DISCONTIGMEM
- 		if (!memcmp(from, "numa=", 5))
- 			numa_setup(from+5); 
-diff -puN include/asm-x86_64/e820.h~x8664-memmap-command-line-option include/asm-x86_64/e820.h
---- linux-2.6.12-rc2/include/asm-x86_64/e820.h~x8664-memmap-command-line-option	2005-04-15 10:15:04.000000000 +0530
-+++ linux-2.6.12-rc2-hari/include/asm-x86_64/e820.h	2005-04-15 10:15:04.000000000 +0530
-@@ -54,6 +54,8 @@ extern void e820_setup_gap(void);
- 
- extern void __init parse_memopt(char *p, char **end);
- 
-+extern void __init parse_memmapopt(char *p, char **end);
-+
- extern struct e820map e820;
- #endif/*!__ASSEMBLY__*/
- 
-diff -puN Documentation/kernel-parameters.txt~x8664-memmap-command-line-option Documentation/kernel-parameters.txt
---- linux-2.6.12-rc2/Documentation/kernel-parameters.txt~x8664-memmap-command-line-option	2005-04-15 10:19:37.000000000 +0530
-+++ linux-2.6.12-rc2-hari/Documentation/kernel-parameters.txt	2005-04-15 10:19:56.000000000 +0530
-@@ -794,7 +794,7 @@ running once the system is up.
- 	mem=nopentium	[BUGS=IA-32] Disable usage of 4MB pages for kernel
- 			memory.
- 
--	memmap=exactmap	[KNL,IA-32] Enable setting of an exact
-+	memmap=exactmap	[KNL,IA-32,X86-64] Enable setting of an exact
- 			E820 memory map, as specified by the user.
- 			Such memmap=exactmap lines can be constructed based on
- 			BIOS output or other requirements. See the memmap=nn@ss
-_
+Does this seem valid? Currently we are looking primarily into the 
+ioctls in drivers/net, but we would like to extend this to other parts 
+of the kernel.  Our understanding of what code should be protected by 
+what capabilities is limited, so any feedback on this would be 
+wonderful.
 
---------------060305020503030206030308--
+Thanks,
+Ted Kremenek and Bryan Fulton
+

@@ -1,45 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261774AbVDOJgp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261784AbVDOJmO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261774AbVDOJgp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 05:36:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbVDOJgp
+	id S261784AbVDOJmO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 05:42:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbVDOJmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 05:36:45 -0400
-Received: from sophia.inria.fr ([138.96.64.20]:12430 "EHLO sophia.inria.fr")
-	by vger.kernel.org with ESMTP id S261774AbVDOJgn (ORCPT
+	Fri, 15 Apr 2005 05:42:14 -0400
+Received: from mail.dif.dk ([193.138.115.101]:22206 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261784AbVDOJmE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 05:36:43 -0400
-Message-ID: <425F8B09.3010706@yahoo.fr>
-Date: Fri, 15 Apr 2005 11:36:09 +0200
-From: Guillaume Chazarain <guichaz@yahoo.fr>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
-X-Accept-Language: en-us, en
+	Fri, 15 Apr 2005 05:42:04 -0400
+Date: Fri, 15 Apr 2005 11:44:51 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: reiserfs-dev@namesys.com, reiserfs-list@namesys.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] reiserfs: fix a few  'empty body in an if-statement' 
+ warnings.
+In-Reply-To: <20050414184913.72831860.rddunlap@osdl.org>
+Message-ID: <Pine.LNX.4.62.0504151143370.2475@dragon.hyggekrogen.localhost>
+References: <Pine.LNX.4.62.0504150255090.3466@dragon.hyggekrogen.localhost>
+ <20050414184913.72831860.rddunlap@osdl.org>
 MIME-Version: 1.0
-To: Guillaume Chazarain <guichaz@yahoo.fr>
-CC: linux-kernel@vger.kernel.org, linux-joystick@atrey.karlin.mff.cuni.cz
-Subject: Re: snd-ens1371 (alsa) & joystick woes
-References: <425BACC2.9020709@yahoo.fr>
-In-Reply-To: <425BACC2.9020709@yahoo.fr>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (sophia.inria.fr [138.96.64.20]); Fri, 15 Apr 2005 11:36:09 +0200 (MEST)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guillaume Chazarain wrote:
+On Thu, 14 Apr 2005, Randy.Dunlap wrote:
 
-> From 2.6.11 to 2.6.12-rc2, there are some changes in the joystick 
-> behaviour
-> that I don't think are expected. It's a simple joystick using 
-> analog.ko plugged
-> on a sound board using snd-ens1371. So here we go:
+> On Fri, 15 Apr 2005 02:58:54 +0200 (CEST) Jesper Juhl wrote:
+> 
+> | When building with  gcc -W  fs/reiserfs/namei.c:602 has a few warnings 
+> | about 'empty body in an if-statement'. This patch silences those warnings.
+> 
+> So fix include/linux/reiserfs_xattr.h:
+> change
+> #define reiserfs_mark_inode_private(inode)
+> to
+> #define reiserfs_mark_inode_private(inode)	do { } while (0)
+> 
+> 
+Right, that's better...
 
-Reverting 
-http://linux.bkbits.net:8080/linux-2.5/diffs/drivers/input/joydev.c@1.31?nav=index.html|src/|src/drivers|src/drivers/input|hist/drivers/input/joydev.c
-(removing all the added " + 1" in joydev.c) fixes it for me.
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-Regards.
+--- linux-2.6.12-rc2-mm3-orig/include/linux/reiserfs_xattr.h	2005-04-05 21:21:50.000000000 +0200
++++ linux-2.6.12-rc2-mm3/include/linux/reiserfs_xattr.h	2005-04-15 11:41:25.000000000 +0200
+@@ -112,20 +112,20 @@
+ #else
+ 
+ #define is_reiserfs_priv_object(inode) 0
+-#define reiserfs_mark_inode_private(inode)
++#define reiserfs_mark_inode_private(inode) do { } while (0)
+ #define reiserfs_getxattr NULL
+ #define reiserfs_setxattr NULL
+ #define reiserfs_listxattr NULL
+ #define reiserfs_removexattr NULL
+-#define reiserfs_write_lock_xattrs(sb)
+-#define reiserfs_write_unlock_xattrs(sb)
+-#define reiserfs_read_lock_xattrs(sb)
+-#define reiserfs_read_unlock_xattrs(sb)
++#define reiserfs_write_lock_xattrs(sb) do { } while (0)
++#define reiserfs_write_unlock_xattrs(sb) do { } while (0)
++#define reiserfs_read_lock_xattrs(sb) do { } while (0)
++#define reiserfs_read_unlock_xattrs(sb) do { } while (0)
+ 
+ #define reiserfs_permission NULL
+ 
+ #define reiserfs_xattr_register_handlers() 0
+-#define reiserfs_xattr_unregister_handlers()
++#define reiserfs_xattr_unregister_handlers() do { } while (0)
+ 
+ static inline int reiserfs_delete_xattrs (struct inode *inode) { return 0; };
+ static inline int reiserfs_chown_xattrs (struct inode *inode, struct iattr *attrs) { return 0; };
 
--- 
-Guillaume
 

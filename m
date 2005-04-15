@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261908AbVDOS0g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261911AbVDOS0f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261908AbVDOS0g (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 14:26:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbVDOSYO
+	id S261911AbVDOS0f (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 14:26:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261908AbVDOSYa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 14:24:14 -0400
-Received: from thunk.org ([69.25.196.29]:49875 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261908AbVDOSXj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 14:23:39 -0400
-Date: Fri, 15 Apr 2005 14:23:23 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: linux@horizon.com
-Cc: jlcooke@certainkey.com, linux-kernel@vger.kernel.org, mpm@selenic.com
-Subject: Re: Fortuna
-Message-ID: <20050415182323.GA10480@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>, linux@horizon.com,
-	jlcooke@certainkey.com, linux-kernel@vger.kernel.org,
-	mpm@selenic.com
-References: <20050415144216.GA9352@thunk.org> <20050415153801.12619.qmail@science.horizon.com>
-Mime-Version: 1.0
+	Fri, 15 Apr 2005 14:24:30 -0400
+Received: from smtp.blackdown.de ([213.239.206.42]:31938 "EHLO
+	smtp.blackdown.de") by vger.kernel.org with ESMTP id S261910AbVDOSXo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 14:23:44 -0400
+From: Juergen Kreileder <jk@blackdown.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc2-mm3
+References: <20050411012532.58593bc1.akpm@osdl.org>
+	<87wtr8rdvu.fsf@blackdown.de>
+X-PGP-Key: http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0x730A28A5
+X-PGP-Fingerprint: 7C19 D069 9ED5 DC2E 1B10  9859 C027 8D5B 730A 28A5
+Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Andrew
+	Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Date: Fri, 15 Apr 2005 20:23:26 +0200
+In-Reply-To: <87wtr8rdvu.fsf@blackdown.de> (Juergen Kreileder's message of
+	"Tue, 12 Apr 2005 03:18:45 +0200")
+Message-ID: <87u0m7aogx.fsf@blackdown.de>
+Organization: Blackdown Java-Linux Team
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050415153801.12619.qmail@science.horizon.com>
-User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 15, 2005 at 03:38:01PM -0000, linux@horizon.com wrote:
-> 
-> First of all, people *on* the netowrk path can just *see* the packets.
-> Or modify them.  Or whatever.
-> The point is to prevent hijacking by people *not* on the path.
+Juergen Kreileder <jk@blackdown.de> writes:
 
-Yes, you're correct of course.  Of course, I'll note that people who
-*not* on the path have to not only guess the ISN, but they also have
-to somehow know that there is a TCP connection between hosts A and B,
-and what ports they are using.  Someone not on the path isn't
-necessarily going to know this, unless there are publically accessible
-SNMP-enabled routers that are overly free with this sort of
-information.  (Loose lips sink ships!)
+> Andrew Morton <akpm@osdl.org> writes:
+>
+>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm3/
+>
+> I'm getting frequent lockups on my PowerMac G5 with rc2-mm3.
 
-> Further, if I capture ISNs from A and B in the same rekey interval as
-> the initiation of the connection I'm trying to hijack, and that
-> connection proceeds slowly, then I have the lifetime of the connection
-> to solve the crypto problem.
+I think I finally found the culprit.  Both rc2-mm3 and rc1-mm1 work
+fine when I reverse the timer-* patches.
 
-True, although the longer it takes to break the crypto, the greater
-the uncertainty of how much data has gone across the connection, which
-makes the problem harder in other ways.
+Any idea?  Bug in my ppc64 gcc?
 
-> > Furthermore, if you really cared about preventing TCP hijacks, the
-> > only real way to do this is to use Real Crypto.  And these days, Cisco
-> > boxes support Kerberized telnets and ssh connections, which is the
-> > real Right Answer.
-> 
-> It's just so high-level.  While ipsec is the most general solution,
-> setting it up is a PITA.  I've often thought about trying to add a TCP
-> option for stream encryption what could provide opportunistic encryption
-> for everyone.
 
-But ssh is pretty easy, and even if you completely ignore the host key
-issue (to protect you against man-in-the-middle attacks), a simple
-diffie-helman type approach is plenty to protect you against the class
-of attacks which the randomized ISN buys you.  
+        Juergen
 
-						- Ted
+-- 
+Juergen Kreileder, Blackdown Java-Linux Team
+http://blog.blackdown.de/

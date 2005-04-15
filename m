@@ -1,60 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261690AbVDOA37@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261696AbVDOAtH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261690AbVDOA37 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 20:29:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbVDOA1g
+	id S261696AbVDOAtH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 20:49:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbVDOAsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 20:27:36 -0400
-Received: from mail.dif.dk ([193.138.115.101]:21636 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261682AbVDOA06 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 20:26:58 -0400
-Date: Fri, 15 Apr 2005 02:29:44 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Christian Kujau <evil@g-house.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ALSA Oops (triggered by xmms)
-In-Reply-To: <425F07A6.2010402@g-house.de>
-Message-ID: <Pine.LNX.4.62.0504150226120.3466@dragon.hyggekrogen.localhost>
-References: <425EFB32.2010000@g-house.de> <Pine.LNX.4.62.0504150150240.3466@dragon.hyggekrogen.localhost>
- <425F07A6.2010402@g-house.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 14 Apr 2005 20:48:55 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:59911 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261688AbVDOAsf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 20:48:35 -0400
+Date: Fri, 15 Apr 2005 02:48:34 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] sound/oss/sscape.c: remove dead code
+Message-ID: <20050415004834.GG20400@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Apr 2005, Christian Kujau wrote:
+The Coverity checker found that sscape_sb_enable never get's assigned 
+any value different from 0, and therefore some code paths are 
+impossible.
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Jesper Juhl wrote:
-> > 
-> >   ^^^^^ you should send such info inline in the email - having to go check 
-> > external links makes a lot of people ignore the stuff right then and 
-> 
-> yeah, but the oops doesn't wrap at 80 chars itsself and often oopses are
-> hardly readable inline.
-> 
-I would still suggest including the info inline and then if you think it's 
-needed /also/ provide the link you did - then you've covered all bases :)
+This patch removes this variable and the dead code paths.
 
-> > Btw: I believe this is fixed in 2.6.11.7 - from the Changelog : 
-> >
-> > <tiwai@suse.de>
-> > 	[PATCH] Fix Oops with ALSA timer event notification
-> 
-> oh, this sounds good. strange though, that my 2.6.11-gentoo-r5 (whatever
-> they've patched in there) *never* oopsed the days ago but all of a sudden
-> started to oops yesterday....
-> 
-Some bugs are like that, especially when they involve race conditions or 
-timers.. Anyway, if you could test 2.6.11.7 (and perhaps also 2.6.12-rc*) 
-to verify that the issue is indeed fixed, then I believe that would be 
-appreciated :)
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
+---
 
--- 
-Jesper
+This patch was already sent on:
+- 24 Mar 2005
 
+ sound/oss/sscape.c |    8 +-------
+ 1 files changed, 1 insertion(+), 7 deletions(-)
+
+--- linux-2.6.12-rc1-mm1-full/sound/oss/sscape.c.old	2005-03-23 01:10:35.000000000 +0100
++++ linux-2.6.12-rc1-mm1-full/sound/oss/sscape.c	2005-03-23 01:11:38.000000000 +0100
+@@ -991,7 +991,6 @@ static void __init sscape_pnp_init_hw(ss
+ 	unsigned i;
+ 	static	char code_file_name[23] = "/sndscape/sndscape.cox";
+ 	
+-	int sscape_sb_enable		= 0;
+ 	int sscape_joystic_enable	= 0x7f;
+ 	int sscape_mic_enable		= 0;
+ 	int sscape_ext_midi		= 0;		
+@@ -1015,14 +1014,9 @@ static void __init sscape_pnp_init_hw(ss
+ 	sscape_write( devc, 2, devc->ic_type == IC_ODIE ? 0x70 : 0x40);
+ 	sscape_write( devc, 3, ( devc -> dma << 4) | 0x80);
+ 
+-	if ( sscape_sb_enable )
+-		sscape_write (devc, 4, 0xF0 | (sb_irq << 2) | midi_irq);
+-	else	
+-		sscape_write (devc, 4, 0xF0 | (midi_irq<<2) | midi_irq);
++	sscape_write (devc, 4, 0xF0 | (midi_irq<<2) | midi_irq);
+ 
+ 	i = 0x10; //sscape_read(devc, 9) & (devc->ic_type == IC_ODIE ? 0xf0 : 0xc0);
+-	if ( sscape_sb_enable )
+-		i |= devc->ic_type == IC_ODIE ? 0x05 : 0x07;	    
+ 	if (sscape_joystic_enable) i |= 8;
+ 	
+ 	sscape_write (devc, 9, i);
 

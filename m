@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261935AbVDOThX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261938AbVDOTie@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261935AbVDOThX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 15:37:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbVDOThX
+	id S261938AbVDOTie (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 15:38:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbVDOTie
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 15:37:23 -0400
-Received: from smtp1.poczta.interia.pl ([217.74.65.44]:41044 "EHLO
-	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
-	id S261935AbVDOThD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 15:37:03 -0400
-Message-ID: <426017DC.1080801@interia.pl>
-Date: Fri, 15 Apr 2005 21:37:00 +0200
-From: Tomasz Chmielewski <mangoo@interia.pl>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andre Tomt <andre@tomt.net>
+	Fri, 15 Apr 2005 15:38:34 -0400
+Received: from wproxy.gmail.com ([64.233.184.205]:33721 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261938AbVDOTi2 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 15:38:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=P5qAkhkx8LYRBKM0taCtHHu+RkGbaYxQfH6gtrc0dfB55/Sf3+OpT3+bdTMce7Id+iBHkao0+cChNRozBUdFCu8fOIVWT3XFwXRIW4Uh2uAzAaBJMSEQYQ35OSi6xtTVaM/8wOAkJMF5XvoxeAJzfzegwKZPV92MBA4D8f2W4+Q=
+Message-ID: <e1e1d5f4050415123842c96ec5@mail.gmail.com>
+Date: Fri, 15 Apr 2005 12:38:27 -0700
+From: Daniel Souza <thehazard@gmail.com>
+Reply-To: Daniel Souza <thehazard@gmail.com>
+To: Allison <fireflyblue@gmail.com>
+Subject: Re: Kernel Rootkits
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [SATA] status reports updated
-References: <42600375.9080108@pobox.com> <42600E12.8020304@interia.pl> <42601474.5010008@tomt.net>
-In-Reply-To: <42601474.5010008@tomt.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-EMID: 9145eacc
+In-Reply-To: <17d7988050415121537c8fac1@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <17d7988050415121537c8fac1@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Tomt wrote:
-> Tomasz Chmielewski wrote:
-> <
-> 
->> [1] although my drive is blacklisted (Seagate barracuda - 
->> ST3200822AS), I "unblacklisted" it to get full performance - it's 
->> under heavy stress for 12th hour, and still no error.
-> 
-> 
-> It could be that your drive has newer firmware. Too bad firmware 
-> upgrades for HD's are hard to come by nowadays.
+On 4/15/05, Allison <fireflyblue@gmail.com> wrote:
+> Isn't the kernel code segment marked read-only ? How can the module
+> write into the function text in the kernel ? Shouldn't this cause some
+> kind of protection fault ?
 
-Is there a way to check what firmware a drive has (either by using some 
-software - which would be the best option, or by reading a label on a 
-drive)?
+The kernel code segment is totally unacessible to userspace programs,
+and to kernel itself, is marked read-write. A module runs at kernel
+level, so, it has +rw to kernel memory. Each process has a task
+structure that defines the top of memory that the user process can
+access (current->fs). In normal processes, this is 0xbfffff (the last
+adressable memory in user mode). After that, 0xc00000, starts the
+kernel code. If, by using any method, a user process receives a
+(current->fs = KERNEL_DS), it will be able to fully access the kernel
+memory. As mentioned, this is unsual.
 
-If so, we might compile some list to be put in the FAQ?
-
-
-There was also a post on the list - 
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0503.1/0827.html - 
-suggesting that upgrading Silicon Image BIOS helped resolving these 
-problems.
-
-So it might be newer drive firmware, or newer SATA card BIOS (or both) 
-that makes my "sil + seagate" combination usable.
-
-
-Tomek
-
-----------------------------------------------------------------------
-Startuj z INTERIA.PL! >>> http://link.interia.pl/f186c 
-
+-- 
+# (perl -e "while (1) { print "\x90"; }") | dd of=/dev/evil

@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261515AbVDOQBL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbVDOQC1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261515AbVDOQBL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 12:01:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbVDOQBL
+	id S261849AbVDOQC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 12:02:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261846AbVDOQC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 12:01:11 -0400
-Received: from fire.osdl.org ([65.172.181.4]:20371 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261515AbVDOQBI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 12:01:08 -0400
-Date: Fri, 15 Apr 2005 09:01:04 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Ted Kremenek <kremenek@cs.stanford.edu>
-Cc: linux-kernel@vger.kernel.org, Bryan Fulton <bryan@coverity.com>,
-       mc@cs.stanford.edu
-Subject: Re: [CHECKER] possible missing capability check in ioctl function, drivers/net/cris/eth_v10.c, kernel 2.6.11
-Message-ID: <20050415160104.GB23013@shell0.pdx.osdl.net>
-References: <b86e6e6214dbc3ebe14bf1ec472a1202@cs.stanford.edu>
+	Fri, 15 Apr 2005 12:02:27 -0400
+Received: from wproxy.gmail.com ([64.233.184.194]:26763 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261843AbVDOQCP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 12:02:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=bYxZ14g3Gkay9/q+5gUvUasshlDeNGUlQT0iNzAUvhc6UXMNOnCji3kaf9VzPmurxaYQBIG0dxP/h73Gd4V+zZ3HKVdTDlluoxjZAKPDzWamgtgXfzdTvrUF1xRe4TsYK9njtspRX1/QzsuCnP4YIHvb+Lf7NoSMiwKcUtt6Ytw=
+Message-ID: <17d798805041509022ba6df49@mail.gmail.com>
+Date: Fri, 15 Apr 2005 12:02:10 -0400
+From: Allison <fireflyblue@gmail.com>
+Reply-To: Allison <fireflyblue@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel Rootkits
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <b86e6e6214dbc3ebe14bf1ec472a1202@cs.stanford.edu>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Ted Kremenek (kremenek@cs.stanford.edu) wrote:
-> In several network drivers that handle the ioctl command SIOCSMIIREG 
-> (writes a register on the network card) most implementations check for 
-> the CAP_NET_ADMIN capability.  Several drivers use the function 
-> "generic_mii_ioctl" to process this command (defined in 
-> drivers/net/mii.c).  In mii.c, we see:
+Hi,
 
-This, to me, looks like the device specific (or generic_mii_ioctl)
-capability test winds up being redundant.  The top-level checks
-capabilities already in net/dev/core.c::dev_ioctl().  So, while there's
-some room for cleanup, I don't think this is an acutal bug.
+I was curious about how kernel rootkits become a part of the kernel ?
+One way I guess is by inserting a kernel module.  And rootkits also
+manage to hide themselves from rootkit detectors.
+
+few questions:
+1. Are there any other ways by which rootkits become part of the kernel ?
+
+2. If modules can access only exported symbols, how is it that kernel
+rootkits manage to get hold of other information from the kernel ? For
+ex, the process table.
+
+I am not familiar with the /dev/kmem interface. Does this interface
+let any kernel module read any symbol (even non-exported) from the
+kernel ?
+
+3. If I want to hide a function which is part of the kernel from
+kernel modules, is this possible ideally ?
 
 thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Allison

@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbVDOTBv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261864AbVDOTKA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261925AbVDOTBv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 15:01:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbVDOTBv
+	id S261864AbVDOTKA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 15:10:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbVDOTKA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 15:01:51 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:64697 "EHLO
-	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
-	id S261924AbVDOTBr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 15:01:47 -0400
-Subject: Re: [SATA] status reports updated
-From: Joe Harvell <jharvell@dogpad.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <42600818.3030802@pobox.com>
-References: <42600375.9080108@pobox.com>
-	 <1113589153.1013.3.camel@wrc2y0me.us.nortel.com>
-	 <42600818.3030802@pobox.com>
-Content-Type: text/plain
-Message-Id: <1113591701.1341.5.camel@wrc2y0me.us.nortel.com>
+	Fri, 15 Apr 2005 15:10:00 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:19679 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id S261864AbVDOTJ4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 15:09:56 -0400
+Date: Fri, 15 Apr 2005 21:09:55 +0200
+From: Petr Baudis <pasky@ucw.cz>
+To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: where is current kernel ?
+Message-ID: <20050415190955.GC7417@pasky.ji.cz>
+References: <186538393.20050415133345@dns.toxicfilms.tv>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Fri, 15 Apr 2005 14:01:41 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <186538393.20050415133345@dns.toxicfilms.tv>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://marc.theaimsgroup.com/?l=linux-ide&m=111029414823303&w=2
-http://marc.theaimsgroup.com/?l=linux-ide&m=111054989026053&w=2
-http://marc.theaimsgroup.com/?l=linux-ide&m=111214149529209&w=2
-http://marc.theaimsgroup.com/?l=linux-ide&m=111230129320297&w=2
+Dear diary, on Fri, Apr 15, 2005 at 01:33:45PM CEST, I got a letter
+where Maciej Soltysiak <solt2@dns.toxicfilms.tv> told me that...
+> Hi,
 
-On Fri, 2005-04-15 at 13:29, Jeff Garzik wrote:
-> Joe Harvell wrote:
-> > Jeff:
-> > 
-> > You need to add a comment about the SATAII TX2/TX4 boards indicating
-> > users have experienced data corruption with the sata_promise driver and
-> > the SATAII TX4 board.
-> > 
-> > I've posted several emails to linux-ide about this.  Why haven't you
-> > responded?
-> 
-> I've seen reports on the SX4, but not on the SATAII TX4.
-> 
-> URLs to messages you posted?
-> 
-> 	JEff
-> 
+Hello,
+
+> Is there currently a kernel tree that Linus is working ?
+> I mean, now that we have 2.6.12-rc2 not being
+> developed with BK, is that code getting fixes and other patches
+> as we speak or the development will continue in a while someplace
+> else ?
+
+Linus stopped merging stuff to his kernel for few days in order to
+develop his (at least temporary) alternative to BK, called "git".
+See the mailing list archives for details.
+
+Kind regards,
+
 -- 
-Joe Harvell
-jharvell@dogpad.net
-
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+C++: an octopus made by nailing extra legs onto a dog. -- Steve Taylor

@@ -1,44 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261824AbVDOOxi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261828AbVDOOy0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261824AbVDOOxi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 10:53:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbVDOOxi
+	id S261828AbVDOOy0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 10:54:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbVDOOyZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 10:53:38 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:3968 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S261824AbVDOOxf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 10:53:35 -0400
-Date: Fri, 15 Apr 2005 10:53:34 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Joerg Pommnitz <pommnitz@yahoo.com>
-cc: kernel <linux-kernel@vger.kernel.org>,
-       linux-usb-user <linux-usb-users@lists.sourceforge.net>
-Subject: Re: [Linux-usb-users] 2.6 PCMCIA/USB question
-In-Reply-To: <20050415082048.1497.qmail@web51409.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.44L0.0504151052010.6185-100000@iolanthe.rowland.org>
+	Fri, 15 Apr 2005 10:54:25 -0400
+Received: from ns1.g-housing.de ([62.75.136.201]:56796 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S261828AbVDOOyR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 10:54:17 -0400
+Message-ID: <425FD593.7080402@g-house.de>
+Date: Fri, 15 Apr 2005 16:54:11 +0200
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050326)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Takashi Iwai <tiwai@suse.de>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       alsa-devel@lists.sourceforge.net, juhl-lkml@dif.dk
+Subject: Re: ALSA Oops (triggered by xmms)
+References: <425EFB32.2010000@g-house.de>	<1113521720.19830.35.camel@mindpipe> <s5hbr8ge7yi.wl@alsa2.suse.de>
+In-Reply-To: <s5hbr8ge7yi.wl@alsa2.suse.de>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Apr 2005, Joerg Pommnitz wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Hello all,
-> I have a question that I could not figure out from other sources. I have
-> the following hardware: an integrated CardBus USB host adapter with a
-> connected USB serial device with three interfaces (normally
-> ttyUSB0...ttyUSB2). Now I want to use 3 of these devices (remember: they
-> are integrated, so I can't just plug the USB device onto the same host
-> adapter). I know device A is in CardBus slot 1, device B is in CardBus
-> slot 2 and so on. 
+Takashi Iwai wrote:
 > 
-> Now the question: How do I figure out which ttyUSBx belongs to which
-> device?
+> Also, the latest CVS alsa-lib checks the timer protocol version to
+> avoid this Oops with the older kenel.  1.0.9-rc3 is planned to be
+> released soon, so wait for a moment...
 
-You can look in the system log.  If you want, you can actually control 
-which goes where by creating a udev configuration file.
+um, i'll wait for the next release as i don't track alsa-cvs. but i do
+track 2.6-BK (again) and the oops is gone ;-)
 
-Alan Stern
 
+Jesper Juhl wrote:
+>> yeah, but the oops doesn't wrap at 80 chars itsself and often oopses
+>> are hardly readable inline.
+>
+> I would still suggest including the info inline and then if you think
+> it's needed /also/ provide the link you did - then you've covered all
+> bases :)
+
+will do, next time 8-)
+
+
+thanks to all involved for all your replies,
+Christian.
+- --
+BOFH excuse #388:
+
+Bad user karma.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCX9WT+A7rjkF8z0wRAlp2AJ0doKLm4OsK2i8nNx6uezrcfPF15QCeNkuO
+eVCEuP0U5LrUOToHXEb6cBs=
+=Feow
+-----END PGP SIGNATURE-----

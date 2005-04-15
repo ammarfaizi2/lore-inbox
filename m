@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261861AbVDOQur@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261865AbVDORCH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261861AbVDOQur (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 12:50:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261864AbVDOQur
+	id S261865AbVDORCH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 13:02:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbVDORCG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 12:50:47 -0400
-Received: from science.horizon.com ([192.35.100.1]:26686 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S261861AbVDOQul
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 12:50:41 -0400
-Date: 15 Apr 2005 16:50:36 -0000
-Message-ID: <20050415165036.16224.qmail@science.horizon.com>
-From: linux@horizon.com
-To: jlcooke@certainkey.com
-Subject: Re: Fortuna
-Cc: linux-kernel@vger.kernel.org, linux@horizon.com, mpm@selenic.com,
-       tytso@mit.edu
-In-Reply-To: <20050415162225.GA23277@certainkey.com>
+	Fri, 15 Apr 2005 13:02:06 -0400
+Received: from waste.org ([216.27.176.166]:41355 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261865AbVDORCD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 13:02:03 -0400
+Date: Fri, 15 Apr 2005 10:00:12 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: Andreas Steinmetz <ast@domdv.de>
+Cc: Stefan Seyfried <seife@suse.de>, Herbert Xu <herbert@gondor.apana.org.au>,
+       Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
+       "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
+Message-ID: <20050415170010.GV3174@waste.org>
+References: <E1DLgWi-0003Ag-00@gondolin.me.apana.org.au> <20050414065124.GA1357@elf.ucw.cz> <20050414080837.GA1264@gondor.apana.org.au> <200504141104.40389.rjw@sisk.pl> <20050414171127.GL3174@waste.org> <425EC41A.4020307@suse.de> <20050414195352.GM3174@waste.org> <425F8CE6.90200@domdv.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <425F8CE6.90200@domdv.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> And the argument that "random.c doesn't rely on the strength of crypto
-> primitives" is kinda lame, though I see where you're coming from.
-> random.c's entropy mixing and output depends on the (endian incorrect)
-> SHA-1 implementation hard coded in that file to be pre-image resistant.
-> If that fails (and a few other things) then it's broken.
+On Fri, Apr 15, 2005 at 11:44:06AM +0200, Andreas Steinmetz wrote:
+> Matt Mackall wrote:
+> > Zero only the mlocked regions. This should take essentially no time at
+> > all. Swsusp knows which these are because they have to be mlocked
+> > after resume as well. If it's not mlocked, it's liable to be swapped
+> > out anyway.
+> 
+> Nitpicking:
+> What happens if the disk decides to relocate a close to failing sector
+> containing mlocked data during resume zeroing? This just means that
+> there will be sensitive data around on the disk that can't be  zeroed
+> out anymore but which might be recovered by specialized
+> companies/institutions.
+> Encrypting these data in the first place reduces this problem to a
+> single potentially problematic sector.
 
-/dev/urandom depends on the strength of the crypto primitives.
-/dev/random does not.  All it needs is a good uniform hash.
+Well that's what the dmcrypt phase is for.
 
-Do a bit of reading on the subject of "unicity distance".
-
-(And as for the endianness of the SHA-1, are you trying to imply
-something?  Because it makes zero difference, and reduces the code
-size and execution time.  Which is obviously a Good Thing.)
-
-
-As for hacking Fortuna in, could you give a clear statement of what
-you're trying to achieve?
-
-Do you like:
-- The neat name,
-- The strong ciphers used in the pools, or
-- The multi-pool reseeding strategy, or
-- Something else?
-
-If you're doing it just for hack value, or to learn how to write a
-device driver or whatever, then fine.  But if you're proposing it as
-a mainline patch, then could we discuss the technical goals?
-
-I don't think anyone wants to draw and quarter *you*, but your
-code is going to get some extremely critical examination.
+-- 
+Mathematics is the supreme nostalgia of our time.

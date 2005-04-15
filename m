@@ -1,23 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbVDOSOw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261906AbVDOSRx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261900AbVDOSOw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 14:14:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbVDOSN7
+	id S261906AbVDOSRx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 14:17:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261908AbVDOSRv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 14:13:59 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:44193 "EHLO
+	Fri, 15 Apr 2005 14:17:51 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:54433 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261900AbVDOSLi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 14:11:38 -0400
-Subject: Re: intercepting syscalls
+	id S261906AbVDOSQW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 14:16:22 -0400
+Subject: Re: Adaptec 2010S i2o + x86_64 doesn't work
 From: Arjan van de Ven <arjan@infradead.org>
-To: Igor Shmukler <igor.shmukler@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <6533c1c905041511041b846967@mail.gmail.com>
-References: <6533c1c905041511041b846967@mail.gmail.com>
+To: Markus Lidel <Markus.Lidel@shadowconnect.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Miquel van Smoorenburg <miquels@cistron.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <426003AB.3060904@shadowconnect.com>
+References: <20050413160352.GA12841@xs4all.net>
+	 <1113576775.11116.17.camel@localhost.localdomain>
+	 <1113581722.14421.15.camel@zahadum.xs4all.nl>
+	 <1113587286.11114.30.camel@localhost.localdomain>
+	 <426003AB.3060904@shadowconnect.com>
 Content-Type: text/plain
-Date: Fri, 15 Apr 2005 20:11:34 +0200
-Message-Id: <1113588694.6694.75.camel@laptopd505.fenrus.org>
+Date: Fri, 15 Apr 2005 20:16:11 +0200
+Message-Id: <1113588972.6694.78.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
@@ -37,20 +43,27 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-04-15 at 14:04 -0400, Igor Shmukler wrote:
+On Fri, 2005-04-15 at 20:10 +0200, Markus Lidel wrote:
 > Hello,
-> We are working on a LKM for the 2.6 kernel.
-> We HAVE to intercept system calls. I understand this could be
-> something developers are no encouraged to do these days, but we need
-> this.
+> 
+> Alan Cox wrote:
+> > On Gwe, 2005-04-15 at 17:15, Miquel van Smoorenburg wrote:
+> >>However, I removed 2 GB from the box as Alan sugggested and now the box
+> >>comes up just fine with a 64-bit 2.6.11.6 kernel! I've put the 4GB back,
+> >>and booted with the kernel "mem=2048" command line option - that also
+> >>works, the i2o_block driver sees the adaptec controller just fine.
+> >>And I just booted it with "mem=3840M" and that works too.
+> >>So the problem appears to be 4 GB memory in 64 bit mode, on this box.
+> 
+> OK, i never tried it with 4 GB so it really could be a problem...
+> 
+> > Or the driver is incorrectly handling 64/32bit DMA limit masks which
+> > would be my first guess here, and would explain why it works on AMD
+> > Athlon64 boxes.
+> 
+> Hmmm, i only set DMA_32BIT_MASK and don't do anything special on 64-bit 
+> systems... Is there anything else to do for correct DMA mapping?
 
-your module is GPL licensed right ? (You're depending on deep internals
-after all)
 
-Why do you *have* to intercept system calls... can't you instead use the
-audit infrastructure to get that information ?
-
-What is the URL of your current code so that we can provide reasonable
-recommendations ?
-
+are you sure the HW isn't 31 bit by accident ? 
 

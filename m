@@ -1,36 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261826AbVDOOz5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261814AbVDOPDl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261826AbVDOOz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 10:55:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261829AbVDOOz4
+	id S261814AbVDOPDl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 11:03:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbVDOPDk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 10:55:56 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:63174 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S261826AbVDOOzr (ORCPT
+	Fri, 15 Apr 2005 11:03:40 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:64966 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S261814AbVDOPDj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 10:55:47 -0400
-Subject: Re: Adaptec 2010S i2o + x86_64 doesn't work
+	Fri, 15 Apr 2005 11:03:39 -0400
+Subject: Re: Exploit in 2.6 kernels
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Miquel van Smoorenburg <miquels@cistron.nl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Markus.Lidel@shadowconnect.com
-In-Reply-To: <20050413160352.GA12841@xs4all.net>
-References: <20050413160352.GA12841@xs4all.net>
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+Cc: Lars Marowsky-Bree <lmb@suse.de>,
+       Helge Hafting <helge.hafting@aitel.hist.no>,
+       John M Collins <jmc@xisl.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050413132308.GP17865@csclub.uwaterloo.ca>
+References: <1113298455.16274.72.camel@caveman.xisl.com>
+	 <425BBDF9.9020903@ev-en.org> <1113318034.3105.46.camel@caveman.xisl.com>
+	 <20050412210857.GT11199@shell0.pdx.osdl.net>
+	 <1113341579.3105.63.camel@caveman.xisl.com>
+	 <425CEAC2.1050306@aitel.hist.no>
+	 <20050413125921.GN17865@csclub.uwaterloo.ca>
+	 <20050413130646.GF32354@marowsky-bree.de>
+	 <20050413132308.GP17865@csclub.uwaterloo.ca>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1113576775.11116.17.camel@localhost.localdomain>
+Message-Id: <1113577241.11155.21.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 15 Apr 2005 15:52:56 +0100
+Date: Fri, 15 Apr 2005 16:00:42 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-04-13 at 17:03, Miquel van Smoorenburg wrote:
-> I have a supermicro dual xeon em64t system, X6DH8-XG2 motherboard,
-> 4 GB RAM, with an Adaptec zero raid 2010S i2o controller. In 32
-> bits mode it runs fine, both with the dpt_i2o driver and the
-> generic i2o_block driver using kernel 2.6.11.6.
+On Mer, 2005-04-13 at 14:23, Lennart Sorensen wrote:
+> On Wed, Apr 13, 2005 at 03:06:46PM +0200, Lars Marowsky-Bree wrote:
+> Graphics card companies don't realize they are hardware companies not
+> software companies and that it is hardware they make their money from?
+> Oh and they have too many lawyers?
 
-Does it work if you drop the box to 2Gbytes ?
+Actually they are both. 3D performance is a combination of clever driver
+technology -and- clever hardware. 
 
+Alan
 

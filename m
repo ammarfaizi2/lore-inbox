@@ -1,99 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261791AbVDONDf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261736AbVDONVy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261791AbVDONDf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 09:03:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbVDONDe
+	id S261736AbVDONVy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 09:21:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbVDONVy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 09:03:34 -0400
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:18292 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261791AbVDONDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 09:03:30 -0400
-Message-ID: <425FBB98.2000200@yahoo.com.au>
-Date: Fri, 15 Apr 2005 23:03:20 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-CC: mingo@elte.hu, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched: fix sched domain degenerate
-References: <20050413192616.A28163@unix-os.sc.intel.com>
-In-Reply-To: <20050413192616.A28163@unix-os.sc.intel.com>
-Content-Type: multipart/mixed;
- boundary="------------040708070705090000050803"
+	Fri, 15 Apr 2005 09:21:54 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25810 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261736AbVDONVq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 09:21:46 -0400
+Date: Fri, 15 Apr 2005 14:21:45 +0100
+From: Matthew Wilcox <matthew@wil.cx>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Christoph Hellwig <hch@infradead.org>, matthew@wil.cx, juhl-lkml@dif.dk,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fs/fcntl.c : don't test unsigned value for less than zero
+Message-ID: <20050415132145.GA8669@parcelfarce.linux.theplanet.co.uk>
+References: <20050415113218.GA22528@infradead.org> <E1DMPXN-0004sh-00@gondolin.me.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1DMPXN-0004sh-00@gondolin.me.apana.org.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040708070705090000050803
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, Apr 15, 2005 at 10:03:05PM +1000, Herbert Xu wrote:
+> I suppose it could be smart and stay quiet about
+> 
+> val < 0 || val > BOUND
+> 
+> However, gcc is slow enough as it is without adding unnecessary
+> smarts like this.
 
-Siddha, Suresh B wrote:
-> Appended patch makes sched domain degenerate really work.
-> 
-> For example, now NUMA domain really gets removed on a non-NUMA system.
-> 
-> Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
-> 
-> 
-> --- linux-2.6.12-rc2-mm3/kernel/sched.c	2005-04-13 11:15:00.942609504 -0700
-> +++ linux-mc/kernel/sched.c	2005-04-13 10:44:37.400829992 -0700
-> @@ -4777,7 +4777,7 @@ static int __devinit sd_parent_degenerat
->  	/* WAKE_BALANCE is a subset of WAKE_AFFINE */
->  	if (cflags & SD_WAKE_AFFINE)
->  		pflags &= ~SD_WAKE_BALANCE;
-> -	if ((~sd->flags) & parent->flags)
-> +	if (~cflags & pflags)
->  		return 0;
->  
->  	return 1;
+It only warns with -W on, not with -Wall, so I see no compelling
+reason to fix this.  I think the real problem here is that 'arg'
+is declared 2 pages earlier in the function prototype (aka the
+function-growth-hormone-imbalance syndrome).
 
-Thanks, I need a brown paper bag.
+There's two good ways of fixing this, adding a f_setsig() function:
 
-I think instead of the other 2 hunks in your patch I would like
-to do it the following way (I hope I get this right, finally).
+static inline int f_setsig(struct file *filp, unsigned long arg)
+{
+	if (arg > _NSIG)
+		return -EINVAL;
+
+	filp->f_owner.signum = arg;
+	return 0;
+}
+...
+	case F_SETSIG:
+		err = f_setsig(filp, arg);
+		break;
+
+or add a function that checks a variable to see if it's a valid signal number:
+
+#define valid_signal(arg)	((unsigned long)arg <= _NSIG)
+...
+	case F_SETSIG:
+		if (!valid_signal(arg))
+			break;
+		err = 0;
+		filp->f_owner.signum = arg;
+		break;
+
+Looks like futex.c, ptrace.c, signal.c, sys.c and almost every
+architecture's ptrace code could easily make use of the latter, but not
+the former.  It also looks like we have a few off-by-one errors.  For
+example, in h8300's ptrace code:
+
+                case PTRACE_SYSCALL:
+                case PTRACE_CONT: {
+                        ret = -EIO;
+                        if ((unsigned long) data >= _NSIG)
+                                break ;
+
+but
+
+                case PTRACE_SINGLESTEP: {
+                        ret = -EIO;
+                        if ((unsigned long) data > _NSIG)
+                                break;
+
+so I'd recommend the second solution.  But be careful not to "fix up"
+cases like:
+
+./kernel/exit.c:        if (sig < 1 || sig > _NSIG)
+
+where we really don't want to allow zero.
 
 -- 
-SUSE Labs, Novell Inc.
-
---------------040708070705090000050803
-Content-Type: text/plain;
- name="sched-degen-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sched-degen-fix.patch"
-
-Make sched-remove-degenerate-domains.patch actually work.
-
-Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
-
-
-Catch more (hopefully all) cases.
-
-Signed-off-by: Nick Piggin <nickpiggin@yahoo.com.au>
-
-Index: linux-2.6/kernel/sched.c
-===================================================================
---- linux-2.6.orig/kernel/sched.c	2005-04-15 22:52:25.000000000 +1000
-+++ linux-2.6/kernel/sched.c	2005-04-15 22:58:54.000000000 +1000
-@@ -4844,7 +4844,14 @@ static int __devinit sd_parent_degenerat
- 	/* WAKE_BALANCE is a subset of WAKE_AFFINE */
- 	if (cflags & SD_WAKE_AFFINE)
- 		pflags &= ~SD_WAKE_BALANCE;
--	if ((~sd->flags) & parent->flags)
-+	/* Flags needing groups don't count if only 1 group in parent */
-+	if (parent->groups == parent->groups->next) {
-+		pflags &= ~(SD_LOAD_BALANCE |
-+				SD_BALANCE_NEWIDLE |
-+				SD_BALANCE_FORK |
-+				SD_BALANCE_EXEC);
-+	}
-+	if (~cflags & pflags)
- 		return 0;
- 
- 	return 1;
-
---------------040708070705090000050803--
-
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

@@ -1,63 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261874AbVDOUUJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261952AbVDOUUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261874AbVDOUUJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 16:20:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbVDOUUJ
+	id S261952AbVDOUUs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 16:20:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbVDOUUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 16:20:09 -0400
-Received: from wproxy.gmail.com ([64.233.184.194]:49107 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261874AbVDOUUD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 16:20:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iMT7ITGeZ9PSxOnZDuAQrJ1lDmsjXNor99/9nL6uczqKYrujxPmoipof5pnIKnr6zehDFNBEgdw2/BKDtCV7MrLfXC9VhJKmcVS/7/Pg5DlXsJ/zVFqoNRkBLcpNhabdFolrOHOZbJmhUZE6fOCtdtJAJ/EE2DxsPQGiWrzfxUA=
-Message-ID: <e1e1d5f4050415131977a776e9@mail.gmail.com>
-Date: Fri, 15 Apr 2005 13:19:55 -0700
-From: Daniel Souza <thehazard@gmail.com>
-Reply-To: Daniel Souza <thehazard@gmail.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: intercepting syscalls
-Cc: Igor Shmukler <igor.shmukler@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1113596014.6694.87.camel@laptopd505.fenrus.org>
+	Fri, 15 Apr 2005 16:20:48 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:52182 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261952AbVDOUUm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 16:20:42 -0400
+Subject: Re: Serverworks LE and MTRR write-combining question
+From: Lee Revell <rlrevell@joe-job.com>
+To: Mike Russo <miker@readq.com>
+Cc: Andrew Morton <akpm@osdl.org>, Richard Gooch <rgooch@atnf.csiro.au>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1113521642.19830.33.camel@mindpipe>
+References: <425EF60F.9080901@readq.com>
+	 <1113521642.19830.33.camel@mindpipe>
+Content-Type: text/plain
+Date: Fri, 15 Apr 2005 16:20:41 -0400
+Message-Id: <1113596441.23696.8.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <6533c1c905041511041b846967@mail.gmail.com>
-	 <1113588694.6694.75.camel@laptopd505.fenrus.org>
-	 <6533c1c905041512411ec2a8db@mail.gmail.com>
-	 <e1e1d5f40504151251617def40@mail.gmail.com>
-	 <6533c1c905041512594bb7abb4@mail.gmail.com>
-	 <e1e1d5f40504151310467d16bd@mail.gmail.com>
-	 <1113596014.6694.87.camel@laptopd505.fenrus.org>
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/15/05, Arjan van de Ven <arjan@infradead.org> wrote:
-> On Fri, 2005-04-15 at 13:10 -0700, Daniel Souza wrote:
-> > You're welcome, Igor. I needed to intercept syscalls in a little
-> > project that I were implementing, to keep track of filesystem changes,
+On Thu, 2005-04-14 at 19:34 -0400, Lee Revell wrote:
+> Here's the patch from that thread against 2.6.12-rc2.  It also fixes an
+> unrelated typo in nearby code.  Obviously untested, as I don't have the
+> hardware ;-)
 > 
-> I assume you weren't about tracking file content changing... since you
-> can't do that with syscall hijacking.. (that is a common misconception
-> by people who came from a MS Windows environment and did things like
-> anti virus tools there this way)
+> Summary: Enable write combining for server works LE rev > 6 per
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0104.3/1007.html
 
-No, I was tracking file creations/modifications/attemps of
-access/directory creations|modifications/file movings/program
-executions with some filter exceptions (avoid logging library loads by
-ldd to preserve disk space).
+OK, Mike has tested my patch with a rev 6 chipset and report that write
+combining works fine.  Andrew, please apply.
 
-It was a little module that logs file changes and program executions
-to syslog (showing owner,pid,ppid,process name, return of
-operation,etc), that, used with remote syslog logging to a 'strictly
-secure' machine (just receive logs), keep security logs of everything
-(like, it was possible to see apache running commands as "ls -la /" or
-"ps aux", that, in fact, were signs of intrusion of try of intrusion,
-because it's not a usual behavior of httpd. Maybe anyone exploited a
-php page to execute arbitrary scripts...)
+Lee
 
--- 
-# (perl -e "while (1) { print "\x90"; }") | dd of=/dev/evil
+
+

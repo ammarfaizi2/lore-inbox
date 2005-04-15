@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261806AbVDOL0T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261746AbVDOL3O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261806AbVDOL0T (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 07:26:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbVDOL0S
+	id S261746AbVDOL3O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 07:29:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261745AbVDOL3O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 07:26:18 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:38089 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261801AbVDOL0P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 07:26:15 -0400
-Date: Fri, 15 Apr 2005 13:25:56 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [GIT PATCH] scsi updates for 2.6.12-rc2
-Message-ID: <20050415112556.GA6086@elf.ucw.cz>
-References: <1113442034.4933.53.camel@mulgrave> <20050415103646.GB1797@elf.ucw.cz>
+	Fri, 15 Apr 2005 07:29:14 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59076 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261673AbVDOL3J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 07:29:09 -0400
+Date: Fri, 15 Apr 2005 12:29:08 +0100
+From: Matthew Wilcox <matthew@wil.cx>
+To: Christoph Hellwig <hch@infradead.org>, Matthew Wilcox <matthew@wil.cx>,
+       Jesper Juhl <juhl-lkml@dif.dk>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fs/fcntl.c : don't test unsigned value for less than zero
+Message-ID: <20050415112908.GZ8669@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.62.0504150303480.3466@dragon.hyggekrogen.localhost> <20050415013100.GY8669@parcelfarce.linux.theplanet.co.uk> <20050415082150.GA19095@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050415103646.GB1797@elf.ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050415082150.GA19095@infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > This is a small set of bugfixes for 2.6.12-rc2 ... you asked me to try
-> > git, so I did (I actually updated my bk backport script simply to export
-> > from a BK tree to a git tree).  For the time being, I plan to keep the
-> > scsi changes in BK, but I'll export them for you to try merging
+On Fri, Apr 15, 2005 at 09:21:50AM +0100, Christoph Hellwig wrote:
+> On Fri, Apr 15, 2005 at 02:31:00AM +0100, Matthew Wilcox wrote:
+> > On Fri, Apr 15, 2005 at 03:07:42AM +0200, Jesper Juhl wrote:
+> > > 'arg' is unsigned so it can never be less than zero, so testing for that 
+> > > is pointless and also generates a warning when building with gcc -W. This 
+> > > patch eliminates the pointless check.
 > > 
-> > The patch (against kernel-test.git) is here
-> > 
-> > rsync://www.parisc-linux.org/~jejb/scsi-rc-fixes-2.6.git
+> > Didn't Linus already reject this one 6 months ago?
 > 
-> Can you du -s on it? Just curious. I started rsync on it, but because
-> it is not standard gzip files, it is difficult to see anything
-> interesting...
+> I think Linux only complained if we're using some typedef that actually
+> may be signed.  For fcntl that 'arg' argument is unsigned and that's hardcoded
+> in the ABI.  So the check doesn't make sense at all.
 
-Okay, so du -s is:
+No, it was exactly this patch:
+http://www.ussg.iu.edu/hypermail/linux/kernel/0401.0/1816.html
 
-root@amd:~# du -sh /tmp/delme.git/
-109M    /tmp/delme.git/
-
-Not as bad as I expected, but still quite a lot of data for few
-changes.
-
-								Pavel
 -- 
-Boycott Kodak -- for their patent abuse against Java.
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

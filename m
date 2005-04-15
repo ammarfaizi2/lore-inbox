@@ -1,54 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261721AbVDOCbG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261723AbVDOCcz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261721AbVDOCbG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 22:31:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbVDOCbG
+	id S261723AbVDOCcz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 22:32:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbVDOCcz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 22:31:06 -0400
-Received: from everest.sosdg.org ([66.93.203.161]:63652 "EHLO mail.sosdg.org")
-	by vger.kernel.org with ESMTP id S261721AbVDOCbE (ORCPT
+	Thu, 14 Apr 2005 22:32:55 -0400
+Received: from waste.org ([216.27.176.166]:27880 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261723AbVDOCct (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 22:31:04 -0400
-Date: Thu, 14 Apr 2005 21:31:04 -0500
-From: Coywolf Qi Hunt <coywolf@sosdg.org>
-To: Allison <fireflyblue@gmail.com>
-Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: Kernel module_list
-Message-ID: <20050415023104.GA27228@everest.sosdg.org>
-Reply-To: coywolf@lovecn.org
-References: <17d798805041413482f5a48c@mail.gmail.com>
+	Thu, 14 Apr 2005 22:32:49 -0400
+Date: Thu, 14 Apr 2005 19:32:32 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>, Ingo Molnar <mingo@elte.hu>,
+       Robert Love <rml@tech9.net>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] sched: fix never executed code due to expression always false
+Message-ID: <20050415023232.GR25554@waste.org>
+References: <Pine.LNX.4.62.0504150140250.3466@dragon.hyggekrogen.localhost> <425F064E.8050003@yahoo.com.au> <Pine.LNX.4.62.0504150213240.3466@dragon.hyggekrogen.localhost> <425F0735.6010407@yahoo.com.au> <Pine.LNX.4.62.0504150222390.3466@dragon.hyggekrogen.localhost> <425F096F.2020303@yahoo.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <17d798805041413482f5a48c@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: coywolf@mail.sosdg.org
+In-Reply-To: <425F096F.2020303@yahoo.com.au>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 14, 2005 at 08:48:42PM +0000, Allison wrote:
-> I am trying to simply print out the module names and code sizes.
-> I am just learning how to rtraverse these data structures.
-
-Just read /proc/modules
-
-	Coywolf
-
+On Fri, Apr 15, 2005 at 10:23:11AM +1000, Nick Piggin wrote:
+> Jesper Juhl wrote:
 > 
-> Also, on what basis is the decision made whether to export a symbol or not ?
+> >
+> >As per this patch perhaps? : 
+> >
 > 
-> thanks,
-> Allison
-> 
-> Arjan van de Ven wrote:
-> > On Thu, 2005-04-14 at 19:53 +0000, Allison wrote:
-> > > 
-> > > I am trying to access the module list kernel data structure from a
-> > > kernel module. If I gather correctly, module_list is the symbol that
-> > > is the head pointer of this list.
-> > 
-> > can you explain what you want to do with this symbol ?
-> > 
-> > 
-> > 
+> Thanks. I'll make sure it gets to the right place if nobody picks it up.
+
+Perhaps this ought to be wrapped up in sched_clock_before() or some
+such.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

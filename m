@@ -1,48 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261931AbVDOTUE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261937AbVDOTWC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261931AbVDOTUE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 15:20:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbVDOTUE
+	id S261937AbVDOTWC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 15:22:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVDOTWB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 15:20:04 -0400
-Received: from mail1.skjellin.no ([80.239.42.67]:12248 "EHLO mx1.skjellin.no")
-	by vger.kernel.org with ESMTP id S261931AbVDOTT4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 15:19:56 -0400
-Message-ID: <426013DD.6050905@tomt.net>
-Date: Fri, 15 Apr 2005 21:19:57 +0200
-From: Andre Tomt <andre@tomt.net>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-Cc: Allison <fireflyblue@gmail.com>, linux-kernel@vger.kernel.org
+	Fri, 15 Apr 2005 15:22:01 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:64718 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261932AbVDOTV4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 15:21:56 -0400
 Subject: Re: Kernel Rootkits
-References: <17d79880504151115744c47bd@mail.gmail.com> <20050415183738.GR17865@csclub.uwaterloo.ca>
-In-Reply-To: <20050415183738.GR17865@csclub.uwaterloo.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+From: Lee Revell <rlrevell@joe-job.com>
+To: Daniel Souza <thehazard@gmail.com>
+Cc: Allison <fireflyblue@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <e1e1d5f40504151140411a3387@mail.gmail.com>
+References: <17d79880504151115744c47bd@mail.gmail.com>
+	 <e1e1d5f40504151140411a3387@mail.gmail.com>
+Content-Type: text/plain
+Date: Fri, 15 Apr 2005 15:21:55 -0400
+Message-Id: <1113592915.23839.6.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lennart Sorensen wrote:
-> Well you could build a monilithic kernel with module loading turned off
-> entirely, but that doesn't prevent replacing libc which most programs
-> use to make those system calls.
+On Fri, 2005-04-15 at 11:40 -0700, Daniel Souza wrote:
+> A way to "protect" system calls is, after boot a trusted kernel image,
+> take a MD5 of the syscalls functions implementations (the opcodes that
+> are part of sys_read for example) and store it in a secure place.
 
-As pointed out elsewhere, modules is not the only way to load kernel 
-code live. Modules is just a cleaner interface for it. Rootkits capable 
-of loading their kernel code without involving the module system has 
-existed for ages.
+That's the problem, once the kernel is compromised there's no such thing
+as a secure place.  Solving this problem requires things like "trusted
+computing" aka hardware support.
 
-> Could make the filesystem readonly,
-> that would prevent writing a module to load into the kernel, and
-> replacing libc as long as you make it imposible to remount the
-> filesystem at all.
+Lee
 
-Don't hold your breath - code can be inserted without involving actual 
-files. It just makes things less persistent.
-
--- 
-Cheers,
-André Tomt

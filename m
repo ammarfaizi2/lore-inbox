@@ -1,90 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261794AbVDOKKL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261796AbVDOKOt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261794AbVDOKKL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 06:10:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261795AbVDOKKK
+	id S261796AbVDOKOt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 06:14:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbVDOKOt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 06:10:10 -0400
-Received: from mail.zmailer.org ([62.78.96.67]:29351 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id S261794AbVDOKKA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 06:10:00 -0400
-Date: Fri, 15 Apr 2005 13:09:59 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Alejandro Bonilla <abonilla@linuxwireless.org>
-Cc: Jeff Lessem <linux-kernel@lists.lessem.org>,
-       Matti Aarnio <matti.aarnio@zmailer.org>, Jesper Juhl <juhl-lkml@dif.dk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: IBM Thinkpad T42 - Looking for a Developer.
-Message-ID: <20050415100959.GP3858@mea-ext.zmailer.org>
-References: <003901c54136$6ba545c0$9f0cc60a@amer.sykes.com> <Pine.LNX.4.62.0504142317480.3466@dragon.hyggekrogen.localhost> <20050414223641.M49815@linuxwireless.org> <20050414231513.GN3858@mea-ext.zmailer.org> <200504142354.j3ENsYj3028900@ibg.colorado.edu> <425F32E8.8090407@linuxwireless.org>
-Mime-Version: 1.0
+	Fri, 15 Apr 2005 06:14:49 -0400
+Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:33520 "EHLO
+	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
+	id S261796AbVDOKOd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 06:14:33 -0400
+To: Vadim Lobanov <vlobanov@speakeasy.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Further copy_from_user() discussion.
+References: <Pine.LNX.4.58.0504131342530.14888@shell4.speakeasy.net>
+	<tnxzmw1d7io.fsf@arm.com>
+	<Pine.LNX.4.58.0504141001580.5403@shell2.speakeasy.net>
+From: Catalin Marinas <catalin.marinas@arm.com>
+Date: Fri, 15 Apr 2005 11:14:28 +0100
+In-Reply-To: <Pine.LNX.4.58.0504141001580.5403@shell2.speakeasy.net> (Vadim
+ Lobanov's message of "Thu, 14 Apr 2005 10:04:33 -0700 (PDT)")
+Message-ID: <tnx64yobb3v.fsf@arm.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <425F32E8.8090407@linuxwireless.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good morning,
+Vadim Lobanov <vlobanov@speakeasy.net> wrote:
+> I think I misspoke a bit in my email above. The intent was not to
+> eliminate all might_sleep() calls from the copy_from_user() code path;
+> but rather juggle the source around a bit so there is only one
+> might_sleep() call per each code path. Currently, in the default case,
+> it calls it twice.
+>
+> By the way, is the following still true about might_sleep()?
+> http://kerneltrap.org/node/3440/10103
 
-On Thu, Apr 14, 2005 at 10:20:08PM -0500, Alejandro Bonilla wrote:
-> Matti,
-> 
-> Where do we stand here? Now that you have two of those outputs, so I 
-> can have some hope... Do you think we can make the driver for this
-> hardware?
-> 
-> How about the firmware that the documents mention? Could there be a 
-> layer in the hardware itself that might prevents us from reading the 
-> fingerprint image?
+With Ingo's realtime-preempt patch, might_sleep() expands to
+might_resched(). The latter expands to cond_resched() only if
+CONFIG_PREEMPT_VOLUNTARY is enabled (for CONFIG_PREEMPT_RT this is not
+needed since the kernel is involuntarily preemptible). In this case it
+might be useful to have might_sleep() only called before memset().
 
-The hardware exists for fingerprint reading.
-It is all a matter of understanding of how to talk to those BULK endpoints
-to do proper communication, and that is somewhat challening without
-that level of documentation.
+-- 
+Catalin
 
-In USB documents that kind of document is known as "Device Class Definition"
-
-  idVendor           0x0483 SGS Thomson Microelectronics
-  idProduct          0x2016
-  iManufacturer           1 STMicroelectronics
-  iProduct                2 Biometric Coprocessor
-    Interface Descriptor:
-      bNumEndpoints           3
-      bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass      0
-      bInterfaceProtocol      0
-      iInterface              0
-
-This "Vendor Specific Class" means it needs specific document,
-not only USB Implementers' Forum:s  generic documents.
-
-
-Windows driver binary does implement it, and (at least in EU) it is
-perfectly legal to reverse engineer something in order to produce
-compatible products or to use something that isn't completely
-documented.
-
-Nevertheless I would prefer to have documents about actual communication
-messages that are exchanged over those endpoints.  That would speed up
-driver writing considerably. 
-
-> Will BioAPI help us at all, or the best approach here is not to make 
-> dll wrapping?
-
-At least I prefer not to mess with (windows-)DLL-wrapping.
-Linux exists in quite a many platforms, and the BioAPI library does
-already exist for Linux in source form as well.
-
-That reference BioAPI implementation needs very least the backend
-driver of the actual reader.  What else does it need, I can't say
-without doing experimentation and code reading.
-
-If the necessary document is deep NDA for some reason, we can
-negotiate with the vendor about how obfuscated version of the
-resulting driver source can be included in open source distributions.
-
-> Thanks for you all time,
-> - Alejandro
-
-/Matti Aarnio

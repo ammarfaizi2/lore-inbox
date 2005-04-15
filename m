@@ -1,70 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261912AbVDOSd1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261899AbVDOSfq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261912AbVDOSd1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 14:33:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbVDOSdU
+	id S261899AbVDOSfq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 14:35:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbVDOSfc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 14:33:20 -0400
-Received: from s0003.shadowconnect.net ([213.239.201.226]:53721 "EHLO
-	mail.shadowconnect.com") by vger.kernel.org with ESMTP
-	id S261912AbVDOSbk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 14:31:40 -0400
-Message-ID: <42600948.4040106@shadowconnect.com>
-Date: Fri, 15 Apr 2005 20:34:48 +0200
-From: Markus Lidel <Markus.Lidel@shadowconnect.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Miquel van Smoorenburg <miquels@cistron.nl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Adaptec 2010S i2o + x86_64 doesn't work
-References: <20050413160352.GA12841@xs4all.net>	 <1113576775.11116.17.camel@localhost.localdomain>	 <1113581722.14421.15.camel@zahadum.xs4all.nl>	 <1113587286.11114.30.camel@localhost.localdomain>	 <426003AB.3060904@shadowconnect.com> <1113588972.6694.78.camel@laptopd505.fenrus.org>
-In-Reply-To: <1113588972.6694.78.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 15 Apr 2005 14:35:32 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:44510 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id S261922AbVDOSdb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 14:33:31 -0400
+Date: Fri, 15 Apr 2005 20:33:27 +0200
+From: Petr Baudis <pasky@ucw.cz>
+To: Allison <fireflyblue@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Re: Kernel Rootkits
+Message-ID: <20050415183327.GA7422@pasky.ji.cz>
+References: <17d79880504151115744c47bd@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17d79880504151115744c47bd@mail.gmail.com>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear diary, on Fri, Apr 15, 2005 at 08:15:37PM CEST, I got a letter
+where Allison <fireflyblue@gmail.com> told me that...
+> hi,
+
 Hello,
 
-Arjan van de Ven wrote:
-> On Fri, 2005-04-15 at 20:10 +0200, Markus Lidel wrote:
->>Alan Cox wrote:
->>>On Gwe, 2005-04-15 at 17:15, Miquel van Smoorenburg wrote:
->>>>However, I removed 2 GB from the box as Alan sugggested and now the box
->>>>comes up just fine with a 64-bit 2.6.11.6 kernel! I've put the 4GB back,
->>>>and booted with the kernel "mem=2048" command line option - that also
->>>>works, the i2o_block driver sees the adaptec controller just fine.
->>>>And I just booted it with "mem=3840M" and that works too.
->>>>So the problem appears to be 4 GB memory in 64 bit mode, on this box.
->>>Or the driver is incorrectly handling 64/32bit DMA limit masks which
->>>would be my first guess here, and would explain why it works on AMD
->>>Athlon64 boxes.
->>Hmmm, i only set DMA_32BIT_MASK and don't do anything special on 64-bit 
->>systems... Is there anything else to do for correct DMA mapping?
-> are you sure the HW isn't 31 bit by accident ? 
+> I got the terminology mixed up. I guess what I really want to know is,
+> what are the different types of exploits by which rootkits
+> (specifically the ones that modify the kernel) can get installed on
+> your system.(other than buffer overflow and somebody stealing the root
+> password)
+> 
+> I know that SucKIT is a rootkit that gets loaded as a kernel module
+> and adds new system calls. Some other rootkits change machine
+> instructions in several kernel functions.
 
-I don't know :-( But if the controller could only handle 31-bit DMA, 
-wouldn't the 32-bit kernel with 4 GB also have the same problems?
+I think you are still confused. You are mixing two things:
 
+(1) Getting enough access to the machine to load the rootkit
 
+(2) Loading the rootkit smart enough to slip any detectors
 
-Best regards,
+The first part basically involves getting root access to the machine.
+This is so broad area that it is out of scope of this mail, I guess, but
+innumerable types of vulnerabilities exist, ranging from silly bugs in
+programs running as root, to in-kernel bugs which let you elevate your
+permissions from a regular user to superuser (root).
 
+The second part is very broad too, I think you would be better off by
+doing some research on your own - there are plenty of resources on the
+net w.r.t. this. (I hope you are asking only in order to defend
+yourself! ;-) Basically, rootkits can range from a set of
+custom-tailored binaries like ps and ls which will hide the cracker's
+files from you, to linux kernel modules which the attacker will load as
+a regular kernel module, but which will then usually hide itself and
+then again hide the cracker's files from you, only better. These are
+already kind of old-fashioned now, though. E.g. the SucKIT rootkit
+installs itself to the kernel by bypassing the traditional kernel module
+installing mechanism and writing itself directly to the memory,
+overriding certain kernel structures and therefore taking control over
+it.
 
-Markus Lidel
-------------------------------------------
-Markus Lidel (Senior IT Consultant)
+> Once these are loaded into the kernel, is there no way the kernel
+> functions can be protected ?
 
-Shadow Connect GmbH
-Carl-Reisch-Weg 12
-D-86381 Krumbach
-Germany
+once they are in the kernel, they can do anything they want. That's the
+point of being in the kernel, after all.
 
-Phone:  +49 82 82/99 51-0
-Fax:    +49 82 82/99 51-11
-
-E-Mail: Markus.Lidel@shadowconnect.com
-URL:    http://www.shadowconnect.com
+-- 
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+C++: an octopus made by nailing extra legs onto a dog. -- Steve Taylor

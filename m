@@ -1,35 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261923AbVDOSkM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbVDOSlx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261923AbVDOSkM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 14:40:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261921AbVDOShi
+	id S261920AbVDOSlx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 14:41:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbVDOSk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 14:37:38 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:53193 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261893AbVDOSgT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 14:36:19 -0400
-Subject: Re: Kernel Rootkits
-From: Lee Revell <rlrevell@joe-job.com>
+	Fri, 15 Apr 2005 14:40:28 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:32659 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S261893AbVDOShm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 14:37:42 -0400
+Date: Fri, 15 Apr 2005 14:37:38 -0400
 To: Allison <fireflyblue@gmail.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <17d79880504151115744c47bd@mail.gmail.com>
+Subject: Re: Kernel Rootkits
+Message-ID: <20050415183738.GR17865@csclub.uwaterloo.ca>
 References: <17d79880504151115744c47bd@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 15 Apr 2005 14:36:16 -0400
-Message-Id: <1113590176.23659.11.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17d79880504151115744c47bd@mail.gmail.com>
+User-Agent: Mutt/1.3.28i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-04-15 at 18:15 +0000, Allison wrote:
+On Fri, Apr 15, 2005 at 06:15:37PM +0000, Allison wrote:
+> I got the terminology mixed up. I guess what I really want to know is,
+> what are the different types of exploits by which rootkits
+> (specifically the ones that modify the kernel) can get installed on
+> your system.(other than buffer overflow and somebody stealing the root
+> password)
+> 
+> I know that SucKIT is a rootkit that gets loaded as a kernel module
+> and adds new system calls. Some other rootkits change machine
+> instructions in several kernel functions.
+> 
 > Once these are loaded into the kernel, is there no way the kernel
 > functions can be protected ?
 
-No.  If the attacker can load arbitrary code into the kernel, game over.
-Think about it.
+Well you could build a monilithic kernel with module loading turned off
+entirely, but that doesn't prevent replacing libc which most programs
+use to make those system calls.  Could make the filesystem readonly,
+that would prevent writing a module to load into the kernel, and
+replacing libc as long as you make it imposible to remount the
+filesystem at all.
 
-Lee
-
+Len Sorensen

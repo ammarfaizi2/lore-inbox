@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261753AbVDOHZC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261754AbVDOH1o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261753AbVDOHZC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 03:25:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbVDOHZB
+	id S261754AbVDOH1o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 03:27:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261755AbVDOH1o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 03:25:01 -0400
-Received: from smtp1.netcologne.de ([194.8.194.112]:5037 "EHLO
-	smtp1.netcologne.de") by vger.kernel.org with ESMTP id S261753AbVDOHY7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 03:24:59 -0400
-Message-ID: <425F6C48.9060505@interia.pl>
-Date: Fri, 15 Apr 2005 09:24:56 +0200
-From: Tomasz Chmielewski <mangoo@interia.pl>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Wright <chrisw@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: poor SATA performance under 2.6.11 (with < 2.6.11 is OK)?
-References: <425E9902.8000804@interia.pl> <20050414165535.GA15440@irc.pl> <425EE9CF.4030202@interia.pl> <20050414223417.GA23013@shell0.pdx.osdl.net>
-In-Reply-To: <20050414223417.GA23013@shell0.pdx.osdl.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 15 Apr 2005 03:27:44 -0400
+Received: from pne-smtpout1-sn2.hy.skanova.net ([81.228.8.83]:56003 "EHLO
+	pne-smtpout1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S261754AbVDOH1h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 03:27:37 -0400
+Message-ID: <28347315.1113550056435.JavaMail.tomcat@pne-ps4-sn1>
+Date: Fri, 15 Apr 2005 09:27:36 +0200 (MEST)
+From: gabriel <gabriel.j@telia.com>
+Reply-To: gabriel <gabriel.j@telia.com>
+To: linux-kernel@vger.kernel.org
+Subject: Booting from USB with initrd
+Mime-Version: 1.0
+Content-Type: text/plain;charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Mailer: CP Presentation Server
+X-clientstamp: [83.227.221.136]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright wrote:
-> * Tomasz Chmielewski (mangoo@interia.pl) wrote:
-> 
->>or should I wait for 2.6.11.7 (?), where it should be corrected?
+Hi Im trying to boot an encrypted file system using an initrd on a USB. 
+I use syslinux for the actual boot process as I couldnt get Grub to boot
+of it for some reason. This is the .cfg
 
-well, indeed, a week ago or more :)
+ default vmlinuz
+ timeout 100
+ prompt 1
+ label linux
+ kernel vmlinuz
+ append initrd=/initrd.gz root=/dev/ram0 rootfstype=minix init=/linuxrc
 
+As far as I can tell this should load the initrd but that never happens.
+Everything seems to boot fine. Syslinux loads the kernel and I get to 
+the point where initrd should be mounted only to get this error.
 
-> Wait, no longer, 2.6.11.7 has been here already ;-)  However, nothing in
-> this area was touched.  If there's an outstanding issue, please chase it
-> down, and if it's reasonable regression fix we can consider it for
-> the -stable tree.
+Kernel panic - not syncing: VFS: Unable to mount root fs on unknown-block(1,0)
+followed by the USB information and stop.
+<5> Vendor SWISSBIT Mode: Victorinox 2.0 Rev 2.00
+Type Direct-Access ANSI SCSI Revision: 02
+SCSI device sdb: 1022720 512 byte hdwr sectors (524mb)
+sdb: Write Protect is off
+sdb: asuming driver cache: write-through
 
-OK so Tomasz Torch suggested that my drive was blacklisted somewhere 
-after 2.6.8.1 (it's the last kernel on which I have good performance).
+I have support for minix, vfat, ext2 and ext3 in the kernel. I have recompiled the 
+kernel 
+like 20 times to test different things. So what Im thinking is that the 
+USB device doesn't 
+get realized before syslinux tries to load it?
 
-Does drive blacklisting = very poor performance?
-And no drive blacklisting = good performance, and possibly data corruption?
+Oh I do have the ramdisk in the kernel and everything.
 
-
-Tomek

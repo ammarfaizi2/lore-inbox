@@ -1,26 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261609AbVDOVrS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261942AbVDOVuV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261609AbVDOVrS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 17:47:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVDOVrR
+	id S261942AbVDOVuV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 17:50:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbVDOVuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 17:47:17 -0400
-Received: from zproxy.gmail.com ([64.233.162.207]:48872 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261609AbVDOVrM convert rfc822-to-8bit
+	Fri, 15 Apr 2005 17:50:20 -0400
+Received: from zproxy.gmail.com ([64.233.162.195]:49654 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261942AbVDOVuP convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 17:47:12 -0400
+	Fri, 15 Apr 2005 17:50:15 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ALalLphrqU/Xop7Gq39ApTaDjmhSqB41mB2UF45jarmdu97teuW06uOQWrv7fxJx8AfexR70RaFFvPlNADXI4U67ojAYHbtg6N+JIOMrfG0t0xaCVeM2GvzgYsNpJpdnOKSyWNB814vg2G/fl1edbyX3PDpSeh7ysrl3cRoQYwc=
-Message-ID: <29495f1d05041514474e17a2da@mail.gmail.com>
-Date: Fri, 15 Apr 2005 14:47:11 -0700
+        b=G84diO9ytaOHEWwZo2vvp6tXd8FU7aEUDj3WBV/dbEGlfIhx4zvqicgKpdGohIwj2QyBcOkd9734N1WwY2jl/pnOoCiaOihFz7n9v7Kk3/E3OjinbunRmHi1SR8+AUq6JKk69sA8CgNZ/cSn9d8z/ngJ51nPS92ZAEg7b/fSllQ=
+Message-ID: <29495f1d050415144774ec9c44@mail.gmail.com>
+Date: Fri, 15 Apr 2005 14:47:41 -0700
 From: Nish Aravamudan <nish.aravamudan@gmail.com>
 Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: Greg KH <greg@kroah.com>
+To: Kylene Hall <kjhall@us.ibm.com>
 Subject: Re: [PATCH] char/tpm: use msleep(), clean-up timers, fix typo
-Cc: Kylene Hall <kjhall@us.ibm.com>, Nishanth Aravamudan <nacc@us.ibm.com>,
-       linux-kernel@vger.kernel.org
+Cc: Nishanth Aravamudan <nacc@us.ibm.com>, linux-kernel@vger.kernel.org
 In-Reply-To: <20050415210402.GA22834@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -48,8 +47,11 @@ On 4/15/05, Greg KH <greg@kroah.com> wrote:
 > should know how to get it into the mainline kernel tree properly.  If
 > not, why would they be listed as the maintainer?  :)
 
-Sorry about that Greg, I was just mixed-up since you had pushed the
-original patch in; my fault. Will remove you from my other reply.
+Kylene, there is no entry in MAINTAINERS as of 2.6.12-rc2 for the TPM
+driver? Should there be?
+
+I am assuming tpmdd_devel can take care of merging the patch and
+pushing to mainline? Please do so.
 
 Thanks,
 Nish

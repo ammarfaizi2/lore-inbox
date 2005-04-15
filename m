@@ -1,65 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261892AbVDOSHq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261890AbVDOSHi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261892AbVDOSHq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 14:07:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbVDOSHq
+	id S261890AbVDOSHi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 14:07:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbVDOSHg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 14:07:46 -0400
-Received: from s0003.shadowconnect.net ([213.239.201.226]:18649 "EHLO
-	mail.shadowconnect.com") by vger.kernel.org with ESMTP
-	id S261892AbVDOSHg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 15 Apr 2005 14:07:36 -0400
-Message-ID: <426003AB.3060904@shadowconnect.com>
-Date: Fri, 15 Apr 2005 20:10:51 +0200
-From: Markus Lidel <Markus.Lidel@shadowconnect.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Miquel van Smoorenburg <miquels@cistron.nl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Adaptec 2010S i2o + x86_64 doesn't work
-References: <20050413160352.GA12841@xs4all.net>	 <1113576775.11116.17.camel@localhost.localdomain>	 <1113581722.14421.15.camel@zahadum.xs4all.nl> <1113587286.11114.30.camel@localhost.localdomain>
-In-Reply-To: <1113587286.11114.30.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Received: from mx1.redhat.com ([66.187.233.31]:24806 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261890AbVDOSHY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 14:07:24 -0400
+Date: Fri, 15 Apr 2005 14:07:03 -0400
+From: Dave Jones <davej@redhat.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Chris Wright <chrisw@osdl.org>, Andi Kleen <ak@suse.de>,
+       "Sergey S. Kostyliov" <rathamahata@ehouse.ru>,
+       Clem Taylor <clem.taylor@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: x86-64 bad pmds in 2.6.11.6 II
+Message-ID: <20050415180703.GA26289@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Hugh Dickins <hugh@veritas.com>, Chris Wright <chrisw@osdl.org>,
+	Andi Kleen <ak@suse.de>,
+	"Sergey S. Kostyliov" <rathamahata@ehouse.ru>,
+	Clem Taylor <clem.taylor@gmail.com>, linux-kernel@vger.kernel.org
+References: <20050407062928.GH24469@wotan.suse.de> <Pine.LNX.4.61.0504141419250.25074@goblin.wat.veritas.com> <20050414170117.GD22573@wotan.suse.de> <Pine.LNX.4.61.0504141804480.26008@goblin.wat.veritas.com> <20050414181015.GH22573@wotan.suse.de> <20050414181133.GA18221@wotan.suse.de> <20050414182712.GG493@shell0.pdx.osdl.net> <20050415172408.GB8511@wotan.suse.de> <20050415172816.GU493@shell0.pdx.osdl.net> <Pine.LNX.4.61.0504151833020.29919@goblin.wat.veritas.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0504151833020.29919@goblin.wat.veritas.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, Apr 15, 2005 at 06:58:20PM +0100, Hugh Dickins wrote:
 
-Alan Cox wrote:
-> On Gwe, 2005-04-15 at 17:15, Miquel van Smoorenburg wrote:
->>However, I removed 2 GB from the box as Alan sugggested and now the box
->>comes up just fine with a 64-bit 2.6.11.6 kernel! I've put the 4GB back,
->>and booted with the kernel "mem=2048" command line option - that also
->>works, the i2o_block driver sees the adaptec controller just fine.
->>And I just booted it with "mem=3840M" and that works too.
->>So the problem appears to be 4 GB memory in 64 bit mode, on this box.
+ > > > If there was a fix for the bad pmd problem it might be a candidate
+ > > > for stable, but so far we dont know what causes it yet.
+ > > If I figure a way to trigger here, I'll report back.
+ > 
+ > Dave, earlier on you were quite able to reproduce the problem on 2.6.11,
+ > finding it happened the first time you ran X.  Do you have any time to
+ > reverify that, then try to reproduce with the load_cr3 in leave_mm patch?
+ > 
+ > But please don't waste your time on this unless you think it's plausible.
 
-OK, i never tried it with 4 GB so it really could be a problem...
+I used to be able to reproduce it 100% by doing this on an vanilla
+upstream kernel. Then it changed behaviour so I only saw it happening
+on the Fedora kernel.  For the latest Fedora update kernel I backported
+this change..
+- x86_64: Only free PMDs and PUDs after other CPUs have been flushed
+as a 'try it and see'.  At first I thought it killed the bug, but
+a day or so later, it started doing it again.
 
-> Or the driver is incorrectly handling 64/32bit DMA limit masks which
-> would be my first guess here, and would explain why it works on AMD
-> Athlon64 boxes.
+In the Fedora kernel we have a patch which restricts /dev/mem reading,
+so I got suspicious about this interacting with any of the changes
+that had happened to drivers/char/mem.c
+Out of curiousity, I backported the 3-4 patches from .12rc to
+the Fedora .11 kernel, and haven't seen the problem since.
 
-Hmmm, i only set DMA_32BIT_MASK and don't do anything special on 64-bit 
-systems... Is there anything else to do for correct DMA mapping?
+The bizarre thing is I can't explain why any of those patches would
+make such a difference.  Given the bug seems to be coming and going
+for me, its possible its just masked the problem.
 
-Best regards,
+		Dave
 
-
-Markus Lidel
-------------------------------------------
-Markus Lidel (Senior IT Consultant)
-
-Shadow Connect GmbH
-Carl-Reisch-Weg 12
-D-86381 Krumbach
-Germany
-
-Phone:  +49 82 82/99 51-0
-Fax:    +49 82 82/99 51-11
-
-E-Mail: Markus.Lidel@shadowconnect.com
-URL:    http://www.shadowconnect.com

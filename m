@@ -1,64 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261674AbVDOAS6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbVDOAS7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261674AbVDOAS6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 20:18:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbVDOASH
+	id S261681AbVDOAS7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 20:18:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261676AbVDOARl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 20:18:07 -0400
-Received: from ns1.g-housing.de ([62.75.136.201]:9868 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S261674AbVDOAPg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 20:15:36 -0400
-Message-ID: <425F07A6.2010402@g-house.de>
-Date: Fri, 15 Apr 2005 02:15:34 +0200
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050326)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jesper Juhl <juhl-lkml@dif.dk>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ALSA Oops (triggered by xmms)
-References: <425EFB32.2010000@g-house.de> <Pine.LNX.4.62.0504150150240.3466@dragon.hyggekrogen.localhost>
-In-Reply-To: <Pine.LNX.4.62.0504150150240.3466@dragon.hyggekrogen.localhost>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Apr 2005 20:17:41 -0400
+Received: from wproxy.gmail.com ([64.233.184.206]:52355 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261677AbVDOAQ2 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 20:16:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=XIVzeq1rShxR7DlemsfSSJQB/ys3fw+as8cGpTnGdRqPem9uKrcFffAHBAiH9m3edWiSHxgSWwd5YhtktyI2gzXak7jJ+RzS5WetWyURooPgVLfyiAnt7EMHOjPY3ATliSyTFlZQDIkUnl+JgHV17eN/mEL8ENUAAphQxhzbgxg=
+Message-ID: <c26b959205041417163acf174@mail.gmail.com>
+Date: Fri, 15 Apr 2005 05:46:22 +0530
+From: Imanpreet Arora <imanpreet@gmail.com>
+Reply-To: Imanpreet Arora <imanpreet@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Question On TSS
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hello,
 
-Jesper Juhl wrote:
-> 
->   ^^^^^ you should send such info inline in the email - having to go check 
-> external links makes a lot of people ignore the stuff right then and 
+I am a bit confused about the TSS. The documentation says that it
+includes 3 fields SS0, SS1 and SS2 for privilige levels 0, 1, 2
+respectively. And are set up when a task is first created, I can't
+figure out why these fields are necessary. I think that these fileds
+are necessary when we have moved from PL 3 to PL0 and these would
+contain information about upper 3 stacks so that information can be
+retrived.
 
-yeah, but the oops doesn't wrap at 80 chars itsself and often oopses are
-hardly readable inline.
+-- 
 
-> Btw: I believe this is fixed in 2.6.11.7 - from the Changelog : 
->
-> <tiwai@suse.de>
-> 	[PATCH] Fix Oops with ALSA timer event notification
-
-oh, this sounds good. strange though, that my 2.6.11-gentoo-r5 (whatever
-they've patched in there) *never* oopsed the days ago but all of a sudden
-started to oops yesterday....
-
-
-thank you,
-Christian.
-- --
-BOFH excuse #131:
-
-telnet: Unable to connect to remote host: Connection refused
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCXwem+A7rjkF8z0wRAuXSAJ4tZujWF0H5Da5o2J6yfzZQJolhPACgiKUR
-YknU154MUkPEB52FuYTTF50=
-=5yoy
------END PGP SIGNATURE-----
+Imanpreet Singh Arora

@@ -1,64 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbVDOAV1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261679AbVDOAXE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261677AbVDOAV1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 20:21:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbVDOATY
+	id S261679AbVDOAXE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 20:23:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbVDOAWV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 20:19:24 -0400
-Received: from mail.zmailer.org ([62.78.96.67]:8656 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id S261677AbVDOARv (ORCPT
+	Thu, 14 Apr 2005 20:22:21 -0400
+Received: from mail.dif.dk ([193.138.115.101]:4228 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261679AbVDOAUo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 20:17:51 -0400
-Date: Fri, 15 Apr 2005 03:17:47 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: abonilla <abonilla@linuxwireless.org>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, linux-kernel@vger.kernel.org
-Subject: Re: IBM Thinkpad T42 - Looking for a Developer.
-Message-ID: <20050415001747.GO3858@mea-ext.zmailer.org>
-References: <003901c54136$6ba545c0$9f0cc60a@amer.sykes.com> <Pine.LNX.4.62.0504142317480.3466@dragon.hyggekrogen.localhost> <20050414223641.M49815@linuxwireless.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050414223641.M49815@linuxwireless.org>
+	Thu, 14 Apr 2005 20:20:44 -0400
+Date: Fri, 15 Apr 2005 02:23:31 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Ingo Molnar <mingo@elte.hu>, Robert Love <rml@tech9.net>,
+       Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] sched: fix never executed code due to expression always
+ false
+In-Reply-To: <425F0735.6010407@yahoo.com.au>
+Message-ID: <Pine.LNX.4.62.0504150222390.3466@dragon.hyggekrogen.localhost>
+References: <Pine.LNX.4.62.0504150140250.3466@dragon.hyggekrogen.localhost>
+ <425F064E.8050003@yahoo.com.au> <Pine.LNX.4.62.0504150213240.3466@dragon.hyggekrogen.localhost>
+ <425F0735.6010407@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 14, 2005 at 06:40:16PM -0400, abonilla wrote:
-> On Thu, 14 Apr 2005 23:20:19 +0200 (CEST), Jesper Juhl wrote
-> > >  This is located in my home PC, Won't be the fastest downloads...
-> > >  
-> > >  http://wifitux.com/finger/
-> > >  
-> > Under what terms did you obtain these documents and from where? Are 
-> > they completely freely distributable or are there strings attached?
+On Fri, 15 Apr 2005, Nick Piggin wrote:
+
+> Jesper Juhl wrote:
+> > On Fri, 15 Apr 2005, Nick Piggin wrote:
+> > 
+> > 
+> > > Jesper Juhl wrote:
+> > > 
+> > > > There are two expressions in kernel/sched.c that are always false since
+> > > > they
+> > > > test for <0 but the result of the expression is unsigned so they will
+> > > > never
+> > > > be less than zero. This patch implement the logic that I believe is
+> > > > intended
+> > > > without the signedness issue and without the nasty casts.
+> > > > <disclaimer>patch is compile tested only</disclaimer>
+> > > > 
+> > > This is not *quite* the intended behaviour. It is OK for prev->timestamp
+> > > to be '0 - a bit' and now to be '0 + a bit' in the case of wrapping.
+> > > 
+> > > Although considering they're 64-bit values, I'm not sure how much we care.
+> > > 
+> > 
+> > How do you propose to fix this then?  As the code is now the expressionsa
+> > are always false - should we just remove the them?  Or do you have a
+> > sensible definition of "a bit" ?  or ome other suggestion alltogether?
+> > 
 > 
-> I emailed the guys and they told me, "Hey, here you go, let me know if you
-> want more information"
+> Make it a signed comparison?
+> 
+As per this patch perhaps? : 
 
-Those documents and files are downloadable also from   www.upek.com
-They are rather scattered out there, but still...
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-In Linux environment we do need to define and implement our own
-interface to the the device.  There is  BioAPI (www.bioapi.org)
-interface specification, but that is rather high up in the application
-stack.  (There exists also NIST written Linux version at that site,
-and it seems to be "BSD with advertisement clause" licensed...)
+--- linux-2.6.12-rc2-mm3-orig/kernel/sched.c	2005-04-11 21:20:56.000000000 +0200
++++ linux-2.6.12-rc2-mm3/kernel/sched.c	2005-04-15 02:21:34.000000000 +0200
+@@ -2697,9 +2697,10 @@ need_resched_nonpreemptible:
+ 	schedstat_inc(rq, sched_cnt);
+ 	now = sched_clock();
+ 	if (likely((long long)now - prev->timestamp < NS_MAX_SLEEP_AVG)) {
+-		run_time = now - prev->timestamp;
+-		if (unlikely((long long)now - prev->timestamp < 0))
++		if (unlikely(((long long)now - (long long)prev->timestamp) < 0))
+ 			run_time = 0;
++		else
++			run_time = now - prev->timestamp;
+ 	} else
+ 		run_time = NS_MAX_SLEEP_AVG;
+ 
+@@ -2776,7 +2777,7 @@ go_idle:
+ 
+ 	if (!rt_task(next) && next->activated > 0) {
+ 		unsigned long long delta = now - next->timestamp;
+-		if (unlikely((long long)now - next->timestamp < 0))
++		if (unlikely(((long long)now - (long long)next->timestamp) < 0))
+ 			delta = 0;
+ 
+ 		if (next->activated == 1)
 
-My reading so far seems to indicate, that this is mostly doable
-in the application space without needing kernel space drivers.
 
-Implementing BioAPI interface library with device specific backends
-(much in the same manner as SANE works) is the way, I do think.
-To how large an extent the existing source code can be used
-in this is so far unknown.
-
-To be able to do the device specific backends, I do need to have
-the detailed USB interface protocol descriptions, not just a windows
-library binary wrapping them up into BioAPI.   I can handle NDA 
-documents as long as the resulting source code into Linux (and any
-other UNIX-like system capable to use it) can be published.
-
-> > -- 
-> > Jesper
-
-/Matti Aarnio

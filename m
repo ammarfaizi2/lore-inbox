@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbVDOB07@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261709AbVDOBbE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261708AbVDOB07 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 21:26:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbVDOB07
+	id S261709AbVDOBbE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 21:31:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbVDOBbD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 21:26:59 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:44942 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261708AbVDOB06 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 21:26:58 -0400
-Subject: Re: alsa es1371's joystick functionality broken in 2.6.11-mm4
-From: Lee Revell <rlrevell@joe-job.com>
-To: Patrick McFarland <pmcfarland@downeast.net>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200504142119.04527.pmcfarland@downeast.net>
-References: <200503201557.58055.pmcfarland@downeast.net>
-	 <200503302359.39200.pmcfarland@downeast.net>
-	 <200504070717.34113.pmcfarland@downeast.net>
-	 <200504142119.04527.pmcfarland@downeast.net>
-Content-Type: text/plain
-Date: Thu, 14 Apr 2005 21:26:56 -0400
-Message-Id: <1113528416.19830.72.camel@mindpipe>
+	Thu, 14 Apr 2005 21:31:03 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58602 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261710AbVDOBbA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 21:31:00 -0400
+Date: Fri, 15 Apr 2005 02:31:00 +0100
+From: Matthew Wilcox <matthew@wil.cx>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: Matthew Wilcox <matthew@wil.cx>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fs/fcntl.c : don't test unsigned value for less than zero
+Message-ID: <20050415013100.GY8669@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.62.0504150303480.3466@dragon.hyggekrogen.localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0504150303480.3466@dragon.hyggekrogen.localhost>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-04-14 at 21:18 -0400, Patrick McFarland wrote:
-> On Thursday 07 April 2005 07:17 am, Patrick McFarland wrote:
-> > Nope, 2.6.7 is also fubar. Now to 2.6.6.
-> 
-> I haven't tested 2.6.6 yet, but 2.6.12-rc2-mm3 is broken too.
-> 
+On Fri, Apr 15, 2005 at 03:07:42AM +0200, Jesper Juhl wrote:
+> 'arg' is unsigned so it can never be less than zero, so testing for that 
+> is pointless and also generates a warning when building with gcc -W. This 
+> patch eliminates the pointless check.
 
-There's no point in testing newer kernels if you have yet to find an old
-2.6 kernel where it works.
+Didn't Linus already reject this one 6 months ago?
 
-Do you have any evidence that it ever worked with ALSA?  I suspect it's
-always been broken, and that 2.6.8 or 2.6.9 system you referred to was
-using the OSS driver.
-
-Lee
-
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

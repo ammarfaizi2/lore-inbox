@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261911AbVDOS0f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbVDOSbM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261911AbVDOS0f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 14:26:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261908AbVDOSYa
+	id S261914AbVDOSbM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 14:31:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbVDOSbD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 14:24:30 -0400
-Received: from smtp.blackdown.de ([213.239.206.42]:31938 "EHLO
-	smtp.blackdown.de") by vger.kernel.org with ESMTP id S261910AbVDOSXo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 14:23:44 -0400
-From: Juergen Kreileder <jk@blackdown.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc2-mm3
-References: <20050411012532.58593bc1.akpm@osdl.org>
-	<87wtr8rdvu.fsf@blackdown.de>
-X-PGP-Key: http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0x730A28A5
-X-PGP-Fingerprint: 7C19 D069 9ED5 DC2E 1B10  9859 C027 8D5B 730A 28A5
-Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Andrew
-	Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Date: Fri, 15 Apr 2005 20:23:26 +0200
-In-Reply-To: <87wtr8rdvu.fsf@blackdown.de> (Juergen Kreileder's message of
-	"Tue, 12 Apr 2005 03:18:45 +0200")
-Message-ID: <87u0m7aogx.fsf@blackdown.de>
-Organization: Blackdown Java-Linux Team
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.4 (gnu/linux)
+	Fri, 15 Apr 2005 14:31:03 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24725 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261893AbVDOS35 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 14:29:57 -0400
+Message-ID: <42600818.3030802@pobox.com>
+Date: Fri, 15 Apr 2005 14:29:44 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Joe Harvell <jharvell@dogpad.net>
+CC: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [SATA] status reports updated
+References: <42600375.9080108@pobox.com> <1113589153.1013.3.camel@wrc2y0me.us.nortel.com>
+In-Reply-To: <1113589153.1013.3.camel@wrc2y0me.us.nortel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Warning: 24.25.22.197 is listed at orbz.gst-group.uk.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Juergen Kreileder <jk@blackdown.de> writes:
+Joe Harvell wrote:
+> Jeff:
+> 
+> You need to add a comment about the SATAII TX2/TX4 boards indicating
+> users have experienced data corruption with the sata_promise driver and
+> the SATAII TX4 board.
+> 
+> I've posted several emails to linux-ide about this.  Why haven't you
+> responded?
 
-> Andrew Morton <akpm@osdl.org> writes:
->
->> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm3/
->
-> I'm getting frequent lockups on my PowerMac G5 with rc2-mm3.
+I've seen reports on the SX4, but not on the SATAII TX4.
 
-I think I finally found the culprit.  Both rc2-mm3 and rc1-mm1 work
-fine when I reverse the timer-* patches.
+URLs to messages you posted?
 
-Any idea?  Bug in my ppc64 gcc?
+	JEff
 
 
-        Juergen
-
--- 
-Juergen Kreileder, Blackdown Java-Linux Team
-http://blog.blackdown.de/

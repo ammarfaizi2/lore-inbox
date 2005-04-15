@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVDOJZ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261774AbVDOJgp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261448AbVDOJZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 05:25:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbVDOJZ5
+	id S261774AbVDOJgp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 05:36:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbVDOJgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 05:25:57 -0400
-Received: from pne-smtpout1-sn2.hy.skanova.net ([81.228.8.83]:43476 "EHLO
-	pne-smtpout1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S261448AbVDOJZw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 05:25:52 -0400
-Message-ID: <22151575.1113557151100.JavaMail.tomcat@pne-ps1-sn2>
-Date: Fri, 15 Apr 2005 11:25:51 +0200 (MEST)
-From: gabriel <gabriel.j@telia.com>
-Reply-To: gabriel <gabriel.j@telia.com>
-To: linux-kernel@vger.kernel.org
-Subject: Sv: Re: Booting from USB with initrd
-Mime-Version: 1.0
-Content-Type: text/plain;charset="ISO-8859-1"
+	Fri, 15 Apr 2005 05:36:45 -0400
+Received: from sophia.inria.fr ([138.96.64.20]:12430 "EHLO sophia.inria.fr")
+	by vger.kernel.org with ESMTP id S261774AbVDOJgn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 05:36:43 -0400
+Message-ID: <425F8B09.3010706@yahoo.fr>
+Date: Fri, 15 Apr 2005 11:36:09 +0200
+From: Guillaume Chazarain <guichaz@yahoo.fr>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Guillaume Chazarain <guichaz@yahoo.fr>
+CC: linux-kernel@vger.kernel.org, linux-joystick@atrey.karlin.mff.cuni.cz
+Subject: Re: snd-ens1371 (alsa) & joystick woes
+References: <425BACC2.9020709@yahoo.fr>
+In-Reply-To: <425BACC2.9020709@yahoo.fr>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: CP Presentation Server
-X-clientstamp: [193.183.200.66]
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (sophia.inria.fr [138.96.64.20]); Fri, 15 Apr 2005 11:36:09 +0200 (MEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-04-15 at 09:27 +0200, gabriel wrote:
-> Kernel panic - not syncing: VFS: Unable to mount root fs on unknown-block
-(1,0)
+Guillaume Chazarain wrote:
 
->Hi Gabriel!
+> From 2.6.11 to 2.6.12-rc2, there are some changes in the joystick 
+> behaviour
+> that I don't think are expected. It's a simple joystick using 
+> analog.ko plugged
+> on a sound board using snd-ens1371. So here we go:
 
-Hi!
+Reverting 
+http://linux.bkbits.net:8080/linux-2.5/diffs/drivers/input/joydev.c@1.31?nav=index.html|src/|src/drivers|src/drivers/input|hist/drivers/input/joydev.c
+(removing all the added " + 1" in joydev.c) fixes it for me.
 
->It looks like initrd.gz could not be mounted. The unknown-block(1,0)
->is /dev/ram0 (and has normally initrd attached to it) as specified on
->kernel command line.
+Regards.
 
->Do you use an initrd or an initramfs? Is the kernel compiled with initrd
->support? Is the ramdisk size big enough to hold your initrd?
-
-I'm no really sure what the difference is. initrd.gz is a compressed file 
-with a minix on it. Its created automaticly with build-initrd.sh from loop-
-aes 
-package.
-
-the ramdisk is 4096 which should be sufficient and yes the kernel has intrd 
-support.
-
->regards
-
+-- 
+Guillaume
 

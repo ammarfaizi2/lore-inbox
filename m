@@ -1,45 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261883AbVDOST1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261897AbVDOSVx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261883AbVDOST1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 14:19:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbVDOSSd
+	id S261897AbVDOSVx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 14:21:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbVDOSTx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 14:18:33 -0400
-Received: from wproxy.gmail.com ([64.233.184.196]:8266 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261899AbVDOSPk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 14:15:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=F7dMhGSXsQ328Yw3juNcg6izsw2kq5B95eOAJkWgSA3WM47+4VuHVnW1tf7HFjShkLCuECYldypfBj5qL5/KxRfoLd9HAJrHT7EPeC5pu+YstHIXYW3yn9r5gpW1yySPEfwBtq9LTGQVDUUk0qgsJHmMCHBd6wgQ+XZ/Wykmk0Y=
-Message-ID: <17d79880504151115744c47bd@mail.gmail.com>
-Date: Fri, 15 Apr 2005 18:15:37 +0000
-From: Allison <fireflyblue@gmail.com>
-Reply-To: Allison <fireflyblue@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Rootkits
+	Fri, 15 Apr 2005 14:19:53 -0400
+Received: from zrtps0kn.nortelnetworks.com ([47.140.192.55]:7857 "EHLO
+	zrtps0kn.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261899AbVDOSTV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 14:19:21 -0400
+Subject: Re: [SATA] status reports updated
+From: Joe Harvell <jharvell@dogpad.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <42600375.9080108@pobox.com>
+References: <42600375.9080108@pobox.com>
+Content-Type: text/plain
+Message-Id: <1113589153.1013.3.camel@wrc2y0me.us.nortel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Fri, 15 Apr 2005 13:19:13 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+Jeff:
 
-I got the terminology mixed up. I guess what I really want to know is,
-what are the different types of exploits by which rootkits
-(specifically the ones that modify the kernel) can get installed on
-your system.(other than buffer overflow and somebody stealing the root
-password)
+You need to add a comment about the SATAII TX2/TX4 boards indicating
+users have experienced data corruption with the sata_promise driver and
+the SATAII TX4 board.
 
-I know that SucKIT is a rootkit that gets loaded as a kernel module
-and adds new system calls. Some other rootkits change machine
-instructions in several kernel functions.
+I've posted several emails to linux-ide about this.  Why haven't you
+responded?
 
-Once these are loaded into the kernel, is there no way the kernel
-functions can be protected ?
+Promise TX2/TX4
+Summary: No TCQ/NCQ. Full SATA control including hotplug and PM on all. 
 
-thanks,
-Allison
+[snip]
+
+Update 2005/04/15: Support for the NCQ-capable SATAII TX2/TX4 boards was
+recently added. NCQ support is waiting on libata core.
+
+
+On Fri, 2005-04-15 at 13:09, Jeff Garzik wrote:
+> My Linux SATA software/hardware status reports have just been updated. 
+> To see where libata (SATA) support stands for a particular piece of 
+> hardware, or a particular feature, go to
+> 
+> 	http://linux.yyz.us/sata/
+> 
+> I've still got several patches from EMC (Brett) and IBM (Albert) to go 
+> through, as well as a few scattered ones from random authors.
+> 
+> I'm still working in BitKeeper for the time being.
+> 
+> 	Jeff
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-ide" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Joe Harvell
+jharvell@dogpad.net
+

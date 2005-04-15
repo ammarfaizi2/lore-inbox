@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261798AbVDOKOx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261803AbVDOKhl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261798AbVDOKOx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 06:14:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbVDOKOx
+	id S261803AbVDOKhl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 06:37:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbVDOKhl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 06:14:53 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:37054 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S261798AbVDOKOk (ORCPT
+	Fri, 15 Apr 2005 06:37:41 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:1492 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261800AbVDOKhd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 06:14:40 -0400
-Date: Fri, 15 Apr 2005 12:12:38 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Eduard de Boer <elr.de.boer@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: MD / RAID5: Memory leak?
-Message-ID: <20050415101238.GA15358@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Eduard de Boer <elr.de.boer@gmail.com>, linux-kernel@vger.kernel.org
-References: <30e555b5050415010015ddbcf4@mail.gmail.com>
+	Fri, 15 Apr 2005 06:37:33 -0400
+Date: Fri, 15 Apr 2005 12:36:46 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [GIT PATCH] scsi updates for 2.6.12-rc2
+Message-ID: <20050415103646.GB1797@elf.ucw.cz>
+References: <1113442034.4933.53.camel@mulgrave>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <30e555b5050415010015ddbcf4@mail.gmail.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <1113442034.4933.53.camel@mulgrave>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 15, 2005 at 10:00:39AM +0200, Eduard de Boer wrote:
-> I use rsync to copy a bunch of files (several GB's) to the designated
-> filesystems. But after a while, all file systems get corrupted and
-> 'dmesg' lists all kinds of memory corruptions in 'dm' and so on.
-> Hence, the file copying stops.
+Hi!
 
-That doesn't sound like a memory leak per se. Can you watch the contents of
-/proc/slabinfo ? Or perhaps compare before/after a copy and check if one of
-the entries has grown huge.
+> This is a small set of bugfixes for 2.6.12-rc2 ... you asked me to try
+> git, so I did (I actually updated my bk backport script simply to export
+> from a BK tree to a git tree).  For the time being, I plan to keep the
+> scsi changes in BK, but I'll export them for you to try merging
+> 
+> The patch (against kernel-test.git) is here
+> 
+> rsync://www.parisc-linux.org/~jejb/scsi-rc-fixes-2.6.git
 
-Also, if you are able, can you let the machine run memtest86 for a night?
+Can you du -s on it? Just curious. I started rsync on it, but because
+it is not standard gzip files, it is difficult to see anything
+interesting...
 
-Do you see activity of the OOM-killer?
-
+								Pavel
 -- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://netherlabs.nl              Open and Closed source services
+Boycott Kodak -- for their patent abuse against Java.

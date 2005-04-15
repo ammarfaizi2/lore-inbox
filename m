@@ -1,84 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbVDODSX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261729AbVDODWg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261728AbVDODSX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 23:18:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbVDODSX
+	id S261729AbVDODWg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 23:22:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbVDODWc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 23:18:23 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:49032
+	Thu, 14 Apr 2005 23:22:32 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:61834
 	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S261728AbVDODSN (ORCPT
+	with ESMTP id S261729AbVDODWZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 23:18:13 -0400
-Message-ID: <425F32E8.8090407@linuxwireless.org>
-Date: Thu, 14 Apr 2005 22:20:08 -0500
+	Thu, 14 Apr 2005 23:22:25 -0400
+Message-ID: <425F33E4.1070303@linuxwireless.org>
+Date: Thu, 14 Apr 2005 22:24:20 -0500
 From: Alejandro Bonilla <abonilla@linuxwireless.org>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Jeff Lessem <linux-kernel@lists.lessem.org>
-CC: Matti Aarnio <matti.aarnio@zmailer.org>, Jesper Juhl <juhl-lkml@dif.dk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: IBM Thinkpad T42 - Looking for a Developer.
-References: <003901c54136$6ba545c0$9f0cc60a@amer.sykes.com> <Pine.LNX.4.62.0504142317480.3466@dragon.hyggekrogen.localhost> <20050414223641.M49815@linuxwireless.org> <20050414231513.GN3858@mea-ext.zmailer.org> <200504142354.j3ENsYj3028900@ibg.colorado.edu>
-In-Reply-To: <200504142354.j3ENsYj3028900@ibg.colorado.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Shawn Starr <shawn.starr@rogers.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux support for IBM ThinkPad Disk shock prevention update...
+References: <200504141658.50135.shawn.starr@rogers.com>	 <1113513316.19373.22.camel@mindpipe>	 <20050414224215.M94640@linuxwireless.org> <1113519832.19830.20.camel@mindpipe>
+In-Reply-To: <1113519832.19830.20.camel@mindpipe>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+05-04-14 at 16:58 -0400, Shawn Starr wrote:
 
->>>>> This is located in my home PC, Won't be the fastest downloads...
->>>>> 
->>>>> http://wifitux.com/finger/
->>>>>          
->>>>>
->>>> 
->>>>Under what terms did you obtain these documents and from where? Are 
->>>>they completely freely distributable or are there strings attached?
+>>>>We just need to figure
+>>>>out to get the specs from IBM
 >>>>        
 >>>>
->>>I emailed the guys and they told me, "Hey, here you go, let me know if you
->>>want more information"
->>>
->>>I guess it can't be more distributable. But as far as I got to read. The
->>>documents don't have too much information like for us to do a great Job. I
->>>think it also requires the making of a firmware.
->>>
->>>I don't want to dissapoint you, but I hope I'm lost and that a driver can be
->>>done out of this.
+>>>Best bet is probably reverse engineering it...
 >>>      
 >>>
->>There were two PDF documents.
->>The more useful one tells that there are two possible interfaces:
->>- Async serial
->>- USB
+>> 
+>>Lee, 
 >>
->>Could you show what    /sbin/lsusb -vv    tells in your T42 ?
->>Do that without external devices attached.
+>>I know this is far from easy... but, What do we need to do this? I haven't
+>>seen such a cooler feature in a Thinkpad like the HDAPS. (Well, maybe the
+>>fingerprint reader) But, how can we / I help, if this is ever done?
+>>
 >>    
 >>
 >
->I'm appending the lsusb -vv from my Thinkpad T43 for comparison.  This
->also has a builtin USB fingerprint scanner, but I don't know if it is
->the same one as used on the T42.  It is "Bus 004 Device 002: ID
->0483:2016 SGS Thomson Microelectronics".  There are no other USB devices
->connecting.
+>Please see:
 >
+>http://dxr3.sourceforge.net/re.html
+>
+>I have discovered several previously unknown emu10k1 hardware features
+>using this procedure to reverse engineer the Windows drivers, including
+>a per channel half loop interrupt, and added support to the Linux driver
+>for some of them.
+>
+>It may be much easier to find the read and write register subroutines
+>than in the above guide.  The Windows driver I was working with had
+>exactly one subroutine that used the inb, inl, inw, outb, outw, outl
+>instructions, so it was trivial to set breakpoints to log all the port
+>I/O.  I later found it was even easier, the version of SoftIce I was
+>using allows you to set I/O breakpoints, so all you need to start
+>logging the register activity is the port.
+>
+>I had a little trouble loading the IDA symbols into SoftICE at first,
+>just because the first few scripts I found on the net didn't work.
+>
+>Some devices use memory mapped IO, I have no idea how you would RE
+>these.  Maybe someone else has some pointers?
+>
+>Lee
 >  
 >
-Matti,
 
-    Where do we stand here? Now that you have two of those outputs, so I 
-can have some hope... Do you think we can make the driver for this hardware?
+The only thing I got back from IBM was:
 
-    How about the firmware that the documents mention? Could there be a 
-layer in the hardware itself that might prevents us from reading the 
-fingerprint image?
+       Please be advised, that the e-mail forum you
+       have reached is provided for non-technical
+       support and web registration issues of IBM.
+       ave reached is provided for non-technical
 
-    Will BioAPI help us at all, or the best approach here is not to make 
-dll wrapping?
+       Please send your research proposal to IBM at
+       T.J Watson Research Center at 914-945-3167.
 
-Thanks for you all time,
+I don't think I'm l33t enough like to call there and discuss for what we 
+are looking for. Also they will probably tell me, " Ahh, well we 
+currenly don't want to release anything because of legal issue" (Like I 
+was already told)
 
 - Alejandro

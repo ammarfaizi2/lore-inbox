@@ -1,61 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261859AbVDOQWt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261858AbVDOQWl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261859AbVDOQWt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 12:22:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbVDOQWt
+	id S261858AbVDOQWl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 12:22:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261859AbVDOQWk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 12:22:49 -0400
-Received: from 104.engsoc.carleton.ca ([134.117.69.104]:46527 "EHLO
-	certainkey.com") by vger.kernel.org with ESMTP id S261859AbVDOQWo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 12:22:44 -0400
-Date: Fri, 15 Apr 2005 12:22:25 -0400
-From: Jean-Luc Cooke <jlcooke@certainkey.com>
-To: "Theodore Ts'o" <tytso@mit.edu>, linux@horizon.com,
-       linux-kernel@vger.kernel.org, mpm@selenic.com
-Subject: Re: Fortuna
-Message-ID: <20050415162225.GA23277@certainkey.com>
-References: <20050414133336.GA16977@thunk.org> <20050415013417.3536.qmail@science.horizon.com> <20050415144216.GA9352@thunk.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050415144216.GA9352@thunk.org>
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 15 Apr 2005 12:22:40 -0400
+Received: from web51404.mail.yahoo.com ([206.190.38.183]:62568 "HELO
+	web51404.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261858AbVDOQWh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 12:22:37 -0400
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=VXT/drtQa0WwncF2EI7+KwJ3tjMy1NlKOgzfnZvSbaCL656WMQaaTGIsN7ueeEVOcOBJPL9Ejr0lQXGsfFTcMdWQLfP8AouT4MryDCt15H7ncr+JwMopvzfplioTcOVozVO5oXOuYBLtatJPsJebmRY7Q5Vi+Cfb5mtwgYZbBWw=  ;
+Message-ID: <20050415162236.44964.qmail@web51404.mail.yahoo.com>
+Date: Fri, 15 Apr 2005 18:22:36 +0200 (CEST)
+From: Joerg Pommnitz <pommnitz@yahoo.com>
+Subject: Re: [Linux-usb-users] 2.6 PCMCIA/USB question
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: kernel <linux-kernel@vger.kernel.org>,
+       linux-usb-user <linux-usb-users@lists.sourceforge.net>
+In-Reply-To: 6667
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 15, 2005 at 10:42:16AM -0400, Theodore Ts'o wrote:
-> > Just to be clear, I don't remember it ever throwing entropy away, but
-> > it hoards some for years, thereby making it effectively unavailable.
-> > Any catastrophic reseeding solution has to hold back entropy for some
-> > time.
+I had hoped that one can figure things out from /proc and /sys. SHould'n
+there be a way to do this? And no, trial and error is not really an
+option. The devices in question are WCDMA/UMTS mobile data cards. They
+will differ only by the SIM card inserted by the user. The ICCID of the
+SIM is unknown during development and I would like to avoid to many
+configuration files.
+
+Regards
+  Joerg
+
+--- Alan Stern <stern@rowland.harvard.edu> wrote:
+> On Fri, 15 Apr 2005, Joerg Pommnitz wrote:
 > 
-> It depends on how often you reseed, but my recollection was that it
-> was far more than years; it was *centuries*.  And as far as I'm
-> concerned, that's equivalent to throwing it away, especially given the
-> pathetically small size of the Fortuna pools.
+> > Hello all,
+> > I have a question that I could not figure out from other sources. I
+> have
+> > the following hardware: an integrated CardBus USB host adapter with a
+> > connected USB serial device with three interfaces (normally
+> > ttyUSB0...ttyUSB2). Now I want to use 3 of these devices (remember:
+> they
+> > are integrated, so I can't just plug the USB device onto the same host
+> > adapter). I know device A is in CardBus slot 1, device B is in CardBus
+> > slot 2 and so on. 
+> > 
+> > Now the question: How do I figure out which ttyUSBx belongs to which
+> > device?
+> 
+> You can look in the system log.  If you want, you can actually control 
+> which goes where by creating a udev configuration file.
+> 
+> Alan Stern
+> 
+> 
 
-"pathetically" is an interesting term to call it.  256 bits is the most any
-one of the 32 pools can hold, true.  And the n-th pool is used only once
-every 2^n times (where the first pool is the 0-th pool, hence it's used
-everytime).
 
-2^31 * 0.1s reseeds, mean the 31st (aka. last) pool will be drawn from once
-every 6.8 years.
-
-And the argument that "random.c doesn't rely on the strength of crypto
-primitives" is kinda lame, though I see where you're coming from.  random.c's
-entropy mixing and output depends on the (endian incorrect) SHA-1
-implementation hard coded in that file to be pre-image resistant.  If that
-fails (and a few other things) then it's broken.
-
-Fortuna depends on known cipher-text attacks on the cipher in use (in this
-case AES-256) and the digest algo in use (in this case SHA-256) to be
-pre-image resistant.  Cryptographers like reducing things to known
-quantities, it may be flaw.
-
-Once I set some personal things sorted out I'll take another crack at making
-/dev/fortuna with it's claws in random.c to feed it some of that entropy as 
-linux@horizon.com suggested.
-
-JLC
+	
+		
+___________________________________________________________ 
+Gesendet von Yahoo! Mail - Jetzt mit 250MB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de

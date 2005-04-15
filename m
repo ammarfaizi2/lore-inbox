@@ -1,40 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261725AbVDODCR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261727AbVDODSI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261725AbVDODCR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 23:02:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261727AbVDODCR
+	id S261727AbVDODSI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 23:18:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261728AbVDODSI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 23:02:17 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:45573 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261725AbVDODCP
+	Thu, 14 Apr 2005 23:18:08 -0400
+Received: from mail.avantwave.com ([210.17.210.210]:1475 "EHLO
+	mail.avantwave.com") by vger.kernel.org with ESMTP id S261727AbVDODSF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 23:02:15 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: juhl-lkml@dif.dk (Jesper Juhl)
-Subject: Re: [PATCH] sched: fix never executed code due to expression always false
-Cc: nickpiggin@yahoo.com.au, mingo@elte.hu, rml@tech9.net, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Organization: Core
-In-Reply-To: <Pine.LNX.4.62.0504150222390.3466@dragon.hyggekrogen.localhost>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1DMH3H-0006Jg-00@gondolin.me.apana.org.au>
-Date: Fri, 15 Apr 2005 12:59:27 +1000
+	Thu, 14 Apr 2005 23:18:05 -0400
+Message-ID: <425F3265.1080508@haha.com>
+Date: Fri, 15 Apr 2005 11:17:57 +0800
+From: Tomko <tomko@haha.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: question about returning of a child process
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl <juhl-lkml@dif.dk> wrote:
->
-> -               if (unlikely((long long)now - prev->timestamp < 0))
-> +               if (unlikely(((long long)now - (long long)prev->timestamp) < 0))
+Hi all,
 
-You can write this as
+What is  the first code the new born child process run after it is 
+forked by the system call and being schduled into the CPU to run ? what 
+i concerned is , kernel will schdule once when leaving the system call 
+for returning father process, will kernel schdule once again when 
+leaving the systemcall for child process if the child process return 
+code is inside the kernel space?
 
-(long long)(now - prev->timestamp)
+Hope someone can answer me.
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+TOM

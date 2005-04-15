@@ -1,63 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261731AbVDOEBP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261430AbVDOEly@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261731AbVDOEBP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 00:01:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbVDOEBP
+	id S261430AbVDOEly (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 00:41:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbVDOEly
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 00:01:15 -0400
-Received: from gate.ebshome.net ([64.81.67.12]:24193 "EHLO gate.ebshome.net")
-	by vger.kernel.org with ESMTP id S261731AbVDOEBN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 00:01:13 -0400
-Date: Thu, 14 Apr 2005 21:01:12 -0700
-From: Eugene Surovegin <ebs@ebshome.net>
-To: Geoff Levand <geoffrey.levand@am.sony.com>
-Cc: Matt Porter <mporter@kernel.crashing.org>, linux-kernel@vger.kernel.org,
-       linuxppc-embedded@ozlabs.org
-Subject: Re: {PATCH] Fix IBM EMAC driver ioctl bug
-Message-ID: <20050415040112.GB11362@gate.ebshome.net>
-Mail-Followup-To: Geoff Levand <geoffrey.levand@am.sony.com>,
-	Matt Porter <mporter@kernel.crashing.org>,
-	linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org
-References: <425EB470.9040203@am.sony.com>
+	Fri, 15 Apr 2005 00:41:54 -0400
+Received: from wproxy.gmail.com ([64.233.184.204]:30082 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261430AbVDOElw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 00:41:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=iEx2Iwc5e0eKBDlzsfxXxu3oTlxl6ytRDSPDKGb5R+oh4GEj8iPAlg2j0Fwfi+Coz0EDIjSX+897VNvTBov+Xb9TBqZXQySxe+RSke8sraRSTDf8XXgFNNE1bnNfuGsbbhWOF4tiMuS2j2qiZp0SbhUbuZ6gQvefXVk7XPtPZk8=
+Message-ID: <17d7988050414214163b09759@mail.gmail.com>
+Date: Fri, 15 Apr 2005 00:41:47 -0400
+From: Allison <fireflyblue@gmail.com>
+Reply-To: Allison <fireflyblue@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: New kernel thread
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <425EB470.9040203@am.sony.com>
-X-ICQ-UIN: 1193073
-X-Operating-System: Linux i686
-X-PGP-Key: http://www.ebshome.net/pubkey.asc
-User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 14, 2005 at 11:20:32AM -0700, Geoff Levand wrote:
-> Fix IBM EMAC driver ioctl bug.
-> 
-> I found IBM EMAC driver bug.
-> So mii-tool command print wrong status.
-> 
->   # mii-tool
->   eth0: 10 Mbit, half duplex, no link
->   eth1: 10 Mbit, half duplex, no link
-> 
-> I can get correct status on fixed kernel.
-> 
->   # mii-tool
->   eth0: negotiated 100baseTx-FD, link okZZ
->   eth1: negotiated 100baseTx-FD, link ok
-> 
+Hi,
 
-There is a problem with this patch. I'm aware of this problem for 
-quite some time, but chose to keep the current code.
+I need to create a new kernel thread that will stay alive as long as
+the system is up. This should be created as soon as the system boots. 
+I need this thread to perform a specific task.
 
-This IOCTL implementation has been here for many years in all 
-revisions of the driver, so I think we should keep it as is, because 
-some software could rely on it, and your change will break it. 
+I am not very familiar with the code. Where should I put this thread
+creation and my function code (I mean which file ?)? Do I use
+kernel_thread function to create a new thread ?
 
-And all new code should use ethtool anyway :).
+Do I need to cleanup when the system exists ? 
+What function should I call ?
 
--- 
-Eugene
-
-
+thanks,
+Allison

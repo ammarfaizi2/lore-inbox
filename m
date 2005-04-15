@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261845AbVDOPVp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261829AbVDOPYx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261845AbVDOPVp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 11:21:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbVDOPVo
+	id S261829AbVDOPYx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 11:24:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbVDOPWG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 11:21:44 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:34322 "HELO
+	Fri, 15 Apr 2005 11:22:06 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:33810 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261840AbVDOPKt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 11:10:49 -0400
-Date: Fri, 15 Apr 2005 17:10:48 +0200
+	id S261839AbVDOPKq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 11:10:46 -0400
+Date: Fri, 15 Apr 2005 17:10:45 +0200
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] unexport panic_timeout
-Message-ID: <20050415151048.GL5456@stusta.de>
+Subject: [2.6 patch] unexport is_console_locked
+Message-ID: <20050415151045.GK5456@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -31,15 +31,14 @@ Signed-off-by: Adrian Bunk <bunk@stusta.de>
 This patch was already sent on:
 - 4 Mar 2005
 
---- linux-2.6.11-rc5-mm1-full/kernel/panic.c.old	2005-03-04 00:54:46.000000000 +0100
-+++ linux-2.6.11-rc5-mm1-full/kernel/panic.c	2005-03-04 00:54:54.000000000 +0100
-@@ -24,8 +24,6 @@
- int panic_on_oops;
- int tainted;
+--- linux-2.6.11-rc5-mm1-full/kernel/printk.c.old	2005-03-04 00:58:16.000000000 +0100
++++ linux-2.6.11-rc5-mm1-full/kernel/printk.c	2005-03-04 00:58:22.000000000 +0100
+@@ -675,7 +675,6 @@
+ {
+ 	return console_locked;
+ }
+-EXPORT_SYMBOL(is_console_locked);
  
--EXPORT_SYMBOL(panic_timeout);
--
- struct notifier_block *panic_notifier_list;
- 
- EXPORT_SYMBOL(panic_notifier_list);
+ /**
+  * release_console_sem - unlock the console system
 

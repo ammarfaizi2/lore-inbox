@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262227AbVDOXY7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262259AbVDOX1w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262227AbVDOXY7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 19:24:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbVDOXY7
+	id S262259AbVDOX1w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 19:27:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262262AbVDOX1w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 19:24:59 -0400
-Received: from gate.crashing.org ([63.228.1.57]:51403 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262227AbVDOXY5 (ORCPT
+	Fri, 15 Apr 2005 19:27:52 -0400
+Received: from main.gmane.org ([80.91.229.2]:3235 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S262259AbVDOX1n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 19:24:57 -0400
-Subject: Re: 2.6.12-rc2-mm3
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Juergen Kreileder <jk@blackdown.de>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <87u0m7aogx.fsf@blackdown.de>
-References: <20050411012532.58593bc1.akpm@osdl.org>
-	 <87wtr8rdvu.fsf@blackdown.de>  <87u0m7aogx.fsf@blackdown.de>
-Content-Type: text/plain
-Date: Sat, 16 Apr 2005 09:23:36 +1000
-Message-Id: <1113607416.5462.212.camel@gaston>
+	Fri, 15 Apr 2005 19:27:43 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Subject: Re: [SATA] status reports updated
+Date: Sat, 16 Apr 2005 01:27:24 +0200
+Message-ID: <yw1xmzrzaaeb.fsf@ford.inprovide.com>
+References: <42600375.9080108@pobox.com> <42600E12.8020304@interia.pl>
+ <42601474.5010008@tomt.net> <426017DC.1080801@interia.pl>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 76.80-203-227.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:Qbq3w36fC8Co/h6t7lhq1ePjP68=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-04-15 at 20:23 +0200, Juergen Kreileder wrote:
-> Juergen Kreileder <jk@blackdown.de> writes:
-> 
-> > Andrew Morton <akpm@osdl.org> writes:
-> >
-> >> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm3/
-> >
-> > I'm getting frequent lockups on my PowerMac G5 with rc2-mm3.
-> 
-> I think I finally found the culprit.  Both rc2-mm3 and rc1-mm1 work
-> fine when I reverse the timer-* patches.
-> 
-> Any idea?  Bug in my ppc64 gcc?
+Tomasz Chmielewski <mangoo@interia.pl> writes:
 
-Or a bug in those patches, I'll have a look as soon as I find 5 minutes.
+> Andre Tomt wrote:
+>> Tomasz Chmielewski wrote:
+>> <
+>>
+>>> [1] although my drive is blacklisted (Seagate barracuda -
+>>> ST3200822AS), I "unblacklisted" it to get full performance - it's
+>>> under heavy stress for 12th hour, and still no error.
+>> It could be that your drive has newer firmware. Too bad firmware
+>> upgrades for HD's are hard to come by nowadays.
+>
+> Is there a way to check what firmware a drive has (either by using
+> some software - which would be the best option, or by reading a label
+> on a drive)?
 
-Ben.
+Seagate drives have the firmware version printed on the label.  The
+version is also visible in "dmesg" output:
 
+  Vendor: ATA       Model: ST3160827AS       Rev: 3.03
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+
+The "Rev" number is the firmware version.
+
+-- 
+Måns Rullgård
+mru@inprovide.com
 

@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261766AbVDOIUd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261769AbVDOIVm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261766AbVDOIUd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 04:20:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbVDOIUd
+	id S261769AbVDOIVm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 04:21:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261771AbVDOIVl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 04:20:33 -0400
-Received: from mail.dif.dk ([193.138.115.101]:51114 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261766AbVDOIU1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 04:20:27 -0400
-Date: Fri, 15 Apr 2005 10:23:15 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fs/fcntl.c : don't test unsigned value for less than
- zero
-In-Reply-To: <20050415013100.GY8669@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.62.0504151021360.2475@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0504150303480.3466@dragon.hyggekrogen.localhost>
- <20050415013100.GY8669@parcelfarce.linux.theplanet.co.uk>
+	Fri, 15 Apr 2005 04:21:41 -0400
+Received: from web51409.mail.yahoo.com ([206.190.38.188]:28565 "HELO
+	web51409.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261769AbVDOIUt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 04:20:49 -0400
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=TquXElgFDCkL8jJ+w0ErOFUiJ90wOe5+smmO2ODeXWnM4NQpeb471COd05B8/a6J6MOUQN0VKcceOTpsplnxCJxM/cDstbPqi3ChmHTEckTC1JZ7YeU+jl6fb9/Os64hsl7Y23exT9h48u3SIpbhpFFFwngjL+6SwKZ5Ycm5xkw=  ;
+Message-ID: <20050415082048.1497.qmail@web51409.mail.yahoo.com>
+Date: Fri, 15 Apr 2005 10:20:48 +0200 (CEST)
+From: Joerg Pommnitz <pommnitz@yahoo.com>
+Subject: 2.6 PCMCIA/USB question
+To: kernel <linux-kernel@vger.kernel.org>,
+       linux-usb-user <linux-usb-users@lists.sourceforge.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Apr 2005, Matthew Wilcox wrote:
+Hello all,
+I have a question that I could not figure out from other sources. I have
+the following hardware: an integrated CardBus USB host adapter with a
+connected USB serial device with three interfaces (normally
+ttyUSB0...ttyUSB2). Now I want to use 3 of these devices (remember: they
+are integrated, so I can't just plug the USB device onto the same host
+adapter). I know device A is in CardBus slot 1, device B is in CardBus
+slot 2 and so on. 
 
-> On Fri, Apr 15, 2005 at 03:07:42AM +0200, Jesper Juhl wrote:
-> > 'arg' is unsigned so it can never be less than zero, so testing for that 
-> > is pointless and also generates a warning when building with gcc -W. This 
-> > patch eliminates the pointless check.
-> 
-> Didn't Linus already reject this one 6 months ago?
-> 
-Hmmm, perhaps you are right. There was some discussion about similar 
-patches a while back. That had slipped my mind.  
+Now the question: How do I figure out which ttyUSBx belongs to which
+device?
 
--- 
-Jesper 
+Thanks in advance
+  Joerg
 
+
+	
+
+	
+		
+___________________________________________________________ 
+Gesendet von Yahoo! Mail - Jetzt mit 250MB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de

@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261876AbVDOSzW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbVDOTBv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261876AbVDOSzW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 14:55:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261880AbVDOSzW
+	id S261925AbVDOTBv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 15:01:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbVDOTBv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 14:55:22 -0400
-Received: from smtp1.poczta.interia.pl ([217.74.65.44]:44590 "EHLO
-	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
-	id S261876AbVDOSzR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 14:55:17 -0400
-Message-ID: <42600E12.8020304@interia.pl>
-Date: Fri, 15 Apr 2005 20:55:14 +0200
-From: Tomasz Chmielewski <mangoo@interia.pl>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+	Fri, 15 Apr 2005 15:01:51 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:64697 "EHLO
+	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
+	id S261924AbVDOTBr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 15:01:47 -0400
 Subject: Re: [SATA] status reports updated
+From: Joe Harvell <jharvell@dogpad.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <42600818.3030802@pobox.com>
 References: <42600375.9080108@pobox.com>
-In-Reply-To: <42600375.9080108@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	 <1113589153.1013.3.camel@wrc2y0me.us.nortel.com>
+	 <42600818.3030802@pobox.com>
+Content-Type: text/plain
+Message-Id: <1113591701.1341.5.camel@wrc2y0me.us.nortel.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Fri, 15 Apr 2005 14:01:41 -0500
 Content-Transfer-Encoding: 7bit
-X-EMID: 483ccacc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+http://marc.theaimsgroup.com/?l=linux-ide&m=111029414823303&w=2
+http://marc.theaimsgroup.com/?l=linux-ide&m=111054989026053&w=2
+http://marc.theaimsgroup.com/?l=linux-ide&m=111214149529209&w=2
+http://marc.theaimsgroup.com/?l=linux-ide&m=111230129320297&w=2
+
+On Fri, 2005-04-15 at 13:29, Jeff Garzik wrote:
+> Joe Harvell wrote:
+> > Jeff:
+> > 
+> > You need to add a comment about the SATAII TX2/TX4 boards indicating
+> > users have experienced data corruption with the sata_promise driver and
+> > the SATAII TX4 board.
+> > 
+> > I've posted several emails to linux-ide about this.  Why haven't you
+> > responded?
 > 
-> My Linux SATA software/hardware status reports have just been updated. 
-> To see where libata (SATA) support stands for a particular piece of 
-> hardware, or a particular feature, go to
+> I've seen reports on the SX4, but not on the SATAII TX4.
 > 
->     http://linux.yyz.us/sata/
-
-A nice thing in FAQ would be some info on problematic (blacklisted) SATA 
-hardware that runs on Linux (vide "poor SATA performance under 2.6.11 
-(with < 2.6.11 is OK)?" thread), like Silicon Image 311x controllers + 
-some Seagate drives [1].
-
-
-Tomek
-
-[1] although my drive is blacklisted (Seagate barracuda - ST3200822AS), 
-I "unblacklisted" it to get full performance - it's under heavy stress 
-for 12th hour, and still no error.
-
-
-------------------------------------------------------------------
-Teraz na tapecie mamy najwiekszego z silaczy. 
-Sciagnij >> http://link.interia.pl/f1873 <<
+> URLs to messages you posted?
+> 
+> 	JEff
+> 
+-- 
+Joe Harvell
+jharvell@dogpad.net
 

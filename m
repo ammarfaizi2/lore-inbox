@@ -1,68 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261828AbVDOOy0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261826AbVDOOz5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261828AbVDOOy0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 10:54:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbVDOOyZ
+	id S261826AbVDOOz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 10:55:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261829AbVDOOz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 10:54:25 -0400
-Received: from ns1.g-housing.de ([62.75.136.201]:56796 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S261828AbVDOOyR (ORCPT
+	Fri, 15 Apr 2005 10:55:56 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:63174 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S261826AbVDOOzr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 10:54:17 -0400
-Message-ID: <425FD593.7080402@g-house.de>
-Date: Fri, 15 Apr 2005 16:54:11 +0200
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050326)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Takashi Iwai <tiwai@suse.de>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       alsa-devel@lists.sourceforge.net, juhl-lkml@dif.dk
-Subject: Re: ALSA Oops (triggered by xmms)
-References: <425EFB32.2010000@g-house.de>	<1113521720.19830.35.camel@mindpipe> <s5hbr8ge7yi.wl@alsa2.suse.de>
-In-Reply-To: <s5hbr8ge7yi.wl@alsa2.suse.de>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
+	Fri, 15 Apr 2005 10:55:47 -0400
+Subject: Re: Adaptec 2010S i2o + x86_64 doesn't work
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Miquel van Smoorenburg <miquels@cistron.nl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Markus.Lidel@shadowconnect.com
+In-Reply-To: <20050413160352.GA12841@xs4all.net>
+References: <20050413160352.GA12841@xs4all.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1113576775.11116.17.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 15 Apr 2005 15:52:56 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mer, 2005-04-13 at 17:03, Miquel van Smoorenburg wrote:
+> I have a supermicro dual xeon em64t system, X6DH8-XG2 motherboard,
+> 4 GB RAM, with an Adaptec zero raid 2010S i2o controller. In 32
+> bits mode it runs fine, both with the dpt_i2o driver and the
+> generic i2o_block driver using kernel 2.6.11.6.
 
-Takashi Iwai wrote:
-> 
-> Also, the latest CVS alsa-lib checks the timer protocol version to
-> avoid this Oops with the older kenel.  1.0.9-rc3 is planned to be
-> released soon, so wait for a moment...
-
-um, i'll wait for the next release as i don't track alsa-cvs. but i do
-track 2.6-BK (again) and the oops is gone ;-)
+Does it work if you drop the box to 2Gbytes ?
 
 
-Jesper Juhl wrote:
->> yeah, but the oops doesn't wrap at 80 chars itsself and often oopses
->> are hardly readable inline.
->
-> I would still suggest including the info inline and then if you think
-> it's needed /also/ provide the link you did - then you've covered all
-> bases :)
-
-will do, next time 8-)
-
-
-thanks to all involved for all your replies,
-Christian.
-- --
-BOFH excuse #388:
-
-Bad user karma.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCX9WT+A7rjkF8z0wRAlp2AJ0doKLm4OsK2i8nNx6uezrcfPF15QCeNkuO
-eVCEuP0U5LrUOToHXEb6cBs=
-=Feow
------END PGP SIGNATURE-----

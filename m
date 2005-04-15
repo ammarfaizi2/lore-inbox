@@ -1,73 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbVDORFL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261867AbVDORQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261154AbVDORFL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 13:05:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbVDORFL
+	id S261867AbVDORQs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 13:16:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261871AbVDORQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 13:05:11 -0400
-Received: from 104.engsoc.carleton.ca ([134.117.69.104]:54207 "EHLO
-	certainkey.com") by vger.kernel.org with ESMTP id S261154AbVDORFC
+	Fri, 15 Apr 2005 13:16:48 -0400
+Received: from alog0416.analogic.com ([208.224.222.192]:16536 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261867AbVDORQo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 13:05:02 -0400
-Date: Fri, 15 Apr 2005 13:04:50 -0400
-From: Jean-Luc Cooke <jlcooke@certainkey.com>
-To: linux@horizon.com
-Cc: linux-kernel@vger.kernel.org, mpm@selenic.com, tytso@mit.edu
-Subject: Re: Fortuna
-Message-ID: <20050415170450.GB23277@certainkey.com>
-References: <20050415162225.GA23277@certainkey.com> <20050415165036.16224.qmail@science.horizon.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050415165036.16224.qmail@science.horizon.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 15 Apr 2005 13:16:44 -0400
+Date: Fri, 15 Apr 2005 13:16:24 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Allison <fireflyblue@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Rootkits
+In-Reply-To: <17d798805041509022ba6df49@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0504151258540.31259@chaos.analogic.com>
+References: <17d798805041509022ba6df49@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 15, 2005 at 04:50:36PM -0000, linux@horizon.com wrote:
-> (And as for the endianness of the SHA-1, are you trying to imply
-> something?  Because it makes zero difference, and reduces the code
-> size and execution time.  Which is obviously a Good Thing.)
+On Fri, 15 Apr 2005, Allison wrote:
 
-It just bugged me when I was reading random.c for the first time.  First
-impressions and all.
+> Hi,
+>
+> I was curious about how kernel rootkits become a part of the kernel ?
+> One way I guess is by inserting a kernel module.  And rootkits also
+> manage to hide themselves from rootkit detectors.
+>
 
-> As for hacking Fortuna in, could you give a clear statement of what
-> you're trying to achieve?
-> 
-> Do you like:
-> - The neat name,
-> - The strong ciphers used in the pools, or
-> - The multi-pool reseeding strategy, or
-> - Something else?
-> 
-> If you're doing it just for hack value, or to learn how to write a
-> device driver or whatever, then fine.  But if you're proposing it as
-> a mainline patch, then could we discuss the technical goals?
-> 
-> I don't think anyone wants to draw and quarter *you*, but your
-> code is going to get some extremely critical examination.
+I'm not sure there really are any "kernel" rootkits. You need to be
+root to install a module and you need to be root to replace a kernel
+with a new (possibly altered) one. If you are root, you don't
+need an exploit.
 
-The multi-pool reseeding strategy is what I find particular interesting.
-It's design that can fit neatly into my little head and I hope into the heads
-of others in the future.  You can call it Bob or whatever you want, names
-doesn't matter to me.  As for the ciphers/digest algos used, they are
-not if great concern to me, replace them with what you want.  It's the design
-of the RNG itself that has my attention for the time being.
+> few questions:
+> 1. Are there any other ways by which rootkits become part of the kernel ?
+>
 
-Ted and yourself are in the nest position to say "we understand random.c
-currently, and should be need arise, we can feel strong enough that we can
-find someone to take it over and go up the learning curve" and with a
-statement "we like the current RNG design now for mixing entropy and don't
-see the need to confuse people with alternatives to /dev/{u}random" and
-that'll be that.
+Anybody with knowledge of kernel internals could write some code
+and put it into the kernel. The code could do anything the kernel
+can do. That kernel could replace an existing one.
 
-I'll take my patch and not bother you anymore.  I'm sure I've taken a lot of
-your time as it is.
+You can make your own development system where you know the root
+password. You can make a new kernel with whatever Trojans you
+want, create a bootable floppy (or Flash RAM disk), then reboot
+the target machine with that boot device. The new kernel and its
+startup code that you develop could mount the target-machine
+root file-system and replace its kernel with yours.
 
-Not to sound like a "I'm taking my ball and going home" - just explaining
-that I like the Fortuna design, I think it's elegant, I want it for my
-systems.  GPL requires I submit changes back, so I did with the unpleasant
-side-dish of my opinion on random.c.
+A subsequent reboot brings up the target machine as though
+normal. Then, whenever you are logged onto the target machine,
+even as a normal user, you could call your new kernel function
+with a simple 'C' program.
 
-JLC
+> 2. If modules can access only exported symbols, how is it that kernel
+> rootkits manage to get hold of other information from the kernel ? For
+> ex, the process table.
+>
+
+Modules can access any symbol that is in /boot/System.map if it's
+the correct System.map for the current kernel version.
+
+> I am not familiar with the /dev/kmem interface. Does this interface
+> let any kernel module read any symbol (even non-exported) from the
+> kernel ?
+>
+
+That doesn't contain symbols. It's a binary image of the executing
+kernel. You need to be root to read the contents.
+
+> 3. If I want to hide a function which is part of the kernel from
+> kernel modules, is this possible ideally ?
+
+It is possible to obfuscate the function by indirection. As a
+practical matter, a module can be built which can access anything
+in the kernel address-space. Exporting symbols isn't necessary
+at all. It's just a protocol.
+
+>
+> thanks,
+> Allison
+> -
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

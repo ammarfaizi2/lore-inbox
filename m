@@ -1,65 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261812AbVDOMAt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261809AbVDOMFz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261812AbVDOMAt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 08:00:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbVDOMAt
+	id S261809AbVDOMFz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 08:05:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbVDOMFz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 08:00:49 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:37510 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S261810AbVDOMAj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 08:00:39 -0400
-From: Darren Williams <dsw@gelato.unsw.edu.au>
-To: Git Mailing List <git@vger.kernel.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Date: Fri, 15 Apr 2005 22:00:31 +1000
-Cc: Kenneth Johansson <ken@kenjo.org>
-Subject: Re: Git archive now available
-Message-ID: <20050415120031.GG4072@cse.unsw.EDU.AU>
-Mail-Followup-To: Git Mailing List <git@vger.kernel.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	Kenneth Johansson <ken@kenjo.org>
-References: <20050415000147.GA1480@cse.unsw.EDU.AU>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050415000147.GA1480@cse.unsw.EDU.AU>
-User-Agent: Mutt/1.5.6+20040523i
+	Fri, 15 Apr 2005 08:05:55 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:62475 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261809AbVDOMFr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 08:05:47 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: hch@infradead.org (Christoph Hellwig)
+Subject: Re: [PATCH] fs/fcntl.c : don't test unsigned value for less than zero
+Cc: matthew@wil.cx, hch@infradead.org, juhl-lkml@dif.dk,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Organization: Core
+In-Reply-To: <20050415113218.GA22528@infradead.org>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
+Message-Id: <E1DMPXN-0004sh-00@gondolin.me.apana.org.au>
+Date: Fri, 15 Apr 2005 22:03:05 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 15 Apr 2005, Darren Williams wrote:
-
-> Hi All
+Christoph Hellwig <hch@infradead.org> wrote:
+>
+>> No, it was exactly this patch:
+>> http://www.ussg.iu.edu/hypermail/linux/kernel/0401.0/1816.html
 > 
-> Thanks to the team at Gelato@UNSW we now have a
-> no so complete Git archive at
-> http://www.gelato.unsw.edu.au/archives/git/
-> 
-> If somebody could send me a complete Git mbox I will
-> update the archive with it.
+> Hmm.  Looks I absolutely disagree with Linus on this one ;-)
 
-Apparently gmane.org have archived the list here is
-the link.
+Me too.  The compiler doesn't really have much choice here.  If
+it ignores all comparisons of unsigned integers to less than zero
+then we could miss real bugs like this:
 
-http://dir.gmane.org/gmane.comp.version-control.git
+int foo(unsigned int val)
+{
+	return val < 0;
+}
 
-Sorry Kenneth for the previous spam.
+where the user probably wanted a signed comparison.
 
- - dsw
-> 
->  - dsw 
-> 
-> --------------------------------------------------
-> Darren Williams <dsw AT gelato.unsw.edu.au>
-> Gelato@UNSW <www.gelato.unsw.edu.au>
-> --------------------------------------------------
-> -
-> To unsubscribe from this list: send the line "unsubscribe git" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
---------------------------------------------------
-Darren Williams <dsw AT gelato.unsw.edu.au>
-Gelato@UNSW <www.gelato.unsw.edu.au>
---------------------------------------------------
+I suppose it could be smart and stay quiet about
+
+val < 0 || val > BOUND
+
+However, gcc is slow enough as it is without adding unnecessary
+smarts like this.
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261846AbVDOQPu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261839AbVDOQTS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261846AbVDOQPu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 12:15:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261855AbVDOQPu
+	id S261839AbVDOQTS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 12:19:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbVDOQTS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 12:15:50 -0400
-Received: from smtp-vbr14.xs4all.nl ([194.109.24.34]:13071 "EHLO
-	smtp-vbr14.xs4all.nl") by vger.kernel.org with ESMTP
-	id S261846AbVDOQPj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 12:15:39 -0400
-Subject: Re: Adaptec 2010S i2o + x86_64 doesn't work
-From: Miquel van Smoorenburg <miquels@cistron.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Markus.Lidel@shadowconnect.com, miquels@cistron.nl
-In-Reply-To: <1113576775.11116.17.camel@localhost.localdomain>
-References: <20050413160352.GA12841@xs4all.net>
-	 <1113576775.11116.17.camel@localhost.localdomain>
+	Fri, 15 Apr 2005 12:19:18 -0400
+Received: from postfix3-1.free.fr ([213.228.0.44]:9653 "EHLO
+	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S261839AbVDOQTN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 12:19:13 -0400
+Subject: Re: Exploit in 2.6 kernels
+From: Duncan Sands <baldrick@free.fr>
+To: Dave Airlie <airlied@gmail.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       Lars Marowsky-Bree <lmb@suse.de>,
+       Helge Hafting <helge.hafting@aitel.hist.no>,
+       John M Collins <jmc@xisl.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <21d7e9970504150906e821374@mail.gmail.com>
+References: <1113298455.16274.72.camel@caveman.xisl.com>
+	 <425BBDF9.9020903@ev-en.org> <1113318034.3105.46.camel@caveman.xisl.com>
+	 <20050412210857.GT11199@shell0.pdx.osdl.net>
+	 <1113341579.3105.63.camel@caveman.xisl.com>
+	 <425CEAC2.1050306@aitel.hist.no>
+	 <20050413125921.GN17865@csclub.uwaterloo.ca>
+	 <20050413130646.GF32354@marowsky-bree.de>
+	 <20050413132308.GP17865@csclub.uwaterloo.ca>
+	 <1113577241.11155.21.camel@localhost.localdomain>
+	 <21d7e9970504150906e821374@mail.gmail.com>
 Content-Type: text/plain
-Date: Fri, 15 Apr 2005 18:15:22 +0200
-Message-Id: <1113581722.14421.15.camel@zahadum.xs4all.nl>
+Date: Fri, 15 Apr 2005 18:19:28 +0200
+Message-Id: <1113581968.22320.20.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-04-15 at 15:52 +0100, Alan Cox wrote:
-> On Mer, 2005-04-13 at 17:03, Miquel van Smoorenburg wrote:
-> > I have a supermicro dual xeon em64t system, X6DH8-XG2 motherboard,
-> > 4 GB RAM, with an Adaptec zero raid 2010S i2o controller. In 32
-> > bits mode it runs fine, both with the dpt_i2o driver and the
-> > generic i2o_block driver using kernel 2.6.11.6.
+> I still don't think they would lose out by much.. I've just being
+> trying to RE the ATI Mpeg2 IDCT/MC hardware, ATI know this, I know
+> this, they are only wasting my time and my employers money (we still
+> are going to buy their chips... no choice..) will they give out specs
+> .. no .. why? cause of lawyers.. they use MPEG2 decoders for DVD
+> decode and some lawyer told them this is a major secret despite the
+> fact that everyone knows how to decode Mpeg2 and DVDs at this stage..
 > 
-> Does it work if you drop the box to 2Gbytes ?
+> same story with VIA who persist on giving out a binary only blob for
+> MPEG2 hardware despite the fact that it was RE'ed over two years ago..
+> the secret is out...
 
-I tried 2.6.9 with 4GB and it didn't make any difference.
+When I was RE the ATI IDCT stuff a few years ago, someone at ATI told
+me that the problem was that the company they licensed the IDCT stuff
+from wouldn't let them give out any specs.  I may be remembering this
+wrong since it was a long time ago...
 
-However, I removed 2 GB from the box as Alan sugggested and now the box
-comes up just fine with a 64-bit 2.6.11.6 kernel! I've put the 4GB back,
-and booted with the kernel "mem=2048" command line option - that also
-works, the i2o_block driver sees the adaptec controller just fine.
+Duncan.
 
-And I just booted it with "mem=3840M" and that works too.
-
-So the problem appears to be 4 GB memory in 64 bit mode, on this box.
-
-Mike.
+PS: At some point I changed hardware, and didn't need the IDCT anymore.
+I just tried to find my notes on it, but there only seems to be some
+stuff about the tv tuner...
 

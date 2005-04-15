@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261814AbVDOPDl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261831AbVDOPKl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261814AbVDOPDl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 11:03:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbVDOPDk
+	id S261831AbVDOPKl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 11:10:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbVDOPKk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 11:03:40 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:64966 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S261814AbVDOPDj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 11:03:39 -0400
-Subject: Re: Exploit in 2.6 kernels
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-Cc: Lars Marowsky-Bree <lmb@suse.de>,
-       Helge Hafting <helge.hafting@aitel.hist.no>,
-       John M Collins <jmc@xisl.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050413132308.GP17865@csclub.uwaterloo.ca>
-References: <1113298455.16274.72.camel@caveman.xisl.com>
-	 <425BBDF9.9020903@ev-en.org> <1113318034.3105.46.camel@caveman.xisl.com>
-	 <20050412210857.GT11199@shell0.pdx.osdl.net>
-	 <1113341579.3105.63.camel@caveman.xisl.com>
-	 <425CEAC2.1050306@aitel.hist.no>
-	 <20050413125921.GN17865@csclub.uwaterloo.ca>
-	 <20050413130646.GF32354@marowsky-bree.de>
-	 <20050413132308.GP17865@csclub.uwaterloo.ca>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1113577241.11155.21.camel@localhost.localdomain>
+	Fri, 15 Apr 2005 11:10:40 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:28690 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261831AbVDOPK2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 11:10:28 -0400
+Date: Fri, 15 Apr 2005 17:10:26 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] unexport uts_sem
+Message-ID: <20050415151026.GE5456@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 15 Apr 2005 16:00:42 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-04-13 at 14:23, Lennart Sorensen wrote:
-> On Wed, Apr 13, 2005 at 03:06:46PM +0200, Lars Marowsky-Bree wrote:
-> Graphics card companies don't realize they are hardware companies not
-> software companies and that it is hardware they make their money from?
-> Oh and they have too many lawyers?
+I didn't find any possible modular usage in the kernel.
 
-Actually they are both. 3D performance is a combination of clever driver
-technology -and- clever hardware. 
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Alan
+---
+
+This patch was already sent on:
+- 4 Mar 2005
+
+--- linux-2.6.11-rc5-mm1-full/kernel/sys.c.old	2005-03-04 01:19:18.000000000 +0100
++++ linux-2.6.11-rc5-mm1-full/kernel/sys.c	2005-03-04 01:19:29.000000000 +0100
+@@ -1382,8 +1382,6 @@
+ 
+ DECLARE_RWSEM(uts_sem);
+ 
+-EXPORT_SYMBOL(uts_sem);
+-
+ asmlinkage long sys_newuname(struct new_utsname __user * name)
+ {
+ 	int errno = 0;
 

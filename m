@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261469AbVDOLOM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261806AbVDOL0T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261469AbVDOLOM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 07:14:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261805AbVDOLOL
+	id S261806AbVDOL0T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 07:26:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbVDOL0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 07:14:11 -0400
-Received: from main.gmane.org ([80.91.229.2]:26002 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261469AbVDOLOJ (ORCPT
+	Fri, 15 Apr 2005 07:26:18 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:38089 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261801AbVDOL0P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 07:14:09 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Kenneth Johansson <ken@kenjo.org>
-Subject: Re: Git archive now available
-Date: Fri, 15 Apr 2005 13:11:20 +0200
-Message-ID: <425FA158.9020801@kenjo.org>
-References: <20050415000147.GA1480@cse.unsw.EDU.AU>
+	Fri, 15 Apr 2005 07:26:15 -0400
+Date: Fri, 15 Apr 2005 13:25:56 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [GIT PATCH] scsi updates for 2.6.12-rc2
+Message-ID: <20050415112556.GA6086@elf.ucw.cz>
+References: <1113442034.4933.53.camel@mulgrave> <20050415103646.GB1797@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 1-1-4-20a.ras.sth.bostream.se
-User-Agent: Mozilla Thunderbird 1.0 (Macintosh/20041206)
-X-Accept-Language: en-us, en
-In-Reply-To: <20050415000147.GA1480@cse.unsw.EDU.AU>
-Cc: git@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050415103646.GB1797@elf.ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Darren Williams wrote:
-> Hi All
-> 
-> Thanks to the team at Gelato@UNSW we now have a
-> no so complete Git archive at
-> http://www.gelato.unsw.edu.au/archives/git/
-> 
-> If somebody could send me a complete Git mbox I will
-> update the archive with it.
-> 
->  - dsw 
-gmane.org is already archiving this list.
+Hi!
 
+> > This is a small set of bugfixes for 2.6.12-rc2 ... you asked me to try
+> > git, so I did (I actually updated my bk backport script simply to export
+> > from a BK tree to a git tree).  For the time being, I plan to keep the
+> > scsi changes in BK, but I'll export them for you to try merging
+> > 
+> > The patch (against kernel-test.git) is here
+> > 
+> > rsync://www.parisc-linux.org/~jejb/scsi-rc-fixes-2.6.git
+> 
+> Can you du -s on it? Just curious. I started rsync on it, but because
+> it is not standard gzip files, it is difficult to see anything
+> interesting...
+
+Okay, so du -s is:
+
+root@amd:~# du -sh /tmp/delme.git/
+109M    /tmp/delme.git/
+
+Not as bad as I expected, but still quite a lot of data for few
+changes.
+
+								Pavel
+-- 
+Boycott Kodak -- for their patent abuse against Java.

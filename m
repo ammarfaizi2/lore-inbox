@@ -1,64 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261854AbVDOQOK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261846AbVDOQPu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261854AbVDOQOK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 12:14:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261846AbVDOQOK
+	id S261846AbVDOQPu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 12:15:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261855AbVDOQPu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 12:14:10 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:52908 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261854AbVDOQOC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 12:14:02 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20050408223927.GA22217@kvack.org> 
-References: <20050408223927.GA22217@kvack.org>  <1112224663.18019.39.camel@lade.trondhjem.org> <1112309586.27458.19.camel@lade.trondhjem.org> <20050331161350.0dc7d376.akpm@osdl.org> <1112318537.11284.10.camel@lade.trondhjem.org> <20050401141225.GA3707@in.ibm.com> <20050404155245.GA4659@in.ibm.com> <20050404162216.GA18469@kvack.org> <1112637395.10602.95.camel@lade.trondhjem.org> <20050405154641.GA27279@kvack.org> <20050407114302.GA13363@infradead.org> 
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
-       linux-aio@kvack.org
-Subject: Re: [RFC] Add support for semaphore-like structure with support for asynchronous I/O 
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Fri, 15 Apr 2005 17:13:44 +0100
-Message-ID: <29082.1113581624@redhat.com>
+	Fri, 15 Apr 2005 12:15:50 -0400
+Received: from smtp-vbr14.xs4all.nl ([194.109.24.34]:13071 "EHLO
+	smtp-vbr14.xs4all.nl") by vger.kernel.org with ESMTP
+	id S261846AbVDOQPj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 12:15:39 -0400
+Subject: Re: Adaptec 2010S i2o + x86_64 doesn't work
+From: Miquel van Smoorenburg <miquels@cistron.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Markus.Lidel@shadowconnect.com, miquels@cistron.nl
+In-Reply-To: <1113576775.11116.17.camel@localhost.localdomain>
+References: <20050413160352.GA12841@xs4all.net>
+	 <1113576775.11116.17.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 15 Apr 2005 18:15:22 +0200
+Message-Id: <1113581722.14421.15.camel@zahadum.xs4all.nl>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2005-04-15 at 15:52 +0100, Alan Cox wrote:
+> On Mer, 2005-04-13 at 17:03, Miquel van Smoorenburg wrote:
+> > I have a supermicro dual xeon em64t system, X6DH8-XG2 motherboard,
+> > 4 GB RAM, with an Adaptec zero raid 2010S i2o controller. In 32
+> > bits mode it runs fine, both with the dpt_i2o driver and the
+> > generic i2o_block driver using kernel 2.6.11.6.
+> 
+> Does it work if you drop the box to 2Gbytes ?
 
-Benjamin LaHaise <bcrl@kvack.org> wrote:
+I tried 2.6.9 with 4GB and it didn't make any difference.
 
-> Oh dear, this is going to take a while.  In any case, here is such a 
-> first step in creating such a sequence of patches.  Located at 
-> http://www.kvack.org/~bcrl/patches/mutex-A0/ are the following patches:
-> ...
-> 	10_new_mutex.diff - Replaces the semphore mutex with a new mutex 
-> 			    derrived from Trond's iosem patch.  Note that 
-> 			    this fixes a serious bug in iosems: see the 
-> 			    change in mutex_lock_wake_function that ignores 
-> 			    the return value of default_wake_function, as 
-> 			    on SMP a process might still be running while 
-> 			    we actually made progress.
+However, I removed 2 GB from the box as Alan sugggested and now the box
+comes up just fine with a 64-bit 2.6.11.6 kernel! I've put the 4GB back,
+and booted with the kernel "mem=2048" command line option - that also
+works, the i2o_block driver sees the adaptec controller just fine.
 
-Can I suggest you don't use a wait_queue_t in your mutex? The way you've
-implemented your mutex you appear to have to take spinlocks and disable
-interrupts a lot more than is necessary.
+And I just booted it with "mem=3840M" and that works too.
 
-You might want to look at how I've implemented semaphores for the frv arch:
+So the problem appears to be 4 GB memory in 64 bit mode, on this box.
 
-	include/asm-frv/semaphore.h
-	arch/frv/kernel/semaphore.c
+Mike.
 
-On FRV disabling interrupts is quite expensive, so I've made my own simple
-semaphores that don't need to take spinlocks and disable interrupts in the
-down() path once the sleeping task has been queued[*]. These work in exactly
-the same way as rwsems.
-
-  [*] except for the case where down_interruptible() is interrupted.
-
-The point being that since up() needs to take the semaphore's spinlock anyway
-so that it can access the list, up() does all the necessary dequeuing of tasks
-before waking them up.
-
-David

@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261749AbVDOGuw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261751AbVDOHLP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261749AbVDOGuw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 02:50:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbVDOGuv
+	id S261751AbVDOHLP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 03:11:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbVDOHLP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 02:50:51 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:35565 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S261749AbVDOGur (ORCPT
+	Fri, 15 Apr 2005 03:11:15 -0400
+Received: from gaz.sfgoth.com ([69.36.241.230]:36606 "EHLO gaz.sfgoth.com")
+	by vger.kernel.org with ESMTP id S261751AbVDOHLM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 02:50:47 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Sergey Vlasov <vsu@altlinux.ru>
-Subject: Re: [OOPS] on usb removal, and minicom closing 2.6.11.7
-Date: Fri, 15 Apr 2005 08:51:51 +0200
-User-Agent: KMail/1.7.1
-Cc: Grzegorz Piotr Jaskiewicz <gj@pointblue.com.pl>,
-       JustMan <justman@e1.bmstu.ru>, linux-kernel@vger.kernel.org
-References: <425E5682.6060606@pointblue.com.pl> <425E64C4.5020704@pointblue.com.pl> <20050414230621.49663f75.vsu@altlinux.ru>
-In-Reply-To: <20050414230621.49663f75.vsu@altlinux.ru>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Fri, 15 Apr 2005 03:11:12 -0400
+Date: Fri, 15 Apr 2005 00:26:00 -0700
+From: Mitchell Blank Jr <mitch@sfgoth.com>
+To: Ted Kremenek <kremenek@cs.stanford.edu>
+Cc: linux-kernel@vger.kernel.org, Bryan Fulton <bryan@coverity.com>,
+       mc@cs.stanford.edu
+Subject: Re: [CHECKER] possible missing capability check in ioctl function, drivers/net/cris/eth_v10.c, kernel 2.6.11
+Message-ID: <20050415072600.GA45259@gaz.sfgoth.com>
+References: <b86e6e6214dbc3ebe14bf1ec472a1202@cs.stanford.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200504150851.52338.oliver@neukum.org>
+In-Reply-To: <b86e6e6214dbc3ebe14bf1ec472a1202@cs.stanford.edu>
+User-Agent: Mutt/1.4.2.1i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.2.2 (gaz.sfgoth.com [127.0.0.1]); Fri, 15 Apr 2005 00:26:00 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> The patches which really seem to fix the underlying problem can be found
-> in this thread:
-> 
-> http://thread.gmane.org/gmane.linux.usb.devel/32977
-> 
-> (see "[PATCH] N/3 cdc acm errors").
-> 
-> You also need this driver core fix:
-> 
-> http://thread.gmane.org/gmane.linux.usb.devel/33132
+Ted Kremenek wrote:
+> Currently we are looking primarily into the 
+> ioctls in drivers/net,
 
-Has the fix been applied?
+Just as a small aside, a little over five years ago (wow does time fly!) I
+did a manual audit for mistakes like this:
+  http://lkml.org/lkml/2000/3/7/156
+Not sure if that's relevant to your work your not...I'm not sure how you
+would can catch most of these errors statistically since a lot of the
+dangerous ioctl's were only for a single device.
 
-	Regards
-		Oliver
+-Mitch

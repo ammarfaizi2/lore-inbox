@@ -1,57 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261942AbVDOVuV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261983AbVDOVy7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261942AbVDOVuV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 17:50:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbVDOVuU
+	id S261983AbVDOVy7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 17:54:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbVDOVy7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 17:50:20 -0400
-Received: from zproxy.gmail.com ([64.233.162.195]:49654 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261942AbVDOVuP convert rfc822-to-8bit
+	Fri, 15 Apr 2005 17:54:59 -0400
+Received: from rtc10-252.rentec.com ([216.223.240.9]:60867 "EHLO
+	unicorn.rentec.com") by vger.kernel.org with ESMTP id S261983AbVDOVyl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 17:50:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=G84diO9ytaOHEWwZo2vvp6tXd8FU7aEUDj3WBV/dbEGlfIhx4zvqicgKpdGohIwj2QyBcOkd9734N1WwY2jl/pnOoCiaOihFz7n9v7Kk3/E3OjinbunRmHi1SR8+AUq6JKk69sA8CgNZ/cSn9d8z/ngJ51nPS92ZAEg7b/fSllQ=
-Message-ID: <29495f1d050415144774ec9c44@mail.gmail.com>
-Date: Fri, 15 Apr 2005 14:47:41 -0700
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: Kylene Hall <kjhall@us.ibm.com>
-Subject: Re: [PATCH] char/tpm: use msleep(), clean-up timers, fix typo
-Cc: Nishanth Aravamudan <nacc@us.ibm.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050415210402.GA22834@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050310004115.GA32583@kroah.com> <1110415321526@kroah.com>
-	 <20050311181816.GC2595@us.ibm.com>
-	 <Pine.LNX.4.61.0504151522210.24192@dyn95395164>
-	 <29495f1d0504151344a33ee24@mail.gmail.com>
-	 <20050415210402.GA22834@kroah.com>
+	Fri, 15 Apr 2005 17:54:41 -0400
+X-Rentec: external
+From: Wolfgang Wander <wwc@rentec.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16992.14366.232980.673857@gargle.gargle.HOWL>
+Date: Fri, 15 Apr 2005 17:54:38 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Leaks in mmap address space: 2.6.11.4 
+In-Reply-To: <200504151646.j3FGkLQ00256@troll.rentec.com>
+References: <200504151646.j3FGkLQ00256@troll.rentec.com>
+X-Mailer: VM 7.17 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
+X-Logged: Logged by unicorn.rentec.com as j3FLsdWZ023155 at Fri Apr 15 17:54:40 2005
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/15/05, Greg KH <greg@kroah.com> wrote:
-> On Fri, Apr 15, 2005 at 01:44:55PM -0700, Nish Aravamudan wrote:
-> > On 4/15/05, Kylene Hall <kjhall@us.ibm.com> wrote:
-> > > I have tested this patch and agree that using msleep is the right.  Please
-> > > apply this patch to the tpm driver.  One hunk might fail b/c the
-> > > typo has been fixed already.
-> >
-> > Would you like me to respin the patch, Greg? Or is the failed hunk ok?
-> 
-> I'm sorry, but I am not in charge of accepting patches for the tpm
-> driver.  Why not go through the listed maintainer for this process, they
-> should know how to get it into the mainline kernel tree properly.  If
-> not, why would they be listed as the maintainer?  :)
+Here is another program that illustrates the problem which this time
+in C and without using glibc allocation schemes.
 
-Kylene, there is no entry in MAINTAINERS as of 2.6.12-rc2 for the TPM
-driver? Should there be?
+----------------------------------------------------------------------
+/* run in 32 bit mode on 64Bit kernel, >4GB of RAM is helpful */
 
-I am assuming tpmdd_devel can take care of merging the patch and
-pushing to mainline? Please do so.
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/mman.h>
 
-Thanks,
-Nish
+#define bsz 600         /* number of mmaps to keep */
+#define large 9500000   /* some odd large number */
+#define success 1000000 /* number of iterations before we believe we are ok*/
+
+                        /* program fails here on 2.6.11.4 kernel after 52K iterations 
+                           with a fragmented /proc/self/mmap, 2.4 kernels behave fine */
+void
+aLLocator()
+{
+
+  char* bvec[bsz];
+  unsigned int i;
+  memset( bvec,0,sizeof(bvec));
+	 
+  for(  i = 0; i < success ; ++i ) {
+    unsigned oidx;
+    unsigned kidx;
+    int len;
+    kidx = i % bsz;
+    oidx = (i+bsz/10) % bsz;
+    len = (oidx & 7) ? ((oidx&7)* 1048576) : large;
+    if( bvec[oidx] ) { munmap( bvec[oidx], len ); bvec[oidx] = 0; }
+    len = (kidx & 7) ? ((kidx&7)* 1048576) : large;
+    bvec[kidx] = (char*)(mmap(0, len, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0));
+    if( bvec[kidx] == (char*)(-1) ) {
+      printf("Failed after %d rounds\n", i);
+      break;
+    }
+  }
+}
+
+int main() {
+  FILE *f;
+  int c;
+
+  aLLocator();
+
+  f = fopen( "/proc/self/maps", "r" );
+  while( (c = fgetc(f)) != EOF )
+    putchar(c);
+  fclose(f);
+  
+  return 0;
+}
+----------------------------------------------------------------------
+
+Wolfgang Wander writes:
+ > Hi,
+ > 
+ >   we are running some pretty large applications in 32bit mode on 64bit
+ >   AMD kernels (8GB Ram, Dual AMD64 CPUs, SMP).  Kernel is 2.6.11.4 or
+ >   2.4.21.
+ > 
+ >   Some of these applications run consistently out of memory but only
+ >   on 2.6 machines.  In fact large memory allocations that libc answers
+ >   with private mmaps seem to contribute to the problem: 2.4 kernels
+ >   are able to combine these mmaps to large chunks whereas 2.6
+ >   generates a rather fragmented /proc/self/maps table.
+ > 
+ >   The following C++ program reproduces the error (compiled statically
+ >   on a 32bit machine to get exactly the same executable for 2.4 and
+ >   2.6 environments):

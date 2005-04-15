@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261726AbVDOFXu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261718AbVDOFYL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261726AbVDOFXu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 01:23:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbVDOFXt
+	id S261718AbVDOFYL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 01:24:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261734AbVDOFYL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 01:23:49 -0400
-Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:30868 "HELO
-	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261726AbVDOFXr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 01:23:47 -0400
-Subject: Re: 2.6.12-rc2: >100% memory usage
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: michael@ucc.gu.uwa.edu.au, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050414222024.059f7aa9.rddunlap@osdl.org>
-References: <20050415044806.GA12519@wibble>
-	 <1113541145.6517.22.camel@npiggin-nld.site>
-	 <20050414222024.059f7aa9.rddunlap@osdl.org>
-Content-Type: text/plain
-Date: Fri, 15 Apr 2005 15:23:42 +1000
-Message-Id: <1113542622.6517.25.camel@npiggin-nld.site>
+	Fri, 15 Apr 2005 01:24:11 -0400
+Received: from wproxy.gmail.com ([64.233.184.192]:38701 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261718AbVDOFYG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 01:24:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=P7fASUuRtFEptWVoCkhiYxcnQ3d6bfy/zIhcJmgDuHJSKUYUHIz06kA5LZX9OhlmaTsbQBQDQUr/zV4Qt1Nx6OXa5+B4ulZTIy6tA9uY1ckfe4PFgLHEwO7LushNDyfnG8WlBWJINE31DyU7FBn9qt6soTOZYDuJP6dYQllnV1o=
+Message-ID: <17d79880504142224b4514f@mail.gmail.com>
+Date: Fri, 15 Apr 2005 01:24:05 -0400
+From: Allison <fireflyblue@gmail.com>
+Reply-To: Allison <fireflyblue@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel module_list
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-04-14 at 22:20 -0700, Randy.Dunlap wrote:
-> On Fri, 15 Apr 2005 14:59:05 +1000 Nick Piggin wrote:
+Right now , I am just learn. trying a test module that lists out all the modules
+
+Allison
+
+Arjan van de Ven wrote:
+> On Thu, 2005-04-14 at 19:53 +0000, Allison wrote:
+> > 
+> > I am trying to access the module list kernel data structure from a
+> > kernel module. If I gather correctly, module_list is the symbol that
+> > is the head pointer of this list.
 > 
-> | On Fri, 2005-04-15 at 12:48 +0800, Michael Deegan wrote:
-> | > Hi folks,
-> | > 
-> | > I noticed something unusual on my home desktop machine (K6II, 448M RAM, runs
-> | > KDE, samba, nfsd. 2.6.12-rc2 on Debian sarge). The machine seems to feel
-> | > slightly sluggish; it seems to swap a fair bit more than it did under
-> | > 2.6.11, but at the same time it's not actually using more swap that it used
-> | > to. The large numbers are slowly growing larger too. The biggest spamd was
-> | > only 156% of memory yesterday. Normally it's only my xserver (and
-> | > occasionally konqueror) that manages to grab more than 10% of memory...
-> | 
-> | FWIW, me too :P
-> | 
-> | I think there is a memory leak in recent 2.6.12 kernels.
-> | At least on my desktop there is (although it has some of
-> | my own patches and I've been too lazy to do more work on
-> | it so I haven't reported it).
-> | 
-> | It seems to be leaking `size-4096` slabs somewhere.
-> 
-> This one or yet another one?
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=111264601928365&w=2
+> can you explain what you want to do with this symbol ?
 > 
 > 
-
-No, another one. Much faster. A few kernel compiles and I have
-to reboot (only 256MB RAM, though).
-
-But as I said, not quite a vanilla kernel. I'll have to get
-motivated and compile a plain one and try to work it out. I
-was hoping someone else would do it ;)
-
-
-
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

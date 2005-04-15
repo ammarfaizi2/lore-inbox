@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261787AbVDOJr6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261790AbVDOJvj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261787AbVDOJr6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 05:47:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261795AbVDOJr5
+	id S261790AbVDOJvj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 05:51:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbVDOJvi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 05:47:57 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:36880 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S261787AbVDOJpS (ORCPT
+	Fri, 15 Apr 2005 05:51:38 -0400
+Received: from [202.125.86.130] ([202.125.86.130]:55202 "EHLO
+	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
+	id S261790AbVDOJud convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 05:45:18 -0400
-Message-ID: <425F8CE8.3040200@domdv.de>
-Date: Fri, 15 Apr 2005 11:44:08 +0200
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
-X-Accept-Language: en-us, en
+	Fri, 15 Apr 2005 05:50:33 -0400
+Subject: touch screen driver --working?
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Matt Mackall <mpm@selenic.com>, Herbert Xu <herbert@gondor.apana.org.au>,
-       rjw@sisk.pl, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
-References: <E1DLgWi-0003Ag-00@gondolin.me.apana.org.au> <425D17B0.8070109@domdv.de> <20050413212731.GA27091@gondor.apana.org.au> <425D9D50.9050507@domdv.de> <20050413231044.GA31005@gondor.apana.org.au> <20050413232431.GF27197@elf.ucw.cz> <20050413233904.GA31174@gondor.apana.org.au> <20050413234602.GA10210@elf.ucw.cz> <20050414003506.GQ25554@waste.org> <20050414065124.GA1357@elf.ucw.cz>
-In-Reply-To: <20050414065124.GA1357@elf.ucw.cz>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Date: Fri, 15 Apr 2005 15:27:41 +0530
+Content-class: urn:content-classes:message
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Message-ID: <4EE0CBA31942E547B99B3D4BFAB348114545BE@mail.esn.co.in>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-topic: touch screen driver --working?
+Thread-index: AcVBlf87cgZuBm4TSLiolI+R+ZeUvgAATflg
+From: "Mukund JB." <mukundjb@esntechnologies.co.in>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Andreas, do you think you could write nice, long, FAQ entries so that
-> we don't have to go through this discussion over and over?
 
-I can do so over the weekend. Am I right that you mean the FAQ section
-of Documentation/power/swsusp.txt?
 
-BTW: would it make sense to reset the suspend header via
-software_resume() if booted with noresume? Currently this code path does
-nothing.
--- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+Dear all,
+
+I have a query here regarding how does a touch screen driver work?
+
+I have TS driver working but the calibration points seem to be not set
+properly.  When I launch an qt application, the touch on edit dropdown
+button opens the file dropdown button.
+
+Any clink on any button of the application does not activate it but
+rather is activated when I click bit right to the button (off it).
+ 
+How do I set these calibration points & what is their importance?
+
+Regards,
+Mukund jampala
+
+

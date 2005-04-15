@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbVDOJow@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261783AbVDOJsO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261786AbVDOJow (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 05:44:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbVDOJo0
+	id S261783AbVDOJsO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 05:48:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261795AbVDOJsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 05:44:26 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:37903 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S261787AbVDOJoS (ORCPT
+	Fri, 15 Apr 2005 05:48:13 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19646 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261783AbVDOJrz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 05:44:18 -0400
-Message-ID: <425F8CE6.90200@domdv.de>
-Date: Fri, 15 Apr 2005 11:44:06 +0200
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matt Mackall <mpm@selenic.com>
-CC: Stefan Seyfried <seife@suse.de>, Herbert Xu <herbert@gondor.apana.org.au>,
-       Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
-       "Rafael J. Wysocki" <rjw@sisk.pl>
+	Fri, 15 Apr 2005 05:47:55 -0400
+Date: Fri, 15 Apr 2005 11:47:26 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Andreas Steinmetz <ast@domdv.de>
+Cc: Matt Mackall <mpm@selenic.com>, Herbert Xu <herbert@gondor.apana.org.au>,
+       rjw@sisk.pl, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
-References: <E1DLgWi-0003Ag-00@gondolin.me.apana.org.au> <20050414065124.GA1357@elf.ucw.cz> <20050414080837.GA1264@gondor.apana.org.au> <200504141104.40389.rjw@sisk.pl> <20050414171127.GL3174@waste.org> <425EC41A.4020307@suse.de> <20050414195352.GM3174@waste.org>
-In-Reply-To: <20050414195352.GM3174@waste.org>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Message-ID: <20050415094726.GD1763@elf.ucw.cz>
+References: <425D17B0.8070109@domdv.de> <20050413212731.GA27091@gondor.apana.org.au> <425D9D50.9050507@domdv.de> <20050413231044.GA31005@gondor.apana.org.au> <20050413232431.GF27197@elf.ucw.cz> <20050413233904.GA31174@gondor.apana.org.au> <20050413234602.GA10210@elf.ucw.cz> <20050414003506.GQ25554@waste.org> <20050414065124.GA1357@elf.ucw.cz> <425F8CE8.3040200@domdv.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <425F8CE8.3040200@domdv.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall wrote:
-> Zero only the mlocked regions. This should take essentially no time at
-> all. Swsusp knows which these are because they have to be mlocked
-> after resume as well. If it's not mlocked, it's liable to be swapped
-> out anyway.
+Hi!
 
-Nitpicking:
-What happens if the disk decides to relocate a close to failing sector
-containing mlocked data during resume zeroing? This just means that
-there will be sensitive data around on the disk that can't be  zeroed
-out anymore but which might be recovered by specialized
-companies/institutions.
-Encrypting these data in the first place reduces this problem to a
-single potentially problematic sector.
-If this risk is then still too high for you then there's always the
-possiblity to use a sledgehammer :-)
+> > Andreas, do you think you could write nice, long, FAQ entries so that
+> > we don't have to go through this discussion over and over?
+> 
+> I can do so over the weekend. Am I right that you mean the FAQ section
+> of Documentation/power/swsusp.txt?
+
+Yes.
+
+> BTW: would it make sense to reset the suspend header via
+> software_resume() if booted with noresume? Currently this code path does
+> nothing.
+
+I think distros are already doing it in userland, and I do not want to
+add potential failure into "safe" boot path.
+								Pavel
 -- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+Boycott Kodak -- for their patent abuse against Java.

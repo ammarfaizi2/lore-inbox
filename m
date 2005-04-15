@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261769AbVDOIVm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261772AbVDOIXc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261769AbVDOIVm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 04:21:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261771AbVDOIVl
+	id S261772AbVDOIXc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 04:23:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261771AbVDOIVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 04:21:41 -0400
-Received: from web51409.mail.yahoo.com ([206.190.38.188]:28565 "HELO
-	web51409.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261769AbVDOIUt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 04:20:49 -0400
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=TquXElgFDCkL8jJ+w0ErOFUiJ90wOe5+smmO2ODeXWnM4NQpeb471COd05B8/a6J6MOUQN0VKcceOTpsplnxCJxM/cDstbPqi3ChmHTEckTC1JZ7YeU+jl6fb9/Os64hsl7Y23exT9h48u3SIpbhpFFFwngjL+6SwKZ5Ycm5xkw=  ;
-Message-ID: <20050415082048.1497.qmail@web51409.mail.yahoo.com>
-Date: Fri, 15 Apr 2005 10:20:48 +0200 (CEST)
-From: Joerg Pommnitz <pommnitz@yahoo.com>
-Subject: 2.6 PCMCIA/USB question
-To: kernel <linux-kernel@vger.kernel.org>,
-       linux-usb-user <linux-usb-users@lists.sourceforge.net>
+	Fri, 15 Apr 2005 04:21:50 -0400
+Received: from gannet.scg.man.ac.uk ([130.88.94.110]:4616 "EHLO
+	gannet.scg.man.ac.uk") by vger.kernel.org with ESMTP
+	id S261770AbVDOIVe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 04:21:34 -0400
+Message-ID: <425F7919.2010402@gentoo.org>
+Date: Fri, 15 Apr 2005 09:19:37 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050403)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Christian Kujau <evil@g-house.de>
+CC: Jesper Juhl <juhl-lkml@dif.dk>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ALSA Oops (triggered by xmms)
+References: <425EFB32.2010000@g-house.de> <Pine.LNX.4.62.0504150150240.3466@dragon.hyggekrogen.localhost> <425F07A6.2010402@g-house.de>
+In-Reply-To: <425F07A6.2010402@g-house.de>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1DMM4u-000Gr5-M0*UcyehSlprQI*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-I have a question that I could not figure out from other sources. I have
-the following hardware: an integrated CardBus USB host adapter with a
-connected USB serial device with three interfaces (normally
-ttyUSB0...ttyUSB2). Now I want to use 3 of these devices (remember: they
-are integrated, so I can't just plug the USB device onto the same host
-adapter). I know device A is in CardBus slot 1, device B is in CardBus
-slot 2 and so on. 
+Christian Kujau wrote:
+> oh, this sounds good. strange though, that my 2.6.11-gentoo-r5 (whatever
+> they've patched in there) *never* oopsed the days ago but all of a sudden
+> started to oops yesterday....
 
-Now the question: How do I figure out which ttyUSBx belongs to which
-device?
+Probably because you changed alsa-lib versions. By the way, it is fixed in
+gentoo-sources-2.6.11-r6.
 
-Thanks in advance
-  Joerg
-
-
-	
-
-	
-		
-___________________________________________________________ 
-Gesendet von Yahoo! Mail - Jetzt mit 250MB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de
+Daniel

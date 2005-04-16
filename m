@@ -1,68 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262704AbVDPReq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262711AbVDPRiX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262704AbVDPReq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Apr 2005 13:34:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262709AbVDPReq
+	id S262711AbVDPRiX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Apr 2005 13:38:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262713AbVDPRiX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Apr 2005 13:34:46 -0400
-Received: from marvin.brothermu.net ([204.91.10.115]:401 "EHLO
-	mail.brothermu.net") by vger.kernel.org with ESMTP id S262704AbVDPRen
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Apr 2005 13:34:43 -0400
-Message-ID: <42614CAF.50606@axium.net>
-Date: Sat, 16 Apr 2005 13:34:39 -0400
-From: "Matt M. Valites" <mval@axium.net>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050403)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Poor  I/O Performance with MegaRaid SATA 150-4; bug or feature?
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sat, 16 Apr 2005 13:38:23 -0400
+Received: from chilli.pcug.org.au ([203.10.76.44]:27302 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S262709AbVDPRiO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Apr 2005 13:38:14 -0400
+Date: Sun, 17 Apr 2005 03:38:06 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, trond.myklebust@fys.uio.no,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       steved@redhat.com, Bryan Henderson <hbryan@us.ibm.com>,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH] Add 32-bit compatibility for NFSv4 mount
+Message-Id: <20050417033806.65a5786a.sfr@canb.auug.org.au>
+In-Reply-To: <26687.1113576302@redhat.com>
+References: <26687.1113576302@redhat.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Sun__17_Apr_2005_03_38_06_+1000_T=ky_ue9yWgyH3s+"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hail List,
+--Signature=_Sun__17_Apr_2005_03_38_06_+1000_T=ky_ue9yWgyH3s+
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I've been banging my head against this for a few days, and I wanted to
-see if anyone here could lend a hand.
+Hi David,
 
-I have the following configuration:
-P4 3.x Ghz
-2GB Ram;
-2 x 36GB WD Raptors; in a RAID1 (sda)
-2 x 74GB WD Raptor (those 10K RPM SATA drives) in a RAID1(sdb)
-Two free PCI-X slots, one of which occupied by a LSI MegaRaid SATA 150-4.
+On Fri, 15 Apr 2005 15:45:02 +0100 David Howells <dhowells@redhat.com> wrot=
+e:
+>
+> @@ -746,10 +747,79 @@ static void *do_smb_super_data_conv(void
+>  	return raw_data;
+>  }
+> =20
+> +struct compat_nfs_string {
+> +	compat_uint_t len;
+> +	compat_uptr_t __user data;
+                      ^^^^^^
+This __user (and the others later) add nothing (I think) as compat_uptr_t is
+generally just u32 and compat_ptr() does the right casting.
 
-The problem is I/O on either one of these RAID devices seems to
-be less than half what I'm expecting.   The file system used in my testing is
-XFS, and I'm running kernel 2.6.11.6.
+Otherwise, the patch looks fine for a minimal fix.  I agree with David and
+Bryan that we need to get the fs specific stuff out of compat.c in the
+longer term.
 
-The test I'm doing is a simple:
-# time dd if=/dev/zero of=./crap.file bs=1024 count=209715
-Which results in a runtime of about ~53s, in the best case, with all the
-scary write cache enabled.    I've tried with deadline, and
-anticipatory.  I've also tried several kernels, namely a recent 2.4, so
-I could test megaraid and megaraid2, similar results.
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-On my desktop box, with one of these drives connected via SATA, i get
-~25s, also XFS.  (2.6.11-gentoo-r6 x86_64).
+--Signature=_Sun__17_Apr_2005_03_38_06_+1000_T=ky_ue9yWgyH3s+
+Content-Type: application/pgp-signature
 
-Is this an expected result?  I'm seeing much higher numbers posted around the
-'Net.  Most of those results are from Windows boxes.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
-I've uploaded my kernel config, lspci -v, and two opreports of a bonnie++ run
-to: http://www.muixa.com/lkml/
+iD8DBQFCYU2E4CJfqux9a+8RAjw0AJ0chJsqYIeG8I05IgywtoYucxvvrACcDx3W
++MliWLgi/XyTRi1sgK4UmjI=
+=1SC4
+-----END PGP SIGNATURE-----
 
-Any thoughts would be appreciated.
-Thanks,
---
-Matt M. Valites
-
-
-
-
-
-
-
-
+--Signature=_Sun__17_Apr_2005_03_38_06_+1000_T=ky_ue9yWgyH3s+--

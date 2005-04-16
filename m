@@ -1,72 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261691AbVDPFCT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262637AbVDPFSq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261691AbVDPFCT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Apr 2005 01:02:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262635AbVDPFCT
+	id S262637AbVDPFSq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Apr 2005 01:18:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262648AbVDPFSq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Apr 2005 01:02:19 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:62349 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261691AbVDPFCP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Apr 2005 01:02:15 -0400
-Subject: Re: ACPI/HT or Packet Scheduler BUG?
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Thomas Graf <tgraf@suug.ch>, hadi@cyberus.ca, netdev <netdev@oss.sgi.com>,
-       Tarhon-Onu Victor <mituc@iasi.rdsnet.ro>, kuznet@ms2.inr.ac.ru,
-       devik@cdi.cz, linux-kernel@vger.kernel.org,
-       Patrick McHardy <kaber@trash.net>,
-       "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20050416014906.GA3291@gondor.apana.org.au>
-References: <Pine.LNX.4.61.0504081225510.27991@blackblue.iasi.rdsnet.ro>
-	 <Pine.LNX.4.61.0504121526550.4822@blackblue.iasi.rdsnet.ro>
-	 <Pine.LNX.4.61.0504141840420.13546@blackblue.iasi.rdsnet.ro>
-	 <1113601029.4294.80.camel@localhost.localdomain>
-	 <1113601446.17859.36.camel@localhost.localdomain>
-	 <1113602052.4294.89.camel@localhost.localdomain>
-	 <20050415225422.GF4114@postel.suug.ch>
-	 <20050416014906.GA3291@gondor.apana.org.au>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Sat, 16 Apr 2005 01:01:37 -0400
-Message-Id: <1113627698.4294.132.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+	Sat, 16 Apr 2005 01:18:46 -0400
+Received: from mail28.sea5.speakeasy.net ([69.17.117.30]:42403 "EHLO
+	mail28.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S262637AbVDPFSn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Apr 2005 01:18:43 -0400
+Date: Fri, 15 Apr 2005 22:18:42 -0700 (PDT)
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: Hacksaw <hacksaw@hacksaw.org>
+cc: linux-os@analogic.com, "Theodore Ts'o" <tytso@mit.edu>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Tomko <tomko@haha.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Why system call need to copy the date from the userspace before
+  using it
+In-Reply-To: <200504160450.j3G4oqC9029496@hacksaw.org>
+Message-ID: <Pine.LNX.4.58.0504152209260.18492@shell3.speakeasy.net>
+References: <200504160450.j3G4oqC9029496@hacksaw.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-04-16 at 11:49 +1000, Herbert Xu wrote:
+On Sat, 16 Apr 2005, Hacksaw wrote:
 
+> Sorry if this bugs anyone, but I'm learning things here.
+>
+> What I would expect the kernel to do is this:
+>
+> system_call_data_prep (userdata, size){
+>
+>    if !4G/4G {
+>       for each page from userdata to userdata+size
+>       {
+>  	if the page is swapped out, swap it in
+> 	if the page is not owned by the user process, return -ENOWAYMAN
+> 	otherwise, lock the page
+>       }
+>       return userdata;
+>     }
+>     else { //kernel land and userland are mutually exclusive
+> 	   copy the data into kernel land
+> 	   return kernelland_copy_of_userdata;
+>           }
+> }
+>
+> (And then the syscall would need to run the opposite function
+> sys_call_data_unprep to unlock pages.)
+>
+> Hmm, maybe that interface sucks.
 
-> Here is a quick'n'dirty fix to the problem at hand.  What happened
-> between 2.6.10-rc1 and 2.6.10-rc2 is that qdisc_destroy started
-> changing the next pointer of qdisc entries which totally confuses
-> the readers because qdisc_destroy doesn't always take the tree lock.
-> 
-> This patch tries to ensure that all top-level calls to qdisc_destroy
-> come under the tree lock.  As Thomas correctedly pointed out, most
-> of the other qdisc_destroy calls occur after the top qdisc has been
-> unlinked from the device qdisc_list.  However, someone should go
-> through each one of the remaining ones (they're all in the individual
-> sch_* implementations) and make sure that this assumption is really
-> true.
-> 
-> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-> 
-> If anyone has cycles to spare and a stomach strong enough for
-> this stuff, here is your chance :)
-> 
+That's one approach. Unfortunately, it's not what the kernel currently
+does. The root of the problem is -- it needs to copy the data, even if
+the kernel can access userspace data. There are many reasons for why
+this is a simpler way to program the interface; if you want actual
+concrete examples, let me know.
 
-FYI,
+In order to accomplish the copy_from_user() procedure, from the i386
+perspective, the kernel first figures out where userspace is telling it
+to look for the data buffer. It checks if the LAST page belongs to
+userland, and fails if not; this works because the kernel sits in higher
+memory. Then it simply does the direct copy. If during the copy it hits
+an invalid page, the exception handler code will run, realize that the
+exception occurred because of the copy, and return an error code right
+then and there.
 
-I ran the test case that Tarhon-Ohn had, but had to change his tc
-execution from batch to single lines since the version of tc I have
-segfaults on newlines.  Anyway, I did see the lock up with 2.6.11.2
-after 7 iterations. I applied your patch, and it ran for 30 iterations
-before I manually killed it. I didn't test any more than that, but this
-seems to be the quick fix for now.
+Lots of details left out, but this is the 10,000 foot view, I think.
 
--- Steve
+-Vadim Lobanov
 
-
+> Is it anything close to that?
+>
+> --
+> The best is the enemy of the good  -- Voltaire
+> The Good Enough is the enemy of the Great -- Me
+> http://www.hacksaw.org -- http://www.privatecircus.com -- KB1FVD
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,83 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262665AbVDPNwS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262666AbVDPOOn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262665AbVDPNwS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Apr 2005 09:52:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262666AbVDPNwR
+	id S262666AbVDPOOn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Apr 2005 10:14:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262667AbVDPOOn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Apr 2005 09:52:17 -0400
-Received: from mail.dif.dk ([193.138.115.101]:9916 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S262665AbVDPNwL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Apr 2005 09:52:11 -0400
-Date: Sat, 16 Apr 2005 15:54:59 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Robert Love <rml@tech9.net>,
-       Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] sched: fix never executed code due to expression always
- false
-In-Reply-To: <20050415075801.GA24974@elte.hu>
-Message-ID: <Pine.LNX.4.62.0504161554190.2473@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0504150140250.3466@dragon.hyggekrogen.localhost>
- <425F064E.8050003@yahoo.com.au> <Pine.LNX.4.62.0504150213240.3466@dragon.hyggekrogen.localhost>
- <425F0735.6010407@yahoo.com.au> <Pine.LNX.4.62.0504150222390.3466@dragon.hyggekrogen.localhost>
- <20050415075801.GA24974@elte.hu>
+	Sat, 16 Apr 2005 10:14:43 -0400
+Received: from web52210.mail.yahoo.com ([206.190.39.92]:24415 "HELO
+	web52210.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262666AbVDPOOm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Apr 2005 10:14:42 -0400
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=ttw1YexG8SOJCyNqLcHVnPt95gQXvGtRz3Fse2ds2fGolYgxjZxT9bksAlr6Bwd39Tg1CwBqKAtZC0dIMb7RaVacqWaLC0CGJj/GKpLVbQWnBxYv+z1IQhTUbVtEiWJ0lJM/6biJ5WHoi1YJSxgja7qch6+G/9GUKXQX7/7aZFw=  ;
+Message-ID: <20050416141442.51250.qmail@web52210.mail.yahoo.com>
+Date: Sat, 16 Apr 2005 07:14:41 -0700 (PDT)
+From: linux lover <linux_lover2004@yahoo.com>
+Subject: kfree_skb gives oops
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Apr 2005, Ingo Molnar wrote:
+hello,
+     I am checking some conditions in packet after IP
+header is removed and based on that want network stack
+to discard skbuff so i add it in ip_input.c . 
+       But it gives oops message that 
+Warning: kfree_skb passed an skb still on a list and
+then prints oops 
+       Please help how to do that and correct me to
+use a way by which i will not face any kernel panic
+message? 
+Thanks in advance.
+regards,
+linux_lover.
 
-> 
-> * Jesper Juhl <juhl-lkml@dif.dk> wrote:
-> 
-> > As per this patch perhaps? : 
-> > 
-> > Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-> 
-> this is still not enough (there was one more comparison to cover). Also, 
-> it's a bit cleaner to just cast the left side to signed than cast every 
-> member separately.
-> 
-> 	Ingo
-> 
-> --
-> 
-> fix signed comparisons of long long.
-> 
-> Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-> Signed-off-by: Ingo Molnar <mingo@elte.hu>
-> 
-> --- linux/kernel/sched.c.orig
-> +++ linux/kernel/sched.c
-> @@ -2695,9 +2695,9 @@ need_resched_nonpreemptible:
->  
->  	schedstat_inc(rq, sched_cnt);
->  	now = sched_clock();
-> -	if (likely((long long)now - prev->timestamp < NS_MAX_SLEEP_AVG)) {
-> +	if (likely((long long)(now - prev->timestamp) < NS_MAX_SLEEP_AVG)) {
->  		run_time = now - prev->timestamp;
-> -		if (unlikely((long long)now - prev->timestamp < 0))
-> +		if (unlikely((long long)(now - prev->timestamp) < 0))
->  			run_time = 0;
->  	} else
->  		run_time = NS_MAX_SLEEP_AVG;
-> @@ -2775,7 +2775,7 @@ go_idle:
->  
->  	if (!rt_task(next) && next->activated > 0) {
->  		unsigned long long delta = now - next->timestamp;
-> -		if (unlikely((long long)now - next->timestamp < 0))
-> +		if (unlikely((long long)(now - next->timestamp) < 0))
->  			delta = 0;
->  
->  		if (next->activated == 1)
-> 
 
-Right, that's a better version. Thanks.
-
--- 
-Jesper
-
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Mail - Helps protect you from nasty viruses. 
+http://promotions.yahoo.com/new_mail

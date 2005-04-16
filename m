@@ -1,69 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262738AbVDPTWz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262739AbVDPTgN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262738AbVDPTWz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Apr 2005 15:22:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262739AbVDPTWz
+	id S262739AbVDPTgN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Apr 2005 15:36:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262740AbVDPTgN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Apr 2005 15:22:55 -0400
-Received: from waste.org ([216.27.176.166]:10204 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262738AbVDPTWw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Apr 2005 15:22:52 -0400
-Date: Sat, 16 Apr 2005 12:22:35 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: linux@horizon.com
-Cc: jlcooke@certainkey.com, linux-kernel@vger.kernel.org, tytso@mit.edu
-Subject: Re: Fortuna
-Message-ID: <20050416192235.GC21897@waste.org>
-References: <20050416154625.GD17029@certainkey.com> <20050416171622.12751.qmail@science.horizon.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050416171622.12751.qmail@science.horizon.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Sat, 16 Apr 2005 15:36:13 -0400
+Received: from mail28.sea5.speakeasy.net ([69.17.117.30]:12748 "EHLO
+	mail28.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S262739AbVDPTgB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Apr 2005 15:36:01 -0400
+Date: Sat, 16 Apr 2005 12:35:59 -0700 (PDT)
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: Hacksaw <hacksaw@hacksaw.org>
+cc: linux-os@analogic.com, "Theodore Ts'o" <tytso@mit.edu>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Tomko <tomko@haha.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Why system call need to copy the date from the userspace before
+  using it
+In-Reply-To: <200504160830.j3G8UH0x031123@hacksaw.org>
+Message-ID: <Pine.LNX.4.58.0504161226140.6618@shell4.speakeasy.net>
+References: <200504160830.j3G8UH0x031123@hacksaw.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 16, 2005 at 05:16:22PM -0000, linux@horizon.com wrote:
-> > "How does the entropy estimator measure entropy of the event?" becomes a
-> > crucial concern here.  What if, by your leading example, there is 1/2 bit
-> > of entropy in each event?  Will the estimator even account for 1/2 bits?
-> > Or will it see each event as 3 bits of entropy?  How much of a margin
-> > of error can we tolerate?
-> 
-> H'm... the old code *used* to handle fractional bits, but the new code
-> seems to round down to the nearest bit.  May have to get fixed to
-> handle low-rate inputs.
+On Sat, 16 Apr 2005, Hacksaw wrote:
 
-I don't believe that was ever true, though it can fairly trivially be added.
-JLC, please note that entropy estimation is much more conservative now
-than it was a month ago.
+> >if you want actual concrete examples, let me know.
+> I'd love a few, but maybe privately?
+>
+>
+> I can certainly see where always copying is simpler; I certainly consider this
+> to be an optimization, which must be looked at carefully, lest you end up with
+> that which speed things up a little, but adds a big maintenance headache.
+>
+> But this strikes me as a potentially big speed up for movement through
+> devices. (Or is there already a mechanism for that?)
+>
+> >It checks if the LAST page belongs to userland, and fails if not;
+> I can't claim to know how memory assignment goes. I suppose that this
+> statement means that the address space the userland program sees is continuous?
+>
+> If not I could see a scenario where that would allow someone to get at data
+> that isn't theirs, by allocating around until they got an chunk far up in
+> memory, then just specified a start address way lower with the right size to
+> end up on their chunk.
+>
+> I'm assuming this isn't a workable scenario, right?
 
-> As for margin of error, any persistent entropy overestimate is Bad.
-> a 6-fold overestimate is disastrous.
-> 
-> What we can do is refuse to drain the main pool below, say, 128 bits of
-> entropy.  Then we're safe against any *occasional* overestimates
-> as long as they don't add up to 128 bits.
+For the copy_from_user() operation, we're still talking about virtual
+memory. In virtual memory terms, each userspace program resides in the
+lower addresses, while the kernel takes up the higher addresses. The
+user program can pass the kernel any virtual memory pointer it feels
+like.
 
-I've been moving in that direction already, most of the infrastructure
-is already in place.
+The kernel first checks that it won't try to read from itself, simply by
+checking that the last page, belonging to the highest virtual address of
+the supposed buffer, does not belong to kernel space. So far so good.
 
-> > /dev/random will output once it has at least 160 bits of entropy
-> > (iirc), 1/2 bit turning into 3 bits would mean that 160bits of output
-> > it effectively only 27 bits worth of true entropy (again, assuming the
-> > catastrophic reseeder and output function don't waste entropy).
-> > 
-> > It's a lot of "ifs" for my taste.
-> 
-> /dev/random will output once it has as many bits of entropy as you're
-> asking for.  If you do a 20-byte read, it'll output once it has 160
-> bits.  If you do a 1-byte read, it'll output once it has 8 bits.
+Now the only thing that can go wrong is that the user program told the
+kernel that the buffer exists, but some or all of the pages are not
+mapped in virtual memory. This is taken care of "transparently" during
+the copy -- if we try to copy from a page that isn't mapped, the kernel
+will catch the exception, realize that the buffer was bogus, and return
+an error.
 
-That's not quite right. It needs 8 bits in the relevant output pool.
-Failing that, it needs 64 bits in the input pool to reseed the output
-pool. In the case of /dev/urandom, it needs 128 bits in the input
-pool, it always leaves enough for /dev/random to reseed.
+All of this works because virtual memory is much more restrictive than
+physical memory in terms of what data resides where.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+> --
+> You are in a maze of twisty passages, all alike. Again.
+> http://www.hacksaw.org -- http://www.privatecircus.com -- KB1FVD
+>
+>
+
+-Vadim Lobanov

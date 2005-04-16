@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262474AbVDOX4n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262491AbVDPBEy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262474AbVDOX4n (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 19:56:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262485AbVDOX4n
+	id S262491AbVDPBEy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 21:04:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262503AbVDPBEy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 19:56:43 -0400
-Received: from mail.kroah.org ([69.55.234.183]:52954 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262474AbVDOX4e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 19:56:34 -0400
-Date: Fri, 15 Apr 2005 16:52:50 -0700
-From: Greg KH <greg@kroah.com>
-To: Kylene Hall <kjhall@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: [PATCH] tpm: Stop taking over the non-unique lpc bus PCI ID, Also timer, stack and enum fixes
-Message-ID: <20050415235250.GA24204@kroah.com>
-References: <Pine.LNX.4.61.0504151611390.24192@dyn95395164>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0504151611390.24192@dyn95395164>
-User-Agent: Mutt/1.5.8i
+	Fri, 15 Apr 2005 21:04:54 -0400
+Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:15118 "EHLO
+	abraham.cs.berkeley.edu") by vger.kernel.org with ESMTP
+	id S262491AbVDPBEx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 21:04:53 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@taverner.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: Fortuna
+Date: Sat, 16 Apr 2005 01:02:53 +0000 (UTC)
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <d3po7t$vrn$1@abraham.cs.berkeley.edu>
+References: <20050413234337.GE12263@certainkey.com> <20050414000939.GH3174@waste.org> <20050414002647.GG12263@certainkey.com> <20050414004435.GJ3174@waste.org>
+Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
+NNTP-Posting-Host: taverner.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 1113613374 32631 128.32.168.222 (16 Apr 2005 01:02:53 GMT)
+X-Complaints-To: usenet@abraham.cs.berkeley.edu
+NNTP-Posting-Date: Sat, 16 Apr 2005 01:02:53 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: daw@taverner.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 15, 2005 at 05:06:06PM -0500, Kylene Hall wrote:
-> This patch is against the 2.6.12-rc2 kernel source.  It changes the tpm 
-> drivers from defining a pci driver structure to a format similar to the 
-> drivers/char/watchdog/i8xx_tco driver.  This is necessary because the 
-> lpc_bus only has one PCI ID and claiming that ID in the pci driver probe 
-> process prevents other drivers from finding their hardware.
+Matt Mackall  wrote:
+>While it may have some good properties, it lacks
+>some that random.c has, particularly robustness in the face of failure
+>of crypto primitives.
 
-NO!  DO NOT use pci_find_device().  It is broken for systems with pci
-hotplug (which means any pci system).  Please use the way the driver
-currently works, that is correct.
+It's probably not a big deal, because I'm not worried about the
+failure of standard crypto primitives, but--
 
-> This patch 
-> also fixes numerous problems that were pointed out with timer 
-> manipulations, large stack objects, lack of enums and defined constants.
-
-Why not split these up into the proper individual patches?  Remember,
-one patch per "change".
-
-> Still lingering:
-> 
-> How can I receive Hotplug and ACPI events without being a PCI driver?
-
-You can't, so don't.
-
-thanks,
-
-greg k-h
+Do you know of any analysis to back up the claim that /dev/random
+will be robust in the failure of crypto primitives?  I have never
+seen anyone try to do such an analysis, but maybe you know of something
+that I don't.

@@ -1,80 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262552AbVDPBjr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262558AbVDPBnu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262552AbVDPBjr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 21:39:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262558AbVDPBjr
+	id S262558AbVDPBnu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 21:43:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262560AbVDPBnu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 21:39:47 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:29856 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S262552AbVDPBjo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 21:39:44 -0400
-Subject: Re: FUSYN and RT
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Inaky Perez-Gonzalez <inaky@linux.intel.com>
-Cc: Bill Huey <bhuey@lnxw.com>, dwalker@mvista.com, mingo@elte.hu,
-       linux-kernel@vger.kernel.org, Esben Nielsen <simlo@phys.au.dk>
-In-Reply-To: <16992.26700.512551.833614@sodium.jf.intel.com>
-References: <Pine.OSF.4.05.10504130056271.6111-100000@da410.phys.au.dk>
-	 <1113352069.6388.39.camel@dhcp153.mvista.com>
-	 <1113407200.4294.25.camel@localhost.localdomain>
-	 <20050415225137.GA23222@nietzsche.lynx.com>
-	 <16992.20513.551920.826472@sodium.jf.intel.com>
-	 <1113614062.4294.102.camel@localhost.localdomain>
-	 <16992.26700.512551.833614@sodium.jf.intel.com>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Fri, 15 Apr 2005 21:38:30 -0400
-Message-Id: <1113615510.4294.113.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	Fri, 15 Apr 2005 21:43:50 -0400
+Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:24165 "HELO
+	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262558AbVDPBnr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 21:43:47 -0400
+Message-ID: <42606DCA.8050602@yahoo.com.au>
+Date: Sat, 16 Apr 2005 11:43:38 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+CC: mingo@elte.hu, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] sched: fix sched domain degenerate
+References: <20050413192616.A28163@unix-os.sc.intel.com> <425FBB98.2000200@yahoo.com.au> <20050415163633.C7296@unix-os.sc.intel.com>
+In-Reply-To: <20050415163633.C7296@unix-os.sc.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-04-15 at 18:20 -0700, Inaky Perez-Gonzalez wrote:
-> >>>>> Steven Rostedt <rostedt@goodmis.org> writes:
-> >> On Fri, 2005-04-15 at 16:37 -0700, Inaky Perez-Gonzalez wrote:
+Siddha, Suresh B wrote:
+> On Fri, Apr 15, 2005 at 11:03:20PM +1000, Nick Piggin wrote:
 > 
-> > I have to agree with Inaky too.  Fundamentally, PI is the same for
-> > the system regardless of if the locks are user or kernel. I still
-> > don't see the difference here.  But for other reasons, I feel that
-> > the user lock should be a different structure from the kernel
-> > lock. That's why I mentioned that it would be a good idea if Ingo
-> > modulized the PI portion.  So that part would be the same for
-> > both. If he doesn't have the time to do it, I'll do it :-) (Ingo,
-> > all you need to do is ask.)
+>>Index: linux-2.6/kernel/sched.c
+>>===================================================================
+>>--- linux-2.6.orig/kernel/sched.c	2005-04-15 22:52:25.000000000 +1000
+>>+++ linux-2.6/kernel/sched.c	2005-04-15 22:58:54.000000000 +1000
+>>@@ -4844,7 +4844,14 @@ static int __devinit sd_parent_degenerat
+>> 	/* WAKE_BALANCE is a subset of WAKE_AFFINE */
+>> 	if (cflags & SD_WAKE_AFFINE)
+>> 		pflags &= ~SD_WAKE_BALANCE;
+>>-	if ((~sd->flags) & parent->flags)
+>>+	/* Flags needing groups don't count if only 1 group in parent */
+>>+	if (parent->groups == parent->groups->next) {
+>>+		pflags &= ~(SD_LOAD_BALANCE |
+>>+				SD_BALANCE_NEWIDLE |
+>>+				SD_BALANCE_FORK |
+>>+				SD_BALANCE_EXEC);
+>>+	}
 > 
-> Can you qualify "different" here? I don't mean that they need to be
-> interchangeable, but that they are esentially the same. Obviously the
-> user cannot acces the kernel locks, but kernel locks are *used* to
-> implement user space locks.
 > 
-> Back to my example before: in fusyn, a user space lock is a kernel
-> space lock with a wrapper, that provides all that is necessary for
-> doing the fast path and handling user-space specific issues.
+> This patch works fine and I like this fix. But should n't we be adding 
+> SD_WAKE_AFFINE and SD_WAKE_BALANCE to this list?
+> 
 
-I was actually thinking of just giving more flexibility to the user
-locks, in case the application using them needed more information, for
-debugging or whatever.  Honestly, I haven't looked at the fusyn code
-yet, so I don't really know if there is a difference.  As I said, I
-"feel" the user lock should be different. I really don't know if they
-should.
+Hmm, well they don't use groups, but I guess they can be excluded,
+because if the parent span is the same as the child span (and that
+is true at this point), then SD_WAKE_AFFFINE/BALANCE in the parent
+will never be executed. Good point.
 
-So, to answer your question. Looking forward, I kind of see two
-different structures for locking.  The rt_mutex and something that is
-used by fusyn, then there being some common structure (or ops) that they
-both use to implement the PI.  But the implementation of how the locks
-work may as well be different. But this may not be the case, and there
-still be two structures but the fusyn just contain a rt_mutex lock to do
-the actual locking and the rest of the structure be used for showing
-information or what not back up to user space. This stuff wouldn't be
-necessary for the rt_mutex. We need to keep rt_mutex small since it is
-used all over the place.
+wake_idle should be doing a similar thing too, but that needs a bit
+of work.
 
-That's all I meant.
+> And about SD_BALANCE_FORK, now that we have multi level sbe/sbf, we should 
+> add this flag to SD_CPU/SIBLING_INIT too..
+> 
 
+I guess we should think about it. It depends - does SD_BALANCE_FORK
+make sense on a plain SMP machine? If so, then it probably makes
+sense to be in the 'SMP' domain on a NUMA system, otherwise not.
 
--- Steve
+I suspect that for BALANCE_FORK, the answer may be no. On an SMP, it
+is far less disastrous to misplace tasks and have them picked up by
+the periodic rebalancer. What's more, BALANCE_FORK does add a non
+trivial overhead when moving tasks to other CPUs.
 
+But it's open for debate. I haven't done comprehensive tests.
+
+-- 
+SUSE Labs, Novell Inc.
 

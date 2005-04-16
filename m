@@ -1,49 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262642AbVDPDWy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbVDPDdF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262642AbVDPDWy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 23:22:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbVDPDWx
+	id S261675AbVDPDdF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 23:33:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262608AbVDPDdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 23:22:53 -0400
-Received: from smtp-out.hotpop.com ([38.113.3.71]:45979 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S262608AbVDPDW3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 23:22:29 -0400
-From: "Antonino A. Daplas" <adaplas@hotpop.com>
-Reply-To: adaplas@pol.net
-To: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [2.6 patch] drivers/video/intelfb/intelfbdrv.h
-Date: Fri, 15 Apr 2005 12:52:06 +0800
-User-Agent: KMail/1.5.4
-Cc: adaplas@pol.net, linux-fbdev-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, Ingo Oeser <ioe-lkml@axxeo.de>
-References: <20050415004849.GJ20400@stusta.de>
-In-Reply-To: <20050415004849.GJ20400@stusta.de>
+	Fri, 15 Apr 2005 23:33:05 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:37550 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261675AbVDPDdA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 23:33:00 -0400
+Date: Fri, 15 Apr 2005 23:31:29 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+Reply-To: rostedt@goodmis.org
+To: Sven Dietrich <sdietrich@mvista.com>
+cc: "'Inaky Perez-Gonzalez'" <inaky@linux.intel.com>,
+       "'Bill Huey'" <bhuey@lnxw.com>, dwalker@mvista.com, mingo@elte.hu,
+       linux-kernel@vger.kernel.org, "'Esben Nielsen'" <simlo@phys.au.dk>,
+       robustmutexes@lists.osdl.org
+Subject: RE: FUSYN and RT
+In-Reply-To: <000801c54230$73a0f940$c800a8c0@mvista.com>
+Message-ID: <Pine.LNX.4.58.0504152327170.21376@localhost.localdomain>
+References: <000801c54230$73a0f940$c800a8c0@mvista.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200504151252.09918.adaplas@hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 15 April 2005 08:48, Adrian Bunk wrote:
-> Ingo Oeser noticed that all that intelfbdrv.h contains are prototypes
-> for static functions - and such prototypes don't belong into header
-> files.
+
+
+On Fri, 15 Apr 2005, Sven Dietrich wrote:
+
+> > > >
+> > > 	/** A fuqueue, a prioritized wait queue usable from
+> > kernel space. */
+> > > 	struct fuqueue {
+> > > 	        spinlock_t lock;
+> > > 	        struct plist wlist;
+> > > 	        struct fuqueue_ops *ops;
+> > > 	};
+> > >
+> >
+> > Would the above spinlock_t be a raw_spinlock_t? This goes
+> > back to my first question. I'm not sure how familiar you are
+> > with Ingo's work, but he has turned all spinlocks into
+> > mutexes, and when you really need an original spinlock, you
+> > declare it with raw_spinlock_t.
+> >
 >
-> This patch therefore removes drivers/video/intelfb/intelfbdrv.h and
-> moves the prototypes to intelfbdrv.c .
+> This one probably should be a raw_spinlock.
+> This lock is only held to protect access to the queues.
+> Since the queues are already priority ordered, there is
+> little benefit to ordering -the order of insertion-
+> in case of contention on a queue, compared with the complexity.
 >
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Patch is linewrapped.  Can you resend?
+Surprisingly, this makes perfect sense to me! I'm not going to comment on
+this code until I actually get to see the whole package.  I don't know how
+much Inaky has used Ingo's work, but I'd figured it should be a
+raw_spinlock.
 
-Tony
+> Just what you want to say to a guy who says he is tired  ;)
+>
 
+This is nothing, I'm currently trying to test stuff from another thread
+dealing with qdiscs in the net code. %-}
+
+-- Steve
 

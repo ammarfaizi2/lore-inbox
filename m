@@ -1,48 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262581AbVDPCgw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbVDPCjP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262581AbVDPCgw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 22:36:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbVDPCgw
+	id S261661AbVDPCjP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 22:39:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262583AbVDPCjO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 22:36:52 -0400
-Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:31977 "EHLO
-	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
-	id S262581AbVDPCgj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 22:36:39 -0400
-Message-ID: <42607A33.6010008@myrealbox.com>
-Date: Fri, 15 Apr 2005 19:36:35 -0700
-From: Andy Lutomirski <luto@myrealbox.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [SATA] status reports updated
-References: <42600375.9080108@pobox.com>
-In-Reply-To: <42600375.9080108@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 15 Apr 2005 22:39:14 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:45836 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261661AbVDPCix (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 22:38:53 -0400
+Date: Sat, 16 Apr 2005 04:38:52 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Alexey Dobriyan <adobriyan@mail.ru>
+Cc: Andrew Morton <akpm@osdl.org>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       rmk+serial@arm.linux.org.uk, linux-serial@vger.kernel.org,
+       linux-kernel@vger.kernel.org, len.brown@intel.com,
+       acpi-devel@lists.sourceforge.ne
+Subject: Re: [2.6 patch] drivers/serial/8250_acpi.c: fix a warning
+Message-ID: <20050416023852.GI4831@stusta.de>
+References: <20050415151053.GM5456@stusta.de> <E1DMTPC-000ASo-00.adobriyan-mail-ru@f13.mail.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1DMTPC-000ASo-00.adobriyan-mail-ru@f13.mail.ru>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+On Fri, Apr 15, 2005 at 08:10:54PM +0400, Alexey Dobriyan wrote:
+> On Fri, 15 Apr 2005 17:10:53 +0200, Adrian Bunk wrote:
 > 
-> My Linux SATA software/hardware status reports have just been updated. 
-> To see where libata (SATA) support stands for a particular piece of 
-> hardware, or a particular feature, go to
+> > This patch fixes the following warning:
 > 
->     http://linux.yyz.us/sata/
+> >   CC      drivers/serial/8250_acpi.o
+> > drivers/serial/8250_acpi.c: In function `acpi_serial_ext_irq':
+> > drivers/serial/8250_acpi.c:51: warning: implicit declaration of function `acpi_register_gsi'
+> 
+> > --- linux-2.6.12-rc2-mm1-full/drivers/serial/8250_acpi.c.old
+> > +++ linux-2.6.12-rc2-mm1-full/drivers/serial/8250_acpi.c
+> 
+> > +#include <linux/config.h>
+> 
+> drivers/serial/8250_acpi.c doesn't use CONFIG_ symbols.
 
-What's the timeline on getting sata-promise's PATA support into 
-mainline?  I've been 2.6.11-gentoo-r2, which includes this feature, for 
-weeks now, and it's been perfectly stable (including md's RAID5) using 
-the PATA port.  It would be nice to be able to run my system with a 
-mainline kernel.
+8250_acpi.c #include's <acpi/acpi_bus.h> which requires config.h .
 
-The broken-out patch that Gentoo is using is here:
+In the Linux kernel, it's more common to put such header dependencies 
+for header files into the C files, but if the ACPI people agree a patch 
+to add the #include <linux/config.h> to acpi_bus.h is the other possble 
+correct solution for this issue.
 
-http://dev.gentoo.org/~dsd/gentoo-dev-sources/release-11.01/dist/4320_promise-pdc2037x.patch
+cu
+Adrian
 
-Thanks,
-Andy
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

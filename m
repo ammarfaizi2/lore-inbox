@@ -1,97 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262563AbVDPB4L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262569AbVDPCcM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262563AbVDPB4L (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 21:56:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262569AbVDPB4L
+	id S262569AbVDPCcM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 22:32:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262578AbVDPCcM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 21:56:11 -0400
-Received: from fmr17.intel.com ([134.134.136.16]:42980 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262563AbVDPBz6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 21:55:58 -0400
-MIME-Version: 1.0
+	Fri, 15 Apr 2005 22:32:12 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:41740 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262569AbVDPCcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 22:32:08 -0400
+Date: Sat, 16 Apr 2005 04:32:06 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: John M Collins <jmc@xisl.com>
+Cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       Lars Marowsky-Bree <lmb@suse.de>,
+       Helge Hafting <helge.hafting@aitel.hist.no>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Exploit in 2.6 kernels
+Message-ID: <20050416023206.GH4831@stusta.de>
+References: <1113298455.16274.72.camel@caveman.xisl.com> <425BBDF9.9020903@ev-en.org> <1113318034.3105.46.camel@caveman.xisl.com> <20050412210857.GT11199@shell0.pdx.osdl.net> <1113341579.3105.63.camel@caveman.xisl.com> <425CEAC2.1050306@aitel.hist.no> <20050413125921.GN17865@csclub.uwaterloo.ca> <20050413130646.GF32354@marowsky-bree.de> <20050413132308.GP17865@csclub.uwaterloo.ca> <1113400906.10763.20.camel@caveman.xisl.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16992.28724.665847.46695@sodium.jf.intel.com>
-Date: Fri, 15 Apr 2005 18:53:56 -0700
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Bill Huey <bhuey@lnxw.com>, dwalker@mvista.com, mingo@elte.hu,
-       linux-kernel@vger.kernel.org, Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: FUSYN and RT
-In-Reply-To: <1113615510.4294.113.camel@localhost.localdomain>
-References: <Pine.OSF.4.05.10504130056271.6111-100000@da410.phys.au.dk>
-	<1113352069.6388.39.camel@dhcp153.mvista.com>
-	<1113407200.4294.25.camel@localhost.localdomain>
-	<20050415225137.GA23222@nietzsche.lynx.com>
-	<16992.20513.551920.826472@sodium.jf.intel.com>
-	<1113614062.4294.102.camel@localhost.localdomain>
-	<16992.26700.512551.833614@sodium.jf.intel.com>
-	<1113615510.4294.113.camel@localhost.localdomain>
-X-Mailer: VM 7.19 under Emacs 21.3.1
-From: Inaky Perez-Gonzalez <inaky@linux.intel.com>
+Content-Disposition: inline
+In-Reply-To: <1113400906.10763.20.camel@caveman.xisl.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Steven Rostedt <rostedt@goodmis.org> writes:
+On Wed, Apr 13, 2005 at 03:01:46PM +0100, John M Collins wrote:
+>...
+> Could I possibly make a suggestion for "make xconfig" in the kernel tree
+> (and make other-kinds-of-config I suppose)?
+> 
+> I currently routinely copy the ".config" out of the previous kernel tree
+> before I start to save working through questions about sound cards I
+> never heard of and so forth.
+> 
+> Could it perhaps optionally initialise most of the settings to fit the
+> current machine and/or grab the last lot of settings
+> from /proc/config.gz?
 
-> On Fri, 2005-04-15 at 18:20 -0700, Inaky Perez-Gonzalez wrote:
 
->> Back to my example before: in fusyn, a user space lock is a kernel
->> space lock with a wrapper, that provides all that is necessary for
->> doing the fast path and handling user-space specific issues.
+  zcat /proc/config.gz > .config
 
-> ...
 
-> So, to answer your question. Looking forward, I kind of see two
-> different structures for locking.  The rt_mutex and something that
-> is used by fusyn, then there being some common structure (or ops)
-> that they both use to implement the PI.  But the implementation of
-> how the locks work may as well be different. But this may not be the
-> case, and there still be two structures but the fusyn just contain a
-> rt_mutex lock to do the actual locking and the rest of the structure
-> be used for showing information or what not back up to user
-> space. This stuff wouldn't be necessary for the rt_mutex. We need to
-> keep rt_mutex small since it is used all over the place.
-
-I see--would the following fit your view?
-
-This would be a kernel lock [from the fusyn patch, linux/fulock.h]:
-
-	/** A fulock, mutex usable from the kernel. */
-	struct fulock {
-	        struct fuqueue fuqueue;
-	        struct task_struct *owner;
-	        unsigned flags;
-	        struct plist olist_node;
-	};
-
-This has an in kernel API so you can use it from modules or kernel
-code.
-
-And this would be kernel representation of a user space lock [from
-linux/fulock_kernel.h]:
-
-	struct ufulock {
-	        struct fulock fulock;
-	        struct vlocator vlocator;
-	        struct page *page;
-	};
-
-This is exposed via system calls with fast-path as an option.
-
-This is basically the kernel lock that provides the functionality and
-an structure to keep a tab to where the thing is in user space (hash
-queues a la futex). The ops are hidden in fulock.fuqueue.ops [fuqueue
-is the waitqueue--just for reference, from linux/fuqueue.h].
-
-	/** A fuqueue, a prioritized wait queue usable from kernel space. */
-	struct fuqueue {
-	        spinlock_t lock;        
-	        struct plist wlist;
-	        struct fuqueue_ops *ops;
-	};
+cu
+Adrian
 
 -- 
 
-Inaky
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

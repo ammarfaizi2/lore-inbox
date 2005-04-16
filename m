@@ -1,70 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262545AbVDPBVP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262546AbVDPB01@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262545AbVDPBVP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 21:21:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262546AbVDPBVP
+	id S262546AbVDPB01 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 21:26:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbVDPB01
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 21:21:15 -0400
-Received: from fmr20.intel.com ([134.134.136.19]:8392 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262545AbVDPBVH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 21:21:07 -0400
+	Fri, 15 Apr 2005 21:26:27 -0400
+Received: from unused.mind.net ([69.9.134.98]:37261 "EHLO echo.lysdexia.org")
+	by vger.kernel.org with ESMTP id S262546AbVDPB0X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 21:26:23 -0400
+Date: Fri, 15 Apr 2005 18:24:55 -0700 (PDT)
+From: William Weston <weston@sysex.net>
+X-X-Sender: weston@echo.lysdexia.org
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org, dwalker@mvista.com,
+       Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: BUGs in 2.6.12-rc2-RT-V0.7.45-01
+In-Reply-To: <20050415080138.GA25262@elte.hu>
+Message-ID: <Pine.LNX.4.58.0504151721410.18107@echo.lysdexia.org>
+References: <Pine.LNX.4.58.0504121443310.3023@echo.lysdexia.org>
+ <20050412230921.GA22360@elte.hu> <Pine.LNX.4.58.0504141352490.14125@echo.lysdexia.org>
+ <20050415080138.GA25262@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16992.26700.512551.833614@sodium.jf.intel.com>
-Date: Fri, 15 Apr 2005 18:20:12 -0700
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Inaky Perez-Gonzalez <inaky@linux.intel.com>, Bill Huey <bhuey@lnxw.com>,
-       dwalker@mvista.com, mingo@elte.hu, linux-kernel@vger.kernel.org,
-       Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: FUSYN and RT
-In-Reply-To: <1113614062.4294.102.camel@localhost.localdomain>
-References: <Pine.OSF.4.05.10504130056271.6111-100000@da410.phys.au.dk>
-	<1113352069.6388.39.camel@dhcp153.mvista.com>
-	<1113407200.4294.25.camel@localhost.localdomain>
-	<20050415225137.GA23222@nietzsche.lynx.com>
-	<16992.20513.551920.826472@sodium.jf.intel.com>
-	<1113614062.4294.102.camel@localhost.localdomain>
-X-Mailer: VM 7.19 under Emacs 21.3.1
-From: Inaky Perez-Gonzalez <inaky@linux.intel.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Steven Rostedt <rostedt@goodmis.org> writes:
->> On Fri, 2005-04-15 at 16:37 -0700, Inaky Perez-Gonzalez wrote:
+On Fri, 15 Apr 2005, Ingo Molnar wrote:
 
-> I have to agree with Inaky too.  Fundamentally, PI is the same for
-> the system regardless of if the locks are user or kernel. I still
-> don't see the difference here.  But for other reasons, I feel that
-> the user lock should be a different structure from the kernel
-> lock. That's why I mentioned that it would be a good idea if Ingo
-> modulized the PI portion.  So that part would be the same for
-> both. If he doesn't have the time to do it, I'll do it :-) (Ingo,
-> all you need to do is ask.)
+> * William Weston <weston@sysex.net> wrote:
+> 
+> > On Wed, 13 Apr 2005, Ingo Molnar wrote:
+> > 
+> > > what are you using kprobes for? Do you get lockups even if you disable 
+> > > kprobes?
+> > 
+> > Various processes will lockup on the P4/HT system, usually while under 
+> > some load.  The processes cannot be killed.  X will lockup once or 
+> > twice a day (which means my console, and thus sysrq, are toast), but I 
+> > can still ssh in.  Nothing is logged by the kernel.  Are there any 
+> > post-lockup forensics that can be performed before I reboot?
+> 
+> could you try the -44-03 patch:
+> 
+>  http://redhat.com/~mingo/realtime-preempt/older/realtime-preempt-2.6.12-rc2-V0.7.44-03
+> 
+> this doesnt have the plist changes yet. Is this one more stable?
 
-Can you qualify "different" here? I don't mean that they need to be
-interchangeable, but that they are esentially the same. Obviously the
-user cannot acces the kernel locks, but kernel locks are *used* to
-implement user space locks.
+With 2.6.12-rc2-V0.7.44-03, the P4/HT box has been stable all day.  I'm 
+seeing another BUG on boot, not kprobes related this time:
 
-Back to my example before: in fusyn, a user space lock is a kernel
-space lock with a wrapper, that provides all that is necessary for
-doing the fast path and handling user-space specific issues.
+Freeing unused kernel memory: 192k freed
+logips2pp: Detected unknown logitech mouse model 86
+input: ImExPS/2 Logitech Explorer Mouse on isa0060/serio1
+BUG: kstopmachine:1054 RT task yield()-ing!
+ [<c0103dba>] dump_stack+0x23/0x25 (20)
+ [<c030ff1f>] yield+0x67/0x69 (20)
+ [<c0142a44>] stop_machine+0xa4/0x15e (40)
+ [<c0142b2d>] do_stop+0x15/0x77 (20)
+ [<c0132c5b>] kthread+0xab/0xd3 (48)
+ [<c0100fe9>] kernel_thread_helper+0x5/0xb (563617812)
+---------------------------
+| preempt count: 00000001 ]
+| 1-level deep critical section nesting:
+----------------------------------------
+.. [<c013bca6>] .... print_traces+0x1b/0x52
+.....[<c0103dba>] ..   ( <= dump_stack+0x23/0x25)
 
->> As long as the concept of rwlock allows for it to have multiple
->> owners (read locks need to have them), the procedure is mostly the
->> same. However, this not being POSIX, nobody (yet) has asked for it.
->
-> I don't think rwlocks work well with PI.  You can implement it, but
-> it's like implementing multiple inheritance for Object Oriented
-> languages...
+ns83820.c: National Semiconductor DP83820 10/100/1000 driver.
+eth0: ns83820.c: 0x22c: 49001186, subsystem: 1186:4900
+eth0: ns83820 v0.20: DP83820 v1.2: 00:50:ba:37:d4:bc io=0xff8ff000 irq=18 f=sg
 
-I have to agree--that's why I don't go further than saying in theory
-is possible. I would only touch it with a ten foot pole or if someone
-offered a lot in exchange :]
 
--- 
+I'm also seeing an unlikely wakeup time:
 
-Inaky
+(               X-3581 |#1): new 2533412143 us maximum-latency wakeup.
 
+
+Otherwise, this on seems very stable.
+
+
+Best Regards,
+--William Weston
+
+
+--
+/* William Weston <weston@sysex.net> */

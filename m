@@ -1,112 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262550AbVDPBei@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262552AbVDPBjr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262550AbVDPBei (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 21:34:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262552AbVDPBei
+	id S262552AbVDPBjr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 21:39:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262558AbVDPBjr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 21:34:38 -0400
-Received: from fmr17.intel.com ([134.134.136.16]:33504 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262550AbVDPBed (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 21:34:33 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C54224.6C311049"
-Subject: [Patch] X86_64 TASK_SIZE cleanup 
-Date: Sat, 16 Apr 2005 09:34:25 +0800
-Message-ID: <894E37DECA393E4D9374E0ACBBE74270013E8B76@pdsmsx402.ccr.corp.intel.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Patch] X86_64 TASK_SIZE cleanup 
-Thread-Index: AcVCJGpgif0gEfKyTAu+v7GXj5rRRQ==
-From: "Zou, Nanhai" <nanhai.zou@intel.com>
-To: <discuss@x86-64.org>, "Andi Kleen" <ak@suse.de>
-Cc: <linux-kernel@vger.kernel.org>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-X-OriginalArrivalTime: 16 Apr 2005 01:34:25.0747 (UTC) FILETIME=[6C8EA230:01C54224]
+	Fri, 15 Apr 2005 21:39:47 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:29856 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262552AbVDPBjo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 21:39:44 -0400
+Subject: Re: FUSYN and RT
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Inaky Perez-Gonzalez <inaky@linux.intel.com>
+Cc: Bill Huey <bhuey@lnxw.com>, dwalker@mvista.com, mingo@elte.hu,
+       linux-kernel@vger.kernel.org, Esben Nielsen <simlo@phys.au.dk>
+In-Reply-To: <16992.26700.512551.833614@sodium.jf.intel.com>
+References: <Pine.OSF.4.05.10504130056271.6111-100000@da410.phys.au.dk>
+	 <1113352069.6388.39.camel@dhcp153.mvista.com>
+	 <1113407200.4294.25.camel@localhost.localdomain>
+	 <20050415225137.GA23222@nietzsche.lynx.com>
+	 <16992.20513.551920.826472@sodium.jf.intel.com>
+	 <1113614062.4294.102.camel@localhost.localdomain>
+	 <16992.26700.512551.833614@sodium.jf.intel.com>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Fri, 15 Apr 2005 21:38:30 -0400
+Message-Id: <1113615510.4294.113.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Fri, 2005-04-15 at 18:20 -0700, Inaky Perez-Gonzalez wrote:
+> >>>>> Steven Rostedt <rostedt@goodmis.org> writes:
+> >> On Fri, 2005-04-15 at 16:37 -0700, Inaky Perez-Gonzalez wrote:
+> 
+> > I have to agree with Inaky too.  Fundamentally, PI is the same for
+> > the system regardless of if the locks are user or kernel. I still
+> > don't see the difference here.  But for other reasons, I feel that
+> > the user lock should be a different structure from the kernel
+> > lock. That's why I mentioned that it would be a good idea if Ingo
+> > modulized the PI portion.  So that part would be the same for
+> > both. If he doesn't have the time to do it, I'll do it :-) (Ingo,
+> > all you need to do is ask.)
+> 
+> Can you qualify "different" here? I don't mean that they need to be
+> interchangeable, but that they are esentially the same. Obviously the
+> user cannot acces the kernel locks, but kernel locks are *used* to
+> implement user space locks.
+> 
+> Back to my example before: in fusyn, a user space lock is a kernel
+> space lock with a wrapper, that provides all that is necessary for
+> doing the fast path and handling user-space specific issues.
 
-------_=_NextPart_001_01C54224.6C311049
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+I was actually thinking of just giving more flexibility to the user
+locks, in case the application using them needed more information, for
+debugging or whatever.  Honestly, I haven't looked at the fusyn code
+yet, so I don't really know if there is a difference.  As I said, I
+"feel" the user lock should be different. I really don't know if they
+should.
+
+So, to answer your question. Looking forward, I kind of see two
+different structures for locking.  The rt_mutex and something that is
+used by fusyn, then there being some common structure (or ops) that they
+both use to implement the PI.  But the implementation of how the locks
+work may as well be different. But this may not be the case, and there
+still be two structures but the fusyn just contain a rt_mutex lock to do
+the actual locking and the rest of the structure be used for showing
+information or what not back up to user space. This stuff wouldn't be
+necessary for the rt_mutex. We need to keep rt_mutex small since it is
+used all over the place.
+
+That's all I meant.
 
 
-Hi,
-   This patch will clean up the X86_64 compatibility mode TASK_SIZE
-define thus fix some bugs found in X86_64 compatibility mode program.
-
-Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>=20
-Signed-off-by: Zou Nan hai <Nanhai.zou@intel.com>
+-- Steve
 
 
-------_=_NextPart_001_01C54224.6C311049
-Content-Type: application/octet-stream;
-	name="x86_64-compat-tasksize-fix.patch"
-Content-Transfer-Encoding: base64
-Content-Description: x86_64-compat-tasksize-fix.patch
-Content-Disposition: attachment;
-	filename="x86_64-compat-tasksize-fix.patch"
-
-ZGlmZiAtTnJhdXAgYS9hcmNoL3g4Nl82NC9pYTMyL2lhMzJfYmluZm10LmMgYi9hcmNoL3g4Nl82
-NC9pYTMyL2lhMzJfYmluZm10LmMKLS0tIGEvYXJjaC94ODZfNjQvaWEzMi9pYTMyX2JpbmZtdC5j
-CTIwMDUtMDMtMjYgMTE6Mjg6MTQuMDAwMDAwMDAwICswODAwCisrKyBiL2FyY2gveDg2XzY0L2lh
-MzIvaWEzMl9iaW5mbXQuYwkyMDA1LTA0LTEyIDAwOjU5OjA5LjAwMDAwMDAwMCArMDgwMApAQCAt
-NDYsNyArNDYsNyBAQCBzdHJ1Y3QgZWxmX3BoZHI7IAogCiAjZGVmaW5lIElBMzJfRU1VTEFUT1Ig
-MQogCi0jZGVmaW5lIEVMRl9FVF9EWU5fQkFTRQkJKFRBU0tfVU5NQVBQRURfMzIgKyAweDEwMDAw
-MDApCisjZGVmaW5lIEVMRl9FVF9EWU5fQkFTRQkJKFRBU0tfVU5NQVBQRURfQkFTRSArIDB4MTAw
-MDAwMCkKIAogI3VuZGVmIEVMRl9BUkNICiAjZGVmaW5lIEVMRl9BUkNIIEVNXzM4NgpAQCAtMzA3
-LDkgKzMwNyw2IEBAIE1PRFVMRV9BVVRIT1IoIkVyaWMgWW91bmdkYWxlLCBBbmRpIEtsZWUKIAog
-I2RlZmluZSBlbGZfYWRkcl90IF9fdTMyCiAKLSN1bmRlZiBUQVNLX1NJWkUKLSNkZWZpbmUgVEFT
-S19TSVpFIDB4ZmZmZmZmZmYKLQogc3RhdGljIHZvaWQgZWxmMzJfaW5pdChzdHJ1Y3QgcHRfcmVn
-cyAqKTsKIAogI2luY2x1ZGUgIi4uLy4uLy4uL2ZzL2JpbmZtdF9lbGYuYyIgCmRpZmYgLU5yYXVw
-IGEvYXJjaC94ODZfNjQva2VybmVsL3N5c194ODZfNjQuYyBiL2FyY2gveDg2XzY0L2tlcm5lbC9z
-eXNfeDg2XzY0LmMKLS0tIGEvYXJjaC94ODZfNjQva2VybmVsL3N5c194ODZfNjQuYwkyMDA1LTAz
-LTI2IDExOjI4OjI0LjAwMDAwMDAwMCArMDgwMAorKysgYi9hcmNoL3g4Nl82NC9rZXJuZWwvc3lz
-X3g4Nl82NC5jCTIwMDUtMDQtMTIgMDE6MDA6MDkuMDAwMDAwMDAwICswODAwCkBAIC02OSwxMyAr
-NjksNyBAQCBvdXQ6CiBzdGF0aWMgdm9pZCBmaW5kX3N0YXJ0X2VuZCh1bnNpZ25lZCBsb25nIGZs
-YWdzLCB1bnNpZ25lZCBsb25nICpiZWdpbiwKIAkJCSAgIHVuc2lnbmVkIGxvbmcgKmVuZCkKIHsK
-LSNpZmRlZiBDT05GSUdfSUEzMl9FTVVMQVRJT04KLQlpZiAodGVzdF90aHJlYWRfZmxhZyhUSUZf
-SUEzMikpIHsgCi0JCSpiZWdpbiA9IFRBU0tfVU5NQVBQRURfMzI7Ci0JCSplbmQgPSBJQTMyX1BB
-R0VfT0ZGU0VUOyAKLQl9IGVsc2UgCi0jZW5kaWYKLQlpZiAoZmxhZ3MgJiBNQVBfMzJCSVQpIHsg
-CisJaWYgKCF0ZXN0X3RocmVhZF9mbGFnKFRJRl9JQTMyKSAmJiAoZmxhZ3MgJiBNQVBfMzJCSVQp
-KSB7CiAJCS8qIFRoaXMgaXMgdXN1YWxseSB1c2VkIG5lZWRlZCB0byBtYXAgY29kZSBpbiBzbWFs
-bAogCQkgICBtb2RlbCwgc28gaXQgbmVlZHMgdG8gYmUgaW4gdGhlIGZpcnN0IDMxYml0LiBMaW1p
-dAogCQkgICBpdCB0byB0aGF0LiAgVGhpcyBtZWFucyB3ZSBuZWVkIHRvIG1vdmUgdGhlCkBAIC04
-NSwxMCArNzksMTAgQEAgc3RhdGljIHZvaWQgZmluZF9zdGFydF9lbmQodW5zaWduZWQgbG9uZwog
-CQkgICBvZiBwbGF5Z3JvdW5kIGZvciBub3cuIC1BSyAqLyAKIAkJKmJlZ2luID0gMHg0MDAwMDAw
-MDsgCiAJCSplbmQgPSAweDgwMDAwMDAwOwkJCi0JfSBlbHNlIHsgCi0JCSpiZWdpbiA9IFRBU0tf
-VU5NQVBQRURfNjQ7IAorCX0gZWxzZSB7CisJCSpiZWdpbiA9IFRBU0tfVU5NQVBQRURfQkFTRTsK
-IAkJKmVuZCA9IFRBU0tfU0laRTsgCi0JCX0KKwl9CiB9IAogCiB1bnNpZ25lZCBsb25nCmRpZmYg
-LU5yYXVwIGEvaW5jbHVkZS9hc20teDg2XzY0L2Eub3V0LmggYi9pbmNsdWRlL2FzbS14ODZfNjQv
-YS5vdXQuaAotLS0gYS9pbmNsdWRlL2FzbS14ODZfNjQvYS5vdXQuaAkyMDA1LTAzLTI2IDExOjI4
-OjE5LjAwMDAwMDAwMCArMDgwMAorKysgYi9pbmNsdWRlL2FzbS14ODZfNjQvYS5vdXQuaAkyMDA1
-LTA0LTEyIDAwOjU5OjA5LjAwMDAwMDAwMCArMDgwMApAQCAtMjEsNyArMjEsNyBAQCBzdHJ1Y3Qg
-ZXhlYwogCiAjaWZkZWYgX19LRVJORUxfXwogI2luY2x1ZGUgPGxpbnV4L3RocmVhZF9pbmZvLmg+
-Ci0jZGVmaW5lIFNUQUNLX1RPUCAodGVzdF90aHJlYWRfZmxhZyhUSUZfSUEzMikgPyBJQTMyX1BB
-R0VfT0ZGU0VUIDogVEFTS19TSVpFKQorI2RlZmluZSBTVEFDS19UT1AgVEFTS19TSVpFCiAjZW5k
-aWYKIAogI2VuZGlmIC8qIF9fQV9PVVRfR05VX0hfXyAqLwpkaWZmIC1OcmF1cCBhL2luY2x1ZGUv
-YXNtLXg4Nl82NC9wcm9jZXNzb3IuaCBiL2luY2x1ZGUvYXNtLXg4Nl82NC9wcm9jZXNzb3IuaAot
-LS0gYS9pbmNsdWRlL2FzbS14ODZfNjQvcHJvY2Vzc29yLmgJMjAwNS0wMy0yNiAxMToyODozOC4w
-MDAwMDAwMDAgKzA4MDAKKysrIGIvaW5jbHVkZS9hc20teDg2XzY0L3Byb2Nlc3Nvci5oCTIwMDUt
-MDQtMTIgMDA6NTk6MDkuMDAwMDAwMDAwICswODAwCkBAIC0xNjIsMTYgKzE2MiwxNSBAQCBzdGF0
-aWMgaW5saW5lIHZvaWQgY2xlYXJfaW5fY3I0ICh1bnNpZ25lCiAvKgogICogVXNlciBzcGFjZSBw
-cm9jZXNzIHNpemUuIDQ3Yml0cy4KICAqLwotI2RlZmluZSBUQVNLX1NJWkUJKDB4ODAwMDAwMDAw
-MDAwVUwpCisKKyNkZWZpbmUgVEFTS19TSVpFNjQJKDB4ODAwMDAwMDAwMDAwVUwpCisjZGVmaW5l
-IFRBU0tfU0laRSAodGVzdF90aHJlYWRfZmxhZyhUSUZfSUEzMikgPyBJQTMyX1BBR0VfT0ZGU0VU
-IDogVEFTS19TSVpFNjQpCiAKIC8qIFRoaXMgZGVjaWRlcyB3aGVyZSB0aGUga2VybmVsIHdpbGwg
-c2VhcmNoIGZvciBhIGZyZWUgY2h1bmsgb2Ygdm0KICAqIHNwYWNlIGR1cmluZyBtbWFwJ3MuCiAg
-Ki8KICNkZWZpbmUgSUEzMl9QQUdFX09GRlNFVCAoKGN1cnJlbnQtPnBlcnNvbmFsaXR5ICYgQURE
-Ul9MSU1JVF8zR0IpID8gMHhjMDAwMDAwMCA6IDB4RkZGRmUwMDApCi0jZGVmaW5lIFRBU0tfVU5N
-QVBQRURfMzIgUEFHRV9BTElHTihJQTMyX1BBR0VfT0ZGU0VULzMpCi0jZGVmaW5lIFRBU0tfVU5N
-QVBQRURfNjQgUEFHRV9BTElHTihUQVNLX1NJWkUvMykgCi0jZGVmaW5lIFRBU0tfVU5NQVBQRURf
-QkFTRQlcCi0JKHRlc3RfdGhyZWFkX2ZsYWcoVElGX0lBMzIpID8gVEFTS19VTk1BUFBFRF8zMiA6
-IFRBU0tfVU5NQVBQRURfNjQpICAKKyNkZWZpbmUgVEFTS19VTk1BUFBFRF9CQVNFIFBBR0VfQUxJ
-R04oVEFTS19TSVpFLzMpCiAKIC8qCiAgKiBTaXplIG9mIGlvX2JpdG1hcC4K
-
-------_=_NextPart_001_01C54224.6C311049--

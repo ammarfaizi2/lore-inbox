@@ -1,65 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262658AbVDPNLZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262665AbVDPNwS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262658AbVDPNLZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Apr 2005 09:11:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262659AbVDPNLZ
+	id S262665AbVDPNwS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Apr 2005 09:52:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262666AbVDPNwR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Apr 2005 09:11:25 -0400
-Received: from mail.timesys.com ([65.117.135.102]:35161 "EHLO
-	exchange.timesys.com") by vger.kernel.org with ESMTP
-	id S262658AbVDPNLX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Apr 2005 09:11:23 -0400
-Message-ID: <42610DAC.5070506@timesys.com>
-Date: Sat, 16 Apr 2005 09:05:48 -0400
-From: john cooper <john.cooper@timesys.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Sat, 16 Apr 2005 09:52:17 -0400
+Received: from mail.dif.dk ([193.138.115.101]:9916 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S262665AbVDPNwL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Apr 2005 09:52:11 -0400
+Date: Sat, 16 Apr 2005 15:54:59 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Robert Love <rml@tech9.net>,
+       Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] sched: fix never executed code due to expression always
+ false
+In-Reply-To: <20050415075801.GA24974@elte.hu>
+Message-ID: <Pine.LNX.4.62.0504161554190.2473@dragon.hyggekrogen.localhost>
+References: <Pine.LNX.4.62.0504150140250.3466@dragon.hyggekrogen.localhost>
+ <425F064E.8050003@yahoo.com.au> <Pine.LNX.4.62.0504150213240.3466@dragon.hyggekrogen.localhost>
+ <425F0735.6010407@yahoo.com.au> <Pine.LNX.4.62.0504150222390.3466@dragon.hyggekrogen.localhost>
+ <20050415075801.GA24974@elte.hu>
 MIME-Version: 1.0
-To: Sven Dietrich <sdietrich@mvista.com>
-CC: "'Steven Rostedt'" <rostedt@goodmis.org>,
-       "'Inaky Perez-Gonzalez'" <inaky@linux.intel.com>,
-       robustmutexes@lists.osdl.org, mingo@elte.hu,
-       linux-kernel@vger.kernel.org, "'Esben Nielsen'" <simlo@phys.au.dk>
-Subject: Re: FUSYN and RT
-References: <000801c54230$73a0f940$c800a8c0@mvista.com>
-In-Reply-To: <000801c54230$73a0f940$c800a8c0@mvista.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Apr 2005 13:06:48.0093 (UTC) FILETIME=[25B994D0:01C54285]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sven Dietrich wrote:
->>>	/** A fuqueue, a prioritized wait queue usable from
->>
->>kernel space. */
->>
->>>	struct fuqueue {
->>>	        spinlock_t lock;        
->>>	        struct plist wlist;
->>>	        struct fuqueue_ops *ops;
->>>	};
->>>
->>
->>Would the above spinlock_t be a raw_spinlock_t? This goes
->>back to my first question. I'm not sure how familiar you are 
->>with Ingo's work, but he has turned all spinlocks into 
->>mutexes, and when you really need an original spinlock, you 
->>declare it with raw_spinlock_t.  
->>
+On Fri, 15 Apr 2005, Ingo Molnar wrote:
+
 > 
+> * Jesper Juhl <juhl-lkml@dif.dk> wrote:
 > 
-> This one probably should be a raw_spinlock. 
-> This lock is only held to protect access to the queues.
-> Since the queues are already priority ordered, there is
-> little benefit to ordering -the order of insertion-
-> in case of contention on a queue, compared with the complexity.
+> > As per this patch perhaps? : 
+> > 
+> > Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+> 
+> this is still not enough (there was one more comparison to cover). Also, 
+> it's a bit cleaner to just cast the left side to signed than cast every 
+> member separately.
+> 
+> 	Ingo
+> 
+> --
+> 
+> fix signed comparisons of long long.
+> 
+> Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+> Signed-off-by: Ingo Molnar <mingo@elte.hu>
+> 
+> --- linux/kernel/sched.c.orig
+> +++ linux/kernel/sched.c
+> @@ -2695,9 +2695,9 @@ need_resched_nonpreemptible:
+>  
+>  	schedstat_inc(rq, sched_cnt);
+>  	now = sched_clock();
+> -	if (likely((long long)now - prev->timestamp < NS_MAX_SLEEP_AVG)) {
+> +	if (likely((long long)(now - prev->timestamp) < NS_MAX_SLEEP_AVG)) {
+>  		run_time = now - prev->timestamp;
+> -		if (unlikely((long long)now - prev->timestamp < 0))
+> +		if (unlikely((long long)(now - prev->timestamp) < 0))
+>  			run_time = 0;
+>  	} else
+>  		run_time = NS_MAX_SLEEP_AVG;
+> @@ -2775,7 +2775,7 @@ go_idle:
+>  
+>  	if (!rt_task(next) && next->activated > 0) {
+>  		unsigned long long delta = now - next->timestamp;
+> -		if (unlikely((long long)now - next->timestamp < 0))
+> +		if (unlikely((long long)(now - next->timestamp) < 0))
+>  			delta = 0;
+>  
+>  		if (next->activated == 1)
+> 
 
-The choice of lock type should derive from both the calling
-context and the length of time the lock is expected to be held.
-
--john
-
+Right, that's a better version. Thanks.
 
 -- 
-john.cooper@timesys.com
+Jesper
+

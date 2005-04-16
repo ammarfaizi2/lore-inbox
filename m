@@ -1,61 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262747AbVDPUPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262749AbVDPUWJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262747AbVDPUPn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Apr 2005 16:15:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262748AbVDPUPn
+	id S262749AbVDPUWJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Apr 2005 16:22:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262751AbVDPUWJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Apr 2005 16:15:43 -0400
-Received: from pne-smtpout1-sn2.hy.skanova.net ([81.228.8.83]:3798 "EHLO
-	pne-smtpout1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S262747AbVDPUPg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Apr 2005 16:15:36 -0400
-Message-ID: <420333.1113682535160.JavaMail.root@pne-ps2-sn1>
-Date: Sat, 16 Apr 2005 22:15:35 +0200 (MEST)
-From: gabriel <gabriel.j@telia.com>
-Reply-To: gabriel <gabriel.j@telia.com>
+	Sat, 16 Apr 2005 16:22:09 -0400
+Received: from wproxy.gmail.com ([64.233.184.198]:63837 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262749AbVDPUWG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Apr 2005 16:22:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=LvD0nMz6y6iy/19ilALzHEZTEW2WNN/jmZW6sjzPxkFqxEJzTy4UhJ/U9EqJXGSEaVRUhpt3VaFq557bT8gYn5QmpzclcppXkn133DiZnePgYBogSyQb4b/OM5es+MP4o8vW1A6LnvshAGpnYfdxmsJ/51gvd/DgNOkmNaMo8qM=
+Message-ID: <cc089fa0504161322326bcde6@mail.gmail.com>
+Date: Sun, 17 Apr 2005 04:22:06 +0800
+From: liscs 2005 <liscs2005@gmail.com>
+Reply-To: liscs 2005 <liscs2005@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Booting from USB with initrd
+Subject: when I write a script like NAT, how I can control the cpu
 Mime-Version: 1.0
-Content-Type: text/plain;charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Mailer: CP Presentation Server
-X-clientstamp: [83.227.221.136]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Have you edit the build-initrd.sh script to fit your needs? 
-
-Yeah.. but it shouldn't matter much since I've not been able to load the initrd 
-yet?
-
->Does 
->  http://featherlinux.berlios.de/usb-instructions.htm or
->  http://www.ussg.iu.edu/hypermail/linux/kernel/0211.1/0551.html help?)
-
-I thought the second one would so I changed the code (took a while to find 
-the right place since I use 2.6 not 2.4) However that's a fix for a problem 
-I don't have. My kernel never complains about root= bla it only says unable 
-to mount on root fs.
-I'm not sure what this tells us.
-
->Totally different Q's: 
-
->Have you called syslinux with the correct parameter to find your
->initrd.gz? 
-
-I hope so. I have it setup up like in the loop-aes readme. Is there something special 
-you have in mind?
-
->Do you have access to DOS bootable drive (To try to boot the kernel
->using loadlin from DOS command prompt. If that works you know that the
->issues are regarded to syslinux, if not - initrd/kernel) (?) 
-
-Nope. I only have a knoppix and kanotix rescue disc to work off at the time 
-=)
-
->Have you tried to boot kernel + initrd from your local linux
->installation?
-
-No, I would if I knew how. Is there any howto for that?
-
-Cheers.
+hi, everyone, 
+ 
+Recently, I program a script like NAT, but I have no idea how to let it 
+possess more cpu resource?
+ 
+you know, in user space process is a small unit which possess the cpu 
+and is controlled by schedule function.  but in kernel space, it seems 
+not the same thing as it in user space, and NAT should not be viewed as 
+a process, in turn I can not schedule it. 
+ 
+I ought to alter my perspective to the driver like ? while , I 
+realistically can not understand it.
+ 
+Any help will be appreciated!
+ 
+thanks , :)

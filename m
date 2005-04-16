@@ -1,129 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262561AbVDPBwf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262563AbVDPB4L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262561AbVDPBwf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Apr 2005 21:52:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262562AbVDPBwf
+	id S262563AbVDPB4L (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Apr 2005 21:56:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262569AbVDPB4L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Apr 2005 21:52:35 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:20491 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262561AbVDPBwa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Apr 2005 21:52:30 -0400
-Date: Sat, 16 Apr 2005 11:49:06 +1000
-To: Thomas Graf <tgraf@suug.ch>
-Cc: Steven Rostedt <rostedt@goodmis.org>, hadi@cyberus.ca,
-       netdev <netdev@oss.sgi.com>, Tarhon-Onu Victor <mituc@iasi.rdsnet.ro>,
-       kuznet@ms2.inr.ac.ru, devik@cdi.cz, linux-kernel@vger.kernel.org,
-       Patrick McHardy <kaber@trash.net>,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: ACPI/HT or Packet Scheduler BUG?
-Message-ID: <20050416014906.GA3291@gondor.apana.org.au>
-References: <Pine.LNX.4.61.0504081225510.27991@blackblue.iasi.rdsnet.ro> <Pine.LNX.4.61.0504121526550.4822@blackblue.iasi.rdsnet.ro> <Pine.LNX.4.61.0504141840420.13546@blackblue.iasi.rdsnet.ro> <1113601029.4294.80.camel@localhost.localdomain> <1113601446.17859.36.camel@localhost.localdomain> <1113602052.4294.89.camel@localhost.localdomain> <20050415225422.GF4114@postel.suug.ch>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="9amGYk9869ThD9tj"
-Content-Disposition: inline
-In-Reply-To: <20050415225422.GF4114@postel.suug.ch>
-User-Agent: Mutt/1.5.6+20040907i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Fri, 15 Apr 2005 21:56:11 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:42980 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262563AbVDPBz6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Apr 2005 21:55:58 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16992.28724.665847.46695@sodium.jf.intel.com>
+Date: Fri, 15 Apr 2005 18:53:56 -0700
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Bill Huey <bhuey@lnxw.com>, dwalker@mvista.com, mingo@elte.hu,
+       linux-kernel@vger.kernel.org, Esben Nielsen <simlo@phys.au.dk>
+Subject: Re: FUSYN and RT
+In-Reply-To: <1113615510.4294.113.camel@localhost.localdomain>
+References: <Pine.OSF.4.05.10504130056271.6111-100000@da410.phys.au.dk>
+	<1113352069.6388.39.camel@dhcp153.mvista.com>
+	<1113407200.4294.25.camel@localhost.localdomain>
+	<20050415225137.GA23222@nietzsche.lynx.com>
+	<16992.20513.551920.826472@sodium.jf.intel.com>
+	<1113614062.4294.102.camel@localhost.localdomain>
+	<16992.26700.512551.833614@sodium.jf.intel.com>
+	<1113615510.4294.113.camel@localhost.localdomain>
+X-Mailer: VM 7.19 under Emacs 21.3.1
+From: Inaky Perez-Gonzalez <inaky@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> Steven Rostedt <rostedt@goodmis.org> writes:
 
---9amGYk9869ThD9tj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> On Fri, 2005-04-15 at 18:20 -0700, Inaky Perez-Gonzalez wrote:
 
-On Fri, Apr 15, 2005 at 10:54:22PM +0000, Thomas Graf wrote:
->
-> Another case were it's not locked is upon a deletion of a class where
-> the class deletes its inner qdisc, although there is only one case
-> how this can happen and that's under rtnl semaphore so there is no
-> way we can have a dumper at the same time.
+>> Back to my example before: in fusyn, a user space lock is a kernel
+>> space lock with a wrapper, that provides all that is necessary for
+>> doing the fast path and handling user-space specific issues.
 
-Sorry, that's where tc went astray :)
+> ...
 
-The assumption that the rtnl is held during dumping is false.  It is
-only true for the initial dump call.  All subsequent dumps are not
-protected by the rtnl.
+> So, to answer your question. Looking forward, I kind of see two
+> different structures for locking.  The rt_mutex and something that
+> is used by fusyn, then there being some common structure (or ops)
+> that they both use to implement the PI.  But the implementation of
+> how the locks work may as well be different. But this may not be the
+> case, and there still be two structures but the fusyn just contain a
+> rt_mutex lock to do the actual locking and the rest of the structure
+> be used for showing information or what not back up to user
+> space. This stuff wouldn't be necessary for the rt_mutex. We need to
+> keep rt_mutex small since it is used all over the place.
 
-The solution is certainly not to place the dumpers under rtnl :)
-The dump operation is read-only and should not need any exclusive
-locks.
+I see--would the following fit your view?
 
-In fact the whole qdisc locking is a mess.  It's a cross-breed
-between locking with ad-hoc reference counting and RCU.  What's
-more, the RCU is completely useless too because for the case
-where we actually have a queue we still end up taking the spin
-lock on each transmit! I think someone's been benchmarking the
-loopback device again :)
+This would be a kernel lock [from the fusyn patch, linux/fulock.h]:
 
-It needs to be reengineered.
+	/** A fulock, mutex usable from the kernel. */
+	struct fulock {
+	        struct fuqueue fuqueue;
+	        struct task_struct *owner;
+	        unsigned flags;
+	        struct plist olist_node;
+	};
 
-Here is a quick'n'dirty fix to the problem at hand.  What happened
-between 2.6.10-rc1 and 2.6.10-rc2 is that qdisc_destroy started
-changing the next pointer of qdisc entries which totally confuses
-the readers because qdisc_destroy doesn't always take the tree lock.
+This has an in kernel API so you can use it from modules or kernel
+code.
 
-This patch tries to ensure that all top-level calls to qdisc_destroy
-come under the tree lock.  As Thomas correctedly pointed out, most
-of the other qdisc_destroy calls occur after the top qdisc has been
-unlinked from the device qdisc_list.  However, someone should go
-through each one of the remaining ones (they're all in the individual
-sch_* implementations) and make sure that this assumption is really
-true.
+And this would be kernel representation of a user space lock [from
+linux/fulock_kernel.h]:
 
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+	struct ufulock {
+	        struct fulock fulock;
+	        struct vlocator vlocator;
+	        struct page *page;
+	};
 
-If anyone has cycles to spare and a stomach strong enough for
-this stuff, here is your chance :)
+This is exposed via system calls with fast-path as an option.
 
-Cheers,
+This is basically the kernel lock that provides the functionality and
+an structure to keep a tab to where the thing is in user space (hash
+queues a la futex). The ops are hidden in fulock.fuqueue.ops [fuqueue
+is the waitqueue--just for reference, from linux/fuqueue.h].
+
+	/** A fuqueue, a prioritized wait queue usable from kernel space. */
+	struct fuqueue {
+	        spinlock_t lock;        
+	        struct plist wlist;
+	        struct fuqueue_ops *ops;
+	};
+
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
 
---9amGYk9869ThD9tj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
+Inaky
 
-===== net/sched/sch_api.c 1.47 vs edited =====
---- 1.47/net/sched/sch_api.c	2005-04-01 14:35:56 +10:00
-+++ edited/net/sched/sch_api.c	2005-04-16 08:47:16 +10:00
-@@ -608,9 +608,9 @@
- 			return err;
- 		if (q) {
- 			qdisc_notify(skb, n, clid, q, NULL);
--			spin_lock_bh(&dev->queue_lock);
-+			qdisc_lock_tree(dev);
- 			qdisc_destroy(q);
--			spin_unlock_bh(&dev->queue_lock);
-+			qdisc_unlock_tree(dev);
- 		}
- 	} else {
- 		qdisc_notify(skb, n, clid, NULL, q);
-@@ -743,17 +743,17 @@
- 		err = qdisc_graft(dev, p, clid, q, &old_q);
- 		if (err) {
- 			if (q) {
--				spin_lock_bh(&dev->queue_lock);
-+				qdisc_lock_tree(dev);
- 				qdisc_destroy(q);
--				spin_unlock_bh(&dev->queue_lock);
-+				qdisc_unlock_tree(dev);
- 			}
- 			return err;
- 		}
- 		qdisc_notify(skb, n, clid, old_q, q);
- 		if (old_q) {
--			spin_lock_bh(&dev->queue_lock);
-+			qdisc_lock_tree(dev);
- 			qdisc_destroy(old_q);
--			spin_unlock_bh(&dev->queue_lock);
-+			qdisc_unlock_tree(dev);
- 		}
- 	}
- 	return 0;
-
---9amGYk9869ThD9tj--

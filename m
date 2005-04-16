@@ -1,52 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262655AbVDPM4N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262658AbVDPNLZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262655AbVDPM4N (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Apr 2005 08:56:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbVDPM4N
+	id S262658AbVDPNLZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Apr 2005 09:11:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262659AbVDPNLZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Apr 2005 08:56:13 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:9391 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262655AbVDPM4K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Apr 2005 08:56:10 -0400
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ppc64: improve g5 sound headphone mute
-References: <1113282436.21548.42.camel@gaston> <jell7nu6yk.fsf@sykes.suse.de>
-	<1113344225.21548.108.camel@gaston> <jey8bnk4lj.fsf@sykes.suse.de>
-	<1113345561.5387.114.camel@gaston> <jed5szk3gh.fsf@sykes.suse.de>
-	<1113347296.5388.121.camel@gaston> <je8y3nk117.fsf@sykes.suse.de>
-	<1113350355.5387.129.camel@gaston> <jefyxvruip.fsf@sykes.suse.de>
-	<1113391382.5463.20.camel@gaston>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: Is this "BOOZE"?
-Date: Sat, 16 Apr 2005 14:56:07 +0200
-In-Reply-To: <1113391382.5463.20.camel@gaston> (Benjamin Herrenschmidt's
- message of "Wed, 13 Apr 2005 21:23:02 +1000")
-Message-ID: <jek6n2x4m0.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/22.0.50 (gnu/linux)
+	Sat, 16 Apr 2005 09:11:25 -0400
+Received: from mail.timesys.com ([65.117.135.102]:35161 "EHLO
+	exchange.timesys.com") by vger.kernel.org with ESMTP
+	id S262658AbVDPNLX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Apr 2005 09:11:23 -0400
+Message-ID: <42610DAC.5070506@timesys.com>
+Date: Sat, 16 Apr 2005 09:05:48 -0400
+From: john cooper <john.cooper@timesys.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Sven Dietrich <sdietrich@mvista.com>
+CC: "'Steven Rostedt'" <rostedt@goodmis.org>,
+       "'Inaky Perez-Gonzalez'" <inaky@linux.intel.com>,
+       robustmutexes@lists.osdl.org, mingo@elte.hu,
+       linux-kernel@vger.kernel.org, "'Esben Nielsen'" <simlo@phys.au.dk>
+Subject: Re: FUSYN and RT
+References: <000801c54230$73a0f940$c800a8c0@mvista.com>
+In-Reply-To: <000801c54230$73a0f940$c800a8c0@mvista.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 Apr 2005 13:06:48.0093 (UTC) FILETIME=[25B994D0:01C54285]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
+Sven Dietrich wrote:
+>>>	/** A fuqueue, a prioritized wait queue usable from
+>>
+>>kernel space. */
+>>
+>>>	struct fuqueue {
+>>>	        spinlock_t lock;        
+>>>	        struct plist wlist;
+>>>	        struct fuqueue_ops *ops;
+>>>	};
+>>>
+>>
+>>Would the above spinlock_t be a raw_spinlock_t? This goes
+>>back to my first question. I'm not sure how familiar you are 
+>>with Ingo's work, but he has turned all spinlocks into 
+>>mutexes, and when you really need an original spinlock, you 
+>>declare it with raw_spinlock_t.  
+>>
+> 
+> 
+> This one probably should be a raw_spinlock. 
+> This lock is only held to protect access to the queues.
+> Since the queues are already priority ordered, there is
+> little benefit to ordering -the order of insertion-
+> in case of contention on a queue, compared with the complexity.
 
-> This patch fixes a couple more issues with the management of the GPIOs
-> dealing with headphone and line out mute on the G5. It should fix the
-> remaining problems of people not getting any sound out of the headphone
-> jack.
+The choice of lock type should derive from both the calling
+context and the length of time the lock is expected to be held.
 
-There's still a minor problem: when booting with line-out plugged (didn't
-try headphone yet) the initial volume settings are still not right.
-Unplugging and plugging again fixes this.
+-john
 
-Andreas.
 
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+john.cooper@timesys.com

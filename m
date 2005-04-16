@@ -1,60 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262648AbVDPFxQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbVDPHJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262648AbVDPFxQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Apr 2005 01:53:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262650AbVDPFxQ
+	id S261167AbVDPHJg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Apr 2005 03:09:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbVDPHJd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Apr 2005 01:53:16 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:48648 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S262648AbVDPFxL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Apr 2005 01:53:11 -0400
-Date: Sat, 16 Apr 2005 07:53:05 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Karl Kiniger <karl.kiniger@med.ge.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.30 Oops when connecting external USB hard drive
-Message-ID: <20050416055305.GG7858@alpha.home.local>
-References: <20050412173911.GA21311@wszip-kinigka.euro.med.ge.com> <20050414050243.GF7858@alpha.home.local> <20050415125048.GA21076@wszip-kinigka.euro.med.ge.com>
+	Sat, 16 Apr 2005 03:09:33 -0400
+Received: from jose.lug.udel.edu ([128.175.60.112]:33677 "HELO
+	mail.lug.udel.edu") by vger.kernel.org with SMTP id S261167AbVDPHJ3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Apr 2005 03:09:29 -0400
+From: ross@lug.udel.edu
+Date: Sat, 16 Apr 2005 03:09:25 -0400
+To: linux-kernel@vger.kernel.org
+Subject: DRM not working with 2.6.11.5
+Message-ID: <20050416070925.GA1237@jose.lug.udel.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050415125048.GA21076@wszip-kinigka.euro.med.ge.com>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 15, 2005 at 02:50:48PM +0200, Karl Kiniger wrote:
-> On Thu, Apr 14, 2005 at 07:02:44AM +0200, Willy Tarreau wrote:
-> > You may try to unload the ehci-hcd driver and load only uhci and check if
-> > it still happens. I guess from the trace that the problem lies in the ehci
-> > driver itself.
-> 
-> Your guess is right. With only uhci loaded it works (dog slow of course).
-> When I then insmod the ehci-hcd driver: instant Oops.
-> 
-> Today I tried with another USB 2.0 enclosure w/o crash - it seems
-> to dislike especially the Seagate enclosure.
+Hello everyone,
 
-Fine, it may not be an important bug.
+I recently upgraded to 2.6.11.5 (back when it came out) from 2.4.
+One of the reasons I upgraded was to get DRM working with my computer
+again.
 
-> perhaps the output of cat /proc/bus/usb/devices gives some hint?
-> (BTW: what does the asterisk in the 'C:' lines mean?)
+The AGP and DRM modules load fine, but when xdm starts, I have no
+direct rendering.
 
-I don't remember at all...
+The machine is an ASUS A7V8x-x with VIA chipset KT400.  The video card
+is a Matrox G400 DualHead.  I've had the exact same video card working
+with different motherboards.
 
-> On the two "GE Med. Kretz" USB<>IDE devices there is 
-> a DVD recorder and a Maxtor HD connected, both are working fine
-> as long as nobody tries to plug in this particular Seagate.
-> 
-> What to do next? I have no clue about the innards of ehci-hcd....
 
-You should CC the ehci-hcd the usb-storage maintainers, they probably
-will have more clues or ideas about what you encounter. A post to the
-linux-usb-users list would be a good idea too. Also, if you can test
-2.6 and find that it is broken only on 2.4, it will be easier for them
-to send you some code to try.
+Here is the only DRM output relevant to AGP/DRM:
 
-Regards,
-Willy
+Linux agpgart interface v0.100 (c) Dave Jones
+[drm] Initialized drm 1.0.0 20040925
+[drm:drm_fill_in_dev] *ERROR* Cannot initialize the agpgart module.
+DRM: Fill_in_dev failed.
 
+Thanks very much for any tips!
+
+
+-- 
+Ross Vandegrift
+ross@lug.udel.edu
+
+"The good Christian should beware of mathematicians, and all those who
+make empty prophecies. The danger already exists that the mathematicians
+have made a covenant with the devil to darken the spirit and to confine
+man in the bonds of Hell."
+	--St. Augustine, De Genesi ad Litteram, Book II, xviii, 37

@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262640AbVDPLe2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261778AbVDPLox@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262640AbVDPLe2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Apr 2005 07:34:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262650AbVDPLe2
+	id S261778AbVDPLox (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Apr 2005 07:44:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbVDPLox
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Apr 2005 07:34:28 -0400
-Received: from postel.suug.ch ([195.134.158.23]:9706 "EHLO postel.suug.ch")
-	by vger.kernel.org with ESMTP id S262640AbVDPLeZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Apr 2005 07:34:25 -0400
-Date: Sat, 16 Apr 2005 13:34:46 +0200
-From: Thomas Graf <tgraf@suug.ch>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Steven Rostedt <rostedt@goodmis.org>, hadi@cyberus.ca,
-       netdev <netdev@oss.sgi.com>, Tarhon-Onu Victor <mituc@iasi.rdsnet.ro>,
-       kuznet@ms2.inr.ac.ru, devik@cdi.cz, linux-kernel@vger.kernel.org,
-       Patrick McHardy <kaber@trash.net>,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: ACPI/HT or Packet Scheduler BUG?
-Message-ID: <20050416113446.GJ4114@postel.suug.ch>
-References: <Pine.LNX.4.61.0504081225510.27991@blackblue.iasi.rdsnet.ro> <Pine.LNX.4.61.0504121526550.4822@blackblue.iasi.rdsnet.ro> <Pine.LNX.4.61.0504141840420.13546@blackblue.iasi.rdsnet.ro> <1113601029.4294.80.camel@localhost.localdomain> <1113601446.17859.36.camel@localhost.localdomain> <1113602052.4294.89.camel@localhost.localdomain> <20050415225422.GF4114@postel.suug.ch> <20050416014906.GA3291@gondor.apana.org.au> <20050416110639.GI4114@postel.suug.ch> <20050416112329.GA31847@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050416112329.GA31847@gondor.apana.org.au>
+	Sat, 16 Apr 2005 07:44:53 -0400
+Received: from science.horizon.com ([192.35.100.1]:11844 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S261778AbVDPLou
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Apr 2005 07:44:50 -0400
+Date: 16 Apr 2005 11:44:50 -0000
+Message-ID: <20050416114450.29351.qmail@science.horizon.com>
+From: linux@horizon.com
+To: daw@taverner.cs.berkeley.edu
+Subject: Re: Fortuna
+Cc: jlcooke@certainkey.com, linux@horizon.com, linux-kernel@vger.kernel.org,
+       mpm@selenic.com, tytso@mit.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Herbert Xu <20050416112329.GA31847@gondor.apana.org.au> 2005-04-16 21:23
-> On Sat, Apr 16, 2005 at 01:06:39PM +0200, Thomas Graf wrote:
-> > 
-> > It's not completely useless, it speeds up the deletion classful
-> > qdiscs having some depth. However, it's not worth the locking
-> > troubles I guess.
+>> /dev/urandom depends on the strength of the crypto primitives.
+>> /dev/random does not.  All it needs is a good uniform hash.
 > 
-> RCU is meant to optimise the common reader path.  In this case
-> that's the packet transmission code.  Unfortunately it fails
-> miserably when judged by that criterion.
+> That's not at all clear.  I'll go farther: I think it is unlikely
+> to be true.
+> 
+> If you want to think about cryptographic primitives being arbitrarily
+> broken, I think there will be scenarios where /dev/random is insecure.
+> 
+> As for what you mean by "good uniform hash", I think you'll need to
+> be a bit more precise.
 
-There is one case where it can do good for latency which is for
-per flow qdiscs or any other scenarios implying hundreds or
-thousands of leaf qdiscs where a destroyage of one such qdisc
-tree will take up quite some cpu to traverse all the classes
-under dev->queue_lock. I don't have any numbers on this, but
-I don't completely dislike the method of hiding the qdiscs under
-the lock and do the expensive traveling unlocked.
+Well, you just pointed me to a very nice paper that *makes* it precise:
+
+Boaz Barak, Ronen Shaltiel, and Eran Tromer. True random number generators
+secure in a changing environment. In Workshop on Cryptographic Hardware
+and Embedded Systems (CHES), pages 166-180, 2003. LNCS no. 2779.
+
+I haven't worked through all the proofs yet, but it looks to be highly
+applicable.
+
+>> Do a bit of reading on the subject of "unicity distance".
+> 
+> Yes, I've read Shannon's original paper on the subject, as well
+> as many other treatments.
+
+I hope it's obvious that I didn't mean to patronize *you* with such
+a suggestion!  Clearly, you're intimately familiar with the concept,
+and any discussion can go straight on to more detailed issues.
+
+I just hope you'll grant me that understanding the concept is pretty
+fundamental to any meaningful discussion of information-theoretic
+security.
+
+> I stand by my comments above.
+
+Cool!  So there's a problem to be solved!

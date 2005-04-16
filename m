@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbVDPH7h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261411AbVDPIam@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261343AbVDPH7h (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Apr 2005 03:59:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbVDPH7h
+	id S261411AbVDPIam (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Apr 2005 04:30:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbVDPIam
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Apr 2005 03:59:37 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:42000 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261343AbVDPH7c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Apr 2005 03:59:32 -0400
-Date: Sat, 16 Apr 2005 08:59:23 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Alexey Dobriyan <adobriyan@mail.ru>, Andrew Morton <akpm@osdl.org>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-serial@vger.kernel.org,
-       linux-kernel@vger.kernel.org, len.brown@intel.com,
-       acpi-devel@lists.sourceforge.ne
-Subject: Re: [2.6 patch] drivers/serial/8250_acpi.c: fix a warning
-Message-ID: <20050416085923.A10826@flint.arm.linux.org.uk>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	Alexey Dobriyan <adobriyan@mail.ru>, Andrew Morton <akpm@osdl.org>,
-	Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-serial@vger.kernel.org,
-	linux-kernel@vger.kernel.org, len.brown@intel.com,
-	acpi-devel@lists.sourceforge.ne
-References: <20050415151053.GM5456@stusta.de> <E1DMTPC-000ASo-00.adobriyan-mail-ru@f13.mail.ru> <20050416023852.GI4831@stusta.de>
+	Sat, 16 Apr 2005 04:30:42 -0400
+Received: from hacksaw.org ([66.92.70.107]:47540 "EHLO hacksaw.org")
+	by vger.kernel.org with ESMTP id S261411AbVDPIag (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Apr 2005 04:30:36 -0400
+Message-Id: <200504160830.j3G8UH0x031123@hacksaw.org>
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.0.4
+To: Vadim Lobanov <vlobanov@speakeasy.net>
+cc: linux-os@analogic.com, "Theodore Ts'o" <tytso@mit.edu>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Tomko <tomko@haha.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Why system call need to copy the date from the userspace before 
+ using it
+In-reply-to: Your message of "Fri, 15 Apr 2005 22:18:42 PDT."
+             <Pine.LNX.4.58.0504152209260.18492@shell3.speakeasy.net> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050416023852.GI4831@stusta.de>; from bunk@stusta.de on Sat, Apr 16, 2005 at 04:38:52AM +0200
+Date: Sat, 16 Apr 2005 04:30:17 -0400
+From: Hacksaw <hacksaw@hacksaw.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 16, 2005 at 04:38:52AM +0200, Adrian Bunk wrote:
-> In the Linux kernel, it's more common to put such header dependencies 
-> for header files into the C files, but if the ACPI people agree a patch 
-> to add the #include <linux/config.h> to acpi_bus.h is the other possble 
-> correct solution for this issue.
+>if you want actual concrete examples, let me know.
+I'd love a few, but maybe privately?
 
-With the exception of linux/config.h.
 
-Do a 'make configcheck' and it'll tell you where linux/config.h is missing
-and where it shouldn't be.
+I can certainly see where always copying is simpler; I certainly consider this 
+to be an optimization, which must be looked at carefully, lest you end up with 
+that which speed things up a little, but adds a big maintenance headache.
 
+But this strikes me as a potentially big speed up for movement through 
+devices. (Or is there already a mechanism for that?)
+
+>It checks if the LAST page belongs to userland, and fails if not;
+I can't claim to know how memory assignment goes. I suppose that this 
+statement means that the address space the userland program sees is continuous?
+
+If not I could see a scenario where that would allow someone to get at data 
+that isn't theirs, by allocating around until they got an chunk far up in 
+memory, then just specified a start address way lower with the right size to 
+end up on their chunk.
+
+I'm assuming this isn't a workable scenario, right?
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+You are in a maze of twisty passages, all alike. Again. 
+http://www.hacksaw.org -- http://www.privatecircus.com -- KB1FVD
+
+

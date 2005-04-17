@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261274AbVDQGtn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbVDQISs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261274AbVDQGtn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Apr 2005 02:49:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVDQGtn
+	id S261283AbVDQISs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 04:18:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbVDQISs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Apr 2005 02:49:43 -0400
-Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:18827 "EHLO
-	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S261274AbVDQGtk
+	Sun, 17 Apr 2005 04:18:48 -0400
+Received: from pD9F86D3F.dip0.t-ipconnect.de ([217.248.109.63]:52355 "EHLO
+	susi.maya.org") by vger.kernel.org with ESMTP id S261283AbVDQISq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Apr 2005 02:49:40 -0400
-X-ORBL: [67.124.119.21]
-Date: Sat, 16 Apr 2005 23:27:26 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: akpm@osdl.org
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, jason@rightthere.net,
-       ak@suse.de, jason.davis@unisys.com
-Subject: Re: [patch 070/198] x86_64 genapic update
-Message-ID: <20050417062726.GA8379@taniwha.stupidest.org>
-References: <200504121031.j3CAVln9005407@shell0.pdx.osdl.net>
+	Sun, 17 Apr 2005 04:18:46 -0400
+From: Andreas Hartmann <andihartmann@01019freenet.de>
+X-Newsgroups: linux.kernel
+Subject: More performance for the TCP stack by using additional hardware chip
+ on NIC
+Date: Sun, 17 Apr 2005 10:17:49 +0200
+Organization: privat
+Message-ID: <d3t63d$3qe$1@pD9F86D3F.dip0.t-ipconnect.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200504121031.j3CAVln9005407@shell0.pdx.osdl.net>
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: abuse@arcor.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.7) Gecko/20050405
+X-Accept-Language: de, en-us, en
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 12, 2005 at 03:31:41AM -0700, akpm@osdl.org wrote:
+Hello!
 
-> diff -puN arch/i386/kernel/acpi/boot.c~x86_64-genapic-update arch/i386/kernel/acpi/boot.c
-> --- 25/arch/i386/kernel/acpi/boot.c~x86_64-genapic-update	2005-04-12 03:21:20.212064200 -0700
-> +++ 25-akpm/arch/i386/kernel/acpi/boot.c	2005-04-12 03:21:20.217063440 -0700
-> @@ -608,6 +608,10 @@ static int __init acpi_parse_fadt(unsign
->  	acpi_fadt.sci_int = fadt->sci_int;
->  #endif
->  
-> +	/* initialize rev and apic_phys_dest_mode for x86_64 genapic */
-> +	acpi_fadt.revision = fadt->revision;
-> +	acpi_fadt.force_apic_physical_destination_mode = fadt->force_apic_physical_destination_mode;
-> +
+Alacritech developed a new chip for NIC's
+(http://www.alacritech.com/html/tech_review.html), which makes it possible
+to take away the TCP stack from the host CPU. Therefore, the host CPU has
+more performance for the applications according Alacritech.
 
-This breaks for me.  It seems acpi_fadt needs CONFIG_ACPI_BUS.  How
-does this look?
+This sounds interesting.
 
-Signed-off-By: Chris Wedgwood <cw@f00f.org>
+Unfortunately, there are two patents belonging to this solution.
 
-Index: cw-current/arch/i386/kernel/acpi/boot.c
-===================================================================
---- cw-current.orig/arch/i386/kernel/acpi/boot.c	2005-04-16 20:17:09.801272343 -0700
-+++ cw-current/arch/i386/kernel/acpi/boot.c	2005-04-16 23:24:59.014298068 -0700
-@@ -608,9 +608,11 @@
- 	acpi_fadt.sci_int = fadt->sci_int;
- #endif
- 
-+#ifdef CONFIG_ACPI_BUS
- 	/* initialize rev and apic_phys_dest_mode for x86_64 genapic */
- 	acpi_fadt.revision = fadt->revision;
- 	acpi_fadt.force_apic_physical_destination_mode = fadt->force_apic_physical_destination_mode;
-+#endif
- 
- #ifdef CONFIG_X86_PM_TIMER
- 	/* detect the location of the ACPI PM Timer */
+Now, I'm wondering if it is possible to implement any support for these
+chips in the Linux kernel. If this hardware solution does have really the
+advantages described by Alacritech, it would be a pitty, if Linux couldn't
+use this hardware.
+
+What do you think about that?
 
 
+
+Kind regards,
+Andreas Hartmann

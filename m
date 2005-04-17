@@ -1,103 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261414AbVDQTFq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbVDQTTz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261414AbVDQTFq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Apr 2005 15:05:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbVDQTFq
+	id S261417AbVDQTTz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 15:19:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbVDQTTz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Apr 2005 15:05:46 -0400
-Received: from pD9F878E4.dip0.t-ipconnect.de ([217.248.120.228]:24449 "EHLO
-	susi.maya.org") by vger.kernel.org with ESMTP id S261414AbVDQTFd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Apr 2005 15:05:33 -0400
-From: Andreas Hartmann <andihartmann@01019freenet.de>
-X-Newsgroups: linux.kernel
-Subject: Re: More performance for the TCP stack by using additional hardware
- chip on NIC
-Date: Sun, 17 Apr 2005 21:04:29 +0200
-Organization: privat
-Message-ID: <d3ubvt$1ra$1@pD9F878E4.dip0.t-ipconnect.de>
-References: <3Udkm-7rV-7@gated-at.bofh.it> <3Ue6L-867-19@gated-at.bofh.it> <3Ufm9-IB-3@gated-at.bofh.it> <3Ugid-1w6-25@gated-at.bofh.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: abuse@arcor.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.7) Gecko/20050405
-X-Accept-Language: de, en-us, en
-In-Reply-To: <3Ugid-1w6-25@gated-at.bofh.it>
+	Sun, 17 Apr 2005 15:19:55 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:33809 "EHLO hermes.domdv.de")
+	by vger.kernel.org with ESMTP id S261417AbVDQTTv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Apr 2005 15:19:51 -0400
+Message-ID: <4262B6D4.30805@domdv.de>
+Date: Sun, 17 Apr 2005 21:19:48 +0200
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       jmorris@redhat.com, davem@davemloft.net, ak@suse.de
+Subject: [RFC][PATCH 0/4] AES assembler implementation for x86_64
 X-Enigmail-Version: 0.90.2.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
-To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau schrieb:
-> Hello !
-> 
-> On Sun, Apr 17, 2005 at 01:29:14PM +0300, Avi Kivity wrote:
->> On Sun, 2005-04-17 at 12:07, Arjan van de Ven wrote:
->> > On Sun, 2005-04-17 at 10:17 +0200, Andreas Hartmann wrote:
->> > > Hello!
->> > > 
->> > > Alacritech developed a new chip for NIC's
->> > > (http://www.alacritech.com/html/tech_review.html), which makes it possible
->> > > to take away the TCP stack from the host CPU. Therefore, the host CPU has
->> > > more performance for the applications according Alacritech.
->> > 
->> > there are very many good reasons why this for linux is not the right
->> > solution, including the fact that the linux tcp/ip stack already is
->> > quite fast so the "gains" achieved aren't that stellar as the gains you
->> > get when comparing to windows.
->> > 
->> 
->> TOEs can remove the data copy on receive. In some applications (notably
->> storage), where the application does not touch most of the data, this is
->> a significant advantage that cannot be achieved in a software-only
->> solution.
-> 
-> Well, if the application does not touch most of the data, either it
-> is playing as a relay, and the data will at least have to be copied,
-> or it will play as a client or server which reads from/writes to disk,
-> and in this case, I wonder how the NIC will send its writes directly
-> to the disk controller without some help.
-> 
-> What worries me with those NICs is that you have no control on the
-> TCP stack. You often have to disable the acceleration when you
-> want to insert even 1 firewall rule, use policy routing or even
-> do a simple anti-spoofing check. It is exactly like the routers
-> which do many things in hardware at wire speed, but jump to snail
-> speed when you enable any advanced feature.
-> 
->> > Also these types of solution always add quite a bit of overhead to
->> > connection setup/teardown making it actually a *loss* for the "many
->> > short connections" types of workloads. Now guess which things certain
->> > benchmarks use, and guess what real world servers do :)
->> > 
->> 
->> again, this depends on the application.
-> 
-> The speed itself depends on the application. An application which
-> goal is to achieve 10 Gbps needs to be written with this goal in
-> mind from start, and needs fine usage of the kernel internals, and
-> even sometimes good knowledge of the hardware itself.
+Implementation:
+===============
+The encrypt/decrypt code is based on an x86 implementation I did a while
+ago which I never published. This unpublished implementation does
+include an assembler based key schedule and precomputed tables. For
+simplicity and best acceptance, however, I took Gladman's in-kernel code
+for table generation and key schedule for the kernel port of my
+assembler code and modified this code to produce the key schedule as
+required by my assembler implementation. File locations and Kconfig are
+kept similar to the i586 AES assembler implementation.
+It may seem a little bit strange to use 32 bit I/O and registers in the
+assembler implementation but this gives the best code size. My
+implementation takes one instruction more per round compared to
+Gladman's x86 assembler but it doesn't require any stack for local
+variables or saved registers and it is less serialized than Gladman's
+x86 code.
+Note that all comparisons to Gladman's code were done after my code was
+implemented. I did only use FIPS PUB 197 for the implementation so my
+implementation is independent work.
+If anybody has a better assembler solution for x86_64 I'll be pleased to
+have my code replaced with the better solution.
 
-Alacritech says, the hardware solution would make it very easy for the
-application, because _every_ application would gain, without considering
-the hardware it runs on itself. These are things which CEO's like to hear
-- because they think, they could save time and money during development of
-the application.
+Testing:
+========
+The implementation passes the in-kernel crypto testing module and I'm
+running it without any problems on my laptop where it is mainly used for
+dm-crypt.
 
+Microbenchmark:
+===============
+The microbenchmark was done in userspace with similar compile flags as
+used during kernel compile.
+Encrypt/decrypt is about 35% faster than the generic C implementation.
+As the generic C as well as my assembler implementation are both table
+driven I don't really expect that there is much room for further
+improvements though I'll be glad to be corrected here.
+The key schedule is about 5% slower than the generic C implementation.
+This is due to the fact that some more work has to be done in the key
+schedule routine to fit the schedule to the assembler implementation.
 
-I don't think that it must be a problem, that on the hardware TCP stack
-doesn't run any filter or other additional functions, because machines
-(often clusters) with high workloads usually run on dedicated servers with
-other dedicated firewall machines in front of.
+Code Size:
+==========
+Encrypt and decrypt are together about 2.1 Kbytes smaller than the
+generic C implementation which is important with regard to L1 cache
+usage. The key schedule routine is about 100 bytes larger than the
+generic C implementation.
 
+Data Size:
+==========
+There's no difference in data size requirements between the assembler
+implementation and the generic C implementation.
 
-I think it would be good to support this hardware, because the user can
-decide afterwards (after testing), which is the best choice for his
-specific application and workload.
+License:
+========
+Gladmans's code is dual BSD/GPL whereas my assembler code is GPLv2 only
+(I'm  not going to change the license for my code). So I had to change
+the module license for the x86_64 aes module from 'Dual BSD/GPL' to
+'GPL' to reflect the most restrictive license within the module.
 
+PS: It can happen that it may take a while until I can reply as I'm
+regularly offline due to my current daytime job requirements.
+-- 
+Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
 
-
-Kind regards,
-Andreas Hartmann

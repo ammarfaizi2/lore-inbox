@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbVDRAza@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261406AbVDRBMc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261378AbVDRAza (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Apr 2005 20:55:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbVDRAza
+	id S261406AbVDRBMc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 21:12:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbVDRBMc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Apr 2005 20:55:30 -0400
-Received: from web60119.mail.yahoo.com ([209.73.178.87]:2428 "HELO
-	web60119.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261378AbVDRAzZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Apr 2005 20:55:25 -0400
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=FWgeb8s1jnQmUTVRnrASnCpBw5vJiNmQEvQwOTXexvg1R/imFD+ag4KTV52NwDJkWr2Q17NJvU+VWixgpMb74NqG2gokyWQgqKj+r30X5M9cDhYn4Q/72QtaTgzc0M25yVdNsk8x8Z0yPMEUmESyeEQvHBjfMLSs7+8HaRkLvZ4=  ;
-Message-ID: <20050418005525.7250.qmail@web60119.mail.yahoo.com>
-Date: Sun, 17 Apr 2005 17:55:25 -0700 (PDT)
-From: S S <singsys@yahoo.com>
-Subject: Kernelpanic - not syncing: VFS: Unable to mount root fs on unknown-block
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 17 Apr 2005 21:12:32 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:53440 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S261406AbVDRBMa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Apr 2005 21:12:30 -0400
+Message-Id: <200504172337.j3HNbJsA004220@laptop11.inf.utfsm.cl>
+To: Andreas Hartmann <andihartmann@01019freenet.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: More performance for the TCP stack by using additional hardware chip on NIC 
+In-Reply-To: Message from Andreas Hartmann <andihartmann@01019freenet.de> 
+   of "Sun, 17 Apr 2005 10:17:49 +0200." <d3t63d$3qe$1@pD9F86D3F.dip0.t-ipconnect.de> 
+Date: Sun, 17 Apr 2005 19:37:18 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I compiled linux kernel 2.6.11.7 on RHEL and while
-rebooting I get this
-error message -
+Andreas Hartmann <andihartmann@01019freenet.de> said:
+> Alacritech developed a new chip for NIC's
+> (http://www.alacritech.com/html/tech_review.html), which makes it possible
+> to take away the TCP stack from the host CPU. Therefore, the host CPU has
+> more performance for the applications according Alacritech.
+> 
+> This sounds interesting.
 
-Cannot open root device /SCSIGroup00/SCSIVol000
-Please append a correct "root=" boot option
-Kernelpanic - not syncing: VFS: Unable to mount root
-fs on
-unknown-block 0,0
-
-This root entry in grub .conf is identical to kernel
-image entry 2.6.9 which boots fine. However 2.6.11.7
-compiled kernel does not find
-/dev//SCSIGroup00/SCSIVol000
-
-Could anyone please suggest what could be going wrong.
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+This idea has been discussed around here a couple of times, and the
+consensus is that it is a bad idea: IP (and upper protocol) processing
+is not expensive, if done right, so this really doesn't buy much; this
+forces a particular interface to networking into the kernel, loosing
+flexibility that way is always bad; there is no access to futzing
+around in between (for example, for firewalling and such); and if the
+"hardware implementation" has bugs, you are screwed.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

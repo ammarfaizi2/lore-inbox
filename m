@@ -1,59 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbVDQIku@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbVDQIz5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261286AbVDQIku (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Apr 2005 04:40:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbVDQIku
+	id S261284AbVDQIz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 04:55:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261287AbVDQIz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Apr 2005 04:40:50 -0400
-Received: from smtp.blackdown.de ([213.239.206.42]:51909 "EHLO
-	smtp.blackdown.de") by vger.kernel.org with ESMTP id S261286AbVDQIko
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Apr 2005 04:40:44 -0400
-From: Juergen Kreileder <jk@blackdown.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.12-rc2-mm3
-References: <20050411012532.58593bc1.akpm@osdl.org>
-	<87wtr8rdvu.fsf@blackdown.de> <87u0m7aogx.fsf@blackdown.de>
-	<1113607416.5462.212.camel@gaston>
-X-PGP-Key: http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0x730A28A5
-X-PGP-Fingerprint: 7C19 D069 9ED5 DC2E 1B10  9859 C027 8D5B 730A 28A5
-Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Andrew
-	Morton <akpm@osdl.org>, Linux Kernel list
-	<linux-kernel@vger.kernel.org>
-Date: Sun, 17 Apr 2005 10:40:34 +0200
-Message-ID: <877jj1aj99.fsf@blackdown.de>
-Organization: Blackdown Java-Linux Team
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 17 Apr 2005 04:55:56 -0400
+Received: from main.gmane.org ([80.91.229.2]:44238 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261284AbVDQIzw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Apr 2005 04:55:52 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: yoann <informatique-nospam@mistur.org>
+Subject: htp366 ide controler card and 2.6
+Date: Sun, 17 Apr 2005 10:55:42 +0200
+Message-ID: <d3t835$dkg$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: nor75-3-82-226-36-243.fbx.proxad.net
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
+Hi,
 
-> On Fri, 2005-04-15 at 20:23 +0200, Juergen Kreileder wrote:
->> Juergen Kreileder <jk@blackdown.de> writes:
->>
->>> Andrew Morton <akpm@osdl.org> writes:
->>>
->>>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm3/
->>>
->>> I'm getting frequent lockups on my PowerMac G5 with rc2-mm3.
->>
->> I think I finally found the culprit.  Both rc2-mm3 and rc1-mm1 work
->> fine when I reverse the timer-* patches.
->>
->> Any idea?  Bug in my ppc64 gcc?
->
-> Or a bug in those patches,
+I'd like to use a hpt366 ide controler card with 2 disk configure in raid1 on
+the card with a 2.6.8 (from debian sarge) but impossible to find an equivalente
+to ataraid module which is in 2.4.X kernel.
 
-Probably.  I've tried a different toolchain now (3.4.3), didn't help.
+Is it possible to use this card with a 2.6.X kernel or I've to use a 2.4.X ?
 
+thanks for your help
 
-        Juergen
+Yoann
 
--- 
-Juergen Kreileder, Blackdown Java-Linux Team
-http://blog.blackdown.de/

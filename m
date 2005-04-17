@@ -1,43 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261460AbVDQUNX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261472AbVDQU5t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261460AbVDQUNX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Apr 2005 16:13:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261471AbVDQUI5
+	id S261472AbVDQU5t (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 16:57:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261471AbVDQU5s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Apr 2005 16:08:57 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:11795 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261479AbVDQUIF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Apr 2005 16:08:05 -0400
-Date: Sun, 17 Apr 2005 22:08:03 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: vojtech@suse.cz
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/char/keyboard.c: make a function static
-Message-ID: <20050417200803.GK3625@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Sun, 17 Apr 2005 16:57:48 -0400
+Received: from mail.dif.dk ([193.138.115.101]:14472 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261457AbVDQU5T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Apr 2005 16:57:19 -0400
+Date: Sun, 17 Apr 2005 23:00:15 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>,
+       Christoph Hellwig <hch@infradead.org>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fs/fcntl.c : don't test unsigned value for less than
+ zero
+In-Reply-To: <20050415132145.GA8669@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.62.0504172252300.2586@dragon.hyggekrogen.localhost>
+References: <20050415113218.GA22528@infradead.org> <E1DMPXN-0004sh-00@gondolin.me.apana.org.au>
+ <20050415132145.GA8669@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes a needlessly globbal function static.
+On Fri, 15 Apr 2005, Matthew Wilcox wrote:
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> On Fri, Apr 15, 2005 at 10:03:05PM +1000, Herbert Xu wrote:
+> > I suppose it could be smart and stay quiet about
+> > 
+> > val < 0 || val > BOUND
+> > 
+> > However, gcc is slow enough as it is without adding unnecessary
+> > smarts like this.
+> 
+> It only warns with -W on, not with -Wall, so I see no compelling
+> reason to fix this.
 
---- linux-2.6.12-rc2-mm3-full/drivers/char/keyboard.c.old	2005-04-17 18:10:34.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/char/keyboard.c	2005-04-17 18:10:55.000000000 +0200
-@@ -1026,7 +1026,8 @@
- 		put_queue(vc, data);
- }
- 
--void kbd_keycode(unsigned int keycode, int down, int hw_raw, struct pt_regs *regs)
-+static void kbd_keycode(unsigned int keycode, int down,
-+			int hw_raw, struct pt_regs *regs)
- {
- 	struct vc_data *vc = vc_cons[fg_console].d;
- 	unsigned short keysym, *key_map;
+Fixing the -W warning was not the main point. The main point was simply 
+that the check makes no sense at all.
 
+>  I think the real problem here is that 'arg'
+> is declared 2 pages earlier in the function prototype (aka the
+> function-growth-hormone-imbalance syndrome).
+> 
+> There's two good ways of fixing this, adding a f_setsig() function:
+> 
+[...]
+> or add a function that checks a variable to see if it's a valid signal number:
+[...]
+> 
+> Looks like futex.c, ptrace.c, signal.c, sys.c and almost every
+> architecture's ptrace code could easily make use of the latter, but not
+> the former.  It also looks like we have a few off-by-one errors.  For
+[...]
+> so I'd recommend the second solution.
+
+Thank you for your feedback, that makes a lot of sense. That should get 
+rid of the pointless tests, get rid of the -W warning and get rid of the 
+off-by-one errors - sounds good to me.
+I'll create patches and send them along shortly.
+
+
+>  But be careful not to "fix up"
+> cases like:
+> 
+> ./kernel/exit.c:        if (sig < 1 || sig > _NSIG)
+> 
+> where we really don't want to allow zero.
+> 
+I'll watch out for those.  
+I can either leave them alone or re-write as one of
+    if (valid_signal(sig) && sig != 0)
+    if (valid_signal(sig) && sig > 0)
+any preference?
+Personally I would probably go with the 
+'rewrite as  if (valid_signal(sig) && sig > 0)' one to encourage use of 
+the new valid_signal() function and make usage consistent.
+
+
+-- 
+Jesper Juhl
 
 

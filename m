@@ -1,39 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261229AbVDQBEI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVDQDrw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261229AbVDQBEI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Apr 2005 21:04:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261230AbVDQBEI
+	id S261246AbVDQDrw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Apr 2005 23:47:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261247AbVDQDrw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Apr 2005 21:04:08 -0400
-Received: from mail-in-01.arcor-online.net ([151.189.21.41]:54931 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261229AbVDQBEF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Apr 2005 21:04:05 -0400
-From: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
-	<7eggert@gmx.de>
-Subject: Re: Coredump when program run as root?
-To: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>,
-       linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Sun, 17 Apr 2005 03:03:34 +0200
-References: <3U03M-4Jx-15@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Sat, 16 Apr 2005 23:47:52 -0400
+Received: from tama5.ecl.ntt.co.jp ([129.60.39.102]:33242 "EHLO
+	tama5.ecl.ntt.co.jp") by vger.kernel.org with ESMTP id S261246AbVDQDrt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Apr 2005 23:47:49 -0400
+Message-ID: <4261DC62.1070300@lab.ntt.co.jp>
+Date: Sun, 17 Apr 2005 12:47:46 +0900
+From: Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <E1DMyCF-0001jq-5c@be1.7eggert.dyndns.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] i386 & x86_64: Live Patching Funcion on 2.6.11.7
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ralf Hildebrandt <Ralf.Hildebrandt@charite.de> wrote:
+Hello,
+This patch add function called "Live patching" which is defined on
+OSDL's carrier grade linux requiremnt definition to linux 2.6.11.7 kernel.
+The live patching allows process to patch on-line (without restarting
+process) on i386 and x86_64 architectures, by overwriting jump assembly
+code on entry point of functions which you want to fix, to patched
+functions.
+The live patching function is very common on high-availability system
+such as carrier system, and this patch realize it also on linux.
+(Patch & process restart time is very critical on such high-availability
+system, live patch allows you to milliseconds order process stopping
+time to apply new patch.)
 
-> Most UNIX variants disable core dumps in programs that have changed their
-> uid or euid during operation.  This includes Solaris and Linux.
-> 
-> Well, squid does exactly that. How can I still get a coredump? I really
-> need one. Kernel 2.6.11.7
+The basis is below:
+1. Live patch command loads the patch modules to target process's memory
+area,
+2. Live patch command resolve patch symbol.
+3. Live patch command overwrite jump code to the entry point of function
+which you want to fix, to the patch module's symbol.
 
-It cannot change the (e)uid if it is run as user. Maybe this helps.
--- 
-Top 100 things you don't want the sysadmin to say:
-78. Do you smell something?
+Kernel patch and user mode tools are required, and both of them are
+available at http://pannus.sourceforge.net
+Please take a look and give us comments!
+
+This patch add following system calls and function.
+o mmap3: maps patch to target process's memory area with security check.
+o accesspvm: access(read/write) target process's memory area.
+o init_pend: initialization of live patch sequence on target process.
+o rt_handlereturn: run initialize root of each patch (same as signal
+handler).
+o check_init: check that the initialization is finished or not.
+o munmap3: unmap patch from target process's memory area.
+
+
+---
+Takashi Ikebe
+NTT Network Service Systems Laboratories
+9-11, Midori-Cho 3-Chome Musashino-Shi,
+Tokyo 180-8585 Japan
+Tel : +81 422 59 4246, Fax : +81 422 60 4012
+e-mail : ikebe.takashi@lab.ntt.co.jp
+
+

@@ -1,62 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261565AbVDQXsH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVDQXtO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261565AbVDQXsH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Apr 2005 19:48:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbVDQXsG
+	id S261567AbVDQXtO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 19:49:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbVDQXtO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Apr 2005 19:48:06 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:58117 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261565AbVDQXrq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Apr 2005 19:47:46 -0400
-Date: Mon, 18 Apr 2005 01:47:39 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: netdev@oss.sgi.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] drivers/net/wan/: possible cleanups
-Message-ID: <20050417234738.GY3625@stusta.de>
-References: <20050327143418.GE4285@stusta.de> <1111941516.14877.325.camel@localhost.localdomain> <20050414232028.GD20400@stusta.de> <1113587392.11155.33.camel@localhost.localdomain>
+	Sun, 17 Apr 2005 19:49:14 -0400
+Received: from wproxy.gmail.com ([64.233.184.207]:53834 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261567AbVDQXsx convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Apr 2005 19:48:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ap4yLceMcfZpZNSULtE2mC2psV1f2kYTgmeQ7ru8EY2yQ2pvEZtvAyjyVEXA7h7HagJUtgLjNCtphiZ5s9YqJYZZF4SK6Tb38SRzDEJhSuYT07mrTl+lo8FUPj1l3RllbHewvOKX+jhdd0YWmr34EW8tcAHIO5fQyji4qnDCiU4=
+Message-ID: <4ae3c140504171648d587669@mail.gmail.com>
+Date: Sun, 17 Apr 2005 19:48:50 -0400
+From: Xin Zhao <uszhaoxin@gmail.com>
+Reply-To: Xin Zhao <uszhaoxin@gmail.com>
+To: Bernd Eckenfels <ecki@lina.inka.de>
+Subject: Re: Why Ext2/3 needs immutable attribute?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E1DNFkJ-0006SI-00@calista.eckenfels.6bone.ka-ip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1113587392.11155.33.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6+20040907i
+References: <4ae3c140504170912b36e9b1@mail.gmail.com>
+	 <E1DNFkJ-0006SI-00@calista.eckenfels.6bone.ka-ip.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 15, 2005 at 06:49:56PM +0100, Alan Cox wrote:
-> On Gwe, 2005-04-15 at 00:20, Adrian Bunk wrote:
-> > On Sun, Mar 27, 2005 at 05:38:38PM +0100, Alan Cox wrote:
-> > > On Sul, 2005-03-27 at 15:34, Adrian Bunk wrote:
-> > > >   - syncppp.c: sppp_input
-> > > >   - syncppp.c: sppp_change_mtu
-> > > >   - z85230.c: z8530_dma_sync
-> > > >   - z85230.c: z8530_txdma_sync
-> > > 
-> > > Please leave the z85230 ones at least. They are an intentional part of
-> > > the external API for writing other 85230 card drivers.
-> > 
-> > If they are part of an API, why aren't the prototypes for them in any 
-> > header file?
+We can certainly harden the system, but sometime the vulnerability in
+kernel is hard to detect and protect. For example, the brk()
+vulnerablitiy found in Linux kernel. All the security mechanisms you
+mentioned have to rely on a healthy kernel. Unfortunately, the kernel
+itself could be compromised too. Although it could be very difficult,
+thereotically speaking,  any kernel level protection, including
+SELinux, could be disabled after the kernel is compromised. Am I
+missing some points here?
+
+
+On 4/17/05, Bernd Eckenfels <ecki@lina.inka.de> wrote:
+> In article <4ae3c140504170912b36e9b1@mail.gmail.com> you wrote:
+> > Yes. I know,  with immutable,  even root cannot modify sensitive
+> > files. What I am curious is if an intruder has root access, he may
+> > have many ways to turn off the immutable protection and modify files.
 > 
-> They were once. I guess that got "tided" at some point, possibly long
-> ago even before submission.
->...
-
-Are there any external drivers using these exports, and if there are, 
-why aren't they in the kernel?
-
-If there aren't and someone will at some time in the future need them, 
-re-adding the exports will be trivial.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+> If you secure your system correctly (i.e make /dev/*mem imutable, disalow
+> module loading, restrict io... (and I admit it is quite complicated to find
+> all holes and secure it correctly without additional ptches like SELinux))
+> then even root cant gt arround immutable or append only (without rebooting).
+> 
+> Greetings
+> Bernd
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

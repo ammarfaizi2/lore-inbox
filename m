@@ -1,188 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261507AbVDQUbK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261509AbVDQUWZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261507AbVDQUbK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Apr 2005 16:31:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbVDQU3w
+	id S261509AbVDQUWZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 16:22:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbVDQUTz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Apr 2005 16:29:52 -0400
-Received: from mxout.hispeed.ch ([62.2.95.247]:38299 "EHLO smtp.hispeed.ch")
-	by vger.kernel.org with ESMTP id S261507AbVDQU2I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Apr 2005 16:28:08 -0400
-From: Daniel Ritz <daniel.ritz@gmx.ch>
-Reply-To: daniel.ritz@gmx.ch
-To: Peter Baumann <Peter.B.Baumann@stud.informatik.uni-erlangen.de>
-Subject: Re: [Bug] invalid mac address after rebooting (2.6.12-rc2-mm2)
-Date: Sun, 17 Apr 2005 22:26:43 +0200
-User-Agent: KMail/1.5.4
-References: <20050323122423.GA24316@faui00u.informatik.uni-erlangen.de> <200504141940.53506.daniel.ritz@gmx.ch> <20050415064352.GA16475@faui00u.informatik.uni-erlangen.de>
-In-Reply-To: <20050415064352.GA16475@faui00u.informatik.uni-erlangen.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       greg@kroah.com
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 17 Apr 2005 16:19:55 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:21523 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261483AbVDQUQZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Apr 2005 16:16:25 -0400
+Date: Sun, 17 Apr 2005 22:16:24 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/char/rio/rio_linux.c: make a variable static
+Message-ID: <20050417201624.GP3625@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200504172226.44173.daniel.ritz@gmx.ch>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 15 April 2005 08:43, Peter Baumann wrote:
-> On Thu, Apr 14, 2005 at 07:40:52PM +0200, Daniel Ritz wrote:
-> > 
-> > could you apply this debuggin patch instead and send me the dmsg output
-> > plus output from lspci, lspci -vvvn. also please send me a hexdump from
-> > /proc/bus/pci/00/0b.0
-> > 
-> > i think i'm having some 3coms around so maybe i can reprocude :)
-> > 
-> > rgds
-> > -daniel
-> > 
-> > --- 1.81/drivers/pci/pci.c	2005-03-03 08:17:57 +01:00
-> > +++ edited/drivers/pci/pci.c	2005-04-05 00:37:13 +02:00
-> > @@ -268,7 +268,7 @@
-> >  		return -EIO; 
-> >  
-> >  	pci_read_config_word(dev,pm + PCI_PM_PMC,&pmc);
-> > -	if ((pmc & PCI_PM_CAP_VER_MASK) > 2) {
-> > +	if ((pmc & PCI_PM_CAP_VER_MASK) > 3) {
-> >  		printk(KERN_DEBUG
-> >  		       "PCI: %s has unsupported PM cap regs version (%u)\n",
-> >  		       pci_name(dev), pmc & PCI_PM_CAP_VER_MASK);
-> > @@ -287,15 +287,19 @@
-> >  	 * This doesn't affect PME_Status, disables PME_En, and
-> >  	 * sets PowerState to 0.
-> >  	 */
-> > -	if (dev->current_state >= PCI_D3hot)
-> > +	printk("PCI: %s pmc: %04x, current_state, pmcsr: %08x", pci_name(dev), pmc, dev->current_state);
+This patch makes a needlessly global variable static.
 
-for the record: i messed up that printk, but anyway...
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-> > +	if (dev->current_state >= PCI_D3hot) {
-> >  		pmcsr = 0;
-> > -	else {
-> > +		printk("0");
-> > +	} else {
-> >  		pci_read_config_word(dev, pm + PCI_PM_CTRL, &pmcsr);
-> > +		printk("%04x", pmcsr);
-> >  		pmcsr &= ~PCI_PM_CTRL_STATE_MASK;
-> >  		pmcsr |= state;
-> >  	}
-> >  
-> >  	/* enter specified state */
-> > +	printk(", new: %04x\n", pmcsr);
-> >  	pci_write_config_word(dev, pm + PCI_PM_CTRL, pmcsr);
-> >  
-> >  	/* Mandatory power management transition delays */
-> > 
-> 
-> I applied this one (just for the record, the offsets weren't correct for 
-> 2.6.12-rc2-mm3, but it applied cleanly)
-
-(it was against mainline, not -mm)
-
-> 
-> Attached is the info you asked for.
-> 
-> ...1.txt  = first boot (working)
-> ...2.txt  = second boot (not working)
-> 
-> -Peter
-> 
-
-from your dmesg:
-PCI: 0000:00:0b.0 pmc: 7601, current_state, pmcsr: 000000040, new: 0000
-ACPI: PCI Interrupt 0000:00:0b.0[A] -> GSI 19 (level, low) -> IRQ 19
-3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
-0000:00:0b.0: 3Com PCI 3c905B Cyclone 100baseTx at 0xac00. Vers LK1.1.19
-PCI: 0000:00:0b.0 pmc: 7601, current_state, pmcsr: 000000000000, new: 0003
-
-so the device is sent to D3 right after it is up. nice.
-
-and second boot:
-PCI: 0000:00:0b.0 pmc: 7601, current_state, pmcsr: 000000040, new: 0000
-PCI: Enabling device 0000:00:0b.0 (0000 -> 0003)
-ACPI: PCI Interrupt 0000:00:0b.0[A] -> GSI 19 (level, low) -> IRQ 19
-3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
-0000:00:0b.0: 3Com PCI 3c905B Cyclone 100baseTx at 0x1000. Vers LK1.1.19
-PCI: Setting latency timer of device 0000:00:0b.0 to 64
-*** EEPROM MAC address is invalid.
-3c59x: vortex_probe1 fails.  Returns -22
-3c59x: probe of 0000:00:0b.0 failed with error -22
-
-to me it looks like during the second boot the device is in D3 and has
-troubles coming out of it. unfortunatley that is not made visible by the
-debugging patch. a hexdump of the device in a second boot without
-loading the 3c59x driver would tell us...
-
-the diff in the hexdumps of the config space proves that the device
-is programmed wrong:
---- hexdump-2.6.12-rc2-mm3-withdebugpatch_1.txt 2005-04-17 21:27:28.000000000 +0200
-+++ hexdump-2.6.12-rc2-mm3-withdebugpatch_2.txt 2005-04-17 21:27:32.000000000 +0200
-@@ -1,7 +1,7 @@
--0000000 10b7 9055 0007 0210 0024 0200 2008 0000
--0000010 ac01 0000 2000 e800 0000 0000 0000 0000
-+0000000 10b7 9055 0003 0210 0024 0200 4000 0000
-+0000010 0001 0000 0000 0000 0000 0000 0000 0000
-
-so the I/O ports and the iomem are not set!
-
- 0000020 0000 0000 0000 0000 0000 0000 10b7 9055
--0000030 0000 0000 00dc 0000 0000 0000 010a 0a0a
-+0000030 0000 0000 00dc 0000 0000 0000 0100 0a0a
- 0000040 0000 0000 0000 0000 0000 0000 0000 0000
- 0000050 0000 0000 0040 0000 0000 0000 0000 0000
- 0000060 0000 0000 0000 0000 0000 0000 0000 0000
-
-but to make it short: i think it's a driver bug. the device doesn't seem to be
-correctly reprogrammed when it is in D3 initially. and then it shouldn't be
-put into D3 during the first boot. so please try with the attached patch.
-
-rgds
--daniel
-
-PS: does somebody have a datasheet of a 3com chip around? i could need one.
-
------
-
-[PATCH] 3c59x: only put the device into D3 when we're actually using WOL
-
-Signed-off-by: Daniel Ritz <daniel.ritz@gmx.ch>
-
---- 1.77/drivers/net/3c59x.c	2005-03-03 06:00:42 +01:00
-+++ edited/drivers/net/3c59x.c	2005-04-17 22:17:19 +02:00
-@@ -1581,7 +1581,8 @@
+--- linux-2.6.12-rc2-mm3-full/drivers/char/rio/rio_linux.c.old	2005-04-17 18:18:39.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/char/rio/rio_linux.c	2005-04-17 18:18:47.000000000 +0200
+@@ -221,7 +221,7 @@
+ /* Set the mask to all-ones. This alas, only supports 32 interrupts. 
+    Some architectures may need more. -- Changed to LONG to
+    support up to 64 bits on 64bit architectures. -- REW 20/06/99 */
+-long rio_irqmask = -1;
++static long rio_irqmask = -1;
  
- 	if (VORTEX_PCI(vp)) {
- 		pci_set_power_state(VORTEX_PCI(vp), PCI_D0);	/* Go active */
--		pci_restore_state(VORTEX_PCI(vp));
-+		if (vp->pm_state_valid)
-+			pci_restore_state(VORTEX_PCI(vp));
- 		pci_enable_device(VORTEX_PCI(vp));
- 	}
- 
-@@ -2741,6 +2742,7 @@
- 		outl(0, ioaddr + DownListPtr);
- 
- 	if (final_down && VORTEX_PCI(vp)) {
-+		vp->pm_state_valid = 1;
- 		pci_save_state(VORTEX_PCI(vp));
- 		acpi_set_WOL(dev);
- 	}
-@@ -3243,9 +3245,10 @@
- 		outw(RxEnable, ioaddr + EL3_CMD);
- 
- 		pci_enable_wake(VORTEX_PCI(vp), 0, 1);
-+
-+		/* Change the power state to D3; RxEnable doesn't take effect. */
-+		pci_set_power_state(VORTEX_PCI(vp), PCI_D3hot);
- 	}
--	/* Change the power state to D3; RxEnable doesn't take effect. */
--	pci_set_power_state(VORTEX_PCI(vp), PCI_D3hot);
- }
- 
- 
-
+ MODULE_AUTHOR("Rogier Wolff <R.E.Wolff@bitwizard.nl>, Patrick van de Lageweg <patrick@bitwizard.nl>");
+ MODULE_DESCRIPTION("RIO driver");
 

@@ -1,61 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVDQXtO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbVDQXxm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261567AbVDQXtO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Apr 2005 19:49:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbVDQXtO
+	id S261566AbVDQXxm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 19:53:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbVDQXxl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Apr 2005 19:49:14 -0400
-Received: from wproxy.gmail.com ([64.233.184.207]:53834 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261567AbVDQXsx convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Apr 2005 19:48:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ap4yLceMcfZpZNSULtE2mC2psV1f2kYTgmeQ7ru8EY2yQ2pvEZtvAyjyVEXA7h7HagJUtgLjNCtphiZ5s9YqJYZZF4SK6Tb38SRzDEJhSuYT07mrTl+lo8FUPj1l3RllbHewvOKX+jhdd0YWmr34EW8tcAHIO5fQyji4qnDCiU4=
-Message-ID: <4ae3c140504171648d587669@mail.gmail.com>
-Date: Sun, 17 Apr 2005 19:48:50 -0400
-From: Xin Zhao <uszhaoxin@gmail.com>
-Reply-To: Xin Zhao <uszhaoxin@gmail.com>
-To: Bernd Eckenfels <ecki@lina.inka.de>
-Subject: Re: Why Ext2/3 needs immutable attribute?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E1DNFkJ-0006SI-00@calista.eckenfels.6bone.ka-ip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4ae3c140504170912b36e9b1@mail.gmail.com>
-	 <E1DNFkJ-0006SI-00@calista.eckenfels.6bone.ka-ip.net>
+	Sun, 17 Apr 2005 19:53:41 -0400
+Received: from mail-in-01.arcor-online.net ([151.189.21.41]:15748 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261570AbVDQXxW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Apr 2005 19:53:22 -0400
+From: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
+	<7eggert@gmx.de>
+Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
+To: Eric Van Hensbergen <ericvh@gmail.com>, Miklos Szeredi <miklos@szeredi.hu>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       hch@infradead.org, akpm@osdl.org,
+       viro@parcelfarce.linux.theplanet.co.uk
+Reply-To: 7eggert@gmx.de
+Date: Mon, 18 Apr 2005 01:52:41 +0200
+References: <3Ki1W-2pt-1@gated-at.bofh.it> <3S8oM-So-13@gated-at.bofh.it> <3S8oN-So-15@gated-at.bofh.it> <3S8oN-So-17@gated-at.bofh.it> <3S8oN-So-19@gated-at.bofh.it> <3S8oN-So-21@gated-at.bofh.it> <3S8oN-So-23@gated-at.bofh.it> <3S8oN-So-25@gated-at.bofh.it> <3S8oN-So-27@gated-at.bofh.it> <3S8oM-So-7@gated-at.bofh.it> <3UmnD-6Fy-7@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+Message-Id: <E1DNJZD-0006vK-11@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We can certainly harden the system, but sometime the vulnerability in
-kernel is hard to detect and protect. For example, the brk()
-vulnerablitiy found in Linux kernel. All the security mechanisms you
-mentioned have to rely on a healthy kernel. Unfortunately, the kernel
-itself could be compromised too. Although it could be very difficult,
-thereotically speaking,  any kernel level protection, including
-SELinux, could be disabled after the kernel is compromised. Am I
-missing some points here?
+Eric Van Hensbergen <ericvh@gmail.com> wrote:
+> On 4/11/05, Miklos Szeredi <miklos@szeredi.hu> wrote:
 
+>> 
+>>   1) Only allow mount over a directory for which the user has write
+>>      access (and is not sticky)
+>> 
+>>   2) Use nosuid,nodev mount options
+[...]
 
-On 4/17/05, Bernd Eckenfels <ecki@lina.inka.de> wrote:
-> In article <4ae3c140504170912b36e9b1@mail.gmail.com> you wrote:
-> > Yes. I know,  with immutable,  even root cannot modify sensitive
-> > files. What I am curious is if an intruder has root access, he may
-> > have many ways to turn off the immutable protection and modify files.
-> 
-> If you secure your system correctly (i.e make /dev/*mem imutable, disalow
-> module loading, restrict io... (and I admit it is quite complicated to find
-> all holes and secure it correctly without additional ptches like SELinux))
-> then even root cant gt arround immutable or append only (without rebooting).
-> 
-> Greetings
-> Bernd
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> Do these solve all the security concerns with unprivileged mounts, or
+> are there other barriers/concerns?  Should there be ulimit (or rlimit)
+> style restrictions on how many mounts/binds a user is allowed to have
+> to prevent users from abusing mount privs?
+
+Definitively. Mountpoints use kernel space, the users could DoS the machine.
+The per-Machine-limit isn't fine-grained enough, since the users may DoS
+each other.
+
+You'll have to avoid users capturing system daemons in D state or in
+slowed-down artificial directory-forests, too. I think namespaces will
+do most the trick.
+
+> I was thinking about this a while back and thought having a user-mount
+> permissions file might be the right way to address lots of these
+> issues.  Essentially it would contain information about what
+> users/groups were allowed to mount what sources to what destinations
+> and with what mandatory options.
+
+Users being able to mount random fs containing suid or device nodes
+are root whenever they want to. If you want to mount with dev or suid,
+use sudo and restrict the mount to a limited set of images/devices/whatever.
+-- 
+Anger, fear, aggression. The Dark Side of the Force are they.
+Once you start down the Dark Path, forever will it dominate your destiny.
+        -- Jedi Master Yoda
+

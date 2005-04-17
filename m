@@ -1,87 +1,210 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261452AbVDQT6N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVDQT7x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261452AbVDQT6N (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Apr 2005 15:58:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbVDQT6M
+	id S261455AbVDQT7x (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 15:59:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261457AbVDQT7E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Apr 2005 15:58:12 -0400
-Received: from wproxy.gmail.com ([64.233.184.200]:54550 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261452AbVDQT5z convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Apr 2005 15:57:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iGDuGNPySutA9F6rrR/behwBJinDW0tspAEkBqXl7n4D2xfPCWctmO8TbkxQy/76ZdL7+2rnQ9dGcSeYcCJDFX5w9Bkpgu7h+QoEMIH7256lQDSQTDC89CiqspigQVB7wqqUpR194Au9eih2e8eE1VtxnJIQXwEF044y+zuLEXk=
-Message-ID: <a4e6962a0504171257715cffc0@mail.gmail.com>
-Date: Sun, 17 Apr 2005 14:57:54 -0500
-From: Eric Van Hensbergen <ericvh@gmail.com>
-Reply-To: Eric Van Hensbergen <ericvh@gmail.com>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       hch@infradead.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-In-Reply-To: <E1DNElp-0005JD-00@dorka.pomaz.szeredi.hu>
+	Sun, 17 Apr 2005 15:59:04 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:787 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261455AbVDQT6O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Apr 2005 15:58:14 -0400
+Date: Sun, 17 Apr 2005 21:58:12 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: davej@codemonkey.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/char/agp/: make code static
+Message-ID: <20050417195812.GE3625@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050320151212.4f9c8f32.akpm@osdl.org>
-	 <E1DEmYC-0008Qg-00@dorka.pomaz.szeredi.hu>
-	 <20050331112427.GA15034@infradead.org>
-	 <E1DH13O-000400-00@dorka.pomaz.szeredi.hu>
-	 <20050331200502.GA24589@infradead.org>
-	 <E1DJsH6-0004nv-00@dorka.pomaz.szeredi.hu>
-	 <20050411114728.GA13128@infradead.org>
-	 <E1DL08S-0008UH-00@dorka.pomaz.szeredi.hu>
-	 <a4e6962a050417110160a464d8@mail.gmail.com>
-	 <E1DNElp-0005JD-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/17/05, Miklos Szeredi <miklos@szeredi.hu> wrote:
-> > >
-> > >   1) Only allow mount over a directory for which the user has write
-> > >      access (and is not sticky)
-> > >
-> > >   2) Use nosuid,nodev mount options
-> > >
-> > > [ parts deleted ]
-> >
-> > Do these solve all the security concerns with unprivileged mounts, or
-> > are there other barriers/concerns?  Should there be ulimit (or rlimit)
-> > style restrictions on how many mounts/binds a user is allowed to have
-> > to prevent users from abusing mount privs?
-> 
-> Currently there is a (configurable) global limit for all non-root FUSE
-> mounts.  An additional per-user limit would be nice, but from the
-> security standpoint it doesn't matter.
-> 
-> > I was thinking about this a while back and thought having a user-mount
-> > permissions file might be the right way to address lots of these
-> > issues.  Essentially it would contain information about what
-> > users/groups were allowed to mount what sources to what destinations
-> > and with what mandatory options.
-> 
-> I haven't yet seen the need for such a great flexibility.  Debian
-> installs fusermount (the FUSE mount utility) "-rwsr-x--- root fuse",
+This patch makes some needlessly global code static.
 
-These are both well and good, but I was looking for a more global
-system (for things other than FUSE).
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-> 
-> > Is this unnecessary?  Is this not enough?
-> 
-> Maybe it is necessary, but why bother until somebody actually wants
-> it?  I'm a great believer of the "lazy" development philosophy ;)
-> 
+---
 
-Yeah, I guess I'm motivated in that I want to use normal mount to
-handle v9fs user file systems, local private mounts, and local private
-resource shares.  I'd also like normal users to be able to take better
-advantage of -o bind.  I think its kinda silly that we have special
-purpose mounts for cifs, samba, fuse, v9fs, etc -- but I suppose
-that's more of a user-space util-linux dilemma than a kernel dilemma.
+ drivers/char/agp/ali-agp.c      |    4 ++--
+ drivers/char/agp/amd-k7-agp.c   |    2 +-
+ drivers/char/agp/amd64-agp.c    |    2 +-
+ drivers/char/agp/ati-agp.c      |    2 +-
+ drivers/char/agp/backend.c      |    4 ++--
+ drivers/char/agp/efficeon-agp.c |    2 +-
+ drivers/char/agp/frontend.c     |    6 +++---
+ drivers/char/agp/nvidia-agp.c   |    2 +-
+ drivers/char/agp/sis-agp.c      |    2 +-
+ drivers/char/agp/sworks-agp.c   |    2 +-
+ drivers/char/agp/via-agp.c      |    4 ++--
+ 11 files changed, 16 insertions(+), 16 deletions(-)
 
-     -eric
+--- linux-2.6.12-rc2-mm3-full/drivers/char/agp/ali-agp.c.old	2005-04-17 17:53:35.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/char/agp/ali-agp.c	2005-04-17 17:53:49.000000000 +0200
+@@ -192,7 +192,7 @@
+ 	{4, 1024, 0, 3}
+ };
+ 
+-struct agp_bridge_driver ali_generic_bridge = {
++static struct agp_bridge_driver ali_generic_bridge = {
+ 	.owner			= THIS_MODULE,
+ 	.aperture_sizes		= ali_generic_sizes,
+ 	.size_type		= U32_APER_SIZE,
+@@ -215,7 +215,7 @@
+ 	.agp_destroy_page	= ali_destroy_page,
+ };
+ 
+-struct agp_bridge_driver ali_m1541_bridge = {
++static struct agp_bridge_driver ali_m1541_bridge = {
+ 	.owner			= THIS_MODULE,
+ 	.aperture_sizes		= ali_generic_sizes,
+ 	.size_type		= U32_APER_SIZE,
+--- linux-2.6.12-rc2-mm3-full/drivers/char/agp/amd-k7-agp.c.old	2005-04-17 17:53:58.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/char/agp/amd-k7-agp.c	2005-04-17 17:54:08.000000000 +0200
+@@ -358,7 +358,7 @@
+ 	{.mask = 1, .type = 0}
+ };
+ 
+-struct agp_bridge_driver amd_irongate_driver = {
++static struct agp_bridge_driver amd_irongate_driver = {
+ 	.owner			= THIS_MODULE,
+ 	.aperture_sizes		= amd_irongate_sizes,
+ 	.size_type		= LVL2_APER_SIZE,
+--- linux-2.6.12-rc2-mm3-full/drivers/char/agp/amd64-agp.c.old	2005-04-17 17:54:26.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/char/agp/amd64-agp.c	2005-04-17 17:54:35.000000000 +0200
+@@ -243,7 +243,7 @@
+ }
+ 
+ 
+-struct agp_bridge_driver amd_8151_driver = {
++static struct agp_bridge_driver amd_8151_driver = {
+ 	.owner			= THIS_MODULE,
+ 	.aperture_sizes		= amd_8151_sizes,
+ 	.size_type		= U32_APER_SIZE,
+--- linux-2.6.12-rc2-mm3-full/drivers/char/agp/ati-agp.c.old	2005-04-17 17:54:43.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/char/agp/ati-agp.c	2005-04-17 17:54:51.000000000 +0200
+@@ -393,7 +393,7 @@
+ 	return 0;
+ }
+ 
+-struct agp_bridge_driver ati_generic_bridge = {
++static struct agp_bridge_driver ati_generic_bridge = {
+ 	.owner			= THIS_MODULE,
+ 	.aperture_sizes		= ati_generic_sizes,
+ 	.size_type		= LVL2_APER_SIZE,
+--- linux-2.6.12-rc2-mm3-full/drivers/char/agp/backend.c.old	2005-04-17 17:55:00.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/char/agp/backend.c	2005-04-17 17:55:24.000000000 +0200
+@@ -97,7 +97,7 @@
+ EXPORT_SYMBOL(agp_backend_release);
+ 
+ 
+-struct { int mem, agp; } maxes_table[] = {
++static struct { int mem, agp; } maxes_table[] = {
+ 	{0, 0},
+ 	{32, 4},
+ 	{64, 28},
+@@ -322,7 +322,7 @@
+ 	return 0;
+ }
+ 
+-void __exit agp_exit(void)
++static void __exit agp_exit(void)
+ {
+ }
+ 
+--- linux-2.6.12-rc2-mm3-full/drivers/char/agp/efficeon-agp.c.old	2005-04-17 17:55:31.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/char/agp/efficeon-agp.c	2005-04-17 17:55:47.000000000 +0200
+@@ -303,7 +303,7 @@
+ }
+ 
+ 
+-struct agp_bridge_driver efficeon_driver = {
++static struct agp_bridge_driver efficeon_driver = {
+ 	.owner			= THIS_MODULE,
+ 	.aperture_sizes		= efficeon_generic_sizes,
+ 	.size_type		= LVL2_APER_SIZE,
+--- linux-2.6.12-rc2-mm3-full/drivers/char/agp/frontend.c.old	2005-04-17 17:55:56.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/char/agp/frontend.c	2005-04-17 17:56:18.000000000 +0200
+@@ -235,7 +235,7 @@
+ 
+ /* File private list routines */
+ 
+-struct agp_file_private *agp_find_private(pid_t pid)
++static struct agp_file_private *agp_find_private(pid_t pid)
+ {
+ 	struct agp_file_private *curr;
+ 
+@@ -250,7 +250,7 @@
+ 	return NULL;
+ }
+ 
+-void agp_insert_file_private(struct agp_file_private * priv)
++static void agp_insert_file_private(struct agp_file_private * priv)
+ {
+ 	struct agp_file_private *prev;
+ 
+@@ -262,7 +262,7 @@
+ 	agp_fe.file_priv_list = priv;
+ }
+ 
+-void agp_remove_file_private(struct agp_file_private * priv)
++static void agp_remove_file_private(struct agp_file_private * priv)
+ {
+ 	struct agp_file_private *next;
+ 	struct agp_file_private *prev;
+--- linux-2.6.12-rc2-mm3-full/drivers/char/agp/nvidia-agp.c.old	2005-04-17 17:56:36.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/char/agp/nvidia-agp.c	2005-04-17 17:56:46.000000000 +0200
+@@ -288,7 +288,7 @@
+ };
+ 
+ 
+-struct agp_bridge_driver nvidia_driver = {
++static struct agp_bridge_driver nvidia_driver = {
+ 	.owner			= THIS_MODULE,
+ 	.aperture_sizes		= nvidia_generic_sizes,
+ 	.size_type		= U8_APER_SIZE,
+--- linux-2.6.12-rc2-mm3-full/drivers/char/agp/sis-agp.c.old	2005-04-17 17:56:55.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/char/agp/sis-agp.c	2005-04-17 17:57:05.000000000 +0200
+@@ -119,7 +119,7 @@
+ 	{4, 1024, 0, 3}
+ };
+ 
+-struct agp_bridge_driver sis_driver = {
++static struct agp_bridge_driver sis_driver = {
+ 	.owner			= THIS_MODULE,
+ 	.aperture_sizes 	= sis_generic_sizes,
+ 	.size_type		= U8_APER_SIZE,
+--- linux-2.6.12-rc2-mm3-full/drivers/char/agp/sworks-agp.c.old	2005-04-17 17:57:19.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/char/agp/sworks-agp.c	2005-04-17 17:57:34.000000000 +0200
+@@ -409,7 +409,7 @@
+ 	agp_device_command(command, 0);
+ }
+ 
+-struct agp_bridge_driver sworks_driver = {
++static struct agp_bridge_driver sworks_driver = {
+ 	.owner			= THIS_MODULE,
+ 	.aperture_sizes		= serverworks_sizes,
+ 	.size_type		= LVL2_APER_SIZE,
+--- linux-2.6.12-rc2-mm3-full/drivers/char/agp/via-agp.c.old	2005-04-17 17:57:46.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/char/agp/via-agp.c	2005-04-17 17:58:11.000000000 +0200
+@@ -170,7 +170,7 @@
+ }
+ 
+ 
+-struct agp_bridge_driver via_agp3_driver = {
++static struct agp_bridge_driver via_agp3_driver = {
+ 	.owner			= THIS_MODULE,
+ 	.aperture_sizes		= agp3_generic_sizes,
+ 	.size_type		= U8_APER_SIZE,
+@@ -193,7 +193,7 @@
+ 	.agp_destroy_page	= agp_generic_destroy_page,
+ };
+ 
+-struct agp_bridge_driver via_driver = {
++static struct agp_bridge_driver via_driver = {
+ 	.owner			= THIS_MODULE,
+ 	.aperture_sizes		= via_generic_sizes,
+ 	.size_type		= U8_APER_SIZE,
+

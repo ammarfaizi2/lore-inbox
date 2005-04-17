@@ -1,91 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbVDQRqC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261379AbVDQRrb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261373AbVDQRqC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Apr 2005 13:46:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbVDQRqC
+	id S261379AbVDQRrb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 13:47:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbVDQRra
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Apr 2005 13:46:02 -0400
-Received: from wproxy.gmail.com ([64.233.184.193]:37829 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261373AbVDQRpt convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Apr 2005 13:45:49 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Lk2c5oZ23Je7w7ln+qAUOo1C8yDTDo5caWjh120xqWymNn0Mp1YR/pvrpHAta3GqovwRXpfwnFltuojehyEeqF6ec9RBlAy8PD6115EcBSi0OavdyygEQ2Lu3M/JvTyBrGyVEEAB+TDFSKDtHnpa0s2MLuB1xA9jA5TkWcAnj08=
-Message-ID: <a4e6962a05041710451d74f037@mail.gmail.com>
-Date: Sun, 17 Apr 2005 12:45:48 -0500
-From: Eric Van Hensbergen <ericvh@gmail.com>
-Reply-To: Eric Van Hensbergen <ericvh@gmail.com>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
-Cc: jamie@shareable.org, dan@debian.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-In-Reply-To: <E1DLEby-00013d-00@dorka.pomaz.szeredi.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050331200502.GA24589@infradead.org>
-	 <E1DL08S-0008UH-00@dorka.pomaz.szeredi.hu>
-	 <20050411153619.GA25987@nevyn.them.org>
-	 <E1DL1Gj-000091-00@dorka.pomaz.szeredi.hu>
-	 <20050411181717.GA1129@nevyn.them.org>
-	 <E1DL4J4-0000Py-00@dorka.pomaz.szeredi.hu>
-	 <20050411192223.GA3707@nevyn.them.org>
-	 <E1DL51J-0000To-00@dorka.pomaz.szeredi.hu>
-	 <20050411214123.GF32535@mail.shareable.org>
-	 <E1DLEby-00013d-00@dorka.pomaz.szeredi.hu>
+	Sun, 17 Apr 2005 13:47:30 -0400
+Received: from [62.206.217.67] ([62.206.217.67]:53399 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S261375AbVDQRrS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Apr 2005 13:47:18 -0400
+Message-ID: <4262A0E8.9020905@trash.net>
+Date: Sun, 17 Apr 2005 19:46:16 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Herbert Xu <herbert@gondor.apana.org.au>
+CC: Thomas Graf <tgraf@suug.ch>, Steven Rostedt <rostedt@goodmis.org>,
+       hadi@cyberus.ca, netdev <netdev@oss.sgi.com>,
+       Tarhon-Onu Victor <mituc@iasi.rdsnet.ro>, kuznet@ms2.inr.ac.ru,
+       devik@cdi.cz, linux-kernel@vger.kernel.org,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: ACPI/HT or Packet Scheduler BUG?
+References: <Pine.LNX.4.61.0504081225510.27991@blackblue.iasi.rdsnet.ro> <Pine.LNX.4.61.0504121526550.4822@blackblue.iasi.rdsnet.ro> <Pine.LNX.4.61.0504141840420.13546@blackblue.iasi.rdsnet.ro> <1113601029.4294.80.camel@localhost.localdomain> <1113601446.17859.36.camel@localhost.localdomain> <1113602052.4294.89.camel@localhost.localdomain> <20050415225422.GF4114@postel.suug.ch> <20050416014906.GA3291@gondor.apana.org.au> <20050416110639.GI4114@postel.suug.ch> <20050416111236.GA31550@gondor.apana.org.au>
+In-Reply-To: <20050416111236.GA31550@gondor.apana.org.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/12/05, Miklos Szeredi <miklos@szeredi.hu> wrote:
-> > I think that would be _much_ nicer implemented as a mount which is
-> > invisible to other users, rather than one which causes the admin's
-> > scripts to spew error messages.
->> 
-> > Is the namespace mechanism at all suitable for that?
+Herbert Xu wrote:
+> On Sat, Apr 16, 2005 at 01:06:39PM +0200, Thomas Graf wrote:
 > 
-> It is certainly the right tool for this.  However currently private
-> namespaces are quite limited.  The only sane usage I can think of is
-> that before mounting the user starts a shell with CLONE_NS, and does
-> the mount in this.  However all the other programs he already has
-> running (editor, browser, desktop environment) won't be able to access
-> the mount.
-> 
-
-I'd like to second that I think private-namespaces are the right way
-to solve this sort of problem.  It also helps not cluttering the
-global namespace with user-local mounts
-
+>>qdisc_destroy can still be invoked without qdisc_tree_lock via the
+>>deletion of a class when it calls qdisc_destroy to destroy its
+>>leaf qdisc.
 >
-> Shared subtrees and more support in userspace tools is needed before
-> private namespaces can become really useful.
-> 
+> Indeed.  Fortuantely HTB seems to be safe as it calls sch_tree_lock
+> which is another name for qdisc_tree_lock.  CBQ on the other hand
+> needs to have a little tweak.
 
-I'd like to talk about this a bit more and start driving to a solution
-here.  I've been looking at the namespace code quite a bit and was
-just about to dive in and start checking into adding/fixing certain
-aspects such as stackable namespaces, optional inheritence (changes in
-a parent namespace are reflected in the child but not vice-versa),
-etc.
+HTB also needs to be fixed. Destruction is usually defered by the
+refcnt until ->put(), htb_put() doesn't lock the tree. Same for
+HFSC and CBQ.
 
-One aspect I was thinking about here was a mount flag that would give
-you a new private namespace (if you didn't already have one) for the
-mount (and I guess that would impact any subsequent mounts from the
-user in that shell).  Another option would be a 'newns' style
-system-call, but I'm generally against adding new system calls.
-
-Shared subtrees are a tricky one.  I know how we would handle it in
-V9FS, but not sure how well that would translate to others
-(essentially we'd re-export the subtree so other user's could mount it
-individually -- but that's a very Plan 9 solution and may not be what
-more UNIX-minded folks would want -- we also need to improve our own
-server infrastructure to more efficiently support such a re-export).
-
-So, to sum up I think private namespaces is the right solution, and
-I'd rather put effort into making it more useful than work-around the
-fact that its not practical right now.
-
-       -eric
+Regards
+Patrick

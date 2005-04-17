@@ -1,111 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbVDQVrZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbVDQVr7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261495AbVDQVrZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Apr 2005 17:47:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261496AbVDQVrZ
+	id S261496AbVDQVr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 17:47:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbVDQVr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Apr 2005 17:47:25 -0400
-Received: from smtp-out4.blueyonder.co.uk ([195.188.213.7]:34932 "EHLO
-	smtp-out4.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S261495AbVDQVrQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Apr 2005 17:47:16 -0400
-Message-ID: <4262E809.4090809@blueyonder.co.uk>
-Date: Sun, 17 Apr 2005 23:49:45 +0100
-From: Ross Kendall Axe <ross.axe@blueyonder.co.uk>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
+	Sun, 17 Apr 2005 17:47:59 -0400
+Received: from mail.dif.dk ([193.138.115.101]:2954 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261496AbVDQVrj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Apr 2005 17:47:39 -0400
+Date: Sun, 17 Apr 2005 23:50:35 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] rename rw_verify_area() to rw_access_ok()
+Message-ID: <Pine.LNX.4.62.0504172346120.2586@dragon.hyggekrogen.localhost>
 MIME-Version: 1.0
-To: emoenke@gwdg.de
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.11.7] sbpcd init cleanup and fix
-X-Enigmail-Version: 0.91.0.0
-OpenPGP: url=http://www.rossaxe.pwp.blueyonder.co.uk/.pgpkey
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig3EB8A129655A1CB4C54FF4ED"
-X-OriginalArrivalTime: 17 Apr 2005 21:47:54.0270 (UTC) FILETIME=[1C3B53E0:01C54397]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig3EB8A129655A1CB4C54FF4ED
-Content-Type: multipart/mixed;
- boundary="------------000806070807060108020203"
+verify_area() will soon be dead and gone, replaced by access_ok(), thus 
+the function named rw_verify_area() is badly named and should be renamed. 
+This patch renames rw_verify_area to rw_access_ok which seems more 
+appropriate (it also updates all callers of the functions as well as 
+references to it in comments).
 
-This is a multi-part message in MIME format.
---------------000806070807060108020203
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+---
 
-- Remove ugly '#ifdef MODULE's
-- Use the __exit attribute on sbpcd_exit()
-- Don't rename sbpcd_init() to __sbpcd_init() in modules
-- Make sbpcd_init() and sbpcd_exit() static
-- Ensure sbpcd_init() is actually called when the driver is compiled in
-to the kernel
+ arch/mips/kernel/linux32.c |    4 ++--
+ fs/compat.c                |    2 +-
+ fs/locks.c                 |    2 +-
+ fs/read_write.c            |   12 ++++++------
+ include/linux/fs.h         |    2 +-
+ 5 files changed, 11 insertions(+), 11 deletions(-)
 
-Signed-off-by: Ross Kendall Axe <ross.axe@blueyonder.co.uk>
-
---------------000806070807060108020203
-Content-Type: text/x-patch;
- name="linux-2.6.11.7-sbpcd-init.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="linux-2.6.11.7-sbpcd-init.patch"
-
---- linux-2.6.11.7/drivers/cdrom/sbpcd.c.orig	2005-04-13 17:12:29.000000000 +0100
-+++ linux-2.6.11.7/drivers/cdrom/sbpcd.c	2005-04-13 17:46:29.000000000 +0100
-@@ -5639,11 +5639,7 @@ static int __init config_spea(void)
-  */
+--- linux-2.6.12-rc2-mm3-orig/fs/read_write.c	2005-04-11 21:20:51.000000000 +0200
++++ linux-2.6.12-rc2-mm3/fs/read_write.c	2005-04-17 23:39:14.000000000 +0200
+@@ -183,7 +183,7 @@ bad:
+ #endif
  
- /* FIXME: cleanups after failed allocations are too ugly for words */
--#ifdef MODULE
--int __init __sbpcd_init(void)
--#else
--int __init sbpcd_init(void)
--#endif
-+static int __init sbpcd_init(void)
+ 
+-int rw_verify_area(int read_write, struct file *file, loff_t *ppos, size_t count)
++int rw_access_ok(int read_write, struct file *file, loff_t *ppos, size_t count)
  {
- 	int i=0, j=0;
- 	int addr[2]={1, CDROM_PORT};
-@@ -5894,8 +5890,7 @@ int __init sbpcd_init(void)
+ 	struct inode *inode;
+ 	loff_t pos;
+@@ -230,7 +230,7 @@ ssize_t vfs_read(struct file *file, char
+ 	if (unlikely(!access_ok(VERIFY_WRITE, buf, count)))
+ 		return -EFAULT;
+ 
+-	ret = rw_verify_area(READ, file, pos, count);
++	ret = rw_access_ok(READ, file, pos, count);
+ 	if (!ret) {
+ 		ret = security_file_permission (file, MAY_READ);
+ 		if (!ret) {
+@@ -278,7 +278,7 @@ ssize_t vfs_write(struct file *file, con
+ 	if (unlikely(!access_ok(VERIFY_READ, buf, count)))
+ 		return -EFAULT;
+ 
+-	ret = rw_verify_area(WRITE, file, pos, count);
++	ret = rw_access_ok(WRITE, file, pos, count);
+ 	if (!ret) {
+ 		ret = security_file_permission (file, MAY_WRITE);
+ 		if (!ret) {
+@@ -480,7 +480,7 @@ static ssize_t do_readv_writev(int type,
+ 		goto out;
+ 	}
+ 
+-	ret = rw_verify_area(type, file, pos, tot_len);
++	ret = rw_access_ok(type, file, pos, tot_len);
+ 	if (ret)
+ 		goto out;
+ 
+@@ -633,7 +633,7 @@ static ssize_t do_sendfile(int out_fd, i
+ 	else
+ 		if (!(in_file->f_mode & FMODE_PREAD))
+ 			goto fput_in;
+-	retval = rw_verify_area(READ, in_file, ppos, count);
++	retval = rw_access_ok(READ, in_file, ppos, count);
+ 	if (retval)
+ 		goto fput_in;
+ 
+@@ -654,7 +654,7 @@ static ssize_t do_sendfile(int out_fd, i
+ 	if (!out_file->f_op || !out_file->f_op->sendpage)
+ 		goto fput_out;
+ 	out_inode = out_file->f_dentry->d_inode;
+-	retval = rw_verify_area(WRITE, out_file, &out_file->f_pos, count);
++	retval = rw_access_ok(WRITE, out_file, &out_file->f_pos, count);
+ 	if (retval)
+ 		goto fput_out;
+ 
+--- linux-2.6.12-rc2-mm3-orig/fs/compat.c	2005-04-11 21:20:50.000000000 +0200
++++ linux-2.6.12-rc2-mm3/fs/compat.c	2005-04-17 23:41:32.000000000 +0200
+@@ -1190,7 +1190,7 @@ static ssize_t compat_do_readv_writev(in
+ 		goto out;
+ 	}
+ 
+-	ret = rw_verify_area(type, file, pos, tot_len);
++	ret = rw_access_ok(type, file, pos, tot_len);
+ 	if (ret)
+ 		goto out;
+ 
+--- linux-2.6.12-rc2-mm3-orig/fs/locks.c	2005-04-05 21:21:43.000000000 +0200
++++ linux-2.6.12-rc2-mm3/fs/locks.c	2005-04-17 23:41:47.000000000 +0200
+@@ -1018,7 +1018,7 @@ int locks_mandatory_locked(struct inode 
+  * @count:      length of area to check
+  *
+  * Searches the inode's list of locks to find any POSIX locks which conflict.
+- * This function is called from rw_verify_area() and
++ * This function is called from rw_access_ok() and
+  * locks_verify_truncate().
+  */
+ int locks_mandatory_area(int read_write, struct inode *inode,
+--- linux-2.6.12-rc2-mm3-orig/arch/mips/kernel/linux32.c	2005-04-05 21:21:08.000000000 +0200
++++ linux-2.6.12-rc2-mm3/arch/mips/kernel/linux32.c	2005-04-17 23:42:03.000000000 +0200
+@@ -468,7 +468,7 @@ asmlinkage ssize_t sys32_pread(unsigned 
+ 	if (!(file->f_mode & FMODE_READ))
+ 		goto out;
+ 	pos = merge_64(a4, a5);
+-	ret = rw_verify_area(READ, file, &pos, count);
++	ret = rw_access_ok(READ, file, &pos, count);
+ 	if (ret)
+ 		goto out;
+ 	ret = -EINVAL;
+@@ -503,7 +503,7 @@ asmlinkage ssize_t sys32_pwrite(unsigned
+ 	if (!(file->f_mode & FMODE_WRITE))
+ 		goto out;
+ 	pos = merge_64(a4, a5);
+-	ret = rw_verify_area(WRITE, file, &pos, count);
++	ret = rw_access_ok(WRITE, file, &pos, count);
+ 	if (ret)
+ 		goto out;
+ 	ret = -EINVAL;
+--- linux-2.6.12-rc2-mm3-orig/include/linux/fs.h	2005-04-11 21:20:56.000000000 +0200
++++ linux-2.6.12-rc2-mm3/include/linux/fs.h	2005-04-17 23:42:13.000000000 +0200
+@@ -1260,7 +1260,7 @@ static inline int locks_verify_locked(st
  	return 0;
  }
- /*==========================================================================*/
--#ifdef MODULE
--void sbpcd_exit(void)
-+static void __exit sbpcd_exit(void)
- {
- 	int j;
- 	
-@@ -5926,11 +5921,10 @@ void sbpcd_exit(void)
- }
  
+-extern int rw_verify_area(int, struct file *, loff_t *, size_t);
++extern int rw_access_ok(int, struct file *, loff_t *, size_t);
  
--module_init(__sbpcd_init) /*HACK!*/;
-+module_init(sbpcd_init);
- module_exit(sbpcd_exit);
- 
- 
--#endif /* MODULE */
- static int sbpcd_media_changed(struct cdrom_device_info *cdi, int disc_nr)
- {
- 	struct sbpcd_drive *p = cdi->handle;
+ static inline int locks_verify_truncate(struct inode *inode,
+ 				    struct file *filp,
 
---------------000806070807060108020203--
 
---------------enig3EB8A129655A1CB4C54FF4ED
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.7 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCYugO9bR4xmappRARAqRjAJ0biUg1QuoWhvLFkz4Xjr8MDb6apQCfcCMA
-LlMTlL6ETlCyLyWO9mU35ZE=
-=v99x
------END PGP SIGNATURE-----
-
---------------enig3EB8A129655A1CB4C54FF4ED--

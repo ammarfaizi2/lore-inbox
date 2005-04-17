@@ -1,130 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261377AbVDQRx5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbVDQSBn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261377AbVDQRx5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Apr 2005 13:53:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbVDQRx5
+	id S261383AbVDQSBn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 14:01:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261386AbVDQSBm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Apr 2005 13:53:57 -0400
-Received: from mail.murom.net ([213.177.124.17]:15009 "EHLO ns1.murom.ru")
-	by vger.kernel.org with ESMTP id S261377AbVDQRxv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Apr 2005 13:53:51 -0400
-Date: Sun, 17 Apr 2005 21:53:11 +0400
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: TJ <systemloc@earthlink.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: via82xx driver: reporting dxs_support experience
-Message-Id: <20050417215311.18063ce8.vsu@altlinux.ru>
-In-Reply-To: <200504171253.24389.systemloc@earthlink.net>
-References: <200504171253.24389.systemloc@earthlink.net>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i586-alt-linux-gnu)
+	Sun, 17 Apr 2005 14:01:42 -0400
+Received: from wproxy.gmail.com ([64.233.184.207]:16458 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261380AbVDQSBd convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Apr 2005 14:01:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=daF/LQIkvXd0XiTepC260tIQ3h7NaOI6DB65JixJwebMWxi9l0ztJeE3jnzKuPXo2Dvwc5rOrAd2iVHTGNDKRrmOHGV9znm7mH5PytHO+UEy5OZ0lT71uADcG8sRsGTZOt50ZTQj0ZAMnbZ1RV0Ha26OgJQqv7cgQWYh8yTBNOs=
+Message-ID: <a4e6962a050417110160a464d8@mail.gmail.com>
+Date: Sun, 17 Apr 2005 13:01:31 -0500
+From: Eric Van Hensbergen <ericvh@gmail.com>
+Reply-To: Eric Van Hensbergen <ericvh@gmail.com>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       hch@infradead.org, akpm@osdl.org,
+       viro@parcelfarce.linux.theplanet.co.uk
+In-Reply-To: <E1DL08S-0008UH-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Sun__17_Apr_2005_21_53_11_+0400_pMfU2WaWuacz//GF"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050320151212.4f9c8f32.akpm@osdl.org>
+	 <E1DE2D1-0005Ie-00@dorka.pomaz.szeredi.hu>
+	 <20050325095838.GA9471@infradead.org>
+	 <E1DEmYC-0008Qg-00@dorka.pomaz.szeredi.hu>
+	 <20050331112427.GA15034@infradead.org>
+	 <E1DH13O-000400-00@dorka.pomaz.szeredi.hu>
+	 <20050331200502.GA24589@infradead.org>
+	 <E1DJsH6-0004nv-00@dorka.pomaz.szeredi.hu>
+	 <20050411114728.GA13128@infradead.org>
+	 <E1DL08S-0008UH-00@dorka.pomaz.szeredi.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Sun__17_Apr_2005_21_53_11_+0400_pMfU2WaWuacz//GF
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-
-On Sun, 17 Apr 2005 12:53:24 -0400 TJ wrote:
-
-> I was using the 2.6.7 kernel without APIC or ACPI support, and the via82xx
-> driver worked perfectly, compiled as a module, without any options. I built a
-> new 2.6.7 kernel on the same hardware with APIC and ACPI support in the
-> kernel, as the board supports it, and the driver did not work correctly.
-
-2.6.7 is pretty old; there were many bugfixes in both ACPI and sound
-drivers since that time.
-
-> When sound was played, a short, 1 second long bit of the sound to be
-> played was looped. Possibly this is the clicking noise described by
-> some people?
-
-Does not look like it.  The most common cause of looping sound are
-interrupt problems, and unfortunately ACPI (especially when coupled
-with APIC support) often triggers them (sometimes because of bugs in
-the kernel ACPI support, sometimes because a buggy BIOS supplies
-broken data).
-
-If interrupts are not working, usually this happens:
-
-- The driver sets up a circular buffer which contains the first
-  portion of sound samples to be played, and starts the playback
-  hardware.
-
-- The sound card reads the samples from the buffer; when it reaches
-  some point in the buffer, it sends the interrupt signal, notifying
-  the driver about it.
-
-- Normally, when the driver handles the interrupt, it will place more
-  sound data in the circular buffer (or, in the mmap mode, it will
-  notify the application, which will write to the buffer directly).
-  However, if interrupts are not working, the driver will never get
-  such notification, and the same portion of sound samples will stay
-  in the buffer forever.  The sound card does not know that the buffer
-  was not updated and will play that piece of sound forever.
-
-Another symptom of not working interrupts is that aplay just hangs
-forever (aplay -vv should draw a histogram of played data).
-
-> The driver works fine with this new kernel after adding the option
-> "dxs_support=1".
-
-This is very strange - the dxs_support option should not cause such
-changes.  Usually the problem caused by a wrong dxs_support value is
-that sound is basically there, but distorted.
-
-Also, seems that dxs_support=1 should not work at all (at least in
-theory).  dxs_support=4 seems to be more correct; latest code in ALSA
-CVS supports dxs_support=5, which uses more capabilities of the
-hardware (apparently the VIA VT8233/5/7 chips are able to perform
-sample rate conversion from arbitrary rates to 48000 Hz with 4
-independent channels).
-
-> I hope this interaction with ACPI and APIC sheds some light on some
-> of the troubles with this driver.
-
-Most likely you have some trouble with ACPI (either with the buggy
-implementation in 2.6.7, or with the buggy BIOS, or maybe both).
-
-> I can provide more information if
-> anyone wants it. Please CC me, I'm not on the list.
+On 4/11/05, Miklos Szeredi <miklos@szeredi.hu> wrote:
 > 
-> TJ
+>   1) Only allow mount over a directory for which the user has write
+>      access (and is not sticky)
 > 
-> Motherboard: MSI K7T266 Pro2
+>   2) Use nosuid,nodev mount options
 > 
-> 00:11.5 Class 0401: 1106:3059 (rev 10)
+> [ parts deleted ]
 
-Hmm, seems to be some old chip revision:
+Do these solve all the security concerns with unprivileged mounts, or
+are there other barriers/concerns?  Should there be ulimit (or rlimit)
+style restrictions on how many mounts/binds a user is allowed to have
+to prevent users from abusing mount privs?
 
-#define VIA_REV_PRE_8233	0x10	/* not in market */
+I was thinking about this a while back and thought having a user-mount
+permissions file might be the right way to address lots of these
+issues.  Essentially it would contain information about what
+users/groups were allowed to mount what sources to what destinations
+and with what mandatory options.
 
->         Subsystem: 4005:4710
+You can get the start of this with the user/users/etc. stuff in
+/etc/fstab, but I was envisioning something a bit more dynamic with
+regular expression based rules for sources and destinations.   So,
+something like:
 
-Not in the known devices list of snd-via82xx (this list contains
-working values of the dxs_support option for known boards).  But you
-should report it to ALSA developers (e.g., in their bug tracking
-system, https://bugtrack.alsa-project.org/alsa-bug/ ) - your message
-to LKML will likely be lost.
+# /etc/usermounts: user mount permissions
 
->         Flags: medium devsel, IRQ 28
->         I/O ports at bc00 [size=256]
->         Capabilities: [c0] Power Management version 2
+# <fs>                        <mount point>          <type>               <opts>
 
---Signature=_Sun__17_Apr_2005_21_53_11_+0400_pMfU2WaWuacz//GF
-Content-Type: application/pgp-signature
+# allow users to mount any file system under their home directory
+*                                   $HOME                       *     
+                   nosuid, nosgid
+# allow users to bind over /usr/bin as long as its only in their
+private namespace
+*                                   /usr/bin                      
+bind                    newns
+# allow users to loopback mount distributed file systems to /mnt
+127.0.0.1                      /mnt                           *       
+                 nosuid, nosgid
+# allow users to mount files over any directory they have right access to
+*                                   (perm=0222)             *         
+               nosuid, nosgid
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+Is this unnecessary?  Is this not enough?
 
-iD8DBQFCYqKMW82GfkQfsqIRAhX+AJ9vKoRsBf1hTeXWWQ5dJ2tGKQV3igCdGP+I
-23pVXxouZue9B6QxyK77i6I=
-=uzJa
------END PGP SIGNATURE-----
-
---Signature=_Sun__17_Apr_2005_21_53_11_+0400_pMfU2WaWuacz//GF--
+           -eric

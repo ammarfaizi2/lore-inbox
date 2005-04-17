@@ -1,67 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVDQDrw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbVDQGt6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261246AbVDQDrw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Apr 2005 23:47:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261247AbVDQDrw
+	id S261275AbVDQGt6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 02:49:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbVDQGt6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Apr 2005 23:47:52 -0400
-Received: from tama5.ecl.ntt.co.jp ([129.60.39.102]:33242 "EHLO
-	tama5.ecl.ntt.co.jp") by vger.kernel.org with ESMTP id S261246AbVDQDrt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Apr 2005 23:47:49 -0400
-Message-ID: <4261DC62.1070300@lab.ntt.co.jp>
-Date: Sun, 17 Apr 2005 12:47:46 +0900
-From: Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] i386 & x86_64: Live Patching Funcion on 2.6.11.7
-Content-Type: text/plain; charset=ISO-2022-JP
+	Sun, 17 Apr 2005 02:49:58 -0400
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:10649
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261275AbVDQGt4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Apr 2005 02:49:56 -0400
+Date: Sat, 16 Apr 2005 23:44:39 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386 & x86_64: Live Patching Funcion on 2.6.11.7
+Message-Id: <20050416234439.5464e188.davem@davemloft.net>
+In-Reply-To: <4261DC62.1070300@lab.ntt.co.jp>
+References: <4261DC62.1070300@lab.ntt.co.jp>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-This patch add function called "Live patching" which is defined on
-OSDL's carrier grade linux requiremnt definition to linux 2.6.11.7 kernel.
-The live patching allows process to patch on-line (without restarting
-process) on i386 and x86_64 architectures, by overwriting jump assembly
-code on entry point of functions which you want to fix, to patched
-functions.
-The live patching function is very common on high-availability system
-such as carrier system, and this patch realize it also on linux.
-(Patch & process restart time is very critical on such high-availability
-system, live patch allows you to milliseconds order process stopping
-time to apply new patch.)
 
-The basis is below:
-1. Live patch command loads the patch modules to target process's memory
-area,
-2. Live patch command resolve patch symbol.
-3. Live patch command overwrite jump code to the entry point of function
-which you want to fix, to the patch module's symbol.
+Takashi-san, have you ever investigated using kprobes to
+implement this feature?  It seems a perfect fit, and would
+allow support on several architectures other than just x86
+and x86_64.
 
-Kernel patch and user mode tools are required, and both of them are
-available at http://pannus.sourceforge.net
-Please take a look and give us comments!
+If kprobes does not meet your needs completely, it could
+be trivially extended to do so.
 
-This patch add following system calls and function.
-o mmap3: maps patch to target process's memory area with security check.
-o accesspvm: access(read/write) target process's memory area.
-o init_pend: initialization of live patch sequence on target process.
-o rt_handlereturn: run initialize root of each patch (same as signal
-handler).
-o check_init: check that the initialization is finished or not.
-o munmap3: unmap patch from target process's memory area.
-
-
----
-Takashi Ikebe
-NTT Network Service Systems Laboratories
-9-11, Midori-Cho 3-Chome Musashino-Shi,
-Tokyo 180-8585 Japan
-Tel : +81 422 59 4246, Fax : +81 422 60 4012
-e-mail : ikebe.takashi@lab.ntt.co.jp
-
-
+I think implementing something like this from scratch is
+not a good idea when we have much of the needed logic and
+infrastructure already.

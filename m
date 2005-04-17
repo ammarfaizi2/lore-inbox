@@ -1,77 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVDQRHT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbVDQReA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261362AbVDQRHT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Apr 2005 13:07:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbVDQRHT
+	id S261371AbVDQReA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 13:34:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261373AbVDQRd7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Apr 2005 13:07:19 -0400
-Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:31192 "EHLO
-	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S261362AbVDQRHJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Apr 2005 13:07:09 -0400
-From: David Brownell <david-b@pacbell.net>
-To: mpm@selenic.com, akpm@osdl.org, Linus Torvalds <torvalds@osdl.org>
-Subject: [patch 2.6.12-rc2] revert fs/char_dev.c CONFIG_BASE_FULL change
-Date: Sun, 17 Apr 2005 10:06:53 -0700
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_tepYC6KrMIQNQ2o"
-Message-Id: <200504171006.53328.david-b@pacbell.net>
+	Sun, 17 Apr 2005 13:33:59 -0400
+Received: from waste.org ([216.27.176.166]:65002 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261371AbVDQRd6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Apr 2005 13:33:58 -0400
+Date: Sun, 17 Apr 2005 10:33:54 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: David Brownell <david-b@pacbell.net>
+Cc: akpm@osdl.org, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.6.12-rc2] revert fs/char_dev.c CONFIG_BASE_FULL change
+Message-ID: <20050417173354.GG21897@waste.org>
+References: <200504171006.53328.david-b@pacbell.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200504171006.53328.david-b@pacbell.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_tepYC6KrMIQNQ2o
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Sun, Apr 17, 2005 at 10:06:53AM -0700, David Brownell wrote:
+> I tracked down a regression in PCMCIA (and other software) to a
+> new bogus register_chrdev() behavior that got merged last month;
+> a patch from Matt Mackall that misbehaves.
 
-I tracked down a regression in PCMCIA (and other software) to a
-new bogus register_chrdev() behavior that got merged last month;
-a patch from Matt Mackall that misbehaves.
-
-This patch just reverts Matt's, restoring the previous behavior
-but at the cost of about a Kbyte of static memory on 32bit CPUs.
-Someday a Real Fix(tm) would be good.
-
-- Dave
-
-
---Boundary-00=_tepYC6KrMIQNQ2o
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="chrdev.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="chrdev.patch"
-
-This reverts a fs/char_dev.c patch that was merged into BK on March 3.
-
-The problem is that it breaks things ... __register_chrdev_region() has
-a block of code, commented "temporary" for over two years now, which
-fails rudely during PCMCIA initialization or other register_chrdev()
-calls, because it doesn't "degrade to linked list".  This keeps whole
-subsystems from working.
-
-A real fix to that "temporary" code should be possible, using some better
-scheme to allocate major numbers, but it's not something I want to spend
-time on just now.
-
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
-
---- 1.38/fs/char_dev.c	2005-03-09 09:03:28 -08:00
-+++ edited/fs/char_dev.c	2005-04-17 08:45:19 -07:00
-@@ -26,8 +26,7 @@
+Thanks and sorry about that. I actually asked Linus to revert it right
+after Andrew pushed it to him, but I hadn't actually seen a problem
+report so I didn't pursue it.
  
- static struct kobj_map *cdev_map;
- 
--/* degrade to linked list for small systems */
--#define MAX_PROBE_HASH (CONFIG_BASE_SMALL ? 1 : 255)
-+#define MAX_PROBE_HASH 255	/* random */
- 
- static DECLARE_MUTEX(chrdevs_lock);
- 
+> This patch just reverts Matt's, restoring the previous behavior
+> but at the cost of about a Kbyte of static memory on 32bit CPUs.
+> Someday a Real Fix(tm) would be good.
 
---Boundary-00=_tepYC6KrMIQNQ2o--
+I've got a Real Fix (a refactor of block and chardev name
+registration), will need to wait for .12.
+
+> Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+Acked-by: Matt Mackall <mpm@selenic.com>
+
+-- 
+Mathematics is the supreme nostalgia of our time.

@@ -1,67 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261390AbVDQSHE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbVDQSUE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261390AbVDQSHE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Apr 2005 14:07:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVDQSHE
+	id S261395AbVDQSUE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 14:20:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261398AbVDQSUE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Apr 2005 14:07:04 -0400
-Received: from mail.shareable.org ([81.29.64.88]:20643 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261384AbVDQSG5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Apr 2005 14:06:57 -0400
-Date: Sun, 17 Apr 2005 19:06:36 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Eric Van Hensbergen <ericvh@gmail.com>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, dan@debian.org,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       hch@infradead.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
-Message-ID: <20050417180636.GA22892@mail.shareable.org>
-References: <E1DL08S-0008UH-00@dorka.pomaz.szeredi.hu> <20050411153619.GA25987@nevyn.them.org> <E1DL1Gj-000091-00@dorka.pomaz.szeredi.hu> <20050411181717.GA1129@nevyn.them.org> <E1DL4J4-0000Py-00@dorka.pomaz.szeredi.hu> <20050411192223.GA3707@nevyn.them.org> <E1DL51J-0000To-00@dorka.pomaz.szeredi.hu> <20050411214123.GF32535@mail.shareable.org> <E1DLEby-00013d-00@dorka.pomaz.szeredi.hu> <a4e6962a05041710451d74f037@mail.gmail.com>
+	Sun, 17 Apr 2005 14:20:04 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:37649 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261395AbVDQSTs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Apr 2005 14:19:48 -0400
+Date: Sun, 17 Apr 2005 20:19:42 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Andrew Morton <akpm@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Markus.Lidel@shadowconnect.com
+Subject: [2.6 patch] drivers/scsi/dpt*: remove version.h dependencies
+Message-ID: <20050417181942.GA3625@stusta.de>
+References: <60807403EABEB443939A5A7AA8A7458B010AAA69@otce2k01.adaptec.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <a4e6962a05041710451d74f037@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <60807403EABEB443939A5A7AA8A7458B010AAA69@otce2k01.adaptec.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Van Hensbergen wrote:
-> I'd like to second that I think private-namespaces are the right way
-> to solve this sort of problem.  It also helps not cluttering the
-> global namespace with user-local mounts
+On Fri, Apr 15, 2005 at 08:56:25AM -0400, Salyzyn, Mark wrote:
 > 
-> >
-> > Shared subtrees and more support in userspace tools is needed before
-> > private namespaces can become really useful.
-> > 
-> 
-> I'd like to talk about this a bit more and start driving to a solution
-> here.  I've been looking at the namespace code quite a bit and was
-> just about to dive in and start checking into adding/fixing certain
-> aspects such as stackable namespaces, optional inheritence (changes in
-> a parent namespace are reflected in the child but not vice-versa),
-> etc.
-> 
-> One aspect I was thinking about here was a mount flag that would give
-> you a new private namespace (if you didn't already have one) for the
-> mount (and I guess that would impact any subsequent mounts from the
-> user in that shell).  Another option would be a 'newns' style
-> system-call, but I'm generally against adding new system calls.
-> 
-> Shared subtrees are a tricky one.  I know how we would handle it in
-> V9FS, but not sure how well that would translate to others
-> (essentially we'd re-export the subtree so other user's could mount it
-> individually -- but that's a very Plan 9 solution and may not be what
-> more UNIX-minded folks would want -- we also need to improve our own
-> server infrastructure to more efficiently support such a re-export).
-> 
-> So, to sum up I think private namespaces is the right solution, and
-> I'd rather put effort into making it more useful than work-around the
-> fact that its not practical right now.
+> You can not remove the entries in sys_info.h (osMajorVersion & friends),
+> this communicates information to the application via the ioctls and the
+> structure shape is important. Change the code to zero the values, leave
+> osType set to OS_LINUX.
 
-Have a chat with Al Viro, who has already done some work on shared
-mounts and subtrees I think.
+Sorry, my fault.
 
--- Jamie
+Corrected patch below.
+
+> Sincerely -- Mark Salyzyn
+
+cu
+Adrian
+
+
+<--  snip  -->
+
+
+This patch removes version.h dependencies.
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+ drivers/scsi/dpt/sys_info.h |    4 ----
+ drivers/scsi/dpt_i2o.c      |    5 -----
+ drivers/scsi/dpti.h         |   12 ------------
+ 3 files changed, 21 deletions(-)
+
+--- linux-2.6.12-rc2-mm3-full/drivers/scsi/dpti.h.old	2005-04-15 01:21:04.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/scsi/dpti.h	2005-04-15 01:21:26.000000000 +0200
+@@ -20,15 +20,7 @@
+ #ifndef _DPT_H
+ #define _DPT_H
+ 
+-#ifndef LINUX_VERSION_CODE
+-#include <linux/version.h>
+-#endif
+-
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,00)
+-#define MAX_TO_IOP_MESSAGES   (210)
+-#else
+ #define MAX_TO_IOP_MESSAGES   (255)
+-#endif
+ #define MAX_FROM_IOP_MESSAGES (255)
+ 
+ 
+@@ -321,10 +313,6 @@
+ static void adpt_delay(int millisec);
+ #endif
+ 
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,0)
+-static struct pci_dev* adpt_pci_find_device(uint vendor, struct pci_dev* from);
+-#endif
+-
+ #if defined __ia64__ 
+ static void adpt_ia64_info(sysInfo_S* si);
+ #endif
+--- linux-2.6.12-rc2-mm3-full/drivers/scsi/dpt_i2o.c.old	2005-04-15 01:21:48.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/scsi/dpt_i2o.c	2005-04-15 01:25:20.000000000 +0200
+@@ -34,7 +34,6 @@
+ 
+ #define ADDR32 (0)
+ 
+-#include <linux/version.h>
+ #include <linux/module.h>
+ 
+ MODULE_AUTHOR("Deanna Bonds, with _lots_ of help from Mark Salyzyn");
+@@ -1824,10 +1823,10 @@
+ 
+ 	memset(&si, 0, sizeof(si));
+ 
+ 	si.osType = OS_LINUX;
+-	si.osMajorVersion = (u8) (LINUX_VERSION_CODE >> 16);
+-	si.osMinorVersion = (u8) (LINUX_VERSION_CODE >> 8 & 0x0ff);
+-	si.osRevision =     (u8) (LINUX_VERSION_CODE & 0x0ff);
++	si.osMajorVersion = 0;
++	si.osMinorVersion = 0;
++	si.osRevision = 0;
+ 	si.busType = SI_PCI_BUS;
+ 	si.processorFamily = DPTI_sig.dsProcessorFamily;
+ 
+
+
+

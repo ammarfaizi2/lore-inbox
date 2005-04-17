@@ -1,72 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261453AbVDQTyh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbVDQT5m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261453AbVDQTyh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Apr 2005 15:54:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbVDQTyh
+	id S261449AbVDQT5m (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 15:57:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbVDQT5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Apr 2005 15:54:37 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:62994 "HELO
+	Sun, 17 Apr 2005 15:57:42 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:65298 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261453AbVDQTyM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Apr 2005 15:54:12 -0400
-Date: Sun, 17 Apr 2005 21:54:07 +0200
+	id S261449AbVDQT5J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Apr 2005 15:57:09 -0400
+Date: Sun, 17 Apr 2005 21:57:07 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Andreas Steinmetz <ast@domdv.de>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       jmorris@redhat.com, davem@davemloft.net, ak@suse.de,
-       linux-crypto@vger.kernel.org, herbert@gondor.apana.org.au
-Subject: Re: [RFC][PATCH 4/4] AES assembler implementation for x86_64
-Message-ID: <20050417195406.GC3625@stusta.de>
-References: <4262B6F5.4060907@domdv.de>
+To: bcollins@debian.org, scjody@steamballoon.com
+Cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/ieee1394/: remove unneeded EXPORT_SYMBOL's
+Message-ID: <20050417195706.GD3625@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4262B6F5.4060907@domdv.de>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 17, 2005 at 09:20:21PM +0200, Andreas Steinmetz wrote:
+This patch removes unneeded EXPORT_SYMBOL's.
 
-> The attached patch contains the required changes for the crypto Kconfig
-> to enable the usage of the x86_64 AES assembler implementation.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
+---
 
-That is not specifically against this patch, but before we add another 
-AES implementation, I'd like to find a better solution for the general 
-AES selection.
+ drivers/ieee1394/ieee1394_core.c |   16 ----------------
+ 1 files changed, 16 deletions(-)
 
-My original thoughts on this issue are in [1], but this didn't attack 
-the problem of CRYPTO_DEV_PADLOCK_AES where it might not be known at 
-compile time whether the hardware will be present.
-
-
-> Andreas Steinmetz
-
-> diff -rNu linux-2.6.11.2.orig/crypto/Kconfig linux-2.6.11.2/crypto/Kconfig
-> --- linux-2.6.11.2.orig/crypto/Kconfig	2005-03-09 09:12:53.000000000 +0100
-> +++ linux-2.6.11.2/crypto/Kconfig	2005-04-17 13:10:51.000000000 +0200
->...
->  config CRYPTO_AES_586
->  	tristate "AES cipher algorithms (i586)"
-> -	depends on CRYPTO && (X86 && !X86_64)
-> +	depends on CRYPTO && X86 && !X86_64
->...
-
-This doesn't make any difference.
-
-I think the former version was better readable, but that's no strong 
-opinion.
-
-cu
-Adrian
-
-[1] http://www.ussg.iu.edu/hypermail/linux/kernel/0502.3/0518.html
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--- linux-2.6.12-rc2-mm3-full/drivers/ieee1394/ieee1394_core.c.old	2005-04-17 20:49:31.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/ieee1394/ieee1394_core.c	2005-04-17 20:57:34.000000000 +0200
+@@ -1225,9 +1225,7 @@
+ EXPORT_SYMBOL(hpsb_set_packet_complete_task);
+ EXPORT_SYMBOL(hpsb_alloc_packet);
+ EXPORT_SYMBOL(hpsb_free_packet);
+-EXPORT_SYMBOL(hpsb_send_phy_config);
+ EXPORT_SYMBOL(hpsb_send_packet);
+-EXPORT_SYMBOL(hpsb_send_packet_and_wait);
+ EXPORT_SYMBOL(hpsb_reset_bus);
+ EXPORT_SYMBOL(hpsb_bus_reset);
+ EXPORT_SYMBOL(hpsb_selfid_received);
+@@ -1246,9 +1244,6 @@
+ EXPORT_SYMBOL(hpsb_make_lock64packet);
+ EXPORT_SYMBOL(hpsb_make_phypacket);
+ EXPORT_SYMBOL(hpsb_make_isopacket);
+-EXPORT_SYMBOL(hpsb_read);
+-EXPORT_SYMBOL(hpsb_write);
+-EXPORT_SYMBOL(hpsb_lock);
+ EXPORT_SYMBOL(hpsb_packet_success);
+ 
+ /** highlevel.c **/
+@@ -1265,8 +1260,6 @@
+ EXPORT_SYMBOL(hpsb_set_hostinfo_key);
+ EXPORT_SYMBOL(hpsb_get_hostinfo_bykey);
+ EXPORT_SYMBOL(hpsb_set_hostinfo);
+-EXPORT_SYMBOL(highlevel_add_host);
+-EXPORT_SYMBOL(highlevel_remove_host);
+ EXPORT_SYMBOL(highlevel_host_reset);
+ 
+ /** nodemgr.c **/
+@@ -1275,7 +1268,6 @@
+ EXPORT_SYMBOL(hpsb_register_protocol);
+ EXPORT_SYMBOL(hpsb_unregister_protocol);
+ EXPORT_SYMBOL(ieee1394_bus_type);
+-EXPORT_SYMBOL(nodemgr_for_each_host);
+ 
+ /** csr.c **/
+ EXPORT_SYMBOL(hpsb_update_config_rom);
+@@ -1312,19 +1304,11 @@
+ EXPORT_SYMBOL(hpsb_iso_recv_flush);
+ 
+ /** csr1212.c **/
+-EXPORT_SYMBOL(csr1212_create_csr);
+-EXPORT_SYMBOL(csr1212_init_local_csr);
+-EXPORT_SYMBOL(csr1212_new_immediate);
+ EXPORT_SYMBOL(csr1212_new_directory);
+-EXPORT_SYMBOL(csr1212_associate_keyval);
+ EXPORT_SYMBOL(csr1212_attach_keyval_to_directory);
+-EXPORT_SYMBOL(csr1212_new_string_descriptor_leaf);
+ EXPORT_SYMBOL(csr1212_detach_keyval_from_directory);
+ EXPORT_SYMBOL(csr1212_release_keyval);
+-EXPORT_SYMBOL(csr1212_destroy_csr);
+ EXPORT_SYMBOL(csr1212_read);
+-EXPORT_SYMBOL(csr1212_generate_csr_image);
+ EXPORT_SYMBOL(csr1212_parse_keyval);
+-EXPORT_SYMBOL(csr1212_parse_csr);
+ EXPORT_SYMBOL(_csr1212_read_keyval);
+ EXPORT_SYMBOL(_csr1212_destroy_keyval);
 

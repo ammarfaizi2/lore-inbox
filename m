@@ -1,73 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261564AbVDQXqQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261565AbVDQXsH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261564AbVDQXqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Apr 2005 19:46:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261565AbVDQXqQ
+	id S261565AbVDQXsH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 19:48:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbVDQXsG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Apr 2005 19:46:16 -0400
-Received: from mail.kroah.org ([69.55.234.183]:12931 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261564AbVDQXqH (ORCPT
-	<rfc822;Linux-kernel@vger.kernel.org>);
-	Sun, 17 Apr 2005 19:46:07 -0400
-Date: Sun, 17 Apr 2005 15:03:17 -0700
-From: Greg KH <greg@kroah.com>
-To: Derek Cheung <derek.cheung@sympatico.ca>
-Cc: "'Randy.Dunlap'" <rddunlap@osdl.org>, "'Andrew Morton'" <akpm@osdl.org>,
-       Linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Subject: Re: [PATCH] kernel 2.6.11.6 -  I2C adaptor for ColdFire 5282 CPU
-Message-ID: <20050417220317.GD3178@kroah.com>
-References: <20050411200318.GA25550@kroah.com> <001d01c5408f$18238850$1501a8c0@Mainframe>
+	Sun, 17 Apr 2005 19:48:06 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:58117 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261565AbVDQXrq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Apr 2005 19:47:46 -0400
+Date: Mon, 18 Apr 2005 01:47:39 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: netdev@oss.sgi.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] drivers/net/wan/: possible cleanups
+Message-ID: <20050417234738.GY3625@stusta.de>
+References: <20050327143418.GE4285@stusta.de> <1111941516.14877.325.camel@localhost.localdomain> <20050414232028.GD20400@stusta.de> <1113587392.11155.33.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <001d01c5408f$18238850$1501a8c0@Mainframe>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <1113587392.11155.33.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 13, 2005 at 09:12:53PM -0400, Derek Cheung wrote:
-> OK, hope this patch can satisfy everyone :-)
+On Fri, Apr 15, 2005 at 06:49:56PM +0100, Alan Cox wrote:
+> On Gwe, 2005-04-15 at 00:20, Adrian Bunk wrote:
+> > On Sun, Mar 27, 2005 at 05:38:38PM +0100, Alan Cox wrote:
+> > > On Sul, 2005-03-27 at 15:34, Adrian Bunk wrote:
+> > > >   - syncppp.c: sppp_input
+> > > >   - syncppp.c: sppp_change_mtu
+> > > >   - z85230.c: z8530_dma_sync
+> > > >   - z85230.c: z8530_txdma_sync
+> > > 
+> > > Please leave the z85230 ones at least. They are an intentional part of
+> > > the external API for writing other 85230 card drivers.
+> > 
+> > If they are part of an API, why aren't the prototypes for them in any 
+> > header file?
 > 
-> The following is the diffstat of the enclosed patch file:
-> 
->  drivers/i2c/busses/Kconfig       |   10 
->  drivers/i2c/busses/Makefile      |    1 
->  drivers/i2c/busses/i2c-mcf5282.c |  414
-> +++++++++++++++++++++++++++++++++++++++
->  drivers/i2c/busses/i2c-mcf5282.h |   46 ++++
->  include/asm-m68knommu/m528xsim.h |   42 +++
->  5 files changed, 513 insertions(+)
-> 
-> I did:
-> 
-> a) remove all trailing spaces in the files
-> b) re-align the switch statement
-> c) change a return statement
-> d) change some white space intents to TABs
-> e) insert a break for the I2C_SMBUS_PROC_CALL, thanks for spotting it
-> f) fix the mcf5282lite wording in Kconfig
-> 
-> I did not:
-> 
-> g) use the ioremap. This is because Coldfire is a CPU without MMU and
-> there is no difference between virtual and physical memory. In fact, the
-> ioremap routine in the m68knommu is simply a stub routine that returns
-> the input address argument for compatibility reason. Also, all other
-> Coldfire CPU include files such as the m5307sim.h uses the volatile
-> declaration method. 
-> So, I hope this is acceptable to the Linux kernel maintainers
+> They were once. I guess that got "tided" at some point, possibly long
+> ago even before submission.
+>...
 
-No, do not do this.  Even the i386 platform can get away with doing this
-kind of io memory addressing, but drivers do not do that, as they are
-not portable.  The first time someone wants to use this kind of i2c
-adapter on a non-coldfire chip, they will have to rewrite the driver,
-not acceptable.
+Are there any external drivers using these exports, and if there are, 
+why aren't they in the kernel?
 
-Also, you did not include a good Changelog entry, nor a Signed-off-by:
-line, and you attached the file in a mime attachment.
+If there aren't and someone will at some time in the future need them, 
+re-adding the exports will be trivial.
 
-Please fix these issues up.
+cu
+Adrian
 
-thanks,
+-- 
 
-greg k-h
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

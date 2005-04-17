@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbVDPXsk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVDQAFd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261206AbVDPXsk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Apr 2005 19:48:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVDPXsk
+	id S261211AbVDQAFd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Apr 2005 20:05:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVDQAFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Apr 2005 19:48:40 -0400
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:30985 "EHLO
-	abraham.cs.berkeley.edu") by vger.kernel.org with ESMTP
-	id S261206AbVDPXsi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Apr 2005 19:48:38 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@taverner.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: Why system call need to copy the date from the userspace before 
- using it
-Date: Sat, 16 Apr 2005 23:46:39 +0000 (UTC)
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <d3s84v$j64$2@abraham.cs.berkeley.edu>
-References: <Pine.LNX.4.61.0504131507280.21367@chaos.analogic.com> <200504160450.j3G4oqC9029496@hacksaw.org>
-Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
-NNTP-Posting-Host: taverner.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 1113695199 19652 128.32.168.222 (16 Apr 2005 23:46:39 GMT)
-X-Complaints-To: usenet@abraham.cs.berkeley.edu
-NNTP-Posting-Date: Sat, 16 Apr 2005 23:46:39 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: daw@taverner.cs.berkeley.edu (David Wagner)
+	Sat, 16 Apr 2005 20:05:33 -0400
+Received: from rproxy.gmail.com ([64.233.170.205]:37900 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261211AbVDQAF3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Apr 2005 20:05:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jms4k0Yf+bLa0F9a2gorbs1jiqsRh2aVwW58KndcoBuxHaXqKAANHAEBRMj5ineoYqKb1N+3tNCPOTdWKpAP715DKAg6LAhBkfyVv3y84NvbBSz/f70Q1Vfmkt521M5pA4KUVLC3to5qdtvRyn2xIucdsQGbc0i5qnMiWRg1tr4=
+Message-ID: <21d7e9970504161705a129893@mail.gmail.com>
+Date: Sun, 17 Apr 2005 10:05:27 +1000
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] tpm: Stop taking over the non-unique lpc bus PCI ID, Also timer, stack and enum fixes
+Cc: Kylene Hall <kjhall@us.ibm.com>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com
+In-Reply-To: <20050415235250.GA24204@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.61.0504151611390.24192@dyn95395164>
+	 <20050415235250.GA24204@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hacksaw  wrote:
->What I would expect the kernel to do is this:
->
->system_call_data_prep (userdata, size){	 [...]
->      for each page from userdata to userdata+size
->      {
-> 	if the page is swapped out, swap it in
->	if the page is not owned by the user process, return -ENOWAYMAN
->	otherwise, lock the page
->      }   [...]
+> NO!  DO NOT use pci_find_device().  It is broken for systems with pci
+> hotplug (which means any pci system).  Please use the way the driver
+> currently works, that is correct.
 
-One challenge that might make this issue a little tricky is that
-you have to handle double-indirection, where the kernel copies in
-a buffer that includes a pointer to some other buffer that you then
-have to copy in.  I think this comes up in some of the ioctl() calls.
-Because only the guts of the ioctl() implementation knows the format of
-the data structure, only it knows what system_call_data_prep() calls
-would be needed.  So, everywhere that currently does copy_from_user()
-would have to do system_call_data_prep().  (It wouldn't be sufficient
-to call system_call_data_prep() once in some standardized way at the
-start of each system call, and leave it at that.)
+But its not an LPC driver, it only uses a small piece of the LPC, we
+really do need some sort of bridge driver layer or something for
+these, then other drivers can sit on top of that,
+
+The DRM still uses pci_find_device for the exact same reason, the fb
+drivers take the PCI device and we have been told we can't use the
+proper interface, hence one of the needs to merge fb and DRM..
+
+Dave.

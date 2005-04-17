@@ -1,382 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbVDQTWa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261424AbVDQTYV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261420AbVDQTWa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Apr 2005 15:22:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbVDQTW3
+	id S261424AbVDQTYV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 15:24:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261423AbVDQTXY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Apr 2005 15:22:29 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:35857 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S261420AbVDQTUL (ORCPT
+	Sun, 17 Apr 2005 15:23:24 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:37905 "EHLO hermes.domdv.de")
+	by vger.kernel.org with ESMTP id S261424AbVDQTUW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Apr 2005 15:20:11 -0400
-Message-ID: <4262B6E9.8040400@domdv.de>
-Date: Sun, 17 Apr 2005 21:20:09 +0200
+	Sun, 17 Apr 2005 15:20:22 -0400
+Message-ID: <4262B6F5.4060907@domdv.de>
+Date: Sun, 17 Apr 2005 21:20:21 +0200
 From: Andreas Steinmetz <ast@domdv.de>
 User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
        jmorris@redhat.com, davem@davemloft.net, ak@suse.de
-Subject: [RFC][PATCH 2/4] AES assembler implementation for x86_64
+Subject: [RFC][PATCH 4/4] AES assembler implementation for x86_64
 X-Enigmail-Version: 0.90.2.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: multipart/mixed;
- boundary="------------050806050401050201000208"
+ boundary="------------070509020606040006080808"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------050806050401050201000208
+--------------070509020606040006080808
 Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
 
-The attached patch contains Gladman's in-kernel code for key schedule
-and table generation modified to fit to my assembler implementation,
+The attached patch contains the required changes for the crypto Kconfig
+to enable the usage of the x86_64 AES assembler implementation.
 -- 
 Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
 
---------------050806050401050201000208
+--------------070509020606040006080808
 Content-Type: text/plain;
- name="aes-gladman.diff"
+ name="aes-crypto.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="aes-gladman.diff"
+ filename="aes-crypto.diff"
 
-diff -rNu linux-2.6.11.2.orig/arch/x86_64/crypto/aes.c linux-2.6.11.2/arch/x86_64/crypto/aes.c
---- linux-2.6.11.2.orig/arch/x86_64/crypto/aes.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.11.2/arch/x86_64/crypto/aes.c	2005-04-17 13:34:17.000000000 +0200
-@@ -0,0 +1,332 @@
-+/* 
-+ * Cryptographic API.
-+ *
-+ * AES Cipher Algorithm.
-+ *
-+ * Based on Brian Gladman's code.
-+ *
-+ * Linux developers:
-+ *  Alexander Kjeldaas <astor@fast.no>
-+ *  Herbert Valerio Riedel <hvr@hvrlab.org>
-+ *  Kyle McMartin <kyle@debian.org>
-+ *  Adam J. Richter <adam@yggdrasil.com> (conversion to 2.5 API).
-+ *  Andreas Steinmetz <ast@domdv.de> (adapted to x86_64 assembler)
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * ---------------------------------------------------------------------------
-+ * Copyright (c) 2002, Dr Brian Gladman <brg@gladman.me.uk>, Worcester, UK.
-+ * All rights reserved.
-+ *
-+ * LICENSE TERMS
-+ *
-+ * The free distribution and use of this software in both source and binary
-+ * form is allowed (with or without changes) provided that:
-+ *
-+ *   1. distributions of this source code include the above copyright
-+ *      notice, this list of conditions and the following disclaimer;
-+ *
-+ *   2. distributions in binary form include the above copyright
-+ *      notice, this list of conditions and the following disclaimer
-+ *      in the documentation and/or other associated materials;
-+ *
-+ *   3. the copyright holder's name is not used to endorse products
-+ *      built using this software without specific written permission.
-+ *
-+ * ALTERNATIVELY, provided that this notice is retained in full, this product
-+ * may be distributed under the terms of the GNU General Public License (GPL),
-+ * in which case the provisions of the GPL apply INSTEAD OF those given above.
-+ *
-+ * DISCLAIMER
-+ *
-+ * This software is provided 'as is' with no explicit or implied warranties
-+ * in respect of its properties, including, but not limited to, correctness
-+ * and/or fitness for purpose.
-+ * ---------------------------------------------------------------------------
-+ */
+diff -rNu linux-2.6.11.2.orig/crypto/Kconfig linux-2.6.11.2/crypto/Kconfig
+--- linux-2.6.11.2.orig/crypto/Kconfig	2005-03-09 09:12:53.000000000 +0100
++++ linux-2.6.11.2/crypto/Kconfig	2005-04-17 13:10:51.000000000 +0200
+@@ -133,7 +133,7 @@
+ 
+ config CRYPTO_AES
+ 	tristate "AES cipher algorithms"
+-	depends on CRYPTO && !(X86 && !X86_64)
++	depends on CRYPTO && !X86 && !X86_64
+ 	help
+ 	  AES cipher algorithms (FIPS-197). AES uses the Rijndael 
+ 	  algorithm.
+@@ -153,7 +153,27 @@
+ 
+ config CRYPTO_AES_586
+ 	tristate "AES cipher algorithms (i586)"
+-	depends on CRYPTO && (X86 && !X86_64)
++	depends on CRYPTO && X86 && !X86_64
++	help
++	  AES cipher algorithms (FIPS-197). AES uses the Rijndael 
++	  algorithm.
 +
-+/* Some changes from the Gladman version:
-+    s/RIJNDAEL(e_key)/E_KEY/g
-+    s/RIJNDAEL(d_key)/D_KEY/g
-+*/
++	  Rijndael appears to be consistently a very good performer in
++	  both hardware and software across a wide range of computing 
++	  environments regardless of its use in feedback or non-feedback 
++	  modes. Its key setup time is excellent, and its key agility is 
++	  good. Rijndael's very low memory requirements make it very well 
++	  suited for restricted-space environments, in which it also 
++	  demonstrates excellent performance. Rijndael's operations are 
++	  among the easiest to defend against power and timing attacks.	
 +
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/types.h>
-+#include <linux/errno.h>
-+#include <linux/crypto.h>
-+#include <asm/byteorder.h>
++	  The AES specifies three key sizes: 128, 192 and 256 bits	  
 +
-+#define AES_MIN_KEY_SIZE	16
-+#define AES_MAX_KEY_SIZE	32
++	  See <http://csrc.nist.gov/encryption/aes/> for more information.
 +
-+#define AES_BLOCK_SIZE		16
-+
-+/*
-+ * #define byte(x, nr) ((unsigned char)((x) >> (nr*8))) 
-+ */
-+inline static u8
-+byte(const u32 x, const unsigned n)
-+{
-+	return x >> (n << 3);
-+}
-+
-+#define u32_in(x) le32_to_cpu(*(const u32 *)(x))
-+
-+struct aes_ctx {
-+	u32 key_length;
-+	u32 E[60];
-+	u32 D[60];
-+};
-+
-+#define E_KEY ctx->E
-+#define D_KEY ctx->D
-+
-+static u8 pow_tab[256] __initdata;
-+static u8 log_tab[256] __initdata;
-+static u8 sbx_tab[256] __initdata;
-+static u8 isb_tab[256] __initdata;
-+static u32 rco_tab[10];
-+u32 aes_ft_tab[4][256];
-+u32 aes_it_tab[4][256];
-+
-+u32 aes_fl_tab[4][256];
-+u32 aes_il_tab[4][256];
-+
-+static inline u32 __init rol32(u32 word, unsigned int shift)
-+{
-+	return (word << shift) | (word >> (32 - shift));
-+}
-+
-+static inline u32 ror32(u32 word, unsigned int shift)
-+{
-+	return (word >> shift) | (word << (32 - shift));
-+}
-+
-+static inline u8 __init
-+f_mult (u8 a, u8 b)
-+{
-+	u8 aa = log_tab[a], cc = aa + log_tab[b];
-+
-+	return pow_tab[cc + (cc < aa ? 1 : 0)];
-+}
-+
-+#define ff_mult(a,b)    (a && b ? f_mult(a, b) : 0)
-+
-+#define ls_box(x)				\
-+    ( aes_fl_tab[0][byte(x, 0)] ^		\
-+      aes_fl_tab[1][byte(x, 1)] ^		\
-+      aes_fl_tab[2][byte(x, 2)] ^		\
-+      aes_fl_tab[3][byte(x, 3)] )
-+
-+void __init
-+gen_tabs (void)
-+{
-+	u32 i, t;
-+	u8 p, q;
-+
-+	/* log and power tables for GF(2**8) finite field with
-+	   0x011b as modular polynomial - the simplest primitive
-+	   root is 0x03, used here to generate the tables */
-+
-+	for (i = 0, p = 1; i < 256; ++i) {
-+		pow_tab[i] = (u8) p;
-+		log_tab[p] = (u8) i;
-+
-+		p ^= (p << 1) ^ (p & 0x80 ? 0x01b : 0);
-+	}
-+
-+	log_tab[1] = 0;
-+
-+	for (i = 0, p = 1; i < 10; ++i) {
-+		rco_tab[i] = p;
-+
-+		p = (p << 1) ^ (p & 0x80 ? 0x01b : 0);
-+	}
-+
-+	for (i = 0; i < 256; ++i) {
-+		p = (i ? pow_tab[255 - log_tab[i]] : 0);
-+		q = ((p >> 7) | (p << 1)) ^ ((p >> 6) | (p << 2));
-+		p ^= 0x63 ^ q ^ ((q >> 6) | (q << 2));
-+		sbx_tab[i] = p;
-+		isb_tab[p] = (u8) i;
-+	}
-+
-+	for (i = 0; i < 256; ++i) {
-+		p = sbx_tab[i];
-+
-+		t = p;
-+		aes_fl_tab[0][i] = t;
-+		aes_fl_tab[1][i] = rol32(t, 8);
-+		aes_fl_tab[2][i] = rol32(t, 16);
-+		aes_fl_tab[3][i] = rol32(t, 24);
-+
-+		t = ((u32) ff_mult (2, p)) |
-+		    ((u32) p << 8) |
-+		    ((u32) p << 16) | ((u32) ff_mult (3, p) << 24);
-+
-+		aes_ft_tab[0][i] = t;
-+		aes_ft_tab[1][i] = rol32(t, 8);
-+		aes_ft_tab[2][i] = rol32(t, 16);
-+		aes_ft_tab[3][i] = rol32(t, 24);
-+
-+		p = isb_tab[i];
-+
-+		t = p;
-+		aes_il_tab[0][i] = t;
-+		aes_il_tab[1][i] = rol32(t, 8);
-+		aes_il_tab[2][i] = rol32(t, 16);
-+		aes_il_tab[3][i] = rol32(t, 24);
-+
-+		t = ((u32) ff_mult (14, p)) |
-+		    ((u32) ff_mult (9, p) << 8) |
-+		    ((u32) ff_mult (13, p) << 16) |
-+		    ((u32) ff_mult (11, p) << 24);
-+
-+		aes_it_tab[0][i] = t;
-+		aes_it_tab[1][i] = rol32(t, 8);
-+		aes_it_tab[2][i] = rol32(t, 16);
-+		aes_it_tab[3][i] = rol32(t, 24);
-+	}
-+}
-+
-+#define star_x(x) (((x) & 0x7f7f7f7f) << 1) ^ ((((x) & 0x80808080) >> 7) * 0x1b)
-+
-+#define imix_col(y,x)       \
-+    u   = star_x(x);        \
-+    v   = star_x(u);        \
-+    w   = star_x(v);        \
-+    t   = w ^ (x);          \
-+   (y)  = u ^ v ^ w;        \
-+   (y) ^= ror32(u ^ t,  8) ^ \
-+          ror32(v ^ t, 16) ^ \
-+          ror32(t,24)
-+
-+/* initialise the key schedule from the user supplied key */
-+
-+#define loop4(i)                                    \
-+{   t = ror32(t,  8); t = ls_box(t) ^ rco_tab[i];    \
-+    t ^= E_KEY[4 * i];     E_KEY[4 * i + 4] = t;    \
-+    t ^= E_KEY[4 * i + 1]; E_KEY[4 * i + 5] = t;    \
-+    t ^= E_KEY[4 * i + 2]; E_KEY[4 * i + 6] = t;    \
-+    t ^= E_KEY[4 * i + 3]; E_KEY[4 * i + 7] = t;    \
-+}
-+
-+#define loop6(i)                                    \
-+{   t = ror32(t,  8); t = ls_box(t) ^ rco_tab[i];    \
-+    t ^= E_KEY[6 * i];     E_KEY[6 * i + 6] = t;    \
-+    t ^= E_KEY[6 * i + 1]; E_KEY[6 * i + 7] = t;    \
-+    t ^= E_KEY[6 * i + 2]; E_KEY[6 * i + 8] = t;    \
-+    t ^= E_KEY[6 * i + 3]; E_KEY[6 * i + 9] = t;    \
-+    t ^= E_KEY[6 * i + 4]; E_KEY[6 * i + 10] = t;   \
-+    t ^= E_KEY[6 * i + 5]; E_KEY[6 * i + 11] = t;   \
-+}
-+
-+#define loop8(i)                                    \
-+{   t = ror32(t,  8); ; t = ls_box(t) ^ rco_tab[i];  \
-+    t ^= E_KEY[8 * i];     E_KEY[8 * i + 8] = t;    \
-+    t ^= E_KEY[8 * i + 1]; E_KEY[8 * i + 9] = t;    \
-+    t ^= E_KEY[8 * i + 2]; E_KEY[8 * i + 10] = t;   \
-+    t ^= E_KEY[8 * i + 3]; E_KEY[8 * i + 11] = t;   \
-+    t  = E_KEY[8 * i + 4] ^ ls_box(t);    \
-+    E_KEY[8 * i + 12] = t;                \
-+    t ^= E_KEY[8 * i + 5]; E_KEY[8 * i + 13] = t;   \
-+    t ^= E_KEY[8 * i + 6]; E_KEY[8 * i + 14] = t;   \
-+    t ^= E_KEY[8 * i + 7]; E_KEY[8 * i + 15] = t;   \
-+}
-+
-+int
-+aes_set_key(void *ctx_arg, const u8 *in_key, unsigned int key_len, u32 *flags)
-+{
-+	struct aes_ctx *ctx = ctx_arg;
-+	u32 i, j, t, u, v, w;
-+
-+	if (key_len != 16 && key_len != 24 && key_len != 32) {
-+		*flags |= CRYPTO_TFM_RES_BAD_KEY_LEN;
-+		return -EINVAL;
-+	}
-+
-+	ctx->key_length = key_len;
-+
-+	D_KEY[key_len + 24] = E_KEY[0] = u32_in (in_key);
-+	D_KEY[key_len + 25] = E_KEY[1] = u32_in (in_key + 4);
-+	D_KEY[key_len + 26] = E_KEY[2] = u32_in (in_key + 8);
-+	D_KEY[key_len + 27] = E_KEY[3] = u32_in (in_key + 12);
-+
-+	switch (key_len) {
-+	case 16:
-+		t = E_KEY[3];
-+		for (i = 0; i < 10; ++i)
-+			loop4 (i);
-+		break;
-+
-+	case 24:
-+		E_KEY[4] = u32_in (in_key + 16);
-+		t = E_KEY[5] = u32_in (in_key + 20);
-+		for (i = 0; i < 8; ++i)
-+			loop6 (i);
-+		break;
-+
-+	case 32:
-+		E_KEY[4] = u32_in (in_key + 16);
-+		E_KEY[5] = u32_in (in_key + 20);
-+		E_KEY[6] = u32_in (in_key + 24);
-+		t = E_KEY[7] = u32_in (in_key + 28);
-+		for (i = 0; i < 7; ++i)
-+			loop8 (i);
-+		break;
-+	}
-+
-+	D_KEY[0] = E_KEY[key_len + 24];
-+	D_KEY[1] = E_KEY[key_len + 25];
-+	D_KEY[2] = E_KEY[key_len + 26];
-+	D_KEY[3] = E_KEY[key_len + 27];
-+
-+	for (i = 4; i < key_len + 24; ++i) {
-+		j = key_len + 24 - (i & ~3) + (i & 3);
-+		imix_col (D_KEY[j], E_KEY[i]);
-+	}
-+
-+	return 0;
-+}
-+
-+extern void aes_encrypt(void *ctx_arg, u8 *out, const u8 *in);
-+extern void aes_decrypt(void *ctx_arg, u8 *out, const u8 *in);
-+
-+static struct crypto_alg aes_alg = {
-+	.cra_name		=	"aes",
-+	.cra_flags		=	CRYPTO_ALG_TYPE_CIPHER,
-+	.cra_blocksize		=	AES_BLOCK_SIZE,
-+	.cra_ctxsize		=	sizeof(struct aes_ctx),
-+	.cra_module		=	THIS_MODULE,
-+	.cra_list		=	LIST_HEAD_INIT(aes_alg.cra_list),
-+	.cra_u			=	{
-+		.cipher = {
-+			.cia_min_keysize	=	AES_MIN_KEY_SIZE,
-+			.cia_max_keysize	=	AES_MAX_KEY_SIZE,
-+			.cia_setkey	   	= 	aes_set_key,
-+			.cia_encrypt	 	=	aes_encrypt,
-+			.cia_decrypt	  	=	aes_decrypt
-+		}
-+	}
-+};
-+
-+static int __init aes_init(void)
-+{
-+	gen_tabs();
-+	return crypto_register_alg(&aes_alg);
-+}
-+
-+static void __exit aes_fini(void)
-+{
-+	crypto_unregister_alg(&aes_alg);
-+}
-+
-+module_init(aes_init);
-+module_exit(aes_fini);
-+
-+MODULE_DESCRIPTION("Rijndael (AES) Cipher Algorithm");
-+MODULE_LICENSE("GPL");
++config CRYPTO_AES_X86_64
++	tristate "AES cipher algorithms (x86_64)"
++	depends on CRYPTO && X86 && X86_64
+ 	help
+ 	  AES cipher algorithms (FIPS-197). AES uses the Rijndael 
+ 	  algorithm.
 
---------------050806050401050201000208--
+--------------070509020606040006080808--

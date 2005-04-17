@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbVDQSUE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbVDQSU2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261395AbVDQSUE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Apr 2005 14:20:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261398AbVDQSUE
+	id S261397AbVDQSU2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 14:20:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVDQSU1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Apr 2005 14:20:04 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:37649 "HELO
+	Sun, 17 Apr 2005 14:20:27 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:38673 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261395AbVDQSTs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Apr 2005 14:19:48 -0400
-Date: Sun, 17 Apr 2005 20:19:42 +0200
+	id S261397AbVDQSTu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Apr 2005 14:19:50 -0400
+Date: Sun, 17 Apr 2005 20:19:48 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Andrew Morton <akpm@osdl.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Markus.Lidel@shadowconnect.com
-Subject: [2.6 patch] drivers/scsi/dpt*: remove version.h dependencies
-Message-ID: <20050417181942.GA3625@stusta.de>
-References: <60807403EABEB443939A5A7AA8A7458B010AAA69@otce2k01.adaptec.com>
+To: Alexey Dobriyan <adobriyan@mail.ru>, Andrew Morton <akpm@osdl.org>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-serial@vger.kernel.org,
+       linux-kernel@vger.kernel.org, len.brown@intel.com,
+       acpi-devel@lists.sourceforge.net,
+       Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [2.6 patch] ACPI: add two missing config.h #include's
+Message-ID: <20050417181948.GB3625@stusta.de>
+References: <20050415151053.GM5456@stusta.de> <E1DMTPC-000ASo-00.adobriyan-mail-ru@f13.mail.ru> <20050416023852.GI4831@stusta.de> <20050416085923.A10826@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <60807403EABEB443939A5A7AA8A7458B010AAA69@otce2k01.adaptec.com>
+In-Reply-To: <20050416085923.A10826@flint.arm.linux.org.uk>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 15, 2005 at 08:56:25AM -0400, Salyzyn, Mark wrote:
+On Sat, Apr 16, 2005 at 08:59:23AM +0100, Russell King wrote:
+> On Sat, Apr 16, 2005 at 04:38:52AM +0200, Adrian Bunk wrote:
+> > In the Linux kernel, it's more common to put such header dependencies 
+> > for header files into the C files, but if the ACPI people agree a patch 
+> > to add the #include <linux/config.h> to acpi_bus.h is the other possble 
+> > correct solution for this issue.
 > 
-> You can not remove the entries in sys_info.h (osMajorVersion & friends),
-> this communicates information to the application via the ioctls and the
-> structure shape is important. Change the code to zero the values, leave
-> osType set to OS_LINUX.
+> With the exception of linux/config.h.
+> 
+> Do a 'make configcheck' and it'll tell you where linux/config.h is missing
+> and where it shouldn't be.
 
-Sorry, my fault.
-
-Corrected patch below.
-
-> Sincerely -- Mark Salyzyn
+OK, then the patch below is the correct solution.
 
 cu
 Adrian
@@ -48,68 +48,40 @@ Adrian
 <--  snip  -->
 
 
-This patch removes version.h dependencies.
+This patch fixes the following warning by adding two missing config.h 
+#include's:
+
+<--  snip  -->
+
+...
+  CC      drivers/serial/8250_acpi.o
+drivers/serial/8250_acpi.c: In function `acpi_serial_ext_irq':
+drivers/serial/8250_acpi.c:51: warning: implicit declaration of function 
+`acpi_register_gsi'
+...
+
+<--  snip  -->
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
- drivers/scsi/dpt/sys_info.h |    4 ----
- drivers/scsi/dpt_i2o.c      |    5 -----
- drivers/scsi/dpti.h         |   12 ------------
- 3 files changed, 21 deletions(-)
-
---- linux-2.6.12-rc2-mm3-full/drivers/scsi/dpti.h.old	2005-04-15 01:21:04.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/scsi/dpti.h	2005-04-15 01:21:26.000000000 +0200
-@@ -20,15 +20,7 @@
- #ifndef _DPT_H
- #define _DPT_H
+--- linux-2.6.12-rc2-mm3-full/include/acpi/acpi_bus.h.old	2005-04-17 19:05:23.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/include/acpi/acpi_bus.h	2005-04-17 19:05:37.000000000 +0200
+@@ -26,6 +26,7 @@
+ #ifndef __ACPI_BUS_H__
+ #define __ACPI_BUS_H__
  
--#ifndef LINUX_VERSION_CODE
--#include <linux/version.h>
--#endif
--
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,00)
--#define MAX_TO_IOP_MESSAGES   (210)
--#else
- #define MAX_TO_IOP_MESSAGES   (255)
--#endif
- #define MAX_FROM_IOP_MESSAGES (255)
++#include <linux/config.h>
+ #include <linux/kobject.h>
  
+ #include <acpi/acpi.h>
+--- linux-2.6.12-rc2-mm3-full/include/linux/acpi.h.old	2005-04-17 19:25:51.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/include/linux/acpi.h	2005-04-17 19:24:54.000000000 +0200
+@@ -25,6 +25,8 @@
+ #ifndef _LINUX_ACPI_H
+ #define _LINUX_ACPI_H
  
-@@ -321,10 +313,6 @@
- static void adpt_delay(int millisec);
- #endif
++#include <linux/config.h>
++
+ #ifdef CONFIG_ACPI
  
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,0)
--static struct pci_dev* adpt_pci_find_device(uint vendor, struct pci_dev* from);
--#endif
--
- #if defined __ia64__ 
- static void adpt_ia64_info(sysInfo_S* si);
- #endif
---- linux-2.6.12-rc2-mm3-full/drivers/scsi/dpt_i2o.c.old	2005-04-15 01:21:48.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/scsi/dpt_i2o.c	2005-04-15 01:25:20.000000000 +0200
-@@ -34,7 +34,6 @@
- 
- #define ADDR32 (0)
- 
--#include <linux/version.h>
- #include <linux/module.h>
- 
- MODULE_AUTHOR("Deanna Bonds, with _lots_ of help from Mark Salyzyn");
-@@ -1824,10 +1823,10 @@
- 
- 	memset(&si, 0, sizeof(si));
- 
- 	si.osType = OS_LINUX;
--	si.osMajorVersion = (u8) (LINUX_VERSION_CODE >> 16);
--	si.osMinorVersion = (u8) (LINUX_VERSION_CODE >> 8 & 0x0ff);
--	si.osRevision =     (u8) (LINUX_VERSION_CODE & 0x0ff);
-+	si.osMajorVersion = 0;
-+	si.osMinorVersion = 0;
-+	si.osRevision = 0;
- 	si.busType = SI_PCI_BUS;
- 	si.processorFamily = DPTI_sig.dsProcessorFamily;
- 
-
-
-
+ #ifndef _LINUX

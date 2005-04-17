@@ -1,41 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbVDQIz5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261287AbVDQJEV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261284AbVDQIz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Apr 2005 04:55:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261287AbVDQIz4
+	id S261287AbVDQJEV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 05:04:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261293AbVDQJEV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Apr 2005 04:55:56 -0400
-Received: from main.gmane.org ([80.91.229.2]:44238 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261284AbVDQIzw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Apr 2005 04:55:52 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: yoann <informatique-nospam@mistur.org>
-Subject: htp366 ide controler card and 2.6
-Date: Sun, 17 Apr 2005 10:55:42 +0200
-Message-ID: <d3t835$dkg$1@sea.gmane.org>
+	Sun, 17 Apr 2005 05:04:21 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:20926 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261287AbVDQJES (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Apr 2005 05:04:18 -0400
+Subject: Re: DRM not working with 2.6.11.5
+From: Arjan van de Ven <arjan@infradead.org>
+To: Dave Jones <davej@redhat.com>
+Cc: Dave Airlie <airlied@gmail.com>,
+       "ross@lug.udel.edu" <ross@jose.lug.udel.edu>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050416164155.GA23306@redhat.com>
+References: <20050416070925.GA1237@jose.lug.udel.edu>
+	 <21d7e99705041601476a147251@mail.gmail.com>
+	 <20050416164155.GA23306@redhat.com>
+Content-Type: text/plain
+Date: Sun, 17 Apr 2005 11:04:11 +0200
+Message-Id: <1113728652.17394.3.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: nor75-3-82-226-36-243.fbx.proxad.net
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I'd like to use a hpt366 ide controler card with 2 disk configure in raid1 on
-the card with a 2.6.8 (from debian sarge) but impossible to find an equivalente
-to ataraid module which is in 2.4.X kernel.
+> Adam Jackson was looking into this a few days ago by making
+> the generic agpgart.o send hotplug events to trigger a load
+> of the submodules. If he comes up with something I'll throw
+> it at -mm if it looks sane.
 
-Is it possible to use this card with a 2.6.X kernel or I've to use a 2.4.X ?
 
-thanks for your help
+is that needed? If the agp submodules advertise a list of pci id's isn't
+that enough to get them auto loaded ?
 
-Yoann
+(that works for all other modules in the kernel... ;)
 

@@ -1,113 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261216AbVDQAVU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbVDQAis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261216AbVDQAVU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Apr 2005 20:21:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbVDQAVU
+	id S261220AbVDQAis (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Apr 2005 20:38:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVDQAis
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Apr 2005 20:21:20 -0400
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:10762 "EHLO
+	Sat, 16 Apr 2005 20:38:48 -0400
+Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:36362 "EHLO
 	abraham.cs.berkeley.edu") by vger.kernel.org with ESMTP
-	id S261216AbVDQAVL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Apr 2005 20:21:11 -0400
+	id S261220AbVDQAio (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Apr 2005 20:38:44 -0400
 To: linux-kernel@vger.kernel.org
 Path: not-for-mail
 From: daw@taverner.cs.berkeley.edu (David Wagner)
 Newsgroups: isaac.lists.linux-kernel
 Subject: Re: Fortuna
-Date: Sun, 17 Apr 2005 00:19:11 +0000 (UTC)
+Date: Sun, 17 Apr 2005 00:36:29 +0000 (UTC)
 Organization: University of California, Berkeley
 Distribution: isaac
-Message-ID: <d3sa1v$pck$1@abraham.cs.berkeley.edu>
-References: <20050415170450.GB23277@certainkey.com> <20050416100555.25344.qmail@science.horizon.com>
+Message-ID: <d3sb2d$sbg$1@abraham.cs.berkeley.edu>
+References: <20050416111033.28308.qmail@science.horizon.com>
 Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
 NNTP-Posting-Host: taverner.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 1113697151 26004 128.32.168.222 (17 Apr 2005 00:19:11 GMT)
+X-Trace: abraham.cs.berkeley.edu 1113698189 29040 128.32.168.222 (17 Apr 2005 00:36:29 GMT)
 X-Complaints-To: usenet@abraham.cs.berkeley.edu
-NNTP-Posting-Date: Sun, 17 Apr 2005 00:19:11 +0000 (UTC)
+NNTP-Posting-Date: Sun, 17 Apr 2005 00:36:29 +0000 (UTC)
 X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Originator: daw@taverner.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 linux wrote:
->3) Fortuna's design doesn't actually *work*.  The authors' analysis
->   only works in the case that the entropy seeds are independent, but
->   forgot to state the assumption.  Some people reviewing the design
->   don't notice the omission.
+>Thank you for pointing out the paper; Appendix A is particularly
+>interesting.  And the [BST03] reference looks *really* nice!  I haven't
+>finished it yet, but based on what I've read so far, I'd like to
+>*strongly* recommnd that any would-be /dev/random hackers read it
+>carefully.  It can be found at
+>http://www.wisdom.weizmann.ac.il/~tromer/papers/rng.pdf
 
-Ok, now I understand your objection.  Yup, this is a real objection.
-You are right to ask questions about whether this is a reasonable assumption.
+Yeah, [BST03] seems worth reading.  It has a reasonable survey of some
+previous work, and is well-written.
 
-I don't know whether /dev/random makes the same assumption.  I suspect that
-its entropy estimator is making a similar assumption (not exactly the same
-one), but I don't know for sure.
+However, I'm pretty skeptical about [BST03] as a basis for a real-world
+randomness generator.  It assumes that there are only 2^t possible
+distributions for the source, and the set of possible distributions has
+been fixed in advance (before the design of your randomness generator
+is revealed).  Consequently, it fails to defend against adaptive attacks.
 
-I also don't know whether this is a realistic assumption to make about
-the physical sources we currently feed into /dev/random.  That would require
-some analysis of the physics of those sources, and I don't have the skills
-it would take to do that kind of analysis.
+If the attacker can feed in maliciously chosen inputs (chosen after the
+attacker learns which randomness extraction algorithm you are using),
+then the BST03 scheme promises nothing.  For instance, if you feed in
+timings of network packets, then even if you don't count them as providing
+any entropy, the mere act of feeding them into your randomness generator
+causes their theorems to be clearly inapplicable (since no matter what
+value of t you pick, the adversary can arrange to get more than t bits
+of freedom in the network packets he sends you).
 
->   Again, suppose we have an entropy source that delivers one fresh
->   random bit each time it is sampled.
->
->   But suppose that rather than delivering a bare bit, it delivers the
->   running sum of the bits.  So adjacent samples are either the same or
->   differ by +1.  This seems to me an extremely plausible example.
->
->   Consider a Fortuna-like thing with two pools.  The first pool is seeded
->   with n, then the second with n+b0, then the first again with n+b0+b1.
->   n is the arbitrary starting count, while b0 and b1 are independent
->   random bits.
->
->   Assuming that an attacker can see the first pool, they can find n.
->   After the second step, their uncertainty about the second pool is 1
->   bit, the value of b0.
->
->   But the third step is interesting.  The attacker can see the value of
->   b0+b1.  If the sum is 0 or 2, the value of b0 is determined uniquely.
->   Only in the case that b0+b1 = 1 is there uncertainty.  So we have
->   only *half* a bit of uncertainty (one bit, half of the time) in the
->   second pool.
-[..]
->   I probably just don't have enough mathematical background, but I don't
->   currently know how to bound this leakage.
+So I'm not sure [BST03]'s theorems actually promise what you'd want.
 
-Actually, this example scenario is not a problem.  I'll finish the
-analysis for you.  Suppose that the adversary can observe the entire
-evolution of the first pool (its initial value, and all updates to it).
-Assume the adversary knows n.  In one round (i.e., a pair of updates),
-the adversary learns the value of b0 + b1 (and nothing more!).  In the
-next round, the adversary learns b0' + b1' -- and so on.
+On the other hand, if you want to take their constructions as providing
+some intuition or ideas about how one might build a randomness generator,
+while realizing that their theorems don't apply and there may be no
+useful guarantees that can be proven about such an approach, I don't
+have any objections to that view.
 
-How many bits of uncertainty have been added to the second pool in
-each round?  With probability 1/2, the uncertainty of the second pool
-remains unchanged.  With probability 1/2, the uncertainty increases by
-exactly 1 bit.  This means there are two classes of updates, and both
-classes are equally likely.
+By the way, another example of work along these lines is
+http://theory.lcs.mit.edu/~yevgen/ps/2-ext.ps
+That paper is more technical and theoretically-oriented, so it might
+be harder to read and less immediately useful.  It makes a strong
+assumption (that you have two sources that are independent -- i.e.,
+totally uncorrelated), but the construction at the heart of their paper
+is pretty simple, which might be of interest.
 
-Suppose we perform 200 rounds of updates.  Then we can expect about
-100 of these updates to be of the second class.  If the updates were
-split evently (50/50) between these two classes, the adversary would
-have 100 bits of uncertainty about the second pool.  In general, we
-expect somewhere near 100 bits of uncertainty -- sometimes a bit more,
-sometimes a bit less, but the chances that it is a lot less than 100
-bits of uncertainty are exponentially small.
+>Happily, it *appears* to confirm the value of the LFSR-based input
+>mixing function.  Although the suggested construction in section 4.1 is
+>different, and I haven't seen if the proof can be extended.
 
-Therefore, except for an event that occurs with exponentially small
-probability, the adversary will be left with many bits of uncertainty
-about the second pool.  So this kind of source should not pose a serious
-problem for Fortuna, or for any two-pool solution.
+Well, I don't know.  I don't think I agree with that interpretation.
 
+Let me give a little background about 2-universal hashing.  There is a
+basic result about use of 2-universal hash functions, which says that
+if you choose the seed K truly at random, then you can use h_K(X) to
+extract uniform random bits from a non-uniform source X.  (Indeed, you
+can even reveal K without harming the randomness of h_K(X).)  The proof
+of this fact is usually known as the Leftover Hashing Lemma.
 
-If you want a better example of where the two-pool scheme completely
-falls apart, consider this: our source picks a random bit, uses this
-same bit the next two times it is queried, and then picks a new bit.
-Its sequence of outputs will look like (b0,b0,b1,b1,b2,b2,..,).  If
-we alternate pools, then the first pool sees the sequence b0,b1,b2,..
-and the second pool sees exactly the same sequence.  Consequently, an
-adversary who can observe the entire evolution of the first pool can
-deduce everything there is to know about the second pool.  This just
-illustrates that these multiple-pool solutions make some assumptions
-about the time-independence of their sources, or at least that the bits
-going into one pool don't have too much correlation with the bits going
-into the other pool.
+One of the standard constructions of a 2-universal hash function is
+as a LFSR-like scheme, where the seed K is used to select the feedback
+polynomial.  But notice that it is critical that the feedback polynomial
+be chosen uniformly at random, in a way that is unpredictable to the
+attacker, and kept secret until you receive data from the source.
+
+What /dev/random does is quite different from the idea of 2-universal
+hashing developed in the theory literature and recounted in [BST03].
+/dev/random fixes a single feedback polynomial in advance, and publishes
+it for the world to see.  The theorems about 2-universal hashing promise
+nothing about use of a LFSR with a fixed feedback polynomial.

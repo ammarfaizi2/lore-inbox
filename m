@@ -1,47 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbVDQT1c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261421AbVDQTnT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261425AbVDQT1c (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Apr 2005 15:27:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbVDQTYk
+	id S261421AbVDQTnT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 15:43:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbVDQTnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Apr 2005 15:24:40 -0400
-Received: from vv.carleton.ca ([134.117.172.80]:706 "EHLO vv.carleton.ca")
-	by vger.kernel.org with ESMTP id S261425AbVDQTXi (ORCPT
+	Sun, 17 Apr 2005 15:43:19 -0400
+Received: from quechua.inka.de ([193.197.184.2]:47819 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S261421AbVDQTnR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Apr 2005 15:23:38 -0400
-Date: Sun, 17 Apr 2005 15:23:38 -0400 (EDT)
-From: Catalin Patulea <cat@vv.carleton.ca>
+	Sun, 17 Apr 2005 15:43:17 -0400
+From: Bernd Eckenfels <ecki@lina.inka.de>
 To: linux-kernel@vger.kernel.org
-Subject: Reading kmem
-Message-ID: <Pine.LNX.4.60.0504171434180.4037@vv.carleton.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Subject: Re: More performance for the TCP stack by using additional hardware chip on NIC
+Organization: Private Site running Debian GNU/Linux
+In-Reply-To: <1113740111.15799.49.camel@avik.scalemp>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.8.1 (i686))
+Message-Id: <E1DNFfm-0006RB-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Sun, 17 Apr 2005 21:43:14 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+In article <1113740111.15799.49.camel@avik.scalemp> you wrote:
+> maybe one day you would be able to offload your firewall and policy
+> router too :)
 
-I'm having trouble reading from /dev/kmem in Linux 2.4.22 and 2.4.25. I 
-have written some code available at 
-http://vv.carleton.ca/~cat/misc/readidt.c. The behavior on both kernel 
-versions is the following:
+There are quite a few filtering NICs out there.
 
-# ./readidt
-idt: 0xffffe000 + 0x07ff
-pointer at 0x00000000ffffe400
-read: 0
-
-As read returns 0, it seems as if it's reading past the end of file. 
-However, the IDT must be present in the kernel's virtual memory. Also, 
-looking at 2.4.20's read_kmem() (drivers/char/mem.c:215), I don't see how 
-the function could return 0 unless count was 0.
-
-It would be great if follow-ups could be CC'ed to my e-mail address.
-
-Thank you very much for your time,
-Catalin
-
------------------------------------------
-Catalin Patulea       VV Volunteer 2002,3
-http://vv.carleton.ca/~cat/    VV HI 2004
-cat@vv.carleton.ca
+Greetings
+Bernd

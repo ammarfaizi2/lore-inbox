@@ -1,60 +1,2219 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbVDQJOo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbVDQJOk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261291AbVDQJOo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Apr 2005 05:14:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261288AbVDQJOo
+	id S261289AbVDQJOk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 05:14:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261288AbVDQJOk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Apr 2005 05:14:44 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:24510 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261295AbVDQJID (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Apr 2005 05:08:03 -0400
-Subject: Re: More performance for the TCP stack by using additional
-	hardware chip on NIC
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andreas Hartmann <andihartmann@01019freenet.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <d3t63d$3qe$1@pD9F86D3F.dip0.t-ipconnect.de>
-References: <d3t63d$3qe$1@pD9F86D3F.dip0.t-ipconnect.de>
-Content-Type: text/plain
-Date: Sun, 17 Apr 2005 11:07:59 +0200
-Message-Id: <1113728880.17394.16.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 17 Apr 2005 05:14:40 -0400
+Received: from amsfep14-int.chello.nl ([213.46.243.21]:46867 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id S261294AbVDQJEq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Apr 2005 05:04:46 -0400
+Date: Sun, 17 Apr 2005 11:04:42 +0200
+Message-Id: <200504170904.j3H94g60021040@anakin.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 549] M68k: Update defconfigs for 2.6.12-rc2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-04-17 at 10:17 +0200, Andreas Hartmann wrote:
-> Hello!
-> 
-> Alacritech developed a new chip for NIC's
-> (http://www.alacritech.com/html/tech_review.html), which makes it possible
-> to take away the TCP stack from the host CPU. Therefore, the host CPU has
-> more performance for the applications according Alacritech.
+M68k: Update defconfigs for 2.6.12-rc2
 
-there are very many good reasons why this for linux is not the right
-solution, including the fact that the linux tcp/ip stack already is
-quite fast so the "gains" achieved aren't that stellar as the gains you
-get when comparing to windows.
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-Also these types of solution always add quite a bit of overhead to
-connection setup/teardown making it actually a *loss* for the "many
-short connections" types of workloads. Now guess which things certain
-benchmarks use, and guess what real world servers do :)
+--- linux-2.6.12-rc2/arch/m68k/configs/amiga_defconfig	2005-04-17 10:50:47.890829548 +0200
++++ linux-m68k-2.6.12-rc2/arch/m68k/configs/amiga_defconfig	2005-04-17 10:50:08.913297047 +0200
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.11-m68k
+-# Wed Mar  2 15:28:00 2005
++# Linux kernel version: 2.6.12-rc2-m68k
++# Tue Apr  5 14:05:59 2005
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -15,6 +15,7 @@ CONFIG_GENERIC_CALIBRATE_DELAY=y
+ CONFIG_EXPERIMENTAL=y
+ CONFIG_CLEAN_COMPILE=y
+ CONFIG_BROKEN_ON_SMP=y
++CONFIG_INIT_ENV_ARG_LIMIT=32
+ 
+ #
+ # General setup
+@@ -27,7 +28,6 @@ CONFIG_BSD_PROCESS_ACCT=y
+ # CONFIG_BSD_PROCESS_ACCT_V3 is not set
+ CONFIG_SYSCTL=y
+ CONFIG_AUDIT=y
+-CONFIG_LOG_BUF_SHIFT=16
+ CONFIG_HOTPLUG=y
+ CONFIG_KOBJECT_UEVENT=y
+ # CONFIG_IKCONFIG is not set
+@@ -35,15 +35,16 @@ CONFIG_KOBJECT_UEVENT=y
+ CONFIG_KALLSYMS=y
+ # CONFIG_KALLSYMS_ALL is not set
+ # CONFIG_KALLSYMS_EXTRA_PASS is not set
++CONFIG_BASE_FULL=y
+ CONFIG_FUTEX=y
+ CONFIG_EPOLL=y
+-# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+ CONFIG_SHMEM=y
+ CONFIG_CC_ALIGN_FUNCTIONS=0
+ CONFIG_CC_ALIGN_LABELS=0
+ CONFIG_CC_ALIGN_LOOPS=0
+ CONFIG_CC_ALIGN_JUMPS=0
+ # CONFIG_TINY_SHMEM is not set
++CONFIG_BASE_SMALL=0
+ 
+ #
+ # Loadable module support
+@@ -118,9 +119,10 @@ CONFIG_FW_LOADER=m
+ #
+ CONFIG_PARPORT=m
+ # CONFIG_PARPORT_PC is not set
++CONFIG_PARPORT_NOT_PC=y
+ CONFIG_PARPORT_AMIGA=m
+ CONFIG_PARPORT_MFC3=m
+-# CONFIG_PARPORT_OTHER is not set
++# CONFIG_PARPORT_GSC is not set
+ CONFIG_PARPORT_1284=y
+ 
+ #
+@@ -230,7 +232,6 @@ CONFIG_SCSI_CONSTANTS=y
+ # CONFIG_SCSI_BUSLOGIC is not set
+ # CONFIG_SCSI_DTC3280 is not set
+ # CONFIG_SCSI_EATA is not set
+-# CONFIG_SCSI_EATA_PIO is not set
+ # CONFIG_SCSI_FUTURE_DOMAIN is not set
+ # CONFIG_SCSI_GDTH is not set
+ # CONFIG_SCSI_GENERIC_NCR5380 is not set
+@@ -280,6 +281,8 @@ CONFIG_DM_CRYPT=m
+ CONFIG_DM_SNAPSHOT=m
+ CONFIG_DM_MIRROR=m
+ CONFIG_DM_ZERO=m
++CONFIG_DM_MULTIPATH=m
++CONFIG_DM_MULTIPATH_EMC=m
+ 
+ #
+ # Fusion MPT device support
+@@ -303,7 +306,6 @@ CONFIG_NET=y
+ #
+ CONFIG_PACKET=y
+ # CONFIG_PACKET_MMAP is not set
+-CONFIG_NETLINK_DEV=y
+ CONFIG_UNIX=y
+ CONFIG_NET_KEY=y
+ CONFIG_INET=y
+@@ -403,7 +405,7 @@ CONFIG_IP_NF_ARPFILTER=m
+ CONFIG_IP_NF_ARP_MANGLE=m
+ 
+ #
+-# IPv6: Netfilter Configuration
++# IPv6: Netfilter Configuration (EXPERIMENTAL)
+ #
+ CONFIG_IP6_NF_QUEUE=m
+ CONFIG_IP6_NF_IPTABLES=m
+@@ -475,7 +477,6 @@ CONFIG_DUMMY=m
+ # CONFIG_BONDING is not set
+ CONFIG_EQUALIZER=m
+ # CONFIG_TUN is not set
+-# CONFIG_ETHERTAP is not set
+ 
+ #
+ # ARCnet devices
+@@ -569,17 +570,6 @@ CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+ # CONFIG_INPUT_EVBUG is not set
+ 
+ #
+-# Input I/O drivers
+-#
+-# CONFIG_GAMEPORT is not set
+-CONFIG_SOUND_GAMEPORT=y
+-CONFIG_SERIO=m
+-CONFIG_SERIO_SERPORT=m
+-# CONFIG_SERIO_CT82C710 is not set
+-# CONFIG_SERIO_PARKBD is not set
+-# CONFIG_SERIO_RAW is not set
+-
+-#
+ # Input Device Drivers
+ #
+ CONFIG_INPUT_KEYBOARD=y
+@@ -598,21 +588,43 @@ CONFIG_INPUT_MOUSE=y
+ CONFIG_MOUSE_AMIGA=y
+ # CONFIG_MOUSE_VSXXXAA is not set
+ CONFIG_INPUT_JOYSTICK=y
++# CONFIG_JOYSTICK_ANALOG is not set
++# CONFIG_JOYSTICK_A3D is not set
++# CONFIG_JOYSTICK_ADI is not set
++# CONFIG_JOYSTICK_COBRA is not set
++# CONFIG_JOYSTICK_GF2K is not set
++# CONFIG_JOYSTICK_GRIP is not set
++# CONFIG_JOYSTICK_GRIP_MP is not set
++# CONFIG_JOYSTICK_GUILLEMOT is not set
++# CONFIG_JOYSTICK_INTERACT is not set
++# CONFIG_JOYSTICK_SIDEWINDER is not set
++# CONFIG_JOYSTICK_TMDC is not set
+ # CONFIG_JOYSTICK_IFORCE is not set
+ # CONFIG_JOYSTICK_WARRIOR is not set
+ # CONFIG_JOYSTICK_MAGELLAN is not set
+ # CONFIG_JOYSTICK_SPACEORB is not set
+ # CONFIG_JOYSTICK_SPACEBALL is not set
+ # CONFIG_JOYSTICK_STINGER is not set
+-# CONFIG_JOYSTICK_TWIDDLER is not set
++# CONFIG_JOYSTICK_TWIDJOY is not set
+ # CONFIG_JOYSTICK_DB9 is not set
+ # CONFIG_JOYSTICK_GAMECON is not set
+ # CONFIG_JOYSTICK_TURBOGRAFX is not set
+ CONFIG_JOYSTICK_AMIGA=m
++# CONFIG_JOYSTICK_JOYDUMP is not set
+ # CONFIG_INPUT_TOUCHSCREEN is not set
+ # CONFIG_INPUT_MISC is not set
+ 
+ #
++# Hardware I/O ports
++#
++CONFIG_SERIO=m
++CONFIG_SERIO_SERPORT=m
++# CONFIG_SERIO_PARKBD is not set
++# CONFIG_SERIO_RAW is not set
++# CONFIG_GAMEPORT is not set
++CONFIG_SOUND_GAMEPORT=y
++
++#
+ # Character devices
+ #
+ CONFIG_VT=y
+@@ -658,6 +670,10 @@ CONFIG_GEN_RTC_X=y
+ # CONFIG_RAW_DRIVER is not set
+ 
+ #
++# TPM devices
++#
++
++#
+ # I2C support
+ #
+ # CONFIG_I2C is not set
+@@ -685,6 +701,11 @@ CONFIG_GEN_RTC_X=y
+ # Graphics support
+ #
+ CONFIG_FB=y
++CONFIG_FB_CFB_FILLRECT=y
++CONFIG_FB_CFB_COPYAREA=y
++CONFIG_FB_CFB_IMAGEBLIT=y
++CONFIG_FB_SOFT_CURSOR=y
++# CONFIG_FB_MACMODES is not set
+ CONFIG_FB_MODE_HELPERS=y
+ # CONFIG_FB_TILEBLITTING is not set
+ CONFIG_FB_CIRRUS=m
+@@ -693,6 +714,7 @@ CONFIG_FB_AMIGA_OCS=y
+ CONFIG_FB_AMIGA_ECS=y
+ CONFIG_FB_AMIGA_AGA=y
+ CONFIG_FB_FM2=y
++# CONFIG_FB_S1D13XXX is not set
+ # CONFIG_FB_VIRTUAL is not set
+ 
+ #
+@@ -728,10 +750,6 @@ CONFIG_DMASOUND=m
+ # CONFIG_USB_ARCH_HAS_OHCI is not set
+ 
+ #
+-# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support' may also be needed; see USB_STORAGE Help for more information
+-#
+-
+-#
+ # USB Gadget Support
+ #
+ # CONFIG_USB_GADGET is not set
+@@ -933,14 +951,19 @@ CONFIG_NLS_UTF8=m
+ #
+ # Kernel hacking
+ #
++# CONFIG_PRINTK_TIME is not set
+ CONFIG_DEBUG_KERNEL=y
+ CONFIG_MAGIC_SYSRQ=y
++CONFIG_LOG_BUF_SHIFT=16
+ # CONFIG_SCHEDSTATS is not set
+ # CONFIG_DEBUG_SLAB is not set
++# CONFIG_DEBUG_SPINLOCK is not set
++# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
+ # CONFIG_DEBUG_KOBJECT is not set
+ CONFIG_DEBUG_BUGVERBOSE=y
+ # CONFIG_DEBUG_INFO is not set
+ # CONFIG_DEBUG_FS is not set
++# CONFIG_FRAME_POINTER is not set
+ 
+ #
+ # Security options
+@@ -959,7 +982,8 @@ CONFIG_CRYPTO_MD5=m
+ CONFIG_CRYPTO_SHA1=m
+ CONFIG_CRYPTO_SHA256=m
+ CONFIG_CRYPTO_SHA512=m
+-# CONFIG_CRYPTO_WP512 is not set
++CONFIG_CRYPTO_WP512=m
++CONFIG_CRYPTO_TGR192=m
+ CONFIG_CRYPTO_DES=m
+ CONFIG_CRYPTO_BLOWFISH=m
+ CONFIG_CRYPTO_TWOFISH=m
+--- linux-2.6.12-rc2/arch/m68k/configs/apollo_defconfig	2005-04-17 10:50:46.982980186 +0200
++++ linux-m68k-2.6.12-rc2/arch/m68k/configs/apollo_defconfig	2005-04-17 10:50:08.914296881 +0200
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.11-m68k
+-# Wed Mar  2 15:28:01 2005
++# Linux kernel version: 2.6.12-rc2-m68k
++# Tue Apr  5 14:06:00 2005
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -15,6 +15,7 @@ CONFIG_GENERIC_CALIBRATE_DELAY=y
+ CONFIG_EXPERIMENTAL=y
+ CONFIG_CLEAN_COMPILE=y
+ CONFIG_BROKEN_ON_SMP=y
++CONFIG_INIT_ENV_ARG_LIMIT=32
+ 
+ #
+ # General setup
+@@ -27,7 +28,6 @@ CONFIG_BSD_PROCESS_ACCT=y
+ # CONFIG_BSD_PROCESS_ACCT_V3 is not set
+ CONFIG_SYSCTL=y
+ CONFIG_AUDIT=y
+-CONFIG_LOG_BUF_SHIFT=16
+ CONFIG_HOTPLUG=y
+ CONFIG_KOBJECT_UEVENT=y
+ # CONFIG_IKCONFIG is not set
+@@ -35,15 +35,16 @@ CONFIG_KOBJECT_UEVENT=y
+ CONFIG_KALLSYMS=y
+ # CONFIG_KALLSYMS_ALL is not set
+ # CONFIG_KALLSYMS_EXTRA_PASS is not set
++CONFIG_BASE_FULL=y
+ CONFIG_FUTEX=y
+ CONFIG_EPOLL=y
+-# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+ CONFIG_SHMEM=y
+ CONFIG_CC_ALIGN_FUNCTIONS=0
+ CONFIG_CC_ALIGN_LABELS=0
+ CONFIG_CC_ALIGN_LOOPS=0
+ CONFIG_CC_ALIGN_JUMPS=0
+ # CONFIG_TINY_SHMEM is not set
++CONFIG_BASE_SMALL=0
+ 
+ #
+ # Loadable module support
+@@ -201,6 +202,8 @@ CONFIG_DM_CRYPT=m
+ CONFIG_DM_SNAPSHOT=m
+ CONFIG_DM_MIRROR=m
+ CONFIG_DM_ZERO=m
++CONFIG_DM_MULTIPATH=m
++CONFIG_DM_MULTIPATH_EMC=m
+ 
+ #
+ # Fusion MPT device support
+@@ -224,7 +227,6 @@ CONFIG_NET=y
+ #
+ CONFIG_PACKET=y
+ # CONFIG_PACKET_MMAP is not set
+-CONFIG_NETLINK_DEV=y
+ CONFIG_UNIX=y
+ CONFIG_NET_KEY=y
+ CONFIG_INET=y
+@@ -327,7 +329,7 @@ CONFIG_IP_NF_ARPFILTER=m
+ CONFIG_IP_NF_ARP_MANGLE=m
+ 
+ #
+-# IPv6: Netfilter Configuration
++# IPv6: Netfilter Configuration (EXPERIMENTAL)
+ #
+ CONFIG_IP6_NF_QUEUE=m
+ CONFIG_IP6_NF_IPTABLES=m
+@@ -399,7 +401,6 @@ CONFIG_DUMMY=m
+ # CONFIG_BONDING is not set
+ CONFIG_EQUALIZER=m
+ # CONFIG_TUN is not set
+-# CONFIG_ETHERTAP is not set
+ 
+ #
+ # Ethernet (10 or 100Mbit)
+@@ -472,17 +473,6 @@ CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+ # CONFIG_INPUT_EVBUG is not set
+ 
+ #
+-# Input I/O drivers
+-#
+-# CONFIG_GAMEPORT is not set
+-CONFIG_SOUND_GAMEPORT=y
+-CONFIG_SERIO=m
+-CONFIG_SERIO_SERPORT=m
+-# CONFIG_SERIO_CT82C710 is not set
+-CONFIG_SERIO_LIBPS2=m
+-# CONFIG_SERIO_RAW is not set
+-
+-#
+ # Input Device Drivers
+ #
+ CONFIG_INPUT_KEYBOARD=y
+@@ -500,6 +490,16 @@ CONFIG_MOUSE_SERIAL=m
+ # CONFIG_INPUT_MISC is not set
+ 
+ #
++# Hardware I/O ports
++#
++CONFIG_SERIO=m
++CONFIG_SERIO_SERPORT=m
++CONFIG_SERIO_LIBPS2=m
++# CONFIG_SERIO_RAW is not set
++# CONFIG_GAMEPORT is not set
++CONFIG_SOUND_GAMEPORT=y
++
++#
+ # Character devices
+ #
+ CONFIG_VT=y
+@@ -540,6 +540,10 @@ CONFIG_GEN_RTC_X=y
+ # CONFIG_RAW_DRIVER is not set
+ 
+ #
++# TPM devices
++#
++
++#
+ # I2C support
+ #
+ # CONFIG_I2C is not set
+@@ -585,10 +589,6 @@ CONFIG_DUMMY_CONSOLE=y
+ # CONFIG_USB_ARCH_HAS_OHCI is not set
+ 
+ #
+-# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support' may also be needed; see USB_STORAGE Help for more information
+-#
+-
+-#
+ # USB Gadget Support
+ #
+ # CONFIG_USB_GADGET is not set
+@@ -788,14 +788,19 @@ CONFIG_NLS_UTF8=m
+ #
+ # Kernel hacking
+ #
++# CONFIG_PRINTK_TIME is not set
+ CONFIG_DEBUG_KERNEL=y
+ CONFIG_MAGIC_SYSRQ=y
++CONFIG_LOG_BUF_SHIFT=16
+ # CONFIG_SCHEDSTATS is not set
+ # CONFIG_DEBUG_SLAB is not set
++# CONFIG_DEBUG_SPINLOCK is not set
++# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
+ # CONFIG_DEBUG_KOBJECT is not set
+ CONFIG_DEBUG_BUGVERBOSE=y
+ # CONFIG_DEBUG_INFO is not set
+ # CONFIG_DEBUG_FS is not set
++# CONFIG_FRAME_POINTER is not set
+ 
+ #
+ # Security options
+@@ -814,7 +819,8 @@ CONFIG_CRYPTO_MD5=y
+ CONFIG_CRYPTO_SHA1=m
+ CONFIG_CRYPTO_SHA256=m
+ CONFIG_CRYPTO_SHA512=m
+-# CONFIG_CRYPTO_WP512 is not set
++CONFIG_CRYPTO_WP512=m
++CONFIG_CRYPTO_TGR192=m
+ CONFIG_CRYPTO_DES=y
+ CONFIG_CRYPTO_BLOWFISH=m
+ CONFIG_CRYPTO_TWOFISH=m
+--- linux-2.6.12-rc2/arch/m68k/configs/atari_defconfig	2005-04-17 10:50:47.032971891 +0200
++++ linux-m68k-2.6.12-rc2/arch/m68k/configs/atari_defconfig	2005-04-17 10:50:08.914296881 +0200
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.11-m68k
+-# Wed Mar  2 15:28:03 2005
++# Linux kernel version: 2.6.12-rc2-m68k
++# Tue Apr  5 14:06:18 2005
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -15,6 +15,7 @@ CONFIG_GENERIC_CALIBRATE_DELAY=y
+ CONFIG_EXPERIMENTAL=y
+ CONFIG_CLEAN_COMPILE=y
+ CONFIG_BROKEN_ON_SMP=y
++CONFIG_INIT_ENV_ARG_LIMIT=32
+ 
+ #
+ # General setup
+@@ -27,7 +28,6 @@ CONFIG_BSD_PROCESS_ACCT=y
+ # CONFIG_BSD_PROCESS_ACCT_V3 is not set
+ CONFIG_SYSCTL=y
+ CONFIG_AUDIT=y
+-CONFIG_LOG_BUF_SHIFT=16
+ CONFIG_HOTPLUG=y
+ CONFIG_KOBJECT_UEVENT=y
+ # CONFIG_IKCONFIG is not set
+@@ -35,15 +35,16 @@ CONFIG_KOBJECT_UEVENT=y
+ CONFIG_KALLSYMS=y
+ # CONFIG_KALLSYMS_ALL is not set
+ # CONFIG_KALLSYMS_EXTRA_PASS is not set
++CONFIG_BASE_FULL=y
+ CONFIG_FUTEX=y
+ CONFIG_EPOLL=y
+-# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+ CONFIG_SHMEM=y
+ CONFIG_CC_ALIGN_FUNCTIONS=0
+ CONFIG_CC_ALIGN_LABELS=0
+ CONFIG_CC_ALIGN_LOOPS=0
+ CONFIG_CC_ALIGN_JUMPS=0
+ # CONFIG_TINY_SHMEM is not set
++CONFIG_BASE_SMALL=0
+ 
+ #
+ # Loadable module support
+@@ -114,8 +115,9 @@ CONFIG_FW_LOADER=m
+ #
+ CONFIG_PARPORT=m
+ # CONFIG_PARPORT_PC is not set
++CONFIG_PARPORT_NOT_PC=y
+ CONFIG_PARPORT_ATARI=m
+-# CONFIG_PARPORT_OTHER is not set
++# CONFIG_PARPORT_GSC is not set
+ CONFIG_PARPORT_1284=y
+ 
+ #
+@@ -233,6 +235,8 @@ CONFIG_DM_CRYPT=m
+ CONFIG_DM_SNAPSHOT=m
+ CONFIG_DM_MIRROR=m
+ CONFIG_DM_ZERO=m
++CONFIG_DM_MULTIPATH=m
++CONFIG_DM_MULTIPATH_EMC=m
+ 
+ #
+ # Fusion MPT device support
+@@ -256,7 +260,6 @@ CONFIG_NET=y
+ #
+ CONFIG_PACKET=y
+ # CONFIG_PACKET_MMAP is not set
+-CONFIG_NETLINK_DEV=y
+ CONFIG_UNIX=y
+ CONFIG_NET_KEY=y
+ CONFIG_INET=y
+@@ -356,7 +359,7 @@ CONFIG_IP_NF_ARPFILTER=m
+ CONFIG_IP_NF_ARP_MANGLE=m
+ 
+ #
+-# IPv6: Netfilter Configuration
++# IPv6: Netfilter Configuration (EXPERIMENTAL)
+ #
+ CONFIG_IP6_NF_QUEUE=m
+ CONFIG_IP6_NF_IPTABLES=m
+@@ -428,7 +431,6 @@ CONFIG_DUMMY=m
+ # CONFIG_BONDING is not set
+ CONFIG_EQUALIZER=m
+ # CONFIG_TUN is not set
+-# CONFIG_ETHERTAP is not set
+ 
+ #
+ # Ethernet (10 or 100Mbit)
+@@ -502,18 +504,6 @@ CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+ # CONFIG_INPUT_EVBUG is not set
+ 
+ #
+-# Input I/O drivers
+-#
+-# CONFIG_GAMEPORT is not set
+-CONFIG_SOUND_GAMEPORT=y
+-CONFIG_SERIO=y
+-CONFIG_SERIO_SERPORT=y
+-# CONFIG_SERIO_CT82C710 is not set
+-# CONFIG_SERIO_PARKBD is not set
+-CONFIG_SERIO_LIBPS2=y
+-# CONFIG_SERIO_RAW is not set
+-
+-#
+ # Input Device Drivers
+ #
+ CONFIG_INPUT_KEYBOARD=y
+@@ -533,6 +523,17 @@ CONFIG_INPUT_M68K_BEEP=m
+ CONFIG_INPUT_UINPUT=m
+ 
+ #
++# Hardware I/O ports
++#
++CONFIG_SERIO=y
++CONFIG_SERIO_SERPORT=y
++# CONFIG_SERIO_PARKBD is not set
++CONFIG_SERIO_LIBPS2=y
++# CONFIG_SERIO_RAW is not set
++# CONFIG_GAMEPORT is not set
++CONFIG_SOUND_GAMEPORT=y
++
++#
+ # Character devices
+ #
+ CONFIG_VT=y
+@@ -578,6 +579,10 @@ CONFIG_GEN_RTC_X=y
+ # CONFIG_RAW_DRIVER is not set
+ 
+ #
++# TPM devices
++#
++
++#
+ # I2C support
+ #
+ # CONFIG_I2C is not set
+@@ -605,9 +610,15 @@ CONFIG_GEN_RTC_X=y
+ # Graphics support
+ #
+ CONFIG_FB=y
++# CONFIG_FB_CFB_FILLRECT is not set
++# CONFIG_FB_CFB_COPYAREA is not set
++# CONFIG_FB_CFB_IMAGEBLIT is not set
++# CONFIG_FB_SOFT_CURSOR is not set
++# CONFIG_FB_MACMODES is not set
+ CONFIG_FB_MODE_HELPERS=y
+ # CONFIG_FB_TILEBLITTING is not set
+ # CONFIG_FB_ATY is not set
++# CONFIG_FB_S1D13XXX is not set
+ # CONFIG_FB_VIRTUAL is not set
+ 
+ #
+@@ -639,10 +650,6 @@ CONFIG_DMASOUND=m
+ # CONFIG_USB_ARCH_HAS_OHCI is not set
+ 
+ #
+-# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support' may also be needed; see USB_STORAGE Help for more information
+-#
+-
+-#
+ # USB Gadget Support
+ #
+ # CONFIG_USB_GADGET is not set
+@@ -844,14 +851,19 @@ CONFIG_NLS_UTF8=m
+ #
+ # Kernel hacking
+ #
++# CONFIG_PRINTK_TIME is not set
+ CONFIG_DEBUG_KERNEL=y
+ CONFIG_MAGIC_SYSRQ=y
++CONFIG_LOG_BUF_SHIFT=16
+ # CONFIG_SCHEDSTATS is not set
+ # CONFIG_DEBUG_SLAB is not set
++# CONFIG_DEBUG_SPINLOCK is not set
++# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
+ # CONFIG_DEBUG_KOBJECT is not set
+ CONFIG_DEBUG_BUGVERBOSE=y
+ # CONFIG_DEBUG_INFO is not set
+ # CONFIG_DEBUG_FS is not set
++# CONFIG_FRAME_POINTER is not set
+ 
+ #
+ # Security options
+@@ -870,7 +882,8 @@ CONFIG_CRYPTO_MD5=m
+ CONFIG_CRYPTO_SHA1=m
+ CONFIG_CRYPTO_SHA256=m
+ CONFIG_CRYPTO_SHA512=m
+-# CONFIG_CRYPTO_WP512 is not set
++CONFIG_CRYPTO_WP512=m
++CONFIG_CRYPTO_TGR192=m
+ CONFIG_CRYPTO_DES=m
+ CONFIG_CRYPTO_BLOWFISH=m
+ CONFIG_CRYPTO_TWOFISH=m
+--- linux-2.6.12-rc2/arch/m68k/configs/bvme6000_defconfig	2005-04-17 10:50:47.891829382 +0200
++++ linux-m68k-2.6.12-rc2/arch/m68k/configs/bvme6000_defconfig	2005-04-17 10:50:08.915296715 +0200
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.11-m68k
+-# Wed Mar  2 15:28:04 2005
++# Linux kernel version: 2.6.12-rc2-m68k
++# Tue Apr  5 14:06:19 2005
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -15,6 +15,7 @@ CONFIG_GENERIC_CALIBRATE_DELAY=y
+ CONFIG_EXPERIMENTAL=y
+ CONFIG_CLEAN_COMPILE=y
+ CONFIG_BROKEN_ON_SMP=y
++CONFIG_INIT_ENV_ARG_LIMIT=32
+ 
+ #
+ # General setup
+@@ -27,7 +28,6 @@ CONFIG_BSD_PROCESS_ACCT=y
+ # CONFIG_BSD_PROCESS_ACCT_V3 is not set
+ CONFIG_SYSCTL=y
+ CONFIG_AUDIT=y
+-CONFIG_LOG_BUF_SHIFT=16
+ CONFIG_HOTPLUG=y
+ CONFIG_KOBJECT_UEVENT=y
+ # CONFIG_IKCONFIG is not set
+@@ -35,15 +35,16 @@ CONFIG_KOBJECT_UEVENT=y
+ CONFIG_KALLSYMS=y
+ # CONFIG_KALLSYMS_ALL is not set
+ # CONFIG_KALLSYMS_EXTRA_PASS is not set
++CONFIG_BASE_FULL=y
+ CONFIG_FUTEX=y
+ CONFIG_EPOLL=y
+-# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+ CONFIG_SHMEM=y
+ CONFIG_CC_ALIGN_FUNCTIONS=0
+ CONFIG_CC_ALIGN_LABELS=0
+ CONFIG_CC_ALIGN_LOOPS=0
+ CONFIG_CC_ALIGN_JUMPS=0
+ # CONFIG_TINY_SHMEM is not set
++CONFIG_BASE_SMALL=0
+ 
+ #
+ # Loadable module support
+@@ -203,6 +204,8 @@ CONFIG_DM_CRYPT=m
+ CONFIG_DM_SNAPSHOT=m
+ CONFIG_DM_MIRROR=m
+ CONFIG_DM_ZERO=m
++CONFIG_DM_MULTIPATH=m
++CONFIG_DM_MULTIPATH_EMC=m
+ 
+ #
+ # Fusion MPT device support
+@@ -226,7 +229,6 @@ CONFIG_NET=y
+ #
+ CONFIG_PACKET=y
+ # CONFIG_PACKET_MMAP is not set
+-CONFIG_NETLINK_DEV=y
+ CONFIG_UNIX=y
+ CONFIG_NET_KEY=y
+ CONFIG_INET=y
+@@ -329,7 +331,7 @@ CONFIG_IP_NF_ARPFILTER=m
+ CONFIG_IP_NF_ARP_MANGLE=m
+ 
+ #
+-# IPv6: Netfilter Configuration
++# IPv6: Netfilter Configuration (EXPERIMENTAL)
+ #
+ CONFIG_IP6_NF_QUEUE=m
+ CONFIG_IP6_NF_IPTABLES=m
+@@ -400,7 +402,6 @@ CONFIG_DUMMY=m
+ # CONFIG_BONDING is not set
+ CONFIG_EQUALIZER=m
+ # CONFIG_TUN is not set
+-# CONFIG_ETHERTAP is not set
+ 
+ #
+ # Ethernet (10 or 100Mbit)
+@@ -473,17 +474,6 @@ CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+ # CONFIG_INPUT_EVBUG is not set
+ 
+ #
+-# Input I/O drivers
+-#
+-# CONFIG_GAMEPORT is not set
+-CONFIG_SOUND_GAMEPORT=y
+-CONFIG_SERIO=m
+-CONFIG_SERIO_SERPORT=m
+-# CONFIG_SERIO_CT82C710 is not set
+-CONFIG_SERIO_LIBPS2=m
+-# CONFIG_SERIO_RAW is not set
+-
+-#
+ # Input Device Drivers
+ #
+ CONFIG_INPUT_KEYBOARD=y
+@@ -501,6 +491,16 @@ CONFIG_MOUSE_SERIAL=m
+ # CONFIG_INPUT_MISC is not set
+ 
+ #
++# Hardware I/O ports
++#
++CONFIG_SERIO=m
++CONFIG_SERIO_SERPORT=m
++CONFIG_SERIO_LIBPS2=m
++# CONFIG_SERIO_RAW is not set
++# CONFIG_GAMEPORT is not set
++CONFIG_SOUND_GAMEPORT=y
++
++#
+ # Character devices
+ #
+ CONFIG_VT=y
+@@ -541,6 +541,10 @@ CONFIG_GEN_RTC_X=y
+ # CONFIG_RAW_DRIVER is not set
+ 
+ #
++# TPM devices
++#
++
++#
+ # I2C support
+ #
+ # CONFIG_I2C is not set
+@@ -586,10 +590,6 @@ CONFIG_DUMMY_CONSOLE=y
+ # CONFIG_USB_ARCH_HAS_OHCI is not set
+ 
+ #
+-# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support' may also be needed; see USB_STORAGE Help for more information
+-#
+-
+-#
+ # USB Gadget Support
+ #
+ # CONFIG_USB_GADGET is not set
+@@ -789,14 +789,19 @@ CONFIG_NLS_UTF8=m
+ #
+ # Kernel hacking
+ #
++# CONFIG_PRINTK_TIME is not set
+ CONFIG_DEBUG_KERNEL=y
+ CONFIG_MAGIC_SYSRQ=y
++CONFIG_LOG_BUF_SHIFT=16
+ # CONFIG_SCHEDSTATS is not set
+ # CONFIG_DEBUG_SLAB is not set
++# CONFIG_DEBUG_SPINLOCK is not set
++# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
+ # CONFIG_DEBUG_KOBJECT is not set
+ CONFIG_DEBUG_BUGVERBOSE=y
+ # CONFIG_DEBUG_INFO is not set
+ # CONFIG_DEBUG_FS is not set
++# CONFIG_FRAME_POINTER is not set
+ 
+ #
+ # Security options
+@@ -815,7 +820,8 @@ CONFIG_CRYPTO_MD5=y
+ CONFIG_CRYPTO_SHA1=m
+ CONFIG_CRYPTO_SHA256=m
+ CONFIG_CRYPTO_SHA512=m
+-# CONFIG_CRYPTO_WP512 is not set
++CONFIG_CRYPTO_WP512=m
++CONFIG_CRYPTO_TGR192=m
+ CONFIG_CRYPTO_DES=y
+ CONFIG_CRYPTO_BLOWFISH=m
+ CONFIG_CRYPTO_TWOFISH=m
+--- linux-2.6.12-rc2/arch/m68k/configs/hp300_defconfig	2005-04-17 10:50:47.034971559 +0200
++++ linux-m68k-2.6.12-rc2/arch/m68k/configs/hp300_defconfig	2005-04-17 10:50:08.915296715 +0200
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.11-m68k
+-# Wed Mar  2 15:28:06 2005
++# Linux kernel version: 2.6.12-rc2-m68k
++# Tue Apr  5 14:06:21 2005
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -15,6 +15,7 @@ CONFIG_GENERIC_CALIBRATE_DELAY=y
+ CONFIG_EXPERIMENTAL=y
+ CONFIG_CLEAN_COMPILE=y
+ CONFIG_BROKEN_ON_SMP=y
++CONFIG_INIT_ENV_ARG_LIMIT=32
+ 
+ #
+ # General setup
+@@ -27,7 +28,6 @@ CONFIG_BSD_PROCESS_ACCT=y
+ # CONFIG_BSD_PROCESS_ACCT_V3 is not set
+ CONFIG_SYSCTL=y
+ CONFIG_AUDIT=y
+-CONFIG_LOG_BUF_SHIFT=16
+ CONFIG_HOTPLUG=y
+ CONFIG_KOBJECT_UEVENT=y
+ # CONFIG_IKCONFIG is not set
+@@ -35,15 +35,16 @@ CONFIG_KOBJECT_UEVENT=y
+ CONFIG_KALLSYMS=y
+ # CONFIG_KALLSYMS_ALL is not set
+ # CONFIG_KALLSYMS_EXTRA_PASS is not set
++CONFIG_BASE_FULL=y
+ CONFIG_FUTEX=y
+ CONFIG_EPOLL=y
+-# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+ CONFIG_SHMEM=y
+ CONFIG_CC_ALIGN_FUNCTIONS=0
+ CONFIG_CC_ALIGN_LABELS=0
+ CONFIG_CC_ALIGN_LOOPS=0
+ CONFIG_CC_ALIGN_JUMPS=0
+ # CONFIG_TINY_SHMEM is not set
++CONFIG_BASE_SMALL=0
+ 
+ #
+ # Loadable module support
+@@ -202,6 +203,8 @@ CONFIG_DM_CRYPT=m
+ CONFIG_DM_SNAPSHOT=m
+ CONFIG_DM_MIRROR=m
+ CONFIG_DM_ZERO=m
++CONFIG_DM_MULTIPATH=m
++CONFIG_DM_MULTIPATH_EMC=m
+ 
+ #
+ # Fusion MPT device support
+@@ -225,7 +228,6 @@ CONFIG_NET=y
+ #
+ CONFIG_PACKET=y
+ # CONFIG_PACKET_MMAP is not set
+-CONFIG_NETLINK_DEV=y
+ CONFIG_UNIX=y
+ CONFIG_NET_KEY=y
+ CONFIG_INET=y
+@@ -328,7 +330,7 @@ CONFIG_IP_NF_ARPFILTER=m
+ CONFIG_IP_NF_ARP_MANGLE=m
+ 
+ #
+-# IPv6: Netfilter Configuration
++# IPv6: Netfilter Configuration (EXPERIMENTAL)
+ #
+ CONFIG_IP6_NF_QUEUE=m
+ CONFIG_IP6_NF_IPTABLES=m
+@@ -400,7 +402,6 @@ CONFIG_DUMMY=m
+ # CONFIG_BONDING is not set
+ CONFIG_EQUALIZER=m
+ # CONFIG_TUN is not set
+-# CONFIG_ETHERTAP is not set
+ 
+ #
+ # Ethernet (10 or 100Mbit)
+@@ -473,17 +474,6 @@ CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+ # CONFIG_INPUT_EVBUG is not set
+ 
+ #
+-# Input I/O drivers
+-#
+-# CONFIG_GAMEPORT is not set
+-CONFIG_SOUND_GAMEPORT=y
+-CONFIG_SERIO=m
+-CONFIG_SERIO_SERPORT=m
+-# CONFIG_SERIO_CT82C710 is not set
+-CONFIG_SERIO_LIBPS2=m
+-# CONFIG_SERIO_RAW is not set
+-
+-#
+ # Input Device Drivers
+ #
+ CONFIG_INPUT_KEYBOARD=y
+@@ -501,6 +491,16 @@ CONFIG_MOUSE_SERIAL=m
+ # CONFIG_INPUT_MISC is not set
+ 
+ #
++# Hardware I/O ports
++#
++CONFIG_SERIO=m
++CONFIG_SERIO_SERPORT=m
++CONFIG_SERIO_LIBPS2=m
++# CONFIG_SERIO_RAW is not set
++# CONFIG_GAMEPORT is not set
++CONFIG_SOUND_GAMEPORT=y
++
++#
+ # Character devices
+ #
+ CONFIG_VT=y
+@@ -541,6 +541,10 @@ CONFIG_GEN_RTC_X=y
+ # CONFIG_RAW_DRIVER is not set
+ 
+ #
++# TPM devices
++#
++
++#
+ # I2C support
+ #
+ # CONFIG_I2C is not set
+@@ -586,10 +590,6 @@ CONFIG_DUMMY_CONSOLE=y
+ # CONFIG_USB_ARCH_HAS_OHCI is not set
+ 
+ #
+-# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support' may also be needed; see USB_STORAGE Help for more information
+-#
+-
+-#
+ # USB Gadget Support
+ #
+ # CONFIG_USB_GADGET is not set
+@@ -787,14 +787,19 @@ CONFIG_NLS_UTF8=m
+ #
+ # Kernel hacking
+ #
++# CONFIG_PRINTK_TIME is not set
+ CONFIG_DEBUG_KERNEL=y
+ CONFIG_MAGIC_SYSRQ=y
++CONFIG_LOG_BUF_SHIFT=16
+ # CONFIG_SCHEDSTATS is not set
+ # CONFIG_DEBUG_SLAB is not set
++# CONFIG_DEBUG_SPINLOCK is not set
++# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
+ # CONFIG_DEBUG_KOBJECT is not set
+ CONFIG_DEBUG_BUGVERBOSE=y
+ # CONFIG_DEBUG_INFO is not set
+ # CONFIG_DEBUG_FS is not set
++# CONFIG_FRAME_POINTER is not set
+ 
+ #
+ # Security options
+@@ -813,7 +818,8 @@ CONFIG_CRYPTO_MD5=y
+ CONFIG_CRYPTO_SHA1=m
+ CONFIG_CRYPTO_SHA256=m
+ CONFIG_CRYPTO_SHA512=m
+-# CONFIG_CRYPTO_WP512 is not set
++CONFIG_CRYPTO_WP512=m
++CONFIG_CRYPTO_TGR192=m
+ CONFIG_CRYPTO_DES=y
+ CONFIG_CRYPTO_BLOWFISH=m
+ CONFIG_CRYPTO_TWOFISH=m
+--- linux-2.6.12-rc2/arch/m68k/configs/mac_defconfig	2005-04-17 10:50:47.035971393 +0200
++++ linux-m68k-2.6.12-rc2/arch/m68k/configs/mac_defconfig	2005-04-17 10:50:08.916296549 +0200
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.11-m68k
+-# Wed Mar  2 15:28:08 2005
++# Linux kernel version: 2.6.12-rc2-m68k
++# Tue Apr  5 14:06:24 2005
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -15,6 +15,7 @@ CONFIG_GENERIC_CALIBRATE_DELAY=y
+ CONFIG_EXPERIMENTAL=y
+ CONFIG_CLEAN_COMPILE=y
+ CONFIG_BROKEN_ON_SMP=y
++CONFIG_INIT_ENV_ARG_LIMIT=32
+ 
+ #
+ # General setup
+@@ -27,7 +28,6 @@ CONFIG_BSD_PROCESS_ACCT=y
+ # CONFIG_BSD_PROCESS_ACCT_V3 is not set
+ CONFIG_SYSCTL=y
+ CONFIG_AUDIT=y
+-CONFIG_LOG_BUF_SHIFT=16
+ CONFIG_HOTPLUG=y
+ CONFIG_KOBJECT_UEVENT=y
+ # CONFIG_IKCONFIG is not set
+@@ -35,15 +35,16 @@ CONFIG_KOBJECT_UEVENT=y
+ CONFIG_KALLSYMS=y
+ # CONFIG_KALLSYMS_ALL is not set
+ # CONFIG_KALLSYMS_EXTRA_PASS is not set
++CONFIG_BASE_FULL=y
+ CONFIG_FUTEX=y
+ CONFIG_EPOLL=y
+-# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+ CONFIG_SHMEM=y
+ CONFIG_CC_ALIGN_FUNCTIONS=0
+ CONFIG_CC_ALIGN_LABELS=0
+ CONFIG_CC_ALIGN_LOOPS=0
+ CONFIG_CC_ALIGN_JUMPS=0
+ # CONFIG_TINY_SHMEM is not set
++CONFIG_BASE_SMALL=0
+ 
+ #
+ # Loadable module support
+@@ -228,6 +229,8 @@ CONFIG_DM_CRYPT=m
+ CONFIG_DM_SNAPSHOT=m
+ CONFIG_DM_MIRROR=m
+ CONFIG_DM_ZERO=m
++CONFIG_DM_MULTIPATH=m
++CONFIG_DM_MULTIPATH_EMC=m
+ 
+ #
+ # Fusion MPT device support
+@@ -263,7 +266,6 @@ CONFIG_NET=y
+ #
+ CONFIG_PACKET=y
+ # CONFIG_PACKET_MMAP is not set
+-CONFIG_NETLINK_DEV=y
+ CONFIG_UNIX=y
+ CONFIG_NET_KEY=y
+ CONFIG_INET=y
+@@ -363,7 +365,7 @@ CONFIG_IP_NF_ARPFILTER=m
+ CONFIG_IP_NF_ARP_MANGLE=m
+ 
+ #
+-# IPv6: Netfilter Configuration
++# IPv6: Netfilter Configuration (EXPERIMENTAL)
+ #
+ CONFIG_IP6_NF_QUEUE=m
+ CONFIG_IP6_NF_IPTABLES=m
+@@ -438,7 +440,6 @@ CONFIG_DUMMY=m
+ # CONFIG_BONDING is not set
+ CONFIG_EQUALIZER=m
+ # CONFIG_TUN is not set
+-# CONFIG_ETHERTAP is not set
+ 
+ #
+ # Ethernet (10 or 100Mbit)
+@@ -515,17 +516,6 @@ CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+ # CONFIG_INPUT_EVBUG is not set
+ 
+ #
+-# Input I/O drivers
+-#
+-# CONFIG_GAMEPORT is not set
+-CONFIG_SOUND_GAMEPORT=y
+-CONFIG_SERIO=m
+-CONFIG_SERIO_SERPORT=m
+-# CONFIG_SERIO_CT82C710 is not set
+-CONFIG_SERIO_LIBPS2=m
+-# CONFIG_SERIO_RAW is not set
+-
+-#
+ # Input Device Drivers
+ #
+ CONFIG_INPUT_KEYBOARD=y
+@@ -543,6 +533,16 @@ CONFIG_MOUSE_SERIAL=m
+ # CONFIG_INPUT_MISC is not set
+ 
+ #
++# Hardware I/O ports
++#
++CONFIG_SERIO=m
++CONFIG_SERIO_SERPORT=m
++CONFIG_SERIO_LIBPS2=m
++# CONFIG_SERIO_RAW is not set
++# CONFIG_GAMEPORT is not set
++CONFIG_SOUND_GAMEPORT=y
++
++#
+ # Character devices
+ #
+ CONFIG_VT=y
+@@ -583,6 +583,10 @@ CONFIG_GEN_RTC_X=y
+ # CONFIG_RAW_DRIVER is not set
+ 
+ #
++# TPM devices
++#
++
++#
+ # I2C support
+ #
+ # CONFIG_I2C is not set
+@@ -610,10 +614,16 @@ CONFIG_GEN_RTC_X=y
+ # Graphics support
+ #
+ CONFIG_FB=y
++CONFIG_FB_CFB_FILLRECT=y
++CONFIG_FB_CFB_COPYAREA=y
++CONFIG_FB_CFB_IMAGEBLIT=y
++CONFIG_FB_SOFT_CURSOR=y
++CONFIG_FB_MACMODES=y
+ CONFIG_FB_MODE_HELPERS=y
+ # CONFIG_FB_TILEBLITTING is not set
+ CONFIG_FB_VALKYRIE=y
+ CONFIG_FB_MAC=y
++# CONFIG_FB_S1D13XXX is not set
+ # CONFIG_FB_VIRTUAL is not set
+ 
+ #
+@@ -648,10 +658,6 @@ CONFIG_LOGO_MAC_CLUT224=y
+ # CONFIG_USB_ARCH_HAS_OHCI is not set
+ 
+ #
+-# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support' may also be needed; see USB_STORAGE Help for more information
+-#
+-
+-#
+ # USB Gadget Support
+ #
+ # CONFIG_USB_GADGET is not set
+@@ -862,19 +868,24 @@ CONFIG_NLS_ISO8859_14=m
+ CONFIG_NLS_ISO8859_15=m
+ CONFIG_NLS_KOI8_R=m
+ CONFIG_NLS_KOI8_U=m
+-CONFIG_NLS_UTF8=m
++CONFIG_NLS_UTF8=y
+ 
+ #
+ # Kernel hacking
+ #
++# CONFIG_PRINTK_TIME is not set
+ CONFIG_DEBUG_KERNEL=y
+ CONFIG_MAGIC_SYSRQ=y
++CONFIG_LOG_BUF_SHIFT=16
+ # CONFIG_SCHEDSTATS is not set
+ # CONFIG_DEBUG_SLAB is not set
++# CONFIG_DEBUG_SPINLOCK is not set
++# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
+ # CONFIG_DEBUG_KOBJECT is not set
+ CONFIG_DEBUG_BUGVERBOSE=y
+ # CONFIG_DEBUG_INFO is not set
+ # CONFIG_DEBUG_FS is not set
++# CONFIG_FRAME_POINTER is not set
+ 
+ #
+ # Security options
+@@ -893,7 +904,8 @@ CONFIG_CRYPTO_MD5=y
+ CONFIG_CRYPTO_SHA1=m
+ CONFIG_CRYPTO_SHA256=m
+ CONFIG_CRYPTO_SHA512=m
+-# CONFIG_CRYPTO_WP512 is not set
++CONFIG_CRYPTO_WP512=m
++CONFIG_CRYPTO_TGR192=m
+ CONFIG_CRYPTO_DES=m
+ CONFIG_CRYPTO_BLOWFISH=m
+ CONFIG_CRYPTO_TWOFISH=m
+--- linux-2.6.12-rc2/arch/m68k/configs/mvme147_defconfig	2005-04-17 10:50:47.036971227 +0200
++++ linux-m68k-2.6.12-rc2/arch/m68k/configs/mvme147_defconfig	2005-04-17 10:50:08.916296549 +0200
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.11-m68k
+-# Wed Mar  2 15:28:09 2005
++# Linux kernel version: 2.6.12-rc2-m68k
++# Tue Apr  5 14:06:28 2005
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -15,6 +15,7 @@ CONFIG_GENERIC_CALIBRATE_DELAY=y
+ CONFIG_EXPERIMENTAL=y
+ CONFIG_CLEAN_COMPILE=y
+ CONFIG_BROKEN_ON_SMP=y
++CONFIG_INIT_ENV_ARG_LIMIT=32
+ 
+ #
+ # General setup
+@@ -27,7 +28,6 @@ CONFIG_BSD_PROCESS_ACCT=y
+ # CONFIG_BSD_PROCESS_ACCT_V3 is not set
+ CONFIG_SYSCTL=y
+ CONFIG_AUDIT=y
+-CONFIG_LOG_BUF_SHIFT=16
+ CONFIG_HOTPLUG=y
+ CONFIG_KOBJECT_UEVENT=y
+ # CONFIG_IKCONFIG is not set
+@@ -35,15 +35,16 @@ CONFIG_KOBJECT_UEVENT=y
+ CONFIG_KALLSYMS=y
+ # CONFIG_KALLSYMS_ALL is not set
+ # CONFIG_KALLSYMS_EXTRA_PASS is not set
++CONFIG_BASE_FULL=y
+ CONFIG_FUTEX=y
+ CONFIG_EPOLL=y
+-# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+ CONFIG_SHMEM=y
+ CONFIG_CC_ALIGN_FUNCTIONS=0
+ CONFIG_CC_ALIGN_LABELS=0
+ CONFIG_CC_ALIGN_LOOPS=0
+ CONFIG_CC_ALIGN_JUMPS=0
+ # CONFIG_TINY_SHMEM is not set
++CONFIG_BASE_SMALL=0
+ 
+ #
+ # Loadable module support
+@@ -202,6 +203,8 @@ CONFIG_DM_CRYPT=m
+ CONFIG_DM_SNAPSHOT=m
+ CONFIG_DM_MIRROR=m
+ CONFIG_DM_ZERO=m
++CONFIG_DM_MULTIPATH=m
++CONFIG_DM_MULTIPATH_EMC=m
+ 
+ #
+ # Fusion MPT device support
+@@ -225,7 +228,6 @@ CONFIG_NET=y
+ #
+ CONFIG_PACKET=y
+ # CONFIG_PACKET_MMAP is not set
+-CONFIG_NETLINK_DEV=y
+ CONFIG_UNIX=y
+ CONFIG_NET_KEY=y
+ CONFIG_INET=y
+@@ -328,7 +330,7 @@ CONFIG_IP_NF_ARPFILTER=m
+ CONFIG_IP_NF_ARP_MANGLE=m
+ 
+ #
+-# IPv6: Netfilter Configuration
++# IPv6: Netfilter Configuration (EXPERIMENTAL)
+ #
+ CONFIG_IP6_NF_QUEUE=m
+ CONFIG_IP6_NF_IPTABLES=m
+@@ -400,7 +402,6 @@ CONFIG_DUMMY=m
+ # CONFIG_BONDING is not set
+ CONFIG_EQUALIZER=m
+ # CONFIG_TUN is not set
+-# CONFIG_ETHERTAP is not set
+ 
+ #
+ # Ethernet (10 or 100Mbit)
+@@ -473,17 +474,6 @@ CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+ # CONFIG_INPUT_EVBUG is not set
+ 
+ #
+-# Input I/O drivers
+-#
+-# CONFIG_GAMEPORT is not set
+-CONFIG_SOUND_GAMEPORT=y
+-CONFIG_SERIO=m
+-CONFIG_SERIO_SERPORT=m
+-# CONFIG_SERIO_CT82C710 is not set
+-CONFIG_SERIO_LIBPS2=m
+-# CONFIG_SERIO_RAW is not set
+-
+-#
+ # Input Device Drivers
+ #
+ CONFIG_INPUT_KEYBOARD=y
+@@ -501,6 +491,16 @@ CONFIG_MOUSE_SERIAL=m
+ # CONFIG_INPUT_MISC is not set
+ 
+ #
++# Hardware I/O ports
++#
++CONFIG_SERIO=m
++CONFIG_SERIO_SERPORT=m
++CONFIG_SERIO_LIBPS2=m
++# CONFIG_SERIO_RAW is not set
++# CONFIG_GAMEPORT is not set
++CONFIG_SOUND_GAMEPORT=y
++
++#
+ # Character devices
+ #
+ CONFIG_VT=y
+@@ -541,6 +541,10 @@ CONFIG_GEN_RTC_X=y
+ # CONFIG_RAW_DRIVER is not set
+ 
+ #
++# TPM devices
++#
++
++#
+ # I2C support
+ #
+ # CONFIG_I2C is not set
+@@ -568,8 +572,14 @@ CONFIG_GEN_RTC_X=y
+ # Graphics support
+ #
+ CONFIG_FB=y
++# CONFIG_FB_CFB_FILLRECT is not set
++# CONFIG_FB_CFB_COPYAREA is not set
++# CONFIG_FB_CFB_IMAGEBLIT is not set
++# CONFIG_FB_SOFT_CURSOR is not set
++# CONFIG_FB_MACMODES is not set
+ CONFIG_FB_MODE_HELPERS=y
+ # CONFIG_FB_TILEBLITTING is not set
++# CONFIG_FB_S1D13XXX is not set
+ # CONFIG_FB_VIRTUAL is not set
+ 
+ #
+@@ -602,10 +612,6 @@ CONFIG_LOGO_LINUX_CLUT224=y
+ # CONFIG_USB_ARCH_HAS_OHCI is not set
+ 
+ #
+-# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support' may also be needed; see USB_STORAGE Help for more information
+-#
+-
+-#
+ # USB Gadget Support
+ #
+ # CONFIG_USB_GADGET is not set
+@@ -807,14 +813,19 @@ CONFIG_NLS_UTF8=m
+ #
+ # Kernel hacking
+ #
++# CONFIG_PRINTK_TIME is not set
+ CONFIG_DEBUG_KERNEL=y
+ CONFIG_MAGIC_SYSRQ=y
++CONFIG_LOG_BUF_SHIFT=16
+ # CONFIG_SCHEDSTATS is not set
+ # CONFIG_DEBUG_SLAB is not set
++# CONFIG_DEBUG_SPINLOCK is not set
++# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
+ # CONFIG_DEBUG_KOBJECT is not set
+ CONFIG_DEBUG_BUGVERBOSE=y
+ # CONFIG_DEBUG_INFO is not set
+ # CONFIG_DEBUG_FS is not set
++# CONFIG_FRAME_POINTER is not set
+ 
+ #
+ # Security options
+@@ -833,7 +844,8 @@ CONFIG_CRYPTO_MD5=y
+ CONFIG_CRYPTO_SHA1=m
+ CONFIG_CRYPTO_SHA256=m
+ CONFIG_CRYPTO_SHA512=m
+-# CONFIG_CRYPTO_WP512 is not set
++CONFIG_CRYPTO_WP512=m
++CONFIG_CRYPTO_TGR192=m
+ CONFIG_CRYPTO_DES=y
+ CONFIG_CRYPTO_BLOWFISH=m
+ CONFIG_CRYPTO_TWOFISH=m
+--- linux-2.6.12-rc2/arch/m68k/configs/mvme16x_defconfig	2005-04-17 10:50:47.891829382 +0200
++++ linux-m68k-2.6.12-rc2/arch/m68k/configs/mvme16x_defconfig	2005-04-17 10:50:08.917296383 +0200
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.11-m68k
+-# Wed Mar  2 15:28:11 2005
++# Linux kernel version: 2.6.12-rc2-m68k
++# Tue Apr  5 14:06:31 2005
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -15,6 +15,7 @@ CONFIG_GENERIC_CALIBRATE_DELAY=y
+ CONFIG_EXPERIMENTAL=y
+ CONFIG_CLEAN_COMPILE=y
+ CONFIG_BROKEN_ON_SMP=y
++CONFIG_INIT_ENV_ARG_LIMIT=32
+ 
+ #
+ # General setup
+@@ -27,7 +28,6 @@ CONFIG_BSD_PROCESS_ACCT=y
+ # CONFIG_BSD_PROCESS_ACCT_V3 is not set
+ CONFIG_SYSCTL=y
+ CONFIG_AUDIT=y
+-CONFIG_LOG_BUF_SHIFT=16
+ CONFIG_HOTPLUG=y
+ CONFIG_KOBJECT_UEVENT=y
+ # CONFIG_IKCONFIG is not set
+@@ -35,15 +35,16 @@ CONFIG_KOBJECT_UEVENT=y
+ CONFIG_KALLSYMS=y
+ # CONFIG_KALLSYMS_ALL is not set
+ # CONFIG_KALLSYMS_EXTRA_PASS is not set
++CONFIG_BASE_FULL=y
+ CONFIG_FUTEX=y
+ CONFIG_EPOLL=y
+-# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+ CONFIG_SHMEM=y
+ CONFIG_CC_ALIGN_FUNCTIONS=0
+ CONFIG_CC_ALIGN_LABELS=0
+ CONFIG_CC_ALIGN_LOOPS=0
+ CONFIG_CC_ALIGN_JUMPS=0
+ # CONFIG_TINY_SHMEM is not set
++CONFIG_BASE_SMALL=0
+ 
+ #
+ # Loadable module support
+@@ -203,6 +204,8 @@ CONFIG_DM_CRYPT=m
+ CONFIG_DM_SNAPSHOT=m
+ CONFIG_DM_MIRROR=m
+ CONFIG_DM_ZERO=m
++CONFIG_DM_MULTIPATH=m
++CONFIG_DM_MULTIPATH_EMC=m
+ 
+ #
+ # Fusion MPT device support
+@@ -226,7 +229,6 @@ CONFIG_NET=y
+ #
+ CONFIG_PACKET=y
+ # CONFIG_PACKET_MMAP is not set
+-CONFIG_NETLINK_DEV=y
+ CONFIG_UNIX=y
+ CONFIG_NET_KEY=y
+ CONFIG_INET=y
+@@ -329,7 +331,7 @@ CONFIG_IP_NF_ARPFILTER=m
+ CONFIG_IP_NF_ARP_MANGLE=m
+ 
+ #
+-# IPv6: Netfilter Configuration
++# IPv6: Netfilter Configuration (EXPERIMENTAL)
+ #
+ CONFIG_IP6_NF_QUEUE=m
+ CONFIG_IP6_NF_IPTABLES=m
+@@ -401,7 +403,6 @@ CONFIG_DUMMY=m
+ # CONFIG_BONDING is not set
+ CONFIG_EQUALIZER=m
+ # CONFIG_TUN is not set
+-# CONFIG_ETHERTAP is not set
+ 
+ #
+ # Ethernet (10 or 100Mbit)
+@@ -474,17 +475,6 @@ CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+ # CONFIG_INPUT_EVBUG is not set
+ 
+ #
+-# Input I/O drivers
+-#
+-# CONFIG_GAMEPORT is not set
+-CONFIG_SOUND_GAMEPORT=y
+-CONFIG_SERIO=m
+-CONFIG_SERIO_SERPORT=m
+-# CONFIG_SERIO_CT82C710 is not set
+-CONFIG_SERIO_LIBPS2=m
+-# CONFIG_SERIO_RAW is not set
+-
+-#
+ # Input Device Drivers
+ #
+ CONFIG_INPUT_KEYBOARD=y
+@@ -502,6 +492,16 @@ CONFIG_MOUSE_SERIAL=m
+ # CONFIG_INPUT_MISC is not set
+ 
+ #
++# Hardware I/O ports
++#
++CONFIG_SERIO=m
++CONFIG_SERIO_SERPORT=m
++CONFIG_SERIO_LIBPS2=m
++# CONFIG_SERIO_RAW is not set
++# CONFIG_GAMEPORT is not set
++CONFIG_SOUND_GAMEPORT=y
++
++#
+ # Character devices
+ #
+ CONFIG_VT=y
+@@ -542,6 +542,10 @@ CONFIG_GEN_RTC_X=y
+ # CONFIG_RAW_DRIVER is not set
+ 
+ #
++# TPM devices
++#
++
++#
+ # I2C support
+ #
+ # CONFIG_I2C is not set
+@@ -569,8 +573,14 @@ CONFIG_GEN_RTC_X=y
+ # Graphics support
+ #
+ CONFIG_FB=y
++# CONFIG_FB_CFB_FILLRECT is not set
++# CONFIG_FB_CFB_COPYAREA is not set
++# CONFIG_FB_CFB_IMAGEBLIT is not set
++# CONFIG_FB_SOFT_CURSOR is not set
++# CONFIG_FB_MACMODES is not set
+ CONFIG_FB_MODE_HELPERS=y
+ # CONFIG_FB_TILEBLITTING is not set
++# CONFIG_FB_S1D13XXX is not set
+ # CONFIG_FB_VIRTUAL is not set
+ 
+ #
+@@ -603,10 +613,6 @@ CONFIG_LOGO_LINUX_CLUT224=y
+ # CONFIG_USB_ARCH_HAS_OHCI is not set
+ 
+ #
+-# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support' may also be needed; see USB_STORAGE Help for more information
+-#
+-
+-#
+ # USB Gadget Support
+ #
+ # CONFIG_USB_GADGET is not set
+@@ -808,14 +814,19 @@ CONFIG_NLS_UTF8=m
+ #
+ # Kernel hacking
+ #
++# CONFIG_PRINTK_TIME is not set
+ CONFIG_DEBUG_KERNEL=y
+ CONFIG_MAGIC_SYSRQ=y
++CONFIG_LOG_BUF_SHIFT=16
+ # CONFIG_SCHEDSTATS is not set
+ # CONFIG_DEBUG_SLAB is not set
++# CONFIG_DEBUG_SPINLOCK is not set
++# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
+ # CONFIG_DEBUG_KOBJECT is not set
+ CONFIG_DEBUG_BUGVERBOSE=y
+ # CONFIG_DEBUG_INFO is not set
+ # CONFIG_DEBUG_FS is not set
++# CONFIG_FRAME_POINTER is not set
+ 
+ #
+ # Security options
+@@ -834,7 +845,8 @@ CONFIG_CRYPTO_MD5=y
+ CONFIG_CRYPTO_SHA1=m
+ CONFIG_CRYPTO_SHA256=m
+ CONFIG_CRYPTO_SHA512=m
+-# CONFIG_CRYPTO_WP512 is not set
++CONFIG_CRYPTO_WP512=m
++CONFIG_CRYPTO_TGR192=m
+ CONFIG_CRYPTO_DES=y
+ CONFIG_CRYPTO_BLOWFISH=m
+ CONFIG_CRYPTO_TWOFISH=m
+--- linux-2.6.12-rc2/arch/m68k/configs/q40_defconfig	2005-04-17 10:50:47.037971062 +0200
++++ linux-m68k-2.6.12-rc2/arch/m68k/configs/q40_defconfig	2005-04-17 10:50:08.917296383 +0200
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.11-m68k
+-# Wed Mar  2 15:28:12 2005
++# Linux kernel version: 2.6.12-rc2-m68k
++# Tue Apr  5 14:06:34 2005
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -15,6 +15,7 @@ CONFIG_GENERIC_CALIBRATE_DELAY=y
+ CONFIG_EXPERIMENTAL=y
+ CONFIG_CLEAN_COMPILE=y
+ CONFIG_BROKEN_ON_SMP=y
++CONFIG_INIT_ENV_ARG_LIMIT=32
+ 
+ #
+ # General setup
+@@ -27,7 +28,6 @@ CONFIG_BSD_PROCESS_ACCT=y
+ # CONFIG_BSD_PROCESS_ACCT_V3 is not set
+ CONFIG_SYSCTL=y
+ CONFIG_AUDIT=y
+-CONFIG_LOG_BUF_SHIFT=16
+ CONFIG_HOTPLUG=y
+ CONFIG_KOBJECT_UEVENT=y
+ # CONFIG_IKCONFIG is not set
+@@ -35,15 +35,16 @@ CONFIG_KOBJECT_UEVENT=y
+ CONFIG_KALLSYMS=y
+ # CONFIG_KALLSYMS_ALL is not set
+ # CONFIG_KALLSYMS_EXTRA_PASS is not set
++CONFIG_BASE_FULL=y
+ CONFIG_FUTEX=y
+ CONFIG_EPOLL=y
+-# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+ CONFIG_SHMEM=y
+ CONFIG_CC_ALIGN_FUNCTIONS=0
+ CONFIG_CC_ALIGN_LABELS=0
+ CONFIG_CC_ALIGN_LOOPS=0
+ CONFIG_CC_ALIGN_JUMPS=0
+ # CONFIG_TINY_SHMEM is not set
++CONFIG_BASE_SMALL=0
+ 
+ #
+ # Loadable module support
+@@ -218,7 +219,6 @@ CONFIG_SCSI_CONSTANTS=y
+ # CONFIG_SCSI_BUSLOGIC is not set
+ # CONFIG_SCSI_DTC3280 is not set
+ # CONFIG_SCSI_EATA is not set
+-# CONFIG_SCSI_EATA_PIO is not set
+ # CONFIG_SCSI_FUTURE_DOMAIN is not set
+ # CONFIG_SCSI_GDTH is not set
+ # CONFIG_SCSI_GENERIC_NCR5380 is not set
+@@ -255,6 +255,8 @@ CONFIG_DM_CRYPT=m
+ CONFIG_DM_SNAPSHOT=m
+ CONFIG_DM_MIRROR=m
+ CONFIG_DM_ZERO=m
++CONFIG_DM_MULTIPATH=m
++CONFIG_DM_MULTIPATH_EMC=m
+ 
+ #
+ # Fusion MPT device support
+@@ -278,7 +280,6 @@ CONFIG_NET=y
+ #
+ CONFIG_PACKET=y
+ # CONFIG_PACKET_MMAP is not set
+-CONFIG_NETLINK_DEV=y
+ CONFIG_UNIX=y
+ CONFIG_NET_KEY=y
+ CONFIG_INET=y
+@@ -381,7 +382,7 @@ CONFIG_IP_NF_ARPFILTER=m
+ CONFIG_IP_NF_ARP_MANGLE=m
+ 
+ #
+-# IPv6: Netfilter Configuration
++# IPv6: Netfilter Configuration (EXPERIMENTAL)
+ #
+ CONFIG_IP6_NF_QUEUE=m
+ CONFIG_IP6_NF_IPTABLES=m
+@@ -453,7 +454,6 @@ CONFIG_DUMMY=m
+ # CONFIG_BONDING is not set
+ CONFIG_EQUALIZER=m
+ # CONFIG_TUN is not set
+-# CONFIG_ETHERTAP is not set
+ 
+ #
+ # ARCnet devices
+@@ -542,18 +542,6 @@ CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+ # CONFIG_INPUT_EVBUG is not set
+ 
+ #
+-# Input I/O drivers
+-#
+-# CONFIG_GAMEPORT is not set
+-CONFIG_SOUND_GAMEPORT=y
+-CONFIG_SERIO=m
+-CONFIG_SERIO_SERPORT=m
+-# CONFIG_SERIO_CT82C710 is not set
+-CONFIG_SERIO_Q40KBD=m
+-CONFIG_SERIO_LIBPS2=m
+-# CONFIG_SERIO_RAW is not set
+-
+-#
+ # Input Device Drivers
+ #
+ CONFIG_INPUT_KEYBOARD=y
+@@ -574,6 +562,17 @@ CONFIG_MOUSE_SERIAL=m
+ # CONFIG_INPUT_MISC is not set
+ 
+ #
++# Hardware I/O ports
++#
++CONFIG_SERIO=m
++CONFIG_SERIO_SERPORT=m
++CONFIG_SERIO_Q40KBD=m
++CONFIG_SERIO_LIBPS2=m
++# CONFIG_SERIO_RAW is not set
++# CONFIG_GAMEPORT is not set
++CONFIG_SOUND_GAMEPORT=y
++
++#
+ # Character devices
+ #
+ CONFIG_VT=y
+@@ -614,6 +613,10 @@ CONFIG_GEN_RTC_X=y
+ # CONFIG_RAW_DRIVER is not set
+ 
+ #
++# TPM devices
++#
++
++#
+ # I2C support
+ #
+ # CONFIG_I2C is not set
+@@ -641,9 +644,15 @@ CONFIG_GEN_RTC_X=y
+ # Graphics support
+ #
+ CONFIG_FB=y
++CONFIG_FB_CFB_FILLRECT=y
++CONFIG_FB_CFB_COPYAREA=y
++CONFIG_FB_CFB_IMAGEBLIT=y
++CONFIG_FB_SOFT_CURSOR=y
++# CONFIG_FB_MACMODES is not set
+ CONFIG_FB_MODE_HELPERS=y
+ # CONFIG_FB_TILEBLITTING is not set
+ CONFIG_FB_Q40=y
++# CONFIG_FB_S1D13XXX is not set
+ # CONFIG_FB_VIRTUAL is not set
+ 
+ #
+@@ -678,10 +687,6 @@ CONFIG_DMASOUND=y
+ # CONFIG_USB_ARCH_HAS_OHCI is not set
+ 
+ #
+-# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support' may also be needed; see USB_STORAGE Help for more information
+-#
+-
+-#
+ # USB Gadget Support
+ #
+ # CONFIG_USB_GADGET is not set
+@@ -879,14 +884,19 @@ CONFIG_NLS_UTF8=m
+ #
+ # Kernel hacking
+ #
++# CONFIG_PRINTK_TIME is not set
+ CONFIG_DEBUG_KERNEL=y
+ CONFIG_MAGIC_SYSRQ=y
++CONFIG_LOG_BUF_SHIFT=16
+ # CONFIG_SCHEDSTATS is not set
+ # CONFIG_DEBUG_SLAB is not set
++# CONFIG_DEBUG_SPINLOCK is not set
++# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
+ # CONFIG_DEBUG_KOBJECT is not set
+ CONFIG_DEBUG_BUGVERBOSE=y
+ # CONFIG_DEBUG_INFO is not set
+ # CONFIG_DEBUG_FS is not set
++# CONFIG_FRAME_POINTER is not set
+ 
+ #
+ # Security options
+@@ -905,7 +915,8 @@ CONFIG_CRYPTO_MD5=y
+ CONFIG_CRYPTO_SHA1=m
+ CONFIG_CRYPTO_SHA256=m
+ CONFIG_CRYPTO_SHA512=m
+-# CONFIG_CRYPTO_WP512 is not set
++CONFIG_CRYPTO_WP512=m
++CONFIG_CRYPTO_TGR192=m
+ CONFIG_CRYPTO_DES=y
+ CONFIG_CRYPTO_BLOWFISH=m
+ CONFIG_CRYPTO_TWOFISH=m
+--- linux-2.6.12-rc2/arch/m68k/configs/sun3_defconfig	2005-04-17 10:50:47.038970896 +0200
++++ linux-m68k-2.6.12-rc2/arch/m68k/configs/sun3_defconfig	2005-04-17 10:50:08.918296217 +0200
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.11-m68k
+-# Wed Mar  2 15:28:14 2005
++# Linux kernel version: 2.6.12-rc2-m68k
++# Tue Apr  5 14:06:37 2005
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -15,6 +15,7 @@ CONFIG_GENERIC_CALIBRATE_DELAY=y
+ CONFIG_EXPERIMENTAL=y
+ CONFIG_CLEAN_COMPILE=y
+ CONFIG_BROKEN_ON_SMP=y
++CONFIG_INIT_ENV_ARG_LIMIT=32
+ 
+ #
+ # General setup
+@@ -27,7 +28,6 @@ CONFIG_BSD_PROCESS_ACCT=y
+ # CONFIG_BSD_PROCESS_ACCT_V3 is not set
+ CONFIG_SYSCTL=y
+ CONFIG_AUDIT=y
+-CONFIG_LOG_BUF_SHIFT=16
+ CONFIG_HOTPLUG=y
+ CONFIG_KOBJECT_UEVENT=y
+ # CONFIG_IKCONFIG is not set
+@@ -35,15 +35,16 @@ CONFIG_KOBJECT_UEVENT=y
+ CONFIG_KALLSYMS=y
+ # CONFIG_KALLSYMS_ALL is not set
+ # CONFIG_KALLSYMS_EXTRA_PASS is not set
++CONFIG_BASE_FULL=y
+ CONFIG_FUTEX=y
+ CONFIG_EPOLL=y
+-# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+ CONFIG_SHMEM=y
+ CONFIG_CC_ALIGN_FUNCTIONS=0
+ CONFIG_CC_ALIGN_LABELS=0
+ CONFIG_CC_ALIGN_LOOPS=0
+ CONFIG_CC_ALIGN_JUMPS=0
+ # CONFIG_TINY_SHMEM is not set
++CONFIG_BASE_SMALL=0
+ 
+ #
+ # Loadable module support
+@@ -190,6 +191,8 @@ CONFIG_DM_CRYPT=m
+ CONFIG_DM_SNAPSHOT=m
+ CONFIG_DM_MIRROR=m
+ CONFIG_DM_ZERO=m
++CONFIG_DM_MULTIPATH=m
++CONFIG_DM_MULTIPATH_EMC=m
+ 
+ #
+ # Fusion MPT device support
+@@ -213,7 +216,6 @@ CONFIG_NET=y
+ #
+ CONFIG_PACKET=y
+ # CONFIG_PACKET_MMAP is not set
+-CONFIG_NETLINK_DEV=y
+ CONFIG_UNIX=y
+ CONFIG_NET_KEY=y
+ CONFIG_INET=y
+@@ -316,7 +318,7 @@ CONFIG_IP_NF_ARPFILTER=m
+ CONFIG_IP_NF_ARP_MANGLE=m
+ 
+ #
+-# IPv6: Netfilter Configuration
++# IPv6: Netfilter Configuration (EXPERIMENTAL)
+ #
+ CONFIG_IP6_NF_QUEUE=m
+ CONFIG_IP6_NF_IPTABLES=m
+@@ -388,7 +390,6 @@ CONFIG_DUMMY=m
+ # CONFIG_BONDING is not set
+ CONFIG_EQUALIZER=m
+ # CONFIG_TUN is not set
+-# CONFIG_ETHERTAP is not set
+ 
+ #
+ # Ethernet (10 or 100Mbit)
+@@ -462,17 +463,6 @@ CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+ # CONFIG_INPUT_EVBUG is not set
+ 
+ #
+-# Input I/O drivers
+-#
+-# CONFIG_GAMEPORT is not set
+-CONFIG_SOUND_GAMEPORT=y
+-CONFIG_SERIO=y
+-CONFIG_SERIO_SERPORT=m
+-# CONFIG_SERIO_CT82C710 is not set
+-CONFIG_SERIO_LIBPS2=m
+-# CONFIG_SERIO_RAW is not set
+-
+-#
+ # Input Device Drivers
+ #
+ CONFIG_INPUT_KEYBOARD=y
+@@ -490,6 +480,16 @@ CONFIG_MOUSE_SERIAL=m
+ # CONFIG_INPUT_MISC is not set
+ 
+ #
++# Hardware I/O ports
++#
++CONFIG_SERIO=y
++CONFIG_SERIO_SERPORT=m
++CONFIG_SERIO_LIBPS2=m
++# CONFIG_SERIO_RAW is not set
++# CONFIG_GAMEPORT is not set
++CONFIG_SOUND_GAMEPORT=y
++
++#
+ # Character devices
+ #
+ CONFIG_VT=y
+@@ -530,6 +530,10 @@ CONFIG_GEN_RTC_X=y
+ # CONFIG_RAW_DRIVER is not set
+ 
+ #
++# TPM devices
++#
++
++#
+ # I2C support
+ #
+ # CONFIG_I2C is not set
+@@ -557,8 +561,14 @@ CONFIG_GEN_RTC_X=y
+ # Graphics support
+ #
+ CONFIG_FB=y
++# CONFIG_FB_CFB_FILLRECT is not set
++# CONFIG_FB_CFB_COPYAREA is not set
++# CONFIG_FB_CFB_IMAGEBLIT is not set
++# CONFIG_FB_SOFT_CURSOR is not set
++# CONFIG_FB_MACMODES is not set
+ CONFIG_FB_MODE_HELPERS=y
+ # CONFIG_FB_TILEBLITTING is not set
++# CONFIG_FB_S1D13XXX is not set
+ # CONFIG_FB_VIRTUAL is not set
+ 
+ #
+@@ -591,10 +601,6 @@ CONFIG_LOGO_LINUX_CLUT224=y
+ # CONFIG_USB_ARCH_HAS_OHCI is not set
+ 
+ #
+-# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support' may also be needed; see USB_STORAGE Help for more information
+-#
+-
+-#
+ # USB Gadget Support
+ #
+ # CONFIG_USB_GADGET is not set
+@@ -795,14 +801,19 @@ CONFIG_NLS_UTF8=m
+ #
+ # Kernel hacking
+ #
++# CONFIG_PRINTK_TIME is not set
+ CONFIG_DEBUG_KERNEL=y
+ CONFIG_MAGIC_SYSRQ=y
++CONFIG_LOG_BUF_SHIFT=16
+ # CONFIG_SCHEDSTATS is not set
+ # CONFIG_DEBUG_SLAB is not set
++# CONFIG_DEBUG_SPINLOCK is not set
++# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
+ # CONFIG_DEBUG_KOBJECT is not set
+ CONFIG_DEBUG_BUGVERBOSE=y
+ # CONFIG_DEBUG_INFO is not set
+ # CONFIG_DEBUG_FS is not set
++# CONFIG_FRAME_POINTER is not set
+ 
+ #
+ # Security options
+@@ -821,7 +832,8 @@ CONFIG_CRYPTO_MD5=y
+ CONFIG_CRYPTO_SHA1=m
+ CONFIG_CRYPTO_SHA256=m
+ CONFIG_CRYPTO_SHA512=m
+-# CONFIG_CRYPTO_WP512 is not set
++CONFIG_CRYPTO_WP512=m
++CONFIG_CRYPTO_TGR192=m
+ CONFIG_CRYPTO_DES=y
+ CONFIG_CRYPTO_BLOWFISH=m
+ CONFIG_CRYPTO_TWOFISH=m
+--- linux-2.6.12-rc2/arch/m68k/configs/sun3x_defconfig	2005-04-17 10:50:47.069965753 +0200
++++ linux-m68k-2.6.12-rc2/arch/m68k/configs/sun3x_defconfig	2005-04-17 10:50:08.919296051 +0200
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.11-m68k
+-# Wed Mar  2 15:28:15 2005
++# Linux kernel version: 2.6.12-rc2-m68k
++# Tue Apr  5 14:06:40 2005
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -15,6 +15,7 @@ CONFIG_GENERIC_CALIBRATE_DELAY=y
+ CONFIG_EXPERIMENTAL=y
+ CONFIG_CLEAN_COMPILE=y
+ CONFIG_BROKEN_ON_SMP=y
++CONFIG_INIT_ENV_ARG_LIMIT=32
+ 
+ #
+ # General setup
+@@ -27,7 +28,6 @@ CONFIG_BSD_PROCESS_ACCT=y
+ # CONFIG_BSD_PROCESS_ACCT_V3 is not set
+ CONFIG_SYSCTL=y
+ CONFIG_AUDIT=y
+-CONFIG_LOG_BUF_SHIFT=16
+ CONFIG_HOTPLUG=y
+ CONFIG_KOBJECT_UEVENT=y
+ # CONFIG_IKCONFIG is not set
+@@ -35,15 +35,16 @@ CONFIG_KOBJECT_UEVENT=y
+ CONFIG_KALLSYMS=y
+ # CONFIG_KALLSYMS_ALL is not set
+ # CONFIG_KALLSYMS_EXTRA_PASS is not set
++CONFIG_BASE_FULL=y
+ CONFIG_FUTEX=y
+ CONFIG_EPOLL=y
+-# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+ CONFIG_SHMEM=y
+ CONFIG_CC_ALIGN_FUNCTIONS=0
+ CONFIG_CC_ALIGN_LABELS=0
+ CONFIG_CC_ALIGN_LOOPS=0
+ CONFIG_CC_ALIGN_JUMPS=0
+ # CONFIG_TINY_SHMEM is not set
++CONFIG_BASE_SMALL=0
+ 
+ #
+ # Loadable module support
+@@ -201,6 +202,8 @@ CONFIG_DM_CRYPT=m
+ CONFIG_DM_SNAPSHOT=m
+ CONFIG_DM_MIRROR=m
+ CONFIG_DM_ZERO=m
++CONFIG_DM_MULTIPATH=m
++CONFIG_DM_MULTIPATH_EMC=m
+ 
+ #
+ # Fusion MPT device support
+@@ -224,7 +227,6 @@ CONFIG_NET=y
+ #
+ CONFIG_PACKET=y
+ # CONFIG_PACKET_MMAP is not set
+-CONFIG_NETLINK_DEV=y
+ CONFIG_UNIX=y
+ CONFIG_NET_KEY=y
+ CONFIG_INET=y
+@@ -327,7 +329,7 @@ CONFIG_IP_NF_ARPFILTER=m
+ CONFIG_IP_NF_ARP_MANGLE=m
+ 
+ #
+-# IPv6: Netfilter Configuration
++# IPv6: Netfilter Configuration (EXPERIMENTAL)
+ #
+ CONFIG_IP6_NF_QUEUE=m
+ CONFIG_IP6_NF_IPTABLES=m
+@@ -399,7 +401,6 @@ CONFIG_DUMMY=m
+ # CONFIG_BONDING is not set
+ CONFIG_EQUALIZER=m
+ # CONFIG_TUN is not set
+-# CONFIG_ETHERTAP is not set
+ 
+ #
+ # Ethernet (10 or 100Mbit)
+@@ -472,17 +473,6 @@ CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+ # CONFIG_INPUT_EVBUG is not set
+ 
+ #
+-# Input I/O drivers
+-#
+-# CONFIG_GAMEPORT is not set
+-CONFIG_SOUND_GAMEPORT=y
+-CONFIG_SERIO=y
+-CONFIG_SERIO_SERPORT=m
+-# CONFIG_SERIO_CT82C710 is not set
+-CONFIG_SERIO_LIBPS2=m
+-# CONFIG_SERIO_RAW is not set
+-
+-#
+ # Input Device Drivers
+ #
+ CONFIG_INPUT_KEYBOARD=y
+@@ -500,6 +490,16 @@ CONFIG_MOUSE_SERIAL=m
+ # CONFIG_INPUT_MISC is not set
+ 
+ #
++# Hardware I/O ports
++#
++CONFIG_SERIO=y
++CONFIG_SERIO_SERPORT=m
++CONFIG_SERIO_LIBPS2=m
++# CONFIG_SERIO_RAW is not set
++# CONFIG_GAMEPORT is not set
++CONFIG_SOUND_GAMEPORT=y
++
++#
+ # Character devices
+ #
+ CONFIG_VT=y
+@@ -540,6 +540,10 @@ CONFIG_GEN_RTC_X=y
+ # CONFIG_RAW_DRIVER is not set
+ 
+ #
++# TPM devices
++#
++
++#
+ # I2C support
+ #
+ # CONFIG_I2C is not set
+@@ -567,8 +571,14 @@ CONFIG_GEN_RTC_X=y
+ # Graphics support
+ #
+ CONFIG_FB=y
++# CONFIG_FB_CFB_FILLRECT is not set
++# CONFIG_FB_CFB_COPYAREA is not set
++# CONFIG_FB_CFB_IMAGEBLIT is not set
++# CONFIG_FB_SOFT_CURSOR is not set
++# CONFIG_FB_MACMODES is not set
+ CONFIG_FB_MODE_HELPERS=y
+ # CONFIG_FB_TILEBLITTING is not set
++# CONFIG_FB_S1D13XXX is not set
+ # CONFIG_FB_VIRTUAL is not set
+ 
+ #
+@@ -601,10 +611,6 @@ CONFIG_LOGO_LINUX_CLUT224=y
+ # CONFIG_USB_ARCH_HAS_OHCI is not set
+ 
+ #
+-# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support' may also be needed; see USB_STORAGE Help for more information
+-#
+-
+-#
+ # USB Gadget Support
+ #
+ # CONFIG_USB_GADGET is not set
+@@ -805,14 +811,19 @@ CONFIG_NLS_UTF8=m
+ #
+ # Kernel hacking
+ #
++# CONFIG_PRINTK_TIME is not set
+ CONFIG_DEBUG_KERNEL=y
+ CONFIG_MAGIC_SYSRQ=y
++CONFIG_LOG_BUF_SHIFT=16
+ # CONFIG_SCHEDSTATS is not set
+ # CONFIG_DEBUG_SLAB is not set
++# CONFIG_DEBUG_SPINLOCK is not set
++# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
+ # CONFIG_DEBUG_KOBJECT is not set
+ CONFIG_DEBUG_BUGVERBOSE=y
+ # CONFIG_DEBUG_INFO is not set
+ # CONFIG_DEBUG_FS is not set
++# CONFIG_FRAME_POINTER is not set
+ 
+ #
+ # Security options
+@@ -831,7 +842,8 @@ CONFIG_CRYPTO_MD5=y
+ CONFIG_CRYPTO_SHA1=m
+ CONFIG_CRYPTO_SHA256=m
+ CONFIG_CRYPTO_SHA512=m
+-# CONFIG_CRYPTO_WP512 is not set
++CONFIG_CRYPTO_WP512=m
++CONFIG_CRYPTO_TGR192=m
+ CONFIG_CRYPTO_DES=y
+ CONFIG_CRYPTO_BLOWFISH=m
+ CONFIG_CRYPTO_TWOFISH=m
+--- linux-2.6.12-rc2/arch/m68k/defconfig	2005-04-17 10:50:47.892829216 +0200
++++ linux-m68k-2.6.12-rc2/arch/m68k/defconfig	2005-04-17 10:50:08.913297047 +0200
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.11-m68k
+-# Wed Mar  2 15:27:58 2005
++# Linux kernel version: 2.6.12-rc2-m68k
++# Tue Apr  5 14:05:31 2005
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -15,6 +15,7 @@ CONFIG_GENERIC_CALIBRATE_DELAY=y
+ CONFIG_EXPERIMENTAL=y
+ CONFIG_CLEAN_COMPILE=y
+ CONFIG_BROKEN_ON_SMP=y
++CONFIG_INIT_ENV_ARG_LIMIT=32
+ 
+ #
+ # General setup
+@@ -26,22 +27,22 @@ CONFIG_SYSVIPC=y
+ # CONFIG_BSD_PROCESS_ACCT is not set
+ CONFIG_SYSCTL=y
+ # CONFIG_AUDIT is not set
+-CONFIG_LOG_BUF_SHIFT=14
+ # CONFIG_HOTPLUG is not set
+ CONFIG_KOBJECT_UEVENT=y
+ # CONFIG_IKCONFIG is not set
+ # CONFIG_EMBEDDED is not set
+ CONFIG_KALLSYMS=y
+ # CONFIG_KALLSYMS_EXTRA_PASS is not set
++CONFIG_BASE_FULL=y
+ CONFIG_FUTEX=y
+ CONFIG_EPOLL=y
+-# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+ CONFIG_SHMEM=y
+ CONFIG_CC_ALIGN_FUNCTIONS=0
+ CONFIG_CC_ALIGN_LABELS=0
+ CONFIG_CC_ALIGN_LOOPS=0
+ CONFIG_CC_ALIGN_JUMPS=0
+ # CONFIG_TINY_SHMEM is not set
++CONFIG_BASE_SMALL=0
+ 
+ #
+ # Loadable module support
+@@ -214,7 +215,6 @@ CONFIG_NET=y
+ #
+ CONFIG_PACKET=y
+ # CONFIG_PACKET_MMAP is not set
+-# CONFIG_NETLINK_DEV is not set
+ CONFIG_UNIX=y
+ # CONFIG_NET_KEY is not set
+ CONFIG_INET=y
+@@ -331,17 +331,6 @@ CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+ # CONFIG_INPUT_EVBUG is not set
+ 
+ #
+-# Input I/O drivers
+-#
+-# CONFIG_GAMEPORT is not set
+-CONFIG_SOUND_GAMEPORT=y
+-CONFIG_SERIO=y
+-CONFIG_SERIO_SERPORT=y
+-# CONFIG_SERIO_CT82C710 is not set
+-CONFIG_SERIO_LIBPS2=y
+-# CONFIG_SERIO_RAW is not set
+-
+-#
+ # Input Device Drivers
+ #
+ CONFIG_INPUT_KEYBOARD=y
+@@ -361,6 +350,16 @@ CONFIG_MOUSE_PS2=y
+ # CONFIG_INPUT_MISC is not set
+ 
+ #
++# Hardware I/O ports
++#
++CONFIG_SERIO=y
++CONFIG_SERIO_SERPORT=y
++CONFIG_SERIO_LIBPS2=y
++# CONFIG_SERIO_RAW is not set
++# CONFIG_GAMEPORT is not set
++CONFIG_SOUND_GAMEPORT=y
++
++#
+ # Character devices
+ #
+ CONFIG_VT=y
+@@ -401,6 +400,10 @@ CONFIG_LEGACY_PTY_COUNT=256
+ # CONFIG_RAW_DRIVER is not set
+ 
+ #
++# TPM devices
++#
++
++#
+ # I2C support
+ #
+ # CONFIG_I2C is not set
+@@ -428,6 +431,11 @@ CONFIG_LEGACY_PTY_COUNT=256
+ # Graphics support
+ #
+ CONFIG_FB=y
++# CONFIG_FB_CFB_FILLRECT is not set
++# CONFIG_FB_CFB_COPYAREA is not set
++# CONFIG_FB_CFB_IMAGEBLIT is not set
++CONFIG_FB_SOFT_CURSOR=y
++# CONFIG_FB_MACMODES is not set
+ CONFIG_FB_MODE_HELPERS=y
+ # CONFIG_FB_TILEBLITTING is not set
+ # CONFIG_FB_CIRRUS is not set
+@@ -436,6 +444,7 @@ CONFIG_FB_AMIGA_OCS=y
+ CONFIG_FB_AMIGA_ECS=y
+ CONFIG_FB_AMIGA_AGA=y
+ # CONFIG_FB_FM2 is not set
++# CONFIG_FB_S1D13XXX is not set
+ # CONFIG_FB_VIRTUAL is not set
+ 
+ #
+@@ -462,10 +471,6 @@ CONFIG_DUMMY_CONSOLE=y
+ # CONFIG_USB_ARCH_HAS_OHCI is not set
+ 
+ #
+-# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support' may also be needed; see USB_STORAGE Help for more information
+-#
+-
+-#
+ # USB Gadget Support
+ #
+ # CONFIG_USB_GADGET is not set
+@@ -625,7 +630,9 @@ CONFIG_NLS_CODEPAGE_437=y
+ #
+ # Kernel hacking
+ #
++# CONFIG_PRINTK_TIME is not set
+ # CONFIG_DEBUG_KERNEL is not set
++CONFIG_LOG_BUF_SHIFT=14
+ CONFIG_DEBUG_BUGVERBOSE=y
+ 
+ #
 
+Gr{oetje,eeting}s,
 
+						Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

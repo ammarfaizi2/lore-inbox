@@ -1,115 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVDQNp2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbVDQPji@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261316AbVDQNp2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Apr 2005 09:45:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbVDQNp2
+	id S261335AbVDQPji (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 11:39:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVDQPji
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Apr 2005 09:45:28 -0400
-Received: from server5.hostpoint.ch ([217.26.52.15]:3081 "EHLO
-	server5.hostpoint.ch") by vger.kernel.org with ESMTP
-	id S261316AbVDQNpO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Apr 2005 09:45:14 -0400
-Date: Sun, 17 Apr 2005 15:42:23 +0200
-From: Andreas Jaggi <andreas.jaggi@waterwave.ch>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Andrew Morton <akpm@osdl.org>, linux-input@atrey.karlen.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       debian-powerpc@lists.debian.org
-Subject: [PATCH 2.6.11.7] macintosh/adbhid.c: adb buttons support for
- aluminium PowerBook G4
-Message-ID: <20050417154223.6d1af254@localhost>
-X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
-X-Face: ~'tADa1faeey.m~:h}X+Y,gdK*18AQQun"fQ6e-FE@0&cEf&{p1`$bqU[Zr^D]G<fqBU;"P
- 2X\'U16EWS^zbPX?:[nRF)evEb_4|[
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 17 Apr 2005 11:39:38 -0400
+Received: from p3EE21EDD.dip.t-dialin.net ([62.226.30.221]:1028 "EHLO
+	gateway2.croq.loc") by vger.kernel.org with ESMTP id S261335AbVDQPje
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Apr 2005 11:39:34 -0400
+Message-ID: <42628300.5020009@free.fr>
+Date: Sun, 17 Apr 2005 17:38:40 +0200
+From: Olivier Croquette <ocroquette@free.fr>
+User-Agent: Mozilla Thunderbird 1.0.2 (Macintosh/20050317)
+X-Accept-Language: fr-fr, en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: mingo@elte.hu
+Subject: [PATCH] Changing RT priority in kernel 2.6 without CAP_SYS_NICE
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - server5.hostpoint.ch
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [26 6]
-X-AntiAbuse: Sender Address Domain - waterwave.ch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello
 
-This patch adds support for the special adb buttons of the aluminium
-PowerBook G4.
+Here is a patch on the permission scheme when changing RT priorities.
 
-Signed-off-by: Andreas Jaggi <andreas.jaggi@waterwave.ch>
+Presently, a process without the capability CAP_SYS_NICE can not change 
+its own policy, which is OK.
+
+But it can also not decrease its RT priority (if scheduled with policy 
+SCHED_RR or SCHED_FIFO), which is what this patch changes.
+
+The rationale is the same as for the nice value: a process should be 
+able to require less priority for itself. Increasing the priority is 
+still not allowed.
+
+This is for example useful if you give a multithreaded user process a RT 
+priority, and the process would like to organize its internal threads 
+using priorities also. Then you can give the process the highest 
+priority needed N, and the process starts its threads with lower 
+priorities: N-1, N-2...
+
+The POSIX norm says that the permissions are implementation specific, so 
+I think we can do that.
+
+In a sense, it makes the permissions consistent whatever the policy is: 
+with this patch, process scheduled by SCHED_FIFO, SCHED_RR and 
+SCHED_OTHER can all decrease their priority.
+
+Please tell me what you think!
+
+Regards
+
+Olivier
 
 
-diff -uNr a/drivers/macintosh/adbhid.c b/drivers/macintosh/adbhid.c
---- a/drivers/macintosh/adbhid.c	2005-04-09 22:49:49.000000000 +0200
-+++ b/drivers/macintosh/adbhid.c	2005-04-10 15:27:54.000000000 +0200
-@@ -555,6 +555,42 @@
- #endif /* CONFIG_PMAC_BACKLIGHT */
- 			input_report_key(&adbhid[id]->input, KEY_BRIGHTNESSUP, down);
- 			break;
-+
-+		case 0xc:	/* videomode switch */
-+			input_report_key(&adbhid[id]->input, KEY_SWITCHVIDEOMODE, down);
-+			break;
-+
-+		case 0xd:	/* keyboard illumination toggle */
-+			input_report_key(&adbhid[id]->input, KEY_KBDILLUMTOGGLE, down);
-+			break;
-+
-+		case 0xe:	/* keyboard illumination decrease */
-+			input_report_key(&adbhid[id]->input, KEY_KBDILLUMDOWN, down);
-+			break;
-+
-+		case 0xf:
-+			switch (data[1]) {
-+			case 0x8f:
-+			case 0x0f:
-+				/* keyboard illumination increase */
-+				input_report_key(&adbhid[id]->input, KEY_KBDILLUMUP, down);
-+				break;
-+
-+			case 0x7f:
-+			case 0xff:
-+				/* keypad overlay toogle */
-+				break;
-+
-+			default:
-+				printk(KERN_INFO "Unhandled ADB_MISC event %02x, %02x, %02x, %02x\n",
-+				       data[0], data[1], data[2], data[3]);
-+				break;
-+			}
-+			break;
-+		default:
-+			printk(KERN_INFO "Unhandled ADB_MISC event %02x, %02x, %02x, %02x\n",
-+			       data[0], data[1], data[2], data[3]);
-+			break;
- 		}
- 	  }
- 	  break;
-@@ -775,6 +811,10 @@
- 			set_bit(KEY_BRIGHTNESSUP, adbhid[id]->input.keybit);
- 			set_bit(KEY_BRIGHTNESSDOWN, adbhid[id]->input.keybit);
- 			set_bit(KEY_EJECTCD, adbhid[id]->input.keybit);
-+			set_bit(KEY_SWITCHVIDEOMODE, adbhid[id]->input.keybit);
-+			set_bit(KEY_KBDILLUMTOGGLE, adbhid[id]->input.keybit);
-+			set_bit(KEY_KBDILLUMDOWN, adbhid[id]->input.keybit);
-+			set_bit(KEY_KBDILLUMUP, adbhid[id]->input.keybit);
- 			break;
- 		}
- 		if (adbhid[id]->name[0])
-diff -uNr a/include/linux/input.h b/include/linux/input.h
---- a/include/linux/input.h	2005-04-09 22:49:49.000000000 +0200
-+++ b/include/linux/input.h	2005-04-10 15:28:33.214974136 +0200
-@@ -328,6 +328,11 @@
- #define KEY_BRIGHTNESSUP	225
- #define KEY_MEDIA		226
- 
-+#define KEY_SWITCHVIDEOMODE	227
-+#define KEY_KBDILLUMTOGGLE	228
-+#define KEY_KBDILLUMDOWN	229
-+#define KEY_KBDILLUMUP		230
-+
- #define KEY_UNKNOWN		240
- 
- #define BTN_MISC		0x100
+
+
+
+--- linux-2.6.8-24.11/kernel/sched.c    2005-01-14 16:34:00.000000000
++0100
++++ linux-2.6.8-24.11-sched-patch/kernel/sched.c        2005-04-17
+09:27:07.000000000 +0200
+@@ -3248,12 +3248,19 @@
+                 goto out_unlock;
+
+         retval = -EPERM;
+-       if ((policy == SCHED_FIFO || policy == SCHED_RR) &&
+-           !capable(CAP_SYS_NICE))
+-               goto out_unlock;
+-       if ((current->euid != p->euid) && (current->euid != p->uid) &&
+-           !capable(CAP_SYS_NICE))
+-               goto out_unlock;
++       if(!capable(CAP_SYS_NICE)) {
++               /* can't change a policy without cap */
++               if (policy != p->policy)
++                       goto out_unlock;
++               /* can't increase priority without cap */
++               if (policy != SCHED_NORMAL &&
++                   lp.sched_priority > p->rt_priority)
++                       goto out_unlock;
++               /* can't change other processes without cap */
++               if ((current->euid != p->euid) &&
++                   (current->euid != p->uid))
++                       goto out_unlock;
++       }
+
+         retval = security_task_setscheduler(p, policy, &lp);
+         if (retval)

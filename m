@@ -1,111 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261559AbVDQXji@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbVDQXqG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261559AbVDQXji (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Apr 2005 19:39:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbVDQXji
+	id S261563AbVDQXqG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 19:46:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbVDQXqG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Apr 2005 19:39:38 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:4564 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261559AbVDQXj1 (ORCPT
+	Sun, 17 Apr 2005 19:46:06 -0400
+Received: from mail.kroah.org ([69.55.234.183]:8579 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261563AbVDQXqD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Apr 2005 19:39:27 -0400
-Date: Mon, 18 Apr 2005 01:39:18 +0200 (MEST)
-Message-Id: <200504172339.j3HNdIDF011543@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: akpm@osdl.org, alexn@dsv.su.se
-Subject: Re: 2.6.12-rc2-mm3
-Cc: linux-kernel@vger.kernel.org
+	Sun, 17 Apr 2005 19:46:03 -0400
+Date: Sun, 17 Apr 2005 14:58:51 -0700
+From: Greg KH <greg@kroah.com>
+To: Dave Airlie <airlied@gmail.com>
+Cc: Kylene Hall <kjhall@us.ibm.com>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com
+Subject: Re: [PATCH] tpm: Stop taking over the non-unique lpc bus PCI ID, Also timer, stack and enum fixes
+Message-ID: <20050417215850.GA3178@kroah.com>
+References: <Pine.LNX.4.61.0504151611390.24192@dyn95395164> <20050415235250.GA24204@kroah.com> <21d7e9970504161705a129893@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <21d7e9970504161705a129893@mail.gmail.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Apr 2005 00:27:02 +0200, Alexander Nyberg wrote:
->This patch fixes the NMI checking problems in -mm x64 for me. It 
-
-What problems?
-
->changes the perfctr selection to use RETIRED_UOPS instead 
->(makes both processors tick even on my box).
-
-This patch mixes what appears to be cleanups with what appears
-to be bug fixes. Please separate them, and describe the problem
-in enough detail that we can judge the validity of the bug-fix parts.
-
->Index: x64_mm/arch/x86_64/kernel/nmi.c
->===================================================================
->--- x64_mm.orig/arch/x86_64/kernel/nmi.c	2005-04-17 14:34:09.000000000 +0200
->+++ x64_mm/arch/x86_64/kernel/nmi.c	2005-04-18 02:11:37.000000000 +0200
->@@ -58,7 +58,7 @@
-> int panic_on_timeout;
+On Sun, Apr 17, 2005 at 10:05:27AM +1000, Dave Airlie wrote:
+> > NO!  DO NOT use pci_find_device().  It is broken for systems with pci
+> > hotplug (which means any pci system).  Please use the way the driver
+> > currently works, that is correct.
 > 
-> unsigned int nmi_watchdog = NMI_DEFAULT;
->-static unsigned int nmi_hz = HZ;
->+static unsigned long nmi_hz = HZ;
+> But its not an LPC driver, it only uses a small piece of the LPC, we
+> really do need some sort of bridge driver layer or something for
+> these, then other drivers can sit on top of that,
 
-Why? Surely the value won't exceed 2^32-1?
+Then the TPM driver can provide that layer.
 
-> unsigned int nmi_perfctr_msr;	/* the MSR to reset in NMI handler */
-> 
-> /* Note that these events don't tick when the CPU idles. This means
->@@ -70,6 +70,7 @@
-> #define K7_EVNTSEL_USR		(1 << 16)
-> #define K7_EVENT_CYCLES_PROCESSOR_IS_RUNNING	0x76
-> #define K7_NMI_EVENT		K7_EVENT_CYCLES_PROCESSOR_IS_RUNNING
->+#define K7_RETIRED_UOPS	0xC1 /* always running */
-> 
-> #define P6_EVNTSEL0_ENABLE	(1 << 22)
-> #define P6_EVNTSEL_INT		(1 << 20)
->@@ -78,6 +79,11 @@
-> #define P6_EVENT_CPU_CLOCKS_NOT_HALTED	0x79
-> #define P6_NMI_EVENT		P6_EVENT_CPU_CLOCKS_NOT_HALTED
-> 
->+static inline unsigned long nmi_interval(void)
->+{
->+	return (((unsigned long)cpu_khz * 1000UL) / nmi_hz);
+> The DRM still uses pci_find_device for the exact same reason, the fb
+> drivers take the PCI device and we have been told we can't use the
+> proper interface, hence one of the needs to merge fb and DRM..
 
-Extraneous parentheses. Also I'd prefer to divide before the multiply.
+Exactly.
 
->+}
->+
-> /* Run after command line and cpu_init init, but before all other checks */
-> void __init nmi_watchdog_default(void)
-> {
->@@ -129,8 +135,8 @@
-> 
-> 	for (cpu = 0; cpu < NR_CPUS; cpu++)
-> 		counts[cpu] = cpu_pda[cpu].__nmi_count; 
->-	local_irq_enable();
+thanks,
 
-Why?
-
->-	mdelay((10*1000)/nmi_hz); // wait 10 ticks
->+
->+	mdelay((10*1000) / nmi_hz); /* wait 10 NMI ticks */
-
-Not a bug fix.
-
-> 
-> 	for (cpu = 0; cpu < NR_CPUS; cpu++) {
-> 		if (cpu_pda[cpu].__nmi_count - counts[cpu] <= 5) {
->@@ -305,9 +311,6 @@
-> 	int i;
-> 	unsigned int evntsel;
-> 
->-	/* No check, so can start with slow frequency */
->-	nmi_hz = 1; 
->-
-
-What's this for?
-
-> 	/* XXX should check these in EFER */
-> 
-> 	nmi_perfctr_msr = MSR_K7_PERFCTR0;
->@@ -322,10 +325,10 @@
-> 	evntsel = K7_EVNTSEL_INT
-> 		| K7_EVNTSEL_OS
-> 		| K7_EVNTSEL_USR
->-		| K7_NMI_EVENT;
->+		| K7_RETIRED_UOPS;
-
-Bogus. Redefine K7_NMI_EVENT instead.
-
-/Mikael
+greg k-h

@@ -1,41 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262190AbVDRUBQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262191AbVDRUBn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262190AbVDRUBQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 16:01:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbVDRUBP
+	id S262191AbVDRUBn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 16:01:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbVDRUBn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 16:01:15 -0400
-Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:55972 "EHLO
-	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
-	id S262190AbVDRUBO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 16:01:14 -0400
-Message-ID: <426411C2.5040703@ammasso.com>
-Date: Mon, 18 Apr 2005 15:00:02 -0500
-From: Timur Tabi <timur.tabi@ammasso.com>
-Organization: Ammasso
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en, en-gb
+	Mon, 18 Apr 2005 16:01:43 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:34204 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262191AbVDRUBj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 16:01:39 -0400
+Date: Mon, 18 Apr 2005 16:01:22 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
+	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/7] procfs privacy
+In-Reply-To: <1113853561.17341.111.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0504181600480.11251@chimarrao.boston.redhat.com>
+References: <1113849977.17341.68.camel@localhost.localdomain> 
+ <Pine.LNX.4.61.0504181526280.11251@chimarrao.boston.redhat.com>
+ <1113853561.17341.111.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Roland Dreier <roland@topspin.com>, Troy Benjegerdes <hozer@hozed.org>,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
-References: <200544159.Ahk9l0puXy39U6u6@topspin.com>	 <20050411142213.GC26127@kalmia.hozed.org> <52mzs51g5g.fsf@topspin.com>	 <4263DBBF.9040801@ammasso.com>	 <1113840973.6274.84.camel@laptopd505.fenrus.org>	 <4263DF70.2060702@ammasso.com> <1113853240.6274.99.camel@laptopd505.fenrus.org>
-In-Reply-To: <1113853240.6274.99.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="279726928-174483625-1113854482=:11251"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-> you should since that physical page can be reused, say by a root
-> process, and you'd be majorly screwed
+--279726928-174483625-1113854482=:11251
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 
-I don't understand what you mean by "reused".  The whole point behind pinning the memory 
-is that it stays where it is.  It doesn't get moved around and it doesn't get swapped out.
+On Mon, 18 Apr 2005, Lorenzo Hernández García-Hierro wrote:
+
+> Adding a "trusted user group"-like configuration option could be useful,
+> as it's done within grsecurity, among that the whole thing might be good
+> to depend on a config. option, but that implies using weird ifdef's and
+> the other folks.
+
+I'd rather see something like this implemented as an LSM
+module - or better yet, an SELinux security policy.
+
+There's no need to sprinkle security policy all over the
+kernel.
 
 -- 
-Timur Tabi
-Staff Software Engineer
-timur.tabi@ammasso.com
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+--279726928-174483625-1113854482=:11251--

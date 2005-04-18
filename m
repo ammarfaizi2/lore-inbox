@@ -1,43 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbVDRBgp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbVDRBna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261581AbVDRBgp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Apr 2005 21:36:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261583AbVDRBgo
+	id S261584AbVDRBna (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 21:43:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbVDRBna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Apr 2005 21:36:44 -0400
-Received: from mail.avantwave.com ([210.17.210.210]:47574 "EHLO
-	mail.avantwave.com") by vger.kernel.org with ESMTP id S261581AbVDRBgn
+	Sun, 17 Apr 2005 21:43:30 -0400
+Received: from tama5.ecl.ntt.co.jp ([129.60.39.102]:497 "EHLO
+	tama5.ecl.ntt.co.jp") by vger.kernel.org with ESMTP id S261584AbVDRBnX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Apr 2005 21:36:43 -0400
-Message-ID: <42630F26.3060503@haha.com>
-Date: Mon, 18 Apr 2005 09:36:38 +0800
-From: Tomko <tomko@haha.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+	Sun, 17 Apr 2005 21:43:23 -0400
+Message-ID: <42631043.7000409@lab.ntt.co.jp>
+Date: Mon, 18 Apr 2005 10:41:23 +0900
+From: Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: question : is the init process of kernel running in kernel space
- or user space?
+To: "David S. Miller" <davem@davemloft.net>,
+       Daniel Jacobowitz <dan@debian.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386 & x86_64: Live Patching Funcion on 2.6.11.7
+References: <4261DC62.1070300@lab.ntt.co.jp>	<20050416234439.5464e188.davem@davemloft.net>	<20050417185143.GA5002@nevyn.them.org> <20050417133252.353a5666.davem@davemloft.net>
+In-Reply-To: <20050417133252.353a5666.davem@davemloft.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Daniel-san, David-san,
 
-In the linux system , kernel is often starting up like this :
+Pannus project has two targets.
+One is user-mode application live patching, and the other one is kernel 
+live patching.
+What we posted now is user-mode application live patching function.
 
-bootloader -> start_32() -> start_kernel() -> init()
+ >If I'm right, I'm not sure why some of the bits of it were done
+ >separately instead of via the existing ptrace mechanism.  And GDB
+ >would appreciate a mechanism for mmap/munmap/mprotect in a debugged
+ >process, also.
 
-i would like to ask what is the piority level in this starting procedure 
-? 0 or 3 ? that means, this start up process are running in kernel space 
-or user space ?  or the level is keep changing ?
-If it is in kernel space from the very beginning , at which point the 
-system is switched into user space ? is it at the time when kernel open 
-the shell ?
+Daniel-san,
+GDB based approach seems not fit to our requirements. GDB(ptrace) based 
+functions are basically need to be done when target process is stopping. 
+ From our experience, sometimes patches became to dozens to hundreds at 
+one patching, and in this case GDB based approach cause target process's 
+availability descent.
 
-I am new to linux, hope someone can help me here.
+Patch exceeds 50k, so I cut comments and separate architecture, and post 
+as in line.
 
+David S. Miller wrote:
+> On Sun, 17 Apr 2005 14:51:43 -0400
+> Daniel Jacobowitz <dan@debian.org> wrote:
+> 
+> 
+>>Takashi-san's description was not very clear, but it sounds like it's a
+>>patching mechanism for userspace applications - not for kernel space.
+>>So kprobes would not be a good fit.
+> 
+> 
+> I saw the presentation of this stuff at the Linux Kernel conference
+> last year in Tokyo.  I'm pretty sure it's for the kernel. :-)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Regards,
-TOM
+-- 
+Takashi Ikebe
+NTT Network Service Systems Laboratories
+9-11, Midori-Cho 3-Chome Musashino-Shi,
+Tokyo 180-8585 Japan
+Tel : +81 422 59 4246, Fax : +81 422 60 4012
+e-mail : ikebe.takashi@lab.ntt.co.jp

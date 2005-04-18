@@ -1,86 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261877AbVDRHiA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261873AbVDRHro@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261877AbVDRHiA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 03:38:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbVDRHiA
+	id S261873AbVDRHro (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 03:47:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261896AbVDRHrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 03:38:00 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:37626 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S261877AbVDRHh4
+	Mon, 18 Apr 2005 03:47:43 -0400
+Received: from smartmx-05.inode.at ([213.229.60.37]:23257 "EHLO
+	smartmx-05.inode.at") by vger.kernel.org with ESMTP id S261873AbVDRHrk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 03:37:56 -0400
-Subject: Re: FUSYN and RT
-From: Sven-Thorsten Dietrich <sdietrich@mvista.com>
-To: Bill Huey <bhuey@lnxw.com>
-Cc: Inaky Perez-Gonzalez <inaky@linux.intel.com>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Daniel Walker <dwalker@mvista.com>, mingo@elte.hu,
-       linux-kernel@vger.kernel.org, Esben Nielsen <simlo@phys.au.dk>
-In-Reply-To: <20050418053042.GA11399@nietzsche.lynx.com>
-References: <Pine.OSF.4.05.10504130056271.6111-100000@da410.phys.au.dk>
-	 <1113352069.6388.39.camel@dhcp153.mvista.com>
-	 <1113407200.4294.25.camel@localhost.localdomain>
-	 <20050415225137.GA23222@nietzsche.lynx.com>
-	 <16992.20513.551920.826472@sodium.jf.intel.com>
-	 <20050418053042.GA11399@nietzsche.lynx.com>
+	Mon, 18 Apr 2005 03:47:40 -0400
+Subject: Re: Booting from USB with initrd
+From: Bernhard Schauer <linux-kernel-list@acousta.at>
+To: gabriel <gabriel.j@telia.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <420333.1113682535160.JavaMail.root@pne-ps2-sn1>
+References: <420333.1113682535160.JavaMail.root@pne-ps2-sn1>
 Content-Type: text/plain
-Date: Mon, 18 Apr 2005 00:37:54 -0700
-Message-Id: <1113809874.6379.8.camel@sdietrich-xp.vilm.net>
+Date: Mon, 18 Apr 2005 09:48:04 +0200
+Message-Id: <1113810484.5418.36.camel@FC3-bernhard-1.acousta.local>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-04-17 at 22:30 -0700, Bill Huey wrote:
-> On Fri, Apr 15, 2005 at 04:37:05PM -0700, Inaky Perez-Gonzalez wrote:
-> > By following your method, the pi engine becomes unnecesarily complex;
-> > you have actually two engines following two different propagation
-> > chains (one kernel, one user). If your mutexes/locks/whatever are the
-> > same with a different cover, then you can simplify the whole
-> > implementation by leaps.
-> 
-> The main comment that I'm making here (so it doesn't get lost) is that,
-> IMO, you're going to find that there is a mismatch with the requirements
-> of Posix threading verse kernel uses. To drop the kernel mutex in 1:1 to
-> back a futex-ish entity is going to be problematic mainly because of how
-> kernel specific the RT mutex is (or any future kernel mutex) for debugging,
-> etc... and I think this is going to be clear as it gets progressively
-> implemented.
+On Sat, 2005-04-16 at 22:15 +0200, gabriel wrote:
+> Yeah.. but it shouldn't matter much since I've not been able to load the initrd 
+> yet?
 > 
 
-PI behavior is pretty well spec'd out at this point, but its possible
-to assume that no userspace locks are taken after the first kernel
-lock is locked, and that the task exits the kernel without holding any
-kernel locks. That makes it easier to think about, and from that
-perspective, I see no complications with the transitive PI across
-the user / kernel boundary.
+I had just a look at all those things... It simply was a question coming
+into my mind...
 
-If a userspace task has RT priority, it should be able to bump along
-lower priority kernel tasks, whether they (or it) are holding any user
-mutexes, or not. 
+> My kernel never complains about root= bla it only says unable 
+> to mount on root fs.
+> I'm not sure what this tells us.
 
-> I think folks really need to think about this clearly before moving into
-> any direction prematurely. That's what I'm saying. PI is one of those
-> issues, but ultimately it's the fundamental differences between userspace
-> and kernel work.
-> 
+Unable to mount root is an error message telling us that /dev/ram0 could
+not be mounted as root (root=)...
 
-Bill, we are really trying to do this right, open, on the table.
+Try to remove the root=/dev/ram0 line from your kernel command line. IMO
+you don't need it, cause the kernel mounts initrd as root in any case.
 
-This is an open invitation to anyone interested to get on the line
-with us on Wednesday. Get the info for the FREE call here:
+One other reason for that could be that syslinux does not find and load
+the initrd into memory, so the kernel does boot without it.
 
-http://developer.osdl.org/dev/mutexes/
+> I hope so. I have it setup up like in the loop-aes readme. Is there something special 
+> you have in mind?
+
+Not in special. I searched some things like that with remote booting
+linux and *lots* of questions/checks comes into my mind when reading
+your lines.
+
+> >Have you tried to boot kernel + initrd from your local linux
+> >installation?
+
+> No, I would if I knew how. Is there any howto for that?
+
+Thats not that big issue. Do you have a linux installation with grub as
+bootloader (If you only have KNOPPIX/KANOTIX it would be more
+difficult)? 
+If, copy your kernel & initrd to /boot and edit grubs config file -
+normally somewhere within /boot. /etc/grub.conf should be a symlink.
+
+If not copy kernel/initrd to some directory (root would be best) on a
+known harddisk. Boot some live linux that uses grub as loader. Goto
+grubs command line (edit the configuration to boot) and use your kernel
+and initrd to boot (you need to know the number of the harddisk from
+which you boot: hd(hdd nummer, part. nummer) ). See grubs documentation
+for details.
+
+Is there a message that initrd was loaded to mem (from syslinux)?
+
+regards
 
 
-> LynxOS (similar threading system) keep priority calculations of this kind
-> seperate between user and kernel space. I'll have the ask one of our
-> engineers here why again that's the case, but I suspect it's for the
-> reasons I've discussed previously.
-
-Let us know, if its possible to disclose that info.
-
-Sven
-
+PS: Your mail program does not fill in reference/in-reply-to header
+fields... I would be very pleased if you could enable that feature (I'd
+find your mails much easier ;-))
 

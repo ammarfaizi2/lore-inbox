@@ -1,191 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbVDRVsi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261171AbVDRV40@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261163AbVDRVsi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 17:48:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbVDRVsi
+	id S261171AbVDRV40 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 17:56:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbVDRV40
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 17:48:38 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:61961 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261163AbVDRVrm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 17:47:42 -0400
-Date: Mon, 18 Apr 2005 23:47:38 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: luc@saillard.org
-Cc: linux-kernel@vger.kernel.org, gregkh@suse.de,
-       linux-usb-devel@lists.sourceforge.net
-Subject: [2.6 patch] drivers/usb/media/pwc/: make code static
-Message-ID: <20050418214738.GE5489@stusta.de>
-References: <20050418020455.GB3625@stusta.de>
+	Mon, 18 Apr 2005 17:56:26 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:37823 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261171AbVDRV4U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 17:56:20 -0400
+Subject: Re: [Ext2-devel] Re: ext3 allocate-with-reservation latencies
+From: Mingming Cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>
+In-Reply-To: <1113847223.14961.141.camel@sisko.sctweedie.blueyonder.co.uk>
+References: <1112673094.14322.10.camel@mindpipe>
+	 <20050405041359.GA17265@elte.hu>
+	 <1112765751.3874.14.camel@localhost.localdomain>
+	 <20050407081434.GA28008@elte.hu>
+	 <1112879303.2859.78.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1112917023.3787.75.camel@dyn318043bld.beaverton.ibm.com>
+	 <1112971236.1975.104.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1112983801.10605.32.camel@dyn318043bld.beaverton.ibm.com>
+	 <1113220089.2164.52.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1113244710.4413.38.camel@localhost.localdomain>
+	 <1113249435.2164.198.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1113288087.4319.49.camel@localhost.localdomain>
+	 <1113304715.2404.39.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1113348434.4125.54.camel@dyn318043bld.beaverton.ibm.com>
+	 <1113388142.3019.12.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1113597161.3899.80.camel@localhost.localdomain>
+	 <1113847223.14961.141.camel@sisko.sctweedie.blueyonder.co.uk>
+Content-Type: text/plain
+Organization: IBM LTC
+Date: Mon, 18 Apr 2005 14:56:17 -0700
+Message-Id: <1113861377.13550.97.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050418020455.GB3625@stusta.de>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch lacked a small bit.
+On Mon, 2005-04-18 at 19:00 +0100, Stephen C. Tweedie wrote:
 
-Updated patch below.
+> > > Note that there _is_ some additional complexity here.  It's not entirely
+> > > free.  Specifically, if we have other tasks waiting on our provisional
+> > > window, then we need to be very careful about the life expectancy of the
+> > > wait queues involved, so that if the first task fixes its window and
+> > > then deletes it before the waiters have woken up, they don't get
+> > > confused by the provisional window vanishing while being waited for.
+> 
+> > This approach(provisional window) sounds interesting to me, but it's a
+> > little more complicated than I thought:(
+> 
+> Yep.  Once you have other tasks waiting on your window while it's not
+> locked, object lifetime becomes a much bigger problem.
+> 
+> > alloc_new_reservation()
+> > retry:
+> > lock the tree
+> > 	search for a new space start from the given startblock
+> > 	found a new space
+> > 	if the new space is not a "provisional window" 
 
-cu
-Adrian
+> I was thinking rather that we _start_ with the window, and _then_ look
+> for new space.
+> 
 
+It seems I am lost here.  Could you elaborate more here, please?  What
+is "the window" you are referring to here? The old(stale) reservation
+window?  I thought we are discussing the algorithm to how to allocate a
+new window.
 
-<--  snip  -->
+> So we'd start with:
+> 
+> if we already have a window, 
+> 	mark it provisional; 
+> else,
+> 	do
+> 		search for a new window;
+> 		if the immediately preceding window is provisional, 
+> 			wait for that window;
+> 			continue;
+> 		allocate the window and mark it provisional;
+> 		break
+> 
+> At this point we have a provisional window, and we know that nobody else
+> is going to allocate either in it, or in the empty space following it
+> (because if they tried to, they'd bump into our own provisional window
+> as their predecessor and would wait for us.)  So even if the window
+> doesn't occupy the _whole_ unreserved area, we can still keep searching
+> without fear of multiple tasks trying to do so in the same space at the
+> same time.
+> 
+> --Stephen
+> 
+> 
+Hmm...... This thread was to address the latency of holding the global
+per-fs reservation lock while scanning the block group bitmap.  And the
+whole point of the "provisional window" is to prevent other inodes being
+forced to put into other block groups when one inode hold/reserve the
+whole block group as a temporary window to do the bitmap scan. I clearly
+see it's a win if there are no multiple threads allocating blocks nearby
+at the same time. However the whole reservation is there to address the
+case where multiple allocations happen at the same time near the same
+place. 
 
+With the provisional method, if multiple threads trying to allocate new
+windows in the same area, they are still have to wait for other new-
+window-allocation-and-bitmap-scan finish. After that the probably will
+compete the same window again and again....:(  I am worried that the
+latency is not being being improved than before (holding the lock for
+bitmap scan), and we have paid extra cpu time or context switches. Also
+the changes to the algorithm is no going to be trivial. 
 
-This patch makes needlessly global code static.
+Now we all agree that the right thing to fix the latency is to drop the
+lock and then scan the bitmap. Before that we need to reserve the open
+window in case someone else is trying to target at the same window.
+Question was should we reserve the whole free reservable space or just
+the window size we need.  Now that we have explored and discussed so
+many possible solutions,  I think the lest evil and less intrusive way
+to just lock the small window.  We were worried about in the case the
+scanned free bit is not inside the temporary reserved window, it is
+possible we have to do many window unlink and link operations on the rb
+tree, however this is not avoidable with the provisional window proposal
+either.  Probably we could start with that simple proposal first, and if
+there are benchmarks shows the cpu usage is really high and a concern,
+we could address that later? 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Thanks,
+Mingming
 
----
-
- drivers/usb/media/pwc/pwc-ctrl.c |   78 +++++++++++++++----------------
- drivers/usb/media/pwc/pwc-if.c   |    2 
- drivers/usb/media/pwc/pwc.h      |    6 --
- 3 files changed, 41 insertions(+), 45 deletions(-)
-
---- linux-2.6.12-rc2-mm3-full/drivers/usb/media/pwc/pwc.h.old	2005-04-18 03:11:14.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/usb/media/pwc/pwc.h	2005-04-18 03:13:28.000000000 +0200
-@@ -226,9 +226,8 @@
- extern "C" {
- #endif
- 
--/* Global variables */
-+/* Global variable */
- extern int pwc_trace;
--extern int pwc_preferred_compression;
- 
- /** functions in pwc-if.c */
- int pwc_try_video_mode(struct pwc_device *pdev, int width, int height, int new_fps, int new_compression, int new_snapshot);
-@@ -243,8 +242,6 @@
- /** Functions in pwc-ctrl.c */
- /* Request a certain video mode. Returns < 0 if not possible */
- extern int pwc_set_video_mode(struct pwc_device *pdev, int width, int height, int frames, int compression, int snapshot);
--/* Calculate the number of bytes per image (not frame) */
--extern void pwc_set_image_buffer_size(struct pwc_device *pdev);
- 
- /* Various controls; should be obvious. Value 0..65535, or < 0 on error */
- extern int pwc_get_brightness(struct pwc_device *pdev);
-@@ -256,7 +253,6 @@
- extern int pwc_get_saturation(struct pwc_device *pdev);
- extern int pwc_set_saturation(struct pwc_device *pdev, int value);
- extern int pwc_set_leds(struct pwc_device *pdev, int on_value, int off_value);
--extern int pwc_get_leds(struct pwc_device *pdev, int *on_value, int *off_value);
- extern int pwc_get_cmos_sensor(struct pwc_device *pdev, int *sensor);
- 
- /* Power down or up the camera; not supported by all models */
---- linux-2.6.12-rc2-mm3-full/drivers/usb/media/pwc/pwc-ctrl.c.old	2005-04-18 03:11:29.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/usb/media/pwc/pwc-ctrl.c	2005-04-18 22:57:34.000000000 +0200
-@@ -418,6 +418,44 @@
- 
- 
- 
-+static void pwc_set_image_buffer_size(struct pwc_device *pdev)
-+{
-+	int i, factor = 0, filler = 0;
-+
-+	/* for PALETTE_YUV420P */
-+	switch(pdev->vpalette)
-+	{
-+	case VIDEO_PALETTE_YUV420P:
-+		factor = 6;
-+		filler = 128;
-+		break;
-+	case VIDEO_PALETTE_RAW:
-+		factor = 6; /* can be uncompressed YUV420P */
-+		filler = 0;
-+		break;
-+	}
-+
-+	/* Set sizes in bytes */
-+	pdev->image.size = pdev->image.x * pdev->image.y * factor / 4;
-+	pdev->view.size  = pdev->view.x  * pdev->view.y  * factor / 4;
-+
-+	/* Align offset, or you'll get some very weird results in
-+	   YUV420 mode... x must be multiple of 4 (to get the Y's in
-+	   place), and y even (or you'll mixup U & V). This is less of a
-+	   problem for YUV420P.
-+	 */
-+	pdev->offset.x = ((pdev->view.x - pdev->image.x) / 2) & 0xFFFC;
-+	pdev->offset.y = ((pdev->view.y - pdev->image.y) / 2) & 0xFFFE;
-+
-+	/* Fill buffers with gray or black */
-+	for (i = 0; i < MAX_IMAGES; i++) {
-+		if (pdev->image_ptr[i] != NULL)
-+			memset(pdev->image_ptr[i], filler, pdev->view.size);
-+	}
-+}
-+
-+
-+
- /**
-    @pdev: device structure
-    @width: viewport width
-@@ -475,44 +513,6 @@
- }
- 
- 
--void pwc_set_image_buffer_size(struct pwc_device *pdev)
--{
--	int i, factor = 0, filler = 0;
--
--	/* for PALETTE_YUV420P */
--	switch(pdev->vpalette)
--	{
--	case VIDEO_PALETTE_YUV420P:
--		factor = 6;
--		filler = 128;
--		break;
--	case VIDEO_PALETTE_RAW:
--		factor = 6; /* can be uncompressed YUV420P */
--		filler = 0;
--		break;
--	}
--
--	/* Set sizes in bytes */
--	pdev->image.size = pdev->image.x * pdev->image.y * factor / 4;
--	pdev->view.size  = pdev->view.x  * pdev->view.y  * factor / 4;
--
--	/* Align offset, or you'll get some very weird results in
--	   YUV420 mode... x must be multiple of 4 (to get the Y's in
--	   place), and y even (or you'll mixup U & V). This is less of a
--	   problem for YUV420P.
--	 */
--	pdev->offset.x = ((pdev->view.x - pdev->image.x) / 2) & 0xFFFC;
--	pdev->offset.y = ((pdev->view.y - pdev->image.y) / 2) & 0xFFFE;
--
--	/* Fill buffers with gray or black */
--	for (i = 0; i < MAX_IMAGES; i++) {
--		if (pdev->image_ptr[i] != NULL)
--			memset(pdev->image_ptr[i], filler, pdev->view.size);
--	}
--}
--
--
--
- /* BRIGHTNESS */
- 
- int pwc_get_brightness(struct pwc_device *pdev)
-@@ -949,7 +949,7 @@
- 	return SendControlMsg(SET_STATUS_CTL, LED_FORMATTER, 2);
- }
- 
--int pwc_get_leds(struct pwc_device *pdev, int *on_value, int *off_value)
-+static int pwc_get_leds(struct pwc_device *pdev, int *on_value, int *off_value)
- {
- 	unsigned char buf[2];
- 	int ret;
---- linux-2.6.12-rc2-mm3-full/drivers/usb/media/pwc/pwc-if.c.old	2005-04-18 03:13:37.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/usb/media/pwc/pwc-if.c	2005-04-18 03:13:53.000000000 +0200
-@@ -129,7 +129,7 @@
-        int pwc_trace = TRACE_MODULE | TRACE_FLOW | TRACE_PWCX;
- static int power_save = 0;
- static int led_on = 100, led_off = 0; /* defaults to LED that is on while in use */
--       int pwc_preferred_compression = 2; /* 0..3 = uncompressed..high */
-+static int pwc_preferred_compression = 2; /* 0..3 = uncompressed..high */
- static struct {
- 	int type;
- 	char serial_number[30];

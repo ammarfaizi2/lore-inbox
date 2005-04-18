@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262105AbVDRQ25@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVDRQhT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262105AbVDRQ25 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 12:28:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262125AbVDRQ24
+	id S261385AbVDRQhT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 12:37:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbVDRQhT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 12:28:56 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:9688 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262105AbVDRQ0c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 12:26:32 -0400
-Date: Mon, 18 Apr 2005 17:26:28 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Igor Shmukler <igor.shmukler@gmail.com>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, riel@redhat.com, thehazard@gmail.com,
-       arjan@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: intercepting syscalls
-Message-ID: <20050418162627.GA27430@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Igor Shmukler <igor.shmukler@gmail.com>,
-	"Randy.Dunlap" <rddunlap@osdl.org>, riel@redhat.com,
-	thehazard@gmail.com, arjan@infradead.org,
-	linux-kernel@vger.kernel.org
-References: <6533c1c905041511041b846967@mail.gmail.com> <1113588694.6694.75.camel@laptopd505.fenrus.org> <6533c1c905041512411ec2a8db@mail.gmail.com> <e1e1d5f40504151251617def40@mail.gmail.com> <6533c1c905041512594bb7abb4@mail.gmail.com> <Pine.LNX.4.61.0504180752220.3232@chimarrao.boston.redhat.com> <6533c1c905041807487a872025@mail.gmail.com> <20050418081726.7d3125bd.rddunlap@osdl.org> <6533c1c90504180920693aa204@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6533c1c90504180920693aa204@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 18 Apr 2005 12:37:19 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:27009 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261385AbVDRQhN convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 12:37:13 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [discuss] [Patch] X86_64 TASK_SIZE cleanup
+Date: Tue, 19 Apr 2005 00:37:07 +0800
+Message-ID: <894E37DECA393E4D9374E0ACBBE74270013E8B78@pdsmsx402.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [discuss] [Patch] X86_64 TASK_SIZE cleanup
+Thread-Index: AcVD9eAOsKpZOGZ8TG+CRZo1yAFElAAPUiNw
+From: "Zou, Nanhai" <nanhai.zou@intel.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: <discuss@x86-64.org>, <linux-kernel@vger.kernel.org>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+X-OriginalArrivalTime: 18 Apr 2005 16:37:08.0304 (UTC) FILETIME=[DCC87500:01C54434]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 18, 2005 at 12:20:06PM -0400, Igor Shmukler wrote:
-> I don't think that drivers have to be architecture independent. Why is
-> this a problem?
 
-Actually, yes a driver should generally be architecture independent.
-There's some exception for things dealing with lowlevel architecture-
-dependent things.
+When a 32bit program is mapping a lot of hugepage vm_areas, 
+hugetlb_get_unmapped_area may search beyond 4G, then the program will
+get a SIGFAULT instead of an errno of ENOMEM.
+This patch will fix that.
+I believe there are other inconsistent cases in generic code like mm and
+fs.
 
-> I would even agree that it might be beneficial to develop guidelines
-> for developing stackable modules that intercept system calls, but I
-> think that reasons beyond races are of less importance.
+Zou Nan hai
 
-No, because we have no interest in supporting that.  Explain is your
-problem and show us the code and we might find a better design.
-
+> -----Original Message-----
+> From: Andi Kleen [mailto:ak@suse.de]
+> Sent: Monday, April 18, 2005 5:06 PM
+> To: Zou, Nanhai
+> Cc: discuss@x86-64.org; Andi Kleen; linux-kernel@vger.kernel.org;
+Siddha,
+> Suresh B
+> Subject: Re: [discuss] [Patch] X86_64 TASK_SIZE cleanup
+> 
+> On Sat, Apr 16, 2005 at 09:34:25AM +0800, Zou, Nanhai wrote:
+> >
+> > Hi,
+> >    This patch will clean up the X86_64 compatibility mode TASK_SIZE
+> > define thus fix some bugs found in X86_64 compatibility mode
+program.
+> 
+> Fix what bugs exactly?  Please a detailed description.
+> 
+> -Andi

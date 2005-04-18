@@ -1,62 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbVDRUkn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbVDRUuk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261164AbVDRUkn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 16:40:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbVDRUkn
+	id S261175AbVDRUuk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 16:50:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbVDRUuk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 16:40:43 -0400
-Received: from zombie.ncsc.mil ([144.51.88.131]:36992 "EHLO jazzdrum.ncsc.mil")
-	by vger.kernel.org with ESMTP id S261164AbVDRUkf (ORCPT
+	Mon, 18 Apr 2005 16:50:40 -0400
+Received: from mail.dif.dk ([193.138.115.101]:21697 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261175AbVDRUu3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 16:40:35 -0400
-Subject: Re: [PATCH 0/7] procfs privacy
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
-	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-Cc: Rik van Riel <riel@redhat.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1113855485.17341.130.camel@localhost.localdomain>
-References: <1113849977.17341.68.camel@localhost.localdomain>
-	 <Pine.LNX.4.61.0504181526280.11251@chimarrao.boston.redhat.com>
-	 <1113853561.17341.111.camel@localhost.localdomain>
-	 <Pine.LNX.4.61.0504181600480.11251@chimarrao.boston.redhat.com>
-	 <1113855485.17341.130.camel@localhost.localdomain>
-Content-Type: text/plain; charset=utf-8
-Organization: National Security Agency
-Date: Mon, 18 Apr 2005 16:31:35 -0400
-Message-Id: <1113856295.30865.10.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-14) 
-Content-Transfer-Encoding: 8bit
+	Mon, 18 Apr 2005 16:50:29 -0400
+Date: Mon, 18 Apr 2005 22:53:26 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Matthew Wilcox <matthew@wil.cx>, Herbert Xu <herbert@gondor.apana.org.au>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: [PATCH 1/2] new valid_signal function
+Message-ID: <Pine.LNX.4.62.0504182240390.5362@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-04-18 at 22:18 +0200, Lorenzo Hernández García-Hierro
-wrote:
-> For this purpose I (re)submitted a patch originally made by Serge E.
-> Hallyn that adds a hook in order to catch task lookups, thus, providing
-> an easy way to handle and determine when a task can lookup'ed.
-> 
-> It's at:
-> http://pearls.tuxedo-es.org/patches/lsm/lsm-task_lookup-hook.patch
-> 
-> vSecurity currently provides support for it (optional).
-> 
-> SELinux policy can handle in a much more fine-grained these
-> restrictions, just that it's still something that not all people can
-> deploy without some special effort and "tweak up" (if their system
-> doesn't provide support for it, of course, currently Red Hat has done a
-> great job in that terms).
+This patch adds a new function  valid_signal()  that tests if its argument 
+is a valid signal number. 
 
-To be precise, SELinux assigns security labels to /proc inodes
-(/proc/pid inodes are labeled based on the associated task label, and
-other /proc inodes are labeled based on the policy configuration), and
-controls access based on the policy.  It can e.g. prevent a process in
-one security domain from accessing anything under /proc/<pid> for a
-process in a different domain, but not from seeing the top-level entry
-in /proc itself (as it doesn't do any kind of directory filtering).
+The reasons for adding this new function are:
+- some code currently testing _NSIG directly has off-by-one errors. Using 
+this function instead avoids such errors.
+- some code currently tests unsigned signal numbers for <0 which is 
+pointless and generates warnings when building with gcc -W. Using this 
+function instead avoids such warnings.
 
--- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
+I considered various places to add this function but eventually settled on 
+include/linux/signal.h as the most logical place for it. If there's some 
+reason this is a bad choice then please let me know (hints as to a better 
+location are then welcome of course).
+
+A patch that converts most of the code that currently uses _NSIG directly 
+to call this function instead is [PATCH 2/2] coming shortly..
+
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+
+ include/linux/signal.h |    6 ++++++
+ 1 files changed, 6 insertions(+)
+
+--- linux-2.6.12-rc2-mm3-orig/include/linux/signal.h	2005-04-11 21:20:56.000000000 +0200
++++ linux-2.6.12-rc2-mm3/include/linux/signal.h	2005-04-18 20:09:50.000000000 +0200
+@@ -220,6 +220,12 @@
+ 	INIT_LIST_HEAD(&sig->list);
+ }
+ 
++/* Test if 'sig' is valid signal. Use this instead of testing _NSIG directly */
++static inline int valid_signal(unsigned long sig)
++{
++	return sig <= _NSIG ? 1 : 0;
++}
++
+ extern int group_send_sig_info(int sig, struct siginfo *info, struct task_struct *p);
+ extern int __group_send_sig_info(int, struct siginfo *, struct task_struct *);
+ extern long do_sigpending(void __user *, unsigned long);
+
+
 

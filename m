@@ -1,57 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262129AbVDRQrM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262133AbVDRQsy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262129AbVDRQrM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 12:47:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262125AbVDRQrL
+	id S262133AbVDRQsy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 12:48:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbVDRQsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 12:47:11 -0400
-Received: from post.hexten.net ([65.254.52.58]:2236 "EHLO post.hexten.net")
-	by vger.kernel.org with ESMTP id S262129AbVDRQpE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 12:45:04 -0400
-In-Reply-To: <37b978ceccdb5fbea39a925ea9eaa2cb@hexten.net>
-References: <37b978ceccdb5fbea39a925ea9eaa2cb@hexten.net>
-Mime-Version: 1.0 (Apple Message framework v622)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <4c7663456024e2e92f003a136a74b39b@hexten.net>
-Content-Transfer-Encoding: 7bit
-Cc: linux-kernel@vger.kernel.org
-From: Andy Armstrong <andy@hexten.net>
-Subject: [PATCH 2.6.11.7 2/2] USB HID: Patch for Cherry CyMotion Linux keyboard
-Date: Mon, 18 Apr 2005 17:45:00 +0100
-To: Andy Armstrong <andy@hexten.net>
-X-Mailer: Apple Mail (2.622)
+	Mon, 18 Apr 2005 12:48:54 -0400
+Received: from webmail.topspin.com ([12.162.17.3]:55985 "EHLO
+	exch-1.topspincom.com") by vger.kernel.org with ESMTP
+	id S262133AbVDRQsG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 12:48:06 -0400
+To: Timur Tabi <timur.tabi@ammasso.com>
+Cc: Troy Benjegerdes <hozer@hozed.org>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+X-Message-Flag: Warning: May contain useful information
+References: <200544159.Ahk9l0puXy39U6u6@topspin.com>
+	<20050411142213.GC26127@kalmia.hozed.org> <52mzs51g5g.fsf@topspin.com>
+	<4263DBBF.9040801@ammasso.com>
+From: Roland Dreier <roland@topspin.com>
+Date: Mon, 18 Apr 2005 09:12:45 -0700
+In-Reply-To: <4263DBBF.9040801@ammasso.com> (Timur Tabi's message of "Mon,
+ 18 Apr 2005 11:09:35 -0500")
+Message-ID: <52is2kawsi.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 18 Apr 2005 16:12:45.0549 (UTC) FILETIME=[74E9C1D0:01C54431]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And here are the changes to support the extra keys...
+    Timur> Why do you call mlock() and get_user_pages()?  In our code,
+    Timur> we only call mlock(), and the memory is pinned.  We have a
+    Timur> test case that fails if only get_user_pages() is called,
+    Timur> but it passes if only mlock() is called.
 
-diff -ur linux-2.6.11.7.orig/drivers/usb/input/hid-input.c 
-linux/drivers/usb/input/hid-input.c
---- linux-2.6.11.7.orig/drivers/usb/input/hid-input.c	2005-04-07 
-19:57:34.000000000 +0100
-+++ linux/drivers/usb/input/hid-input.c	2005-04-18 13:36:16.000000000 
-+0100
-@@ -270,6 +270,12 @@
-  				case 0x227: map_key_clear(KEY_REFRESH);		break;
-  				case 0x22a: map_key_clear(KEY_BOOKMARKS);	break;
-  				case 0x238: map_rel(REL_HWHEEL);		break;
-+                                case 0x233: 
-map_key_clear(KEY_SCROLLUP);        break;
-+                                case 0x234: 
-map_key_clear(KEY_SCROLLDOWN);      break;
-+                                case 0x301: map_key_clear(KEY_PROG1);  
-          break;
-+                                case 0x302: map_key_clear(KEY_PROG2);  
-          break;
-+                                case 0x303: map_key_clear(KEY_PROG3);  
-          break;
-+                                case 0x279: map_key_clear(KEY_AGAIN);  
-          break;
-  				default:    goto unknown;
-  			}
-  			break;
+What if a buggy/malicious userspace program doesn't call mlock()?
 
--- 
-Andy Armstrong, hexten.net
-
+ - R.

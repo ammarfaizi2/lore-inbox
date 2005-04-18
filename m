@@ -1,46 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262059AbVDRMkZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbVDRMkN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262059AbVDRMkZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 08:40:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbVDRMkZ
+	id S262062AbVDRMkN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 08:40:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262059AbVDRMkM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 08:40:25 -0400
-Received: from zproxy.gmail.com ([64.233.162.207]:19687 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262059AbVDRMkT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 08:40:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tevxK62SP/9y+wfg/7PRque5NCsBsvpPXQ67Xz5CyA+Y6K5YtB8hLvAs4ezvtESbmwOUCp0pdn9mCuUUqJJGgiVTSEyjx5phHp9nPXbCwYYPHgpOM4aUwxRrEsUhSxKJa4bCHq+FNjQQT7k2fQZ4jdlG9Y5K8xp6x/goFOJwj1M=
-Message-ID: <68b6a2bc050418054017ae73b8@mail.gmail.com>
-Date: Mon, 18 Apr 2005 15:40:16 +0300
-From: Ehud Shabtai <eshabtai.lkml@gmail.com>
-Reply-To: Ehud Shabtai <eshabtai.lkml@gmail.com>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Subject: Re: Need some help to debug a freeze on 2.6.11
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, Alexander Nyberg <alexn@dsv.su.se>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200504181527.02112.vda@ilport.com.ua>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <68b6a2bc050418000619a552de@mail.gmail.com>
-	 <Pine.LNX.4.62.0504181220090.2522@dragon.hyggekrogen.localhost>
-	 <68b6a2bc05041803561621ddd6@mail.gmail.com>
-	 <200504181527.02112.vda@ilport.com.ua>
+	Mon, 18 Apr 2005 08:40:12 -0400
+Received: from Smtp2.univ-nantes.fr ([193.52.82.19]:55230 "EHLO
+	smtp2.univ-nantes.fr") by vger.kernel.org with ESMTP
+	id S262065AbVDRMj6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 08:39:58 -0400
+Message-ID: <4263AA9D.3000505@univ-nantes.fr>
+Date: Mon, 18 Apr 2005 14:39:57 +0200
+From: Yann Dupont <Yann.Dupont@univ-nantes.fr>
+Organization: CRIUN
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: E1000 - page allocation failure - saga continues :(
+References: <20050414214828.GB9591@mail.muni.cz> <4263A3B7.6010702@univ-nantes.fr> <20050418122202.GE26030@mail.muni.cz> <4263A70F.5060409@univ-nantes.fr> <20050418123457.GF26030@mail.muni.cz>
+In-Reply-To: <20050418123457.GF26030@mail.muni.cz>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/18/05, Denis Vlasenko <vda@ilport.com.ua> wrote:
-> On Monday 18 April 2005 13:56, Ehud Shabtai wrote:
-> > As an alternative, can I configure netconsole for my ethernet port and
-> > only really connect it, after I get the freeze?
-> 
-> UDP packets will be long gone at the time you plug cable in.
+Lukas Hejtmanek a écrit :
 
-I will probably lose the oops message, but won't I be able to use
-SysRq to get some hints about the problem?
+>On Mon, Apr 18, 2005 at 02:24:47PM +0200, Yann Dupont wrote:
+>  
+>
+>>>I know that kernel 2.6.6-bk4 works. So were there some memory manager changes
+>>>since 2.6.6? If so it looks like there are some bugs. 
+>>>On the other hand, ethernet driver should not allocate much memory but rather
+>>>drop packets.
+>>>
+>>>Btw, are you using some TCP tweaks? E.g. I have default TCP window size 1MB.
+>>>
+>>>      
+>>>
+>>No tweaking at all. No jumbo frames.
+>>    
+>>
+>
+>There were assumptions that it is XFS related. Are you using XFS on that box?
+>
+>I'm able to deterministically produce this error:
+>on XFS partition store a file from network using multiple threads. If file size
+>is bigger then total memory, then it fails after major part of memory is used
+>for a file cache.
+>
+>  
+>
+Ah yes, this is the case.
+XFS all over ...
 
-Anyway, which SysRq keys should help me debug the problem?
+The server is quite heavily stressed, we have a bunch of servers
+rsyncing on a big SAN volume - formatted with XFS, that's right.
+(and, if that matters, XFS in on top of a EVMS volume (on top of a LVM2
+region)...)
+
+-- 
+Yann Dupont, Cri de l'université de Nantes
+Tel: 02.51.12.53.91 - Fax: 02.51.12.58.60 - Yann.Dupont@univ-nantes.fr
+

@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262061AbVDRMhI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262059AbVDRMkZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262061AbVDRMhI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 08:37:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262059AbVDRMhI
+	id S262059AbVDRMkZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 08:40:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbVDRMkZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 08:37:08 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:6663 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262061AbVDRMg5
+	Mon, 18 Apr 2005 08:40:25 -0400
+Received: from zproxy.gmail.com ([64.233.162.207]:19687 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262059AbVDRMkT convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 08:36:57 -0400
-Date: Mon, 18 Apr 2005 22:33:05 +1000
-To: Andreas Steinmetz <ast@domdv.de>
-Cc: Denis Vlasenko <vda@ilport.com.ua>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       jmorris@redhat.com, davem@davemloft.net, ak@suse.de
-Subject: Re: [RFC][PATCH 2/4] AES assembler implementation for x86_64
-Message-ID: <20050418123305.GA7388@gondor.apana.org.au>
-References: <4262B6E9.8040400@domdv.de> <200504181118.50594.vda@ilport.com.ua> <42637775.8000904@domdv.de> <200504181319.15708.vda@ilport.com.ua> <42638D53.9070809@domdv.de>
+	Mon, 18 Apr 2005 08:40:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=tevxK62SP/9y+wfg/7PRque5NCsBsvpPXQ67Xz5CyA+Y6K5YtB8hLvAs4ezvtESbmwOUCp0pdn9mCuUUqJJGgiVTSEyjx5phHp9nPXbCwYYPHgpOM4aUwxRrEsUhSxKJa4bCHq+FNjQQT7k2fQZ4jdlG9Y5K8xp6x/goFOJwj1M=
+Message-ID: <68b6a2bc050418054017ae73b8@mail.gmail.com>
+Date: Mon, 18 Apr 2005 15:40:16 +0300
+From: Ehud Shabtai <eshabtai.lkml@gmail.com>
+Reply-To: Ehud Shabtai <eshabtai.lkml@gmail.com>
+To: Denis Vlasenko <vda@ilport.com.ua>
+Subject: Re: Need some help to debug a freeze on 2.6.11
+Cc: Jesper Juhl <juhl-lkml@dif.dk>, Alexander Nyberg <alexn@dsv.su.se>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200504181527.02112.vda@ilport.com.ua>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <42638D53.9070809@domdv.de>
-User-Agent: Mutt/1.5.6+20040907i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+References: <68b6a2bc050418000619a552de@mail.gmail.com>
+	 <Pine.LNX.4.62.0504181220090.2522@dragon.hyggekrogen.localhost>
+	 <68b6a2bc05041803561621ddd6@mail.gmail.com>
+	 <200504181527.02112.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 18, 2005 at 12:34:59PM +0200, Andreas Steinmetz wrote:
-> Denis Vlasenko wrote:
->
-> > OTOH, if _exactly the same file_ exist in i384 arch, then
-> > you should not duplicate it at all. Find a way to use one file
-> > for both arches.
+On 4/18/05, Denis Vlasenko <vda@ilport.com.ua> wrote:
+> On Monday 18 April 2005 13:56, Ehud Shabtai wrote:
+> > As an alternative, can I configure netconsole for my ethernet port and
+> > only really connect it, after I get the freeze?
+> 
+> UDP packets will be long gone at the time you plug cable in.
 
-I haven't looked at the patches yet, but if it were possible to
-share code such as gen_tab then it would be very nice indeed.
+I will probably lose the oops message, but won't I be able to use
+SysRq to get some hints about the problem?
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Anyway, which SysRq keys should help me debug the problem?

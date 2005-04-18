@@ -1,44 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262178AbVDRTcA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262180AbVDRTio@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262178AbVDRTcA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 15:32:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262181AbVDRTb7
+	id S262180AbVDRTio (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 15:38:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262182AbVDRTio
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 15:31:59 -0400
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:62394
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262178AbVDRTbx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 15:31:53 -0400
-Date: Mon, 18 Apr 2005 12:26:00 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_Garc=EDa-Hierro?= 
-	<lorenzo@gnu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] TCP ipv4 source port randomization
-Message-Id: <20050418122600.0664f26b.davem@davemloft.net>
-In-Reply-To: <1113851051.17341.94.camel@localhost.localdomain>
-References: <1113851051.17341.94.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Mon, 18 Apr 2005 15:38:44 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:30706 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262180AbVDRTil
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 15:38:41 -0400
+Date: Mon, 18 Apr 2005 14:38:33 -0500
+To: paulus@samba.org, anton@samba.org
+Cc: akpm@osdl.org, linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: PATCH [PPC64]: dead processes never reaped
+Message-ID: <20050418193833.GW15596@austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040818i
+From: Linas Vepstas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Stephen Hemminger has already added TCP port randomization on
-connect() to the 2.6.x tree.  See
-net/ipv4/tcp_ipv4.c:tcp_v4_hash_connect(), where randomized port
-selection occurs.  And unlike your patch, Stephen did add ipv6
-support (via net/ipv6/tcp_ipv6.c:tcp_v6_hash_connect()) for
-port randomization as well.
 
-I'd like to ask two things:
+Hi,
 
-1) That you use netdev@oss.sgi.com for networking patches as that
-   is where the networking developers listen.
-2) That you do some checking to see that the feature you're adding
-   is not already present in the tree.
+The patch below appears to fix a problem where a number of dead processes
+linger on the system.  On a highly loaded system, dozens of processes 
+were found stuck in do_exit(), calling thier very last schedule(), and
+then being lost forever.  
 
-Thanks a lot.
+Processes that are PF_DEAD are cleaned up *after* the context switch, 
+in a routine called finish_task_switch(task_t *prev). The "prev" gets 
+the  value returned by _switch() in entry.S, but this value comes from 
+  
+__switch_to (struct task_struct *prev, 
+            struct task_struct *new) 
+{ 
+   old_thread = &current->thread; ///XXX shouldn't this be prev, not current? 
+   last = _switch(old_thread, new_thread); 
+   return last; 
+} 
+ 
+The way I see it, "prev" and "current" are almost always going to be  
+pointing at the same thing; however, if a "need resched" happens,  
+or there's a pre-emept or some-such, then prev and current won't be  
+the same; in which case, finish_task_switch() will end up cleaning  
+up the old current, instead of prev.  This will result in dead processes 
+hanging around, which will never be scheduled again, and will never  
+get a chance to have put_task_struct() called on them.  
+
+This patch fixes this.
+
+Signed-off-by: Linas Vepstas <linas@linas.org>
+
+
+--- arch/ppc64/kernel/process.c.orig	2005-04-18 14:26:42.000000000 -0500
++++ arch/ppc64/kernel/process.c	2005-04-18 14:27:54.000000000 -0500
+@@ -204,7 +204,7 @@ struct task_struct *__switch_to(struct t
+ 	flush_tlb_pending();
+ 
+ 	new_thread = &new->thread;
+-	old_thread = &current->thread;
++	old_thread = &prev->thread;
+ 
+ 	local_irq_save(flags);
+ 	last = _switch(old_thread, new_thread);

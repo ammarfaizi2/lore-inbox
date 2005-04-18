@@ -1,35 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261982AbVDRJJM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261993AbVDRJGZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261982AbVDRJJM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 05:09:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbVDRJGt
+	id S261993AbVDRJGZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 05:06:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbVDRJEt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 05:06:49 -0400
-Received: from ns.suse.de ([195.135.220.2]:62916 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S262003AbVDRJGG (ORCPT
+	Mon, 18 Apr 2005 05:04:49 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:47365 "EHLO hermes.domdv.de")
+	by vger.kernel.org with ESMTP id S261999AbVDRJD5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 05:06:06 -0400
-Date: Mon, 18 Apr 2005 11:06:01 +0200
-From: Andi Kleen <ak@suse.de>
-To: "Zou, Nanhai" <nanhai.zou@intel.com>
-Cc: discuss@x86-64.org, Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Subject: Re: [discuss] [Patch] X86_64 TASK_SIZE cleanup
-Message-ID: <20050418090601.GG8511@wotan.suse.de>
-References: <894E37DECA393E4D9374E0ACBBE74270013E8B76@pdsmsx402.ccr.corp.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <894E37DECA393E4D9374E0ACBBE74270013E8B76@pdsmsx402.ccr.corp.intel.com>
+	Mon, 18 Apr 2005 05:03:57 -0400
+Message-ID: <426377FD.4030801@domdv.de>
+Date: Mon, 18 Apr 2005 11:03:57 +0200
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       jmorris@redhat.com, davem@davemloft.net
+Subject: Re: [RFC][PATCH 0/4] AES assembler implementation for x86_64
+References: <4262B6D4.30805@domdv.de> <20050418085900.GD8511@wotan.suse.de>
+In-Reply-To: <20050418085900.GD8511@wotan.suse.de>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 16, 2005 at 09:34:25AM +0800, Zou, Nanhai wrote:
-> 
-> Hi,
->    This patch will clean up the X86_64 compatibility mode TASK_SIZE
-> define thus fix some bugs found in X86_64 compatibility mode program.
+Andi Kleen wrote:
+> On what CPUs did you benchmark? I suppose results will vary a lot
+> between AMD and Intel x86-64 CPUs.
 
-Fix what bugs exactly?  Please a detailed description.
+AMD. I don't have any Intel around.
 
--Andi
+-- 
+Andreas Steinmetz                       SPAMmers use robotrap@domdv.de

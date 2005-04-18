@@ -1,67 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262091AbVDRO7u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261374AbVDRPCR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262091AbVDRO7u (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 10:59:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbVDRO7u
+	id S261374AbVDRPCR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 11:02:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262094AbVDRPCR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 10:59:50 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:2006 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262091AbVDRO7o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 10:59:44 -0400
-Subject: Re: intercepting syscalls
-From: Arjan van de Ven <arjan@infradead.org>
-To: Igor Shmukler <igor.shmukler@gmail.com>
-Cc: Rik van Riel <riel@redhat.com>, Daniel Souza <thehazard@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <6533c1c905041807487a872025@mail.gmail.com>
-References: <6533c1c905041511041b846967@mail.gmail.com>
-	 <1113588694.6694.75.camel@laptopd505.fenrus.org>
-	 <6533c1c905041512411ec2a8db@mail.gmail.com>
-	 <e1e1d5f40504151251617def40@mail.gmail.com>
-	 <6533c1c905041512594bb7abb4@mail.gmail.com>
-	 <Pine.LNX.4.61.0504180752220.3232@chimarrao.boston.redhat.com>
-	 <6533c1c905041807487a872025@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 18 Apr 2005 16:59:37 +0200
-Message-Id: <1113836378.6274.69.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 18 Apr 2005 11:02:17 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:51926 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261374AbVDRPCK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 11:02:10 -0400
+Date: Mon, 18 Apr 2005 11:01:34 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+cc: Andreas Steinmetz <ast@domdv.de>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [RFC][PATCH 0/4] AES assembler implementation for x86_64
+In-Reply-To: <20050418084527.GA19572@wohnheim.fh-wedel.de>
+Message-ID: <Xine.LNX.4.44.0504181101110.12461-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 18 Apr 2005, Jörn Engel wrote:
 
-> Intercepting system call table is an elegant way to solve many
-> problems.
+> On Mon, 18 April 2005 03:50:32 -0400, James Morris wrote:
+> >
+> > Please cc Herbert Xu on kernel crypto patches, he's the frontline 
+> > maintainer of it now.
+> 
+> Care to sign off this patch (or create a similar one)?
 
-I think I want to take offence to this. It's the worst possible way to
-solve many problems, especially since almost everyone who did this to
-get anything done until today got it wrong.
+No, it's already been done in Linus' kernel weeks ago.
 
-It's about locking. Portability. Stability
 
-but also about doing things at the right layer. The syscall layer is
-almost NEVER the right layer.
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
-Can you explain exactly what you are trying to do (it's not a secret I
-assume, kernel modules are GPL and open source after all, esp such
-invasive ones) and I'll try to tell you why it's wrong to do it at the
-syscall intercept layer... deal ?
-
-Greetings,
-    Arjan van de Ven
 

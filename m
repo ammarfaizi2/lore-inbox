@@ -1,74 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbVDRI2c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261949AbVDRIhf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261913AbVDRI2c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 04:28:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261934AbVDRI2c
+	id S261949AbVDRIhf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 04:37:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbVDRIhf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 04:28:32 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:20997 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261913AbVDRI20 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 04:28:26 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Andreas Hartmann <andihartmann@01019freenet.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: More performance for the TCP stack by using additional hardware chip on NIC
-Date: Mon, 18 Apr 2005 11:27:30 +0300
-User-Agent: KMail/1.5.4
-References: <3Udkm-7rV-7@gated-at.bofh.it> <3Ugid-1w6-25@gated-at.bofh.it> <d3ubvt$1ra$1@pD9F878E4.dip0.t-ipconnect.de>
-In-Reply-To: <d3ubvt$1ra$1@pD9F878E4.dip0.t-ipconnect.de>
+	Mon, 18 Apr 2005 04:37:35 -0400
+Received: from tama5.ecl.ntt.co.jp ([129.60.39.102]:32163 "EHLO
+	tama5.ecl.ntt.co.jp") by vger.kernel.org with ESMTP id S261949AbVDRIhQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 04:37:16 -0400
+Message-ID: <426371B5.2060200@lab.ntt.co.jp>
+Date: Mon, 18 Apr 2005 17:37:09 +0900
+From: Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+To: Chris Wedgwood <cw@f00f.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH x86_64] Live Patching Function on 2.6.11.7
+References: <4263275A.2020405@lab.ntt.co.jp> <20050418040718.GA31163@taniwha.stupidest.org> <4263356D.9080007@lab.ntt.co.jp> <20050418061221.GA32315@taniwha.stupidest.org> <42636285.9060405@lab.ntt.co.jp> <20050418075635.GB644@taniwha.stupidest.org>
+In-Reply-To: <20050418075635.GB644@taniwha.stupidest.org>
+Content-Type: text/plain; charset=ISO-2022-JP
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200504181127.30821.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 17 April 2005 22:04, Andreas Hartmann wrote:
-> Willy Tarreau schrieb:
-> > Well, if the application does not touch most of the data, either it
-> > is playing as a relay, and the data will at least have to be copied,
-> > or it will play as a client or server which reads from/writes to disk,
-> > and in this case, I wonder how the NIC will send its writes directly
-> > to the disk controller without some help.
+I'm sorry, I can not catch the point well,
+but what I want to say is, we do not want stop the service due to bug fix.
 
-If both NIC and disk is clever enough, they can both use DMA:
-NIC ==dma==> RAM ==dma==> DISK
-without CPU needing to ever touch the bulk of data.
+As you said, if we can migrate the data to new process without stopping
+service, it is OK, but the real applications need to takeover data very
+much(sometimes it's over gigabyte....depends on service, and causes
+service disruption...). So, live patching seems reasonable to us.
+And unfortunately the APIs which people suggested are all based on
+ptrace system calls. as you know, ptrace based data read/write needs to
+stop the target process during read/write. We would like to minimize
+target process stopping time.
 
-> > What worries me with those NICs is that you have no control on the
-> > TCP stack. You often have to disable the acceleration when you
-> > want to insert even 1 firewall rule, use policy routing or even
-> > do a simple anti-spoofing check. It is exactly like the routers
-> > which do many things in hardware at wire speed, but jump to snail
-> > speed when you enable any advanced feature.
+>I'm guessing any suggestion of fixing the applications behavior would
+>be lost with some argument along the lines of: "this application was
+>written in 1824 by Ada Lovelace using pre-Roswell Alien Technology and
+>was certified NEBS compliant by the Deli Lama and god herself, so
+>clearly we can't touch a single line of it" or similar right?
+well, it's possibly, but the same problems occur on gdb.
+I think this depends on user's manner...
 
-Yes. This is why TCP offload is a buzzword mostly.
-Anybody with real experience on this?
+I briefly describe the way of live patching below;
+1. Load the patch modules with pannus -l command.
+- load the patch module with first memory mapping system call(ptrace
+PEEKDATA can be same work, but it needs to stop target process..)
+- search patch module's initialize area and execute them with
+execinit.c(similler to signal handler)
+- target process exec initialization.
+2. Activate the patch modules with pannus -a command.
+- stop the target process and check current instruction not to conflict.
+- if it is not conflict, overwrite the jump assembly to function's
+entrypoiny where you want to fix, to patch module's one.
+- restart the process.
 
-> Alacritech says, the hardware solution would make it very easy for the
-> application, because _every_ application would gain, without considering
-> the hardware it runs on itself. These are things which CEO's like to hear
-> - because they think, they could save time and money during development of
-> the application.
+Will this be answer??
 
-Most probably marketspeak.
+Chris Wedgwood wrote:
 
-> I don't think that it must be a problem, that on the hardware TCP stack
-> doesn't run any filter or other additional functions, because machines
-> (often clusters) with high workloads usually run on dedicated servers with
-> other dedicated firewall machines in front of.
+>On Mon, Apr 18, 2005 at 04:32:21PM +0900, Takashi Ikebe wrote:
+>
+>  
+>
+>>The software does not allow to stops over 100 milliseconds at worst
+>>case.
+>>    
+>>
+>
+>Out of interest, how do you ensure the process doesn't stop for that
+>long right now?  Linux doesn't guarantee you'll get scheduled
+>(strictly speaking) in n milliseconds usually.
+>
+>  
+>
+>>Not to descent the service availability, software fix due to bug,
+>>should not stop the service, and live patching is very historical
+>>function in telecoms world.
+>>    
+>>
+>
+>Lots of really complicated and unnecessary things are common in the
+>telecoms world.
+>
+>For the example you gave I can think of several ways to migrate data
+>to a new process (if need be) in a timely manner without interruption.
+>None of these *require* live patching.
+>
+>  
+>
+>>Every carrier, NEPs(Network Equipment Provider) provide/use this
+>>function to keep network service (such as telephone) available.
+>>    
+>>
+>
+>How does this *require* live patching?
+>
+>  
+>
+>>This function is very essential whenever the carrier use the linux
+>>as center of it's system.
+>>    
+>>
+>
+>Those are just marketing words.
+>
+>  
+>
+>>Therefore the live patching function should not stop the target
+>>process (service process) as possible as. the more times we stop the
+>>target process, the service goes unavailable...
+>>    
+>>
+>
+>Love patching seems like a very complicated thing to get right and it
+>could potentially blow up.
+>
+>I'm guessing any suggestion of fixing the applications behavior would
+>be lost with some argument along the lines of: "this application was
+>written in 1824 by Ada Lovelace using pre-Roswell Alien Technology and
+>was certified NEBS compliant by the Deli Lama and god herself, so
+>clearly we can't touch a single line of it" or similar right?
+>  
+>
 
-If you put firewall machine in front of your 10GigE server, you
-are killing its performance.
 
-> I think it would be good to support this hardware, because the user can
-> decide afterwards (after testing), which is the best choice for his
-> specific application and workload.
+-- 
+Takashi Ikebe
+NTT Network Service Systems Laboratories
+9-11, Midori-Cho 3-Chome Musashino-Shi,
+Tokyo 180-8585 Japan
+Tel : +81 422 59 4246, Fax : +81 422 60 4012
+e-mail : ikebe.takashi@lab.ntt.co.jp
 
-Are specs available?
---
-vda
 

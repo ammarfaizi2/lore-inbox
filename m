@@ -1,65 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262160AbVDRS5G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262163AbVDRTBR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262160AbVDRS5G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 14:57:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262162AbVDRS5E
+	id S262163AbVDRTBR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 15:01:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262167AbVDRTBQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 14:57:04 -0400
-Received: from mail02.osl.basefarm.net ([81.93.160.49]:6839 "EHLO
-	mail02.osl.basefarm.net") by vger.kernel.org with ESMTP
-	id S262160AbVDRS42 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 14:56:28 -0400
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Igor Shmukler <igor.shmukler@gmail.com>, Rik van Riel <riel@redhat.com>,
-       Daniel Souza <thehazard@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: intercepting syscalls
-References: <6533c1c905041511041b846967@mail.gmail.com>
-	<1113588694.6694.75.camel@laptopd505.fenrus.org>
-	<6533c1c905041512411ec2a8db@mail.gmail.com>
-	<e1e1d5f40504151251617def40@mail.gmail.com>
-	<6533c1c905041512594bb7abb4@mail.gmail.com>
-	<Pine.LNX.4.61.0504180752220.3232@chimarrao.boston.redhat.com>
-	<6533c1c905041807487a872025@mail.gmail.com>
-	<1113836378.6274.69.camel@laptopd505.fenrus.org>
-	<6533c1c9050418080639e41fb@mail.gmail.com>
-	<1113837657.6274.74.camel@laptopd505.fenrus.org>
-From: Terje Malmedal <tm@basefarm.com>
-Date: Mon, 18 Apr 2005 20:56:10 +0200
-In-Reply-To: <1113837657.6274.74.camel@laptopd505.fenrus.org> (Arjan van de
- Ven's message of "Mon, 18 Apr 2005 17:20:57 +0200")
-Message-ID: <wvhis2jewxh.fsf@cornavin.basefarm.no>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Scan-Result: No virus found in message 1DNbQ1-0006MO-8Y.
-X-Scan-Signature: mail02.osl.basefarm.net 1DNbQ1-0006MO-8Y 27e9314f2f4ad892222b651147465d32
+	Mon, 18 Apr 2005 15:01:16 -0400
+Received: from vds-320151.amen-pro.com ([62.193.204.86]:18853 "EHLO
+	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
+	id S262163AbVDRTAu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 15:00:50 -0400
+Subject: [PATCH 6/7] procfs privacy: /proc/kallsyms
+From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
+	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-D2Lz3XGUhLrmRLalKbOb"
+Date: Mon, 18 Apr 2005 20:53:58 +0200
+Message-Id: <1113850439.17341.83.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[Arjan van de Ven]
->> > but also about doing things at the right layer. The syscall layer is
->> > almost NEVER the right layer.
->> > 
->> > Can you explain exactly what you are trying to do (it's not a secret I
->> > assume, kernel modules are GPL and open source after all, esp such
->> > invasive ones) and I'll try to tell you why it's wrong to do it at the
->> > syscall intercept layer... deal ?
->> 
->> now, when I need someone to tell I do something wrong, I know where to go :)
-
-> ok i'll spice things up... I'll even suggest a better solution ;)
-
-Hi. The promise wasn't made to me, but I'm hoping you will find a nice
-and clean solution:
-
-  Every so often there is bug in the kernel, by patching the
-  syscall-table I have been able to fix bugs in ioperm and fsync without
-  rebooting the box. 
-
-  What do I do the next time I need to do something like this? 
+--=-D2Lz3XGUhLrmRLalKbOb
+Content-Type: multipart/mixed; boundary="=-rIX8qZ24obCxN0waTB2E"
 
 
--- 
- - Terje
-tm@basefarm.no
+--=-rIX8qZ24obCxN0waTB2E
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+This patch changes the permissions of the procfs entry kallsyms, thus,
+non-root users are restricted from accessing it.
+
+It's also available at:
+http://pearls.tuxedo-es.org/patches/security/proc-privacy-1_kernel_kallsyms=
+.c.patch
+
+--=20
+Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>=20
+[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
+
+--=-rIX8qZ24obCxN0waTB2E
+Content-Disposition: attachment; filename=proc-privacy-1_kernel_kallsyms.c.patch
+Content-Type: text/x-patch; name=proc-privacy-1_kernel_kallsyms.c.patch;
+	charset=us-ascii
+Content-Transfer-Encoding: base64
+
+ZGlmZiAtcHVOIGtlcm5lbC9rYWxsc3ltcy5jfnByb2MtcHJpdmFjeS0xIGtlcm5lbC9rYWxsc3lt
+cy5jDQotLS0gbGludXgtMi42LjExL2tlcm5lbC9rYWxsc3ltcy5jfnByb2MtcHJpdmFjeS0xCTIw
+MDUtMDQtMTcgMTg6MDY6MDEuMzgwMTE5OTg0ICswMjAwDQorKysgbGludXgtMi42LjExLWxvcmVu
+em8va2VybmVsL2thbGxzeW1zLmMJMjAwNS0wNC0xNyAxODowNjoyNy4zNzgxNjc2ODAgKzAyMDAN
+CkBAIC0zODgsNyArMzg4LDcgQEAgaW50IF9faW5pdCBrYWxsc3ltc19pbml0KHZvaWQpDQogew0K
+IAlzdHJ1Y3QgcHJvY19kaXJfZW50cnkgKmVudHJ5Ow0KIA0KLQllbnRyeSA9IGNyZWF0ZV9wcm9j
+X2VudHJ5KCJrYWxsc3ltcyIsIDA0NDQsIE5VTEwpOw0KKwllbnRyeSA9IGNyZWF0ZV9wcm9jX2Vu
+dHJ5KCJrYWxsc3ltcyIsIFNfSUZSRUcgfCBTX0lSVVNSLCBOVUxMKTsNCiAJaWYgKGVudHJ5KQ0K
+IAkJZW50cnktPnByb2NfZm9wcyA9ICZrYWxsc3ltc19vcGVyYXRpb25zOw0KIAlyZXR1cm4gMDsN
+Cg==
+
+
+--=-rIX8qZ24obCxN0waTB2E--
+
+--=-D2Lz3XGUhLrmRLalKbOb
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBCZAJGDcEopW8rLewRAvaQAJ9CoHDc0KDrMp20bCS4hXxNy1X7XQCgv8GL
+8E6pQ61ba9vso4K+cEupfxY=
+=cuqW
+-----END PGP SIGNATURE-----
+
+--=-D2Lz3XGUhLrmRLalKbOb--
+

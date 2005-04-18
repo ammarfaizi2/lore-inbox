@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbVDRPYj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262111AbVDRPdn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbVDRPYj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 11:24:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbVDRPX6
+	id S262111AbVDRPdn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 11:33:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbVDRPdm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 11:23:58 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:41430 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262103AbVDRPVF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 11:21:05 -0400
-Subject: Re: intercepting syscalls
-From: Arjan van de Ven <arjan@infradead.org>
-To: Igor Shmukler <igor.shmukler@gmail.com>
-Cc: Rik van Riel <riel@redhat.com>, Daniel Souza <thehazard@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <6533c1c9050418080639e41fb@mail.gmail.com>
-References: <6533c1c905041511041b846967@mail.gmail.com>
-	 <1113588694.6694.75.camel@laptopd505.fenrus.org>
-	 <6533c1c905041512411ec2a8db@mail.gmail.com>
-	 <e1e1d5f40504151251617def40@mail.gmail.com>
-	 <6533c1c905041512594bb7abb4@mail.gmail.com>
-	 <Pine.LNX.4.61.0504180752220.3232@chimarrao.boston.redhat.com>
-	 <6533c1c905041807487a872025@mail.gmail.com>
-	 <1113836378.6274.69.camel@laptopd505.fenrus.org>
-	 <6533c1c9050418080639e41fb@mail.gmail.com>
+	Mon, 18 Apr 2005 11:33:42 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:33000 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262106AbVDRPdg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 11:33:36 -0400
+Subject: Re: [PATCH scsi-misc-2.6 02/07] scsi: make scsi_send_eh_cmnd use
+	its own timer instead of scmd->eh_timeout
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Tejun Heo <htejun@gmail.com>
+Cc: Jens Axboe <axboe@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050410184214.B68C4CBA@htj.dyndns.org>
+References: <20050410184214.4AAD0992@htj.dyndns.org>
+	 <20050410184214.B68C4CBA@htj.dyndns.org>
 Content-Type: text/plain
-Date: Mon, 18 Apr 2005 17:20:57 +0200
-Message-Id: <1113837657.6274.74.camel@laptopd505.fenrus.org>
+Date: Mon, 18 Apr 2005 10:33:21 -0500
+Message-Id: <1113838401.4998.27.camel@mulgrave>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > but also about doing things at the right layer. The syscall layer is
-> > almost NEVER the right layer.
-> > 
-> > Can you explain exactly what you are trying to do (it's not a secret I
-> > assume, kernel modules are GPL and open source after all, esp such
-> > invasive ones) and I'll try to tell you why it's wrong to do it at the
-> > syscall intercept layer... deal ?
+On Mon, 2005-04-11 at 03:45 +0900, Tejun Heo wrote:
+> 	scmd->eh_timeout is used to resolve the race between command
+> 	completion and timeout.  However, during error handling,
+> 	scsi_send_eh_cmnd uses scmd->eh_timeout.  This creates a race
+> 	condition between eh and normal completion for a request which
+> 	has timed out and in the process of error handling.  If the
+> 	request completes while scmd->eh_timeout is being used by eh,
+> 	eh timeout is lost and the command will be handled by both eh
+> 	and completion path.  This patch fixes the race by making
+> 	scsi_send_eh_cmnd() use its own timer.
 > 
-> now, when I need someone to tell I do something wrong, I know where to go :)
+> Signed-off-by: Tejun Heo <htejun@gmail.com>
 
-ok i'll spice things up... I'll even suggest a better solution ;)
+The logic is wrong in there.
+
+The problem is you cannot rely on the timer being pending as a signal
+that the command completed normally.  The kernel doesn't define the
+elapsed time between the eh_action semaphore going up and the process
+waiting for it being scheduled.  If the timer fires within that
+undefined interval, you'll think the command timed out when it, in fact,
+completed normally.
+
+James
+
 

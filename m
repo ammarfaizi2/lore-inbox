@@ -1,71 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262008AbVDRQRf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262076AbVDRQUR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262008AbVDRQRf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 12:17:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262076AbVDRQRf
+	id S262076AbVDRQUR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 12:20:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbVDRQUR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 12:17:35 -0400
-Received: from scl-ims.phoenix.com ([216.148.212.222]:28393 "EHLO
-	scl-ims.phoenix.com") by vger.kernel.org with ESMTP id S262008AbVDRQRC convert rfc822-to-8bit
+	Mon, 18 Apr 2005 12:20:17 -0400
+Received: from zproxy.gmail.com ([64.233.162.201]:39917 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262076AbVDRQUH convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 12:17:02 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Kernel page table and module text
-Date: Mon, 18 Apr 2005 09:17:01 -0700
-Message-ID: <5F106036E3D97448B673ED7AA8B2B6B301D9185A@scl-exch2k.phoenix.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Kernel page table and module text
-Thread-Index: AcVD3wpNTA5uU7PiQ6KR2iyXMdWzPwAUgWLg
-From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
-To: "Allison" <fireflyblue@gmail.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 18 Apr 2005 16:17:03.0415 (UTC) FILETIME=[0E9CFC70:01C54432]
+	Mon, 18 Apr 2005 12:20:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ZHGPW73vWTadYzzhHGk9e5HUGk/aE3KSRRXVeI1BNUIoyqynpLrp9Qct0V6q+MBspiTFcH18ruAtvPrdszh7SSB3YMGUiYJ4+dmLtJkbKv0up+uVpewOim0CUxvd+bgaYI1hyV6ghCWqTKAJxDt2PW5eSWYb0EnpaoPI9rd19hM=
+Message-ID: <6533c1c90504180920693aa204@mail.gmail.com>
+Date: Mon, 18 Apr 2005 12:20:06 -0400
+From: Igor Shmukler <igor.shmukler@gmail.com>
+Reply-To: Igor Shmukler <igor.shmukler@gmail.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: intercepting syscalls
+Cc: riel@redhat.com, thehazard@gmail.com, arjan@infradead.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050418081726.7d3125bd.rddunlap@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <6533c1c905041511041b846967@mail.gmail.com>
+	 <1113588694.6694.75.camel@laptopd505.fenrus.org>
+	 <6533c1c905041512411ec2a8db@mail.gmail.com>
+	 <e1e1d5f40504151251617def40@mail.gmail.com>
+	 <6533c1c905041512594bb7abb4@mail.gmail.com>
+	 <Pine.LNX.4.61.0504180752220.3232@chimarrao.boston.redhat.com>
+	 <6533c1c905041807487a872025@mail.gmail.com>
+	 <20050418081726.7d3125bd.rddunlap@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->-----Original Message-----
->From: linux-kernel-owner@vger.kernel.org 
->[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Allison
->Sent: Sunday, April 17, 2005 11:21 PM
->To: linux-kernel@vger.kernel.org
->Subject: Kernel page table and module text
->
->Hi,
->
->Since module is loaded in non-contiguous memory, there has to be an
->entry in the kernel page table for all modules that are loaded on the
->system. I am trying to find entries corresponding to my module text in
->the page tables.
->
->I am not clear about how the kernel page table is organized after the
->system switches to protected mode.
->
->I printed out the page starting with swapper_pg_dir . But I do not
->find the addresses for all the modules loaded in the system.
->
->Do I still need to read the pg0 and pg1 pages ?
->
->If somebody can explain how to traverse the kernel page tables, that
->would be very helpful.
->
->thanks,
->Allison
->-
->To unsubscribe from this list: send the line "unsubscribe 
->linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
+Randy,
 
-You can find some details here: 
-http://www.csn.ul.ie/~mel/projects/vm/guide/pdf/understand.pdf
+> And 'nobody' has submitted patches that handle all of the described
+> problems...
+> 
+> 1.  racy
+> 2.  architecture-independent
+> 3.  stackable (implies/includes unstackable :)
+> 
+> You won't get very far in this discussion without some code...
 
-But whatever your purpose is, I doubt you would want to use PTEs.
+I agree that if races disallow safe loading unloading it's a serious
+problem. I'll get there pretty soon and I would be very to submit a
+patch. It makes sense to hide interface if currently there is no safe
+way to use it. I understand.
 
-Aleks.
+I don't think that drivers have to be architecture independent. Why is
+this a problem?
+
+Same regarding stackability. We have a module that works well with
+other modules that intercept system calls just not on Linux. There are
+caveats - not every module will just work with every other module. But
+same problem is with networking protocols. It took time until IPsec
+vendors worked out glitches.
+
+Usually, it's not necessary to load/unload module to/from the middle
+of the stack all the time.
+
+I would even agree that it might be beneficial to develop guidelines
+for developing stackable modules that intercept system calls, but I
+think that reasons beyond races are of less importance.
+
+For RH or SuSE it's very different. If they need something like this
+done, a patch to the kernel and they are good to go. Simple folk still
+has to make software that works with standard kernels and we have to
+be given API that allows us to do this.
+
+Igor

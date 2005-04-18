@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262191AbVDRUBn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262194AbVDRUFv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262191AbVDRUBn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 16:01:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbVDRUBn
+	id S262194AbVDRUFv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 16:05:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbVDRUFv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 16:01:43 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:34204 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262191AbVDRUBj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 16:01:39 -0400
-Date: Mon, 18 Apr 2005 16:01:22 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
-	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/7] procfs privacy
-In-Reply-To: <1113853561.17341.111.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0504181600480.11251@chimarrao.boston.redhat.com>
-References: <1113849977.17341.68.camel@localhost.localdomain> 
- <Pine.LNX.4.61.0504181526280.11251@chimarrao.boston.redhat.com>
- <1113853561.17341.111.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="279726928-174483625-1113854482=:11251"
+	Mon, 18 Apr 2005 16:05:51 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:21980 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262194AbVDRUFq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 16:05:46 -0400
+Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+From: Arjan van de Ven <arjan@infradead.org>
+To: Timur Tabi <timur.tabi@ammasso.com>
+Cc: Roland Dreier <roland@topspin.com>, Troy Benjegerdes <hozer@hozed.org>,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+In-Reply-To: <426411C2.5040703@ammasso.com>
+References: <200544159.Ahk9l0puXy39U6u6@topspin.com>
+	 <20050411142213.GC26127@kalmia.hozed.org> <52mzs51g5g.fsf@topspin.com>
+	 <4263DBBF.9040801@ammasso.com>
+	 <1113840973.6274.84.camel@laptopd505.fenrus.org>
+	 <4263DF70.2060702@ammasso.com>
+	 <1113853240.6274.99.camel@laptopd505.fenrus.org>
+	 <426411C2.5040703@ammasso.com>
+Content-Type: text/plain
+Date: Mon, 18 Apr 2005 22:05:42 +0200
+Message-Id: <1113854742.6274.101.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Mon, 2005-04-18 at 15:00 -0500, Timur Tabi wrote:
+> Arjan van de Ven wrote:
+> 
+> > you should since that physical page can be reused, say by a root
+> > process, and you'd be majorly screwed
+> 
+> I don't understand what you mean by "reused".  The whole point behind pinning the memory 
+> is that it stays where it is.  It doesn't get moved around and it doesn't get swapped out.
+> 
+you just said that you didn't care that it got munlock'd. So you don't
+care that it gets freed either. And then reused.
 
---279726928-174483625-1113854482=:11251
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
 
-On Mon, 18 Apr 2005, Lorenzo Hernández García-Hierro wrote:
-
-> Adding a "trusted user group"-like configuration option could be useful,
-> as it's done within grsecurity, among that the whole thing might be good
-> to depend on a config. option, but that implies using weird ifdef's and
-> the other folks.
-
-I'd rather see something like this implemented as an LSM
-module - or better yet, an SELinux security policy.
-
-There's no need to sprinkle security policy all over the
-kernel.
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
---279726928-174483625-1113854482=:11251--

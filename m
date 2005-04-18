@@ -1,77 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261569AbVDRKfH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262026AbVDRKxI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261569AbVDRKfH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 06:35:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262021AbVDRKfH
+	id S262026AbVDRKxI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 06:53:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbVDRKxI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 06:35:07 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:47376 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S261569AbVDRKe7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 06:34:59 -0400
-Message-ID: <42638D53.9070809@domdv.de>
-Date: Mon, 18 Apr 2005 12:34:59 +0200
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Denis Vlasenko <vda@ilport.com.ua>
-CC: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       jmorris@redhat.com, davem@davemloft.net, ak@suse.de,
-       Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [RFC][PATCH 2/4] AES assembler implementation for x86_64
-References: <4262B6E9.8040400@domdv.de> <200504181118.50594.vda@ilport.com.ua> <42637775.8000904@domdv.de> <200504181319.15708.vda@ilport.com.ua>
-In-Reply-To: <200504181319.15708.vda@ilport.com.ua>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=KOI8-R
-Content-Transfer-Encoding: 7bit
+	Mon, 18 Apr 2005 06:53:08 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:49361 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262026AbVDRKxF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 06:53:05 -0400
+Date: Mon, 18 Apr 2005 11:53:01 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "Artem B. Bityuckiy" <dedekind@infradead.org>
+Cc: linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
+       dwmw2@lists.infradead.org
+Subject: Re: [PATC] small VFS change for JFFS2
+Message-ID: <20050418105301.GA21878@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Artem B. Bityuckiy" <dedekind@infradead.org>,
+	linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
+	dwmw2@lists.infradead.org
+References: <1113814031.31595.3.camel@sauron.oktetlabs.ru> <20050418085121.GA19091@infradead.org> <1113814730.31595.6.camel@sauron.oktetlabs.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1113814730.31595.6.camel@sauron.oktetlabs.ru>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko wrote:
-> On Monday 18 April 2005 12:01, Andreas Steinmetz wrote:
-> 
->>Denis Vlasenko wrote:
->>
->>>On Sunday 17 April 2005 22:20, Andreas Steinmetz wrote:
->>>
->>>
->>>>The attached patch contains Gladman's in-kernel code for key schedule
->>>>and table generation modified to fit to my assembler implementation,
->>>>-- 
->>>>Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
->>>
->>>
->>>Patch contains a mix of several coding styles:
->>> 
->>>+/*
->>>+ * #define byte(x, nr) ((unsigned char)((x) >> (nr*8))) 
->>>+ */
->>>+inline static u8
->>>+byte(const u32 x, const unsigned n)
->>>+{
->>>+       return x >> (n << 3);
->>>+}
->>>
->>>what does const do here?
->>
->>Taken 'as is' from current kernel sources, i,e, crypto/aes.c
-> 
-> 
-> "It's a cut-n-paste" is not a good argument here. You
-> are adding a _new file_ with your patch, it's okay to clean
-> it up while doing this. IOW: do not dup the mess.
-> 
-> OTOH, if _exactly the same file_ exist in i384 arch, then
-> you should not duplicate it at all. Find a way to use one file
-> for both arches.
-> 
-> Note that this is only my view, I can be wrong.
-> --
-> vda
-> 
+On Mon, Apr 18, 2005 at 12:58:50PM +0400, Artem B. Bityuckiy wrote:
+> On Mon, 2005-04-18 at 09:51 +0100, Christoph Hellwig wrote:
+> > No, exporting locks is a really bad idea.  Please try to find a better
+> > method to fix your problem that doesn't export random kernel symbols.
+> > 
+> In general it must be true. But this specific case I believe is
+> reasonable enough to export the mutext (as an exception).
 
-I'll wait for Herbert Xu's review and his opinion on this.
--- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+Umm, no.  It's absolutely not a good reason.  What jffs2 is doing right
+now is to poke into VFS internals it shouldn't, and exporting more internals
+to prevent it from doing so isn't making the situation any better.
+
+The VFS already has a method for freeing an struct inode pointer, and that
+is ->destroy_inode.  You're probably better off updating your GC state from
+that place.
+

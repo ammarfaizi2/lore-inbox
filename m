@@ -1,69 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262193AbVDRTym@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262190AbVDRUBQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262193AbVDRTym (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 15:54:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbVDRTye
+	id S262190AbVDRUBQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 16:01:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbVDRUBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 15:54:34 -0400
-Received: from pD95F37F7.dip.t-dialin.net ([217.95.55.247]:23715 "EHLO
-	Marvin.DL8BCU.ampr.org") by vger.kernel.org with ESMTP
-	id S262189AbVDRTyI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 15:54:08 -0400
-Date: Mon, 18 Apr 2005 19:53:51 +0000
-From: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>
-To: Rao Davide <davide.rao@atosorigin.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux Alpha port: LVM
-Message-ID: <20050418195351.GA32124@Marvin.DL8BCU.ampr.org>
-Reply-To: dl8bcu@dl8bcu.de
-Mail-Followup-To: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>,
-	Rao Davide <davide.rao@atosorigin.com>,
-	linux-kernel@vger.kernel.org
-References: <42569BC7.5030709@atosorigin.com> <20050408190709.GB27845@twiddle.net> <425A2442.8090607@atosorigin.com> <4263ACA9.4080507@atosorigin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4263ACA9.4080507@atosorigin.com>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 18 Apr 2005 16:01:15 -0400
+Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:55972 "EHLO
+	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
+	id S262190AbVDRUBO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 16:01:14 -0400
+Message-ID: <426411C2.5040703@ammasso.com>
+Date: Mon, 18 Apr 2005 15:00:02 -0500
+From: Timur Tabi <timur.tabi@ammasso.com>
+Organization: Ammasso
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en, en-gb
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Roland Dreier <roland@topspin.com>, Troy Benjegerdes <hozer@hozed.org>,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+References: <200544159.Ahk9l0puXy39U6u6@topspin.com>	 <20050411142213.GC26127@kalmia.hozed.org> <52mzs51g5g.fsf@topspin.com>	 <4263DBBF.9040801@ammasso.com>	 <1113840973.6274.84.camel@laptopd505.fenrus.org>	 <4263DF70.2060702@ammasso.com> <1113853240.6274.99.camel@laptopd505.fenrus.org>
+In-Reply-To: <1113853240.6274.99.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 18, 2005 at 02:48:41PM +0200, Rao Davide wrote:
-> Is LVM working on the alpha port 2.6 kernel series ?
+Arjan van de Ven wrote:
 
-works fine for me.
+> you should since that physical page can be reused, say by a root
+> process, and you'd be majorly screwed
 
-> If so where do I get libdevmapper so that I can build the userspace LVM 
-> utils ?
-> 
-> I tryied downloading 
-> ftp://sources.redhat.com/pub/dm/multipath-toolsmultipath-tools-0.4.3.tar.bz2
-
-what do you think the 'dm' in that url stands for, hm?
-
-> But I fail to compile it so I'm also unable tu build the userspace lvm 
-> utils.
-
-'userspace lvm utils' can be found here:
-
-ftp://sources.redhat.com/pub/lvm2
-
-multipath tools might be something different ... :)
-
-> --
-> Regards
-> Davide Rao
->   Client/server Unix
->   Atos Origin
->   Via C.Viola - Pont St. Martin (AO) Italy
->   Cell :  +39 3357599151
->   Tel  :  +39 125810433
->   Email:  davide.rao@atosorigin.com
-
-
-73 Thorsten
+I don't understand what you mean by "reused".  The whole point behind pinning the memory 
+is that it stays where it is.  It doesn't get moved around and it doesn't get swapped out.
 
 -- 
-| Thorsten Kranzkowski        Internet: dl8bcu@dl8bcu.de                      |
-| Mobile: ++49 170 1876134       Snail: Kiebitzstr. 14, 49324 Melle, Germany  |
-| Ampr: dl8bcu@db0lj.#rpl.deu.eu, dl8bcu@marvin.dl8bcu.ampr.org [44.130.8.19] |
+Timur Tabi
+Staff Software Engineer
+timur.tabi@ammasso.com

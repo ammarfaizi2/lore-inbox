@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261574AbVDQXzn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbVDRAza@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261574AbVDQXzn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Apr 2005 19:55:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbVDQXzn
+	id S261378AbVDRAza (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 20:55:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbVDRAza
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Apr 2005 19:55:43 -0400
-Received: from wproxy.gmail.com ([64.233.184.192]:28797 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261574AbVDQXzc convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Apr 2005 19:55:32 -0400
+	Sun, 17 Apr 2005 20:55:30 -0400
+Received: from web60119.mail.yahoo.com ([209.73.178.87]:2428 "HELO
+	web60119.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261378AbVDRAzZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Apr 2005 20:55:25 -0400
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=iIc9B3JTQRiSa4y/qRoB2RhCG2my6llhpbLDYJyzJhnPL1xrfx+Gruuxt9dIr1WaxyHBGjcvYLWYsbeSpxnYija7nowV2SHYhV3xRU9PLTzCwMZfqF21laY3WNQ22ECMAK0Uyyyx6vvw35BmeqrPjq+V/LqyvwSEyAqIue6tzMs=
-Message-ID: <4ae3c14050417165519edc8ea@mail.gmail.com>
-Date: Sun, 17 Apr 2005 19:55:30 -0400
-From: Xin Zhao <uszhaoxin@gmail.com>
-Reply-To: Xin Zhao <uszhaoxin@gmail.com>
+  s=s1024; d=yahoo.com;
+  b=FWgeb8s1jnQmUTVRnrASnCpBw5vJiNmQEvQwOTXexvg1R/imFD+ag4KTV52NwDJkWr2Q17NJvU+VWixgpMb74NqG2gokyWQgqKj+r30X5M9cDhYn4Q/72QtaTgzc0M25yVdNsk8x8Z0yPMEUmESyeEQvHBjfMLSs7+8HaRkLvZ4=  ;
+Message-ID: <20050418005525.7250.qmail@web60119.mail.yahoo.com>
+Date: Sun, 17 Apr 2005 17:55:25 -0700 (PDT)
+From: S S <singsys@yahoo.com>
+Subject: Kernelpanic - not syncing: VFS: Unable to mount root fs on unknown-block
 To: linux-kernel@vger.kernel.org
-Subject: Fedora Core 2 installation cannot recognize raid disks?
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry for this dumb question.
+I compiled linux kernel 2.6.11.7 on RHEL and while
+rebooting I get this
+error message -
 
-I am trying to install Fedora Core 2 on a dell PowerEdge  2850 with
-three 73GB SCSI disks on a RAID 4e/DI controller. I set it up as Raid
-5. but when I tried to install FC2, it always complaint that no disk
-drive can be found.
+Cannot open root device /SCSIGroup00/SCSIVol000
+Please append a correct "root=" boot option
+Kernelpanic - not syncing: VFS: Unable to mount root
+fs on
+unknown-block 0,0
 
-Can anybody give me some advice on how to address thsi problem? Many
-thanks in advance.
+This root entry in grub .conf is identical to kernel
+image entry 2.6.9 which boots fine. However 2.6.11.7
+compiled kernel does not find
+/dev//SCSIGroup00/SCSIVol000
 
-Xin
+Could anyone please suggest what could be going wrong.
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

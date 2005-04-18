@@ -1,47 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262080AbVDRMuP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262073AbVDRMth@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262080AbVDRMuP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 08:50:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbVDRMtt
+	id S262073AbVDRMth (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 08:49:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbVDRMr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 08:49:49 -0400
-Received: from [151.12.57.13] ([151.12.57.13]:19472 "EHLO
-	mail2.it.atosorigin.com") by vger.kernel.org with ESMTP
-	id S262074AbVDRMta (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 08:49:30 -0400
-From: Rao Davide <davide.rao@atosorigin.com>
-To: linux-kernel@vger.kernel.org
-Cc: Richard Henderson <rth@twiddle.net>, ink@jurassic.park.msu.ru
-Message-ID: <4263ACA9.4080507@atosorigin.com>
-Date: Mon, 18 Apr 2005 14:48:41 +0200
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-Subject: Linux Alpha port: LVM
-References: <42569BC7.5030709@atosorigin.com> <20050408190709.GB27845@twiddle.net> <425A2442.8090607@atosorigin.com>
-In-Reply-To: <425A2442.8090607@atosorigin.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 18 Apr 2005 08:47:57 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:48339 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262068AbVDRMrM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 08:47:12 -0400
+Subject: Re: [PATC] small VFS change for JFFS2
+From: David Woodhouse <dwmw2@infradead.org>
+To: dedekind@infradead.org
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       linux-mtd@lists.infradead.org
+In-Reply-To: <1113827466.2125.47.camel@sauron.oktetlabs.ru>
+References: <1113814031.31595.3.camel@sauron.oktetlabs.ru>
+	 <20050418085121.GA19091@infradead.org>
+	 <1113814730.31595.6.camel@sauron.oktetlabs.ru>
+	 <20050418105301.GA21878@infradead.org>
+	 <1113824781.2125.12.camel@sauron.oktetlabs.ru>
+	 <20050418115220.GA22750@infradead.org>
+	 <1113827466.2125.47.camel@sauron.oktetlabs.ru>
+Content-Type: text/plain
+Date: Mon, 18 Apr 2005 22:46:44 +1000
+Message-Id: <1113828405.5286.19.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 (2.2.1.1-2) 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 18 Apr 2005 12:55:23.0984 (UTC) FILETIME=[E2CA5500:01C54415]
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is LVM working on the alpha port 2.6 kernel series ?
-If so where do I get libdevmapper so that I can build the userspace LVM 
-utils ?
+On Mon, 2005-04-18 at 16:31 +0400, Artem B. Bityuckiy wrote:
+> Yes, exactly. VFS developers may always say "it is your problem -
+> redesign JFFS2", but I think it is too late to redesign it.
 
-I tryied downloading 
-ftp://sources.redhat.com/pub/dm/multipath-toolsmultipath-tools-0.4.3.tar.bz2
-But I fail to compile it so I'm also unable tu build the userspace lvm 
-utils.
+Bear in mind that the reason I added the state tracking to the internal
+jffs2_inode_cache state was specifically to deal with the fact that the
+VFS can call read_inode() for an inode which was previously in core and
+for which it hasn't yet called clear_inode().
 
---
-Regards
-Davide Rao
-   Client/server Unix
-   Atos Origin
-   Via C.Viola - Pont St. Martin (AO) Italy
-   Cell :  +39 3357599151
-   Tel  :  +39 125810433
-   Email:  davide.rao@atosorigin.com
+I suspect that there's a way we could work around this problem in JFFS2,
+and if not hch is probably right -- exporting the lock isn't good
+enough; if we're going to change the VFS we should fix the actual
+problem.
+
+I'm confused by this though -- I thought we'd already _fixed_ this in
+the VFS. What you describe shouldn't happen because I believe you're
+missing a step:
+
+> JFFS2 writer: looks at the inode state, realizes it is in state PRESENT,
+> i.e. it is in the inode cache (which is wrong).
+> JFFS2 writer: runs iget() to acquire a pointer to the struct inode of
+> the inode 15601.
+
+wait_for_freeing_inode() waits for the existing inode in state I_FREEING
+to finish being cleared...
+
+> JFFS2 writer: iget() calls ->read_inode(), i.e., jffs2_read_inode().
+> JFFS2 writed: JFFS2 is surprised why read_inode() is called for the
+> already built inode 15601.
+
+... and this shouldn't happen.
+
+-- 
+dwmw2
 

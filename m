@@ -1,45 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261896AbVDRISq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbVDRI2c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261896AbVDRISq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 04:18:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbVDRISq
+	id S261913AbVDRI2c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 04:28:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261934AbVDRI2c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 04:18:46 -0400
-Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:37839 "EHLO
-	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
-	id S261896AbVDRISp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 04:18:45 -0400
-To: Paul Jackson <pj@sgi.com>
-Cc: torvalds@osdl.org, jgarzik@pobox.com, benh@kernel.crashing.org,
-       linux-kernel@vger.kernel.org, James.Bottomley@SteelEye.com,
-       dwmw2@infradead.org
-Subject: Re: New SCM and commit list
-References: <1113174621.9517.509.camel@gaston>
-	<Pine.LNX.4.58.0504101621200.1267@ppc970.osdl.org>
-	<425A10EA.7030607@pobox.com>
-	<Pine.LNX.4.58.0504102304050.1267@ppc970.osdl.org>
-	<tnx64ys8gq1.fsf@arm.com> <20050416013541.2e6f6c60.pj@sgi.com>
-From: Catalin Marinas <catalin.marinas@arm.com>
-Date: Mon, 18 Apr 2005 09:18:16 +0100
-In-Reply-To: <20050416013541.2e6f6c60.pj@sgi.com> (Paul Jackson's message of
- "Sat, 16 Apr 2005 01:35:41 -0700")
-Message-ID: <tnxis2ka46v.fsf@arm.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
+	Mon, 18 Apr 2005 04:28:32 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:20997 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261913AbVDRI20 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 04:28:26 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Andreas Hartmann <andihartmann@01019freenet.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: More performance for the TCP stack by using additional hardware chip on NIC
+Date: Mon, 18 Apr 2005 11:27:30 +0300
+User-Agent: KMail/1.5.4
+References: <3Udkm-7rV-7@gated-at.bofh.it> <3Ugid-1w6-25@gated-at.bofh.it> <d3ubvt$1ra$1@pD9F878E4.dip0.t-ipconnect.de>
+In-Reply-To: <d3ubvt$1ra$1@pD9F878E4.dip0.t-ipconnect.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200504181127.30821.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> wrote:
->> "merge" does a better job than "diff3" since it can resolve the
->
-> The merge command I know of is part of Tichy's RCS tools,
-> and calls diff3, and has no inherent superior abilities.
+On Sunday 17 April 2005 22:04, Andreas Hartmann wrote:
+> Willy Tarreau schrieb:
+> > Well, if the application does not touch most of the data, either it
+> > is playing as a relay, and the data will at least have to be copied,
+> > or it will play as a client or server which reads from/writes to disk,
+> > and in this case, I wonder how the NIC will send its writes directly
+> > to the disk controller without some help.
 
-You are right, I missed some diff3 options. It looks like "diff3 -mE"
-generates the same output as "merge" (i.e. solving the identical
-changes in the derived files). Sorry for the noise :-)
+If both NIC and disk is clever enough, they can both use DMA:
+NIC ==dma==> RAM ==dma==> DISK
+without CPU needing to ever touch the bulk of data.
 
--- 
-Catalin
+> > What worries me with those NICs is that you have no control on the
+> > TCP stack. You often have to disable the acceleration when you
+> > want to insert even 1 firewall rule, use policy routing or even
+> > do a simple anti-spoofing check. It is exactly like the routers
+> > which do many things in hardware at wire speed, but jump to snail
+> > speed when you enable any advanced feature.
+
+Yes. This is why TCP offload is a buzzword mostly.
+Anybody with real experience on this?
+
+> Alacritech says, the hardware solution would make it very easy for the
+> application, because _every_ application would gain, without considering
+> the hardware it runs on itself. These are things which CEO's like to hear
+> - because they think, they could save time and money during development of
+> the application.
+
+Most probably marketspeak.
+
+> I don't think that it must be a problem, that on the hardware TCP stack
+> doesn't run any filter or other additional functions, because machines
+> (often clusters) with high workloads usually run on dedicated servers with
+> other dedicated firewall machines in front of.
+
+If you put firewall machine in front of your 10GigE server, you
+are killing its performance.
+
+> I think it would be good to support this hardware, because the user can
+> decide afterwards (after testing), which is the best choice for his
+> specific application and workload.
+
+Are specs available?
+--
+vda
 

@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbVDRBxv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261593AbVDRB7A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261590AbVDRBxv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Apr 2005 21:53:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261593AbVDRBxu
+	id S261593AbVDRB7A (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 21:59:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbVDRB7A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Apr 2005 21:53:50 -0400
-Received: from quechua.inka.de ([193.197.184.2]:48862 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S261590AbVDRBxk (ORCPT
+	Sun, 17 Apr 2005 21:59:00 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:37861 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261593AbVDRB67 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Apr 2005 21:53:40 -0400
-Date: Mon, 18 Apr 2005 03:53:28 +0200
-From: Bernd Eckenfels <be-mail2005@lina.inka.de>
-To: Xin Zhao <uszhaoxin@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why Ext2/3 needs immutable attribute?
-Message-ID: <20050418015328.GA1339@lina.inka.de>
-References: <4ae3c140504170912b36e9b1@mail.gmail.com> <E1DNFkJ-0006SI-00@calista.eckenfels.6bone.ka-ip.net> <4ae3c140504171648d587669@mail.gmail.com>
+	Sun, 17 Apr 2005 21:58:59 -0400
+Date: Sun, 17 Apr 2005 21:57:56 -0400
+From: Dave Jones <davej@redhat.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: sfrench@samba.org, samba-technical@lists.samba.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] remove cifs_kcalloc
+Message-ID: <20050418015756.GA10062@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Adrian Bunk <bunk@stusta.de>, sfrench@samba.org,
+	samba-technical@lists.samba.org, linux-kernel@vger.kernel.org
+References: <20050418015202.GA3625@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4ae3c140504171648d587669@mail.gmail.com>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050418015202.GA3625@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 17, 2005 at 07:48:50PM -0400, Xin Zhao wrote:
-> any kernel level protection, including
-> SELinux, could be disabled after the kernel is compromised. Am I
-> missing some points here?
+On Mon, Apr 18, 2005 at 03:52:02AM +0200, Adrian Bunk wrote:
+ > This patch removes cifs_kcalloc and replaces it with calls to
+ > kcalloc(1, ...) .
+ > 
+ > Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-No, Immutable bit is an application of capabilities (or securelevel), you
-are right.
+As a followup patch you might want to check the return value
+of all those calls before blindly deferencing them.
 
-If the kernel is compromised, the kernel is compromised. However immutable
-bit can make it hard to circumvent kernel's protetion, even for root
-attackers
+		Dave
 
-Gruss
-Bernd

@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261406AbVDRBMc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbVDRBgp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261406AbVDRBMc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Apr 2005 21:12:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbVDRBMc
+	id S261581AbVDRBgp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 21:36:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261583AbVDRBgo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Apr 2005 21:12:32 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:53440 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261406AbVDRBMa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Apr 2005 21:12:30 -0400
-Message-Id: <200504172337.j3HNbJsA004220@laptop11.inf.utfsm.cl>
-To: Andreas Hartmann <andihartmann@01019freenet.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: More performance for the TCP stack by using additional hardware chip on NIC 
-In-Reply-To: Message from Andreas Hartmann <andihartmann@01019freenet.de> 
-   of "Sun, 17 Apr 2005 10:17:49 +0200." <d3t63d$3qe$1@pD9F86D3F.dip0.t-ipconnect.de> 
-Date: Sun, 17 Apr 2005 19:37:18 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Sun, 17 Apr 2005 21:36:44 -0400
+Received: from mail.avantwave.com ([210.17.210.210]:47574 "EHLO
+	mail.avantwave.com") by vger.kernel.org with ESMTP id S261581AbVDRBgn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Apr 2005 21:36:43 -0400
+Message-ID: <42630F26.3060503@haha.com>
+Date: Mon, 18 Apr 2005 09:36:38 +0800
+From: Tomko <tomko@haha.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: question : is the init process of kernel running in kernel space
+ or user space?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Hartmann <andihartmann@01019freenet.de> said:
-> Alacritech developed a new chip for NIC's
-> (http://www.alacritech.com/html/tech_review.html), which makes it possible
-> to take away the TCP stack from the host CPU. Therefore, the host CPU has
-> more performance for the applications according Alacritech.
-> 
-> This sounds interesting.
+Hi all,
 
-This idea has been discussed around here a couple of times, and the
-consensus is that it is a bad idea: IP (and upper protocol) processing
-is not expensive, if done right, so this really doesn't buy much; this
-forces a particular interface to networking into the kernel, loosing
-flexibility that way is always bad; there is no access to futzing
-around in between (for example, for firewalling and such); and if the
-"hardware implementation" has bugs, you are screwed.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+In the linux system , kernel is often starting up like this :
+
+bootloader -> start_32() -> start_kernel() -> init()
+
+i would like to ask what is the piority level in this starting procedure 
+? 0 or 3 ? that means, this start up process are running in kernel space 
+or user space ?  or the level is keep changing ?
+If it is in kernel space from the very beginning , at which point the 
+system is switched into user space ? is it at the time when kernel open 
+the shell ?
+
+I am new to linux, hope someone can help me here.
+
+
+Regards,
+TOM

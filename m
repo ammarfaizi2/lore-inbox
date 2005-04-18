@@ -1,79 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262156AbVDRSH3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262159AbVDRSLY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262156AbVDRSH3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 14:07:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbVDRSH3
+	id S262159AbVDRSLY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 14:11:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbVDRSLY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 14:07:29 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:46495 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S262156AbVDRSHQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 14:07:16 -0400
-Message-Id: <200504181807.j3II7BHQ015586@zeus1.kernel.org>
-From: "intertotal2005" <intertotal2005@point.com.br>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: Internet total
-Date: Mon, 18 Apr 05 15:05:29 Hora oficial do Brasil
-MIME-Version: 1.0
-Content-Type: multipart/mixed;boundary= "----=_NextPart_000_00E9_342AA6F6.C05DAF35"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2462.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000 
+	Mon, 18 Apr 2005 14:11:24 -0400
+Received: from vds-320151.amen-pro.com ([62.193.204.86]:53632 "EHLO
+	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
+	id S262173AbVDRSKr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 14:10:47 -0400
+Subject: Re: [PATCH] RLIMIT_NPROC enforcement during execve() calls
+From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
+	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050418174346.GA28790@infradead.org>
+References: <1113845937.17341.29.camel@localhost.localdomain>
+	 <20050418174346.GA28790@infradead.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-g/PWEq8SJlGTzkuFli4h"
+Date: Mon, 18 Apr 2005 20:07:04 +0200
+Message-Id: <1113847624.17341.36.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_NextPart_000_00E9_342AA6F6.C05DAF35
-Content-Type: text/plain
-Content-Transfer-Encoding: base64
 
-DQo8aGVhZD4NCjxzdHlsZT4NCjwhLS0NCiBwLk1zb05vcm1hbA0KCXttc28tc3R5bGUtcGFy
-ZW50OiIiOw0KCW1hcmdpbi1ib3R0b206LjAwMDFwdDsNCglmb250LXNpemU6MTIuMHB0Ow0K
-CWZvbnQtZmFtaWx5OiJUaW1lcyBOZXcgUm9tYW4iOw0KCW1hcmdpbi1sZWZ0OjBjbTsgbWFy
-Z2luLXJpZ2h0OjBjbTsgbWFyZ2luLXRvcDowY219DQotLT4NCjwvc3R5bGU+DQo8L2hlYWQ+
-DQoNCjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxzcGFuIHN0eWxlPSJmb250LWZhbWlseTogVmVy
-ZGFuYTsgY29sb3I6ICM0MDAwMDAiPk1lbGhvciANCnF1ZSA8L3NwYW4+PGI+PHNwYW4gc3R5
-bGU9ImZvbnQtZmFtaWx5OiBWZXJkYW5hOyBjb2xvcjogbmF2eSI+YWNlc3NvIGdyYXR1aXRv
-IA0KY29tIHF1YWxpZGFkZTwvc3Bhbj48L2I+PHNwYW4gc3R5bGU9ImZvbnQtZmFtaWx5OiBW
-ZXJkYW5hOyBjb2xvcjogIzQwMDAwMCI+IHPzIA0Kc2Ugdm9j6iA8L3NwYW4+PGI+PHNwYW4g
-c3R5bGU9ImZvbnQtZmFtaWx5OiBWZXJkYW5hOyBjb2xvcjogdGVhbCI+Z2FuaGFyPC9zcGFu
-PjwvYj48c3BhbiBzdHlsZT0iZm9udC1mYW1pbHk6IFZlcmRhbmE7IGNvbG9yOiAjNDAwMDAw
-Ij4gDQpwYXJhIG5hdmVnYXIgbmEgSW50ZXJuZXQsIG7jbyDpIG1lc21vPzwvc3Bhbj48L3A+
-DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj4mbmJzcDs8L3A+DQo8cCBjbGFzcz0iTXNvTm9ybWFs
-Ij48c3BhbiBzdHlsZT0iZm9udC1mYW1pbHk6IFZlcmRhbmE7IGNvbG9yOiAjNDAwMDAwIj5D
-b25oZedhIA0KbyA8L3NwYW4+PGI+PHNwYW4gc3R5bGU9ImZvbnQtZmFtaWx5OiBWZXJkYW5h
-OyBjb2xvcjogbmF2eSI+Q3Jlc2NlTmV0PC9zcGFuPjwvYj48c3BhbiBzdHlsZT0iZm9udC1m
-YW1pbHk6IFZlcmRhbmE7IGNvbG9yOiAjNDAwMDAwIj4sIA0KdW0gPC9zcGFuPjxiPjxzcGFu
-IHN0eWxlPSJmb250LWZhbWlseTogVmVyZGFuYTsgY29sb3I6IHRlYWwiPnByb3ZlZG9yIGRl
-IGFjZXNzbyANCuAgSW50ZXJuZXQgZ3JhdHVpdG8gcXVlIHBhZ2EgUiQgMjQsMDAgYSBjYWRh
-IDEwMCBob3JhcyBuYXZlZ2FkYXMgcG9yIHNldXMgDQphc3NpbmFudGVzLjwvc3Bhbj48L2I+
-PHNwYW4gc3R5bGU9ImZvbnQtZmFtaWx5OiBWZXJkYW5hOyBjb2xvcjogIzQwMDAwMCI+IEFs
-6W0gDQpkaXNzbywgZXN0428gZGlzdHJpYnVpbmRvIHbhcmlvcyBwcuptaW9zIHBhcmEgcXVl
-bSBhY2Vzc2FyIG1haXMgaG9yYXMgZGUgDQpJbnRlcm5ldCAtIHRlbSBjb21wdXRhZG9yLCBj
-4m1lcmEgZGlnaXRhbCwgRFZEIHBsYXllciBlIG91dHJvcy48L3NwYW4+PC9wPg0KPHAgY2xh
-c3M9Ik1zb05vcm1hbCI+Jm5ic3A7PC9wPg0KPHA+PGZvbnQgZmFjZT0iVmVyZGFuYSI+PGVt
-Pk8gQ3Jlc2NlTmV0IHRlbSBhY2Vzc28gbG9jYWwgKHB1bHNvIG5vcm1hbCkgZW0gbWFpcyAN
-CmRlIDIuMTAwIGNpZGFkZXMsIGV4aXN0ZSBkZXNkZSAyMDAyIGUgdGVtIG1haXMgZGUgMTcw
-LjAwMCBhc3NpbmFudGVzLjwvZW0+PC9mb250PjwvcD4NCjxwIGNsYXNzPSJNc29Ob3JtYWwi
-PiZuYnNwOzwvcD4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxzcGFuIHN0eWxlPSJmb250LWZh
-bWlseTogVmVyZGFuYTsgY29sb3I6ICM0MDAwMDAiPlZhbGUgYSANCnBlbmEgY29uaGVjZXIs
-IOkgZ3LhdGlzIGUgdGVtIG8gYXBvaW8gZGEgPC9zcGFuPjxiPg0KPHNwYW4gc3R5bGU9ImZv
-bnQtZmFtaWx5OiBWZXJkYW5hOyBjb2xvcjogbmF2eSI+Jm5ic3A7aWJlc3QgZSBCcmFzaWwg
-VGVsZWNvbSE8L3NwYW4+PC9iPjwvcD4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxmb250IGZh
-Y2U9IlZlcmRhbmEiPjxzcGFuIHN0eWxlPSJjb2xvcjogIzQwMDAwMCI+Jm5ic3A7PC9zcGFu
-PjwvZm9udD48L3A+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48c3BhbiBzdHlsZT0iZm9udC1m
-YW1pbHk6IFZlcmRhbmE7IGNvbG9yOiAjNDAwMDAwIj5vIA0KZW5kZXJl528gZGUgbWluaGEg
-cOFnaW5hIHBlc3NvYWwg6Q0KPGEgdGFyZ2V0PSJfYmxhbmsiIHRpdGxlPSJodHRwOi8vd3d3
-LmNyZXNjZS5uZXQvaG9tZS5hc3A/aWQ9NDgxMzMiIHN0eWxlPSJjb2xvcjogYmx1ZTsgdGV4
-dC1kZWNvcmF0aW9uOiB1bmRlcmxpbmU7IHRleHQtdW5kZXJsaW5lOiBzaW5nbGUiIGhyZWY9
-Imh0dHA6Ly93d3cuY3Jlc2NlLm5ldC9ob21lLmFzcD9pZD0yMTc0NjEiPg0Kd3d3LmNyZXNj
-ZS5uZXQvaG9tZS5hc3A/aWQ9MjE3NDYxPC9hPjwvc3Bhbj48Zm9udCBmYWNlPSJWZXJkYW5h
-Ij48c3BhbiBzdHlsZT0iY29sb3I6ICM0MDAwMDAiPg0KPC9zcGFuPjwvZm9udD48L3A+DQo8
-cCBjbGFzcz0iTXNvTm9ybWFsIj48c3BhbiBzdHlsZT0iZm9udC1mYW1pbHk6IFZlcmRhbmE7
-IGNvbG9yOiAjNDAwMDAwIj5VbSANCmFicmHnbyw8L3NwYW4+PC9wPg0KPHAgY2xhc3M9Ik1z
-b05vcm1hbCI+Jm5ic3A7PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNwYW4gc3R5bGU9
-ImNvbG9yOiAjMDAwMDgwIj48Yj4NCjxzcGFuIHN0eWxlPSJmb250LWZhbWlseTogVmVyZGFu
-YSI+Sm9z6SBSb2JlcnRvPC9zcGFuPjwvYj48L3NwYW4+PC9wPg0KPHAgY2xhc3M9Ik1zb05v
-cm1hbCI+PGI+PHNwYW4gc3R5bGU9ImZvbnQtZmFtaWx5OiBWZXJkYW5hOyBjb2xvcjogbmF2
-eSI+DQpFbXByZWVuZGVkb3I8L3NwYW4+PC9iPjwvcD4NCiAgICA=
-------=_NextPart_000_00E9_342AA6F6.C05DAF35--
+--=-g/PWEq8SJlGTzkuFli4h
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+El lun, 18-04-2005 a las 18:43 +0100, Christoph Hellwig escribi=F3:
+> On Mon, Apr 18, 2005 at 07:38:57PM +0200, Lorenzo Hern?ndez Garc?a-Hierro=
+ wrote:
+> > Enforces the RLIMIT_NPROC limit by adding an additional check for
+> > execve(), as
+> > such limit is checked only during fork() calls.
+>=20
+> What's the point? exec doesn't create new process and exec() shouldn't
+> start to fail just because someone lowered the rlimit a short while ago.
+
+The limit is only checked when process is created on a fork() call, but
+during execution it's uid can change, thus, the limit for the new uid
+could be exceed.
+
+It comes from the Openwall kernel patch, as well implemented in
+grSecurity and vSecurity.
+
+Cheers,
+--=20
+Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>=20
+[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
+
+--=-g/PWEq8SJlGTzkuFli4h
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBCY/dIDcEopW8rLewRAsFiAKDfUb0AIQje73QnJZly30u9chi0NQCgp3CT
+Zrfb4kCnkjFOyOGGjX6vIzA=
+=fy+0
+-----END PGP SIGNATURE-----
+
+--=-g/PWEq8SJlGTzkuFli4h--
+

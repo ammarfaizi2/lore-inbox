@@ -1,75 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbVDRBna@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261585AbVDRBqQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261584AbVDRBna (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Apr 2005 21:43:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbVDRBna
+	id S261585AbVDRBqQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Apr 2005 21:46:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVDRBqQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Apr 2005 21:43:30 -0400
-Received: from tama5.ecl.ntt.co.jp ([129.60.39.102]:497 "EHLO
-	tama5.ecl.ntt.co.jp") by vger.kernel.org with ESMTP id S261584AbVDRBnX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Apr 2005 21:43:23 -0400
-Message-ID: <42631043.7000409@lab.ntt.co.jp>
-Date: Mon, 18 Apr 2005 10:41:23 +0900
-From: Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>,
-       Daniel Jacobowitz <dan@debian.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386 & x86_64: Live Patching Funcion on 2.6.11.7
-References: <4261DC62.1070300@lab.ntt.co.jp>	<20050416234439.5464e188.davem@davemloft.net>	<20050417185143.GA5002@nevyn.them.org> <20050417133252.353a5666.davem@davemloft.net>
-In-Reply-To: <20050417133252.353a5666.davem@davemloft.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 17 Apr 2005 21:46:16 -0400
+Received: from alt.aurema.com ([203.217.18.57]:57757 "EHLO smtp.sw.oz.au")
+	by vger.kernel.org with ESMTP id S261585AbVDRBqG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Apr 2005 21:46:06 -0400
+Date: Mon, 18 Apr 2005 11:29:51 +1000
+From: Kingsley Cheung <kingsley@aurema.com>
+To: Tom Zanussi <zanussi@us.ibm.com>
+Cc: Karim Yaghmour <karim@opersys.com>, linux-kernel@vger.kernel.org
+Subject: Relayfs Question: Use of relay_reset().  Potential race?
+Message-ID: <20050418012951.GC4846@aurema.com>
+Mail-Followup-To: Tom Zanussi <zanussi@us.ibm.com>,
+	Karim Yaghmour <karim@opersys.com>, linux-kernel@vger.kernel.org
+References: <20050323090254.GA10630@aurema.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050323090254.GA10630@aurema.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel-san, David-san,
-
-Pannus project has two targets.
-One is user-mode application live patching, and the other one is kernel 
-live patching.
-What we posted now is user-mode application live patching function.
-
- >If I'm right, I'm not sure why some of the bits of it were done
- >separately instead of via the existing ptrace mechanism.  And GDB
- >would appreciate a mechanism for mmap/munmap/mprotect in a debugged
- >process, also.
-
-Daniel-san,
-GDB based approach seems not fit to our requirements. GDB(ptrace) based 
-functions are basically need to be done when target process is stopping. 
- From our experience, sometimes patches became to dozens to hundreds at 
-one patching, and in this case GDB based approach cause target process's 
-availability descent.
-
-Patch exceeds 50k, so I cut comments and separate architecture, and post 
-as in line.
-
-David S. Miller wrote:
-> On Sun, 17 Apr 2005 14:51:43 -0400
-> Daniel Jacobowitz <dan@debian.org> wrote:
+On Wed, Mar 23, 2005 at 08:02:54PM +1100, kingsley@aurema.com wrote:
+> Hi 
 > 
-> 
->>Takashi-san's description was not very clear, but it sounds like it's a
->>patching mechanism for userspace applications - not for kernel space.
->>So kprobes would not be a good fit.
-> 
-> 
-> I saw the presentation of this stuff at the Linux Kernel conference
-> last year in Tokyo.  I'm pretty sure it's for the kernel. :-)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> I'm using relayfs to relay data from a kernel module to user space on
+> a SuSE 2.6.5 kernel.  I'm not absolutely sure what version of relayfs
+> has been back ported to it.
 
+Hi Tom,
+
+Could you please have a look at the following use of relay_reset() in
+a kernel module as follows (compiled against pre-redux relayfs):
+
+static int
+exec_fileop_notify(int rchan_id, struct file *filp, enum relay_fileop op)
+{
+        if (unlikely(rchan_id != exec_cid)) {
+                printk(KERN_ERR "%s - bad file number\n", __FUNCTION__);
+                return -EBADF;
+        }
+
+        switch (op) {
+        case RELAY_FILE_OPEN:
+                atomic_inc(&exec_client_cnt);
+                break;
+        case RELAY_FILE_CLOSE:
+                if (atomic_dec_and_test(&exec_client_cnt) == 0)
+                        relay_reset(exec_cid); <---
+                break;
+        default:
+                /* do nothing */
+                break;
+        }
+
+        return 0;
+}
+
+Is that legitimate?  The reason I ask is because I've been seeing
+garbled oopses with keventd and I've narrowed it to two things:
+
+1) Inadequate locking on my part in the kernel module, which I have
+addressed separately.
+
+2) A race with relay_reset() and keventd, which is probably of
+interest to you if you're still maintaining the pre-redux patches.
+
+The race is due to the use of INIT_WORK in _reset_relay():
+
+INIT_WORK(&rchan->wake_readers, NULL, NULL);
+INIT_WORK(&rchan->wake_writers, NULL, NULL);
+
+However, at the time relay_reset() is called, it is possible that
+these work structures are still being used by keventd when under heavy
+loads.  The workaround I've used to fix this is to call
+flush_scheduled_work() before calling reset_relay() in the kernel
+module.  Perhaps that needs to be called in relay_reset() or
+_relay_reset()?
+
+As well I'm not sure about the uses of INIT_WORK in
+_relay_realloc_buffer() and relay_release() - perhaps they need
+attention too.  I understand, however, that flush_schedule_work()
+blocks and thus it probably shouldn't be used in certain areas of the
+relayfs code.
+
+My thanks,
 -- 
-Takashi Ikebe
-NTT Network Service Systems Laboratories
-9-11, Midori-Cho 3-Chome Musashino-Shi,
-Tokyo 180-8585 Japan
-Tel : +81 422 59 4246, Fax : +81 422 60 4012
-e-mail : ikebe.takashi@lab.ntt.co.jp
+		Kingsley

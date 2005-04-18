@@ -1,28 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262183AbVDRTky@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262182AbVDRTki@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262183AbVDRTky (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 15:40:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262184AbVDRTky
+	id S262182AbVDRTki (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 15:40:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262183AbVDRTki
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 15:40:54 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:60123 "EHLO
+	Mon, 18 Apr 2005 15:40:38 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:58843 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262183AbVDRTkq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 15:40:46 -0400
-Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+	id S262182AbVDRTkS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 15:40:18 -0400
+Subject: Re: intercepting syscalls
 From: Arjan van de Ven <arjan@infradead.org>
-To: Timur Tabi <timur.tabi@ammasso.com>
-Cc: Roland Dreier <roland@topspin.com>, Troy Benjegerdes <hozer@hozed.org>,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <4263DF70.2060702@ammasso.com>
-References: <200544159.Ahk9l0puXy39U6u6@topspin.com>
-	 <20050411142213.GC26127@kalmia.hozed.org> <52mzs51g5g.fsf@topspin.com>
-	 <4263DBBF.9040801@ammasso.com>
-	 <1113840973.6274.84.camel@laptopd505.fenrus.org>
-	 <4263DF70.2060702@ammasso.com>
+To: Terje Malmedal <tm@basefarm.com>
+Cc: Igor Shmukler <igor.shmukler@gmail.com>, Rik van Riel <riel@redhat.com>,
+       Daniel Souza <thehazard@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <wvhis2jewxh.fsf@cornavin.basefarm.no>
+References: <6533c1c905041511041b846967@mail.gmail.com>
+	 <1113588694.6694.75.camel@laptopd505.fenrus.org>
+	 <6533c1c905041512411ec2a8db@mail.gmail.com>
+	 <e1e1d5f40504151251617def40@mail.gmail.com>
+	 <6533c1c905041512594bb7abb4@mail.gmail.com>
+	 <Pine.LNX.4.61.0504180752220.3232@chimarrao.boston.redhat.com>
+	 <6533c1c905041807487a872025@mail.gmail.com>
+	 <1113836378.6274.69.camel@laptopd505.fenrus.org>
+	 <6533c1c9050418080639e41fb@mail.gmail.com>
+	 <1113837657.6274.74.camel@laptopd505.fenrus.org>
+	 <wvhis2jewxh.fsf@cornavin.basefarm.no>
 Content-Type: text/plain
-Date: Mon, 18 Apr 2005 21:40:40 +0200
-Message-Id: <1113853240.6274.99.camel@laptopd505.fenrus.org>
+Date: Mon, 18 Apr 2005 21:40:02 +0200
+Message-Id: <1113853203.6274.97.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
@@ -42,21 +48,34 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-04-18 at 11:25 -0500, Timur Tabi wrote:
-> Arjan van de Ven wrote:
+On Mon, 2005-04-18 at 20:56 +0200, Terje Malmedal wrote:
+> [Arjan van de Ven]
+> >> > but also about doing things at the right layer. The syscall layer is
+> >> > almost NEVER the right layer.
+> >> > 
+> >> > Can you explain exactly what you are trying to do (it's not a secret I
+> >> > assume, kernel modules are GPL and open source after all, esp such
+> >> > invasive ones) and I'll try to tell you why it's wrong to do it at the
+> >> > syscall intercept layer... deal ?
+> >> 
+> >> now, when I need someone to tell I do something wrong, I know where to go :)
 > 
-> > this is a myth; linux is free to move the page about in physical memory
-> > even if it's mlock()ed!!
+> > ok i'll spice things up... I'll even suggest a better solution ;)
 > 
-> Then Linux has a very odd definition of the word "locked".
+> Hi. The promise wasn't made to me, but I'm hoping you will find a nice
+> and clean solution:
 > 
-> > And even then, the user can munlock the memory from another thread etc
-> > etc. Not a good idea.
+>   Every so often there is bug in the kernel, by patching the
+>   syscall-table I have been able to fix bugs in ioperm and fsync without
+>   rebooting the box. 
 > 
-> Well, that's okay, because then the app is doing something stupid, so we don't worry about 
-> that.
 
-you should since that physical page can be reused, say by a root
-process, and you'd be majorly screwed
+>   What do I do the next time I need to do something like this? 
+
+use kprobes or so to actually replace the faulty lower level function..
+you don't know from how many different angles the lower level function
+is called, so you're really best of by replacing it at the lowest
+possible level, eg closest to the bug. That *very* seldomly is the
+actual syscall function.
 
 

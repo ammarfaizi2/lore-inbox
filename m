@@ -1,101 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262048AbVDRMbR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262057AbVDRMfB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262048AbVDRMbR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 08:31:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262057AbVDRMbQ
+	id S262057AbVDRMfB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 08:35:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262058AbVDRMfB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 08:31:16 -0400
-Received: from [213.170.72.194] ([213.170.72.194]:35487 "EHLO
-	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S262048AbVDRMbI
+	Mon, 18 Apr 2005 08:35:01 -0400
+Received: from hell.sks3.muni.cz ([147.251.210.30]:30668 "EHLO
+	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S262057AbVDRMe7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 08:31:08 -0400
-Subject: Re: [PATC] small VFS change for JFFS2
-From: "Artem B. Bityuckiy" <dedekind@infradead.org>
-Reply-To: dedekind@infradead.org
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
-       dwmw2@lists.infradead.org
-In-Reply-To: <20050418115220.GA22750@infradead.org>
-References: <1113814031.31595.3.camel@sauron.oktetlabs.ru>
-	 <20050418085121.GA19091@infradead.org>
-	 <1113814730.31595.6.camel@sauron.oktetlabs.ru>
-	 <20050418105301.GA21878@infradead.org>
-	 <1113824781.2125.12.camel@sauron.oktetlabs.ru>
-	 <20050418115220.GA22750@infradead.org>
-Content-Type: text/plain
-Organization: MTD
-Date: Mon, 18 Apr 2005 16:31:06 +0400
-Message-Id: <1113827466.2125.47.camel@sauron.oktetlabs.ru>
+	Mon, 18 Apr 2005 08:34:59 -0400
+Date: Mon, 18 Apr 2005 14:34:57 +0200
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: Yann Dupont <Yann.Dupont@univ-nantes.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: E1000 - page allocation failure - saga continues :(
+Message-ID: <20050418123457.GF26030@mail.muni.cz>
+References: <20050414214828.GB9591@mail.muni.cz> <4263A3B7.6010702@univ-nantes.fr> <20050418122202.GE26030@mail.muni.cz> <4263A70F.5060409@univ-nantes.fr>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4263A70F.5060409@univ-nantes.fr>
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-04-18 at 12:52 +0100, Christoph Hellwig wrote:
-> Oh, I thought the problem is that JFFS2 thought an inode was freed when
-> it still was in use.  So you're problem is actually that it's no in the
-> hash anymore but you don't know yet?
-Yes, exactly. VFS developers may always say "it is your problem -
-redesign JFFS2", but I think it is too late to redesign it.
+On Mon, Apr 18, 2005 at 02:24:47PM +0200, Yann Dupont wrote:
+> >I know that kernel 2.6.6-bk4 works. So were there some memory manager changes
+> >since 2.6.6? If so it looks like there are some bugs. 
+> >On the other hand, ethernet driver should not allocate much memory but rather
+> >drop packets.
+> >
+> >Btw, are you using some TCP tweaks? E.g. I have default TCP window size 1MB.
+> >
+> No tweaking at all. No jumbo frames.
 
-> Anyway, please explain in detail why you need all this information, what
-> errors you see, etc so we can find a way to fix it properly.
-Well, I suspect I explained why I need the mutex. If people will find
-the explanation vague, I'll make another attempt.
+There were assumptions that it is XFS related. Are you using XFS on that box?
 
-The error I see is:
-
-Eep. Trying to read_inode #15601 when it's already in state 2!
-
-I debugged this a lot before I've realized the reason. And I believe I
-know JFFS2 very well to claim that redesigning it is very painful. 
-
-The erroneous  code flow is like this:
-
-kswapd: removes the inode 15601 from the inode hash (inode.c:478).
-kswapd: is preempted at inode.c:485
-JFFS2 writer: awakes, runs GC to reclaim some space.
-JFFS2 writer: picks a JFFS2 node belonging to the inode 15601
-JFFS2 writer: looks at the inode state, realizes it is in state PRESENT,
-i.e. it is in the inode cache (which is wrong).
-JFFS2 writer: runs iget() to acquire a pointer to the struct inode of
-the inode 15601.
-JFFS2 writer: iget() calls ->read_inode(), i.e., jffs2_read_inode().
-JFFS2 writed: JFFS2 is surprised why read_inode() is called for the
-already built inode 15601.
-
-Or may be VFS is buggy, I'm not sure. May be it shouldn't remove inode
-from the inode hash in that point (inode.c:487). It sets the I_FREENG
-state to the inode being freed, and iget() may wait in find_inode_fast()
-while the inode is actually destroyed (inode.c:562). The inode may be
-removed from the inode hash later, in dispose_list() (inode.c:292).
-
-Or may be this isn't a bug but a feature to make the inode_lock less
-contended. Not sure, I'm not a VFS guru.
-
-In that above described case the code flow would be:
-
-kswapd: remove inode 15601 from the inode hash (inode.c:478).
-kswapd: preempted at inode.s:485
-JFFS2 writer: awakes, runs GC to reclaim some space.
-JFFS2 writer: picks a JFFS2 node belonging to inode 15601
-JFFS2 writer: looks at the inode state, realizes it is in state PRESENT,
-i.e. it is in the inode cache (which is wrong).
-JFFS2 writer: runs iget() to get the pointer to the struct inode of the
-inode 15601.
-JFFS2 writer goes sleep in find_inode_fast(), waiting for freeing
-completion.
-kswapd: calls dispose_list(), calls clear_inode() for 15601.
-JFFS2 writed: read_inode() is called and all is OK since clear_inode()
-was called before.
-
-The latter scenario looks very logical for me.
-
-Cheers, Artem.
+I'm able to deterministically produce this error:
+on XFS partition store a file from network using multiple threads. If file size
+is bigger then total memory, then it fails after major part of memory is used
+for a file cache.
 
 -- 
-Best Regards,
-Artem B. Bityuckiy,
-St.-Petersburg, Russia.
-
+Luká¹ Hejtmánek

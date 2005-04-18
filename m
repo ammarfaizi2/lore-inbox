@@ -1,56 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbVDRFfY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbVDRFly@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261680AbVDRFfY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 01:35:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbVDRFfY
+	id S261681AbVDRFly (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 01:41:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbVDRFly
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 01:35:24 -0400
-Received: from [194.90.79.130] ([194.90.79.130]:9230 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S261680AbVDRFfS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 01:35:18 -0400
-Message-ID: <4263470B.9000802@argo.co.il>
-Date: Mon, 18 Apr 2005 08:35:07 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Mozilla Thunderbird 1.0.2-1 (X11/20050323)
+	Mon, 18 Apr 2005 01:41:54 -0400
+Received: from tama5.ecl.ntt.co.jp ([129.60.39.102]:61852 "EHLO
+	tama5.ecl.ntt.co.jp") by vger.kernel.org with ESMTP id S261681AbVDRFlv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 01:41:51 -0400
+Message-ID: <42634898.5050702@lab.ntt.co.jp>
+Date: Mon, 18 Apr 2005 14:41:44 +0900
+From: Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: arjan@infradead.org, andihartmann@01019freenet.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: More performance for the TCP stack by using additional hardware
- chip on NIC
-References: <d3t63d$3qe$1@pD9F86D3F.dip0.t-ipconnect.de>	<1113728880.17394.16.camel@laptopd505.fenrus.org>	<1113733753.15803.26.camel@avik.scalemp> <20050417133620.04b4698d.davem@davemloft.net>
-In-Reply-To: <20050417133620.04b4698d.davem@davemloft.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Davide Libenzi <davidel@xmailserver.org>
+CC: Daniel Jacobowitz <dan@debian.org>, Chris Wedgwood <cw@f00f.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH x86_64] Live Patching Function on 2.6.11.7
+References: <4263275A.2020405@lab.ntt.co.jp>  <20050418040718.GA31163@taniwha.stupidest.org>  <4263356D.9080007@lab.ntt.co.jp>  <20050418044223.GB15002@nevyn.them.org> <1113800136.355.1.camel@localhost.localdomain> <Pine.LNX.4.58.0504172159120.28447@bigblue.dev.mdolabs.com>
+In-Reply-To: <Pine.LNX.4.58.0504172159120.28447@bigblue.dev.mdolabs.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 18 Apr 2005 05:35:17.0067 (UTC) FILETIME=[670A91B0:01C543D8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
+Davide Libenzi wrote:
 
->On Sun, 17 Apr 2005 13:29:14 +0300
->Avi Kivity <avi@argo.co.il> wrote:
+>On Mon, 2005-04-18 at 00:42 -0400, Daniel Jacobowitz wrote:
 >
 >  
 >
->>TOEs can remove the data copy on receive. In some applications (notably
->>storage), where the application does not touch most of the data, this is
->>a significant advantage that cannot be achieved in a software-only
->>solution.
+>>On Mon, Apr 18, 2005 at 01:19:57PM +0900, Takashi Ikebe wrote:
+>>    
+>>
+>>>GDB based approach seems not fit to our requirements. GDB(ptrace) based 
+>>>functions are basically need to be done when target process is stopping.
+>>>In addition to that current PTRACE_PEEK/POKE* allows us to copy only a 
+>>>*word* size...
+>>>      
+>>>
+>>While true, this is easily fixable. 
 >>    
 >>
 >
->You don't need to offload the TCP stack to make this case get
->zero-copy behavior.
+>Indeed, look at the systr_pmem_read() and systr_pmem_write() functions:
+>
+>http://www.xmailserver.org/sysctr.html
+>
 >  
 >
-yes, Willy Tarreau outlined how buffering on the nic and splitting the 
-dma can achieve zero copy.
-
-are there any adapters out there which work this way?
+systr_pmem_read() and systr_pmem_write() just calls ptrace PTRACE_PEEKTEXT/DATA repeatedly....
+In this case we need to *stop* target process whenever patch modules is loading....
+It cause target process availability worse.
 
 -- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+Takashi Ikebe
+NTT Network Service Systems Laboratories
+9-11, Midori-Cho 3-Chome Musashino-Shi,
+Tokyo 180-8585 Japan
+Tel : +81 422 59 4246, Fax : +81 422 60 4012
+e-mail : ikebe.takashi@lab.ntt.co.jp
+
 

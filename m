@@ -1,77 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262192AbVDRTxK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262193AbVDRTym@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262192AbVDRTxK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 15:53:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbVDRTvn
+	id S262193AbVDRTym (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 15:54:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbVDRTye
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 15:51:43 -0400
-Received: from vds-320151.amen-pro.com ([62.193.204.86]:13020 "EHLO
-	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
-	id S262189AbVDRTu6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 15:50:58 -0400
-Subject: Re: [PATCH] TCP ipv4 source port randomization
-From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
-	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-To: "David S. Miller" <davem@davemloft.net>
+	Mon, 18 Apr 2005 15:54:34 -0400
+Received: from pD95F37F7.dip.t-dialin.net ([217.95.55.247]:23715 "EHLO
+	Marvin.DL8BCU.ampr.org") by vger.kernel.org with ESMTP
+	id S262189AbVDRTyI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 15:54:08 -0400
+Date: Mon, 18 Apr 2005 19:53:51 +0000
+From: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>
+To: Rao Davide <davide.rao@atosorigin.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050418122600.0664f26b.davem@davemloft.net>
-References: <1113851051.17341.94.camel@localhost.localdomain>
-	 <20050418122600.0664f26b.davem@davemloft.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-xflHGERuDR2HfURN+O2h"
-Date: Mon, 18 Apr 2005 21:42:21 +0200
-Message-Id: <1113853341.17341.106.camel@localhost.localdomain>
+Subject: Re: Linux Alpha port: LVM
+Message-ID: <20050418195351.GA32124@Marvin.DL8BCU.ampr.org>
+Reply-To: dl8bcu@dl8bcu.de
+Mail-Followup-To: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>,
+	Rao Davide <davide.rao@atosorigin.com>,
+	linux-kernel@vger.kernel.org
+References: <42569BC7.5030709@atosorigin.com> <20050408190709.GB27845@twiddle.net> <425A2442.8090607@atosorigin.com> <4263ACA9.4080507@atosorigin.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4263ACA9.4080507@atosorigin.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Apr 18, 2005 at 02:48:41PM +0200, Rao Davide wrote:
+> Is LVM working on the alpha port 2.6 kernel series ?
 
---=-xflHGERuDR2HfURN+O2h
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+works fine for me.
 
-El lun, 18-04-2005 a las 12:26 -0700, David S. Miller escribi=F3:
-> Stephen Hemminger has already added TCP port randomization on
-> connect() to the 2.6.x tree.  See
-> net/ipv4/tcp_ipv4.c:tcp_v4_hash_connect(), where randomized port
-> selection occurs.  And unlike your patch, Stephen did add ipv6
-> support (via net/ipv6/tcp_ipv6.c:tcp_v6_hash_connect()) for
-> port randomization as well.
+> If so where do I get libdevmapper so that I can build the userspace LVM 
+> utils ?
+> 
+> I tryied downloading 
+> ftp://sources.redhat.com/pub/dm/multipath-toolsmultipath-tools-0.4.3.tar.bz2
 
-I missed Hemminger's bits there.
-I apologize for any inconvenience.
+what do you think the 'dm' in that url stands for, hm?
 
->=20
-> 1) That you use netdev@oss.sgi.com for networking patches as that
->    is where the networking developers listen.
+> But I fail to compile it so I'm also unable tu build the userspace lvm 
+> utils.
 
-OK.
+'userspace lvm utils' can be found here:
 
-> 2) That you do some checking to see that the feature you're adding
->    is not already present in the tree.
+ftp://sources.redhat.com/pub/lvm2
 
-I do, just missed that ;)
-Among that I have the patch done since time ago, just didn't submitted
-it to the list, so, during the transition I forgot all about any change
-(nor I checked the CSETs).
+multipath tools might be something different ... :)
 
-Thanks for the advice,
-Cheers.
---=20
-Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>=20
-[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
+> --
+> Regards
+> Davide Rao
+>   Client/server Unix
+>   Atos Origin
+>   Via C.Viola - Pont St. Martin (AO) Italy
+>   Cell :  +39 3357599151
+>   Tel  :  +39 125810433
+>   Email:  davide.rao@atosorigin.com
 
---=-xflHGERuDR2HfURN+O2h
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+73 Thorsten
 
-iD8DBQBCZA2dDcEopW8rLewRAlP1AJwPj74ylOT02yUgH3iH3qaFG0rRrgCgrhx/
-MGisCNSF3aMzwd6/JAFN0E8=
-=nj1g
------END PGP SIGNATURE-----
-
---=-xflHGERuDR2HfURN+O2h--
-
+-- 
+| Thorsten Kranzkowski        Internet: dl8bcu@dl8bcu.de                      |
+| Mobile: ++49 170 1876134       Snail: Kiebitzstr. 14, 49324 Melle, Germany  |
+| Ampr: dl8bcu@db0lj.#rpl.deu.eu, dl8bcu@marvin.dl8bcu.ampr.org [44.130.8.19] |

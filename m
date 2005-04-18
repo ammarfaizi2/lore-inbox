@@ -1,99 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262097AbVDRPSJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262104AbVDRPUw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262097AbVDRPSJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 11:18:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbVDRPSJ
+	id S262104AbVDRPUw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 11:20:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262103AbVDRPUv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 11:18:09 -0400
-Received: from fire.osdl.org ([65.172.181.4]:47592 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262097AbVDRPRy (ORCPT
+	Mon, 18 Apr 2005 11:20:51 -0400
+Received: from gsecone.com ([59.144.0.4]:54661 "EHLO gsecone.com")
+	by vger.kernel.org with ESMTP id S262106AbVDRPTb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 11:17:54 -0400
-Date: Mon, 18 Apr 2005 08:17:26 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Igor Shmukler <igor.shmukler@gmail.com>
-Cc: riel@redhat.com, thehazard@gmail.com, arjan@infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: intercepting syscalls
-Message-Id: <20050418081726.7d3125bd.rddunlap@osdl.org>
-In-Reply-To: <6533c1c905041807487a872025@mail.gmail.com>
-References: <6533c1c905041511041b846967@mail.gmail.com>
-	<1113588694.6694.75.camel@laptopd505.fenrus.org>
-	<6533c1c905041512411ec2a8db@mail.gmail.com>
-	<e1e1d5f40504151251617def40@mail.gmail.com>
-	<6533c1c905041512594bb7abb4@mail.gmail.com>
-	<Pine.LNX.4.61.0504180752220.3232@chimarrao.boston.redhat.com>
-	<6533c1c905041807487a872025@mail.gmail.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: SvC&!/v_Hr`MvpQ*|}uez16KH[#EmO2Tn~(r-y+&Jb}?Zhn}c:Eee&zq`cMb_[5`tT(22ms
- (.P84,bq_GBdk@Kgplnrbj;Y`9IF`Q4;Iys|#3\?*[:ixU(UR.7qJT665DxUP%K}kC0j5,UI+"y-Sw
- mn?l6JGvyI^f~2sSJ8vd7s[/CDY]apD`a;s1Wf)K[,.|-yOLmBl0<axLBACB5o^ZAs#&m?e""k/2vP
- E#eG?=1oJ6}suhI%5o#svQ(LvGa=r
+	Mon, 18 Apr 2005 11:19:31 -0400
+Subject: [PATCH][2.6.12-rc2] __attribute__ placement
+From: Vinay K Nallamothu <vinay.nallamothu@gsecone.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: Global Security One
+Date: Mon, 18 Apr 2005 20:46:44 +0530
+Message-Id: <1113837404.4217.15.camel@vinay.gsecone.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Apr 2005 10:48:03 -0400 Igor Shmukler wrote:
+Hi,
 
-| Rik, (and everyone),
-| 
-| Everything is IMHO only.
-| 
-| It all boils down to whether:
-| 1. it is hard to correctly implement such LKM so that it can be safely
-| loaded and unloaded and when these modules are combined they may not
-| work together until there is an interoperability workshop (like the
-| one networking folks do).
-| 2. it's not possible to do this right, hence no point to allow this in
-| a first place.
-| 
-| I am not a Linux expert by a long-shot, but on many other Unices it's
-| being done and works. I am only asking because I am involved with a
-| Linux port.
-| 
-| I think if consensus is on choice one, then hiding the table is a
-| mistake. We should not just close  abusable interfaces. Rootkits do
-| not need these, and if someone makes poor software we do not have to
-| install it.
-| 
-| Intercepting system call table is an elegant way to solve many
-| problems. Any driver software has to be developed by expert
-| programmers and can cause all the problems imaginable if it was not
-| down right.
-| 
-| Again, it's all IMHO. Nobody has to agree.
+The variable attributes "packed" and "align" when used with struct,
+should have the following order:
+
+struct ... {...} __attribute__((packed)) var;
+
+This patch fixes few instances where the variable and attributes are
+placed the other way around and had no affect.
+
+Thanks
+Vinay 
+
+ asm-m68knommu/MC68328.h   |    2 +-
+ asm-m68knommu/MC68EZ328.h |    2 +-
+ asm-m68knommu/MC68VZ328.h |    2 +-
+ math-emu/double.h         |    4 ++--
+ math-emu/extended.h       |    2 +-
+ math-emu/quad.h           |    2 +-
+ math-emu/single.h         |    2 +-
+ 7 files changed, 8 insertions(+), 8 deletions(-)
+===========================================================================
+diff -urN linux-2.6.12-rc2/include/asm-m68knommu/MC68328.h linux-2.6.12-rc2-nvk/include/asm-m68knommu/MC68328.h
+--- linux-2.6.12-rc2/include/asm-m68knommu/MC68328.h	2005-04-07 18:55:40.000000000 +0530
++++ linux-2.6.12-rc2-nvk/include/asm-m68knommu/MC68328.h	2005-04-18 20:02:00.325855096 +0530
+@@ -993,7 +993,7 @@
+   volatile unsigned short int pad1;
+   volatile unsigned short int pad2;
+   volatile unsigned short int pad3;
+-} m68328_uart __attribute__((packed));
++} __attribute__((packed)) m68328_uart;
+ 
+ 
+ /**********
+diff -urN linux-2.6.12-rc2/include/asm-m68knommu/MC68EZ328.h linux-2.6.12-rc2-nvk/include/asm-m68knommu/MC68EZ328.h
+--- linux-2.6.12-rc2/include/asm-m68knommu/MC68EZ328.h	2005-04-07 18:55:40.000000000 +0530
++++ linux-2.6.12-rc2-nvk/include/asm-m68knommu/MC68EZ328.h	2005-04-18 20:03:08.034561808 +0530
+@@ -815,7 +815,7 @@
+   volatile unsigned short int nipr;
+   volatile unsigned short int pad1;
+   volatile unsigned short int pad2;
+-} m68328_uart __attribute__((packed));
++} __attribute__((packed)) m68328_uart;
+ 
+ 
+ /**********
+diff -urN linux-2.6.12-rc2/include/asm-m68knommu/MC68VZ328.h linux-2.6.12-rc2-nvk/include/asm-m68knommu/MC68VZ328.h
+--- linux-2.6.12-rc2/include/asm-m68knommu/MC68VZ328.h	2005-04-07 18:55:40.000000000 +0530
++++ linux-2.6.12-rc2-nvk/include/asm-m68knommu/MC68VZ328.h	2005-04-18 20:02:28.186619616 +0530
+@@ -909,7 +909,7 @@
+   volatile unsigned short int nipr;
+   volatile unsigned short int hmark;
+   volatile unsigned short int unused;
+-} m68328_uart __attribute__((packed));
++} __attribute__((packed)) m68328_uart;
+ 
+ 
+ 
+diff -urN linux-2.6.12-rc2/include/math-emu/double.h linux-2.6.12-rc2-nvk/include/math-emu/double.h
+--- linux-2.6.12-rc2/include/math-emu/double.h	2005-04-07 18:55:41.000000000 +0530
++++ linux-2.6.12-rc2-nvk/include/math-emu/double.h	2005-04-18 20:04:55.998148848 +0530
+@@ -67,7 +67,7 @@
+     unsigned exp   : _FP_EXPBITS_D;
+     unsigned sign  : 1;
+ #endif
+-  } bits __attribute__((packed));
++  } __attribute__((packed)) bits;
+ };
+ 
+ #define FP_DECL_D(X)		_FP_DECL(2,X)
+@@ -139,7 +139,7 @@
+     unsigned exp  : _FP_EXPBITS_D;
+     unsigned sign : 1;
+ #endif
+-  } bits __attribute__((packed));
++  } __attribute__((packed)) bits;
+ };
+ 
+ #define FP_DECL_D(X)		_FP_DECL(1,X)
+diff -urN linux-2.6.12-rc2/include/math-emu/extended.h linux-2.6.12-rc2-nvk/include/math-emu/extended.h
+--- linux-2.6.12-rc2/include/math-emu/extended.h	2005-04-07 18:55:41.000000000 +0530
++++ linux-2.6.12-rc2-nvk/include/math-emu/extended.h	2005-04-18 20:04:14.768416720 +0530
+@@ -68,7 +68,7 @@
+       unsigned exp : _FP_EXPBITS_E;
+       unsigned sign : 1;
+ #endif /* not bigendian */
+-   } bits __attribute__((packed));
++   } __attribute__((packed)) bits;
+ };
+ 
+ 
+diff -urN linux-2.6.12-rc2/include/math-emu/quad.h linux-2.6.12-rc2-nvk/include/math-emu/quad.h
+--- linux-2.6.12-rc2/include/math-emu/quad.h	2005-04-07 18:55:41.000000000 +0530
++++ linux-2.6.12-rc2-nvk/include/math-emu/quad.h	2005-04-18 20:03:55.135401392 +0530
+@@ -72,7 +72,7 @@
+       unsigned exp : _FP_EXPBITS_Q;
+       unsigned sign : 1;
+ #endif /* not bigendian */
+-   } bits __attribute__((packed));
++   } __attribute__((packed)) bits;
+ };
+ 
+ 
+diff -urN linux-2.6.12-rc2/include/math-emu/single.h linux-2.6.12-rc2-nvk/include/math-emu/single.h
+--- linux-2.6.12-rc2/include/math-emu/single.h	2005-04-07 18:55:41.000000000 +0530
++++ linux-2.6.12-rc2-nvk/include/math-emu/single.h	2005-04-18 20:05:20.208468320 +0530
+@@ -56,7 +56,7 @@
+     unsigned exp  : _FP_EXPBITS_S;
+     unsigned sign : 1;
+ #endif
+-  } bits __attribute__((packed));
++  } __attribute__((packed)) bits;
+ };
+ 
+ #define FP_DECL_S(X)		_FP_DECL(1,X)
+
+===========================================================================
 
 
-And 'nobody' has submitted patches that handle all of the described
-problems...
-
-1.  racy
-2.  architecture-independent
-3.  stackable (implies/includes unstackable :)
-
-You won't get very far in this discussion without some code...
+-- 
+Views expressed in this mail are those of the individual sender and 
+do not bind Gsec1 Limited. or its subsidiary, unless the sender has done
+so expressly with due authority of Gsec1.
+_________________________________________________________________________
 
 
-| Igor
-| 
-| On 4/18/05, Rik van Riel <riel@redhat.com> wrote:
-| > On Fri, 15 Apr 2005, Igor Shmukler wrote:
-| > 
-| > > Thank you very much. I will check this out.
-| > > A thanks to everyone else who contributed. I would still love to know
-| > > why this is a bad idea.
-| > 
-| > Because there is no safe way in which you could have multiple
-| > of these modules loaded simultaneously - say one security
-| > module and AFS.  There is an SMP race during the installing
-| > of the hooks, and the modules can still wreak havoc if they
-| > get unloaded in the wrong order...
-| > 
-| > There just isn't a good way to hook into the syscall table.
-
-
----
-~Randy

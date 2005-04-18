@@ -1,59 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262177AbVDRT2u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262178AbVDRTcA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262177AbVDRT2u (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 15:28:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262178AbVDRT1s
+	id S262178AbVDRTcA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 15:32:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262181AbVDRTb7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 15:27:48 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:44426 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262177AbVDRT1Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 15:27:25 -0400
-Date: Mon, 18 Apr 2005 15:27:05 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
-	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/7] procfs privacy
-In-Reply-To: <1113849977.17341.68.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0504181526280.11251@chimarrao.boston.redhat.com>
-References: <1113849977.17341.68.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="279726928-1555051521-1113852425=:11251"
+	Mon, 18 Apr 2005 15:31:59 -0400
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:62394
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262178AbVDRTbx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 15:31:53 -0400
+Date: Mon, 18 Apr 2005 12:26:00 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_Garc=EDa-Hierro?= 
+	<lorenzo@gnu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] TCP ipv4 source port randomization
+Message-Id: <20050418122600.0664f26b.davem@davemloft.net>
+In-Reply-To: <1113851051.17341.94.camel@localhost.localdomain>
+References: <1113851051.17341.94.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
 
---279726928-1555051521-1113852425=:11251
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Stephen Hemminger has already added TCP port randomization on
+connect() to the 2.6.x tree.  See
+net/ipv4/tcp_ipv4.c:tcp_v4_hash_connect(), where randomized port
+selection occurs.  And unlike your patch, Stephen did add ipv6
+support (via net/ipv6/tcp_ipv6.c:tcp_v6_hash_connect()) for
+port randomization as well.
 
-On Mon, 18 Apr 2005, Lorenzo Hernández García-Hierro wrote:
+I'd like to ask two things:
 
-> - /proc/ioports
-> - /proc/iomem
-> - /proc/devices
-> - /proc/cmdline
-> - /proc/version
-> - /proc/uptime
-> - /proc/cpuinfo
-> - /proc/partitions
-> - /proc/stat
-> - /proc/interrupts
-> - /proc/slabinfo
-> - /proc/diskstats
-> - /proc/modules
-> - /proc/schedstat
+1) That you use netdev@oss.sgi.com for networking patches as that
+   is where the networking developers listen.
+2) That you do some checking to see that the feature you're adding
+   is not already present in the tree.
 
-The same "this forces people to run system monitoring tasks
-as root, potentially opening themselves up to security holes"
-comment applies to this patch.
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
---279726928-1555051521-1113852425=:11251--
+Thanks a lot.

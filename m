@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262159AbVDRSLY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262145AbVDRS0N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262159AbVDRSLY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 14:11:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbVDRSLY
+	id S262145AbVDRS0N (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 14:26:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbVDRS0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 14:11:24 -0400
-Received: from vds-320151.amen-pro.com ([62.193.204.86]:53632 "EHLO
-	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
-	id S262173AbVDRSKr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 14:10:47 -0400
-Subject: Re: [PATCH] RLIMIT_NPROC enforcement during execve() calls
-From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
-	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050418174346.GA28790@infradead.org>
-References: <1113845937.17341.29.camel@localhost.localdomain>
-	 <20050418174346.GA28790@infradead.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-g/PWEq8SJlGTzkuFli4h"
-Date: Mon, 18 Apr 2005 20:07:04 +0200
-Message-Id: <1113847624.17341.36.camel@localhost.localdomain>
+	Mon, 18 Apr 2005 14:26:12 -0400
+Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:50837 "EHLO
+	ms-smtp-03-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S262145AbVDRS0J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 14:26:09 -0400
+Subject: dbench performance on cifs to Samba
+From: Steve French <smfrench@austin.rr.com>
+To: linux-kernel@vger.kernel.org, linux-cifs-client@lists.samba.org,
+       samba-technical@lists.samba.org
+Content-Type: text/plain
+Message-Id: <1113846784.9898.10.camel@smfhome.smfdom>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Mon, 18 Apr 2005 12:53:05 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The recent changes in cifs have helped a lot with dbench performance.  
+Mounting cifs version 1.33 (current development tree of cifs) to current
+Samba 3 (loopback on same host, to eliminate most network adapter
+effects) showed about a tenfold improvement over older cifs -
 
---=-g/PWEq8SJlGTzkuFli4h
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Running dbench version with 20 processes (mainline kernel 2.6.12-pre)
+a) local jfs mount (as a sanity check)  gets about 30MB/sec
+b) current cifs development tree version (version 1.33) to Samba server
+on same box = 2.8MB/sec
+(dbench starts faster, but memory presumably gets fragmented, and it
+slows down to about 2.8MB steady state)
+c) cifs from six months ago (version 1.26) = 0.27MB/sec
+(it starts about 15% slower than current cifs then slows
+way down presumably as memory gets fragmented)
 
-El lun, 18-04-2005 a las 18:43 +0100, Christoph Hellwig escribi=F3:
-> On Mon, Apr 18, 2005 at 07:38:57PM +0200, Lorenzo Hern?ndez Garc?a-Hierro=
- wrote:
-> > Enforces the RLIMIT_NPROC limit by adding an additional check for
-> > execve(), as
-> > such limit is checked only during fork() calls.
->=20
-> What's the point? exec doesn't create new process and exec() shouldn't
-> start to fail just because someone lowered the rlimit a short while ago.
-
-The limit is only checked when process is created on a fork() call, but
-during execution it's uid can change, thus, the limit for the new uid
-could be exceed.
-
-It comes from the Openwall kernel patch, as well implemented in
-grSecurity and vSecurity.
-
-Cheers,
---=20
-Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>=20
-[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
-
---=-g/PWEq8SJlGTzkuFli4h
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBCY/dIDcEopW8rLewRAsFiAKDfUb0AIQje73QnJZly30u9chi0NQCgp3CT
-Zrfb4kCnkjFOyOGGjX6vIzA=
-=fy+0
------END PGP SIGNATURE-----
-
---=-g/PWEq8SJlGTzkuFli4h--
+This is big progress - 10x improvement and since dbench is heavily write
+oriented I should have plenty of room to double the cifs performance
+again (with the recent async readahead and writebehind patches still to
+evaluate, and writev support still to add and a double copy in the read
+path), even without having to optimize the Samba server side.  Obviosly
+this is going to be slower over the network than local due to
+duplication of inodes/caching and network & samba server delays - but I
+would like to get within a factor of 3 of local performance under this
+stress write case.   I also need to measure the NFSv3
+performance over loopback to local nfsd server to see how
+that compares with dbench on this test system.
 

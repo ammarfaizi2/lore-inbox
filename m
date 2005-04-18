@@ -1,83 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262010AbVDROHN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262025AbVDROHy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262010AbVDROHN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 10:07:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbVDROHN
+	id S262025AbVDROHy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 10:07:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbVDROHy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 10:07:13 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:21429 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262010AbVDROHD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 10:07:03 -0400
-Date: Mon, 18 Apr 2005 10:06:55 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp>
-cc: Chris Wedgwood <cw@f00f.org>, Paul Jackson <pj@sgi.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH x86_64] Live Patching Function on 2.6.11.7
-In-Reply-To: <4263AD94.0@lab.ntt.co.jp>
-Message-ID: <Pine.LNX.4.61.0504181001470.8456@chimarrao.boston.redhat.com>
-References: <4263275A.2020405@lab.ntt.co.jp> <20050418040718.GA31163@taniwha.stupidest.org>
- <4263356D.9080007@lab.ntt.co.jp> <20050418061221.GA32315@taniwha.stupidest.org>
- <42636285.9060405@lab.ntt.co.jp> <20050418075635.GB644@taniwha.stupidest.org>
- <20050418021609.07f6ec16.pj@sgi.com> <20050418092505.GA2206@taniwha.stupidest.org>
- <Pine.LNX.4.61.0504180726320.3232@chimarrao.boston.redhat.com>
- <4263AD94.0@lab.ntt.co.jp>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 18 Apr 2005 10:07:54 -0400
+Received: from [213.170.72.194] ([213.170.72.194]:58016 "EHLO
+	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S262025AbVDROHj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 10:07:39 -0400
+Subject: Re: [PATC] small VFS change for JFFS2
+From: "Artem B. Bityuckiy" <dedekind@infradead.org>
+Reply-To: dedekind@infradead.org
+To: linux-kernel@vger.kernel.org
+Cc: Christoph Hellwig <hch@infradead.org>, linux-mtd@lists.infradead.org,
+       David Woodhouse <dwmw2@infradead.org>
+In-Reply-To: <1113830212.5286.33.camel@localhost.localdomain>
+References: <1113814031.31595.3.camel@sauron.oktetlabs.ru>
+	 <20050418085121.GA19091@infradead.org>
+	 <1113814730.31595.6.camel@sauron.oktetlabs.ru>
+	 <20050418105301.GA21878@infradead.org>
+	 <1113824781.2125.12.camel@sauron.oktetlabs.ru>
+	 <20050418115220.GA22750@infradead.org>
+	 <1113827466.2125.47.camel@sauron.oktetlabs.ru>
+	 <20050418124656.GA23387@infradead.org>
+	 <1113830212.5286.33.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: MTD
+Date: Mon, 18 Apr 2005 18:07:32 +0400
+Message-Id: <1113833252.2125.52.camel@sauron.oktetlabs.ru>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Apr 2005, Takashi Ikebe wrote:
+On Mon, 2005-04-18 at 23:16 +1000, David Woodhouse wrote:
+> On Mon, 2005-04-18 at 13:46 +0100, Christoph Hellwig wrote:
+> > Why doesn't __wait_on_freeing_inode get called? prune_icache sets
+> > I_FREEING before it's dropping the inode lock.
+> 
+> Because prune_icache() _also_ removes the inode from the hash before
+> dropping the inode lock. It shouldn't -- the inode should only get
+> removed from the hash when it's actually been cleared. That's the real
+> bug -- and I agree that the fix isn't to expose internal locks to let
+> JFFS2 work around it.
+> 
+> prune_icache() (and probably invalidate_inodes() too) needs to leave the
+> inode on the hash list while it's being freed.
+> 
 
-> I believe process status copy consume more time, may be below sequences are
-> needed;
-> - Stop the service on ACT-process.
-> - Copy on memory/on transaction status to shared memory.
+Please, then consider the following patch (I didn't test it well,
+though).
 
-No need for this, the process could ALWAYS store its
-status in a shared memory status.  This is just as
-fast as private memory, only more flexible.
 
-> - Takeover shared memory key to SBY process and release the shared memory
-> - SBY process access to shared memory.
+Signed-off-by: Artem B. Bityuckiy <dedekind@infradead.org>
 
-Which means the SBY process can attach to the shared
-memory region while the ACT process is running.  It
-can then communicate with the ACT process through a
-socket ...
-
-> - SBY process checks the memory and reset broken sessions.
-> - SBY process restart the service.
-
-... and the SBY process can take over immediately.
-The state machine running the SBY software can
-continue using the same data structures the ACT
-process was using beforehand, since they're in a 
-shared memory region.
-
-> Some part may be parallelize, but seems the more data make service 
-> disruption time longer...(It seems exceeds 100 milliseconds depends on 
-> data size..) and process will be more complicated....makes more bugs...
-
-The data size should not be an issue, since the primary
-copy of the state is in the shared memory area.
-
-The state machine in the SBY process can directly run
-using those data structures, so no copying is needed.
-
-The only overhead will be inter-process communication,
-having the first process close file descriptors, yielding
-the CPU to the second process, which then opens up the
-devices again.  We both know how long a context switch
-and an open() syscall take - negligable.
-
-The old version of the program can shut itself down
-after it knows the new version has taken over - in the
-background, without disrupting the now active process.
+diff -auNrp linux-2.6.11.5/fs/inode.c linux-2.6.11.5_fixed/fs/inode.c
+--- linux-2.6.11.5/fs/inode.c   2005-03-19 09:35:04.000000000 +0300
++++ linux-2.6.11.5_fixed/fs/inode.c     2005-04-18 17:54:16.000000000
++0400
+@@ -284,6 +284,12 @@ static void dispose_list(struct list_hea
+                if (inode->i_data.nrpages)
+                        truncate_inode_pages(&inode->i_data, 0);
+                clear_inode(inode);
++
++               spin_lock(&inode_lock);
++               hlist_del_init(&inode->i_hash);
++               list_del_init(&inode->i_sb_list);
++               spin_unlock(&inode_lock);
++
+                destroy_inode(inode);
+                nr_disposed++;
+        }
+@@ -319,8 +325,6 @@ static int invalidate_list(struct list_h
+                inode = list_entry(tmp, struct inode, i_sb_list);
+                invalidate_inode_buffers(inode);
+                if (!atomic_read(&inode->i_count)) {
+-                       hlist_del_init(&inode->i_hash);
+-                       list_del(&inode->i_sb_list);
+                        list_move(&inode->i_list, dispose);
+                        inode->i_state |= I_FREEING;
+                        count++;
+@@ -455,8 +459,6 @@ static void prune_icache(int nr_to_scan)
+                        if (!can_unuse(inode))
+                                continue;
+                }
+-               hlist_del_init(&inode->i_hash);
+-               list_del_init(&inode->i_sb_list);
+                list_move(&inode->i_list, &freeable);
+                inode->i_state |= I_FREEING;
+                nr_pruned++;
 
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+Best Regards,
+Artem B. Bityuckiy,
+St.-Petersburg, Russia.
+

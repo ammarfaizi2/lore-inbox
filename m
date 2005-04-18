@@ -1,58 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262056AbVDRM1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262048AbVDRMbR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262056AbVDRM1y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 08:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbVDRM1y
+	id S262048AbVDRMbR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 08:31:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262057AbVDRMbQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 08:27:54 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:32773 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262056AbVDRM1t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 08:27:49 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Ehud Shabtai <eshabtai.lkml@gmail.com>, Jesper Juhl <juhl-lkml@dif.dk>
-Subject: Re: Need some help to debug a freeze on 2.6.11
-Date: Mon, 18 Apr 2005 15:27:02 +0300
-User-Agent: KMail/1.5.4
-Cc: Alexander Nyberg <alexn@dsv.su.se>, linux-kernel@vger.kernel.org
-References: <68b6a2bc050418000619a552de@mail.gmail.com> <Pine.LNX.4.62.0504181220090.2522@dragon.hyggekrogen.localhost> <68b6a2bc05041803561621ddd6@mail.gmail.com>
-In-Reply-To: <68b6a2bc05041803561621ddd6@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+	Mon, 18 Apr 2005 08:31:16 -0400
+Received: from [213.170.72.194] ([213.170.72.194]:35487 "EHLO
+	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S262048AbVDRMbI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 08:31:08 -0400
+Subject: Re: [PATC] small VFS change for JFFS2
+From: "Artem B. Bityuckiy" <dedekind@infradead.org>
+Reply-To: dedekind@infradead.org
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
+       dwmw2@lists.infradead.org
+In-Reply-To: <20050418115220.GA22750@infradead.org>
+References: <1113814031.31595.3.camel@sauron.oktetlabs.ru>
+	 <20050418085121.GA19091@infradead.org>
+	 <1113814730.31595.6.camel@sauron.oktetlabs.ru>
+	 <20050418105301.GA21878@infradead.org>
+	 <1113824781.2125.12.camel@sauron.oktetlabs.ru>
+	 <20050418115220.GA22750@infradead.org>
+Content-Type: text/plain
+Organization: MTD
+Date: Mon, 18 Apr 2005 16:31:06 +0400
+Message-Id: <1113827466.2125.47.camel@sauron.oktetlabs.ru>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200504181527.02112.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 18 April 2005 13:56, Ehud Shabtai wrote:
-> On 4/18/05, Jesper Juhl <juhl-lkml@dif.dk> wrote:
-> > On Mon, 18 Apr 2005, Jesper Juhl wrote:
-> > 
-> > > On Mon, 18 Apr 2005, Alexander Nyberg wrote:
-> > >
-> > > > Sounds like a job for Documentation/networking/netconsole.txt
-> > > >
-> > > or Documentation/serial-console.txt
-> > >
-> > Console on line printer would also be an option.
-> 
-> I don't have any printer port cables, so I guess I prefer to try netconsole.
-> 
-> I'm using wireless lan (Intel's ipw2100), would netconsole work on
-> wlan interface?
+On Mon, 2005-04-18 at 12:52 +0100, Christoph Hellwig wrote:
+> Oh, I thought the problem is that JFFS2 thought an inode was freed when
+> it still was in use.  So you're problem is actually that it's no in the
+> hash anymore but you don't know yet?
+Yes, exactly. VFS developers may always say "it is your problem -
+redesign JFFS2", but I think it is too late to redesign it.
 
-That depends on how far ipw2100 is into 'softmac' land.
-That is, if it uses host CPU for some of it's functions,
-it may be inoperative.
+> Anyway, please explain in detail why you need all this information, what
+> errors you see, etc so we can find a way to fix it properly.
+Well, I suspect I explained why I need the mutex. If people will find
+the explanation vague, I'll make another attempt.
 
-Wired net have more chances of working.
+The error I see is:
 
-> As an alternative, can I configure netconsole for my ethernet port and
-> only really connect it, after I get the freeze?
+Eep. Trying to read_inode #15601 when it's already in state 2!
 
-UDP packets will be long gone at the time you plug cable in.
---
-vda
+I debugged this a lot before I've realized the reason. And I believe I
+know JFFS2 very well to claim that redesigning it is very painful. 
+
+The erroneous  code flow is like this:
+
+kswapd: removes the inode 15601 from the inode hash (inode.c:478).
+kswapd: is preempted at inode.c:485
+JFFS2 writer: awakes, runs GC to reclaim some space.
+JFFS2 writer: picks a JFFS2 node belonging to the inode 15601
+JFFS2 writer: looks at the inode state, realizes it is in state PRESENT,
+i.e. it is in the inode cache (which is wrong).
+JFFS2 writer: runs iget() to acquire a pointer to the struct inode of
+the inode 15601.
+JFFS2 writer: iget() calls ->read_inode(), i.e., jffs2_read_inode().
+JFFS2 writed: JFFS2 is surprised why read_inode() is called for the
+already built inode 15601.
+
+Or may be VFS is buggy, I'm not sure. May be it shouldn't remove inode
+from the inode hash in that point (inode.c:487). It sets the I_FREENG
+state to the inode being freed, and iget() may wait in find_inode_fast()
+while the inode is actually destroyed (inode.c:562). The inode may be
+removed from the inode hash later, in dispose_list() (inode.c:292).
+
+Or may be this isn't a bug but a feature to make the inode_lock less
+contended. Not sure, I'm not a VFS guru.
+
+In that above described case the code flow would be:
+
+kswapd: remove inode 15601 from the inode hash (inode.c:478).
+kswapd: preempted at inode.s:485
+JFFS2 writer: awakes, runs GC to reclaim some space.
+JFFS2 writer: picks a JFFS2 node belonging to inode 15601
+JFFS2 writer: looks at the inode state, realizes it is in state PRESENT,
+i.e. it is in the inode cache (which is wrong).
+JFFS2 writer: runs iget() to get the pointer to the struct inode of the
+inode 15601.
+JFFS2 writer goes sleep in find_inode_fast(), waiting for freeing
+completion.
+kswapd: calls dispose_list(), calls clear_inode() for 15601.
+JFFS2 writed: read_inode() is called and all is OK since clear_inode()
+was called before.
+
+The latter scenario looks very logical for me.
+
+Cheers, Artem.
+
+-- 
+Best Regards,
+Artem B. Bityuckiy,
+St.-Petersburg, Russia.
 

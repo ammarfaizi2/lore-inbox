@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262038AbVDRLWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262039AbVDRLas@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262038AbVDRLWX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 07:22:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262039AbVDRLWX
+	id S262039AbVDRLas (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 07:30:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbVDRLas
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 07:22:23 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:23506 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262038AbVDRLWR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 07:22:17 -0400
-Date: Mon, 18 Apr 2005 12:22:13 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: akpm@osdl.org
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, bernard@blackham.com.au,
-       cmm@us.ibm.com
-Subject: Re: [patch 130/198] ext2 corruption - regression between 2.6.9 and 2.6.10
-Message-ID: <20050418112213.GA22356@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
-	torvalds@osdl.org, linux-kernel@vger.kernel.org,
-	bernard@blackham.com.au, cmm@us.ibm.com
-References: <200504121032.j3CAWhE5005660@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200504121032.j3CAWhE5005660@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 18 Apr 2005 07:30:48 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:43220 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262039AbVDRLam (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 07:30:42 -0400
+Date: Mon, 18 Apr 2005 07:30:32 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Chris Wedgwood <cw@f00f.org>
+cc: Paul Jackson <pj@sgi.com>, ikebe.takashi@lab.ntt.co.jp,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH x86_64] Live Patching Function on 2.6.11.7
+In-Reply-To: <20050418092505.GA2206@taniwha.stupidest.org>
+Message-ID: <Pine.LNX.4.61.0504180726320.3232@chimarrao.boston.redhat.com>
+References: <4263275A.2020405@lab.ntt.co.jp> <20050418040718.GA31163@taniwha.stupidest.org>
+ <4263356D.9080007@lab.ntt.co.jp> <20050418061221.GA32315@taniwha.stupidest.org>
+ <42636285.9060405@lab.ntt.co.jp> <20050418075635.GB644@taniwha.stupidest.org>
+ <20050418021609.07f6ec16.pj@sgi.com> <20050418092505.GA2206@taniwha.stupidest.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Mingming Cao <cmm@us.ibm.com> said:
-> The ext2 handle discard preallocation differently at that time, it discard the
-> preallocation at each iput(), not in input_final(), so we think it's
-> unnecessary to thrash it so frequently, and the right thing to do, as we did
-> for ext3 reservation, discard preallocation on last iput().  So we moved the
-> ext2_discard_preallocation from ext2_put_inode(0 to ext2_clear_inode.
+On Mon, 18 Apr 2005, Chris Wedgwood wrote:
+> On Mon, Apr 18, 2005 at 02:16:09AM -0700, Paul Jackson wrote:
 > 
-> Since ext2 preallocation is doing pre-allocation on disk, so it is possible
-> that at the unmount time, someone is still hold the reference of the inode, so
-> the preallocation for a file is not discard yet, so we still mark those blocks
-> allocated on disk, while they are not actually in the inode's block map, so
-> fsck will catch/fix that error later.
+> > The call switching folks have been doing live patching at least
+> > since I worked on it, over 25 years ago.  This is not just
+> > marketing.
 > 
-> This is not a issue for ext3, as ext3 reservation(pre-allocation) is done in
-> memory.
+> That still doesn't explain *why* live patching is needed.
 
-Shouldn't we have a pass to discard on unmount instead?  ->put_inode is
-a really bad interface and all usages including this one are racy (not that
-it matters too much here, but I'd like to get rid of it eventually).
+I suspect it was needed in the past, on embedded computers so
+small they could only run one program at a time.
 
-As a band-aid to avoid the corruption it's certainly okay (and needed), but
-we should try to fix this for real.  Mingming, do you want to look into it
-or should I put it on my TODO list?
+I see no reason why changing programs on the fly couldn't be
+done nicer with SHM segments today - just start up the new
+program in parallel with the old one, have it attach to the
+SHM region and handshake with the old program to take over
+operations.
 
+At that point the old program can let go of file descriptors
+(eg. those to devices), yield the CPU and the new program can
+open those file descriptors.  The SHM area contains all of the
+state information needed, so the program can continue running
+like it always would.
+
+This may well be lower latency than live patching, and probably
+lower complexity/risk too...
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

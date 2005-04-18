@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262119AbVDRPoT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262113AbVDRPrb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262119AbVDRPoT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 11:44:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262044AbVDRPoS
+	id S262113AbVDRPrb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 11:47:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbVDRPra
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 11:44:18 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:12759 "EHLO
+	Mon, 18 Apr 2005 11:47:30 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:19671 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262023AbVDRPoE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 11:44:04 -0400
+	id S262113AbVDRPrN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 11:47:13 -0400
 Subject: Re: [RFC 1 of 9] patches to add diskdump functionality to block
 	layer
 From: Arjan van de Ven <arjan@infradead.org>
@@ -18,8 +18,8 @@ Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
 In-Reply-To: <20050418153644.GA25409@beardog.cca.cpqcorp.net>
 References: <20050418153644.GA25409@beardog.cca.cpqcorp.net>
 Content-Type: text/plain
-Date: Mon, 18 Apr 2005 17:43:55 +0200
-Message-Id: <1113839036.6274.78.camel@laptopd505.fenrus.org>
+Date: Mon, 18 Apr 2005 17:47:07 +0200
+Message-Id: <1113839227.6274.80.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
@@ -40,14 +40,19 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Mon, 2005-04-18 at 10:36 -0500, mike.miller@hp.com wrote:
-> Please review the following patches and provide any comments or feedback.
-> Patch 1 of 9
+> +
+> +/*
+> + * Extended block operations for dump for preserving binary compatibility.
+> + */
+> +struct block_dump_ops {
+> +	int (*sanity_check)(void *device);
+> +	int (*rw_block)(void *device, int rw, unsigned long dump_block_nr, void *buf, int len, unsigned long start_sect, unsigned long nr_sects);
+> +	int (*quiesce)(void *device);
+> +	int (*shutdown)(void *device);
+> +};
 
-what diskdump do you use?
-Why do we even look at disk dump when kexec based dump can dump to disk
-too and is otherwise more flexible and superior?
-
-Maybe it's worth discussion that before doing major patches for.. well
-potentially no good.
+this looks wrong. In linux we don't care about module ABI, and just go
+for the clean solution instead! (eg in this case, just put the methods
+in the block dev ops)
 
 

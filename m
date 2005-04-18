@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262130AbVDRQrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262129AbVDRQrM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262130AbVDRQrP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 12:47:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262125AbVDRQrP
+	id S262129AbVDRQrM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 12:47:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262125AbVDRQrL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 12:47:15 -0400
-Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:43163 "EHLO
-	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
-	id S262130AbVDRQq7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 12:46:59 -0400
-Message-ID: <4263E445.8000605@ammasso.com>
-Date: Mon, 18 Apr 2005 11:45:57 -0500
-From: Timur Tabi <timur.tabi@ammasso.com>
-Organization: Ammasso
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en, en-gb
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Andrew Morton <akpm@osdl.org>, Roland Dreier <roland@topspin.com>,
-       hozer@hozed.org, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
-References: <200544159.Ahk9l0puXy39U6u6@topspin.com> <20050411142213.GC26127@kalmia.hozed.org> <52mzs51g5g.fsf@topspin.com> <20050411163342.GE26127@kalmia.hozed.org> <5264yt1cbu.fsf@topspin.com> <20050411180107.GF26127@kalmia.hozed.org> <52oeclyyw3.fsf@topspin.com> <20050411171347.7e05859f.akpm@osdl.org> <4263DEC5.5080909@ammasso.com> <20050418164316.GA27697@infradead.org>
-In-Reply-To: <20050418164316.GA27697@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 18 Apr 2005 12:47:11 -0400
+Received: from post.hexten.net ([65.254.52.58]:2236 "EHLO post.hexten.net")
+	by vger.kernel.org with ESMTP id S262129AbVDRQpE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 12:45:04 -0400
+In-Reply-To: <37b978ceccdb5fbea39a925ea9eaa2cb@hexten.net>
+References: <37b978ceccdb5fbea39a925ea9eaa2cb@hexten.net>
+Mime-Version: 1.0 (Apple Message framework v622)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <4c7663456024e2e92f003a136a74b39b@hexten.net>
 Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+From: Andy Armstrong <andy@hexten.net>
+Subject: [PATCH 2.6.11.7 2/2] USB HID: Patch for Cherry CyMotion Linux keyboard
+Date: Mon, 18 Apr 2005 17:45:00 +0100
+To: Andy Armstrong <andy@hexten.net>
+X-Mailer: Apple Mail (2.622)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Mon, Apr 18, 2005 at 11:22:29AM -0500, Timur Tabi wrote:
-> 
->>That's not what we're seeing.  We have hardware that does DMA over the 
->>network (much like the Infiniband stuff), and we have a testcase that fails 
->>if get_user_pages() is used, but not if mlock() is used.
-> 
-> 
-> If you don't share your testcase it's unlikely to be fixed.
+And here are the changes to support the extra keys...
 
-As I said, the testcase only works with our hardware, and it's also very large.  It's one 
-small test that's part of a huge test suite.  It takes a couple hours just to install the 
-damn thing.
-
-We want to produce a simpler test case that demonstrates the problem in an 
-easy-to-understand manner, but we don't have time to do that now.
+diff -ur linux-2.6.11.7.orig/drivers/usb/input/hid-input.c 
+linux/drivers/usb/input/hid-input.c
+--- linux-2.6.11.7.orig/drivers/usb/input/hid-input.c	2005-04-07 
+19:57:34.000000000 +0100
++++ linux/drivers/usb/input/hid-input.c	2005-04-18 13:36:16.000000000 
++0100
+@@ -270,6 +270,12 @@
+  				case 0x227: map_key_clear(KEY_REFRESH);		break;
+  				case 0x22a: map_key_clear(KEY_BOOKMARKS);	break;
+  				case 0x238: map_rel(REL_HWHEEL);		break;
++                                case 0x233: 
+map_key_clear(KEY_SCROLLUP);        break;
++                                case 0x234: 
+map_key_clear(KEY_SCROLLDOWN);      break;
++                                case 0x301: map_key_clear(KEY_PROG1);  
+          break;
++                                case 0x302: map_key_clear(KEY_PROG2);  
+          break;
++                                case 0x303: map_key_clear(KEY_PROG3);  
+          break;
++                                case 0x279: map_key_clear(KEY_AGAIN);  
+          break;
+  				default:    goto unknown;
+  			}
+  			break;
 
 -- 
-Timur Tabi
-Staff Software Engineer
-timur.tabi@ammasso.com
+Andy Armstrong, hexten.net
+

@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262095AbVDRPGU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262098AbVDRPJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262095AbVDRPGU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 11:06:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262096AbVDRPGU
+	id S262098AbVDRPJg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 11:09:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262096AbVDRPJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 11:06:20 -0400
-Received: from zproxy.gmail.com ([64.233.162.205]:6528 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262095AbVDRPGM convert rfc822-to-8bit
+	Mon, 18 Apr 2005 11:09:36 -0400
+Received: from [213.170.72.194] ([213.170.72.194]:51106 "EHLO
+	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S262099AbVDRPJb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 11:06:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Bsbv5zeody9XKMxyTuQywV4C/3HOVL+Rxv/MjJQ67IWtmH58faHWccoBR6AwGg5gmGoQhTqV0ItmT/SRah4Lvkgs4/e4ylpyghVm6yGtNmzb9DpkW7+aHKUk7AxPdl4AfgELSx9yvarKdq6NGrM7Dlo+FFPkWAaaf3tU5v+RSNQ=
-Message-ID: <6533c1c9050418080639e41fb@mail.gmail.com>
-Date: Mon, 18 Apr 2005 11:06:11 -0400
-From: Igor Shmukler <igor.shmukler@gmail.com>
-Reply-To: Igor Shmukler <igor.shmukler@gmail.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: intercepting syscalls
-Cc: Rik van Riel <riel@redhat.com>, Daniel Souza <thehazard@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1113836378.6274.69.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <6533c1c905041511041b846967@mail.gmail.com>
-	 <1113588694.6694.75.camel@laptopd505.fenrus.org>
-	 <6533c1c905041512411ec2a8db@mail.gmail.com>
-	 <e1e1d5f40504151251617def40@mail.gmail.com>
-	 <6533c1c905041512594bb7abb4@mail.gmail.com>
-	 <Pine.LNX.4.61.0504180752220.3232@chimarrao.boston.redhat.com>
-	 <6533c1c905041807487a872025@mail.gmail.com>
-	 <1113836378.6274.69.camel@laptopd505.fenrus.org>
+	Mon, 18 Apr 2005 11:09:31 -0400
+Message-ID: <4263CDA9.7070207@yandex.ru>
+Date: Mon, 18 Apr 2005 19:09:29 +0400
+From: "Artem B. Bityuckiy" <dedekind@yandex.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en, ru, en-us
+MIME-Version: 1.0
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] CryptoAPI & Compression
+References: <20050403084415.GA20326@gondor.apana.org.au> <424FB06B.3060607@yandex.ru> <20050403093044.GA20608@gondor.apana.org.au> <424FBB56.5090503@yandex.ru> <20050403100043.GA20768@gondor.apana.org.au> <1112522762.3899.182.camel@localhost.localdomain> <20050403101752.GA20866@gondor.apana.org.au> <1112527158.3899.213.camel@localhost.localdomain> <20050403114045.GA21255@gondor.apana.org.au> <4250175D.5070704@yandex.ru> <20050403213207.GA24462@gondor.apana.org.au>
+In-Reply-To: <20050403213207.GA24462@gondor.apana.org.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Intercepting system call table is an elegant way to solve many
-> > problems.
-> 
-> I think I want to take offence to this. It's the worst possible way to
-> solve many problems, especially since almost everyone who did this to
-> get anything done until today got it wrong.
-> 
-> It's about locking. Portability. Stability
-> 
-> but also about doing things at the right layer. The syscall layer is
-> almost NEVER the right layer.
-> 
-> Can you explain exactly what you are trying to do (it's not a secret I
-> assume, kernel modules are GPL and open source after all, esp such
-> invasive ones) and I'll try to tell you why it's wrong to do it at the
-> syscall intercept layer... deal ?
+Hello,
 
-now, when I need someone to tell I do something wrong, I know where to go :)
+Well, with Mark Adler's help I've realized that extending zlib isn't 
+than simple task.
+
+Herbert Xu wrote:
+> What I was suggesting is to invert the calculation that deflateBound
+> is doing so that it gives a lower bound on the input buffer size
+> that does not exceed a given output buffer size.
+Actually, for JFFS2 we need to leave the uncompressable data 
+uncompressed. So if the pcompress interface have only been for JFFS2, 
+I'd just return an error rather then expand data. Is such behavior 
+acceptable for common Linux's parts pike CryptoAPI ?
+
+And more, frankly, I don't like the "independent" partial compression 
+approach in JFFS2 and in JFFS3 (if it will ever happen) I'd make these 
+pieces dependent. For this purpose we'd need some deflate-like CryptoAPI 
+interface. I'm not going to implement it at the moment, I'm just curious 
+- what do you guys think about a generalized deflate-like CryptoAPI 
+compression interface?
+
+-- 
+Best Regards,
+Artem B. Bityuckiy,
+St.-Petersburg, Russia.

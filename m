@@ -1,57 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVDRUiV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbVDRUkn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbVDRUiV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 16:38:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261163AbVDRUiV
+	id S261164AbVDRUkn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 16:40:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbVDRUkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 16:38:21 -0400
-Received: from manson.clss.net ([65.211.158.2]:51403 "HELO manson.clss.net")
-	by vger.kernel.org with SMTP id S261161AbVDRUiT (ORCPT
+	Mon, 18 Apr 2005 16:40:43 -0400
+Received: from zombie.ncsc.mil ([144.51.88.131]:36992 "EHLO jazzdrum.ncsc.mil")
+	by vger.kernel.org with ESMTP id S261164AbVDRUkf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 16:38:19 -0400
-Message-ID: <20050418203818.22843.qmail@manson.clss.net>
-From: "Alan Curry" <pacman-kernel@manson.clss.net>
-Subject: Re: [PATCH 3/7] procfs privacy: misc. entries
-To: davej@redhat.com (Dave Jones)
-Date: Mon, 18 Apr 2005 15:38:18 -0500 (EST)
-Cc: lorenzo@gnu.org (Lorenzo =?iso-8859-1?Q?Hern=E1ndez_Garc=EDa-Hierro?=),
-       linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
-In-Reply-To: <20050418190552.GA26322@redhat.com> from "Dave Jones" at Apr 18, 2005 03:05:52 PM
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Mon, 18 Apr 2005 16:40:35 -0400
+Subject: Re: [PATCH 0/7] procfs privacy
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
+	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+Cc: Rik van Riel <riel@redhat.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1113855485.17341.130.camel@localhost.localdomain>
+References: <1113849977.17341.68.camel@localhost.localdomain>
+	 <Pine.LNX.4.61.0504181526280.11251@chimarrao.boston.redhat.com>
+	 <1113853561.17341.111.camel@localhost.localdomain>
+	 <Pine.LNX.4.61.0504181600480.11251@chimarrao.boston.redhat.com>
+	 <1113855485.17341.130.camel@localhost.localdomain>
+Content-Type: text/plain; charset=utf-8
+Organization: National Security Agency
+Date: Mon, 18 Apr 2005 16:31:35 -0400
+Message-Id: <1113856295.30865.10.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-14) 
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones writes the following:
->
->On Mon, Apr 18, 2005 at 08:46:52PM +0200, Lorenzo Hernández García-Hierro wrote:
-> > This patch changes the permissions of the following procfs entries to
-> > restrict non-root users from accessing them:
+On Mon, 2005-04-18 at 22:18 +0200, Lorenzo HernÃ¡ndez GarcÃ­a-Hierro
+wrote:
+> For this purpose I (re)submitted a patch originally made by Serge E.
+> Hallyn that adds a hook in order to catch task lookups, thus, providing
+> an easy way to handle and determine when a task can lookup'ed.
+> 
+> It's at:
+> http://pearls.tuxedo-es.org/patches/lsm/lsm-task_lookup-hook.patch
+> 
+> vSecurity currently provides support for it (optional).
+> 
+> SELinux policy can handle in a much more fine-grained these
+> restrictions, just that it's still something that not all people can
+> deploy without some special effort and "tweak up" (if their system
+> doesn't provide support for it, of course, currently Red Hat has done a
+> great job in that terms).
 
-[snip]
-> >  - /proc/uptime
-       ^^^^^^^^^^^^ ?!
-[snip]
+To be precise, SELinux assigns security labels to /proc inodes
+(/proc/pid inodes are labeled based on the associated task label, and
+other /proc inodes are labeled based on the policy configuration), and
+controls access based on the policy.  It can e.g. prevent a process in
+one security domain from accessing anything under /proc/<pid> for a
+process in a different domain, but not from seeing the top-level entry
+in /proc itself (as it doesn't do any kind of directory filtering).
 
-> >  - /proc/cpuinfo
->
->This is utterly absurd. You can find out anything thats in /proc/cpuinfo
->by calling cpuid instructions yourself.
-
-Also it's the backend of glibc's get_nprocs(), also known as
-sysconf(_SC_NPROCESSORS_ONLN), a documented interface whose users are
-probably not expecting it to suddenly become restricted to root.
-
->Please enlighten me as to what security gains we achieve
->by not allowing users to see this ?
->
->Restricting lots of the other files are equally absurd.
->
->I'd also be very surprised if various random bits of userspace
->broke subtley due to this nonsense.
-
-Like uptime(1), a command which has existed basically unchanged since 3.0BSD
-(note to observers: if you think that's a funny way of writing "FreeBSD 3.0",
-you're off by at least a decade and a half).
+-- 
+Stephen Smalley <sds@tycho.nsa.gov>
+National Security Agency
 

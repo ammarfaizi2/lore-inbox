@@ -1,121 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbVDRQlx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262087AbVDRQn3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262085AbVDRQlx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 12:41:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbVDRQlx
+	id S262087AbVDRQn3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 12:43:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262125AbVDRQn3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 12:41:53 -0400
-Received: from post.hexten.net ([65.254.52.58]:61883 "EHLO post.hexten.net")
-	by vger.kernel.org with ESMTP id S262085AbVDRQlr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 12:41:47 -0400
-Mime-Version: 1.0 (Apple Message framework v622)
-Content-Transfer-Encoding: 7bit
-Message-Id: <37b978ceccdb5fbea39a925ea9eaa2cb@hexten.net>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-To: linux-kernel@vger.kernel.org
-From: Andy Armstrong <andy@hexten.net>
-Subject: [PATCH 2.6.11.7 1/2] USB HID: Patch for Cherry CyMotion Linux keyboard
-Date: Mon, 18 Apr 2005 17:41:46 +0100
-X-Mailer: Apple Mail (2.622)
+	Mon, 18 Apr 2005 12:43:29 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:28888 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262087AbVDRQnV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 12:43:21 -0400
+Date: Mon, 18 Apr 2005 17:43:16 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Timur Tabi <timur.tabi@ammasso.com>
+Cc: Andrew Morton <akpm@osdl.org>, Roland Dreier <roland@topspin.com>,
+       hozer@hozed.org, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+Message-ID: <20050418164316.GA27697@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Timur Tabi <timur.tabi@ammasso.com>, Andrew Morton <akpm@osdl.org>,
+	Roland Dreier <roland@topspin.com>, hozer@hozed.org,
+	linux-kernel@vger.kernel.org, openib-general@openib.org
+References: <200544159.Ahk9l0puXy39U6u6@topspin.com> <20050411142213.GC26127@kalmia.hozed.org> <52mzs51g5g.fsf@topspin.com> <20050411163342.GE26127@kalmia.hozed.org> <5264yt1cbu.fsf@topspin.com> <20050411180107.GF26127@kalmia.hozed.org> <52oeclyyw3.fsf@topspin.com> <20050411171347.7e05859f.akpm@osdl.org> <4263DEC5.5080909@ammasso.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4263DEC5.5080909@ammasso.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For those who haven't seen it the Cherry CyMotion Linux keyboard is a 
-decent quality keyboard with the Windows specific keys replaced with 
-Linux keys. It's got a nice little picture of Tux on it too. The 
-supplied patches aren't suitable for current kernels so I've bashed 
-their patches into a suitable form.
+On Mon, Apr 18, 2005 at 11:22:29AM -0500, Timur Tabi wrote:
+> That's not what we're seeing.  We have hardware that does DMA over the 
+> network (much like the Infiniband stuff), and we have a testcase that fails 
+> if get_user_pages() is used, but not if mlock() is used.
 
-The special case in hid_get_class_descriptor() (which necessitated 
-moving that function after the #defines for vendor and device ID) is 
-lifted directly from the code Cherry supply. I'm not certain that's the 
-best place for it but I don't know the USB HID architecture well enough 
-to know what else to do with it. Suggestions welcome.
-
-diff -ur linux-2.6.11.7.orig/drivers/usb/input/hid-core.c 
-linux/drivers/usb/input/hid-core.c
---- linux-2.6.11.7.orig/drivers/usb/input/hid-core.c	2005-04-07 
-19:57:43.000000000 +0100
-+++ linux/drivers/usb/input/hid-core.c	2005-04-18 13:34:59.000000000 
-+0100
-@@ -1291,22 +1291,6 @@
-  	return 0;
-  }
-
--static int hid_get_class_descriptor(struct usb_device *dev, int ifnum,
--		unsigned char type, void *buf, int size)
--{
--	int result, retries = 4;
--
--	memset(buf,0,size);	// Make sure we parse really received data
--
--	do {
--		result = usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
--				USB_REQ_GET_DESCRIPTOR, USB_RECIP_INTERFACE | USB_DIR_IN,
--				(type << 8), ifnum, buf, size, HZ * USB_CTRL_GET_TIMEOUT);
--		retries--;
--	} while (result < size && retries);
--	return result;
--}
--
-  int hid_open(struct hid_device *hid)
-  {
-  	if (hid->open++)
-@@ -1494,6 +1478,9 @@
-  #define USB_VENDOR_ID_DELORME		0x1163
-  #define USB_DEVICE_ID_DELORME_EARTHMATE 0x0100
-
-+#define USB_VENDOR_ID_CHERRY            0x046a
-+#define USB_DEVICE_ID_CHERRY_CYMOTION   0x0023
-+
-  static struct hid_blacklist {
-  	__u16 idVendor;
-  	__u16 idProduct;
-@@ -1589,6 +1576,37 @@
-  	{ 0, 0 }
-  };
-
-+static int hid_get_class_descriptor(struct usb_device *dev, int ifnum,
-+		unsigned char type, void *buf, int size)
-+{
-+	int result, retries = 4;
-+        char *p = (char*)buf;
-+
-+	memset(buf,0,size);	// Make sure we parse really received data
-+
-+	do {
-+		result = usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
-+				USB_REQ_GET_DESCRIPTOR, USB_RECIP_INTERFACE | USB_DIR_IN,
-+				(type << 8), ifnum, buf, size, HZ * USB_CTRL_GET_TIMEOUT);
-+		retries--;
-+	} while (result < size && retries);
-+
-+        // wn_hack: patch wrong descriptor for this device
-+        // hardware sends wrong descriptor
-+        // AA, 20050418: should this test be skipped altogether if 
-result < size?
-+        if (dev->descriptor.idVendor == USB_VENDOR_ID_CHERRY
-+                && dev->descriptor.idProduct == 
-USB_DEVICE_ID_CHERRY_CYMOTION
-+                && result > 12
-+                && p[11] == 0x3c
-+                && p[12] == 0x02) {
-+            printk(KERN_DEBUG __FILE__ " : modifying descriptor for 
-Cherry CyMotion keyboard \n");
-+            p[11] = p[16] = 0xff;
-+            p[12] = p[17] = 0x03;
-+        }
-+
-+	return result;
-+}
-+
-  static int hid_alloc_buffers(struct usb_device *dev, struct hid_device 
-*hid)
-  {
-  	if (!(hid->inbuf = usb_buffer_alloc(dev, HID_BUFFER_SIZE, 
-SLAB_ATOMIC, &hid->inbuf_dma)))
-
--- 
-Andy Armstrong, hexten.net
+If you don't share your testcase it's unlikely to be fixed.
 

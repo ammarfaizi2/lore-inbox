@@ -1,94 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262089AbVDRO7J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262091AbVDRO7u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262089AbVDRO7J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 10:59:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262091AbVDRO7J
+	id S262091AbVDRO7u (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 10:59:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbVDRO7u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 10:59:09 -0400
-Received: from rproxy.gmail.com ([64.233.170.198]:33008 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262089AbVDRO66 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 10:58:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=DuEkgdhxThUD6yUyFQEqJ23kmgcl6s8B7EvxbufP6pl/Ci3i9wkJiX1NL6MJZOcHPHgbQn16dM+0c0Mo4Bp7YrQ9/6THgSEchhSYDqQ7TktsCSjUuq9PHsdfcb1HhDpMnoUUia68BrnU2NrxfvZQs+BcgyV84Cvoluw79G3YJ0I=
-Message-ID: <4263CB26.2070609@gmail.com>
-Date: Mon, 18 Apr 2005 23:58:46 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050402)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>, Jens Axboe <axboe@suse.de>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Regarding posted scsi midlyaer patchsets
-References: <20050417224101.GA2344@htj.dyndns.org> <1113833744.4998.13.camel@mulgrave>
-In-Reply-To: <1113833744.4998.13.camel@mulgrave>
-Content-Type: text/plain; charset=EUC-KR
+	Mon, 18 Apr 2005 10:59:50 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:2006 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262091AbVDRO7o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 10:59:44 -0400
+Subject: Re: intercepting syscalls
+From: Arjan van de Ven <arjan@infradead.org>
+To: Igor Shmukler <igor.shmukler@gmail.com>
+Cc: Rik van Riel <riel@redhat.com>, Daniel Souza <thehazard@gmail.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <6533c1c905041807487a872025@mail.gmail.com>
+References: <6533c1c905041511041b846967@mail.gmail.com>
+	 <1113588694.6694.75.camel@laptopd505.fenrus.org>
+	 <6533c1c905041512411ec2a8db@mail.gmail.com>
+	 <e1e1d5f40504151251617def40@mail.gmail.com>
+	 <6533c1c905041512594bb7abb4@mail.gmail.com>
+	 <Pine.LNX.4.61.0504180752220.3232@chimarrao.boston.redhat.com>
+	 <6533c1c905041807487a872025@mail.gmail.com>
+Content-Type: text/plain
+Date: Mon, 18 Apr 2005 16:59:37 +0200
+Message-Id: <1113836378.6274.69.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Hello, James.
- Hello, Jens.
 
-James Bottomley wrote:
-> On Mon, 2005-04-18 at 07:41 +0900, Tejun Heo wrote:
-> 
->> As it's been almost a week since I posted scsi midlayer patchsets and
->>haven't heard anything yet, I've been wondering what's going on.  Are
->>they under review or all dropped?  If they are dropped, can you please
->>tell me why they are dropped?
-> 
-> 
-> I have about four of them in the scsi-misc-2.6 tree, if you look.
-> 
-> Your request path rewrite I already gave you feedback that I didn't want
-> REQ_SOFTBARRIER in scsi ... it needs to be in the block submit API for
-> special requests.  Also, you have a patch for block in this code so I
-> can't apply it without an ack from Jens.  And all the rest of your
-> patches depend on this one.
+> Intercepting system call table is an elegant way to solve many
+> problems.
 
- This thread started as an private inquiry to James regarding the status
-of four patchsets I posted about a week ago.  I'm replying publicly as I
-think we can use some discussion.  The four patchsets are... (in the
-following order)
+I think I want to take offence to this. It's the worst possible way to
+solve many problems, especially since almost everyone who did this to
+get anything done until today got it wrong.
 
- * timer updates
- * REQ_SPECIAL/REQ_SOFTBARRIER usage change
- * scsi_request_fn reimpl
- * requeue path consolidation.
+It's about locking. Portability. Stability
 
- Accepted patches are
+but also about doing things at the right layer. The syscall layer is
+almost NEVER the right layer.
 
- * scsi_cmnd->internal_timeout kill
- * scsi_cmnd->serial_number_at_timeout
- * remove volatile
- * scsi_send_eh_cmnd() clean up
+Can you explain exactly what you are trying to do (it's not a secret I
+assume, kernel modules are GPL and open source after all, esp such
+invasive ones) and I'll try to tell you why it's wrong to do it at the
+syscall intercept layer... deal ?
 
- All four accepted patches are not included in any of above patchsets
-and the timer update patchset doesn't depend on
-REQ_SPECIAL/REQ_SOFTBARRIER usage change patchset, so please review the
-timer update patchset.
-
- And, James, regarding REQ_SOFTBARRIER, if the REQ_SOFTBARRIER thing can
-be removed from SCSI midlayer, do you agree to change REQ_SPECIAL to
-mean special requests?  If so, I have three proposals.
-
- * move REQ_SOFTBARRIER setting to right after the allocation of
-scsi_cmnd in scsi_prep_fn().  This will be the only place where
-REQ_SOFTBARRIER is used in SCSI midlayer, making it less pervasive.
- * Or, make another API which sets REQ_SOFTBARRIER on requeue.  maybe
-blk_requeue_ordered_request()?
- * Or, make blk_insert_request() not set REQ_SPECIAL on requeue.  IMHO,
-this is a bit too subtle.
-
- I like #1 or #2.  Jens, what do you think?  Do you agree to remove
-requeue feature from blk_insert_request()?
-
- Thanks a lot. :-)
-
--- 
-tejun
+Greetings,
+    Arjan van de Ven
 

@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262047AbVDRLwb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262045AbVDRLyi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262047AbVDRLwb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 07:52:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262045AbVDRLwb
+	id S262045AbVDRLyi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 07:54:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262044AbVDRLyi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 07:52:31 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:51666 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262047AbVDRLwY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 07:52:24 -0400
-Date: Mon, 18 Apr 2005 12:52:20 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "Artem B. Bityuckiy" <dedekind@infradead.org>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-mtd@lists.infradead.org, dwmw2@lists.infradead.org
-Subject: Re: [PATC] small VFS change for JFFS2
-Message-ID: <20050418115220.GA22750@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Artem B. Bityuckiy" <dedekind@infradead.org>,
-	linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
-	dwmw2@lists.infradead.org
-References: <1113814031.31595.3.camel@sauron.oktetlabs.ru> <20050418085121.GA19091@infradead.org> <1113814730.31595.6.camel@sauron.oktetlabs.ru> <20050418105301.GA21878@infradead.org> <1113824781.2125.12.camel@sauron.oktetlabs.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1113824781.2125.12.camel@sauron.oktetlabs.ru>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 18 Apr 2005 07:54:38 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:479 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262046AbVDRLy2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 07:54:28 -0400
+Date: Mon, 18 Apr 2005 07:54:06 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Igor Shmukler <igor.shmukler@gmail.com>
+cc: Daniel Souza <thehazard@gmail.com>, Arjan van de Ven <arjan@infradead.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: intercepting syscalls
+In-Reply-To: <6533c1c905041512594bb7abb4@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0504180752220.3232@chimarrao.boston.redhat.com>
+References: <6533c1c905041511041b846967@mail.gmail.com> 
+ <1113588694.6694.75.camel@laptopd505.fenrus.org>  <6533c1c905041512411ec2a8db@mail.gmail.com>
+  <e1e1d5f40504151251617def40@mail.gmail.com> <6533c1c905041512594bb7abb4@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 18, 2005 at 03:46:21PM +0400, Artem B. Bityuckiy wrote:
-> On Mon, 2005-04-18 at 11:53 +0100, Christoph Hellwig wrote: 
-> > The VFS already has a method for freeing an struct inode pointer, and that
-> > is ->destroy_inode.  You're probably better off updating your GC state from
-> > that place.
-> destroy_inode() does not help. JFFS2 already makes use of clear_inode()
-> which is in fact called even earlier (inode.c from 2.6.11.5, line 298):
+On Fri, 15 Apr 2005, Igor Shmukler wrote:
 
-Oh, I thought the problem is that JFFS2 thought an inode was freed when
-it still was in use.  So you're problem is actually that it's no in the
-hash anymore but you don't know yet?
+> Thank you very much. I will check this out.
+> A thanks to everyone else who contributed. I would still love to know
+> why this is a bad idea.
 
-Anyway, please explain in detail why you need all this information, what
-errors you see, etc so we can find a way to fix it properly.
+Because there is no safe way in which you could have multiple
+of these modules loaded simultaneously - say one security
+module and AFS.  There is an SMP race during the installing
+of the hooks, and the modules can still wreak havoc if they
+get unloaded in the wrong order...
+
+There just isn't a good way to hook into the syscall table.
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

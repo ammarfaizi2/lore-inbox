@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262067AbVDRNBd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262072AbVDRNIr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262067AbVDRNBd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 09:01:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbVDRNBd
+	id S262072AbVDRNIr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 09:08:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262075AbVDRNIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 09:01:33 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:59873 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S262067AbVDRM77 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 08:59:59 -0400
-Subject: Re: [2.6 patch] drivers/net/wan/: possible cleanups
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: netdev@oss.sgi.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050417234738.GY3625@stusta.de>
-References: <20050327143418.GE4285@stusta.de>
-	 <1111941516.14877.325.camel@localhost.localdomain>
-	 <20050414232028.GD20400@stusta.de>
-	 <1113587392.11155.33.camel@localhost.localdomain>
-	 <20050417234738.GY3625@stusta.de>
+	Mon, 18 Apr 2005 09:08:47 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:8660 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262072AbVDRNIp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 09:08:45 -0400
+Subject: Re: [PATC] small VFS change for JFFS2
+From: David Woodhouse <dwmw2@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: "Artem B. Bityuckiy" <dedekind@infradead.org>,
+       linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
+In-Reply-To: <20050418124656.GA23387@infradead.org>
+References: <1113814031.31595.3.camel@sauron.oktetlabs.ru>
+	 <20050418085121.GA19091@infradead.org>
+	 <1113814730.31595.6.camel@sauron.oktetlabs.ru>
+	 <20050418105301.GA21878@infradead.org>
+	 <1113824781.2125.12.camel@sauron.oktetlabs.ru>
+	 <20050418115220.GA22750@infradead.org>
+	 <1113827466.2125.47.camel@sauron.oktetlabs.ru>
+	 <20050418124656.GA23387@infradead.org>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1113828904.17058.21.camel@localhost.localdomain>
+Date: Mon, 18 Apr 2005 23:08:26 +1000
+Message-Id: <1113829708.5286.30.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 18 Apr 2005 13:55:06 +0100
+X-Mailer: Evolution 2.2.1.1 (2.2.1.1-2) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2005-04-18 at 00:47, Adrian Bunk wrote:
-> Are there any external drivers using these exports, and if there are, 
-> why aren't they in the kernel?
+On Mon, 2005-04-18 at 13:46 +0100, Christoph Hellwig wrote:
+> Any, this sounds like you'd want to use ilookup because you don't want
+> to read the inode in the cache anyway, right?
 
-Its a standard API
+We use ilookup() in some circumstances -- if the inode has zero nlink
+and hence we definitely don't want to pull it back again if it's gone.
 
-> If there aren't and someone will at some time in the future need them, 
-> re-adding the exports will be trivial.
+But sometimes we really do mean to use iget() to bring it into core. And
+it's in that case that I believe Artem has found the problem, because if
+I understand correctly he's still seeing two consecutive calls to
+read_inode() for the same inode, without a clear_inode() in between.
 
-Really, you will spotaneously magically make them appear in old kernels
-that end users have just like that ?
+prune_icache() is removing the inode from i_hash at line 457 of inode.c,
+then being preempted when it drops the inode_lock at line 464, which is
+_before_ it calls dispose_list() to actually get rid of the inode(s) in
+question. So when iget() is called, the VFS ends up calling read_inode()
+again instead of waiting for the original inode to finish going away.
 
-Your argument doesn't hold water. Its an API for drivers so that people
-can add 85x30 card drivers using DMA in this fashion. Its an API so they
-can add them to *EXISTING* kernels without users being forced to
-recompile/wait for the vendor to update their tree/upgrade to a new
-release.
-
-Alan
+-- 
+dwmw2
 

@@ -1,87 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262088AbVDROsM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262089AbVDRO7J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262088AbVDROsM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 10:48:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262089AbVDROsM
+	id S262089AbVDRO7J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 10:59:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262091AbVDRO7J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 10:48:12 -0400
-Received: from zproxy.gmail.com ([64.233.162.206]:48937 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262088AbVDROsF convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 10:48:05 -0400
+	Mon, 18 Apr 2005 10:59:09 -0400
+Received: from rproxy.gmail.com ([64.233.170.198]:33008 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262089AbVDRO66 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 10:58:58 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=m4s06fGk9YPefWMhR/8CdNL7tjrs42HLk3dof2gxh8qrdLI75TS6VuwZ073OSQ6L9T7/qLRL3T/r6B/1zMKWIwkFiF11JpCgtLNAuOZqOZHQ5VWWjxyjFs2coCLGy5z7az9Bmyiaf0EgRoUqyXL0uhnPuUGJRqbnBpuOYIzkR1o=
-Message-ID: <6533c1c905041807487a872025@mail.gmail.com>
-Date: Mon, 18 Apr 2005 10:48:03 -0400
-From: Igor Shmukler <igor.shmukler@gmail.com>
-Reply-To: Igor Shmukler <igor.shmukler@gmail.com>
-To: Rik van Riel <riel@redhat.com>
-Subject: Re: intercepting syscalls
-Cc: Daniel Souza <thehazard@gmail.com>, Arjan van de Ven <arjan@infradead.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0504180752220.3232@chimarrao.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <6533c1c905041511041b846967@mail.gmail.com>
-	 <1113588694.6694.75.camel@laptopd505.fenrus.org>
-	 <6533c1c905041512411ec2a8db@mail.gmail.com>
-	 <e1e1d5f40504151251617def40@mail.gmail.com>
-	 <6533c1c905041512594bb7abb4@mail.gmail.com>
-	 <Pine.LNX.4.61.0504180752220.3232@chimarrao.boston.redhat.com>
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=DuEkgdhxThUD6yUyFQEqJ23kmgcl6s8B7EvxbufP6pl/Ci3i9wkJiX1NL6MJZOcHPHgbQn16dM+0c0Mo4Bp7YrQ9/6THgSEchhSYDqQ7TktsCSjUuq9PHsdfcb1HhDpMnoUUia68BrnU2NrxfvZQs+BcgyV84Cvoluw79G3YJ0I=
+Message-ID: <4263CB26.2070609@gmail.com>
+Date: Mon, 18 Apr 2005 23:58:46 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050402)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: James Bottomley <James.Bottomley@SteelEye.com>, Jens Axboe <axboe@suse.de>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Regarding posted scsi midlyaer patchsets
+References: <20050417224101.GA2344@htj.dyndns.org> <1113833744.4998.13.camel@mulgrave>
+In-Reply-To: <1113833744.4998.13.camel@mulgrave>
+Content-Type: text/plain; charset=EUC-KR
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik, (and everyone),
+ Hello, James.
+ Hello, Jens.
 
-Everything is IMHO only.
-
-It all boils down to whether:
-1. it is hard to correctly implement such LKM so that it can be safely
-loaded and unloaded and when these modules are combined they may not
-work together until there is an interoperability workshop (like the
-one networking folks do).
-2. it's not possible to do this right, hence no point to allow this in
-a first place.
-
-I am not a Linux expert by a long-shot, but on many other Unices it's
-being done and works. I am only asking because I am involved with a
-Linux port.
-
-I think if consensus is on choice one, then hiding the table is a
-mistake. We should not just close  abusable interfaces. Rootkits do
-not need these, and if someone makes poor software we do not have to
-install it.
-
-Intercepting system call table is an elegant way to solve many
-problems. Any driver software has to be developed by expert
-programmers and can cause all the problems imaginable if it was not
-down right.
-
-Again, it's all IMHO. Nobody has to agree.
-
-Igor
-
-On 4/18/05, Rik van Riel <riel@redhat.com> wrote:
-> On Fri, 15 Apr 2005, Igor Shmukler wrote:
+James Bottomley wrote:
+> On Mon, 2005-04-18 at 07:41 +0900, Tejun Heo wrote:
 > 
-> > Thank you very much. I will check this out.
-> > A thanks to everyone else who contributed. I would still love to know
-> > why this is a bad idea.
+>> As it's been almost a week since I posted scsi midlayer patchsets and
+>>haven't heard anything yet, I've been wondering what's going on.  Are
+>>they under review or all dropped?  If they are dropped, can you please
+>>tell me why they are dropped?
 > 
-> Because there is no safe way in which you could have multiple
-> of these modules loaded simultaneously - say one security
-> module and AFS.  There is an SMP race during the installing
-> of the hooks, and the modules can still wreak havoc if they
-> get unloaded in the wrong order...
 > 
-> There just isn't a good way to hook into the syscall table.
+> I have about four of them in the scsi-misc-2.6 tree, if you look.
 > 
-> --
-> "Debugging is twice as hard as writing the code in the first place.
-> Therefore, if you write the code as cleverly as possible, you are,
-> by definition, not smart enough to debug it." - Brian W. Kernighan
->
+> Your request path rewrite I already gave you feedback that I didn't want
+> REQ_SOFTBARRIER in scsi ... it needs to be in the block submit API for
+> special requests.  Also, you have a patch for block in this code so I
+> can't apply it without an ack from Jens.  And all the rest of your
+> patches depend on this one.
+
+ This thread started as an private inquiry to James regarding the status
+of four patchsets I posted about a week ago.  I'm replying publicly as I
+think we can use some discussion.  The four patchsets are... (in the
+following order)
+
+ * timer updates
+ * REQ_SPECIAL/REQ_SOFTBARRIER usage change
+ * scsi_request_fn reimpl
+ * requeue path consolidation.
+
+ Accepted patches are
+
+ * scsi_cmnd->internal_timeout kill
+ * scsi_cmnd->serial_number_at_timeout
+ * remove volatile
+ * scsi_send_eh_cmnd() clean up
+
+ All four accepted patches are not included in any of above patchsets
+and the timer update patchset doesn't depend on
+REQ_SPECIAL/REQ_SOFTBARRIER usage change patchset, so please review the
+timer update patchset.
+
+ And, James, regarding REQ_SOFTBARRIER, if the REQ_SOFTBARRIER thing can
+be removed from SCSI midlayer, do you agree to change REQ_SPECIAL to
+mean special requests?  If so, I have three proposals.
+
+ * move REQ_SOFTBARRIER setting to right after the allocation of
+scsi_cmnd in scsi_prep_fn().  This will be the only place where
+REQ_SOFTBARRIER is used in SCSI midlayer, making it less pervasive.
+ * Or, make another API which sets REQ_SOFTBARRIER on requeue.  maybe
+blk_requeue_ordered_request()?
+ * Or, make blk_insert_request() not set REQ_SPECIAL on requeue.  IMHO,
+this is a bit too subtle.
+
+ I like #1 or #2.  Jens, what do you think?  Do you agree to remove
+requeue feature from blk_insert_request()?
+
+ Thanks a lot. :-)
+
+-- 
+tejun
+

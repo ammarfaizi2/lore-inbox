@@ -1,43 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbVDSAAv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261178AbVDSAGQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261204AbVDSAAv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 20:00:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbVDSAAu
+	id S261178AbVDSAGQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 20:06:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVDSAGQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 20:00:50 -0400
-Received: from [212.106.150.180] ([212.106.150.180]:4795 "EHLO
-	stardust.clanet.pl") by vger.kernel.org with ESMTP id S261202AbVDSAAl convert rfc822-to-8bit
+	Mon, 18 Apr 2005 20:06:16 -0400
+Received: from 26.mail-out.ovh.net ([213.186.42.179]:58582 "EHLO
+	26.mail-out.ovh.net") by vger.kernel.org with ESMTP id S261178AbVDSAGM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 20:00:41 -0400
-Message-ID: <000501c54472$d23c60e0$41a8cd54@baltazar>
-From: =?iso-8859-2?Q?Rados=B3aw_Balcewicz?= <radek@clanet.pl>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.6 kernel panics and hangs at boot (due to IDE DMA issues?)
-Date: Tue, 19 Apr 2005 02:00:31 +0200
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1478
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
-X-Antivirus: avast! (VPS 0516-0, 2005-04-18), Outbound message
-X-Antivirus-Status: Clean
+	Mon, 18 Apr 2005 20:06:12 -0400
+Subject: [PATCH] Leadtek Winfast remote controls
+From: Nicolas Boichat <nicolas@boichat.ch>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Tue, 19 Apr 2005 02:06:04 +0200
+Message-Id: <1113869164.10826.8.camel@dudule>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
+X-Ovh-Remote: 62.167.31.160 (adsl-62-167-31-160.adslplus.ch)
+X-Ovh-Local: 213.186.33.20 (ns0.ovh.net)
+X-Spam-Check: fait|type 1&3|0.3|H 0.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Hi Andrew,
 
-I've been trying to run Fedora Core 3 on dual P3 machine (Asus P2B-DS board, Intel BX chipset), but every time I try to boot it, it hangs moments after mounting local filesystems. It doesn't really matter if I boot SMP or non-SMP kernel and I've tried several, from 2.6.9 to latest 2.6.11-1 fresh from yum update. All I can do is boot rescue CD and chroot... Only once I got it to spit something that looked like this (sorry, I did not write it down at that time so it's just what I remember):
+This patch against kernel 2.6.12-rc2 adds missing button codes for the
+Leadtek Winfast remote controls.
 
-kernel panic - not syncing: drivers/ide/pci/piix.c:<something>:spin-lock (drivers/ide/ide.c:<something>) already locked by drivers/ide/dma.c
+Concerning the KEY_* values, I tried to be coherent with the other
+remote controls supported by the kernel.
 
-After few hours of trials and errors (and Google help) I finally got it running by adding ide=nodma to boot command line and by changing USE_DMA to =0 in /etc/sysconfig/harddisks. Now it boots every kernel it didn't before, SMP works fine, gcc recompiled kernel sources several time without single core dump, it's just without DMA disk data transfers are down to few MB/sec. Burning DVDs is short of impossible.
+Best regards,
 
->From what I found this is a well-known problem with FC 2 & 3, Suse 9.1 and some other distributions based on recent 2.6 kernels and not-so-new hardware. So far I've failed to properly compile a vanilla 2.6.11.7 kernel (hangs just before INIT) so I can't say anything about that one...  If this is a known problem then please don't flame me. I have been looking for possible solutions and posting here is my last resort at getting one. If someone can just point me to some explanation I'll be on my way. And please do CC to me directly as I have not subscribed...
+Nicolas
 
-If this is a new problem then I'll be happy to assist and provide with logs and /proc infromations, it's just I wasn't sure I should include all that if this is perhaps some silly mistake on my behalf...
+--
 
-Looking forward to an answer
-Radek
+Add missing button codes for the Leadtek Winfast remote controls.
+
+Signed-off-by: Nicolas Boichat <nicolas@boichat.ch>
+---
+
+ drivers/media/common/ir-common.c |   16 ++++++++--------
+ 1 files changed, 8 insertions(+), 8 deletions(-)
+
+diff -rpuN drivers/media.old/common/ir-common.c
+drivers/media/common/ir-common.c
+--- drivers/media.old/common/ir-common.c        2005-04-05
+00:24:57.000000000 +0200
++++ drivers/media/common/ir-common.c    2005-04-07 15:52:22.000000000
++0200
+@@ -131,10 +131,10 @@ IR_KEYTAB_TYPE ir_codes_winfast[IR_KEYTA
+        [ 18 ] = KEY_KP0,
+ 
+        [  0 ] = KEY_POWER,
+-//      [ 27 ] = MTS button
++        [ 27 ] = KEY_LANGUAGE,  //MTS button
+        [  2 ] = KEY_TUNER,     // TV/FM
+        [ 30 ] = KEY_VIDEO,
+-//      [ 22 ] = display button
++        [ 22 ] = KEY_INFO,      //display button
+        [  4 ] = KEY_VOLUMEUP,
+        [  8 ] = KEY_VOLUMEDOWN,
+        [ 12 ] = KEY_CHANNELUP,
+@@ -142,7 +142,7 @@ IR_KEYTAB_TYPE ir_codes_winfast[IR_KEYTA
+        [  3 ] = KEY_ZOOM,      // fullscreen
+        [ 31 ] = KEY_SUBTITLE,  // closed caption/teletext
+        [ 32 ] = KEY_SLEEP,
+-//      [ 41 ] = boss key
++        [ 41 ] = KEY_SEARCH,    //boss key
+        [ 20 ] = KEY_MUTE,
+        [ 43 ] = KEY_RED,
+        [ 44 ] = KEY_GREEN,
+@@ -150,17 +150,17 @@ IR_KEYTAB_TYPE ir_codes_winfast[IR_KEYTA
+        [ 46 ] = KEY_BLUE,
+        [ 24 ] = KEY_KPPLUS,    //fine tune +
+        [ 25 ] = KEY_KPMINUS,   //fine tune -
+-//      [ 42 ] = picture in picture
++        [ 42 ] = KEY_ANGLE,     //picture in picture
+         [ 33 ] = KEY_KPDOT,
+        [ 19 ] = KEY_KPENTER,
+-//      [ 17 ] = recall
++        [ 17 ] = KEY_AGAIN,     //recall
+        [ 34 ] = KEY_BACK,
+        [ 35 ] = KEY_PLAYPAUSE,
+        [ 36 ] = KEY_NEXT,
+-//      [ 37 ] = time shifting
++        [ 37 ] = KEY_T,         //time shifting
+        [ 38 ] = KEY_STOP,
+-       [ 39 ] = KEY_RECORD
+-//      [ 40 ] = snapshot
++       [ 39 ] = KEY_RECORD,
++        [ 40 ] = KEY_SHUFFLE    //snapshot
+ };
+ EXPORT_SYMBOL_GPL(ir_codes_winfast);
+ 
 

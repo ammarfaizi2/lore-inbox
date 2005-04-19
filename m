@@ -1,43 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbVDSXjV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbVDSXqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261282AbVDSXjV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 19:39:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261303AbVDSXjV
+	id S261208AbVDSXqH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 19:46:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261217AbVDSXqH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 19:39:21 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:4309 "EHLO
-	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
-	id S261282AbVDSXjN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 19:39:13 -0400
-Message-ID: <42659673.9080901@nortel.com>
-Date: Tue, 19 Apr 2005 17:38:27 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
+	Tue, 19 Apr 2005 19:46:07 -0400
+Received: from nacho.zianet.com ([216.234.192.105]:34064 "HELO
+	nacho.zianet.com") by vger.kernel.org with SMTP id S261208AbVDSXp6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 19:45:58 -0400
+From: Steven Cole <elenstev@mesatop.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [GIT PATCH] I2C and W1 bugfixes for 2.6.12-rc2
+Date: Tue, 19 Apr 2005 17:41:57 -0600
+User-Agent: KMail/1.6.1
+Cc: Greg KH <greg@kroah.com>, Greg KH <gregkh@suse.de>,
+       Git Mailing List <git@vger.kernel.org>, linux-kernel@vger.kernel.org,
+       sensors@stimpy.netroedge.com
+References: <20050419043938.GA23724@kroah.com> <200504191704.48976.elenstev@mesatop.com> <Pine.LNX.4.58.0504191627420.2274@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0504191627420.2274@ppc970.osdl.org>
 MIME-Version: 1.0
-To: Robert Hancock <hancockr@shaw.ca>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: question on 2.4 scheduler, threads, and priority inversion
-References: <3V45v-tx-39@gated-at.bofh.it> <426594B1.9000307@shaw.ca>
-In-Reply-To: <426594B1.9000307@shaw.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200504191741.57626.elenstev@mesatop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Hancock wrote:
+On Tuesday 19 April 2005 05:38 pm, Linus Torvalds wrote:
+> 
+> On Tue, 19 Apr 2005, Steven Cole wrote:
+> > 
+> > I wasn't complaining about the 4 minutes, just the lack of feedback
+> > during the majority of that time.  And most of it was after the last
+> > patching file message.
+> 
+> That should be exactly the thing that the new "read-tree -m" fixes.
+> 
+> Before, when you read in a new tree (which is what you do when you update
+> to somebody elses version), git would throw all the cached information
+> away, and so you'd end up doing a "checkout-cache -f -a" that re-wrote
+> every single checked-out file, followed by "update-cache --refresh" that
+> then re-created the cache for every single file.
+> 
+> With the new read-tree, the same sequence (assuming you have the "-m"  
+> flag to tell read-tree to merge the cache information) will now only write
+> out and re-check the files that actually changed due to the update or
+> merge.
+> 
+> So that last phase should go from minutes to seconds - instead of checking
+> 17,000+ files, you'd end up checking maybe a few hundred for most "normal"
+> updates.
+> 
+> For example, updating all the way from the git root (ie plain 2.6.12-rc2)  
+> to the current head, only 577 files have changed, and the rest (16,740)
+> should never be touched at all.
+> 
+> You can see why doing just the 577 instead of the full 17,317 might speed
+> things up a bit ;)
+> 
+> 		Linus
 
-> I believe that in the old LinuxThreads implementation the manager thread 
->  is the one that handles all signals, so it may need its priority 
-> increased as well. NPTL threads likely handle this much better (there is 
-> no manager thread).
+Cool.  Petr, I hope this works like this with your tools tomorrow.
 
-Some experimenting leads me to believe that both the main thread and the 
-manager thread must be of higher priority than the cpu hogging thread, 
-otherwise priority inversion issues occur.
+> 
+> PS. Of course, right now it probably does make sense to waste some time
+> occasionally, and run "fsck-cache $(cat .git/HEAD)" every once in a while.
+> Just in case..
+> 
+> 
+Sounds like a good thing to schedule for $WEEHOUR.
 
-I was fairly shocked that even a "kill -9" failed to work though...
-
-Chris
-
+Steven

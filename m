@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbVDSKyy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVDSK5I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261389AbVDSKyy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 06:54:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261393AbVDSKyy
+	id S261448AbVDSK5I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 06:57:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbVDSK5H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 06:54:54 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:27033 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261389AbVDSKyw (ORCPT
+	Tue, 19 Apr 2005 06:57:07 -0400
+Received: from mailfe03.swip.net ([212.247.154.65]:4588 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S261393AbVDSK4y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 06:54:52 -0400
-Date: Tue, 19 Apr 2005 12:54:24 +0200 (MEST)
-Message-Id: <200504191054.j3JAsO5g013833@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: ak@suse.de
-Subject: x86_64 NMI watchdog breakage in 2.6.12-rc2-mm3
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+	Tue, 19 Apr 2005 06:56:54 -0400
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Subject: Re: 2.6.12-rc2-mm3 regression - certain applications get SIGSEGV
+	but are fine with 2.6.12-rc2-mm2
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.62.0504191122060.2238@dragon.hyggekrogen.localhost>
+References: <Pine.LNX.4.62.0504191122060.2238@dragon.hyggekrogen.localhost>
+Content-Type: text/plain
+Date: Tue, 19 Apr 2005 12:56:42 +0200
+Message-Id: <1113908202.2067.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi & Andrew,
+tis 2005-04-19 klockan 11:33 +0200 skrev Jesper Juhl:
+> Everything is fine with 2.6.12-rc2, 2.6.12-rc2-mm1, 2.6.12-rc2-mm2 & 
+> earlier kernels as well, but 2.6.12-rc2-mm3 seems to have a problem.
+> I don't know what's causing this, all I can do at the moment is describe 
+> the symptoms.
+> 
+> Certain applications (krootimage and ksplash from KDE 3.4 are 100% 
+> reproducible test cases) that used to run fine have started crashing with 
+> SIGSEGV on 2.6.12-rc2-mm3. I see nothing suspicious in dmesg.
+> I'm including dmesg output as well as strace output from krootimage and 
+> ksplash below.
+> If someone could give me a hint as to what the cause of this could be or 
+> what to try in order to track it down I'd appreciate it.
+> This is 100% reproducible.
 
-The "x86_64-switch-smp-bootup-over-to-new-cpu-hotplug-state.patch" in
-2.6.12-rc2-mm3 appears to have broken the NMI watchdog. Specifically:
+Try backing out
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm3/broken-out/sched-unlocked-context-switches.patch
 
-diff -puN arch/x86_64/kernel/nmi.c~x86_64-switch-smp-bootup-over-to-new-cpu-hotplug-state arch/x86_64/kernel/nmi.c
---- 25/arch/x86_64/kernel/nmi.c~x86_64-switch-smp-bootup-over-to-new-cpu-hotplug-state	Thu Apr  7 15:15:01 2005
-+++ 25-akpm/arch/x86_64/kernel/nmi.c	Thu Apr  7 15:15:01 2005
-@@ -133,12 +133,6 @@ static int __init check_nmi_watchdog (vo
- 	mdelay((10*1000)/nmi_hz); // wait 10 ticks
- 
- 	for (cpu = 0; cpu < NR_CPUS; cpu++) {
--#ifdef CONFIG_SMP
--		/* Check cpu_callin_map here because that is set
--		   after the timer is started. */
--		if (!cpu_isset(cpu, cpu_callin_map))
--			continue;
--#endif
- 		if (cpu_pda[cpu].__nmi_count - counts[cpu] <= 5) {
- 			printk("CPU#%d: NMI appears to be stuck (%d)!\n", 
- 			       cpu,
-
-This is wrong because in general the number of actual CPUs is _less_
-than the number of configured CPUs (== NR_CPUS). Hence the code will
-now check the NMI counts of non-existent CPUs, complain that they are
-stuck, and disable the NMI watchdog. Actually the disablement is broken
-in this case, but that's a different issue.
-
-The error is easily reproducible by booting an SMP kernel on a UP box.
-
-/Mikael

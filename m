@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261518AbVDSNbh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261514AbVDSNf2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261518AbVDSNbh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 09:31:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbVDSNbh
+	id S261514AbVDSNf2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 09:35:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbVDSNf1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 09:31:37 -0400
-Received: from orb.pobox.com ([207.8.226.5]:44168 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S261516AbVDSNb0 (ORCPT
+	Tue, 19 Apr 2005 09:35:27 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:42976 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261514AbVDSNfT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 09:31:26 -0400
-Date: Tue, 19 Apr 2005 06:31:24 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [PATCH] fix aic7xxx_osm.c compile failure (gcc 2.95.x only)
-Message-ID: <20050419133123.GD8541@ip68-4-98-123.oc.oc.cox.net>
+	Tue, 19 Apr 2005 09:35:19 -0400
+Date: Tue, 19 Apr 2005 15:35:09 +0200
+From: Andi Kleen <ak@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Dave Jones <davej@redhat.com>, Chris Wright <chrisw@osdl.org>,
+       Andi Kleen <ak@suse.de>, "Sergey S. Kostyliov" <rathamahata@ehouse.ru>,
+       Clem Taylor <clem.taylor@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: x86-64 bad pmds in 2.6.11.6 II
+Message-ID: <20050419133509.GF7715@wotan.suse.de>
+References: <20050407062928.GH24469@wotan.suse.de> <Pine.LNX.4.61.0504141419250.25074@goblin.wat.veritas.com> <20050414170117.GD22573@wotan.suse.de> <Pine.LNX.4.61.0504141804480.26008@goblin.wat.veritas.com> <20050414181015.GH22573@wotan.suse.de> <20050414181133.GA18221@wotan.suse.de> <20050414182712.GG493@shell0.pdx.osdl.net> <20050415172408.GB8511@wotan.suse.de> <20050415172816.GU493@shell0.pdx.osdl.net> <Pine.LNX.4.61.0504151833020.29919@goblin.wat.veritas.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <Pine.LNX.4.61.0504151833020.29919@goblin.wat.veritas.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get this compile error on linux-2.6 head
-9d469ee9f21c680c41dbffe5b0f36ab5010ca8b1, but only with gcc 2.95.3, not
-gcc 3.4.3:
+On Fri, Apr 15, 2005 at 06:58:20PM +0100, Hugh Dickins wrote:
+> On Fri, 15 Apr 2005, Chris Wright wrote:
+> > * Andi Kleen (ak@suse.de) wrote:
+> > > On Thu, Apr 14, 2005 at 11:27:12AM -0700, Chris Wright wrote:
+> > > > Yes, I've seen it in .11 and earlier kernels.  Happen to have same
+> > > > "x86_64" string on my bad pmd dumps, but can't reproduce it at all.
+> > > > So, for now, I can hold off on adding the reload cr3 patch to -stable
+> > > > unless you think it should be there anyway.
+> > > 
+> > > It is a bug fix (actually there is another related patch that fixes
+> > > a similar bug), but we lived with the problems for years so I guess
+> > > they can wait for .12. 
+> > 
+> > Sounds good.
+> 
+> I must confess, with all due respect to Andi, that I don't understand his
+> dismissal of the possibility that load_cr3 in leave_mm might be the fix
+> (to create_elf_tables writing user stack data into the pmd).
 
-  CC [M]  drivers/scsi/aic7xxx/aic7xxx_osm.o
-drivers/scsi/aic7xxx/aic7xxx_osm.c: In function `ahc_linux_init':
-drivers/scsi/aic7xxx/aic7xxx_osm.c:3608: parse error before `int'
-drivers/scsi/aic7xxx/aic7xxx_osm.c:3609: `rc' undeclared (first use in
-this function)
-drivers/scsi/aic7xxx/aic7xxx_osm.c:3609: (Each undeclared identifier is
-reported only once
-drivers/scsi/aic7xxx/aic7xxx_osm.c:3609: for each function it appears
-in.)
-drivers/scsi/aic7xxx/aic7xxx_osm.c: At top level:
-drivers/scsi/aic7xxx/aic7xxx_osm.c:744: warning: `ahc_linux_detect'
-defined but not used
-make[3]: *** [drivers/scsi/aic7xxx/aic7xxx_osm.o] Error 1
-make[2]: *** [drivers/scsi/aic7xxx] Error 2
-make[1]: *** [drivers/scsi] Error 2
-make: *** [drivers] Error 2
+Sorry for the late answer.
 
-This patch fixes the compile error. I've compile-tested this but I
-haven't actually run it.
+Ok, lets try again. The hole fixed by this patch only covers
+the case of an kernel thread with lazy mm doing some memory access
+(or more likely the CPU doing a prefetch there). But ELF loading
+never happens in lazy mm kernel threads.AFAIK in a "real" process
+the TLB is always fully consistent.
 
-Signed-off-by: Barry K. Nathan <barryn@pobox.com>
+Does that explanation satisfy you? 
 
---- linux-2.6.12-rc2-9d469ee9f21c680c41dbffe5b0f36ab5010ca8b1-bkn2/drivers/scsi/aic7xxx/aic7xxx_osm.c	2005-04-19 00:46:11.666064007 -0700
-+++ linux-2.6.12-rc2-9d469ee9f21c680c41dbffe5b0f36ab5010ca8b1-bkn3/drivers/scsi/aic7xxx/aic7xxx_osm.c	2005-04-19 06:23:00.099780019 -0700
-@@ -3602,10 +3602,12 @@
- ahc_linux_init(void)
- {
- #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
-+	int rc;
-+
- 	ahc_linux_transport_template = spi_attach_transport(&ahc_linux_transport_functions);
- 	if (!ahc_linux_transport_template)
- 		return -ENODEV;
--	int rc = ahc_linux_detect(&aic7xxx_driver_template);
-+	rc = ahc_linux_detect(&aic7xxx_driver_template);
- 	if (rc)
- 		return rc;
- 	spi_release_transport(ahc_linux_transport_template);
+I agree that my earlier one was a bit dubious because I argued about
+the direct mapping, but the argv setup actually uses user addresses.
+But I still think it must be something else.
+
+-Andi

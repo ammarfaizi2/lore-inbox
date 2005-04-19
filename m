@@ -1,42 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbVDSTA3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbVDSTFQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbVDSTA3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 15:00:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261629AbVDSTA3
+	id S261561AbVDSTFQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 15:05:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261240AbVDSTFQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 15:00:29 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:6894 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261605AbVDSS7r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 14:59:47 -0400
-Message-ID: <426554FD.9010601@nortel.com>
-Date: Tue, 19 Apr 2005 12:59:09 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Charles Cazabon <linux@discworld.dyndns.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: GPL violation by CorAccess?
-References: <20050419175743.GA8339@beton.cybernet.src> <20050419182529.GT17865@csclub.uwaterloo.ca> <20050419183219.GB5670@discworld.dyndns.org>
-In-Reply-To: <20050419183219.GB5670@discworld.dyndns.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Apr 2005 15:05:16 -0400
+Received: from cimice4.lam.cz ([212.71.168.94]:15232 "EHLO beton.cybernet.src")
+	by vger.kernel.org with ESMTP id S261561AbVDSTFG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 15:05:06 -0400
+Date: Tue, 19 Apr 2005 19:07:40 +0000
+From: Karel Kulhavy <clock@twibright.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Open hardware wireless cards
+Message-ID: <20050419190740.GA8517@beton.cybernet.src>
+References: <20050105192447.GJ5159@ruslug.rutgers.edu> <20050105200526.GL5159@ruslug.rutgers.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050105200526.GL5159@ruslug.rutgers.edu>
+User-Agent: Mutt/1.4.2.1i
+X-Orientation: Gay
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Charles Cazabon wrote:
-> Lennart Sorensen <lsorense@csclub.uwaterloo.ca> wrote:
+On Wed, Jan 05, 2005 at 03:05:26PM -0500, Luis R. Rodriguez wrote:
+> On Wed, Jan 05, 2005 at 02:24:47PM -0500, Luis R. Rodriguez wrote:
+> <-- snip -->
 > 
->>Well what is the case if you use unmodified GPL code, do you still have
->>to provide sources to the end user if you give them binaries? 
+> > As far as support for the new chipsets goes -- sorry -- we won't be able
+> > to support it as I don't think even Conexant has a final well tested
+> > linux source base ready for 2.6. And even if we are given a source base
+> > there is nothing we can do to get around the need for the closed-source 
+> > softmac libs that it relies on. As much as I'd like to support it, I
+> > don't want to get a headache to support something I cannot modify so I
+> > won't be willing to support a half-opened driver as the atheros driver.
 > 
+> I'd also like to add...
 > 
-> Yes, or a written offer to provide sources, plus a copy of the GPL.  It's all
-> spelled out pretty clearly in the GPL itself.
+> For those of you frustrated about our current wireless driver situation
+> in open platforms --
+> 
+> I think we probably will have this trouble with most modern hardware for a while
+> (graphics cards, wireless driver, etc). A lot of has to do with patent
+> infringement issues, "intellectual property" protection, and other
+> business-oriented excuses.
+> 
+> What I think we probably will have to do is just work torwards seeing if
+> we can come up with our own open wireless hardware. I know there was
+> a recent thread on lkml about an open video card -- anyone know where
+> that ended up?
 
-Or a nonprofit organization can simply point to the original 
-source...but that doesn't apply in this case.
+I got open hardware optical wireless, though it's not a card, just
+add-on to existing Ethernet:
 
-Chris
+http://ronja.twibright.com
+
+Nevertheless it show how to use the free-software toolchain.
+
+Also see GNU Radio.
+
+http://www.gnu.org/software/gnuradio/doc/exploring-gnuradio.html
+
+CL<
+
+

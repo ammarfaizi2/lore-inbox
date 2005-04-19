@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261713AbVDSWj7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261717AbVDSWpM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261713AbVDSWj7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 18:39:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbVDSWj7
+	id S261717AbVDSWpM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 18:45:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbVDSWpL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 18:39:59 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:13000 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S261709AbVDSWjs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 18:39:48 -0400
-Date: Wed, 20 Apr 2005 00:39:45 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Greg KH <greg@kroah.com>, Git Mailing List <git@vger.kernel.org>,
-       linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+	Tue, 19 Apr 2005 18:45:11 -0400
+Received: from fed1rmmtao09.cox.net ([68.230.241.30]:20205 "EHLO
+	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
+	id S261716AbVDSWpF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 18:45:05 -0400
+To: Petr Baudis <pasky@ucw.cz>
+Cc: Steven Cole <elenstev@mesatop.com>, Linus Torvalds <torvalds@osdl.org>,
+       Greg KH <greg@kroah.com>, Greg KH <gregkh@suse.de>,
+       Git Mailing List <git@vger.kernel.org>, linux-kernel@vger.kernel.org,
+       sensors@stimpy.netroedge.com
 Subject: Re: [GIT PATCH] I2C and W1 bugfixes for 2.6.12-rc2
-Message-ID: <20050419223945.GG9305@pasky.ji.cz>
-References: <20050419043938.GA23724@kroah.com> <20050419185807.GA1191@kroah.com> <Pine.LNX.4.58.0504191204480.19286@ppc970.osdl.org> <20050419194728.GA24367@kroah.com> <Pine.LNX.4.58.0504191316180.19286@ppc970.osdl.org>
-Mime-Version: 1.0
+References: <20050419043938.GA23724@kroah.com>
+	<20050419185807.GA1191@kroah.com>
+	<Pine.LNX.4.58.0504191204480.19286@ppc970.osdl.org>
+	<426583D5.2020308@mesatop.com> <20050419222609.GE9305@pasky.ji.cz>
+From: Junio C Hamano <junkio@cox.net>
+Date: Tue, 19 Apr 2005 15:45:02 -0700
+In-Reply-To: <20050419222609.GE9305@pasky.ji.cz> (Petr Baudis's message of
+ "Wed, 20 Apr 2005 00:26:10 +0200")
+Message-ID: <7vpswqpes1.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0504191316180.19286@ppc970.osdl.org>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Tue, Apr 19, 2005 at 10:20:47PM CEST, I got a letter
-where Linus Torvalds <torvalds@osdl.org> told me that...
-> Pasky? Can you check my latest git stuff, notably read-tree.c and the 
-> changes to git-pull-script?
+>>>>> "PB" == Petr Baudis <pasky@ucw.cz> writes:
 
-I've made git merge to use read-tree -m, HTH.
+PB> I'm wondering if doing
 
-I will probably not buy git-export, though. (That is, it is merged, but
-I won't make git frontend for it.) My "git export" already does
-something different, but more importantly, "git patch" of mine already
-does effectively the same thing as you do, just for a single patch; so I
-will probably just extend it to do it for an (a,b] range of patches.
+PB> if [ "$(show-diff)" ]; then
+PB> 	git diff | git apply
+PB> else
+PB> 	checkout-cache -f -a
+PB> fi
 
--- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-C++: an octopus made by nailing extra legs onto a dog. -- Steve Taylor
+PB> would actually buy us some time; or, how common is it for people to have
+PB> no local changes whatsoever, and whether relative slowdown of additional
+PB> show-diff to git diff would actually matter.
+
+"show-diff -s" perhaps.  Also wouldn't it be faster to pipe
+show-diff output (not git diff output) to patch (not git apply)?
+
+

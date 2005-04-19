@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261694AbVDSWRq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261699AbVDSWTZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261694AbVDSWRq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 18:17:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbVDSWRq
+	id S261699AbVDSWTZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 18:19:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbVDSWTZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 18:17:46 -0400
-Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:58641 "EHLO
-	statik.tu-cottbus.de") by vger.kernel.org with ESMTP
-	id S261694AbVDSWRo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 18:17:44 -0400
-Message-ID: <42657F7C.8060305@s5r6.in-berlin.de>
-Date: Wed, 20 Apr 2005 00:00:28 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: de, en
+	Tue, 19 Apr 2005 18:19:25 -0400
+Received: from mailwasher.lanl.gov ([192.65.95.54]:4044 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S261697AbVDSWTJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 18:19:09 -0400
+Message-ID: <426583D5.2020308@mesatop.com>
+Date: Tue, 19 Apr 2005 16:19:01 -0600
+From: Steven Cole <elenstev@mesatop.com>
+User-Agent: Thunderbird 1.0 (Multics)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux1394-devel@lists.sourceforge.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/ieee1394/: remove unneeded EXPORT_SYMBOL's
-References: <20050417195706.GD3625@stusta.de>	 <20050419191328.GJ1111@conscoop.ottawa.on.ca> <1113939827.6277.86.camel@laptopd505.fenrus.org>
-In-Reply-To: <1113939827.6277.86.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=us-ascii
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Greg KH <greg@kroah.com>, Greg KH <gregkh@suse.de>,
+       Git Mailing List <git@vger.kernel.org>, linux-kernel@vger.kernel.org,
+       sensors@stimpy.netroedge.com
+Subject: Re: [GIT PATCH] I2C and W1 bugfixes for 2.6.12-rc2
+References: <20050419043938.GA23724@kroah.com> <20050419185807.GA1191@kroah.com> <Pine.LNX.4.58.0504191204480.19286@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0504191204480.19286@ppc970.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-PMX-Version: 4.7.0.111621
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Tue, 2005-04-19 at 15:13 -0400, Jody McIntyre wrote:
->> On Sun, Apr 17, 2005 at 09:57:07PM +0200, Adrian Bunk wrote:
->> > This patch removes unneeded EXPORT_SYMBOL's.
-...
->> Given the objections to your December patch, why should we accept this
->> one now?
+Linus Torvalds wrote:
 > 
-> since there still isn't a user ??
+> On Tue, 19 Apr 2005, Greg KH wrote:
+> 
+>>Nice, it looks like the merge of this tree, and my usb tree worked just
+>>fine.
+> 
+> 
+> Yup, it all seems to work out.
 
-There are users (though not in "the" kernel at the moment), have been
-users, will be users.
+[many files patched]
+patching file mm/mmap.c
+patching file net/bridge/br_sysfs_if.c
+patching file scripts/ver_linux
+----------------------^^^^^^^^^
+Hey, that's my patch!  Last...and least.
+But perhaps a progress bar right about here might be
+a good thing for the terminally impatient.
 
-Note: There is no architectural problem or something like that which
-would be a reason to change the API.
--- 
-Stefan Richter
--=====-=-=-= --== -===-
-http://arcgraph.de/sr/
+real    3m54.909s
+user    0m14.835s
+sys     0m10.587s
+
+4 minutes might be long enough to cause some folks to lose hope.
+
+Steven
+

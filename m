@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbVDSTQi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbVDSTRH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261612AbVDSTQi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 15:16:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbVDSTQi
+	id S261596AbVDSTRH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 15:17:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVDSTRH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 15:16:38 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:24962 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261612AbVDSTQK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 15:16:10 -0400
-Date: Tue, 19 Apr 2005 21:15:41 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Matt Mackall <mpm@selenic.com>
-Subject: Re: [PATCH] introduce generic 64bit rotations and i386 asm optimized
- version
-In-Reply-To: <200504190918.10279.vda@port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.LNX.4.62.0504192114240.14178@jaguar.sonytel.be>
-References: <200504190918.10279.vda@port.imtp.ilyichevsk.odessa.ua>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 19 Apr 2005 15:17:07 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:36551 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261596AbVDSTRC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 15:17:02 -0400
+Subject: Re: /proc/cpuinfo format - arch dependent!
+From: Lee Revell <rlrevell@joe-job.com>
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+Cc: Nico Schottelius <nico-kernel@schottelius.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050419132417.GS17865@csclub.uwaterloo.ca>
+References: <20050419121530.GB23282@schottelius.org>
+	 <20050419132417.GS17865@csclub.uwaterloo.ca>
+Content-Type: text/plain
+Date: Tue, 19 Apr 2005 15:17:00 -0400
+Message-Id: <1113938220.20178.0.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Apr 2005, Denis Vlasenko wrote:
+On Tue, 2005-04-19 at 09:24 -0400, Lennart Sorensen wrote:
+> On Tue, Apr 19, 2005 at 02:15:30PM +0200, Nico Schottelius wrote:
+> > When I wrote schwanz3(*) for fun, I noticed /proc/cpuinfo
+> > varies very much on different architectures.
+> > 
+> > Is it possible to make it look more identical (as far as the different
+> > archs allow it)?
+> > 
+> > So that one at least can count the cpus on every system the same way.
+> > 
+> > If so, who would the one I should contact and who would accept / verify
+> > a patch doing that?
+> 
+> If you change it now, how many tools would break?
+> 
 
-[ Please inline patches, so it's easier to comment on them ]
+Lots.  Please don't change the format of /proc/cpuinfo.
 
-> +static inline u64 rol64(u64 x,int num) {
-                                     ^^^
-> +	if(__builtin_constant_p(num))
-> +		return constant_rol64(x,num);
-> +	/* Hmmm... shall we do cnt&=63 here? */
-                               ^^^
-			       num?
+Lee
 
-> +	return ((x<<num) | (x>>(64-num)));
-> +}
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

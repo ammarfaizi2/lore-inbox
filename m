@@ -1,72 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261698AbVDSW0R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbVDSWfg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261698AbVDSW0R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 18:26:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261701AbVDSW0R
+	id S261705AbVDSWfg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 18:35:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbVDSWfe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 18:26:17 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:61383 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S261700AbVDSW0L (ORCPT
+	Tue, 19 Apr 2005 18:35:34 -0400
+Received: from mail.dif.dk ([193.138.115.101]:54920 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261705AbVDSWfZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 18:26:11 -0400
-Date: Wed, 20 Apr 2005 00:26:10 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Greg KH <greg@kroah.com>,
-       Greg KH <gregkh@suse.de>, Git Mailing List <git@vger.kernel.org>,
-       linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Subject: Re: [GIT PATCH] I2C and W1 bugfixes for 2.6.12-rc2
-Message-ID: <20050419222609.GE9305@pasky.ji.cz>
-References: <20050419043938.GA23724@kroah.com> <20050419185807.GA1191@kroah.com> <Pine.LNX.4.58.0504191204480.19286@ppc970.osdl.org> <426583D5.2020308@mesatop.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <426583D5.2020308@mesatop.com>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+	Tue, 19 Apr 2005 18:35:25 -0400
+Date: Wed, 20 Apr 2005 00:38:27 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: "James E.J. Bottomley" <James.Bottomley@SteelEye.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Eric Youngdale <eric@andante.org>, linux-scsi@vger.kernel.org
+Subject: test of 'good_bytes' in scsi_io_completion is always true (in
+ drivers/scsi/scsi_lib.c)
+Message-ID: <Pine.LNX.4.62.0504200030180.2074@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Wed, Apr 20, 2005 at 12:19:01AM CEST, I got a letter
-where Steven Cole <elenstev@mesatop.com> told me that...
-> Linus Torvalds wrote:
-> >
-> >On Tue, 19 Apr 2005, Greg KH wrote:
-> >
-> >>Nice, it looks like the merge of this tree, and my usb tree worked just
-> >>fine.
-> >
-> >
-> >Yup, it all seems to work out.
-> 
-> [many files patched]
-> patching file mm/mmap.c
-> patching file net/bridge/br_sysfs_if.c
-> patching file scripts/ver_linux
-> ----------------------^^^^^^^^^
-> Hey, that's my patch!  Last...and least.
-> But perhaps a progress bar right about here might be
-> a good thing for the terminally impatient.
-> 
-> real    3m54.909s
-> user    0m14.835s
-> sys     0m10.587s
-> 
-> 4 minutes might be long enough to cause some folks to lose hope.
 
-I'm wondering if doing
+in drivers/scsi/scsi_lib.c::scsi_io_completion() 'good_bytes' is tested 
+for being >= 0, but 'good_bytes' is an unsigned int, so that test is 
+always true. My *guess* is that what was intended was to test if 
+good_bytes is > 0, but I don't know this code well enough to be sure. 
+The patch below makes the change to test if it's > 0, but if the code in 
+the 'if' really wants to run if it's >= 0, then we might as well just 
+remove the 'if'.
 
-if [ "$(show-diff)" ]; then
-	git diff | git apply
-else
-	checkout-cache -f -a
-fi
+In any case, the current code looks fishy.
 
-would actually buy us some time; or, how common is it for people to have
-no local changes whatsoever, and whether relative slowdown of additional
-show-diff to git diff would actually matter.
 
--- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-C++: an octopus made by nailing extra legs onto a dog. -- Steve Taylor
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+
+--- linux-2.6.12-rc2-mm3-orig/drivers/scsi/scsi_lib.c	2005-04-11 21:20:49.000000000 +0200
++++ linux-2.6.12-rc2-mm3/drivers/scsi/scsi_lib.c	2005-04-20 00:29:14.000000000 +0200
+@@ -766,7 +766,7 @@ void scsi_io_completion(struct scsi_cmnd
+ 	 * Next deal with any sectors which we were able to correctly
+ 	 * handle.
+ 	 */
+-	if (good_bytes >= 0) {
++	if (good_bytes > 0) {
+ 		SCSI_LOG_HLCOMPLETE(1, printk("%ld sectors total, %d bytes done.\n",
+ 					      req->nr_sectors, good_bytes));
+ 		SCSI_LOG_HLCOMPLETE(1, printk("use_sg is %d\n", cmd->use_sg));
+
+
+
+
+Please keep me on CC:
+
+

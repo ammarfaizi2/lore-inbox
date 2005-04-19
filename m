@@ -1,144 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbVDSGT6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVDSGX1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261337AbVDSGT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 02:19:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbVDSGT6
+	id S261334AbVDSGX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 02:23:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbVDSGX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 02:19:58 -0400
-Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:4973 "HELO
-	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261337AbVDSGTl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 02:19:41 -0400
-Subject: Re: [RFC PATCH] Dynamic sched domains aka Isolated cpusets
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-To: Paul Jackson <pj@sgi.com>
-Cc: dino@in.ibm.com, Simon.Derr@bull.net, lkml <linux-kernel@vger.kernel.org>,
-       lse-tech@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-       dipankar@in.ibm.com, colpatch@us.ibm.com
-In-Reply-To: <20050418225427.429accd5.pj@sgi.com>
-References: <1097110266.4907.187.camel@arrakis>
-	 <20050418202644.GA5772@in.ibm.com>  <20050418225427.429accd5.pj@sgi.com>
-Content-Type: text/plain
-Date: Tue, 19 Apr 2005 16:19:35 +1000
-Message-Id: <1113891575.5074.46.camel@npiggin-nld.site>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Apr 2005 02:23:27 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:37637 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261334AbVDSGW2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 02:22:28 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] sha512: replace open-coded be64 conversions
+Date: Tue, 19 Apr 2005 09:21:34 +0300
+User-Agent: KMail/1.5.4
+Cc: Matt Mackall <mpm@selenic.com>
+References: <200504190918.10279.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200504190918.10279.vda@port.imtp.ilyichevsk.odessa.ua>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_uNKZC5QbjnCd98x"
+Message-Id: <200504190921.34294.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-04-18 at 22:54 -0700, Paul Jackson wrote:
 
-> Now, onto the real stuff.
-> 
-> This same issue, in a strange way, comes up on the memory side,
-> as well as on the cpu side.
-> 
-> First, let me verify one thing.  I understand that the _key_
-> purpose of your patch is not so much to isolate cpus, as it
-> is to allow for structuring scheduling domains to align with
-> cpuset boundaries.  I understand real isolated cpus to be ones
-> that don't have a scheduling domain (have only the dummy one),
-> as requested by the "isolcpus=..." boot flag.
-> 
+--Boundary-00=_uNKZC5QbjnCd98x
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Yes.
+This + next patch were "modprobe tcrypt" tested.
+See next mail.
+--
+vda
 
-> The following code snippet from kernel/sched.c is what I derive
-> this understanding from:
-> 
+--Boundary-00=_uNKZC5QbjnCd98x
+Content-Type: text/x-diff;
+  charset="koi8-r";
+  name="1.be.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="1.be.patch"
 
-Correct. A better name instead of isolated cpusets may be
-'partitioned cpusets' or somesuch.
+diff -urpN 2.6.12-rc2.0.orig/crypto/sha512.c 2.6.12-rc2.1.be/crypto/sha512.c
+--- 2.6.12-rc2.0.orig/crypto/sha512.c	Tue Apr 19 00:20:12 2005
++++ 2.6.12-rc2.1.be/crypto/sha512.c	Mon Apr 18 23:31:54 2005
+@@ -105,7 +105,7 @@ static const u64 sha512_K[80] = {
+ 
+ static inline void LOAD_OP(int I, u64 *W, const u8 *input)
+ {
+-	W[I] = __be64_to_cpu( ((__be64*)(input))[I] );
++	W[I] = __be64_to_cpu( ((__be64*)input)[I] );
+ }
+ 
+ static inline void BLEND_OP(int I, u64 *W)
+@@ -124,9 +124,8 @@ sha512_transform(u64 *state, u64 *W, con
+         for (i = 0; i < 16; i++)
+                 LOAD_OP(i, W, input);
+ 
+-        for (i = 16; i < 80; i++) {
++        for (i = 16; i < 80; i++)
+                 BLEND_OP(i, W);
+-        }
+ 
+ 	/* load the state into our registers */
+ 	a=state[0];   b=state[1];   c=state[2];   d=state[3];  
+@@ -238,36 +237,17 @@ sha512_final(void *ctx, u8 *hash)
+ 	
+         static u8 padding[128] = { 0x80, };
+ 
+-        u32 t;
+-	u64 t2;
+         u8 bits[128];
+ 	unsigned int index, pad_len;
+-	int i, j;
++	int i;
+ 
+-        index = pad_len = t = i = j = 0;
+-        t2 = 0;
++	index = pad_len = i = 0;
+ 
+ 	/* Save number of bits */
+-	t = sctx->count[0];
+-	bits[15] = t; t>>=8;
+-	bits[14] = t; t>>=8;
+-	bits[13] = t; t>>=8;
+-	bits[12] = t; 
+-	t = sctx->count[1];
+-	bits[11] = t; t>>=8;
+-	bits[10] = t; t>>=8;
+-	bits[9 ] = t; t>>=8;
+-	bits[8 ] = t; 
+-	t = sctx->count[2];
+-	bits[7 ] = t; t>>=8;
+-	bits[6 ] = t; t>>=8;
+-	bits[5 ] = t; t>>=8;
+-	bits[4 ] = t; 
+-	t = sctx->count[3];
+-	bits[3 ] = t; t>>=8;
+-	bits[2 ] = t; t>>=8;
+-	bits[1 ] = t; t>>=8;
+-	bits[0 ] = t; 
++	((__be32*)bits)[3] = __cpu_to_be32(sctx->count[0]);
++	((__be32*)bits)[2] = __cpu_to_be32(sctx->count[1]);
++	((__be32*)bits)[1] = __cpu_to_be32(sctx->count[2]);
++	((__be32*)bits)[0] = __cpu_to_be32(sctx->count[3]);
+ 
+ 	/* Pad out to 112 mod 128. */
+ 	index = (sctx->count[0] >> 3) & 0x7f;
+@@ -278,17 +258,8 @@ sha512_final(void *ctx, u8 *hash)
+ 	sha512_update(sctx, bits, 16);
+ 
+ 	/* Store state in digest */
+-	for (i = j = 0; i < 8; i++, j += 8) {
+-		t2 = sctx->state[i];
+-		hash[j+7] = (char)t2 & 0xff; t2>>=8;
+-		hash[j+6] = (char)t2 & 0xff; t2>>=8;
+-		hash[j+5] = (char)t2 & 0xff; t2>>=8;
+-		hash[j+4] = (char)t2 & 0xff; t2>>=8;
+-		hash[j+3] = (char)t2 & 0xff; t2>>=8;
+-		hash[j+2] = (char)t2 & 0xff; t2>>=8;
+-		hash[j+1] = (char)t2 & 0xff; t2>>=8;
+-		hash[j  ] = (char)t2 & 0xff;
+-	}
++	for (i = 0; i < 8; i++)
++		((__be64*)hash)[i] = __cpu_to_be64(sctx->state[i]);
+ 	
+ 	/* Zeroize sensitive information. */
+ 	memset(sctx, 0, sizeof(struct sha512_ctx));
 
-On the other hand, it is more or less equivalent to a single
-isolated CPU. Instead of an isolated cpu, you have an isolated
-cpuset.
-
-Though I imagine this becomes a complete superset of the
-isolcpus= functionality, and it would actually be easier to
-manage a single isolated CPU and its associated processes with
-the cpusets interfaces after this.
-
-
-> In both cases, we have an intermediate degree of partitioning
-> of a system, neither at the most detailed leaf cpuset, nor at
-> the all encompassing top cpuset.  And in both cases, we want
-> to partition the system, along cpuset boundaries.
-> 
-
-Yep. This sched-domains partitioning only works when you have
-more than one completely disjoint top level cpusets. That is,
-you effectively partition the CPUs.
-
-It doesn't work if you have *most* jobs bound to either
-{0, 1, 2, 3} or {4, 5, 6, 7} but one which should be allowed
-to use any CPU from 0-7.
-
-> Here I use "partition" in the mathematical sense:
-> 
-> ===============================================================
-> A partition of a set X is a set of nonempty subsets of X such
-> that every element x in X is in exactly one of these subsets.
-> 
-> Equivalently, a set P of subsets of X, is a partition of X if
-> 
-> 1. No element of P is empty.
-> 2. The union of the elements of P is equal to X. (We say the
->    elements of P cover X.)
-> 3. The intersection of any two elements of P is empty. (We say
->    the elements of P are pairwise disjoint.)
-> 
-> http://www.absoluteastronomy.com/encyclopedia/p/pa/partition_of_a_set.htm
-> ===============================================================
-> 
-> In the case of cpus, we really do prefer the partitions to be
-> disjoint, because it would be better not to confuse the domain
-> scheduler with overlapping domains.
-> 
-
-Yes. The domain scheduler can't handle this at all, it would
-have to fall back on cpus_allowed, which in turn can create
-big problems for multiprocessor balancing.
-
-
-> For the cpu case, we would provide a scheduler domain for each
-> subset of the cpu partitioning.
-> 
-
-Yes.
-
-[snip the rest, which I didn't finish reading :P]
-
->From what I gather, this partitioning does not exactly fit
-the cpusets architecture. Because with cpusets you are specifying
-on what cpus can a set of tasks run, not dividing the whole system.
-
-Basically for the sched-domains code to be happy, there should be
-some top level entity (whether it be cpusets or something else) which
-records your current partitioning (the default being one set,
-containing all cpus).
-
-> As stated above, there is a single system wide partition of
-> cpus, and another of mems.  I suspect we should consider finding
-> a way to nest partitions.  My (shakey) understanding of what
-> Nick is doing with scheduler domains is that for the biggest of
-> systems, we will probably want little scheduler domains inside
-> bigger ones.
-
-The sched-domains setup code will take care of all that for you
-already. It won't know or care about the partitions. If you
-partition a 64-way system into 2 32-ways, the domain setup code
-will just think it is setting up a 32-way system.
-
-Don't worry about the sched-domains side of things at all, that's
-pretty easy. Basically you just have to know that it has the
-capability to partition the system in an arbitrary disjoint set
-of sets of cpus.
-
-If you can make use of that, then we're in business ;)
-
--- 
-SUSE Labs, Novell Inc.
-
+--Boundary-00=_uNKZC5QbjnCd98x--
 

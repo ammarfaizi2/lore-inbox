@@ -1,75 +1,544 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbVDSXqH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVDSX4z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261208AbVDSXqH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 19:46:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261217AbVDSXqH
+	id S261254AbVDSX4z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 19:56:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbVDSX4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 19:46:07 -0400
-Received: from nacho.zianet.com ([216.234.192.105]:34064 "HELO
-	nacho.zianet.com") by vger.kernel.org with SMTP id S261208AbVDSXp6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 19:45:58 -0400
-From: Steven Cole <elenstev@mesatop.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [GIT PATCH] I2C and W1 bugfixes for 2.6.12-rc2
-Date: Tue, 19 Apr 2005 17:41:57 -0600
-User-Agent: KMail/1.6.1
-Cc: Greg KH <greg@kroah.com>, Greg KH <gregkh@suse.de>,
-       Git Mailing List <git@vger.kernel.org>, linux-kernel@vger.kernel.org,
-       sensors@stimpy.netroedge.com
-References: <20050419043938.GA23724@kroah.com> <200504191704.48976.elenstev@mesatop.com> <Pine.LNX.4.58.0504191627420.2274@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0504191627420.2274@ppc970.osdl.org>
+	Tue, 19 Apr 2005 19:56:55 -0400
+Received: from mail.upce.cz ([195.113.124.33]:8427 "EHLO mail.upce.cz")
+	by vger.kernel.org with ESMTP id S261254AbVDSXzK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 19:55:10 -0400
+Message-ID: <426593E4.7040906@seznam.cz>
+Date: Wed, 20 Apr 2005 01:27:32 +0200
+From: "kern.petr@seznam.cz" <kern.petr@seznam.cz>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: cs, en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200504191741.57626.elenstev@mesatop.com>
+To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+CC: jgarzik@pobox.com
+Subject: [PATCH libata-dev-2.6] sata_via: VT6420 PATA support - please help,
+ correct this driver's alfa source code
+Content-Type: multipart/mixed;
+ boundary="------------050508030303000203010808"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 19 April 2005 05:38 pm, Linus Torvalds wrote:
-> 
-> On Tue, 19 Apr 2005, Steven Cole wrote:
-> > 
-> > I wasn't complaining about the 4 minutes, just the lack of feedback
-> > during the majority of that time.  And most of it was after the last
-> > patching file message.
-> 
-> That should be exactly the thing that the new "read-tree -m" fixes.
-> 
-> Before, when you read in a new tree (which is what you do when you update
-> to somebody elses version), git would throw all the cached information
-> away, and so you'd end up doing a "checkout-cache -f -a" that re-wrote
-> every single checked-out file, followed by "update-cache --refresh" that
-> then re-created the cache for every single file.
-> 
-> With the new read-tree, the same sequence (assuming you have the "-m"  
-> flag to tell read-tree to merge the cache information) will now only write
-> out and re-check the files that actually changed due to the update or
-> merge.
-> 
-> So that last phase should go from minutes to seconds - instead of checking
-> 17,000+ files, you'd end up checking maybe a few hundred for most "normal"
-> updates.
-> 
-> For example, updating all the way from the git root (ie plain 2.6.12-rc2)  
-> to the current head, only 577 files have changed, and the rest (16,740)
-> should never be touched at all.
-> 
-> You can see why doing just the 577 instead of the full 17,317 might speed
-> things up a bit ;)
-> 
-> 		Linus
+This is a multi-part message in MIME format.
+--------------050508030303000203010808
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Cool.  Petr, I hope this works like this with your tools tomorrow.
+I traid to write VT6420 PATA support into the libata: sata_via.c, 
+because the way through via82cxxx.c doesn't work.
 
-> 
-> PS. Of course, right now it probably does make sense to waste some time
-> occasionally, and run "fsck-cache $(cat .git/HEAD)" every once in a while.
-> Just in case..
-> 
-> 
-Sounds like a good thing to schedule for $WEEHOUR.
+Please help me with this and correct this driver's alfa source code.
 
-Steven
+/* */ ... this sign in source code means, that this part i added into 
+current libata-dev-2.6: sata_via.c
+
+Petr Novák
+kern.petr@seznam.cz
+
+
+--------------050508030303000203010808
+Content-Type: text/plain;
+ name="sata_via.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sata_via.c"
+
+/*
+   sata_via.c - VIA Serial ATA controllers
+
+   Maintained by:  Jeff Garzik <jgarzik@pobox.com>
+   		   Please ALWAYS copy linux-ide@vger.kernel.org
+ 		   on emails.
+
+   Copyright 2003-2004 Red Hat, Inc.  All rights reserved.
+   Copyright 2003-2004 Jeff Garzik
+
+   The contents of this file are subject to the Open
+   Software License version 1.1 that can be found at
+   http://www.opensource.org/licenses/osl-1.1.txt and is included herein
+   by reference.
+
+   Alternatively, the contents of this file may be used under the terms
+   of the GNU General Public License version 2 (the "GPL") as distributed
+   in the kernel source COPYING file, in which case the provisions of
+   the GPL are applicable instead of the above.  If you wish to allow
+   the use of your version of this file only under the terms of the
+   GPL and not to allow others to use your version of this file under
+   the OSL, indicate your decision by deleting the provisions above and
+   replace them with the notice and other provisions required by the GPL.
+   If you do not delete the provisions above, a recipient may use your
+   version of this file under either the OSL or the GPL.
+
+   ----------------------------------------------------------------------
+
+   To-do list:
+   * VT6420 PATA support
+   * VT6421 PATA support
+
+ */
+
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/pci.h>
+#include <linux/init.h>
+#include <linux/blkdev.h>
+#include <linux/delay.h>
+#include "scsi.h"
+#include <scsi/scsi_host.h>
+#include <linux/libata.h>
+#include <asm/io.h>
+
+#define DRV_NAME	"sata_via"
+#define DRV_VERSION	"1.2" /* */
+
+enum board_ids_enum {
+	vt6420,
+    vt6420pata, /* */
+	vt6421,
+};
+
+enum {
+	SATA_CHAN_ENAB		= 0x40, /* SATA channel enable */
+	SATA_INT_GATE		= 0x41, /* SATA interrupt gating */
+	SATA_NATIVE_MODE	= 0x42, /* Native mode enable */
+	SATA_PATA_SHARING	= 0x49, /* PATA/SATA sharing func ctrl */
+
+	VT_CTLSTAT		    = 0x60,	/* IDE control and status (per port) */ /* */
+
+	PORT0			    = (1 << 1),
+	PORT1			    = (1 << 0),
+	ALL_PORTS		    = PORT0 | PORT1,
+	N_PORTS			    = 2,
+
+	NATIVE_MODE_ALL	    = (1 << 7) | (1 << 6) | (1 << 5) | (1 << 4),
+
+	SATA_EXT_PHY	    = (1 << 6), /* 0==use PATA, 1==ext phy */
+	SATA_2DEV		    = (1 << 5), /* SATA is master/slave */
+};
+
+static int svia_init_one (struct pci_dev *pdev, const struct pci_device_id *ent);
+static u32 svia_scr_read (struct ata_port *ap, unsigned int sc_reg);
+static void svia_scr_write (struct ata_port *ap, unsigned int sc_reg, u32 val);
+
+/* */
+static void vt6420pata_phy_reset(struct ata_port *ap);
+static void vt6420pata_cbl_detect(struct ata_port *ap);
+
+static struct pci_device_id svia_pci_tbl[] = {
+	{ 0x1106, 0x3149, PCI_ANY_ID, PCI_ANY_ID, 0, 0, vt6420 },
+   	{ 0x1106, 0x4149, PCI_ANY_ID, PCI_ANY_ID, 0, 0, vt6420pata }, /* */
+	{ 0x1106, 0x3249, PCI_ANY_ID, PCI_ANY_ID, 0, 0, vt6421 },
+
+	{ }	/* terminate list */
+};
+
+static struct pci_driver svia_pci_driver = {
+	.name			        = DRV_NAME,
+	.id_table		        = svia_pci_tbl,
+	.probe			        = svia_init_one,
+	.remove			        = ata_pci_remove_one,
+};
+
+static Scsi_Host_Template svia_sht = {
+	.module			        = THIS_MODULE,
+	.name			        = DRV_NAME,
+	.ioctl			        = ata_scsi_ioctl,
+	.queuecommand		    = ata_scsi_queuecmd,
+	.eh_strategy_handler	= ata_scsi_error,
+	.can_queue		        = ATA_DEF_QUEUE,
+	.this_id		        = ATA_SHT_THIS_ID,
+	.sg_tablesize		    = LIBATA_MAX_PRD,
+	.max_sectors		    = ATA_MAX_SECTORS,
+	.cmd_per_lun		    = ATA_SHT_CMD_PER_LUN,
+	.emulated		        = ATA_SHT_EMULATED,
+	.use_clustering		    = ATA_SHT_USE_CLUSTERING,
+	.proc_name		        = DRV_NAME,
+	.dma_boundary		    = ATA_DMA_BOUNDARY,
+	.slave_configure	    = ata_scsi_slave_config,
+	.bios_param		        = ata_std_bios_param,
+};
+
+static struct ata_port_operations svia_sata_ops = {
+	.port_disable		= ata_port_disable,
+
+	.tf_load		    = ata_tf_load,
+	.tf_read		    = ata_tf_read,
+	.check_status		= ata_check_status,
+	.exec_command		= ata_exec_command,
+	.dev_select		    = ata_std_dev_select,
+
+	.phy_reset		    = sata_phy_reset,
+
+	.bmdma_setup        = ata_bmdma_setup,
+	.bmdma_start        = ata_bmdma_start,
+	.bmdma_stop		    = ata_bmdma_stop,
+	.bmdma_status		= ata_bmdma_status,
+
+	.qc_prep		    = ata_qc_prep,
+	.qc_issue		    = ata_qc_issue_prot,
+
+	.eng_timeout		= ata_eng_timeout,
+
+	.irq_handler		= ata_interrupt,
+	.irq_clear		    = ata_bmdma_irq_clear,
+
+	.scr_read		    = svia_scr_read,
+	.scr_write		    = svia_scr_write,
+
+	.port_start		    = ata_port_start,
+	.port_stop		    = ata_port_stop,
+};
+
+static struct ata_port_info svia_port_info = {
+	.sht		= &svia_sht,
+	.host_flags	= /* ATA_FLAG_SATA | */ ATA_FLAG_SRST | ATA_FLAG_NO_LEGACY,
+	.pio_mask	= 0x1f,
+	.mwdma_mask	= 0x07,
+	.udma_mask	= 0x7f,
+	.port_ops	= &svia_sata_ops,
+};
+
+MODULE_AUTHOR("Jeff Garzik");
+MODULE_DESCRIPTION("SCSI low-level driver for VIA SATA controllers");
+MODULE_LICENSE("GPL");
+MODULE_DEVICE_TABLE(pci, svia_pci_tbl);
+MODULE_VERSION(DRV_VERSION);
+
+static u32 svia_scr_read (struct ata_port *ap, unsigned int sc_reg)
+{
+	if (sc_reg > SCR_CONTROL)
+		return 0xffffffffU;
+	return inl(ap->ioaddr.scr_addr + (4 * sc_reg));
+}
+
+static void svia_scr_write (struct ata_port *ap, unsigned int sc_reg, u32 val)
+{
+	if (sc_reg > SCR_CONTROL)
+		return;
+	outl(val, ap->ioaddr.scr_addr + (4 * sc_reg));
+}
+
+static const unsigned int svia_bar_sizes[] = {
+	8, 4, 8, 4, 16, 256
+};
+
+/* */
+static const unsigned int vt6420pata_bar_sizes[] = {
+	16, 16, 16, 16, 32, 128
+};
+
+static const unsigned int vt6421_bar_sizes[] = {
+	16, 16, 16, 16, 32, 128
+};
+
+static unsigned long svia_scr_addr(unsigned long addr, unsigned int port)
+{
+	return addr + (port * 128);
+}
+
+/* */
+static unsigned long vt6420pata_scr_addr(unsigned long addr, unsigned int port)
+{
+	return addr + (port * 64);
+}
+
+static unsigned long vt6421_scr_addr(unsigned long addr, unsigned int port)
+{
+	return addr + (port * 64);
+}
+
+/* */
+static void vt6420pata_init_addrs(struct ata_probe_ent *probe_ent,
+			      struct pci_dev *pdev,
+			      unsigned int port)
+{
+	unsigned long reg_addr = pci_resource_start(pdev, port);
+	unsigned long bmdma_addr = pci_resource_start(pdev, 4) + (port * 8);
+	unsigned long scr_addr;
+
+	probe_ent->port[port].cmd_addr = reg_addr;
+	probe_ent->port[port].altstatus_addr =
+	probe_ent->port[port].ctl_addr = (reg_addr + 8) | ATA_PCI_CTL_OFS;
+	probe_ent->port[port].bmdma_addr = bmdma_addr;
+
+	scr_addr = vt6421_scr_addr(pci_resource_start(pdev, 5), port);
+	probe_ent->port[port].scr_addr = scr_addr;
+
+	ata_std_ports(&probe_ent->port[port]);
+}
+
+static void vt6421_init_addrs(struct ata_probe_ent *probe_ent,
+			      struct pci_dev *pdev,
+			      unsigned int port)
+{
+	unsigned long reg_addr = pci_resource_start(pdev, port);
+	unsigned long bmdma_addr = pci_resource_start(pdev, 4) + (port * 8);
+	unsigned long scr_addr;
+
+	probe_ent->port[port].cmd_addr = reg_addr;
+	probe_ent->port[port].altstatus_addr =
+	probe_ent->port[port].ctl_addr = (reg_addr + 8) | ATA_PCI_CTL_OFS;
+	probe_ent->port[port].bmdma_addr = bmdma_addr;
+
+	scr_addr = vt6421_scr_addr(pci_resource_start(pdev, 5), port);
+	probe_ent->port[port].scr_addr = scr_addr;
+
+	ata_std_ports(&probe_ent->port[port]);
+}
+
+static struct ata_probe_ent *vt6420_init_probe_ent(struct pci_dev *pdev)
+{
+	struct ata_probe_ent *probe_ent;
+	struct ata_port_info *ppi = &svia_port_info;
+
+	probe_ent = ata_pci_init_native_mode(pdev, &ppi);
+	if (!probe_ent)
+		return NULL;
+
+	probe_ent->port[0].scr_addr =
+		svia_scr_addr(pci_resource_start(pdev, 5), 0);
+	probe_ent->port[1].scr_addr =
+		svia_scr_addr(pci_resource_start(pdev, 5), 1);
+
+	return probe_ent;
+}
+
+/* */
+static struct ata_probe_ent *vt6420pata_init_probe_ent(struct pci_dev *pdev)
+{
+	struct ata_probe_ent *probe_ent;
+	unsigned int i;
+
+	probe_ent = kmalloc(sizeof(*probe_ent), GFP_KERNEL);
+	if (!probe_ent)
+		return NULL;
+
+	memset(probe_ent, 0, sizeof(*probe_ent));
+	probe_ent->dev = pci_dev_to_dev(pdev);
+	INIT_LIST_HEAD(&probe_ent->node);
+
+	probe_ent->sht		    = &svia_sht;
+	probe_ent->host_flags	= /* ATA_FLAG_SATA | */ ATA_FLAG_SATA_RESET | ATA_FLAG_NO_LEGACY;
+	probe_ent->port_ops	    = &svia_sata_ops;
+	probe_ent->n_ports	    = N_PORTS;
+	probe_ent->irq		    = pdev->irq;
+	probe_ent->irq_flags	= SA_SHIRQ;
+	probe_ent->pio_mask	    = 0x1f;
+	probe_ent->mwdma_mask	= 0x07;
+	probe_ent->udma_mask	= 0x7f;
+
+	for (i = 0; i < N_PORTS; i++)
+		vt6420pata_init_addrs(probe_ent, pdev, i);
+
+	return probe_ent;
+}
+
+static struct ata_probe_ent *vt6421_init_probe_ent(struct pci_dev *pdev)
+{
+	struct ata_probe_ent *probe_ent;
+	unsigned int i;
+
+	probe_ent = kmalloc(sizeof(*probe_ent), GFP_KERNEL);
+	if (!probe_ent)
+		return NULL;
+
+	memset(probe_ent, 0, sizeof(*probe_ent));
+	probe_ent->dev = pci_dev_to_dev(pdev);
+	INIT_LIST_HEAD(&probe_ent->node);
+
+	probe_ent->sht		    = &svia_sht;
+	probe_ent->host_flags	= /* ATA_FLAG_SATA | */ ATA_FLAG_SATA_RESET | ATA_FLAG_NO_LEGACY;
+	probe_ent->port_ops	    = &svia_sata_ops;
+	probe_ent->n_ports	    = N_PORTS;
+	probe_ent->irq		    = pdev->irq;
+	probe_ent->irq_flags	= SA_SHIRQ;
+	probe_ent->pio_mask	    = 0x1f;
+	probe_ent->mwdma_mask	= 0x07;
+	probe_ent->udma_mask	= 0x7f;
+
+	for (i = 0; i < N_PORTS; i++)
+		vt6421_init_addrs(probe_ent, pdev, i);
+
+	return probe_ent;
+}
+
+static void svia_configure(struct pci_dev *pdev)
+{
+	u8 tmp8;
+
+	pci_read_config_byte(pdev, PCI_INTERRUPT_LINE, &tmp8);
+	printk(KERN_INFO DRV_NAME "(%s): routed to hard irq line %d\n",
+	       pci_name(pdev),
+	       (int) (tmp8 & 0xf0) == 0xf0 ? 0 : tmp8 & 0x0f);
+
+	/* make sure SATA channels are enabled */
+	pci_read_config_byte(pdev, SATA_CHAN_ENAB, &tmp8);
+	if ((tmp8 & ALL_PORTS) != ALL_PORTS) {
+		printk(KERN_DEBUG DRV_NAME "(%s): enabling SATA channels (0x%x)\n",
+		       pci_name(pdev), (int) tmp8);
+		tmp8 |= ALL_PORTS;
+		pci_write_config_byte(pdev, SATA_CHAN_ENAB, tmp8);
+	}
+
+	/* make sure interrupts for each channel sent to us */
+	pci_read_config_byte(pdev, SATA_INT_GATE, &tmp8);
+	if ((tmp8 & ALL_PORTS) != ALL_PORTS) {
+		printk(KERN_DEBUG DRV_NAME "(%s): enabling SATA channel interrupts (0x%x)\n",
+		       pci_name(pdev), (int) tmp8);
+		tmp8 |= ALL_PORTS;
+		pci_write_config_byte(pdev, SATA_INT_GATE, tmp8);
+	}
+
+	/* make sure native mode is enabled */
+	pci_read_config_byte(pdev, SATA_NATIVE_MODE, &tmp8);
+	if ((tmp8 & NATIVE_MODE_ALL) != NATIVE_MODE_ALL) {
+		printk(KERN_DEBUG DRV_NAME "(%s): enabling SATA channel native mode (0x%x)\n",
+		       pci_name(pdev), (int) tmp8);
+		tmp8 |= NATIVE_MODE_ALL;
+		pci_write_config_byte(pdev, SATA_NATIVE_MODE, tmp8);
+	}
+}
+
+static int svia_init_one (struct pci_dev *pdev, const struct pci_device_id *ent)
+{
+	static int printed_version;
+	unsigned int i;
+	int rc;
+	struct ata_probe_ent *probe_ent;
+	int board_id = (int) ent->driver_data;
+	const int *bar_sizes;
+	int pci_dev_busy = 0;
+	u8 tmp8;
+
+	if (!printed_version++)
+		printk(KERN_DEBUG DRV_NAME " version " DRV_VERSION "\n");
+
+	rc = pci_enable_device(pdev);
+	if (rc)
+		return rc;
+
+	rc = pci_request_regions(pdev, DRV_NAME);
+	if (rc) {
+		pci_dev_busy = 1;
+		goto err_out;
+	}
+
+	if (board_id == vt6420) {
+		pci_read_config_byte(pdev, SATA_PATA_SHARING, &tmp8);
+		if (tmp8 & SATA_2DEV) {
+			printk(KERN_ERR DRV_NAME "(%s): SATA master/slave not supported (0x%x)\n",
+		       	pci_name(pdev), (int) tmp8);
+			rc = -EIO;
+			goto err_out_regions;
+		}
+
+		bar_sizes = &svia_bar_sizes[0];
+	} else {
+		bar_sizes = &vt6421_bar_sizes[0];
+	}
+
+	for (i = 0; i < ARRAY_SIZE(svia_bar_sizes); i++)
+		if ((pci_resource_start(pdev, i) == 0) ||
+		    (pci_resource_len(pdev, i) < bar_sizes[i])) {
+			printk(KERN_ERR DRV_NAME "(%s): invalid PCI BAR %u (sz 0x%lx, val 0x%lx)\n",
+			       pci_name(pdev), i,
+			       pci_resource_start(pdev, i),
+			       pci_resource_len(pdev, i));
+			rc = -ENODEV;
+			goto err_out_regions;
+		}
+
+	rc = pci_set_dma_mask(pdev, ATA_DMA_MASK);
+	if (rc)
+		goto err_out_regions;
+	rc = pci_set_consistent_dma_mask(pdev, ATA_DMA_MASK);
+	if (rc)
+		goto err_out_regions;
+
+	if (board_id == vt6420)
+		probe_ent = vt6420_init_probe_ent(pdev);
+	else
+		probe_ent = vt6421_init_probe_ent(pdev);
+	
+	if (!probe_ent) {
+		printk(KERN_ERR DRV_NAME "(%s): out of memory\n",
+		       pci_name(pdev));
+		rc = -ENOMEM;
+		goto err_out_regions;
+	}
+
+	svia_configure(pdev);
+
+	pci_set_master(pdev);
+
+	/* FIXME: check ata_device_add return value */
+	ata_device_add(probe_ent);
+	kfree(probe_ent);
+
+	return 0;
+
+err_out_regions:
+	pci_release_regions(pdev);
+err_out:
+	if (!pci_dev_busy)
+		pci_disable_device(pdev);
+	return rc;
+}
+
+static int __init svia_init(void)
+{
+	return pci_module_init(&svia_pci_driver);
+}
+
+static void __exit svia_exit(void)
+{
+	pci_unregister_driver(&svia_pci_driver);
+}
+
+/* */
+static void vt6420_phy_reset(struct ata_port *ap)
+{
+	vt6420pata_reset_port(ap);
+	if (ap->flags & ATA_FLAG_SATA)
+		sata_phy_reset(ap);
+	else
+		vt6420pata_phy_reset(ap);
+}
+
+static void vt6420pata_cbl_detect(struct ata_port *ap)
+{
+	u8 tmp;
+	void *mmio = (void *) ap->ioaddr.cmd_addr + VT_CTLSTAT + 0x03;
+
+	tmp = readb(mmio);
+
+	if (tmp & 0x01)
+	{
+		ap->cbl = ATA_CBL_PATA40;
+		ap->udma_mask &= ATA_UDMA_MASK_40C;
+	}
+	else
+		ap->cbl = ATA_CBL_PATA80;
+}
+
+static void vt6420pata_phy_reset(struct ata_port *ap)
+{
+	vt6420pata_cbl_detect(ap);
+
+	ata_port_probe(ap);
+
+	ata_bus_reset(ap);
+}
+
+module_init(svia_init);
+module_exit(svia_exit);
+
+
+--------------050508030303000203010808--
+
+

@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261685AbVDSWLe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261694AbVDSWRq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261685AbVDSWLe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 18:11:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbVDSWLd
+	id S261694AbVDSWRq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 18:17:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbVDSWRq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 18:11:33 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:9740 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261685AbVDSWL0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 18:11:26 -0400
-Date: Wed, 20 Apr 2005 08:10:36 +1000
-To: "Artem B. Bityuckiy" <dedekind@yandex.ru>
-Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org,
-       Linux Crypto Mailing List <linux-crypto@vger.kernel.org>
-Subject: Re: [RFC] CryptoAPI & Compression
-Message-ID: <20050419221036.GA26756@gondor.apana.org.au>
-References: <20050403100043.GA20768@gondor.apana.org.au> <1112522762.3899.182.camel@localhost.localdomain> <20050403101752.GA20866@gondor.apana.org.au> <1112527158.3899.213.camel@localhost.localdomain> <20050403114045.GA21255@gondor.apana.org.au> <4250175D.5070704@yandex.ru> <20050403213207.GA24462@gondor.apana.org.au> <4263CDA9.7070207@yandex.ru> <20050419092522.GA5979@gondor.apana.org.au> <4264FEEC.7090406@yandex.ru>
-Mime-Version: 1.0
+	Tue, 19 Apr 2005 18:17:46 -0400
+Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:58641 "EHLO
+	statik.tu-cottbus.de") by vger.kernel.org with ESMTP
+	id S261694AbVDSWRo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 18:17:44 -0400
+Message-ID: <42657F7C.8060305@s5r6.in-berlin.de>
+Date: Wed, 20 Apr 2005 00:00:28 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux1394-devel@lists.sourceforge.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/ieee1394/: remove unneeded EXPORT_SYMBOL's
+References: <20050417195706.GD3625@stusta.de>	 <20050419191328.GJ1111@conscoop.ottawa.on.ca> <1113939827.6277.86.camel@laptopd505.fenrus.org>
+In-Reply-To: <1113939827.6277.86.camel@laptopd505.fenrus.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4264FEEC.7090406@yandex.ru>
-User-Agent: Mutt/1.5.6+20040907i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 19, 2005 at 04:51:56PM +0400, Artem B. Bityuckiy wrote:
+Arjan van de Ven wrote:
+> On Tue, 2005-04-19 at 15:13 -0400, Jody McIntyre wrote:
+>> On Sun, Apr 17, 2005 at 09:57:07PM +0200, Adrian Bunk wrote:
+>> > This patch removes unneeded EXPORT_SYMBOL's.
+...
+>> Given the objections to your December patch, why should we accept this
+>> one now?
 > 
-> JFFS2 wants the following from pcompress():
-> 1. compressible data: compress it; the offered formerly algorithm works 
-> just fine here.
+> since there still isn't a user ??
 
-Yes but the existing JFFS algorithm does a lot more than that.  It tries
-to pack as much data as possible into the output buffer.
+There are users (though not in "the" kernel at the moment), have been
+users, will be users.
 
-> 2. non-compressible data: do not compress it, leave it uncompressed; the 
-> offered algorithm works fine here too - it returns an error.
-
-If all you need is to compress what's compressible you don't need
-pcompress at all.  You just need to call the normal compress method
-with the input length clamped by the output buffer size.  If the
-function returns OK then it's compressible, otherwise it isn't.
-
-You can even do the existing JFFS loop this way too.
+Note: There is no architectural problem or something like that which
+would be a reason to change the API.
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Stefan Richter
+-=====-=-=-= --== -===-
+http://arcgraph.de/sr/

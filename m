@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbVDSIcW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261218AbVDSIgS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261195AbVDSIcW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 04:32:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVDSIcW
+	id S261218AbVDSIgS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 04:36:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbVDSIgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 04:32:22 -0400
-Received: from mail02.osl.basefarm.net ([81.93.160.49]:44249 "EHLO
-	mail02.osl.basefarm.net") by vger.kernel.org with ESMTP
-	id S261195AbVDSIcS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 04:32:18 -0400
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Igor Shmukler <igor.shmukler@gmail.com>, Rik van Riel <riel@redhat.com>,
-       Daniel Souza <thehazard@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: intercepting syscalls
-References: <6533c1c905041511041b846967@mail.gmail.com>
-	<1113588694.6694.75.camel@laptopd505.fenrus.org>
-	<6533c1c905041512411ec2a8db@mail.gmail.com>
-	<e1e1d5f40504151251617def40@mail.gmail.com>
-	<6533c1c905041512594bb7abb4@mail.gmail.com>
-	<Pine.LNX.4.61.0504180752220.3232@chimarrao.boston.redhat.com>
-	<6533c1c905041807487a872025@mail.gmail.com>
-	<1113836378.6274.69.camel@laptopd505.fenrus.org>
-	<6533c1c9050418080639e41fb@mail.gmail.com>
-	<1113837657.6274.74.camel@laptopd505.fenrus.org>
-	<wvhis2jewxh.fsf@cornavin.basefarm.no>
-	<1113853203.6274.97.camel@laptopd505.fenrus.org>
-From: Terje Malmedal <tm@basefarm.com>
-Date: Tue, 19 Apr 2005 10:32:09 +0200
-In-Reply-To: <1113853203.6274.97.camel@laptopd505.fenrus.org> (Arjan van de
- Ven's message of "Mon, 18 Apr 2005 21:40:02 +0200")
-Message-ID: <wvh8y3fdv5i.fsf@cornavin.basefarm.no>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.2 (gnu/linux)
+	Tue, 19 Apr 2005 04:36:18 -0400
+Received: from mail.dif.dk ([193.138.115.101]:33156 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261188AbVDSIgN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 04:36:13 -0400
+Date: Tue, 19 Apr 2005 10:39:12 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: "David S. Miller" <davem@davemloft.net>,
+       James Morris <jmorris@intercode.com.au>, linux-crypto@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] crypto: resource release functions ought to check for
+ NULL (crypto_free_tfm)
+In-Reply-To: <20050419082048.GA5629@gondor.apana.org.au>
+Message-ID: <Pine.LNX.4.62.0504191038410.2480@dragon.hyggekrogen.localhost>
+References: <Pine.LNX.4.62.0504150106420.3466@dragon.hyggekrogen.localhost>
+ <20050418114925.GA6854@gondor.apana.org.au>
+ <Pine.LNX.4.62.0504181718540.2480@dragon.hyggekrogen.localhost>
+ <20050419082048.GA5629@gondor.apana.org.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Scan-Result: No virus found in message 1DNo9Z-0005bO-8t.
-X-Scan-Signature: mail02.osl.basefarm.net 1DNo9Z-0005bO-8t d1176c3bd7729e79b15e81108859fa67
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 19 Apr 2005, Herbert Xu wrote:
 
-[Arjan van de Ven]
->> What do I do the next time I need to do something like this? 
+> On Mon, Apr 18, 2005 at 05:23:31PM +0200, Jesper Juhl wrote:
+> > 
+> > Next step is to then clean up the callers of crypto_free_tfm so they no 
+> > longer do the redundant NULL check. Below is a patch to do that.
+> 
+> Please wait until the free_tfm change gets into the kernel and then
+> submit this to the subsystem maintainers, which would all be Dave
+> in this case :)
 
-> use kprobes or so to actually replace the faulty lower level function..
-> you don't know from how many different angles the lower level function
-> is called, so you're really best of by replacing it at the lowest
-> possible level, eg closest to the bug. That *very* seldomly is the
-> actual syscall function.
-
-This is exactly what I want to do, but how do I do the replacing part?
-
-I understand how I create pre_ and post_handlers with kprobes, but not
-how I can stop a function from being executed.
+Sure thing, not a problem.
 
 -- 
- - Terje
-tm@basefarm.no
+Jesper
+

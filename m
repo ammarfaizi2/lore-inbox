@@ -1,123 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbVDSCPG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbVDSCgz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261273AbVDSCPG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 22:15:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbVDSCPG
+	id S261205AbVDSCgz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 22:36:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbVDSCgy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 22:15:06 -0400
-Received: from tama5.ecl.ntt.co.jp ([129.60.39.102]:62138 "EHLO
-	tama5.ecl.ntt.co.jp") by vger.kernel.org with ESMTP id S261273AbVDSCOs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 22:14:48 -0400
-Message-ID: <42646983.4020908@lab.ntt.co.jp>
-Date: Tue, 19 Apr 2005 11:14:27 +0900
-From: Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rik van Riel <riel@redhat.com>
-CC: Chris Wedgwood <cw@f00f.org>, Paul Jackson <pj@sgi.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH x86_64] Live Patching Function on 2.6.11.7
-References: <4263275A.2020405@lab.ntt.co.jp> <20050418040718.GA31163@taniwha.stupidest.org> <4263356D.9080007@lab.ntt.co.jp> <20050418061221.GA32315@taniwha.stupidest.org> <42636285.9060405@lab.ntt.co.jp> <20050418075635.GB644@taniwha.stupidest.org> <20050418021609.07f6ec16.pj@sgi.com> <20050418092505.GA2206@taniwha.stupidest.org> <Pine.LNX.4.61.0504180726320.3232@chimarrao.boston.redhat.com> <4263AD94.0@lab.ntt.co.jp> <Pine.LNX.4.61.0504181001470.8456@chimarrao.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.61.0504181001470.8456@chimarrao.boston.redhat.com>
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+	Mon, 18 Apr 2005 22:36:54 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:51981 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261205AbVDSCgw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 22:36:52 -0400
+Date: Tue, 19 Apr 2005 04:36:50 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: acme@conectiva.com.br
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: [2.6 patch] drivers/net/appletalk/: make 2 firmware images static const
+Message-ID: <20050419023650.GS5489@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
+This patch makes two needlessly global fimware images static const.
 
->On Mon, 18 Apr 2005, Takashi Ikebe wrote:
->
->  
->
->>I believe process status copy consume more time, may be below sequences are
->>needed;
->>- Stop the service on ACT-process.
->>- Copy on memory/on transaction status to shared memory.
->>    
->>
->
->No need for this, the process could ALWAYS store its
->status in a shared memory status.  This is just as
->fast as private memory, only more flexible
->  
->
-I don't think so, because ACT process must stop service logic to
-takeover, if the service use network listen port.(ACT process need to
-stop service and close socket to take over.)
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
->>- Takeover shared memory key to SBY process and release the shared memory
->>- SBY process access to shared memory.
->>    
->>
->
->Which means the SBY process can attach to the shared
->memory region while the ACT process is running.  It
->can then communicate with the ACT process through a
->socket ...
->  
->
-this makes software developer crazy....
+---
 
->>- SBY process checks the memory and reset broken sessions.
->>- SBY process restart the service.
->>    
->>
->
->... and the SBY process can take over immediately.
->The state machine running the SBY software can
->continue using the same data structures the ACT
->process was using beforehand, since they're in a 
->shared memory region.
->  
->
->>Some part may be parallelize, but seems the more data make service 
->>disruption time longer...(It seems exceeds 100 milliseconds depends on 
->>data size..) and process will be more complicated....makes more bugs...
->>    
->>
->
->The data size should not be an issue, since the primary
->copy of the state is in the shared memory area.
->  
->
-For me, is seems very dangerous to estimate the primary copy is not
-broken through status takeover..
+ drivers/net/appletalk/cops_ffdrv.h |    2 +-
+ drivers/net/appletalk/cops_ltdrv.h |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
->The state machine in the SBY process can directly run
->using those data structures, so no copying is needed.
->
->The only overhead will be inter-process communication,
->having the first process close file descriptors, yielding
->the CPU to the second process, which then opens up the
->devices again.  We both know how long a context switch
->and an open() syscall take - negligable.
->
->The old version of the program can shut itself down
->after it knows the new version has taken over - in the
->background, without disrupting the now active process.
->
->  
->
-I think your assumption works on some type of process, but not for all
-the process.
-Some process use critical resources such as fixed network listen port
-can not speed up so.
-More importantly, the only process who prepare to use this mechanism
-only allows to use quick process takeover. This cause software
-development difficult.
-The live patching does not require to implement such special techniques
-on applications.
-
-
--- 
-Takashi Ikebe
-NTT Network Service Systems Laboratories
-9-11, Midori-Cho 3-Chome Musashino-Shi,
-Tokyo 180-8585 Japan
-Tel : +81 422 59 4246, Fax : +81 422 60 4012
-e-mail : ikebe.takashi@lab.ntt.co.jp
-
+--- linux-2.6.12-rc2-mm3-full/drivers/net/appletalk/cops_ffdrv.h.old	2005-04-19 03:02:05.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/net/appletalk/cops_ffdrv.h	2005-04-19 03:02:15.000000000 +0200
+@@ -28,7 +28,7 @@
+ 
+ #ifdef CONFIG_COPS_DAYNA
+ 
+-unsigned char ffdrv_code[] = {
++static const unsigned char ffdrv_code[] = {
+ 	58,3,0,50,228,149,33,255,255,34,226,149,
+ 	249,17,40,152,33,202,154,183,237,82,77,68,
+ 	11,107,98,19,54,0,237,176,175,50,80,0,
+--- linux-2.6.12-rc2-mm3-full/drivers/net/appletalk/cops_ltdrv.h.old	2005-04-19 03:02:27.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/net/appletalk/cops_ltdrv.h	2005-04-19 03:02:34.000000000 +0200
+@@ -27,7 +27,7 @@
+ 
+ #ifdef CONFIG_COPS_TANGENT
+ 
+-unsigned char ltdrv_code[] = {
++static const unsigned char ltdrv_code[] = {
+ 	58,3,0,50,148,10,33,143,15,62,85,119,
+ 	190,32,9,62,170,119,190,32,3,35,24,241,
+ 	34,146,10,249,17,150,10,33,143,15,183,237,
 

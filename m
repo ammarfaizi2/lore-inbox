@@ -1,69 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVDTA1g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbVDTArg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261189AbVDTA1g (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 20:27:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVDTA1g
+	id S261186AbVDTArg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 20:47:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbVDTArg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 20:27:36 -0400
-Received: from alog0079.analogic.com ([208.224.220.94]:19378 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261189AbVDTA1d
+	Tue, 19 Apr 2005 20:47:36 -0400
+Received: from natsmtp00.rzone.de ([81.169.145.165]:55518 "EHLO
+	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S261186AbVDTArd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 20:27:33 -0400
-Date: Tue, 19 Apr 2005 20:26:24 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Chris Friesen <cfriesen@nortel.com>
-cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       Karel Kulhavy <clock@twibright.com>, linux-kernel@vger.kernel.org
-Subject: Re: GPL violation by CorAccess?
-In-Reply-To: <42659620.5050002@nortel.com>
-Message-ID: <Pine.LNX.4.61.0504192015590.20917@chaos.analogic.com>
-References: <20050419175743.GA8339@beton.cybernet.src>
- <20050419182529.GT17865@csclub.uwaterloo.ca> <Pine.LNX.4.61.0504191516080.18402@chaos.analogic.com>
- <42656319.6090703@nortel.com> <Pine.LNX.4.61.0504191741190.19956@chaos.analogic.com>
- <42659620.5050002@nortel.com>
+	Tue, 19 Apr 2005 20:47:33 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 0/4] ppc64: prepare for integration of BPA platform
+Date: Wed, 20 Apr 2005 01:49:21 +0200
+User-Agent: KMail/1.7.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200504200149.22063.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Apr 2005, Chris Friesen wrote:
+This series of patches adds a bit of infrastructure in preparation of
+getting the Broadband Processor Architecture (BPA) into the kernel as
+a new platform type of ppc64.
+BPA is currently used in a single machine from IBM, with others likely
+to be added at a later point.
 
-> Richard B. Johnson wrote:
->
->> No. Accompany it with a written offer to __provide__ the source
->> code for any GPL stuff they used (like the kernel or drivers).
->> Anything at the application-level is NOT covered by the GPL.
->> They do not have to give away their trade-secrets.
->
-> GPL'd applications would still be covered by the GPL, no?
->
+None of these preparation patches are really specific to the
+architecture itself. Hopefully, I will be able to send the actual
+platform code really soon now.
 
-You mean like `ls` and `init` ??? Sure. I don't think any serious
-embedded stuff would use that, though. Typically an embedded
-system would start with a new application called 'init'. It
-wouldn't use a SYS-V startup and certainly wouldn't have a shell.
-The new init would do everything including mounting any file-
-systems and initializing networking all by itself without
-any help from the usual applications. It might fork-off a few
-different tasks to handle different things. For instance,
-the system shown probably handles the furnace and air-conditioner
-as a separate task. The shades and blinds are probably another
-and, certainly, communicating with the robot that mows the lawn
-would require a separate task just to handle GPS.
+BPA and pSeries can share some code, mostly because they are both
+using rtas. The first two patches are splitting out the common
+code from the pSeries_pci implementation into a generic rtas_pci
+base.
+The nvram and watchdog drivers are pretty generic and are first used
+in the new machine.
 
-> If I buy their product, I should be able to ask them for the source to
-> all GPL'd entities that are present in the system, including the kernel,
-> drivers, and all GPL'd userspace apps.
->
-> Any *new* apps that they wrote they would of course be free to keep private.
->
+	Arnd <><
 
-Yep.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.

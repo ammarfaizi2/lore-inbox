@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261364AbVDSH1u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261370AbVDSHba@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261364AbVDSH1u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 03:27:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbVDSH1u
+	id S261370AbVDSHba (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 03:31:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbVDSHba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 03:27:50 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:48104 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261364AbVDSH1s (ORCPT
+	Tue, 19 Apr 2005 03:31:30 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:51433 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261370AbVDSHb2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 03:27:48 -0400
-Date: Tue, 19 Apr 2005 00:25:12 -0700
+	Tue, 19 Apr 2005 03:31:28 -0400
+Date: Tue, 19 Apr 2005 00:28:08 -0700
 From: Paul Jackson <pj@sgi.com>
 To: Nick Piggin <nickpiggin@yahoo.com.au>
 Cc: dino@in.ibm.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
        lse-tech@lists.sourceforge.net, akpm@osdl.org, dipankar@in.ibm.com,
        colpatch@us.ibm.com
 Subject: Re: [RFC PATCH] Dynamic sched domains aka Isolated cpusets
-Message-Id: <20050419002512.557478d4.pj@sgi.com>
+Message-Id: <20050419002808.66c9f66b.pj@sgi.com>
 In-Reply-To: <1113894584.5074.54.camel@npiggin-nld.site>
 References: <1097110266.4907.187.camel@arrakis>
 	<20050418202644.GA5772@in.ibm.com>
@@ -32,17 +32,18 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > So you do _not_ want to consider nested sched domains, just disjoint
-> > ones.  Good.
-> > 
-> 
-> You don't either? Good. :)
+Nick wrote:
+> That would make sense. I'm not familiar with the workings of cpusets,
+> but that would require every task to be assigned to one of these
+> sets (or a subset within it), yes?
 
->From the point of view of cpusets, I'd rather not think
-about nested sched domains, for now at least.
+That's the rub, as I noted a couple of messages ago, while you
+were writing this message.
 
-But my scheduler savvy colleagues on the big SGI boxes
-may well have ambitions here.  I can't speak for them.
+It doesn't require every task to be in one of these or a subset.
+
+Tasks could be in some multiple-domain superset, unless that is so
+painful that we have to add mechanisms to cpusets to prohibit it.
 
 -- 
                   I won't rest till it's the best ...

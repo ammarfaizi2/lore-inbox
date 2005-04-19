@@ -1,92 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261620AbVDSQVE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261172AbVDSQcq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261620AbVDSQVE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 12:21:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbVDSQVE
+	id S261172AbVDSQcq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 12:32:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbVDSQcq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 12:21:04 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:15269 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261620AbVDSQUy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 12:20:54 -0400
-Date: Tue, 19 Apr 2005 09:19:39 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Simon Derr <Simon.Derr@bull.net>
-Cc: dino@in.ibm.com, Simon.Derr@bull.net, nickpiggin@yahoo.com.au,
-       linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-       akpm@osdl.org, dipankar@in.ibm.com, colpatch@us.ibm.com
-Subject: Re: [RFC PATCH] Dynamic sched domains aka Isolated cpusets
-Message-Id: <20050419091939.55933186.pj@sgi.com>
-In-Reply-To: <Pine.LNX.4.61.0504190955250.4587@openx3.frec.bull.fr>
-References: <1097110266.4907.187.camel@arrakis>
-	<20050418202644.GA5772@in.ibm.com>
-	<20050418225427.429accd5.pj@sgi.com>
-	<Pine.LNX.4.61.0504190955250.4587@openx3.frec.bull.fr>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 19 Apr 2005 12:32:46 -0400
+Received: from ext-ch1gw-7.online-age.net ([64.37.194.15]:9671 "EHLO
+	ext-ch1gw-7.online-age.net") by vger.kernel.org with ESMTP
+	id S261172AbVDSQcn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 12:32:43 -0400
+Date: Tue, 19 Apr 2005 18:32:21 +0200
+From: Karl Kiniger <karl.kiniger@med.ge.com>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.30 Oops when connecting external USB hard drive
+Message-ID: <20050419163221.GA23982@wszip-kinigka.euro.med.ge.com>
+References: <20050412173911.GA21311@wszip-kinigka.euro.med.ge.com> <20050414050243.GF7858@alpha.home.local> <20050415125048.GA21076@wszip-kinigka.euro.med.ge.com> <20050416055305.GG7858@alpha.home.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050416055305.GG7858@alpha.home.local>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Simon wrote:
-> I guess we hit a limit of the filesystem-interface approach here.
-> Are the possible failure reasons really that complex ?
+On Sat, Apr 16, 2005 at 07:53:05AM +0200, Willy Tarreau wrote:
+> On Fri, Apr 15, 2005 at 02:50:48PM +0200, Karl Kiniger wrote:
+> > On Thu, Apr 14, 2005 at 07:02:44AM +0200, Willy Tarreau wrote:
+> > > You may try to unload the ehci-hcd driver and load only uhci and check if
+> > > it still happens. I guess from the trace that the problem lies in the ehci
+> > > driver itself.
+> > 
+> > Your guess is right. With only uhci loaded it works (dog slow of course).
+> > When I then insmod the ehci-hcd driver: instant Oops.
+> > 
+> > Today I tried with another USB 2.0 enclosure w/o crash - it seems
+> > to dislike especially the Seagate enclosure.
+> 
+> Fine, it may not be an important bug.
 
-Given the amount of head scratching my proposal has provoked
-so far, they might be that complex, yes.  Failure reasons
-include:
- * The cpuset Foo whose domain_cpu_rebuild file we wrote does
-   not align with the current partition of CPUs on the system
-   (align: every subset of the partition is either within or
-   outside the CPUs of Foo)
- * The cpusets Foo and its descendents which are marked with
-   a true domain_cpu_pending do not form a partition of the
-   CPUs in Foo.  This could be either because two of these
-   cpusets have overlapping CPUs, or because the union of all
-   the CPUs in these cpusets doesn't cover.
- * The usual other reasons such as lacking write permission.
+To you :) - it is annoying for me.
 
-> If this is only to get a hint, OK.
+> 
+> > perhaps the output of cat /proc/bus/usb/devices gives some hint?
+> > (BTW: what does the asterisk in the 'C:' lines mean?)
+> 
+> I don't remember at all...
+> 
+> > On the two "GE Med. Kretz" USB<>IDE devices there is 
+> > a DVD recorder and a Maxtor HD connected, both are working fine
+> > as long as nobody tries to plug in this particular Seagate.
+> > 
+> > What to do next? I have no clue about the innards of ehci-hcd....
+> 
+> You should CC the ehci-hcd the usb-storage maintainers, they probably
 
-Yes - it would be a hint.  The official explanation would be the
-errno setting on the failed write.  The hint, written to the
-domain_cpu_error file, could actually state which two cpusets
-had overlapping CPUs, or which CPUs in Foo were not covered by
-the union of the CPUs in the marked descendent cpusets.
+tks for advice.
 
-Yes - it pushing the limits of available mechanisms.  Though I don't
-offhand see where the filesystem-interface approach is to blame here.
-Can you describe any other approach that would provide such a similarly
-useful error explanation in a less unusual fashion?
+> will have more clues or ideas about what you encounter. A post to the
+> linux-usb-users list would be a good idea too. Also, if you can test
+> 2.6 and find that it is broken only on 2.4, it will be easier for them
+> to send you some code to try.
 
-> Is such an error reporting scheme already in use in the kernel ?
+I will try to boot something like knoppix or RIP with a 2.6 kernel
+and see what happens.
 
-I don't think so.
+Thanks anyways,
 
-> On the other hand, there's also no guarantee that what we are triggering 
-> by writing in domain_cpu_rebuild is what we have set up by writing in 
-> domain_cpu_pending. User applications will need a bit of self-discipline.
+Karl
 
-True.
-
-To preserve the invariant that the CPUs in the selected cpusets form a
-partition (disjoint cover) of the systems CPUs, we either need to
-provide an atomic operation that allows passing in a selection of
-cpusets, or we need to provide a sequence of operations that essentially
-drive a little finite state machine, building up a description of the
-new state while the old state remains in place, until the final trigger
-is fired.
-
-This suggests what the primary alternative to my proposed API would be,
-and that would be an interface that let one pass in a list of cpusets,
-requesting that the partition below the specified cpuset subtree Foo be
-completely and atomically rebuilt, to be that defined by the list of
-cpusets, with the set of CPUS in each of these cpusets defining one
-subset of the partition.
+> 
+> Regards,
+> Willy
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401
+Karl Kiniger   mailto:karl.kiniger@med.ge.com
+GE Medical Systems Kretztechnik GmbH & Co OHG
+Tiefenbach 15       Tel: (++43) 7682-3800-710
+A-4871 Zipf Austria Fax: (++43) 7682-3800-47

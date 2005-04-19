@@ -1,67 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261544AbVDSOSc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbVDSOV0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261544AbVDSOSc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 10:18:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261543AbVDSOSc
+	id S261548AbVDSOV0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 10:21:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbVDSOVZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 10:18:32 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:8075 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261540AbVDSOSU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 10:18:20 -0400
-Subject: Re: Regarding posted scsi midlyaer patchsets
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Tejun Heo <htejun@gmail.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050419123436.GA2827@suse.de>
-References: <20050417224101.GA2344@htj.dyndns.org>
-	 <1113833744.4998.13.camel@mulgrave> <4263CB26.2070609@gmail.com>
-	 <20050419123436.GA2827@suse.de>
-Content-Type: text/plain
-Date: Tue, 19 Apr 2005 09:18:15 -0500
-Message-Id: <1113920295.4998.13.camel@mulgrave>
+	Tue, 19 Apr 2005 10:21:25 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:33210 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S261548AbVDSOVS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 10:21:18 -0400
+Date: Tue, 19 Apr 2005 16:20:23 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Chuck Wolber <chuckw@quantumlinux.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Development Model
+Message-ID: <20050419142023.GA14968@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Chuck Wolber <chuckw@quantumlinux.com>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.60.0504182219360.6679@bailey.quantumlinux.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.60.0504182219360.6679@bailey.quantumlinux.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-04-19 at 14:34 +0200, Jens Axboe wrote:
-> On Mon, Apr 18 2005, Tejun Heo wrote:
-> >  And, James, regarding REQ_SOFTBARRIER, if the REQ_SOFTBARRIER thing can
-> > be removed from SCSI midlayer, do you agree to change REQ_SPECIAL to
-> > mean special requests?  If so, I have three proposals.
-> > 
-> >  * move REQ_SOFTBARRIER setting to right after the allocation of
-> > scsi_cmnd in scsi_prep_fn().  This will be the only place where
-> > REQ_SOFTBARRIER is used in SCSI midlayer, making it less pervasive.
-> >  * Or, make another API which sets REQ_SOFTBARRIER on requeue.  maybe
-> > blk_requeue_ordered_request()?
-> >  * Or, make blk_insert_request() not set REQ_SPECIAL on requeue.  IMHO,
-> > this is a bit too subtle.
-> > 
-> >  I like #1 or #2.  Jens, what do you think?  Do you agree to remove
-> > requeue feature from blk_insert_request()?
-> 
-> #2 is the best, imho. We really want to maintain ordering on requeue
-> always, marking it softbarrier automatically in the block layer means
-> the io schedulers don't have to do anything specific to handle it.
+> that (at least for now) no *MAJOR* "rip it out, stomp on it, burn it and 
+> start over" parts of the kernel exist any longer? In other words, do you 
 
-This is my preference too.  In general, block is the only one that
-should care what the REQ_SOFTBARRIER flag actually means.  SCSI only
-cares that it submits a non mergeable request.
+These ideas continue to exist. This is partly due to increasing skills of
+developers but also to the changing environment. You'll find literally
+scores of commits that say 'this was a good idea when were were limited to
+1024 filedescriptor' or the like.
 
-I'm happy to separate the meaning of REQ_SPECIAL from req->special.
+I think the tty layer has been ready to be ripped out and replaced for the
+past 10 years though.
 
-> I have no problem with removing the requeue stuff from
-> blk_insert_request(). That function is horribly weird as it is, it is
-> supposed to look generic but is really just a scsi special case.
-
-heh .. would this be because no other driver uses the block layer for
-requeuing ... ?
-
-James
-
-
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://netherlabs.nl              Open and Closed source services

@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbVDSBDz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVDSBJQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261237AbVDSBDz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 21:03:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbVDSBDz
+	id S261243AbVDSBJQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 21:09:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbVDSBJP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 21:03:55 -0400
-Received: from gate.crashing.org ([63.228.1.57]:7399 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261237AbVDSBDk (ORCPT
+	Mon, 18 Apr 2005 21:09:15 -0400
+Received: from gate.crashing.org ([63.228.1.57]:13031 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261243AbVDSBJK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 21:03:40 -0400
+	Mon, 18 Apr 2005 21:09:10 -0400
 Subject: Re: PATCH [PPC64]: dead processes never reaped
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 To: Linas Vepstas <linas@austin.ibm.com>
@@ -19,8 +19,8 @@ Cc: Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>,
 In-Reply-To: <20050418193833.GW15596@austin.ibm.com>
 References: <20050418193833.GW15596@austin.ibm.com>
 Content-Type: text/plain
-Date: Tue, 19 Apr 2005 11:01:25 +1000
-Message-Id: <1113872485.5516.326.camel@gaston>
+Date: Tue, 19 Apr 2005 11:07:01 +1000
+Message-Id: <1113872821.5516.330.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
@@ -56,8 +56,12 @@ On Mon, 2005-04-18 at 14:38 -0500, Linas Vepstas wrote:
 > hanging around, which will never be scheduled again, and will never  
 > get a chance to have put_task_struct() called on them.  
 
-I wonder why we bother doing all that at all... we could just return
-"prev" from __switch_to() no ? Like x86 does...
+Ok, thinking moer about this ... that will need maybe some help from
+Ingo so I fully understand where schedule's are allowed ... We are
+basically in the middle of the scheduler here, so I wonder how much of
+the scheduler itself can be preempted or so ...
+
+Basically, under which circumstances can prev and current be different ?
 
 Ben.
 

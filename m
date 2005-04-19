@@ -1,67 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261639AbVDSTpJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbVDSTqO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261639AbVDSTpJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 15:45:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbVDSTpJ
+	id S261631AbVDSTqO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 15:46:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbVDSTqO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 15:45:09 -0400
-Received: from v6.netlin.pl ([62.121.136.6]:31239 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S261639AbVDSTpA (ORCPT
+	Tue, 19 Apr 2005 15:46:14 -0400
+Received: from unthought.net ([212.97.129.88]:23463 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S261631AbVDSTpV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 15:45:00 -0400
-Message-ID: <42655FA4.3030304@pointblue.com.pl>
-Date: Tue, 19 Apr 2005 21:44:36 +0200
-From: Grzegorz Piotr Jaskiewicz <gj@pointblue.com.pl>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: DervishD <lkml@dervishd.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: hama card reader 19in1 question on USB (not workie)
-References: <4264F3DD.7090204@pointblue.com.pl> <20050419133659.GA401@DervishD>
-In-Reply-To: <20050419133659.GA401@DervishD>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Tue, 19 Apr 2005 15:45:21 -0400
+Date: Tue, 19 Apr 2005 21:45:15 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Greg Banks <gnb@melbourne.sgi.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bdflush/rpciod high CPU utilization, profile does not make sense
+Message-ID: <20050419194515.GP17359@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Greg Banks <gnb@melbourne.sgi.com>,
+	Trond Myklebust <trond.myklebust@fys.uio.no>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1113083552.11982.17.camel@lade.trondhjem.org> <20050411074806.GX347@unthought.net> <1113222939.14281.17.camel@lade.trondhjem.org> <20050411134703.GC13369@unthought.net> <1113230125.9962.7.camel@lade.trondhjem.org> <20050411144127.GE13369@unthought.net> <1113232905.9962.15.camel@lade.trondhjem.org> <20050411154211.GG13369@unthought.net> <1113267809.1956.242.camel@hole.melbourne.sgi.com> <20050412092843.GB17359@unthought.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050412092843.GB17359@unthought.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, Apr 12, 2005 at 11:28:43AM +0200, Jakob Oestergaard wrote:
+...
+> 
+> But still, guys, it is the *same* server with tg3 that runs well with a
+> 2.4 client but poorly with a 2.6 client.
+> 
+> Maybe I'm just staring myself blind at this, but I can't see how a
+> general problem on the server (such as packet loss, latency or whatever)
+> would cause no problems with a 2.4 client but major problems with a 2.6
+> client.
 
-Thanks dude, it worked !
+Another data point;
 
+I upgraded my mom's machine from an earlier 2.6 (don't remember which,
+but I can find out) to 2.6.11.6.
 
-DervishD wrote:
->     Hi Grzegorz :)
-> 
->  * Grzegorz Piotr Jaskiewicz <gj@pointblue.com.pl> dixit:
-> 
->>Apr 19 14:03:49 thinkpaddie kernel:   Vendor: USB Read  Model: CF Card
->>     CF  Rev: 1.8D
->>Apr 19 14:03:49 thinkpaddie kernel:   Type:   Direct-Access
->>         ANSI SCSI revision: 00
-> 
-> [...]
-> 
->>But no SD card is detected, and I can't mount the card.
-> 
-> 
->     Only the first LUN is being detected. You need a kernel with
-> CONFIG_SCSI_MULTI_LUN in order to have all slots detected in the card
-> reader. I have a 8-in-1 card reader with 4 slots and I need multiple
-> LUN support.
-> 
->     Try that ;)
-> 
->     Raúl Núñez de Arenas Coronado
-> 
+It mounts a home directory from a 2.6.6 NFS server - the client and
+server are on a hub'ed 100Mbit network.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
+On the earlier 2.6 client I/O performance was as one would expect on
+hub'ed 100Mbit - meaning, not exactly stellar, but you'd get around 4-5
+MB/sec and decent interactivity.
 
-iD8DBQFCZV+ki0HtPCVkDAURAl+SAJ9EtCRBO1al5Q/jkYXAgMEpMdpmuACdE9ix
-0g6SWend2Gta9G7mJuHR26o=
-=0c55
------END PGP SIGNATURE-----
+The typical workload here is storing or retrieving large TIFF files on
+the client, while working with other things in KDE. So, if the
+large-file NFS I/O causes NFS client stalls, it will be noticable on the
+desktop (probably as Konqueror or whatever is accessing configuration or
+cache files).
+
+With 2.6.11.6 the client is virtually unusable when large files are
+transferred.  A "df -h" will hang on the mounted filesystem for several
+seconds, and I have my mom on the phone complaining that various windows
+won't close and that her machine is too slow (*again* it's no more than
+half a year ago she got the new P4)  ;)
+
+Now there's plenty of things to start optimizing; RPC over TCP, using a
+switch or crossover cable instead of the hub, etc. etc.
+
+However, what changed here was the client kernel going from en earlier
+2.6 to 2.6.11.6.
+
+A lot happened to the NFS client in 2.6.11 - I wonder if there's any of
+these patches that are worth trying to revert?  I have several setups
+that suck currently, so I'm willing to try a thing or two :)
+
+I would try 
+---
+<trond.myklebust@fys.uio.no>
+        RPC: Convert rpciod into a work queue for greater flexibility.
+        Signed-off-by: Trond Myklebust <trond.myklebust@fys.uio.no>
+---
+if noone has a better idea...  But that's just a hunch based solely on
+my observation of rpciod being a CPU hog on one of the earlier client
+systems.  I didn't observe large 'sy' times in vmstat on this client
+while it hung on NFS though...
+
+Any suggestions would be greatly appreciated,
+
+-- 
+
+ / jakob
+

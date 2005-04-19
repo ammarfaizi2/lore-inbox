@@ -1,40 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261540AbVDSSc7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261557AbVDSSet@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261540AbVDSSc7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 14:32:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbVDSSc7
+	id S261557AbVDSSet (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 14:34:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbVDSSet
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 14:32:59 -0400
-Received: from S010600c0f014b14a.ss.shawcable.net ([70.64.60.7]:1288 "HELO
-	discworld.dyndns.org") by vger.kernel.org with SMTP id S261540AbVDSSc5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 14:32:57 -0400
-Date: Tue, 19 Apr 2005 12:32:19 -0600
-From: Charles Cazabon <linux@discworld.dyndns.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: GPL violation by CorAccess?
-Message-ID: <20050419183219.GB5670@discworld.dyndns.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20050419175743.GA8339@beton.cybernet.src> <20050419182529.GT17865@csclub.uwaterloo.ca>
+	Tue, 19 Apr 2005 14:34:49 -0400
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:22672
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261554AbVDSSen (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 14:34:43 -0400
+Date: Tue, 19 Apr 2005 11:28:35 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Francesco Oppedisano <francesco.oppedisano@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: more packets than interrupts
+Message-Id: <20050419112835.5efd4132.davem@davemloft.net>
+In-Reply-To: <875fe4a505041908466117acf4@mail.gmail.com>
+References: <875fe4a505041908466117acf4@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050419182529.GT17865@csclub.uwaterloo.ca>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lennart Sorensen <lsorense@csclub.uwaterloo.ca> wrote:
-> 
-> Well what is the case if you use unmodified GPL code, do you still have
-> to provide sources to the end user if you give them binaries? 
+On Tue, 19 Apr 2005 15:46:07 +0000
+Francesco Oppedisano <francesco.oppedisano@gmail.com> wrote:
+> Can every driver manage many packets per call?
 
-Yes, or a written offer to provide sources, plus a copy of the GPL.  It's all
-spelled out pretty clearly in the GPL itself.
-
-Charles
--- 
------------------------------------------------------------------------
-Charles Cazabon                            <linux@discworld.dyndns.org>
-GPL'ed software available at:               http://pyropus.ca/software/
------------------------------------------------------------------------
+Most can.  If more packets arrive between between when the chip
+signals the interrupt and the cpu actually gets to the driver
+interrupt handler, multiple packets per interrupt can easily happen.

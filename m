@@ -1,39 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbVDSUIz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261652AbVDSUM2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261651AbVDSUIz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 16:08:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbVDSUIz
+	id S261652AbVDSUM2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 16:12:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbVDSUM2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 16:08:55 -0400
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:25547
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261651AbVDSUIy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 16:08:54 -0400
-Date: Tue, 19 Apr 2005 13:02:38 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Nico Schottelius <nico-kernel@schottelius.org>
-Cc: rlrevell@joe-job.com, lsorense@csclub.uwaterloo.ca,
-       linux-kernel@vger.kernel.org
+	Tue, 19 Apr 2005 16:12:28 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:4319 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S261652AbVDSUM0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 16:12:26 -0400
+Date: Tue, 19 Apr 2005 16:12:25 -0400
+To: Nico Schottelius <nico-kernel@schottelius.org>,
+       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
 Subject: Re: /proc/cpuinfo format - arch dependent!
-Message-Id: <20050419130238.2b855462.davem@davemloft.net>
-In-Reply-To: <20050419200011.GB16594@schottelius.org>
-References: <20050419121530.GB23282@schottelius.org>
-	<20050419132417.GS17865@csclub.uwaterloo.ca>
-	<1113938220.20178.0.camel@mindpipe>
-	<20050419200011.GB16594@schottelius.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Message-ID: <20050419201225.GW4373@csclub.uwaterloo.ca>
+References: <20050419121530.GB23282@schottelius.org> <20050419132417.GS17865@csclub.uwaterloo.ca> <1113938220.20178.0.camel@mindpipe> <20050419200011.GB16594@schottelius.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050419200011.GB16594@schottelius.org>
+User-Agent: Mutt/1.3.28i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Apr 2005 22:00:12 +0200
-Nico Schottelius <nico-kernel@schottelius.org> wrote:
-
+On Tue, Apr 19, 2005 at 10:00:12PM +0200, Nico Schottelius wrote:
 > Can you tell me which ones?
 
-glibc even parses /proc/cpuinfo, so by implication every
-application
+top for example would probably break.  Maybe not but I suspect it would.
+mplayer probably would since it uses it to find the cpu type and
+features that cpu supports.
 
+> And if there are really that many tools, which are dependent on
+> those information, wouldn't it be much more senseful to make
+> it (as far as possible) the same?
+
+Well the tools that care are often architecture specific.  After all the
+info in cpuinfo is very architecture specific.
+
+> I must say I was really impressed, how easy I got the number of
+> cpus on *BSD (I am not a bsd user, still impressed).
+
+Well there still is that sysconf call to get the number of cpus, which
+is way better in C than parsing a text file to get the info as far as I
+am concerned.
+
+> They also have the same format on every arch and mostly the same
+> between different bsds (as far as I have seen).
+
+What info do they provide in that on BSD?
+
+> In general, where are the advantages of having very different cpuinfo
+> formats? Tools would need to know less about the arch and could
+> depend on "I am on Linux" only.
+
+The info in cpuinfo is only of interest to a tool that knows about the
+architecture it is on.
+
+It is not meant to look up the number of cpus the system has.  It is
+meant to provide the info about the cpus in the system, which means it
+provides info relevant to the cpu on a given architecture.
+
+Len Sorensen

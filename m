@@ -1,38 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbVDSU0k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbVDSUbc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261367AbVDSU0k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 16:26:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbVDSU0k
+	id S261260AbVDSUbc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 16:31:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbVDSUbc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 16:26:40 -0400
-Received: from mail.enyo.de ([212.9.189.167]:6848 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id S261367AbVDSU0j (ORCPT
+	Tue, 19 Apr 2005 16:31:32 -0400
+Received: from pat.uio.no ([129.240.130.16]:2271 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261260AbVDSUba (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 16:26:39 -0400
-From: Florian Weimer <fw@deneb.enyo.de>
-To: Chuck Wolber <chuckw@quantumlinux.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Development Model
-References: <Pine.LNX.4.60.0504182219360.6679@bailey.quantumlinux.com>
-Date: Tue, 19 Apr 2005 22:26:35 +0200
-In-Reply-To: <Pine.LNX.4.60.0504182219360.6679@bailey.quantumlinux.com> (Chuck
-	Wolber's message of "Mon, 18 Apr 2005 22:31:43 -0700 (PDT)")
-Message-ID: <87r7h6h5s4.fsf@deneb.enyo.de>
+	Tue, 19 Apr 2005 16:31:30 -0400
+Date: Tue, 19 Apr 2005 22:31:26 +0200 (CEST)
+From: =?iso-8859-1?Q?P=E5l_Halvorsen?= <paalh@ifi.uio.no>
+To: linux-kernel@vger.kernel.org
+Subject: getrusage
+Message-ID: <Pine.LNX.4.62.0504192225470.4538@nelja.ifi.uio.no>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-UiO-Spam-info: not spam, SpamAssassin (score=-6.941, required 12,
+	autolearn=disabled, ALL_TRUSTED -2.82, AWL 0.88,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Chuck Wolber:
 
-> Has the Linux Kernel reached a point where the majority of developers feel 
-> that (at least for now) no *MAJOR* "rip it out, stomp on it, burn it and 
-> start over" parts of the kernel exist any longer?
+Hi!
 
-The IP stack is likely to see some development activity, at leat there
-are some specs floating around which contain requirements which the
-current IP routing implementation cannot match (deterministic
-forwarding and things like that).
+Is getrusage properly implemented in 2.6?
 
-I don't know if the results will be published and integrated in the
-main kernel tree, though.
+The man pages state:
+
+   Right  now  (Linux  2.4,  2.6)  only  the  fields
+   ru_utime,  ru_stime, ru_minflt, ru_majflt, and ru_nswap are maintained.
+
+but some tests comparing UDP and TCP sending operations give some strange 
+numbers for both the user and kernel times!?
+
+PS! Does Linux 2.6 support zero-copy TCP send?
+
+Thank you.
+
+-ph

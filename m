@@ -1,139 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261447AbVDSKTg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVDSKuK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261447AbVDSKTg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 06:19:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVDSKTg
+	id S261375AbVDSKuK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 06:50:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVDSKuK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 06:19:36 -0400
-Received: from [151.12.57.13] ([151.12.57.13]:48146 "EHLO
-	mail2.it.atosorigin.com") by vger.kernel.org with ESMTP
-	id S261447AbVDSKT0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 06:19:26 -0400
-From: Rao Davide <davide.rao@atosorigin.com>
-To: dl8bcu@dl8bcu.de, linux-kernel@vger.kernel.org
-Cc: rth@twiddle.net, ink@jurassic.park.msu.ru
-Message-ID: <4264D77C.6010605@atosorigin.com>
-Date: Tue, 19 Apr 2005 12:03:40 +0200
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-Subject: Re: Linux Alpha port: LVM
-References: <42569BC7.5030709@atosorigin.com> <20050408190709.GB27845@twiddle.net> <425A2442.8090607@atosorigin.com> <4263ACA9.4080507@atosorigin.com> <20050418195351.GA32124@Marvin.DL8BCU.ampr.org>
-In-Reply-To: <20050418195351.GA32124@Marvin.DL8BCU.ampr.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Apr 2005 10:25:23.0281 (UTC) FILETIME=[185DCC10:01C544CA]
+	Tue, 19 Apr 2005 06:50:10 -0400
+Received: from dspnet.fr.eu.org ([213.186.44.138]:8198 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S261375AbVDSKuH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 06:50:07 -0400
+Date: Tue, 19 Apr 2005 12:50:04 +0200
+From: Olivier Galibert <galibert@pobox.com>
+To: "Hack inc." <linux-kernel@vger.kernel.org>
+Subject: alloc_pages and struct page *
+Message-ID: <20050419105004.GA7612@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	"Hack inc." <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>Is LVM working on the alpha port 2.6 kernel series ?
->  
-> works fine for me.
+If I get a struct page * from a call to alloc_pages with a non-zero
+order, how do I get the struct page * of te following pages from the
+same allocation in order to use them in calls to tcp_sendpage?
 
-Are you using a redhat based distro (like suse, mandrake, alpha core or 
-indeed redhat )?
-Are you using stock kernel, libraries and tools or did you haveto build 
-them yourself ?
-Debian comes with LVM1 tools that do not work with 2.6 kernels so I need 
-to compile them myself or install some ready build binary package for 
-alpha processor and compatible with the libraries that come with debian3.
-What alpha architecture are you running on ?
+If there a documentation somewhere whcih would answer this kind of
+questions?  Couldn't find anything pertinent in Documentation/*.
 
+  OG.
 
->>If so where do I get libdevmapper so that I can build the userspace LVM 
->>utils ?
->>
->>I tryied downloading 
->>ftp://sources.redhat.com/pub/dm/multipath-toolsmultipath-tools-0.4.3.tar.bz2
-> 
-> what do you think the 'dm' in that url stands for, hm?
-> 
-> 
->>But I fail to compile it so I'm also unable tu build the userspace lvm 
->>utils.
-> 
-> 
-> 'userspace lvm utils' can be found here:
-> 
-> ftp://sources.redhat.com/pub/lvm2
-> 
-> multipath tools might be something different ... :)
-
-It may also have something more but it has libdevmapper in it ...
-In any case I also tried downloading and compiling 
-device-mapper.1.00.07.tgz from the link in the LVM2.
-It builds and installe fine but I still get compilation errore when I 
-build LVM2.
-Configute is fine, here are a few lines concerning libdevmapper
-
-checking libdevmapper.h usability... yes
-checking libdevmapper.h presence... yes
-checking for libdevmapper.h... yes
-
-but when I try to compile:
-
-gcc -c -I. -I../include -DLVM1_INTERNAL -DPOOL_INTERNAL 
--DCLUSTER_LOCKING_INTERNAL -DSNAPSHOT_INTERNAL -DMIRRORED_INTERNAL 
--DDEVMAPPER_SUPPORT -DO_DIRECT_SUPPORT -DHAVE_LIBDL -DHAVE_GETOPTLONG 
--fPIC -Wall -Wundef -Wshadow -Wcast-align -Wwrite-strings 
--Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Winline 
--O2 cache/lvmcache.c -o cache/lvmcache.o
-activate/activate.c: In function `target_present':
-activate/activate.c:303: error: `DM_DEVICE_LIST_VERSIONS' undeclared 
-(first use in this function)
-activate/activate.c:303: error: (Each undeclared identifier is reported 
-only once
-activate/activate.c:303: error: for each function it appears in.)
-activate/activate.c:314: warning: implicit declaration of function 
-`dm_task_get_versions'
-activate/activate.c:314: warning: nested extern declaration of 
-`dm_task_get_versions'
-activate/activate.c:314: warning: assignment makes pointer from integer 
-without a cast
-activate/activate.c:319: error: dereferencing pointer to incomplete type
-...
-same message repeated many times
-...
-make[1]: *** [activate/activate.o] Error 1
-make[1]: *** Waiting for unfinished jobs....
-make[1]: Leaving directory `/usr/src/LVM2.2.01.09/lib'
-make: *** [lib] Error 2
-
-I'm using kernel 2.6.11.7 downloaded from kernel.org.
-Here's the relevent section for raid/lvm in config:
-# Multi-device support (RAID and LVM)
-#
-CONFIG_MD=y
-CONFIG_BLK_DEV_MD=y
-CONFIG_MD_LINEAR=y
-CONFIG_MD_RAID0=y
-CONFIG_MD_RAID1=y
-# CONFIG_MD_RAID10 is not set
-CONFIG_MD_RAID5=y
-# CONFIG_MD_RAID6 is not set
-CONFIG_MD_MULTIPATH=y
-CONFIG_MD_FAULTY=y
-CONFIG_BLK_DEV_DM=y
-# CONFIG_DM_CRYPT is not set
-# CONFIG_DM_SNAPSHOT is not set
-# CONFIG_DM_MIRROR is not set
-# CONFIG_DM_ZERO is not set
-
-Do I need to patch kernel ?
-
-> 
-> 
->>--
->>Regards
->>Davide Rao
->>  Client/server Unix
->>  Atos Origin
->>  Via C.Viola - Pont St. Martin (AO) Italy
->>  Cell :  +39 3357599151
->>  Tel  :  +39 125810433
->>  Email:  davide.rao@atosorigin.com
-> 
-> 
-> 
-> 73 Thorsten
-> 

@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbVDSMwT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbVDSMxf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbVDSMwT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 08:52:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbVDSMwS
+	id S261499AbVDSMxf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 08:53:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbVDSMxV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 08:52:18 -0400
-Received: from [213.170.72.194] ([213.170.72.194]:6557 "EHLO
-	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261493AbVDSMwA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 08:52:00 -0400
-Message-ID: <4264FEEC.7090406@yandex.ru>
-Date: Tue, 19 Apr 2005 16:51:56 +0400
-From: "Artem B. Bityuckiy" <dedekind@yandex.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en, ru, en-us
-MIME-Version: 1.0
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org,
-       Linux Crypto Mailing List <linux-crypto@vger.kernel.org>
-Subject: Re: [RFC] CryptoAPI & Compression
-References: <20050403093044.GA20608@gondor.apana.org.au> <424FBB56.5090503@yandex.ru> <20050403100043.GA20768@gondor.apana.org.au> <1112522762.3899.182.camel@localhost.localdomain> <20050403101752.GA20866@gondor.apana.org.au> <1112527158.3899.213.camel@localhost.localdomain> <20050403114045.GA21255@gondor.apana.org.au> <4250175D.5070704@yandex.ru> <20050403213207.GA24462@gondor.apana.org.au> <4263CDA9.7070207@yandex.ru> <20050419092522.GA5979@gondor.apana.org.au>
-In-Reply-To: <20050419092522.GA5979@gondor.apana.org.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Apr 2005 08:53:21 -0400
+Received: from orb.pobox.com ([207.8.226.5]:46212 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S261493AbVDSMxI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 08:53:08 -0400
+Date: Tue, 19 Apr 2005 05:53:05 -0700
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: [PATCH] fix microtek.c compile failure
+Message-ID: <20050419125305.GB8541@ip68-4-98-123.oc.oc.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is with gcc 3.4.3, against linux-2.6 head
+9d469ee9f21c680c41dbffe5b0f36ab5010ca8b1 (the latest as of this
+writing):
 
+  CC [M]  drivers/usb/image/microtek.o
+drivers/usb/image/microtek.c: In function `mts_scsi_abort':
+drivers/usb/image/microtek.c:338: error: `FAILURE' undeclared (first use
+in this function)
+drivers/usb/image/microtek.c:338: error: (Each undeclared identifier is
+reported only once
+drivers/usb/image/microtek.c:338: error: for each function it appears in.)
+make[3]: *** [drivers/usb/image/microtek.o] Error 1
+make[2]: *** [drivers/usb/image] Error 2
+make[1]: *** [drivers/usb] Error 2
+make: *** [drivers] Error 2
 
-Herbert Xu wrote:
->>Actually, for JFFS2 we need to leave the uncompressable data 
->>uncompressed. So if the pcompress interface have only been for JFFS2, 
->>I'd just return an error rather then expand data. Is such behavior 
->>acceptable for common Linux's parts pike CryptoAPI ?
-> You mean you no longer need pcompress and we can get rid of it?
-> That's fine by me.
+This patch fixes the compile error. I don't have this hardware so I
+don't think I can actually run this code, however.
 
-Pardon Herbert, I didn't say anything about getting rid yet :-) I've 
-just reread what I wrote and didn't find a drop of that :-) But if I was 
-fuzzy, I'm sorry.
+Signed-off-by: Barry K. Nathan <barryn@pobox.com>
 
-I meant there are 2 situations:
-1. input data is compressible;
-2. input data isn't compressible.
-
-JFFS2 wants the following from pcompress():
-1. compressible data: compress it; the offered formerly algorithm works 
-just fine here.
-2. non-compressible data: do not compress it, leave it uncompressed; the 
-offered algorithm works fine here too - it returns an error.
-
-So, the essence of the question was: the offered algorithm is OK for 
-JFFS2 (but need some refining). May we preserve it and don't bother 
-about predicting how much buffer space we need to reserve in case the 
-input data is non-compressible?
-
--- 
-Best Regards,
-Artem B. Bityuckiy,
-St.-Petersburg, Russia.
+--- linux-2.6.12-rc2-9d469ee9f21c680c41dbffe5b0f36ab5010ca8b1/drivers/usb/image/microtek.c	2005-04-19 00:46:14.850813676 -0700
++++ linux-2.6.12-rc2-9d469ee9f21c680c41dbffe5b0f36ab5010ca8b1-bkn1/drivers/usb/image/microtek.c	2005-04-19 05:44:28.084118571 -0700
+@@ -335,7 +335,7 @@
+ 
+ 	mts_urb_abort(desc);
+ 
+-	return FAILURE;
++	return FAILED;
+ }
+ 
+ static int mts_scsi_host_reset (Scsi_Cmnd *srb)

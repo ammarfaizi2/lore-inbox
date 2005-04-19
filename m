@@ -1,54 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261483AbVDSMev@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261490AbVDSMi7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261483AbVDSMev (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 08:34:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261481AbVDSMev
+	id S261490AbVDSMi7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 08:38:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261481AbVDSMi7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 08:34:51 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:28891 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261235AbVDSMer (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 08:34:47 -0400
-Date: Tue, 19 Apr 2005 14:34:41 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Tejun Heo <htejun@gmail.com>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Regarding posted scsi midlyaer patchsets
-Message-ID: <20050419123436.GA2827@suse.de>
-References: <20050417224101.GA2344@htj.dyndns.org> <1113833744.4998.13.camel@mulgrave> <4263CB26.2070609@gmail.com>
+	Tue, 19 Apr 2005 08:38:59 -0400
+Received: from [213.170.72.194] ([213.170.72.194]:9627 "EHLO
+	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261484AbVDSMit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 08:38:49 -0400
+Subject: [PATCH] VFS bugfix: two read_inode() calles without clear_inode()
+	call between
+From: "Artem B. Bityuckiy" <dedekind@infradead.org>
+Reply-To: dedekind@infradead.org
+To: linux-kernel@vger.kernel.org
+Cc: David Woodhouse <dwmw2@infradead.org>, linux-mtd@lists.infradead.org,
+       viro@math.psu.edu, linux-fsdevel@vger.kernel.org
+Content-Type: text/plain
+Organization: MTD
+Date: Tue, 19 Apr 2005 16:38:44 +0400
+Message-Id: <1113914324.2125.61.camel@sauron.oktetlabs.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4263CB26.2070609@gmail.com>
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 18 2005, Tejun Heo wrote:
->  And, James, regarding REQ_SOFTBARRIER, if the REQ_SOFTBARRIER thing can
-> be removed from SCSI midlayer, do you agree to change REQ_SPECIAL to
-> mean special requests?  If so, I have three proposals.
-> 
->  * move REQ_SOFTBARRIER setting to right after the allocation of
-> scsi_cmnd in scsi_prep_fn().  This will be the only place where
-> REQ_SOFTBARRIER is used in SCSI midlayer, making it less pervasive.
->  * Or, make another API which sets REQ_SOFTBARRIER on requeue.  maybe
-> blk_requeue_ordered_request()?
->  * Or, make blk_insert_request() not set REQ_SPECIAL on requeue.  IMHO,
-> this is a bit too subtle.
-> 
->  I like #1 or #2.  Jens, what do you think?  Do you agree to remove
-> requeue feature from blk_insert_request()?
+Hello,
 
-#2 is the best, imho. We really want to maintain ordering on requeue
-always, marking it softbarrier automatically in the block layer means
-the io schedulers don't have to do anything specific to handle it.
+here is a patch to fix the problem discussed at the "[PATC] small VFS
+change for JFFS2" thread in LKML (http://lkml.org/lkml/2005/4/18/77).
 
-I have no problem with removing the requeue stuff from
-blk_insert_request(). That function is horribly weird as it is, it is
-supposed to look generic but is really just a scsi special case.
+The problem description:
+~~~~~~~~~~~~~~~~~~~~~~
+
+prune_icache() removes inodes from the inode hash (inode->i_hash) and
+drops the node_lock spinlock. If at that moment iget() is called, we end
+up with the situation when VFS calls ->read_inode() twice for the same
+inode without calling ->clear_inode() between. This happens despite of
+the I_FREEING inode state because the inode is already removed from the
+hash by the time find_inode_fast() is invoked.
+
+The fix is: do not remove the inode from the hash too early.
+
+The following patch fixes the problem. It was tested with JFFS2 (only)
+and works perfectly.
+
+Comments?
+
+
+
+Signed-off-by: Artem B. Bityuckiy <dedekind@infradead.org>
+
+
+diff -auNrp linux-2.6.11.5/fs/inode.c linux-2.6.11.5_fixed/fs/inode.c
+--- linux-2.6.11.5/fs/inode.c   2005-03-19 09:35:04.000000000 +0300
++++ linux-2.6.11.5_fixed/fs/inode.c     2005-04-18 17:54:16.000000000
++0400
+@@ -284,6 +284,12 @@ static void dispose_list(struct list_hea
+                if (inode->i_data.nrpages)
+                        truncate_inode_pages(&inode->i_data, 0);
+                clear_inode(inode);
++
++               spin_lock(&inode_lock);
++               hlist_del_init(&inode->i_hash);
++               list_del_init(&inode->i_sb_list);
++               spin_unlock(&inode_lock);
++
+                destroy_inode(inode);
+                nr_disposed++;
+        }
+@@ -319,8 +325,6 @@ static int invalidate_list(struct list_h
+                inode = list_entry(tmp, struct inode, i_sb_list);
+                invalidate_inode_buffers(inode);
+                if (!atomic_read(&inode->i_count)) {
+-                       hlist_del_init(&inode->i_hash);
+-                       list_del(&inode->i_sb_list);
+                        list_move(&inode->i_list, dispose);
+                        inode->i_state |= I_FREEING;
+                        count++;
+@@ -455,8 +459,6 @@ static void prune_icache(int nr_to_scan)
+                        if (!can_unuse(inode))
+                                continue;
+                }
+-               hlist_del_init(&inode->i_hash);
+-               list_del_init(&inode->i_sb_list);
+                list_move(&inode->i_list, &freeable);
+                inode->i_state |= I_FREEING;
+                nr_pruned++;
 
 -- 
-Jens Axboe
+Best Regards,
+Artem B. Bityuckiy,
+St.-Petersburg, Russia.
 

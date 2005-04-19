@@ -1,92 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbVDSOaV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261575AbVDSObc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261556AbVDSOaV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 10:30:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbVDSOaV
+	id S261575AbVDSObc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 10:31:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbVDSObb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 10:30:21 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:18859 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261554AbVDSOaG (ORCPT
+	Tue, 19 Apr 2005 10:31:31 -0400
+Received: from rproxy.gmail.com ([64.233.170.207]:31116 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261555AbVDSObH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 10:30:06 -0400
-Date: Tue, 19 Apr 2005 16:30:01 +0200
-From: Jens Axboe <axboe@suse.de>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Tejun Heo <htejun@gmail.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Regarding posted scsi midlyaer patchsets
-Message-ID: <20050419142959.GK2827@suse.de>
-References: <20050417224101.GA2344@htj.dyndns.org> <1113833744.4998.13.camel@mulgrave> <4263CB26.2070609@gmail.com> <20050419123436.GA2827@suse.de> <1113920295.4998.13.camel@mulgrave>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1113920295.4998.13.camel@mulgrave>
+	Tue, 19 Apr 2005 10:31:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:cc:user-agent:content-type:subject:message-id:date;
+        b=SIJNESTNiXKQFDS2j8qufuRTxaU8agxXuk9ZNJO2C3FYzjSahXgMjTdiTUSwltyICu7ZtLTrMcUQEd8OS1lfOiF2Fv+lxn44N7P2srev56aRelnfQyYBDI7t8qU4ht9jvQoUSx2P6zZcA4pUtyTZPcDs71lI9pCBV2AAyu0xYD8=
+From: Tejun Heo <htejun@gmail.com>
+To: James.Bottomley@steeleye.com
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+User-Agent: lksp 0.3
+Content-Type: text/plain; charset=US-ASCII
+Subject: [PATCH scsi-misc-2.6 00/04] scsi: misc timer fixes (reworked)
+Message-ID: <20050419143100.E231523D@htj.dyndns.org>
+Date: Tue, 19 Apr 2005 23:31:01 +0900 (KST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 19 2005, James Bottomley wrote:
-> On Tue, 2005-04-19 at 14:34 +0200, Jens Axboe wrote:
-> > On Mon, Apr 18 2005, Tejun Heo wrote:
-> > >  And, James, regarding REQ_SOFTBARRIER, if the REQ_SOFTBARRIER thing can
-> > > be removed from SCSI midlayer, do you agree to change REQ_SPECIAL to
-> > > mean special requests?  If so, I have three proposals.
-> > > 
-> > >  * move REQ_SOFTBARRIER setting to right after the allocation of
-> > > scsi_cmnd in scsi_prep_fn().  This will be the only place where
-> > > REQ_SOFTBARRIER is used in SCSI midlayer, making it less pervasive.
-> > >  * Or, make another API which sets REQ_SOFTBARRIER on requeue.  maybe
-> > > blk_requeue_ordered_request()?
-> > >  * Or, make blk_insert_request() not set REQ_SPECIAL on requeue.  IMHO,
-> > > this is a bit too subtle.
-> > > 
-> > >  I like #1 or #2.  Jens, what do you think?  Do you agree to remove
-> > > requeue feature from blk_insert_request()?
-> > 
-> > #2 is the best, imho. We really want to maintain ordering on requeue
-> > always, marking it softbarrier automatically in the block layer means
-> > the io schedulers don't have to do anything specific to handle it.
-> 
-> This is my preference too.  In general, block is the only one that
-> should care what the REQ_SOFTBARRIER flag actually means.  SCSI only
-> cares that it submits a non mergeable request.
-> 
-> I'm happy to separate the meaning of REQ_SPECIAL from req->special.
+ Hello, James.
 
-Isn't it just duplicate information anyways? I mean, just clear
-->special if it isn't valid anymore. Having a seperate flag to indicate
-this seems a little suboptimal. It made more sense when ->cmd was a
-integer being READ, WRITE, etc. But as a seperate state now it doesn't.
+ This patchset contains the following patches from the previous timer
+update patchset.
 
-> > I have no problem with removing the requeue stuff from
-> > blk_insert_request(). That function is horribly weird as it is, it is
-> > supposed to look generic but is really just a scsi special case.
-> 
-> heh .. would this be because no other driver uses the block layer for
-> requeuing ... ?
+ 02_scsi_timer_eh_timer_fix.patch
+ 03_scsi_timer_dispatch_race_fix.patch
+ 04_scsi_timer_remove_delete_timer_from_reset_provider.patch
 
-Not so much that, more that it isn't very clean. It sets rq flags,
-assigns ->special, insert the request and then runs the queue. It does
-way too much. Either the caller wants a requeue, so he calls
-blk_requeue_request(). Or call blk_insert_request(), which should just
-do what the name indicates and not a whole bunch of other stuff. Then
-add a nicely named function for actually running the queue:
+ eh_timer_fix is reworked as you suggested and split into two
+patches. (#01 and #02)
 
-void blk_kick_queue_handling(request_queue_t *q)
-{
-        if (blk_queue_plugged(q))
-                __generic_unplug_device(q);
-        else
-                q->request_fn(q);
-}
+ In the current bk repository, aic7xxx_osm.c has been updated to not
+use scsi_add_timer() but aic79xx_osm.c hasn't been yet.  I guess it's
+gonna be updated sometime soon, so I've dropped the aic7xxx update
+patch.
 
-(with a better name, I cannot come up with one just now :-)
+ As aic79xx_osm.c still uses scsi_add_timer(), timer API update
+patches are omitted.  I'll repost them once aic79xx_osm.c is
+converted.
 
-Yep, this requires you do do the ->special assignment and the queue run
-in the caller, but I rather like that compared to a function that you
-have to look up in source everytime because you don't know exactly how
-much it does.
+ dispatch_race_fix and remove_delete_timer_from_reset_provider patches
+are the same as in the previous posting.  If you've already applied
+them, just ignore those two (#03 and #04).
 
--- 
-Jens Axboe
+ The following bugs are fixed.
+
+ * Race condition between eh and normal completion path for eh_timer
+ * scsi_delete_timer() race in scsi_queue_insert()
+
+[ Start of patch descriptions ]
+
+01_scsi_timer_eh_timer_fix.patch
+	: make scsi_send_eh_cmnd use its own timer instead of scmd->eh_timeout
+
+	scmd->eh_timeout is used to resolve the race between command
+	completion and timeout.  However, during error handling,
+	scsi_send_eh_cmnd uses scmd->eh_timeout.  This creates a race
+	condition between eh and normal completion for a request which
+	has timed out and in the process of error handling.  If the
+	request completes while scmd->eh_timeout is being used by eh,
+	eh timeout is lost and the command will be handled by both eh
+	and completion path.  This patch fixes the race by making
+	scsi_send_eh_cmnd() use its own timer.
+
+	This patch adds shost->eh_timeout field.  The name of the
+	field equals scmd->eh_timeout which is used for normal command
+	timeout.  As this can be confusing, renaming scmd->eh_timeout
+	to something like scmd->cmd_timeout would be good.
+
+	Reworked such that timeout race window is kept at minimal
+	level as pointed out by James Bottomley.
+
+02_scsi_timer_eh_timer_remove_spurious_if.patch
+	: remove spurious if tests from scsi_eh_{times_out|done}
+
+	If tests which check if eh_action isn't NULL in both functions
+	are always true.  Remove the if's.
+
+03_scsi_timer_dispatch_race_fix.patch
+	: remove a timer race in scsi_queue_insert()
+
+	scsi_queue_insert() has four callers.  Three callers call with
+	timer disabled and one (the second invocation in
+	scsi_dispatch_cmd()) calls with timer activated.
+	scsi_queue_insert() used to always call scsi_delete_timer()
+	and ignore the return value.  This results in race with timer
+	expiration.  Remove scsi_delete_timer() call from
+	scsi_queue_insert() and make the caller delete timer and check
+	the return value.
+
+04_scsi_timer_remove_delete_timer_from_reset_provider.patch
+	: remove unnecessary scsi_delete_timer() call in scsi_reset_provider()
+
+	scsi_reset_provider() calls scsi_delete_timer() on exit which
+	isn't necessary.  Remove it.
+
+[ End of patch descriptions ]
+
+ Thanks.
 

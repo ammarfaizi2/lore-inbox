@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261747AbVDSXXJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261757AbVDSX2F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261747AbVDSXXJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 19:23:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbVDSXQh
+	id S261757AbVDSX2F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 19:28:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261759AbVDSX1y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 19:16:37 -0400
-Received: from rproxy.gmail.com ([64.233.170.198]:53100 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261747AbVDSXPx (ORCPT
+	Tue, 19 Apr 2005 19:27:54 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:60616 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id S261754AbVDSXQa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 19:15:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:cc:user-agent:content-type:references:in-reply-to:subject:message-id:date;
-        b=B6RC5NJq7H6rpcaGlPwCQmp53exUSwdES3D24miPmyaVcfnsrDlT7n0+luXqv0H05kBPYBsTYsQ0mRylhFNoK1IFN1QG8J7efFY3T/OFOcQDTWzv1BiEY1wxb1HXmTb1L7/UALYBlX0se6jyQlrkoOCJoZPvpAUSlRjeIgxVG9A=
-From: Tejun Heo <htejun@gmail.com>
-To: James.Bottomley@steeleye.com, axboe@suse.de,
-       Christoph Hellwig <hch@infradead.org>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-User-Agent: lksp 0.3
-Content-Type: text/plain; charset=US-ASCII
-References: <20050419231435.D85F89C0@htj.dyndns.org>
-In-Reply-To: <20050419231435.D85F89C0@htj.dyndns.org>
-Subject: Re: [PATCH scsi-misc-2.6 02/05] scsi: remove REQ_SPECIAL in scsi_init_io()
-Message-ID: <20050419231435.EB64B601@htj.dyndns.org>
-Date: Wed, 20 Apr 2005 08:15:49 +0900 (KST)
+	Tue, 19 Apr 2005 19:16:30 -0400
+Date: Wed, 20 Apr 2005 01:16:28 +0200
+From: Petr Baudis <pasky@ucw.cz>
+To: Steven Cole <elenstev@mesatop.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Greg KH <greg@kroah.com>,
+       Greg KH <gregkh@suse.de>, Git Mailing List <git@vger.kernel.org>,
+       linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Subject: Re: [GIT PATCH] I2C and W1 bugfixes for 2.6.12-rc2
+Message-ID: <20050419231628.GJ9305@pasky.ji.cz>
+References: <20050419043938.GA23724@kroah.com> <426583D5.2020308@mesatop.com> <Pine.LNX.4.58.0504191525290.2274@ppc970.osdl.org> <200504191704.48976.elenstev@mesatop.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200504191704.48976.elenstev@mesatop.com>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-02_scsi_REQ_SPECIAL_semantic_scsi_init_io.patch
+Dear diary, on Wed, Apr 20, 2005 at 01:04:48AM CEST, I got a letter
+where Steven Cole <elenstev@mesatop.com> told me that...
+> Then, the flurry of patching file blah messages, followed by a rather 
+> pregnant pause after the last patching message.
+> 
+> I wasn't complaining about the 4 minutes, just the lack of feedback
+> during the majority of that time.  And most of it was after the last
+> patching file message.
 
-	scsi_init_io() used to set REQ_SPECIAL when it fails sg
-	allocation before requeueing the request by returning
-	BLKPREP_DEFER.  REQ_SPECIAL is being updated to mean special
-	requests.  So, remove REQ_SPECIAL setting.
+That must've been the update-cache.
 
-Signed-off-by: Tejun Heo <htejun@gmail.com>
+Well, you can listen to your strained disk crepitating direly.
 
- scsi_lib.c |    4 +---
- 1 files changed, 1 insertion(+), 3 deletions(-)
-
-Index: scsi-reqfn-export/drivers/scsi/scsi_lib.c
-===================================================================
---- scsi-reqfn-export.orig/drivers/scsi/scsi_lib.c	2005-04-20 08:13:33.000000000 +0900
-+++ scsi-reqfn-export/drivers/scsi/scsi_lib.c	2005-04-20 08:13:34.000000000 +0900
-@@ -935,10 +935,8 @@ static int scsi_init_io(struct scsi_cmnd
- 	 * if sg table allocation fails, requeue request later.
- 	 */
- 	sgpnt = scsi_alloc_sgtable(cmd, GFP_ATOMIC);
--	if (unlikely(!sgpnt)) {
--		req->flags |= REQ_SPECIAL;
-+	if (unlikely(!sgpnt))
- 		return BLKPREP_DEFER;
--	}
- 
- 	cmd->request_buffer = (char *) sgpnt;
- 	cmd->request_bufflen = req->nr_sectors << 9;
-
+-- 
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+C++: an octopus made by nailing extra legs onto a dog. -- Steve Taylor

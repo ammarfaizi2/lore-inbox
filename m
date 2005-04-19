@@ -1,72 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261317AbVDSE1g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbVDSEdv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261317AbVDSE1g (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 00:27:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVDSE1g
+	id S261318AbVDSEdv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 00:33:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbVDSEdv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 00:27:36 -0400
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:2180 "EHLO
-	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S261317AbVDSE1d
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 00:27:33 -0400
-X-ORBL: [67.124.119.21]
-Date: Mon, 18 Apr 2005 21:27:20 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp>
-Cc: Rik van Riel <riel@redhat.com>, Paul Jackson <pj@sgi.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH x86_64] Live Patching Function on 2.6.11.7
-Message-ID: <20050419042720.GA15123@taniwha.stupidest.org>
-References: <4263356D.9080007@lab.ntt.co.jp> <20050418061221.GA32315@taniwha.stupidest.org> <42636285.9060405@lab.ntt.co.jp> <20050418075635.GB644@taniwha.stupidest.org> <20050418021609.07f6ec16.pj@sgi.com> <20050418092505.GA2206@taniwha.stupidest.org> <Pine.LNX.4.61.0504180726320.3232@chimarrao.boston.redhat.com> <4263AD94.0@lab.ntt.co.jp> <Pine.LNX.4.61.0504181001470.8456@chimarrao.boston.redhat.com> <42646983.4020908@lab.ntt.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42646983.4020908@lab.ntt.co.jp>
+	Tue, 19 Apr 2005 00:33:51 -0400
+Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:60422 "EHLO
+	abraham.cs.berkeley.edu") by vger.kernel.org with ESMTP
+	id S261318AbVDSEdt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 00:33:49 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@taverner.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: Fortuna
+Date: Tue, 19 Apr 2005 04:31:47 +0000 (UTC)
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <d421jj$vi$1@abraham.cs.berkeley.edu>
+References: <20050414141538.3651.qmail@science.horizon.com> <20050418191316.GL21897@waste.org> <d419gl$qvq$2@abraham.cs.berkeley.edu> <20050419040116.GA6517@thunk.org>
+Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
+NNTP-Posting-Host: taverner.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 1113885107 1010 128.32.168.222 (19 Apr 2005 04:31:47 GMT)
+X-Complaints-To: usenet@abraham.cs.berkeley.edu
+NNTP-Posting-Date: Tue, 19 Apr 2005 04:31:47 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: daw@taverner.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 19, 2005 at 11:14:27AM +0900, Takashi Ikebe wrote:
+Theodore Ts'o  wrote:
+>For one, /dev/urandom and /dev/random don't use the same pool
+>(anymore).  They used to, a long time ago, but certainly as of the
+>writing of the paper this was no longer true.  This invalidates the
+>entire last paragraph of Section 5.3.
 
-> this makes software developer crazy....
+Ok, you're right, this is a serious flaw, and one that I overlooked.
+Thanks for elaborating.  (By the way, has anyone contacted to let them
+know about these two errors?  Should I?)
 
-are you serious?  how is live patching of .text easier than some of
-the other suggestions which all are more or less sane and things like
-gdb, oprofile, etc. will deal with w/o problems?
+I see three remaining criticisms from their Section 5.3:
+1) Due to the way the documentation describes /dev/random, many
+   programmers will choose /dev/random by default.  This default
+   seems inappropriate and unfortunate.
+2) There is a widespread perception that /dev/urandom's security is
+   unproven and /dev/random's is proven.  This perception is wrong.
+   On a related topic, it is "not at all clear" that /dev/random provides
+   information-theoretic security.
+3) Other designs place less stress on the entropy estimator, and
+   thus are more tolerant to failures of entropy estimation.  A failure
+   in the entropy estimator seems more likely than a failure in the
+   cryptographic algorithms.
+These three criticisms look right to me.
 
-patching code in a running process is way complicated and messy,  if
-you think this is the easier solution i guess i have little more to
-say
-
-> For me, is seems very dangerous to estimate the primary copy is not
-> broken through status takeover..
-
-that would also be a problem for live patching too, if you have bad
-state, you have bad state --- live patching doesn't change that
-
-> Some process use critical resources such as fixed network listen
-> port can not speed up so.
-
-hand the fd off to another process
-
-> More importantly, the only process who prepare to use this mechanism
-> only allows to use quick process takeover.
-
-no, i can mmap state or similar, hand fd's off and switch to another
-process in a context switch... hot patching i bet is going to be
-slower
-
-how about you show up some code that needs this?
-
-> This cause software development difficult.
-
-i honestly doubt in most cases you can hand live patch faster and more
-easily than having the application sensibly written and passing it off
-
-please, prove me wrong, show us some code
-
-> The live patching does not require to implement such special
-> techniques on applications.
-
-this is like saying live patching is a complicated in-kernel solution
-for badly written userspace isn't it?
-
+Apart from the merits or demerits of Section 5.3, the rest of the paper
+seemed to have some interesting ideas for how to simplify and possibly
+improve the /dev/random generator, which might be worth considering at
+some point.

@@ -1,67 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbVDSTFQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbVDSTJu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261561AbVDSTFQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 15:05:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261240AbVDSTFQ
+	id S261240AbVDSTJu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 15:09:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbVDSTJu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 15:05:16 -0400
-Received: from cimice4.lam.cz ([212.71.168.94]:15232 "EHLO beton.cybernet.src")
-	by vger.kernel.org with ESMTP id S261561AbVDSTFG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 15:05:06 -0400
-Date: Tue, 19 Apr 2005 19:07:40 +0000
-From: Karel Kulhavy <clock@twibright.com>
+	Tue, 19 Apr 2005 15:09:50 -0400
+Received: from wproxy.gmail.com ([64.233.184.198]:61330 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261240AbVDSTJr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 15:09:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Sv17K4FLhb8cK+kXZrMqDv0JguCQ+sJWE46gIzmEeXRjd46NiIlewuo8//j+7jTTKEpwXxh2y8kiKvRDWxMZMLuMGe0q+JHRTxMLM5QbuZCHQrLH690rBsvNWNkyqXbkyH5fxZNJPUO9gFjAVWCtwWyBhCoxfiBYK0GIUIPjEro=
+Message-ID: <17d79880504191209295aec42@mail.gmail.com>
+Date: Tue, 19 Apr 2005 19:09:45 +0000
+From: Allison <fireflyblue@gmail.com>
+Reply-To: Allison <fireflyblue@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Open hardware wireless cards
-Message-ID: <20050419190740.GA8517@beton.cybernet.src>
-References: <20050105192447.GJ5159@ruslug.rutgers.edu> <20050105200526.GL5159@ruslug.rutgers.edu>
+Subject: Re: Kernel page table and module text
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050105200526.GL5159@ruslug.rutgers.edu>
-User-Agent: Mutt/1.4.2.1i
-X-Orientation: Gay
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 05, 2005 at 03:05:26PM -0500, Luis R. Rodriguez wrote:
-> On Wed, Jan 05, 2005 at 02:24:47PM -0500, Luis R. Rodriguez wrote:
-> <-- snip -->
+I want to do the following.
+
+I want to find where each module is loaded in memory by traversing the
+module list . Once I have the address and the size of the module, I
+want to read the bytes in memory of the module and hash it to check
+it's integrity.
+
+How do I,
+1. Traverse the module list and find it's address
+2. Read the kernel page table to find the physical address of the
+module location
+
+thanks,
+Allison
+
+
+Allison wrote:
+> Hi,
 > 
-> > As far as support for the new chipsets goes -- sorry -- we won't be able
-> > to support it as I don't think even Conexant has a final well tested
-> > linux source base ready for 2.6. And even if we are given a source base
-> > there is nothing we can do to get around the need for the closed-source 
-> > softmac libs that it relies on. As much as I'd like to support it, I
-> > don't want to get a headache to support something I cannot modify so I
-> > won't be willing to support a half-opened driver as the atheros driver.
+> Since module is loaded in non-contiguous memory, there has to be an
+> entry in the kernel page table for all modules that are loaded on the
+> system. I am trying to find entries corresponding to my module text in
+> the page tables.
 > 
-> I'd also like to add...
+> I am not clear about how the kernel page table is organized after the
+> system switches to protected mode.
 > 
-> For those of you frustrated about our current wireless driver situation
-> in open platforms --
+> I printed out the page starting with swapper_pg_dir . But I do not
+> find the addresses for all the modules loaded in the system.
 > 
-> I think we probably will have this trouble with most modern hardware for a while
-> (graphics cards, wireless driver, etc). A lot of has to do with patent
-> infringement issues, "intellectual property" protection, and other
-> business-oriented excuses.
+> Do I still need to read the pg0 and pg1 pages ?
 > 
-> What I think we probably will have to do is just work torwards seeing if
-> we can come up with our own open wireless hardware. I know there was
-> a recent thread on lkml about an open video card -- anyone know where
-> that ended up?
-
-I got open hardware optical wireless, though it's not a card, just
-add-on to existing Ethernet:
-
-http://ronja.twibright.com
-
-Nevertheless it show how to use the free-software toolchain.
-
-Also see GNU Radio.
-
-http://www.gnu.org/software/gnuradio/doc/exploring-gnuradio.html
-
-CL<
-
-
+> If somebody can explain how to traverse the kernel page tables, that
+> would be very helpful.
+> 
+> thanks,
+> Allison
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,49 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261648AbVDSUVD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbVDSU0k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261648AbVDSUVD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 16:21:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbVDSUVD
+	id S261367AbVDSU0k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 16:26:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbVDSU0k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 16:21:03 -0400
-Received: from coderock.org ([193.77.147.115]:63386 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261648AbVDSUUt (ORCPT
+	Tue, 19 Apr 2005 16:26:40 -0400
+Received: from mail.enyo.de ([212.9.189.167]:6848 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S261367AbVDSU0j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 16:20:49 -0400
-Date: Tue, 19 Apr 2005 22:20:38 +0200
-From: Domen Puncer <domen@coderock.org>
-To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>
-Cc: vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org,
-       mpm@selenic.com
-Subject: Re: [PATCH] introduce generic 64bit rotations and i386 asm optimized version
-Message-ID: <20050419202037.GE21272@nd47.coderock.org>
-References: <200504190918.10279.vda@port.imtp.ilyichevsk.odessa.ua> <20050419.154642.111848378.yoshfuji@linux-ipv6.org>
-Mime-Version: 1.0
+	Tue, 19 Apr 2005 16:26:39 -0400
+From: Florian Weimer <fw@deneb.enyo.de>
+To: Chuck Wolber <chuckw@quantumlinux.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Development Model
+References: <Pine.LNX.4.60.0504182219360.6679@bailey.quantumlinux.com>
+Date: Tue, 19 Apr 2005 22:26:35 +0200
+In-Reply-To: <Pine.LNX.4.60.0504182219360.6679@bailey.quantumlinux.com> (Chuck
+	Wolber's message of "Mon, 18 Apr 2005 22:31:43 -0700 (PDT)")
+Message-ID: <87r7h6h5s4.fsf@deneb.enyo.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050419.154642.111848378.yoshfuji@linux-ipv6.org>
-User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19/04/05 15:46 +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@ wrote:
-> In article <200504190918.10279.vda@port.imtp.ilyichevsk.odessa.ua> (at Tue, 19 Apr 2005 09:18:10 +0300), Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> says:
-> 
-> > diff -urpN 2.6.12-rc2.1.be/include/linux/bitops.h 2.6.12-rc2.2.ror/include/linux/bitops.h
-> > --- 2.6.12-rc2.1.be/include/linux/bitops.h	Mon Apr 18 22:55:10 2005
-> > +++ 2.6.12-rc2.2.ror/include/linux/bitops.h	Tue Apr 19 00:25:28 2005
-...
-> > -static __inline__ int get_bitmask_order(unsigned int count)
-> > +static inline int get_bitmask_order(unsigned int count)
-> >  {
-> >  	int order;
-> >  	
-> 
-> Please keep using __inline__, not inline.
+* Chuck Wolber:
 
-Why?
+> Has the Linux Kernel reached a point where the majority of developers feel 
+> that (at least for now) no *MAJOR* "rip it out, stomp on it, burn it and 
+> start over" parts of the kernel exist any longer?
 
-Couldn't find any threads about this, and even SubmittingPatches has:
-"'static inline' is preferred over 'static __inline__'..."
+The IP stack is likely to see some development activity, at leat there
+are some specs floating around which contain requirements which the
+current IP routing implementation cannot match (deterministic
+forwarding and things like that).
 
-
-	Domen
+I don't know if the results will be published and integrated in the
+main kernel tree, though.

@@ -1,35 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbVDSSTc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261473AbVDSSZe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261251AbVDSSTc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 14:19:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbVDSSTc
+	id S261473AbVDSSZe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 14:25:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbVDSSZe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 14:19:32 -0400
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:45975
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261251AbVDSSTX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 14:19:23 -0400
-Date: Tue, 19 Apr 2005 11:13:07 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Ananth N Mavinakayanahalli <amavin@redhat.com>
-Cc: linux-kernel@vger.kernel.org, ak@muc.de, rusty@rustcorp.com.au,
-       suparna@in.ibm.com, prasanna@in.ibm.com, ananth@in.ibm.com
-Subject: Re: [RFC] [PATCH] Multiple kprobes at an address
-Message-Id: <20050419111307.580b1f53.davem@davemloft.net>
-In-Reply-To: <4265061A.9070802@redhat.com>
-References: <4265061A.9070802@redhat.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Tue, 19 Apr 2005 14:25:34 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:50892 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S261473AbVDSSZ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 14:25:29 -0400
+Date: Tue, 19 Apr 2005 14:25:29 -0400
+To: Karel Kulhavy <clock@twibright.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: GPL violation by CorAccess?
+Message-ID: <20050419182529.GT17865@csclub.uwaterloo.ca>
+References: <20050419175743.GA8339@beton.cybernet.src>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050419175743.GA8339@beton.cybernet.src>
+User-Agent: Mutt/1.3.28i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Apr 2005 09:22:34 -0400
-Ananth N Mavinakayanahalli <amavin@redhat.com> wrote:
+On Tue, Apr 19, 2005 at 05:57:43PM +0000, Karel Kulhavy wrote:
+> I have seen a device by CorAccess which apparently uses Linux and didn't find
+> anything that would suggest it complies to GPL, though I had access to the
+> complete shipping package. Does anyone know about known cause of violation by
+> this company or should I investigate further?
 
-> 1. Is the approach taken by the patch attached good?
+Well what is the case if you use unmodified GPL code, do you still have
+to provide sources to the end user if you give them binaries?  I would
+guess yes, but IANAL.
 
-I think this simple idea of simply adding a list to the object
-is fine.
+As far as I can tell their system is a geode GX1 so runs standard x86
+software.  Maybe they didn't have to modify any of the linux kernel to
+run what they needed.  Their applications are their business of course.
+It looks like they use QT as the gui toolkit, which I don't off hand
+know the current license conditions of.  Then there is the web browser
+and such, which has it's own license conditions.  Of course for all I
+know their user manual has an offer of sending a CD with the sources if
+you ask.  Does anyone actually have their product that could check for
+that?
+
+Len Sorensen

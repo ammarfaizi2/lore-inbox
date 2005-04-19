@@ -1,121 +1,175 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbVDSJLN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbVDSJQj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261276AbVDSJLN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 05:11:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbVDSJLH
+	id S261404AbVDSJQj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 05:16:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbVDSJQj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 05:11:07 -0400
-Received: from [61.185.204.103] ([61.185.204.103]:25747 "EHLO
-	dns.angelltech.com") by vger.kernel.org with ESMTP id S261276AbVDSJKe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 05:10:34 -0400
-Message-ID: <4264CBF4.7000706@angelltech.com>
-Date: Tue, 19 Apr 2005 17:14:28 +0800
-From: rjy <rjy@angelltech.com>
-Reply-To: rjy@angelltech.com
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-Subject: Re: init process freezed after run_init_process
-References: <424B7A87.2070100@angelltech.com> <Pine.LNX.4.61.0503311113550.17113@yvahk01.tjqt.qr> <4254AB72.8070704@angelltech.com> <Pine.LNX.4.61.0504071341500.27692@yvahk01.tjqt.qr> <4255EF2A.709@angelltech.com> <Pine.LNX.4.61.0504081944120.19971@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0504081944120.19971@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Apr 2005 05:16:39 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:3319 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261404AbVDSJQU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 05:16:20 -0400
+Date: Tue, 19 Apr 2005 15:04:38 +0530
+From: Dinakar Guniguntala <dino@in.ibm.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: Simon.Derr@bull.net, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net, akpm@osdl.org, dipankar@in.ibm.com,
+       colpatch@us.ibm.com
+Subject: Re: [Lse-tech] Re: [RFC PATCH] Dynamic sched domains aka Isolated cpusets
+Message-ID: <20050419093438.GB3963@in.ibm.com>
+Reply-To: dino@in.ibm.com
+References: <1097110266.4907.187.camel@arrakis> <20050418202644.GA5772@in.ibm.com> <20050418225427.429accd5.pj@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050418225427.429accd5.pj@sgi.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->>>Make your own initrd and put a bash into it. Then start that, e.g. (for
->>>our linux live cd), initrd=initrd.sqfs root=/dev/ram0 init=/bin/bash
->>
->>I have tried these kernel parameters:
->>init=/bin/bash
->>init=/linuxrc
->>init=/init
->>init=/sbin/init
->>None works.
-> 
-> 
-> What's the error message?
+On Mon, Apr 18, 2005 at 10:54:27PM -0700, Paul Jackson wrote:
+> Hmmm ... interesting patch.  My reaction to the changes in
+> kernel/cpuset.c are complicated:
 
-No error message at all. System seems freezed after spit out this message:
-	Freeing unused kernel memory: 136k freed
-The console echos the keyboard inputs.
+Thanks Paul for taking time off your vaction to reply to this.
+I was expecting to see one of your huge mails but this has
+exceeded all my expectations :)
 
-It seems that the init started successfully: I attached the output
-of "info threads" and "backtrace" after the system freezing.
+>  * I'd probably ditch the all_cpus() macro, on the
+>    concern that it obfuscates more than it helps.
+>  * The need for _both_ a per-cpuset flag 'CS_CPU_ISOLATED'
+>    and another per-cpuset mask 'isolated_map' concerns me.
+>    I guess that the isolated_map is just a cache of the
+>    set of CPUs isolated in child cpusets, not an independently
+>    settable mask, but it needs to be clearly marked as such
+>    if so.
 
-I am digging the source these days and try to find out if the init
-process has really been started. I found some difference between
-the normal init process and the freezed init process:
-----------------------------------------------------------------
-		| Normal init		| Freezed init
-----------------------------------------------------------------
-mm->total_vm	| 0x145			| 0x1e
-mm->map_count	| 9			| 5
-----------------------------------------------------------------
+Currently the isolated_map is read-only as you have guessed.
+I did think of the user adding cpus to this map from the 
+cpus_allowed mask but thought the current approach made more sense
 
-Maybe, init is not loaded completely? Or just loaded an invalid one?
-I am trying to dump the text segment at user space 0x08040000 of the
-init process. But I have not found the way to find the related kernel 
-space address. Any clue? Thanks! :)
+>  * Some code lines go past column 80.
+I need to set my vi to wrap past 80...
+
+>  * The name 'isolated'  probably won't work.  There is already
+>    a boottime option "isolcpus=..." for 'isolated' cpus which
+>    is (I think ?) rather different.  Perhaps a better name will
+>    fall out of the conceptual discussion, below.
+
+I was hoping that by the time we are done with this, we would
+be able to completely get rid of the isolcpus= option. For that
+ofcourse we need to be able build domains that dont run
+load balance
+
+>  * The change to the output format of the special cpuset file
+>    'cpus', to look like '0-3[4-7]' bothers me in a couple of
+>    ways.  It complicates the format from being a simple list.
+>    And it means that the output format is not the same as the
+>    input format (you can't just write back what you read from
+>    such a file anymore).
+
+As i had said in my earlier mail, this was just one way of
+representing what I call isolated cpus. The other was to expose
+isolated_map to userspace and move cpus between cpus_allowed
+and isolated_map
+
+>  * Several comments start with the word 'Set', as in:
+>  	Set isolated ON on a non exclusive cpuset
+>    Such wording suggests to me that something is being set,
+>    some bit or value changed or turned on.  But in each case,
+>    you are just testing for some condition that will return
+>    or error out.  Some phrasing such as "If ..." or other
+>    conditional would be clearer.
+
+The wording was from the users point of view for what
+action was being done, guess I'll change that
+
+>  * The update_sched_domains() routine is complicated, and
+>    hence a primary clue that the conceptual model is not
+>    clean yet.
+
+It is complicated because it has to handle all of the different
+possible actions that the user can initiate. It can be simplified
+if we have stricter rules of what the user can/cannot do
+w.r.t to isolated cpusets
+
+>  * None of this was explained in Documentation/cpusets.txt.
+
+Yes I plan to add the documentation shortly
+
+>  * Too bad that cpuset_common_file_write() has to have special
+>    logic for this isolated case.  The other flag settings just
+>    turn on and off the associated bit, and don't trigger any
+>    kernel code to adapt to new cpu or memory settings.  We
+>    should make an exception to that behaviour only if we must,
+>    and then we must be explicit about the exception.
+
+See my notes on isolated_map above
+
+> First, let me verify one thing.  I understand that the _key_
+> purpose of your patch is not so much to isolate cpus, as it
+> is to allow for structuring scheduling domains to align with
+> cpuset boundaries.  I understand real isolated cpus to be ones
+> that don't have a scheduling domain (have only the dummy one),
+> as requested by the "isolcpus=..." boot flag.
+
+Not really. Isolated cpusets allows you to do a soft-partition
+of the system, and it would make sense to continue to have load
+balancing within these partitions. I would think not having
+load balancing should be one of the options available
+
+> 
+> Second, let me describe how this same issue shows up on the
+> memory side.
+> 
+
+...snip...
 
 > 
 > 
->>Also, after some google, I found that the format of initrd has changed.
->>I also tried a new initrd with cpio format. The kernel recognized it:
-> 
-> 
-> cpio initrd's (aka initramfs) are new - the "old style" initrd where you
-> `mksquasfs mydir initrd.sqfs` (see above) continues to work, though.
-> 
-> 
->>After the kernel start, I add breakpoints at cpu_idle and do_schedule.
->>cpu_idle never reached, only do_schedule did. Is that strange?
-> 
-> 
-> Until pid 1 is started, the cpu should never be idle.
-> 
-> 
-> Jan Engelhardt
+> In the case of cpus, we really do prefer the partitions to be
+> disjoint, because it would be better not to confuse the domain
+> scheduler with overlapping domains.
 
-It seems that the init process is started:
-(gdb) info threads
-   11 Thread 123 (kseriod)  0xc032d485 in do_schedule () at 
-/kernel/via/kgdb/kernel/sched.c:923
-   10 Thread 9 (aio/0)  0xc032d485 in do_schedule () at 
-/kernel/via/kgdb/kernel/sched.c:923
-   9 Thread 8 (kswapd0)  0xc032d485 in do_schedule () at 
-/kernel/via/kgdb/kernel/sched.c:923
-   8 Thread 7 (pdflush)  0xc032d485 in do_schedule () at 
-/kernel/via/kgdb/kernel/sched.c:923
-   7 Thread 6 (pdflush)  0xc032d485 in do_schedule () at 
-/kernel/via/kgdb/kernel/sched.c:923
-   6 Thread 5 (khelper)  0xc032d485 in do_schedule () at 
-/kernel/via/kgdb/kernel/sched.c:923
-   5 Thread 4 (kblockd/0)  0xc032d485 in do_schedule () at 
-/kernel/via/kgdb/kernel/sched.c:923
-   4 Thread 3 (events/0)  0xc032d485 in do_schedule () at 
-/kernel/via/kgdb/kernel/sched.c:923
-   3 Thread 2 (ksoftirqd/0)  0xc032d485 in do_schedule () at 
-/kernel/via/kgdb/kernel/sched.c:923
-* 2 Thread 1 (init)  breakpoint () at /kernel/via/kgdb/kernel/kgdb.c:1212
-   1 Thread 32768 (Shadow task 0 for pid 0)  0xc032d485 in do_schedule 
-() at /kernel/via/kgdb/kernel/sched.c:923
+Absolutely one of the problem I had was to map the flat disjoint
+heirarchy of sched domains to the tree like heirarchy of cpusets
 
-(gdb) bt
-#0  breakpoint () at /kernel/via/kgdb/kernel/kgdb.c:1212
-#1  0xc774fec4 in ?? ()
-#2  0xc010893b in do_IRQ (regs=
-       {ebx = -948641792, ecx = -948577792, edx = -944260388, esi = 0, 
-edi = -948641792, ebp = -948633844, eax = -944260388, xds = 123, xes = 
-123, orig_eax = -252, eip = -1072517263, xcs = 96, eflags = 646, esp = 
--948633660, xss = -948576428})
-     at /kernel/via/kgdb/arch/i386/kernel/irq.c:574
-#3  0xc0106888 in common_interrupt ()
-#4  0xc01063f6 in do_signal (regs=0xc774e000, oldset=0x0) at 
-/kernel/via/kgdb/arch/i386/kernel/signal.c:581
-#5  0xc01064d9 in do_notify_resume (regs=0xc774ffc4, oldset=0x0, 
-thread_info_flags=1)
-     at /kernel/via/kgdb/arch/i386/kernel/signal.c:629
+> 
+> In the case of memory, we technically probably don't _have_ to
+> keep the partitions disjoint.  I doubt that the page allocator
+> (mm/page_alloc.c:__alloc_pages()) really cares.  It will strive
+> valiantly to satisfy the memory request from any of the zones
+> (each node specific) in the list passed into it.
+> 
+I must confess that I havent looked at the memory side all that much,
+having more interest in trying to build soft-partitioning of the cpu's
+
+> But for the purposes of providing a clear conceptual model to
+> our users, I think it is best that we impose this constraint on
+> the memory side as well as on the cpu side.  And I don't think
+> it will deprive users of any useful configuration alternatives
+> that they will really miss.  Indeed, the typical user will be
+> striving to use this mechanism to separate different demands
+> for memory - to isolate them on to different nodes in your
+> sense of the word isolate.
+> 
+
+[...Big snip of new model...]
+
+ok I need to spend more time on you model Paul, but my first
+guess is that it doesn't seem to be very intuitive and seems
+to make it very complex from the users perspective. However as
+I said I need to understand your model a bit more before I
+comment on it
+
+> 
+> However, if we thought we could avoid, or at least delay
+> consideration of nested partitions, that would be nice.
+> This thing is already abstract enough to puzzle many users,
+> without adding that elaboration.
+
+Nested sched domains are going to be nasty and I am not 
+at all for it. Moreover I think it makes more sense to
+to have a flat heirarchy for sched domains
+
+	-Dinakar

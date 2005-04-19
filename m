@@ -1,71 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbVDSRjn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261475AbVDSRtP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261446AbVDSRjn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 13:39:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbVDSRjn
+	id S261475AbVDSRtP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 13:49:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbVDSRtO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 13:39:43 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:57262 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261446AbVDSRjd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 13:39:33 -0400
-Date: Tue, 19 Apr 2005 12:39:30 -0500
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>,
-       Andrew Morton <akpm@osdl.org>,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH [PPC64]: dead processes never reaped
-Message-ID: <20050419173930.GZ15596@austin.ibm.com>
-References: <20050418193833.GW15596@austin.ibm.com> <1113872485.5516.326.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 19 Apr 2005 13:49:14 -0400
+Received: from mxout.hispeed.ch ([62.2.95.247]:14791 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S261475AbVDSRtD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 13:49:03 -0400
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+Reply-To: daniel.ritz@gmx.ch
+To: Peter Baumann <Peter.B.Baumann@stud.informatik.uni-erlangen.de>
+Subject: Re: [Bug] invalid mac address after rebooting (2.6.12-rc2-mm2)
+Date: Tue, 19 Apr 2005 19:47:38 +0200
+User-Agent: KMail/1.5.4
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       greg@kroah.com, Jeff Garzik <jgarzik@pobox.com>
+References: <20050323122423.GA24316@faui00u.informatik.uni-erlangen.de> <200504172226.44173.daniel.ritz@gmx.ch> <20050418221951.GA18641@faui00o.informatik.uni-erlangen.de>
+In-Reply-To: <20050418221951.GA18641@faui00o.informatik.uni-erlangen.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1113872485.5516.326.camel@gaston>
-User-Agent: Mutt/1.5.6+20040818i
-From: Linas Vepstas <linas@austin.ibm.com>
+Message-Id: <200504191947.38500.daniel.ritz@gmx.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 19, 2005 at 11:01:25AM +1000, Benjamin Herrenschmidt was heard to remark:
-> On Mon, 2005-04-18 at 14:38 -0500, Linas Vepstas wrote:
+On Tuesday 19 April 2005 00:19, Peter Baumann wrote:
+> On Sun, Apr 17, 2005 at 10:26:43PM +0200, Daniel Ritz wrote:
+> > from your dmesg:
+> > PCI: 0000:00:0b.0 pmc: 7601, current_state, pmcsr: 000000040, new: 0000
+> > ACPI: PCI Interrupt 0000:00:0b.0[A] -> GSI 19 (level, low) -> IRQ 19
+> > 3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
+> > 0000:00:0b.0: 3Com PCI 3c905B Cyclone 100baseTx at 0xac00. Vers LK1.1.19
+> > PCI: 0000:00:0b.0 pmc: 7601, current_state, pmcsr: 000000000000, new: 0003
 > > 
-> > Hi,
+> > so the device is sent to D3 right after it is up. nice.
 > > 
-> > The patch below appears to fix a problem where a number of dead processes
-> > linger on the system.  On a highly loaded system, dozens of processes 
-> > were found stuck in do_exit(), calling thier very last schedule(), and
-> > then being lost forever.  
+> > and second boot:
+> > PCI: 0000:00:0b.0 pmc: 7601, current_state, pmcsr: 000000040, new: 0000
+> > PCI: Enabling device 0000:00:0b.0 (0000 -> 0003)
+> > ACPI: PCI Interrupt 0000:00:0b.0[A] -> GSI 19 (level, low) -> IRQ 19
+> > 3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
+> > 0000:00:0b.0: 3Com PCI 3c905B Cyclone 100baseTx at 0x1000. Vers LK1.1.19
+> > PCI: Setting latency timer of device 0000:00:0b.0 to 64
+> > *** EEPROM MAC address is invalid.
+> > 3c59x: vortex_probe1 fails.  Returns -22
+> > 3c59x: probe of 0000:00:0b.0 failed with error -22
 > > 
-> > Processes that are PF_DEAD are cleaned up *after* the context switch, 
-> > in a routine called finish_task_switch(task_t *prev). The "prev" gets 
-> > the  value returned by _switch() in entry.S, but this value comes from 
-> >   
-> > __switch_to (struct task_struct *prev, 
-> >             struct task_struct *new) 
-> > { 
-> >    old_thread = &current->thread; ///XXX shouldn't this be prev, not current? 
-> >    last = _switch(old_thread, new_thread); 
-> >    return last; 
-> > } 
+> > to me it looks like during the second boot the device is in D3 and has
+> > troubles coming out of it. unfortunatley that is not made visible by the
+> > debugging patch. a hexdump of the device in a second boot without
+> > loading the 3c59x driver would tell us...
+> > 
+> > the diff in the hexdumps of the config space proves that the device
+> > is programmed wrong:
+> > --- hexdump-2.6.12-rc2-mm3-withdebugpatch_1.txt 2005-04-17 21:27:28.000000000 +0200
+> > +++ hexdump-2.6.12-rc2-mm3-withdebugpatch_2.txt 2005-04-17 21:27:32.000000000 +0200
+> > @@ -1,7 +1,7 @@
+> > -0000000 10b7 9055 0007 0210 0024 0200 2008 0000
+> > -0000010 ac01 0000 2000 e800 0000 0000 0000 0000
+> > +0000000 10b7 9055 0003 0210 0024 0200 4000 0000
+> > +0000010 0001 0000 0000 0000 0000 0000 0000 0000
+> > 
+> > so the I/O ports and the iomem are not set!
+> > 
+> >  0000020 0000 0000 0000 0000 0000 0000 10b7 9055
+> > -0000030 0000 0000 00dc 0000 0000 0000 010a 0a0a
+> > +0000030 0000 0000 00dc 0000 0000 0000 0100 0a0a
+> >  0000040 0000 0000 0000 0000 0000 0000 0000 0000
+> >  0000050 0000 0000 0040 0000 0000 0000 0000 0000
+> >  0000060 0000 0000 0000 0000 0000 0000 0000 0000
+> > 
+> > but to make it short: i think it's a driver bug. the device doesn't seem to be
+> > correctly reprogrammed when it is in D3 initially. and then it shouldn't be
+> > put into D3 during the first boot. so please try with the attached patch.
+> > 
+> > rgds
+> > -daniel
+> > 
+> > PS: does somebody have a datasheet of a 3com chip around? i could need one.
+> > 
+> > -----
+> > 
+> > [PATCH] 3c59x: only put the device into D3 when we're actually using WOL
+> > 
+> > Signed-off-by: Daniel Ritz <daniel.ritz@gmx.ch>
+> > 
+> > --- 1.77/drivers/net/3c59x.c	2005-03-03 06:00:42 +01:00
+> > +++ edited/drivers/net/3c59x.c	2005-04-17 22:17:19 +02:00
+> > @@ -1581,7 +1581,8 @@
 > >  
-> > The way I see it, "prev" and "current" are almost always going to be  
-> > pointing at the same thing; however, if a "need resched" happens,  
-> > or there's a pre-emept or some-such, then prev and current won't be  
-> > the same; in which case, finish_task_switch() will end up cleaning  
-> > up the old current, instead of prev.  This will result in dead processes 
-> > hanging around, which will never be scheduled again, and will never  
-> > get a chance to have put_task_struct() called on them.  
+> >  	if (VORTEX_PCI(vp)) {
+> >  		pci_set_power_state(VORTEX_PCI(vp), PCI_D0);	/* Go active */
+> > -		pci_restore_state(VORTEX_PCI(vp));
+> > +		if (vp->pm_state_valid)
+> > +			pci_restore_state(VORTEX_PCI(vp));
+> >  		pci_enable_device(VORTEX_PCI(vp));
+> >  	}
+> >  
+> > @@ -2741,6 +2742,7 @@
+> >  		outl(0, ioaddr + DownListPtr);
+> >  
+> >  	if (final_down && VORTEX_PCI(vp)) {
+> > +		vp->pm_state_valid = 1;
+> >  		pci_save_state(VORTEX_PCI(vp));
+> >  		acpi_set_WOL(dev);
+> >  	}
+> > @@ -3243,9 +3245,10 @@
+> >  		outw(RxEnable, ioaddr + EL3_CMD);
+> >  
+> >  		pci_enable_wake(VORTEX_PCI(vp), 0, 1);
+> > +
+> > +		/* Change the power state to D3; RxEnable doesn't take effect. */
+> > +		pci_set_power_state(VORTEX_PCI(vp), PCI_D3hot);
+> >  	}
+> > -	/* Change the power state to D3; RxEnable doesn't take effect. */
+> > -	pci_set_power_state(VORTEX_PCI(vp), PCI_D3hot);
+> >  }
+> >  
 > 
-> I wonder why we bother doing all that at all... we could just return
-> "prev" from __switch_to() no ? Like x86 does...
+> The patch solved it. Thank you for your help.
 
-Probably.  I assume this funny two-step is left-over from a 2.4 kernel
-design point.  Naively, we could rturn "prev", this would save a few
-cycles. Cut the "addi  r3,r3,-THREAD" from entry.S as well.  I was being 
-conservative with the patch, making the smallest change possible.  
-Do you want this larger patch?
+ok, nice to see it working. 
+andrew, could you add it to -mm please?
+[ adding jeff to cc: because it's a network driver :) ]
 
+thanks, rgds
+-daniel
 
---linas
+ 
 

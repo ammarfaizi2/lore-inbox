@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbVDSAp6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbVDSAti@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261226AbVDSAp6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Apr 2005 20:45:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVDSAp5
+	id S261241AbVDSAti (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Apr 2005 20:49:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVDSAtc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Apr 2005 20:45:57 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:34572 "HELO
+	Mon, 18 Apr 2005 20:49:32 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:36620 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261226AbVDSAp1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Apr 2005 20:45:27 -0400
-Date: Tue, 19 Apr 2005 02:45:23 +0200
+	id S261227AbVDSArA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Apr 2005 20:47:00 -0400
+Date: Tue, 19 Apr 2005 02:46:58 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: bcollins@debian.org, scjody@steamballoon.com
-Cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/ieee1394/ieee1394_transactions.c: possible cleanups
-Message-ID: <20050419004523.GK5489@stusta.de>
+To: kkeil@suse.de, kai.germaschewski@gmx.de
+Cc: isdn4linux@listserv.isdn4linux.de, mac@melware.de,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/isdn/: make some code static
+Message-ID: <20050419004658.GL5489@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,49 +23,221 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- #if 0 the following unused global functions:
-  - hpsb_lock
-  - hpsb_send_gasp
-- ieee1394_transactions.h: remove the stale hpsb_lock64 prototype
+This patch makes some needlessly global code static.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- drivers/ieee1394/ieee1394_transactions.c |    3 +++
- drivers/ieee1394/ieee1394_transactions.h |    7 -------
- 2 files changed, 3 insertions(+), 7 deletions(-)
+ drivers/isdn/hardware/eicon/dadapter.c |    2 +-
+ drivers/isdn/hisax/hfc4s8s_l1.c        |    4 ++--
+ drivers/isdn/hysdn/hycapi.c            |   20 +++++++++++---------
+ drivers/isdn/hysdn/hysdn_boot.c        |    4 ++--
+ drivers/isdn/hysdn/hysdn_defs.h        |   12 ------------
+ drivers/isdn/hysdn/hysdn_init.c        |    2 +-
+ drivers/isdn/hysdn/hysdn_proclog.c     |    4 +++-
+ 7 files changed, 20 insertions(+), 28 deletions(-)
 
---- linux-2.6.12-rc2-mm3-full/drivers/ieee1394/ieee1394_transactions.h.old	2005-04-19 00:24:13.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/ieee1394/ieee1394_transactions.h	2005-04-19 00:25:00.000000000 +0200
-@@ -53,12 +53,5 @@
- 	      u64 addr, quadlet_t *buffer, size_t length);
- int hpsb_write(struct hpsb_host *host, nodeid_t node, unsigned int generation,
- 	       u64 addr, quadlet_t *buffer, size_t length);
--int hpsb_lock(struct hpsb_host *host, nodeid_t node, unsigned int generation,
--	      u64 addr, int extcode, quadlet_t *data, quadlet_t arg);
--int hpsb_lock64(struct hpsb_host *host, nodeid_t node, unsigned int generation,
--		u64 addr, int extcode, octlet_t *data, octlet_t arg);
--int hpsb_send_gasp(struct hpsb_host *host, int channel, unsigned int generation,
--                   quadlet_t *buffer, size_t length, u32 specifier_id,
--                   unsigned int version);
+--- linux-2.6.12-rc2-mm3-full/drivers/isdn/hisax/hfc4s8s_l1.c.old	2005-04-19 00:32:31.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/isdn/hisax/hfc4s8s_l1.c	2005-04-19 00:32:46.000000000 +0200
+@@ -1464,7 +1464,7 @@
+ /******************************************/
+ /* disable memory mapped ports / io ports */
+ /******************************************/
+-void
++static void
+ release_pci_ports(hfc4s8s_hw * hw)
+ {
+ 	pci_write_config_word(hw->pdev, PCI_COMMAND, 0);
+@@ -1480,7 +1480,7 @@
+ /*****************************************/
+ /* enable memory mapped ports / io ports */
+ /*****************************************/
+-void
++static void
+ enable_pci_ports(hfc4s8s_hw * hw)
+ {
+ #ifdef CONFIG_HISAX_HFC4S8S_PCIMEM
+--- linux-2.6.12-rc2-mm3-full/drivers/isdn/hysdn/hysdn_defs.h.old	2005-04-19 00:33:51.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/isdn/hysdn/hysdn_defs.h	2005-04-19 00:38:25.000000000 +0200
+@@ -227,7 +227,6 @@
+ /*****************/
+ /* exported vars */
+ /*****************/
+-extern int cardmax;		/* number of found cards */
+ extern hysdn_card *card_root;	/* pointer to first card */
  
- #endif /* _IEEE1394_TRANSACTIONS_H */
---- linux-2.6.12-rc2-mm3-full/drivers/ieee1394/ieee1394_transactions.c.old	2005-04-19 00:24:31.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/ieee1394/ieee1394_transactions.c	2005-04-19 00:24:51.000000000 +0200
-@@ -535,6 +535,7 @@
-         return retval;
- }
  
-+#if 0
+@@ -244,7 +243,6 @@
+ /* hysdn_proclog.c */
+ extern int hysdn_proclog_init(hysdn_card *);	/* init proc log entry */
+ extern void hysdn_proclog_release(hysdn_card *);	/* deinit proc log entry */
+-extern void put_log_buffer(hysdn_card *, char *);	/* output log data */
+ extern void hysdn_addlog(hysdn_card *, char *,...);	/* output data to log */
+ extern void hysdn_card_errlog(hysdn_card *, tErrLogEntry *, int);	/* output card log */
  
- int hpsb_lock(struct hpsb_host *host, nodeid_t node, unsigned int generation,
- 	      u64 addr, int extcode, quadlet_t *data, quadlet_t arg)
-@@ -599,3 +600,5 @@
+@@ -278,16 +276,6 @@
+ extern int hycapi_capi_create(hysdn_card *);	/* create a new capi device */
+ extern int hycapi_capi_release(hysdn_card *);	/* delete the device */
+ extern int hycapi_capi_stop(hysdn_card *card);   /* suspend */
+-extern int hycapi_load_firmware(struct capi_ctr *, capiloaddata *);
+-extern void hycapi_reset_ctr(struct capi_ctr *);
+-extern void hycapi_remove_ctr(struct capi_ctr *);
+-extern void hycapi_register_appl(struct capi_ctr *, __u16 appl,
+-				 capi_register_params *);
+-extern void hycapi_release_appl(struct capi_ctr *, __u16 appl);
+-extern u16  hycapi_send_message(struct capi_ctr *, struct sk_buff *skb);
+-extern char *hycapi_procinfo(struct capi_ctr *);
+-extern int hycapi_read_proc(char *page, char **start, off_t off,
+-			    int count, int *eof, struct capi_ctr *card);
+ extern void hycapi_rx_capipkt(hysdn_card * card, uchar * buf, word len);
+ extern void hycapi_tx_capiack(hysdn_card * card);
+ extern struct sk_buff *hycapi_tx_capiget(hysdn_card *card);
+--- linux-2.6.12-rc2-mm3-full/drivers/isdn/hysdn/hycapi.c.old	2005-04-19 00:34:05.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/isdn/hysdn/hycapi.c	2005-04-19 00:36:34.000000000 +0200
+@@ -42,6 +42,8 @@
  
- 	return retval;
- }
+ static hycapi_appl hycapi_applications[CAPI_MAXAPPL];
+ 
++static u16 hycapi_send_message(struct capi_ctr *ctrl, struct sk_buff *skb);
 +
-+#endif  /*  0  */
+ static inline int _hycapi_appCheck(int app_id, int ctrl_no)
+ {
+ 	if((ctrl_no <= 0) || (ctrl_no > CAPI_MAXCONTR) || (app_id <= 0) ||
+@@ -57,7 +59,7 @@
+ Kernel-Capi callback reset_ctr
+ ******************************/     
+ 
+-void 
++static void 
+ hycapi_reset_ctr(struct capi_ctr *ctrl)
+ {
+ 	hycapictrl_info *cinfo = ctrl->driverdata;
+@@ -73,7 +75,7 @@
+ Kernel-Capi callback remove_ctr
+ ******************************/     
+ 
+-void 
++static void 
+ hycapi_remove_ctr(struct capi_ctr *ctrl)
+ {
+ 	int i;
+@@ -215,7 +217,7 @@
+ The application is recorded in the internal list.
+ *************************************************************/
+ 
+-void 
++static void 
+ hycapi_register_appl(struct capi_ctr *ctrl, __u16 appl, 
+ 		     capi_register_params *rp)
+ {
+@@ -291,7 +293,7 @@
+ registration at controller-level
+ ******************************************************************/
+ 
+-void 
++static void 
+ hycapi_release_appl(struct capi_ctr *ctrl, __u16 appl)
+ {
+ 	int chk;
+@@ -364,7 +366,7 @@
+ 
+ ***************************************************************/
+ 
+-u16 hycapi_send_message(struct capi_ctr *ctrl, struct sk_buff *skb)
++static u16 hycapi_send_message(struct capi_ctr *ctrl, struct sk_buff *skb)
+ {
+ 	__u16 appl_id;
+ 	int _len, _len2;
+@@ -437,8 +439,8 @@
+ 
+ *********************************************************************/
+ 
+-int hycapi_read_proc(char *page, char **start, off_t off,
+-		     int count, int *eof, struct capi_ctr *ctrl)
++static int hycapi_read_proc(char *page, char **start, off_t off,
++			    int count, int *eof, struct capi_ctr *ctrl)
+ {
+ 	hycapictrl_info *cinfo = (hycapictrl_info *)(ctrl->driverdata);
+ 	hysdn_card *card = cinfo->card;
+@@ -485,7 +487,7 @@
+ 
+ **************************************************************/
+ 
+-int hycapi_load_firmware(struct capi_ctr *ctrl, capiloaddata *data)
++static int hycapi_load_firmware(struct capi_ctr *ctrl, capiloaddata *data)
+ {
+ #ifdef HYCAPI_PRINTFNAMES
+ 	printk(KERN_NOTICE "hycapi_load_firmware\n");    
+@@ -494,7 +496,7 @@
+ }
+ 
+ 
+-char *hycapi_procinfo(struct capi_ctr *ctrl)
++static char *hycapi_procinfo(struct capi_ctr *ctrl)
+ {
+ 	hycapictrl_info *cinfo = (hycapictrl_info *)(ctrl->driverdata);
+ #ifdef HYCAPI_PRINTFNAMES
+--- linux-2.6.12-rc2-mm3-full/drivers/isdn/hysdn/hysdn_boot.c.old	2005-04-19 00:37:22.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/isdn/hysdn/hysdn_boot.c	2005-04-19 00:37:37.000000000 +0200
+@@ -53,7 +53,7 @@
+ /*  to be called at start of POF file reading,       */
+ /*  before starting any decryption on any POF record. */
+ /*****************************************************/
+-void
++static void
+ StartDecryption(struct boot_data *boot)
+ {
+ 	boot->Cryptor = CRYPT_STARTTERM;
+@@ -66,7 +66,7 @@
+ /*       to HI and LO boot loader and (all) seq tags, because  */
+ /*       global Cryptor is started for whole POF.              */
+ /***************************************************************/
+-void
++static void
+ DecryptBuf(struct boot_data *boot, int cnt)
+ {
+ 	uchar *bufp = boot->buf.BootBuf;
+--- linux-2.6.12-rc2-mm3-full/drivers/isdn/hysdn/hysdn_init.c.old	2005-04-19 00:38:06.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/isdn/hysdn/hysdn_init.c	2005-04-19 00:38:12.000000000 +0200
+@@ -34,7 +34,7 @@
+ MODULE_LICENSE("GPL");
+ 
+ static char *hysdn_init_revision = "$Revision: 1.6.6.6 $";
+-int cardmax;			/* number of found cards */
++static int cardmax;		/* number of found cards */
+ hysdn_card *card_root = NULL;	/* pointer to first card */
+ 
+ /**********************************************/
+--- linux-2.6.12-rc2-mm3-full/drivers/isdn/hysdn/hysdn_proclog.c.old	2005-04-19 00:38:32.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/isdn/hysdn/hysdn_proclog.c	2005-04-19 00:38:55.000000000 +0200
+@@ -22,6 +22,8 @@
+ /* the proc subdir for the interface is defined in the procconf module */
+ extern struct proc_dir_entry *hysdn_proc_entry;
+ 
++static void put_log_buffer(hysdn_card * card, char *cp);
++
+ /*************************************************/
+ /* structure keeping ascii log for device output */
+ /*************************************************/
+@@ -93,7 +95,7 @@
+ /* opened for read got the contents.        */
+ /* Flushes buffers not longer in use.       */
+ /********************************************/
+-void
++static void
+ put_log_buffer(hysdn_card * card, char *cp)
+ {
+ 	struct log_data *ib;
+--- linux-2.6.12-rc2-mm3-full/drivers/isdn/hardware/eicon/dadapter.c.old	2005-04-19 00:40:42.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/isdn/hardware/eicon/dadapter.c	2005-04-19 00:40:52.000000000 +0200
+@@ -44,7 +44,7 @@
+   Array to held adapter information
+    -------------------------------------------------------------------------- */
+ static DESCRIPTOR  HandleTable[NEW_MAX_DESCRIPTORS];
+-dword Adapters = 0; /* Number of adapters */
++static dword Adapters = 0; /* Number of adapters */
+ /* --------------------------------------------------------------------------
+   Shadow IDI_DIMAINT
+   and 'shadow' debug stuff
 

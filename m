@@ -1,113 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbVDSPa3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbVDSP3v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261614AbVDSPa3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 11:30:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbVDSPa3
+	id S261613AbVDSP3v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 11:29:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVDSP3u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 11:30:29 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:54216 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261614AbVDSP33 (ORCPT
+	Tue, 19 Apr 2005 11:29:50 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:54507 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261613AbVDSP3X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 11:29:29 -0400
-Date: Tue, 19 Apr 2005 11:29:22 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@epoch.ncsc.mil>,
-       Steve Grubb <sgrubb@redhat.com>
-Subject: [PATCH] SELinux: add finer grained permissions to Netlink audit
- processing
-Message-ID: <Xine.LNX.4.44.0504191109180.16593-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 19 Apr 2005 11:29:23 -0400
+Date: Tue, 19 Apr 2005 08:26:39 -0700
+From: Paul Jackson <pj@sgi.com>
+To: dino@in.ibm.com
+Cc: nickpiggin@yahoo.com.au, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net, akpm@osdl.org, dipankar@in.ibm.com,
+       colpatch@us.ibm.com
+Subject: Re: [RFC PATCH] Dynamic sched domains aka Isolated cpusets
+Message-Id: <20050419082639.62d706ca.pj@sgi.com>
+In-Reply-To: <20050419095230.GC3963@in.ibm.com>
+References: <1097110266.4907.187.camel@arrakis>
+	<20050418202644.GA5772@in.ibm.com>
+	<20050418225427.429accd5.pj@sgi.com>
+	<1113891575.5074.46.camel@npiggin-nld.site>
+	<20050419095230.GC3963@in.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch provides finer grained permissions for the audit family of 
-Netlink sockets under SELinux.
+Dinakar, replying to Nick:
+> > It doesn't work if you have *most* jobs bound to either
+> > {0, 1, 2, 3} or {4, 5, 6, 7} but one which should be allowed
+> > to use any CPU from 0-7.
+> 
+> That is the current definition of cpu_exclusive on cpusets.
+> I initially thought of attaching exclusive cpusets to sched domains,
+> but that would not work because of this reason
 
-1. We need a way to differentiate between privileged and unprivileged
-reads of kernel data maintained by the audit subsystem.  The AUDIT_GET
-operation is unprivileged: it returns the current status of the audit
-subsystem (e.g. whether it's enabled etc.).  The AUDIT_LIST operation
-however returns a list of the current audit ruleset, which is considered
-privileged by the audit folk.  To deal with this, a new SELinux permission
-has been implemented and applied to the operation:  nlmsg_readpriv, which
-can be allocated to appropriately privileged domains.  Unprivileged
-domains would only be allocated nlmsg_read.
+I can't make any sense of this reply, Dinakar.
 
-2. There is a requirement for certain domains to generate audit events
-from userspace.  These events need to be collected by the kernel, collated
-and transmitted sequentially back to the audit daemon.  An example is user
-level login, an auditable event under CAPP, where login-related domains
-generate AUDIT_USER messages via PAM which are relayed back to auditd via
-the kernel.  To prevent handing out nlmsg_write permissions to such
-domains, a new permission has been added, nlmsg_relay, which is intended
-for this type of purpose: data is passed via the kernel back to userspace
-but no privileged information is written to the kernel.
+You say "_That_" is the current definition of cpu_exclusive -- I have no
+idea what "_That_" refers to.  I see nothing in what Nick wrote that has
+anything much to do with the definition of cpu_exclusive.  If a cpuset
+is marked cpu_exclusive, it means that the kernel will not allow any of
+its siblings to have overlapping CPUs.  It doesn't mean that its parent
+can't overlap CPUs -- indeed it's parent must contain a superset of all
+the CPUs in a cpu_exclusive cpuset and its siblings.  It doesn't mean
+that there cannot be tasks attached to each of the cpu_exclusive cpuset,
+its siblings and its parent.
 
-Also, AUDIT_LOGIN messages are now valid only for kernel->user messaging,
-so this value has been removed from the SELinux nlmsgtab (which is only
-used to check user->kernel messages).
+You say "attaching exclusive cpusets to sched domains ... would not work
+because of this reason."  I have no idea what "this reason" is.
 
-Please apply.
+I am pretty sure of a couple of things:
+ * Your understanding of "cpu_exclusive" is not the same as mine.
+ * We want to avoid any dependency on "cpu_exclusive" here.
 
-Signed-off-by: James Morris <jmorris@redhat.com>
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> Since isolated cpusets are trying to partition the system, this
+> can be restricted to only the first level of cpusets.
 
----
+I do not think such a restriction is a good idea.  For example, lets say
+our 8 CPU system has the following cpusets:
 
- security/selinux/include/av_perm_to_string.h |    2 ++
- security/selinux/include/av_permissions.h    |    2 ++
- security/selinux/nlmsgtab.c                  |   13 ++++++-------
- 3 files changed, 10 insertions(+), 7 deletions(-)
+	/		# 0-7
+	/Alpha		#   0-3
+	/Alpha/phi	#     0-1
+	/Alpha/chi	#     2-3
+	/Beta		#   4-7
 
-diff -purN -X dontdiff linux-2.6.12-rc2-mm3.o/security/selinux/include/av_permissions.h linux-2.6.12-rc2-mm3.w1/security/selinux/include/av_permissions.h
---- linux-2.6.12-rc2-mm3.o/security/selinux/include/av_permissions.h	2005-04-14 21:02:39.000000000 -0400
-+++ linux-2.6.12-rc2-mm3.w1/security/selinux/include/av_permissions.h	2005-04-15 15:32:36.000000000 -0400
-@@ -840,6 +840,8 @@
- 
- #define NETLINK_AUDIT_SOCKET__NLMSG_READ          0x00400000UL
- #define NETLINK_AUDIT_SOCKET__NLMSG_WRITE         0x00800000UL
-+#define NETLINK_AUDIT_SOCKET__NLMSG_RELAY         0x01000000UL
-+#define NETLINK_AUDIT_SOCKET__NLMSG_READPRIV      0x02000000UL
- 
- #define NETLINK_IP6FW_SOCKET__IOCTL               0x00000001UL
- #define NETLINK_IP6FW_SOCKET__READ                0x00000002UL
-diff -purN -X dontdiff linux-2.6.12-rc2-mm3.o/security/selinux/include/av_perm_to_string.h linux-2.6.12-rc2-mm3.w1/security/selinux/include/av_perm_to_string.h
---- linux-2.6.12-rc2-mm3.o/security/selinux/include/av_perm_to_string.h	2005-04-14 21:02:39.000000000 -0400
-+++ linux-2.6.12-rc2-mm3.w1/security/selinux/include/av_perm_to_string.h	2005-04-15 15:32:00.000000000 -0400
-@@ -220,6 +220,8 @@
-    S_(SECCLASS_NETLINK_XFRM_SOCKET, NETLINK_XFRM_SOCKET__NLMSG_WRITE, "nlmsg_write")
-    S_(SECCLASS_NETLINK_AUDIT_SOCKET, NETLINK_AUDIT_SOCKET__NLMSG_READ, "nlmsg_read")
-    S_(SECCLASS_NETLINK_AUDIT_SOCKET, NETLINK_AUDIT_SOCKET__NLMSG_WRITE, "nlmsg_write")
-+   S_(SECCLASS_NETLINK_AUDIT_SOCKET, NETLINK_AUDIT_SOCKET__NLMSG_RELAY, "nlmsg_relay")
-+   S_(SECCLASS_NETLINK_AUDIT_SOCKET, NETLINK_AUDIT_SOCKET__NLMSG_READPRIV, "nlmsg_readpriv")
-    S_(SECCLASS_NETLINK_IP6FW_SOCKET, NETLINK_IP6FW_SOCKET__NLMSG_READ, "nlmsg_read")
-    S_(SECCLASS_NETLINK_IP6FW_SOCKET, NETLINK_IP6FW_SOCKET__NLMSG_WRITE, "nlmsg_write")
-    S_(SECCLASS_DBUS, DBUS__ACQUIRE_SVC, "acquire_svc")
-diff -purN -X dontdiff linux-2.6.12-rc2-mm3.o/security/selinux/nlmsgtab.c linux-2.6.12-rc2-mm3.w1/security/selinux/nlmsgtab.c
---- linux-2.6.12-rc2-mm3.o/security/selinux/nlmsgtab.c	2005-04-14 21:02:39.000000000 -0400
-+++ linux-2.6.12-rc2-mm3.w1/security/selinux/nlmsgtab.c	2005-04-15 16:42:33.000000000 -0400
-@@ -91,13 +91,12 @@ static struct nlmsg_perm nlmsg_xfrm_perm
- 
- static struct nlmsg_perm nlmsg_audit_perms[] =
- {
--	{ AUDIT_GET,		NETLINK_AUDIT_SOCKET__NLMSG_READ  },
--	{ AUDIT_SET,		NETLINK_AUDIT_SOCKET__NLMSG_WRITE },
--	{ AUDIT_LIST,		NETLINK_AUDIT_SOCKET__NLMSG_READ  },
--	{ AUDIT_ADD,		NETLINK_AUDIT_SOCKET__NLMSG_WRITE },
--	{ AUDIT_DEL,		NETLINK_AUDIT_SOCKET__NLMSG_WRITE },
--	{ AUDIT_USER,		NETLINK_AUDIT_SOCKET__NLMSG_WRITE },
--	{ AUDIT_LOGIN,		NETLINK_AUDIT_SOCKET__NLMSG_WRITE },
-+	{ AUDIT_GET,		NETLINK_AUDIT_SOCKET__NLMSG_READ     },
-+	{ AUDIT_SET,		NETLINK_AUDIT_SOCKET__NLMSG_WRITE    },
-+	{ AUDIT_LIST,		NETLINK_AUDIT_SOCKET__NLMSG_READPRIV },
-+	{ AUDIT_ADD,		NETLINK_AUDIT_SOCKET__NLMSG_WRITE    },
-+	{ AUDIT_DEL,		NETLINK_AUDIT_SOCKET__NLMSG_WRITE    },
-+	{ AUDIT_USER,		NETLINK_AUDIT_SOCKET__NLMSG_RELAY    },
- };
- 
- 
+Then I see no problem with cpusets /Alpha/phi, /Alpha/chi and /Beta
+being the isolated cpusets, with corresponding scheduler domains.  But
+phi and chi are not "first level cpusets."  If we require a partition
+(disjoint cover) of the CPUs in the system, then enforce exactly that.
+Do not confuse a rough approximation with a simplified model.
 
 
+> Also I think we can add further restrictions in terms not being able
+> to change (add/remove) cpus within a isolated cpuset.
+
+My approach agrees on this restriction.  Earlier I wrote:
+> Also note that adding or removing a cpu from a cpuset that has
+> its domain_cpu_current flag set true must fail, and similarly
+> for domain_mem_current.
+
+This restriction is required in my approach because the CPUs in the
+domain_cpu_current cpusets (the isolated CPUs, in your terms) form a
+partition (disjoint cover) of the CPUs in the system, which property
+would be violated immediately if any CPU were added or removed from any
+cpuset defining the partition.
+
+> Instead one would
+> have to tear down an existing cpuset and make a new one with the
+> required configuration. that would simplify things even further
+
+You've just come close to describing the approach that it took me
+"several more" words to describe.  Though one doesn't need to tear down
+or make any new cpusets; rather one atomically selects a new set of
+cpusets to define the partition.
+
+If one had to tear down and remake cpusets to change the partition, then
+one would be in trouble -- it would be difficult to provide an API that
+allowed doing that atomically.  If its not atomic, then we have illegal
+intermediate states, where one cpuset is gone and the new one has not
+arrived, and our partition of the cpusets in the system no longer covers
+the system ("our cover is blown", as they say in undercover police
+work.)
+
+> And maybe also have a flag that says whether to have load balancing
+> in this domain or not
+
+It's probably too early to think about that.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

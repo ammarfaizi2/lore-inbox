@@ -1,61 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261589AbVDSVHg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261663AbVDSVKf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261589AbVDSVHg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 17:07:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbVDSVHg
+	id S261663AbVDSVKf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 17:10:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbVDSVKf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 17:07:36 -0400
-Received: from alpha.polcom.net ([217.79.151.115]:51943 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S261589AbVDSVHa (ORCPT
+	Tue, 19 Apr 2005 17:10:35 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:15248 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261663AbVDSVKZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 17:07:30 -0400
-Date: Tue, 19 Apr 2005 23:12:17 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Nico Schottelius <nico-kernel@schottelius.org>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       linux-kernel@vger.kernel.org
-Subject: Re: /proc/cpuinfo format - arch dependent!
-In-Reply-To: <20050419205445.GC16594@schottelius.org>
-Message-ID: <Pine.LNX.4.62.0504192303220.8671@alpha.polcom.net>
-References: <20050419121530.GB23282@schottelius.org> <20050419132417.GS17865@csclub.uwaterloo.ca>
- <1113938220.20178.0.camel@mindpipe> <20050419200011.GB16594@schottelius.org>
- <1113943332.21038.6.camel@mindpipe> <20050419205445.GC16594@schottelius.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 19 Apr 2005 17:10:25 -0400
+Date: Tue, 19 Apr 2005 23:09:58 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Thomas Renninger <trenn@suse.de>
+Cc: Tony Lindgren <tony@atomide.com>, Frank Sorenson <frank@tuxrocks.com>,
+       linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Andrea Arcangeli <andrea@suse.de>, George Anzinger <george@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Lee Revell <rlrevell@joe-job.com>,
+       ML ACPI-devel <acpi-devel@lists.sourceforge.net>,
+       Bodo Bauer <bb@suse.de>, Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] Updated: Dynamic Tick version 050408-1 - C-state measures
+Message-ID: <20050419210958.GE25328@elf.ucw.cz>
+References: <425451A0.7020000@tuxrocks.com> <20050407082136.GF13475@atomide.com> <4255A7AF.8050802@tuxrocks.com> <4255B247.4080906@tuxrocks.com> <20050408062537.GB4477@atomide.com> <20050408075001.GC4477@atomide.com> <42564584.4080606@tuxrocks.com> <42566C22.4040509@suse.de> <20050408115535.GI4477@atomide.com> <42651C38.6090807@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42651C38.6090807@suse.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Apr 2005, Nico Schottelius wrote:
+Hi!
 
-> Lee Revell [Tue, Apr 19, 2005 at 04:42:12PM -0400]:
->> On Tue, 2005-04-19 at 22:00 +0200, Nico Schottelius wrote:
->>> Can you tell me which ones?
->>>
->>
->> Multimedia apps like JACK and mplayer that use the TSC for high res
->> timing need to know the CPU speed, and /proc/cpuinfo is the fast way to
->> get it.
->>
->> Why don't you create sysfs entries instead?  It would be better to have
->> all the cpuinfo contents as one value per file anyway (faster
->> application startup).
->
-> Well, sounds very good. It's a chance for me to learn to program
-> sysfs and also to create something useful.
->
-> So the right location to place that data would be
-> /sys/devices/system/cpu/cpuX?
+> The machine is a Pentium M 2.00 GHz, supporting C0-C4 processor power states.
+> The machine run at 2.00 GHz all the time.
+..
+> _passing bm_history=0xFFFFFFFF (default) to processor module:_
+> 
+> Average current the last 470 seconds: *1986mA* (also measured better
+> values ~1800, does battery level play a role?!?)
 
-IIRC there was such patch not very long ago and it was rejected (to not 
-make kernel larger or something like that...). But I can be wrong.
-
-I think that all data from /proc that are not user-process data should be 
-exported using sysfs or something similar. Maybe even in future one will 
-write userspace fs (using FUSE?) to emulate old /proc entries using sysfs 
-exported data. This will allow removing all proc code from kernel. Maybe 
-even user processes data should be exported using sysfs (like 
-/sys/processes/123/maps/41610000/file)? But this is my personal opinion.
+Probably yes. If voltage changes, 2000mA means different ammount of power.
 
 
-Grzegorz Kulewski
+> (cmp. ftp://ftp.suse.com/pub/people/trenn/dyn_tick_c_states/measures_C4_machine/1000_HZ_bm_history_FFFFFFFF)
+> 
+> 
+> _passing bm_history=0xFF to processor module:_
+> 
+> Average current the last 190 seconds: *1757mA*
+> (cmp. ftp://ftp.suse.com/pub/people/trenn/dyn_tick_c_states/measures_C4_machine/1000_HZ_bm_history_FF)
+> (Usage count could be bogus, as some invokations could not succeed
+> if bm has currently been active).
+
+Ok.
+
+> idle_ms == 100, bm_promote_bs == 30
+> Average current the last 80 seconds: *1466mA*
+> (cmp.
+> ftp://ftp.suse.com/pub/people/trenn/dyn_tick_c_states/measures_C4_machine/tony_dyn_tick_processor_idle_100_bm_30)
+
+Very nice indeed. That seems like ~5W saved, right? That might give
+you one more hour of battery life....
+								Pavel
+
+-- 
+Boycott Kodak -- for their patent abuse against Java.

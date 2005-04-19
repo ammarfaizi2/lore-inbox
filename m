@@ -1,110 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261738AbVDSXI6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261740AbVDSXQL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261738AbVDSXI6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 19:08:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbVDSXI6
+	id S261740AbVDSXQL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 19:16:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbVDSXQK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 19:08:58 -0400
-Received: from nacho.zianet.com ([216.234.192.105]:2575 "HELO nacho.zianet.com")
-	by vger.kernel.org with SMTP id S261738AbVDSXIt (ORCPT
+	Tue, 19 Apr 2005 19:16:10 -0400
+Received: from rproxy.gmail.com ([64.233.170.193]:8101 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261740AbVDSXPo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 19:08:49 -0400
-From: Steven Cole <elenstev@mesatop.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [GIT PATCH] I2C and W1 bugfixes for 2.6.12-rc2
-Date: Tue, 19 Apr 2005 17:04:48 -0600
-User-Agent: KMail/1.6.1
-Cc: Greg KH <greg@kroah.com>, Greg KH <gregkh@suse.de>,
-       Git Mailing List <git@vger.kernel.org>, linux-kernel@vger.kernel.org,
-       sensors@stimpy.netroedge.com
-References: <20050419043938.GA23724@kroah.com> <426583D5.2020308@mesatop.com> <Pine.LNX.4.58.0504191525290.2274@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0504191525290.2274@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200504191704.48976.elenstev@mesatop.com>
+	Tue, 19 Apr 2005 19:15:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:cc:user-agent:content-type:subject:message-id:date;
+        b=QAc4jOvpmk8IogKiBBI801bu3WfCKJYNzFvUpaZgGoqTdT903My4EWrLZov5RSxZV7jJqu/2GbECCQQrZbrUKsOyX6zpYXH5xzGn9s2sVFkIxJ+k78WU/rq55Q9/bAeX3kQXbKV2AzrR2tk9ehyQTlkhfnjd9c/zEDhxp6YT/jM=
+From: Tejun Heo <htejun@gmail.com>
+To: James.Bottomley@steeleye.com, axboe@suse.de,
+       Christoph Hellwig <hch@infradead.org>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+User-Agent: lksp 0.3
+Content-Type: text/plain; charset=US-ASCII
+Subject: [PATCH scsi-misc-2.6 00/05] scsi: change REQ_SPECIAL/REQ_SOFTBARRIER usages
+Message-ID: <20050419231435.D85F89C0@htj.dyndns.org>
+Date: Wed, 20 Apr 2005 08:15:39 +0900 (KST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 19 April 2005 04:38 pm, Linus Torvalds wrote:
-> 
-> On Tue, 19 Apr 2005, Steven Cole wrote:
-> >
-> > But perhaps a progress bar right about here might be
-> > a good thing for the terminally impatient.
-> > 
-> > real    3m54.909s
-> > user    0m14.835s
-> > sys     0m10.587s
-> > 
-> > 4 minutes might be long enough to cause some folks to lose hope.
-> 
-> Well, the real operations took only 15 seconds. What kind of horribe 
-> person are you, that you don't have all of the kernel in your disk cache 
-> already? Shame on you.
-> 
-> Or was the 4 minutes for downloading all the objest too?
+ Hello, James, Jens and Christoph.
 
-Yes, I was using a very recent version of the pasky tools,
-I had created the repo this morning with git init YOUR_RSYC_URL_FOR_LINUX-2.6.
-I did time git pull origin and watched the fur fly.
+ This patchset is reworked version of the previous REQ_SPECIAL update
+patchset.  Patches #01 and #05 update blk layer.  The other patches
+update SCSI midlayer.
 
-Then, the flurry of patching file blah messages, followed by a rather 
-pregnant pause after the last patching message.
+ I've opted for automatically setting REQ_SOFTBARRIER together with
+REQ_STARTED in elv_next_request().  Reordering prep-deferred or
+requeued requests doesn't have any real benefit and actually both as
+and cfq don't reorder requeued requests.  The only behavior change is
+that prep-deferred requests can't be passed by others.  I think the
+change is a good thing.  The only affected driver other than SCSI is
+i2o_block.  So, Jens, please let me know what you think.
 
-I wasn't complaining about the 4 minutes, just the lack of feedback
-during the majority of that time.  And most of it was after the last
-patching file message.
+ This patchset does the following things.
 
-> 
-> Anyway, it looks like you are using pasky's scripts, and the old 
-> "patch-based" upgrade at that. You certainly will _not_ see the
-> 
-> 	[many files patched]
-> 	patching file mm/mmap.c
-> 	..
-> 
-> if you use a real git merge. That's probable be the real problem here.
-> 
-> Real merges have no patches taking place _anywhere_. And they take about 
-> half a second. Doing an "update" of your tree should _literally_ boil down 
-> to
-> 
-> 	#
-> 	# "repo" needs to point to the repo we update from
-> 	#
-> 	rsync -avz --ignore-existing $repo/objects/. .git/objects/.
-> 	rsync -L $repo/HEAD .git/NEW_HEAD || exit 1
-> 	read-tree -m $(cat .git/NEW_HEAD) || exit 1
-> 	checkout-cache -f -a
-> 	update-cache --refresh
-> 	mv .git/NEW_HEAD .git/HEAD
-> 
-> and if it does anything else, it's literally broken. Btw, the above does
-> need my "read-tree -m" thing which I committed today.
-> 
-> (CAREFUL: the above is not a good script, because it _will_ just overwrite 
-> all your old contents with the stuff you updated to. You should thus not 
-> actually use something like this, but a "git update" should literally end 
-> up doing the above operations in the end, and just add proper checking).
-> 
-> And if that takes 4 minutes, you've got problems.
-> 
-> Just say no to patches. 
-> 
-> 		Linus
-> 
-> PS: If you want a clean tree without any old files or anything else, for
-> that matter, you can then do a "show-files -z --others | xargs -0 rm", but
-> be careful: that will blow away _anything_ that wasn't revision controlled
-> with git. So don't blame me if your pr0n collection is gone afterwards.
-> 
+ #01	: make elv_next_request() set REQ_SOFTBARRIER in addition to
+	  REQ_STARTED.
+ #02-04	: decouple REQ_SPECIAL from scsi_cmnd->special and make it
+	  mean special requests (non-fs/pc).
+ #05	: remove requeue feature from blk_insert_request().
 
-OK.  I may try some of this tomorrow from work, where I have a fat pipe.
+ Previously, REQ_SPECIAL duplicately meant the request has been
+prepp'ed by SCSI midlayer and/or the request is a special request.
+This left special requests handling in the midlayer subtley
+inconsistent.
 
-I'm on dialup from home, and I suspect not very many folks want to hear
-the sad tale of how long it takes to get the kernel over 56k dialup.
+ Also, the setting of REQ_SPECIAL was done by the block layer using
+blk_insert_request() mostly but sometimes by the SCSI midlayer (when
+returning BLK_PREP_DEFER from scsi_prep_fn()).  blk_insert_request()
+was used for two different purposes.
 
-Steven
+ * enqueue special requests
+ * turn on REQ_SPECIAL|REQ_SOFTBARRIER and call blk_requeue_request().
+
+ The second somewhat unobvious feature of blk_insert_request() is used
+only by SCSI midlayer and SCSI midlayer depended on it to set
+REQ_SOFTBARRIER.  Unfortunately, when the SCSI midlayer sets
+REQ_SPECIAL explicitly (sg allocation failure path) it didn't set
+REQ_SOFTBARRIER, creating a *highly* unlikely but still existing dead
+lock condition caused by allowing reorder of a request which has its
+cmd allocated.  IMHO, this proves the subtlety of current situation.
+
+ This patchset makes blk layer set REQ_SOFTBARRIER automatically when
+a request is dispatched from its request queue and SCSI midlayer use
+blk_requeue_request() for requeueing.
+
+ To prevent more misuses, the requeue feature of blk_insert_request()
+is removed.  Requeueing should be done with blk_requeue_request() not
+blk_insert_request().
+
+[ Start of patch descriptions ]
+
+01_scsi_blk_make_started_requests_ordered.patch
+	: make blk layer set REQ_SOFTBARRIER when a request is dispatched
+
+	Reordering already started requests is without any real
+	benefit and causes problems if the request has its
+	driver-specific resources allocated (as in SCSI).  This patch
+	makes elv_next_request() set REQ_SOFTBARRIER automatically
+	when a request is dispatched.
+
+	As both as and cfq schedulers don't allow passing requeued
+	requests, the only behavior change is that requests deferred
+	by prep_fn won't be passed by other requests.  This change
+	shouldn't cause any problem.  The only affected driver other
+	than SCSI is i2o_block.
+
+02_scsi_REQ_SPECIAL_semantic_scsi_init_io.patch
+	: remove REQ_SPECIAL in scsi_init_io()
+
+	scsi_init_io() used to set REQ_SPECIAL when it fails sg
+	allocation before requeueing the request by returning
+	BLKPREP_DEFER.  REQ_SPECIAL is being updated to mean special
+	requests.  So, remove REQ_SPECIAL setting.
+
+03_scsi_REQ_SPECIAL_semantic_scsi_queue_insert.patch
+	: make scsi_queue_insert() use blk_requeue_request()
+
+	scsi_queue_insert() used to use blk_insert_request() for
+	requeueing requests.  This depends on the unobvious behavior
+	of blk_insert_request() setting REQ_SPECIAL and
+	REQ_SOFTBARRIER when requeueing.  This patch makes
+	scsi_queue_insert() use blk_requeue_request().  As REQ_SPECIAL
+	means special requests and REQ_SOFTBARRIER is automatically
+	handled by blk layer now, no flag needs to be set.
+
+	Note that scsi_queue_insert() now calls scsi_run_queue()
+	itself, and the prototype of the function is added right above
+	scsi_queue_insert().  This is temporary, as later requeue path
+	consolidation patchset removes scsi_queue_insert().  By adding
+	temporary prototype, we can do away with unnecessarily moving
+	functions.
+
+04_scsi_REQ_SPECIAL_semantic_scsi_requeue_command.patch
+	: make scsi_requeue_request() use blk_requeue_request()
+
+	scsi_requeue_request() used to use blk_insert_request() for
+	requeueing requests.  This depends on the unobvious behavior
+	of blk_insert_request() setting REQ_SPECIAL and
+	REQ_SOFTBARRIER when requeueing.  This patch makes
+	scsi_queue_insert() use blk_requeue_request().  As REQ_SPECIAL
+	means special requests and REQ_SOFTBARRIER is automatically
+	handled by blk layer now, no flag needs to be set.
+
+05_scsi_blk_insert_request_no_requeue.patch
+	: remove requeue feature from blk_insert_request()
+
+	blk_insert_request() has a unobivous feature of requeuing a
+	request setting REQ_SPECIAL|REQ_SOFTBARRIER.  SCSI midlayer
+	was the only user and as previous patches removed the usage,
+	remove the feature from blk_insert_request().  Only special
+	requests should be queued with blk_insert_request().  All
+	requeueing should go through blk_requeue_request().
+
+[ End of patch descriptions ]
+
+ Thanks.
+

@@ -1,66 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbVDSIY0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbVDSIcW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261410AbVDSIY0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 04:24:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbVDSIY0
+	id S261195AbVDSIcW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 04:32:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVDSIcW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 04:24:26 -0400
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:13397 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261410AbVDSIYX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 04:24:23 -0400
-Subject: Re: E1000 - page allocation failure - saga continues :(
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-To: Yann Dupont <Yann.Dupont@univ-nantes.fr>
-Cc: Lukas Hejtmanek <xhejtman@mail.muni.cz>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <4264BE1F.50508@univ-nantes.fr>
-References: <20050414214828.GB9591@mail.muni.cz>
-	 <4263A3B7.6010702@univ-nantes.fr> <20050418122202.GE26030@mail.muni.cz>
-	 <4264B202.9080304@univ-nantes.fr>
-	 <1113897810.5074.66.camel@npiggin-nld.site> <4264BE1F.50508@univ-nantes.fr>
-Content-Type: text/plain; charset=utf-8
-Date: Tue, 19 Apr 2005 18:24:19 +1000
-Message-Id: <1113899059.5074.71.camel@npiggin-nld.site>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 8bit
+	Tue, 19 Apr 2005 04:32:22 -0400
+Received: from mail02.osl.basefarm.net ([81.93.160.49]:44249 "EHLO
+	mail02.osl.basefarm.net") by vger.kernel.org with ESMTP
+	id S261195AbVDSIcS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 04:32:18 -0400
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Igor Shmukler <igor.shmukler@gmail.com>, Rik van Riel <riel@redhat.com>,
+       Daniel Souza <thehazard@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: intercepting syscalls
+References: <6533c1c905041511041b846967@mail.gmail.com>
+	<1113588694.6694.75.camel@laptopd505.fenrus.org>
+	<6533c1c905041512411ec2a8db@mail.gmail.com>
+	<e1e1d5f40504151251617def40@mail.gmail.com>
+	<6533c1c905041512594bb7abb4@mail.gmail.com>
+	<Pine.LNX.4.61.0504180752220.3232@chimarrao.boston.redhat.com>
+	<6533c1c905041807487a872025@mail.gmail.com>
+	<1113836378.6274.69.camel@laptopd505.fenrus.org>
+	<6533c1c9050418080639e41fb@mail.gmail.com>
+	<1113837657.6274.74.camel@laptopd505.fenrus.org>
+	<wvhis2jewxh.fsf@cornavin.basefarm.no>
+	<1113853203.6274.97.camel@laptopd505.fenrus.org>
+From: Terje Malmedal <tm@basefarm.com>
+Date: Tue, 19 Apr 2005 10:32:09 +0200
+In-Reply-To: <1113853203.6274.97.camel@laptopd505.fenrus.org> (Arjan van de
+ Ven's message of "Mon, 18 Apr 2005 21:40:02 +0200")
+Message-ID: <wvh8y3fdv5i.fsf@cornavin.basefarm.no>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Scan-Result: No virus found in message 1DNo9Z-0005bO-8t.
+X-Scan-Signature: mail02.osl.basefarm.net 1DNo9Z-0005bO-8t d1176c3bd7729e79b15e81108859fa67
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-04-19 at 10:15 +0200, Yann Dupont wrote:
-> Nick Piggin a écrit :
-> 
-> >
-> >>Do you have turned NAPI on ??? I tried without it off on e1000 and ...
-> >>surprise !
-> >>Don't have any messages since 12H now (usually I got those in less than 1H)
-> >>
-> >>    
-> >>
-> >
-> >Possibly kswapd might be unable to get enough CPU to free memory.
-> >
-> >  
-> >
-> Ok, so what you're saying is that turning NAPI off is just slowing down
-> things enough to not be hit by
-> this problem , right ?
-> 
 
-Perhaps, yes. Or that NAPI is using more CPU than non-NAPI
-(which I understand can happen in some corner cases).
+[Arjan van de Ven]
+>> What do I do the next time I need to do something like this? 
 
-If you have a multiprocessor (or even hyperthreading), I
-think you could test this by binding kswapd on cpu CPU, and
-put nic interrupts on the other - then test with and without
-NAPI.
+> use kprobes or so to actually replace the faulty lower level function..
+> you don't know from how many different angles the lower level function
+> is called, so you're really best of by replacing it at the lowest
+> possible level, eg closest to the bug. That *very* seldomly is the
+> actual syscall function.
 
-That is, presuming you can reproduce the problem on your
-multiprocessor system in the first place.
+This is exactly what I want to do, but how do I do the replacing part?
 
+I understand how I create pre_ and post_handlers with kprobes, but not
+how I can stop a function from being executed.
 
 -- 
-SUSE Labs, Novell Inc.
-
-
+ - Terje
+tm@basefarm.no

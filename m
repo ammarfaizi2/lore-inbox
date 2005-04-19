@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbVDSUTO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261648AbVDSUVD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261190AbVDSUTO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 16:19:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbVDSUTO
+	id S261648AbVDSUVD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 16:21:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbVDSUVD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 16:19:14 -0400
-Received: from fire.osdl.org ([65.172.181.4]:28562 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261190AbVDSUTI (ORCPT
+	Tue, 19 Apr 2005 16:21:03 -0400
+Received: from coderock.org ([193.77.147.115]:63386 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261648AbVDSUUt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 16:19:08 -0400
-Date: Tue, 19 Apr 2005 13:20:47 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Greg KH <greg@kroah.com>
-cc: Git Mailing List <git@vger.kernel.org>, linux-kernel@vger.kernel.org,
-       sensors@stimpy.netroedge.com
-Subject: Re: [GIT PATCH] I2C and W1 bugfixes for 2.6.12-rc2
-In-Reply-To: <20050419194728.GA24367@kroah.com>
-Message-ID: <Pine.LNX.4.58.0504191316180.19286@ppc970.osdl.org>
-References: <20050419043938.GA23724@kroah.com> <20050419185807.GA1191@kroah.com>
- <Pine.LNX.4.58.0504191204480.19286@ppc970.osdl.org> <20050419194728.GA24367@kroah.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 19 Apr 2005 16:20:49 -0400
+Date: Tue, 19 Apr 2005 22:20:38 +0200
+From: Domen Puncer <domen@coderock.org>
+To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>
+Cc: vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org,
+       mpm@selenic.com
+Subject: Re: [PATCH] introduce generic 64bit rotations and i386 asm optimized version
+Message-ID: <20050419202037.GE21272@nd47.coderock.org>
+References: <200504190918.10279.vda@port.imtp.ilyichevsk.odessa.ua> <20050419.154642.111848378.yoshfuji@linux-ipv6.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050419.154642.111848378.yoshfuji@linux-ipv6.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 19 Apr 2005, Greg KH wrote:
+On 19/04/05 15:46 +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@ wrote:
+> In article <200504190918.10279.vda@port.imtp.ilyichevsk.odessa.ua> (at Tue, 19 Apr 2005 09:18:10 +0300), Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> says:
 > 
-> Ok, if you want some practice with "real" merges, feel free to merge from
-> the following two trees whenever you are ready:
-> 	kernel.org/pub/scm/linux/kernel/git/gregkh/aoe-2.6.git/
-> for 11 aoe bugfix patches, and:
-> 	kernel.org/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
-> for 13 driver core, sysfs, and debugfs fixes.
+> > diff -urpN 2.6.12-rc2.1.be/include/linux/bitops.h 2.6.12-rc2.2.ror/include/linux/bitops.h
+> > --- 2.6.12-rc2.1.be/include/linux/bitops.h	Mon Apr 18 22:55:10 2005
+> > +++ 2.6.12-rc2.2.ror/include/linux/bitops.h	Tue Apr 19 00:25:28 2005
+...
+> > -static __inline__ int get_bitmask_order(unsigned int count)
+> > +static inline int get_bitmask_order(unsigned int count)
+> >  {
+> >  	int order;
+> >  	
+> 
+> Please keep using __inline__, not inline.
 
-Done, pushed out. Can you verify that the end result looks sane to you? I 
-just cheched that the diffstat looks similar (mine claims just 108 lines 
-changed in aoecmd.c - possibly due to different diff formats).
+Why?
 
-And yes, my new merge thing seems to have kept the index-cache much better 
-up-to-date, allowing an optimized checkout-cache -f -a to work and only 
-get the new files.
+Couldn't find any threads about this, and even SubmittingPatches has:
+"'static inline' is preferred over 'static __inline__'..."
 
-Pasky? Can you check my latest git stuff, notably read-tree.c and the 
-changes to git-pull-script?
 
-		Linus
+	Domen

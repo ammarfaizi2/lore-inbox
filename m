@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261511AbVDSOmP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261513AbVDSOqh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261511AbVDSOmP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 10:42:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbVDSOcW
+	id S261513AbVDSOqh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 10:46:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbVDSOqh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 10:32:22 -0400
-Received: from rproxy.gmail.com ([64.233.170.205]:41361 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261562AbVDSObQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 10:31:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:cc:user-agent:content-type:references:in-reply-to:subject:message-id:date;
-        b=Jyo2GkFwd5lYLYQpzspSGddretZcSkqgqKU0d3qvOtt7fHWwoHrpRUlwOuDYvH71H5mXx4fQxS5vkHBCFxr/iKbGkofmj2uRGew1yECYpWEn5L9ntGbrf9QmqSK7OKm6Oyudh8RQG/b5jYHYqJgiV6Ocl4mElNOGFLRhMFc2+Og=
-From: Tejun Heo <htejun@gmail.com>
-To: James.Bottomley@steeleye.com
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-User-Agent: lksp 0.3
-Content-Type: text/plain; charset=US-ASCII
-References: <20050419143100.E231523D@htj.dyndns.org>
-In-Reply-To: <20050419143100.E231523D@htj.dyndns.org>
-Subject: Re: [PATCH scsi-misc-2.6 02/04] scsi: remove spurious if tests from scsi_eh_{times_out|done}
-Message-ID: <20050419143100.3724D346@htj.dyndns.org>
-Date: Tue, 19 Apr 2005 23:31:11 +0900 (KST)
+	Tue, 19 Apr 2005 10:46:37 -0400
+Received: from web88101.mail.re2.yahoo.com ([206.190.37.202]:12442 "HELO
+	web88101.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S261513AbVDSOqW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 10:46:22 -0400
+Message-ID: <20050419144621.95824.qmail@web88101.mail.re2.yahoo.com>
+Date: Tue, 19 Apr 2005 10:46:21 -0400 (EDT)
+From: Anthony Russello <arussello@rogers.com>
+Subject: hang in rest_init, kernel_thread call 2.6.12-rc2
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-02_scsi_timer_eh_timer_remove_spurious_if.patch
+Hi All,
 
-	If tests which check if eh_action isn't NULL in both functions
-	are always true.  Remove the if's.
+I'm currently trying to bring 2.6.12-rc2 up on a board
+using the Freescale 8240 CPU.  I'm also using, for the
+most part, the sandpoint platform specific code.
 
-Signed-off-by: Tejun Heo <htejun@gmail.com>
+Currently I am experiencing a hang in the function
+rest_init within init/main.c when the kernel attempts
+to kick off its init thread:
 
- scsi_error.c |    6 ++----
- 1 files changed, 2 insertions(+), 4 deletions(-)
+kernel_thread(init, NULL, CLONE_FS | CLONE_SIGHAND);
 
-Index: scsi-reqfn-export/drivers/scsi/scsi_error.c
-===================================================================
---- scsi-reqfn-export.orig/drivers/scsi/scsi_error.c	2005-04-19 23:30:57.000000000 +0900
-+++ scsi-reqfn-export/drivers/scsi/scsi_error.c	2005-04-19 23:30:58.000000000 +0900
-@@ -436,8 +436,7 @@ static void scsi_eh_times_out(unsigned l
- 	SCSI_LOG_ERROR_RECOVERY(3, printk("%s: scmd:%p\n", __FUNCTION__,
- 					  scmd));
- 
--	if (scmd->device->host->eh_action)
--		up(scmd->device->host->eh_action);
-+	up(scmd->device->host->eh_action);
- }
- 
- /**
-@@ -461,8 +460,7 @@ static void scsi_eh_done(struct scsi_cmn
- 		SCSI_LOG_ERROR_RECOVERY(3, printk("%s scmd: %p result: %x\n",
- 					   __FUNCTION__, scmd, scmd->result));
- 
--		if (scmd->device->host->eh_action)
--			up(scmd->device->host->eh_action);
-+		up(scmd->device->host->eh_action);
- 	}
- }
- 
+Has anyone seen this behaviour before?
 
+Currently, in order to debug this I've been writing a
+single character out to the address where the serial
+port lies.  That is how I've been able to determine
+exactly where I'm stuck.
+
+Has anyone else come across this?  If so, how were you
+able to debug it?  I'd appreciate any tips or tricks
+you might be able to give.
+
+Thank you in advance for any help you might be able to
+offer.
+
+Cheers,
+Anthony

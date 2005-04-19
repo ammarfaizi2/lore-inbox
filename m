@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbVDSMG6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbVDSMQc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261463AbVDSMG6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 08:06:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbVDSMG6
+	id S261467AbVDSMQc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 08:16:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbVDSMQc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 08:06:58 -0400
-Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:42450 "EHLO
-	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
-	id S261463AbVDSMGz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 08:06:55 -0400
-To: Olivier Galibert <galibert@pobox.com>
-Cc: "Hack inc." <linux-kernel@vger.kernel.org>
-Subject: Re: alloc_pages and struct page *
-References: <20050419105004.GA7612@dspnet.fr.eu.org>
-From: Catalin Marinas <catalin.marinas@arm.com>
-Date: Tue, 19 Apr 2005 13:06:50 +0100
-In-Reply-To: <20050419105004.GA7612@dspnet.fr.eu.org> (Olivier Galibert's
- message of "Tue, 19 Apr 2005 12:50:04 +0200")
-Message-ID: <tnxu0m3ezs5.fsf@arm.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Tue, 19 Apr 2005 08:16:32 -0400
+Received: from ns.schottelius.org ([213.146.113.242]:6673 "HELO
+	ei.schottelius.org") by vger.kernel.org with SMTP id S261467AbVDSMQ3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 08:16:29 -0400
+Date: Tue, 19 Apr 2005 14:15:30 +0200
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: linux-kernel@vger.kernel.org
+Subject: /proc/cpuinfo format - arch dependent!
+Message-ID: <20050419121530.GB23282@schottelius.org>
+Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux 2.6.11.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olivier Galibert <galibert@pobox.com> wrote:
-> If I get a struct page * from a call to alloc_pages with a non-zero
-> order, how do I get the struct page * of te following pages from the
-> same allocation in order to use them in calls to tcp_sendpage?
+Hello!
 
-page++;
+When I wrote schwanz3(*) for fun, I noticed /proc/cpuinfo
+varies very much on different architectures.
 
-The page structures are kept in an array, "mem_map" if
-CONFIG_DISCONTIGMEM is not set or something like
-"discontig_node_data[nid].node_mem_map" otherwise (this is true for
-the ARM architecture, should be similar on the others). "alloc_pages"
-allocates a contiguous range of pages from an array (and doesn't cross
-a node boundary).
+Is it possible to make it look more identical (as far as the different
+archs allow it)?
+
+So that one at least can count the cpus on every system the same way.
+
+If so, who would the one I should contact and who would accept / verify
+a patch doing that?
+
+Greetings,
+
+Nico
 
 -- 
-Catalin
-
+Keep it simple & stupid, use what's available.
+Please use pgp encryption: 8D0E 27A4 is my id.
+http://nico.schotteli.us | http://linux.schottelius.org

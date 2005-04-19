@@ -1,72 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbVDSEBl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261317AbVDSE1g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261314AbVDSEBl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 00:01:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbVDSEBl
+	id S261317AbVDSE1g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 00:27:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVDSE1g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 00:01:41 -0400
-Received: from THUNK.ORG ([69.25.196.29]:21222 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261314AbVDSEBi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 00:01:38 -0400
-Date: Tue, 19 Apr 2005 00:01:16 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: David Wagner <daw-usenet@taverner.cs.berkeley.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fortuna
-Message-ID: <20050419040116.GA6517@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	David Wagner <daw-usenet@taverner.cs.berkeley.edu>,
-	linux-kernel@vger.kernel.org
-References: <20050414141538.3651.qmail@science.horizon.com> <d3poiv$vrn$2@abraham.cs.berkeley.edu> <20050418191316.GL21897@waste.org> <d419gl$qvq$2@abraham.cs.berkeley.edu>
+	Tue, 19 Apr 2005 00:27:36 -0400
+Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:2180 "EHLO
+	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S261317AbVDSE1d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 00:27:33 -0400
+X-ORBL: [67.124.119.21]
+Date: Mon, 18 Apr 2005 21:27:20 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp>
+Cc: Rik van Riel <riel@redhat.com>, Paul Jackson <pj@sgi.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH x86_64] Live Patching Function on 2.6.11.7
+Message-ID: <20050419042720.GA15123@taniwha.stupidest.org>
+References: <4263356D.9080007@lab.ntt.co.jp> <20050418061221.GA32315@taniwha.stupidest.org> <42636285.9060405@lab.ntt.co.jp> <20050418075635.GB644@taniwha.stupidest.org> <20050418021609.07f6ec16.pj@sgi.com> <20050418092505.GA2206@taniwha.stupidest.org> <Pine.LNX.4.61.0504180726320.3232@chimarrao.boston.redhat.com> <4263AD94.0@lab.ntt.co.jp> <Pine.LNX.4.61.0504181001470.8456@chimarrao.boston.redhat.com> <42646983.4020908@lab.ntt.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <d419gl$qvq$2@abraham.cs.berkeley.edu>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <42646983.4020908@lab.ntt.co.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 18, 2005 at 09:40:37PM +0000, David Wagner wrote:
-> Yes, that is a minor glitch, but I believe all their points remain
-> valid nonetheless.  My advice is to apply the appropriate s/MD5/SHA1/g
-> substitution, and re-read the paper to see what you can get out of it.
-> 
-> The problem is not that the paper is shallow; it is not.  The source
-> of the error is likely that this paper was written by theorists, not
-> implementors.  There are important things we can learn from them, and I
-> think it is worth reading their paper carefully to understand what they
-> have to offer.
+On Tue, Apr 19, 2005 at 11:14:27AM +0900, Takashi Ikebe wrote:
 
-Since the paper was written by theorists, it appears that they didn't
-bother to read the implementation, but instead made assumptions from
-the man pages, as well as making the assumption that the man page
-(which was not written as a specification from which the code was
-implemented, and indeed was not even written by the code authors) was
-in fact an accurate representation of drivers/char/random.c.
+> this makes software developer crazy....
 
-So section 5.3 is essense a criticism of a straw man implementation
-based on a flawed reading of a flawed man page.  Other than that, it's
-fine.  :-)
+are you serious?  how is live patching of .text easier than some of
+the other suggestions which all are more or less sane and things like
+gdb, oprofile, etc. will deal with w/o problems?
 
-> I believe they raise substantial and deep questions in their Section 5.3.
-> I don't see why you say Section 5.3 is all wrong.  Can you elaborate?
-> Can you explain one or two of the substantial errors you see?
+patching code in a running process is way complicated and messy,  if
+you think this is the easier solution i guess i have little more to
+say
 
-For one, /dev/urandom and /dev/random don't use the same pool
-(anymore).  They used to, a long time ago, but certainly as of the
-writing of the paper this was no longer true.  This invalidates the
-entire last paragraph of Section 5.3.
+> For me, is seems very dangerous to estimate the primary copy is not
+> broken through status takeover..
 
-The criticisms of the /dev/random man page do have some point, but the
-man page != the implementation.  Also, the paper does not so much make
-an attack on the entropy estimator, so much as it casts asperions on
-it, while at the same time making the unspoken assumption that
-cryptographic primitives are iron-clad and unbreakable.
+that would also be a problem for live patching too, if you have bad
+state, you have bad state --- live patching doesn't change that
 
-So I don't see any particular substantial deep questions, unless you
-count, "It is not at all clear that /dev/random ... provides
-information-theoretic security.  Indeed, we suspect it sometimes
-doesn't" as a deep question.  I don't.
+> Some process use critical resources such as fixed network listen
+> port can not speed up so.
 
-						- Ted
+hand the fd off to another process
+
+> More importantly, the only process who prepare to use this mechanism
+> only allows to use quick process takeover.
+
+no, i can mmap state or similar, hand fd's off and switch to another
+process in a context switch... hot patching i bet is going to be
+slower
+
+how about you show up some code that needs this?
+
+> This cause software development difficult.
+
+i honestly doubt in most cases you can hand live patch faster and more
+easily than having the application sensibly written and passing it off
+
+please, prove me wrong, show us some code
+
+> The live patching does not require to implement such special
+> techniques on applications.
+
+this is like saying live patching is a complicated in-kernel solution
+for badly written userspace isn't it?
+

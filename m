@@ -1,251 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261255AbVDSJKB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbVDSJLN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261255AbVDSJKB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 05:10:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbVDSJJ5
+	id S261276AbVDSJLN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 05:11:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbVDSJLH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 05:09:57 -0400
-Received: from moutng.kundenserver.de ([212.227.126.191]:18121 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S261191AbVDSJJf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 05:09:35 -0400
-Date: Tue, 19 Apr 2005 11:07:14 +0200 (CEST)
-From: Armin Schindler <armin@melware.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: kkeil@suse.de, kai.germaschewski@gmx.de, isdn4linux@listserv.isdn4linux.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/isdn/: make some code static
-In-Reply-To: <20050419004658.GL5489@stusta.de>
-Message-ID: <Pine.LNX.4.61.0504191105550.25138@phoenix.one.melware.de>
-References: <20050419004658.GL5489@stusta.de>
-Organization: Cytronics & Melware
+	Tue, 19 Apr 2005 05:11:07 -0400
+Received: from [61.185.204.103] ([61.185.204.103]:25747 "EHLO
+	dns.angelltech.com") by vger.kernel.org with ESMTP id S261276AbVDSJKe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 05:10:34 -0400
+Message-ID: <4264CBF4.7000706@angelltech.com>
+Date: Tue, 19 Apr 2005 17:14:28 +0800
+From: rjy <rjy@angelltech.com>
+Reply-To: rjy@angelltech.com
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:4f0aeee4703bc17a8237042c4702a75a
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
+Subject: Re: init process freezed after run_init_process
+References: <424B7A87.2070100@angelltech.com> <Pine.LNX.4.61.0503311113550.17113@yvahk01.tjqt.qr> <4254AB72.8070704@angelltech.com> <Pine.LNX.4.61.0504071341500.27692@yvahk01.tjqt.qr> <4255EF2A.709@angelltech.com> <Pine.LNX.4.61.0504081944120.19971@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0504081944120.19971@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Apr 2005, Adrian Bunk wrote:
-> This patch makes some needlessly global code static.
+Jan Engelhardt wrote:
+>>>Make your own initrd and put a bash into it. Then start that, e.g. (for
+>>>our linux live cd), initrd=initrd.sqfs root=/dev/ram0 init=/bin/bash
+>>
+>>I have tried these kernel parameters:
+>>init=/bin/bash
+>>init=/linuxrc
+>>init=/init
+>>init=/sbin/init
+>>None works.
 > 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> What's the error message?
 
-For the hardware/eicon part:
+No error message at all. System seems freezed after spit out this message:
+	Freeing unused kernel memory: 136k freed
+The console echos the keyboard inputs.
 
-Signed-off-by: Armin Schindler <armin@melware.de>
+It seems that the init started successfully: I attached the output
+of "info threads" and "backtrace" after the system freezing.
 
- 
-> ---
+I am digging the source these days and try to find out if the init
+process has really been started. I found some difference between
+the normal init process and the freezed init process:
+----------------------------------------------------------------
+		| Normal init		| Freezed init
+----------------------------------------------------------------
+mm->total_vm	| 0x145			| 0x1e
+mm->map_count	| 9			| 5
+----------------------------------------------------------------
+
+Maybe, init is not loaded completely? Or just loaded an invalid one?
+I am trying to dump the text segment at user space 0x08040000 of the
+init process. But I have not found the way to find the related kernel 
+space address. Any clue? Thanks! :)
+
 > 
->  drivers/isdn/hardware/eicon/dadapter.c |    2 +-
->  drivers/isdn/hisax/hfc4s8s_l1.c        |    4 ++--
->  drivers/isdn/hysdn/hycapi.c            |   20 +++++++++++---------
->  drivers/isdn/hysdn/hysdn_boot.c        |    4 ++--
->  drivers/isdn/hysdn/hysdn_defs.h        |   12 ------------
->  drivers/isdn/hysdn/hysdn_init.c        |    2 +-
->  drivers/isdn/hysdn/hysdn_proclog.c     |    4 +++-
->  7 files changed, 20 insertions(+), 28 deletions(-)
 > 
-> --- linux-2.6.12-rc2-mm3-full/drivers/isdn/hisax/hfc4s8s_l1.c.old	2005-04-19 00:32:31.000000000 +0200
-> +++ linux-2.6.12-rc2-mm3-full/drivers/isdn/hisax/hfc4s8s_l1.c	2005-04-19 00:32:46.000000000 +0200
-> @@ -1464,7 +1464,7 @@
->  /******************************************/
->  /* disable memory mapped ports / io ports */
->  /******************************************/
-> -void
-> +static void
->  release_pci_ports(hfc4s8s_hw * hw)
->  {
->  	pci_write_config_word(hw->pdev, PCI_COMMAND, 0);
-> @@ -1480,7 +1480,7 @@
->  /*****************************************/
->  /* enable memory mapped ports / io ports */
->  /*****************************************/
-> -void
-> +static void
->  enable_pci_ports(hfc4s8s_hw * hw)
->  {
->  #ifdef CONFIG_HISAX_HFC4S8S_PCIMEM
-> --- linux-2.6.12-rc2-mm3-full/drivers/isdn/hysdn/hysdn_defs.h.old	2005-04-19 00:33:51.000000000 +0200
-> +++ linux-2.6.12-rc2-mm3-full/drivers/isdn/hysdn/hysdn_defs.h	2005-04-19 00:38:25.000000000 +0200
-> @@ -227,7 +227,6 @@
->  /*****************/
->  /* exported vars */
->  /*****************/
-> -extern int cardmax;		/* number of found cards */
->  extern hysdn_card *card_root;	/* pointer to first card */
->  
->  
-> @@ -244,7 +243,6 @@
->  /* hysdn_proclog.c */
->  extern int hysdn_proclog_init(hysdn_card *);	/* init proc log entry */
->  extern void hysdn_proclog_release(hysdn_card *);	/* deinit proc log entry */
-> -extern void put_log_buffer(hysdn_card *, char *);	/* output log data */
->  extern void hysdn_addlog(hysdn_card *, char *,...);	/* output data to log */
->  extern void hysdn_card_errlog(hysdn_card *, tErrLogEntry *, int);	/* output card log */
->  
-> @@ -278,16 +276,6 @@
->  extern int hycapi_capi_create(hysdn_card *);	/* create a new capi device */
->  extern int hycapi_capi_release(hysdn_card *);	/* delete the device */
->  extern int hycapi_capi_stop(hysdn_card *card);   /* suspend */
-> -extern int hycapi_load_firmware(struct capi_ctr *, capiloaddata *);
-> -extern void hycapi_reset_ctr(struct capi_ctr *);
-> -extern void hycapi_remove_ctr(struct capi_ctr *);
-> -extern void hycapi_register_appl(struct capi_ctr *, __u16 appl,
-> -				 capi_register_params *);
-> -extern void hycapi_release_appl(struct capi_ctr *, __u16 appl);
-> -extern u16  hycapi_send_message(struct capi_ctr *, struct sk_buff *skb);
-> -extern char *hycapi_procinfo(struct capi_ctr *);
-> -extern int hycapi_read_proc(char *page, char **start, off_t off,
-> -			    int count, int *eof, struct capi_ctr *card);
->  extern void hycapi_rx_capipkt(hysdn_card * card, uchar * buf, word len);
->  extern void hycapi_tx_capiack(hysdn_card * card);
->  extern struct sk_buff *hycapi_tx_capiget(hysdn_card *card);
-> --- linux-2.6.12-rc2-mm3-full/drivers/isdn/hysdn/hycapi.c.old	2005-04-19 00:34:05.000000000 +0200
-> +++ linux-2.6.12-rc2-mm3-full/drivers/isdn/hysdn/hycapi.c	2005-04-19 00:36:34.000000000 +0200
-> @@ -42,6 +42,8 @@
->  
->  static hycapi_appl hycapi_applications[CAPI_MAXAPPL];
->  
-> +static u16 hycapi_send_message(struct capi_ctr *ctrl, struct sk_buff *skb);
-> +
->  static inline int _hycapi_appCheck(int app_id, int ctrl_no)
->  {
->  	if((ctrl_no <= 0) || (ctrl_no > CAPI_MAXCONTR) || (app_id <= 0) ||
-> @@ -57,7 +59,7 @@
->  Kernel-Capi callback reset_ctr
->  ******************************/     
->  
-> -void 
-> +static void 
->  hycapi_reset_ctr(struct capi_ctr *ctrl)
->  {
->  	hycapictrl_info *cinfo = ctrl->driverdata;
-> @@ -73,7 +75,7 @@
->  Kernel-Capi callback remove_ctr
->  ******************************/     
->  
-> -void 
-> +static void 
->  hycapi_remove_ctr(struct capi_ctr *ctrl)
->  {
->  	int i;
-> @@ -215,7 +217,7 @@
->  The application is recorded in the internal list.
->  *************************************************************/
->  
-> -void 
-> +static void 
->  hycapi_register_appl(struct capi_ctr *ctrl, __u16 appl, 
->  		     capi_register_params *rp)
->  {
-> @@ -291,7 +293,7 @@
->  registration at controller-level
->  ******************************************************************/
->  
-> -void 
-> +static void 
->  hycapi_release_appl(struct capi_ctr *ctrl, __u16 appl)
->  {
->  	int chk;
-> @@ -364,7 +366,7 @@
->  
->  ***************************************************************/
->  
-> -u16 hycapi_send_message(struct capi_ctr *ctrl, struct sk_buff *skb)
-> +static u16 hycapi_send_message(struct capi_ctr *ctrl, struct sk_buff *skb)
->  {
->  	__u16 appl_id;
->  	int _len, _len2;
-> @@ -437,8 +439,8 @@
->  
->  *********************************************************************/
->  
-> -int hycapi_read_proc(char *page, char **start, off_t off,
-> -		     int count, int *eof, struct capi_ctr *ctrl)
-> +static int hycapi_read_proc(char *page, char **start, off_t off,
-> +			    int count, int *eof, struct capi_ctr *ctrl)
->  {
->  	hycapictrl_info *cinfo = (hycapictrl_info *)(ctrl->driverdata);
->  	hysdn_card *card = cinfo->card;
-> @@ -485,7 +487,7 @@
->  
->  **************************************************************/
->  
-> -int hycapi_load_firmware(struct capi_ctr *ctrl, capiloaddata *data)
-> +static int hycapi_load_firmware(struct capi_ctr *ctrl, capiloaddata *data)
->  {
->  #ifdef HYCAPI_PRINTFNAMES
->  	printk(KERN_NOTICE "hycapi_load_firmware\n");    
-> @@ -494,7 +496,7 @@
->  }
->  
->  
-> -char *hycapi_procinfo(struct capi_ctr *ctrl)
-> +static char *hycapi_procinfo(struct capi_ctr *ctrl)
->  {
->  	hycapictrl_info *cinfo = (hycapictrl_info *)(ctrl->driverdata);
->  #ifdef HYCAPI_PRINTFNAMES
-> --- linux-2.6.12-rc2-mm3-full/drivers/isdn/hysdn/hysdn_boot.c.old	2005-04-19 00:37:22.000000000 +0200
-> +++ linux-2.6.12-rc2-mm3-full/drivers/isdn/hysdn/hysdn_boot.c	2005-04-19 00:37:37.000000000 +0200
-> @@ -53,7 +53,7 @@
->  /*  to be called at start of POF file reading,       */
->  /*  before starting any decryption on any POF record. */
->  /*****************************************************/
-> -void
-> +static void
->  StartDecryption(struct boot_data *boot)
->  {
->  	boot->Cryptor = CRYPT_STARTTERM;
-> @@ -66,7 +66,7 @@
->  /*       to HI and LO boot loader and (all) seq tags, because  */
->  /*       global Cryptor is started for whole POF.              */
->  /***************************************************************/
-> -void
-> +static void
->  DecryptBuf(struct boot_data *boot, int cnt)
->  {
->  	uchar *bufp = boot->buf.BootBuf;
-> --- linux-2.6.12-rc2-mm3-full/drivers/isdn/hysdn/hysdn_init.c.old	2005-04-19 00:38:06.000000000 +0200
-> +++ linux-2.6.12-rc2-mm3-full/drivers/isdn/hysdn/hysdn_init.c	2005-04-19 00:38:12.000000000 +0200
-> @@ -34,7 +34,7 @@
->  MODULE_LICENSE("GPL");
->  
->  static char *hysdn_init_revision = "$Revision: 1.6.6.6 $";
-> -int cardmax;			/* number of found cards */
-> +static int cardmax;		/* number of found cards */
->  hysdn_card *card_root = NULL;	/* pointer to first card */
->  
->  /**********************************************/
-> --- linux-2.6.12-rc2-mm3-full/drivers/isdn/hysdn/hysdn_proclog.c.old	2005-04-19 00:38:32.000000000 +0200
-> +++ linux-2.6.12-rc2-mm3-full/drivers/isdn/hysdn/hysdn_proclog.c	2005-04-19 00:38:55.000000000 +0200
-> @@ -22,6 +22,8 @@
->  /* the proc subdir for the interface is defined in the procconf module */
->  extern struct proc_dir_entry *hysdn_proc_entry;
->  
-> +static void put_log_buffer(hysdn_card * card, char *cp);
-> +
->  /*************************************************/
->  /* structure keeping ascii log for device output */
->  /*************************************************/
-> @@ -93,7 +95,7 @@
->  /* opened for read got the contents.        */
->  /* Flushes buffers not longer in use.       */
->  /********************************************/
-> -void
-> +static void
->  put_log_buffer(hysdn_card * card, char *cp)
->  {
->  	struct log_data *ib;
-> --- linux-2.6.12-rc2-mm3-full/drivers/isdn/hardware/eicon/dadapter.c.old	2005-04-19 00:40:42.000000000 +0200
-> +++ linux-2.6.12-rc2-mm3-full/drivers/isdn/hardware/eicon/dadapter.c	2005-04-19 00:40:52.000000000 +0200
-> @@ -44,7 +44,7 @@
->    Array to held adapter information
->     -------------------------------------------------------------------------- */
->  static DESCRIPTOR  HandleTable[NEW_MAX_DESCRIPTORS];
-> -dword Adapters = 0; /* Number of adapters */
-> +static dword Adapters = 0; /* Number of adapters */
->  /* --------------------------------------------------------------------------
->    Shadow IDI_DIMAINT
->    and 'shadow' debug stuff
+>>Also, after some google, I found that the format of initrd has changed.
+>>I also tried a new initrd with cpio format. The kernel recognized it:
 > 
+> 
+> cpio initrd's (aka initramfs) are new - the "old style" initrd where you
+> `mksquasfs mydir initrd.sqfs` (see above) continues to work, though.
+> 
+> 
+>>After the kernel start, I add breakpoints at cpu_idle and do_schedule.
+>>cpu_idle never reached, only do_schedule did. Is that strange?
+> 
+> 
+> Until pid 1 is started, the cpu should never be idle.
+> 
+> 
+> Jan Engelhardt
+
+It seems that the init process is started:
+(gdb) info threads
+   11 Thread 123 (kseriod)  0xc032d485 in do_schedule () at 
+/kernel/via/kgdb/kernel/sched.c:923
+   10 Thread 9 (aio/0)  0xc032d485 in do_schedule () at 
+/kernel/via/kgdb/kernel/sched.c:923
+   9 Thread 8 (kswapd0)  0xc032d485 in do_schedule () at 
+/kernel/via/kgdb/kernel/sched.c:923
+   8 Thread 7 (pdflush)  0xc032d485 in do_schedule () at 
+/kernel/via/kgdb/kernel/sched.c:923
+   7 Thread 6 (pdflush)  0xc032d485 in do_schedule () at 
+/kernel/via/kgdb/kernel/sched.c:923
+   6 Thread 5 (khelper)  0xc032d485 in do_schedule () at 
+/kernel/via/kgdb/kernel/sched.c:923
+   5 Thread 4 (kblockd/0)  0xc032d485 in do_schedule () at 
+/kernel/via/kgdb/kernel/sched.c:923
+   4 Thread 3 (events/0)  0xc032d485 in do_schedule () at 
+/kernel/via/kgdb/kernel/sched.c:923
+   3 Thread 2 (ksoftirqd/0)  0xc032d485 in do_schedule () at 
+/kernel/via/kgdb/kernel/sched.c:923
+* 2 Thread 1 (init)  breakpoint () at /kernel/via/kgdb/kernel/kgdb.c:1212
+   1 Thread 32768 (Shadow task 0 for pid 0)  0xc032d485 in do_schedule 
+() at /kernel/via/kgdb/kernel/sched.c:923
+
+(gdb) bt
+#0  breakpoint () at /kernel/via/kgdb/kernel/kgdb.c:1212
+#1  0xc774fec4 in ?? ()
+#2  0xc010893b in do_IRQ (regs=
+       {ebx = -948641792, ecx = -948577792, edx = -944260388, esi = 0, 
+edi = -948641792, ebp = -948633844, eax = -944260388, xds = 123, xes = 
+123, orig_eax = -252, eip = -1072517263, xcs = 96, eflags = 646, esp = 
+-948633660, xss = -948576428})
+     at /kernel/via/kgdb/arch/i386/kernel/irq.c:574
+#3  0xc0106888 in common_interrupt ()
+#4  0xc01063f6 in do_signal (regs=0xc774e000, oldset=0x0) at 
+/kernel/via/kgdb/arch/i386/kernel/signal.c:581
+#5  0xc01064d9 in do_notify_resume (regs=0xc774ffc4, oldset=0x0, 
+thread_info_flags=1)
+     at /kernel/via/kgdb/arch/i386/kernel/signal.c:629

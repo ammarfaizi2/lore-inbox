@@ -1,34 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVDSKuK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbVDSKyy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbVDSKuK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 06:50:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVDSKuK
+	id S261389AbVDSKyy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 06:54:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261393AbVDSKyy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 06:50:10 -0400
-Received: from dspnet.fr.eu.org ([213.186.44.138]:8198 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S261375AbVDSKuH (ORCPT
+	Tue, 19 Apr 2005 06:54:54 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:27033 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261389AbVDSKyw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 06:50:07 -0400
-Date: Tue, 19 Apr 2005 12:50:04 +0200
-From: Olivier Galibert <galibert@pobox.com>
-To: "Hack inc." <linux-kernel@vger.kernel.org>
-Subject: alloc_pages and struct page *
-Message-ID: <20050419105004.GA7612@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	"Hack inc." <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+	Tue, 19 Apr 2005 06:54:52 -0400
+Date: Tue, 19 Apr 2005 12:54:24 +0200 (MEST)
+Message-Id: <200504191054.j3JAsO5g013833@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: ak@suse.de
+Subject: x86_64 NMI watchdog breakage in 2.6.12-rc2-mm3
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If I get a struct page * from a call to alloc_pages with a non-zero
-order, how do I get the struct page * of te following pages from the
-same allocation in order to use them in calls to tcp_sendpage?
+Andi & Andrew,
 
-If there a documentation somewhere whcih would answer this kind of
-questions?  Couldn't find anything pertinent in Documentation/*.
+The "x86_64-switch-smp-bootup-over-to-new-cpu-hotplug-state.patch" in
+2.6.12-rc2-mm3 appears to have broken the NMI watchdog. Specifically:
 
-  OG.
+diff -puN arch/x86_64/kernel/nmi.c~x86_64-switch-smp-bootup-over-to-new-cpu-hotplug-state arch/x86_64/kernel/nmi.c
+--- 25/arch/x86_64/kernel/nmi.c~x86_64-switch-smp-bootup-over-to-new-cpu-hotplug-state	Thu Apr  7 15:15:01 2005
++++ 25-akpm/arch/x86_64/kernel/nmi.c	Thu Apr  7 15:15:01 2005
+@@ -133,12 +133,6 @@ static int __init check_nmi_watchdog (vo
+ 	mdelay((10*1000)/nmi_hz); // wait 10 ticks
+ 
+ 	for (cpu = 0; cpu < NR_CPUS; cpu++) {
+-#ifdef CONFIG_SMP
+-		/* Check cpu_callin_map here because that is set
+-		   after the timer is started. */
+-		if (!cpu_isset(cpu, cpu_callin_map))
+-			continue;
+-#endif
+ 		if (cpu_pda[cpu].__nmi_count - counts[cpu] <= 5) {
+ 			printk("CPU#%d: NMI appears to be stuck (%d)!\n", 
+ 			       cpu,
 
+This is wrong because in general the number of actual CPUs is _less_
+than the number of configured CPUs (== NR_CPUS). Hence the code will
+now check the NMI counts of non-existent CPUs, complain that they are
+stuck, and disable the NMI watchdog. Actually the disablement is broken
+in this case, but that's a different issue.
+
+The error is easily reproducible by booting an SMP kernel on a UP box.
+
+/Mikael

@@ -1,90 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbVDSTt5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261647AbVDSUBS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261643AbVDSTt5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 15:49:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbVDSTt5
+	id S261647AbVDSUBS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 16:01:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVDSUBS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 15:49:57 -0400
-Received: from mail.kroah.org ([69.55.234.183]:7563 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261643AbVDSTtQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 15:49:16 -0400
-Date: Tue, 19 Apr 2005 12:47:30 -0700
-From: Greg KH <greg@kroah.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Git Mailing List <git@vger.kernel.org>, linux-kernel@vger.kernel.org,
-       sensors@stimpy.netroedge.com
-Subject: Re: [GIT PATCH] I2C and W1 bugfixes for 2.6.12-rc2
-Message-ID: <20050419194728.GA24367@kroah.com>
-References: <20050419043938.GA23724@kroah.com> <20050419185807.GA1191@kroah.com> <Pine.LNX.4.58.0504191204480.19286@ppc970.osdl.org>
+	Tue, 19 Apr 2005 16:01:18 -0400
+Received: from ns.schottelius.org ([213.146.113.242]:21517 "HELO
+	ei.schottelius.org") by vger.kernel.org with SMTP id S261647AbVDSUBP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 16:01:15 -0400
+Date: Tue, 19 Apr 2005 22:00:12 +0200
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       linux-kernel@vger.kernel.org
+Subject: Re: /proc/cpuinfo format - arch dependent!
+Message-ID: <20050419200011.GB16594@schottelius.org>
+Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
+	Lee Revell <rlrevell@joe-job.com>,
+	Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+	linux-kernel@vger.kernel.org
+References: <20050419121530.GB23282@schottelius.org> <20050419132417.GS17865@csclub.uwaterloo.ca> <1113938220.20178.0.camel@mindpipe>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0504191204480.19286@ppc970.osdl.org>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <1113938220.20178.0.camel@mindpipe>
+User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux 2.6.11.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 19, 2005 at 12:40:44PM -0700, Linus Torvalds wrote:
-> I'm still working out some performance issues with merges (the actual
-> "merge" operation itself is very fast, but I've been trying to make the
-> subsequent "update the working directory tree to the right thing" be much
-> better).
-
-Ok, if you want some practice with "real" merges, feel free to merge from
-the following two trees whenever you are ready:
-	kernel.org/pub/scm/linux/kernel/git/gregkh/aoe-2.6.git/
-for 11 aoe bugfix patches, and:
-	kernel.org/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
-for 13 driver core, sysfs, and debugfs fixes.
-
-The diffstats are:
-
-aoe:
- Documentation/aoe/mkdevs.sh       |    1 
- Documentation/aoe/mkshelf.sh      |    1 
- Documentation/aoe/todo.txt        |   14 ++++
- Documentation/aoe/udev-install.sh |    6 +-
- drivers/block/aoe/aoe.h           |   23 +++++--
- drivers/block/aoe/aoeblk.c        |    5 +
- drivers/block/aoe/aoecmd.c        |  110 ++++++++++++++++++++++----------------
- drivers/block/aoe/aoedev.c        |    8 +-
- drivers/block/aoe/aoenet.c        |    8 +-
- 9 files changed, 111 insertions(+), 65 deletions(-)
-
-driver:
- Documentation/kref.txt        |  221 +++++++++++++++++++++++++++++++++++++++++-
- drivers/base/class.c          |    2 
- drivers/base/core.c           |    3 
- drivers/base/firmware_class.c |    3 
- drivers/base/platform.c       |    1 
- drivers/usb/host/hc_crisv10.c |    1 
- fs/partitions/check.c         |    2 
- fs/sysfs/file.c               |   35 ++++++
- include/linux/debugfs.h       |   14 +-
- include/linux/sysfs.h         |    7 +
- lib/kobject.c                 |    7 -
- net/bridge/br_sysfs_if.c      |    2 
- scripts/ver_linux             |    2 
- 13 files changed, 290 insertions(+), 10 deletions(-)
-
-No rush, but they should be good test for your merge speeds, as they are
-based off of an older HEAD than your current one :)
-
-> In other words, I want it to be at the point where people can do
+Lee Revell [Tue, Apr 19, 2005 at 03:17:00PM -0400]:
+> On Tue, 2005-04-19 at 09:24 -0400, Lennart Sorensen wrote:
+> > On Tue, Apr 19, 2005 at 02:15:30PM +0200, Nico Schottelius wrote:
+> > > When I wrote schwanz3(*) for fun, I noticed /proc/cpuinfo
+> > > varies very much on different architectures.
+> > > 
+> > > Is it possible to make it look more identical (as far as the different
+> > > archs allow it)?
+> > > 
+> > > So that one at least can count the cpus on every system the same way.
+> > > 
+> > > If so, who would the one I should contact and who would accept / verify
+> > > a patch doing that?
+> > 
+> > If you change it now, how many tools would break?
+> > 
 > 
-> 	git pull <repo-address>
+> Lots.  Please don't change the format of /proc/cpuinfo.
+
+Can you tell me which ones?
+
+And if there are really that many tools, which are dependent on
+those information, wouldn't it be much more senseful to make
+it (as far as possible) the same?
+
+I must say I was really impressed, how easy I got the number of
+cpus on *BSD (I am not a bsd user, still impressed).
+
+They also have the same format on every arch and mostly the same
+between different bsds (as far as I have seen).
+
+In general, where are the advantages of having very different cpuinfo
+formats? Tools would need to know less about the arch and could
+depend on "I am on Linux" only.
+
+Just some thoughts,
+
+Nico
+
 > 
-> and it will "just work", at least for people who don't have any local
-> changes in their tree. None of this "check out all the files again" crap.
+> Lee
+> 
+> 
 
-That would be very nice to have.
-
-> But how about a plan that we go "live" tomorrow - assuming nobody finds
-> any problems before that, of course.
-
-That's fine with me.
-
-thanks,
-
-greg k-h
+-- 
+Keep it simple & stupid, use what's available.
+Please use pgp encryption: 8D0E 27A4 is my id.
+http://nico.schotteli.us | http://linux.schottelius.org

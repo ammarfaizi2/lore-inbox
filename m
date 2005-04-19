@@ -1,41 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbVDSWsL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261719AbVDSWwX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261720AbVDSWsL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 18:48:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbVDSWsL
+	id S261719AbVDSWwX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 18:52:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbVDSWwX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 18:48:11 -0400
-Received: from fire.osdl.org ([65.172.181.4]:7874 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261719AbVDSWsE (ORCPT
+	Tue, 19 Apr 2005 18:52:23 -0400
+Received: from pat.uio.no ([129.240.130.16]:51086 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261719AbVDSWwT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 18:48:04 -0400
-Date: Tue, 19 Apr 2005 15:49:44 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Petr Baudis <pasky@ucw.cz>
-cc: Greg KH <greg@kroah.com>, Git Mailing List <git@vger.kernel.org>,
-       linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Subject: Re: [GIT PATCH] I2C and W1 bugfixes for 2.6.12-rc2
-In-Reply-To: <20050419223945.GG9305@pasky.ji.cz>
-Message-ID: <Pine.LNX.4.58.0504191548500.2274@ppc970.osdl.org>
-References: <20050419043938.GA23724@kroah.com> <20050419185807.GA1191@kroah.com>
- <Pine.LNX.4.58.0504191204480.19286@ppc970.osdl.org> <20050419194728.GA24367@kroah.com>
- <Pine.LNX.4.58.0504191316180.19286@ppc970.osdl.org> <20050419223945.GG9305@pasky.ji.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 19 Apr 2005 18:52:19 -0400
+Subject: Re: bdflush/rpciod high CPU utilization, profile does not make
+	sense
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Jakob Oestergaard <jakob@unthought.net>
+Cc: Greg Banks <gnb@melbourne.sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050419194515.GP17359@unthought.net>
+References: <1113083552.11982.17.camel@lade.trondhjem.org>
+	 <20050411074806.GX347@unthought.net>
+	 <1113222939.14281.17.camel@lade.trondhjem.org>
+	 <20050411134703.GC13369@unthought.net>
+	 <1113230125.9962.7.camel@lade.trondhjem.org>
+	 <20050411144127.GE13369@unthought.net>
+	 <1113232905.9962.15.camel@lade.trondhjem.org>
+	 <20050411154211.GG13369@unthought.net>
+	 <1113267809.1956.242.camel@hole.melbourne.sgi.com>
+	 <20050412092843.GB17359@unthought.net>
+	 <20050419194515.GP17359@unthought.net>
+Content-Type: text/plain
+Date: Tue, 19 Apr 2005 18:46:28 -0400
+Message-Id: <1113950788.10685.9.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.523, required 12,
+	autolearn=disabled, AWL 1.48, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ty den 19.04.2005 Klokka 21:45 (+0200) skreiv Jakob Oestergaard:
 
-
-On Wed, 20 Apr 2005, Petr Baudis wrote:
+> It mounts a home directory from a 2.6.6 NFS server - the client and
+> server are on a hub'ed 100Mbit network.
 > 
-> I will probably not buy git-export, though. (That is, it is merged, but
-> I won't make git frontend for it.) My "git export" already does
-> something different, but more importantly, "git patch" of mine already
-> does effectively the same thing as you do, just for a single patch; so I
-> will probably just extend it to do it for an (a,b] range of patches.
+> On the earlier 2.6 client I/O performance was as one would expect on
+> hub'ed 100Mbit - meaning, not exactly stellar, but you'd get around 4-5
+> MB/sec and decent interactivity.
 
-That's fine. It was a quick hack, just to show that if somebody wants to, 
-the data is trivially exportable.
+OK, hold it right there...
 
-		Linus
+So, IIRC the problem was that you were seeing abominable retrans rates
+on UDP and TCP, and you are using a 100Mbit hub rather than a switch?
+
+What does the collision LED look like, when you see these performance
+problems?
+Also, does that hub support NICs that do autonegotiation? (I'll bet the
+answer is "no").
+
+Cheers,
+  Trond
+
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
+

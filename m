@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261757AbVDSX2F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261726AbVDSXbv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261757AbVDSX2F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 19:28:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261759AbVDSX1y
+	id S261726AbVDSXbv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 19:31:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261739AbVDSXbv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 19:27:54 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:60616 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S261754AbVDSXQa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 19:16:30 -0400
-Date: Wed, 20 Apr 2005 01:16:28 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Greg KH <greg@kroah.com>,
-       Greg KH <gregkh@suse.de>, Git Mailing List <git@vger.kernel.org>,
-       linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Subject: Re: [GIT PATCH] I2C and W1 bugfixes for 2.6.12-rc2
-Message-ID: <20050419231628.GJ9305@pasky.ji.cz>
-References: <20050419043938.GA23724@kroah.com> <426583D5.2020308@mesatop.com> <Pine.LNX.4.58.0504191525290.2274@ppc970.osdl.org> <200504191704.48976.elenstev@mesatop.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200504191704.48976.elenstev@mesatop.com>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+	Tue, 19 Apr 2005 19:31:51 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:43873 "EHLO
+	pd3mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S261726AbVDSXbp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 19:31:45 -0400
+Date: Tue, 19 Apr 2005 17:30:57 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: question on 2.4 scheduler, threads, and priority inversion
+In-reply-to: <3V45v-tx-39@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <426594B1.9000307@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <3V45v-tx-39@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Wed, Apr 20, 2005 at 01:04:48AM CEST, I got a letter
-where Steven Cole <elenstev@mesatop.com> told me that...
-> Then, the flurry of patching file blah messages, followed by a rather 
-> pregnant pause after the last patching message.
+Chris Friesen wrote:
+> I seem to be having an issue with 2.4 and linuxthreads.
 > 
-> I wasn't complaining about the 4 minutes, just the lack of feedback
-> during the majority of that time.  And most of it was after the last
-> patching file message.
+> I have a program that spawns a child thread, and that child boosts 
+> itself into a realtime scheduler class.
+> 
+> The child then went crazy and turned into a cpu hog.  At this point, a 
+> higher-priority task detected the hog, and tried to kill the process by 
+> sending a "kill -9" to the main thread.  Unfortunately, it appears that 
+> there is some kind of priority-inversion thing happening, as the process 
+> did not die.
+> 
+> Is this expected behaviour?  Is there any way around this?  Do I need to 
+> put the main thread at a higher priority than any of the child threads? 
+>  What about the manager thread?
+> 
+> Thanks,
+> 
+> Chris
 
-That must've been the update-cache.
-
-Well, you can listen to your strained disk crepitating direly.
+I believe that in the old LinuxThreads implementation the manager thread 
+  is the one that handles all signals, so it may need its priority 
+increased as well. NPTL threads likely handle this much better (there is 
+no manager thread).
 
 -- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-C++: an octopus made by nailing extra legs onto a dog. -- Steve Taylor
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

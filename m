@@ -1,41 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261412AbVDSIVz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbVDSIY0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261412AbVDSIVz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 04:21:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261410AbVDSIVz
+	id S261410AbVDSIY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 04:24:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbVDSIY0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 04:21:55 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:27660 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261404AbVDSIVu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 04:21:50 -0400
-Date: Tue, 19 Apr 2005 18:20:48 +1000
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: "David S. Miller" <davem@davemloft.net>,
-       James Morris <jmorris@intercode.com.au>, linux-crypto@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] crypto: resource release functions ought to check for NULL (crypto_free_tfm)
-Message-ID: <20050419082048.GA5629@gondor.apana.org.au>
-References: <Pine.LNX.4.62.0504150106420.3466@dragon.hyggekrogen.localhost> <20050418114925.GA6854@gondor.apana.org.au> <Pine.LNX.4.62.0504181718540.2480@dragon.hyggekrogen.localhost>
+	Tue, 19 Apr 2005 04:24:26 -0400
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:13397 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261410AbVDSIYX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 04:24:23 -0400
+Subject: Re: E1000 - page allocation failure - saga continues :(
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+To: Yann Dupont <Yann.Dupont@univ-nantes.fr>
+Cc: Lukas Hejtmanek <xhejtman@mail.muni.cz>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <4264BE1F.50508@univ-nantes.fr>
+References: <20050414214828.GB9591@mail.muni.cz>
+	 <4263A3B7.6010702@univ-nantes.fr> <20050418122202.GE26030@mail.muni.cz>
+	 <4264B202.9080304@univ-nantes.fr>
+	 <1113897810.5074.66.camel@npiggin-nld.site> <4264BE1F.50508@univ-nantes.fr>
+Content-Type: text/plain; charset=utf-8
+Date: Tue, 19 Apr 2005 18:24:19 +1000
+Message-Id: <1113899059.5074.71.camel@npiggin-nld.site>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0504181718540.2480@dragon.hyggekrogen.localhost>
-User-Agent: Mutt/1.5.6+20040907i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 18, 2005 at 05:23:31PM +0200, Jesper Juhl wrote:
+On Tue, 2005-04-19 at 10:15 +0200, Yann Dupont wrote:
+> Nick Piggin a écrit :
 > 
-> Next step is to then clean up the callers of crypto_free_tfm so they no 
-> longer do the redundant NULL check. Below is a patch to do that.
+> >
+> >>Do you have turned NAPI on ??? I tried without it off on e1000 and ...
+> >>surprise !
+> >>Don't have any messages since 12H now (usually I got those in less than 1H)
+> >>
+> >>    
+> >>
+> >
+> >Possibly kswapd might be unable to get enough CPU to free memory.
+> >
+> >  
+> >
+> Ok, so what you're saying is that turning NAPI off is just slowing down
+> things enough to not be hit by
+> this problem , right ?
+> 
 
-Please wait until the free_tfm change gets into the kernel and then
-submit this to the subsystem maintainers, which would all be Dave
-in this case :)
+Perhaps, yes. Or that NAPI is using more CPU than non-NAPI
+(which I understand can happen in some corner cases).
+
+If you have a multiprocessor (or even hyperthreading), I
+think you could test this by binding kswapd on cpu CPU, and
+put nic interrupts on the other - then test with and without
+NAPI.
+
+That is, presuming you can reproduce the problem on your
+multiprocessor system in the first place.
+
+
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+SUSE Labs, Novell Inc.
+
+

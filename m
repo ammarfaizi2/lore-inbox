@@ -1,57 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261699AbVDSWTZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261698AbVDSW0R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261699AbVDSWTZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 18:19:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbVDSWTZ
+	id S261698AbVDSW0R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 18:26:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261701AbVDSW0R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 18:19:25 -0400
-Received: from mailwasher.lanl.gov ([192.65.95.54]:4044 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S261697AbVDSWTJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 18:19:09 -0400
-Message-ID: <426583D5.2020308@mesatop.com>
-Date: Tue, 19 Apr 2005 16:19:01 -0600
-From: Steven Cole <elenstev@mesatop.com>
-User-Agent: Thunderbird 1.0 (Multics)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Greg KH <greg@kroah.com>, Greg KH <gregkh@suse.de>,
-       Git Mailing List <git@vger.kernel.org>, linux-kernel@vger.kernel.org,
-       sensors@stimpy.netroedge.com
+	Tue, 19 Apr 2005 18:26:17 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:61383 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id S261700AbVDSW0L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 18:26:11 -0400
+Date: Wed, 20 Apr 2005 00:26:10 +0200
+From: Petr Baudis <pasky@ucw.cz>
+To: Steven Cole <elenstev@mesatop.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Greg KH <greg@kroah.com>,
+       Greg KH <gregkh@suse.de>, Git Mailing List <git@vger.kernel.org>,
+       linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
 Subject: Re: [GIT PATCH] I2C and W1 bugfixes for 2.6.12-rc2
-References: <20050419043938.GA23724@kroah.com> <20050419185807.GA1191@kroah.com> <Pine.LNX.4.58.0504191204480.19286@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0504191204480.19286@ppc970.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-PMX-Version: 4.7.0.111621
+Message-ID: <20050419222609.GE9305@pasky.ji.cz>
+References: <20050419043938.GA23724@kroah.com> <20050419185807.GA1191@kroah.com> <Pine.LNX.4.58.0504191204480.19286@ppc970.osdl.org> <426583D5.2020308@mesatop.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <426583D5.2020308@mesatop.com>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Dear diary, on Wed, Apr 20, 2005 at 12:19:01AM CEST, I got a letter
+where Steven Cole <elenstev@mesatop.com> told me that...
+> Linus Torvalds wrote:
+> >
+> >On Tue, 19 Apr 2005, Greg KH wrote:
+> >
+> >>Nice, it looks like the merge of this tree, and my usb tree worked just
+> >>fine.
+> >
+> >
+> >Yup, it all seems to work out.
 > 
-> On Tue, 19 Apr 2005, Greg KH wrote:
+> [many files patched]
+> patching file mm/mmap.c
+> patching file net/bridge/br_sysfs_if.c
+> patching file scripts/ver_linux
+> ----------------------^^^^^^^^^
+> Hey, that's my patch!  Last...and least.
+> But perhaps a progress bar right about here might be
+> a good thing for the terminally impatient.
 > 
->>Nice, it looks like the merge of this tree, and my usb tree worked just
->>fine.
+> real    3m54.909s
+> user    0m14.835s
+> sys     0m10.587s
 > 
-> 
-> Yup, it all seems to work out.
+> 4 minutes might be long enough to cause some folks to lose hope.
 
-[many files patched]
-patching file mm/mmap.c
-patching file net/bridge/br_sysfs_if.c
-patching file scripts/ver_linux
-----------------------^^^^^^^^^
-Hey, that's my patch!  Last...and least.
-But perhaps a progress bar right about here might be
-a good thing for the terminally impatient.
+I'm wondering if doing
 
-real    3m54.909s
-user    0m14.835s
-sys     0m10.587s
+if [ "$(show-diff)" ]; then
+	git diff | git apply
+else
+	checkout-cache -f -a
+fi
 
-4 minutes might be long enough to cause some folks to lose hope.
+would actually buy us some time; or, how common is it for people to have
+no local changes whatsoever, and whether relative slowdown of additional
+show-diff to git diff would actually matter.
 
-Steven
-
+-- 
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+C++: an octopus made by nailing extra legs onto a dog. -- Steve Taylor

@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261719AbVDSWwX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbVDSW6m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261719AbVDSWwX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 18:52:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbVDSWwX
+	id S261728AbVDSW6m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 18:58:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbVDSW6m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 18:52:23 -0400
-Received: from pat.uio.no ([129.240.130.16]:51086 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261719AbVDSWwT (ORCPT
+	Tue, 19 Apr 2005 18:58:42 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:37320 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id S261728AbVDSW6e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 18:52:19 -0400
-Subject: Re: bdflush/rpciod high CPU utilization, profile does not make
-	sense
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Jakob Oestergaard <jakob@unthought.net>
-Cc: Greg Banks <gnb@melbourne.sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050419194515.GP17359@unthought.net>
-References: <1113083552.11982.17.camel@lade.trondhjem.org>
-	 <20050411074806.GX347@unthought.net>
-	 <1113222939.14281.17.camel@lade.trondhjem.org>
-	 <20050411134703.GC13369@unthought.net>
-	 <1113230125.9962.7.camel@lade.trondhjem.org>
-	 <20050411144127.GE13369@unthought.net>
-	 <1113232905.9962.15.camel@lade.trondhjem.org>
-	 <20050411154211.GG13369@unthought.net>
-	 <1113267809.1956.242.camel@hole.melbourne.sgi.com>
-	 <20050412092843.GB17359@unthought.net>
-	 <20050419194515.GP17359@unthought.net>
-Content-Type: text/plain
-Date: Tue, 19 Apr 2005 18:46:28 -0400
-Message-Id: <1113950788.10685.9.camel@lade.trondhjem.org>
+	Tue, 19 Apr 2005 18:58:34 -0400
+Date: Wed, 20 Apr 2005 00:58:30 +0200
+From: Petr Baudis <pasky@ucw.cz>
+To: Junio C Hamano <junkio@cox.net>
+Cc: Steven Cole <elenstev@mesatop.com>, Linus Torvalds <torvalds@osdl.org>,
+       Greg KH <greg@kroah.com>, Greg KH <gregkh@suse.de>,
+       Git Mailing List <git@vger.kernel.org>, linux-kernel@vger.kernel.org,
+       sensors@stimpy.netroedge.com
+Subject: Re: [GIT PATCH] I2C and W1 bugfixes for 2.6.12-rc2
+Message-ID: <20050419225830.GH9305@pasky.ji.cz>
+References: <20050419043938.GA23724@kroah.com> <20050419185807.GA1191@kroah.com> <Pine.LNX.4.58.0504191204480.19286@ppc970.osdl.org> <426583D5.2020308@mesatop.com> <20050419222609.GE9305@pasky.ji.cz> <7vpswqpes1.fsf@assigned-by-dhcp.cox.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.523, required 12,
-	autolearn=disabled, AWL 1.48, UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7vpswqpes1.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ty den 19.04.2005 Klokka 21:45 (+0200) skreiv Jakob Oestergaard:
-
-> It mounts a home directory from a 2.6.6 NFS server - the client and
-> server are on a hub'ed 100Mbit network.
+Dear diary, on Wed, Apr 20, 2005 at 12:45:02AM CEST, I got a letter
+where Junio C Hamano <junkio@cox.net> told me that...
+> >>>>> "PB" == Petr Baudis <pasky@ucw.cz> writes:
 > 
-> On the earlier 2.6 client I/O performance was as one would expect on
-> hub'ed 100Mbit - meaning, not exactly stellar, but you'd get around 4-5
-> MB/sec and decent interactivity.
+> PB> I'm wondering if doing
+> 
+> PB> if [ "$(show-diff)" ]; then
+> PB> 	git diff | git apply
+> PB> else
+> PB> 	checkout-cache -f -a
+> PB> fi
+> 
+> PB> would actually buy us some time; or, how common is it for people to have
+> PB> no local changes whatsoever, and whether relative slowdown of additional
+> PB> show-diff to git diff would actually matter.
+> 
+> "show-diff -s" perhaps.  Also wouldn't it be faster to pipe
+> show-diff output (not git diff output) to patch (not git apply)?
 
-OK, hold it right there...
-
-So, IIRC the problem was that you were seeing abominable retrans rates
-on UDP and TCP, and you are using a 100Mbit hub rather than a switch?
-
-What does the collision LED look like, when you see these performance
-problems?
-Also, does that hub support NICs that do autonegotiation? (I'll bet the
-answer is "no").
-
-Cheers,
-  Trond
+Excellent idea, thanks. Changed git merge to do this.
 
 -- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
-
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+C++: an octopus made by nailing extra legs onto a dog. -- Steve Taylor

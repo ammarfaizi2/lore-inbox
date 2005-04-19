@@ -1,64 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261652AbVDSUM2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbVDSUTO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261652AbVDSUM2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 16:12:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbVDSUM2
+	id S261190AbVDSUTO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 16:19:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbVDSUTO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 16:12:28 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:4319 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S261652AbVDSUM0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 16:12:26 -0400
-Date: Tue, 19 Apr 2005 16:12:25 -0400
-To: Nico Schottelius <nico-kernel@schottelius.org>,
-       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-Subject: Re: /proc/cpuinfo format - arch dependent!
-Message-ID: <20050419201225.GW4373@csclub.uwaterloo.ca>
-References: <20050419121530.GB23282@schottelius.org> <20050419132417.GS17865@csclub.uwaterloo.ca> <1113938220.20178.0.camel@mindpipe> <20050419200011.GB16594@schottelius.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050419200011.GB16594@schottelius.org>
-User-Agent: Mutt/1.3.28i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+	Tue, 19 Apr 2005 16:19:14 -0400
+Received: from fire.osdl.org ([65.172.181.4]:28562 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261190AbVDSUTI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 16:19:08 -0400
+Date: Tue, 19 Apr 2005 13:20:47 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Greg KH <greg@kroah.com>
+cc: Git Mailing List <git@vger.kernel.org>, linux-kernel@vger.kernel.org,
+       sensors@stimpy.netroedge.com
+Subject: Re: [GIT PATCH] I2C and W1 bugfixes for 2.6.12-rc2
+In-Reply-To: <20050419194728.GA24367@kroah.com>
+Message-ID: <Pine.LNX.4.58.0504191316180.19286@ppc970.osdl.org>
+References: <20050419043938.GA23724@kroah.com> <20050419185807.GA1191@kroah.com>
+ <Pine.LNX.4.58.0504191204480.19286@ppc970.osdl.org> <20050419194728.GA24367@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 19, 2005 at 10:00:12PM +0200, Nico Schottelius wrote:
-> Can you tell me which ones?
 
-top for example would probably break.  Maybe not but I suspect it would.
-mplayer probably would since it uses it to find the cpu type and
-features that cpu supports.
 
-> And if there are really that many tools, which are dependent on
-> those information, wouldn't it be much more senseful to make
-> it (as far as possible) the same?
+On Tue, 19 Apr 2005, Greg KH wrote:
+> 
+> Ok, if you want some practice with "real" merges, feel free to merge from
+> the following two trees whenever you are ready:
+> 	kernel.org/pub/scm/linux/kernel/git/gregkh/aoe-2.6.git/
+> for 11 aoe bugfix patches, and:
+> 	kernel.org/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
+> for 13 driver core, sysfs, and debugfs fixes.
 
-Well the tools that care are often architecture specific.  After all the
-info in cpuinfo is very architecture specific.
+Done, pushed out. Can you verify that the end result looks sane to you? I 
+just cheched that the diffstat looks similar (mine claims just 108 lines 
+changed in aoecmd.c - possibly due to different diff formats).
 
-> I must say I was really impressed, how easy I got the number of
-> cpus on *BSD (I am not a bsd user, still impressed).
+And yes, my new merge thing seems to have kept the index-cache much better 
+up-to-date, allowing an optimized checkout-cache -f -a to work and only 
+get the new files.
 
-Well there still is that sysconf call to get the number of cpus, which
-is way better in C than parsing a text file to get the info as far as I
-am concerned.
+Pasky? Can you check my latest git stuff, notably read-tree.c and the 
+changes to git-pull-script?
 
-> They also have the same format on every arch and mostly the same
-> between different bsds (as far as I have seen).
-
-What info do they provide in that on BSD?
-
-> In general, where are the advantages of having very different cpuinfo
-> formats? Tools would need to know less about the arch and could
-> depend on "I am on Linux" only.
-
-The info in cpuinfo is only of interest to a tool that knows about the
-architecture it is on.
-
-It is not meant to look up the number of cpus the system has.  It is
-meant to provide the info about the cpus in the system, which means it
-provides info relevant to the cpu on a given architecture.
-
-Len Sorensen
+		Linus

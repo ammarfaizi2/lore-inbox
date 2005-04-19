@@ -1,77 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261616AbVDSQH7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261620AbVDSQVE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261616AbVDSQH7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 12:07:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbVDSQH7
+	id S261620AbVDSQVE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 12:21:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbVDSQVE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 12:07:59 -0400
-Received: from zproxy.gmail.com ([64.233.162.194]:10444 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261616AbVDSQHu convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 12:07:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=dZv9zz6oEBuLOogUui3mDGOQFCLl2n5eXwx2BeKp9TmsoFQoAA7H+V+qb9trod/S+SRhW6BHOqUuRgEnX860KDFjToHqmqAbXJIR2HKKJHW34WLLYQ9hrpRtKPMRfD95O8B2qF/Qs+aZ91u0YdRI4U3WrVmk+j6WqyYccTwBO+M=
-Message-ID: <29495f1d0504190907234a0d1d@mail.gmail.com>
-Date: Tue, 19 Apr 2005 09:07:49 -0700
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: vatsa@in.ibm.com
-Subject: Re: VST and Sched Load Balance
-Cc: george@mvista.com, nickpiggin@yahoo.com.au, mingo@elte.hu,
-       high-res-timers-discourse@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050407124629.GA17268@in.ibm.com>
+	Tue, 19 Apr 2005 12:21:04 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:15269 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261620AbVDSQUy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 12:20:54 -0400
+Date: Tue, 19 Apr 2005 09:19:39 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Simon Derr <Simon.Derr@bull.net>
+Cc: dino@in.ibm.com, Simon.Derr@bull.net, nickpiggin@yahoo.com.au,
+       linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+       akpm@osdl.org, dipankar@in.ibm.com, colpatch@us.ibm.com
+Subject: Re: [RFC PATCH] Dynamic sched domains aka Isolated cpusets
+Message-Id: <20050419091939.55933186.pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.61.0504190955250.4587@openx3.frec.bull.fr>
+References: <1097110266.4907.187.camel@arrakis>
+	<20050418202644.GA5772@in.ibm.com>
+	<20050418225427.429accd5.pj@sgi.com>
+	<Pine.LNX.4.61.0504190955250.4587@openx3.frec.bull.fr>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050407124629.GA17268@in.ibm.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/7/05, Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
-> Hi,
->         VST patch (http://lwn.net/Articles/118693/) attempts to avoid useless
-> regular (local) timer ticks when a CPU is idle.
+Simon wrote:
+> I guess we hit a limit of the filesystem-interface approach here.
+> Are the possible failure reasons really that complex ?
 
-<snip>
+Given the amount of head scratching my proposal has provoked
+so far, they might be that complex, yes.  Failure reasons
+include:
+ * The cpuset Foo whose domain_cpu_rebuild file we wrote does
+   not align with the current partition of CPUs on the system
+   (align: every subset of the partition is either within or
+   outside the CPUs of Foo)
+ * The cpusets Foo and its descendents which are marked with
+   a true domain_cpu_pending do not form a partition of the
+   CPUs in Foo.  This could be either because two of these
+   cpusets have overlapping CPUs, or because the union of all
+   the CPUs in these cpusets doesn't cover.
+ * The usual other reasons such as lacking write permission.
 
->  linux-2.6.11-vatsa/kernel/sched.c |   52 ++++++++++++++++++++++++++++++++++++++
->  1 files changed, 52 insertions(+)
-> 
-> diff -puN kernel/sched.c~vst-sched_load_balance kernel/sched.c
-> --- linux-2.6.11/kernel/sched.c~vst-sched_load_balance  2005-04-07 17:51:34.000000000 +0530
-> +++ linux-2.6.11-vatsa/kernel/sched.c   2005-04-07 17:56:18.000000000 +0530
+> If this is only to get a hint, OK.
 
-<snip>
+Yes - it would be a hint.  The official explanation would be the
+errno setting on the failed write.  The hint, written to the
+domain_cpu_error file, could actually state which two cpusets
+had overlapping CPUs, or which CPUs in Foo were not covered by
+the union of the CPUs in the marked descendent cpusets.
 
-> @@ -1796,6 +1817,25 @@ find_busiest_group(struct sched_domain *
-> 
->                         nr_cpus++;
->                         avg_load += load;
-> +
-> +#ifdef CONFIG_VST
-> +                       if (idle != NOT_IDLE || !grp_sleeping ||
-> +                                               (grp_sleeping && woken))
-> +                               continue;
-> +
-> +                       sd1 = sd + (i-cpu);
-> +                       interval = sd1->balance_interval;
-> +
-> +                       /* scale ms to jiffies */
-> +                       interval = msecs_to_jiffies(interval);
-> +                       if (unlikely(!interval))
-> +                               interval = 1;
-> +
-> +                       if (jiffies - sd1->last_balance >= interval) {
-> +                               woken = 1;
-> +                               cpu_set(i, wakemask);
-> +                       }
+Yes - it pushing the limits of available mechanisms.  Though I don't
+offhand see where the filesystem-interface approach is to blame here.
+Can you describe any other approach that would provide such a similarly
+useful error explanation in a less unusual fashion?
 
-Sorry for the late reply, but shouldn't this jiffies comparison be
-done with time_after() or time_before()?
+> Is such an error reporting scheme already in use in the kernel ?
 
-Thanks,
-Nish
+I don't think so.
+
+> On the other hand, there's also no guarantee that what we are triggering 
+> by writing in domain_cpu_rebuild is what we have set up by writing in 
+> domain_cpu_pending. User applications will need a bit of self-discipline.
+
+True.
+
+To preserve the invariant that the CPUs in the selected cpusets form a
+partition (disjoint cover) of the systems CPUs, we either need to
+provide an atomic operation that allows passing in a selection of
+cpusets, or we need to provide a sequence of operations that essentially
+drive a little finite state machine, building up a description of the
+new state while the old state remains in place, until the final trigger
+is fired.
+
+This suggests what the primary alternative to my proposed API would be,
+and that would be an interface that let one pass in a list of cpusets,
+requesting that the partition below the specified cpuset subtree Foo be
+completely and atomically rebuilt, to be that defined by the list of
+cpusets, with the set of CPUS in each of these cpusets defining one
+subset of the partition.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

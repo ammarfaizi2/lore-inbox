@@ -1,91 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261346AbVDSGc4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbVDSGo1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261346AbVDSGc4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 02:32:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbVDSGc4
+	id S261354AbVDSGo1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 02:44:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbVDSGo1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 02:32:56 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:40709 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261346AbVDSGc0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 02:32:26 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] ia64: use 64bit rotations
-Date: Tue, 19 Apr 2005 09:31:17 +0300
-User-Agent: KMail/1.5.4
-Cc: Matt Mackall <mpm@selenic.com>
-References: <200504190918.10279.vda@port.imtp.ilyichevsk.odessa.ua> <200504190926.53565.vda@port.imtp.ilyichevsk.odessa.ua> <200504190928.40353.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200504190928.40353.vda@port.imtp.ilyichevsk.odessa.ua>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_1WKZCNjNEbL6G7/"
-Message-Id: <200504190931.17456.vda@port.imtp.ilyichevsk.odessa.ua>
+	Tue, 19 Apr 2005 02:44:27 -0400
+Received: from yue.linux-ipv6.org ([203.178.140.15]:24068 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S261354AbVDSGoV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 02:44:21 -0400
+Date: Tue, 19 Apr 2005 15:46:42 +0900 (JST)
+Message-Id: <20050419.154642.111848378.yoshfuji@linux-ipv6.org>
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Cc: linux-kernel@vger.kernel.org, mpm@selenic.com, yoshfuji@linux-ipv6.org
+Subject: Re: [PATCH] introduce generic 64bit rotations and i386 asm
+ optimized version
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <200504190918.10279.vda@port.imtp.ilyichevsk.odessa.ua>
+References: <200504190918.10279.vda@port.imtp.ilyichevsk.odessa.ua>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <200504190918.10279.vda@port.imtp.ilyichevsk.odessa.ua> (at Tue, 19 Apr 2005 09:18:10 +0300), Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> says:
 
---Boundary-00=_1WKZCNjNEbL6G7/
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> diff -urpN 2.6.12-rc2.1.be/include/linux/bitops.h 2.6.12-rc2.2.ror/include/linux/bitops.h
+> --- 2.6.12-rc2.1.be/include/linux/bitops.h	Mon Apr 18 22:55:10 2005
+> +++ 2.6.12-rc2.2.ror/include/linux/bitops.h	Tue Apr 19 00:25:28 2005
+> @@ -41,7 +41,7 @@ static inline int generic_ffs(int x)
+>   * fls: find last bit set.
+>   */
+>  
+> -static __inline__ int generic_fls(int x)
+> +static inline int generic_fls(int x)
+>  {
+>  	int r = 32;
+>  
+> @@ -76,7 +76,7 @@ static __inline__ int generic_fls(int x)
+>   */
+>  #include <asm/bitops.h>
+>  
+> -static __inline__ int get_bitmask_order(unsigned int count)
+> +static inline int get_bitmask_order(unsigned int count)
+>  {
+>  	int order;
+>  	
 
-Remove local 64bit rotation function, use generic one.
+Please keep using __inline__, not inline.
 
-Patch is untested.
+> +#ifndef ARCH_HAS_ROL64
+> +static inline __u64 rol64(__u64 word, unsigned int shift)
+> +{
+> +	return (word << shift) | (word >> (64 - shift));
+> +}
+> +#endif
+:
+> +#ifndef ARCH_HAS_ROR64
+> +static inline __u64 ror64(__u64 word, unsigned int shift)
+> +{
+> +	return (word >> shift) | (word << (64 - shift));
+> +}
+> +#endif
+>  
+>  #endif
 
-I believe there is no more 64bit rotations in the kernel.
---
-vda
+please use __inline__, in header files.
 
---Boundary-00=_1WKZCNjNEbL6G7/
-Content-Type: text/x-diff;
-  charset="koi8-r";
-  name="4.ia64.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="4.ia64.patch"
-
-diff -urpN 2.6.12-rc2.3.ws/arch/ia64/kernel/ptrace.c 2.6.12-rc2.4.ia64/arch/ia64/kernel/ptrace.c
---- 2.6.12-rc2.3.ws/arch/ia64/kernel/ptrace.c	Mon Apr 18 22:54:38 2005
-+++ 2.6.12-rc2.4.ia64/arch/ia64/kernel/ptrace.c	Tue Apr 19 00:44:30 2005
-@@ -80,7 +80,7 @@ ia64_get_scratch_nat_bits (struct pt_reg
- 			dist = 64 + bit - first;			\
- 		else							\
- 			dist = bit - first;				\
--		ia64_rotr(unat, dist) & mask;				\
-+		ror64(unat, dist) & mask;				\
- 	})
- 	unsigned long val;
- 
-@@ -119,7 +119,7 @@ ia64_put_scratch_nat_bits (struct pt_reg
- 			dist = 64 + bit - first;			\
- 		else							\
- 			dist = bit - first;				\
--		ia64_rotl(nat & mask, dist);				\
-+		rol64(nat & mask, dist);				\
- 	})
- 	unsigned long scratch_unat;
- 
-diff -urpN 2.6.12-rc2.3.ws/include/asm-ia64/processor.h 2.6.12-rc2.4.ia64/include/asm-ia64/processor.h
---- 2.6.12-rc2.3.ws/include/asm-ia64/processor.h	Thu Feb  3 11:40:06 2005
-+++ 2.6.12-rc2.4.ia64/include/asm-ia64/processor.h	Tue Apr 19 00:43:30 2005
-@@ -652,14 +652,6 @@ ia64_get_dbr (__u64 regnum)
- 	return retval;
- }
- 
--static inline __u64
--ia64_rotr (__u64 w, __u64 n)
--{
--	return (w >> n) | (w << (64 - n));
--}
--
--#define ia64_rotl(w,n)	ia64_rotr((w), (64) - (n))
--
- /*
-  * Take a mapped kernel address and return the equivalent address
-  * in the region 7 identity mapped virtual area.
-
---Boundary-00=_1WKZCNjNEbL6G7/--
-
+-- 
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+Homepage: http://www.yoshifuji.org/~hideaki/
+GPG FP  : 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

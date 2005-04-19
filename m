@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbVDSVma@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbVDSVpZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261266AbVDSVma (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 17:42:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261671AbVDSVma
+	id S261267AbVDSVpZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 17:45:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261671AbVDSVpZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 17:42:30 -0400
-Received: from mail.dif.dk ([193.138.115.101]:60550 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261266AbVDSVmQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 17:42:16 -0400
-Date: Tue, 19 Apr 2005 23:45:16 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: perex@suse.cz
-Cc: alsa-devel@alsa-project.org, rlrevell@joe-job.com,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] sound: trivial warning fix for emu10k1
-Message-ID: <Pine.LNX.4.62.0504192338090.2074@dragon.hyggekrogen.localhost>
+	Tue, 19 Apr 2005 17:45:25 -0400
+Received: from alog0252.analogic.com ([208.224.222.28]:16544 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261267AbVDSVpU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 17:45:20 -0400
+Date: Tue, 19 Apr 2005 17:44:12 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Chris Friesen <cfriesen@nortel.com>
+cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       Karel Kulhavy <clock@twibright.com>, linux-kernel@vger.kernel.org
+Subject: Re: GPL violation by CorAccess?
+In-Reply-To: <42656319.6090703@nortel.com>
+Message-ID: <Pine.LNX.4.61.0504191741190.19956@chaos.analogic.com>
+References: <20050419175743.GA8339@beton.cybernet.src>
+ <20050419182529.GT17865@csclub.uwaterloo.ca> <Pine.LNX.4.61.0504191516080.18402@chaos.analogic.com>
+ <42656319.6090703@nortel.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When building with gcc -W sound/pci/emu10k1/emupcm.c produces this little 
-warning in 2.6.12-rc2-mm3 : 
-  sound/pci/emu10k1/emupcm.c:265: warning: `inline' is not at beginning of declaration
-No big deal, but trivial to fix.
+On Tue, 19 Apr 2005, Chris Friesen wrote:
 
+> Richard B. Johnson wrote:
+>>
+>> Violation? They proudly reply in their article in
+>>     http://www.linuxdevices.com
+>> that they use Linux, that they embedded a version
+>> of Red Hat, etc.
+>>
+>> It's likely that they didn't modify anything in the kernel and
+>> just used some stripped-down C-libraries to make everything fit.
+>
+> Right.  They're distributing products licensed under the GPL, so
+> sections 3-a and 3-b of the GPL apply.
+>
+> Thus they can either a) accompany it with the source code, or b)
+> accompany it with a written offer to give any third party a copy of the
+> source code.
+>
+> Chris
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
----
+No. Accompany it with a written offer to __provide__ the source
+code for any GPL stuff they used (like the kernel or drivers).
+Anything at the application-level is NOT covered by the GPL.
+They do not have to give away their trade-secrets.
 
- sound/pci/emu10k1/emupcm.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
---- linux-2.6.12-rc2-mm3-orig/sound/pci/emu10k1/emupcm.c	2005-04-11 21:20:58.000000000 +0200
-+++ linux-2.6.12-rc2-mm3/sound/pci/emu10k1/emupcm.c	2005-04-19 23:37:10.000000000 +0200
-@@ -262,7 +262,7 @@ static unsigned int emu10k1_select_inter
-  *
-  * returns: cache invalidate size in samples
-  */
--static int inline emu10k1_ccis(int stereo, int w_16)
-+static inline int emu10k1_ccis(int stereo, int w_16)
- {
- 	if (w_16) {
- 		return stereo ? 24 : 26;
-
-
-
-
---- 
-PS. Please CC me on replies.
-
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

@@ -1,51 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261572AbVDSOdQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVDSOgp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261572AbVDSOdQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 10:33:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbVDSOc6
+	id S261579AbVDSOgp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 10:36:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbVDSOfQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 10:32:58 -0400
-Received: from rproxy.gmail.com ([64.233.170.199]:59587 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261572AbVDSOb0 (ORCPT
+	Tue, 19 Apr 2005 10:35:16 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:13997 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261568AbVDSOde (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 10:31:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:cc:user-agent:content-type:references:in-reply-to:subject:message-id:date;
-        b=aKEmqnTRU9JDvTCnk0Y7VyZ4z2AamDAMrmF1DeQ5Lp2vFFhHkaxHOO4U8Mxtv97I4wtmmxGJ8XADznfZ3fxVXRnHtWykyXTIVrbfk317ZfntU2fGYY6/IV6WShfggiwlKz+aFkXhyR419Ho0XvHWC6DhlkHHgKzvPLnjnNsjtEw=
-From: Tejun Heo <htejun@gmail.com>
-To: James.Bottomley@steeleye.com
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-User-Agent: lksp 0.3
-Content-Type: text/plain; charset=US-ASCII
-References: <20050419143100.E231523D@htj.dyndns.org>
-In-Reply-To: <20050419143100.E231523D@htj.dyndns.org>
-Subject: Re: [PATCH scsi-misc-2.6 04/04] scsi: remove unnecessary scsi_delete_timer() call in scsi_reset_provider()
-Message-ID: <20050419143100.284C6D23@htj.dyndns.org>
-Date: Tue, 19 Apr 2005 23:31:21 +0900 (KST)
+	Tue, 19 Apr 2005 10:33:34 -0400
+Date: Tue, 19 Apr 2005 16:33:26 +0200
+From: Jens Axboe <axboe@suse.de>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Tejun Heo <htejun@gmail.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Regarding posted scsi midlyaer patchsets
+Message-ID: <20050419143325.GL2827@suse.de>
+References: <20050417224101.GA2344@htj.dyndns.org> <1113833744.4998.13.camel@mulgrave> <4263CB26.2070609@gmail.com> <20050419123436.GA2827@suse.de> <1113920295.4998.13.camel@mulgrave> <20050419142959.GK2827@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050419142959.GK2827@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-04_scsi_timer_remove_delete_timer_from_reset_provider.patch
+On Tue, Apr 19 2005, Jens Axboe wrote:
+> On Tue, Apr 19 2005, James Bottomley wrote:
+> > On Tue, 2005-04-19 at 14:34 +0200, Jens Axboe wrote:
+> > > On Mon, Apr 18 2005, Tejun Heo wrote:
+> > > >  And, James, regarding REQ_SOFTBARRIER, if the REQ_SOFTBARRIER thing can
+> > > > be removed from SCSI midlayer, do you agree to change REQ_SPECIAL to
+> > > > mean special requests?  If so, I have three proposals.
+> > > > 
+> > > >  * move REQ_SOFTBARRIER setting to right after the allocation of
+> > > > scsi_cmnd in scsi_prep_fn().  This will be the only place where
+> > > > REQ_SOFTBARRIER is used in SCSI midlayer, making it less pervasive.
+> > > >  * Or, make another API which sets REQ_SOFTBARRIER on requeue.  maybe
+> > > > blk_requeue_ordered_request()?
+> > > >  * Or, make blk_insert_request() not set REQ_SPECIAL on requeue.  IMHO,
+> > > > this is a bit too subtle.
+> > > > 
+> > > >  I like #1 or #2.  Jens, what do you think?  Do you agree to remove
+> > > > requeue feature from blk_insert_request()?
+> > > 
+> > > #2 is the best, imho. We really want to maintain ordering on requeue
+> > > always, marking it softbarrier automatically in the block layer means
+> > > the io schedulers don't have to do anything specific to handle it.
+> > 
+> > This is my preference too.  In general, block is the only one that
+> > should care what the REQ_SOFTBARRIER flag actually means.  SCSI only
+> > cares that it submits a non mergeable request.
+> > 
+> > I'm happy to separate the meaning of REQ_SPECIAL from req->special.
+> 
+> Isn't it just duplicate information anyways? I mean, just clear
+> ->special if it isn't valid anymore. Having a seperate flag to indicate
+> this seems a little suboptimal. It made more sense when ->cmd was a
+> integer being READ, WRITE, etc. But as a seperate state now it doesn't.
 
-	scsi_reset_provider() calls scsi_delete_timer() on exit which
-	isn't necessary.  Remove it.
+Oh, and this is only true of SCSI, btw. REQ_SPECIAL should not be seen
+outside of driver code, its meaning is defined solely by the driver.
+SCSI ties it to ->special, but that is not necessarily true for any
+other driver.
 
-Signed-off-by: Tejun Heo <htejun@gmail.com>
-
- scsi_error.c |    1 -
- 1 files changed, 1 deletion(-)
-
-Index: scsi-reqfn-export/drivers/scsi/scsi_error.c
-===================================================================
---- scsi-reqfn-export.orig/drivers/scsi/scsi_error.c	2005-04-19 23:30:58.000000000 +0900
-+++ scsi-reqfn-export/drivers/scsi/scsi_error.c	2005-04-19 23:30:58.000000000 +0900
-@@ -1882,7 +1882,6 @@ scsi_reset_provider(struct scsi_device *
- 		rtn = FAILED;
- 	}
- 
--	scsi_delete_timer(scmd);
- 	scsi_next_command(scmd);
- 	return rtn;
- }
+-- 
+Jens Axboe
 

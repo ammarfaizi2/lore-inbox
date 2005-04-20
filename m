@@ -1,49 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261811AbVDTVIa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261814AbVDTVLB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261811AbVDTVIa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 17:08:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbVDTVIa
+	id S261814AbVDTVLB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 17:11:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbVDTVLB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 17:08:30 -0400
-Received: from colo.khms.westfalen.de ([213.239.196.208]:34947 "EHLO
-	colo.khms.westfalen.de") by vger.kernel.org with ESMTP
-	id S261811AbVDTVIZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 17:08:25 -0400
-Date: 20 Apr 2005 22:29:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <9VF1rZLXw-B@khms.westfalen.de>
-In-Reply-To: <d3dvps$347$1@terminus.zytor.com>
-Subject: Re: more git updates..
-X-Mailer: CrossPoint v3.12d.kh15 R/C435
-MIME-Version: 1.0
+	Wed, 20 Apr 2005 17:11:01 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:43929 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261814AbVDTVKt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 17:10:49 -0400
+Date: Wed, 20 Apr 2005 23:10:18 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: linux-kernel@vger.kernel.org, Dave Hansen <haveblue@us.ibm.com>,
+       "Hariprasad Nellitheertha [imap]" <hari@in.ibm.com>
+Subject: Re: [RFC][PATCH] nameing reserved pages [1/3]
+Message-ID: <20050420211018.GC3372@elf.ucw.cz>
+References: <42664654.5080409@jp.fujitsu.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050410065307.GC13853@64m.dyndns.org> <d3dvps$347$1@terminus.zytor.com>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Disposition: inline
+In-Reply-To: <42664654.5080409@jp.fujitsu.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hpa@zytor.com (H. Peter Anvin)  wrote on 11.04.05 in <d3dvps$347$1@terminus.zytor.com>:
+Hi!
 
-> Followup to:  <20050410065307.GC13853@64m.dyndns.org>
-> By author:    Christopher Li <lkml@chrisli.org>
-> In newsgroup: linux.dev.kernel
-> >
-> > There is one problem though. How about the SHA1 hash collision?
-> > Even the chance is very remote, you don't want to lose some data do due
-> > to "software" error. I think it is OK that no handle that
-> > case right now. On the other hand, it will be nice to detect that
-> > and give out a big error message if it really happens.
-> >
->
-> If you're actually worried about it, it'd be better to just use a
-> different hash, like one of the SHA-2's (probably a better choice
-> anyway), instead of SHA-1.
+> inline functions for naming pages.
+> -- Kame
 
-How could that help? *Every* hash has hash collisions. It's an unavoidable  
-result of using less bits than the original data has.
+> 
+> Adding page_type definitions and funcs for naming reserved pages.
+> 
+> Reserved page's information is stored into page->private.
+> 
+> This is a weak naming method and anyone can overwrite it. 
+> 
+> This information is used in /dev/memstate in following patch.
+> 
+> Signed-off-by: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+> 
+> 
+> ---
+> 
+>  linux-2.6.12-rc2-kamezawa/include/linux/mm.h |   31 +++++++++++++++++++++++++++
+>  1 files changed, 31 insertions(+)
+> 
+> diff -puN include/linux/mm.h~name_reserved include/linux/mm.h
+> --- linux-2.6.12-rc2/include/linux/mm.h~name_reserved	2005-04-20 09:37:48.000000000 +0900
+> +++ linux-2.6.12-rc2-kamezawa/include/linux/mm.h	2005-04-20 10:38:01.000000000 +0900
+> @@ -348,6 +348,37 @@ static inline void put_page(struct page 
+>  #endif		/* CONFIG_HUGETLB_PAGE */
+>  
+>  /*
+> + * Type of Pages. This is used in /dev/memstate.
+> + * value range is 0-255.
+> + */
+> +enum page_type {
+> +	Page_Common = 0,
+> +	Min_Reserved_Types = 1,
+> +	Rserved_Unknwon = 1,
+         ~
+	  missing e?
 
-MfG Kai
+> +	Reserved_At_Boot,
+> +	Max_Reserved_Types,
+> +	Page_Invalid = 0xff
+> +};
+
+You certainly use unusual naming convention here. Could we get
+reserved_at_boot instead? (I.e. all lowercase).
+
+
+> +/*
+> + * Basically, page->private has no meaning without PG_private.
+> + * Here, we use page->private for PG_reserved pages to record type of a page.
+> + * Because a page is reserved, anyone will not modify page->private.
+> + * When it is freed, page->private will be overwritten by some code.
+> + */
+> +static inline void set_page_reserved(struct page *page, unsigned char type)
+> +{
+
+Make it enum page_type type.
+
+								Pavel
+-- 
+Boycott Kodak -- for their patent abuse against Java.

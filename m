@@ -1,44 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261464AbVDTHKK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbVDTHMi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261464AbVDTHKK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 03:10:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbVDTHKK
+	id S261357AbVDTHMi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 03:12:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbVDTHMi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 03:10:10 -0400
-Received: from rev.193.226.232.28.euroweb.hu ([193.226.232.28]:3977 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261399AbVDTHKE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 03:10:04 -0400
-To: mike@waychison.com
-CC: ericvh@gmail.com, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-In-reply-to: <4265D39D.2010301@waychison.com> (message from Mike Waychison on
-	Tue, 19 Apr 2005 23:59:25 -0400)
-Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
-References: <3Ki1W-2pt-1@gated-at.bofh.it> <3S8oN-So-25@gated-at.bofh.it>	 <3S8oN-So-27@gated-at.bofh.it> <3S8oM-So-7@gated-at.bofh.it>	 <3UmnD-6Fy-7@gated-at.bofh.it>	 <E1DNJZD-0006vK-11@be1.7eggert.dyndns.org>	 <a4e6962a050419045752cc8be0@mail.gmail.com>	 <Pine.LNX.4.58.0504191647320.3652@be1.lrz>	 <a4e6962a05041908262df343f1@mail.gmail.com>	 <Pine.LNX.4.58.0504191756200.3929@be1.lrz> <a4e6962a05041912293ba87710@mail.gmail.com> <4265D39D.2010301@waychison.com>
-Message-Id: <E1DO9L8-0000mQ-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 20 Apr 2005 09:09:38 +0200
+	Wed, 20 Apr 2005 03:12:38 -0400
+Received: from Smtp1.univ-nantes.fr ([193.52.82.18]:29159 "EHLO
+	smtp1.univ-nantes.fr") by vger.kernel.org with ESMTP
+	id S261357AbVDTHM0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 03:12:26 -0400
+Message-ID: <426600D8.5060900@univ-nantes.fr>
+Date: Wed, 20 Apr 2005 09:12:24 +0200
+From: Yann Dupont <Yann.Dupont@univ-nantes.fr>
+Organization: CRIUN
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+Cc: linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: E1000 - page allocation failure - saga continues :(
+References: <20050414214828.GB9591@mail.muni.cz> <4263A3B7.6010702@univ-nantes.fr> <20050418122202.GE26030@mail.muni.cz> <4264B202.9080304@univ-nantes.fr> <20050419080424.GA28153@mail.muni.cz>
+In-Reply-To: <20050419080424.GA28153@mail.muni.cz>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Likely because its a chroot vulnerability.
-> 
-> It allows a process to obtain a reference to the root vfsmount that
-> doesn't have chroot checks performed on it.
-> 
-> Consider the following pseudo example:
-> 
-[...]
+Lukas Hejtmanek a écrit :
+
+>On Tue, Apr 19, 2005 at 09:23:46AM +0200, Yann Dupont wrote:
+>  
 >
-> if main is run within a chroot where it's "/" is on the same vfsmount as
->  it's "..", then the application can step out of the chroot using clone(2).
-> 
-> Note: using chdir in a vfsmount outside of your namespace works, however
-> you won't be able to walk off that vfsmount (to its parent or children).
+>>Do you have turned NAPI on ??? I tried without it off on e1000 and ...
+>>surprise !
+>>Don't have any messages since 12H now (usually I got those in less than 1H)
+>>    
+>>
+>
+>I have NAPI on. I tried to turn it off but my test failed, I can see allocation
+>failure again.
+>
+>  
+>
+Well. forgives me :)
+I have re turned NAPI On and my box is still happy 19H later...
 
-How about fixing fchdir, so it checks whether you gone outside the
-tree under current->fs->rootmnt?  Should be fairly easy to do.
+So it's obviously not napi.
 
-Miklos
+The problem is beetween the 2 incarnations of kernel (2.6.11.7 with
+kswapd meesages on thoses who works well), I've changed some more options
+Not exactly the best way to track bugs :(
+
+Anyway i'll try to catch THE option that make the kernel not so happy
+under heavy stress. Stay tuned,
+
+-- 
+Yann Dupont, Cri de l'université de Nantes
+Tel: 02.51.12.53.91 - Fax: 02.51.12.58.60 - Yann.Dupont@univ-nantes.fr
+

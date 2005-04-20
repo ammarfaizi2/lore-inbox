@@ -1,53 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbVDTJTL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261527AbVDTJYy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261522AbVDTJTL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 05:19:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbVDTJTL
+	id S261527AbVDTJYy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 05:24:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261530AbVDTJYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 05:19:11 -0400
-Received: from wproxy.gmail.com ([64.233.184.194]:4697 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261522AbVDTJTH convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 05:19:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=C/4YSPx63+Gz69S53wzTwRDq7LGtbjrUk6ACuR8ucmVoas4zlXVefGQGBS0IYu87c+QcNlHO9dj0tHXufg+UaUGyAroUjLAdv8HwktsmrlNF8HD9JtHSlosYI+5yor6Yo8MsL6WXzZcox5WLRbFzlP5fpa9eyduGvdFL7SSQEuc=
-Message-ID: <28183df505042002186e5c3d49@mail.gmail.com>
-Date: Wed, 20 Apr 2005 12:18:43 +0300
-From: Zvi Rackover <zvirack@gmail.com>
-Reply-To: Zvi Rackover <zvirack@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Module that loads new Interrupt Descriptor Table
-In-Reply-To: <1113987941.6238.52.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <28183df5050420015828ace752@mail.gmail.com>
-	 <1113987941.6238.52.camel@laptopd505.fenrus.org>
+	Wed, 20 Apr 2005 05:24:54 -0400
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:29341 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261527AbVDTJYr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 05:24:47 -0400
+Message-ID: <42661FDB.7030409@yahoo.com.au>
+Date: Wed, 20 Apr 2005 19:24:43 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Tejun Heo <htejun@gmail.com>, James.Bottomley@steeleye.com,
+       Christoph Hellwig <hch@infradead.org>, linux-scsi@vger.kernel.org,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH scsi-misc-2.6 01/05] scsi: make blk layer set	REQ_SOFTBARRIER
+ when a request is dispatched
+References: <20050419231435.D85F89C0@htj.dyndns.org> <20050419231435.2DEBE102@htj.dyndns.org> <20050420063009.GB9371@suse.de> <20050420074026.GA11228@htj.dyndns.org> <1113983899.5074.111.camel@npiggin-nld.site> <426614B7.5010204@gmail.com> <20050420083853.GB6558@suse.de> <42661B2C.1020100@yahoo.com.au> <20050420091428.GH6558@suse.de>
+In-Reply-To: <20050420091428.GH6558@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/20/05, Arjan van de Ven <arjan@infradead.org> wrote:
-> On Wed, 2005-04-20 at 11:58 +0300, Zvi Rackover wrote:
-> > Hello all,
-> >
-> >   I would like to write a program that monitors various system
-> > parameters in real time. One of these is counting the number of
-> > interrupts. I would like to implement my own interrupt handler so that
-> > each handler counts the number of interrupt of its respective type.
+Jens Axboe wrote:
+> On Wed, Apr 20 2005, Nick Piggin wrote:
 > 
-> ehm
-> the kernel already keeps this kind of data, see /proc/interrupts
-> 
-> why would you want to collect it *again* ?
-> (or do you want to generally hook interrupts like some other people want
-> to hook syscalls?)
+
+>>I guess this could be one use of 'reordering' after a requeue.
 > 
 > 
-You have a good point point - I should have given a better decription
-to my problem.
-This is an educational project I'm working on and I need to actually
-see the contents of the Interrupt Descritor Table so I could load it
-into user space and have it displayed in a nice GUI.
+> Yeah, or perhaps the io scheduler might determine that a request has
+> higher prio than a requeued one.  I'm not sure what semantics to place
+
+I guess this is possible. It is often only a single request
+that is on the dispatch list though, so I don't know if it
+would make sense to reorder it by priority again.
+
+> on soft-barrier, I've always taken it to mean 'maintain ordering if
+> convenient' where the hard-barrier must be followed.
+> 
+
+I've thought it was SOFTBARRIER ensures the device driver (and
+hardware?) sees the request in this order, and HARDBARRIER ensures
+it reaches stable storage in this order.
+
+Not exactly sure why you would want a softbarrier and not a
+hardbarrier. Maybe for special commands.
+
+> 
+>>I'm not sure this would need a REQ_SOFTBARRIER either though, really.
+>>
+>>Your basic io scheduler framework - ie. a FIFO dispatch list which
+>>can have requests requeued on the front models pretty well what the
+>>block layer needs of the elevator.
+>>
+>>Considering all requeues and all elv_next_request but not dequeued
+>>requests would have this REQ_SOFTBARRIER bit set, any other model
+>>that theoretically would allow reordering would degenerate to this
+>>dispatch list behaviour, right?
+> 
+> 
+> Not sure I follow this - I don't want REQ_SOFTBARRIER set automatically
+> on elv_next_request() return, it should only happen on requeues.
+> REQ_STARTED implies that you should not pass this request, since the io
+> scheduler is required to return this request again until dequeue is
+> called. But the result is the same, correct.
+> 
+
+OK - but I'm wondering would it ever make sense to do it any
+other way? I would have thought no, in which case we can document
+that requests seen by 'elv_next_request', and those requeued back
+into the device will not be reordered, and so Tejun does not need
+to set REQ_SOFTBARRIER.
+
+But I'm not so sure now... it isn't really that big a deal ;)
+So whatever you're happy with is fine. Sorry for the nose.
+
+-- 
+SUSE Labs, Novell Inc.
+

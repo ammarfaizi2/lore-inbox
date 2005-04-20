@@ -1,146 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261701AbVDTRcY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261697AbVDTRfX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261701AbVDTRcY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 13:32:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbVDTRcY
+	id S261697AbVDTRfX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 13:35:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbVDTRfS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 13:32:24 -0400
-Received: from ns1.coraid.com ([65.14.39.133]:31656 "EHLO coraid.com")
-	by vger.kernel.org with ESMTP id S261770AbVDTRbC (ORCPT
+	Wed, 20 Apr 2005 13:35:18 -0400
+Received: from mail.kroah.org ([69.55.234.183]:3464 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261697AbVDTRcx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 13:31:02 -0400
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: [PATCH 2.6.12-rc2] aoe [1/6]: improve allowed interfaces
- configuration
-References: <874qe1pejv.fsf@coraid.com>
-	<20050420101644.3d475ff5.rddunlap@osdl.org>
-From: Ed L Cashin <ecashin@coraid.com>
-Date: Wed, 20 Apr 2005 13:27:20 -0400
-In-Reply-To: <20050420101644.3d475ff5.rddunlap@osdl.org> (Randy Dunlap's
- message of "Wed, 20 Apr 2005 10:16:44 -0700")
-Message-ID: <87pswpmk93.fsf@coraid.com>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+	Wed, 20 Apr 2005 13:32:53 -0400
+Date: Wed, 20 Apr 2005 10:32:35 -0700
+From: Greg KH <gregkh@suse.de>
+To: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [RFC/PATCH] unregister_node() for hotplug use
+Message-ID: <20050420173235.GA17775@kroah.com>
+References: <20050420210744.4013b3f8.tokunaga.keiich@jp.fujitsu.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050420210744.4013b3f8.tokunaga.keiich@jp.fujitsu.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+On Wed, Apr 20, 2005 at 09:07:44PM +0900, Keiichiro Tokunaga wrote:
+>   This is to add a generic function 'unregister_node()'.
+> It is used to remove objects of a node going away for
+> hotplug.  If CONFIG_HOTPLUG=y, it becomes available.
+> This is against 2.6.12-rc2-mm3.
 
-"Randy.Dunlap" <rddunlap@osdl.org> writes:
+Please CC: this kind of stuff to the driver core maintainer, otherwise
+it can get dropped...
 
-> On Wed, 20 Apr 2005 13:02:12 -0400 Ed L Cashin wrote:
->
-> Just a nit/typo:
->
-> | +    modprobe aoe_iflist="eth1 eth3"
->
-> |  static char aoe_iflist[IFLISTSZ];
-> | +module_param_string(aoe_iflist, aoe_iflist, IFLISTSZ, 0600);
-> | +MODULE_PARM_DESC(aoe_iflist, " aoe_iflist=\"dev1 [dev2 ...]\n");
->
-> No leading space (" aoe_iflist=") and put a trailing \" in it:
->
->   +MODULE_PARM_DESC(aoe_iflist, "aoe_iflist=\"dev1 [dev2 ...]\"\n");
+Anyway, comments below:
 
-Thanks for catching that.
+> diff -puN drivers/base/node.c~numa_hp_base drivers/base/node.c
+> --- linux-2.6.12-rc2-mm3/drivers/base/node.c~numa_hp_base	2005-04-14 20:49:37.000000000 +0900
+> +++ linux-2.6.12-rc2-mm3-kei/drivers/base/node.c	2005-04-14 20:49:37.000000000 +0900
+> @@ -136,7 +136,7 @@ static SYSDEV_ATTR(distance, S_IRUGO, no
+>   *
+>   * Initialize and register the node device.
+>   */
+> -int __init register_node(struct node *node, int num, struct node *parent)
+> +int __devinit register_node(struct node *node, int num, struct node *parent)
+>  {
+>  	int error;
+>  
+> @@ -145,6 +145,9 @@ int __init register_node(struct node *no
+>  	error = sysdev_register(&node->sysdev);
+>  
+>  	if (!error){
+> +		/*
+> +		 * If you add new object here, delete it when unregistering.
+> +		 */
 
+Comment really isn't needed.
 
-improve allowed interfaces configuration
+> +/*
+> + * unregister_node - Remove objects of a node going away from sysfs.
+> + * @node - node going away
+> + *
+> + * This is used only for hotplug.
+> + */
 
-Signed-off-by: Ed L. Cashin <ecashin@coraid.com>
+If you are going to create function comments, at least use the proper
+kerneldoc format.
 
+> +#ifdef CONFIG_HOTPLUG
 
---=-=-=
-Content-Disposition: inline; filename=patch-124.rediff
+You don't provide function prototype for when CONFIG_HOTPLUG is not
+enabled.
 
-diff -uprN a/Documentation/aoe/aoe.txt b/Documentation/aoe/aoe.txt
---- a/Documentation/aoe/aoe.txt	2005-04-20 11:40:55.000000000 -0400
-+++ b/Documentation/aoe/aoe.txt	2005-04-20 11:42:20.000000000 -0400
-@@ -33,6 +33,9 @@ USING DEVICE NODES
-   "cat /dev/etherd/err" blocks, waiting for error diagnostic output,
-   like any retransmitted packets.
- 
-+  The /dev/etherd/interfaces special file is obsoleted by the
-+  aoe_iflist boot option and module option (and its sysfs entry
-+  described in the next section).
-   "echo eth2 eth4 > /dev/etherd/interfaces" tells the aoe driver to
-   limit ATA over Ethernet traffic to eth2 and eth4.  AoE traffic from
-   untrusted networks should be ignored as a matter of security.
-@@ -89,3 +92,24 @@ USING SYSFS
-       e4.7            eth1              up
-       e4.8            eth1              up
-       e4.9            eth1              up
-+
-+  When the aoe driver is a module, use
-+  /sys/module/aoe/parameters/aoe_iflist instead of
-+  /dev/etherd/interfaces to limit AoE traffic to the network
-+  interfaces in the given whitespace-separated list.  Unlike the old
-+  character device, the sysfs entry can be read from as well as
-+  written to.
-+
-+  It's helpful to trigger discovery after setting the list of allowed
-+  interfaces.  If your distro provides an aoe-discover script, you can
-+  use that.  Otherwise, you can directly use the /dev/etherd/discover
-+  file described above.
-+
-+DRIVER OPTIONS
-+
-+  There is a boot option for the built-in aoe driver and a
-+  corresponding module parameter, aoe_iflist.  Without this option,
-+  all network interfaces may be used for ATA over Ethernet.  Here is a
-+  usage example for the module parameter.
-+
-+    modprobe aoe_iflist="eth1 eth3"
-diff -uprN a/drivers/block/aoe/aoenet.c b/drivers/block/aoe/aoenet.c
---- a/drivers/block/aoe/aoenet.c	2005-04-20 11:41:18.000000000 -0400
-+++ b/drivers/block/aoe/aoenet.c	2005-04-20 11:42:20.000000000 -0400
-@@ -7,6 +7,7 @@
- #include <linux/hdreg.h>
- #include <linux/blkdev.h>
- #include <linux/netdevice.h>
-+#include <linux/moduleparam.h>
- #include "aoe.h"
- 
- #define NECODES 5
-@@ -26,6 +27,19 @@ enum {
- };
- 
- static char aoe_iflist[IFLISTSZ];
-+module_param_string(aoe_iflist, aoe_iflist, IFLISTSZ, 0600);
-+MODULE_PARM_DESC(aoe_iflist, "aoe_iflist=\"dev1 [dev2 ...]\"\n");
-+
-+#ifndef MODULE
-+static int __init aoe_iflist_setup(char *str)
-+{
-+	strncpy(aoe_iflist, str, IFLISTSZ);
-+	aoe_iflist[IFLISTSZ - 1] = '\0';
-+	return 1;
-+}
-+
-+__setup("aoe_iflist=", aoe_iflist_setup);
-+#endif
- 
- int
- is_aoe_netif(struct net_device *ifp)
-@@ -36,7 +50,8 @@ is_aoe_netif(struct net_device *ifp)
- 	if (aoe_iflist[0] == '\0')
- 		return 1;
- 
--	for (p = aoe_iflist; *p; p = q + strspn(q, WHITESPACE)) {
-+	p = aoe_iflist + strspn(aoe_iflist, WHITESPACE);
-+	for (; *p; p = q + strspn(q, WHITESPACE)) {
- 		q = p + strcspn(p, WHITESPACE);
- 		if (q != p)
- 			len = q - p;
+> +void unregister_node(struct node *node)
+> +{
+> +	if (node == NULL)
+> +		return;
 
---=-=-=
+How can this happen?
 
+> +
+> +	sysdev_remove_file(&node->sysdev, &attr_cpumap);
+> +	sysdev_remove_file(&node->sysdev, &attr_meminfo);
+> +	sysdev_remove_file(&node->sysdev, &attr_numastat);
+> +	sysdev_remove_file(&node->sysdev, &attr_distance);
+> +
+> +	sysdev_unregister(&node->sysdev);
+> +}
+> +EXPORT_SYMBOL(register_node);
+> +EXPORT_SYMBOL(unregister_node);
 
+All of sysfs and the driver core are EXPORT_SYMBOL_GPL().  Please follow
+that convention.
 
--- 
-  Ed L Cashin <ecashin@coraid.com>
+> +#endif /* CONFIG_HOTPLUG */
+>  
+> -int __init register_node_type(void)
+> +static int __init register_node_type(void)
 
---=-=-=--
+Are you sure no one calls this?
 
+>  {
+>  	return sysdev_class_register(&node_class);
+>  }
+> diff -puN include/linux/node.h~numa_hp_base include/linux/node.h
+> --- linux-2.6.12-rc2-mm3/include/linux/node.h~numa_hp_base	2005-04-14 20:49:37.000000000 +0900
+> +++ linux-2.6.12-rc2-mm3-kei/include/linux/node.h	2005-04-14 20:49:37.000000000 +0900
+> @@ -21,12 +21,16 @@
+>  
+>  #include <linux/sysdev.h>
+>  #include <linux/cpumask.h>
+> +#include <linux/module.h>
+
+Why?
+
+>  
+>  struct node {
+>  	struct sys_device	sysdev;
+>  };
+>  
+> -extern int register_node(struct node *, int, struct node *);
+> +extern int __devinit register_node(struct node *, int, struct node *);
+
+__devinit is not needed on a function prototype.
+
+> +#ifdef CONFIG_HOTPLUG
+> +extern void unregister_node(struct node *node);
+> +#endif
+
+Not needed for a function prototype.
+
+thanks,
+
+greg k-h

@@ -1,48 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbVDTMnV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261578AbVDTMua@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261597AbVDTMnV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 08:43:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261600AbVDTMnU
+	id S261578AbVDTMua (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 08:50:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbVDTMua
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 08:43:20 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:20747 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261597AbVDTMnG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 08:43:06 -0400
-Date: Wed, 20 Apr 2005 14:42:57 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Christoph Hellwig <hch@infradead.org>, mlindner@syskonnect.de,
-       rroesler@syskonnect.de, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [2.6 patch] drivers/net/sk98lin/: possible cleanups
-Message-ID: <20050420124257.GK5489@stusta.de>
-References: <20050420021526.GB5489@stusta.de> <20050420083928.GA29040@infradead.org>
+	Wed, 20 Apr 2005 08:50:30 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:966 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261578AbVDTMuW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 08:50:22 -0400
+Subject: Re: GPL violation by CorAccess?
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Bernd Petrovitsch <bernd@firmix.at>
+Cc: linux-kernel@vger.kernel.org, Karel Kulhavy <clock@twibright.com>,
+       Lennart Sorensen <lsorense@csclub.uwaterloo.ca>, linux-os@analogic.com,
+       Chris Friesen <cfriesen@nortel.com>
+In-Reply-To: <1113982209.3803.7.camel@gimli.at.home>
+References: <20050419175743.GA8339@beton.cybernet.src>
+	 <20050419182529.GT17865@csclub.uwaterloo.ca>
+	 <Pine.LNX.4.61.0504191516080.18402@chaos.analogic.com>
+	 <42656319.6090703@nortel.com>
+	 <Pine.LNX.4.61.0504191741190.19956@chaos.analogic.com>
+	 <42659620.5050002@nortel.com>  <1113982209.3803.7.camel@gimli.at.home>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Wed, 20 Apr 2005 08:49:58 -0400
+Message-Id: <1114001398.774.40.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050420083928.GA29040@infradead.org>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 20, 2005 at 09:39:28AM +0100, Christoph Hellwig wrote:
-> On Wed, Apr 20, 2005 at 04:15:26AM +0200, Adrian Bunk wrote:
-> > This patch contains the following possible cleanups:
-> > - make needlessly global functions static
-> > - remove unused code
+On Wed, 2005-04-20 at 09:30 +0200, Bernd Petrovitsch wrote:
+
 > 
-> Not sure it's worth doing much on this, as the driver is beeing
-> obsoleted by the skge driver.
+> As long as they do not statically link against LGPL (or GPL) code and as
+> long as they do not link dynamically agaist GPL code. And there are
+> probably more rules .....
+> 
 
-I know, but as long as it's in the kernel I'm sending such patches.
+Actually, I believe that the LGPL allows for static linking as well. As
+long as you only interact with the library through the defined API, it
+is OK.
 
-cu
-Adrian
+>From the LGPL preamble:
 
--- 
+ The precise terms and conditions for copying, distribution and
+modification follow.  Pay close attention to the difference between a
+"work based on the library" and a "work that uses the library".  The
+former contains code derived from the library, whereas the latter must
+be combined with the library in order to run.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+
+Point number 5 of TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION:
+
+ 5. A program that contains no derivative of any portion of the
+Library, but is designed to work with the Library by being compiled or
+linked with it, is called a "work that uses the Library".  Such a
+work, in isolation, is not a derivative work of the Library, and
+therefore falls outside the scope of this License.
+
+
+So, I would say that the LGPL _does_ allow statically linked to non GPL
+work.
+
+
+-- Steve
+
 

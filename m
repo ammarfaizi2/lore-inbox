@@ -1,207 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261734AbVDTQx6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbVDTREo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261734AbVDTQx6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 12:53:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbVDTQx6
+	id S261322AbVDTREo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 13:04:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbVDTREo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 12:53:58 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:52751 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261734AbVDTQxs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 12:53:48 -0400
-Date: Wed, 20 Apr 2005 18:53:44 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: sailer@ife.ee.ethz.ch
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, netdev@oss.sgi.com
-Subject: [2.6 patch] drivers/net/hamradio/baycom_epp.c: cleanups
-Message-ID: <20050420165344.GO5489@stusta.de>
-Mime-Version: 1.0
+	Wed, 20 Apr 2005 13:04:44 -0400
+Received: from ns1.coraid.com ([65.14.39.133]:9128 "EHLO coraid.com")
+	by vger.kernel.org with ESMTP id S261322AbVDTREj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 13:04:39 -0400
+To: linux-kernel@vger.kernel.org
+CC: ecashin@coraid.com, Greg K-H <greg@kroah.com>
+Subject: [PATCH 2.6.12-rc2] aoe [1/6]: improve allowed interfaces
+ configuration
+From: Ed L Cashin <ecashin@coraid.com>
+Date: Wed, 20 Apr 2005 13:02:12 -0400
+Message-ID: <874qe1pejv.fsf@coraid.com>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The times when tricky goto's produced better codes are long gone.
 
-This patch should express the same in a better way, please check whether 
-I made any mistake.
+improve allowed interfaces configuration
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Signed-off-by: Ed L. Cashin <ecashin@coraid.com>
 
----
-
- drivers/net/hamradio/baycom_epp.c |  126 ++++++++----------------------
- 1 files changed, 36 insertions(+), 90 deletions(-)
-
---- linux-2.6.12-rc2-mm3/drivers/net/hamradio/baycom_epp.c.old	2005-04-20 16:18:47.000000000 +0200
-+++ linux-2.6.12-rc2-mm3/drivers/net/hamradio/baycom_epp.c	2005-04-20 17:14:36.000000000 +0200
-@@ -374,29 +374,6 @@
- }
+diff -uprN a/Documentation/aoe/aoe.txt b/Documentation/aoe/aoe.txt
+--- a/Documentation/aoe/aoe.txt	2005-04-20 11:40:55.000000000 -0400
++++ b/Documentation/aoe/aoe.txt	2005-04-20 11:42:20.000000000 -0400
+@@ -33,6 +33,9 @@ USING DEVICE NODES
+   "cat /dev/etherd/err" blocks, waiting for error diagnostic output,
+   like any retransmitted packets.
  
- /* --------------------------------------------------------------------- */
--/*
-- * high performance HDLC encoder
-- * yes, it's ugly, but generates pretty good code
-- */
--
--#define ENCODEITERA(j)                         \
--({                                             \
--        if (!(notbitstream & (0x1f0 << j)))    \
--                goto stuff##j;                 \
--  encodeend##j:    	;                      \
--})
--
--#define ENCODEITERB(j)                                          \
--({                                                              \
--  stuff##j:                                                     \
--        bitstream &= ~(0x100 << j);                             \
--        bitbuf = (bitbuf & (((2 << j) << numbit) - 1)) |        \
--                ((bitbuf & ~(((2 << j) << numbit) - 1)) << 1);  \
--        numbit++;                                               \
--        notbitstream = ~bitstream;                              \
--        goto encodeend##j;                                      \
--})
--
++  The /dev/etherd/interfaces special file is obsoleted by the
++  aoe_iflist boot option and module option (and its sysfs entry
++  described in the next section).
+   "echo eth2 eth4 > /dev/etherd/interfaces" tells the aoe driver to
+   limit ATA over Ethernet traffic to eth2 and eth4.  AoE traffic from
+   untrusted networks should be ignored as a matter of security.
+@@ -89,3 +92,24 @@ USING SYSFS
+       e4.7            eth1              up
+       e4.8            eth1              up
+       e4.9            eth1              up
++
++  When the aoe driver is a module, use
++  /sys/module/aoe/parameters/aoe_iflist instead of
++  /dev/etherd/interfaces to limit AoE traffic to the network
++  interfaces in the given whitespace-separated list.  Unlike the old
++  character device, the sysfs entry can be read from as well as
++  written to.
++
++  It's helpful to trigger discovery after setting the list of allowed
++  interfaces.  If your distro provides an aoe-discover script, you can
++  use that.  Otherwise, you can directly use the /dev/etherd/discover
++  file described above.
++
++DRIVER OPTIONS
++
++  There is a boot option for the built-in aoe driver and a
++  corresponding module parameter, aoe_iflist.  Without this option,
++  all network interfaces may be used for ATA over Ethernet.  Here is a
++  usage example for the module parameter.
++
++    modprobe aoe_iflist="eth1 eth3"
+diff -uprN a/drivers/block/aoe/aoenet.c b/drivers/block/aoe/aoenet.c
+--- a/drivers/block/aoe/aoenet.c	2005-04-20 11:41:18.000000000 -0400
++++ b/drivers/block/aoe/aoenet.c	2005-04-20 11:42:20.000000000 -0400
+@@ -7,6 +7,7 @@
+ #include <linux/hdreg.h>
+ #include <linux/blkdev.h>
+ #include <linux/netdevice.h>
++#include <linux/moduleparam.h>
+ #include "aoe.h"
  
- static void encode_hdlc(struct baycom_state *bc)
- {
-@@ -405,6 +382,7 @@
- 	int pkt_len;
-         unsigned bitstream, notbitstream, bitbuf, numbit, crc;
- 	unsigned char crcarr[2];
-+	int j;
- 	
- 	if (bc->hdlctx.bufcnt > 0)
- 		return;
-@@ -429,24 +407,14 @@
- 		pkt_len--;
- 		if (!pkt_len)
- 			bp = crcarr;
--		ENCODEITERA(0);
--		ENCODEITERA(1);
--		ENCODEITERA(2);
--		ENCODEITERA(3);
--		ENCODEITERA(4);
--		ENCODEITERA(5);
--		ENCODEITERA(6);
--		ENCODEITERA(7);
--		goto enditer;
--		ENCODEITERB(0);
--		ENCODEITERB(1);
--		ENCODEITERB(2);
--		ENCODEITERB(3);
--		ENCODEITERB(4);
--		ENCODEITERB(5);
--		ENCODEITERB(6);
--		ENCODEITERB(7);
--	enditer:
-+		for (j = 0; j < 8; j++)
-+			if (unlikely(!(notbitstream & (0x1f0 << j)))) {
-+				bitstream &= ~(0x100 << j);
-+ 				bitbuf = (bitbuf & (((2 << j) << numbit) - 1)) |
-+					((bitbuf & ~(((2 << j) << numbit) - 1)) << 1);
-+				numbit++;
-+				notbitstream = ~bitstream;
-+			}
- 		numbit += 8;
- 		while (numbit >= 8) {
- 			*wp++ = bitbuf;
-@@ -612,37 +580,6 @@
- 	bc->stats.rx_packets++;
- }
+ #define NECODES 5
+@@ -26,6 +27,19 @@ enum {
+ };
  
--#define DECODEITERA(j)                                                        \
--({                                                                            \
--        if (!(notbitstream & (0x0fc << j)))              /* flag or abort */  \
--                goto flgabrt##j;                                              \
--        if ((bitstream & (0x1f8 << j)) == (0xf8 << j))   /* stuffed bit */    \
--                goto stuff##j;                                                \
--  enditer##j:      ;                                                           \
--})
--
--#define DECODEITERB(j)                                                                 \
--({                                                                                     \
--  flgabrt##j:                                                                          \
--        if (!(notbitstream & (0x1fc << j))) {              /* abort received */        \
--                state = 0;                                                             \
--                goto enditer##j;                                                       \
--        }                                                                              \
--        if ((bitstream & (0x1fe << j)) != (0x0fc << j))   /* flag received */          \
--                goto enditer##j;                                                       \
--        if (state)                                                                     \
--                do_rxpacket(dev);                                                      \
--        bc->hdlcrx.bufcnt = 0;                                                         \
--        bc->hdlcrx.bufptr = bc->hdlcrx.buf;                                            \
--        state = 1;                                                                     \
--        numbits = 7-j;                                                                 \
--        goto enditer##j;                                                               \
--  stuff##j:                                                                            \
--        numbits--;                                                                     \
--        bitbuf = (bitbuf & ((~0xff) << j)) | ((bitbuf & ~((~0xff) << j)) << 1);        \
--        goto enditer##j;                                                               \
--})
--        
- static int receive(struct net_device *dev, int cnt)
- {
- 	struct baycom_state *bc = netdev_priv(dev);
-@@ -651,6 +588,7 @@
- 	unsigned char tmp[128];
-         unsigned char *cp;
- 	int cnt2, ret = 0;
-+	int j;
-         
-         numbits = bc->hdlcrx.numbits;
- 	state = bc->hdlcrx.state;
-@@ -671,24 +609,32 @@
- 			bitbuf |= (*cp) << 8;
- 			numbits += 8;
- 			notbitstream = ~bitstream;
--			DECODEITERA(0);
--			DECODEITERA(1);
--			DECODEITERA(2);
--			DECODEITERA(3);
--			DECODEITERA(4);
--			DECODEITERA(5);
--			DECODEITERA(6);
--			DECODEITERA(7);
--			goto enddec;
--			DECODEITERB(0);
--			DECODEITERB(1);
--			DECODEITERB(2);
--			DECODEITERB(3);
--			DECODEITERB(4);
--			DECODEITERB(5);
--			DECODEITERB(6);
--			DECODEITERB(7);
--		enddec:
-+			for (j = 0; j < 8; j++) {
+ static char aoe_iflist[IFLISTSZ];
++module_param_string(aoe_iflist, aoe_iflist, IFLISTSZ, 0600);
++MODULE_PARM_DESC(aoe_iflist, " aoe_iflist=\"dev1 [dev2 ...]\n");
 +
-+				/* flag or abort */
-+			        if (unlikely(!(notbitstream & (0x0fc << j)))) {
++#ifndef MODULE
++static int __init aoe_iflist_setup(char *str)
++{
++	strncpy(aoe_iflist, str, IFLISTSZ);
++	aoe_iflist[IFLISTSZ - 1] = '\0';
++	return 1;
++}
 +
-+					/* abort received */
-+					if (!(notbitstream & (0x1fc << j)))
-+						state = 0;
-+
-+					/* not flag received */
-+					else if (!(bitstream & (0x1fe << j)) != (0x0fc << j)) {
-+						if (state)
-+							do_rxpacket(dev);
-+						bc->hdlcrx.bufcnt = 0;
-+						bc->hdlcrx.bufptr = bc->hdlcrx.buf;
-+						state = 1;
-+						numbits = 7-j;
-+						}
-+					}
-+
-+				/* stuffed bit */
-+				else if (unlikely((bitstream & (0x1f8 << j)) == (0xf8 << j))) {
-+					numbits--;
-+					bitbuf = (bitbuf & ((~0xff) << j)) | ((bitbuf & ~((~0xff) << j)) << 1);
-+					}
-+				}
- 			while (state && numbits >= 8) {
- 				if (bc->hdlcrx.bufcnt >= TXBUFFER_SIZE) {
- 					state = 0;
++__setup("aoe_iflist=", aoe_iflist_setup);
++#endif
+ 
+ int
+ is_aoe_netif(struct net_device *ifp)
+@@ -36,7 +50,8 @@ is_aoe_netif(struct net_device *ifp)
+ 	if (aoe_iflist[0] == '\0')
+ 		return 1;
+ 
+-	for (p = aoe_iflist; *p; p = q + strspn(q, WHITESPACE)) {
++	p = aoe_iflist + strspn(aoe_iflist, WHITESPACE);
++	for (; *p; p = q + strspn(q, WHITESPACE)) {
+ 		q = p + strcspn(p, WHITESPACE);
+ 		if (q != p)
+ 			len = q - p;
+
+
+-- 
+  Ed L. Cashin <ecashin@coraid.com>
 

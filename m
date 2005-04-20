@@ -1,78 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261756AbVDTRR4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbVDTRVq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261756AbVDTRR4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 13:17:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbVDTRRt
+	id S261763AbVDTRVq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 13:21:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbVDTRTS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 13:17:49 -0400
-Received: from ns1.coraid.com ([65.14.39.133]:19368 "EHLO coraid.com")
-	by vger.kernel.org with ESMTP id S261743AbVDTRRK (ORCPT
+	Wed, 20 Apr 2005 13:19:18 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:30945 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261743AbVDTRRu convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 13:17:10 -0400
-To: linux-kernel@vger.kernel.org
-CC: ecashin@coraid.com, Greg K-H <greg@kroah.com>
-References: <874qe1pejv.fsf@coraid.com>
-Subject: [PATCH 2.6.12-rc2] aoe [5/6]: add firmware version to info in sysfs
-From: Ed L Cashin <ecashin@coraid.com>
-Date: Wed, 20 Apr 2005 13:06:04 -0400
-Message-ID: <87d5spnzsz.fsf@coraid.com>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Wed, 20 Apr 2005 13:17:50 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [discuss] [Patch] X86_64 TASK_SIZE cleanup
+Date: Thu, 21 Apr 2005 01:17:40 +0800
+Message-ID: <894E37DECA393E4D9374E0ACBBE74270013E8B90@pdsmsx402.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [discuss] [Patch] X86_64 TASK_SIZE cleanup
+Thread-Index: AcVD9eAOsKpZOGZ8TG+CRZo1yAFElAAPUiNwAGYEcNA=
+From: "Zou, Nanhai" <nanhai.zou@intel.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: <discuss@x86-64.org>, <linux-kernel@vger.kernel.org>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+X-OriginalArrivalTime: 20 Apr 2005 17:17:41.0274 (UTC) FILETIME=[DBC5B7A0:01C545CC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andi,
+   What is your comment on this patch?
+Here is another example bug this patch will fix.
+The following piece of code will get a success mmap even if compiled
+with -m32. 
+   
+   int *p;
+   p = mmap((void *)(0xFFFFE000UL), 0x10000UL, PROT_READ|PROT_WRITE,
+                MAP_FIXED|MAP_PRIVATE|MAP_ANON, 0, 0);
 
-add firmware version to info in sysfs
+I believe there are other kind of corner case bugs around mm and fs. 
+e.g in mremap and munmap.
+Those bugs will be fixed by this patch. 
 
-Signed-off-by: Ed L. Cashin <ecashin@coraid.com>
-
-diff -uprN a/drivers/block/aoe/aoeblk.c b/drivers/block/aoe/aoeblk.c
---- a/drivers/block/aoe/aoeblk.c	2005-04-20 11:41:18.000000000 -0400
-+++ b/drivers/block/aoe/aoeblk.c	2005-04-20 11:42:23.000000000 -0400
-@@ -37,6 +37,13 @@ static ssize_t aoedisk_show_netif(struct
- 
- 	return snprintf(page, PAGE_SIZE, "%s\n", d->ifp->name);
- }
-+/* firmware version */
-+static ssize_t aoedisk_show_fwver(struct gendisk * disk, char *page)
-+{
-+	struct aoedev *d = disk->private_data;
-+
-+	return snprintf(page, PAGE_SIZE, "0x%04x\n", (unsigned int) d->fw_ver);
-+}
- 
- static struct disk_attribute disk_attr_state = {
- 	.attr = {.name = "state", .mode = S_IRUGO },
-@@ -50,6 +57,10 @@ static struct disk_attribute disk_attr_n
- 	.attr = {.name = "netif", .mode = S_IRUGO },
- 	.show = aoedisk_show_netif
- };
-+static struct disk_attribute disk_attr_fwver = {
-+	.attr = {.name = "fwver", .mode = S_IRUGO },
-+	.show = aoedisk_show_fwver
-+};
- 
- static void
- aoedisk_add_sysfs(struct aoedev *d)
-@@ -57,6 +68,7 @@ aoedisk_add_sysfs(struct aoedev *d)
- 	sysfs_create_file(&d->gd->kobj, &disk_attr_state.attr);
- 	sysfs_create_file(&d->gd->kobj, &disk_attr_mac.attr);
- 	sysfs_create_file(&d->gd->kobj, &disk_attr_netif.attr);
-+	sysfs_create_file(&d->gd->kobj, &disk_attr_fwver.attr);
- }
- void
- aoedisk_rm_sysfs(struct aoedev *d)
-@@ -64,6 +76,7 @@ aoedisk_rm_sysfs(struct aoedev *d)
- 	sysfs_remove_link(&d->gd->kobj, "state");
- 	sysfs_remove_link(&d->gd->kobj, "mac");
- 	sysfs_remove_link(&d->gd->kobj, "netif");
-+	sysfs_remove_link(&d->gd->kobj, "fwver");
- }
- 
- static int
-
-
--- 
-  Ed L. Cashin <ecashin@coraid.com>
-
+Zou Nan hai
+> -----Original Message-----
+> From: Zou, Nanhai
+> Sent: Tuesday, April 19, 2005 12:37 AM
+> To: 'Andi Kleen'
+> Cc: discuss@x86-64.org; linux-kernel@vger.kernel.org; Siddha, Suresh B
+> Subject: RE: [discuss] [Patch] X86_64 TASK_SIZE cleanup
+> 
+> 
+> When a 32bit program is mapping a lot of hugepage vm_areas,
+> hugetlb_get_unmapped_area may search beyond 4G, then the program will
+get a
+> SIGFAULT instead of an errno of ENOMEM.
+> This patch will fix that.
+> I believe there are other inconsistent cases in generic code like mm
+and fs.
+> 
+> Zou Nan hai
+> 
+> > -----Original Message-----
+> > From: Andi Kleen [mailto:ak@suse.de]
+> > Sent: Monday, April 18, 2005 5:06 PM
+> > To: Zou, Nanhai
+> > Cc: discuss@x86-64.org; Andi Kleen; linux-kernel@vger.kernel.org;
+Siddha,
+> > Suresh B
+> > Subject: Re: [discuss] [Patch] X86_64 TASK_SIZE cleanup
+> >
+> > On Sat, Apr 16, 2005 at 09:34:25AM +0800, Zou, Nanhai wrote:
+> > >
+> > > Hi,
+> > >    This patch will clean up the X86_64 compatibility mode
+TASK_SIZE
+> > > define thus fix some bugs found in X86_64 compatibility mode
+program.
+> >
+> > Fix what bugs exactly?  Please a detailed description.
+> >
+> > -Andi

@@ -1,78 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261304AbVDTHko@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbVDTHvP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261304AbVDTHko (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 03:40:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbVDTHkn
+	id S261416AbVDTHvP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 03:51:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbVDTHvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 03:40:43 -0400
-Received: from rproxy.gmail.com ([64.233.170.202]:57538 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261338AbVDTHkb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 03:40:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=dDclRNZR0nWjkTfPHRSk6N+0Ci9uweZx3NTPvF7WSvmMRnowdbqhvCCKM9BWpJF4X+8zP83HMgsTz2ZQxW45Ada/3Uvy9cz3Q1/eBeN2DTwlftX2cgLcpAYpmYfAZhE0TD/Lkwav47rt/Wam7MX6r3ASWa02DrEzcMtdLnBirCY=
-Date: Wed, 20 Apr 2005 16:40:26 +0900
-From: Tejun Heo <htejun@gmail.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: James.Bottomley@steeleye.com, Christoph Hellwig <hch@infradead.org>,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH scsi-misc-2.6 01/05] scsi: make blk layer set REQ_SOFTBARRIER when a request is dispatched
-Message-ID: <20050420074026.GA11228@htj.dyndns.org>
-References: <20050419231435.D85F89C0@htj.dyndns.org> <20050419231435.2DEBE102@htj.dyndns.org> <20050420063009.GB9371@suse.de>
+	Wed, 20 Apr 2005 03:51:15 -0400
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:42368 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S261416AbVDTHvM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 03:51:12 -0400
+X-ORBL: [67.124.119.21]
+Date: Wed, 20 Apr 2005 00:50:31 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp>
+Cc: Rik van Riel <riel@redhat.com>, Paul Jackson <pj@sgi.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH x86_64] Live Patching Function on 2.6.11.7
+Message-ID: <20050420075031.GA31785@taniwha.stupidest.org>
+References: <Pine.LNX.4.61.0504180726320.3232@chimarrao.boston.redhat.com> <4263AD94.0@lab.ntt.co.jp> <Pine.LNX.4.61.0504181001470.8456@chimarrao.boston.redhat.com> <42646983.4020908@lab.ntt.co.jp> <20050419042720.GA15123@taniwha.stupidest.org> <426494FD.6020307@lab.ntt.co.jp> <20050419055254.GA15895@taniwha.stupidest.org> <4265D80F.6030007@lab.ntt.co.jp> <20050420054352.GA7329@taniwha.stupidest.org> <4266062B.9060400@lab.ntt.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050420063009.GB9371@suse.de>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <4266062B.9060400@lab.ntt.co.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Hello, Jens.
+On Wed, Apr 20, 2005 at 04:35:07PM +0900, Takashi Ikebe wrote:
 
-On Wed, Apr 20, 2005 at 08:30:10AM +0200, Jens Axboe wrote:
-> Do it on requeue, please - not on the initial spotting of the request.
+> I think basic assumption between us and you is not match...
 
- This is the reworked version of the patch.  It sets REQ_SOFTBARRIER
-in two places - in elv_next_request() on BLKPREP_DEFER and in
-blk_requeue_request().
+No, I think at a high-level they do.
 
- Other patches apply cleanly with this patch or the original one and
-the end result is the same, so take your pick.  :-)
+> Our assumption, the live patching is not for debug, but for the real
+> operation method to fix very very important process which can not
+> stop.
 
+I understand that.
 
- Signed-off-by: Tejun Heo <htejun@gmail.com>
+It might be though you could probably do what you want with some kind
+of enhanced ptrace or debugging interface that would also be of value
+to other people and probably simple than your proposed patch.
 
+> Live patchin fix the important process's bug without disrupting
+> process.
 
-Index: scsi-reqfn-export/drivers/block/elevator.c
-===================================================================
---- scsi-reqfn-export.orig/drivers/block/elevator.c	2005-04-20 16:24:26.000000000 +0900
-+++ scsi-reqfn-export/drivers/block/elevator.c	2005-04-20 16:31:36.000000000 +0900
-@@ -291,6 +291,13 @@ void elv_requeue_request(request_queue_t
- 	}
- 
- 	/*
-+	 * the request is prepped and may have some resources allocated.
-+	 * allowing unprepped requests to pass this one may cause resource
-+	 * deadlock.  turn on softbarrier.
-+	 */
-+	rq->flags |= REQ_SOFTBARRIER;
-+
-+	/*
- 	 * if iosched has an explicit requeue hook, then use that. otherwise
- 	 * just put the request at the front of the queue
- 	 */
-@@ -386,6 +393,12 @@ struct request *elv_next_request(request
- 		if (ret == BLKPREP_OK) {
- 			break;
- 		} else if (ret == BLKPREP_DEFER) {
-+			/*
-+			 * the request may have been (partially) prepped.
-+			 * we need to keep this request in the front to
-+			 * avoid resource deadlock.  turn on softbarrier.
-+			 */
-+			rq->flags |= REQ_SOFTBARRIER;
- 			rq = NULL;
- 			break;
- 		} else if (ret == BLKPREP_KILL) {
+I understand that.
+
+> To takeover the application status, connection type
+> communications(SOCK_STREAM) are need to be disconnected by close().
+> Same network port is not allowed to bind by multiple processes....
+
+AF_UNIX socket with SCM_RIGHTS
+
+> especialy, ru_utime and ru_stime is very important to critical
+> applications.
+
+how so?  what is magical about these that can't be dealt with in
+userspace should it span 2+ processes?

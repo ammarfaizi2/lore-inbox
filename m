@@ -1,98 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261352AbVDTIk6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261407AbVDTInR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261352AbVDTIk6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 04:40:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbVDTIkt
+	id S261407AbVDTInR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 04:43:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbVDTInP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 04:40:49 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:4061 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261352AbVDTIkY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 04:40:24 -0400
-Date: Wed, 20 Apr 2005 10:38:55 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Tejun Heo <htejun@gmail.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, James.Bottomley@steeleye.com,
-       Christoph Hellwig <hch@infradead.org>, linux-scsi@vger.kernel.org,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH scsi-misc-2.6 01/05] scsi: make blk layer set	REQ_SOFTBARRIER when a request is dispatched
-Message-ID: <20050420083853.GB6558@suse.de>
-References: <20050419231435.D85F89C0@htj.dyndns.org> <20050419231435.2DEBE102@htj.dyndns.org> <20050420063009.GB9371@suse.de> <20050420074026.GA11228@htj.dyndns.org> <1113983899.5074.111.camel@npiggin-nld.site> <426614B7.5010204@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <426614B7.5010204@gmail.com>
+	Wed, 20 Apr 2005 04:43:15 -0400
+Received: from science.horizon.com ([192.35.100.1]:32331 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S261407AbVDTIlQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 04:41:16 -0400
+Date: 20 Apr 2005 08:41:15 -0000
+Message-ID: <20050420084115.2699.qmail@science.horizon.com>
+From: linux@horizon.com
+To: git@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: enforcing DB immutability
+Cc: mingo@elte.hu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 20 2005, Tejun Heo wrote:
-> Nick Piggin wrote:
-> > On Wed, 2005-04-20 at 16:40 +0900, Tejun Heo wrote:
-> > 
-> >> Hello, Jens.
-> >>
-> >>On Wed, Apr 20, 2005 at 08:30:10AM +0200, Jens Axboe wrote:
-> >>
-> >>>Do it on requeue, please - not on the initial spotting of the request.
-> >>
-> >> This is the reworked version of the patch.  It sets REQ_SOFTBARRIER
-> >>in two places - in elv_next_request() on BLKPREP_DEFER and in
-> >>blk_requeue_request().
-> >>
-> >> Other patches apply cleanly with this patch or the original one and
-> >>the end result is the same, so take your pick.  :-)
-> >>
-> > 
-> > 
-> > I'm not sure that you need *either* one.
-> > 
-> > As far as I'm aware, REQ_SOFTBARRIER is used when feeding requests
-> > into the top of the block layer, and is used to guarantee the device
-> > driver gets the requests in a specific ordering.
-> > 
-> > When dealing with the requests at the other end (ie.
-> > elevator_next_req_fn, blk_requeue_request), then ordering does not
-> > change.
-> > 
-> > That is - if you call elevator_next_req_fn and don't dequeue the
-> > request, then that's the same request you'll get next time.
-> > 
-> > And blk_requeue_request will push the request back onto the end of
-> > the queue in a LIFO manner.
-> > 
-> > So I think adding barriers, apart from not doing anything, confuses
-> > the issue because it suggests there *could* be reordering without
-> > them.
-> > 
-> > Or am I completely wrong? It's been a while since I last got into
-> > the code.
-> 
->  Well, yeah, all schedulers have dispatch queue (noop has only the
-> dispatch queue) and use them to defer/requeue, so no reordering will
-> happen, but I'm not sure they are required to be like this or just
-> happen to be implemented so.
+[A discussion on the git list about how to provide a hardlinked file
+that *cannot* me modified by an editor, but must be replaced by
+a new copy.]
 
-Precisely, I feel much better making sure SOFTBARRIER is set so that we
-_know_ that a scheduler following the outlined rules will do the right
-thing.
+mingo@elte.hu wrote all of:
+>>> perhaps having a new 'immutable hardlink' feature in the Linux VFS 
+>>> would help? I.e. a hardlink that can only be readonly followed, and 
+>>> can be removed, but cannot be chmod-ed to a writeable hardlink. That i 
+>>> think would be a large enough barrier for editors/build-tools not to 
+>>> play the tricks they already do that makes 'readonly' files virtually 
+>>> meaningless.
+>> 
+>> immutable hardlinks have the following advantage: a hardlink by design 
+>> hides the information where the link comes from. So even if an editor 
+>> wanted to play stupid games and override the immutability - it doesnt 
+>> know where the DB object is. (sure, it could find it if it wants to, 
+>> but that needs real messing around - editors wont do _that_)
+>
+> so the only sensible thing the editor/tool can do when it wants to 
+> change the file is precisely what we want: it will copy the hardlinked 
+> files's contents to a new file, and will replace the old file with the 
+> new file - a copy on write. No accidental corruption of the DB's 
+> contents.
 
->  Hmm, well, it seems that setting REQ_SOFTBARRIER on requeue path isn't
-> necessary as we have INSERT_FRONT policy on requeue, and if
-> elv_next_req_fn() is required to return the same request when the
-> request isn't dequeued, you're right and we don't need this patch at
-> all.  We are guaranteed that all requeued requests are served in LIFO
-> manner.
+This is not a horrible idea, but it touches on another sore point I've
+worried about for a while.
 
-After a requeue, it is not required to return the same request again.
+The obvious way to do the above *without* changing anything is just to
+remove all write permission to the file.  But because I'm the owner, some
+piece of software running with my permissions can just deicde to change
+the permissions back and modify the file anyway.  Good old 7th edition
+let you give files away, which could have addressed that (chmod a-w; chown
+phantom_user), but BSD took that ability away to make accounting work.
 
->  BTW, the same un-dequeued request rule is sort of already broken as
-> INSERT_FRONT request passes a returned but un-dequeued request, but,
-> then again, we need this behavior as we have to favor fully-prepped
-> requests over partially-prepped one.
+The upshot is that, while separate users keeps malware from harming the
+*system*, if I run a piece of malware, it can blow away every file I
+own and make me unhappy.  When (notice I'm not saying "if") commercial
+spyware for Linux becomes common, it can also read every file I own.
 
-INSERT_FRONT really should skip requests with REQ_STARTED on the
-dispatch list to be fully safe.
+Unless I have root access, Linux is no safer *for me* than Redmondware!
 
--- 
-Jens Axboe
+Since I *do* have root access, I often set up sandbox users and try
+commercial binaries in that environment, but it's a pain and laziness
+often wins.  I want a feature that I can wrap in a script, so that I
+can run a commercial binary in a nicely restricted enviromment.
 
+Or maybe I even want to set up a "personal root" level, and run
+my normal interactive shells in a slightly restricted enviroment
+(within which I could make a more-restricted world to run untrusted
+binaries).  Then I could solve the immutable DB issue by having a
+"setuid" binary that would make checked-in files unwriteable at my
+normal permission level.
+
+Obviously, a fundamental change to the Unix permissions model won't
+be available to solve short-term problems, but I thought I'd raise
+the issue to get people thinking about longer-term solutions.

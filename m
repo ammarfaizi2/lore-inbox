@@ -1,68 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbVDTRSw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261746AbVDTRVq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261759AbVDTRSw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 13:18:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261748AbVDTRS3
+	id S261746AbVDTRVq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 13:21:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbVDTRTd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 13:18:29 -0400
-Received: from ns1.coraid.com ([65.14.39.133]:17064 "EHLO coraid.com")
-	by vger.kernel.org with ESMTP id S261735AbVDTRQI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 13:16:08 -0400
-To: linux-kernel@vger.kernel.org
-CC: ecashin@coraid.com, Greg K-H <greg@kroah.com>
-References: <874qe1pejv.fsf@coraid.com>
-Subject: [PATCH 2.6.12-rc2] aoe [4/6]: allow multiple aoe devices to have
- the same mac
-From: Ed L Cashin <ecashin@coraid.com>
-Date: Wed, 20 Apr 2005 13:06:00 -0400
-Message-ID: <87is2hnzt3.fsf@coraid.com>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 20 Apr 2005 13:19:33 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:40844 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261746AbVDTRSr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 13:18:47 -0400
+Subject: Re: [RFC][PATCH] nameing reserved pages [0/3]
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Hariprasad Nellitheertha [imap]" <hari@in.ibm.com>
+In-Reply-To: <1114007431.6238.79.camel@laptopd505.fenrus.org>
+References: <426644DA.70105@jp.fujitsu.com>
+	 <1114000447.6238.64.camel@laptopd505.fenrus.org>
+	 <426663E8.3080502@jp.fujitsu.com>
+	 <1114007431.6238.79.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Date: Wed, 20 Apr 2005 10:18:25 -0700
+Message-Id: <1114017505.6927.20.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2005-04-20 at 16:30 +0200, Arjan van de Ven wrote:
+> Why do you want this exported to userspace? There is absolutely no way
+> you can get this exported race free without shutting the VM down, and
+> without being race free this information has absolutely no meaning !!
+> (and when you shut the VM down you really shouldn't depend on userspace
+> anymore either)
 
-allow multiple aoe devices to have the same mac
+The two cases where this is expected to be used are not concerned with
+races.  The first is when a memory remove operation occurs.  It first
+looks at the hotplug area, and removes all the pages that it can from
+the allocator.  Then, it sets about migrating all of the other pages
+that are being used for things like page cache or anonymous memory.
 
-Signed-off-by: Ed L. Cashin <ecashin@coraid.com>
+After that, the question sometimes remains why particular pages can't be
+removed.  Kame's patch is an attempt to help figure that out.
 
-diff -u b/drivers/block/aoe/aoedev.c b/drivers/block/aoe/aoedev.c
---- b/drivers/block/aoe/aoedev.c	2005-04-20 11:42:18.000000000 -0400
-+++ b/drivers/block/aoe/aoedev.c	2005-04-20 11:42:22.000000000 -0400
-@@ -109,25 +109,22 @@
- 	spin_lock_irqsave(&devlist_lock, flags);
- 
- 	for (d=devlist; d; d=d->next)
--		if (d->sysminor == sysminor
--		|| memcmp(d->addr, addr, sizeof d->addr) == 0)
-+		if (d->sysminor == sysminor)
- 			break;
- 
- 	if (d == NULL && (d = aoedev_newdev(bufcnt)) == NULL) {
- 		spin_unlock_irqrestore(&devlist_lock, flags);
- 		printk(KERN_INFO "aoe: aoedev_set: aoedev_newdev failure.\n");
- 		return NULL;
--	}
-+	} /* if newdev, (d->flags & DEVFL_UP) == 0 for below */
- 
- 	spin_unlock_irqrestore(&devlist_lock, flags);
- 	spin_lock_irqsave(&d->lock, flags);
- 
- 	d->ifp = ifp;
--
--	if (d->sysminor != sysminor
--	|| (d->flags & DEVFL_UP) == 0) {
-+	memcpy(d->addr, addr, sizeof d->addr);
-+	if ((d->flags & DEVFL_UP) == 0) {
- 		aoedev_downdev(d); /* flushes outstanding frames */
--		memcpy(d->addr, addr, sizeof d->addr);
- 		d->sysminor = sysminor;
- 		d->aoemajor = AOEMAJOR(sysminor);
- 		d->aoeminor = AOEMINOR(sysminor);
+That's one reason I suggested having an individual device file for each
+of the memory areas that get added or removed.  It would keep the
+confusion to a minimum, and you'd be more sure that what you were
+looking at was information only for the memory area that is *almost*
+removed.
 
+I don't know what state the system is in when the kdump folks want to
+read this information.
 
--- 
-  Ed L. Cashin <ecashin@coraid.com>
+-- Dave
 

@@ -1,80 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261688AbVDTTQq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261709AbVDTTTt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261688AbVDTTQq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 15:16:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbVDTTQq
+	id S261709AbVDTTTt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 15:19:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbVDTTTs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 15:16:46 -0400
-Received: from ns1.coraid.com ([65.14.39.133]:47017 "EHLO coraid.com")
-	by vger.kernel.org with ESMTP id S261688AbVDTTQm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 15:16:42 -0400
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: [PATCH 2.6.12-rc2] aoe [5/6]: add firmware version to info in
- sysfs
-References: <874qe1pejv.fsf@coraid.com> <87d5spnzsz.fsf@coraid.com>
-	<20050420103723.52598eb8.rddunlap@osdl.org>
-From: Ed L Cashin <ecashin@coraid.com>
-Date: Wed, 20 Apr 2005 15:13:03 -0400
-In-Reply-To: <20050420103723.52598eb8.rddunlap@osdl.org> (Randy Dunlap's
- message of "Wed, 20 Apr 2005 10:37:23 -0700")
-Message-ID: <877jixmfcw.fsf@coraid.com>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+	Wed, 20 Apr 2005 15:19:48 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:29852 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261709AbVDTTTr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 15:19:47 -0400
+Subject: Re: [2.6 patch] drivers/ieee1394/: remove unneeded EXPORT_SYMBOL's
+From: Arjan van de Ven <arjan@infradead.org>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <42668CE3.5070606@s5r6.in-berlin.de>
+References: <20050417195706.GD3625@stusta.de>
+	 <20050419191328.GJ1111@conscoop.ottawa.on.ca>
+	 <1113939827.6277.86.camel@laptopd505.fenrus.org>
+	 <42657F7C.8060305@s5r6.in-berlin.de>
+	 <1113981989.6238.30.camel@laptopd505.fenrus.org>
+	 <426683E9.4080708@s5r6.in-berlin.de>
+	 <1114014925.6238.91.camel@laptopd505.fenrus.org>
+	 <42668CE3.5070606@s5r6.in-berlin.de>
+Content-Type: text/plain
+Date: Wed, 20 Apr 2005 21:19:41 +0200
+Message-Id: <1114024782.6238.101.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+On Wed, 2005-04-20 at 19:09 +0200, Stefan Richter wrote:
+> Arjan van de Ven wrote:
+> > If nothing is using an api
+> 
+> Check the archive.
 
-"Randy.Dunlap" <rddunlap@osdl.org> writes:
-
-...
-> so something like 'firmware-version' would be appreciated
-> (for the sysfs filename).
-
-Fair enough.  This patch follows and depends on the fifth patch of the
-six.
-
-
-use a more explicit filename for sysfs firmware version info
-
-Signed-off-by: Ed L. Cashin <ecashin@coraid.com>
-
-
---=-=-=
-Content-Disposition: inline; filename=patch-135
-
-diff -urNp a-exp/linux/drivers/block/aoe/aoeblk.c b-exp/linux/drivers/block/aoe/aoeblk.c
---- a-exp/linux/drivers/block/aoe/aoeblk.c	2005-04-20 15:09:13.000000000 -0400
-+++ b-exp/linux/drivers/block/aoe/aoeblk.c	2005-04-20 15:09:13.000000000 -0400
-@@ -58,7 +58,7 @@ static struct disk_attribute disk_attr_n
- 	.show = aoedisk_show_netif
- };
- static struct disk_attribute disk_attr_fwver = {
--	.attr = {.name = "fwver", .mode = S_IRUGO },
-+	.attr = {.name = "firmware-version", .mode = S_IRUGO },
- 	.show = aoedisk_show_fwver
- };
+I don't care and in fact ignore external drivers that don't ever want to
+get upstream. If there is a driver that wants this surely it wants to go
+upstream soonish ?
  
-@@ -76,7 +76,7 @@ aoedisk_rm_sysfs(struct aoedev *d)
- 	sysfs_remove_link(&d->gd->kobj, "state");
- 	sysfs_remove_link(&d->gd->kobj, "mac");
- 	sysfs_remove_link(&d->gd->kobj, "netif");
--	sysfs_remove_link(&d->gd->kobj, "fwver");
-+	sysfs_remove_link(&d->gd->kobj, "firmware-version");
- }
- 
- static int
-
---=-=-=
-
-
-
-
--- 
-  Ed L Cashin <ecashin@coraid.com>
-
---=-=-=--
 

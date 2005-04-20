@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261838AbVDTXYY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261834AbVDTXcx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261838AbVDTXYY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 19:24:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbVDTXYY
+	id S261834AbVDTXcx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 19:32:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbVDTXcx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 19:24:24 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:63399 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261838AbVDTXYS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 19:24:18 -0400
-Subject: Re: [PATCH scsi-misc-2.6 03/05] scsi: make scsi_queue_insert() use
-	blk_requeue_request()
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Tejun Heo <htejun@gmail.com>
-Cc: Jens Axboe <axboe@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050419231435.329FA30B@htj.dyndns.org>
-References: <20050419231435.D85F89C0@htj.dyndns.org>
-	 <20050419231435.329FA30B@htj.dyndns.org>
-Content-Type: text/plain
-Date: Wed, 20 Apr 2005 19:24:06 -0400
-Message-Id: <1114039446.5933.17.camel@mulgrave>
+	Wed, 20 Apr 2005 19:32:53 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:26374 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261834AbVDTXcv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 19:32:51 -0400
+Date: Thu, 21 Apr 2005 01:32:46 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rename "---help---" to "help" in Kconfig files
+Message-ID: <20050420233246.GT5489@stusta.de>
+References: <Pine.LNX.4.62.0504202306350.2071@dragon.hyggekrogen.localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0504202306350.2071@dragon.hyggekrogen.localhost>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-04-20 at 08:15 +0900, Tejun Heo wrote:
-> -	 * Insert this command at the head of the queue for it's device.
-> -	 * It will go before all other commands that are already in the queue.
-> -	 *
-> -	 * NOTE: there is magic here about the way the queue is plugged if
-> -	 * we have no outstanding commands.
-> -	 * 
-> -	 * Although this *doesn't* plug the queue, it does call the request
-> -	 * function.  The SCSI request function detects the blocked condition
-> -	 * and plugs the queue appropriately.
+On Thu, Apr 21, 2005 at 12:06:11AM +0200, Jesper Juhl wrote:
+>...
+> Why does it do this? :  There are two reasons for doing this;
+> 1) Consistency. out of ~4000 help entries in 134 Kconfig files, 747 of 
+> those entries use "---help---" as the keyword, the rest use just "help". 
+> So the users of "---help---" are clearly a minority and by renaming them 
+> we make things consistent. - I hate inconsistency. :-)
+> 2) By not using two different "keywords" I assume it will be posible to 
+> speed up kbuilds handling of Kconfig files slightly. That goal is not 
+> accomplished by this patch, but this patch is a prerequisite for making 
+> that change later.
+>...
 
-This comment still looks appropriate to me ... why do you want to remove
-it?
+I'd be surprised if the second reason had a measurable effect, but I 
+like this patch for the first reason.
 
-> +	 * Requeue the command.
->  	 */
-> -	blk_insert_request(device->request_queue, cmd->request, 1, cmd, 1);
-> +	spin_lock_irqsave(q->queue_lock, flags);
-> +	blk_requeue_request(q, cmd->request);
-> +	spin_unlock_irqrestore(q->queue_lock, flags);
-> +
-> +	scsi_run_queue(q);
+cu
+Adrian
 
-Really, wouldn't it be much more efficient simply to call blk_run_queue
-()? since the blocked flags were set above, that's pretty much what
-scsi_run_queue() collapses to.
+-- 
 
-James
-
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

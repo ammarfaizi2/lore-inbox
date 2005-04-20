@@ -1,292 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261419AbVDTGIm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261441AbVDTGaN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261419AbVDTGIm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 02:08:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbVDTGIm
+	id S261441AbVDTGaN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 02:30:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVDTGaN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 02:08:42 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:195 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261419AbVDTGI2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 02:08:28 -0400
-Date: Wed, 20 Apr 2005 11:47:56 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Ananth N Mavinakayanahalli <amavin@redhat.com>
-Cc: linux-kernel@vger.kernel.org, davem@davemloft.net, ak@muc.de,
-       rusty@rustcorp.com.au, prasanna@in.ibm.com, ananth@in.ibm.com
-Subject: Re: [RFC] [PATCH] Multiple kprobes at an address
-Message-ID: <20050420061756.GA4550@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <4265061A.9070802@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4265061A.9070802@redhat.com>
-User-Agent: Mutt/1.4i
+	Wed, 20 Apr 2005 02:30:13 -0400
+Received: from ns.amrita.ac.in ([203.197.150.194]:49297 "EHLO
+	bhadra.amrita.ac.in") by vger.kernel.org with ESMTP id S261441AbVDTGaG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 02:30:06 -0400
+X-Antivirus-Amrita-Mail-From: harish@amritapuri.amrita.edu via bhadra.amrita.ac.in
+X-Antivirus-Amrita: 1.24-st-qms (Clear:RC:1(127.0.0.1):. Processed in 0.03281 secs Process 23145)
+Message-ID: <42225.203.197.150.195.1113980805.squirrel@mail.amrita.ac.in>
+Date: Wed, 20 Apr 2005 12:36:45 +0530 (IST)
+Subject: i830 lockup
+From: "Harish K Harshan" <harish@amritapuri.amrita.edu>
+To: linux-kernel@vger.kernel.org
+Reply-To: harish@amritapuri.amrita.edu
+User-Agent: SquirrelMail/1.4.4-1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 19, 2005 at 09:22:34AM -0400, Ananth N Mavinakayanahalli wrote:
-> Hi,
-> 
-> Some instrumentation tools on Linux, like Itrace and systemtap
-> (http://sourceware.org/systemtap) now use the kprobe infrastructure to
-> gather information. One of the requirements of projects like systemtap 
-> is the ability to define multiple kprobes at a given address.
-> 
-> To this end, here is a patch that provides the feature. Patch is
-> against linux-2.6.12-rc2.
-> 
-> This patch provides the facility to register multiple kprobes at the
-> same address using the existing interfaces. The house-keeping in
-> case of multiple kprobes is taken care of within the base kprobes
-> infrastructure.
-> 
-> Another approach considered was to have a layer above the existing
-> kprobes base (no modification to current kprobes base at all). A patch
-> to this end is available at:
-> 
-> http://sourceware.org/ml/systemtap/2005-q2/msg00089.html
-> 
-> This approach would also allow for two sets of interfaces for
-> un/registering kprobes. There has been quite a few discussions on the
-> systemtap lists whether two interfaces are necessary or not. But, with
-> the current kprobes locking model, the layered approach leaves room
-> for a few kprobe registration races.
+Hello,
 
-Maybe a low-level __register_kprobe() that expects to be called
-under the kprobes_lock would do the trick ? That could also help
-smoothen the remaining rough edges in the register/unregister paths.
+   I am developing a device driver for the AxiomTek AX5621H data
+acquisition card, and I am encountering some problems on a particular
+machine. This driver works pretty fine on normal machines, but crashes
+on an Industrial PC with intel 830 2-piece board (with the main board
+going into a PCI and an ISA slot on the expansion board(which houses
+all the PCI, ISA and AGP slots) at the same time. The error I get is
+given below :
 
-> 
-> Both approaches are architecture agnostic.
-> 
-> Other kprobe enhancements in the pipeline, such as, improving kprobe
-> locking, support for return address probes, etc. Given that, the main
-> questions to be answered now for the multi-kprobe feature are:
-> 
-> 1. Is the approach taken by the patch attached good?
-> 2. Do we take the layered approach?
-> 3. If we take the layered approach, do we need multiple interfaces?
+CPU 0 : Machine Check Exception : 0000000000000004
+Bank 0 : a200000084010400
+Kernel panic : CPU context corrupt
+In interrupt handler - not syncing
 
-I think the criteria would depend on whether you can avoid policy
-creep down the line, e.g. ordering/priorities amongst multiple kprobe
-handlers, conditionally bypassing handlers in the chain, etc. I'm
-not sure if the requirements for these tools are fully clear as yet,
-some of the users intended for multi-kprobes are probably still on
-the drawing board ? So I guess you can cross that bridge when you
-come to it.
-
-Regards
-Suparna
-
-> 4. Would existing users be impacted by the change?
-> 
-> Comments?
-> 
-> Thanks,
-> Ananth
-> 
-
-> diff -Naurp temp/linux-2.6.12-rc2/include/linux/kprobes.h linux-2.6.12-rc2/include/linux/kprobes.h
-> --- temp/linux-2.6.12-rc2/include/linux/kprobes.h	2005-04-18 11:44:57.000000000 -0400
-> +++ linux-2.6.12-rc2/include/linux/kprobes.h	2005-04-18 13:36:23.000000000 -0400
-> @@ -43,6 +43,9 @@ typedef int (*kprobe_fault_handler_t) (s
->  struct kprobe {
->  	struct hlist_node hlist;
->  
-> +	/* list of kprobes for multi-handler support */
-> +	struct list_head list;
-> +
->  	/* location of the probe point */
->  	kprobe_opcode_t *addr;
->  
-> diff -Naurp temp/linux-2.6.12-rc2/kernel/kprobes.c linux-2.6.12-rc2/kernel/kprobes.c
-> --- temp/linux-2.6.12-rc2/kernel/kprobes.c	2005-04-18 11:44:57.000000000 -0400
-> +++ linux-2.6.12-rc2/kernel/kprobes.c	2005-04-18 13:41:38.000000000 -0400
-> @@ -44,6 +44,7 @@ static struct hlist_head kprobe_table[KP
->  
->  unsigned int kprobe_cpu = NR_CPUS;
->  static DEFINE_SPINLOCK(kprobe_lock);
-> +static struct kprobe *curr_kprobe;
->  
->  /* Locks kprobe: irqs must be disabled */
->  void lock_kprobes(void)
-> @@ -73,22 +74,142 @@ struct kprobe *get_kprobe(void *addr)
->  	return NULL;
->  }
->  
-> +/*
-> + * Aggregate handlers for multiple kprobes support - these handlers 
-> + * take care of invoking the individual kprobe handlers on p->list
-> + */ 
-> +int aggr_pre_handler(struct kprobe *p, struct pt_regs *regs)
-> +{
-> +	struct kprobe *kp;
-> +
-> +	list_for_each_entry(kp, &p->list, list) {
-> +		if (kp->pre_handler) {
-> +			curr_kprobe = kp;
-> +			kp->pre_handler(kp, regs);
-> +			curr_kprobe = NULL;
-> +		}
-> +	}
-> +	return 0;
-> +}
-> +
-> +void aggr_post_handler(struct kprobe *p, struct pt_regs *regs, 
-> +		unsigned long flags)
-> +{
-> +	struct kprobe *kp;
-> +
-> +	list_for_each_entry(kp, &p->list, list) {
-> +		if (kp->post_handler) {
-> +			curr_kprobe = kp;
-> +			kp->post_handler(kp, regs, flags);
-> +			curr_kprobe = NULL;
-> +		}
-> +	}
-> +	return;
-> +}
-> +
-> +int aggr_fault_handler(struct kprobe *p, struct pt_regs *regs, int trapnr)
-> +{
-> +	/* 
-> +	 * if we faulted "during" the execution of a user specified
-> +	 * probe handler, invoke just that probe's fault handler
-> +	 */ 
-> +	if (curr_kprobe && curr_kprobe->fault_handler) {
-> +		if (curr_kprobe->fault_handler(curr_kprobe, regs, trapnr))
-> +			return 1;
-> +	}
-> +	return 0;
-> +}
-> +
-> +/* 
-> + * Fill in the required fields of the "manager kprobe". Replace the 
-> + * earlier kprobe in the hlist with the manager kprobe
-> + */ 
-> +static inline void add_aggr_kprobe(struct kprobe *ap, struct kprobe *p)
-> +{
-> +	ap->addr = p->addr;
-> +	ap->opcode = p->opcode;
-> +	memcpy(&ap->ainsn, &p->ainsn, sizeof(struct arch_specific_insn));
-> +
-> +	ap->pre_handler = aggr_pre_handler;
-> +	ap->post_handler = aggr_post_handler;
-> +	ap->fault_handler = aggr_fault_handler;
-> +
-> +	INIT_LIST_HEAD(&ap->list);
-> +	list_add(&p->list, &ap->list);
-> +
-> +	INIT_HLIST_NODE(&ap->hlist);
-> +	hlist_del(&p->hlist);
-> +	hlist_add_head(&ap->hlist,
-> +		&kprobe_table[hash_ptr(ap->addr, KPROBE_HASH_BITS)]);
-> +}
-> +
-> +/*
-> + * This is the second or subsequent kprobe at the address - handle
-> + * the intricacies
-> + * TODO: Move kcalloc outside the spinlock
-> + */ 
-> +static int register_aggr_kprobe(struct kprobe *old_p, struct kprobe *p)
-> +{
-> +	int ret = 0;
-> +	struct kprobe *ap;
-> +
-> +	if (old_p->break_handler || p->break_handler) {
-> +		ret = -EEXIST;	/* kprobe and jprobe can't (yet) coexist */
-> +		goto out;
-> +	} else if (old_p->pre_handler == aggr_pre_handler) {
-> +		list_add(&p->list, &old_p->list);
-> +		goto out;
-> +	} else {
-> +		ap = kcalloc(1, sizeof(struct kprobe), GFP_ATOMIC);
-> +		if (!ap)
-> +			return -ENOMEM;
-> +		add_aggr_kprobe(ap, old_p);
-> +		list_add(&p->list, &ap->list);
-> +	}
-> +out:
-> +	return ret;
-> +}
-> +
-> +/* kprobe removal house-keeping routines */
-> +static inline void cleanup_kprobe(struct kprobe *p, unsigned long flags)
-> +{
-> +	*p->addr = p->opcode;
-> +	hlist_del(&p->hlist);
-> +	flush_icache_range((unsigned long) p->addr,
-> +		   (unsigned long) p->addr + sizeof(kprobe_opcode_t));
-> +	spin_unlock_irqrestore(&kprobe_lock, flags);
-> +	arch_remove_kprobe(p);
-> +}
-> +
-> +static inline void cleanup_aggr_kprobe(struct kprobe *old_p, 
-> +		struct kprobe *p, unsigned long flags)
-> +{
-> +	list_del(&p->list);
-> +	if (list_empty(&old_p->list)) {
-> +		cleanup_kprobe(old_p, flags);
-> +		kfree(old_p);
-> +	} else
-> +		spin_unlock_irqrestore(&kprobe_lock, flags);
-> +}
-> +
->  int register_kprobe(struct kprobe *p)
->  {
->  	int ret = 0;
->  	unsigned long flags = 0;
-> +	struct kprobe *old_p;
->  
->  	if ((ret = arch_prepare_kprobe(p)) != 0) {
->  		goto rm_kprobe;
->  	}
->  	spin_lock_irqsave(&kprobe_lock, flags);
-> -	INIT_HLIST_NODE(&p->hlist);
-> -	if (get_kprobe(p->addr)) {
-> -		ret = -EEXIST;
-> +	old_p = get_kprobe(p->addr);
-> +	if (old_p) {
-> +		ret = register_aggr_kprobe(old_p, p);
->  		goto out;
->  	}
-> -	arch_copy_kprobe(p);
->  
-> +	arch_copy_kprobe(p);
-> +	INIT_HLIST_NODE(&p->hlist);
->  	hlist_add_head(&p->hlist,
->  		       &kprobe_table[hash_ptr(p->addr, KPROBE_HASH_BITS)]);
->  
-> @@ -107,13 +228,17 @@ rm_kprobe:
->  void unregister_kprobe(struct kprobe *p)
->  {
->  	unsigned long flags;
-> -	arch_remove_kprobe(p);
-> +	struct kprobe *old_p;
-> +
->  	spin_lock_irqsave(&kprobe_lock, flags);
-> -	*p->addr = p->opcode;
-> -	hlist_del(&p->hlist);
-> -	flush_icache_range((unsigned long) p->addr,
-> -			   (unsigned long) p->addr + sizeof(kprobe_opcode_t));
-> -	spin_unlock_irqrestore(&kprobe_lock, flags);
-> +	old_p = get_kprobe(p->addr);
-> +	if (old_p) {
-> +		if (old_p->pre_handler == aggr_pre_handler)
-> +			cleanup_aggr_kprobe(old_p, p, flags);
-> +		else
-> +			cleanup_kprobe(p, flags);
-> +	} else
-> +		spin_unlock_irqrestore(&kprobe_lock, flags);
->  }
->  
->  static struct notifier_block kprobe_exceptions_nb = {
+The DMA channel I use is DMA1, and i check for free interrupts and then
+allocate them accordingly. So there is no conflicts, I assume. Also there
+are no conflicts on the address range I have allocated (It is for now
+0x300). The card supports only DMA channels 1 and 3. I have tried both, to
+the same result. If anyone among you have had experience with such a
+problem, any help in fixing this matter would be of great help.
 
 
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
+Thank You.
+Harish Harshan.
+
+
+-----------------------------------------
+This email was sent using Amrita Mail.
+   "Amrita Vishwa Vidyapeetham [Deemed University] - Amritapuri Campus"
+http://amritapuri.amrita.edu
 

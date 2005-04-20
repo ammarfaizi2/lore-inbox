@@ -1,129 +1,179 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbVDTRjx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261783AbVDTRpE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261776AbVDTRjx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 13:39:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbVDTRiW
+	id S261783AbVDTRpE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 13:45:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbVDTRo4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 13:38:22 -0400
-Received: from cernmx05.cern.ch ([137.138.166.161]:61622 "EHLO
-	cernmxlb.cern.ch") by vger.kernel.org with ESMTP id S261749AbVDTRhd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 13:37:33 -0400
-DomainKey-Signature: a=rsa-sha1; c=nofws; s=beta; d=cern.ch; q=dns; 
-	h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding; 
-	b=HCOWOzlyZyw5+TIY4Xd7/o3GSpKatavQLubZHBkZF4Vl/uHytpDPJxI27RNxFiBfNk7xLP8gTYjvjOqwyz67XwAxrOC/CnxjfERSqzrYmy9d5UW5+qQ5p4mb1eZMM5VQ;
-Keywords: CERN SpamKiller Note: -49 Charset: west-latin
-X-Filter: CERNMX05 CERN MX v2.0 050413.1147 Release
-Message-ID: <42669357.9080604@cern.ch>
-Date: Wed, 20 Apr 2005 19:37:27 +0200
-From: Andreas Hirstius <Andreas.Hirstius@cern.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux ia64; en-US; rv:1.7.7) Gecko/20050418
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Wed, 20 Apr 2005 13:44:56 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:18603 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261749AbVDTRnt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 13:43:49 -0400
+Date: Wed, 20 Apr 2005 12:44:03 -0400 (EDT)
+From: Jason Baron <jbaron@redhat.com>
+X-X-Sender: jbaron@dhcp83-105.boston.redhat.com
 To: linux-kernel@vger.kernel.org
-Subject: Serious performance degradation on a RAID with kernel 2.6.10-bk7
- and later
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Apr 2005 17:37:28.0038 (UTC) FILETIME=[9F238860:01C545CF]
+cc: akpm@osdl.org
+Subject: [PATCH] tty races
+Message-ID: <Pine.LNX.4.61.0504201227370.13902@dhcp83-105.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+
+There are a couple of tty race conditions, which lead to inconsistent tty 
+reference counting and tty layer oopses.
+
+The first is a tty_open vs. tty_close race in drivers/char/tty.io.c. 
+Basically, from the time that the tty->count is deemed to be 1 and that we 
+are going to free it to the time that TTY_CLOSING bit is set, needs to be 
+atomic with respect to the manipulation of tty->count in init_dev(). This 
+atomicity was previously guarded by the BKL. However, this is no longer 
+true with the addition of a down() call in the middle of the 
+release_dev()'s atomic path. So either the down() needs to be moved 
+outside the atomic patch or dropped. I would vote for simply dropping it 
+as i don't see why it is necessary.
+
+The second race is tty_open vs. tty_open. This race I've seen when the 
+virtual console is the tty driver. In con_open(),  vc_allocate() is called 
+if the tty->count is 1. However, this check of the tty->count is not 
+guarded by the 'tty_sem'. Thus, it is possible for con_open(), to never 
+see the tty->count as 1, and thus never call vc_allocate(). This leads to 
+a NULL filp->private_data, and an oops.
+
+The test case below reproduces these problems, and the patch fixes it. The 
+test case uses /dev/tty9, which is generally restricted to root for 
+open(). It may be able to exploit these races using pseudo terminals, 
+although i wasn't able to. A previous report of this issue, with an oops 
+trace was: http://www.ussg.iu.edu/hypermail/linux/kernel/0503.2/0017.html
+
+thanks,
+
+-Jason
 
 
-We have a rx4640 with 3x 3Ware 9500 SATA controllers and 24x WD740GD HDD 
-in a software RAID0 configuration (using md).
-With kernel 2.6.11 the read performance on the md is reduced by a factor 
-of 20 (!!) compared to previous kernels.
-The write rate to the md doesn't change!! (it actually improves a bit).
-
-The config for the kernels are basically identical.
-
-Here is some vmstat output:
-
-kernel 2.6.9: ~1GB/s read
-procs                      memory      swap          io     
-system         cpu
-r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy wa id
-1  1      0  12672   6592 15914112    0    0 1081344    56 15719  1583 0 11 14 74
-1  0      0  12672   6592 15915200    0    0 1130496     0 15996  1626 0 11 14 74
-0  1      0  12672   6592 15914112    0    0 1081344     0 15891  1570 0 11 14 74
-0  1      0  12480   6592 15914112    0    0 1081344     0 15855  1537 0 11 14 74
-1  0      0  12416   6592 15914112    0    0 1130496     0 16006  1586 0 12 14 74
-
-
-kernel 2.6.11: ~55MB/s read
-procs                      memory      swap          io     
-system         cpu
-r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy wa id
-1  1      0  24448  37568 15905984    0    0 56934     0 5166  1862  0 1 24 75
-0  1      0  20672  37568 15909248    0    0 57280     0 5168  1871  0 1 24 75
-0  1      0  22848  37568 15907072    0    0 57306     0 5173  1874  0 1 24 75
-0  1      0  25664  37568 15903808    0    0 57190     0 5171  1870  0 1 24 75
-0  1      0  21952  37568 15908160    0    0 57267     0 5168  1871  0 1 24 75
-
-
-Because the filesystem might have an impact on the measurement, "dd" on /dev/md0
-was used to get information about the performance. 
-This also opens the possibility to test with block sizes larger than the page size.
-And it appears that the performance with kernel 2.6.11 is closely 
-related to the block size.
-For example if the block size is exactly a multiple (>2) of the page 
-size the performance is back to ~1.1GB/s.
-The general behaviour is a bit more complicated:  
-
-  1. bs <= 1.5 * ps : ~27-57MB/s (differs with ps)
-  2. bs > 1.5 * ps && bs < 2 * ps : rate increases to max. rate
-  3. bs = n * ps ; (n >= 2) : ~1.1GB/s (== max. rate)
-  4. bs > n * ps && bs < ~(n+0.5) * ps ; (n > 2) : ~27-70MB/s (differs 
-with ps)
-  5. bs > ~(n+0.5) * ps && bs < (n+1) * ps ; (n > 2) : increasing rate 
-in several, more or
-      less, distinct steps (e.g. 1/3 of max. rate and then 2/3 of max 
-rate for 64k pages)
-
-I've tested all four possible page sizes on Itanium (4k, 8k, 16k and 64k) and the pattern is 
-always the same!!
-
-With kernel 2.6.9 (any kernel before 2.6.10-bk6) the read rate is always at ~1.1GB/s,
-independent of the block size.
-
-
-This simple patch solves the problem, but I have no idea of possible side-effects ...
-
---- linux-2.6.12-rc2_orig/mm/filemap.c  2005-04-04 18:40:05.000000000 +0200
-+++ linux-2.6.12-rc2/mm/filemap.c       2005-04-20 10:27:42.000000000 +0200
-@@ -719,7 +719,7 @@
-        index = *ppos >> PAGE_CACHE_SHIFT;
-        next_index = index;
-        prev_index = ra.prev_page;
--       last_index = (*ppos + desc->count + PAGE_CACHE_SIZE-1) >> PAGE_CACHE_SHIFT;
-+       last_index = (*ppos + desc->count + PAGE_CACHE_SIZE) >> PAGE_CACHE_SHIFT;
-        offset = *ppos & ~PAGE_CACHE_MASK;
+--- linux/drivers/char/tty_io.c.bak
++++ linux/drivers/char/tty_io.c
+@@ -1596,14 +1596,9 @@ static void release_dev(struct file * fi
+ 	 * each iteration we avoid any problems.
+ 	 */
+ 	while (1) {
+-		/* Guard against races with tty->count changes elsewhere and
+-		   opens on /dev/tty */
+-		   
+-		down(&tty_sem);
+ 		tty_closing = tty->count <= 1;
+ 		o_tty_closing = o_tty &&
+ 			(o_tty->count <= (pty_master ? 1 : 0));
+-		up(&tty_sem);
+ 		do_sleep = 0;
  
-        isize = i_size_read(inode);
---- linux-2.6.12-rc2_orig/mm/readahead.c        2005-04-04 18:40:05.000000000 +0200
-+++ linux-2.6.12-rc2/mm/readahead.c     2005-04-20 18:37:04.000000000 +0200
-@@ -70,7 +70,7 @@
-  */
- static unsigned long get_init_ra_size(unsigned long size, unsigned long max)
- {
--       unsigned long newsize = roundup_pow_of_two(size);
-+       unsigned long newsize = size;
+ 		if (tty_closing) {
+@@ -1640,7 +1635,6 @@ static void release_dev(struct file * fi
+ 	 * block, so it's safe to proceed with closing.
+ 	 */
+ 	 
+-	down(&tty_sem);
+ 	if (pty_master) {
+ 		if (--o_tty->count < 0) {
+ 			printk(KERN_WARNING "release_dev: bad pty slave count "
+@@ -1654,7 +1648,6 @@ static void release_dev(struct file * fi
+ 		       tty->count, tty_name(tty, buf));
+ 		tty->count = 0;
+ 	}
+-	up(&tty_sem);
+ 	
+ 	/*
+ 	 * We've decremented tty->count, so we need to remove this file
+@@ -1844,9 +1837,10 @@ retry_open:
+ 	}
+ got_driver:
+ 	retval = init_dev(driver, index, &tty);
+-	up(&tty_sem);
+-	if (retval)
++	if (retval) {
++		up(&tty_sem);
+ 		return retval;
++	}
  
-        if (newsize <= max / 64)
-                newsize = newsize * newsize;
+ 	filp->private_data = tty;
+ 	file_move(filp, &tty->tty_files);
+@@ -1863,6 +1857,7 @@ got_driver:
+ 		else
+ 			retval = -ENODEV;
+ 	}
++	up(&tty_sem);
+ 	filp->f_flags = saved_flags;
+ 
+ 	if (!retval && test_bit(TTY_EXCLUSIVE, &tty->flags) && !capable(CAP_SYS_ADMIN))
 
 
 
-In order to keep this mail short, I've created a webpage that contains 
-all the detailed information and some plots:
-http://www.cern.ch/openlab-debugging/raid
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <time.h>
+#include <pthread.h>
+#include <linux/fb.h>
+#include <linux/vt.h>
+#include <linux/kd.h>
+
+#define NTHREADS 300
+
+void *thread_function();
+int open_fail_num;
+int open_success;
+
+int
+main(int argc, char *argv[])
+{
+  	int i, j;
+  	pthread_t thread_id[NTHREADS];
+
+  	for(;;) {
+      		for(i=0; i < NTHREADS; i++) {
+	  		pthread_create(&thread_id[i], NULL, &thread_function, NULL);
+		}
+      		for(j=0; j < NTHREADS; j++) {
+	  		pthread_join(thread_id[j], NULL); 
+		}
+      		printf("open failures: %i\n", open_fail_num);
+      		printf("open success: %i\n", open_success);
+    	}
+}
+
+void *thread_function()
+{
+  	int fd;
+  	time_t t;
+  	int val;
+  	int ret;
+
+  	fd = open("/dev/tty9", O_RDWR);
+
+  	val = 0;
+  	//call an ioctl
+	ret = ioctl(fd, KDGETMODE, &val);
+  	if (ret != 0) {
+		perror("ioctl error\n");
+  	}
+
+  	if (fd < 0) {
+      		open_fail_num++;
+    	} else {
+      		open_success++;
+    	}
+  	/* just waste some random time */
+  	t = (time((time_t *)0) &31L) << 6;
+  	while (t-- > 0)
+    		(void)time((time_t *)0);
+  	close(fd);	
+}
 
 
-Regards,
-
-   Andreas Hirstius
 
 

@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261775AbVDTSFR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261777AbVDTSQO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261775AbVDTSFR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 14:05:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbVDTSFR
+	id S261777AbVDTSQO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 14:16:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbVDTSQO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 14:05:17 -0400
-Received: from wproxy.gmail.com ([64.233.184.199]:64465 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261775AbVDTSFM convert rfc822-to-8bit
+	Wed, 20 Apr 2005 14:16:14 -0400
+Received: from ipx10786.ipxserver.de ([80.190.251.108]:30603 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S261777AbVDTSQL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 14:05:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=ePcw1NRqDivbPzaxnko/Vftka1lplopZEfaLSnxMxSiuXqu+K9b/iY2LQz2AAlZ9C7deW46gcJhMWRlYR86W1usLtZG9/2F0ZM8uDw1ps6zqPCOyJJUuyGLGtprxPJnFwCEKdBz+1PrUQrvr/o3h1dzcN1oVFPEZmYCwcv4d2BE=
-Message-ID: <875fe4a505042011054ac36e00@mail.gmail.com>
-Date: Wed, 20 Apr 2005 18:05:12 +0000
-From: Francesco Oppedisano <francesco.oppedisano@gmail.com>
-Reply-To: Francesco Oppedisano <francesco.oppedisano@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: linux with disabled interrupts
+	Wed, 20 Apr 2005 14:16:11 -0400
+Date: Wed, 20 Apr 2005 20:15:45 +0200
+From: Johannes Stezenbach <js@linuxtv.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org
+Message-ID: <20050420181545.GA4876@linuxtv.org>
+Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
+	Adrian Bunk <bunk@stusta.de>, linux-dvb-maintainer@linuxtv.org,
+	linux-kernel@vger.kernel.org
+References: <20050419004308.GJ5489@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20050419004308.GJ5489@stusta.de>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: 217.86.185.54
+Subject: Re: [linux-dvb-maintainer] [2.6 patch] drivers/media/dvb/: possible cleanups
+X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
+X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-i'd like to know how much time does linux kernel run with disabled
-interrupts. So i would like to remap the instructions capable of
-disabling interrupt to other ones which count how much this time is...
-Does already exist a patch or tool capable to give me a magnitude
-order of the time spent by the kernel with disables interrupts?
-In uniprocessor systems, can i state that the only instruction capable
-of disabling interrupts is cli?
+On Tue, Apr 19, 2005 at 02:43:08AM +0200, Adrian Bunk wrote:
+> This patch contains the following possible cleanups:
+> - make needlessly global code static
+> - #if 0 the following unused global functions:
+>   - dibusb/dvb-dibusb-usb.c: dibusb_set_streaming_mode
+>   - frontends/mt352.c: mt352_read
+>   - ttpci/av7110_hw.c: av7110_reset_arm
+>   - ttpci/av7110_hw.c: av7110_send_ci_cmd
+> - remove the following unneeded EXPORT_SYMBOL:
+>   - frontends/mt352.c: mt352_read
+> 
+> Please review which of these changes do make sense.
 
-Thank u very much
+I'll apply this patch to linuxtv.org CVS.
 
-Francesco Oppedisano
+Most cleanups look fine, except the dibusb driver
+has been superseded by a generalized dvb-usb driver.
+mt352_read() can be dropped completely.
+
+Thanks,
+Johannes

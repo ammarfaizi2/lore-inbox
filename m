@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261804AbVDTUti@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261811AbVDTVIa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261804AbVDTUti (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 16:49:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbVDTUti
+	id S261811AbVDTVIa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 17:08:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbVDTVIa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 16:49:38 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:31507 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261804AbVDTUtg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 16:49:36 -0400
-Date: Wed, 20 Apr 2005 22:49:32 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Dan Dennedy <dan@dennedy.org>
-Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>,
-       linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/ieee1394/: remove unneeded EXPORT_SYMBOL's
-Message-ID: <20050420204932.GQ5489@stusta.de>
-References: <20050417195706.GD3625@stusta.de> <20050419191328.GJ1111@conscoop.ottawa.on.ca> <1113939827.6277.86.camel@laptopd505.fenrus.org> <42657F7C.8060305@s5r6.in-berlin.de> <1113981989.6238.30.camel@laptopd505.fenrus.org> <426683E9.4080708@s5r6.in-berlin.de> <1114029144.5085.20.camel@kino.dennedy.org>
-Mime-Version: 1.0
+	Wed, 20 Apr 2005 17:08:30 -0400
+Received: from colo.khms.westfalen.de ([213.239.196.208]:34947 "EHLO
+	colo.khms.westfalen.de") by vger.kernel.org with ESMTP
+	id S261811AbVDTVIZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 17:08:25 -0400
+Date: 20 Apr 2005 22:29:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <9VF1rZLXw-B@khms.westfalen.de>
+In-Reply-To: <d3dvps$347$1@terminus.zytor.com>
+Subject: Re: more git updates..
+X-Mailer: CrossPoint v3.12d.kh15 R/C435
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1114029144.5085.20.camel@kino.dennedy.org>
-User-Agent: Mutt/1.5.6+20040907i
+Organization: Organisation? Me?! Are you kidding?
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050410065307.GC13853@64m.dyndns.org> <d3dvps$347$1@terminus.zytor.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 20, 2005 at 04:32:24PM -0400, Dan Dennedy wrote:
->...
-> Based upon my experience of several years on this project there is only
-> one external kernel module project we need to consider because that
-> developer has been involved and voiced requirements. That is Arne
-> Caspari's (The Imaging Source) DFG/1394 driver. 
+hpa@zytor.com (H. Peter Anvin)  wrote on 11.04.05 in <d3dvps$347$1@terminus.zytor.com>:
 
-The ideal solution would be to get this driver included in the kernel.
-Are there any reasons against including it?
+> Followup to:  <20050410065307.GC13853@64m.dyndns.org>
+> By author:    Christopher Li <lkml@chrisli.org>
+> In newsgroup: linux.dev.kernel
+> >
+> > There is one problem though. How about the SHA1 hash collision?
+> > Even the chance is very remote, you don't want to lose some data do due
+> > to "software" error. I think it is OK that no handle that
+> > case right now. On the other hand, it will be nice to detect that
+> > and give out a big error message if it really happens.
+> >
+>
+> If you're actually worried about it, it'd be better to just use a
+> different hash, like one of the SHA-2's (probably a better choice
+> anyway), instead of SHA-1.
 
-> I vote to remove external symbols not used by the Linux1394.org modules
-> or the module at http://sourceforge.net/projects/video-2-1394/
-> Of course, I may be voted down, but I ask the others to be realistic
-> about what we are arguing for (i.e. just being defensive?) and consider
-> the fact that there are valid reasons for their removal.
+How could that help? *Every* hash has hash collisions. It's an unavoidable  
+result of using less bits than the original data has.
 
-The DFG/1394 driver requires hpsb_read and hpsb_write.
-
-Are there any Linux1394.org modules that are not in 2.6.12-rc2-mm3?
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+MfG Kai

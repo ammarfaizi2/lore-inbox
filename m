@@ -1,36 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbVDTRKJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261731AbVDTRPG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261657AbVDTRKJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 13:10:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbVDTRKJ
+	id S261731AbVDTRPG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 13:15:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbVDTRPG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 13:10:09 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:56546 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S261657AbVDTRKG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 13:10:06 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <42668CE3.5070606@s5r6.in-berlin.de>
-Date: Wed, 20 Apr 2005 19:09:55 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
+	Wed, 20 Apr 2005 13:15:06 -0400
+Received: from ns1.coraid.com ([65.14.39.133]:13736 "EHLO coraid.com")
+	by vger.kernel.org with ESMTP id S261731AbVDTRPB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 13:15:01 -0400
+To: linux-kernel@vger.kernel.org
+CC: ecashin@coraid.com, Greg K-H <greg@kroah.com>
+References: <874qe1pejv.fsf@coraid.com>
+Subject: [PATCH 2.6.12-rc2] aoe [2/6]: aoe-stat should work for built-in as
+ well as module
+From: Ed L Cashin <ecashin@coraid.com>
+Date: Wed, 20 Apr 2005 13:05:36 -0400
+Message-ID: <87u0m1nztr.fsf@coraid.com>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-To: linux1394-devel@lists.sourceforge.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/ieee1394/: remove unneeded EXPORT_SYMBOL's
-References: <20050417195706.GD3625@stusta.de>	 <20050419191328.GJ1111@conscoop.ottawa.on.ca>	 <1113939827.6277.86.camel@laptopd505.fenrus.org>	 <42657F7C.8060305@s5r6.in-berlin.de>	 <1113981989.6238.30.camel@laptopd505.fenrus.org>	 <426683E9.4080708@s5r6.in-berlin.de> <1114014925.6238.91.camel@laptopd505.fenrus.org>
-In-Reply-To: <1114014925.6238.91.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> If nothing is using an api
 
-Check the archive.
+aoe-stat should work for built-in as well as module
+
+Signed-off-by: Ed L. Cashin <ecashin@coraid.com>
+
+diff -uprN a/Documentation/aoe/status.sh b/Documentation/aoe/status.sh
+--- a/Documentation/aoe/status.sh	2005-04-20 11:40:55.000000000 -0400
++++ b/Documentation/aoe/status.sh	2005-04-20 11:42:20.000000000 -0400
+@@ -14,10 +14,6 @@ test ! -d "$sysd/block" && {
+ 	echo "$me Error: sysfs is not mounted" 1>&2
+ 	exit 1
+ }
+-test -z "`lsmod | grep '^aoe'`" && {
+-	echo  "$me Error: aoe module is not loaded" 1>&2
+-	exit 1
+-}
+ 
+ for d in `ls -d $sysd/block/etherd* 2>/dev/null | grep -v p` end; do
+ 	# maybe ls comes up empty, so we use "end"
+
+
 -- 
-Stefan Richter
--=====-=-=-= -=-- =-=--
-http://arcgraph.de/sr/
+  Ed L. Cashin <ecashin@coraid.com>
+

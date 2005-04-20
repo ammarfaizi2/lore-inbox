@@ -1,55 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261784AbVDTS1Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261793AbVDTShL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261784AbVDTS1Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 14:27:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261791AbVDTS1Y
+	id S261793AbVDTShL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 14:37:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbVDTShL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 14:27:24 -0400
-Received: from alog0049.analogic.com ([208.224.220.64]:32700 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261790AbVDTS1H
+	Wed, 20 Apr 2005 14:37:11 -0400
+Received: from zproxy.gmail.com ([64.233.162.192]:13934 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261793AbVDTShA convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 14:27:07 -0400
-Date: Wed, 20 Apr 2005 14:26:32 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Francesco Oppedisano <francesco.oppedisano@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: linux with disabled interrupts
-In-Reply-To: <875fe4a505042011054ac36e00@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0504201423130.30744@chaos.analogic.com>
-References: <875fe4a505042011054ac36e00@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 20 Apr 2005 14:37:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=rYNpgR7ilE7LAdo+cZScABZYRTp/Y0AgueWtiZMJtv4M7incAzacT9mjHOmo+qAwfIY2DlOgETdkRaZT54q9UVu3oDIhaWJ9UlodgQQR26kcOLxobQzTr7T1TAO03MkDqtzh7SmJQ5af2yr3n/Ny31slX+lR3kJ1hdo4n3ufqaY=
+Message-ID: <2a4f155d05042011361234531d@mail.gmail.com>
+Date: Wed, 20 Apr 2005 21:36:59 +0300
+From: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
+Reply-To: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: NForce4 ide problems?
+In-Reply-To: <2a4f155d050420081220b3f801@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <2a4f155d050420081220b3f801@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Apr 2005, Francesco Oppedisano wrote:
+FWIW problem happens way before any driver is loaded ( i.e nVidia ) so
+this is not a such problem.
 
-> Hi,
-> i'd like to know how much time does linux kernel run with disabled
-> interrupts. So i would like to remap the instructions capable of
-> disabling interrupt to other ones which count how much this time is...
-> Does already exist a patch or tool capable to give me a magnitude
-> order of the time spent by the kernel with disables interrupts?
-> In uniprocessor systems, can i state that the only instruction capable
-> of disabling interrupts is cli?
->
 
-How do you propose to "remap" the CLI instruction? The kernel
-isn't going to trap on this perfectly legal instruction in
-kernel mode.
+On 4/20/05, ismail dönmez <ismail.donmez@gmail.com> wrote:
+> Hi all,
+> 
+> I recently bought an Asus A8N-SLI mobo and an AMD 3500+ CPU for my
+> system but my ide drive seems to have some problems with them. Here is
+> what I get at boot :
+> 
+> <snip>
+> hda: 156368016 sectors (80060 MB) w/2048KiB Cache, CHS=16383/255/63,
+> UDMA(100)
+> hda: cache flushes supported
+>  /dev/ide/host0/bus0/target0/lun0:hda: dma_intr: status=0x51 {
+> DriveReady SeekComplete Error }
+> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> ide: failed opcode was: unknown
+> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> ide: failed opcode was: unknown
+> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> ide: failed opcode was: unknown
+> </snip>
+> 
+> First I thought it was bad ide cable ( because I wasn't using the one
+> that came with mobo ) so I tried with the brand new cable coming with
+> mobo and same error happened. Also trying to do something like :
+> 
+> hdparm -m16 -c -u1 -d1 -Xudma2 /dev/hda
+> 
+> results in a cpu exception thrown and a kernel panic after that. Full
+> dmesg log is attached. I appreciate any help/comments.
+> 
+> P.S: I tried with kernel 2.6.10 and 2.6.12-rc2 and same problems happen
+> 
+> Regards,
+> ismail
+> 
+> 
+> -- 
+> Time is what you make of it
+> 
+> 
 
-Also, interrupts can be disabled by masking them off in the
-controller(s) so there are many ways that any/all interrupts
-can be disabled.
-
-> Thank u very much
->
-> Francesco Oppedisano
-> -
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+-- 
+Time is what you make of it

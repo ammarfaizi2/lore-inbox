@@ -1,113 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbVDTREo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbVDTRKJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261322AbVDTREo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 13:04:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbVDTREo
+	id S261657AbVDTRKJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 13:10:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbVDTRKJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 13:04:44 -0400
-Received: from ns1.coraid.com ([65.14.39.133]:9128 "EHLO coraid.com")
-	by vger.kernel.org with ESMTP id S261322AbVDTREj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 13:04:39 -0400
-To: linux-kernel@vger.kernel.org
-CC: ecashin@coraid.com, Greg K-H <greg@kroah.com>
-Subject: [PATCH 2.6.12-rc2] aoe [1/6]: improve allowed interfaces
- configuration
-From: Ed L Cashin <ecashin@coraid.com>
-Date: Wed, 20 Apr 2005 13:02:12 -0400
-Message-ID: <874qe1pejv.fsf@coraid.com>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Wed, 20 Apr 2005 13:10:09 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:56546 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S261657AbVDTRKG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 13:10:06 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <42668CE3.5070606@s5r6.in-berlin.de>
+Date: Wed, 20 Apr 2005 19:09:55 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux1394-devel@lists.sourceforge.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/ieee1394/: remove unneeded EXPORT_SYMBOL's
+References: <20050417195706.GD3625@stusta.de>	 <20050419191328.GJ1111@conscoop.ottawa.on.ca>	 <1113939827.6277.86.camel@laptopd505.fenrus.org>	 <42657F7C.8060305@s5r6.in-berlin.de>	 <1113981989.6238.30.camel@laptopd505.fenrus.org>	 <426683E9.4080708@s5r6.in-berlin.de> <1114014925.6238.91.camel@laptopd505.fenrus.org>
+In-Reply-To: <1114014925.6238.91.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Arjan van de Ven wrote:
+> If nothing is using an api
 
-improve allowed interfaces configuration
-
-Signed-off-by: Ed L. Cashin <ecashin@coraid.com>
-
-diff -uprN a/Documentation/aoe/aoe.txt b/Documentation/aoe/aoe.txt
---- a/Documentation/aoe/aoe.txt	2005-04-20 11:40:55.000000000 -0400
-+++ b/Documentation/aoe/aoe.txt	2005-04-20 11:42:20.000000000 -0400
-@@ -33,6 +33,9 @@ USING DEVICE NODES
-   "cat /dev/etherd/err" blocks, waiting for error diagnostic output,
-   like any retransmitted packets.
- 
-+  The /dev/etherd/interfaces special file is obsoleted by the
-+  aoe_iflist boot option and module option (and its sysfs entry
-+  described in the next section).
-   "echo eth2 eth4 > /dev/etherd/interfaces" tells the aoe driver to
-   limit ATA over Ethernet traffic to eth2 and eth4.  AoE traffic from
-   untrusted networks should be ignored as a matter of security.
-@@ -89,3 +92,24 @@ USING SYSFS
-       e4.7            eth1              up
-       e4.8            eth1              up
-       e4.9            eth1              up
-+
-+  When the aoe driver is a module, use
-+  /sys/module/aoe/parameters/aoe_iflist instead of
-+  /dev/etherd/interfaces to limit AoE traffic to the network
-+  interfaces in the given whitespace-separated list.  Unlike the old
-+  character device, the sysfs entry can be read from as well as
-+  written to.
-+
-+  It's helpful to trigger discovery after setting the list of allowed
-+  interfaces.  If your distro provides an aoe-discover script, you can
-+  use that.  Otherwise, you can directly use the /dev/etherd/discover
-+  file described above.
-+
-+DRIVER OPTIONS
-+
-+  There is a boot option for the built-in aoe driver and a
-+  corresponding module parameter, aoe_iflist.  Without this option,
-+  all network interfaces may be used for ATA over Ethernet.  Here is a
-+  usage example for the module parameter.
-+
-+    modprobe aoe_iflist="eth1 eth3"
-diff -uprN a/drivers/block/aoe/aoenet.c b/drivers/block/aoe/aoenet.c
---- a/drivers/block/aoe/aoenet.c	2005-04-20 11:41:18.000000000 -0400
-+++ b/drivers/block/aoe/aoenet.c	2005-04-20 11:42:20.000000000 -0400
-@@ -7,6 +7,7 @@
- #include <linux/hdreg.h>
- #include <linux/blkdev.h>
- #include <linux/netdevice.h>
-+#include <linux/moduleparam.h>
- #include "aoe.h"
- 
- #define NECODES 5
-@@ -26,6 +27,19 @@ enum {
- };
- 
- static char aoe_iflist[IFLISTSZ];
-+module_param_string(aoe_iflist, aoe_iflist, IFLISTSZ, 0600);
-+MODULE_PARM_DESC(aoe_iflist, " aoe_iflist=\"dev1 [dev2 ...]\n");
-+
-+#ifndef MODULE
-+static int __init aoe_iflist_setup(char *str)
-+{
-+	strncpy(aoe_iflist, str, IFLISTSZ);
-+	aoe_iflist[IFLISTSZ - 1] = '\0';
-+	return 1;
-+}
-+
-+__setup("aoe_iflist=", aoe_iflist_setup);
-+#endif
- 
- int
- is_aoe_netif(struct net_device *ifp)
-@@ -36,7 +50,8 @@ is_aoe_netif(struct net_device *ifp)
- 	if (aoe_iflist[0] == '\0')
- 		return 1;
- 
--	for (p = aoe_iflist; *p; p = q + strspn(q, WHITESPACE)) {
-+	p = aoe_iflist + strspn(aoe_iflist, WHITESPACE);
-+	for (; *p; p = q + strspn(q, WHITESPACE)) {
- 		q = p + strcspn(p, WHITESPACE);
- 		if (q != p)
- 			len = q - p;
-
-
+Check the archive.
 -- 
-  Ed L. Cashin <ecashin@coraid.com>
-
+Stefan Richter
+-=====-=-=-= -=-- =-=--
+http://arcgraph.de/sr/

@@ -1,106 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbVDTKLJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbVDTK4o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261428AbVDTKLJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 06:11:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbVDTKLJ
+	id S261426AbVDTK4o (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 06:56:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261542AbVDTK4o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 06:11:09 -0400
-Received: from waste.org ([216.27.176.166]:11726 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261428AbVDTKK6 (ORCPT
+	Wed, 20 Apr 2005 06:56:44 -0400
+Received: from gsecone.com ([59.144.0.4]:34951 "EHLO gsecone.com")
+	by vger.kernel.org with ESMTP id S261426AbVDTK4g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 06:10:58 -0400
-Date: Wed, 20 Apr 2005 03:10:54 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Mercurial v0.1 - a minimal scalable distributed SCM
-Message-ID: <20050420101054.GE21897@waste.org>
+	Wed, 20 Apr 2005 06:56:36 -0400
+Subject: Re: [PATCH][2.4.30] __attribute__ placement
+From: Vinay K Nallamothu <vinay.nallamothu@gsecone.com>
+To: marcelo.tosatti@cyclades.com
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1113836845.4217.10.camel@vinay.gsecone.com>
+References: <1113836845.4217.10.camel@vinay.gsecone.com>
+Content-Type: text/plain
+Organization: Global Security One
+Date: Wed, 20 Apr 2005 16:23:48 +0530
+Message-Id: <1113994428.10792.39.camel@vinay.gsecone.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://selenic.com/mercurial/
+Hi,
 
-April 19, 2005
+Realised few things are not ok with my earlier patch. The __attribute__
+((packed)) problem exists only with typedefed structs. The correct
+syntax is
 
-I've spent the past couple weeks working on a completely new
-proof-of-concept SCM. The goals:
+typedef struct ... { .... } __attribute__((packed)) newtype;
 
- - to initially be as simple (and thereby hackable) as possible
- - to be as scalable as possible
- - to be memory, disk, and bandwidth efficient
- - to be able to do "clone/branch and pull/sync" style development
+Please find the updated patch. Hope I got it right this time.
 
-It's still very early on, but I think I'm doing surprisingly well. Now
-that I've got something that actually does some interesting things if
-you poke at it right, I figure it's time to throw it out there.
-Here's what I've got so far:
+Thanks
+Vinay
 
- - O(1) file revision storage and retrieval with efficient delta compression
- - efficient append-only layout for rsync and http range protocols
- - bare bones commit, checkout, stat, history
- - working "clone/branch" and "pull/sync" functionality
- - functional enough to be self-hosting[1]
- - all in less than 600 lines of Python
+ arch/s390x/kernel/ptrace.c  |    6 +++---
+ drivers/net/gt96100eth.h    |    4 ++--
+ drivers/s390/net/qeth.h     |    4 ++--
+ drivers/s390/net/qeth_mpc.h |    6 +++---
+ 4 files changed, 10 insertions(+), 10 deletions(-)
 
-When I say "pull/sync" works, that means I can do:
+==============================================================================
+diff -urN linux-2.4.30/arch/s390x/kernel/ptrace.c linux-2.4.30-nvk/arch/s390x/kernel/ptrace.c
+--- linux-2.4.30/arch/s390x/kernel/ptrace.c	2003-06-14 10:05:28.000000000 +0530
++++ linux-2.4.30-nvk/arch/s390x/kernel/ptrace.c	2005-04-20 15:29:35.000000000 +0530
+@@ -146,14 +146,14 @@
+ typedef struct
+ {
+ 	__u32 cr[3];
+-} per_cr_words32  __attribute__((packed));
++} __attribute__((packed)) per_cr_words32;
+ 
+ typedef struct
+ {
+ 	__u16          perc_atmid;          /* 0x096 */
+ 	__u32          address;             /* 0x098 */
+ 	__u8           access_id;           /* 0x0a1 */
+-} per_lowcore_words32  __attribute__((packed));
++} __attribute__((packed)) per_lowcore_words32;
+ 
+ typedef struct
+ {
+@@ -177,7 +177,7 @@
+ 	union {
+ 		per_lowcore_words32 words;
+ 	} lowcore; 
+-} per_struct32 __attribute__((packed));
++} __attribute__((packed)) per_struct32;
+ 
+ struct user_regs_struct32
+ {
+diff -urN linux-2.4.30/drivers/net/gt96100eth.h linux-2.4.30-nvk/drivers/net/gt96100eth.h
+--- linux-2.4.30/drivers/net/gt96100eth.h	2003-06-14 10:03:16.000000000 +0530
++++ linux-2.4.30-nvk/drivers/net/gt96100eth.h	2005-04-20 15:34:14.000000000 +0530
+@@ -214,7 +214,7 @@
+ 	u32 cmdstat;
+ 	u32 next;
+ 	u32 buff_ptr;
+-} gt96100_td_t __attribute__ ((packed));
++} __attribute__ ((packed)) gt96100_td_t;
+ 
+ typedef struct {
+ #ifdef DESC_BE
+@@ -227,7 +227,7 @@
+ 	u32 cmdstat;
+ 	u32 next;
+ 	u32 buff_ptr;
+-} gt96100_rd_t __attribute__ ((packed));
++} __attribute__ ((packed)) gt96100_rd_t;
+ 
+ 
+ /* Values for the Tx command-status descriptor entry. */
+diff -urN linux-2.4.30/drivers/s390/net/qeth.h linux-2.4.30-nvk/drivers/s390/net/qeth.h
+--- linux-2.4.30/drivers/s390/net/qeth.h	2004-12-04 17:45:26.000000000 +0530
++++ linux-2.4.30-nvk/drivers/s390/net/qeth.h	2005-04-20 15:31:52.000000000 +0530
+@@ -760,14 +760,14 @@
+ typedef struct qeth_ringbuffer_t {
+ 	qdio_buffer_t buffer[QDIO_MAX_BUFFERS_PER_Q];
+ 	qeth_ringbuffer_element_t ringbuf_element[QDIO_MAX_BUFFERS_PER_Q];
+-} qeth_ringbuffer_t __attribute__ ((packed,aligned(PAGE_SIZE)));
++} __attribute__((packed)) qeth_ringbuffer_t __attribute__ ((aligned(PAGE_SIZE)));
+ 
+ typedef struct qeth_dma_stuff_t {
+ 	unsigned char *sendbuf;
+ 	unsigned char *recbuf;
+ 	ccw1_t read_ccw;
+ 	ccw1_t write_ccw;
+-} qeth_dma_stuff_t __attribute__ ((packed,aligned(PAGE_SIZE)));
++} __attribute__((packed)) qeth_dma_stuff_t __attribute__ ((aligned(PAGE_SIZE)));
+ 
+ typedef struct qeth_perf_stats_t {
+ 	unsigned int skbs_rec;
+diff -urN linux-2.4.30/drivers/s390/net/qeth_mpc.h linux-2.4.30-nvk/drivers/s390/net/qeth_mpc.h
+--- linux-2.4.30/drivers/s390/net/qeth_mpc.h	2004-12-04 17:45:26.000000000 +0530
++++ linux-2.4.30-nvk/drivers/s390/net/qeth_mpc.h	2005-04-20 15:33:16.000000000 +0530
+@@ -460,7 +460,7 @@
+ 			__u8 unique_id[8];
+ 		} create_destroy_addr;
+ 	} data;
+-} ipa_cmd_t __attribute__ ((packed));
++} __attribute__ ((packed)) ipa_cmd_t;
+ 
+ #define QETH_IOC_MAGIC 0x22
+ #define QETH_IOCPROC_REGISTER _IOWR(QETH_IOC_MAGIC, 1, int)
+@@ -506,7 +506,7 @@
+ 			__u8 snmp_data[ARP_DATA_SIZE];
+ 		} snmp_subcommand;
+ 	} data;
+-} snmp_ipa_setadp_cmd_t __attribute__ ((packed));
++} __attribute__ ((packed)) snmp_ipa_setadp_cmd_t;
+ 
+ typedef struct arp_cmd_t {
+ 	__u8 command;
+@@ -539,7 +539,7 @@
+ 		} setassparms;
+                 snmp_ipa_setadp_cmd_t setadapterparms; 
+ 	} data;
+-} arp_cmd_t __attribute__ ((packed));
++} __attribute__ ((packed)) arp_cmd_t;
+ 
+ 
+ 
 
- hg merge other-repo
+==============================================================================
 
-and it will pull all "changesets/deltas" that are in other-dir that I
-don't have, merge them into the changeset history graph, and do the
-same for all files changed for those deltas. It will call out to
-a user-specified merge tool like tkdiff for a proper 3-way merge with
-the nearest common ancestor in the case of conflicts.
-
-Right now, "cloning/branching" is simply a matter of "cp -al" or
-"rsync" (mercurial knows how to break hardlinks if needed).
-
-Some benchmarks from my laptop:
-
- - prepare for commit of Linux 2.6.10: ~1s
- - commit Linux 2.6.10: 27s
- - checkout Linux 2.6.10: 45s
- - full tree stat for added/changed/deleted files: <1s
- - local hardlink clone: 1.5s
- - empty merge between full trees: <.1s
- - trivial 3-way merge with changes to Makefile: ~1s
-
-Much thought has gone into what the best asymptotic performance can be
-for the various things an SCM has to do and the core algorithms and
-data structures here should scale relatively painlessly to arbitrary
-numbers of changesets, files, and file revisions.
-
-What remains to be done:
-
- - a halfway-usable command line tool
- - remote (network) repository support
- - diff generation
- - changelog entry editing
- - various manual interventions for merge
- - handle rename
- - handle rollback
- - all sorts of other error handling
- - all sorts of cleanup, packaging, documentation, testing...
-
-Sample usage:
-
- export HGMERGE=tkmerge   # set a 3-way merge tool
- mkdir foo
- hg create                # create a repository in .hg/
- echo foo > Makefile
- hg add Makefile          # add a file to the current changeset
- hg commit                # commit files currently marked for add or delete
- hg history               # show all changesets
- hg index Makefile        # show change
- touch Makefile
- hg stat                  # find changed files
- cd ..; cp -al foo branch  # make a branch
- hg merge ../branch-foo    # sync changesets from a branch
-
-[1] though the repository format is still in flux
+On Mon, 2005-04-18 at 20:37 +0530, Vinay K Nallamothu wrote:
+> Hi,
+> 
+> The variable attributes "packed" and "align" when used with structure
+> should have the following order:
+> 
+> struct ... {...} __attribute__((packed)) var;
+> 
+> This patch fixes few instances where the variable and attributes are
+> placed the other way around and had no affect.
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+Views expressed in this mail are those of the individual sender and 
+do not bind Gsec1 Limited. or its subsidiary, unless the sender has done
+so expressly with due authority of Gsec1.
+_________________________________________________________________________
+
+

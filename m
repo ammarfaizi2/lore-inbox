@@ -1,73 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261230AbVDTIew@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261247AbVDTIhf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261230AbVDTIew (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 04:34:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261247AbVDTIew
+	id S261247AbVDTIhf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 04:37:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVDTIhe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 04:34:52 -0400
-Received: from uucp.cistron.nl ([62.216.30.38]:55788 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S261230AbVDTIeu (ORCPT
+	Wed, 20 Apr 2005 04:37:34 -0400
+Received: from rproxy.gmail.com ([64.233.170.198]:47521 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261247AbVDTIhT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 04:34:50 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: [PATCH x86_64] Live Patching Function on 2.6.11.7
-Date: Wed, 20 Apr 2005 08:34:48 +0000 (UTC)
-Organization: Cistron
-Message-ID: <d45478$npo$1@news.cistron.nl>
-References: <Pine.LNX.4.61.0504180726320.3232@chimarrao.boston.redhat.com> <4266062B.9060400@lab.ntt.co.jp> <20050420075031.GA31785@taniwha.stupidest.org> <42660B6B.6040600@lab.ntt.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1113986088 24376 194.109.0.112 (20 Apr 2005 08:34:48 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: mikevs@cistron.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	Wed, 20 Apr 2005 04:37:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=nKoXIktijI1Q9N8sxfwGJOI7MLABqSsJFSLV6HxlnQ0fyV8u7BrR2LPXVQykqq0Lf9MadLutKebUC2q06gbnW5X89JSz+u81RoVm0DBD+Q0j0x4268GuXIDcOkeWa2ifyCUdA4NyciAc1cR96S2GAgQw9a1jUZT3YOycUOWw67s=
+Message-ID: <426614B7.5010204@gmail.com>
+Date: Wed, 20 Apr 2005 17:37:11 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050402)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Jens Axboe <axboe@suse.de>, James.Bottomley@steeleye.com,
+       Christoph Hellwig <hch@infradead.org>, linux-scsi@vger.kernel.org,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH scsi-misc-2.6 01/05] scsi: make blk layer set	REQ_SOFTBARRIER
+ when a request is dispatched
+References: <20050419231435.D85F89C0@htj.dyndns.org>	 <20050419231435.2DEBE102@htj.dyndns.org> <20050420063009.GB9371@suse.de>	 <20050420074026.GA11228@htj.dyndns.org> <1113983899.5074.111.camel@npiggin-nld.site>
+In-Reply-To: <1113983899.5074.111.camel@npiggin-nld.site>
+Content-Type: text/plain; charset=EUC-KR
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <42660B6B.6040600@lab.ntt.co.jp>,
-Takashi Ikebe  <ikebe.takashi@lab.ntt.co.jp> wrote:
->Chris Wedgwood wrote:
->> On Wed, Apr 20, 2005 at 04:35:07PM +0900, Takashi Ikebe wrote:> 
->> 
->>>To takeover the application status, connection type
->>>communications(SOCK_STREAM) are need to be disconnected by close().
->>>Same network port is not allowed to bind by multiple processes....
->> 
->> 
->> AF_UNIX socket with SCM_RIGHTS
->> 
->hmm.. most internet base services will use TCPv4 TCPv6 SCTP...
->AF_UNIX can not use as inter-nodes communication.
+Nick Piggin wrote:
+> On Wed, 2005-04-20 at 16:40 +0900, Tejun Heo wrote:
+> 
+>> Hello, Jens.
+>>
+>>On Wed, Apr 20, 2005 at 08:30:10AM +0200, Jens Axboe wrote:
+>>
+>>>Do it on requeue, please - not on the initial spotting of the request.
+>>
+>> This is the reworked version of the patch.  It sets REQ_SOFTBARRIER
+>>in two places - in elv_next_request() on BLKPREP_DEFER and in
+>>blk_requeue_request().
+>>
+>> Other patches apply cleanly with this patch or the original one and
+>>the end result is the same, so take your pick.  :-)
+>>
+> 
+> 
+> I'm not sure that you need *either* one.
+> 
+> As far as I'm aware, REQ_SOFTBARRIER is used when feeding requests
+> into the top of the block layer, and is used to guarantee the device
+> driver gets the requests in a specific ordering.
+> 
+> When dealing with the requests at the other end (ie.
+> elevator_next_req_fn, blk_requeue_request), then ordering does not
+> change.
+> 
+> That is - if you call elevator_next_req_fn and don't dequeue the
+> request, then that's the same request you'll get next time.
+> 
+> And blk_requeue_request will push the request back onto the end of
+> the queue in a LIFO manner.
+> 
+> So I think adding barriers, apart from not doing anything, confuses
+> the issue because it suggests there *could* be reordering without
+> them.
+> 
+> Or am I completely wrong? It's been a while since I last got into
+> the code.
 
-No, Chris means filedescriptor passing.
+ Well, yeah, all schedulers have dispatch queue (noop has only the
+dispatch queue) and use them to defer/requeue, so no reordering will
+happen, but I'm not sure they are required to be like this or just
+happen to be implemented so.
 
-You can pass any existing open filedescriptor to another process
-using an AF_UNIX socket.
+ Hmm, well, it seems that setting REQ_SOFTBARRIER on requeue path isn't
+necessary as we have INSERT_FRONT policy on requeue, and if
+elv_next_req_fn() is required to return the same request when the
+request isn't dequeued, you're right and we don't need this patch at
+all.  We are guaranteed that all requeued requests are served in LIFO
+manner.
 
-For example, the existing running process creates a UNIX socket in
-/var/run/mysocket that the new process can connect() to. The
-processes can then not only exchange all kinds of information,
-the old process can even send open filedescriptors over to
-the new process without closing/re-opening.
+ BTW, the same un-dequeued request rule is sort of already broken as
+INSERT_FRONT request passes a returned but un-dequeued request, but,
+then again, we need this behavior as we have to favor fully-prepped
+requests over partially-prepped one.
 
-See "man 7 unix", ANCILLARY MESSAGES -> SCM_RIGHTS
-
-ANCILLARY MESSAGES
-       Ancillary data is sent and received using  sendmsg(2)  and  recvmsg(2).
-       For  historical  reasons  the  ancillary message types listed below are
-       specified with a SOL_SOCKET type even though they are PF_UNIX specific.
-       To  send  them  set  the  cmsg_level  field  of  the  struct cmsghdr to
-       SOL_SOCKET and the cmsg_type field to the type.  For  more  information
-       see cmsg(3).
-
-
-       SCM_RIGHTS
-              Send or receive a set of open file descriptors from another pro-
-              cess.  The data portion contains an integer array  of  the  file
-              descriptors.   The passed file descriptors behave as though they
-              have been created with dup(2).
-
-Mike.
+-- 
+tejun
 

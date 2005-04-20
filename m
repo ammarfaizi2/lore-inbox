@@ -1,64 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbVDTErp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbVDTFoQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261396AbVDTErp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 00:47:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261398AbVDTErp
+	id S261405AbVDTFoQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 01:44:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbVDTFoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 00:47:45 -0400
-Received: from downeast.net ([204.176.212.2]:40663 "EHLO downeast.net")
-	by vger.kernel.org with ESMTP id S261396AbVDTErh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 00:47:37 -0400
-From: Patrick McFarland <pmcfarland@downeast.net>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: alsa es1371's joystick functionality broken in 2.6.11-mm4
-Date: Wed, 20 Apr 2005 00:47:29 -0400
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-References: <200503201557.58055.pmcfarland@downeast.net> <200504070717.34113.pmcfarland@downeast.net> <200504142119.04527.pmcfarland@downeast.net>
-In-Reply-To: <200504142119.04527.pmcfarland@downeast.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2384011.0nUJRgdLxH";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200504200047.34636.pmcfarland@downeast.net>
+	Wed, 20 Apr 2005 01:44:16 -0400
+Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:42402 "EHLO
+	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S261405AbVDTFoL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 01:44:11 -0400
+X-ORBL: [67.124.119.21]
+Date: Tue, 19 Apr 2005 22:43:52 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp>
+Cc: Rik van Riel <riel@redhat.com>, Paul Jackson <pj@sgi.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH x86_64] Live Patching Function on 2.6.11.7
+Message-ID: <20050420054352.GA7329@taniwha.stupidest.org>
+References: <20050418021609.07f6ec16.pj@sgi.com> <20050418092505.GA2206@taniwha.stupidest.org> <Pine.LNX.4.61.0504180726320.3232@chimarrao.boston.redhat.com> <4263AD94.0@lab.ntt.co.jp> <Pine.LNX.4.61.0504181001470.8456@chimarrao.boston.redhat.com> <42646983.4020908@lab.ntt.co.jp> <20050419042720.GA15123@taniwha.stupidest.org> <426494FD.6020307@lab.ntt.co.jp> <20050419055254.GA15895@taniwha.stupidest.org> <4265D80F.6030007@lab.ntt.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4265D80F.6030007@lab.ntt.co.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2384011.0nUJRgdLxH
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Wed, Apr 20, 2005 at 01:18:23PM +0900, Takashi Ikebe wrote:
 
-On Thursday 14 April 2005 09:18 pm, Patrick McFarland wrote:
-> I haven't tested 2.6.6 yet, but 2.6.12-rc2-mm3 is broken too.
+> Well, Live patching is just a patch, so I think the developer of
+> patch should know the original source code well.
 
-I just tested 2.6.6, it seems to be broken too. I wonder if this actually i=
-s a=20
-kernel issue, I should have found a working kernel by now. I'll continue to=
-=20
-2.6.5.
+In which case they could fix the application.
 
-=2D-=20
-Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
-e'd=20
-all be running around in darkened rooms, munching magic pills and listening=
- to
-repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
+> Well, as you said some application can do that, but some application
+> can not continue service with your suggestion.
 
---nextPart2384011.0nUJRgdLxH
-Content-Type: application/pgp-signature
+Such as?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
+> please think about the process which use connection type
+> communication such as TCP(it's only example) between users and
+> server. During status copy, all the session between users and server
+> are disconnected...
 
-iD8DBQBCZd7m8Gvouk7G1cURAqIEAJ4+65E34L8q66O5W6QC6zu7Pju6FwCfZAJm
-XMP9ydmG8D8ZxQZldJVF8vA=
-=ptg6
------END PGP SIGNATURE-----
+They don't have to be.
 
---nextPart2384011.0nUJRgdLxH--
+> can not save the exiting service at all.
+
+Yes they can.
+
+> It's one example, but similar problems may occurs whenever processed
+> use the resources which are mainly controlled by kernel.
+
+What resources?  We can migrate memory and file descriptors?  What is
+missing?
+
+Anyhow, you seem hell bent on this despite showing any real evidence
+it's useful or desirable...  maybe a different audience for your
+patches would help?
+
+http://selenic.com/mailman/listinfo/kernel-mentors might be of value
+to you.
+

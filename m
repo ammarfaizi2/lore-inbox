@@ -1,58 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261739AbVDTTxP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261753AbVDTTyP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261739AbVDTTxP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 15:53:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbVDTTxP
+	id S261753AbVDTTyP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 15:54:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbVDTTyO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 15:53:15 -0400
-Received: from mail-in-09.arcor-online.net ([151.189.21.49]:9660 "EHLO
-	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261739AbVDTTxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 15:53:10 -0400
-From: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
-	<7eggert@gmx.de>
-Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
-To: Mike Waychison <mike@waychison.com>,
-       Eric Van Hensbergen <ericvh@gmail.com>,
-       Miklos Szeredi <miklos@szeredi.hu>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-Reply-To: 7eggert@gmx.de
-Date: Wed, 20 Apr 2005 21:52:31 +0200
-References: <3UrQt-2Js-3@gated-at.bofh.it> <3SpIW-6UA-17@gated-at.bofh.it> <3SpIW-6UA-19@gated-at.bofh.it> <3SpIW-6UA-21@gated-at.bofh.it> <3UrQt-2Js-5@gated-at.bofh.it> <3UrQt-2Js-1@gated-at.bofh.it> <3UZyS-55i-39@gated-at.bofh.it> <3V2wG-7HR-19@gated-at.bofh.it> <3V2PX-7Vh-23@gated-at.bofh.it> <3V6Ae-2Ce-17@gated-at.bofh.it> <3V6JW-2K9-49@gated-at.bofh.it> <3VeHl-NF-3@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
+	Wed, 20 Apr 2005 15:54:14 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40891 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261753AbVDTTyF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 15:54:05 -0400
+Date: Wed, 20 Apr 2005 12:01:26 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] rename rw_verify_area() to rw_access_ok()
+Message-ID: <20050420150126.GA7731@logos.cnet>
+References: <Pine.LNX.4.62.0504172346120.2586@dragon.hyggekrogen.localhost>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <E1DOLFQ-0002S6-EP@be1.7eggert.dyndns.org>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0504172346120.2586@dragon.hyggekrogen.localhost>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Waychison <mike@waychison.com> wrote:
+On Sun, Apr 17, 2005 at 11:50:35PM +0200, Jesper Juhl wrote:
+> verify_area() will soon be dead and gone, replaced by access_ok(), thus 
+> the function named rw_verify_area() is badly named and should be renamed. 
+> This patch renames rw_verify_area to rw_access_ok which seems more 
+> appropriate (it also updates all callers of the functions as well as 
+> references to it in comments).
 
-> Consider the following pseudo example:
-> 
-> main():
-> chdir("/");
-> fd = open(".", O_RDONLY);
-> clone(cloned_func, cloned_stack, CLONE_NEWNS, NULL);
-> 
-> cloned_func:
-> fchdir(fd);
-> chdir("..");
-> 
-> if main is run within a chroot where it's "/" is on the same vfsmount as
->  it's "..", then the application can step out of the chroot using clone(2).
-> 
-> Note: using chdir in a vfsmount outside of your namespace works, however
-> you won't be able to walk off that vfsmount (to its parent or children).
+Not that I care too much, but, rw_verify_area() has nothing to do with 
+verify_area/access_ok functions.
 
-IMO the '..' file descriptor should be attached to it's chroot domain.
-This should avoid all chroot-escapes, even with fd-passing etc.
-
-I wonder why nobody thought of that. Either it's too obvious or too stupid.
--- 
-Funny quotes:
-7. You have the right to remain silent. Anything you say will be misquoted,
-   then used against you.
+I dont see real need to rename this function. 
 

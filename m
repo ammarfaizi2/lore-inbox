@@ -1,86 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbVDTRVq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261768AbVDTRVp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbVDTRVq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 13:21:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbVDTRTS
+	id S261768AbVDTRVp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 13:21:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbVDTRTl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 13:19:18 -0400
-Received: from fmr17.intel.com ([134.134.136.16]:30945 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261743AbVDTRRu convert rfc822-to-8bit (ORCPT
+	Wed, 20 Apr 2005 13:19:41 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:61610 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261742AbVDTRSa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 13:17:50 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [discuss] [Patch] X86_64 TASK_SIZE cleanup
-Date: Thu, 21 Apr 2005 01:17:40 +0800
-Message-ID: <894E37DECA393E4D9374E0ACBBE74270013E8B90@pdsmsx402.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [discuss] [Patch] X86_64 TASK_SIZE cleanup
-Thread-Index: AcVD9eAOsKpZOGZ8TG+CRZo1yAFElAAPUiNwAGYEcNA=
-From: "Zou, Nanhai" <nanhai.zou@intel.com>
-To: "Andi Kleen" <ak@suse.de>
-Cc: <discuss@x86-64.org>, <linux-kernel@vger.kernel.org>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-X-OriginalArrivalTime: 20 Apr 2005 17:17:41.0274 (UTC) FILETIME=[DBC5B7A0:01C545CC]
+	Wed, 20 Apr 2005 13:18:30 -0400
+Date: Wed, 20 Apr 2005 19:18:06 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+Cc: Karel Kulhavy <clock@twibright.com>, linux-kernel@vger.kernel.org
+Subject: Re: GPL violation by CorAccess?
+Message-ID: <20050420171806.GB3372@elf.ucw.cz>
+References: <20050419175743.GA8339@beton.cybernet.src> <20050419182529.GT17865@csclub.uwaterloo.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050419182529.GT17865@csclub.uwaterloo.ca>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andi,
-   What is your comment on this patch?
-Here is another example bug this patch will fix.
-The following piece of code will get a success mmap even if compiled
-with -m32. 
-   
-   int *p;
-   p = mmap((void *)(0xFFFFE000UL), 0x10000UL, PROT_READ|PROT_WRITE,
-                MAP_FIXED|MAP_PRIVATE|MAP_ANON, 0, 0);
+Hi!
 
-I believe there are other kind of corner case bugs around mm and fs. 
-e.g in mremap and munmap.
-Those bugs will be fixed by this patch. 
+> > I have seen a device by CorAccess which apparently uses Linux and didn't find
+> > anything that would suggest it complies to GPL, though I had access to the
+> > complete shipping package. Does anyone know about known cause of violation by
+> > this company or should I investigate further?
+> 
+> Well what is the case if you use unmodified GPL code, do you still have
+> to provide sources to the end user if you give them binaries?  I would
+> guess yes, but IANAL.
+> 
+> As far as I can tell their system is a geode GX1 so runs standard x86
+> software.  Maybe they didn't have to modify any of the linux kernel to
+> run what they needed.  Their applications are their business of course.
+> It looks like they use QT as the gui toolkit, which I don't off hand
+> know the current license conditions of.  Then there is the web browser
+> and such, which has it's own license conditions.  Of course for all I
+> know their user manual has an offer of sending a CD with the sources if
+> you ask.  Does anyone actually have their product that could check for
+> that?
 
-Zou Nan hai
-> -----Original Message-----
-> From: Zou, Nanhai
-> Sent: Tuesday, April 19, 2005 12:37 AM
-> To: 'Andi Kleen'
-> Cc: discuss@x86-64.org; linux-kernel@vger.kernel.org; Siddha, Suresh B
-> Subject: RE: [discuss] [Patch] X86_64 TASK_SIZE cleanup
-> 
-> 
-> When a 32bit program is mapping a lot of hugepage vm_areas,
-> hugetlb_get_unmapped_area may search beyond 4G, then the program will
-get a
-> SIGFAULT instead of an errno of ENOMEM.
-> This patch will fix that.
-> I believe there are other inconsistent cases in generic code like mm
-and fs.
-> 
-> Zou Nan hai
-> 
-> > -----Original Message-----
-> > From: Andi Kleen [mailto:ak@suse.de]
-> > Sent: Monday, April 18, 2005 5:06 PM
-> > To: Zou, Nanhai
-> > Cc: discuss@x86-64.org; Andi Kleen; linux-kernel@vger.kernel.org;
-Siddha,
-> > Suresh B
-> > Subject: Re: [discuss] [Patch] X86_64 TASK_SIZE cleanup
-> >
-> > On Sat, Apr 16, 2005 at 09:34:25AM +0800, Zou, Nanhai wrote:
-> > >
-> > > Hi,
-> > >    This patch will clean up the X86_64 compatibility mode
-TASK_SIZE
-> > > define thus fix some bugs found in X86_64 compatibility mode
-program.
-> >
-> > Fix what bugs exactly?  Please a detailed description.
-> >
-> > -Andi
+QT is GPLed, IIRC. Not LGPL-ed, meaning you can't link it with
+proprietary application without license from trolltech.
+								Pavel
+-- 
+Boycott Kodak -- for their patent abuse against Java.

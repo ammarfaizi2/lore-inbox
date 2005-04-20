@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261242AbVDUJ67@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261255AbVDUKBM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261242AbVDUJ67 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 05:58:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVDUJ67
+	id S261255AbVDUKBM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 06:01:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVDUJ7H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 05:58:59 -0400
-Received: from extgw-uk.mips.com ([62.254.210.129]:39441 "EHLO
+	Thu, 21 Apr 2005 05:59:07 -0400
+Received: from extgw-uk.mips.com ([62.254.210.129]:39957 "EHLO
 	bacchus.net.dhis.org") by vger.kernel.org with ESMTP
-	id S261242AbVDUJ6m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 05:58:42 -0400
-Date: Wed, 20 Apr 2005 21:31:09 +0100
+	id S261243AbVDUJ66 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 05:58:58 -0400
+Date: Wed, 20 Apr 2005 21:22:22 +0100
 From: Ralf Baechle <ralf@linux-mips.org>
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-Cc: Nico Schottelius <nico-kernel@schottelius.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: /proc/cpuinfo format - arch dependent!
-Message-ID: <20050420203109.GB4551@linux-mips.org>
-References: <20050419121530.GB23282@schottelius.org> <20050419132417.GS17865@csclub.uwaterloo.ca>
+To: Rik van Riel <riel@redhat.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Chuck Wolber <chuckw@quantumlinux.com>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: Development Model
+Message-ID: <20050420202222.GA4551@linux-mips.org>
+References: <Pine.LNX.4.60.0504182219360.6679@bailey.quantumlinux.com> <1113922249.6277.64.camel@laptopd505.fenrus.org> <Pine.LNX.4.61.0504191522140.18066@chimarrao.boston.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050419132417.GS17865@csclub.uwaterloo.ca>
+In-Reply-To: <Pine.LNX.4.61.0504191522140.18066@chimarrao.boston.redhat.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 19, 2005 at 09:24:17AM -0400, Lennart Sorensen wrote:
+On Tue, Apr 19, 2005 at 03:24:00PM -0400, Rik van Riel wrote:
 
-> If you change it now, how many tools would break?
-> 
-> Maybe if you can list what statistics you think should be common to all
-> systems, that could be presented in another file that is always the same
-> format on each architecture.
-> 
-> Certainly looking at arm and i386, other than the bogomips field there
-> is nothing in common between their cpuinfo contents.  THey don't even
-> capitalize bogomips the same either.
-> 
-> I doubt this is really doable.  If all you want is the number of CPUs
-> then something like sysconf(_SC_NPROCESSORS_CONF) should do.
+> The current development model seems to go much smoother than
+> anything I've seen before.
 
-Which in glibc is implemented by counting the number of processor: records
-in /proc/cpuinfo, so simply Nico's parser seems to be insufficient.
+It violates conventional wisdom and that psychological thing is the lion
+share of why some people feel uneasy about it.
+
+Dealing with the parallel work on 2.4 and 2.5 was very much like the
+attempt of drinking from a firehose, so I'm very happy only having only to
+deal with 2.6, not 2.7 also.
 
   Ralf

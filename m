@@ -1,102 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261545AbVDTJqE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbVDTKLJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261545AbVDTJqE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 05:46:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261542AbVDTJqE
+	id S261428AbVDTKLJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 06:11:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbVDTKLJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 05:46:04 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:47250 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261524AbVDTJpr (ORCPT
+	Wed, 20 Apr 2005 06:11:09 -0400
+Received: from waste.org ([216.27.176.166]:11726 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261428AbVDTKK6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 05:45:47 -0400
-Date: Wed, 20 Apr 2005 11:44:17 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Tejun Heo <htejun@gmail.com>, James.Bottomley@steeleye.com,
-       Christoph Hellwig <hch@infradead.org>, linux-scsi@vger.kernel.org,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH scsi-misc-2.6 01/05] scsi: make blk layer set	REQ_SOFTBARRIER when a request is dispatched
-Message-ID: <20050420094417.GI6558@suse.de>
-References: <20050419231435.D85F89C0@htj.dyndns.org> <20050419231435.2DEBE102@htj.dyndns.org> <20050420063009.GB9371@suse.de> <20050420074026.GA11228@htj.dyndns.org> <1113983899.5074.111.camel@npiggin-nld.site> <426614B7.5010204@gmail.com> <20050420083853.GB6558@suse.de> <42661B2C.1020100@yahoo.com.au> <20050420091428.GH6558@suse.de> <42661FDB.7030409@yahoo.com.au>
+	Wed, 20 Apr 2005 06:10:58 -0400
+Date: Wed, 20 Apr 2005 03:10:54 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Mercurial v0.1 - a minimal scalable distributed SCM
+Message-ID: <20050420101054.GE21897@waste.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42661FDB.7030409@yahoo.com.au>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 20 2005, Nick Piggin wrote:
-> Jens Axboe wrote:
-> >On Wed, Apr 20 2005, Nick Piggin wrote:
-> >
-> 
-> >>I guess this could be one use of 'reordering' after a requeue.
-> >
-> >
-> >Yeah, or perhaps the io scheduler might determine that a request has
-> >higher prio than a requeued one.  I'm not sure what semantics to place
-> 
-> I guess this is possible. It is often only a single request
-> that is on the dispatch list though, so I don't know if it
-> would make sense to reorder it by priority again.
+http://selenic.com/mercurial/
 
-Depends entirely on the io scheduler. CFQ may put several on the
-dispatch list.
+April 19, 2005
 
-> >on soft-barrier, I've always taken it to mean 'maintain ordering if
-> >convenient' where the hard-barrier must be followed.
-> >
-> 
-> I've thought it was SOFTBARRIER ensures the device driver (and
-> hardware?) sees the request in this order, and HARDBARRIER ensures
-> it reaches stable storage in this order.
-> 
-> Not exactly sure why you would want a softbarrier and not a
-> hardbarrier. Maybe for special commands.
+I've spent the past couple weeks working on a completely new
+proof-of-concept SCM. The goals:
 
-It is the cleaner interpretation. CFQ marks requests as requeued
-internally and gives preference to them for reissue, but it may return
-another first (actually, I think it even checks for ->requeued on
-dispatch sort, so it wont right now).
+ - to initially be as simple (and thereby hackable) as possible
+ - to be as scalable as possible
+ - to be memory, disk, and bandwidth efficient
+ - to be able to do "clone/branch and pull/sync" style development
 
-> >>I'm not sure this would need a REQ_SOFTBARRIER either though, really.
-> >>
-> >>Your basic io scheduler framework - ie. a FIFO dispatch list which
-> >>can have requests requeued on the front models pretty well what the
-> >>block layer needs of the elevator.
-> >>
-> >>Considering all requeues and all elv_next_request but not dequeued
-> >>requests would have this REQ_SOFTBARRIER bit set, any other model
-> >>that theoretically would allow reordering would degenerate to this
-> >>dispatch list behaviour, right?
-> >
-> >
-> >Not sure I follow this - I don't want REQ_SOFTBARRIER set automatically
-> >on elv_next_request() return, it should only happen on requeues.
-> >REQ_STARTED implies that you should not pass this request, since the io
-> >scheduler is required to return this request again until dequeue is
-> >called. But the result is the same, correct.
-> >
-> 
-> OK - but I'm wondering would it ever make sense to do it any
-> other way? I would have thought no, in which case we can document
-> that requests seen by 'elv_next_request', and those requeued back
-> into the device will not be reordered, and so Tejun does not need
-> to set REQ_SOFTBARRIER.
-> 
-> But I'm not so sure now... it isn't really that big a deal ;)
-> So whatever you're happy with is fine. Sorry for the nose.
+It's still very early on, but I think I'm doing surprisingly well. Now
+that I've got something that actually does some interesting things if
+you poke at it right, I figure it's time to throw it out there.
+Here's what I've got so far:
 
-It's not noise, it would be nice to have this entirely documented so
-that there isn't any confusion on what is guaranteed vs what currently
-happens in most places.
+ - O(1) file revision storage and retrieval with efficient delta compression
+ - efficient append-only layout for rsync and http range protocols
+ - bare bones commit, checkout, stat, history
+ - working "clone/branch" and "pull/sync" functionality
+ - functional enough to be self-hosting[1]
+ - all in less than 600 lines of Python
 
-But I don't want to document that they are never reordered. For requeues
-it make sense to maintain ordering in most cases, but it also may make
-sense to reorder for higher priority io. If the driver does _not_ want a
-particular request reordered for data integrity reasons, then that needs
-to be explicitly specified.
+When I say "pull/sync" works, that means I can do:
+
+ hg merge other-repo
+
+and it will pull all "changesets/deltas" that are in other-dir that I
+don't have, merge them into the changeset history graph, and do the
+same for all files changed for those deltas. It will call out to
+a user-specified merge tool like tkdiff for a proper 3-way merge with
+the nearest common ancestor in the case of conflicts.
+
+Right now, "cloning/branching" is simply a matter of "cp -al" or
+"rsync" (mercurial knows how to break hardlinks if needed).
+
+Some benchmarks from my laptop:
+
+ - prepare for commit of Linux 2.6.10: ~1s
+ - commit Linux 2.6.10: 27s
+ - checkout Linux 2.6.10: 45s
+ - full tree stat for added/changed/deleted files: <1s
+ - local hardlink clone: 1.5s
+ - empty merge between full trees: <.1s
+ - trivial 3-way merge with changes to Makefile: ~1s
+
+Much thought has gone into what the best asymptotic performance can be
+for the various things an SCM has to do and the core algorithms and
+data structures here should scale relatively painlessly to arbitrary
+numbers of changesets, files, and file revisions.
+
+What remains to be done:
+
+ - a halfway-usable command line tool
+ - remote (network) repository support
+ - diff generation
+ - changelog entry editing
+ - various manual interventions for merge
+ - handle rename
+ - handle rollback
+ - all sorts of other error handling
+ - all sorts of cleanup, packaging, documentation, testing...
+
+Sample usage:
+
+ export HGMERGE=tkmerge   # set a 3-way merge tool
+ mkdir foo
+ hg create                # create a repository in .hg/
+ echo foo > Makefile
+ hg add Makefile          # add a file to the current changeset
+ hg commit                # commit files currently marked for add or delete
+ hg history               # show all changesets
+ hg index Makefile        # show change
+ touch Makefile
+ hg stat                  # find changed files
+ cd ..; cp -al foo branch  # make a branch
+ hg merge ../branch-foo    # sync changesets from a branch
+
+[1] though the repository format is still in flux
 
 -- 
-Jens Axboe
-
+Mathematics is the supreme nostalgia of our time.

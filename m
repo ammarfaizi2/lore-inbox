@@ -1,70 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbVDTSyV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261737AbVDTS6N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261468AbVDTSyV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 14:54:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261471AbVDTSyV
+	id S261737AbVDTS6N (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 14:58:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261739AbVDTS6M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 14:54:21 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:38837 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261468AbVDTSyQ (ORCPT
+	Wed, 20 Apr 2005 14:58:12 -0400
+Received: from fmr19.intel.com ([134.134.136.18]:64898 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261737AbVDTS6H convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 14:54:16 -0400
-Subject: Re: [RFC][PATCH] nameing reserved pages [0/3]
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: KAMEZAWA Hiroyuki 
-	<kamezawa.hiroyu.kamezawa.hiroyu@jp.fujitsu.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Hariprasad Nellitheertha [imap]" <hari@in.ibm.com>
-In-Reply-To: <1114000447.6238.64.camel@laptopd505.fenrus.org>
-References: <426644DA.70105@jp.fujitsu.com>
-	 <1114000447.6238.64.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Date: Wed, 20 Apr 2005 10:00:36 -0700
-Message-Id: <1114016436.6927.9.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Apr 2005 14:58:07 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 2.6.12-rc2-mm3 pciehp regression
+Date: Wed, 20 Apr 2005 11:56:30 -0700
+Message-ID: <468F3FDA28AA87429AD807992E22D07E04FC7DD9@orsmsx408>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.12-rc2-mm3 pciehp regression
+Thread-Index: AcVB9BYgHpwx0nBdSVW+e2G8bUNddwD5DqxQ
+From: "Sy, Dely L" <dely.l.sy@intel.com>
+To: <Tom.Duffy@Sun.COM>
+Cc: <pcihpd-discuss@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 20 Apr 2005 18:56:31.0930 (UTC) FILETIME=[AAB801A0:01C545DA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-04-20 at 14:34 +0200, Arjan van de Ven wrote:
-> On Wed, 2005-04-20 at 21:02 +0900, KAMEZAWA Hiroyuki wrote:
-> > Hi,
-> > 
-> > There are several types of PG_reserved pages,
-> > (a) Memory Hole
-> > (b) Used by Kernel
-> > (c) Set by drivers
-> > (d) Isorated by MCA
-> > (e) used by perfmon
-> > etc....
-> > 
-> > I think it's useful to distinguish many types of PG_reserved pages.
-> 
-> I'm not so sure about this. at all.
+On Friday, April 15, 2005 12:48 PM, Tom Duffy wrote:
+> From: "Sy, Dely L" <dely.l.sy@intel.com>
+> > Thanks for reporting this.  I'll look into it.  Which was the last 
+> > kernel you tested on your hw and worked for you?
 
-Neither am I, that's why I hoped somebody would figure out something
-better :)
+> That is a good question.  I think it was a 2.6.11 kernel.  It was 
+> definately before express was moved to a different directory, 
+> whenever that occured.
 
-> > For example, Memory Hotplug can ignore (a).
-> 
-> Memory Hotplug can also use page_is_ram().
+Tom,
 
-It uses this, to some degree, internally.  But, things like the e820
-table don't get updated as memory hotplugs occur.
+I was not able to duplicate this problem on my system yet for I have
+trouble in getting my system booted up on 2.6.12-rc2-mm3.  I did some
+back-tracking and found that the boot problem occurred also with 
+2.6.12-rc2-mm2 & 2.6.12-rc2-mm3, and on two systems using IDE as boot 
+drive. The config file I used worked fine on 2.6.11.7. I tried 
+different config file without success.
 
-This should a way to give more fine-grained information about what pages
-are availabe as RAM at any point in time. kdump would need something
-like this to figure out which pages inside of /dev/mem are actually
-valid to dump.  Here was another approach that used /proc files:
+The errors I encountered were:
+Reading all physical volumes.  This may take a while...
+Umount /sys failed: 16
+mount: error 6 mounting ext3
+mount: error 2 mounting none
+Switching to new root
+Switchroot: mount failed 22
+umount /initrd/dev failed: 2
 
-	http://lkml.org/lkml/2005/3/24/11
+I also encountered issue you & others discussed in the thread on
+"Re: Heads up on 2.6.12-rc1 and later" if I used SCSI drive.
 
-> /dev/memstate really looks like a bad idea to me as well... I rather
-> have less than more /dev/*mem*
+Can you send me the config file you used successfully on your 
+system?
 
-Any other ideas?
-
--- Dave
-
+Thanks,
+Dely

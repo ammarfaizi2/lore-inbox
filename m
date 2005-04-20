@@ -1,53 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261768AbVDTRVp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbVDTRSw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261768AbVDTRVp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 13:21:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbVDTRTl
+	id S261759AbVDTRSw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 13:18:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261748AbVDTRS3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 13:19:41 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:61610 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261742AbVDTRSa (ORCPT
+	Wed, 20 Apr 2005 13:18:29 -0400
+Received: from ns1.coraid.com ([65.14.39.133]:17064 "EHLO coraid.com")
+	by vger.kernel.org with ESMTP id S261735AbVDTRQI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 13:18:30 -0400
-Date: Wed, 20 Apr 2005 19:18:06 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-Cc: Karel Kulhavy <clock@twibright.com>, linux-kernel@vger.kernel.org
-Subject: Re: GPL violation by CorAccess?
-Message-ID: <20050420171806.GB3372@elf.ucw.cz>
-References: <20050419175743.GA8339@beton.cybernet.src> <20050419182529.GT17865@csclub.uwaterloo.ca>
-Mime-Version: 1.0
+	Wed, 20 Apr 2005 13:16:08 -0400
+To: linux-kernel@vger.kernel.org
+CC: ecashin@coraid.com, Greg K-H <greg@kroah.com>
+References: <874qe1pejv.fsf@coraid.com>
+Subject: [PATCH 2.6.12-rc2] aoe [4/6]: allow multiple aoe devices to have
+ the same mac
+From: Ed L Cashin <ecashin@coraid.com>
+Date: Wed, 20 Apr 2005 13:06:00 -0400
+Message-ID: <87is2hnzt3.fsf@coraid.com>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050419182529.GT17865@csclub.uwaterloo.ca>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > I have seen a device by CorAccess which apparently uses Linux and didn't find
-> > anything that would suggest it complies to GPL, though I had access to the
-> > complete shipping package. Does anyone know about known cause of violation by
-> > this company or should I investigate further?
-> 
-> Well what is the case if you use unmodified GPL code, do you still have
-> to provide sources to the end user if you give them binaries?  I would
-> guess yes, but IANAL.
-> 
-> As far as I can tell their system is a geode GX1 so runs standard x86
-> software.  Maybe they didn't have to modify any of the linux kernel to
-> run what they needed.  Their applications are their business of course.
-> It looks like they use QT as the gui toolkit, which I don't off hand
-> know the current license conditions of.  Then there is the web browser
-> and such, which has it's own license conditions.  Of course for all I
-> know their user manual has an offer of sending a CD with the sources if
-> you ask.  Does anyone actually have their product that could check for
-> that?
+allow multiple aoe devices to have the same mac
 
-QT is GPLed, IIRC. Not LGPL-ed, meaning you can't link it with
-proprietary application without license from trolltech.
-								Pavel
+Signed-off-by: Ed L. Cashin <ecashin@coraid.com>
+
+diff -u b/drivers/block/aoe/aoedev.c b/drivers/block/aoe/aoedev.c
+--- b/drivers/block/aoe/aoedev.c	2005-04-20 11:42:18.000000000 -0400
++++ b/drivers/block/aoe/aoedev.c	2005-04-20 11:42:22.000000000 -0400
+@@ -109,25 +109,22 @@
+ 	spin_lock_irqsave(&devlist_lock, flags);
+ 
+ 	for (d=devlist; d; d=d->next)
+-		if (d->sysminor == sysminor
+-		|| memcmp(d->addr, addr, sizeof d->addr) == 0)
++		if (d->sysminor == sysminor)
+ 			break;
+ 
+ 	if (d == NULL && (d = aoedev_newdev(bufcnt)) == NULL) {
+ 		spin_unlock_irqrestore(&devlist_lock, flags);
+ 		printk(KERN_INFO "aoe: aoedev_set: aoedev_newdev failure.\n");
+ 		return NULL;
+-	}
++	} /* if newdev, (d->flags & DEVFL_UP) == 0 for below */
+ 
+ 	spin_unlock_irqrestore(&devlist_lock, flags);
+ 	spin_lock_irqsave(&d->lock, flags);
+ 
+ 	d->ifp = ifp;
+-
+-	if (d->sysminor != sysminor
+-	|| (d->flags & DEVFL_UP) == 0) {
++	memcpy(d->addr, addr, sizeof d->addr);
++	if ((d->flags & DEVFL_UP) == 0) {
+ 		aoedev_downdev(d); /* flushes outstanding frames */
+-		memcpy(d->addr, addr, sizeof d->addr);
+ 		d->sysminor = sysminor;
+ 		d->aoemajor = AOEMAJOR(sysminor);
+ 		d->aoeminor = AOEMINOR(sysminor);
+
+
 -- 
-Boycott Kodak -- for their patent abuse against Java.
+  Ed L. Cashin <ecashin@coraid.com>
+

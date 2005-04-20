@@ -1,131 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261827AbVDTW7X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261836AbVDTXKm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261827AbVDTW7X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 18:59:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261834AbVDTW7X
+	id S261836AbVDTXKm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 19:10:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbVDTXKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 18:59:23 -0400
-Received: from rproxy.gmail.com ([64.233.170.206]:57898 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261827AbVDTW7H (ORCPT
+	Wed, 20 Apr 2005 19:10:31 -0400
+Received: from mailfe01.swip.net ([212.247.154.1]:45000 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S261830AbVDTXKL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 18:59:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=HjFv3kzmh2wZk9CfD7Dhqufpy7zRcvcEnQXnfR/tHkzrhpsZqShkAPvIqIm5EudGhz8JFr55+nVEAxX/O4Qo+eIn8hgjo8vbpRg+W6oZSfFkKyy0Xfv6u+C5VLyiJfSgYtcLHz5QQVGxdW+RcnEECLVu7kV8QYIbsvuFvga9OI4=
-Message-ID: <4266DEB3.4020502@gmail.com>
-Date: Thu, 21 Apr 2005 07:58:59 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050402)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, James.Bottomley@steeleye.com,
-       Christoph Hellwig <hch@infradead.org>, linux-scsi@vger.kernel.org,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH scsi-misc-2.6 01/05] scsi: make blk layer set	REQ_SOFTBARRIER
- when a request is dispatched
-References: <20050419231435.D85F89C0@htj.dyndns.org> <20050419231435.2DEBE102@htj.dyndns.org> <20050420063009.GB9371@suse.de> <20050420074026.GA11228@htj.dyndns.org> <1113983899.5074.111.camel@npiggin-nld.site> <426614B7.5010204@gmail.com> <20050420083853.GB6558@suse.de> <42661B2C.1020100@yahoo.com.au> <20050420091428.GH6558@suse.de> <42661FDB.7030409@yahoo.com.au> <20050420094417.GI6558@suse.de>
-In-Reply-To: <20050420094417.GI6558@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 20 Apr 2005 19:10:11 -0400
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Subject: x86_64: Bug in new out of line put_user()
+From: Alexander Nyberg <alexn@telia.com>
+To: ak@suse.de
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, nicolas@boichat.ch
+Content-Type: text/plain
+Date: Thu, 21 Apr 2005 01:10:09 +0200
+Message-Id: <1114038609.500.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The new out of line put_user() assembly on x86_64 changes %rcx without
+telling GCC about it causing things like:
 
-  Hello, guys.
+http://bugme.osdl.org/show_bug.cgi?id=4515 
 
-Jens Axboe wrote:
-> On Wed, Apr 20 2005, Nick Piggin wrote:
-> 
->>Jens Axboe wrote:
->>
->>>On Wed, Apr 20 2005, Nick Piggin wrote:
->>>
->>
->>>>I guess this could be one use of 'reordering' after a requeue.
->>>
->>>
->>>Yeah, or perhaps the io scheduler might determine that a request has
->>>higher prio than a requeued one.  I'm not sure what semantics to place
->>
->>I guess this is possible. It is often only a single request
->>that is on the dispatch list though, so I don't know if it
->>would make sense to reorder it by priority again.
-> 
-> 
-> Depends entirely on the io scheduler. CFQ may put several on the
-> dispatch list.
-> 
-> 
->>>on soft-barrier, I've always taken it to mean 'maintain ordering if
->>>convenient' where the hard-barrier must be followed.
->>>
->>
->>I've thought it was SOFTBARRIER ensures the device driver (and
->>hardware?) sees the request in this order, and HARDBARRIER ensures
->>it reaches stable storage in this order.
->>
->>Not exactly sure why you would want a softbarrier and not a
->>hardbarrier. Maybe for special commands.
-> 
-> 
-> It is the cleaner interpretation. CFQ marks requests as requeued
-> internally and gives preference to them for reissue, but it may return
-> another first (actually, I think it even checks for ->requeued on
-> dispatch sort, so it wont right now).
-> 
-> 
->>>>I'm not sure this would need a REQ_SOFTBARRIER either though, really.
->>>>
->>>>Your basic io scheduler framework - ie. a FIFO dispatch list which
->>>>can have requests requeued on the front models pretty well what the
->>>>block layer needs of the elevator.
->>>>
->>>>Considering all requeues and all elv_next_request but not dequeued
->>>>requests would have this REQ_SOFTBARRIER bit set, any other model
->>>>that theoretically would allow reordering would degenerate to this
->>>>dispatch list behaviour, right?
->>>
->>>
->>>Not sure I follow this - I don't want REQ_SOFTBARRIER set automatically
->>>on elv_next_request() return, it should only happen on requeues.
->>>REQ_STARTED implies that you should not pass this request, since the io
->>>scheduler is required to return this request again until dequeue is
->>>called. But the result is the same, correct.
->>>
->>
->>OK - but I'm wondering would it ever make sense to do it any
->>other way? I would have thought no, in which case we can document
->>that requests seen by 'elv_next_request', and those requeued back
->>into the device will not be reordered, and so Tejun does not need
->>to set REQ_SOFTBARRIER.
->>
->>But I'm not so sure now... it isn't really that big a deal ;)
->>So whatever you're happy with is fine. Sorry for the nose.
-> 
-> 
-> It's not noise, it would be nice to have this entirely documented so
-> that there isn't any confusion on what is guaranteed vs what currently
-> happens in most places.
-> 
-> But I don't want to document that they are never reordered. For requeues
-> it make sense to maintain ordering in most cases, but it also may make
-> sense to reorder for higher priority io. If the driver does _not_ want a
-> particular request reordered for data integrity reasons, then that needs
-> to be explicitly specified.
-> 
+See to it that %rcx is not changed (made it consistent with get_user()).
 
-  So, I guess this is settled now.  James, what do you think about the 
-rest of this patchset?  If you're okay, I think we can proceed merging 
-as there doesn't seem to be any issue left.  Do we put this into the 
-SCSI tree?  Or separate out blk and SCSI changes?
 
-  Once we're done merging this patchset, I'll regenerate & repost the 
-reqfn reimpl patchset.
+Signed-off-by: Alexander Nyberg <alexn@telia.com>
 
-  Thanks a lot. :-)
+Index: test/arch/x86_64/lib/getuser.S
+===================================================================
+--- test.orig/arch/x86_64/lib/getuser.S	2005-04-20 23:55:35.000000000 +0200
++++ test/arch/x86_64/lib/getuser.S	2005-04-21 00:54:16.000000000 +0200
+@@ -78,9 +78,9 @@
+ __get_user_8:
+ 	GET_THREAD_INFO(%r8)
+ 	addq $7,%rcx
+-	jc bad_get_user
++	jc 40f
+ 	cmpq threadinfo_addr_limit(%r8),%rcx
+-	jae	bad_get_user
++	jae	40f
+ 	subq	$7,%rcx
+ 4:	movq (%rcx),%rdx
+ 	xorl %eax,%eax
+Index: test/arch/x86_64/lib/putuser.S
+===================================================================
+--- test.orig/arch/x86_64/lib/putuser.S	2005-04-21 00:50:24.000000000 +0200
++++ test/arch/x86_64/lib/putuser.S	2005-04-21 01:02:15.000000000 +0200
+@@ -46,36 +46,45 @@
+ __put_user_2:
+ 	GET_THREAD_INFO(%r8)
+ 	addq $1,%rcx
+-	jc bad_put_user
++	jc 20f
+ 	cmpq threadinfo_addr_limit(%r8),%rcx
+-	jae	 bad_put_user
+-2:	movw %dx,-1(%rcx)
++	jae 20f
++2:	decq %rcx
++	movw %dx,(%rcx)
+ 	xorl %eax,%eax
+ 	ret
++20:	decq %rcx
++	jmp bad_put_user
+ 
+ 	.p2align 4
+ .globl __put_user_4
+ __put_user_4:
+ 	GET_THREAD_INFO(%r8)
+ 	addq $3,%rcx
+-	jc bad_put_user
++	jc 30f
+ 	cmpq threadinfo_addr_limit(%r8),%rcx
+-	jae bad_put_user
+-3:	movl %edx,-3(%rcx)
++	jae 30f
++3:	subq $3,%rcx
++	movl %edx,(%rcx)
+ 	xorl %eax,%eax
+ 	ret
++30:	subq $3,%rcx
++	jmp bad_put_user
+ 
+ 	.p2align 4
+ .globl __put_user_8
+ __put_user_8:
+ 	GET_THREAD_INFO(%r8)
+ 	addq $7,%rcx
+-	jc bad_put_user
++	jc 40f
+ 	cmpq threadinfo_addr_limit(%r8),%rcx
+-	jae	bad_put_user
+-4:	movq %rdx,-7(%rcx)
++	jae 40f
++4:	subq $7,%rcx
++	movq %rdx,(%rcx)
+ 	xorl %eax,%eax
+ 	ret
++40:	subq $7,%rcx
++	jmp bad_put_user
+ 
+ bad_put_user:
+ 	movq $(-EFAULT),%rax
 
--- 
-tejun
 

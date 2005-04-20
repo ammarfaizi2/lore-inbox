@@ -1,67 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbVDTHbE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbVDTHc0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261202AbVDTHbE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 03:31:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbVDTHbD
+	id S261253AbVDTHc0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 03:32:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbVDTHcZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 03:31:03 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:42973 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261202AbVDTHa4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 03:30:56 -0400
-Date: Wed, 20 Apr 2005 13:07:44 +0530
-From: Dinakar Guniguntala <dino@in.ibm.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: nickpiggin@yahoo.com.au, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net, akpm@osdl.org, dipankar@in.ibm.com,
-       colpatch@us.ibm.com
-Subject: Re: [RFC PATCH] Dynamic sched domains aka Isolated cpusets
-Message-ID: <20050420073744.GB3931@in.ibm.com>
-Reply-To: dino@in.ibm.com
-References: <1097110266.4907.187.camel@arrakis> <20050418202644.GA5772@in.ibm.com> <20050418225427.429accd5.pj@sgi.com> <1113891575.5074.46.camel@npiggin-nld.site> <20050419095230.GC3963@in.ibm.com> <20050419082639.62d706ca.pj@sgi.com>
+	Wed, 20 Apr 2005 03:32:25 -0400
+Received: from gate.firmix.at ([80.109.18.208]:30905 "EHLO gate.firmix.at")
+	by vger.kernel.org with ESMTP id S261253AbVDTHcA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 03:32:00 -0400
+Subject: Re: GPL violation by CorAccess?
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Chris Friesen <cfriesen@nortel.com>
+Cc: linux-os@analogic.com, Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       Karel Kulhavy <clock@twibright.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <42659620.5050002@nortel.com>
+References: <20050419175743.GA8339@beton.cybernet.src>
+	 <20050419182529.GT17865@csclub.uwaterloo.ca>
+	 <Pine.LNX.4.61.0504191516080.18402@chaos.analogic.com>
+	 <42656319.6090703@nortel.com>
+	 <Pine.LNX.4.61.0504191741190.19956@chaos.analogic.com>
+	 <42659620.5050002@nortel.com>
+Content-Type: text/plain
+Organization: http://www.firmix.at/
+Date: Wed, 20 Apr 2005 09:30:08 +0200
+Message-Id: <1113982209.3803.7.camel@gimli.at.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050419082639.62d706ca.pj@sgi.com>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.0.4 (2.0.4-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 19, 2005 at 08:26:39AM -0700, Paul Jackson wrote:
->  * Your understanding of "cpu_exclusive" is not the same as mine.
-
-Sorry for creating confusion by what I said earlier, I do understand
-exactly what cpu_exclusive means. Its just that when I started
-working on this (a long time ago) I had a different notion and that is
-what I was referring to, I probably should never have brought that up
-
+On Tue, 2005-04-19 at 17:37 -0600, Chris Friesen wrote:
+> Richard B. Johnson wrote:
 > 
-> > Since isolated cpusets are trying to partition the system, this
-> > can be restricted to only the first level of cpusets.
-> 
-> I do not think such a restriction is a good idea.  For example, lets say
-> our 8 CPU system has the following cpusets:
-> 
+> > No. Accompany it with a written offer to __provide__ the source
+> > code for any GPL stuff they used (like the kernel or drivers).
+> > Anything at the application-level is NOT covered by the GPL.
 
-And my current implementation has no such restriction, I was only
-suggesting that to simplify the code.
+That depends on the software used there.
 
-> 
-> > Also I think we can add further restrictions in terms not being able
-> > to change (add/remove) cpus within a isolated cpuset.
-> 
-> My approach agrees on this restriction.  Earlier I wrote:
-> > Also note that adding or removing a cpu from a cpuset that has
-> > its domain_cpu_current flag set true must fail, and similarly
-> > for domain_mem_current.
-> 
-> This restriction is required in my approach because the CPUs in the
-> domain_cpu_current cpusets (the isolated CPUs, in your terms) form a
-> partition (disjoint cover) of the CPUs in the system, which property
-> would be violated immediately if any CPU were added or removed from any
-> cpuset defining the partition.
+> > They do not have to give away their trade-secrets.
 
-See my other note explaining how things work currently. I do feel that
-this restriction is not good
+Unless they coded them into GPL software ...
 
-	-Dinakar
+> GPL'd applications would still be covered by the GPL, no?
+
+Good question: Strictly speaking if you omit the GPL in the delivered
+ssoftware/product/whatever, you violated the GPL yourself and - thus -
+loose all rights which are "given" to you through the GPL.
+
+> If I buy their product, I should be able to ask them for the source to 
+> all GPL'd entities that are present in the system, including the kernel, 
+> drivers, and all GPL'd userspace apps.
+
+ACK.
+
+> Any *new* apps that they wrote they would of course be free to keep private.
+
+As long as they do not statically link against LGPL (or GPL) code and as
+long as they do not link dynamically agaist GPL code. And there are
+probably more rules .....
+
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
+
+
+

@@ -1,544 +1,382 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVDSX4z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbVDTAQn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261254AbVDSX4z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 19:56:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbVDSX4z
+	id S261290AbVDTAQn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 20:16:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbVDTAQn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 19:56:55 -0400
-Received: from mail.upce.cz ([195.113.124.33]:8427 "EHLO mail.upce.cz")
-	by vger.kernel.org with ESMTP id S261254AbVDSXzK (ORCPT
+	Tue, 19 Apr 2005 20:16:43 -0400
+Received: from rproxy.gmail.com ([64.233.170.197]:41127 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261290AbVDTAQH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 19:55:10 -0400
-Message-ID: <426593E4.7040906@seznam.cz>
-Date: Wed, 20 Apr 2005 01:27:32 +0200
-From: "kern.petr@seznam.cz" <kern.petr@seznam.cz>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: cs, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-CC: jgarzik@pobox.com
-Subject: [PATCH libata-dev-2.6] sata_via: VT6420 PATA support - please help,
- correct this driver's alfa source code
-Content-Type: multipart/mixed;
- boundary="------------050508030303000203010808"
+	Tue, 19 Apr 2005 20:16:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=GCOxKab3QyK1Pn+e8gg8W+DHk1bDs22ve+abso8H1VaKpRoKhaBW3O+H1SGl68ALb1BtlKiCawHh/BxSofXZ2vjCBG0srkrxZwGA5yEf4g7/3cgDJbnxU0MWeKu13U13W6wKL4U3t/YNkNfKouuj5kYPCZnGrdwASR3tYVOfONU=
+Message-ID: <21d7e99705041917164bb50a1b@mail.gmail.com>
+Date: Wed, 20 Apr 2005 10:16:04 +1000
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Allison <fireflyblue@gmail.com>
+Subject: Re: Kernel page table and module text
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <17d79880504191209295aec42@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_4_25861043.1113956164886"
+References: <17d79880504191209295aec42@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050508030303000203010808
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
-
-I traid to write VT6420 PATA support into the libata: sata_via.c, 
-because the way through via82cxxx.c doesn't work.
-
-Please help me with this and correct this driver's alfa source code.
-
-/* */ ... this sign in source code means, that this part i added into 
-current libata-dev-2.6: sata_via.c
-
-Petr Novák
-kern.petr@seznam.cz
-
-
---------------050508030303000203010808
-Content-Type: text/plain;
- name="sata_via.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sata_via.c"
-
-/*
-   sata_via.c - VIA Serial ATA controllers
-
-   Maintained by:  Jeff Garzik <jgarzik@pobox.com>
-   		   Please ALWAYS copy linux-ide@vger.kernel.org
- 		   on emails.
-
-   Copyright 2003-2004 Red Hat, Inc.  All rights reserved.
-   Copyright 2003-2004 Jeff Garzik
-
-   The contents of this file are subject to the Open
-   Software License version 1.1 that can be found at
-   http://www.opensource.org/licenses/osl-1.1.txt and is included herein
-   by reference.
-
-   Alternatively, the contents of this file may be used under the terms
-   of the GNU General Public License version 2 (the "GPL") as distributed
-   in the kernel source COPYING file, in which case the provisions of
-   the GPL are applicable instead of the above.  If you wish to allow
-   the use of your version of this file only under the terms of the
-   GPL and not to allow others to use your version of this file under
-   the OSL, indicate your decision by deleting the provisions above and
-   replace them with the notice and other provisions required by the GPL.
-   If you do not delete the provisions above, a recipient may use your
-   version of this file under either the OSL or the GPL.
-
-   ----------------------------------------------------------------------
-
-   To-do list:
-   * VT6420 PATA support
-   * VT6421 PATA support
-
- */
-
-#include <linux/kernel.h>
-#include <linux/module.h>
-#include <linux/pci.h>
-#include <linux/init.h>
-#include <linux/blkdev.h>
-#include <linux/delay.h>
-#include "scsi.h"
-#include <scsi/scsi_host.h>
-#include <linux/libata.h>
-#include <asm/io.h>
-
-#define DRV_NAME	"sata_via"
-#define DRV_VERSION	"1.2" /* */
-
-enum board_ids_enum {
-	vt6420,
-    vt6420pata, /* */
-	vt6421,
-};
-
-enum {
-	SATA_CHAN_ENAB		= 0x40, /* SATA channel enable */
-	SATA_INT_GATE		= 0x41, /* SATA interrupt gating */
-	SATA_NATIVE_MODE	= 0x42, /* Native mode enable */
-	SATA_PATA_SHARING	= 0x49, /* PATA/SATA sharing func ctrl */
-
-	VT_CTLSTAT		    = 0x60,	/* IDE control and status (per port) */ /* */
-
-	PORT0			    = (1 << 1),
-	PORT1			    = (1 << 0),
-	ALL_PORTS		    = PORT0 | PORT1,
-	N_PORTS			    = 2,
-
-	NATIVE_MODE_ALL	    = (1 << 7) | (1 << 6) | (1 << 5) | (1 << 4),
-
-	SATA_EXT_PHY	    = (1 << 6), /* 0==use PATA, 1==ext phy */
-	SATA_2DEV		    = (1 << 5), /* SATA is master/slave */
-};
-
-static int svia_init_one (struct pci_dev *pdev, const struct pci_device_id *ent);
-static u32 svia_scr_read (struct ata_port *ap, unsigned int sc_reg);
-static void svia_scr_write (struct ata_port *ap, unsigned int sc_reg, u32 val);
-
-/* */
-static void vt6420pata_phy_reset(struct ata_port *ap);
-static void vt6420pata_cbl_detect(struct ata_port *ap);
-
-static struct pci_device_id svia_pci_tbl[] = {
-	{ 0x1106, 0x3149, PCI_ANY_ID, PCI_ANY_ID, 0, 0, vt6420 },
-   	{ 0x1106, 0x4149, PCI_ANY_ID, PCI_ANY_ID, 0, 0, vt6420pata }, /* */
-	{ 0x1106, 0x3249, PCI_ANY_ID, PCI_ANY_ID, 0, 0, vt6421 },
-
-	{ }	/* terminate list */
-};
-
-static struct pci_driver svia_pci_driver = {
-	.name			        = DRV_NAME,
-	.id_table		        = svia_pci_tbl,
-	.probe			        = svia_init_one,
-	.remove			        = ata_pci_remove_one,
-};
-
-static Scsi_Host_Template svia_sht = {
-	.module			        = THIS_MODULE,
-	.name			        = DRV_NAME,
-	.ioctl			        = ata_scsi_ioctl,
-	.queuecommand		    = ata_scsi_queuecmd,
-	.eh_strategy_handler	= ata_scsi_error,
-	.can_queue		        = ATA_DEF_QUEUE,
-	.this_id		        = ATA_SHT_THIS_ID,
-	.sg_tablesize		    = LIBATA_MAX_PRD,
-	.max_sectors		    = ATA_MAX_SECTORS,
-	.cmd_per_lun		    = ATA_SHT_CMD_PER_LUN,
-	.emulated		        = ATA_SHT_EMULATED,
-	.use_clustering		    = ATA_SHT_USE_CLUSTERING,
-	.proc_name		        = DRV_NAME,
-	.dma_boundary		    = ATA_DMA_BOUNDARY,
-	.slave_configure	    = ata_scsi_slave_config,
-	.bios_param		        = ata_std_bios_param,
-};
-
-static struct ata_port_operations svia_sata_ops = {
-	.port_disable		= ata_port_disable,
-
-	.tf_load		    = ata_tf_load,
-	.tf_read		    = ata_tf_read,
-	.check_status		= ata_check_status,
-	.exec_command		= ata_exec_command,
-	.dev_select		    = ata_std_dev_select,
-
-	.phy_reset		    = sata_phy_reset,
-
-	.bmdma_setup        = ata_bmdma_setup,
-	.bmdma_start        = ata_bmdma_start,
-	.bmdma_stop		    = ata_bmdma_stop,
-	.bmdma_status		= ata_bmdma_status,
-
-	.qc_prep		    = ata_qc_prep,
-	.qc_issue		    = ata_qc_issue_prot,
-
-	.eng_timeout		= ata_eng_timeout,
-
-	.irq_handler		= ata_interrupt,
-	.irq_clear		    = ata_bmdma_irq_clear,
-
-	.scr_read		    = svia_scr_read,
-	.scr_write		    = svia_scr_write,
-
-	.port_start		    = ata_port_start,
-	.port_stop		    = ata_port_stop,
-};
-
-static struct ata_port_info svia_port_info = {
-	.sht		= &svia_sht,
-	.host_flags	= /* ATA_FLAG_SATA | */ ATA_FLAG_SRST | ATA_FLAG_NO_LEGACY,
-	.pio_mask	= 0x1f,
-	.mwdma_mask	= 0x07,
-	.udma_mask	= 0x7f,
-	.port_ops	= &svia_sata_ops,
-};
-
-MODULE_AUTHOR("Jeff Garzik");
-MODULE_DESCRIPTION("SCSI low-level driver for VIA SATA controllers");
-MODULE_LICENSE("GPL");
-MODULE_DEVICE_TABLE(pci, svia_pci_tbl);
-MODULE_VERSION(DRV_VERSION);
-
-static u32 svia_scr_read (struct ata_port *ap, unsigned int sc_reg)
-{
-	if (sc_reg > SCR_CONTROL)
-		return 0xffffffffU;
-	return inl(ap->ioaddr.scr_addr + (4 * sc_reg));
-}
-
-static void svia_scr_write (struct ata_port *ap, unsigned int sc_reg, u32 val)
-{
-	if (sc_reg > SCR_CONTROL)
-		return;
-	outl(val, ap->ioaddr.scr_addr + (4 * sc_reg));
-}
-
-static const unsigned int svia_bar_sizes[] = {
-	8, 4, 8, 4, 16, 256
-};
-
-/* */
-static const unsigned int vt6420pata_bar_sizes[] = {
-	16, 16, 16, 16, 32, 128
-};
-
-static const unsigned int vt6421_bar_sizes[] = {
-	16, 16, 16, 16, 32, 128
-};
-
-static unsigned long svia_scr_addr(unsigned long addr, unsigned int port)
-{
-	return addr + (port * 128);
-}
-
-/* */
-static unsigned long vt6420pata_scr_addr(unsigned long addr, unsigned int port)
-{
-	return addr + (port * 64);
-}
-
-static unsigned long vt6421_scr_addr(unsigned long addr, unsigned int port)
-{
-	return addr + (port * 64);
-}
-
-/* */
-static void vt6420pata_init_addrs(struct ata_probe_ent *probe_ent,
-			      struct pci_dev *pdev,
-			      unsigned int port)
-{
-	unsigned long reg_addr = pci_resource_start(pdev, port);
-	unsigned long bmdma_addr = pci_resource_start(pdev, 4) + (port * 8);
-	unsigned long scr_addr;
-
-	probe_ent->port[port].cmd_addr = reg_addr;
-	probe_ent->port[port].altstatus_addr =
-	probe_ent->port[port].ctl_addr = (reg_addr + 8) | ATA_PCI_CTL_OFS;
-	probe_ent->port[port].bmdma_addr = bmdma_addr;
-
-	scr_addr = vt6421_scr_addr(pci_resource_start(pdev, 5), port);
-	probe_ent->port[port].scr_addr = scr_addr;
-
-	ata_std_ports(&probe_ent->port[port]);
-}
-
-static void vt6421_init_addrs(struct ata_probe_ent *probe_ent,
-			      struct pci_dev *pdev,
-			      unsigned int port)
-{
-	unsigned long reg_addr = pci_resource_start(pdev, port);
-	unsigned long bmdma_addr = pci_resource_start(pdev, 4) + (port * 8);
-	unsigned long scr_addr;
-
-	probe_ent->port[port].cmd_addr = reg_addr;
-	probe_ent->port[port].altstatus_addr =
-	probe_ent->port[port].ctl_addr = (reg_addr + 8) | ATA_PCI_CTL_OFS;
-	probe_ent->port[port].bmdma_addr = bmdma_addr;
-
-	scr_addr = vt6421_scr_addr(pci_resource_start(pdev, 5), port);
-	probe_ent->port[port].scr_addr = scr_addr;
-
-	ata_std_ports(&probe_ent->port[port]);
-}
-
-static struct ata_probe_ent *vt6420_init_probe_ent(struct pci_dev *pdev)
-{
-	struct ata_probe_ent *probe_ent;
-	struct ata_port_info *ppi = &svia_port_info;
-
-	probe_ent = ata_pci_init_native_mode(pdev, &ppi);
-	if (!probe_ent)
-		return NULL;
-
-	probe_ent->port[0].scr_addr =
-		svia_scr_addr(pci_resource_start(pdev, 5), 0);
-	probe_ent->port[1].scr_addr =
-		svia_scr_addr(pci_resource_start(pdev, 5), 1);
-
-	return probe_ent;
-}
-
-/* */
-static struct ata_probe_ent *vt6420pata_init_probe_ent(struct pci_dev *pdev)
-{
-	struct ata_probe_ent *probe_ent;
-	unsigned int i;
-
-	probe_ent = kmalloc(sizeof(*probe_ent), GFP_KERNEL);
-	if (!probe_ent)
-		return NULL;
-
-	memset(probe_ent, 0, sizeof(*probe_ent));
-	probe_ent->dev = pci_dev_to_dev(pdev);
-	INIT_LIST_HEAD(&probe_ent->node);
-
-	probe_ent->sht		    = &svia_sht;
-	probe_ent->host_flags	= /* ATA_FLAG_SATA | */ ATA_FLAG_SATA_RESET | ATA_FLAG_NO_LEGACY;
-	probe_ent->port_ops	    = &svia_sata_ops;
-	probe_ent->n_ports	    = N_PORTS;
-	probe_ent->irq		    = pdev->irq;
-	probe_ent->irq_flags	= SA_SHIRQ;
-	probe_ent->pio_mask	    = 0x1f;
-	probe_ent->mwdma_mask	= 0x07;
-	probe_ent->udma_mask	= 0x7f;
-
-	for (i = 0; i < N_PORTS; i++)
-		vt6420pata_init_addrs(probe_ent, pdev, i);
-
-	return probe_ent;
-}
-
-static struct ata_probe_ent *vt6421_init_probe_ent(struct pci_dev *pdev)
-{
-	struct ata_probe_ent *probe_ent;
-	unsigned int i;
-
-	probe_ent = kmalloc(sizeof(*probe_ent), GFP_KERNEL);
-	if (!probe_ent)
-		return NULL;
-
-	memset(probe_ent, 0, sizeof(*probe_ent));
-	probe_ent->dev = pci_dev_to_dev(pdev);
-	INIT_LIST_HEAD(&probe_ent->node);
-
-	probe_ent->sht		    = &svia_sht;
-	probe_ent->host_flags	= /* ATA_FLAG_SATA | */ ATA_FLAG_SATA_RESET | ATA_FLAG_NO_LEGACY;
-	probe_ent->port_ops	    = &svia_sata_ops;
-	probe_ent->n_ports	    = N_PORTS;
-	probe_ent->irq		    = pdev->irq;
-	probe_ent->irq_flags	= SA_SHIRQ;
-	probe_ent->pio_mask	    = 0x1f;
-	probe_ent->mwdma_mask	= 0x07;
-	probe_ent->udma_mask	= 0x7f;
-
-	for (i = 0; i < N_PORTS; i++)
-		vt6421_init_addrs(probe_ent, pdev, i);
-
-	return probe_ent;
-}
-
-static void svia_configure(struct pci_dev *pdev)
-{
-	u8 tmp8;
-
-	pci_read_config_byte(pdev, PCI_INTERRUPT_LINE, &tmp8);
-	printk(KERN_INFO DRV_NAME "(%s): routed to hard irq line %d\n",
-	       pci_name(pdev),
-	       (int) (tmp8 & 0xf0) == 0xf0 ? 0 : tmp8 & 0x0f);
-
-	/* make sure SATA channels are enabled */
-	pci_read_config_byte(pdev, SATA_CHAN_ENAB, &tmp8);
-	if ((tmp8 & ALL_PORTS) != ALL_PORTS) {
-		printk(KERN_DEBUG DRV_NAME "(%s): enabling SATA channels (0x%x)\n",
-		       pci_name(pdev), (int) tmp8);
-		tmp8 |= ALL_PORTS;
-		pci_write_config_byte(pdev, SATA_CHAN_ENAB, tmp8);
-	}
-
-	/* make sure interrupts for each channel sent to us */
-	pci_read_config_byte(pdev, SATA_INT_GATE, &tmp8);
-	if ((tmp8 & ALL_PORTS) != ALL_PORTS) {
-		printk(KERN_DEBUG DRV_NAME "(%s): enabling SATA channel interrupts (0x%x)\n",
-		       pci_name(pdev), (int) tmp8);
-		tmp8 |= ALL_PORTS;
-		pci_write_config_byte(pdev, SATA_INT_GATE, tmp8);
-	}
-
-	/* make sure native mode is enabled */
-	pci_read_config_byte(pdev, SATA_NATIVE_MODE, &tmp8);
-	if ((tmp8 & NATIVE_MODE_ALL) != NATIVE_MODE_ALL) {
-		printk(KERN_DEBUG DRV_NAME "(%s): enabling SATA channel native mode (0x%x)\n",
-		       pci_name(pdev), (int) tmp8);
-		tmp8 |= NATIVE_MODE_ALL;
-		pci_write_config_byte(pdev, SATA_NATIVE_MODE, tmp8);
-	}
-}
-
-static int svia_init_one (struct pci_dev *pdev, const struct pci_device_id *ent)
-{
-	static int printed_version;
-	unsigned int i;
-	int rc;
-	struct ata_probe_ent *probe_ent;
-	int board_id = (int) ent->driver_data;
-	const int *bar_sizes;
-	int pci_dev_busy = 0;
-	u8 tmp8;
-
-	if (!printed_version++)
-		printk(KERN_DEBUG DRV_NAME " version " DRV_VERSION "\n");
-
-	rc = pci_enable_device(pdev);
-	if (rc)
-		return rc;
-
-	rc = pci_request_regions(pdev, DRV_NAME);
-	if (rc) {
-		pci_dev_busy = 1;
-		goto err_out;
-	}
-
-	if (board_id == vt6420) {
-		pci_read_config_byte(pdev, SATA_PATA_SHARING, &tmp8);
-		if (tmp8 & SATA_2DEV) {
-			printk(KERN_ERR DRV_NAME "(%s): SATA master/slave not supported (0x%x)\n",
-		       	pci_name(pdev), (int) tmp8);
-			rc = -EIO;
-			goto err_out_regions;
-		}
-
-		bar_sizes = &svia_bar_sizes[0];
-	} else {
-		bar_sizes = &vt6421_bar_sizes[0];
-	}
-
-	for (i = 0; i < ARRAY_SIZE(svia_bar_sizes); i++)
-		if ((pci_resource_start(pdev, i) == 0) ||
-		    (pci_resource_len(pdev, i) < bar_sizes[i])) {
-			printk(KERN_ERR DRV_NAME "(%s): invalid PCI BAR %u (sz 0x%lx, val 0x%lx)\n",
-			       pci_name(pdev), i,
-			       pci_resource_start(pdev, i),
-			       pci_resource_len(pdev, i));
-			rc = -ENODEV;
-			goto err_out_regions;
-		}
-
-	rc = pci_set_dma_mask(pdev, ATA_DMA_MASK);
-	if (rc)
-		goto err_out_regions;
-	rc = pci_set_consistent_dma_mask(pdev, ATA_DMA_MASK);
-	if (rc)
-		goto err_out_regions;
-
-	if (board_id == vt6420)
-		probe_ent = vt6420_init_probe_ent(pdev);
-	else
-		probe_ent = vt6421_init_probe_ent(pdev);
-	
-	if (!probe_ent) {
-		printk(KERN_ERR DRV_NAME "(%s): out of memory\n",
-		       pci_name(pdev));
-		rc = -ENOMEM;
-		goto err_out_regions;
-	}
-
-	svia_configure(pdev);
-
-	pci_set_master(pdev);
-
-	/* FIXME: check ata_device_add return value */
-	ata_device_add(probe_ent);
-	kfree(probe_ent);
-
-	return 0;
-
-err_out_regions:
-	pci_release_regions(pdev);
-err_out:
-	if (!pci_dev_busy)
-		pci_disable_device(pdev);
-	return rc;
-}
-
-static int __init svia_init(void)
-{
-	return pci_module_init(&svia_pci_driver);
-}
-
-static void __exit svia_exit(void)
-{
-	pci_unregister_driver(&svia_pci_driver);
-}
-
-/* */
-static void vt6420_phy_reset(struct ata_port *ap)
-{
-	vt6420pata_reset_port(ap);
-	if (ap->flags & ATA_FLAG_SATA)
-		sata_phy_reset(ap);
-	else
-		vt6420pata_phy_reset(ap);
-}
-
-static void vt6420pata_cbl_detect(struct ata_port *ap)
-{
-	u8 tmp;
-	void *mmio = (void *) ap->ioaddr.cmd_addr + VT_CTLSTAT + 0x03;
-
-	tmp = readb(mmio);
-
-	if (tmp & 0x01)
-	{
-		ap->cbl = ATA_CBL_PATA40;
-		ap->udma_mask &= ATA_UDMA_MASK_40C;
-	}
-	else
-		ap->cbl = ATA_CBL_PATA80;
-}
-
-static void vt6420pata_phy_reset(struct ata_port *ap)
-{
-	vt6420pata_cbl_detect(ap);
-
-	ata_port_probe(ap);
-
-	ata_bus_reset(ap);
-}
-
-module_init(svia_init);
-module_exit(svia_exit);
-
-
---------------050508030303000203010808--
-
-
+------=_Part_4_25861043.1113956164886
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+> I want to find where each module is loaded in memory by traversing the
+> module list . Once I have the address and the size of the module, I
+> want to read the bytes in memory of the module and hash it to check
+> it's integrity.
+>=20
+
+Heres some code I wrote for Stargames to do a CRC tracking of every
+module loaded, it may have a race condition on module unload, but it
+works perfectly for what they want to use it for....
+
+It just runs a kthread doing the CRCing of the kernel test and modules
+every so often...
+
+I also have similiar code to do the same for shared objects loaded in
+userspace, but it requires a daemon in userspace to the CRCing whose
+license I'm not entirely sure of..
+
+Dave.
+
+------=_Part_4_25861043.1113956164886
+Content-Type: application/octet-stream; name="mytest.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="mytest.diff"
+
+ZGlmZiAtdXJwTiAtLWV4Y2x1ZGUtZnJvbT0vc3RvcmFnZS9kZXZlbC9kb250ZGlmZiBjbGVhbi9s
+aW51eC0yLjYuMTAvYXJjaC9pMzg2L0tjb25maWcgbGludXgtMi42LjEwL2FyY2gvaTM4Ni9LY29u
+ZmlnCi0tLSBjbGVhbi9saW51eC0yLjYuMTAvYXJjaC9pMzg2L0tjb25maWcJMjAwNS0wMi0yMyAx
+NjoyOTowOC4wMDAwMDAwMDAgKzExMDAKKysrIGxpbnV4LTIuNi4xMC9hcmNoL2kzODYvS2NvbmZp
+ZwkyMDA1LTAyLTIzIDE2OjM4OjA0LjAwMDAwMDAwMCArMTEwMApAQCAtODc2LDYgKzg3NiwyNCBA
+QCBjb25maWcgUkVHUEFSTQogCiBlbmRtZW51CiAKK21lbnUgIlN0YXJnYW1lcyBPcHRpb25zIgor
+Citjb25maWcgS0VSTkVMX0NSQworCXByb21wdCAiS2VybmVsIENSQyBTdXBwb3J0IgorCWJvb2wK
+KwlkZWZhdWx0IHkKKworY29uZmlnIFNHX0NSQ19VU0VfS0VSTkVMCisJcHJvbXB0ICJVc2UgaW4t
+a2VybmVsIHJvdXRpbmVzIGZvciBDUkMiCisJYm9vbAorCWRlZmF1bHQgeQorCitlbmRtZW51CiAK
+IG1lbnUgIlBvd2VyIG1hbmFnZW1lbnQgb3B0aW9ucyAoQUNQSSwgQVBNKSIKIAlkZXBlbmRzIG9u
+ICFYODZfVk9ZQUdFUgpkaWZmIC11cnBOIC0tZXhjbHVkZS1mcm9tPS9zdG9yYWdlL2RldmVsL2Rv
+bnRkaWZmIGNsZWFuL2xpbnV4LTIuNi4xMC9mcy9wcm9jL3Jvb3QuYyBsaW51eC0yLjYuMTAvZnMv
+cHJvYy9yb290LmMKLS0tIGNsZWFuL2xpbnV4LTIuNi4xMC9mcy9wcm9jL3Jvb3QuYwkyMDA1LTAy
+LTIzIDE2OjMwOjEzLjAwMDAwMDAwMCArMTEwMAorKysgbGludXgtMi42LjEwL2ZzL3Byb2Mvcm9v
+dC5jCTIwMDUtMDItMjMgMTY6Mzg6MDUuMDAwMDAwMDAwICsxMTAwCkBAIC03Niw2ICs3Niw5IEBA
+IHZvaWQgX19pbml0IHByb2Nfcm9vdF9pbml0KHZvaWQpCiAjaWZkZWYgQ09ORklHX1BST0NfREVW
+SUNFVFJFRQogCXByb2NfZGV2aWNlX3RyZWVfaW5pdCgpOwogI2VuZGlmCisjaWYgZGVmaW5lZChD
+T05GSUdfS0VSTkVMX0NSQykKKwlwcm9jX21rZGlyKCJzdGFyZ2FtZXMiLCAwKTsKKyNlbmRpZgog
+CXByb2NfYnVzID0gcHJvY19ta2RpcigiYnVzIiwgTlVMTCk7CiB9CiAKZGlmZiAtdXJwTiAtLWV4
+Y2x1ZGUtZnJvbT0vc3RvcmFnZS9kZXZlbC9kb250ZGlmZiBjbGVhbi9saW51eC0yLjYuMTAvaW5j
+bHVkZS9saW51eC9rZXJuX2NyYy5oIGxpbnV4LTIuNi4xMC9pbmNsdWRlL2xpbnV4L2tlcm5fY3Jj
+LmgKLS0tIGNsZWFuL2xpbnV4LTIuNi4xMC9pbmNsdWRlL2xpbnV4L2tlcm5fY3JjLmgJMTk3MC0w
+MS0wMSAxMDowMDowMC4wMDAwMDAwMDAgKzEwMDAKKysrIGxpbnV4LTIuNi4xMC9pbmNsdWRlL2xp
+bnV4L2tlcm5fY3JjLmgJMjAwNS0wMi0yMyAxNjozODowNS4wMDAwMDAwMDAgKzExMDAKQEAgLTAs
+MCArMSw4IEBACisjaWZuZGVmIExJTlVYX0tFUk5FTF9DUkNfSAorI2RlZmluZSBMSU5VWF9LRVJO
+RUxfQ1JDX0gKKworaW50IGtlcm5lbF9jcmNfaW5pdCh2b2lkKTsKK2ludCBrZXJuZWxfY3JjX21v
+ZHVsZV9pbml0KGNvbnN0IGNoYXIgKm1vZG5hbWUsIGNvbnN0IHZvaWQgKm1vZHN0YXJ0KTsKK2lu
+dCBrZXJuZWxfY3JjX21vZHVsZV9yZW1vdmUoY29uc3QgY2hhciAqbW9kbmFtZSk7CitpbnQga2Vy
+bmVsX2NyY19tb2R1bGVfZW5hYmxlKHN0cnVjdCBtb2R1bGUgKm1vZCk7CisjZW5kaWYKZGlmZiAt
+dXJwTiAtLWV4Y2x1ZGUtZnJvbT0vc3RvcmFnZS9kZXZlbC9kb250ZGlmZiBjbGVhbi9saW51eC0y
+LjYuMTAva2VybmVsL2tlcm5fY3JjLmMgbGludXgtMi42LjEwL2tlcm5lbC9rZXJuX2NyYy5jCi0t
+LSBjbGVhbi9saW51eC0yLjYuMTAva2VybmVsL2tlcm5fY3JjLmMJMTk3MC0wMS0wMSAxMDowMDow
+MC4wMDAwMDAwMDAgKzEwMDAKKysrIGxpbnV4LTIuNi4xMC9rZXJuZWwva2Vybl9jcmMuYwkyMDA1
+LTAyLTIzIDE2OjM4OjA1LjAwMDAwMDAwMCArMTEwMApAQCAtMCwwICsxLDQxOSBAQAorLyoqKioq
+KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
+KioqKioqKioqKioqKioqCisqICAgICAgICAgICAgICAgIENvcHlyaWdodCBTdGFyZ2FtZXMgTHRk
+LiAyMDAzLCAyMDA0LCAyMDA1ICAgICAgICAgICAgICAgICAgICoKKyogICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgKgorKiBUaGlzIGZpbGUgaXMgdW5kZXIgdGhlIEdOVSBHUEwgYXMgaXQgaXMgcGFydCBvZiB0
+aGUgTGludXggS2VybmVsIHVzZWQgICAgICAqCisqIGluIHRoZSBTR1BfMTAwMCBwcm9qZWN0LiAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICoKKyogICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgKgorKiBGaWxlICAgICAgICAgICAgIDogIGtlcm5fY3JjLmMKKyogUHVy
+cG9zZSAgICAgICAgICA6ICBMaW51eCBLZXJuZWwgQ1JDIENoZWNrCisqIENyZWF0b3IgICAgICAg
+ICAgOiAgRGF2aWQgQWlybGllIChkYXZpZGFpcmxpZUBzdGFyZ2FtZXMuY29tLmF1KQorKiBXaGVu
+ICAgICAgICAgICAgIDogIEphbiAyMDAzCisqICRMb2c6CisqICQKKyogVE9ETzogIEFkZCBoYW5k
+bGVyIGZvciB3aGVuIGEgQ1JDIGVycm9yIG9jY3VycworKiAKK1wqKioqKioqKioqKioqKioqKioq
+KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
+LworCisjaW5jbHVkZSA8bGludXgvY29uZmlnLmg+CisjaW5jbHVkZSA8bGludXgvdmVyc2lvbi5o
+PgorI2luY2x1ZGUgPGxpbnV4L2tlcm5lbC5oPgorI2luY2x1ZGUgPGxpbnV4L3NjaGVkLmg+Cisj
+aW5jbHVkZSA8bGludXgvZmlsZS5oPgorI2luY2x1ZGUgPGxpbnV4L2xpc3QuaD4KKyNpbmNsdWRl
+IDxsaW51eC9wcm9jX2ZzLmg+CisjaW5jbHVkZSA8bGludXgvc2VxX2ZpbGUuaD4KKyNpbmNsdWRl
+IDxsaW51eC9pbml0Lmg+CisjaW5jbHVkZSA8bGludXgva3RocmVhZC5oPgorI2luY2x1ZGUgPGxp
+bnV4L21vZHVsZS5oPgorI2luY2x1ZGUgPGFzbS91YWNjZXNzLmg+CisKKy8vI2RlZmluZSBLRVJO
+RUxfQ1JDX0RFQlVHIAorLyogSW5pdGlhbGlzZSB0aGUgS2VybmVsIENSQyBUaHJlYWQgKi8KKwor
+c3RydWN0IGtjcmNfbW9kdWxlX2xpc3QgeworICBzdHJ1Y3QgbGlzdF9oZWFkIGxpc3Q7CisgIHN0
+cnVjdCBzZW1hcGhvcmUgcGVyX21vZHVsZV9zZW1hcGhvcmU7CisgIHN0cnVjdCBtb2R1bGUgKm1v
+ZDsKKyAgX191MzIgY3JjOworICBpbnQgZW5hYmxlZDsKK307CisKK0xJU1RfSEVBRChrY3JjX21v
+ZHVsZXMpOworCisjaWZkZWYgQ09ORklHX1NHX0NSQ19VU0VfS0VSTkVMCisjaW5jbHVkZSA8bGlu
+dXgvY3JjMzIuaD4KKyNlbHNlCitzdGF0aWMgY29uc3QgX191MzIgY3JjMzJfdGFibGVbXTsKKyNl
+bmRpZgorCitleHRlcm4gdW5zaWduZWQgbG9uZyBfZXRleHQsIF9zdGV4dDsKKworc3RhdGljIF9f
+dTMyIG51bV9sb29wczsKK3N0YXRpYyBfX3UzMiBrZXJuZWxfdGV4dF9jcmM7CisKK3N0YXRpYyBz
+dHJ1Y3Qgc2VtYXBob3JlIG1vZHVsZV9zZW1hcGhvcmU7CisKKyNkZWZpbmUgSU5URVJfQ1JDX1NF
+Q1MgMzAKKyNkZWZpbmUgU0NIRURVTEVfT0ZURU4gMHgxMDAwCisKK3N0YXRpYyBpbmxpbmUgdW5z
+aWduZWQgbG9uZyBrY3JjX2RvX2NyYyhfX3UzMiBjcmNfc3RhcnQsIF9fdTMyIGNyY19lbmQsIHVu
+c2lnbmVkIGNoYXIgYWxsb3dfc2NoZWQpCit7CisgIHVuc2lnbmVkIGxvbmcgY3JjPTA7CisgIHVu
+c2lnbmVkIGxvbmcgY3VyX2xlbmd0aCwgdG90YWxfbGVuZ3RoLCB0aGlzX2xlbmd0aDsKKyAgdW5z
+aWduZWQgbG9uZyB0aW1lX3N0YXJ0OworCisgIGN1cl9sZW5ndGggPSAwOworICB0b3RhbF9sZW5n
+dGggPSBjcmNfZW5kIC0gY3JjX3N0YXJ0OworCisgIHdoaWxlIChjdXJfbGVuZ3RoIDwgdG90YWxf
+bGVuZ3RoKQorICB7CisgICAgdGhpc19sZW5ndGggPSB0b3RhbF9sZW5ndGggLSBjdXJfbGVuZ3Ro
+OworICAgIGlmICh0aGlzX2xlbmd0aCA+IFNDSEVEVUxFX09GVEVOKQorICAgICAgdGhpc19sZW5n
+dGggPSBTQ0hFRFVMRV9PRlRFTjsKKyAgICAKKyNpZmRlZiBDT05GSUdfU0dfQ1JDX1VTRV9LRVJO
+RUwKKyAgICBjcmM9Y3JjMzIoY3JjLCBjcmNfc3RhcnQrY3VyX2xlbmd0aCwgdGhpc19sZW5ndGgp
+OworI2Vsc2UKKyAgICB7CisgICAgICB1bnNpZ25lZCBjaGFyICpjdXJieXRlOworICAgICAgCisg
+ICAgICBmb3IgKGN1cmJ5dGU9KHVuc2lnbmVkIGNoYXIgKiljcmNfc3RhcnRfY3VyX2xlbmd0aDsg
+Y3VyYnl0ZTwodW5zaWduZWQgY2hhciAqKShjcmNfc3RhcnQrY3VyX2xlbmd0aCt0aGlzX2xlbmd0
+aCk7IGN1cmJ5dGUrKykKKwljcmMgPSBjcmMzMl90YWJsZVsoY3JjIF4gKmN1cmJ5dGUpICYgMHhm
+Zl0gXiAoY3JjID4+IDgpOworICAgIH0KKyNlbmRpZgorICAgIGN1cl9sZW5ndGggKz0gdGhpc19s
+ZW5ndGg7CisgICAgaWYgKGFsbG93X3NjaGVkKQorICAgIHsKKyAgICAgIHNldF9jdXJyZW50X3N0
+YXRlKFRBU0tfSU5URVJSVVBUSUJMRSk7CisgICAgICBzY2hlZHVsZV90aW1lb3V0KEhaKTsKKyAg
+ICB9CisgIH0KKyAgcmV0dXJuIGNyYzsKK30KKworLyogCisgKiB0aGlzIHRocmVhZCBzaG91bGQg
+YWxzbyBkbyB0aGUgc2VnbWVudHMgZm9yIG1vZHVsZXMgbG9hZGVkIGludG8gdGhlIHN5c3RlbQor
+ICogbW9kdWxlcyBob3dldmVyIGRvbid0IGhhdmUgc2VnbWVudHMgd2UgY2FuIHNlZSBmcm9tIHRo
+ZSBrZXJuZWwsCisgKiBzbyB0aGUgbW9kdWxlIGxvYWRpbmcgc3lzdGVtIGhhcyB0byBsZXQgdXMg
+a25vdyB0aGUgc3RhcnQsIGxlbmd0aCBhbmQgQ1JDCisgKiBvZiB0aGUgdGV4dCBzZWdtZW50cyBv
+ZiB0aGUgbW9kdWxlcyB3aGVuIGxvYWRpbmcgdGhlbQorICovCitpbnQga2VybmVsX2NyYyh2b2lk
+ICp1bnVzZWQpCit7CisgIC8qIFJ1biBmb3ItZXZlciAqLworICAvKiBwcmludCBvdXQga2VybmVs
+IHRleHQgc2VnbWVudCBzdGFydCBhbmQgZW5kICovCisgIHN0cnVjdCBsaXN0X2hlYWQgKm07Cisg
+IHVuc2lnbmVkIGxvbmcgbGVuZ3RoID0gKChfX3UzMikmX2V0ZXh0KSAtICgoX191MzIpJl9zdGV4
+dCk7CisgIHVuc2lnbmVkIGxvbmcgc3RhcnQ7CisgIHVuc2lnbmVkIGxvbmcgY2hlY2tzdW09MDsK
+KyAgc3RydWN0IGtjcmNfbW9kdWxlX2xpc3QgKm1vZDsKKworICBzZW1hX2luaXQoJm1vZHVsZV9z
+ZW1hcGhvcmUsIDEpOworICAvKiBkYWVtb25penNlLCBzZXQgbmFtZSBhbmQgYmxvY2sgc2lnbmFs
+cyAqLworICBkYWVtb25pemUoImtlcm5lbF9jcmNkIik7CisKKyAgcHJpbnRrKCJDUkM6IFRocmVh
+ZCBjaGVja2luZyAlcCwgJXAgc2l6ZTogJThsWFxuIiwgJl9zdGV4dCwgJl9ldGV4dCwgbGVuZ3Ro
+KTsKKyAga2VybmVsX3RleHRfY3JjID0ga2NyY19kb19jcmMoKF9fdTMyKSZfc3RleHQsIChfX3Uz
+MikmX2V0ZXh0LCAwKTsKKyAgcHJpbnRrKCJDUkM6IEluaXRpYWwgQ1JDOiAlOGxYXG4iLCAodW5z
+aWduZWQgbG9uZylrZXJuZWxfdGV4dF9jcmMpOworCisgIHdoaWxlKCFrdGhyZWFkX3Nob3VsZF9z
+dG9wKCkpICB7CisgICAgLyogc2V0IHRoZSB0YXNrIHRvIGludGVycnVwdGlibGUgc28gdGhlIHNj
+aGVkdWxlcyBiZWxvdyBjYW4gc3dpdGNoIHRhc2tzICovCisgICAgc2V0X2N1cnJlbnRfc3RhdGUo
+VEFTS19JTlRFUlJVUFRJQkxFKTsKKyAgICAKKyAgICAvKiBnZXQgYSBqaWZmaWVzIGNvdW50ICov
+CisgICAgc3RhcnQ9amlmZmllczsKKyAgICBudW1fbG9vcHMrKzsKKyAgICAvKiBXZSBuZWVkIHRv
+IENSQyBjaGVjayB0aGUgZW50aXJlIHRleHQgc2VnbWVudCAqLworICAgIGNoZWNrc3VtPWtjcmNf
+ZG9fY3JjKChfX3UzMikmX3N0ZXh0LChfX3UzMikmX2V0ZXh0LCAxKTsKKworICAgIGlmIChjaGVj
+a3N1bSE9a2VybmVsX3RleHRfY3JjKQorICAgIHsKKyAgICAgIHByaW50aygiQ1JDOiBDaGVja3N1
+bSBpbmNvcnJlY3QgJThsWFxuIiwgY2hlY2tzdW0pOworICAgICAgZ290byBkb19jcmNfZXJyb3I7
+CisgICAgfQorI2lmZGVmIEtFUk5FTF9DUkNfREVCVUcKKyAgICBlbHNlCisgICAgICBwcmludGso
+IkNSQzogQ2hlY2tzdW0gaXMgJThsWCB0b29rICVsdSBqaWZmaWVzXG4iLCAodW5zaWduZWQgbG9u
+ZyljaGVja3N1bSwgamlmZmllcy1zdGFydCk7CisjZW5kaWYKKyAgICBzdGFydD0wOworICAgIHBy
+aW50aygiZG9fY2hlY2s6IEFib3V0IGRvIERvd24gbW9kdWxlIHNlbWFwaG9yZVxuIik7CisgICAg
+ZG93bigmbW9kdWxlX3NlbWFwaG9yZSk7CisgICAgcHJpbnRrKCJkb19jaGVjayBEb3duZWQgbW9k
+dWxlIHNlbWFwaG9yZVxuIik7CisgICAgLyogVHJhdmVyc2UgdGhlIGxpbmtlZCBsaXN0IG9mIG1v
+ZHVsZXMgYW5kIGNoZWNrIHRoZWlyIENSQ3MgKi8KKyAgICBsaXN0X2Zvcl9lYWNoKG0sICZrY3Jj
+X21vZHVsZXMpIHsKKyAgICAgIG1vZD1saXN0X2VudHJ5KG0sIHN0cnVjdCBrY3JjX21vZHVsZV9s
+aXN0LCBsaXN0KTsKKyAgICAgIGRvd24oJihtb2QtPnBlcl9tb2R1bGVfc2VtYXBob3JlKSk7Cisg
+ICAgICB1cCgmbW9kdWxlX3NlbWFwaG9yZSk7CisjaWZkZWYgS0VSTkVMX0NSQ19ERUJVRworICAg
+ICAgcHJpbnRrKCJDUkM6IFRocmVhZCBjaGVja2luZyBtb2R1bGUgJThsWCwgc2l6ZTogJThsWDog
+Y3JjICU4bFhcbiIsIG1vZC0+bW9kLT5tb2R1bGVfY29yZSwgbW9kLT5tb2QtPmNvcmVfdGV4dF9z
+aXplLCBtb2QtPmNyYyk7CisjZW5kaWYKKyAgICAgIGlmIChtb2QtPmVuYWJsZWQpCisgICAgICB7
+CisJY2hlY2tzdW09a2NyY19kb19jcmMoKF9fdTMyKW1vZC0+bW9kLT5tb2R1bGVfY29yZSwgKF9f
+dTMyKW1vZC0+bW9kLT5tb2R1bGVfY29yZSttb2QtPm1vZC0+Y29yZV90ZXh0X3NpemUsIDEpOwor
+CWlmIChjaGVja3N1bSE9bW9kLT5jcmMpCisJeworCSAgcHJpbnRrKCJDUkM6IE1vZHVsZSBDaGVj
+a3N1bSBpbmNvcnJlY3QgJXMgZXhwZWN0ZWQ6ICU4bFggZ290OiAlOGxYXG4iLCBtb2QtPm1vZC0+
+bmFtZSwgKHVuc2lnbmVkIGxvbmcpbW9kLT5jcmMsIGNoZWNrc3VtKTsKKwkgIGdvdG8gZG9fY3Jj
+X2Vycm9yOworCX0KKyAgICAgIH0KKyAgICAgIHVwKCZtb2QtPnBlcl9tb2R1bGVfc2VtYXBob3Jl
+KTsKKyAgICAgIGRvd24oJm1vZHVsZV9zZW1hcGhvcmUpOworICAgIH0KKworICAgIC8qIE9ubHkg
+cnVuIG9uY2UgZXZlciBJTlRFUl9DUkNfU0VDUyBzZWNvbmQgKi8KKyAgICBwcmludGsoImRvX0No
+ZWNrIGFib3V0IHRvIHVwXG4iKTsKKyAgICB1cCgmbW9kdWxlX3NlbWFwaG9yZSk7CisgICAgc2V0
+X2N1cnJlbnRfc3RhdGUoVEFTS19JTlRFUlJVUFRJQkxFKTsKKyAgICBzY2hlZHVsZV90aW1lb3V0
+KEhaKklOVEVSX0NSQ19TRUNTKTsgICAgCisgIH0KKyAgCisgZG9fY3JjX2Vycm9yOgorICAvKiBv
+aCBubyBiYWQgc3R1ZmYgaGFzIGhhcHBlbmVkLi4gZHVjayBhbmQgY292ZXIgKi8KKyAgLyogZXhl
+Y3V0aW5nIGFueSBjb2RlIGlzIGEgYmFkIGlkZWEgbm93IGRvIGFzIGxpdHRsZSBhcyBwb3NzaWJs
+ZSAqLworCisgIC8qIHdyaXRlIHNvbWV0aGluZyB0byBOVlJBTSAqLworICAvKiBoYW5nIHRoZSBt
+YWNoaW5lIHVwIGFuZCBsZXQgdGhlIHdhdGNoZG9nIGJsb3cgdXMgYXdheSAqLworICByZXR1cm4g
+MDsKK30KKworLy8gMi42IG9ubHkKK2ludCBrZXJuZWxfY3JjX21vZHVsZV9lbmFibGUoc3RydWN0
+IG1vZHVsZSAqbW9kKQoreworICAvKiBydW4gdGhyb3VnaCB0aGUgbGlzdCBhbmQgbG9vayBmb3Ig
+dGhlIG1vZG5hbWUgaW4gaXQgKi8KKyAgc3RydWN0IGtjcmNfbW9kdWxlX2xpc3QgKm5ld19lbnQ7
+CisKKyAgcHJpbnRrKCJDUkM6IGVuYWJsaW5nIG1vZHVsZSAlcywgJXAgJThsWFxuIiwgbW9kLT5u
+YW1lLCBtb2QtPm1vZHVsZV9jb3JlLCBtb2QtPmNvcmVfdGV4dF9zaXplKTsKKworICBuZXdfZW50
+ID0ga21hbGxvYyhzaXplb2Yoc3RydWN0IGtjcmNfbW9kdWxlX2xpc3QpLCBHRlBfS0VSTkVMKTsK
+KyAgaWYgKG5ld19lbnQ9PU5VTEwpCisgICAgcmV0dXJuIC1FRkFVTFQ7CisKKyAgbmV3X2VudC0+
+bW9kPW1vZDsKKyAgbmV3X2VudC0+ZW5hYmxlZD0xOworICBzZW1hX2luaXQoJm5ld19lbnQtPnBl
+cl9tb2R1bGVfc2VtYXBob3JlLCAxKTsKKyAgbmV3X2VudC0+Y3JjID0ga2NyY19kb19jcmMoKF9f
+dTMyKW5ld19lbnQtPm1vZC0+bW9kdWxlX2NvcmUsIChfX3UzMiluZXdfZW50LT5tb2QtPm1vZHVs
+ZV9jb3JlK25ld19lbnQtPm1vZC0+Y29yZV90ZXh0X3NpemUsIDApOworICBsaXN0X2FkZF90YWls
+KCZuZXdfZW50LT5saXN0LCAma2NyY19tb2R1bGVzKTsKKyAgcmV0dXJuIDA7Cit9CisKK2ludCBr
+ZXJuZWxfY3JjX21vZHVsZV9yZW1vdmUoY29uc3QgY2hhciAqbW9kbmFtZSkKK3sKKyAgLyogcnVu
+IHRocm91Z2ggdGhlIGxpc3QgYW5kIGxvb2sgZm9yIHRoZSBtb2RuYW1lIGluIGl0ICovCisgIHN0
+cnVjdCBsaXN0X2hlYWQgKm07CisgIHN0cnVjdCBrY3JjX21vZHVsZV9saXN0ICptb2Q7CisgIGlu
+dCByZXQ7CisKKyAgcHJpbnRrKCJDUkM6IHJlbW92aW5nIG1vZHVsZSBhYm91dCB0byBkb3duIHNl
+bSAlc1xuIiwgbW9kbmFtZSk7CisKKyAgcmV0PWRvd25faW50ZXJydXB0aWJsZSgmbW9kdWxlX3Nl
+bWFwaG9yZSk7CisgIGlmIChyZXQhPTApCisgICAgZ290byBvdXQ7CisKKyAgcHJpbnRrKCJDUkM6
+IHJlbW92ZSBzZW1hIGRvd25cbiIpOworICBsaXN0X2Zvcl9lYWNoKG0sICZrY3JjX21vZHVsZXMp
+IHsKKyAgICBtb2Q9bGlzdF9lbnRyeShtLCBzdHJ1Y3Qga2NyY19tb2R1bGVfbGlzdCwgbGlzdCk7
+CisgICAgCisgICAgaWYgKHN0cmNtcChtb2QtPm1vZC0+bmFtZSwgbW9kbmFtZSk9PTApCisgICAg
+eworICAgICAgaWYgKGRvd25faW50ZXJydXB0aWJsZSgmbW9kLT5wZXJfbW9kdWxlX3NlbWFwaG9y
+ZSkpCisgICAgICB7CisJZ290byBvdXRfdW5sb2NrOworICAgICAgfQorCisgICAgICAvKiBkaXNh
+YmxlIGFuZCBmcmVlIGl0ICovCisgICAgICBtb2QtPmVuYWJsZWQ9MDsKKyAgICAgIGxpc3RfZGVs
+KCZtb2QtPmxpc3QpOworICAgICAga2ZyZWUobW9kKTsKKyAgICAgIGJyZWFrOworICAgIH0KKyAg
+fQorIG91dF91bmxvY2s6CisgIHVwKCZtb2R1bGVfc2VtYXBob3JlKTsKKyBvdXQ6CisgIHJldHVy
+biByZXQ7Cit9CisKK2ludCBfX2luaXQga2VybmVsX2NyY19pbml0KHZvaWQpCit7CisgIHN0cnVj
+dCB0YXNrX3N0cnVjdCAqcDsKKyAgcHJpbnRrKCJDUkM6IFN0YXJ0aW5nIFRocmVhZFxuIik7Cisg
+IAorICBwPWt0aHJlYWRfcnVuKGtlcm5lbF9jcmMsIE5VTEwsICJrZXJuZWxfY3JjZCIpOworICBy
+ZXR1cm4gMDsKK30KKworLyogaXRlcmF0b3IgKi8KK3N0YXRpYyB2b2lkICprY3JjX3NlcV9zdGFy
+dChzdHJ1Y3Qgc2VxX2ZpbGUgKm0sIGxvZmZfdCAqcG9zKQoreworICBzdHJ1Y3QgbGlzdF9oZWFk
+ICpwID0gJmtjcmNfbW9kdWxlczsKKyAgbG9mZl90IG4gPSAqcG9zOworICAKKyAgLyogWFhYOiBz
+dXJlbHkgd2UgbmVlZCBzb21lIGxvY2tpbmcgZm9yIHRyYXZlcnNpbmcgdGhlIGxpc3Q/ICovCisg
+IHdoaWxlIChuLS0pIHsKKyAgICBwID0gcC0+bmV4dDsKKyAgICBpZiAocCA9PSAma2NyY19tb2R1
+bGVzKQorICAgICAgcmV0dXJuIE5VTEw7CisgIH0KKyAgcmV0dXJuIHA7Cit9CisKK3N0YXRpYyB2
+b2lkICprY3JjX3NlcV9uZXh0KHN0cnVjdCBzZXFfZmlsZSAqbSwgdm9pZCAqdiwgbG9mZl90ICpw
+b3MpCit7CisJc3RydWN0IGxpc3RfaGVhZCAqcCA9IHY7CisJKCpwb3MpKys7CisJcmV0dXJuIHAt
+Pm5leHQgIT0gJmtjcmNfbW9kdWxlcyA/IHAtPm5leHQgOiBOVUxMOworfQorCitzdGF0aWMgdm9p
+ZCBrY3JjX3NlcV9zdG9wKHN0cnVjdCBzZXFfZmlsZSAqbSwgdm9pZCAqdikKK3sKKwkvKiByZWxl
+YXNlIHdoYXRldmVyIGxvY2tzIHdlIG5lZWQgKi8KK30KKworc3RhdGljIGludCBrY3JjX3NlcV9z
+aG93X2xpc3Qoc3RydWN0IHNlcV9maWxlICptLCB2b2lkICp2KQoreworICBzdHJ1Y3QgbGlzdF9o
+ZWFkICpwPXY7CisgIGNvbnN0IHN0cnVjdCBrY3JjX21vZHVsZV9saXN0ICptb2Q7CisKKyAgaWYg
+KHAgPT0gJmtjcmNfbW9kdWxlcykgeworICAgIHNlcV9wcmludGYobSwgIktlcm5lbDogbG9vcHMg
+JWQ6IENSQyAlMDhsWFxuIiwgbnVtX2xvb3BzLCAodW5zaWduZWQgbG9uZylrZXJuZWxfdGV4dF9j
+cmMpOworICAgIHNlcV9wdXRzKG0sICJNb2R1bGUgTmFtZShlKVx0U3RhcnRcdFx0TGVuZ3RoXHRc
+dENSQ1xuIik7CisgICAgcmV0dXJuIDA7CisgIH0KKyAgCisgIG1vZD1saXN0X2VudHJ5KHAsIHN0
+cnVjdCBrY3JjX21vZHVsZV9saXN0LCBsaXN0KTsKKyAgCisgIHNlcV9wcmludGYobSwiJXMoJWQp
+XHRcdDB4JThYXHQweCUwOGxYXHQweCUwOFhcbiIsIG1vZC0+bW9kLT5uYW1lLCBtb2QtPmVuYWJs
+ZWQsKF9fdTMyKW1vZC0+bW9kLT5tb2R1bGVfY29yZSwgbW9kLT5tb2QtPmNvcmVfdGV4dF9zaXpl
+LCBtb2QtPmNyYyk7CisgIHJldHVybiAwOworfQorCitzdGF0aWMgc3RydWN0IHNlcV9vcGVyYXRp
+b25zIHByb2Nfa2NyY19vcCA9IHsKKwlzdGFydDoJa2NyY19zZXFfc3RhcnQsCisJbmV4dDoJa2Ny
+Y19zZXFfbmV4dCwKKwlzdG9wOglrY3JjX3NlcV9zdG9wLAorCXNob3c6ICAga2NyY19zZXFfc2hv
+d19saXN0Cit9OworCitzdGF0aWMgaW50IHByb2Nfa2NyY19vcGVuKHN0cnVjdCBpbm9kZSAqaW5v
+ZGUsIHN0cnVjdCBmaWxlICpmaWxlKQoreworCXJldHVybiBzZXFfb3BlbihmaWxlLCAmcHJvY19r
+Y3JjX29wKTsKK30KKworc3RhdGljIHN0cnVjdCBmaWxlX29wZXJhdGlvbnMgcHJvY19rY3JjX29w
+ZXJhdGlvbnMgPSB7CisJb3BlbjoJCXByb2Nfa2NyY19vcGVuLAorCXJlYWQ6CQlzZXFfcmVhZCwK
+KwlsbHNlZWs6CQlzZXFfbHNlZWssCisJcmVsZWFzZToJc2VxX3JlbGVhc2UsCit9OworCitzdGF0
+aWMgaW50IF9faW5pdCBrY3JjX3Byb2NfaW5pdCh2b2lkKQoreworICBzdHJ1Y3QgcHJvY19kaXJf
+ZW50cnkgKmVudHJ5OworICAKKyAgZW50cnkgPSBjcmVhdGVfcHJvY19lbnRyeSgic3RhcmdhbWVz
+L2tjcmMiLCAwLCBOVUxMKTsKKyAgaWYgKGVudHJ5KQorICAgIGVudHJ5LT5wcm9jX2ZvcHMgPSAm
+cHJvY19rY3JjX29wZXJhdGlvbnM7CisgIHJldHVybiAwOworfQorCitfX2luaXRjYWxsKGtlcm5l
+bF9jcmNfaW5pdCk7CitfX2luaXRjYWxsKGtjcmNfcHJvY19pbml0KTsKKworI2lmbmRlZiBDT05G
+SUdfU0dfQ1JDX1VTRV9LRVJORUwKKy8qCisgKiAgQ09QWVJJR0hUIChDKSAxOTg2IEdhcnkgUy4g
+QnJvd24uICBZb3UgbWF5IHVzZSB0aGlzIHByb2dyYW0sIG9yCisgKiAgY29kZSBvciB0YWJsZXMg
+ZXh0cmFjdGVkIGZyb20gaXQsIGFzIGRlc2lyZWQgd2l0aG91dCByZXN0cmljdGlvbi4KKyAqCisg
+KiAgRmlyc3QsIHRoZSBwb2x5bm9taWFsIGl0c2VsZiBhbmQgaXRzIHRhYmxlIG9mIGZlZWRiYWNr
+IHRlcm1zLiAgVGhlCisgKiAgcG9seW5vbWlhbCBpcworICogIFheMzIrWF4yNitYXjIzK1heMjIr
+WF4xNitYXjEyK1heMTErWF4xMCtYXjgrWF43K1heNStYXjQrWF4yK1heMStYXjAKKyAqCisgKiAg
+Tm90ZSB0aGF0IHdlIHRha2UgaXQgImJhY2t3YXJkcyIgYW5kIHB1dCB0aGUgaGlnaGVzdC1vcmRl
+ciB0ZXJtIGluCisgKiAgdGhlIGxvd2VzdC1vcmRlciBiaXQuICBUaGUgWF4zMiB0ZXJtIGlzICJp
+bXBsaWVkIjsgdGhlIExTQiBpcyB0aGUKKyAqICBYXjMxIHRlcm0sIGV0Yy4gIFRoZSBYXjAgdGVy
+bSAodXN1YWxseSBzaG93biBhcyAiKzEiKSByZXN1bHRzIGluCisgKiAgdGhlIE1TQiBiZWluZyAx
+CisgKgorICogIE5vdGUgdGhhdCB0aGUgdXN1YWwgaGFyZHdhcmUgc2hpZnQgcmVnaXN0ZXIgaW1w
+bGVtZW50YXRpb24sIHdoaWNoCisgKiAgaXMgd2hhdCB3ZSdyZSB1c2luZyAod2UncmUgbWVyZWx5
+IG9wdGltaXppbmcgaXQgYnkgZG9pbmcgZWlnaHQtYml0CisgKiAgY2h1bmtzIGF0IGEgdGltZSkg
+c2hpZnRzIGJpdHMgaW50byB0aGUgbG93ZXN0LW9yZGVyIHRlcm0uICBJbiBvdXIKKyAqICBpbXBs
+ZW1lbnRhdGlvbiwgdGhhdCBtZWFucyBzaGlmdGluZyB0b3dhcmRzIHRoZSByaWdodC4gIFdoeSBk
+byB3ZQorICogIGRvIGl0IHRoaXMgd2F5PyAgQmVjYXVzZSB0aGUgY2FsY3VsYXRlZCBDUkMgbXVz
+dCBiZSB0cmFuc21pdHRlZCBpbgorICogIG9yZGVyIGZyb20gaGlnaGVzdC1vcmRlciB0ZXJtIHRv
+IGxvd2VzdC1vcmRlciB0ZXJtLiAgVUFSVHMgdHJhbnNtaXQKKyAqICBjaGFyYWN0ZXJzIGluIG9y
+ZGVyIGZyb20gTFNCIHRvIE1TQi4gIEJ5IHN0b3JpbmcgdGhlIENSQyB0aGlzIHdheQorICogIHdl
+IGhhbmQgaXQgdG8gdGhlIFVBUlQgaW4gdGhlIG9yZGVyIGxvdy1ieXRlIHRvIGhpZ2gtYnl0ZTsg
+dGhlIFVBUlQKKyAqICBzZW5kcyBlYWNoIGxvdy1iaXQgdG8gaGlnaHQtYml0OyBhbmQgdGhlIHJl
+c3VsdCBpcyB0cmFuc21pc3Npb24gYml0CisgKiAgYnkgYml0IGZyb20gaGlnaGVzdC0gdG8gbG93
+ZXN0LW9yZGVyIHRlcm0gd2l0aG91dCByZXF1aXJpbmcgYW55IGJpdAorICogIHNodWZmbGluZyBv
+biBvdXIgcGFydC4gIFJlY2VwdGlvbiB3b3JrcyBzaW1pbGFybHkKKyAqCisgKiAgVGhlIGZlZWRi
+YWNrIHRlcm1zIHRhYmxlIGNvbnNpc3RzIG9mIDI1NiwgMzItYml0IGVudHJpZXMuICBOb3Rlcwor
+ICoKKyAqICAgICAgVGhlIHRhYmxlIGNhbiBiZSBnZW5lcmF0ZWQgYXQgcnVudGltZSBpZiBkZXNp
+cmVkOyBjb2RlIHRvIGRvIHNvCisgKiAgICAgIGlzIHNob3duIGxhdGVyLiAgSXQgbWlnaHQgbm90
+IGJlIG9idmlvdXMsIGJ1dCB0aGUgZmVlZGJhY2sKKyAqICAgICAgdGVybXMgc2ltcGx5IHJlcHJl
+c2VudCB0aGUgcmVzdWx0cyBvZiBlaWdodCBzaGlmdC94b3Igb3BlcmEKKyAqICAgICAgdGlvbnMg
+Zm9yIGFsbCBjb21iaW5hdGlvbnMgb2YgZGF0YSBhbmQgQ1JDIHJlZ2lzdGVyIHZhbHVlcworICoK
+KyAqICAgICAgVGhlIHZhbHVlcyBtdXN0IGJlIHJpZ2h0LXNoaWZ0ZWQgYnkgZWlnaHQgYml0cyBi
+eSB0aGUgInVwZGNyYworICogICAgICBsb2dpYzsgdGhlIHNoaWZ0IG11c3QgYmUgdW5zaWduZWQg
+KGJyaW5nIGluIHplcm9lcykuICBPbiBzb21lCisgKiAgICAgIGhhcmR3YXJlIHlvdSBjb3VsZCBw
+cm9iYWJseSBvcHRpbWl6ZSB0aGUgc2hpZnQgaW4gYXNzZW1ibGVyIGJ5CisgKiAgICAgIHVzaW5n
+IGJ5dGUtc3dhcCBpbnN0cnVjdGlvbnMKKyAqICAgICAgcG9seW5vbWlhbCAkZWRiODgzMjAKKyAq
+LworCisvKiAkSWQ6IGtlcm5fY3JjLmMsdiAxLjYgMjAwMy8wMi8yNyAyMzoyMjowMSBhaXJsaWVk
+IEV4cCAkICovCisKK3N0YXRpYyBjb25zdCBfX3UzMiBjcmMzMl90YWJsZVsyNTZdID0geworCTB4
+MDAwMDAwMDBMLCAweDc3MDczMDk2TCwgMHhlZTBlNjEyY0wsIDB4OTkwOTUxYmFMLCAweDA3NmRj
+NDE5TCwKKwkweDcwNmFmNDhmTCwgMHhlOTYzYTUzNUwsIDB4OWU2NDk1YTNMLCAweDBlZGI4ODMy
+TCwgMHg3OWRjYjhhNEwsCisJMHhlMGQ1ZTkxZUwsIDB4OTdkMmQ5ODhMLCAweDA5YjY0YzJiTCwg
+MHg3ZWIxN2NiZEwsIDB4ZTdiODJkMDdMLAorCTB4OTBiZjFkOTFMLCAweDFkYjcxMDY0TCwgMHg2
+YWIwMjBmMkwsIDB4ZjNiOTcxNDhMLCAweDg0YmU0MWRlTCwKKwkweDFhZGFkNDdkTCwgMHg2ZGRk
+ZTRlYkwsIDB4ZjRkNGI1NTFMLCAweDgzZDM4NWM3TCwgMHgxMzZjOTg1NkwsCisJMHg2NDZiYThj
+MEwsIDB4ZmQ2MmY5N2FMLCAweDhhNjVjOWVjTCwgMHgxNDAxNWM0ZkwsIDB4NjMwNjZjZDlMLAor
+CTB4ZmEwZjNkNjNMLCAweDhkMDgwZGY1TCwgMHgzYjZlMjBjOEwsIDB4NGM2OTEwNWVMLCAweGQ1
+NjA0MWU0TCwKKwkweGEyNjc3MTcyTCwgMHgzYzAzZTRkMUwsIDB4NGIwNGQ0NDdMLCAweGQyMGQ4
+NWZkTCwgMHhhNTBhYjU2YkwsCisJMHgzNWI1YThmYUwsIDB4NDJiMjk4NmNMLCAweGRiYmJjOWQ2
+TCwgMHhhY2JjZjk0MEwsIDB4MzJkODZjZTNMLAorCTB4NDVkZjVjNzVMLCAweGRjZDYwZGNmTCwg
+MHhhYmQxM2Q1OUwsIDB4MjZkOTMwYWNMLCAweDUxZGUwMDNhTCwKKwkweGM4ZDc1MTgwTCwgMHhi
+ZmQwNjExNkwsIDB4MjFiNGY0YjVMLCAweDU2YjNjNDIzTCwgMHhjZmJhOTU5OUwsCisJMHhiOGJk
+YTUwZkwsIDB4MjgwMmI4OWVMLCAweDVmMDU4ODA4TCwgMHhjNjBjZDliMkwsIDB4YjEwYmU5MjRM
+LAorCTB4MmY2ZjdjODdMLCAweDU4Njg0YzExTCwgMHhjMTYxMWRhYkwsIDB4YjY2NjJkM2RMLCAw
+eDc2ZGM0MTkwTCwKKwkweDAxZGI3MTA2TCwgMHg5OGQyMjBiY0wsIDB4ZWZkNTEwMmFMLCAweDcx
+YjE4NTg5TCwgMHgwNmI2YjUxZkwsCisJMHg5ZmJmZTRhNUwsIDB4ZThiOGQ0MzNMLCAweDc4MDdj
+OWEyTCwgMHgwZjAwZjkzNEwsIDB4OTYwOWE4OGVMLAorCTB4ZTEwZTk4MThMLCAweDdmNmEwZGJi
+TCwgMHgwODZkM2QyZEwsIDB4OTE2NDZjOTdMLCAweGU2NjM1YzAxTCwKKwkweDZiNmI1MWY0TCwg
+MHgxYzZjNjE2MkwsIDB4ODU2NTMwZDhMLCAweGYyNjIwMDRlTCwgMHg2YzA2OTVlZEwsCisJMHgx
+YjAxYTU3YkwsIDB4ODIwOGY0YzFMLCAweGY1MGZjNDU3TCwgMHg2NWIwZDljNkwsIDB4MTJiN2U5
+NTBMLAorCTB4OGJiZWI4ZWFMLCAweGZjYjk4ODdjTCwgMHg2MmRkMWRkZkwsIDB4MTVkYTJkNDlM
+LCAweDhjZDM3Y2YzTCwKKwkweGZiZDQ0YzY1TCwgMHg0ZGIyNjE1OEwsIDB4M2FiNTUxY2VMLCAw
+eGEzYmMwMDc0TCwgMHhkNGJiMzBlMkwsCisJMHg0YWRmYTU0MUwsIDB4M2RkODk1ZDdMLCAweGE0
+ZDFjNDZkTCwgMHhkM2Q2ZjRmYkwsIDB4NDM2OWU5NmFMLAorCTB4MzQ2ZWQ5ZmNMLCAweGFkNjc4
+ODQ2TCwgMHhkYTYwYjhkMEwsIDB4NDQwNDJkNzNMLCAweDMzMDMxZGU1TCwKKwkweGFhMGE0YzVm
+TCwgMHhkZDBkN2NjOUwsIDB4NTAwNTcxM2NMLCAweDI3MDI0MWFhTCwgMHhiZTBiMTAxMEwsCisJ
+MHhjOTBjMjA4NkwsIDB4NTc2OGI1MjVMLCAweDIwNmY4NWIzTCwgMHhiOTY2ZDQwOUwsIDB4Y2U2
+MWU0OWZMLAorCTB4NWVkZWY5MGVMLCAweDI5ZDljOTk4TCwgMHhiMGQwOTgyMkwsIDB4YzdkN2E4
+YjRMLCAweDU5YjMzZDE3TCwKKwkweDJlYjQwZDgxTCwgMHhiN2JkNWMzYkwsIDB4YzBiYTZjYWRM
+LCAweGVkYjg4MzIwTCwgMHg5YWJmYjNiNkwsCisJMHgwM2I2ZTIwY0wsIDB4NzRiMWQyOWFMLCAw
+eGVhZDU0NzM5TCwgMHg5ZGQyNzdhZkwsIDB4MDRkYjI2MTVMLAorCTB4NzNkYzE2ODNMLCAweGUz
+NjMwYjEyTCwgMHg5NDY0M2I4NEwsIDB4MGQ2ZDZhM2VMLCAweDdhNmE1YWE4TCwKKwkweGU0MGVj
+ZjBiTCwgMHg5MzA5ZmY5ZEwsIDB4MGEwMGFlMjdMLCAweDdkMDc5ZWIxTCwgMHhmMDBmOTM0NEws
+CisJMHg4NzA4YTNkMkwsIDB4MWUwMWYyNjhMLCAweDY5MDZjMmZlTCwgMHhmNzYyNTc1ZEwsIDB4
+ODA2NTY3Y2JMLAorCTB4MTk2YzM2NzFMLCAweDZlNmIwNmU3TCwgMHhmZWQ0MWI3NkwsIDB4ODlk
+MzJiZTBMLCAweDEwZGE3YTVhTCwKKwkweDY3ZGQ0YWNjTCwgMHhmOWI5ZGY2ZkwsIDB4OGViZWVm
+ZjlMLCAweDE3YjdiZTQzTCwgMHg2MGIwOGVkNUwsCisJMHhkNmQ2YTNlOEwsIDB4YTFkMTkzN2VM
+LCAweDM4ZDhjMmM0TCwgMHg0ZmRmZjI1MkwsIDB4ZDFiYjY3ZjFMLAorCTB4YTZiYzU3NjdMLCAw
+eDNmYjUwNmRkTCwgMHg0OGIyMzY0YkwsIDB4ZDgwZDJiZGFMLCAweGFmMGExYjRjTCwKKwkweDM2
+MDM0YWY2TCwgMHg0MTA0N2E2MEwsIDB4ZGY2MGVmYzNMLCAweGE4NjdkZjU1TCwgMHgzMTZlOGVl
+ZkwsCisJMHg0NjY5YmU3OUwsIDB4Y2I2MWIzOGNMLCAweGJjNjY4MzFhTCwgMHgyNTZmZDJhMEws
+IDB4NTI2OGUyMzZMLAorCTB4Y2MwYzc3OTVMLCAweGJiMGI0NzAzTCwgMHgyMjAyMTZiOUwsIDB4
+NTUwNTI2MmZMLCAweGM1YmEzYmJlTCwKKwkweGIyYmQwYjI4TCwgMHgyYmI0NWE5MkwsIDB4NWNi
+MzZhMDRMLCAweGMyZDdmZmE3TCwgMHhiNWQwY2YzMUwsCisJMHgyY2Q5OWU4YkwsIDB4NWJkZWFl
+MWRMLCAweDliNjRjMmIwTCwgMHhlYzYzZjIyNkwsIDB4NzU2YWEzOWNMLAorCTB4MDI2ZDkzMGFM
+LCAweDljMDkwNmE5TCwgMHhlYjBlMzYzZkwsIDB4NzIwNzY3ODVMLCAweDA1MDA1NzEzTCwKKwkw
+eDk1YmY0YTgyTCwgMHhlMmI4N2ExNEwsIDB4N2JiMTJiYWVMLCAweDBjYjYxYjM4TCwgMHg5MmQy
+OGU5YkwsCisJMHhlNWQ1YmUwZEwsIDB4N2NkY2VmYjdMLCAweDBiZGJkZjIxTCwgMHg4NmQzZDJk
+NEwsIDB4ZjFkNGUyNDJMLAorCTB4NjhkZGIzZjhMLCAweDFmZGE4MzZlTCwgMHg4MWJlMTZjZEws
+IDB4ZjZiOTI2NWJMLCAweDZmYjA3N2UxTCwKKwkweDE4Yjc0Nzc3TCwgMHg4ODA4NWFlNkwsIDB4
+ZmYwZjZhNzBMLCAweDY2MDYzYmNhTCwgMHgxMTAxMGI1Y0wsCisJMHg4ZjY1OWVmZkwsIDB4Zjg2
+MmFlNjlMLCAweDYxNmJmZmQzTCwgMHgxNjZjY2Y0NUwsIDB4YTAwYWUyNzhMLAorCTB4ZDcwZGQy
+ZWVMLCAweDRlMDQ4MzU0TCwgMHgzOTAzYjNjMkwsIDB4YTc2NzI2NjFMLCAweGQwNjAxNmY3TCwK
+KwkweDQ5Njk0NzRkTCwgMHgzZTZlNzdkYkwsIDB4YWVkMTZhNGFMLCAweGQ5ZDY1YWRjTCwgMHg0
+MGRmMGI2NkwsCisJMHgzN2Q4M2JmMEwsIDB4YTliY2FlNTNMLCAweGRlYmI5ZWM1TCwgMHg0N2Iy
+Y2Y3ZkwsIDB4MzBiNWZmZTlMLAorCTB4YmRiZGYyMWNMLCAweGNhYmFjMjhhTCwgMHg1M2IzOTMz
+MEwsIDB4MjRiNGEzYTZMLCAweGJhZDAzNjA1TCwKKwkweGNkZDcwNjkzTCwgMHg1NGRlNTcyOUws
+IDB4MjNkOTY3YmZMLCAweGIzNjY3YTJlTCwgMHhjNDYxNGFiOEwsCisJMHg1ZDY4MWIwMkwsIDB4
+MmE2ZjJiOTRMLCAweGI0MGJiZTM3TCwgMHhjMzBjOGVhMUwsIDB4NWEwNWRmMWJMLAorCTB4MmQw
+MmVmOGRMCit9OworCisKKworI2VuZGlmCmRpZmYgLXVycE4gLS1leGNsdWRlLWZyb209L3N0b3Jh
+Z2UvZGV2ZWwvZG9udGRpZmYgY2xlYW4vbGludXgtMi42LjEwL2tlcm5lbC9NYWtlZmlsZSBsaW51
+eC0yLjYuMTAva2VybmVsL01ha2VmaWxlCi0tLSBjbGVhbi9saW51eC0yLjYuMTAva2VybmVsL01h
+a2VmaWxlCTIwMDUtMDItMjMgMTY6MzA6MjguMDAwMDAwMDAwICsxMTAwCisrKyBsaW51eC0yLjYu
+MTAva2VybmVsL01ha2VmaWxlCTIwMDUtMDItMjMgMTY6Mzg6MDUuMDAwMDAwMDAwICsxMTAwCkBA
+IC0yNyw2ICsyNyw5IEBAIG9iai0kKENPTkZJR19LUFJPQkVTKSArPSBrcHJvYmVzLm8KIG9iai0k
+KENPTkZJR19TWVNGUykgKz0ga3N5c2ZzLm8KIG9iai0kKENPTkZJR19HRU5FUklDX0hBUkRJUlFT
+KSArPSBpcnEvCiAKK29iai0kKENPTkZJR19LRVJORUxfQ1JDKSArPSBrZXJuX2NyYy5vCisKIGlm
+bmVxICgkKENPTkZJR19JQTY0KSx5KQogIyBBY2NvcmRpbmcgdG8gQWxhbiBNb2RyYSA8YWxhbkBs
+aW51eGNhcmUuY29tLmF1PiwgdGhlIC1mbm8tb21pdC1mcmFtZS1wb2ludGVyIGlzCiAjIG5lZWRl
+ZCBmb3IgeDg2IG9ubHkuICBXaHkgdGhpcyB1c2VkIHRvIGJlIGVuYWJsZWQgZm9yIGFsbCBhcmNo
+aXRlY3R1cmVzIGlzIGJleW9uZApkaWZmIC11cnBOIC0tZXhjbHVkZS1mcm9tPS9zdG9yYWdlL2Rl
+dmVsL2RvbnRkaWZmIGNsZWFuL2xpbnV4LTIuNi4xMC9rZXJuZWwvbW9kdWxlLmMgbGludXgtMi42
+LjEwL2tlcm5lbC9tb2R1bGUuYwotLS0gY2xlYW4vbGludXgtMi42LjEwL2tlcm5lbC9tb2R1bGUu
+YwkyMDA1LTAyLTIzIDE2OjMwOjI4LjAwMDAwMDAwMCArMTEwMAorKysgbGludXgtMi42LjEwL2tl
+cm5lbC9tb2R1bGUuYwkyMDA1LTAyLTIzIDE2OjM5OjMwLjAwMDAwMDAwMCArMTEwMApAQCAtMzUs
+NiArMzUsNyBAQAogI2luY2x1ZGUgPGxpbnV4L25vdGlmaWVyLmg+CiAjaW5jbHVkZSA8bGludXgv
+c3RvcF9tYWNoaW5lLmg+CiAjaW5jbHVkZSA8bGludXgvZGV2aWNlLmg+CisjaW5jbHVkZSA8bGlu
+dXgva2Vybl9jcmMuaD4KICNpbmNsdWRlIDxhc20vdWFjY2Vzcy5oPgogI2luY2x1ZGUgPGFzbS9z
+ZW1hcGhvcmUuaD4KICNpbmNsdWRlIDxhc20vY2FjaGVmbHVzaC5oPgpAQCAtMTEwNSw2ICsxMTA2
+LDkgQEAgc3RhdGljIHZvaWQgZnJlZV9tb2R1bGUoc3RydWN0IG1vZHVsZSAqbQogCXJlbW92ZV9z
+ZWN0X2F0dHJzKG1vZCk7CiAJbW9kX2tvYmplY3RfcmVtb3ZlKG1vZCk7CiAKKyNpZmRlZiBDT05G
+SUdfS0VSTkVMX0NSQworCWtlcm5lbF9jcmNfbW9kdWxlX3JlbW92ZShtb2QtPm5hbWUpOworI2Vu
+ZGlmCiAJLyogQXJjaC1zcGVjaWZpYyBjbGVhbnVwLiAqLwogCW1vZHVsZV9hcmNoX2NsZWFudXAo
+bW9kKTsKIApAQCAtMTc3NSw2ICsxNzc5LDEwIEBAIHN5c19pbml0X21vZHVsZSh2b2lkIF9fdXNl
+ciAqdW1vZCwKIAkJcmV0dXJuIFBUUl9FUlIobW9kKTsKIAl9CiAKKyNpZmRlZiBDT05GSUdfS0VS
+TkVMX0NSQworCWtlcm5lbF9jcmNfbW9kdWxlX2VuYWJsZShtb2QpOworI2VuZGlmCisKIAkvKiBG
+bHVzaCB0aGUgaW5zdHJ1Y3Rpb24gY2FjaGUsIHNpbmNlIHdlJ3ZlIHBsYXllZCB3aXRoIHRleHQg
+Ki8KIAlpZiAobW9kLT5tb2R1bGVfaW5pdCkKIAkJZmx1c2hfaWNhY2hlX3JhbmdlKCh1bnNpZ25l
+ZCBsb25nKW1vZC0+bW9kdWxlX2luaXQsCg==
+------=_Part_4_25861043.1113956164886--

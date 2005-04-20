@@ -1,77 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261819AbVDTVfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261824AbVDTVvw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261819AbVDTVfL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 17:35:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbVDTVfK
+	id S261824AbVDTVvw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 17:51:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbVDTVvw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 17:35:10 -0400
-Received: from THUNK.ORG ([69.25.196.29]:8581 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261819AbVDTVef (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 17:34:35 -0400
-Date: Wed, 20 Apr 2005 03:06:30 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: David Wagner <daw-usenet@taverner.cs.berkeley.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fortuna
-Message-ID: <20050420070630.GB7997@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	David Wagner <daw-usenet@taverner.cs.berkeley.edu>,
-	linux-kernel@vger.kernel.org
-References: <20050414141538.3651.qmail@science.horizon.com> <20050418191316.GL21897@waste.org> <d419gl$qvq$2@abraham.cs.berkeley.edu> <20050419040116.GA6517@thunk.org> <d421jj$vi$1@abraham.cs.berkeley.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d421jj$vi$1@abraham.cs.berkeley.edu>
-User-Agent: Mutt/1.5.8i
+	Wed, 20 Apr 2005 17:51:52 -0400
+Received: from pne-smtpout2-sn1.fre.skanova.net ([81.228.11.159]:5358 "EHLO
+	pne-smtpout2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S261824AbVDTVvg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 17:51:36 -0400
+Message-ID: <4266CEED.3010108@karett.se>
+Date: Wed, 20 Apr 2005 23:51:41 +0200
+From: Mikael Andersson <mikael@karett.se>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Disk output lockup amd64 nforce4 device-mapper 2.6.12_rc2
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 19, 2005 at 04:31:47AM +0000, David Wagner wrote:
-> Theodore Ts'o  wrote:
-> >For one, /dev/urandom and /dev/random don't use the same pool
-> >(anymore).  They used to, a long time ago, but certainly as of the
-> >writing of the paper this was no longer true.  This invalidates the
-> >entire last paragraph of Section 5.3.
-> 
-> Ok, you're right, this is a serious flaw, and one that I overlooked.
-> Thanks for elaborating.  (By the way, has anyone contacted to let them
-> know about these two errors?  Should I?)
+During heavy io-load a lockup occurs that appears to prevent any disk
+output from taking place. fs is reiserfs on two device-mapper mirrored
+200G maxtor disks. After the lockup occurs you can to things like 'ls',
+but echo > test.txt will hang.
 
-I don't know of anyone who has contacted the authors yet.  I haven't
-had the time, since I'm currently travelling at the moment.
+A typical workload producing the error is doing:
+rsync of large (1GB) over 100Mbit ethernet
+simultaneous compilation / gunzip
 
-> I see three remaining criticisms from their Section 5.3:
-> 1) Due to the way the documentation describes /dev/random, many
->    programmers will choose /dev/random by default.  This default
->    seems inappropriate and unfortunate.
-> 2) There is a widespread perception that /dev/urandom's security is
->    unproven and /dev/random's is proven.  This perception is wrong.
->    On a related topic, it is "not at all clear" that /dev/random provides
->    information-theoretic security.
-> 3) Other designs place less stress on the entropy estimator, and
->    thus are more tolerant to failures of entropy estimation.  A failure
->    in the entropy estimator seems more likely than a failure in the
->    cryptographic algorithms.
-> These three criticisms look right to me.
+I've disabled preemption, and tried with and without acpi enabled, with
+and without smp support (it was smp by default so i switched it off).
+Also tried with another nic (rtl8139) since i got an nv_stop_tx:
+TransmitterStatus remained busy<6> in the logs. I also tried 2.6.11.7
+with the same result.
 
-/dev/urandom is a cryptographic RNG, which is seeded from RNG.
-/dev/random uses a very similar cryptographic RNG, but it uses large
-pool to collect entropy, and uses an entropy estimator to limit the
-amount of data that can be extracted from the rng.  
+This produces the lockup after 10-40 minutes. I've got a complete log
+from alt-sysreq-T if anyone wants to look at it. The following is a dump
+for the bash and kmirrord process when trying echo > test.txt.
+The output for kmirrord is included because it's exactly as specified
+below both before and after echo > test.txt is invoked, this looked
+peculiar to me.
 
-If the entropy estimator fails, /dev/random degrades to a
-cryptographic RNG.  So it is not a disaster, whereas the approach
-described in this paper (which uses a non-cryptographic extractor)
-would seem to me to be *more* prone to catastrophically failure if the
-entropy estimator fails than /dev/random.
+Later runs showed what was to my eyes similar results, some callpaths
+weren't exactly the same, but kmirrord was somewhere in mempool_alloc
+and the bash process was in do_journal_end, whatever that means :)
 
-As to whether or not applications should be using /dev/random or
-/dev/urandom, /dev/random is no worse than /dev/urandom, as long as
-the application doesn't mind blocking when the entropy levels are too
-low.  In practice, most of the time this situation doesn't arise since
-the appropriate way of using /dev/random is only to extract a small
-amount of entropy when needed to generate long-term keys, or when
-seeding a userspace cryptographic RNG for session keys.
 
-						- Ted
+bash D ffffc2000038e000 0 6529 6381 (NOTLB)
+ffff81003dfc1bd8 0000000000000086
+0000000000000000 ffff810001b6ba60
+6db6db6db6db6db7 ffffffff801acc46
+ffff810001b6ba98 ffff81003d8c27e0
+00000000000027cd ffffffff805a61c0
+
+Call Trace:
+<ffffffff801acc46>{__d_lookup+358} <ffffffff801ff133>{queue_log_writer+115}
+<ffffffff8012e6a0>{default_wake_function+0}
+<ffffffff801ff9fc>{do_journal_end+604}
+<ffffffff801e0162>{search_by_entry_key+50}
+<ffffffff802004ed>{do_journal_begin_r+77}
+<ffffffff802006df>{do_journal_begin_r+575}
+<ffffffff8020096c>{journal_begin+204}
+<ffffffff801e10d7>{reiserfs_create+183}
+<ffffffff801a0dcc>{vfs_create+188}
+<ffffffff801a11e6>{open_namei+454}
+<ffffffff8018a727>{filp_open+39}
+<ffffffff8018a82f>{get_unused_fd+223}
+<ffffffff8019e39a>{getname+138}
+<ffffffff8018abfc>{sys_open+76}
+<ffffffff8010dfe6>{system_call+126}
+
+
+kmirrord/0 D ffff81003f1bccd8 0 978 9 1731 977 (L-TLB)
+ffff81003f931ab8 0000000000000046
+0000000000000200 ffffffff8016a2d6
+ffff810036d18e80 0000000000000001
+000000733f931c30 ffff81003f8d4030
+000000000000952e ffff810036cf67e0
+
+Call Trace:
+<ffffffff8016a2d6>{cache_alloc_refill+1222}
+<ffffffff804a2f9f>{io_schedule+15}
+<ffffffff80164e23>{mempool_alloc+707} <ffffffff80413250>{bvec_get_page+0}
+<ffffffff801543c0>{autoremove_wake_function+0}
+<ffffffff801543c0>{autoremove_wake_function+0}
+<ffffffff8041cffc>{__rh_alloc+44}
+<ffffffff8041d483>{rh_inc_pending+67}
+<ffffffff8041e39b>{do_work+2955}
+<ffffffff8041e3c8>{do_work+3000}
+<ffffffff804a16b4>{thread_return+0}
+<ffffffff8041d810>{do_work+0}
+<ffffffff8014ce3b>{worker_thread+715}
+<ffffffff8012e6a0>{default_wake_function+0}
+<ffffffff8012e6a0>{default_wake_function+0}
+<ffffffff8014cb70>{worker_thread+0}
+<ffffffff801537ed>{kthread+205} <ffffffff80153830>{keventd_create_kthread+0}
+<ffffffff8010eb1f>{child_rip+8} <ffffffff80153830>{keventd_create_kthread+0}
+<ffffffff80153720>{kthread+0}
+<ffffffff8010eb17>{child_rip+0}
+
+/Mikael Andersson

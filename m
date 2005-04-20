@@ -1,63 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbVDTNHy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261603AbVDTNKy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261600AbVDTNHy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 09:07:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261603AbVDTNHy
+	id S261603AbVDTNKy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 09:10:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbVDTNKx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 09:07:54 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:44536 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261600AbVDTNHs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 09:07:48 -0400
-Subject: Re: GPL violation by CorAccess?
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Bernd Petrovitsch <bernd@firmix.at>, linux-kernel@vger.kernel.org,
-       Karel Kulhavy <clock@twibright.com>,
-       Lennart Sorensen <lsorense@csclub.uwaterloo.ca>, linux-os@analogic.com,
-       Chris Friesen <cfriesen@nortel.com>
-In-Reply-To: <1114001836.6238.68.camel@laptopd505.fenrus.org>
-References: <20050419175743.GA8339@beton.cybernet.src>
-	 <20050419182529.GT17865@csclub.uwaterloo.ca>
-	 <Pine.LNX.4.61.0504191516080.18402@chaos.analogic.com>
-	 <42656319.6090703@nortel.com>
-	 <Pine.LNX.4.61.0504191741190.19956@chaos.analogic.com>
-	 <42659620.5050002@nortel.com>  <1113982209.3803.7.camel@gimli.at.home>
-	 <1114001398.774.40.camel@localhost.localdomain>
-	 <1114001836.6238.68.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Wed, 20 Apr 2005 09:07:09 -0400
-Message-Id: <1114002429.774.45.camel@localhost.localdomain>
+	Wed, 20 Apr 2005 09:10:53 -0400
+Received: from extgw-uk.mips.com ([62.254.210.129]:46618 "EHLO
+	bacchus.net.dhis.org") by vger.kernel.org with ESMTP
+	id S261603AbVDTNKu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 09:10:50 -0400
+Date: Wed, 20 Apr 2005 14:10:25 +0100
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Paul Jackson <pj@sgi.com>, ikebe.takashi@lab.ntt.co.jp,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH x86_64] Live Patching Function on 2.6.11.7
+Message-ID: <20050420131025.GA8255@linux-mips.org>
+References: <4263275A.2020405@lab.ntt.co.jp> <20050418040718.GA31163@taniwha.stupidest.org> <4263356D.9080007@lab.ntt.co.jp> <20050418061221.GA32315@taniwha.stupidest.org> <42636285.9060405@lab.ntt.co.jp> <20050418075635.GB644@taniwha.stupidest.org> <20050418021609.07f6ec16.pj@sgi.com> <20050418092505.GA2206@taniwha.stupidest.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050418092505.GA2206@taniwha.stupidest.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-04-20 at 14:57 +0200, Arjan van de Ven wrote:
-> On Wed, 2005-04-20 at 08:49 -0400, Steven Rostedt wrote:
-> > On Wed, 2005-04-20 at 09:30 +0200, Bernd Petrovitsch wrote:
-> > 
-> > > 
-> > > As long as they do not statically link against LGPL (or GPL) code and as
-> > > long as they do not link dynamically agaist GPL code. And there are
-> > > probably more rules .....
-> > > 
-> > 
-> > Actually, I believe that the LGPL allows for static linking as well.
+On Mon, Apr 18, 2005 at 02:25:06AM -0700, Chris Wedgwood wrote:
+
+> > The call switching folks have been doing live patching at least
+> > since I worked on it, over 25 years ago.  This is not just
+> > marketing.
 > 
-> it does, as long as you provide the .o files of your own stuff so that
-> the end user can relink with  say a bugfixed version of library.
+> That still doesn't explain *why* live patching is needed.
 
-I don't see that in the license.  As point 5 showed: "Such a
-work, in isolation, is not a derivative work of the Library, and
-therefore falls outside the scope of this License." So you don't need to
-do anything more than supply the source of the LPGL work. In fact, it
-may not be a good idea to add a bugfixed version of the libary without
-going through the vendor. You don't know if the application that uses
-this depends on the side effects of the bug.
+The more optimization a modern compiler does the less practical a patching
+approach seems for anything but very trivial fixes.
 
--- Steve
+I'd try a shared library based approach for on the fly updates.
 
-
+  Ralf

@@ -1,71 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261840AbVDTXee@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261843AbVDTXna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261840AbVDTXee (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 19:34:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261842AbVDTXee
+	id S261843AbVDTXna (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 19:43:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbVDTXna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 19:34:34 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:43168 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261840AbVDTXeR convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 19:34:17 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Wed, 20 Apr 2005 19:43:30 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:17332 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S261843AbVDTXnX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 19:43:23 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <4266E912.9090209@s5r6.in-berlin.de>
+Date: Thu, 21 Apr 2005 01:43:14 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.12-rc2-mm3 pciehp regression
-Date: Wed, 20 Apr 2005 16:34:03 -0700
-Message-ID: <468F3FDA28AA87429AD807992E22D07E04FFF546@orsmsx408>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.12-rc2-mm3 pciehp regression
-Thread-Index: AcVF4ipK4Qs9+RTESOqnkeAxkSVIZQAHOKng
-From: "Sy, Dely L" <dely.l.sy@intel.com>
-To: "Tom Duffy" <tduffy@sun.com>
-Cc: <linux-kernel@vger.kernel.org>, <pcihpd-discuss@lists.sourceforge.net>
-X-OriginalArrivalTime: 20 Apr 2005 23:34:05.0240 (UTC) FILETIME=[70DD7380:01C54601]
+To: linux1394-devel@lists.sourceforge.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/ieee1394/: remove unneeded EXPORT_SYMBOL's
+References: <20050417195706.GD3625@stusta.de> <20050419191328.GJ1111@conscoop.ottawa.on.ca> <1113939827.6277.86.camel@laptopd505.fenrus.org> <42657F7C.8060305@s5r6.in-berlin.de> <1113981989.6238.30.camel@laptopd505.fenrus.org> <426683E9.4080708@s5r6.in-berlin.de> <1114029144.5085.20.camel@kino.dennedy.org> <20050420204932.GQ5489@stusta.de>
+In-Reply-To: <20050420204932.GQ5489@stusta.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, April 20, 2005 12:50 PM, Tom Duffy wrote:
-> > The errors I encountered were:
-> > Reading all physical volumes.  This may take a while...
-> > Umount /sys failed: 16
-> > mount: error 6 mounting ext3
-> > mount: error 2 mounting none
-> > Switching to new root
-> > Switchroot: mount failed 22
-> > umount /initrd/dev failed: 2
-> >
-> > I also encountered issue you & others discussed in the thread on
-> > "Re: Heads up on 2.6.12-rc1 and later" if I used SCSI drive.
-> > 
-> > Can you send me the config file you used successfully on your 
-> > system?
->
-> You will need to boot the system UP (not SMP).  There is a problem
-> with modules loading too fast that causes the initrd to fail.
+Adrian Bunk wrote:
+> On Wed, Apr 20, 2005 at 04:32:24PM -0400, Dan Dennedy wrote:
+>>Based upon my experience of several years on this project there is only
+>>one external kernel module project we need to consider because that
+>>developer has been involved and voiced requirements. That is Arne
+>>Caspari's (The Imaging Source) DFG/1394 driver. 
+> 
+> The ideal solution would be to get this driver included in the kernel.
+> Are there any reasons against including it?
 
-This doesn't help on my system.  I tried both ways: using boot option 
-with nosmp, and rebuilding kernel with SMP off in config file.  
+Arne stated his reasons: http://marc.theaimsgroup.com/?m=110361846312128
+(BTW, does Arne have commit access to the linux1394 repo yet?)
 
-Using nosmp, I got:
-IOAPIC [0]: Invalid reference to IRQ 0
-.
-.
-audit(....) initialized
-ide 1 : ....
-id1 1 : ports already in use, skipping
+>>I vote to remove external symbols not used by the Linux1394.org modules
+>>or the module at http://sourceforge.net/projects/video-2-1394/
+>>Of course, I may be voted down, but I ask the others to be realistic
+>>about what we are arguing for (i.e. just being defensive?) and consider
+>>the fact that there are valid reasons for their removal.
 
-and system halted
+Yes, there are. (Although one of the reasons -- size of the kernel -- is 
+in effect neglectible.) So let's see if further opinions are coming in 
+at the lists now. Then let's decide how to manage removal of the stuff.
 
-Rebuilding kernel with SMP off in config file, I got:
-Kernel panic - not syncing: VFS: Unable to mount root fs on
-unknown-block(0,0)
+> The DFG/1394 driver requires hpsb_read and hpsb_write.
+> 
+> Are there any Linux1394.org modules that are not in 2.6.12-rc2-mm3?
 
-Thanks,
-Dely
-
+No.
+-- 
+Stefan Richter
+-=====-=-=-= -=-- =-=-=
+http://arcgraph.de/sr/

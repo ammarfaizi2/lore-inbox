@@ -1,89 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbVDTDg3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261319AbVDTDmF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261299AbVDTDg3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Apr 2005 23:36:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbVDTDg3
+	id S261319AbVDTDmF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Apr 2005 23:42:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbVDTDmF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Apr 2005 23:36:29 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:16832 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261299AbVDTDgV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Apr 2005 23:36:21 -0400
-From: James Cleverdon <jamesclv@us.ibm.com>
-Reply-To: jamesclv@us.ibm.com
-Organization: IBM LTC (xSeries Solutions)
-To: philip dahlquist <dahlquist@kreative.net>
-Subject: Re: easy softball jiffies quest(ion)
-Date: Tue, 19 Apr 2005 20:36:14 -0700
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org
-References: <20050409010252.2eca2177.dahlquist@kreative.net>
-In-Reply-To: <20050409010252.2eca2177.dahlquist@kreative.net>
+	Tue, 19 Apr 2005 23:42:05 -0400
+Received: from relay3.ptmail.sapo.pt ([212.55.154.23]:53190 "HELO sapo.pt")
+	by vger.kernel.org with SMTP id S261319AbVDTDmC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Apr 2005 23:42:02 -0400
+X-AntiVirus: PTMail-AV 0.3.83
+Message-ID: <4265CF91.5070008@vgertech.com>
+Date: Wed, 20 Apr 2005 04:42:09 +0100
+From: Nuno Silva <nuno.silva@vgertech.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+CC: Yann Dupont <Yann.Dupont@univ-nantes.fr>, linux-kernel@vger.kernel.org
+Subject: Re: E1000 - page allocation failure - saga continues :(
+References: <20050414214828.GB9591@mail.muni.cz> <4263A3B7.6010702@univ-nantes.fr> <20050418122202.GE26030@mail.muni.cz> <4264B202.9080304@univ-nantes.fr> <20050419080424.GA28153@mail.muni.cz>
+In-Reply-To: <20050419080424.GA28153@mail.muni.cz>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200504192036.14994.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As others have said, maybe jiffies isn't the time value you want.  
-However, clock ticks are available in userland via the times system 
-call.
+Lukas Hejtmanek wrote:
+> On Tue, Apr 19, 2005 at 09:23:46AM +0200, Yann Dupont wrote:
+> 
+>>Do you have turned NAPI on ??? I tried without it off on e1000 and ...
+>>surprise !
+>>Don't have any messages since 12H now (usually I got those in less than 1H)
+> 
+> 
+> I have NAPI on. I tried to turn it off but my test failed, I can see allocation
+> failure again.
+> 
 
-Note the warning at the end; you'll have to do your comparisons 
-correctly or fail when the counter overflows.
+Not sure if this was already sugested, but here it is anyway:
+echo "vm.min_free_kbytes=16384" >> /etc/sysctl.conf
 
-man 2 times:
+Regards,
+Nuno Silva
 
-	...
-	Return Value
-		The function times returns the number of clock ticks that have
-		elapsed since an arbitrary point in the past.  For Linux this
-		point is the moment the system was booted.  This return
-		value may overflow the possible range of type clock_t.
-
-
-On Friday 08 April 2005 10:02 pm, philip dahlquist wrote:
-> hi,
->
-> i'm on a quest to get access to jiffies in user space so i can write
-> a simple stepper motor driver program.  i co-opted the "#includes"
-> list from alessandro rubini's jit.c file from "linux device drivers"
-> to write jfi.c.
->
-> this is it:
-> ------------------------------------------------------------------
-> #include <linux/config.h>
-> #include <linux/module.h>
-> #include <linux/moduleparam.h>
-> #include <linux/init.h>
->
-> #include <linux/time.h>
-> #include <linux/timer.h>
-> #include <linux/kernel.h>
-> #include <linux/proc_fs.h>
-> #include <linux/types.h>
-> #include <linux/spinlock.h>
-> #include <linux/interrupt.h>
->
-> #include <asm/hardirq.h>
->
->
-> int main(void)
-> {
-> 	unsigned long j = jiffies + (50 * HZ);
-> 	printf("start jiffies = %9li\n",jiffies);
-> 	while(jiffies < j)
-> 		;
->
-> 	printf("done jiffies = %9li\n", jiffies);
-> 	return 0;
-> }
-[[ Snip! ]]
-
--- 
-James Cleverdon
-IBM LTC (xSeries Linux Solutions)
-{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot comm

@@ -1,74 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbVDTNiV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbVDTN6E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261623AbVDTNiV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 09:38:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbVDTNiV
+	id S261626AbVDTN6E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 09:58:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261627AbVDTN6E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 09:38:21 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:40854 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261623AbVDTNiA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 09:38:00 -0400
-Subject: Re: GPL violation by CorAccess?
-From: Arjan van de Ven <arjan@infradead.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Bernd Petrovitsch <bernd@firmix.at>, linux-kernel@vger.kernel.org,
-       Karel Kulhavy <clock@twibright.com>,
-       Lennart Sorensen <lsorense@csclub.uwaterloo.ca>, linux-os@analogic.com,
-       Chris Friesen <cfriesen@nortel.com>
-In-Reply-To: <1114002429.774.45.camel@localhost.localdomain>
-References: <20050419175743.GA8339@beton.cybernet.src>
-	 <20050419182529.GT17865@csclub.uwaterloo.ca>
-	 <Pine.LNX.4.61.0504191516080.18402@chaos.analogic.com>
-	 <42656319.6090703@nortel.com>
-	 <Pine.LNX.4.61.0504191741190.19956@chaos.analogic.com>
-	 <42659620.5050002@nortel.com>  <1113982209.3803.7.camel@gimli.at.home>
-	 <1114001398.774.40.camel@localhost.localdomain>
-	 <1114001836.6238.68.camel@laptopd505.fenrus.org>
-	 <1114002429.774.45.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 20 Apr 2005 15:37:49 +0200
-Message-Id: <1114004269.6238.72.camel@laptopd505.fenrus.org>
+	Wed, 20 Apr 2005 09:58:04 -0400
+Received: from unthought.net ([212.97.129.88]:175 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S261626AbVDTN57 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 09:57:59 -0400
+Date: Wed, 20 Apr 2005 15:57:58 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Greg Banks <gnb@melbourne.sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bdflush/rpciod high CPU utilization, profile does not make sense
+Message-ID: <20050420135758.GS17359@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Trond Myklebust <trond.myklebust@fys.uio.no>,
+	Greg Banks <gnb@melbourne.sgi.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1113222939.14281.17.camel@lade.trondhjem.org> <20050411134703.GC13369@unthought.net> <1113230125.9962.7.camel@lade.trondhjem.org> <20050411144127.GE13369@unthought.net> <1113232905.9962.15.camel@lade.trondhjem.org> <20050411154211.GG13369@unthought.net> <1113267809.1956.242.camel@hole.melbourne.sgi.com> <20050412092843.GB17359@unthought.net> <20050419194515.GP17359@unthought.net> <1113950788.10685.9.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1113950788.10685.9.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-04-20 at 09:07 -0400, Steven Rostedt wrote:
-> On Wed, 2005-04-20 at 14:57 +0200, Arjan van de Ven wrote:
-> > On Wed, 2005-04-20 at 08:49 -0400, Steven Rostedt wrote:
-> > > On Wed, 2005-04-20 at 09:30 +0200, Bernd Petrovitsch wrote:
-> > > 
-> > > > 
-> > > > As long as they do not statically link against LGPL (or GPL) code and as
-> > > > long as they do not link dynamically agaist GPL code. And there are
-> > > > probably more rules .....
-> > > > 
-> > > 
-> > > Actually, I believe that the LGPL allows for static linking as well.
-> > 
-> > it does, as long as you provide the .o files of your own stuff so that
-> > the end user can relink with  say a bugfixed version of library.
+On Tue, Apr 19, 2005 at 06:46:28PM -0400, Trond Myklebust wrote:
+> ty den 19.04.2005 Klokka 21:45 (+0200) skreiv Jakob Oestergaard:
 > 
-> I don't see that in the license.  As point 5 showed: "Such a
-> work, in isolation, is not a derivative work of the Library, and
+> > It mounts a home directory from a 2.6.6 NFS server - the client and
+> > server are on a hub'ed 100Mbit network.
+> > 
+> > On the earlier 2.6 client I/O performance was as one would expect on
+> > hub'ed 100Mbit - meaning, not exactly stellar, but you'd get around 4-5
+> > MB/sec and decent interactivity.
+> 
+> OK, hold it right there...
+> 
+...
+> Also, does that hub support NICs that do autonegotiation? (I'll bet the
+> answer is "no").
 
-you missed the point "in isolation". If you do NOT link against the lib,
-eg your app in isolation, you don't have to care abuot the LGPL. That is
-what it says. The moment you do link you are no longer "in isolation".
+*blush*
 
+Ok Trond, you got me there - I don't know why upgrading the client made
+the problem much more visible though, but the *server* had negotiated
+full duplex rather than half (the client negotiated half ok). Fixing
+that on the server side made the client pleasent to work with again.
+Mom's a happy camper now again  ;)
+
+Sorry for jumping the gun there...
+
+To get back to the original problem;
+
+I wonder if (as was discussed) the tg3 driver on my NFS server is
+dropping packets, causing the 2.6.11 NFS client to misbehave... This
+didn't make sense to me before (since earlier clients worked well), but
+having just seen this other case where a broken server setup caused
+2.6.11 clients to misbehave (where earlier clients were fine), maybe it
+could be an explanation...
+
+Will try either changing tg3 driver or putting in an e1000 on my NFS
+server - I will let you know about the status on this when I know more.
+
+Thanks all,
+
+-- 
+
+ / jakob
 

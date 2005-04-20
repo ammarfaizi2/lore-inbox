@@ -1,93 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbVDTLrW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbVDTLsM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261431AbVDTLrW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 07:47:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbVDTLog
+	id S261338AbVDTLsM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 07:48:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbVDTLsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 07:44:36 -0400
-Received: from wproxy.gmail.com ([64.233.184.206]:57675 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261431AbVDTLl4 (ORCPT
+	Wed, 20 Apr 2005 07:48:11 -0400
+Received: from isilmar.linta.de ([213.239.214.66]:31974 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S261338AbVDTLof (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 07:41:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:cc:user-agent:content-type:references:in-reply-to:subject:message-id:date;
-        b=ShH0KyYibFUdHKsdIrET7kGf3o4NmUeyifVMpEUiVAB9z8lTRmpU2TX7ctF459+/wyNfo6n3EHU+BT5jc3PqdBrpOqNZiy/OG2U2yEj13RxSOPIBYmUtsGGaDQ2nPVIJfMXf+MwXUU7S1lSJU4y5zZDXORkzjlmUKaaEhz1+AgM=
-From: Tejun Heo <htejun@gmail.com>
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org
-User-Agent: lksp 0.3
-Content-Type: text/plain; charset=US-ASCII
-References: <20050420114041.F2FA00DB@htj.dyndns.org>
-In-Reply-To: <20050420114041.F2FA00DB@htj.dyndns.org>
-Subject: Re: [PATCH Linux 2.6.12-rc2 04/04] blk: cleanup generic tag support error messages
-Message-ID: <20050420114041.3394A7A1@htj.dyndns.org>
-Date: Wed, 20 Apr 2005 20:41:53 +0900 (KST)
+	Wed, 20 Apr 2005 07:44:35 -0400
+Date: Wed, 20 Apr 2005 13:44:33 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Thomas Renninger <trenn@suse.de>
+Cc: Tony Lindgren <tony@atomide.com>, Frank Sorenson <frank@tuxrocks.com>,
+       linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Pavel Machek <pavel@suse.cz>, Arjan van de Ven <arjan@infradead.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Andrea Arcangeli <andrea@suse.de>, George Anzinger <george@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Lee Revell <rlrevell@joe-job.com>,
+       ML ACPI-devel <acpi-devel@lists.sourceforge.net>,
+       Bodo Bauer <bb@suse.de>, Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] Updated: Dynamic Tick version 050408-1 - C-state measures
+Message-ID: <20050420114433.GA28362@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Thomas Renninger <trenn@suse.de>, Tony Lindgren <tony@atomide.com>,
+	Frank Sorenson <frank@tuxrocks.com>, linux-kernel@vger.kernel.org,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Pavel Machek <pavel@suse.cz>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Martin Schwidefsky <schwidefsky@de.ibm.com>,
+	Andrea Arcangeli <andrea@suse.de>,
+	George Anzinger <george@mvista.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	john stultz <johnstul@us.ibm.com>,
+	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Lee Revell <rlrevell@joe-job.com>,
+	ML ACPI-devel <acpi-devel@lists.sourceforge.net>,
+	Bodo Bauer <bb@suse.de>, Andi Kleen <ak@suse.de>
+References: <4255A7AF.8050802@tuxrocks.com> <4255B247.4080906@tuxrocks.com> <20050408062537.GB4477@atomide.com> <20050408075001.GC4477@atomide.com> <42564584.4080606@tuxrocks.com> <42566C22.4040509@suse.de> <20050408115535.GI4477@atomide.com> <42651C38.6090807@suse.de> <20050419152723.GA9509@isilmar.linta.de> <42657222.5080601@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42657222.5080601@suse.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-04_blk_tag_map_error_handling_cleanup.patch
+On Tue, Apr 19, 2005 at 11:03:30PM +0200, Thomas Renninger wrote:
+> > "All" we need to do is to update the "diff". Without dynamic ticks, if the
+> > idle loop didn't get called each jiffy, it was a big hint that there was so
+> > much activity in between, and if there is activity, there is most likely
+> > also bus master activity, or at least more work to do, so interrupt activity
+> > is likely. Therefore we assume there was bm_activity even if there was none.
+> >
+> If I understand this right you want at least wait 32 (or whatever value) ms if there was bm activity,
+> before it is allowed to trigger C3/C4?
 
-	Add KERN_ERR and __FUNCTION__ to generic tag error messages,
-	and add a comment in blk_queue_end_tag() which explains the
-	silent failure path.
+That's the theory of operation of the current algorithm. I think that we
+should do that small change to the current algorithm which allows us to keep
+C3/C4 working with dyn-idle first, and then think of a very small abstraction
+layer to test different idle algroithms, and -- possibly -- use different
+ones for different usages.
 
-Signed-off-by: Tejun Heo <htejun@gmail.com>
+> I think the problem is (at least I made the experience with this particular
+> machine) that bm activity comes very often and regularly (each 30-150ms?).
+> 
+> I think the approach to directly adjust the latency to a deeper sleep state if the
+> average bus master and OS activity is low is very efficient.
+> 
+> Because I don't consider whether there was bm_activity the last ms, I only
+> consider the average, it seems to happen that I try to trigger
+> C3/C4 when there is just something copied and some bm active ?!?
 
- ll_rw_blk.c |   18 +++++++++++++-----
- 1 files changed, 13 insertions(+), 5 deletions(-)
+I don't think that this is perfect behaviour: if the system is idle, and
+there is _currently_ bus master activity, the CPU should be put into C1 or
+C2 type sleep. If you select C3 and actually enter it, you're risking
+DMA issues, AFAICS.
 
-Index: blk-fixes/drivers/block/ll_rw_blk.c
-===================================================================
---- blk-fixes.orig/drivers/block/ll_rw_blk.c	2005-04-20 20:36:38.000000000 +0900
-+++ blk-fixes/drivers/block/ll_rw_blk.c	2005-04-20 20:36:40.000000000 +0900
-@@ -911,10 +911,15 @@ void blk_queue_end_tag(request_queue_t *
- 	BUG_ON(tag == -1);
- 
- 	if (unlikely(tag >= bqt->max_depth))
-+		/*
-+		 * This can happen after tag depth has been reduced.
-+		 * FIXME: how about a warning or info message here?
-+		 */
- 		return;
- 
- 	if (unlikely(!__test_and_clear_bit(tag, bqt->tag_map))) {
--		printk("attempt to clear non-busy tag (%d)\n", tag);
-+		printk(KERN_ERR "%s: attempt to clear non-busy tag (%d)\n",
-+		       __FUNCTION__, tag);
- 		return;
- 	}
- 
-@@ -923,7 +928,8 @@ void blk_queue_end_tag(request_queue_t *
- 	rq->tag = -1;
- 
- 	if (unlikely(bqt->tag_index[tag] == NULL))
--		printk("tag %d is missing\n", tag);
-+		printk(KERN_ERR "%s: tag %d is missing\n",
-+		       __FUNCTION__, tag);
- 
- 	bqt->tag_index[tag] = NULL;
- 	bqt->busy--;
-@@ -956,8 +962,9 @@ int blk_queue_start_tag(request_queue_t 
- 
- 	if (unlikely((rq->flags & REQ_QUEUED))) {
- 		printk(KERN_ERR 
--		       "request %p for device [%s] already tagged %d",
--		       rq, rq->rq_disk ? rq->rq_disk->disk_name : "?", rq->tag);
-+		       "%s: request %p for device [%s] already tagged %d",
-+		       __FUNCTION__, rq,
-+		       rq->rq_disk ? rq->rq_disk->disk_name : "?", rq->tag);
- 		BUG();
- 	}
- 
-@@ -1000,7 +1007,8 @@ void blk_queue_invalidate_tags(request_q
- 		rq = list_entry_rq(tmp);
- 
- 		if (rq->tag == -1) {
--			printk("bad tag found on list\n");
-+			printk(KERN_ERR
-+			       "%s: bad tag found on list\n", __FUNCTION__);
- 			list_del_init(&rq->queuelist);
- 			rq->flags &= ~REQ_QUEUED;
- 		} else
+> The patch is useless if these failures end up in system freezes on
+> other machines...
 
+I know that my patch is useless in its current form, but I wanted to share
+it as a different way of doing things. 
+
+> The problem with the old approach is, that after (doesn't matter C1-Cx)
+> sleep and dyn_idle_tick, the chance to wake up because of bm activity is
+> very likely.
+> You enter idle() again -> there was bm_activity -> C2. Wake up after e.g.
+> 50ms, because of bm_activity again (bm_sts bit set) -> stay in C2, wake up
+> after 40ms -> bm activity... You only have the chance to get into deeper
+> states if the sleeps are interrupted by an interrupt, not bm activity.
+
+That's a side-effect, indeed. However: if there _is_ bus master activity, we
+must not enter C3, AFAICS.
+
+	Dominik

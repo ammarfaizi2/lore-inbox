@@ -1,60 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261441AbVDTGaN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbVDTGaz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261441AbVDTGaN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 02:30:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVDTGaN
+	id S261444AbVDTGaz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 02:30:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbVDTGac
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 02:30:13 -0400
-Received: from ns.amrita.ac.in ([203.197.150.194]:49297 "EHLO
-	bhadra.amrita.ac.in") by vger.kernel.org with ESMTP id S261441AbVDTGaG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 02:30:06 -0400
-X-Antivirus-Amrita-Mail-From: harish@amritapuri.amrita.edu via bhadra.amrita.ac.in
-X-Antivirus-Amrita: 1.24-st-qms (Clear:RC:1(127.0.0.1):. Processed in 0.03281 secs Process 23145)
-Message-ID: <42225.203.197.150.195.1113980805.squirrel@mail.amrita.ac.in>
-Date: Wed, 20 Apr 2005 12:36:45 +0530 (IST)
-Subject: i830 lockup
-From: "Harish K Harshan" <harish@amritapuri.amrita.edu>
-To: linux-kernel@vger.kernel.org
-Reply-To: harish@amritapuri.amrita.edu
-User-Agent: SquirrelMail/1.4.4-1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Wed, 20 Apr 2005 02:30:32 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:65441 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261444AbVDTGaR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 02:30:17 -0400
+Date: Wed, 20 Apr 2005 08:30:10 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Tejun Heo <htejun@gmail.com>
+Cc: James.Bottomley@steeleye.com, Christoph Hellwig <hch@infradead.org>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH scsi-misc-2.6 01/05] scsi: make blk layer set REQ_SOFTBARRIER when a request is dispatched
+Message-ID: <20050420063009.GB9371@suse.de>
+References: <20050419231435.D85F89C0@htj.dyndns.org> <20050419231435.2DEBE102@htj.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050419231435.2DEBE102@htj.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, Apr 20 2005, Tejun Heo wrote:
+> 01_scsi_blk_make_started_requests_ordered.patch
+> 
+> 	Reordering already started requests is without any real
+> 	benefit and causes problems if the request has its
+> 	driver-specific resources allocated (as in SCSI).  This patch
+> 	makes elv_next_request() set REQ_SOFTBARRIER automatically
+> 	when a request is dispatched.
+> 
+> 	As both as and cfq schedulers don't allow passing requeued
+> 	requests, the only behavior change is that requests deferred
+> 	by prep_fn won't be passed by other requests.  This change
+> 	shouldn't cause any problem.  The only affected driver other
+> 	than SCSI is i2o_block.
+> 
+> Signed-off-by: Tejun Heo <htejun@gmail.com>
+> 
+>  elevator.c |    8 ++++----
+>  1 files changed, 4 insertions(+), 4 deletions(-)
+> 
+> Index: scsi-reqfn-export/drivers/block/elevator.c
+> ===================================================================
+> --- scsi-reqfn-export.orig/drivers/block/elevator.c	2005-04-20 08:13:01.000000000 +0900
+> +++ scsi-reqfn-export/drivers/block/elevator.c	2005-04-20 08:13:33.000000000 +0900
+> @@ -370,11 +370,11 @@ struct request *elv_next_request(request
+>  
+>  	while ((rq = __elv_next_request(q)) != NULL) {
+>  		/*
+> -		 * just mark as started even if we don't start it, a request
+> -		 * that has been delayed should not be passed by new incoming
+> -		 * requests
+> +		 * just mark as started even if we don't start it.
+> +		 * also, as a request that has been delayed should not
+> +		 * be passed by new incoming requests, set softbarrier.
+>  		 */
+> -		rq->flags |= REQ_STARTED;
+> +		rq->flags |= REQ_STARTED | REQ_SOFTBARRIER;
+>  
+>  		if (rq == q->last_merge)
+>  			q->last_merge = NULL;
 
-   I am developing a device driver for the AxiomTek AX5621H data
-acquisition card, and I am encountering some problems on a particular
-machine. This driver works pretty fine on normal machines, but crashes
-on an Industrial PC with intel 830 2-piece board (with the main board
-going into a PCI and an ISA slot on the expansion board(which houses
-all the PCI, ISA and AGP slots) at the same time. The error I get is
-given below :
+Do it on requeue, please - not on the initial spotting of the request.
 
-CPU 0 : Machine Check Exception : 0000000000000004
-Bank 0 : a200000084010400
-Kernel panic : CPU context corrupt
-In interrupt handler - not syncing
-
-The DMA channel I use is DMA1, and i check for free interrupts and then
-allocate them accordingly. So there is no conflicts, I assume. Also there
-are no conflicts on the address range I have allocated (It is for now
-0x300). The card supports only DMA channels 1 and 3. I have tried both, to
-the same result. If anyone among you have had experience with such a
-problem, any help in fixing this matter would be of great help.
-
-
-Thank You.
-Harish Harshan.
-
-
------------------------------------------
-This email was sent using Amrita Mail.
-   "Amrita Vishwa Vidyapeetham [Deemed University] - Amritapuri Campus"
-http://amritapuri.amrita.edu
+-- 
+Jens Axboe
 

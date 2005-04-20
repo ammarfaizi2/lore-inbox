@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbVDTHMi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVDTH0h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261357AbVDTHMi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 03:12:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbVDTHMi
+	id S261179AbVDTH0h (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 03:26:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbVDTH0g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 03:12:38 -0400
-Received: from Smtp1.univ-nantes.fr ([193.52.82.18]:29159 "EHLO
-	smtp1.univ-nantes.fr") by vger.kernel.org with ESMTP
-	id S261357AbVDTHM0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 03:12:26 -0400
-Message-ID: <426600D8.5060900@univ-nantes.fr>
-Date: Wed, 20 Apr 2005 09:12:24 +0200
-From: Yann Dupont <Yann.Dupont@univ-nantes.fr>
-Organization: CRIUN
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-Cc: linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: E1000 - page allocation failure - saga continues :(
-References: <20050414214828.GB9591@mail.muni.cz> <4263A3B7.6010702@univ-nantes.fr> <20050418122202.GE26030@mail.muni.cz> <4264B202.9080304@univ-nantes.fr> <20050419080424.GA28153@mail.muni.cz>
-In-Reply-To: <20050419080424.GA28153@mail.muni.cz>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 8bit
+	Wed, 20 Apr 2005 03:26:36 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:57999 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261179AbVDTH0f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 03:26:35 -0400
+Subject: Re: [2.6 patch] drivers/ieee1394/: remove unneeded EXPORT_SYMBOL's
+From: Arjan van de Ven <arjan@infradead.org>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <42657F7C.8060305@s5r6.in-berlin.de>
+References: <20050417195706.GD3625@stusta.de>
+	 <20050419191328.GJ1111@conscoop.ottawa.on.ca>
+	 <1113939827.6277.86.camel@laptopd505.fenrus.org>
+	 <42657F7C.8060305@s5r6.in-berlin.de>
+Content-Type: text/plain
+Date: Wed, 20 Apr 2005 09:26:29 +0200
+Message-Id: <1113981989.6238.30.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lukas Hejtmanek a écrit :
+On Wed, 2005-04-20 at 00:00 +0200, Stefan Richter wrote:
+> Arjan van de Ven wrote:
+> > On Tue, 2005-04-19 at 15:13 -0400, Jody McIntyre wrote:
+> >> On Sun, Apr 17, 2005 at 09:57:07PM +0200, Adrian Bunk wrote:
+> >> > This patch removes unneeded EXPORT_SYMBOL's.
+> ...
+> >> Given the objections to your December patch, why should we accept this
+> >> one now?
+> > 
+> > since there still isn't a user ??
+> 
+> There are users (though not in "the" kernel at the moment)
 
->On Tue, Apr 19, 2005 at 09:23:46AM +0200, Yann Dupont wrote:
->  
->
->>Do you have turned NAPI on ??? I tried without it off on e1000 and ...
->>surprise !
->>Don't have any messages since 12H now (usually I got those in less than 1H)
->>    
->>
->
->I have NAPI on. I tried to turn it off but my test failed, I can see allocation
->failure again.
->
->  
->
-Well. forgives me :)
-I have re turned NAPI On and my box is still happy 19H later...
-
-So it's obviously not napi.
-
-The problem is beetween the 2 incarnations of kernel (2.6.11.7 with
-kswapd meesages on thoses who works well), I've changed some more options
-Not exactly the best way to track bugs :(
-
-Anyway i'll try to catch THE option that make the kernel not so happy
-under heavy stress. Stay tuned,
-
--- 
-Yann Dupont, Cri de l'université de Nantes
-Tel: 02.51.12.53.91 - Fax: 02.51.12.58.60 - Yann.Dupont@univ-nantes.fr
+nor for the last 5 months... how long will it be ?
 

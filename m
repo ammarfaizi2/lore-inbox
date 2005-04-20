@@ -1,85 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbVDTMBj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261524AbVDTMEj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261531AbVDTMBj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 08:01:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbVDTMBj
+	id S261524AbVDTMEj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 08:04:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbVDTMEj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 08:01:39 -0400
-Received: from isilmar.linta.de ([213.239.214.66]:8674 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S261531AbVDTMBE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 08:01:04 -0400
-Date: Wed, 20 Apr 2005 14:01:02 +0200
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Thomas Renninger <trenn@suse.de>, Tony Lindgren <tony@atomide.com>,
-       Frank Sorenson <frank@tuxrocks.com>, linux-kernel@vger.kernel.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Andrea Arcangeli <andrea@suse.de>, George Anzinger <george@mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Lee Revell <rlrevell@joe-job.com>,
-       ML ACPI-devel <acpi-devel@lists.sourceforge.net>,
-       Bodo Bauer <bb@suse.de>, Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] Updated: Dynamic Tick version 050408-1 - C-state measures
-Message-ID: <20050420120102.GB28491@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	Pavel Machek <pavel@suse.cz>, Thomas Renninger <trenn@suse.de>,
-	Tony Lindgren <tony@atomide.com>,
-	Frank Sorenson <frank@tuxrocks.com>, linux-kernel@vger.kernel.org,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Martin Schwidefsky <schwidefsky@de.ibm.com>,
-	Andrea Arcangeli <andrea@suse.de>,
-	George Anzinger <george@mvista.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	john stultz <johnstul@us.ibm.com>,
-	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	Lee Revell <rlrevell@joe-job.com>,
-	ML ACPI-devel <acpi-devel@lists.sourceforge.net>,
-	Bodo Bauer <bb@suse.de>, Andi Kleen <ak@suse.de>
-References: <20050408062537.GB4477@atomide.com> <20050408075001.GC4477@atomide.com> <42564584.4080606@tuxrocks.com> <42566C22.4040509@suse.de> <20050408115535.GI4477@atomide.com> <42651C38.6090807@suse.de> <20050419152723.GA9509@isilmar.linta.de> <42657222.5080601@suse.de> <20050420114433.GA28362@isilmar.linta.de> <20050420115739.GB16819@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050420115739.GB16819@elf.ucw.cz>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 20 Apr 2005 08:04:39 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:16023 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S261524AbVDTMEI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 08:04:08 -0400
+Message-ID: <42664654.5080409@jp.fujitsu.com>
+Date: Wed, 20 Apr 2005 21:08:52 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: ja, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, Dave Hansen <haveblue@us.ibm.com>,
+       "Hariprasad Nellitheertha [imap]" <hari@in.ibm.com>
+Subject: [RFC][PATCH] nameing reserved pages [1/3]
+Content-Type: multipart/mixed;
+ boundary="------------030507030909050902020207"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 20, 2005 at 01:57:39PM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > > Because I don't consider whether there was bm_activity the last ms, I only
-> > > consider the average, it seems to happen that I try to trigger
-> > > C3/C4 when there is just something copied and some bm active ?!?
-> > 
-> > I don't think that this is perfect behaviour: if the system is idle, and
-> > there is _currently_ bus master activity, the CPU should be put into C1 or
-> > C2 type sleep. If you select C3 and actually enter it, you're risking
-> > DMA issues, AFAICS.
-> 
-> What kinds of DMA issues? Waiting 32msec or so is only heuristic; it
-> can go wrong any time. It would be really bad if it corrupted data or
-> something like that.
+This is a multi-part message in MIME format.
+--------------030507030909050902020207
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-loop()
-   a) bus mastering activity is going on at the very moment
-   b) the CPU is entering C3
-   c) the CPU is woken out of C3 because of bus mastering activity
+inline functions for naming pages.
+-- Kame
 
-the repeated delay between b) and c) might be problematic, as can be seen
-by the comment in processor_idle.c:
+--------------030507030909050902020207
+Content-Type: text/plain;
+ name="name_reserved.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="name_reserved.patch"
 
-                 * TBD: A better policy might be to fallback to the demotion
-                 *      state (use it for this quantum only) istead of
-                 *      demoting -- and rely on duration as our sole demotion
-                 *      qualification.  This may, however, introduce DMA
-                 *      issues (e.g. floppy DMA transfer overrun/underrun).
-                 */
 
-I'm not so worried about floppy DMA but about the ipw2x00 issues here.
+Adding page_type definitions and funcs for naming reserved pages.
 
-	Dominik
+Reserved page's information is stored into page->private.
+
+This is a weak naming method and anyone can overwrite it. 
+
+This information is used in /dev/memstate in following patch.
+
+Signed-off-by: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+
+
+---
+
+ linux-2.6.12-rc2-kamezawa/include/linux/mm.h |   31 +++++++++++++++++++++++++++
+ 1 files changed, 31 insertions(+)
+
+diff -puN include/linux/mm.h~name_reserved include/linux/mm.h
+--- linux-2.6.12-rc2/include/linux/mm.h~name_reserved	2005-04-20 09:37:48.000000000 +0900
++++ linux-2.6.12-rc2-kamezawa/include/linux/mm.h	2005-04-20 10:38:01.000000000 +0900
+@@ -348,6 +348,37 @@ static inline void put_page(struct page 
+ #endif		/* CONFIG_HUGETLB_PAGE */
+ 
+ /*
++ * Type of Pages. This is used in /dev/memstate.
++ * value range is 0-255.
++ */
++enum page_type {
++	Page_Common = 0,
++	Min_Reserved_Types = 1,
++	Rserved_Unknwon = 1,
++	Reserved_At_Boot,
++	Max_Reserved_Types,
++	Page_Invalid = 0xff
++};
++/*
++ * Basically, page->private has no meaning without PG_private.
++ * Here, we use page->private for PG_reserved pages to record type of a page.
++ * Because a page is reserved, anyone will not modify page->private.
++ * When it is freed, page->private will be overwritten by some code.
++ */
++static inline void set_page_reserved(struct page *page, unsigned char type)
++{
++	SetPageReserved(page);
++	page->private = type;
++}
++
++static inline unsigned char reserved_page_type(struct page *page)
++{
++	if (!PageReserved(page))
++		return 0;
++	return (unsigned char)page->private;
++}
++
++/*
+  * Multiple processes may "see" the same page. E.g. for untouched
+  * mappings of /dev/null, all processes see the same page full of
+  * zeroes, and text pages of executables and shared libraries have
+
+_
+
+--------------030507030909050902020207--
+

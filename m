@@ -1,95 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261398AbVDTJFM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbVDTJGB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261398AbVDTJFM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 05:05:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbVDTJFM
+	id S261451AbVDTJGB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 05:06:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbVDTJGA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 05:05:12 -0400
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:64116 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261392AbVDTJEy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 05:04:54 -0400
-Message-ID: <42661B2C.1020100@yahoo.com.au>
-Date: Wed, 20 Apr 2005 19:04:44 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Tejun Heo <htejun@gmail.com>, James.Bottomley@steeleye.com,
-       Christoph Hellwig <hch@infradead.org>, linux-scsi@vger.kernel.org,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH scsi-misc-2.6 01/05] scsi: make blk layer set	REQ_SOFTBARRIER
- when a request is dispatched
-References: <20050419231435.D85F89C0@htj.dyndns.org> <20050419231435.2DEBE102@htj.dyndns.org> <20050420063009.GB9371@suse.de> <20050420074026.GA11228@htj.dyndns.org> <1113983899.5074.111.camel@npiggin-nld.site> <426614B7.5010204@gmail.com> <20050420083853.GB6558@suse.de>
-In-Reply-To: <20050420083853.GB6558@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 20 Apr 2005 05:06:00 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:14481 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261451AbVDTJFr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 05:05:47 -0400
+Subject: Re: Module that loads new Interrupt Descriptor Table
+From: Arjan van de Ven <arjan@infradead.org>
+To: Zvi Rackover <zvirack@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <28183df5050420015828ace752@mail.gmail.com>
+References: <28183df5050420015828ace752@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 20 Apr 2005 11:05:40 +0200
+Message-Id: <1113987941.6238.52.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Wed, Apr 20 2005, Tejun Heo wrote:
+On Wed, 2005-04-20 at 11:58 +0300, Zvi Rackover wrote:
+> Hello all,
+>  
+>   I would like to write a program that monitors various system
+> parameters in real time. One of these is counting the number of
+> interrupts. I would like to implement my own interrupt handler so that
+> each handler counts the number of interrupt of its respective type.
 
->> Well, yeah, all schedulers have dispatch queue (noop has only the
->>dispatch queue) and use them to defer/requeue, so no reordering will
->>happen, but I'm not sure they are required to be like this or just
->>happen to be implemented so.
-> 
-> 
-> Precisely, I feel much better making sure SOFTBARRIER is set so that we
-> _know_ that a scheduler following the outlined rules will do the right
-> thing.
-> 
+ehm
+the kernel already keeps this kind of data, see /proc/interrupts
 
-Well yeah, at the moment I am just following implementations as
-defining the standard.
+why would you want to collect it *again* ?
+(or do you want to generally hook interrupts like some other people want
+to hook syscalls?)
 
-> 
->> Hmm, well, it seems that setting REQ_SOFTBARRIER on requeue path isn't
->>necessary as we have INSERT_FRONT policy on requeue, and if
->>elv_next_req_fn() is required to return the same request when the
->>request isn't dequeued, you're right and we don't need this patch at
->>all.  We are guaranteed that all requeued requests are served in LIFO
->>manner.
-> 
-> 
-> After a requeue, it is not required to return the same request again.
-> 
-
-Well I guess not.
-
-Would there be any benefit to reordering after a requeue?
-
-> 
->> BTW, the same un-dequeued request rule is sort of already broken as
->>INSERT_FRONT request passes a returned but un-dequeued request, but,
->>then again, we need this behavior as we have to favor fully-prepped
->>requests over partially-prepped one.
-> 
-> 
-> INSERT_FRONT really should skip requests with REQ_STARTED on the
-> dispatch list to be fully safe.
-> 
-
-I guess this could be one use of 'reordering' after a requeue.
-
-I'm not sure this would need a REQ_SOFTBARRIER either though, really.
-
-Your basic io scheduler framework - ie. a FIFO dispatch list which
-can have requests requeued on the front models pretty well what the
-block layer needs of the elevator.
-
-Considering all requeues and all elv_next_request but not dequeued
-requests would have this REQ_SOFTBARRIER bit set, any other model
-that theoretically would allow reordering would degenerate to this
-dispatch list behaviour, right?
-
-In which case, the dispatch list is effectively basically the most
-efficient way to do it? In which case should we just explicitly
-document that in the API?
-
-
--- 
-SUSE Labs, Novell Inc.
 

@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261393AbVDTEjk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261388AbVDTErA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261393AbVDTEjk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 00:39:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261398AbVDTEjk
+	id S261388AbVDTErA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 00:47:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbVDTErA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 00:39:40 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:31683 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261393AbVDTEjW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 00:39:22 -0400
-Date: Wed, 20 Apr 2005 06:39:16 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Phillip Lougher <phillip@lougher.demon.co.uk>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Phil Lougher <phil.lougher@gmail.com>,
-       Kyle Moffett <mrmacman_g4@mac.com>, linux-kernel@vger.kernel.org
-Subject: Re: Squashfs without ./..
-Message-ID: <20050420043915.GA21753@wohnheim.fh-wedel.de>
-References: <Pine.LNX.4.61.0503221645560.25571@yvahk01.tjqt.qr> <20050323174925.GA3272@zero> <Pine.LNX.4.62.0503241855350.18295@numbat.sonytel.be> <20050324133628.196a4c41.Tommy.Reynolds@MegaCoder.com> <d1v67l$4dv$1@terminus.zytor.com> <3e74c9409b6e383b7b398fe919418d54@mac.com> <cce9e37e0503251948527d322b@mail.gmail.com> <4244DC6A.3020304@zytor.com> <4244C57A.6040609@lougher.demon.co.uk>
+	Wed, 20 Apr 2005 00:47:00 -0400
+Received: from mail.kroah.org ([69.55.234.183]:24480 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261388AbVDTEq7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 00:46:59 -0400
+Date: Tue, 19 Apr 2005 21:46:31 -0700
+From: Greg KH <greg@kroah.com>
+To: yoshfuji@linux-ipv6.org
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] USB: compilation failure on usb/image/microtek.c
+Message-ID: <20050420044631.GA16583@kroah.com>
+References: <20050420.131034.42261841.yoshfuji@linux-ipv6.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4244C57A.6040609@lougher.demon.co.uk>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20050420.131034.42261841.yoshfuji@linux-ipv6.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 26 March 2005 02:14:18 +0000, Phillip Lougher wrote:
+On Wed, Apr 20, 2005 at 01:10:34PM +0900, B <yoshfuji@linux-ipv6.org> wrote:
+> From: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>
 > 
-> Fixing it in Squashfs implies Squashfs is broken.  It isn't.  If it has 
-> to be "fixed" in the kenel, fix it in the VFS, it is after all the VFS 
-> which makes '.' and '..' handling redundant in the filesystem.
+> maybe typo?
+> 
+> Signed-off-by: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>
+> 
+> --- a/drivers/usb/image/microtek.c
+> +++ b/drivers/usb/image/microtek.c
+> @@ -335,7 +335,7 @@ static int mts_scsi_abort (Scsi_Cmnd *sr
+>  
+>  	mts_urb_abort(desc);
+>  
+> -	return FAILURE;
+> +	return FAILED;
+>  }
 
-There are some islands on this planet where behaviour of virtually all
-the population wrt. driving on the proper side of the road is broken.
-Those people are silly, sure.
+Thanks, this is in my todo queue, it's due to the fallout of the
+scsi-misc merge :)
 
-Still, does that make you drive on the proper side while everyone else
-tries to evade your car with furious maneuvers?
-
-So, what do we learn from these silly islands?  "Wrong" and "Right"
-are relative, sometimes is makes much more sense to say "oh well, let
-them have their way".
-
-
-Anyway, I took a look at squashfs and will send you patches shortly.
-Hope you don't mind.
-
-Jörn
-
--- 
-Anything that can go wrong, will.
--- Finagle's Law
+greg k-h

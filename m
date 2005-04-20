@@ -1,38 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbVDTL4s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261470AbVDTL6G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261249AbVDTL4s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 07:56:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261470AbVDTL4s
+	id S261470AbVDTL6G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 07:58:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261515AbVDTL6G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 07:56:48 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:23258 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261249AbVDTL4r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 07:56:47 -0400
-Date: Wed, 20 Apr 2005 13:55:20 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Tejun Heo <htejun@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH Linux 2.6.12-rc2 00/04] blk: generic tag support fixes
-Message-ID: <20050420115520.GG18758@suse.de>
-References: <20050420114041.F2FA00DB@htj.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050420114041.F2FA00DB@htj.dyndns.org>
+	Wed, 20 Apr 2005 07:58:06 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:61584 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S261470AbVDTL5e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 07:57:34 -0400
+Message-ID: <426644DA.70105@jp.fujitsu.com>
+Date: Wed, 20 Apr 2005 21:02:34 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: ja, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Cc: Dave Hansen <haveblue@us.ibm.com>, hari@in.ibm.com
+Subject: [RFC][PATCH] nameing reserved pages [0/3]
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 20 2005, Tejun Heo wrote:
->  Hello, Jens.
-> 
->  These are fixes to generic tag support in the blk layer.  They all
-> compile okay and I've proof read it, but as I don't have any HBA which
-> uses generic tag support, I wasn't able to test directly.  However,
-> all changes are fairly straight-forward.
+Hi,
 
-All patches look good, thanks!
+There are several types of PG_reserved pages,
+(a) Memory Hole
+(b) Used by Kernel
+(c) Set by drivers
+(d) Isorated by MCA
+(e) used by perfmon
+etc....
 
--- 
-Jens Axboe
+I think it's useful to distinguish many types of PG_reserved pages.
+
+For example, Memory Hotplug can ignore (a).
+
+2 patches [1/3][2/3] are for naming PG_reserved pages.
+A type of a page is recoreded in page->private.
+I'm not sure whether this is safe or not, so only reserved-at-boot pages are named, currently.
+
+patch [3/3] is an interface to show state of memmap, /dev/memstate.
+
+In /dev/memstate, file offset is pfn and a byte represents a state of a page.
+In this patch, memory hole and Reserved pages has its value.
+
+below is output of my box.
+
+0xff --- Invalid page
+0x00 --- Common page
+0x02 --- Reserved at boot page
+
+[root@casares char]#  od  -t x1 -j 0 -N 65535 /dev/memstate
+0000000 ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+*
+0001540 ff ff ff ff ff ff ff ff ff ff ff ff ff ff 02 02
+0001560 02 02 02 02 02 02 02 02 02 02 02 02 02 02 02 02
+*
+0002400 02 02 02 00 00 00 00 00 00 02 02 02 02 02 02 02
+0002420 02 02 02 02 02 02 02 02 02 02 02 02 02 02 02 02
+*
+0003400 02 02 02 02 02 02 02 02 02 02 02 00 00 00 00 00
+0003420 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+*
+0010000 02 02 02 02 02 02 02 02 02 02 02 02 02 02 02 02
+*
+0010640 02 02 02 02 02 02 02 02 02 02 02 02 02 02 00 00
+0010660 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+This would be useful for Memory-Hotplug and some other stuffs.
+I think more detailed types can be supported.
+
+Thanks.
+-- Kame <kamezawa.hiroyu@jp.fujitsu.com>
 

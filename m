@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbVDULTn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261294AbVDULTo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261298AbVDULTn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 07:19:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbVDULSE
+	id S261294AbVDULTo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 07:19:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVDULSL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 07:18:04 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19589 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261291AbVDULRW (ORCPT
+	Thu, 21 Apr 2005 07:18:11 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19845 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261292AbVDULRW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 21 Apr 2005 07:17:22 -0400
-Date: Thu, 21 Apr 2005 13:09:36 +0200
+Date: Thu, 21 Apr 2005 13:15:41 +0200
 From: Pavel Machek <pavel@ucw.cz>
 To: Andrew Morton <akpm@zip.com.au>,
        kernel list <linux-kernel@vger.kernel.org>
-Cc: ak@suse.de
-Subject: [patch] s-t-RAM: load gdt the right way
-Message-ID: <20050421110936.GA18164@elf.ucw.cz>
+Subject: [patch] hp100: fix card names
+Message-ID: <20050421111541.GA24697@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -25,36 +24,24 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Sleep code uses wrong version of lgdt, that does the wrong thing when
-gdt is beyond 16MB or so...
+Those cards really need A in their names. Otherwise it is pretty hard
+to find anything about them on the net.
 
 Signed-off-by: Pavel Machek <pavel@suse.cz>
 
---- clean/arch/i386/kernel/acpi/wakeup.S	2005-01-22 21:24:51.000000000 +0100
-+++ linux/arch/i386/kernel/acpi/wakeup.S	2005-04-14 22:29:45.000000000 +0200
-@@ -74,8 +90,9 @@
- 	movw	%ax,%fs
- 	movw	$0x0e00 + 'i', %fs:(0x12)
- 	
--	# need a gdt
--	lgdt	real_save_gdt - wakeup_code
-+	# need a gdt -- use lgdtl to force 32-bit operands, in case
-+	# the GDT is located past 16 megabytes
-+	lgdtl	real_save_gdt - wakeup_code
- 
- 	movl	real_save_cr0 - wakeup_code, %eax
- 	movl	%eax, %cr0
---- clean/arch/x86_64/kernel/acpi/wakeup.S	2005-01-22 21:24:51.000000000 +0100
-+++ linux/arch/x86_64/kernel/acpi/wakeup.S	2005-04-14 22:34:18.000000000 +0200
-@@ -67,7 +67,7 @@
- 	shll	$4, %eax
- 	addl	$(gdta - wakeup_code), %eax
- 	movl	%eax, gdt_48a +2 - wakeup_code
--	lgdt	%ds:gdt_48a - wakeup_code		# load gdt with whatever is
-+	lgdtl	%ds:gdt_48a - wakeup_code	# load gdt with whatever is
- 						# appropriate
- 
- 	movl	$1, %eax			# protected mode (PE) bit
+--- clean/drivers/net/hp100.c	2005-03-03 12:34:19.000000000 +0100
++++ linux/drivers/net/hp100.c	2005-03-22 12:20:53.000000000 +0100
+@@ -13,8 +13,8 @@
+ ** This driver has only been tested with
+ ** -- HP J2585B 10/100 Mbit/s PCI Busmaster
+ ** -- HP J2585A 10/100 Mbit/s PCI 
+-** -- HP J2970  10 Mbit/s PCI Combo 10base-T/BNC
+-** -- HP J2973  10 Mbit/s PCI 10base-T
++** -- HP J2970A 10 Mbit/s PCI Combo 10base-T/BNC
++** -- HP J2973A 10 Mbit/s PCI 10base-T
+ ** -- HP J2573  10/100 ISA
+ ** -- Compex ReadyLink ENET100-VG4  10/100 Mbit/s PCI / EISA
+ ** -- Compex FreedomLine 100/VG  10/100 Mbit/s ISA / EISA / PCI
 
 -- 
 Boycott Kodak -- for their patent abuse against Java.

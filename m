@@ -1,64 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261779AbVDUS6c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261769AbVDUTBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261779AbVDUS6c (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 14:58:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261789AbVDUS6c
+	id S261769AbVDUTBd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 15:01:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261785AbVDUTBc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 14:58:32 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:6799 "EHLO
+	Thu, 21 Apr 2005 15:01:32 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:13711 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261779AbVDUS6V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 14:58:21 -0400
-Date: Thu, 21 Apr 2005 20:57:18 +0200
+	id S261769AbVDUTBC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 15:01:02 -0400
+Date: Thu, 21 Apr 2005 21:00:09 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Andreas Steinmetz <ast@domdv.de>
-Cc: pavel@ucw.cz, rjw@sisk.pl,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.12-rc3: various swsusp problems
-Message-ID: <20050421185717.GB475@openzaurus.ucw.cz>
-References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org> <4267DC2E.9030102@domdv.de>
+To: Petr Baudis <pasky@ucw.cz>
+Cc: Pavel Machek <pavel@ucw.cz>, Linus Torvalds <torvalds@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.12-rc3
+Message-ID: <20050421190009.GC475@openzaurus.ucw.cz>
+References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org> <20050421112022.GB2160@elf.ucw.cz> <20050421120327.GA13834@elf.ucw.cz> <20050421162220.GD30991@pasky.ji.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4267DC2E.9030102@domdv.de>
+In-Reply-To: <20050421162220.GD30991@pasky.ji.cz>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> there's some problems with swsusp in 2.6.12-rc3 (x86_64):
+> > > You should put this into .git/remotes
+> > > 
+> > > linus	rsync://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
+> 
+> (git addremote is preferred for that :-)
 
-Are they new or were they in -rc2, too?
+Oops :-).
 
-> 1. Is it necessary to print the following message during regular boot?
->    swsusp: Suspend partition has wrong signature?
->    It is a bit annoying and I believe it will confuse some swsusp
->    users.
+> > Well, not sure.
+> > 
+> > I did 
+> > 
+> > git track linus
+> > git cancel
+> > 
+> > but Makefile still contains -rc2. (Is "git cancel" right way to check
+> > out the tree?)
+> 
+> No. git cancel does what it says - cancels your local changes to the
+> working tree. git track will only set that next time you pull from
+> linus, the changes will be automatically merged. (Note that this will
+> change with the big UI change.)
 
-Hmm, feel free to provide a patch. (I need something to try git on :-).
+Is there way to say "forget those changes in my repository, I want
+just plain vanilla" without rm -rf?
+I see quite a lot of problems with fsck-tree. Is that normal?
+(I ran out of disk space few times during different operations...)
 
-> 2. PCMCIA related hangs during swsusp.
->    swsusp hangs after freeing memory when either cardmgr is running
->    or pcmcia cards are *physically* inserted. It is insufficient
->    to do a 'cardctl eject' the cards must be removed, too, for
->    swsusp not to hang. I do suspect some problem with the
->    'pccardd' kernel threads.
 
-Did it work with any older kernel? Which driver is it? yenta?
-
-> 3. Sometimes during the search for the suspend hang reason the system
->    went during suspend into a lightshow of:
->    eth0: Too much work at interrupt!
->    and some line that ends in:
->    release_console_sem+0x13d/0x1c0)
->    The start of the line is not readable as it just flickers by in
->    the eth0 message limbo. NIC is a built in RTL-8169 Gigabit Ethernet
->    (rev 10). Oh, no chance for a serial console capture as there's no
->    built in serial device in this laptop.
-
-How repeatable is that? Will NIC work okay if you rmmod/insmod its driver?
-				Pavel
 -- 
 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

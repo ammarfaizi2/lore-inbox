@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbVDUQNg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbVDUQRs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261499AbVDUQNg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 12:13:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbVDUQMh
+	id S261505AbVDUQRs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 12:17:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVDUQQv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 12:12:37 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54744 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261499AbVDUQLA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 12:11:00 -0400
-Date: Thu, 21 Apr 2005 17:11:06 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Jan Dittmer <jdittmer@ppp0.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux/m68k <linux-m68k@vger.kernel.org>
-Subject: Re: Linux 2.6.12-rc3
-Message-ID: <20050421161106.GY13052@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org> <42676B76.4010903@ppp0.net> <Pine.LNX.4.62.0504211105550.13231@numbat.sonytel.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0504211105550.13231@numbat.sonytel.be>
-User-Agent: Mutt/1.4.1i
+	Thu, 21 Apr 2005 12:16:51 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:44787 "EHLO
+	dhcp153.mvista.com") by vger.kernel.org with ESMTP id S261500AbVDUQQf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 12:16:35 -0400
+Date: Thu, 21 Apr 2005 09:16:28 -0700 (PDT)
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc3-V0.7.46-00
+In-Reply-To: <20050421073537.GA1004@elte.hu>
+Message-ID: <Pine.LNX.4.44.0504210915150.19107-100000@dhcp153.mvista.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 21, 2005 at 11:10:15AM +0200, Geert Uytterhoeven wrote:
-> On Thu, 21 Apr 2005, Jan Dittmer wrote:
-> > Linus Torvalds wrote:
-> > > Geert Uytterhoeven:
-> > >     [PATCH] M68k: Update defconfigs for 2.6.11
-> > >     [PATCH] M68k: Update defconfigs for 2.6.12-rc2
-> > 
-> > Why do I still get this error when trying to cross-compile for m68k?
-> 
-> Because to build m68k kernels, you (still :-( have to use the Linux/m68k CVS
-> repository, cfr. http://linux-m68k-cvs.ubb.ca/.
-> 
-> BTW, my patch queue is at
-> http://linux-m68k-cvs.ubb.ca/~geert/linux-m68k-2.6.x-merging/.
-> The main offender is POSTPONED/156-thread_info.diff.
+On Thu, 21 Apr 2005, Ingo Molnar wrote:
 
-I think I have a sane splitup of that stuff.  If you have time to review - yell
+> 
+> i have released the -V0.7.46-00 Real-Time Preemption patch, which can be 
+> downloaded from the usual place:
+> 
+>    http://redhat.com/~mingo/realtime-preempt/
+> 
+> this is a merge to 2.6.12-rc3, plus the 'ping localhost' fix from 
+> yang.yi@bmrtech.com.
+> 
+> there are still some unsolved slowdowns probably related to the recent 
+> plist.h changes.
+
+You may want to consider rolling it out for a bit , till I have time to 
+fix this ..
+
+
+Daniel
+

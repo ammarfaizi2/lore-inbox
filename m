@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261305AbVDUL2t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbVDUL1r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261305AbVDUL2t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 07:28:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVDUL2s
+	id S261326AbVDUL1r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 07:27:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261293AbVDULYY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 07:28:48 -0400
-Received: from ns1.q-leap.de ([153.94.51.193]:62100 "EHLO mail.q-leap.de")
-	by vger.kernel.org with ESMTP id S261292AbVDUL20 (ORCPT
+	Thu, 21 Apr 2005 07:24:24 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:46001 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261305AbVDULVN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 07:28:26 -0400
-From: Roland Fehrenbacher <rf@q-leap.de>
-MIME-Version: 1.0
+	Thu, 21 Apr 2005 07:21:13 -0400
+Date: Thu, 21 Apr 2005 13:20:22 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>, pasky@ucw.cz
+Subject: Re: Linux 2.6.12-rc3
+Message-ID: <20050421112022.GB2160@elf.ucw.cz>
+References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16999.36436.604591.941925@gargle.gargle.HOWL>
-Date: Thu, 21 Apr 2005 13:28:20 +0200
-To: linux-kernel@vger.kernel.org
-Subject: journal_callback_set
-X-Mailer: VM 7.17 under 21.4 (patch 16) "Corporate Culture" XEmacs Lucid
-Reply-To: rf@q-leap.de
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-I noticed, that starting from 2.6.10, the function (fs/jbd/transaction.c)
+> And for the crazy people, the git archive on kernel.org is up and running 
+> under /pub/scm/linux/kernel/git/torvalds/linux-2.6.git. For the 
+> adventurous of you, the name of the 2.6.12-rc3 release is a very nice and 
+> readable:
+> 
+> 	a2755a80f40e5794ddc20e00f781af9d6320fafb
+> 
+> and eventually I'll try to make sure that I actually accompany all 
+> releases with the SHA1 git name of the release signed with a digital 
+> signature. 
 
-void journal_callback_set(handle_t *handle,
-              void (*func)(struct journal_callback *jcb, int error),
-                   struct journal_callback *jcb)
+As far as I can see... (working with pasky's version of git....)
 
-along with the structure members of handle_s (include/linux/jbd.h)
+You should put this into .git/remotes
 
-struct list_head        h_jcb;
+linus	rsync://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
 
-and the following members of transaction_s
+Then
 
-spinlock_t              t_jcb_lock;
-struct list_head        t_jcb;
+RSYNC_FLAGS=-zavP git pull linus
 
-has been removed. Since I didn't find any discussion of this on this
-list or anywhere else on the web, I wondered about the motivation
-behind this, and how code that references these function/members
-should be modified. Is it dangerous to reinclude the eliminated parts
-of the code?
+should do the right thing.
 
-Please reply to me personnally, since I am not subscribed to the list.
+[pasky, would it be possible to make some kind of progress indication
+default for long pulls?]
 
-Thanks,
+> One of the tools I don't have set up yet is the old "shortlog" script, so 
+> I did this really hacky conversion. You don't want to know, but let's say 
+> that I'm re-aquainting myself with 'sed' after a long time ;). But if some 
+> lines look like they got hacked up in the middle, rest assured that that's 
+> exactly what happened, and the long log should have the rest ...
 
-Roland
-
+-- 
+Boycott Kodak -- for their patent abuse against Java.

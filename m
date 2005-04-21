@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261475AbVDUPqL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbVDUPy5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261475AbVDUPqL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 11:46:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbVDUPqL
+	id S261466AbVDUPy5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 11:54:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbVDUPy5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 11:46:11 -0400
-Received: from fire.osdl.org ([65.172.181.4]:47505 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261475AbVDUPqB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 11:46:01 -0400
-Date: Thu, 21 Apr 2005 08:45:42 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.12-rc3
-Message-Id: <20050421084542.5899eaf7.rddunlap@osdl.org>
-In-Reply-To: <20050421121910.GR2370@charite.de>
-References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org>
-	<20050421121910.GR2370@charite.de>
-Organization: OSDL
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: SvC&!/v_Hr`MvpQ*|}uez16KH[#EmO2Tn~(r-y+&Jb}?Zhn}c:Eee&zq`cMb_[5`tT(22ms
- (.P84,bq_GBdk@Kgplnrbj;Y`9IF`Q4;Iys|#3\?*[:ixU(UR.7qJT665DxUP%K}kC0j5,UI+"y-Sw
- mn?l6JGvyI^f~2sSJ8vd7s[/CDY]apD`a;s1Wf)K[,.|-yOLmBl0<axLBACB5o^ZAs#&m?e""k/2vP
- E#eG?=1oJ6}suhI%5o#svQ(LvGa=r
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 21 Apr 2005 11:54:57 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:41154 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261466AbVDUPy4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 11:54:56 -0400
+Message-ID: <4267CC7C.10907@nortel.com>
+Date: Thu, 21 Apr 2005 09:53:32 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Steven Rostedt <rostedt@goodmis.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, jdavis@accessline.com,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Bad rounding in timeval_to_jiffies [was: Re: Odd Timer
+ behavior in 2.6 vs 2.4  (1 extra tick)]
+References: <E29E71BB437ED411B12A0008C7CF755B2BC9BE@mail.accessline.com>  <1114052315.5058.13.camel@localhost.localdomain>  <1114054816.5996.10.camel@localhost.localdomain>  <20050421095109.A25431@flint.arm.linux.org.uk> <1114080708.5996.16.camel@localhost.localdomain> <Pine.LNX.4.58.0504210752560.2344@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0504210752560.2344@ppc970.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Apr 2005 14:19:10 +0200 Ralf Hildebrandt wrote:
+Linus Torvalds wrote:
 
-| > It's available both as a patch (against 2.6.11) and as a tar-ball, and 
-| Where IS the tarball? Not on www.kernel.org, that's for sure.
+> If you calculate the expected timeout from the time-of-day in the caller,
+> your drift not only goes away, but you'll actually be able to handle 
+> things like "oops, the machine is under load so I missed an event".
 
-in http://www.kernel.org/pub/linux/kernel/v2.6/testing/
+Does mainline have a high precision monotonic wallclock that is not 
+affected by time-of-day changes?  Something like "nano/mico seconds 
+since boot"?
 
----
-~Randy
+Chris

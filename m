@@ -1,74 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbVDUOrJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbVDUOtv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261404AbVDUOrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 10:47:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbVDUOrJ
+	id S261410AbVDUOtv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 10:49:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbVDUOtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 10:47:09 -0400
-Received: from penta.pentaserver.com ([216.74.97.66]:45231 "EHLO
-	penta.pentaserver.com") by vger.kernel.org with ESMTP
-	id S261404AbVDUOrE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 10:47:04 -0400
-Message-ID: <4267BC1C.1050801@kromtek.com>
-Date: Thu, 21 Apr 2005 18:43:40 +0400
-From: Manu Abraham <manu@kromtek.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
+	Thu, 21 Apr 2005 10:49:51 -0400
+Received: from unicorn.rentec.com ([216.223.240.9]:62170 "EHLO
+	unicorn.rentec.com") by vger.kernel.org with ESMTP id S261410AbVDUOtp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 10:49:45 -0400
+X-Rentec: external
+From: Wolfgang Wander <wwc@rentec.com>
 MIME-Version: 1.0
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-CC: Doug Ledford <dledford@redhat.com>, Dave Airlie <airlied@gmail.com>,
-       Helge Hafting <helge.hafting@aitel.hist.no>,
-       Chris Friesen <cfriesen@nortel.com>, linux-kernel@vger.kernel.org
-Subject: Re: nVidia stuff again
-References: <1113341579.3105.63.camel@caveman.xisl.com> <425CEAC2.1050306@aitel.hist.no> <20050413125921.GN17865@csclub.uwaterloo.ca> <20050413130646.GF32354@marowsky-bree.de> <20050413132308.GP17865@csclub.uwaterloo.ca> <425D3924.1070809@nortel.com> <425E77BB.5010902@aitel.hist.no> <1114021024.26866.63.camel@compaq-rhel4.xsintricity.com> <21d7e997050420161234141e23@mail.gmail.com> <1114085702.26866.137.camel@compaq-rhel4.xsintricity.com> <20050421133554.GU17865@csclub.uwaterloo.ca>
-In-Reply-To: <20050421133554.GU17865@csclub.uwaterloo.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - penta.pentaserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kromtek.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Message-ID: <16999.48517.760155.615281@gargle.gargle.HOWL>
+Date: Thu, 21 Apr 2005 10:49:41 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Avoiding maps fragmentation Was: Leaks in mmap address space: 2.6.11.4 
+In-Reply-To: <16992.14366.232980.673857@gargle.gargle.HOWL>
+References: <200504151646.j3FGkLQ00256@troll.rentec.com>
+	<16992.14366.232980.673857@gargle.gargle.HOWL>
+X-Mailer: VM 7.17 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
+X-Logged: Logged by unicorn.rentec.com as j3LEngKv024951 at Thu Apr 21 10:49:44 2005
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lennart Sorensen wrote:
-> On Thu, Apr 21, 2005 at 08:15:02AM -0400, Doug Ledford wrote:
-> 
->>Ha!  That's the whole damn point Dave.  Use your head.  Just because ATI
->>is getting more complex with their GPU does *not* mean nVidia is.  Go
->>back to my original example of the aic7xxx cards.  The alternative to
->>their simple hardware design is something like the BusLogic or QLogic
->>cards that are far more complex.  Your assuming that because the ATI
->>cards are getting more complex and people are less able to discern their
->>makeup just by reading the specs that the nVidia cards are doing the
->>same, nVidia is telling you otherwise, and you are just blowing that off
->>as though you know more about their cards than they do.  Reality is that
->>they *could* be telling the truth and the fact that their card is a more
->>simplistic card than ATIs may be the very reason that ATI has ponied up
->>specs and they haven't.  Therefore, you can reliably discern absolutely
->>*zero* information about the nVidia cards from a reference to ATI specs.
-> 
-> 
-> Certainly possible.  Maybe all their real IP is in the code, although if
-> that was true, letting opensource peope ahve the programing spec and
-> have to do their own drivers wouldn't expose that IP.  I have no idea.
-> 
+Looks like I have to answer myself here with you guys all busy
+gitting...
 
-Even without opening up the code, but with programming specs there are 
-many graphics driver guys out there, given the specs out it would not be 
-too hard to have a decent driver, without the Nvidia IP. In that case 
-there would be no question of IP violation.
+I posted two sample programs last week that showed that large
+application can run out of memory a lot quicker on 2.6 than on 2.4.
+The reason is that the /proc/*/maps space fragments a lot faster 
+on 2.6 than with 2.4 kernels.
 
-Or maybe somebody can do a clean room implementation provided Nvidia 
-agrees to some NDA, and the resultant work is acceptable to Nvidia 
-provided that it is free of their IP.. Many hardware vendors do resort 
-to these to get their hardware working properly under Linux, and in some 
-cases, the Linux driver has proved to be a better driver than their 
-Windows counterparts, albeit with lesser gimmicks/features.
+2.4 started searching for unused space from the mmap base up to the
+stack,  2.6 starts search from the end of the last mapped area 
+(mm->free_area_cache).
+
+The difference in the two algorithms is obvious (apart from the
+efficiency which is undoubtedly better in 2.6):
+
+Whereas 2.4 naturally started to fill small holes closer to the base thus
+leaving larger areas open towards the stack, 2.6 will place small maps
+all over the mappable area thus closing up potential large holes inefficiently.
+
+The attached patch is left as a hack so that you guys can come up (please;-)
+with a neater solution but something ought to be done that saves large
+holes from small map clutter...
+
+     Wolfgang
+
+PS: Patch^H^H^H^H^H Ugly_Hack is against 2.6.11.7 and only 'fixes' the
+two architectures I'm interested in (i386 and x86_64)
 
 
-Manu
+
+diff -ru linux-2.6.11.7.orig/arch/x86_64/kernel/sys_x86_64.c linux-2.6.11.7/arch/x86_64/kernel/sys_x86_64.c
+--- linux-2.6.11.7.orig/arch/x86_64/kernel/sys_x86_64.c	2005-03-02 02:38:13.000000000 -0500
++++ linux-2.6.11.7/arch/x86_64/kernel/sys_x86_64.c	2005-04-21 09:27:38.000000000 -0400
+@@ -112,8 +112,8 @@
+ 		    (!vma || addr + len <= vma->vm_start))
+ 			return addr;
+ 	}
+-	addr = mm->free_area_cache;
+-	if (addr < begin) 
++	/* addr = mm->free_area_cache;
++	if (addr < begin)  */
+ 		addr = begin; 
+ 	start_addr = addr;
+ 
+diff -ru linux-2.6.11.7.orig/mm/mmap.c linux-2.6.11.7/mm/mmap.c
+--- linux-2.6.11.7.orig/mm/mmap.c	2005-03-02 02:38:12.000000000 -0500
++++ linux-2.6.11.7/mm/mmap.c	2005-04-21 09:32:06.000000000 -0400
+@@ -1173,7 +1173,7 @@
+ 		    (!vma || addr + len <= vma->vm_start))
+ 			return addr;
+ 	}
+-	start_addr = addr = mm->free_area_cache;
++	start_addr = addr = TASK_UNMAPPED_BASE; /* mm->free_area_cache; */
+ 
+ full_search:
+ 	for (vma = find_vma(mm, addr); ; vma = vma->vm_next) {
+
+
+
+Wolfgang Wander writes:
+ > Here is another program that illustrates the problem which this time
+ > in C and without using glibc allocation schemes.
+ > 
+ > ----------------------------------------------------------------------
+ > 
+ > Wolfgang Wander writes:
+ >  > Hi,
+ >  > 
+ >  >   we are running some pretty large applications in 32bit mode on 64bit
+ >  >   AMD kernels (8GB Ram, Dual AMD64 CPUs, SMP).  Kernel is 2.6.11.4 or
+ >  >   2.4.21.
+ >  > 
+ >  >   Some of these applications run consistently out of memory but only
+ >  >   on 2.6 machines.  In fact large memory allocations that libc answers
+ >  >   with private mmaps seem to contribute to the problem: 2.4 kernels
+ >  >   are able to combine these mmaps to large chunks whereas 2.6
+ >  >   generates a rather fragmented /proc/self/maps table.
+ >  > 
+ >  >   The following C++ program reproduces the error (compiled statically
+ >  >   on a 32bit machine to get exactly the same executable for 2.4 and
+ >  >   2.6 environments):

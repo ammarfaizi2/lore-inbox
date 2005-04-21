@@ -1,69 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbVDUSlG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbVDUSnd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261710AbVDUSlG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 14:41:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261716AbVDUSlF
+	id S261745AbVDUSnd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 14:43:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbVDUSnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 14:41:05 -0400
-Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:65422 "EHLO
-	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
-	id S261710AbVDUSkw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 14:40:52 -0400
-Message-ID: <4267F367.3090508@ammasso.com>
-Date: Thu, 21 Apr 2005 13:39:35 -0500
-From: Timur Tabi <timur.tabi@ammasso.com>
-Organization: Ammasso
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en, en-gb
-MIME-Version: 1.0
-To: Andy Isaacson <adi@hexapodia.org>
-CC: Troy Benjegerdes <hozer@hozed.org>, Bernhard Fischer <blist@aon.at>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace verbs
- implementation
-References: <20050421173821.GA13312@hexapodia.org>
-In-Reply-To: <20050421173821.GA13312@hexapodia.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 21 Apr 2005 14:43:33 -0400
+Received: from shim2.irt.drexel.edu ([144.118.29.72]:61677 "EHLO
+	shim2.irt.drexel.edu") by vger.kernel.org with ESMTP
+	id S261745AbVDUSn1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 14:43:27 -0400
+Date: Thu, 21 Apr 2005 14:43:20 -0400
+From: Cosmin Nicolaescu <cos@camelot.homelinux.com>
+Subject: [PATCH 2.6.11] Documentation: remove super-{nr,
+ max} from the Documentation to reflect fs/super.c
+To: linux-kernel@vger.kernel.org
+Cc: trivial@rustcorp.com.au
+Message-id: <20050421184320.3951.qmail@camelot.homelinux.com>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Isaacson wrote:
+The patch updates the documentation for /proc. super-nr and super-max have
+been dropped from the kernel since 2.4.9 due to minor numbering issues.
+This change was not documented in the documentation.
 
-> If you take the hardline position that "the app is the only thing that
-> matters", your code is unlikely to get merged.  Linux is a
-> general-purpose OS.
-
-The problem is that our driver and library implement an API that we don't fully control. 
-The API states that the application allocates the memory and tells the library to register 
-it.  The app then goes on its merry way until it's done, at which point it tells the 
-library to deregister the memory.  Neither the app nor the API has any provision for the 
-app to be notified that the memory is no longer pinned and therefore can't be trusted. 
-That would be considered a critical failure from the app's perspective, so the kernel 
-would be doing it a favor by killing the process.
-
-> You might want to consider what happens with your communication system
-> in a machine running power-saving modes (in the limit, suspend-to-disk).
-> Of course most machines with Infiniband adapters aren't running swsusp,
-> but it's not inconceivable that blade servers might sleep to lower power
-> and cooling costs.
-
-Any application that registers memory, will in all likelihood be running at 100% CPU 
-non-stop.  The computer is not going to be doing anything else but whatever that app is 
-trying to do.  The application could conceiveable register gigabytes of RAM, and if even a 
-single page becomes unpinned, the whole thing is worthless.  The application cannot do 
-anything meaningful if it gets a message saying that some of the memory has become 
-unpinned and should not be used.
-
-So the real question is: how important is it to the kernel developers that Linux support 
-these kinds of enterprise-class applications?
-
--- 
-Timur Tabi
-Staff Software Engineer
-timur.tabi@ammasso.com
-
-One thing a Southern boy will never say is,
-"I don't think duct tape will fix it."
-      -- Ed Smylie, NASA engineer for Apollo 13
+--- linux-2.6.11/Documentation/filesystems/proc.txt     2005-04-14 17:56:00.000000
++++ linux-2.6.11/Documentation/filesystems/proc.txt.orig        2005-04-21 14:14:0
+@@ -909,16 +909,6 @@ nr_free_inodes
+ Represents the  number of free inodes. Ie. The number of inuse inodes is
+ (nr_inodes - nr_free_inodes).
+ 
+-super-nr and super-max
+-----------------------
+-
+-Again, super  block structures are allocated by the kernel, but not freed. The
+-file super-max  contains  the  maximum  number  of super block handlers, where
+-super-nr shows the number of currently allocated ones.
+-
+-Every mounted file system needs a super block, so if you plan to mount lots of
+-file systems, you may want to increase these numbers.
+-
+ aio-nr and aio-max-nr
+ ---------------------
+ 
+Signed-off-by: Cosmin Nicolaescu <cos@camelot.homelinux.com>

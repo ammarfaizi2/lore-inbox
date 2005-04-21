@@ -1,50 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261429AbVDUH0z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261414AbVDUH0b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261429AbVDUH0z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 03:26:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbVDUH0z
+	id S261414AbVDUH0b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 03:26:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbVDUH0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 03:26:55 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:30648 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261429AbVDUH0p (ORCPT
+	Thu, 21 Apr 2005 03:26:31 -0400
+Received: from colino.net ([213.41.131.56]:13563 "EHLO paperstreet.colino.net")
+	by vger.kernel.org with ESMTP id S261414AbVDUH0S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 03:26:45 -0400
-Date: Thu, 21 Apr 2005 09:26:24 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: yangyi <yang.yi@bmrtech.com>
-Cc: "Rt-Dev@Mvista. Com" <rt-dev@mvista.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [ Patch ]: Fix loopback communication latency bug
-Message-ID: <20050421072624.GA808@elte.hu>
-References: <1113897790.4632.161.camel@montavista2>
+	Thu, 21 Apr 2005 03:26:18 -0400
+Date: Thu, 21 Apr 2005 09:26:11 +0200
+From: Colin Leroy <colin@colino.net>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       debian-powerpc@lists.debian.org
+Subject: 2.6.12-rc3 cpufreq compile error on ppc32
+Message-ID: <20050421092611.37df940b@colin.toulouse>
+X-Mailer: Sylpheed-Claws 1.9.6 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1113897790.4632.161.camel@montavista2>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi guys,
 
-* yangyi <yang.yi@bmrtech.com> wrote:
+One of Ben's patches ("ppc32: Fix cpufreq problems") went in 2.6.12-
+rc3, but it depended on another patch that's still in -mm only: 
+add-suspend-method-to-cpufreq-core.patch
 
-> Hi, Ingo
-> 
-> For the option PREEMPT_RT, local communication latency is very very 
-> big, it is about 30 to 50 times as big as the option PREEMPT_NONE as 
-> far as local ping latency is concerned. Obviously, this should be 
-> fixed ASAP.
-> 
-> This patch fixes this bug by changing netif_rx to netif_rx_ni in 
-> loopback device driver.
+In addition to this, there's a third patch in -mm that fixes warnings
+and line length to the previous patch, but it doesn't apply cleanly
+anymore. It's named add-suspend-method-to-cpufreq-core-warning-fix.patch
 
-thanks, applied.
+Here's an updated version. HTH,
 
-	Ingo
+Signed-off-by: Colin Leroy <colin@colino.net>
+--- a/drivers/cpufreq/cpufreq.c	2005-04-21 09:14:28.000000000 +0200
++++ b/drivers/cpufreq/cpufreq.c	2005-04-21 09:18:11.000000000 +0200
+@@ -955,7 +955,6 @@
+ {
+ 	int cpu = sysdev->id;
+ 	unsigned int ret = 0;
+-	unsigned int cur_freq = 0;
+ 	struct cpufreq_policy *cpu_policy;
+ 
+ 	dprintk("resuming cpu %u\n", cpu);
+@@ -995,21 +994,24 @@
+ 			cur_freq = cpufreq_driver->get(cpu_policy->cpu);
+ 
+ 		if (!cur_freq || !cpu_policy->cur) {
+-			printk(KERN_ERR "cpufreq: resume failed to assert current frequency is what timing core thinks it is.\n");
++			printk(KERN_ERR "cpufreq: resume failed to assert "
++					"current frequency is what timing core "
++					"thinks it is.\n");
+ 			goto out;
+ 		}
+ 
+ 		if (unlikely(cur_freq != cpu_policy->cur)) {
+ 			struct cpufreq_freqs freqs;
+ 
+-			printk(KERN_WARNING "Warning: CPU frequency is %u, "
+-			       "cpufreq assumed %u kHz.\n", cur_freq, cpu_policy->cur);
++			printk(KERN_WARNING "Warning: CPU frequency is %u, cpufreq assumed "
++					    "%u kHz.\n", cur_freq, cpu_policy->cur);
+ 
+ 			freqs.cpu = cpu;
+ 			freqs.old = cpu_policy->cur;
+ 			freqs.new = cur_freq;
+ 
+-			notifier_call_chain(&cpufreq_transition_notifier_list, CPUFREQ_RESUMECHANGE, &freqs);
++			notifier_call_chain(&cpufreq_transition_notifier_list,
++						CPUFREQ_RESUMECHANGE, &freqs);
+ 			adjust_jiffies(CPUFREQ_RESUMECHANGE, &freqs);
+ 
+ 			cpu_policy->cur = cur_freq;
+

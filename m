@@ -1,84 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261473AbVDUPzz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbVDUQB6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261473AbVDUPzz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 11:55:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbVDUPzz
+	id S261477AbVDUQB6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 12:01:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbVDUQB6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 11:55:55 -0400
-Received: from main.gmane.org ([80.91.229.2]:26308 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261473AbVDUPzl (ORCPT
+	Thu, 21 Apr 2005 12:01:58 -0400
+Received: from mail.kroah.org ([69.55.234.183]:20668 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261477AbVDUQBz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 11:55:41 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Wes Felter <wesley@felter.org>
-Subject: Re: Need AES benchmark on Intel 64 bit
-Date: Thu, 21 Apr 2005 10:53:37 -0500
-Message-ID: <d48i1q$moe$1@sea.gmane.org>
-References: <42679C86.5050604@domdv.de>
+	Thu, 21 Apr 2005 12:01:55 -0400
+Date: Thu, 21 Apr 2005 09:01:04 -0700
+From: Greg KH <greg@kroah.com>
+To: Ed L Cashin <ecashin@coraid.com>
+Cc: 7eggert@gmx.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.12-rc2] aoe [1/6]: improve allowed interfaces configuration
+Message-ID: <20050421160104.GA10221@kroah.com>
+References: <3VqSf-2z7-15@gated-at.bofh.it> <E1DOVtj-0003bF-6c@be1.7eggert.dyndns.org> <87y8bcjlpq.fsf@coraid.com> <20050421145658.GA27263@kroah.com> <87pswoi1vl.fsf@coraid.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: pixpat.austin.ibm.com
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-In-Reply-To: <42679C86.5050604@domdv.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87pswoi1vl.fsf@coraid.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Steinmetz wrote:
-> Hi,
-> can anybody help out? I don't have access to Intel 64 bit CPUs and need
-> some microbenchmark results on Intel 64 bit. Usage guide for the
-> attached archive:
+On Thu, Apr 21, 2005 at 11:30:06AM -0400, Ed L Cashin wrote:
+> Greg KH <greg@kroah.com> writes:
 > 
-> 'ref' contains the current generic AES implementation
-> 'new' contains the 64 bit AES assembler implementation
+> > On Thu, Apr 21, 2005 at 09:36:17AM -0400, Ed L Cashin wrote:
+> >> "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" <7eggert@gmx.de> writes:
+> >> 
+> >> > Ed L Cashin <ecashin@coraid.com> wrote:
+> >> >
+> >> >> +++ b/Documentation/aoe/aoe.txt       2005-04-20 11:42:20.000000000 -0400
+> >> >
+> >> >> +  When the aoe driver is a module, use
+> >> >
+> >> > Is there any reason for this inconsistent behaviour?
+> >> 
+> >> Yes, the /sys/module/aoe area is only present when the aoe driver is a
+> >> module.
+> >
+> > Not true, have you looked in /sys/module lately?  :)
+> >
+> >> It would be nicer if there were a sysfs area where I could
+> >> put this file regardless of whether the driver is a module or built
+> >> into the kernel.  
+> >
+> > That's the place for it.  It will be there if the driver is built as a
+> > module or into the kernel.
+> 
+> Wow!  Well, that's very convenient for driver writers, so I'm pleased,
+> and I can update the docs.  It surprises me, though, to find out that
+> /sys/module is for things other than modules.
 
-This is on a 3.6GHz Nocona:
+It's not for things other than modules, it's filling a real need that
+you yourself just pointed out.  Namely, we need to be able to have
+access to module paramaters in a consistant place, no matter if the
+driver is built into the kernel or not.
 
-wmf:~/src/aes/ref> ./aes
-schedule128 1213
-schedule192 1443
-schedule256 1736
-enc asm 128 1020
-dec asm 128 1049
-enc asm 192 1352
-dec asm 192 1387
-enc asm 256 1541
-dec asm 256 1578
-wmf:~/src/aes/ref> ./aes
-schedule128 1214
-schedule192 1442
-schedule256 1736
-enc asm 128 1021
-dec asm 128 1049
-enc asm 192 1352
-dec asm 192 1388
-enc asm 256 1541
-dec asm 256 1579
+Man, you try to be nice to people...  :)
 
-wmf:~/src/aes/new> ./aes
-schedule128 1276
-schedule192 1520
-schedule256 1822
-enc asm 128 790
-dec asm 128 795
-enc asm 192 936
-dec asm 192 937
-enc asm 256 1087
-dec asm 256 1086
-wmf:~/src/aes/new> ./aes
-schedule128 1276
-schedule192 1520
-schedule256 1821
-enc asm 128 791
-dec asm 128 796
-enc asm 192 936
-dec asm 192 937
-enc asm 256 1087
-dec asm 256 1086
+thanks,
 
-Wes Felter - wesley@felter.org
-
+greg k-h

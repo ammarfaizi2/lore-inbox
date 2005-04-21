@@ -1,47 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbVDUUyr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261876AbVDUUze@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbVDUUyr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 16:54:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbVDUUyr
+	id S261876AbVDUUze (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 16:55:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbVDUUze
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 16:54:47 -0400
-Received: from coderock.org ([193.77.147.115]:29864 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261875AbVDUUyd (ORCPT
+	Thu, 21 Apr 2005 16:55:34 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:50961 "EHLO hermes.domdv.de")
+	by vger.kernel.org with ESMTP id S261876AbVDUUz3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 16:54:33 -0400
-Date: Thu, 21 Apr 2005 22:54:25 +0200
-From: Domen Puncer <domen@coderock.org>
-To: Ed L Cashin <ecashin@coraid.com>
-Cc: 7eggert@gmx.de, linux-kernel@vger.kernel.org, Greg K-H <greg@kroah.com>
-Subject: Re: [PATCH 2.6.12-rc2] aoe [1/6]: improve allowed interfaces configuration
-Message-ID: <20050421205425.GA14686@nd47.coderock.org>
-References: <3VqSf-2z7-15@gated-at.bofh.it> <E1DOVtj-0003bF-6c@be1.7eggert.dyndns.org> <87y8bcjlpq.fsf@coraid.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87y8bcjlpq.fsf@coraid.com>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 21 Apr 2005 16:55:29 -0400
+Message-ID: <42681340.1080104@domdv.de>
+Date: Thu, 21 Apr 2005 22:55:28 +0200
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: rjw@sisk.pl, Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.12-rc3: various swsusp problems
+References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org> <4267DC2E.9030102@domdv.de> <20050421185717.GB475@openzaurus.ucw.cz>
+In-Reply-To: <20050421185717.GB475@openzaurus.ucw.cz>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21/04/05 09:36 -0400, Ed L Cashin wrote:
-> "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" <7eggert@gmx.de> writes:
-> 
-> > Ed L Cashin <ecashin@coraid.com> wrote:
-> >
-...
-> >> +  /sys/module/aoe/parameters/aoe_iflist instead of
-> >                                 ^^^
-> >
-> > Why does the module name need to be part of the attribute?
-> > That's redundant. That's redundant.
-> 
-> Yes.  That's true.  Redundancy isn't always bad, though, and using the
-> "aoe_" prefix lets the kernel parameter for the built-in aoe driver be
-> the same as the parameter for the modular driver.
+Pavel Machek wrote:
+> Hi!
+> Are they new or were they in -rc2, too?
 
-The __setup() stuff is redundancy too, as module parameters already
-work as boot parameters (ie. aoe.iflist).
+Some further backtracking:
 
-
-	Domen
+The nic problem is already present in 2.6.12-rc1.
+The pcmcia hang problem is not present in 2.6.12-rc1.
+-- 
+Andreas Steinmetz                       SPAMmers use robotrap@domdv.de

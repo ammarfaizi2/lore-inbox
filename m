@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbVDUKJr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbVDUKZo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261259AbVDUKJr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 06:09:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbVDUKJr
+	id S261273AbVDUKZo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 06:25:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261274AbVDUKZn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 06:09:47 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:49580 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261250AbVDUKJf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 06:09:35 -0400
-Date: Thu, 21 Apr 2005 11:09:33 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: "James E.J. Bottomley" <James.Bottomley@SteelEye.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-scsi@vger.kernel.org, Linux/m68k <linux-m68k@vger.kernel.org>
-Subject: Re: [PATCH] kill old EH constants
-Message-ID: <20050421100933.GA19586@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	"James E.J. Bottomley" <James.Bottomley@SteelEye.com>,
-	Linux Kernel Development <linux-kernel@vger.kernel.org>,
-	linux-scsi@vger.kernel.org, Linux/m68k <linux-m68k@vger.kernel.org>
-References: <200504210608.j3L682Br002585@hera.kernel.org> <Pine.LNX.4.62.0504211155440.13231@numbat.sonytel.be>
+	Thu, 21 Apr 2005 06:25:43 -0400
+Received: from wproxy.gmail.com ([64.233.184.202]:58414 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261273AbVDUKZi convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 06:25:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=AQrwddxeZrfpCLyGz15hoP8nacPuG/XWD8iyNQ7pBxosabc4acFmaJ3vXITNlRekgKUqEG0+LVjnCBZRj8Kc/fjR8uK+3iH2GydtTrWXOs1MP7UI3N1noKxLoNHFK2q0as/PEpMTX/Tk6hkPKrLANE38UZ+uzlGEw6sc3fMwfxI=
+Message-ID: <40f323d005042103253bf924f2@mail.gmail.com>
+Date: Thu, 21 Apr 2005 12:25:38 +0200
+From: Benoit Boissinot <bboissin@gmail.com>
+Reply-To: Benoit Boissinot <bboissin@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [2.6 patch] drivers/net/hamradio/baycom_epp.c: cleanups
+Cc: sailer@ife.ee.ethz.ch, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
+       netdev@oss.sgi.com
+In-Reply-To: <20050420165344.GO5489@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0504211155440.13231@numbat.sonytel.be>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+References: <20050420165344.GO5489@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 21, 2005 at 11:58:12AM +0200, Geert Uytterhoeven wrote:
-> sun3_NCR5380.c still uses the following:
+On 4/20/05, Adrian Bunk <bunk@stusta.de> wrote:
+> The times when tricky goto's produced better codes are long gone.
 > 
->   - SCSI_ABORT_SUCCESS
->   - SCSI_ABORT_ERROR
->   - SCSI_ABORT_SNOOZE
->   - SCSI_ABORT_BUSY
->   - SCSI_ABORT_NOT_RUNNING
->   - SCSI_RESET_SUCCESS
->   - SCSI_RESET_BUS_RESET
+> This patch should express the same in a better way, please check whether
+> I made any mistake.
 > 
-> causing the driver to fail to build in 2.6.12-rc3. What should I replace them
-> by?
 
-You must replace NCR5380_abort and NCR5380_bus_reset with real new-style
-EH routines.  I'd suggest copying them from NCR5380.c or even better
-scrapping sun3_NCR5380.c in favour of that one completely.
+By the way, it solves compile errors with gcc-4:
+a lot of
+drivers/net/hamradio/baycom_epp.c:690: error: jump into statement expression
 
+regards,
+
+Benoit

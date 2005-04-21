@@ -1,76 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261520AbVDUQdZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVDURBx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261520AbVDUQdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 12:33:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVDUQdZ
+	id S261551AbVDURBx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 13:01:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261550AbVDURBx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 12:33:25 -0400
-Received: from fire.osdl.org ([65.172.181.4]:61865 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261520AbVDUQdO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 12:33:14 -0400
-Date: Thu, 21 Apr 2005 09:32:48 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Ed L Cashin <ecashin@coraid.com>
-Cc: greg@kroah.com, 7eggert@gmx.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.12-rc2] aoe [1/6]: improve allowed interfaces
- configuration
-Message-Id: <20050421093248.2061fb1a.rddunlap@osdl.org>
-In-Reply-To: <87pswoi1vl.fsf@coraid.com>
-References: <3VqSf-2z7-15@gated-at.bofh.it>
-	<E1DOVtj-0003bF-6c@be1.7eggert.dyndns.org>
-	<87y8bcjlpq.fsf@coraid.com>
-	<20050421145658.GA27263@kroah.com>
-	<87pswoi1vl.fsf@coraid.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: SvC&!/v_Hr`MvpQ*|}uez16KH[#EmO2Tn~(r-y+&Jb}?Zhn}c:Eee&zq`cMb_[5`tT(22ms
- (.P84,bq_GBdk@Kgplnrbj;Y`9IF`Q4;Iys|#3\?*[:ixU(UR.7qJT665DxUP%K}kC0j5,UI+"y-Sw
- mn?l6JGvyI^f~2sSJ8vd7s[/CDY]apD`a;s1Wf)K[,.|-yOLmBl0<axLBACB5o^ZAs#&m?e""k/2vP
- E#eG?=1oJ6}suhI%5o#svQ(LvGa=r
+	Thu, 21 Apr 2005 13:01:53 -0400
+Received: from zproxy.gmail.com ([64.233.162.192]:49382 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261551AbVDURAw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 13:00:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=C+6RtjJpJ4uBbXd4o9xqBIXFRFuCG8QwRACw6BdaIQedM9ThNSowlL7ELzXxXbDNtkkNqgzKdYyGC0sPxlvWVb6sRJFr5K0HcSB251yr95GmAVRbSc25InERwlc0rd6RKckrZFZMbsIKrrV7QD61WfAjkPBAERDgXws+Cb891XU=
+Message-ID: <b6408ebf050421100075af6800@mail.gmail.com>
+Date: Thu, 21 Apr 2005 17:00:51 +0000
+From: Antonio Nevado <anevado@gmail.com>
+Reply-To: Antonio Nevado <anevado@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Gentoo livecd - unionfs module problem
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Apr 2005 11:30:06 -0400 Ed L Cashin wrote:
+Hi!
 
-| Greg KH <greg@kroah.com> writes:
-| 
-| > On Thu, Apr 21, 2005 at 09:36:17AM -0400, Ed L Cashin wrote:
-| >> "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" <7eggert@gmx.de> writes:
-| >> 
-| >> > Ed L Cashin <ecashin@coraid.com> wrote:
-| >> >
-| >> >> +++ b/Documentation/aoe/aoe.txt       2005-04-20 11:42:20.000000000 -0400
-| >> >
-| >> >> +  When the aoe driver is a module, use
-| >> >
-| >> > Is there any reason for this inconsistent behaviour?
-| >> 
-| >> Yes, the /sys/module/aoe area is only present when the aoe driver is a
-| >> module.
-| >
-| > Not true, have you looked in /sys/module lately?  :)
-| >
-| >> It would be nicer if there were a sysfs area where I could
-| >> put this file regardless of whether the driver is a module or built
-| >> into the kernel.  
-| >
-| > That's the place for it.  It will be there if the driver is built as a
-| > module or into the kernel.
-| 
-| Wow!  Well, that's very convenient for driver writers, so I'm pleased,
-| and I can update the docs.  It surprises me, though, to find out that
-| /sys/module is for things other than modules.
+i´m working on a linux livecd gentoo-based using the 
+linux-live scripts.
 
-Just depends on your definition of a module.
+Ok, then, i use the gentoo kernel 2.6.11 with squashfs support
+(not module, incore) and i compile the unionfs.ko module.
+I gzip the module unionfs.ko and i copy it to the:
 
-AOE (or just about any device driver) can be considered logically
-as a module.  You seem to be equating module with "loadable module"
-vs. a builtin module.  The good news is that /sys/module works
-for loadable or builtin modules.
+  kernel-modules/'uname -r'/
 
----
-~Randy
+directory for a future use by the linux-live scripts.
+
+Then, the scipts copy unionfs.ko.gz to the initrd.
+
+The problem is: when the initrd boots and it try to load
+the module (from /tmp when it´s already gunzipped) returns this
+message:
+
+insmod: cannot open module '/tmp/unionfs.ko' :
+Invalid module format(-1): Exec format error
+
+but if i try to load the module on the gentoo distribution before
+create the .iso and burn´it (on the hard-disk) there´s no
+problem (i load it with the same 'busybox' binary that uses the
+linuxrc script)
+
+Then, errors, kernel panic, goodbye...
+
+Help! Please...
+
+Thanks !!!
+
+---nevy---

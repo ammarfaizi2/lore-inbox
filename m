@@ -1,63 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbVDUL1r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261306AbVDULbg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbVDUL1r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 07:27:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261293AbVDULYY
+	id S261306AbVDULbg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 07:31:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVDULbg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 07:24:24 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:46001 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261305AbVDULVN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 07:21:13 -0400
-Date: Thu, 21 Apr 2005 13:20:22 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>, pasky@ucw.cz
-Subject: Re: Linux 2.6.12-rc3
-Message-ID: <20050421112022.GB2160@elf.ucw.cz>
-References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 21 Apr 2005 07:31:36 -0400
+Received: from cernmx06.cern.ch ([137.138.166.160]:23501 "EHLO
+	cernmxlb.cern.ch") by vger.kernel.org with ESMTP id S261327AbVDULbE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 07:31:04 -0400
+DomainKey-Signature: a=rsa-sha1; c=nofws; s=beta; d=cern.ch; q=dns; 
+	h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding; 
+	b=GvE7w/EkmBDc/uXFpJhXaODkQCCCxRYnzMRwbBDDewEv1GuF4YxxVki3ym0ctKYaGvQMDn9SN29EXk5krKflHJbYgf8baacPZHhic0S6mGsy7rObPNh0smAMLzJYS60z;
+Keywords: CERN SpamKiller Note: -51 Charset: west-latin
+X-Filter: CERNMX06 CERN MX v2.0 050413.1147 Release
+Message-ID: <42678EEA.6070109@cern.ch>
+Date: Thu, 21 Apr 2005 13:30:50 +0200
+From: Andreas Hirstius <Andreas.Hirstius@cern.ch>
+User-Agent: Mozilla/5.0 (X11; U; Linux ia64; en-US; rv:1.7.7) Gecko/20050418
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bartlomiej ZOLNIERKIEWICZ <Bartlomiej.Zolnierkiewicz@cern.ch>
+CC: Gelato technical <gelato-technical@gelato.unsw.edu.au>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Serious performance degradation on a RAID with kernel 2.6.10-bk7
+ and later
+References: <42669357.9080604@cern.ch> <42668977.5060708@utah-nac.org>	 <42676501.8030805@cern.ch> <58cb370e05042102272ce70f2@mail.gmail.com> <42677587.8030707@cern.ch>
+In-Reply-To: <42677587.8030707@cern.ch>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 Apr 2005 11:30:50.0228 (UTC) FILETIME=[91D5DB40:01C54665]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-> And for the crazy people, the git archive on kernel.org is up and running 
-> under /pub/scm/linux/kernel/git/torvalds/linux-2.6.git. For the 
-> adventurous of you, the name of the 2.6.12-rc3 release is a very nice and 
-> readable:
-> 
-> 	a2755a80f40e5794ddc20e00f781af9d6320fafb
-> 
-> and eventually I'll try to make sure that I actually accompany all 
-> releases with the SHA1 git name of the release signed with a digital 
-> signature. 
+The fls() patch from David solves the problem :-))
 
-As far as I can see... (working with pasky's version of git....)
+Do you have an idea, when it will be in the mainline kernel??
 
-You should put this into .git/remotes
+Andreas
 
-linus	rsync://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
 
-Then
 
-RSYNC_FLAGS=-zavP git pull linus
+Bartlomiej ZOLNIERKIEWICZ wrote:
 
-should do the right thing.
-
-[pasky, would it be possible to make some kind of progress indication
-default for long pulls?]
-
-> One of the tools I don't have set up yet is the old "shortlog" script, so 
-> I did this really hacky conversion. You don't want to know, but let's say 
-> that I'm re-aquainting myself with 'sed' after a long time ;). But if some 
-> lines look like they got hacked up in the middle, rest assured that that's 
-> exactly what happened, and the long log should have the rest ...
-
--- 
-Boycott Kodak -- for their patent abuse against Java.
+>
+> Hi!
+>
+>> A small update.
+>>
+>> Patching mm/filemap.c is not necessary in order to get the improved
+>> performance!
+>> It's sufficient to remove roundup_pow_of_two from  |get_init_ra_size ...
+>>
+>> So a simple one-liner changes to picture dramatically.
+>> But why ?!?!?
+>
+>
+> roundup_pow_of_two() uses fls() and ia64 has buggy fls() implementation
+> [ seems that David fixed it but patch is not in the mainline yet]:
+>
+> http://www.mail-archive.com/linux-ia64@vger.kernel.org/msg01196.html
+>
+> That would also explain why you couldn't reproduce the problem on ia32 
+> Xeon machines.
+>
+> Bartlomiej
+>

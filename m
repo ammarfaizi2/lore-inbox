@@ -1,37 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbVDUGOS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbVDUGS3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbVDUGOS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 02:14:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVDUGOR
+	id S261275AbVDUGS3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 02:18:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbVDUGPQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 02:14:17 -0400
-Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:57532 "HELO
-	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261232AbVDUGLi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 02:11:38 -0400
-Subject: [patch] fix race in __block_prepare_write
+	Thu, 21 Apr 2005 02:15:16 -0400
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:6824 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261235AbVDUGOO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 02:14:14 -0400
+Subject: [patch] fix race in __block_prepare_write (again)
 From: Nick Piggin <nickpiggin@yahoo.com.au>
+To: Andrew Morton <akpm@osdl.org>
 Cc: lkml <linux-kernel@vger.kernel.org>, Andrea Arcangeli <andrea@suse.de>
-Content-Type: multipart/mixed; boundary="=-fm1ieqRuY4mHNT+xnOPY"
-Date: Thu, 21 Apr 2005 16:11:34 +1000
-Message-Id: <1114063894.5182.10.camel@npiggin-nld.site>
+Content-Type: multipart/mixed; boundary="=-uwO9P5ptRVuhVEXPwTPq"
+Date: Thu, 21 Apr 2005 16:14:06 +1000
+Message-Id: <1114064046.5182.13.camel@npiggin-nld.site>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.1 
-To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-fm1ieqRuY4mHNT+xnOPY
+--=-uwO9P5ptRVuhVEXPwTPq
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-Questions? Comments?
+... I somehow didn't send it to Andrew last time.
 
 -- 
 SUSE Labs, Novell Inc.
 
---=-fm1ieqRuY4mHNT+xnOPY
+
+--=-uwO9P5ptRVuhVEXPwTPq
 Content-Disposition: attachment; filename=__block_prepare_write-bug.patch
 Content-Type: text/x-patch; name=__block_prepare_write-bug.patch; charset=UTF-8
 Content-Transfer-Encoding: 7bit
@@ -75,6 +76,6 @@ Index: linux-2.6/fs/buffer.c
  	 * Zero out any newly allocated blocks to avoid exposing stale
  	 * data.  If BH_New is set, we know that the block was newly
 
---=-fm1ieqRuY4mHNT+xnOPY--
+--=-uwO9P5ptRVuhVEXPwTPq--
 
 

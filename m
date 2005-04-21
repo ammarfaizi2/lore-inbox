@@ -1,66 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbVDUQB6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbVDUQJj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261477AbVDUQB6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 12:01:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbVDUQB6
+	id S261495AbVDUQJj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 12:09:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261496AbVDUQJj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 12:01:58 -0400
-Received: from mail.kroah.org ([69.55.234.183]:20668 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261477AbVDUQBz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 12:01:55 -0400
-Date: Thu, 21 Apr 2005 09:01:04 -0700
-From: Greg KH <greg@kroah.com>
-To: Ed L Cashin <ecashin@coraid.com>
-Cc: 7eggert@gmx.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.12-rc2] aoe [1/6]: improve allowed interfaces configuration
-Message-ID: <20050421160104.GA10221@kroah.com>
-References: <3VqSf-2z7-15@gated-at.bofh.it> <E1DOVtj-0003bF-6c@be1.7eggert.dyndns.org> <87y8bcjlpq.fsf@coraid.com> <20050421145658.GA27263@kroah.com> <87pswoi1vl.fsf@coraid.com>
+	Thu, 21 Apr 2005 12:09:39 -0400
+Received: from rproxy.gmail.com ([64.233.170.201]:40811 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261495AbVDUQJc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 12:09:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=KN3IhkvGXjeqL/kKpP0IBYKgjSlMOqxwLwQpVcaUfUjNd5pewuLXfn9SpEk+QnCADTNWkudmwQd3zDwkHBQuKsStZ/bGnoQGys9QAKh/tsWkq14L5P05sST7BTeYt+LHJdVg1BvI4k+xnndl/vnW29vLJsBGSrOU68q/HtxokNA=
+Message-ID: <d120d5000504210909f0e0713@mail.gmail.com>
+Date: Thu, 21 Apr 2005 11:09:31 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: johnpol@2ka.mipt.ru
+Subject: Re: [RFC/PATCH 0/22] W1: sysfs, lifetime and other fixes
+Cc: sensors@stimpy.netroedge.com, LKML <linux-kernel@vger.kernel.org>,
+       Greg KH <gregkh@suse.de>
+In-Reply-To: <1114089504.29655.93.camel@uganda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <87pswoi1vl.fsf@coraid.com>
-User-Agent: Mutt/1.5.8i
+References: <200504210207.02421.dtor_core@ameritech.net>
+	 <1114089504.29655.93.camel@uganda>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 21, 2005 at 11:30:06AM -0400, Ed L Cashin wrote:
-> Greg KH <greg@kroah.com> writes:
+One more thing...
+
+On 4/21/05, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> On Thu, 2005-04-21 at 02:07 -0500, Dmitry Torokhov wrote:
 > 
-> > On Thu, Apr 21, 2005 at 09:36:17AM -0400, Ed L Cashin wrote:
-> >> "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" <7eggert@gmx.de> writes:
-> >> 
-> >> > Ed L Cashin <ecashin@coraid.com> wrote:
-> >> >
-> >> >> +++ b/Documentation/aoe/aoe.txt       2005-04-20 11:42:20.000000000 -0400
-> >> >
-> >> >> +  When the aoe driver is a module, use
-> >> >
-> >> > Is there any reason for this inconsistent behaviour?
-> >> 
-> >> Yes, the /sys/module/aoe area is only present when the aoe driver is a
-> >> module.
-> >
-> > Not true, have you looked in /sys/module lately?  :)
-> >
-> >> It would be nicer if there were a sysfs area where I could
-> >> put this file regardless of whether the driver is a module or built
-> >> into the kernel.  
-> >
-> > That's the place for it.  It will be there if the driver is built as a
-> > module or into the kernel.
+> > w1-master-drop-attrs.patch
+> >    Get rid of unneeded master device attributes:
+> >    - 'pointer' and 'attempts' are meaningless for userspace;
+> >    - information provided by 'slaves' and 'slave_count' can be gathered
+> >      from other sysfs bits;
+> >    - w1_slave_found has to be rearranged now that slave_count field is gone.
 > 
-> Wow!  Well, that's very convenient for driver writers, so I'm pleased,
-> and I can update the docs.  It surprises me, though, to find out that
-> /sys/module is for things other than modules.
+> attempts is usefull for broken lines.
 
-It's not for things other than modules, it's filling a real need that
-you yourself just pointed out.  Namely, we need to be able to have
-access to module paramaters in a consistant place, no matter if the
-driver is built into the kernel or not.
+It simply increments with every search i.e. every 10 secondsby default
+and does not provide indication of the quality of the wire.
 
-Man, you try to be nice to people...  :)
-
-thanks,
-
-greg k-h
+-- 
+Dmitry

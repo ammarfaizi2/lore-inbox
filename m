@@ -1,103 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbVDUMyu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbVDUNHZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261345AbVDUMyu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 08:54:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbVDUMyu
+	id S261350AbVDUNHZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 09:07:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbVDUNHY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 08:54:50 -0400
-Received: from rproxy.gmail.com ([64.233.170.201]:13115 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261349AbVDUMyl convert rfc822-to-8bit
+	Thu, 21 Apr 2005 09:07:24 -0400
+Received: from 26.mail-out.ovh.net ([213.186.42.179]:52888 "EHLO
+	26.mail-out.ovh.net") by vger.kernel.org with ESMTP id S261350AbVDUNHI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 08:54:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=for4qcSKfStfEd/VjNYrOiHl2DETJ+0FzNLCRo++6MGGwFNHaGiFgWRttxqX0xhd1bQCHmdv5diC8kqRHrr04xJMlyIJYANguqFRvfDbCH8zu5BW/fV9LQQXlR6zSvrmA+Y8rc4UCk0xDyUrSowsF7xs2NfR9hv86mNd7M7cRdQ=
-Message-ID: <21d7e99705042105542127cce0@mail.gmail.com>
-Date: Thu, 21 Apr 2005 22:54:41 +1000
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Doug Ledford <dledford@redhat.com>
-Subject: Re: nVidia stuff again
-Cc: Helge Hafting <helge.hafting@aitel.hist.no>,
-       Chris Friesen <cfriesen@nortel.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1114085702.26866.137.camel@compaq-rhel4.xsintricity.com>
+	Thu, 21 Apr 2005 09:07:08 -0400
+Subject: Re: x86_64: Bug in new out of line put_user()
+From: Nicolas Boichat <nicolas@boichat.ch>
+To: Alexander Nyberg <alexn@telia.com>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <1114038609.500.2.camel@localhost.localdomain>
+References: <1114038609.500.2.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 21 Apr 2005 15:05:30 +0200
+Message-Id: <1114088730.10903.3.camel@dudule>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1113298455.16274.72.camel@caveman.xisl.com>
-	 <425CEAC2.1050306@aitel.hist.no>
-	 <20050413125921.GN17865@csclub.uwaterloo.ca>
-	 <20050413130646.GF32354@marowsky-bree.de>
-	 <20050413132308.GP17865@csclub.uwaterloo.ca>
-	 <425D3924.1070809@nortel.com> <425E77BB.5010902@aitel.hist.no>
-	 <1114021024.26866.63.camel@compaq-rhel4.xsintricity.com>
-	 <21d7e997050420161234141e23@mail.gmail.com>
-	 <1114085702.26866.137.camel@compaq-rhel4.xsintricity.com>
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
+X-Ovh-Remote: 62.167.221.4 ()
+X-Ovh-Local: 213.186.33.20 (ns0.ovh.net)
+X-Spam-Check: fait|type 1&3|0.0|H 0.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
+
+On Thu, 2005-04-21 at 01:10 +0200, Alexander Nyberg wrote:
+> The new out of line put_user() assembly on x86_64 changes %rcx without
+> telling GCC about it causing things like:
 > 
-> Ha!  That's the whole damn point Dave.  Use your head.  Just because ATI
-> is getting more complex with their GPU does *not* mean nVidia is.  Go
+> http://bugme.osdl.org/show_bug.cgi?id=4515 
 
-No I rely on things I read from hardware review websites and from the
-GPU manufacturers to wonder what they are doing, unless putting more
-transistors onto their chips is making them less complex, both ATI and
-Nvidia are implementing chips primarily to implement DirectX features
-(the biggest market), this means they are both heading toward the same
-thing, with 3D graphics doing things on the GPU vs doing them in the
-driver is going to be quite noticable you end up doing as much as
-possible in the hardware,  also things like SLI are certainly more
-complex not less..
+Thank you, this patch fixes the message queue problem.
 
-ATI are making their chips less "complex" from a programming point of
-view, the R300 for example has no fixed-function pipelines, for modern
-apps, the shader language is translated to the GPU by the driver, for
-older apps using the fixed-function pipeline the driver emulates it on
-top of the programmable interface..
+Best regards,
 
-what this comes down to in the end is that the register interfaces are
-probably converging, there are only so many ways you can send
-instructions to a GPU via DMA..
+Nicolas
 
-> specs and they haven't.  Therefore, you can reliably discern absolutely
-> *zero* information about the nVidia cards from a reference to ATI specs.
+> See to it that %rcx is not changed (made it consistent with get_user()).
+> 
+> 
+> Signed-off-by: Alexander Nyberg <alexn@telia.com>
+> 
+> Index: test/arch/x86_64/lib/getuser.S
+> ===================================================================
+> --- test.orig/arch/x86_64/lib/getuser.S	2005-04-20 23:55:35.000000000 +0200
+> +++ test/arch/x86_64/lib/getuser.S	2005-04-21 00:54:16.000000000 +0200
+> @@ -78,9 +78,9 @@
+>  __get_user_8:
+>  	GET_THREAD_INFO(%r8)
+>  	addq $7,%rcx
+> -	jc bad_get_user
+> +	jc 40f
+>  	cmpq threadinfo_addr_limit(%r8),%rcx
+> -	jae	bad_get_user
+> +	jae	40f
+>  	subq	$7,%rcx
+>  4:	movq (%rcx),%rdx
+>  	xorl %eax,%eax
+> Index: test/arch/x86_64/lib/putuser.S
+> ===================================================================
+> --- test.orig/arch/x86_64/lib/putuser.S	2005-04-21 00:50:24.000000000 +0200
+> +++ test/arch/x86_64/lib/putuser.S	2005-04-21 01:02:15.000000000 +0200
+> @@ -46,36 +46,45 @@
+>  __put_user_2:
+>  	GET_THREAD_INFO(%r8)
+>  	addq $1,%rcx
+> -	jc bad_put_user
+> +	jc 20f
+>  	cmpq threadinfo_addr_limit(%r8),%rcx
+> -	jae	 bad_put_user
+> -2:	movw %dx,-1(%rcx)
+> +	jae 20f
+> +2:	decq %rcx
+> +	movw %dx,(%rcx)
+>  	xorl %eax,%eax
+>  	ret
+> +20:	decq %rcx
+> +	jmp bad_put_user
+>  
+>  	.p2align 4
+>  .globl __put_user_4
+>  __put_user_4:
+>  	GET_THREAD_INFO(%r8)
+>  	addq $3,%rcx
+> -	jc bad_put_user
+> +	jc 30f
+>  	cmpq threadinfo_addr_limit(%r8),%rcx
+> -	jae bad_put_user
+> -3:	movl %edx,-3(%rcx)
+> +	jae 30f
+> +3:	subq $3,%rcx
+> +	movl %edx,(%rcx)
+>  	xorl %eax,%eax
+>  	ret
+> +30:	subq $3,%rcx
+> +	jmp bad_put_user
+>  
+>  	.p2align 4
+>  .globl __put_user_8
+>  __put_user_8:
+>  	GET_THREAD_INFO(%r8)
+>  	addq $7,%rcx
+> -	jc bad_put_user
+> +	jc 40f
+>  	cmpq threadinfo_addr_limit(%r8),%rcx
+> -	jae	bad_put_user
+> -4:	movq %rdx,-7(%rcx)
+> +	jae 40f
+> +4:	subq $7,%rcx
+> +	movq %rdx,(%rcx)
+>  	xorl %eax,%eax
+>  	ret
+> +40:	subq $7,%rcx
+> +	jmp bad_put_user
+>  
+>  bad_put_user:
+>  	movq $(-EFAULT),%rax
+> 
+> 
+> 
 
-But we have some lowlevel knowledge for the Nvidia cards as well.. not
-detailed but you can pick directions from the presentations they make
-and marketing literature they release....
- 
-> "It's what you know, not what you think you know, that matters."  I
-> don't know why nVidia keeps their specs secret.  All I know is what they
-> tell the world.  But what I do know is that it's *possible* they could
-> be telling the truth, and I have no proof otherwise, regardless of any
-> suspicions.
-
-Well when previously asked for the specs by other developers the
-answer before has been IP issues, it may not be totally true now, I
-think now they just don't want to support open source because they
-don't believe there is any money in it...
-
-ATI didn't release full specs for r200 because they were being nice,
-the Weather Channel said we won't use your chips unless we have an
-open source driver and one can only persume proceeded to purchase a
-lot of chips i.e. it made monetary sense to ATI at the time.. since
-then it hasn't ...
-
-The IP reasons come from the fact that the specs they did release
-didn't contain any information on how to program a lot of ATI
-proprietary features..
-
-Also it is peculiar that ATI release 2D programming specs for their
-newer cards and give support to the 2D ATI driver in X, Nvidia support
-the 2D NV driver in X, why not the 3D?,
-Intel won't give out specs for their latest chipsets but they do
-provide an open source 2D and 3D driver via Tungsten Graphics...
-
-I'm thinking of doing up a bit of a presentation for KS on 3D drivers
-and the technical issues they bring to the kernel (without even
-mentioning licensing and derived works..)
-
-Dave.

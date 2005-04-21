@@ -1,173 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbVDUM3F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbVDUMgz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261166AbVDUM3F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 08:29:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbVDUM3F
+	id S261332AbVDUMgz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 08:36:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbVDUMgz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 08:29:05 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:54290 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S261166AbVDUM2y (ORCPT
+	Thu, 21 Apr 2005 08:36:55 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:9907 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261332AbVDUMgo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 08:28:54 -0400
-Message-ID: <42679C86.5050604@domdv.de>
-Date: Thu, 21 Apr 2005 14:28:54 +0200
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
+	Thu, 21 Apr 2005 08:36:44 -0400
+Message-ID: <42679E5B.4030809@suse.de>
+Date: Thu, 21 Apr 2005 14:36:43 +0200
+From: Hannes Reinecke <hare@suse.de>
+Organization: SuSE Linux AG
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20050306
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Need AES benchmark on Intel 64 bit
-X-Enigmail-Version: 0.90.2.0
+To: linux-ide@vger.kernel.org
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] scan all enabled ports on ata_piix
+X-Enigmail-Version: 0.90.1.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: multipart/mixed;
- boundary="------------060308040302020709080804"
+ boundary="------------040005050908070601050106"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------060308040302020709080804
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+--------------040005050908070601050106
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 
-Hi,
-can anybody help out? I don't have access to Intel 64 bit CPUs and need
-some microbenchmark results on Intel 64 bit. Usage guide for the
-attached archive:
+Hi all,
 
-'ref' contains the current generic AES implementation
-'new' contains the 64 bit AES assembler implementation
+on this ACER travelmate (ICH6 chipset) the BIOS somehow sets the
+PIIX_PORT_ENABLED bit, but not the PIIX_PORT_PRESENT bit.
+Appearently the BIOS did not do any device scan / initialisation, and
+then, the ICH6 spec does not actually require it.
+As the current code scans for PIIX_PORT_PRESENT | PIIX_PORT_ENABLED it
+fails to detect any devices.
+And as the spec is somewhat unclear at this point I'd vote for relaxing
+the check to PIIX_PORT_ENABLED only.
+It doesn't do any harm as any non-existing devices will be discarded
+later on anyway.
 
-Do 'make' in both directories and run the resulting 'aes' on an
-otherwise idle system without any cpufreq (speedstep) stuff active.
-Preferrably do multiple runs to assert that the results are usable (a
-few ticks difference between runs are ok).
+Please apply.
 
-The microbenchmark is set up to produce somewhat real life results with
-hot caches, thus the same data block is processed all the time.
+Cheers,
+
+Hannes
 -- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+Dr. Hannes Reinecke			hare@suse.de
+SuSE Linux AG				S390 & zSeries
+Maxfeldstraße 5				+49 911 74053 688
+90409 Nürnberg				http://www.suse.de
 
---------------060308040302020709080804
-Content-Type: application/x-tar-gz;
- name="microbench.tgz"
-Content-Transfer-Encoding: base64
+--------------040005050908070601050106
+Content-Type: text/plain;
+ name="ata_piix-scan-all-enabled-ports"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="microbench.tgz"
+ filename="ata_piix-scan-all-enabled-ports"
 
-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
-QCAQCAQCgUCgg+gbbeZwbQCgAAA=
---------------060308040302020709080804--
+Subject: ata_piix does not find any devices on ACER laptop
+From: Hannes Reinecke <hare@suse.de>
+References: 78564
+
+ICH6 spec defines the PORT_ bits as:
+PORT_ENABLED (R/W): 
+0 = Disabled. The port is in the  off  state and cannot detect any
+devices.
+1 = Enabled. The port can transition between the on,
+partial, and slumber states and can detect devices.
+
+PORT_PRESENT  (R/O) The status of this bit may change at any time. This
+bit is cleared when the port is disabled via PORT_ENABLED. This bit is not
+cleared upon surprise removal of a device.
+
+So from a textual view it is not necessary that PORT_PRESENT _must_ be
+set, especially if a device detection has to be done anyway. And, in
+fact, this is the view that ACER has been taken with its new Laptops
+(e.g. Travelmate 4150).
+
+And the definition of PORT_ENABLED / PORT_PRESENT is mixed up, btw.
+
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Jens Axboe <axboe@suse.de>
+
+--- linux-2.6.11/drivers/scsi/ata_piix.c.orig	2005-04-20 15:09:20.000000000 +0200
++++ linux-2.6.11/drivers/scsi/ata_piix.c	2005-04-21 14:13:49.000000000 +0200
+@@ -50,8 +50,8 @@ enum {
+ 	PIIX_COMB_PATA_P0	= (1 << 1),
+ 	PIIX_COMB		= (1 << 2), /* combined mode enabled? */
+ 
+-	PIIX_PORT_PRESENT	= (1 << 0),
+-	PIIX_PORT_ENABLED	= (1 << 4),
++	PIIX_PORT_ENABLED	= (1 << 0),
++	PIIX_PORT_PRESENT	= (1 << 4),
+ 
+ 	PIIX_80C_PRI		= (1 << 5) | (1 << 4),
+ 	PIIX_80C_SEC		= (1 << 7) | (1 << 6),
+@@ -342,7 +342,9 @@ static void piix_pata_phy_reset(struct a
+  *	None (inherited from caller).
+  *
+  *	RETURNS:
+- *	Non-zero if device detected, zero otherwise.
++ *	Non-zero if port is enabled, it may or may not have a device
++ *	attached in that case (PRESENT bit would only be set if BIOS probe
++ *	was done). Zero is returned if port is disabled.
+  */
+ static int piix_sata_probe (struct ata_port *ap)
+ {
+@@ -366,7 +368,7 @@ static int piix_sata_probe (struct ata_p
+ 	 */
+ 
+ 	for (i = 0; i < 4; i++) {
+-		mask = (PIIX_PORT_PRESENT << i) | (PIIX_PORT_ENABLED << i);
++		mask = (PIIX_PORT_ENABLED << i);
+ 
+ 		if ((orig_mask & mask) == mask)
+ 			if (combined || (i == ap->hard_port_no))
+
+--------------040005050908070601050106--

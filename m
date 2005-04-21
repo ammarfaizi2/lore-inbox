@@ -1,72 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261625AbVDUIgb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261645AbVDUIjB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261625AbVDUIgb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 04:36:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbVDUIdb
+	id S261645AbVDUIjB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 04:39:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbVDUIcV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 04:33:31 -0400
-Received: from ctb-mesg7.saix.net ([196.25.240.79]:15860 "EHLO
-	ctb-mesg7.saix.net") by vger.kernel.org with ESMTP id S261564AbVDUIOB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 04:14:01 -0400
-Subject: Re: Linux 2.6.12-rc3
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: azarah@nosferatu.za.org
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-UWpMMljROapRTXVhL3K1"
-Date: Thu, 21 Apr 2005 10:17:53 +0200
-Message-Id: <1114071473.17551.2.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 8bit
+	Thu, 21 Apr 2005 04:32:21 -0400
+Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:17830 "HELO
+	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261479AbVDUHiu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 03:38:50 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: sensors@Stimpy.netroedge.com
+Subject: [RFC/PATCH 21/22] W1: implement standard hotplug handler
+Date: Thu, 21 Apr 2005 02:36:45 -0500
+User-Agent: KMail/1.8
+Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <gregkh@suse.de>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+References: <200504210207.02421.dtor_core@ameritech.net>
+In-Reply-To: <200504210207.02421.dtor_core@ameritech.net>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_Og1ZCiiTJs3JDQD"
+Message-Id: <200504210236.46689.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--Boundary-00=_Og1ZCiiTJs3JDQD
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
---=-UWpMMljROapRTXVhL3K1
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Ahem.. Kmail just refuses send this on inline... Sorry.
 
-On Wed, 2005-04-20 at 17:59 -0700, Linus Torvalds wrote:
+--
+Dmitry
 
-> And for the crazy people, the git archive on kernel.org is up and running=
-=20
-> under /pub/scm/linux/kernel/git/torvalds/linux-2.6.git. For the=20
-> adventurous of you, the name of the 2.6.12-rc3 release is a very nice and=
-=20
-> readable:
->=20
-> 	a2755a80f40e5794ddc20e00f781af9d6320fafb
->=20
-> and eventually I'll try to make sure that I actually accompany all=20
-> releases with the SHA1 git name of the release signed with a digital=20
-> signature.=20
->=20
+--Boundary-00=_Og1ZCiiTJs3JDQD
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="w1-hotplug.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="w1-hotplug.patch"
 
-Small nit - how about using 'git tag' to tag the releases?  Then it will
-not be a problem to find a release later on ...
+W1: implement W1 bus hotplug handler. Slave devices will define
+    FID (family ID) end SN (serial number) environment variables.
 
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
-Thanks,
+ w1.c |   51 ++++++++++++++++++++++++++++++++++++++++++++-------
+ 1 files changed, 44 insertions(+), 7 deletions(-)
 
---=20
-Martin Schlemmer
+Index: dtor/drivers/w1/w1.c
+===================================================================
+--- dtor.orig/drivers/w1/w1.c
++++ dtor/drivers/w1/w1.c
+@@ -50,6 +50,10 @@ module_param_named(scan_interval, w1_sca
+ module_param_named(max_slave_count, w1_max_slave_count, int, 0);
+ module_param_named(slave_ttl, w1_max_slave_ttl, int, 0);
+ 
++struct device_driver w1_master_driver = {
++	.name = "master",
++};
++
+ static int w1_bus_match(struct device *dev, struct device_driver *drv)
+ {
+ 	/*
+@@ -67,14 +71,46 @@ static int w1_bus_match(struct device *d
+ 	return 0;
+ }
+ 
+-static struct bus_type w1_bus_type = {
+-	.name = "w1",
+-	.match = w1_bus_match,
+-};
++#ifdef CONFIG_HOTPLUG
++static int w1_hotplug(struct device *dev, char **envp, int num_envp,
++		      char *buffer, int buffer_size)
++{
++	struct w1_slave *slave;
++	int i = 0;
++	int len = 0;
+ 
+-struct device_driver w1_master_driver = {
+-	.name = "master",
+-	.bus = &w1_bus_type,
++	if (!dev)
++		return -ENODEV;
++
++	if (dev->driver == &w1_master_driver)
++		return 0;
++
++	slave = to_w1_slave(dev);
++
++	if (add_hotplug_env_var(envp, num_envp, &i, buffer, buffer_size, &len,
++				"FID=%02X", slave->reg_num.family))
++		return -ENOMEM;
++
++	if (add_hotplug_env_var(envp, num_envp, &i, buffer, buffer_size, &len,
++				"SN=%024llX", slave->reg_num.id))
++		return -ENOMEM;
++
++	envp[i] = NULL;
++
++	return 0;
++}
++#else
++static int w1_hotplug(struct device *dev, char **envp, int num_envp,
++		      char *buffer, int buffer_size)
++{
++	return -ENODEV;
++}
++#endif /* CONFIG_HOTPLUG */
++
++static struct bus_type w1_bus_type = {
++	.name		= "w1",
++	.match		= w1_bus_match,
++	.hotplug	= w1_hotplug,
+ };
+ 
+ static ssize_t w1_slave_attribute_show_family(struct device *dev, char *buf)
+@@ -541,6 +577,7 @@ static int w1_init(void)
+ 		return error;
+ 	}
+ 
++	w1_master_driver.bus = &w1_bus_type;
+ 	error = driver_register(&w1_master_driver);
+ 	if (error) {
+ 		printk(KERN_ERR
 
-
---=-UWpMMljROapRTXVhL3K1
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCZ2GxqburzKaJYLYRAvaxAJ9xe3eRxKsupNH8CUWHTpKlkT3OywCffsoM
-Mtzbux/zH5g0RLjGLw0CFVg=
-=yhNB
------END PGP SIGNATURE-----
-
---=-UWpMMljROapRTXVhL3K1--
-
+--Boundary-00=_Og1ZCiiTJs3JDQD--

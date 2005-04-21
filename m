@@ -1,56 +1,33 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261826AbVDTV5L (ORCPT <rfc822;ralf@linux-mips.org>);
-	Wed, 20 Apr 2005 17:57:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbVDTV5L
+	id S261164AbVDUB1G (ORCPT <rfc822;ralf@linux-mips.org>);
+	Wed, 20 Apr 2005 21:27:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261163AbVDUB1G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 17:57:11 -0400
-Received: from [220.126.188.47] ([220.126.188.47]:26125 "HELO freemail.de")
-	by vger.kernel.org with SMTP id S261826AbVDTV5H (ORCPT
+	Wed, 20 Apr 2005 21:27:06 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:54673 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S261164AbVDUB1D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 17:57:07 -0400
-Message-ID: <568e01c5458b$16379800$a7562df9@softwarenews>
-Reply-To: <softwarenews@freemail.de>
-From: <softwarenews@freemail.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: Uitverkoop software
-Date: Wed, 20 Apr 2005 09:26:52 +1200
+	Wed, 20 Apr 2005 21:27:03 -0400
+Date: Wen, 20 Apr 2005 18:31:59 +0000
+From: "Lucien C. Noble" <bofehurul@ezagenda.com>
+X-Mailer: The Bat! (v3.0.0.16) UNREG / XMV1GBXY8HS
+Reply-To: "Lucien C. Noble" <bofehurul@ezagenda.com>
+X-Priority: 3 (Normal)
+Message-ID: <6768527450217.7608641438395886@[24.18.75.130]>
+To: linux-kernel@vger.kernel.org
+Subject: Raunchy rookies raw and uncensored! y27
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+        charset="Windows-1251"
 Content-Transfer-Encoding: 7bit
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261826AbVDTV5L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261164AbVDUB1G@vger.kernel.org>
 
-Geachte dames en heren,
- 
-Ergert u zich ook altijd over de hoge prijzen die voor software gevraagd
-worden?
- 
-Daar komt nu een einde aan. Wij leveren u alle mogelijke software voor een
-fractie van de normale prijs.
- 
-De software wordt vanuit het buitenland direct naar uw adres verzonden,
-omdat het daar minder kost dan in de winkels alhier.
- 
-Originele versies met originele serienummers en de normale support voor
-weinig geld, bijvoorbeeld:
- 
-Microsoft Windows XP prof. voor 50 USD in plaats van 270 USD
-Adobe Photoshop 80 USD in plaats van 650 USD
- 
-Deze en andere topprodukten kunt u verwachten. Aarzel niet en bezoek onze
-winkel. 
-De winkel is geheel Engelstalig, maar alle produkten kunnen in elke taal
-geinstalleerd worden.
- 
+Teen rides a cock
+A JOB WELL DONE LITTLE SLUTS! y27
+Busty bimbo bang y27
+http://hs3.homett.com/c/?86isix
 
- 
-Veel winkelplezier.
- 
-Met vriendelijke groet,
- 
-ResellerNews
+contusion
 

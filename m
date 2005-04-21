@@ -1,79 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbVDUCQr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261173AbVDUCRS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261163AbVDUCQr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 22:16:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbVDUCQr
+	id S261173AbVDUCRS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 22:17:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbVDUCRS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 22:16:47 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:56489 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261163AbVDUCQl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 22:16:41 -0400
-Subject: Re: [PATCH scsi-misc-2.6 03/05] scsi: make scsi_queue_insert() use
-	blk_requeue_request()
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Tejun Heo <htejun@gmail.com>
-Cc: Jens Axboe <axboe@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <4266F1D0.2060003@gmail.com>
-References: <20050419231435.D85F89C0@htj.dyndns.org>
-	 <20050419231435.329FA30B@htj.dyndns.org>
-	 <1114039446.5933.17.camel@mulgrave>  <4266F1D0.2060003@gmail.com>
-Content-Type: text/plain
-Date: Wed, 20 Apr 2005 22:16:32 -0400
-Message-Id: <1114049793.5000.4.camel@mulgrave>
+	Wed, 20 Apr 2005 22:17:18 -0400
+Received: from kalmia.hozed.org ([209.234.73.41]:37309 "EHLO kalmia.hozed.org")
+	by vger.kernel.org with ESMTP id S261173AbVDUCRO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 22:17:14 -0400
+Date: Wed, 20 Apr 2005 21:17:13 -0500
+From: Troy Benjegerdes <hozer@hozed.org>
+To: Bernhard Fischer <blist@aon.at>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Timur Tabi <timur.tabi@ammasso.com>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+Message-ID: <20050421021713.GP999@kalmia.hozed.org>
+References: <200544159.Ahk9l0puXy39U6u6@topspin.com> <20050411142213.GC26127@kalmia.hozed.org> <52mzs51g5g.fsf@topspin.com> <4263DBBF.9040801@ammasso.com> <1113840973.6274.84.camel@laptopd505.fenrus.org> <4263DF70.2060702@ammasso.com> <1113853240.6274.99.camel@laptopd505.fenrus.org> <20050418200711.GI15688@aon.at>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20050418200711.GI15688@aon.at>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-04-21 at 09:20 +0900, Tejun Heo wrote:
->   Hello, James.
-> 
-> James Bottomley wrote:
-> > On Wed, 2005-04-20 at 08:15 +0900, Tejun Heo wrote:
-> > 
-> >>-	 * Insert this command at the head of the queue for it's device.
-> >>-	 * It will go before all other commands that are already in the queue.
-> >>-	 *
-> >>-	 * NOTE: there is magic here about the way the queue is plugged if
-> >>-	 * we have no outstanding commands.
-> >>-	 * 
-> >>-	 * Although this *doesn't* plug the queue, it does call the request
-> >>-	 * function.  The SCSI request function detects the blocked condition
-> >>-	 * and plugs the queue appropriately.
-> > 
-> > 
-> > This comment still looks appropriate to me ... why do you want to remove
-> > it?
-> > 
-> 
->   Well, the thing is that we don't really care what exactly happens to 
-> the queue or how the queue is plugged or not.  All we need to do are to 
-> requeue the request and kick the queue in the ass.  Hmmm, maybe I should 
-> keep the comment about how the request will be put at the head of the 
-> queue, but the second part about plugging doesn't really belong here, I 
-> think.
+On Mon, Apr 18, 2005 at 10:07:12PM +0200, Bernhard Fischer wrote:
+> On Mon, Apr 18, 2005 at 09:40:40PM +0200, Arjan van de Ven wrote:
+> >On Mon, 2005-04-18 at 11:25 -0500, Timur Tabi wrote:
+> >> Arjan van de Ven wrote:
+> >> 
+> >> > this is a myth; linux is free to move the page about in physical memory
+> >> > even if it's mlock()ed!!
+> darn, yes, this is true.
+> I know people who introduced
+> #define VM_RESERVED     0x00080000      /* Don't unmap it from swap_out
+> */
 
-Really?  We do care greatly.  If you requeue with no other outstanding
-commands to the device, the block queue will never restart unless it's
-plugged, and the device will hang. The comment is explaining how this
-happens.
+Someone (aka Tospin, infinicon, and Amasso) should probably post a patch
+adding '#define VM_REGISTERD 0x01000000', and some extensions to
+something like 'madvise' to set pages to be registered.
 
->   Yes, that will be more efficient but I don't think it would make
-> any 
-> noticeable difference.  IMO, universally using scsi_run_queue() to
-> kick 
-> scsi request queues is better than mixing blk_run_queue() and 
-> scsi_run_queue() for probably unnoticeable optimization.  If we start
-> to 
-> mix'em, we need to rationalize why specific one is chosen in specific 
-> places and that's just unnecessary.
-
-Fair enough.
-
-James
-
-
+My preference is said patch will also allow a way for the kernel to
+reclaim registered memory from an application under memory pressure.

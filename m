@@ -1,69 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbVDUDEc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVDUDId@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261195AbVDUDEc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 23:04:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbVDUDEc
+	id S261199AbVDUDId (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 23:08:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261200AbVDUDId
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 23:04:32 -0400
-Received: from downeast.net ([204.176.212.2]:47596 "EHLO downeast.net")
-	by vger.kernel.org with ESMTP id S261195AbVDUDE2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 23:04:28 -0400
-From: Patrick McFarland <pmcfarland@downeast.net>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: alsa es1371's joystick functionality broken in 2.6.11-mm4
-Date: Wed, 20 Apr 2005 23:03:27 -0400
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-References: <200503201557.58055.pmcfarland@downeast.net> <200504202221.57718.pmcfarland@downeast.net> <200504202129.04083.dtor_core@ameritech.net>
-In-Reply-To: <200504202129.04083.dtor_core@ameritech.net>
+	Wed, 20 Apr 2005 23:08:33 -0400
+Received: from ms-smtp-05.texas.rr.com ([24.93.47.44]:25275 "EHLO
+	ms-smtp-05-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S261199AbVDUDIa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 23:08:30 -0400
+Message-ID: <42671901.4000805@ammasso.com>
+Date: Wed, 20 Apr 2005 22:07:45 -0500
+From: Timur Tabi <timur.tabi@ammasso.com>
+User-Agent: Mozilla/5.0 (Macintosh; U; PPC Mac OS X Mach-O; en-US; rv:1.7.6) Gecko/20050319
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3858483.6yuBmCxLph";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Troy Benjegerdes <hozer@hozed.org>
+CC: Bernhard Fischer <blist@aon.at>, Arjan van de Ven <arjan@infradead.org>,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace verbs
+ implementation
+References: <200544159.Ahk9l0puXy39U6u6@topspin.com> <20050411142213.GC26127@kalmia.hozed.org> <52mzs51g5g.fsf@topspin.com> <4263DBBF.9040801@ammasso.com> <1113840973.6274.84.camel@laptopd505.fenrus.org> <4263DF70.2060702@ammasso.com> <1113853240.6274.99.camel@laptopd505.fenrus.org> <20050418200711.GI15688@aon.at> <20050421021713.GP999@kalmia.hozed.org>
+In-Reply-To: <20050421021713.GP999@kalmia.hozed.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200504202303.33898.pmcfarland@downeast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3858483.6yuBmCxLph
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Troy Benjegerdes wrote:
 
-On Wednesday 20 April 2005 10:29 pm, Dmitry Torokhov wrote:
-> Ok... I know that sidewinder needs its timeouts increased to about 6ms to
-> work with 2.6. Have you tried OSS driver - to make sure that layer above
-> the soundcard works?
+> Someone (aka Tospin, infinicon, and Amasso) should probably post a patch
+> adding '#define VM_REGISTERD 0x01000000', and some extensions to
+> something like 'madvise' to set pages to be registered.
+> 
+> My preference is said patch will also allow a way for the kernel to
+> reclaim registered memory from an application under memory pressure.
 
-Well, thats what I've been thinking thats screwing me. Because I've been us=
-ing=20
-ALSA since my 2.4.x days (I switched over to 2.6 and 2.6.1), and I know my=
-=20
-analog joystick works with ALSA and 2.6 (I just don't know when the bug=20
-appeared) and I've also upgraded my ALSA userland over the years. Infact, I=
-'m=20
-almost convinced that the ALSA userland is causing the bug.
+I don't know if VM_REGISTERED is a good idea or not, but it should be absolutely 
+impossible for the kernel to reclaim "registered" (aka pinned) memory, no matter what. 
+For RDMA services (such as Infiniband, iWARP, etc), it's normal for non-root processes to 
+pin hundreds of megabytes of memory, and that memory better be locked to those physical 
+pages until the application deregisters them.
 
-=2D-=20
-Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
-e'd=20
-all be running around in darkened rooms, munching magic pills and listening=
- to
-repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
-
---nextPart3858483.6yuBmCxLph
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBCZxgF8Gvouk7G1cURAofyAJ9zh+SX+tt7dj9qCbphtQf3y8/KogCcCwfT
-faRedFMTrBGQ7qlZU2J3NJ0=
-=/fe1
------END PGP SIGNATURE-----
-
---nextPart3858483.6yuBmCxLph--
+If kernel really thinks it needs to unpin those pages, then at the very least it should 
+kill the process, and the syslog better have a very clear message indicating why.  That 
+way, the application doesn't continue thinking that everything's still going to work.  If 
+those pages become unpinned, the applications are going to experience serious data corruption.

@@ -1,55 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVDUBHk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVDUBI6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261187AbVDUBHk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 21:07:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261185AbVDUBHj
+	id S261161AbVDUBI6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 21:08:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261160AbVDUBI5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 21:07:39 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:62658
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S261158AbVDUBHR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 21:07:17 -0400
-Message-ID: <4266FD3F.3020408@linuxwireless.org>
-Date: Wed, 20 Apr 2005 20:09:19 -0500
-From: Alejandro Bonilla <abonilla@linuxwireless.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.12-rc3
-References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Apr 2005 21:08:57 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:64708 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261164AbVDUBIS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 21:08:18 -0400
+Date: Thu, 21 Apr 2005 03:08:17 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Phillip Lougher <phillip@lougher.demon.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2/4] squashfs: kmalloc (less stack, less casts)
+Message-ID: <20050421010817.GB29755@wohnheim.fh-wedel.de>
+References: <20050420065500.GA24213@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050420065500.GA24213@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
 
->Ok,
-> you know what the subject line means by now, but this release is a bit 
->different from the usual ones, for obvious reasons. It's the first in a 
->_long_ time that I've done without using BK, and it's the first one ever 
->that has been built up completely with "git".
->
->It's available both as a patch (against 2.6.11) and as a tar-ball, and 
->for non-BK users the biggest difference is probably that the ChangeLog 
->format has changed a bit. And it will probably continue to evolve, since I 
->don't have my "release-script" tools set up for the new setup, so this 
->release was done largely manually with some ad-hoc scripting to get the 
->ChangeLog information etc out of git.
->
->For BK users, I hope we can get a BK tree that tracks this set up soon, 
->and it should hopefully not be too disruptive either.
->
->  
->
-Excuse me for being so uninformed, poor reader and so on...
+Jörn
 
-Why is kb not used anymore? What happened?
+-- 
+Rules of Optimization:
+Rule 1: Don't do it.
+Rule 2 (for experts only): Don't do it yet.
+-- M.A. Jackson 
 
-Thanks for the time,
 
-- Alejandro
+Signed-off-by: Jörn Engel <joern@wohnheim.fh-wedel.de>
+---
+
+ fs/squashfs/inode.c |   20 +++++++++++++++-----
+ 1 files changed, 15 insertions(+), 5 deletions(-)
+
+--- linux-2.6.12-rc2cow/fs/squashfs/inode.c~squashfs_cu2	2005-04-20 08:11:10.000000000 +0200
++++ linux-2.6.12-rc2cow/fs/squashfs/inode.c	2005-04-20 16:34:43.619956672 +0200
+@@ -1453,11 +1453,14 @@ static int squashfs_readdir(struct file 
+ 		next_offset = SQUASHFS_I(i)->offset, length = 0, dirs_read = 0,
+ 		dir_count;
+ 	squashfs_dir_header dirh;
+-	char buffer[sizeof(squashfs_dir_entry) + SQUASHFS_NAME_LEN + 1];
+-	squashfs_dir_entry *dire = (squashfs_dir_entry *) buffer;
++	squashfs_dir_entry *dire;
+ 
+ 	TRACE("Entered squashfs_readdir [%x:%x]\n", next_block, next_offset);
+ 
++	dire = kmalloc(sizeof(*dire) + SQUASHFS_NAME_LEN + 1, GFP_KERNEL);
++	if (!dire)
++		return -ENOMEM;
++
+ 	length = get_dir_index_using_offset(i->i_sb, &next_block, &next_offset,
+ 				SQUASHFS_I(i)->u.s2.directory_index_start,
+ 				SQUASHFS_I(i)->u.s2.directory_index_offset,
+@@ -1533,6 +1536,7 @@ static int squashfs_readdir(struct file 
+ 					squashfs_filetype_table[dire->type])
+ 					< 0) {
+ 				TRACE("Filldir returned less than 0\n");
++				kfree(dire);
+ 				return dirs_read;
+ 			}
+ 			file->f_pos = length;
+@@ -1540,11 +1544,13 @@ static int squashfs_readdir(struct file 
+ 		}
+ 	}
+ 
++	kfree(dire);
+ 	return dirs_read;
+ 
+ failed_read:
+ 	ERROR("Unable to read directory block [%x:%x]\n", next_block,
+ 		next_offset);
++	kfree(dire);
+ 	return 0;
+ }
+ 
+@@ -1562,12 +1568,15 @@ static struct dentry *squashfs_lookup(st
+ 				next_offset = SQUASHFS_I(i)->offset, length = 0,
+ 				dir_count;
+ 	squashfs_dir_header dirh;
+-	char buffer[sizeof(squashfs_dir_entry) + SQUASHFS_NAME_LEN];
+-	squashfs_dir_entry *dire = (squashfs_dir_entry *) buffer;
++	squashfs_dir_entry *dire;
+ 	int sorted = sBlk->s_major == 2 && sBlk->s_minor >= 1;
+ 
+ 	TRACE("Entered squashfs_lookup [%x:%x]\n", next_block, next_offset);
+ 
++	dire = kmalloc(sizeof(*dire) + SQUASHFS_NAME_LEN + 1, GFP_KERNEL);
++	if (!dire)
++		return ERR_PTR(-ENOMEM);
++
+ 	length = get_dir_index_using_name(i->i_sb, &next_block, &next_offset,
+ 				SQUASHFS_I(i)->u.s2.directory_index_start,
+ 				SQUASHFS_I(i)->u.s2.directory_index_offset,
+@@ -1645,7 +1654,8 @@ static struct dentry *squashfs_lookup(st
+ 
+ exit_loop:
+ 	d_add(dentry, inode);
+-	return ERR_PTR(0);
++	kfree(dire);
++	return NULL;
+ 
+ failed_read:
+ 	ERROR("Unable to read directory block [%x:%x]\n", next_block,

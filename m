@@ -1,54 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261665AbVDUXI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261667AbVDUXSC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261665AbVDUXI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 19:08:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbVDUXI3
+	id S261667AbVDUXSC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 19:18:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbVDUXSC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 19:08:29 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:45241 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261665AbVDUXIV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 19:08:21 -0400
-Subject: [PATCH] fix subarch breakage in amd dual core updates
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: ak@suse.de, Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Thu, 21 Apr 2005 19:08:02 -0400
-Message-Id: <1114124883.5054.51.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-Content-Transfer-Encoding: 7bit
+	Thu, 21 Apr 2005 19:18:02 -0400
+Received: from fire.osdl.org ([65.172.181.4]:63884 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261667AbVDUXRz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 19:17:55 -0400
+Date: Thu, 21 Apr 2005 16:19:47 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: tony.luck@intel.com
+cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: ia64 git pull
+In-Reply-To: <200504212301.j3LN1Do05507@unix-os.sc.intel.com>
+Message-ID: <Pine.LNX.4.58.0504211608300.2344@ppc970.osdl.org>
+References: <200504212042.j3LKgng04318@unix-os.sc.intel.com>
+ <Pine.LNX.4.58.0504211403080.2344@ppc970.osdl.org>
+ <200504212155.j3LLtho04949@unix-os.sc.intel.com> <200504212155.j3LLtho04949@unix-os.sc.intel.com>
+ <200504212301.j3LN1Do05507@unix-os.sc.intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch to arch/i386/kernel/cpu/amd.c relies on the variable
-cpu_core_id which is defined in i386/kernel/smpboot.c.  This means it is
-only present if CONFIG_X86_SMP is defined, not CONFIG_SMP (alternative
-SMP harnesses won't have it, which is why it breaks voyager).
-
-Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
-
-arch/i386/kernel/cpu/amd.c: 8d182e875cd72e64b49869386bf090ba23df6793
---- a/arch/i386/kernel/cpu/amd.c
-+++ b/arch/i386/kernel/cpu/amd.c
-@@ -24,7 +24,7 @@ __asm__(".align 4\nvide: ret");
- 
- static void __init init_amd(struct cpuinfo_x86 *c)
- {
--#ifdef CONFIG_SMP
-+#ifdef CONFIG_X86_SMP
- 	int cpu = c == &boot_cpu_data ? 0 : c - cpu_data;
- #endif
- 	u32 l, h;
-@@ -198,7 +198,7 @@ static void __init init_amd(struct cpuin
- 			c->x86_num_cores = 1;
- 	}
- 
--#ifdef CONFIG_SMP
-+#ifdef CONFIG_X86_SMP
- 	/*
- 	 * On a AMD dual core setup the lower bits of the APIC id
- 	 * distingush the cores.  Assumes number of cores is a power
 
 
+On Thu, 21 Apr 2005 tony.luck@intel.com wrote:
+> 
+> I want to have one "shared objects database" which I keep locally and
+> mirror publicly at kernel.org/pub/scm/...
+
+Ahh, ok. That's easy.
+
+Just set up one repository. Then, make SHA1_FILE_DIRECTORY point to that 
+repository, and everybody will automatically share all file objects.
+
+HOWEVER. And this is a big however - I don't think you want to do this at 
+this point.
+
+Why? Because I'm still using the stupid "get all objects" thing when I
+pull. That's not a fundamental design decision, but basically not doing so
+requires that the other end be "git aware", and have some server that is
+trustworthy that you can tell "get me all objects I need".
+
+In the absense of that kind of git-aware server, anybody pulling from you 
+would have to pull _every_ object you have, regardless of whether they 
+wanted to use them or not. I don't think that's very nice.
+
+So in the long run this issue goes away - we'll just have synchronization 
+tools that won't get any unnecessary pollution. But in the short run I 
+actually check my git archive religiously for being clean, and I do
+
+	fsck-cache --unreachable $(cat .git/HEAD)
+
+quite often - not because git has been flaky, but simply beause I'm anal. 
+And getting objects from other branches would mess with that..
+
+> But now I need a way to indicate to consumers of the public shared object
+> data base which HEAD to use.
+
+Yes. You'd just need to document where you put those heads. As you say, 
+you can make it be part of an announcement:
+
+> Perhaps I should just say "merge 821376bf15e692941f9235f13a14987009fd0b10
+> from rsync://rsync.kernel.org/pub/scm/linux/kernel/git/aegl/linux-2.6.git"?
+
+..but that doesn't actually work very well even for me, because I'd much 
+rather automate pulling from you, rather than having to cut-and-paste the 
+sha names.
+
+So I think you could just define a head name, and say something like:
+
+  rsync://rsync.kernel.org/pub/scm/linux/kernel/git/aegl/linux-2.6.git/HEAD.for-linus
+
+and we're all done. Give andrew a different filename, and you're done. The
+above syntax is trivial for me to automate.
+
+		Linus

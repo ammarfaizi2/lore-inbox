@@ -1,35 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbVDUMTR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVDUMYl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261331AbVDUMTR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 08:19:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbVDUMTR
+	id S261165AbVDUMYl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 08:24:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261155AbVDUMYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 08:19:17 -0400
-Received: from mail.charite.de ([160.45.207.131]:20694 "EHLO mail.charite.de")
-	by vger.kernel.org with ESMTP id S261331AbVDUMTP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 08:19:15 -0400
-Date: Thu, 21 Apr 2005 14:19:10 +0200
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.12-rc3
-Message-ID: <20050421121910.GR2370@charite.de>
-Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org>
+	Thu, 21 Apr 2005 08:24:41 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:2479 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261151AbVDUMYi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 08:24:38 -0400
+Subject: Re: Git-commits mailing list feed.
+From: David Woodhouse <dwmw2@infradead.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: git@vger.kernel.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
+In-Reply-To: <1114079347.6277.29.camel@laptopd505.fenrus.org>
+References: <200504210422.j3L4Mo8L021495@hera.kernel.org>
+	 <1114079347.6277.29.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Date: Thu, 21 Apr 2005 22:23:55 +1000
+Message-Id: <1114086237.29135.24.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.2.2 (2.2.2-1) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's available both as a patch (against 2.6.11) and as a tar-ball, and 
-Where IS the tarball? Not on www.kernel.org, that's for sure.
+On Thu, 2005-04-21 at 12:29 +0200, Arjan van de Ven wrote:
+> with BK this was not possible, but could we please have -p added to the
+> diff parameters with git ? It makes diffs a LOT more reasable!
+
+With BK this was not possible, but could you please provide your
+criticism in 'diff -up' form?
+
+I've done 'perl -pi -e s/-u/-up/ gitdiff-do' as a quick hack to provide
+what you want, but a saner fix to make gitdiff-do obey the same
+GIT_DIFF_CMD and GIT_DIFF_OPTS environment variables as show-diff.c
+would be a more useful answer.
 
 -- 
-Ralf Hildebrandt (i.A. des IT-Zentrum)          Ralf.Hildebrandt@charite.de
-Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
-Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
-IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de
+dwmw2
+

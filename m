@@ -1,89 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbVDURrF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbVDURul@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbVDURrF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 13:47:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbVDURqA
+	id S261576AbVDURul (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 13:50:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbVDURuV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 13:46:00 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44524 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261586AbVDURpD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 13:45:03 -0400
-Date: Thu, 21 Apr 2005 18:45:07 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Jan Dittmer <jdittmer@ppp0.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux/m68k <linux-m68k@vger.kernel.org>
-Subject: Re: Linux 2.6.12-rc3
-Message-ID: <20050421174507.GA13052@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org> <42676B76.4010903@ppp0.net> <Pine.LNX.4.62.0504211105550.13231@numbat.sonytel.be> <20050421161106.GY13052@parcelfarce.linux.theplanet.co.uk>
+	Thu, 21 Apr 2005 13:50:21 -0400
+Received: from fire.osdl.org ([65.172.181.4]:9178 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261559AbVDURtu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 13:49:50 -0400
+Date: Thu, 21 Apr 2005 10:39:57 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: davidm@hpl.hp.com
+Cc: davidm@napali.hpl.hp.com, tony.luck@intel.com, akpm@osdl.org,
+       Andreas.Hirstius@cern.ch, Bartlomiej.Zolnierkiewicz@cern.ch,
+       gelato-technical@gelato.unsw.edu.au, linux-kernel@vger.kernel.org
+Subject: Re: [Gelato-technical] Re: Serious performance degradation on a
+ RAID with kernel 2.6.10-bk7 and later
+Message-Id: <20050421103957.1f789c23.rddunlap@osdl.org>
+In-Reply-To: <16999.58345.464613.343890@napali.hpl.hp.com>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F0350B393@scsmsx401.amr.corp.intel.com>
+	<16999.58345.464613.343890@napali.hpl.hp.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: SvC&!/v_Hr`MvpQ*|}uez16KH[#EmO2Tn~(r-y+&Jb}?Zhn}c:Eee&zq`cMb_[5`tT(22ms
+ (.P84,bq_GBdk@Kgplnrbj;Y`9IF`Q4;Iys|#3\?*[:ixU(UR.7qJT665DxUP%K}kC0j5,UI+"y-Sw
+ mn?l6JGvyI^f~2sSJ8vd7s[/CDY]apD`a;s1Wf)K[,.|-yOLmBl0<axLBACB5o^ZAs#&m?e""k/2vP
+ E#eG?=1oJ6}suhI%5o#svQ(LvGa=r
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050421161106.GY13052@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	thread_info part 2:
+On Thu, 21 Apr 2005 10:33:29 -0700 David Mosberger wrote:
 
-encapsulates the rest of arch-dependent operations with thread_info access.
-Two new helpers - setup_thread_info() and end_of_stack().  For normal
-case the former consists of copying thread_info of parent to new thread_info
-and the latter returns pointer immediately past the end of thread_info.
+| >>>>> On Thu, 21 Apr 2005 10:19:28 -0700, "Luck, Tony" <tony.luck@intel.com> said:
+| 
+|   >> I just checked 2.6.12-rc3 and the fls() fix is indeed missing.
+|   >> Do you know what happened?
+| 
+|   Tony> If BitKeeper were still in use, I'd have dropped that patch
+|   Tony> into my "release" tree and asked Linus to "pull" ... but it's
+|   Tony> not, and I was stalled.  I should have a "git" tree up and
+|   Tony> running in the next couple of days.  I'll make sure that the
+|   Tony> fls fix goes in early.
+| 
+| Yeah, I'm facing the same issue.  I started playing with git last
+| night.  Apart from disk-space usage, it's very nice, though I really
+| hope someone puts together a web-interface on top of git soon so we
+| can seek what changed when and by whom.
 
-Again, normal platforms are obviously safe.  Note that end_of_stack() is
-need since unlike the default case, m68k has only a single pointer in
-stack - not the entire thread_info.  So DEBUG_STACK_USAGE needs to be
-a bit different there.
+2 people have already done that.  Examples:
+http://ehlo.org/~kay/gitweb.pl
+and
+http://grmso.net:8090/
 
-diff -urN RC12-rc3-task_thread_info/include/linux/sched.h RC12-rc3-other_helpers/include/linux/sched.h
---- RC12-rc3-task_thread_info/include/linux/sched.h	Wed Apr 20 22:51:13 2005
-+++ RC12-rc3-other_helpers/include/linux/sched.h	Wed Apr 20 22:51:15 2005
-@@ -1104,6 +1104,16 @@
- 
- #define task_thread_info(task) (task)->thread_info
- 
-+static inline void setup_thread_info(struct task_struct *p, struct thread_info *ti)
-+{
-+	*ti = *p->thread_info;
-+}
-+
-+static inline unsigned long *end_of_stack(struct task_struct *p)
-+{
-+	return (unsigned long *)(p->thread_info + 1);
-+}
-+
- /* set thread flags in other task's structures
-  * - see asm/thread_info.h for TIF_xxxx flags available
-  */
-diff -urN RC12-rc3-task_thread_info/kernel/fork.c RC12-rc3-other_helpers/kernel/fork.c
---- RC12-rc3-task_thread_info/kernel/fork.c	Wed Apr 20 22:51:13 2005
-+++ RC12-rc3-other_helpers/kernel/fork.c	Wed Apr 20 22:51:15 2005
-@@ -169,8 +169,8 @@
- 		return NULL;
- 	}
- 
--	*ti = *orig->thread_info;
- 	*tsk = *orig;
-+	setup_thread_info(tsk, ti);
- 	tsk->thread_info = ti;
- 	ti->task = tsk;
- 
-diff -urN RC12-rc3-task_thread_info/kernel/sched.c RC12-rc3-other_helpers/kernel/sched.c
---- RC12-rc3-task_thread_info/kernel/sched.c	Wed Apr 20 22:51:13 2005
-+++ RC12-rc3-other_helpers/kernel/sched.c	Wed Apr 20 22:51:15 2005
-@@ -3945,10 +3945,10 @@
- #endif
- #ifdef CONFIG_DEBUG_STACK_USAGE
- 	{
--		unsigned long * n = (unsigned long *) (p->thread_info+1);
-+		unsigned long * n = end_of_stack(p);
- 		while (!*n)
- 			n++;
--		free = (unsigned long) n - (unsigned long)(p->thread_info+1);
-+		free = (unsigned long) n - (unsigned long) end_of_stack(p);
- 	}
- #endif
- 	printk("%5lu %5d %6d ", free, p->pid, p->parent->pid);
+and the commits mailing list is now working.
+A script to show nightly (or daily:) commits and make
+a daily patch tarball is also close to ready.
+
+---
+~Randy

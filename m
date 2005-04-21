@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261519AbVDUIAO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVDUIDQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261519AbVDUIAO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 04:00:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVDUH7o
+	id S261448AbVDUIDQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 04:03:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbVDUICD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 03:59:44 -0400
-Received: from smtp813.mail.sc5.yahoo.com ([66.163.170.83]:51127 "HELO
+	Thu, 21 Apr 2005 04:02:03 -0400
+Received: from smtp813.mail.sc5.yahoo.com ([66.163.170.83]:52151 "HELO
 	smtp813.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261447AbVDUHaR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S261448AbVDUHaR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 21 Apr 2005 03:30:17 -0400
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: sensors@Stimpy.netroedge.com
-Subject: [RFC/PATCH 10/22] W1: drop main control thread
-Date: Thu, 21 Apr 2005 02:17:04 -0500
+Subject: [RFC/PATCH 11/22] W1: move w1_search to the rest of IO code
+Date: Thu, 21 Apr 2005 02:18:12 -0500
 User-Agent: KMail/1.8
 Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <gregkh@suse.de>,
        Evgeniy Polyakov <johnpol@2ka.mipt.ru>
@@ -23,266 +23,233 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200504210217.05859.dtor_core@ameritech.net>
+Message-Id: <200504210218.12399.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-W1: Drop control thread from w1 core, whatever it does can
-    also be done in the context of w1_remove_master_device.
-    Also, pin the module when registering new master device
-    to make sure that w1 core is not unloaded until last
-    device is gone. This simplifies logic a lot.
+W1: move w1_search function to w1_io.c to be with the rest of IO code.
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- w1.c |  157 +++++++++++++++----------------------------------------------------
- w1.h |    1 
- 2 files changed, 36 insertions(+), 122 deletions(-)
+ w1.c    |   87 --------------------------------------------------------------
+ w1.h    |    1 
+ w1_io.c |   89 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 3 files changed, 88 insertions(+), 89 deletions(-)
 
 Index: dtor/drivers/w1/w1.c
 ===================================================================
 --- dtor.orig/drivers/w1/w1.c
 +++ dtor/drivers/w1/w1.c
-@@ -50,14 +50,8 @@ module_param_named(timeout, w1_timeout, 
- module_param_named(max_slave_count, w1_max_slave_count, int, 0);
- module_param_named(slave_ttl, w1_max_slave_ttl, int, 0);
- 
--static DEFINE_SPINLOCK(w1_mlock);
--static LIST_HEAD(w1_masters);
- static u32 w1_ids = 1;
- 
--static pid_t control_thread;
--static int control_needs_exit;
--static DECLARE_COMPLETION(w1_control_complete);
--
- static int w1_master_match(struct device *dev, struct device_driver *drv)
- {
- 	return 1;
-@@ -582,66 +576,6 @@ void w1_search(struct w1_master *dev)
+@@ -488,93 +488,6 @@ static void w1_slave_found(struct w1_mas
+ 	atomic_dec(&dev->refcnt);
  }
  
- 
--static int w1_control(void *data)
+-void w1_search(struct w1_master *dev)
 -{
--	struct w1_slave *slave, *nexts;
--	struct w1_master *master, *nextm;
--	int err, have_to_wait = 0;
+-	u64 last, rn, tmp;
+-	int i, count = 0;
+-	int last_family_desc, last_zero, last_device;
+-	int search_bit, id_bit, comp_bit, desc_bit;
 -
--	daemonize("w1_control");
--	allow_signal(SIGTERM);
+-	search_bit = id_bit = comp_bit = 0;
+-	rn = tmp = last = 0;
+-	last_device = last_zero = last_family_desc = 0;
 -
--	while (!control_needs_exit || have_to_wait) {
--		have_to_wait = 0;
+-	desc_bit = 64;
 -
--		try_to_freeze(PF_FREEZE);
--		msleep_interruptible(w1_timeout * 1000);
+-	while (!(id_bit && comp_bit) && !last_device &&
+-	       count++ < dev->max_slave_count) {
+-		last = rn;
+-		rn = 0;
 -
--		if (signal_pending(current))
--			flush_signals(current);
+-		last_family_desc = 0;
 -
--		list_for_each_entry_safe(master, nextm, &w1_masters, node) {
--
--			if (!control_needs_exit && !master->need_exit)
--				continue;
--			/*
--			 * Little race: we can create thread but not set the flag.
--			 * Get a chance for external process to set flag up.
--			 */
--			if (!master->initialized) {
--				have_to_wait = 1;
--				continue;
--			}
--
--			spin_lock(&w1_mlock);
--			list_del(&master->node);
--			spin_unlock(&w1_mlock);
--
--			if (control_needs_exit) {
--				master->need_exit = 1;
--
--				err = kill_proc(master->kpid, SIGTERM, 1);
--				if (err)
--					dev_err(&master->dev,
--						 "Failed to send signal to w1 kernel thread %d.\n",
--						 master->kpid);
--			}
--
--			wait_for_completion(&master->dev_exited);
--
--			list_for_each_entry_safe(slave, nexts, &master->slist, node) {
--				list_del(&slave->node);
--				w1_slave_detach(slave);
--				kfree(slave);
--			}
--			w1_destroy_master_attributes(master);
--			atomic_dec(&master->refcnt);
+-		/*
+-		 * Reset bus and all 1-wire device state machines
+-		 * so they can respond to our requests.
+-		 *
+-		 * Return 0 - device(s) present, 1 - no devices present.
+-		 */
+-		if (w1_reset_bus(dev)) {
+-			dev_info(&dev->dev, "No devices present on the wire.\n");
+-			break;
 -		}
--	}
 -
--	complete_and_exit(&w1_control_complete, 0);
+-#if 1
+-		w1_write_8(dev, W1_SEARCH);
+-		for (i = 0; i < 64; ++i) {
+-			/*
+-			 * Read 2 bits from bus.
+-			 * All who don't sleep must send ID bit and COMPLEMENT ID bit.
+-			 * They actually are ANDed between all senders.
+-			 */
+-			id_bit = w1_touch_bit(dev, 1);
+-			comp_bit = w1_touch_bit(dev, 1);
+-
+-			if (id_bit && comp_bit)
+-				break;
+-
+-			if (id_bit == 0 && comp_bit == 0) {
+-				if (i == desc_bit)
+-					search_bit = 1;
+-				else if (i > desc_bit)
+-					search_bit = 0;
+-				else
+-					search_bit = ((last >> i) & 0x1);
+-
+-				if (search_bit == 0) {
+-					last_zero = i;
+-					if (last_zero < 9)
+-						last_family_desc = last_zero;
+-				}
+-
+-			} else
+-				search_bit = id_bit;
+-
+-			tmp = search_bit;
+-			rn |= (tmp << i);
+-
+-			/*
+-			 * Write 1 bit to bus
+-			 * and make all who don't have "search_bit" in "i"'th position
+-			 * in it's registration number sleep.
+-			 */
+-			if (dev->bus_ops->touch_bit)
+-				w1_touch_bit(dev, search_bit);
+-			else
+-				w1_write_bit(dev, search_bit);
+-
+-		}
+-#endif
+-
+-		if (desc_bit == last_zero)
+-			last_device = 1;
+-
+-		desc_bit = last_zero;
+-
+-		w1_slave_found(dev, rn);
+-	}
 -}
 -
+ 
  static int w1_process(void *data)
  {
- 	struct w1_master *dev = (struct w1_master *) data;
-@@ -731,12 +665,22 @@ struct w1_master *w1_allocate_master_dev
- 	return dev;
+Index: dtor/drivers/w1/w1_io.c
+===================================================================
+--- dtor.orig/drivers/w1/w1_io.c
++++ dtor/drivers/w1/w1_io.c
+@@ -178,13 +178,100 @@ u8 w1_calc_crc8(u8 * data, int len)
+ 	return crc;
  }
  
--static void w1_free_dev(struct w1_master *dev)
-+static void w1_free_master_dev(struct w1_master *dev)
- {
- 	device_unregister(&dev->dev);
- 	kfree(dev);
- }
- 
-+static void w1_stop_master_device(struct w1_master *dev)
++static void w1_search(struct w1_master *dev, w1_slave_found_callback slave_found_cb)
 +{
-+	dev->need_exit = 1;
-+	if (kill_proc(dev->kpid, SIGTERM, 1))
-+		dev_err(&dev->dev,
-+			 "Failed to send signal to w1 kernel thread %d.\n",
-+			 dev->kpid);
-+	wait_for_completion(&dev->dev_exited);
++	u64 last, rn, tmp;
++	int i, count = 0;
++	int last_family_desc, last_zero, last_device;
++	int search_bit, id_bit, comp_bit, desc_bit;
++
++	search_bit = id_bit = comp_bit = 0;
++	rn = tmp = last = 0;
++	last_device = last_zero = last_family_desc = 0;
++
++	desc_bit = 64;
++
++	while (!(id_bit && comp_bit) && !last_device &&
++	       count++ < dev->max_slave_count) {
++		last = rn;
++		rn = 0;
++
++		last_family_desc = 0;
++
++		/*
++		 * Reset bus and all 1-wire device state machines
++		 * so they can respond to our requests.
++		 *
++		 * Return 0 - device(s) present, 1 - no devices present.
++		 */
++		if (w1_reset_bus(dev)) {
++			dev_info(&dev->dev, "No devices present on the wire.\n");
++			break;
++		}
++
++#if 1
++		w1_write_8(dev, W1_SEARCH);
++		for (i = 0; i < 64; ++i) {
++			/*
++			 * Read 2 bits from bus.
++			 * All who don't sleep must send ID bit and COMPLEMENT ID bit.
++			 * They actually are ANDed between all senders.
++			 */
++			id_bit = w1_touch_bit(dev, 1);
++			comp_bit = w1_touch_bit(dev, 1);
++
++			if (id_bit && comp_bit)
++				break;
++
++			if (id_bit == 0 && comp_bit == 0) {
++				if (i == desc_bit)
++					search_bit = 1;
++				else if (i > desc_bit)
++					search_bit = 0;
++				else
++					search_bit = ((last >> i) & 0x1);
++
++				if (search_bit == 0) {
++					last_zero = i;
++					if (last_zero < 9)
++						last_family_desc = last_zero;
++				}
++
++			} else
++				search_bit = id_bit;
++
++			tmp = search_bit;
++			rn |= (tmp << i);
++
++			/*
++			 * Write 1 bit to bus
++			 * and make all who don't have "search_bit" in "i"'th position
++			 * in it's registration number sleep.
++			 */
++			if (dev->bus_ops->touch_bit)
++				w1_touch_bit(dev, search_bit);
++			else
++				w1_write_bit(dev, search_bit);
++
++		}
++#endif
++
++		if (desc_bit == last_zero)
++			last_device = 1;
++
++		desc_bit = last_zero;
++
++		slave_found_cb(dev, rn);
++	}
 +}
 +
- int w1_add_master_device(struct w1_master *dev)
+ void w1_search_devices(struct w1_master *dev, w1_slave_found_callback cb)
  {
- 	int error;
-@@ -762,36 +706,32 @@ int w1_add_master_device(struct w1_maste
- 
- 	dev->initialized = 1;
- 
--	spin_lock(&w1_mlock);
--	list_add(&dev->node, &w1_masters);
--	spin_unlock(&w1_mlock);
-+	__module_get(THIS_MODULE);
- 
- 	return 0;
- 
- err_out_kill_thread:
--	dev->need_exit = 1;
--	if (kill_proc(dev->kpid, SIGTERM, 1))
--		dev_err(&dev->dev,
--			 "Failed to send signal to w1 kernel thread %d.\n",
--			 dev->kpid);
--	wait_for_completion(&dev->dev_exited);
-+	w1_stop_master_device(dev);
- 
- err_out_free_dev:
--	w1_free_dev(dev);
-+	w1_free_master_dev(dev);
- 
- 	return error;
+ 	dev->attempts++;
+ 	if (dev->bus_ops->search)
+ 		dev->bus_ops->search(dev, cb);
+ 	else
+-		w1_search(dev);
++		w1_search(dev, cb);
  }
  
- void w1_remove_master_device(struct w1_master *dev)
- {
--	int err;
-+	struct w1_slave *slave, *next;
- 
--	dev->need_exit = 1;
--	err = kill_proc(dev->kpid, SIGTERM, 1);
--	if (err)
--		dev_err(&dev->dev,
--			 "%s: Failed to send signal to w1 kernel thread %d.\n",
--			 __func__, dev->kpid);
-+	w1_stop_master_device(dev);
-+
-+	list_for_each_entry_safe(slave, next, &dev->slist, node) {
-+		list_del(&slave->node);
-+		w1_slave_detach(slave);
-+		kfree(slave);
-+	}
-+
-+	w1_destroy_master_attributes(dev);
- 
- 	while (atomic_read(&dev->refcnt)) {
- 		printk(KERN_INFO "Waiting for %s to become free: refcnt=%d.\n",
-@@ -801,61 +741,36 @@ void w1_remove_master_device(struct w1_m
- 			flush_signals(current);
- 	}
- 
--	w1_free_dev(dev);
-+	w1_free_master_dev(dev);
-+	module_put(THIS_MODULE);
- }
- 
- 
- int w1_init(void)
- {
--	int retval;
-+	int error;
- 
- 	printk(KERN_INFO "Driver for 1-wire Dallas network protocol.\n");
- 
--	retval = bus_register(&w1_bus_type);
--	if (retval) {
--		printk(KERN_ERR "Failed to register bus. err=%d.\n", retval);
--		goto err_out_exit_init;
-+	error = bus_register(&w1_bus_type);
-+	if (error) {
-+		printk(KERN_ERR "Failed to register bus. err=%d.\n", error);
-+		return error;
- 	}
- 
--	retval = driver_register(&w1_driver);
--	if (retval) {
-+	error = driver_register(&w1_driver);
-+	if (error) {
- 		printk(KERN_ERR
--			"Failed to register master driver. err=%d.\n",
--			retval);
--		goto err_out_bus_unregister;
--	}
--
--	control_thread = kernel_thread(&w1_control, NULL, 0);
--	if (control_thread < 0) {
--		printk(KERN_ERR "Failed to create control thread. err=%d\n",
--			control_thread);
--		retval = control_thread;
--		goto err_out_driver_unregister;
-+			"Failed to register master driver. err=%d.\n", error);
-+		bus_unregister(&w1_bus_type);
-+		return error;
- 	}
- 
- 	return 0;
--
--err_out_driver_unregister:
--	driver_unregister(&w1_driver);
--
--err_out_bus_unregister:
--	bus_unregister(&w1_bus_type);
--
--err_out_exit_init:
--	return retval;
- }
- 
- void w1_fini(void)
- {
--	struct w1_master *master, *next;
--
--	list_for_each_entry_safe(master, next, &w1_masters, node)
--		w1_remove_master_device(master);
--
--	control_needs_exit = 1;
--
--	wait_for_completion(&w1_control_complete);
--
- 	driver_unregister(&w1_driver);
- 	bus_unregister(&w1_bus_type);
- }
+ EXPORT_SYMBOL(w1_write_bit);
 Index: dtor/drivers/w1/w1.h
 ===================================================================
 --- dtor.orig/drivers/w1/w1.h
 +++ dtor/drivers/w1/w1.h
-@@ -103,7 +103,6 @@ struct w1_bus_ops
+@@ -132,7 +132,6 @@ struct w1_master
+ struct w1_master *w1_allocate_master_device(void);
+ int w1_add_master_device(struct w1_master *);
+ void w1_remove_master_device(struct w1_master *);
+-void w1_search(struct w1_master *);
  
- struct w1_master
- {
--	struct list_head	node;
- 	unsigned char		name[W1_MAXNAMELEN];
- 	struct list_head	slist;
- 	int			max_slave_count, slave_count;
+ #endif /* __KERNEL__ */
+ 

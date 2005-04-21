@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbVDURul@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261575AbVDURtq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261576AbVDURul (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 13:50:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbVDURuV
+	id S261575AbVDURtq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 13:49:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbVDURtf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 13:50:21 -0400
-Received: from fire.osdl.org ([65.172.181.4]:9178 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261559AbVDURtu (ORCPT
+	Thu, 21 Apr 2005 13:49:35 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:56280 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S261575AbVDURsL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 13:49:50 -0400
-Date: Thu, 21 Apr 2005 10:39:57 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: davidm@hpl.hp.com
-Cc: davidm@napali.hpl.hp.com, tony.luck@intel.com, akpm@osdl.org,
-       Andreas.Hirstius@cern.ch, Bartlomiej.Zolnierkiewicz@cern.ch,
-       gelato-technical@gelato.unsw.edu.au, linux-kernel@vger.kernel.org
-Subject: Re: [Gelato-technical] Re: Serious performance degradation on a
- RAID with kernel 2.6.10-bk7 and later
-Message-Id: <20050421103957.1f789c23.rddunlap@osdl.org>
-In-Reply-To: <16999.58345.464613.343890@napali.hpl.hp.com>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F0350B393@scsmsx401.amr.corp.intel.com>
-	<16999.58345.464613.343890@napali.hpl.hp.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: SvC&!/v_Hr`MvpQ*|}uez16KH[#EmO2Tn~(r-y+&Jb}?Zhn}c:Eee&zq`cMb_[5`tT(22ms
- (.P84,bq_GBdk@Kgplnrbj;Y`9IF`Q4;Iys|#3\?*[:ixU(UR.7qJT665DxUP%K}kC0j5,UI+"y-Sw
- mn?l6JGvyI^f~2sSJ8vd7s[/CDY]apD`a;s1Wf)K[,.|-yOLmBl0<axLBACB5o^ZAs#&m?e""k/2vP
- E#eG?=1oJ6}suhI%5o#svQ(LvGa=r
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 21 Apr 2005 13:48:11 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16999.59222.398656.317826@napali.hpl.hp.com>
+Date: Thu, 21 Apr 2005 10:48:06 -0700
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: <davidm@hpl.hp.com>, <akpm@osdl.org>,
+       "Andreas Hirstius" <Andreas.Hirstius@cern.ch>,
+       "Bartlomiej ZOLNIERKIEWICZ" <Bartlomiej.Zolnierkiewicz@cern.ch>,
+       "Gelato technical" <gelato-technical@gelato.unsw.edu.au>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: [Gelato-technical] Re: Serious performance degradation on a RAID with kernel 2.6.10-bk7 and later
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F0350B3F4@scsmsx401.amr.corp.intel.com>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F0350B3F4@scsmsx401.amr.corp.intel.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Apr 2005 10:33:29 -0700 David Mosberger wrote:
+>>>>> On Thu, 21 Apr 2005 10:41:52 -0700, "Luck, Tony" <tony.luck@intel.com> said:
 
-| >>>>> On Thu, 21 Apr 2005 10:19:28 -0700, "Luck, Tony" <tony.luck@intel.com> said:
-| 
-|   >> I just checked 2.6.12-rc3 and the fls() fix is indeed missing.
-|   >> Do you know what happened?
-| 
-|   Tony> If BitKeeper were still in use, I'd have dropped that patch
-|   Tony> into my "release" tree and asked Linus to "pull" ... but it's
-|   Tony> not, and I was stalled.  I should have a "git" tree up and
-|   Tony> running in the next couple of days.  I'll make sure that the
-|   Tony> fls fix goes in early.
-| 
-| Yeah, I'm facing the same issue.  I started playing with git last
-| night.  Apart from disk-space usage, it's very nice, though I really
-| hope someone puts together a web-interface on top of git soon so we
-| can seek what changed when and by whom.
+  Tony> Disk space issues?  A complete git repository of the Linux
+  Tony> kernel with all changesets back to 2.4.0 takes just over 3G
+  Tony> ... which is big compared to BK, but 3G of disk only costs
+  Tony> about $1 (for IDE ... if you want 15K rpm SCSI, then you'll
+  Tony> pay a lot more).  Network bandwidth is likely to be a bigger
+  Tony> problem.
 
-2 people have already done that.  Examples:
-http://ehlo.org/~kay/gitweb.pl
-and
-http://grmso.net:8090/
+Ever heard that data is a gas?  My disks always fill up in no time at
+all, no matter how big they are.  I agree that network bandwidth is an
+bigger issue, though.
 
-and the commits mailing list is now working.
-A script to show nightly (or daily:) commits and make
-a daily patch tarball is also close to ready.
+  Tony> There's a prototype web i/f at http://grmso.net:8090/ that's
+  Tony> already looking fairly slick.
 
----
-~Randy
+Indeed.  Plus it has a cool name, too.  Thanks for the pointer.
+
+	--david

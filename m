@@ -1,78 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261553AbVDURS2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbVDURTz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261553AbVDURS2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 13:18:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbVDURS2
+	id S261556AbVDURTz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 13:19:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbVDURTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 13:18:28 -0400
-Received: from waste.org ([216.27.176.166]:24524 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261553AbVDURSY (ORCPT
+	Thu, 21 Apr 2005 13:19:54 -0400
+Received: from fmr14.intel.com ([192.55.52.68]:47031 "EHLO
+	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261556AbVDURTn convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 13:18:24 -0400
-Date: Thu, 21 Apr 2005 10:18:24 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Mercurial distributed SCM v0.2
-Message-ID: <20050421171824.GK21897@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 21 Apr 2005 13:19:43 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [Gelato-technical] Re: Serious performance degradation on a RAID with kernel 2.6.10-bk7 and later
+Date: Thu, 21 Apr 2005 10:19:28 -0700
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0350B393@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Gelato-technical] Re: Serious performance degradation on a RAID with kernel 2.6.10-bk7 and later
+Thread-Index: AcVGg6xerZgjmZb4SUqzCmNVWXSt+gAEg16A
+From: "Luck, Tony" <tony.luck@intel.com>
+To: <davidm@hpl.hp.com>, <akpm@osdl.org>
+Cc: "Andreas Hirstius" <Andreas.Hirstius@cern.ch>,
+       "Bartlomiej ZOLNIERKIEWICZ" <Bartlomiej.Zolnierkiewicz@cern.ch>,
+       "Gelato technical" <gelato-technical@gelato.unsw.edu.au>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 21 Apr 2005 17:19:29.0075 (UTC) FILETIME=[46709830:01C54696]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is my continuing attempt to make an SCM suitable for kernel
-hacking. It supports a distribution model similar to BK and Monotone
-but is orders of magnitude simpler than both (about 1k lines of code).
+>I just checked 2.6.12-rc3 and the fls() fix is indeed missing.  Do you
+>know what happened?
 
- http://selenic.com/mercurial/
+If BitKeeper were still in use, I'd have dropped that patch into my
+"release" tree and asked Linus to "pull" ... but it's not, and I was
+stalled.  I should have a "git" tree up and running in the next couple
+of days.  I'll make sure that the fls fix goes in early.
 
-New in this version: 
-
-- much improved command line tool
-- installation instructions
-- commit log editing
-- experimental network pull support
-
-Some example usage:
-
-Setting up a Mercurial project:
-
- $ cd linux/
- $ hg init         # creates .hg
- $ hg status       # show differences between repo and working dir
- $ hg addremove    # add all unknown files and remove all missing files
- $ hg commit       # commit all changes, edit changelog entry
-
-Mercurial commands:
-
- $ hg history      # show changesets
- $ hg log Makefile # show commits per file
- $ hg checkout     # check out the tip revision
- $ hg checkout <hash> # check out a specified changeset
- $ hg add foo      # add a new file for the next commit
- $ hg remove bar   # mark a file as removed
-
-Branching and merging:
-
- $ cd ..
- $ cp -al linux linux-work   # create a new hardlink branch
- $ cd linux-work
- $ <make changes>
- $ hg commit
- $ cd ../linux
- $ hg merge ../linux-work    # pull changesets from linux-work
-
-Network support (highly experimental):
-
- # export your .hg directory as a directory on your webserver
- foo$ ln -s .hg ~/public_html/hg-linux 
-
- # merge changes from a remote machine
- bar$ hg merge http://foo/~user/hg-linux
-
- This is just a proof of concept of grabbing byte ranges, and is not
- expected to perform well yet.
-
--- 
-Mathematics is the supreme nostalgia of our time.
+-Tony

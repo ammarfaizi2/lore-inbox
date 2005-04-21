@@ -1,41 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261616AbVDUSbr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261690AbVDUSjk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261616AbVDUSbr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 14:31:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261620AbVDUSbr
+	id S261690AbVDUSjk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 14:39:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261696AbVDUSjk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 14:31:47 -0400
-Received: from rproxy.gmail.com ([64.233.170.194]:41070 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261611AbVDUSbf convert rfc822-to-8bit
+	Thu, 21 Apr 2005 14:39:40 -0400
+Received: from amber.ccs.neu.edu ([129.10.116.51]:43498 "EHLO
+	amber.ccs.neu.edu") by vger.kernel.org with ESMTP id S261690AbVDUSjd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 14:31:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=EqHq57vc75hBtkcj4x5ydjCBcpHHdfPtn8W6q/m1Q9F3ZZWb70U7CdToB3fptfPq8zRT7tSc1iXXszMBB7Owg0qrkEySWWdKksEscoL5km6n7K52GnDzGzCLXs6jbX+3Lf7G5dmxt/Zxqa6RGoF9dasmrr68dOtpubVP1TkuR+k=
-Message-ID: <7f45d93905042111313ae10b39@mail.gmail.com>
-Date: Thu, 21 Apr 2005 11:31:32 -0700
-From: Shaun Jackman <sjackman@gmail.com>
-Reply-To: Shaun Jackman <sjackman@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Hang when using a Matrox G550 with DVI
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Thu, 21 Apr 2005 14:39:33 -0400
+Message-ID: <4267F3B8.2060600@ccs.neu.edu>
+Date: Thu, 21 Apr 2005 14:40:56 -0400
+From: Stan Bubrouski <stan@ccs.neu.edu>
+User-Agent: Mozilla Thunderbird 1.0.1 (Windows/20050227)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Luck, Tony" <tony.luck@intel.com>
+CC: davidm@hpl.hp.com, akpm@osdl.org,
+       Andreas Hirstius <Andreas.Hirstius@cern.ch>,
+       Bartlomiej ZOLNIERKIEWICZ <Bartlomiej.Zolnierkiewicz@cern.ch>,
+       Gelato technical <gelato-technical@gelato.unsw.edu.au>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Gelato-technical] Re: Serious performance degradation on a RAID
+ with kernel 2.6.10-bk7 and later
+References: <B8E391BBE9FE384DAA4C5C003888BE6F0350B4AD@scsmsx401.amr.corp.intel.com>
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F0350B4AD@scsmsx401.amr.corp.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I have a DVI display plugged into my Matrox G550 video card the
-Linux kernel 2.6.11 hangs while booting. This can be worked around by
-"disabling CONFIG_VIDEO_SELECT and/or comment out call to store_edid
-in arch/i386/boot/video.S" [1], or by unplugging the DVI display
-before the kernel boots and plugging it back in before X starts. This
-is the same bug listed here [2], and it has been around since the
-2.5.67-bk6 days.
+Luck, Tony wrote:
+<SNIP>
+> Only a new user would have to pull the whole history ... and for most
+> uses it is sufficient to just pull the current top of the tree. Linus'
+> own tree only has a history going back to 2.6.12.-rc2 (when he started
+> using git).
+> 
+> Someday there might be a server daemon that can batch up the changes for
+> a "pull" to conserve network bandwidth.
+> 
+> There is a mailing list "git@vger.kernel.org" where these issues are
+> discussed.  Archives are available at marc.theaimsgroup.com and gelato.
+> 
 
-Please cc me in your reply. Cheers,
-Shaun
+Thanks tony I wasn't aware of the list, I'll look there for git info
+from now on.
 
-[1] http://www.ussg.iu.edu/hypermail/linux/kernel/0408.2/0434.html
-[2] http://bugme.osdl.org/show_bug.cgi?id=1458
+Best Regards,
+
+Stan
+
+> -Tony
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+

@@ -1,43 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261293AbVDULis@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261302AbVDULue@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261293AbVDULis (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 07:38:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVDULis
+	id S261302AbVDULue (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 07:50:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbVDULue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 07:38:48 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:45508 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261293AbVDULir (ORCPT
+	Thu, 21 Apr 2005 07:50:34 -0400
+Received: from ns2.suse.de ([195.135.220.15]:43679 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261302AbVDULua (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 07:38:47 -0400
-Date: Thu, 21 Apr 2005 13:38:29 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: tvrtko.ursulin@sophos.com
-Cc: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] properly stop devices before poweroff
-Message-ID: <20050421113829.GB7148@elf.ucw.cz>
-References: <OFD632A3BF.A81F7157-ON80256FEA.003F0182-80256FEA.003F2EB2@sophos.com>
+	Thu, 21 Apr 2005 07:50:30 -0400
+Date: Thu, 21 Apr 2005 13:50:30 +0200
+From: Andi Kleen <ak@suse.de>
+To: "Zou, Nanhai" <nanhai.zou@intel.com>
+Cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org, linux-kernel@vger.kernel.org,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Subject: Re: [discuss] [Patch] X86_64 TASK_SIZE cleanup
+Message-ID: <20050421115030.GS7715@wotan.suse.de>
+References: <894E37DECA393E4D9374E0ACBBE74270013E8B90@pdsmsx402.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <OFD632A3BF.A81F7157-ON80256FEA.003F0182-80256FEA.003F2EB2@sophos.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <894E37DECA393E4D9374E0ACBBE74270013E8B90@pdsmsx402.ccr.corp.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, Apr 21, 2005 at 01:17:40AM +0800, Zou, Nanhai wrote:
+> Hi Andi,
+>    What is your comment on this patch?
 
-> >Without this patch, Linux provokes emergency disk shutdowns and
-> >similar nastiness. It was in SuSE kernels for some time, IIRC.
-> 
-> OMG! And I did try to raise that issue 10 months ago, see below:
-> 
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0406.0/0242.html
+There is at least one wrong change in there, you have a check
+for test_thread_flag(TIF_IA32) && (flags & MAP_32BIT)
 
-Heh, verify that this patch works for you and it might finally get
-fixed...
+and that is wrong because MAP_32BIT is used from 64bit code
 
-								Pavel
--- 
-Boycott Kodak -- for their patent abuse against Java.
+-Andi

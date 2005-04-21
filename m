@@ -1,70 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261306AbVDULbg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbVDULbz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261306AbVDULbg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 07:31:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVDULbg
+	id S261315AbVDULbz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 07:31:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVDULbw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 07:31:36 -0400
-Received: from cernmx06.cern.ch ([137.138.166.160]:23501 "EHLO
-	cernmxlb.cern.ch") by vger.kernel.org with ESMTP id S261327AbVDULbE
+	Thu, 21 Apr 2005 07:31:52 -0400
+Received: from viking.sophos.com ([194.203.134.132]:11536 "EHLO
+	viking.sophos.com") by vger.kernel.org with ESMTP id S261318AbVDULaL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 07:31:04 -0400
-DomainKey-Signature: a=rsa-sha1; c=nofws; s=beta; d=cern.ch; q=dns; 
-	h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding; 
-	b=GvE7w/EkmBDc/uXFpJhXaODkQCCCxRYnzMRwbBDDewEv1GuF4YxxVki3ym0ctKYaGvQMDn9SN29EXk5krKflHJbYgf8baacPZHhic0S6mGsy7rObPNh0smAMLzJYS60z;
-Keywords: CERN SpamKiller Note: -51 Charset: west-latin
-X-Filter: CERNMX06 CERN MX v2.0 050413.1147 Release
-Message-ID: <42678EEA.6070109@cern.ch>
-Date: Thu, 21 Apr 2005 13:30:50 +0200
-From: Andreas Hirstius <Andreas.Hirstius@cern.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux ia64; en-US; rv:1.7.7) Gecko/20050418
-X-Accept-Language: en-us, en
+	Thu, 21 Apr 2005 07:30:11 -0400
 MIME-Version: 1.0
-To: Bartlomiej ZOLNIERKIEWICZ <Bartlomiej.Zolnierkiewicz@cern.ch>
-CC: Gelato technical <gelato-technical@gelato.unsw.edu.au>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Serious performance degradation on a RAID with kernel 2.6.10-bk7
- and later
-References: <42669357.9080604@cern.ch> <42668977.5060708@utah-nac.org>	 <42676501.8030805@cern.ch> <58cb370e05042102272ce70f2@mail.gmail.com> <42677587.8030707@cern.ch>
-In-Reply-To: <42677587.8030707@cern.ch>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Apr 2005 11:30:50.0228 (UTC) FILETIME=[91D5DB40:01C54665]
+X-MIMETrack: S/MIME Sign by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 5.0.12
+  |February 13, 2003) at 21/04/2005 12:30:03,
+	Serialize by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 5.0.12  |February
+ 13, 2003) at 21/04/2005 12:30:03,
+	Serialize complete at 21/04/2005 12:30:03,
+	S/MIME Sign failed at 21/04/2005 12:30:03: The cryptographic key was not
+ found,
+	S/MIME Sign by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 5.0.12
+  |February 13, 2003) at 21/04/2005 12:30:07,
+	Serialize by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 5.0.12  |February
+ 13, 2003) at 21/04/2005 12:30:07,
+	Serialize complete at 21/04/2005 12:30:07,
+	S/MIME Sign failed at 21/04/2005 12:30:07: The cryptographic key was not
+ found,
+	Serialize by Router on Mercury/Servers/Sophos(Release 6.5.2|June 01, 2004) at
+ 21/04/2005 12:30:10,
+	Serialize complete at 21/04/2005 12:30:10
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] properly stop devices before poweroff
+X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
+Message-ID: <OFD632A3BF.A81F7157-ON80256FEA.003F0182-80256FEA.003F2EB2@sophos.com>
+From: tvrtko.ursulin@sophos.com
+Date: Thu, 21 Apr 2005 12:30:07 +0100
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 21/04/2005 12:13:46 linux-kernel-owner wrote:
 
-The fls() patch from David solves the problem :-))
+>Without this patch, Linux provokes emergency disk shutdowns and
+>similar nastiness. It was in SuSE kernels for some time, IIRC.
 
-Do you have an idea, when it will be in the mainline kernel??
+OMG! And I did try to raise that issue 10 months ago, see below:
 
-Andreas
+http://www.ussg.iu.edu/hypermail/linux/kernel/0406.0/0242.html
 
 
-
-Bartlomiej ZOLNIERKIEWICZ wrote:
-
->
-> Hi!
->
->> A small update.
->>
->> Patching mm/filemap.c is not necessary in order to get the improved
->> performance!
->> It's sufficient to remove roundup_pow_of_two from  |get_init_ra_size ...
->>
->> So a simple one-liner changes to picture dramatically.
->> But why ?!?!?
->
->
-> roundup_pow_of_two() uses fls() and ia64 has buggy fls() implementation
-> [ seems that David fixed it but patch is not in the mainline yet]:
->
-> http://www.mail-archive.com/linux-ia64@vger.kernel.org/msg01196.html
->
-> That would also explain why you couldn't reproduce the problem on ia32 
-> Xeon machines.
->
-> Bartlomiej
->

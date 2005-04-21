@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbVDUBjj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261172AbVDUBmV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261167AbVDUBjj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 21:39:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbVDUBjj
+	id S261172AbVDUBmV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 21:42:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbVDUBmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 21:39:39 -0400
-Received: from downeast.net ([204.176.212.2]:26852 "EHLO downeast.net")
-	by vger.kernel.org with ESMTP id S261167AbVDUBjE (ORCPT
+	Wed, 20 Apr 2005 21:42:21 -0400
+Received: from downeast.net ([204.176.212.2]:49892 "EHLO downeast.net")
+	by vger.kernel.org with ESMTP id S261172AbVDUBmS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 21:39:04 -0400
+	Wed, 20 Apr 2005 21:42:18 -0400
 From: Patrick McFarland <pmcfarland@downeast.net>
-To: Alejandro Bonilla <abonilla@linuxwireless.org>
-Subject: Re: Linux 2.6.12-rc3
-Date: Wed, 20 Apr 2005 21:38:48 -0400
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: alsa es1371's joystick functionality broken in 2.6.11-mm4
+Date: Wed, 20 Apr 2005 21:42:03 -0400
 User-Agent: KMail/1.8
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org> <4266FD3F.3020408@linuxwireless.org>
-In-Reply-To: <4266FD3F.3020408@linuxwireless.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <200503201557.58055.pmcfarland@downeast.net> <200504142119.04527.pmcfarland@downeast.net> <200504200047.34636.pmcfarland@downeast.net>
+In-Reply-To: <200504200047.34636.pmcfarland@downeast.net>
 MIME-Version: 1.0
 Content-Type: multipart/signed;
-  boundary="nextPart1872837.XjUlWqvzkE";
+  boundary="nextPart2003715.JChEERQVgt";
   protocol="application/pgp-signature";
   micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200504202138.54365.pmcfarland@downeast.net>
+Message-Id: <200504202142.08754.pmcfarland@downeast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1872837.XjUlWqvzkE
+--nextPart2003715.JChEERQVgt
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-On Wednesday 20 April 2005 09:09 pm, Alejandro Bonilla wrote:
-> Why is kb not used anymore? What happened?
+On Wednesday 20 April 2005 12:47 am, Patrick McFarland wrote:
+> I just tested 2.6.6, it seems to be broken too. I wonder if this actually
+> is a kernel issue, I should have found a working kernel by now. I'll
+> continue to 2.6.5.
 
-Linus decided that keyboards are out, and voice activation is in. Remember =
-to=20
-use a high quality microphone!
+I just tried 2.6.5 and 2.6.4. No go. Only 3 kernels left.
 
 =2D-=20
 Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
@@ -49,15 +48,15 @@ all be running around in darkened rooms, munching magic pills and listening=
  to
 repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
 
---nextPart1872837.XjUlWqvzkE
+--nextPart2003715.JChEERQVgt
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.0 (GNU/Linux)
 
-iD8DBQBCZwQu8Gvouk7G1cURAnu3AKCP/2GAkC14VQqRd3fJUw4Q3imMgACcDGkH
-NbOwsfXBhavIdyq15aEgcGw=
-=eQhp
+iD8DBQBCZwTw8Gvouk7G1cURAlJxAKCMCrOUV36I7Vr6T/+5G51Gs5HdJQCgvH0j
+1VPQQsCrfSvamX9sqQZfYlg=
+=DNRJ
 -----END PGP SIGNATURE-----
 
---nextPart1872837.XjUlWqvzkE--
+--nextPart2003715.JChEERQVgt--

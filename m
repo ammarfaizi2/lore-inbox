@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261575AbVDURtq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVDURzM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261575AbVDURtq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 13:49:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbVDURtf
+	id S261579AbVDURzM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 13:55:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVDURzM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 13:49:35 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:56280 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S261575AbVDURsL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 13:48:11 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Thu, 21 Apr 2005 13:55:12 -0400
+Received: from mailwasher.lanl.gov ([192.65.95.54]:27531 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S261585AbVDURyr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 13:54:47 -0400
+Message-ID: <4267E8DF.9070101@mesatop.com>
+Date: Thu, 21 Apr 2005 11:54:39 -0600
+From: Steven Cole <elenstev@mesatop.com>
+User-Agent: Thunderbird 1.0 (Multics)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.12-rc3 compile error in aic7xxx_osm.c
+References: <779170000.1114105182@flay>
+In-Reply-To: <779170000.1114105182@flay>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16999.59222.398656.317826@napali.hpl.hp.com>
-Date: Thu, 21 Apr 2005 10:48:06 -0700
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: <davidm@hpl.hp.com>, <akpm@osdl.org>,
-       "Andreas Hirstius" <Andreas.Hirstius@cern.ch>,
-       "Bartlomiej ZOLNIERKIEWICZ" <Bartlomiej.Zolnierkiewicz@cern.ch>,
-       "Gelato technical" <gelato-technical@gelato.unsw.edu.au>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: [Gelato-technical] Re: Serious performance degradation on a RAID with kernel 2.6.10-bk7 and later
-In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F0350B3F4@scsmsx401.amr.corp.intel.com>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F0350B3F4@scsmsx401.amr.corp.intel.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+X-PMX-Version: 4.7.0.111621
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Thu, 21 Apr 2005 10:41:52 -0700, "Luck, Tony" <tony.luck@intel.com> said:
+Martin J. Bligh wrote:
+> drivers/scsi/aic7xxx/aic7xxx_osm.c: In function `ahc_linux_init':
+> drivers/scsi/aic7xxx/aic7xxx_osm.c:3608: parse error before `int'
+> drivers/scsi/aic7xxx/aic7xxx_osm.c:3609: `rc' undeclared (first use in this function)
+> drivers/scsi/aic7xxx/aic7xxx_osm.c:3609: (Each undeclared identifier is reported only once
+> drivers/scsi/aic7xxx/aic7xxx_osm.c:3609: for each function it appears in.)
+> drivers/scsi/aic7xxx/aic7xxx_osm.c: At top level:
+> drivers/scsi/aic7xxx/aic7xxx_osm.c:744: warning: `ahc_linux_detect' defined but not used
+> 
+> 
 
-  Tony> Disk space issues?  A complete git repository of the Linux
-  Tony> kernel with all changesets back to 2.4.0 takes just over 3G
-  Tony> ... which is big compared to BK, but 3G of disk only costs
-  Tony> about $1 (for IDE ... if you want 15K rpm SCSI, then you'll
-  Tony> pay a lot more).  Network bandwidth is likely to be a bigger
-  Tony> problem.
+Looks fixed in Linus' current tree:
+--------------------------
+commit 858eaca169ed5e7b1b14eebb889323e75a02af0e
+tree 385e241e0cc18794b8d8b70095181e2578bee14c
+parent a2755a80f40e5794ddc20e00f781af9d6320fafb
+author James Bottomley <James.Bottomley@SteelEye.com> Thu, 21 Apr 2005 21:35:45 -0700
+committer Linus Torvalds <torvalds@ppc970.osdl.org> Thu, 21 Apr 2005 21:35:45 -0700
 
-Ever heard that data is a gas?  My disks always fill up in no time at
-all, no matter how big they are.  I agree that network bandwidth is an
-bigger issue, though.
+[PATCH] Fix aic7xxx_osm.c compile with older gcc's
 
-  Tony> There's a prototype web i/f at http://grmso.net:8090/ that's
-  Tony> already looking fairly slick.
+My version of gcc doesn't warn about this error (declaration in the
+middle of a set of statements).
 
-Indeed.  Plus it has a cool name, too.  Thanks for the pointer.
+The fix is simple (this also corrects return code; for init functions it
+should be zero or error).
 
-	--david
+
+--------------------------
+
+Steven

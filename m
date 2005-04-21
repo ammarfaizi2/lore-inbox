@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261364AbVDUOC6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbVDUOFq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261364AbVDUOC6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 10:02:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbVDUOC6
+	id S261365AbVDUOFq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 10:05:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261371AbVDUOFq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 10:02:58 -0400
-Received: from open.hands.com ([195.224.53.39]:37264 "EHLO open.hands.com")
-	by vger.kernel.org with ESMTP id S261364AbVDUOC4 (ORCPT
+	Thu, 21 Apr 2005 10:05:46 -0400
+Received: from ns2.suse.de ([195.135.220.15]:14549 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261365AbVDUOFj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 10:02:56 -0400
-Date: Thu, 21 Apr 2005 15:12:14 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: linux-kernel@vger.kernel.org,
-       Linux ARM Kernel list 
-	<linux-arm-kernel@lists.arm.linux.org.uk>
-Subject: noddy question involving /dev/vc/0 and /dev/fb/0 on 2.6.7.11
-Message-ID: <20050421141214.GW16160@lkcl.net>
+	Thu, 21 Apr 2005 10:05:39 -0400
+Date: Thu, 21 Apr 2005 16:05:37 +0200
+From: Karsten Keil <kkeil@suse.de>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, linus@osdl.org, Patrick McHardy <kaber@trash.net>
+Subject: Re: fix for ISDN ippp filtering
+Message-ID: <20050421140537.GB23653@pingi3.kke.suse.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org, akpm@osdl.org,
+	linus@osdl.org, Patrick McHardy <kaber@trash.net>
+References: <20050421130735.GA23653@pingi3.kke.suse.de> <4267A7E1.7010904@trash.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-MailScanner-From: lkcl@lkcl.net
+In-Reply-To: <4267A7E1.7010904@trash.net>
+Organization: SuSE Linux AG
+X-Operating-System: Linux 2.6.8-24.10-default i686
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi, please reply cc to me as well because i am not on these lists
-(well i am but the receive post options are switched off), thank you.
+On Thu, Apr 21, 2005 at 03:17:21PM +0200, Patrick McHardy wrote:
+> Karsten Keil wrote:
+> >Hi,
+> >
+> >We do not longer use DLT_LINUX_SLL for activ/pass filters but 
+> >DLT_PPP_WITHDIRECTION
+> >witch need 1 as outbound flag.
+> >Please apply.
+> 
+> Won't this break compatibility with old ipppd binaries?
+> 
 
-i have a "noddy" question where what used to work under 2.4.27
-(echo 'hello world' > /dev/vc/0) now doesn't work on 2.6.7.11,
-even though echo 'garbage' > /dev/fb/0 does - just like it
-used to on 2.4.27.
+Not really, since such a version was never in our I4L CVS and never
+released by isdn4linux. It was my fault that this wrong temporary
+attempt to solve the filtering problem was pushed into the kernel.
+The new version is still compatible to the old filtering using
+DLT_PPP (with libpcap 0.7x version) with was the previous version.
+The DLT_LINUX_SLL solution did break compatibility and was rejected
+because of this for PPP, but I did miss to revert the ISDN kernel
+part in time, so it simple do not work today.
 
-this is with an arm embedded system i'm developing for (CLPS711x
-derivative) and i have it set up so that the console is on the serial
-port.
-
-i have ported the framebuffer device over to 2.6, and have it working
-(echo garbage > /dev/fb/0 shows up garbage in the top left corner).
-
-what kernel options do i need such that echo 'hello world' >
-/dev/vc/0 will work and i get my lovely flashing cursor back?
-
-many thanks,
-
-l.
-
+ 
 -- 
---
-<a href="http://lkcl.net">http://lkcl.net</a>
---
+Karsten Keil
+SuSE Labs
+ISDN development

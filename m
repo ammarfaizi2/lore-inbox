@@ -1,82 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261512AbVDUW3R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261487AbVDUWau@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261512AbVDUW3R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 18:29:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbVDUW1m
+	id S261487AbVDUWau (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 18:30:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261548AbVDUWaZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 18:27:42 -0400
-Received: from fire.osdl.org ([65.172.181.4]:37353 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261479AbVDUW1N (ORCPT
+	Thu, 21 Apr 2005 18:30:25 -0400
+Received: from fire.osdl.org ([65.172.181.4]:18154 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261487AbVDUW3Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 18:27:13 -0400
-Date: Thu, 21 Apr 2005 15:29:07 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: tony.luck@intel.com
-cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: ia64 git pull
-In-Reply-To: <200504212155.j3LLtho04949@unix-os.sc.intel.com>
-Message-ID: <Pine.LNX.4.58.0504211520250.2344@ppc970.osdl.org>
-References: <200504212042.j3LKgng04318@unix-os.sc.intel.com>
- <Pine.LNX.4.58.0504211403080.2344@ppc970.osdl.org>
- <200504212155.j3LLtho04949@unix-os.sc.intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 21 Apr 2005 18:29:25 -0400
+Date: Thu, 21 Apr 2005 15:29:19 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Shaun Jackman <sjackman@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: netdev watchdog
+Message-Id: <20050421152919.34048a4f.rddunlap@osdl.org>
+In-Reply-To: <7f45d939050421152171400450@mail.gmail.com>
+References: <7f45d939050421152171400450@mail.gmail.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: SvC&!/v_Hr`MvpQ*|}uez16KH[#EmO2Tn~(r-y+&Jb}?Zhn}c:Eee&zq`cMb_[5`tT(22ms
+ (.P84,bq_GBdk@Kgplnrbj;Y`9IF`Q4;Iys|#3\?*[:ixU(UR.7qJT665DxUP%K}kC0j5,UI+"y-Sw
+ mn?l6JGvyI^f~2sSJ8vd7s[/CDY]apD`a;s1Wf)K[,.|-yOLmBl0<axLBACB5o^ZAs#&m?e""k/2vP
+ E#eG?=1oJ6}suhI%5o#svQ(LvGa=r
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 21 Apr 2005 15:21:30 -0700 Shaun Jackman wrote:
 
+| Upon booting my system, the boot fails and the following message is
+| displayed repeatedly:
+| 
+| NETDEV WATCHDOG: eth0: transmit timed out
+| eth0: transmit timed out, tx_status 00 status eb01.
+| diagnostics: net 0cfa media 88c0 dma 0000003a fifo 0000
+| eth0: Interrupt posted but not delivered -- IRQ blocked by another device?
+| Flags; bus-master 1, dirty 65(1) current 65(1)
+| Transmit list 00000000 vs d0c782a0
+| 0: @d0c78200 length 8000002e status 8001002e
+| ...
+| 
+| I also see the same message for eth2. I'd been happily booting this
+| 2.6.8.1 kernel for months without trouble. I don't know where this is
+| coming from. The drivers for my three NICs are forcedeth, 3c59x, and
+| 8139too. I'd be happy to give more information to help.
+| 
+| Please cc me in your reply. Cheers,
+| Shaun
 
-On Thu, 21 Apr 2005 tony.luck@intel.com wrote:
-> 
-> I can't quite see how to manage multiple "heads" in git.  I notice that in
-> your tree on kernel.org that .git/HEAD is a symlink to heads/master ...
-> perhaps that is a clue.
+Please see the REPORTING-BUGS file for what info to include
+in a bug report.  There's just too much info missing from
+this one.
 
-It's mainly a clue to bad practice, in my opinion. I personally like the 
-"one repository, one head" approach, and if you want multiple heads you 
-just do multiple repositories (and you can then mix just the object 
-database - set your SHA1_FILE_DIRECTORY environment variable to point to 
-the shared object database, and you're good to go). 
-
-But yes, if you want to mix heads in the same repo, you can do so, but
-it's a bit dangerous to switch between them, since you'll have to blow any
-dirty state away, or you end up having checked-out state that is
-inconsistent with the particular head you're working on.
-
-Switching a head is pretty easy from a _technical_ perspective: make sure 
-your tree is clean (ie fully checked in), and switch the .git/HEAD symlink 
-to point to a new head. Then just do
-
-	read-tree .git/HEAD
-	checkout-cache -f -a
-
-and you're done. Assuming most checked-out state matches, it should be 
-basically instantaneous.
-
-Oh, and you may want to check that yoy didn't have any files that are now 
-stale, using "show-files --others" to show what files are _not_ being 
-tracked in the head you just switched to.
-
-I think Pasky has helper functions for doing this, but since I think 
-multiple heads is really too confusing for mere mortals like me, I've not 
-looked at it.
-
-> I'd like to have at least two, or perhaps even three "HEADS" active in my
-> tree at all times.  One would correspond to my old "release" tree ... pointing
-> to changes that I think are ready to go into the Linus tree.  A second would
-> be the "testing" tree ... ready for Andrew to pull into "-mm", but not ready
-> for the base. The third (which might only exist in my local tree) would be
-> for changes that I'm playing around with.
-
-I _really_ suggest having separate directories and not play with heads. 
-
-As shown above, git can technically support what you're doing very
-efficiently, but the problem is not technology - it's user confusion. It's
-just too damn easy to do the wrong thing if you end up using the same
-directory for all your heads, and switch between them.
-
-In contrast, having separate directories, all with their own individual 
-heads, you are much more likely to know what you're up to by just getting 
-the hints from the environment.
-
-		Linus
+---
+~Randy

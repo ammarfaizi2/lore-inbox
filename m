@@ -1,77 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261846AbVDUUGR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261847AbVDUUIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261846AbVDUUGR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 16:06:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261847AbVDUUGR
+	id S261847AbVDUUIs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 16:08:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261848AbVDUUIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 16:06:17 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:42462 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261846AbVDUUGH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 16:06:07 -0400
-Subject: a few dbench datapoints across various filesystems
-From: Steve French <smfltc@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-cifs-client@lists.samba.org, samba-technical@lists.samba.org
-Content-Type: text/plain
-Organization: IBM - Linux Technology Center
-Message-Id: <1114131840.6616.19.camel@stevef95.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 21 Apr 2005 20:04:00 -0500
+	Thu, 21 Apr 2005 16:08:48 -0400
+Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:10387 "EHLO
+	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
+	id S261847AbVDUUIi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 16:08:38 -0400
+Message-ID: <4268080E.3000303@ammasso.com>
+Date: Thu, 21 Apr 2005 15:07:42 -0500
+From: Timur Tabi <timur.tabi@ammasso.com>
+Organization: Ammasso
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en, en-gb
+MIME-Version: 1.0
+To: Andy Isaacson <adi@hexapodia.org>
+CC: Troy Benjegerdes <hozer@hozed.org>, Bernhard Fischer <blist@aon.at>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace verbs
+ implementation
+References: <20050421173821.GA13312@hexapodia.org> <4267F367.3090508@ammasso.com> <20050421195641.GB13312@hexapodia.org>
+In-Reply-To: <20050421195641.GB13312@hexapodia.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I ran some quick tests with dbench to see the effects of various
-performance improvements, and found the results interesting. Although
-dbench is too write oriented, and not particularly favorable to a few
-filesystems (who are otherwise good performers), dbench can still can be
-useful.
+Andy Isaacson wrote:
 
-System was a Pentium 4 2.40 GHz, uni, IDE drive, 1GB RAM
-Kernel was mainline: 2.6.12-rc2. dbench version 3.03 from samba.org 
+> I'm familiar with MPI 1.0 and 2.0, but I haven't been following the
+> development of modern messaging APIs, so I might not make sense here...
+> 
+> Assuming that the app calls into the library on a fairly regular basis,
 
+Not really.  The whole point is to have the adapter DMA the data directly from memory to 
+the network.  That's why it's called RDMA - remote DMA.
 
-Unfortunately the two target partitions were not the exact same size
-(the small partition size may skew some ext3 results somewhat higher,
-but it saved time to avoid reformatting my development machine). 
-partition sizes were 16.5 GB vs JFS 2 GB EXT3
+> Therefore, cluster admins are going to do their
+> darndest to avoid this behavior, so we might as well just kill the job
+> and make it explicit.
 
-Network filesystems tests (nfs v3, cifs, smbfs) were mounted over
-localhost to minimize the effects of network adapter differences.
-The cifs code was using the current version of cifs.ko (version 1.33)
-newer than what is in mainline.
+Yes, and if it turns out that the same MPI application dies on Linux but not on Solaris 
+because Linux doesn't really care if the memory stays pinned, then we're going to see a 
+lot of MPI customers transitioning away from Linux.
 
-JFS Throughput 52.6572 MB/sec 20 procs
-ext3 Throughput 179.726 MB/sec 20 procs
-ext3 (2nd run) Throughput 180.409 MB/sec 20 procs
-cifs mounted to samba/JFS 9.67401 Throughput MB/sec 20 procs
-cifs mounted to samba/ext3 Throughput 12.2919 MB/sec 20 procs
-nfs mounted to JFS Throughput 16.3588 MB/sec 20 procs
-nfs mounted to ext3 Throughput 13.5945 MB/sec 20 procs
-nfs mounted to ext3 (2nd run) Throughput 12.4307 MB/sec 20 procs
+> *You* need to come up with a solution that looks good to *the community*
+> if you want it merged.  
 
-Then using newer JFS code with the faster JFS code from current mm tree
-for the following five:
-JFS Throughput 58.3836 MB/sec 20 procs
-nfs mount to jfs Throughput 16.562 MB/sec 20 procs
-smbfs mount to Samba/jfs Throughput 16.4742 MB/sec 20 procs
-cifs larger mempool (40 buffers) (to Samba/jfs) 
-	Throughput 12.8196 MB/sec 20 procs
-cifs larger mempool (40 buffers), mount with directio mount option 
-	(to Samba/JFS)
-	Throughput 14.1643 MB/sec 20 procs
+True, but I'm not going to waste my time adding this support if the consensus I get from 
+the kernel developers that they don't want Linux to behave this way.
 
-The cifs numbers are much improved, and should be pretty easy to get to
-another 20 or 30% faster, which I will look at doing once we finishing
-testing cifs version 1.33
+> Do you guys simply raise RLIMIT_MEMLOCK to allow apps to lock their
+> pages?  Or are you doing something more nasty?
 
-Interesting that JFS was slower than ext3 for the local test, but faster
-than ext3 when mounting via NFS to the same system, same filesystem. 
-The JFS performance guys are apparently close to improving the local
-dbench numbers since dbench shows a performance issue with writing
-synchr. to the journal where other fs are able to do it faster (JFS does
-well apparently on most of the other benchmarks, and my informal tests
-showed that JFS was faster on various simple perf tests as well).
+A little more nasty.  I raise RLIMIT_MEMLOCK in the driver to "unlimited" and also set 
+cap_raise(IPC_LOCK).  I do this because I need to support all 2.4 and 2.6 kernel versions 
+with the same driver, but only 2.6.10 and later have any support for non-root mlock().
 
+If and when our driver is submitted to the official kernel, that nastiness will be removed 
+of course.
+
+-- 
+Timur Tabi
+Staff Software Engineer
+timur.tabi@ammasso.com
+
+One thing a Southern boy will never say is,
+"I don't think duct tape will fix it."
+      -- Ed Smylie, NASA engineer for Apollo 13

@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbVDUWWb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261458AbVDUW1c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261437AbVDUWWb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 18:22:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261457AbVDUWWa
+	id S261458AbVDUW1c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 18:27:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbVDUW1c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 18:22:30 -0400
-Received: from wproxy.gmail.com ([64.233.184.197]:29800 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261437AbVDUWWW convert rfc822-to-8bit
+	Thu, 21 Apr 2005 18:27:32 -0400
+Received: from rproxy.gmail.com ([64.233.170.205]:59119 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261458AbVDUW0k convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 18:22:22 -0400
+	Thu, 21 Apr 2005 18:26:40 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=C7ZPwPLWEVcymcrouKID1NBeUTqPp1Da/yFLg6DhXmH+8P3+Pq9M4/h+c2saXXn09MwdroaDto4zPAL41SK/00Sk+76fQmKWNaaui4I2QEi7SuqxY6LjiowcuW2LqBw1gedKEZY4vgiv/7fMs8rXbD+Y6zXEUP9awXkuGdGnJ4A=
-Message-ID: <a677445905042115226ccceaf9@mail.gmail.com>
-Date: Thu, 21 Apr 2005 19:22:19 -0300
-From: John Mac Donald <word.up.spoot@gmail.com>
-Reply-To: John Mac Donald <word.up.spoot@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: SUGGESTION: Kernel
+        b=SvpX2Cvx0iuQakFgVnaqKKsyqvfcWJK8FB7dyiTBIxMqjaGSVQ2fI97PrfO4+c6HNkGn4dwXU8Qu3SrEEZ6Yb+/N3p7tkgmJ3QvcFhDhBeT1cCUVSR3zeSTNKyEPQIiJZcT25qmwm3nsREvglbxmP57MWeVY1j/d0gyzBKzqUi8=
+Message-ID: <7f45d9390504211526277e83be@mail.gmail.com>
+Date: Thu, 21 Apr 2005 15:26:37 -0700
+From: Shaun Jackman <sjackman@gmail.com>
+Reply-To: Shaun Jackman <sjackman@gmail.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: lirc and Linux 2.6.11
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -26,13 +26,20 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i would like to suggest a graphical way to setup and install the
-kernel and kernel components, this would make it easier for idiots
-like myself to install the kernel with more ease and could solve this
-issue of 'bloating'. Making a graphical kernel installer could make it
-easier for people to select exactly what they want in their kernel, i 
-have no idea if this is even remotely possible because im quite the
-noob when it comes to compiling stuff on linux but if it is that could
-be a good idea
+I was using lirc 0.7.0 with Linux 2.6.8.1. Upon upgrading to Linux
+2.6.11, I recompiled the lirc 0.7.0 hauppauge (lirc_i2c) modules for
+the new kernel. This did not work. I then tried compiling the lirc
+0.7.1 modules for the new kernel. This didn't work either. The error
+message lircd gives is...
 
->_JMN
+Apr 21 14:57:29 quince lircd 0.7.1: lircd(hauppauge) ready
+Apr 21 14:57:52 quince lircd 0.7.1: accepted new client on /dev/lircd
+Apr 21 14:57:52 quince lircd 0.7.1: could not open /dev/lirc0
+Apr 21 14:57:52 quince lircd 0.7.1: default_init(): No such device
+Apr 21 14:57:52 quince lircd 0.7.1: caught signal
+
+I've also asked the lirc mailing list this question, but has anyone
+else run into this trouble with lirc and Linux 2.6.11?
+
+Please cc me in your reply. Thanks,
+Shaun

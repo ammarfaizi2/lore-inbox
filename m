@@ -1,81 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261667AbVDUXSC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261706AbVDUXWY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261667AbVDUXSC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 19:18:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbVDUXSC
+	id S261706AbVDUXWY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 19:22:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbVDUXWY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 19:18:02 -0400
-Received: from fire.osdl.org ([65.172.181.4]:63884 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261667AbVDUXRz (ORCPT
+	Thu, 21 Apr 2005 19:22:24 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:24269 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261706AbVDUXWT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 19:17:55 -0400
-Date: Thu, 21 Apr 2005 16:19:47 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: tony.luck@intel.com
-cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: ia64 git pull
-In-Reply-To: <200504212301.j3LN1Do05507@unix-os.sc.intel.com>
-Message-ID: <Pine.LNX.4.58.0504211608300.2344@ppc970.osdl.org>
-References: <200504212042.j3LKgng04318@unix-os.sc.intel.com>
- <Pine.LNX.4.58.0504211403080.2344@ppc970.osdl.org>
- <200504212155.j3LLtho04949@unix-os.sc.intel.com> <200504212155.j3LLtho04949@unix-os.sc.intel.com>
- <200504212301.j3LN1Do05507@unix-os.sc.intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 21 Apr 2005 19:22:19 -0400
+Date: Fri, 22 Apr 2005 01:22:01 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Petr Baudis <pasky@ucw.cz>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.12-rc3
+Message-ID: <20050421232201.GD31207@elf.ucw.cz>
+References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org> <20050421112022.GB2160@elf.ucw.cz> <20050421120327.GA13834@elf.ucw.cz> <20050421162220.GD30991@pasky.ji.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050421162220.GD30991@pasky.ji.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-
-On Thu, 21 Apr 2005 tony.luck@intel.com wrote:
+> > > You should put this into .git/remotes
+> > > 
+> > > linus	rsync://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
 > 
-> I want to have one "shared objects database" which I keep locally and
-> mirror publicly at kernel.org/pub/scm/...
+> (git addremote is preferred for that :-)
 
-Ahh, ok. That's easy.
+Nice, so I now have my own -git tree, with two changes in it...
 
-Just set up one repository. Then, make SHA1_FILE_DIRECTORY point to that 
-repository, and everybody will automatically share all file objects.
+Is there way to say "git diff -r origin:" but dump it patch-by-patch
+with some usable headers?
 
-HOWEVER. And this is a big however - I don't think you want to do this at 
-this point.
+[Looking at git export]
+								Pavel
 
-Why? Because I'm still using the stupid "get all objects" thing when I
-pull. That's not a fundamental design decision, but basically not doing so
-requires that the other end be "git aware", and have some server that is
-trustworthy that you can tell "get me all objects I need".
+Index: Documentation/git.txt
+===================================================================
+--- /dev/null  (tree:9120479b4c721855b378db8907e1259f2e583f2b)
++++ 007d34e2ed3d5fc54cbb4c16880145ade93affef/Documentation/git.txt  (mode:100644 sha1:939d378ddaac5390c879520c139e66d9649ec4c4)
+@@ -0,0 +1,19 @@
++	Kernel hacker's guide to git
++	~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++      2005 Pavel Machek <pavel@suse.cz>
++
++You can get git at http://pasky.or.cz/~pasky/dev/git/ . Compile it,
++and place it somewhere in $PATH. Then you can get kernel by running
++
++git init rsync://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
++
++... Run git log to get idea of what happened in tree you are
++tracking. Do git pull linus to pickup latest changes from Linus. You
++can do git diff to see what changes you done in your local tree. git
++cancel will kill any such changes.
++
++You can commit changes by doing git commit... If you want to get diff
++of your changes against mainline, do
++
++git diff -r origin: 
++
 
-In the absense of that kind of git-aware server, anybody pulling from you 
-would have to pull _every_ object you have, regardless of whether they 
-wanted to use them or not. I don't think that's very nice.
-
-So in the long run this issue goes away - we'll just have synchronization 
-tools that won't get any unnecessary pollution. But in the short run I 
-actually check my git archive religiously for being clean, and I do
-
-	fsck-cache --unreachable $(cat .git/HEAD)
-
-quite often - not because git has been flaky, but simply beause I'm anal. 
-And getting objects from other branches would mess with that..
-
-> But now I need a way to indicate to consumers of the public shared object
-> data base which HEAD to use.
-
-Yes. You'd just need to document where you put those heads. As you say, 
-you can make it be part of an announcement:
-
-> Perhaps I should just say "merge 821376bf15e692941f9235f13a14987009fd0b10
-> from rsync://rsync.kernel.org/pub/scm/linux/kernel/git/aegl/linux-2.6.git"?
-
-..but that doesn't actually work very well even for me, because I'd much 
-rather automate pulling from you, rather than having to cut-and-paste the 
-sha names.
-
-So I think you could just define a head name, and say something like:
-
-  rsync://rsync.kernel.org/pub/scm/linux/kernel/git/aegl/linux-2.6.git/HEAD.for-linus
-
-and we're all done. Give andrew a different filename, and you're done. The
-above syntax is trivial for me to automate.
-
-		Linus
+-- 
+Boycott Kodak -- for their patent abuse against Java.

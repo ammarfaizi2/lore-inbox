@@ -1,81 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbVDUAhY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261864AbVDUAo4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261852AbVDUAhY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 20:37:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261854AbVDUAhY
+	id S261864AbVDUAo4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 20:44:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbVDUAo4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 20:37:24 -0400
-Received: from nwkea-mail-1.sun.com ([192.18.42.13]:11681 "EHLO
-	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
-	id S261852AbVDUAhP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 20:37:15 -0400
-Subject: [PATCH][MTHCA] fix sparc build WAS: Re: [openib-general]
-	[PATCH][RFC][3/4] IB: userspace verbs mthca changes
-From: Tom Duffy <tduffy@sun.com>
-To: Roland Dreier <roland@topspin.com>
-Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+	Wed, 20 Apr 2005 20:44:56 -0400
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:19339
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261864AbVDUAoy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 20:44:54 -0400
+Date: Wed, 20 Apr 2005 17:38:20 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Tom Duffy <tduffy@sun.com>
+Cc: roland@topspin.com, linux-kernel@vger.kernel.org,
        openib-general@openib.org
-In-Reply-To: <200544159.AzH1nqpM3uTQZaKG@topspin.com>
+Subject: Re: [PATCH][MTHCA] fix sparc build WAS: Re: [openib-general]
+ [PATCH][RFC][3/4] IB: userspace verbs mthca changes
+Message-Id: <20050420173820.24c512ae.davem@davemloft.net>
+In-Reply-To: <1114043831.18198.17.camel@duffman>
 References: <200544159.AzH1nqpM3uTQZaKG@topspin.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 20 Apr 2005 17:37:11 -0700
-Message-Id: <1114043831.18198.17.camel@duffman>
+	<1114043831.18198.17.camel@duffman>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-1) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-04-04 at 15:09 -0700, Roland Dreier wrote:
-> @@ -574,6 +836,22 @@
->         return 0;
->  }
->  
-> +static int mthca_mmap_uar(struct ib_ucontext *context,
-> +                         struct vm_area_struct *vma)
-> +{
-> +       if (vma->vm_end - vma->vm_start != PAGE_SIZE)
-> +               return -EINVAL;
-> +
-> +       vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
-> +
-> +       if (remap_pfn_range(vma, vma->vm_start,
-> +                           to_mucontext(context)->uar.pfn,
-> +                           PAGE_SIZE, vma->vm_page_prot))
-> +               return -EAGAIN;
-> +
-> +       return 0;
-> +}
-> +
+On Wed, 20 Apr 2005 17:37:11 -0700
+Tom Duffy <tduffy@sun.com> wrote:
 
-This breaks building on sparc64:
+> This breaks building on sparc64:
+ ...
+> This is ugly, but fixes the build.  Perhaps sparc needs
+> pgprot_noncached() to be a noop?
 
-  CC [M]  drivers/infiniband/hw/mthca/mthca_provider.o
-/build1/tduffy/openib-work/linux-2.6.11-openib/drivers/infiniband/hw/mthca/mthca_provider.c: In function `mthca_mmap_uar':
-/build1/tduffy/openib-work/linux-2.6.11-openib/drivers/infiniband/hw/mthca/mthca_provider.c:352: warning: implicit declaration of function `pgprot_noncached'
-/build1/tduffy/openib-work/linux-2.6.11-openib/drivers/infiniband/hw/mthca/mthca_provider.c:352: error: incompatible types in assignment
-make[3]: *** [drivers/infiniband/hw/mthca/mthca_provider.o] Error 1
-make[2]: *** [drivers/infiniband/hw/mthca] Error 2
-make[1]: *** [_module_drivers/infiniband] Error 2
-make: *** [_all] Error 2
+No, it should actually do something, like so:
 
-This is ugly, but fixes the build.  Perhaps sparc needs
-pgprot_noncached() to be a noop?
-
-Signed-off-by: Tom Duffy <tduffy@sun.com>
-
-Index: linux-2.6.11-openib/drivers/infiniband/hw/mthca/mthca_provider.c
-===================================================================
---- linux-2.6.11-openib/drivers/infiniband/hw/mthca/mthca_provider.c	(revision 2202)
-+++ linux-2.6.11-openib/drivers/infiniband/hw/mthca/mthca_provider.c	(working copy)
-@@ -349,7 +349,9 @@ static int mthca_mmap_uar(struct ib_ucon
- 	if (vma->vm_end - vma->vm_start != PAGE_SIZE)
- 		return -EINVAL;
+include/asm-sparc64/pgtable.h: af9bf175a223cf44310293287d50302e0fd3f9e9
+--- a/include/asm-sparc64/pgtable.h
++++ b/include/asm-sparc64/pgtable.h
+@@ -416,6 +416,11 @@ extern int io_remap_pfn_range(struct vm_
+ 			       unsigned long pfn,
+ 			       unsigned long size, pgprot_t prot);
  
-+#ifdef pgprot_noncached
- 	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
-+#endif
- 
- 	if (remap_pfn_range(vma, vma->vm_start,
- 			    to_mucontext(context)->uar.pfn,
-
++/* Clear virtual and physical cachability, set side-effect bit.  */
++#define pgprot_noncached(prot) \
++	(__pgprot((pgprot_val(prot) & ~(_PAGE_CP | _PAGE_CV)) | \
++	 _PAGE_E))
++
+ /*
+  * For sparc32&64, the pfn in io_remap_pfn_range() carries <iospace> in
+  * its high 4 bits.  These macros/functions put it there or get it from there.

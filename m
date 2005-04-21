@@ -1,55 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261615AbVDUSaJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261616AbVDUSbr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261615AbVDUSaJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 14:30:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261616AbVDUSaJ
+	id S261616AbVDUSbr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 14:31:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261620AbVDUSbr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 14:30:09 -0400
-Received: from fmr16.intel.com ([192.55.52.70]:12241 "EHLO
-	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
-	id S261615AbVDUSaD convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 14:30:03 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
+	Thu, 21 Apr 2005 14:31:47 -0400
+Received: from rproxy.gmail.com ([64.233.170.194]:41070 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261611AbVDUSbf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 14:31:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=EqHq57vc75hBtkcj4x5ydjCBcpHHdfPtn8W6q/m1Q9F3ZZWb70U7CdToB3fptfPq8zRT7tSc1iXXszMBB7Owg0qrkEySWWdKksEscoL5km6n7K52GnDzGzCLXs6jbX+3Lf7G5dmxt/Zxqa6RGoF9dasmrr68dOtpubVP1TkuR+k=
+Message-ID: <7f45d93905042111313ae10b39@mail.gmail.com>
+Date: Thu, 21 Apr 2005 11:31:32 -0700
+From: Shaun Jackman <sjackman@gmail.com>
+Reply-To: Shaun Jackman <sjackman@gmail.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Hang when using a Matrox G550 with DVI
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Subject: RE: [Gelato-technical] Re: Serious performance degradation on a RAID with kernel 2.6.10-bk7 and later
-Date: Thu, 21 Apr 2005 11:29:40 -0700
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0350B4AD@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Gelato-technical] Re: Serious performance degradation on a RAID with kernel 2.6.10-bk7 and later
-Thread-Index: AcVGnzZcfGYphCkuQEmPy1dYI+B6fwAABo8A
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Stan Bubrouski" <stan@ccs.neu.edu>
-Cc: <davidm@hpl.hp.com>, <akpm@osdl.org>,
-       "Andreas Hirstius" <Andreas.Hirstius@cern.ch>,
-       "Bartlomiej ZOLNIERKIEWICZ" <Bartlomiej.Zolnierkiewicz@cern.ch>,
-       "Gelato technical" <gelato-technical@gelato.unsw.edu.au>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 21 Apr 2005 18:29:42.0334 (UTC) FILETIME=[15BCE5E0:01C546A0]
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->That said, is there any plan to change how this functions in the future 
->to solve these problems?  I.e. have it not use so much diskspace and 
->thus use less bandwith.  Am I misunderstanding in assuming that after
->say 1000 commits go into the tree it could end up several megs or gigs 
->bigger?
->
->If that is the case might it not be more prudent to sort this out now?
+When I have a DVI display plugged into my Matrox G550 video card the
+Linux kernel 2.6.11 hangs while booting. This can be worked around by
+"disabling CONFIG_VIDEO_SELECT and/or comment out call to store_edid
+in arch/i386/boot/video.S" [1], or by unplugging the DVI display
+before the kernel boots and plugging it back in before X starts. This
+is the same bug listed here [2], and it has been around since the
+2.5.67-bk6 days.
 
-Only a new user would have to pull the whole history ... and for most
-uses it is sufficient to just pull the current top of the tree. Linus'
-own tree only has a history going back to 2.6.12.-rc2 (when he started
-using git).
+Please cc me in your reply. Cheers,
+Shaun
 
-Someday there might be a server daemon that can batch up the changes for
-a "pull" to conserve network bandwidth.
-
-There is a mailing list "git@vger.kernel.org" where these issues are
-discussed.  Archives are available at marc.theaimsgroup.com and gelato.
-
--Tony
+[1] http://www.ussg.iu.edu/hypermail/linux/kernel/0408.2/0434.html
+[2] http://bugme.osdl.org/show_bug.cgi?id=1458

@@ -1,42 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbVDUPy5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261473AbVDUPzz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261466AbVDUPy5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 11:54:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbVDUPy5
+	id S261473AbVDUPzz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 11:55:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbVDUPzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 11:54:57 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:41154 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261466AbVDUPy4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 11:54:56 -0400
-Message-ID: <4267CC7C.10907@nortel.com>
-Date: Thu, 21 Apr 2005 09:53:32 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Steven Rostedt <rostedt@goodmis.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, jdavis@accessline.com,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Bad rounding in timeval_to_jiffies [was: Re: Odd Timer
- behavior in 2.6 vs 2.4  (1 extra tick)]
-References: <E29E71BB437ED411B12A0008C7CF755B2BC9BE@mail.accessline.com>  <1114052315.5058.13.camel@localhost.localdomain>  <1114054816.5996.10.camel@localhost.localdomain>  <20050421095109.A25431@flint.arm.linux.org.uk> <1114080708.5996.16.camel@localhost.localdomain> <Pine.LNX.4.58.0504210752560.2344@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0504210752560.2344@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 21 Apr 2005 11:55:55 -0400
+Received: from main.gmane.org ([80.91.229.2]:26308 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261473AbVDUPzl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 11:55:41 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Wes Felter <wesley@felter.org>
+Subject: Re: Need AES benchmark on Intel 64 bit
+Date: Thu, 21 Apr 2005 10:53:37 -0500
+Message-ID: <d48i1q$moe$1@sea.gmane.org>
+References: <42679C86.5050604@domdv.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: pixpat.austin.ibm.com
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+In-Reply-To: <42679C86.5050604@domdv.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Andreas Steinmetz wrote:
+> Hi,
+> can anybody help out? I don't have access to Intel 64 bit CPUs and need
+> some microbenchmark results on Intel 64 bit. Usage guide for the
+> attached archive:
+> 
+> 'ref' contains the current generic AES implementation
+> 'new' contains the 64 bit AES assembler implementation
 
-> If you calculate the expected timeout from the time-of-day in the caller,
-> your drift not only goes away, but you'll actually be able to handle 
-> things like "oops, the machine is under load so I missed an event".
+This is on a 3.6GHz Nocona:
 
-Does mainline have a high precision monotonic wallclock that is not 
-affected by time-of-day changes?  Something like "nano/mico seconds 
-since boot"?
+wmf:~/src/aes/ref> ./aes
+schedule128 1213
+schedule192 1443
+schedule256 1736
+enc asm 128 1020
+dec asm 128 1049
+enc asm 192 1352
+dec asm 192 1387
+enc asm 256 1541
+dec asm 256 1578
+wmf:~/src/aes/ref> ./aes
+schedule128 1214
+schedule192 1442
+schedule256 1736
+enc asm 128 1021
+dec asm 128 1049
+enc asm 192 1352
+dec asm 192 1388
+enc asm 256 1541
+dec asm 256 1579
 
-Chris
+wmf:~/src/aes/new> ./aes
+schedule128 1276
+schedule192 1520
+schedule256 1822
+enc asm 128 790
+dec asm 128 795
+enc asm 192 936
+dec asm 192 937
+enc asm 256 1087
+dec asm 256 1086
+wmf:~/src/aes/new> ./aes
+schedule128 1276
+schedule192 1520
+schedule256 1821
+enc asm 128 791
+dec asm 128 796
+enc asm 192 936
+dec asm 192 937
+enc asm 256 1087
+dec asm 256 1086
+
+Wes Felter - wesley@felter.org
+

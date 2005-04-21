@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261168AbVDUCIi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbVDUCMV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261168AbVDUCIi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 22:08:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbVDUCIi
+	id S261152AbVDUCMV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 22:12:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261163AbVDUCMV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 22:08:38 -0400
-Received: from clem.clem-digital.net ([68.16.168.10]:24461 "EHLO
-	clem.clem-digital.net") by vger.kernel.org with ESMTP
-	id S261168AbVDUCIh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 22:08:37 -0400
-From: Pete Clements <clem@clem.clem-digital.net>
-Message-Id: <200504210208.j3L28RZn000483@clem.clem-digital.net>
-Subject: 2.6.12-rc3 fails compile -- aic7xxx_osm.c
-To: linux-kernel@vger.kernel.org (linux-kernel)
-Date: Wed, 20 Apr 2005 22:08:27 -0400 (EDT)
-X-Mailer: ELM [version 2.5 PL7]
+	Wed, 20 Apr 2005 22:12:21 -0400
+Received: from smtp803.mail.sc5.yahoo.com ([66.163.168.182]:49286 "HELO
+	smtp803.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261152AbVDUCMS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 22:12:18 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Patrick McFarland <pmcfarland@downeast.net>
+Subject: Re: alsa es1371's joystick functionality broken in 2.6.11-mm4
+Date: Wed, 20 Apr 2005 21:12:14 -0500
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <200503201557.58055.pmcfarland@downeast.net> <200504200047.34636.pmcfarland@downeast.net> <200504202142.08754.pmcfarland@downeast.net>
+In-Reply-To: <200504202142.08754.pmcfarland@downeast.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200504202112.14969.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FYI:
+On Wednesday 20 April 2005 20:42, Patrick McFarland wrote:
+> On Wednesday 20 April 2005 12:47 am, Patrick McFarland wrote:
+> > I just tested 2.6.6, it seems to be broken too. I wonder if this actually
+> > is a kernel issue, I should have found a working kernel by now. I'll
+> > continue to 2.6.5.
+> 
+> I just tried 2.6.5 and 2.6.4. No go. Only 3 kernels left.
+> 
 
-  CC      drivers/scsi/aic7xxx/aic7xxx_osm.o
-drivers/scsi/aic7xxx/aic7xxx_osm.c: In function `ahc_linux_init':
-drivers/scsi/aic7xxx/aic7xxx_osm.c:3608: parse error before `int'
-drivers/scsi/aic7xxx/aic7xxx_osm.c:3609: `rc' undeclared (first use in this function)
-drivers/scsi/aic7xxx/aic7xxx_osm.c:3609: (Each undeclared identifier is reported only once
-drivers/scsi/aic7xxx/aic7xxx_osm.c:3609: for each function it appears in.)
-drivers/scsi/aic7xxx/aic7xxx_osm.c: At top level:
-drivers/scsi/aic7xxx/aic7xxx_osm.c:744: warning: `ahc_linux_detect' defined but not used
-make[3]: *** [drivers/scsi/aic7xxx/aic7xxx_osm.o] Error 1
-make[2]: *** [drivers/scsi/aic7xxx] Error 2
-make[1]: *** [drivers/scsi] Error 2
-make: *** [drivers] Error 2
+Are you testing with sidewinder?
 
 -- 
-Pete Clements 
+Dmitry

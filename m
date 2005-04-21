@@ -1,90 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbVDUAUz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbVDUAhY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261849AbVDUAUz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 20:20:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbVDUAUz
+	id S261852AbVDUAhY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 20:37:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261854AbVDUAhY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 20:20:55 -0400
-Received: from rproxy.gmail.com ([64.233.170.200]:62834 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261849AbVDUAUl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 20:20:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=Scg/RZCSRaNsESt61CyJkIL+Rw5ydE90tLeTU5E2UXO5EoEcFTR5xcd15hac12lvz73sJ1Lfx0GBZQ6O5EHPl4BFHflHIKEtxtTxFALcOk+ghT6q3ENZdZX86d/C3b8KCBNL1iptxHbWlQlL/04RefGtPRNN9NcAJQjaEnEYzg4=
-Message-ID: <4266F1D0.2060003@gmail.com>
-Date: Thu, 21 Apr 2005 09:20:32 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050402)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Jens Axboe <axboe@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH scsi-misc-2.6 03/05] scsi: make scsi_queue_insert() use
- blk_requeue_request()
-References: <20050419231435.D85F89C0@htj.dyndns.org>	 <20050419231435.329FA30B@htj.dyndns.org> <1114039446.5933.17.camel@mulgrave>
-In-Reply-To: <1114039446.5933.17.camel@mulgrave>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 20 Apr 2005 20:37:24 -0400
+Received: from nwkea-mail-1.sun.com ([192.18.42.13]:11681 "EHLO
+	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
+	id S261852AbVDUAhP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 20:37:15 -0400
+Subject: [PATCH][MTHCA] fix sparc build WAS: Re: [openib-general]
+	[PATCH][RFC][3/4] IB: userspace verbs mthca changes
+From: Tom Duffy <tduffy@sun.com>
+To: Roland Dreier <roland@topspin.com>
+Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+In-Reply-To: <200544159.AzH1nqpM3uTQZaKG@topspin.com>
+References: <200544159.AzH1nqpM3uTQZaKG@topspin.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Wed, 20 Apr 2005 17:37:11 -0700
+Message-Id: <1114043831.18198.17.camel@duffman>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-1) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2005-04-04 at 15:09 -0700, Roland Dreier wrote:
+> @@ -574,6 +836,22 @@
+>         return 0;
+>  }
+>  
+> +static int mthca_mmap_uar(struct ib_ucontext *context,
+> +                         struct vm_area_struct *vma)
+> +{
+> +       if (vma->vm_end - vma->vm_start != PAGE_SIZE)
+> +               return -EINVAL;
+> +
+> +       vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+> +
+> +       if (remap_pfn_range(vma, vma->vm_start,
+> +                           to_mucontext(context)->uar.pfn,
+> +                           PAGE_SIZE, vma->vm_page_prot))
+> +               return -EAGAIN;
+> +
+> +       return 0;
+> +}
+> +
 
-  Hello, James.
+This breaks building on sparc64:
 
-James Bottomley wrote:
-> On Wed, 2005-04-20 at 08:15 +0900, Tejun Heo wrote:
-> 
->>-	 * Insert this command at the head of the queue for it's device.
->>-	 * It will go before all other commands that are already in the queue.
->>-	 *
->>-	 * NOTE: there is magic here about the way the queue is plugged if
->>-	 * we have no outstanding commands.
->>-	 * 
->>-	 * Although this *doesn't* plug the queue, it does call the request
->>-	 * function.  The SCSI request function detects the blocked condition
->>-	 * and plugs the queue appropriately.
-> 
-> 
-> This comment still looks appropriate to me ... why do you want to remove
-> it?
-> 
+  CC [M]  drivers/infiniband/hw/mthca/mthca_provider.o
+/build1/tduffy/openib-work/linux-2.6.11-openib/drivers/infiniband/hw/mthca/mthca_provider.c: In function `mthca_mmap_uar':
+/build1/tduffy/openib-work/linux-2.6.11-openib/drivers/infiniband/hw/mthca/mthca_provider.c:352: warning: implicit declaration of function `pgprot_noncached'
+/build1/tduffy/openib-work/linux-2.6.11-openib/drivers/infiniband/hw/mthca/mthca_provider.c:352: error: incompatible types in assignment
+make[3]: *** [drivers/infiniband/hw/mthca/mthca_provider.o] Error 1
+make[2]: *** [drivers/infiniband/hw/mthca] Error 2
+make[1]: *** [_module_drivers/infiniband] Error 2
+make: *** [_all] Error 2
 
-  Well, the thing is that we don't really care what exactly happens to 
-the queue or how the queue is plugged or not.  All we need to do are to 
-requeue the request and kick the queue in the ass.  Hmmm, maybe I should 
-keep the comment about how the request will be put at the head of the 
-queue, but the second part about plugging doesn't really belong here, I 
-think.
+This is ugly, but fixes the build.  Perhaps sparc needs
+pgprot_noncached() to be a noop?
 
-> 
->>+	 * Requeue the command.
->> 	 */
->>-	blk_insert_request(device->request_queue, cmd->request, 1, cmd, 1);
->>+	spin_lock_irqsave(q->queue_lock, flags);
->>+	blk_requeue_request(q, cmd->request);
->>+	spin_unlock_irqrestore(q->queue_lock, flags);
->>+
->>+	scsi_run_queue(q);
-> 
-> 
-> Really, wouldn't it be much more efficient simply to call blk_run_queue
-> ()? since the blocked flags were set above, that's pretty much what
-> scsi_run_queue() collapses to.
-> 
+Signed-off-by: Tom Duffy <tduffy@sun.com>
 
-  Yes, that will be more efficient but I don't think it would make any 
-noticeable difference.  IMO, universally using scsi_run_queue() to kick 
-scsi request queues is better than mixing blk_run_queue() and 
-scsi_run_queue() for probably unnoticeable optimization.  If we start to 
-mix'em, we need to rationalize why specific one is chosen in specific 
-places and that's just unnecessary.
-
-  Thanks.
-
--- 
-tejun
+Index: linux-2.6.11-openib/drivers/infiniband/hw/mthca/mthca_provider.c
+===================================================================
+--- linux-2.6.11-openib/drivers/infiniband/hw/mthca/mthca_provider.c	(revision 2202)
++++ linux-2.6.11-openib/drivers/infiniband/hw/mthca/mthca_provider.c	(working copy)
+@@ -349,7 +349,9 @@ static int mthca_mmap_uar(struct ib_ucon
+ 	if (vma->vm_end - vma->vm_start != PAGE_SIZE)
+ 		return -EINVAL;
+ 
++#ifdef pgprot_noncached
+ 	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
++#endif
+ 
+ 	if (remap_pfn_range(vma, vma->vm_start,
+ 			    to_mucontext(context)->uar.pfn,
 

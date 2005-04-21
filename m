@@ -1,94 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbVDUCnp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbVDUCpq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbVDUCnp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 22:43:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261194AbVDUCnp
+	id S261192AbVDUCpq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 22:45:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbVDUCpp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 22:43:45 -0400
-Received: from rproxy.gmail.com ([64.233.170.201]:60043 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261188AbVDUCni (ORCPT
+	Wed, 20 Apr 2005 22:45:45 -0400
+Received: from fire.osdl.org ([65.172.181.4]:21936 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261192AbVDUCp0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 22:43:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=NTvVAHAzEs01fkh2SOSjNOtCzSOpxXWmZGkvtkasTfY6gBptbDm5gme3qO7kNHP/TdxLeJo9bNkqRWGbyTNmEwbzz7Px81bH0zr2CFdM4Uoi8hH0MMVxPKxv7lZod8VL95KUmU14uK5FLjdMGCvnuckWYT/wr0LqhVZPuY/V75Q=
-Date: Thu, 21 Apr 2005 11:43:33 +0900
-From: Tejun Heo <htejun@gmail.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Jens Axboe <axboe@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH scsi-misc-2.6 03/05] scsi: make scsi_queue_insert() use blk_requeue_request()
-Message-ID: <20050421024333.GA19112@htj.dyndns.org>
-References: <20050419231435.D85F89C0@htj.dyndns.org> <20050419231435.329FA30B@htj.dyndns.org> <1114039446.5933.17.camel@mulgrave> <4266F1D0.2060003@gmail.com> <1114049793.5000.4.camel@mulgrave>
+	Wed, 20 Apr 2005 22:45:26 -0400
+Date: Wed, 20 Apr 2005 19:42:00 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux@syskonnect.de, jgarzik@pobox.com, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: [2.6 patch] drivers/net/skfp/: fix LITTLE_ENDIAN
+Message-Id: <20050420194200.4354510e.rddunlap@osdl.org>
+In-Reply-To: <20050420021708.GD5489@stusta.de>
+References: <20050420021708.GD5489@stusta.de>
+Organization: OSDL
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1114049793.5000.4.camel@mulgrave>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Hello, James.
+On Wed, 20 Apr 2005 04:17:08 +0200 Adrian Bunk wrote:
 
- This is the modified patch with the comment (slightly modified).
-With this patch, the next patch in this patchset complains about line
-offset but it's okay.
+| This patch fixes the LITTLE_ENDIAN #define.
+  and a function prototype.
 
- Thanks.
-
-
- Signed-off-by: Tejun Heo <htejun@gmail.com>
-
-
-Index: scsi-reqfn-export/drivers/scsi/scsi_lib.c
-===================================================================
---- scsi-reqfn-export.orig/drivers/scsi/scsi_lib.c	2005-04-21 11:33:13.000000000 +0900
-+++ scsi-reqfn-export/drivers/scsi/scsi_lib.c	2005-04-21 11:39:17.000000000 +0900
-@@ -96,6 +96,8 @@ int scsi_insert_special_req(struct scsi_
- 	return 0;
- }
- 
-+static void scsi_run_queue(struct request_queue *q);
-+
- /*
-  * Function:    scsi_queue_insert()
-  *
-@@ -119,6 +121,8 @@ int scsi_queue_insert(struct scsi_cmnd *
- {
- 	struct Scsi_Host *host = cmd->device->host;
- 	struct scsi_device *device = cmd->device;
-+	struct request_queue *q = device->request_queue;
-+	unsigned long flags;
- 
- 	SCSI_LOG_MLQUEUE(1,
- 		 printk("Inserting command %p into mlqueue\n", cmd));
-@@ -154,17 +158,22 @@ int scsi_queue_insert(struct scsi_cmnd *
- 	scsi_device_unbusy(device);
- 
- 	/*
--	 * Insert this command at the head of the queue for it's device.
--	 * It will go before all other commands that are already in the queue.
-+	 * Requeue this command.  It will go before all other commands
-+	 * that are already in the queue.
- 	 *
- 	 * NOTE: there is magic here about the way the queue is plugged if
- 	 * we have no outstanding commands.
- 	 * 
--	 * Although this *doesn't* plug the queue, it does call the request
-+	 * Although we *don't* plug the queue, we call the request
- 	 * function.  The SCSI request function detects the blocked condition
- 	 * and plugs the queue appropriately.
--	 */
--	blk_insert_request(device->request_queue, cmd->request, 1, cmd, 1);
-+         */
-+	spin_lock_irqsave(q->queue_lock, flags);
-+	blk_requeue_request(q, cmd->request);
-+	spin_unlock_irqrestore(q->queue_lock, flags);
-+
-+	scsi_run_queue(q);
-+
- 	return 0;
- }
- 
+| Signed-off-by: Adrian Bunk <bunk@stusta.de>
+| 
+| ---
+| 
+|  drivers/net/skfp/h/osdef1st.h |    2 ++
+|  drivers/net/skfp/smt.c        |    2 +-
+|  2 files changed, 3 insertions(+), 1 deletion(-)
+| 
+| --- linux-2.6.12-rc2-mm3-full/drivers/net/skfp/h/osdef1st.h.old	2005-04-20 01:22:21.000000000 +0200
+| +++ linux-2.6.12-rc2-mm3-full/drivers/net/skfp/h/osdef1st.h	2005-04-20 01:23:55.000000000 +0200
+| @@ -20,6 +20,8 @@
+|  // HWM (HardWare Module) Definitions
+|  // -----------------------
+|  
+| +#include <asm/byteorder.h>
+| +
+|  #ifdef __LITTLE_ENDIAN
+|  #define LITTLE_ENDIAN
+|  #else
+| --- linux-2.6.12-rc2-mm3-full/drivers/net/skfp/smt.c.old	2005-04-20 01:26:34.000000000 +0200
+| +++ linux-2.6.12-rc2-mm3-full/drivers/net/skfp/smt.c	2005-04-20 01:26:22.000000000 +0200
+| @@ -86,7 +86,7 @@
+|  static void smt_send_sif_operation(struct s_smc *smc, struct fddi_addr *dest,
+|  				   u_long tid, int local);
+|  #ifdef LITTLE_ENDIAN
+| -static void smt_string_swap(void);
+| +static void smt_string_swap(char *data, const char *format, int len);
+|  #endif
+|  static void smt_add_frame_len(SMbuf *mb, int len);
+|  static void smt_fill_una(struct s_smc *smc, struct smt_p_una *una);

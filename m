@@ -1,39 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVDUG1j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbVDUGf1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261246AbVDUG1j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 02:27:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVDUG1j
+	id S261235AbVDUGf1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 02:35:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbVDUGf1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 02:27:39 -0400
-Received: from mail.portrix.net ([212.202.157.208]:24229 "EHLO
-	zoidberg.portrix.net") by vger.kernel.org with ESMTP
-	id S261265AbVDUGYo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 02:24:44 -0400
-Message-ID: <42674724.90005@ppp0.net>
-Date: Thu, 21 Apr 2005 08:24:36 +0200
-From: Jan Dittmer <jdittmer@ppp0.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050116 Thunderbird/1.0 Mnenhy/0.6.0.104
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: bk-commits-head@vger.kernel.org, linux-kernel@vger.kernel.org
+	Thu, 21 Apr 2005 02:35:27 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:59048 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261235AbVDUGfW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 02:35:22 -0400
 Subject: Re: Git-commits mailing list feed.
+From: David Woodhouse <dwmw2@infradead.org>
+To: Jan Dittmer <jdittmer@ppp0.net>
+Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
+In-Reply-To: <42674724.90005@ppp0.net>
 References: <200504210422.j3L4Mo8L021495@hera.kernel.org>
-In-Reply-To: <200504210422.j3L4Mo8L021495@hera.kernel.org>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+	 <42674724.90005@ppp0.net>
+Content-Type: text/plain
+Date: Thu, 21 Apr 2005 16:34:34 +1000
+Message-Id: <1114065275.29135.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-1) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse wrote:
-> As of some time in the fairly near future, the bk-commits-head@vger mailing 
-> list will be carrying real commits from Linus' live git repository, instead
-> of just testing patches. Have fun.
-> 
+On Thu, 2005-04-21 at 08:24 +0200, Jan Dittmer wrote:
+> What about the daily snapshots? Is there any eta when they'll be back?
 
-What about the daily snapshots? Is there any eta when they'll be back?
+Those were done by Jeff, not me. I'm planning to fix up the web page
+which lists individual commits some time next week, and if Jeff wants me
+to I could start generating daily snapshots too. It's unlikely to happen
+until after I get back from linux.conf.au though.
 
 -- 
-Jan
+dwmw2
+

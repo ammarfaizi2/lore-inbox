@@ -1,51 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVDUCSi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261180AbVDUCWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261174AbVDUCSi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 22:18:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbVDUCSh
+	id S261180AbVDUCWj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 22:22:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261181AbVDUCWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 22:18:37 -0400
-Received: from colino.net ([213.41.131.56]:21493 "EHLO paperstreet.colino.net")
-	by vger.kernel.org with ESMTP id S261174AbVDUCSR (ORCPT
+	Wed, 20 Apr 2005 22:22:39 -0400
+Received: from downeast.net ([204.176.212.2]:21736 "EHLO downeast.net")
+	by vger.kernel.org with ESMTP id S261180AbVDUCWM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 22:18:17 -0400
-Date: Thu, 21 Apr 2005 04:18:08 +0200
-From: Colin Leroy <colin@colino.net>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] hfsplus: add an option to force r/w mount
-Message-ID: <20050421041808.148bcedf@jack.colino.net>
-In-Reply-To: <Pine.LNX.4.61.0504202227370.857@scrub.home>
-References: <20050420220242.48cb1427@jack.colino.net>
-	<Pine.LNX.4.61.0504202227370.857@scrub.home>
-X-Mailer: Sylpheed-Claws 1.9.6cvs36 (GTK+ 2.6.4; powerpc-unknown-linux-gnu)
-X-Face: Fy:*XpRna1/tz}cJ@O'0^:qYs:8b[Rg`*8,+o^[fI?<%5LeB,Xz8ZJK[r7V0hBs8G)*&C+XA0qHoR=LoTohe@7X5K$A-@cN6n~~J/]+{[)E4h'lK$13WQf$.R+Pi;E09tk&{t|;~dakRD%CLHrk6m!?gA,5|Sb=fJ=>[9#n1Bu8?VngkVM4{'^'V_qgdA.8yn3)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 20 Apr 2005 22:22:12 -0400
+From: Patrick McFarland <pmcfarland@downeast.net>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: alsa es1371's joystick functionality broken in 2.6.11-mm4
+Date: Wed, 20 Apr 2005 22:21:49 -0400
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <200503201557.58055.pmcfarland@downeast.net> <200504202142.08754.pmcfarland@downeast.net> <200504202112.14969.dtor_core@ameritech.net>
+In-Reply-To: <200504202112.14969.dtor_core@ameritech.net>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1557395.WvUhWkt5do";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200504202221.57718.pmcfarland@downeast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20 Apr 2005 at 22h04, Roman Zippel wrote:
+--nextPart1557395.WvUhWkt5do
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Hi, 
+On Wednesday 20 April 2005 10:12 pm, Dmitry Torokhov wrote:
+> On Wednesday 20 April 2005 20:42, Patrick McFarland wrote:
+> > On Wednesday 20 April 2005 12:47 am, Patrick McFarland wrote:
+> > > I just tested 2.6.6, it seems to be broken too. I wonder if this
+> > > actually is a kernel issue, I should have found a working kernel by
+> > > now. I'll continue to 2.6.5.
+> >
+> > I just tried 2.6.5 and 2.6.4. No go. Only 3 kernels left.
+>
+> Are you testing with sidewinder?
 
-> > for some reason yet unknown, fsck.hfsplus doesn't correctly set the
-> > HFSPLUS_VOL_UNMNT flag here.
-> 
-> If fsck doesn't mark it clean, there must be a reason
+I test both my analog and sidewinders. Not that it matters, my analog is th=
+e=20
+one I had first, I only got the sidewinder recently.
 
-By the way, the reason is that this stupid utility opens the device
-read-only (hence it can't fix nothing).
+=2D-=20
+Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
+e'd=20
+all be running around in darkened rooms, munching magic pills and listening=
+ to
+repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
 
-from hfsplusutils/libhfsp/src/fscheck.c:
+--nextPart1557395.WvUhWkt5do
+Content-Type: application/pgp-signature
 
-    result = fscheck_volume_open(&vol, device, HFSP_MODE_RDONLY);
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
-Seeing that it has been untouched since 2002, I guess it'll be hard to
-get it fixed. Or maybe it's just me being idiot and I should use
-another fsck ?
+iD8DBQBCZw5F8Gvouk7G1cURApMSAJ9KUogmfPDE8zhE3Hl/eloGlZmYxgCeLhWd
+cB6BQpkPSTjSSRHxKi9TI/4=
+=RF1n
+-----END PGP SIGNATURE-----
 
--- 
-Colin
+--nextPart1557395.WvUhWkt5do--

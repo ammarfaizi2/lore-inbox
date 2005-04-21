@@ -1,54 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261379AbVDUNse@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261384AbVDUN4L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261379AbVDUNse (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 09:48:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbVDUNse
+	id S261384AbVDUN4L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 09:56:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261385AbVDUN4L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 09:48:34 -0400
-Received: from nevyn.them.org ([66.93.172.17]:65239 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S261379AbVDUNsc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 09:48:32 -0400
-Date: Thu, 21 Apr 2005 09:48:31 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: strange incremental patch size [2.6.12-rc2 to 2.6.12-rc3]
-Message-ID: <20050421134831.GA30943@nevyn.them.org>
-Mail-Followup-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-	linux-kernel@vger.kernel.org
-References: <1617591394.20050421123259@dns.toxicfilms.tv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1617591394.20050421123259@dns.toxicfilms.tv>
-User-Agent: Mutt/1.5.8i
+	Thu, 21 Apr 2005 09:56:11 -0400
+Received: from ausmtp02.au.ibm.com ([202.81.18.187]:50376 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S261384AbVDUNz7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 09:55:59 -0400
+To: linux-kernel@vger.kernel.org, fastboot@lists.osdl.org
+Cc: akpm@osdl.org, vgoyal@in.ibm.com
+MIME-Version: 1.0
+Subject: Kdump Testing
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OF5975C9DE.231115EA-ON65256FEA.004A436D-65256FEA.004D0D1E@in.ibm.com>
+From: Nagesh Sharyathi <sharyathi@in.ibm.com>
+Date: Thu, 21 Apr 2005 19:26:11 +0530
+X-MIMETrack: Serialize by Router on d23m0069/23/M/IBM(Release 6.51HF653 | October 18, 2004) at
+ 21/04/2005 19:25:43,
+	Serialize complete at 21/04/2005 19:25:43
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 21, 2005 at 12:32:59PM +0200, Maciej Soltysiak wrote:
-> Hi,
-> 
-> These are the sizes of rc2 and rc3 patches
-> 
-> # ls -la patch-2.6.12*
-> -rw-r--r--  1 root src 18011382 Apr  4 18:50 patch-2.6.12-rc2
-> -rw-r--r--  1 root src 19979854 Apr 21 02:29 patch-2.6.12-rc3
-> 
-> Let us make an incremental patch from rc2 to rc3
-> 
-> # interdiff patch-2.6.12-rc2 patch-2.6.12-rc3 >x
-> 
-> Let us see how big it is.
-> # ls -ld x
-> -rw-r--r--  1 root src 37421924 Apr 21 12:28 x
-> 
-> How come interdiff from rc2 (18MB) to rc3 (20MB) gave me
-> 37MB worth of patch-code ? I would expect something about
-> 2MB but 40MB ?
+Hi,
+I tested the kdump tool on x235 and x206 machines and found this problem 
+where on kernel Panic, system instead of booting into the panic kernel 
+jumps into BIOS and machine restarts.
+(I have given the hardware specifications at the bottom of the mail)
 
-Try interdiff -p1?
+Software:
+- 2.6.12-rc2-mm1
+- kexec-tools-1.101 
+- Five kdump user space patches 
+  [http://marc.theaimsgroup.com/?l=linux-kernel&m=111201661400892&w=2]
 
--- 
-Daniel Jacobowitz
-CodeSourcery, LLC
+Test Procedure:
+- Built first kernel for 1M location with CONFIG_KEXEC enabled.
+- Booted into first kernel with command line options crashkernel=48M@16M.
+- Built second kernel for 16M location with CONFIG_CRASH_DUMP, and 
+  CONFIG_PROC_VMCORE enabled.
+- Loaded second kernel with following kexec command.
+
+  kexec -p vmlinux-16M --args-linux --crash-dump --append="root=<root-dev>
+  init 1"
+
+- Inserted a module or echo into sysrq-trigger to invoke panic.
+- System jumps  into BIOS directly instead of booting into secondary 
+kernel.
+
+Summary Observation:
+
+- Earlier I was able to make kdump work on x330 machine by removing 
+maxcpus=1 (as specified in kdump.txt) option during loading panic kernel, 
+through kexec tool. But this work around doesn't seems to work with the 
+hardware x235 and x206. On kernel panic machine jumps to BIOS rather than 
+to panic kernel without displaying any error message.
+
+
+HARDWARE SPECIFICATIONS
+------------
+
+A) Hardware  x330: 
+- SMP, 2way, Pentium III (Coppermine) 1 GHz, 1.3G RAM
+- Network Interface (e100)
+- Disk I/O
+  SCSI storage controller: Adaptec Ultra160 
+-----------
+B)Hardware x235
+- SMP, 2way, Xeon TM 2.8GHz, 1.5g RAM
+- Network Interface (Tigon3)
+- Disk I/O
+  SCSI storage controller: IBM Serve RAID
+-------------
+C)Hardware x206
+- SMP, 1way, Pentium IV 2.8GHz, 2g RAM
+- Network Interface (e1000)
+- Disk I/O
+  SCSI storage controller: Adaptec Ultra320
+

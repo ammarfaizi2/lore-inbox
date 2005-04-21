@@ -1,109 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbVDUOtv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261411AbVDUO5F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261410AbVDUOtv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 10:49:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbVDUOtv
+	id S261411AbVDUO5F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 10:57:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261412AbVDUO5F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 10:49:51 -0400
-Received: from unicorn.rentec.com ([216.223.240.9]:62170 "EHLO
-	unicorn.rentec.com") by vger.kernel.org with ESMTP id S261410AbVDUOtp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 10:49:45 -0400
-X-Rentec: external
-From: Wolfgang Wander <wwc@rentec.com>
+	Thu, 21 Apr 2005 10:57:05 -0400
+Received: from fire.osdl.org ([65.172.181.4]:45794 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261411AbVDUO5A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 10:57:00 -0400
+Date: Thu, 21 Apr 2005 07:58:42 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+cc: Russell King <rmk+lkml@arm.linux.org.uk>, jdavis@accessline.com,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Bad rounding in timeval_to_jiffies [was: Re: Odd Timer
+ behavior in 2.6 vs 2.4  (1 extra tick)]
+In-Reply-To: <1114080708.5996.16.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0504210752560.2344@ppc970.osdl.org>
+References: <E29E71BB437ED411B12A0008C7CF755B2BC9BE@mail.accessline.com> 
+ <1114052315.5058.13.camel@localhost.localdomain>  <1114054816.5996.10.camel@localhost.localdomain>
+  <20050421095109.A25431@flint.arm.linux.org.uk> <1114080708.5996.16.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16999.48517.760155.615281@gargle.gargle.HOWL>
-Date: Thu, 21 Apr 2005 10:49:41 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Avoiding maps fragmentation Was: Leaks in mmap address space: 2.6.11.4 
-In-Reply-To: <16992.14366.232980.673857@gargle.gargle.HOWL>
-References: <200504151646.j3FGkLQ00256@troll.rentec.com>
-	<16992.14366.232980.673857@gargle.gargle.HOWL>
-X-Mailer: VM 7.17 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
-X-Logged: Logged by unicorn.rentec.com as j3LEngKv024951 at Thu Apr 21 10:49:44 2005
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looks like I have to answer myself here with you guys all busy
-gitting...
-
-I posted two sample programs last week that showed that large
-application can run out of memory a lot quicker on 2.6 than on 2.4.
-The reason is that the /proc/*/maps space fragments a lot faster 
-on 2.6 than with 2.4 kernels.
-
-2.4 started searching for unused space from the mmap base up to the
-stack,  2.6 starts search from the end of the last mapped area 
-(mm->free_area_cache).
-
-The difference in the two algorithms is obvious (apart from the
-efficiency which is undoubtedly better in 2.6):
-
-Whereas 2.4 naturally started to fill small holes closer to the base thus
-leaving larger areas open towards the stack, 2.6 will place small maps
-all over the mappable area thus closing up potential large holes inefficiently.
-
-The attached patch is left as a hack so that you guys can come up (please;-)
-with a neater solution but something ought to be done that saves large
-holes from small map clutter...
-
-     Wolfgang
-
-PS: Patch^H^H^H^H^H Ugly_Hack is against 2.6.11.7 and only 'fixes' the
-two architectures I'm interested in (i386 and x86_64)
 
 
+On Thu, 21 Apr 2005, Steven Rostedt wrote:
+> 
+> Thanks, I forgot about the guarantee of "at least" the time requested.
+> I took this on because I noticed this in a driver I wrote. With the user
+> passing in a timeval for a periodic condition. I noticed that this would
+> drift quite a bit.
 
-diff -ru linux-2.6.11.7.orig/arch/x86_64/kernel/sys_x86_64.c linux-2.6.11.7/arch/x86_64/kernel/sys_x86_64.c
---- linux-2.6.11.7.orig/arch/x86_64/kernel/sys_x86_64.c	2005-03-02 02:38:13.000000000 -0500
-+++ linux-2.6.11.7/arch/x86_64/kernel/sys_x86_64.c	2005-04-21 09:27:38.000000000 -0400
-@@ -112,8 +112,8 @@
- 		    (!vma || addr + len <= vma->vm_start))
- 			return addr;
- 	}
--	addr = mm->free_area_cache;
--	if (addr < begin) 
-+	/* addr = mm->free_area_cache;
-+	if (addr < begin)  */
- 		addr = begin; 
- 	start_addr = addr;
- 
-diff -ru linux-2.6.11.7.orig/mm/mmap.c linux-2.6.11.7/mm/mmap.c
---- linux-2.6.11.7.orig/mm/mmap.c	2005-03-02 02:38:12.000000000 -0500
-+++ linux-2.6.11.7/mm/mmap.c	2005-04-21 09:32:06.000000000 -0400
-@@ -1173,7 +1173,7 @@
- 		    (!vma || addr + len <= vma->vm_start))
- 			return addr;
- 	}
--	start_addr = addr = mm->free_area_cache;
-+	start_addr = addr = TASK_UNMAPPED_BASE; /* mm->free_area_cache; */
- 
- full_search:
- 	for (vma = find_vma(mm, addr); ; vma = vma->vm_next) {
+Your user is doing things wrong. If he wants a non-drifting clock, he 
+should look at _realtime_ and then always re-calculate the "how long do I 
+want to sleep" from that. Because even if the kernel was able to do all 
+offsets with nanosecond precision and wake you up _exactly_, you'd still 
+be drifting because of the time spent in between calls (and scheduling 
+events etc).
 
+>	 I guess I need to write my own timeval_to_jiffies
+> conversion so that i remove the added jiffy. For this case, I actually
+> want a true rounded value to the closest jiffy.
 
+No, if you're looking at reliable wall-clock time, you really need to use
+wall-clock, not successive time offsets. The time offsets will always
+drift: you can make the drift small enough that your particular
+application doesn't happen to care (or, quite often - make it drift in a
+_direction_ you don't happen to care about), but it's still wrong.
 
-Wolfgang Wander writes:
- > Here is another program that illustrates the problem which this time
- > in C and without using glibc allocation schemes.
- > 
- > ----------------------------------------------------------------------
- > 
- > Wolfgang Wander writes:
- >  > Hi,
- >  > 
- >  >   we are running some pretty large applications in 32bit mode on 64bit
- >  >   AMD kernels (8GB Ram, Dual AMD64 CPUs, SMP).  Kernel is 2.6.11.4 or
- >  >   2.4.21.
- >  > 
- >  >   Some of these applications run consistently out of memory but only
- >  >   on 2.6 machines.  In fact large memory allocations that libc answers
- >  >   with private mmaps seem to contribute to the problem: 2.4 kernels
- >  >   are able to combine these mmaps to large chunks whereas 2.6
- >  >   generates a rather fragmented /proc/self/maps table.
- >  > 
- >  >   The following C++ program reproduces the error (compiled statically
- >  >   on a 32bit machine to get exactly the same executable for 2.4 and
- >  >   2.6 environments):
+If you calculate the expected timeout from the time-of-day in the caller,
+your drift not only goes away, but you'll actually be able to handle 
+things like "oops, the machine is under load so I missed an event".
+
+Yes, it gets slightly more complicated (and a _lot_ more complicated if
+your app needs to do something special for the missed case, like dropping
+data and re-syncing, which is common in things like video or sound
+streaming), but the fact is, it's just the right thing to do.
+
+		Linus

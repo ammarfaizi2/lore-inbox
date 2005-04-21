@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVDURBx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVDURBs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261551AbVDURBx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 13:01:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261550AbVDURBx
+	id S261552AbVDURBs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 13:01:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261550AbVDURBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 13:01:53 -0400
-Received: from zproxy.gmail.com ([64.233.162.192]:49382 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261551AbVDURAw convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 13:00:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=C+6RtjJpJ4uBbXd4o9xqBIXFRFuCG8QwRACw6BdaIQedM9ThNSowlL7ELzXxXbDNtkkNqgzKdYyGC0sPxlvWVb6sRJFr5K0HcSB251yr95GmAVRbSc25InERwlc0rd6RKckrZFZMbsIKrrV7QD61WfAjkPBAERDgXws+Cb891XU=
-Message-ID: <b6408ebf050421100075af6800@mail.gmail.com>
-Date: Thu, 21 Apr 2005 17:00:51 +0000
-From: Antonio Nevado <anevado@gmail.com>
-Reply-To: Antonio Nevado <anevado@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Gentoo livecd - unionfs module problem
-Mime-Version: 1.0
+	Thu, 21 Apr 2005 13:01:48 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:30986 "EHLO hermes.domdv.de")
+	by vger.kernel.org with ESMTP id S261552AbVDURAb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 13:00:31 -0400
+Message-ID: <4267DC2E.9030102@domdv.de>
+Date: Thu, 21 Apr 2005 19:00:30 +0200
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: pavel@ucw.cz, rjw@sisk.pl
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.12-rc3: various swsusp problems
+References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi Pavel,
+there's some problems with swsusp in 2.6.12-rc3 (x86_64):
 
-i´m working on a linux livecd gentoo-based using the 
-linux-live scripts.
+1. Is it necessary to print the following message during regular boot?
+   swsusp: Suspend partition has wrong signature?
+   It is a bit annoying and I believe it will confuse some swsusp
+   users.
 
-Ok, then, i use the gentoo kernel 2.6.11 with squashfs support
-(not module, incore) and i compile the unionfs.ko module.
-I gzip the module unionfs.ko and i copy it to the:
+2. PCMCIA related hangs during swsusp.
+   swsusp hangs after freeing memory when either cardmgr is running
+   or pcmcia cards are *physically* inserted. It is insufficient
+   to do a 'cardctl eject' the cards must be removed, too, for
+   swsusp not to hang. I do suspect some problem with the
+   'pccardd' kernel threads.
 
-  kernel-modules/'uname -r'/
-
-directory for a future use by the linux-live scripts.
-
-Then, the scipts copy unionfs.ko.gz to the initrd.
-
-The problem is: when the initrd boots and it try to load
-the module (from /tmp when it´s already gunzipped) returns this
-message:
-
-insmod: cannot open module '/tmp/unionfs.ko' :
-Invalid module format(-1): Exec format error
-
-but if i try to load the module on the gentoo distribution before
-create the .iso and burn´it (on the hard-disk) there´s no
-problem (i load it with the same 'busybox' binary that uses the
-linuxrc script)
-
-Then, errors, kernel panic, goodbye...
-
-Help! Please...
-
-Thanks !!!
-
----nevy---
+3. Sometimes during the search for the suspend hang reason the system
+   went during suspend into a lightshow of:
+   eth0: Too much work at interrupt!
+   and some line that ends in:
+   release_console_sem+0x13d/0x1c0)
+   The start of the line is not readable as it just flickers by in
+   the eth0 message limbo. NIC is a built in RTL-8169 Gigabit Ethernet
+   (rev 10). Oh, no chance for a serial console capture as there's no
+   built in serial device in this laptop.
+-- 
+Andreas Steinmetz                       SPAMmers use robotrap@domdv.de

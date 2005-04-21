@@ -1,54 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261176AbVDUB7g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261168AbVDUCIi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261176AbVDUB7g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 21:59:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVDUB7f
+	id S261168AbVDUCIi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 22:08:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbVDUCIi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 21:59:35 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:28119
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S261176AbVDUB7e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 21:59:34 -0400
-Message-ID: <42670984.6040103@linuxwireless.org>
-Date: Wed, 20 Apr 2005 21:01:40 -0500
-From: Alejandro Bonilla <abonilla@linuxwireless.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
+	Wed, 20 Apr 2005 22:08:38 -0400
+Received: from clem.clem-digital.net ([68.16.168.10]:24461 "EHLO
+	clem.clem-digital.net") by vger.kernel.org with ESMTP
+	id S261168AbVDUCIh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Apr 2005 22:08:37 -0400
+From: Pete Clements <clem@clem.clem-digital.net>
+Message-Id: <200504210208.j3L28RZn000483@clem.clem-digital.net>
+Subject: 2.6.12-rc3 fails compile -- aic7xxx_osm.c
+To: linux-kernel@vger.kernel.org (linux-kernel)
+Date: Wed, 20 Apr 2005 22:08:27 -0400 (EDT)
+X-Mailer: ELM [version 2.5 PL7]
 MIME-Version: 1.0
-To: Patrick McFarland <pmcfarland@downeast.net>
-CC: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.12-rc3
-References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org> <4266FD3F.3020408@linuxwireless.org> <200504202138.54365.pmcfarland@downeast.net>
-In-Reply-To: <200504202138.54365.pmcfarland@downeast.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick McFarland wrote:
+FYI:
 
->On Wednesday 20 April 2005 09:09 pm, Alejandro Bonilla wrote:
->  
->
->>Why is kb not used anymore? What happened?
->>    
->>
->
->Linus decided that keyboards are out, and voice activation is in. Remember to 
->use a high quality microphone!
->
->  
->
-Ohh _G_  Is that Why!? I thought it was cause there were some problems 
-with 2 guys and a non-free Software? James gave me what I needed to 
-know. ;-) Thanks.
+  CC      drivers/scsi/aic7xxx/aic7xxx_osm.o
+drivers/scsi/aic7xxx/aic7xxx_osm.c: In function `ahc_linux_init':
+drivers/scsi/aic7xxx/aic7xxx_osm.c:3608: parse error before `int'
+drivers/scsi/aic7xxx/aic7xxx_osm.c:3609: `rc' undeclared (first use in this function)
+drivers/scsi/aic7xxx/aic7xxx_osm.c:3609: (Each undeclared identifier is reported only once
+drivers/scsi/aic7xxx/aic7xxx_osm.c:3609: for each function it appears in.)
+drivers/scsi/aic7xxx/aic7xxx_osm.c: At top level:
+drivers/scsi/aic7xxx/aic7xxx_osm.c:744: warning: `ahc_linux_detect' defined but not used
+make[3]: *** [drivers/scsi/aic7xxx/aic7xxx_osm.o] Error 1
+make[2]: *** [drivers/scsi/aic7xxx] Error 2
+make[1]: *** [drivers/scsi] Error 2
+make: *** [drivers] Error 2
 
-And I really hope that Linus can find a way to do things better for him 
-and everyone else. Hopefully someone can create an SCM as nice and good 
-as I read BK was...
-
-Sorry for invoking this old topic.
-
-- Alejandro
+-- 
+Pete Clements 

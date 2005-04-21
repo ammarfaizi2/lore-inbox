@@ -1,63 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbVDUVlg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261328AbVDUV4E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbVDUVlg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 17:41:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVDUVle
+	id S261328AbVDUV4E (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 17:56:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbVDUV4D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 17:41:34 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:9097 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S261210AbVDUVlY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 17:41:24 -0400
-Date: Thu, 21 Apr 2005 23:41:19 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-Subject: Re: Linux 2.6.12-rc3
-Message-ID: <20050421214119.GO7443@pasky.ji.cz>
-References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org> <20050421112022.GB2160@elf.ucw.cz> <20050421120327.GA13834@elf.ucw.cz> <20050421162220.GD30991@pasky.ji.cz> <20050421190009.GC475@openzaurus.ucw.cz> <20050421190956.GA7443@pasky.ji.cz> <20050421213811.GA31207@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050421213811.GA31207@elf.ucw.cz>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+	Thu, 21 Apr 2005 17:56:03 -0400
+Received: from fmr21.intel.com ([143.183.121.13]:6049 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261239AbVDUVzv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 17:55:51 -0400
+Date: Thu, 21 Apr 2005 14:55:43 -0700
+From: tony.luck@intel.com
+Message-Id: <200504212155.j3LLtho04949@unix-os.sc.intel.com>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: linux-ia64@vger.kernel.org
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ia64 git pull
+In-Reply-To: <Pine.LNX.4.58.0504211403080.2344@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0504211411160.2344@ppc970.osdl.org>
+References: <200504212042.j3LKgng04318@unix-os.sc.intel.com>
+ <Pine.LNX.4.58.0504211403080.2344@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Thu, Apr 21, 2005 at 11:38:11PM CEST, I got a letter
-where Pavel Machek <pavel@ucw.cz> told me that...
-> Hi!
-> 
-> It seems that someone should write "Kernel hacker's guide to
-> git"... Documentation/git.txt seems like good place. I guess I'll do
-> it.
+Adding linux-kernel to Cc: list, as I'm sure Linus wants to hear from
+all maintainers, not just those that hang out on the linux-ia64 list.
 
-I've also started writing some tutorial-like guide to Cogito on my
-notebook, but I have time for that only during lectures. :^)
+>On Thu, 21 Apr 2005, Linus Torvalds wrote:
+>Btw, just in case it wasn't obvious anyway: I based pretty much _all_ of
+>the git design on three basic goals: performance, distribution and
+>integrity checking. Everything else pretty much flows from those three
+>things.
 
-> > I'm not yet sure if we should have some Cogito interface for doing this
-> > and what its semantics should be.
-> 
-> What is Cogito, BTW?
+>But I really tried to make sure that git ends up not just working as a
+>system for me to apply patches, but as a system for me to merge other
+>peoples work. And I think technically, git does that merge thing very 
+>well, and it's certainly living up to my expectations.
 
-New name for git-pasky. Everyone will surely rejoice as the usage will
-change significantly. But better let's clean it up now.
+>However, I kind of knew what my expectations _were_ in the first place,
+>and as such the thing is very much designed for what I think I needed to
+>have to work with you guys. Making it fit the old workflow was obviously a
+>big deal, but I don't know how people really worked on the "other end",
+>so...
 
-(For more details, check git@ archives for git-pasky-0.6 announcement.)
+>In other words, what this digression is leading up to is just me saying
+>that if you have feedback on how this whole git thing is working for
+>_you_, please don't feel shy. I realize that it's a bit raw and rough
+>right now, and people are working on making for better interfaces, but if
+>you have some particular worry or issue, don't feel like git was forced
+>upon you as a fait accomplí, but complain and tell me what your biggest
+>problems are.
 
-> > > I see quite a lot of problems with fsck-tree. Is that normal?
-> > > (I ran out of disk space few times during different operations...)
-> > 
-> > Actually, in case your tree is older than about two days, I hope you did
-> > the convert-cache magic or fetched a fresh tree?
-> 
-> No, I did not anything like that. I guess it is rm -rf time, then...
+>I may not be able to do a lot about them (the unmentioned fourth basic
+>goal was obviously: simple enough that I could actually implement the dang
+>thing), but still..
 
-That's the root of all your problems then.
+>So if there's some feature (or _lack_ of one) that really bugs you, speak 
+>up.
 
--- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-C++: an octopus made by nailing extra legs onto a dog. -- Steve Taylor
+I can't quite see how to manage multiple "heads" in git.  I notice that in
+your tree on kernel.org that .git/HEAD is a symlink to heads/master ...
+perhaps that is a clue.
+
+I'd like to have at least two, or perhaps even three "HEADS" active in my
+tree at all times.  One would correspond to my old "release" tree ... pointing
+to changes that I think are ready to go into the Linus tree.  A second would
+be the "testing" tree ... ready for Andrew to pull into "-mm", but not ready
+for the base. The third (which might only exist in my local tree) would be
+for changes that I'm playing around with.
+
+I can see how git can easily do this ... but I don't know how to set up my
+public tree so that you and Andrew can pull from the right HEAD.
+
+-Tony

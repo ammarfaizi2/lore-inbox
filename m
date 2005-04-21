@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVDUNlo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261379AbVDUNse@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbVDUNlo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 09:41:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbVDUNlk
+	id S261379AbVDUNse (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 09:48:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbVDUNse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 09:41:40 -0400
-Received: from sun3.sammy.net ([68.162.198.6]:62221 "HELO sun3.sammy.net")
-	by vger.kernel.org with SMTP id S261375AbVDUNla (ORCPT
+	Thu, 21 Apr 2005 09:48:34 -0400
+Received: from nevyn.them.org ([66.93.172.17]:65239 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S261379AbVDUNsc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 09:41:30 -0400
-Date: Thu, 21 Apr 2005 09:41:25 -0400 (EDT)
-From: Sam Creasey <sammy@sammy.net>
-X-X-Sender: sammy@sun3
-To: Christoph Hellwig <hch@infradead.org>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       "James E.J. Bottomley" <James.Bottomley@SteelEye.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       <linux-scsi@vger.kernel.org>, Linux/m68k <linux-m68k@vger.kernel.org>
-Subject: Re: [PATCH] kill old EH constants
-In-Reply-To: <20050421100933.GA19586@infradead.org>
-Message-ID: <Pine.LNX.4.40.0504210938260.972-100000@sun3>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 21 Apr 2005 09:48:32 -0400
+Date: Thu, 21 Apr 2005 09:48:31 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: strange incremental patch size [2.6.12-rc2 to 2.6.12-rc3]
+Message-ID: <20050421134831.GA30943@nevyn.them.org>
+Mail-Followup-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
+	linux-kernel@vger.kernel.org
+References: <1617591394.20050421123259@dns.toxicfilms.tv>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1617591394.20050421123259@dns.toxicfilms.tv>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Apr 21, 2005 at 12:32:59PM +0200, Maciej Soltysiak wrote:
+> Hi,
+> 
+> These are the sizes of rc2 and rc3 patches
+> 
+> # ls -la patch-2.6.12*
+> -rw-r--r--  1 root src 18011382 Apr  4 18:50 patch-2.6.12-rc2
+> -rw-r--r--  1 root src 19979854 Apr 21 02:29 patch-2.6.12-rc3
+> 
+> Let us make an incremental patch from rc2 to rc3
+> 
+> # interdiff patch-2.6.12-rc2 patch-2.6.12-rc3 >x
+> 
+> Let us see how big it is.
+> # ls -ld x
+> -rw-r--r--  1 root src 37421924 Apr 21 12:28 x
+> 
+> How come interdiff from rc2 (18MB) to rc3 (20MB) gave me
+> 37MB worth of patch-code ? I would expect something about
+> 2MB but 40MB ?
 
+Try interdiff -p1?
 
-On Thu, 21 Apr 2005, Christoph Hellwig wrote:
-
-> On Thu, Apr 21, 2005 at 11:58:12AM +0200, Geert Uytterhoeven wrote:
-> > sun3_NCR5380.c still uses the following:
-> >
-> >   - SCSI_ABORT_SUCCESS
-> >   - SCSI_ABORT_ERROR
-> >   - SCSI_ABORT_SNOOZE
-> >   - SCSI_ABORT_BUSY
-> >   - SCSI_ABORT_NOT_RUNNING
-> >   - SCSI_RESET_SUCCESS
-> >   - SCSI_RESET_BUS_RESET
-> >
-> > causing the driver to fail to build in 2.6.12-rc3. What should I replace them
-> > by?
->
-> You must replace NCR5380_abort and NCR5380_bus_reset with real new-style
-> EH routines.  I'd suggest copying them from NCR5380.c or even better
-> scrapping sun3_NCR5380.c in favour of that one completely.
-
-Trust me, there's reasons we don't use NCR5380.c.... (primarily, this has
-to due with the order of operations necessary to keep the DMA controller
-happpy, which required changing the flow of several functions
-(admittedly, I haven't looked into this again since the "new-style"
-driver change)).
-
-That being said, it seems the first option needs done.  I suppose I'll
-add fixing those two routines to my long list of backlogged sun3 stuff
-which needs doing.
-
--- Sam
-
-
+-- 
+Daniel Jacobowitz
+CodeSourcery, LLC

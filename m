@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbVDULXw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261305AbVDUL2t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261314AbVDULXw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 07:23:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbVDULUE
+	id S261305AbVDUL2t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 07:28:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVDUL2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 07:20:04 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:4362 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S261293AbVDULSv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 07:18:51 -0400
-Message-ID: <42678D24.90209@aitel.hist.no>
-Date: Thu, 21 Apr 2005 13:23:16 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
+	Thu, 21 Apr 2005 07:28:48 -0400
+Received: from ns1.q-leap.de ([153.94.51.193]:62100 "EHLO mail.q-leap.de")
+	by vger.kernel.org with ESMTP id S261292AbVDUL20 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 07:28:26 -0400
+From: Roland Fehrenbacher <rf@q-leap.de>
 MIME-Version: 1.0
-To: Dave Airlie <airlied@gmail.com>
-CC: Doug Ledford <dledford@redhat.com>, Chris Friesen <cfriesen@nortel.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: nVidia stuff again
-References: <1113298455.16274.72.camel@caveman.xisl.com>	 <20050412210857.GT11199@shell0.pdx.osdl.net>	 <1113341579.3105.63.camel@caveman.xisl.com>	 <425CEAC2.1050306@aitel.hist.no>	 <20050413125921.GN17865@csclub.uwaterloo.ca>	 <20050413130646.GF32354@marowsky-bree.de>	 <20050413132308.GP17865@csclub.uwaterloo.ca>	 <425D3924.1070809@nortel.com> <425E77BB.5010902@aitel.hist.no>	 <1114021024.26866.63.camel@compaq-rhel4.xsintricity.com> <21d7e997050420161234141e23@mail.gmail.com>
-In-Reply-To: <21d7e997050420161234141e23@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16999.36436.604591.941925@gargle.gargle.HOWL>
+Date: Thu, 21 Apr 2005 13:28:20 +0200
+To: linux-kernel@vger.kernel.org
+Subject: journal_callback_set
+X-Mailer: VM 7.17 under 21.4 (patch 16) "Corporate Culture" XEmacs Lucid
+Reply-To: rf@q-leap.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Airlie wrote:
+Hi,
 
->The main reasons they don't like open source is from where I'm
->standing, their IP lawyers and probably not being able to do sneaky
->hacks in the driver because people can see them..
->
->  
->
-Well . . . if *that* is a reason for disliking open source then the 
-problem is solved.
-We don't really need the source for their driver with the sneaky hacks 
-exposed.
-They could keep a proprietary driver with nasty hacks, and release a 
-simplified
-one (basically the same code with those hacks removed) along with the 
-specs. 
-Open source developers can then add their own hacks if need be.
+I noticed, that starting from 2.6.10, the function (fs/jbd/transaction.c)
 
-Helge Hafting
+void journal_callback_set(handle_t *handle,
+              void (*func)(struct journal_callback *jcb, int error),
+                   struct journal_callback *jcb)
+
+along with the structure members of handle_s (include/linux/jbd.h)
+
+struct list_head        h_jcb;
+
+and the following members of transaction_s
+
+spinlock_t              t_jcb_lock;
+struct list_head        t_jcb;
+
+has been removed. Since I didn't find any discussion of this on this
+list or anywhere else on the web, I wondered about the motivation
+behind this, and how code that references these function/members
+should be modified. Is it dangerous to reinclude the eliminated parts
+of the code?
+
+Please reply to me personnally, since I am not subscribed to the list.
+
+Thanks,
+
+Roland
+

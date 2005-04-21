@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261800AbVDUTKi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261810AbVDUTgK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261800AbVDUTKi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 15:10:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbVDUTKi
+	id S261810AbVDUTgK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 15:36:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbVDUTgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 15:10:38 -0400
-Received: from wproxy.gmail.com ([64.233.184.194]:42768 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261800AbVDUTKa convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 15:10:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=dM0svqXGE6WDhfTSWLq4UoTUMe90DDEawUtouymrJ67WXh62ZBPLOx0aILQ+kJnroq/iyGdcC9PrfyxEyU5QSuzxFctuZWuH9s9FL9dyJvi2YNteFdMICx0U47OuqRFQu1ioV2JqIITwaN8QFBsGHSVG11nPos+2J88lchlZCMw=
-Message-ID: <40f323d005042112105c4ca4a2@mail.gmail.com>
-Date: Thu, 21 Apr 2005 21:10:23 +0200
-From: Benoit Boissinot <bboissin@gmail.com>
-Reply-To: Benoit Boissinot <bboissin@gmail.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Linux 2.6.12-rc3
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org>
+	Thu, 21 Apr 2005 15:36:10 -0400
+Received: from shim1.irt.drexel.edu ([144.118.29.71]:16276 "EHLO
+	shim1.irt.drexel.edu") by vger.kernel.org with ESMTP
+	id S261810AbVDUTgG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 15:36:06 -0400
+Date: Thu, 21 Apr 2005 15:36:03 -0400
+From: Cosmin Nicolaescu <cos@camelot.homelinux.com>
+Subject: [PATCH 2.6.11] Documentation [corrected]: remove redundant info from
+ SubmittingPatches
+To: linux-kernel@vger.kernel.org
+Cc: trivial@rustcorp.com.au
+Message-id: <20050421193603.4386.qmail@camelot.homelinux.com>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/21/05, Linus Torvalds <torvalds@osdl.org> wrote:
-> 
-> ----
-> Changes since 2.6.12-rc2:
-> 
-> Benjamin Herrenschmidt:
-...
->     [PATCH] ppc32: Fix cpufreq problems
+Since the Trivial Patch Monkey is mentioned both in steps 4. and 5., I
+removed it from step4 (Select e-mail destination), since it should go
+under 'Select your CC list'.
 
-this depends on two patches in -mm:
+--- linux-2.6.11/Documentation/SubmittingPatches.orig   2005-04-21 14:17:07.375698154 -0400
++++ linux-2.6.11/Documentation/SubmittingPatches        2005-04-21 15:34:58.588664206 -0400
+@@ -132,21 +132,6 @@ which require discussion or do not have 
+ usually be sent first to linux-kernel.  Only after the patch is
+ discussed should the patch then be submitted to Linus.
+ 
+-For small patches you may want to CC the Trivial Patch Monkey
+-trivial@rustcorp.com.au set up by Rusty Russell; which collects "trivial"
+-patches. Trivial patches must qualify for one of the following rules:
+- Spelling fixes in documentation
+- Spelling fixes which could break grep(1).
+- Warning fixes (cluttering with useless warnings is bad)
+- Compilation fixes (only if they are actually correct)
+- Runtime fixes (only if they actually fix things)
+- Removing use of deprecated functions/macros (eg. check_region).
+- Contact detail and documentation fixes
+- Non-portable code replaced by portable code (even in arch-specific,
+- since people copy, as long as it's trivial)
+- Any fix by the author/maintainer of the file. (ie. patch monkey
+- in re-transmission mode)
+-
+ 
+ 
+ 5) Select your CC (e-mail carbon copy) list.
 
-add-suspend-method-to-cpufreq-core.patch
-  Add suspend method to cpufreq core
-
-add-suspend-method-to-cpufreq-core-warning-fix.patch
-  add-suspend-method-to-cpufreq-core-warning-fix
-
-without those patches defconfig is broken on ppc32
-
-regards,
-
-Benoit
+Signed-off-by: Cosmin Nicolaescu <cos@camelot.homelinux.com>

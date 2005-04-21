@@ -1,82 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261384AbVDUN4L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261364AbVDUOC6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261384AbVDUN4L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 09:56:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261385AbVDUN4L
+	id S261364AbVDUOC6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 10:02:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbVDUOC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 09:56:11 -0400
-Received: from ausmtp02.au.ibm.com ([202.81.18.187]:50376 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S261384AbVDUNz7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 09:55:59 -0400
-To: linux-kernel@vger.kernel.org, fastboot@lists.osdl.org
-Cc: akpm@osdl.org, vgoyal@in.ibm.com
-MIME-Version: 1.0
-Subject: Kdump Testing
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OF5975C9DE.231115EA-ON65256FEA.004A436D-65256FEA.004D0D1E@in.ibm.com>
-From: Nagesh Sharyathi <sharyathi@in.ibm.com>
-Date: Thu, 21 Apr 2005 19:26:11 +0530
-X-MIMETrack: Serialize by Router on d23m0069/23/M/IBM(Release 6.51HF653 | October 18, 2004) at
- 21/04/2005 19:25:43,
-	Serialize complete at 21/04/2005 19:25:43
-Content-Type: text/plain; charset="US-ASCII"
+	Thu, 21 Apr 2005 10:02:58 -0400
+Received: from open.hands.com ([195.224.53.39]:37264 "EHLO open.hands.com")
+	by vger.kernel.org with ESMTP id S261364AbVDUOC4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 10:02:56 -0400
+Date: Thu, 21 Apr 2005 15:12:14 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: linux-kernel@vger.kernel.org,
+       Linux ARM Kernel list 
+	<linux-arm-kernel@lists.arm.linux.org.uk>
+Subject: noddy question involving /dev/vc/0 and /dev/fb/0 on 2.6.7.11
+Message-ID: <20050421141214.GW16160@lkcl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I tested the kdump tool on x235 and x206 machines and found this problem 
-where on kernel Panic, system instead of booting into the panic kernel 
-jumps into BIOS and machine restarts.
-(I have given the hardware specifications at the bottom of the mail)
+hi, please reply cc to me as well because i am not on these lists
+(well i am but the receive post options are switched off), thank you.
 
-Software:
-- 2.6.12-rc2-mm1
-- kexec-tools-1.101 
-- Five kdump user space patches 
-  [http://marc.theaimsgroup.com/?l=linux-kernel&m=111201661400892&w=2]
+i have a "noddy" question where what used to work under 2.4.27
+(echo 'hello world' > /dev/vc/0) now doesn't work on 2.6.7.11,
+even though echo 'garbage' > /dev/fb/0 does - just like it
+used to on 2.4.27.
 
-Test Procedure:
-- Built first kernel for 1M location with CONFIG_KEXEC enabled.
-- Booted into first kernel with command line options crashkernel=48M@16M.
-- Built second kernel for 16M location with CONFIG_CRASH_DUMP, and 
-  CONFIG_PROC_VMCORE enabled.
-- Loaded second kernel with following kexec command.
+this is with an arm embedded system i'm developing for (CLPS711x
+derivative) and i have it set up so that the console is on the serial
+port.
 
-  kexec -p vmlinux-16M --args-linux --crash-dump --append="root=<root-dev>
-  init 1"
+i have ported the framebuffer device over to 2.6, and have it working
+(echo garbage > /dev/fb/0 shows up garbage in the top left corner).
 
-- Inserted a module or echo into sysrq-trigger to invoke panic.
-- System jumps  into BIOS directly instead of booting into secondary 
-kernel.
+what kernel options do i need such that echo 'hello world' >
+/dev/vc/0 will work and i get my lovely flashing cursor back?
 
-Summary Observation:
+many thanks,
 
-- Earlier I was able to make kdump work on x330 machine by removing 
-maxcpus=1 (as specified in kdump.txt) option during loading panic kernel, 
-through kexec tool. But this work around doesn't seems to work with the 
-hardware x235 and x206. On kernel panic machine jumps to BIOS rather than 
-to panic kernel without displaying any error message.
+l.
 
-
-HARDWARE SPECIFICATIONS
-------------
-
-A) Hardware  x330: 
-- SMP, 2way, Pentium III (Coppermine) 1 GHz, 1.3G RAM
-- Network Interface (e100)
-- Disk I/O
-  SCSI storage controller: Adaptec Ultra160 
------------
-B)Hardware x235
-- SMP, 2way, Xeon TM 2.8GHz, 1.5g RAM
-- Network Interface (Tigon3)
-- Disk I/O
-  SCSI storage controller: IBM Serve RAID
--------------
-C)Hardware x206
-- SMP, 1way, Pentium IV 2.8GHz, 2g RAM
-- Network Interface (e1000)
-- Disk I/O
-  SCSI storage controller: Adaptec Ultra320
-
+-- 
+--
+<a href="http://lkcl.net">http://lkcl.net</a>
+--

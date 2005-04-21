@@ -1,60 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbVDUPEp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbVDUPGM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261420AbVDUPEp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 11:04:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbVDUPEo
+	id S261417AbVDUPGM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 11:06:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbVDUPGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 11:04:44 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:4233 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S261420AbVDUPEk (ORCPT
+	Thu, 21 Apr 2005 11:06:12 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:44700 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S261417AbVDUPF4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 11:04:40 -0400
-Message-ID: <4267C103.8060304@adaptec.com>
-Date: Thu, 21 Apr 2005 11:04:35 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Thu, 21 Apr 2005 11:05:56 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: "Miller, Mike (OS Dev)" <mike.miller@hp.com>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       "Patterson, Andrew D (Linux R&D)" <andrew.patterson@hp.com>,
-       "Nagshain, Madhuresh" <Madhuresh_Nagshain@adaptec.com>,
-       "Ganguly, Sukanta" <Sukanta_Ganguly@adaptec.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Douglas Gilbert <dougg@torque.net>,
-       "Moore, Eric Dean" <Eric.Moore@lsil.com>
-Subject: Re: FW: [RFC] SAS domain layout for Linux sysfs
-References: <D4CFB69C345C394284E4B78B876C1CF107DC053F@cceexc23.americas.cpqcorp.net> <20050421145020.GA23934@infradead.org>
-In-Reply-To: <20050421145020.GA23934@infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Apr 2005 15:04:35.0429 (UTC) FILETIME=[6E403950:01C54683]
+Message-ID: <16999.49458.498919.807191@napali.hpl.hp.com>
+Date: Thu, 21 Apr 2005 08:05:22 -0700
+To: tony.luck@intel.com, akpm@osdl.org
+Cc: Andreas Hirstius <Andreas.Hirstius@cern.ch>,
+       Bartlomiej ZOLNIERKIEWICZ <Bartlomiej.Zolnierkiewicz@cern.ch>,
+       Gelato technical <gelato-technical@gelato.unsw.edu.au>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Gelato-technical] Re: Serious performance degradation on a RAID
+ with kernel 2.6.10-bk7 and later
+In-Reply-To: <42678EEA.6070109@cern.ch>
+References: <42669357.9080604@cern.ch>
+	<42668977.5060708@utah-nac.org>
+	<42676501.8030805@cern.ch>
+	<58cb370e05042102272ce70f2@mail.gmail.com>
+	<42677587.8030707@cern.ch>
+	<42678EEA.6070109@cern.ch>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 04/21/05 10:50, Christoph Hellwig wrote:
-> On Thu, Apr 21, 2005 at 09:13:17AM -0500, Miller, Mike (OS Dev) wrote:
-> 
->>Hi Christoph and James,
->>Luben submitted this RFC back on Apr 13. There have been no responses
->>either public or private. Does this proposal seem adequate? Is there
->>something else that should be added?
->>I'm trying to write a spec for interfacing with this SAS domain and was
->>hoping for some type of feedback.
-> 
-> 
-> No, I don't like it at all.  I don't want to comment before I have
-> understood all the implications and some good suggestion, though.
-> 
-> Hopefully this weekend.
+Tony and Andrew,
 
-Hi Christoph,
+I just checked 2.6.12-rc3 and the fls() fix is indeed missing.  Do you
+know what happened?
 
-Do you mind telling us, why you "don't like it at all"?
-Initial thoughts would suffice.
+	--david
 
-Thanks,
-	Luben
+>>>>> On Thu, 21 Apr 2005 13:30:50 +0200, Andreas Hirstius <Andreas.Hirstius@cern.ch> said:
 
+  Andreas> Hi, The fls() patch from David solves the problem :-))
+
+  Andreas> Do you have an idea, when it will be in the mainline
+  Andreas> kernel??
+
+  Andreas> Andreas
+
+
+
+  Andreas> Bartlomiej ZOLNIERKIEWICZ wrote:
+
+  >>  Hi!
+  >> 
+  >>> A small update.
+  >>> 
+  >>> Patching mm/filemap.c is not necessary in order to get the
+  >>> improved performance!  It's sufficient to remove
+  >>> roundup_pow_of_two from |get_init_ra_size ...
+  >>> 
+  >>> So a simple one-liner changes to picture dramatically.  But why
+  >>> ?!?!?
+  >> 
+  >> 
+  >> roundup_pow_of_two() uses fls() and ia64 has buggy fls()
+  >> implementation [ seems that David fixed it but patch is not in
+  >> the mainline yet]:
+  >> 
+  >> http://www.mail-archive.com/linux-ia64@vger.kernel.org/msg01196.html
+  >> 
+  >> That would also explain why you couldn't reproduce the problem on
+  >> ia32 Xeon machines.
+  >> 
+  >> Bartlomiej
+  >> 
+
+  Andreas> _______________________________________________
+  Andreas> Gelato-technical mailing list
+  Andreas> Gelato-technical@gelato.unsw.edu.au
+  Andreas> https://www.gelato.unsw.edu.au/mailman/listinfo/gelato-technical

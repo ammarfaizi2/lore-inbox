@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261810AbVDUTgK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbVDUTyy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261810AbVDUTgK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 15:36:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbVDUTgK
+	id S261832AbVDUTyy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 15:54:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261831AbVDUTyy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 15:36:10 -0400
-Received: from shim1.irt.drexel.edu ([144.118.29.71]:16276 "EHLO
-	shim1.irt.drexel.edu") by vger.kernel.org with ESMTP
-	id S261810AbVDUTgG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 15:36:06 -0400
-Date: Thu, 21 Apr 2005 15:36:03 -0400
-From: Cosmin Nicolaescu <cos@camelot.homelinux.com>
-Subject: [PATCH 2.6.11] Documentation [corrected]: remove redundant info from
- SubmittingPatches
-To: linux-kernel@vger.kernel.org
-Cc: trivial@rustcorp.com.au
-Message-id: <20050421193603.4386.qmail@camelot.homelinux.com>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN
-Content-transfer-encoding: 7BIT
+	Thu, 21 Apr 2005 15:54:54 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:24568 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261825AbVDUTyw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 15:54:52 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc3-V0.7.46-00
+From: Daniel Walker <dwalker@mvista.com>
+Reply-To: dwalker@mvista.com
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050421073537.GA1004@elte.hu>
+References: <20050325145908.GA7146@elte.hu> <20050331085541.GA21306@elte.hu>
+	 <20050401104724.GA31971@elte.hu> <20050405071911.GA23653@elte.hu>
+	 <20050421073537.GA1004@elte.hu>
+Content-Type: text/plain
+Organization: MontaVista
+Message-Id: <1114113288.19336.24.camel@dhcp153.mvista.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 21 Apr 2005 12:54:48 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since the Trivial Patch Monkey is mentioned both in steps 4. and 5., I
-removed it from step4 (Select e-mail destination), since it should go
-under 'Select your CC list'.
+On Thu, 2005-04-21 at 00:35, Ingo Molnar wrote:
 
---- linux-2.6.11/Documentation/SubmittingPatches.orig   2005-04-21 14:17:07.375698154 -0400
-+++ linux-2.6.11/Documentation/SubmittingPatches        2005-04-21 15:34:58.588664206 -0400
-@@ -132,21 +132,6 @@ which require discussion or do not have 
- usually be sent first to linux-kernel.  Only after the patch is
- discussed should the patch then be submitted to Linus.
- 
--For small patches you may want to CC the Trivial Patch Monkey
--trivial@rustcorp.com.au set up by Rusty Russell; which collects "trivial"
--patches. Trivial patches must qualify for one of the following rules:
-- Spelling fixes in documentation
-- Spelling fixes which could break grep(1).
-- Warning fixes (cluttering with useless warnings is bad)
-- Compilation fixes (only if they are actually correct)
-- Runtime fixes (only if they actually fix things)
-- Removing use of deprecated functions/macros (eg. check_region).
-- Contact detail and documentation fixes
-- Non-portable code replaced by portable code (even in arch-specific,
-- since people copy, as long as it's trivial)
-- Any fix by the author/maintainer of the file. (ie. patch monkey
-- in re-transmission mode)
--
- 
- 
- 5) Select your CC (e-mail carbon copy) list.
+> this is a merge to 2.6.12-rc3, plus the 'ping localhost' fix from 
+> yang.yi@bmrtech.com.
 
-Signed-off-by: Cosmin Nicolaescu <cos@camelot.homelinux.com>
+
+We had some discussion about this one, there just need to be a softirqd
+wakeup , the netif_rx_ni() call isn't really needed .
+
+How about removing the softirqd wakeup from interrupt context, and move
+it into the softirq scheduler. That would solve this situation and all
+others like it .. Plus reduce worst case interrupt latency ..
+
+Daniel
+

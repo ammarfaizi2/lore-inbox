@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbVDVIEW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbVDVITo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261857AbVDVIEW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Apr 2005 04:04:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbVDVIEV
+	id S261708AbVDVITo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Apr 2005 04:19:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbVDVITo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 04:04:21 -0400
-Received: from mail.portrix.net ([212.202.157.208]:29152 "EHLO
-	zoidberg.portrix.net") by vger.kernel.org with ESMTP
-	id S261857AbVDVIEM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Apr 2005 04:04:12 -0400
-Message-ID: <4268AFBE.6040707@portrix.net>
-Date: Fri, 22 Apr 2005 10:03:10 +0200
-From: Jan Dittmer <j.dittmer@portrix.net>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Jan Dittmer <jdittmer@ppp0.net>, David Woodhouse <dwmw2@infradead.org>,
-       bk-commits-head@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Git-commits mailing list feed.
-References: <200504210422.j3L4Mo8L021495@hera.kernel.org> <42674724.90005@ppp0.net> <20050422002922.GB6829@kroah.com>
-In-Reply-To: <20050422002922.GB6829@kroah.com>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 22 Apr 2005 04:19:44 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:61369 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261708AbVDVITn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Apr 2005 04:19:43 -0400
+Date: Thu, 21 Apr 2005 21:47:06 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Timur Tabi <timur.tabi@ammasso.com>
+Cc: Roland Dreier <roland@topspin.com>, Troy Benjegerdes <hozer@hozed.org>,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+Message-ID: <20050421194706.GE475@openzaurus.ucw.cz>
+References: <200544159.Ahk9l0puXy39U6u6@topspin.com> <20050411142213.GC26127@kalmia.hozed.org> <52mzs51g5g.fsf@topspin.com> <4263DBBF.9040801@ammasso.com> <52is2kawsi.fsf@topspin.com> <4263E53E.3090107@ammasso.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4263E53E.3090107@ammasso.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Thu, Apr 21, 2005 at 08:24:36AM +0200, Jan Dittmer wrote:
-> 
->>David Woodhouse wrote:
->>
->>>As of some time in the fairly near future, the bk-commits-head@vger mailing 
->>>list will be carrying real commits from Linus' live git repository, instead
->>>of just testing patches. Have fun.
->>>
->>
->>What about the daily snapshots? Is there any eta when they'll be back?
-> 
-> 
-> The script that generated this was posted previously on lkml.  If anyone
-> wants to hack that up to generate the snapshots, it would be greatly
-> appreciated.
+Hi!
 
-Care to point out the post? I can't seem to find it. Only thing is
-Jeff Garzik announcing that the snapshots work again in 8/04, but
-no script attached.
+> >    Timur> Why do you call mlock() and get_user_pages()?  In our 
+> >    code,
+> >    Timur> we only call mlock(), and the memory is pinned.  We have a
+> >    Timur> test case that fails if only get_user_pages() is called,
+> >    Timur> but it passes if only mlock() is called.
+> >
+> >What if a buggy/malicious userspace program doesn't call mlock()?
+> 
+> Our library calls mlock() when the apps requests memory to be 
+> "registered".  We then call munlock() when the app requests the 
+> memory to be unregistered.  All apps talk to our library for all 
+> services.  No apps talk to the driver directly.
 
-Thanks,
+That does not cover "malicious" part.
+				Pavel
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 
-Jan

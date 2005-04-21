@@ -1,120 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbVDURdc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVDURdl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbVDURdc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 13:33:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbVDURdc
+	id S261567AbVDURdl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 13:33:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbVDURdl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 13:33:32 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:3973 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261566AbVDURdW (ORCPT
+	Thu, 21 Apr 2005 13:33:41 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:42964 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S261567AbVDURdh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 13:33:22 -0400
-Date: Thu, 21 Apr 2005 13:33:07 -0400
-From: Dave Jones <davej@redhat.com>
-To: Andreas Steinmetz <ast@domdv.de>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: Need AES benchmark on Intel 64 bit
-Message-ID: <20050421173307.GE18285@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andreas Steinmetz <ast@domdv.de>,
-	Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-References: <42679C86.5050604@domdv.de>
-Mime-Version: 1.0
+	Thu, 21 Apr 2005 13:33:37 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42679C86.5050604@domdv.de>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16999.58345.464613.343890@napali.hpl.hp.com>
+Date: Thu, 21 Apr 2005 10:33:29 -0700
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: <davidm@hpl.hp.com>, <akpm@osdl.org>,
+       "Andreas Hirstius" <Andreas.Hirstius@cern.ch>,
+       "Bartlomiej ZOLNIERKIEWICZ" <Bartlomiej.Zolnierkiewicz@cern.ch>,
+       "Gelato technical" <gelato-technical@gelato.unsw.edu.au>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: [Gelato-technical] Re: Serious performance degradation on a RAID with kernel 2.6.10-bk7 and later
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F0350B393@scsmsx401.amr.corp.intel.com>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F0350B393@scsmsx401.amr.corp.intel.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 21, 2005 at 02:28:54PM +0200, Andreas Steinmetz wrote:
- > Hi,
- > can anybody help out? I don't have access to Intel 64 bit CPUs and need
- > some microbenchmark results on Intel 64 bit. Usage guide for the
- > attached archive:
- > 
- > 'ref' contains the current generic AES implementation
- > 'new' contains the 64 bit AES assembler implementation
- > 
- > Do 'make' in both directories and run the resulting 'aes' on an
- > otherwise idle system without any cpufreq (speedstep) stuff active.
- > Preferrably do multiple runs to assert that the results are usable (a
- > few ticks difference between runs are ok).
- > 
- > The microbenchmark is set up to produce somewhat real life results with
- > hot caches, thus the same data block is processed all the time.
+>>>>> On Thu, 21 Apr 2005 10:19:28 -0700, "Luck, Tony" <tony.luck@intel.com> said:
 
-ref:
-schedule128 1535
-schedule192 1817
-schedule256 2167
-enc asm 128 1166
-dec asm 128 1163
-enc asm 192 1361
-dec asm 192 1378
-enc asm 256 1570
-dec asm 256 1594
+  >> I just checked 2.6.12-rc3 and the fls() fix is indeed missing.
+  >> Do you know what happened?
 
-schedule128 1535
-schedule192 1817
-schedule256 2170
-enc asm 128 1166
-dec asm 128 1164
-enc asm 192 1361
-dec asm 192 1382
-enc asm 256 1579
-dec asm 256 1599
+  Tony> If BitKeeper were still in use, I'd have dropped that patch
+  Tony> into my "release" tree and asked Linus to "pull" ... but it's
+  Tony> not, and I was stalled.  I should have a "git" tree up and
+  Tony> running in the next couple of days.  I'll make sure that the
+  Tony> fls fix goes in early.
 
+Yeah, I'm facing the same issue.  I started playing with git last
+night.  Apart from disk-space usage, it's very nice, though I really
+hope someone puts together a web-interface on top of git soon so we
+can seek what changed when and by whom.
 
-new:
-schedule128 1542
-schedule192 1823
-schedule256 2177
-enc asm 128 1034
-dec asm 128 1018
-enc asm 192 1212
-dec asm 192 1213
-enc asm 256 1409
-dec asm 256 1401
-
-schedule128 1547
-schedule192 1828
-schedule256 2182
-enc asm 128 1036
-dec asm 128 1024
-enc asm 192 1217
-dec asm 192 1222
-enc asm 256 1412
-dec asm 256 1395
-
-
-subsequent runs present the same picture. 'new' seems slightly higher
-scores on schedule*, but lower scores on the other tests.
-
-
-Dual 2.8 Xeon w/HT...
-
-processor       : 3
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 4
-model name      :                   Intel(R) Xeon(TM) CPU 2.80GHz
-stepping        : 1
-cpu MHz         : 2793.079
-cache size      : 1024 KB
-physical id     : 3
-siblings        : 2
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 3
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm syscall nx lm pni monitor ds_cpl cid cx16 xtpr
-bogomips        : 5570.56
-clflush size    : 64
-cache_alignment : 128
-address sizes   : 36 bits physical, 48 bits virtual
-power management:
-
-
-		Dave
-
+	--david

@@ -1,104 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbVDUC3m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbVDUCcA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261184AbVDUC3m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Apr 2005 22:29:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbVDUC3m
+	id S261185AbVDUCcA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Apr 2005 22:32:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbVDUCb7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 22:29:42 -0400
-Received: from rproxy.gmail.com ([64.233.170.204]:3126 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261183AbVDUC3V (ORCPT
+	Wed, 20 Apr 2005 22:31:59 -0400
+Received: from gate.crashing.org ([63.228.1.57]:7311 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261185AbVDUCbi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 22:29:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=AiNC5+AG5kf4PrjFjRO9dPI9KsE44cNZc69fhs8yyhVYj3bq/tF3tkai3GckC2G9V8TQvA2AQ/BdYjdlWqzqiqIoK2BT/C1VDQ/1+OVpef/V2wxzrPwKZXAwi70eQOlZWizjKdcBgMZuX0gYurPNK5kisydoomxBkqsHGpPDQV8=
-Message-ID: <42670FF7.3020404@home-tj.org>
-Date: Thu, 21 Apr 2005 11:29:11 +0900
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Tejun Heo <htejun@gmail.com>, Jens Axboe <axboe@suse.de>,
-       Christoph Hellwig <hch@infradead.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH scsi-misc-2.6 03/05] scsi: make scsi_queue_insert() use
- blk_requeue_request()
-References: <20050419231435.D85F89C0@htj.dyndns.org>	 <20050419231435.329FA30B@htj.dyndns.org>	 <1114039446.5933.17.camel@mulgrave>  <4266F1D0.2060003@gmail.com> <1114049793.5000.4.camel@mulgrave>
-In-Reply-To: <1114049793.5000.4.camel@mulgrave>
-Content-Type: text/plain; charset=EUC-KR
+	Wed, 20 Apr 2005 22:31:38 -0400
+Subject: [BUG] prism54 oops on cardbus card removal
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Thu, 21 Apr 2005 12:31:40 +1000
+Message-Id: <1114050700.5995.1.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
-From: Tejun Heo <htejun@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
-> On Thu, 2005-04-21 at 09:20 +0900, Tejun Heo wrote:
-> 
->>  Hello, James.
->>
->>James Bottomley wrote:
->>
->>>On Wed, 2005-04-20 at 08:15 +0900, Tejun Heo wrote:
->>>
->>>
->>>>-	 * Insert this command at the head of the queue for it's device.
->>>>-	 * It will go before all other commands that are already in the queue.
->>>>-	 *
->>>>-	 * NOTE: there is magic here about the way the queue is plugged if
->>>>-	 * we have no outstanding commands.
->>>>-	 * 
->>>>-	 * Although this *doesn't* plug the queue, it does call the request
->>>>-	 * function.  The SCSI request function detects the blocked condition
->>>>-	 * and plugs the queue appropriately.
->>>
->>>
->>>This comment still looks appropriate to me ... why do you want to remove
->>>it?
->>>
->>
->>  Well, the thing is that we don't really care what exactly happens to 
->>the queue or how the queue is plugged or not.  All we need to do are to 
->>requeue the request and kick the queue in the ass.  Hmmm, maybe I should 
->>keep the comment about how the request will be put at the head of the 
->>queue, but the second part about plugging doesn't really belong here, I 
->>think.
-> 
-> 
-> Really?  We do care greatly.  If you requeue with no other outstanding
-> commands to the device, the block queue will never restart unless it's
-> plugged, and the device will hang. The comment is explaining how this
-> happens.
-> 
+Apr 21 11:13:33 gaston kernel: [233990.968209] PCI: Enabling device 0001:11:00.0 (0000 -> 0002)
+Apr 21 11:13:37 gaston kernel: [233995.162668] eth3: resetting device...
+Apr 21 11:13:37 gaston kernel: [233995.162699] eth3: uploading firmware...
+Apr 21 11:13:37 gaston kernel: [233995.331330] eth3: firmware version: 1.0.4.3
+Apr 21 11:13:37 gaston kernel: [233995.331420] eth3: firmware upload complete
+Apr 21 11:13:38 gaston kernel: [233995.566992] eth3: interface reset complete
+Apr 21 12:16:53 gaston kernel: [237791.796994] eth3: hot unplug detected
+Apr 21 12:16:53 gaston kernel: [237791.797007] eth3: removing device
+Apr 21 12:16:53 gaston kernel: [237791.797023] eth3: islpci_close ()
+Apr 21 12:16:53 gaston kernel: [237791.876915] eth3: timeout waiting for mgmt response 1000, triggering device
+Apr 21 12:17:48 gaston kernel: [237791.976919] remove@/devices/pci0001:10/0001:10:1a.0/0001:11:00.0: timeout waiting for mgmt response 900, triggering device
+Apr 21 12:17:48 gaston kernel: [237846.858624] Oops: kernel access of bad area, sig: 11 [#1]
+Apr 21 12:17:48 gaston kernel: [237846.858644] NIP: C29AE8A0 LR: C29AE548 SP: BFFCDE00 REGS: bffcdd50 TRAP: 0300
+ Not tainted
+Apr 21 12:17:49 gaston kernel: [237846.858656] MSR: 00009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+Apr 21 12:17:49 gaston kernel: [237846.858664] DAR: 00000000, DSISR: 42000000
+Apr 21 12:17:49 gaston kernel: [237846.858673] TASK = bffc0b70[3] 'events/0' THREAD: bffcc000
+Apr 21 12:17:49 gaston kernel: [237846.858680] Last syscall: 120
+Apr 21 12:17:49 gaston kernel: [237846.858685] GPR00: C29AE548 BFFCDE00 BFFC0B70 00000000 00000000 00000000 BF499D60 803E0FD0
+Apr 21 12:17:49 gaston kernel: [237846.858706] GPR08: 803E137C 00000002 BEE29E7C BFFCDD00 432E7FAE 00000000 00000000 00000000
+Apr 21 12:17:49 gaston kernel: [237846.858725] GPR16: 00000000 00000000 00000000 00000000 00000000 17000013 BFFCDE40 BFFCDE98
+Apr 21 12:17:49 gaston kernel: [237846.858744] GPR24: FFFFFF92 17000013 00000000 00000000 00000000 86818DCC 86818A20 00000000
+Apr 21 12:17:49 gaston kernel: [237846.858765] NIP [c29ae8a0] isl38xx_trigger_device+0x190/0x1c4 [prism54]
+Apr 21 12:17:49 gaston kernel: [237846.858813] LR [c29ae548] islpci_mgt_transaction+0x1b8/0x1d4 [prism54]
+Apr 21 12:17:49 gaston kernel: [237846.858837] Call trace:
+Apr 21 12:17:49 gaston kernel: [237846.858843]  [c29ae548] islpci_mgt_transaction+0x1b8/0x1d4 [prism54]
+Apr 21 12:17:49 gaston kernel: [237846.858867]  [c29b4ce8] mgt_get_request+0x274/0x2ec [prism54]
+Apr 21 12:17:49 gaston kernel: [237846.858894]  [c29aed30] prism54_update_stats+0x74/0x164 [prism54]
+Apr 21 12:17:49 gaston kernel: [237846.858918]  [80031018] worker_thread+0x17c/0x21c
+Apr 21 12:17:49 gaston kernel: [237846.858936]  [80035f40] kthread+0xb8/0xc0
+Apr 21 12:17:49 gaston kernel: [237846.858947]  [8000738c] kernel_thread+0x44/0x60
 
- Yes, you're right.  My point was that that's scsi_run_queue()'s
-business.  We don't need to comment that deep when we're requeueing a
-request.  After we put a request on a queue, we kick the queue.  It's
-the queue running function's responsibility to determine whether to run
-the request right away or to defer processing (and thus plug).  I wasn't
-saying that the eventual plugging isn't necessary, but that the comment
-is sort of excessive.
+-- 
+Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
- Anyways, if you think the comment is necessary, I don't feel strong
-against it.  I'll rewrite above comment to fit the new code and repost
-this patch soon.
-
-> 
->>  Yes, that will be more efficient but I don't think it would make
->>any 
->>noticeable difference.  IMO, universally using scsi_run_queue() to
->>kick 
->>scsi request queues is better than mixing blk_run_queue() and 
->>scsi_run_queue() for probably unnoticeable optimization.  If we start
->>to 
->>mix'em, we need to rationalize why specific one is chosen in specific 
->>places and that's just unnecessary.
-> 
-> 
-> Fair enough.
-
- Thanks.
-
---
-tejun

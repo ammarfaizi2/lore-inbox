@@ -1,62 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261690AbVDUSjk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbVDUSlG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261690AbVDUSjk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 14:39:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261696AbVDUSjk
+	id S261710AbVDUSlG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 14:41:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261716AbVDUSlF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 14:39:40 -0400
-Received: from amber.ccs.neu.edu ([129.10.116.51]:43498 "EHLO
-	amber.ccs.neu.edu") by vger.kernel.org with ESMTP id S261690AbVDUSjd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 14:39:33 -0400
-Message-ID: <4267F3B8.2060600@ccs.neu.edu>
-Date: Thu, 21 Apr 2005 14:40:56 -0400
-From: Stan Bubrouski <stan@ccs.neu.edu>
-User-Agent: Mozilla Thunderbird 1.0.1 (Windows/20050227)
-X-Accept-Language: en-us, en
+	Thu, 21 Apr 2005 14:41:05 -0400
+Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:65422 "EHLO
+	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
+	id S261710AbVDUSkw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 14:40:52 -0400
+Message-ID: <4267F367.3090508@ammasso.com>
+Date: Thu, 21 Apr 2005 13:39:35 -0500
+From: Timur Tabi <timur.tabi@ammasso.com>
+Organization: Ammasso
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en, en-gb
 MIME-Version: 1.0
-To: "Luck, Tony" <tony.luck@intel.com>
-CC: davidm@hpl.hp.com, akpm@osdl.org,
-       Andreas Hirstius <Andreas.Hirstius@cern.ch>,
-       Bartlomiej ZOLNIERKIEWICZ <Bartlomiej.Zolnierkiewicz@cern.ch>,
-       Gelato technical <gelato-technical@gelato.unsw.edu.au>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Gelato-technical] Re: Serious performance degradation on a RAID
- with kernel 2.6.10-bk7 and later
-References: <B8E391BBE9FE384DAA4C5C003888BE6F0350B4AD@scsmsx401.amr.corp.intel.com>
-In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F0350B4AD@scsmsx401.amr.corp.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Andy Isaacson <adi@hexapodia.org>
+CC: Troy Benjegerdes <hozer@hozed.org>, Bernhard Fischer <blist@aon.at>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace verbs
+ implementation
+References: <20050421173821.GA13312@hexapodia.org>
+In-Reply-To: <20050421173821.GA13312@hexapodia.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luck, Tony wrote:
-<SNIP>
-> Only a new user would have to pull the whole history ... and for most
-> uses it is sufficient to just pull the current top of the tree. Linus'
-> own tree only has a history going back to 2.6.12.-rc2 (when he started
-> using git).
-> 
-> Someday there might be a server daemon that can batch up the changes for
-> a "pull" to conserve network bandwidth.
-> 
-> There is a mailing list "git@vger.kernel.org" where these issues are
-> discussed.  Archives are available at marc.theaimsgroup.com and gelato.
-> 
+Andy Isaacson wrote:
 
-Thanks tony I wasn't aware of the list, I'll look there for git info
-from now on.
+> If you take the hardline position that "the app is the only thing that
+> matters", your code is unlikely to get merged.  Linux is a
+> general-purpose OS.
 
-Best Regards,
+The problem is that our driver and library implement an API that we don't fully control. 
+The API states that the application allocates the memory and tells the library to register 
+it.  The app then goes on its merry way until it's done, at which point it tells the 
+library to deregister the memory.  Neither the app nor the API has any provision for the 
+app to be notified that the memory is no longer pinned and therefore can't be trusted. 
+That would be considered a critical failure from the app's perspective, so the kernel 
+would be doing it a favor by killing the process.
 
-Stan
+> You might want to consider what happens with your communication system
+> in a machine running power-saving modes (in the limit, suspend-to-disk).
+> Of course most machines with Infiniband adapters aren't running swsusp,
+> but it's not inconceivable that blade servers might sleep to lower power
+> and cooling costs.
 
-> -Tony
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+Any application that registers memory, will in all likelihood be running at 100% CPU 
+non-stop.  The computer is not going to be doing anything else but whatever that app is 
+trying to do.  The application could conceiveable register gigabytes of RAM, and if even a 
+single page becomes unpinned, the whole thing is worthless.  The application cannot do 
+anything meaningful if it gets a message saying that some of the memory has become 
+unpinned and should not be used.
 
+So the real question is: how important is it to the kernel developers that Linux support 
+these kinds of enterprise-class applications?
+
+-- 
+Timur Tabi
+Staff Software Engineer
+timur.tabi@ammasso.com
+
+One thing a Southern boy will never say is,
+"I don't think duct tape will fix it."
+      -- Ed Smylie, NASA engineer for Apollo 13

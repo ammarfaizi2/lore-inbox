@@ -1,73 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbVDVX0a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbVDVXv6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261309AbVDVX0a (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Apr 2005 19:26:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261319AbVDVX0a
+	id S261329AbVDVXv6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Apr 2005 19:51:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbVDVXv6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 19:26:30 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:19075 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261309AbVDVX01
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Apr 2005 19:26:27 -0400
-Subject: Re: [patch] updated inotify for 2.6.12-rc3.
-From: Robert Love <rml@novell.com>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: John McCutchan <ttb@tentacle.dhs.org>, linux-kernel@vger.kernel.org,
-       Mr Morton <akpm@osdl.org>
-In-Reply-To: <20050422211324.GF13052@parcelfarce.linux.theplanet.co.uk>
-References: <1114060434.6913.26.camel@jenny.boston.ximian.com>
-	 <1114146110.6973.101.camel@jenny.boston.ximian.com>
-	 <20050422085614.GE13052@parcelfarce.linux.theplanet.co.uk>
-	 <1114182273.13886.17.camel@vertex>
-	 <20050422211324.GF13052@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain
-Date: Fri, 22 Apr 2005 19:27:18 -0400
-Message-Id: <1114212438.6975.3.camel@jenny.boston.ximian.com>
+	Fri, 22 Apr 2005 19:51:58 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:13073 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261329AbVDVXvx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Apr 2005 19:51:53 -0400
+Date: Sat, 23 Apr 2005 01:51:51 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: ext2-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: [RFC: 2.6 patch] ext2: make ext2_count_free a static inline
+Message-ID: <20050422235151.GH4355@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-04-22 at 22:13 +0100, Al Viro wrote:
+ext2_count_free is a small function that is only used
+#ifdef EXT2FS_DEBUG.
 
-> Or it would, if remove_watch() had been called only once.  In the scenario
-> above that will not be true.
+We could offer the function itself only #ifdef EXT2FS_DEBUG, but what 
+about this patch to change ot to a static inline?
 
-Thanks.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-	Robert Love
+---
 
+ fs/ext2/Makefile |    2 +-
+ fs/ext2/bitmap.c |   25 -------------------------
+ fs/ext2/ext2.h   |   18 +++++++++++++++++-
+ 3 files changed, 18 insertions(+), 27 deletions(-)
 
-Double check that we don't race.
-
-Signed-off-by: Robert Love <rml@novell.com>
-
- fs/inotify.c |    9 +++++++--
- 1 files changed, 7 insertions(+), 2 deletions(-)
-
-diff -urN linux-2.6.12-rc3-inotify/fs/inotify.c linux/fs/inotify.c
---- linux-2.6.12-rc3-inotify/fs/inotify.c	2005-04-22 19:20:14.000000000 -0400
-+++ linux/fs/inotify.c	2005-04-22 19:25:44.000000000 -0400
-@@ -861,12 +861,17 @@
- 		return -EINVAL;
- 	}
- 	get_inotify_watch(watch);
-+	inode = watch->inode;	
- 	up(&dev->sem);
+--- linux-2.6.12-rc2-mm3-full/fs/ext2/ext2.h.old	2005-04-20 23:08:52.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/fs/ext2/ext2.h	2005-04-20 23:14:21.000000000 +0200
+@@ -1,5 +1,6 @@
+ #include <linux/fs.h>
+ #include <linux/ext2_fs.h>
++#include <linux/buffer_head.h>
  
--	inode = watch->inode;
- 	down(&inode->inotify_sem);
- 	down(&dev->sem);
--	remove_watch(watch, dev);
+ /*
+  * second extended file system inode data in memory
+@@ -79,6 +80,22 @@
+ 	return container_of(inode, struct ext2_inode_info, vfs_inode);
+ }
+ 
++static int nibblemap[] = {4, 3, 3, 2, 3, 2, 2, 1, 3, 2, 2, 1, 2, 1, 1, 0};
 +
-+	/* make sure we did not race */
-+	watch = idr_find(&dev->idr, wd);
-+	if (likely(watch))
-+		remove_watch(watch, dev);
++static inline unsigned long ext2_count_free (struct buffer_head * map,
++					     unsigned int numchars)
++{
++	unsigned int i;
++	unsigned long sum = 0;
++	
++	if (!map) 
++		return (0);
++	for (i = 0; i < numchars; i++)
++		sum += nibblemap[map->b_data[i] & 0xf] +
++			nibblemap[(map->b_data[i] >> 4) & 0xf];
++	return (sum);
++}
 +
- 	up(&dev->sem);
- 	up(&inode->inotify_sem);
- 	put_inotify_watch(watch);
-
+ /* balloc.c */
+ extern int ext2_bg_has_super(struct super_block *sb, int group);
+ extern unsigned long ext2_bg_num_gdb(struct super_block *sb, int group);
+@@ -111,7 +128,6 @@
+ extern void ext2_free_inode (struct inode *);
+ extern unsigned long ext2_count_free_inodes (struct super_block *);
+ extern void ext2_check_inodes_bitmap (struct super_block *);
+-extern unsigned long ext2_count_free (struct buffer_head *, unsigned);
+ 
+ /* inode.c */
+ extern void ext2_read_inode (struct inode *);
+--- linux-2.6.12-rc2-mm3-full/fs/ext2/Makefile.old	2005-04-20 23:14:35.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/fs/ext2/Makefile	2005-04-20 23:14:45.000000000 +0200
+@@ -4,7 +4,7 @@
+ 
+ obj-$(CONFIG_EXT2_FS) += ext2.o
+ 
+-ext2-y := balloc.o bitmap.o dir.o file.o fsync.o ialloc.o inode.o \
++ext2-y := balloc.o dir.o file.o fsync.o ialloc.o inode.o \
+ 	  ioctl.o namei.o super.o symlink.o
+ 
+ ext2-$(CONFIG_EXT2_FS_XATTR)	 += xattr.o xattr_user.o xattr_trusted.o
+--- linux-2.6.12-rc2-mm3-full/fs/ext2/bitmap.c	2005-03-02 08:38:08.000000000 +0100
++++ /dev/null	2005-03-19 22:42:59.000000000 +0100
+@@ -1,25 +0,0 @@
+-/*
+- *  linux/fs/ext2/bitmap.c
+- *
+- * Copyright (C) 1992, 1993, 1994, 1995
+- * Remy Card (card@masi.ibp.fr)
+- * Laboratoire MASI - Institut Blaise Pascal
+- * Universite Pierre et Marie Curie (Paris VI)
+- */
+-
+-#include <linux/buffer_head.h>
+-
+-static int nibblemap[] = {4, 3, 3, 2, 3, 2, 2, 1, 3, 2, 2, 1, 2, 1, 1, 0};
+-
+-unsigned long ext2_count_free (struct buffer_head * map, unsigned int numchars)
+-{
+-	unsigned int i;
+-	unsigned long sum = 0;
+-	
+-	if (!map) 
+-		return (0);
+-	for (i = 0; i < numchars; i++)
+-		sum += nibblemap[map->b_data[i] & 0xf] +
+-			nibblemap[(map->b_data[i] >> 4) & 0xf];
+-	return (sum);
+-}
 

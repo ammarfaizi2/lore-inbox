@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262087AbVDVRxT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262090AbVDVRxk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262087AbVDVRxT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Apr 2005 13:53:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262088AbVDVRxT
+	id S262090AbVDVRxk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Apr 2005 13:53:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262088AbVDVRxk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 13:53:19 -0400
-Received: from fire.osdl.org ([65.172.181.4]:15750 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262087AbVDVRxR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Apr 2005 13:53:17 -0400
-Date: Fri, 22 Apr 2005 10:51:55 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-cc: Tomi Lapinlampi <lapinlam@vega.lnet.lut.fi>, Adrian Bunk <bunk@stusta.de>,
-       linux-kernel@vger.kernel.org, rth@twiddle.net, adaplas@pol.net,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: 2.6.12-rc3 compile failure in tgafb.c, tgafb not working anymore
-In-Reply-To: <Pine.LNX.4.61L.0504221840180.27531@blysk.ds.pg.gda.pl>
-Message-ID: <Pine.LNX.4.58.0504221051240.2344@ppc970.osdl.org>
-References: <20050421185034.GS607@vega.lnet.lut.fi> <20050421204354.GF3828@stusta.de>
- <20050422072858.GU607@vega.lnet.lut.fi> <20050422112030.GW607@vega.lnet.lut.fi>
- <20050422144047.GY607@vega.lnet.lut.fi> <Pine.LNX.4.58.0504221024470.2344@ppc970.osdl.org>
- <Pine.LNX.4.61L.0504221840180.27531@blysk.ds.pg.gda.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 22 Apr 2005 13:53:40 -0400
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:23265
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262090AbVDVRxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Apr 2005 13:53:37 -0400
+Date: Fri, 22 Apr 2005 10:46:25 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [TG3]: Add msi test
+Message-Id: <20050422104625.57f80a6a.davem@davemloft.net>
+In-Reply-To: <1114156452.6685.17.camel@laptopd505.fenrus.org>
+References: <200504220501.j3M51lkG012997@hera.kernel.org>
+	<1114156452.6685.17.camel@laptopd505.fenrus.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 22 Apr 2005 09:54:12 +0200
+Arjan van de Ven <arjan@infradead.org> wrote:
 
+> While the technicals of this change are ok, this still concerns me. Are
+> all MSI drivers now supposed to check if the bios/mobo actually support
+> MSI like this? That sounds sort of wrong! 
 
-On Fri, 22 Apr 2005, Maciej W. Rozycki wrote:
-> 
->  JFTR, a few of the TURBOchannel variations of the TGA are supported for 
-> MIPS, but regrettably the necessary code hasn't been ported from 2.4 to 
-> 2.6 yet.
+It's a temporary situation I believe.  Later on when our blacklist
+is more comprehensive we can remove this kind of test code.
 
-Ok, so that would have increased the testing base by, what? One person or 
-two? I think we're still in single digits ;)
-
-			Linus
+The test does spit a message out, so we will likely get a report
+and therefore be able to update our MSI blacklists as appropriate.

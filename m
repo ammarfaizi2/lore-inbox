@@ -1,64 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbVDVXTC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbVDVX0a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261299AbVDVXTC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Apr 2005 19:19:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVDVXTC
+	id S261309AbVDVX0a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Apr 2005 19:26:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261319AbVDVX0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 19:19:02 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:63931 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261299AbVDVXS7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Apr 2005 19:18:59 -0400
-Date: Sat, 23 Apr 2005 01:18:39 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Petr Baudis <pasky@ucw.cz>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.12-rc3
-Message-ID: <20050422231839.GC1789@elf.ucw.cz>
-References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org> <20050421112022.GB2160@elf.ucw.cz> <20050421120327.GA13834@elf.ucw.cz> <20050421162220.GD30991@pasky.ji.cz> <20050421232201.GD31207@elf.ucw.cz> <20050422002150.GY7443@pasky.ji.cz>
+	Fri, 22 Apr 2005 19:26:30 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:19075 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261309AbVDVX01
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Apr 2005 19:26:27 -0400
+Subject: Re: [patch] updated inotify for 2.6.12-rc3.
+From: Robert Love <rml@novell.com>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: John McCutchan <ttb@tentacle.dhs.org>, linux-kernel@vger.kernel.org,
+       Mr Morton <akpm@osdl.org>
+In-Reply-To: <20050422211324.GF13052@parcelfarce.linux.theplanet.co.uk>
+References: <1114060434.6913.26.camel@jenny.boston.ximian.com>
+	 <1114146110.6973.101.camel@jenny.boston.ximian.com>
+	 <20050422085614.GE13052@parcelfarce.linux.theplanet.co.uk>
+	 <1114182273.13886.17.camel@vertex>
+	 <20050422211324.GF13052@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Date: Fri, 22 Apr 2005 19:27:18 -0400
+Message-Id: <1114212438.6975.3.camel@jenny.boston.ximian.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050422002150.GY7443@pasky.ji.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 2005-04-22 at 22:13 +0100, Al Viro wrote:
 
-> > Nice, so I now have my own -git tree, with two changes in it...
-> > 
-> > Is there way to say "git diff -r origin:" but dump it patch-by-patch
-> > with some usable headers?
-> > 
-> > [Looking at git export]
-> 
-> Either Linus' demo git-export (NOT the same as git export!), or git
-> patch. In the latest tree, it was extended to accept a range of two
-> commits to process too.
-> 
-> Note that the range semantics is rather peculiar at the least. ;-)
+> Or it would, if remove_watch() had been called only once.  In the scenario
+> above that will not be true.
 
-Nice, it seems to work.
+Thanks.
 
-Unfortunately first merge will make it practically unusable :-(. 
-
-git diff -r origin:
-
-will only list differences between my tree and Linus'.
-
-git patch origin:
-
-will list my patches, plus any merges I done... Is there any
-reasonable way to get only "my" changes? When I do not have to resolve
-anything during merge, it should be usable... but that is starting to
-look ugly.
+	Robert Love
 
 
-								Pavel
+Double check that we don't race.
+
+Signed-off-by: Robert Love <rml@novell.com>
+
+ fs/inotify.c |    9 +++++++--
+ 1 files changed, 7 insertions(+), 2 deletions(-)
+
+diff -urN linux-2.6.12-rc3-inotify/fs/inotify.c linux/fs/inotify.c
+--- linux-2.6.12-rc3-inotify/fs/inotify.c	2005-04-22 19:20:14.000000000 -0400
++++ linux/fs/inotify.c	2005-04-22 19:25:44.000000000 -0400
+@@ -861,12 +861,17 @@
+ 		return -EINVAL;
+ 	}
+ 	get_inotify_watch(watch);
++	inode = watch->inode;	
+ 	up(&dev->sem);
+ 
+-	inode = watch->inode;
+ 	down(&inode->inotify_sem);
+ 	down(&dev->sem);
+-	remove_watch(watch, dev);
++
++	/* make sure we did not race */
++	watch = idr_find(&dev->idr, wd);
++	if (likely(watch))
++		remove_watch(watch, dev);
++
+ 	up(&dev->sem);
+ 	up(&inode->inotify_sem);
+ 	put_inotify_watch(watch);
 
 
--- 
-Boycott Kodak -- for their patent abuse against Java.

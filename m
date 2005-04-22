@@ -1,72 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261977AbVDVPQp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261970AbVDVPQp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261977AbVDVPQp (ORCPT <rfc822;willy@w.ods.org>);
+	id S261970AbVDVPQp (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 22 Apr 2005 11:16:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbVDVPNs
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261977AbVDVPOI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 11:13:48 -0400
-Received: from CPE000f6690d4e4-CM00003965a061.cpe.net.cable.rogers.com ([69.193.74.134]:54187
-	"EHLO vertex") by vger.kernel.org with ESMTP id S261977AbVDVPEF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Apr 2005 11:04:05 -0400
-Subject: Re: [patch] updated inotify for 2.6.12-rc3.
-From: John McCutchan <ttb@tentacle.dhs.org>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: Robert Love <rml@novell.com>, linux-kernel@vger.kernel.org,
-       Mr Morton <akpm@osdl.org>
-In-Reply-To: <20050422085614.GE13052@parcelfarce.linux.theplanet.co.uk>
-References: <1114060434.6913.26.camel@jenny.boston.ximian.com>
-	 <1114146110.6973.101.camel@jenny.boston.ximian.com>
-	 <20050422085614.GE13052@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain
+	Fri, 22 Apr 2005 11:14:08 -0400
+Received: from [80.71.243.242] ([80.71.243.242]:19586 "EHLO tau.rusteko.ru")
+	by vger.kernel.org with ESMTP id S262054AbVDVPKP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Apr 2005 11:10:15 -0400
+From: Nikita Danilov <nikita@clusterfs.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Date: Fri, 22 Apr 2005 11:04:33 -0400
-Message-Id: <1114182273.13886.17.camel@vertex>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+Message-ID: <17001.5070.79877.986252@gargle.gargle.HOWL>
+Date: Fri, 22 Apr 2005 19:10:06 +0400
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Andrea Arcangeli <andrea@suse.de>
+Subject: Re: [patch] fix race in __block_prepare_write (again)
+Newsgroups: gmane.linux.kernel
+In-Reply-To: <1114068704.12751.8.camel@imp.csi.cam.ac.uk>
+References: <1114064046.5182.13.camel@npiggin-nld.site>
+	<Pine.LNX.4.60.0504210757220.3348@hermes-1.csi.cam.ac.uk>
+	<1114067401.11293.3.camel@imp.csi.cam.ac.uk>
+	<1114068058.5182.22.camel@npiggin-nld.site>
+	<1114068704.12751.8.camel@imp.csi.cam.ac.uk>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-04-22 at 09:56 +0100, Al Viro wrote:
-> > +static int inotify_ignore(struct inotify_device *dev, s32 wd)
-> > +{
-> > +	struct inotify_watch *watch;
-> > +	struct inode *inode;
-> > +
-> > +	down(&dev->sem);
-> > +	watch = idr_find(&dev->idr, wd);
-> > +	if (unlikely(!watch)) {
-> > +		up(&dev->sem);
-> > +		return -EINVAL;
-> > +	}
-> > +	get_inotify_watch(watch);
-> > +	up(&dev->sem);
-> > +
-> > +	inode = watch->inode;
-> > +	down(&inode->inotify_sem);
-> > +	down(&dev->sem);
-> > +	remove_watch(watch, dev);
-> > +	up(&dev->sem);
-> > +	up(&inode->inotify_sem);
-> > +	put_inotify_watch(watch);
-> > +
-> > +	return 0;
-> > +}
-> 
-> So what happens if
-> 	* something is holding inotify_sem right now
-> 	* ten threads call that on the same watch
-> 	* all of them get to down(&inode->inotify_sem); and block there,
-> having acquired ten references to the watch
-> 	* after whatever had been holding ->inotify_sem in the first place
-> releases it, they will one by one go through the rest of function.  And
-> drop _20_ references to the watch.  9 of those - after we kfree() the
-> watch...
+Anton Altaparmakov writes:
 
-In create_watch () we call get_inotify_watch (), which maps to the
-put_inotify_watch() in remove_watch(). As far as I can tell the ref
-counting is 1 for 1.
+[...]
 
+ > 
+ > mm/filemap.c::file_buffered_write():
+ > 
+ > - It calls fault_in_pages_readable() which is completely bogus if
+ > @nr_segs > 1.  It needs to be replaced by a to be written
+ > "fault_in_pages_readable_iovec()".
 
--- 
-John McCutchan <ttb@tentacle.dhs.org>
+Which will be only marginally less bogus, because page(s) can be evicted
+from the memory between fault_in_pages_readable*() and
+__grab_cache_page() anyway.
+
+[...]
+
+ > Best regards,
+ > 
+ >         Anton
+
+Nikita.

@@ -1,38 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262690AbVDYQkQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262670AbVDYQt3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262690AbVDYQkQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 12:40:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262670AbVDYQiT
+	id S262670AbVDYQt3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 12:49:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262636AbVDYQrt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 12:38:19 -0400
-Received: from hockin.org ([66.35.79.110]:43940 "EHLO www.hockin.org")
-	by vger.kernel.org with ESMTP id S262660AbVDYQhh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 12:37:37 -0400
-Date: Mon, 25 Apr 2005 09:37:29 -0700
-From: Tim Hockin <thockin@hockin.org>
-To: Olivier Galibert <galibert@pobox.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] private mounts
-Message-ID: <20050425163729.GA26142@hockin.org>
-References: <E1DPnOn-0000T0-00@localhost> <20050424201820.GA28428@infradead.org> <E1DPo3I-0000V0-00@localhost> <20050424205422.GK13052@parcelfarce.linux.theplanet.co.uk> <E1DPoCg-0000W0-00@localhost> <20050424210616.GM13052@parcelfarce.linux.theplanet.co.uk> <E1DPoRz-0000Y0-00@localhost> <20050424211942.GN13052@parcelfarce.linux.theplanet.co.uk> <20050425094804.GA33040@dspnet.fr.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050425094804.GA33040@dspnet.fr.eu.org>
-User-Agent: Mutt/1.4.2i
+	Mon, 25 Apr 2005 12:47:49 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:27529 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262670AbVDYQrJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 12:47:09 -0400
+Message-ID: <426945CC.6040100@tmr.com>
+Date: Fri, 22 Apr 2005 14:43:24 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Brice Goglin <Brice.Goglin@ens-lyon.org>
+CC: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
+Subject: Re: Crash when unmounting NFS/TCP with -f
+References: <4268EEC9.8010305@ens-lyon.org>
+In-Reply-To: <4268EEC9.8010305@ens-lyon.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 25, 2005 at 11:48:04AM +0200, Olivier Galibert wrote:
-> Is there a possibility for a process to change its namespace to
-> another existing one?  That would be needed to have a per-user
-> namespace you go to from rc files or pam.
+Brice Goglin wrote:
+> Hi Trond,
+> 
+> I'm using NFS (v2) over TCP (in a SSH tunnel).
+> Each time the SSH dies before a umount NFS, I have to umount -f
+> and I get a crash (only sysrq works).
+> Actually, the crash occurs a few seconds after umount -f.
+> 
+> It seems that killing SSH by hand does _not_ lead to crash.
+> But a long network failure does.
+> I remember seeing this bug several times with all stable releases
+> from 2.6.7 to 2.6.11. I didn't try with earlier versions.
+> 
+> I didn't see anything in the logs (after reboot). But I can't be sure
+> there was nothing in dmesg since I didn't get a chance to chvt 1 and
+> see console messages before rebooting (with sysrq).
+> 
+> Do you have any idea how to debug this ?
 
-I haven't looked at this in about a year, but as of a year ago, no.
-Namespaces are/were second-class objects that exist only as referenced by
-tasks.  I played with implementing a newns PAM module.  It worked, but was
-full of holes.  I started writing a paper on it, but never got around to
-finishing it, for various reasons.
+No clue, but a question: is this a hard or soft mount? Could you post 
+your ssh and mount commands, munged as needed for security? That might 
+give someone a clue.
 
-Tim
+I did this "back when" but I don't recall having a problem with it.
+
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me
+

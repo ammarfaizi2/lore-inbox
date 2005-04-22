@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261972AbVDVPsG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262031AbVDVPtP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261972AbVDVPsG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Apr 2005 11:48:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261988AbVDVPsG
+	id S262031AbVDVPtP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Apr 2005 11:49:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbVDVPtJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 11:48:06 -0400
-Received: from pimout4-ext.prodigy.net ([207.115.63.98]:29578 "EHLO
-	pimout4-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S261972AbVDVPsC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Apr 2005 11:48:02 -0400
-Date: Fri, 22 Apr 2005 08:47:55 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Harish K Harshan <harish@amritapuri.amrita.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: i830 lockup
-Message-ID: <20050422154755.GA2892@taniwha.stupidest.org>
-References: <42225.203.197.150.195.1113980805.squirrel@mail.amrita.ac.in> <20050420065751.GA9791@taniwha.stupidest.org> <47196.203.197.150.195.1114171742.squirrel@mail.amrita.ac.in>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <47196.203.197.150.195.1114171742.squirrel@mail.amrita.ac.in>
+	Fri, 22 Apr 2005 11:49:09 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:55288 "EHLO
+	dhcp153.mvista.com") by vger.kernel.org with ESMTP id S261988AbVDVPtB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Apr 2005 11:49:01 -0400
+Date: Fri, 22 Apr 2005 08:48:57 -0700 (PDT)
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc3-V0.7.46-01
+In-Reply-To: <20050422073408.GA5470@elte.hu>
+Message-ID: <Pine.LNX.4.44.0504220848120.22042-100000@dhcp153.mvista.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 22, 2005 at 05:39:02PM +0530, Harish K Harshan wrote:
 
-> But the system works pretty fine when other applications are
-> running.
 
-so either the driver is poking something that is causing problems or
-maybe the card when operating makes the system unstabel
+Is this the PriorityInversionTest (pi_test.tgz) or was there another one?
 
-> Oncei load the driver, the system gets messed up. Could it be the
-> problem with the way I handle DMA and interrupts??
 
-maybe, but i would wouldn't think so
+Daniel
 
-> I mean, is it possible to mess up everything by wrong programming???
 
-yes
+On Fri, 22 Apr 2005, Ingo Molnar wrote:
 
-> This driver works prefectly on the other IPCs we have, but not on
-> the two-piece board (Chino-Laxons) systems we have.
+> 
+> > this includes fixes from Daniel Walker, which could fix the plist 
+> > related slowdown bugs:
+> 
+> there are still some problems remaining: i just ran Esben Nielsen's 
+> priority-inheritance validation testsuite, and the plist code gives a 
+> worst-case latency of 9.0 msecs.
+> 
+> I've reverted the plist changes for now and have uploaded -46-02 - this 
+> gives the expected 1.0 msec worst-case latencies. Diffing -01 against 
+> -02 should give you the latest plist snapshot.
+> 
+> 	Ingo
+> 
 
-if these are embedded system they might have some weird wiring or
-similar (embedded PCs used to have lots of strangeness to them, i
-assume that hasn't changed)
-
-> The DMA channels are both free before loading the drivers all the
-> time, and one it is loaded, the /proc/dma file shows the DMA has
-> been hooked properly. Could it still be the problem with the
-> CPU/Cache/Chipset as you said?
-
-i would ask the mainboard maker and also make sure you have the most
-recent bios
-
-also make sure your driver isn't stomping on bad memory in the slight
-chance it whacking chipset registers I guess

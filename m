@@ -1,55 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261919AbVDVCGr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbVDVCTV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261919AbVDVCGr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 22:06:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261922AbVDVCGn
+	id S261920AbVDVCTV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 22:19:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261921AbVDVCTV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 22:06:43 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:27620 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261919AbVDVCGh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 22:06:37 -0400
+	Thu, 21 Apr 2005 22:19:21 -0400
+Received: from mail.tyan.com ([66.122.195.4]:64777 "EHLO tyanweb.tyan")
+	by vger.kernel.org with ESMTP id S261920AbVDVCTN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 22:19:13 -0400
+Message-ID: <3174569B9743D511922F00A0C943142309B075AF@TYANWEB>
+From: YhLu <YhLu@tyan.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: x86-64 dual core mapping
+Date: Thu, 21 Apr 2005 19:38:07 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17000.23588.462823.574142@sodium.jf.intel.com>
-Date: Thu, 21 Apr 2005 19:06:28 -0700
-To: Petr Baudis <pasky@ucw.cz>
-Cc: tony.luck@intel.com, Linus Torvalds <torvalds@osdl.org>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       git@vger.kernel.org
-Subject: Re: ia64 git pull
-In-Reply-To: <20050422015340.GD7443@pasky.ji.cz>
-References: <200504212042.j3LKgng04318@unix-os.sc.intel.com>
-	<Pine.LNX.4.58.0504211403080.2344@ppc970.osdl.org>
-	<200504212155.j3LLtho04949@unix-os.sc.intel.com>
-	<200504212301.j3LN1Do05507@unix-os.sc.intel.com>
-	<20050422012546.GD1474@pasky.ji.cz>
-	<17000.22515.170455.192374@sodium.jf.intel.com>
-	<20050422015340.GD7443@pasky.ji.cz>
-X-Mailer: VM 7.19 under Emacs 21.3.1
-From: Inaky Perez-Gonzalez <inaky@linux.intel.com>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Petr Baudis <pasky@ucw.cz> writes:
+Andi,
 
-> Remember that it's an URL (so you can't use '%'), and '#' is the
-> canonical URL fragment identifier delimiter. (And fragments are
-> perfect for this kind of thing, if you look at the RFC, BTW.)
+I tried 2.6.12-rc3 with dual way dual cpus.
 
-Ouch, true--rule out %...
+It seems right mapping should be
+CPU 0(2) -> Node 0 -> Core 0
+CPU 1(2) -> Node 0 -> Core 1
+CPU 2(2) -> Node 1 -> Core 0
+CPU 3(2) -> Node 1 -> Core 1
 
-> Still, why would you escape it? My shell will not take # as a
-> comment start if it is immediately after an alphanumeric character.
+instead of
 
-Well, you just taught me something about bash I didn't know....
+CPU 0(2) -> Node 0 -> Core 0
+CPU 1(2) -> Node 0 -> Core 0
+CPU 2(2) -> Node 1 -> Core 1
+CPU 3(2) -> Node 1 -> Core 1
 
-/me goes back to his hole with some more knowledge.
+YH
 
-Thanks,
 
--- 
 
-Inaky
 
+CPU 0(2) -> Node 0 -> Core 0
+Using local APIC NMI watchdog using perfctr0
+enabled ExtINT on CPU#0
+ENABLING IO-APIC IRQs
+Using IO-APIC 4
+...changing IO-APIC physical APIC ID to 4 ... ok.
+Using IO-APIC 5
+...changing IO-APIC physical APIC ID to 5 ... ok.
+Using IO-APIC 6
+...changing IO-APIC physical APIC ID to 6 ... ok.
+Using IO-APIC 7
+...changing IO-APIC physical APIC ID to 7 ... ok.
+Synchronizing Arb IDs.
+..TIMER: vector=0x31 pin1=0 pin2=2
+testing the IO APIC.......................
+
+
+
+
+.................................... done.
+Using local APIC timer interrupts.
+Detected 12.564 MHz APIC timer.
+Booting processor 1/1 rip 6000 rsp ffff81007ff99f58
+Initializing CPU#1
+masked ExtINT on CPU#1
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 1024K (64 bytes/line)
+CPU 1(2) -> Node 0 -> Core 0
+ stepping 00
+Synced TSC of CPU 1 difference 30064769976
+Booting processor 2/2 rip 6000 rsp ffff81013ffa3f58
+Initializing CPU#2
+masked ExtINT on CPU#2
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 1024K (64 bytes/line)
+CPU 2(2) -> Node 1 -> Core 1
+ stepping 00
+Synced TSC of CPU 2 difference 30064770021
+Booting processor 3/3 rip 6000 rsp ffff81007ff49f58
+Initializing CPU#3
+masked ExtINT on CPU#3
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 1024K (64 bytes/line)
+CPU 3(2) -> Node 1 -> Core 1
+ stepping 00
+Synced TSC of CPU 3 difference 30064770021
+Brought up 4 CPUs

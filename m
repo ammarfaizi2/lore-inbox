@@ -1,48 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbVDVMcT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbVDVMiW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261307AbVDVMcT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Apr 2005 08:32:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbVDVMcT
+	id S261312AbVDVMiW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Apr 2005 08:38:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbVDVMiW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 08:32:19 -0400
-Received: from bernache.ens-lyon.fr ([140.77.167.10]:8071 "EHLO
-	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S261307AbVDVMcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Apr 2005 08:32:16 -0400
-Message-ID: <4268EEC9.8010305@ens-lyon.org>
-Date: Fri, 22 Apr 2005 14:32:09 +0200
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: fr, en
+	Fri, 22 Apr 2005 08:38:22 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:31431 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261312AbVDVMiS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Apr 2005 08:38:18 -0400
+To: Nagesh Sharyathi <sharyathi@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org, fastboot@lists.osdl.org, akpm@osdl.org
+Subject: Re: [Fastboot] Re: Kdump Testing
+References: <OF3AAC7ED2.37502955-ON65256FEB.0039D16D-65256FEB.003BB61C@in.ibm.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 22 Apr 2005 06:32:32 -0600
+In-Reply-To: <OF3AAC7ED2.37502955-ON65256FEB.0039D16D-65256FEB.003BB61C@in.ibm.com>
+Message-ID: <m1is2f9elb.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: trond.myklebust@fys.uio.no
-Cc: linux-kernel@vger.kernel.org
-Subject: Crash when unmounting NFS/TCP with -f
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Report: 
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Trond,
+Nagesh Sharyathi <sharyathi@in.ibm.com> writes:
 
-I'm using NFS (v2) over TCP (in a SSH tunnel).
-Each time the SSH dies before a umount NFS, I have to umount -f
-and I get a crash (only sysrq works).
-Actually, the crash occurs a few seconds after umount -f.
+> Here is the console boot log, before the machine jumps to BIOS 
+> after hang during panic kerenl boot
 
-It seems that killing SSH by hand does _not_ lead to crash.
-But a long network failure does.
-I remember seeing this bug several times with all stable releases
-from 2.6.7 to 2.6.11. I didn't try with earlier versions.
+Ok thanks.  So this is manually triggered with SysRq
+and the kexec part works but the recover kernel simply fails
+to boot.
 
-I didn't see anything in the logs (after reboot). But I can't be sure
-there was nothing in dmesg since I didn't get a chance to chvt 1 and
-see console messages before rebooting (with sysrq).
+It looks like that hunk of the ACPI code that messes up maxcpus=1
+needs to be looked at.
 
-Do you have any idea how to debug this ?
-
-Thanks,
-Brice
+Eric

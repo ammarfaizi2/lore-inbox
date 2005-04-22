@@ -1,47 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262076AbVDVR2b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262077AbVDVRhV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262076AbVDVR2b (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Apr 2005 13:28:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262077AbVDVR2a
+	id S262077AbVDVRhV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Apr 2005 13:37:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbVDVRhV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 13:28:30 -0400
-Received: from fire.osdl.org ([65.172.181.4]:18666 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262076AbVDVR2X (ORCPT
+	Fri, 22 Apr 2005 13:37:21 -0400
+Received: from mx2.suse.de ([195.135.220.15]:9425 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262077AbVDVRhJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Apr 2005 13:28:23 -0400
-Date: Fri, 22 Apr 2005 10:26:50 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Tomi Lapinlampi <lapinlam@vega.lnet.lut.fi>
-cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       rth@twiddle.net, adaplas@pol.net,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: 2.6.12-rc3 compile failure in tgafb.c, tgafb not working anymore
-In-Reply-To: <20050422144047.GY607@vega.lnet.lut.fi>
-Message-ID: <Pine.LNX.4.58.0504221024470.2344@ppc970.osdl.org>
-References: <20050421185034.GS607@vega.lnet.lut.fi> <20050421204354.GF3828@stusta.de>
- <20050422072858.GU607@vega.lnet.lut.fi> <20050422112030.GW607@vega.lnet.lut.fi>
- <20050422144047.GY607@vega.lnet.lut.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 22 Apr 2005 13:37:09 -0400
+Date: Fri, 22 Apr 2005 19:37:03 +0200
+From: Andi Kleen <ak@suse.de>
+To: Dave Jones <davej@redhat.com>, Hugh Dickins <hugh@veritas.com>,
+       Chris Wright <chrisw@osdl.org>, Andi Kleen <ak@suse.de>,
+       "Sergey S. Kostyliov" <rathamahata@ehouse.ru>,
+       Clem Taylor <clem.taylor@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Debugging patch was Re: x86-64 bad pmds in 2.6.11.6 II
+Message-ID: <20050422173703.GB7715@wotan.suse.de>
+References: <Pine.LNX.4.61.0504141419250.25074@goblin.wat.veritas.com> <20050414170117.GD22573@wotan.suse.de> <Pine.LNX.4.61.0504141804480.26008@goblin.wat.veritas.com> <20050414181015.GH22573@wotan.suse.de> <20050414181133.GA18221@wotan.suse.de> <20050414182712.GG493@shell0.pdx.osdl.net> <20050415172408.GB8511@wotan.suse.de> <20050415172816.GU493@shell0.pdx.osdl.net> <Pine.LNX.4.61.0504151833020.29919@goblin.wat.veritas.com> <20050415180703.GA26289@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050415180703.GA26289@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Can people who can reproduce the x86-64 2.6.11 pmd bad  problem please apply
+the following patch and see (a) if it can be still reprocuded with it 
+and send the output generated. Also a strace of the program that showed
+it (pid and name of it should be dumped) would be useful if not too big.
 
-On Fri, 22 Apr 2005, Tomi Lapinlampi wrote:
-> 
-> Although the tgafb driver compiles with the above patch, it shows
-> similar behaviour as before: The kernel loads, the monitor comes alive
-> but the screen stays completely blank.
-> The last kernel that worked was 2.6.8.1. I've tested with 2.6.{9,10,11}
+After staring some time at the code I cant find the problem, but 
+I somehow suspect it has to do with early page table frees. That is
+why they were disabled. This should not cause any memory leaks,
+the page tables will be always freed at process exit, so it is
+safe to apply even for production machines.
 
-Can you try to figure out where in between 2.6.8->2.6.9 things broke? Even 
-just a fairly simple binary search on the nightly snapshots should get you 
-pretty easily down to within one day or so..
+Thanks,
 
-Most people don't have tga hardware. I don't think even most alpha users 
-have it, and I think it's unheard of outside of alpha. So I'm afraid that 
-there's not a lot of people around who can debug it without having a very 
-clear starting point..
+-Andi
 
-		Linus
+
+diff -u linux-2.6.11/mm/memory.c-o linux-2.6.11/mm/memory.c
+--- linux-2.6.11/mm/memory.c-o	2005-03-02 08:38:08.000000000 +0100
++++ linux-2.6.11/mm/memory.c	2005-04-22 19:32:30.305402456 +0200
+@@ -94,6 +94,7 @@
+ 	if (pmd_none(*pmd))
+ 		return;
+ 	if (unlikely(pmd_bad(*pmd))) {
++		printk("%s:%d: ", current->comm, current->pid);
+ 		pmd_ERROR(*pmd);
+ 		pmd_clear(pmd);
+ 		return;
+diff -u linux-2.6.11/mm/mmap.c-o linux-2.6.11/mm/mmap.c
+--- linux-2.6.11/mm/mmap.c-o	2005-03-02 08:38:12.000000000 +0100
++++ linux-2.6.11/mm/mmap.c	2005-04-22 19:33:10.354580428 +0200
+@@ -1645,11 +1645,13 @@
+ 		return;
+ 	if (first < FIRST_USER_PGD_NR * PGDIR_SIZE)
+ 		first = FIRST_USER_PGD_NR * PGDIR_SIZE;
++#if 0
+ 	/* No point trying to free anything if we're in the same pte page */
+ 	if ((first & PMD_MASK) < (last & PMD_MASK)) {
+ 		clear_page_range(tlb, first, last);
+ 		flush_tlb_pgtables(mm, first, last);
+ 	}
++#endif
+ }
+ 
+ /* Normal function to fix up a mapping
+

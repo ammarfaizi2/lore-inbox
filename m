@@ -1,69 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261983AbVDVLTG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbVDVLVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261983AbVDVLTG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Apr 2005 07:19:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbVDVLTG
+	id S261984AbVDVLVG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Apr 2005 07:21:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbVDVLVF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 07:19:06 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:31545 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261983AbVDVLTB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Apr 2005 07:19:01 -0400
-From: "Tais M. Hansen" <tais.hansen@osd.dk>
-Organization: OSD
-To: linux-kernel@vger.kernel.org
-Subject: Re: SATA/ATAPI
-Date: Fri, 22 Apr 2005 13:18:50 +0200
-User-Agent: KMail/1.8
-Cc: Wakko Warner <wakko@animx.eu.org>
-References: <200504211941.43889.tais.hansen@osd.dk> <20050422111404.GA13381@animx.eu.org>
-In-Reply-To: <20050422111404.GA13381@animx.eu.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart10836592.uSCAugYlpZ";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200504221318.56652.tais.hansen@osd.dk>
+	Fri, 22 Apr 2005 07:21:05 -0400
+Received: from vega.lnet.lut.fi ([157.24.109.150]:27146 "EHLO vega.lnet.lut.fi")
+	by vger.kernel.org with ESMTP id S261984AbVDVLUf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Apr 2005 07:20:35 -0400
+Date: Fri, 22 Apr 2005 14:20:30 +0300
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, rth@twiddle.net,
+       adaplas@pol.net, linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: 2.6.12-rc3 compile failure in tgafb.c
+Message-ID: <20050422112030.GW607@vega.lnet.lut.fi>
+References: <20050421185034.GS607@vega.lnet.lut.fi> <20050421204354.GF3828@stusta.de> <20050422072858.GU607@vega.lnet.lut.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050422072858.GU607@vega.lnet.lut.fi>
+User-Agent: Mutt/1.3.28i
+From: lapinlam@vega.lnet.lut.fi (Tomi Lapinlampi)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart10836592.uSCAugYlpZ
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Fri, Apr 22, 2005 at 10:28:58AM +0300, Tomi Lapinlampi wrote:
 
-On Friday 22 April 2005 13:14, Wakko Warner wrote:
-> > One of my linux boxes has a Plextor DVD-RW drive with a SATA interface.
-> > The kernel sees this drive (ata3) but apparently doesn't tie it to a sdx
-> > device. The box also have a SATA harddisk, which is working just fine.
-> > The relevant dmesg output is pasted below.
-> I thought all SCSI cdroms were using /dev/scdx or /dev/srx.  Atleast all
-> mine are (I use ide-scsi for ide disks)
+> Hi,
+> 
+> This patch worked, tgafb.c now compiles. However, the compile
+> fails later:
+> 
+> ...
+>   CC      init/version.o
+>   LD      init/built-in.o
+>   LD      .tmp_vmlinux1
+> local symbol 0: discarded in section `.exit.text' from drivers/built-in.o
+> make: *** [.tmp_vmlinux1] Error 1
+> 
+> This does not happen if I disable CONFIG_FB_TGA.
 
-You thought right. The "/dev/sdx" was just a typo on my side.
+Actually, I was able to get a clean compile with the patch from
+http://marc.theaimsgroup.com/?l=linux-alpha&m=111392038121433&w=2
 
-=2D-=20
-Regards,
-Tais M. Hansen
-OSD
+Which one is better, this or the one that Adrian sent?
 
-___________________________________________________________
-"If people had understood how patents would be granted when most of today's=
-=20
-ideas were invented and had taken out patents, the industry would be at a=20
-complete standstill today." -Bill Gates (1991)
+Tomi
 
---nextPart10836592.uSCAugYlpZ
-Content-Type: application/pgp-signature
+> > Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> > 
+> > --- linux-2.6.12-rc2-mm3-full/drivers/video/tgafb.c.old	2005-04-21 22:38:42.000000000 +0200
+> > +++ linux-2.6.12-rc2-mm3-full/drivers/video/tgafb.c	2005-04-21 22:39:36.000000000 +0200
+> > @@ -45,9 +45,7 @@
+> >  static void tgafb_copyarea(struct fb_info *, const struct fb_copyarea *);
+> >  
+> >  static int tgafb_pci_register(struct pci_dev *, const struct pci_device_id *);
+> > -#ifdef MODULE
+> >  static void tgafb_pci_unregister(struct pci_dev *);
+> > -#endif
+> >  
+> >  static const char *mode_option = "640x480@60";
+> >  
+> > @@ -1484,7 +1482,6 @@
+> >  	return ret;
+> >  }
+> >  
+> > -#ifdef MODULE
+> >  static void __exit
+> >  tgafb_pci_unregister(struct pci_dev *pdev)
+> >  {
+> > @@ -1500,6 +1497,7 @@
+> >  	kfree(info);
+> >  }
+> >  
+> > +#ifdef MODULE
+> >  static void __exit
+> >  tgafb_exit(void)
+> >  {
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> -- 
+> You can decide: live with free software or with only one evil company left?
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBCaN2gLf7B7mQNLngRApoyAJ9MMrzQbgHdf98uVmECFl4cQ/o05wCgqtiX
-jPAfvF8ENalyeVe6ueCu9g0=
-=5hD5
------END PGP SIGNATURE-----
-
---nextPart10836592.uSCAugYlpZ--
+-- 
+You can decide: live with free software or with only one evil company left?

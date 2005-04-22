@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262015AbVDVHe6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262013AbVDVHls@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262015AbVDVHe6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Apr 2005 03:34:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262017AbVDVHe5
+	id S262013AbVDVHls (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Apr 2005 03:41:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbVDVHlr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 03:34:57 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:38346 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262015AbVDVHep (ORCPT
+	Fri, 22 Apr 2005 03:41:47 -0400
+Received: from main.gmane.org ([80.91.229.2]:1233 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S262013AbVDVHlq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Apr 2005 03:34:45 -0400
-Date: Fri, 22 Apr 2005 09:34:08 +0200
-From: Ingo Molnar <mingo@elte.hu>
+	Fri, 22 Apr 2005 03:41:46 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Cc: Daniel Walker <dwalker@mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc3-V0.7.46-01
-Message-ID: <20050422073408.GA5470@elte.hu>
-References: <20050325145908.GA7146@elte.hu> <20050331085541.GA21306@elte.hu> <20050401104724.GA31971@elte.hu> <20050405071911.GA23653@elte.hu> <20050421073537.GA1004@elte.hu> <20050422062714.GA23667@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050422062714.GA23667@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+From: "Shaun Reitan" <mailinglists@unix-scripts.com>
+Subject: Re: kernel panic - not syncing: Fatal exception in interupt
+Date: Fri, 22 Apr 2005 00:40:05 -0700
+Message-ID: <d4a9fv$jrf$1@sea.gmane.org>
+References: <d2vu0u$oog$1@sea.gmane.org> <Pine.LNX.4.61.0504060209200.15520@montezuma.fsmlabs.com> <03f201c53aeb$a42d1270$0201a8c0@ndciwkst01> <Pine.LNX.4.61.0504070207430.12823@montezuma.fsmlabs.com> <023b01c53f3b$a8083e20$0201a8c0@ndciwkst01> <Pine.LNX.4.61.0504120612210.14171@montezuma.fsmlabs.com> <d3ugtr$gml$1@sea.gmane.org> <20050418060744.GA5057@gondor.apana.org.au>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ip68-111-70-41.oc.oc.cox.net
+X-MSMail-Priority: Normal
+X-Newsreader: Microsoft Outlook Express 6.00.2741.2600
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2742.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Is there a way i can trigger this bug rather than waiting for it to happen?
+I would like to make sure it's not going to crash on me again.
 
-> this includes fixes from Daniel Walker, which could fix the plist 
-> related slowdown bugs:
+--
+Shaun Reitan
 
-there are still some problems remaining: i just ran Esben Nielsen's 
-priority-inheritance validation testsuite, and the plist code gives a 
-worst-case latency of 9.0 msecs.
 
-I've reverted the plist changes for now and have uploaded -46-02 - this 
-gives the expected 1.0 msec worst-case latencies. Diffing -01 against 
--02 should give you the latest plist snapshot.
+"Herbert Xu" <herbert@gondor.apana.org.au> wrote in message
+news:20050418060744.GA5057@gondor.apana.org.au...
+> On Sun, Apr 17, 2005 at 08:32:42PM +0000, Shaun Reitan wrote:
+> > OK, finally got a full dump from the serial console!  Here is it!
+>
+> This was fixed about a month ago.  Here is the patch that did it.
+>
+> Perhaps it's time to include this in 2.6.11.*?
+>
+> Cheers,
+> --
+> Visit Openswan at http://www.openswan.org/
+> Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+> Home Page: http://gondor.apana.org.au/~herbert/
+> PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+>
 
-	Ingo
+
+

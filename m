@@ -1,55 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262122AbVDVT7m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262130AbVDVVGm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262122AbVDVT7m (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Apr 2005 15:59:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbVDVT7m
+	id S262130AbVDVVGm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Apr 2005 17:06:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbVDVVGm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 15:59:42 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:33435 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262122AbVDVT7k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Apr 2005 15:59:40 -0400
-Date: Fri, 22 Apr 2005 21:51:34 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>
-cc: "Maciej W. Rozycki" <macro@linux-mips.org>,
-       Tomi Lapinlampi <lapinlam@vega.lnet.lut.fi>,
-       Adrian Bunk <bunk@stusta.de>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       rth@twiddle.net, adaplas@pol.net
-Subject: Re: [Linux-fbdev-devel] Re: 2.6.12-rc3 compile failure in tgafb.c,
- tgafb not working anymore
-In-Reply-To: <Pine.LNX.4.58.0504221051240.2344@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.62.0504221954410.24170@numbat.sonytel.be>
-References: <20050421185034.GS607@vega.lnet.lut.fi> <20050421204354.GF3828@stusta.de>
- <20050422072858.GU607@vega.lnet.lut.fi> <20050422112030.GW607@vega.lnet.lut.fi>
- <20050422144047.GY607@vega.lnet.lut.fi> <Pine.LNX.4.58.0504221024470.2344@ppc970.osdl.org>
- <Pine.LNX.4.61L.0504221840180.27531@blysk.ds.pg.gda.pl>
- <Pine.LNX.4.58.0504221051240.2344@ppc970.osdl.org>
+	Fri, 22 Apr 2005 17:06:42 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:59074 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262130AbVDVVGi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Apr 2005 17:06:38 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17001.26444.246648.14231@sodium.jf.intel.com>
+Date: Fri, 22 Apr 2005 14:06:20 -0700
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Daniel Walker <dwalker@mvista.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc3-V0.7.46-01
+In-Reply-To: <20050422073408.GA5470@elte.hu>
+References: <20050325145908.GA7146@elte.hu>
+	<20050331085541.GA21306@elte.hu>
+	<20050401104724.GA31971@elte.hu>
+	<20050405071911.GA23653@elte.hu>
+	<20050421073537.GA1004@elte.hu>
+	<20050422062714.GA23667@elte.hu>
+	<20050422073408.GA5470@elte.hu>
+X-Mailer: VM 7.19 under Emacs 21.3.1
+From: Inaky Perez-Gonzalez <inaky@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Apr 2005, Linus Torvalds wrote:
-> On Fri, 22 Apr 2005, Maciej W. Rozycki wrote:
-> >  JFTR, a few of the TURBOchannel variations of the TGA are supported for 
-> > MIPS, but regrettably the necessary code hasn't been ported from 2.4 to 
-> > 2.6 yet.
-> 
-> Ok, so that would have increased the testing base by, what? One person or 
-> two? I think we're still in single digits ;)
+>>>>> Ingo Molnar <mingo@elte.hu> writes:
 
-All the DEC UDB (`Multia') machines have builtin TGA.
+>> this includes fixes from Daniel Walker, which could fix the plist
+>> related slowdown bugs:
 
-Gr{oetje,eeting}s,
+> there are still some problems remaining: i just ran Esben Nielsen's
+> priority-inheritance validation testsuite, and the plist code gives
+> a worst-case latency of 9.0 msecs.
 
-						Geert
+With which machine is this? 
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+I tried to reproduce with V0.7.45-01 in my 2xPIII 0.9 Ghz I cannot get
+more than 1.9ms when doing 2000 samples repeatedly (60 iterations and
+counting). 
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Did you use other parameters to 'test'?
+
+# cnt=0 
+# while true
+> do echo -n "$cnt "
+> ./test --samples 2000 file.hist 2>&1 | grep maximum; cnt=$(($cnt+1))
+> done
+
+With 2.6.12-rc3-V0.7.46-02 I get:
+
+...
+2 maximum cycle time: 0.003ms
+3 maximum cycle time: 1.706ms
+4 maximum cycle time: 1.538ms
+5 maximum cycle time: 1.168ms
+6 maximum cycle time: 0.003ms
+7 maximum cycle time: 0.008ms
+8 maximum cycle time: 1.821ms
+9 maximum cycle time: 1.013ms
+10 maximum cycle time: 1.043ms
+11 maximum cycle time: 1.787ms
+12 maximum cycle time: 1.519ms
+13 ...
+
+roughly the same as with 0.7.45-01:
+
+0 maximum cycle time: 1.872ms
+1 maximum cycle time: 0.008ms
+2 maximum cycle time: 1.947ms
+3 maximum cycle time: 1.902ms
+4 maximum cycle time: 1.925ms
+5 maximum cycle time: 0.002ms
+6 maximum cycle time: 1.950ms
+7 maximum cycle time: 0.008ms
+8 maximum cycle time: 0.008ms
+9 maximum cycle time: 0.008ms
+10 maximum cycle time: 1.943ms
+11 maximum cycle time: 1.173ms
+12 maximum cycle time: 0.008ms
+13 maximum cycle time: 0.008ms
+...
+
+
+-- 
+
+Inaky
+

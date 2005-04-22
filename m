@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261770AbVDVAOs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261749AbVDVATE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261770AbVDVAOs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 20:14:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbVDVANK
+	id S261749AbVDVATE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 20:19:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261791AbVDVARR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 20:13:10 -0400
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:32930
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261749AbVDVALv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 20:11:51 -0400
-Date: Thu, 21 Apr 2005 17:04:57 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: "John W. Linville" <linville@tuxdriver.com>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, jgarzik@pobox.com
-Subject: Re: [patch 2.6.12-rc2 10/10] tg3: add support for bcm5752 rev a1
-Message-Id: <20050421170457.3e49665c.davem@davemloft.net>
-In-Reply-To: <04132005193846.8893@laptop>
-References: <04132005193846.8835@laptop>
-	<04132005193846.8893@laptop>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Thu, 21 Apr 2005 20:17:17 -0400
+Received: from orb.pobox.com ([207.8.226.5]:39657 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S261749AbVDVAPP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 20:15:15 -0400
+Date: Thu, 21 Apr 2005 19:15:06 -0500
+From: Nathan Lynch <ntl@pobox.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] generate hotplug events for cpu online
+Message-ID: <20050422001506.GB18688@otto>
+References: <20050414175623.GB12960@otto> <20050421184655.GA475@openzaurus.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050421184655.GA475@openzaurus.ucw.cz>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Apr 2005 19:38:46 -0400
-"John W. Linville" <linville@tuxdriver.com> wrote:
-
-> Replace existing ASIC_REV_5752 definition with ASIC_REV_5752_A0,
-> and add definition for ASIC_REV_5752_A1. Then, add ASIC_REV_5752_A1
-> to check for setting TG3_FLG2_5750_PLUS in tg3_get_invariants.
+On Thu, Apr 21, 2005 at 08:46:56PM +0200, Pavel Machek wrote:
+> Hi!
 > 
-> Signed-off-by: John W. Linville <linville@tuxdriver.com>
+> > We already do kobject_hotplug for cpu offline; this adds a
+> > kobject_hotplug call for the online case.  This is being requested by
+> > developers of an application which wants to be notified about both
+> > kinds of events.
+> 
+> I'm afraid of bad interactions with swsusp/S3 on smp. We offline cpus there,
+> but we probably do not want userland to know...
 
-Applied, now off to Michael's additions :-)
+The kobject_hotplug calls for cpu online and offline are present only
+in the code paths where the operation is initiated through the sysfs
+interface, so I don't think you have to worry.
+
+Nathan

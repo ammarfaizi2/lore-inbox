@@ -1,79 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261979AbVDVFKW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261992AbVDVFdl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261979AbVDVFKW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Apr 2005 01:10:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbVDVFHZ
+	id S261992AbVDVFdl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Apr 2005 01:33:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbVDVFdZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 01:07:25 -0400
-Received: from rproxy.gmail.com ([64.233.170.192]:29730 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261975AbVDVFGY (ORCPT
+	Fri, 22 Apr 2005 01:33:25 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:15796 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S261985AbVDVFdO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Apr 2005 01:06:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:x-enigmail-supports:content-type;
-        b=WwYWDwgebYELP8+66J10LyS+SvF7fGkuD9ShWdWraguobZKOyEhUx8p84te412714LvSG4Ms7SVcMpKzGfkGeX5LU066cD4Yp63JnVbqo70fJB+vbqXR454D2QgmRJcK4hZ9ctmxp8CD6adb7XLsGCw0x0paeCk+CadJBEdG2pQ=
-Message-ID: <42688649.2080600@gmail.com>
-Date: Fri, 22 Apr 2005 08:06:17 +0300
-From: Matan Peled <chaosite@gmail.com>
-Reply-To: chaosite@gmail.com
-Organization: Chaosite Destruction, inc.
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050326)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcondes Monteiro de Arau <marcondes@linuxmail.org>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux Kernel
-References: <20050422024346.3B8F223CFF@ws5-3.us4.outblaze.com>
-In-Reply-To: <20050422024346.3B8F223CFF@ws5-3.us4.outblaze.com>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig2C5D02AD936FA2FD87F7E218"
+	Fri, 22 Apr 2005 01:33:14 -0400
+Message-Id: <200504220337.j3M3biAb004521@laptop11.inf.utfsm.cl>
+To: Petr Baudis <pasky@ucw.cz>
+cc: tony.luck@intel.com, Linus Torvalds <torvalds@osdl.org>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: ia64 git pull 
+In-Reply-To: Message from Petr Baudis <pasky@ucw.cz> 
+   of "Fri, 22 Apr 2005 00:53:24 +0200." <20050421225324.GA1474@pasky.ji.cz> 
+Date: Thu, 21 Apr 2005 23:37:44 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig2C5D02AD936FA2FD87F7E218
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Petr Baudis <pasky@ucw.cz> said:
 
-Marcondes Monteiro de Arau wrote:
-> Hi!
-> 
-> I'm university student in Brazil and would like to know if during the process of compilation of the kernel of the linux the tecnology of cluster is used.
-> 
-> 
-> 
-> Marcondes
-> 
+[...]
 
-Are you talking about using a cluster to compile the kernel? In that case,
-Google for DistCC.
+> The way to work around that is to setup separate rsync URIs for each of
+> the trees. ;-) I think I will make git-pasky (Cogito) accept also URIs
+> in form
+> 
+> 	rsync://host/path!branchname
+> 
+> which will allow you to select the particular branch in the given
+> repository, defaulting to the "master" branch.
 
-Are you asking if a compiled linux kernel can be used as part of a cluster?
-openMosix is the project you're searching for.
-
+Please don't use '!', several bash(1) versions just can't seem to get the
+fact that '!' is quoted and try to do history expansion all over the place.
 -- 
-[Name      ]   ::  [Matan I. Peled    ]
-[Location  ]   ::  [Israel            ]
-[Public Key]   ::  [0xD6F42CA5        ]
-[Keyserver ]   ::  [keyserver.kjsl.com]
-encrypted/signed  plain text  preferred
-
-
---------------enig2C5D02AD936FA2FD87F7E218
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFCaIZMA7Qvptb0LKURAhQ+AKCUv274IhVU1IwNjTvtnR1q6L9wvgCgjFcr
-fSBRaMU+N1cQ4r8c5FBbhG4=
-=LWyS
------END PGP SIGNATURE-----
-
---------------enig2C5D02AD936FA2FD87F7E218--
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,107 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262052AbVDVQEJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262046AbVDVQFM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262052AbVDVQEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Apr 2005 12:04:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262046AbVDVQEJ
+	id S262046AbVDVQFM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Apr 2005 12:05:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbVDVQFL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 12:04:09 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:58242 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262047AbVDVQDZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Apr 2005 12:03:25 -0400
-Message-ID: <42692201.2000300@tmr.com>
-Date: Fri, 22 Apr 2005 12:10:41 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
+	Fri, 22 Apr 2005 12:05:11 -0400
+Received: from ns2.suse.de ([195.135.220.15]:18582 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262046AbVDVQEV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Apr 2005 12:04:21 -0400
+Message-ID: <42691498.7060003@suse.de>
+Date: Fri, 22 Apr 2005 17:13:28 +0200
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041207 Thunderbird/1.0 Mnenhy/0.7.2.0
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Newsgroups: mail.linux-kernel
-To: linux@horizon.com
-CC: git@vger.kernel.org, linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: enforcing DB immutability
-References: <20050420084115.2699.qmail@science.horizon.com>
-In-Reply-To: <20050420084115.2699.qmail@science.horizon.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Pavel Machek <pavel@ucw.cz>
+Cc: rjw@sisk.pl, Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andreas Steinmetz <ast@domdv.de>
+Subject: Re: Linux 2.6.12-rc3: various swsusp problems
+References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org> <4267DC2E.9030102@domdv.de> <20050421185717.GB475@openzaurus.ucw.cz>
+In-Reply-To: <20050421185717.GB475@openzaurus.ucw.cz>
+Content-Type: multipart/mixed;
+ boundary="------------050405030601080501000004"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux@horizon.com wrote:
-> [A discussion on the git list about how to provide a hardlinked file
-> that *cannot* me modified by an editor, but must be replaced by
-> a new copy.]
-> 
-> mingo@elte.hu wrote all of:
-> 
->>>>perhaps having a new 'immutable hardlink' feature in the Linux VFS 
->>>>would help? I.e. a hardlink that can only be readonly followed, and 
->>>>can be removed, but cannot be chmod-ed to a writeable hardlink. That i 
->>>>think would be a large enough barrier for editors/build-tools not to 
->>>>play the tricks they already do that makes 'readonly' files virtually 
->>>>meaningless.
->>>
->>>immutable hardlinks have the following advantage: a hardlink by design 
->>>hides the information where the link comes from. So even if an editor 
->>>wanted to play stupid games and override the immutability - it doesnt 
->>>know where the DB object is. (sure, it could find it if it wants to, 
->>>but that needs real messing around - editors wont do _that_)
->>
->>so the only sensible thing the editor/tool can do when it wants to 
->>change the file is precisely what we want: it will copy the hardlinked 
->>files's contents to a new file, and will replace the old file with the 
->>new file - a copy on write. No accidental corruption of the DB's 
->>contents.
-> 
-> 
-> This is not a horrible idea, but it touches on another sore point I've
-> worried about for a while.
-> 
-> The obvious way to do the above *without* changing anything is just to
-> remove all write permission to the file.  But because I'm the owner, some
-> piece of software running with my permissions can just deicde to change
-> the permissions back and modify the file anyway.  Good old 7th edition
-> let you give files away, which could have addressed that (chmod a-w; chown
-> phantom_user), but BSD took that ability away to make accounting work.
-> 
-> The upshot is that, while separate users keeps malware from harming the
-> *system*, if I run a piece of malware, it can blow away every file I
-> own and make me unhappy.  When (notice I'm not saying "if") commercial
-> spyware for Linux becomes common, it can also read every file I own.
-> 
-> Unless I have root access, Linux is no safer *for me* than Redmondware!
-> 
-> Since I *do* have root access, I often set up sandbox users and try
-> commercial binaries in that environment, but it's a pain and laziness
-> often wins.  I want a feature that I can wrap in a script, so that I
-> can run a commercial binary in a nicely restricted enviromment.
-> 
-> Or maybe I even want to set up a "personal root" level, and run
-> my normal interactive shells in a slightly restricted enviroment
-> (within which I could make a more-restricted world to run untrusted
-> binaries).  Then I could solve the immutable DB issue by having a
-> "setuid" binary that would make checked-in files unwriteable at my
-> normal permission level.
-> 
-> Obviously, a fundamental change to the Unix permissions model won't
-> be available to solve short-term problems, but I thought I'd raise
-> the issue to get people thinking about longer-term solutions.
+This is a multi-part message in MIME format.
+--------------050405030601080501000004
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 
-chattr +i file
+Pavel Machek wrote:
+>> 1. Is it necessary to print the following message during regular boot?
+>>    swsusp: Suspend partition has wrong signature?
 
-But the real problem is that you expect your editor to be smart enough 
-to diddle permissions (some aren't) or create a new file (some aren't 
-that either).
+> Hmm, feel free to provide a patch. (I need something to try git on :-).
 
-It sounds as if you're kind of using the wrong tool here, frankly.
-
-You also don't understand hard links, they don't hide anything, the 
-inode number is there, which is exactly as much information as is in the 
-original link. And they are lots safer, since you can't wind up with 
-them pointing to a non-existent file, get them in circular loops, etc. 
-Okay, YOU probably wouldn't, but believe me semi-competent users 
-regularly these things.
-
+Attached (sorry, Thunderbird...). One may argue over KERN_ERR, but i
+don't mind.
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Stefan Seyfried, QA / R&D Team Mobile Devices, SUSE LINUX Nürnberg.
+
+"Any ideas, John?"
+"Well, surrounding them's out."
+
+--------------050405030601080501000004
+Content-Type: text/plain;
+ name="delme"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="delme"
+
+--- linux/kernel/power/swsusp.c~	2005-04-22 17:07:56.000000000 +0200
++++ linux/kernel/power/swsusp.c	2005-04-22 17:09:22.000000000 +0200
+@@ -1239,7 +1239,7 @@ static int check_sig(void)
+ 		 */
+ 		error = bio_write_page(0, &swsusp_header);
+ 	} else { 
+-		printk(KERN_ERR "swsusp: Suspend partition has wrong signature?\n");
++		printk(KERN_ERR "swsusp: Suspend partition is no suspend image.\n");
+ 		return -EINVAL;
+ 	}
+ 	if (!error)
+
+--------------050405030601080501000004--
+

@@ -1,61 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261993AbVDVLbe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261994AbVDVLc1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261993AbVDVLbe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Apr 2005 07:31:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbVDVLbd
+	id S261994AbVDVLc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Apr 2005 07:32:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261997AbVDVLc0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 07:31:33 -0400
-Received: from colin.muc.de ([193.149.48.1]:24837 "EHLO colin2.muc.de")
-	by vger.kernel.org with ESMTP id S261993AbVDVLbb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Apr 2005 07:31:31 -0400
-Date: 22 Apr 2005 13:31:30 +0200
-Date: Fri, 22 Apr 2005 13:31:30 +0200
-From: Andi Kleen <ak@muc.de>
-To: Benoit Boissinot <bboissin@gmail.com>
-Cc: Matt Tolentino <metolent@snoqualmie.dp.intel.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] minor syctl fix in vsyscall_init
-Message-ID: <20050422113130.GA19292@muc.de>
-References: <200504131745.j3DHjIVE017612@snoqualmie.dp.intel.com> <20050413182913.GE50241@muc.de> <40f323d0050421091625659f16@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40f323d0050421091625659f16@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 22 Apr 2005 07:32:26 -0400
+Received: from [203.197.150.194] ([203.197.150.194]:728 "EHLO
+	bhadra.amrita.ac.in") by vger.kernel.org with ESMTP id S261994AbVDVLcD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Apr 2005 07:32:03 -0400
+X-Antivirus-Amrita-Mail-From: harish@amritapuri.amrita.edu via bhadra.amrita.ac.in
+X-Antivirus-Amrita: 1.24-st-qms (Clear:RC:1(127.0.0.1):. Processed in 0.032746 secs Process 18459)
+Message-ID: <47196.203.197.150.195.1114171742.squirrel@mail.amrita.ac.in>
+In-Reply-To: <20050420065751.GA9791@taniwha.stupidest.org>
+References: <42225.203.197.150.195.1113980805.squirrel@mail.amrita.ac.in>
+    <20050420065751.GA9791@taniwha.stupidest.org>
+Date: Fri, 22 Apr 2005 17:39:02 +0530 (IST)
+Subject: Re: i830 lockup
+From: "Harish K Harshan" <harish@amritapuri.amrita.edu>
+To: "Chris Wedgwood" <cw@f00f.org>
+Cc: linux-kernel@vger.kernel.org
+Reply-To: harish@amritapuri.amrita.edu
+User-Agent: SquirrelMail/1.4.4-1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 21, 2005 at 06:16:48PM +0200, Benoit Boissinot wrote:
-> On 13 Apr 2005 20:29:13 +0200, Andi Kleen <ak@muc.de> wrote:
-> > On Wed, Apr 13, 2005 at 10:45:18AM -0700, Matt Tolentino wrote:
-> > >
-> > > Andi,
-> > >
-> > > If CONFIG_SYCTL is not enabled then the x86-64 tree
-> > > fails to build due to use of a symbol that is not
-> > > compiled in.  Don't bother compiling in the sysctl
-> > > register call if not building with sysctl.
-> > 
-> > Thanks. Actually it would be better to fix up sysctl.h
-> > to define dummy functions in this case. I thought it did
-> > that already in fact....
-> > 
-> 
-> Yes it already does that, but kernel_root_table2 is not defined when
-> CONFIG_SYSCTL is not set (the problem isn't with
-> register_sysctl_table).
-> 
-> With 2.6.12-rc3:
-> arch/x86_64/kernel/vsyscall.c: In function `vsyscall_init':
-> arch/x86_64/kernel/vsyscall.c:221: error: `kernel_root_table2'
-> undeclared (first use in this function)
-> 
-> If you prefer, i can send a patch which sets kernel_table_root2 to
-> NULL when CONFIG_SYSCTL is not set. Or maybe there a better fix (btw
-> is sysctl_vsyscall needed when !CONFIG_SYSCTL ?).
+Hello Chris,
 
-Hmpf ok. I assumed they were macros who ignore their arguments.
-The original patch was fine, thanks.
+   But the system works pretty fine when other applications are running.
+Oncei load the driver, the system gets messed up. Could it be the
+problem with the way I handle DMA and interrupts?? I mean, is it
+possible to mess up everything by wrong programming??? This driver
+works prefectly on the other IPCs we have, but not on the two-piece
+board (Chino-Laxons) systems we have. The DMA channels are both free
+before loading the drivers all the time, and one it is loaded, the
+/proc/dma file shows the DMA has been hooked properly. Could it still
+be the problem with the CPU/Cache/Chipset as you said? If yes, then why
+is it throwing up the error only when I load the driver? Or is it
+really the problem with the driver programming? Please let me know as
+soon as possible.
 
--Andi
+Thank You in advance,
+Harish K Harshan.
+
+On Wed, April 20, 2005 12:27 pm, Chris Wedgwood said:
+> On Wed, Apr 20, 2005 at 12:36:45PM +0530, Harish K Harshan wrote:
+>
+>> CPU 0 : Machine Check Exception : 0000000000000004
+>> Bank 0 : a200000084010400
+>> Kernel panic : CPU context corrupt
+>> In interrupt handler - not syncing
+>
+> CPU got messed up...  could be a bad CPU/cache/chipset or simply it's
+> over heating or has a bad powersupply.
+>
+
+
+
+-----------------------------------------
+This email was sent using Amrita Mail.
+   "Amrita Vishwa Vidyapeetham [Deemed University] - Amritapuri Campus"
+http://amritapuri.amrita.edu
+

@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262670AbVDYQt3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262636AbVDYQu1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262670AbVDYQt3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 12:49:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262636AbVDYQrt
+	id S262636AbVDYQu1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 12:50:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262682AbVDYQr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 12:47:49 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:27529 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262670AbVDYQrJ
+	Mon, 25 Apr 2005 12:47:28 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:26761 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262684AbVDYQrF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 12:47:09 -0400
-Message-ID: <426945CC.6040100@tmr.com>
-Date: Fri, 22 Apr 2005 14:43:24 -0400
+	Mon, 25 Apr 2005 12:47:05 -0400
+Message-ID: <426942CC.2010702@tmr.com>
+Date: Fri, 22 Apr 2005 14:30:36 -0400
 From: Bill Davidsen <davidsen@tmr.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Brice Goglin <Brice.Goglin@ens-lyon.org>
-CC: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
-Subject: Re: Crash when unmounting NFS/TCP with -f
-References: <4268EEC9.8010305@ens-lyon.org>
-In-Reply-To: <4268EEC9.8010305@ens-lyon.org>
+To: Shaun Jackman <sjackman@gmail.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: netdev watchdog
+References: <7f45d939050421152171400450@mail.gmail.com>
+In-Reply-To: <7f45d939050421152171400450@mail.gmail.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brice Goglin wrote:
-> Hi Trond,
+Shaun Jackman wrote:
+> Upon booting my system, the boot fails and the following message is
+> displayed repeatedly:
 > 
-> I'm using NFS (v2) over TCP (in a SSH tunnel).
-> Each time the SSH dies before a umount NFS, I have to umount -f
-> and I get a crash (only sysrq works).
-> Actually, the crash occurs a few seconds after umount -f.
+> NETDEV WATCHDOG: eth0: transmit timed out
+> eth0: transmit timed out, tx_status 00 status eb01.
+> diagnostics: net 0cfa media 88c0 dma 0000003a fifo 0000
+> eth0: Interrupt posted but not delivered -- IRQ blocked by another device?
+> Flags; bus-master 1, dirty 65(1) current 65(1)
+> Transmit list 00000000 vs d0c782a0
+> 0: @d0c78200 length 8000002e status 8001002e
+> ...
 > 
-> It seems that killing SSH by hand does _not_ lead to crash.
-> But a long network failure does.
-> I remember seeing this bug several times with all stable releases
-> from 2.6.7 to 2.6.11. I didn't try with earlier versions.
-> 
-> I didn't see anything in the logs (after reboot). But I can't be sure
-> there was nothing in dmesg since I didn't get a chance to chvt 1 and
-> see console messages before rebooting (with sysrq).
-> 
-> Do you have any idea how to debug this ?
+> I also see the same message for eth2. I'd been happily booting this
+> 2.6.8.1 kernel for months without trouble. I don't know where this is
+> coming from. The drivers for my three NICs are forcedeth, 3c59x, and
+> 8139too. I'd be happy to give more information to help.
 
-No clue, but a question: is this a hard or soft mount? Could you post 
-your ssh and mount commands, munged as needed for security? That might 
-give someone a clue.
+If you're looking for general causes did you plug in any other devices, 
+on PCI or on USB/firewire? Add a disk, anything like that.
 
-I did this "back when" but I don't recall having a problem with it.
+If you want real help you need to provide the usual information, see the 
+BUG REPORTS doc in the source in the Documentation directory as I recall.
 
 -- 
     -bill davidsen (davidsen@tmr.com)

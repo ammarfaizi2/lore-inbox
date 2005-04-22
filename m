@@ -1,119 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbVDVXv6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbVDVXwC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261329AbVDVXv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Apr 2005 19:51:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbVDVXv6
+	id S261338AbVDVXwC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Apr 2005 19:52:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbVDVXwB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 19:51:58 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:13073 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261329AbVDVXvx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Apr 2005 19:52:01 -0400
+Received: from smtp800.mail.sc5.yahoo.com ([66.163.168.179]:62376 "HELO
+	smtp800.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261338AbVDVXvx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 22 Apr 2005 19:51:53 -0400
-Date: Sat, 23 Apr 2005 01:51:51 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: ext2-devel@lists.sourceforge.net
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Graham Seale <graham@southline.net>
+Subject: Re: 2.6 kernel, 2.4 kernel, keyboard input handling
+Date: Fri, 22 Apr 2005 18:51:50 -0500
+User-Agent: KMail/1.8
 Cc: linux-kernel@vger.kernel.org
-Subject: [RFC: 2.6 patch] ext2: make ext2_count_free a static inline
-Message-ID: <20050422235151.GH4355@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <42697BAE.9020902@southline.net>
+In-Reply-To: <42697BAE.9020902@southline.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200504221851.50703.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ext2_count_free is a small function that is only used
-#ifdef EXT2FS_DEBUG.
+Hi,
 
-We could offer the function itself only #ifdef EXT2FS_DEBUG, but what 
-about this patch to change ot to a static inline?
+On Friday 22 April 2005 17:33, Graham Seale wrote:
+> 
+> The loss of keyboard function is independent of the environment, whether 
+> using GUI applications (various) or command line only.
+> 
+> The response of the 2.4 kernel is much more able to re-establish 
+> keyboard polling sync. Generally, as the Linux GUI is restored, there 
+> are random input states that might bring up the menu (unasked), and this 
+> will go away after one or two mouse clicks on the screen. If a "freeze" 
+> does happen, it may be cleared by switching away, then back to the Linux PC.
+> 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+I am a bit confused here... You are saying "loss of keyboard function"
+but then mention mouse clicks. What is that you lose - keyboard or mouse
+or both?
 
----
+We know about problems with KVMs and mice but keyboards usually work just
+fine with 2.6... 
 
- fs/ext2/Makefile |    2 +-
- fs/ext2/bitmap.c |   25 -------------------------
- fs/ext2/ext2.h   |   18 +++++++++++++++++-
- 3 files changed, 18 insertions(+), 27 deletions(-)
-
---- linux-2.6.12-rc2-mm3-full/fs/ext2/ext2.h.old	2005-04-20 23:08:52.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/fs/ext2/ext2.h	2005-04-20 23:14:21.000000000 +0200
-@@ -1,5 +1,6 @@
- #include <linux/fs.h>
- #include <linux/ext2_fs.h>
-+#include <linux/buffer_head.h>
- 
- /*
-  * second extended file system inode data in memory
-@@ -79,6 +80,22 @@
- 	return container_of(inode, struct ext2_inode_info, vfs_inode);
- }
- 
-+static int nibblemap[] = {4, 3, 3, 2, 3, 2, 2, 1, 3, 2, 2, 1, 2, 1, 1, 0};
-+
-+static inline unsigned long ext2_count_free (struct buffer_head * map,
-+					     unsigned int numchars)
-+{
-+	unsigned int i;
-+	unsigned long sum = 0;
-+	
-+	if (!map) 
-+		return (0);
-+	for (i = 0; i < numchars; i++)
-+		sum += nibblemap[map->b_data[i] & 0xf] +
-+			nibblemap[(map->b_data[i] >> 4) & 0xf];
-+	return (sum);
-+}
-+
- /* balloc.c */
- extern int ext2_bg_has_super(struct super_block *sb, int group);
- extern unsigned long ext2_bg_num_gdb(struct super_block *sb, int group);
-@@ -111,7 +128,6 @@
- extern void ext2_free_inode (struct inode *);
- extern unsigned long ext2_count_free_inodes (struct super_block *);
- extern void ext2_check_inodes_bitmap (struct super_block *);
--extern unsigned long ext2_count_free (struct buffer_head *, unsigned);
- 
- /* inode.c */
- extern void ext2_read_inode (struct inode *);
---- linux-2.6.12-rc2-mm3-full/fs/ext2/Makefile.old	2005-04-20 23:14:35.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/fs/ext2/Makefile	2005-04-20 23:14:45.000000000 +0200
-@@ -4,7 +4,7 @@
- 
- obj-$(CONFIG_EXT2_FS) += ext2.o
- 
--ext2-y := balloc.o bitmap.o dir.o file.o fsync.o ialloc.o inode.o \
-+ext2-y := balloc.o dir.o file.o fsync.o ialloc.o inode.o \
- 	  ioctl.o namei.o super.o symlink.o
- 
- ext2-$(CONFIG_EXT2_FS_XATTR)	 += xattr.o xattr_user.o xattr_trusted.o
---- linux-2.6.12-rc2-mm3-full/fs/ext2/bitmap.c	2005-03-02 08:38:08.000000000 +0100
-+++ /dev/null	2005-03-19 22:42:59.000000000 +0100
-@@ -1,25 +0,0 @@
--/*
-- *  linux/fs/ext2/bitmap.c
-- *
-- * Copyright (C) 1992, 1993, 1994, 1995
-- * Remy Card (card@masi.ibp.fr)
-- * Laboratoire MASI - Institut Blaise Pascal
-- * Universite Pierre et Marie Curie (Paris VI)
-- */
--
--#include <linux/buffer_head.h>
--
--static int nibblemap[] = {4, 3, 3, 2, 3, 2, 2, 1, 3, 2, 2, 1, 2, 1, 1, 0};
--
--unsigned long ext2_count_free (struct buffer_head * map, unsigned int numchars)
--{
--	unsigned int i;
--	unsigned long sum = 0;
--	
--	if (!map) 
--		return (0);
--	for (i = 0; i < numchars; i++)
--		sum += nibblemap[map->b_data[i] & 0xf] +
--			nibblemap[(map->b_data[i] >> 4) & 0xf];
--	return (sum);
--}
-
+-- 
+Dmitry

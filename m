@@ -1,40 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262090AbVDVRxk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262092AbVDVR4p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262090AbVDVRxk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Apr 2005 13:53:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262088AbVDVRxk
+	id S262092AbVDVR4p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Apr 2005 13:56:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262088AbVDVR4p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 13:53:40 -0400
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:23265
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262090AbVDVRxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Apr 2005 13:53:37 -0400
-Date: Fri, 22 Apr 2005 10:46:25 -0700
-From: "David S. Miller" <davem@davemloft.net>
+	Fri, 22 Apr 2005 13:56:45 -0400
+Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:33488 "EHLO
+	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
+	id S262091AbVDVR4Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Apr 2005 13:56:24 -0400
+Message-ID: <42693A8A.80105@ammasso.com>
+Date: Fri, 22 Apr 2005 12:55:22 -0500
+From: Timur Tabi <timur.tabi@ammasso.com>
+Organization: Ammasso
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en, en-gb
+MIME-Version: 1.0
 To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [TG3]: Add msi test
-Message-Id: <20050422104625.57f80a6a.davem@davemloft.net>
-In-Reply-To: <1114156452.6685.17.camel@laptopd505.fenrus.org>
-References: <200504220501.j3M51lkG012997@hera.kernel.org>
-	<1114156452.6685.17.camel@laptopd505.fenrus.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+CC: Roland Dreier <roland@topspin.com>, Troy Benjegerdes <hozer@hozed.org>,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+References: <200544159.Ahk9l0puXy39U6u6@topspin.com>	 <20050411142213.GC26127@kalmia.hozed.org> <52mzs51g5g.fsf@topspin.com>	 <4263DBBF.9040801@ammasso.com> <1113840973.6274.84.camel@laptopd505.fenrus.org>
+In-Reply-To: <1113840973.6274.84.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Apr 2005 09:54:12 +0200
-Arjan van de Ven <arjan@infradead.org> wrote:
+Arjan van de Ven wrote:
+> On Mon, 2005-04-18 at 11:09 -0500, Timur Tabi wrote:
+> 
+>>Roland Dreier wrote:
+>>
+>>>    Troy> How is memory pinning handled? (I haven't had time to read
+>>>    Troy> all the code, so please excuse my ignorance of something
+>>>    Troy> obvious).
+>>>
+>>>The userspace library calls mlock() and then the kernel does
+>>>get_user_pages().
+>>
+>>Why do you call mlock() and get_user_pages()?  In our code, we only call mlock(), and the 
+>>memory is pinned. 
+> 
+> 
+> this is a myth; linux is free to move the page about in physical memory
+> even if it's mlock()ed!!
 
-> While the technicals of this change are ok, this still concerns me. Are
-> all MSI drivers now supposed to check if the bios/mobo actually support
-> MSI like this? That sounds sort of wrong! 
+Can you tell me when Linux actually does this?  I know in theory it can happen, but I've 
+never seen it.  Does the code to implement moving of data from one physical page to 
+another even exist in any version of Linux?
 
-It's a temporary situation I believe.  Later on when our blacklist
-is more comprehensive we can remove this kind of test code.
+Also, what would be the point?  What reason would there be to move some data from one 
+physical page to another, while keeping the same virtual address?
 
-The test does spit a message out, so we will likely get a report
-and therefore be able to update our MSI blacklists as appropriate.
+-- 
+Timur Tabi
+Staff Software Engineer
+timur.tabi@ammasso.com
+
+One thing a Southern boy will never say is,
+"I don't think duct tape will fix it."
+      -- Ed Smylie, NASA engineer for Apollo 13

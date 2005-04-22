@@ -1,33 +1,65 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261164AbVDUB1G (ORCPT <rfc822;ralf@linux-mips.org>);
-	Wed, 20 Apr 2005 21:27:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261163AbVDUB1G
+	id S262138AbVDVV1L (ORCPT <rfc822;ralf@linux-mips.org>);
+	Fri, 22 Apr 2005 17:27:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262140AbVDVV1L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Apr 2005 21:27:06 -0400
-Received: from zeus2.kernel.org ([204.152.191.36]:54673 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S261164AbVDUB1D (ORCPT
+	Fri, 22 Apr 2005 17:27:11 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:28117 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S262138AbVDVV1A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Apr 2005 21:27:03 -0400
-Date: Wen, 20 Apr 2005 18:31:59 +0000
-From: "Lucien C. Noble" <bofehurul@ezagenda.com>
-X-Mailer: The Bat! (v3.0.0.16) UNREG / XMV1GBXY8HS
-Reply-To: "Lucien C. Noble" <bofehurul@ezagenda.com>
-X-Priority: 3 (Normal)
-Message-ID: <6768527450217.7608641438395886@[24.18.75.130]>
-To: linux-kernel@vger.kernel.org
-Subject: Raunchy rookies raw and uncensored! y27
-MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="Windows-1251"
-Content-Transfer-Encoding: 7bit
+	Fri, 22 Apr 2005 17:27:00 -0400
+Message-Id: <200504222126.j3MLQkc3029657@zeus2.kernel.org>
+From: "Info" <jinfo8@netpublications.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Press release linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Date: Fri, 22 Apr 2005 17:26:49 -0400
+Reply-To: "Info" <info8@netpublications.net>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261164AbVDUB1G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262138AbVDVV1L@vger.kernel.org>
 
-Teen rides a cock
-A JOB WELL DONE LITTLE SLUTS! y27
-Busty bimbo bang y27
-http://hs3.homett.com/c/?86isix
+linux-kernel@vger.kernel.org
+PRESS RELEASE
 
-contusion
+**Canadian subsidy directory 2005**
 
+Legal Deposit-National 
+Library of Canada
+
+Isbn: 2 - 9 2 2 8 7 0 - 0 5 - 7
+
+The new revised edition of the 
+Canadian Subsidy Directory 2005 
+is now available. 
+
+More than 3000 programs listed 
+from governments, associations 
+& foundations.
+
+Business................ 69.95
+
+Academic (For schools, governments, 
+municipalities, reference centers)
+.......................$ 149.95
+
+To obtain a copy please call: 
+866*322*3376
+
+
+
+
+
+
+
+
+
+linux-kernel@vger.kernel.orglinux-kernel@vger.kernel.orglinux-kernel@vger.ke
+rnel.orglinux-kernel@vger.kernel.orglinux-kernel@vger.kernel.orglinux-kernel
+@vger.kernel.orglinux-kernel@vger.kernel.orglinux-kernel@vger.kernel.orglinu
+x-kernel@vger.kernel.orglinux-kernel@vger.kernel.orglinux-kernel@vger.kernel
+.orglinux-kernel@vger.kernel.orglinux-kernel@vger.kernel.orglinux-kernel@vge
+r.kernel.orglinux-kernel@vger.kernel.orglinux-kernel@vger.kernel.orglinux-ke
+rnel@vger.kernel.org

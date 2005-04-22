@@ -1,59 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262083AbVDVRvS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262087AbVDVRxT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262083AbVDVRvS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Apr 2005 13:51:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262087AbVDVRvS
+	id S262087AbVDVRxT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Apr 2005 13:53:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262088AbVDVRxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 13:51:18 -0400
-Received: from mail3.utc.com ([192.249.46.192]:61178 "EHLO mail3.utc.com")
-	by vger.kernel.org with ESMTP id S262083AbVDVRvQ (ORCPT
+	Fri, 22 Apr 2005 13:53:19 -0400
+Received: from fire.osdl.org ([65.172.181.4]:15750 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262087AbVDVRxR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Apr 2005 13:51:16 -0400
-Message-ID: <4269398C.9090305@cybsft.com>
-Date: Fri, 22 Apr 2005 12:51:08 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
+	Fri, 22 Apr 2005 13:53:17 -0400
+Date: Fri, 22 Apr 2005 10:51:55 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+cc: Tomi Lapinlampi <lapinlam@vega.lnet.lut.fi>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org, rth@twiddle.net, adaplas@pol.net,
+       linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: 2.6.12-rc3 compile failure in tgafb.c, tgafb not working anymore
+In-Reply-To: <Pine.LNX.4.61L.0504221840180.27531@blysk.ds.pg.gda.pl>
+Message-ID: <Pine.LNX.4.58.0504221051240.2344@ppc970.osdl.org>
+References: <20050421185034.GS607@vega.lnet.lut.fi> <20050421204354.GF3828@stusta.de>
+ <20050422072858.GU607@vega.lnet.lut.fi> <20050422112030.GW607@vega.lnet.lut.fi>
+ <20050422144047.GY607@vega.lnet.lut.fi> <Pine.LNX.4.58.0504221024470.2344@ppc970.osdl.org>
+ <Pine.LNX.4.61L.0504221840180.27531@blysk.ds.pg.gda.pl>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: fix ultrastor.c compile error
-References: <42690274.5040005@cybsft.com> <Pine.LNX.4.58.0504221028050.2344@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0504221028050.2344@ppc970.osdl.org>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Fri, 22 Apr 2005, K.R. Foley wrote:
-> 
->>This simple patch fixes a compile error in the ultrastor driver. Patch 
->>was originally submitted by Barry K. Nathan as referenced here:
->>http://marc.theaimsgroup.com/?l=linux-kernel&m=111391774018717&w=2
->>I just regenerated it against your current git tree. Please apply.
-> 
-> 
-> Can you also verify that it works?
-
-No. I can only verify that it compiles. I don't have the hardware. 
-Enabled by default in the config and it hadn't blown up before.
-
-> 
-> Finally, when forwarding other peoples patches, please make sure that you 
-> include their commentary, and their sign-off. In this case the original 
-> definitely has them..
-
-Will do.
-
-> 
-> 		Linus
-> 
 
 
--- 
-    kr
+On Fri, 22 Apr 2005, Maciej W. Rozycki wrote:
+> 
+>  JFTR, a few of the TURBOchannel variations of the TGA are supported for 
+> MIPS, but regrettably the necessary code hasn't been ported from 2.4 to 
+> 2.6 yet.
+
+Ok, so that would have increased the testing base by, what? One person or 
+two? I think we're still in single digits ;)
+
+			Linus

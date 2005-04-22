@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261884AbVDVA0R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261816AbVDVAXF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261884AbVDVA0R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 20:26:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261791AbVDVAXZ
+	id S261816AbVDVAXF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 20:23:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbVDVAVa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 20:23:25 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:12684 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S261823AbVDVAVy (ORCPT
+	Thu, 21 Apr 2005 20:21:30 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:11404 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id S261807AbVDVAUy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 20:21:54 -0400
-Date: Fri, 22 Apr 2005 02:21:50 +0200
+	Thu, 21 Apr 2005 20:20:54 -0400
+Date: Fri, 22 Apr 2005 02:20:43 +0200
 From: Petr Baudis <pasky@ucw.cz>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.12-rc3
-Message-ID: <20050422002150.GY7443@pasky.ji.cz>
-References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org> <20050421112022.GB2160@elf.ucw.cz> <20050421120327.GA13834@elf.ucw.cz> <20050421162220.GD30991@pasky.ji.cz> <20050421232201.GD31207@elf.ucw.cz>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: tony.luck@intel.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: ia64 git pull
+Message-ID: <20050422002043.GC1474@pasky.ji.cz>
+References: <200504212042.j3LKgng04318@unix-os.sc.intel.com> <Pine.LNX.4.58.0504211403080.2344@ppc970.osdl.org> <200504212155.j3LLtho04949@unix-os.sc.intel.com> <200504212155.j3LLtho04949@unix-os.sc.intel.com> <200504212301.j3LN1Do05507@unix-os.sc.intel.com> <Pine.LNX.4.58.0504211608300.2344@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050421232201.GD31207@elf.ucw.cz>
+In-Reply-To: <Pine.LNX.4.58.0504211608300.2344@ppc970.osdl.org>
 User-Agent: Mutt/1.4i
 X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Fri, Apr 22, 2005 at 01:22:01AM CEST, I got a letter
-where Pavel Machek <pavel@ucw.cz> told me that...
-> Hi!
-
-Hi,
-
-> > > > You should put this into .git/remotes
-> > > > 
-> > > > linus	rsync://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
-> > 
-> > (git addremote is preferred for that :-)
+Dear diary, on Fri, Apr 22, 2005 at 01:19:47AM CEST, I got a letter
+where Linus Torvalds <torvalds@osdl.org> told me that...
+> So in the long run this issue goes away - we'll just have synchronization 
+> tools that won't get any unnecessary pollution. But in the short run I 
+> actually check my git archive religiously for being clean, and I do
 > 
-> Nice, so I now have my own -git tree, with two changes in it...
+> 	fsck-cache --unreachable $(cat .git/HEAD)
 > 
-> Is there way to say "git diff -r origin:" but dump it patch-by-patch
-> with some usable headers?
-> 
-> [Looking at git export]
+> quite often - not because git has been flaky, but simply beause I'm anal. 
+> And getting objects from other branches would mess with that..
 
-Either Linus' demo git-export (NOT the same as git export!), or git
-patch. In the latest tree, it was extended to accept a range of two
-commits to process too.
+(Note that when using git-pasky, you need to do
 
-Note that the range semantics is rather peculiar at the least. ;-)
+	fsck-cache --unreachable $(cat .git/heads/*)
+
+instead.)
 
 -- 
 				Petr "Pasky" Baudis

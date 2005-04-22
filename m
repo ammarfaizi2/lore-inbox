@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261971AbVDVPMi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbVDVP3y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261971AbVDVPMi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Apr 2005 11:12:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbVDVPLS
+	id S262062AbVDVP3y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Apr 2005 11:29:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262056AbVDVP3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 11:11:18 -0400
-Received: from eagle.melbpc.org.au ([203.12.152.41]:57238 "EHLO
-	vscan41.melbpc.org.au") by vger.kernel.org with ESMTP
-	id S261970AbVDVPDX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Apr 2005 11:03:23 -0400
-Message-ID: <4269122F.6050208@melbpc.org.au>
-Date: Sat, 23 Apr 2005 01:03:11 +1000
-From: Charles Mydlak <cmydlak@melbpc.org.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Kernel lockup when swapping out to swap partition in 250G extended
- partition
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 22 Apr 2005 11:29:22 -0400
+Received: from pat.uio.no ([129.240.130.16]:12025 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261968AbVDVP2O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Apr 2005 11:28:14 -0400
+Subject: Re: Irix NFS Server Problems - Ever Resolved?
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Eric Harvieux <eric@ima.umn.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4269103D.1000503@ima.umn.edu>
+References: <4269103D.1000503@ima.umn.edu>
+Content-Type: text/plain
+Date: Fri, 22 Apr 2005 11:27:57 -0400
+Message-Id: <1114183677.10450.80.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
-X-Filtered-With: renattach 1.2.2
-X-RenAttach-Info: mode=badlist action=rename count=0
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.51, required 12,
+	autolearn=disabled, AWL 1.44, FORGED_RCVD_HELO 0.05,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+fr den 22.04.2005 Klokka 09:54 (-0500) skreiv Eric Harvieux:
+> Hi,
+> 
+> I have recently run into problems with 2.6 NFS clients accessing Irix 
+> servers. After extensive searching, I found the problem referred to on 
+> the kernel mailing list, in this thread:
+> 
+> http://kerneltrap.org/mailarchive/1/message/19372/thread
+> 
+> I could not find any other discussion of this issue and was wondering if 
+> there has been any further work done to write a patch for this issue? 
+> This bug definitely breaks 2.6 NFS clients, while 2.4 clients works fine.
 
-I'm running the 2.6.11.7 kernel (and others) and all of them have a 
-problem with locking up when they try to swap out memory, to a swap 
-partition, that is located in an extended partition which is 200G
-in size. The same problem does not occur when the swap partition is
-a primary partition on the same drive.
-Another problem that is probably related, was when I first formatted
-the drive using fdisk, and then did a reboot I got a kernel divide by
-zero message with cpu register dumps. I can't seem to replicate this
-error though.
+Yes. See the list of patches on
 
-The software is Fedora Core 2 and the KDE desktop.
+http://client.linux-nfs.org/Linux-2.6.x/2.6.12-rc2
 
-Sorry if this is a bit vague, but I'm not sure what type of
-information you require to locate the bug.
+Cheers,
+  Trond
 
-Regards
-Charles Mydlak
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
+

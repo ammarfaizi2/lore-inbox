@@ -1,71 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261924AbVDVIu5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261938AbVDVI4M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261924AbVDVIu5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Apr 2005 04:50:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbVDVIu5
+	id S261938AbVDVI4M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Apr 2005 04:56:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbVDVI4M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 04:50:57 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:31568 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261924AbVDVIur
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Apr 2005 04:50:47 -0400
-From: "Tais M. Hansen" <tais.hansen@osd.dk>
-Organization: OSD
-To: linux-kernel@vger.kernel.org, Brian Jackson <notiggy@gmail.com>
-Subject: Re: SATA/ATAPI
-Date: Fri, 22 Apr 2005 10:50:40 +0200
-User-Agent: KMail/1.8
-References: <200504211941.43889.tais.hansen@osd.dk> <fb20c2140504211651134980d9@mail.gmail.com>
-In-Reply-To: <fb20c2140504211651134980d9@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1383140.m4pWyQF4FS";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200504221050.44924.tais.hansen@osd.dk>
+	Fri, 22 Apr 2005 04:56:12 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27791 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261938AbVDVI4H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Apr 2005 04:56:07 -0400
+Date: Fri, 22 Apr 2005 09:56:14 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Robert Love <rml@novell.com>
+Cc: linux-kernel@vger.kernel.org, Mr Morton <akpm@osdl.org>,
+       John McCutchan <ttb@tentacle.dhs.org>
+Subject: Re: [patch] updated inotify for 2.6.12-rc3.
+Message-ID: <20050422085614.GE13052@parcelfarce.linux.theplanet.co.uk>
+References: <1114060434.6913.26.camel@jenny.boston.ximian.com> <1114146110.6973.101.camel@jenny.boston.ximian.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1114146110.6973.101.camel@jenny.boston.ximian.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1383140.m4pWyQF4FS
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+> +static int inotify_ignore(struct inotify_device *dev, s32 wd)
+> +{
+> +	struct inotify_watch *watch;
+> +	struct inode *inode;
+> +
+> +	down(&dev->sem);
+> +	watch = idr_find(&dev->idr, wd);
+> +	if (unlikely(!watch)) {
+> +		up(&dev->sem);
+> +		return -EINVAL;
+> +	}
+> +	get_inotify_watch(watch);
+> +	up(&dev->sem);
+> +
+> +	inode = watch->inode;
+> +	down(&inode->inotify_sem);
+> +	down(&dev->sem);
+> +	remove_watch(watch, dev);
+> +	up(&dev->sem);
+> +	up(&inode->inotify_sem);
+> +	put_inotify_watch(watch);
+> +
+> +	return 0;
+> +}
 
-On Friday 22 April 2005 01:51, Brian Jackson wrote:
-> > One of my linux boxes has a Plextor DVD-RW drive with a SATA interface.
-> > The kernel sees this drive (ata3) but apparently doesn't tie it to a sdx
-> > device. The box also have a SATA harddisk, which is working just fine.
-> > The relevant dmesg output is pasted below.
-> Just to check, you do have scsi cdrom support enabled right?
-
-Yes. cdrom and sr_mod are both loaded as modules. I'm assuming having compi=
-led=20
-them as modules doesn't change anything. I'm probably going to try messing=
-=20
-with the SCSI cdrom driver, just to see if I can figure out what's going on.
-
-=2D-=20
-Regards,
-Tais M. Hansen
-OSD
-
-___________________________________________________________
-"If people had understood how patents would be granted when most of today's=
-=20
-ideas were invented and had taken out patents, the industry would be at a=20
-complete standstill today." -Bill Gates (1991)
-
---nextPart1383140.m4pWyQF4FS
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBCaLrkLf7B7mQNLngRAnxHAKCWTzgEX7tdVlpOPBP8UZbbp5c98gCgqALx
-frIU7xQ0kUMHngi39zhfO8Q=
-=Y4Qe
------END PGP SIGNATURE-----
-
---nextPart1383140.m4pWyQF4FS--
+So what happens if
+	* something is holding inotify_sem right now
+	* ten threads call that on the same watch
+	* all of them get to down(&inode->inotify_sem); and block there,
+having acquired ten references to the watch
+	* after whatever had been holding ->inotify_sem in the first place
+releases it, they will one by one go through the rest of function.  And
+drop _20_ references to the watch.  9 of those - after we kfree() the
+watch...

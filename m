@@ -1,52 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262045AbVDVQAT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262052AbVDVQEJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262045AbVDVQAT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Apr 2005 12:00:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbVDVP6G
+	id S262052AbVDVQEJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Apr 2005 12:04:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262046AbVDVQEJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 11:58:06 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:26536 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262042AbVDVP4c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Apr 2005 11:56:32 -0400
-Date: Fri, 22 Apr 2005 17:56:23 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc3-V0.7.46-01
-Message-ID: <20050422155623.GA23256@elte.hu>
-References: <20050422154931.GA22534@elte.hu> <Pine.LNX.4.44.0504220852310.22042-100000@dhcp153.mvista.com> <20050422155549.GB22795@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050422155549.GB22795@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 22 Apr 2005 12:04:09 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:58242 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262047AbVDVQDZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Apr 2005 12:03:25 -0400
+Message-ID: <42692201.2000300@tmr.com>
+Date: Fri, 22 Apr 2005 12:10:41 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+Newsgroups: mail.linux-kernel
+To: linux@horizon.com
+CC: git@vger.kernel.org, linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: enforcing DB immutability
+References: <20050420084115.2699.qmail@science.horizon.com>
+In-Reply-To: <20050420084115.2699.qmail@science.horizon.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Ingo Molnar <mingo@elte.hu> wrote:
-
+linux@horizon.com wrote:
+> [A discussion on the git list about how to provide a hardlinked file
+> that *cannot* me modified by an editor, but must be replaced by
+> a new copy.]
 > 
-> * Daniel Walker <dwalker@mvista.com> wrote:
+> mingo@elte.hu wrote all of:
 > 
-> > What command line did you use ?
-> > 
-> > ./test --samples 10000 --hertz 128 --tasks 0
+>>>>perhaps having a new 'immutable hardlink' feature in the Linux VFS 
+>>>>would help? I.e. a hardlink that can only be readonly followed, and 
+>>>>can be removed, but cannot be chmod-ed to a writeable hardlink. That i 
+>>>>think would be a large enough barrier for editors/build-tools not to 
+>>>>play the tricks they already do that makes 'readonly' files virtually 
+>>>>meaningless.
+>>>
+>>>immutable hardlinks have the following advantage: a hardlink by design 
+>>>hides the information where the link comes from. So even if an editor 
+>>>wanted to play stupid games and override the immutability - it doesnt 
+>>>know where the DB object is. (sure, it could find it if it wants to, 
+>>>but that needs real messing around - editors wont do _that_)
+>>
+>>so the only sensible thing the editor/tool can do when it wants to 
+>>change the file is precisely what we want: it will copy the hardlinked 
+>>files's contents to a new file, and will replace the old file with the 
+>>new file - a copy on write. No accidental corruption of the DB's 
+>>contents.
 > 
-> i used:
 > 
->   ./test --tasks 10 file.hist
+> This is not a horrible idea, but it touches on another sore point I've
+> worried about for a while.
+> 
+> The obvious way to do the above *without* changing anything is just to
+> remove all write permission to the file.  But because I'm the owner, some
+> piece of software running with my permissions can just deicde to change
+> the permissions back and modify the file anyway.  Good old 7th edition
+> let you give files away, which could have addressed that (chmod a-w; chown
+> phantom_user), but BSD took that ability away to make accounting work.
+> 
+> The upshot is that, while separate users keeps malware from harming the
+> *system*, if I run a piece of malware, it can blow away every file I
+> own and make me unhappy.  When (notice I'm not saying "if") commercial
+> spyware for Linux becomes common, it can also read every file I own.
+> 
+> Unless I have root access, Linux is no safer *for me* than Redmondware!
+> 
+> Since I *do* have root access, I often set up sandbox users and try
+> commercial binaries in that environment, but it's a pain and laziness
+> often wins.  I want a feature that I can wrap in a script, so that I
+> can run a commercial binary in a nicely restricted enviromment.
+> 
+> Or maybe I even want to set up a "personal root" level, and run
+> my normal interactive shells in a slightly restricted enviroment
+> (within which I could make a more-restricted world to run untrusted
+> binaries).  Then I could solve the immutable DB issue by having a
+> "setuid" binary that would make checked-in files unwriteable at my
+> normal permission level.
+> 
+> Obviously, a fundamental change to the Unix permissions model won't
+> be available to solve short-term problems, but I thought I'd raise
+> the issue to get people thinking about longer-term solutions.
 
-but first i did:
+chattr +i file
 
-chrt -f 98 -p `pidof 'IRQ 8'`
+But the real problem is that you expect your editor to be smart enough 
+to diddle permissions (some aren't) or create a new file (some aren't 
+that either).
 
-	Ingo
+It sounds as if you're kind of using the wrong tool here, frankly.
+
+You also don't understand hard links, they don't hide anything, the 
+inode number is there, which is exactly as much information as is in the 
+original link. And they are lots safer, since you can't wind up with 
+them pointing to a non-existent file, get them in circular loops, etc. 
+Okay, YOU probably wouldn't, but believe me semi-competent users 
+regularly these things.
+
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

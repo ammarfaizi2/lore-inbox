@@ -1,194 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262139AbVDVV1x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262146AbVDVV35@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262139AbVDVV1x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Apr 2005 17:27:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262140AbVDVV1w
+	id S262146AbVDVV35 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Apr 2005 17:29:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262142AbVDVV3r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 17:27:52 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:8131 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262139AbVDVV1D (ORCPT
+	Fri, 22 Apr 2005 17:29:47 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:13267 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262140AbVDVV3D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Apr 2005 17:27:03 -0400
-Date: Fri, 22 Apr 2005 17:26:56 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: linux-mm@kvack.org
-cc: linux-kernel@vger.kernel.org
-Subject: [RFC] non-resident page management
-Message-ID: <Pine.LNX.4.61.0504221725520.21085@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 22 Apr 2005 17:29:03 -0400
+Date: Fri, 22 Apr 2005 14:26:18 -0700
+From: Paul Jackson <pj@sgi.com>
+To: dino@in.ibm.com
+Cc: Simon.Derr@bull.net, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net, akpm@osdl.org, dipankar@in.ibm.com,
+       colpatch@us.ibm.com
+Subject: Re: [Lse-tech] Re: [RFC PATCH] Dynamic sched domains aka Isolated
+ cpusets
+Message-Id: <20050422142618.08d74ede.pj@sgi.com>
+In-Reply-To: <20050421162738.GA4200@in.ibm.com>
+References: <1097110266.4907.187.camel@arrakis>
+	<20050418202644.GA5772@in.ibm.com>
+	<20050418225427.429accd5.pj@sgi.com>
+	<20050419093438.GB3963@in.ibm.com>
+	<20050419102348.118005c1.pj@sgi.com>
+	<20050420071606.GA3931@in.ibm.com>
+	<20050420120946.145a5973.pj@sgi.com>
+	<20050421162738.GA4200@in.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Basic infrastructure to track non-resident pages. This code is
-needed to support advanced page replacement algorithms like
-CLOCK-Pro or CART.
+Dinakar wrote:
+> Ok, Let me begin at the beginning and attempt to define what I am 
+> doing here
 
-Note that this code could use an actual hash function.
+The statement of requirements and approach help.  Thank-you.
 
-Links to the actual replacement algorithms can be found on:
+And the comments in the code patch are much easier for me
+to understand.  Thanks.
 
-http://wiki.linux-mm.org/wiki/AdvancedPageReplacement
+Let me step back and consider where we are here.
 
-Signed-off-by: Rik van Riel <riel@redhat.com>
+I've not been entirely happy with the cpu_exclusive (and mem_exclusive)
+properties.  They were easy to code, and they require only looking at
+ones siblings and parent, but they don't provide all that people usually
+want, which is system wide exclusivity, because they don't exclude tasks
+in ones parent (or more remote ancestor) cpusets from stealing resources.
 
---- linux-2.6.11/include/linux/nonresident.h.nonres	2005-04-22 17:19:20.000000000 -0400
-+++ linux-2.6.11/include/linux/nonresident.h	2005-04-22 17:20:31.000000000 -0400
-@@ -0,0 +1,11 @@
-+/*
-+ * include/linux/nonresident.h
-+ * (C) 2004,2005 Red Hat, Inc
-+ * Written by Rik van Riel <riel@redhat.com>
-+ * Released under the GPL, see the file COPYING for details.
-+ *
-+ * Keeps track of whether a non-resident page was recently evicted
-+ * and should be immediately promoted to the active list.
-+ */
-+extern int recently_evicted(void *, unsigned long, short);
-+extern int remember_page(void *, unsigned long, short);
---- linux-2.6.11/mm/nonresident.c.nonres	2005-04-22 17:19:13.000000000 -0400
-+++ linux-2.6.11/mm/nonresident.c	2005-04-22 17:21:12.000000000 -0400
-@@ -0,0 +1,130 @@
-+/*
-+ * mm/nonresident.c
-+ * (C) 2004,2005 Red Hat, Inc
-+ * Written by Rik van Riel <riel@redhat.com>
-+ * Released under the GPL, see the file COPYING for details.
-+ *
-+ * Keeps track of whether a non-resident page was recently evicted
-+ * and should be immediately promoted to the active list. This also
-+ * helps automatically tune the inactive target.
-+ *
-+ * The pageout code stores a recently evicted page in this cache
-+ * by calling remember_page(mapping/mm, offset/vaddr, generation)
-+ * and can look it up in the cache by calling recently_evicted()
-+ * with the same arguments.
-+ *
-+ * Note that there is no way to invalidate pages after eg. truncate
-+ * or exit, we let the pages fall out of the non-resident set through
-+ * normal replacement.
-+ */
-+#include <linux/mm.h>
-+#include <linux/cache.h>
-+#include <linux/spinlock.h>
-+#include <linux/bootmem.h>
-+#include <linux/jhash.h>
-+// #include <linux/nonresident.h>
-+
-+static unsigned long nr_buckets;
-+
-+/*
-+ * We fold the object generation number into the offset field, since
-+ * that one has the most "free" bits on a 32 bit system.
-+ */
-+#define NR_GEN_SHIFT		(BITS_PER_LONG * 7 / 8)
-+#define NR_OFFSET_MASK		((1 << NR_GEN_SHIFT) - 1)
-+#define make_nr_oag(x,y)	(((x) & NR_OFFSET_MASK) + ((y) << NR_GEN_SHIFT))
-+
-+struct nr_page {
-+	void * mapping;
-+	unsigned long offset_and_gen;
-+};
-+
-+/* Number of non-resident pages per hash bucket */
-+#define NUM_NR ((L1_CACHE_BYTES - sizeof(spinlock_t))/sizeof(struct nr_page))
-+
-+struct nr_bucket
-+{
-+	spinlock_t lock;
-+	struct nr_page pages[NUM_NR];
-+} ____cacheline_aligned;
-+
-+/* The non-resident page hash table. */
-+static struct nr_bucket * nr_hashtable;
-+
-+/* Wanted: a real hash function for 2 longs. */
-+struct nr_bucket * nr_hash(void * mapping, unsigned long offset_and_gen)
-+{
-+	unsigned long bucket;
-+	bucket = ((unsigned long)mapping + offset_and_gen) % nr_buckets;
-+	return nr_hashtable + bucket;
-+}
-+
-+static int nr_same(struct nr_page * first, struct nr_page * second)
-+{
-+	/* Chances are this nr_page belongs to a different mapping ... */
-+	if (first->mapping != second->mapping)
-+		return 0;
-+
-+	/* ... but if it matches the mapping, it's probably the same page. */
-+	if (likely(first->offset_and_gen == second->offset_and_gen))
-+		return 1;
-+
-+	return 0;
-+}
-+
-+int recently_evicted(void * mapping, unsigned long offset, short gen)
-+{
-+	unsigned long offset_and_gen = make_nr_oag(offset, gen);
-+	struct nr_bucket * nr_bucket = nr_hash(mapping, offset_and_gen);
-+	struct nr_page wanted;
-+	int state = -1;
-+	int i;
-+
-+	wanted.offset_and_gen = offset_and_gen;
-+	wanted.mapping = mapping;
-+
-+	spin_lock(&nr_bucket->lock);
-+	for (i = 0; i < NUM_NR; i++) {
-+		struct nr_page * found = &nr_bucket->pages[i];
-+		if (nr_same(found, &wanted)) {
-+			found->mapping = 0;
-+			state = 1;
-+		}
-+	}
-+	spin_unlock(&nr_bucket->lock);
-+
-+	return state;
-+}
-+
-+int remember_page(void * mapping, unsigned long offset, short gen)
-+{
-+	unsigned long offset_and_gen = make_nr_oag(offset, gen);
-+	struct nr_bucket * nr_bucket = nr_hash(mapping, offset_and_gen);
-+	struct nr_page * victim;
-+	int recycled = 0;
-+	int i;
-+
-+	spin_lock(&nr_bucket->lock);
-+	for (i = 0; i < NUM_NR; i++) {
-+		victim = &nr_bucket->pages[i];
-+		if (victim->mapping == 0)
-+			goto assign;
-+	}
-+
-+	/* Randomly recycle an nr_page. */
-+	i = (offset ^ jiffies) % NUM_NR;
-+	victim = &nr_bucket->pages[i];
-+	recycled = 1;
-+
-+assign:
-+	victim->mapping = mapping;
-+	victim->offset_and_gen = offset_and_gen;
-+	spin_unlock(&nr_bucket->lock);
-+	return recycled;
-+}
-+
-+void __init init_nonresident(unsigned long mempages)
-+{
-+	nr_buckets = mempages / NUM_NR;
-+	nr_hashtable = alloc_bootmem(nr_buckets * sizeof(struct nr_bucket));
-+}
---- linux-2.6.11/mm/Makefile.nonres	2005-04-22 17:19:49.000000000 -0400
-+++ linux-2.6.11/mm/Makefile	2005-04-22 11:25:36.000000000 -0400
-@@ -12,7 +12,8 @@ obj-y			:= bootmem.o filemap.o mempool.o
- 			   readahead.o slab.o swap.o truncate.o vmscan.o \
- 			   prio_tree.o $(mmu-y)
- 
--obj-$(CONFIG_SWAP)	+= page_io.o swap_state.o swapfile.o thrash.o
-+obj-$(CONFIG_SWAP)	+= page_io.o swap_state.o swapfile.o thrash.o \
-+			   nonresident.o
- obj-$(CONFIG_HUGETLBFS)	+= hugetlb.o
- obj-$(CONFIG_NUMA) 	+= mempolicy.o
- obj-$(CONFIG_SHMEM) += shmem.o
+I take your isolated cpusets as a reasonable attempt to provide what's
+really wanted.  I had avoided simple, system-wide exclusivity because
+I really wanted cpusets to be hierarchical.  One should be able to
+subdivide and manage one subtree of the cpuset hierarchy, oblivious
+to what someone else is doing with a disjoint subtree.  Your work shows
+how to provide a stronger form of isolation (exclusivity) without
+abandoning the hierarchical structure.
+
+There are three directions we could go from here.  I am not yet decided
+between them:
+
+ 1) Remove cpu and mem exclusive flags - they are of limited use.
+
+ 2) Leave code as is.
+
+ 3) Extend the exclusive capability to include isolation from parents,
+    along the lines of your patch.
+
+If I was redoing cpusets from scratch, I might not include the exclusive
+feature at all - not sure.  But it's cheap, at least in terms of code,
+and of some use to some users.  So I would choose (2) over (1), given
+where we are now.  The main cost at present of the exclusive flags is
+the cost in understanding - they tend to confuse people at first glance,
+due to their somewhat unusual approach.
+
+If we go with (3), then I'd like to consider the overall design of this
+a bit more.  Your patch, as is common for patches, attempts to work within
+the current framework, minimizing change.  Better to take a step back and
+consider what would have been the best design as if the past didn't matter,
+then with that clearly in mind, ask how best to get there from here.
+
+I don't think we would have both isolated and exclusive flags, in the
+'ideal design.'  The exclusive flags are essentially half (or a third)
+of what's needed, and the isolated flags and masks the rest of it.
+
+Essentially, your patch replaces the single set of CPUs in a cpuset
+with three, related sets:
+ A] the set of all CPUs managed by that cpuset
+ B] the set of CPUs allowed to tasks attached to that cpuset
+ C] the set of CPUs isolated for the dedicated use of some descendent
+
+Sets [B] and [C] form a partition of [A] -- their intersection is empty,
+and their union is [A].
+
+Your current presentation of these sets of CPUs shows set [B] in the
+cpus file, followed by set [C] in brackets, if I am recalling correctly.
+This format changes the format of the current cpus_allowed file, and it
+violates the preference for a single value or vector per file.  I would
+like to consider alternatives.
+
+Your code automatically updates [C] if the child cpuset adds or removes
+CPUs from those it manages in isolation (though I am not sure that your
+code manages this change all the way back up the hierarchy to the top
+cpuset, and I wondering if perhaps your code should be doing this, as
+noted in my detailed comments on your patch earlier today.)
+
+I'd be tempted, if taking this approach (3) to consider a couple of
+alternatives.
+
+As I spelled out a few days ago, one could mark some cpusets that form a
+partition of the systems CPUs, for the purposes of establishing isolated
+scheduler domains, without requiring the above three related sets per
+cpuset instead of one.  I am still unsure how much of your motivation is
+the need to make the scheduler more efficient by establishing useful
+isolated sched domains, and how much is the need to keep the usage of
+CPUs by various jobs isolated, even from tasks attached to parent cpusets.
+
+One can obtain the job isolation just in user code - if you don't want a
+task to use a parent cpusets access to your isolated cpuset, then simply
+don't attach a task to the parent cpusets.  I do not understand yet how
+strong your requirement is to have the _kernel_ enforce that there are
+not tasks in a parent cpuset which could intrude on the non-isolated
+resources of a child.  I provide (non open source) user level tools to
+my users which enable them to conveniently ensure that there are no such
+unwanted tasks, so they don't have a problem with a parent cpusets CPUs
+overlapping a cpuset that they are using for an isolated job.  Perhaps I
+could persuade my employer that it would be appropriate to open source
+these tools.
+
+In any case, going (3) would result in _one_ attribute, not two (both
+exclusive and isolated, with overlapping semantics, which is confusing.)
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

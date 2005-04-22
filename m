@@ -1,45 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbVDVGPz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261911AbVDVGU7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261610AbVDVGPz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Apr 2005 02:15:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261911AbVDVGPz
+	id S261911AbVDVGU7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Apr 2005 02:20:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbVDVGU6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 02:15:55 -0400
-Received: from mail.kroah.org ([69.55.234.183]:41140 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261610AbVDVGPv (ORCPT
+	Fri, 22 Apr 2005 02:20:58 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:46269 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S261911AbVDVGU4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Apr 2005 02:15:51 -0400
-Date: Thu, 21 Apr 2005 23:14:43 -0700
-From: Greg KH <greg@kroah.com>
-To: Timur Tabi <timur.tabi@ammasso.com>
-Cc: Andy Isaacson <adi@hexapodia.org>, Troy Benjegerdes <hozer@hozed.org>,
-       Bernhard Fischer <blist@aon.at>, Arjan van de Ven <arjan@infradead.org>,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
-Message-ID: <20050422061443.GA10499@kroah.com>
-References: <20050421173821.GA13312@hexapodia.org> <4267F367.3090508@ammasso.com> <20050421195641.GB13312@hexapodia.org> <4268080E.3000303@ammasso.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 22 Apr 2005 02:20:56 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Bob Gill <gillb4@telusplanet.net>
+Subject: Re: Linux 2.6.12-rc3:microtek.c:338: error: for each function it appears in.
+Date: Fri, 22 Apr 2005 08:20:53 +0200
+User-Agent: KMail/1.7.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1114132809.7700.3.camel@localhost.localdomain>
+In-Reply-To: <1114132809.7700.3.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4268080E.3000303@ammasso.com>
-User-Agent: Mutt/1.5.8i
+Message-Id: <200504220820.53313.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 21, 2005 at 03:07:42PM -0500, Timur Tabi wrote:
-> >*You* need to come up with a solution that looks good to *the community*
-> >if you want it merged.  
-> 
-> True, but I'm not going to waste my time adding this support if the 
-> consensus I get from the kernel developers that they don't want Linux to 
-> behave this way.
+Am Freitag, 22. April 2005 03:20 schrieb Bob Gill:
+> OK.  I downloaded, patched and started the build.  Basically everything
+> stops when I get a "microtek.c:338: error: `FAILURE' undeclared" error
 
-I think we have been giving you that consensus from the very
-beginning :)
+Known problem. Fix in the pipeline.
 
-The very fact that you tried to trot out the "enterprise" card should
-have raised a huge flag...
-
-thanks,
-
-greg k-h
+	Regards
+		Oliver

@@ -1,217 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261999AbVDVHMs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262002AbVDVHUu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261999AbVDVHMs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Apr 2005 03:12:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbVDVHMs
+	id S262002AbVDVHUu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Apr 2005 03:20:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262003AbVDVHUu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 03:12:48 -0400
-Received: from redpine-92-161-hyd.redpinesignals.com ([203.196.161.92]:38868
-	"EHLO redpinesignals.com") by vger.kernel.org with ESMTP
-	id S261999AbVDVHMU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Apr 2005 03:12:20 -0400
-Message-ID: <4268A69C.10200@redpinesignals.com>
-Date: Fri, 22 Apr 2005 12:54:12 +0530
-From: P Lavin <lavin.p@redpinesignals.com>
-Reply-To: lavin.p@redpinesignals.com
-Organization: www.redpinesignals.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: kernel panic and then oops
-References: <1114152455.5272.30.camel@aaron.proficuous.com>
-In-Reply-To: <1114152455.5272.30.camel@aaron.proficuous.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 22 Apr 2005 03:20:50 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:47237 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262002AbVDVHUe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Apr 2005 03:20:34 -0400
+Date: Fri, 22 Apr 2005 09:20:37 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Phillip Lougher <phillip@lougher.demon.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 5/10] squashfs: (void*)ify read_blocklist
+Message-ID: <20050422072037.GB10459@wohnheim.fh-wedel.de>
+References: <20050420065500.GA24213@wohnheim.fh-wedel.de> <20050421010817.GB29755@wohnheim.fh-wedel.de> <20050421011045.GC29755@wohnheim.fh-wedel.de> <20050421011126.GD29755@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050421011126.GD29755@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Aaron,
-
- > Unable to handle kernel paging
- > request at virtual address b9e9168a
-
-This message is comming because a page fault has occured at virtual 
-address b9e9168a . This means the requested page was not available in 
-the virtual memory. When i got these kind of errors in my WLAN driver 
-kernel was crashing. After decoding the oops i found out that i was 
-tryng to free some invalid memory !! Once i fixed this bug my module was 
-working fine.
-Regards,
-Lavin
-
-Aaron P. Martinez wrote:
-> I am running Centos 4 with the latest kernel (updated yesterday)
-> 2.6.9-5.0.5.EL on a P4 2.4 machine w/1 Gb ram and for the last couple
-> weeks the machine has just been randomly hanging.  I did upgrade the
-> memory from a 512m stick to 2 1 gig sticks because the machine was
-> regularly using 100% of the swap and would simply crawl.  I know the
-> thing to look at here obviously is the memory but i've already run
-> memtest86+ and it reported that there was nothing wrong with the memory.
-> I have tried running with a single stick of the 1Gb for the last couple
-> days and tomorrow will be putting the 512 back in just for testing.
-> 
-> I searched the archives for the error, but as far as kernel debugging
-> goes, i'm very new to it.  I saw a lot of errors that looked similar but
-> as i'm not exactly sure how to read all of the data from a crash I hoped
-> i could get some help from the experts.
-> 
-> Generally when the machine hangs i get __nothing__ in the logs as far as
-> a crash trace goes...the machine just seems to hang (sometimes i can
-> ping it..other times not) and a hard reset is forced.  When it comes
-> up..the log is void of any info.  Today the machine reset, I wasn't
-> onsite, but as it was hanging i got the onsite person to give me the
-> error:
-> 
-> <0> kernel panic not syncing: fatal exception in interrupt
-> <0> kernel panic not syncing: arch/i386/kernel/irq.c:590 spin_is_locked
-> on
-> initialized spinlock C03a5098
-> 
-> 
-> I'm sure there was other messages but this is all i got from him before
-> he needed to get the machine running again.  He reset the machine and
-> about 2 minutes later the following messages showed up in the log:
-> 
-> 
-> Unable to handle kernel paging request at virtual address b9e91c8a
-> Apr 21 16:12:44 wolverine kernel:  printing eip:
-> Apr 21 16:12:44 wolverine kernel: f88aed9a
-> Apr 21 16:12:44 wolverine kernel: *pde = 00000000
-> Apr 21 16:12:44 wolverine kernel: Oops: 0002 [#1]
-> Apr 21 16:12:44 wolverine kernel: Modules linked in: md5 ipv6 autofs4
-> iptable_mangle iptable_nat ipt_LOG ipt_state ip_conntrack iptable_filter
-> ip_tables uhci_hcd ehci_hcd 8139too mii floppy dm_snapshot dm_zero
-> dm_mirror ext3 jbd dm_mod
-> Apr 21 16:12:44 wolverine kernel: CPU:    0
-> Apr 21 16:12:44 wolverine kernel: EIP:    0060:[<f88aed9a>]    Not
-> tainted VLI
-> Apr 21 16:12:44 wolverine kernel: EFLAGS: 00010246   (2.6.9-5.0.5.EL)
-> Apr 21 16:12:44 wolverine kernel: EIP is at
-> ext3_try_to_allocate_with_rsv+0xd1/0x358 [ext3]
-> Apr 21 16:12:44 wolverine kernel: eax: 00000000   ebx: f7e01aa8   ecx:
-> 00158000   edx: 00000000
-> Apr 21 16:12:44 wolverine kernel: esi: e85bb669   edi: 00007000   ebp:
-> 00000000   esp: e64abbd5
-> Apr 21 16:12:44 wolverine kernel: ds: 007b   es: 007b   ss: 0068
-> Apr 21 16:12:44 wolverine kernel: Process imapd (pid: 3502,
-> threadinfo=e64ab000 task=e3ae38f0)
-> Apr 21 16:12:44 wolverine kernel: Stack: 00000000 2b001580 94000000
-> 00f69a32 00f6e4d8 00f6e4d8 01000000 00000000
-> Apr 21 16:12:44 wolverine kernel:        00f6e104 00f7e01a 00000070
-> 5bf6e4d8 ecf88af2 00f5d512 68000070 4ce85bb6
-> Apr 21 16:12:44 wolverine kernel:        e4e64abc 80c02a10 2bf500fc
-> 68000000 00e85bb6 60f6e104 00f6e785 00000000
-> Apr 21 16:12:44 wolverine kernel: Call Trace:
-> Apr 21 16:12:44 wolverine kernel: Code: 8d 98 a8 00 00 00 8b 42 14 01 c1
-> 89 4c 24 04 8b 56 00 80 14 24 8b 46 34 89 44 24 14 8b 46 38 89 44 24 00
-> 8b 04 24 8b
-> 14 24 22 06 <18> 83 e2 01 09 c2 64 84 83 7c 24 18 00 74 20 84 ed 78 1c
-> ff 74
-> Apr 21 16:12:44 wolverine kernel:  <1>Unable to handle kernel paging
-> request at virtual address b9e9168a
-> Apr 21 16:12:44 wolverine kernel:  printing eip:
-> Apr 21 16:12:44 wolverine kernel: f88aed9a
-> Apr 21 16:12:44 wolverine kernel: *pde = 00000000
-> Apr 21 16:12:44 wolverine kernel: Oops: 0002 [#2]
-> Apr 21 16:12:44 wolverine kernel: Modules linked in: md5 ipv6 autofs4
-> iptable_mangle iptable_nat ipt_LOG ipt_state ip_conntrack iptable_filter
-> ip_tables uhci_hcd ehci_hcd 8139too mii floppy dm_snapshot dm_zero
-> dm_mirror ext3 jbd dm_mod
-> Apr 21 16:12:44 wolverine kernel: CPU:    0
-> Apr 21 16:12:44 wolverine kernel: EIP:    0060:[<f88aed9a>]    Not
-> tainted VLI
-> Apr 21 16:12:44 wolverine kernel: EFLAGS: 00010206   (2.6.9-5.0.5.EL)
-> Apr 21 16:12:44 wolverine kernel: EIP is at
-> ext3_try_to_allocate_with_rsv+0xd1/0x358 [ext3]
-> Apr 21 16:12:44 wolverine kernel: eax: 00000430   ebx: f7e014a8   ecx:
-> 00048000   edx: 000004b0
-> Apr 21 16:12:44 wolverine kernel: esi: f3f0ccd1   edi: 00002f54   ebp:
-> 00000000   esp: f5f4fbd5
-> Apr 21 16:12:44 wolverine kernel: ds: 007b   es: 007b   ss: 0068
-> Apr 21 16:12:44 wolverine kernel: Process cleanup (pid: 2005,
-> threadinfo=f5f4f000 task=f594e1b0)
-> Apr 21 16:12:44 wolverine kernel: Stack: 000004b0 09000480 64000000
-> 00f69a37 00f6ebac 00f6ebac 00000000 00000000
-> Apr 21 16:12:44 wolverine kernel:        00f6f3c4 54f7e014 0000002f
-> 5bf6ebac a0f88af2 54f64e89 d000002f 4cf3f0cc
-> Apr 21 16:12:44 wolverine kernel:        08f5f4fc 7e000000 09c01655
-> d0000000 00f3f0cc 20f6f3c4 00f69e31 d4000000
-> Apr 21 16:12:44 wolverine kernel: Call Trace:
-> Apr 21 16:12:44 wolverine kernel: Code: 8d 98 a8 00 00 00 8b 42 14 01 c1
-> 89 4c 24 04 8b 56 00 80 14 24 8b 46 34 89 44 24 14 8b 46 38 89 44 24 00
-> 8b 04 24 8b
-> 14 24 22 06 <18> 83 e2 01 09 c2 64 84 83 7c 24 18 00 74 20 84 ed 78 1c
-> ff 74
-> 
-> 
-> at this point i was still logged in but after issuing a shutdown
-> command..it just kept running.  Same thing when the onsite person tried
-> to shut down as well.
-> 
-> After the reboot everything seems fine of course but i get these errors
-> every time that also concern me:
-> 
-> Apr 21 15:31:01 wolverine kernel: PCI: Probing PCI hardware
-> Apr 21 15:31:01 wolverine kernel: PCI: Probing PCI hardware (bus 00)
-> Apr 21 15:31:01 wolverine kernel: PCI: Using IRQ router default
-> [1106/3128] at 0000:00:00.0
-> Apr 21 15:31:01 wolverine kernel: PCI: IRQ 0 for device 0000:00:0f.0
-> doesn't match PIRQ mask - try pci=usepirqmask
-> Apr 21 15:31:01 wolverine kernel: PCI: IRQ 0 for device 0000:00:0f.1
-> doesn't match PIRQ mask - try pci=usepirqmask
-> Apr 21 15:31:01 wolverine kernel: PCI: IRQ 0 for device 0000:00:0f.2
-> doesn't match PIRQ mask - try pci=usepirqmask
-> 
-> 
-> and further down:
-> 
-> Apr 21 15:31:03 wolverine kernel: 8139too Fast Ethernet driver 0.9.27
-> Apr 21 15:31:03 wolverine kernel: eth0: RealTek RTL8139 at 0xb400,
-> 00:40:63:c0:2c:fb, IRQ 10
-> Apr 21 15:31:03 wolverine kernel: PCI: IRQ 0 for device 0000:00:0f.2
-> doesn't match PIRQ mask - try pci=usepirqmask
-> Apr 21 15:31:03 wolverine kernel: PCI: No IRQ known for interrupt pin C
-> of device 0000:00:0f.2. Please try using pci=biosirq.
-> Apr 21 15:31:03 wolverine kernel: ehci_hcd 0000:00:0f.2: Found HC with
-> no IRQ.  Check BIOS/PCI 0000:00:0f.2 setup!
-> Apr 21 15:31:04 wolverine kernel: USB Universal Host Controller
-> Interface driver v2.2
-> Apr 21 15:31:04 wolverine kernel: PCI: IRQ 0 for device 0000:00:0f.0
-> doesn't match PIRQ mask - try pci=usepirqmask
-> Apr 21 15:31:04 wolverine kernel: PCI: No IRQ known for interrupt pin A
-> of device 0000:00:0f.0. Please try using pci=biosirq.
-> Apr 21 15:31:04 wolverine kernel: uhci_hcd 0000:00:0f.0: Found HC with
-> no IRQ.  Check BIOS/PCI 0000:00:0f.0 setup!
-> Apr 21 15:31:04 wolverine kernel: PCI: IRQ 0 for device 0000:00:0f.1
-> doesn't match PIRQ mask - try pci=usepirqmask
-> Apr 21 15:31:04 wolverine kernel: PCI: No IRQ known for interrupt pin B
-> of device 0000:00:0f.1. Please try using pci=biosirq.
-> Apr 21 15:31:04 wolverine kernel: uhci_hcd 0000:00:0f.1: Found HC with
-> no IRQ.  Check BIOS/PCI 0000:00:0f.1 setup!
-> 
-> I will repost w/the full dmesg if it's needed. 
-> 
-> 
-> TIA,
-> 
-> Aaron Martinez
-> 
-> P.S.
-> I'm not a developer, but i would like to learn more about how to debug
-> these errors, at least so that i may post better questions in the
-> future, any pointers to info in this regard would be appreciated.
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Jörn
 
 -- 
-P.Lavin
-Software Engineer,
-Redpine Signals ,Inc.
-Hyderabad.
-http://www.redpinesignals.com
+With a PC, I always felt limited by the software available. On Unix, 
+I am limited only by my knowledge.
+-- Peter J. Schoenster
+
+
+Signed-off-by: Jörn Engel <joern@wohnheim.fh-wedel.de>
+---
+
+ fs/squashfs/inode.c            |   16 ++++++++++------
+ include/linux/squashfs_fs_sb.h |    6 +++---
+ 2 files changed, 13 insertions(+), 9 deletions(-)
+
+--- linux-2.6.12-rc3cow/fs/squashfs/inode.c~squashfs_cu5	2005-04-22 07:00:14.806604672 +0200
++++ linux-2.6.12-rc3cow/fs/squashfs/inode.c	2005-04-22 09:17:47.387021752 +0200
+@@ -58,7 +58,7 @@ static struct dentry *squashfs_lookup(st
+ 				struct nameidata *);
+ static struct inode *squashfs_iget(struct super_block *s, squashfs_inode inode);
+ static unsigned int read_blocklist(struct inode *inode, int index,
+-				int readahead_blks, char *block_list,
++				int readahead_blks, void *block_list,
+ 				unsigned short **block_p, unsigned int *bsize);
+ static struct super_block *squashfs_get_sb(struct file_system_type *, int,
+ 				const char *, void *);
+@@ -1116,7 +1116,7 @@ skip_read:
+ #define SIZE 256
+ 
+ static unsigned int read_blocklist(struct inode *inode, int index,
+-				int readahead_blks, char *block_list,
++				int readahead_blks, void *_block_list,
+ 				unsigned short **block_p, unsigned int *bsize)
+ {
+ 	squashfs_sb_info *msBlk = inode->i_sb->s_fs_info;
+@@ -1125,6 +1125,7 @@ static unsigned int read_blocklist(struc
+ 	int block_ptr = SQUASHFS_I(inode)->block_list_start;
+ 	int offset = SQUASHFS_I(inode)->offset;
+ 	unsigned int block = SQUASHFS_I(inode)->start_block;
++	unsigned int *block_list = _block_list;
+ 
+ 	for (;;) {
+ 		int blocks = (index + readahead_blks - i);
+@@ -1136,7 +1137,9 @@ static unsigned int read_blocklist(struc
+ 		}
+ 
+ 		if (msBlk->swap) {
+-			unsigned char sblock_list[SIZE];
++			unsigned int *sblock_list = kmalloc(SIZE, GFP_KERNEL);
++			if (!sblock_list)
++				return 0;
+ 
+ 			if (!squashfs_get_cached_block(inode->i_sb,
+ 					sblock_list, block_ptr,
+@@ -1144,10 +1147,11 @@ static unsigned int read_blocklist(struc
+ 					&offset)) {
+ 				ERROR("Unable to read block list [%d:%x]\n",
+ 					block_ptr, offset);
++				kfree(sblock_list);
+ 				return 0;
+ 			}
+-			SQUASHFS_SWAP_INTS(((unsigned int *)block_list),
+-					((unsigned int *)sblock_list), blocks);
++			SQUASHFS_SWAP_INTS(block_list, sblock_list, blocks);
++			kfree(sblock_list);
+ 		} else
+ 			if (!squashfs_get_cached_block(inode->i_sb,
+ 					block_list, block_ptr, offset,
+@@ -1158,7 +1162,7 @@ static unsigned int read_blocklist(struc
+ 				return 0;
+ 			}
+ 
+-		for (block_listp = (unsigned int *) block_list; i < index &&
++		for (block_listp = block_list; i < index &&
+ 					blocks; i ++, block_listp ++, blocks --)
+ 			block += SQUASHFS_COMPRESSED_SIZE_BLOCK(*block_listp);
+ 
+--- linux-2.6.12-rc3cow/include/linux/squashfs_fs_sb.h~squashfs_cu5	2005-04-22 07:00:14.693621848 +0200
++++ linux-2.6.12-rc3cow/include/linux/squashfs_fs_sb.h	2005-04-22 09:17:43.833561960 +0200
+@@ -59,10 +59,10 @@ typedef struct squashfs_sb_info {
+ 	struct semaphore	fragment_mutex;
+ 	wait_queue_head_t	waitq;
+ 	wait_queue_head_t	fragment_wait_queue;
+-	struct inode		*(*iget)(struct super_block *s, squashfs_inode \
++	struct inode		*(*iget)(struct super_block *s, squashfs_inode
+ 				inode);
+-	unsigned int		(*read_blocklist)(struct inode *inode, int \
+-				index, int readahead_blks, char *block_list, \
++	unsigned int		(*read_blocklist)(struct inode *inode, int
++				index, int readahead_blks, void *block_list,
+ 				unsigned short **block_p, unsigned int *bsize);
+ 	} squashfs_sb_info;
+ #endif

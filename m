@@ -1,60 +1,356 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVDVWCZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbVDVWLR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbVDVWCZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Apr 2005 18:02:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbVDVWCZ
+	id S261186AbVDVWLR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Apr 2005 18:11:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVDVWLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 18:02:25 -0400
-Received: from mail-in-09.arcor-online.net ([151.189.21.49]:34718 "EHLO
-	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261179AbVDVWCU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Apr 2005 18:02:20 -0400
-Date: Sat, 23 Apr 2005 00:01:23 +0200 (CEST)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Fab Tillier <ftillier@infiniconsys.com>
-Cc: "'Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>'" 
-	<7eggert@gmx.de>,
-       Andy Isaacson <adi@hexapodia.org>, Timur Tabi <timur.tabi@ammasso.com>,
-       Troy Benjegerdes <hozer@hozed.org>, Bernhard Fischer <blist@aon.at>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: RE: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace
- verbsimplementation
-In-Reply-To: <000101c5475c$fe3c5fa0$8d5aa8c0@infiniconsys.com>
-Message-ID: <Pine.LNX.4.58.0504222331190.5827@be1.lrz>
-References: <000101c5475c$fe3c5fa0$8d5aa8c0@infiniconsys.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 22 Apr 2005 18:11:17 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:40649 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261186AbVDVWKn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Apr 2005 18:10:43 -0400
+Subject: [RFC][PATCH] Reduce ext3 allocate-with-reservation lock latencies
+From: Mingming Cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
+To: Andrew Morton <akpm@osdl.org>, "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1113388142.3019.12.camel@sisko.sctweedie.blueyonder.co.uk>
+References: <1112673094.14322.10.camel@mindpipe>
+	 <20050405041359.GA17265@elte.hu>
+	 <1112765751.3874.14.camel@localhost.localdomain>
+	 <20050407081434.GA28008@elte.hu>
+	 <1112879303.2859.78.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1112917023.3787.75.camel@dyn318043bld.beaverton.ibm.com>
+	 <1112971236.1975.104.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1112983801.10605.32.camel@dyn318043bld.beaverton.ibm.com>
+	 <1113220089.2164.52.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1113244710.4413.38.camel@localhost.localdomain>
+	 <1113249435.2164.198.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1113288087.4319.49.camel@localhost.localdomain>
+	 <1113304715.2404.39.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1113348434.4125.54.camel@dyn318043bld.beaverton.ibm.com>
+	 <1113388142.3019.12.camel@sisko.sctweedie.blueyonder.co.uk>
+Content-Type: text/plain
+Organization: IBM LTC
+Date: Fri, 22 Apr 2005 15:10:37 -0700
+Message-Id: <1114207837.7339.50.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Apr 2005, Fab Tillier wrote:
-> > From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
-> > Sent: Friday, April 22, 2005 6:10 AM
+Andrew, Stephen,
 
-> > You can't even set a time limit, the driver may have allocated all DMA
-> > memory to queued transfers, and some media needs to get plugged in by
-> > the lazy robot. As soon as the robot arrives - boom. (For the same reason,
-> > this memory MUST NOT be freed if the application terminates abnormally,
-> > e.g. killed by OOM).
-> 
-> InfiniBand provides support for deregistering memory that might be
-> referenced at some future time by an RDMA operation.  The only side effect
-> this has is that the QP on both sides of the connection transition to an
-> error state.
-> 
-> Upon abnormal termination, all registrations must be undone and the memory
-> unpinned.  This must be synchronized with the hardware so that there are no
-> races.
+Currently in ext3 block reservation code, the global filesystem
+reservation tree lock (rsv_block) is hold during the process of
+searching for a space to make a new reservation window, including while
+scaning the block bitmap to verify if the available window has a free
+block. Holding the lock during bitmap scan is unnecessary and could
+possibly cause scalability issue and latency issues.
 
-If you know the hardware. If you have userspace drivers, this will be
-impossible, and even if you have kernel drivers, you'll need to know 
-which of them is responsible for each part of the pinned memory.
+This patch trying to address this by dropping the lock before scan the
+bitmap. Before that we need to reserve the open window in case someone
+else is targeting at the same window. Question was should we reserve the
+whole free reservable space or just the window size we need.  Reserve
+the whole free reservable space will possibly force other threads which
+intended to do block allocation nearby move to another block group(cause
+bad layout).  In this patch,  we just reserve the desired size before
+drop the lock and scan the block bitmap.
 
-This doesn't imply the affected memory to be lost. The same application
-that created the pinned memory can reset the hardware (provided nobody
-changed the configuration), then reconnect to the shared memory segment
-you'll use for that purpose and use or free it.
+Please review. I have tested on fsx on SMP box. Lee, if you got time,
+please try this patch.
 
--- 
-To iterate is human; to recurse, divine. 
+Signed-Off-By: Mingming Cao <cmm@us.ibm.com>
+
+
+---
+
+ linux-2.6.11-ming/fs/ext3/balloc.c |  135 +++++++++++++++++--------------------
+ linux-2.6.11-ming/fs/ext3/file.c   |    4 +
+ 2 files changed, 68 insertions(+), 71 deletions(-)
+
+diff -puN fs/ext3/balloc.c~ext3-reduce-reservation-lock-latency fs/ext3/balloc.c
+--- linux-2.6.11/fs/ext3/balloc.c~ext3-reduce-reservation-lock-latency	2005-04-22 10:49:04.000000000 -0700
++++ linux-2.6.11-ming/fs/ext3/balloc.c	2005-04-22 14:42:35.518751070 -0700
+@@ -749,24 +749,24 @@ fail_access:
+  * 	to find a free region that is of my size and has not
+  * 	been reserved.
+  *
+- *	on succeed, it returns the reservation window to be appended to.
+- *	failed, return NULL.
+  */
+-static struct ext3_reserve_window_node *find_next_reservable_window(
++static int find_next_reservable_window(
+ 				struct ext3_reserve_window_node *search_head,
+-				unsigned long size, int *start_block,
++				struct ext3_reserve_window_node *my_rsv,
++				struct super_block * sb, int start_block,
+ 				int last_block)
+ {
+ 	struct rb_node *next;
+ 	struct ext3_reserve_window_node *rsv, *prev;
+ 	int cur;
++	int size = my_rsv->rsv_goal_size;
+ 
+ 	/* TODO: make the start of the reservation window byte-aligned */
+ 	/* cur = *start_block & ~7;*/
+-	cur = *start_block;
++	cur = start_block;
+ 	rsv = search_head;
+ 	if (!rsv)
+-		return NULL;
++		return -1;
+ 
+ 	while (1) {
+ 		if (cur <= rsv->rsv_end)
+@@ -782,7 +782,7 @@ static struct ext3_reserve_window_node *
+ 		 * space with expected-size (or more)...
+ 		 */
+ 		if (cur > last_block)
+-			return NULL;		/* fail */
++			return -1;		/* fail */
+ 
+ 		prev = rsv;
+ 		next = rb_next(&rsv->rsv_node);
+@@ -813,8 +813,26 @@ static struct ext3_reserve_window_node *
+ 	 * return the reservation window that we could append to.
+ 	 * succeed.
+ 	 */
+-	*start_block = cur;
+-	return prev;
++
++	if ((prev != my_rsv) && (!rsv_is_empty(&my_rsv->rsv_window)))
++		rsv_window_remove(sb, my_rsv);
++
++	/* let's book the whole avaliable window for now
++	 * we will check the
++	 * disk bitmap later and then, if there are free block
++	 * then we adjust the window size if the it's
++	 * larger than requested.
++	 * Otherwise, we will remove this node from the tree next time
++	 * call find_next_reservable_window.
++	 */
++	my_rsv->rsv_start = cur;
++	my_rsv->rsv_end = cur + size - 1;
++	my_rsv->rsv_alloc_hit = 0;
++
++	if (prev != my_rsv)
++		ext3_rsv_window_add(sb, my_rsv);
++
++	return 0;
+ }
+ 
+ /**
+@@ -852,6 +870,7 @@ static struct ext3_reserve_window_node *
+  *	@sb: the super block
+  *	@group: the group we are trying to allocate in
+  *	@bitmap_bh: the block group block bitmap
++ *
+  */
+ static int alloc_new_reservation(struct ext3_reserve_window_node *my_rsv,
+ 		int goal, struct super_block *sb,
+@@ -860,10 +879,10 @@ static int alloc_new_reservation(struct 
+ 	struct ext3_reserve_window_node *search_head;
+ 	int group_first_block, group_end_block, start_block;
+ 	int first_free_block;
+-	int reservable_space_start;
+-	struct ext3_reserve_window_node *prev_rsv;
+ 	struct rb_root *fs_rsv_root = &EXT3_SB(sb)->s_rsv_window_root;
+ 	unsigned long size;
++	int ret;
++	spinlock_t *rsv_lock = &EXT3_SB(sb)->s_rsv_window_lock;
+ 
+ 	group_first_block = le32_to_cpu(EXT3_SB(sb)->s_es->s_first_data_block) +
+ 				group * EXT3_BLOCKS_PER_GROUP(sb);
+@@ -875,6 +894,7 @@ static int alloc_new_reservation(struct 
+ 		start_block = goal + group_first_block;
+ 
+ 	size = my_rsv->rsv_goal_size;
++
+ 	if (!rsv_is_empty(&my_rsv->rsv_window)) {
+ 		/*
+ 		 * if the old reservation is cross group boundary
+@@ -908,6 +928,8 @@ static int alloc_new_reservation(struct 
+ 			my_rsv->rsv_goal_size= size;
+ 		}
+ 	}
++
++	spin_lock(rsv_lock);
+ 	/*
+ 	 * shift the search start to the window near the goal block
+ 	 */
+@@ -921,11 +943,16 @@ static int alloc_new_reservation(struct 
+ 	 * need to check the bitmap after we found a reservable window.
+ 	 */
+ retry:
+-	prev_rsv = find_next_reservable_window(search_head, size,
+-						&start_block, group_end_block);
+-	if (prev_rsv == NULL)
+-		goto failed;
+-	reservable_space_start = start_block;
++	ret = find_next_reservable_window(search_head, my_rsv, sb,
++						start_block, group_end_block);
++
++	if (ret == -1) {
++		if (!rsv_is_empty(&my_rsv->rsv_window))
++			rsv_window_remove(sb, my_rsv);
++		spin_unlock(rsv_lock);
++		return -1;
++	}
++
+ 	/*
+ 	 * On success, find_next_reservable_window() returns the
+ 	 * reservation window where there is a reservable space after it.
+@@ -937,8 +964,9 @@ retry:
+ 	 * block. Search start from the start block of the reservable space
+ 	 * we just found.
+ 	 */
++	spin_unlock(rsv_lock);
+ 	first_free_block = bitmap_search_next_usable_block(
+-			reservable_space_start - group_first_block,
++			my_rsv->rsv_start - group_first_block,
+ 			bitmap_bh, group_end_block - group_first_block + 1);
+ 
+ 	if (first_free_block < 0) {
+@@ -946,54 +974,30 @@ retry:
+ 		 * no free block left on the bitmap, no point
+ 		 * to reserve the space. return failed.
+ 		 */
+-		goto failed;
++		spin_lock(rsv_lock);
++		if (!rsv_is_empty(&my_rsv->rsv_window))
++			rsv_window_remove(sb, my_rsv);
++		spin_unlock(rsv_lock);
++		return -1;		/* failed */
+ 	}
++
+ 	start_block = first_free_block + group_first_block;
+ 	/*
+ 	 * check if the first free block is within the
+-	 * free space we just found
++	 * free space we just reserved
+ 	 */
+-	if ((start_block >= reservable_space_start) &&
+-	  (start_block < reservable_space_start + size))
+-		goto found_rsv_window;
++	if ((start_block >= my_rsv->rsv_start) &&
++		  (start_block < my_rsv->rsv_end))
++		return 0;		/* succeed */
+ 	/*
+ 	 * if the first free bit we found is out of the reservable space
+-	 * this means there is no free block on the reservable space
+-	 * we should continue search for next reservable space,
++	 * continue search for next reservable space,
+ 	 * start from where the free block is,
+ 	 * we also shift the list head to where we stopped last time
+ 	 */
+-	search_head = prev_rsv;
++	search_head = my_rsv;
++	spin_lock(rsv_lock);
+ 	goto retry;
+-
+-found_rsv_window:
+-	/*
+-	 * great! the reservable space contains some free blocks.
+-	 * if the search returns that we should add the new
+-	 * window just next to where the old window, we don't
+- 	 * need to remove the old window first then add it to the
+-	 * same place, just update the new start and new end.
+-	 */
+-	if (my_rsv != prev_rsv)  {
+-		if (!rsv_is_empty(&my_rsv->rsv_window))
+-			rsv_window_remove(sb, my_rsv);
+-	}
+-	my_rsv->rsv_start = reservable_space_start;
+-	my_rsv->rsv_end = my_rsv->rsv_start + size - 1;
+-	my_rsv->rsv_alloc_hit = 0;
+-	if (my_rsv != prev_rsv)  {
+-		ext3_rsv_window_add(sb, my_rsv);
+-	}
+-	return 0;		/* succeed */
+-failed:
+-	/*
+-	 * failed to find a new reservation window in the current
+-	 * group, remove the current(stale) reservation window
+-	 * if there is any
+-	 */
+-	if (!rsv_is_empty(&my_rsv->rsv_window))
+-		rsv_window_remove(sb, my_rsv);
+-	return -1;		/* failed */
+ }
+ 
+ /*
+@@ -1023,7 +1027,6 @@ ext3_try_to_allocate_with_rsv(struct sup
+ 			int goal, struct ext3_reserve_window_node * my_rsv,
+ 			int *errp)
+ {
+-	spinlock_t *rsv_lock;
+ 	unsigned long group_first_block;
+ 	int ret = 0;
+ 	int fatal;
+@@ -1052,7 +1055,6 @@ ext3_try_to_allocate_with_rsv(struct sup
+ 		ret = ext3_try_to_allocate(sb, handle, group, bitmap_bh, goal, NULL);
+ 		goto out;
+ 	}
+-	rsv_lock = &EXT3_SB(sb)->s_rsv_window_lock;
+ 	/*
+ 	 * goal is a group relative block number (if there is a goal)
+ 	 * 0 < goal < EXT3_BLOCKS_PER_GROUP(sb)
+@@ -1078,30 +1080,21 @@ ext3_try_to_allocate_with_rsv(struct sup
+ 	 * then we could go to allocate from the reservation window directly.
+ 	 */
+ 	while (1) {
+-		struct ext3_reserve_window rsv_copy;
+-
+-		rsv_copy._rsv_start = my_rsv->rsv_start;
+-		rsv_copy._rsv_end = my_rsv->rsv_end;
+-
+-		if (rsv_is_empty(&rsv_copy) || (ret < 0) ||
+-			!goal_in_my_reservation(&rsv_copy, goal, group, sb)) {
+-			spin_lock(rsv_lock);
++		if (rsv_is_empty(&my_rsv->rsv_window) || (ret < 0) ||
++			!goal_in_my_reservation(&my_rsv->rsv_window, goal, group, sb)) {
+ 			ret = alloc_new_reservation(my_rsv, goal, sb,
+ 							group, bitmap_bh);
+-			rsv_copy._rsv_start = my_rsv->rsv_start;
+-			rsv_copy._rsv_end = my_rsv->rsv_end;
+-			spin_unlock(rsv_lock);
+ 			if (ret < 0)
+ 				break;			/* failed */
+ 
+-			if (!goal_in_my_reservation(&rsv_copy, goal, group, sb))
++			if (!goal_in_my_reservation(&my_rsv->rsv_window, goal, group, sb))
+ 				goal = -1;
+ 		}
+-		if ((rsv_copy._rsv_start >= group_first_block + EXT3_BLOCKS_PER_GROUP(sb))
+-		    || (rsv_copy._rsv_end < group_first_block))
++		if ((my_rsv->rsv_start >= group_first_block + EXT3_BLOCKS_PER_GROUP(sb))
++		    || (my_rsv->rsv_end < group_first_block))
+ 			BUG();
+ 		ret = ext3_try_to_allocate(sb, handle, group, bitmap_bh, goal,
+-					   &rsv_copy);
++					   &my_rsv->rsv_window);
+ 		if (ret >= 0) {
+ 			my_rsv->rsv_alloc_hit++;
+ 			break;				/* succeed */
+diff -puN fs/ext3/file.c~ext3-reduce-reservation-lock-latency fs/ext3/file.c
+--- linux-2.6.11/fs/ext3/file.c~ext3-reduce-reservation-lock-latency	2005-04-22 10:49:04.000000000 -0700
++++ linux-2.6.11-ming/fs/ext3/file.c	2005-04-22 10:49:04.000000000 -0700
+@@ -36,7 +36,11 @@ static int ext3_release_file (struct ino
+ 	/* if we are the last writer on the inode, drop the block reservation */
+ 	if ((filp->f_mode & FMODE_WRITE) &&
+ 			(atomic_read(&inode->i_writecount) == 1))
++	{
++		down(&EXT3_I(inode)->truncate_sem);
+ 		ext3_discard_reservation(inode);
++		up(&EXT3_I(inode)->truncate_sem);
++	}
+ 	if (is_dx(inode) && filp->private_data)
+ 		ext3_htree_free_dir_info(filp->private_data);
+ 
+
+_
+
+

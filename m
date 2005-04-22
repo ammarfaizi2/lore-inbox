@@ -1,105 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261947AbVDVOgu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261948AbVDVOlH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261947AbVDVOgu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Apr 2005 10:36:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261948AbVDVOgu
+	id S261948AbVDVOlH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Apr 2005 10:41:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbVDVOlH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 10:36:50 -0400
-Received: from smtp06.auna.com ([62.81.186.16]:44249 "EHLO smtp06.retemail.es")
-	by vger.kernel.org with ESMTP id S261947AbVDVOgq convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Apr 2005 10:36:46 -0400
-Date: Thu, 21 Apr 2005 21:17:03 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: nVidia stuff again
-To: linux-kernel@vger.kernel.org
-References: <1113341579.3105.63.camel@caveman.xisl.com>
-	<425CEAC2.1050306@aitel.hist.no>
-	<20050413125921.GN17865@csclub.uwaterloo.ca>
-	<20050413130646.GF32354@marowsky-bree.de>
-	<20050413132308.GP17865@csclub.uwaterloo.ca> <425D3924.1070809@nortel.com>
-	<425E77BB.5010902@aitel.hist.no>
-	<1114021024.26866.63.camel@compaq-rhel4.xsintricity.com>
-	<21d7e997050420161234141e23@mail.gmail.com>
-	<1114085702.26866.137.camel@compaq-rhel4.xsintricity.com>
-	<20050421133554.GU17865@csclub.uwaterloo.ca> <4267BC1C.1050801@kromtek.com>
-In-Reply-To: <4267BC1C.1050801@kromtek.com> (from manu@kromtek.com on Thu
-	Apr 21 16:43:40 2005)
-X-Mailer: Balsa 2.3.0
-Message-Id: <1114118223l.10060l.0l@werewolf.able.es>
-MIME-Version: 1.0
+	Fri, 22 Apr 2005 10:41:07 -0400
+Received: from vega.lnet.lut.fi ([157.24.109.150]:41482 "EHLO vega.lnet.lut.fi")
+	by vger.kernel.org with ESMTP id S261948AbVDVOkt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Apr 2005 10:40:49 -0400
+Date: Fri, 22 Apr 2005 17:40:47 +0300
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, rth@twiddle.net,
+       adaplas@pol.net, linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: 2.6.12-rc3 compile failure in tgafb.c, tgafb not working anymore
+Message-ID: <20050422144047.GY607@vega.lnet.lut.fi>
+References: <20050421185034.GS607@vega.lnet.lut.fi> <20050421204354.GF3828@stusta.de> <20050422072858.GU607@vega.lnet.lut.fi> <20050422112030.GW607@vega.lnet.lut.fi>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20050422112030.GW607@vega.lnet.lut.fi>
+User-Agent: Mutt/1.3.28i
+From: lapinlam@vega.lnet.lut.fi (Tomi Lapinlampi)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 04.21, Manu Abraham wrote:
-> Lennart Sorensen wrote:
-> > On Thu, Apr 21, 2005 at 08:15:02AM -0400, Doug Ledford wrote:
-> > 
-> >>Ha!  That's the whole damn point Dave.  Use your head.  Just because ATI
-> >>is getting more complex with their GPU does *not* mean nVidia is.  Go
-> >>back to my original example of the aic7xxx cards.  The alternative to
-> >>their simple hardware design is something like the BusLogic or QLogic
-> >>cards that are far more complex.  Your assuming that because the ATI
-> >>cards are getting more complex and people are less able to discern their
-> >>makeup just by reading the specs that the nVidia cards are doing the
-> >>same, nVidia is telling you otherwise, and you are just blowing that off
-> >>as though you know more about their cards than they do.  Reality is that
-> >>they *could* be telling the truth and the fact that their card is a more
-> >>simplistic card than ATIs may be the very reason that ATI has ponied up
-> >>specs and they haven't.  Therefore, you can reliably discern absolutely
-> >>*zero* information about the nVidia cards from a reference to ATI specs.
-> > 
-> > 
-> > Certainly possible.  Maybe all their real IP is in the code, although if
-> > that was true, letting opensource peope ahve the programing spec and
-> > have to do their own drivers wouldn't expose that IP.  I have no idea.
-> > 
+On Fri, Apr 22, 2005 at 02:20:30PM +0300, Tomi Lapinlampi wrote:
 > 
-> Even without opening up the code, but with programming specs there are 
-> many graphics driver guys out there, given the specs out it would not be 
-> too hard to have a decent driver, without the Nvidia IP. In that case 
-> there would be no question of IP violation.
-> 
-> Or maybe somebody can do a clean room implementation provided Nvidia 
-> agrees to some NDA, and the resultant work is acceptable to Nvidia 
-> provided that it is free of their IP.. Many hardware vendors do resort 
-> to these to get their hardware working properly under Linux, and in some 
-> cases, the Linux driver has proved to be a better driver than their 
-> Windows counterparts, albeit with lesser gimmicks/features.
-> 
+> Actually, I was able to get a clean compile with the patch from
+> http://marc.theaimsgroup.com/?l=linux-alpha&m=111392038121433&w=2
 
-But the problem is like comparing CISC and RISC processors/code.
-If you see the CISC assembler you do not see anything.
-If you look at RISC code you can know many things about how the processor
-pipelines are organized (you see interleaved float/int ops), you see how
-much pipelines are there, what they do, and so on. Compare (hypothetically)
-an ATI engine with 2 matrix-vector-multiply units and an nVidia with
-8 dot product units. Perhaps ATI thought about doing matrices in parallel,
-but never thought on doing rows in parallel. You could know that looking
-at the code. Or at the programming specs ('load each row of your transform
-in registers r0..r3 ....' )
+Hi again,
 
-I do not know how big are the ATI drivers, but looking at the nVidia ones,
+Although the tgafb driver compiles with the above patch, it shows
+similar behaviour as before: The kernel loads, the monitor comes alive
+but the screen stays completely blank.
+The last kernel that worked was 2.6.8.1. I've tested with 2.6.{9,10,11}
 
-werewolf:/lib/modules/2.6.11-jam14/kernel/drivers/video# ll
--rw-rw-r--  1 root root 4402072 Apr 14 23:18 nvidia.ko
-werewolf:/usr/X11R6/lib# ll /usr/X11R6/lib/*7174*
--rwxr-xr-x  1 root root  485260 Apr 11 01:12 /usr/X11R6/lib/libGL.so.1.0.7174*
--rwxr-xr-x  1 root root 7626156 Apr 11 01:12 /usr/X11R6/lib/libGLcore.so.1.0.7174*
+Here's more info on the system... The dmesg entry (booting with serial console)
 
-12 Mb of code is too much for a wrapper that just loads the hardware and
-calls a rom ;) What is there ? Runtime loadable microcode ? Specially
-optimized code for sending data to 2 pipes on a GeForce2 and 8 on a 6800 ?
-Who knows. But sure the driver does _many_ things.
+Linux version 2.6.12-rc3 (lapinlam@raato) (gcc version 3.3.5 (Debian 1:3.35
+Booting on Alcor variation Alcor using machine vector Alcor from MILO
+Major Options: LEGACY_START VERBOSE_MCHECK MAGIC_SYSRQ
+Command line: ro root=/dev/sdb1 console=ttyS0,38400n8
+memcluster 0, usage 1, start        0, end      161
+memcluster 1, usage 0, start      161, end    32651
+memcluster 2, usage 1, start    32651, end    32768
+freeing pages 161:384
+freeing pages 838:32651
+reserving pages 838:839
+2048K Bcache detected; load hit latency 24 cycles, load miss latency 88 cycles
+pci: cia revision 1
+Built 1 zonelists
+Kernel command line: ro root=/dev/sdb1 console=ttyS0,38400n8
+PID hash table entries: 1024 (order: 10, 32768 bytes)
+Using epoch = 2000
+Console: colour dummy device 80x25
+Dentry cache hash table entries: 65536 (order: 6, 524288 bytes)
+Inode-cache hash table entries: 32768 (order: 5, 262144 bytes)
+Memory: 253320k/261208k available (2077k kernel code, 6264k reserved, 683k data)
+Mount-cache hash table entries: 512
+NET: Registered protocol family 16
+EISA bus registered
+pci: passed tb register update test
+pci: passed sg loopback i/o read test
+pci: passed tbia test
+pci: passed pte write cache snoop test
+pci: failed valid tag invalid pte reload test (mcheck; workaround available)
+pci: passed pci machine check test
+PCI: Bridge: 0000:00:08.0
+  IO window: 9000-9fff
+  MEM window: 02200000-022fffff
+  PREFETCH window: disabled.
+PCI: Bridge: 0000:00:09.0
+  IO window: disabled.
+  MEM window: 02400000-027fffff
+  PREFETCH window: disabled.
+Linux Plug and Play Support v0.97 (c) Adam Belay
+SCSI subsystem initialized
+TC classifier action (bugs to netdev@oss.sgi.com cc hadi@cyberus.ca)
+Initializing Cryptographic API
+Console: switching to colour frame buffer device 80x30
+tgafb: DC21030 [TGA] detected, rev=0x03
+tgafb: at PCI bus 0, device 7, function 0
+fb0: Digital ZLXp-E1 frame buffer device at 0x8000000
+isapnp: Scanning for PnP cards...
+isapnp: No Plug & Play device found
+rtc: SRM (post-2000) epoch (2000) detected
+Real Time Clock Driver v1.12
+Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing disabled
+ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+io scheduler noop registered
+io scheduler anticipatory registered
+io scheduler deadline registered
+io scheduler cfq registered
 
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandriva Linux release 2006.0 (Cooker) for i586
-Linux 2.6.11-jam14 (gcc 3.4.3 (Mandrakelinux 10.2 3.4.3-7mdk)) #5
+.....
 
+lspci -v -v for the display adapter:
 
+0000:00:07.0 Display controller: Digital Equipment Corporation DECchip 21030 [TGA] (rev 03)
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
+        Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 255
+        Interrupt: pin A routed to IRQ 24
+        Region 0: Memory at 0000000008000000 (32-bit, prefetchable) [size=128M]
+        Expansion ROM at 0000000002300000 [disabled] [size=256K]
+
+Any clues? It would be nice to get this working again. I'm willing to
+test any patches you might have :)
+
+Tomi
+
+-- 
+You can decide: live with free software or with only one evil company left?

@@ -1,40 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbVDVXET@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbVDVXTC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261269AbVDVXET (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Apr 2005 19:04:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbVDVXET
+	id S261299AbVDVXTC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Apr 2005 19:19:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVDVXTC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 19:04:19 -0400
-Received: from 114.135.160.66.in-arpa.com ([66.160.135.114]:8199 "EHLO
-	furrylvs.randyg.org") by vger.kernel.org with ESMTP id S261269AbVDVXEI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Apr 2005 19:04:08 -0400
-Message-ID: <426982DE.30006@bushytails.net>
-Date: Fri, 22 Apr 2005 16:03:58 -0700
-From: Randy Gardner <lkml@bushytails.net>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: ide-cd?  Can burn DVDs, just not read them...
-References: <426972E5.4000408@bushytails.net>
-In-Reply-To: <426972E5.4000408@bushytails.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 22 Apr 2005 19:19:02 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:63931 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261299AbVDVXS7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Apr 2005 19:18:59 -0400
+Date: Sat, 23 Apr 2005 01:18:39 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Petr Baudis <pasky@ucw.cz>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.12-rc3
+Message-ID: <20050422231839.GC1789@elf.ucw.cz>
+References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org> <20050421112022.GB2160@elf.ucw.cz> <20050421120327.GA13834@elf.ucw.cz> <20050421162220.GD30991@pasky.ji.cz> <20050421232201.GD31207@elf.ucw.cz> <20050422002150.GY7443@pasky.ji.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050422002150.GY7443@pasky.ji.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gah!  *kicks self* that dmesg output was from when the drive wasn't 
-plugged in.  Yes, it is found and shows up when it's plugged in.  I'll 
-go grab the drive from my relative's windoze box and attach a correct 
-dmesg output when she gets back this evening.
+Hi!
 
-Sorry 'bout that,
---Randy
+> > Nice, so I now have my own -git tree, with two changes in it...
+> > 
+> > Is there way to say "git diff -r origin:" but dump it patch-by-patch
+> > with some usable headers?
+> > 
+> > [Looking at git export]
+> 
+> Either Linus' demo git-export (NOT the same as git export!), or git
+> patch. In the latest tree, it was extended to accept a range of two
+> commits to process too.
+> 
+> Note that the range semantics is rather peculiar at the least. ;-)
+
+Nice, it seems to work.
+
+Unfortunately first merge will make it practically unusable :-(. 
+
+git diff -r origin:
+
+will only list differences between my tree and Linus'.
+
+git patch origin:
+
+will list my patches, plus any merges I done... Is there any
+reasonable way to get only "my" changes? When I do not have to resolve
+anything during merge, it should be usable... but that is starting to
+look ugly.
 
 
+								Pavel
 
-Randy Gardner wrote:
-> I just bought a shiny new 16x dvd burner (box says IOMagic IDVD16DD, 
-> drive says Magicspin 1016IM), and can burn dvds perfectly...  just not 
-> read them.
+
+-- 
+Boycott Kodak -- for their patent abuse against Java.

@@ -1,75 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261921AbVDVCcx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbVDVCoi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261921AbVDVCcx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Apr 2005 22:32:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261922AbVDVCcw
+	id S261925AbVDVCoi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Apr 2005 22:44:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbVDVCoi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Apr 2005 22:32:52 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:26038 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S261921AbVDVCct (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Apr 2005 22:32:49 -0400
-Date: Fri, 22 Apr 2005 11:32:11 +0900
-From: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
-Subject: Re: [RFC/PATCH] unregister_node() for hotplug use
-In-reply-to: <20050422003920.GD6829@kroah.com>
-To: Greg KH <gregkh@suse.de>
-Cc: tokunaga.keiich@jp.fujitsu.com, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Message-id: <20050422113211.509005f1.tokunaga.keiich@jp.fujitsu.com>
-Organization: FUJITSU LIMITED
-MIME-version: 1.0
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <20050420210744.4013b3f8.tokunaga.keiich@jp.fujitsu.com>
- <20050420173235.GA17775@kroah.com>
- <20050422003009.1b96f09c.tokunaga.keiich@jp.fujitsu.com>
- <20050422003920.GD6829@kroah.com>
+	Thu, 21 Apr 2005 22:44:38 -0400
+Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:21166 "EHLO
+	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
+	id S261925AbVDVCoe convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Apr 2005 22:44:34 -0400
+X-OB-Received: from unknown (205.158.62.133)
+  by wfilter.us4.outblaze.com; 22 Apr 2005 02:51:33 -0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+MIME-Version: 1.0
+From: "Marcondes Monteiro de Arau" <marcondes@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Date: Fri, 22 Apr 2005 10:43:46 +0800
+Subject: Linux Kernel
+X-Originating-Ip: 200.217.152.90
+X-Originating-Server: ws5-3.us4.outblaze.com
+Message-Id: <20050422024346.3B8F223CFF@ws5-3.us4.outblaze.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Apr 2005 17:39:20 -0700 Greg KH wrote:
-> On Fri, Apr 22, 2005 at 12:30:09AM +0900, Keiichiro Tokunaga wrote:
-> > +#ifdef CONFIG_HOTPLUG
-> > +void unregister_node(struct node *node)
-> > +{
-> > +	sysdev_remove_file(&node->sysdev, &attr_cpumap);
-> > +	sysdev_remove_file(&node->sysdev, &attr_meminfo);
-> > +	sysdev_remove_file(&node->sysdev, &attr_numastat);
-> > +	sysdev_remove_file(&node->sysdev, &attr_distance);
-> > +
-> > +	sysdev_unregister(&node->sysdev);
-> > +}
-> > +EXPORT_SYMBOL_GPL(register_node);
-> > +EXPORT_SYMBOL_GPL(unregister_node);
-> > +#else /* !CONFIG_HOTPLUG */
-> > +void unregister_node(struct node *node)
-> > +{
-> > +}
-> > +#endif /* !CONFIG_HOTPLUG */
-> 
-> Oops, you only exported the symbols if CONFIG_HOTPLUG is enabled, not a
-> good idea.  Either make the null functions in a .h file if the option is
-> not enabled, or always export them.
+Hi!
 
-  My bad...
+I'm university student in Brazil and would like to know if during the process of compilation of the kernel of the linux the tecnology of cluster is used.
 
-> And the comment for the #endif isn't really needed, as the whole #ifdef
-> fits on a single screen :)
 
-  I see:)  That makes sense.
 
-> And hey, what's the real big deal here, why not always have this
-> function no matter if CONFIG_HOTPLUG is enabled or not?  I really want
-> to just make that an option that is always enabled anyway, but changable
-> if you are using CONFIG_TINY or something...
+Marcondes
 
-  I put the #ifdef there for users who don't need hotplug
-stuffs, but I want to make the option always enabled, too.
-Also a good side effect, the code would be cleaner:)  I
-will be updating my patch without the #ifdef and sending
-it here.
+-- 
+_______________________________________________
+Check out the latest SMS services @ http://www.linuxmail.org
+This allows you to send and receive SMS through your mailbox.
 
-Thanks!
-Keiichiro Tokunaga
+Powered by Outblaze

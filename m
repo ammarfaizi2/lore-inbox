@@ -1,51 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261464AbVDWC5G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbVDWDP1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261464AbVDWC5G (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Apr 2005 22:57:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbVDWC5G
+	id S261405AbVDWDP1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Apr 2005 23:15:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVDWDP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 22:57:06 -0400
-Received: from rproxy.gmail.com ([64.233.170.198]:6709 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261464AbVDWC5D convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Apr 2005 22:57:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WvajKPNoHzU1BhEd71WC4j/1kQ3d9XPOzDmDhSzZXB/yUlRaibNG5MjUox1i8UzjOuwuEd53NFa0EUFopVDFATlb2DIBxIbXuWckT28H/0ps83Y/muq1xGNAMRVnL2KUERqh5erb+tIOh3236VC9W2HwR4Agphh85ZUdInTDYjE=
-Message-ID: <d120d500050422195755c5b918@mail.gmail.com>
-Date: Fri, 22 Apr 2005 21:57:03 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Stefan Seyfried <seife@suse.de>
-Subject: Re: Linux 2.6.12-rc3: various swsusp problems
-Cc: Pavel Machek <pavel@ucw.cz>, rjw@sisk.pl,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andreas Steinmetz <ast@domdv.de>
-In-Reply-To: <42691498.7060003@suse.de>
+	Fri, 22 Apr 2005 23:15:27 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:32161 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261405AbVDWDPR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Apr 2005 23:15:17 -0400
+Date: Fri, 22 Apr 2005 20:11:45 -0700
+From: Paul Jackson <pj@sgi.com>
+To: dino@in.ibm.com
+Cc: Simon.Derr@bull.net, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net, akpm@osdl.org, dipankar@in.ibm.com,
+       colpatch@us.ibm.com
+Subject: Re: [RFC PATCH] Dynamic sched domains aka Isolated cpusets (v0.2)
+Message-Id: <20050422201145.2516a326.pj@sgi.com>
+In-Reply-To: <20050421173135.GB4200@in.ibm.com>
+References: <1097110266.4907.187.camel@arrakis>
+	<20050418202644.GA5772@in.ibm.com>
+	<20050421173135.GB4200@in.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org>
-	 <4267DC2E.9030102@domdv.de> <20050421185717.GB475@openzaurus.ucw.cz>
-	 <42691498.7060003@suse.de>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/22/05, Stefan Seyfried <seife@suse.de> wrote:
-> --- linux/kernel/power/swsusp.c~        2005-04-22 17:07:56.000000000 +0200
-> +++ linux/kernel/power/swsusp.c 2005-04-22 17:09:22.000000000 +0200
-> @@ -1239,7 +1239,7 @@ static int check_sig(void)
->                 */
->                error = bio_write_page(0, &swsusp_header);
->        } else {
-> -               printk(KERN_ERR "swsusp: Suspend partition has wrong signature?\n");
-> +               printk(KERN_ERR "swsusp: Suspend partition is no suspend image.\n");
+Dinakar's patch contains:
++	/* Make the change */
++	par->cpus_allowed = t.cpus_allowed;
++	par->isolated_map = t.isolated_map;
 
-Hrm, I don't think it is a good message... What about "Suspend
-partition has no suspend image" or, better yet, "Suspend partition
-does not contain valid suspend image"?
+Doesn't the above make changes to the parent cpus_allowed without
+calling validate_change()?  Couldn't we do nasty things like
+empty that cpus_allowed, leaving tasks in that cpuset starved
+(or testing the last chance code that scans up the cpuset
+hierarchy looking for a non-empty cpus_allowed)?
+
+What prevents all the immediate children of the top cpuset from
+using up all the cpus as isolated cpus, leaving the top cpuset
+cpus_allowed empty, which fails even that last chance check,
+going to the really really last chance code, allowing any online
+cpu to tasks in that cpuset?
+
+These questions are in addition to my earlier question:
+
+    Why don't you need to propogate upward this change to
+    the parents cpus_allowed and isolated_map?  If a parents
+    isolated_map grows (or shrinks), doesn't that affect every
+    ancestor, all the way to the top cpuset?
+
+I am unable to tell, just from code reading, whether this code
+has adequately worked through the details involved in properly
+handling nested changes.
+
+I am unable to build or test this on ia64, because you have code
+such as the rebuild_sched_domains() routine, that is in the
+'#else' half of a very large "#ifdef ARCH_HAS_SCHED_DOMAIN -
+#else - #endif" section of kernel/sched.c, and ia64 arch (and
+only that arch, so far as I know) defines ARCH_HAS_SCHED_DOMAIN,
+so doesn't see this '#else' half.
+
++	/* 
++         * If current isolated cpuset has isolated children 
++         * disallow changes to cpu mask
++	 */
++	if (!cpus_empty(cs->isolated_map))
++		return -EBUSY;
+
+1) spacing - there's 8 spaces, not a tab, on two of the lines above.
+2) I can't tell yet - but I am curious as to whether the above restriction
+   prohibiting cpu mask changes to a cpuset with isolated children
+   might be a bit draconian.
+
 
 -- 
-Dmitry
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

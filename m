@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbVDWSWg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261659AbVDWS2w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261651AbVDWSWg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Apr 2005 14:22:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbVDWSWd
+	id S261659AbVDWS2w (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Apr 2005 14:28:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbVDWS2w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Apr 2005 14:22:33 -0400
-Received: from orb.pobox.com ([207.8.226.5]:44218 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S261651AbVDWSWb (ORCPT
+	Sat, 23 Apr 2005 14:28:52 -0400
+Received: from fire.osdl.org ([65.172.181.4]:63638 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261659AbVDWS2s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Apr 2005 14:22:31 -0400
-Date: Sat, 23 Apr 2005 13:22:27 -0500
-From: Nathan Lynch <ntl@pobox.com>
-To: "Dr. David Alan Gilbert" <linux@treblig.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Hotplug CPU and setaffinity?
-Message-ID: <20050423182227.GE18688@otto>
-References: <20050423173514.GA7111@gallifrey>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050423173514.GA7111@gallifrey>
-User-Agent: Mutt/1.5.6+20040907i
+	Sat, 23 Apr 2005 14:28:48 -0400
+Date: Sat, 23 Apr 2005 11:30:36 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
+cc: David Woodhouse <dwmw2@infradead.org>, Jan Dittmer <jdittmer@ppp0.net>,
+       Greg KH <greg@kroah.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: Git-commits mailing list feed.
+In-Reply-To: <20050423175422.GA7100@cip.informatik.uni-erlangen.de>
+Message-ID: <Pine.LNX.4.58.0504231125330.2344@ppc970.osdl.org>
+References: <200504210422.j3L4Mo8L021495@hera.kernel.org> <42674724.90005@ppp0.net>
+ <20050422002922.GB6829@kroah.com> <426A4669.7080500@ppp0.net>
+ <1114266083.3419.40.camel@localhost.localdomain> <426A5BFC.1020507@ppp0.net>
+ <1114266907.3419.43.camel@localhost.localdomain> <Pine.LNX.4.58.0504231010580.2344@ppc970.osdl.org>
+ <20050423175422.GA7100@cip.informatik.uni-erlangen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dr. David Alan Gilbert wrote:
->
->   I got to wondering how Hotplug CPU and sched_setaffinity interact;
-> if I have a process that has its affinity set to one CPU and some
-> nasty person comes along and unplugs it what happens to that process-
-> does it get scheduled onto another cpu, just not get any time or
-> die ?
 
-The affinity of the process is reset to the default and it is migrated
-to another cpu, for better or worse.  The kernel assumes the admin
-know what he/she is doing.
 
+On Sat, 23 Apr 2005, Thomas Glanzmann wrote:
 > 
-> In particular I was thinking of the cases where a thread has a
->  functional reason for remaining on one particular CPU (e.g. if you
-> had calibrated for some feature of that CPU say its time stamp
-> counter skew/speed). Another case would be a set of threads which
-> had set their affinity to the same CPU and then made memory
-> consistency or locking assumptions that wouldn't be valid
-> if they got rescheduled onto different CPUs.
+> # This creates the signature.
+> gpg --clearsign < sign_this > signature
 
-Yeah.  But I don't think this is an issue to be solved in the kernel.
-Applications that are this sensitive to cpu hotplugging need to
-arrange to be notified before the hotplug occurs, which I think would
-be best done with dbus or some other IPC.
+This really doesn't work for me - I do not want to have the gpg header
+above it, only the signature below. Since I want git to actually
+understand the tags, but do _not_ want git to have to know about whatever
+signing method was used, I really want the resulting file to look like
 
+	commit ....
+	tag ...
 
-Nathan
+	here goes comment
+	here goes signature
 
+and no headers.
 
+Whether that can be faked by always forcing SHA1 as the hash, and then 
+just removing the top lines, and re-inserting them when verifying, or 
+whether there is some mode to make gpg not do the header crud at all, I 
+don't know. Which is exactly why I never even got started.
+
+		Linus

@@ -1,19 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261470AbVDWENm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbVDWEQ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261470AbVDWENm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Apr 2005 00:13:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbVDWENm
+	id S261476AbVDWEQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Apr 2005 00:16:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbVDWEQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Apr 2005 00:13:42 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:18692 "HELO
+	Sat, 23 Apr 2005 00:16:28 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:20228 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261470AbVDWENK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Apr 2005 00:13:10 -0400
-Date: Sat, 23 Apr 2005 06:13:08 +0200
+	id S261476AbVDWEQJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Apr 2005 00:16:09 -0400
+Date: Sat, 23 Apr 2005 06:16:07 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fs/: make some code static
-Message-ID: <20050423041308.GV4355@stusta.de>
+To: David Howells <dhowells@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [-mm patch] fs/fscache/: cleanups
+Message-ID: <20050423041607.GW4355@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,195 +22,88 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes some needlessly global code static.
+This patch contains the following cleanups:
+- make needlessly global code static
+- main.c: remove the unused global variable fscache_debug
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- fs/bad_inode.c          |    2 +-
- fs/buffer.c             |    2 +-
- fs/char_dev.c           |    2 +-
- fs/dcache.c             |    2 +-
- fs/eventpoll.c          |    2 +-
- fs/exec.c               |    3 ++-
- fs/locks.c              |    6 +++---
- fs/mbcache.c            |    2 +-
- fs/mpage.c              |    2 +-
- fs/namei.c              |    8 ++++----
- fs/select.c             |    6 ++++--
- include/linux/binfmts.h |    1 -
- 12 files changed, 20 insertions(+), 18 deletions(-)
+ fs/fscache/cookie.c      |   19 +++++++++++++++----
+ fs/fscache/fscache-int.h |   11 -----------
+ fs/fscache/main.c        |    2 --
+ 3 files changed, 15 insertions(+), 17 deletions(-)
 
---- linux-2.6.12-rc2-mm3-full/fs/bad_inode.c.old	2005-04-23 02:27:20.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/fs/bad_inode.c	2005-04-23 02:27:30.000000000 +0200
-@@ -47,7 +47,7 @@
- 	.get_unmapped_area = EIO_ERROR,
- };
+--- linux-2.6.12-rc2-mm3-full/fs/fscache/fscache-int.h.old	2005-04-23 02:53:14.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/fs/fscache/fscache-int.h	2005-04-23 02:55:11.000000000 +0200
+@@ -22,17 +22,6 @@
  
--struct inode_operations bad_inode_ops =
-+static struct inode_operations bad_inode_ops =
- {
- 	.create		= EIO_ERROR,
- 	.lookup		= EIO_ERROR,
---- linux-2.6.12-rc2-mm3-full/fs/buffer.c.old	2005-04-23 02:29:09.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/fs/buffer.c	2005-04-23 02:29:15.000000000 +0200
-@@ -1215,7 +1215,7 @@
- 	return 1;
- }
+ extern void fscache_cookie_init_once(void *_cookie, kmem_cache_t *cachep, unsigned long flags);
  
--struct buffer_head *
-+static struct buffer_head *
- __getblk_slow(struct block_device *bdev, sector_t block, int size)
- {
- 	/* Size must be multiple of hard sectorsize */
---- linux-2.6.12-rc2-mm3-full/fs/char_dev.c.old	2005-04-23 02:29:37.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/fs/char_dev.c	2005-04-23 02:30:02.000000000 +0200
-@@ -329,7 +329,7 @@
- 	spin_unlock(&cdev_lock);
- }
- 
--void cdev_purge(struct cdev *cdev)
-+static void cdev_purge(struct cdev *cdev)
- {
- 	spin_lock(&cdev_lock);
- 	while (!list_empty(&cdev->list)) {
---- linux-2.6.12-rc2-mm3-full/fs/dcache.c.old	2005-04-23 02:30:34.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/fs/dcache.c	2005-04-23 02:30:46.000000000 +0200
-@@ -39,7 +39,7 @@
- EXPORT_SYMBOL_GPL(sysctl_vfs_cache_pressure);
- 
-  __cacheline_aligned_in_smp DEFINE_SPINLOCK(dcache_lock);
--seqlock_t rename_lock __cacheline_aligned_in_smp = SEQLOCK_UNLOCKED;
-+static seqlock_t rename_lock __cacheline_aligned_in_smp = SEQLOCK_UNLOCKED;
- 
- EXPORT_SYMBOL(dcache_lock);
- 
---- linux-2.6.12-rc2-mm3-full/fs/eventpoll.c.old	2005-04-23 02:31:07.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/fs/eventpoll.c	2005-04-23 02:31:17.000000000 +0200
-@@ -320,7 +320,7 @@
+-extern void __fscache_cookie_put(struct fscache_cookie *cookie);
+-
+-static inline void fscache_cookie_put(struct fscache_cookie *cookie)
+-{
+-	BUG_ON(atomic_read(&cookie->usage) <= 0);
+-
+-	if (atomic_dec_and_test(&cookie->usage))
+-		__fscache_cookie_put(cookie);
+-
+-}
+-
+ /*****************************************************************************/
  /*
-  * This semaphore is used to serialize ep_free() and eventpoll_release_file().
+  * debug tracing
+--- linux-2.6.12-rc2-mm3-full/fs/fscache/cookie.c.old	2005-04-23 02:53:26.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/fs/fscache/cookie.c	2005-04-23 02:55:39.000000000 +0200
+@@ -12,14 +12,25 @@
+ #include <linux/module.h>
+ #include "fscache-int.h"
+ 
+-LIST_HEAD(fscache_netfs_list);
+-LIST_HEAD(fscache_cache_list);
+-DECLARE_RWSEM(fscache_addremove_sem);
++static LIST_HEAD(fscache_netfs_list);
++static LIST_HEAD(fscache_cache_list);
++static DECLARE_RWSEM(fscache_addremove_sem);
+ 
+ kmem_cache_t *fscache_cookie_jar;
+ 
+ static void fscache_withdraw_node(struct fscache_cache *cache,
+ 				  struct fscache_node *node);
++static void __fscache_cookie_put(struct fscache_cookie *cookie);
++
++
++static inline void fscache_cookie_put(struct fscache_cookie *cookie)
++{
++	BUG_ON(atomic_read(&cookie->usage) <= 0);
++
++	if (atomic_dec_and_test(&cookie->usage))
++		__fscache_cookie_put(cookie);
++
++}
+ 
+ /*****************************************************************************/
+ /*
+@@ -925,7 +936,7 @@
+ /*
+  * destroy a cookie
   */
--struct semaphore epsem;
-+static struct semaphore epsem;
- 
- /* Safe wake up implementation */
- static struct poll_safewake psw;
---- linux-2.6.12-rc2-mm3-full/include/linux/binfmts.h.old	2005-04-23 02:32:09.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/include/linux/binfmts.h	2005-04-23 02:32:16.000000000 +0200
-@@ -77,7 +77,6 @@
- extern int setup_arg_pages(struct linux_binprm * bprm,
- 			   unsigned long stack_top,
- 			   int executable_stack);
--extern int copy_strings(int argc,char __user * __user * argv,struct linux_binprm *bprm); 
- extern int copy_strings_kernel(int argc,char ** argv,struct linux_binprm *bprm);
- extern void compute_creds(struct linux_binprm *binprm);
- extern int do_coredump(long signr, int exit_code, struct pt_regs * regs);
---- linux-2.6.12-rc2-mm3-full/fs/exec.c.old	2005-04-23 02:32:27.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/fs/exec.c	2005-04-23 02:32:47.000000000 +0200
-@@ -197,7 +197,8 @@
-  * memory to free pages in kernel mem. These are in a format ready
-  * to be put directly into the top of new user memory.
-  */
--int copy_strings(int argc,char __user * __user * argv, struct linux_binprm *bprm)
-+static int copy_strings(int argc, char __user * __user * argv,
-+			struct linux_binprm *bprm)
+-void __fscache_cookie_put(struct fscache_cookie *cookie)
++static void __fscache_cookie_put(struct fscache_cookie *cookie)
  {
- 	struct page *kmapped_page = NULL;
- 	char *kaddr = NULL;
---- linux-2.6.12-rc2-mm3-full/fs/locks.c.old	2005-04-23 02:36:35.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/fs/locks.c	2005-04-23 02:37:12.000000000 +0200
-@@ -406,12 +406,12 @@
- 	fl->fl_file->f_owner.signum = 0;
- }
+ 	struct fscache_search_result *srch;
  
--int lease_mylease_callback(struct file_lock *fl, struct file_lock *try)
-+static int lease_mylease_callback(struct file_lock *fl, struct file_lock *try)
- {
- 	return fl->fl_file == try->fl_file;
- }
+--- linux-2.6.12-rc2-mm3-full/fs/fscache/main.c.old	2005-04-23 02:55:48.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/fs/fscache/main.c	2005-04-23 02:56:22.000000000 +0200
+@@ -16,8 +16,6 @@
+ #include <linux/slab.h>
+ #include "fscache-int.h"
  
--struct lock_manager_operations lease_manager_ops = {
-+static struct lock_manager_operations lease_manager_ops = {
- 	.fl_break = lease_break_callback,
- 	.fl_release_private = lease_release_private_callback,
- 	.fl_mylease = lease_mylease_callback,
-@@ -1274,7 +1274,7 @@
-  *
-  *	Called with kernel lock held.
-  */
--int __setlease(struct file *filp, long arg, struct file_lock **flp)
-+static int __setlease(struct file *filp, long arg, struct file_lock **flp)
- {
- 	struct file_lock *fl, **before, **my_before = NULL, *lease = *flp;
- 	struct dentry *dentry = filp->f_dentry;
---- linux-2.6.12-rc2-mm3-full/fs/mbcache.c.old	2005-04-23 02:37:26.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/fs/mbcache.c	2005-04-23 02:37:35.000000000 +0200
-@@ -57,7 +57,7 @@
+-int fscache_debug = 0;
+-
+ static int fscache_init(void);
+ static void fscache_exit(void);
  
- #define MB_CACHE_WRITER ((unsigned short)~0U >> 1)
- 
--DECLARE_WAIT_QUEUE_HEAD(mb_cache_queue);
-+static DECLARE_WAIT_QUEUE_HEAD(mb_cache_queue);
- 		
- MODULE_AUTHOR("Andreas Gruenbacher <a.gruenbacher@computer.org>");
- MODULE_DESCRIPTION("Meta block cache (for extended attributes)");
---- linux-2.6.12-rc2-mm3-full/fs/mpage.c.old	2005-04-23 02:37:50.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/fs/mpage.c	2005-04-23 02:37:56.000000000 +0200
-@@ -87,7 +87,7 @@
- 	return 0;
- }
- 
--struct bio *mpage_bio_submit(int rw, struct bio *bio)
-+static struct bio *mpage_bio_submit(int rw, struct bio *bio)
- {
- 	bio->bi_end_io = mpage_end_io_read;
- 	if (rw == WRITE)
---- linux-2.6.12-rc2-mm3-full/fs/namei.c.old	2005-04-23 02:38:33.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/fs/namei.c	2005-04-23 02:39:02.000000000 +0200
-@@ -2068,8 +2068,8 @@
-  *	   ->i_sem on parents, which works but leads to some truely excessive
-  *	   locking].
-  */
--int vfs_rename_dir(struct inode *old_dir, struct dentry *old_dentry,
--	       struct inode *new_dir, struct dentry *new_dentry)
-+static int vfs_rename_dir(struct inode *old_dir, struct dentry *old_dentry,
-+			  struct inode *new_dir, struct dentry *new_dentry)
- {
- 	int error = 0;
- 	struct inode *target;
-@@ -2113,8 +2113,8 @@
- 	return error;
- }
- 
--int vfs_rename_other(struct inode *old_dir, struct dentry *old_dentry,
--	       struct inode *new_dir, struct dentry *new_dentry)
-+static int vfs_rename_other(struct inode *old_dir, struct dentry *old_dentry,
-+			    struct inode *new_dir, struct dentry *new_dentry)
- {
- 	struct inode *target;
- 	int error;
---- linux-2.6.12-rc2-mm3-full/fs/select.c.old	2005-04-23 02:41:02.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/fs/select.c	2005-04-23 02:41:22.000000000 +0200
-@@ -55,7 +55,8 @@
-  * as all select/poll functions have to call it to add an entry to the
-  * poll table.
-  */
--void __pollwait(struct file *filp, wait_queue_head_t *wait_address, poll_table *p);
-+static void __pollwait(struct file *filp, wait_queue_head_t *wait_address,
-+		       poll_table *p);
- 
- void poll_initwait(struct poll_wqueues *pwq)
- {
-@@ -87,7 +88,8 @@
- 
- EXPORT_SYMBOL(poll_freewait);
- 
--void __pollwait(struct file *filp, wait_queue_head_t *wait_address, poll_table *_p)
-+static void __pollwait(struct file *filp, wait_queue_head_t *wait_address,
-+		       poll_table *_p)
- {
- 	struct poll_wqueues *p = container_of(_p, struct poll_wqueues, pt);
- 	struct poll_table_page *table = p->table;
 

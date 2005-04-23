@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261806AbVDWXGv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262169AbVDWXTN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261806AbVDWXGv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Apr 2005 19:06:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbVDWXGv
+	id S262169AbVDWXTN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Apr 2005 19:19:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbVDWXTN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Apr 2005 19:06:51 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:57015 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S261806AbVDWXGt (ORCPT
+	Sat, 23 Apr 2005 19:19:13 -0400
+Received: from mail.dif.dk ([193.138.115.101]:23956 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S262169AbVDWXTK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Apr 2005 19:06:49 -0400
-Date: Sun, 24 Apr 2005 01:06:48 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.12-rc3
-Message-ID: <20050423230648.GE13222@pasky.ji.cz>
-References: <20050421112022.GB2160@elf.ucw.cz> <20050421120327.GA13834@elf.ucw.cz> <20050421162220.GD30991@pasky.ji.cz> <20050421232201.GD31207@elf.ucw.cz> <20050422002150.GY7443@pasky.ji.cz> <20050422231839.GC1789@elf.ucw.cz> <Pine.LNX.4.58.0504221718410.2344@ppc970.osdl.org> <20050423111900.GA2226@openzaurus.ucw.cz> <Pine.LNX.4.58.0504230654190.2344@ppc970.osdl.org> <20050423230023.GA17388@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050423230023.GA17388@elf.ucw.cz>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+	Sat, 23 Apr 2005 19:19:10 -0400
+Date: Sun, 24 Apr 2005 01:22:21 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+Subject: [PATCH] prevent possible infinite loop in fs/select.c::do_pollfd()
+Message-ID: <Pine.LNX.4.62.0504240112340.2474@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Sun, Apr 24, 2005 at 01:00:23AM CEST, I got a letter
-where Pavel Machek <pavel@ucw.cz> told me that...
-> I created three trees here (with git fork): one ("clean-git") to track
-> your changes, second ("linux-git") to do my development on and third
-> ("linux-good") for good, nice, cleaned-up changes, for you to merge.
-> 
-> ...unfortunately pasky's git just symlinked object/ directories...
+If a sufficiently large 'num' is passed to the function, the for loop 
+becomes an infinite loop - as far as I can see, that's a bug waiting to 
+happen. Sure, 'len' in struct poll_list is currently an int, so currently 
+this can't happen, but that might change in the future. In my oppinion, 
+a function should be able to function correctly with the complete range 
+of values that can potentially be passed via its parameters, and without 
+the patch below that's just not true for this function.
 
-You can't do any better than that, since you would have to transfer
-stuff around by pulling them otherwise; so you would need smart git
-pull, but then Linus can use the smart git pull himself anyway. ;-)
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
--- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-C++: an octopus made by nailing extra legs onto a dog. -- Steve Taylor
+--- linux-2.6.12-rc2-mm3-orig/fs/select.c	2005-04-05 21:21:47.000000000 +0200
++++ linux-2.6.12-rc2-mm3/fs/select.c	2005-04-24 01:11:13.000000000 +0200
+@@ -397,7 +397,7 @@ struct poll_list {
+ static void do_pollfd(unsigned int num, struct pollfd * fdpage,
+ 	poll_table ** pwait, int *count)
+ {
+-	int i;
++	unsigned int i;
+ 
+ 	for (i = 0; i < num; i++) {
+ 		int fd;
+
+

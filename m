@@ -1,177 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbVDWCtA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261464AbVDWC5G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261454AbVDWCtA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Apr 2005 22:49:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbVDWCtA
+	id S261464AbVDWC5G (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Apr 2005 22:57:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbVDWC5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 22:49:00 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:26786 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261454AbVDWCsw
+	Fri, 22 Apr 2005 22:57:06 -0400
+Received: from rproxy.gmail.com ([64.233.170.198]:6709 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261464AbVDWC5D convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Apr 2005 22:48:52 -0400
-Subject: [PATCH] X86_64: fix hpet for systems that don't support legacy
-	replacement  (v. A3)
-From: john stultz <johnstul@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>, vojtech@suse.cz
-Cc: lkml <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-In-Reply-To: <1113961261.19541.167.camel@cog.beaverton.ibm.com>
-References: <1113961261.19541.167.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain
-Date: Fri, 22 Apr 2005 19:48:47 -0700
-Message-Id: <1114224527.19541.278.camel@cog.beaverton.ibm.com>
+	Fri, 22 Apr 2005 22:57:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WvajKPNoHzU1BhEd71WC4j/1kQ3d9XPOzDmDhSzZXB/yUlRaibNG5MjUox1i8UzjOuwuEd53NFa0EUFopVDFATlb2DIBxIbXuWckT28H/0ps83Y/muq1xGNAMRVnL2KUERqh5erb+tIOh3236VC9W2HwR4Agphh85ZUdInTDYjE=
+Message-ID: <d120d500050422195755c5b918@mail.gmail.com>
+Date: Fri, 22 Apr 2005 21:57:03 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Stefan Seyfried <seife@suse.de>
+Subject: Re: Linux 2.6.12-rc3: various swsusp problems
+Cc: Pavel Machek <pavel@ucw.cz>, rjw@sisk.pl,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andreas Steinmetz <ast@domdv.de>
+In-Reply-To: <42691498.7060003@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org>
+	 <4267DC2E.9030102@domdv.de> <20050421185717.GB475@openzaurus.ucw.cz>
+	 <42691498.7060003@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, All,
-	Currently the x86-64 HPET code assumes the entire HPET implementation
-from the spec is present. This breaks on boxes that do not implement the
-optional legacy timer replacement functionality portion of the spec.
+On 4/22/05, Stefan Seyfried <seife@suse.de> wrote:
+> --- linux/kernel/power/swsusp.c~        2005-04-22 17:07:56.000000000 +0200
+> +++ linux/kernel/power/swsusp.c 2005-04-22 17:09:22.000000000 +0200
+> @@ -1239,7 +1239,7 @@ static int check_sig(void)
+>                 */
+>                error = bio_write_page(0, &swsusp_header);
+>        } else {
+> -               printk(KERN_ERR "swsusp: Suspend partition has wrong signature?\n");
+> +               printk(KERN_ERR "swsusp: Suspend partition is no suspend image.\n");
 
-This patch fixes this issue, allowing x86-64 systems that cannot use the
-HPET for the timer interrupt and RTC to still use the HPET as a time
-source. I've tested this patch on a system systems without HPET, with
-HPET but without legacy timer replacement, as well as HPET with legacy
-timer replacement.
+Hrm, I don't think it is a good message... What about "Suspend
+partition has no suspend image" or, better yet, "Suspend partition
+does not contain valid suspend image"?
 
-This version adds a minor check to cap the HPET counter value in
-gettimeoffset_hpet to avoid possible time inconsistencies. Please ignore
-the A2 version I sent to you earlier.
-
-Please consider for your tree.
-
-thanks
--john
-
-Changelog:
-A0: First sent to lkml
-A1: Implemented suggestions from Venkatesh
-A2: Whitespace cleanup.
-A3: Cap gettimeoffset_hpet to avoid time inconsistencies
-
-linux-2.6.12-rc2_x86-64_hpet_nolegacy-fix_A3.patch
-==================================================
-diff -Nru a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
---- a/arch/x86_64/kernel/time.c	2005-04-22 19:41:09 -07:00
-+++ b/arch/x86_64/kernel/time.c	2005-04-22 19:41:09 -07:00
-@@ -60,6 +60,7 @@
- unsigned int cpu_khz;					/* TSC clocks / usec, not used here */
- static unsigned long hpet_period;			/* fsecs / HPET clock */
- unsigned long hpet_tick;				/* HPET clocks / interrupt */
-+static int hpet_use_timer;
- unsigned long vxtime_hz = PIT_TICK_RATE;
- int report_lost_ticks;				/* command line option */
- unsigned long long monotonic_base;
-@@ -101,7 +102,9 @@
- 
- static inline unsigned int do_gettimeoffset_hpet(void)
- {
--	return ((hpet_readl(HPET_COUNTER) - vxtime.last) * vxtime.quot) >> 32;
-+	/* cap counter read to one tick to avoid inconsistencies */
-+	unsigned long counter = hpet_readl(HPET_COUNTER) - vxtime.last;
-+	return (min(counter,hpet_tick) * vxtime.quot) >> 32;
- }
- 
- unsigned int (*do_gettimeoffset)(void) = do_gettimeoffset_tsc;
-@@ -297,7 +300,7 @@
- 
- 			last_offset = vxtime.last;
- 			base = monotonic_base;
--			this_offset = hpet_readl(HPET_T0_CMP) - hpet_tick;
-+			this_offset = hpet_readl(HPET_COUNTER);
- 
- 		} while (read_seqretry(&xtime_lock, seq));
- 		offset = (this_offset - last_offset);
-@@ -373,7 +376,14 @@
- 
- 	write_seqlock(&xtime_lock);
- 
--	if (vxtime.hpet_address) {
-+	if (vxtime.hpet_address)
-+		offset = hpet_readl(HPET_COUNTER);
-+
-+	if (hpet_use_timer) {
-+		/* if we're using the hpet timer functionality,
-+		 * we can more accurately know the counter value
-+		 * when the timer interrupt occured.
-+		 */
- 		offset = hpet_readl(HPET_T0_CMP) - hpet_tick;
- 		delay = hpet_readl(HPET_COUNTER) - offset;
- 	} else {
-@@ -794,17 +804,18 @@
-  * Set up timer 0, as periodic with first interrupt to happen at hpet_tick,
-  * and period also hpet_tick.
-  */
--
--	hpet_writel(HPET_TN_ENABLE | HPET_TN_PERIODIC | HPET_TN_SETVAL |
-+	if (hpet_use_timer) {
-+		hpet_writel(HPET_TN_ENABLE | HPET_TN_PERIODIC | HPET_TN_SETVAL |
- 		    HPET_TN_32BIT, HPET_T0_CFG);
--	hpet_writel(hpet_tick, HPET_T0_CMP);
--	hpet_writel(hpet_tick, HPET_T0_CMP); /* AK: why twice? */
--
-+		hpet_writel(hpet_tick, HPET_T0_CMP);
-+		hpet_writel(hpet_tick, HPET_T0_CMP); /* AK: why twice? */
-+		cfg |= HPET_CFG_LEGACY;
-+	}
- /*
-  * Go!
-  */
- 
--	cfg |= HPET_CFG_ENABLE | HPET_CFG_LEGACY;
-+	cfg |= HPET_CFG_ENABLE;
- 	hpet_writel(cfg, HPET_CFG);
- 
- 	return 0;
-@@ -825,8 +836,7 @@
- 
- 	id = hpet_readl(HPET_ID);
- 
--	if (!(id & HPET_ID_VENDOR) || !(id & HPET_ID_NUMBER) ||
--	    !(id & HPET_ID_LEGSUP))
-+	if (!(id & HPET_ID_VENDOR) || !(id & HPET_ID_NUMBER))
- 		return -1;
- 
- 	hpet_period = hpet_readl(HPET_PERIOD);
-@@ -836,6 +846,8 @@
- 	hpet_tick = (1000000000L * (USEC_PER_SEC / HZ) + hpet_period / 2) /
- 		hpet_period;
- 
-+	hpet_use_timer = (id & HPET_ID_LEGSUP);
-+
- 	return hpet_timer_stop_set_go(hpet_tick);
- }
- 
-@@ -892,9 +904,11 @@
- 	set_normalized_timespec(&wall_to_monotonic,
- 	                        -xtime.tv_sec, -xtime.tv_nsec);
- 
--	if (!hpet_init()) {
-+	if (!hpet_init())
-                 vxtime_hz = (1000000000000000L + hpet_period / 2) /
- 			hpet_period;
-+
-+	if (hpet_use_timer) {
- 		cpu_khz = hpet_calibrate_tsc();
- 		timename = "HPET";
- 	} else {
-@@ -940,12 +954,12 @@
- 	if (oem_force_hpet_timer())
- 		notsc = 1;
- 	if (vxtime.hpet_address && notsc) {
--		timetype = "HPET";
-+		timetype = hpet_use_timer ? "HPET" : "PIT/HPET";
- 		vxtime.last = hpet_readl(HPET_T0_CMP) - hpet_tick;
- 		vxtime.mode = VXTIME_HPET;
- 		do_gettimeoffset = do_gettimeoffset_hpet;
- 	} else {
--		timetype = vxtime.hpet_address ? "HPET/TSC" : "PIT/TSC";
-+		timetype = hpet_use_timer ? "HPET/TSC" : "PIT/TSC";
- 		vxtime.mode = VXTIME_TSC;
- 	}
- 
-
-
+-- 
+Dmitry

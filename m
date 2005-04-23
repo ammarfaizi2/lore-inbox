@@ -1,49 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbVDWPLE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbVDWPVt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbVDWPLE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Apr 2005 11:11:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbVDWPLE
+	id S261612AbVDWPVt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Apr 2005 11:21:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVDWPVs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Apr 2005 11:11:04 -0400
-Received: from mx2.suse.de ([195.135.220.15]:33177 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261605AbVDWPK7 (ORCPT
+	Sat, 23 Apr 2005 11:21:48 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:20971 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261612AbVDWPVo convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Apr 2005 11:10:59 -0400
-Date: Sat, 23 Apr 2005 17:10:48 +0200
-From: Andi Kleen <ak@suse.de>
-To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Rohit Seth <rohit.seth@intel.com>, Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] Increase number of e820 entries hard limit from 32 to 128
-Message-ID: <20050423151048.GE7715@wotan.suse.de>
-References: <20050422181441.A18205@unix-os.sc.intel.com> <Pine.LNX.4.58.0504221851140.2344@ppc970.osdl.org> <20050422193250.A18512@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 23 Apr 2005 11:21:44 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: =?iso-8859-1?q?J=F6rn=20Engel?= <joern@wohnheim.fh-wedel.de>
+Subject: Re: [PATCH linux-2.6.12-rc2-mm3] smc91c92_cs: Reduce stack usage in smc91c92_event()
+Date: Sat, 23 Apr 2005 18:21:30 +0300
+User-Agent: KMail/1.5.4
+Cc: Yum Rayan <yum.rayan@gmail.com>, linux-kernel@vger.kernel.org,
+       linux-pcmcia@lists.infradead.org, dahinds@users.sourceforge.net,
+       rddunlap@osdl.org
+References: <df35dfeb05042115021c24638b@mail.gmail.com> <200504221122.51579.vda@port.imtp.ilyichevsk.odessa.ua> <20050423001228.GA6418@wohnheim.fh-wedel.de>
+In-Reply-To: <20050423001228.GA6418@wohnheim.fh-wedel.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20050422193250.A18512@unix-os.sc.intel.com>
+Message-Id: <200504231821.31309.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 22, 2005 at 07:32:50PM -0700, Venkatesh Pallipadi wrote:
-> On Fri, Apr 22, 2005 at 06:51:59PM -0700, Linus Torvalds wrote:
-> > On Fri, 22 Apr 2005, Venkatesh Pallipadi wrote:
-> > > The specifications that talk about E820 map doesn't have an upper limit
-> > > on the number of E820 entries. But, today's kernel has a hard limit of 32.
-> > > With increase in memory size, we are seeing the number of E820 entries
-> > > reaching close to 32. Patch below bumps the number upto 128. 
-> > 
-> > Hmm. Anything that changes setup.S tends to have bootloader dependencies. 
-> > I worry whether this one does too..
-> > 
+On Saturday 23 April 2005 03:12, Jörn Engel wrote:
+
+> > 1) struct is unnamed and local to function
+> > 2) Variables do not change their type, the just sit in local-> now.
+> >    I can just add 'local->' to each affected variable,
+> >    without "it was an object, now it is a pointer" changes.
+> >    No need to replace . with ->, remove &, etc.
 > 
-> The setup.S change in this patch should be OK. As it is adding to the 
-> existing zero-page and keeping it within one page. I tested it on systems 
-> with grub, adding some dummy E820 entries and it worked fine.
+> I'd have proposed the same, before reading further down in the patch.
+> Basically, the driver is full of duplication, so the exact same struct
+> can be used several times.  Therefore, the downsides of your approach
+> seem to prevail.
 
-The last time I tried to extend the zero page (with a longer command line)
-it broke lilo on systems with EDID support and CONFIG_EDID enabled.
-Make sure you test that case.
+What downsides? I must admit I do not understand your answer here.
 
--Andi
+Let me stay on the subject of converting large stack onjects
+to kmalloc()ed ones, without reference to current state
+of code in a particular module.
+
+Basically, these objects are local to function. We do not
+introduce struct as an 'object'. It merely aggregates
+all locals we decided to move to kmalloc space,
+only because it's easier that way to allocate and reference
+all of them in C.
+
+Thus, even if there are many functions with similar
+set of locals, it makes little sense to declare common struct.
+IOW, I wouldn't do this:
+
+struct big {
+	large_t	large;
+	huge_t huge;
+};
+
+int f() {
+	struct big *local;
+	local = kmalloc(sizeof(big),...);
+	...
+}
+
+int g() {
+	struct big *local;
+	local = kmalloc(sizeof(big),...);
+	...
+}
+
+For one, what will happen when you will need to add
+another local in one function only?
+
+Instead, I'd do it like I described in previous mail:
+
+int f() {
+	struct {
+		large_t	large;
+		huge_t huge;
+	} *local;
+	local = kmalloc(sizeof(*local),...);
+	...
+}
+
+int g() {
+	struct {
+		large_t	large;
+		huge_t huge;
+	} *local;
+	local = kmalloc(sizeof(*local),...);
+	...
+}
+--
+vda
 

@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261399AbVDWANF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbVDWAT3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261399AbVDWANF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Apr 2005 20:13:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbVDWALB
+	id S261396AbVDWAT3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Apr 2005 20:19:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbVDWAT2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Apr 2005 20:11:01 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:28945 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261368AbVDWAKm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Apr 2005 20:10:42 -0400
-Date: Sat, 23 Apr 2005 02:10:40 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] fs/isofs/rock.c: make a function static
-Message-ID: <20050423001040.GP4355@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 22 Apr 2005 20:19:28 -0400
+Received: from fire.osdl.org ([65.172.181.4]:48523 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261398AbVDWATX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Apr 2005 20:19:23 -0400
+Date: Fri, 22 Apr 2005 17:21:19 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+cc: Petr Baudis <pasky@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.12-rc3
+In-Reply-To: <20050422231839.GC1789@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.58.0504221718410.2344@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org>
+ <20050421112022.GB2160@elf.ucw.cz> <20050421120327.GA13834@elf.ucw.cz>
+ <20050421162220.GD30991@pasky.ji.cz> <20050421232201.GD31207@elf.ucw.cz>
+ <20050422002150.GY7443@pasky.ji.cz> <20050422231839.GC1789@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes a needlesly global function static.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.12-rc2-mm3-full/fs/isofs/rock.c.old	2005-04-20 23:19:47.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/fs/isofs/rock.c	2005-04-20 23:19:56.000000000 +0200
-@@ -84,7 +84,7 @@
-  * Returns 0 if the caller should continue scanning, 1 if the scan must end
-  * and -ve on error.
-  */
--int rock_continue(struct rock_state *rs)
-+static int rock_continue(struct rock_state *rs)
- {
- 	int ret = 1;
- 	int blocksize = 1 << rs->inode->i_blkbits;
+On Sat, 23 Apr 2005, Pavel Machek wrote:
+> 
+> Unfortunately first merge will make it practically unusable :-(. 
 
+No, quite the reverse. If I merge from you, and you use my commit ID as 
+the "base" point, it will work again.
+
+But yes, if you actually send the result as _patches_ to me, then the 
+commit objects I create will be totally separate from the commit objects 
+you had in your tree, and "git-export" will continue to export your old 
+stale entries since they won't show up as already being in my tree.
+
+The point being, that there is a big difference between a proper merge 
+(with history etc merged) and just sending me the patches in your tree.
+
+		Linus

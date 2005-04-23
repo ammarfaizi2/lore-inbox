@@ -1,48 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261700AbVDWSr1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbVDWSvK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261700AbVDWSr1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Apr 2005 14:47:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261698AbVDWSr0
+	id S261705AbVDWSvK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Apr 2005 14:51:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbVDWSvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Apr 2005 14:47:26 -0400
-Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:3542 "EHLO
-	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S261697AbVDWSqs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Apr 2005 14:46:48 -0400
-Date: Sat, 23 Apr 2005 20:39:09 +0200
-From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: David Woodhouse <dwmw2@infradead.org>, Jan Dittmer <jdittmer@ppp0.net>,
-       Greg KH <greg@kroah.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
+	Sat, 23 Apr 2005 14:51:09 -0400
+Received: from simmts7.bellnexxia.net ([206.47.199.165]:41463 "EHLO
+	simmts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S261715AbVDWSuX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Apr 2005 14:50:23 -0400
+Message-ID: <2646.10.10.10.24.1114278656.squirrel@linux1>
+Date: Sat, 23 Apr 2005 13:50:56 -0400 (EDT)
 Subject: Re: Git-commits mailing list feed.
-Message-ID: <20050423183909.GC7100@cip.informatik.uni-erlangen.de>
-Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-	Linus Torvalds <torvalds@osdl.org>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Jan Dittmer <jdittmer@ppp0.net>, Greg KH <greg@kroah.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Git Mailing List <git@vger.kernel.org>
-References: <200504210422.j3L4Mo8L021495@hera.kernel.org> <42674724.90005@ppp0.net> <20050422002922.GB6829@kroah.com> <426A4669.7080500@ppp0.net> <1114266083.3419.40.camel@localhost.localdomain> <426A5BFC.1020507@ppp0.net> <1114266907.3419.43.camel@localhost.localdomain> <Pine.LNX.4.58.0504231010580.2344@ppc970.osdl.org> <20050423175422.GA7100@cip.informatik.uni-erlangen.de> <Pine.LNX.4.58.0504231125330.2344@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0504231125330.2344@ppc970.osdl.org>
-X-URL: http://wwwcip.informatik.uni-erlangen.de/~sithglan/
-User-Agent: Mutt/1.5.9i
+From: "Sean" <seanlkml@sympatico.ca>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Cc: "David Woodhouse" <dwmw2@infradead.org>, "Jan Dittmer" <jdittmer@ppp0.net>,
+       "Greg KH" <greg@kroah.com>,
+       "Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Git Mailing List" <git@vger.kernel.org>
+User-Agent: SquirrelMail/1.4.4-2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+References: <200504210422.j3L4Mo8L021495@hera.kernel.org>       
+    <42674724.90005@ppp0.net> <20050422002922.GB6829@kroah.com>       
+    <426A4669.7080500@ppp0.net>       
+    <1114266083.3419.40.camel@localhost.localdomain>       
+    <426A5BFC.1020507@ppp0.net>      
+    <1114266907.3419.43.camel@localhost.localdomain>      
+    <Pine.LNX.4.58.0504231010580.2344@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0504231010580.2344@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sat, April 23, 2005 1:31 pm, Linus Torvalds said:
 
-> 	commit ....
-> 	tag ...
+> If somebody writes a script to generate the above kind of thing (and
+tells me how to validate it), I'll do the rest, and start tagging things
+properly. Oh, and make sure the above sounds sane (ie if somebody has a
+better idea for how to more easily identify how to find the public key to
+> check against, please speak up).
+>
 
-> 	here goes comment
-> 	here goes signature
+Hi Linus,
 
-# This creates only the signature in Ascii Armor.
-gpg -a --detach-sign < to_sign > signature
+Why not leave tags open to being signed or unsigned?  Anyone that wants to
+create a trusted tag could simply sign their cleartext entry in the tag
+object.
 
-	Thomas
+Ideally the SHA1 tree reference would be included in the text entry
+whether it was signed or not.   Thus any script can pull the SHA1 out of
+the text entry.  And a script that understands the signing method can
+verify it.  But scripts that don't understand the signing method can still
+use the tag.
+
+For presentation in the log or whatever, the script can look inside the
+clear text message, grab the SHA1 and display it in the header area; even
+though it's not really in the header, always just in the clear text area.
+
+Sean
+
+
+
+
+
+

@@ -1,57 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261698AbVDWSuh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261717AbVDWSzz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261698AbVDWSuh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Apr 2005 14:50:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbVDWSuc
+	id S261717AbVDWSzz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Apr 2005 14:55:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbVDWSzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Apr 2005 14:50:32 -0400
-Received: from smtpout.mac.com ([17.250.248.97]:50370 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S261698AbVDWSuH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Apr 2005 14:50:07 -0400
-In-Reply-To: <Pine.LNX.4.62.0504230947070.23658@twinlark.arctic.org>
-References: <4ae3c14050417085473bd365f@mail.gmail.com> <Pine.LNX.4.62.0504230947070.23658@twinlark.arctic.org>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <4a5cc1ac18788e708f9a5f3a5bd31be0@mac.com>
-Content-Transfer-Encoding: 7bit
-Cc: Xin Zhao <uszhaoxin@gmail.com>, linux-kernel@vger.kernel.org
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Why Ext2/3 needs immutable attribute?
-Date: Sat, 23 Apr 2005 14:49:59 -0400
-To: dean gaudet <dean-list-linux-kernel@arctic.org>
-X-Mailer: Apple Mail (2.619.2)
+	Sat, 23 Apr 2005 14:55:55 -0400
+Received: from fed1rmmtao03.cox.net ([68.230.241.36]:17038 "EHLO
+	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
+	id S261703AbVDWSyQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Apr 2005 14:54:16 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       David Woodhouse <dwmw2@infradead.org>, Jan Dittmer <jdittmer@ppp0.net>,
+       Greg KH <greg@kroah.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: Git-commits mailing list feed.
+References: <200504210422.j3L4Mo8L021495@hera.kernel.org>
+	<42674724.90005@ppp0.net> <20050422002922.GB6829@kroah.com>
+	<426A4669.7080500@ppp0.net>
+	<1114266083.3419.40.camel@localhost.localdomain>
+	<426A5BFC.1020507@ppp0.net>
+	<1114266907.3419.43.camel@localhost.localdomain>
+	<Pine.LNX.4.58.0504231010580.2344@ppc970.osdl.org>
+	<20050423175422.GA7100@cip.informatik.uni-erlangen.de>
+	<Pine.LNX.4.58.0504231125330.2344@ppc970.osdl.org>
+From: Junio C Hamano <junkio@cox.net>
+Date: Sat, 23 Apr 2005 11:54:07 -0700
+In-Reply-To: <Pine.LNX.4.58.0504231125330.2344@ppc970.osdl.org> (Linus
+ Torvalds's message of "Sat, 23 Apr 2005 11:30:36 -0700 (PDT)")
+Message-ID: <7voec52uk0.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 23, 2005, at 12:50, dean gaudet wrote:
-> On Sun, 17 Apr 2005, Xin Zhao wrote:
->
->> Why not simply unset the write bit for all three groups of users?
->> That seems to be enough to prevent file modification.
->
-> another usage:  if you "chattr +i /var" while /var is unmounted, then 
-> root
-> is unlikely to accidentally create files/dirs in /var -- and when you
-> mount the real /var on top it works fine.  i tend to protect all my 
-> mount
-> points this way (especially those in /mnt) to avoid my own dumb 
-> mistakes.
+>>>>> "LT" == Linus Torvalds <torvalds@osdl.org> writes:
 
-If you chmod 000 /var beforehand (While it's still unmounted, of 
-course),
-then it's also blindingly obvious that it's not mounted in an ls -l :-D.
-I too have used this trick on many/most of my systems.
+LT> I really want the resulting file to look like
 
-Cheers,
-Kyle Moffett
+LT> 	commit ....
+LT> 	tag ...
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
+LT> 	here goes comment
+LT> 	here goes signature
 
+LT> and no headers.
+
+You can use --detach-sign with --armor, like this.
+
+Signed-off-by: Junio C Hamano <junkio@cox.net>
+---
+#!/bin/sh
+
+sq=s/\'/\''\\'\'\'/g
+usage="usage: $0  [--signer=...] commit-id tag < message"
+while case "$#" in 0) break;; esac
+do
+ case "$1" in
+ -s=*|--s=*|--si=*|--sig=*|--sign=*|--signe=*|--signer=*)
+  signer=`expr "$1" : '-[^=]*=\(.*\)'` ;;
+ -s|--s|--si|--sig|--sign|--signe|--signer)
+  case "$#" in 0 | 1) echo "$usage"; exit 1 ;; esac
+  signer="${2?}"
+  shift ;;
+ --)
+  shift
+  break ;;
+ -*)
+  echo "$usage"
+  exit 1 ;;
+ *)
+  break ;;
+ esac
+ shift
+done
+
+case "$#" in 2) echo >&2 "$usage"; exit 1 ;; esac
+commit="$1" tag="$2"
+
+case "$signer" in
+'') signer_arg='' ;;
+?*) signer_arg="--local-user '$(echo "$signer" | sed -e "$sq")'" ;;
+esac
+
+tmp=.jit-tag.$$
+trap 'rm -f $tmp-*' 0 1 2 3 15
+tagblob=$tmp-tagblob
+tagsign=$tmp-tagsign
+
+case $(cat-file -t "$commit" 2>/dev/null) in
+commit) ;;
+*) echo >&2 "$0: $commit is not a commit object"; exit 1 ;;
+esac
+{
+    echo "commit $commit"
+    echo "tag $tag"
+    case "$signer" in
+    '') ;;
+    ?*) echo "signer $signer" ;;
+    esac
+    echo
+    tty -s && echo >&2 "Type your tag message and end with ^D."
+    cat
+} >$tagblob || exit
+gpgcmd="gpg $signer_arg -a --output $tagsign --detach-sign $tagblob"
+eval "$gpgcmd" || exit
+cat $tagblob $tagsign
 

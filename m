@@ -1,70 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261986AbVDWVeO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262044AbVDWVrz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261986AbVDWVeO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Apr 2005 17:34:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262044AbVDWVeO
+	id S262044AbVDWVrz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Apr 2005 17:47:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbVDWVrz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Apr 2005 17:34:14 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:7809 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261986AbVDWVeG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Apr 2005 17:34:06 -0400
-Date: Sat, 23 Apr 2005 23:31:43 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Petr Baudis <pasky@ucw.cz>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-Subject: Re: Linux 2.6.12-rc3
-Message-ID: <20050423213143.GA4978@elf.ucw.cz>
-References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org> <20050421112022.GB2160@elf.ucw.cz> <20050421120327.GA13834@elf.ucw.cz> <20050421162220.GD30991@pasky.ji.cz> <20050421190009.GC475@openzaurus.ucw.cz> <20050421190956.GA7443@pasky.ji.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 23 Apr 2005 17:47:55 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:41119 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S262044AbVDWVrt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Apr 2005 17:47:49 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH] swsusp: misc cleanups [1/4]
+Date: Sat, 23 Apr 2005 23:25:57 +0200
+User-Agent: KMail/1.7.1
+Cc: LKML <linux-kernel@vger.kernel.org>
+References: <200504232320.54477.rjw@sisk.pl>
+In-Reply-To: <200504232320.54477.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050421190956.GA7443@pasky.ji.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200504232325.57543.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+The following patch moves the recalculation of nr_copy_pages so that the
+right number is used in the calculation of the size of memory and swap needed.
 
-> > > > Well, not sure.
-> > > > 
-> > > > I did 
-> > > > 
-> > > > git track linus
-> > > > git cancel
-> > > > 
-> > > > but Makefile still contains -rc2. (Is "git cancel" right way to check
-> > > > out the tree?)
-> > > 
-> > > No. git cancel does what it says - cancels your local changes to the
-> > > working tree. git track will only set that next time you pull from
-> > > linus, the changes will be automatically merged. (Note that this will
-> > > change with the big UI change.)
-> > 
-> > Is there way to say "forget those changes in my repository, I want
-> > just plain vanilla" without rm -rf?
-> 
-> git cancel will give you "plain last commit". If you need plain vanilla,
-> the "hard way" now is to just do
-> 
-> 	commit-id >.git/HEAD
-> 
-> but your current HEAD will be lost forever. Or do
-> 
-> 	git fork vanilla ~/vanilla linus
-> 
-> and you will have the vanilla tree tracking linus in ~/vanilla.
+It prevents swsusp from attempting to suspend if there is not enough memory
+and/or swap (which is unlikely anyway).
 
-Yep, symlinked in nice way. Good trap; it cought me ;-). (I of course
-deleted the original directory).
+Please consider for applying.
 
-> I'm not yet sure if we should have some Cogito interface for doing this
-> and what its semantics should be.
 
-Perhaps "git init" is right command for this? Running it in non-empty
-directory for faster restart after bad problem....
-								Pavel
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+
+diff -Nurp a/kernel/power/swsusp.c b/kernel/power/swsusp.c
+--- a/kernel/power/swsusp.c	2005-04-22 14:48:04.000000000 +0200
++++ b/kernel/power/swsusp.c	2005-04-23 21:29:00.000000000 +0200
+@@ -781,18 +781,18 @@ static int swsusp_alloc(void)
+ {
+ 	int error;
+ 
++	pagedir_nosave = NULL;
++	nr_copy_pages = calc_nr(nr_copy_pages);
++
+ 	pr_debug("suspend: (pages needed: %d + %d free: %d)\n",
+ 		 nr_copy_pages, PAGES_FOR_IO, nr_free_pages());
+ 
+-	pagedir_nosave = NULL;
+ 	if (!enough_free_mem())
+ 		return -ENOMEM;
+ 
+ 	if (!enough_swap())
+ 		return -ENOSPC;
+ 
+-	nr_copy_pages = calc_nr(nr_copy_pages);
+-
+ 	if (!(pagedir_save = alloc_pagedir(nr_copy_pages))) {
+ 		printk(KERN_ERR "suspend: Allocating pagedir failed.\n");
+ 		return -ENOMEM;
+
 -- 
-Boycott Kodak -- for their patent abuse against Java.
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"
+

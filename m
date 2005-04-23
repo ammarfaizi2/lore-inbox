@@ -1,77 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261663AbVDWShf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbVDWSpy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261663AbVDWShf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Apr 2005 14:37:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261694AbVDWShe
+	id S261668AbVDWSpy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Apr 2005 14:45:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbVDWSpy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Apr 2005 14:37:34 -0400
-Received: from quechua.inka.de ([193.197.184.2]:50106 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S261663AbVDWSfQ (ORCPT
+	Sat, 23 Apr 2005 14:45:54 -0400
+Received: from mail.dif.dk ([193.138.115.101]:39050 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261668AbVDWSpk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Apr 2005 14:35:16 -0400
-From: Bernd Eckenfels <ecki@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Git-commits mailing list feed.
-Organization: Private Site running Debian GNU/Linux
-In-Reply-To: <20050423175422.GA7100@cip.informatik.uni-erlangen.de>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.8.1 (i686))
-Message-Id: <E1DPPTB-0004y2-00@calista.eckenfels.6bone.ka-ip.net>
-Date: Sat, 23 Apr 2005 20:35:09 +0200
+	Sat, 23 Apr 2005 14:45:40 -0400
+Date: Sat, 23 Apr 2005 20:48:51 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Ben Fennema <bfennema@falcon.csc.calpoly.edu>
+Cc: linux_udf@hpesjro.fc.hp.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] udf: uint32_t can't be less than zero
+Message-ID: <Pine.LNX.4.62.0504232037060.2474@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20050423175422.GA7100@cip.informatik.uni-erlangen.de> you wrote:
-> # This creates the signature.
-> gpg --clearsign < sign_this > signature
+Here's a patch that removes a few bits from fs/udf/balloc.c that 
+test uint32_t values for being less than zero, which is impossible.
 
-To not destroy the syntax of the original data, you better generate a
-detached signatur and append it. However in that case you have to detech the
-signatur handish:
+I know not everyone agree with this sort of cleanup, but I figured I'd do 
+the patch in any case, then leave it up to the maintainer to apply it or 
+drop it.
 
-> gpg --detach-sig -a tag-file
-<requirs passphrase>
-> ls tag*
--rw-rw-r--  1 ecki ecki  45 Apr 23 20:25 tag-file
--rw-rw-r--  1 ecki ecki 189 Apr 23 20:26 tag-file.asc
-> cat tag.asc
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+Please keep me on CC: when replying.
 
-iD8DBQBCapNy/vciZ+ODzX4RAgBcAJ92ku1fc5iwhpZ+BJ18HvRFPYa5FACdG2r0
-B22yNdcyi/Opz11nbWd2LaE=
-=Zt5v
------END PGP SIGNATURE-----
-2ecki@calista:~> cat tag-file
-commit 123
-signer Bernd Eckenfels
-tag RC-123
 
-If you skip the -a the signature file is binary. You can merge both files,
-but you have to separate them before you present them to GPG:
 
-> gpg --verify tag.asc tag
-gpg: Signature made Sat Apr 23 20:26:58 2005 CEST using DSA key ID E383CD7E
-gpg: Good signature from "Bernd Eckenfels <ecki@lina.inka.de>"
-echo $?
-0
+Signed-Off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-If you dont care about the Format of the plaintext (i.e. additional GPG
-Headers and Replacement of -- as well as sensitieness to line endings, then
-you can use the clear sign method as well.
 
-Greetings
-Bernd
+--- linux-2.6.12-rc2-mm3-orig/fs/udf/balloc.c	2005-03-02 08:37:52.000000000 +0100
++++ linux-2.6.12-rc2-mm3/fs/udf/balloc.c	2005-04-23 20:38:31.000000000 +0200
+@@ -158,8 +158,7 @@ static void udf_bitmap_free_blocks(struc
+ 	unsigned long overflow;
+ 
+ 	down(&sbi->s_alloc_sem);
+-	if (bloc.logicalBlockNum < 0 ||
+-		(bloc.logicalBlockNum + count) > UDF_SB_PARTLEN(sb, bloc.partitionReferenceNum))
++	if ((bloc.logicalBlockNum + count) > UDF_SB_PARTLEN(sb, bloc.partitionReferenceNum))
+ 	{
+ 		udf_debug("%d < %d || %d + %d > %d\n",
+ 			bloc.logicalBlockNum, 0, bloc.logicalBlockNum, count,
+@@ -232,7 +231,7 @@ static int udf_bitmap_prealloc_blocks(st
+ 	struct buffer_head *bh;
+ 
+ 	down(&sbi->s_alloc_sem);
+-	if (first_block < 0 || first_block >= UDF_SB_PARTLEN(sb, partition))
++	if (first_block >= UDF_SB_PARTLEN(sb, partition))
+ 		goto out;
+ 
+ 	if (first_block + block_count > UDF_SB_PARTLEN(sb, partition))
+@@ -299,7 +298,7 @@ static int udf_bitmap_new_block(struct s
+ 	down(&sbi->s_alloc_sem);
+ 
+ repeat:
+-	if (goal < 0 || goal >= UDF_SB_PARTLEN(sb, partition))
++	if (goal >= UDF_SB_PARTLEN(sb, partition))
+ 		goal = 0;
+ 
+ 	nr_groups = bitmap->s_nr_groups;
+@@ -439,8 +438,7 @@ static void udf_table_free_blocks(struct
+ 	int i;
+ 
+ 	down(&sbi->s_alloc_sem);
+-	if (bloc.logicalBlockNum < 0 ||
+-		(bloc.logicalBlockNum + count) > UDF_SB_PARTLEN(sb, bloc.partitionReferenceNum))
++	if ((bloc.logicalBlockNum + count) > UDF_SB_PARTLEN(sb, bloc.partitionReferenceNum))
+ 	{
+ 		udf_debug("%d < %d || %d + %d > %d\n",
+ 			bloc.logicalBlockNum, 0, bloc.logicalBlockNum, count,
+@@ -688,7 +686,7 @@ static int udf_table_prealloc_blocks(str
+ 	struct buffer_head *bh;
+ 	int8_t etype = -1;
+ 
+-	if (first_block < 0 || first_block >= UDF_SB_PARTLEN(sb, partition))
++	if (first_block >= UDF_SB_PARTLEN(sb, partition))
+ 		return 0;
+ 
+ 	if (UDF_I_ALLOCTYPE(table) == ICBTAG_FLAG_AD_SHORT)
+@@ -768,7 +766,7 @@ static int udf_table_new_block(struct su
+ 		return newblock;
+ 
+ 	down(&sbi->s_alloc_sem);
+-	if (goal < 0 || goal >= UDF_SB_PARTLEN(sb, partition))
++	if (goal >= UDF_SB_PARTLEN(sb, partition))
+ 		goal = 0;
+ 
+ 	/* We search for the closest matching block to goal. If we find a exact hit,
 
-BTW: you can send gpg the passphrase via a specified FD, if you want to
-cache it, however thats a bad idea generally. If you want to parse the
-results from gpg verify (i.e. expired, who has signed, etc) it is better to
-specify some more options which generate easyly parseable extra info:
 
-> gpg --status-fd 1 --verify tag.asc tag
-gpg: Signature made Sat Apr 23 20:26:58 2005 CEST using DSA key ID E383CD7E
-[GNUPG:] SIG_ID e8Q/kei6ZdkSPK/7MCyBuXTdJIo 2005-04-23 1114280818
-[GNUPG:] GOODSIG FEF72267E383CD7E Bernd Eckenfels <ecki@lina.inka.de>
-gpg: Good signature from "Bernd Eckenfels <ecki@lina.inka.de>"
-[GNUPG:] VALIDSIG 654F33BCA8B3868852DC731DFEF72267E383CD7E 2005-04-23 1114280818 0 3 0 17 2 00 654F33BCA8B3868852DC731DFEF72267E383CD7E
-[GNUPG:] TRUST_ULTIMATE
+
+

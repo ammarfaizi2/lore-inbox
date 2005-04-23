@@ -1,47 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261524AbVDWJ1d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261526AbVDWJw5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261524AbVDWJ1d (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Apr 2005 05:27:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261525AbVDWJ1d
+	id S261526AbVDWJw5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Apr 2005 05:52:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261527AbVDWJw5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Apr 2005 05:27:33 -0400
-Received: from postfix4-2.free.fr ([213.228.0.176]:8398 "EHLO
-	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S261524AbVDWJ1c
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Apr 2005 05:27:32 -0400
-Message-ID: <426A14E8.6080005@freehackers.org>
-Date: Sat, 23 Apr 2005 11:27:04 +0200
-From: Philippe Fremy <phil@freehackers.org>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Sat, 23 Apr 2005 05:52:57 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:16084 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261526AbVDWJwx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Apr 2005 05:52:53 -0400
+Date: Sat, 23 Apr 2005 11:52:48 +0200 (MEST)
+Message-Id: <200504230952.j3N9qm6W012596@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
 To: linux-kernel@vger.kernel.org
-Subject: Patching / Merging tool
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: gcc-4.0.0 final miscompiles net/ipv4/devinet.c:devinet_sysctl_register()
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+gcc-4.0.0 miscompiles a pointer subtraction operation in
+net/ipv4/devinet.c, resulting in oopses from /sbin/sysctl.
 
-	Hi
+Below is a copy of the test case I just sent to gcc bugzilla.
 
-For years, I have been willing to write a good patching/merging tool. In 
-my understanding, the kernel is the most patching/merging demanding 
-project and now that bitkeeper is gone, there is a hole to be filled.
+/Mikael
 
-What would be the requirements for a good patching/merging tool in your 
-opinion ? What are the use cases ?
+/* gcc4pointersubtractionbug.c
+ * Written by Mikael Pettersson, mikpe@csd.uu.se, 2005-04-23.
+ *
+ * This program illustrates a code optimisation bug in
+ * gcc-4.0.0 (final) and gcc-4.0.0-20050417, where a pointer
+ * subtraction operation is compiled as a pointer addition.
+ * Observed at -O2. gcc was configured for i686-pc-linux-gnu.
+ *
+ * This bug broke net/ipv4/devinet.c:devinet_sysctl_register()
+ * in the linux-2.6.12-rc2 Linux kernel, causing /sbin/sysctl
+ * to trigger kernel oopses.
+ *
+ * gcc-4.0.0-20050416 and earlier prereleases do not have this bug.
+ */
+#include <stdio.h>
+#include <string.h>
 
-How much of integration is required with the SCM, git in the kernel case ?
+#define NRVARS	5
 
-I am not subscribed, so please CC: me any response.
+struct ipv4_devconf {
+    int var[NRVARS];
+};
+struct ipv4_devconf ipv4_devconf[2];
 
-	best regards,
+struct ctl_table {
+    void *data;
+};
 
-	Philippe
+struct devinet_sysctl_table {
+    struct ctl_table devinet_vars[NRVARS];
+};
 
+void devinet_sysctl_relocate(struct devinet_sysctl_table *t,
+			     struct ipv4_devconf *p)
+{
+    int i;
 
+    for (i = 0; i < NRVARS; i++)
+	/* Initially data points to a field in ipv4_devconf[0].
+	   This code relocates it to the corresponding field in *p.
+	   At -O2, gcc-4.0.0-20050417 and gcc-4.0.0 (final)
+	   miscompile this pointer subtraction as a pointer addition. */
+	t->devinet_vars[i].data += (char *)p - (char *)&ipv4_devconf[0];
+}
 
+struct devinet_sysctl_table devinet_sysctl;
 
+int main(void)
+{
+    struct devinet_sysctl_table t;
+    int i;
+
+    for(i = 0; i < NRVARS; i++)
+	devinet_sysctl.devinet_vars[i].data = &ipv4_devconf[0].var[i];
+
+    memcpy(&t, &devinet_sysctl, sizeof t);
+    devinet_sysctl_relocate(&t, &ipv4_devconf[1]);
+
+    for(i = 0; i < NRVARS; i++)
+	if (t.devinet_vars[i].data != &ipv4_devconf[1].var[i]) {
+	    fprintf(stderr, "t.devinet_vars[%u].data == %p, should be %p\n",
+		    i,
+		    t.devinet_vars[i].data,
+		    &ipv4_devconf[1].var[i]);
+	    return 1;
+	}
+
+    printf("all ok\n");
+    return 0;
+}

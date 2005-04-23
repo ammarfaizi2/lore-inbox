@@ -1,82 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261632AbVDWRoQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261633AbVDWRrQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261632AbVDWRoQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Apr 2005 13:44:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbVDWRoP
+	id S261633AbVDWRrQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Apr 2005 13:47:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbVDWRrQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Apr 2005 13:44:15 -0400
-Received: from fire.osdl.org ([65.172.181.4]:18315 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261632AbVDWRoF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Apr 2005 13:44:05 -0400
-Date: Sat, 23 Apr 2005 10:45:55 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Jan Dittmer <jdittmer@ppp0.net>, Greg KH <greg@kroah.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: Git-commits mailing list feed.
-In-Reply-To: <Pine.LNX.4.58.0504231010580.2344@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0504231033500.2344@ppc970.osdl.org>
-References: <200504210422.j3L4Mo8L021495@hera.kernel.org>  <42674724.90005@ppp0.net>
- <20050422002922.GB6829@kroah.com>  <426A4669.7080500@ppp0.net> 
- <1114266083.3419.40.camel@localhost.localdomain>  <426A5BFC.1020507@ppp0.net>
- <1114266907.3419.43.camel@localhost.localdomain> <Pine.LNX.4.58.0504231010580.2344@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 23 Apr 2005 13:47:16 -0400
+Received: from yue.linux-ipv6.org ([203.178.140.15]:42244 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S261633AbVDWRrO convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Apr 2005 13:47:14 -0400
+Date: Sun, 24 Apr 2005 02:49:38 +0900 (JST)
+Message-Id: <20050424.024938.16544887.yoshfuji@linux-ipv6.org>
+To: ismail.donmez@gmail.com
+Cc: mikpe@csd.uu.se, linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
+Subject: Re: gcc-4.0.0 final miscompiles
+ net/ipv4/devinet.c:devinet_sysctl_register()
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <2a4f155d05042310375d99994b@mail.gmail.com>
+References: <200504230952.j3N9qm6W012596@harpo.it.uu.se>
+	<2a4f155d05042310375d99994b@mail.gmail.com>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <2a4f155d05042310375d99994b@mail.gmail.com> (at Sat, 23 Apr 2005 20:37:23 +0300), ismail dönmez <ismail.donmez@gmail.com> says:
 
+> Whats the bugzilla # for this so others can track it?
 
-On Sat, 23 Apr 2005, Linus Torvalds wrote:
-> 
-> 	commit a2755a80f40e5794ddc20e00f781af9d6320fafb
-> 	tag v2.6.12-rc3
-> 	signer Linus Torvalds
-> 
-> 	This is my official original 2.6.12-rc2 release
-> 
-> 	-----BEGIN PGP SIGNATURE-----
-> 	....
-> 	-----END PGP SIGNATURE-----
+http://gcc.gnu.org/bugzilla/show_bug.cgi?id=21173
 
-Btw, in case it wasn't clear, one of the advantages of this is that these
-objects are really _not_ versioned themselves, and that they are totally 
-independent of the objects that they actually tag.
-
-They spread together with all the other objects, so they fit very well
-into the whole git infrastructure, but the real commit objects don't have
-any linkages to the tag and the tag objects themselves don't have any
-history amongst themselves, so you can create a tag at any (later) time,
-and it doesn't actually change the commit in any way or affect other tags 
-in any way.
-
-In particular, many different people can tag the same commit, and they
-don't even need to tage their _own_ commit - you can use this tag objects
-to show that you trust somebody elses commit. You can also throw the tag
-objects away, since nothing else depends on them and they have nothing
-linking to them - so you can make a "one-time" tag object that you can
-pass off to somebody else, and then delete it, and now it's just a
-"temporary tag"  that tells the recipient _something_ about the commit you
-tagged, but that doesn't stay around in the archive.
-
-That's important, because I actually want to have the ability for people 
-who want me to pull from their archive to send me a message that says 
-"pull from this archive, and btw, here's the tag that not only tells you 
-which head to merge, but also proves that it was me who created it".
-
-Will we use this? Maybe not. Quite frankly, I think human trust is much 
-more important than automated trust through some technical means, but I 
-think it's good to have the _support_ for this kind of trust mechanism 
-built into the system. And I think it's a good way for distributors etc to 
-say: "this is the source code we used to build the kernel that we 
-released, and we tagged it 'v2.6.11-mm6-crazy-fixes-3.96'".
-
-And if my key gets stolen, I can re-generate all the tags (from my archive
-of tags that I trust), and sign them with a new key, and revoke the trust
-of my old key. This is why it's important that tags don't have
-interdependencies, they are just a one-way "this key trusts that release
-and calls it xyzzy".
-
-		Linus
+--yoshfuji

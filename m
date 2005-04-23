@@ -1,63 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262173AbVDWX2O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262174AbVDWX3u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262173AbVDWX2O (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Apr 2005 19:28:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbVDWX2O
+	id S262174AbVDWX3u (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Apr 2005 19:29:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbVDWX3t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Apr 2005 19:28:14 -0400
-Received: from fire.osdl.org ([65.172.181.4]:51659 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262173AbVDWX2H (ORCPT
+	Sat, 23 Apr 2005 19:29:49 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:52893 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262174AbVDWX32 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Apr 2005 19:28:07 -0400
-Date: Sat, 23 Apr 2005 16:29:56 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jan Harkes <jaharkes@cs.cmu.edu>
-cc: David Woodhouse <dwmw2@infradead.org>, Jan Dittmer <jdittmer@ppp0.net>,
-       Greg KH <greg@kroah.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: Git-commits mailing list feed.
-In-Reply-To: <20050423204957.GA16751@delft.aura.cs.cmu.edu>
-Message-ID: <Pine.LNX.4.58.0504231625470.2344@ppc970.osdl.org>
-References: <200504210422.j3L4Mo8L021495@hera.kernel.org> <42674724.90005@ppp0.net>
- <20050422002922.GB6829@kroah.com> <426A4669.7080500@ppp0.net>
- <1114266083.3419.40.camel@localhost.localdomain> <426A5BFC.1020507@ppp0.net>
- <1114266907.3419.43.camel@localhost.localdomain> <Pine.LNX.4.58.0504231010580.2344@ppc970.osdl.org>
- <20050423183406.GD20410@delft.aura.cs.cmu.edu> <Pine.LNX.4.58.0504231228480.2344@ppc970.osdl.org>
- <20050423204957.GA16751@delft.aura.cs.cmu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 23 Apr 2005 19:29:28 -0400
+Date: Sat, 23 Apr 2005 16:26:40 -0700
+From: Paul Jackson <pj@sgi.com>
+To: nickpiggin@yahoo.com.au
+Cc: dino@in.ibm.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net, akpm@osdl.org, dipankar@in.ibm.com,
+       colpatch@us.ibm.com
+Subject: Re: [RFC PATCH] Dynamic sched domains aka Isolated cpusets
+Message-Id: <20050423162640.69ccbabc.pj@sgi.com>
+In-Reply-To: <20050419133431.2e389d57.pj@sgi.com>
+References: <1097110266.4907.187.camel@arrakis>
+	<20050418202644.GA5772@in.ibm.com>
+	<20050418225427.429accd5.pj@sgi.com>
+	<1113891575.5074.46.camel@npiggin-nld.site>
+	<20050419001926.605a6b59.pj@sgi.com>
+	<1113897440.5074.62.camel@npiggin-nld.site>
+	<20050419133431.2e389d57.pj@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+A few days ago, Nick wrote:
+> Well the scheduler simply can't handle it, so it is not so much a
+> matter of pushing - you simply can't use partitioned domains and
+> meaningfully have a cpuset above them.
 
+And I (pj) replied:
+> Translating that into cpuset-speak, I think what you mean is ...
 
-On Sat, 23 Apr 2005, Jan Harkes wrote:
-> 
-> I respectfully disagree,
-> 
-> rsync works fine for now, but people are already looking at implementing
-> smarter (more efficient) ways to synchronize git repositories by
-> grabbing missing commits, and from there fetching any missing tree and
-> file blobs.
+I then went on to ask some questions.  I haven't seen a reply.
+I probably wrote too many words, and you had more pressing matters
+to deal with.  Which is fine.
 
-Bit this is a _feature_.
+Let's make this simpler.
 
-Other people normally shouldn't be interested in your tags. I think it's a 
-mistake to make everybody care.
+Ignore cpusets -- let's just talk about a tasks cpus_allowed value,
+and scheduler domains.  Think of cpusets as just a strange way of
+setting a tasks cpus_allowed value.
 
-So you normally would fetch only tags you _know_ about. For example, one 
-of the reasons we've been _avoiding_ personal tags in teh BK trees is that 
-it just gets really ugly really quickly because they get percolated up to 
-everybody else. That means that in a BK tree, you can't sanely use tags 
-for "private" stuff, like telling somebody else "please sync with this 
-tag".
+Question:
 
-So having the tag in the object database means that fsck etc will notice 
-these things, and can build up a list of tags you know about. It also 
-means that you can have tag-aware synchronization tools, ie exactly the 
-kind of tools that only grab missing commits can also then be used to 
-select missing tags according to some _private_ understanding of what tags 
-you might want to find..
+    What happens if we have say two isolated scheduler domains
+    on a system, covering say two halves of the system, and
+    some task has its cpus_allowed set to allow _all_ CPUs?
 
-		Linus
+What kind of pain does that cause?  I'm hoping you will say that
+the only pain it causes is that the task will only run on one
+half of the system, even if the other half is idle.  And that
+so long as I don't mind that, it's no problem to do this.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

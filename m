@@ -1,69 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbVDWSvK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261698AbVDWSuh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261705AbVDWSvK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Apr 2005 14:51:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbVDWSvJ
+	id S261698AbVDWSuh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Apr 2005 14:50:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbVDWSuc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Apr 2005 14:51:09 -0400
-Received: from simmts7.bellnexxia.net ([206.47.199.165]:41463 "EHLO
-	simmts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S261715AbVDWSuX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Apr 2005 14:50:23 -0400
-Message-ID: <2646.10.10.10.24.1114278656.squirrel@linux1>
-Date: Sat, 23 Apr 2005 13:50:56 -0400 (EDT)
-Subject: Re: Git-commits mailing list feed.
-From: "Sean" <seanlkml@sympatico.ca>
-To: "Linus Torvalds" <torvalds@osdl.org>
-Cc: "David Woodhouse" <dwmw2@infradead.org>, "Jan Dittmer" <jdittmer@ppp0.net>,
-       "Greg KH" <greg@kroah.com>,
-       "Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Git Mailing List" <git@vger.kernel.org>
-User-Agent: SquirrelMail/1.4.4-2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-References: <200504210422.j3L4Mo8L021495@hera.kernel.org>       
-    <42674724.90005@ppp0.net> <20050422002922.GB6829@kroah.com>       
-    <426A4669.7080500@ppp0.net>       
-    <1114266083.3419.40.camel@localhost.localdomain>       
-    <426A5BFC.1020507@ppp0.net>      
-    <1114266907.3419.43.camel@localhost.localdomain>      
-    <Pine.LNX.4.58.0504231010580.2344@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0504231010580.2344@ppc970.osdl.org>
+	Sat, 23 Apr 2005 14:50:32 -0400
+Received: from smtpout.mac.com ([17.250.248.97]:50370 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261698AbVDWSuH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Apr 2005 14:50:07 -0400
+In-Reply-To: <Pine.LNX.4.62.0504230947070.23658@twinlark.arctic.org>
+References: <4ae3c14050417085473bd365f@mail.gmail.com> <Pine.LNX.4.62.0504230947070.23658@twinlark.arctic.org>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <4a5cc1ac18788e708f9a5f3a5bd31be0@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: Xin Zhao <uszhaoxin@gmail.com>, linux-kernel@vger.kernel.org
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Why Ext2/3 needs immutable attribute?
+Date: Sat, 23 Apr 2005 14:49:59 -0400
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, April 23, 2005 1:31 pm, Linus Torvalds said:
-
-> If somebody writes a script to generate the above kind of thing (and
-tells me how to validate it), I'll do the rest, and start tagging things
-properly. Oh, and make sure the above sounds sane (ie if somebody has a
-better idea for how to more easily identify how to find the public key to
-> check against, please speak up).
+On Apr 23, 2005, at 12:50, dean gaudet wrote:
+> On Sun, 17 Apr 2005, Xin Zhao wrote:
 >
+>> Why not simply unset the write bit for all three groups of users?
+>> That seems to be enough to prevent file modification.
+>
+> another usage:  if you "chattr +i /var" while /var is unmounted, then 
+> root
+> is unlikely to accidentally create files/dirs in /var -- and when you
+> mount the real /var on top it works fine.  i tend to protect all my 
+> mount
+> points this way (especially those in /mnt) to avoid my own dumb 
+> mistakes.
 
-Hi Linus,
+If you chmod 000 /var beforehand (While it's still unmounted, of 
+course),
+then it's also blindingly obvious that it's not mounted in an ls -l :-D.
+I too have used this trick on many/most of my systems.
 
-Why not leave tags open to being signed or unsigned?  Anyone that wants to
-create a trusted tag could simply sign their cleartext entry in the tag
-object.
+Cheers,
+Kyle Moffett
 
-Ideally the SHA1 tree reference would be included in the text entry
-whether it was signed or not.   Thus any script can pull the SHA1 out of
-the text entry.  And a script that understands the signing method can
-verify it.  But scripts that don't understand the signing method can still
-use the tag.
-
-For presentation in the log or whatever, the script can look inside the
-clear text message, grab the SHA1 and display it in the header area; even
-though it's not really in the header, always just in the clear text area.
-
-Sean
-
-
-
-
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
 
 

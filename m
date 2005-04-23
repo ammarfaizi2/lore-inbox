@@ -1,82 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261617AbVDWQRi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261619AbVDWQZb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261617AbVDWQRi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Apr 2005 12:17:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbVDWQRi
+	id S261619AbVDWQZb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Apr 2005 12:25:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbVDWQZb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Apr 2005 12:17:38 -0400
-Received: from one.firstfloor.org ([213.235.205.2]:46044 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S261617AbVDWQR2
+	Sat, 23 Apr 2005 12:25:31 -0400
+Received: from mail.metronet.co.uk ([213.162.97.75]:41658 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S261619AbVDWQZY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Apr 2005 12:17:28 -0400
-To: Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH x86_64] Live Patching Function on 2.6.11.7
-References: <4263275A.2020405@lab.ntt.co.jp>
-From: Andi Kleen <ak@muc.de>
-Date: Sat, 23 Apr 2005 18:17:27 +0200
-In-Reply-To: <4263275A.2020405@lab.ntt.co.jp> (Takashi Ikebe's message of
- "Mon, 18 Apr 2005 12:19:54 +0900")
-Message-ID: <m1y8b9xyaw.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Sat, 23 Apr 2005 12:25:24 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Shaun Jackman <sjackman@gmail.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: lirc and Linux 2.6.11
+Date: Sat, 23 Apr 2005 17:24:34 +0100
+User-Agent: KMail/1.8
+References: <7f45d9390504211526277e83be@mail.gmail.com>
+In-Reply-To: <7f45d9390504211526277e83be@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200504231724.34083.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp> writes:
-
-> The patch was over 50k, so I separate it to each architecture and in line..
+On Thursday 21 Apr 2005 23:26, Shaun Jackman wrote:
+> I was using lirc 0.7.0 with Linux 2.6.8.1. Upon upgrading to Linux
+> 2.6.11, I recompiled the lirc 0.7.0 hauppauge (lirc_i2c) modules for
+> the new kernel. This did not work. I then tried compiling the lirc
+> 0.7.1 modules for the new kernel. This didn't work either. The error
+> message lircd gives is...
 >
-> This patch add function called "Live patching" which is defined on
-> OSDL's carrier grade linux requiremnt definition to linux 2.6.11.7 kernel.
-> The live patching allows process to patch on-line (without restarting
-> process) on i386 and x86_64 architectures, by overwriting jump assembly
-> code on entry point of functions which you want to fix, to patched
-> functions.
+> Apr 21 14:57:29 quince lircd 0.7.1: lircd(hauppauge) ready
+> Apr 21 14:57:52 quince lircd 0.7.1: accepted new client on /dev/lircd
+> Apr 21 14:57:52 quince lircd 0.7.1: could not open /dev/lirc0
+> Apr 21 14:57:52 quince lircd 0.7.1: default_init(): No such device
+> Apr 21 14:57:52 quince lircd 0.7.1: caught signal
+>
+> I've also asked the lirc mailing list this question, but has anyone
+> else run into this trouble with lirc and Linux 2.6.11?
+>
 
-How exactly is this different from ptrace?
-Seems just like a ptrace memcpy extension 
-Is the patching really that time critical that you cant do it 
-with normal ptrace?
+lirc works fine here. Try rebooting, the makefile mknods some arbitrary device 
+nodes even if you're running devfs or udev, and in my experience they are 
+broken. If you reboot it usually fixes them. I'm using lirc_i2c with my wintv 
+remote, which I guess is the same as you.
 
+-- 
+Cheers,
+Alistair.
 
-> +	if(((current->uid != tsk->euid) ||
-> +	    (current->uid != tsk->suid) ||
-> +	    (current->uid != tsk->uid) ||
-> +	    (current->gid != tsk->egid) ||
-> +	    (current->gid != tsk->sgid) ||
-> +	    (current->gid != tsk->gid)) && !capable(CAP_SYS_PANNUS)) {
-> +                // invalid user in sys_accesspvm
-> +                return -EPERM;
-> +        }
-> +> +	p = vmalloc(len);
-
-This needs a limit. 
-annus-x86_64/arch/x86_64/kernel/entry.S
-> --- linux-2.6.11.7-vanilla/arch/x86_64/kernel/entry.S	2005-04-08 03:57:30.000000000 +0900
-> +++ linux-2.6.11.7-pannus-x86_64/arch/x86_64/kernel/entry.S	2005-04-18 10:45:47.000000000 +0900
-> @@ -214,6 +214,8 @@ sysret_check:		
->  	/* Handle reschedules */
->  	/* edx:	work, edi: workmask */	
->  sysret_careful:
-> +	cmpl $0,threadinfo_inipending(%rcx)
-> +	jne sysret_init
-
-Put the check into the normal notify_resume work mask, not adding
-a separate check into this critical fast path.
-
->  	CFI_ENDPROC
->  
->  /* 
-> + * In the case restorer calls rt_handlereturn, collect and store registers,
-> + * and call rt_handlereturn with stored register struct.
-> + */
-> +ENTRY(stub_rt_handlereturn)
-
-This seems quite pointless since ptrace and can change all registers
-in a child.
-
-Didnt review more.
-
--Andi
+personal:   alistair()devzero!co!uk
+university: s0348365()sms!ed!ac!uk
+student:    CS/CSim Undergraduate
+contact:    1F2 55 South Clerk Street,
+            Edinburgh. EH8 9PP.

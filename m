@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261783AbVDWUhx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261784AbVDWUuM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261783AbVDWUhx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Apr 2005 16:37:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbVDWUhx
+	id S261784AbVDWUuM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Apr 2005 16:50:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbVDWUuM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Apr 2005 16:37:53 -0400
-Received: from smtpout.mac.com ([17.250.248.46]:60645 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S261783AbVDWUhp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Apr 2005 16:37:45 -0400
-In-Reply-To: <20050423191213.GA505@DervishD>
-References: <4ae3c14050417085473bd365f@mail.gmail.com> <Pine.LNX.4.62.0504230947070.23658@twinlark.arctic.org> <4a5cc1ac18788e708f9a5f3a5bd31be0@mac.com> <20050423191213.GA505@DervishD>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <ba1e71adc21a7b85ac989786540aee87@mac.com>
-Content-Transfer-Encoding: 7bit
-Cc: dean gaudet <dean-list-linux-kernel@arctic.org>,
-       Xin Zhao <uszhaoxin@gmail.com>, linux-kernel@vger.kernel.org
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Why Ext2/3 needs immutable attribute?
-Date: Sat, 23 Apr 2005 16:37:34 -0400
-To: DervishD <lkml@dervishd.net>
-X-Mailer: Apple Mail (2.619.2)
+	Sat, 23 Apr 2005 16:50:12 -0400
+Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:24982 "EHLO
+	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id S261784AbVDWUuE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Apr 2005 16:50:04 -0400
+Date: Sat, 23 Apr 2005 16:49:57 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: David Woodhouse <dwmw2@infradead.org>, Jan Dittmer <jdittmer@ppp0.net>,
+       Greg KH <greg@kroah.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: Git-commits mailing list feed.
+Message-ID: <20050423204957.GA16751@delft.aura.cs.cmu.edu>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Jan Dittmer <jdittmer@ppp0.net>, Greg KH <greg@kroah.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Git Mailing List <git@vger.kernel.org>
+References: <200504210422.j3L4Mo8L021495@hera.kernel.org> <42674724.90005@ppp0.net> <20050422002922.GB6829@kroah.com> <426A4669.7080500@ppp0.net> <1114266083.3419.40.camel@localhost.localdomain> <426A5BFC.1020507@ppp0.net> <1114266907.3419.43.camel@localhost.localdomain> <Pine.LNX.4.58.0504231010580.2344@ppc970.osdl.org> <20050423183406.GD20410@delft.aura.cs.cmu.edu> <Pine.LNX.4.58.0504231228480.2344@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0504231228480.2344@ppc970.osdl.org>
+User-Agent: Mutt/1.5.9i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 23, 2005, at 15:12, DervishD wrote:
->  * Kyle Moffett <mrmacman_g4@mac.com> dixit:
->>> another usage:  if you "chattr +i /var" while /var is unmounted,
->>> then root is unlikely to accidentally create files/dirs in /var --
->>> and when you mount the real /var on top it works fine.  i tend to
->>> protect all my mount points this way (especially those in /mnt) to
->>> avoid my own dumb mistakes.
->> If you chmod 000 /var beforehand (While it's still unmounted, of
->> course), then it's also blindingly obvious that it's not mounted in
->> an ls -l :-D. I too have used this trick on many/most of my
->> systems.
-> I was doing exactly that, but it has its drawbacks: root still
-> can create files by accident. [...]
+On Sat, Apr 23, 2005 at 12:30:38PM -0700, Linus Torvalds wrote:
+> On Sat, 23 Apr 2005, Jan Harkes wrote:
+> > 
+> > Why not keep the tags object outside of the tree in the tags/ directory.
+> 
+> Because then you have all those special cases with fetching them and with 
+> fsck, and with shared object directories. In other words: no. 
 
-Ah, I meant in combination with the above trick:
+I respectfully disagree,
 
-# umount /var
-# chmod 000 /var
-# chattr +i /var
-# ls -alhd /var
-d---------    2 root     root       68 Apr 23 16:36 /var
-# mount /var
+rsync works fine for now, but people are already looking at implementing
+smarter (more efficient) ways to synchronize git repositories by
+grabbing missing commits, and from there fetching any missing tree and
+file blobs. However there is no such linkage to discover missing tag
+objects, only a full rsync would be able to get them and for that it has
+to send the name of every object in the repository to the other side to
+check for any missing ones.
 
-If I forget to mount var, not only can I not create files, I'll also
-notice when I "ls -alh /".
+So fetching tags is already going to be a special case.
 
-Cheers,
-Kyle Moffett
+And any form of validation of a tag is a special operation. In fact tags
+could be as simple as a the sha of an (like pasky's tags) followed by
+the detached pgp signature of the tagged object instead of trying to
+signing the tag itself. That also avoids having to strip the signature
+part from the tag when we want to validate it.
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
-
-
+Jan

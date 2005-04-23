@@ -1,98 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbVDWSpy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261694AbVDWSq2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261668AbVDWSpy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Apr 2005 14:45:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbVDWSpy
+	id S261694AbVDWSq2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Apr 2005 14:46:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbVDWSq2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Apr 2005 14:45:54 -0400
-Received: from mail.dif.dk ([193.138.115.101]:39050 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261668AbVDWSpk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Apr 2005 14:45:40 -0400
-Date: Sat, 23 Apr 2005 20:48:51 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Ben Fennema <bfennema@falcon.csc.calpoly.edu>
-Cc: linux_udf@hpesjro.fc.hp.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] udf: uint32_t can't be less than zero
-Message-ID: <Pine.LNX.4.62.0504232037060.2474@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 23 Apr 2005 14:46:28 -0400
+Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:55214 "EHLO
+	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id S261686AbVDWSqV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Apr 2005 14:46:21 -0400
+Date: Sat, 23 Apr 2005 14:46:13 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       David Woodhouse <dwmw2@infradead.org>, Jan Dittmer <jdittmer@ppp0.net>,
+       Greg KH <greg@kroah.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: Git-commits mailing list feed.
+Message-ID: <20050423184613.GE20410@delft.aura.cs.cmu.edu>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Jan Dittmer <jdittmer@ppp0.net>, Greg KH <greg@kroah.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Git Mailing List <git@vger.kernel.org>
+References: <200504210422.j3L4Mo8L021495@hera.kernel.org> <42674724.90005@ppp0.net> <20050422002922.GB6829@kroah.com> <426A4669.7080500@ppp0.net> <1114266083.3419.40.camel@localhost.localdomain> <426A5BFC.1020507@ppp0.net> <1114266907.3419.43.camel@localhost.localdomain> <Pine.LNX.4.58.0504231010580.2344@ppc970.osdl.org> <20050423175422.GA7100@cip.informatik.uni-erlangen.de> <Pine.LNX.4.58.0504231125330.2344@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0504231125330.2344@ppc970.osdl.org>
+User-Agent: Mutt/1.5.9i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a patch that removes a few bits from fs/udf/balloc.c that 
-test uint32_t values for being less than zero, which is impossible.
+On Sat, Apr 23, 2005 at 11:30:36AM -0700, Linus Torvalds wrote:
+> On Sat, 23 Apr 2005, Thomas Glanzmann wrote:
+> > # This creates the signature.
+> > gpg --clearsign < sign_this > signature
+> 
+> This really doesn't work for me - I do not want to have the gpg header
+> above it, only the signature below. Since I want git to actually
+> understand the tags, but do _not_ want git to have to know about whatever
+> signing method was used, I really want the resulting file to look like
+> 
+> 	commit ....
+> 	tag ...
+> 
+> 	here goes comment
+> 	here goes signature
+> 
+> and no headers.
+> 
+> Whether that can be faked by always forcing SHA1 as the hash, and then 
+> just removing the top lines, and re-inserting them when verifying, or 
+> whether there is some mode to make gpg not do the header crud at all, I 
+> don't know. Which is exactly why I never even got started.
 
-I know not everyone agree with this sort of cleanup, but I figured I'd do 
-the patch in any case, then leave it up to the maintainer to apply it or 
-drop it.
+It is a bit more messy, but it can be done with a detached signature.
 
-Please keep me on CC: when replying.
+To sign,
+    gpg -ab unsigned_commit
+    cat unsigned_commit unsigned_commit.asc > signed_commit
 
+To verify,
+    cat signed_commit | sed '/-----BEGIN PGP/Q' | gpg --verify signed_commit -
 
-
-Signed-Off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
-
---- linux-2.6.12-rc2-mm3-orig/fs/udf/balloc.c	2005-03-02 08:37:52.000000000 +0100
-+++ linux-2.6.12-rc2-mm3/fs/udf/balloc.c	2005-04-23 20:38:31.000000000 +0200
-@@ -158,8 +158,7 @@ static void udf_bitmap_free_blocks(struc
- 	unsigned long overflow;
- 
- 	down(&sbi->s_alloc_sem);
--	if (bloc.logicalBlockNum < 0 ||
--		(bloc.logicalBlockNum + count) > UDF_SB_PARTLEN(sb, bloc.partitionReferenceNum))
-+	if ((bloc.logicalBlockNum + count) > UDF_SB_PARTLEN(sb, bloc.partitionReferenceNum))
- 	{
- 		udf_debug("%d < %d || %d + %d > %d\n",
- 			bloc.logicalBlockNum, 0, bloc.logicalBlockNum, count,
-@@ -232,7 +231,7 @@ static int udf_bitmap_prealloc_blocks(st
- 	struct buffer_head *bh;
- 
- 	down(&sbi->s_alloc_sem);
--	if (first_block < 0 || first_block >= UDF_SB_PARTLEN(sb, partition))
-+	if (first_block >= UDF_SB_PARTLEN(sb, partition))
- 		goto out;
- 
- 	if (first_block + block_count > UDF_SB_PARTLEN(sb, partition))
-@@ -299,7 +298,7 @@ static int udf_bitmap_new_block(struct s
- 	down(&sbi->s_alloc_sem);
- 
- repeat:
--	if (goal < 0 || goal >= UDF_SB_PARTLEN(sb, partition))
-+	if (goal >= UDF_SB_PARTLEN(sb, partition))
- 		goal = 0;
- 
- 	nr_groups = bitmap->s_nr_groups;
-@@ -439,8 +438,7 @@ static void udf_table_free_blocks(struct
- 	int i;
- 
- 	down(&sbi->s_alloc_sem);
--	if (bloc.logicalBlockNum < 0 ||
--		(bloc.logicalBlockNum + count) > UDF_SB_PARTLEN(sb, bloc.partitionReferenceNum))
-+	if ((bloc.logicalBlockNum + count) > UDF_SB_PARTLEN(sb, bloc.partitionReferenceNum))
- 	{
- 		udf_debug("%d < %d || %d + %d > %d\n",
- 			bloc.logicalBlockNum, 0, bloc.logicalBlockNum, count,
-@@ -688,7 +686,7 @@ static int udf_table_prealloc_blocks(str
- 	struct buffer_head *bh;
- 	int8_t etype = -1;
- 
--	if (first_block < 0 || first_block >= UDF_SB_PARTLEN(sb, partition))
-+	if (first_block >= UDF_SB_PARTLEN(sb, partition))
- 		return 0;
- 
- 	if (UDF_I_ALLOCTYPE(table) == ICBTAG_FLAG_AD_SHORT)
-@@ -768,7 +766,7 @@ static int udf_table_new_block(struct su
- 		return newblock;
- 
- 	down(&sbi->s_alloc_sem);
--	if (goal < 0 || goal >= UDF_SB_PARTLEN(sb, partition))
-+	if (goal >= UDF_SB_PARTLEN(sb, partition))
- 		goal = 0;
- 
- 	/* We search for the closest matching block to goal. If we find a exact hit,
-
-
-
-
+Jan

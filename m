@@ -1,75 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261747AbVDWT5N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261738AbVDWT54@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261747AbVDWT5N (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Apr 2005 15:57:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbVDWT5N
+	id S261738AbVDWT54 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Apr 2005 15:57:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbVDWT5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Apr 2005 15:57:13 -0400
-Received: from fire.osdl.org ([65.172.181.4]:31907 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261747AbVDWT5D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Apr 2005 15:57:03 -0400
-Date: Sat, 23 Apr 2005 12:58:50 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Sean <seanlkml@sympatico.ca>
-cc: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+	Sat, 23 Apr 2005 15:57:50 -0400
+Received: from fed1rmmtao02.cox.net ([68.230.241.37]:17315 "EHLO
+	fed1rmmtao02.cox.net") by vger.kernel.org with ESMTP
+	id S261738AbVDWT5k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Apr 2005 15:57:40 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Sean <seanlkml@sympatico.ca>,
+       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
        David Woodhouse <dwmw2@infradead.org>, Jan Dittmer <jdittmer@ppp0.net>,
        Greg KH <greg@kroah.com>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Git Mailing List <git@vger.kernel.org>
 Subject: Re: Git-commits mailing list feed.
-In-Reply-To: <1907.10.10.10.24.1114281858.squirrel@linux1>
-Message-ID: <Pine.LNX.4.58.0504231252450.2344@ppc970.osdl.org>
-References: <200504210422.j3L4Mo8L021495@hera.kernel.org>         
- <42674724.90005@ppp0.net> <20050422002922.GB6829@kroah.com>         
- <426A4669.7080500@ppp0.net>          <1114266083.3419.40.camel@localhost.localdomain>
-          <426A5BFC.1020507@ppp0.net>          <1114266907.3419.43.camel@localhost.localdomain>
-          <Pine.LNX.4.58.0504231010580.2344@ppc970.osdl.org>         
- <20050423175422.GA7100@cip.informatik.uni-erlangen.de>         
- <Pine.LNX.4.58.0504231125330.2344@ppc970.osdl.org>   
- <2911.10.10.10.24.1114279589.squirrel@linux1>    <Pine.LNX.4.58.0504231234550.2344@ppc970.osdl.org>
- <1907.10.10.10.24.1114281858.squirrel@linux1>
+References: <200504210422.j3L4Mo8L021495@hera.kernel.org>
+	<42674724.90005@ppp0.net> <20050422002922.GB6829@kroah.com>
+	<426A4669.7080500@ppp0.net>
+	<1114266083.3419.40.camel@localhost.localdomain>
+	<426A5BFC.1020507@ppp0.net>
+	<1114266907.3419.43.camel@localhost.localdomain>
+	<Pine.LNX.4.58.0504231010580.2344@ppc970.osdl.org>
+	<20050423175422.GA7100@cip.informatik.uni-erlangen.de>
+	<Pine.LNX.4.58.0504231125330.2344@ppc970.osdl.org>
+	<2911.10.10.10.24.1114279589.squirrel@linux1>
+	<Pine.LNX.4.58.0504231234550.2344@ppc970.osdl.org>
+From: Junio C Hamano <junkio@cox.net>
+Date: Sat, 23 Apr 2005 12:57:12 -0700
+In-Reply-To: <Pine.LNX.4.58.0504231234550.2344@ppc970.osdl.org> (Linus
+ Torvalds's message of "Sat, 23 Apr 2005 12:38:23 -0700 (PDT)")
+Message-ID: <7vis2d2rmv.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "LT" == Linus Torvalds <torvalds@osdl.org> writes:
 
+LT> Guys, I will say this once more: git will not look at the signature.
 
-On Sat, 23 Apr 2005, Sean wrote:
-> 
-> Okay now you're just being difficult <g>   You're acting like it's
-> impossible for git to grab the SHA1 out of the clear text message if there
-> is signing overhead above the tag reference.   That is nonesense.
+LT> And that is why I from the very beginning tried to make ti very clear that
+LT> the signature goes at the end. Not at the beginning, not in the middle,
+LT> and not in a different file. IT GOES AT THE END.
 
-No. It's not "impossible" for git to parse crap. But git won't.
+If that is the case, can't you do it without introducing this
+new tag object, like this?
 
-There are two ways you can write programs:
- - reliably
- - unreliably
+  1. Find existing commit-id that you want to tag.
+  2. Sign that commit object:
 
-and I do the first one. That means that a program I write does something 
-_repeatable_. It does the same thing, regardless of whether a human 
-happened to write "REF:" in the comment section, or anything else.
+     cat-file commit $commit |
+     gpg --detach-sign --armor -u 'Linus Torvalds' >commit.sig
 
-The thing is, great programs come not out of great coding, but out of 
-great data structures. The whole git philosophy bases itself on getting 
-the data structure right. 
+  3. Make another commit, making the original commit as its parent:
 
-And what you are asking for is doing it _wrong_. So in git I don't just
-parse random free-form text and guess that a line that starts with REF: is
-a reference to a commit. It has very rigid and well-specified data 
-structures, and that's how you make reliable programs.
+     {
+         echo tag This is my tag.
+         cat commit.sig 
+     } | commit-tree $(cat-file commit $commit |
+                       sed -e 's/tree //;d') -p $commit
 
-I don't care what anybody else does on top of git, but dammit, I'll make 
-sure that the core infrastructure is designed the right way. 
+Then you can publish the ID of this commit object, which attests
+that the original commit is what you vouch for.  Am I missing
+something?
 
-And that means that we don't guess, and that we don't parse random ASCII
-blobs. It means that we have very very fixed formats so that programs can
-either do the right thing or unambiguously say "that's crap".
-
-I've said it before, and I'll say it again: we have enough crap that calls 
-itself SCM's out there already. I want git to be reliable and _simple_, 
-not a collection of crap that just happens to work.
-
-		Linus

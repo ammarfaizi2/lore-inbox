@@ -1,68 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262174AbVDWX3u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262175AbVDWXbU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262174AbVDWX3u (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Apr 2005 19:29:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbVDWX3t
+	id S262175AbVDWXbU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Apr 2005 19:31:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262178AbVDWXbU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Apr 2005 19:29:49 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:52893 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262174AbVDWX32 (ORCPT
+	Sat, 23 Apr 2005 19:31:20 -0400
+Received: from mail.dif.dk ([193.138.115.101]:43924 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S262175AbVDWXbM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Apr 2005 19:29:28 -0400
-Date: Sat, 23 Apr 2005 16:26:40 -0700
-From: Paul Jackson <pj@sgi.com>
-To: nickpiggin@yahoo.com.au
-Cc: dino@in.ibm.com, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net, akpm@osdl.org, dipankar@in.ibm.com,
-       colpatch@us.ibm.com
-Subject: Re: [RFC PATCH] Dynamic sched domains aka Isolated cpusets
-Message-Id: <20050423162640.69ccbabc.pj@sgi.com>
-In-Reply-To: <20050419133431.2e389d57.pj@sgi.com>
-References: <1097110266.4907.187.camel@arrakis>
-	<20050418202644.GA5772@in.ibm.com>
-	<20050418225427.429accd5.pj@sgi.com>
-	<1113891575.5074.46.camel@npiggin-nld.site>
-	<20050419001926.605a6b59.pj@sgi.com>
-	<1113897440.5074.62.camel@npiggin-nld.site>
-	<20050419133431.2e389d57.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 23 Apr 2005 19:31:12 -0400
+Date: Sun, 24 Apr 2005 01:34:25 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] trivial type correction in fs/mpage.c::__mpage_writepages
+Message-ID: <Pine.LNX.4.62.0504240130240.2474@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A few days ago, Nick wrote:
-> Well the scheduler simply can't handle it, so it is not so much a
-> matter of pushing - you simply can't use partitioned domains and
-> meaningfully have a cpuset above them.
+This patch changes the variable 'i' in
+fs/mpage.c::__mpage_writepages from 'unsigned int' to int.
+The only use of 'i' is in the for loop, and the array being indexed is
+PAGEVEC_SIZE in size (and with PAGEVEC_SIZE being 14, an int is fully
+sufficient) and in the loop itself 'i' is being compared to 'nr_pages'
+which is defined as 'int' at the top of the function. So, as far as I can
+see changing 'i' to int makes sense - it is more than large enough for
+what it's used for, it then matches the type it is compared against
+exactely and it avoids a signed vs unsigned comparison.
 
-And I (pj) replied:
-> Translating that into cpuset-speak, I think what you mean is ...
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-I then went on to ask some questions.  I haven't seen a reply.
-I probably wrote too many words, and you had more pressing matters
-to deal with.  Which is fine.
+--- linux-2.6.12-rc2-mm3-orig/fs/mpage.c	2005-04-11 21:20:50.000000000 +0200
++++ linux-2.6.12-rc2-mm3/fs/mpage.c	2005-04-24 01:28:53.000000000 +0200
+@@ -676,7 +676,7 @@ retry:
+ 			(nr_pages = pagevec_lookup_tag(&pvec, mapping, &index,
+ 			PAGECACHE_TAG_DIRTY,
+ 			min(end - index, (pgoff_t)PAGEVEC_SIZE-1) + 1))) {
+-		unsigned i;
++		int i;
+ 
+ 		scanned = 1;
+ 		for (i = 0; i < nr_pages; i++) {
 
-Let's make this simpler.
 
-Ignore cpusets -- let's just talk about a tasks cpus_allowed value,
-and scheduler domains.  Think of cpusets as just a strange way of
-setting a tasks cpus_allowed value.
-
-Question:
-
-    What happens if we have say two isolated scheduler domains
-    on a system, covering say two halves of the system, and
-    some task has its cpus_allowed set to allow _all_ CPUs?
-
-What kind of pain does that cause?  I'm hoping you will say that
-the only pain it causes is that the task will only run on one
-half of the system, even if the other half is idle.  And that
-so long as I don't mind that, it's no problem to do this.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

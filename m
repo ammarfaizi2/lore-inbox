@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261694AbVDWSq2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261700AbVDWSr1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261694AbVDWSq2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Apr 2005 14:46:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbVDWSq2
+	id S261700AbVDWSr1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Apr 2005 14:47:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261698AbVDWSr0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Apr 2005 14:46:28 -0400
-Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:55214 "EHLO
-	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id S261686AbVDWSqV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Apr 2005 14:46:21 -0400
-Date: Sat, 23 Apr 2005 14:46:13 -0400
+	Sat, 23 Apr 2005 14:47:26 -0400
+Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:3542 "EHLO
+	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S261697AbVDWSqs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Apr 2005 14:46:48 -0400
+Date: Sat, 23 Apr 2005 20:39:09 +0200
+From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       David Woodhouse <dwmw2@infradead.org>, Jan Dittmer <jdittmer@ppp0.net>,
+Cc: David Woodhouse <dwmw2@infradead.org>, Jan Dittmer <jdittmer@ppp0.net>,
        Greg KH <greg@kroah.com>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Git Mailing List <git@vger.kernel.org>
 Subject: Re: Git-commits mailing list feed.
-Message-ID: <20050423184613.GE20410@delft.aura.cs.cmu.edu>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+Message-ID: <20050423183909.GC7100@cip.informatik.uni-erlangen.de>
+Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+	Linus Torvalds <torvalds@osdl.org>,
 	David Woodhouse <dwmw2@infradead.org>,
 	Jan Dittmer <jdittmer@ppp0.net>, Greg KH <greg@kroah.com>,
 	Kernel Mailing List <linux-kernel@vger.kernel.org>,
@@ -29,41 +29,20 @@ Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <Pine.LNX.4.58.0504231125330.2344@ppc970.osdl.org>
+X-URL: http://wwwcip.informatik.uni-erlangen.de/~sithglan/
 User-Agent: Mutt/1.5.9i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 23, 2005 at 11:30:36AM -0700, Linus Torvalds wrote:
-> On Sat, 23 Apr 2005, Thomas Glanzmann wrote:
-> > # This creates the signature.
-> > gpg --clearsign < sign_this > signature
-> 
-> This really doesn't work for me - I do not want to have the gpg header
-> above it, only the signature below. Since I want git to actually
-> understand the tags, but do _not_ want git to have to know about whatever
-> signing method was used, I really want the resulting file to look like
-> 
+Hello,
+
 > 	commit ....
 > 	tag ...
-> 
+
 > 	here goes comment
 > 	here goes signature
-> 
-> and no headers.
-> 
-> Whether that can be faked by always forcing SHA1 as the hash, and then 
-> just removing the top lines, and re-inserting them when verifying, or 
-> whether there is some mode to make gpg not do the header crud at all, I 
-> don't know. Which is exactly why I never even got started.
 
-It is a bit more messy, but it can be done with a detached signature.
+# This creates only the signature in Ascii Armor.
+gpg -a --detach-sign < to_sign > signature
 
-To sign,
-    gpg -ab unsigned_commit
-    cat unsigned_commit unsigned_commit.asc > signed_commit
-
-To verify,
-    cat signed_commit | sed '/-----BEGIN PGP/Q' | gpg --verify signed_commit -
-
-Jan
+	Thomas

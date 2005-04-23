@@ -1,44 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbVDWQ1l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261621AbVDWQqT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261623AbVDWQ1l (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Apr 2005 12:27:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbVDWQ1l
+	id S261621AbVDWQqT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Apr 2005 12:46:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbVDWQqT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Apr 2005 12:27:41 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:46489 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S261623AbVDWQ1h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Apr 2005 12:27:37 -0400
-Message-ID: <426A7775.60207@drzeus.cx>
-Date: Sat, 23 Apr 2005 18:27:33 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Pavel Machek <pavel@ucw.cz>, Petr Baudis <pasky@ucw.cz>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.12-rc3
-References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org> <20050421112022.GB2160@elf.ucw.cz> <20050421120327.GA13834@elf.ucw.cz> <20050421162220.GD30991@pasky.ji.cz> <20050421232201.GD31207@elf.ucw.cz> <20050422002150.GY7443@pasky.ji.cz> <20050422231839.GC1789@elf.ucw.cz> <Pine.LNX.4.58.0504221718410.2344@ppc970.osdl.org> <20050423111900.GA2226@openzaurus.ucw.cz> <Pine.LNX.4.58.0504230654190.2344@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0504230654190.2344@ppc970.osdl.org>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sat, 23 Apr 2005 12:46:19 -0400
+Received: from rproxy.gmail.com ([64.233.170.201]:49261 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261621AbVDWQqO convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Apr 2005 12:46:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=fSflRvmOeEuoYLzUZcJWHw+YTCbhLViOGnV4S98srwHXZOMGLMgaX2c+4+EPQKbyoXp+y/WNVGiN3KvCEvkkR4yHagGKQYiwuBcwNBgK2AA5uwpG/1y0NEH2+Do8G25pvLPYUqLO9Y/VZu4hKzK9v1A6j1mSYd2gvkLm+uVqmC8=
+Message-ID: <5a4c581d0504230946a20f3c8@mail.gmail.com>
+Date: Sat, 23 Apr 2005 18:46:14 +0200
+From: Alessandro Suardi <alessandro.suardi@gmail.com>
+Reply-To: Alessandro Suardi <alessandro.suardi@gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       cdwrite@other.debian.org
+Subject: DVD burning problems on TS-H552 -> solved with firmware upgrade...
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> A word of warning: in many ways it's easier to work with patches. In
-> particular, if you want to have me merge from your tree, I require a
-> certain amount of cleanliness in the trees I'm pulling from. All of the
-> people who used to use BK to sync are already used to that, but for people
-> who didn't historically use BK this is going to be a learning experience.
-> 
+A while ago I reported problems on lkml and cdwrite about
+ burning DVDs with my Samsung TS-H552 drive:
 
-Is there a summary available of the major issues here so that we who are
-new to this can get up to speed fairly quickly?
+http://lists.debian.org/cdwrite/2004/12/msg00088.html
+ and
+http://www.ussg.iu.edu/hypermail/linux/kernel/0501.2/2162.html
 
-Rgds
-Pierre
+After resorting to installing Windows XP and seeing that
+ I was able to successfully burn 2 DVDs with Pinnacle
+ Instant CD-DVD - even reading video data from my ext3
+ partitions via ext2fsd (http://ext2fsd.sourceforge.net),
+ I decided to see whether any firmware updates for my
+ drive were available.
+
+I'm pleased to say that after flashing the TS08 firmware
+ update (from TS03), I burned a dozen DVDs, video and
+ data, Memorex +R and +RW and Verbatim +Rs with a
+ 100% success rate and 100% md5sum correctness.
+The resulting discs play perfectly in my Sony LS755P
+ standalone player.
+
+Burning CDR and CDRW still works fine as ever. This is
+ my same FC3 box, K7-800/256MB RAM, bittorrenting
+ away during burns under a 2.6.12-rc2 kernel.
+
+
+Thanks everyone for the support and patience :)
+
+--alessandro
+
+ "Fear is a dangerous thing
+  It'll turn your heart black - you can trust"
+
+    (Bruce Springsteen, "Devils And Dust")

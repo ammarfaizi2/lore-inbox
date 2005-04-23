@@ -1,96 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261526AbVDWJw5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261529AbVDWKLj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261526AbVDWJw5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Apr 2005 05:52:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261527AbVDWJw5
+	id S261529AbVDWKLj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Apr 2005 06:11:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbVDWKLj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Apr 2005 05:52:57 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:16084 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261526AbVDWJwx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Apr 2005 05:52:53 -0400
-Date: Sat, 23 Apr 2005 11:52:48 +0200 (MEST)
-Message-Id: <200504230952.j3N9qm6W012596@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
+	Sat, 23 Apr 2005 06:11:39 -0400
+Received: from postman4.arcor-online.net ([151.189.20.158]:22000 "EHLO
+	postman.arcor.de") by vger.kernel.org with ESMTP id S261529AbVDWKLg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Apr 2005 06:11:36 -0400
+Date: Sat, 23 Apr 2005 12:12:51 +0200
+From: Juergen Quade <quade@hsnr.de>
 To: linux-kernel@vger.kernel.org
-Subject: gcc-4.0.0 final miscompiles net/ipv4/devinet.c:devinet_sysctl_register()
+Cc: quade@hsnr.de
+Subject: system-freeze: kprobe and do_gettimeofday
+Message-ID: <20050423101251.GA327@hsnr.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gcc-4.0.0 miscompiles a pointer subtraction operation in
-net/ipv4/devinet.c, resulting in oopses from /sbin/sysctl.
+Playing around with kprobe I noticed, that "kprobing"
+the function "do_gettimeofday" completly freezes the
+system (2.6.12-rc3). Other functions like "do_fork" or
+"do_settimeofday" are doing well.
 
-Below is a copy of the test case I just sent to gcc bugzilla.
+Does anybody know the reason for it?
 
-/Mikael
+           Juergen.
 
-/* gcc4pointersubtractionbug.c
- * Written by Mikael Pettersson, mikpe@csd.uu.se, 2005-04-23.
- *
- * This program illustrates a code optimisation bug in
- * gcc-4.0.0 (final) and gcc-4.0.0-20050417, where a pointer
- * subtraction operation is compiled as a pointer addition.
- * Observed at -O2. gcc was configured for i686-pc-linux-gnu.
- *
- * This bug broke net/ipv4/devinet.c:devinet_sysctl_register()
- * in the linux-2.6.12-rc2 Linux kernel, causing /sbin/sysctl
- * to trigger kernel oopses.
- *
- * gcc-4.0.0-20050416 and earlier prereleases do not have this bug.
- */
-#include <stdio.h>
-#include <string.h>
+=================================
+// BEWARE: THIS CODE MAY FREEZE YOUR SYSTEM
+#include <linux/module.h>
+#include <linux/kprobes.h>
+#include <linux/kallsyms.h>
 
-#define NRVARS	5
+static int call_count = 0;
 
-struct ipv4_devconf {
-    int var[NRVARS];
-};
-struct ipv4_devconf ipv4_devconf[2];
-
-struct ctl_table {
-    void *data;
-};
-
-struct devinet_sysctl_table {
-    struct ctl_table devinet_vars[NRVARS];
-};
-
-void devinet_sysctl_relocate(struct devinet_sysctl_table *t,
-			     struct ipv4_devconf *p)
+static int pre_probe(struct kprobe *p, struct pt_regs *regs)
 {
-    int i;
-
-    for (i = 0; i < NRVARS; i++)
-	/* Initially data points to a field in ipv4_devconf[0].
-	   This code relocates it to the corresponding field in *p.
-	   At -O2, gcc-4.0.0-20050417 and gcc-4.0.0 (final)
-	   miscompile this pointer subtraction as a pointer addition. */
-	t->devinet_vars[i].data += (char *)p - (char *)&ipv4_devconf[0];
+	++call_count;
+	return 0;
 }
 
-struct devinet_sysctl_table devinet_sysctl;
+static struct kprobe kp = {
+	.pre_handler = pre_probe,
+	.post_handler = NULL,
+	.fault_handler = NULL,
+	.addr = (kprobe_opcode_t *) NULL,
+};
 
-int main(void)
+static int __init probe_init(void)
 {
-    struct devinet_sysctl_table t;
-    int i;
+	kp.addr = (kprobe_opcode_t *) kallsyms_lookup_name("do_gettimeofday");
 
-    for(i = 0; i < NRVARS; i++)
-	devinet_sysctl.devinet_vars[i].data = &ipv4_devconf[0].var[i];
-
-    memcpy(&t, &devinet_sysctl, sizeof t);
-    devinet_sysctl_relocate(&t, &ipv4_devconf[1]);
-
-    for(i = 0; i < NRVARS; i++)
-	if (t.devinet_vars[i].data != &ipv4_devconf[1].var[i]) {
-	    fprintf(stderr, "t.devinet_vars[%u].data == %p, should be %p\n",
-		    i,
-		    t.devinet_vars[i].data,
-		    &ipv4_devconf[1].var[i]);
-	    return 1;
+	if (kp.addr == NULL) {
+		printk("kallsyms_lookup_name could not find address"
+			"for the specified symbol name\n");
+		return 1;
 	}
-
-    printf("all ok\n");
-    return 0;
+	register_kprobe(&kp);
+	printk("kprobe registered address %p\n", kp.addr);
+	return 0;
 }
+
+static void __exit probe_exit(void)
+{
+  unregister_kprobe(&kp);
+  printk("do_gettimeofday() called %d times.\n", call_count);
+}
+
+module_init( probe_init );
+module_exit( probe_exit );
+MODULE_LICENSE("GPL");

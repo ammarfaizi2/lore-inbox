@@ -1,288 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbVDWNu3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261591AbVDWOOL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261582AbVDWNu3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Apr 2005 09:50:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261591AbVDWNu3
+	id S261591AbVDWOOL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Apr 2005 10:14:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbVDWOOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Apr 2005 09:50:29 -0400
-Received: from mo00.iij4u.or.jp ([210.130.0.19]:11722 "EHLO mo00.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S261582AbVDWNtz (ORCPT
+	Sat, 23 Apr 2005 10:14:11 -0400
+Received: from fire.osdl.org ([65.172.181.4]:39881 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261591AbVDWOOC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Apr 2005 09:49:55 -0400
-Date: Sat, 23 Apr 2005 22:49:45 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: Andrew Morton <akpm@osdl.org>
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6.12-rc3] serial: update NEC VR4100 series serial support
-Message-Id: <20050423224945.342d6e69.yuasa@hh.iij4u.or.jp>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 23 Apr 2005 10:14:02 -0400
+Date: Sat, 23 Apr 2005 07:15:55 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+cc: Petr Baudis <pasky@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.12-rc3
+In-Reply-To: <20050423111900.GA2226@openzaurus.ucw.cz>
+Message-ID: <Pine.LNX.4.58.0504230654190.2344@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org>
+ <20050421112022.GB2160@elf.ucw.cz> <20050421120327.GA13834@elf.ucw.cz>
+ <20050421162220.GD30991@pasky.ji.cz> <20050421232201.GD31207@elf.ucw.cz>
+ <20050422002150.GY7443@pasky.ji.cz> <20050422231839.GC1789@elf.ucw.cz>
+ <Pine.LNX.4.58.0504221718410.2344@ppc970.osdl.org> <20050423111900.GA2226@openzaurus.ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I had fixed Russell's comment.
 
-On Wed, 30 Mar 2005 10:23:08 +0100
-Russell King <rmk@arm.linux.org.uk> wrote:
-
-> On Mon, Mar 07, 2005 at 09:20:22PM -0800, akpm@osdl.org wrote:
-> > +static inline const char *siu_type_name(struct uart_port *port)
-> > +{
-> > +	switch (port->type) {
-> > +	case PORT_VR41XX_SIU:
-> > +		return "SIU";
-> > +	case PORT_VR41XX_DSIU:
-> > +		return "DSIU";
-> > +	}
-> > +
-> > +	return "unknown";
+On Sat, 23 Apr 2005, Pavel Machek wrote:
 > 
-> You can return NULL here.
+> Could we add some kind off "This-changeset-obsoletes: <sha1>" header?
+> That would  allow me to send patches by hand and still make the SCM do the
+> right thing during merge.
 
-Changed.
+That doesn't really scale, plus I don't want to rely on that kind of hack
+since it's simply not reliable (the patch may have gotten edited on the
+way, so maybe the stuff I apply is 90% from your patch, but 10%
+different).
 
-> > +static irqreturn_t siu_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-> > +{
-> > +	struct uart_port *port;
-> > +	uint8_t iir, lsr;
-> > +
-> > +	if (dev_id == NULL)
-> > +		return IRQ_NONE;
-> 
-> This driver always registers interrupts with a dev_id.  Therefore, this can
-> never be NULL.
+Also, it doesn't actually handle the generic case, which is that the other
+end used something else than git to maintain his patches (which in the end
+has the exact same issues).
 
-Removed.
+So I think you'd just need to have some separate logic that says "if this
+patch looks like it has been applied to 'base', ignore it". The most
+trivial such logic is to just see if the patch even applies cleanly any
+more (which is a test you'd have to do _anyway_). That, together with a
+list of "known applied" patches, and you should be able to automate it
+pretty well.
 
-> 
-> > +static void siu_shutdown(struct uart_port *port)
-> > +{
-> > +	unsigned long flags;
-> > +	uint8_t lcr;
-> > +
-> > +	if (port->membase == NULL)
-> > +		return;
-> 
-> How can this happen?  We always shut down a port before we change the
-> address.  Maybe this check should be in siu_startup instead?
+The fact is, you pretty much end up using something like quilt. That works
+really well, as Andrew has proven.
 
-This check moved to siu_startup.
+> Alternatively I should just get public rsync-able space somewhere...
+> Would kernel.org be willing to add people/pavel?
 
-> > +#ifdef CONFIG_SERIAL_VR41XX_CONSOLE
-> > +
-> > +static void early_set_termios(struct uart_port *port, struct termios *new,
-> > +                              struct termios *old)
-> > +{
+Now, that's actually something people are working on ("git.kernel.org"),
+so I don't think that would be a problem. People _are_ trying to set up
+things like a bkbits.net at least for the kernel. I know OSDL and OSL
+(http://osuosl.org/) are interested, and I think the current kernel.org
+works too.
 
-<snip>
+A word of warning: in many ways it's easier to work with patches. In
+particular, if you want to have me merge from your tree, I require a
+certain amount of cleanliness in the trees I'm pulling from. All of the
+people who used to use BK to sync are already used to that, but for people
+who didn't historically use BK this is going to be a learning experience.
 
-> > +}
-> > +
-> > +static struct uart_ops early_uart_ops = {
-> > +	.set_termios	= early_set_termios,
-> > +};
-> 
-> Eww.  Is there a reason why your standard termios setting function can't
-> be used?
+The reason patches are easier is that you can start out from a messy tree, 
+and then whittle down the patch to just the part you want to send me, so 
+it doesn't actually matter how messy your original tree is, you can always 
+make the end result look nice. 
 
-Now using my standerd termios. It changed.
+One of the things a distributed SCM brings with it is that you can't edit
+history after the fact, which means that if you use git and you've got a
+messy tree, you can't just "clean it up". You either have to keep your
+tree clean all the time, or you have to generate a new clean tree (usually
+by exporting patches from your messy one) and throw the messy ones away
+periodically.
 
-> > +static int siu_probe(struct device *dev)
-> > +{
-> > +	struct uart_port *port;
-> > +	int num, i, retval;
-> > +
-> > +	num = siu_init_ports();
-> > +	if (num <= 0)
-> > +		return -ENODEV;
-> > +
-> > +	siu_uart_driver.nr = num;
-> > +	retval = uart_register_driver(&siu_uart_driver);
-> > +	if (retval)
-> > +		return retval;
-> > +
-> > +	for (i = 0; i < num; i++) {
-> > +		port = &siu_uart_ports[i];
-> > +		port->ops = &siu_uart_ops;
-> > +		port->dev = dev;
-> > +
-> > +		retval = uart_add_one_port(&siu_uart_driver, port);
-> > +		if (retval)
-> > +			break;
-> > +	}
-> 
-> If port 1 fails to be registered...
-> 
-> > +
-> > +	if (i == 0 && retval < 0) {
-> > +		uart_unregister_driver(&siu_uart_driver);
-> > +		return retval;
-> > +	}
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +static int siu_remove(struct device *dev)
-> > +{
-> > +	struct uart_port *port;
-> > +	int i;
-> > +
-> > +	for (i = 0; i < siu_uart_driver.nr; i++) {
-> > +		port = &siu_uart_ports[i];
-> > +		if (port->dev == dev) {
-> 
-> ... we try to unregister it here, because port->dev was initialised.
-> Maybe you want to NULL out port->dev in the above function when that
-> happens?
+("throw-away" git trees are actually very very useful).
 
-Fixed.
+git is actually even _more_ strict than BK in this respect, since the git
+model means that everything is based on SHA1 hashes, and you can't edit
+_anything_. With BK, some people were used to edit the checkin comments
+after the fact, and you could do that kind of limited cleanup before you
+asked me to merge. With git, that's all hashed cryptographically and is
+part of the "name" of the result, so if you want to change the checkin
+comments, you literally have to throw the old one (and every later checkin
+that has it as its parents) away, and re-generate the whole chain.
 
-> On Wed, Apr 13, 2005 at 11:18:27PM +0900, Yoichi Yuasa wrote:
-> >  static struct uart_ops early_uart_ops = {
-> > -	.set_termios	= early_set_termios,
-> > +	.set_termios	= siu_set_termios,
-> >  };
-> 
-> In this case, you don't need the early_uart_ops here - the standard
-> ones will do just as well.  (.set_termios is the only method which
-> the console init code will use.)
+This is very much by design. This is how git (and I) can trust the end 
+result. It is how git can know that if we have a common parent, all the 
+history before that common parent is guaranteed to be the same for both 
+you and me, and git can thus ignore it. But as mentioned, it does mean 
+that git history is set in stone, and the only way to "fix" things is 
+literally to re-create it all.
 
-Use standard one.
-
-Yoichi
-
-Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-
-Index: drivers/serial/vr41xx_siu.c
-===================================================================
---- 43765d4b40a4a3c64f2a32b684f4041e2f01644d/drivers/serial/vr41xx_siu.c  (mode:100644 sha1:307886199f2f6f1301d6aa240b1f3263e9ec8a90)
-+++ uncommitted/drivers/serial/vr41xx_siu.c  (mode:100644)
-@@ -234,7 +234,7 @@
- 		return "DSIU";
- 	}
- 
--	return "unknown";
-+	return NULL;
- }
- 
- static unsigned int siu_tx_empty(struct uart_port *port)
-@@ -484,9 +484,6 @@
- 	struct uart_port *port;
- 	uint8_t iir, lsr;
- 
--	if (dev_id == NULL)
--		return IRQ_NONE;
--
- 	port = (struct uart_port *)dev_id;
- 
- 	iir = siu_read(port, UART_IIR);
-@@ -509,6 +506,9 @@
- {
- 	int retval;
- 
-+	if (port->membase == NULL)
-+		return -ENODEV;
-+
- 	siu_clear_fifo(port);
- 
- 	(void)siu_read(port, UART_LSR);
-@@ -547,9 +547,6 @@
- 	unsigned long flags;
- 	uint8_t lcr;
- 
--	if (port->membase == NULL)
--		return;
--
- 	siu_write(port, UART_IER, 0);
- 
- 	spin_lock_irqsave(&port->lock, flags);
-@@ -804,53 +801,6 @@
- 
- #ifdef CONFIG_SERIAL_VR41XX_CONSOLE
- 
--static void early_set_termios(struct uart_port *port, struct termios *new,
--                              struct termios *old)
--{
--	tcflag_t c_cflag;
--	uint8_t lcr;
--	unsigned int baud, quot;
--
--	c_cflag = new->c_cflag;
--	switch (c_cflag & CSIZE) {
--	case CS5:
--		lcr = UART_LCR_WLEN5;
--		break;
--	case CS6:
--		lcr = UART_LCR_WLEN6;
--		break;
--	case CS7:
--		lcr = UART_LCR_WLEN7;
--		break;
--	default:
--		lcr = UART_LCR_WLEN8;
--		break;
--	}
--
--	if (c_cflag & CSTOPB)
--		lcr |= UART_LCR_STOP;
--	if (c_cflag & PARENB)
--		lcr |= UART_LCR_PARITY;
--	if ((c_cflag & PARODD) != PARODD)
--		lcr |= UART_LCR_EPAR;
--	if (c_cflag & CMSPAR)
--		lcr |= UART_LCR_SPAR;
--
--	baud = uart_get_baud_rate(port, new, old, 0, port->uartclk/16);
--	quot = uart_get_divisor(port, baud);
--
--	siu_write(port, UART_LCR, lcr | UART_LCR_DLAB);
--
--	siu_write(port, UART_DLL, (uint8_t)quot);
--	siu_write(port, UART_DLM, (uint8_t)(quot >> 8));
--
--	siu_write(port, UART_LCR, lcr);
--}
--
--static struct uart_ops early_uart_ops = {
--	.set_termios	= early_set_termios,
--};
--
- #define BOTH_EMPTY	(UART_LSR_TEMT | UART_LSR_THRE)
- 
- static void wait_for_xmitr(struct uart_port *port)
-@@ -917,7 +867,7 @@
- 	if (port->membase == NULL) {
- 		if (port->mapbase == 0)
- 			return -ENODEV;
--		port->membase = (unsigned char __iomem *)KSEG1ADDR(port->mapbase);
-+		port->membase = ioremap(port->mapbase, siu_port_size(port));
- 	}
- 
- 	vr41xx_select_siu_interface(SIU_INTERFACE_RS232C);
-@@ -951,7 +901,7 @@
- 
- 	for (i = 0; i < num; i++) {
- 		port = &siu_uart_ports[i];
--		port->ops = &early_uart_ops;
-+		port->ops = &siu_uart_ops;
- 	}
- 
- 	register_console(&siu_console);
-@@ -996,8 +946,10 @@
- 		port->dev = dev;
- 
- 		retval = uart_add_one_port(&siu_uart_driver, port);
--		if (retval)
-+		if (retval < 0) {
-+			port->dev = NULL;
- 			break;
-+		}
- 	}
- 
- 	if (i == 0 && retval < 0) {
-
-
+				Linus

@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261507AbVDWJKK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbVDWJPQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261507AbVDWJKK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Apr 2005 05:10:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbVDWJKK
+	id S261522AbVDWJPQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Apr 2005 05:15:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261525AbVDWJPQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Apr 2005 05:10:10 -0400
-Received: from mailfe03.swip.net ([212.247.154.65]:64970 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S261507AbVDWJKG (ORCPT
+	Sat, 23 Apr 2005 05:15:16 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:13701 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261522AbVDWJPK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Apr 2005 05:10:06 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Subject: RE: [discuss] [Patch] X86_64 TASK_SIZE cleanup - more comments
-From: Alexander Nyberg <alexn@dsv.su.se>
-To: "Zou, Nanhai" <nanhai.zou@intel.com>
-Cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org, linux-kernel@vger.kernel.org,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-In-Reply-To: <894E37DECA393E4D9374E0ACBBE74270013E8B96@pdsmsx402.ccr.corp.intel.com>
-References: <894E37DECA393E4D9374E0ACBBE74270013E8B96@pdsmsx402.ccr.corp.intel.com>
-Content-Type: text/plain
-Date: Sat, 23 Apr 2005 11:10:03 +0200
-Message-Id: <1114247403.916.3.camel@localhost.localdomain>
+	Sat, 23 Apr 2005 05:15:10 -0400
+Date: Sat, 23 Apr 2005 11:14:48 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: dtor_core@ameritech.net
+Cc: Stefan Seyfried <seife@suse.de>, rjw@sisk.pl,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andreas Steinmetz <ast@domdv.de>
+Subject: Re: Linux 2.6.12-rc3: various swsusp problems
+Message-ID: <20050423091448.GA8015@elf.ucw.cz>
+References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org> <4267DC2E.9030102@domdv.de> <20050421185717.GB475@openzaurus.ucw.cz> <42691498.7060003@suse.de> <d120d500050422195755c5b918@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d500050422195755c5b918@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> PPC64 IA64 and S390 use variable size TASK_SIZE for 32 bit and 64 bit
-> program.
-> I feel it is hard to maintain if we try to audit TASK_SIZE use
-> everywhere, because most of them are in generic code.
+Hi!
+
+> On 4/22/05, Stefan Seyfried <seife@suse.de> wrote:
+> > --- linux/kernel/power/swsusp.c~        2005-04-22 17:07:56.000000000 +0200
+> > +++ linux/kernel/power/swsusp.c 2005-04-22 17:09:22.000000000 +0200
+> > @@ -1239,7 +1239,7 @@ static int check_sig(void)
+> >                 */
+> >                error = bio_write_page(0, &swsusp_header);
+> >        } else {
+> > -               printk(KERN_ERR "swsusp: Suspend partition has wrong signature?\n");
+> > +               printk(KERN_ERR "swsusp: Suspend partition is no suspend image.\n");
 > 
-> And maintaining those audit code in separate place is also a problem.
-> E.g. in current 32 bit emulation code
-> TASK_SIZE is defined as 0xfffffff in elf loading, but defined as
-> 0xffffe000 in mmaping.
-> 
-> How did that earlier patch break applications?
+> Hrm, I don't think it is a good message... What about "Suspend
+> partition has no suspend image" or, better yet, "Suspend partition
+> does not contain valid suspend image"?
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0408.2/1605.html
+I settled with
 
-I never investigated specifically what broke down
+                printk(KERN_INFO "swsusp: Suspend partition does not contain suspend image.\n");
 
+
+										Pavel
+-- 
+Boycott Kodak -- for their patent abuse against Java.

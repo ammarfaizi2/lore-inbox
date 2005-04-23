@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbVDWOna@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbVDWPLE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261600AbVDWOna (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Apr 2005 10:43:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261603AbVDWOna
+	id S261605AbVDWPLE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Apr 2005 11:11:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbVDWPLE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Apr 2005 10:43:30 -0400
-Received: from mail.portrix.net ([212.202.157.208]:27784 "EHLO
-	zoidberg.portrix.net") by vger.kernel.org with ESMTP
-	id S261600AbVDWOn2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Apr 2005 10:43:28 -0400
-Message-ID: <426A5F0D.8050506@ppp0.net>
-Date: Sat, 23 Apr 2005 16:43:25 +0200
-From: Jan Dittmer <jdittmer@ppp0.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050116 Thunderbird/1.0 Mnenhy/0.6.0.104
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Git-commits mailing list feed.
-References: <200504210422.j3L4Mo8L021495@hera.kernel.org>	 <42674724.90005@ppp0.net> <20050422002922.GB6829@kroah.com>	 <426A4669.7080500@ppp0.net> <1114266083.3419.40.camel@localhost.localdomain>
-In-Reply-To: <1114266083.3419.40.camel@localhost.localdomain>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sat, 23 Apr 2005 11:11:04 -0400
+Received: from mx2.suse.de ([195.135.220.15]:33177 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261605AbVDWPK7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Apr 2005 11:10:59 -0400
+Date: Sat, 23 Apr 2005 17:10:48 +0200
+From: Andi Kleen <ak@suse.de>
+To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Rohit Seth <rohit.seth@intel.com>, Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] Increase number of e820 entries hard limit from 32 to 128
+Message-ID: <20050423151048.GE7715@wotan.suse.de>
+References: <20050422181441.A18205@unix-os.sc.intel.com> <Pine.LNX.4.58.0504221851140.2344@ppc970.osdl.org> <20050422193250.A18512@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050422193250.A18512@unix-os.sc.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse wrote:
-> On Sat, 2005-04-23 at 14:58 +0200, Jan Dittmer wrote:
+On Fri, Apr 22, 2005 at 07:32:50PM -0700, Venkatesh Pallipadi wrote:
+> On Fri, Apr 22, 2005 at 06:51:59PM -0700, Linus Torvalds wrote:
+> > On Fri, 22 Apr 2005, Venkatesh Pallipadi wrote:
+> > > The specifications that talk about E820 map doesn't have an upper limit
+> > > on the number of E820 entries. But, today's kernel has a hard limit of 32.
+> > > With increase in memory size, we are seeing the number of E820 entries
+> > > reaching close to 32. Patch below bumps the number upto 128. 
+> > 
+> > Hmm. Anything that changes setup.S tends to have bootloader dependencies. 
+> > I worry whether this one does too..
+> > 
 > 
->>I didn't found above mentioned post, so I hacked up a cruel script
->>myself. It relies on ketchup (www.selenic.com/ketchup)
->>to retrieve the current base version. Also it requires git's
->>`checkout-cache --prefix=` to work properly.
-> 
-> 
-> Thanks... but it seems a little excessive. I was thinking of something
-> much simpler; along the lines of...
+> The setup.S change in this patch should be OK. As it is adding to the 
+> existing zero-page and keeping it within one page. I tested it on systems 
+> with grub, adding some dummy E820 entries and it worked fine.
 
-> echo $commit-id > $STAGE/$NEWTAG.id
+The last time I tried to extend the zero page (with a longer command line)
+it broke lilo on systems with EDID support and CONFIG_EDID enabled.
+Make sure you test that case.
 
-you want $CURCOMMIT here.
-Otherwise works fine.
+-Andi
 
--- 
-Jan

@@ -1,89 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbVDWRyt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261640AbVDWSCa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261638AbVDWRyt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Apr 2005 13:54:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261643AbVDWRyo
+	id S261640AbVDWSCa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Apr 2005 14:02:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbVDWSCa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Apr 2005 13:54:44 -0400
-Received: from pop.gmx.de ([213.165.64.20]:38062 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261638AbVDWRy0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Apr 2005 13:54:26 -0400
-X-Authenticated: #590723
-From: Fabian Franz <FabianFranz@gmx.de>
-To: Linus Torvalds <torvalds@osdl.org>, David Woodhouse <dwmw2@infradead.org>
-Subject: Re: Git-commits mailing list feed.
-Date: Sat, 23 Apr 2005 19:50:39 +0200
-User-Agent: KMail/1.5.4
-Cc: Jan Dittmer <jdittmer@ppp0.net>, Greg KH <greg@kroah.com>,
+	Sat, 23 Apr 2005 14:02:30 -0400
+Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:14030 "EHLO
+	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S261640AbVDWSCZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Apr 2005 14:02:25 -0400
+Date: Sat, 23 Apr 2005 19:54:22 +0200
+From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: David Woodhouse <dwmw2@infradead.org>, Jan Dittmer <jdittmer@ppp0.net>,
+       Greg KH <greg@kroah.com>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Git Mailing List <git@vger.kernel.org>
-References: <200504210422.j3L4Mo8L021495@hera.kernel.org> <1114266907.3419.43.camel@localhost.localdomain> <Pine.LNX.4.58.0504231010580.2344@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0504231010580.2344@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
+Subject: Re: Git-commits mailing list feed.
+Message-ID: <20050423175422.GA7100@cip.informatik.uni-erlangen.de>
+Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+	Linus Torvalds <torvalds@osdl.org>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Jan Dittmer <jdittmer@ppp0.net>, Greg KH <greg@kroah.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Git Mailing List <git@vger.kernel.org>
+References: <200504210422.j3L4Mo8L021495@hera.kernel.org> <42674724.90005@ppp0.net> <20050422002922.GB6829@kroah.com> <426A4669.7080500@ppp0.net> <1114266083.3419.40.camel@localhost.localdomain> <426A5BFC.1020507@ppp0.net> <1114266907.3419.43.camel@localhost.localdomain> <Pine.LNX.4.58.0504231010580.2344@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200504231950.43903.FabianFranz@gmx.de>
-X-Y-GMX-Trusted: 0
+In-Reply-To: <Pine.LNX.4.58.0504231010580.2344@ppc970.osdl.org>
+X-URL: http://wwwcip.informatik.uni-erlangen.de/~sithglan/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hello,
 
-Am Samstag, 23. April 2005 19:31 schrieb Linus Torvalds:
-> On Sun, 24 Apr 2005, David Woodhouse wrote:
-> > Nah, asking Linus to tag his releases is the most comfortable way.
-> >
-> The reason I've not done tags yet is that I haven't decided how to do
-> them.
->
-> 	commit a2755a80f40e5794ddc20e00f781af9d6320fafb
-> 	tag v2.6.12-rc3
-> 	signer Linus Torvalds
->
-> 	This is my official original 2.6.12-rc2 release
->
-> 	-----BEGIN PGP SIGNATURE-----
-> 	....
-> 	-----END PGP SIGNATURE-----
->
-> If somebody writes a script to generate the above kind of thing (and tells
-> me how to validate it), I'll do the rest, and start tagging things
-> properly. Oh, and make sure the above sounds sane (ie if somebody has a
-> better idea for how to more easily identify how to find the public key to
-> check against, please speak up).
+there is no need to tell the verifier against what key to verify because
+the signature already contains this information.
 
-To generate those you do:
+> If somebody writes a script to generate the above kind of thing (and
+> tells me how to validate it), I'll do the rest, and start tagging
+> things properly. Oh, and make sure the above sounds sane (ie if
+> somebody has a better idea for how to more easily identify how to find
+> the public key to check against, please speak up).
 
-# cat unsigned_tag
+# This creates the signature.
+gpg --clearsign < sign_this > signature
 
-	commit a2755a80f40e5794ddc20e00f781af9d6320fafb
-	tag v2.6.12-rc3
-	signer Linus Torvalds
-	This is my official original 2.6.12-rc2 release
+# And this verifies it. 
+gpg --verify < signature && echo valid
 
-# gpg --clearsign < unsigned_tag > signed_tag # gpg will ask here for the 
-secret key phrase
-
-To verify you do:
-
-# gpg --verify < signed_tag
-
-and check exit status.
-
-Hope that helps,
-
-cu
-
-Fabian 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFCaorzI0lSH7CXz7MRAr3QAJ45f2CQTgJ0sYfF9kRyrWHbsazVQQCeMqW7
-HCsah/llt/I8sQ36dlDnRWg=
-=Fgq1
------END PGP SIGNATURE-----
-
+	Thomas

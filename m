@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262095AbVDWWLx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262113AbVDWWLy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262095AbVDWWLx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Apr 2005 18:11:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbVDWWKj
+	id S262113AbVDWWLy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Apr 2005 18:11:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbVDWWKX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Apr 2005 18:10:39 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:28615 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262095AbVDWWIQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Apr 2005 18:08:16 -0400
-Date: Sun, 24 Apr 2005 00:07:57 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] swsusp: misc cleanups [4/4]
-Message-ID: <20050423220757.GD1884@elf.ucw.cz>
-References: <200504232320.54477.rjw@sisk.pl> <200504232338.43297.rjw@sisk.pl>
+	Sat, 23 Apr 2005 18:10:23 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:44047 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262099AbVDWWIU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Apr 2005 18:08:20 -0400
+Date: Sun, 24 Apr 2005 00:08:18 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: alan@redhat.com
+Cc: linux-kernel@vger.kernel.org, James.Bottomley@SteelEye.co,
+       linux-scsi@vger.kernel.org
+Subject: [2.6 patch] drivers/scsi/atp870u.c: make a function static
+Message-ID: <20050423220817.GF4355@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200504232338.43297.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This patch makes a needlessly global function static.
 
-> The following patch makes some comments and printk()s in swsusp.c up to date.
-> In particular it adds the string "swsusp" before every message that is printed by
-> the code in swsusp.c.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-I don't like this one. Adding swsusp everywhere just clutters the
-screen, most of it should be clear from context.
+--- linux-2.6.12-rc2-mm3-full/drivers/scsi/atp870u.c.old	2005-04-23 21:59:28.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/scsi/atp870u.c	2005-04-23 22:00:47.000000000 +0200
+@@ -3146,8 +3146,8 @@
+ }
+ 
+ #define BLS buffer + len + size
+-int atp870u_proc_info(struct Scsi_Host *HBAptr, char *buffer, 
+-		      char **start, off_t offset, int length, int inout)
++static int atp870u_proc_info(struct Scsi_Host *HBAptr, char *buffer, 
++			     char **start, off_t offset, int length, int inout)
+ {
+ 	static u8 buff[512];
+ 	int size = 0;
 
-> @@ -1226,9 +1222,6 @@ static int check_sig(void)
->  
->  /**
->   *	data_read - Read image pages from swap.
-> - *
-> - *	You do not need to check for overlaps, check_pagedir()
-> - *	already did that.
->   */
->  
->  static int data_read(struct pbe *pblist)
-
-Why is this comment no longer valid?
-								Pavel
--- 
-Boycott Kodak -- for their patent abuse against Java.

@@ -1,100 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262277AbVDXHRm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262276AbVDXHWa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262277AbVDXHRm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 03:17:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262276AbVDXHRm
+	id S262276AbVDXHWa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 03:22:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262278AbVDXHWa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 03:17:42 -0400
-Received: from wproxy.gmail.com ([64.233.184.199]:46667 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262277AbVDXHRZ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 03:17:25 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=kbC8QxLHz8jivIrl2PKA3zrN8/ZyqB7jzHAwIRkY44QBzzal64+37zaZHJjc5Y1ZgJ4khSpspKEacPPkzacXZYK6zqoa7Tpo3UI7DOXSoJqDBWtuKXmDvb0ddcRKFUsaVP6LwpMIELDfTu7jAsYKtkG1rRHy/8C0UKgvN+IXxCE=
-Message-ID: <17d798805042400172846fd54@mail.gmail.com>
-Date: Sun, 24 Apr 2005 03:17:24 -0400
-From: Allison <fireflyblue@gmail.com>
-Reply-To: Allison <fireflyblue@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Page table question
+	Sun, 24 Apr 2005 03:22:30 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:64234 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262276AbVDXHW0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Apr 2005 03:22:26 -0400
+Date: Sun, 24 Apr 2005 09:21:00 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Petr Baudis <pasky@ucw.cz>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.12-rc3
+Message-ID: <20050424072100.GA1908@elf.ucw.cz>
+References: <20050421120327.GA13834@elf.ucw.cz> <20050421162220.GD30991@pasky.ji.cz> <20050421232201.GD31207@elf.ucw.cz> <20050422002150.GY7443@pasky.ji.cz> <20050422231839.GC1789@elf.ucw.cz> <Pine.LNX.4.58.0504221718410.2344@ppc970.osdl.org> <20050423111900.GA2226@openzaurus.ucw.cz> <Pine.LNX.4.58.0504230654190.2344@ppc970.osdl.org> <20050423230023.GA17388@elf.ucw.cz> <20050423230648.GE13222@pasky.ji.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20050423230648.GE13222@pasky.ji.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-I am trying to read the kernel page table. I use the swapper_pg_dir to
-get the root of the table and I get  the following information in the
-table. The first 0-767 entries are all zeroes. And then the table has
-the following values.
+On Ne 24-04-05 01:06:48, Petr Baudis wrote:
+> Dear diary, on Sun, Apr 24, 2005 at 01:00:23AM CEST, I got a letter
+> where Pavel Machek <pavel@ucw.cz> told me that...
+> > I created three trees here (with git fork): one ("clean-git") to track
+> > your changes, second ("linux-git") to do my development on and third
+> > ("linux-good") for good, nice, cleaned-up changes, for you to merge.
+> > 
+> > ...unfortunately pasky's git just symlinked object/ directories...
+> 
+> You can't do any better than that, since you would have to transfer
+> stuff around by pulling them otherwise; so you would need smart git
+> pull, but then Linus can use the smart git pull himself anyway. ;-)
 
-[PGD 768]= 0x000001e3
-[PGD 769]= 0x004001e3
-[PGD 770]= 0x008001e3
-entries in between here are incremented by 4MB
-[PGD 992]= 0x0
-[PGD 993]= 0x0
-[PGD 994]= 0x01c32067
-[PGD 995]= 0x36dad067
-[PGD 996]= 0x36dac067
-[PGD 997]= 0x3721c067
-[PGD 998]= 0x37155067
-[PGD 999]= 0x3721d067
-entries here in between are 0x0
-[PGD 1016]= 0x00002063
-entries here in between are 0x0
-[PGD 1023]= 0x00001063
+Actually, no.
 
+Without cherypicking, I just can't pull from linux-git into
+linux-good. Ever. linux-git contains some changes that just can not go
+anywhere. (Like for example czech-ucw-defkeymap.map)
 
-The entries from 768 upto 991 are understandable as they are incremented by 4MB.
-I assume that the entries from 994 to 999 , 1016 and 1023 are entries
-for dynamic kernel memory.  Please correct me if I am wrong here.
+So it should be okay to just copy object directories instead of
+linking them. Or perhaps cp -al is good idea here. (It also removes
+trap where I rm -rf-ed tree I did fork from....)
 
-Now, I try to go to the second level. (I have a Pentium processor, 1
-GB of memory)
-Essentially what I am trying to do is, take a symbol from /proc/ksyms
-and using the page tables, find the correct page and page offset.
-
-I started with a virtual address 0xf89b5640.
-If I consider the most significant 10 bits, it maps to the 994th entry
-in the PGD and 437th entry in the page table.
-Using the address at that location in the PGD, which is the physical
-address (0x01c32067),
-I fetch the page table which kind of looks weird. These look like
-virtual addresses. The 437th entry is a  virtual address. What is it
-that I am doing wrong here?
-
-[PGT 415]= 0x38
-[PGT 416]= 0xf3007300
-[PGT 417]= 0xf31073fc
-[PGT 418]= 0xf32073fc
-[PGT 419]= 0xf33073fc
-[PGT 420]= 0xf34073fc
-[PGT 421]= 0xf35073fc
-[PGT 422]= 0xf36073fc
-[PGT 423]= 0xf37073fc
-[PGT 424]= 0xf38073fc
-[PGT 425]= 0xf39073fc
-[PGT 426]= 0xf3a073fc
-[PGT 427]= 0xf3b073fc
-[PGT 428]= 0xf3c073fc
-[PGT 429]= 0xf3d073fc
-[PGT 430]= 0xf3e073fc
-[PGT 431]= 0xf3f073fc
-[PGT 432]= 0xfc
-[PGT 433]= 0xf1007300
-[PGT 434]= 0xf11073fc
-[PGT 435]= 0xf12073fc
-[PGT 436]= 0xf13073fc
-[PGT 437]= 0xf14073fc
-[PGT 438]= 0xf15073fc
-[PGT 439]= 0xf16073fc
-
-Any help is greatly appreciated.
-Thanks,
-Allison
+Heh, filesystem with auto-file-hardlinking would be nice there ;-).
+ 
+								Pavel
+-- 
+Boycott Kodak -- for their patent abuse against Java.

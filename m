@@ -1,44 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262482AbVDYCoB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262491AbVDYCot@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262482AbVDYCoB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 22:44:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262471AbVDYCoA
+	id S262491AbVDYCot (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 22:44:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262487AbVDYCo0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 22:44:00 -0400
-Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:10961 "EHLO
-	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id S262480AbVDYCnr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 22:43:47 -0400
-Date: Sun, 24 Apr 2005 22:43:40 -0400
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: Git-commits mailing list feed.
-Message-ID: <20050425024340.GI29939@delft.aura.cs.cmu.edu>
-Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Git Mailing List <git@vger.kernel.org>
-References: <426A5BFC.1020507@ppp0.net> <1114266907.3419.43.camel@localhost.localdomain> <Pine.LNX.4.58.0504231010580.2344@ppc970.osdl.org> <20050423175422.GA7100@cip.informatik.uni-erlangen.de> <Pine.LNX.4.58.0504231125330.2344@ppc970.osdl.org> <2911.10.10.10.24.1114279589.squirrel@linux1> <Pine.LNX.4.58.0504231234550.2344@ppc970.osdl.org> <Pine.LNX.4.62.0504250008370.14200@sheen.jakma.org> <426C4168.6030008@dwheeler.com> <20050425023420.GA14696@lists.us.dell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050425023420.GA14696@lists.us.dell.com>
-User-Agent: Mutt/1.5.9i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+	Sun, 24 Apr 2005 22:44:26 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:24731 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262471AbVDYCoF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Apr 2005 22:44:05 -0400
+Message-Id: <200504241652.j3OGqR3T011427@laptop11.inf.utfsm.cl>
+To: Bernd Eckenfels <ecki@lina.inka.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: more git updates.. 
+In-Reply-To: Message from Bernd Eckenfels <ecki@lina.inka.de> 
+   of "Sun, 24 Apr 2005 03:29:43 +0200." <E1DPVwN-0007pj-00@calista.eckenfels.6bone.ka-ip.net> 
+Date: Sun, 24 Apr 2005 12:52:26 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 24, 2005 at 09:34:20PM -0500, Matt Domsch wrote:
-> On Sun, Apr 24, 2005 at 09:01:28PM -0400, David A. Wheeler wrote:
-> > It may be better to have them as simple detached signatures, which are
-> > completely separate files (see gpg --detached).
-> > Yeah, gpg currently implements detached signatures
-> > by repeating what gets signed, which is unfortunate,
-> > but the _idea_ is the right one.
-> 
-> I solve this with two simple scripts, "sign" calls "cutsig".
-...
-> gpg --armor --clearsign --detach-sign --default-key "${DEFAULT_KEY} -v -v -o - ${1} | \
-> ${CUTSIG} > ${1}.sign
+Bernd Eckenfels <ecki@lina.inka.de> said:
+> In article <20050423174227.51360d63.pj@sgi.com> you wrote:
+> > If something is likely to happen less than once in a billion years,
+> > then for all practical purposes, it won't happen.
 
-You could also just leave out the --clearsign option and it will DTRT.
+> Of course there are colliding files already available and easyly
+> generate-able. So a malicous attack is already possible. 
 
-Jan
+Care to share some? Of what you are smoking, that is... pretty potent stuff.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262374AbVDXTpj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbVDXT51@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262374AbVDXTpj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 15:45:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbVDXTpj
+	id S262380AbVDXT51 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 15:57:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbVDXT51
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 15:45:39 -0400
-Received: from eurogra4543-2.clients.easynet.fr ([212.180.52.86]:8655 "HELO
-	server5.heliogroup.fr") by vger.kernel.org with SMTP
-	id S262374AbVDXTpc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 15:45:32 -0400
-From: Hubert Tonneau <hubert.tonneau@fullpliant.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc3 fails to read partition table
-Date: Sun, 24 Apr 2005 19:15:44 GMT
-Message-ID: <055UQU811@server5.heliogroup.fr>
-X-Mailer: Pliant 93
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Sun, 24 Apr 2005 15:57:27 -0400
+Received: from mail.kroah.org ([69.55.234.183]:28562 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262380AbVDXT5X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Apr 2005 15:57:23 -0400
+Date: Sun, 24 Apr 2005 12:55:55 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: pavel@ucw.cz, drzeus-list@drzeus.cx, torvalds@osdl.org, pasky@ucw.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.12-rc3
+Message-ID: <20050424195554.GA2857@kroah.com>
+References: <20050422002150.GY7443@pasky.ji.cz> <20050422231839.GC1789@elf.ucw.cz> <Pine.LNX.4.58.0504221718410.2344@ppc970.osdl.org> <20050423111900.GA2226@openzaurus.ucw.cz> <Pine.LNX.4.58.0504230654190.2344@ppc970.osdl.org> <426A7775.60207@drzeus.cx> <20050423220213.GA20519@kroah.com> <20050423222946.GF1884@elf.ucw.cz> <20050423233809.GA21754@kroah.com> <20050424032622.3aef8c9f.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050424032622.3aef8c9f.akpm@osdl.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hubert Tonneau wrote:
->
-> 2.6.11 and 2.6.11.7 work fine.
-> 2.6.12-rc1 2.6.12-rc2 and 2.6.12-rc3 fail to read partiton table on my laptop,
-> also 2.6.12-rc3 works fine on another box also running FullPliant.
+On Sun, Apr 24, 2005 at 03:26:22AM -0700, Andrew Morton wrote:
+> Greg KH <greg@kroah.com> wrote:
+> > In the patches/ subdir below that one, is a mirror of my quilt patches
+> > directory, series file and all.  That way people can still see the
+> > individual patches if they want to.
+> > 
+> > Does this help some?  It's all still under flux as to how this all
+> > works, try something and go from there :)
+> 
+> Yes, it would be nice to have gregkh's patches in -mm as individual patches.
 
-I tracked down the trouble to the following patch.
-Partitions with type 0 are now ignored, and my hda1 single partition has been
-unwisely set so.
-The question might be: is it a good idea to introduce that extra constrain
-in the middle of a stable serie ?
+It would?  Ok, that's easy to change.
 
-diff -urN linux-2.6.11/fs/partitions/msdos.c linux-2.6.12-rc3/fs/partitions/msdos.c
---- linux-2.6.11/fs/partitions/msdos.c	2005-03-01 23:38:12.000000000 -0800
-+++ linux-2.6.12-rc3/fs/partitions/msdos.c	2005-04-20 17:03:15.000000000 -0700
-@@ -114,6 +114,9 @@
- 		 */
- 		for (i=0; i<4; i++, p++) {
- 			u32 offs, size, next;
-+
-+			if (SYS_IND(p) == 0)
-+				continue;
- 			if (!NR_SECTS(p) || is_extended_partition(p))
- 				continue;
- 
-@@ -430,6 +433,8 @@
- 	for (slot = 1 ; slot <= 4 ; slot++, p++) {
- 		u32 start = START_SECT(p)*sector_size;
- 		u32 size = NR_SECTS(p)*sector_size;
-+		if (SYS_IND(p) == 0)
-+			continue;
- 		if (!size)
- 			continue;
- 		if (is_extended_partition(p)) {
+> Of course, whatever gets done, I'd selfishly prefer that most (or even all)
+> subsystem maintainers work the same way and adopt the same work practices.
+> 
+> I guess it's too early to think about that, but if one maintainer (hint)
+> were to develop and document a good methodology and toolset, others might
+> quickly follow.
 
+Heh, ok, I can take a hint, I'll work on this this week.  I already have
+the "export a series of patches from a git tree that are not in another
+git tree" working, so it shouldn't be tough to get the rest in an
+"automated" manner.
+
+thanks,
+
+greg k-h

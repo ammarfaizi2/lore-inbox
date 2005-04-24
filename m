@@ -1,61 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262344AbVDXPki@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262345AbVDXPlq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262344AbVDXPki (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 11:40:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbVDXPki
+	id S262345AbVDXPlq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 11:41:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262346AbVDXPlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 11:40:38 -0400
-Received: from imf22aec.mail.bellsouth.net ([205.152.59.70]:65416 "EHLO
-	imf22aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S262344AbVDXPkc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 11:40:32 -0400
-Date: Sun, 24 Apr 2005 10:40:22 -0500
-From: Tommy Reynolds <Tommy.Reynolds@MegaCoder.com>
-To: Ravi Poddar <ravi@dacodecz.homelinux.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: error reading following proc files ....
-Message-Id: <20050424104022.02a75869.Tommy.Reynolds@MegaCoder.com>
-In-Reply-To: <426BB912.6080801@dacodecz.homelinux.org>
-References: <426BB912.6080801@dacodecz.homelinux.org>
-X-Mailer: Sylpheed version 1.9.9+svn (GTK+ 2.6.4; i686-redhat-linux-gnu)
-X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$
- t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl
- 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Sun__24_Apr_2005_10_40_22_-0500_gRplUyg7qLxzRwk."
+	Sun, 24 Apr 2005 11:41:46 -0400
+Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:45720 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262345AbVDXPlf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Apr 2005 11:41:35 -0400
+To: akpm@osdl.org
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] FUSE: nfsd with direct_io fix
+Message-Id: <E1DPjEP-0000O7-00@localhost>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Sun, 24 Apr 2005 17:41:13 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Sun__24_Apr_2005_10_40_22_-0500_gRplUyg7qLxzRwk.
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This patch fixes an Oops which happens when a filesystem mounted with
+the "direct_io" mount option is exported through NFS.  The problem is
+that nfsd passes a kernel buffer with the "set_fs(KERNEL_DS)" method
+to read and write, but get_user_pages() won't work on such a buffer.
+The current fix is "don't do that then".  Long term solution will be
+to implement nfs serving in userspace.  Bug spotted by David Shaw.
 
-Uttered Ravi Poddar <ravi@dacodecz.homelinux.org>, spake thus:
+Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
 
-> I got following errors while doing
-> ravi@dacodecz:~ # cat /proc/sys/fs/binfmt_misc/register
-> cat: /proc/sys/fs/binfmt_misc/register: Invalid argument
-
-Try doing a:
-
-$ ls /proc/sys/fs/binfmt_misc/register
-
-and notice there is no read(2) method implemented.
-
-Cheers
-
---Signature=_Sun__24_Apr_2005_10_40_22_-0500_gRplUyg7qLxzRwk.
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFCa73q/0ydqkQDlQERAi5AAJ0dPp5iwV35+pLllZS9ttwagJaMIQCgkT0X
-CI9Kx1ACpCttUjwOeXZXoDY=
-=Whg/
------END PGP SIGNATURE-----
-
---Signature=_Sun__24_Apr_2005_10_40_22_-0500_gRplUyg7qLxzRwk.--
+diff -rup linux-2.6.12-rc2-mm3/fs/fuse/file.c linux-fuse/fs/fuse/file.c
+--- linux-2.6.12-rc2-mm3/fs/fuse/file.c	2005-04-22 16:00:19.000000000 +0200
++++ linux-fuse/fs/fuse/file.c	2005-04-22 15:50:32.000000000 +0200
+@@ -409,6 +409,10 @@ static int fuse_get_user_pages(struct fu
+ 	unsigned offset = user_addr & ~PAGE_MASK;
+ 	int npages;
+ 
++	/* This doesn't work with nfsd */
++	if (!current->mm)
++		return -EPERM;
++
+ 	nbytes = min(nbytes, (unsigned) FUSE_MAX_PAGES_PER_REQ << PAGE_SHIFT);
+ 	npages = (nbytes + offset + PAGE_SIZE - 1) >> PAGE_SHIFT;
+ 	npages = min(npages, FUSE_MAX_PAGES_PER_REQ);

@@ -1,139 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262348AbVDXQKt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262352AbVDXQzZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262348AbVDXQKt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 12:10:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262352AbVDXQKt
+	id S262352AbVDXQzZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 12:55:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbVDXQzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 12:10:49 -0400
-Received: from mf01.sitadelle.com ([212.94.174.80]:41789 "EHLO
-	smtp.cegetel.net") by vger.kernel.org with ESMTP id S262348AbVDXQK3
+	Sun, 24 Apr 2005 12:55:25 -0400
+Received: from 216-237-124-58.infortech.net ([216.237.124.58]:49306 "EHLO
+	mail.dvmed.net") by vger.kernel.org with ESMTP id S262352AbVDXQzS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 12:10:29 -0400
-Message-ID: <426BC4D5.50401@tremplin-utc.net>
-Date: Sun, 24 Apr 2005 18:09:57 +0200
-From: Eric Piel <Eric.Piel@tremplin-utc.net>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
-X-Accept-Language: en, fr, ja, es
+	Sun, 24 Apr 2005 12:55:18 -0400
+Message-ID: <426BCF6E.2000000@pobox.com>
+Date: Sun, 24 Apr 2005 12:55:10 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: mingo@elte.hu
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] small load-balancer clean-up in move_tasks()
-Content-Type: multipart/mixed;
- boundary="------------030605070704030609060109"
+To: "Tais M. Hansen" <tais.hansen@osd.dk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: SATA/ATAPI
+References: <200504211941.43889.tais.hansen@osd.dk> <200504240008.58326.tais.hansen@osd.dk>
+In-Reply-To: <200504240008.58326.tais.hansen@osd.dk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030605070704030609060109
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Tais M. Hansen wrote:
+> On Thursday 21 April 2005 19:41, Tais M. Hansen wrote:
+> 
+>>One of my linux boxes has a Plextor DVD-RW drive with a SATA interface. The
+>>kernel sees this drive (ata3) but apparently doesn't tie it to a sdx
+>>device. The box also have a SATA harddisk, which is working just fine. The
+>>relevant dmesg output is pasted below.
+> 
+> 
+> I've been digging through sr, scsi, sata_via, libata-scsi and libata-core, 
+> littering the code with printk's.
+> 
+> My lack of knowledge on how the kernel handles devices, is really showing now. 
+> 
+> I've been unable to figure out what is supposed to tie sr to the devices 
+> probed by sata_via. Also, littering sr with printk's gave me the idea that sr 
+> is not even looking for cdrom devices. It loads, does the basic module __init 
+> stuff and then silence. Should sr find devices itself or is the kernel 
+> supposed to inform sr via some callback hook? I could really be barking up 
+> the wrong tree here, and not even see it.
+> 
+> Enabling SCSI logging and kernel debug didn't really give me anything useful.
 
-Hello,
 
-Here is a small clean-up which changes some goto's into loops for 
-move_tasks(). It makes the code a bit easier to read (the two loops are 
-explicit now) and it also reduces the number of lines. I've checked the 
-patch on x86 and IA-64 (with 4 processors).
+Did you turn on ATA_ENABLE_ATAPI in include/linux/libata.h?
 
-Concerning the size of the binary, on x86, depending on the options, it 
-can be one instruction (4 bytes) bigger to one instruction smaller. On 
-IA-64, it suprisingly saves 4 instructions (64 bytes) most of the time.
+	Jeff
 
-This patch was done for 2.6.12-rc1 but should apply against 2.6.12-rc3 
-cleanly. It's quite trivial and makes the clode cleaner, please apply.
 
-Eric Piel
-
---
-
-Small clean-up of move_tasks(). Converts the goto's into two eplicit loops.
-
-Signed-off-by: Eric Piel <eric.piel@tremplin-utc.net>
-
---------------030605070704030609060109
-Content-Type: text/x-patch;
- name="sched-remove-goto-move-tasks-2.6.12-rc1.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sched-remove-goto-move-tasks-2.6.12-rc1.patch"
-
---- linux-2.6.12-rc1/kernel/sched.c.bak	2005-04-03 00:21:07.000000000 +0200
-+++ linux-2.6.12-rc1/kernel/sched.c	2005-04-03 01:08:28.000000000 +0200
-@@ -1695,50 +1695,37 @@ static int move_tasks(runqueue_t *this_r
- 
- new_array:
- 	/* Start searching at priority 0: */
--	idx = 0;
--skip_bitmap:
--	if (!idx)
--		idx = sched_find_first_bit(array->bitmap);
--	else
--		idx = find_next_bit(array->bitmap, MAX_PRIO, idx);
--	if (idx >= MAX_PRIO) {
--		if (array == busiest->expired && busiest->active->nr_active) {
--			array = busiest->active;
--			dst_array = this_rq->active;
--			goto new_array;
--		}
--		goto out;
--	}
--
--	head = array->queue + idx;
--	curr = head->prev;
--skip_queue:
--	tmp = list_entry(curr, task_t, run_list);
--
--	curr = curr->prev;
--
--	if (!can_migrate_task(tmp, busiest, this_cpu, sd, idle)) {
--		if (curr != head)
--			goto skip_queue;
--		idx++;
--		goto skip_bitmap;
--	}
-+	for (idx = sched_find_first_bit(array->bitmap);
-+	     idx < MAX_PRIO;
-+	     idx = find_next_bit(array->bitmap, MAX_PRIO, idx + 1)) {
-+		head = array->queue + idx;
-+		for (curr = head->prev;
-+		     curr != head; ) {
-+			tmp = list_entry(curr, task_t, run_list);
-+
-+			curr = curr->prev;
-+			
-+			if (!can_migrate_task(tmp, busiest, this_cpu, sd, idle))
-+				continue;
- 
- #ifdef CONFIG_SCHEDSTATS
--	if (task_hot(tmp, busiest->timestamp_last_tick, sd))
--		schedstat_inc(sd, lb_hot_gained[idle]);
-+			if (task_hot(tmp, busiest->timestamp_last_tick, sd))
-+				schedstat_inc(sd, lb_hot_gained[idle]);
- #endif
- 
--	pull_task(busiest, array, tmp, this_rq, dst_array, this_cpu);
--	pulled++;
-+			pull_task(busiest, array, tmp, this_rq, dst_array, this_cpu);
-+			pulled++;
- 
--	/* We only want to steal up to the prescribed number of tasks. */
--	if (pulled < max_nr_move) {
--		if (curr != head)
--			goto skip_queue;
--		idx++;
--		goto skip_bitmap;
-+			/* We only want to steal up to the prescribed number of tasks. */
-+			if (pulled >= max_nr_move) 
-+				goto out;
-+		}
- 	}
-+	if (array == busiest->expired && busiest->active->nr_active) {
-+		array = busiest->active;
-+		dst_array = this_rq->active;
-+		goto new_array;
-+ 	}
- out:
- 	/*
- 	 * Right now, this is the only place pull_task() is called,
-
---------------030605070704030609060109--

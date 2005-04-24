@@ -1,64 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262278AbVDXH0I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262282AbVDXH0T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262278AbVDXH0I (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 03:26:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbVDXH0I
+	id S262282AbVDXH0T (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 03:26:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbVDXH0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 03:26:08 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:166 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262278AbVDXH0B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 03:26:01 -0400
-Date: Sun, 24 Apr 2005 09:25:18 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Petr Baudis <pasky@ucw.cz>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.12-rc3
-Message-ID: <20050424072518.GB1908@elf.ucw.cz>
-References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org> <20050421112022.GB2160@elf.ucw.cz> <20050421120327.GA13834@elf.ucw.cz> <20050421162220.GD30991@pasky.ji.cz> <20050421232201.GD31207@elf.ucw.cz> <20050422002150.GY7443@pasky.ji.cz> <20050422231839.GC1789@elf.ucw.cz> <20050423232303.GK13222@pasky.ji.cz>
+	Sun, 24 Apr 2005 03:26:19 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:65005 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262279AbVDXH0O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Apr 2005 03:26:14 -0400
+Date: Sun, 24 Apr 2005 08:26:10 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/scsi/FlashPoint.c: cleanups
+Message-ID: <20050424072610.GA13662@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Adrian Bunk <bunk@stusta.de>,
+	James Bottomley <James.Bottomley@SteelEye.com>,
+	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20050423221712.GJ4355@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050423232303.GK13222@pasky.ji.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050423221712.GJ4355@stusta.de>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, Apr 24, 2005 at 12:17:12AM +0200, Adrian Bunk wrote:
+> This patch contains cleanups including the following:
+> - remove #ifdef'ed code for other OS's
+> - remove other unused code
+> - make needlessly global code static
 
-On Ne 24-04-05 01:23:03, Petr Baudis wrote:
-> Dear diary, on Sat, Apr 23, 2005 at 01:18:39AM CEST, I got a letter
-> where Pavel Machek <pavel@ucw.cz> told me that...
-> > git patch origin:
-> > 
-> > will list my patches, plus any merges I done... Is there any
-> > reasonable way to get only "my" changes? When I do not have to resolve
-> > anything during merge, it should be usable... but that is starting to
-> > look ugly.
-> 
-> I told you the semantics is peculiar.
-> 
-> We could add a flag to rev-tree to always follow only the first parent;
-> that would be useful even for a flag for git log to "flatten" the
-> history, if you aren't interested in what was going on in the trees you
-> just merged.
-> 
-> Another flag to avoid showing patches for merges might be possible, but
-> actually a little scary since you don't have consistency assured that
-> way; your post-merge patches might generate rejects when applied on top
-> of the pre-merge patches, or your pre-merge patches might not apply
-> cleanly on the tree you merged with.
-> 
-> So if you want to ignore merges, it sounds that you are probably
-> actually doing something wrong. We might still let you do it
-> assuming
+I'd rather not touch this file currently.  It's glued toghether from
+lots of separate files in the original code.  Before doing cleanups
+I'd rather split it into all these files first as the file is a huge
+mess as-is.
 
-Right. Actually right thing might be to "only show human-made part of
-each merge" or something like that. Ignoring merges altogether is not
-quite right. OTOH really only small part of merge is going to
-matter...
-								Pavel
--- 
-Boycott Kodak -- for their patent abuse against Java.

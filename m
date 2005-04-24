@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262452AbVDXVnv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262450AbVDXVxM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262452AbVDXVnv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 17:43:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbVDXVnu
+	id S262450AbVDXVxM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 17:53:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbVDXVxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 17:43:50 -0400
-Received: from mail.shareable.org ([81.29.64.88]:8872 "EHLO mail.shareable.org")
-	by vger.kernel.org with ESMTP id S262449AbVDXVnr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 17:43:47 -0400
-Date: Sun, 24 Apr 2005 22:43:39 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, hch@infradead.org,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] private mounts
-Message-ID: <20050424214339.GD9304@mail.shareable.org>
-References: <E1DPnOn-0000T0-00@localhost> <20050424201820.GA28428@infradead.org> <E1DPo3I-0000V0-00@localhost> <20050424205422.GK13052@parcelfarce.linux.theplanet.co.uk> <E1DPoCg-0000W0-00@localhost> <20050424210616.GM13052@parcelfarce.linux.theplanet.co.uk> <E1DPoRz-0000Y0-00@localhost> <20050424211942.GN13052@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050424211942.GN13052@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
+	Sun, 24 Apr 2005 17:53:12 -0400
+Received: from ms-smtp-05.texas.rr.com ([24.93.47.44]:44542 "EHLO
+	ms-smtp-05-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S262450AbVDXVxJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Apr 2005 17:53:09 -0400
+Message-ID: <426C151F.3000407@ammasso.com>
+Date: Sun, 24 Apr 2005 16:52:31 -0500
+From: Timur Tabi <timur.tabi@ammasso.com>
+User-Agent: Mozilla/5.0 (Macintosh; U; PPC Mac OS X Mach-O; en-US; rv:1.7.6) Gecko/20050319
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Andrew Morton <akpm@osdl.org>, hch@infradead.org, roland@topspin.com,
+       hozer@hozed.org, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+References: <20050411163342.GE26127@kalmia.hozed.org> <5264yt1cbu.fsf@topspin.com> <20050411180107.GF26127@kalmia.hozed.org> <52oeclyyw3.fsf@topspin.com> <20050411171347.7e05859f.akpm@osdl.org> <4263DEC5.5080909@ammasso.com> <20050418164316.GA27697@infradead.org> <4263E445.8000605@ammasso.com> <20050423194421.4f0d6612.akpm@osdl.org> <426BABF4.3050205@ammasso.com> <20050424205309.GA5386@kroah.com>
+In-Reply-To: <20050424205309.GA5386@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro wrote:
-> On Sun, Apr 24, 2005 at 11:15:35PM +0200, Miklos Szeredi wrote:
-> > No.  You can't set "mount environment" in scp.
-> 
-> Of course you can.  It does execute the obvious set of rc files.
+Greg KH wrote:
 
-It doesn't work for the specified use-scenario.  The reason is that
-there is no command or system call that can be executed from those rc
-files to join an existing namespace.
+> You don't "support" i386 or ia64 or x86-64 or ppc64 systems?  What
+> hardware do you support? 
 
-He wants to do this:
+I've never seen or heard of any x86-32 or x86-64 system that supports hot-swap RAM. Our 
+hardware does not support PPC, and our software doesn't support ia-64.
 
-   1. From client, login to server and do a usermount on $HOME/private.
+ > And what about the fact that you are aiming to
+> get this code into mainline, right?  If not, why are you asking here?
+> :)
 
-   2. From client, login to server and read the files previously mounted.
+Well, our primary concern is getting our stuff to work.  Since get_user_pages() doesn't 
+work, but mlock() does, that's what we use.  I don't know how to fix get_user_pages(), and 
+I don't have the time right now to figure it out.  I know that technically mlock() is not 
+the right way to do it, and so we're not going to be submitting our code for the mainline 
+until get_user_pages() works and our code uses it instead of mlock().
 
--- Jamie

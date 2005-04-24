@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262229AbVDXCLR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262235AbVDXCp1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262229AbVDXCLR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Apr 2005 22:11:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262231AbVDXCLR
+	id S262235AbVDXCp1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Apr 2005 22:45:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262236AbVDXCp1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Apr 2005 22:11:17 -0400
-Received: from gate.crashing.org ([63.228.1.57]:60336 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262229AbVDXCLP (ORCPT
+	Sat, 23 Apr 2005 22:45:27 -0400
+Received: from fire.osdl.org ([65.172.181.4]:3465 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262235AbVDXCpR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Apr 2005 22:11:15 -0400
-Subject: Re: 2.6.12-rc2-mm3
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Juergen Kreileder <jk@blackdown.de>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Oleg Nesterov <oleg@tv-sign.ru>
-In-Reply-To: <87fyxhj5p1.fsf@blackdown.de>
-References: <20050411012532.58593bc1.akpm@osdl.org>
-	 <87wtr8rdvu.fsf@blackdown.de> <87u0m7aogx.fsf@blackdown.de>
-	 <1113607416.5462.212.camel@gaston> <877jj1aj99.fsf@blackdown.de>
-	 <20050423170152.6b308c74.akpm@osdl.org>  <87fyxhj5p1.fsf@blackdown.de>
-Content-Type: text/plain
-Date: Sun, 24 Apr 2005 12:15:28 +1000
-Message-Id: <1114308928.5443.13.camel@gaston>
+	Sat, 23 Apr 2005 22:45:17 -0400
+Date: Sat, 23 Apr 2005 19:44:21 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Timur Tabi <timur.tabi@ammasso.com>
+Cc: hch@infradead.org, roland@topspin.com, hozer@hozed.org,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+Message-Id: <20050423194421.4f0d6612.akpm@osdl.org>
+In-Reply-To: <4263E445.8000605@ammasso.com>
+References: <200544159.Ahk9l0puXy39U6u6@topspin.com>
+	<20050411142213.GC26127@kalmia.hozed.org>
+	<52mzs51g5g.fsf@topspin.com>
+	<20050411163342.GE26127@kalmia.hozed.org>
+	<5264yt1cbu.fsf@topspin.com>
+	<20050411180107.GF26127@kalmia.hozed.org>
+	<52oeclyyw3.fsf@topspin.com>
+	<20050411171347.7e05859f.akpm@osdl.org>
+	<4263DEC5.5080909@ammasso.com>
+	<20050418164316.GA27697@infradead.org>
+	<4263E445.8000605@ammasso.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-04-24 at 03:59 +0200, Juergen Kreileder wrote:
-
-> I'm might be the only one using evdev on ppc64.
+Timur Tabi <timur.tabi@ammasso.com> wrote:
+>
+> Christoph Hellwig wrote:
+> > On Mon, Apr 18, 2005 at 11:22:29AM -0500, Timur Tabi wrote:
+> > 
+> >>That's not what we're seeing.  We have hardware that does DMA over the 
+> >>network (much like the Infiniband stuff), and we have a testcase that fails 
+> >>if get_user_pages() is used, but not if mlock() is used.
+> > 
+> > 
+> > If you don't share your testcase it's unlikely to be fixed.
 > 
-> And I don't know how popular LVM2 is on disks with Macintosh labels.
-> I had to set it up manually when I installed the machine, Debian's
-> installer couldn't handle it at that time.
+> As I said, the testcase only works with our hardware, and it's also very large.  It's one 
+> small test that's part of a huge test suite.  It takes a couple hours just to install the 
+> damn thing.
 > 
-> Workload is normal, the lockups happen with just X and Azaereus.
-> (The machine also runs mysqld, apache, and a few other daemons.  But I
-> don't have to put load on these to make the machine lock up.)
+> We want to produce a simpler test case that demonstrates the problem in an 
+> easy-to-understand manner, but we don't have time to do that now.
 
-If you make sure you have CONFIG_XMON enabled and CONFIG_BOOTX_TEXT, and
-make sure X has "UseFBDev" option, do you drop into xmon before the
-lockup ?
+If your theory is correct then it should be able to demonstrate this
+problem without any special hardware at all: pin some user memory, then
+generate memory pressure then check the contents of those pinned pages.
 
-Also, do you have another machine at hand ? if yes, then we can try to
-revive my old firewire based debug tools we used to track things down in
-linus tree.
+But if, for the DMA transfer, you're using the array of page*'s which were
+originally obtained from get_user_pages() then it's rather hard to see how
+the kernel could alter the page's contents.
 
-I'll have a look at the timer patch next week, they might have some
-subtle race caused by a lack of memory barrier. I've had to debug some
-of those in early timer code, and those are really nasty, they usually
-only trigger under some subtle conditions, like ... heavy networking.
-
-Ben.
-
-
+Then again, if mlock() fixes it then something's up.  Very odd.

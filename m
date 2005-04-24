@@ -1,61 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbVDXV7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262458AbVDXWGe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262453AbVDXV7E (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 17:59:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbVDXV7E
+	id S262458AbVDXWGe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 18:06:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbVDXWGe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 17:59:04 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:50051 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262453AbVDXV6j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 17:58:39 -0400
-From: kernel-stuff@comcast.net (Parag Warudkar)
-To: Ed Tomlinson <tomlins@cam.org>, Alexander Nyberg <alexn@dsv.su.se>
-Cc: linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: X86_64: 2.6.12-rc3 spontaneous reboot
-Date: Sun, 24 Apr 2005 21:58:38 +0000
-Message-Id: <042420052158.11058.426C168D000E9AD100002B32220075115000009A9B9CD3040A029D0A05@comcast.net>
-X-Mailer: AT&T Message Center Version 1 (Dec 17 2004)
-X-Authenticated-Sender: a2VybmVsLXN0dWZmQGNvbWNhc3QubmV0
+	Sun, 24 Apr 2005 18:06:34 -0400
+Received: from router.student.pw.edu.pl ([194.29.137.75]:42658 "EHLO
+	router.student.pw.edu.pl") by vger.kernel.org with ESMTP
+	id S262458AbVDXWGb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Apr 2005 18:06:31 -0400
+Message-ID: <426C185C.1050204@genesilico.pl>
+Date: Mon, 25 Apr 2005 00:06:20 +0200
+From: maciek <maciek@genesilico.pl>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: pl, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] private mounts
+References: <E1DPnOn-0000T0-00@localhost> <20050424201820.GA28428@infradead.org> <E1DPo3I-0000V0-00@localhost> <20050424205422.GK13052@parcelfarce.linux.theplanet.co.uk> <E1DPoCg-0000W0-00@localhost> <20050424210616.GM13052@parcelfarce.linux.theplanet.co.uk> <E1DPoRz-0000Y0-00@localhost> <20050424211942.GN13052@parcelfarce.linux.theplanet.co.uk> <20050424214339.GD9304@mail.shareable.org>
+In-Reply-To: <20050424214339.GD9304@mail.shareable.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I haven't tried to reproduce it since it will cause me data loss :(
-I am not sure it is possible to go to this extent in order to reproduce
-the reboot but still... Here is what I was doing when the error occured -
-I installed Ubuntu AMD64 5.04 release. Installed 2.6.12-rc3.
-Installed and configured a chroot env for 32bit programs. (dchroot) 
-Installed 32bit JRE from Sun - latest one. Tried to install 
-Borland Together J Eclipse edition under the chrooted environment 
-- Just before the install finished, machine rebooted. Machine was 
-running for couple hours before the reboot.
+Hi, Jamie Lokier napisaÅ‚(a):
 
-Parag
+>Al Viro wrote:
+>  
+>
+>>On Sun, Apr 24, 2005 at 11:15:35PM +0200, Miklos Szeredi wrote:
+>>    
+>>
+>>>No.  You can't set "mount environment" in scp.
+>>>      
+>>>
+>>Of course you can.  It does execute the obvious set of rc files.
+>>    
+>>
+>
+>It doesn't work for the specified use-scenario.  The reason is that
+>there is no command or system call that can be executed from those rc
+>files to join an existing namespace.
+>
+>He wants to do this:
+>
+>   1. From client, login to server and do a usermount on $HOME/private.
+>
+>   2. From client, login to server and read the files previously mounted.
+>
+>-- Jamie
+>  
+>
+Maybe, pam_mount would be the solution?
+
+http://www.flyn.org/projects/pam_mount/
+
+it provides mounting a filesystem when logging in, and unmounting on
+exit, just set the mount options.
+
+Maciek Stopa
 
 
-> On Sunday 24 April 2005 04:41, Alexander Nyberg wrote:
-> > sön 2005-04-24 klockan 00:08 -0400 skrev Parag Warudkar:
-> > > While running a 32 bit Java program 2.6.12-rc3 rebooted spontaneously 
-> leaving 
-> > > a corrupt partition table and disk with errors. There was nothing in dmesg 
-> > > (no oops/panic) except some -MARK- entries during the reboot.
-> > > 
-> > 
-> > Is this reproducible? If so, can you give a detailed description of how.
-> 
-> I think rc3 has code from rc2-mm2/3.  Both of these reboot here randomly.  
-> Nothing
-> shows up on a serial console...  Think something is seriously wrong with x86_64 
-> in rc3.
-> That being said its possible its fixed in HEAD by.
-> 
-> [PATCH] x86_64: fix new out of line put_user()
-> [PATCH] x86_64: Bug in new out of line put_user()
-> 
-> some people have reported reversing (in -mm)
-> 
-> sched-unlocked-context-switches.patch
-> 
-> Helps too.
-> 
-> Ed Tomlinson

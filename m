@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262472AbVDXW5I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262475AbVDXXL6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262472AbVDXW5I (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 18:57:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbVDXW5I
+	id S262475AbVDXXL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 19:11:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262476AbVDXXL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 18:57:08 -0400
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:9878
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262472AbVDXW5F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 18:57:05 -0400
-Date: Sun, 24 Apr 2005 15:48:44 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: greg@kroah.com, pavel@ucw.cz, drzeus-list@drzeus.cx, torvalds@osdl.org,
-       pasky@ucw.cz, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.12-rc3
-Message-Id: <20050424154844.04e27ba2.davem@davemloft.net>
-In-Reply-To: <20050424032622.3aef8c9f.akpm@osdl.org>
-References: <20050421162220.GD30991@pasky.ji.cz>
-	<20050421232201.GD31207@elf.ucw.cz>
-	<20050422002150.GY7443@pasky.ji.cz>
-	<20050422231839.GC1789@elf.ucw.cz>
-	<Pine.LNX.4.58.0504221718410.2344@ppc970.osdl.org>
-	<20050423111900.GA2226@openzaurus.ucw.cz>
-	<Pine.LNX.4.58.0504230654190.2344@ppc970.osdl.org>
-	<426A7775.60207@drzeus.cx>
-	<20050423220213.GA20519@kroah.com>
-	<20050423222946.GF1884@elf.ucw.cz>
-	<20050423233809.GA21754@kroah.com>
-	<20050424032622.3aef8c9f.akpm@osdl.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 24 Apr 2005 19:11:57 -0400
+Received: from smtp.blackdown.de ([213.239.206.42]:29627 "EHLO
+	smtp.blackdown.de") by vger.kernel.org with ESMTP id S262475AbVDXXL4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Apr 2005 19:11:56 -0400
+From: Juergen Kreileder <jk@blackdown.de>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.12-rc2-mm3
+References: <20050411012532.58593bc1.akpm@osdl.org>
+	<87wtr8rdvu.fsf@blackdown.de> <87u0m7aogx.fsf@blackdown.de>
+	<1113607416.5462.212.camel@gaston> <877jj1aj99.fsf@blackdown.de>
+	<20050423170152.6b308c74.akpm@osdl.org> <87fyxhj5p1.fsf@blackdown.de>
+	<1114308928.5443.13.camel@gaston> <426B6C84.E8D41D57@tv-sign.ru>
+X-PGP-Key: http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0x730A28A5
+X-PGP-Fingerprint: 7C19 D069 9ED5 DC2E 1B10  9859 C027 8D5B 730A 28A5
+Mail-Followup-To: Oleg Nesterov <oleg@tv-sign.ru>, Benjamin Herrenschmidt
+	<benh@kernel.crashing.org>, Andrew Morton <akpm@osdl.org>, Linux
+	Kernel list <linux-kernel@vger.kernel.org>
+Date: Mon, 25 Apr 2005 01:11:52 +0200
+In-Reply-To: <426B6C84.E8D41D57@tv-sign.ru> (Oleg Nesterov's message of "Sun,
+	24 Apr 2005 13:53:08 +0400")
+Message-ID: <87u0lvpy6f.fsf@blackdown.de>
+Organization: Blackdown Java-Linux Team
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 24 Apr 2005 03:26:22 -0700
-Andrew Morton <akpm@osdl.org> wrote:
+Oleg Nesterov <oleg@tv-sign.ru> writes:
 
-> - Which subsystem maintainers will have public git trees?
+> Juergen Kreileder wrote:
+>>
+>> It only happens when running Azareus with IBM's Java (our's isn't
+>> ready yet).  So far I was able to reproduce the problem on all -mm
+>> versions within one hour.  Otherwise the kernels seem to work fine
+>> -- no lockup unless I run Azareus.
+>
+> By any chance, could you please try this patch?
 
-I am pretty much exclusively using GIT for networking
-and sparc stuff now and I plan to provide my trees
-on kernel.org
+Doesn't help.
+
+
+        Juergen
+
+-- 
+Juergen Kreileder, Blackdown Java-Linux Team
+http://blog.blackdown.de/

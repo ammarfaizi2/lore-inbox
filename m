@@ -1,91 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbVDXWwO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262472AbVDXW5I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261704AbVDXWwO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 18:52:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262471AbVDXWwO
+	id S262472AbVDXW5I (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 18:57:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbVDXW5I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 18:52:14 -0400
-Received: from mail.dif.dk ([193.138.115.101]:21708 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261704AbVDXWwG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 18:52:06 -0400
-Date: Mon, 25 Apr 2005 00:55:20 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
+	Sun, 24 Apr 2005 18:57:08 -0400
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:9878
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262472AbVDXW5F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Apr 2005 18:57:05 -0400
+Date: Sun, 24 Apr 2005 15:48:44 -0700
+From: "David S. Miller" <davem@davemloft.net>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] prevent possible infinite loop in fs/select.c::do_pollfd()
-In-Reply-To: <20050424015156.5773b399.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.62.0504250049570.2071@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0504240112340.2474@dragon.hyggekrogen.localhost>
- <20050424015156.5773b399.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: greg@kroah.com, pavel@ucw.cz, drzeus-list@drzeus.cx, torvalds@osdl.org,
+       pasky@ucw.cz, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.12-rc3
+Message-Id: <20050424154844.04e27ba2.davem@davemloft.net>
+In-Reply-To: <20050424032622.3aef8c9f.akpm@osdl.org>
+References: <20050421162220.GD30991@pasky.ji.cz>
+	<20050421232201.GD31207@elf.ucw.cz>
+	<20050422002150.GY7443@pasky.ji.cz>
+	<20050422231839.GC1789@elf.ucw.cz>
+	<Pine.LNX.4.58.0504221718410.2344@ppc970.osdl.org>
+	<20050423111900.GA2226@openzaurus.ucw.cz>
+	<Pine.LNX.4.58.0504230654190.2344@ppc970.osdl.org>
+	<426A7775.60207@drzeus.cx>
+	<20050423220213.GA20519@kroah.com>
+	<20050423222946.GF1884@elf.ucw.cz>
+	<20050423233809.GA21754@kroah.com>
+	<20050424032622.3aef8c9f.akpm@osdl.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 24 Apr 2005, Andrew Morton wrote:
+On Sun, 24 Apr 2005 03:26:22 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
-> Jesper Juhl <juhl-lkml@dif.dk> wrote:
-> >
-> > If a sufficiently large 'num' is passed to the function, the for loop 
-> >  becomes an infinite loop - as far as I can see, that's a bug waiting to 
-> >  happen. Sure, 'len' in struct poll_list is currently an int, so currently 
-> >  this can't happen, but that might change in the future. In my oppinion, 
-> >  a function should be able to function correctly with the complete range 
-> >  of values that can potentially be passed via its parameters, and without 
-> >  the patch below that's just not true for this function.
-> > 
-> >  Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-> > 
-> >  --- linux-2.6.12-rc2-mm3-orig/fs/select.c	2005-04-05 21:21:47.000000000 +0200
-> >  +++ linux-2.6.12-rc2-mm3/fs/select.c	2005-04-24 01:11:13.000000000 +0200
-> >  @@ -397,7 +397,7 @@ struct poll_list {
-> >   static void do_pollfd(unsigned int num, struct pollfd * fdpage,
-> >   	poll_table ** pwait, int *count)
-> >   {
-> >  -	int i;
-> >  +	unsigned int i;
-> >   
-> >   	for (i = 0; i < num; i++) {
-> >   		int fd;
-> 
-> An expression such as the above which mixes signed and unsigned types will
-> promote the signed types to unsigned.  So there is no bug in the above
-> `for' statement.
-> 
-You are right of course, I need to remember the promotion rules :)
-Still, unsigned int is the logical type to use for `i'.
+> - Which subsystem maintainers will have public git trees?
 
-
-> But there's a bug a bit further on:
-> 
-> > 		unsigned int mask;
-> > 		struct pollfd *fdp;
-> > 
-> > 		mask = 0;
-> > 		fdp = fdpage+i;
-> 
-> This will oops the kernel if there are more than 2^31 pollfd's at *fdpage.
-> 
-Hmm, if you mean that i will overflow and become negative so we'll actully 
-be subtracting from fdpage, then I'm not so sure - won't gcc actually 
-promote i to unsigned int here as well? I did a little test app, and it 
-seems that's the case (well, `i' of course still ought to be unsigned). 
-But I guess we'll probably cause fdpage to wrap with such a large i (but 
-then we should never have managed to allocate so many fd's in the first 
-place).
-
-
-> Yes, like most signed variables in the kernel, `i' should really be
-> unsigned, but I don't think it's worth raising a patch to change it.
-> 
-Why not? I thought we were trying to make the kernel as perfect as 
-possible. I agree with you that there are many bigger issues that have 
-priority, but even the little things (like this) ought to get fixed as 
-well IMHO (and when the patch is already done, why not apply it?).
-
-
--- 
-Jesper
-
-
+I am pretty much exclusively using GIT for networking
+and sparc stuff now and I plan to provide my trees
+on kernel.org

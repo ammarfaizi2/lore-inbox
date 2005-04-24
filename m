@@ -1,94 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262484AbVDXXq2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262486AbVDXX6b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262484AbVDXXq2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 19:46:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262486AbVDXXq2
+	id S262486AbVDXX6b (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 19:58:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262488AbVDXX6b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 19:46:28 -0400
-Received: from rproxy.gmail.com ([64.233.170.200]:30482 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262484AbVDXXqR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 19:46:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=fEK3o/rvwjo/YCmx20KVZb1e8u26wI7I+FYFnPKCDwkj44J+xy/VdH5KPx9uBmHOJOKBNpi3P+TrLQ/UkfIEByrp+VOuH/M3rLfkoobItc6rFxrXhw9IgfgYbZm/374Y1uiDnhkubGBiuXgHdgAZyLZux9Q1tMx9vMpXPv34HKo=
-Message-ID: <426C2FC3.4090105@gmail.com>
-Date: Mon, 25 Apr 2005 08:46:11 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050402)
-X-Accept-Language: en-us, en
+	Sun, 24 Apr 2005 19:58:31 -0400
+Received: from hibernia.jakma.org ([212.17.55.49]:34957 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S262486AbVDXX6Z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Apr 2005 19:58:25 -0400
+Date: Mon, 25 Apr 2005 00:57:11 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@sheen.jakma.org
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Sean <seanlkml@sympatico.ca>,
+       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       David Woodhouse <dwmw2@infradead.org>, Jan Dittmer <jdittmer@ppp0.net>,
+       Greg KH <greg@kroah.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: Git-commits mailing list feed.
+In-Reply-To: <Pine.LNX.4.62.0504250008370.14200@sheen.jakma.org>
+Message-ID: <Pine.LNX.4.62.0504250053560.14200@sheen.jakma.org>
+References: <200504210422.j3L4Mo8L021495@hera.kernel.org>      
+ <42674724.90005@ppp0.net> <20050422002922.GB6829@kroah.com>      
+ <426A4669.7080500@ppp0.net>       <1114266083.3419.40.camel@localhost.localdomain>
+       <426A5BFC.1020507@ppp0.net>       <1114266907.3419.43.camel@localhost.localdomain>
+       <Pine.LNX.4.58.0504231010580.2344@ppc970.osdl.org>      
+ <20050423175422.GA7100@cip.informatik.uni-erlangen.de>      
+ <Pine.LNX.4.58.0504231125330.2344@ppc970.osdl.org> <2911.10.10.10.24.1114279589.squirrel@linux1>
+ <Pine.LNX.4.58.0504231234550.2344@ppc970.osdl.org>
+ <Pine.LNX.4.62.0504250008370.14200@sheen.jakma.org>
+Mail-Followup-To: paul@hibernia.jakma.org
+X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
 MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH scsi-misc-2.6 01/04] scsi: make scsi_send_eh_cmnd use
- its own timer instead of scmd->eh_timeout
-References: <20050419143100.E231523D@htj.dyndns.org>	 <20050419143100.0F9A8C3B@htj.dyndns.org> <1114381342.4786.17.camel@mulgrave>
-In-Reply-To: <1114381342.4786.17.camel@mulgrave>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 25 Apr 2005, Paul Jakma wrote:
 
-  Hi, James.
+> Ideally, there'd be an index of signature objects by the SHA-1 sum of the 
+> object they sign, as the signed object should not refer to the signature (or 
+> the second of the above is not possible).
 
-James Bottomley wrote:
-> On Tue, 2005-04-19 at 23:31 +0900, Tejun Heo wrote:
-> 
->>	scmd->eh_timeout is used to resolve the race between command
->>	completion and timeout.  However, during error handling,
->>	scsi_send_eh_cmnd uses scmd->eh_timeout.  This creates a race
->>	condition between eh and normal completion for a request which
->>	has timed out and in the process of error handling.  If the
->>	request completes while scmd->eh_timeout is being used by eh,
->>	eh timeout is lost and the command will be handled by both eh
->>	and completion path.  This patch fixes the race by making
->>	scsi_send_eh_cmnd() use its own timer.
->>
->>	This patch adds shost->eh_timeout field.  The name of the
->>	field equals scmd->eh_timeout which is used for normal command
->>	timeout.  As this can be confusing, renaming scmd->eh_timeout
->>	to something like scmd->cmd_timeout would be good.
->>
->>	Reworked such that timeout race window is kept at minimal
->>	level as pointed out by James Bottomley.
-> 
-> 
-> This looks fine in principle.  However, three comments
-> 
-> 1. If you're doing this, there's no further use for eh_timeout, so
-> remove it (and preferably fix gdth_proc.c; however, it's better to break
-> the compile of that driver than have it rely on a now defunct field).
+Ah, this could (obviously) be done generally by providing a general 
+index of 'referals' (if desirable).
 
-  If you're talking about scmd->eh_timeout, it's our main timer for 
-normal command timeouts.  If you're suggesting renaming it to something 
-more apparant, I agree.  Maybe just scmd->timeout will do.
+I have no idea whether git already does this, I havn't checked it out 
+yet but I'm very interested to see how git will mature and have been 
+trying to follow its progress - I'm a frustrated admin of a CVS 
+repository..
 
-> 2. Use of eh_action is private to scsi_error.c, so you don't need to add
-> a new field to the host, just make eh_action a pointer to a private
-> eh_action structure which contains the timer and the semaphore.
-
-  Sure.
-
-> 3. To close a really tiny window where the running timer could race with
-> the del_timer, it should probably be del_timer_sync().  The practical
-> effect of this is nil, but it would be correct programming.
-
-  Sorry, but, AFAICT, that wouldn't close any window.  We use timer 
-pending for tie-breaker.  When scsi_eh_done() wins, timer never gets to 
-run, and if scsi_eh_times_out() wins, the eh thread is woken up only 
-after the last reference to the timer/eh is finished (up operation).  If 
-I'm missing something, please point out.
-
-  BTW, are you still keeping the bk tree up-to-date?  And, if so, until 
-when are you gonna keep the bk tree?  I'm painfully trying to follow and 
-convert all my trees to git, but I _really_ miss changeset browsing of 
-bk.  Call me lazy but it was just too nice browsing the changesets only 
-with mouse.  One way or the other, it's a shame.
-
-  Thanks.
-
+regards,
 -- 
-tejun
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+Fortune:
+Does the name Pavlov ring a bell?

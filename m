@@ -1,67 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262289AbVDXIwX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262291AbVDXI62@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262289AbVDXIwX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 04:52:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262291AbVDXIwX
+	id S262291AbVDXI62 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 04:58:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262294AbVDXI62
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 04:52:23 -0400
-Received: from fire.osdl.org ([65.172.181.4]:17110 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262289AbVDXIwS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 04:52:18 -0400
-Date: Sun, 24 Apr 2005 01:51:56 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] prevent possible infinite loop in
- fs/select.c::do_pollfd()
-Message-Id: <20050424015156.5773b399.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.62.0504240112340.2474@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0504240112340.2474@dragon.hyggekrogen.localhost>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Sun, 24 Apr 2005 04:58:28 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:56960 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262291AbVDXI6Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Apr 2005 04:58:25 -0400
+Subject: Re: [2.6 patch] unexport insert_resource
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050423164411.51d77bf1.akpm@osdl.org>
+References: <20050415151043.GJ5456@stusta.de>
+	 <20050423164411.51d77bf1.akpm@osdl.org>
+Content-Type: text/plain
+Date: Sun, 24 Apr 2005 10:58:21 +0200
+Message-Id: <1114333102.6284.22.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl <juhl-lkml@dif.dk> wrote:
->
-> If a sufficiently large 'num' is passed to the function, the for loop 
->  becomes an infinite loop - as far as I can see, that's a bug waiting to 
->  happen. Sure, 'len' in struct poll_list is currently an int, so currently 
->  this can't happen, but that might change in the future. In my oppinion, 
->  a function should be able to function correctly with the complete range 
->  of values that can potentially be passed via its parameters, and without 
->  the patch below that's just not true for this function.
-> 
->  Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-> 
->  --- linux-2.6.12-rc2-mm3-orig/fs/select.c	2005-04-05 21:21:47.000000000 +0200
->  +++ linux-2.6.12-rc2-mm3/fs/select.c	2005-04-24 01:11:13.000000000 +0200
->  @@ -397,7 +397,7 @@ struct poll_list {
->   static void do_pollfd(unsigned int num, struct pollfd * fdpage,
->   	poll_table ** pwait, int *count)
->   {
->  -	int i;
->  +	unsigned int i;
->   
->   	for (i = 0; i < num; i++) {
->   		int fd;
 
-An expression such as the above which mixes signed and unsigned types will
-promote the signed types to unsigned.  So there is no bug in the above
-`for' statement.
+> Or we just leave it as-is.  It depends whether insert_resource is a
+> sensible part of the resource management API (I think it is).  If so,
+> then we should just leave it exported, whether or not any in-kernel moduels
+> happen to be using it at this point in time.
 
-But there's a bug a bit further on:
+well it's sensible for platform code to announce resources sure. Drivers
+generally only consume resources though and don't introduce them...
 
-> 		unsigned int mask;
-> 		struct pollfd *fdp;
-> 
-> 		mask = 0;
-> 		fdp = fdpage+i;
 
-This will oops the kernel if there are more than 2^31 pollfd's at *fdpage.
-
-Yes, like most signed variables in the kernel, `i' should really be
-unsigned, but I don't think it's worth raising a patch to change it.

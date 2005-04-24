@@ -1,44 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262282AbVDXH0T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262281AbVDXHab@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262282AbVDXH0T (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 03:26:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbVDXH0T
+	id S262281AbVDXHab (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 03:30:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262283AbVDXHab
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 03:26:19 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:65005 "EHLO
+	Sun, 24 Apr 2005 03:30:31 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:3310 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262279AbVDXH0O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 03:26:14 -0400
-Date: Sun, 24 Apr 2005 08:26:10 +0100
+	id S262281AbVDXHa2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Apr 2005 03:30:28 -0400
+Date: Sun, 24 Apr 2005 08:30:27 +0100
 From: Christoph Hellwig <hch@infradead.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/scsi/FlashPoint.c: cleanups
-Message-ID: <20050424072610.GA13662@infradead.org>
+To: Greg KH <greg@kroah.com>
+Cc: Borislav Petkov <petkov@uni-muenster.de>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.12-rc3
+Message-ID: <20050424073027.GA13972@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Adrian Bunk <bunk@stusta.de>,
-	James Bottomley <James.Bottomley@SteelEye.com>,
-	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20050423221712.GJ4355@stusta.de>
+	Greg KH <greg@kroah.com>, Borislav Petkov <petkov@uni-muenster.de>,
+	linux-kernel@vger.kernel.org
+References: <200504220956.43883.petkov@uni-muenster.de> <20050424054231.GA25561@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050423221712.GJ4355@stusta.de>
+In-Reply-To: <20050424054231.GA25561@kroah.com>
 User-Agent: Mutt/1.4.1i
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 24, 2005 at 12:17:12AM +0200, Adrian Bunk wrote:
-> This patch contains cleanups including the following:
-> - remove #ifdef'ed code for other OS's
-> - remove other unused code
-> - make needlessly global code static
+On Sat, Apr 23, 2005 at 10:42:31PM -0700, Greg KH wrote:
+> What is your .config that generates this?  What arch?
 
-I'd rather not touch this file currently.  It's glued toghether from
-lots of separate files in the original code.  Before doing cleanups
-I'd rather split it into all these files first as the file is a huge
-mess as-is.
+should happen on all architectures with usb-storage debugging enabled.
 
+Someone fucked up usb-stroage again after I cleaned up usage of the
+old-style scsi.h header, and this is the result of scsi.h gradually
+going away.
+
+The patch posted isthe correct fix.

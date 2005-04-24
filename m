@@ -1,67 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262362AbVDXSXz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262363AbVDXSWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262362AbVDXSXz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 14:23:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262374AbVDXSXC
+	id S262363AbVDXSWj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 14:22:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262361AbVDXSVt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 14:23:02 -0400
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:21648 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S262362AbVDXSWH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 14:22:07 -0400
-Subject: [patch 6/6] uml: move va_copy conditional def
+	Sun, 24 Apr 2005 14:21:49 -0400
+Received: from mail-relay-4.tiscali.it ([213.205.33.44]:2979 "EHLO
+	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
+	id S262363AbVDXSUT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Apr 2005 14:20:19 -0400
+Subject: [patch 5/6] uml: inline empty proc
 To: akpm@osdl.org
 Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
        user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
 From: blaisorblade@yahoo.it
-Date: Sun, 24 Apr 2005 20:10:10 +0200
-Message-Id: <20050424181010.78C2D55D03@zion>
+Date: Sun, 24 Apr 2005 20:10:07 +0200
+Message-Id: <20050424181007.5680155D01@zion>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-GCC 2.95 uses __va_copy instead of va_copy. Handle it inside compiler.h
-instead of in a casual file, and avoid the risk that this breaks with a
-newer compiler (which it could do).
+Cleanup: make an inline of this empty proc.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- linux-2.6.12-paolo/arch/um/kernel/skas/uaccess.c |    4 ++--
- linux-2.6.12-paolo/include/linux/compiler-gcc2.h |    5 +++++
- 2 files changed, 7 insertions(+), 2 deletions(-)
+ linux-2.6.12-paolo/arch/um/kernel/process_kern.c      |    4 ----
+ linux-2.6.12-paolo/include/asm-um/processor-generic.h |    6 +++++-
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
-diff -puN arch/um/kernel/skas/uaccess.c~uml-move-va-copy-conditional arch/um/kernel/skas/uaccess.c
---- linux-2.6.12/arch/um/kernel/skas/uaccess.c~uml-move-va-copy-conditional	2005-04-24 19:32:18.000000000 +0200
-+++ linux-2.6.12-paolo/arch/um/kernel/skas/uaccess.c	2005-04-24 19:32:18.000000000 +0200
-@@ -3,6 +3,7 @@
-  * Licensed under the GPL
-  */
- 
-+#include "linux/compiler.h"
- #include "linux/stddef.h"
- #include "linux/kernel.h"
- #include "linux/string.h"
-@@ -61,8 +62,7 @@ static void do_buffer_op(void *jmpbuf, v
- 	void *arg;
- 	int *res;
- 
--	/* Some old gccs recognize __va_copy, but not va_copy */
--	__va_copy(args, *(va_list *)arg_ptr);
-+	va_copy(args, *(va_list *)arg_ptr);
- 	addr = va_arg(args, unsigned long);
- 	len = va_arg(args, int);
- 	is_write = va_arg(args, int);
-diff -puN include/linux/compiler-gcc2.h~uml-move-va-copy-conditional include/linux/compiler-gcc2.h
---- linux-2.6.12/include/linux/compiler-gcc2.h~uml-move-va-copy-conditional	2005-04-24 19:32:18.000000000 +0200
-+++ linux-2.6.12-paolo/include/linux/compiler-gcc2.h	2005-04-24 19:32:18.000000000 +0200
-@@ -22,3 +22,8 @@
- # define __attribute_pure__	__attribute__((pure))
- # define __attribute_const__	__attribute__((__const__))
- #endif
+diff -puN include/asm-um/processor-generic.h~uml-inline-empty include/asm-um/processor-generic.h
+--- linux-2.6.12/include/asm-um/processor-generic.h~uml-inline-empty	2005-04-24 19:32:18.000000000 +0200
++++ linux-2.6.12-paolo/include/asm-um/processor-generic.h	2005-04-24 19:32:18.000000000 +0200
+@@ -89,7 +89,11 @@ extern struct task_struct *alloc_task_st
+ extern void release_thread(struct task_struct *);
+ extern int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
+ extern void dump_thread(struct pt_regs *regs, struct user *u);
+-extern void prepare_to_copy(struct task_struct *tsk);
 +
-+/* GCC 2.95.x/2.96 recognize __va_copy, but not va_copy. Actually later GCC's
-+ * define both va_copy and __va_copy, but the latter may go away, so limit this
-+ * to this header */
-+#define va_copy			__va_copy
++static inline void prepare_to_copy(struct task_struct *tsk)
++{
++}
++
+ 
+ extern unsigned long thread_saved_pc(struct task_struct *t);
+ 
+diff -puN arch/um/kernel/process_kern.c~uml-inline-empty arch/um/kernel/process_kern.c
+--- linux-2.6.12/arch/um/kernel/process_kern.c~uml-inline-empty	2005-04-24 19:32:18.000000000 +0200
++++ linux-2.6.12-paolo/arch/um/kernel/process_kern.c	2005-04-24 19:32:18.000000000 +0200
+@@ -161,10 +161,6 @@ void *get_current(void)
+ 	return(current);
+ }
+ 
+-void prepare_to_copy(struct task_struct *tsk)
+-{
+-}
+-
+ int copy_thread(int nr, unsigned long clone_flags, unsigned long sp,
+ 		unsigned long stack_top, struct task_struct * p, 
+ 		struct pt_regs *regs)
 _

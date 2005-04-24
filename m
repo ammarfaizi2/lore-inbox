@@ -1,37 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262437AbVDXVTo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262438AbVDXVZT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262437AbVDXVTo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 17:19:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262436AbVDXVTo
+	id S262438AbVDXVZT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 17:25:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbVDXVZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 17:19:44 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48833 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262433AbVDXVT2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 17:19:28 -0400
-Date: Sun, 24 Apr 2005 22:19:42 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: hch@infradead.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] private mounts
-Message-ID: <20050424211942.GN13052@parcelfarce.linux.theplanet.co.uk>
-References: <E1DPnOn-0000T0-00@localhost> <20050424201820.GA28428@infradead.org> <E1DPo3I-0000V0-00@localhost> <20050424205422.GK13052@parcelfarce.linux.theplanet.co.uk> <E1DPoCg-0000W0-00@localhost> <20050424210616.GM13052@parcelfarce.linux.theplanet.co.uk> <E1DPoRz-0000Y0-00@localhost>
+	Sun, 24 Apr 2005 17:25:19 -0400
+Received: from fire.osdl.org ([65.172.181.4]:44479 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262438AbVDXVZK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Apr 2005 17:25:10 -0400
+Date: Sun, 24 Apr 2005 14:24:39 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org, andrea@suse.de
+Subject: Re: [patch] fix race in __block_prepare_write (again)
+Message-Id: <20050424142439.3b45bdbc.akpm@osdl.org>
+In-Reply-To: <1114068704.12751.8.camel@imp.csi.cam.ac.uk>
+References: <1114064046.5182.13.camel@npiggin-nld.site>
+	<Pine.LNX.4.60.0504210757220.3348@hermes-1.csi.cam.ac.uk>
+	<1114067401.11293.3.camel@imp.csi.cam.ac.uk>
+	<1114068058.5182.22.camel@npiggin-nld.site>
+	<1114068704.12751.8.camel@imp.csi.cam.ac.uk>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1DPoRz-0000Y0-00@localhost>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 24, 2005 at 11:15:35PM +0200, Miklos Szeredi wrote:
-> No.  You can't set "mount environment" in scp.
+Anton Altaparmakov <aia21@cam.ac.uk> wrote:
+>
+> mm/filemap.c::file_buffered_write():
+> 
+>  - It calls fault_in_pages_readable() which is completely bogus if
+>  @nr_segs > 1.  It needs to be replaced by a to be written
+>  "fault_in_pages_readable_iovec()".
+> 
+>  - It increments @buf even in the iovec case thus @buf can point to
+>  random memory really quickly (in the iovec case) and then it calls
+>  fault_in_pages_readable() on this random memory.  Ouch...
 
-Of course you can.  It does execute the obvious set of rc files.
+hmm, yes.  Like this?
+
+
+diff -puN mm/filemap.c~generic_file_buffered_write-fixes mm/filemap.c
+--- 25/mm/filemap.c~generic_file_buffered_write-fixes	2005-04-24 14:18:58.445943000 -0700
++++ 25-akpm/mm/filemap.c	2005-04-24 14:20:21.995241576 -0700
+@@ -1944,7 +1944,7 @@ generic_file_buffered_write(struct kiocb
+ 		buf = iov->iov_base + written;
+ 	else {
+ 		filemap_set_next_iovec(&cur_iov, &iov_base, written);
+-		buf = iov->iov_base + iov_base;
++		buf = cur_iov->iov_base + iov_base;
+ 	}
  
-> Otherwise your analogy is nice, but misses a few points.  The usage of
-> mounts that we are talking about is much more dynamic than usage of
-> environment variables.
+ 	do {
+@@ -2002,9 +2002,11 @@ generic_file_buffered_write(struct kiocb
+ 				count -= status;
+ 				pos += status;
+ 				buf += status;
+-				if (unlikely(nr_segs > 1))
++				if (unlikely(nr_segs > 1)) {
+ 					filemap_set_next_iovec(&cur_iov,
+ 							&iov_base, status);
++					buf = cur_iov->iov_base + iov_base;
++				}
+ 			}
+ 		}
+ 		if (unlikely(copied != bytes))
+_
 
-What the hell are you smoking and just how are you using shell?

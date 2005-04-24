@@ -1,31 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262430AbVDXVNN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262435AbVDXVQR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262430AbVDXVNN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 17:13:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbVDXVNN
+	id S262435AbVDXVQR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 17:16:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbVDXVQR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 17:13:13 -0400
-Received: from mail.shareable.org ([81.29.64.88]:3752 "EHLO mail.shareable.org")
-	by vger.kernel.org with ESMTP id S262425AbVDXVNI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 17:13:08 -0400
-Date: Sun, 24 Apr 2005 22:12:49 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Christoph Hellwig <hch@infradead.org>, Miklos Szeredi <miklos@szeredi.hu>,
-       viro@parcelfarce.linux.theplanet.co.uk, linux-fsdevel@vger.kernel.org,
+	Sun, 24 Apr 2005 17:16:17 -0400
+Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:48281 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262431AbVDXVQJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Apr 2005 17:16:09 -0400
+To: viro@parcelfarce.linux.theplanet.co.uk
+CC: hch@infradead.org, linux-fsdevel@vger.kernel.org,
        linux-kernel@vger.kernel.org, akpm@osdl.org
+In-reply-to: <20050424210616.GM13052@parcelfarce.linux.theplanet.co.uk>
+	(message from Al Viro on Sun, 24 Apr 2005 22:06:16 +0100)
 Subject: Re: [PATCH] private mounts
-Message-ID: <20050424211249.GA9304@mail.shareable.org>
-References: <E1DPnOn-0000T0-00@localhost> <20050424201820.GA28428@infradead.org> <E1DPo3I-0000V0-00@localhost> <20050424205422.GK13052@parcelfarce.linux.theplanet.co.uk> <E1DPoCg-0000W0-00@localhost> <20050424210616.GA29151@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050424210616.GA29151@infradead.org>
-User-Agent: Mutt/1.4.1i
+References: <E1DPnOn-0000T0-00@localhost> <20050424201820.GA28428@infradead.org> <E1DPo3I-0000V0-00@localhost> <20050424205422.GK13052@parcelfarce.linux.theplanet.co.uk> <E1DPoCg-0000W0-00@localhost> <20050424210616.GM13052@parcelfarce.linux.theplanet.co.uk>
+Message-Id: <E1DPoRz-0000Y0-00@localhost>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Sun, 24 Apr 2005 23:15:35 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
 > > > I believe the point is:
 > > > 
 > > >    1. Person is logged from client Y to server X, and mounts something on
@@ -38,10 +34,19 @@ Christoph Hellwig wrote:
 > > 
 > > Solution?
 > 
-> just restart your shell.  Same way you do that after adjusting $PATH.
+> ... is the same as for the same question with "set of mounts" replaced
+> with "environment variables".
 
-What do you mean?
+No.  You can't set "mount environment" in scp.
 
-I cannot think of any way restarting the shell would solve the above.
+Otherwise your analogy is nice, but misses a few points.  The usage of
+mounts that we are talking about is much more dynamic than usage of
+environment variables.  You wouldn't want to set an environment
+variable in all your shells just to access a remote system though
+sshfs for example.  It _is_ possible (except the ftp, scp case) but
+_very_ inconvenient.
 
--- Jamie
+I ask again, what solution would you suggest?
+
+Thanks,
+Miklos

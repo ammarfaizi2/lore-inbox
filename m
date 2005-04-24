@@ -1,41 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262280AbVDXHfI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262290AbVDXIic@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262280AbVDXHfI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 03:35:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262283AbVDXHfH
+	id S262290AbVDXIic (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 04:38:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262289AbVDXIic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 03:35:07 -0400
-Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:25195 "HELO
-	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262280AbVDXHfE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 03:35:04 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
+	Sun, 24 Apr 2005 04:38:32 -0400
+Received: from colo.khms.westfalen.de ([213.239.196.208]:2195 "EHLO
+	colo.khms.westfalen.de") by vger.kernel.org with ESMTP
+	id S262290AbVDXIiQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Apr 2005 04:38:16 -0400
+Date: 24 Apr 2005 10:00:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
 To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.12-rc3
-Date: Sun, 24 Apr 2005 02:35:01 -0500
-User-Agent: KMail/1.8
-Cc: Pavel Machek <pavel@ucw.cz>, Petr Baudis <pasky@ucw.cz>,
-       Linus Torvalds <torvalds@osdl.org>
-References: <20050421120327.GA13834@elf.ucw.cz> <20050423230648.GE13222@pasky.ji.cz> <20050424072100.GA1908@elf.ucw.cz>
-In-Reply-To: <20050424072100.GA1908@elf.ucw.cz>
+Message-ID: <9VVxJ6aHw-B@khms.westfalen.de>
+In-Reply-To: <20050423174227.51360d63.pj@sgi.com>
+Subject: Re: more git updates..
+X-Mailer: CrossPoint v3.12d.kh15 R/C435
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200504240235.01614.dtor_core@ameritech.net>
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <d3dvps$347$1@terminus.zytor.com> <9VF1rZLXw-B@khms.westfalen.de> <9VF1rZLXw-B@khms.westfalen.de> <20050423174227.51360d63.pj@sgi.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 24 April 2005 02:21, Pavel Machek wrote:
-> Without cherypicking, I just can't pull from linux-git into
-> linux-good. Ever. linux-git contains some changes that just can not go
-> anywhere. (Like for example czech-ucw-defkeymap.map)
+pj@sgi.com (Paul Jackson)  wrote on 23.04.05 in <20050423174227.51360d63.pj@sgi.com>:
 
-I was using quilt on top of BK and I think it will be good idea to do the
-same with git... When I think that my patches are ready for other people
-to see I cherry-pick and commit them into $SCM and push into externally-
-visible tree.
+> > It's an unavoidable
+> > result of using less bits than the original data has.
+>
+> Even _not_ using a hash will have collisions - copy different globs of
+> data around enough, and sooner or later, two globs that started out
+> different will end up the same, due to errors in our computers.  Even
+> ECC on all the buses, channels, and memory will just reduce this chance.
 
--- 
-Dmitry
+Umm, the whole point of using a digest for the name is to catch these  
+things as they happen. So if you'd use the whole original bit sequence as  
+a name, you'd need to have exactly the same bit errors in the data, in the  
+name, and in the reference to the object, to miss nopticing the problem  
+early. And it *still* isn't a collision - the data behind name X is  
+exactly X, always, or it's easily recognizable as broken.
+
+Whereas a hash collision means that both X and Y should be behind name Z.  
+Both are *correct* behind name Z.
+
+Entirely different situations.
+
+> There is no mathematical perfection obtainable here.  Deal with it.
+
+Actually, there is, and your non-hashed name system achieves it.
+
+> If something is likely to happen less than once in a billion years,
+> then for all practical purposes, it won't happen.
+
+If that was a truely random thing, then you might have been right. But it  
+isn't. All possible blobs to a given digest are NOT equally probably (or  
+of a probability only depending on their size).
+
+We really, really don't know how likely a collision is for the data we  
+want to store there - just for truely random data.
+
+MfG Kai

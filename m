@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262253AbVDXEyg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262264AbVDXFmz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262253AbVDXEyg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 00:54:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbVDXEyg
+	id S262264AbVDXFmz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 01:42:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbVDXFmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 00:54:36 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:25546 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262253AbVDXEy1 (ORCPT
+	Sun, 24 Apr 2005 01:42:55 -0400
+Received: from mail.kroah.org ([69.55.234.183]:52909 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262264AbVDXFmx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 00:54:27 -0400
-Date: Sat, 23 Apr 2005 21:53:29 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Bernd Eckenfels <be-mail2005@lina.inka.de>
+	Sun, 24 Apr 2005 01:42:53 -0400
+Date: Sat, 23 Apr 2005 22:42:31 -0700
+From: Greg KH <greg@kroah.com>
+To: Borislav Petkov <petkov@uni-muenster.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: more git updates..
-Message-Id: <20050423215329.7fefc919.pj@sgi.com>
-In-Reply-To: <20050424043813.GA2422@lina.inka.de>
-References: <20050423174227.51360d63.pj@sgi.com>
-	<E1DPVwN-0007pj-00@calista.eckenfels.6bone.ka-ip.net>
-	<20050423211326.7ed8e199.pj@sgi.com>
-	<20050424043813.GA2422@lina.inka.de>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Subject: Re: Linux 2.6.12-rc3
+Message-ID: <20050424054231.GA25561@kroah.com>
+References: <200504220956.43883.petkov@uni-muenster.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200504220956.43883.petkov@uni-muenster.de>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I had MD5 in mind, sorry.
+On Fri, Apr 22, 2005 at 09:56:43AM +0200, Borislav Petkov wrote:
+> On Thursday 21 April 2005 02:59, you wrote:
+> <snip>
+> Hello,
+> 
+> [build.log]
+> ...
+> drivers/usb/storage/debug.c: In function `usb_stor_show_sense':
+> drivers/usb/storage/debug.c:166: warning: implicit declaration of function
+> `scsi_sense_key_string'
+> drivers/usb/storage/debug.c:166: warning: assignment makes pointer from
+> integer without a cast
+> drivers/usb/storage/debug.c:167: warning: implicit declaration of function
+> `scsi_extd_sense_format'
+> drivers/usb/storage/debug.c:167: warning: assignment makes pointer from
+> integer without a cast
+> ...
+> 
+> Hmm, actually I've already sent the trivial patch below for this to Andrew a
+> few weeks ago and he included it in mm but somehow it is not there..
 
-That's what I suspected.
+What is your .config that generates this?  What arch?
 
-> Anyway I know we dont need to discuss this,
+thanks,
 
-Agreed.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401
+greg k-h

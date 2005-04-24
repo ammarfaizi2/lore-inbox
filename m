@@ -1,65 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262235AbVDXCp1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbVDXDYA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262235AbVDXCp1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Apr 2005 22:45:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262236AbVDXCp1
+	id S261300AbVDXDYA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Apr 2005 23:24:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262238AbVDXDYA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Apr 2005 22:45:27 -0400
-Received: from fire.osdl.org ([65.172.181.4]:3465 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262235AbVDXCpR (ORCPT
+	Sat, 23 Apr 2005 23:24:00 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:61366 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S261300AbVDXDX5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Apr 2005 22:45:17 -0400
-Date: Sat, 23 Apr 2005 19:44:21 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Timur Tabi <timur.tabi@ammasso.com>
-Cc: hch@infradead.org, roland@topspin.com, hozer@hozed.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
-Message-Id: <20050423194421.4f0d6612.akpm@osdl.org>
-In-Reply-To: <4263E445.8000605@ammasso.com>
-References: <200544159.Ahk9l0puXy39U6u6@topspin.com>
-	<20050411142213.GC26127@kalmia.hozed.org>
-	<52mzs51g5g.fsf@topspin.com>
-	<20050411163342.GE26127@kalmia.hozed.org>
-	<5264yt1cbu.fsf@topspin.com>
-	<20050411180107.GF26127@kalmia.hozed.org>
-	<52oeclyyw3.fsf@topspin.com>
-	<20050411171347.7e05859f.akpm@osdl.org>
-	<4263DEC5.5080909@ammasso.com>
-	<20050418164316.GA27697@infradead.org>
-	<4263E445.8000605@ammasso.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 23 Apr 2005 23:23:57 -0400
+From: Juergen Kreileder <jk@blackdown.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Oleg Nesterov <oleg@tv-sign.ru>
+Subject: Re: 2.6.12-rc2-mm3
+References: <20050411012532.58593bc1.akpm@osdl.org>
+	<87wtr8rdvu.fsf@blackdown.de> <87u0m7aogx.fsf@blackdown.de>
+	<1113607416.5462.212.camel@gaston> <877jj1aj99.fsf@blackdown.de>
+	<20050423170152.6b308c74.akpm@osdl.org> <87fyxhj5p1.fsf@blackdown.de>
+	<1114308928.5443.13.camel@gaston>
+X-PGP-Key: http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0x730A28A5
+X-PGP-Fingerprint: 7C19 D069 9ED5 DC2E 1B10  9859 C027 8D5B 730A 28A5
+Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Andrew
+	Morton <akpm@osdl.org>, Linux Kernel list
+	<linux-kernel@vger.kernel.org>, Oleg Nesterov <oleg@tv-sign.ru>
+Date: Sun, 24 Apr 2005 05:14:04 +0200
+In-Reply-To: <1114308928.5443.13.camel@gaston> (Benjamin Herrenschmidt's
+	message of "Sun, 24 Apr 2005 12:15:28 +1000")
+Message-ID: <87acnokgsj.fsf@blackdown.de>
+Organization: Blackdown Java-Linux Team
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timur Tabi <timur.tabi@ammasso.com> wrote:
+Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
+
+> On Sun, 2005-04-24 at 03:59 +0200, Juergen Kreileder wrote:
 >
-> Christoph Hellwig wrote:
-> > On Mon, Apr 18, 2005 at 11:22:29AM -0500, Timur Tabi wrote:
-> > 
-> >>That's not what we're seeing.  We have hardware that does DMA over the 
-> >>network (much like the Infiniband stuff), and we have a testcase that fails 
-> >>if get_user_pages() is used, but not if mlock() is used.
-> > 
-> > 
-> > If you don't share your testcase it's unlikely to be fixed.
-> 
-> As I said, the testcase only works with our hardware, and it's also very large.  It's one 
-> small test that's part of a huge test suite.  It takes a couple hours just to install the 
-> damn thing.
-> 
-> We want to produce a simpler test case that demonstrates the problem in an 
-> easy-to-understand manner, but we don't have time to do that now.
+>> I'm might be the only one using evdev on ppc64.
+>>
+>> And I don't know how popular LVM2 is on disks with Macintosh
+>> labels.  I had to set it up manually when I installed the machine,
+>> Debian's installer couldn't handle it at that time.
+>>
+>> Workload is normal, the lockups happen with just X and Azaereus.
+>> (The machine also runs mysqld, apache, and a few other daemons.
+>> But I don't have to put load on these to make the machine lock up.)
+>
+> If you make sure you have CONFIG_XMON enabled and CONFIG_BOOTX_TEXT,
+> and make sure X has "UseFBDev" option, do you drop into xmon before
+> the lockup ?
 
-If your theory is correct then it should be able to demonstrate this
-problem without any special hardware at all: pin some user memory, then
-generate memory pressure then check the contents of those pinned pages.
+I'll check that.
 
-But if, for the DMA transfer, you're using the array of page*'s which were
-originally obtained from get_user_pages() then it's rather hard to see how
-the kernel could alter the page's contents.
+> Also, do you have another machine at hand ? if yes, then we can try
+> to revive my old firewire based debug tools we used to track things
+> down in linus tree.
 
-Then again, if mlock() fixes it then something's up.  Very odd.
+I'd have to organize a firewire cable for that first.
+
+> I'll have a look at the timer patch next week, they might have some
+> subtle race caused by a lack of memory barrier. I've had to debug
+> some of those in early timer code, and those are really nasty, they
+> usually only trigger under some subtle conditions, like ... heavy
+> networking.
+
+I wouldn't call it "heavy" in my case.  Azareus uses quite a few
+sockets but that isn't that uncommon and external traffic is limited
+by a ADSL connection.
+
+
+        Juergen
+
+-- 
+Juergen Kreileder, Blackdown Java-Linux Team
+http://blog.blackdown.de/

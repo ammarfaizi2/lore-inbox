@@ -1,49 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262309AbVDXK5h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262318AbVDXLTj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262309AbVDXK5h (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 06:57:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262311AbVDXK5h
+	id S262318AbVDXLTj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 07:19:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262313AbVDXLTZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 06:57:37 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:51654 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262309AbVDXK5f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 06:57:35 -0400
-Message-ID: <426B7B97.4030009@suse.de>
-Date: Sun, 24 Apr 2005 12:57:27 +0200
-From: Stefan Seyfried <seife@suse.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041207 Thunderbird/1.0 Mnenhy/0.7.2.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-Cc: LKML <linux-kernel@vger.kernel.org>, "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [PATCH] swsusp: misc cleanups [4/4]
-References: <200504232320.54477.rjw@sisk.pl> <200504232338.43297.rjw@sisk.pl> <20050423220757.GD1884@elf.ucw.cz>
-In-Reply-To: <20050423220757.GD1884@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Sun, 24 Apr 2005 07:19:25 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:62338 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262312AbVDXLTP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Apr 2005 07:19:15 -0400
+Date: Sun, 24 Apr 2005 12:19:08 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Luben Tuikov <luben_tuikov@adaptec.com>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       andrew.patterson@hp.com, Eric.Moore@lsil.com, mike.miller@hp.com,
+       dougg@torque.net, Madhuresh_Nagshain@adaptec.com,
+       Sukanta_Ganguly@adaptec.com
+Subject: Re: [RFC] SAS domain layout for Linux sysfs
+Message-ID: <20050424111908.GA23010@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Luben Tuikov <luben_tuikov@adaptec.com>,
+	SCSI Mailing List <linux-scsi@vger.kernel.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	andrew.patterson@hp.com, Eric.Moore@lsil.com, mike.miller@hp.com,
+	dougg@torque.net, Madhuresh_Nagshain@adaptec.com,
+	Sukanta_Ganguly@adaptec.com
+References: <425D392F.2080702@adaptec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <425D392F.2080702@adaptec.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
+On Wed, Apr 13, 2005 at 11:22:23AM -0400, Luben Tuikov wrote:
+> SAS domain layout for Linux sysfs
+> =================================
 > 
->> The following patch makes some comments and printk()s in swsusp.c up to date.
->> In particular it adds the string "swsusp" before every message that is printed by
->> the code in swsusp.c.
+> 0. Introduction
 > 
-> I don't like this one. Adding swsusp everywhere just clutters the
-> screen, most of it should be clear from context.
+> The use of SAS address and WWN are used interchangeably.
+> 
+> There are two domains which we want to represent in sysfs, in
+> order to eliminate redundancies.
+> 
+>             |     /-------------------\
+> +-------+   |    /  SAS_ADDR0          \
+> |ha0 [] =---|---(                       )
+> +---||||+   |    \                     /
+>             |     |       SAS_ADDR2   |
+> +-------+   |    /                     \
+> |ha1 [] =---|---(      SAS_ADDR1        )
+> +---||||+   |    \                     /
+>             |     \___________________/
+>             |
+> Host domain |         SAS Domain
+> 
+>      Figure 1. Domains represented by sysfs
+> 
+> The host domain (/sys/class/sas_ha/ha0/, etc) shows the SAS
+> domain as seen by the Host Adapter.  The sysfs SAS domain
+> (/sys/bus/sas/ ), shows the SAS domain as it exists
+> irrespectively of which HA (Host Adapter) you use to connect
+> to it (to a device).
 
-I like it. The messages are short enough so we should not get line wraps
-and it makes stuff more clear. You know, the context is not familiar to
-everyone, just imagine the "why do we {suspend,resume} devices during
-{resume,suspend} questions.
+This is contrary to any sysfs topology I know about, especially any
+existing transport class (SPI, FC, iSCSI).  We only ever care about
+what's seen from a HA, e.g. if you have muliple SPI cards that are
+on a single parallel bus you'll have the same bus represented twice,
+similarly if you have two fibre channel HBAs connected to the same
+SAN you'll have the SAN topology duplicated in both sub-topologies.
+This matches the internal data structure of the scsi subsystem and
+the transport class, e.g. we have a scsi_device object for every lun
+that's seen from a hba, linked to the HBAs Scsi_Host object and not
+one shared by multiple HBAs.  Dito for fibre channel remote ports.
 
-Also, i can ask for "send me output of dmesg|grep ^swsusp" to avoid
-newbies flooding me with totally irrelevant info ;-)
--- 
-Stefan Seyfried, QA / R&D Team Mobile Devices, SUSE LINUX Nürnberg.
 
-"Any ideas, John?"
-"Well, surrounding them's out."
+One note to this proposal:  it probably doesn't make a lot of sense to
+try to flesh out the sysfs topology before doing the kernel internal
+object model as the former pretty much follows the latter.

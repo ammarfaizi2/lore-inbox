@@ -1,66 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262189AbVDXAC0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262198AbVDXAPh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262189AbVDXAC0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Apr 2005 20:02:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbVDXAC0
+	id S262198AbVDXAPh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Apr 2005 20:15:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262197AbVDXAPg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Apr 2005 20:02:26 -0400
-Received: from fire.osdl.org ([65.172.181.4]:2007 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262189AbVDXACX (ORCPT
+	Sat, 23 Apr 2005 20:15:36 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:18904 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262195AbVDXAPd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Apr 2005 20:02:23 -0400
-Date: Sat, 23 Apr 2005 17:01:52 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Juergen Kreileder <jk@blackdown.de>
-Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org,
-       Oleg Nesterov <oleg@tv-sign.ru>
-Subject: Re: 2.6.12-rc2-mm3
-Message-Id: <20050423170152.6b308c74.akpm@osdl.org>
-In-Reply-To: <877jj1aj99.fsf@blackdown.de>
-References: <20050411012532.58593bc1.akpm@osdl.org>
-	<87wtr8rdvu.fsf@blackdown.de>
-	<87u0m7aogx.fsf@blackdown.de>
-	<1113607416.5462.212.camel@gaston>
-	<877jj1aj99.fsf@blackdown.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Sat, 23 Apr 2005 20:15:33 -0400
+Date: Sat, 23 Apr 2005 20:14:30 -0400
+From: Alan Cox <alan@redhat.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: alan@redhat.com, linux-kernel@vger.kernel.org, James.Bottomley@SteelEye.co,
+       linux-scsi@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/scsi/atp870u.c: make a function static
+Message-ID: <20050424001430.GB1236@devserv.devel.redhat.com>
+References: <20050423220817.GF4355@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050423220817.GF4355@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Juergen Kreileder <jk@blackdown.de> wrote:
->
-> Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
+On Sun, Apr 24, 2005 at 12:08:18AM +0200, Adrian Bunk wrote:
+> This patch makes a needlessly global function static.
+
+ACK
+
 > 
-> > On Fri, 2005-04-15 at 20:23 +0200, Juergen Kreileder wrote:
-> >> Juergen Kreileder <jk@blackdown.de> writes:
-> >>
-> >>> Andrew Morton <akpm@osdl.org> writes:
-> >>>
-> >>>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm3/
-> >>>
-> >>> I'm getting frequent lockups on my PowerMac G5 with rc2-mm3.
-> >>
-> >> I think I finally found the culprit.  Both rc2-mm3 and rc1-mm1 work
-> >> fine when I reverse the timer-* patches.
-> >>
-> >> Any idea?  Bug in my ppc64 gcc?
-> >
-> > Or a bug in those patches,
-
-(cc'ed Oleg)
-
-> Probably.  I've tried a different toolchain now (3.4.3), didn't help.
-
-That is bad news.
-
-I wonder why you're the only person who has noticed this.
-
-How frequent are the lockups?
-
-Is it possible to perform any additional debugging?
-
-Do you think there's anything unusual in your driver lineup or in your
-workload which would cause you to be the only person who is observing this?
-

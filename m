@@ -1,72 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262438AbVDXVZT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262439AbVDXV1b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262438AbVDXVZT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 17:25:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbVDXVZT
+	id S262439AbVDXV1b (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 17:27:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262441AbVDXV1a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 17:25:19 -0400
-Received: from fire.osdl.org ([65.172.181.4]:44479 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262438AbVDXVZK (ORCPT
+	Sun, 24 Apr 2005 17:27:30 -0400
+Received: from mail.kroah.org ([69.55.234.183]:35763 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262439AbVDXV1Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 17:25:10 -0400
-Date: Sun, 24 Apr 2005 14:24:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org, andrea@suse.de
-Subject: Re: [patch] fix race in __block_prepare_write (again)
-Message-Id: <20050424142439.3b45bdbc.akpm@osdl.org>
-In-Reply-To: <1114068704.12751.8.camel@imp.csi.cam.ac.uk>
-References: <1114064046.5182.13.camel@npiggin-nld.site>
-	<Pine.LNX.4.60.0504210757220.3348@hermes-1.csi.cam.ac.uk>
-	<1114067401.11293.3.camel@imp.csi.cam.ac.uk>
-	<1114068058.5182.22.camel@npiggin-nld.site>
-	<1114068704.12751.8.camel@imp.csi.cam.ac.uk>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Sun, 24 Apr 2005 17:27:16 -0400
+Date: Sun, 24 Apr 2005 13:53:10 -0700
+From: Greg KH <greg@kroah.com>
+To: Timur Tabi <timur.tabi@ammasso.com>
+Cc: Andrew Morton <akpm@osdl.org>, hch@infradead.org, roland@topspin.com,
+       hozer@hozed.org, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+Message-ID: <20050424205309.GA5386@kroah.com>
+References: <20050411163342.GE26127@kalmia.hozed.org> <5264yt1cbu.fsf@topspin.com> <20050411180107.GF26127@kalmia.hozed.org> <52oeclyyw3.fsf@topspin.com> <20050411171347.7e05859f.akpm@osdl.org> <4263DEC5.5080909@ammasso.com> <20050418164316.GA27697@infradead.org> <4263E445.8000605@ammasso.com> <20050423194421.4f0d6612.akpm@osdl.org> <426BABF4.3050205@ammasso.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <426BABF4.3050205@ammasso.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov <aia21@cam.ac.uk> wrote:
->
-> mm/filemap.c::file_buffered_write():
+On Sun, Apr 24, 2005 at 09:23:48AM -0500, Timur Tabi wrote:
+> Andrew Morton wrote:
 > 
->  - It calls fault_in_pages_readable() which is completely bogus if
->  @nr_segs > 1.  It needs to be replaced by a to be written
->  "fault_in_pages_readable_iovec()".
+> >If your theory is correct then it should be able to demonstrate this
+> >problem without any special hardware at all: pin some user memory, then
+> >generate memory pressure then check the contents of those pinned pages.
 > 
->  - It increments @buf even in the iovec case thus @buf can point to
->  random memory really quickly (in the iovec case) and then it calls
->  fault_in_pages_readable() on this random memory.  Ouch...
+> I tried that, but I couldn't get it to fail.  But that was a while ago, and 
+> I've learned a few things since then, so I'll try again.
+> 
+> >But if, for the DMA transfer, you're using the array of page*'s which were
+> >originally obtained from get_user_pages() then it's rather hard to see how
+> >the kernel could alter the page's contents.
+> >
+> >Then again, if mlock() fixes it then something's up.  Very odd.
+> 
+> With mlock(), we don't need to use get_user_pages() at all.  Arjan tells me 
+> the only time an mlocked page can move is with hot (un)plug of memory, but 
+> that isn't supported on the systems that we support.
 
-hmm, yes.  Like this?
+You don't "support" i386 or ia64 or x86-64 or ppc64 systems?  What
+hardware do you support?  And what about the fact that you are aiming to
+get this code into mainline, right?  If not, why are you asking here?
+:)
 
+thanks,
 
-diff -puN mm/filemap.c~generic_file_buffered_write-fixes mm/filemap.c
---- 25/mm/filemap.c~generic_file_buffered_write-fixes	2005-04-24 14:18:58.445943000 -0700
-+++ 25-akpm/mm/filemap.c	2005-04-24 14:20:21.995241576 -0700
-@@ -1944,7 +1944,7 @@ generic_file_buffered_write(struct kiocb
- 		buf = iov->iov_base + written;
- 	else {
- 		filemap_set_next_iovec(&cur_iov, &iov_base, written);
--		buf = iov->iov_base + iov_base;
-+		buf = cur_iov->iov_base + iov_base;
- 	}
- 
- 	do {
-@@ -2002,9 +2002,11 @@ generic_file_buffered_write(struct kiocb
- 				count -= status;
- 				pos += status;
- 				buf += status;
--				if (unlikely(nr_segs > 1))
-+				if (unlikely(nr_segs > 1)) {
- 					filemap_set_next_iovec(&cur_iov,
- 							&iov_base, status);
-+					buf = cur_iov->iov_base + iov_base;
-+				}
- 			}
- 		}
- 		if (unlikely(copied != bytes))
-_
-
+greg k-h

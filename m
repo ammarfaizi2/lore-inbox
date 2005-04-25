@@ -1,84 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262546AbVDYHUI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262549AbVDYHXC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262546AbVDYHUI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 03:20:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262549AbVDYHUI
+	id S262549AbVDYHXC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 03:23:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262553AbVDYHXB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 03:20:08 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:58564 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262546AbVDYHT6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 03:19:58 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] i386: optimize swab64
-Date: Mon, 25 Apr 2005 10:19:30 +0300
-User-Agent: KMail/1.5.4
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+	Mon, 25 Apr 2005 03:23:01 -0400
+Received: from cimice4.lam.cz ([212.71.168.94]:35232 "EHLO vagabond.light.src")
+	by vger.kernel.org with ESMTP id S262549AbVDYHWu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 03:22:50 -0400
+Date: Mon, 25 Apr 2005 09:22:10 +0200
+From: Jan Hudec <bulb@ucw.cz>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: jamie@shareable.org, viro@parcelfarce.linux.theplanet.co.uk,
+       hch@infradead.org, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] private mounts
+Message-ID: <20050425072210.GC13975@vagabond>
+References: <E1DPnOn-0000T0-00@localhost> <20050424201820.GA28428@infradead.org> <E1DPo3I-0000V0-00@localhost> <20050424205422.GK13052@parcelfarce.linux.theplanet.co.uk> <E1DPoCg-0000W0-00@localhost> <20050424210616.GM13052@parcelfarce.linux.theplanet.co.uk> <20050424213822.GB9304@mail.shareable.org> <E1DPwdo-0006xF-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="/e2eDi0V/xtL+Mc8"
 Content-Disposition: inline
-Message-Id: <200504251019.30173.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <E1DPwdo-0006xF-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I noticed that swab64 explicitly swaps 32-bit halves, but this is
-not really needed because CPU is 32-bit anyway and we can
-just tell GCC to treat registers as being swapped.
 
-Example of resulting code:
+--/e2eDi0V/xtL+Mc8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-       mov    0x20(%ecx,%edi,8),%eax
-       mov    0x24(%ecx,%edi,8),%edx
-       lea    0x1(%edi),%esi
-       mov    %esi,0xfffffdf4(%ebp)
-       mov    %eax,%ebx
-       mov    %edx,%esi
-       bswap  %ebx
-       bswap  %esi
-       mov    %esi,0xffffff74(%ebp,%edi,8)
-       mov    %ebx,0xffffff78(%ebp,%edi,8)
+On Mon, Apr 25, 2005 at 08:00:20 +0200, Miklos Szeredi wrote:
+> > Much better is the proposal to make namespaces first-class objects,
+> > that can be switched to.  Then users can choose to have themselves a
+> > namespace containing their private mounts, if they want it, with
+> > login/libpam or even a program run from .profile switching into it.
+>=20
+> It would be good if it could be done just in libpam.  But that would
+> require every libpam user to call into it after the fork() or
+> whatever, so unshare() and join_namespace() don't mess up the server
+> running environment.
 
-As you can see, swap is achieved simply by using
-appropriate registers in last two insns.
+They do. The *HAVE* to do! The 'session' stage modifies the environment,
+so it must be done after the fork. So if it, in addition to environment,
+modifies namespace, it won't make a difference.
 
-(Why does gcc do extra register moves just before bswaps
-is another question. No regression here, old code had them too)
+> If not, then it would mean modifying numerous programs, having these
+> modifications integrated, then having distributions pick up the
+> changes, etc.  I would imagine quite a long cycle for this to be
+> acutally useful.
 
-Run-tested.
---
-vda
+---------------------------------------------------------------------------=
+----
+						 Jan 'Bulb' Hudec <bulb@ucw.cz>
 
-diff -urpN linux-2.6.12-rc2.0.orig/include/asm-i386/byteorder.h linux-2.6.12-rc2.z.cur/include/asm-i386/byteorder.h
---- linux-2.6.12-rc2.0.orig/include/asm-i386/byteorder.h	Tue Oct 19 00:54:36 2004
-+++ linux-2.6.12-rc2.z.cur/include/asm-i386/byteorder.h	Sun Apr 24 22:38:14 2005
-@@ -25,6 +25,8 @@ static __inline__ __attribute_const__ __
- 	return x;
- }
+--/e2eDi0V/xtL+Mc8
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-+/* NB: swap of 32-bit halves is achieved by asm constraints.
-+** This will save a xchgl in many cases */
- static __inline__ __attribute_const__ __u64 ___arch__swab64(__u64 val)
- {
- 	union {
-@@ -33,13 +35,13 @@ static __inline__ __attribute_const__ __
- 	} v;
- 	v.u = val;
- #ifdef CONFIG_X86_BSWAP
--	asm("bswapl %0 ; bswapl %1 ; xchgl %0,%1"
--	    : "=r" (v.s.a), "=r" (v.s.b)
-+	asm("bswapl %0 ; bswapl %1"
-+	    : "=r" (v.s.b), "=r" (v.s.a)
- 	    : "0" (v.s.a), "1" (v.s.b));
- #else
--   v.s.a = ___arch__swab32(v.s.a);
-+	v.s.a = ___arch__swab32(v.s.a);
- 	v.s.b = ___arch__swab32(v.s.b);
--	asm("xchgl %0,%1" : "=r" (v.s.a), "=r" (v.s.b) : "0" (v.s.a), "1" (v.s.b));
-+	asm("" : "=r" (v.s.b), "=r" (v.s.a) : "0" (v.s.a), "1" (v.s.b));
- #endif
- 	return v.u;
- }
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
+iD8DBQFCbJqiRel1vVwhjGURAqouAJ4x/LYvTHIuIDVK7q/FUieWpxD0MgCff5oO
+2DPyxtUGk5/xfKDkJp+iYG4=
+=nOPf
+-----END PGP SIGNATURE-----
+
+--/e2eDi0V/xtL+Mc8--

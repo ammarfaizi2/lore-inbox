@@ -1,88 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262695AbVDYRmd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262691AbVDYRvn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262695AbVDYRmd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 13:42:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262668AbVDYRlo
+	id S262691AbVDYRvn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 13:51:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262668AbVDYRvn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 13:41:44 -0400
-Received: from zproxy.gmail.com ([64.233.162.196]:65510 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262691AbVDYRkQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 13:40:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=l1GpVL/2nbTWBYM0b/W3eeH9+JgR7FE00K/gYDqYoBWBMC3t1AY4srvo/WdSksRaXzBj3t2bJ5bKBx0Cb1rsk41OsENE7Ly+3l5/arGV96MCA0Meh7DbSpcP5+Max0QM53sDeAi7HSTZBKBqGW4ShMWh25LLcVpZrEpFVJPe2r4=
-Message-ID: <29495f1d05042510403b262909@mail.gmail.com>
-Date: Mon, 25 Apr 2005 10:40:16 -0700
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: David Teigland <teigland@redhat.com>
-Subject: Re: [PATCH 1a/7] dlm: core locking
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <20050425165705.GA11938@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050425165705.GA11938@redhat.com>
+	Mon, 25 Apr 2005 13:51:43 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:48305 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262666AbVDYRvj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 13:51:39 -0400
+Message-Id: <200504251751.j3PHpE7T004422@laptop11.inf.utfsm.cl>
+To: Matthias-Christian Ott <matthias.christian@tiscali.de>
+cc: Linus Torvalds <torvalds@osdl.org>, git@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH GIT 0.6] make use of register variables & size_t 
+In-Reply-To: Message from Matthias-Christian Ott <matthias.christian@tiscali.de> 
+   of "Mon, 25 Apr 2005 13:18:09 +0200." <426CD1F1.2010101@tiscali.de> 
+Date: Mon, 25 Apr 2005 13:51:14 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Mon, 25 Apr 2005 13:50:05 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/25/05, David Teigland <teigland@redhat.com> wrote:
-> [Apologies, patch 1 was too large on its own.]
-> 
-> The core dlm functions.  Processes dlm_lock() and dlm_unlock() requests.
-> Creates lockspaces which give applications separate contexts/namespaces in
-> which to do their locking.  Manages locks on resources' grant/convert/wait
-> queues.  Sends and receives high level locking operations between nodes.
-> Delivers completion and blocking callbacks (ast's) to lock holders.
-> Manages the distributed directory that tracks the current master node for
-> each resource.
-> 
-> Signed-Off-By: Dave Teigland <teigland@redhat.com>
-> Signed-Off-By: Patrick Caulfield <pcaulfie@redhat.com>
+Matthias-Christian Ott <matthias.christian@tiscali.de> said:
+> [Proposed patch adding "register" snipped]
 
-<snip>
+Somebody a long while ago told me there are 3 kinds of C compilers with
+respect "register": Dumb ones (they don't even consider it, just do
+business as usual, as they don't know any better), normal ones (they
+consider "register" and honor it if they can), and bright ones (they don't
+even consider it, as they do a much better job using registers than any
+programmer could direct them to by wiring a value into a register). GCC
+definitely falls on the brighter side, at least if you tell it to
+optimize. I think "register" should be marked deprecated in C (and there
+are few good texts that even mention the word today, so it is deprecated in
+practice).
 
-> --- a/drivers/dlm/lockspace.c   1970-01-01 07:30:00.000000000 +0730
-> +++ b/drivers/dlm/lockspace.c   2005-04-25 22:52:03.956816760 +0800
-
-<snip>
-
-> +int dlm_scand(void *data)
-> +{
-> +       struct dlm_ls *ls;
-> +
-> +       while (!kthread_should_stop()) {
-> +               list_for_each_entry(ls, &lslist, ls_list)
-> +                       dlm_scan_rsbs(ls);
-> +               set_current_state(TASK_INTERRUPTIBLE);
-> +               schedule_timeout(DLM_SCAN_SECS * HZ);
-> +       }
-> +       return 0;
-> +}
-
-<snip>
-
-> +static void remove_lockspace(struct dlm_ls *ls)
-> +{
-> +       for (;;) {
-> +               spin_lock(&lslist_lock);
-> +               if (ls->ls_count == 0) {
-> +                       list_del(&ls->ls_list);
-> +                       spin_unlock(&lslist_lock);
-> +                       return;
-> +               }
-> +               spin_unlock(&lslist_lock);
-> +               set_current_state(TASK_INTERRUPTIBLE);
-> +               schedule_timeout(HZ);
-> +       }
-> +}
-
-<snip>
-
-These can both be msleep_interruptible() calls?
-
-Thanks,
-Nish
+Better compare the code produced (with -S instead of -c you'll get
+assembler output in .s, not object code in .o) before any optimization
+proposal. But also consider that large real gains come from higher-level
+changes (better data structures, more efficient algorithms) and not from
+low-level changes (In any case, today's compilers are usually smart enough
+to make low-level changes on their own, so you can (thankfully) concentrate
+on writing clear, correct code; and let the compiler make it fast. Sure,
+where it is in a stretch of hot code, executed hundereds of times a second
+on millions of machines worldwide, extra loving care is warranted, but that
+is another kettle of fish.).
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262706AbVDYSV5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262699AbVDYS0l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262706AbVDYSV5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 14:21:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262720AbVDYSTh
+	id S262699AbVDYS0l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 14:26:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262724AbVDYS01
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 14:19:37 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:61088 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262713AbVDYSSk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 14:18:40 -0400
-Date: Mon, 25 Apr 2005 19:18:31 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       andrew.patterson@hp.com, Eric.Moore@lsil.com, mike.miller@hp.com,
-       dougg@torque.net, Madhuresh_Nagshain@adaptec.com
-Subject: Re: [RFC] SAS domain layout for Linux sysfs
-Message-ID: <20050425181831.GA14190@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Luben Tuikov <luben_tuikov@adaptec.com>,
-	SCSI Mailing List <linux-scsi@vger.kernel.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	andrew.patterson@hp.com, Eric.Moore@lsil.com, mike.miller@hp.com,
-	dougg@torque.net, Madhuresh_Nagshain@adaptec.com
-References: <425D392F.2080702@adaptec.com> <20050424111908.GA23010@infradead.org> <426D1572.70508@adaptec.com> <20050425161411.GA11938@infradead.org> <426D2723.8070308@adaptec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 25 Apr 2005 14:26:27 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:54752 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262699AbVDYSY1 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 14:24:27 -0400
+From: Jason Gaston <jason.d.gaston@intel.com>
+Organization: Intel Corp.
+To: mj@ucw.cz, akpm@osdl.org
+Subject: [PATCH 2.6.12-rc3 1/1] irq and pci_ids: patch for Intel ICH7DH & ICH7-M DH
+Date: Mon, 25 Apr 2005 07:38:56 -0700
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org, jason.d.gaston@intel.com
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <426D2723.8070308@adaptec.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200504250738.56915.jason.d.gaston@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 25, 2005 at 01:21:39PM -0400, Luben Tuikov wrote:
-> You're are stating that:
-> 1) You "only ever care about what's seen from a HA",
-> 2) "if you have muliple SPI cards that are on a single parallel
->     bus you'll have the same bus represented twice"
-> 3) "we have a scsi_device object for every lun
->     that's seen from a hba, linked to the HBAs Scsi_Host object
->     and not one shared by multiple HBAs"
-> 
-> So in effect, you _want_ duplication, right?  This is perfectly OK.
-> In fact it is desirable (and has never been under question).
+Hello,
 
-Yes.
+This patch adds the Intel ICH7DH and ICH7-M DH DID's to the irq.c and pci_ids.h files.  This patch was built against the 2.6.12-rc3 kernel.  
+If acceptable, please apply. 
 
-> This isn't directly related to the RFC.  The RFC basically
-> outlines the result of *a SAS discovery process*.  The discovery
-> process/LLDD can register the LU many times.  This has *never* been an
-> issue of discussion.
+Thanks,
 
-The point is that discovery must happen for each HBA separately because
-we absolutely do not want to have global state.
+Jason Gaston
 
+Signed-off-by:  Jason Gaston <Jason.d.gaston@intel.com>
+
+--- linux-2.6.12-rc3/arch/i386/pci/irq.c.orig	2005-04-25 07:26:14.689634256 -0700
++++ linux-2.6.12-rc3/arch/i386/pci/irq.c	2005-04-25 07:27:09.188349192 -0700
+@@ -495,6 +495,8 @@
+ 		case PCI_DEVICE_ID_INTEL_ICH6_1:
+ 		case PCI_DEVICE_ID_INTEL_ICH7_0:
+ 		case PCI_DEVICE_ID_INTEL_ICH7_1:
++		case PCI_DEVICE_ID_INTEL_ICH7_30:
++		case PCI_DEVICE_ID_INTEL_ICH7_31:
+ 		case PCI_DEVICE_ID_INTEL_ESB2_0:
+ 			r->name = "PIIX/ICH";
+ 			r->get = pirq_piix_get;
+--- linux-2.6.12-rc3/include/linux/pci_ids.h.orig	2005-04-25 07:20:04.330937336 -0700
++++ linux-2.6.12-rc3/include/linux/pci_ids.h	2005-04-25 07:25:13.983862936 -0700
+@@ -2414,6 +2414,8 @@
+ #define PCI_DEVICE_ID_INTEL_ICH7_1	0x27b9
+ #define PCI_DEVICE_ID_INTEL_ICH7_2	0x27c0
+ #define PCI_DEVICE_ID_INTEL_ICH7_3	0x27c1
++#define PCI_DEVICE_ID_INTEL_ICH7_30	0x27b0
++#define PCI_DEVICE_ID_INTEL_ICH7_31	0x27bd
+ #define PCI_DEVICE_ID_INTEL_ICH7_5	0x27c4
+ #define PCI_DEVICE_ID_INTEL_ICH7_6	0x27c5
+ #define PCI_DEVICE_ID_INTEL_ICH7_7	0x27c8

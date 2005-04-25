@@ -1,81 +1,194 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbVDYVQq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbVDYVV2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261203AbVDYVQq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 17:16:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbVDYVOg
+	id S261219AbVDYVV2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 17:21:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbVDYVUw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 17:14:36 -0400
-Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:39140 "EHLO
-	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S261203AbVDYVNi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 17:13:38 -0400
-X-ORBL: [69.107.61.180]
-From: David Brownell <david-b@pacbell.net>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Re: [PATCH] PCI: Add pci shutdown ability
-Date: Mon, 25 Apr 2005 14:13:21 -0700
-User-Agent: KMail/1.7.1
-Cc: Pavel Machek <pavel@ucw.cz>, Greg KH <greg@kroah.com>,
-       Amit Gud <gud@eth.net>, Alan Stern <stern@rowland.harvard.edu>,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       akpm@osdl.org, jgarzik@pobox.com, cramerj@intel.com
-References: <Pine.LNX.4.44L0.0504251128070.5751-100000@iolanthe.rowland.org> <20050425190606.GA23763@kroah.com> <20050425204207.GA23724@elf.ucw.cz>
-In-Reply-To: <20050425204207.GA23724@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Mon, 25 Apr 2005 17:20:52 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:6637 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261222AbVDYVRN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 17:17:13 -0400
+Subject: [PATCH] i386: fix hpet for systems that don't support legacy
+	replacement  (v. A0)
+From: john stultz <johnstul@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
+       vojtech@suse.cz, Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+In-Reply-To: <1114117417.19541.239.camel@cog.beaverton.ibm.com>
+References: <1114117417.19541.239.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Mon, 25 Apr 2005 14:17:07 -0700
+Message-Id: <1114463827.18098.22.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200504251413.21996.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > So here's a patch for the PCI core that allows pci drivers to now just
-> > add a "shutdown" notifier function that will be called when the system
-> > is being shutdown.  It happens just after the reboot notifier happens,
-> > and it should happen in the proper device tree order, so everyone should
-> > be happy.
+Andrew,
+	Currently the i386 HPET code assumes the entire HPET implementation
+from the spec is present. This breaks on boxes that do not implement the
+optional legacy timer replacement functionality portion of the spec.
 
-Both kexec and sys_shutdown always call notifiers first, then the
-device shutdown stuff, as I understand.  (I didn't see the patch,
-so I don't know what it should do...)
+This patch, which is very similar to my x86-64 patch for the same issue,
+fixes the problem allowing i386 systems that cannot use the HPET for the
+timer interrupt and RTC to still use the HPET as a time source. I've
+tested this patch on a system systems without HPET, with HPET but
+without legacy timer replacement, as well as HPET with legacy timer
+replacement.
 
-If there's going to be a "shutdown" primitive, I certainly think
-that it should work for PCI devices.
+There has been no changes since this patch was sent out to lkml for
+review.
 
-There's a separate issue about needing to clone such stuff into
-every version of bus glue.  For example, OHCI runs on PCI ... but
-also on lots of non-PCI hardware.  It's actually cleaner to use
-a notifier than to write almost-identical shutdown methods for
-each different bus it may be glued to.  Same thing with EHCI;
-other bus-neutral register APIs will have the same issue.
+Please consider for inclusion into your tree.
 
+thanks
+-john
 
-> > Any objections to this patch?
-> 
-> Yes.
-> 
-> I believe it should just do suspend(PMSG_SUSPEND) before system
-> shutdown. If you think distintion between shutdown and suspend is
-> important (I am not 100% convinced it is), we can just add flag
-> saying "this is system shutdown".
-
-I've made that point before -- essentially that shutdown() in
-the driver model itself is superfluous, either remove() or
-maybe suspend() would achieve the same result, without adding
-any special code that's run/tested rather infrequently ...
-
-That is:  if shutdown() isn't going to be removed, then the
-code that shuts down devices should invoke remove() or even
-suspend() in cases that there's no shutdown() method.
-
-But the pushback was that shutdown() methods are allowed to
-be much lighter weight, and really ought to work even when
-big parts of the system are misbehaving.  So they'd just do
-stuff like resetting chips, sanitizing GPIOs, and so on ...
-and nothing that'd be likely to break if significant parts
-of kernel memory were corrupted.
-
-- Dave
+diff -Nru a/arch/i386/kernel/time_hpet.c b/arch/i386/kernel/time_hpet.c
+--- a/arch/i386/kernel/time_hpet.c	2005-04-21 13:55:07 -07:00
++++ b/arch/i386/kernel/time_hpet.c	2005-04-21 13:55:07 -07:00
+@@ -26,6 +26,7 @@
+ static unsigned long hpet_period;	/* fsecs / HPET clock */
+ unsigned long hpet_tick;		/* hpet clks count per tick */
+ unsigned long hpet_address;		/* hpet memory map physical address */
++int hpet_use_timer;
+ 
+ static int use_hpet; 		/* can be used for runtime check of hpet */
+ static int boot_hpet_disable; 	/* boottime override for HPET timer */
+@@ -73,27 +74,30 @@
+ 	hpet_writel(0, HPET_COUNTER);
+ 	hpet_writel(0, HPET_COUNTER + 4);
+ 
+-	/*
+-	 * Set up timer 0, as periodic with first interrupt to happen at
+-	 * hpet_tick, and period also hpet_tick.
+-	 */
+-	cfg = hpet_readl(HPET_T0_CFG);
+-	cfg |= HPET_TN_ENABLE | HPET_TN_PERIODIC |
+-	       HPET_TN_SETVAL | HPET_TN_32BIT;
+-	hpet_writel(cfg, HPET_T0_CFG);
+-
+-	/*
+-	 * The first write after writing TN_SETVAL to the config register sets
+-	 * the counter value, the second write sets the threshold.
+-	 */
+-	hpet_writel(tick, HPET_T0_CMP);
+-	hpet_writel(tick, HPET_T0_CMP);
++	if (hpet_use_timer) {
++		/*
++		 * Set up timer 0, as periodic with first interrupt to happen at
++		 * hpet_tick, and period also hpet_tick.
++		 */
++		cfg = hpet_readl(HPET_T0_CFG);
++		cfg |= HPET_TN_ENABLE | HPET_TN_PERIODIC |
++		       HPET_TN_SETVAL | HPET_TN_32BIT;
++		hpet_writel(cfg, HPET_T0_CFG);
+ 
++		/*
++		 * The first write after writing TN_SETVAL to the config register sets
++		 * the counter value, the second write sets the threshold.
++		 */
++		hpet_writel(tick, HPET_T0_CMP);
++		hpet_writel(tick, HPET_T0_CMP);
++	}
+ 	/*
+  	 * Go!
+  	 */
+ 	cfg = hpet_readl(HPET_CFG);
+-	cfg |= HPET_CFG_ENABLE | HPET_CFG_LEGACY;
++	if (hpet_use_timer)
++		cfg |= HPET_CFG_LEGACY;
++	cfg |= HPET_CFG_ENABLE;
+ 	hpet_writel(cfg, HPET_CFG);
+ 
+ 	return 0;
+@@ -128,12 +132,11 @@
+ 	 * However, we can do with one timer otherwise using the
+ 	 * the single HPET timer for system time.
+ 	 */
+-	if (
+ #ifdef CONFIG_HPET_EMULATE_RTC
+-		!(id & HPET_ID_NUMBER) ||
+-#endif
+-	    !(id & HPET_ID_LEGSUP))
++	if (!(id & HPET_ID_NUMBER))
+ 		return -1;
++#endif
++
+ 
+ 	hpet_period = hpet_readl(HPET_PERIOD);
+ 	if ((hpet_period < HPET_MIN_PERIOD) || (hpet_period > HPET_MAX_PERIOD))
+@@ -152,6 +155,8 @@
+ 	if (hpet_tick_rem > (hpet_period >> 1))
+ 		hpet_tick++; /* rounding the result */
+ 
++	hpet_use_timer = id & HPET_ID_LEGSUP;
++
+ 	if (hpet_timer_stop_set_go(hpet_tick))
+ 		return -1;
+ 
+@@ -202,7 +207,8 @@
+ #endif
+ 
+ #ifdef CONFIG_X86_LOCAL_APIC
+-	wait_timer_tick = wait_hpet_tick;
++	if (hpet_use_timer)
++		wait_timer_tick = wait_hpet_tick;
+ #endif
+ 	return 0;
+ }
+diff -Nru a/arch/i386/kernel/timers/timer_hpet.c b/arch/i386/kernel/timers/timer_hpet.c
+--- a/arch/i386/kernel/timers/timer_hpet.c	2005-04-21 13:55:07 -07:00
++++ b/arch/i386/kernel/timers/timer_hpet.c	2005-04-21 13:55:07 -07:00
+@@ -79,7 +79,7 @@
+ 
+ 	eax = hpet_readl(HPET_COUNTER);
+ 	eax -= hpet_last;	/* hpet delta */
+-
++	eax = min(hpet_tick, eax);
+ 	/*
+          * Time offset = (hpet delta) * ( usecs per HPET clock )
+ 	 *             = (hpet delta) * ( usecs per tick / HPET clocks per tick)
+@@ -105,9 +105,12 @@
+ 	last_offset = ((unsigned long long)last_tsc_high<<32)|last_tsc_low;
+ 	rdtsc(last_tsc_low, last_tsc_high);
+ 
+-	offset = hpet_readl(HPET_T0_CMP) - hpet_tick;
+-	if (unlikely(((offset - hpet_last) > hpet_tick) && (hpet_last != 0))) {
+-		int lost_ticks = (offset - hpet_last) / hpet_tick;
++	if (hpet_use_timer)
++		offset = hpet_readl(HPET_T0_CMP) - hpet_tick;
++	else
++		offset = hpet_readl(HPET_COUNTER);
++	if (unlikely(((offset - hpet_last) >= (2*hpet_tick)) && (hpet_last != 0))) {
++		int lost_ticks = ((offset - hpet_last) / hpet_tick) - 1;
+ 		jiffies_64 += lost_ticks;
+ 	}
+ 	hpet_last = offset;
+diff -Nru a/arch/i386/kernel/timers/timer_tsc.c b/arch/i386/kernel/timers/timer_tsc.c
+--- a/arch/i386/kernel/timers/timer_tsc.c	2005-04-21 13:55:07 -07:00
++++ b/arch/i386/kernel/timers/timer_tsc.c	2005-04-21 13:55:07 -07:00
+@@ -477,7 +477,7 @@
+ 	if (cpu_has_tsc) {
+ 		unsigned long tsc_quotient;
+ #ifdef CONFIG_HPET_TIMER
+-		if (is_hpet_enabled()){
++		if (is_hpet_enabled() && hpet_use_timer){
+ 			unsigned long result, remain;
+ 			printk("Using TSC for gettimeofday\n");
+ 			tsc_quotient = calibrate_tsc_hpet(NULL);
+diff -Nru a/include/asm-i386/hpet.h b/include/asm-i386/hpet.h
+--- a/include/asm-i386/hpet.h	2005-04-21 13:55:07 -07:00
++++ b/include/asm-i386/hpet.h	2005-04-21 13:55:07 -07:00
+@@ -92,6 +92,7 @@
+ 
+ extern unsigned long hpet_tick;  	/* hpet clks count per tick */
+ extern unsigned long hpet_address;	/* hpet memory map physical address */
++extern int hpet_use_timer;
+ 
+ extern int hpet_rtc_timer_init(void);
+ extern int hpet_enable(void);
 
 

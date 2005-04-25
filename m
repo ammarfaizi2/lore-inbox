@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261709AbVDYTxy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262746AbVDYT5l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261709AbVDYTxy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 15:53:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbVDYTxy
+	id S262746AbVDYT5l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 15:57:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262749AbVDYT5l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 15:53:54 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:19384 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261709AbVDYTxx (ORCPT
+	Mon, 25 Apr 2005 15:57:41 -0400
+Received: from ipx10069.ipxserver.de ([80.190.240.67]:43472 "EHLO codeblau.de")
+	by vger.kernel.org with ESMTP id S262746AbVDYT5i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 15:53:53 -0400
-Date: Mon, 25 Apr 2005 21:53:47 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Colin Leroy <colin@colino.net>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] hfsplus: don't oops on bad FS
-In-Reply-To: <20050425211915.126ddab5@jack.colino.net>
-Message-ID: <Pine.LNX.4.61.0504252145220.25129@scrub.home>
-References: <20050425211915.126ddab5@jack.colino.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 25 Apr 2005 15:57:38 -0400
+Date: Mon, 25 Apr 2005 21:57:36 +0200
+From: Felix von Leitner <felix-linuxkernel@fefe.de>
+To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: IPv6 has trouble assigning an interface
+Message-ID: <20050425195736.GB3123@codeblau.de>
+References: <20050311202122.GA13205@fefe.de> <20050311173308.7a076e8f.akpm@osdl.org> <20050324.205902.119922975.yoshfuji@linux-ipv6.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050324.205902.119922975.yoshfuji@linux-ipv6.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I'm using stock 2.6.11.7 now.
 
-On Mon, 25 Apr 2005, Colin Leroy wrote:
+Here is an strace of some piece of code of mine:
 
-> currently trying to mount a non-hfsplus filesystem as hfsplus results
-> in an oops, as seen on http://colino.net/tmp/hfsplus_oops.txt
-> 
-> This patch fixes it; while at it, it frees sbi on error instead of
-> leaking it.
+socket(PF_INET6, SOCK_DGRAM, IPPROTO_IP) = 3
+setsockopt(3, SOL_SOCKET, SO_REUSEADDR, [12884901889], 4) = 0
+bind(3, {sa_family=AF_INET6, sin6_port=htons(8002), inet_pton(AF_INET6, "::", &sin6_addr), sin6_flowinfo=0, sin6_scope_id=0}, 28) = 0
+setsockopt(3, SOL_IPV6, IPV6_MULTICAST_LOOP, "\1", 1) = 0
+[...]
+sendto(3, "ncp-lowfat-1.2.2", 16, 0, {sa_family=AF_INET6, sin6_port=htons(8002), inet_pton(AF_INET6, "ff02::6e63:7030", &sin6_addr), sin6_flowinfo=0, sin6_scope_id=0}, 28) = -1 EADDRNOTAVAIL (Cannot assign requested address)
 
-Actually it looks like we are always leaking it, so actually 
-hfsplus_put_super() needs fixing, could you add the check and kfree 
-there and do the same fix for hfs?
+ff02 is a link-local multicast address.  I've bound to ::.  How can this
+fail?  link-local should always work, even if no routes are set and no
+router has been found.
 
-bye, Roman
+Felix

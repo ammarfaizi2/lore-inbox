@@ -1,75 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbVDYUf1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVDYUf4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261160AbVDYUf1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 16:35:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbVDYUcu
+	id S261193AbVDYUf4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 16:35:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbVDYUfk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 16:32:50 -0400
-Received: from HELIOUS.MIT.EDU ([18.248.3.87]:53161 "EHLO neo.rr.com")
-	by vger.kernel.org with ESMTP id S261165AbVDYU3G (ORCPT
+	Mon, 25 Apr 2005 16:35:40 -0400
+Received: from quechua.inka.de ([193.197.184.2]:51078 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S261173AbVDYUfY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 16:29:06 -0400
-Date: Mon, 25 Apr 2005 16:24:55 -0400
-From: Adam Belay <ambx1@neo.rr.com>
-To: Greg KH <greg@kroah.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Amit Gud <gud@eth.net>,
-       Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, akpm@osdl.org, jgarzik@pobox.com,
-       cramerj@intel.com,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>
-Subject: Re: [PATCH] PCI: Add pci shutdown ability
-Message-ID: <20050425202454.GE27771@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Greg KH <greg@kroah.com>, Pavel Machek <pavel@ucw.cz>,
-	Amit Gud <gud@eth.net>, Alan Stern <stern@rowland.harvard.edu>,
-	linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-	akpm@osdl.org, jgarzik@pobox.com, cramerj@intel.com,
-	USB development list <linux-usb-devel@lists.sourceforge.net>,
-	Linux-pm mailing list <linux-pm@lists.osdl.org>
-References: <Pine.LNX.4.44L0.0504251128070.5751-100000@iolanthe.rowland.org> <20050425182951.GA23209@kroah.com> <SVLXCHCON1syWVLEFN00000099e@SVLXCHCON1.enterprise.veritas.com> <20050425185113.GC23209@kroah.com> <20050425190606.GA23763@kroah.com> <20050425200825.GA3951@neo.rr.com> <20050425201949.GA24695@kroah.com>
+	Mon, 25 Apr 2005 16:35:24 -0400
+Date: Mon, 25 Apr 2005 22:35:17 +0200
+From: Bernd Eckenfels <be-mail2005@lina.inka.de>
+To: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org
+Subject: Re: more git updates..
+Message-ID: <20050425203517.GA12435@lina.inka.de>
+References: <20050423174227.51360d63.pj@sgi.com> <E1DPVwN-0007pj-00@calista.eckenfels.6bone.ka-ip.net> <20050423211326.7ed8e199.pj@sgi.com> <20050424043813.GA2422@lina.inka.de> <20050425115750.GA11233@thunk.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20050425201949.GA24695@kroah.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050425115750.GA11233@thunk.org>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 25, 2005 at 01:19:49PM -0700, Greg KH wrote:
-> On Mon, Apr 25, 2005 at 04:08:25PM -0400, Adam Belay wrote:
-> > I think this could be important for any type of device, so the power
-> > management subsystem and driver core should handle it.  I'm not really
-> > sure if it's useful in pci alone, as it lacks the necessary ordering and
-> > coordination.
-> 
-> The driver core today _does_ handle this properly, and in the correct
-> order.  I'm just allowing pci drivers access to that functionality, as
-> today they can not take advantage of it.  That's all this patch does.
+On Mon, Apr 25, 2005 at 07:57:50AM -0400, Theodore Ts'o wrote:
+> You want to explain how this is going to cause problems in the git
+> systems?
 
-sorry, I didn't notice this after a quick glance :)
+No because I explained it does not cause Problems.
 
-> +       drv->driver.shutdown = pci_device_shutdown,
+Greetings
+Bernd
 
-Ok, great.  I understand.
-
-> 
-> > I'm currently developing an interface for quieting devices without turning
-> > them off in my Power Management model.  Pavel seems to also have plans along
-> > those lines:
-> 
-> <snip>
-
-I think the intention here may have been to use PM_FREEZE via *suspend.  It
-isn't currently supported though.
-
-> 
-> Great, then it will tie into the current driver model code, which will
-> then call the proper pci driver code, and everyone will be happy :)
-> 
-> thanks,
-> 
-> greg k-h
-
-Thanks,
-Adam
+BTW: do you have an link to the SHA-1 collisions?
+-- 
+  (OO)      -- Bernd_Eckenfels@Mörscher_Strasse_8.76185Karlsruhe.de --
+ ( .. )      ecki@{inka.de,linux.de,debian.org}  http://www.eckes.org/
+  o--o     1024D/E383CD7E  eckes@IRCNet  v:+497211603874  f:+497211606754
+(O____O)  When cryptography is outlawed, bayl bhgynjf jvyy unir cevinpl!

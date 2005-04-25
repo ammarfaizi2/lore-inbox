@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbVDYWbM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbVDYWbu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbVDYWbM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 18:31:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbVDYWbL
+	id S261266AbVDYWbu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 18:31:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbVDYWbu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 18:31:11 -0400
-Received: from dspnet.fr.eu.org ([213.186.44.138]:32520 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S261262AbVDYWbB (ORCPT
+	Mon, 25 Apr 2005 18:31:50 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:54966 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261266AbVDYWbe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 18:31:01 -0400
-Date: Tue, 26 Apr 2005 00:31:00 +0200
-From: Olivier Galibert <galibert@pobox.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: avi@argo.co.il, linux-kernel@vger.kernel.org
-Subject: Re: tcp_sendpage and page allocation lifetime vs. iscsi
-Message-ID: <20050425223100.GB64842@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	"David S. Miller" <davem@davemloft.net>, avi@argo.co.il,
-	linux-kernel@vger.kernel.org
-References: <20050425170259.GA36024@dspnet.fr.eu.org> <426D40D4.8050900@argo.co.il> <20050425121953.6b5c3278.davem@davemloft.net> <20050425220603.GA64842@dspnet.fr.eu.org> <20050425150840.5f27f77a.davem@davemloft.net>
-Mime-Version: 1.0
+	Mon, 25 Apr 2005 18:31:34 -0400
+Date: Mon, 25 Apr 2005 15:31:25 -0700
+Message-Id: <200504252231.j3PMVPTb010573@magilla.sf.frob.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050425150840.5f27f77a.davem@davemloft.net>
-User-Agent: Mutt/1.4.2.1i
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] x86_64: handle iret faults better
+In-Reply-To: Linus Torvalds's message of  Monday, 25 April 2005 08:55:22 -0700 <Pine.LNX.4.58.0504250849370.18901@ppc970.osdl.org>
+X-Fcc: ~/Mail/linus
+X-Shopping-List: (1) Tropical fission
+   (2) Delinquent bugs
+   (3) Onerous golden reservation livers
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 25, 2005 at 03:08:40PM -0700, David S. Miller wrote:
-> You could do something similar in iSCSI and for now I highly
-> suggest that is what you do.
+> Why don't you just do
+> 
+> 	pushl $0
+> 	pushl $do_iret_error
+> 	jmp error_code
 
-Ok, I'll try to implement that.
+I quote from the comment in the code:
+
+								   We want
+ * to turn it into a signal.  To make that signal's info exactly match what
+ * this same kind of fault in a user instruction would show, the fixup
+ * needs to know the trapno and error code.  But those are lost when we get
+ * back to the fixup entrypoint.  
+
+The error code is not always 0, it might be a bad segment value.  I think
+the kernel ought to give accurate information about the fault consistently
+no matter where it occurs, so I did not want to pretend the error code is 0.
+
+I certainly think it would be cleaner if the fixup code could access the
+fault information directly.  However, it's arguably not so clean to have a
+do_iret_error function that replicates the work of do_trap and
+do_general_protection.  The iret case is really not so much a special case
+for what to do, but a special case for how you determine whether the
+vanilla user-mode thing is done or the vanilla kernel-mode thing is done.
 
 
-> In short, you're using an API in a way it was never designed
-> to be used.
-
-Heh, I don't, I'm just debugging it ;-)
-
-It's interesting though that both the 4.x guys (linux-iscsi) and the
-5.x ones (openiscsi, now both have merged) did the exact same mistake
-while afaik their developments were independant.  There is a
-documentation issue there.  If you could put what you just said in
-Documentation/*, it should hopefully prevent this kind of
-hard-to-track mistakes in the future.
-
-  OG.
-
+Thanks,
+Roland

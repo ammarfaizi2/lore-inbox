@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262657AbVDYPwv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262665AbVDYPu4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262657AbVDYPwv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 11:52:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262636AbVDYPwD
+	id S262665AbVDYPu4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 11:50:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262647AbVDYPss
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 11:52:03 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:2483 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262653AbVDYPjU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 11:39:20 -0400
-Date: Mon, 25 Apr 2005 17:20:50 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Miklos Szeredi <miklos@szeredi.hu>, hch@infradead.org,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] private mounts
-Message-ID: <20050425152049.GB2508@elf.ucw.cz>
-References: <E1DPnOn-0000T0-00@localhost> <20050424201820.GA28428@infradead.org> <E1DPo3I-0000V0-00@localhost> <20050424205422.GK13052@parcelfarce.linux.theplanet.co.uk> <E1DPoCg-0000W0-00@localhost> <20050424210616.GM13052@parcelfarce.linux.theplanet.co.uk> <20050424213822.GB9304@mail.shareable.org>
-Mime-Version: 1.0
+	Mon, 25 Apr 2005 11:48:48 -0400
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:44486 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S262634AbVDYPsT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 11:48:19 -0400
+From: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
+	<7eggert@gmx.de>
+Subject: Re: Git-commits mailing list feed.
+To: Matt Domsch <Matt_Domsch@dell.com>,
+       "David A. Wheeler" <dwheeler@dwheeler.com>, Paul Jakma <paul@clubi.ie>,
+       Linus Torvalds <torvalds@osdl.org>, Sean <seanlkml@sympatico.ca>,
+       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       David Woodhouse <dwmw2@infradead.org>, Jan Dittmer <jdittmer@ppp0.net>,
+       Greg KH <greg@kroah.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Reply-To: 7eggert@gmx.de
+Date: Mon, 25 Apr 2005 17:47:13 +0200
+References: <3WtO4-5GW-5@gated-at.bofh.it> <3WtXG-5Nh-9@gated-at.bofh.it> <3WtXG-5Nh-7@gated-at.bofh.it> <3WwLT-848-13@gated-at.bofh.it> <3WxeV-5S-9@gated-at.bofh.it> <3WxHT-pv-1@gated-at.bofh.it> <3Wyb3-Sj-33@gated-at.bofh.it> <3WyDZ-1a6-7@gated-at.bofh.it> <3WYRN-5lJ-9@gated-at.bofh.it> <3X0gU-6u6-5@gated-at.bofh.it> <3X1G1-7ug-9@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050424213822.GB9304@mail.shareable.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 7Bit
+Message-Id: <E1DQ5nn-0003au-QN@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Matt Domsch <Matt_Domsch@dell.com> wrote:
 
-> > > > I believe the point is:
-> > > > 
-> > > >    1. Person is logged from client Y to server X, and mounts something on
-> > > >       $HOME/mnt/private (that's on X).
-> > > > 
-> > > >    2. On client Y, person does "scp X:mnt/private/secrets.txt ."
-> > > >       and wants it to work.
-> > > > 
-> > > > The second operation is a separate login to the first.
-> > > 
-> > > Solution?
-> > 
-> > ... is the same as for the same question with "set of mounts" replaced
-> > with "environment variables".
-> 
-> Not quite.
-> 
-> After changing environment variables in .profile, you can copy them to
-> other shells using ". ~/.profile".
-> 
-> There is no analogous mechanism to copy namespaces.
+> --------------
+> sign
 
-Actually, after you add right mount xyzzy /foo lines into .profile,
-you can just . ~/.profile ;-).
-								Pavel
+> gpg --armor --clearsign --detach-sign --default-key "${DEFAULT_KEY} -v -v -o -
+> ${1} | \ ${CUTSIG} > ${1}.sign
+
+Use quotes!
+
+> exit 0
+
+The exit code should reflect the status from gpg.
+If gpg failed, you might also want to remove the .sign file.
 
 -- 
-Boycott Kodak -- for their patent abuse against Java.
+Top 100 things you don't want the sysadmin to say:
+37. What is all this I here about static charges destroying computers?
+

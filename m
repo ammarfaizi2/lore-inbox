@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbVDYVrb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbVDYVyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261226AbVDYVrb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 17:47:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbVDYVrb
+	id S261235AbVDYVyM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 17:54:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbVDYVyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 17:47:31 -0400
-Received: from lakshmi.addtoit.com ([198.99.130.6]:46350 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261226AbVDYVrX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 17:47:23 -0400
-Date: Mon, 25 Apr 2005 17:34:48 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: blaisorblade@yahoo.it
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, axboe@suse.de
-Subject: Re: [patch 1/1] uml ubd: handle readonly status
-Message-ID: <20050425213448.GA6343@ccure.user-mode-linux.org>
-References: <20050425191949.E56D145EBB@zion>
+	Mon, 25 Apr 2005 17:54:12 -0400
+Received: from smtprelay04.ispgateway.de ([80.67.18.16]:40928 "EHLO
+	smtprelay04.ispgateway.de") by vger.kernel.org with ESMTP
+	id S261235AbVDYVyH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 17:54:07 -0400
+Date: Mon, 25 Apr 2005 23:54:08 +0200
+From: Florian Engelhardt <flo@dotbox.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.12-rc2-mm3 and bttv -> kernel panic
+Message-ID: <20050425235408.208edf38@discovery.hal.lan>
+X-Mailer: Sylpheed-Claws 1.9.6cvs21 (GTK+ 2.6.7; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050425191949.E56D145EBB@zion>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 25, 2005 at 09:19:49PM +0200, blaisorblade@yahoo.it wrote:
-> +	/* This should no more be needed. And it didn't work anyway to exclude
-> +	 * read-write remounting of filesystems.*/
-> +	/*if((filp->f_mode & FMODE_WRITE) && !dev->openflags.w){
->  	        if(--dev->count == 0) ubd_close(dev);
->  	        err = -EROFS;
-> -	}
-> +	}*/
+Hello,
 
-> +	/* This should be impossible now */
+i tried to install a 2.6.12-rc2-mm3 kernel with bttv support and 
+after restarting the machine, i got something like this:
 
-> +		/* This should be impossible now */
+bttv0: PLL 28636363 => 35469950 .. ok
+Unable to handle kernel NULL pointer ...
 
-If code can't run any more because of now-impossible conditions, then just
-delete it.
+Call trace:
+msp 3400_init_module
+do_init_calls
+init
+init
+init
+kernel_thread_helper
+kernel_thread_helper
 
-				Jeff
+
+If i build the bttv support as a module and doing a modprobe bttv when
+the system is up, it loads without problems.
+
+And second one:
+Of course the nvidia-kernel module does not work right with the 2.6.12-
+rc2-mm3 kernel. I can modprobe it, but if i try to start the X-Server,
+it tells me, that it is unable to load the kernel module (allthough it
+is allready loaded)
+
+Kind regards
+
+Florian Engelhardt
+
+-- 
+"I may have invented it, but Bill made it famous"
+David Bradley, who invented the (in)famous ctrl-alt-del key combination

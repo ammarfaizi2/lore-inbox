@@ -1,51 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262449AbVDYCaq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262461AbVDYCba@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262449AbVDYCaq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 22:30:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbVDYCaq
+	id S262461AbVDYCba (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 22:31:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbVDYCba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 22:30:46 -0400
-Received: from smtpout.mac.com ([17.250.248.83]:51941 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S262449AbVDYCak (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 22:30:40 -0400
-In-Reply-To: <4ae3c14050424182235f916d7@mail.gmail.com>
-References: <4ae3c14050424182235f916d7@mail.gmail.com>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <cba141443b50f44069d7a92093a0d270@mac.com>
-Content-Transfer-Encoding: 7bit
+	Sun, 24 Apr 2005 22:31:30 -0400
+Received: from vanguard.topspin.com ([12.162.17.52]:4903 "EHLO
+	Mansi.STRATNET.NET") by vger.kernel.org with ESMTP id S262461AbVDYCbT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Apr 2005 22:31:19 -0400
+To: viro@parcelfarce.linux.theplanet.co.uk, torvalds@osdl.org
 Cc: linux-kernel@vger.kernel.org
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Ext3+ramdisk journaling problem
-Date: Sun, 24 Apr 2005 22:30:35 -0400
-To: Xin Zhao <uszhaoxin@gmail.com>
-X-Mailer: Apple Mail (2.619.2)
+Subject: [PATCH] fix include order in mthca_memfree.c
+X-Message-Flag: Warning: May contain useful information
+From: Roland Dreier <roland@topspin.com>
+Date: Sun, 24 Apr 2005 19:31:18 -0700
+Message-ID: <52vf6bwps9.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 25 Apr 2005 02:31:18.0385 (UTC) FILETIME=[DC5D9E10:01C5493E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 24, 2005, at 21:22, Xin Zhao wrote:
-> hi,
->
-> I used ramdisk as an ext3 journal and mount ext3 file system with
-> option data=journal. It worked fine and speedup the ext3 file system.
+About commit fdca124a1bcc7e624f6b887c6f26153f40ee43ee ("missing
+include in mthca"):
 
-Uhh, the whole point of a journal is that when the computer goes down
-hard and doesn't have a chance to clean up.  If you put the journal on
-a ramdisk, you might as well just mount it as an ext2 filesystem and
-be done with it.  Without the journal _on_disk_ you get no data or
-filesystem reliability advantages.  If you're after speed, just forgo
-the reliability or buy better disks.
+ - Out of curiousity, what arch and/or config requires <linux/mm.h>?
+   I regularly cross-compile drivers/infiniband for i386, x86_64, ppc64,
+   ia64, sparc64 and ppc, and I haven't needed <linux/mm.h> in mthca_memfree.c.
 
-Cheers,
-Kyle Moffett
+ - When making changes to drivers/infiniband, can you please cc the
+   maintainers or at least a public mailing list?  As far as I can
+   tell, the patch went directly to Linus with no public review, which
+   doesn't seem appropriate, no matter how trivial the change.
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
+ - When adding includes, please match the existing style and put
+   <linux/xxx.h> includes before any local "yyy.h" includes.
+
+Linus, please apply the patch below to move the include where it belongs.
+
+Thanks,
+  Roland
 
 
+Fix order of #include lines in mthca_memfree.c
+
+Signed-off-by: Roland Dreier <roland@topspin.com>
+
+--- linux.orig/drivers/infiniband/hw/mthca/mthca_memfree.c	2005-04-24 19:18:29.000000000 -0700
++++ linux/drivers/infiniband/hw/mthca/mthca_memfree.c	2005-04-24 19:20:10.000000000 -0700
+@@ -32,10 +32,11 @@
+  * $Id$
+  */
+ 
++#include <linux/mm.h>
++
+ #include "mthca_memfree.h"
+ #include "mthca_dev.h"
+ #include "mthca_cmd.h"
+-#include <linux/mm.h>
+ 
+ /*
+  * We allocate in as big chunks as we can, up to a maximum of 256 KB

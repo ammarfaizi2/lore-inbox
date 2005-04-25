@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262489AbVDYAFp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262388AbVDYAwc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262489AbVDYAFp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 20:05:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262488AbVDYAFo
+	id S262388AbVDYAwc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 20:52:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262390AbVDYAwc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 20:05:44 -0400
-Received: from gate.crashing.org ([63.228.1.57]:50872 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262491AbVDYAFk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 20:05:40 -0400
-Subject: Re: 2.6.12-rc2-mm3
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Juergen Kreileder <jk@blackdown.de>
-Cc: Oleg Nesterov <oleg@tv-sign.ru>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <87u0lvpy6f.fsf@blackdown.de>
-References: <20050411012532.58593bc1.akpm@osdl.org>
-	 <87wtr8rdvu.fsf@blackdown.de> <87u0m7aogx.fsf@blackdown.de>
-	 <1113607416.5462.212.camel@gaston> <877jj1aj99.fsf@blackdown.de>
-	 <20050423170152.6b308c74.akpm@osdl.org> <87fyxhj5p1.fsf@blackdown.de>
-	 <1114308928.5443.13.camel@gaston> <426B6C84.E8D41D57@tv-sign.ru>
-	 <87u0lvpy6f.fsf@blackdown.de>
+	Sun, 24 Apr 2005 20:52:32 -0400
+Received: from fmr19.intel.com ([134.134.136.18]:1678 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262388AbVDYAwa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Apr 2005 20:52:30 -0400
+Subject: Re: [PATCH 6/6]suspend/resume SMP support
+From: Li Shaohua <shaohua.li@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Antonino A. Daplas" <adaplas@pol.net>, Pavel Machek <pavel@ucw.cz>,
+       lkml <linux-kernel@vger.kernel.org>,
+       ACPI-DEV <acpi-devel@lists.sourceforge.net>,
+       Len Brown <len.brown@intel.com>, Zwane Mwaikambo <zwane@linuxpower.ca>,
+       linux-fbdev-devel@lists.sourceforge.net
+In-Reply-To: <20050423153501.5286b6c6.akpm@osdl.org>
+References: <1113283867.27646.434.camel@sli10-desk.sh.intel.com>
+	 <20050412105115.GD17903@elf.ucw.cz>
+	 <1113309627.5155.3.camel@sli10-desk.sh.intel.com>
+	 <20050413083202.GA1361@elf.ucw.cz>
+	 <1113467253.2568.10.camel@sli10-desk.sh.intel.com>
+	 <20050423153501.5286b6c6.akpm@osdl.org>
 Content-Type: text/plain
-Date: Mon, 25 Apr 2005 10:09:46 +1000
-Message-Id: <1114387786.31594.43.camel@gaston>
+Message-Id: <1114390165.29778.8.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 25 Apr 2005 08:49:25 +0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-04-25 at 01:11 +0200, Juergen Kreileder wrote:
-> Oleg Nesterov <oleg@tv-sign.ru> writes:
-> 
-> > Juergen Kreileder wrote:
-> >>
-> >> It only happens when running Azareus with IBM's Java (our's isn't
-> >> ready yet).  So far I was able to reproduce the problem on all -mm
-> >> versions within one hour.  Otherwise the kernels seem to work fine
-> >> -- no lockup unless I run Azareus.
-> >
-> > By any chance, could you please try this patch?
-> 
-> Doesn't help.
+On Sun, 2005-04-24 at 06:35, Andrew Morton wrote:
+> fbcon is trying to call kmalloc before the slab system is initialised. 
+> It would be best to fix that within fbcon.
+This solves the problem too.
 
-Ok, try to mail me privately a HOWTO to reproduce your exact testcase,
-knowing that I don't know anything about this Azareus thing ...
+> Well as the comment says, if this CPU isn't online yet, and if the system
+> has not yet reached SYSTEM_RUNNING state then we bale out of the printk
+> because this cpu's per-cpu resources may not yet be fully set up.
+After the CPU is offline (we are doing CPU hotplug). Its per-cpu
+resources like kmalloc also aren't initialized. This is in
+SYSTEM_RUNNING state too, so the system state doesn't matter. Removing
+the system state check seems better than fixing the fbcon driver to me.
 
-Ben.
-
+Thanks,
+Shaohua
 

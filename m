@@ -1,69 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbVDYUzm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbVDYU7d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261192AbVDYUzm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 16:55:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbVDYUzl
+	id S261183AbVDYU7d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 16:59:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261185AbVDYU7d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 16:55:41 -0400
-Received: from fire.osdl.org ([65.172.181.4]:64934 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261192AbVDYUy4 (ORCPT
+	Mon, 25 Apr 2005 16:59:33 -0400
+Received: from HELIOUS.MIT.EDU ([18.248.3.87]:1194 "EHLO neo.rr.com")
+	by vger.kernel.org with ESMTP id S261183AbVDYU71 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 16:54:56 -0400
-Date: Mon, 25 Apr 2005 13:54:01 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Roland Dreier <roland@topspin.com>
-Cc: timur.tabi@ammasso.com, hch@infradead.org, hozer@hozed.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
-Message-Id: <20050425135401.65376ce0.akpm@osdl.org>
-In-Reply-To: <52is2bvvz5.fsf@topspin.com>
-References: <200544159.Ahk9l0puXy39U6u6@topspin.com>
-	<20050411142213.GC26127@kalmia.hozed.org>
-	<52mzs51g5g.fsf@topspin.com>
-	<20050411163342.GE26127@kalmia.hozed.org>
-	<5264yt1cbu.fsf@topspin.com>
-	<20050411180107.GF26127@kalmia.hozed.org>
-	<52oeclyyw3.fsf@topspin.com>
-	<20050411171347.7e05859f.akpm@osdl.org>
-	<4263DEC5.5080909@ammasso.com>
-	<20050418164316.GA27697@infradead.org>
-	<4263E445.8000605@ammasso.com>
-	<20050423194421.4f0d6612.akpm@osdl.org>
-	<426BABF4.3050205@ammasso.com>
-	<52is2bvvz5.fsf@topspin.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Mon, 25 Apr 2005 16:59:27 -0400
+Date: Mon, 25 Apr 2005 16:55:36 -0400
+From: Adam Belay <ambx1@neo.rr.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Greg KH <greg@kroah.com>, Amit Gud <gud@eth.net>,
+       Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, akpm@osdl.org, jgarzik@pobox.com,
+       cramerj@intel.com,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] PCI: Add pci shutdown ability
+Message-ID: <20050425205536.GF27771@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Pavel Machek <pavel@ucw.cz>, Greg KH <greg@kroah.com>,
+	Amit Gud <gud@eth.net>, Alan Stern <stern@rowland.harvard.edu>,
+	linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+	akpm@osdl.org, jgarzik@pobox.com, cramerj@intel.com,
+	USB development list <linux-usb-devel@lists.sourceforge.net>
+References: <Pine.LNX.4.44L0.0504251128070.5751-100000@iolanthe.rowland.org> <20050425182951.GA23209@kroah.com> <SVLXCHCON1syWVLEFN00000099e@SVLXCHCON1.enterprise.veritas.com> <20050425185113.GC23209@kroah.com> <20050425190606.GA23763@kroah.com> <20050425204207.GA23724@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050425204207.GA23724@elf.ucw.cz>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier <roland@topspin.com> wrote:
->
->     Timur> With mlock(), we don't need to use get_user_pages() at all.
->      Timur> Arjan tells me the only time an mlocked page can move is
->      Timur> with hot (un)plug of memory, but that isn't supported on
->      Timur> the systems that we support.  We actually prefer mlock()
->      Timur> over get_user_pages(), because if the process dies, the
->      Timur> locks automatically go away too.
+On Mon, Apr 25, 2005 at 10:42:07PM +0200, Pavel Machek wrote:
+> Hi!
 > 
->  There actually is another way pages can move, with both
->  get_user_pages() and mlock(): copy-on-write after a fork().  If
->  userspace does a fork(), then all PTEs are marked read-only, and if
->  the original process touches the page after the fork(), a new page
->  will be allocated and mapped at the original virtual address.
+> > Well it seems that people are starting to want to hook the reboot
+> > notifier, or the device shutdown facility in order to properly shutdown
+> > pci drivers to make kexec work nicer.
+> > 
+> > So here's a patch for the PCI core that allows pci drivers to now just
+> > add a "shutdown" notifier function that will be called when the system
+> > is being shutdown.  It happens just after the reboot notifier happens,
+> > and it should happen in the proper device tree order, so everyone should
+> > be happy.
+> > 
+> > Any objections to this patch?
+> 
+> Yes.
+> 
+> I believe it should just do suspend(PMSG_SUSPEND) before system
+> shutdown. If you think distintion between shutdown and suspend is
+> important (I am not 100% convinced it is), we can just add flag
+> saying "this is system shutdown".
 
-Do we care about that?  A straightforward scenario under which this can
-happen is:
+So if I understand this correctly, you'd like to manually turn off devices
+during a power off.  I believe the ACPI spec recommends this for S4 (but also
+to leave on wake devices), but not necessarily S5.  Still it may be a good
+idea.  Comments?
 
-a) app starts some read I/O in an asynchronous manner
-b) app forks
-c) child writes to one of the pages which is still under read I/O
-d) the read I/O completes
-e) the child is left with the old data plus the child's modification instead
-   of the new data
+> 
+> Actually this patch should be in the queue somewhere... We had it in
+> suse trees for a long time, and IMO it can solve problem easily.
 
-which is a very silly application which is giving itself unpredictable
-memory contents anyway.
+Yeah, that's what I had in mind when I mentioned PMSG_FREEZE.  It seems
+to replace "shutdown" in many ways, is this correct?
 
-I assume there's a more sensible scenario?
+Thanks,
+Adam

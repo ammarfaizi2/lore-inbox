@@ -1,97 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262390AbVDYA7i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262391AbVDYBEk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262390AbVDYA7i (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 20:59:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262392AbVDYA7h
+	id S262391AbVDYBEk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 21:04:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262392AbVDYBEc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 20:59:37 -0400
-Received: from aibo.runbox.com ([193.71.199.94]:15250 "EHLO cujo.runbox.com")
-	by vger.kernel.org with ESMTP id S262390AbVDYA70 (ORCPT
+	Sun, 24 Apr 2005 21:04:32 -0400
+Received: from mail.kroah.org ([69.55.234.183]:48544 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262391AbVDYBE0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 20:59:26 -0400
-Message-ID: <426C4168.6030008@dwheeler.com>
-Date: Sun, 24 Apr 2005 21:01:28 -0400
-From: "David A. Wheeler" <dwheeler@dwheeler.com>
-Reply-To: dwheeler@dwheeler.com
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Paul Jakma <paul@clubi.ie>
-CC: Linus Torvalds <torvalds@osdl.org>, Sean <seanlkml@sympatico.ca>,
-       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       David Woodhouse <dwmw2@infradead.org>, Jan Dittmer <jdittmer@ppp0.net>,
-       Greg KH <greg@kroah.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: Git-commits mailing list feed.
-References: <200504210422.j3L4Mo8L021495@hera.kernel.org>       <42674724.90005@ppp0.net> <20050422002922.GB6829@kroah.com>       <426A4669.7080500@ppp0.net>       <1114266083.3419.40.camel@localhost.localdomain>       <426A5BFC.1020507@ppp0.net>       <1114266907.3419.43.camel@localhost.localdomain>       <Pine.LNX.4.58.0504231010580.2344@ppc970.osdl.org>       <20050423175422.GA7100@cip.informatik.uni-erlangen.de>       <Pine.LNX.4.58.0504231125330.2344@ppc970.osdl.org> <2911.10.10.10.24.1114279589.squirrel@linux1> <Pine.LNX.4.58.0504231234550.2344@ppc970.osdl.org> <Pine.LNX.4.62.0504250008370.14200@sheen.jakma.org>
-In-Reply-To: <Pine.LNX.4.62.0504250008370.14200@sheen.jakma.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 24 Apr 2005 21:04:26 -0400
+Date: Sun, 24 Apr 2005 18:03:51 -0700
+From: Greg KH <greg@kroah.com>
+To: Timur Tabi <timur.tabi@ammasso.com>
+Cc: Andrew Morton <akpm@osdl.org>, hch@infradead.org, roland@topspin.com,
+       hozer@hozed.org, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+Message-ID: <20050425010351.GA21246@kroah.com>
+References: <20050411180107.GF26127@kalmia.hozed.org> <52oeclyyw3.fsf@topspin.com> <20050411171347.7e05859f.akpm@osdl.org> <4263DEC5.5080909@ammasso.com> <20050418164316.GA27697@infradead.org> <4263E445.8000605@ammasso.com> <20050423194421.4f0d6612.akpm@osdl.org> <426BABF4.3050205@ammasso.com> <20050424205309.GA5386@kroah.com> <426C151F.3000407@ammasso.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <426C151F.3000407@ammasso.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Apr 24, 2005 at 04:52:31PM -0500, Timur Tabi wrote:
+> Greg KH wrote:
+> 
+> >You don't "support" i386 or ia64 or x86-64 or ppc64 systems?  What
+> >hardware do you support? 
+> 
+> I've never seen or heard of any x86-32 or x86-64 system that supports 
+> hot-swap RAM.
 
+I know of at least 1 x86-32 box from a three-letter-named company with
+this feature that has been shipping for a few _years_ now.  That box is
+pretty much everywhere now, and I know that other versions of it are
+also quite popular (despite the high cost...)
 
+> Our hardware does not support PPC, and our software doesn't support
+> ia-64.
 
-On Sat, 23 Apr 2005, Linus Torvalds wrote:
->> That means that we don't "strip them off", because dammit, they DO NOT
->> EXIST as far as git is concerned. This is why a tag-file will _always_
->> start with
->>
->>     commit <commit-sha1>
->>     tag <tag-name>
->>
->> because that way we can use fsck and validate reachability and have 
->> things that want trees (or commits) take tag-files instead, and git 
->> will automatically look up the associated tree/commit. And it will do 
->> so _without_ having to understand about signing, since signing is for 
->> trust between _people_ not for git.
- >
- >> And that is why I from the very beginning tried to make ti very clear
- >> that the signature goes at the end. Not at the beginning, not in the
- >> middle, and not in a different file. IT GOES AT THE END.
+Your hardware is just a pci card, right?  Why wouldn't it work on ppc64
+and ia64 then?
 
-It may be better to have them as simple detached signatures, which are
-completely separate files (see gpg --detached).
-Yeah, gpg currently implements detached signatures
-by repeating what gets signed, which is unfortunate,
-but the _idea_ is the right one.
+> > And what about the fact that you are aiming to
+> >get this code into mainline, right?  If not, why are you asking here?
+> >:)
+> 
+> Well, our primary concern is getting our stuff to work.  Since 
+> get_user_pages() doesn't work, but mlock() does, that's what we use.  I 
+> don't know how to fix get_user_pages(), and I don't have the time right now 
+> to figure it out.  I know that technically mlock() is not the right way to 
+> do it, and so we're not going to be submitting our code for the mainline 
+> until get_user_pages() works and our code uses it instead of mlock().
 
+Wait, what _is_ "your stuff"?  The open-ib code?  Or some other, private
+fork?  Any pointers to this stuff?
 
-Paul Jakma wrote:
-> Ideally, there'd be an index of signature objects by the SHA-1 sum of 
-> the object they sign, as the signed object should not refer to the 
-> signature (or the second of the above is not possible).
+thanks,
 
-Yes, and see my earlier posting.  It'd be easy to store signatures in
-the current objects directory, of course.  The trick is to be able
-to go from signed-object to the signature; this could be done
-just by creating a subdirectory using a variant of
-the name of the signed-object's file, and in that directory store the
-hash values of the signatures.  E.G.:
-  00/
-     3b128932189018329839019          <- object to sign
-     3b128932189018329839019.d/
-     0143709289032890234323451
-  01/
-     43709289032890234323451          <- signature
-
-> The latter of the two points would, in combination with the former, 
-> allow for cryptographic 'signed-off-by' chains. If a 'commit' is signed 
-> by $RANDOM_CONTRIBUTOR and $SUBSYSTEM_MAINTAINER and $ANDREW, you know 
-> its time to pull it. Would also work for things like "fixes only" trees, 
-> where (say) a change must be approved by X/2+1 of a group of X hacker 
-> providing oversight -> looking up the commit object's signatures would 
-> tell you whether it was approved.
-
-Right.  Lots of tricks you can do once the signatures are there,
-such as checking to counter repository subversion
-(did everything get signed), finding out who introduced a malicious
-line of code (& "proving" what key signed it first), etc.
-There are LOTS of reasons for storing signatures so that they can
-be checked later on, just like there are lots of reasons for storing
-old code... they give you evidence that the reputed history is true
-(and if you doubt it, they give you a way to limit the doubt).
-
---- David A. Wheeler
+greg k-h

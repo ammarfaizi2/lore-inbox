@@ -1,194 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbVDYVV2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbVDYVWx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261219AbVDYVV2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 17:21:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbVDYVUw
+	id S261215AbVDYVWx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 17:22:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVDYVVy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 17:20:52 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:6637 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261222AbVDYVRN (ORCPT
+	Mon, 25 Apr 2005 17:21:54 -0400
+Received: from fire.osdl.org ([65.172.181.4]:54960 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261215AbVDYVUY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 17:17:13 -0400
-Subject: [PATCH] i386: fix hpet for systems that don't support legacy
-	replacement  (v. A0)
-From: john stultz <johnstul@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       vojtech@suse.cz, Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-In-Reply-To: <1114117417.19541.239.camel@cog.beaverton.ibm.com>
-References: <1114117417.19541.239.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain
-Date: Mon, 25 Apr 2005 14:17:07 -0700
-Message-Id: <1114463827.18098.22.camel@cog.beaverton.ibm.com>
+	Mon, 25 Apr 2005 17:20:24 -0400
+Date: Mon, 25 Apr 2005 14:19:53 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Wim Coekaerts <wim.coekaerts@oracle.com>
+Cc: teigland@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/7] dlm: overview
+Message-Id: <20050425141953.51a71862.akpm@osdl.org>
+In-Reply-To: <20050425203952.GE25002@ca-server1.us.oracle.com>
+References: <20050425151136.GA6826@redhat.com>
+	<20050425203952.GE25002@ca-server1.us.oracle.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
-	Currently the i386 HPET code assumes the entire HPET implementation
-from the spec is present. This breaks on boxes that do not implement the
-optional legacy timer replacement functionality portion of the spec.
+Wim Coekaerts <wim.coekaerts@oracle.com> wrote:
+>
+> > This is a distributed lock manager (dlm) that we'd like to see added to
+> > the kernel.  The dlm programming api is very similar to that found on
+> > other operating systems, but this is modeled most closely after that in
+> > VMS.
+> 
+> do you have any performance data at all on this ? I like to see a dlm
+> but I like to see something that will also perform well. My main concern
+> is that I have not seen anything relying on this code do "reasonably
+> well". eg can you show gfs numbers w/ number of nodes and scalability ?
+> 
+> I think it's time we submit ocfs2 w/ it's cluster stack so that folks
+> can compare (including actual data/numbers), we have been waiting to
+> stabilize everything but I guess there is this preemptive strike going
+> on so we might just as well. at least we have had hch and folks comment,
+> before sending to submit code.
 
-This patch, which is very similar to my x86-64 patch for the same issue,
-fixes the problem allowing i386 systems that cannot use the HPET for the
-timer interrupt and RTC to still use the HPET as a time source. I've
-tested this patch on a system systems without HPET, with HPET but
-without legacy timer replacement, as well as HPET with legacy timer
-replacement.
+Preemptive strikes won't work, coz this little target will just redirect
+the incoming munitions at his other aggressors ;)
 
-There has been no changes since this patch was sent out to lkml for
-review.
+It is good that RH has got this process underway.  David, I assume that
+other interested parties (ocfs, lustre, etc) know that this is happening? 
+If not, could you please let them know and invite them to comment?
 
-Please consider for inclusion into your tree.
+> Andrew - we will submit ocfs2 so you can have a look, compare and move
+> on.  we will work with any stack that eventuslly gets accepted, just want 
+> to see the choice out there and an educated decision.
 
-thanks
--john
+In an ideal world, the various clustering groups would haggle this thing
+into shape, come to a consensus patch series which they all can use and I
+would never need to look at the code from a decision-making POV.
 
-diff -Nru a/arch/i386/kernel/time_hpet.c b/arch/i386/kernel/time_hpet.c
---- a/arch/i386/kernel/time_hpet.c	2005-04-21 13:55:07 -07:00
-+++ b/arch/i386/kernel/time_hpet.c	2005-04-21 13:55:07 -07:00
-@@ -26,6 +26,7 @@
- static unsigned long hpet_period;	/* fsecs / HPET clock */
- unsigned long hpet_tick;		/* hpet clks count per tick */
- unsigned long hpet_address;		/* hpet memory map physical address */
-+int hpet_use_timer;
- 
- static int use_hpet; 		/* can be used for runtime check of hpet */
- static int boot_hpet_disable; 	/* boottime override for HPET timer */
-@@ -73,27 +74,30 @@
- 	hpet_writel(0, HPET_COUNTER);
- 	hpet_writel(0, HPET_COUNTER + 4);
- 
--	/*
--	 * Set up timer 0, as periodic with first interrupt to happen at
--	 * hpet_tick, and period also hpet_tick.
--	 */
--	cfg = hpet_readl(HPET_T0_CFG);
--	cfg |= HPET_TN_ENABLE | HPET_TN_PERIODIC |
--	       HPET_TN_SETVAL | HPET_TN_32BIT;
--	hpet_writel(cfg, HPET_T0_CFG);
--
--	/*
--	 * The first write after writing TN_SETVAL to the config register sets
--	 * the counter value, the second write sets the threshold.
--	 */
--	hpet_writel(tick, HPET_T0_CMP);
--	hpet_writel(tick, HPET_T0_CMP);
-+	if (hpet_use_timer) {
-+		/*
-+		 * Set up timer 0, as periodic with first interrupt to happen at
-+		 * hpet_tick, and period also hpet_tick.
-+		 */
-+		cfg = hpet_readl(HPET_T0_CFG);
-+		cfg |= HPET_TN_ENABLE | HPET_TN_PERIODIC |
-+		       HPET_TN_SETVAL | HPET_TN_32BIT;
-+		hpet_writel(cfg, HPET_T0_CFG);
- 
-+		/*
-+		 * The first write after writing TN_SETVAL to the config register sets
-+		 * the counter value, the second write sets the threshold.
-+		 */
-+		hpet_writel(tick, HPET_T0_CMP);
-+		hpet_writel(tick, HPET_T0_CMP);
-+	}
- 	/*
-  	 * Go!
-  	 */
- 	cfg = hpet_readl(HPET_CFG);
--	cfg |= HPET_CFG_ENABLE | HPET_CFG_LEGACY;
-+	if (hpet_use_timer)
-+		cfg |= HPET_CFG_LEGACY;
-+	cfg |= HPET_CFG_ENABLE;
- 	hpet_writel(cfg, HPET_CFG);
- 
- 	return 0;
-@@ -128,12 +132,11 @@
- 	 * However, we can do with one timer otherwise using the
- 	 * the single HPET timer for system time.
- 	 */
--	if (
- #ifdef CONFIG_HPET_EMULATE_RTC
--		!(id & HPET_ID_NUMBER) ||
--#endif
--	    !(id & HPET_ID_LEGSUP))
-+	if (!(id & HPET_ID_NUMBER))
- 		return -1;
-+#endif
-+
- 
- 	hpet_period = hpet_readl(HPET_PERIOD);
- 	if ((hpet_period < HPET_MIN_PERIOD) || (hpet_period > HPET_MAX_PERIOD))
-@@ -152,6 +155,8 @@
- 	if (hpet_tick_rem > (hpet_period >> 1))
- 		hpet_tick++; /* rounding the result */
- 
-+	hpet_use_timer = id & HPET_ID_LEGSUP;
-+
- 	if (hpet_timer_stop_set_go(hpet_tick))
- 		return -1;
- 
-@@ -202,7 +207,8 @@
- #endif
- 
- #ifdef CONFIG_X86_LOCAL_APIC
--	wait_timer_tick = wait_hpet_tick;
-+	if (hpet_use_timer)
-+		wait_timer_tick = wait_hpet_tick;
- #endif
- 	return 0;
- }
-diff -Nru a/arch/i386/kernel/timers/timer_hpet.c b/arch/i386/kernel/timers/timer_hpet.c
---- a/arch/i386/kernel/timers/timer_hpet.c	2005-04-21 13:55:07 -07:00
-+++ b/arch/i386/kernel/timers/timer_hpet.c	2005-04-21 13:55:07 -07:00
-@@ -79,7 +79,7 @@
- 
- 	eax = hpet_readl(HPET_COUNTER);
- 	eax -= hpet_last;	/* hpet delta */
--
-+	eax = min(hpet_tick, eax);
- 	/*
-          * Time offset = (hpet delta) * ( usecs per HPET clock )
- 	 *             = (hpet delta) * ( usecs per tick / HPET clocks per tick)
-@@ -105,9 +105,12 @@
- 	last_offset = ((unsigned long long)last_tsc_high<<32)|last_tsc_low;
- 	rdtsc(last_tsc_low, last_tsc_high);
- 
--	offset = hpet_readl(HPET_T0_CMP) - hpet_tick;
--	if (unlikely(((offset - hpet_last) > hpet_tick) && (hpet_last != 0))) {
--		int lost_ticks = (offset - hpet_last) / hpet_tick;
-+	if (hpet_use_timer)
-+		offset = hpet_readl(HPET_T0_CMP) - hpet_tick;
-+	else
-+		offset = hpet_readl(HPET_COUNTER);
-+	if (unlikely(((offset - hpet_last) >= (2*hpet_tick)) && (hpet_last != 0))) {
-+		int lost_ticks = ((offset - hpet_last) / hpet_tick) - 1;
- 		jiffies_64 += lost_ticks;
- 	}
- 	hpet_last = offset;
-diff -Nru a/arch/i386/kernel/timers/timer_tsc.c b/arch/i386/kernel/timers/timer_tsc.c
---- a/arch/i386/kernel/timers/timer_tsc.c	2005-04-21 13:55:07 -07:00
-+++ b/arch/i386/kernel/timers/timer_tsc.c	2005-04-21 13:55:07 -07:00
-@@ -477,7 +477,7 @@
- 	if (cpu_has_tsc) {
- 		unsigned long tsc_quotient;
- #ifdef CONFIG_HPET_TIMER
--		if (is_hpet_enabled()){
-+		if (is_hpet_enabled() && hpet_use_timer){
- 			unsigned long result, remain;
- 			printk("Using TSC for gettimeofday\n");
- 			tsc_quotient = calibrate_tsc_hpet(NULL);
-diff -Nru a/include/asm-i386/hpet.h b/include/asm-i386/hpet.h
---- a/include/asm-i386/hpet.h	2005-04-21 13:55:07 -07:00
-+++ b/include/asm-i386/hpet.h	2005-04-21 13:55:07 -07:00
-@@ -92,6 +92,7 @@
- 
- extern unsigned long hpet_tick;  	/* hpet clks count per tick */
- extern unsigned long hpet_address;	/* hpet memory map physical address */
-+extern int hpet_use_timer;
- 
- extern int hpet_rtc_timer_init(void);
- extern int hpet_enable(void);
+The world isn't ideal, but merging something over the strenuous objections
+of one or more major groups would be quite regrettable - let's hope that
+doesn't happen.  Although it might.
 
+> hopefully tomorrow, including data comparing single node and multinode
+> performance.
 
+OK.  I'm unlikely to merge any first-round patches, as I expect there will
+be plenty of review comments and I'm already in a bit of a mess here wrt
+patch backlog, email backlog, bug backlog and apparently there have been
+some changes in the SCM area...

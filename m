@@ -1,53 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262707AbVDYRPZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262674AbVDYRPZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262707AbVDYRPZ (ORCPT <rfc822;willy@w.ods.org>);
+	id S262674AbVDYRPZ (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 25 Apr 2005 13:15:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262674AbVDYROO
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262692AbVDYROI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 13:14:14 -0400
-Received: from lug-owl.de ([195.71.106.12]:15067 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S262679AbVDYRMf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 13:12:35 -0400
-Date: Mon, 25 Apr 2005 19:12:34 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Matthias-Christian Ott <matthias.christian@tiscali.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, git@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH GIT 0.6] make use of register variables & size_t
-Message-ID: <20050425171234.GP24187@lug-owl.de>
-Mail-Followup-To: Matthias-Christian Ott <matthias.christian@tiscali.de>,
-	Linus Torvalds <torvalds@osdl.org>, git@vger.kernel.org,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <426CD1F1.2010101@tiscali.de> <Pine.LNX.4.58.0504250751330.18901@ppc970.osdl.org> <426D21FE.3040401@tiscali.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <426D21FE.3040401@tiscali.de>
-X-Operating-System: Linux mail 2.6.10-rc2-bk5lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 25 Apr 2005 13:14:08 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:37340 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S262674AbVDYRJY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 13:09:24 -0400
+Message-ID: <426D2443.3030403@acm.org>
+Date: Mon, 25 Apr 2005 12:09:23 -0500
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Fix for handling bad IPMI ACPI data
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------010605010100020408040601"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-04-25 18:59:42 +0200, Matthias-Christian Ott <matthias.christian@tiscali.de> wrote:
+This is a multi-part message in MIME format.
+--------------010605010100020408040601
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-["register" variables]
 
-> Literature:
 
-> [2] Erik de Castro Lopo, Peter Aitken, Bradley L. Jones: Teach Yourself 
-> C for Linux Programming in 21 Days; SAMS Publishing; 1999
+--------------010605010100020408040601
+Content-Type: text/x-patch;
+ name="ipmi_broken_acpi_register_bits.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ipmi_broken_acpi_register_bits.diff"
 
-Yeah, "register" is what you use after 21 days of programming
-pracitce...
+If the ACPI register bit width is zero (an invalid value) assume
+it is the default spacing.  This avoids some coredumps on invalid
+data and makes some systems work that have broken ACPI data.
 
-SCNR, JBG
+Signed-off-by: Corey Minyard <minyard@acm.org>
 
--- 
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             _ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  _ _ O
- fuer einen Freien Staat voll Freier Bürger" | im Internet! |   im Irak!   O O O
-ret = do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA));
+Index: linux-2.6.12-rc2/drivers/char/ipmi/ipmi_si_intf.c
+===================================================================
+--- linux-2.6.12-rc2.orig/drivers/char/ipmi/ipmi_si_intf.c
++++ linux-2.6.12-rc2/drivers/char/ipmi/ipmi_si_intf.c
+@@ -1557,8 +1557,17 @@
+ 		info->irq_setup = NULL;
+ 	}
+ 
+-	regspacings[intf_num] = spmi->addr.register_bit_width / 8;
+-	info->io.regspacing = spmi->addr.register_bit_width / 8;
++	if (spmi->addr.register_bit_width) {
++		/* A (hopefully) properly formed register bit width. */
++		regspacings[intf_num] = spmi->addr.register_bit_width / 8;
++		info->io.regspacing = spmi->addr.register_bit_width / 8;
++	} else {
++		/* Some broken systems get this wrong and set the value
++		 * to zero.  Assume it is the default spacing.  If that
++		 * is wrong, too bad, the vendor should fix the tables. */
++		regspacings[intf_num] = DEFAULT_REGSPACING;
++		info->io.regspacing = DEFAULT_REGSPACING;
++	}
+ 	regsizes[intf_num] = regspacings[intf_num];
+ 	info->io.regsize = regsizes[intf_num];
+ 	regshifts[intf_num] = spmi->addr.register_bit_offset;
+
+--------------010605010100020408040601--

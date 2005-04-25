@@ -1,71 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262749AbVDYT57@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262759AbVDYUDy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262749AbVDYT57 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 15:57:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262755AbVDYT57
+	id S262759AbVDYUDy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 16:03:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262760AbVDYUDy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 15:57:59 -0400
-Received: from mailfe05.swip.net ([212.247.154.129]:37761 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S262749AbVDYT5v convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 15:57:51 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Subject: Re: [patch 1/1] uml: fix handling of no fpx_regs [critical, for
-	2.6.12]
-From: Alexander Nyberg <alexn@dsv.su.se>
-To: blaisorblade@yahoo.it
-Cc: akpm@osdl.org, jdike@addtoit.com, bstroesser@fujitsu-siemens.com,
-       linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, aleidenf@bigpond.net.au
-In-Reply-To: <20050425191253.B9FE045EBB@zion>
-References: <20050425191253.B9FE045EBB@zion>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Mon, 25 Apr 2005 21:57:47 +0200
-Message-Id: <1114459067.983.22.camel@localhost.localdomain>
+	Mon, 25 Apr 2005 16:03:54 -0400
+Received: from colino.net ([213.41.131.56]:2546 "EHLO paperstreet.colino.net")
+	by vger.kernel.org with ESMTP id S262759AbVDYUDu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 16:03:50 -0400
+Date: Mon, 25 Apr 2005 22:03:45 +0200
+From: Colin Leroy <colin@colino.net>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] hfsplus: don't oops on bad FS
+Message-ID: <20050425220345.6b2ed6d5@jack.colino.net>
+In-Reply-To: <Pine.LNX.4.61.0504252145220.25129@scrub.home>
+References: <20050425211915.126ddab5@jack.colino.net>
+	<Pine.LNX.4.61.0504252145220.25129@scrub.home>
+X-Mailer: Sylpheed-Claws 1.9.6cvs36 (GTK+ 2.6.4; powerpc-unknown-linux-gnu)
+X-Face: Fy:*XpRna1/tz}cJ@O'0^:qYs:8b[Rg`*8,+o^[fI?<%5LeB,Xz8ZJK[r7V0hBs8G)*&C+XA0qHoR=LoTohe@7X5K$A-@cN6n~~J/]+{[)E4h'lK$13WQf$.R+Pi;E09tk&{t|;~dakRD%CLHrk6m!?gA,5|Sb=fJ=>[9#n1Bu8?VngkVM4{'^'V_qgdA.8yn3)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mån 2005-04-25 klockan 21:12 +0200 skrev blaisorblade@yahoo.it:
-> From: Andree Leidenfrost <aleidenf@bigpond.net.au>, Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-> 
-> Fix the error path, which is triggered when the processor misses the fpx regs
-> (i.e. the "fxsr" cpuinfo feature). For instance by VIA C3 Samuel2. Tested and
-> obvious, please merge ASAP.
-> 
-> Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-> ---
-> 
->  linux-2.6.12-paolo/arch/um/os-Linux/sys-i386/registers.c |    7 ++++---
->  1 files changed, 4 insertions(+), 3 deletions(-)
-> 
-> diff -puN arch/um/os-Linux/sys-i386/registers.c~uml-fix-no_fpx_regs_handling arch/um/os-Linux/sys-i386/registers.c
-> --- linux-2.6.12/arch/um/os-Linux/sys-i386/registers.c~uml-fix-no_fpx_regs_handling	2005-04-25 21:03:11.000000000 +0200
-> +++ linux-2.6.12-paolo/arch/um/os-Linux/sys-i386/registers.c	2005-04-25 21:08:07.000000000 +0200
-> @@ -105,14 +105,15 @@ void init_registers(int pid)
->  		panic("check_ptrace : PTRACE_GETREGS failed, errno = %d",
->  		      err);
->  
-> +	errno = 0;
->  	err = ptrace(PTRACE_GETFPXREGS, pid, 0, exec_fpx_regs);
->  	if(!err)
->  		return;
-> +	if(errno != EIO)
-> +		panic("check_ptrace : PTRACE_GETFPXREGS failed, errno = %d",
-> +		      errno);
+On 25 Apr 2005 at 21h04, Roman Zippel wrote:
 
-Looks like you mean "if (err != EIO)" here
+Hi, 
 
+> Actually it looks like we are always leaking it, so actually 
+> hfsplus_put_super() needs fixing, could you add the check and kfree 
+> there and do the same fix for hfs?
 
->  	have_fpx_regs = 0;
-> -	if(err != EIO)
-> -		panic("check_ptrace : PTRACE_GETFPXREGS failed, errno = %d",
-> -		      err);
->  
->  	err = ptrace(PTRACE_GETFPREGS, pid, 0, exec_fp_regs);
->  	if(err)
+Mmh, right. Here's an updated version that fixes it too.
 
+Signed-off-by: Colin Leroy <colin@colino.net>
+--- a/fs/hfsplus/super.c	2005-04-25 21:56:56.000000000 +0200
++++ b/fs/hfsplus/super.c	2005-04-25 21:58:39.000000000 +0200
+@@ -226,6 +226,9 @@
+ 	brelse(HFSPLUS_SB(sb).s_vhbh);
+ 	if (HFSPLUS_SB(sb).nls)
+ 		unload_nls(HFSPLUS_SB(sb).nls);
++
++	kfree((struct hfsplus_sb_info *)sb->s_fs_info);
++	sb->s_fs_info = NULL;
+ }
+ 
+ static int hfsplus_statfs(struct super_block *sb, struct kstatfs *buf)
+@@ -298,7 +301,7 @@
+ 		if (!silent)
+ 			printk("HFS+-fs: unable to parse mount options\n");
+ 		err = -EINVAL;
+-		goto cleanup;
++		goto cleanup_little;
+ 	}
+ 
+ 	/* temporarily use utf8 to correctly find the hidden dir below */
+@@ -307,7 +310,7 @@
+ 	if (!nls) {
+ 		printk("HFS+: unable to load nls for utf8\n");
+ 		err = -EINVAL;
+-		goto cleanup;
++		goto cleanup_little;
+ 	}
+ 
+ 	/* Grab the volume header */
+@@ -315,7 +318,7 @@
+ 		if (!silent)
+ 			printk("HFS+-fs: unable to find HFS+ superblock\n");
+ 		err = -EINVAL;
+-		goto cleanup;
++		goto cleanup_little;
+ 	}
+ 	vhdr = HFSPLUS_SB(sb).s_vhdr;
+ 
+@@ -428,8 +431,12 @@
+ 
+ cleanup:
+ 	hfsplus_put_super(sb);
++
++cleanup_little:
+ 	if (nls)
+ 		unload_nls(nls);
++	sb->s_fs_info = NULL;
++	kfree(sbi);
+ 	return err;
+ }
+ 
 
-
+-- 
+Colin

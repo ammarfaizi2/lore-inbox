@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262700AbVDYSPH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262711AbVDYSPo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262700AbVDYSPH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 14:15:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262702AbVDYSPH
+	id S262711AbVDYSPo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 14:15:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262706AbVDYSPo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 14:15:07 -0400
-Received: from mailfe06.swip.net ([212.247.154.161]:2282 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S262700AbVDYSPC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 14:15:02 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Subject: Re: X86_64: 2.6.12-rc3 spontaneous reboot
-From: Alexander Nyberg <alexn@dsv.su.se>
-To: Andi Kleen <ak@suse.de>
-Cc: Patrick McHardy <kaber@trash.net>, Ed Tomlinson <tomlins@cam.org>,
-       Parag Warudkar <kernel-stuff@comcast.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050425153541.GC16828@wotan.suse.de>
-References: <200504240008.35435.kernel-stuff@comcast.net>
-	 <1114332119.916.1.camel@localhost.localdomain>
-	 <200504240903.31377.tomlins@cam.org> <426CADF1.2000100@trash.net>
-	 <20050425153541.GC16828@wotan.suse.de>
-Content-Type: text/plain
-Date: Mon, 25 Apr 2005 20:14:59 +0200
-Message-Id: <1114452899.2012.2.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Mon, 25 Apr 2005 14:15:44 -0400
+Received: from relay1.tiscali.de ([62.26.116.129]:4493 "EHLO
+	webmail.tiscali.de") by vger.kernel.org with ESMTP id S262702AbVDYSPg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 14:15:36 -0400
+Message-ID: <426D33BA.8040604@tiscali.de>
+Date: Mon, 25 Apr 2005 20:15:22 +0200
+From: Matthias-Christian Ott <matthias.christian@tiscali.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050406)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: git@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH GIT 0.6] make use of register variables & size_t
+References: <426CD1F1.2010101@tiscali.de> <Pine.LNX.4.58.0504250751330.18901@ppc970.osdl.org> <426D21FE.3040401@tiscali.de> <Pine.LNX.4.58.0504251021280.18901@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0504251021280.18901@ppc970.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > >I think rc3 has code from rc2-mm2/3.  Both of these reboot here randomly.  
-> > >Nothing
-> > >shows up on a serial console...  Think something is seriously wrong with 
-> > >x86_64 in rc3.
-> > >That being said its possible its fixed in HEAD by.
-> > >
-> > >[PATCH] x86_64: fix new out of line put_user()
-> > >[PATCH] x86_64: Bug in new out of line put_user()
-> > 
-> > I'm seeing the same problem with a fresh git checkout when running uml
-> > or gcc in 32bit mode. Nothing is received from netconsole. If anyone
-> > can suggest which patches might be worth reverting I'll try that.
+Linus Torvalds wrote:
 > 
-> Well, you can revert all my x86-64 changes for testing that went
-> in after rc2. Does that make a difference? If yes then please
-> do a binary search or give me a test case that shows the problem.
+> On Mon, 25 Apr 2005, Matthias-Christian Ott wrote:
 > 
+>>"register" and "auto" variables aren't relicts of the 60's,  they're a 
+>>part of the ISO-C 99 standard, I'm following, "man".
+> 
+> 
+> They _are_ relicts of the 60's. It's just that the C standard hasn't ever 
+> had the reason to remove them.
+> 
+> 
+>>And if you think "register" variables are outdated, please remove the 
+>>CONFIG_REGPARM option from the Kernel source.
+> 
+> 
+> That does something totally different. And doesn't use "register" at all.
+> 
+> Pass the toke, you've been hogging the drugs for way too long.
+> 
+> 		Linus
+> 
+But this makes, like "register",  direct use of processor registers (it stores int arguments in eax, ebx, etc.).
 
-Usually gives in after about 20 minutes of gcc compiling, sometimes even
-up to 40 minutes. I had 2.6.12-rc2 stand for 2-3 hours so it seems ok.
-If anyone has a better recipe for it please do tell.
-
-It doesn't appear to be any of the obvious patch candidates...
-
+Matthias-Christian Ott

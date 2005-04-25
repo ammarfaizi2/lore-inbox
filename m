@@ -1,42 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262746AbVDYT5l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262749AbVDYT57@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262746AbVDYT5l (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 15:57:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262749AbVDYT5l
+	id S262749AbVDYT57 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 15:57:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262755AbVDYT57
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 15:57:41 -0400
-Received: from ipx10069.ipxserver.de ([80.190.240.67]:43472 "EHLO codeblau.de")
-	by vger.kernel.org with ESMTP id S262746AbVDYT5i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 15:57:38 -0400
-Date: Mon, 25 Apr 2005 21:57:36 +0200
-From: Felix von Leitner <felix-linuxkernel@fefe.de>
-To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: IPv6 has trouble assigning an interface
-Message-ID: <20050425195736.GB3123@codeblau.de>
-References: <20050311202122.GA13205@fefe.de> <20050311173308.7a076e8f.akpm@osdl.org> <20050324.205902.119922975.yoshfuji@linux-ipv6.org>
+	Mon, 25 Apr 2005 15:57:59 -0400
+Received: from mailfe05.swip.net ([212.247.154.129]:37761 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S262749AbVDYT5v convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 15:57:51 -0400
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Subject: Re: [patch 1/1] uml: fix handling of no fpx_regs [critical, for
+	2.6.12]
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: blaisorblade@yahoo.it
+Cc: akpm@osdl.org, jdike@addtoit.com, bstroesser@fujitsu-siemens.com,
+       linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, aleidenf@bigpond.net.au
+In-Reply-To: <20050425191253.B9FE045EBB@zion>
+References: <20050425191253.B9FE045EBB@zion>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Mon, 25 Apr 2005 21:57:47 +0200
+Message-Id: <1114459067.983.22.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050324.205902.119922975.yoshfuji@linux-ipv6.org>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm using stock 2.6.11.7 now.
+mån 2005-04-25 klockan 21:12 +0200 skrev blaisorblade@yahoo.it:
+> From: Andree Leidenfrost <aleidenf@bigpond.net.au>, Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+> 
+> Fix the error path, which is triggered when the processor misses the fpx regs
+> (i.e. the "fxsr" cpuinfo feature). For instance by VIA C3 Samuel2. Tested and
+> obvious, please merge ASAP.
+> 
+> Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+> ---
+> 
+>  linux-2.6.12-paolo/arch/um/os-Linux/sys-i386/registers.c |    7 ++++---
+>  1 files changed, 4 insertions(+), 3 deletions(-)
+> 
+> diff -puN arch/um/os-Linux/sys-i386/registers.c~uml-fix-no_fpx_regs_handling arch/um/os-Linux/sys-i386/registers.c
+> --- linux-2.6.12/arch/um/os-Linux/sys-i386/registers.c~uml-fix-no_fpx_regs_handling	2005-04-25 21:03:11.000000000 +0200
+> +++ linux-2.6.12-paolo/arch/um/os-Linux/sys-i386/registers.c	2005-04-25 21:08:07.000000000 +0200
+> @@ -105,14 +105,15 @@ void init_registers(int pid)
+>  		panic("check_ptrace : PTRACE_GETREGS failed, errno = %d",
+>  		      err);
+>  
+> +	errno = 0;
+>  	err = ptrace(PTRACE_GETFPXREGS, pid, 0, exec_fpx_regs);
+>  	if(!err)
+>  		return;
+> +	if(errno != EIO)
+> +		panic("check_ptrace : PTRACE_GETFPXREGS failed, errno = %d",
+> +		      errno);
 
-Here is an strace of some piece of code of mine:
+Looks like you mean "if (err != EIO)" here
 
-socket(PF_INET6, SOCK_DGRAM, IPPROTO_IP) = 3
-setsockopt(3, SOL_SOCKET, SO_REUSEADDR, [12884901889], 4) = 0
-bind(3, {sa_family=AF_INET6, sin6_port=htons(8002), inet_pton(AF_INET6, "::", &sin6_addr), sin6_flowinfo=0, sin6_scope_id=0}, 28) = 0
-setsockopt(3, SOL_IPV6, IPV6_MULTICAST_LOOP, "\1", 1) = 0
-[...]
-sendto(3, "ncp-lowfat-1.2.2", 16, 0, {sa_family=AF_INET6, sin6_port=htons(8002), inet_pton(AF_INET6, "ff02::6e63:7030", &sin6_addr), sin6_flowinfo=0, sin6_scope_id=0}, 28) = -1 EADDRNOTAVAIL (Cannot assign requested address)
 
-ff02 is a link-local multicast address.  I've bound to ::.  How can this
-fail?  link-local should always work, even if no routes are set and no
-router has been found.
+>  	have_fpx_regs = 0;
+> -	if(err != EIO)
+> -		panic("check_ptrace : PTRACE_GETFPXREGS failed, errno = %d",
+> -		      err);
+>  
+>  	err = ptrace(PTRACE_GETFPREGS, pid, 0, exec_fp_regs);
+>  	if(err)
 
-Felix
+
+

@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262395AbVDYBWj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262401AbVDYB1q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262395AbVDYBWj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 21:22:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262401AbVDYBWj
+	id S262401AbVDYB1q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 21:27:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbVDYB1q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 21:22:39 -0400
-Received: from wproxy.gmail.com ([64.233.184.195]:51902 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262395AbVDYBW3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 21:22:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=fNpwZBtsubhKCsqfXfszdQ0uyczW5ksUqCU9FTRFcqCCEzi4nTdFORob4knkKknRH+a22BmisKR3DyW5wDXOs+9dkYD4kjdJI7J8bGbQHuAUWMiMZIG3tYs9mw6EZji/9TjCM3HCbh7mxTAcFpVDwrt8ZC4iVAN0MQxZUKKcuXM=
-Message-ID: <4ae3c14050424182235f916d7@mail.gmail.com>
-Date: Sun, 24 Apr 2005 21:22:29 -0400
-From: Xin Zhao <uszhaoxin@gmail.com>
-Reply-To: Xin Zhao <uszhaoxin@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Ext3+ramdisk journaling problem
+	Sun, 24 Apr 2005 21:27:46 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:9359 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262401AbVDYB1n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Apr 2005 21:27:43 -0400
+Subject: Re: Git-commits mailing list feed.
+From: David Woodhouse <dwmw2@infradead.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jan Dittmer <jdittmer@ppp0.net>, Greg KH <greg@kroah.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0504231010580.2344@ppc970.osdl.org>
+References: <200504210422.j3L4Mo8L021495@hera.kernel.org>
+	 <42674724.90005@ppp0.net> <20050422002922.GB6829@kroah.com>
+	 <426A4669.7080500@ppp0.net>
+	 <1114266083.3419.40.camel@localhost.localdomain>
+	 <426A5BFC.1020507@ppp0.net>
+	 <1114266907.3419.43.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0504231010580.2344@ppc970.osdl.org>
+Content-Type: text/plain
+Date: Mon, 25 Apr 2005 11:26:36 +1000
+Message-Id: <1114392397.3419.97.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+X-Mailer: Evolution 2.2.2 (2.2.2-1) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+On Sat, 2005-04-23 at 10:31 -0700, Linus Torvalds wrote:
+> In other words, I actually want to create "tag objects", the same way we 
+> have "commit objects". A tag object points to a commit object, but in 
+> addition it contains the tag name _and_ the digital signature of whoever 
+> created the tag.
 
-I used ramdisk as an ext3 journal and mount ext3 file system with
-option data=journal. It worked fine and speedup the ext3 file system.
-However, After I reboot the system and try to mount that ext3
-filesystem,  the system reported:
+I'm slightly concerned that to find a given tag by its name if we do
+_just_ the above would be a fairly slow process. I suspect you'll want
+a .git/tags/ directory _anyway_, but with named files which refer to tag
+objects, instead of directly to commit objects as in Petr's current
+implementation.
 
-mount: wrong fs type, bad option, bad superblock on /dev/hda2,
-       or too many mounted file systems
+Other operations we might want to be at least _reasonably_ efficient
+would include 'show me the latest tag from Linus' and 'show me all
+extant tags'.
 
-This gave me a feeling taht the ramdisk is not a right journal
-anymore.  Any solution to this problem? Also, how to ensure that the
-journal stored on the ramdisk is committed to ext3 filesystem before
-it is umounted?  Any commands to do this?
+-- 
+dwmw2
 
-THanks in advance for your kind help.
-
-Xin

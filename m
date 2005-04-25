@@ -1,57 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbVDYWbu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261217AbVDYWeG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261266AbVDYWbu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 18:31:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbVDYWbu
+	id S261217AbVDYWeG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 18:34:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbVDYWeG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 18:31:50 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:54966 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261266AbVDYWbe (ORCPT
+	Mon, 25 Apr 2005 18:34:06 -0400
+Received: from fire.osdl.org ([65.172.181.4]:54212 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261253AbVDYWdd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 18:31:34 -0400
-Date: Mon, 25 Apr 2005 15:31:25 -0700
-Message-Id: <200504252231.j3PMVPTb010573@magilla.sf.frob.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 25 Apr 2005 18:33:33 -0400
+Date: Mon, 25 Apr 2005 15:32:56 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Timur Tabi <timur.tabi@ammasso.com>
+Cc: roland@topspin.com, hch@infradead.org, hozer@hozed.org,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+Message-Id: <20050425153256.3850ee0a.akpm@osdl.org>
+In-Reply-To: <426D6D68.6040504@ammasso.com>
+References: <200544159.Ahk9l0puXy39U6u6@topspin.com>
+	<20050411142213.GC26127@kalmia.hozed.org>
+	<52mzs51g5g.fsf@topspin.com>
+	<20050411163342.GE26127@kalmia.hozed.org>
+	<5264yt1cbu.fsf@topspin.com>
+	<20050411180107.GF26127@kalmia.hozed.org>
+	<52oeclyyw3.fsf@topspin.com>
+	<20050411171347.7e05859f.akpm@osdl.org>
+	<4263DEC5.5080909@ammasso.com>
+	<20050418164316.GA27697@infradead.org>
+	<4263E445.8000605@ammasso.com>
+	<20050423194421.4f0d6612.akpm@osdl.org>
+	<426BABF4.3050205@ammasso.com>
+	<52is2bvvz5.fsf@topspin.com>
+	<20050425135401.65376ce0.akpm@osdl.org>
+	<521x8yv9vb.fsf@topspin.com>
+	<20050425151459.1f5fb378.akpm@osdl.org>
+	<426D6D68.6040504@ammasso.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] x86_64: handle iret faults better
-In-Reply-To: Linus Torvalds's message of  Monday, 25 April 2005 08:55:22 -0700 <Pine.LNX.4.58.0504250849370.18901@ppc970.osdl.org>
-X-Fcc: ~/Mail/linus
-X-Shopping-List: (1) Tropical fission
-   (2) Delinquent bugs
-   (3) Onerous golden reservation livers
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Why don't you just do
+Timur Tabi <timur.tabi@ammasso.com> wrote:
+>
+> Andrew Morton wrote:
 > 
-> 	pushl $0
-> 	pushl $do_iret_error
-> 	jmp error_code
+> > The way we expect get_user_pages() to be used is that the kernel will use
+> > get_user_pages() once per application I/O request.
+> > 
+> > Are you saying that RDMA clients will semi-permanently own pages which were
+> > pinned by get_user_pages()?  That those pages will be used for multiple
+> > separate I/O operations?
+> 
+> Yes, absolutely!
+> 
+> The memory buffer is allocated by the process (usually just via malloc) and 
+> registed/pinned by the driver.  It then stays pinned for the life of the process (typically).
 
-I quote from the comment in the code:
+ug.  What stops the memory from leaking if the process exits?
 
-								   We want
- * to turn it into a signal.  To make that signal's info exactly match what
- * this same kind of fault in a user instruction would show, the fixup
- * needs to know the trapno and error code.  But those are lost when we get
- * back to the fixup entrypoint.  
+I hope this is a privileged operation?
 
-The error code is not always 0, it might be a bad segment value.  I think
-the kernel ought to give accurate information about the fault consistently
-no matter where it occurs, so I did not want to pretend the error code is 0.
+> > If so, then that's a significant design departure and it would be good to
+> > hear why it is necessary.
+> 
+> That's just how RMDA works.  Once the memory is pinned, if the app wants to send data to 
+> another node, it does two things:
+> 
+> 1) Puts the data into its buffer
+> 2) Sends a "work request" to the driver with (among other things) the offset and length of 
+> the data.
+> 
+> This is a time-critical operation.  It must occurs as fast as possible, which means the 
+> memory must have already been pinned.
 
-I certainly think it would be cleaner if the fixup code could access the
-fault information directly.  However, it's arguably not so clean to have a
-do_iret_error function that replicates the work of do_trap and
-do_general_protection.  The iret case is really not so much a special case
-for what to do, but a special case for how you determine whether the
-vanilla user-mode thing is done or the vanilla kernel-mode thing is done.
+It would be better to obtain this memory via a mmap() of some special
+device node, so we can perform appropriate permission checking and clean
+everything up on unclean application exit.
 
-
-Thanks,
-Roland

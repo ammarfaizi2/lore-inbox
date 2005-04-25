@@ -1,66 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262660AbVDYQkR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262667AbVDYQkQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262660AbVDYQkR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 12:40:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262636AbVDYQjN
+	id S262667AbVDYQkQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 12:40:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262660AbVDYQiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 12:39:13 -0400
-Received: from rproxy.gmail.com ([64.233.170.193]:56563 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262701AbVDYQgH convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 12:36:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=LB4mAfj1BMmLa41qtrJQwRX8LkvWhlB06a5NzSoe2ov5Ysw7KVCcj51lp4yVPSAihgD2dNDhHp9Bvm+ehIXJ6/tlnraBalKgtoak1i6jlYBwy3BULWUxvYw6sQaBdM6ioPF3d1j0w/fNRx57yWlIiZQqUEHDFs+p8KEnyImqnRE=
-Message-ID: <d120d50005042509366e5a0895@mail.gmail.com>
-Date: Mon, 25 Apr 2005 11:36:05 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: johnpol@2ka.mipt.ru
-Subject: Re: [RFC/PATCH 0/22] W1: sysfs, lifetime and other fixes
-Cc: sensors@stimpy.netroedge.com, LKML <linux-kernel@vger.kernel.org>,
-       Greg KH <gregkh@suse.de>
-In-Reply-To: <1114420290.8527.56.camel@uganda>
+	Mon, 25 Apr 2005 12:38:50 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:7694 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262634AbVDYQga (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 12:36:30 -0400
+Message-Id: <200504251636.j3PGa9SJ015388@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@muc.de>
+Subject: Re: [PATCH x86_64] Live Patching Function on 2.6.11.7 
+In-Reply-To: Your message of "Mon, 25 Apr 2005 19:39:51 +0900."
+             <426CC8F7.8070905@lab.ntt.co.jp> 
+From: Valdis.Kletnieks@vt.edu
+References: <4263275A.2020405@lab.ntt.co.jp> <m1y8b9xyaw.fsf@muc.de> <426C51C4.9040902@lab.ntt.co.jp> <e83d0cb60cb50a56b38294e9160d7712@mac.com>
+            <426CC8F7.8070905@lab.ntt.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200504210207.02421.dtor_core@ameritech.net>
-	 <1114089504.29655.93.camel@uganda>
-	 <d120d5000504210909f0e0713@mail.gmail.com>
-	 <1114420290.8527.56.camel@uganda>
+Content-Type: multipart/signed; boundary="==_Exmh_1114446969_5553P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 25 Apr 2005 12:36:09 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/25/05, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> On Thu, 2005-04-21 at 11:09 -0500, Dmitry Torokhov wrote:
-> > One more thing...
-> >
-> > On 4/21/05, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> > > On Thu, 2005-04-21 at 02:07 -0500, Dmitry Torokhov wrote:
-> > >
-> > > > w1-master-drop-attrs.patch
-> > > >    Get rid of unneeded master device attributes:
-> > > >    - 'pointer' and 'attempts' are meaningless for userspace;
-> > > >    - information provided by 'slaves' and 'slave_count' can be gathered
-> > > >      from other sysfs bits;
-> > > >    - w1_slave_found has to be rearranged now that slave_count field is gone.
-> > >
-> > > attempts is usefull for broken lines.
-> >
-> > It simply increments with every search i.e. every 10 secondsby default
-> > and does not provide indication of the quality of the wire.
-> 
-> When slaves can not be found until several attempts, it means line
-> is broken, how many time existing slave appeared/dissapeared during
-> /sys/bus/w1/devices/w1_master1/attempts says about link quality.
+--==_Exmh_1114446969_5553P
+Content-Type: text/plain; charset=us-ascii
 
-Heh, if you are debugging all you need is "date" command to see how
-quickly slave appears. If you want to keep statistics your program
-need to listen to hotpug events for master and slaves and count these.
-I do not see a reason for a counter that simply increments every 10
-seconds.
+On Mon, 25 Apr 2005 19:39:51 +0900, Takashi Ikebe said:
 
--- 
-Dmitry
+> Unfortunately, we carrier have very many exiting software and try to run
+> on Linux.
+> We need to seek the way which can apply to exiting software also...
+
+You *really* want to take the time to re-write the software to do things
+The Linux Way.  If you're looking at doing on-the-fly patching, you're
+probably also carrying around a lot of *other* ugly cruft to make this
+creeping horror work on Linux.  In fact, I'd not be surprised if you have
+a shim layer to make the compatibility layer for the *previous* system
+work on Linux...
+
+I'm reminded of a (possibly apocryphal) quote from an ATT spokesperson from
+1988 or so, when a misplaced comma in a patch kept crashing the long-distance
+phone network. When asked "Why don't you just reboot the affected switches?"
+his response was "This assumes that the switch had ever been booted in the
+first place". (Apparently, the *whole thing* had been on-the-fly replaced/patched
+without an actual reload happening...)
+
+Gaaahhh! :)
+
+
+--==_Exmh_1114446969_5553P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCbRx5cC3lWbTT17ARAlwMAJ9BEFa3mragFy+KgqwOuSAg0A41/QCeMB87
+M0aqxAoX1kIzcSMqOcWpESs=
+=n9QU
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1114446969_5553P--

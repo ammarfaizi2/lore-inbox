@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbVDYWtv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261274AbVDYWvl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261271AbVDYWtv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 18:49:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbVDYWtv
+	id S261274AbVDYWvl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 18:51:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbVDYWvk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 18:49:51 -0400
-Received: from fire.osdl.org ([65.172.181.4]:52168 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261271AbVDYWtt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 18:49:49 -0400
-Date: Mon, 25 Apr 2005 15:51:32 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Roland McGrath <roland@redhat.com>
-cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] x86_64: handle iret faults better
-In-Reply-To: <200504252231.j3PMVPTb010573@magilla.sf.frob.com>
-Message-ID: <Pine.LNX.4.58.0504251548310.18901@ppc970.osdl.org>
-References: <200504252231.j3PMVPTb010573@magilla.sf.frob.com>
+	Mon, 25 Apr 2005 18:51:40 -0400
+Received: from fmr19.intel.com ([134.134.136.18]:41373 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261274AbVDYWvW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 18:51:22 -0400
+From: "Bob Woodruff" <robert.j.woodruff@intel.com>
+To: "'Andrew Morton'" <akpm@osdl.org>, "Timur Tabi" <timur.tabi@ammasso.com>,
+       "Davis, Arlin R" <arlin.r.davis@intel.com>
+Cc: <hch@infradead.org>, <linux-kernel@vger.kernel.org>,
+       <openib-general@openib.org>
+Subject: RE: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace verbsimplementation
+Date: Mon, 25 Apr 2005 15:51:03 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Thread-Index: AcVJ5zR+UqmxlNOHTZ6BgvvwWxsZngAAD5MA
+In-Reply-To: <20050425153542.70197e6a.akpm@osdl.org>
+Message-ID: <ORSMSX408FRaqbC8wSA00000014@orsmsx408.amr.corp.intel.com>
+X-OriginalArrivalTime: 25 Apr 2005 22:51:04.0840 (UTC) FILETIME=[42E46880:01C549E9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ Andrew Morton wrote,
+>Yes, we expect that all the pages which get_user_pages() pinned will become
+>unpinned within the context of the syscall which pinned the pages.  Or
+>shortly after, in the case of async I/O.
+
+>This is because there is no file descriptor or anything else associated
+>with the pages which permits the kernel to clean stuff up on unclean
+>application exit.  Also there are the obvious issues with permitting
+>pinning of unbounded amounts of memory.
+
+There definitely needs to be a mechanism to prevent people from pinning
+too much memory. We saw issues in the sourceforge stack and some of the
+vendors stacks where we could lock memory till the system hung. 
+In the sourceforge InfiniBand stack, we put in a 
+check to make sure that people did not pin too much memory. 
+It was sort of a crude/bruit force mechanism, but effective. I think that we
+limited people from locking down more that 1/2 of kernel memory or
+70 % of all memory (it was tunable with a module option) and if they
+exceeded
+the limit, their requests to register memory would begin to fail. 
+Arlin can provide details on how we did it or people can look at the 
+IBAL code for an example. 
+
+woody
 
 
-On Mon, 25 Apr 2005, Roland McGrath wrote:
-> 
-> 								   We want
->  * to turn it into a signal.  To make that signal's info exactly match what
->  * this same kind of fault in a user instruction would show, the fixup
->  * needs to know the trapno and error code.  But those are lost when we get
->  * back to the fixup entrypoint.  
 
-Bah.
-
-The _information_ is there, it's right on the stack-frame in the original 
-CS/SS etc.
-
-I'll take reliable and obvious code _any_ day over hacky code just to get 
-me an "error code" for something that just isn't very interesting.
-
-In other words, your code is not only ugly, it's also the kind of code 
-that makes you go "how does that work". 
-
-I think it's a lot more important that the kernel obviously work 
-correctly.
-
-			Linus

@@ -1,40 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262671AbVDYP4M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262637AbVDYPu5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262671AbVDYP4M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 11:56:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262664AbVDYP4I
+	id S262637AbVDYPu5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 11:50:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262658AbVDYPjd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 11:56:08 -0400
-Received: from colin.muc.de ([193.149.48.1]:53006 "EHLO colin2.muc.de")
-	by vger.kernel.org with ESMTP id S262671AbVDYPyE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 11:54:04 -0400
-Date: 25 Apr 2005 17:54:03 +0200
-Date: Mon, 25 Apr 2005 17:54:03 +0200
-From: Andi Kleen <ak@muc.de>
-To: Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH x86_64] Live Patching Function on 2.6.11.7
-Message-ID: <20050425155403.GC65287@muc.de>
-References: <4263275A.2020405@lab.ntt.co.jp> <m1y8b9xyaw.fsf@muc.de> <426C51C4.9040902@lab.ntt.co.jp> <e83d0cb60cb50a56b38294e9160d7712@mac.com> <426CC8F7.8070905@lab.ntt.co.jp>
+	Mon, 25 Apr 2005 11:39:33 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:1294 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262667AbVDYPXR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 11:23:17 -0400
+Message-Id: <200504251522.j3PFMg6A011654@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: dmca.agent@pearsoned.com, opensource@samspublishing.com
+Cc: linux-kernel@vger.kernel.org, trademarks@redhat.com,
+       license-violation@gnu.org
+Subject: Copyright, trademark, and GPL violations by a Sams book (including CD/DVD)
+From: Valdis.Kletnieks@vt.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <426CC8F7.8070905@lab.ntt.co.jp>
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/signed; boundary="==_Exmh_1114442561_5553P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 25 Apr 2005 11:22:41 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 25, 2005 at 07:39:51PM +0900, Takashi Ikebe wrote:
-> Kyle, thank you so much for your detailed information.
-> If you design completely new software, your suggestion is very useful!
-> 
-> Unfortunately, we carrier have very many exiting software and try to run
-> on Linux.
-> We need to seek the way which can apply to exiting software also...
+--==_Exmh_1114442561_5553P
+Content-Type: text/plain; charset=us-ascii
 
-ptrace can all do this, even with an existing kernel.
-Your full patch is just a funky ptrace equivalent as far as I can see.
+Please note that the Sams title
+
+"Red Hat Fedora 3 Unleashed" (Billy Ball, Hoyt Duff)
+
+ISBN: 0672327082
+Format: Paperback, 950pp
+Pub. Date: December 2004
+Publisher: Sams
+Edition Description: Book with 2 CD's
+
+includes 2 CDs and a DVD containing GPL'ed software, but the licensing agreement
+on the packaging is incompatible with the GPL (particularly the "no further
+restrictions" requirement of clause 6 of the GPL Version 2):
+
+  "By opening this sealed package, you accept and agree to the terms and
+  conditions printed below.  If you do not agree, DO NOT OPEN THIS PACKAGE and
+  immediately return the sealed package with a copy of your receipt for a full
+  refund.
+
+  This Software is protected by copyright and is being licenced to you to use
+  and display solely for your personal use, unless the software was expressly sold
+  to you for networking. You may *NOT* transfer or distribute the Software to
+  anyone else by any means, including by posting it on the Internet. Except for
+  one backup copy, you may *not* copy the Software or documentaion. You may *not*
+  reverse engineer, disassemble, decompile, modify, adapt, translate, or create
+  derivative works of the Software or documentation. You may be held legally
+  responsible for any unlawful copying or documentaion.
+
+  The Software media is distributed on an "AS IS"  basis,  without warranty.
+  Neither the authors, licensors nor Pearson Education Inc. makes any
+  representation, either expressed or implied, with respect to the Software, its
+  quality, accuracy, fitness for a specific purpose or merchantability. Neither
+  the authors, licensors, nor Pearson Education, Inc. has any liability to you or
+  any other person with respect to any loss or damage caused by or alledged to
+  have been caused by the Software including, but not limited to, direct,
+  indirect, incidental and consequential damages, personal injury, wrongful
+  death, lost profits, or damages resulting from lost data, loss of service, or
+  business interruption.  This limitation may not be binding in your state.  If
+  the media is defective, you may return it for replacement."
+
+By failing to adhere to the requirements of the GPL (of which you received at
+least 474 copies contained in a full Fedora Core 3 distribution, not counting
+those copies contained within *.src.rpm files), you are in violation of clause
+5 of the GPL:
+
+    5. You are not required to accept this License, since you have not
+  signed it.  However, nothing else grants you permission to modify or
+  distribute the Program or its derivative works.  These actions are
+  prohibited by law if you do not accept this License.  Therefore, by
+  modifying or distributing the Program (or any work based on the
+  Program), you indicate your acceptance of this License to do so, and
+  all its terms and conditions for copying, distributing or modifying
+  the Program or works based on it.
+
+Additionally, it's unclear if shipping a Fedora stripped down to fit on 2 disks
+is permissible under RedHat's trademark guidelines: http://fedora.redhat.com/about/trademarks/
+(in particular, note the "without modification" in clause 1 on this page:
+http://fedora.redhat.com/about/trademarks/guidelines/page4.html)
 
 
--Andi
+
+--==_Exmh_1114442561_5553P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCbQtBcC3lWbTT17ARAjT2AJ9lWjz/nmilABz/Tc8LsTz4oNKUqACg9x9e
+00HDcyWA8QBrEZHib1EbBoQ=
+=8vOE
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1114442561_5553P--

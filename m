@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262620AbVDYOrx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262618AbVDYOup@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262620AbVDYOrx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 10:47:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262622AbVDYOrx
+	id S262618AbVDYOup (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 10:50:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262624AbVDYOup
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 10:47:53 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:31388 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262620AbVDYOrw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 10:47:52 -0400
-Date: Mon, 25 Apr 2005 15:47:49 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Jes Sorensen <jes@wildopensource.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: returning non-ram via ->nopage, was Re: [patch] mspec driver for 2.6.12-rc2-mm3
-Message-ID: <20050425144749.GA10093@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jes Sorensen <jes@wildopensource.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <16987.39773.267117.925489@jaguar.mkp.net> <20050412032747.51c0c514.akpm@osdl.org> <yq07jj8123j.fsf@jaguar.mkp.net> <20050413204335.GA17012@infradead.org> <yq08y3bys4e.fsf@jaguar.mkp.net> <20050424101615.GA22393@infradead.org> <yq03btftb9u.fsf@jaguar.mkp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <yq03btftb9u.fsf@jaguar.mkp.net>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 25 Apr 2005 10:50:45 -0400
+Received: from fire.osdl.org ([65.172.181.4]:4747 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262618AbVDYOuj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 10:50:39 -0400
+Date: Mon, 25 Apr 2005 07:52:31 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Matthias-Christian Ott <matthias.christian@tiscali.de>
+cc: git@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH GIT 0.6] make use of register variables & size_t
+In-Reply-To: <426CD1F1.2010101@tiscali.de>
+Message-ID: <Pine.LNX.4.58.0504250751330.18901@ppc970.osdl.org>
+References: <426CD1F1.2010101@tiscali.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jes has this shiny new IA64 uncached foo bar whizbang driver (see the patch
-at http://marc.theaimsgroup.com/?l=linux-kernel&m=111416930927092&w=2),
-which has a nopage routine that calls remap_pfn_range from ->nopage for
-uncached memory that's not part of the mem map.  Because ->nopage wants
-to return a struct page * he's allocating a normal kernel page and actually
-returns that one - to get the page he wants into the pagetables his does
-all the pagetable manipulation himself before (See the glory details of
-pagetable walks and modification inside a driver in the patch above).
 
-I don't think these hacks are acceptable for a driver, especially as the
-problem can easily be solved by calling remap_pfn_range in ->mmap - except
-SGI also wants node locality..
+
+On Mon, 25 Apr 2005, Matthias-Christian Ott wrote:
+>
+> The "git" didn't try store small variables, which aren't referenced, in 
+> the processor registers. It also didn't use the size_t type. I corrected 
+> a C++ style comment too.
+
+What kind of ancient C standard are you working against?
+
+// isn't "C++" any more, and "register" variables are sooo 60's, man.
+
+Pass the toke,
+
+		Linus

@@ -1,53 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262691AbVDYRvn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262668AbVDYRz2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262691AbVDYRvn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 13:51:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262668AbVDYRvn
+	id S262668AbVDYRz2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 13:55:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262675AbVDYRz2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 13:51:43 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:48305 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262666AbVDYRvj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 13:51:39 -0400
-Message-Id: <200504251751.j3PHpE7T004422@laptop11.inf.utfsm.cl>
-To: Matthias-Christian Ott <matthias.christian@tiscali.de>
-cc: Linus Torvalds <torvalds@osdl.org>, git@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH GIT 0.6] make use of register variables & size_t 
-In-Reply-To: Message from Matthias-Christian Ott <matthias.christian@tiscali.de> 
-   of "Mon, 25 Apr 2005 13:18:09 +0200." <426CD1F1.2010101@tiscali.de> 
-Date: Mon, 25 Apr 2005 13:51:14 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Mon, 25 Apr 2005 13:50:05 -0400 (CLT)
+	Mon, 25 Apr 2005 13:55:28 -0400
+Received: from 113.135.160.66.in-arpa.com ([66.160.135.113]:16647 "EHLO
+	furrylvs.randyg.org") by vger.kernel.org with ESMTP id S262668AbVDYRzV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 13:55:21 -0400
+Message-ID: <426D2F03.2040001@bushytails.net>
+Date: Mon, 25 Apr 2005 10:55:15 -0700
+From: Randy Gardner <lkml@bushytails.net>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ide-cd?  Can burn DVDs, just not read them...
+References: <426972E5.4000408@bushytails.net> <20050425163436.GA15693@csclub.uwaterloo.ca>
+In-Reply-To: <20050425163436.GA15693@csclub.uwaterloo.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias-Christian Ott <matthias.christian@tiscali.de> said:
-> [Proposed patch adding "register" snipped]
+Lennart Sorensen wrote:
+> Have you checked that the drive is running the latest firmware release
+> for it?  Bad firmware causes all sorts of problems.
 
-Somebody a long while ago told me there are 3 kinds of C compilers with
-respect "register": Dumb ones (they don't even consider it, just do
-business as usual, as they don't know any better), normal ones (they
-consider "register" and honor it if they can), and bright ones (they don't
-even consider it, as they do a much better job using registers than any
-programmer could direct them to by wiring a value into a register). GCC
-definitely falls on the brighter side, at least if you tell it to
-optimize. I think "register" should be marked deprecated in C (and there
-are few good texts that even mention the word today, so it is deprecated in
-practice).
+Don't have an easy way to test that; I'd have to take it back to the 
+person with a dual-boot box, as I'm pretty sure their update utility is 
+a windoze bianry...
 
-Better compare the code produced (with -S instead of -c you'll get
-assembler output in .s, not object code in .o) before any optimization
-proposal. But also consider that large real gains come from higher-level
-changes (better data structures, more efficient algorithms) and not from
-low-level changes (In any case, today's compilers are usually smart enough
-to make low-level changes on their own, so you can (thankfully) concentrate
-on writing clear, correct code; and let the compiler make it fast. Sure,
-where it is in a stretch of hot code, executed hundereds of times a second
-on millions of machines worldwide, extra loving care is warranted, but that
-is another kettle of fish.).
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+But, since problems are also happening with my cd-rw drive (even with 
+the dvd-rw out of the system), which I know worked before, I don't think 
+it's a drive problem.
+
+
+> What other device is it sharing the cable with?  Which is master and
+> which is slave?
+
+Originally it shared a cable with my cd-rw drive, but I've tried it both 
+on its own cable and sharing with one of my hard drives, on both the 
+ata/66 controller and the ata/100 raid controller, with no changes at all.
+
+> Is it a 40 or 80 conductor ide cable?  Most 8x+ DVD writers want an 80
+> conductor as far as I know (at least to operate at full speed).
+
+80 conductor cables for all tests.  I might be able to dig up a 40 
+conductor one for testing, but I don't think that'll help...
+
+> Len Sorensen
+> 
+
+Someone suggested I try a binary search of kernel versions to figure out 
+exactly when the cd-rw drive was broken (which worked before, unlike the 
+dvd, which I have no idea if it ever worked), in an effort to figure out 
+what caused it to break...  going to try this, but haven't had the 
+time...  a long project.  :)
+
+
+Thanks again,
+--Randy
+

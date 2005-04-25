@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262754AbVDYTKM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262761AbVDYTKH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262754AbVDYTKM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 15:10:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262755AbVDYTJe
+	id S262761AbVDYTKH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 15:10:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262754AbVDYTJM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 15:09:34 -0400
-Received: from smtp.nildram.co.uk ([195.112.4.54]:65298 "EHLO
-	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S262744AbVDYTHU
+	Mon, 25 Apr 2005 15:09:12 -0400
+Received: from mail.shareable.org ([81.29.64.88]:42920 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262747AbVDYTHm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 15:07:20 -0400
-From: Pete Jewell <pete@phraxos.nildram.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix for bttv driver (v0.9.15) for Leadtek WinFast VC100 XP capture cards
-Date: Mon, 25 Apr 2005 20:07:14 +0100
-User-Agent: KMail/1.8
-x-gazette-tag: PeteJ
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_j/TbCXqfLlwDW5F"
-Message-Id: <200504252007.15329.pete@phraxos.nildram.co.uk>
-X-AV-Checked: ClamAV using ClamSMTP
+	Mon, 25 Apr 2005 15:07:42 -0400
+Date: Mon, 25 Apr 2005 20:07:34 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Miklos Szeredi <miklos@szeredi.hu>, hch@infradead.org,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH] private mounts
+Message-ID: <20050425190734.GB28294@mail.shareable.org>
+References: <E1DPnOn-0000T0-00@localhost> <20050424201820.GA28428@infradead.org> <E1DPo3I-0000V0-00@localhost> <20050424205422.GK13052@parcelfarce.linux.theplanet.co.uk> <E1DPoCg-0000W0-00@localhost> <20050424210616.GM13052@parcelfarce.linux.theplanet.co.uk> <20050424213822.GB9304@mail.shareable.org> <20050425152049.GB2508@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050425152049.GB2508@elf.ucw.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_j/TbCXqfLlwDW5F
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Pavel Machek wrote:
+> > > ... is the same as for the same question with "set of mounts" replaced
+> > > with "environment variables".
+> > 
+> > Not quite.
+> > 
+> > After changing environment variables in .profile, you can copy them to
+> > other shells using ". ~/.profile".
+> > 
+> > There is no analogous mechanism to copy namespaces.
+> 
+> Actually, after you add right mount xyzzy /foo lines into .profile,
+> you can just . ~/.profile ;-).
 
-Hi
+Is there a mount command that can do that?  We're talking about
+private mounts - invisible to other namespaces, which includes the
+other shells.
 
-This is a tiny patch that fixes bttv-cards.c so that Leadtek WinFast VC100 
-XP video capture cards work.  I've been advised to post it here after 
-having already posted it to the v4l mailing list.
+If there was a /proc/NNN/namespace, that would do the trick :)
 
-Thanks.
-
--- 
-Pete
-
---Boundary-00=_j/TbCXqfLlwDW5F
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="bttv-cards.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="bttv-cards.patch"
-
---- bttv-cards.c	2005-04-24 23:39:41.000000000 +0100
-+++ /usr/src/kernel-source-2.6.11/drivers/media/video/bttv-cards.c	2005-04-25 19:59:27.000000000 +0100
-@@ -1939,7 +1939,6 @@
-         .no_tda9875     = 1,
-         .no_tda7432     = 1,
-         .tuner_type     = TUNER_ABSENT,
--        .no_video       = 1,
- 	.pll            = PLL_28,
- },{
- 	.name           = "Teppro TEV-560/InterVision IV-560",
-
---Boundary-00=_j/TbCXqfLlwDW5F--
+-- Jamie

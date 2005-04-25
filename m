@@ -1,66 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262668AbVDYRz2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262685AbVDYSGx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262668AbVDYRz2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 13:55:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262675AbVDYRz2
+	id S262685AbVDYSGx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 14:06:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbVDYSGx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 13:55:28 -0400
-Received: from 113.135.160.66.in-arpa.com ([66.160.135.113]:16647 "EHLO
-	furrylvs.randyg.org") by vger.kernel.org with ESMTP id S262668AbVDYRzV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 13:55:21 -0400
-Message-ID: <426D2F03.2040001@bushytails.net>
-Date: Mon, 25 Apr 2005 10:55:15 -0700
-From: Randy Gardner <lkml@bushytails.net>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
+	Mon, 25 Apr 2005 14:06:53 -0400
+Received: from mail.dif.dk ([193.138.115.101]:40076 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S262685AbVDYSGu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 14:06:50 -0400
+Date: Mon, 25 Apr 2005 20:10:04 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: David Teigland <teigland@redhat.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 2/7] dlm: communication
+In-Reply-To: <20050425151218.GC6826@redhat.com>
+Message-ID: <Pine.LNX.4.62.0504251844540.2941@dragon.hyggekrogen.localhost>
+References: <20050425151218.GC6826@redhat.com>
 MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ide-cd?  Can burn DVDs, just not read them...
-References: <426972E5.4000408@bushytails.net> <20050425163436.GA15693@csclub.uwaterloo.ca>
-In-Reply-To: <20050425163436.GA15693@csclub.uwaterloo.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lennart Sorensen wrote:
-> Have you checked that the drive is running the latest firmware release
-> for it?  Bad firmware causes all sorts of problems.
+On Mon, 25 Apr 2005, David Teigland wrote:
 
-Don't have an easy way to test that; I'd have to take it back to the 
-person with a dual-boot box, as I'm pretty sure their update utility is 
-a windoze bianry...
-
-But, since problems are also happening with my cd-rw drive (even with 
-the dvd-rw out of the system), which I know worked before, I don't think 
-it's a drive problem.
-
-
-> What other device is it sharing the cable with?  Which is master and
-> which is slave?
-
-Originally it shared a cable with my cd-rw drive, but I've tried it both 
-on its own cable and sharing with one of my hard drives, on both the 
-ata/66 controller and the ata/100 raid controller, with no changes at all.
-
-> Is it a 40 or 80 conductor ide cable?  Most 8x+ DVD writers want an 80
-> conductor as far as I know (at least to operate at full speed).
-
-80 conductor cables for all tests.  I might be able to dig up a 40 
-conductor one for testing, but I don't think that'll help...
-
-> Len Sorensen
 > 
+> Inter-node communiction using SCTP.  This level is not aware of locks or
+> resources or other dlm objects, only data buffers.  These functions also
+> batch (and extract) lots of small messages bound for one node into larger
+> chunks.
+> 
+> Signed-Off-By: Dave Teigland <teigland@redhat.com>
+> Signed-Off-By: Patrick Caulfield <pcaulfie@redhat.com>
+> 
+> ---
+> 
+> +struct connection {
+> +	struct socket *		sock;
+> +	unsigned long		flags;
+> +	struct page *		rx_page;
+> +	atomic_t		waiting_requests;
+> +	struct cbuf		cb;
+> +};
 
-Someone suggested I try a binary search of kernel versions to figure out 
-exactly when the cd-rw drive was broken (which worked before, unlike the 
-dvd, which I have no idea if it ever worked), in an effort to figure out 
-what caused it to break...  going to try this, but haven't had the 
-time...  a long project.  :)
+type * varname;  is not very pretty. The prefered form is generally
+type *varname;
+Several instances of this in various places.
 
 
-Thanks again,
---Randy
+> +static void init_failed(void)
+> +{
+> +	int i;
+> +	struct nodeinfo *ni;
+> +
+> +	for (i=1; i<=max_nodeid; i++) {
+Nitpicking, but how about a few spaces? 
+        for (i = 1; i <= max_nodeid; i++) {
+makes it more readable IMHO.
+
+> +#if 0
+> +static int lowcomms_close(int nodeid)
+> +{
+
+Ehh, why try and merge code that's not active? Why not leave it out and 
+submit a patch later to add it if it is needed later?
+
+
+-- 
+Jesper Juhl
+
 

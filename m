@@ -1,87 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbVDYXJx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbVDYXNV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261279AbVDYXJx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 19:09:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbVDYXJw
+	id S261163AbVDYXNV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 19:13:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbVDYXNV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 19:09:52 -0400
-Received: from fire.osdl.org ([65.172.181.4]:55248 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261280AbVDYXJt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 19:09:49 -0400
-Date: Mon, 25 Apr 2005 16:09:25 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Nagesh Sharyathi <sharyathi@in.ibm.com>
-Cc: vgoyal@in.ibm.com, akpm@osdl.org, ebiederm@xmission.com,
-       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org,
-       maneesh@in.ibm.com
-Subject: Re: [Fastboot] Re: Kdump Testing
-Message-Id: <20050425160925.3a48adc5.rddunlap@osdl.org>
-In-Reply-To: <OFB57B3D45.D8C338C5-ON65256FEE.0042F961-65256FEE.0043D4CB@in.ibm.com>
-References: <1114227003.4269c13be5f8b@imap.linux.ibm.com>
-	<OFB57B3D45.D8C338C5-ON65256FEE.0042F961-65256FEE.0043D4CB@in.ibm.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 25 Apr 2005 19:13:21 -0400
+Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:22733 "EHLO
+	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
+	id S261163AbVDYXNS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 19:13:18 -0400
+Message-ID: <426D797D.3000108@ammasso.com>
+Date: Mon, 25 Apr 2005 18:13:01 -0500
+From: Timur Tabi <timur.tabi@ammasso.com>
+Organization: Ammasso
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en, en-gb
+MIME-Version: 1.0
+To: Bob Woodruff <robert.j.woodruff@intel.com>
+CC: "'Andrew Morton'" <akpm@osdl.org>,
+       "Davis, Arlin R" <arlin.r.davis@intel.com>, hch@infradead.org,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace verbsimplementation
+References: <ORSMSX408FRaqbC8wSA00000014@orsmsx408.amr.corp.intel.com>
+In-Reply-To: <ORSMSX408FRaqbC8wSA00000014@orsmsx408.amr.corp.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Apr 2005 17:45:43 +0530
-Nagesh Sharyathi <sharyathi@in.ibm.com> wrote:
+Bob Woodruff wrote:
 
-> vgoyal@in.ltcfwd.linux.ibm.com wrote on 23/04/2005 09:00:03:
-> 
-> > Quoting "Eric W. Biederman" <ebiederm@xmission.com>:
-> 
-> > > Nagesh Sharyathi <sharyathi@in.ibm.com> writes:
-> > >
-> > > > Here is the console boot log, before the machine jumps to BIOS
-> > > > after hang during panic kerenl boot
-> > >
-> > > Ok thanks.  So this is manually triggered with SysRq
-> > > and the kexec part works but the recover kernel simply fails
-> > > to boot.
-> > >
-> > > It looks like that hunk of the ACPI code that messes up maxcpus=1
-> > > needs to be looked at.
-> 
-> > It works well with Uniporcessor capture kernel. For the time being 
-> sufficient
-> > to capture the dump but it is always good idea to be able to boot 
-> > and SMP kernel
-> > as well.
-> > 
-> > Vivek
-> I verified on my machine where earlier kdump used to fail and after 
-> disabling CONFIG_SMP(ie CONFIG_SMP=n) crash kernel boots properly and I am 
-> able to take the memory dump
+> There definitely needs to be a mechanism to prevent people from pinning
+> too much memory. 
 
+Any limit would have to be very high - definitely more than just half.  What if the 
+application needs to pin 2GB?  The customer is not going to buy 4+ GB of RAM just because 
+Linux doesn't like pinning more than half.  In an x86-32 system, that would required PAE 
+support and slow everything down.
 
-Thanks for those hints.  However, my testing didn't go quite
-as well as that.
+Off the top of my head, I'd say Linux would need to allow all but 512MB to be pinned.  So 
+you have 3GB of RAM, Linux should allow you to pin 2.5GB.
 
-
-2.6.12-rc2-mm3 reboots vmlinux-recover-UP on panic.
-(vmlinux-recover-SMP hangs during [early] reboot, but -UP
-goes further....)
-
-(BTW, how does I do serial console from the second
-kernel...?  It has the drivers, but not the command
-line info?  TBD.)
-
-vmlinux-recover-UP gets to this point, hand-written,
-several lines missing:
-
-kfree_debugcheck: bad ptr c3dbffb0h.  ( == %esi)
-kernel BUG at <bad filename>:23128!
-invalid operand: 0000 [#1]
-DEBUG_PAGEALLOC
-EIP is at kfree_debugcheck+0x45/0x50
-
-Stack dump shows lots of ext3 cache and inode functions...
-
-On a dual-proc P4 with 1 GB RAM.
 -- 
-~Randy
+Timur Tabi
+Staff Software Engineer
+timur.tabi@ammasso.com
+
+One thing a Southern boy will never say is,
+"I don't think duct tape will fix it."
+      -- Ed Smylie, NASA engineer for Apollo 13

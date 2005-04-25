@@ -1,71 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262679AbVDYR2Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262669AbVDYRdD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262679AbVDYR2Y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 13:28:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262669AbVDYRZo
+	id S262669AbVDYRdD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 13:33:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262738AbVDYRZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 13:25:44 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:58855 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S262713AbVDYRV5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 13:21:57 -0400
-Message-ID: <426D2723.8070308@adaptec.com>
-Date: Mon, 25 Apr 2005 13:21:39 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       andrew.patterson@hp.com, Eric.Moore@lsil.com, mike.miller@hp.com,
-       dougg@torque.net, Madhuresh_Nagshain@adaptec.com
-Subject: Re: [RFC] SAS domain layout for Linux sysfs
-References: <425D392F.2080702@adaptec.com> <20050424111908.GA23010@infradead.org> <426D1572.70508@adaptec.com> <20050425161411.GA11938@infradead.org>
-In-Reply-To: <20050425161411.GA11938@infradead.org>
-Content-Type: text/plain; charset=us-ascii
+	Mon, 25 Apr 2005 13:25:05 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:37650 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262726AbVDYRWy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 13:22:54 -0400
+Message-Id: <200504251722.j3PHMalh017453@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Matthias-Christian Ott <matthias.christian@tiscali.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, git@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH GIT 0.6] make use of register variables & size_t 
+In-Reply-To: Your message of "Mon, 25 Apr 2005 18:59:42 +0200."
+             <426D21FE.3040401@tiscali.de> 
+From: Valdis.Kletnieks@vt.edu
+References: <426CD1F1.2010101@tiscali.de> <Pine.LNX.4.58.0504250751330.18901@ppc970.osdl.org>
+            <426D21FE.3040401@tiscali.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1114449756_5553P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Apr 2005 17:21:40.0619 (UTC) FILETIME=[3E7F9DB0:01C549BB]
+Date: Mon, 25 Apr 2005 13:22:36 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 04/25/05 12:14, Christoph Hellwig wrote:
-> Please read the previous mail again, you're not getting it at all. 
-> If you don't understand the problems it's not worth talking about more.
+--==_Exmh_1114449756_5553P
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Here is your original email:
+On Mon, 25 Apr 2005 18:59:42 +0200, Matthias-Christian Ott said:
 
-On 04/24/05 07:19, Christoph Hellwig wrote:
-> This is contrary to any sysfs topology I know about, especially any
-> existing transport class (SPI, FC, iSCSI).  We only ever care about
-> what's seen from a HA, e.g. if you have muliple SPI cards that are
-> on a single parallel bus you'll have the same bus represented twice,
-> similarly if you have two fibre channel HBAs connected to the same
-> SAN you'll have the SAN topology duplicated in both sub-topologies.
-> This matches the internal data structure of the scsi subsystem and
-> the transport class, e.g. we have a scsi_device object for every lun
-> that's seen from a hba, linked to the HBAs Scsi_Host object and not
-> one shared by multiple HBAs.  Dito for fibre channel remote ports.
+> And if you think =22register=22 variables are outdated, please remove t=
+he=20
+> CONFIG_REGPARM option from the Kernel source.
 
-You're are stating that:
-1) You "only ever care about what's seen from a HA",
-2) "if you have muliple SPI cards that are on a single parallel
-    bus you'll have the same bus represented twice"
-3) "we have a scsi_device object for every lun
-    that's seen from a hba, linked to the HBAs Scsi_Host object
-    and not one shared by multiple HBAs"
+I think you fail to understand the difference between what CONFIG_REGPARM=
+ does
+(namely, controlling the way parameters are passed to function calls) and=
+ what
+the 'register' declaration does....
 
-So in effect, you _want_ duplication, right?  This is perfectly OK.
-In fact it is desirable (and has never been under question).
+> =5B2=5D Erik de Castro Lopo, Peter Aitken, Bradley L. Jones: Teach Your=
+self=20
+> C for Linux Programming in 21 Days; SAMS Publishing; 1999
 
-This isn't directly related to the RFC.  The RFC basically
-outlines the result of *a SAS discovery process*.  The discovery
-process/LLDD can register the LU many times.  This has *never* been an
-issue of discussion.
+Umm.. Yeah.  =22Teach yourself FOO in 21 days=22.  Quite the outstanding =
+authority
+to cite.  Gotta love the publisher too.. ;)
 
-Your concern is satisfied in that, /sys/bus/scsi/devices/... would
-point to the LU.  And a link from /sys/class/sas_ha/ha0/devices/
-to the LU could be placed (outside the scope of this RFC).  The RFC
-doesn't mention LUs, but they could be included if you wish so.
 
-	Luben
+--==_Exmh_1114449756_5553P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCbSdccC3lWbTT17ARAh/fAKDZx1i+JXNXDQoeJMZnyytFn8nADQCeKgFC
+gsbk15PHBohZYSzlymvPXYo=
+=wfrs
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1114449756_5553P--

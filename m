@@ -1,62 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262658AbVDYQA3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262632AbVDYQAM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262658AbVDYQA3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 12:00:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262667AbVDYPvY
+	id S262632AbVDYQAM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 12:00:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262661AbVDYPz1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 11:51:24 -0400
-Received: from mail.dif.dk ([193.138.115.101]:6530 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S262660AbVDYPug (ORCPT
+	Mon, 25 Apr 2005 11:55:27 -0400
+Received: from colin.muc.de ([193.149.48.1]:22545 "EHLO colin2.muc.de")
+	by vger.kernel.org with ESMTP id S262660AbVDYPxL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 11:50:36 -0400
-Date: Mon, 25 Apr 2005 17:53:49 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: David Teigland <teigland@redhat.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH 4/7] dlm: configuration
-In-Reply-To: <20050425151250.GE6826@redhat.com>
-Message-ID: <Pine.LNX.4.62.0504251749090.2941@dragon.hyggekrogen.localhost>
-References: <20050425151250.GE6826@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 25 Apr 2005 11:53:11 -0400
+Date: 25 Apr 2005 17:53:07 +0200
+Date: Mon, 25 Apr 2005 17:53:07 +0200
+From: Andi Kleen <ak@muc.de>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386: optimize swab64
+Message-ID: <20050425155307.GB65287@muc.de>
+References: <200504251019.30173.vda@port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200504251019.30173.vda@port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Apr 2005, David Teigland wrote:
+On Mon, Apr 25, 2005 at 10:19:30AM +0300, Denis Vlasenko wrote:
+> I noticed that swab64 explicitly swaps 32-bit halves, but this is
+> not really needed because CPU is 32-bit anyway and we can
+> just tell GCC to treat registers as being swapped.
+
+No, we went through this exactly when the code was originally done.
+gcc puts long long only into aligned register pairs, and with 
+register swap you need at least 4 registers which blows near
+all possible registers away and completely breaks register
+allocation in the function. Dont apply this!
+
+-Andi
 
 > 
-> Per-lockspace configuration happens through files under:
-> /sys/kernel/dlm/<lockspace_name>/.  This includes telling each lockspace
-> which nodes are using the lockspace and suspending locking in a lockspace.
+> Example of resulting code:
 > 
-> Lockspace-independent configuration involves telling the dlm communication
-> layer the IP address of each node ID that's being used.  These addresses
-> are set using an ioctl on a misc device.
+>        mov    0x20(%ecx,%edi,8),%eax
+>        mov    0x24(%ecx,%edi,8),%edx
+>        lea    0x1(%edi),%esi
+>        mov    %esi,0xfffffdf4(%ebp)
+>        mov    %eax,%ebx
+>        mov    %edx,%esi
+>        bswap  %ebx
+>        bswap  %esi
+>        mov    %esi,0xffffff74(%ebp,%edi,8)
+>        mov    %ebx,0xffffff78(%ebp,%edi,8)
 > 
-> Signed-Off-By: Dave Teigland <teigland@redhat.com>
-> Signed-Off-By: Patrick Caulfield <pcaulfie@redhat.com>
+> As you can see, swap is achieved simply by using
+> appropriate registers in last two insns.
 > 
-[...]
-> +static ssize_t dlm_finish_store(struct dlm_ls *ls, const char *buf, size_t len)
-> +{
-> +	dlm_ls_finish(ls, simple_strtol(buf, NULL, 0));
-> +	return len;
-> +}
-[...]
-> +static ssize_t dlm_id_store(struct dlm_ls *ls, const char *buf, size_t len)
-> +{
-> +	ls->ls_global_id = simple_strtol(buf, NULL, 0);
-> +	return len;
-> +}
-[...]
-
-What's the point of `len' in these two functions? 
-You pass in `len`, don't use it at all, then return the value. I fail to 
-see the usefulness. Why not just have the function return void and omit 
-the `len' parameter?
-
-
--- 
-Jesper Juhl
-
-
+> (Why does gcc do extra register moves just before bswaps
+> is another question. No regression here, old code had them too)

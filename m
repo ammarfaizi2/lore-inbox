@@ -1,51 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbVDYUYr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261176AbVDYUYo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261155AbVDYUYr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 16:24:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261163AbVDYUYi
+	id S261176AbVDYUYo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 16:24:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVDYUYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 16:24:38 -0400
-Received: from colino.net ([213.41.131.56]:45554 "EHLO paperstreet.colino.net")
-	by vger.kernel.org with ESMTP id S261162AbVDYUUu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 16:20:50 -0400
-Date: Mon, 25 Apr 2005 22:20:39 +0200
-From: Colin Leroy <colin@colino.net>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       "debian-powerpc@lists.debian.org" <debian-powerpc@lists.debian.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: 2.6.12-rc3 cpufreq compile error on ppc32
-Message-ID: <20050425222039.5421fa64@jack.colino.net>
-In-Reply-To: <1114129070.5996.36.camel@gaston>
-References: <20050421092611.37df940b@colin.toulouse>
-	<1114129070.5996.36.camel@gaston>
-X-Mailer: Sylpheed-Claws 1.9.6cvs36 (GTK+ 2.6.4; powerpc-unknown-linux-gnu)
-X-Face: Fy:*XpRna1/tz}cJ@O'0^:qYs:8b[Rg`*8,+o^[fI?<%5LeB,Xz8ZJK[r7V0hBs8G)*&C+XA0qHoR=LoTohe@7X5K$A-@cN6n~~J/]+{[)E4h'lK$13WQf$.R+Pi;E09tk&{t|;~dakRD%CLHrk6m!?gA,5|Sb=fJ=>[9#n1Bu8?VngkVM4{'^'V_qgdA.8yn3)
+	Mon, 25 Apr 2005 16:24:32 -0400
+Received: from rproxy.gmail.com ([64.233.170.197]:12737 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261161AbVDYUW3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 16:22:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=cLgRePGXE1Q1ke3qPPK36toXXlDSNCzIBHdrJR9bNHh/Pc0MmubZyPoJ8RQT8iiZy0PcHsmZB3lgpzUh16cHeHGwEtYeyFtRCD5QaTAnIxCgfjz8ylTw4A55BPJ/LzeLSubpNuPI4HrcDi6NURSDBvC1aqlTvgPFHJ6AoM7JQ1o=
+Message-ID: <d120d500050425132250916bcb@mail.gmail.com>
+Date: Mon, 25 Apr 2005 15:22:29 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: johnpol@2ka.mipt.ru
+Subject: Re: [RFC/PATCH 0/22] W1: sysfs, lifetime and other fixes
+Cc: sensors@stimpy.netroedge.com, LKML <linux-kernel@vger.kernel.org>,
+       Greg KH <gregkh@suse.de>
+In-Reply-To: <20050426001500.6a199399@zanzibar.2ka.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200504210207.02421.dtor_core@ameritech.net>
+	 <1114089504.29655.93.camel@uganda>
+	 <d120d50005042107314cbacdea@mail.gmail.com>
+	 <1114420131.8527.52.camel@uganda>
+	 <d120d50005042509326241a302@mail.gmail.com>
+	 <20050426001500.6a199399@zanzibar.2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Apr 2005 at 10h04, Benjamin Herrenschmidt wrote:
+On 4/25/05, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> While thinking about locking schema
+> with respect to sysfs files I recalled,
+> why I implemented such a logic -
+> now one can _always_ remove _any_ module
+> [corresponding object is removed from accessible
+> pathes and waits untill all exsting users are gone],
+> which is very good - I really like it in networking model,
+> while with whole device driver model
+> if we will read device's file very quickly
+> in several threads we may end up not unloading it at all.
 
-Hi, 
+I am sorrry, that is complete bull*. sysfs also allows removing
+modules at an arbitrary time (and usually without annoying "waiting
+for refcount" at that)... You just seem to not understand how driver
+code works, thus the need of inventing your own schema.
 
-> > 
-> > One of Ben's patches ("ppc32: Fix cpufreq problems") went in 2.6.12-
-> > rc3, but it depended on another patch that's still in -mm only: 
-> > add-suspend-method-to-cpufreq-core.patch
-> > 
-> > In addition to this, there's a third patch in -mm that fixes
-> > warnings and line length to the previous patch, but it doesn't
-> > apply cleanly anymore. It's named add-suspend-method-to-cpufreq-
-> > core-warning-fix.patch
-> 
-> Yup, please, Andrew, get those 2 to Linus.
-
-Just a heads-up : I didn't see these go into the git tree?
+BTW, I am looking at the connector code ATM and I am just amazed at
+all wied refounting stuff that is going on there. what a single
+actomic_dec_and_test() call without checkng reurn vaue is supposed to
+do again?
 
 -- 
-Colin
+Dmitry

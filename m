@@ -1,61 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261173AbVDYUwU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVDYUwt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261173AbVDYUwU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 16:52:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbVDYUwU
+	id S261174AbVDYUwt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 16:52:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbVDYUwt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 16:52:20 -0400
-Received: from mailfe08.swip.net ([212.247.154.225]:24567 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S261173AbVDYUwI (ORCPT
+	Mon, 25 Apr 2005 16:52:49 -0400
+Received: from smtp.istop.com ([66.11.167.126]:58279 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S261174AbVDYUwX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 16:52:08 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Subject: Re: [PATCH] PCI: Add pci shutdown ability
-From: Alexander Nyberg <alexn@dsv.su.se>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Greg KH <greg@kroah.com>, Amit Gud <gud@eth.net>,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       akpm@osdl.org, jgarzik@pobox.com, cramerj@intel.com,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-In-Reply-To: <Pine.LNX.4.44L0.0504251609420.7408-100000@iolanthe.rowland.org>
-References: <Pine.LNX.4.44L0.0504251609420.7408-100000@iolanthe.rowland.org>
-Content-Type: text/plain
-Date: Mon, 25 Apr 2005 22:52:03 +0200
-Message-Id: <1114462323.983.45.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Mon, 25 Apr 2005 16:52:23 -0400
+From: Daniel Phillips <phillips@istop.com>
+To: David Teigland <teigland@redhat.com>
+Subject: Re: [PATCH 0/7] dlm: overview
+Date: Mon, 25 Apr 2005 16:52:27 -0400
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <20050425151136.GA6826@redhat.com>
+In-Reply-To: <20050425151136.GA6826@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200504251652.27840.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Not sure what you mean by "make kexec work nicer" but if it is because
-> > some devices don't work after a kexec I have some objections.
-> 
-> That was indeed the reason, at least in my case.  The newly-rebooted
-> kernel doesn't work too well when there are active devices, with no driver
-> loaded, doing DMA and issuing IRQs because they were never shut down.
->
-> > What about the kexec-on-panic?
-> > 
-> > In the end at least every storage device should work after a
-> > kexec-on-panic or else there might be cases where we cannot get dumps of
-> > what happened. My guess is that having access to the network might come
-> > in handy after a kexec-on-panic as well.
-> > 
-> > So if this patch is because some devices don't work across kexec I don't
-> > think this is a good idea because the same devices won't work after a
-> > kexec-on-panic.
-> 
-> Do I understand your argument correctly?  You seem to be saying that 
-> because this new facility sometimes won't work (the kexec-on-panic case) 
-> it shouldn't be added at all.  What about all the other times when it will 
-> work?
+Hi Dave,
 
-No, I was saying that this approach doesn't solve all problems that
-exist with kexec and kexec-on-panic is a very important coming
-functionality. If there is going to be prepatory work for its coming we
-might as well at least try to consider all the problems that are at
-hand.
-Otherwise the same problems will just appear again when kexec-on-panic
-starts to get used in the real world.
+On Monday 25 April 2005 11:11, David Teigland wrote:
+> We've done a lot of work in this second version to meet the kernel's
+> conventions.  Comments and suggestions are welcome; we're happy to answer
+> questions and make changes so this can be a widely useful feature for
+> people running Linux clusters.
 
+Good luck with this.  A meta-comment: you used to call it gdlm, right?  I 
+think it would be a very good idea to return to that name, unless you think 
+that this will be the only dlm in linux, ever.
+
+Regards,
+
+Daniel

@@ -1,68 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262682AbVDYRUZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262673AbVDYR2X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262682AbVDYRUZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 13:20:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262668AbVDYRN4
+	id S262673AbVDYR2X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 13:28:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262679AbVDYRZ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 13:13:56 -0400
-Received: from sccrmhc14.comcast.net ([204.127.202.59]:36318 "EHLO
-	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S262695AbVDYRI2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 13:08:28 -0400
-Message-ID: <426D2409.9020201@acm.org>
-Date: Mon, 25 Apr 2005 12:08:25 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
+	Mon, 25 Apr 2005 13:25:57 -0400
+Received: from fire.osdl.org ([65.172.181.4]:61634 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262673AbVDYRVq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 13:21:46 -0400
+Date: Mon, 25 Apr 2005 10:23:40 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Matthias-Christian Ott <matthias.christian@tiscali.de>
+cc: git@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH GIT 0.6] make use of register variables & size_t
+In-Reply-To: <426D21FE.3040401@tiscali.de>
+Message-ID: <Pine.LNX.4.58.0504251021280.18901@ppc970.osdl.org>
+References: <426CD1F1.2010101@tiscali.de> <Pine.LNX.4.58.0504250751330.18901@ppc970.osdl.org>
+ <426D21FE.3040401@tiscali.de>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Fix for handling bad IPMI DMI data
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------070102020000020006080106"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070102020000020006080106
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
 
+On Mon, 25 Apr 2005, Matthias-Christian Ott wrote:
+>
+> "register" and "auto" variables aren't relicts of the 60's,  they're a 
+> part of the ISO-C 99 standard, I'm following, "man".
 
---------------070102020000020006080106
-Content-Type: text/x-patch;
- name="ipmi_dmi_fix.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ipmi_dmi_fix.diff"
+They _are_ relicts of the 60's. It's just that the C standard hasn't ever 
+had the reason to remove them.
 
-Ignore the bottom bit of the base address from the DMI data.  It
-is supposed to be set to 1 if it is I/O space.  Few systems do this,
-but this enables the ones that do set it to work properly.
+> And if you think "register" variables are outdated, please remove the 
+> CONFIG_REGPARM option from the Kernel source.
 
-Signed-off-by: Corey Minyard <minyard@acm.org>
+That does something totally different. And doesn't use "register" at all.
 
-Index: linux-2.6.12-rc2/drivers/char/ipmi/ipmi_si_intf.c
-===================================================================
---- linux-2.6.12-rc2.orig/drivers/char/ipmi/ipmi_si_intf.c
-+++ linux-2.6.12-rc2/drivers/char/ipmi/ipmi_si_intf.c
-@@ -1654,7 +1654,13 @@
- 		}
- 	} else {
- 		/* Old DMI spec. */
--		ipmi_data->base_addr = base_addr;
-+		/* Note that technically, the lower bit of the base
-+		 * address should be 1 if the address is I/O and 0 if
-+		 * the address is in memory.  So many systems get that
-+		 * wrong (and all that I have seen are I/O) so we just
-+		 * ignore that bit and assume I/O.  Systems that use
-+		 * memory should use the newer spec, anyway. */
-+		ipmi_data->base_addr = base_addr & 0xfffe;
- 		ipmi_data->addr_space = IPMI_IO_ADDR_SPACE;
- 		ipmi_data->offset = 1;
- 	}
+Pass the toke, you've been hogging the drugs for way too long.
 
---------------070102020000020006080106--
+		Linus

@@ -1,51 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262388AbVDYAwc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262390AbVDYA7i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262388AbVDYAwc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 20:52:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262390AbVDYAwc
+	id S262390AbVDYA7i (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 20:59:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262392AbVDYA7h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 20:52:32 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:1678 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262388AbVDYAwa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 20:52:30 -0400
-Subject: Re: [PATCH 6/6]suspend/resume SMP support
-From: Li Shaohua <shaohua.li@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Antonino A. Daplas" <adaplas@pol.net>, Pavel Machek <pavel@ucw.cz>,
-       lkml <linux-kernel@vger.kernel.org>,
-       ACPI-DEV <acpi-devel@lists.sourceforge.net>,
-       Len Brown <len.brown@intel.com>, Zwane Mwaikambo <zwane@linuxpower.ca>,
-       linux-fbdev-devel@lists.sourceforge.net
-In-Reply-To: <20050423153501.5286b6c6.akpm@osdl.org>
-References: <1113283867.27646.434.camel@sli10-desk.sh.intel.com>
-	 <20050412105115.GD17903@elf.ucw.cz>
-	 <1113309627.5155.3.camel@sli10-desk.sh.intel.com>
-	 <20050413083202.GA1361@elf.ucw.cz>
-	 <1113467253.2568.10.camel@sli10-desk.sh.intel.com>
-	 <20050423153501.5286b6c6.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1114390165.29778.8.camel@sli10-desk.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 25 Apr 2005 08:49:25 +0800
+	Sun, 24 Apr 2005 20:59:37 -0400
+Received: from aibo.runbox.com ([193.71.199.94]:15250 "EHLO cujo.runbox.com")
+	by vger.kernel.org with ESMTP id S262390AbVDYA70 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Apr 2005 20:59:26 -0400
+Message-ID: <426C4168.6030008@dwheeler.com>
+Date: Sun, 24 Apr 2005 21:01:28 -0400
+From: "David A. Wheeler" <dwheeler@dwheeler.com>
+Reply-To: dwheeler@dwheeler.com
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Paul Jakma <paul@clubi.ie>
+CC: Linus Torvalds <torvalds@osdl.org>, Sean <seanlkml@sympatico.ca>,
+       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       David Woodhouse <dwmw2@infradead.org>, Jan Dittmer <jdittmer@ppp0.net>,
+       Greg KH <greg@kroah.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: Git-commits mailing list feed.
+References: <200504210422.j3L4Mo8L021495@hera.kernel.org>       <42674724.90005@ppp0.net> <20050422002922.GB6829@kroah.com>       <426A4669.7080500@ppp0.net>       <1114266083.3419.40.camel@localhost.localdomain>       <426A5BFC.1020507@ppp0.net>       <1114266907.3419.43.camel@localhost.localdomain>       <Pine.LNX.4.58.0504231010580.2344@ppc970.osdl.org>       <20050423175422.GA7100@cip.informatik.uni-erlangen.de>       <Pine.LNX.4.58.0504231125330.2344@ppc970.osdl.org> <2911.10.10.10.24.1114279589.squirrel@linux1> <Pine.LNX.4.58.0504231234550.2344@ppc970.osdl.org> <Pine.LNX.4.62.0504250008370.14200@sheen.jakma.org>
+In-Reply-To: <Pine.LNX.4.62.0504250008370.14200@sheen.jakma.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-04-24 at 06:35, Andrew Morton wrote:
-> fbcon is trying to call kmalloc before the slab system is initialised. 
-> It would be best to fix that within fbcon.
-This solves the problem too.
 
-> Well as the comment says, if this CPU isn't online yet, and if the system
-> has not yet reached SYSTEM_RUNNING state then we bale out of the printk
-> because this cpu's per-cpu resources may not yet be fully set up.
-After the CPU is offline (we are doing CPU hotplug). Its per-cpu
-resources like kmalloc also aren't initialized. This is in
-SYSTEM_RUNNING state too, so the system state doesn't matter. Removing
-the system state check seems better than fixing the fbcon driver to me.
 
-Thanks,
-Shaohua
 
+On Sat, 23 Apr 2005, Linus Torvalds wrote:
+>> That means that we don't "strip them off", because dammit, they DO NOT
+>> EXIST as far as git is concerned. This is why a tag-file will _always_
+>> start with
+>>
+>>     commit <commit-sha1>
+>>     tag <tag-name>
+>>
+>> because that way we can use fsck and validate reachability and have 
+>> things that want trees (or commits) take tag-files instead, and git 
+>> will automatically look up the associated tree/commit. And it will do 
+>> so _without_ having to understand about signing, since signing is for 
+>> trust between _people_ not for git.
+ >
+ >> And that is why I from the very beginning tried to make ti very clear
+ >> that the signature goes at the end. Not at the beginning, not in the
+ >> middle, and not in a different file. IT GOES AT THE END.
+
+It may be better to have them as simple detached signatures, which are
+completely separate files (see gpg --detached).
+Yeah, gpg currently implements detached signatures
+by repeating what gets signed, which is unfortunate,
+but the _idea_ is the right one.
+
+
+Paul Jakma wrote:
+> Ideally, there'd be an index of signature objects by the SHA-1 sum of 
+> the object they sign, as the signed object should not refer to the 
+> signature (or the second of the above is not possible).
+
+Yes, and see my earlier posting.  It'd be easy to store signatures in
+the current objects directory, of course.  The trick is to be able
+to go from signed-object to the signature; this could be done
+just by creating a subdirectory using a variant of
+the name of the signed-object's file, and in that directory store the
+hash values of the signatures.  E.G.:
+  00/
+     3b128932189018329839019          <- object to sign
+     3b128932189018329839019.d/
+     0143709289032890234323451
+  01/
+     43709289032890234323451          <- signature
+
+> The latter of the two points would, in combination with the former, 
+> allow for cryptographic 'signed-off-by' chains. If a 'commit' is signed 
+> by $RANDOM_CONTRIBUTOR and $SUBSYSTEM_MAINTAINER and $ANDREW, you know 
+> its time to pull it. Would also work for things like "fixes only" trees, 
+> where (say) a change must be approved by X/2+1 of a group of X hacker 
+> providing oversight -> looking up the commit object's signatures would 
+> tell you whether it was approved.
+
+Right.  Lots of tricks you can do once the signatures are there,
+such as checking to counter repository subversion
+(did everything get signed), finding out who introduced a malicious
+line of code (& "proving" what key signed it first), etc.
+There are LOTS of reasons for storing signatures so that they can
+be checked later on, just like there are lots of reasons for storing
+old code... they give you evidence that the reputed history is true
+(and if you doubt it, they give you a way to limit the doubt).
+
+--- David A. Wheeler

@@ -1,76 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbVDYVQq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbVDYVQq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261220AbVDYVQq (ORCPT <rfc822;willy@w.ods.org>);
+	id S261203AbVDYVQq (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 25 Apr 2005 17:16:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbVDYVPB
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbVDYVOg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 17:15:01 -0400
-Received: from vanguard.topspin.com ([12.162.17.52]:6151 "EHLO
-	Mansi.STRATNET.NET") by vger.kernel.org with ESMTP id S261201AbVDYVMn
+	Mon, 25 Apr 2005 17:14:36 -0400
+Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:39140 "EHLO
+	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S261203AbVDYVNi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 17:12:43 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: timur.tabi@ammasso.com, hch@infradead.org, hozer@hozed.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
-X-Message-Flag: Warning: May contain useful information
-References: <200544159.Ahk9l0puXy39U6u6@topspin.com>
-	<20050411142213.GC26127@kalmia.hozed.org> <52mzs51g5g.fsf@topspin.com>
-	<20050411163342.GE26127@kalmia.hozed.org> <5264yt1cbu.fsf@topspin.com>
-	<20050411180107.GF26127@kalmia.hozed.org> <52oeclyyw3.fsf@topspin.com>
-	<20050411171347.7e05859f.akpm@osdl.org> <4263DEC5.5080909@ammasso.com>
-	<20050418164316.GA27697@infradead.org> <4263E445.8000605@ammasso.com>
-	<20050423194421.4f0d6612.akpm@osdl.org> <426BABF4.3050205@ammasso.com>
-	<52is2bvvz5.fsf@topspin.com> <20050425135401.65376ce0.akpm@osdl.org>
-From: Roland Dreier <roland@topspin.com>
-Date: Mon, 25 Apr 2005 14:12:40 -0700
-In-Reply-To: <20050425135401.65376ce0.akpm@osdl.org> (Andrew Morton's
- message of "Mon, 25 Apr 2005 13:54:01 -0700")
-Message-ID: <521x8yv9vb.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+	Mon, 25 Apr 2005 17:13:38 -0400
+X-ORBL: [69.107.61.180]
+From: David Brownell <david-b@pacbell.net>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] Re: [PATCH] PCI: Add pci shutdown ability
+Date: Mon, 25 Apr 2005 14:13:21 -0700
+User-Agent: KMail/1.7.1
+Cc: Pavel Machek <pavel@ucw.cz>, Greg KH <greg@kroah.com>,
+       Amit Gud <gud@eth.net>, Alan Stern <stern@rowland.harvard.edu>,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       akpm@osdl.org, jgarzik@pobox.com, cramerj@intel.com
+References: <Pine.LNX.4.44L0.0504251128070.5751-100000@iolanthe.rowland.org> <20050425190606.GA23763@kroah.com> <20050425204207.GA23724@elf.ucw.cz>
+In-Reply-To: <20050425204207.GA23724@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 25 Apr 2005 21:12:40.0964 (UTC) FILETIME=[83E86C40:01C549DB]
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200504251413.21996.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Andrew> Do we care about that?  A straightforward scenario under
-    Andrew> which this can happen is:
+> > So here's a patch for the PCI core that allows pci drivers to now just
+> > add a "shutdown" notifier function that will be called when the system
+> > is being shutdown.  It happens just after the reboot notifier happens,
+> > and it should happen in the proper device tree order, so everyone should
+> > be happy.
 
-    Andrew> a) app starts some read I/O in an asynchronous manner
-    Andrew> b) app forks
-    Andrew> c) child writes to one of the pages which is still under read I/O
-    Andrew> d) the read I/O completes
-    Andrew> e) the child is left with the old data plus the child's modification instead
-    Andrew>    of the new data
+Both kexec and sys_shutdown always call notifiers first, then the
+device shutdown stuff, as I understand.  (I didn't see the patch,
+so I don't know what it should do...)
 
-    Andrew> which is a very silly application which is giving itself
-    Andrew> unpredictable memory contents anyway.
+If there's going to be a "shutdown" primitive, I certainly think
+that it should work for PCI devices.
 
-    Andrew> I assume there's a more sensible scenario?
+There's a separate issue about needing to clone such stuff into
+every version of bus glue.  For example, OHCI runs on PCI ... but
+also on lots of non-PCI hardware.  It's actually cleaner to use
+a notifier than to write almost-identical shutdown methods for
+each different bus it may be glued to.  Same thing with EHCI;
+other bus-neutral register APIs will have the same issue.
 
-You're right, that is a silly scenario ;)  In fact if we mark vmas
-with VM_DONTCOPY, then the child just crashes with a seg fault.
 
-The type of thing I'm worried about is something like, for example:
+> > Any objections to this patch?
+> 
+> Yes.
+> 
+> I believe it should just do suspend(PMSG_SUSPEND) before system
+> shutdown. If you think distintion between shutdown and suspend is
+> important (I am not 100% convinced it is), we can just add flag
+> saying "this is system shutdown".
 
-a) app registers memory region with RDMA hardware -- in other words,
-   loads the device's translation table for future I/O
-b) app forks
-c) app writes to the registered memory region, and the kernel breaks
-   the COW for the (now read-only) page by mapping a new page
-d) app starts an I/O that will do a DMA read from the region
-e) device reads using the wrong, old mapping
+I've made that point before -- essentially that shutdown() in
+the driver model itself is superfluous, either remove() or
+maybe suspend() would achieve the same result, without adding
+any special code that's run/tested rather infrequently ...
 
-This can be pretty insiduous because for example fork() + immediate
-exec() or just using system() still leaves the parent with PTEs marked
-read-only.  If an application does overlapping memory registrations so
-get_user_pages() is called a lot, then as far as I can see
-can_share_swap_page() will always return 0 and the COW will happen
-even if the child process has thrown out its original vmas.
+That is:  if shutdown() isn't going to be removed, then the
+code that shuts down devices should invoke remove() or even
+suspend() in cases that there's no shutdown() method.
 
-Or if the counts are in the correct range, then there's a small window
-between fork() and exec() where the parent process can screw itself
-up, so most of the time the app works, until it doesn't.
+But the pushback was that shutdown() methods are allowed to
+be much lighter weight, and really ought to work even when
+big parts of the system are misbehaving.  So they'd just do
+stuff like resetting chips, sanitizing GPIOs, and so on ...
+and nothing that'd be likely to break if significant parts
+of kernel memory were corrupted.
 
- - R.
+- Dave
+
+

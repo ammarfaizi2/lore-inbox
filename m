@@ -1,61 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261176AbVDYUYo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261172AbVDYU25@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261176AbVDYUYo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 16:24:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVDYUYc
+	id S261172AbVDYU25 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 16:28:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVDYU2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 16:24:32 -0400
-Received: from rproxy.gmail.com ([64.233.170.197]:12737 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261161AbVDYUW3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 16:22:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=cLgRePGXE1Q1ke3qPPK36toXXlDSNCzIBHdrJR9bNHh/Pc0MmubZyPoJ8RQT8iiZy0PcHsmZB3lgpzUh16cHeHGwEtYeyFtRCD5QaTAnIxCgfjz8ylTw4A55BPJ/LzeLSubpNuPI4HrcDi6NURSDBvC1aqlTvgPFHJ6AoM7JQ1o=
-Message-ID: <d120d500050425132250916bcb@mail.gmail.com>
-Date: Mon, 25 Apr 2005 15:22:29 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: johnpol@2ka.mipt.ru
-Subject: Re: [RFC/PATCH 0/22] W1: sysfs, lifetime and other fixes
-Cc: sensors@stimpy.netroedge.com, LKML <linux-kernel@vger.kernel.org>,
-       Greg KH <gregkh@suse.de>
-In-Reply-To: <20050426001500.6a199399@zanzibar.2ka.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200504210207.02421.dtor_core@ameritech.net>
-	 <1114089504.29655.93.camel@uganda>
-	 <d120d50005042107314cbacdea@mail.gmail.com>
-	 <1114420131.8527.52.camel@uganda>
-	 <d120d50005042509326241a302@mail.gmail.com>
-	 <20050426001500.6a199399@zanzibar.2ka.mipt.ru>
+	Mon, 25 Apr 2005 16:28:53 -0400
+Received: from mail.dif.dk ([193.138.115.101]:11670 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261159AbVDYU0D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 16:26:03 -0400
+Date: Mon, 25 Apr 2005 22:29:21 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Colin Leroy <colin@colino.net>
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] hfsplus: don't oops on bad FS
+In-Reply-To: <20050425220345.6b2ed6d5@jack.colino.net>
+Message-ID: <Pine.LNX.4.62.0504252226370.2941@dragon.hyggekrogen.localhost>
+References: <20050425211915.126ddab5@jack.colino.net>
+ <Pine.LNX.4.61.0504252145220.25129@scrub.home> <20050425220345.6b2ed6d5@jack.colino.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/25/05, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> While thinking about locking schema
-> with respect to sysfs files I recalled,
-> why I implemented such a logic -
-> now one can _always_ remove _any_ module
-> [corresponding object is removed from accessible
-> pathes and waits untill all exsting users are gone],
-> which is very good - I really like it in networking model,
-> while with whole device driver model
-> if we will read device's file very quickly
-> in several threads we may end up not unloading it at all.
+On Mon, 25 Apr 2005, Colin Leroy wrote:
 
-I am sorrry, that is complete bull*. sysfs also allows removing
-modules at an arbitrary time (and usually without annoying "waiting
-for refcount" at that)... You just seem to not understand how driver
-code works, thus the need of inventing your own schema.
+> On 25 Apr 2005 at 21h04, Roman Zippel wrote:
+> 
+> Hi, 
+> 
+> > Actually it looks like we are always leaking it, so actually 
+> > hfsplus_put_super() needs fixing, could you add the check and kfree 
+> > there and do the same fix for hfs?
+> 
+> Mmh, right. Here's an updated version that fixes it too.
+> 
+> Signed-off-by: Colin Leroy <colin@colino.net>
+> --- a/fs/hfsplus/super.c	2005-04-25 21:56:56.000000000 +0200
+> +++ b/fs/hfsplus/super.c	2005-04-25 21:58:39.000000000 +0200
+> @@ -226,6 +226,9 @@
+>  	brelse(HFSPLUS_SB(sb).s_vhbh);
+>  	if (HFSPLUS_SB(sb).nls)
+>  		unload_nls(HFSPLUS_SB(sb).nls);
+> +
+> +	kfree((struct hfsplus_sb_info *)sb->s_fs_info);
 
-BTW, I am looking at the connector code ATM and I am just amazed at
-all wied refounting stuff that is going on there. what a single
-actomic_dec_and_test() call without checkng reurn vaue is supposed to
-do again?
+kfree() takes a  void *  argument, that cast is not needed.
+
 
 -- 
-Dmitry
+Jesper Juhl
+
+

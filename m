@@ -1,84 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262514AbVDYDre@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262524AbVDYD4e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262514AbVDYDre (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 23:47:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262515AbVDYDre
+	id S262524AbVDYD4e (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 23:56:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbVDYD4e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 23:47:34 -0400
-Received: from hibernia.jakma.org ([212.17.55.49]:53122 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S262514AbVDYDrZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 23:47:25 -0400
-Date: Mon, 25 Apr 2005 04:47:07 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@sheen.jakma.org
-To: "David A. Wheeler" <dwheeler@dwheeler.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Sean <seanlkml@sympatico.ca>,
-       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       David Woodhouse <dwmw2@infradead.org>, Jan Dittmer <jdittmer@ppp0.net>,
-       Greg KH <greg@kroah.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: Git-commits mailing list feed.
-In-Reply-To: <Pine.LNX.4.62.0504250435050.14200@sheen.jakma.org>
-Message-ID: <Pine.LNX.4.62.0504250443380.14200@sheen.jakma.org>
-References: <200504210422.j3L4Mo8L021495@hera.kernel.org>      
- <42674724.90005@ppp0.net> <20050422002922.GB6829@kroah.com>      
- <426A4669.7080500@ppp0.net>       <1114266083.3419.40.camel@localhost.localdomain>
-       <426A5BFC.1020507@ppp0.net>       <1114266907.3419.43.camel@localhost.localdomain>
-       <Pine.LNX.4.58.0504231010580.2344@ppc970.osdl.org>      
- <20050423175422.GA7100@cip.informatik.uni-erlangen.de>      
- <Pine.LNX.4.58.0504231125330.2344@ppc970.osdl.org> <2911.10.10.10.24.1114279589.squirrel@linux1>
- <Pine.LNX.4.58.0504231234550.2344@ppc970.osdl.org>
- <Pine.LNX.4.62.0504250008370.14200@sheen.jakma.org> <426C4168.6030008@dwheeler.com>
- <Pine.LNX.4.58.0504241846290.18901@ppc970.osdl.org> <426C5F43.8010705@dwheeler.com>
- <Pine.LNX.4.62.0504250413200.14200@sheen.jakma.org>
- <Pine.LNX.4.62.0504250435050.14200@sheen.jakma.org>
-Mail-Followup-To: paul@hibernia.jakma.org
-X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
+	Sun, 24 Apr 2005 23:56:34 -0400
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:13692 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262524AbVDYD40 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Apr 2005 23:56:26 -0400
+Message-ID: <426C6A63.80408@yahoo.com.au>
+Date: Mon, 25 Apr 2005 13:56:19 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="299119927-679278751-1114400738=:14200"
-Content-ID: <Pine.LNX.4.62.0504250446020.14200@sheen.jakma.org>
+To: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [patch] __block_write_full_page bug
+Content-Type: multipart/mixed;
+ boundary="------------060008000400090203040009"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+This is a multi-part message in MIME format.
+--------------060008000400090203040009
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
---299119927-679278751-1114400738=:14200
-Content-Type: TEXT/PLAIN; CHARSET=utf-8; FORMAT=flowed
-Content-Transfer-Encoding: 8BIT
-Content-ID: <Pine.LNX.4.62.0504250446021.14200@sheen.jakma.org>
+Another buffer bug :(
 
-On Mon, 25 Apr 2005, Paul Jakma wrote:
-
-> Uh, I have no idea whether verifying a signature of a commit object is 
-> sufficient, ie equivalent to signing each file.
->
-> commit refers to tree objects, which I presume lists the SHA-1 object IDs of 
-> files, but IIRC Linus already described why a signature of the commit object 
-> should not be used to trust the rest of commit.. (i'll have to find his 
-> mail). If so, an index is required.
-
-Ah, apparently it is sufficient:
-
-Linus:
-
-“Just signing the commit is indeed sufficient to just say "I trust 
-this commit". But I essentially what to also say what I trust it 
-_for_ as well.”
-
-So this would work for commit objects.
-
-It would also work for tag objects, if you pointed people at the signature
-object rather than the actual tag object.
-
-regards,
 -- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-Fortune:
-Humor in the Court:
-Q.  Were you aquainted with the deceased?
-A.  Yes, sir.
-Q.  Before or after he died?
---299119927-679278751-1114400738=:14200--
+SUSE Labs, Novell Inc.
+
+--------------060008000400090203040009
+Content-Type: text/plain;
+ name="__block_write_full_page-bug.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="__block_write_full_page-bug.patch"
+
+When running
+	fsstress -v -d $DIR/tmp -n 1000 -p 1000 -l 2
+on an ext2 filesystem with 1024 byte block size, on SMP i386 with 4096 byte
+page size over loopback to an image file on a tmpfs filesystem, I would
+very quickly hit
+	BUG_ON(!buffer_async_write(bh));
+in fs/buffer.c:end_buffer_async_write
+
+It seems that more than one request would be submitted for a given bh
+at a time. __block_write_full_page looks like the culprit - with the
+following patch things are very stable.
+
+Signed-off-by: Nick Piggin <nickpiggin@yahoo.com.au>
+
+Index: linux-2.6/fs/buffer.c
+===================================================================
+--- linux-2.6.orig/fs/buffer.c	2005-04-25 13:13:37.000000000 +1000
++++ linux-2.6/fs/buffer.c	2005-04-25 13:14:52.000000000 +1000
+@@ -1750,8 +1750,9 @@ static int __block_write_full_page(struc
+ 	int err;
+ 	sector_t block;
+ 	sector_t last_block;
+-	struct buffer_head *bh, *head;
+-	int nr_underway = 0;
++	struct buffer_head *bh, *head, *arr[MAX_BUF_PER_PAGE];
++	int idx = 0;
++	int nr_underway;
+ 
+ 	BUG_ON(!PageLocked(page));
+ 
+@@ -1826,6 +1827,7 @@ static int __block_write_full_page(struc
+ 		}
+ 		if (test_clear_buffer_dirty(bh)) {
+ 			mark_buffer_async_write(bh);
++			arr[idx++] = bh;
+ 		} else {
+ 			unlock_buffer(bh);
+ 		}
+@@ -1839,15 +1841,12 @@ static int __block_write_full_page(struc
+ 	set_page_writeback(page);
+ 	unlock_page(page);
+ 
+-	do {
+-		struct buffer_head *next = bh->b_this_page;
+-		if (buffer_async_write(bh)) {
++	for (nr_underway = 0; nr_underway < idx; nr_underway++) {
++		bh = arr[nr_underway];
++		if (buffer_async_write(bh))
+ 			submit_bh(WRITE, bh);
+-			nr_underway++;
+-		}
+ 		put_bh(bh);
+-		bh = next;
+-	} while (bh != head);
++	}
+ 
+ 	err = 0;
+ done:
+@@ -1890,6 +1889,7 @@ recover:
+ 		if (buffer_mapped(bh) && buffer_dirty(bh)) {
+ 			lock_buffer(bh);
+ 			mark_buffer_async_write(bh);
++			arr[idx++] = bh;
+ 		} else {
+ 			/*
+ 			 * The buffer may have been set dirty during
+@@ -1902,16 +1902,14 @@ recover:
+ 	BUG_ON(PageWriteback(page));
+ 	set_page_writeback(page);
+ 	unlock_page(page);
+-	do {
+-		struct buffer_head *next = bh->b_this_page;
++	for (nr_underway = 0; nr_underway < idx; nr_underway++) {
++		bh = arr[nr_underway];
+ 		if (buffer_async_write(bh)) {
+ 			clear_buffer_dirty(bh);
+ 			submit_bh(WRITE, bh);
+-			nr_underway++;
+ 		}
+ 		put_bh(bh);
+-		bh = next;
+-	} while (bh != head);
++	}
+ 	goto done;
+ }
+ 
+@@ -2741,6 +2739,7 @@ sector_t generic_block_bmap(struct addre
+ static int end_bio_bh_io_sync(struct bio *bio, unsigned int bytes_done, int err)
+ {
+ 	struct buffer_head *bh = bio->bi_private;
++	bh_end_io_t *end_fn;
+ 
+ 	if (bio->bi_size)
+ 		return 1;
+@@ -2750,7 +2749,16 @@ static int end_bio_bh_io_sync(struct bio
+ 		set_bit(BH_Eopnotsupp, &bh->b_state);
+ 	}
+ 
+-	bh->b_end_io(bh, test_bit(BIO_UPTODATE, &bio->bi_flags));
++	end_fn = bh->b_end_io;
++
++	/* 
++	 * These two lines are debugging only - make sure b_end_io
++	 * isn't run twice for the same io request.
++	 */
++	BUG_ON(!end_fn);
++	bh->b_end_io = NULL;
++	
++	end_fn(bh, test_bit(BIO_UPTODATE, &bio->bi_flags));
+ 	bio_put(bio);
+ 	return 0;
+ }
+
+--------------060008000400090203040009--
+

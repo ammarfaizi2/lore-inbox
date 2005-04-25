@@ -1,56 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261242AbVDYVot@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbVDYVrb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261242AbVDYVot (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 17:44:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbVDYVoj
+	id S261226AbVDYVrb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 17:47:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbVDYVrb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 17:44:39 -0400
-Received: from mail.dif.dk ([193.138.115.101]:12443 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261234AbVDYVoW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 17:44:22 -0400
-Date: Mon, 25 Apr 2005 23:47:16 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, vojtech@suse.cz,
-       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-Subject: Re: [PATCH] i386: fix hpet for systems that don't support legacy
- replacement  (v. A0)
-In-Reply-To: <1114463827.18098.22.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.62.0504252345500.2941@dragon.hyggekrogen.localhost>
-References: <1114117417.19541.239.camel@cog.beaverton.ibm.com>
- <1114463827.18098.22.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 25 Apr 2005 17:47:31 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:46350 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261226AbVDYVrX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 17:47:23 -0400
+Date: Mon, 25 Apr 2005 17:34:48 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: blaisorblade@yahoo.it
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, axboe@suse.de
+Subject: Re: [patch 1/1] uml ubd: handle readonly status
+Message-ID: <20050425213448.GA6343@ccure.user-mode-linux.org>
+References: <20050425191949.E56D145EBB@zion>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050425191949.E56D145EBB@zion>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Apr 2005, john stultz wrote:
+On Mon, Apr 25, 2005 at 09:19:49PM +0200, blaisorblade@yahoo.it wrote:
+> +	/* This should no more be needed. And it didn't work anyway to exclude
+> +	 * read-write remounting of filesystems.*/
+> +	/*if((filp->f_mode & FMODE_WRITE) && !dev->openflags.w){
+>  	        if(--dev->count == 0) ubd_close(dev);
+>  	        err = -EROFS;
+> -	}
+> +	}*/
 
-> Andrew,
-> 	Currently the i386 HPET code assumes the entire HPET implementation
-> from the spec is present. This breaks on boxes that do not implement the
-> optional legacy timer replacement functionality portion of the spec.
-> 
-> This patch, which is very similar to my x86-64 patch for the same issue,
-> fixes the problem allowing i386 systems that cannot use the HPET for the
-> timer interrupt and RTC to still use the HPET as a time source. I've
-> tested this patch on a system systems without HPET, with HPET but
-> without legacy timer replacement, as well as HPET with legacy timer
-> replacement.
-> 
-> There has been no changes since this patch was sent out to lkml for
-> review.
-> 
+> +	/* This should be impossible now */
 
-Tiny, tiny nit : 
+> +		/* This should be impossible now */
 
-> -		if (is_hpet_enabled()){
-> +		if (is_hpet_enabled() && hpet_use_timer){
-                                                       ^^-- space here?
+If code can't run any more because of now-impossible conditions, then just
+delete it.
 
-
--- 
-Jesper Juhl
-
+				Jeff

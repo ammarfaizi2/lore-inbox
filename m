@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262629AbVDYPnr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262624AbVDYPsc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262629AbVDYPnr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 11:43:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262659AbVDYPjq
+	id S262624AbVDYPsc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 11:48:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262628AbVDYPrD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 11:39:46 -0400
-Received: from chello212017098056.surfer.at ([212.17.98.56]:19218 "EHLO
-	hofr.at") by vger.kernel.org with ESMTP id S262668AbVDYPXz (ORCPT
+	Mon, 25 Apr 2005 11:47:03 -0400
+Received: from mx2.suse.de ([195.135.220.15]:33967 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262635AbVDYPfq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 11:23:55 -0400
-From: Der Herr Hofrat <der.herr@hofr.at>
-Message-Id: <200504251519.j3PFJUV14846@hofr.at>
-Subject: profiling 2.4.X gcov problem 
-To: linux-kernel@vger.kernel.org
-Date: Mon, 25 Apr 2005 17:19:30 +0200 (CEST)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 25 Apr 2005 11:35:46 -0400
+Date: Mon, 25 Apr 2005 17:35:41 +0200
+From: Andi Kleen <ak@suse.de>
+To: Patrick McHardy <kaber@trash.net>
+Cc: Ed Tomlinson <tomlins@cam.org>, Alexander Nyberg <alexn@dsv.su.se>,
+       Parag Warudkar <kernel-stuff@comcast.net>, linux-kernel@vger.kernel.org,
+       ak@suse.de
+Subject: Re: X86_64: 2.6.12-rc3 spontaneous reboot
+Message-ID: <20050425153541.GC16828@wotan.suse.de>
+References: <200504240008.35435.kernel-stuff@comcast.net> <1114332119.916.1.camel@localhost.localdomain> <200504240903.31377.tomlins@cam.org> <426CADF1.2000100@trash.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <426CADF1.2000100@trash.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Apr 25, 2005 at 10:44:33AM +0200, Patrick McHardy wrote:
+> Ed Tomlinson wrote:
+> >I think rc3 has code from rc2-mm2/3.  Both of these reboot here randomly.  
+> >Nothing
+> >shows up on a serial console...  Think something is seriously wrong with 
+> >x86_64 in rc3.
+> >That being said its possible its fixed in HEAD by.
+> >
+> >[PATCH] x86_64: fix new out of line put_user()
+> >[PATCH] x86_64: Bug in new out of line put_user()
+> 
+> I'm seeing the same problem with a fresh git checkout when running uml
+> or gcc in 32bit mode. Nothing is received from netconsole. If anyone
+> can suggest which patches might be worth reverting I'll try that.
 
-ia32 platform:
-kernel linux-2.4.25 
-kernel-patch-gcov-0.5 applied
-gcov configuration:
+Well, you can revert all my x86-64 changes for testing that went
+in after rc2. Does that make a difference? If yes then please
+do a binary search or give me a test case that shows the problem.
 
-#
-# GCOV coverage profiling
-#
-CONFIG_GCOV_PROFILE=y
-CONFIG_GCOV_ALL=y
-CONFIG_GCOV_PROC=y
-
-the data files are generated as expected - copied them into the kernel tree
-touched all c,h files and reran make bzImage - it runs for quite some time
-obviously using the .da files (for those where there are none warnings are 
-issued) and then fails with the below error. 
-
- Can anybody suggest what could cause this error ? No make clean/distclean/mrproper or the like was run between the generation of the profiling data and the recompilation ?
-
-init/version.c:0: warning: file init/version.da not found, execution counts assumed to be zero
-vt.c: In function `do_kdsk_ioctl':
-vt.c:166: warning: comparison is always false due to limited range of data type
-vt.c: In function `do_kdgkb_ioctl':
-vt.c:283: warning: comparison is always false due to limited range of data type
-vt.c: In function `complete_change_console':
-vt.c:1244: error: Profile does not match flowgraph of function complete_change_console (out of date?)
-make[3]: *** [vt.o] Error 1
-make[2]: *** [first_rule] Error 2
-make[1]: *** [_subdir_char] Error 2
-make: *** [_dir_drivers] Error 2
-
-thx !
-hofrat
+-Andi

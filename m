@@ -1,52 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbVDYUTQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbVDYUT2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261153AbVDYUTQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 16:19:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262774AbVDYUQ4
+	id S261152AbVDYUT2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 16:19:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262775AbVDYURL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 16:16:56 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:26051 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S262785AbVDYUPg (ORCPT
+	Mon, 25 Apr 2005 16:17:11 -0400
+Received: from HELIOUS.MIT.EDU ([18.248.3.87]:45225 "EHLO neo.rr.com")
+	by vger.kernel.org with ESMTP id S262773AbVDYUPm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 16:15:36 -0400
-Date: Tue, 26 Apr 2005 00:15:00 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: dtor_core@ameritech.net
-Cc: dmitry.torokhov@gmail.com, sensors@stimpy.netroedge.com,
-       LKML <linux-kernel@vger.kernel.org>, Greg KH <gregkh@suse.de>
-Subject: Re: [RFC/PATCH 0/22] W1: sysfs, lifetime and other fixes
-Message-ID: <20050426001500.6a199399@zanzibar.2ka.mipt.ru>
-In-Reply-To: <d120d50005042509326241a302@mail.gmail.com>
-References: <200504210207.02421.dtor_core@ameritech.net>
-	<1114089504.29655.93.camel@uganda>
-	<d120d50005042107314cbacdea@mail.gmail.com>
-	<1114420131.8527.52.camel@uganda>
-	<d120d50005042509326241a302@mail.gmail.com>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Mon, 25 Apr 2005 16:15:42 -0400
+Date: Mon, 25 Apr 2005 16:11:33 -0400
+From: Adam Belay <ambx1@neo.rr.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Greg KH <greg@kroah.com>, Amit Gud <gud@eth.net>,
+       Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, akpm@osdl.org, cramerj@intel.com,
+       USB development list <linux-usb-devel@lists.sourceforge.net>,
+       Pavel Machek <pavel@ucw.cz>,
+       ". Linux-pm mailing list" <linux-pm@lists.osdl.org>
+Subject: Re: [PATCH] PCI: Add pci shutdown ability
+Message-ID: <20050425201133.GB3951@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
+	Amit Gud <gud@eth.net>, Alan Stern <stern@rowland.harvard.edu>,
+	linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+	akpm@osdl.org, cramerj@intel.com,
+	USB development list <linux-usb-devel@lists.sourceforge.net>,
+	Pavel Machek <pavel@ucw.cz>,
+	". Linux-pm mailing list" <linux-pm@lists.osdl.org>
+References: <Pine.LNX.4.44L0.0504251128070.5751-100000@iolanthe.rowland.org> <20050425182951.GA23209@kroah.com> <SVLXCHCON1syWVLEFN00000099e@SVLXCHCON1.enterprise.veritas.com> <20050425185113.GC23209@kroah.com> <20050425190606.GA23763@kroah.com> <426D439D.6080705@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [194.85.82.65]); Tue, 26 Apr 2005 00:15:12 +0400 (MSD)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <426D439D.6080705@pobox.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While thinking about locking schema
-with respect to sysfs files I recalled,
-why I implemented such a logic - 
-now one can _always_ remove _any_ module
-[corresponding object is removed from accessible
-pathes and waits untill all exsting users are gone],
-which is very good - I really like it in networking model,
-while with whole device driver model
-if we will read device's file very quickly
-in several threads we may end up not unloading it at all.
+On Mon, Apr 25, 2005 at 03:23:09PM -0400, Jeff Garzik wrote:
+> Greg KH wrote:
+> >Well it seems that people are starting to want to hook the reboot
+> >notifier, or the device shutdown facility in order to properly shutdown
+> >pci drivers to make kexec work nicer.
+> >
+> >So here's a patch for the PCI core that allows pci drivers to now just
+> >add a "shutdown" notifier function that will be called when the system
+> >is being shutdown.  It happens just after the reboot notifier happens,
+> >and it should happen in the proper device tree order, so everyone should
+> >be happy.
+> >
+> >Any objections to this patch?
+> 
+> Traditionally the proper place -has- been
+> * the reboot notifier
+> * the ->remove hook (hot unplug, and module remove)
+> 
+> which covers all the cases.
+> 
+> Add a ->shutdown hook is more of a hack.  If you want to introduce this 
+> facility in a systematic way, introduce a 'kexec reboot' option which 
+> walks the device tree and shuts down hardware.
+> 
+> ->shutdown is just a piecemeal, uncoordinated effort (uncoordinated in 
+> the sense that driver shutdowns occur in an undefined order).
+> 
+> 	Jeff
 
-So decision is simple from the first point of view -
-just remove appropriate objects from accessible pathes
-and free them from finall callbacks [device's remove method].
+I agree, though I think "->remove" may be more than we need.  Another
+potential use of this might be to prepare devices just before removing power.
 
-	Evgeniy Polyakov
-
-Only failure makes us experts. -- Theo de Raadt
+Thanks,
+Adam

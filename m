@@ -1,86 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbVDYUqb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVDYUuc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261162AbVDYUqb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 16:46:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbVDYUqb
+	id S261161AbVDYUuc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 16:50:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbVDYUub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 16:46:31 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:12247 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261183AbVDYUqI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 16:46:08 -0400
-Date: Mon, 25 Apr 2005 22:42:07 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Greg KH <greg@kroah.com>
-Cc: Amit Gud <gud@eth.net>, Alan Stern <stern@rowland.harvard.edu>,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       akpm@osdl.org, jgarzik@pobox.com, cramerj@intel.com,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] PCI: Add pci shutdown ability
-Message-ID: <20050425204207.GA23724@elf.ucw.cz>
-References: <Pine.LNX.4.44L0.0504251128070.5751-100000@iolanthe.rowland.org> <20050425182951.GA23209@kroah.com> <SVLXCHCON1syWVLEFN00000099e@SVLXCHCON1.enterprise.veritas.com> <20050425185113.GC23209@kroah.com> <20050425190606.GA23763@kroah.com>
+	Mon, 25 Apr 2005 16:50:31 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:61347 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261161AbVDYUuR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 16:50:17 -0400
+Subject: Re: [PATCH GIT 0.6] make use of register variables & size_t
+From: Arjan van de Ven <arjan@infradead.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Matthias-Christian Ott <matthias.christian@tiscali.de>,
+       git@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0504251147290.18901@ppc970.osdl.org>
+References: <426CD1F1.2010101@tiscali.de>
+	 <Pine.LNX.4.58.0504250751330.18901@ppc970.osdl.org>
+	 <426D21FE.3040401@tiscali.de>
+	 <Pine.LNX.4.58.0504251021280.18901@ppc970.osdl.org>
+	 <426D33BA.8040604@tiscali.de>
+	 <Pine.LNX.4.58.0504251147290.18901@ppc970.osdl.org>
+Content-Type: text/plain
+Date: Mon, 25 Apr 2005 22:50:09 +0200
+Message-Id: <1114462210.8442.54.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050425190606.GA23763@kroah.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> Well it seems that people are starting to want to hook the reboot
-> notifier, or the device shutdown facility in order to properly shutdown
-> pci drivers to make kexec work nicer.
+On Mon, 2005-04-25 at 11:50 -0700, Linus Torvalds wrote:
 > 
-> So here's a patch for the PCI core that allows pci drivers to now just
-> add a "shutdown" notifier function that will be called when the system
-> is being shutdown.  It happens just after the reboot notifier happens,
-> and it should happen in the proper device tree order, so everyone should
-> be happy.
+> On Mon, 25 Apr 2005, Matthias-Christian Ott wrote:
+> >
+> > But this makes, like "register", direct use of processor registers (it
+> > stores int arguments in eax, ebx, etc.).
 > 
-> Any objections to this patch?
+> No. It make _unlike_ "register", direct use of processor registers.
+> 
+> The "register" keyword does _not_ use processor registers. It's just 
+> syntactic fluff, and tells the compiler exactly one thing:
+> 
+>  - that the compiler should warn if you take the address of such a thing.
+> 
+> In addition, the compiler may generate code that takes it into account, 
+> which most likely means _worse_ code than if it didn't take it into 
+> account.
 
-Yes.
-
-I believe it should just do suspend(PMSG_SUSPEND) before system
-shutdown. If you think distintion between shutdown and suspend is
-important (I am not 100% convinced it is), we can just add flag
-saying "this is system shutdown".
-
-Actually this patch should be in the queue somewhere... We had it in
-suse trees for a long time, and IMO it can solve problem easily.
-
-								Pavel
-
---- clean-git/kernel/sys.c	2005-04-23 23:21:55.000000000 +0200
-+++ linux/kernel/sys.c	2005-04-24 00:20:47.000000000 +0200
-@@ -404,6 +404,7 @@
- 	case LINUX_REBOOT_CMD_HALT:
- 		notifier_call_chain(&reboot_notifier_list, SYS_HALT, NULL);
- 		system_state = SYSTEM_HALT;
-+		device_suspend(PMSG_SUSPEND);
- 		device_shutdown();
- 		printk(KERN_EMERG "System halted.\n");
- 		machine_halt();
-@@ -414,6 +415,7 @@
- 	case LINUX_REBOOT_CMD_POWER_OFF:
- 		notifier_call_chain(&reboot_notifier_list, SYS_POWER_OFF, NULL);
- 		system_state = SYSTEM_POWER_OFF;
-+		device_suspend(PMSG_SUSPEND);
- 		device_shutdown();
- 		printk(KERN_EMERG "Power down.\n");
- 		machine_power_off();
-@@ -430,6 +432,7 @@
- 
- 		notifier_call_chain(&reboot_notifier_list, SYS_RESTART, buffer);
- 		system_state = SYSTEM_RESTART;
-+		device_suspend(PMSG_FREEZE);
- 		device_shutdown();
- 		printk(KERN_EMERG "Restarting system with command '%s'.\n", buffer);
- 		machine_restart(buffer);
+afaik gcc just otherwise ignores it entirely.
 
 
--- 
-Boycott Kodak -- for their patent abuse against Java.

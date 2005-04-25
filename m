@@ -1,45 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262745AbVDYS1H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262720AbVDYSeu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262745AbVDYS1H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 14:27:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262724AbVDYS0r
+	id S262720AbVDYSeu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 14:34:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262722AbVDYSeu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 14:26:47 -0400
-Received: from relay1.tiscali.de ([62.26.116.129]:35201 "EHLO
-	webmail.tiscali.de") by vger.kernel.org with ESMTP id S262739AbVDYSX7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 14:23:59 -0400
-Message-ID: <426D35AC.9060605@tiscali.de>
-Date: Mon, 25 Apr 2005 20:23:40 +0200
-From: Matthias-Christian Ott <matthias.christian@tiscali.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050406)
-X-Accept-Language: en-us, en
+	Mon, 25 Apr 2005 14:34:50 -0400
+Received: from [80.71.243.242] ([80.71.243.242]:11752 "EHLO tau.rusteko.ru")
+	by vger.kernel.org with ESMTP id S262720AbVDYSer (ORCPT
+	<rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Mon, 25 Apr 2005 14:34:47 -0400
+From: Nikita Danilov <nikita@clusterfs.com>
 MIME-Version: 1.0
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-CC: git@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH GIT 0.6] make use of register variables & size_t
-References: <426CD1F1.2010101@tiscali.de> <Pine.LNX.4.58.0504250751330.18901@ppc970.osdl.org> <426D21FE.3040401@tiscali.de> <20050425171234.GP24187@lug-owl.de> <20050425171359.GN10806@cip.informatik.uni-erlangen.de> <20050425171821.GQ24187@lug-owl.de>
-In-Reply-To: <20050425171821.GQ24187@lug-owl.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17005.14407.228930.83593@gargle.gargle.HOWL>
+Date: Mon, 25 Apr 2005 22:34:47 +0400
+To: David Teigland <teigland@redhat.com>
+Cc: akpm@osdl.org, Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
+Subject: Re: [PATCH 1b/7] dlm: core locking
+Newsgroups: gmane.linux.kernel
+In-Reply-To: <20050425165826.GB11938@redhat.com>
+References: <20050425165826.GB11938@redhat.com>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan-Benedict Glaw wrote:
-> On Mon, 2005-04-25 19:13:59 +0200, Thomas Glanzmann <sithglan@stud.uni-erlangen.de> wrote:
-> 
-> 
->>>Yeah, "register" is what you use after 21 days of programming
->>>pracitce...
->>
->>actually it is introduced on day 2.
-> 
-> 
-> ...and excessive use of "goto" being on day one?
-> 
-> MfG, JBG
-> 
-Stay serious. The book only teaches you ISO-C 99 like many other books. So where's your problem?
+David Teigland writes:
+ > 
+ > The core dlm functions.  Processes dlm_lock() and dlm_unlock() requests.
 
-A good old german adage says: "Das ist so schrecklich, dass heute jeder Idiot zu allem eine Meinung hat." (Dieter Nuhr (http://de.wikiquote.org/wiki/Dieter_Nuhr))
+[...]
+
+ > +
+ > +static int is_remote(struct dlm_rsb *r)
+ > +{
+ > +	DLM_ASSERT(r->res_nodeid >= 0, dlm_print_rsb(r););
+ > +	return r->res_nodeid ? TRUE : FALSE;
+ > +}
+
+This can be simply
+
+        return r->res_nodeid;
+
+ > +
+ > +static int is_master(struct dlm_rsb *r)
+ > +{
+ > +	return r->res_nodeid ? FALSE : TRUE;
+ > +}
+
+This duplicates dlm_is_master() for no obvious reason.
+
+ > +
+ > +int dlm_is_master(struct dlm_rsb *r)
+ > +{
+ > +	return r->res_nodeid ? FALSE : TRUE;
+ > +}
+
+This can be simply
+
+        return !r->res_nodeid;
+
+Nikita.

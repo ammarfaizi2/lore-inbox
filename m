@@ -1,49 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262730AbVDYSsn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262737AbVDYSzr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262730AbVDYSsn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 14:48:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262727AbVDYSsn
+	id S262737AbVDYSzr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 14:55:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262733AbVDYSzr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 14:48:43 -0400
-Received: from fire.osdl.org ([65.172.181.4]:18916 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262726AbVDYSsk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 14:48:40 -0400
-Date: Mon, 25 Apr 2005 11:50:29 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
+	Mon, 25 Apr 2005 14:55:47 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:7442 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262702AbVDYSzg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 14:55:36 -0400
+Message-Id: <200504251855.j3PItHQs021408@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
 To: Matthias-Christian Ott <matthias.christian@tiscali.de>
-cc: git@vger.kernel.org,
+Cc: Linus Torvalds <torvalds@osdl.org>, git@vger.kernel.org,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH GIT 0.6] make use of register variables & size_t
-In-Reply-To: <426D33BA.8040604@tiscali.de>
-Message-ID: <Pine.LNX.4.58.0504251147290.18901@ppc970.osdl.org>
-References: <426CD1F1.2010101@tiscali.de> <Pine.LNX.4.58.0504250751330.18901@ppc970.osdl.org>
- <426D21FE.3040401@tiscali.de> <Pine.LNX.4.58.0504251021280.18901@ppc970.osdl.org>
- <426D33BA.8040604@tiscali.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [PATCH GIT 0.6] make use of register variables & size_t 
+In-Reply-To: Your message of "Mon, 25 Apr 2005 20:15:22 +0200."
+             <426D33BA.8040604@tiscali.de> 
+From: Valdis.Kletnieks@vt.edu
+References: <426CD1F1.2010101@tiscali.de> <Pine.LNX.4.58.0504250751330.18901@ppc970.osdl.org> <426D21FE.3040401@tiscali.de> <Pine.LNX.4.58.0504251021280.18901@ppc970.osdl.org>
+            <426D33BA.8040604@tiscali.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1114455314_5553P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 25 Apr 2005 14:55:16 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_1114455314_5553P
+Content-Type: text/plain; charset=us-ascii
+
+On Mon, 25 Apr 2005 20:15:22 +0200, Matthias-Christian Ott said:
+
+> But this makes, like "register",  direct use of processor registers (it stores int arguments in eax, ebx, etc.).
+
+`-mregparm=NUM'
+     Control how many registers are used to pass integer arguments.  By
+     default, no registers are used to pass arguments, and at most 3
+     registers can be used.  You can control this behavior for a
+     specific function by using the function attribute `regparm'.
+     *Note Function Attributes::.
+
+     *Warning:* if you use this switch, and NUM is nonzero, then you
+     must build all modules with the same value, including any
+     libraries.  This includes the system libraries and startup modules.
+
+If it weren't for that *warning*, you could get away with making this another
+auto-optimizable value (similar to register allocation inside a function).
+Alas, the caller and called functions can be in different .o files, and as
+a result, you need to be able to specify the NUM to use to each invocation
+of gcc involved, as there's an ABI change involved....
+
+> Stay serious. The book only teaches you ISO-C 99 like many other books. So
+> where's your problem?
+
+The problem is the supposition that the implied 3 week's experience in a
+language makes anybody qualified to comment on how to use it truly effectively
+(for that matter, I've been programming in C since SunOS 3.2, literally 2
+decades ago, and I'm still finding little corners I didn't previously know...)
 
 
-On Mon, 25 Apr 2005, Matthias-Christian Ott wrote:
->
-> But this makes, like "register", direct use of processor registers (it
-> stores int arguments in eax, ebx, etc.).
+--==_Exmh_1114455314_5553P
+Content-Type: application/pgp-signature
 
-No. It make _unlike_ "register", direct use of processor registers.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-The "register" keyword does _not_ use processor registers. It's just 
-syntactic fluff, and tells the compiler exactly one thing:
+iD8DBQFCbT0ScC3lWbTT17ARAq1jAKDnfXWazXNEM3mwxMC/x2PEeQWNYwCgjZ7q
+uR2E5mN9rIlzwmrfoi5AKQc=
+=Xbby
+-----END PGP SIGNATURE-----
 
- - that the compiler should warn if you take the address of such a thing.
-
-In addition, the compiler may generate code that takes it into account, 
-which most likely means _worse_ code than if it didn't take it into 
-account.
-
-In contrast regparm() actually says something very relevant: it says that 
-the function uses a totally different calling convention.
-
-		Linus
+--==_Exmh_1114455314_5553P--

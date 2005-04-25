@@ -1,60 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbVDYXX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261209AbVDYXZh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261181AbVDYXX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 19:23:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbVDYXX5
+	id S261209AbVDYXZh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 19:25:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbVDYXZh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 19:23:57 -0400
-Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:56781 "EHLO
-	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
-	id S261181AbVDYXXz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 19:23:55 -0400
-Message-ID: <426D7B8F.6000903@ammasso.com>
-Date: Mon, 25 Apr 2005 18:21:51 -0500
-From: Timur Tabi <timur.tabi@ammasso.com>
-Organization: Ammasso
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en, en-gb
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: roland@topspin.com, hch@infradead.org, hozer@hozed.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
-References: <200544159.Ahk9l0puXy39U6u6@topspin.com>	<20050411142213.GC26127@kalmia.hozed.org>	<52mzs51g5g.fsf@topspin.com>	<20050411163342.GE26127@kalmia.hozed.org>	<5264yt1cbu.fsf@topspin.com>	<20050411180107.GF26127@kalmia.hozed.org>	<52oeclyyw3.fsf@topspin.com>	<20050411171347.7e05859f.akpm@osdl.org>	<4263DEC5.5080909@ammasso.com>	<20050418164316.GA27697@infradead.org>	<4263E445.8000605@ammasso.com>	<20050423194421.4f0d6612.akpm@osdl.org>	<426BABF4.3050205@ammasso.com>	<52is2bvvz5.fsf@topspin.com>	<20050425135401.65376ce0.akpm@osdl.org>	<521x8yv9vb.fsf@topspin.com>	<20050425151459.1f5fb378.akpm@osdl.org>	<426D6DFA.4090908@ammasso.com>	<20050425153542.70197e6a.akpm@osdl.org>	<426D725C.4070103@ammasso.com> <20050425161330.32c32b4b.akpm@osdl.org>
-In-Reply-To: <20050425161330.32c32b4b.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 25 Apr 2005 19:25:37 -0400
+Received: from fire.osdl.org ([65.172.181.4]:48600 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261209AbVDYXZJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 19:25:09 -0400
+Date: Mon, 25 Apr 2005 16:24:05 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Libor Michalek <libor@topspin.com>
+Cc: timur.tabi@ammasso.com, hch@infradead.org, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace
+ verbs implementation
+Message-Id: <20050425162405.0889093e.akpm@osdl.org>
+In-Reply-To: <20050425161713.A9002@topspin.com>
+References: <20050418164316.GA27697@infradead.org>
+	<4263E445.8000605@ammasso.com>
+	<20050423194421.4f0d6612.akpm@osdl.org>
+	<426BABF4.3050205@ammasso.com>
+	<52is2bvvz5.fsf@topspin.com>
+	<20050425135401.65376ce0.akpm@osdl.org>
+	<521x8yv9vb.fsf@topspin.com>
+	<20050425151459.1f5fb378.akpm@osdl.org>
+	<426D6DFA.4090908@ammasso.com>
+	<20050425153542.70197e6a.akpm@osdl.org>
+	<20050425161713.A9002@topspin.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Libor Michalek <libor@topspin.com> wrote:
+>
+> On Mon, Apr 25, 2005 at 03:35:42PM -0700, Andrew Morton wrote:
+> > Timur Tabi <timur.tabi@ammasso.com> wrote:
+> > >
+> > > Andrew Morton wrote:
+> > > 
+> > > > The way we expect get_user_pages() to be used is that the kernel will use
+> > > > get_user_pages() once per application I/O request.
+> > > 
+> > > Are you saying that the mapping obtained by get_user_pages() is valid only within the 
+> > > context of the IOCtl call?  That once the driver returns from the IOCtl, the mapping 
+> > > should no longer be used?
+> > 
+> > Yes, we expect that all the pages which get_user_pages() pinned will become
+> > unpinned within the context of the syscall which pinned the pages.  Or
+> > shortly after, in the case of async I/O.
+> 
+>   When a network protocol is making use of async I/O the amount of time
+> between posting the read request and getting the completion for that
+> request is unbounded since it depends on the other half of the connection
+> sending some data. In this case the buffer that was pinned during the
+> io_submit() may be pinned, and holding the pages, for a long time.
 
-> They are permanent until someone runs put_page() against all the pages. 
-> What I'm saying is that all current callers of get_user_pages() _do_ run
-> put_page() within the same syscall or upon I/O termination.
+Sure.
 
-Oh, okay then.  I guess I'll get back to work!
+> During
+> this time the process might fork, at this point any data received will be
+> placed into the wrong spot. 
 
-Actually, with RDMA, "I/O termination" technically doesn't happen until the memory is 
-deregistered.  When the memory is registered, all that means is that it's should be pinned 
-and the virtual-to-physical should be stored.  No actual I/O occurs at that point.
+Well the data is placed in _a_ spot.  That's only the "wrong" spot because
+you've defined it to be wrong!
 
->>If you look at the Infiniband code that was recently submitted, I think you'll see it does 
->>exactly that: after calling mlock(), the driver calls get_user_pages(), and it stores the 
->>page mappings for future
- >
-> Where?
+IOW: what behaviour are you actually looking for here, and why, and does it
+matter?
 
-I was talking about the code that Roland mentioned in the first message of this thread - 
-the user-space verbs support.  He said the code calls mlock() and get_user_pages().
+> > This is because there is no file descriptor or anything else associated
+> > with the pages which permits the kernel to clean stuff up on unclean
+> > application exit.  Also there are the obvious issues with permitting
+> > pinning of unbounded amounts of memory.
+> 
+>   Correct, the driver must be able to determine that the process has died
+> and clean up after it, so the pinned region in most implementations is
+> associated with an open file descriptor.
 
-FYI, our driver detects the process termination and cleans up everything itself.
-
--- 
-Timur Tabi
-Staff Software Engineer
-timur.tabi@ammasso.com
-
-One thing a Southern boy will never say is,
-"I don't think duct tape will fix it."
-      -- Ed Smylie, NASA engineer for Apollo 13
+How is that association created?

@@ -1,67 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVDYUuc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261173AbVDYUwU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbVDYUuc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 16:50:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbVDYUub
+	id S261173AbVDYUwU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 16:52:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbVDYUwU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 16:50:31 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:61347 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261161AbVDYUuR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 16:50:17 -0400
-Subject: Re: [PATCH GIT 0.6] make use of register variables & size_t
-From: Arjan van de Ven <arjan@infradead.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Matthias-Christian Ott <matthias.christian@tiscali.de>,
-       git@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0504251147290.18901@ppc970.osdl.org>
-References: <426CD1F1.2010101@tiscali.de>
-	 <Pine.LNX.4.58.0504250751330.18901@ppc970.osdl.org>
-	 <426D21FE.3040401@tiscali.de>
-	 <Pine.LNX.4.58.0504251021280.18901@ppc970.osdl.org>
-	 <426D33BA.8040604@tiscali.de>
-	 <Pine.LNX.4.58.0504251147290.18901@ppc970.osdl.org>
+	Mon, 25 Apr 2005 16:52:20 -0400
+Received: from mailfe08.swip.net ([212.247.154.225]:24567 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S261173AbVDYUwI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 16:52:08 -0400
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Subject: Re: [PATCH] PCI: Add pci shutdown ability
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Greg KH <greg@kroah.com>, Amit Gud <gud@eth.net>,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       akpm@osdl.org, jgarzik@pobox.com, cramerj@intel.com,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.44L0.0504251609420.7408-100000@iolanthe.rowland.org>
+References: <Pine.LNX.4.44L0.0504251609420.7408-100000@iolanthe.rowland.org>
 Content-Type: text/plain
-Date: Mon, 25 Apr 2005 22:50:09 +0200
-Message-Id: <1114462210.8442.54.camel@laptopd505.fenrus.org>
+Date: Mon, 25 Apr 2005 22:52:03 +0200
+Message-Id: <1114462323.983.45.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-04-25 at 11:50 -0700, Linus Torvalds wrote:
+> > Not sure what you mean by "make kexec work nicer" but if it is because
+> > some devices don't work after a kexec I have some objections.
 > 
-> On Mon, 25 Apr 2005, Matthias-Christian Ott wrote:
-> >
-> > But this makes, like "register", direct use of processor registers (it
-> > stores int arguments in eax, ebx, etc.).
+> That was indeed the reason, at least in my case.  The newly-rebooted
+> kernel doesn't work too well when there are active devices, with no driver
+> loaded, doing DMA and issuing IRQs because they were never shut down.
+>
+> > What about the kexec-on-panic?
+> > 
+> > In the end at least every storage device should work after a
+> > kexec-on-panic or else there might be cases where we cannot get dumps of
+> > what happened. My guess is that having access to the network might come
+> > in handy after a kexec-on-panic as well.
+> > 
+> > So if this patch is because some devices don't work across kexec I don't
+> > think this is a good idea because the same devices won't work after a
+> > kexec-on-panic.
 > 
-> No. It make _unlike_ "register", direct use of processor registers.
-> 
-> The "register" keyword does _not_ use processor registers. It's just 
-> syntactic fluff, and tells the compiler exactly one thing:
-> 
->  - that the compiler should warn if you take the address of such a thing.
-> 
-> In addition, the compiler may generate code that takes it into account, 
-> which most likely means _worse_ code than if it didn't take it into 
-> account.
+> Do I understand your argument correctly?  You seem to be saying that 
+> because this new facility sometimes won't work (the kexec-on-panic case) 
+> it shouldn't be added at all.  What about all the other times when it will 
+> work?
 
-afaik gcc just otherwise ignores it entirely.
-
+No, I was saying that this approach doesn't solve all problems that
+exist with kexec and kexec-on-panic is a very important coming
+functionality. If there is going to be prepatory work for its coming we
+might as well at least try to consider all the problems that are at
+hand.
+Otherwise the same problems will just appear again when kexec-on-panic
+starts to get used in the real world.
 

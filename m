@@ -1,77 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262750AbVDYTPO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262765AbVDYTOb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262750AbVDYTPO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 15:15:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262764AbVDYTPN
+	id S262765AbVDYTOb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 15:14:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262764AbVDYTOa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 15:15:13 -0400
-Received: from straum.hexapodia.org ([64.81.70.185]:36895 "EHLO
-	straum.hexapodia.org") by vger.kernel.org with ESMTP
-	id S262750AbVDYTLi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 15:11:38 -0400
-Date: Mon, 25 Apr 2005 12:11:11 -0700
-From: Andy Isaacson <adi@hexapodia.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Timur Tabi <timur.tabi@ammasso.com>, hch@infradead.org, roland@topspin.com,
-       hozer@hozed.org, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
-Message-ID: <20050425191111.GC2511@hexapodia.org>
-References: <52mzs51g5g.fsf@topspin.com> <20050411163342.GE26127@kalmia.hozed.org> <5264yt1cbu.fsf@topspin.com> <20050411180107.GF26127@kalmia.hozed.org> <52oeclyyw3.fsf@topspin.com> <20050411171347.7e05859f.akpm@osdl.org> <4263DEC5.5080909@ammasso.com> <20050418164316.GA27697@infradead.org> <4263E445.8000605@ammasso.com> <20050423194421.4f0d6612.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050423194421.4f0d6612.akpm@osdl.org>
-User-Agent: Mutt/1.4.2i
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
+	Mon, 25 Apr 2005 15:14:30 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:35507 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262755AbVDYTNW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 15:13:22 -0400
+Date: Mon, 25 Apr 2005 21:12:55 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+cc: Jan Dittmer <jdittmer@ppp0.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux/m68k <linux-m68k@vger.kernel.org>
+Subject: Re: Linux 2.6.12-rc3
+In-Reply-To: <20050421161106.GY13052@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.62.0504252110370.26096@numbat.sonytel.be>
+References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org>
+ <42676B76.4010903@ppp0.net> <Pine.LNX.4.62.0504211105550.13231@numbat.sonytel.be>
+ <20050421161106.GY13052@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 23, 2005 at 07:44:21PM -0700, Andrew Morton wrote:
-> Timur Tabi <timur.tabi@ammasso.com> wrote:
-> > As I said, the testcase only works with our hardware, and it's also
-> > very large.  It's one small test that's part of a huge test suite.
-> > It takes a couple hours just to install the damn thing.
+On Thu, 21 Apr 2005, Al Viro wrote:
+> On Thu, Apr 21, 2005 at 11:10:15AM +0200, Geert Uytterhoeven wrote:
+> > On Thu, 21 Apr 2005, Jan Dittmer wrote:
+> > > Linus Torvalds wrote:
+> > > > Geert Uytterhoeven:
+> > > >     [PATCH] M68k: Update defconfigs for 2.6.11
+> > > >     [PATCH] M68k: Update defconfigs for 2.6.12-rc2
+> > > 
+> > > Why do I still get this error when trying to cross-compile for m68k?
 > > 
-> > We want to produce a simpler test case that demonstrates the problem in an 
-> > easy-to-understand manner, but we don't have time to do that now.
+> > Because to build m68k kernels, you (still :-( have to use the Linux/m68k CVS
+> > repository, cfr. http://linux-m68k-cvs.ubb.ca/.
+> > 
+> > BTW, my patch queue is at
+> > http://linux-m68k-cvs.ubb.ca/~geert/linux-m68k-2.6.x-merging/.
+> > The main offender is POSTPONED/156-thread_info.diff.
 > 
-> If your theory is correct then it should be able to demonstrate this
-> problem without any special hardware at all: pin some user memory, then
-> generate memory pressure then check the contents of those pinned pages.
-> 
-> But if, for the DMA transfer, you're using the array of page*'s which were
-> originally obtained from get_user_pages() then it's rather hard to see how
-> the kernel could alter the page's contents.
-> 
-> Then again, if mlock() fixes it then something's up.  Very odd.
+> I think I have a sane splitup of that stuff.  If you have time to review - yell
 
-Andrew,
+Thanks a lot! Very well done!!
 
-Libor Michalek posted a much more reasonable (to my limited
-understanding) bug description in <20050412180447.E6958@topspin.com>.
+I did some (eyeball) review and the compiler liked it as well, so everything
+seems OK.
 
-(And I'd love to provide a URL, but damned if I can figure out how to
-find that message on gmane.  Clue-bat applications gladly accepted.)
+Unfortunately due to various personal reasons I won't have time to test it on
+real hardware anytime soon. But if anyone does, I'll take it for sure.
 
-Libor Michalek wrote:
-# The driver did use get_user_pages() to elevated the refcount on all the
-# pages it was going to use for IO, as well as call set_page_dirty() since
-# the pages were going to have data written to them from the device.
-# 
-# The problem we were seeing is that the minor fault by the app resulted
-# in a new physical page getting mapped for the application. The page that
-# had the elevated refcount was still waiting for the data to be written
-# to by the driver at the time that the app accessed the page causing the
-# minor fault. Obviously since the app had a new mapping the data written
-# by the driver was lost.
-# 
-# It looks like code was added to try_to_unmap_one() to address this, so   
-# hopefully it's no longer an issue...
+Gr{oetje,eeting}s,
 
-Which makes me think that Timur's bug is just an
-insufficiently-understood version of Libor's.
+						Geert
 
--andy
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

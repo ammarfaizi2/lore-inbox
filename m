@@ -1,52 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262645AbVDYPik@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262647AbVDYQ0n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262645AbVDYPik (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 11:38:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262644AbVDYPhm
+	id S262647AbVDYQ0n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 12:26:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262654AbVDYQZl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 11:37:42 -0400
-Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:62556 "EHLO
-	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
-	id S262663AbVDYPQH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 11:16:07 -0400
-X-SBRSScore: None
-X-IronPort-AV: i="3.92,128,1112565600"; 
-   d="scan'208"; a="8120509:sNHT21714024"
-Message-ID: <426D09AF.6030209@fujitsu-siemens.com>
-Date: Mon, 25 Apr 2005 17:15:59 +0200
-From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
+	Mon, 25 Apr 2005 12:25:41 -0400
+Received: from mail.dif.dk ([193.138.115.101]:55428 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S262659AbVDYQXM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 12:23:12 -0400
+Date: Mon, 25 Apr 2005 18:26:25 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: David Teigland <teigland@redhat.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 6/7] dlm: debug fs
+In-Reply-To: <20050425151317.GG6826@redhat.com>
+Message-ID: <Pine.LNX.4.62.0504251816080.2941@dragon.hyggekrogen.localhost>
+References: <20050425151317.GG6826@redhat.com>
 MIME-Version: 1.0
-To: Blaisorblade <blaisorblade@yahoo.it>
-CC: akpm@osdl.org, jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [patch 0/7] uml: some invasive changes for -mm
-References: <200504242039.57025.blaisorblade@yahoo.it>
-In-Reply-To: <200504242039.57025.blaisorblade@yahoo.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Blaisorblade wrote:
-> This is the first of a series of 7 invasive patches for the -mm tree, which 
-> are to be reviewed (not only by UML folks), and possibly merged for the 
-> 2.6.13 cycle.
-> 
-> The first one splits the i386 syscall table out of entry.S, without any real 
-> change for them (the file is included in the old place); if there are any 
-> syscall table changes, please be careful; this maybe means place *this* one 
-> before the others (or even merge now the i386 code movement part); I don't 
-> want that this patch is modified and that subtle bugs are introduced. The 
-> code movement is a really trivial code movement, however (no hidden changes).
-> 
-> This is needed to enable us to include the i386 syscall table, so that we are 
-> sure that they match. I already handled the real differences between i386 and 
-> UML (see the patch).
-I love this idea and it fits well to UML/s390, where syscall table already
-lives in a separate source.
-As change and grow of syscall tables is not really coordinated between different
-arches, this change will simplify maintenance of UML-subarches a lot.
+On Mon, 25 Apr 2005, David Teigland wrote:
 
-		Bodo
+> 
+> A CONFIG setting optionally adds this file which creates a debugfs file
+> for each lockspace: /debug/dlm/<lockspace_name>.  Reading the debugfs file
+> displays all resources/locks currently managed in the given lockspace.
+> 
+> Signed-Off-By: Dave Teigland <teigland@redhat.com>
+> Signed-Off-By: Patrick Caulfield <pcaulfie@redhat.com>
+> 
+> ---
+> 
+[...]
+> +static int rsb_iter_next(struct rsb_iter *ri)
+> +{
+> +	struct dlm_ls *ls = ri->ls;
+> +	int i;
+> +
+> + top:
+> +	if (!ri->next) {
+> +		/* Find the next non-empty hash bucket */
+> +		for (i = ri->entry; i < ls->ls_rsbtbl_size; i++) {
+> +			read_lock(&ls->ls_rsbtbl[i].lock);
+> +			if (!list_empty(&ls->ls_rsbtbl[i].list)) {
+> +				ri->next = ls->ls_rsbtbl[i].list.next;
+> +				read_unlock(&ls->ls_rsbtbl[i].lock);
+> +				break;
+> +			}
+> +			read_unlock(&ls->ls_rsbtbl[i].lock);
+> +                }
+> +		ri->entry = i;
+> +
+> +		if (ri->entry >= ls->ls_rsbtbl_size)
+> +			return 1;
+> +	} else {
+> +		i = ri->entry;
+> +		read_lock(&ls->ls_rsbtbl[i].lock);
+> +		ri->next = ri->next->next;
+> +		if (ri->next->next == ls->ls_rsbtbl[i].list.next) {
+> +			/* End of list - move to next bucket */
+> +			ri->next = NULL;
+> +			ri->entry++;
+> +			read_unlock(&ls->ls_rsbtbl[i].lock);
+> +			goto top;
+> +                }
+> +		read_unlock(&ls->ls_rsbtbl[i].lock);
+> +	}
+> +	ri->rsb = list_entry(ri->next, struct dlm_rsb, res_hashchain);
+> +
+> +	return 0;
+> +}
+Personally I think there must be a way to construct this function to be a 
+bit more readable, I'm playing with that, perhaps I'll come up with 
+something. But, in any case you might as well move the label 'top' inside 
+the if just before the for loop, since the only place you ever  goto top  
+you've just set ri->next to NULL, so you know you are going to end up 
+inside the if in any case, no need to actually do the test every time.
+
+
+-- 
+Jesper Juhl
+
+

@@ -1,142 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262444AbVDYCLk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262445AbVDYCMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262444AbVDYCLk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 22:11:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbVDYCLj
+	id S262445AbVDYCMF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 22:12:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbVDYCMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 22:11:39 -0400
-Received: from tama5.ecl.ntt.co.jp ([129.60.39.102]:63667 "EHLO
-	tama5.ecl.ntt.co.jp") by vger.kernel.org with ESMTP id S262444AbVDYCLd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 22:11:33 -0400
-Message-ID: <426C51C4.9040902@lab.ntt.co.jp>
-Date: Mon, 25 Apr 2005 11:11:16 +0900
-From: Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+	Sun, 24 Apr 2005 22:12:05 -0400
+Received: from aibo.runbox.com ([193.71.199.94]:59294 "EHLO cujo.runbox.com")
+	by vger.kernel.org with ESMTP id S262445AbVDYCLx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Apr 2005 22:11:53 -0400
+Message-ID: <426C5266.6050200@dwheeler.com>
+Date: Sun, 24 Apr 2005 22:13:58 -0400
+From: "David A. Wheeler" <dwheeler@dwheeler.com>
+Reply-To: dwheeler@dwheeler.com
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH x86_64] Live Patching Function on 2.6.11.7
-References: <4263275A.2020405@lab.ntt.co.jp> <m1y8b9xyaw.fsf@muc.de>
-In-Reply-To: <m1y8b9xyaw.fsf@muc.de>
-Content-Type: text/plain; charset=ISO-2022-JP
+To: Paul Jakma <paul@clubi.ie>
+CC: Linus Torvalds <torvalds@osdl.org>, Sean <seanlkml@sympatico.ca>,
+       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       David Woodhouse <dwmw2@infradead.org>, Jan Dittmer <jdittmer@ppp0.net>,
+       Greg KH <greg@kroah.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: Git-commits mailing list feed.
+References: <200504210422.j3L4Mo8L021495@hera.kernel.org>       <42674724.90005@ppp0.net> <20050422002922.GB6829@kroah.com>       <426A4669.7080500@ppp0.net>       <1114266083.3419.40.camel@localhost.localdomain>       <426A5BFC.1020507@ppp0.net>       <1114266907.3419.43.camel@localhost.localdomain>       <Pine.LNX.4.58.0504231010580.2344@ppc970.osdl.org>       <20050423175422.GA7100@cip.informatik.uni-erlangen.de>       <Pine.LNX.4.58.0504231125330.2344@ppc970.osdl.org> <2911.10.10.10.24.1114279589.squirrel@linux1> <Pine.LNX.4.58.0504231234550.2344@ppc970.osdl.org> <Pine.LNX.4.62.0504250008370.14200@sheen.jakma.org> <426C4168.6030008@dwheeler.com> <Pine.LNX.4.62.0504250212200.14200@sheen.jakma.org>
+In-Reply-To: <Pine.LNX.4.62.0504250212200.14200@sheen.jakma.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-Andi Kleen wrote:
+Paul Jakma wrote:
+> On Sun, 24 Apr 2005, David A. Wheeler wrote:
+> Hmm, what do you mean by "repeating what gets signed"?
 
->Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp> writes:
->
->  
->
->>The patch was over 50k, so I separate it to each architecture and in line..
->>
->>This patch add function called "Live patching" which is defined on
->>OSDL's carrier grade linux requiremnt definition to linux 2.6.11.7 kernel.
->>The live patching allows process to patch on-line (without restarting
->>process) on i386 and x86_64 architectures, by overwriting jump assembly
->>code on entry point of functions which you want to fix, to patched
->>functions.
->>    
->>
->
->How exactly is this different from ptrace?
->Seems just like a ptrace memcpy extension 
->Is the patching really that time critical that you cant do it 
->with normal ptrace?
->  
->
-Only few patch modules are not so critical, however sometimes large
-number of patches are applied at one time. In that case, time is very
-critical with normal ptrace. As you know, normal ptrace need to target
-process STOP whenever change the memory/registers.
-Our approach is "do not stop the target process's execution as possible
-as", because the target process can provide service during patch on SMP
-machine (do not want to stop service due to patch).
-If we load hundreds of patch modules at one time, I think it will goes
-quite time critical..
+Forget it, irrelevant.  I vaguely remembered some problem with
+gpg's detached signatures, but it was probably either a really
+early alpha version or someone was using "--clearsign" instead
+of "--armor".  I just did a quick check with:
+  gpg --armor --detach -o junk.sig junk.c
+and it worked "as expected"; no repeat of the data.
 
->>+	if(((current->uid != tsk->euid) ||
->>+	    (current->uid != tsk->suid) ||
->>+	    (current->uid != tsk->uid) ||
->>+	    (current->gid != tsk->egid) ||
->>+	    (current->gid != tsk->sgid) ||
->>+	    (current->gid != tsk->gid)) && !capable(CAP_SYS_PANNUS)) {
->>+                // invalid user in sys_accesspvm
->>+                return -EPERM;
->>+        }
->>+> +	p = vmalloc(len);
->>    
->>
->
->This needs a limit. 
->  
->
-Thank you, we'll fix this soon.
+>> Yes, and see my earlier posting.  It'd be easy to store signatures in
+>> the current objects directory, of course.  The trick is to be able
+>> to go from signed-object to the signature;
+> Two ways:
+> 1. An index of sigs to signed-object.
+> (or more generally: objects to referring-objects)
 
->annus-x86_64/arch/x86_64/kernel/entry.S
->  
->
->>--- linux-2.6.11.7-vanilla/arch/x86_64/kernel/entry.S	2005-04-08 03:57:30.000000000 +0900
->>+++ linux-2.6.11.7-pannus-x86_64/arch/x86_64/kernel/entry.S	2005-04-18 10:45:47.000000000 +0900
->>@@ -214,6 +214,8 @@ sysret_check:		
->> 	/* Handle reschedules */
->> 	/* edx:	work, edi: workmask */	
->> sysret_careful:
->>+	cmpl $0,threadinfo_inipending(%rcx)
->>+	jne sysret_init
->>    
->>
->
->Put the check into the normal notify_resume work mask, not adding
->a separate check into this critical fast path.
->  
->
-OK, we'll fix this soon.
+Right.  I suggested putting it in the same directory as the objects,
+so that rsync users get them "for free", but a separate directory
+has its own advantages & that'd be fine too.
+In fact, the more I think about it, I think it'd be cleaner
+to have it separate.   You could prepend on top of the signature
+(if signatures are separate from assertions) WHAT got signed so
+that the index could be recreated from scratch when desired.
 
->> 	CFI_ENDPROC
->> 
->> /* 
->>+ * In the case restorer calls rt_handlereturn, collect and store registers,
->>+ * and call rt_handlereturn with stored register struct.
->>+ */
->>+ENTRY(stub_rt_handlereturn)
->>    
->>
->
->This seems quite pointless since ptrace and can change all registers
->in a child.
->  
->
-Well, this can change as you said, but I think, this makes target
-process stopping time increase.
-Because, to control target process's (patch module's) initialization,
-the command process should know the target process's status and then
-stop with ptrace.
-Currently rt_handlereturn works on target process's context like signal
-handler return, so, I think there is minimum time loss on target process.
-If command process controls the target process's initialization, this
-seems target process's stopping time increasing.
-Well, may be our idea is wrong, please tell us.
+> 2. Just give people the URI of the signature, let them (or their
+>    tools) follow the 'parent' link to the object of interest
 
-Thank you your advice!
+If you mean "the signatures aren't stored with the objects", NO.
+Please don't! If the signatures are not stored in the database,
+then over time they'll get lost.  It's important to me to
+store the record of trust, as well as what changed, so that
+ANYONE can later go back and verify that things are as they're
+supposed to be, or exactly who trusted what.
 
->Didnt review more.
->
->-Andi
->  
->
+> I think it might be more useful just to provide a general index to 
+> lookup 'referring' objects (if git does not already - I dont think it 
+> does, but I dont know enough to know for sure).
 
+git definitely doesn't have this currently, though you could run the
+fsck tools which end up creating a lot of the info (but it's then
+thrown away).
 
--- 
-Takashi Ikebe
-NTT Network Service Systems Laboratories
-9-11, Midori-Cho 3-Chome Musashino-Shi,
-Tokyo 180-8585 Japan
-Tel : +81 422 59 4246, Fax : +81 422 60 4012
-e-mail : ikebe.takashi@lab.ntt.co.jp
+ > So you could ask "which
+> {commit,tag,signature,tree}(s) refer(s) to this object?" - that general 
+> concept will always work.
 
+Yes. The problem is that maintaining the index is a pain.
+It's probably worth it for signatures, because the primary use
+is the other direction ("who signed this?"); it's not clear that
+the other direction is common for other data.
 
+--- David A. Wheeler

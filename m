@@ -1,95 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261737AbVDYT1O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262739AbVDYT1j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261737AbVDYT1O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 15:27:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262768AbVDYT1N
+	id S262739AbVDYT1j (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 15:27:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261687AbVDYT1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 15:27:13 -0400
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:40667 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S261737AbVDYTXy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 15:23:54 -0400
-Subject: [patch 1/1] uml ubd: handle readonly status
-To: akpm@osdl.org
-Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it,
-       axboe@suse.de
-From: blaisorblade@yahoo.it
-Date: Mon, 25 Apr 2005 21:19:49 +0200
-Message-Id: <20050425191949.E56D145EBB@zion>
+	Mon, 25 Apr 2005 15:27:38 -0400
+Received: from 216-237-124-58.infortech.net ([216.237.124.58]:14263 "EHLO
+	mail.dvmed.net") by vger.kernel.org with ESMTP id S262775AbVDYTXW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 15:23:22 -0400
+Message-ID: <426D439D.6080705@pobox.com>
+Date: Mon, 25 Apr 2005 15:23:09 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Amit Gud <gud@eth.net>, Alan Stern <stern@rowland.harvard.edu>,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       akpm@osdl.org, cramerj@intel.com,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] PCI: Add pci shutdown ability
+References: <Pine.LNX.4.44L0.0504251128070.5751-100000@iolanthe.rowland.org> <20050425182951.GA23209@kroah.com> <SVLXCHCON1syWVLEFN00000099e@SVLXCHCON1.enterprise.veritas.com> <20050425185113.GC23209@kroah.com> <20050425190606.GA23763@kroah.com>
+In-Reply-To: <20050425190606.GA23763@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greg KH wrote:
+> Well it seems that people are starting to want to hook the reboot
+> notifier, or the device shutdown facility in order to properly shutdown
+> pci drivers to make kexec work nicer.
+> 
+> So here's a patch for the PCI core that allows pci drivers to now just
+> add a "shutdown" notifier function that will be called when the system
+> is being shutdown.  It happens just after the reboot notifier happens,
+> and it should happen in the proper device tree order, so everyone should
+> be happy.
+> 
+> Any objections to this patch?
 
-CC: Jens Axboe <axboe@suse.de>
+Traditionally the proper place -has- been
+* the reboot notifier
+* the ->remove hook (hot unplug, and module remove)
 
-Use the set_disk_ro() API when the backing file is read-only, to mark the disk
-read-only, during the ->open(). The current hack does not work when doing a
-mount -o remount.
+which covers all the cases.
 
-Also, mark explicitly the code paths which should no more be triggerable (I've
-removed the WARN_ON(1) things). They should actually become BUG()s probably
-but I'll avoid that since I'm not so sure the change works so well. I gave it
-only some limited testing.
+Add a ->shutdown hook is more of a hack.  If you want to introduce this 
+facility in a systematic way, introduce a 'kexec reboot' option which 
+walks the device tree and shuts down hardware.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
+->shutdown is just a piecemeal, uncoordinated effort (uncoordinated in 
+the sense that driver shutdowns occur in an undefined order).
 
- linux-2.6.12-paolo/arch/um/drivers/ubd_kern.c |   14 ++++++++++----
- 1 files changed, 10 insertions(+), 4 deletions(-)
+	Jeff
 
-diff -puN arch/um/drivers/ubd_kern.c~uml-ubd-handle-readonly arch/um/drivers/ubd_kern.c
---- linux-2.6.12/arch/um/drivers/ubd_kern.c~uml-ubd-handle-readonly	2005-04-25 21:16:03.000000000 +0200
-+++ linux-2.6.12-paolo/arch/um/drivers/ubd_kern.c	2005-04-25 21:16:47.000000000 +0200
-@@ -156,6 +156,7 @@ static struct gendisk *fake_gendisk[MAX_
- static struct openflags global_openflags = OPEN_FLAGS;
- 
- struct cow {
-+	/* This is the backing file, actually */
- 	char *file;
- 	int fd;
- 	unsigned long *bitmap;
-@@ -927,10 +928,14 @@ static int ubd_open(struct inode *inode,
- 		}
- 	}
- 	dev->count++;
--	if((filp->f_mode & FMODE_WRITE) && !dev->openflags.w){
-+	set_disk_ro(disk, !dev->openflags.w);
-+
-+	/* This should no more be needed. And it didn't work anyway to exclude
-+	 * read-write remounting of filesystems.*/
-+	/*if((filp->f_mode & FMODE_WRITE) && !dev->openflags.w){
- 	        if(--dev->count == 0) ubd_close(dev);
- 	        err = -EROFS;
--	}
-+	}*/
-  out:
- 	return(err);
- }
-@@ -1096,6 +1101,7 @@ static int prepare_request(struct reques
- 
- 	if(req->rq_status == RQ_INACTIVE) return(1);
- 
-+	/* This should be impossible now */
- 	if((rq_data_dir(req) == WRITE) && !dev->openflags.w){
- 		printk("Write attempted on readonly ubd device %s\n", 
- 		       disk->disk_name);
-@@ -1243,6 +1249,7 @@ static int ubd_check_remapped(int fd, un
- 
- 		/* It's a write to a ubd device */
- 
-+		/* This should be impossible now */
- 		if(!dev->openflags.w){
- 			/* It's a write access on a read-only device - probably
- 			 * shouldn't happen.  If the kernel is trying to change
-@@ -1605,8 +1612,7 @@ void do_io(struct io_thread_req *req)
- 				}
- 			} while((n < len) && (n != 0));
- 			if (n < len) memset(&buf[n], 0, len - n);
--		}
--		else {
-+		} else {
- 			n = os_write_file(req->fds[bit], buf, len);
- 			if(n != len){
- 				printk("do_io - write failed err = %d "
-_
+
+

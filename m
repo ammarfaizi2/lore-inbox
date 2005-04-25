@@ -1,73 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbVDYVDm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbVDYVIx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbVDYVDm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 17:03:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbVDYVCN
+	id S261197AbVDYVIx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 17:08:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbVDYVIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 17:02:13 -0400
-Received: from mail.kroah.org ([69.55.234.183]:9176 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261188AbVDYVAi (ORCPT
+	Mon, 25 Apr 2005 17:08:53 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:18327 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261197AbVDYVIE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 17:00:38 -0400
-Date: Mon, 25 Apr 2005 14:00:14 -0700
-From: Greg KH <greg@kroah.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Amit Gud <gud@eth.net>, Alan Stern <stern@rowland.harvard.edu>,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       akpm@osdl.org, jgarzik@pobox.com, cramerj@intel.com,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] PCI: Add pci shutdown ability
-Message-ID: <20050425210014.GA25247@kroah.com>
-References: <Pine.LNX.4.44L0.0504251128070.5751-100000@iolanthe.rowland.org> <20050425182951.GA23209@kroah.com> <SVLXCHCON1syWVLEFN00000099e@SVLXCHCON1.enterprise.veritas.com> <20050425185113.GC23209@kroah.com> <20050425190606.GA23763@kroah.com> <20050425204207.GA23724@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050425204207.GA23724@elf.ucw.cz>
-User-Agent: Mutt/1.5.8i
+	Mon, 25 Apr 2005 17:08:04 -0400
+In-Reply-To: <20050424211942.GN13052@parcelfarce.linux.theplanet.co.uk>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: akpm@osdl.org, hch@infradead.org, linux-fsdevel@vger.kernel.org,
+       linux-fsdevel-owner@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Miklos Szeredi <miklos@szeredi.hu>
+MIME-Version: 1.0
+Subject: Re: [PATCH] private mounts
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OF32F95BBA.F38B2D1F-ON88256FEE.006FE841-88256FEE.00742E46@us.ibm.com>
+From: Bryan Henderson <hbryan@us.ibm.com>
+Date: Mon, 25 Apr 2005 14:09:43 -0700
+X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Build V70_M4_01112005 Beta 3|January
+ 11, 2005) at 04/25/2005 17:08:00,
+	Serialize complete at 04/25/2005 17:08:00
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 25, 2005 at 10:42:07PM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > Well it seems that people are starting to want to hook the reboot
-> > notifier, or the device shutdown facility in order to properly shutdown
-> > pci drivers to make kexec work nicer.
-> > 
-> > So here's a patch for the PCI core that allows pci drivers to now just
-> > add a "shutdown" notifier function that will be called when the system
-> > is being shutdown.  It happens just after the reboot notifier happens,
-> > and it should happen in the proper device tree order, so everyone should
-> > be happy.
-> > 
-> > Any objections to this patch?
-> 
-> Yes.
-> 
-> I believe it should just do suspend(PMSG_SUSPEND) before system
-> shutdown. If you think distintion between shutdown and suspend is
-> important (I am not 100% convinced it is), we can just add flag
-> saying "this is system shutdown".
+>> No.  You can't set "mount environment" in scp.
+>
+>Of course you can.  It does execute the obvious set of rc files.
 
-Then why even have the device_shutdown() call and notifier in the struct
-device_driver?
+Incidentally, there is no obvious set of files.  The only relevant one 
+that gets executed does so by accident because of a side effect of an ugly 
+hack.
 
-> Actually this patch should be in the queue somewhere... We had it in
-> suse trees for a long time, and IMO it can solve problem easily.
-> 
-> 								Pavel
-> 
-> --- clean-git/kernel/sys.c	2005-04-23 23:21:55.000000000 +0200
-> +++ linux/kernel/sys.c	2005-04-24 00:20:47.000000000 +0200
-> @@ -404,6 +404,7 @@
->  	case LINUX_REBOOT_CMD_HALT:
->  		notifier_call_chain(&reboot_notifier_list, SYS_HALT, NULL);
->  		system_state = SYSTEM_HALT;
-> +		device_suspend(PMSG_SUSPEND);
->  		device_shutdown();
+Jamie pointed out that such files wouldn't really help anyway, because 
+there isn't a shell command that can affect the mounts seen by the copy 
+server process it forks.  And others have noted that some such remote 
+processes don't run shells at all.  But in case anyone is thinking of 
+shell rc files as an architectural solution to the scp problem, let me 
+explain shell rc files, in particular Bash's:
 
-Again, why keep device_shutdown() around at all then?
+.profile runs when a login shell starts, which is supposed to be when you 
+start a work session with the computer.  You put stuff in there like an 
+announcement of mail, displaying reminders, reading news, etc.
 
-thanks,
+/etc/profile is the same, but for everyone.
 
-greg k-h
+.bashrc runs when an interactive shell starts that isn't a login shell, 
+which is supposed to be as in opening  a new shell window.  You put stuff 
+in there to customize your interactive experience -- key binding, screen 
+colors, aliases, and the like.
+
+Some builds of Bash have a system level version of this as 
+/etc/bash.bashrc.
+
+All of these are for shells that are being used by a human.  They can 
+really mess up a "user" that is a machine.  The most important case of a 
+non-human user is a shell script.
+
+The rc file named by the BASH_ENV environment variable runs for every 
+shell, interactive or not.  But this is hard to use for personalization 
+because you need a place to personalize BASH_ENV.  It's also hard to use 
+for anything else, because so many programs (including some Ssh daemons) 
+cut off environment variable inheritance.
+
+Now for the ugly hack:  An interactive shell is normally one whose 
+Standard Input is a terminal.  But when rsh came about, Standard Input was 
+a socket, even though the shell session was quite interactive.  So Bash 
+contains code that looks at several conditions consistent with an rsh 
+session and if it determines that it is probably being run as the backend 
+of an rsh session, it treats the shell as interactive.  Openssh 'ssh' 
+doesn't need this hack, because Sshd uses a pseudo-terminal instead of a 
+socket as the shell's Standard Input.  But Openssh's 'scp' falls into the 
+trap and gets taken as an interactive human user of the shell.  So .bashrc 
+runs.  Many are the scp sessions I've tortured with my .bashrc, and spent 
+hours debugging.  (I finally removed the hack from Bash and regained 
+sanity).
+
+A design for user-specific namespaces that relies on this particular hack 
+would not be clean.
+
+On the other hand, it is possible to customize any scp backend session 
+just by making a personal wrapper for the scp backend program.  The 
+wrapper can do the setup -- either directly or by running an "scprc" file. 
+ With Openssh, you can choose the backend program in various places.
+
+--
+Bryan Henderson                          IBM Almaden Research Center
+San Jose CA                              Filesystems

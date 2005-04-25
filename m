@@ -1,41 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVDYUf4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVDYUms@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbVDYUf4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 16:35:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbVDYUfk
+	id S261165AbVDYUms (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 16:42:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbVDYUms
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 16:35:40 -0400
-Received: from quechua.inka.de ([193.197.184.2]:51078 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S261173AbVDYUfY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 16:35:24 -0400
-Date: Mon, 25 Apr 2005 22:35:17 +0200
-From: Bernd Eckenfels <be-mail2005@lina.inka.de>
-To: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org
-Subject: Re: more git updates..
-Message-ID: <20050425203517.GA12435@lina.inka.de>
-References: <20050423174227.51360d63.pj@sgi.com> <E1DPVwN-0007pj-00@calista.eckenfels.6bone.ka-ip.net> <20050423211326.7ed8e199.pj@sgi.com> <20050424043813.GA2422@lina.inka.de> <20050425115750.GA11233@thunk.org>
+	Mon, 25 Apr 2005 16:42:48 -0400
+Received: from agminet01.oracle.com ([141.146.126.228]:34507 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S261192AbVDYUk0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 16:40:26 -0400
+Date: Mon, 25 Apr 2005 13:39:52 -0700
+From: Wim Coekaerts <wim.coekaerts@oracle.com>
+To: David Teigland <teigland@redhat.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 0/7] dlm: overview
+Message-ID: <20050425203952.GE25002@ca-server1.us.oracle.com>
+References: <20050425151136.GA6826@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050425115750.GA11233@thunk.org>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050425151136.GA6826@redhat.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 25, 2005 at 07:57:50AM -0400, Theodore Ts'o wrote:
-> You want to explain how this is going to cause problems in the git
-> systems?
+> This is a distributed lock manager (dlm) that we'd like to see added to
+> the kernel.  The dlm programming api is very similar to that found on
+> other operating systems, but this is modeled most closely after that in
+> VMS.
 
-No because I explained it does not cause Problems.
+do you have any performance data at all on this ? I like to see a dlm
+but I like to see something that will also perform well. My main concern
+is that I have not seen anything relying on this code do "reasonably
+well". eg can you show gfs numbers w/ number of nodes and scalability ?
 
-Greetings
-Bernd
+I think it's time we submit ocfs2 w/ it's cluster stack so that folks
+can compare (including actual data/numbers), we have been waiting to
+stabilize everything but I guess there is this preemptive strike going
+on so we might just as well. at least we have had hch and folks comment,
+before sending to submit code.
 
-BTW: do you have an link to the SHA-1 collisions?
--- 
-  (OO)      -- Bernd_Eckenfels@Mörscher_Strasse_8.76185Karlsruhe.de --
- ( .. )      ecki@{inka.de,linux.de,debian.org}  http://www.eckes.org/
-  o--o     1024D/E383CD7E  eckes@IRCNet  v:+497211603874  f:+497211606754
-(O____O)  When cryptography is outlawed, bayl bhgynjf jvyy unir cevinpl!
+Andrew - we will submit ocfs2 so you can have a look, compare and move
+on.  we will work with any stack that eventuslly gets accepted, just want 
+to see the choice out there and an educated decision.
+
+hopefully tomorrow, including data comparing single node and multinode
+performance.
+
+Wim
+

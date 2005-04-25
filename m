@@ -1,84 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261209AbVDYXZh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbVDYX1h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261209AbVDYXZh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 19:25:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbVDYXZh
+	id S261227AbVDYX1h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 19:27:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261229AbVDYX1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 19:25:37 -0400
-Received: from fire.osdl.org ([65.172.181.4]:48600 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261209AbVDYXZJ (ORCPT
+	Mon, 25 Apr 2005 19:27:37 -0400
+Received: from HELIOUS.MIT.EDU ([18.248.3.87]:25770 "EHLO neo.rr.com")
+	by vger.kernel.org with ESMTP id S261227AbVDYX1W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 19:25:09 -0400
-Date: Mon, 25 Apr 2005 16:24:05 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Libor Michalek <libor@topspin.com>
-Cc: timur.tabi@ammasso.com, hch@infradead.org, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace
- verbs implementation
-Message-Id: <20050425162405.0889093e.akpm@osdl.org>
-In-Reply-To: <20050425161713.A9002@topspin.com>
-References: <20050418164316.GA27697@infradead.org>
-	<4263E445.8000605@ammasso.com>
-	<20050423194421.4f0d6612.akpm@osdl.org>
-	<426BABF4.3050205@ammasso.com>
-	<52is2bvvz5.fsf@topspin.com>
-	<20050425135401.65376ce0.akpm@osdl.org>
-	<521x8yv9vb.fsf@topspin.com>
-	<20050425151459.1f5fb378.akpm@osdl.org>
-	<426D6DFA.4090908@ammasso.com>
-	<20050425153542.70197e6a.akpm@osdl.org>
-	<20050425161713.A9002@topspin.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Mon, 25 Apr 2005 19:27:22 -0400
+Date: Mon, 25 Apr 2005 19:23:31 -0400
+From: Adam Belay <ambx1@neo.rr.com>
+To: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Alan Stern <stern@rowland.harvard.edu>, alexn@dsv.su.se, greg@kroah.com,
+       gud@eth.net, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, jgarzik@pobox.com,
+       cramerj@intel.com, linux-usb-devel@lists.sourceforge.net
+Subject: Re: [PATCH] PCI: Add pci shutdown ability
+Message-ID: <20050425232330.GG27771@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+	Alan Stern <stern@rowland.harvard.edu>, alexn@dsv.su.se,
+	greg@kroah.com, gud@eth.net, linux-kernel@vger.kernel.org,
+	linux-pci@atrey.karlin.mff.cuni.cz, jgarzik@pobox.com,
+	cramerj@intel.com, linux-usb-devel@lists.sourceforge.net
+References: <1114458325.983.17.camel@localhost.localdomain> <Pine.LNX.4.44L0.0504251609420.7408-100000@iolanthe.rowland.org> <20050425145831.48f27edb.akpm@osdl.org> <20050425221326.GC15366@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050425221326.GC15366@redhat.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Libor Michalek <libor@topspin.com> wrote:
->
-> On Mon, Apr 25, 2005 at 03:35:42PM -0700, Andrew Morton wrote:
-> > Timur Tabi <timur.tabi@ammasso.com> wrote:
-> > >
-> > > Andrew Morton wrote:
-> > > 
-> > > > The way we expect get_user_pages() to be used is that the kernel will use
-> > > > get_user_pages() once per application I/O request.
-> > > 
-> > > Are you saying that the mapping obtained by get_user_pages() is valid only within the 
-> > > context of the IOCtl call?  That once the driver returns from the IOCtl, the mapping 
-> > > should no longer be used?
-> > 
-> > Yes, we expect that all the pages which get_user_pages() pinned will become
-> > unpinned within the context of the syscall which pinned the pages.  Or
-> > shortly after, in the case of async I/O.
+On Mon, Apr 25, 2005 at 06:13:27PM -0400, Dave Jones wrote:
+> On Mon, Apr 25, 2005 at 02:58:31PM -0700, Andrew Morton wrote:
+>  > Alan Stern <stern@rowland.harvard.edu> wrote:
+>  > >
+>  > > On Mon, 25 Apr 2005, Alexander Nyberg wrote:
+>  > > 
+>  > > > Not sure what you mean by "make kexec work nicer" but if it is because
+>  > > > some devices don't work after a kexec I have some objections.
+>  > > 
+>  > > That was indeed the reason, at least in my case.  The newly-rebooted
+>  > > kernel doesn't work too well when there are active devices, with no driver
+>  > > loaded, doing DMA and issuing IRQs because they were never shut down.
+>  > 
+>  > I have vague memories of this being discussed at some length last year. 
+>  > Nothing comprehensive came of it, except that perhaps the kdump code should
+>  > spin with irqs off for a couple of seconds so the DMA and IRQs stop.
+>  > 
+>  > (Ongoing DMA is not a problem actually, because the kdump kernel won't be
+>  > using that memory anyway)
 > 
->   When a network protocol is making use of async I/O the amount of time
-> between posting the read request and getting the completion for that
-> request is unbounded since it depends on the other half of the connection
-> sending some data. In this case the buffer that was pinned during the
-> io_submit() may be pinned, and holding the pages, for a long time.
-
-Sure.
-
-> During
-> this time the process might fork, at this point any data received will be
-> placed into the wrong spot. 
-
-Well the data is placed in _a_ spot.  That's only the "wrong" spot because
-you've defined it to be wrong!
-
-IOW: what behaviour are you actually looking for here, and why, and does it
-matter?
-
-> > This is because there is no file descriptor or anything else associated
-> > with the pages which permits the kernel to clean stuff up on unclean
-> > application exit.  Also there are the obvious issues with permitting
-> > pinning of unbounded amounts of memory.
+> Actually, some cpufreq drivers *should* do their speed transitions with
+> all PCI mastering disabled. The lack of any infrastructure to quiesce drivers
+> and prevent new DMA transactions from occuring whilst the transition occurs
+> means that currently.. we don't.  So +1 for any driver model work that
+> may lead to something we can use here.
 > 
->   Correct, the driver must be able to determine that the process has died
-> and clean up after it, so the pinned region in most implementations is
-> associated with an open file descriptor.
+> This is the main reason the longhaul cpufreq driver is currently busted.
+> That it ever worked at all is a miracle.
+> 
+> 		Dave
 
-How is that association created?
+I've been considering for a while that, in addition to ->probe and ->remove, we
+have the following:
+
+"struct device" -->
+->attach - binds to the device and allocates data structures
+->probe - detects and sets up the hardware
+->start - begins transactions (like DMA)
+->stop - stops transactions
+->remove - prepares the hardware for no driver control
+->detach - frees stuff and unbinds the device
+
+->start and ->stop would be optional, and only used where they apply.
+
+->probe and ->remove would be useful for resource rebalancing
+
+Power management functions could (and usually should) manually call some of
+these.  Also this would be useful for error recovery and restarting devices.
+
+Still, cpufreq seems like a difficult problem.  What's to prevent,
+hypothetically, an SMP system from stoping a device while the upper class
+layer tries to use it.  If the class level locks control of the device, then
+DMA can't be stopped.  Also, attempting to stop device activity may fail
+if the driver decides it's not possible.
+
+Thanks,
+Adam

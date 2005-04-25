@@ -1,73 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262643AbVDYQY7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262663AbVDYQY7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262643AbVDYQY7 (ORCPT <rfc822;willy@w.ods.org>);
+	id S262663AbVDYQY7 (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 25 Apr 2005 12:24:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262668AbVDYQXs
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262654AbVDYQXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 12:23:48 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:20187 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262661AbVDYQSs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 12:18:48 -0400
-Subject: Re: [PATCH] private mounts
-From: Ram <linuxram@us.ibm.com>
-To: 7eggert@gmx.de
-Cc: Jan Hudec <bulb@ucw.cz>, Miklos Szeredi <miklos@szeredi.hu>,
-       viro@parcelfarce.linux.theplanet.co.uk, hch@infradead.org,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <E1DQ5LA-0003ZR-SM@be1.7eggert.dyndns.org>
-References: <3WVU1-2GE-7@gated-at.bofh.it> <3WWn1-2ZC-5@gated-at.bofh.it>
-	 <3WWn1-2ZC-3@gated-at.bofh.it> <3WWwR-3hT-35@gated-at.bofh.it>
-	 <3WWwU-3hT-49@gated-at.bofh.it> <3WWGj-3nm-3@gated-at.bofh.it>
-	 <3WWQ9-3uA-15@gated-at.bofh.it> <3WWZG-3AC-7@gated-at.bofh.it>
-	 <3X630-2qD-21@gated-at.bofh.it> <3X8HA-4IH-15@gated-at.bofh.it>
-	 <3Xagd-5Wb-1@gated-at.bofh.it>  <E1DQ5LA-0003ZR-SM@be1.7eggert.dyndns.org>
-Content-Type: text/plain
-Organization: IBM 
-Message-Id: <1114445923.4480.94.camel@localhost>
+	Mon, 25 Apr 2005 12:23:18 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:36766 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262669AbVDYQOY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 12:14:24 -0400
+Date: Mon, 25 Apr 2005 17:14:11 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Luben Tuikov <luben_tuikov@adaptec.com>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       andrew.patterson@hp.com, Eric.Moore@lsil.com, mike.miller@hp.com,
+       dougg@torque.net, Madhuresh_Nagshain@adaptec.com
+Subject: Re: [RFC] SAS domain layout for Linux sysfs
+Message-ID: <20050425161411.GA11938@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Luben Tuikov <luben_tuikov@adaptec.com>,
+	SCSI Mailing List <linux-scsi@vger.kernel.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	andrew.patterson@hp.com, Eric.Moore@lsil.com, mike.miller@hp.com,
+	dougg@torque.net, Madhuresh_Nagshain@adaptec.com
+References: <425D392F.2080702@adaptec.com> <20050424111908.GA23010@infradead.org> <426D1572.70508@adaptec.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 25 Apr 2005 09:18:43 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <426D1572.70508@adaptec.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-04-25 at 08:17, Bodo Eggert  wrote:
-> Jan Hudec <bulb@ucw.cz> wrote:
-> > On Mon, Apr 25, 2005 at 11:58:50 +0200, Miklos Szeredi wrote:
-> 
-> >> How do you bind mount it from a different namespace?  You _do_ need
-> >> bind mount, since a new mount might require password input, etc...
+On Mon, Apr 25, 2005 at 12:06:10PM -0400, Luben Tuikov wrote:
+> On 04/24/05 07:19, Christoph Hellwig wrote:
 > > 
-> > Yes, I would need one thing from kernel. That one thing would be to
-> > mount bind a directory handle, instead of path.
-> > 
-> > And if you wonder how I get the handle, that's what SCM_RIGHTS message
-> > of unix-domain sockets is for.
+> > This is contrary to any sysfs topology I know about, especially any
+> > existing transport class (SPI, FC, iSCSI).
 > 
-> You'll need something to get the FD from. What will that be if the mount
-> was done from a subshell of the midnight commander run in a screen session?
+> This RFC is about SAS.
+
+But our SAS transport class should be consistant with the other transport
+classes.
+
+> >  We only ever care about what's seen from a HA,
 > 
-> What about X sessions? Open a xterm, do the mount and then do what to get
-> the mount working for the programs run from the window manager?
-> Relogin? The xterm with the mount will be gone.
-> Use a daemon to keep an additional reference to the namespace? That's UGLY.
+> Imagine you could connect to the same device via two
+> different PCI controllers on the same host.
+
+Which is exactly the case in the examples I've mentioned.
+
 > 
-> With attachable namespaces, the whole thing should be as simple as
-> (pseudocode)
-> mknamespace -p users/$UID # (like mkdir -p)
-> setnamespace users/$UID   # (like cd)
+> > e.g. if you have muliple SPI cards that are
+> > on a single parallel bus you'll have the same bus represented twice,
+> > similarly if you have two fibre channel HBAs connected to the same
+> > SAN you'll have the SAN topology duplicated in both sub-topologies.
 > 
-> Optionally, the namespaces and their private mounts might be scheduled to
-> be removed if the last user is gone, or they need to be persistent,
-> depending on the applicaton (e.g. ssh used as rexec or shared mounts).
+> Hmm, this proposal is for SAS only, Christoph.
+> 
+> If you have multiple SAS host adapters connected to the same
+> SAS domain, the _path_ they connect to a SAS device may be _different_.
+> But what is the same is the SAS domain (topology) itself *regardless of
+> how you connect to it.*
+> 
+> In order to eliminate duplication of sysfs entries (directories
+> and files) to describe the same SAS device, we split up the
+> representation into a "flat" directory with just a bunch
+> of SAS devices, this is /sys/bus/sas/.  And the way you _connect_
+> to those SAS devices is represented in sys/class/sas_ha/.
 
-Agreed.
+Please read the previous mail again, you're not getting it at all.
 
-I guess for this thread to make any progress, we need a set of coherent
-requirements from FUSE team.
-
-RP
-
-
+If you don't understand the problems it's not worth talking about more.

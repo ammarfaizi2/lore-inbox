@@ -1,76 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262737AbVDYSzr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262733AbVDYTBI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262737AbVDYSzr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 14:55:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262733AbVDYSzr
+	id S262733AbVDYTBI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 15:01:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262727AbVDYTBH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 14:55:47 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:7442 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262702AbVDYSzg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 14:55:36 -0400
-Message-Id: <200504251855.j3PItHQs021408@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Matthias-Christian Ott <matthias.christian@tiscali.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, git@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH GIT 0.6] make use of register variables & size_t 
-In-Reply-To: Your message of "Mon, 25 Apr 2005 20:15:22 +0200."
-             <426D33BA.8040604@tiscali.de> 
-From: Valdis.Kletnieks@vt.edu
-References: <426CD1F1.2010101@tiscali.de> <Pine.LNX.4.58.0504250751330.18901@ppc970.osdl.org> <426D21FE.3040401@tiscali.de> <Pine.LNX.4.58.0504251021280.18901@ppc970.osdl.org>
-            <426D33BA.8040604@tiscali.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1114455314_5553P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 25 Apr 2005 14:55:16 -0400
+	Mon, 25 Apr 2005 15:01:07 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:14243 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261468AbVDYTBF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 15:01:05 -0400
+In-Reply-To: <E1DQ5LA-0003ZR-SM@be1.7eggert.dyndns.org>
+To: 7eggert@gmx.de
+Cc: akpm@osdl.org, Jan Hudec <bulb@ucw.cz>, hch@infradead.org,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Miklos Szeredi <miklos@szeredi.hu>,
+       viro@parcelfarce.linux.theplanet.co.uk
+MIME-Version: 1.0
+Subject: Re: [PATCH] private mounts
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OF9C5A2A1D.78873E27-ON88256FEE.00683441-88256FEE.00688DC9@us.ibm.com>
+From: Bryan Henderson <hbryan@us.ibm.com>
+Date: Mon, 25 Apr 2005 12:02:43 -0700
+X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Build V70_M4_01112005 Beta 3|January
+ 11, 2005) at 04/25/2005 15:01:00,
+	Serialize complete at 04/25/2005 15:01:00
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1114455314_5553P
-Content-Type: text/plain; charset=us-ascii
+>mknamespace -p users/$UID # (like mkdir -p)
+>setnamespace users/$UID   # (like cd)
+       ^^^^^^^^
 
-On Mon, 25 Apr 2005 20:15:22 +0200, Matthias-Christian Ott said:
+You realize that 'cd' is a shell command, and has to be, I hope.  That 
+little fact has thrown a wrench into many of the ideas in this thread.
 
-> But this makes, like "register",  direct use of processor registers (it stores int arguments in eax, ebx, etc.).
-
-`-mregparm=NUM'
-     Control how many registers are used to pass integer arguments.  By
-     default, no registers are used to pass arguments, and at most 3
-     registers can be used.  You can control this behavior for a
-     specific function by using the function attribute `regparm'.
-     *Note Function Attributes::.
-
-     *Warning:* if you use this switch, and NUM is nonzero, then you
-     must build all modules with the same value, including any
-     libraries.  This includes the system libraries and startup modules.
-
-If it weren't for that *warning*, you could get away with making this another
-auto-optimizable value (similar to register allocation inside a function).
-Alas, the caller and called functions can be in different .o files, and as
-a result, you need to be able to specify the NUM to use to each invocation
-of gcc involved, as there's an ABI change involved....
-
-> Stay serious. The book only teaches you ISO-C 99 like many other books. So
-> where's your problem?
-
-The problem is the supposition that the implied 3 week's experience in a
-language makes anybody qualified to comment on how to use it truly effectively
-(for that matter, I've been programming in C since SunOS 3.2, literally 2
-decades ago, and I'm still finding little corners I didn't previously know...)
-
-
---==_Exmh_1114455314_5553P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCbT0ScC3lWbTT17ARAq1jAKDnfXWazXNEM3mwxMC/x2PEeQWNYwCgjZ7q
-uR2E5mN9rIlzwmrfoi5AKQc=
-=Xbby
------END PGP SIGNATURE-----
-
---==_Exmh_1114455314_5553P--

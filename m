@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262628AbVDYRi0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262709AbVDYRlM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262628AbVDYRi0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 13:38:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262675AbVDYRiJ
+	id S262709AbVDYRlM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 13:41:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262695AbVDYRik
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 13:38:09 -0400
-Received: from mail-in-02.arcor-online.net ([151.189.21.42]:30163 "EHLO
-	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262699AbVDYRhk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 13:37:40 -0400
-From: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
-	<7eggert@gmx.de>
+	Mon, 25 Apr 2005 13:38:40 -0400
+Received: from rproxy.gmail.com ([64.233.170.193]:29986 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262668AbVDYRiW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 13:38:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=elLfoe3oCwxDUgDl8M1TsaPKcaKAiisQFeFgUWHN/Y37KI/sqhNGkRzeHgQPZeleCqs7Z35pmZVPis0SA9V+lc4cDkwMRz2c4r935o/k1hxjqwpXI/mrWg9Y1gAIkUIbetpR4FjWDtpKJMK1ug8TmSGXgX9Sw6+ngulM8dyt4o4=
+Message-ID: <d120d500050425103822c3c9a1@mail.gmail.com>
+Date: Mon, 25 Apr 2005 12:38:20 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Matthias-Christian Ott <matthias.christian@tiscali.de>
 Subject: Re: [PATCH GIT 0.6] make use of register variables & size_t
-To: Matthias-Christian Ott <matthias.christian@tiscali.de>,
-       git@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Reply-To: 7eggert@gmx.de
-Date: Mon, 25 Apr 2005 19:36:36 +0200
-References: <3X9X6-5JP-27@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <E1DQ7Vg-0003fq-DC@be1.7eggert.dyndns.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, git@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <426D21FE.3040401@tiscali.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <426CD1F1.2010101@tiscali.de>
+	 <Pine.LNX.4.58.0504250751330.18901@ppc970.osdl.org>
+	 <426D21FE.3040401@tiscali.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias-Christian Ott <matthias.christian@tiscali.de> wrote:
+On 4/25/05, Matthias-Christian Ott <matthias.christian@tiscali.de> wrote:
+> "register" and "auto" variables aren't relicts of the 60's,  they're a
+> part of the ISO-C 99 standard, I'm following, "man".
+...
+> [2] Erik de Castro Lopo, Peter Aitken, Bradley L. Jones: Teach Yourself
+> C for Linux Programming in 21 Days; SAMS Publishing; 1999
 
-> The "git" didn't try store small variables, which aren't referenced, in
-> the processor registers. It also didn't use the size_t type. I corrected
-> a C++ style comment too.
+It must be "Teach yourself C for Gentoo Linux Programming..." "...
+Gentoo rocks! I changed all my variables to 'register' and now my
+kernel runs 3x times faster than RehHat one" :)
 
-I have compared functions using 'register' against functions not doing that.
-Not using register allowed better optimization on my x86.
+Sorry, couldn't resist...
+
 -- 
-The most dangerous thing in the world is a second lieutenant with a map and
-a compass.
-
+Dmitry

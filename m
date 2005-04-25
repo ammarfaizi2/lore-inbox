@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262672AbVDYPla@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262655AbVDYPnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262672AbVDYPla (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 11:41:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262665AbVDYPk3
+	id S262655AbVDYPnq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 11:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262661AbVDYPkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 11:40:29 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:41901 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262624AbVDYPdN (ORCPT
+	Mon, 25 Apr 2005 11:40:10 -0400
+Received: from [62.206.217.67] ([62.206.217.67]:19942 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S262632AbVDYP3H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 11:33:13 -0400
-Date: Mon, 25 Apr 2005 17:33:10 +0200
-From: Andi Kleen <ak@suse.de>
-To: Roland McGrath <roland@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86_64: handle iret faults better
-Message-ID: <20050425153310.GB16828@wotan.suse.de>
-References: <200504240050.j3O0obqR032684@magilla.sf.frob.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200504240050.j3O0obqR032684@magilla.sf.frob.com>
+	Mon, 25 Apr 2005 11:29:07 -0400
+Message-ID: <426D0CB9.4060500@trash.net>
+Date: Mon, 25 Apr 2005 17:28:57 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Herbert Xu <herbert@gondor.apana.org.au>
+CC: Yair@arx.com, linux-kernel@vger.kernel.org,
+       netfilter-devel@lists.netfilter.org, netdev@oss.sgi.com
+Subject: Re: Re-routing packets via netfilter (ip_rt_bug)
+References: <E1DQ1Ct-00055s-00@gondolin.me.apana.org.au>
+In-Reply-To: <E1DQ1Ct-00055s-00@gondolin.me.apana.org.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 23, 2005 at 05:50:37PM -0700, Roland McGrath wrote:
-> This is the x86_64 variant of the i386 fix I just submitted.  I think
-> iret can only produce these faults when returning to user mode in a
-> 32-bit process.  The failure mode is even more mysterious on x86_64,
-> because it exits with -9999&0x7f instead of 11 (SIGSEGV), so it says
-> "Unknown signal 113 (core dumped)" when it exits without actually
-> trying to dump a core file.
+Herbert Xu wrote:
+> You'll still BUG if the destination is multicast/broadcast.  I'm also
+> unsure whether ipt_REJECT isn't susceptible to the same problem.
+> Luckily ipt_MIRROR is no more :)
 
-I agree that handling this better is a good idea.
+ipt_REJECT is fine, ip_route_input() is only used in NF_IP_FORWARD.
+But you're right about multicast/broadcast still causing problems,
+I'll have another look.
 
-But I really hate your is_iret hack in traps.c. Cant you just force the signal
-after fixing up the stack? I dont want such a ugly complicated special case 
-there that only handles this extremly exotic case.
-If you cant do it in a cleaner way it would be better not to fix it.
-But I suppose forcing a signal directly is doable.
+> What are the issues with getting rid of the ip_route_input path
+> altogether?
+> 
+> The only thing we gain over calling ip_route_output is the ability
+> to set the input device.  But even that is just a fake derived from
+> the source address in a deterministic way.  Therefore any effects
+> achievable through using ip_route_input can also be done by simply
+> reconfiguring the policy routing table to look at the local source
+> addresses instead of (or in conjunction with) the input device.
 
--Andi
+No, ip_route_me_harder() can be called for packets with non-local
+source. ip_route_output_slow() rejects non-local source addresses,
+so the only way to use them for policy routing is by using
+ip_route_input().
+
+Regards
+Patrick

@@ -1,55 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262719AbVDYRUY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262682AbVDYRUZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262719AbVDYRUY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 13:20:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262682AbVDYRNq
+	id S262682AbVDYRUZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 13:20:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262668AbVDYRN4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 13:13:46 -0400
-Received: from dspnet.fr.eu.org ([213.186.44.138]:11027 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S262668AbVDYRDG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 13:03:06 -0400
-Date: Mon, 25 Apr 2005 19:02:59 +0200
-From: Olivier Galibert <galibert@pobox.com>
-To: "Hack inc." <linux-kernel@vger.kernel.org>
-Subject: tcp_sendpage and page allocation lifetime vs. iscsi
-Message-ID: <20050425170259.GA36024@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	"Hack inc." <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+	Mon, 25 Apr 2005 13:13:56 -0400
+Received: from sccrmhc14.comcast.net ([204.127.202.59]:36318 "EHLO
+	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S262695AbVDYRI2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 13:08:28 -0400
+Message-ID: <426D2409.9020201@acm.org>
+Date: Mon, 25 Apr 2005 12:08:25 -0500
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Fix for handling bad IPMI DMI data
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------070102020000020006080106"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a problem with the iscsi driver (both 4.x and 5.x) and scsi
-tape I'm not sure how to solve.  It may linked to some specific
-characteristics of the tg3 network driver.
+This is a multi-part message in MIME format.
+--------------070102020000020006080106
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-What happens is, from what I can trace:
-1- st alloc_pages a bunch of pages for buffering
 
-2- st sends a bunch of them to iscsi for writing (32K is common when
-     labelling a tape for instance)
 
-3- iscsi sends whatever header is needed followed by the data using
-     tcp_sendpage
+--------------070102020000020006080106
+Content-Type: text/x-patch;
+ name="ipmi_dmi_fix.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ipmi_dmi_fix.diff"
 
-4- tcp_sendpage copies from of the pages but get_page() others,
-     probably depending on the state of the socket buffer.  It returns
-     immediatly anyway, leaving some pages with an elevated count (which, I
-     guess, it will eventually decrement again)
+Ignore the bottom bit of the base address from the DMI data.  It
+is supposed to be set to 1 if it is I/O space.  Few systems do this,
+but this enables the ones that do set it to work properly.
 
-5- iscsi returns to st
+Signed-off-by: Corey Minyard <minyard@acm.org>
 
-6- st reuses the buffer immediatly, and/or frees it if the device is
-     closed.  Silent corruption in one case, bad_page in __free_page_ok
-     called from normalize_buffer in the other.
+Index: linux-2.6.12-rc2/drivers/char/ipmi/ipmi_si_intf.c
+===================================================================
+--- linux-2.6.12-rc2.orig/drivers/char/ipmi/ipmi_si_intf.c
++++ linux-2.6.12-rc2/drivers/char/ipmi/ipmi_si_intf.c
+@@ -1654,7 +1654,13 @@
+ 		}
+ 	} else {
+ 		/* Old DMI spec. */
+-		ipmi_data->base_addr = base_addr;
++		/* Note that technically, the lower bit of the base
++		 * address should be 1 if the address is I/O and 0 if
++		 * the address is in memory.  So many systems get that
++		 * wrong (and all that I have seen are I/O) so we just
++		 * ignore that bit and assume I/O.  Systems that use
++		 * memory should use the newer spec, anyway. */
++		ipmi_data->base_addr = base_addr & 0xfffe;
+ 		ipmi_data->addr_space = IPMI_IO_ADDR_SPACE;
+ 		ipmi_data->offset = 1;
+ 	}
 
-I'm going to complete my traces to be sure that's really what's going
-on (I don't have a log immediatly after sendpage yet).  But in any
-case, what would the solution be?
-
-  OG.
-
+--------------070102020000020006080106--

@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262791AbVDYUQf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbVDYUTQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262791AbVDYUQf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 16:16:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262789AbVDYUQe
+	id S261153AbVDYUTQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 16:19:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262774AbVDYUQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 16:16:34 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:30848 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S262779AbVDYUOO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 16:14:14 -0400
-Date: Mon, 25 Apr 2005 16:14:13 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Alexander Nyberg <alexn@dsv.su.se>
-cc: Greg KH <greg@kroah.com>, Amit Gud <gud@eth.net>,
-       <linux-kernel@vger.kernel.org>, <linux-pci@atrey.karlin.mff.cuni.cz>,
-       <akpm@osdl.org>, <jgarzik@pobox.com>, <cramerj@intel.com>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] PCI: Add pci shutdown ability
-In-Reply-To: <1114458325.983.17.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44L0.0504251609420.7408-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 25 Apr 2005 16:16:56 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:26051 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S262785AbVDYUPg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 16:15:36 -0400
+Date: Tue, 26 Apr 2005 00:15:00 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: dtor_core@ameritech.net
+Cc: dmitry.torokhov@gmail.com, sensors@stimpy.netroedge.com,
+       LKML <linux-kernel@vger.kernel.org>, Greg KH <gregkh@suse.de>
+Subject: Re: [RFC/PATCH 0/22] W1: sysfs, lifetime and other fixes
+Message-ID: <20050426001500.6a199399@zanzibar.2ka.mipt.ru>
+In-Reply-To: <d120d50005042509326241a302@mail.gmail.com>
+References: <200504210207.02421.dtor_core@ameritech.net>
+	<1114089504.29655.93.camel@uganda>
+	<d120d50005042107314cbacdea@mail.gmail.com>
+	<1114420131.8527.52.camel@uganda>
+	<d120d50005042509326241a302@mail.gmail.com>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [194.85.82.65]); Tue, 26 Apr 2005 00:15:12 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Apr 2005, Alexander Nyberg wrote:
+While thinking about locking schema
+with respect to sysfs files I recalled,
+why I implemented such a logic - 
+now one can _always_ remove _any_ module
+[corresponding object is removed from accessible
+pathes and waits untill all exsting users are gone],
+which is very good - I really like it in networking model,
+while with whole device driver model
+if we will read device's file very quickly
+in several threads we may end up not unloading it at all.
 
-> Not sure what you mean by "make kexec work nicer" but if it is because
-> some devices don't work after a kexec I have some objections.
+So decision is simple from the first point of view -
+just remove appropriate objects from accessible pathes
+and free them from finall callbacks [device's remove method].
 
-That was indeed the reason, at least in my case.  The newly-rebooted
-kernel doesn't work too well when there are active devices, with no driver
-loaded, doing DMA and issuing IRQs because they were never shut down.
+	Evgeniy Polyakov
 
-> What about the kexec-on-panic?
-> 
-> In the end at least every storage device should work after a
-> kexec-on-panic or else there might be cases where we cannot get dumps of
-> what happened. My guess is that having access to the network might come
-> in handy after a kexec-on-panic as well.
-> 
-> So if this patch is because some devices don't work across kexec I don't
-> think this is a good idea because the same devices won't work after a
-> kexec-on-panic.
-
-Do I understand your argument correctly?  You seem to be saying that 
-because this new facility sometimes won't work (the kexec-on-panic case) 
-it shouldn't be added at all.  What about all the other times when it will 
-work?
-
-Alan Stern
-
+Only failure makes us experts. -- Theo de Raadt

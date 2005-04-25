@@ -1,89 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbVDYWYq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261261AbVDYWYz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261259AbVDYWYq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 18:24:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbVDYWYq
+	id S261261AbVDYWYz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 18:24:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbVDYWYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 25 Apr 2005 18:24:54 -0400
+Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:1739 "EHLO
+	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
+	id S261266AbVDYWYq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 25 Apr 2005 18:24:46 -0400
-Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:32933 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S261259AbVDYWYU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 18:24:20 -0400
-Date: Mon, 25 Apr 2005 16:24:16 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, sct@redhat.com,
-       linux-kernel@vger.kernel.org, ext3-users@redhat.com
-Subject: Re: [2.6 patch] fs/jbd/: possible cleanups
-Message-ID: <20050425222416.GX4752@schnapps.adilger.int>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	Andrew Morton <akpm@osdl.org>, sct@redhat.com,
-	linux-kernel@vger.kernel.org, ext3-users@redhat.com
-References: <20050422235717.GI4355@stusta.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="k4f25fnPtRuIRUb3"
-Content-Disposition: inline
-In-Reply-To: <20050422235717.GI4355@stusta.de>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Message-ID: <426D6DFA.4090908@ammasso.com>
+Date: Mon, 25 Apr 2005 17:23:54 -0500
+From: Timur Tabi <timur.tabi@ammasso.com>
+Organization: Ammasso
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en, en-gb
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Roland Dreier <roland@topspin.com>, hch@infradead.org, hozer@hozed.org,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+References: <200544159.Ahk9l0puXy39U6u6@topspin.com>	<20050411142213.GC26127@kalmia.hozed.org>	<52mzs51g5g.fsf@topspin.com>	<20050411163342.GE26127@kalmia.hozed.org>	<5264yt1cbu.fsf@topspin.com>	<20050411180107.GF26127@kalmia.hozed.org>	<52oeclyyw3.fsf@topspin.com>	<20050411171347.7e05859f.akpm@osdl.org>	<4263DEC5.5080909@ammasso.com>	<20050418164316.GA27697@infradead.org>	<4263E445.8000605@ammasso.com>	<20050423194421.4f0d6612.akpm@osdl.org>	<426BABF4.3050205@ammasso.com>	<52is2bvvz5.fsf@topspin.com>	<20050425135401.65376ce0.akpm@osdl.org>	<521x8yv9vb.fsf@topspin.com> <20050425151459.1f5fb378.akpm@osdl.org>
+In-Reply-To: <20050425151459.1f5fb378.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
 
---k4f25fnPtRuIRUb3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> The way we expect get_user_pages() to be used is that the kernel will use
+> get_user_pages() once per application I/O request.
 
-On Apr 23, 2005  01:57 +0200, Adrian Bunk wrote:
-> This patch contains the following possible cleanups:
-> - make needlessly global functions static
-> - #if 0 the following unused global functions:
->   - journal.c: __journal_internal_check
+Are you saying that the mapping obtained by get_user_pages() is valid only within the 
+context of the IOCtl call?  That once the driver returns from the IOCtl, the mapping 
+should no longer be used?
 
->  /* Static check for data structure consistency.  There's no code
->   * invoked --- we'll just get a linker failure if things aren't right.
+-- 
+Timur Tabi
+Staff Software Engineer
+timur.tabi@ammasso.com
 
-The comment above this function specifically says no code is generated
-here - the purpose of this function is to generate an error if the
-journal superblock is the wrong size (e.g. someone adds fields without
-updating the padding).
-
-> - remove the following write-only global variable:
->   - journal.c: current_journal
-
-Looks to be debugging only, seems OK to remove.
-
->   - journal.c: journal_check_used_features
-
-I'm not aware of any current users of journal_check_used_features(), but
-the complementary function journal_check_available_features() IS used by
-ext3 and I can imagine that if we ever need to add some more journaling
-features it would be useful instead of mucking in the journal internals.
-
->   - journal.c: journal_recover
-
-Looks like the correct API is actually journal_load() so it seems OK to
-unexport.
-
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
-
-
---k4f25fnPtRuIRUb3
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFCbW4QpIg59Q01vtYRApPqAKCsRkcpuO9aO2hDFgDGsrkJmK4mXgCgjUNt
-6BkQYtGCxmAnlOClyeCAzTg=
-=AFJA
------END PGP SIGNATURE-----
-
---k4f25fnPtRuIRUb3--
+One thing a Southern boy will never say is,
+"I don't think duct tape will fix it."
+      -- Ed Smylie, NASA engineer for Apollo 13

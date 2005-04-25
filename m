@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262486AbVDXX6b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262489AbVDYAFp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262486AbVDXX6b (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 19:58:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262488AbVDXX6b
+	id S262489AbVDYAFp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 20:05:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262488AbVDYAFo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 19:58:31 -0400
-Received: from hibernia.jakma.org ([212.17.55.49]:34957 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S262486AbVDXX6Z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 19:58:25 -0400
-Date: Mon, 25 Apr 2005 00:57:11 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@sheen.jakma.org
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Sean <seanlkml@sympatico.ca>,
-       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       David Woodhouse <dwmw2@infradead.org>, Jan Dittmer <jdittmer@ppp0.net>,
-       Greg KH <greg@kroah.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: Git-commits mailing list feed.
-In-Reply-To: <Pine.LNX.4.62.0504250008370.14200@sheen.jakma.org>
-Message-ID: <Pine.LNX.4.62.0504250053560.14200@sheen.jakma.org>
-References: <200504210422.j3L4Mo8L021495@hera.kernel.org>      
- <42674724.90005@ppp0.net> <20050422002922.GB6829@kroah.com>      
- <426A4669.7080500@ppp0.net>       <1114266083.3419.40.camel@localhost.localdomain>
-       <426A5BFC.1020507@ppp0.net>       <1114266907.3419.43.camel@localhost.localdomain>
-       <Pine.LNX.4.58.0504231010580.2344@ppc970.osdl.org>      
- <20050423175422.GA7100@cip.informatik.uni-erlangen.de>      
- <Pine.LNX.4.58.0504231125330.2344@ppc970.osdl.org> <2911.10.10.10.24.1114279589.squirrel@linux1>
- <Pine.LNX.4.58.0504231234550.2344@ppc970.osdl.org>
- <Pine.LNX.4.62.0504250008370.14200@sheen.jakma.org>
-Mail-Followup-To: paul@hibernia.jakma.org
-X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sun, 24 Apr 2005 20:05:44 -0400
+Received: from gate.crashing.org ([63.228.1.57]:50872 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262491AbVDYAFk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Apr 2005 20:05:40 -0400
+Subject: Re: 2.6.12-rc2-mm3
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Juergen Kreileder <jk@blackdown.de>
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <87u0lvpy6f.fsf@blackdown.de>
+References: <20050411012532.58593bc1.akpm@osdl.org>
+	 <87wtr8rdvu.fsf@blackdown.de> <87u0m7aogx.fsf@blackdown.de>
+	 <1113607416.5462.212.camel@gaston> <877jj1aj99.fsf@blackdown.de>
+	 <20050423170152.6b308c74.akpm@osdl.org> <87fyxhj5p1.fsf@blackdown.de>
+	 <1114308928.5443.13.camel@gaston> <426B6C84.E8D41D57@tv-sign.ru>
+	 <87u0lvpy6f.fsf@blackdown.de>
+Content-Type: text/plain
+Date: Mon, 25 Apr 2005 10:09:46 +1000
+Message-Id: <1114387786.31594.43.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Apr 2005, Paul Jakma wrote:
+On Mon, 2005-04-25 at 01:11 +0200, Juergen Kreileder wrote:
+> Oleg Nesterov <oleg@tv-sign.ru> writes:
+> 
+> > Juergen Kreileder wrote:
+> >>
+> >> It only happens when running Azareus with IBM's Java (our's isn't
+> >> ready yet).  So far I was able to reproduce the problem on all -mm
+> >> versions within one hour.  Otherwise the kernels seem to work fine
+> >> -- no lockup unless I run Azareus.
+> >
+> > By any chance, could you please try this patch?
+> 
+> Doesn't help.
 
-> Ideally, there'd be an index of signature objects by the SHA-1 sum of the 
-> object they sign, as the signed object should not refer to the signature (or 
-> the second of the above is not possible).
+Ok, try to mail me privately a HOWTO to reproduce your exact testcase,
+knowing that I don't know anything about this Azareus thing ...
 
-Ah, this could (obviously) be done generally by providing a general 
-index of 'referals' (if desirable).
+Ben.
 
-I have no idea whether git already does this, I havn't checked it out 
-yet but I'm very interested to see how git will mature and have been 
-trying to follow its progress - I'm a frustrated admin of a CVS 
-repository..
 
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-Fortune:
-Does the name Pavlov ring a bell?

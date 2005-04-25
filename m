@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262580AbVDYKxi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262581AbVDYKzI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262580AbVDYKxi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 06:53:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbVDYKxi
+	id S262581AbVDYKzI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 06:55:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262582AbVDYKzI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 06:53:38 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:24844 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262580AbVDYKxg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 06:53:36 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: kaber@trash.net (Patrick McHardy)
-Subject: Re: Re-routing packets via netfilter (ip_rt_bug)
-Cc: Yair@arx.com, linux-kernel@vger.kernel.org,
-       netfilter-devel@lists.netfilter.org, netdev@oss.sgi.com
-Organization: Core
-In-Reply-To: <426CB342.2010504@trash.net>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1DQ1Ct-00055s-00@gondolin.me.apana.org.au>
-Date: Mon, 25 Apr 2005 20:52:51 +1000
+	Mon, 25 Apr 2005 06:55:08 -0400
+Received: from fire.osdl.org ([65.172.181.4]:22962 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262581AbVDYKy3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 06:54:29 -0400
+Date: Mon, 25 Apr 2005 03:53:57 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] counting bounce pages.
+Message-Id: <20050425035357.2919e68f.akpm@osdl.org>
+In-Reply-To: <426CC767.8050507@jp.fujitsu.com>
+References: <426CC767.8050507@jp.fujitsu.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick McHardy <kaber@trash.net> wrote:
-> --- 70652aa8f30bea3ea83594cc4a47a11f7a8db89d/net/core/netfilter.c  (mode:100644 sha1:e51cfa46950cf8f1f4dea42be94e71d76d8c3c5b)
-> +++ a469360c577fdf6919b9a771521eca120103db45/net/core/netfilter.c  (mode:100644 sha1:85936a0b23d9ea42e2cd9d45e8254c2f780eb786)
-> @@ -611,7 +611,8 @@
->        /* some non-standard hacks like ipt_REJECT.c:send_reset() can cause
->         * packets with foreign saddr to appear on the NF_IP_LOCAL_OUT hook.
->         */
-> -       if (inet_addr_type(iph->saddr) == RTN_LOCAL) {
-> +       if (inet_addr_type(iph->saddr) == RTN_LOCAL ||
-> +           inet_addr_type(iph->daddr) == RTN_LOCAL) {
->                fl.nl_u.ip4_u.daddr = iph->daddr;
->                fl.nl_u.ip4_u.saddr = iph->saddr;
->                fl.nl_u.ip4_u.tos = RT_TOS(iph->tos);
+KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
+>
+> This is a patch for counting bounce pages.
+>  With this, pages for bounce buffer is coutned and shown in /proc/meminfo.
 
-You'll still BUG if the destination is multicast/broadcast.  I'm also
-unsure whether ipt_REJECT isn't susceptible to the same problem.
-Luckily ipt_MIRROR is no more :)
+As it's purely a debug thing, perhaps /proc/vmstat would be a better place
+for displaying this info.
 
-What are the issues with getting rid of the ip_route_input path
-altogether?
+>  Because pages for bounce buffer are not counted in anywhere,
+>  sometimes it seems that there are many leaked pages.
+>  ex)
+>  I found 1.7GB of bounce buffer pages in a crash dump of ia64 kernel,
+>  which was passed me to check memory usage. :(
 
-The only thing we gain over calling ip_route_output is the ability
-to set the input device.  But even that is just a fake derived from
-the source address in a deterministic way.  Therefore any effects
-achievable through using ip_route_input can also be done by simply
-reconfiguring the policy routing table to look at the local source
-addresses instead of (or in conjunction with) the input device.
+whoops.
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+>  BTW, I'm not sure whether # of bounce buffer should be includeded in Buffers:
+>  of /proc/meminfo.
+
+No, "Buffers:" is "the number of bytes allocated to blockdevice pagecache".
+Usually this is filesystem metadata.
+
+>  --- linux-2.6.12-rc2-mm3/fs/proc/proc_misc.c~count_bounce	2005-04-25 12:08:28.000000000 +0900
+>  +++ linux-2.6.12-rc2-mm3-kamezawa/fs/proc/proc_misc.c	2005-04-25 16:06:39.000000000 +0900
+>  @@ -114,7 +114,7 @@ static int uptime_read_proc(char *page, 
+>   
+>   	return proc_calc_metrics(page, start, off, count, eof, len);
+>   }
+>  -
+>  +extern atomic_t nr_bounce_pages;
+
+Please always put extern declarations into .h files, with the declaration
+visible to the definition and to all users.
+
+>  +		"Bounce :      %8lu kB\n"
+
+There's an unneeded space in there.
+

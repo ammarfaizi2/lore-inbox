@@ -1,59 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262776AbVDYTWH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262752AbVDYTWZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262776AbVDYTWH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 15:22:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262768AbVDYTSa
+	id S262752AbVDYTWZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 15:22:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262748AbVDYTPn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 15:18:30 -0400
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:2763 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S262756AbVDYTRh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 15:17:37 -0400
-Subject: [patch 1/1] uml: fix handling of no fpx_regs [critical, for 2.6.12]
-To: akpm@osdl.org
-Cc: jdike@addtoit.com, bstroesser@fujitsu-siemens.com,
-       linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it,
-       aleidenf@bigpond.net.au
-From: blaisorblade@yahoo.it
-Date: Mon, 25 Apr 2005 21:12:51 +0200
-Message-Id: <20050425191253.B9FE045EBB@zion>
+	Mon, 25 Apr 2005 15:15:43 -0400
+Received: from [194.90.79.130] ([194.90.79.130]:42256 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S262740AbVDYTLV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 15:11:21 -0400
+Message-ID: <426D40D4.8050900@argo.co.il>
+Date: Mon, 25 Apr 2005 22:11:16 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Mozilla Thunderbird 1.0.2-1 (X11/20050323)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Olivier Galibert <galibert@pobox.com>
+CC: "Hack inc." <linux-kernel@vger.kernel.org>
+Subject: Re: tcp_sendpage and page allocation lifetime vs. iscsi
+References: <20050425170259.GA36024@dspnet.fr.eu.org>
+In-Reply-To: <20050425170259.GA36024@dspnet.fr.eu.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 25 Apr 2005 19:11:17.0155 (UTC) FILETIME=[8E6B5F30:01C549CA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Olivier Galibert wrote:
 
-From: Andree Leidenfrost <aleidenf@bigpond.net.au>, Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+>I have a problem with the iscsi driver (both 4.x and 5.x) and scsi
+>tape I'm not sure how to solve.  It may linked to some specific
+>characteristics of the tg3 network driver.
+>
+>What happens is, from what I can trace:
+>1- st alloc_pages a bunch of pages for buffering
+>
+>2- st sends a bunch of them to iscsi for writing (32K is common when
+>     labelling a tape for instance)
+>
+>3- iscsi sends whatever header is needed followed by the data using
+>     tcp_sendpage
+>
+>4- tcp_sendpage copies from of the pages but get_page() others,
+>     probably depending on the state of the socket buffer.  It returns
+>     immediatly anyway, leaving some pages with an elevated count (which, I
+>     guess, it will eventually decrement again)
+>
+>5- iscsi returns to st
+>
+>6- st reuses the buffer immediatly, and/or frees it if the device is
+>     closed.  Silent corruption in one case, bad_page in __free_page_ok
+>     called from normalize_buffer in the other.
+>
+>I'm going to complete my traces to be sure that's really what's going
+>on (I don't have a log immediatly after sendpage yet).  But in any
+>case, what would the solution be?
+>
+>  
+>
+you need a completion to tell you when your buffer has been sent. you 
+can use the kiocb parameter to tcp_sendmsg, as it has a completion. 
+however, tcp_sendmsg does not appear to use it.
 
-Fix the error path, which is triggered when the processor misses the fpx regs
-(i.e. the "fxsr" cpuinfo feature). For instance by VIA C3 Samuel2. Tested and
-obvious, please merge ASAP.
+in effect, you need tcp aio, but the mainline kernel does not support it 
+yet.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 
- linux-2.6.12-paolo/arch/um/os-Linux/sys-i386/registers.c |    7 ++++---
- 1 files changed, 4 insertions(+), 3 deletions(-)
-
-diff -puN arch/um/os-Linux/sys-i386/registers.c~uml-fix-no_fpx_regs_handling arch/um/os-Linux/sys-i386/registers.c
---- linux-2.6.12/arch/um/os-Linux/sys-i386/registers.c~uml-fix-no_fpx_regs_handling	2005-04-25 21:03:11.000000000 +0200
-+++ linux-2.6.12-paolo/arch/um/os-Linux/sys-i386/registers.c	2005-04-25 21:08:07.000000000 +0200
-@@ -105,14 +105,15 @@ void init_registers(int pid)
- 		panic("check_ptrace : PTRACE_GETREGS failed, errno = %d",
- 		      err);
- 
-+	errno = 0;
- 	err = ptrace(PTRACE_GETFPXREGS, pid, 0, exec_fpx_regs);
- 	if(!err)
- 		return;
-+	if(errno != EIO)
-+		panic("check_ptrace : PTRACE_GETFPXREGS failed, errno = %d",
-+		      errno);
- 
- 	have_fpx_regs = 0;
--	if(err != EIO)
--		panic("check_ptrace : PTRACE_GETFPXREGS failed, errno = %d",
--		      err);
- 
- 	err = ptrace(PTRACE_GETFPREGS, pid, 0, exec_fp_regs);
- 	if(err)
-_

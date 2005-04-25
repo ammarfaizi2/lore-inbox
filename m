@@ -1,58 +1,214 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261274AbVDYWvl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbVDYWxZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261274AbVDYWvl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 18:51:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbVDYWvk
+	id S261277AbVDYWxZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 18:53:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbVDYWxZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 18:51:40 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:41373 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261274AbVDYWvW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 18:51:22 -0400
-From: "Bob Woodruff" <robert.j.woodruff@intel.com>
-To: "'Andrew Morton'" <akpm@osdl.org>, "Timur Tabi" <timur.tabi@ammasso.com>,
-       "Davis, Arlin R" <arlin.r.davis@intel.com>
-Cc: <hch@infradead.org>, <linux-kernel@vger.kernel.org>,
-       <openib-general@openib.org>
-Subject: RE: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace verbsimplementation
-Date: Mon, 25 Apr 2005 15:51:03 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Mon, 25 Apr 2005 18:53:25 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:2006 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261277AbVDYWwb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 18:52:31 -0400
+Subject: [PATCH][Update] i386: fix hpet for systems that don't support
+	legacy replacement  (v. A1)
+From: john stultz <johnstul@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
+       vojtech@suse.cz, Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
+       Jesper Juhl <juhl-lkml@dif.dk>
+In-Reply-To: <Pine.LNX.4.62.0504252345500.2941@dragon.hyggekrogen.localhost>
+References: <1114117417.19541.239.camel@cog.beaverton.ibm.com>
+	 <1114463827.18098.22.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.62.0504252345500.2941@dragon.hyggekrogen.localhost>
+Content-Type: text/plain
+Date: Mon, 25 Apr 2005 15:52:24 -0700
+Message-Id: <1114469544.18098.36.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-Thread-Index: AcVJ5zR+UqmxlNOHTZ6BgvvwWxsZngAAD5MA
-In-Reply-To: <20050425153542.70197e6a.akpm@osdl.org>
-Message-ID: <ORSMSX408FRaqbC8wSA00000014@orsmsx408.amr.corp.intel.com>
-X-OriginalArrivalTime: 25 Apr 2005 22:51:04.0840 (UTC) FILETIME=[42E46880:01C549E9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Andrew Morton wrote,
->Yes, we expect that all the pages which get_user_pages() pinned will become
->unpinned within the context of the syscall which pinned the pages.  Or
->shortly after, in the case of async I/O.
+Andrew,
+        Currently the i386 HPET code assumes the entire HPET
+implementation from the spec is present. This breaks on boxes that do
+not implement the optional legacy timer replacement functionality
+portion of the spec.
 
->This is because there is no file descriptor or anything else associated
->with the pages which permits the kernel to clean stuff up on unclean
->application exit.  Also there are the obvious issues with permitting
->pinning of unbounded amounts of memory.
+This patch, which is very similar to my x86-64 patch for the same issue,
+fixes the problem allowing i386 systems that cannot use the HPET for the
+timer interrupt and RTC to still use the HPET as a time source. I've
+tested this patch on a system systems without HPET, with HPET but
+without legacy timer replacement, as well as HPET with legacy timer
+replacement.
 
-There definitely needs to be a mechanism to prevent people from pinning
-too much memory. We saw issues in the sourceforge stack and some of the
-vendors stacks where we could lock memory till the system hung. 
-In the sourceforge InfiniBand stack, we put in a 
-check to make sure that people did not pin too much memory. 
-It was sort of a crude/bruit force mechanism, but effective. I think that we
-limited people from locking down more that 1/2 of kernel memory or
-70 % of all memory (it was tunable with a module option) and if they
-exceeded
-the limit, their requests to register memory would begin to fail. 
-Arlin can provide details on how we did it or people can look at the 
-IBAL code for an example. 
+This version fixes whitespace bug and corrects a printk message.
 
-woody
+Please consider for inclusion into your tree.
 
+thanks
+-john
+
+Changelog
+A0: First sent to lkml for review
+A1: Fixes whitespace and printk message
+
+
+diff -Nru a/arch/i386/kernel/time.c b/arch/i386/kernel/time.c
+--- a/arch/i386/kernel/time.c	2005-04-25 15:42:40 -07:00
++++ b/arch/i386/kernel/time.c	2005-04-25 15:42:40 -07:00
+@@ -441,7 +441,7 @@
+ 	set_normalized_timespec(&wall_to_monotonic,
+ 		-xtime.tv_sec, -xtime.tv_nsec);
+ 
+-	if (hpet_enable() >= 0) {
++	if ((hpet_enable() >= 0) && hpet_use_timer) {
+ 		printk("Using HPET for base-timer\n");
+ 	}
+ 
+diff -Nru a/arch/i386/kernel/time_hpet.c b/arch/i386/kernel/time_hpet.c
+--- a/arch/i386/kernel/time_hpet.c	2005-04-25 15:42:40 -07:00
++++ b/arch/i386/kernel/time_hpet.c	2005-04-25 15:42:40 -07:00
+@@ -26,6 +26,7 @@
+ static unsigned long hpet_period;	/* fsecs / HPET clock */
+ unsigned long hpet_tick;		/* hpet clks count per tick */
+ unsigned long hpet_address;		/* hpet memory map physical address */
++int hpet_use_timer;
+ 
+ static int use_hpet; 		/* can be used for runtime check of hpet */
+ static int boot_hpet_disable; 	/* boottime override for HPET timer */
+@@ -73,27 +74,30 @@
+ 	hpet_writel(0, HPET_COUNTER);
+ 	hpet_writel(0, HPET_COUNTER + 4);
+ 
+-	/*
+-	 * Set up timer 0, as periodic with first interrupt to happen at
+-	 * hpet_tick, and period also hpet_tick.
+-	 */
+-	cfg = hpet_readl(HPET_T0_CFG);
+-	cfg |= HPET_TN_ENABLE | HPET_TN_PERIODIC |
+-	       HPET_TN_SETVAL | HPET_TN_32BIT;
+-	hpet_writel(cfg, HPET_T0_CFG);
+-
+-	/*
+-	 * The first write after writing TN_SETVAL to the config register sets
+-	 * the counter value, the second write sets the threshold.
+-	 */
+-	hpet_writel(tick, HPET_T0_CMP);
+-	hpet_writel(tick, HPET_T0_CMP);
++	if (hpet_use_timer) {
++		/*
++		 * Set up timer 0, as periodic with first interrupt to happen at
++		 * hpet_tick, and period also hpet_tick.
++		 */
++		cfg = hpet_readl(HPET_T0_CFG);
++		cfg |= HPET_TN_ENABLE | HPET_TN_PERIODIC |
++		       HPET_TN_SETVAL | HPET_TN_32BIT;
++		hpet_writel(cfg, HPET_T0_CFG);
+ 
++		/*
++		 * The first write after writing TN_SETVAL to the config register sets
++		 * the counter value, the second write sets the threshold.
++		 */
++		hpet_writel(tick, HPET_T0_CMP);
++		hpet_writel(tick, HPET_T0_CMP);
++	}
+ 	/*
+  	 * Go!
+  	 */
+ 	cfg = hpet_readl(HPET_CFG);
+-	cfg |= HPET_CFG_ENABLE | HPET_CFG_LEGACY;
++	if (hpet_use_timer)
++		cfg |= HPET_CFG_LEGACY;
++	cfg |= HPET_CFG_ENABLE;
+ 	hpet_writel(cfg, HPET_CFG);
+ 
+ 	return 0;
+@@ -128,12 +132,11 @@
+ 	 * However, we can do with one timer otherwise using the
+ 	 * the single HPET timer for system time.
+ 	 */
+-	if (
+ #ifdef CONFIG_HPET_EMULATE_RTC
+-		!(id & HPET_ID_NUMBER) ||
+-#endif
+-	    !(id & HPET_ID_LEGSUP))
++	if (!(id & HPET_ID_NUMBER))
+ 		return -1;
++#endif
++
+ 
+ 	hpet_period = hpet_readl(HPET_PERIOD);
+ 	if ((hpet_period < HPET_MIN_PERIOD) || (hpet_period > HPET_MAX_PERIOD))
+@@ -152,6 +155,8 @@
+ 	if (hpet_tick_rem > (hpet_period >> 1))
+ 		hpet_tick++; /* rounding the result */
+ 
++	hpet_use_timer = id & HPET_ID_LEGSUP;
++
+ 	if (hpet_timer_stop_set_go(hpet_tick))
+ 		return -1;
+ 
+@@ -202,7 +207,8 @@
+ #endif
+ 
+ #ifdef CONFIG_X86_LOCAL_APIC
+-	wait_timer_tick = wait_hpet_tick;
++	if (hpet_use_timer)
++		wait_timer_tick = wait_hpet_tick;
+ #endif
+ 	return 0;
+ }
+diff -Nru a/arch/i386/kernel/timers/timer_hpet.c b/arch/i386/kernel/timers/timer_hpet.c
+--- a/arch/i386/kernel/timers/timer_hpet.c	2005-04-25 15:42:41 -07:00
++++ b/arch/i386/kernel/timers/timer_hpet.c	2005-04-25 15:42:41 -07:00
+@@ -79,7 +79,7 @@
+ 
+ 	eax = hpet_readl(HPET_COUNTER);
+ 	eax -= hpet_last;	/* hpet delta */
+-
++	eax = min(hpet_tick, eax);
+ 	/*
+          * Time offset = (hpet delta) * ( usecs per HPET clock )
+ 	 *             = (hpet delta) * ( usecs per tick / HPET clocks per tick)
+@@ -105,9 +105,12 @@
+ 	last_offset = ((unsigned long long)last_tsc_high<<32)|last_tsc_low;
+ 	rdtsc(last_tsc_low, last_tsc_high);
+ 
+-	offset = hpet_readl(HPET_T0_CMP) - hpet_tick;
+-	if (unlikely(((offset - hpet_last) > hpet_tick) && (hpet_last != 0))) {
+-		int lost_ticks = (offset - hpet_last) / hpet_tick;
++	if (hpet_use_timer)
++		offset = hpet_readl(HPET_T0_CMP) - hpet_tick;
++	else
++		offset = hpet_readl(HPET_COUNTER);
++	if (unlikely(((offset - hpet_last) >= (2*hpet_tick)) && (hpet_last != 0))) {
++		int lost_ticks = ((offset - hpet_last) / hpet_tick) - 1;
+ 		jiffies_64 += lost_ticks;
+ 	}
+ 	hpet_last = offset;
+diff -Nru a/arch/i386/kernel/timers/timer_tsc.c b/arch/i386/kernel/timers/timer_tsc.c
+--- a/arch/i386/kernel/timers/timer_tsc.c	2005-04-25 15:42:40 -07:00
++++ b/arch/i386/kernel/timers/timer_tsc.c	2005-04-25 15:42:41 -07:00
+@@ -477,7 +477,7 @@
+ 	if (cpu_has_tsc) {
+ 		unsigned long tsc_quotient;
+ #ifdef CONFIG_HPET_TIMER
+-		if (is_hpet_enabled()){
++		if (is_hpet_enabled() && hpet_use_timer) {
+ 			unsigned long result, remain;
+ 			printk("Using TSC for gettimeofday\n");
+ 			tsc_quotient = calibrate_tsc_hpet(NULL);
+diff -Nru a/include/asm-i386/hpet.h b/include/asm-i386/hpet.h
+--- a/include/asm-i386/hpet.h	2005-04-25 15:42:40 -07:00
++++ b/include/asm-i386/hpet.h	2005-04-25 15:42:40 -07:00
+@@ -92,6 +92,7 @@
+ 
+ extern unsigned long hpet_tick;  	/* hpet clks count per tick */
+ extern unsigned long hpet_address;	/* hpet memory map physical address */
++extern int hpet_use_timer;
+ 
+ extern int hpet_rtc_timer_init(void);
+ extern int hpet_enable(void);
 
 

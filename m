@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262451AbVDYCVM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262449AbVDYCaq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262451AbVDYCVM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Apr 2005 22:21:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262449AbVDYCVM
+	id S262449AbVDYCaq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Apr 2005 22:30:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbVDYCaq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Apr 2005 22:21:12 -0400
-Received: from pop.gmx.de ([213.165.64.20]:7115 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262451AbVDYCVG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Apr 2005 22:21:06 -0400
-X-Authenticated: #590723
-From: Fabian Franz <FabianFranz@gmx.de>
-To: Linus Torvalds <torvalds@osdl.org>,
-       "David A. Wheeler" <dwheeler@dwheeler.com>
-Subject: Re: Git-commits mailing list feed.
-Date: Mon, 25 Apr 2005 04:17:13 +0200
-User-Agent: KMail/1.5.4
-Cc: Paul Jakma <paul@clubi.ie>, Sean <seanlkml@sympatico.ca>,
-       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       David Woodhouse <dwmw2@infradead.org>, Jan Dittmer <jdittmer@ppp0.net>,
-       Greg KH <greg@kroah.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Git Mailing List <git@vger.kernel.org>
-References: <200504210422.j3L4Mo8L021495@hera.kernel.org> <426C4168.6030008@dwheeler.com> <Pine.LNX.4.58.0504241846290.18901@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0504241846290.18901@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200504250417.17231.FabianFranz@gmx.de>
-X-Y-GMX-Trusted: 0
+	Sun, 24 Apr 2005 22:30:46 -0400
+Received: from smtpout.mac.com ([17.250.248.83]:51941 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S262449AbVDYCak (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Apr 2005 22:30:40 -0400
+In-Reply-To: <4ae3c14050424182235f916d7@mail.gmail.com>
+References: <4ae3c14050424182235f916d7@mail.gmail.com>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <cba141443b50f44069d7a92093a0d270@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Ext3+ramdisk journaling problem
+Date: Sun, 24 Apr 2005 22:30:35 -0400
+To: Xin Zhao <uszhaoxin@gmail.com>
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Apr 24, 2005, at 21:22, Xin Zhao wrote:
+> hi,
+>
+> I used ramdisk as an ext3 journal and mount ext3 file system with
+> option data=journal. It worked fine and speedup the ext3 file system.
 
-Am Montag, 25. April 2005 03:50 schrieb Linus Torvalds:
+Uhh, the whole point of a journal is that when the computer goes down
+hard and doesn't have a chance to clean up.  If you put the journal on
+a ramdisk, you might as well just mount it as an ext2 filesystem and
+be done with it.  Without the journal _on_disk_ you get no data or
+filesystem reliability advantages.  If you're after speed, just forgo
+the reliability or buy better disks.
 
-> Maybe we'll just have signed tags by doing exactly that: just a collection
-> of detached signature files. The question becomes one of how to name such
-> things in a distributed tree. That is the thing that using an object for
-> them would have solved very naturally.
+Cheers,
+Kyle Moffett
 
-What about just <sha1 hash of object>.sig or <sha1 hash of object>.asc?
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
 
-Or would this violate the concept of the object database to just contain 
-hashes?
-
-cu
-
-Fabian
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFCbFMsI0lSH7CXz7MRAof0AKCILjPE/M72cMSVNDC/DWYSzmrU/ACggOuS
-ogNPwUf2ASAwmbwixzSTuPs=
-=pW5D
------END PGP SIGNATURE-----
 

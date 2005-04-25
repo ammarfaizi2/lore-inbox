@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbVDYWqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbVDYWtv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261253AbVDYWqz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 18:46:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbVDYWqz
+	id S261271AbVDYWtv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 18:49:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbVDYWtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 18:46:55 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:11741 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261253AbVDYWqx (ORCPT
+	Mon, 25 Apr 2005 18:49:51 -0400
+Received: from fire.osdl.org ([65.172.181.4]:52168 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261271AbVDYWtt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 18:46:53 -0400
-Date: Tue, 26 Apr 2005 00:46:33 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: David Teigland <teigland@redhat.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH 1a/7] dlm: core locking
-Message-ID: <20050425224633.GA17540@elf.ucw.cz>
-References: <20050425165705.GA11938@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050425165705.GA11938@redhat.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 25 Apr 2005 18:49:49 -0400
+Date: Mon, 25 Apr 2005 15:51:32 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Roland McGrath <roland@redhat.com>
+cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] x86_64: handle iret faults better
+In-Reply-To: <200504252231.j3PMVPTb010573@magilla.sf.frob.com>
+Message-ID: <Pine.LNX.4.58.0504251548310.18901@ppc970.osdl.org>
+References: <200504252231.j3PMVPTb010573@magilla.sf.frob.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> The core dlm functions.  Processes dlm_lock() and dlm_unlock() requests.
-> Creates lockspaces which give applications separate contexts/namespaces in
-> which to do their locking.  Manages locks on resources' grant/convert/wait
-> queues.  Sends and receives high level locking operations between nodes.
-> Delivers completion and blocking callbacks (ast's) to lock holders.
-> Manages the distributed directory that tracks the current master node for
-> each resource.
-
-dlm stands for "distributed lock manager"? Is this component of lustre
-or what
 
 
-> +/******************************************************************************
-> +*******************************************************************************
-> +**
-> +**  Copyright (C) Sistina Software, Inc.  1997-2003  All rights reserved.
-> +**  Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
-> +**
-> +**  This copyrighted material is made available to anyone wishing to use,
-> +**  modify, copy, or redistribute it subject to the terms and conditions
-> +**  of the GNU General Public License v.2.
-> +**
-> +*******************************************************************************
-> +******************************************************************************/
+On Mon, 25 Apr 2005, Roland McGrath wrote:
+> 
+> 								   We want
+>  * to turn it into a signal.  To make that signal's info exactly match what
+>  * this same kind of fault in a user instruction would show, the fixup
+>  * needs to know the trapno and error code.  But those are lost when we get
+>  * back to the fixup entrypoint.  
 
-I'd read this as GPL v0.2. You have one dot too many... Also it would
-be nice to use less stars, as other kernel sources do...
+Bah.
 
-								Pavel
+The _information_ is there, it's right on the stack-frame in the original 
+CS/SS etc.
 
--- 
-Boycott Kodak -- for their patent abuse against Java.
+I'll take reliable and obvious code _any_ day over hacky code just to get 
+me an "error code" for something that just isn't very interesting.
+
+In other words, your code is not only ugly, it's also the kind of code 
+that makes you go "how does that work". 
+
+I think it's a lot more important that the kernel obviously work 
+correctly.
+
+			Linus

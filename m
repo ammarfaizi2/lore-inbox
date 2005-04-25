@@ -1,61 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262536AbVDYIrO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262532AbVDYJHY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262536AbVDYIrO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 04:47:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262532AbVDYIrO
+	id S262532AbVDYJHY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 05:07:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262540AbVDYJHY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 04:47:14 -0400
-Received: from post.arx.com ([212.25.66.95]:33800 "EHLO post.arx.com")
-	by vger.kernel.org with ESMTP id S262536AbVDYIrC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 04:47:02 -0400
-Content-class: urn:content-classes:message
-Subject: Re-routing packets via netfilter (ip_rt_bug)
-Date: Mon, 25 Apr 2005 11:49:38 +0200
+	Mon, 25 Apr 2005 05:07:24 -0400
+Received: from [62.206.217.67] ([62.206.217.67]:16780 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S262532AbVDYJHP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 05:07:15 -0400
+Message-ID: <426CB342.2010504@trash.net>
+Date: Mon, 25 Apr 2005 11:07:14 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <4151C0F9B9C25C47B3328922A6297A3286CF98@post.arx.com>
-X-MS-Has-Attach: 
-X-Mimeole: Produced By Microsoft Exchange V6.5.7226.0
-X-MS-TNEF-Correlator: 
-Thread-Topic: Re-routing packets via netfilter (ip_rt_bug)
-Thread-Index: AcVJfBZewIqcR758TSSGAn/RnX9zJQ==
-From: "Yair Itzhaki" <Yair@arx.com>
-To: <linux-kernel@vger.kernel.org>
+To: Yair Itzhaki <Yair@arx.com>
+CC: linux-kernel@vger.kernel.org,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>
+Subject: Re: Re-routing packets via netfilter (ip_rt_bug)
+References: <4151C0F9B9C25C47B3328922A6297A3286CF98@post.arx.com>
+In-Reply-To: <4151C0F9B9C25C47B3328922A6297A3286CF98@post.arx.com>
+Content-Type: multipart/mixed;
+ boundary="------------070005040209090404020705"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Summary:
-While traversing packets through Netfilter, changing dest address from a foreign to a local address causes the packet to drop (and show up at ip_rt_bug(), along a syslog entry).
+This is a multi-part message in MIME format.
+--------------070005040209090404020705
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-* Description:
-I'm using libipq/ip_tables and ip_queue to trap packets to a userspace VPN product, using nothing but standard kernel modules (and my own VPN proxy app).
+Yair Itzhaki wrote:
+> While traversing packets through Netfilter, changing dest address from a foreign to a local address causes the packet to drop (and show up at ip_rt_bug(), along a syslog entry).
 
-The packets flowing into or out of the machine get diverted to a userspace application, src/dest addresses are modified, and injected back into the IP stack. 
-
-For example, an outgoing packet (that has a foreign dest addr) is overridden with a local dest address, hoping it would end up at the local VPN listener. 
-
-Under kernel 2.4 this works fine.
-In 2.6 it breaks. 
-
-* Details:
-An outgoing packet (has a non-local dest addr) is queued and recognized at the ip_queue userspace app. Its dest addr+port are set to that of the local machine (to get to my userspace VPN app).
-The modified packet is marked NF_ACCEPT and sent back into the kernel, but ends up at the ip_rt_bug function (with a syslog entry).
-
-* Assumed bug analysis:
-Due to the destination address change, the packet needed to go through routing once again, since it's no longer an outgoing packet.
-This does happen in the ip_route_me_harder function, which sets the dst->output to point at ip_rt_bug.
-Since this was an outgoing packet (in the NF_IP_LOCAL_OUT chain), the final operation done on the packet is calling the *okfn function, which points to dst->output which is ip_rt_bug.
-
-I would have expected the routing function to realize it needs to re-evaluate the route, and set the *okfn to dst->input instead.
-
-* Kernel version:
-2.6.9-prep, (Red Hat 3.4.2-6.fc3) compiled locally with no modifications.
-
-Please advise (and please CC "YAIR at ARX.COM")
-
-A similar problem has been reported a while back but never replied (http://groups-beta.google.com/group/linux.kernel/msg/455c04e17e354d04?dmode=source&hl=en)
+Does this patch fix your problem?
 
 
-Yair
+--------------070005040209090404020705
+Content-Type: text/plain;
+ name="x"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="x"
+
+[NETFILTER]: Don't use ip_route_input() for local addresses
+
+Local input routes have ->output set to ip_rt_bug().
+
+Signed-off-by: Patrick McHardy <kaber@trash.net>
+
+---
+commit bef30866b7440f4c8aff99dc025ea99b8d396390
+tree a469360c577fdf6919b9a771521eca120103db45
+parent a5c2178d8f07f6180a2daf8df4524cf3b45e62ed
+author Patrick McHardy <kaber@trash.net> 1114419959 +0200
+committer Patrick McHardy <kaber@trash.net> 1114419959 +0200
+
+Index: net/core/netfilter.c
+===================================================================
+--- 70652aa8f30bea3ea83594cc4a47a11f7a8db89d/net/core/netfilter.c  (mode:100644 sha1:e51cfa46950cf8f1f4dea42be94e71d76d8c3c5b)
++++ a469360c577fdf6919b9a771521eca120103db45/net/core/netfilter.c  (mode:100644 sha1:85936a0b23d9ea42e2cd9d45e8254c2f780eb786)
+@@ -611,7 +611,8 @@
+ 	/* some non-standard hacks like ipt_REJECT.c:send_reset() can cause
+ 	 * packets with foreign saddr to appear on the NF_IP_LOCAL_OUT hook.
+ 	 */
+-	if (inet_addr_type(iph->saddr) == RTN_LOCAL) {
++	if (inet_addr_type(iph->saddr) == RTN_LOCAL ||
++	    inet_addr_type(iph->daddr) == RTN_LOCAL) {
+ 		fl.nl_u.ip4_u.daddr = iph->daddr;
+ 		fl.nl_u.ip4_u.saddr = iph->saddr;
+ 		fl.nl_u.ip4_u.tos = RT_TOS(iph->tos);
+
+--------------070005040209090404020705--

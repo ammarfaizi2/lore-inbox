@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261758AbVDZTwc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbVDZT4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261758AbVDZTwc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 15:52:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261759AbVDZTwb
+	id S261759AbVDZT4T (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 15:56:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbVDZT4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 15:52:31 -0400
-Received: from ns1.suse.de ([195.135.220.2]:20916 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261758AbVDZTw1 (ORCPT
+	Tue, 26 Apr 2005 15:56:19 -0400
+Received: from vsmtp1.tin.it ([212.216.176.141]:17318 "EHLO vsmtp1.tin.it")
+	by vger.kernel.org with ESMTP id S261759AbVDZT4R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 15:52:27 -0400
-From: Chris Mason <mason@suse.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Mercurial 0.3 vs git benchmarks
-Date: Tue, 26 Apr 2005 15:52:23 -0400
-User-Agent: KMail/1.8
-Cc: Mike Taht <mike.taht@timesys.com>, Matt Mackall <mpm@selenic.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-References: <20050426004111.GI21897@waste.org> <Pine.LNX.4.58.0504260939440.18901@ppc970.osdl.org> <200504261339.34680.mason@suse.com>
-In-Reply-To: <200504261339.34680.mason@suse.com>
+	Tue, 26 Apr 2005 15:56:17 -0400
+To: Pekka Enberg <penberg@gmail.com>
+Cc: dsd@gentoo.org, linux-kernel@vger.kernel.org
+Subject: Re: rootdelay
+References: <87wtrphuvj.fsf@dedasys.com>
+	<84144f020504260311260fa8c5@mail.gmail.com>
+From: davidw@dedasys.com (David N. Welton)
+Date: 26 Apr 2005 21:54:35 +0200
+Message-ID: <87k6mp9uv8.fsf@dedasys.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200504261552.24100.mason@suse.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 April 2005 13:39, Chris Mason wrote:
+Pekka Enberg <penberg@gmail.com> writes:
 
-> As an example, here's the time to apply 300 patches on ext3.  This was with
-> my packed patches applied, but vanilla git should show similar percentage
-> differences.
->
-> data=writeback  32s
-> data=ordered    44s
->
-> With a long enough test, data=ordered should fall into the noise, but 10-40
-> second runs really show it.
+> Hi,
+> 
+> On 30 Mar 2005 20:05:36 +0200, David N. Welton <davidw@dedasys.com> wrote:
+> > I was wondering if there were any interest in my own efforts in that
+> > direction:
+> > 
+> > http://dedasys.com/freesoftware/patches/blkdev_wakeup.patch
+> 
+> Please read Documentation/CodingStyle and follow it if you want your
+> patches to be reviewed (or merged).
 
-I get much closer numbers if the patches directory is already in 
-cache...data=ordered means more contention for the disk when trying to read 
-the patches.  
+Oh, I most certainly will polish the code as much as possible should
+it prove of interest, but I think what needs vetting is the idea
+itself, which I described clearly in english in a subsequent email.
+If the idea itself stinks, I'm happy to drop it before spending time
+playing around with indentation and other niceties.
 
-If the patches are hot in the cache data=writeback and data=ordered both take 
-about 30s.  You still see some writes in data=writeback, but these are mostly 
-async log commits.  
+Thankyou,
+-- 
+David N. Welton
+ - http://www.dedasys.com/davidw/
 
-The same holds true for vanilla git as well, although it needs 1m7s to apply 
-from a hot cache (sorry, couldn't resist the plug ;)
-
--chris
+Apache, Linux, Tcl Consulting
+ - http://www.dedasys.com/

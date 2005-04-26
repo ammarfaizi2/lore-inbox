@@ -1,34 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261642AbVDZQoo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261679AbVDZQok@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261642AbVDZQoo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 12:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbVDZQl2
+	id S261679AbVDZQok (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 12:44:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbVDZQc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 12:41:28 -0400
-Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:63364 "EHLO
-	pickle.fieldses.org") by vger.kernel.org with ESMTP id S261513AbVDZQh4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 12:37:56 -0400
-Date: Tue, 26 Apr 2005 12:37:40 -0400
-To: Adrian Bunk <bunk@stusta.de>
-Cc: neilb@cse.unsw.edu.au, nfs@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [NFS] [2.6 patch] fs/nfsd/: possible cleanups
-Message-ID: <20050426163740.GA26367@fieldses.org>
-References: <20050423000755.GN4355@stusta.de>
+	Tue, 26 Apr 2005 12:32:56 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:56470 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S261656AbVDZQbM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 12:31:12 -0400
+Date: Tue, 26 Apr 2005 20:30:23 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: johnpol@2ka.mipt.ru
+Cc: dtor_core@ameritech.net, dmitry.torokhov@gmail.com, netdev@oss.sgi.com,
+       Greg KH <greg@kroah.com>, Jamal Hadi Salim <hadi@cyberus.ca>,
+       Kay Sievers <kay.sievers@vrfy.org>,
+       Herbert Xu <herbert@gondor.apana.org.au>,
+       James Morris <jmorris@redhat.com>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Thomas Graf <tgraf@suug.ch>, Jay Lan <jlan@engr.sgi.com>
+Subject: Re: [1/1] connector/CBUS: new messaging subsystem. Revision number
+ next.
+Message-ID: <20050426203023.378e4831@zanzibar.2ka.mipt.ru>
+In-Reply-To: <20050426202437.234e7d45@zanzibar.2ka.mipt.ru>
+References: <20050411125932.GA19538@uganda.factory.vocord.ru>
+	<d120d5000504260857cb5f99e@mail.gmail.com>
+	<20050426202437.234e7d45@zanzibar.2ka.mipt.ru>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050423000755.GN4355@stusta.de>
-User-Agent: Mutt/1.5.9i
-From: "J. Bruce Fields" <bfields@fieldses.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [194.85.82.65]); Tue, 26 Apr 2005 20:30:36 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 23, 2005 at 02:07:55AM +0200, Adrian Bunk wrote:
-> This patch contains the following possible cleanups:
-> - make needlessly global code static
-> - remove the following unused global function:
->   - nfs4state.c: set_no_grace
+On Tue, 26 Apr 2005 20:24:37 +0400
+Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
 
-Got it, thanks.--b.
+> On Tue, 26 Apr 2005 10:57:55 -0500
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> 
+> > Hi Evgeniy,
+> > 
+> > On 4/11/05, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> > > /*****************************************/
+> > > Kernel Connector.
+> > > /*****************************************/
+> > ...
+> > > +static int cn_call_callback(struct cn_msg *msg, void (*destruct_data) (void *), void *data)
+> > > +{
+> > > +       struct cn_callback_entry *__cbq;
+> > > +       struct cn_dev *dev = &cdev;
+> > > +       int found = 0;
+> > > +
+> > > +       spin_lock_bh(&dev->cbdev->queue_lock);
+> > > +       list_for_each_entry(__cbq, &dev->cbdev->queue_list, callback_entry) {
+> > > +               if (cn_cb_equal(&__cbq->cb->id, &msg->id)) {
+> > > +                       __cbq->cb->priv = msg;
+> > > +
+> > > +                       __cbq->ddata = data;
+> > > +                       __cbq->destruct_data = destruct_data;
+> > > +
+> > > +                       queue_work(dev->cbdev->cn_queue, &__cbq->work);
+> > 
+> > It looks like there is a problem with the code. As far as I can see
+> > there is only one cn_callback_entry associated with each callback. So,
+> > if someone sends netlink messages with the same id at a high enough
+> > rate (so cbdev's work queue does not get a chance to get scheduled and
+> > process pending requests) ddata and the destructor will be overwritten
+> > which can lead to memory leaks and non-delivery of some messages.
+> > 
+> > Am I missing something?
+> 
+> Connector needs to check return value here - zero means 
+> that work was already queued and we must free shared skb.
+> 
+> There may not be the same work with different data.
+
+Here is the patch:
+
+* looking for johnpol@2ka.mipt.ru-2004/connector--main--0--patch-52 to compare with
+* comparing to johnpol@2ka.mipt.ru-2004/connector--main--0--patch-52
+M  connector.c
+
+* modified files
+
+--- orig/drivers/connector/connector.c
++++ mod/drivers/connector/connector.c
+@@ -151,8 +151,8 @@
+ 			__cbq->ddata = data;
+ 			__cbq->destruct_data = destruct_data;
+ 
+-			queue_work(dev->cbdev->cn_queue, &__cbq->work);
+-			found = 1;
++			if (queue_work(dev->cbdev->cn_queue, &__cbq->work))
++				found = 1;
+ 			break;
+ 		}
+ 	}
+
+
+
+
+
+	Evgeniy Polyakov
+
+Only failure makes us experts. -- Theo de Raadt

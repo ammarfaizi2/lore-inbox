@@ -1,65 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbVDZPZF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbVDZPZ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261581AbVDZPZF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 11:25:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261579AbVDZPZE
+	id S261604AbVDZPZ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 11:25:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbVDZPZ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 11:25:04 -0400
-Received: from mail.shareable.org ([81.29.64.88]:12201 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261581AbVDZPYm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 11:24:42 -0400
-Date: Tue, 26 Apr 2005 16:24:34 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: John Stoffel <john@stoffel.org>
-Cc: "Artem B. Bityuckiy" <dedekind@oktetlabs.ru>, Ville Herva <v@iki.fi>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: filesystem transactions API
-Message-ID: <20050426152434.GB14297@mail.shareable.org>
-References: <20050424211942.GN13052@parcelfarce.linux.theplanet.co.uk> <OF32F95BBA.F38B2D1F-ON88256FEE.006FE841-88256FEE.00742E46@us.ibm.com> <20050426134629.GU16169@viasys.com> <20050426141426.GC10833@mail.shareable.org> <426E4EBD.6070104@oktetlabs.ru> <20050426143247.GF10833@mail.shareable.org> <17006.22498.394169.98413@smtp.charter.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17006.22498.394169.98413@smtp.charter.net>
-User-Agent: Mutt/1.4.1i
+	Tue, 26 Apr 2005 11:25:57 -0400
+Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:42636 "EHLO
+	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
+	id S261587AbVDZPZh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 11:25:37 -0400
+Message-ID: <426E5D13.6000200@ammasso.com>
+Date: Tue, 26 Apr 2005 10:24:03 -0500
+From: Timur Tabi <timur.tabi@ammasso.com>
+Organization: Ammasso
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en, en-gb
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: Roland Dreier <roland@topspin.com>, Andrew Morton <akpm@osdl.org>,
+       hozer@hozed.org, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+References: <4263DEC5.5080909@ammasso.com> <20050418164316.GA27697@infradead.org> <4263E445.8000605@ammasso.com> <20050423194421.4f0d6612.akpm@osdl.org> <426BABF4.3050205@ammasso.com> <52is2bvvz5.fsf@topspin.com> <20050425135401.65376ce0.akpm@osdl.org> <521x8yv9vb.fsf@topspin.com> <20050425151459.1f5fb378.akpm@osdl.org> <52r7gytnfn.fsf@topspin.com> <20050426061236.GA27220@infradead.org>
+In-Reply-To: <20050426061236.GA27220@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Stoffel wrote:
-> >>>>> "Jamie" == Jamie Lokier <jamie@shareable.org> writes:
-> 
-> Jamie> No.  A transaction means that _all_ processes will see the
-> Jamie> whole transaction or not.
-> 
-> This is really hard.  How do you handle the case where process X
-> starts a transaction modifies files a, b & c, but process Y has file b
-> open for writing, and never lets it go?  Or the file gets unlinked?  
+Christoph Hellwig wrote:
 
-Then it starts to depend on what kind of transactions you want to
-implement.
+> What doesn't work with that design are the braindead designed by comittee
+> APIs in the RDMA world - but I don't think we should care about them too
+> much.
 
-You can say that a transaction isn't allowed when a process has one of
-the files opened for writing.  Or you can say a transaction is
-equivalent to calling all of the I/O system calls at once.  You can
-also decide if you want the reads and directory lookups performed in
-the transactions to become prerequisites for the transaction
-completing (so it's aborted if another process writes to those file
-regions or changes the directory structure in a way which breaks a
-prerequisite), or if you want those to lock the things which are read
-for the duration of the transaction, or even just ignore reads for
-transaction purposes.  Or, you can say that transactions are limited
-to just directory structure, and not file contents (that's good enough
-for package management), or you can say they're limited to just file
-contents (that's good enough for databases and text file edits).
+I think you should.  The whole point behind RDMA is that these APIs exist and are being 
+used by real-world applications.  You can't just ignore them because they're inconvenient. 
+  If you're not willing to cater to these API's needs, then you may as well tell all the 
+RDMA developers to forgot about Linux and port everything to Windows instead.
 
-Etc, etc, quite a lot of semantic choices.
+The APIs are here to stay, and the whole point behind this thread is to discuss how Linux 
+can support them.
 
-> What about programs that are already open and running?  
-> 
-> It might be doable in some sense, but I can see that details are
-> really hard to get right.  Esp without breaking existing Unix
-> semantics.  
+-- 
+Timur Tabi
+Staff Software Engineer
+timur.tabi@ammasso.com
 
-It's even harder without kernel support! :)
-
--- Jamie
+One thing a Southern boy will never say is,
+"I don't think duct tape will fix it."
+      -- Ed Smylie, NASA engineer for Apollo 13

@@ -1,45 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbVDZOXM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVDZOXa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261554AbVDZOXM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 10:23:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbVDZOXM
+	id S261551AbVDZOXa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 10:23:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261550AbVDZOXa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 10:23:12 -0400
-Received: from [213.170.72.194] ([213.170.72.194]:53900 "EHLO
-	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261550AbVDZOW4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 10:22:56 -0400
-Message-ID: <426E4EBD.6070104@oktetlabs.ru>
-Date: Tue, 26 Apr 2005 18:22:53 +0400
-From: "Artem B. Bityuckiy" <dedekind@oktetlabs.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en, ru, en-us
-MIME-Version: 1.0
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Ville Herva <v@iki.fi>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: filesystem transactions API
-References: <20050424211942.GN13052@parcelfarce.linux.theplanet.co.uk> <OF32F95BBA.F38B2D1F-ON88256FEE.006FE841-88256FEE.00742E46@us.ibm.com> <20050426134629.GU16169@viasys.com> <20050426141426.GC10833@mail.shareable.org>
-In-Reply-To: <20050426141426.GC10833@mail.shareable.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Apr 2005 10:23:30 -0400
+Received: from mx2.suse.de ([195.135.220.15]:25030 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261558AbVDZOW5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 10:22:57 -0400
+Date: Tue, 26 Apr 2005 16:22:52 +0200
+From: Andi Kleen <ak@suse.de>
+To: Patrick McHardy <kaber@trash.net>
+Cc: Andi Kleen <ak@suse.de>, Ed Tomlinson <tomlins@cam.org>,
+       Alexander Nyberg <alexn@dsv.su.se>,
+       Parag Warudkar <kernel-stuff@comcast.net>, linux-kernel@vger.kernel.org
+Subject: Re: X86_64: 2.6.12-rc3 spontaneous reboot
+Message-ID: <20050426142252.GJ5098@wotan.suse.de>
+References: <200504240008.35435.kernel-stuff@comcast.net> <1114332119.916.1.camel@localhost.localdomain> <200504240903.31377.tomlins@cam.org> <426CADF1.2000100@trash.net> <20050425153541.GC16828@wotan.suse.de> <426E3C6F.6010001@trash.net> <20050426135312.GI5098@wotan.suse.de> <426E48C0.9090503@trash.net> <426E4DD2.8060808@trash.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <426E4DD2.8060808@trash.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
-> I think I've wanted something like that for _years_ in unix.
+On Tue, Apr 26, 2005 at 04:18:58PM +0200, Patrick McHardy wrote:
+> Patrick McHardy wrote:
+> >Andi Kleen wrote:
+> >
+> >>Hmm, thats hard to believe. And are you sure the NMI watchdog
+> >>did not trigger? (e.g. did you run it with serial or netconsole)?
+> >
+> >I ran it with netconsole, but nothing was received. I'm going to retry
+> >with and without the patch once more to make sure.
 > 
-> It's an old, old idea, and I've often wondered why we haven't implemented it.
-> 
+> I tried starting uml with and without the patch, five times each.
+> Without the patch it worked fine every time, with the patch it
+> instantly rebooted every time. Nothing was logged on netconsole.
+> Perhaps also interesting is that if I revert all patches after
+> this change up to HEAD, it doesn't always instantly reboot, but
+> sometimes just hangs. When using HEAD, it rebooted each time so far.
 
-I thought it is possible to rather easily to implement this on top
-of non-transactional FS (albeit I didn't try) and there is no need
-to overcomplicate an FS. Just implement a specialized user-space
-library and utilize it.
+Ok thanks for the information. I will stare a bit at the patch.
 
+It is very mysterious though. Even if the patch was somehow wrong
+the worst thing that could happen is that you end up with interrupts
+off when you shouldnt, and the NMI watchdog is very good 
+at catching that.
 
--- 
-Best regards, Artem B. Bityuckiy
-Oktet Labs (St. Petersburg), Software Engineer.
-+78124286709 (office) +79112449030 (mobile)
-E-mail: dedekind@oktetlabs.ru, web: http://www.oktetlabs.ru
+Hmm actually - on some systems I broke the NMI watchdog. Can you
+check your dmesg to see if check_nmi_watchdog doesnt report it 
+as stuck? If yes please put a return on top of check_nmi_watchdog
+that should fix it. You can verify it works by looking at the
+per CPU NMI counters in /proc/interrupts. An nmi watchdog
+backtrace would be nice to see.
+
+-Andi

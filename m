@@ -1,69 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261465AbVDZKNW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261459AbVDZKMe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261465AbVDZKNW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 06:13:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbVDZKNI
+	id S261459AbVDZKMe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 06:12:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbVDZKJr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 06:13:08 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:58250 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261465AbVDZKLu (ORCPT
+	Tue, 26 Apr 2005 06:09:47 -0400
+Received: from mail.dif.dk ([193.138.115.101]:53983 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261443AbVDZKIy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 06:11:50 -0400
-Date: Tue, 26 Apr 2005 12:11:12 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Greg KH <greg@kroah.com>, Amit Gud <gud@eth.net>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Andrew Morton <akpm@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>, cramerj@intel.com,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] PCI: Add pci shutdown ability
-Message-ID: <20050426101112.GE1824@elf.ucw.cz>
-References: <Pine.LNX.4.44L0.0504251128070.5751-100000@iolanthe.rowland.org> <20050425182951.GA23209@kroah.com> <SVLXCHCON1syWVLEFN00000099e@SVLXCHCON1.enterprise.veritas.com> <20050425185113.GC23209@kroah.com> <20050425190606.GA23763@kroah.com> <20050425204207.GA23724@elf.ucw.cz> <20050425210014.GA25247@kroah.com> <1114486915.7112.17.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1114486915.7112.17.camel@gaston>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 26 Apr 2005 06:08:54 -0400
+Date: Tue, 26 Apr 2005 12:08:33 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: David Teigland <teigland@redhat.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 4/7] dlm: configuration
+In-Reply-To: <20050426064940.GE12096@redhat.com>
+Message-ID: <Pine.LNX.4.62.0504261206300.8528@jjulnx.backbone.dif.dk>
+References: <20050425151250.GE6826@redhat.com>
+ <Pine.LNX.4.62.0504251749090.2941@dragon.hyggekrogen.localhost>
+ <20050426064940.GE12096@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 26 Apr 2005, David Teigland wrote:
 
-> > > Actually this patch should be in the queue somewhere... We had it in
-> > > suse trees for a long time, and IMO it can solve problem easily.
-> > > 
-> > > 								Pavel
-> > > 
-> > > --- clean-git/kernel/sys.c	2005-04-23 23:21:55.000000000 +0200
-> > > +++ linux/kernel/sys.c	2005-04-24 00:20:47.000000000 +0200
-> > > @@ -404,6 +404,7 @@
-> > >  	case LINUX_REBOOT_CMD_HALT:
-> > >  		notifier_call_chain(&reboot_notifier_list, SYS_HALT, NULL);
-> > >  		system_state = SYSTEM_HALT;
-> > > +		device_suspend(PMSG_SUSPEND);
-> > >  		device_shutdown();
-> > 
-> > Again, why keep device_shutdown() around at all then?
+> Date: Tue, 26 Apr 2005 14:49:40 +0800
+> From: David Teigland <teigland@redhat.com>
+> To: Jesper Juhl <juhl-lkml@dif.dk>
+> Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+> Subject: Re: [PATCH 4/7] dlm: configuration
 > 
-> I've argued for folding shutdown and suspend for some time now, though
-> some drivers who rely on shutdown today will need fixing I suppose.
+> On Mon, Apr 25, 2005 at 05:53:49PM +0200, Jesper Juhl wrote:
+> > On Mon, 25 Apr 2005, David Teigland wrote:
 > 
-> Also, I think kexec shouldn't use "shutdown" but a different message.
-> There are some conceptual differences, things like stopping the platters
-> on disk etc... things you want to do on one and not the other. In a way,
-> kexec needs are very similar to suspend-to-disk "freeze" state. I'd
-> rather call PMSG_FREEZE there.
+> > > +static ssize_t dlm_id_store(struct dlm_ls *ls, const char *buf, size_t len)
+> > > +{
+> > > +	ls->ls_global_id = simple_strtol(buf, NULL, 0);
+> > > +	return len;
+> > > +}
+> >
+> > What's the point of `len' in these two functions? 
+> > You pass in `len`, don't use it at all, then return the value. I fail to 
+> > see the usefulness. Why not just have the function return void and omit 
+> > the `len' parameter?
+> 
+> Do I have a choice?  Aren't these stipulated by sysfs?
+> 
+Hmm, right you are. I simply did a quick scan through the code and 
+commented on everything that seemed odd, I didn't look into it in too much 
+detail (too much code, too little time), so I may also have flagged a few 
+other things that are perfectly OK but just seemed odd on a quick pass.
 
-Agreed. If hardware is going to be physically powered down, we need
-PMSG_SUSPEND. If it is not (kexec), PMSG_FREEZE should be enough.
 
-Now, if we want separate PMSG_SHUTDOWN. ... I think it is similar
-enough to PMSG_SUSPEND that we can keep them same "major" value and
-just use different flags. I do not think many drivers will
-care.
-								Pavel
 -- 
-Boycott Kodak -- for their patent abuse against Java.
+Jesper Juhl
+

@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261387AbVDZI0W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbVDZIjh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261387AbVDZI0W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 04:26:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbVDZI0W
+	id S261395AbVDZIjh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 04:39:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbVDZIjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 04:26:22 -0400
-Received: from mailfe04.swip.net ([212.247.154.97]:46510 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S261387AbVDZI0O (ORCPT
+	Tue, 26 Apr 2005 04:39:37 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:8642 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261395AbVDZIje (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 04:26:14 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Subject: Re: X86_64: 2.6.12-rc3 spontaneous reboot
-From: Alexander Nyberg <alexn@dsv.su.se>
-To: Patrick McHardy <kaber@trash.net>
-Cc: Andi Kleen <ak@suse.de>, Ed Tomlinson <tomlins@cam.org>,
-       Parag Warudkar <kernel-stuff@comcast.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <426D8587.6060507@trash.net>
-References: <200504240008.35435.kernel-stuff@comcast.net>
-	 <1114332119.916.1.camel@localhost.localdomain>
-	 <200504240903.31377.tomlins@cam.org> <426CADF1.2000100@trash.net>
-	 <20050425153541.GC16828@wotan.suse.de>
-	 <1114452899.2012.2.camel@localhost.localdomain>
-	 <426D8587.6060507@trash.net>
-Content-Type: text/plain
-Date: Tue, 26 Apr 2005 10:26:11 +0200
-Message-Id: <1114503971.887.8.camel@localhost.localdomain>
+	Tue, 26 Apr 2005 04:39:34 -0400
+Date: Tue, 26 Apr 2005 16:43:18 +0800
+From: David Teigland <teigland@redhat.com>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 1a/7] dlm: core locking
+Message-ID: <20050426084318.GG12096@redhat.com>
+References: <20050425165705.GA11938@redhat.com> <Pine.LNX.4.62.0504252242510.2941@dragon.hyggekrogen.localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0504252242510.2941@dragon.hyggekrogen.localhost>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tis 2005-04-26 klockan 02:04 +0200 skrev Patrick McHardy:
-> Alexander Nyberg wrote:
-> > Usually gives in after about 20 minutes of gcc compiling, sometimes even
-> > up to 40 minutes. I had 2.6.12-rc2 stand for 2-3 hours so it seems ok.
-> > If anyone has a better recipe for it please do tell.
-> 
-> uml seems to trigger the bug faster, I'm usually seeing it within
-> a couple of minutes. I'm doing a binary search now.
+On Mon, Apr 25, 2005 at 11:17:57PM +0200, Jesper Juhl wrote:
 
-Ok, I'll try to compile UML, most of the times it doesn't work out for
-me, but having something that triggers more reliably would be useful.
-Sometimes it has taken even over an hour with gcc.
+>                                    |----- Why the parenthesis?
+>                                  ^^^^^--- more parens.
+>                                  ^^^^^--- yet more.
+>                                   what's your facination with parenthesis?
+>                                   ^--- here we go again.
+>                                   ^--- and again.
+> a few cases of pointless parenthesis around define values...
+> Here, again, we have a lot of pointless parenthesis around the values.
+> I'm not going to bother pointing out the remaining ones.
 
-> > It doesn't appear to be any of the obvious patch candidates...
-> 
-> Which ones did you try?
+Hm, you might have removed some remaining doubt about my paren usage.
+Anyway, they're all gone now.
 
-freepgt series and everything that directly touches ia32 emulation
-between rc2 and rc3. The problem is I have only my saved commit mails
-right now and some x64 patches seem to be missing, I need to learn git
-and start reversing stuff from there...
 
-No snapshots available either, whoever introduced the bug chose a bad
-timing ;-)
+> > +	int 	 sb_status;
+> > +	uint32_t sb_lkid;
+> > +	char 	 sb_flags;
+> > +	char *	 sb_lvbptr;
+
+> why not	char	*sb_lvbptr; ???
+
+I personally think the right column looks nicer when it's lined up, but a
+quick survey shows I'm in the minority, so I'd better get with the
+program...
+
+
+> > +static int dlm_astd(void *data)
+> Always returning 0 - why not a void function then?
+
+> > +int dlm_scand(void *data)
+> void func?
+
+I think kthread_run() demands this.
+
+Dave
 

@@ -1,138 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVDZG5T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbVDZG7K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261362AbVDZG5T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 02:57:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261363AbVDZG5T
+	id S261363AbVDZG7K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 02:59:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbVDZG7K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 02:57:19 -0400
-Received: from zproxy.gmail.com ([64.233.162.199]:16451 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261362AbVDZG4i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 02:56:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type;
-        b=d/P0dX9kPAKsXNgUFuyfBzyU6/6TvaaM3/Ttm3jxu2A7U6Gh8cUlYAK+6UtSTKv3wA4kapQ/q+XLycY5FvRh5d5hxZPcIjZpGItedIMyMZnZOJ7OpbygnJp6dvnZk69sg+d4nSd5wxWK53rH+09qdHcPHfxk2eEK0qnY5CYxeVw=
-Message-ID: <2a4f155d050425235677549af6@mail.gmail.com>
-Date: Tue, 26 Apr 2005 09:56:36 +0300
-From: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
-Reply-To: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Make dmfe documentation nicer
-Cc: ismail.donmez@gmail.com
+	Tue, 26 Apr 2005 02:59:10 -0400
+Received: from lyle.provo.novell.com ([137.65.81.174]:15158 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S261363AbVDZG7C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 02:59:02 -0400
+Date: Mon, 25 Apr 2005 23:58:39 -0700
+From: Greg KH <gregkh@suse.de>
+To: dtor_core@ameritech.net
+Cc: johnpol@2ka.mipt.ru, sensors@stimpy.netroedge.com,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC/PATCH 0/22] W1: sysfs, lifetime and other fixes
+Message-ID: <20050426065839.GD5889@suse.de>
+References: <200504210207.02421.dtor_core@ameritech.net> <1114089504.29655.93.camel@uganda> <d120d50005042107314cbacdea@mail.gmail.com> <1114420131.8527.52.camel@uganda> <d120d50005042509326241a302@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_451_15377280.1114498596143"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d50005042509326241a302@mail.gmail.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_451_15377280.1114498596143
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Mon, Apr 25, 2005 at 11:32:14AM -0500, Dmitry Torokhov wrote:
+> On 4/25/05, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> > On Thu, 2005-04-21 at 09:31 -0500, Dmitry Torokhov wrote:
+> > >
+> > > OK, that is what I am aying. But why do you need that attribute with
+> > > variable name and a bin attribute that is not really bin but just a
+> > > dump for all kind of data (looks like debug one).
+> > 
+> > bin attribute was created for lm_sensors scripts format - it only caches
+> > read value.
+> > I think there might be only 2 "must have" methods - read and write.
+> > I plan to implement them using connector, so probably they will go away
+> > completely.
+> ...
+> > > You will not be able to cram all 1-wire devices into unified
+> > > interface. You will need to build classes on top of it and you might
+> > > use connector (I am not sure) bit not on w1 bus level.
+> > > ...
+> > 
+> > connector allows to have different objects inside one netlink group,
+> > so it will use it in that way.
+> > I think only two w1 methods must exist - read and write,
+> > and they must follow protocol, defined in family driver.
+> 
+> No, I think there should not be any "must have" methods on w1_bus
+> level. What you really need (and this needs to be coordinated with
+> other sensors people) is a "sensors" class hierarchy that will define
+> classes like "temperature sensor", "fan", "vid", etc. Then your w1
+> family drivers, when bound to a slave, will create needed class
+> devices. i2c drivers will do the same, and your superio, and I'll be
+> able to change i8k driver just for kicks. Then your usespace would not
+> care what _bus_ a particular sensor is sittign on and will be
+> presented with a unified interface.
 
-Hi,
+Yes, that is the way to go, and is what a number of people are currently
+working on implementing.
 
-I sent this patch to Rusty Russell's trivial patch monkey _months_ ago
-but its still not in mainline so here I send it again. So please apply
-it to mainline.
-Here is what it changes :
+thanks,
 
-- Indent it nicely
-- Add a tip that CNET network cards use Davicom chipsets
-- Add Maintainers/Contributors to the end of documentation like in other do=
-cs.
-
-Regards,
-ismail
-
---=20
-Time is what you make of it
-
-------=_Part_451_15377280.1114498596143
-Content-Type: application/octet-stream; name="dmfe.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="dmfe.patch"
-
-LS0tIGRtZmUudHh0CTIwMDQtMDctMjQgMDk6NDU6MTMuMDAwMDAwMDAwICswMzAwCisrKyBkbWZl
-Mi50eHQJMjAwNC0wNy0yNCAwOTo0NjozNy4wMDAwMDAwMDAgKzAzMDAKQEAgLTEsNTkgKzEsNjUg
-QEAKLSAgZG1mZS5jOiBWZXJzaW9uIDEuMjggICAgICAgIDAxLzE4LzIwMDAKK0Rhdmljb20gRE05
-MTAyKEEpL0RNOTEzMi9ETTk4MDEgZmFzdCBldGhlcm5ldCBkcml2ZXIgZm9yIExpbnV4LiAKIAot
-ICAgICAgICBBIERhdmljb20gRE05MTAyKEEpL0RNOTEzMi9ETTk4MDEgZmFzdCBldGhlcm5ldCBk
-cml2ZXIgZm9yIExpbnV4LiAKLSAgICAgICAgQ29weXJpZ2h0IChDKSAxOTk3ICBTdGVuIFdhbmcK
-K1RoaXMgcHJvZ3JhbSBpcyBmcmVlIHNvZnR3YXJlOyB5b3UgY2FuIHJlZGlzdHJpYnV0ZSBpdCBh
-bmQvb3IKK21vZGlmeSBpdCB1bmRlciB0aGUgdGVybXMgb2YgdGhlIEdOVSBHZW5lcmFsICAgUHVi
-bGljIExpY2Vuc2UKK2FzIHB1Ymxpc2hlZCBieSB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9u
-OyBlaXRoZXIgdmVyc2lvbiAyCitvZiB0aGUgTGljZW5zZSwgb3IgKGF0IHlvdXIgb3B0aW9uKSBh
-bnkgbGF0ZXIgdmVyc2lvbi4KIAotICAgICAgICBUaGlzIHByb2dyYW0gaXMgZnJlZSBzb2Z0d2Fy
-ZTsgeW91IGNhbiByZWRpc3RyaWJ1dGUgaXQgYW5kL29yCi0gICAgICAgIG1vZGlmeSBpdCB1bmRl
-ciB0aGUgdGVybXMgb2YgdGhlIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlCi0gICAgICAgIGFz
-IHB1Ymxpc2hlZCBieSB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uOyBlaXRoZXIgdmVyc2lv
-biAyCi0gICAgICAgIG9mIHRoZSBMaWNlbnNlLCBvciAoYXQgeW91ciBvcHRpb24pIGFueSBsYXRl
-ciB2ZXJzaW9uLgorVGhpcyBwcm9ncmFtIGlzIGRpc3RyaWJ1dGVkIGluIHRoZSBob3BlIHRoYXQg
-aXQgd2lsbCBiZSB1c2VmdWwsCitidXQgV0lUSE9VVCBBTlkgV0FSUkFOVFk7IHdpdGhvdXQgZXZl
-biB0aGUgaW1wbGllZCB3YXJyYW50eSBvZgorTUVSQ0hBTlRBQklMSVRZIG9yIEZJVE5FU1MgRk9S
-IEEgUEFSVElDVUxBUiBQVVJQT1NFLiAgU2VlIHRoZQorR05VIEdlbmVyYWwgUHVibGljIExpY2Vu
-c2UgZm9yIG1vcmUgZGV0YWlscy4KIAotICAgICAgICBUaGlzIHByb2dyYW0gaXMgZGlzdHJpYnV0
-ZWQgaW4gdGhlIGhvcGUgdGhhdCBpdCB3aWxsIGJlIHVzZWZ1bCwKLSAgICAgICAgYnV0IFdJVEhP
-VVQgQU5ZIFdBUlJBTlRZOyB3aXRob3V0IGV2ZW4gdGhlIGltcGxpZWQgd2FycmFudHkgb2YKLSAg
-ICAgICAgTUVSQ0hBTlRBQklMSVRZIG9yIEZJVE5FU1MgRk9SIEEgUEFSVElDVUxBUiBQVVJQT1NF
-LiAgU2VlIHRoZQotICAgICAgICBHTlUgR2VuZXJhbCBQdWJsaWMgTGljZW5zZSBmb3IgbW9yZSBk
-ZXRhaWxzLgogCitUaGlzIGRyaXZlciBwcm92aWRlcyBrZXJuZWwgc3VwcG9ydCBmb3IgRGF2aWNv
-bSBETTkxMDIoQSkvRE05MTMyL0RNOTgwMSBldGhlcm5ldCBjYXJkcyAoIENORVQKKzEwLzEwMCBl
-dGhlcm5ldCBjYXJkcyB1c2VzIERhdmljb20gY2hpcHNldCB0b28sIHNvIHRoaXMgZHJpdmVyIHN1
-cHBvcnRzIENORVQgY2FyZHMgdG9vICkuSWYgeW91CitkaWRuJ3QgY29tcGlsZSB0aGlzIGRyaXZl
-ciBhcyBhIG1vZHVsZSwgaXQgd2lsbCBhdXRvbWF0aWNhbGx5IGxvYWQgaXRzZWxmIG9uIGJvb3Qg
-YW5kIHByaW50IGEgCitsaW5lIHNpbWlsYXIgdG8gOgogCi0gIEEuIENvbXBpbGVyIGNvbW1hbmQ6
-CisJZG1mZTogRGF2aWNvbSBETTl4eHggbmV0IGRyaXZlciwgdmVyc2lvbiAxLjM2LjQgKDIwMDIt
-MDEtMTcpCiAKLSAgICAgQS0xOiBGb3Igbm9ybWFsIHNpbmdsZSBvciBtdWx0aXBsZSBwcm9jZXNz
-b3Iga2VybmVsCi0gICAgICAgICAgImdjYyAtRE1PRFVMRSAtRF9fS0VSTkVMX18gLUkvdXNyL3Ny
-Yy9saW51eC9uZXQvaW5ldCAtV2FsbCAKLSAgICAgICAgICAgIC1Xc3RyaWN0LXByb3RvdHlwZXMg
-LU82IC1jIGRtZmUuYyIKK0lmIHlvdSBjb21waWxlZCB0aGlzIGRyaXZlciBhcyBhIG1vZHVsZSwg
-eW91IGhhdmUgdG8gbG9hZCBpdCBvbiBib290LllvdSBjYW4gbG9hZCBpdCB3aXRoIGNvbW1hbmQg
-OgogCi0gICAgIEEtMjogRm9yIHNpbmdsZSBvciBtdWx0aXBsZSBwcm9jZXNzb3Igd2l0aCBrZXJu
-ZWwgbW9kdWxlIHZlcnNpb24gZnVuY3Rpb24KLSAgICAgICAgICAiZ2NjIC1ETU9EVUxFIC1ETU9E
-VkVSU0lPTlMgLURfX0tFUk5FTF9fIC1JL3Vzci9zcmMvbGludXgvbmV0L2luZXQgCi0gICAgICAg
-ICAgICAtV2FsbCAtV3N0cmljdC1wcm90b3R5cGVzIC1PNiAtYyBkbWZlLmMiCisJaW5zbW9kIGRt
-ZmUKIAorVGhpcyB3YXkgaXQgd2lsbCBhdXRvZGV0ZWN0IHRoZSBkZXZpY2UgbW9kZS5UaGlzIGlz
-IHRoZSBzdWdnZXN0ZWQgd2F5IHRvIGxvYWQgdGhlIG1vZHVsZS5PciB5b3UgY2FuIHBhc3MKK2Eg
-bW9kZT0gc2V0dGluZyB0byBtb2R1bGUgd2hpbGUgbG9hZGluZywgbGlrZSA6CiAKLSAgQi4gVGhl
-IGZvbGxvd2luZyBzdGVwcyB0ZWFjaCB5b3UgaG93IHRvIGFjdGl2YXRlIGEgRE05MTAyIGJvYXJk
-OgorCWluc21vZCBkbWZlIG1vZGU9MCAjIEZvcmNlIDEwTSBIYWxmIER1cGxleAorICAgICAgICBp
-bnNtb2QgZG1mZSBtb2RlPTEgIyBGb3JjZSAxMDBNIEhhbGYgRHVwbGV4CisgICAgICAgIGluc21v
-ZCBkbWZlIG1vZGU9NCAjIEZvcmNlIDEwTSBGdWxsIER1cGxleAorICAgICAgICBpbnNtb2QgZG1m
-ZSBtb2RlPTUgIyBGb3JjZSAxMDBNIEZ1bGwgRHVwbGV4CiAKLSAgICAgICAgMS4gVXNlZCB0aGUg
-dXBwZXIgY29tcGlsZXIgY29tbWFuZCB0byBjb21waWxlIGRtZmUuYworTmV4dCB5b3Ugc2hvdWxk
-IGNvbmZpZ3VyZSB5b3VyIG5ldHdvcmsgaW50ZXJmYWNlIHdpdGggYSBjb21tYW5kIHNpbWlsYXIg
-dG8gOgogCi0gICAgICAgIDIuIEluc2VydCBkbWZlIG1vZHVsZSBpbnRvIGtlcm5lbAotICAgICAg
-ICAgICAiaW5zbW9kIGRtZmUiICAgICAgICA7O0F1dG8gRGV0ZWN0aW9uIE1vZGUgKFN1Z2dlc3Qp
-Ci0gICAgICAgICAgICJpbnNtb2QgZG1mZSBtb2RlPTAiIDs7Rm9yY2UgMTBNIEhhbGYgRHVwbGV4
-Ci0gICAgICAgICAgICJpbnNtb2QgZG1mZSBtb2RlPTEiIDs7Rm9yY2UgMTAwTSBIYWxmIER1cGxl
-eAotICAgICAgICAgICAiaW5zbW9kIGRtZmUgbW9kZT00IiA7O0ZvcmNlIDEwTSBGdWxsIER1cGxl
-eAotICAgICAgICAgICAiaW5zbW9kIGRtZmUgbW9kZT01IiA7O0ZvcmNlIDEwME0gRnVsbCBEdXBs
-ZXgKKwlpZmNvbmZpZyBldGgwIDE3Mi4yMi4zLjE4CisgICAgICAgICAgICAgICAgICAgICAgXl5e
-Xl5eXl5eXl4KKwkJICAgICBZb3VyIElQIEFkcmVzcwogCi0gICAgICAgIDMuIENvbmZpZyBhIGRt
-OTEwMiBuZXR3b3JrIGludGVyZmFjZQotICAgICAgICAgICAiaWZjb25maWcgZXRoMCAxNzIuMjIu
-My4xOCIKLSAgICAgICAgICAgICAgICAgICAgICAgICAgXl5eXl5eXl5eXl4gWW91ciBJUCBhZGRy
-ZXNzCitUaGVuIHlvdSBtYXkgaGF2ZSB0byBtb2RpZnkgdGhlIGRlZmF1bHQgcm91dGluZyB0YWJs
-ZSB3aXRoIGNvbW1hbmQgOgogCi0gICAgICAgIDQuIEFjdGl2YXRlIHRoZSBJUCByb3V0aW5nIHRh
-YmxlLiBGb3Igc29tZSBkaXN0cmlidXRpb25zLCBpdCBpcyBub3QKLSAgICAgICAgICAgbmVjZXNz
-YXJ5LiBZb3UgY2FuIHR5cGUgInJvdXRlIiB0byBjaGVjay4KKwlyb3V0ZSBhZGQgZGVmYXVsdCBl
-dGgwCiAKLSAgICAgICAgICAgInJvdXRlIGFkZCBkZWZhdWx0IGV0aDAiCiAKK05vdyB5b3VyIGV0
-aGVybmV0IGNhcmQgc2hvdWxkIGJlIHVwIGFuZCBydW5uaW5nLgogCi0gICAgICAgIDUuIFdlbGwg
-ZG9uZS4gWW91ciBETTkxMDIgYWRhcHRlciBpcyBub3cgYWN0aXZhdGVkLgogCitUT0RPOgogCi0g
-ICBDLiBPYmplY3QgZmlsZXMgZGVzY3JpcHRpb246Ci0gICAgICAgIDEuIGRtZmVfcmg2MS5vOiAg
-ICAgICAJRm9yIFJlZGhhdCA2LjEKK0ltcGxlbWVudCBwY2lfZHJpdmVyOjpzdXNwZW5kKCkgYW5k
-IHBjaV9kcml2ZXI6OnJlc3VtZSgpIHBvd2VyIG1hbmFnZW1lbnQgbWV0aG9kcy4KK0NoZWNrIG9u
-IDY0IGJpdCBib3hlcy4KK0NoZWNrIGFuZCBmaXggb24gYmlnIGVuZGlhbiBib3hlcy4KK1Rlc3Qg
-YW5kIG1ha2Ugc3VyZSBQQ0kgbGF0ZW5jeSBpcyBub3cgY29ycmVjdCBmb3IgYWxsIGNhc2VzLgog
-Ci0gICAgICAgIElmIHlvdSBjYW4gbWFrZSBzdXJlIHlvdXIga2VybmVsIHZlcnNpb24sIHlvdSBj
-YW4gcmVuYW1lCi0gICAgICAgIHRvIGRtZmUubyBhbmQgZGlyZWN0bHkgdXNlIGl0IHdpdGhvdXQg
-cmUtY29tcGlsaW5nLgogCitBdXRob3JzOgogCi0gIEF1dGhvcjogU3RlbiBXYW5nLCA4ODYtMy01
-Nzk4Nzk3LTg1MTcsIEUtbWFpbDogc3Rlbl93YW5nQGRhdmljb20uY29tLnR3CitTdGVuIFdhbmcg
-PHN0ZW5fd2FuZ0BkYXZpY29tLmNvbS50dyA+ICAgOiBPcmlnaW5hbCBBdXRob3IKK1RvYmlhcyBS
-aW5nc3Ryb20gPHRvcmlAdW5oYXBweS5taW5lLm51PiA6IEN1cnJlbnQgTWFpbnRhaW5lcgorCitD
-b250cmlidXRvcnM6CisKK01hcmNlbG8gVG9zYXR0aSA8bWFyY2Vsb0Bjb25lY3RpdmEuY29tLmJy
-PgorQWxhbiBDb3ggPGFsYW5AcmVkaGF0LmNvbT4KK0plZmYgR2FyemlrIDxqZ2FyemlrQHBvYm94
-LmNvbT4KK1ZvanRlY2ggUGF2bGlrIDx2b2p0ZWNoQHN1c2UuY3o+Cg==
-------=_Part_451_15377280.1114498596143--
+greg k-h

@@ -1,109 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbVDZFVQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261325AbVDZF03@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261324AbVDZFVQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 01:21:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbVDZFVQ
+	id S261325AbVDZF03 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 01:26:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVDZF03
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 01:21:16 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:61315 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261324AbVDZFUr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 01:20:47 -0400
-Subject: Re: [PATCH]broadcast IPI race condition on CPU hotplug
-From: Li Shaohua <shaohua.li@intel.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>
-In-Reply-To: <Pine.LNX.4.61.0504252245530.26521@montezuma.fsmlabs.com>
-References: <1114482044.7068.17.camel@sli10-desk.sh.intel.com>
-	 <Pine.LNX.4.61.0504252222230.26521@montezuma.fsmlabs.com>
-	 <1114489490.7416.2.camel@sli10-desk.sh.intel.com>
-	 <Pine.LNX.4.61.0504252245530.26521@montezuma.fsmlabs.com>
+	Tue, 26 Apr 2005 01:26:29 -0400
+Received: from fmr22.intel.com ([143.183.121.14]:8146 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261325AbVDZF0Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 01:26:25 -0400
+Subject: Re: Linux 2.6.12-rc3
+From: Len Brown <len.brown@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Greg KH <greg@kroah.com>, pavel@ucw.cz, drzeus-list@drzeus.cx,
+       Linus Torvalds <torvalds@osdl.org>, pasky@ucw.cz,
+       linux-kernel@vger.kernel.org, Larry McVoy <lm@bitmover.com>
+In-Reply-To: <20050424032622.3aef8c9f.akpm@osdl.org>
+References: <20050421162220.GD30991@pasky.ji.cz>
+	 <20050421232201.GD31207@elf.ucw.cz> <20050422002150.GY7443@pasky.ji.cz>
+	 <20050422231839.GC1789@elf.ucw.cz>
+	 <Pine.LNX.4.58.0504221718410.2344@ppc970.osdl.org>
+	 <20050423111900.GA2226@openzaurus.ucw.cz>
+	 <Pine.LNX.4.58.0504230654190.2344@ppc970.osdl.org>
+	 <426A7775.60207@drzeus.cx> <20050423220213.GA20519@kroah.com>
+	 <20050423222946.GF1884@elf.ucw.cz> <20050423233809.GA21754@kroah.com>
+	 <20050424032622.3aef8c9f.akpm@osdl.org>
 Content-Type: text/plain
-Message-Id: <1114492665.7416.10.camel@sli10-desk.sh.intel.com>
+Organization: 
+Message-Id: <1114493158.2937.253.camel@d845pe>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 26 Apr 2005 13:17:45 +0800
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 26 Apr 2005 01:25:58 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-On Tue, 2005-04-26 at 12:47, Zwane Mwaikambo wrote:
-> > > > After a CPU is booted but before it's officially up (set online map, and
-> > > > enable interrupt), the CPU possibly will receive a broadcast IPI. After
-> > > > it's up, it will handle the stale interrupt soon and maybe cause oops if
-> > > > it's a smp-call-function-interrupt. This is quite possible in CPU
-> > > > hotplug case, but nearly can't occur at boot time. Below patch replaces
-> > > > broadcast IPI with send_ipi_mask just like the cluster mode.
-> > > 
-> > > Ok, but isn't it sufficient to use send_ipi_mask in smp_call_function 
-> > > instead?
-> > I'm not sure if other routines using broadcast IPI have this bug. Fixing
-> > the send_ipi_all API looks more generic. Is there any reason we should
-> > use broadcast IPI?
+On Sun, 2005-04-24 at 06:26, Andrew Morton wrote:
+
+> Andrew has some work to do before he can regain momentum:
 > 
-> I'd prefer only touching smp_call_function because the others are 
-> primitives, we should only be fixing the users of the primitives, 
-> otherwise we'll end up with code which won't be as versatile.
-Ok, here it it. It's against -mm tree.
+> - Which subsystem maintainers will have public git trees?
+> 
+> - Which maintainers will continue to use bk?
 
-Thanks,
-Shaohua
+I will continue to use bk
+until an alternative emerges that makes my role
+as a sub-system maintainer easier -- rather than harder.
 
-Signed-off-by: Li Shaohua<shaohua.li@intel.com>
+My employer pays for a commercial bk license.
 
---- a/arch/i386/kernel/smp.c	2005-04-26 08:47:08.762344760 +0800
-+++ b/arch/i386/kernel/smp.c	2005-04-26 13:05:44.558585200 +0800
-@@ -527,6 +527,7 @@ int smp_call_function (void (*func) (voi
- {
- 	struct call_data_struct data;
- 	int cpus;
-+	cpumask_t mask;
- 
- 	/* Holding any lock stops cpus from going down. */
- 	spin_lock(&call_lock);
-@@ -536,6 +537,8 @@ int smp_call_function (void (*func) (voi
- 		spin_unlock(&call_lock);
- 		return 0;
- 	}
-+	mask = cpu_online_map;
-+	cpu_clear(smp_processor_id(), mask);
- 
- 	/* Can deadlock when called with interrupts disabled */
- 	WARN_ON(irqs_disabled());
-@@ -551,7 +554,7 @@ int smp_call_function (void (*func) (voi
- 	mb();
- 	
- 	/* Send a message to all other CPUs and wait for them to respond */
--	send_IPI_allbutself(CALL_FUNCTION_VECTOR);
-+	send_IPI_mask(mask, CALL_FUNCTION_VECTOR);
- 
- 	/* Wait for response */
- 	while (atomic_read(&data.started) != cpus)
---- a/arch/x86_64/kernel/smp.c	2005-04-12 10:12:16.000000000 +0800
-+++ b/arch/x86_64/kernel/smp.c	2005-04-26 13:07:26.715055056 +0800
-@@ -304,10 +304,12 @@ static void __smp_call_function (void (*
- {
- 	struct call_data_struct data;
- 	int cpus = num_online_cpus()-1;
-+	cpumask_t mask = cpu_online_map;
- 
- 	if (!cpus)
- 		return;
- 
-+	cpu_clear(smp_processor_id(), mask);
- 	data.func = func;
- 	data.info = info;
- 	atomic_set(&data.started, 0);
-@@ -318,7 +320,7 @@ static void __smp_call_function (void (*
- 	call_data = &data;
- 	wmb();
- 	/* Send a message to all other CPUs and wait for them to respond */
--	send_IPI_allbutself(CALL_FUNCTION_VECTOR);
-+	send_IPI_mask(mask, CALL_FUNCTION_VECTOR);
- 
- 	/* Wait for response */
- 	while (atomic_read(&data.started) != cpus)
+> - Can Andrew legally use the bk client?
+> 
+> - Can Andrew legally use a bk client which won't go phut at cset 65535?
+
+I don't see why not.  Given your central role to the Linux development
+process, I would think it would be trivial to justify OSDL arming you
+with any and all tools you desire if they make you even slightly more effective.
+
+Also, I would think Bitmover would be interested in having you enabled
+to keep people like me as happy paying customers.
+
+The question for bk use is what do we do for a reference "Linus tree"
+history.  It would be most effective if we could have a single bk history
+rather than everybody rolling their own.
+
+> - How do I do a bk `gcapatch' is there is no Linus bk tree to base it off?
+> 
+> - If none of the above, which maintainers will put up-to-date raw patches
+>   in places where Andrew can get at them?
+
+I can do this if you require it.  The current "acpi patch" includes
+68 patches: 200 files changed, 7780 insertions(+), 5455 deletions(-)
+
+Everything in it is intended to go to Linus on day-one of 2.6.13.
+Some of it should really go into 2.6.12 - but frankly, I hesitate
+to touch 2.6.12 while the tools are in such flux.
+
+> I don't know how all this will pan out.  I guess the next -mm won't have
+> many subsystem trees and I'll gradually add them as things get sorted out.
+
+Please do not roll -mm without including the ACPI sub-system.
+-mm provides the broadest pre-integration test coverage we've ever had.
+It has allowed us to significantly reduce regressions in Linus' tree
+as we encounter the inevitable setbacks associated with making
+the ACPI sub-system in Linux the best in the industry.
+
+thanks,
+-Len
 
 

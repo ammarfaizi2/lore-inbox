@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbVDZNFT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbVDZNF5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbVDZNFT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 09:05:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVDZNFT
+	id S261502AbVDZNF5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 09:05:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVDZNF5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 09:05:19 -0400
-Received: from [62.206.217.67] ([62.206.217.67]:2459 "EHLO kaber.coreworks.de")
-	by vger.kernel.org with ESMTP id S261500AbVDZNFP (ORCPT
+	Tue, 26 Apr 2005 09:05:57 -0400
+Received: from colin.muc.de ([193.149.48.1]:19216 "EHLO colin2.muc.de")
+	by vger.kernel.org with ESMTP id S261502AbVDZNFt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 09:05:15 -0400
-Message-ID: <426E3C6F.6010001@trash.net>
-Date: Tue, 26 Apr 2005 15:04:47 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Ed Tomlinson <tomlins@cam.org>, Alexander Nyberg <alexn@dsv.su.se>,
-       Parag Warudkar <kernel-stuff@comcast.net>, linux-kernel@vger.kernel.org
-Subject: Re: X86_64: 2.6.12-rc3 spontaneous reboot
-References: <200504240008.35435.kernel-stuff@comcast.net> <1114332119.916.1.camel@localhost.localdomain> <200504240903.31377.tomlins@cam.org> <426CADF1.2000100@trash.net> <20050425153541.GC16828@wotan.suse.de>
-In-Reply-To: <20050425153541.GC16828@wotan.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Apr 2005 09:05:49 -0400
+Date: 26 Apr 2005 15:05:48 +0200
+Date: Tue, 26 Apr 2005 15:05:47 +0200
+From: Andi Kleen <ak@muc.de>
+To: Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp>
+Cc: Valdis.Kletnieks@vt.edu, Kyle Moffett <mrmacman_g4@mac.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH x86_64] Live Patching Function on 2.6.11.7
+Message-ID: <20050426130547.GE65287@muc.de>
+References: <4263275A.2020405@lab.ntt.co.jp> <m1y8b9xyaw.fsf@muc.de> <426C51C4.9040902@lab.ntt.co.jp> <e83d0cb60cb50a56b38294e9160d7712@mac.com> <426CC8F7.8070905@lab.ntt.co.jp> <200504251636.j3PGa9SJ015388@turing-police.cc.vt.edu> <426D9AC0.5020908@lab.ntt.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <426D9AC0.5020908@lab.ntt.co.jp>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> Well, you can revert all my x86-64 changes for testing that went
-> in after rc2. Does that make a difference? If yes then please
-> do a binary search or give me a test case that shows the problem.
+On Tue, Apr 26, 2005 at 10:34:56AM +0900, Takashi Ikebe wrote:
+> I think that's the common sense in every carrier.
+> If we reboot the switch, the service will be disrupted.
+> The phone network is lifeline, and does not allow to be disrupt by just 
+> bug fix.
+> I think same kind of function is needed in many real 
+> enterprise/mission-critical/business area.
+> 
+> All do with ptrace may affect target process's time critical task. (need 
+> to stop target process whenever fix)
 
-It's this one:
+Sorry, but what are your exact time requirements for this? 
 
-[PATCH] x86_64: Fix a small missing schedule race
+Remember any x86-64 CPU is really fast and it can do a _lot_ of ptrace
+operations in a very short time.
 
-Uml seems to be a good testcase, the box reliably reboots while uml
-is starting up, usually shortly after the root-filesystem has been
-mounted.
+Just a vague "it may be too slow" is not enough justification to 
+push a lot of redundant code into the kernel. Also if ptrace
+should be really too slow (which I doubt, but you are welcome
+to show some numbers together with real time requirements from
+a real system) then we could optimize ptrace for this, e.g.
+by adding a ptrace subcommand to copy whole memory blocks
+more efficiently or maybe even do a mmap like thing.
 
-Regards
-Patrick
+But unless someone actually demonstrates this is needed it seems far overkill. 
+
+> All implement in user application costs too much, need to implement all 
+> the application...(and I do not know this approach really works on time 
+> critical applications yet.)
+
+I think you have a lot of unproved and doubtful assumptions here.
+
+-Andi

@@ -1,46 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbVDZEEs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261305AbVDZEJq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261303AbVDZEEs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 00:04:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbVDZEEs
+	id S261305AbVDZEJq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 00:09:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbVDZEJq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 00:04:48 -0400
-Received: from fire.osdl.org ([65.172.181.4]:12220 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261303AbVDZEEk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 00:04:40 -0400
-Date: Mon, 25 Apr 2005 21:06:28 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Roland McGrath <roland@redhat.com>
-cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] x86_64: handle iret faults better
-In-Reply-To: <200504260157.j3Q1vV6M011223@magilla.sf.frob.com>
-Message-ID: <Pine.LNX.4.58.0504252102180.18901@ppc970.osdl.org>
-References: <200504260157.j3Q1vV6M011223@magilla.sf.frob.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 26 Apr 2005 00:09:46 -0400
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:25318 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S261205AbVDZEJo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 00:09:44 -0400
+X-ORBL: [67.124.119.21]
+Date: Mon, 25 Apr 2005 21:09:33 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Matt Mackall <mpm@selenic.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
+Subject: Re: Mercurial 0.3 vs git benchmarks
+Message-ID: <20050426040933.GA21178@taniwha.stupidest.org>
+References: <20050426004111.GI21897@waste.org> <Pine.LNX.4.58.0504251859550.18901@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0504251859550.18901@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Apr 25, 2005 at 07:08:28PM -0700, Linus Torvalds wrote:
 
+> If you're checking in a change to 1000+ files, you're doing
+> something wrong.
 
-On Mon, 25 Apr 2005, Roland McGrath wrote:
->
-> What would you think about a general hack to let given fixup table entries
-> say the code wants the trap and error info made available (pushed on the
-> stack or whatever)?
+arch or subsystem merge?
 
-Yes, that sounds fine, if there is just some sane way to indicate that 
-(normally the fixup eip is close to the faulting eip, so there should be 
-tons of bits available, but it would need to be something clean? For iret, 
-I guess we could just set fixup-eip to zero, which would mean "return to 
-eip+1 and set error", but that sounds pretty hacky too)
-
-> Conversely, would there be any harm in always setting
-> ->thread.error_code and ->thread.trap_no for a kernel trap?  
-
-Page-ins etc in kernel mode are normal, and they shouldn't set the thread 
-state. So I think the "turn it into a trap" thing is nicer.
-
-		Linus

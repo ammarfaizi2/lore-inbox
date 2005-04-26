@@ -1,141 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbVDZD7s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261296AbVDZEAT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261313AbVDZD7s (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 23:59:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbVDZD7l
+	id S261296AbVDZEAT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 00:00:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVDZEAT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 23:59:41 -0400
-Received: from fire.osdl.org ([65.172.181.4]:59834 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261263AbVDZD65 (ORCPT
+	Tue, 26 Apr 2005 00:00:19 -0400
+Received: from gate.crashing.org ([63.228.1.57]:27078 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261296AbVDZEAM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 23:58:57 -0400
-Date: Mon, 25 Apr 2005 21:00:05 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Mike Taht <mike.taht@timesys.com>
-cc: Matt Mackall <mpm@selenic.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-Subject: Re: Mercurial 0.3 vs git benchmarks
-In-Reply-To: <Pine.LNX.4.58.0504251938210.18901@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0504252032500.18901@ppc970.osdl.org>
-References: <20050426004111.GI21897@waste.org> <Pine.LNX.4.58.0504251859550.18901@ppc970.osdl.org>
- <426DA7B5.2080204@timesys.com> <Pine.LNX.4.58.0504251938210.18901@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 26 Apr 2005 00:00:12 -0400
+Subject: Re: [PATCH] PCI: Add pci shutdown ability
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Greg KH <greg@kroah.com>
+Cc: Alexander Nyberg <alexn@dsv.su.se>, Amit Gud <gud@eth.net>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>, cramerj@intel.com,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+In-Reply-To: <20050425201250.GB24433@kroah.com>
+References: <Pine.LNX.4.44L0.0504251128070.5751-100000@iolanthe.rowland.org>
+	 <20050425182951.GA23209@kroah.com>
+	 <SVLXCHCON1syWVLEFN00000099e@SVLXCHCON1.enterprise.veritas.com>
+	 <20050425185113.GC23209@kroah.com> <20050425190606.GA23763@kroah.com>
+	 <1114458325.983.17.camel@localhost.localdomain>
+	 <20050425201250.GB24433@kroah.com>
+Content-Type: text/plain
+Date: Tue, 26 Apr 2005 13:59:10 +1000
+Message-Id: <1114487950.7182.35.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2005-04-25 at 13:12 -0700, Greg KH wrote:
 
-
-On Mon, 25 Apr 2005, Linus Torvalds wrote:
+> People are starting to submit patches for pci drivers that add "reboot
+> notifier" hooks, under the guise of fixing up kexec issues with those
+> drivers.
 > 
-> The easiest test-case is Andrew's 198-patch patch-bomb on linux-kernel a 
-> few weeks ago: they all apply cleanly to 2.6.12-rc2 (in order), and you 
-> can use my "dotest" script to automate the test..
+> That is why I proposed this patch, to make it easier for such drivers to
+> shutdown properly, without needing a reboot notifier hook (which takes
+> up more code and memory.
 
-Oh, well. That was so trivial that I just did it:
+But it isn't the right fix. It should be a suspend() call with
+PMSG_FREEZE
 
-With Z_BEST_COMPRESSION:
+Ben.
 
-	torvalds@ppc970:~/git-speed-1> ./script 
-	Removing old tree
-	Creating new tree
-	Initializing db
-	defaulting to local storage area
-	Doing sync
-	Initial add
-	
-	real    0m37.526s
-	user    0m33.317s
-	sys     0m3.816s
-	Initial commit
-	Committing initial tree 0bba044c4ce775e45a88a51686b5d9f90697ea9d
-	
-	real    0m0.329s
-	user    0m0.152s
-	sys     0m0.176s
-	Patchbomb
-	
-	real    0m50.408s
-	user    0m18.933s
-	sys     0m25.432s
 
-With Z_DEFAULT_COMPRESSION:
-
-	torvalds@ppc970:~/git-speed-1> ./script 
-	Removing old tree
-	Creating new tree
-	Initializing db
-	defaulting to local storage area
-	Doing sync
-	Initial add
-	
-	real    0m19.755s
-	user    0m15.719s
-	sys     0m3.756s
-	Initial commit
-	Committing initial tree 0bba044c4ce775e45a88a51686b5d9f90697ea9d
-	
-	real    0m0.337s
-	user    0m0.139s
-	sys     0m0.197s
-	Patchbomb
-	
-	real    0m50.465s
-	user    0m18.304s
-	sys     0m25.567s
-
-ie the "initial add" is almost twice as fast (because it spends most of
-the time compressing _all_ the files), but the difference in applying 198
-patches is not noticeable at all (because the costs are all elsewhere).
-
-That's 198 patches in less than a minute even with the highest
-compression. That rocks.
-
-And don't try to make me explain why the patchbomb has any IO time at all,
-it should all have fit in the cache, but I think the writeback logic
-kicked in. Anyway, I tried it several times, and the real-time ends up 
-fluctuating between 50-56 seconds, but the user/sys times are very stable, 
-and end up being pretty much the same regardless of compression level.
-
-Here's the script, in case anybody cares:
-
-	#!/bin/sh
-	echo Removing old tree
-	rm -rf linux-2.6.12-rc2
-	echo Creating new tree
-	zcat < ~/v2.6/linux-2.6.12-rc2.tar.gz | tar xvf - > log
-	echo Initializing db
-	( cd linux-2.6.12-rc2 ; init-db )
-	echo Doing sync
-	sync
-	echo Initial add
-	time sh -c 'cd linux-2.6.12-rc2 && cat ../l | xargs update-cache --add --' >> log
-	echo Initial commit
-	time sh -c 'cd linux-2.6.12-rc2 && echo Initial commit | commit-tree 
-	$(write-tree) > .git/HEAD' >> log
-	echo Patchbomb
-	time sh -c 'cd linux-2.6.12-rc2 ; dotest ~/andrews-first-patchbomb' >> log
-
-and since the timing results were pretty much what I expected, I don't 
-think this changes _my_ opinion on anything. Yes, you can speed up commits 
-with Z_DEFAULT_COMPRESSION, but it's _not_ that big of a deal for my kind 
-of model where you commit often, and commits are small.
-
-It all boils down to:
- - huge commits are slowed down by compression overhead
- - I don't think huge commits really matter
-
-I mean, if it took 2 _hours_ to do the initial commit, I'd think it 
-matters. But when we're talking about less than a minute to create the 
-initial commit of a whole kernel archive, does it really make any 
-difference?
-
-After all, it's something you do _once_, and never again (unless you
-script it to do performance testing ;)
-
-Anyway guys, feel free to test this on other machines. I bet there are
-lots of subtle performance differences between different filesystems and
-CPU architectures.. But the only hard numbers I have show that -9 isn't 
-that expensive.
-
-			Linus

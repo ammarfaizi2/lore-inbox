@@ -1,63 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261534AbVDZUXx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261585AbVDZU2n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261534AbVDZUXx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 16:23:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbVDZUXx
+	id S261585AbVDZU2n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 16:28:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261593AbVDZU2n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 16:23:53 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:45192 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261534AbVDZUXm (ORCPT
+	Tue, 26 Apr 2005 16:28:43 -0400
+Received: from [62.206.217.67] ([62.206.217.67]:65153 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S261585AbVDZU2h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 16:23:42 -0400
-Date: Tue, 26 Apr 2005 22:23:02 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Alan Stern <stern@rowland.harvard.edu>, alexn@dsv.su.se, greg@kroah.com,
-       gud@eth.net, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, jgarzik@pobox.com,
-       cramerj@intel.com, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [PATCH] PCI: Add pci shutdown ability
-Message-ID: <20050426202302.GC20109@elf.ucw.cz>
-References: <1114458325.983.17.camel@localhost.localdomain> <Pine.LNX.4.44L0.0504251609420.7408-100000@iolanthe.rowland.org> <20050425145831.48f27edb.akpm@osdl.org> <20050425221326.GC15366@redhat.com> <20050426093939.GC4175@elf.ucw.cz> <20050426175041.GB23205@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050426175041.GB23205@redhat.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 26 Apr 2005 16:28:37 -0400
+Message-ID: <426EA471.203@trash.net>
+Date: Tue, 26 Apr 2005 22:28:33 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Ed Tomlinson <tomlins@cam.org>, Alexander Nyberg <alexn@dsv.su.se>,
+       Parag Warudkar <kernel-stuff@comcast.net>, linux-kernel@vger.kernel.org
+Subject: Re: X86_64: 2.6.12-rc3 spontaneous reboot
+References: <200504240008.35435.kernel-stuff@comcast.net> <1114332119.916.1.camel@localhost.localdomain> <200504240903.31377.tomlins@cam.org> <426CADF1.2000100@trash.net> <20050425153541.GC16828@wotan.suse.de> <426E3C6F.6010001@trash.net> <20050426135312.GI5098@wotan.suse.de> <426E48C0.9090503@trash.net> <426E4DD2.8060808@trash.net> <20050426142252.GJ5098@wotan.suse.de>
+In-Reply-To: <20050426142252.GJ5098@wotan.suse.de>
+Content-Type: multipart/mixed;
+ boundary="------------000302030708000809070301"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This is a multi-part message in MIME format.
+--------------000302030708000809070301
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
->  > Well, you can do "half suspend to ram; change your frequency; half
->  > resume" today, and it should work, but I do not think you'll like the
->  > speed.
+Andi Kleen wrote:
+> Ok thanks for the information. I will stare a bit at the patch.
 > 
-> Indeed. With people running things like cpuspeed daemons to dynamically
-> scale speed, this is going to be really painful.
-> Of course, any operation where we have to quiesce DMA is going to mean
-> we're increasing latency around the scaling operation, but we don't
-> have to go through all the hoops that are necessary when suspending.
+> It is very mysterious though. Even if the patch was somehow wrong
+> the worst thing that could happen is that you end up with interrupts
+> off when you shouldnt, and the NMI watchdog is very good 
+> at catching that.
 
-> Thankfully some of the more recent implementations of speed/voltage
-> scaling don't have this requirement.
+I found that bringing back the cli in retint_swapgs fixed the problem,
+so I traced back paths that could get there with interrupts enabled
+and found int_restore_rest -> int_with_check -> retint_swapgs.
+Adding a cli to int_restore_rest fixes the problem for me. I hope this
+helps.
 
-Good, because some devices really need DMA. (Won't audio skip, and USB
-break when you disable DMA? I do not see how cpufreq doing DMA disable
-can be usefull.)
+Regards
+Patrick
 
->  > In a ideal world, calling device_suspend(PMSG_FREEZE) gets you exactly
->  > that, and we'll do our best to make it fast enough.
->  > 
->  > OTOH it *needs* to switch consoles to text one (because X may be
->  > running DMA, right?); I do not think you'll like that one.
-> 
-> That would be insane, and make cpufreq totally useless for anyone
-> running X, so no.   This is one of the reasons the kernel needs to
-> arbitrate DMA on behalf of X.  It just needs someone to do the work.
+--------------000302030708000809070301
+Content-Type: text/plain;
+ name="x"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="x"
 
-Yes... But it also looks like a lot of work :-(.
-								Pavel
--- 
-Boycott Kodak -- for their patent abuse against Java.
+Index: arch/x86_64/kernel/entry.S
+===================================================================
+--- 585883113da6fe9142de95138c8ed8ca898a4ccc/arch/x86_64/kernel/entry.S  (mode:100644 sha1:3233a15cc4e074c00b75569f21c2844ee280b214)
++++ uncommitted/arch/x86_64/kernel/entry.S  (mode:100644)
+@@ -307,6 +307,7 @@
+ 1:	movl $_TIF_NEED_RESCHED,%edi	
+ int_restore_rest:
+ 	RESTORE_REST
++	cli
+ 	jmp int_with_check
+ 	CFI_ENDPROC
+ 		
+
+--------------000302030708000809070301--

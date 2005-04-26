@@ -1,72 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbVDZMr6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbVDZNFT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261420AbVDZMr6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 08:47:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261496AbVDZMr6
+	id S261500AbVDZNFT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 09:05:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVDZNFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 08:47:58 -0400
-Received: from fire.osdl.org ([65.172.181.4]:12163 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261420AbVDZMrz (ORCPT
+	Tue, 26 Apr 2005 09:05:19 -0400
+Received: from [62.206.217.67] ([62.206.217.67]:2459 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S261500AbVDZNFP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 08:47:55 -0400
-Date: Tue, 26 Apr 2005 05:47:29 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: andrea@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [patch] __block_write_full_page bug
-Message-Id: <20050426054729.24ab6027.akpm@osdl.org>
-In-Reply-To: <1114516820.5097.26.camel@npiggin-nld.site>
-References: <426C6A63.80408@yahoo.com.au>
-	<20050426045039.702d9075.akpm@osdl.org>
-	<1114516820.5097.26.camel@npiggin-nld.site>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 26 Apr 2005 09:05:15 -0400
+Message-ID: <426E3C6F.6010001@trash.net>
+Date: Tue, 26 Apr 2005 15:04:47 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Ed Tomlinson <tomlins@cam.org>, Alexander Nyberg <alexn@dsv.su.se>,
+       Parag Warudkar <kernel-stuff@comcast.net>, linux-kernel@vger.kernel.org
+Subject: Re: X86_64: 2.6.12-rc3 spontaneous reboot
+References: <200504240008.35435.kernel-stuff@comcast.net> <1114332119.916.1.camel@localhost.localdomain> <200504240903.31377.tomlins@cam.org> <426CADF1.2000100@trash.net> <20050425153541.GC16828@wotan.suse.de>
+In-Reply-To: <20050425153541.GC16828@wotan.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->
-> On Tue, 2005-04-26 at 04:50 -0700, Andrew Morton wrote:
->  > Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->  > >
->  > >  When running
->  > >  	fsstress -v -d $DIR/tmp -n 1000 -p 1000 -l 2
->  > >  on an ext2 filesystem with 1024 byte block size, on SMP i386 with 4096 byte
->  > >  page size over loopback to an image file on a tmpfs filesystem, I would
->  > >  very quickly hit
->  > >  	BUG_ON(!buffer_async_write(bh));
->  > >  in fs/buffer.c:end_buffer_async_write
->  > > 
->  > >  It seems that more than one request would be submitted for a given bh
->  > >  at a time. __block_write_full_page looks like the culprit - with the
->  > >  following patch things are very stable.
->  > 
->  > What's the bug?  I don't see it.
->  > 
-> 
->  Ah, the bug is that end_buffer_async_write first does
->  	BUG_ON(!buffer_async_write(bh));
->  then a bit later does
->  	clear_buffer_async_write(bh);
-> 
->  That's where it was blowing up for me, because end_buffer_async_write
->  was being run twice for that buffer.
-> 
->  Or did you mean *how* is it being run twice? I didn't exactly find
->  the stack traces involved, but I imagine that simply testing
->  buffer_async_write catches other requests in flight - ie. we've
->  lost track of exactly which ones we own.
-> 
+Andi Kleen wrote:
+> Well, you can revert all my x86-64 changes for testing that went
+> in after rc2. Does that make a difference? If yes then please
+> do a binary search or give me a test case that shows the problem.
 
-How can such a thing come about?  Both PageLocked() and PageWriteback() are
-supposed to stop new writeback being started against the page.
+It's this one:
 
-<looks>
+[PATCH] x86_64: Fix a small missing schedule race
 
-Were you using nobh?  I guess not.  What's to stop the new
-mpage_writepage() from trying to write a page which is already under
-PageWriteback()?
+Uml seems to be a good testcase, the box reliably reboots while uml
+is starting up, usually shortly after the root-filesystem has been
+mounted.
 
-I don't think we understand this bug yet.
+Regards
+Patrick

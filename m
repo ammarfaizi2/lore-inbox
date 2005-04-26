@@ -1,111 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVDZFpy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbVDZFqY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261334AbVDZFpy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 01:45:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbVDZFpy
+	id S261337AbVDZFqY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 01:46:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbVDZFqY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 01:45:54 -0400
-Received: from fmr21.intel.com ([143.183.121.13]:6831 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261330AbVDZFpj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 01:45:39 -0400
-Subject: Re: [2.6 patch] ACPI: add two missing config.h #include's
-From: Len Brown <len.brown@intel.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Alexey Dobriyan <adobriyan@mail.ru>, Andrew Morton <akpm@osdl.org>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-serial@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>,
-       Herbert Xu <herbert@gondor.apana.org.au>
-In-Reply-To: <20050417181948.GB3625@stusta.de>
-References: <20050415151053.GM5456@stusta.de>
-	 <E1DMTPC-000ASo-00.adobriyan-mail-ru@f13.mail.ru>
-	 <20050416023852.GI4831@stusta.de>
-	 <20050416085923.A10826@flint.arm.linux.org.uk>
-	 <20050417181948.GB3625@stusta.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1114494219.2930.260.camel@d845pe>
+	Tue, 26 Apr 2005 01:46:24 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:58861 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261337AbVDZFqD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 01:46:03 -0400
+Date: Tue, 26 Apr 2005 13:49:33 +0800
+From: David Teigland <teigland@redhat.com>
+To: Steven Dake <sdake@mvista.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 1b/7] dlm: core locking
+Message-ID: <20050426054933.GC12096@redhat.com>
+References: <20050425165826.GB11938@redhat.com> <1114466097.30427.32.camel@persist.az.mvista.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 26 Apr 2005 01:43:40 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1114466097.30427.32.camel@persist.az.mvista.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Applied.
+On Mon, Apr 25, 2005 at 02:54:58PM -0700, Steven Dake wrote:
+> On Mon, 2005-04-25 at 09:58, David Teigland wrote:
+> > The core dlm functions.  Processes dlm_lock() and dlm_unlock() requests.
+> > Creates lockspaces which give applications separate contexts/namespaces in
+> > which to do their locking.  Manages locks on resources' grant/convert/wait
+> > queues.  Sends and receives high level locking operations between nodes.
+> > Delivers completion and blocking callbacks (ast's) to lock holders.
+> > Manages the distributed directory that tracks the current master node for
+> > each resource.
+> > 
+> 
+> David
+> 
+> Very positive there are some submissions relating to cluster kernel work
+> for lkml to review..  good job..
+> 
+> I have some questions on the implementation:
+> 
+> It appears as though a particular processor is identified as the "lock
+> master" or processor that maintains the state of the lock.  So for
+> example, if a processor wants to acquire a lock, it sends a reqeust to
+> the lock master which either grants or rejects the request for the
+> lock.  What happens in the scenario that a lock master leaves the
+> current configuration?  This scneario is very likely in practice.  
 
-thanks,
--Len
+Of course, every time a node fails.
 
-On Sun, 2005-04-17 at 14:19, Adrian Bunk wrote:
-> On Sat, Apr 16, 2005 at 08:59:23AM +0100, Russell King wrote:
-> > On Sat, Apr 16, 2005 at 04:38:52AM +0200, Adrian Bunk wrote:
-> > > In the Linux kernel, it's more common to put such header
-> dependencies
-> > > for header files into the C files, but if the ACPI people agree a
-> patch
-> > > to add the #include <linux/config.h> to acpi_bus.h is the other
-> possble
-> > > correct solution for this issue.
-> >
-> > With the exception of linux/config.h.
-> >
-> > Do a 'make configcheck' and it'll tell you where linux/config.h is
-> missing
-> > and where it shouldn't be.
-> 
-> OK, then the patch below is the correct solution.
-> 
-> cu
-> Adrian
-> 
-> 
-> <--  snip  -->
-> 
-> 
-> This patch fixes the following warning by adding two missing config.h
-> #include's:
-> 
-> <--  snip  -->
-> 
-> ...
->   CC      drivers/serial/8250_acpi.o
-> drivers/serial/8250_acpi.c: In function `acpi_serial_ext_irq':
-> drivers/serial/8250_acpi.c:51: warning: implicit declaration of
-> function
-> `acpi_register_gsi'
-> ...
-> 
-> <--  snip  -->
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> --- linux-2.6.12-rc2-mm3-full/include/acpi/acpi_bus.h.old      
-> 2005-04-17 19:05:23.000000000 +0200
-> +++ linux-2.6.12-rc2-mm3-full/include/acpi/acpi_bus.h   2005-04-17
-> 19:05:37.000000000 +0200
-> @@ -26,6 +26,7 @@
->  #ifndef __ACPI_BUS_H__
->  #define __ACPI_BUS_H__
-> 
-> +#include <linux/config.h>
->  #include <linux/kobject.h>
-> 
->  #include <acpi/acpi.h>
-> --- linux-2.6.12-rc2-mm3-full/include/linux/acpi.h.old  2005-04-17
-> 19:25:51.000000000 +0200
-> +++ linux-2.6.12-rc2-mm3-full/include/linux/acpi.h      2005-04-17
-> 19:24:54.000000000 +0200
-> @@ -25,6 +25,8 @@
->  #ifndef _LINUX_ACPI_H
->  #define _LINUX_ACPI_H
-> 
-> +#include <linux/config.h>
-> +
->  #ifdef CONFIG_ACPI
-> 
->  #ifndef _LINUX
-> 
-> 
+> How do you synchronize the membership events that occur with the kernel
+> to kernel communication that takes place using SCTP?
+
+SCTP isn't much different than TCP, so I'm not sure how that's relevant.
+It's used primarily so we can take advantage of multi-homing when you have
+redundant networks.
+
+When the membership of a lockspace needs to change, whether adding or
+removing a node, activity is suspended in that lockspace on all the nodes
+using it.  After all are suspended, the lockspace is then told (on all
+lockspace members) what the new membership is.  Recovery then takes place:
+new masters are selected and waiting requests redirected.
+
+
+> It appears from your patches there is some external (userland)
+> application that maintains the current list of processors that qualify
+> as "lock servers".  
+
+correct
+
+> Is there then a dependence on external membership algorithms?
+
+We simply require that the membership system is in agreement before the
+lockspace is told what the new members are.  The membership system
+ultimately drives the lockspace membership and we can't have the
+membership system on different nodes telling the dlm different stories
+about who's in/out.
+
+So, yes, the membership system ultimately needs to follow some algorithm
+that guarantees agreement.  There are rigorous, distributed ways of doing
+that (your evs work which I look forward to using), and simpler methods,
+e.g.  driving it from some single point of control.
+
+
+> What user application today works to configure the dlm services in the
+> posted patch?
+
+I've been using the command line program "dlm_tool" where I act as the
+membership system myself.  We're just putting together pieces that will
+drive this from a membership system (like openais).  Again, the pieces you
+decide to use in userspace are flexible and depend on how you want to use
+the dlm.
+
+
+> With usage of SCTP protocol, there is now some idea of moving the
+> protocol for cluster communication into the kernel and using SCTP as
+> that protocol...
+
+Neither SCTP nor the dlm are about cluster communication, they're both
+about simple point-to-point messages.  When you move up to userspace and
+start talking about membership, then the issue of group communication
+models comes up and your openais/evs work is very relevant.  Might you be
+misled about what SCTP does?
+
+Dave
 

@@ -1,107 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbVDZAmi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261225AbVDZAtl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261251AbVDZAmi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 20:42:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVDZAmg
+	id S261225AbVDZAtl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 20:49:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbVDZAtl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 20:42:36 -0400
-Received: from waste.org ([216.27.176.166]:11979 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261251AbVDZAlc (ORCPT
+	Mon, 25 Apr 2005 20:49:41 -0400
+Received: from fire.osdl.org ([65.172.181.4]:5252 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261225AbVDZAtR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 20:41:32 -0400
-Date: Mon, 25 Apr 2005 17:41:11 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-Cc: Linus Torvalds <torvalds@osdl.org>
-Subject: Mercurial 0.3 vs git benchmarks
-Message-ID: <20050426004111.GI21897@waste.org>
+	Mon, 25 Apr 2005 20:49:17 -0400
+Date: Mon, 25 Apr 2005 17:49:00 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com, eike-kernel@sf-tec.de
+Subject: Re: 2.6.12-rc2-mm3
+Message-Id: <20050425174900.688f18fa.rddunlap@osdl.org>
+In-Reply-To: <20050411012532.58593bc1.akpm@osdl.org>
+References: <20050411012532.58593bc1.akpm@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is to announce an updated version of Mercurial. Mercurial is a
-scalable, fast, distributed SCM that works in a model similar to BK
-and Monotone. It has functional clone/branch and pull/merge support
-and a working first pass implementation of network pull. It's also
-extremely small and hackable: it's about 1000 lines of code.
+On Mon, 11 Apr 2005 01:25:32 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
- http://selenic.com/mercurial/
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm3/
 
-Here are the results of checking in the first 12 releases of Linux 2.6
-into empty repositories for Mercurial v0.3 (hg) and git-pasky-0.7.
-This is on my 512M Pentium M laptop. Times are in seconds.
 
-                 user         system       real        du -sh
-ver    files   hg    git    hg    git    hg    git    hg   git
+I'm seeing some badness and a panic, goes away if I disable
+PCI Express.
 
-2.6.0  15007 19.949 35.526 3.171 2.264 25.138 87.994 145M   89M
-2.6.1    998  5.906  4.018 0.573 0.464 10.267  5.937 146M   99M
-2.6.2   2370  9.696 13.051 0.752 0.652 12.970 15.167 150M  117M
-2.6.3   1906 10.528 11.509 0.816 0.639 18.406 14.318 152M  135M
-2.6.4   3185 11.140  7.380 0.997 0.731 15.265 12.412 156M  158M
-2.6.5   2261 10.961  6.939 0.843 0.640 20.564  8.522 158M  177M
-2.6.6   2642 11.803 10.043 0.870 0.678 22.360 11.515 162M  197M
-2.6.7   3772 18.411 15.243 1.189 0.915 32.397 21.498 165M  227M
-2.6.8   4604 20.922 16.054 1.406 1.041 39.622 25.056 172M  262M
-2.6.9   4712 19.306 12.145 1.421 1.102 35.663 24.958 179M  297M
-2.6.10  5384 23.022 18.154 1.393 1.182 40.947 32.085 186M  338M
-2.6.11  5662 27.211 19.138 1.791 1.253 42.605 31.902 193M  379M
 
-tar of .hg/   108175360
-tar of .git/  209385920
+gargoyle login: Linux version 2.6.12-rc2-mm3 (rddunlap@gargoyle) (gcc version 3.3.3 (SuSE Linux)) #12 Mon Apr 25 16:25:48 PDT 2005
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+ BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000003fff0000 (usable)
+ BIOS-e820: 000000003fff0000 - 000000003fff3000 (ACPI NVS)
+ BIOS-e820: 000000003fff3000 - 0000000040000000 (ACPI data)
+ BIOS-e820: 00000000fec00000 - 0000000100000000 (reserved)
+127MB HIGHMEM available.
+896MB LOWMEM available.
+On node 0 totalpages: 262128
+  DMA zone: 4096 pages, LIFO batch:1
+  Normal zone: 225280 pages, LIFO batch:16
+  HighMem zone: 32752 pages, LIFO batch:7
+DMI 2.3 present.
+Allocating PCI resources starting at 40000000 (gap: 40000000:bec00000)
+Built 1 zonelists
+Initializing CPU#0
+Kernel command line: auto BOOT_IMAGE=lin2612rc2mm3EX root=309 elevator=cfq splash=silent desktop showopts console=ttyS0,115200n8 console=tty0 crashkernel=64M@16M debug
+PID hash table entries: 4096 (order: 12, 65536 bytes)
+Detected 1685.942 MHz processor.
+Using tsc for high-res timesource
+Console: colour VGA+ 80x30
+Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
+Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+Memory: 962204k/1048512k available (2603k kernel code, 85708k reserved, 1325k data, 224k init, 131008k highmem)
+Checking if this processor honours the WP bit even in supervisor mode... Ok.
+Calibrating delay loop... 3325.95 BogoMIPS (lpj=1662976)
+Mount-cache hash table entries: 512
+CPU: After generic identify, caps: 3febfbff 00000000 00000000 00000000 00000000 00000000 00000000
+CPU: After vendor identify, caps: 3febfbff 00000000 00000000 00000000 00000000 00000000 00000000
+CPU: Trace cache: 12K uops, L1 D cache: 8K
+CPU: L2 cache: 256K
+CPU: After all inits, caps: 3febfbf7 00000000 00000000 00000080 00000000 00000000 00000000
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU0: Intel P4/Xeon Extended MCE MSRs (12) available
+CPU: Intel(R) Xeon(TM) CPU 1.70GHz stepping 02
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+softlockup thread 0 started up.
+NET: Registered protocol family 16
+EISA bus registered
+PCI: PCI BIOS revision 2.10 entry at 0xfb110, last bus=4
+PCI: Using configuration type 1
+mtrr: v2.0 (20020519)
+Linux Plug and Play Support v0.97 (c) Adam Belay
+SCSI subsystem initialized
+usbcore: registered new driver usbfs
+usbcore: registered new driver hub
+PCI: Probing PCI hardware
+PCI: Probing PCI hardware (bus 00)
+Boot video device is 0000:01:00.0
+PCI: Using IRQ router PIIX/ICH [8086/2440] at 0000:00:1f.0
+fscache: general fs caching registered
+CacheFS: general fs caching v0.1 registered
+highmem bounce pool size: 64 pages
+inotify device minor=63
+Initializing Cryptographic API
+pci_hotplug: PCI Hot Plug PCI Core version: 0.5
+fakephp: Fake PCI Hot Plug Controller Driver
+Badness in kref_get at lib/kref.c:32
+ [<c1003368>] dump_stack+0x16/0x18
+ [<c10f7b32>] kref_get+0x28/0x32
+ [<c10f7173>] kobject_get+0x14/0x1c
+ [<c114b216>] get_bus+0x1a/0x2c
+ [<c114b0e1>] bus_add_driver+0x12/0x93
+ [<c13e67f7>] pcied_init+0x31/0x9d
+ [<c13da714>] do_initcalls+0x4e/0xa0
+ [<c10002a7>] init+0x25/0xce
+ [<c1000b09>] kernel_thread_helper+0x5/0xb
+Badness in kref_get at lib/kref.c:32
+ [<c1003368>] dump_stack+0x16/0x18
+ [<c10f7b32>] kref_get+0x28/0x32
+ [<c10f7173>] kobject_get+0x14/0x1c
+ [<c10f6d52>] kobject_init+0x2c/0x3f
+ [<c10f7024>] kobject_register+0x17/0x4f
+ [<c114b118>] bus_add_driver+0x49/0x93
+ [<c13e67f7>] pcied_init+0x31/0x9d
+ [<c13da714>] do_initcalls+0x4e/0xa0
+ [<c10002a7>] init+0x25/0xce
+ [<c1000b09>] kernel_thread_helper+0x5/0xb
+lib/kobject.c:171: spin_is_locked on uninitialized spinlock c133e1b8.
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+ printing eip:
+c10f6f6f
+*pde = 00000000
+Oops: 0002 [#1]
+DEBUG_PAGEALLOC
+Modules linked in:
+CPU:    0
+EIP:    0060:[<c10f6f6f>]    Not tainted VLI
+EFLAGS: 00010292   (2.6.12-rc2-mm3) 
+EIP is at kobject_add+0xed/0x18b
+eax: c133df00   ebx: c133dee4   ecx: 00000000   edx: c133e1b0
+esi: ffffffea   edi: c133e1d0   ebp: c6341f90   esp: c6341f84
+ds: 007b   es: 007b   ss: 0068
+Process swapper (pid: 1, threadinfo=c6340000 task=c631cac0)
+Stack: c133dee4 ffffffea c133dee4 c6341fa8 c10f702a c133dee4 c133dee4 c133deb8 
+       c133e120 c6341fc4 c114b118 c133dee4 00000000 00000000 00000000 00000000 
+       c6341fd4 c13e67f7 c133deb8 c1408814 c6341fe4 c13da714 c1000282 00000000 
+Call Trace:
+ [<c100334a>] show_stack+0x7a/0x82
+ [<c1003453>] show_registers+0xe9/0x153
+ [<c100369f>] die+0x15c/0x23d
+ [<c100e962>] do_page_fault+0x431/0x5a8
+ [<c1002ed3>] error_code+0x4f/0x54
+ [<c10f702a>] kobject_register+0x1d/0x4f
+ [<c114b118>] bus_add_driver+0x49/0x93
+ [<c13e67f7>] pcied_init+0x31/0x9d
+ [<c13da714>] do_initcalls+0x4e/0xa0
+ [<c10002a7>] init+0x25/0xce
+ [<c1000b09>] kernel_thread_helper+0x5/0xb
+Code: 28 c7 40 24 ab 00 00 00 75 0f 8b 43 28 83 c0 28 50 e8 05 02 00 00 89 c7 58 8b 53 28 8d 43 1c 83 c2 08 89 53 1c 8b 4a 04 89 42 04 <89> 01 89 48 04 8b 43 28 81 78 10 3c 4b 24 1d 74 1b 83 c0 10 50 
+ <0>Kernel panic - not syncing: Attempted to kill init!
+ 
 
-Full-tree change status (no changes):
-hg:  real 0.799s  user 0.607s  sys 0.167s
-git: real 0.124s  user 0.051s  sys 0.051s
-
-Check-out time (2.6.0):
-hg:  real 34.084s  user 4.069s  sys 2.024s
-git: real 30.487s  user 2.393s  sys 1.007s
-
-Full-tree working dir diff (2.6.0 base with 2.6.1 in working dir):
-hg:  real 4.920s  user 4.629s  sys 0.260s
-git: real 3.531s  user 1.869s  sys 0.862s
-(this needed an update-cache --refresh on top of git commit, which
-took another: real 2m52.764s  user 2.833s  sys 1.008s)
-
-Merge from 2.6.0 to 2.6.1:
-hg:  real 15.507s  user 6.175s  sys 0.442s
-git: haven't quite figured this one out yet
-
-Some notes:
-
-- hg has a separate index file for each file checked in, which is why
-  the initial check-in is larger
-- this also means it touches twice as many files, typically
-- neither hg nor git quite fit in cache on my 512M laptop (nor does a
-  kernel compile), but the extra indexing makes hg's wall times a bit longer
-- hg does a form of delta compression, so each checkin requires
-  retrieving a previous version, checking its hash, doing a diff,
-  compressing it, and checking in the result
-- hg is written in pure Python
-
-Despite the above, it compares pretty well to git in speed and is
-quite a bit better in terms of storage space. By reducing the zlib
-compression level, it could probably win across the board.
-
-The size numbers will get dramatically more unbalanced with more
-history - a conversion of the history in BK to git is expected to take
-over 3G, which Mercurial may actually take less space due to storing
-compressed binary forward-only deltas.
-
-While disk may be cheap, network bandwidth is not. Given that the
-common case usage of git will be to do network pulls, it will find
-most of its speed wasted on waiting for the network. Mercurial will
-almost certainly win here for typical developer usage as it can do
-efficient delta communication (though it currently doesn't attempt any
-pipelining so suffers a bit in round trips).
-
-More discussion about Mercurial's design can be found here:
-
- http://selenic.com/mercurial/notes.txt
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+~Randy

@@ -1,70 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261498AbVDZRt6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261513AbVDZRxi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261498AbVDZRt6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 13:49:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbVDZRsa
+	id S261513AbVDZRxi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 13:53:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbVDZRwf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 13:48:30 -0400
-Received: from ns2.suse.de ([195.135.220.15]:26062 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261725AbVDZRjk (ORCPT
+	Tue, 26 Apr 2005 13:52:35 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:5304 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261513AbVDZRvN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 13:39:40 -0400
-From: Chris Mason <mason@suse.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Mercurial 0.3 vs git benchmarks
-Date: Tue, 26 Apr 2005 13:39:33 -0400
-User-Agent: KMail/1.8
-Cc: Mike Taht <mike.taht@timesys.com>, Matt Mackall <mpm@selenic.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-References: <20050426004111.GI21897@waste.org> <200504260713.26020.mason@suse.com> <Pine.LNX.4.58.0504260939440.18901@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0504260939440.18901@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Apr 2005 13:51:13 -0400
+Date: Tue, 26 Apr 2005 13:50:42 -0400
+From: Dave Jones <davej@redhat.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>, Alan Stern <stern@rowland.harvard.edu>,
+       alexn@dsv.su.se, greg@kroah.com, gud@eth.net,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       jgarzik@pobox.com, cramerj@intel.com,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [PATCH] PCI: Add pci shutdown ability
+Message-ID: <20050426175041.GB23205@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+	Alan Stern <stern@rowland.harvard.edu>, alexn@dsv.su.se,
+	greg@kroah.com, gud@eth.net, linux-kernel@vger.kernel.org,
+	linux-pci@atrey.karlin.mff.cuni.cz, jgarzik@pobox.com,
+	cramerj@intel.com, linux-usb-devel@lists.sourceforge.net
+References: <1114458325.983.17.camel@localhost.localdomain> <Pine.LNX.4.44L0.0504251609420.7408-100000@iolanthe.rowland.org> <20050425145831.48f27edb.akpm@osdl.org> <20050425221326.GC15366@redhat.com> <20050426093939.GC4175@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200504261339.34680.mason@suse.com>
+In-Reply-To: <20050426093939.GC4175@elf.ucw.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 April 2005 12:42, Linus Torvalds wrote:
-> On Tue, 26 Apr 2005, Chris Mason wrote:
-> > This agrees with my tests here, the time to apply patches is somewhat
-> > disk bound, even for the small 100 or 200 patch series.  The io should be
-> > coming from data=ordered, since the commits are still every 5 seconds or
-> > so.
->
-> Yes, ext3 really does suck in many ways.
->
-> One of my (least) favourite suckage is a process that does "fsync" on a
-> single file (mail readers etc), which apparently causes ext3 to sync all
-> dirty data, because it can only sync the whole log. So if you have stuff
-> that writes out things that aren't critical, it negatively affects
-> something totally independent that _does_ care.
->
-> I remember some early stuff showing that reiserfs was _much_ better for
-> BK. I'd be willing to bet that's probably true for git too.
+On Tue, Apr 26, 2005 at 11:39:39AM +0200, Pavel Machek wrote:
+ 
+ > Well, you can do "half suspend to ram; change your frequency; half
+ > resume" today, and it should work, but I do not think you'll like the
+ > speed.
 
-reiserfs shares the same basic data=ordered idea as ext3, so the fsync will do 
-the same on reiser as it does on ext3.  I do have code in there to try and 
-keep the data=ordered writeback a little less bursty than it is in ext3 so 
-you might not notice the fsync as much.
+Indeed. With people running things like cpuspeed daemons to dynamically
+scale speed, this is going to be really painful.
+Of course, any operation where we have to quiesce DMA is going to mean
+we're increasing latency around the scaling operation, but we don't
+have to go through all the hoops that are necessary when suspending.
 
-I haven't compared reiser vs ext3 for git.  reiser tails should help 
-performance because once you read the object inode you've also got the data.  
-But, I would expect the biggest help to come from mounting reiserfs -o 
-alloc=skip_busy.  This basically allocates all new files one right after the 
-other on disk regardless of which subdir they are in.  The effect is to time 
-order most of your files.
+Thankfully some of the more recent implementations of speed/voltage
+scaling don't have this requirement.
 
-As an example, here's the time to apply 300 patches on ext3.  This was with my 
-packed patches applied, but vanilla git should show similar percentage 
-differences.
+ > In a ideal world, calling device_suspend(PMSG_FREEZE) gets you exactly
+ > that, and we'll do our best to make it fast enough.
+ > 
+ > OTOH it *needs* to switch consoles to text one (because X may be
+ > running DMA, right?); I do not think you'll like that one.
 
-data=writeback  32s			
-data=ordered    44s
+That would be insane, and make cpufreq totally useless for anyone
+running X, so no.   This is one of the reasons the kernel needs to
+arbitrate DMA on behalf of X.  It just needs someone to do the work.
 
-With a long enough test, data=ordered should fall into the noise, but 10-40 
-second runs really show it.
+		Dave
 
--chris

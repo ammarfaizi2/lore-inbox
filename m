@@ -1,79 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbVDZRHM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbVDZRKk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261494AbVDZRHM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 13:07:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbVDZRHM
+	id S261657AbVDZRKk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 13:10:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbVDZRKj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 13:07:12 -0400
-Received: from bernache.ens-lyon.fr ([140.77.167.10]:45706 "EHLO
-	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S261494AbVDZRHD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 13:07:03 -0400
-Message-ID: <426E751A.2020507@ens-lyon.org>
-Date: Tue, 26 Apr 2005 19:06:34 +0200
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: fr, en
+	Tue, 26 Apr 2005 13:10:39 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:35765 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261657AbVDZRKb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 13:10:31 -0400
+In-Reply-To: <Pine.LNX.4.58.0504261347110.4555@be1.lrz>
+To: Bodo Eggert <7eggert@gmx.de>
+Cc: 7eggert@gmx.de, akpm@osdl.org, Jan Hudec <bulb@ucw.cz>, hch@infradead.org,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Miklos Szeredi <miklos@szeredi.hu>,
+       viro@parcelfarce.linux.theplanet.co.uk
 MIME-Version: 1.0
-To: David Addison <addy@quadrics.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Andrea Arcangeli <andrea@suse.de>,
-       David Addison <david.addison@quadrics.com>
-Subject: Re: [PATCH][RFC] Linux VM hooks for advanced RDMA NICs
-References: <426E62ED.5090803@quadrics.com>
-In-Reply-To: <426E62ED.5090803@quadrics.com>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Report: *  1.1 NO_DNS_FOR_FROM Domain in From header has no MX or A DNS records
+Subject: Re: [PATCH] private mounts
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OF7E89A8B8.2AC04C42-ON88256FEF.005DACE1-88256FEF.005E7421@us.ibm.com>
+From: Bryan Henderson <hbryan@us.ibm.com>
+Date: Tue, 26 Apr 2005 10:10:22 -0700
+X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Build V70_M4_01112005 Beta 3|January
+ 11, 2005) at 04/26/2005 13:10:29,
+	Serialize complete at 04/26/2005 13:10:29
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Addison a écrit :
-> Hi,
-> 
-> here is a patch we use to integrate the Quadrics NICs into the Linux 
-> kernel.
-> The patch adds hooks to the Linux VM subsystem so that registered 'IOPROC'
-> devices can be informed of page table changes.
-> This allows the Quadrics NICs to perform user RDMAs safely, without 
-> requiring
-> page pinning. Looking through some of the recent IB and Ammasso 
-> discussions,
-> it may also prove useful to those NICs too.
+>> >mknamespace -p users/$UID # (like mkdir -p)
+>> >setnamespace users/$UID   # (like cd)
+>>                               ^^^^^^^^
+>> 
+>> You realize that 'cd' is a shell command, and has to be, I hope.  That 
+>> little fact has thrown a wrench into many of the ideas in this thread.
+>
+>I suppose it will be called by the login process or by wrappers like 
+>'nice'.
 
-Hi,
+Just to be clear, then: this idea is fundamentally different from the 
+mkdir/cd analogy the thread starts with above.  And it misses one rather 
+important requirement compared to mkdir/cd:  You can't add a new mount to 
+an existing shell.
 
-I worked on a similar patch to help updating a registration cache on
-Myrinet. I came to the problem of deciding between registering ioproc
-to the entire address space (1) or only to some VMA (2).
-You're doing (1), I tried (2).
+Several more complicated schemes that may achieve that are being discussed 
+in this thread.
 
-(2) avoids calling ioproc hooks for all pages that are never involved
-in any communication. This might be good if the amount of pages that
-are involved is not too high and if the coproc_ops cost is a little bit
-high.
-Do you have any numbers about this in real applications on QsNet ?
+--
+Bryan Henderson                          IBM Almaden Research Center
+San Jose CA                              Filesystems
 
-I see two drawback in (2).
-First, it requires to play with the list of ioproc_ops when VMA are
-merged or split. Actually, it's not that bad since the list often
-contains only 1 ioproc_ops.
-Secondly, you have to add the ioproc to all involved VMA at some point.
-It's easy when the API asks the application to register, you just add
-the ioproc_ops to the target VMA during registration. But, I guess it's
-not easy with Quadrics, right ?
-
-
-I see in your patch that ioproc are not inherited during fork.
-How do you support fork in your driver/lib then ?
-What if a COW page is given to the son and the copy to the father
-while some IO are being processed ? Do you require the application to
-call a specific routine after forking ?
-Don't you think it might be good to add a hook in the fork code
-so that ioproc are inherited or duplicated pages are invalidated
-in the card ?
-
-Regards,
-Brice

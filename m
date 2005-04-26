@@ -1,37 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261508AbVDZNSv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261509AbVDZNWP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261508AbVDZNSv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 09:18:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbVDZNSv
+	id S261509AbVDZNWP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 09:22:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261511AbVDZNWO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 09:18:51 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:162 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261508AbVDZNSV (ORCPT
+	Tue, 26 Apr 2005 09:22:14 -0400
+Received: from ns2.suse.de ([195.135.220.15]:63651 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261509AbVDZNWA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 09:18:21 -0400
-Date: Tue, 26 Apr 2005 15:18:14 +0200
+	Tue, 26 Apr 2005 09:22:00 -0400
+Date: Tue, 26 Apr 2005 15:21:49 +0200
 From: Andi Kleen <ak@suse.de>
-To: linux-kernel@vger.kernel.org, ian.pratt@cl.cam.ac.uk, akpm@osdl.org,
-       ak@suse.de
-Subject: Re: [PATCH 6/6][XEN][x86_64] use more usermode macro
-Message-ID: <20050426131814.GC5098@wotan.suse.de>
-References: <20050426113338.GF26614@snarc.org>
+To: Li Shaohua <shaohua.li@intel.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, Zwane Mwaikambo <zwane@linuxpower.ca>
+Subject: Re: [PATCH]broadcast IPI race condition on CPU hotplug
+Message-ID: <20050426132149.GF5098@wotan.suse.de>
+References: <1114482044.7068.17.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050426113338.GF26614@snarc.org>
+In-Reply-To: <1114482044.7068.17.camel@sli10-desk.sh.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 26, 2005 at 01:33:38PM +0200, Vincent Hanquez wrote:
+On Tue, Apr 26, 2005 at 10:20:44AM +0800, Li Shaohua wrote:
 > Hi,
-> 
-> The following patch make use of the user_mode macro where it's possible.
-> This is useful for Xen because it will need only to redefine only the macro
-> to a hypervisor call. 
-> 
-> Please apply, or comments.
+> After a CPU is booted but before it's officially up (set online map, and
+> enable interrupt), the CPU possibly will receive a broadcast IPI. After
+> it's up, it will handle the stale interrupt soon and maybe cause oops if
+> it's a smp-call-function-interrupt. This is quite possible in CPU
+> hotplug case, but nearly can't occur at boot time. Below patch replaces
+> broadcast IPI with send_ipi_mask just like the cluster mode.
 
-Thanks looks good.
+No way we are making this common operation much slower just
+to fix an obscure race at boot time. PLease come up with a fix
+that only impacts the boot process.
 
+Thanks,
 -Andi
+

@@ -1,84 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbVDZGuZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261356AbVDZGyt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261355AbVDZGuZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 02:50:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVDZGuZ
+	id S261356AbVDZGyt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 02:54:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbVDZGyt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 02:50:25 -0400
-Received: from smtp817.mail.sc5.yahoo.com ([66.163.170.3]:45414 "HELO
-	smtp817.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261355AbVDZGuE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 02:50:04 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: johnpol@2ka.mipt.ru
-Subject: Re: [RFC/PATCH 0/22] W1: sysfs, lifetime and other fixes
-Date: Tue, 26 Apr 2005 01:50:00 -0500
-User-Agent: KMail/1.8
-Cc: sensors@stimpy.netroedge.com, LKML <linux-kernel@vger.kernel.org>,
-       Greg KH <gregkh@suse.de>
-References: <200504210207.02421.dtor_core@ameritech.net> <d120d500050425132250916bcb@mail.gmail.com> <1114497816.8527.66.camel@uganda>
-In-Reply-To: <1114497816.8527.66.camel@uganda>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Apr 2005 02:54:49 -0400
+Received: from lyle.provo.novell.com ([137.65.81.174]:566 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S261356AbVDZGyq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 02:54:46 -0400
+Date: Mon, 25 Apr 2005 23:54:32 -0700
+From: Greg KH <gregkh@suse.de>
+To: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [RFC/PATCH] unregister_node() for hotplug use
+Message-ID: <20050426065431.GB5889@suse.de>
+References: <20050420210744.4013b3f8.tokunaga.keiich@jp.fujitsu.com> <20050420173235.GA17775@kroah.com> <20050422003009.1b96f09c.tokunaga.keiich@jp.fujitsu.com> <20050422003920.GD6829@kroah.com> <20050422113211.509005f1.tokunaga.keiich@jp.fujitsu.com> <20050425230333.6b8dfb33.tokunaga.keiich@jp.fujitsu.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200504260150.00948.dtor_core@ameritech.net>
+In-Reply-To: <20050425230333.6b8dfb33.tokunaga.keiich@jp.fujitsu.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 April 2005 01:43, Evgeniy Polyakov wrote:
-> On Mon, 2005-04-25 at 15:22 -0500, Dmitry Torokhov wrote:
-> > On 4/25/05, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> > > While thinking about locking schema
-> > > with respect to sysfs files I recalled,
-> > > why I implemented such a logic -
-> > > now one can _always_ remove _any_ module
-> > > [corresponding object is removed from accessible
-> > > pathes and waits untill all exsting users are gone],
-> > > which is very good - I really like it in networking model,
-> > > while with whole device driver model
-> > > if we will read device's file very quickly
-> > > in several threads we may end up not unloading it at all.
+On Mon, Apr 25, 2005 at 11:03:33PM +0900, Keiichiro Tokunaga wrote:
+> On Fri, 22 Apr 2005 11:32:11 +0900 Keiichiro Tokunaga wrote:
+> > On Thu, 21 Apr 2005 17:39:20 -0700 Greg KH wrote:
+> > > On Fri, Apr 22, 2005 at 12:30:09AM +0900, Keiichiro Tokunaga wrote:
+> > > > +#ifdef CONFIG_HOTPLUG
+> > > > +void unregister_node(struct node *node)
+> > > > +{
+> > > > +	sysdev_remove_file(&node->sysdev, &attr_cpumap);
+> > > > +	sysdev_remove_file(&node->sysdev, &attr_meminfo);
+> > > > +	sysdev_remove_file(&node->sysdev, &attr_numastat);
+> > > > +	sysdev_remove_file(&node->sysdev, &attr_distance);
+> > > > +
+> > > > +	sysdev_unregister(&node->sysdev);
+> > > > +}
+> > > > +EXPORT_SYMBOL_GPL(register_node);
+> > > > +EXPORT_SYMBOL_GPL(unregister_node);
+> > > > +#else /* !CONFIG_HOTPLUG */
+> > > > +void unregister_node(struct node *node)
+> > > > +{
+> > > > +}
+> > > > +#endif /* !CONFIG_HOTPLUG */
+> <snip>
+> > > And hey, what's the real big deal here, why not always have this
+> > > function no matter if CONFIG_HOTPLUG is enabled or not?  I really want
+> > > to just make that an option that is always enabled anyway, but changable
+> > > if you are using CONFIG_TINY or something...
 > > 
-> > I am sorrry, that is complete bull*. sysfs also allows removing
-> > modules at an arbitrary time (and usually without annoying "waiting
-> > for refcount" at that)... You just seem to not understand how driver
-> > code works, thus the need of inventing your own schema.
+> >   I put the #ifdef there for users who don't need hotplug
+> > stuffs, but I want to make the option always enabled, too.
+> > Also a good side effect, the code would be cleaner:)  I
+> > will be updating my patch without the #ifdef and sending
+> > it here.
 > 
-> Ok, let's try again - now with explanation, 
-> since it looks like you did not even try to understand what I said.
-> If you will remove objects from ->remove() callback
-> you may end up with rmmod being stuck.
-> Explanation: each read still gets reference counter, 
-> while in rmmod path there is a wait until it is zero.
-> If there are too many simultaneous reads - even
-> if each will put reference counter at the end, we still can have
-> non zero refcnt each time we check it in rmmod path.
-> That is why object must be removed from accessible pathes
-> first, and only freed in ->remove() callback.
+>   Here is the patch.  Please apply.
 
-Please try to read the code. device_unregister and kobject_unregister
-do not require caller to wait for the last reference to drop, they rely
-on availability of release method to clean up the object when last user
-is gone. driver_unregister is blocking (like your family code) but
-teardown takes no time. If driver is in use (attributes are open) then
-module refcount is non-zero and instead of (possibly endless) "waiting for
-refcount to drop" message you will get nice -EBUSY.
+Care to resend it with a proper change log description that I can use?
 
-If you program so that you wait in module_exit for object release - you
-get what you deserve. 
+thanks,
 
-> > BTW, I am looking at the connector code ATM and I am just amazed at
-> > all wied refounting stuff that is going on there. what a single
-> > actomic_dec_and_test() call without checkng reurn vaue is supposed to
-> > do again?
-> 
-> It has explicit barrieres, which guarantees that
-> there will not be atomic operation vs. non atomic
-> reordering. 
-
-And you can't use explicit barriers - why exactly?
-
--- 
-Dmitry
+greg k-h

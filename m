@@ -1,75 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261606AbVDZPnM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbVDZPoo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbVDZPnM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 11:43:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261616AbVDZPlb
+	id S261445AbVDZPoo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 11:44:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbVDZPnk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 11:41:31 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:54966 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S261592AbVDZPkY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 11:40:24 -0400
-Subject: Re: filesystem transactions API
-From: "Charles P. Wright" <cwright@cs.sunysb.edu>
-To: "Artem B. Bityuckiy" <dedekind@oktetlabs.ru>
-Cc: Jamie Lokier <jamie@shareable.org>, Ville Herva <v@iki.fi>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <426E4EBD.6070104@oktetlabs.ru>
-References: <20050424211942.GN13052@parcelfarce.linux.theplanet.co.uk>
-	 <OF32F95BBA.F38B2D1F-ON88256FEE.006FE841-88256FEE.00742E46@us.ibm.com>
-	 <20050426134629.GU16169@viasys.com>
-	 <20050426141426.GC10833@mail.shareable.org> <426E4EBD.6070104@oktetlabs.ru>
-Content-Type: text/plain
-Date: Tue, 26 Apr 2005 11:40:02 -0400
-Message-Id: <1114530002.29907.21.camel@polarbear.fsl.cs.sunysb.edu>
+	Tue, 26 Apr 2005 11:43:40 -0400
+Received: from webmail.houseafrika.com ([12.162.17.52]:26130 "EHLO
+	Mansi.STRATNET.NET") by vger.kernel.org with ESMTP id S261576AbVDZPmf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 11:42:35 -0400
+Date: Tue, 26 Apr 2005 08:42:34 -0700
+From: Libor Michalek <libor@topspin.com>
+To: Roland Dreier <roland@topspin.com>
+Cc: Andrew Morton <akpm@osdl.org>, hch@infradead.org,
+       linux-kernel@vger.kernel.org, openib-general@openib.org,
+       timur.tabi@ammasso.com
+Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+Message-ID: <20050426084234.A10366@topspin.com>
+References: <20050425135401.65376ce0.akpm@osdl.org> <521x8yv9vb.fsf@topspin.com> <20050425151459.1f5fb378.akpm@osdl.org> <426D6D68.6040504@ammasso.com> <20050425153256.3850ee0a.akpm@osdl.org> <52vf6atnn8.fsf@topspin.com> <20050425171145.2f0fd7f8.akpm@osdl.org> <52acnmtmh6.fsf@topspin.com> <20050425173757.1dbab90b.akpm@osdl.org> <52wtqpsgff.fsf@topspin.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-14) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <52wtqpsgff.fsf@topspin.com>; from roland@topspin.com on Tue, Apr 26, 2005 at 08:31:32AM -0700
+X-OriginalArrivalTime: 26 Apr 2005 15:42:35.0062 (UTC) FILETIME=[91155D60:01C54A76]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-04-26 at 18:22 +0400, Artem B. Bityuckiy wrote:
-> Jamie Lokier wrote:
-> > I think I've wanted something like that for _years_ in unix.
-> > 
-> > It's an old, old idea, and I've often wondered why we haven't implemented it.
-> > 
+On Tue, Apr 26, 2005 at 08:31:32AM -0700, Roland Dreier wrote:
+>     Andrew> umm, how about we
 > 
-> I thought it is possible to rather easily to implement this on top
-> of non-transactional FS (albeit I didn't try) and there is no need
-> to overcomplicate an FS. Just implement a specialized user-space
-> library and utilize it.
-There are actually plenty of things that make it harder than it first
-seems to provide ACID transactions.  The two most difficult things are
-going to be atomicity and isolation.
+>     Andrew> - force the special pages into a separate vma
+> 
+>     Andrew> - run get_user_pages() against it all
+> 
+>     Andrew> - use RLIMIT_MEMLOCK accounting to check whether the user
+>     Andrew> is allowed to do this thing
+> 
+>     Andrew> - undo the RMLIMIT_MEMLOCK accounting in ->release
+> 
+>     Andrew> This will all interact with user-initiated mlock/munlock
+>     Andrew> in messy ways. Maybe a new kernel-internal vma->vm_flag
+>     Andrew> which works like VM_LOCKED but is unaffected by
+>     Andrew> mlock/munlock activity is needed.
+> 
+>     Andrew> A bit of generalisation in do_mlock() should suit?
+> 
+> Yes, it seems that modifying do_mlock() to something like
+> 
+> 	int do_mlock(unsigned long start, size_t len,
+> 		     unsigned int set, unsigned int clear)
+> 
+> and then exporting a function along the lines of
+> 
+> 	int do_mem_pin(unsigned long start, size_t len, int on)
+> 
+> that sets/clears (VM_LOCKED_KERNEL | VM_DONTCOPY) according to the on
+> flag.
 
-Atomicity is difficult, because you have lots of caches each with their
-own bits of state (e.g., the inode/dentry caches).  Assuming your
-transaction is committed that isn't so much of a problem, but once you
-have on rollback you need to undo any changes to those caches.
+  Do you mean that the set/clear parameters to do_mlock() are the
+actual flags which are set/cleared by the caller? Also, the issue
+remains that the flags are not reference counted which is a problem
+if you are dealing with overlapping memory region, or even if one
+region ends and another begins on the same page. Since the desire is
+to be able to pin any memory that a user can malloc this is a likely
+scenario.
 
-Isolation (this is the property that says that concurrent transactions
-should be the same as if there was a serial execution) is also tricky to
-get right.  A transaction can touch any number of objects, and user-
-applications may not respect any lock ordering --- which means you will
-have deadlocks, and you must detect and resolve them (probably by
-aborting one of the transactions).
-
-None of these problems are insurmountable, and there are definitely good
-reasons to use transactions.  For example, RPM uses transactions to
-update its own databases, it would be great if it could use transactions
-to update the whole file system.  Mail servers also have to go through
-hoops to provide atomic updates.  Isolation takes care of race
-conditions.
-
-At our lab, we've been experimenting with transactional file systems.
-We've ported the Berkeley database to the kernel, because it already
-provides ACID transactions.  We've also built a simple file system on
-top of it, with a rudimentary transactions API that is exposed to user-
-level.  One of the key things that we've learned is that it isn't very
-easy to just "bolt" transactions onto your file system after the fact,
-because there are just so many interactions between the file system,
-caches, and the transaction manager.
-
-Charles
-
+-Libor

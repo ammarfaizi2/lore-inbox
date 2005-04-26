@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbVDZEYs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbVDZE25@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261331AbVDZEYs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 00:24:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261314AbVDZEXn
+	id S261314AbVDZE25 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 00:28:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbVDZE24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 00:23:43 -0400
-Received: from gate.crashing.org ([63.228.1.57]:45510 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261324AbVDZEXJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 00:23:09 -0400
-Subject: Re: [ANNOUNCE] Cogito-0.8 (former git-pasky, big changes!)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: pasky@ucw.cz, git@vger.kernel.org
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050426032422.GQ13467@pasky.ji.cz>
-References: <20050426032422.GQ13467@pasky.ji.cz>
+	Tue, 26 Apr 2005 00:28:56 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:8679 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261314AbVDZE2A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 00:28:00 -0400
+Subject: Re: [PATCH]broadcast IPI race condition on CPU hotplug
+From: Li Shaohua <shaohua.li@intel.com>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>
+In-Reply-To: <Pine.LNX.4.61.0504252222230.26521@montezuma.fsmlabs.com>
+References: <1114482044.7068.17.camel@sli10-desk.sh.intel.com>
+	 <Pine.LNX.4.61.0504252222230.26521@montezuma.fsmlabs.com>
 Content-Type: text/plain
-Date: Tue, 26 Apr 2005 14:22:45 +1000
-Message-Id: <1114489365.7111.40.camel@gaston>
+Message-Id: <1114489490.7416.2.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 26 Apr 2005 12:24:50 +0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-04-26 at 05:24 +0200, Petr Baudis wrote:
->   Hello,
+Hi,
+On Tue, 2005-04-26 at 12:25, Zwane Mwaikambo wrote:
 > 
->   here goes Cogito-0.8, my SCMish layer over Linus Torvald's git tree
-> history tracker. This package was formerly called git-pasky, however
-> this release brings big changes. The usage is significantly different,
-> as well as some basic concepts; the history changed again (hopefully the
-> last time?) because of fixing dates of some old commits. The .git/
-> directory layout changed too.
->
-> .../...
+> > After a CPU is booted but before it's officially up (set online map, and
+> > enable interrupt), the CPU possibly will receive a broadcast IPI. After
+> > it's up, it will handle the stale interrupt soon and maybe cause oops if
+> > it's a smp-call-function-interrupt. This is quite possible in CPU
+> > hotplug case, but nearly can't occur at boot time. Below patch replaces
+> > broadcast IPI with send_ipi_mask just like the cluster mode.
+> 
+> Ok, but isn't it sufficient to use send_ipi_mask in smp_call_function 
+> instead?
+I'm not sure if other routines using broadcast IPI have this bug. Fixing
+the send_ipi_all API looks more generic. Is there any reason we should
+use broadcast IPI?
 
-Unless you already did this in the latest release, it would be nice to
-have something like havign all the low level tools be by default in some
-~/lib/git or whatever, and only the cg-* scripts in ~/bin on install,
-unless maybe you pass some kind of I_AM_A_REAL_GIT=1 on the make
-line ...
-
-I don't really plan to use the low level tools, and I don't like the way
-they clobber my bin namespace :)
-
-Ben.
-
+Thanks,
+Shaohua
 

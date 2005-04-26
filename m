@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261319AbVDZFJw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261327AbVDZFSu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261319AbVDZFJw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 01:09:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbVDZFJw
+	id S261327AbVDZFSu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 01:18:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbVDZFSm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 01:09:52 -0400
-Received: from smtp.istop.com ([66.11.167.126]:12469 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S261319AbVDZFJv (ORCPT
+	Tue, 26 Apr 2005 01:18:42 -0400
+Received: from iabervon.org ([66.92.72.58]:7941 "EHLO iabervon.org")
+	by vger.kernel.org with ESMTP id S261320AbVDZFSd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 01:09:51 -0400
-From: Daniel Phillips <phillips@istop.com>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Subject: Re: [PATCH 1a/7] dlm: core locking
-Date: Tue, 26 Apr 2005 01:10:00 -0400
-User-Agent: KMail/1.7
-Cc: David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-References: <20050425165705.GA11938@redhat.com> <Pine.LNX.4.62.0504252242510.2941@dragon.hyggekrogen.localhost>
-In-Reply-To: <Pine.LNX.4.62.0504252242510.2941@dragon.hyggekrogen.localhost>
+	Tue, 26 Apr 2005 01:18:33 -0400
+Date: Tue, 26 Apr 2005 01:18:32 -0400 (EDT)
+From: Daniel Barkalow <barkalow@iabervon.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: pasky@ucw.cz, git@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Cogito-0.8 (former git-pasky, big changes!)
+In-Reply-To: <426DCA75.901@pobox.com>
+Message-ID: <Pine.LNX.4.21.0504260103050.30848-100000@iabervon.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200504260110.01115.phillips@istop.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 25 April 2005 17:17, Jesper Juhl wrote:
-> > +     int error = -ENOMEM, last_len, count = 0;
->
-> Wouldn't
->         int error = -ENOMEM;
->         int last_len;
->         int count = 0;
-> be a bit more readable?
+On Tue, 26 Apr 2005, Jeff Garzik wrote:
 
-The rest of your nits are fine, upstanding nits, but this one seems a little 
-extreme :-)
+> tar xvfj $x
+> cd x
+> make
+> ...
+> gcc -g -O2 -Wall '-DSHA1_HEADER=<openssl/sha.h>' -o rpull rpull.c 
+> libgit.a rsh.c -lz -lssl
+> gcc -g -O2 -Wall '-DSHA1_HEADER=<openssl/sha.h>' -o rev-list rev-list.c 
+> libgit.a -lz -lssl
+> gcc -g -O2 -Wall '-DSHA1_HEADER=<openssl/sha.h>' -o git-mktag 
+> git-mktag.c libgit.a -lz -lssl
+> gcc -g -O2 -Wall '-DSHA1_HEADER=<openssl/sha.h>' -o diff-tree-helper 
+> diff-tree-helper.c libgit.a -lz -lssl
+> make: commit-id: Command not found
+> Generating cg-version...
+> 
+> So, it still complains about commit-id
 
-Regards,
+In this case, it would complain about .git/HEAD even if it found
+commit-id. The right solution is probably to suppress that part if there's
+no .git/HEAD.
 
-Daniel
+	-Daniel
+*This .sig left intentionally blank*
+

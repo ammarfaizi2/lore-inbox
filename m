@@ -1,110 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVDZJwj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVDZJ4m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261448AbVDZJwj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 05:52:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVDZJvS
+	id S261455AbVDZJ4m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 05:56:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbVDZJut
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 05:51:18 -0400
-Received: from gizmo12bw.bigpond.com ([144.140.70.43]:34443 "HELO
-	gizmo12bw.bigpond.com") by vger.kernel.org with SMTP
-	id S261448AbVDZJrh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 05:47:37 -0400
-Subject: Re: [patch 1/1] uml: fix handling of no fpx_regs [critical, for
-	2.6.12]
-From: Andree Leidenfrost <aleidenf@bigpond.net.au>
-To: Alexander Nyberg <alexn@dsv.su.se>
-Cc: blaisorblade@yahoo.it, akpm@osdl.org, jdike@addtoit.com,
-       bstroesser@fujitsu-siemens.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-In-Reply-To: <1114459067.983.22.camel@localhost.localdomain>
-References: <20050425191253.B9FE045EBB@zion>
-	 <1114459067.983.22.camel@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-WTkJhPQ+Im/q2sIT5W80"
-Organization: private
-Date: Tue, 26 Apr 2005 19:44:15 +1000
-Message-Id: <1114508655.7716.28.camel@aurich.ostfriesland>
+	Tue, 26 Apr 2005 05:50:49 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:61624 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261450AbVDZJrB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 05:47:01 -0400
+Date: Tue, 26 Apr 2005 11:46:35 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Yum Rayan <yum.rayan@gmail.com>, linux-kernel@vger.kernel.org,
+       linux-pcmcia@lists.infradead.org, dahinds@users.sourceforge.net,
+       rddunlap@osdl.org
+Subject: Re: [PATCH linux-2.6.12-rc2-mm3] smc91c92_cs: Reduce stack usage in smc91c92_event()
+Message-ID: <20050426094634.GA20971@wohnheim.fh-wedel.de>
+References: <df35dfeb05042115021c24638b@mail.gmail.com> <200504221122.51579.vda@port.imtp.ilyichevsk.odessa.ua> <20050423001228.GA6418@wohnheim.fh-wedel.de> <200504231821.31309.vda@port.imtp.ilyichevsk.odessa.ua>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200504231821.31309.vda@port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 23 April 2005 18:21:30 +0300, Denis Vlasenko wrote:
+> On Saturday 23 April 2005 03:12, Jörn Engel wrote:
+> 
+> > > 1) struct is unnamed and local to function
+> > > 2) Variables do not change their type, the just sit in local-> now.
+> > >    I can just add 'local->' to each affected variable,
+> > >    without "it was an object, now it is a pointer" changes.
+> > >    No need to replace . with ->, remove &, etc.
+> > 
+> > I'd have proposed the same, before reading further down in the patch.
+> > Basically, the driver is full of duplication, so the exact same struct
+> > can be used several times.  Therefore, the downsides of your approach
+> > seem to prevail.
+> 
+> What downsides? I must admit I do not understand your answer here.
 
---=-WTkJhPQ+Im/q2sIT5W80
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+1. Read the patch.  All of it.
 
-Hi Alexander
+2. Virtually the same identical variables are stuffed into the stack
+frames of:
+o mhz_mfc_config,
+o mhz_setup,
+o mot_setup,
+o smc_setup,
+o osi_setup and
+o smc91c92_config.
 
-On Mon, 2005-04-25 at 21:57 +0200, Alexander Nyberg wrote:
-> m=E5n 2005-04-25 klockan 21:12 +0200 skrev blaisorblade@yahoo.it:
-> > From: Andree Leidenfrost <aleidenf@bigpond.net.au>, Paolo 'Blaisorblade=
-' Giarrusso <blaisorblade@yahoo.it>
-> >=20
-> > Fix the error path, which is triggered when the processor misses the fp=
-x regs
-> > (i.e. the "fxsr" cpuinfo feature). For instance by VIA C3 Samuel2. Test=
-ed and
-> > obvious, please merge ASAP.
-> >=20
-> > Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-> > ---
-> >=20
-> >  linux-2.6.12-paolo/arch/um/os-Linux/sys-i386/registers.c |    7 ++++--=
--
-> >  1 files changed, 4 insertions(+), 3 deletions(-)
-> >=20
-> > diff -puN arch/um/os-Linux/sys-i386/registers.c~uml-fix-no_fpx_regs_han=
-dling arch/um/os-Linux/sys-i386/registers.c
-> > --- linux-2.6.12/arch/um/os-Linux/sys-i386/registers.c~uml-fix-no_fpx_r=
-egs_handling	2005-04-25 21:03:11.000000000 +0200
-> > +++ linux-2.6.12-paolo/arch/um/os-Linux/sys-i386/registers.c	2005-04-25=
- 21:08:07.000000000 +0200
-> > @@ -105,14 +105,15 @@ void init_registers(int pid)
-> >  		panic("check_ptrace : PTRACE_GETREGS failed, errno =3D %d",
-> >  		      err);
-> > =20
-> > +	errno =3D 0;
-> >  	err =3D ptrace(PTRACE_GETFPXREGS, pid, 0, exec_fpx_regs);
-> >  	if(!err)
-> >  		return;
-> > +	if(errno !=3D EIO)
-> > +		panic("check_ptrace : PTRACE_GETFPXREGS failed, errno =3D %d",
-> > +		      errno);
->=20
-> Looks like you mean "if (err !=3D EIO)" here
+That is six functions.  If it were just one, I would definitely agree
+with you.  For two functions, well, it wouldn't really matter either
+way.  But should six functions all copy the exact same struct six
+different times instead of referencing a single globally defined one?
+Naa, that's barely an advantage.
 
-No. The patch is correct.
+> Instead, I'd do it like I described in previous mail:
 
-ptrace will always return -1 in case of an error. The actual error code
-is in errno, hence this is what needs to be compared to EIO. Please also
-see the ptrace manpage.
+If you would actually like to do something, please provide further
+patches to that driver.  It sucks.  It sucks so bad, that it's hardly
+possible to change anything without improving it.  There are much
+grosser things to clean up than the one we're discussing right now.
 
-> >  	have_fpx_regs =3D 0;
-> > -	if(err !=3D EIO)
-> > -		panic("check_ptrace : PTRACE_GETFPXREGS failed, errno =3D %d",
-> > -		      err);
-> > =20
-> >  	err =3D ptrace(PTRACE_GETFPREGS, pid, 0, exec_fp_regs);
-> >  	if(err)
+Jörn
 
-Best regards
-Andree
---=20
-Andree Leidenfrost
-Sydney - Australia
-
-
---=-WTkJhPQ+Im/q2sIT5W80
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD4DBQBCbg1viLvX3b2IzawRAis8AJdu1kbsiI36tmyHFbdyLMHlj70LAKDQ+1Vr
-y5Yk684QAemZ2dRWaPJxgg==
-=VYH2
------END PGP SIGNATURE-----
-
---=-WTkJhPQ+Im/q2sIT5W80--
-
+-- 
+He who knows others is wise.
+He who knows himself is enlightened.
+-- Lao Tsu

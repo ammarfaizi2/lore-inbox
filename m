@@ -1,38 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261767AbVDZUMN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261773AbVDZUOs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261767AbVDZUMN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 16:12:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbVDZUMM
+	id S261773AbVDZUOs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 16:14:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261774AbVDZUOo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 16:12:12 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:34221 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S261767AbVDZUMD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 16:12:03 -0400
-Date: Tue, 26 Apr 2005 22:09:48 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Jesper Juhl <juhl-lkml@dif.dk>, Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] Linux VM hooks for advanced RDMA NICs
-Message-ID: <20050426200948.GP7859@marowsky-bree.de>
-References: <426E62ED.5090803@quadrics.com> <Pine.LNX.4.62.0504261829110.2071@dragon.hyggekrogen.localhost> <1114535584.5410.2.camel@mindpipe> <Pine.LNX.4.62.0504261918210.2071@dragon.hyggekrogen.localhost>
-Mime-Version: 1.0
+	Tue, 26 Apr 2005 16:14:44 -0400
+Received: from vanguard.topspin.com ([12.162.17.52]:42891 "EHLO
+	Mansi.STRATNET.NET") by vger.kernel.org with ESMTP id S261773AbVDZUOc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 16:14:32 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: libor@topspin.com, hch@infradead.org, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, timur.tabi@ammasso.com
+Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace
+ verbs implementation
+X-Message-Flag: Warning: May contain useful information
+References: <20050425135401.65376ce0.akpm@osdl.org>
+	<521x8yv9vb.fsf@topspin.com> <20050425151459.1f5fb378.akpm@osdl.org>
+	<426D6D68.6040504@ammasso.com> <20050425153256.3850ee0a.akpm@osdl.org>
+	<52vf6atnn8.fsf@topspin.com> <20050425171145.2f0fd7f8.akpm@osdl.org>
+	<52acnmtmh6.fsf@topspin.com> <20050425173757.1dbab90b.akpm@osdl.org>
+	<52wtqpsgff.fsf@topspin.com> <20050426084234.A10366@topspin.com>
+	<52mzrlsflu.fsf@topspin.com> <20050426122850.44d06fa6.akpm@osdl.org>
+From: Roland Dreier <roland@topspin.com>
+Date: Tue, 26 Apr 2005 13:14:31 -0700
+In-Reply-To: <20050426122850.44d06fa6.akpm@osdl.org> (Andrew Morton's
+ message of "Tue, 26 Apr 2005 12:28:50 -0700")
+Message-ID: <5264y9s3bs.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0504261918210.2071@dragon.hyggekrogen.localhost>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.6i
+X-OriginalArrivalTime: 26 Apr 2005 20:14:32.0073 (UTC) FILETIME=[8EC7A790:01C54A9C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2005-04-26T19:20:13, Jesper Juhl <juhl-lkml@dif.dk> wrote:
+    Roland>     a) app registers 0x0000 through 0x17ff
+    Roland>     b) app registers 0x1800 through 0x2fff
+    Roland>     c) app unregisters 0x0000 through 0x17ff
+    Roland>     d) the page at 0x1000 must stay pinned
 
-> I don't know what you do, but when I'm grep'ing the tree for some function 
-> I'm often looking for its return type, having that on the same line as the 
-> function name lets me grep for the function name and the grep output will 
-> contain the return type and function name nicely on the same line.
+    Andrew> The userspace library should be able to track the tree and
+    Andrew> the overlaps, etc.  Things might become interesting when
+    Andrew> the memory is MAP_SHARED pagecache and multiple
+    Andrew> independent processes are involved, although I guess
+    Andrew> that'd work OK.
 
-grep -rB1 '^function' drivers/
+I used to think I knew how to handle this, but in your scheme where
+the kernel is doing accounting for pinned memory by marking vmas with
+VM_KERNEL_LOCKED, at step c), I don't see why the kernel won't unlock
+vmas covering 0x0000 through 0x1fff and credit 8K back to the
+process's pinning count.
 
+Sorry to be so dense but can you spell out what you think should
+happen at steps a), b) and c) above?
 
+    Andrew> But afaict the problem wherein part of a page needs
+    Andrew> VM_DONTCOPY and the other part does not cannot be solved.
 
+Yes, I agree.  If an app wants to register half a page and pass the
+other half to a child process, I think the only answer is "don't do
+that then."
+
+ - R.

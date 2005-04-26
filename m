@@ -1,49 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261690AbVDZRbD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbVDZReu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261690AbVDZRbD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 13:31:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261702AbVDZRa7
+	id S261728AbVDZReu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 13:34:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbVDZReb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 13:30:59 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:30159 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261695AbVDZR2h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 13:28:37 -0400
-Subject: Re: [PATCH][RFC] Linux VM hooks for advanced RDMA NICs
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: David Addison <addy@quadrics.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-       David Addison <david.addison@quadrics.com>
-In-Reply-To: <Pine.LNX.4.62.0504261918210.2071@dragon.hyggekrogen.localhost>
-References: <426E62ED.5090803@quadrics.com>
-	 <Pine.LNX.4.62.0504261829110.2071@dragon.hyggekrogen.localhost>
-	 <1114535584.5410.2.camel@mindpipe>
-	 <Pine.LNX.4.62.0504261918210.2071@dragon.hyggekrogen.localhost>
-Content-Type: text/plain
-Date: Tue, 26 Apr 2005 13:28:31 -0400
-Message-Id: <1114536511.5410.14.camel@mindpipe>
+	Tue, 26 Apr 2005 13:34:31 -0400
+Received: from rproxy.gmail.com ([64.233.170.207]:16883 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261734AbVDZReP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 13:34:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ihXh3umBudXGuu9cMrdW2Q1G02WgIif8+vA0SkxfH6FkOBYamBo+E7U/rMg4HYu1Sqis2iX8FscsWH//oBRPIqGDRF3cQpqmdTJ1EcecxN0WhPxSBK4Hqn9Tu2ypDiXxkrqyOHmdLwpQST4kOBSS5467GXYOrFYutDEoxPWMsiE=
+Message-ID: <d120d50005042610342368cd72@mail.gmail.com>
+Date: Tue, 26 Apr 2005 12:34:13 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: johnpol@2ka.mipt.ru
+Subject: Re: [1/1] connector/CBUS: new messaging subsystem. Revision number next.
+Cc: netdev@oss.sgi.com, Greg KH <greg@kroah.com>,
+       Jamal Hadi Salim <hadi@cyberus.ca>, Kay Sievers <kay.sievers@vrfy.org>,
+       Herbert Xu <herbert@gondor.apana.org.au>,
+       James Morris <jmorris@redhat.com>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Thomas Graf <tgraf@suug.ch>, Jay Lan <jlan@engr.sgi.com>
+In-Reply-To: <20050426203023.378e4831@zanzibar.2ka.mipt.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050411125932.GA19538@uganda.factory.vocord.ru>
+	 <d120d5000504260857cb5f99e@mail.gmail.com>
+	 <20050426202437.234e7d45@zanzibar.2ka.mipt.ru>
+	 <20050426203023.378e4831@zanzibar.2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-04-26 at 19:20 +0200, Jesper Juhl wrote:
-> I don't know what you do, but when I'm grep'ing the tree for some function 
-> I'm often looking for its return type, having that on the same line as the 
-> function name lets me grep for the function name and the grep output will 
-> contain the return type and function name nicely on the same line.
+On 4/26/05, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
 > 
+> --- orig/drivers/connector/connector.c
+> +++ mod/drivers/connector/connector.c
+> @@ -151,8 +151,8 @@
+>                        __cbq->ddata = data;
+>                        __cbq->destruct_data = destruct_data;
+> 
+> -                       queue_work(dev->cbdev->cn_queue, &__cbq->work);
+> -                       found = 1;
+> +                       if (queue_work(dev->cbdev->cn_queue, &__cbq->work))
+> +                               found = 1;
+>                        break;
 
-I do a lot of looking at large hunks of code I'm not familiar with and
-trying to figure out how it works.  It's quite handy to grep for
-foo_func to see all usages, then ^foo_func to see the function.  I guess
-my preferred style favors people trying to grok code for the first time,
-while the kernel style favors those who know it inside out.
+What does it help exactly? By the time you checked result of
+queue_work you have already corrupted work structure wuth the new data
+(and probably destructor).
 
-Anyway, the coding style guidelines also state clearly that these points
-are not up for debate on LKML so I'll stop now...
+Also, where is the rest of the code? Should we notify caller that
+cn_netlink_send has dropped the message? And how do we do that?
 
-Lee
-
+-- 
+Dmitry

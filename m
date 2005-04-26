@@ -1,61 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261817AbVDZWUj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261819AbVDZWYO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261817AbVDZWUj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 18:20:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVDZWUj
+	id S261819AbVDZWYO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 18:24:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbVDZWYO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 18:20:39 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:16050 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261817AbVDZWUc (ORCPT
+	Tue, 26 Apr 2005 18:24:14 -0400
+Received: from smtp.istop.com ([66.11.167.126]:45780 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S261819AbVDZWYF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 18:20:32 -0400
+	Tue, 26 Apr 2005 18:24:05 -0400
+From: Daniel Phillips <phillips@istop.com>
+To: sdake@mvista.com
+Subject: Re: [PATCH 1b/7] dlm: core locking
+Date: Tue, 26 Apr 2005 18:24:22 -0400
+User-Agent: KMail/1.7
+Cc: David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+References: <20050425165826.GB11938@redhat.com> <20050426054933.GC12096@redhat.com> <1114537223.31647.10.camel@persist.az.mvista.com>
+In-Reply-To: <1114537223.31647.10.camel@persist.az.mvista.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <17006.48763.905570.316355@alkaid.it.uu.se>
-Date: Wed, 27 Apr 2005 00:19:39 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: Mikael Pettersson <mikpe@user.it.uu.se>, ak@suse.de,
-       marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4.31-pre1] x86_64 breakage on UP_IOAPIC
-In-Reply-To: <Pine.LNX.4.62.0504270017210.2071@dragon.hyggekrogen.localhost>
-References: <17006.40286.664503.252615@alkaid.it.uu.se>
-	<Pine.LNX.4.62.0504270017210.2071@dragon.hyggekrogen.localhost>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+Content-Disposition: inline
+Message-Id: <200504261824.22382.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl writes:
- > Tiny, trivial, pedantic whitespace nit : 
- > 
- > On Tue, 26 Apr 2005, Mikael Pettersson wrote:
- > 
- > > The
- > > 
- > >   o x86_64: Resend lost APIC IRQs on Uniprocessor too
- > > 
- > > change in 2.4.31-pre1 causes linkage errors: on UP_IOAPIC systems it
- > > creates references to send_IPI_self() which is only defined on SMP.
- > > 
- > > The patch below reverts this change.
- > > 
- > > Alternatively, x86_64 could implement a send_IPI_self() fallback for !SMP,
- > > just like i386 does.
- > > 
- > > /Mikael
- > > 
- > > --- linux-2.4.31-pre1/include/asm-x86_64/hw_irq.h.~1~	2005-04-26 20:57:43.000000000 +0200
- > > +++ linux-2.4.31-pre1/include/asm-x86_64/hw_irq.h	2005-04-26 21:09:31.000000000 +0200
- > > @@ -156,7 +156,7 @@ static inline void x86_do_profile (unsig
- > >  	atomic_inc((atomic_t *)&prof_buffer[eip]);
- > >  }
- > >  
- > > -#ifdef CONFIG_X86_IO_APIC
- > > +#ifdef CONFIG_SMP /*more of this file should probably be ifdefed SMP */
- >                      ^^^
- >                       Space here?
+On Tuesday 26 April 2005 13:40, Steven Dake wrote:
+> Hate to admit ignorance, but I'm not really sure what SCTP does..  I
+> guess point to point communication like tcp but with some other kind of
+> characteristics..  I wanted to have some idea of how locking messages
+> are related to the current membership.  I think I understand the system
+> from your descriptions and reading the code.  One scenario I could see
+> happeing is that there are 2 processors A, B.
+>
+> B drops out of membership
+> A sends lock to lock master B (but A doens't know B has dropped out of
+> membership yet)
+> B gets lock request, but has dropped out of membership or failed in some
+> way
+>
+> In this case the order of lock messages with the membership changes is
+> important.  This is the essential race that describes almost every issue
+> with distributed systems...  virtual synchrony makes this scenario
+> impossible by ensuring that messages are ordered in relationship to
+> membership changes.
 
-I did a cut-n-paste from the 2.4.30 original.
+It sounds great, but didn't somebody benchmark your virtual synchrony code and 
+find that it only manages to deliver some tiny dribble of messages/second?  I 
+could be entirely wrong about that, but I got the impression that your 
+algorithm as implemented is not in the right performance ballpark for 
+handling the cfs lock traffic itself.
 
-/Mikael
+If I'm right about the performance, there still might be a niche in the 
+membership algorithms, but even there I'd be worried about performance.
+
+Obviously, what you need to make your case with is a demo.  If anybody is 
+going to write that, it will almost certainly be you.  You might consider 
+using my csnap code for your demo, because it has a pluggable infrastructure 
+interface which takes the form of a relatively simple C program 
+("csnap-agent") of which an example is provided that uses the cman interface.  
+You could simply replace the cman calls by virtual synchrony calls and show 
+us how amazing this algorithm really is.
+
+   http://sourceware.org/cluster/csnap/
+
+All dependencies on cluster infrastructure - (g)dlm and cman - are 
+concentrated in that one "agent" file.  Apart from that, the code depends 
+only on what you would expect to find in a standard 2.6 setup.  You can even 
+run a non-clustered filesystem like ext3 on the csnap block device, so you 
+don't have to worry about setting up GFS either, for the time being.  This 
+should be pretty much an ideal test platform for your ideas.
+
+Regards,
+
+Daniel

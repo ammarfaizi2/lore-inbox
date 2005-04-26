@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261846AbVDZX3k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261848AbVDZXnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261846AbVDZX3k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 19:29:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbVDZX3k
+	id S261848AbVDZXnq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 19:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbVDZXnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 19:29:40 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:30726 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261846AbVDZX3Z
+	Tue, 26 Apr 2005 19:43:46 -0400
+Received: from terminus.zytor.com ([209.128.68.124]:3472 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S261848AbVDZXnm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 19:29:25 -0400
-Date: Wed, 27 Apr 2005 09:28:57 +1000
-To: Patrick McHardy <kaber@trash.net>
-Cc: Yair@arx.com, linux-kernel@vger.kernel.org,
-       netfilter-devel@lists.netfilter.org, netdev@oss.sgi.com
-Subject: Re: Re-routing packets via netfilter (ip_rt_bug)
-Message-ID: <20050426232857.GA18358@gondor.apana.org.au>
-References: <E1DQ1Ct-00055s-00@gondolin.me.apana.org.au> <426D0CB9.4060500@trash.net> <20050425213400.GB29288@gondor.apana.org.au> <426D8672.1030001@trash.net> <20050426003925.GA13650@gondor.apana.org.au> <426E3F67.8090006@trash.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <426E3F67.8090006@trash.net>
-User-Agent: Mutt/1.5.6+20040907i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Tue, 26 Apr 2005 19:43:42 -0400
+Message-ID: <426ED20B.9070706@zytor.com>
+Date: Tue, 26 Apr 2005 16:43:07 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Linus Torvalds <torvalds@osdl.org>, magnus.damm@gmail.com, mason@suse.com,
+       mike.taht@timesys.com, mpm@selenic.com, linux-kernel@vger.kernel.org,
+       git@vger.kernel.org
+Subject: Re: Mercurial 0.3 vs git benchmarks
+References: <20050426004111.GI21897@waste.org>	<200504260713.26020.mason@suse.com>	<aec7e5c305042608095731d571@mail.gmail.com>	<200504261138.46339.mason@suse.com>	<aec7e5c305042609231a5d3f0@mail.gmail.com>	<20050426135606.7b21a2e2.akpm@osdl.org>	<Pine.LNX.4.58.0504261405050.18901@ppc970.osdl.org> <20050426155609.06e3ddcf.akpm@osdl.org>
+In-Reply-To: <20050426155609.06e3ddcf.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 26, 2005 at 03:17:27PM +0200, Patrick McHardy wrote:
+Andrew Morton wrote:
+> Linus Torvalds <torvalds@osdl.org> wrote:
 > 
-> Looks like we have no choice but to also use saddr=0 and
-> ip_route_output() in this case.
+>>
+>>
+>>On Tue, 26 Apr 2005, Andrew Morton wrote:
+>>
+>>>Mounting as ext2 is a useful technique for determining whether the fs is
+>>>getting in the way.
+>>
+>>What's the preferred way to try to convert a root filesystem to a bigger
+>>journal? Forcing "rootfstype=ext2" at boot and boot into single-user, and
+>>then the appropriate magic tune2fs? Or what?
+>>
+> 
+> 
+> Gee, it's been ages.  umm,
+> 
+> - umount the fs
+> - tune2fs -O ^has_journal /dev/whatever
+> - fsck -fy                              (to clean up the now-orphaned journal inode)
+> - tune2fs -j -J size=nblocks    (normally 4k blocks)
+> - mount the fs
+> 
 
-Let's look at the bigger picture.  There are three users of
-ip_route_me_harder: nat, mangle and queue.  They're all done
-in LOCAL_OUT.
+I think this is overkill, but should of course be safe.
 
-For nat/mangle, the source address cannot change so it's
-guaranteed to be a local IP address.  On the face of it,
-queue could be changing the source address.  However, the
-more I think about it the more I reckon that it should
-be disallowed.
+While you're doing this anyway, you might want to make sure you enable 
+-O +dir_index and run fsck -D.
 
-If the user is changing the source address in LOCAL_OUT/queue
-then he's doing SNAT in LOCAL_OUT.  This violates some fundamental
-assumptions in netfilter.  The user also isn't going to have
-an easy time setting up the reverse DNAT since the corresponding
-location on the reverse side does not have a ip_route_me_harder
-call.
-
-Even if there is really a demand for SNAT in LOCAL_OUT, we
-should probably be implementing it properly rather than having
-the user craft their own in user-space.
-
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+	-hpa

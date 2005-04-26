@@ -1,60 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261848AbVDZXnq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbVDZXpI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261848AbVDZXnq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 19:43:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbVDZXnq
+	id S261849AbVDZXpI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 19:45:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbVDZXpH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 19:43:46 -0400
-Received: from terminus.zytor.com ([209.128.68.124]:3472 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S261848AbVDZXnm
+	Tue, 26 Apr 2005 19:45:07 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:31736 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261849AbVDZXou
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 19:43:42 -0400
-Message-ID: <426ED20B.9070706@zytor.com>
-Date: Tue, 26 Apr 2005 16:43:07 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
+	Tue, 26 Apr 2005 19:44:50 -0400
+Message-ID: <426ED1EC.80500@mvista.com>
+Date: Tue, 26 Apr 2005 16:42:36 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: ganzinger@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Linus Torvalds <torvalds@osdl.org>, magnus.damm@gmail.com, mason@suse.com,
-       mike.taht@timesys.com, mpm@selenic.com, linux-kernel@vger.kernel.org,
-       git@vger.kernel.org
-Subject: Re: Mercurial 0.3 vs git benchmarks
-References: <20050426004111.GI21897@waste.org>	<200504260713.26020.mason@suse.com>	<aec7e5c305042608095731d571@mail.gmail.com>	<200504261138.46339.mason@suse.com>	<aec7e5c305042609231a5d3f0@mail.gmail.com>	<20050426135606.7b21a2e2.akpm@osdl.org>	<Pine.LNX.4.58.0504261405050.18901@ppc970.osdl.org> <20050426155609.06e3ddcf.akpm@osdl.org>
-In-Reply-To: <20050426155609.06e3ddcf.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: ingo@mvista.com
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: del_timer_sync needed for UP  RT systems.
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Linus Torvalds <torvalds@osdl.org> wrote:
-> 
->>
->>
->>On Tue, 26 Apr 2005, Andrew Morton wrote:
->>
->>>Mounting as ext2 is a useful technique for determining whether the fs is
->>>getting in the way.
->>
->>What's the preferred way to try to convert a root filesystem to a bigger
->>journal? Forcing "rootfstype=ext2" at boot and boot into single-user, and
->>then the appropriate magic tune2fs? Or what?
->>
-> 
-> 
-> Gee, it's been ages.  umm,
-> 
-> - umount the fs
-> - tune2fs -O ^has_journal /dev/whatever
-> - fsck -fy                              (to clean up the now-orphaned journal inode)
-> - tune2fs -j -J size=nblocks    (normally 4k blocks)
-> - mount the fs
-> 
+Ingo,
 
-I think this is overkill, but should of course be safe.
+In tracking down the failure of a system running the RT patch we have found a 
+preemption between the time run_timer_list clears its spinlock and the call back 
+function (in this case in posix-timers.c) gets its spinlock.  The bad news is 
+that it is possible for the timer to be released at this point leaving the call 
+back code with a pointer to a bogus timer.
 
-While you're doing this anyway, you might want to make sure you enable 
--O +dir_index and run fsck -D.
+This was/is possible, of course, in SMP systems and is why del_timer_sync() 
+exists.  I suspect that del_timer_sync() needs to also do the "right thing" in 
+UP RT systems.
 
-	-hpa
+This means removing the #ifdef CONFIG_SMP at about line 56 of kernel/timer.c 
+thus setting up base->running_timer in all cases (or at least in SMP and RT 
+cases) and also the #ifdef CONFIG_SMP around del_timer_sync() and, of course, 
+the defines that redirect calls to these functions.
+
+Does this make sense?
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/

@@ -1,62 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbVDZKiN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbVDZKig@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261466AbVDZKiN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 06:38:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261478AbVDZKiM
+	id S261467AbVDZKig (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 06:38:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261480AbVDZKif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 06:38:12 -0400
-Received: from darwin.snarc.org ([81.56.210.228]:13189 "EHLO darwin.snarc.org")
-	by vger.kernel.org with ESMTP id S261466AbVDZKiF (ORCPT
+	Tue, 26 Apr 2005 06:38:35 -0400
+Received: from darwin.snarc.org ([81.56.210.228]:13445 "EHLO darwin.snarc.org")
+	by vger.kernel.org with ESMTP id S261467AbVDZKiF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 26 Apr 2005 06:38:05 -0400
-To: "1/6][XEN]"@snarc.org, "[x86]"@snarc.org, <akpm@osdl.org>,
+To: "2/6][XEN]"@snarc.org, "[x86]"@snarc.org, <akpm@osdl.org>,
        ", <ian.pratt@cl.cam.ac.uk>,, <vincent.hanquez@cl.cam.ac.uk>"@snarc.org,
-       add@snarc.org, Andrew@snarc.org, debugreg@snarc.org,
-       ", for, Hanquez, linux-kernel@vger.kernel.org, macro, Morton, Pratt, Vincent"@snarc.org
+       Andrew@snarc.org, debugreg@snarc.org,
+       ", for, Hanquez, linux-kernel@vger.kernel.org, macro, Morton, new, Pratt, use, Vincent"@snarc.org
 Subject: "[PATCH
 Cc: Ian@snarc.org
 "From: 
-Message-Id: <20050426103802.E7DC94BE12@darwin.snarc.org>
-Date: Tue, 26 Apr 2005 12:38:02 +0200 (CEST)
+Message-Id: <20050426103803.D47114BE14@darwin.snarc.org>
+Date: Tue, 26 Apr 2005 12:38:03 +0200 (CEST)
 From: tab@snarc.org (Vincent Hanquez)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-The following patch add 2 macros to set and get debugreg on x86.
-This is useful for Xen because it will need only to redefine each macro
-to a hypervisor call.
+The following patch make use of the 2 new macro cpu_set_debugreg and
+cpu_get_debugreg.
 
-I can regenerate a patch keeping loaddebug if you folks seems that is
-necessary or better.
+as well, I can regenerate a patch keeping loaddebug if you folks seems
+that is necessary or better.
 
 Please apply, or comments.
 
 	Signed-off-by: Vincent Hanquez <vincent.hanquez@cl.cam.ac.uk>
 
-diff -Naur linux-2.6.12-rc3/include/asm-i386/processor.h linux-2.6.12-rc3.1/include/asm-i386/processor.h
---- linux-2.6.12-rc3/include/asm-i386/processor.h	2005-04-21 11:46:10.000000000 +0100
-+++ linux-2.6.12-rc3.1/include/asm-i386/processor.h	2005-04-22 12:09:43.000000000 +0100
-@@ -501,12 +501,16 @@
- } while (0)
+diff -Naur linux-2.6.12-rc3.1/arch/i386/kernel/cpu/common.c linux-2.6.12-rc3.2/arch/i386/kernel/cpu/common.c
+--- linux-2.6.12-rc3.1/arch/i386/kernel/cpu/common.c	2005-04-21 11:45:45.000000000 +0100
++++ linux-2.6.12-rc3.2/arch/i386/kernel/cpu/common.c	2005-04-22 12:10:11.000000000 +0100
+@@ -631,7 +631,7 @@
  
- /*
-- * This special macro can be used to load a debugging register
-+ * These special macros can be used to get or set a debugging register
-  */
--#define loaddebug(thread,register) \
--               __asm__("movl %0,%%db" #register  \
--                       : /* no output */ \
--                       :"r" ((thread)->debugreg[register]))
-+#define cpu_get_debugreg(var, register)				\
-+		__asm__("movl %%db" #register ", %0"		\
-+			:"=r" (var))
-+#define cpu_set_debugreg(value, register)			\
-+		__asm__("movl %0,%%db" #register		\
-+			: /* no output */			\
-+			:"r" (value))
-+
+ 	/* Clear all 6 debug registers: */
  
- /* Forward declaration, a strange C thing */
- struct task_struct;
+-#define CD(register) __asm__("movl %0,%%db" #register ::"r"(0) );
++#define CD(register) cpu_set_debugreg(0, register)
+ 
+ 	CD(0); CD(1); CD(2); CD(3); /* no db4 and db5 */; CD(6); CD(7);
+ 
+diff -Naur linux-2.6.12-rc3.1/arch/i386/kernel/process.c linux-2.6.12-rc3.2/arch/i386/kernel/process.c
+--- linux-2.6.12-rc3.1/arch/i386/kernel/process.c	2005-04-22 12:10:22.000000000 +0100
++++ linux-2.6.12-rc3.2/arch/i386/kernel/process.c	2005-04-22 13:53:54.000000000 +0100
+@@ -626,13 +626,13 @@
+ 	 * Now maybe reload the debug registers
+ 	 */
+ 	if (unlikely(next->debugreg[7])) {
+-		loaddebug(next, 0);
+-		loaddebug(next, 1);
+-		loaddebug(next, 2);
+-		loaddebug(next, 3);
++		cpu_set_debugreg(current->thread.debugreg[0], 0);
++		cpu_set_debugreg(current->thread.debugreg[1], 1);
++		cpu_set_debugreg(current->thread.debugreg[2], 2);
++		cpu_set_debugreg(current->thread.debugreg[3], 3);
+ 		/* no 4 and 5 */
+-		loaddebug(next, 6);
+-		loaddebug(next, 7);
++		cpu_set_debugreg(current->thread.debugreg[6], 6);
++		cpu_set_debugreg(current->thread.debugreg[7], 7);
+ 	}
+ 
+ 	if (unlikely(prev->io_bitmap_ptr || next->io_bitmap_ptr))
+diff -Naur linux-2.6.12-rc3.1/arch/i386/kernel/signal.c linux-2.6.12-rc3.2/arch/i386/kernel/signal.c
+--- linux-2.6.12-rc3.1/arch/i386/kernel/signal.c	2005-04-21 11:45:46.000000000 +0100
++++ linux-2.6.12-rc3.2/arch/i386/kernel/signal.c	2005-04-22 12:10:11.000000000 +0100
+@@ -618,7 +618,7 @@
+ 		 * inside the kernel.
+ 		 */
+ 		if (unlikely(current->thread.debugreg[7])) {
+-			loaddebug(&current->thread, 7);
++			cpu_set_debugreg(current->thread.debugreg[7], 7);
+ 		}
+ 
+ 		/* Whee!  Actually deliver the signal.  */
+diff -Naur linux-2.6.12-rc3.1/arch/i386/kernel/traps.c linux-2.6.12-rc3.2/arch/i386/kernel/traps.c
+--- linux-2.6.12-rc3.1/arch/i386/kernel/traps.c	2005-04-21 11:45:46.000000000 +0100
++++ linux-2.6.12-rc3.2/arch/i386/kernel/traps.c	2005-04-22 12:10:11.000000000 +0100
+@@ -682,7 +682,7 @@
+ 	unsigned int condition;
+ 	struct task_struct *tsk = current;
+ 
+-	__asm__ __volatile__("movl %%db6,%0" : "=r" (condition));
++	cpu_get_debugreg(condition, 6);
+ 
+ 	if (notify_die(DIE_DEBUG, "debug", regs, condition, error_code,
+ 					SIGTRAP) == NOTIFY_STOP)
+@@ -724,9 +724,7 @@
+ 	 * the signal is delivered.
+ 	 */
+ clear_dr7:
+-	__asm__("movl %0,%%db7"
+-		: /* no output */
+-		: "r" (0));
++	cpu_set_debugreg(0, 7);
+ 	return;
+ 
+ debug_vm86:
+diff -Naur linux-2.6.12-rc3.1/arch/i386/power/cpu.c linux-2.6.12-rc3.2/arch/i386/power/cpu.c
+--- linux-2.6.12-rc3.1/arch/i386/power/cpu.c	2005-04-21 11:45:46.000000000 +0100
++++ linux-2.6.12-rc3.2/arch/i386/power/cpu.c	2005-04-22 12:10:11.000000000 +0100
+@@ -94,13 +94,13 @@
+ 	 * Now maybe reload the debug registers
+ 	 */
+ 	if (current->thread.debugreg[7]){
+-                loaddebug(&current->thread, 0);
+-                loaddebug(&current->thread, 1);
+-                loaddebug(&current->thread, 2);
+-                loaddebug(&current->thread, 3);
+-                /* no 4 and 5 */
+-                loaddebug(&current->thread, 6);
+-                loaddebug(&current->thread, 7);
++		cpu_set_debugreg(current->thread.debugreg[0], 0);
++		cpu_set_debugreg(current->thread.debugreg[1], 1);
++		cpu_set_debugreg(current->thread.debugreg[2], 2);
++		cpu_set_debugreg(current->thread.debugreg[3], 3);
++		/* no 4 and 5 */
++		cpu_set_debugreg(current->thread.debugreg[6], 6);
++		cpu_set_debugreg(current->thread.debugreg[7], 7);
+ 	}
+ 
+ }

@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVDZOXa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbVDZO05@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261551AbVDZOXa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 10:23:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261550AbVDZOXa
+	id S261537AbVDZO05 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 10:26:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261513AbVDZO05
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 10:23:30 -0400
-Received: from mx2.suse.de ([195.135.220.15]:25030 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261558AbVDZOW5 (ORCPT
+	Tue, 26 Apr 2005 10:26:57 -0400
+Received: from pat.uio.no ([129.240.130.16]:234 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261577AbVDZO0T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 10:22:57 -0400
-Date: Tue, 26 Apr 2005 16:22:52 +0200
-From: Andi Kleen <ak@suse.de>
-To: Patrick McHardy <kaber@trash.net>
-Cc: Andi Kleen <ak@suse.de>, Ed Tomlinson <tomlins@cam.org>,
-       Alexander Nyberg <alexn@dsv.su.se>,
-       Parag Warudkar <kernel-stuff@comcast.net>, linux-kernel@vger.kernel.org
-Subject: Re: X86_64: 2.6.12-rc3 spontaneous reboot
-Message-ID: <20050426142252.GJ5098@wotan.suse.de>
-References: <200504240008.35435.kernel-stuff@comcast.net> <1114332119.916.1.camel@localhost.localdomain> <200504240903.31377.tomlins@cam.org> <426CADF1.2000100@trash.net> <20050425153541.GC16828@wotan.suse.de> <426E3C6F.6010001@trash.net> <20050426135312.GI5098@wotan.suse.de> <426E48C0.9090503@trash.net> <426E4DD2.8060808@trash.net>
+	Tue, 26 Apr 2005 10:26:19 -0400
+Subject: Re: filesystem transactions API
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Ville Herva <v@iki.fi>
+Cc: Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050426134629.GU16169@viasys.com>
+References: <20050424211942.GN13052@parcelfarce.linux.theplanet.co.uk>
+	 <OF32F95BBA.F38B2D1F-ON88256FEE.006FE841-88256FEE.00742E46@us.ibm.com>
+	 <20050426134629.GU16169@viasys.com>
+Content-Type: text/plain
+Date: Tue, 26 Apr 2005 10:25:57 -0400
+Message-Id: <1114525558.28850.15.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <426E4DD2.8060808@trash.net>
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.532, required 12,
+	autolearn=disabled, AWL 1.42, FORGED_RCVD_HELO 0.05,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 26, 2005 at 04:18:58PM +0200, Patrick McHardy wrote:
-> Patrick McHardy wrote:
-> >Andi Kleen wrote:
-> >
-> >>Hmm, thats hard to believe. And are you sure the NMI watchdog
-> >>did not trigger? (e.g. did you run it with serial or netconsole)?
-> >
-> >I ran it with netconsole, but nothing was received. I'm going to retry
-> >with and without the patch once more to make sure.
+ty den 26.04.2005 Klokka 16:46 (+0300) skreiv Ville Herva:
+> Apparently, Windows Longhorn will include something called "transactional
+> NTFS". It's explained pretty well in
 > 
-> I tried starting uml with and without the patch, five times each.
-> Without the patch it worked fine every time, with the patch it
-> instantly rebooted every time. Nothing was logged on netconsole.
-> Perhaps also interesting is that if I revert all patches after
-> this change up to HEAD, it doesn't always instantly reboot, but
-> sometimes just hangs. When using HEAD, it rebooted each time so far.
+>    http://blogs.msdn.com/because_we_can/
+> 
+> Basically, a process can create a fs transaction, and all fs changes made
+> between start of the transaction and commit are atomical - meaning nothing
+> is visible until commit, and if commit fails, everything is rolled back.
+> 
+> Sound useful... Although there are no service pack installs that could fail
+> in Linux, the same thing could be useful in rpm, yum, almost anything. 
+> 
+> What do you think?
 
-Ok thanks for the information. I will stare a bit at the patch.
+NetApp have implemented something similar in their DAFS filesystem
+called "rollback locks" (or autorecover locks).
 
-It is very mysterious though. Even if the patch was somehow wrong
-the worst thing that could happen is that you end up with interrupts
-off when you shouldnt, and the NMI watchdog is very good 
-at catching that.
+   http://www.watersprings.org/pub/id/draft-wittle-dafs-00.txt
 
-Hmm actually - on some systems I broke the NMI watchdog. Can you
-check your dmesg to see if check_nmi_watchdog doesnt report it 
-as stuck? If yes please put a return on top of check_nmi_watchdog
-that should fix it. You can verify it works by looking at the
-per CPU NMI counters in /proc/interrupts. An nmi watchdog
-backtrace would be nice to see.
+Very useful for database apps etc.
 
--Andi
+Cheers,
+  Trond
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
+

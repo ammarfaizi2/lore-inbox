@@ -1,118 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261734AbVDZTA4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261739AbVDZTGn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261734AbVDZTA4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 15:00:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261739AbVDZTA4
+	id S261739AbVDZTGn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 15:06:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbVDZTGn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 15:00:56 -0400
-Received: from mx02.stofanet.dk ([212.10.10.12]:20194 "EHLO mx02.stofanet.dk")
-	by vger.kernel.org with ESMTP id S261734AbVDZTAk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 15:00:40 -0400
-Message-ID: <426E8FE4.5040307@molgaard.org>
-Date: Tue, 26 Apr 2005 21:00:52 +0200
-From: =?ISO-8859-1?Q?Sune_M=F8lgaard?= <sune@molgaard.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: mj@ucw.cz
-Subject: Re: [PATCH] 2.4.30 PicoPower IRQ router
-References: <426C9DED.9010206@molgaard.org> <200504261740.08794.lists@b-open-solutions.it>
-In-Reply-To: <200504261740.08794.lists@b-open-solutions.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Apr 2005 15:06:43 -0400
+Received: from rproxy.gmail.com ([64.233.170.198]:18725 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261739AbVDZTGl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 15:06:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=mlh2DoaZjRDkD2utUnzk1zgSN/oB5GKAM0uaGseI0f+58wsZROwKASxMQGuYmjq9JRZmfUoDY/fFP73BOr+4hNlAch3GbEbEy2c9p8EnH3n36W9dKzl1lqivSaG7pQ/qQIzpmq99HQsElao6pvgwEprsWSObnptDcNs0golqyyo=
+Message-ID: <d120d50005042612069b84ef@mail.gmail.com>
+Date: Tue, 26 Apr 2005 14:06:36 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: johnpol@2ka.mipt.ru
+Subject: Re: [1/1] connector/CBUS: new messaging subsystem. Revision number next.
+Cc: netdev@oss.sgi.com, Greg KH <greg@kroah.com>,
+       Jamal Hadi Salim <hadi@cyberus.ca>, Kay Sievers <kay.sievers@vrfy.org>,
+       Herbert Xu <herbert@gondor.apana.org.au>,
+       James Morris <jmorris@redhat.com>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Thomas Graf <tgraf@suug.ch>, Jay Lan <jlan@engr.sgi.com>
+In-Reply-To: <20050426224833.3b6a0792@zanzibar.2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050411125932.GA19538@uganda.factory.vocord.ru>
+	 <d120d5000504260857cb5f99e@mail.gmail.com>
+	 <20050426202437.234e7d45@zanzibar.2ka.mipt.ru>
+	 <20050426203023.378e4831@zanzibar.2ka.mipt.ru>
+	 <d120d50005042610342368cd72@mail.gmail.com>
+	 <20050426220713.7915e036@zanzibar.2ka.mipt.ru>
+	 <d120d50005042611203ce29dd8@mail.gmail.com>
+	 <20050426223126.37b7aea1@zanzibar.2ka.mipt.ru>
+	 <d120d50005042611426ec326e9@mail.gmail.com>
+	 <20050426224833.3b6a0792@zanzibar.2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alessandro Amici wrote:
-> just in case you didn't notice: your patch is empty :)
-
-How so? I see it fine in the mail that came back to me, but ok. I'll
-repost below.
-
-> and try to gather info on someone actually in charge of the subsystem 
-> you are modifying and CC him. random patches on l-k may not get the 
-> needed attention.
+On 4/26/05, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> On Tue, 26 Apr 2005 13:42:10 -0500
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> > Yes, that woudl work, although I would urge you to implement a message
+> > queue for callbacks (probably limit it to 1000 messages or so) to
+> > allow bursting.
+> 
+> It already exist, btw, but not exactly in that way -
+> we have skb queue, which can not be filled from userspace
+> if pressure is so strong so work queue can not be scheduled.
+> It is of course different and is influenced by other things
+> but it handles bursts quite well - it was tested on both
+> SMP and UP machines with continuous flows of forks with
+> shape addon of new running tasks [both fith fork bomb and not],
+> so I think it can be called real bursty test.
 > 
 
-I thought of that and forwarded to Martin Mares, but thank you for the tip
+Ok, hear me out and tell me where I am wrong:
 
-Best regards,
+By default a socket can receive at least 128 skbs with 258-byte
+payload, correct? That means that user of cn_netlink_send, if started
+"fresh", 128 average - size connector messages. If sender does not
+want to wait for anything (unlike your fork tests that do schedule)
+that means that 127 of those 128 messages will be dropped, although
+netlink would deliver them in time just fine.
 
-Sune
-
---Start patch--
-
---- linux-2.4.30/arch/i386/kernel/pci-irq.c	2005-04-04
-03:42:19.000000000 +0200
-+++ linux/arch/i386/kernel/pci-irq.c	2005-04-25 08:43:02.501678464 +0200
-@@ -157,6 +157,25 @@
-  }
-
-  /*
-+ * PicoPower PT86C523
-+ */
-+
-+static int pirq_pico_get(struct pci_dev *router, struct pci_dev *dev,
-int pirq)
-+{
-+  outb(0x10+((pirq-1)>>1), 0x24);
-+  return ((pirq-1)&1) ? (inb(0x26)>>4) : (inb(0x26)&0xf);
-+}
-+
-+static int pirq_pico_set(struct pci_dev *router, struct pci_dev *dev,
-int pirq, int irq)
-+{
-+  outb(0x10+((pirq-1)>>1), 0x24);
-+  unsigned int x;
-+  x = inb(0x26);
-+  x = ((pirq-1)&1) ? ((x&0x0f)|(irq<<4)) : ((x&0xf0)|(irq));
-+  outb(x,0x26);
-+}
-+
-+/*
-   * ALI pirq entries are damn ugly, and completely undocumented.
-   * This has been figured out from pirq tables, and it's not a pretty
-   * picture.
-@@ -609,6 +628,23 @@
-
-  #endif
-
-+static __init int pico_router_probe(struct irq_router *r, struct
-pci_dev *router, u16 device)
-+{
-+  switch(device)
-+  {
-+    case 0x0002:
-+      r->name = "PicoPower PT86C523";
-+      r->get = pirq_pico_get;
-+      r->set = pirq_pico_set;
-+      return 1;
-+
-+    case 0x8002:
-+      r->name = "PicoPower PT86C523 rev. BB+";
-+      r->get = pirq_pico_get;
-+      r->set = pirq_pico_set;
-+      return 1;
-+  }
-+}
-
-  static __init int intel_router_probe(struct irq_router *r, struct
-pci_dev *router, u16 device)
-  {
-@@ -814,6 +850,7 @@
-  }
-  		
-  static __initdata struct irq_router_handler pirq_routers[] = {
-+        { 0x1066, pico_router_probe },
-  	{ PCI_VENDOR_ID_INTEL, intel_router_probe },
-  	{ PCI_VENDOR_ID_AL, ali_router_probe },
-  	{ PCI_VENDOR_ID_ITE, ite_router_probe },
-
---End patch--
+What am I missing?
 
 -- 
-The best way to accelerate a Macintosh is at 9.8m sec sec.
-- Marcus Dolengo
-
+Dmitry

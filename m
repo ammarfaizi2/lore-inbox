@@ -1,132 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261764AbVDZT7a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261766AbVDZUCw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261764AbVDZT7a (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 15:59:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261765AbVDZT7a
+	id S261766AbVDZUCw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 16:02:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261767AbVDZUCw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 15:59:30 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45726 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261764AbVDZT7M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 15:59:12 -0400
-Date: Tue, 26 Apr 2005 11:41:57 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       Ashok Raj <ashok.raj@intel.com>
-Subject: [PATCH] PC300 pci_enable_device fix
-Message-ID: <20050426144157.GB31915@logos.cnet>
+	Tue, 26 Apr 2005 16:02:52 -0400
+Received: from rproxy.gmail.com ([64.233.170.205]:59602 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261766AbVDZUCF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 16:02:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MRsmo306Fpr0SZTeFpQFUl87i61sFZZuoNKYlSNvnzaO0BD+Etd+q8FXpafdlUP+rSc4HGKoYTv/A0xjnP2Q8gXEPViZ9KhWvxZU1X6lESE81QquXC0ZkARhkTWb/wczOGbRBPw615ua/Oa0+tkPRcCgKehjSW/FtOSiLZT3tGc=
+Message-ID: <d120d500050426130250ff9632@mail.gmail.com>
+Date: Tue, 26 Apr 2005 15:02:01 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: johnpol@2ka.mipt.ru
+Subject: Re: [1/1] connector/CBUS: new messaging subsystem. Revision number next.
+Cc: netdev@oss.sgi.com, Greg KH <greg@kroah.com>,
+       Jamal Hadi Salim <hadi@cyberus.ca>, Kay Sievers <kay.sievers@vrfy.org>,
+       Herbert Xu <herbert@gondor.apana.org.au>,
+       James Morris <jmorris@redhat.com>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Thomas Graf <tgraf@suug.ch>, Jay Lan <jlan@engr.sgi.com>
+In-Reply-To: <20050426232812.0c7bb3a4@zanzibar.2ka.mipt.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1i
+References: <20050411125932.GA19538@uganda.factory.vocord.ru>
+	 <20050426203023.378e4831@zanzibar.2ka.mipt.ru>
+	 <d120d50005042610342368cd72@mail.gmail.com>
+	 <20050426220713.7915e036@zanzibar.2ka.mipt.ru>
+	 <d120d50005042611203ce29dd8@mail.gmail.com>
+	 <20050426223126.37b7aea1@zanzibar.2ka.mipt.ru>
+	 <d120d50005042611426ec326e9@mail.gmail.com>
+	 <20050426224833.3b6a0792@zanzibar.2ka.mipt.ru>
+	 <d120d50005042612069b84ef@mail.gmail.com>
+	 <20050426232812.0c7bb3a4@zanzibar.2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 4/26/05, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> On Tue, 26 Apr 2005 14:06:36 -0500
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> 
+> > On 4/26/05, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> > > On Tue, 26 Apr 2005 13:42:10 -0500
+> > > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> > > > Yes, that woudl work, although I would urge you to implement a message
+> > > > queue for callbacks (probably limit it to 1000 messages or so) to
+> > > > allow bursting.
+> > >
+> > > It already exist, btw, but not exactly in that way -
+> > > we have skb queue, which can not be filled from userspace
+> > > if pressure is so strong so work queue can not be scheduled.
+> > > It is of course different and is influenced by other things
+> > > but it handles bursts quite well - it was tested on both
+> > > SMP and UP machines with continuous flows of forks with
+> > > shape addon of new running tasks [both fith fork bomb and not],
+> > > so I think it can be called real bursty test.
+> > >
+> >
+> > Ok, hear me out and tell me where I am wrong:
+> >
+> > By default a socket can receive at least 128 skbs with 258-byte
+> > payload, correct? That means that user of cn_netlink_send, if started
+> > "fresh", 128 average - size connector messages. If sender does not
+> > want to wait for anything (unlike your fork tests that do schedule)
+> > that means that 127 of those 128 messages will be dropped, although
+> > netlink would deliver them in time just fine.
+> >
+> > What am I missing?
+> 
+> Concider netlink_broadcast - it delivers skb to the kernel
+> listener directly to the input callback - no queueing actually,
 
-Call pci_enable_device() before looking at IRQ and resources, 
-and pci_disable_device() when shutting the interface down.
+Right, no queueing for in-kernel... 
 
-The driver requires this fix or the "pci=routeirq" workaround
-on 2.6.10 and later kernels.
-                                                                                                                                                                                   
-Reported and tested by Artur Lipowski.
-                                                                                                                                                                                   
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Signed-off-by: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+But then we have the following: netlink will drop messages sent to
+in-kernel socket ony if it can not copy skb - which is i'd say a very
+rare scenario. Connector, on the other hand, is guaranteed to drop all
+but the very first message sent between 2 schedules. That makes
+connector several orders of magnitude less reliable than bare netlink
+protocol. And you don't see it with your fork tests because you do
+schedule when you fork.
 
-Index: drivers/net/wan/pc300_drv.c
-===================================================================
---- 5b6486ded5188e41ac9bc81ad4a5e2bd746f7ede/drivers/net/wan/pc300_drv.c  (mode:100644 sha1:d67be2587d4d33879d479f331ad4cb9d3ac33f75)
-+++ uncommitted/drivers/net/wan/pc300_drv.c  (mode:100664)
-@@ -3427,7 +3427,7 @@
- {
- 	static int first_time = 1;
- 	ucchar cpc_rev_id;
--	int err = 0, eeprom_outdated = 0;
-+	int err, eeprom_outdated = 0;
- 	ucshort device_id;
- 	pc300_t *card;
- 
-@@ -3439,15 +3439,21 @@
- #endif
- 	}
- 
-+	if ((err = pci_enable_device(pdev)) < 0)
-+		return err;
-+
- 	card = (pc300_t *) kmalloc(sizeof(pc300_t), GFP_KERNEL);
- 	if (card == NULL) {
- 		printk("PC300 found at RAM 0x%08lx, "
- 		       "but could not allocate card structure.\n",
- 		       pci_resource_start(pdev, 3));
--		return -ENOMEM;
-+		err = -ENOMEM;
-+		goto err_disable_dev;
- 	}
- 	memset(card, 0, sizeof(pc300_t));
- 
-+	err = -ENODEV;
-+
- 	/* read PCI configuration area */
- 	device_id = ent->device;
- 	card->hw.irq = pdev->irq;
-@@ -3507,7 +3513,6 @@
- 		printk("PC300 found at RAM 0x%08x, "
- 		       "but could not allocate PLX mem region.\n",
- 		       card->hw.ramphys);
--		err = -ENODEV;
- 		goto err_release_io;
- 	}
- 	if (!request_mem_region(card->hw.ramphys, card->hw.alloc_ramsize,
-@@ -3515,7 +3520,6 @@
- 		printk("PC300 found at RAM 0x%08x, "
- 		       "but could not allocate RAM mem region.\n",
- 		       card->hw.ramphys);
--		err = -ENODEV;
- 		goto err_release_plx;
- 	}
- 	if (!request_mem_region(card->hw.scaphys, card->hw.scasize,
-@@ -3523,13 +3527,9 @@
- 		printk("PC300 found at RAM 0x%08x, "
- 		       "but could not allocate SCA mem region.\n",
- 		       card->hw.ramphys);
--		err = -ENODEV;
- 		goto err_release_ram;
- 	}
- 
--	if ((err = pci_enable_device(pdev)) != 0)
--		goto err_release_sca;
--
- 	card->hw.plxbase = ioremap(card->hw.plxphys, card->hw.plxsize);
- 	card->hw.rambase = ioremap(card->hw.ramphys, card->hw.alloc_ramsize);
- 	card->hw.scabase = ioremap(card->hw.scaphys, card->hw.scasize);
-@@ -3619,7 +3619,6 @@
- 		iounmap(card->hw.falcbase);
- 		release_mem_region(card->hw.falcphys, card->hw.falcsize);
- 	}
--err_release_sca:
- 	release_mem_region(card->hw.scaphys, card->hw.scasize);
- err_release_ram:
- 	release_mem_region(card->hw.ramphys, card->hw.alloc_ramsize);
-@@ -3628,7 +3627,9 @@
- err_release_io:
- 	release_region(card->hw.iophys, card->hw.iosize);
- 	kfree(card);
--	return -ENODEV;
-+err_disable_dev:
-+	pci_disable_device(pdev);
-+	return err;
- }
- 
- static void __devexit cpc_remove_one(struct pci_dev *pdev)
-@@ -3662,6 +3663,7 @@
- 		if (card->hw.irq)
- 			free_irq(card->hw.irq, card);
- 		kfree(card);
-+		pci_disable_device(pdev);
- 	}
- }
- 
-
-
+-- 
+Dmitry

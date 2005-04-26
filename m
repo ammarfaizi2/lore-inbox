@@ -1,42 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVDZRsM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261498AbVDZRt6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261552AbVDZRsM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 13:48:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbVDZRr7
+	id S261498AbVDZRt6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 13:49:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbVDZRsa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 13:47:59 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:13973 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261552AbVDZRqw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 13:46:52 -0400
-Subject: Re: preempt-count oddities - still looking for comments :)
-From: Robert Love <rml@novell.com>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       kpreempt-tech@lists.sourceforge.net
-In-Reply-To: <Pine.LNX.4.62.0504261944020.2071@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0504232254050.2474@dragon.hyggekrogen.localhost>
-	 <Pine.LNX.4.62.0504261929230.2071@dragon.hyggekrogen.localhost>
-	 <1114536937.6851.1.camel@betsy>
-	 <Pine.LNX.4.62.0504261944020.2071@dragon.hyggekrogen.localhost>
-Content-Type: text/plain
-Date: Tue, 26 Apr 2005 13:46:30 -0400
-Message-Id: <1114537590.6851.3.camel@betsy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
+	Tue, 26 Apr 2005 13:48:30 -0400
+Received: from ns2.suse.de ([195.135.220.15]:26062 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261725AbVDZRjk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 13:39:40 -0400
+From: Chris Mason <mason@suse.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Mercurial 0.3 vs git benchmarks
+Date: Tue, 26 Apr 2005 13:39:33 -0400
+User-Agent: KMail/1.8
+Cc: Mike Taht <mike.taht@timesys.com>, Matt Mackall <mpm@selenic.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
+References: <20050426004111.GI21897@waste.org> <200504260713.26020.mason@suse.com> <Pine.LNX.4.58.0504260939440.18901@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0504260939440.18901@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200504261339.34680.mason@suse.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-04-26 at 19:46 +0200, Jesper Juhl wrote:
+On Tuesday 26 April 2005 12:42, Linus Torvalds wrote:
+> On Tue, 26 Apr 2005, Chris Mason wrote:
+> > This agrees with my tests here, the time to apply patches is somewhat
+> > disk bound, even for the small 100 or 200 patch series.  The io should be
+> > coming from data=ordered, since the commits are still every 5 seconds or
+> > so.
+>
+> Yes, ext3 really does suck in many ways.
+>
+> One of my (least) favourite suckage is a process that does "fsync" on a
+> single file (mail readers etc), which apparently causes ext3 to sync all
+> dirty data, because it can only sync the whole log. So if you have stuff
+> that writes out things that aren't critical, it negatively affects
+> something totally independent that _does_ care.
+>
+> I remember some early stuff showing that reiserfs was _much_ better for
+> BK. I'd be willing to bet that's probably true for git too.
 
-> I'll update the patch(es) then and use __s32 in the structure and s32 
-> elsewhere.
+reiserfs shares the same basic data=ordered idea as ext3, so the fsync will do 
+the same on reiser as it does on ext3.  I do have code in there to try and 
+keep the data=ordered writeback a little less bursty than it is in ext3 so 
+you might not notice the fsync as much.
 
-You can actually use s32 everywhere, since the structure is never
-exported to user-space...although some architectures already have the
-__ugly versions in there.
+I haven't compared reiser vs ext3 for git.  reiser tails should help 
+performance because once you read the object inode you've also got the data.  
+But, I would expect the biggest help to come from mounting reiserfs -o 
+alloc=skip_busy.  This basically allocates all new files one right after the 
+other on disk regardless of which subdir they are in.  The effect is to time 
+order most of your files.
 
-	Robert Love
+As an example, here's the time to apply 300 patches on ext3.  This was with my 
+packed patches applied, but vanilla git should show similar percentage 
+differences.
 
+data=writeback  32s			
+data=ordered    44s
 
+With a long enough test, data=ordered should fall into the noise, but 10-40 
+second runs really show it.
+
+-chris

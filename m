@@ -1,48 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbVDZJIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261408AbVDZJQp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261410AbVDZJIs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 05:08:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbVDZJHD
+	id S261408AbVDZJQp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 05:16:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbVDZJQp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 05:07:03 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:17363 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261410AbVDZJGp (ORCPT
+	Tue, 26 Apr 2005 05:16:45 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:37337 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261408AbVDZJQl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 05:06:45 -0400
-Date: Tue, 26 Apr 2005 11:06:44 +0200
-From: Jens Axboe <axboe@suse.de>
-To: linux-kernel@vger.kernel.org
-Cc: tiwai@suse.de
-Subject: [PATCH] fix via82xx resume
-Message-ID: <20050426090643.GA2608@suse.de>
+	Tue, 26 Apr 2005 05:16:41 -0400
+Date: Tue, 26 Apr 2005 11:16:03 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Adam Belay <ambx1@neo.rr.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Adam Belay <abelay@novell.com>, Dave Jones <davej@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, Alan Stern <stern@rowland.harvard.edu>,
+       alexn@dsv.su.se, Greg KH <greg@kroah.com>, gud@eth.net,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Jeff Garzik <jgarzik@pobox.com>,
+       cramerj@intel.com, Linux-USB <linux-usb-devel@lists.sourceforge.net>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+Subject: Re: [PATCH] PCI: Add pci shutdown ability
+Message-ID: <20050426091603.GA1824@elf.ucw.cz>
+References: <1114458325.983.17.camel@localhost.localdomain> <Pine.LNX.4.44L0.0504251609420.7408-100000@iolanthe.rowland.org> <20050425145831.48f27edb.akpm@osdl.org> <20050425221326.GC15366@redhat.com> <20050425232330.GG27771@neo.rr.com> <1114489949.7111.43.camel@gaston> <20050426062314.GC3951@neo.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20050426062314.GC3951@neo.rr.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-Trying software suspend on my workstation makes it crash on resume. The
-problem is that via82xx marks the chip_init function as _devinit, but
-calls it on resume as well.
+> > I don't like this notion of "stop" separated from power states anyway, I
+> > think it just doesn't work in practice.
+> 
+> Yeah, after giving it some additional thought, I think there are better ways.
+> 
+> > 
+> > Ben.
+> > 
+> 
+> Ok, here's a new idea.
+> 
+> For many devices "->suspend" and "->resume" with pm_message_t is exactly what
+> we need.  However, as we support more advanced power management features, such
+> as runtime power management, or power containers, we need something a little
+> more specific.  The exact power state must be specified among other
+> issues.
 
-Signed-off-by: Jens Axboe <axboe@suse.de>
+Okay, maybe. But not by adding 3 new callbacks that mirror existing
+functionality.
 
-Index: sound/pci/via82xx.c
-===================================================================
---- 9771aaff44479c8ccac70fd18d1e7394fd9de264/sound/pci/via82xx.c  (mode:100644 sha1:f1ce808501da54e60039fd5a9ab99af30d77a0c5)
-+++ uncommitted/sound/pci/via82xx.c  (mode:100644)
-@@ -1836,7 +1836,7 @@
-  *
-  */
- 
--static int __devinit snd_via82xx_chip_init(via82xx_t *chip)
-+static int snd_via82xx_chip_init(via82xx_t *chip)
- {
- 	unsigned int val;
- 	int max_count;
+> We might do something like this:
+> 
+> Keep "->suspend" and "->resume" around unchanged. (so the states would
+> probably remain as PMSG_FREEZE and PMSG_SUSPEND).  If the driver doesn't
+> support the more advanced PM methods just use these.  They work well enough
+> for system sleep states etc.
+> 
+> Alternatively drivers could support a more rich power management interface
+> via the following methods:
+> 
+> 
+> change_state - changes a device's power state
+> 
+> change_state(struct device * dev, pm_state_t state, struct system_state * sys_state, int reason);  
+> @dev - the device
+> @state - the target device-specific power state
+> @sys_state - a data structure containing information about the intended global system power state
+> @reason - why the state must be changed (ex. RUNTIME_PM,
+> SYSTEM_SLEEP, SYSTEM_RESUME, etc.)
 
+If drivers really need to know system state and reason, just put it
+into pm_message_t. I wanted to add "flags" there from the begining,
+serving similar purpose as your "reason".
+
+> halt - acts somewhat like PMSG_FREEZE, stops device activity, doesn't change power state
+> 
+> halt(struct device * dev, struct system_state * sys_state, int reason);
+> @dev - the device
+> @sys_state - a data structure containing information about the intended global system power state
+> @reason - why we are halting operation (ex. RUNTIME_CHANGES (like cpufreq), SYSTEM_SLEEP, SHUTDOWN, REBOOT)  
+
+If it is similar to PMSG_FREEZE, just pass PMSG_FREEZE and put
+* sys_state  and reason into pm_message_t.
+
+> contine - resumes from a "halt"
+> 
+> continue(struct device * dev, struct system_state * sys_state, int reason);
+> @dev - the device
+> @sys_state - a data structure containing information about the intended global system power state
+> @reason - why we are resuming operation (ex. RUNTIME_CHANGES (like cpufreq), SYSTEM_RESUME)  
+
+Now, here you have a point. resume() should get pm_message_t,
+too. This should be rather easy to change (simple matter of coding),
+and we have agreed before that it is good idea. Patches welcome.
+
+								Pavel
 -- 
-Jens Axboe
-
+Boycott Kodak -- for their patent abuse against Java.

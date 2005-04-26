@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbVDZRKk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261674AbVDZRNN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261657AbVDZRKk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 13:10:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbVDZRKj
+	id S261674AbVDZRNN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 13:13:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbVDZRNN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 13:10:39 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:35765 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261657AbVDZRKb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 13:10:31 -0400
-In-Reply-To: <Pine.LNX.4.58.0504261347110.4555@be1.lrz>
-To: Bodo Eggert <7eggert@gmx.de>
-Cc: 7eggert@gmx.de, akpm@osdl.org, Jan Hudec <bulb@ucw.cz>, hch@infradead.org,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Miklos Szeredi <miklos@szeredi.hu>,
-       viro@parcelfarce.linux.theplanet.co.uk
-MIME-Version: 1.0
-Subject: Re: [PATCH] private mounts
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OF7E89A8B8.2AC04C42-ON88256FEF.005DACE1-88256FEF.005E7421@us.ibm.com>
-From: Bryan Henderson <hbryan@us.ibm.com>
-Date: Tue, 26 Apr 2005 10:10:22 -0700
-X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Build V70_M4_01112005 Beta 3|January
- 11, 2005) at 04/26/2005 13:10:29,
-	Serialize complete at 04/26/2005 13:10:29
-Content-Type: text/plain; charset="US-ASCII"
+	Tue, 26 Apr 2005 13:13:13 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:25806 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261674AbVDZRNG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 13:13:06 -0400
+Subject: Re: [PATCH][RFC] Linux VM hooks for advanced RDMA NICs
+From: Lee Revell <rlrevell@joe-job.com>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: David Addison <addy@quadrics.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       David Addison <david.addison@quadrics.com>
+In-Reply-To: <Pine.LNX.4.62.0504261829110.2071@dragon.hyggekrogen.localhost>
+References: <426E62ED.5090803@quadrics.com>
+	 <Pine.LNX.4.62.0504261829110.2071@dragon.hyggekrogen.localhost>
+Content-Type: text/plain
+Date: Tue, 26 Apr 2005 13:13:04 -0400
+Message-Id: <1114535584.5410.2.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >mknamespace -p users/$UID # (like mkdir -p)
->> >setnamespace users/$UID   # (like cd)
->>                               ^^^^^^^^
->> 
->> You realize that 'cd' is a shell command, and has to be, I hope.  That 
->> little fact has thrown a wrench into many of the ideas in this thread.
->
->I suppose it will be called by the login process or by wrappers like 
->'nice'.
+On Tue, 2005-04-26 at 18:57 +0200, Jesper Juhl wrote:
+> > 
+> > +static inline void
+> > +ioproc_release(struct mm_struct *mm)
+> > +{
+> 
+> Return types on same line as function name makes grep'ing a lot 
+> easier/nicer.
+> 
+> Here's the example from Documentation/CodingStyle : 
+> 
+>         int function(int x)
+>         {
 
-Just to be clear, then: this idea is fundamentally different from the 
-mkdir/cd analogy the thread starts with above.  And it misses one rather 
-important requirement compared to mkdir/cd:  You can't add a new mount to 
-an existing shell.
+How so?  I never understood the reasons.  This makes it easier to grep
+for everything that returns int.  But you make the common case (what
+file is function() defined in?) harder.
 
-Several more complicated schemes that may achieve that are being discussed 
-in this thread.
+Lee
 
---
-Bryan Henderson                          IBM Almaden Research Center
-San Jose CA                              Filesystems
 

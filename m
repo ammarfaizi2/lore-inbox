@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbVDZPZ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVDZP3I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261604AbVDZPZ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 11:25:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbVDZPZ5
+	id S261607AbVDZP3I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 11:29:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbVDZP3H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 11:25:57 -0400
-Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:42636 "EHLO
-	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
-	id S261587AbVDZPZh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 11:25:37 -0400
-Message-ID: <426E5D13.6000200@ammasso.com>
-Date: Tue, 26 Apr 2005 10:24:03 -0500
-From: Timur Tabi <timur.tabi@ammasso.com>
-Organization: Ammasso
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en, en-gb
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Roland Dreier <roland@topspin.com>, Andrew Morton <akpm@osdl.org>,
-       hozer@hozed.org, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
-References: <4263DEC5.5080909@ammasso.com> <20050418164316.GA27697@infradead.org> <4263E445.8000605@ammasso.com> <20050423194421.4f0d6612.akpm@osdl.org> <426BABF4.3050205@ammasso.com> <52is2bvvz5.fsf@topspin.com> <20050425135401.65376ce0.akpm@osdl.org> <521x8yv9vb.fsf@topspin.com> <20050425151459.1f5fb378.akpm@osdl.org> <52r7gytnfn.fsf@topspin.com> <20050426061236.GA27220@infradead.org>
-In-Reply-To: <20050426061236.GA27220@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Apr 2005 11:29:07 -0400
+Received: from darwin.snarc.org ([81.56.210.228]:7823 "EHLO darwin.snarc.org")
+	by vger.kernel.org with ESMTP id S261579AbVDZP0k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 11:26:40 -0400
+Date: Tue, 26 Apr 2005 17:26:38 +0200
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, ian.pratt@cl.cam.ac.uk, akpm@osdl.org
+Subject: Re: [PATCH 5/6][XEN][x86_64] Add macro for debugreg
+Message-ID: <20050426152638.GA23714@snarc.org>
+References: <20050426113149.GE26614@snarc.org> <20050426131707.GB5098@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050426131707.GB5098@wotan.suse.de>
+X-Warning: Email may contain unsmilyfied humor and/or satire.
+User-Agent: Mutt/1.5.6+20040907i
+From: tab@snarc.org (Vincent Hanquez)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
+On Tue, Apr 26, 2005 at 03:17:07PM +0200, Andi Kleen wrote:
+> It looks good, except that the name of the macro is too long.
+> I will queue it and fix the name up when I apply. 
 
-> What doesn't work with that design are the braindead designed by comittee
-> APIs in the RDMA world - but I don't think we should care about them too
-> much.
+fine. let me know the new name, I'll regenerate a new set of patch for
+x86 too. It's probably better to have the same name between the 2 archs.
 
-I think you should.  The whole point behind RDMA is that these APIs exist and are being 
-used by real-world applications.  You can't just ignore them because they're inconvenient. 
-  If you're not willing to cater to these API's needs, then you may as well tell all the 
-RDMA developers to forgot about Linux and port everything to Windows instead.
+> If you plan to add a lot more of these I would recommend
+> to create a new header first, processor.h is already quite crowded.
 
-The APIs are here to stay, and the whole point behind this thread is to discuss how Linux 
-can support them.
+Right. Although I think that's all (at least at the moment).
+I'll consider that anyway, if more shows up. 
 
+Thanks,
 -- 
-Timur Tabi
-Staff Software Engineer
-timur.tabi@ammasso.com
-
-One thing a Southern boy will never say is,
-"I don't think duct tape will fix it."
-      -- Ed Smylie, NASA engineer for Apollo 13
+Vincent Hanquez

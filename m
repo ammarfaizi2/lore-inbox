@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbVDZBtt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbVDZB5R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261204AbVDZBtt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 21:49:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbVDZBts
+	id S261196AbVDZB5R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 21:57:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbVDZB5R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 21:49:48 -0400
-Received: from smtp.istop.com ([66.11.167.126]:47536 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S261204AbVDZBtl (ORCPT
+	Mon, 25 Apr 2005 21:57:17 -0400
+Received: from fire.osdl.org ([65.172.181.4]:148 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261196AbVDZB5O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 21:49:41 -0400
-From: Daniel Phillips <phillips@istop.com>
-To: Matt Mackall <mpm@selenic.com>
-Subject: Re: Mercurial 0.3 vs git benchmarks
-Date: Mon, 25 Apr 2005 21:49:50 -0400
-User-Agent: KMail/1.7
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-References: <20050426004111.GI21897@waste.org>
-In-Reply-To: <20050426004111.GI21897@waste.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 25 Apr 2005 21:57:14 -0400
+Date: Mon, 25 Apr 2005 18:53:42 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] change the SOUND_PRIME handling
+Message-Id: <20050425185342.50ac4397.akpm@osdl.org>
+In-Reply-To: <20050415004845.GI20400@stusta.de>
+References: <20050415004845.GI20400@stusta.de>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200504252149.50735.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 25 April 2005 20:41, Matt Mackall wrote:
-> Despite the above, it compares pretty well to git in speed and is
-> quite a bit better in terms of storage space. By reducing the zlib
-> compression level, it could probably win across the board.
+Adrian Bunk <bunk@stusta.de> wrote:
+>
+> SOUND_PRIME (for OSS) is a tristate.
+> 
+>  This doesn't make much sense if most users are checking for 
+>  SOUND_PRIME!=0.
+> 
+>  This patch changes the semantics of SOUND_PRIME to being a limit for all 
+>  OSS modules, IOW: SOUND_PRIME=m does now say that all OSS drivers can 
+>  only be modular.
+> 
+>  As a side effect, since SOUND_PRIME already depends on SOUND, there's no 
+>  longer a reason for drivers depending on SOUND_PRIME to additionally 
+>  depend on SOUND.
 
-Hi Matt,
+This spits lots of rejects because it had dependencies on Sam's trees and
+I've dropped all bk trees.  Please fix it up in a week or three.
 
-Congratulations on an impressive demo!  How about actually checking the 
-compression vs wall clock theory?  And I probably don't have to mention 
-psyco...
-
-Regards,
-
-Daniel

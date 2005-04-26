@@ -1,70 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbVDZQXu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261655AbVDZQXu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261636AbVDZQXu (ORCPT <rfc822;willy@w.ods.org>);
+	id S261655AbVDZQXu (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 26 Apr 2005 12:23:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbVDZQVM
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261642AbVDZQUb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 12:21:12 -0400
-Received: from mailfe10.tele2.se ([212.247.155.33]:61423 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S261677AbVDZQTU (ORCPT
+	Tue, 26 Apr 2005 12:20:31 -0400
+Received: from colo.lackof.org ([198.49.126.79]:57307 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S261618AbVDZQQi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 12:19:20 -0400
-X-T2-Posting-ID: k1c2aGMK8Lj9Cnpb+Eju4eOhqUzXuhsckJNC9B9P7R8=
-Date: Tue, 26 Apr 2005 18:22:03 +0200
-From: Frederik Deweerdt <frederik.deweerdt@laposte.net>
-To: prasanna@in.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Don't oops when unregistering unknown kprobes
-Message-ID: <20050426162203.GE27406@gilgamesh.home.res>
-Mail-Followup-To: prasanna@in.ibm.com, linux-kernel@vger.kernel.org
+	Tue, 26 Apr 2005 12:16:38 -0400
+Date: Tue, 26 Apr 2005 10:19:07 -0600
+From: Grant Grundler <grundler@parisc-linux.org>
+To: "Richard B. Johnson" <linux-os@analogic.com>
+Cc: Grant Grundler <grundler@parisc-linux.org>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       Alexander Nyberg <alexn@dsv.su.se>, Greg KH <greg@kroah.com>,
+       Amit Gud <gud@eth.net>, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, akpm@osdl.org, jgarzik@pobox.com,
+       cramerj@intel.com,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] PCI: Add pci shutdown ability
+Message-ID: <20050426161907.GD2612@colo.lackof.org>
+References: <1114458325.983.17.camel@localhost.localdomain> <Pine.LNX.4.44L0.0504251609420.7408-100000@iolanthe.rowland.org> <20050426154149.GA2612@colo.lackof.org> <Pine.LNX.4.61.0504261156470.15142@chaos.analogic.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="ZPt4rx8FFjLCG7dd"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <Pine.LNX.4.61.0504261156470.15142@chaos.analogic.com>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 26, 2005 at 12:07:41PM -0400, Richard B. Johnson wrote:
+> DMAs don't go on "forever"
 
---ZPt4rx8FFjLCG7dd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+They don't. But we also don't know when they will stop.
+E.g. NICs will stop DMA when the RX descriptor ring is full.
+I don't know when USB stop on it's own.
 
-Hi Prasanna,
+>   and at the time they are started they
+> are doing DMA to or from memory that is "owned" by the user of
+> the DMA device. In order for DMAs to continue past that point,
+> there needs to be something that got notified of a previous
+> completion to start the next one that you state is erroneous.
+> If such an erroneous DMA is occurring, it can only occur as
+> as result of an interrupt and ISR that is still in-place to
+> reprogram and restart DMA on the interrupting device.
 
-Here's a patch that handles gracefully attempts to unregister
-unregistered kprobes (ie. a warning message instead of an oops).
-Patch is against 2.6.12-rc3
+No. BIOS (parisc PDC in my case) left the device enabled.
+PDC does NOT use interrupts which is exactly why they've left
+the device enabled for DMA.
 
-Signed-off-by: Frederik Deweerdt <frederik.deweerdt@laposte.net>
+> Therefore,
+> all you need to do to quiet any such erroneous DMA operations,
+> if they are occurring at all, is to mask off the interrupts
+> on anything that hasn't been initialized yet.
+> 
+> The newer PCI code design has a built-in problem that you
+> can't find out the interrupt it will use until you enable
+> the device.
 
-Regards,
-Frederik
+DMA does not need to be enabled to read PCI_INTERRUPT_LINE (config space).
+Or grab the IRQ # from pci_dev->irq if PCI is already initialized.
 
--- 
-o----------------------------------------------o
-| http://open-news.net : l'info alternative    |
-| Tech - Sciences - Politique - International  |
-o----------------------------------------------o
+grant
 
---ZPt4rx8FFjLCG7dd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="dont.oops.on.unregister.unknown.kprobe.patch"
-
---- linux-2.6.12-rc3/kernel/kprobes.c	2005-04-26 16:35:22.000000000 +0200
-+++ linux-2.6.12-rc3-devel/kernel/kprobes.c	2005-04-26 16:44:57.000000000 +0200
-@@ -107,6 +107,13 @@ rm_kprobe:
- void unregister_kprobe(struct kprobe *p)
- {
- 	unsigned long flags;
-+
-+	if (!get_kprobe(p)) {
-+		printk(KERN_WARNING "Warning: Attempt to unregister "
-+					"unknown kprobe (addr:0x%lx)\n",
-+					(unsigned long) p);
-+		return;
-+	}
- 	arch_remove_kprobe(p);
- 	spin_lock_irqsave(&kprobe_lock, flags);
- 	*p->addr = p->opcode;
-
---ZPt4rx8FFjLCG7dd--
+>  This means that there is some possibility of
+> a race between getting that information and putting in a
+> ISR to quiet the device which may still be active because
+> it was used during the boot. It think this is the more
+> likely scenario than some DMA that is still active.
+> 
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+>  Notice : All mail here is now cached for review by Dictator Bush.
+>                  98.36% of all statistics are fiction.

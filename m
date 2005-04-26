@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVDZPNH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbVDZPOo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261567AbVDZPNH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 11:13:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbVDZPNC
+	id S261584AbVDZPOo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 11:14:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261579AbVDZPOe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 11:13:02 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:5541 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S261567AbVDZPMx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 11:12:53 -0400
-Date: Tue, 26 Apr 2005 17:12:31 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: John Stoffel <john@stoffel.org>, Jamie Lokier <jamie@shareable.org>
-Cc: "Artem B. Bityuckiy" <dedekind@oktetlabs.ru>, Ville Herva <v@iki.fi>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: filesystem transactions API
-Message-ID: <20050426151231.GF7859@marowsky-bree.de>
-References: <20050424211942.GN13052@parcelfarce.linux.theplanet.co.uk> <OF32F95BBA.F38B2D1F-ON88256FEE.006FE841-88256FEE.00742E46@us.ibm.com> <20050426134629.GU16169@viasys.com> <20050426141426.GC10833@mail.shareable.org> <426E4EBD.6070104@oktetlabs.ru> <20050426143247.GF10833@mail.shareable.org> <17006.22498.394169.98413@smtp.charter.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <17006.22498.394169.98413@smtp.charter.net>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.6i
+	Tue, 26 Apr 2005 11:14:34 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:7296 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S261568AbVDZPON
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 11:14:13 -0400
+Date: Tue, 26 Apr 2005 11:14:10 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       <alexn@dsv.su.se>, Greg KH <greg@kroah.com>, <gud@eth.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       <linux-pci@atrey.karlin.mff.cuni.cz>, Jeff Garzik <jgarzik@pobox.com>,
+       <cramerj@intel.com>, Linux-USB <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] PCI: Add pci shutdown ability
+In-Reply-To: <1114487537.7182.26.camel@gaston>
+Message-ID: <Pine.LNX.4.44L0.0504261112320.12725-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2005-04-26T11:01:54, John Stoffel <john@stoffel.org> wrote:
+On Tue, 26 Apr 2005, Benjamin Herrenschmidt wrote:
 
-> Jamie> No.  A transaction means that _all_ processes will see the
-> Jamie> whole transaction or not.
-> This is really hard.  How do you handle the case where process X
-> starts a transaction modifies files a, b & c, but process Y has file b
-> open for writing, and never lets it go?  Or the file gets unlinked?  
+> The problem is, as far as I understand what David told me a while ago,
+> some USB chips simply _cannot_ disable DMA without actually suspending
+> the bus, which itself is a complex process that takes some time and can
+> involve all sort of problems with devices / drivers that don't deal with
+> suspended busses properly. I suspect other kind of chips may be
+> similarily busted by design.
 
-I suggest you ask Hans, reiser4 does have such a feature if I recall
-correctly.
+That's correct.  However, during shutdown we don't really need to take the 
+time and we don't care about problems with drivers not handling suspended 
+buses properly.  (USB devices, at least, _can_ handle such things -- it's 
+part of the spec.)
 
-It gets a whole lot more interesting if you want the sucker to spawn
-more than one mount though.
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-High Availability & Clustering
-SUSE Labs, Research and Development
-SUSE LINUX Products GmbH - A Novell Business
+Alan Stern
 

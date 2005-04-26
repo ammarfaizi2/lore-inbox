@@ -1,68 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261828AbVDZWsK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261831AbVDZWvE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261828AbVDZWsK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 18:48:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261829AbVDZWsK
+	id S261831AbVDZWvE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 18:51:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbVDZWvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 18:48:10 -0400
-Received: from gate.crashing.org ([63.228.1.57]:14801 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261828AbVDZWsF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 18:48:05 -0400
-Subject: Re: pci-sysfs resource mmap broken
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Grant Grundler <grundler@parisc-linux.org>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>, bjorn.helgaas@hp.com
-In-Reply-To: <20050426163042.GE2612@colo.lackof.org>
-References: <1114493609.7183.55.camel@gaston>
-	 <20050426163042.GE2612@colo.lackof.org>
-Content-Type: text/plain
-Date: Wed, 27 Apr 2005 08:47:34 +1000
-Message-Id: <1114555655.7183.81.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Tue, 26 Apr 2005 18:51:03 -0400
+Received: from terminus.zytor.com ([209.128.68.124]:34447 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S261830AbVDZWu5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 18:50:57 -0400
+Message-ID: <426EC5A4.2090107@zytor.com>
+Date: Tue, 26 Apr 2005 15:50:12 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Andrew Morton <akpm@osdl.org>, Magnus Damm <magnus.damm@gmail.com>,
+       mason@suse.com, mike.taht@timesys.com, mpm@selenic.com,
+       linux-kernel@vger.kernel.org, git@vger.kernel.org
+Subject: Re: Mercurial 0.3 vs git benchmarks
+References: <20050426004111.GI21897@waste.org> <200504260713.26020.mason@suse.com> <aec7e5c305042608095731d571@mail.gmail.com> <200504261138.46339.mason@suse.com> <aec7e5c305042609231a5d3f0@mail.gmail.com> <20050426135606.7b21a2e2.akpm@osdl.org> <Pine.LNX.4.58.0504261405050.18901@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0504261405050.18901@ppc970.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> There are two "views" of a PCI resource and the names I've used in
-> the past are "IO View" and "CPU View". The raw BAR value is the "IO View"
-> since that's what that devices on that PCI bus need to use for Peer-to-Peer
-> reads/writes. IIRC, sym2 driver directly reads the BAR for telling the scripts
-> engine where onboard RAM lives. The "CPU View" is what drivers/user space
-> needs to use when accessing the device. This is what we should be
-> exporting to user space and I'm pretty sure that's what X.org/XF86
-> should be using too. Bjorn, have I got that right?
-
-No. I don't agree. userspace has no business understanding the kernel
-resources content. All userspace need to care about is the resource
-number, and _eventually_ match it to a BAR value (either for using the
-old /proc interface -> existing code, or to use it with real inx/outx
-instructions on x86).
-
-> > Shouldn't we expose the BAR values & size rather here ? That is,
-> > reconsitutes non-offset'd resources, possibly with arch help, or just
-> > reading BAR to get base, and apply resource size & flags ?
-> > 
-> > Unless you are on x86 of course ...
-> > 
-> > There is some serious brokenness in there, it needs to be fixed if we
-> > want things like X.org to be ever properly adapted (and we'll have to
-> > deal with existing broken kernels, gack).
+Linus Torvalds wrote:
 > 
-> ISTR Bjorn was looking at this and the VGA routing issues.
+> On Tue, 26 Apr 2005, Andrew Morton wrote:
+> 
+>>Mounting as ext2 is a useful technique for determining whether the fs is
+>>getting in the way.
+> 
+> 
+> What's the preferred way to try to convert a root filesystem to a bigger
+> journal? Forcing "rootfstype=ext2" at boot and boot into single-user, and
+> then the appropriate magic tune2fs? Or what?
+> 
 
-OK, well, I'll come up with a patch in a few hours doing what I
-described anyway, and we'll start from that.
+Boot single-user, "remount -o ro,remount /", "tune2fs -J size=xxxM" and 
+reboot.
 
-The only thing I dislike a bit is that forces me to read the BAR on
-every access to "un-offset" the kernel resource. We may be able to have
-some arch hook do that properly, but for now, that would fix the problem
-and make the whole stuff work again.
-
-Ben.
-
-
+	-hpa

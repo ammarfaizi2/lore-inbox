@@ -1,52 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261424AbVDZQkx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261664AbVDZQTr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261424AbVDZQkx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 12:40:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261696AbVDZQgU
+	id S261664AbVDZQTr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 12:19:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbVDZQRw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 12:36:20 -0400
-Received: from colo.lackof.org ([198.49.126.79]:9948 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S261678AbVDZQfC (ORCPT
+	Tue, 26 Apr 2005 12:17:52 -0400
+Received: from fire.osdl.org ([65.172.181.4]:1227 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261674AbVDZQPv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 12:35:02 -0400
-Date: Tue, 26 Apr 2005 10:37:34 -0600
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Grant Grundler <grundler@parisc-linux.org>,
-       Alexander Nyberg <alexn@dsv.su.se>, Greg KH <greg@kroah.com>,
-       Amit Gud <gud@eth.net>, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, akpm@osdl.org, jgarzik@pobox.com,
-       cramerj@intel.com,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] PCI: Add pci shutdown ability
-Message-ID: <20050426163734.GF2612@colo.lackof.org>
-References: <20050426154942.GB2612@colo.lackof.org> <Pine.LNX.4.44L0.0504261200550.12725-100000@iolanthe.rowland.org>
+	Tue, 26 Apr 2005 12:15:51 -0400
+Date: Tue, 26 Apr 2005 09:15:37 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Greg KH <greg@kroah.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, eike-kernel@sf-tec.de
+Subject: Re: 2.6.12-rc2-mm3
+Message-Id: <20050426091537.2582529e.rddunlap@osdl.org>
+In-Reply-To: <20050426031750.GA30088@kroah.com>
+References: <20050411012532.58593bc1.akpm@osdl.org>
+	<20050425174900.688f18fa.rddunlap@osdl.org>
+	<20050426031750.GA30088@kroah.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0504261200550.12725-100000@iolanthe.rowland.org>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 26, 2005 at 12:04:00PM -0400, Alan Stern wrote:
-> > Sure there is. Every IRQ line goes to an IRQ controller.
-> > Arch specific code deals with programming the controller and can
-> > mask all interrupts (or not). Historically, they've been left unmasked
-> > for ISA IRQ discovery and debugging misrouted IRQ lines.
+On Mon, 25 Apr 2005 20:17:50 -0700
+Greg KH <greg@kroah.com> wrote:
+
+> On Mon, Apr 25, 2005 at 05:49:00PM -0700, Randy.Dunlap wrote:
+> > On Mon, 11 Apr 2005 01:25:32 -0700
+> > Andrew Morton <akpm@osdl.org> wrote:
+> > 
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm3/
+> > 
+> > 
+> > I'm seeing some badness and a panic, goes away if I disable
+> > PCI Express.
+> > 
+> > pci_hotplug: PCI Hot Plug PCI Core version: 0.5
+> > fakephp: Fake PCI Hot Plug Controller Driver
+> > Badness in kref_get at lib/kref.c:32
+> >  [<c1003368>] dump_stack+0x16/0x18
+> >  [<c10f7b32>] kref_get+0x28/0x32
+> >  [<c10f7173>] kobject_get+0x14/0x1c
+> >  [<c114b216>] get_bus+0x1a/0x2c
+> >  [<c114b0e1>] bus_add_driver+0x12/0x93
+> >  [<c13e67f7>] pcied_init+0x31/0x9d
+> >  [<c13da714>] do_initcalls+0x4e/0xa0
+> >  [<c10002a7>] init+0x25/0xce
+> >  [<c1000b09>] kernel_thread_helper+0x5/0xb
+> > Badness in kref_get at lib/kref.c:32
+> >  [<c1003368>] dump_stack+0x16/0x18
+> >  [<c10f7b32>] kref_get+0x28/0x32
+> >  [<c10f7173>] kobject_get+0x14/0x1c
+> >  [<c10f6d52>] kobject_init+0x2c/0x3f
+> >  [<c10f7024>] kobject_register+0x17/0x4f
+> >  [<c114b118>] bus_add_driver+0x49/0x93
+> >  [<c13e67f7>] pcied_init+0x31/0x9d
+> >  [<c13da714>] do_initcalls+0x4e/0xa0
+> >  [<c10002a7>] init+0x25/0xce
+> >  [<c1000b09>] kernel_thread_helper+0x5/0xb
+> > lib/kobject.c:171: spin_is_locked on uninitialized spinlock c133e1b8.
 > 
-> This doesn't help.  Consider what happens when two devices share an IRQ
-> line.  Suppose device B is generating interrupt requests when the driver
-> for device A is probed.  The driver registers its handler, which causes
-> the IRQ line to be unmasked.  Then a multitude of IRQs arrive from B, none
-> of which can be handled by A's driver.  So the kernel shuts the IRQ line
-> down permanently...
+> Hm, what happens if you disable the fakephp driver?  I haven't tried
+> that out with pci express.  Do you have pci express slots on this box?
 
-Agreed - but this is a different problem than "shutting down IRQs".
-My point was arch specific code knows how to mask all IRQs.
-irq_disable() is expected to work regardless of what state the
-driver is in.  On kexec "reboot", kernel drivers can unmask IRQs
-as they normally would during initialization. No?
+Same still happens without fakephp (this is in pciehp_core).
 
-grant
+Same OOPS still happens also (pcied_init near middle of stack trace).
+
+No, I don't have *any* PCI Express slots....
+
+-- 
+~Randy

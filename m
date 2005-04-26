@@ -1,50 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261779AbVDZUo2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261778AbVDZUwf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261779AbVDZUo2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 16:44:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbVDZUoU
+	id S261778AbVDZUwf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 16:52:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbVDZUwf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 16:44:20 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:19600 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S261660AbVDZUn6 (ORCPT
+	Tue, 26 Apr 2005 16:52:35 -0400
+Received: from mail.dif.dk ([193.138.115.101]:42957 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261778AbVDZUwd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 16:43:58 -0400
-Date: Tue, 26 Apr 2005 22:43:57 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: Philip Pokorny <ppokorny@mindspring.com>
-Cc: git@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Cogito-0.8 (former git-pasky, big changes!)
-Message-ID: <20050426204357.GN13224@pasky.ji.cz>
-References: <20050426032422.GQ13467@pasky.ji.cz> <426DE78A.3050508@mindspring.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <426DE78A.3050508@mindspring.com>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+	Tue, 26 Apr 2005 16:52:33 -0400
+Date: Tue, 26 Apr 2005 22:55:50 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Robert Love <rml@novell.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       kpreempt-tech@lists.sourceforge.net
+Subject: Re: preempt-count oddities - still looking for comments :)
+In-Reply-To: <1114547317.6851.8.camel@betsy>
+Message-ID: <Pine.LNX.4.62.0504262252460.2071@dragon.hyggekrogen.localhost>
+References: <Pine.LNX.4.62.0504232254050.2474@dragon.hyggekrogen.localhost>
+  <Pine.LNX.4.62.0504261929230.2071@dragon.hyggekrogen.localhost> 
+ <1114536937.6851.1.camel@betsy>  <Pine.LNX.4.62.0504261944020.2071@dragon.hyggekrogen.localhost>
+  <1114537590.6851.3.camel@betsy>  <Pine.LNX.4.62.0504262159330.2071@dragon.hyggekrogen.localhost>
+ <1114547317.6851.8.camel@betsy>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Tue, Apr 26, 2005 at 09:02:34AM CEST, I got a letter
-where Philip Pokorny <ppokorny@mindspring.com> told me that...
-> Petr Baudis wrote:
-> 
-> >the history changed again (hopefully the
-> >last time?) because of fixing dates of some old commits.
-> >
-> 
-> Looks like the git-pasky-0.7 tags (and friends) are now dead links. For 
-> example:
-> 
-> [philip@xray cogito]$ cg-mkpatch git-pasky-0.7:HEAD
-> .git/objects/c8/3b95297c2a6336c2007548f909769e0862b509: No such file or 
-> directory
-> fatal: cat-file c83b95297c2a6336c2007548f909769e0862b509: bad file
-> Invalid id: c83b95297c2a6336c2007548f909769e0862b509
+On Tue, 26 Apr 2005, Robert Love wrote:
 
-Oops. Good catch, fixed. I actually just iterated cg-log. ;-)
+> On Tue, 2005-04-26 at 22:05 +0200, Jesper Juhl wrote:
+> 
+> > Hmm, one downside to using "s32" instead of plain "int" is that not all 
+> > thread_info.h files get asm/types.h pulled in and then won't have that 
+> > type defined (m68knommu is one such as far as I can see). Would this make 
+> > "int" prefered after all or should I just include asm/types.h where needed 
+> > or just include it everywhere? seems logical that the file that uses 
+> > header includes it directly instead of it getting included implicitly by 
+> > other headers (like i386 where thread_info.h includes asm/page.h that then 
+> > includes asm/mmx.h that then includes linux/types.h that finally includes 
+> > asm/types.h).
+> > Personally I'd just add the asm/types.h include to all the thread_info.h 
+> > files (or go back to using int) - what's your preference?
+> 
+> Well, guess it depends how much we like s32 over int.  Both are
+> identical on all supported architectures, so it is just a style issue,
+> really.
+> 
+> If m68knommu is the only arch needing asm/typed.h included, I'd so just
+> include it.  If more and more arches need it, just go with int.
+> 
+Quite a few would need it (I just checked), so I'll just stick to int.
+
+Thank you for taking the time to reply and comment on this very low 
+priority thing. It's appreciated.
 
 -- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-C++: an octopus made by nailing extra legs onto a dog. -- Steve Taylor
+Jesper
+
+

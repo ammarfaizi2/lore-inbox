@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbVDZUVJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261534AbVDZUXx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261568AbVDZUVJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 16:21:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261511AbVDZUVI
+	id S261534AbVDZUXx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 16:23:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbVDZUXx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 16:21:08 -0400
-Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:28570 "EHLO
-	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
-	id S261568AbVDZUTG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 16:19:06 -0400
-Message-ID: <426EA220.6010007@ammasso.com>
-Date: Tue, 26 Apr 2005 15:18:40 -0500
-From: Timur Tabi <timur.tabi@ammasso.com>
-Organization: Ammasso
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en, en-gb
-MIME-Version: 1.0
-To: Roland Dreier <roland@topspin.com>
-CC: Andrew Morton <akpm@osdl.org>, libor@topspin.com, hch@infradead.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace verbs
- implementation
-References: <20050425135401.65376ce0.akpm@osdl.org>	<521x8yv9vb.fsf@topspin.com> <20050425151459.1f5fb378.akpm@osdl.org>	<426D6D68.6040504@ammasso.com> <20050425153256.3850ee0a.akpm@osdl.org>	<52vf6atnn8.fsf@topspin.com> <20050425171145.2f0fd7f8.akpm@osdl.org>	<52acnmtmh6.fsf@topspin.com> <20050425173757.1dbab90b.akpm@osdl.org>	<52wtqpsgff.fsf@topspin.com> <20050426084234.A10366@topspin.com>	<52mzrlsflu.fsf@topspin.com> <20050426122850.44d06fa6.akpm@osdl.org> <5264y9s3bs.fsf@topspin.com>
-In-Reply-To: <5264y9s3bs.fsf@topspin.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Apr 2005 16:23:53 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:45192 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261534AbVDZUXm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 16:23:42 -0400
+Date: Tue, 26 Apr 2005 22:23:02 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Alan Stern <stern@rowland.harvard.edu>, alexn@dsv.su.se, greg@kroah.com,
+       gud@eth.net, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, jgarzik@pobox.com,
+       cramerj@intel.com, linux-usb-devel@lists.sourceforge.net
+Subject: Re: [PATCH] PCI: Add pci shutdown ability
+Message-ID: <20050426202302.GC20109@elf.ucw.cz>
+References: <1114458325.983.17.camel@localhost.localdomain> <Pine.LNX.4.44L0.0504251609420.7408-100000@iolanthe.rowland.org> <20050425145831.48f27edb.akpm@osdl.org> <20050425221326.GC15366@redhat.com> <20050426093939.GC4175@elf.ucw.cz> <20050426175041.GB23205@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050426175041.GB23205@redhat.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier wrote:
+Hi!
 
-> Yes, I agree.  If an app wants to register half a page and pass the
-> other half to a child process, I think the only answer is "don't do
-> that then."
+>  > Well, you can do "half suspend to ram; change your frequency; half
+>  > resume" today, and it should work, but I do not think you'll like the
+>  > speed.
+> 
+> Indeed. With people running things like cpuspeed daemons to dynamically
+> scale speed, this is going to be really painful.
+> Of course, any operation where we have to quiesce DMA is going to mean
+> we're increasing latency around the scaling operation, but we don't
+> have to go through all the hoops that are necessary when suspending.
 
-How can the app know that, though?  It would have to allocate I/O buffers with knowledge 
-of page boundaries.  Today, the apps just malloc() a bunch of memory and pay no attention 
-to whether the beginning or the end of the buffer shares a page with some other, unrelated 
-object.  We may as well tell the app that it needs to page-align all I/O buffers.
+> Thankfully some of the more recent implementations of speed/voltage
+> scaling don't have this requirement.
 
-My point is that we can't just simply say, "Don't do that".  Some entity (the kernel, 
-libraries, whatever) should be able to tell the app that its usage of memory is going to 
-break in some unpredictable way.
+Good, because some devices really need DMA. (Won't audio skip, and USB
+break when you disable DMA? I do not see how cpufreq doing DMA disable
+can be usefull.)
 
+>  > In a ideal world, calling device_suspend(PMSG_FREEZE) gets you exactly
+>  > that, and we'll do our best to make it fast enough.
+>  > 
+>  > OTOH it *needs* to switch consoles to text one (because X may be
+>  > running DMA, right?); I do not think you'll like that one.
+> 
+> That would be insane, and make cpufreq totally useless for anyone
+> running X, so no.   This is one of the reasons the kernel needs to
+> arbitrate DMA on behalf of X.  It just needs someone to do the work.
+
+Yes... But it also looks like a lot of work :-(.
+								Pavel
 -- 
-Timur Tabi
-Staff Software Engineer
-timur.tabi@ammasso.com
-
-One thing a Southern boy will never say is,
-"I don't think duct tape will fix it."
-      -- Ed Smylie, NASA engineer for Apollo 13
+Boycott Kodak -- for their patent abuse against Java.

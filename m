@@ -1,39 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261785AbVDZVFv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261788AbVDZVQN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261785AbVDZVFv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 17:05:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbVDZVFu
+	id S261788AbVDZVQN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 17:16:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbVDZVQN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 17:05:50 -0400
-Received: from fire.osdl.org ([65.172.181.4]:6086 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261785AbVDZVFp (ORCPT
+	Tue, 26 Apr 2005 17:16:13 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:60298 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261788AbVDZVQL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 17:05:45 -0400
-Date: Tue, 26 Apr 2005 14:07:09 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: Magnus Damm <magnus.damm@gmail.com>, mason@suse.com, mike.taht@timesys.com,
-       mpm@selenic.com, linux-kernel@vger.kernel.org, git@vger.kernel.org
-Subject: Re: Mercurial 0.3 vs git benchmarks
-In-Reply-To: <20050426135606.7b21a2e2.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0504261405050.18901@ppc970.osdl.org>
-References: <20050426004111.GI21897@waste.org> <200504260713.26020.mason@suse.com>
- <aec7e5c305042608095731d571@mail.gmail.com> <200504261138.46339.mason@suse.com>
- <aec7e5c305042609231a5d3f0@mail.gmail.com> <20050426135606.7b21a2e2.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 26 Apr 2005 17:16:11 -0400
+Date: Tue, 26 Apr 2005 23:15:42 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-usb-devel@lists.sourceforge.net, Adam Belay <ambx1@neo.rr.com>,
+       Greg KH <greg@kroah.com>, Amit Gud <gud@eth.net>,
+       Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, akpm@osdl.org, jgarzik@pobox.com,
+       cramerj@intel.com
+Subject: Re: [linux-usb-devel] Re: [PATCH] PCI: Add pci shutdown ability
+Message-ID: <20050426211542.GH20109@elf.ucw.cz>
+References: <Pine.LNX.4.44L0.0504251128070.5751-100000@iolanthe.rowland.org> <20050425205536.GF27771@neo.rr.com> <20050425210631.GE3906@elf.ucw.cz> <200504260644.03627.david-b@pacbell.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200504260644.03627.david-b@pacbell.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-On Tue, 26 Apr 2005, Andrew Morton wrote:
+> > Yes. (Actually I'm not sure if PMSG_FREEZE or PMSG_SUSPEND is right
+> > thing to do for suspend.)
 > 
-> Mounting as ext2 is a useful technique for determining whether the fs is
-> getting in the way.
+> Until they have different values, it's a moot point isn't it?
 
-What's the preferred way to try to convert a root filesystem to a bigger
-journal? Forcing "rootfstype=ext2" at boot and boot into single-user, and
-then the appropriate magic tune2fs? Or what?
+They already have different values in my and SuSE trees, and I plan to
+propagate that upstream very soon after 2.6.12. Until then... yes its
+moot.
 
-		Linus
+								Pavel
+-- 
+Boycott Kodak -- for their patent abuse against Java.

@@ -1,56 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbVDZAJH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261228AbVDZALq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261182AbVDZAJH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 20:09:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbVDZAJH
+	id S261228AbVDZALq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 20:11:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVDZALp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 20:09:07 -0400
-Received: from webmail.houseafrika.com ([12.162.17.52]:61005 "EHLO
-	Mansi.STRATNET.NET") by vger.kernel.org with ESMTP id S261182AbVDZAI6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 20:08:58 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: Timur Tabi <timur.tabi@ammasso.com>, hch@infradead.org, hozer@hozed.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
-X-Message-Flag: Warning: May contain useful information
-References: <200544159.Ahk9l0puXy39U6u6@topspin.com>
-	<20050411142213.GC26127@kalmia.hozed.org> <52mzs51g5g.fsf@topspin.com>
-	<20050411163342.GE26127@kalmia.hozed.org> <5264yt1cbu.fsf@topspin.com>
-	<20050411180107.GF26127@kalmia.hozed.org> <52oeclyyw3.fsf@topspin.com>
-	<20050411171347.7e05859f.akpm@osdl.org> <4263DEC5.5080909@ammasso.com>
-	<20050418164316.GA27697@infradead.org> <4263E445.8000605@ammasso.com>
-	<20050423194421.4f0d6612.akpm@osdl.org> <426BABF4.3050205@ammasso.com>
-	<52is2bvvz5.fsf@topspin.com> <20050425135401.65376ce0.akpm@osdl.org>
-	<521x8yv9vb.fsf@topspin.com> <20050425151459.1f5fb378.akpm@osdl.org>
-	<426D6DFA.4090908@ammasso.com> <20050425153542.70197e6a.akpm@osdl.org>
-	<426D725C.4070103@ammasso.com> <20050425161330.32c32b4b.akpm@osdl.org>
-From: Roland Dreier <roland@topspin.com>
-Date: Mon, 25 Apr 2005 17:08:57 -0700
-In-Reply-To: <20050425161330.32c32b4b.akpm@osdl.org> (Andrew Morton's
- message of "Mon, 25 Apr 2005 16:13:30 -0700")
-Message-ID: <52is2atn52.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 26 Apr 2005 00:08:58.0220 (UTC) FILETIME=[24719AC0:01C549F4]
+	Mon, 25 Apr 2005 20:11:45 -0400
+Received: from fire.osdl.org ([65.172.181.4]:26599 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261228AbVDZAL0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 20:11:26 -0400
+Date: Mon, 25 Apr 2005 17:10:50 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Caitlin Bestler <caitlin.bestler@gmail.com>
+Cc: libor@topspin.com, hch@infradead.org, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, timur.tabi@ammasso.com
+Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace
+ verbs implementation
+Message-Id: <20050425171050.5ba25918.akpm@osdl.org>
+In-Reply-To: <469958e00504251637350cc8c@mail.gmail.com>
+References: <20050418164316.GA27697@infradead.org>
+	<426BABF4.3050205@ammasso.com>
+	<52is2bvvz5.fsf@topspin.com>
+	<20050425135401.65376ce0.akpm@osdl.org>
+	<521x8yv9vb.fsf@topspin.com>
+	<20050425151459.1f5fb378.akpm@osdl.org>
+	<426D6DFA.4090908@ammasso.com>
+	<20050425153542.70197e6a.akpm@osdl.org>
+	<20050425161713.A9002@topspin.com>
+	<20050425162405.0889093e.akpm@osdl.org>
+	<469958e00504251637350cc8c@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Timur> If you look at the Infiniband code that was recently
-    Timur> submitted, I think you'll see it does exactly that: after
-    Timur> calling mlock(), the driver calls get_user_pages(), and it
-    Timur> stores the page mappings for future use.
+Caitlin Bestler <caitlin.bestler@gmail.com> wrote:
+>
+> > 
+> > > > This is because there is no file descriptor or anything else associated
+> > > > with the pages which permits the kernel to clean stuff up on unclean
+> > > > application exit.  Also there are the obvious issues with permitting
+> > > > pinning of unbounded amounts of memory.
+> > >
+> > >   Correct, the driver must be able to determine that the process has died
+> > > and clean up after it, so the pinned region in most implementations is
+> > > associated with an open file descriptor.
+> > 
+> > How is that association created?
+> 
+> 
+> There is not a file descrptor, but there is an rnic handle. Both DAPL
+> and IT-API require that process death will result in the handle and all
+> of its dependent objects being released.
 
-    Andrew> Where?
+What's an "rnic handle", in Linux terms?
 
-The code isn't merged yet.  I sent a version to lkml for review -- in
-fact it was this very thread that we're in now.  The code in question
-is in http://lkml.org/lkml/2005/4/4/266
+> The rnic handle can always be declared to be a "file descriptor" if
+> that makes it follow normal OS conventions more precisiely.
 
-This implements a "userspace verbs" character device that memory
-registration goes through.  This means the kernel has a device node
-that will be closed when a process dies, and so the memory can be
-cleaned up.
+Does that mean that the code has not yet been implemented?
 
- - R.
+Yes, a Linux fd is appropriate.  But we don't have any sane way right now
+of saying "you need to run put_page() against all these pages in the
+->release() handler".  That'll need to be coded by yourselves.
+
+> There is also a need for some form of resource manager to approve
+> creation of Memory Regions. Obviously you cannot have multiple
+> applications claiming half of physical memory.
+
+The kernel already has considerable resource management capabilities. 
+Please consider using/extending/generalising those before inventing
+anything new.  RLIMIT_MEMLOCK would be a starting point.
+
+> But if you merely require the user to have root privileges in order
+> to create a Memory Region, and then take a first-come first-served
+> attitude, I don't think you end up with something that is truly a
+> general purpose capability.
+
+We don't want code in the kernel which will permit hostile unprivileged
+users to trivially cause the box to lock up.  RLIMIT_MEMLOCK and, if
+necessary, CAP_IPC_LOCK sound appropriate here.
+
+> A general purpose RDMA capability requires the ability to indefinitely
+> pin large portions of user memory. It makes sense to integrate that
+> with OS policy control over resource utilization and to integrate it with
+> memory suspend/resume capabilities so that hotplug memory can
+> be supported. What you can't do is downgrade a Memory Region so
+> that it is no longer a memory region. Doing that means that you are
+> not truly supporting RDMA.

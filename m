@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbVDZIWG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261390AbVDZIXP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261170AbVDZIWG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 04:22:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbVDZIWG
+	id S261390AbVDZIXP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 04:23:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVDZIXN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 04:22:06 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:9884 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261170AbVDZIWA (ORCPT
+	Tue, 26 Apr 2005 04:23:13 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:45498 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261387AbVDZIXE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 04:22:00 -0400
-Date: Tue, 26 Apr 2005 10:21:44 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-cc: Christoph Hellwig <hch@infradead.org>, Jan Dittmer <jdittmer@ppp0.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux/m68k <linux-m68k@vger.kernel.org>
-Subject: Re: Linux 2.6.12-rc3
-In-Reply-To: <20050426032430.GR13052@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.62.0504261021130.27013@numbat.sonytel.be>
-References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org>
- <42676B76.4010903@ppp0.net> <Pine.LNX.4.62.0504211105550.13231@numbat.sonytel.be>
- <20050421161106.GY13052@parcelfarce.linux.theplanet.co.uk>
- <20050421175723.GB13052@parcelfarce.linux.theplanet.co.uk>
- <Pine.LNX.4.62.0504252113160.26096@numbat.sonytel.be>
- <20050426032430.GR13052@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 26 Apr 2005 04:23:04 -0400
+Date: Tue, 26 Apr 2005 10:22:48 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Blaisorblade <blaisorblade@yahoo.it>
+Cc: akpm@osdl.org, jdike@addtoit.com, bstroesser@fujitsu-siemens.com,
+       linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [patch 7/7] uml ubd: handle readonly status
+Message-ID: <20050426082247.GB1851@suse.de>
+References: <20050424181924.EAFCB55D06@zion> <20050425101625.GD1671@suse.de> <200504252120.15493.blaisorblade@yahoo.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200504252120.15493.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Apr 2005, Al Viro wrote:
-> On Mon, Apr 25, 2005 at 09:14:01PM +0200, Geert Uytterhoeven wrote:
-> > On Thu, 21 Apr 2005, Al Viro wrote:
-> > > As far as I can see that's the minimally intrusive header changes needed
-> > > to avoid problems - better than variant with splitting sched.h as in m68k CVS.
-> > 
-> > We can discuss about that. IIRC, HCH is also in favor of splitting off struct
-> > task_struct from sched.h.
-> 
-> Sure, but splitting sched.h is a separate story.  Mixing it with m68k
-> merge will only make both harder.  It requires more include reordering
-> and I'd rather keep that headache separate from m68k issues.  I agree
-> that eventual splitup of sched.h makes sense.  However, I think that
-> going for minimally intrusive variant of merge and then dealing with
-> sched.h would be easier for everyone.
+On Mon, Apr 25 2005, Blaisorblade wrote:
+> On Monday 25 April 2005 12:16, Jens Axboe wrote:
+> > On Sun, Apr 24 2005, blaisorblade@yahoo.it wrote:
+> > > @@ -1099,6 +1104,7 @@ static int prepare_request(struct reques
+> > >  	if((rq_data_dir(req) == WRITE) && !dev->openflags.w){
+> > >  		printk("Write attempted on readonly ubd device %s\n",
+> > >  		       disk->disk_name);
+> > > +		WARN_ON(1); /* This should be impossible now */
+> > >  		end_request(req, 0);
+> > >  		return(1);
+> > >  	}
+> >
+> > I don't think that's a sound change. The WARN_ON() is strictly only
+> > really useful for when you need the stack trace for something
+> > interesting. As the io happens async, you will get a boring trace that
+> > doesn't contain any valuable information.
+> Ok, removed, and resending the patch, is the rest ok? I.e. is that
+> supposed to work? I gave a walk around and it seemed that the code
+> handles set_{disk,device}_ro() even during the open, but I'm no block
+> layer expert.
 
-I agree, it's a separate story.
+I'd keep the checks for sanity. Although the set_disk/device_ro prevents
+regular fs write mounts, a buggy layered drive could still send down a
+write by accident.
 
-Gr{oetje,eeting}s,
+-- 
+Jens Axboe
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

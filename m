@@ -1,113 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261699AbVDZStV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261725AbVDZStz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261699AbVDZStV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 14:49:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbVDZStV
+	id S261725AbVDZStz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 14:49:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbVDZStd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 26 Apr 2005 14:49:33 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:29118 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S261702AbVDZStV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 26 Apr 2005 14:49:21 -0400
-Received: from agminet03.oracle.com ([141.146.126.230]:25187 "EHLO
-	agminet03.oracle.com") by vger.kernel.org with ESMTP
-	id S261699AbVDZStL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 14:49:11 -0400
-Date: Tue, 26 Apr 2005 11:48:45 -0700
-From: Mark Fasheh <mark.fasheh@oracle.com>
-To: David Teigland <teigland@redhat.com>
-Cc: Wim Coekaerts <wim.coekaerts@oracle.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH 0/7] dlm: overview
-Message-ID: <20050426184845.GA938@ca-server1.us.oracle.com>
-Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
-References: <20050425151136.GA6826@redhat.com> <20050425203952.GE25002@ca-server1.us.oracle.com> <20050426053930.GA12096@redhat.com>
+Date: Tue, 26 Apr 2005 22:48:33 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: dtor_core@ameritech.net
+Cc: dmitry.torokhov@gmail.com, netdev@oss.sgi.com, Greg KH <greg@kroah.com>,
+       Jamal Hadi Salim <hadi@cyberus.ca>, Kay Sievers <kay.sievers@vrfy.org>,
+       Herbert Xu <herbert@gondor.apana.org.au>,
+       James Morris <jmorris@redhat.com>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Thomas Graf <tgraf@suug.ch>, Jay Lan <jlan@engr.sgi.com>
+Subject: Re: [1/1] connector/CBUS: new messaging subsystem. Revision number
+ next.
+Message-ID: <20050426224833.3b6a0792@zanzibar.2ka.mipt.ru>
+In-Reply-To: <d120d50005042611426ec326e9@mail.gmail.com>
+References: <20050411125932.GA19538@uganda.factory.vocord.ru>
+	<d120d5000504260857cb5f99e@mail.gmail.com>
+	<20050426202437.234e7d45@zanzibar.2ka.mipt.ru>
+	<20050426203023.378e4831@zanzibar.2ka.mipt.ru>
+	<d120d50005042610342368cd72@mail.gmail.com>
+	<20050426220713.7915e036@zanzibar.2ka.mipt.ru>
+	<d120d50005042611203ce29dd8@mail.gmail.com>
+	<20050426223126.37b7aea1@zanzibar.2ka.mipt.ru>
+	<d120d50005042611426ec326e9@mail.gmail.com>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050426053930.GA12096@redhat.com>
-Organization: Oracle Corporation
-User-Agent: Mutt/1.5.9i
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [194.85.82.65]); Tue, 26 Apr 2005 22:48:47 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 26, 2005 at 01:39:30PM +0800, David Teigland wrote:
-> On Mon, Apr 25, 2005 at 01:39:52PM -0700, Wim Coekaerts wrote:
-> > > This is a distributed lock manager (dlm) that we'd like to see added to
-> > > the kernel.  The dlm programming api is very similar to that found on
-> > > other operating systems, but this is modeled most closely after that in
-> > > VMS.
+On Tue, 26 Apr 2005 13:42:10 -0500
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+
+> On 4/26/05, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> > On Tue, 26 Apr 2005 13:20:08 -0500
+> > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 > > 
-> > do you have any performance data at all on this ? I like to see a dlm
-> > but I like to see something that will also perform well. 
-> 
-> No.  What kind of performance measurements do you have in mind?  Most dlm
-> lock requests involve sending a message to a remote machine and waiting
-> for a reply.  I expect this network round-trip is the bulk of the time for
-> a request, which is why I'm a bit confused by your question.
-Resource lookup times, times to deliver events to clients (asts, basts,
-etc) for starters. How long does recovery take after a node crash? How does
-all of this scale as you increase the number of nodes in your cluster?
-Sure, network speed is a part of the equation, but it's not the *whole*
-equation and I've seen dlms that can get downright nasty when it comes to
-recovery speeds, etc.
-
-> Now, sometimes there are two remote messages (when a resource directory
-> lookup is needed).  You can eliminate that by not using a resource
-> directory, which will soon be a configurable option.
-> 
-> 
-> > My main concern is that I have not seen anything relying on this code do
-> > "reasonably well". eg can you show gfs numbers w/ number of nodes and
-> > scalability ?
-> 
-> I'd suggest that if some cluster application is using the dlm and has poor
-> performance or scalability, the reason and solution lies mostly in the
-> app, not in the dlm.  That's assuming we're not doing anything blatantly
-> dumb in the dlm, butI think you may be placing too much emphasis on the
-> role of the dlm here.
-Well, obviously the dlm is only one component of an entire system, but for a
-cluster application it can certainly be an important component, one whose
-performance is worth looking into. I don't think asking for this
-information is out of the question.
-	--Mark
-
-> > I think it's time we submit ocfs2 w/ it's cluster stack so that folks
-> > can compare (including actual data/numbers), we have been waiting to
-> > stabilize everything but I guess there is this preemptive strike going
-> > on so we might just as well. at least we have had hch and folks comment,
-> > before sending to submit code.
-> 
-> Strike?  Preemption?  That sounds frightfully conspiratorial and
-> contentious; who have you been talking to?  It's obvious to me that ocfs2
-> and gfs each have their own happy niche; they're hardly equivalent (more
-> so considering all the flavors of local file systems.)  This is surely a
-> case of "different", not "conflict"!
-> 
-> 
-> > Andrew - we will submit ocfs2 so you can have a look, compare and move
-> > on.  we will work with any stack that eventuslly gets accepted, just want 
-> > to see the choice out there and an educated decision.
+> > > On 4/26/05, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> > > > Yes, I found it too.
+> > > > Following patch should be the solution:
+> > > >
+> > > > --- orig/drivers/connector/connector.c
+> > > > +++ mod/drivers/connector/connector.c
+> > > > @@ -146,13 +146,16 @@
+> > > >        spin_lock_bh(&dev->cbdev->queue_lock);
+> > > >        list_for_each_entry(__cbq, &dev->cbdev->queue_list, callback_entry) {
+> > > >                if (cn_cb_equal(&__cbq->cb->id, &msg->id)) {
+> > > > -                       __cbq->cb->priv = msg;
+> > > > +
+> > > > +                       if (!test_bit(0, &work->pending)) {
+> > > > +                               __cbq->cb->priv = msg;
+> > > >
+> > > > -                       __cbq->ddata = data;
+> > > > -                       __cbq->destruct_data = destruct_data;
+> > > > +                               __cbq->ddata = data;
+> > > > +                               __cbq->destruct_data = destruct_data;
+> > > >
+> > >
+> > > Still not good enough - work->pending bit gets cleared when work has
+> > > been scheduled, but before executing payload. You still have the race.
 > > 
-> > hopefully tomorrow, including data comparing single node and multinode
-> > performance.
+> > Data pointer is copied before bit is set,
+> > but I forget that it is not data, but another pointer
+> > which may be overwritten.
+> > 
+> > I think we may finish it by setting skb as data,
+> > and call kfree_skb() as destructor.
+> > 
 > 
-> I'd really like to see ocfs succeed, but good heavens, why do we need to
-> study an entire cluster fs when looking at a dlm!?  A cluster fs may use a
-> dlm, but a dlm is surely a stand-alone entity with _many_ applications
-> beyond a cluster fs (which is frankly a rather obscure app.)
->
-> We've made great effort to make the dlm broadly useful beyond the realm of
-> gfs or cluster file systems.  In the long run I expect other cluster apps
-> will out-use the dlm by far.
->
-> Dave
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
---
-Mark Fasheh
-Senior Software Developer, Oracle
-mark.fasheh@oracle.com
+> Yes, that woudl work, although I would urge you to implement a message
+> queue for callbacks (probably limit it to 1000 messages or so) to
+> allow bursting.
 
+It already exist, btw, but not exactly in that way - 
+we have skb queue, which can not be filled from userspace 
+if pressure is so strong so work queue can not be scheduled. 
+It is of course different and is influenced by other things 
+but it handles bursts quite well - it was tested on both 
+SMP and UP machines with continuous flows of forks with
+shape addon of new running tasks [both fith fork bomb and not],
+so I think it can be called real bursty test.
+ 
+> -- 
+> Dmitry
+
+
+	Evgeniy Polyakov
+
+Only failure makes us experts. -- Theo de Raadt

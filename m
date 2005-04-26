@@ -1,75 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVDZJ4m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261457AbVDZJ5G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261455AbVDZJ4m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 05:56:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbVDZJut
+	id S261457AbVDZJ5G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 05:57:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbVDZJ5E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 05:50:49 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:61624 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261450AbVDZJrB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 05:47:01 -0400
-Date: Tue, 26 Apr 2005 11:46:35 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Yum Rayan <yum.rayan@gmail.com>, linux-kernel@vger.kernel.org,
-       linux-pcmcia@lists.infradead.org, dahinds@users.sourceforge.net,
-       rddunlap@osdl.org
-Subject: Re: [PATCH linux-2.6.12-rc2-mm3] smc91c92_cs: Reduce stack usage in smc91c92_event()
-Message-ID: <20050426094634.GA20971@wohnheim.fh-wedel.de>
-References: <df35dfeb05042115021c24638b@mail.gmail.com> <200504221122.51579.vda@port.imtp.ilyichevsk.odessa.ua> <20050423001228.GA6418@wohnheim.fh-wedel.de> <200504231821.31309.vda@port.imtp.ilyichevsk.odessa.ua>
+	Tue, 26 Apr 2005 05:57:04 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:14256 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261450AbVDZJ4L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 05:56:11 -0400
+Date: Tue, 26 Apr 2005 10:56:08 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: hch@infradead.org, jamie@shareable.org, linuxram@us.ibm.com,
+       7eggert@gmx.de, bulb@ucw.cz, viro@parcelfarce.linux.theplanet.co.uk,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH] private mounts
+Message-ID: <20050426095608.GA30554@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Miklos Szeredi <miklos@szeredi.hu>, jamie@shareable.org,
+	linuxram@us.ibm.com, 7eggert@gmx.de, bulb@ucw.cz,
+	viro@parcelfarce.linux.theplanet.co.uk,
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+	akpm@osdl.org
+References: <E1DQ5LA-0003ZR-SM@be1.7eggert.dyndns.org> <1114445923.4480.94.camel@localhost> <20050425191015.GC28294@mail.shareable.org> <E1DQMB0-00008a-00@dorka.pomaz.szeredi.hu> <20050426091921.GA29810@infradead.org> <E1DQMGZ-00009n-00@dorka.pomaz.szeredi.hu> <20050426093628.GA30208@infradead.org> <E1DQMYu-0000DL-00@dorka.pomaz.szeredi.hu> <20050426094727.GA30379@infradead.org> <E1DQMkX-0000Fy-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200504231821.31309.vda@port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <E1DQMkX-0000Fy-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 April 2005 18:21:30 +0300, Denis Vlasenko wrote:
-> On Saturday 23 April 2005 03:12, Jörn Engel wrote:
+On Tue, Apr 26, 2005 at 11:53:01AM +0200, Miklos Szeredi wrote:
+> No. FUSE is not a suid shell, and it's definitely not crap.  You are
+> being impolite and without a reason.  So don't be surprised if you get
+> burned.
+
+You're model for user mounts is total crap.  The rest of the fuse kernel
+code is quite nice (1).
+
+> > You're really falling into the Hans Reiser trap - if you just wanted to
+> > add a simple userland filesystem you'd be done by now, but you're trying
+> > to funnel new semantics in through it.  Which is by far not as easy as
+> > adding a simple file system driver and needs a lot more though.  
 > 
-> > > 1) struct is unnamed and local to function
-> > > 2) Variables do not change their type, the just sit in local-> now.
-> > >    I can just add 'local->' to each affected variable,
-> > >    without "it was an object, now it is a pointer" changes.
-> > >    No need to replace . with ->, remove &, etc.
-> > 
-> > I'd have proposed the same, before reading further down in the patch.
-> > Basically, the driver is full of duplication, so the exact same struct
-> > can be used several times.  Therefore, the downsides of your approach
-> > seem to prevail.
-> 
-> What downsides? I must admit I do not understand your answer here.
+> I've started FUSE in 2001.  Did you think it was easy getting this far?
 
-1. Read the patch.  All of it.
+And that matters how exactly?
 
-2. Virtually the same identical variables are stuffed into the stack
-frames of:
-o mhz_mfc_config,
-o mhz_setup,
-o mot_setup,
-o smc_setup,
-o osi_setup and
-o smc91c92_config.
 
-That is six functions.  If it were just one, I would definitely agree
-with you.  For two functions, well, it wouldn't really matter either
-way.  But should six functions all copy the exact same struct six
-different times instead of referencing a single globally defined one?
-Naa, that's barely an advantage.
-
-> Instead, I'd do it like I described in previous mail:
-
-If you would actually like to do something, please provide further
-patches to that driver.  It sucks.  It sucks so bad, that it's hardly
-possible to change anything without improving it.  There are much
-grosser things to clean up than the one we're discussing right now.
-
-Jörn
-
--- 
-He who knows others is wise.
-He who knows himself is enlightened.
--- Lao Tsu
+(1) except the rather fishy get_user_pages variant.  but I'm not expert
+enough there to comment more

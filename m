@@ -1,74 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbVDZDnA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261293AbVDZDo6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261289AbVDZDnA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 23:43:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbVDZDnA
+	id S261293AbVDZDo6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 23:44:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbVDZDo6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 23:43:00 -0400
-Received: from gate.crashing.org ([63.228.1.57]:4038 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261289AbVDZDmn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 23:42:43 -0400
-Subject: Re: [PATCH] PCI: Add pci shutdown ability
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Greg KH <greg@kroah.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Amit Gud <gud@eth.net>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Andrew Morton <akpm@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>, cramerj@intel.com,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-In-Reply-To: <20050425210014.GA25247@kroah.com>
-References: <Pine.LNX.4.44L0.0504251128070.5751-100000@iolanthe.rowland.org>
-	 <20050425182951.GA23209@kroah.com>
-	 <SVLXCHCON1syWVLEFN00000099e@SVLXCHCON1.enterprise.veritas.com>
-	 <20050425185113.GC23209@kroah.com> <20050425190606.GA23763@kroah.com>
-	 <20050425204207.GA23724@elf.ucw.cz>  <20050425210014.GA25247@kroah.com>
-Content-Type: text/plain
-Date: Tue, 26 Apr 2005 13:41:55 +1000
-Message-Id: <1114486915.7112.17.camel@gaston>
+	Mon, 25 Apr 2005 23:44:58 -0400
+Received: from h80ad2469.async.vt.edu ([128.173.36.105]:16913 "EHLO
+	h80ad2469.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261293AbVDZDou (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 23:44:50 -0400
+Message-Id: <200504260344.j3Q3ia4l009527@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Florian Engelhardt <flo@dotbox.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc2-mm3 and bttv -> kernel panic 
+In-Reply-To: Your message of "Mon, 25 Apr 2005 23:54:08 +0200."
+             <20050425235408.208edf38@discovery.hal.lan> 
+From: Valdis.Kletnieks@vt.edu
+References: <20050425235408.208edf38@discovery.hal.lan>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+Content-Type: multipart/signed; boundary="==_Exmh_1114487074_3571P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 25 Apr 2005 23:44:35 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_1114487074_3571P
+Content-Type: text/plain; charset=us-ascii
 
-> > I believe it should just do suspend(PMSG_SUSPEND) before system
-> > shutdown. If you think distintion between shutdown and suspend is
-> > important (I am not 100% convinced it is), we can just add flag
-> > saying "this is system shutdown".
-> 
-> Then why even have the device_shutdown() call and notifier in the struct
-> device_driver?
+On Mon, 25 Apr 2005 23:54:08 +0200, Florian Engelhardt said:
 
-Historical bad ideas...
+> Of course the nvidia-kernel module does not work right with the 2.6.12-
+> rc2-mm3 kernel. I can modprobe it, but if i try to start the X-Server,
+> it tells me, that it is unable to load the kernel module (allthough it
+> is allready loaded)
 
-> > Actually this patch should be in the queue somewhere... We had it in
-> > suse trees for a long time, and IMO it can solve problem easily.
-> > 
-> > 								Pavel
-> > 
-> > --- clean-git/kernel/sys.c	2005-04-23 23:21:55.000000000 +0200
-> > +++ linux/kernel/sys.c	2005-04-24 00:20:47.000000000 +0200
-> > @@ -404,6 +404,7 @@
-> >  	case LINUX_REBOOT_CMD_HALT:
-> >  		notifier_call_chain(&reboot_notifier_list, SYS_HALT, NULL);
-> >  		system_state = SYSTEM_HALT;
-> > +		device_suspend(PMSG_SUSPEND);
-> >  		device_shutdown();
-> 
-> Again, why keep device_shutdown() around at all then?
+NVidia driver 7167 and 7174 work just fine with 2.6.12-rc2-mm3, at least for
+some people. If it's not working for you, that's an NVidia problem, not a lkml
+one.  If you need help, yell off-list and I'll see what I can do, or go to the
+NVidia page the drivers are on, and follow the 'Forums' link - that's a *very*
+good source for assistance and patches..
 
-I've argued for folding shutdown and suspend for some time now, though
-some drivers who rely on shutdown today will need fixing I suppose.
 
-Also, I think kexec shouldn't use "shutdown" but a different message.
-There are some conceptual differences, things like stopping the platters
-on disk etc... things you want to do on one and not the other. In a way,
-kexec needs are very similar to suspend-to-disk "freeze" state. I'd
-rather call PMSG_FREEZE there.
+--==_Exmh_1114487074_3571P
+Content-Type: application/pgp-signature
 
-Ben.
- 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFCbbkicC3lWbTT17ARArHtAJ41BpgWwYozXkgmK/pYyf3FA7QDBgCeI+rB
+NGEYmPkNlGrQtwROz7iKoIU=
+=3h2W
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1114487074_3571P--

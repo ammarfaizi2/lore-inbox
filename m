@@ -1,79 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbVDZDDi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbVDZDSf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261291AbVDZDDi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 23:03:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbVDZDDh
+	id S261198AbVDZDSf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 23:18:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbVDZDSf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 23:03:37 -0400
-Received: from fire.osdl.org ([65.172.181.4]:50606 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261291AbVDZDDa (ORCPT
+	Mon, 25 Apr 2005 23:18:35 -0400
+Received: from mail.kroah.org ([69.55.234.183]:2210 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261198AbVDZDSc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 23:03:30 -0400
-Date: Mon, 25 Apr 2005 20:04:54 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Mike Taht <mike.taht@timesys.com>
-cc: Matt Mackall <mpm@selenic.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-Subject: Re: Mercurial 0.3 vs git benchmarks
-In-Reply-To: <426DA7B5.2080204@timesys.com>
-Message-ID: <Pine.LNX.4.58.0504251938210.18901@ppc970.osdl.org>
-References: <20050426004111.GI21897@waste.org> <Pine.LNX.4.58.0504251859550.18901@ppc970.osdl.org>
- <426DA7B5.2080204@timesys.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 25 Apr 2005 23:18:32 -0400
+Date: Mon, 25 Apr 2005 20:17:50 -0700
+From: Greg KH <greg@kroah.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       eike-kernel@sf-tec.de
+Subject: Re: 2.6.12-rc2-mm3
+Message-ID: <20050426031750.GA30088@kroah.com>
+References: <20050411012532.58593bc1.akpm@osdl.org> <20050425174900.688f18fa.rddunlap@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050425174900.688f18fa.rddunlap@osdl.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 25 Apr 2005, Mike Taht wrote:
+On Mon, Apr 25, 2005 at 05:49:00PM -0700, Randy.Dunlap wrote:
+> On Mon, 11 Apr 2005 01:25:32 -0700
+> Andrew Morton <akpm@osdl.org> wrote:
 > 
-> One difference is probably - mercurial appears to be using zlib's 
-> *default* compression of 6....
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm3/
 > 
-> using zlib compression of 9 really impacts git...
+> 
+> I'm seeing some badness and a panic, goes away if I disable
+> PCI Express.
+> 
+> pci_hotplug: PCI Hot Plug PCI Core version: 0.5
+> fakephp: Fake PCI Hot Plug Controller Driver
+> Badness in kref_get at lib/kref.c:32
+>  [<c1003368>] dump_stack+0x16/0x18
+>  [<c10f7b32>] kref_get+0x28/0x32
+>  [<c10f7173>] kobject_get+0x14/0x1c
+>  [<c114b216>] get_bus+0x1a/0x2c
+>  [<c114b0e1>] bus_add_driver+0x12/0x93
+>  [<c13e67f7>] pcied_init+0x31/0x9d
+>  [<c13da714>] do_initcalls+0x4e/0xa0
+>  [<c10002a7>] init+0x25/0xce
+>  [<c1000b09>] kernel_thread_helper+0x5/0xb
+> Badness in kref_get at lib/kref.c:32
+>  [<c1003368>] dump_stack+0x16/0x18
+>  [<c10f7b32>] kref_get+0x28/0x32
+>  [<c10f7173>] kobject_get+0x14/0x1c
+>  [<c10f6d52>] kobject_init+0x2c/0x3f
+>  [<c10f7024>] kobject_register+0x17/0x4f
+>  [<c114b118>] bus_add_driver+0x49/0x93
+>  [<c13e67f7>] pcied_init+0x31/0x9d
+>  [<c13da714>] do_initcalls+0x4e/0xa0
+>  [<c10002a7>] init+0x25/0xce
+>  [<c1000b09>] kernel_thread_helper+0x5/0xb
+> lib/kobject.c:171: spin_is_locked on uninitialized spinlock c133e1b8.
 
-I agree that it will hurt for big changes, but since I really do believe 
-that most changes are just a couple of files, I don't believe it matters 
-for those. 
+Hm, what happens if you disable the fakephp driver?  I haven't tried
+that out with pci express.  Do you have pci express slots on this box?
 
-I forget what the exact numbers were, but I did some timings on plain
-"gzip", and it basically said that doing gzip on a medium-sized file was
-not that different for -6 and -9. Why? Because most of the overhead was
-elsewhere ;)
+thanks,
 
-Oh, well, I just re-created some numbers. This wasn't exactly what I did 
-last time I tested it, but it's conceptually the same thing:
-
-	torvalds@ppc970:~> time gzip -9 < v2.6/linux/kernel/sched.c > /dev/null 
-	real    0m0.018s
-	user    0m0.018s
-	sys     0m0.000s
-
-	torvalds@ppc970:~> time gzip -6 < v2.6/linux/kernel/sched.c > /dev/null 
-	real    0m0.015s
-	user    0m0.013s
-	sys     0m0.001s
-
-ie there's a 0.003 second difference, which is certainly noticeable, and
-would be hugely noticeable if you did a lot of these. But in my world-view
-(which is what git is optimized for), the common case is that you usually
-end up compressing maybe five-ten files, so the _compression_ overhead is
-not that huge compared to all the other stuff.
-
-But yes, testing git on big changes will test exactly the things that git
-isn't optimized for. I think git will normally hold up pretty well (ie it
-will still beat anything that isn't designed for speed, and will be
-comparable to things that _are_), but it's not what I'm interested in
-optimizing for.
-
-That said - these days we can trivially change over to a "zlib -6" 
-compression, and nothing should ever notice. So if somebody wants to 
-test it, it should be fairly easy to just compare side-by-side: the 
-results should be identical.
-
-The easiest test-case is Andrew's 198-patch patch-bomb on linux-kernel a 
-few weeks ago: they all apply cleanly to 2.6.12-rc2 (in order), and you 
-can use my "dotest" script to automate the test..
-
-			Linus
+greg k-h

@@ -1,56 +1,1917 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbVDZRWa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbVDZRWX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261682AbVDZRWa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 13:22:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261696AbVDZRWa
+	id S261680AbVDZRWX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 13:22:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbVDZRWX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 13:22:30 -0400
-Received: from mail.dif.dk ([193.138.115.101]:31676 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261682AbVDZRQz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 13:16:55 -0400
-Date: Tue, 26 Apr 2005 19:20:13 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: David Addison <addy@quadrics.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-       David Addison <david.addison@quadrics.com>
-Subject: Re: [PATCH][RFC] Linux VM hooks for advanced RDMA NICs
-In-Reply-To: <1114535584.5410.2.camel@mindpipe>
-Message-ID: <Pine.LNX.4.62.0504261918210.2071@dragon.hyggekrogen.localhost>
-References: <426E62ED.5090803@quadrics.com> 
- <Pine.LNX.4.62.0504261829110.2071@dragon.hyggekrogen.localhost>
- <1114535584.5410.2.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 26 Apr 2005 13:22:23 -0400
+Received: from moutng.kundenserver.de ([212.227.126.177]:21500 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261680AbVDZRQN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 13:16:13 -0400
+Date: Tue, 26 Apr 2005 19:16:01 +0200
+From: lkml@Think-Future.de
+To: Linux Kernel-Liste <linux-kernel@vger.kernel.org>
+Subject: PROBLEM: ide-scsi Oops on 2.6.11
+Reply-To: lkml@Think-Future.de
+Mail-Followup-To: lkml@Think-Future.de,
+	Linux Kernel-Liste <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bg08WKrSYDhXBjb5"
+Content-Disposition: inline
+X-Url: http://www.Think-Future.de
+X-Editor: Vi it! http://www.vim.org
+X-Bkp: p2mi
+X-GnuPG-Key: gpg --keyserver search.keyserver.net --recv-keys 06232116
+User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <20050426171603.CC577144051@service.i-think-future.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:35131867b06e6a502cee335cb348919d
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Apr 2005, Lee Revell wrote:
 
-> On Tue, 2005-04-26 at 18:57 +0200, Jesper Juhl wrote:
-> > > 
-> > > +static inline void
-> > > +ioproc_release(struct mm_struct *mm)
-> > > +{
-> > 
-> > Return types on same line as function name makes grep'ing a lot 
-> > easier/nicer.
-> > 
-> > Here's the example from Documentation/CodingStyle : 
-> > 
-> >         int function(int x)
-> >         {
-> 
-> How so?  I never understood the reasons.  This makes it easier to grep
-> for everything that returns int.  But you make the common case (what
-> file is function() defined in?) harder.
-> 
-I don't know what you do, but when I'm grep'ing the tree for some function 
-I'm often looking for its return type, having that on the same line as the 
-function name lets me grep for the function name and the grep output will 
-contain the return type and function name nicely on the same line.
+--bg08WKrSYDhXBjb5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Jesper
+  Hi,=20
 
+
+One line summary of the problem:   =20
+Oops.=20
+Got hold of Oops while issuing ls /=20
+Did not access the cdrom. Neither is a disc in the drive.
+
+
+Full description of the problem/report:
+Have a look at the bottom (tail of dmesg):
+
+
+
+Keywords (i.e., modules, networking, kernel):
+Module: ide-scsi
+
+
+/proc/version:
+--------------
+
+Linux version 2.6.11tf (root@tadpole) (gcc version 3.3.5 (Debian 1:3.3.5-5)=
+) #1 Sat Mar 5 16:46:41 CET 2005
+
+
+Output of Oops.. message:
+spurious 8259A interrupt: IRQ7.
+ide-scsi: unsup command: dev hdc: flags =3D REQ_CMD REQ_STARTED=20
+sector 64, nr/cnr 2/2
+bio e71caec0, biotail e71caec0, buffer ed764000, data 00000000, len 0
+end_request: I/O error, dev hdc, sector 64
+isofs_fill_super: bread failed, dev=3Dhdc, iso_blknum=3D16, block=3D32
+Unable to handle kernel NULL pointer dereference at virtual address
+00000000
+ printing eip:
+ c031f356
+ *pde =3D 00000000
+ Oops: 0000 [#1]
+ PREEMPT=20
+ .
+ .
+ .
+ (rest of dmesg output at the end of this email)
+
+
+A small shell script or example program which triggers the problem:
+ls /
+
+
+/usr/src/linux/scripts/ver_linux:
+---------------------------------
+
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+=20
+Linux tadpole 2.6.11tf #1 Sat Mar 5 16:46:41 CET 2005 i686 GNU/Linux
+=20
+Gnu C                  3.3.5
+Gnu make               3.80
+binutils               2.15
+util-linux             2.12
+mount                  2.12
+module-init-tools      3.1
+e2fsprogs              1.28
+reiserfsprogs          line
+reiser4progs           line
+pcmcia-cs              3.2.5
+quota-tools            3.07.
+PPP                    2.4.1
+Linux C Library        2.3.2
+Dynamic linker (ldd)   2.3.2
+Procps                 3.2.4
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               5.2.1
+/usr/src/linux/scripts/ver_linux: line 90: udevinfo: command not found
+Modules Loaded         nls_cp1251 snd_seq_oss snd_seq_midi_event snd_seq sn=
+d_seq_device snd_pcm_oss snd_intel8x0 snd_ac97_codec snd_pcm snd_timer snd_=
+page_alloc ipv6 pcmcia yenta_socket rsrc_nonstatic pcmcia_core snd_mixer_os=
+s snd iptable_mangle ipt_LOG ipt_esp ipt_state ip_conntrack iptable_filter =
+ip_tables eepro100 ehci_hcd radeon drm agpgart uhci_hcd usbcore
+
+
+/proc/cpuinfo:
+--------------
+
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 15
+model		: 2
+model name	: Intel(R) Pentium(R) 4 Mobile CPU 1.60GHz
+stepping	: 4
+cpu MHz		: 1599.162
+cache size	: 512 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36=
+ clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips	: 3153.92
+
+
+
+/proc/modules:
+--------------
+
+nls_cp1251 4992 0 - Live 0xf09c8000
+snd_seq_oss 38656 0 - Live 0xf0a00000
+snd_seq_midi_event 8192 1 snd_seq_oss, Live 0xf0908000
+snd_seq 62480 4 snd_seq_oss,snd_seq_midi_event, Live 0xf0a9a000
+snd_seq_device 9228 2 snd_seq_oss,snd_seq, Live 0xf09c4000
+snd_pcm_oss 64800 0 - Live 0xf0a89000
+snd_intel8x0 34880 2 - Live 0xf09e1000
+snd_ac97_codec 80760 1 snd_intel8x0, Live 0xf0a74000
+snd_pcm 109320 4 snd_pcm_oss,snd_intel8x0,snd_ac97_codec, Live 0xf0a14000
+snd_timer 28420 2 snd_seq,snd_pcm, Live 0xf09eb000
+snd_page_alloc 10756 2 snd_intel8x0,snd_pcm, Live 0xf09c0000
+ipv6 270464 12 - Live 0xf0a30000
+pcmcia 26120 4 - Live 0xf09d9000
+yenta_socket 23432 2 - Live 0xf0993000
+rsrc_nonstatic 11136 1 yenta_socket, Live 0xf097b000
+pcmcia_core 51360 3 pcmcia,yenta_socket,rsrc_nonstatic, Live 0xf09cb000
+snd_mixer_oss 22656 2 snd_pcm_oss, Live 0xf099b000
+snd 68996 11 snd_seq_oss,snd_seq_midi_event,snd_seq,snd_seq_device,snd_pcm_=
+oss,snd_intel8x0,snd_ac97_codec,snd_pcm,snd_timer,snd_mixer_oss, Live 0xf09=
+a9000
+iptable_mangle 3072 0 - Live 0xf0911000
+ipt_LOG 7680 4 - Live 0xf097f000
+ipt_esp 2176 4 - Live 0xf0979000
+ipt_state 2048 22 - Live 0xf0977000
+ip_conntrack 46264 1 ipt_state, Live 0xf0986000
+iptable_filter 3200 1 - Live 0xf090b000
+ip_tables 23424 5 iptable_mangle,ipt_LOG,ipt_esp,ipt_state,iptable_filter, =
+Live 0xf0970000
+eepro100 32016 0 - Live 0xf0967000
+ehci_hcd 33672 0 - Live 0xf095d000
+radeon 78720 0 - Live 0xf0935000
+drm 67988 1 radeon, Live 0xf094b000
+agpgart 35368 1 drm, Live 0xf08f0000
+uhci_hcd 33552 0 - Live 0xf08fb000
+usbcore 123640 3 ehci_hcd,uhci_hcd, Live 0xf0915000
+
+
+/proc/ioports:
+--------------
+
+0000-001f : dma1
+0020-0021 : pic1
+0040-0043 : timer0
+0050-0053 : timer1
+0060-006f : keyboard
+0070-0077 : rtc
+0080-008f : dma page reg
+00a0-00a1 : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+02f8-02ff : serial
+0376-0376 : ide1
+03b0-03bf : ega
+  03bc-03be : parport0
+03f6-03f6 : ide0
+03f8-03ff : serial
+0cf8-0cff : PCI conf1
+1000-107f : 0000:00:1f.0
+1180-11bf : 0000:00:1f.0
+1800-181f : 0000:00:1d.0
+  1800-181f : uhci_hcd
+1820-183f : 0000:00:1d.1
+  1820-183f : uhci_hcd
+1840-185f : 0000:00:1d.2
+  1840-185f : uhci_hcd
+1860-186f : 0000:00:1f.1
+  1860-1867 : ide0
+  1868-186f : ide1
+1880-189f : 0000:00:1f.3
+18c0-18ff : 0000:00:1f.5
+  18c0-18ff : Intel 82801CA-ICH3
+1c00-1cff : 0000:00:1f.5
+  1c00-1cff : Intel 82801CA-ICH3
+2000-207f : 0000:00:1f.6
+2400-24ff : 0000:00:1f.6
+3000-3fff : PCI Bus #01
+  3000-30ff : 0000:01:00.0
+4000-40ff : PCI CardBus #03
+4400-44ff : PCI CardBus #03
+4800-48ff : PCI CardBus #07
+4c00-4cff : PCI CardBus #07
+8000-803f : 0000:02:08.0
+  8000-803f : eepro100
+
+
+/proc/iomem:
+------------
+
+00000000-0009efff : System RAM
+0009f000-0009ffff : reserved
+000a0000-000bffff : Video RAM area
+000c0000-000cffff : Video ROM
+000e0000-000effff : Extension ROM
+000f0000-000fffff : System ROM
+00100000-2ff6ffff : System RAM
+  00100000-0053e517 : Kernel code
+  0053e518-00718bff : Kernel data
+2ff70000-2ff7dfff : ACPI Tables
+2ff7e000-2ff7ffff : ACPI Non-volatile Storage
+2ff80000-2fffffff : reserved
+30000000-300003ff : 0000:00:1f.1
+30400000-307fffff : PCI CardBus #03
+30800000-30bfffff : PCI CardBus #03
+30c00000-30ffffff : PCI CardBus #07
+31000000-313fffff : PCI CardBus #07
+50000000-50000fff : 0000:02:00.0
+  50000000-50000fff : yenta_socket
+50100000-50100fff : 0000:02:00.1
+  50100000-50100fff : yenta_socket
+d0100000-d01fffff : PCI Bus #01
+  d0100000-d010ffff : 0000:01:00.0
+d0200000-d0200fff : 0000:02:08.0
+  d0200000-d0200fff : eepro100
+e0000000-e3ffffff : 0000:00:00.0
+e8000000-efffffff : PCI Bus #01
+  e8000000-efffffff : 0000:01:00.0
+f8000000-f8000fff : 0000:02:02.0
+ff800000-ffffffff : reserved
+
+
+lspci -vvv:
+-----------
+
+00:00.0 Host bridge: Intel Corp. 82845 845 (Brookdale) Chipset Host Bridge =
+(rev 04)
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR+ FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dfast >TAbort- <TAbort- =
+<MAbort+ >SERR- <PERR-
+	Latency: 0
+	Region 0: Memory at e0000000 (32-bit, prefetchable) [size=3D64M]
+	Capabilities: <available only to root>
+
+00:01.0 PCI bridge: Intel Corp. 82845 845 (Brookdale) Chipset AGP Bridge (r=
+ev 04) (prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR+ FastB2B-
+	Status: Cap- 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=3Dfast >TAbort- <TAbort- =
+<MAbort- >SERR- <PERR-
+	Latency: 96
+	Bus: primary=3D00, secondary=3D01, subordinate=3D01, sec-latency=3D64
+	I/O behind bridge: 00003000-00003fff
+	Memory behind bridge: d0100000-d01fffff
+	Prefetchable memory behind bridge: e8000000-efffffff
+	BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
+
+00:1d.0 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #1) (rev 02) (prog=
+-if 00 [UHCI])
+	Subsystem: IBM ThinkPad A/T/X Series
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Interrupt: pin A routed to IRQ 11
+	Region 4: I/O ports at 1800 [size=3D32]
+
+00:1d.1 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #2) (rev 02) (prog=
+-if 00 [UHCI])
+	Subsystem: IBM ThinkPad A/T/X Series
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Interrupt: pin B routed to IRQ 11
+	Region 4: I/O ports at 1820 [size=3D32]
+
+00:1d.2 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #3) (rev 02) (prog=
+-if 00 [UHCI])
+	Subsystem: IBM ThinkPad A/T/X Series
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Interrupt: pin C routed to IRQ 11
+	Region 4: I/O ports at 1840 [size=3D32]
+
+00:1e.0 PCI bridge: Intel Corp. 82801BAM/CAM PCI Bridge (rev 42) (prog-if 0=
+0 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR+ FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dfast >TAbort- <TAbort- =
+<MAbort- >SERR- <PERR-
+	Latency: 0
+	Bus: primary=3D00, secondary=3D02, subordinate=3D08, sec-latency=3D64
+	I/O behind bridge: 00004000-00008fff
+	Memory behind bridge: d0200000-dfffffff
+	Prefetchable memory behind bridge: f0000000-f80fffff
+	BridgeCtl: Parity- SERR- NoISA+ VGA- MAbort- >Reset- FastB2B-
+
+00:1f.0 ISA bridge: Intel Corp. 82801CAM ISA Bridge (LPC) (rev 02)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 0
+
+00:1f.1 IDE interface: Intel Corp. 82801CAM IDE U100 (rev 02) (prog-if 8a [=
+Master SecP PriP])
+	Subsystem: IBM ThinkPad A/T/X Series
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Interrupt: pin A routed to IRQ 11
+	Region 0: I/O ports at <ignored>
+	Region 1: I/O ports at <ignored>
+	Region 2: I/O ports at <ignored>
+	Region 3: I/O ports at <ignored>
+	Region 4: I/O ports at 1860 [size=3D16]
+	Region 5: Memory at 30000000 (32-bit, non-prefetchable) [size=3D1K]
+
+00:1f.3 SMBus: Intel Corp. 82801CA/CAM SMBus Controller (rev 02)
+	Subsystem: IBM ThinkPad A/T/X Series
+	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Interrupt: pin B routed to IRQ 11
+	Region 4: I/O ports at 1880 [size=3D32]
+
+00:1f.5 Multimedia audio controller: Intel Corp. 82801CA/CAM AC'97 Audio Co=
+ntroller (rev 02)
+	Subsystem: IBM ThinkPad T30
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Interrupt: pin B routed to IRQ 11
+	Region 0: I/O ports at 1c00 [size=3D256]
+	Region 1: I/O ports at 18c0 [size=3D64]
+
+00:1f.6 Modem: Intel Corp. 82801CA/CAM AC'97 Modem Controller (rev 02) (pro=
+g-if 00 [Generic])
+	Subsystem: IBM: Unknown device 0227
+	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Interrupt: pin B routed to IRQ 11
+	Region 0: I/O ports at 2400 [size=3D256]
+	Region 1: I/O ports at 2000 [size=3D128]
+
+01:00.0 VGA compatible controller: ATI Technologies Inc Radeon Mobility M7 =
+LW [Radeon Mobility 7500] (prog-if 00 [VGA])
+	Subsystem: IBM: Unknown device 0509
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng+ SERR+ FastB2B+
+	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 66 (2000ns min), Cache Line Size: 0x08 (32 bytes)
+	Interrupt: pin A routed to IRQ 11
+	Region 0: Memory at e8000000 (32-bit, prefetchable) [size=3D128M]
+	Region 1: I/O ports at 3000 [size=3D256]
+	Region 2: Memory at d0100000 (32-bit, non-prefetchable) [size=3D64K]
+	Expansion ROM at <unassigned> [disabled] [size=3D128K]
+	Capabilities: <available only to root>
+
+02:00.0 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev 80)
+	Subsystem: IBM ThinkPad A/T/X Series
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 168
+	Interrupt: pin A routed to IRQ 11
+	Region 0: Memory at 50000000 (32-bit, non-prefetchable) [size=3D4K]
+	Bus: primary=3D02, secondary=3D03, subordinate=3D06, sec-latency=3D176
+	Memory window 0: 30400000-307ff000 (prefetchable)
+	Memory window 1: 30800000-30bff000
+	I/O window 0: 00004000-000040ff
+	I/O window 1: 00004400-000044ff
+	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt+ PostWrite+
+	16-bit legacy interface ports at 0001
+
+02:00.1 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev 80)
+	Subsystem: IBM ThinkPad A/T/X Series
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 168
+	Interrupt: pin B routed to IRQ 11
+	Region 0: Memory at 50100000 (32-bit, non-prefetchable) [size=3D4K]
+	Bus: primary=3D02, secondary=3D07, subordinate=3D0a, sec-latency=3D176
+	Memory window 0: 30c00000-30fff000 (prefetchable)
+	Memory window 1: 31000000-313ff000
+	I/O window 0: 00004800-000048ff
+	I/O window 1: 00004c00-00004cff
+	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt+ PostWrite+
+	16-bit legacy interface ports at 0001
+
+02:02.0 Network controller: Harris Semiconductor Prism 2.5 Wavelan chipset =
+(rev 01)
+	Subsystem: Actiontec Electronics Inc: Unknown device 0406
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Steppi=
+ng- SERR+ FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 64, Cache Line Size: 0x08 (32 bytes)
+	Interrupt: pin A routed to IRQ 11
+	Region 0: Memory at f8000000 (32-bit, prefetchable) [size=3D4K]
+	Capabilities: <available only to root>
+
+02:08.0 Ethernet controller: Intel Corp. 82801CAM (ICH3) PRO/100 VE (LOM) E=
+thernet Controller (rev 42)
+	Subsystem: IBM ThinkPad A/T/X Series
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Steppi=
+ng- SERR+ FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 66 (2000ns min, 14000ns max), Cache Line Size: 0x08 (32 bytes)
+	Interrupt: pin A routed to IRQ 11
+	Region 0: Memory at d0200000 (32-bit, non-prefetchable) [size=3D4K]
+	Region 1: I/O ports at 8000 [size=3D64]
+	Capabilities: <available only to root>
+
+
+
+/proc/scsi/scsi:
+----------------
+
+Attached devices:
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: MATSHITA Model: UJDA720 DVD/CDRW Rev: 1.03
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 00 Lun: 01
+  Vendor: MATSHITA Model: UJDA720 DVD/CDRW Rev: 1.03
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 00 Lun: 02
+  Vendor: MATSHITA Model: UJDA720 DVD/CDRW Rev: 1.03
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 00 Lun: 03
+  Vendor: MATSHITA Model: UJDA720 DVD/CDRW Rev: 1.03
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 00 Lun: 04
+  Vendor: MATSHITA Model: UJDA720 DVD/CDRW Rev: 1.03
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 00 Lun: 05
+  Vendor: MATSHITA Model: UJDA720 DVD/CDRW Rev: 1.03
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 00 Lun: 06
+  Vendor: MATSHITA Model: UJDA720 DVD/CDRW Rev: 1.03
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+
+
+Other information that might be relevant to the problem:
+Ask. Dunno what might helpful.
+
+
+
+/proc/cmdline:
+--------------
+
+BOOT_IMAGE=3Dk2611 ro root=3D303 apm=3Don acpi=3Doff hdc=3Dide-scsi cpufreq=
+=3D500000:1600000:userspace resume=3D/dev/hda5 acpi_sleep=3Ds3_bios video=
+=3Dradeonfb:off,i810fb:off
+
+
+/proc/interrupts:
+-----------------
+
+           CPU0      =20
+  0:   33806856          XT-PIC  timer
+  1:      25173          XT-PIC  i8042
+  2:          0          XT-PIC  cascade
+  8:          4          XT-PIC  rtc
+ 11:    1853398          XT-PIC  uhci_hcd, uhci_hcd, uhci_hcd, eth0, yenta,=
+ yenta, Intel 82801CA-ICH3
+ 12:     420347          XT-PIC  i8042
+ 14:     150321          XT-PIC  ide0
+ 15:        148          XT-PIC  ide1
+NMI:          0=20
+LOC:          0=20
+ERR:          1
+MIS:          0
+
+
+cat /proc/config.gz | grep "[y|m]":
+-----------------------------------
+
+# Automatically generated make config: don't edit
+CONFIG_X86=3Dy
+CONFIG_MMU=3Dy
+CONFIG_UID16=3Dy
+CONFIG_GENERIC_ISA_DMA=3Dy
+CONFIG_GENERIC_IOMAP=3Dy
+# Code maturity level options
+CONFIG_EXPERIMENTAL=3Dy
+CONFIG_CLEAN_COMPILE=3Dy
+CONFIG_BROKEN_ON_SMP=3Dy
+CONFIG_LOCK_KERNEL=3Dy
+CONFIG_SWAP=3Dy
+CONFIG_SYSVIPC=3Dy
+CONFIG_POSIX_MQUEUE=3Dy
+CONFIG_BSD_PROCESS_ACCT=3Dy
+CONFIG_BSD_PROCESS_ACCT_V3=3Dy
+CONFIG_SYSCTL=3Dy
+CONFIG_AUDIT=3Dy
+CONFIG_AUDITSYSCALL=3Dy
+CONFIG_HOTPLUG=3Dy
+CONFIG_KOBJECT_UEVENT=3Dy
+CONFIG_IKCONFIG=3Dy
+CONFIG_IKCONFIG_PROC=3Dy
+CONFIG_KALLSYMS=3Dy
+CONFIG_FUTEX=3Dy
+CONFIG_EPOLL=3Dy
+CONFIG_SHMEM=3Dy
+# Loadable module support
+CONFIG_MODULES=3Dy
+CONFIG_MODULE_UNLOAD=3Dy
+CONFIG_MODULE_FORCE_UNLOAD=3Dy
+CONFIG_OBSOLETE_MODPARM=3Dy
+CONFIG_MODVERSIONS=3Dy
+CONFIG_KMOD=3Dy
+# Processor type and features
+CONFIG_X86_PC=3Dy
+CONFIG_MPENTIUM4=3Dy
+CONFIG_X86_CMPXCHG=3Dy
+CONFIG_X86_XADD=3Dy
+CONFIG_RWSEM_XCHGADD_ALGORITHM=3Dy
+CONFIG_GENERIC_CALIBRATE_DELAY=3Dy
+CONFIG_X86_WP_WORKS_OK=3Dy
+CONFIG_X86_INVLPG=3Dy
+CONFIG_X86_BSWAP=3Dy
+CONFIG_X86_POPAD_OK=3Dy
+CONFIG_X86_GOOD_APIC=3Dy
+CONFIG_X86_INTEL_USERCOPY=3Dy
+CONFIG_X86_USE_PPRO_CHECKSUM=3Dy
+CONFIG_PREEMPT=3Dy
+CONFIG_PREEMPT_BKL=3Dy
+CONFIG_X86_UP_APIC=3Dy
+CONFIG_X86_UP_IOAPIC=3Dy
+CONFIG_X86_LOCAL_APIC=3Dy
+CONFIG_X86_IO_APIC=3Dy
+CONFIG_X86_TSC=3Dy
+CONFIG_X86_MCE=3Dy
+CONFIG_X86_MCE_NONFATAL=3Dy
+CONFIG_X86_MCE_P4THERMAL=3Dy
+CONFIG_MICROCODE=3Dy
+CONFIG_X86_MSR=3Dy
+CONFIG_X86_CPUID=3Dy
+# Firmware Drivers
+CONFIG_NOHIGHMEM=3Dy
+CONFIG_MTRR=3Dy
+CONFIG_HAVE_DEC_LOCK=3Dy
+# Power management options (ACPI, APM)
+CONFIG_PM=3Dy
+CONFIG_SOFTWARE_SUSPEND=3Dy
+CONFIG_ACPI=3Dy
+CONFIG_ACPI_BOOT=3Dy
+CONFIG_ACPI_INTERPRETER=3Dy
+CONFIG_ACPI_SLEEP=3Dy
+CONFIG_ACPI_SLEEP_PROC_FS=3Dy
+CONFIG_ACPI_AC=3Dy
+CONFIG_ACPI_BATTERY=3Dy
+CONFIG_ACPI_BUTTON=3Dy
+CONFIG_ACPI_VIDEO=3Dy
+CONFIG_ACPI_FAN=3Dy
+CONFIG_ACPI_PROCESSOR=3Dy
+CONFIG_ACPI_THERMAL=3Dy
+CONFIG_ACPI_IBM=3Dy
+CONFIG_ACPI_DEBUG=3Dy
+CONFIG_ACPI_BUS=3Dy
+CONFIG_ACPI_EC=3Dy
+CONFIG_ACPI_POWER=3Dy
+CONFIG_ACPI_PCI=3Dy
+CONFIG_ACPI_SYSTEM=3Dy
+CONFIG_X86_PM_TIMER=3Dy
+# APM (Advanced Power Management) BIOS Support
+CONFIG_APM=3Dy
+CONFIG_APM_CPU_IDLE=3Dy
+CONFIG_APM_RTC_IS_GMT=3Dy
+CONFIG_APM_ALLOW_INTS=3Dy
+CONFIG_APM_REAL_MODE_POWER_OFF=3Dy
+# CPU Frequency scaling
+CONFIG_CPU_FREQ=3Dy
+CONFIG_CPU_FREQ_STAT=3Dy
+CONFIG_CPU_FREQ_STAT_DETAILS=3Dy
+CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE=3Dy
+CONFIG_CPU_FREQ_GOV_PERFORMANCE=3Dy
+CONFIG_CPU_FREQ_GOV_POWERSAVE=3Dy
+CONFIG_CPU_FREQ_GOV_USERSPACE=3Dy
+CONFIG_CPU_FREQ_GOV_ONDEMAND=3Dm
+CONFIG_CPU_FREQ_TABLE=3Dy
+CONFIG_X86_ACPI_CPUFREQ=3Dy
+CONFIG_X86_SPEEDSTEP_CENTRINO=3Dy
+CONFIG_X86_SPEEDSTEP_CENTRINO_ACPI=3Dy
+CONFIG_X86_SPEEDSTEP_CENTRINO_TABLE=3Dy
+CONFIG_X86_SPEEDSTEP_ICH=3Dy
+CONFIG_X86_SPEEDSTEP_SMI=3Dy
+CONFIG_X86_P4_CLOCKMOD=3Dy
+CONFIG_X86_ACPI_CPUFREQ_PROC_INTF=3Dy
+CONFIG_X86_SPEEDSTEP_LIB=3Dy
+CONFIG_X86_SPEEDSTEP_RELAXED_CAP_CHECK=3Dy
+CONFIG_PCI=3Dy
+CONFIG_PCI_GOANY=3Dy
+CONFIG_PCI_BIOS=3Dy
+CONFIG_PCI_DIRECT=3Dy
+CONFIG_PCI_MMCONFIG=3Dy
+CONFIG_PCI_LEGACY_PROC=3Dy
+CONFIG_PCI_NAMES=3Dy
+CONFIG_ISA=3Dy
+CONFIG_EISA=3Dy
+CONFIG_EISA_PCI_EISA=3Dy
+CONFIG_EISA_VIRTUAL_ROOT=3Dy
+CONFIG_EISA_NAMES=3Dy
+CONFIG_PCCARD=3Dm
+CONFIG_PCMCIA=3Dm
+CONFIG_CARDBUS=3Dy
+CONFIG_YENTA=3Dm
+CONFIG_PD6729=3Dm
+CONFIG_I82092=3Dm
+CONFIG_I82365=3Dm
+CONFIG_TCIC=3Dm
+CONFIG_PCMCIA_PROBE=3Dy
+CONFIG_PCCARD_NONSTATIC=3Dm
+CONFIG_HOTPLUG_PCI=3Dm
+CONFIG_HOTPLUG_PCI_IBM=3Dm
+CONFIG_HOTPLUG_PCI_ACPI=3Dm
+CONFIG_HOTPLUG_PCI_ACPI_IBM=3Dm
+# Executable file formats
+CONFIG_BINFMT_ELF=3Dy
+CONFIG_BINFMT_AOUT=3Dy
+CONFIG_BINFMT_MISC=3Dy
+CONFIG_STANDALONE=3Dy
+CONFIG_PREVENT_FIRMWARE_BUILD=3Dy
+CONFIG_FW_LOADER=3Dy
+# Memory Technology Devices (MTD)
+CONFIG_PARPORT=3Dy
+CONFIG_PARPORT_PC=3Dy
+CONFIG_PARPORT_PC_CML1=3Dy
+CONFIG_PARPORT_PC_FIFO=3Dy
+CONFIG_PARPORT_PC_SUPERIO=3Dy
+CONFIG_PARPORT_PC_PCMCIA=3Dm
+CONFIG_PARPORT_1284=3Dy
+# Plug and Play support
+CONFIG_BLK_DEV_FD=3Dy
+CONFIG_BLK_DEV_LOOP=3Dy
+CONFIG_BLK_DEV_CRYPTOLOOP=3Dy
+CONFIG_BLK_DEV_NBD=3Dy
+CONFIG_BLK_DEV_RAM=3Dy
+CONFIG_BLK_DEV_INITRD=3Dy
+CONFIG_CDROM_PKTCDVD=3Dm
+CONFIG_CDROM_PKTCDVD_WCACHE=3Dy
+CONFIG_IOSCHED_NOOP=3Dy
+CONFIG_IOSCHED_AS=3Dy
+CONFIG_IOSCHED_DEADLINE=3Dy
+CONFIG_IOSCHED_CFQ=3Dy
+CONFIG_IDE=3Dy
+CONFIG_BLK_DEV_IDE=3Dy
+# Please see Documentation/ide.txt for help/info on IDE drives
+CONFIG_BLK_DEV_IDEDISK=3Dy
+CONFIG_BLK_DEV_IDECS=3Dm
+CONFIG_BLK_DEV_IDECD=3Dy
+CONFIG_BLK_DEV_IDESCSI=3Dy
+CONFIG_IDE_GENERIC=3Dy
+CONFIG_BLK_DEV_IDEPCI=3Dy
+CONFIG_IDEPCI_SHARE_IRQ=3Dy
+CONFIG_BLK_DEV_IDEDMA_PCI=3Dy
+CONFIG_IDEDMA_PCI_AUTO=3Dy
+CONFIG_BLK_DEV_PIIX=3Dy
+CONFIG_BLK_DEV_IDEDMA=3Dy
+CONFIG_IDEDMA_AUTO=3Dy
+CONFIG_SCSI=3Dy
+CONFIG_SCSI_PROC_FS=3Dy
+# SCSI support type (disk, tape, CD-ROM)
+CONFIG_BLK_DEV_SD=3Dy
+CONFIG_BLK_DEV_SR=3Dy
+CONFIG_CHR_DEV_SG=3Dy
+# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
+CONFIG_SCSI_MULTI_LUN=3Dy
+CONFIG_SCSI_CONSTANTS=3Dy
+CONFIG_SCSI_LOGGING=3Dy
+CONFIG_SCSI_SPI_ATTRS=3Dy
+CONFIG_SCSI_AIC7XXX_OLD=3Dy
+CONFIG_SCSI_FUTURE_DOMAIN=3Dy
+CONFIG_SCSI_SYM53C8XX_2=3Dy
+CONFIG_SCSI_QLA2XXX=3Dy
+CONFIG_MD=3Dy
+CONFIG_BLK_DEV_MD=3Dy
+CONFIG_MD_LINEAR=3Dy
+CONFIG_MD_RAID0=3Dy
+CONFIG_MD_RAID1=3Dy
+CONFIG_MD_RAID5=3Dy
+CONFIG_MD_MULTIPATH=3Dy
+CONFIG_BLK_DEV_DM=3Dy
+CONFIG_DM_CRYPT=3Dy
+CONFIG_IEEE1394=3Dy
+# Subsystem Options
+CONFIG_IEEE1394_OUI_DB=3Dy
+CONFIG_IEEE1394_EXTRA_CONFIG_ROMS=3Dy
+CONFIG_IEEE1394_CONFIG_ROM_IP1394=3Dy
+CONFIG_IEEE1394_PCILYNX=3Dm
+CONFIG_IEEE1394_OHCI1394=3Dy
+CONFIG_IEEE1394_VIDEO1394=3Dy
+CONFIG_IEEE1394_SBP2=3Dy
+CONFIG_IEEE1394_SBP2_PHYS_DMA=3Dy
+CONFIG_IEEE1394_ETH1394=3Dy
+CONFIG_IEEE1394_DV1394=3Dy
+CONFIG_IEEE1394_RAWIO=3Dy
+CONFIG_IEEE1394_CMP=3Dy
+CONFIG_IEEE1394_AMDTP=3Dy
+CONFIG_I2O=3Dy
+CONFIG_I2O_CONFIG=3Dy
+CONFIG_I2O_BLOCK=3Dy
+CONFIG_I2O_SCSI=3Dy
+CONFIG_I2O_PROC=3Dy
+CONFIG_NET=3Dy
+CONFIG_PACKET=3Dy
+CONFIG_PACKET_MMAP=3Dy
+CONFIG_NETLINK_DEV=3Dm
+CONFIG_UNIX=3Dy
+CONFIG_NET_KEY=3Dm
+CONFIG_INET=3Dy
+CONFIG_IP_MULTICAST=3Dy
+CONFIG_IP_ADVANCED_ROUTER=3Dy
+CONFIG_IP_MULTIPLE_TABLES=3Dy
+CONFIG_IP_ROUTE_FWMARK=3Dy
+CONFIG_IP_ROUTE_MULTIPATH=3Dy
+CONFIG_IP_ROUTE_VERBOSE=3Dy
+CONFIG_IP_PNP=3Dy
+CONFIG_IP_PNP_DHCP=3Dy
+CONFIG_IP_PNP_BOOTP=3Dy
+CONFIG_IP_PNP_RARP=3Dy
+CONFIG_NET_IPIP=3Dm
+CONFIG_NET_IPGRE=3Dm
+CONFIG_NET_IPGRE_BROADCAST=3Dy
+CONFIG_IP_MROUTE=3Dy
+CONFIG_IP_PIMSM_V1=3Dy
+CONFIG_IP_PIMSM_V2=3Dy
+CONFIG_ARPD=3Dy
+CONFIG_SYN_COOKIES=3Dy
+CONFIG_INET_AH=3Dm
+CONFIG_INET_ESP=3Dm
+CONFIG_INET_IPCOMP=3Dm
+CONFIG_INET_TUNNEL=3Dm
+CONFIG_IP_TCPDIAG=3Dy
+CONFIG_IPV6=3Dm
+CONFIG_IPV6_PRIVACY=3Dy
+CONFIG_INET6_AH=3Dm
+CONFIG_INET6_ESP=3Dm
+CONFIG_INET6_IPCOMP=3Dm
+CONFIG_INET6_TUNNEL=3Dm
+CONFIG_IPV6_TUNNEL=3Dm
+CONFIG_NETFILTER=3Dy
+CONFIG_BRIDGE_NETFILTER=3Dy
+CONFIG_IP_NF_CONNTRACK=3Dm
+CONFIG_IP_NF_CT_ACCT=3Dy
+CONFIG_IP_NF_CONNTRACK_MARK=3Dy
+CONFIG_IP_NF_FTP=3Dm
+CONFIG_IP_NF_IRC=3Dm
+CONFIG_IP_NF_TFTP=3Dm
+CONFIG_IP_NF_AMANDA=3Dm
+CONFIG_IP_NF_QUEUE=3Dm
+CONFIG_IP_NF_IPTABLES=3Dm
+CONFIG_IP_NF_MATCH_LIMIT=3Dm
+CONFIG_IP_NF_MATCH_IPRANGE=3Dm
+CONFIG_IP_NF_MATCH_MAC=3Dm
+CONFIG_IP_NF_MATCH_PKTTYPE=3Dm
+CONFIG_IP_NF_MATCH_MARK=3Dm
+CONFIG_IP_NF_MATCH_MULTIPORT=3Dm
+CONFIG_IP_NF_MATCH_TOS=3Dm
+CONFIG_IP_NF_MATCH_RECENT=3Dm
+CONFIG_IP_NF_MATCH_ECN=3Dm
+CONFIG_IP_NF_MATCH_DSCP=3Dm
+CONFIG_IP_NF_MATCH_AH_ESP=3Dm
+CONFIG_IP_NF_MATCH_LENGTH=3Dm
+CONFIG_IP_NF_MATCH_TTL=3Dm
+CONFIG_IP_NF_MATCH_TCPMSS=3Dm
+CONFIG_IP_NF_MATCH_HELPER=3Dm
+CONFIG_IP_NF_MATCH_STATE=3Dm
+CONFIG_IP_NF_MATCH_CONNTRACK=3Dm
+CONFIG_IP_NF_MATCH_OWNER=3Dm
+CONFIG_IP_NF_MATCH_PHYSDEV=3Dm
+CONFIG_IP_NF_MATCH_ADDRTYPE=3Dm
+CONFIG_IP_NF_MATCH_REALM=3Dm
+CONFIG_IP_NF_MATCH_COMMENT=3Dm
+CONFIG_IP_NF_MATCH_CONNMARK=3Dm
+CONFIG_IP_NF_MATCH_HASHLIMIT=3Dm
+CONFIG_IP_NF_FILTER=3Dm
+CONFIG_IP_NF_TARGET_REJECT=3Dm
+CONFIG_IP_NF_TARGET_LOG=3Dm
+CONFIG_IP_NF_TARGET_ULOG=3Dm
+CONFIG_IP_NF_TARGET_TCPMSS=3Dm
+CONFIG_IP_NF_NAT=3Dm
+CONFIG_IP_NF_NAT_NEEDED=3Dy
+CONFIG_IP_NF_TARGET_MASQUERADE=3Dm
+CONFIG_IP_NF_TARGET_REDIRECT=3Dm
+CONFIG_IP_NF_TARGET_NETMAP=3Dm
+CONFIG_IP_NF_TARGET_SAME=3Dm
+CONFIG_IP_NF_NAT_SNMP_BASIC=3Dm
+CONFIG_IP_NF_NAT_IRC=3Dm
+CONFIG_IP_NF_NAT_FTP=3Dm
+CONFIG_IP_NF_NAT_TFTP=3Dm
+CONFIG_IP_NF_NAT_AMANDA=3Dm
+CONFIG_IP_NF_MANGLE=3Dm
+CONFIG_IP_NF_TARGET_TOS=3Dm
+CONFIG_IP_NF_TARGET_ECN=3Dm
+CONFIG_IP_NF_TARGET_DSCP=3Dm
+CONFIG_IP_NF_TARGET_MARK=3Dm
+CONFIG_IP_NF_TARGET_CLASSIFY=3Dm
+CONFIG_IP_NF_TARGET_CONNMARK=3Dm
+CONFIG_IP_NF_TARGET_CLUSTERIP=3Dm
+CONFIG_IP_NF_RAW=3Dm
+CONFIG_IP_NF_TARGET_NOTRACK=3Dm
+CONFIG_IP_NF_ARPTABLES=3Dm
+CONFIG_IP_NF_ARPFILTER=3Dm
+CONFIG_IP_NF_ARP_MANGLE=3Dm
+CONFIG_IP6_NF_QUEUE=3Dm
+CONFIG_IP6_NF_IPTABLES=3Dm
+CONFIG_IP6_NF_MATCH_LIMIT=3Dm
+CONFIG_IP6_NF_MATCH_MAC=3Dm
+CONFIG_IP6_NF_MATCH_RT=3Dm
+CONFIG_IP6_NF_MATCH_OPTS=3Dm
+CONFIG_IP6_NF_MATCH_FRAG=3Dm
+CONFIG_IP6_NF_MATCH_HL=3Dm
+CONFIG_IP6_NF_MATCH_MULTIPORT=3Dm
+CONFIG_IP6_NF_MATCH_OWNER=3Dm
+CONFIG_IP6_NF_MATCH_MARK=3Dm
+CONFIG_IP6_NF_MATCH_IPV6HEADER=3Dm
+CONFIG_IP6_NF_MATCH_AHESP=3Dm
+CONFIG_IP6_NF_MATCH_LENGTH=3Dm
+CONFIG_IP6_NF_MATCH_EUI64=3Dm
+CONFIG_IP6_NF_MATCH_PHYSDEV=3Dm
+CONFIG_IP6_NF_FILTER=3Dm
+CONFIG_IP6_NF_TARGET_LOG=3Dm
+CONFIG_IP6_NF_MANGLE=3Dm
+CONFIG_IP6_NF_TARGET_MARK=3Dm
+CONFIG_IP6_NF_RAW=3Dm
+CONFIG_BRIDGE_NF_EBTABLES=3Dm
+CONFIG_BRIDGE_EBT_BROUTE=3Dm
+CONFIG_BRIDGE_EBT_T_FILTER=3Dm
+CONFIG_BRIDGE_EBT_T_NAT=3Dm
+CONFIG_BRIDGE_EBT_802_3=3Dm
+CONFIG_BRIDGE_EBT_AMONG=3Dm
+CONFIG_BRIDGE_EBT_ARP=3Dm
+CONFIG_BRIDGE_EBT_IP=3Dm
+CONFIG_BRIDGE_EBT_LIMIT=3Dm
+CONFIG_BRIDGE_EBT_MARK=3Dm
+CONFIG_BRIDGE_EBT_PKTTYPE=3Dm
+CONFIG_BRIDGE_EBT_STP=3Dm
+CONFIG_BRIDGE_EBT_VLAN=3Dm
+CONFIG_BRIDGE_EBT_ARPREPLY=3Dm
+CONFIG_BRIDGE_EBT_DNAT=3Dm
+CONFIG_BRIDGE_EBT_MARK_T=3Dm
+CONFIG_BRIDGE_EBT_REDIRECT=3Dm
+CONFIG_BRIDGE_EBT_SNAT=3Dm
+CONFIG_BRIDGE_EBT_LOG=3Dm
+CONFIG_BRIDGE_EBT_ULOG=3Dm
+CONFIG_XFRM=3Dy
+CONFIG_XFRM_USER=3Dm
+CONFIG_IP_SCTP=3Dm
+CONFIG_SCTP_DBG_MSG=3Dy
+CONFIG_SCTP_DBG_OBJCNT=3Dy
+CONFIG_SCTP_HMAC_MD5=3Dy
+CONFIG_BRIDGE=3Dm
+CONFIG_VLAN_8021Q=3Dm
+CONFIG_LLC=3Dm
+CONFIG_IPX=3Dm
+CONFIG_IPX_INTERN=3Dy
+CONFIG_ATALK=3Dm
+CONFIG_DEV_APPLETALK=3Dy
+CONFIG_IPDDP=3Dm
+CONFIG_IPDDP_ENCAP=3Dy
+CONFIG_IPDDP_DECAP=3Dy
+CONFIG_NET_SCHED=3Dy
+CONFIG_NET_SCH_CLK_JIFFIES=3Dy
+CONFIG_NET_SCH_CBQ=3Dm
+CONFIG_NET_SCH_HTB=3Dm
+CONFIG_NET_SCH_HFSC=3Dm
+CONFIG_NET_SCH_PRIO=3Dm
+CONFIG_NET_SCH_RED=3Dm
+CONFIG_NET_SCH_SFQ=3Dm
+CONFIG_NET_SCH_TEQL=3Dm
+CONFIG_NET_SCH_TBF=3Dm
+CONFIG_NET_SCH_GRED=3Dm
+CONFIG_NET_SCH_DSMARK=3Dm
+CONFIG_NET_SCH_INGRESS=3Dm
+CONFIG_NET_QOS=3Dy
+CONFIG_NET_ESTIMATOR=3Dy
+CONFIG_NET_CLS=3Dy
+CONFIG_NET_CLS_TCINDEX=3Dm
+CONFIG_NET_CLS_ROUTE4=3Dm
+CONFIG_NET_CLS_ROUTE=3Dy
+CONFIG_NET_CLS_FW=3Dm
+CONFIG_NET_CLS_U32=3Dm
+CONFIG_CLS_U32_PERF=3Dy
+CONFIG_NET_CLS_IND=3Dy
+CONFIG_CLS_U32_MARK=3Dy
+CONFIG_NET_CLS_RSVP=3Dm
+CONFIG_NET_CLS_RSVP6=3Dm
+CONFIG_NET_CLS_ACT=3Dy
+CONFIG_NET_ACT_POLICE=3Dm
+CONFIG_NET_ACT_GACT=3Dm
+CONFIG_NET_ACT_MIRRED=3Dm
+CONFIG_NET_ACT_IPT=3Dm
+CONFIG_NET_ACT_PEDIT=3Dm
+CONFIG_NETPOLL=3Dy
+CONFIG_NET_POLL_CONTROLLER=3Dy
+CONFIG_IRDA=3Dm
+CONFIG_IRLAN=3Dm
+CONFIG_IRNET=3Dm
+CONFIG_IRCOMM=3Dm
+CONFIG_IRDA_ULTRA=3Dy
+CONFIG_IRDA_CACHE_LAST_LSAP=3Dy
+CONFIG_IRDA_FAST_RR=3Dy
+CONFIG_IRDA_DEBUG=3Dy
+CONFIG_IRTTY_SIR=3Dm
+CONFIG_DONGLE=3Dy
+CONFIG_ESI_DONGLE=3Dm
+CONFIG_ACTISYS_DONGLE=3Dm
+CONFIG_TEKRAM_DONGLE=3Dm
+CONFIG_LITELINK_DONGLE=3Dm
+CONFIG_MA600_DONGLE=3Dm
+CONFIG_GIRBIL_DONGLE=3Dm
+CONFIG_MCP2120_DONGLE=3Dm
+CONFIG_OLD_BELKIN_DONGLE=3Dm
+CONFIG_ACT200L_DONGLE=3Dm
+CONFIG_IRPORT_SIR=3Dm
+CONFIG_DONGLE_OLD=3Dy
+CONFIG_ESI_DONGLE_OLD=3Dm
+CONFIG_ACTISYS_DONGLE_OLD=3Dm
+CONFIG_TEKRAM_DONGLE_OLD=3Dm
+CONFIG_GIRBIL_DONGLE_OLD=3Dm
+CONFIG_LITELINK_DONGLE_OLD=3Dm
+CONFIG_MCP2120_DONGLE_OLD=3Dm
+CONFIG_OLD_BELKIN_DONGLE_OLD=3Dm
+CONFIG_ACT200L_DONGLE_OLD=3Dm
+CONFIG_USB_IRDA=3Dm
+CONFIG_SIGMATEL_FIR=3Dm
+CONFIG_NSC_FIR=3Dm
+CONFIG_WINBOND_FIR=3Dm
+CONFIG_TOSHIBA_FIR=3Dm
+CONFIG_SMC_IRCC_FIR=3Dm
+CONFIG_ALI_FIR=3Dm
+CONFIG_VLSI_FIR=3Dm
+CONFIG_VIA_FIR=3Dm
+CONFIG_BT=3Dm
+CONFIG_BT_L2CAP=3Dm
+CONFIG_BT_SCO=3Dm
+CONFIG_BT_RFCOMM=3Dm
+CONFIG_BT_RFCOMM_TTY=3Dy
+CONFIG_BT_BNEP=3Dm
+CONFIG_BT_BNEP_MC_FILTER=3Dy
+CONFIG_BT_BNEP_PROTO_FILTER=3Dy
+CONFIG_BT_CMTP=3Dm
+CONFIG_BT_HIDP=3Dm
+CONFIG_BT_HCIUSB=3Dm
+CONFIG_BT_HCIUSB_SCO=3Dy
+CONFIG_BT_HCIUART=3Dm
+CONFIG_BT_HCIUART_H4=3Dy
+CONFIG_BT_HCIUART_BCSP=3Dy
+CONFIG_BT_HCIUART_BCSP_TXCRC=3Dy
+CONFIG_BT_HCIBCM203X=3Dm
+CONFIG_BT_HCIBPA10X=3Dm
+CONFIG_BT_HCIBFUSB=3Dm
+CONFIG_BT_HCIDTL1=3Dm
+CONFIG_BT_HCIBT3C=3Dm
+CONFIG_BT_HCIBLUECARD=3Dm
+CONFIG_BT_HCIBTUART=3Dm
+CONFIG_BT_HCIVHCI=3Dm
+CONFIG_NETDEVICES=3Dy
+CONFIG_DUMMY=3Dy
+CONFIG_BONDING=3Dy
+CONFIG_TUN=3Dy
+CONFIG_ETHERTAP=3Dm
+CONFIG_NET_ETHERNET=3Dy
+CONFIG_MII=3Dy
+# Tulip family network device support
+CONFIG_NET_PCI=3Dy
+CONFIG_EEPRO100=3Dm
+CONFIG_E100=3Dm
+# Wireless LAN (non-hamradio)
+CONFIG_NET_RADIO=3Dy
+CONFIG_STRIP=3Dm
+# Wireless 802.11 Frequency Hopping cards support
+CONFIG_PCMCIA_RAYCS=3Dm
+CONFIG_AIRO=3Dm
+CONFIG_HERMES=3Dm
+CONFIG_PLX_HERMES=3Dm
+CONFIG_PCI_HERMES=3Dm
+CONFIG_ATMEL=3Dm
+CONFIG_PCI_ATMEL=3Dm
+# Wireless 802.11b Pcmcia/Cardbus cards support
+CONFIG_PCMCIA_HERMES=3Dm
+CONFIG_AIRO_CS=3Dm
+CONFIG_PCMCIA_ATMEL=3Dm
+CONFIG_PCMCIA_WL3501=3Dm
+# Prism GT/Duette 802.11(a/b/g) PCI/Cardbus support
+CONFIG_PRISM54=3Dm
+CONFIG_NET_WIRELESS=3Dy
+CONFIG_NET_PCMCIA=3Dy
+CONFIG_PCMCIA_3C589=3Dm
+CONFIG_PCMCIA_3C574=3Dm
+CONFIG_PCMCIA_FMVJ18X=3Dm
+CONFIG_PCMCIA_PCNET=3Dm
+CONFIG_PCMCIA_NMCLAN=3Dm
+CONFIG_PCMCIA_SMC91C92=3Dm
+CONFIG_PCMCIA_XIRC2PS=3Dm
+CONFIG_PCMCIA_AXNET=3Dm
+CONFIG_PLIP=3Dy
+CONFIG_PPP=3Dy
+CONFIG_PPP_MULTILINK=3Dy
+CONFIG_PPP_FILTER=3Dy
+CONFIG_PPP_ASYNC=3Dy
+CONFIG_PPP_SYNC_TTY=3Dy
+CONFIG_PPP_DEFLATE=3Dy
+CONFIG_PPP_BSDCOMP=3Dy
+CONFIG_PPPOE=3Dy
+CONFIG_SLIP=3Dy
+CONFIG_SLIP_COMPRESSED=3Dy
+CONFIG_SLIP_SMART=3Dy
+CONFIG_SLIP_MODE_SLIP6=3Dy
+CONFIG_SHAPER=3Dy
+CONFIG_NETCONSOLE=3Dy
+# ISDN subsystem
+CONFIG_ISDN=3Dy
+CONFIG_ISDN_I4L=3Dm
+CONFIG_ISDN_PPP=3Dy
+CONFIG_ISDN_PPP_VJ=3Dy
+CONFIG_ISDN_MPP=3Dy
+CONFIG_IPPP_FILTER=3Dy
+CONFIG_ISDN_PPP_BSDCOMP=3Dm
+CONFIG_ISDN_AUDIO=3Dy
+CONFIG_ISDN_TTY_FAX=3Dy
+# ISDN feature submodules
+CONFIG_ISDN_DRV_LOOP=3Dm
+CONFIG_ISDN_DIVERSION=3Dm
+CONFIG_ISDN_DRV_HISAX=3Dm
+CONFIG_HISAX_EURO=3Dy
+CONFIG_DE_AOC=3Dy
+CONFIG_HISAX_NO_KEYPAD=3Dy
+CONFIG_HISAX_1TR6=3Dy
+CONFIG_HISAX_16_3=3Dy
+CONFIG_HISAX_FRITZPCI=3Dy
+CONFIG_HISAX_ELSA=3Dy
+CONFIG_HISAX_HFC_SX=3Dy
+CONFIG_HISAX_DEBUG=3Dy
+# HiSax PCMCIA card service modules
+CONFIG_HISAX_ELSA_CS=3Dm
+CONFIG_HISAX_AVM_A1_CS=3Dm
+CONFIG_HISAX_TELES_CS=3Dm
+# HiSax sub driver modules
+CONFIG_HISAX_ST5481=3Dm
+CONFIG_HISAX_HFCUSB=3Dm
+CONFIG_HISAX_FRITZ_PCIPNP=3Dm
+CONFIG_HISAX_HDLC=3Dy
+# CAPI subsystem
+CONFIG_ISDN_CAPI=3Dy
+CONFIG_ISDN_DRV_AVMB1_VERBOSE_REASON=3Dy
+CONFIG_ISDN_CAPI_MIDDLEWARE=3Dy
+CONFIG_ISDN_CAPI_CAPI20=3Dy
+CONFIG_ISDN_CAPI_CAPIFS_BOOL=3Dy
+CONFIG_ISDN_CAPI_CAPIFS=3Dy
+CONFIG_ISDN_CAPI_CAPIDRV=3Dm
+CONFIG_CAPI_AVM=3Dy
+CONFIG_ISDN_DRV_AVMB1_B1PCI=3Dy
+# Telephony Support
+CONFIG_INPUT=3Dy
+CONFIG_INPUT_MOUSEDEV=3Dy
+CONFIG_INPUT_MOUSEDEV_PSAUX=3Dy
+CONFIG_INPUT_JOYDEV=3Dy
+CONFIG_INPUT_EVDEV=3Dy
+CONFIG_SOUND_GAMEPORT=3Dy
+CONFIG_SERIO=3Dy
+CONFIG_SERIO_I8042=3Dy
+CONFIG_SERIO_SERPORT=3Dy
+CONFIG_SERIO_LIBPS2=3Dy
+CONFIG_INPUT_KEYBOARD=3Dy
+CONFIG_KEYBOARD_ATKBD=3Dy
+CONFIG_INPUT_MOUSE=3Dy
+CONFIG_MOUSE_PS2=3Dy
+CONFIG_MOUSE_SERIAL=3Dy
+CONFIG_INPUT_MISC=3Dy
+CONFIG_INPUT_PCSPKR=3Dy
+CONFIG_INPUT_UINPUT=3Dy
+CONFIG_VT=3Dy
+CONFIG_VT_CONSOLE=3Dy
+CONFIG_HW_CONSOLE=3Dy
+CONFIG_SERIAL_8250=3Dy
+CONFIG_SERIAL_CORE=3Dy
+CONFIG_UNIX98_PTYS=3Dy
+CONFIG_LEGACY_PTYS=3Dy
+CONFIG_PRINTER=3Dy
+CONFIG_LP_CONSOLE=3Dy
+CONFIG_PPDEV=3Dy
+CONFIG_IPMI_HANDLER=3Dy
+CONFIG_IPMI_DEVICE_INTERFACE=3Dy
+CONFIG_IPMI_SI=3Dy
+CONFIG_IPMI_WATCHDOG=3Dy
+CONFIG_IPMI_POWEROFF=3Dm
+CONFIG_HW_RANDOM=3Dm
+CONFIG_NVRAM=3Dy
+CONFIG_RTC=3Dy
+# Ftape, the floppy tape device driver
+CONFIG_AGP=3Dm
+CONFIG_AGP_INTEL=3Dm
+CONFIG_DRM=3Dm
+CONFIG_DRM_RADEON=3Dm
+CONFIG_DRM_I810=3Dm
+CONFIG_MWAVE=3Dm
+CONFIG_HANGCHECK_TIMER=3Dm
+CONFIG_I2C=3Dy
+CONFIG_I2C_CHARDEV=3Dm
+# I2C Algorithms
+CONFIG_I2C_ALGOBIT=3Dy
+CONFIG_I2C_ALGOPCF=3Dy
+CONFIG_I2C_SENSOR=3Dm
+CONFIG_SENSORS_DS1621=3Dm
+CONFIG_SENSORS_LM75=3Dm
+CONFIG_SENSORS_LM78=3Dm
+CONFIG_SENSORS_LM80=3Dm
+CONFIG_SENSORS_LM83=3Dm
+CONFIG_SENSORS_LM85=3Dm
+CONFIG_SENSORS_LM90=3Dm
+CONFIG_I2C_DEBUG_CORE=3Dy
+CONFIG_I2C_DEBUG_ALGO=3Dy
+CONFIG_I2C_DEBUG_BUS=3Dy
+CONFIG_I2C_DEBUG_CHIP=3Dy
+CONFIG_W1=3Dm
+CONFIG_W1_MATROX=3Dm
+CONFIG_W1_DS9490=3Dm
+CONFIG_W1_DS9490_BRIDGE=3Dm
+CONFIG_W1_THERM=3Dm
+CONFIG_IBM_ASM=3Dy
+# Multimedia devices
+CONFIG_VIDEO_DEV=3Dy
+CONFIG_VIDEO_OVCAMCHIP=3Dm
+CONFIG_VIDEO_SELECT=3Dy
+# Console display driver support
+CONFIG_VGA_CONSOLE=3Dy
+CONFIG_DUMMY_CONSOLE=3Dy
+CONFIG_SOUND=3Dy
+CONFIG_SND=3Dm
+CONFIG_SND_TIMER=3Dm
+CONFIG_SND_PCM=3Dm
+CONFIG_SND_RAWMIDI=3Dm
+CONFIG_SND_SEQUENCER=3Dm
+CONFIG_SND_SEQ_DUMMY=3Dm
+CONFIG_SND_OSSEMUL=3Dy
+CONFIG_SND_MIXER_OSS=3Dm
+CONFIG_SND_PCM_OSS=3Dm
+CONFIG_SND_SEQUENCER_OSS=3Dy
+CONFIG_SND_RTCTIMER=3Dm
+CONFIG_SND_VERBOSE_PRINTK=3Dy
+CONFIG_SND_DEBUG=3Dy
+CONFIG_SND_DEBUG_MEMORY=3Dy
+CONFIG_SND_DEBUG_DETECT=3Dy
+CONFIG_SND_MPU401_UART=3Dm
+CONFIG_SND_VIRMIDI=3Dm
+CONFIG_SND_SERIAL_U16550=3Dm
+CONFIG_SND_MPU401=3Dm
+CONFIG_SND_AC97_CODEC=3Dm
+CONFIG_SND_INTEL8X0=3Dm
+CONFIG_SND_USB_AUDIO=3Dm
+# Open Sound System
+CONFIG_SOUND_PRIME=3Dm
+CONFIG_SOUND_ICH=3Dm
+CONFIG_SOUND_OSS=3Dm
+CONFIG_SOUND_TRACEINIT=3Dy
+CONFIG_SOUND_MPU401=3Dm
+CONFIG_USB=3Dm
+CONFIG_USB_DEVICEFS=3Dy
+CONFIG_USB_ARCH_HAS_HCD=3Dy
+CONFIG_USB_ARCH_HAS_OHCI=3Dy
+CONFIG_USB_EHCI_HCD=3Dm
+CONFIG_USB_OHCI_HCD=3Dm
+CONFIG_USB_UHCI_HCD=3Dm
+CONFIG_USB_AUDIO=3Dm
+# USB Bluetooth TTY can only be used with disabled Bluetooth subsystem
+CONFIG_USB_MIDI=3Dm
+CONFIG_USB_ACM=3Dm
+CONFIG_USB_PRINTER=3Dm
+# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support' may also be neede=
+d; see USB_STORAGE Help for more information
+CONFIG_USB_STORAGE=3Dm
+CONFIG_USB_STORAGE_DEBUG=3Dy
+CONFIG_USB_STORAGE_DATAFAB=3Dy
+CONFIG_USB_STORAGE_FREECOM=3Dy
+CONFIG_USB_STORAGE_ISD200=3Dy
+CONFIG_USB_STORAGE_DPCM=3Dy
+CONFIG_USB_STORAGE_HP8200e=3Dy
+CONFIG_USB_STORAGE_SDDR09=3Dy
+CONFIG_USB_STORAGE_SDDR55=3Dy
+CONFIG_USB_STORAGE_JUMPSHOT=3Dy
+CONFIG_USB_HID=3Dm
+CONFIG_USB_HIDINPUT=3Dy
+CONFIG_USB_HIDDEV=3Dy
+# USB Imaging devices
+CONFIG_USB_MDC800=3Dm
+CONFIG_USB_MICROTEK=3Dm
+# USB Multimedia devices
+CONFIG_USB_DABUSB=3Dm
+CONFIG_USB_VICAM=3Dm
+CONFIG_USB_DSBR=3Dm
+CONFIG_USB_IBMCAM=3Dm
+CONFIG_USB_KONICAWC=3Dm
+CONFIG_USB_OV511=3Dm
+CONFIG_USB_SE401=3Dm
+CONFIG_USB_STV680=3Dm
+CONFIG_USB_W9968CF=3Dm
+CONFIG_USB_CATC=3Dm
+CONFIG_USB_KAWETH=3Dm
+CONFIG_USB_PEGASUS=3Dm
+CONFIG_USB_RTL8150=3Dm
+CONFIG_USB_USBNET=3Dm
+CONFIG_USB_ALI_M5632=3Dy
+CONFIG_USB_AN2720=3Dy
+CONFIG_USB_BELKIN=3Dy
+CONFIG_USB_GENESYS=3Dy
+CONFIG_USB_NET1080=3Dy
+CONFIG_USB_PL2301=3Dy
+CONFIG_USB_KC2190=3Dy
+CONFIG_USB_ARMLINUX=3Dy
+CONFIG_USB_EPSON2888=3Dy
+CONFIG_USB_ZAURUS=3Dy
+CONFIG_USB_CDCETHER=3Dy
+CONFIG_USB_AX8817X=3Dy
+CONFIG_USB_USS720=3Dm
+CONFIG_USB_SERIAL=3Dm
+CONFIG_USB_SERIAL_GENERIC=3Dy
+CONFIG_USB_SERIAL_BELKIN=3Dm
+CONFIG_USB_SERIAL_WHITEHEAT=3Dm
+CONFIG_USB_SERIAL_DIGI_ACCELEPORT=3Dm
+CONFIG_USB_SERIAL_EMPEG=3Dm
+CONFIG_USB_SERIAL_FTDI_SIO=3Dm
+CONFIG_USB_SERIAL_VISOR=3Dm
+CONFIG_USB_SERIAL_IPAQ=3Dm
+CONFIG_USB_SERIAL_IR=3Dm
+CONFIG_USB_SERIAL_EDGEPORT=3Dm
+CONFIG_USB_SERIAL_EDGEPORT_TI=3Dm
+CONFIG_USB_SERIAL_GARMIN=3Dm
+CONFIG_USB_SERIAL_KEYSPAN_PDA=3Dm
+CONFIG_USB_SERIAL_KEYSPAN=3Dm
+CONFIG_USB_SERIAL_KEYSPAN_MPR=3Dy
+CONFIG_USB_SERIAL_KEYSPAN_USA28=3Dy
+CONFIG_USB_SERIAL_KEYSPAN_USA28X=3Dy
+CONFIG_USB_SERIAL_KEYSPAN_USA28XA=3Dy
+CONFIG_USB_SERIAL_KEYSPAN_USA28XB=3Dy
+CONFIG_USB_SERIAL_KEYSPAN_USA19=3Dy
+CONFIG_USB_SERIAL_KEYSPAN_USA18X=3Dy
+CONFIG_USB_SERIAL_KEYSPAN_USA19W=3Dy
+CONFIG_USB_SERIAL_KEYSPAN_USA19QW=3Dy
+CONFIG_USB_SERIAL_KEYSPAN_USA19QI=3Dy
+CONFIG_USB_SERIAL_KEYSPAN_USA49W=3Dy
+CONFIG_USB_SERIAL_KEYSPAN_USA49WLC=3Dy
+CONFIG_USB_SERIAL_KLSI=3Dm
+CONFIG_USB_SERIAL_MCT_U232=3Dm
+CONFIG_USB_SERIAL_PL2303=3Dm
+CONFIG_USB_SERIAL_CYBERJACK=3Dm
+CONFIG_USB_SERIAL_XIRCOM=3Dm
+CONFIG_USB_SERIAL_OMNINET=3Dm
+CONFIG_USB_EZUSB=3Dy
+CONFIG_USB_EMI62=3Dm
+CONFIG_USB_EMI26=3Dm
+CONFIG_USB_AUERSWALD=3Dm
+CONFIG_USB_RIO500=3Dm
+CONFIG_USB_LEGOTOWER=3Dm
+CONFIG_USB_LCD=3Dm
+CONFIG_USB_LED=3Dm
+CONFIG_USB_CYTHERM=3Dm
+CONFIG_USB_GADGET=3Dm
+CONFIG_USB_GADGET_NET2280=3Dy
+CONFIG_USB_NET2280=3Dm
+CONFIG_USB_GADGET_DUALSPEED=3Dy
+CONFIG_MMC=3Dm
+CONFIG_MMC_BLOCK=3Dm
+CONFIG_MMC_WBSD=3Dm
+# File systems
+CONFIG_EXT2_FS=3Dy
+CONFIG_EXT2_FS_XATTR=3Dy
+CONFIG_EXT2_FS_POSIX_ACL=3Dy
+CONFIG_EXT2_FS_SECURITY=3Dy
+CONFIG_EXT3_FS=3Dy
+CONFIG_EXT3_FS_XATTR=3Dy
+CONFIG_EXT3_FS_POSIX_ACL=3Dy
+CONFIG_EXT3_FS_SECURITY=3Dy
+CONFIG_JBD=3Dy
+CONFIG_JBD_DEBUG=3Dy
+CONFIG_FS_MBCACHE=3Dy
+CONFIG_REISERFS_FS=3Dy
+CONFIG_REISERFS_PROC_INFO=3Dy
+CONFIG_REISERFS_FS_XATTR=3Dy
+CONFIG_REISERFS_FS_POSIX_ACL=3Dy
+CONFIG_REISERFS_FS_SECURITY=3Dy
+CONFIG_FS_POSIX_ACL=3Dy
+CONFIG_MINIX_FS=3Dy
+CONFIG_ROMFS_FS=3Dy
+CONFIG_QUOTA=3Dy
+CONFIG_QFMT_V1=3Dy
+CONFIG_QFMT_V2=3Dy
+CONFIG_QUOTACTL=3Dy
+CONFIG_DNOTIFY=3Dy
+CONFIG_AUTOFS_FS=3Dy
+CONFIG_AUTOFS4_FS=3Dy
+# CD-ROM/DVD Filesystems
+CONFIG_ISO9660_FS=3Dy
+CONFIG_JOLIET=3Dy
+CONFIG_ZISOFS=3Dy
+CONFIG_ZISOFS_FS=3Dy
+CONFIG_UDF_FS=3Dy
+CONFIG_UDF_NLS=3Dy
+# DOS/FAT/NT Filesystems
+CONFIG_FAT_FS=3Dy
+CONFIG_MSDOS_FS=3Dy
+CONFIG_VFAT_FS=3Dy
+CONFIG_NTFS_FS=3Dy
+CONFIG_NTFS_RW=3Dy
+# Pseudo filesystems
+CONFIG_PROC_FS=3Dy
+CONFIG_PROC_KCORE=3Dy
+CONFIG_SYSFS=3Dy
+CONFIG_DEVFS_FS=3Dy
+CONFIG_TMPFS=3Dy
+CONFIG_RAMFS=3Dy
+# Miscellaneous filesystems
+CONFIG_CRAMFS=3Dy
+CONFIG_SQUASHFS=3Dm
+CONFIG_HPFS_FS=3Dy
+CONFIG_SYSV_FS=3Dy
+CONFIG_UFS_FS=3Dy
+CONFIG_UFS_FS_WRITE=3Dy
+# Network File Systems
+CONFIG_NFS_FS=3Dy
+CONFIG_NFS_V3=3Dy
+CONFIG_NFS_V4=3Dy
+CONFIG_NFSD=3Dy
+CONFIG_NFSD_V3=3Dy
+CONFIG_NFSD_V4=3Dy
+CONFIG_NFSD_TCP=3Dy
+CONFIG_ROOT_NFS=3Dy
+CONFIG_LOCKD=3Dy
+CONFIG_LOCKD_V4=3Dy
+CONFIG_EXPORTFS=3Dy
+CONFIG_SUNRPC=3Dy
+CONFIG_SUNRPC_GSS=3Dy
+CONFIG_RPCSEC_GSS_KRB5=3Dy
+CONFIG_SMB_FS=3Dy
+CONFIG_SMB_NLS_DEFAULT=3Dy
+CONFIG_CIFS=3Dy
+CONFIG_NCP_FS=3Dy
+CONFIG_NCPFS_PACKET_SIGNING=3Dy
+CONFIG_NCPFS_IOCTL_LOCKING=3Dy
+CONFIG_NCPFS_STRONG=3Dy
+CONFIG_NCPFS_NFS_NS=3Dy
+CONFIG_NCPFS_OS2_NS=3Dy
+CONFIG_NCPFS_SMALLDOS=3Dy
+CONFIG_NCPFS_NLS=3Dy
+CONFIG_NCPFS_EXTRAS=3Dy
+CONFIG_AFS_FS=3Dy
+CONFIG_RXRPC=3Dy
+# Partition Types
+CONFIG_PARTITION_ADVANCED=3Dy
+CONFIG_MAC_PARTITION=3Dy
+CONFIG_MSDOS_PARTITION=3Dy
+CONFIG_BSD_DISKLABEL=3Dy
+CONFIG_MINIX_SUBPARTITION=3Dy
+CONFIG_SOLARIS_X86_PARTITION=3Dy
+CONFIG_UNIXWARE_DISKLABEL=3Dy
+CONFIG_LDM_PARTITION=3Dy
+CONFIG_SUN_PARTITION=3Dy
+CONFIG_NLS=3Dy
+CONFIG_NLS_CODEPAGE_437=3Dy
+CONFIG_NLS_CODEPAGE_737=3Dm
+CONFIG_NLS_CODEPAGE_775=3Dm
+CONFIG_NLS_CODEPAGE_850=3Dy
+CONFIG_NLS_CODEPAGE_852=3Dm
+CONFIG_NLS_CODEPAGE_855=3Dm
+CONFIG_NLS_CODEPAGE_857=3Dm
+CONFIG_NLS_CODEPAGE_860=3Dm
+CONFIG_NLS_CODEPAGE_861=3Dm
+CONFIG_NLS_CODEPAGE_862=3Dm
+CONFIG_NLS_CODEPAGE_863=3Dm
+CONFIG_NLS_CODEPAGE_864=3Dm
+CONFIG_NLS_CODEPAGE_865=3Dm
+CONFIG_NLS_CODEPAGE_866=3Dm
+CONFIG_NLS_CODEPAGE_869=3Dm
+CONFIG_NLS_CODEPAGE_936=3Dm
+CONFIG_NLS_CODEPAGE_950=3Dm
+CONFIG_NLS_CODEPAGE_932=3Dm
+CONFIG_NLS_CODEPAGE_949=3Dm
+CONFIG_NLS_CODEPAGE_874=3Dm
+CONFIG_NLS_ISO8859_8=3Dm
+CONFIG_NLS_CODEPAGE_1250=3Dy
+CONFIG_NLS_CODEPAGE_1251=3Dm
+CONFIG_NLS_ASCII=3Dm
+CONFIG_NLS_ISO8859_1=3Dy
+CONFIG_NLS_ISO8859_2=3Dm
+CONFIG_NLS_ISO8859_3=3Dm
+CONFIG_NLS_ISO8859_4=3Dm
+CONFIG_NLS_ISO8859_5=3Dm
+CONFIG_NLS_ISO8859_6=3Dm
+CONFIG_NLS_ISO8859_7=3Dm
+CONFIG_NLS_ISO8859_9=3Dm
+CONFIG_NLS_ISO8859_13=3Dm
+CONFIG_NLS_ISO8859_14=3Dm
+CONFIG_NLS_ISO8859_15=3Dy
+CONFIG_NLS_KOI8_R=3Dm
+CONFIG_NLS_KOI8_U=3Dm
+CONFIG_NLS_UTF8=3Dy
+CONFIG_DEBUG_KERNEL=3Dy
+CONFIG_MAGIC_SYSRQ=3Dy
+CONFIG_DEBUG_PREEMPT=3Dy
+CONFIG_DEBUG_BUGVERBOSE=3Dy
+CONFIG_EARLY_PRINTK=3Dy
+CONFIG_DEBUG_STACKOVERFLOW=3Dy
+CONFIG_X86_FIND_SMP_CONFIG=3Dy
+CONFIG_X86_MPPARSE=3Dy
+# Security options
+# Cryptographic options
+CONFIG_CRYPTO=3Dy
+CONFIG_CRYPTO_HMAC=3Dy
+CONFIG_CRYPTO_NULL=3Dy
+CONFIG_CRYPTO_MD4=3Dy
+CONFIG_CRYPTO_MD5=3Dy
+CONFIG_CRYPTO_SHA1=3Dy
+CONFIG_CRYPTO_SHA256=3Dy
+CONFIG_CRYPTO_SHA512=3Dy
+CONFIG_CRYPTO_WP512=3Dy
+CONFIG_CRYPTO_DES=3Dy
+CONFIG_CRYPTO_BLOWFISH=3Dy
+CONFIG_CRYPTO_TWOFISH=3Dy
+CONFIG_CRYPTO_SERPENT=3Dy
+CONFIG_CRYPTO_AES_586=3Dy
+CONFIG_CRYPTO_CAST5=3Dy
+CONFIG_CRYPTO_CAST6=3Dy
+CONFIG_CRYPTO_TEA=3Dy
+CONFIG_CRYPTO_ARC4=3Dy
+CONFIG_CRYPTO_KHAZAD=3Dy
+CONFIG_CRYPTO_ANUBIS=3Dy
+CONFIG_CRYPTO_DEFLATE=3Dy
+CONFIG_CRYPTO_MICHAEL_MIC=3Dy
+CONFIG_CRYPTO_CRC32C=3Dy
+CONFIG_CRYPTO_TEST=3Dy
+# Hardware crypto devices
+# Library routines
+CONFIG_CRC_CCITT=3Dy
+CONFIG_CRC32=3Dy
+CONFIG_LIBCRC32C=3Dy
+CONFIG_ZLIB_INFLATE=3Dy
+CONFIG_ZLIB_DEFLATE=3Dy
+CONFIG_GENERIC_HARDIRQS=3Dy
+CONFIG_GENERIC_IRQ_PROBE=3Dy
+CONFIG_X86_BIOS_REBOOT=3Dy
+CONFIG_PC=3Dy
+
+
+Other notes, patches, fixes, workarounds:
+none so far.
+
+
+
+uptime:
+-------
+
+ 19:08:17 up  9:23,  5 users,  load average: 2.54, 1.68, 1.18
+
+
+free:
+-----
+
+             total       used       free     shared    buffers     cached
+Mem:        771868     758404      13464          0     234152     190924
+-/+ buffers/cache:     333328     438540
+Swap:      1542196          0    1542196
+
+
+dmesg:
+------
+
+pass
+test 2:
+434721ca40639b3f
+pass
+test 3:
+e8f9becae97e5d29
+pass
+test 4:
+90038fc6cf13c1db
+pass
+test 5:
+d55e100510128986
+pass
+test 6:
+0a942b124ecaa546
+pass
+testing michael_mic across pages
+lp: driver loaded but no devices found
+Real Time Clock Driver v1.12
+Non-volatile memory driver v1.2
+ppdev: user-space parallel port driver
+ipmi message handler version v33
+ipmi device interface version v33
+IPMI System Interface driver version v33, KCS version v33, SMIC version v33=
+, BT version v33
+  utmisc-0741 [02] ut_acquire_mutex      : Thread 1 could not acquire Mutex=
+ [ACPI_MTX_Memory] AE_BAD_PARAMETER
+ipmi_si: Trying "kcs" at I/O port 0xca2
+ipmi_si: Trying "smic" at I/O port 0xca9
+ipmi_si: Trying "bt" at I/O port 0xe4
+ipmi_si: Unable to find any System Interface(s)
+IPMI Watchdog: driver version v33
+i8042: ACPI detection disabled
+serio: i8042 AUX port at 0x60,0x64 irq 12
+serio: i8042 KBD port at 0x60,0x64 irq 1
+Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing disabled
+ttyS0 at I/O 0x3f8 (irq =3D 4) is a NS16550A
+ttyS1 at I/O 0x2f8 (irq =3D 3) is a NS16550A
+PCI: Found IRQ 11 for device 0000:00:1f.6
+PCI: Sharing IRQ 11 with 0000:00:1f.3
+PCI: Sharing IRQ 11 with 0000:00:1f.5
+PCI: Sharing IRQ 11 with 0000:02:00.1
+parport0: PC-style at 0x3bc [PCSPP,TRISTATE]
+lp0: using parport0 (polling).
+lp0: console ready
+io scheduler noop registered
+io scheduler anticipatory registered
+io scheduler deadline registered
+io scheduler cfq registered
+Floppy drive(s): fd0 is 1.44M
+floppy0: no floppy controllers found
+RAMDISK driver initialized: 16 RAM disks of 4096K size 1024 blocksize
+loop: loaded (max 8 devices)
+nbd: registered device at major 43
+ibmasm: IBM ASM Service Processor Driver version 0.4 loaded
+Ethernet Channel Bonding Driver: v2.6.1 (October 29, 2004)
+bonding: Warning: either miimon or arp_interval and arp_ip_target module pa=
+rameters must be specified, otherwise bonding will not detect link failures=
+! see bonding.txt for details.
+plip: parport0 has no IRQ. Using IRQ-less mode,which is fairly inefficient!
+NET3 PLIP version 2.4-parport gniibe@mri.co.jp
+plip0: Parallel port at 0x3bc, not using IRQ.
+PPP generic driver version 2.4.2
+PPP Deflate Compression module registered
+PPP BSD Compression module registered
+NET: Registered protocol family 24
+SLIP: version 0.8.4-NET3.019-NEWTTY (dynamic channels, max=3D256) (6 bit en=
+capsulation enabled).
+CSLIP: code copyright 1989 Regents of the University of California.
+SLIP linefill/keepalive option.
+tun: Universal TUN/TAP device driver, 1.6
+tun: (C) 1999-2004 Max Krasnyansky <maxk@qualcomm.com>
+netconsole: not configured, aborting
+Linux video capture interface: v1.00
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=3D=
+xx
+ICH3M: IDE controller at PCI slot 0000:00:1f.1
+PCI: Enabling device 0000:00:1f.1 (0005 -> 0007)
+PCI: Found IRQ 11 for device 0000:00:1f.1
+PCI: Sharing IRQ 11 with 0000:00:1d.2
+PCI: Sharing IRQ 11 with 0000:02:02.0
+ICH3M: chipset revision 2
+ICH3M: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0x1860-0x1867, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0x1868-0x186f, BIOS settings: hdc:DMA, hdd:pio
+Probing IDE interface ide0...
+hda: IC25N040ATCS04-0, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Probing IDE interface ide1...
+hdc: UJDA720 DVD/CDRW, ATAPI CD/DVD-ROM drive
+ide1 at 0x170-0x177,0x376 on irq 15
+Probing IDE interface ide2...
+Probing IDE interface ide3...
+Probing IDE interface ide4...
+Probing IDE interface ide5...
+hda: max request size: 128KiB
+hda: 78140160 sectors (40007 MB) w/1768KiB Cache, CHS=3D65535/16/63, UDMA(1=
+00)
+hda: cache flushes not supported
+ /dev/ide/host0/bus0/target0/lun0: p1 p2 p3 p4 < p5 p6 >
+scsi: <fdomain> Detection failed (no card)
+ide-scsi is deprecated for cd burning! Use ide-cd and give dev=3D/dev/hdX a=
+s device
+scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+  Vendor: MATSHITA  Model: UJDA720 DVD/CDRW  Rev: 1.03
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+  Vendor: MATSHITA  Model: UJDA720 DVD/CDRW  Rev: 1.03
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+  Vendor: MATSHITA  Model: UJDA720 DVD/CDRW  Rev: 1.03
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+  Vendor: MATSHITA  Model: UJDA720 DVD/CDRW  Rev: 1.03
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+  Vendor: MATSHITA  Model: UJDA720 DVD/CDRW  Rev: 1.03
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+  Vendor: MATSHITA  Model: UJDA720 DVD/CDRW  Rev: 1.03
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+  Vendor: MATSHITA  Model: UJDA720 DVD/CDRW  Rev: 1.03
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+sr0: scsi3-mmc drive: 24x/24x writer cd/rw xa/form2 cdda tray
+Uniform CD-ROM driver Revision: 3.20
+Attached scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
+sr1: scsi3-mmc drive: 24x/24x writer cd/rw xa/form2 cdda tray
+Attached scsi CD-ROM sr1 at scsi0, channel 0, id 0, lun 1
+sr2: scsi3-mmc drive: 24x/24x writer cd/rw xa/form2 cdda tray
+Attached scsi CD-ROM sr2 at scsi0, channel 0, id 0, lun 2
+sr3: scsi3-mmc drive: 24x/24x writer cd/rw xa/form2 cdda tray
+Attached scsi CD-ROM sr3 at scsi0, channel 0, id 0, lun 3
+sr4: scsi3-mmc drive: 24x/24x writer cd/rw xa/form2 cdda tray
+Attached scsi CD-ROM sr4 at scsi0, channel 0, id 0, lun 4
+sr5: scsi3-mmc drive: 24x/24x writer cd/rw xa/form2 cdda tray
+Attached scsi CD-ROM sr5 at scsi0, channel 0, id 0, lun 5
+sr6: scsi3-mmc drive: 24x/24x writer cd/rw xa/form2 cdda tray
+Attached scsi CD-ROM sr6 at scsi0, channel 0, id 0, lun 6
+Attached scsi generic sg0 at scsi0, channel 0, id 0, lun 0,  type 5
+Attached scsi generic sg1 at scsi0, channel 0, id 0, lun 1,  type 5
+Attached scsi generic sg2 at scsi0, channel 0, id 0, lun 2,  type 5
+Attached scsi generic sg3 at scsi0, channel 0, id 0, lun 3,  type 5
+Attached scsi generic sg4 at scsi0, channel 0, id 0, lun 4,  type 5
+Attached scsi generic sg5 at scsi0, channel 0, id 0, lun 5,  type 5
+Attached scsi generic sg6 at scsi0, channel 0, id 0, lun 6,  type 5
+ieee1394: Initialized config rom entry `ip1394'
+video1394: Installed video1394 module
+ieee1394: raw1394: /dev/raw1394 device initialized
+sbp2: $Rev: 1219 $ Ben Collins <bcollins@debian.org>
+ieee1394: Loaded AMDTP driver
+ieee1394: Loaded CMP driver
+mice: PS/2 mouse device common for all mice
+input: AT Translated Set 2 keyboard on isa0060/serio0
+input: PS/2 Generic Mouse on isa0060/serio1
+input: PC Speaker
+I2O subsystem v$Rev$
+i2o: max drivers =3D 8
+I2O Configuration OSM v$Rev$
+I2O Block Device OSM v$Rev$
+I2O SCSI Peripheral OSM v$Rev$
+I2O ProcFS OSM v$Rev$
+md: linear personality registered as nr 1
+md: raid0 personality registered as nr 2
+md: raid1 personality registered as nr 3
+md: raid5 personality registered as nr 4
+raid5: automatically using best checksumming function: pIII_sse
+   pIII_sse  :  1972.000 MB/sec
+raid5: using function: pIII_sse (1972.000 MB/sec)
+md: multipath personality registered as nr 7
+md: md driver 0.90.1 MAX_MD_DEVS=3D256, MD_SB_DISKS=3D27
+device-mapper: 4.4.0-ioctl (2005-01-12) initialised: dm-devel@redhat.com
+CAPI Subsystem Rev 1.1.2.8
+capi20: Rev 1.1.2.7: started up with major 68 (middleware+capifs)
+capifs: Rev 1.1.2.3
+b1pci: revision 1.1.2.2
+b1: revision 1.1.2.2
+b1dma: revision 1.1.2.3
+EISA: Probing bus 0 at eisa0
+NET: Registered protocol family 2
+IP: routing cache hash table of 8192 buckets, 64Kbytes
+TCP established hash table entries: 131072 (order: 8, 1048576 bytes)
+TCP bind hash table entries: 65536 (order: 6, 262144 bytes)
+TCP: Hash tables configured (established 131072 bind 65536)
+NET: Registered protocol family 1
+NET: Registered protocol family 17
+Started krxtimod 1068
+   =20
+
+
+Started krxiod 1069
+Started krxsecd 1070
+kAFS: Red Hat AFS client v0.1 registering.
+kAFS: Started kafstimod 1071
+kAFS: Started kafsasyncd 1072
+<=3D=3D afs_fs_init() =3D 0
+devfs_mk_dev: could not append to parent for md/0
+md: Autodetecting RAID arrays.
+md: autorun ...
+md: ... autorun DONE.
+RAMDISK: Couldn't find valid RAM disk image starting at 0.
+EXT3-fs: INFO: recovery required on readonly filesystem.
+EXT3-fs: write access will be enabled during recovery.
+(fs/jbd/recovery.c, 255): journal_recover: JBD: recovery, exit status 0, re=
+covered transactions 4010507 to 4010667
+(fs/jbd/recovery.c, 257): journal_recover: JBD: Replayed 4036 and revoked 0=
+/0 blocks
+EXT3-fs: hda3: orphan cleanup on readonly fs
+ext3_orphan_cleanup: deleting unreferenced inode 847248
+kjournald starting.  Commit interval 5 seconds
+ext3_orphan_cleanup: deleting unreferenced inode 733112
+ext3_orphan_cleanup: deleting unreferenced inode 733103
+ext3_orphan_cleanup: deleting unreferenced inode 863279
+ext3_orphan_cleanup: deleting unreferenced inode 863277
+EXT3-fs: hda3: 5 orphan inodes deleted
+EXT3-fs: recovery complete.
+EXT3-fs: mounted filesystem with ordered data mode.
+VFS: Mounted root (ext3 filesystem) readonly.
+Freeing unused kernel memory: 332k freed
+Adding 1542196k swap on /dev/loop7.  Priority:-1 extents:1
+EXT3 FS on hda3, internal journal
+usbcore: registered new driver usbfs
+usbcore: registered new driver hub
+USB Universal Host Controller Interface driver v2.2
+PCI: Found IRQ 11 for device 0000:00:1d.0
+PCI: Sharing IRQ 11 with 0000:01:00.0
+PCI: Sharing IRQ 11 with 0000:02:00.0
+uhci_hcd 0000:00:1d.0: Intel Corp. 82801CA/CAM USB (Hub #1)
+PCI: Setting latency timer of device 0000:00:1d.0 to 64
+uhci_hcd 0000:00:1d.0: irq 11, io base 0x1800
+uhci_hcd 0000:00:1d.0: new USB bus registered, assigned bus number 1
+hub 1-0:1.0: USB hub found
+hub 1-0:1.0: 2 ports detected
+PCI: Found IRQ 11 for device 0000:00:1d.1
+uhci_hcd 0000:00:1d.1: Intel Corp. 82801CA/CAM USB (Hub #2)
+PCI: Setting latency timer of device 0000:00:1d.1 to 64
+uhci_hcd 0000:00:1d.1: irq 11, io base 0x1820
+uhci_hcd 0000:00:1d.1: new USB bus registered, assigned bus number 2
+hub 2-0:1.0: USB hub found
+hub 2-0:1.0: 2 ports detected
+PCI: Found IRQ 11 for device 0000:00:1d.2
+PCI: Sharing IRQ 11 with 0000:00:1f.1
+PCI: Sharing IRQ 11 with 0000:02:02.0
+uhci_hcd 0000:00:1d.2: Intel Corp. 82801CA/CAM USB (Hub #3)
+PCI: Setting latency timer of device 0000:00:1d.2 to 64
+uhci_hcd 0000:00:1d.2: irq 11, io base 0x1840
+uhci_hcd 0000:00:1d.2: new USB bus registered, assigned bus number 3
+hub 3-0:1.0: USB hub found
+hub 3-0:1.0: 2 ports detected
+Linux agpgart interface v0.100 (c) Dave Jones
+[drm] Initialized drm 1.0.0 20040925
+PCI: Found IRQ 11 for device 0000:01:00.0
+PCI: Sharing IRQ 11 with 0000:00:1d.0
+PCI: Sharing IRQ 11 with 0000:02:00.0
+[drm] Initialized radeon 1.14.0 20050125 on minor 0: ATI Technologies Inc R=
+adeon Mobility M7 LW [Radeon Mobility 7500]
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS on hda6, internal journal
+EXT3-fs: mounted filesystem with journal data mode.
+eepro100.c:v1.09j-t 9/29/99 Donald Becker http://www.scyld.com/network/eepr=
+o100.html
+eepro100.c: $Revision: 1.36 $ 2000/11/17 Modified by Andrey V. Savochkin <s=
+aw@saw.sw.com.sg> and others
+PCI: Found IRQ 11 for device 0000:02:08.0
+eth0: 0000:02:08.0, 00:D0:59:BF:3F:FF, IRQ 11.
+  Board assembly 000000-000, Physical connectors present: RJ45
+  Primary interface chip i82555 PHY #1.
+  General self-test: passed.
+  Serial sub-system self-test: passed.
+  Internal registers self-test: passed.
+  ROM checksum self-test: passed (0x04f4518b).
+ip_tables: (C) 2000-2002 Netfilter core team
+ip_conntrack version 2.1 (6139 buckets, 49112 max) - 248 bytes per conntrack
+Linux Kernel Card Services
+  options:  [pci] [cardbus] [pm]
+PCI: Found IRQ 11 for device 0000:02:00.0
+PCI: Sharing IRQ 11 with 0000:00:1d.0
+PCI: Sharing IRQ 11 with 0000:01:00.0
+Yenta: CardBus bridge found at 0000:02:00.0 [1014:0185]
+Yenta: ISA IRQ mask 0x06b8, PCI irq 11
+Socket status: 30000006
+PCI: Found IRQ 11 for device 0000:02:00.1
+PCI: Sharing IRQ 11 with 0000:00:1f.3
+PCI: Sharing IRQ 11 with 0000:00:1f.5
+PCI: Sharing IRQ 11 with 0000:00:1f.6
+Yenta: CardBus bridge found at 0000:02:00.1 [1014:0185]
+Yenta: ISA IRQ mask 0x06b8, PCI irq 11
+Socket status: 30000006
+cs: IO port probe 0x100-0x4ff: excluding 0x3c0-0x3cf 0x4d0-0x4d7
+cs: IO port probe 0x100-0x4ff: excluding 0x3c0-0x3cf 0x4d0-0x4d7
+cs: IO port probe 0x800-0x8ff: clean.
+cs: IO port probe 0x800-0x8ff: clean.
+cs: IO port probe 0xc00-0xcff: clean.
+cs: IO port probe 0xc00-0xcff: clean.
+cs: IO port probe 0xa00-0xaff: clean.
+cs: IO port probe 0xa00-0xaff: clean.
+NET: Registered protocol family 10
+Disabled Privacy Extensions on device c06ac9a0(lo)
+IPv6 over IPv4 tunneling driver
+eth0: no IPv6 routers present
+PCI: Found IRQ 11 for device 0000:00:1f.5
+PCI: Sharing IRQ 11 with 0000:00:1f.3
+PCI: Sharing IRQ 11 with 0000:00:1f.6
+PCI: Sharing IRQ 11 with 0000:02:00.1
+PCI: Setting latency timer of device 0000:00:1f.5 to 64
+intel8x0_measure_ac97_clock: measured 49406 usecs
+intel8x0: clocking to 48000
+smbfs: Unrecognized mount option noexec
+smbfs: Unrecognized mount option noexec
+smbfs: Unrecognized mount option noexec
+atkbd.c: Keyboard on isa0060/serio0 reports too many keys pressed.
+atkbd.c: Keyboard on isa0060/serio0 reports too many keys pressed.
+smbfs: Unrecognized mount option noexec
+smbfs: Unrecognized mount option noexec
+spurious 8259A interrupt: IRQ7.
+ide-scsi: unsup command: dev hdc: flags =3D REQ_CMD REQ_STARTED=20
+sector 64, nr/cnr 2/2
+bio e71caec0, biotail e71caec0, buffer ed764000, data 00000000, len 0
+end_request: I/O error, dev hdc, sector 64
+isofs_fill_super: bread failed, dev=3Dhdc, iso_blknum=3D16, block=3D32
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+ printing eip:
+c031f356
+*pde =3D 00000000
+Oops: 0000 [#1]
+PREEMPT=20
+Modules linked in: nls_cp1251 snd_seq_oss snd_seq_midi_event snd_seq snd_se=
+q_device snd_pcm_oss snd_intel8x0 snd_ac97_codec snd_pcm snd_timer snd_page=
+_alloc ipv6 pcmcia yenta_socket rsrc_nonstatic pcmcia_core snd_mixer_oss sn=
+d iptable_mangle ipt_LOG ipt_esp ipt_state ip_conntrack iptable_filter ip_t=
+ables eepro100 ehci_hcd radeon drm agpgart uhci_hcd usbcore
+CPU:    0
+EIP:    0060:[<c031f356>]    Not tainted VLI
+EFLAGS: 00010246   (2.6.11tf)=20
+EIP is at get_kobj_path_length+0x26/0x40
+eax: 00000000   ebx: 00000000   ecx: ffffffff   edx: efd8bf0c
+esi: 00000001   edi: 00000000   ebp: ffffffff   esp: ed391dd4
+ds: 007b   es: 007b   ss: 0068
+Process mount (pid: 9619, threadinfo=3Ded390000 task=3De86d4a20)
+Stack: c4ec8a00 ed765c80 ffffffea efd8bf0c c031f3ef efd8bf0c 00000286 00000=
+020=20
+       ebbb93f4 c4ec8a00 ed765c80 ffffffea 00000000 c031fe28 efd8bf0c 00000=
+0d0=20
+       00000020 00000064 fffffff4 c4ec8a00 ed765c80 ffffffea c5c35000 c031f=
+f38=20
+Call Trace:
+ [<c031f3ef>] kobject_get_path+0x1f/0x80
+ [<c031fe28>] do_kobject_uevent+0x28/0x110
+ [<c031ff38>] kobject_uevent+0x28/0x30
+ [<c0169dee>] bdev_uevent+0x2e/0x50
+ [<c0169f86>] kill_block_super+0x26/0x60
+ [<c01690ae>] deactivate_super+0x6e/0xa0
+ [<c0169f31>] get_sb_bdev+0x121/0x150
+ [<c0180510>] alloc_vfsmnt+0x90/0xd0
+ [<c0214430>] isofs_get_sb+0x30/0x40
+ [<c0213130>] isofs_fill_super+0x0/0x6d0
+ [<c016a177>] do_kern_mount+0x57/0xe0
+ [<c01817ec>] do_new_mount+0x9c/0xe0
+ [<c0181f07>] do_mount+0x157/0x1b0
+ [<c0181d53>] copy_mount_options+0x63/0xc0
+ [<c01822ff>] sys_mount+0x9f/0x100
+ [<c01031cf>] syscall_call+0x7/0xb
+Code: 90 8d 74 26 00 55 bd ff ff ff ff 57 56 be 01 00 00 00 53 8b 54 24 14 =
+31 db 8d b6 00 00 00 00 8d bf 00 00 00 00 8b 3a 89 e9 89 d8 <f2> ae f7 d1 4=
+9 8b 52 24 8d 74 31 01 85 d2 75 ea 5b 89 f0 5e 5f=20
+=20
+
+
+### EOF
+### vim:tw=3D256:et:sts=3D2:st=3D2:sw=3D2:com+=3Db\:###:fo+=3Dcqtr:tags=3Dc=
+tags:
+
+--=20
+A+
+* N.Radtke@                 * University of Stuttgart *    icq / lc   *
+*      www.Think-Future.de  *    dep.comp.science     * 9336272/92045 *
+:x                            UTM 32 0515651 5394088                 :)
+   Tutti i vizi, quando diventano una consuetudine, passano per
+   virtu'.   -- Moliere=20
+  =20
+
+--bg08WKrSYDhXBjb5
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Nils Radtke
+
+iD8DBQFCbndRX3r3ggYjIRYRAmYwAJoC6F4JKJ1N2VymfnWk5TE9RxsXbQCeJC62
+wHoAJc9128aUpBBKyQMv2BM=
+=WZXB
+-----END PGP SIGNATURE-----
+
+--bg08WKrSYDhXBjb5--

@@ -1,102 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbVDZCPy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVDZCRl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261273AbVDZCPy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 22:15:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbVDZCPx
+	id S261280AbVDZCRl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 22:17:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbVDZCRk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 22:15:53 -0400
-Received: from smtpout.mac.com ([17.250.248.73]:31439 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S261273AbVDZCPk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 22:15:40 -0400
-In-Reply-To: <426D9AC0.5020908@lab.ntt.co.jp>
-References: <4263275A.2020405@lab.ntt.co.jp> <m1y8b9xyaw.fsf@muc.de> <426C51C4.9040902@lab.ntt.co.jp> <e83d0cb60cb50a56b38294e9160d7712@mac.com> <426CC8F7.8070905@lab.ntt.co.jp> <200504251636.j3PGa9SJ015388@turing-police.cc.vt.edu> <426D9AC0.5020908@lab.ntt.co.jp>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <d3d20c47f8bb1b095b6240baf5fa5465@mac.com>
+	Mon, 25 Apr 2005 22:17:40 -0400
+Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:40847 "EHLO
+	ms-smtp-02-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S261280AbVDZCRf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 22:17:35 -0400
+Message-ID: <426DA495.4040700@ammasso.com>
+Date: Mon, 25 Apr 2005 21:16:53 -0500
+From: Timur Tabi <timur.tabi@ammasso.com>
+User-Agent: Mozilla/5.0 (Macintosh; U; PPC Mac OS X Mach-O; en-US; rv:1.7.6) Gecko/20050319
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: IWAMOTO Toshihiro <iwamoto@valinux.co.jp>
+CC: Roland Dreier <roland@topspin.com>, Andrew Morton <akpm@osdl.org>,
+       hch@infradead.org, hozer@hozed.org, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+References: <200544159.Ahk9l0puXy39U6u6@topspin.com>	<20050411142213.GC26127@kalmia.hozed.org>	<52mzs51g5g.fsf@topspin.com>	<20050411163342.GE26127@kalmia.hozed.org>	<5264yt1cbu.fsf@topspin.com>	<20050411180107.GF26127@kalmia.hozed.org>	<52oeclyyw3.fsf@topspin.com>	<20050411171347.7e05859f.akpm@osdl.org>	<4263DEC5.5080909@ammasso.com>	<20050418164316.GA27697@infradead.org>	<4263E445.8000605@ammasso.com>	<20050423194421.4f0d6612.akpm@osdl.org>	<426BABF4.3050205@ammasso.com>	<52is2bvvz5.fsf@topspin.com>	<20050425135401.65376ce0.akpm@osdl.org>	<521x8yv9vb.fsf@topspin.com>	<20050425151459.1f5fb378.akpm@osdl.org>	<426D6D68.6040504@ammasso.com>	<20050425153256.3850ee0a.akpm@osdl.org>	<52vf6atnn8.fsf@topspin.com> <20050426020338.5909570488@sv1.valinux.co.jp>
+In-Reply-To: <20050426020338.5909570488@sv1.valinux.co.jp>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@muc.de>
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [PATCH x86_64] Live Patching Function on 2.6.11.7
-Date: Mon, 25 Apr 2005 22:15:13 -0400
-To: Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp>
-X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 25, 2005, at 21:34, Takashi Ikebe wrote:
-> Valdis.Kletnieks@vt.edu wrote:
->> When asked "Why don't you just reboot the affected switches?" his
->> response was "This assumes that the switch had ever been booted in
->> the first place". (Apparently, the *whole thing* had been
->> on-the-fly replaced/patched without an actual reload happening...)
->> Gaaahhh! :)
->
-> I think that's the common sense in every carrier.
+IWAMOTO Toshihiro wrote:
 
-That is definitely not common sense.  It may be good business
-practice, but those are two *entirely* different things.
+> If such memory were allocated by a driver, the memory could be placed
+> in non-hotremovable areas to avoid the above problems.
 
-> If we reboot the switch, the service will be disrupted.
-
-Yes.  My personal favorite solution to this problem is HeartBeat,
-some Open-Source software that is very good at maintaining high
-availability.  With a properly written multi-system clustering
-switch application that utilizes the Linux Virtual-Server tools,
-you could reasonably efficiently run a system such that you can
-reboot any individual system without any loss of service.
-
-> The phone network is lifeline, and does not allow to be disrupt
-> by just bug fix.  I think same kind of function is needed in many
-> real enterprise/mission-critical/business area.
-
-But you miss the point.  Linux is *NOT* about "business", or
-"enterprise", or "mission-critical".  Linux is (at least to
-many hackers) about hacking, having fun, and Good Design(TM).
-
-> All do with ptrace may affect target process's time critical
-> task. (need to stop target process whenever fix)
-
-So don't do it with ptrace!!! I've given you one other method
-that uses minimal changes to existing software and emulates the
-crappy mmap3 call you keep trying to push.
-
-> All implement in user application costs too much,
-
-What about one of the dozen other offered methods?
-
-> need to implement all the application...
-
-So why not write a utility library?  You'd need to "implement
-all in the kernel", too, and since it can be done better in
-userspace, let's keep out the bloat while we're at it.
-
-> (and I do not know this approach really works on time critical
-> applications yet.)
-
-So test it! You're clearly working for a big corporation with
-the money and resources to develop something like this, so do
-so, and if you get something that works well, *and* uses good
-design, we'll welcome patches!
-
-> There are clear demand to realize this common and GPL-ed
-> function....
-
-The kernel is not about business, demand, or what the CEO of
-some big-name company wants.  The kernel strives for the goal
-of "Good Engineering (TM)".
-
-
-Cheers,
-Kyle Moffett
-
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
-
-
+How can the driver allocated 3GB of pinned memory on a system with 3.5GB of RAM?  Can 
+vmalloc() or get_free_pages() allocate that much memory?

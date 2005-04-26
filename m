@@ -1,78 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbVDZSOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261539AbVDZSPw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261505AbVDZSOO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 14:14:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVDZSOO
+	id S261539AbVDZSPw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 14:15:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVDZSPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 14:14:14 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:8069 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S261505AbVDZSOI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 14:14:08 -0400
-Date: Tue, 26 Apr 2005 22:13:25 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: johnpol@2ka.mipt.ru
-Cc: dtor_core@ameritech.net, dmitry.torokhov@gmail.com, netdev@oss.sgi.com,
-       Greg KH <greg@kroah.com>, Jamal Hadi Salim <hadi@cyberus.ca>,
-       Kay Sievers <kay.sievers@vrfy.org>,
-       Herbert Xu <herbert@gondor.apana.org.au>,
-       James Morris <jmorris@redhat.com>,
-       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Thomas Graf <tgraf@suug.ch>, Jay Lan <jlan@engr.sgi.com>
-Subject: Re: [1/1] connector/CBUS: new messaging subsystem. Revision number
- next.
-Message-ID: <20050426221325.20fbba58@zanzibar.2ka.mipt.ru>
-In-Reply-To: <20050426221026.108f3698@zanzibar.2ka.mipt.ru>
-References: <20050411125932.GA19538@uganda.factory.vocord.ru>
-	<d120d5000504260857cb5f99e@mail.gmail.com>
-	<20050426202437.234e7d45@zanzibar.2ka.mipt.ru>
-	<d120d50005042610317961a564@mail.gmail.com>
-	<20050426220354.5dd619bf@zanzibar.2ka.mipt.ru>
-	<20050426221026.108f3698@zanzibar.2ka.mipt.ru>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 26 Apr 2005 14:15:49 -0400
+Received: from terminus.zytor.com ([209.128.68.124]:26498 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S261539AbVDZSPi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 14:15:38 -0400
+Message-ID: <426E852A.40904@zytor.com>
+Date: Tue, 26 Apr 2005 11:15:06 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Mike Taht <mike.taht@timesys.com>, Matt Mackall <mpm@selenic.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
+Subject: Re: Mercurial 0.3 vs git benchmarks
+References: <20050426004111.GI21897@waste.org> <Pine.LNX.4.58.0504251859550.18901@ppc970.osdl.org> <426DA7B5.2080204@timesys.com> <Pine.LNX.4.58.0504251938210.18901@ppc970.osdl.org> <Pine.LNX.4.58.0504252032500.18901@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0504252032500.18901@ppc970.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [194.85.82.65]); Tue, 26 Apr 2005 22:13:38 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Apr 2005 22:10:26 +0400
-Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-
-> > > > There may not be the same work with different data.
-> > > > 
-> > > 
-> > > Ugh, that really blows. Now every user of a particular message type
-> > > has to coordinate efforts with other users of the same message type...
-> > > 
-> > > Imability to "fire and forget" undermines usefulness of whole
-> > > connector. How will you for example implement hotplug notification
-> > > over connector? Have kobject_hotplug wait and block other instances?
-> > > But wait on what?
-> > 
-> > This is a simple load balancing schema.
-> > Netlink messages may be dropped in socket queue when 
-> > they are bing delivered to userspace - this is the same - 
-> > if work queue can not be scheduled, message will be dropped,
-> > but in this case userspace also can not be scheduled
-> > and message will be dropped.
+Linus Torvalds wrote:
 > 
-> Btw, I belive we see that it is reverse direction...
-> So we have reverse load balancing schema here - 
-> exactly like userspace socket queueing.
-> We basically can not sleep here - it will be DOS.
+> And don't try to make me explain why the patchbomb has any IO time at all,
+> it should all have fit in the cache, but I think the writeback logic
+> kicked in.
 
-And yet another btw - netlink is unreliable protocol,
-that is why there are seq and ack fields in connector's header - 
-connector's users must implement some check on top of
-raw connector messages - it could be returned message with
-timeout resending and so on.
-I wrote it several times and it is in connector's documentation.
+The default log size on ext3 is quite small.  Making the log larger 
+probably would have helped.
 
-	Evgeniy Polyakov
-
-Only failure makes us experts. -- Theo de Raadt
+	-hpa

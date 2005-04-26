@@ -1,85 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261452AbVDZNqO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261516AbVDZNrD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261452AbVDZNqO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 09:46:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261513AbVDZNqO
+	id S261516AbVDZNrD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 09:47:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbVDZNqy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 09:46:14 -0400
-Received: from wproxy.gmail.com ([64.233.184.202]:19168 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261452AbVDZNpq convert rfc822-to-8bit
+	Tue, 26 Apr 2005 09:46:54 -0400
+Received: from herkules.vianova.fi ([194.100.28.129]:27086 "HELO
+	mail.vianova.fi") by vger.kernel.org with SMTP id S261520AbVDZNqj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 09:45:46 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=DOu17Pb8Esmr+wkA1QsDOtLu3IrjTGAnbpQlK5vieEsKbn161foPlKVB45l7RXskpDPn83t2SZadtObIF/LvLDQHs6M39gHexIvatBY3swDhPlvDej83VEXvwBrMogzxbF1OgZVJ+hzM+sRqRHH1tY3Cumvvt28DRdFDRRZtQT0=
-Message-ID: <469958e00504260645dd2218d@mail.gmail.com>
-Date: Tue, 26 Apr 2005 06:45:42 -0700
-From: Caitlin Bestler <caitlin.bestler@gmail.com>
-Reply-To: Caitlin Bestler <caitlin.bestler@gmail.com>
-To: Christoph Hellwig <hch@infradead.org>, Roland Dreier <roland@topspin.com>,
-       Andrew Morton <akpm@osdl.org>, timur.tabi@ammasso.com, hozer@hozed.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
-In-Reply-To: <20050426061236.GA27220@infradead.org>
+	Tue, 26 Apr 2005 09:46:39 -0400
+Date: Tue, 26 Apr 2005 16:46:29 +0300
+From: Ville Herva <v@iki.fi>
+To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: filesystem transactions API
+Message-ID: <20050426134629.GU16169@viasys.com>
+References: <20050424211942.GN13052@parcelfarce.linux.theplanet.co.uk> <OF32F95BBA.F38B2D1F-ON88256FEE.006FE841-88256FEE.00742E46@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <4263DEC5.5080909@ammasso.com> <4263E445.8000605@ammasso.com>
-	 <20050423194421.4f0d6612.akpm@osdl.org> <426BABF4.3050205@ammasso.com>
-	 <52is2bvvz5.fsf@topspin.com> <20050425135401.65376ce0.akpm@osdl.org>
-	 <521x8yv9vb.fsf@topspin.com> <20050425151459.1f5fb378.akpm@osdl.org>
-	 <52r7gytnfn.fsf@topspin.com> <20050426061236.GA27220@infradead.org>
+In-Reply-To: <OF32F95BBA.F38B2D1F-ON88256FEE.006FE841-88256FEE.00742E46@us.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-Operating-System: Linux herkules.viasys.com 2.4.27
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/25/05, Christoph Hellwig <hch@infradead.org> wrote:
-> On Mon, Apr 25, 2005 at 05:02:36PM -0700, Roland Dreier wrote:
-> > The idea is that applications manage the lifetime of pinned memory
-> > regions.  They can do things like post multiple I/O operations without
-> > any page-walking overhead, or pass a buffer descriptor to a remote
-> > host who will send data at some indeterminate time in the future.  In
-> > addition, InfiniBand has the notion of atomic operations, so a cluster
-> > application may be using some memory region to implement a global lock.
-> >
-> > This might not be the most kernel-friendly design but it is pretty
-> > deeply ingrained in the design of RDMA transports like InfiniBand and
-> > iWARP (RDMA over IP).
-> 
-> Actuallky, no it isn't.   All these transports would work just fine with
-> the mmap a character device to hand out memory from the kernel approach
-> I told you to use multiple times and Andrew mentioned in this thread aswell.
-> What doesn't work with that design are the braindead designed by comittee
-> APIs in the RDMA world - but I don't think we should care about them too
-> much.
-> 
+Apparently, Windows Longhorn will include something called "transactional
+NTFS". It's explained pretty well in
+
+   http://blogs.msdn.com/because_we_can/
+
+Basically, a process can create a fs transaction, and all fs changes made
+between start of the transaction and commit are atomical - meaning nothing
+is visible until commit, and if commit fails, everything is rolled back.
+
+Sound useful... Although there are no service pack installs that could fail
+in Linux, the same thing could be useful in rpm, yum, almost anything. 
+
+What do you think?
 
 
-RDMA registers and uses the memory the user specifies. That is why byte
-granularity and multiple redundant registrations are explicitly specified.
 
-The mechanism by which this requirement is implemented is of course
-OS dependent. But the requirements are that the application specifies
-what portion of their memory they want registered (or what set of physical
-pages if they have sufficient privilege) and that request is either honored
-or refused by a resource manager (one preferably as integrated with
-general OS resource management as possible).
+-- v -- 
 
-The other aspect is that remotely enabled memory regions and memory
-windows most be enabled for hardware access for the duration of 
-the region or window -- indefinitely until process death or explicit
-termination by the application layer.
+v@iki.fi
 
-Theoretically there is nothing in the wire protocols that requires source
-buffers to be pinned indefinitely, but that is the only way any RDMA
-interface has ever worked -- so "brain death" must be pretty widespread.
-
-The fact that this problem must be solved for remotely accessible
-buffers, and that for cluster applications like MPI there is no distinction
-between buffers used for inbound messages and outbound messages,
-might have something to do with this.
-
-User verbs needs to deal with these actual Memory Registration requirements,
-including the very real application need for Memory Windows. The solution
-should map to existing OS controls as much as possible.

@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbVDZUQ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261553AbVDZURr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261495AbVDZUQ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 16:16:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261774AbVDZUOv
+	id S261553AbVDZURr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 16:17:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261511AbVDZURp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 16:14:51 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:43438 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261772AbVDZUOf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 16:14:35 -0400
-Date: Tue, 26 Apr 2005 22:14:11 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: hch@infradead.org, jamie@shareable.org, linuxram@us.ibm.com,
-       7eggert@gmx.de, bulb@ucw.cz, viro@parcelfarce.linux.theplanet.co.uk,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] private mounts
-Message-ID: <20050426201411.GA20109@elf.ucw.cz>
-References: <1114445923.4480.94.camel@localhost> <20050425191015.GC28294@mail.shareable.org> <E1DQMB0-00008a-00@dorka.pomaz.szeredi.hu> <20050426091921.GA29810@infradead.org> <E1DQMGZ-00009n-00@dorka.pomaz.szeredi.hu> <20050426093628.GA30208@infradead.org> <E1DQMYu-0000DL-00@dorka.pomaz.szeredi.hu> <20050426094727.GA30379@infradead.org> <20050426131943.GC2226@openzaurus.ucw.cz> <E1DQQ73-0000Zv-00@dorka.pomaz.szeredi.hu>
+	Tue, 26 Apr 2005 16:17:45 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:60380 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261553AbVDZURY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 16:17:24 -0400
+Subject: Re: [PATCH][RFC] Linux VM hooks for advanced RDMA NICs
+From: Lee Revell <rlrevell@joe-job.com>
+To: "John W. Linville" <linville@tuxdriver.com>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>, David Addison <addy@quadrics.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Andrea Arcangeli <andrea@suse.de>,
+       David Addison <david.addison@quadrics.com>
+In-Reply-To: <20050426201416.GA32710@tuxdriver.com>
+References: <426E62ED.5090803@quadrics.com>
+	 <Pine.LNX.4.62.0504261829110.2071@dragon.hyggekrogen.localhost>
+	 <1114535584.5410.2.camel@mindpipe>
+	 <Pine.LNX.4.62.0504261918210.2071@dragon.hyggekrogen.localhost>
+	 <1114536511.5410.14.camel@mindpipe>  <20050426201416.GA32710@tuxdriver.com>
+Content-Type: text/plain
+Date: Tue, 26 Apr 2005 16:17:18 -0400
+Message-Id: <1114546639.8431.16.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1DQQ73-0000Zv-00@dorka.pomaz.szeredi.hu>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.2.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Could we get root-only fuse in, please?
+On Tue, 2005-04-26 at 16:14 -0400, John W. Linville wrote:
+> On Tue, Apr 26, 2005 at 01:28:31PM -0400, Lee Revell wrote:
 > 
-> chmod u-s /usr/bin/fusermount
+> > I do a lot of looking at large hunks of code I'm not familiar with and
+> > trying to figure out how it works.  It's quite handy to grep for
+> 
+> I'd suggest cscope...
 
-:-)))). I meant merging patches that are not controversial into
-mainline. AFAICT only controversial pieces are "make it safe for
-non-root users"...
+Thanks.  But now I feel bad hijacking the OP's thread.
 
-							Pavel
--- 
-Boycott Kodak -- for their patent abuse against Java.
+Any comments on the patch?  ;-)
+
+Lee
+

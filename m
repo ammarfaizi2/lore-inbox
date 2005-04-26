@@ -1,43 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbVDZNRQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261506AbVDZNRq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261503AbVDZNRQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 09:17:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbVDZNRQ
+	id S261506AbVDZNRq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 09:17:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbVDZNRq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 09:17:16 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:19617 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261503AbVDZNRN (ORCPT
+	Tue, 26 Apr 2005 09:17:46 -0400
+Received: from [62.206.217.67] ([62.206.217.67]:52909 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S261506AbVDZNRn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 09:17:13 -0400
-Date: Tue, 26 Apr 2005 15:17:07 +0200
-From: Andi Kleen <ak@suse.de>
-To: linux-kernel@vger.kernel.org, ian.pratt@cl.cam.ac.uk, akpm@osdl.org,
-       ak@suse.de
-Subject: Re: [PATCH 5/6][XEN][x86_64] Add macro for debugreg
-Message-ID: <20050426131707.GB5098@wotan.suse.de>
-References: <20050426113149.GE26614@snarc.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050426113149.GE26614@snarc.org>
+	Tue, 26 Apr 2005 09:17:43 -0400
+Message-ID: <426E3F67.8090006@trash.net>
+Date: Tue, 26 Apr 2005 15:17:27 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Herbert Xu <herbert@gondor.apana.org.au>
+CC: Yair@arx.com, linux-kernel@vger.kernel.org,
+       netfilter-devel@lists.netfilter.org, netdev@oss.sgi.com
+Subject: Re: Re-routing packets via netfilter (ip_rt_bug)
+References: <E1DQ1Ct-00055s-00@gondolin.me.apana.org.au> <426D0CB9.4060500@trash.net> <20050425213400.GB29288@gondor.apana.org.au> <426D8672.1030001@trash.net> <20050426003925.GA13650@gondor.apana.org.au>
+In-Reply-To: <20050426003925.GA13650@gondor.apana.org.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 26, 2005 at 01:31:49PM +0200, Vincent Hanquez wrote:
-> Hi,
-> 
-> The following patch add 2 macros to set and get debugreg on x86_64.
-> This is useful for Xen because it will need only to redefine each macro
-> to a hypervisor call. 
-> 
-> Please apply, or comments.
+Herbert Xu wrote:
+> Makes sense.  But what about the case where saddr is foreign but
+> daddr is broadcast/multicast?
 
-Thanks,
+Looks like we have no choice but to also use saddr=0 and
+ip_route_output() in this case.
 
-It looks good, except that the name of the macro is too long.
-I will queue it and fix the name up when I apply. 
-
-If you plan to add a lot more of these I would recommend
-to create a new header first, processor.h is already quite crowded.
-
--Andi
+Regards
+Patrick

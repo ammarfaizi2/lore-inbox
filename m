@@ -1,76 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261649AbVDZQG2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261615AbVDZQG1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261649AbVDZQG2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 12:06:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbVDZQEc
+	id S261615AbVDZQG1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 12:06:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbVDZQEi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 12:04:32 -0400
-Received: from mailfe07.swip.net ([212.247.154.193]:9461 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S261608AbVDZQBn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 12:01:43 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Subject: Re: [PATCH] PCI: Add pci shutdown ability
-From: Alexander Nyberg <alexn@dsv.su.se>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Andrew Morton <akpm@osdl.org>, greg@kroah.com, gud@eth.net,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       jgarzik@pobox.com, cramerj@intel.com,
-       linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <Pine.LNX.4.44L0.0504261101060.12725-100000@iolanthe.rowland.org>
-References: <Pine.LNX.4.44L0.0504261101060.12725-100000@iolanthe.rowland.org>
-Content-Type: text/plain
-Date: Tue, 26 Apr 2005 18:01:30 +0200
-Message-Id: <1114531290.10549.42.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Tue, 26 Apr 2005 12:04:38 -0400
+Received: from [213.170.72.194] ([213.170.72.194]:8845 "EHLO
+	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261615AbVDZQBr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 12:01:47 -0400
+Message-ID: <426E65E9.5070306@oktetlabs.ru>
+Date: Tue, 26 Apr 2005 20:01:45 +0400
+From: "Artem B. Bityuckiy" <dedekind@oktetlabs.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en, ru, en-us
+MIME-Version: 1.0
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       John Stoffel <john@stoffel.org>, Ville Herva <v@iki.fi>,
+       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: filesystem transactions API
+References: <20050424211942.GN13052@parcelfarce.linux.theplanet.co.uk> <OF32F95BBA.F38B2D1F-ON88256FEE.006FE841-88256FEE.00742E46@us.ibm.com> <20050426134629.GU16169@viasys.com> <20050426141426.GC10833@mail.shareable.org> <426E4EBD.6070104@oktetlabs.ru> <20050426143247.GF10833@mail.shareable.org> <17006.22498.394169.98413@smtp.charter.net> <1114528782.13568.8.camel@lade.trondhjem.org> <20050426154708.GC14297@mail.shareable.org> <426E638B.9070704@oktetlabs.ru> <20050426155615.GE14297@mail.shareable.org>
+In-Reply-To: <20050426155615.GE14297@mail.shareable.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tis 2005-04-26 klockan 11:11 -0400 skrev Alan Stern:
-> On Mon, 25 Apr 2005, Andrew Morton wrote:
+Jamie Lokier wrote:
+> No.  Why would you block?  You can have transactions without blocking
+> other processes.
 > 
-> > I have vague memories of this being discussed at some length last year. 
-> > Nothing comprehensive came of it, except that perhaps the kdump code should
-> > spin with irqs off for a couple of seconds so the DMA and IRQs stop.
+> When updating, say, the core-utils package (which contains cat),
+> there's no reason why a program which executes "cat" should have to
+> block during the update.  It can simply execute the old one until the
+> new one is committed at the end of the update.
 > 
-> Like Pavel said, this won't work.
+> It's analogous to RCU for protecting kernel data structures without
+> blocking readers.
 > 
-> > (Ongoing DMA is not a problem actually, because the kdump kernel won't be
-> > using that memory anyway)
-> 
-> For PCI devices at least, DMA _can_ be disabled in a uniform way as 
-> devices are discovered.  Some platforms might not want to do this for fear 
-> it would kill the initial console display.
-> 
-> IRQs _cannot_ be disabled in a uniform way.  So they remain a problem.
-> 
-> > For kdump we really don't want to be doing fancy driver shutdown inside a
-> > crashed kernel.  It would be better to just jump to the new kernel and
-> > to reset the hardware from there.  DMA doesn't matter, and maybe IRQs can
-> > be handled with a sustained local_irq_disable() (hard).
-> 
-> But at some point you have to enable local IRQs, and then you're in
-> trouble if a device without a driver is generating requests.  Unless the 
-> new kernel can run with interrupts entirely disabled?  Seems pretty 
-> unlikely.
+Hmm, can't we implement a user-space locking system which admits of 
+readers during transactions? I gues we can.
 
-At least on x86 & x64 both i8259A and optional IOAPIC are initially
-fully masked until a driver decides to open up a line.
-
-If driver initialization fails then it should never open up the line on
-the interrupt controller. So this shouldn't be a problem with interrupts
-or am I missing something?
-Shared interrupt lines do present a problem however as someone else gets
-the chance to scream on an open line ultimately killing it, hmmm.
-
-> The real problem is that, in general, hardware _can't_ be reset properly
-> by a new kernel.  There are things that can help, like the PCI USB quirks
-> code.  That might be enough to handle the most pressing existing problems;  
-> certainly it would avoid the USB issues we've seen.  (But it needs to be
-> updated to avoid interfering with normal operations during
-> resume-from-disk.)
-
-
-
+-- 
+Best regards, Artem B. Bityuckiy
+Oktet Labs (St. Petersburg), Software Engineer.
++78124286709 (office) +79112449030 (mobile)
+E-mail: dedekind@oktetlabs.ru, web: http://www.oktetlabs.ru

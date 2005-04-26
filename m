@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261180AbVDYX6I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVDZACn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261180AbVDYX6I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 19:58:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbVDYX6H
+	id S261187AbVDZACn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 20:02:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbVDZACn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 19:58:07 -0400
-Received: from groover.houseafrikarecords.com ([12.162.17.52]:35913 "EHLO
-	Mansi.STRATNET.NET") by vger.kernel.org with ESMTP id S261180AbVDYX6E
+	Mon, 25 Apr 2005 20:02:43 -0400
+Received: from webmail.houseafrika.com ([12.162.17.52]:20299 "EHLO
+	Mansi.STRATNET.NET") by vger.kernel.org with ESMTP id S261187AbVDZACl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 19:58:04 -0400
+	Mon, 25 Apr 2005 20:02:41 -0400
 To: Andrew Morton <akpm@osdl.org>
-Cc: Timur Tabi <timur.tabi@ammasso.com>, hch@infradead.org, hozer@hozed.org,
+Cc: timur.tabi@ammasso.com, hch@infradead.org, hozer@hozed.org,
        linux-kernel@vger.kernel.org, openib-general@openib.org
 Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
 X-Message-Flag: Warning: May contain useful information
@@ -23,37 +23,44 @@ References: <200544159.Ahk9l0puXy39U6u6@topspin.com>
 	<20050423194421.4f0d6612.akpm@osdl.org> <426BABF4.3050205@ammasso.com>
 	<52is2bvvz5.fsf@topspin.com> <20050425135401.65376ce0.akpm@osdl.org>
 	<521x8yv9vb.fsf@topspin.com> <20050425151459.1f5fb378.akpm@osdl.org>
-	<426D6D68.6040504@ammasso.com> <20050425153256.3850ee0a.akpm@osdl.org>
 From: Roland Dreier <roland@topspin.com>
-Date: Mon, 25 Apr 2005 16:58:03 -0700
-In-Reply-To: <20050425153256.3850ee0a.akpm@osdl.org> (Andrew Morton's
- message of "Mon, 25 Apr 2005 15:32:56 -0700")
-Message-ID: <52vf6atnn8.fsf@topspin.com>
+Date: Mon, 25 Apr 2005 17:02:36 -0700
+In-Reply-To: <20050425151459.1f5fb378.akpm@osdl.org> (Andrew Morton's
+ message of "Mon, 25 Apr 2005 15:14:59 -0700")
+Message-ID: <52r7gytnfn.fsf@topspin.com>
 User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 25 Apr 2005 23:58:03.0622 (UTC) FILETIME=[9E45E060:01C549F2]
+X-OriginalArrivalTime: 26 Apr 2005 00:02:36.0655 (UTC) FILETIME=[410367F0:01C549F3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Andrew> ug.  What stops the memory from leaking if the process
-    Andrew> exits?
+    Andrew> Whoa, hang on.
 
-    Andrew> I hope this is a privileged operation?
+    Andrew> The way we expect get_user_pages() to be used is that the
+    Andrew> kernel will use get_user_pages() once per application I/O
+    Andrew> request.
 
-I don't think it has to be privileged.  In my implementation, the
-driver keeps a per-process list of registered memory regions and
-unpins/cleans up on process exit.
+    Andrew> Are you saying that RDMA clients will semi-permanently own
+    Andrew> pages which were pinned by get_user_pages()?  That those
+    Andrew> pages will be used for multiple separate I/O operations?
 
-    Andrew> It would be better to obtain this memory via a mmap() of
-    Andrew> some special device node, so we can perform appropriate
-    Andrew> permission checking and clean everything up on unclean
-    Andrew> application exit.
+    Andrew> If so, then that's a significant design departure and it
+    Andrew> would be good to hear why it is necessary.
 
-This seems to interact poorly with how applications want to use RDMA,
-ie typically through a library interface such as MPI.  People doing
-HPC don't want to recode their apps to use a new allocator, they just
-want to link to a new MPI library and have the app go fast.
+The idea is that applications manage the lifetime of pinned memory
+regions.  They can do things like post multiple I/O operations without
+any page-walking overhead, or pass a buffer descriptor to a remote
+host who will send data at some indeterminate time in the future.  In
+addition, InfiniBand has the notion of atomic operations, so a cluster
+application may be using some memory region to implement a global lock.
+
+This might not be the most kernel-friendly design but it is pretty
+deeply ingrained in the design of RDMA transports like InfiniBand and
+iWARP (RDMA over IP).
+
+I'm also not opposed to implementing some other mechanism to make this
+work, but the combiniation of get_user_pages() in the kernel and
+extending mprotect() to allow setting VM_DONTCOPY seems to work fine.
 
  - R.
-

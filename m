@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbVDZIOl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbVDZIWG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261383AbVDZIOl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 04:14:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbVDZIOl
+	id S261170AbVDZIWG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 04:22:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbVDZIWG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 04:14:41 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:37289 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261383AbVDZIOZ (ORCPT
+	Tue, 26 Apr 2005 04:22:06 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:9884 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261170AbVDZIWA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 04:14:25 -0400
-Date: Tue, 26 Apr 2005 10:13:41 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: ocroquette@free.fr, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Changing RT priority in kernel 2.6 without CAP_SYS_NICE
-Message-ID: <20050426081341.GC31432@elte.hu>
-References: <42628300.5020009@free.fr> <20050418080750.GA20811@elte.hu> <20050425220040.7e876ce5.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050425220040.7e876ce5.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 26 Apr 2005 04:22:00 -0400
+Date: Tue, 26 Apr 2005 10:21:44 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+cc: Christoph Hellwig <hch@infradead.org>, Jan Dittmer <jdittmer@ppp0.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux/m68k <linux-m68k@vger.kernel.org>
+Subject: Re: Linux 2.6.12-rc3
+In-Reply-To: <20050426032430.GR13052@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.62.0504261021130.27013@numbat.sonytel.be>
+References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org>
+ <42676B76.4010903@ppp0.net> <Pine.LNX.4.62.0504211105550.13231@numbat.sonytel.be>
+ <20050421161106.GY13052@parcelfarce.linux.theplanet.co.uk>
+ <20050421175723.GB13052@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.62.0504252113160.26096@numbat.sonytel.be>
+ <20050426032430.GR13052@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Andrew Morton <akpm@osdl.org> wrote:
-
-> Ingo Molnar <mingo@elte.hu> wrote:
-> >
-> >  Presently, a process without the capability CAP_SYS_NICE can not change 
-> >  its own policy, which is OK.
+On Tue, 26 Apr 2005, Al Viro wrote:
+> On Mon, Apr 25, 2005 at 09:14:01PM +0200, Geert Uytterhoeven wrote:
+> > On Thu, 21 Apr 2005, Al Viro wrote:
+> > > As far as I can see that's the minimally intrusive header changes needed
+> > > to avoid problems - better than variant with splitting sched.h as in m68k CVS.
 > > 
-> >  But it can also not decrease its RT priority (if scheduled with policy 
-> >  SCHED_RR or SCHED_FIFO), which is what this patch changes.
+> > We can discuss about that. IIRC, HCH is also in favor of splitting off struct
+> > task_struct from sched.h.
 > 
-> This patch needed some massaging to copt with the changes in 
-> nice-and-rt-prio-rlimits.patch - please check.
-> 
-> I guess we should merge nice-and-rt-prio-rlimits.patch.
+> Sure, but splitting sched.h is a separate story.  Mixing it with m68k
+> merge will only make both harder.  It requires more include reordering
+> and I'd rather keep that headache separate from m68k issues.  I agree
+> that eventual splitup of sched.h makes sense.  However, I think that
+> going for minimally intrusive variant of merge and then dealing with
+> sched.h would be easier for everyone.
 
-the massaging looks ok - and i agree that we should merge the rt-rlimits 
-patch.
+I agree, it's a separate story.
 
-	Ingo
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

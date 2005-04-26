@@ -1,42 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbVDZDYT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261306AbVDZDYv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261260AbVDZDYT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 23:24:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbVDZDYT
+	id S261306AbVDZDYv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 23:24:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbVDZDYt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 23:24:19 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17853 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261201AbVDZDYP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 23:24:15 -0400
-Date: Tue, 26 Apr 2005 04:24:30 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Christoph Hellwig <hch@infradead.org>, Jan Dittmer <jdittmer@ppp0.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux/m68k <linux-m68k@vger.kernel.org>
-Subject: Re: Linux 2.6.12-rc3
-Message-ID: <20050426032430.GR13052@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org> <42676B76.4010903@ppp0.net> <Pine.LNX.4.62.0504211105550.13231@numbat.sonytel.be> <20050421161106.GY13052@parcelfarce.linux.theplanet.co.uk> <20050421175723.GB13052@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.62.0504252113160.26096@numbat.sonytel.be>
+	Mon, 25 Apr 2005 23:24:49 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:23020 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id S261256AbVDZDYZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 23:24:25 -0400
+Date: Tue, 26 Apr 2005 05:24:22 +0200
+From: Petr Baudis <pasky@ucw.cz>
+To: git@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] Cogito-0.8 (former git-pasky, big changes!)
+Message-ID: <20050426032422.GQ13467@pasky.ji.cz>
+Reply-To: pasky@ucw.cz, git@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0504252113160.26096@numbat.sonytel.be>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 25, 2005 at 09:14:01PM +0200, Geert Uytterhoeven wrote:
-> On Thu, 21 Apr 2005, Al Viro wrote:
-> > As far as I can see that's the minimally intrusive header changes needed
-> > to avoid problems - better than variant with splitting sched.h as in m68k CVS.
-> 
-> We can discuss about that. IIRC, HCH is also in favor of splitting off struct
-> task_struct from sched.h.
+  Hello,
 
-Sure, but splitting sched.h is a separate story.  Mixing it with m68k
-merge will only make both harder.  It requires more include reordering
-and I'd rather keep that headache separate from m68k issues.  I agree
-that eventual splitup of sched.h makes sense.  However, I think that
-going for minimally intrusive variant of merge and then dealing with
-sched.h would be easier for everyone.
+  here goes Cogito-0.8, my SCMish layer over Linus Torvald's git tree
+history tracker. This package was formerly called git-pasky, however
+this release brings big changes. The usage is significantly different,
+as well as some basic concepts; the history changed again (hopefully the
+last time?) because of fixing dates of some old commits. The .git/
+directory layout changed too.
+
+  Upgrading through pull is possible, but rather difficult and requires
+some intimacy with both git, git-pasky and Cogito. So probably the best
+way to go is to just get cogito-0.8 tarball at
+
+	http://www.kernel.org/pub/software/scm/cogito/
+
+or
+
+	ftp://ftp.kernel.org/pub/software/scm/cogito/
+
+build and install it, and do
+
+	cg-clone rsync://rsync.kernel.org/pub/scm/cogito/cogito.git
+
+
+
+  Yes, this is a huge change. No, I don't expect any further changes of
+similar scale. I think the new interface is significantly simpler _and_
+cleaner than the old one.
+
+  First for the concept changes. There is no concept of tracking
+anymore; you just do either cg-pull to just fetch the changes, or
+cg-update to fetch them as well as merge them to your working tree.
+Even more significant change is that Cogito does not directly support
+local branches anymore - git fork is gone, you just go to new directory
+and do
+
+	cg-init ~/path/to/your/original/repository
+
+(or cg-clone, which will try to create a new subdirectory for itself).
+This now acts as a separate repository, except that it is hardlinked
+with the original one; therefore you get no additional disk usage.  To
+get new changes to it from the original repository, you have to
+cg-update origin. If you decide you want to merge back, go to the
+original repository, add your new one as a branch and pull/update from
+it.
+
+  As for the interface changes, you will probably find out on your own;
+cg-help should be of some help. All the scripts now start with 'cg-',
+and you should ignore the 'cg-X*' ones. The non-trivial mapping is:
+
+	git addremote -> cg-branch-add
+	git lsremote -> cg-branch-ls
+	git patch -> cg-mkpatch
+	git apply -> cg-patch
+	git lsobj -> cg-admin-lsobj
+
+  Commands that are gone:
+
+	git fork
+	git track
+
+  New commands:
+
+	cg-clone
+	cg-update
+
+
+
+  Of course other changes include various bugfixes, and latest Linus'
+stuff (although we do not make use of Linus' tags yet).
+
+  Note that I don't know how many time will I have for hacking Cogito
+until the next Sunday/Monday. I hope I will get some time to at least
+apply bugfixes etc, but I don't know how much more will I be able to do.
+You would make me a happy man if you could please port your pending
+patches from git-pasky to Cogito; I promise to apply them and I hope
+there isn't going to be another so big change in the foreseeable future,
+which would cause major conflicts for your patches etc.
+
+
+  Note that I cc'd LKML since it is going to break stuff for anyone
+using git-pasky now (apologies for that; it won't happen another time).
+Please try not to keep it in the cc' list unless it is really relevant.
+
+  Have fun,
+
+-- 
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+C++: an octopus made by nailing extra legs onto a dog. -- Steve Taylor

@@ -1,97 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261323AbVDZEd4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbVDZEf6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261323AbVDZEd4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 00:33:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVDZEd4
+	id S261263AbVDZEf6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 00:35:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbVDZEf5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 00:33:56 -0400
-Received: from gate.crashing.org ([63.228.1.57]:59590 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261332AbVDZEd3 (ORCPT
+	Tue, 26 Apr 2005 00:35:57 -0400
+Received: from fire.osdl.org ([65.172.181.4]:32448 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261263AbVDZEeS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 00:33:29 -0400
-Subject: Re: [PATCH] PCI: Add pci shutdown ability
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Adam Belay <abelay@novell.com>
-Cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Alan Stern <stern@rowland.harvard.edu>, alexn@dsv.su.se,
-       Greg KH <greg@kroah.com>, gud@eth.net,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Jeff Garzik <jgarzik@pobox.com>,
-       cramerj@intel.com, Linux-USB <linux-usb-devel@lists.sourceforge.net>
-In-Reply-To: <20050425232330.GG27771@neo.rr.com>
-References: <1114458325.983.17.camel@localhost.localdomain>
-	 <Pine.LNX.4.44L0.0504251609420.7408-100000@iolanthe.rowland.org>
-	 <20050425145831.48f27edb.akpm@osdl.org> <20050425221326.GC15366@redhat.com>
-	 <20050425232330.GG27771@neo.rr.com>
-Content-Type: text/plain
-Date: Tue, 26 Apr 2005 14:32:29 +1000
-Message-Id: <1114489949.7111.43.camel@gaston>
+	Tue, 26 Apr 2005 00:34:18 -0400
+Date: Mon, 25 Apr 2005 21:33:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Timur Tabi <timur.tabi@ammasso.com>
+Cc: roland@topspin.com, hch@infradead.org, hozer@hozed.org,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+Message-Id: <20050425213315.27db35db.akpm@osdl.org>
+In-Reply-To: <426DB7B2.7000409@ammasso.com>
+References: <200544159.Ahk9l0puXy39U6u6@topspin.com>
+	<20050411142213.GC26127@kalmia.hozed.org>
+	<52mzs51g5g.fsf@topspin.com>
+	<20050411163342.GE26127@kalmia.hozed.org>
+	<5264yt1cbu.fsf@topspin.com>
+	<20050411180107.GF26127@kalmia.hozed.org>
+	<52oeclyyw3.fsf@topspin.com>
+	<20050411171347.7e05859f.akpm@osdl.org>
+	<4263DEC5.5080909@ammasso.com>
+	<20050418164316.GA27697@infradead.org>
+	<4263E445.8000605@ammasso.com>
+	<20050423194421.4f0d6612.akpm@osdl.org>
+	<426BABF4.3050205@ammasso.com>
+	<52is2bvvz5.fsf@topspin.com>
+	<20050425135401.65376ce0.akpm@osdl.org>
+	<521x8yv9vb.fsf@topspin.com>
+	<20050425151459.1f5fb378.akpm@osdl.org>
+	<426D6D68.6040504@ammasso.com>
+	<20050425153256.3850ee0a.akpm@osdl.org>
+	<52vf6atnn8.fsf@topspin.com>
+	<20050425171145.2f0fd7f8.akpm@osdl.org>
+	<52acnmtmh6.fsf@topspin.com>
+	<20050425173757.1dbab90b.akpm@osdl.org>
+	<426DA58F.3020508@ammasso.com>
+	<20050425201629.11d9118f.akpm@osdl.org>
+	<426DB7B2.7000409@ammasso.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've been considering for a while that, in addition to ->probe and ->remove, we
-> have the following:
+Timur Tabi <timur.tabi@ammasso.com> wrote:
+>
+> Andrew Morton wrote:
 > 
-> "struct device" -->
-> ->attach - binds to the device and allocates data structures
-> ->probe - detects and sets up the hardware
-> ->start - begins transactions (like DMA)
-> ->stop - stops transactions
-> ->remove - prepares the hardware for no driver control
-> ->detach - frees stuff and unbinds the device
+> > I'm referring to an application which uses your syscalls to obtain pinned
+> > memory and uses munlock() so that it may then use your syscalls to obtain
+> > evem more pinned memory.  With the objective of taking the machine down.
 > 
-> ->start and ->stop would be optional, and only used where they apply.
+> I'm in favor of having drivers call do_mlock() and do_munlock() on behalf of the 
+> application.  All we need to do is export those functions, and my driver can call them. 
+> However, that still doesn't prevent an app from calling munlock().
 
->From my experience, this doesn't work. You actually want to have power
-transitions and start/stop semantics to be "atomic" as far as drvier
-state change is concerned. You can't for example stop all drivers, then
-in a second pass, change the power state, since after you have stopped
-drivers, you parent (bus) driver may not let you talk to your device
-anymore for obvious reasons (and thus may prevent you from doing the
-power state change).
+Precisely.  That's why I suggested that we have an alternative vma->vm_flag
+bit which behaves in a similar manner to VM_LOCKED (say, VM_LOCKED_KERNEL),
+only userspace cannot alter it.
 
-We really want all this to be part of the normal power management
-infrastructure. In this specific state, it's just basically a system
-state, that has already been discussed at lenght and that we nicknamed
-'freeze' since it's exactly what suspend-to-disk needs before
-snapshoting the system image.
+> But I don't understand the distinction between having the driver call do_mlock() vs. the 
+> application calling mlock().  Won't we still have the same problems?  A malicious app can 
+> just call our driver instead of calling mlock() or munlock(). The driver won't know the 
+> difference between an authorized app and an unauthorized one.
 
-> ->probe and ->remove would be useful for resource rebalancing
-> 
-> Power management functions could (and usually should) manually call some of
-> these.  Also this would be useful for error recovery and restarting devices.
-> 
-> Still, cpufreq seems like a difficult problem.  What's to prevent,
-> hypothetically, an SMP system from stoping a device while the upper class
-> layer tries to use it.
+The driver will set VM_LOCKED_KERNEL, not VM_LOCKED.
 
-Proper locking in the driver should prevent that. if you have a problem
-with "SMP", then you have a problem with preempt, and others ... then
-your model is flawed. 
- 
-> If the class level locks control of the device, then
-> DMA can't be stopped.  Also, attempting to stop device activity may fail
-> if the driver decides it's not possible.
+> Besides, isn't the whole point behind RLIMIT_MEMLOCK to limit how much one process can lock?
 
-No locking should be at the class level. All locking should be local to
-the device, unless the notion of device state is managed outside of the
-driver.
+Sure.  The internal setting of VM_LOCKED_KERNEL should still use
+RLIMIT_MEMLOCK accounting.
 
-I don't like this notion of "stop" separated from power states anyway, I
-think it just doesn't work in practice.
-
-Ben.
-
-> Thanks,
-> Adam
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
 

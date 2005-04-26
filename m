@@ -1,116 +1,232 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261384AbVDZHQB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261379AbVDZHTM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261384AbVDZHQB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 03:16:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVDZHOx
+	id S261379AbVDZHTM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 03:19:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVDZHTM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 03:14:53 -0400
-Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:61388 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S261379AbVDZHOP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 03:14:15 -0400
-Subject: Re: [linux-pm] Re: [PATCH] PCI: Add pci shutdown ability
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Adam Belay <ambx1@neo.rr.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Linux-USB <linux-usb-devel@lists.sourceforge.net>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       alexn@dsv.su.se, gud@eth.net, Adam Belay <abelay@novell.com>,
-       Dave Jones <DaveJ@redhat.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       Jeff Garzik <jgarzik@pobox.com>, cramerj@intel.com
-In-Reply-To: <20050426062314.GC3951@neo.rr.com>
-References: <1114458325.983.17.camel@localhost.localdomain>
-	 <Pine.LNX.4.44L0.0504251609420.7408-100000@iolanthe.rowland.org>
-	 <20050425145831.48f27edb.akpm@osdl.org> <20050425221326.GC15366@redhat.com>
-	 <20050425232330.GG27771@neo.rr.com> <1114489949.7111.43.camel@gaston>
-	 <20050426062314.GC3951@neo.rr.com>
-Content-Type: text/plain
-Message-Id: <1114499693.30859.151.camel@desktop.cunningham.myip.net.au>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Tue, 26 Apr 2005 17:14:53 +1000
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Apr 2005 03:19:12 -0400
+Received: from smtp816.mail.sc5.yahoo.com ([66.163.170.2]:22638 "HELO
+	smtp816.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261391AbVDZHQV convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 03:16:21 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: johnpol@2ka.mipt.ru
+Subject: Re: [RFC/PATCH 0/22] W1: sysfs, lifetime and other fixes
+Date: Tue, 26 Apr 2005 02:16:10 -0500
+User-Agent: KMail/1.8
+Cc: sensors@stimpy.netroedge.com, LKML <linux-kernel@vger.kernel.org>,
+       Greg KH <gregkh@suse.de>
+References: <200504210207.02421.dtor_core@ameritech.net> <200504260150.00948.dtor_core@ameritech.net> <1114499202.8527.85.camel@uganda>
+In-Reply-To: <1114499202.8527.85.camel@uganda>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200504260216.10560.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Tue, 2005-04-26 at 16:23, Adam Belay wrote:
-> Ok, here's a new idea.
+On Tuesday 26 April 2005 02:06, Evgeniy Polyakov wrote:
+> On Tue, 2005-04-26 at 01:50 -0500, Dmitry Torokhov wrote:
+> > 
+> > If you program so that you wait in module_exit for object release - you
+> > get what you deserve. 
 > 
-> For many devices "->suspend" and "->resume" with pm_message_t is exactly what
-> we need.  However, as we support more advanced power management features, such
-> as runtime power management, or power containers, we need something a little
-> more specific.  The exact power state must be specified among other issues.
+> But we can remove objects not from rmmod path.
+> You pointed right example in one previous e-mail.
+
+Right, and you need to be careful so that thread does not hold any references
+to the resource it tries to free. rmmod is just one pf the common examples.
+But you need to consider this scenario whether you using driver model or your
+separate refcount - the basic problem is still the same.
+
+> Using above "waiting for device..." message is for debug only.
 > 
-> We might do something like this:
+> > > > BTW, I am looking at the connector code ATM and I am just amazed at
+> > > > all wied refounting stuff that is going on there. what a single
+> > > > actomic_dec_and_test() call without checkng reurn vaue is supposed to
+> > > > do again?
+> > > 
+> > > It has explicit barrieres, which guarantees that
+> > > there will not be atomic operation vs. non atomic
+> > > reordering. 
+> > 
+> > And you can't use explicit barriers - why exactly?
 > 
-> Keep "->suspend" and "->resume" around unchanged. (so the states would
-> probably remain as PMSG_FREEZE and PMSG_SUSPEND).  If the driver doesn't
-> support the more advanced PM methods just use these.  They work well enough
-> for system sleep states etc.
+> I used them - code was following:
+> smp_mb__before_atomic_dec();
+> atomic_dec();
+> smp_mb__after_atomic_dec();
+> 
+> I think simple atomic_dec_and_test() or even atomic_dec_and_lock()
+> is better.
 
-Ok, so for each driver we have either ->suspend & ->resume or
-->change_state, ->halt and ->continue, right?
+This is usually indicates that there some kiond of a problem. Consider
+following fragment:
 
-Is it safe to assume that these later methods would get called from the
-same places in device_suspend and device_resume that ->suspend &
-->resume are called from at the moment? That would seem to me to be the
-cleanest way of addressing ordering ... but then I find myself asking,
-why not just do one or the other?
+> +static void cn_queue_wrapper(void *data)
+> +{
+> +       struct cn_callback_entry *cbq = (struct cn_callback_entry *)data;
+> +
+> +       atomic_inc_and_test(&cbq->cb->refcnt);
+> +       cbq->cb->callback(cbq->cb->priv);
+> +       atomic_dec_and_test(&cbq->cb->refcnt);
+> 
 
-I have to admit that I've never liked ->suspend & ->resume. They imply
-too much knowledge in the caller about what start the device was in. I'd
-like, instead, to see all of the decision making as to what state to
-actually be in exist in the driver and the helpers it uses. Then the
-semantics becomes requests and notifications of system/child/parent
-state changes rather than _commands_ to suspend/resume. This should be a
-lot cleaner in the context of runtime power management as well.
+What exactly this refcount protects? Can it be that other code decrements
+refcount and frees the object right when one CPU is entering this function?
+If not that means that cb structure is protected by some other means, so
+why we need to increment refcout here and consider ordering?
 
-> When changing system state, we call "change_state" for every device with power
-> resources.  Devices that do not directly consume power or have power states
-> will not implement "change_state" so we will call "halt" and "continue"
-> instead.
+Btw, cb refcount can be complelely removed, something like the patch below
+(won't apply cleanly as I have some other stuff).
 
-Now you're confusing me...
-
-if (driver->suspend | driver->resume)
-	driver->suspend|resume
-elseif (driver->change_state)
-	driver->change_state
-elseif (driver->halt | driver->continue)
-	driver->halt|continue
-else
-	printk("Urgh. No driver power management methods for %s.\n");
-
-
-> When shutting down the system, halt has the option of turning off the device,
-> as it will see the SHUTDOWN reason.  So it's a driver-knows-best approach
-> instead of assuming everything must be turned off, or everything must just be
-> stopped.
-
-I do like this idea. Especially if we can say "I'm rebooting rather than
-powering off."
-
-> So in theory, with cpufreq, we could stop userspace, ->halt every device
-> (drivers won't do anything if they know it's not necessary), change the
-> frequency, and then resume operation.
-
-That looks like a good idea too. But it also sounds like an abuse of
-suspend|resume. Perhaps it implies the need/desire for more genericness
-to pm_message_t (sounds familiar!).
-
-Regards,
-
-Nigel
 -- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
-Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
+Dmitry
 
-Maintainer of Suspend2 Kernel Patches http://suspend2.net
+ drivers/connector/cn_queue.c |   85 +++++++++++--------------------------------
+ include/linux/connector.h    |    2 -
+ 2 files changed, 23 insertions(+), 64 deletions(-)
 
+Index: linux-2.6.11/drivers/connector/cn_queue.c
+===================================================================
+--- linux-2.6.11.orig/drivers/connector/cn_queue.c
++++ linux-2.6.11/drivers/connector/cn_queue.c
+@@ -33,49 +33,12 @@
+ 
+ static void cn_queue_wrapper(void *data)
+ {
+-	struct cn_callback_entry *cbq = (struct cn_callback_entry *)data;
++	struct cn_callback_entry *cbq = data;
+ 
+-	atomic_inc_and_test(&cbq->cb->refcnt);
+ 	cbq->cb->callback(cbq->cb->priv);
+-	atomic_dec_and_test(&cbq->cb->refcnt);
+-
+ 	cbq->destruct_data(cbq->ddata);
+ }
+ 
+-static struct cn_callback_entry *cn_queue_alloc_callback_entry(struct cn_callback *cb)
+-{
+-	struct cn_callback_entry *cbq;
+-
+-	cbq = kmalloc(sizeof(*cbq), GFP_KERNEL);
+-	if (!cbq) {
+-		printk(KERN_ERR "Failed to create new callback queue.\n");
+-		return NULL;
+-	}
+-
+-	memset(cbq, 0, sizeof(*cbq));
+-
+-	cbq->cb = cb;
+-
+-	INIT_WORK(&cbq->work, &cn_queue_wrapper, cbq);
+-
+-	return cbq;
+-}
+-
+-static void cn_queue_free_callback(struct cn_callback_entry *cbq)
+-{
+-	cancel_delayed_work(&cbq->work);
+-	flush_workqueue(cbq->pdev->cn_queue);
+-
+-	while (atomic_read(&cbq->cb->refcnt)) {
+-		printk(KERN_INFO "Waiting for %s to become free: refcnt=%d.\n",
+-		       cbq->pdev->name, atomic_read(&cbq->cb->refcnt));
+-
+-		msleep(1000);
+-	}
+-
+-	kfree(cbq);
+-}
+-
+ int cn_cb_equal(struct cb_id *i1, struct cb_id *i2)
+ {
+ #if 0
+@@ -90,40 +53,37 @@ int cn_cb_equal(struct cb_id *i1, struct
+ int cn_queue_add_callback(struct cn_queue_dev *dev, struct cn_callback *cb)
+ {
+ 	struct cn_callback_entry *cbq, *__cbq;
+-	int found = 0;
++	int retval = 0;
+ 
+-	cbq = cn_queue_alloc_callback_entry(cb);
+-	if (!cbq)
++	cbq = kmalloc(sizeof(*cbq), GFP_KERNEL);
++	if (!cbq) {
++		printk(KERN_ERR "Failed to create new callback queue.\n");
+ 		return -ENOMEM;
++	}
+ 
+ 	atomic_inc(&dev->refcnt);
++
++	memset(cbq, 0, sizeof(*cbq));
++	INIT_WORK(&cbq->work, &cn_queue_wrapper, cbq);
++	cbq->cb = cb;
+ 	cbq->pdev = dev;
++	cbq->nls = dev->nls;
++	cbq->seq = 0;
++	cbq->group = cbq->cb->id.idx;
+ 
+ 	spin_lock_bh(&dev->queue_lock);
++
+ 	list_for_each_entry(__cbq, &dev->queue_list, callback_entry) {
+ 		if (cn_cb_equal(&__cbq->cb->id, &cb->id)) {
+-			found = 1;
+-			break;
++			retval = -EEXIST;
++			kfree(cbq);
++			goto out;
+ 		}
+ 	}
+-	if (!found) {
+-		atomic_set(&cbq->cb->refcnt, 1);
+-		list_add_tail(&cbq->callback_entry, &dev->queue_list);
+-	}
++	list_add_tail(&cbq->callback_entry, &dev->queue_list);
++ out:
+ 	spin_unlock_bh(&dev->queue_lock);
+-
+-	if (found) {
+-		atomic_dec(&dev->refcnt);
+-		atomic_set(&cbq->cb->refcnt, 0);
+-		cn_queue_free_callback(cbq);
+-		return -EINVAL;
+-	}
+-
+-	cbq->nls = dev->nls;
+-	cbq->seq = 0;
+-	cbq->group = cbq->cb->id.idx;
+-
+-	return 0;
++	return retval;
+ }
+ 
+ void cn_queue_del_callback(struct cn_queue_dev *dev, struct cb_id *id)
+@@ -142,8 +102,9 @@ void cn_queue_del_callback(struct cn_que
+ 	spin_unlock_bh(&dev->queue_lock);
+ 
+ 	if (found) {
+-		atomic_dec(&cbq->cb->refcnt);
+-		cn_queue_free_callback(cbq);
++		cancel_delayed_work(&cbq->work);
++		flush_workqueue(cbq->pdev->cn_queue);
++		kfree(cbq);
+ 		atomic_dec_and_test(&dev->refcnt);
+ 	}
+ }
+Index: linux-2.6.11/include/linux/connector.h
+===================================================================
+--- linux-2.6.11.orig/include/linux/connector.h
++++ linux-2.6.11/include/linux/connector.h
+@@ -115,8 +115,6 @@ struct cn_callback
+ 	struct cb_id		id;
+ 	void			(* callback)(void *);
+ 	void			*priv;
+-
+-	atomic_t		refcnt;
+ };
+ 
+ struct cn_callback_entry

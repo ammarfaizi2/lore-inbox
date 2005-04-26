@@ -1,67 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbVDZG7K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261364AbVDZG7s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261363AbVDZG7K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 02:59:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbVDZG7K
+	id S261364AbVDZG7s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 02:59:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbVDZG7s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 02:59:10 -0400
-Received: from lyle.provo.novell.com ([137.65.81.174]:15158 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S261363AbVDZG7C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 02:59:02 -0400
-Date: Mon, 25 Apr 2005 23:58:39 -0700
-From: Greg KH <gregkh@suse.de>
-To: dtor_core@ameritech.net
-Cc: johnpol@2ka.mipt.ru, sensors@stimpy.netroedge.com,
-       LKML <linux-kernel@vger.kernel.org>
+	Tue, 26 Apr 2005 02:59:48 -0400
+Received: from user-edvans3.msk.internet2.ru ([217.25.93.4]:60868 "EHLO
+	vocord.com") by vger.kernel.org with ESMTP id S261364AbVDZG72 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 02:59:28 -0400
 Subject: Re: [RFC/PATCH 0/22] W1: sysfs, lifetime and other fixes
-Message-ID: <20050426065839.GD5889@suse.de>
-References: <200504210207.02421.dtor_core@ameritech.net> <1114089504.29655.93.camel@uganda> <d120d50005042107314cbacdea@mail.gmail.com> <1114420131.8527.52.camel@uganda> <d120d50005042509326241a302@mail.gmail.com>
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Reply-To: johnpol@2ka.mipt.ru
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: sensors@stimpy.netroedge.com, LKML <linux-kernel@vger.kernel.org>,
+       Greg KH <gregkh@suse.de>
+In-Reply-To: <200504260150.00948.dtor_core@ameritech.net>
+References: <200504210207.02421.dtor_core@ameritech.net>
+	 <d120d500050425132250916bcb@mail.gmail.com>
+	 <1114497816.8527.66.camel@uganda>
+	 <200504260150.00948.dtor_core@ameritech.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-IHJt15E9uZek4eUmqNza"
+Organization: MIPT
+Date: Tue, 26 Apr 2005 11:06:42 +0400
+Message-Id: <1114499202.8527.85.camel@uganda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d120d50005042509326241a302@mail.gmail.com>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Tue, 26 Apr 2005 10:59:12 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 25, 2005 at 11:32:14AM -0500, Dmitry Torokhov wrote:
-> On 4/25/05, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> > On Thu, 2005-04-21 at 09:31 -0500, Dmitry Torokhov wrote:
-> > >
-> > > OK, that is what I am aying. But why do you need that attribute with
-> > > variable name and a bin attribute that is not really bin but just a
-> > > dump for all kind of data (looks like debug one).
-> > 
-> > bin attribute was created for lm_sensors scripts format - it only caches
-> > read value.
-> > I think there might be only 2 "must have" methods - read and write.
-> > I plan to implement them using connector, so probably they will go away
-> > completely.
-> ...
-> > > You will not be able to cram all 1-wire devices into unified
-> > > interface. You will need to build classes on top of it and you might
-> > > use connector (I am not sure) bit not on w1 bus level.
-> > > ...
-> > 
-> > connector allows to have different objects inside one netlink group,
-> > so it will use it in that way.
-> > I think only two w1 methods must exist - read and write,
-> > and they must follow protocol, defined in family driver.
-> 
-> No, I think there should not be any "must have" methods on w1_bus
-> level. What you really need (and this needs to be coordinated with
-> other sensors people) is a "sensors" class hierarchy that will define
-> classes like "temperature sensor", "fan", "vid", etc. Then your w1
-> family drivers, when bound to a slave, will create needed class
-> devices. i2c drivers will do the same, and your superio, and I'll be
-> able to change i8k driver just for kicks. Then your usespace would not
-> care what _bus_ a particular sensor is sittign on and will be
-> presented with a unified interface.
 
-Yes, that is the way to go, and is what a number of people are currently
-working on implementing.
+--=-IHJt15E9uZek4eUmqNza
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-thanks,
+On Tue, 2005-04-26 at 01:50 -0500, Dmitry Torokhov wrote:
+> On Tuesday 26 April 2005 01:43, Evgeniy Polyakov wrote:
+> > On Mon, 2005-04-25 at 15:22 -0500, Dmitry Torokhov wrote:
+> > > On 4/25/05, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> > > > While thinking about locking schema
+>  > > with respect to sysfs files I recalled,
+> > > > why I implemented such a logic -
+> > > > now one can _always_ remove _any_ module
+> > > > [corresponding object is removed from accessible
+> > > > pathes and waits untill all exsting users are gone],
+> > > > which is very good - I really like it in networking model,
+> > > > while with whole device driver model
+> > > > if we will read device's file very quickly
+> > > > in several threads we may end up not unloading it at all.
+> > >=20
+> > > I am sorrry, that is complete bull*. sysfs also allows removing
+> > > modules at an arbitrary time (and usually without annoying "waiting
+> > > for refcount" at that)... You just seem to not understand how driver
+> > > code works, thus the need of inventing your own schema.
+> >=20
+> > Ok, let's try again - now with explanation,=20
+> > since it looks like you did not even try to understand what I said.
+> > If you will remove objects from ->remove() callback
+> > you may end up with rmmod being stuck.
+> > Explanation: each read still gets reference counter,=20
+> > while in rmmod path there is a wait until it is zero.
+> > If there are too many simultaneous reads - even
+> > if each will put reference counter at the end, we still can have
+> > non zero refcnt each time we check it in rmmod path.
+> > That is why object must be removed from accessible pathes
+> > first, and only freed in ->remove() callback.
+>=20
+> Please try to read the code. device_unregister and kobject_unregister
+> do not require caller to wait for the last reference to drop, they rely
+> on availability of release method to clean up the object when last user
+> is gone. driver_unregister is blocking (like your family code) but
+> teardown takes no time. If driver is in use (attributes are open) then
+> module refcount is non-zero and instead of (possibly endless) "waiting fo=
+r
+> refcount to drop" message you will get nice -EBUSY.
+>=20
+> If you program so that you wait in module_exit for object release - you
+> get what you deserve.=20
 
-greg k-h
+But we can remove objects not from rmmod path.
+You pointed right example in one previous e-mail.
+
+Using above "waiting for device..." message is for debug only.
+
+> > > BTW, I am looking at the connector code ATM and I am just amazed at
+> > > all wied refounting stuff that is going on there. what a single
+> > > actomic_dec_and_test() call without checkng reurn vaue is supposed to
+> > > do again?
+> >=20
+> > It has explicit barrieres, which guarantees that
+> > there will not be atomic operation vs. non atomic
+> > reordering.=20
+>=20
+> And you can't use explicit barriers - why exactly?
+
+I used them - code was following:
+smp_mb__before_atomic_dec();
+atomic_dec();
+smp_mb__after_atomic_dec();
+
+I think simple atomic_dec_and_test() or even atomic_dec_and_lock()
+is better.
+
+--=20
+        Evgeniy Polyakov
+
+Crash is better than data corruption -- Arthur Grabowski
+
+--=-IHJt15E9uZek4eUmqNza
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBCbeiCIKTPhE+8wY0RAtMKAKCQIO74iU44nByQb/toQSpFwbiZeQCfbExL
+7lMvpBWL5+oe9TWQboyY3UI=
+=czub
+-----END PGP SIGNATURE-----
+
+--=-IHJt15E9uZek4eUmqNza--
+

@@ -1,75 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbVDZJuf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbVDZJwk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261440AbVDZJuf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 05:50:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbVDZJuf
+	id S261446AbVDZJwk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 05:52:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbVDZJuz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 05:50:35 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:51554 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261440AbVDZJqa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 05:46:30 -0400
-From: "Tais M. Hansen" <tais.hansen@osd.dk>
-Organization: OSD
-To: linux-kernel@vger.kernel.org
-Subject: Re: SATA/ATAPI
-Date: Tue, 26 Apr 2005 11:46:04 +0200
-User-Agent: KMail/1.8
-Cc: Jeff Garzik <jgarzik@pobox.com>, andystewart@comcast.net
-References: <200504211941.43889.tais.hansen@osd.dk> <200504240008.58326.tais.hansen@osd.dk> <426BCF6E.2000000@pobox.com>
-In-Reply-To: <426BCF6E.2000000@pobox.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart6674978.YHeDXeD2c6";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200504261146.15301.tais.hansen@osd.dk>
+	Tue, 26 Apr 2005 05:50:55 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:4784 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261446AbVDZJrf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 05:47:35 -0400
+Date: Tue, 26 Apr 2005 10:47:27 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: hch@infradead.org, jamie@shareable.org, linuxram@us.ibm.com,
+       7eggert@gmx.de, bulb@ucw.cz, viro@parcelfarce.linux.theplanet.co.uk,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH] private mounts
+Message-ID: <20050426094727.GA30379@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Miklos Szeredi <miklos@szeredi.hu>, jamie@shareable.org,
+	linuxram@us.ibm.com, 7eggert@gmx.de, bulb@ucw.cz,
+	viro@parcelfarce.linux.theplanet.co.uk,
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+	akpm@osdl.org
+References: <3X8HA-4IH-15@gated-at.bofh.it> <3Xagd-5Wb-1@gated-at.bofh.it> <E1DQ5LA-0003ZR-SM@be1.7eggert.dyndns.org> <1114445923.4480.94.camel@localhost> <20050425191015.GC28294@mail.shareable.org> <E1DQMB0-00008a-00@dorka.pomaz.szeredi.hu> <20050426091921.GA29810@infradead.org> <E1DQMGZ-00009n-00@dorka.pomaz.szeredi.hu> <20050426093628.GA30208@infradead.org> <E1DQMYu-0000DL-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1DQMYu-0000DL-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart6674978.YHeDXeD2c6
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Tue, Apr 26, 2005 at 11:41:00AM +0200, Miklos Szeredi wrote:
+> Christoph, you are being thickheaded, and this is not the first time.
+> Please go away.
 
-On Sunday 24 April 2005 18:55, Jeff Garzik wrote:
-> > I've been unable to figure out what is supposed to tie sr to the devices
-> > probed by sata_via. Also, littering sr with printk's gave me the idea
-> > that sr is not even looking for cdrom devices. It loads, does the basic
-> > module __init stuff and then silence. Should sr find devices itself or =
-is
-> > the kernel supposed to inform sr via some callback hook? I could really
-> > be barking up the wrong tree here, and not even see it.
-> Did you turn on ATA_ENABLE_ATAPI in include/linux/libata.h?
+Please stop the flaming.  You're adding the equivalent of "I've added
+a suid shell, please make sure it can only affect the caller's files".
 
-Seems like there's another guy reporting pretty much the same problem. Also=
-=20
-sata_via and the Plextor 712SA SATA DVD drive. Different motherboard though.
+Do you really think we want to add such crap?
 
-http://lkml.org/lkml/2005/3/25/259
+You're really falling into the Hans Reiser trap - if you just wanted to
+add a simple userland filesystem you'd be done by now, but you're trying
+to funnel new semantics in through it.  Which is by far not as easy as
+adding a simple file system driver and needs a lot more though.  
 
-=2D-=20
-Regards,
-Tais M. Hansen
-OSD
-
-___________________________________________________________
-"If people had understood how patents would be granted when most of today's=
-=20
-ideas were invented and had taken out patents, the industry would be at a=20
-complete standstill today." -Bill Gates (1991)
-
---nextPart6674978.YHeDXeD2c6
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBCbg3nLf7B7mQNLngRAo7qAKCRwh1Pfb5CGIccd9LNVShMgrmc1ACfbqUf
-Q7kZkCNWYWKY6xlsqTTI9fo=
-=izvY
------END PGP SIGNATURE-----
-
---nextPart6674978.YHeDXeD2c6--

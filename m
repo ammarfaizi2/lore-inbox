@@ -1,64 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbVDZIjh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbVDZIsN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261395AbVDZIjh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 04:39:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbVDZIjh
+	id S261397AbVDZIsN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 04:48:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261404AbVDZIsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 04:39:37 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:8642 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261395AbVDZIje (ORCPT
+	Tue, 26 Apr 2005 04:48:13 -0400
+Received: from av1.karneval.cz ([81.27.192.107]:44351 "EHLO av1.karneval.cz")
+	by vger.kernel.org with ESMTP id S261397AbVDZIsG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 04:39:34 -0400
-Date: Tue, 26 Apr 2005 16:43:18 +0800
-From: David Teigland <teigland@redhat.com>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH 1a/7] dlm: core locking
-Message-ID: <20050426084318.GG12096@redhat.com>
-References: <20050425165705.GA11938@redhat.com> <Pine.LNX.4.62.0504252242510.2941@dragon.hyggekrogen.localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 26 Apr 2005 04:48:06 -0400
+From: Pavel Pisa <pisa@cmp.felk.cvut.cz>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Linux 2.6.x VM86 interrupt emulation fixes - the second round
+Date: Tue, 26 Apr 2005 10:49:03 +0200
+User-Agent: KMail/1.8
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Michal Sojka <sojkam1@control.felk.cvut.cz>
+References: <200412091459.51583.pisa@cmp.felk.cvut.cz> <Pine.LNX.4.58.0412111041440.31040@ppc970.osdl.org> <1102790805.8194.11.camel@localhost.localdomain>
+In-Reply-To: <1102790805.8194.11.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0504252242510.2941@dragon.hyggekrogen.localhost>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200504261049.04139.pisa@cmp.felk.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 25, 2005 at 11:17:57PM +0200, Jesper Juhl wrote:
+Patch solves VM86 interrupt emulation deadlock on SMP systems.
+The VM86 interrupt emulation has been heavily tested and works
+well on UP systems after last update, but it seems to deadlock
+when we have used it on SMP/HT boxes now.
+It seems, that disable_irq() cannot be called from interrupts,
+because it waits until disabled interrupt handler finishes
+(/kernel/irq/manage.c:synchronize_irq():while(IRQ_INPROGRESS);).
+This blocks one CPU after another. Solved by use disable_irq_nosync.
+There is the second problem. If IRQ source is fast, it is possible,
+that interrupt is sometimes processed and re-enabled by the second
+CPU, before it is disabled by the first one, but negative IRQ disable
+depths are not allowed. The spinlocking and disabling IRQs over
+call to disable_irq_nosync/enable_irq is the only solution found
+reliable till now.
 
->                                    |----- Why the parenthesis?
->                                  ^^^^^--- more parens.
->                                  ^^^^^--- yet more.
->                                   what's your facination with parenthesis?
->                                   ^--- here we go again.
->                                   ^--- and again.
-> a few cases of pointless parenthesis around define values...
-> Here, again, we have a lot of pointless parenthesis around the values.
-> I'm not going to bother pointing out the remaining ones.
+Signed-off-by: Michal Sojka <sojkam1@control.felk.cvut.cz>
+Signed-off-by: Pavel Pisa <pisa@cmp.felk.cvut.cz>
 
-Hm, you might have removed some remaining doubt about my paren usage.
-Anyway, they're all gone now.
-
-
-> > +	int 	 sb_status;
-> > +	uint32_t sb_lkid;
-> > +	char 	 sb_flags;
-> > +	char *	 sb_lvbptr;
-
-> why not	char	*sb_lvbptr; ???
-
-I personally think the right column looks nicer when it's lined up, but a
-quick survey shows I'm in the minority, so I'd better get with the
-program...
-
-
-> > +static int dlm_astd(void *data)
-> Always returning 0 - why not a void function then?
-
-> > +int dlm_scand(void *data)
-> void func?
-
-I think kthread_run() demands this.
-
-Dave
-
+Index: linux-2.6.11.5/arch/i386/kernel/vm86.c
+===================================================================
+--- linux-2.6.11.5.orig/arch/i386/kernel/vm86.c
++++ linux-2.6.11.5/arch/i386/kernel/vm86.c
+@@ -732,12 +732,12 @@ static irqreturn_t irq_handler(int intno
+ 	irqbits |= irq_bit;
+ 	if (vm86_irqs[intno].sig)
+ 		send_sig(vm86_irqs[intno].sig, vm86_irqs[intno].tsk, 1);
+-	spin_unlock_irqrestore(&irqbits_lock, flags);
+ 	/*
+ 	 * IRQ will be re-enabled when user asks for the irq (whether
+ 	 * polling or as a result of the signal)
+ 	 */
+-	disable_irq(intno);
++	disable_irq_nosync(intno);
++	spin_unlock_irqrestore(&irqbits_lock, flags);
+ 	return IRQ_HANDLED;
+ 
+ out:
+@@ -769,17 +769,20 @@ static inline int get_and_reset_irq(int 
+ {
+ 	int bit;
+ 	unsigned long flags;
++	int ret = 0;
+ 	
+ 	if (invalid_vm86_irq(irqnumber)) return 0;
+ 	if (vm86_irqs[irqnumber].tsk != current) return 0;
+ 	spin_lock_irqsave(&irqbits_lock, flags);	
+ 	bit = irqbits & (1 << irqnumber);
+ 	irqbits &= ~bit;
++	if (bit) {
++		enable_irq(irqnumber);
++		ret = 1;
++        }
++
+ 	spin_unlock_irqrestore(&irqbits_lock, flags);	
+-	if (!bit)
+-		return 0;
+-	enable_irq(irqnumber);
+-	return 1;
++	return ret;
+ }
+ 
+ 

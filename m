@@ -1,55 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261833AbVDZWz4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbVDZW6Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261833AbVDZWz4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 18:55:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbVDZWz4
+	id S261832AbVDZW6Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 18:58:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261834AbVDZW6Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 18:55:56 -0400
-Received: from fire.osdl.org ([65.172.181.4]:18400 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261808AbVDZWzt (ORCPT
+	Tue, 26 Apr 2005 18:58:16 -0400
+Received: from mx1.suse.de ([195.135.220.2]:63382 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261832AbVDZW6O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 18:55:49 -0400
-Date: Tue, 26 Apr 2005 15:56:09 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: magnus.damm@gmail.com, mason@suse.com, mike.taht@timesys.com,
-       mpm@selenic.com, linux-kernel@vger.kernel.org, git@vger.kernel.org
-Subject: Re: Mercurial 0.3 vs git benchmarks
-Message-Id: <20050426155609.06e3ddcf.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0504261405050.18901@ppc970.osdl.org>
-References: <20050426004111.GI21897@waste.org>
-	<200504260713.26020.mason@suse.com>
-	<aec7e5c305042608095731d571@mail.gmail.com>
-	<200504261138.46339.mason@suse.com>
-	<aec7e5c305042609231a5d3f0@mail.gmail.com>
-	<20050426135606.7b21a2e2.akpm@osdl.org>
-	<Pine.LNX.4.58.0504261405050.18901@ppc970.osdl.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Apr 2005 18:58:14 -0400
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: Adrian Bunk <bunk@stusta.de>, akpm@osdl.org, pfg@sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] gcc4 fix for sn_serial.c
+References: <200503141132.39284.jbarnes@engr.sgi.com>
+	<20050315010358.GF3207@stusta.de>
+	<200503150948.03100.jbarnes@engr.sgi.com>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: This ASIAGO-N-DRIED TOMATO combo would taste a lot better between two
+ plastic SIPPER LIDS!
+Date: Wed, 27 Apr 2005 00:58:12 +0200
+In-Reply-To: <200503150948.03100.jbarnes@engr.sgi.com> (Jesse Barnes's
+ message of "Tue, 15 Mar 2005 09:48:02 -0800")
+Message-ID: <jesm1dgn7f.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
+Jesse Barnes <jbarnes@engr.sgi.com> writes:
+
+> On Monday, March 14, 2005 5:03 pm, Adrian Bunk wrote:
+>> > -static struct uart_driver sal_console_uart = {
+>> > +struct uart_driver sal_console_uart = {
+>> >   .owner = THIS_MODULE,
+>> >   .driver_name = "sn_console",
+>> >   .dev_name = DEVICE_NAME,
+>>
+>> Why can't you solve this without making sal_console_uart global?
 >
-> 
-> 
-> On Tue, 26 Apr 2005, Andrew Morton wrote:
-> > 
-> > Mounting as ext2 is a useful technique for determining whether the fs is
-> > getting in the way.
-> 
-> What's the preferred way to try to convert a root filesystem to a bigger
-> journal? Forcing "rootfstype=ext2" at boot and boot into single-user, and
-> then the appropriate magic tune2fs? Or what?
-> 
+> I think that would mean moving some of the structure initializaiton into an 
+> init function somewhere.
 
-Gee, it's been ages.  umm,
+Just make the tentative definition static.
 
-- umount the fs
-- tune2fs -O ^has_journal /dev/whatever
-- fsck -fy                              (to clean up the now-orphaned journal inode)
-- tune2fs -j -J size=nblocks    (normally 4k blocks)
-- mount the fs
+Signed-off-by: Andreas Schwab <schwab@suse.de>
 
+--- linux-2.6/drivers/serial/sn_console.c.~1~	2005-04-26 14:42:39.994841943 +0200
++++ linux-2.6/drivers/serial/sn_console.c	2005-04-27 00:50:40.301718840 +0200
+@@ -821,7 +821,7 @@ static void __init sn_sal_switch_to_inte
+ 
+ static void sn_sal_console_write(struct console *, const char *, unsigned);
+ static int __init sn_sal_console_setup(struct console *, char *);
+-extern struct uart_driver sal_console_uart;
++static struct uart_driver sal_console_uart;
+ extern struct tty_driver *uart_console_device(struct console *, int *);
+ 
+ static struct console sal_console = {
+
+Andreas.
+
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,39 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261429AbVDZL0L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbVDZLaR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261429AbVDZL0L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 07:26:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261441AbVDZL0L
+	id S261443AbVDZLaR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 07:30:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbVDZLaR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 07:26:11 -0400
-Received: from hades.snarc.org ([212.85.152.11]:16913 "EHLO hades.snarc.org")
-	by vger.kernel.org with ESMTP id S261429AbVDZL0H (ORCPT
+	Tue, 26 Apr 2005 07:30:17 -0400
+Received: from hades.snarc.org ([212.85.152.11]:15109 "EHLO hades.snarc.org")
+	by vger.kernel.org with ESMTP id S261443AbVDZLaC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 07:26:07 -0400
-Date: Tue, 26 Apr 2005 13:26:04 +0200
+	Tue, 26 Apr 2005 07:30:02 -0400
+Date: Tue, 26 Apr 2005 13:29:59 +0200
 From: Vincent Hanquez <vincent.hanquez@cl.cam.ac.uk>
 To: linux-kernel@vger.kernel.org
 Cc: ian.pratt@cl.cam.ac.uk, akpm@osdl.org
-Subject: [PATCH 3/6][XEN][x86] Rename usermode macro
-Message-ID: <20050426112604.GC26614@snarc.org>
+Subject: [PATCH 4/6][XEN][x86] Use more usermode macro
+Message-ID: <20050426112959.GD26614@snarc.org>
 Mail-Followup-To: linux-kernel@vger.kernel.org,
 	ian.pratt@cl.cam.ac.uk, akpm@osdl.org
-References: <20050426103804.85A7B4BE16@darwin.snarc.org>
+References: <20050426103805.2DF124BE18@darwin.snarc.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050426103804.85A7B4BE16@darwin.snarc.org>
+In-Reply-To: <20050426103805.2DF124BE18@darwin.snarc.org>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-The following patch rename user_mode to user_mode_vm and add a user_mode macro
-similar to the x86-64 one.
-
-This is useful for Xen because the linux xen kernel does not runs on the same
-priviledge that a vanilla linux kernel, and with this we just need to redefine
-user_mode().
+The following patch use the user_mode macro where it's possible.
 
 ignore my previous mail, really sorry for the noise.
 
@@ -41,64 +36,84 @@ Please apply, or comments.
 
 	Signed-off-by: Vincent Hanquez <vincent.hanquez@cl.cam.ac.uk>
 
-diff -Naur linux-2.6.12-rc3/arch/i386/kernel/apic.c linux-2.6.12-rc3.1/arch/i386/kernel/apic.c
---- linux-2.6.12-rc3/arch/i386/kernel/apic.c	2005-04-21 11:45:45.000000000 +0100
-+++ linux-2.6.12-rc3.1/arch/i386/kernel/apic.c	2005-04-25 18:13:00.000000000 +0100
-@@ -1133,7 +1133,7 @@
- 		}
+diff -Naur linux-2.6.12-rc3.1/arch/i386/kernel/process.c linux-2.6.12-rc3.2/arch/i386/kernel/process.c
+--- linux-2.6.12-rc3.1/arch/i386/kernel/process.c	2005-04-22 12:10:22.000000000 +0100
++++ linux-2.6.12-rc3.2/arch/i386/kernel/process.c	2005-04-25 16:09:25.000000000 +0100
+@@ -262,7 +262,7 @@
+ 	printk("EIP: %04x:[<%08lx>] CPU: %d\n",0xffff & regs->xcs,regs->eip, smp_processor_id());
+ 	print_symbol("EIP is at %s\n", regs->eip);
  
- #ifdef CONFIG_SMP
--		update_process_times(user_mode(regs));
-+		update_process_times(user_mode_vm(regs));
- #endif
+-	if (regs->xcs & 3)
++	if (user_mode(regs))
+ 		printk(" ESP: %04x:%08lx",0xffff & regs->xss,regs->esp);
+ 	printk(" EFLAGS: %08lx    %s  (%s)\n",
+ 	       regs->eflags, print_tainted(), system_utsname.release);
+diff -Naur linux-2.6.12-rc3.1/arch/i386/kernel/signal.c linux-2.6.12-rc3.2/arch/i386/kernel/signal.c
+--- linux-2.6.12-rc3.1/arch/i386/kernel/signal.c	2005-04-21 11:45:46.000000000 +0100
++++ linux-2.6.12-rc3.2/arch/i386/kernel/signal.c	2005-04-25 16:09:53.000000000 +0100
+@@ -599,7 +599,7 @@
+ 	 * kernel mode. Just return without doing anything
+ 	 * if so.
+ 	 */
+-	if ((regs->xcs & 3) != 3)
++	if (!user_mode(regs))
+ 		return 1;
+ 
+ 	if (current->flags & PF_FREEZE) {
+diff -Naur linux-2.6.12-rc3.1/arch/i386/kernel/traps.c linux-2.6.12-rc3.2/arch/i386/kernel/traps.c
+--- linux-2.6.12-rc3.1/arch/i386/kernel/traps.c	2005-04-21 11:45:46.000000000 +0100
++++ linux-2.6.12-rc3.2/arch/i386/kernel/traps.c	2005-04-25 16:12:34.000000000 +0100
+@@ -209,7 +209,7 @@
+ 
+ 	esp = (unsigned long) (&regs->esp);
+ 	ss = __KERNEL_DS;
+-	if (regs->xcs & 3) {
++	if (user_mode(regs)) {
+ 		in_kernel = 0;
+ 		esp = regs->esp;
+ 		ss = regs->xss & 0xffff;
+@@ -265,7 +265,7 @@
+ 	char c;
+ 	unsigned long eip;
+ 
+-	if (regs->xcs & 3)
++	if (user_mode(regs))
+ 		goto no_bug;		/* Not in kernel */
+ 
+ 	eip = regs->eip;
+@@ -353,7 +353,7 @@
+ 
+ static inline void die_if_kernel(const char * str, struct pt_regs * regs, long err)
+ {
+-	if (!(regs->eflags & VM_MASK) && !(3 & regs->xcs))
++	if (!user_mode_vm(regs))
+ 		die(str, regs, err);
+ }
+ 
+@@ -366,7 +366,7 @@
+ 		goto trap_signal;
  	}
  
-diff -Naur linux-2.6.12-rc3/arch/i386/kernel/ptrace.c linux-2.6.12-rc3.1/arch/i386/kernel/ptrace.c
---- linux-2.6.12-rc3/arch/i386/kernel/ptrace.c	2005-04-21 11:45:46.000000000 +0100
-+++ linux-2.6.12-rc3.1/arch/i386/kernel/ptrace.c	2005-04-25 18:12:39.000000000 +0100
-@@ -667,7 +667,7 @@
- 	info.si_code = TRAP_BRKPT;
+-	if (!(regs->xcs & 3))
++	if (!user_mode(regs))
+ 		goto kernel_trap;
  
- 	/* User-mode eip? */
--	info.si_addr = user_mode(regs) ? (void __user *) regs->eip : NULL;
-+	info.si_addr = user_mode_vm(regs) ? (void __user *) regs->eip : NULL;
+ 	trap_signal: {
+@@ -487,7 +487,7 @@
+ 	if (regs->eflags & VM_MASK)
+ 		goto gp_in_vm86;
  
- 	/* Send us the fakey SIGTRAP */
- 	force_sig_info(SIGTRAP, &info, tsk);
-diff -Naur linux-2.6.12-rc3/arch/i386/mach-voyager/voyager_smp.c linux-2.6.12-rc3.1/arch/i386/mach-voyager/voyager_smp.c
---- linux-2.6.12-rc3/arch/i386/mach-voyager/voyager_smp.c	2005-04-21 11:45:46.000000000 +0100
-+++ linux-2.6.12-rc3.1/arch/i386/mach-voyager/voyager_smp.c	2005-04-25 18:13:12.000000000 +0100
-@@ -1289,7 +1289,7 @@
- 						per_cpu(prof_counter, cpu);
- 		}
+-	if (!(regs->xcs & 3))
++	if (!user_mode(regs))
+ 		goto gp_in_kernel;
  
--		update_process_times(user_mode(regs));
-+		update_process_times(user_mode_vm(regs));
+ 	current->thread.error_code = error_code;
+@@ -713,7 +713,7 @@
+ 		 * check for kernel mode by just checking the CPL
+ 		 * of CS.
+ 		 */
+-		if ((regs->xcs & 3) == 0)
++		if (!user_mode(regs))
+ 			goto clear_TF_reenable;
  	}
  
- 	if( ((1<<cpu) & voyager_extended_vic_processors) == 0)
-diff -Naur linux-2.6.12-rc3/arch/i386/oprofile/backtrace.c linux-2.6.12-rc3.1/arch/i386/oprofile/backtrace.c
---- linux-2.6.12-rc3/arch/i386/oprofile/backtrace.c	2005-04-21 11:45:46.000000000 +0100
-+++ linux-2.6.12-rc3.1/arch/i386/oprofile/backtrace.c	2005-04-25 18:13:21.000000000 +0100
-@@ -91,7 +91,7 @@
- 	head = (struct frame_head *)regs->ebp;
- #endif
- 
--	if (!user_mode(regs)) {
-+	if (!user_mode_vm(regs)) {
- 		while (depth-- && valid_kernel_stack(head, regs))
- 			head = dump_backtrace(head);
- 		return;
-diff -Naur linux-2.6.12-rc3/include/asm-i386/ptrace.h linux-2.6.12-rc3.1/include/asm-i386/ptrace.h
---- linux-2.6.12-rc3/include/asm-i386/ptrace.h	2005-03-02 07:37:48.000000000 +0000
-+++ linux-2.6.12-rc3.1/include/asm-i386/ptrace.h	2005-04-25 17:05:54.000000000 +0100
-@@ -57,7 +57,8 @@
- #ifdef __KERNEL__
- struct task_struct;
- extern void send_sigtrap(struct task_struct *tsk, struct pt_regs *regs, int error_code);
--#define user_mode(regs) ((VM_MASK & (regs)->eflags) || (3 & (regs)->xcs))
-+#define user_mode(regs)		(3 & (regs)->xcs)
-+#define user_mode_vm(regs)	((VM_MASK & (regs)->eflags) || user_mode(regs))
- #define instruction_pointer(regs) ((regs)->eip)
- #if defined(CONFIG_SMP) && defined(CONFIG_FRAME_POINTER)
- extern unsigned long profile_pc(struct pt_regs *regs);

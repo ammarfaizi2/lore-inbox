@@ -1,77 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261255AbVDZCGn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbVDZCPy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261255AbVDZCGn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 22:06:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbVDZCGn
+	id S261273AbVDZCPy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 22:15:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbVDZCPx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 22:06:43 -0400
-Received: from fire.osdl.org ([65.172.181.4]:35224 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261255AbVDZCGc (ORCPT
+	Mon, 25 Apr 2005 22:15:53 -0400
+Received: from smtpout.mac.com ([17.250.248.73]:31439 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261273AbVDZCPk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 22:06:32 -0400
-Date: Mon, 25 Apr 2005 19:08:28 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Matt Mackall <mpm@selenic.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-Subject: Re: Mercurial 0.3 vs git benchmarks
-In-Reply-To: <20050426004111.GI21897@waste.org>
-Message-ID: <Pine.LNX.4.58.0504251859550.18901@ppc970.osdl.org>
-References: <20050426004111.GI21897@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 25 Apr 2005 22:15:40 -0400
+In-Reply-To: <426D9AC0.5020908@lab.ntt.co.jp>
+References: <4263275A.2020405@lab.ntt.co.jp> <m1y8b9xyaw.fsf@muc.de> <426C51C4.9040902@lab.ntt.co.jp> <e83d0cb60cb50a56b38294e9160d7712@mac.com> <426CC8F7.8070905@lab.ntt.co.jp> <200504251636.j3PGa9SJ015388@turing-police.cc.vt.edu> <426D9AC0.5020908@lab.ntt.co.jp>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <d3d20c47f8bb1b095b6240baf5fa5465@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@muc.de>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH x86_64] Live Patching Function on 2.6.11.7
+Date: Mon, 25 Apr 2005 22:15:13 -0400
+To: Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp>
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 25 Apr 2005, Matt Mackall wrote:
+On Apr 25, 2005, at 21:34, Takashi Ikebe wrote:
+> Valdis.Kletnieks@vt.edu wrote:
+>> When asked "Why don't you just reboot the affected switches?" his
+>> response was "This assumes that the switch had ever been booted in
+>> the first place". (Apparently, the *whole thing* had been
+>> on-the-fly replaced/patched without an actual reload happening...)
+>> Gaaahhh! :)
 >
-> Here are the results of checking in the first 12 releases of Linux 2.6
-> into empty repositories for Mercurial v0.3 (hg) and git-pasky-0.7.
-> This is on my 512M Pentium M laptop. Times are in seconds.
-> 
->                  user         system       real        du -sh
-> ver    files   hg    git    hg    git    hg    git    hg   git
-> 
-> 2.6.0  15007 19.949 35.526 3.171 2.264 25.138 87.994 145M   89M
-> 2.6.1    998  5.906  4.018 0.573 0.464 10.267  5.937 146M   99M
-> 2.6.2   2370  9.696 13.051 0.752 0.652 12.970 15.167 150M  117M
-> 2.6.3   1906 10.528 11.509 0.816 0.639 18.406 14.318 152M  135M
-> 2.6.4   3185 11.140  7.380 0.997 0.731 15.265 12.412 156M  158M
-> 2.6.5   2261 10.961  6.939 0.843 0.640 20.564  8.522 158M  177M
-> 2.6.6   2642 11.803 10.043 0.870 0.678 22.360 11.515 162M  197M
-> 2.6.7   3772 18.411 15.243 1.189 0.915 32.397 21.498 165M  227M
-> 2.6.8   4604 20.922 16.054 1.406 1.041 39.622 25.056 172M  262M
-> 2.6.9   4712 19.306 12.145 1.421 1.102 35.663 24.958 179M  297M
-> 2.6.10  5384 23.022 18.154 1.393 1.182 40.947 32.085 186M  338M
-> 2.6.11  5662 27.211 19.138 1.791 1.253 42.605 31.902 193M  379M
+> I think that's the common sense in every carrier.
 
-That time in checking things in is worrisome.
+That is definitely not common sense.  It may be good business
+practice, but those are two *entirely* different things.
 
-"git" is basically linear in the size of the patch, which is what I want,
-since most patches I work with are a couple of files at most. The patches
-you are checking in are huge - I never actually work with a change that is
-as big as a whole release. I work with changes that are five files or
-something.
+> If we reboot the switch, the service will be disrupted.
 
-"hg" seems to basically slow down the more patches you have applied. It's 
-hard to tell from the limited test set, but look at "user" time. It seems 
-to increase from 6 seconds to 27 seconds.
+Yes.  My personal favorite solution to this problem is HeartBeat,
+some Open-Source software that is very good at maintaining high
+availability.  With a properly written multi-system clustering
+switch application that utilizes the Linux Virtual-Server tools,
+you could reasonably efficiently run a system such that you can
+reboot any individual system without any loss of service.
 
-To make an interesting benchmark, try applying the first 200 patches in 
-the current git kernel archive. Can you do them three per second? THAT is 
-the thing you should optimize for, not checking in huge changes.
+> The phone network is lifeline, and does not allow to be disrupt
+> by just bug fix.  I think same kind of function is needed in many
+> real enterprise/mission-critical/business area.
 
-If you're checking in a change to 1000+ files, you're doing something
-wrong.
+But you miss the point.  Linux is *NOT* about "business", or
+"enterprise", or "mission-critical".  Linux is (at least to
+many hackers) about hacking, having fun, and Good Design(TM).
 
-> Full-tree working dir diff (2.6.0 base with 2.6.1 in working dir):
-> hg:  real 4.920s  user 4.629s  sys 0.260s
-> git: real 3.531s  user 1.869s  sys 0.862s
-> (this needed an update-cache --refresh on top of git commit, which
-> took another: real 2m52.764s  user 2.833s  sys 1.008s)
+> All do with ptrace may affect target process's time critical
+> task. (need to stop target process whenever fix)
 
-You're doing something wrong with git here. Why would you need to update 
-your cache?
+So don't do it with ptrace!!! I've given you one other method
+that uses minimal changes to existing software and emulates the
+crappy mmap3 call you keep trying to push.
 
-			Linus
+> All implement in user application costs too much,
+
+What about one of the dozen other offered methods?
+
+> need to implement all the application...
+
+So why not write a utility library?  You'd need to "implement
+all in the kernel", too, and since it can be done better in
+userspace, let's keep out the bloat while we're at it.
+
+> (and I do not know this approach really works on time critical
+> applications yet.)
+
+So test it! You're clearly working for a big corporation with
+the money and resources to develop something like this, so do
+so, and if you get something that works well, *and* uses good
+design, we'll welcome patches!
+
+> There are clear demand to realize this common and GPL-ed
+> function....
+
+The kernel is not about business, demand, or what the CEO of
+some big-name company wants.  The kernel strives for the goal
+of "Good Engineering (TM)".
+
+
+Cheers,
+Kyle Moffett
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
+
+

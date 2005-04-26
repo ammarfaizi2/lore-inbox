@@ -1,86 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261310AbVDZEOn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVDZES2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261310AbVDZEOn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 00:14:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbVDZEOn
+	id S261316AbVDZES2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 00:18:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261311AbVDZES2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 00:14:43 -0400
-Received: from mail.timesys.com ([65.117.135.102]:36378 "EHLO
-	exchange.timesys.com") by vger.kernel.org with ESMTP
-	id S261290AbVDZEOZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 00:14:25 -0400
-Message-ID: <426DBF94.3010502@timesys.com>
-Date: Mon, 25 Apr 2005 21:12:04 -0700
-From: Mike Taht <mike.taht@timesys.com>
-X-Accept-Language: en-us, en
+	Tue, 26 Apr 2005 00:18:28 -0400
+Received: from fire.osdl.org ([65.172.181.4]:20158 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261304AbVDZESQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 00:18:16 -0400
+Date: Mon, 25 Apr 2005 21:20:12 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Matt Mackall <mpm@selenic.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
+Subject: Re: Mercurial 0.3 vs git benchmarks
+In-Reply-To: <20050426040127.GK21897@waste.org>
+Message-ID: <Pine.LNX.4.58.0504252113210.18901@ppc970.osdl.org>
+References: <20050426004111.GI21897@waste.org> <Pine.LNX.4.58.0504251859550.18901@ppc970.osdl.org>
+ <20050426040127.GK21897@waste.org>
 MIME-Version: 1.0
-To: pasky@ucw.cz, git@vger.kernel.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Cogito-0.8 (former git-pasky, big changes!)
-References: <20050426032422.GQ13467@pasky.ji.cz>
-In-Reply-To: <20050426032422.GQ13467@pasky.ji.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Apr 2005 04:08:55.0609 (UTC) FILETIME=[A9F4D290:01C54A15]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->   Yes, this is a huge change. No, I don't expect any further changes of
-> similar scale. I think the new interface is significantly simpler _and_
-> cleaner than the old one.
 
-Heh. Another huge change would be moving the top level directories 
-around a bit.
+On Mon, 25 Apr 2005, Matt Mackall wrote:
+> 
+> And the number of files checked in grows from ~1000 to ~6000. Note
+> that git is growing from 4 to 19 seconds as well.
 
+Heh,. I didn't much look at the git numbers, since I knew those were 
+supposed to be linear in the size of the patch...
 
-bindings  COPYING  git.spec  Makefile  programs  README.reference  tests
-contrib   doc      include   po        README    src  VERSION
+> I'm not versant enough with git enough to know how but I'll give it a
+> shot. Do you have the patches in an mbox, perchance? This is Andrew's
+> x/198 patch bomb?
 
-Leaving fixing the makefiles aside as an exercise for the interested 
-reader... that's:
+Yes. I have my "tools" scripts for git in
 
-#!/bin/sh
+	kernel.org:/pub/linux/kernel/people/torvalds/git-tools.git
 
-# completely rearrange the file structure of cogito/git
-# just to make pasky and other scm users insane once again
-# FIXME - fix the makefiles, git.spec
+and I sent out the script I used to test the 2.6.12-rc2 + patches stuff in 
+the previous email, so you would just have to edit my mbox-applicator 
+tools to work with hg and get comparable numbers.
 
-CFILES=`ls *.c`
-DFILES=`ls ppc/* mozilla-sha1/*`
-HFILES=`ls *.h`
-SRCDIR=src # or libgit?
-INCDIR=include/git-guts # or keep in SRCDIR or include/git or whatever
-COGDIR=programs/cogito # or just cogito. is git-web likely to be inc?
+> It might be simpler for me to just apply everything
+> in -mm to git and hg and compare times.
 
-mkdir -p $SRCDIR $INCDIR $COGDIR \
-bindings/perl bindings/python bindings/ruby po tests doc # just ideas,
-# no files (yet)
+That should work.
 
-mv $CFILES ppc mozilla-sha1 $SRCDIR
-mv $HFILES $INCDIR
-COGFILES=`file * | grep "script text executable" | cut -f1 -d:`
-mv $COGFILES $COGDIR
+> > You're doing something wrong with git here. Why would you need to update 
+> > your cache?
+> 
+> Quite possibly. Without it, I was getting a dump of a bunch of SHAs.
+> I'm pretty git-ignorant, I've been focusing on something else for the
+> past couple weeks.
 
-cg-rm $CFILES $HFILES $COGFILES
-for i in $CFILES $DFILES
-do
-         cg-add $SRCDIR/$i
-done
-for i in $HFILES
-do
-         cg-add $INCDIR/$i
-done
+Getting a bunch of SHA's means that the file contents match, but that your 
+index file wasn't up-to-date, so git had to actually uncompress the object 
+backing store and _compare_ the file contents to notice.
 
-cg-commit
+And I suspect that you may have done _all_ your numbers without ever
+having initialized the git index, in which case git will really suck raw
+eggs, because git will basically always re-read every file (it will never
+realize that they are up-to-date already).
 
+Basically, the theory of git operation is that the index file should
+_always_ be up-to-date.  Normally you don't have to do anything about it,
+since the git helper tools will always just keep it that way, but if you
+didn't, then..
 
-
-
--- 
-
-Mike Taht
-
-
-   "A straw vote only shows which way the hot air blows.
-	-- O'Henry"
+		Linus

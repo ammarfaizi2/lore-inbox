@@ -1,77 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261372AbVDZHgp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbVDZHwR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261372AbVDZHgp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 03:36:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbVDZHfZ
+	id S261343AbVDZHwR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 03:52:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbVDZHwR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 03:35:25 -0400
-Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:43425 "HELO
-	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261397AbVDZHeR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 03:34:17 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 4/5] kset_hotplug_ops->name shoudl return const char *
-Date: Tue, 26 Apr 2005 02:32:54 -0500
-User-Agent: KMail/1.8
-Cc: Greg KH <gregkh@suse.de>
-References: <200504260229.03866.dtor_core@ameritech.net>
-In-Reply-To: <200504260229.03866.dtor_core@ameritech.net>
+	Tue, 26 Apr 2005 03:52:17 -0400
+Received: from bernache.ens-lyon.fr ([140.77.167.10]:7818 "EHLO
+	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S261343AbVDZHwM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 03:52:12 -0400
+Message-ID: <426DF305.7060109@ens-lyon.org>
+Date: Tue, 26 Apr 2005 09:51:33 +0200
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200504260232.55130.dtor_core@ameritech.net>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
+Subject: Re: Crash when unmounting NFS/TCP with -f
+References: <4268EEC9.8010305@ens-lyon.org> <426945CC.6040100@tmr.com>
+In-Reply-To: <426945CC.6040100@tmr.com>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Report: *  1.1 NO_DNS_FOR_FROM Domain in From header has no MX or A DNS records
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kobject: change name() method in kset_hotplug_ops return const char *
-	 since users shoudl not try to modify returned data.
+Bill Davidsen a écrit :
+> Brice Goglin wrote:
+> 
+>> Hi Trond,
+>>
+>> I'm using NFS (v2) over TCP (in a SSH tunnel).
+>> Each time the SSH dies before a umount NFS, I have to umount -f
+>> and I get a crash (only sysrq works).
+>> Actually, the crash occurs a few seconds after umount -f.
+>>
+>> It seems that killing SSH by hand does _not_ lead to crash.
+>> But a long network failure does.
+>> I remember seeing this bug several times with all stable releases
+>> from 2.6.7 to 2.6.11. I didn't try with earlier versions.
+>>
+>> I didn't see anything in the logs (after reboot). But I can't be sure
+>> there was nothing in dmesg since I didn't get a chance to chvt 1 and
+>> see console messages before rebooting (with sysrq).
+>>
+>> Do you have any idea how to debug this ?
+> 
+> 
+> No clue, but a question: is this a hard or soft mount? Could you post 
+> your ssh and mount commands, munged as needed for security? That might 
+> give someone a clue.
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
- drivers/base/class.c    |    2 +-
- drivers/base/core.c     |    2 +-
- include/linux/kobject.h |    2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+The ssh command is just
+$ ssh kwad -L 2249:localhost:2049 -L 2248:localhost:870 -N -f
+(port is forwarded to 2249 while mountport if forwarded to 2248)
 
-Index: dtor/drivers/base/class.c
-===================================================================
---- dtor.orig/drivers/base/class.c
-+++ dtor/drivers/base/class.c
-@@ -262,7 +262,7 @@ static int class_hotplug_filter(struct k
- 	return 0;
- }
- 
--static char *class_hotplug_name(struct kset *kset, struct kobject *kobj)
-+static const char *class_hotplug_name(struct kset *kset, struct kobject *kobj)
- {
- 	struct class_device *class_dev = to_class_dev(kobj);
- 
-Index: dtor/include/linux/kobject.h
-===================================================================
---- dtor.orig/include/linux/kobject.h
-+++ dtor/include/linux/kobject.h
-@@ -94,7 +94,7 @@ struct kobj_type {
-  */
- struct kset_hotplug_ops {
- 	int (*filter)(struct kset *kset, struct kobject *kobj);
--	char *(*name)(struct kset *kset, struct kobject *kobj);
-+	const char *(*name)(struct kset *kset, struct kobject *kobj);
- 	int (*hotplug)(struct kset *kset, struct kobject *kobj, char **envp,
- 			int num_envp, char *buffer, int buffer_size);
- };
-Index: dtor/drivers/base/core.c
-===================================================================
---- dtor.orig/drivers/base/core.c
-+++ dtor/drivers/base/core.c
-@@ -105,7 +105,7 @@ static int dev_hotplug_filter(struct kse
- 	return 0;
- }
- 
--static char *dev_hotplug_name(struct kset *kset, struct kobject *kobj)
-+static const char *dev_hotplug_name(struct kset *kset, struct kobject *kobj)
- {
- 	struct device *dev = to_dev(kobj);
- 
+Options is /proc/mounts are
+rw,v2,rsize=8192,wsize=8192,hard,tcp,nolock,addr=localhost
+
+I just had another network failure. I ran umount -f from vt1 to see
+kernel message. I waited for about 1 minute but didn't get any crash.
+So I switched back to X... and got the crash then.
+Looks like this crash doesn't want me to see any message...
+
+Brice

@@ -1,64 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbVDZEcH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261323AbVDZEd4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261339AbVDZEcH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 00:32:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbVDZEcH
+	id S261323AbVDZEd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 00:33:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVDZEd4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 00:32:07 -0400
-Received: from gate.crashing.org ([63.228.1.57]:54470 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261339AbVDZEbc (ORCPT
+	Tue, 26 Apr 2005 00:33:56 -0400
+Received: from gate.crashing.org ([63.228.1.57]:59590 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261332AbVDZEd3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 00:31:32 -0400
+	Tue, 26 Apr 2005 00:33:29 -0400
 Subject: Re: [PATCH] PCI: Add pci shutdown ability
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Greg KH <greg@kroah.com>, Amit Gud <gud@eth.net>,
-       Alan Stern <stern@rowland.harvard.edu>,
+To: Adam Belay <abelay@novell.com>
+Cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Alan Stern <stern@rowland.harvard.edu>, alexn@dsv.su.se,
+       Greg KH <greg@kroah.com>, gud@eth.net,
        Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Andrew Morton <akpm@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>, cramerj@intel.com,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-In-Reply-To: <20050425210631.GE3906@elf.ucw.cz>
-References: <Pine.LNX.4.44L0.0504251128070.5751-100000@iolanthe.rowland.org>
-	 <20050425182951.GA23209@kroah.com>
-	 <SVLXCHCON1syWVLEFN00000099e@SVLXCHCON1.enterprise.veritas.com>
-	 <20050425185113.GC23209@kroah.com> <20050425190606.GA23763@kroah.com>
-	 <20050425204207.GA23724@elf.ucw.cz> <20050425205536.GF27771@neo.rr.com>
-	 <20050425210631.GE3906@elf.ucw.cz>
+       linux-pci@atrey.karlin.mff.cuni.cz, Jeff Garzik <jgarzik@pobox.com>,
+       cramerj@intel.com, Linux-USB <linux-usb-devel@lists.sourceforge.net>
+In-Reply-To: <20050425232330.GG27771@neo.rr.com>
+References: <1114458325.983.17.camel@localhost.localdomain>
+	 <Pine.LNX.4.44L0.0504251609420.7408-100000@iolanthe.rowland.org>
+	 <20050425145831.48f27edb.akpm@osdl.org> <20050425221326.GC15366@redhat.com>
+	 <20050425232330.GG27771@neo.rr.com>
 Content-Type: text/plain
-Date: Tue, 26 Apr 2005 14:30:12 +1000
-Message-Id: <1114489812.7111.42.camel@gaston>
+Date: Tue, 26 Apr 2005 14:32:29 +1000
+Message-Id: <1114489949.7111.43.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > So if I understand this correctly, you'd like to manually turn off devices
-> > during a power off.  I believe the ACPI spec recommends this for S4 (but also
-> > to leave on wake devices), but not necessarily S5.  Still it may be a good
-> > idea.  Comments?
+> I've been considering for a while that, in addition to ->probe and ->remove, we
+> have the following:
 > 
-> It is neccessary for some machines (interrupt controller) or machine
-> will not power down...
-
-Additionally, some machines won't properly park/flush the disk, it's
-necessary to send the proper suspend commands to IDE hard disks prior to
-shutting down or we risk data loss.
-
-> > > Actually this patch should be in the queue somewhere... We had it in
-> > > suse trees for a long time, and IMO it can solve problem easily.
-> > 
-> > Yeah, that's what I had in mind when I mentioned PMSG_FREEZE.  It seems
-> > to replace "shutdown" in many ways, is this correct?
+> "struct device" -->
+> ->attach - binds to the device and allocates data structures
+> ->probe - detects and sets up the hardware
+> ->start - begins transactions (like DMA)
+> ->stop - stops transactions
+> ->remove - prepares the hardware for no driver control
+> ->detach - frees stuff and unbinds the device
 > 
-> Yes. (Actually I'm not sure if PMSG_FREEZE or PMSG_SUSPEND is right
-> thing to do for suspend.)
+> ->start and ->stop would be optional, and only used where they apply.
 
+>From my experience, this doesn't work. You actually want to have power
+transitions and start/stop semantics to be "atomic" as far as drvier
+state change is concerned. You can't for example stop all drivers, then
+in a second pass, change the power state, since after you have stopped
+drivers, you parent (bus) driver may not let you talk to your device
+anymore for obvious reasons (and thus may prevent you from doing the
+power state change).
 
-I think FREEZE for kexec and SUSPEND for shutdown, though I suppose we
-may want a separate one for the later eventually...
+We really want all this to be part of the normal power management
+infrastructure. In this specific state, it's just basically a system
+state, that has already been discussed at lenght and that we nicknamed
+'freeze' since it's exactly what suspend-to-disk needs before
+snapshoting the system image.
+
+> ->probe and ->remove would be useful for resource rebalancing
+> 
+> Power management functions could (and usually should) manually call some of
+> these.  Also this would be useful for error recovery and restarting devices.
+> 
+> Still, cpufreq seems like a difficult problem.  What's to prevent,
+> hypothetically, an SMP system from stoping a device while the upper class
+> layer tries to use it.
+
+Proper locking in the driver should prevent that. if you have a problem
+with "SMP", then you have a problem with preempt, and others ... then
+your model is flawed. 
+ 
+> If the class level locks control of the device, then
+> DMA can't be stopped.  Also, attempting to stop device activity may fail
+> if the driver decides it's not possible.
+
+No locking should be at the class level. All locking should be local to
+the device, unless the notion of device state is managed outside of the
+driver.
+
+I don't like this notion of "stop" separated from power states anyway, I
+think it just doesn't work in practice.
 
 Ben.
 
+> Thanks,
+> Adam
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Benjamin Herrenschmidt <benh@kernel.crashing.org>
 

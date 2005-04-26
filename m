@@ -1,71 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261585AbVDZU2n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbVDZU3E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261585AbVDZU2n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 16:28:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261593AbVDZU2n
+	id S261590AbVDZU3E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 16:29:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261593AbVDZU3E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 16:28:43 -0400
-Received: from [62.206.217.67] ([62.206.217.67]:65153 "EHLO kaber.coreworks.de")
-	by vger.kernel.org with ESMTP id S261585AbVDZU2h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 16:28:37 -0400
-Message-ID: <426EA471.203@trash.net>
-Date: Tue, 26 Apr 2005 22:28:33 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Ed Tomlinson <tomlins@cam.org>, Alexander Nyberg <alexn@dsv.su.se>,
-       Parag Warudkar <kernel-stuff@comcast.net>, linux-kernel@vger.kernel.org
-Subject: Re: X86_64: 2.6.12-rc3 spontaneous reboot
-References: <200504240008.35435.kernel-stuff@comcast.net> <1114332119.916.1.camel@localhost.localdomain> <200504240903.31377.tomlins@cam.org> <426CADF1.2000100@trash.net> <20050425153541.GC16828@wotan.suse.de> <426E3C6F.6010001@trash.net> <20050426135312.GI5098@wotan.suse.de> <426E48C0.9090503@trash.net> <426E4DD2.8060808@trash.net> <20050426142252.GJ5098@wotan.suse.de>
-In-Reply-To: <20050426142252.GJ5098@wotan.suse.de>
-Content-Type: multipart/mixed;
- boundary="------------000302030708000809070301"
+	Tue, 26 Apr 2005 16:29:04 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:22678 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261590AbVDZU26
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 16:28:58 -0400
+Subject: Re: preempt-count oddities - still looking for comments :)
+From: Robert Love <rml@novell.com>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       kpreempt-tech@lists.sourceforge.net
+In-Reply-To: <Pine.LNX.4.62.0504262159330.2071@dragon.hyggekrogen.localhost>
+References: <Pine.LNX.4.62.0504232254050.2474@dragon.hyggekrogen.localhost>
+	 <Pine.LNX.4.62.0504261929230.2071@dragon.hyggekrogen.localhost>
+	 <1114536937.6851.1.camel@betsy>
+	 <Pine.LNX.4.62.0504261944020.2071@dragon.hyggekrogen.localhost>
+	 <1114537590.6851.3.camel@betsy>
+	 <Pine.LNX.4.62.0504262159330.2071@dragon.hyggekrogen.localhost>
+Content-Type: text/plain
+Date: Tue, 26 Apr 2005 16:28:37 -0400
+Message-Id: <1114547317.6851.8.camel@betsy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000302030708000809070301
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tue, 2005-04-26 at 22:05 +0200, Jesper Juhl wrote:
 
-Andi Kleen wrote:
-> Ok thanks for the information. I will stare a bit at the patch.
-> 
-> It is very mysterious though. Even if the patch was somehow wrong
-> the worst thing that could happen is that you end up with interrupts
-> off when you shouldnt, and the NMI watchdog is very good 
-> at catching that.
+> Hmm, one downside to using "s32" instead of plain "int" is that not all 
+> thread_info.h files get asm/types.h pulled in and then won't have that 
+> type defined (m68knommu is one such as far as I can see). Would this make 
+> "int" prefered after all or should I just include asm/types.h where needed 
+> or just include it everywhere? seems logical that the file that uses 
+> header includes it directly instead of it getting included implicitly by 
+> other headers (like i386 where thread_info.h includes asm/page.h that then 
+> includes asm/mmx.h that then includes linux/types.h that finally includes 
+> asm/types.h).
+> Personally I'd just add the asm/types.h include to all the thread_info.h 
+> files (or go back to using int) - what's your preference?
 
-I found that bringing back the cli in retint_swapgs fixed the problem,
-so I traced back paths that could get there with interrupts enabled
-and found int_restore_rest -> int_with_check -> retint_swapgs.
-Adding a cli to int_restore_rest fixes the problem for me. I hope this
-helps.
+Well, guess it depends how much we like s32 over int.  Both are
+identical on all supported architectures, so it is just a style issue,
+really.
 
-Regards
-Patrick
+If m68knommu is the only arch needing asm/typed.h included, I'd so just
+include it.  If more and more arches need it, just go with int.
 
---------------000302030708000809070301
-Content-Type: text/plain;
- name="x"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="x"
+It is probably an easier sell.
 
-Index: arch/x86_64/kernel/entry.S
-===================================================================
---- 585883113da6fe9142de95138c8ed8ca898a4ccc/arch/x86_64/kernel/entry.S  (mode:100644 sha1:3233a15cc4e074c00b75569f21c2844ee280b214)
-+++ uncommitted/arch/x86_64/kernel/entry.S  (mode:100644)
-@@ -307,6 +307,7 @@
- 1:	movl $_TIF_NEED_RESCHED,%edi	
- int_restore_rest:
- 	RESTORE_REST
-+	cli
- 	jmp int_with_check
- 	CFI_ENDPROC
- 		
+	Robert Love
 
---------------000302030708000809070301--
+
+
+

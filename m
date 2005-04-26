@@ -1,78 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261655AbVDZQXu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261658AbVDZQ2H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261655AbVDZQXu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 12:23:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261642AbVDZQUb
+	id S261658AbVDZQ2H (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 12:28:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbVDZQYm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 12:20:31 -0400
-Received: from colo.lackof.org ([198.49.126.79]:57307 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S261618AbVDZQQi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 12:16:38 -0400
-Date: Tue, 26 Apr 2005 10:19:07 -0600
-From: Grant Grundler <grundler@parisc-linux.org>
-To: "Richard B. Johnson" <linux-os@analogic.com>
-Cc: Grant Grundler <grundler@parisc-linux.org>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Alexander Nyberg <alexn@dsv.su.se>, Greg KH <greg@kroah.com>,
-       Amit Gud <gud@eth.net>, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, akpm@osdl.org, jgarzik@pobox.com,
-       cramerj@intel.com,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] PCI: Add pci shutdown ability
-Message-ID: <20050426161907.GD2612@colo.lackof.org>
-References: <1114458325.983.17.camel@localhost.localdomain> <Pine.LNX.4.44L0.0504251609420.7408-100000@iolanthe.rowland.org> <20050426154149.GA2612@colo.lackof.org> <Pine.LNX.4.61.0504261156470.15142@chaos.analogic.com>
+	Tue, 26 Apr 2005 12:24:42 -0400
+Received: from wproxy.gmail.com ([64.233.184.200]:40785 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261661AbVDZQXO convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 12:23:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=BPWzYhvCeKrLr0IctWIZhkzH4uozT+4Vds3LSOaTW/i74PnwcNMszrHjQm4EFCxy6pTE7qSo3VQxiBMKG4KqY1iF9VVPUP/86DUkwUd1+KKsq1seRARR8/fpzzGW4frfiFIFjHSO3zmMnNyHINOil2WUIT/nk9kutwFDMxRkHt8=
+Message-ID: <aec7e5c305042609231a5d3f0@mail.gmail.com>
+Date: Tue, 26 Apr 2005 18:23:11 +0200
+From: Magnus Damm <magnus.damm@gmail.com>
+Reply-To: Magnus Damm <magnus.damm@gmail.com>
+To: Chris Mason <mason@suse.com>
+Subject: Re: Mercurial 0.3 vs git benchmarks
+Cc: Linus Torvalds <torvalds@osdl.org>, Mike Taht <mike.taht@timesys.com>,
+       Matt Mackall <mpm@selenic.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
+In-Reply-To: <200504261138.46339.mason@suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0504261156470.15142@chaos.analogic.com>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.6+20040907i
+References: <20050426004111.GI21897@waste.org>
+	 <200504260713.26020.mason@suse.com>
+	 <aec7e5c305042608095731d571@mail.gmail.com>
+	 <200504261138.46339.mason@suse.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 26, 2005 at 12:07:41PM -0400, Richard B. Johnson wrote:
-> DMAs don't go on "forever"
-
-They don't. But we also don't know when they will stop.
-E.g. NICs will stop DMA when the RX descriptor ring is full.
-I don't know when USB stop on it's own.
-
->   and at the time they are started they
-> are doing DMA to or from memory that is "owned" by the user of
-> the DMA device. In order for DMAs to continue past that point,
-> there needs to be something that got notified of a previous
-> completion to start the next one that you state is erroneous.
-> If such an erroneous DMA is occurring, it can only occur as
-> as result of an interrupt and ISR that is still in-place to
-> reprogram and restart DMA on the interrupting device.
-
-No. BIOS (parisc PDC in my case) left the device enabled.
-PDC does NOT use interrupts which is exactly why they've left
-the device enabled for DMA.
-
-> Therefore,
-> all you need to do to quiet any such erroneous DMA operations,
-> if they are occurring at all, is to mask off the interrupts
-> on anything that hasn't been initialized yet.
+On 4/26/05, Chris Mason <mason@suse.com> wrote:
+> On Tuesday 26 April 2005 11:09, Magnus Damm wrote:
+> > On 4/26/05, Chris Mason <mason@suse.com> wrote:
+> > > This agrees with my tests here, the time to apply patches is somewhat
+> > > disk bound, even for the small 100 or 200 patch series.  The io should be
+> > > coming from data=ordered, since the commits are still every 5 seconds or
+> > > so.
+> >
+> > Yes, as long as you apply the patches to disk that is. I've hacked up
+> > a small backend tool that applies patches to files kept in memory and
+> > uses a modifed rabin-karp search to match hunks. So you basically read
+> > once and write once per file instead of moving data around for each
+> > applied patch. But it needs two passes.
+> >
+> > And no, the source code for the entire Linux kernel is not kept in
+> > memory - you need a smart frontend to manage the file cache. Drop me a
+> > line if you are interested.
 > 
-> The newer PCI code design has a built-in problem that you
-> can't find out the interrupt it will use until you enable
-> the device.
+> Sorry, you've lost me.  Right now the cycle goes like this:
 
-DMA does not need to be enabled to read PCI_INTERRUPT_LINE (config space).
-Or grab the IRQ # from pci_dev->irq if PCI is already initialized.
+Ehrm, maybe I'm way off. =)
 
-grant
+> 1) patch reads patch file, reads source file, writes source file
+> 2) update-cache reads source file, writes git file
 
->  This means that there is some possibility of
-> a race between getting that information and putting in a
-> ISR to quiet the device which may still be active because
-> it was used during the boot. It think this is the more
-> likely scenario than some DMA that is still active.
-> 
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
->  Notice : All mail here is now cached for review by Dictator Bush.
->                  98.36% of all statistics are fiction.
+Ok.
+
+> Which of those writes are you avoiding?  We have a smart way to manage the
+> cache already for the source files...the vm does pretty well.  There's
+> nothing to manage for the git files.  For the apply a bunch of patches
+> workload, they are write once, read never (except for the index).
+
+Well, maybe I misunderstood everything, but I thought you were
+applying a lot of patches and complained that it took a lot of time
+due to the data order.
+
+When I applied a lot of patches to the kernel recently the cpu load
+dropped to zero after a while and the HD worked hard a sec or two and
+then things came back again. My primitive guess is that it was because
+the ext3 journal became full. To workaround this fact I started
+hacking on this in-memory patcher.
+
+In the cycle above, I'm trying to speed up step 1:
+If the patch modifies each source file multiple times (either using
+multiple hunks or multiple ---/+++) then the lines below the hunk in
+the source file will be moved multiple times. And if the source file
+is written to disk after each hunk or ---/+++ is applied then this
+will generate a lot of writes that can be avoided if the entire patch
+procedure is broken down into a first pass that analyzes the patches
+and a second pass that applies the patches and keeps source files in
+memory.
+
+But my rather trivial observation above is of course only suitable if
+you have a lot of patches that should be applied and you are only
+interested in the final version of the patched source files. If you
+apply one patch at a time and import each source file as a new
+revision then my little hack is probably not for you.
+
+/ magnus

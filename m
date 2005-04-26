@@ -1,70 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVDZFbr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbVDZFdt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261243AbVDZFbr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 01:31:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVDZFbq
+	id S261265AbVDZFdt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 01:33:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVDZFdt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 01:31:46 -0400
-Received: from smtp.istop.com ([66.11.167.126]:26293 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S261243AbVDZFaH (ORCPT
+	Tue, 26 Apr 2005 01:33:49 -0400
+Received: from gate.crashing.org ([63.228.1.57]:28103 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261265AbVDZFdp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 01:30:07 -0400
-From: Daniel Phillips <phillips@istop.com>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Subject: Re: [PATCH 0/7] dlm: overview
-Date: Tue, 26 Apr 2005 01:30:16 -0400
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <20050425151136.GA6826@redhat.com> <20050425203952.GE25002@ca-server1.us.oracle.com> <20050425210915.GX32085@marowsky-bree.de>
-In-Reply-To: <20050425210915.GX32085@marowsky-bree.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200504260130.17016.phillips@istop.com>
+	Tue, 26 Apr 2005 01:33:45 -0400
+Subject: pci-sysfs resource mmap broken
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: linux-pci@atrey.karlin.mff.cuni.cz
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
+Content-Type: text/plain
+Date: Tue, 26 Apr 2005 15:33:29 +1000
+Message-Id: <1114493609.7183.55.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 25 April 2005 17:09, Lars Marowsky-Bree wrote:
-> Now that we have two (or three) options with actual users, now is the
-> right time to finally come up with sane and useful abstractions. This is
-> great.
+Hi !
 
-Great thought, but it won't work unless you actually read them all, which I 
-hope is what you're proposing.
+While chasing an interesting bug in ppc/ppc64 implementation of pci
+mmap, I discovered that the pci sysfs code is in fact broken and cannot
+be made to work on those archs (well, at least for IO space). In fact,
+it can, but then, it would break the /proc code :)
 
-> With APIs, I think we do need a DLM-switch in the kernel, but also the
-> DLMs should really seem much the same to user-space apps. From what I've
-> seen, dlmfs is OCFS2 wasn't doing too badly there. The icing would of
-> course be if even the configuration was roughly similar, and if OCFS2's
-> configfs might prove valuable to other users too.
+The problem is that they are both calling the same arch routine
+(pci_mmap_page_range) with the offset argument having a different
+semantic.
 
-I'm a little skeptical about the chance of fitting an 11-parameter function 
-call into a generic kernel plug-in framework.  Are those the exact same 11 
-parameters that God intended?
+In the /proc code, it comes from userland directly, and is supposedly,
+the raw BAR value.
 
-While it would be great to share a single dlm between gfs and ocfs2 - maybe 
-Lustre too - my crystal ball says that that laudable goal is unlikely to be 
-achieved in the near future, whereas there isn't much choice but to sort out 
-a common membership framework right now.
+In sysfs, it's passing the device resource[]->start value.
 
-As far as I can see, only cluster membership wants or needs a common 
-framework.  And I'm not sure that any of that even needs to be in-kernel.
+The problem is that can only work ... on architectures where the
+resources contain the same thing as the BAR values. On ppc, where this
+is not the case, it will not work. On ppc, resources are "fixed up" in
+various ways (for example, PReP adds a fixed offset to all memory
+resources to match the HW translation since PCI isn't 1:1 on those, and
+all PPCs with more than one domain play tricks with IO resources).
 
-Regards,
+What would be the proper fix here ? Having pci_mmap_resource() actually
+read the BAR value for the resource ?
 
-Daniel
+In a similar vein, the "resource" is exposing directly to userland the
+content of "struct resource". This doesn't mean anything. The kernel is
+internally playing all sort of offset tricks on these values, so they
+can't be used for anything useful, either via /dev/mem, or for io port
+accesses, or whatever.
+
+Shouldn't we expose the BAR values & size rather here ? That is,
+reconsitutes non-offset'd resources, possibly with arch help, or just
+reading BAR to get base, and apply resource size & flags ?
+
+Unless you are on x86 of course ...
+
+There is some serious brokenness in there, it needs to be fixed if we
+want things like X.org to be ever properly adapted (and we'll have to
+deal with existing broken kernels, gack).
+
+Ben.
 
 
-
-> The cluster summit in June will certainly be a very ... exciting place.
-> Let's hope this also stirs up KS a bit ;-)
->
-> Oh, and just to anticipate that discussion, anyone who suggests to adopt
-> the SAF AIS locking API into the kernel should be preemptively struck;
-> that naming etc is just beyond words.
->
->
-> Sincerely,
->     Lars Marowsky-Brée <lmb@suse.de>

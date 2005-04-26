@@ -1,133 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261685AbVDZQTo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbVDZQXu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261685AbVDZQTo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 12:19:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbVDZQRc
+	id S261636AbVDZQXu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 12:23:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbVDZQVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 12:17:32 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:54155 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261637AbVDZQMW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 12:12:22 -0400
-Message-ID: <426E6845.2030008@tmr.com>
-Date: Tue, 26 Apr 2005 12:11:49 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-Newsgroups: mail.linux-kernel
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Mike Taht <mike.taht@timesys.com>, Matt Mackall <mpm@selenic.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-Subject: Re: Mercurial 0.3 vs git benchmarks
-References: <426DA7B5.2080204@timesys.com><Pine.LNX.4.58.0504251859550.18901@ppc970.osdl.org> <Pine.LNX.4.58.0504251938210.18901@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0504251938210.18901@ppc970.osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------030507050100080507000405"
+	Tue, 26 Apr 2005 12:21:12 -0400
+Received: from mailfe10.tele2.se ([212.247.155.33]:61423 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S261677AbVDZQTU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 12:19:20 -0400
+X-T2-Posting-ID: k1c2aGMK8Lj9Cnpb+Eju4eOhqUzXuhsckJNC9B9P7R8=
+Date: Tue, 26 Apr 2005 18:22:03 +0200
+From: Frederik Deweerdt <frederik.deweerdt@laposte.net>
+To: prasanna@in.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Don't oops when unregistering unknown kprobes
+Message-ID: <20050426162203.GE27406@gilgamesh.home.res>
+Mail-Followup-To: prasanna@in.ibm.com, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="ZPt4rx8FFjLCG7dd"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030507050100080507000405
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Linus Torvalds wrote:
-> 
-> On Mon, 25 Apr 2005, Mike Taht wrote:
-> 
->>One difference is probably - mercurial appears to be using zlib's 
->>*default* compression of 6....
->>
->>using zlib compression of 9 really impacts git...
-> 
-> 
-> I agree that it will hurt for big changes, but since I really do believe 
-> that most changes are just a couple of files, I don't believe it matters 
-> for those. 
-> 
-> I forget what the exact numbers were, but I did some timings on plain
-> "gzip", and it basically said that doing gzip on a medium-sized file was
-> not that different for -6 and -9. Why? Because most of the overhead was
-> elsewhere ;)
+--ZPt4rx8FFjLCG7dd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Certainly not different in the overall numbers, but after trying gzip on 
-a bunch of various source files on 32 bit CPUs, from P-II to Xeon, it 
-looks as if after 7 the cpu jumps about 40% to 8, and another 30% to 9. 
-Neither 8 nor 9 give any significant size improvement (< 2%).
+Hi Prasanna,
 
-Again, this is 32 bit CPU and just the gzip component, reading from 
-stdin and writing to stdout which I hope gets directory operations out 
-of the time measure.
+Here's a patch that handles gracefully attempts to unregister
+unregistered kprobes (ie. a warning message instead of an oops).
+Patch is against 2.6.12-rc3
 
-Sample attached.
+Signed-off-by: Frederik Deweerdt <frederik.deweerdt@laposte.net>
+
+Regards,
+Frederik
 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+o----------------------------------------------o
+| http://open-news.net : l'info alternative    |
+| Tech - Sciences - Politique - International  |
+o----------------------------------------------o
 
---------------030507050100080507000405
-Content-Type: text/plain;
- name="ziptime.log"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ziptime.log"
+--ZPt4rx8FFjLCG7dd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="dont.oops.on.unregister.unknown.kprobe.patch"
 
-Comp level 1
+--- linux-2.6.12-rc3/kernel/kprobes.c	2005-04-26 16:35:22.000000000 +0200
++++ linux-2.6.12-rc3-devel/kernel/kprobes.c	2005-04-26 16:44:57.000000000 +0200
+@@ -107,6 +107,13 @@ rm_kprobe:
+ void unregister_kprobe(struct kprobe *p)
+ {
+ 	unsigned long flags;
++
++	if (!get_kprobe(p)) {
++		printk(KERN_WARNING "Warning: Attempt to unregister "
++					"unknown kprobe (addr:0x%lx)\n",
++					(unsigned long) p);
++		return;
++	}
+ 	arch_remove_kprobe(p);
+ 	spin_lock_irqsave(&kprobe_lock, flags);
+ 	*p->addr = p->opcode;
 
-real	0m1.972s
-user	0m1.790s
-sys	0m0.098s
--rw-r--r--    1 davidsen  1792050 Apr 26 11:56 dummy.tar.gz
-Comp level 2
-
-real	0m2.021s
-user	0m1.858s
-sys	0m0.097s
--rw-r--r--    1 davidsen  1737227 Apr 26 11:56 dummy.tar.gz
-Comp level 3
-
-real	0m2.296s
-user	0m2.124s
-sys	0m0.095s
--rw-r--r--    1 davidsen  1697644 Apr 26 11:56 dummy.tar.gz
-Comp level 4
-
-real	0m2.604s
-user	0m2.423s
-sys	0m0.099s
--rw-r--r--    1 davidsen  1593207 Apr 26 11:56 dummy.tar.gz
-Comp level 5
-
-real	0m3.181s
-user	0m3.003s
-sys	0m0.087s
--rw-r--r--    1 davidsen  1549050 Apr 26 11:56 dummy.tar.gz
-Comp level 6
-
-real	0m4.185s
-user	0m3.965s
-sys	0m0.089s
--rw-r--r--    1 davidsen  1531866 Apr 26 11:56 dummy.tar.gz
-Comp level 7
-
-real	0m4.889s
-user	0m4.642s
-sys	0m0.096s
--rw-r--r--    1 davidsen  1524350 Apr 26 11:57 dummy.tar.gz
-Comp level 8
-
-real	0m7.836s
-user	0m7.532s
-sys	0m0.085s
--rw-r--r--    1 davidsen  1513763 Apr 26 11:57 dummy.tar.gz
-Comp level 9
-
-real	0m11.020s
-user	0m10.616s
-sys	0m0.092s
--rw-r--r--    1 davidsen  1511970 Apr 26 11:57 dummy.tar.gz
-
---------------030507050100080507000405--
-
+--ZPt4rx8FFjLCG7dd--

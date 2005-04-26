@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVDZP3I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261599AbVDZP2w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261607AbVDZP3I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 11:29:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbVDZP3H
+	id S261599AbVDZP2w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 11:28:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbVDZP2u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 11:29:07 -0400
-Received: from darwin.snarc.org ([81.56.210.228]:7823 "EHLO darwin.snarc.org")
-	by vger.kernel.org with ESMTP id S261579AbVDZP0k (ORCPT
+	Tue, 26 Apr 2005 11:28:50 -0400
+Received: from rproxy.gmail.com ([64.233.170.194]:44847 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261599AbVDZP13 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 11:26:40 -0400
-Date: Tue, 26 Apr 2005 17:26:38 +0200
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, ian.pratt@cl.cam.ac.uk, akpm@osdl.org
-Subject: Re: [PATCH 5/6][XEN][x86_64] Add macro for debugreg
-Message-ID: <20050426152638.GA23714@snarc.org>
-References: <20050426113149.GE26614@snarc.org> <20050426131707.GB5098@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050426131707.GB5098@wotan.suse.de>
-X-Warning: Email may contain unsmilyfied humor and/or satire.
-User-Agent: Mutt/1.5.6+20040907i
-From: tab@snarc.org (Vincent Hanquez)
+	Tue, 26 Apr 2005 11:27:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:x-enigmail-version:x-enigmail-supports:content-type:content-transfer-encoding;
+        b=REnufFmAz/1eVLsJJZ925wO04s4TORvD20MXBC8LL/lDgIeqNB9V+nXc+exudUnezrKCLjKw9JLbL7Z3tLN5B1t039gNuXYUO3Xuaoj/JAm65nCMYS+vHOxklM2NB3pRohiBx9cvLBtAjFmY4SO5QaZZBsBG8iXPHtC9c2wU22k=
+Message-ID: <426E5C44.2060002@gmail.com>
+Date: Tue, 26 Apr 2005 11:20:36 -0400
+From: Florin Malita <fmalita@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: akpm@osdl.org
+CC: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: [PATCH] do_mounts.c: Minor ROOT_DEV comment cleanup
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 26, 2005 at 03:17:07PM +0200, Andi Kleen wrote:
-> It looks good, except that the name of the macro is too long.
-> I will queue it and fix the name up when I apply. 
+The ROOT_DEV comment is no longer accurate, it now seems to be 
+initialized in init/do_mounts.c.
 
-fine. let me know the new name, I'll regenerate a new set of patch for
-x86 too. It's probably better to have the same name between the 2 archs.
 
-> If you plan to add a lot more of these I would recommend
-> to create a new header first, processor.h is already quite crowded.
+Signed-off-by: Florin Malita <fmalita@gmail.com>
 
-Right. Although I think that's all (at least at the moment).
-I'll consider that anyway, if more shows up. 
+--- linux-2.6.12-rc3/init/do_mounts.c   2005-04-20 20:03:16 -0400
++++ linux/init/do_mounts.c      2005-04-26 10:23:39 -0400
+@@ -22,7 +22,6 @@
+  char * __initdata root_device_name;
+  static char __initdata saved_root_name[64];
 
-Thanks,
--- 
-Vincent Hanquez
+-/* this is initialized in init/main.c */
+  dev_t ROOT_DEV;
+
+  EXPORT_SYMBOL(ROOT_DEV);

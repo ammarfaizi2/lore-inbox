@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261615AbVDZQG1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbVDZQLZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261615AbVDZQG1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 12:06:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbVDZQEi
+	id S261643AbVDZQLZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 12:11:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261667AbVDZQLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 12:04:38 -0400
-Received: from [213.170.72.194] ([213.170.72.194]:8845 "EHLO
-	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261615AbVDZQBr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 12:01:47 -0400
-Message-ID: <426E65E9.5070306@oktetlabs.ru>
-Date: Tue, 26 Apr 2005 20:01:45 +0400
-From: "Artem B. Bityuckiy" <dedekind@oktetlabs.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en, ru, en-us
-MIME-Version: 1.0
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       John Stoffel <john@stoffel.org>, Ville Herva <v@iki.fi>,
-       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: filesystem transactions API
-References: <20050424211942.GN13052@parcelfarce.linux.theplanet.co.uk> <OF32F95BBA.F38B2D1F-ON88256FEE.006FE841-88256FEE.00742E46@us.ibm.com> <20050426134629.GU16169@viasys.com> <20050426141426.GC10833@mail.shareable.org> <426E4EBD.6070104@oktetlabs.ru> <20050426143247.GF10833@mail.shareable.org> <17006.22498.394169.98413@smtp.charter.net> <1114528782.13568.8.camel@lade.trondhjem.org> <20050426154708.GC14297@mail.shareable.org> <426E638B.9070704@oktetlabs.ru> <20050426155615.GE14297@mail.shareable.org>
-In-Reply-To: <20050426155615.GE14297@mail.shareable.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Apr 2005 12:11:19 -0400
+Received: from colo.lackof.org ([198.49.126.79]:50139 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S261643AbVDZQKg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 12:10:36 -0400
+Date: Tue, 26 Apr 2005 10:12:59 -0600
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Pavel Machek <pavel@suse.cz>, Greg KH <greg@kroah.com>,
+       Amit Gud <gud@eth.net>, Alan Stern <stern@rowland.harvard.edu>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>, cramerj@intel.com,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] PCI: Add pci shutdown ability
+Message-ID: <20050426161259.GC2612@colo.lackof.org>
+References: <Pine.LNX.4.44L0.0504251128070.5751-100000@iolanthe.rowland.org> <20050425182951.GA23209@kroah.com> <SVLXCHCON1syWVLEFN00000099e@SVLXCHCON1.enterprise.veritas.com> <20050425185113.GC23209@kroah.com> <20050425190606.GA23763@kroah.com> <20050425204207.GA23724@elf.ucw.cz> <20050425205536.GF27771@neo.rr.com> <20050425210631.GE3906@elf.ucw.cz> <1114489812.7111.42.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1114489812.7111.42.camel@gaston>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
-> No.  Why would you block?  You can have transactions without blocking
-> other processes.
-> 
-> When updating, say, the core-utils package (which contains cat),
-> there's no reason why a program which executes "cat" should have to
-> block during the update.  It can simply execute the old one until the
-> new one is committed at the end of the update.
-> 
-> It's analogous to RCU for protecting kernel data structures without
-> blocking readers.
-> 
-Hmm, can't we implement a user-space locking system which admits of 
-readers during transactions? I gues we can.
+On Tue, Apr 26, 2005 at 02:30:12PM +1000, Benjamin Herrenschmidt wrote:
+> Additionally, some machines won't properly park/flush the disk, it's
+> necessary to send the proper suspend commands to IDE hard disks prior to
+> shutting down or we risk data loss.
 
--- 
-Best regards, Artem B. Bityuckiy
-Oktet Labs (St. Petersburg), Software Engineer.
-+78124286709 (office) +79112449030 (mobile)
-E-mail: dedekind@oktetlabs.ru, web: http://www.oktetlabs.ru
+That sounds like the disk is caching write data.
+
+SCSI has a "Write Cache Enable" bit in the "caching mode page".
+See "scsiinfo -c" output.
+
+10 years ago I measured/compared performance of disabling WCE
+(plus queue depth of 8) and enabling WCE (queue depth 1).
+It's a wash for the workloads I was testing. I was told "stupid OSs"
+that didn't know about tagged queueing needed WCE for benchmarks.
+HP cared for exactly the same reasons: Bus Resets or Disk power failure
+would cause data loss with WCE enabled.
+
+Disabling WCE on current OSs would solve the above problem
+IFF IDE/SATA also supports "cache mode" page.
+
+grant

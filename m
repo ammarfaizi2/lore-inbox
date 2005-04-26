@@ -1,76 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261304AbVDZFBY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261319AbVDZFJw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261304AbVDZFBY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 01:01:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261319AbVDZFBX
+	id S261319AbVDZFJw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 01:09:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbVDZFJw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 01:01:23 -0400
-Received: from fire.osdl.org ([65.172.181.4]:8646 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261304AbVDZFBI (ORCPT
+	Tue, 26 Apr 2005 01:09:52 -0400
+Received: from smtp.istop.com ([66.11.167.126]:12469 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S261319AbVDZFJv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 01:01:08 -0400
-Date: Mon, 25 Apr 2005 22:00:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: ocroquette@free.fr, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Changing RT priority in kernel 2.6 without CAP_SYS_NICE
-Message-Id: <20050425220040.7e876ce5.akpm@osdl.org>
-In-Reply-To: <20050418080750.GA20811@elte.hu>
-References: <42628300.5020009@free.fr>
-	<20050418080750.GA20811@elte.hu>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Apr 2005 01:09:51 -0400
+From: Daniel Phillips <phillips@istop.com>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Subject: Re: [PATCH 1a/7] dlm: core locking
+Date: Tue, 26 Apr 2005 01:10:00 -0400
+User-Agent: KMail/1.7
+Cc: David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+References: <20050425165705.GA11938@redhat.com> <Pine.LNX.4.62.0504252242510.2941@dragon.hyggekrogen.localhost>
+In-Reply-To: <Pine.LNX.4.62.0504252242510.2941@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200504260110.01115.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> wrote:
+On Monday 25 April 2005 17:17, Jesper Juhl wrote:
+> > +     int error = -ENOMEM, last_len, count = 0;
 >
->  Presently, a process without the capability CAP_SYS_NICE can not change 
->  its own policy, which is OK.
-> 
->  But it can also not decrease its RT priority (if scheduled with policy 
->  SCHED_RR or SCHED_FIFO), which is what this patch changes.
+> Wouldn't
+>         int error = -ENOMEM;
+>         int last_len;
+>         int count = 0;
+> be a bit more readable?
 
-This patch needed some massaging to copt with the changes in
-nice-and-rt-prio-rlimits.patch - please check.
+The rest of your nits are fine, upstanding nits, but this one seems a little 
+extreme :-)
 
-I guess we should merge nice-and-rt-prio-rlimits.patch.
+Regards,
 
---- 25/kernel/sched.c~sched-changing-rt-priority-without-cap_sys_nice	2005-04-25 21:54:48.572295312 -0700
-+++ 25-akpm/kernel/sched.c	2005-04-25 21:59:18.160311704 -0700
-@@ -3445,13 +3445,24 @@ recheck:
- 	if ((policy == SCHED_NORMAL) != (param->sched_priority == 0))
- 		return -EINVAL;
- 
--	if ((policy == SCHED_FIFO || policy == SCHED_RR) &&
--	    param->sched_priority > p->signal->rlim[RLIMIT_RTPRIO].rlim_cur &&
--	    !capable(CAP_SYS_NICE))
--		return -EPERM;
--	if ((current->euid != p->euid) && (current->euid != p->uid) &&
--	    !capable(CAP_SYS_NICE))
--		return -EPERM;
-+	/*
-+	 * Allow unprivileged RT tasks to decrease priority:
-+	 */
-+	if (!capable(CAP_SYS_NICE)) {
-+		/* can't change policy */
-+		if (policy != p->policy)
-+			return -EPERM;
-+		/* can't increase priority */
-+		if (policy != SCHED_NORMAL &&
-+		    param->sched_priority > p->rt_priority &&
-+		    param->sched_priority >
-+				p->signal->rlim[RLIMIT_RTPRIO].rlim_cur)
-+			return -EPERM;
-+		/* can't change other user's priorities */
-+		if ((current->euid != p->euid) &&
-+		    (current->euid != p->uid))
-+			return -EPERM;
-+	}
- 
- 	retval = security_task_setscheduler(p, policy, param);
- 	if (retval)
-_
-
+Daniel

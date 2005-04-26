@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261434AbVDZJgh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261435AbVDZJg7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261434AbVDZJgh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 05:36:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbVDZJgg
+	id S261435AbVDZJg7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 05:36:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbVDZJg7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 05:36:36 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:59823 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261434AbVDZJge (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 05:36:34 -0400
-Date: Tue, 26 Apr 2005 10:36:28 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: hch@infradead.org, jamie@shareable.org, linuxram@us.ibm.com,
-       7eggert@gmx.de, bulb@ucw.cz, viro@parcelfarce.linux.theplanet.co.uk,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] private mounts
-Message-ID: <20050426093628.GA30208@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Miklos Szeredi <miklos@szeredi.hu>, jamie@shareable.org,
-	linuxram@us.ibm.com, 7eggert@gmx.de, bulb@ucw.cz,
-	viro@parcelfarce.linux.theplanet.co.uk,
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-	akpm@osdl.org
-References: <3WWZG-3AC-7@gated-at.bofh.it> <3X630-2qD-21@gated-at.bofh.it> <3X8HA-4IH-15@gated-at.bofh.it> <3Xagd-5Wb-1@gated-at.bofh.it> <E1DQ5LA-0003ZR-SM@be1.7eggert.dyndns.org> <1114445923.4480.94.camel@localhost> <20050425191015.GC28294@mail.shareable.org> <E1DQMB0-00008a-00@dorka.pomaz.szeredi.hu> <20050426091921.GA29810@infradead.org> <E1DQMGZ-00009n-00@dorka.pomaz.szeredi.hu>
+	Tue, 26 Apr 2005 05:36:59 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:7839 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261435AbVDZJgz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 05:36:55 -0400
+Date: Tue, 26 Apr 2005 11:36:36 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp>
+Cc: Valdis.Kletnieks@vt.edu, Kyle Moffett <mrmacman_g4@mac.com>,
+       linux-kernel@vger.kernel.org, Andi Kleen <ak@muc.de>
+Subject: Re: [PATCH x86_64] Live Patching Function on 2.6.11.7
+Message-ID: <20050426093636.GB4175@elf.ucw.cz>
+References: <4263275A.2020405@lab.ntt.co.jp> <m1y8b9xyaw.fsf@muc.de> <426C51C4.9040902@lab.ntt.co.jp> <e83d0cb60cb50a56b38294e9160d7712@mac.com> <426CC8F7.8070905@lab.ntt.co.jp> <200504251636.j3PGa9SJ015388@turing-police.cc.vt.edu> <426D9AC0.5020908@lab.ntt.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <E1DQMGZ-00009n-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <426D9AC0.5020908@lab.ntt.co.jp>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 26, 2005 at 11:22:03AM +0200, Miklos Szeredi wrote:
-> > define "mount owner".  Right now mount requires CAP_SYS_ADMIN which means
-> > fairly privilegued.
+On Út 26-04-05 10:34:56, Takashi Ikebe wrote:
+> I think that's the common sense in every carrier.
+> If we reboot the switch, the service will be disrupted.
+> The phone network is lifeline, and does not allow to be disrupt by just 
+> bug fix.
+> I think same kind of function is needed in many real 
+> enterprise/mission-critical/business area.
 > 
-> FUSE uses a suid root helper (as explained below).  Please read the
-> whole mail.
+> All do with ptrace may affect target process's time critical task. (need 
+> to stop target process whenever fix)
+> All implement in user application costs too much, need to implement all 
+> the application...(and I do not know this approach really works on time 
+> critical applications yet.)
+> There are clear demand to realize this common and GPL-ed function....
+        ~~~~~~~~~~~~~~~~
+I had very strong urge to reply with "<plonk>" here.
 
-In that case you're totally out of luck.  This is not a setup we want to
-account for.
+Clearly noone but you wants to make kernel more ugly just for "faster
+ptrace". If you want faster ptrace, fine, advertise it as such and
+provide nice and small patch to make it faster.
 
+If you are going to handwave about "clear demand", well, find some
+other list to troll on.
+								Pavel
+-- 
+Boycott Kodak -- for their patent abuse against Java.

@@ -1,55 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261390AbVDZIXP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261387AbVDZI0W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261390AbVDZIXP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 04:23:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVDZIXN
+	id S261387AbVDZI0W (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 04:26:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbVDZI0W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 04:23:13 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:45498 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261387AbVDZIXE (ORCPT
+	Tue, 26 Apr 2005 04:26:22 -0400
+Received: from mailfe04.swip.net ([212.247.154.97]:46510 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S261387AbVDZI0O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 04:23:04 -0400
-Date: Tue, 26 Apr 2005 10:22:48 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Blaisorblade <blaisorblade@yahoo.it>
-Cc: akpm@osdl.org, jdike@addtoit.com, bstroesser@fujitsu-siemens.com,
-       linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [patch 7/7] uml ubd: handle readonly status
-Message-ID: <20050426082247.GB1851@suse.de>
-References: <20050424181924.EAFCB55D06@zion> <20050425101625.GD1671@suse.de> <200504252120.15493.blaisorblade@yahoo.it>
+	Tue, 26 Apr 2005 04:26:14 -0400
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Subject: Re: X86_64: 2.6.12-rc3 spontaneous reboot
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: Patrick McHardy <kaber@trash.net>
+Cc: Andi Kleen <ak@suse.de>, Ed Tomlinson <tomlins@cam.org>,
+       Parag Warudkar <kernel-stuff@comcast.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <426D8587.6060507@trash.net>
+References: <200504240008.35435.kernel-stuff@comcast.net>
+	 <1114332119.916.1.camel@localhost.localdomain>
+	 <200504240903.31377.tomlins@cam.org> <426CADF1.2000100@trash.net>
+	 <20050425153541.GC16828@wotan.suse.de>
+	 <1114452899.2012.2.camel@localhost.localdomain>
+	 <426D8587.6060507@trash.net>
+Content-Type: text/plain
+Date: Tue, 26 Apr 2005 10:26:11 +0200
+Message-Id: <1114503971.887.8.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200504252120.15493.blaisorblade@yahoo.it>
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 25 2005, Blaisorblade wrote:
-> On Monday 25 April 2005 12:16, Jens Axboe wrote:
-> > On Sun, Apr 24 2005, blaisorblade@yahoo.it wrote:
-> > > @@ -1099,6 +1104,7 @@ static int prepare_request(struct reques
-> > >  	if((rq_data_dir(req) == WRITE) && !dev->openflags.w){
-> > >  		printk("Write attempted on readonly ubd device %s\n",
-> > >  		       disk->disk_name);
-> > > +		WARN_ON(1); /* This should be impossible now */
-> > >  		end_request(req, 0);
-> > >  		return(1);
-> > >  	}
-> >
-> > I don't think that's a sound change. The WARN_ON() is strictly only
-> > really useful for when you need the stack trace for something
-> > interesting. As the io happens async, you will get a boring trace that
-> > doesn't contain any valuable information.
-> Ok, removed, and resending the patch, is the rest ok? I.e. is that
-> supposed to work? I gave a walk around and it seemed that the code
-> handles set_{disk,device}_ro() even during the open, but I'm no block
-> layer expert.
+tis 2005-04-26 klockan 02:04 +0200 skrev Patrick McHardy:
+> Alexander Nyberg wrote:
+> > Usually gives in after about 20 minutes of gcc compiling, sometimes even
+> > up to 40 minutes. I had 2.6.12-rc2 stand for 2-3 hours so it seems ok.
+> > If anyone has a better recipe for it please do tell.
+> 
+> uml seems to trigger the bug faster, I'm usually seeing it within
+> a couple of minutes. I'm doing a binary search now.
 
-I'd keep the checks for sanity. Although the set_disk/device_ro prevents
-regular fs write mounts, a buggy layered drive could still send down a
-write by accident.
+Ok, I'll try to compile UML, most of the times it doesn't work out for
+me, but having something that triggers more reliably would be useful.
+Sometimes it has taken even over an hour with gcc.
 
--- 
-Jens Axboe
+> > It doesn't appear to be any of the obvious patch candidates...
+> 
+> Which ones did you try?
+
+freepgt series and everything that directly touches ia32 emulation
+between rc2 and rc3. The problem is I have only my saved commit mails
+right now and some x64 patches seem to be missing, I need to learn git
+and start reversing stuff from there...
+
+No snapshots available either, whoever introduced the bug chose a bad
+timing ;-)
 

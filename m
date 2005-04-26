@@ -1,65 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261754AbVDZT3u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261752AbVDZTde@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261754AbVDZT3u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 15:29:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVDZT3d
+	id S261752AbVDZTde (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 15:33:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVDZTde
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 15:29:33 -0400
-Received: from fire.osdl.org ([65.172.181.4]:27294 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261752AbVDZT30 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 15:29:26 -0400
-Date: Tue, 26 Apr 2005 12:28:50 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Roland Dreier <roland@topspin.com>
-Cc: libor@topspin.com, hch@infradead.org, linux-kernel@vger.kernel.org,
-       openib-general@openib.org, timur.tabi@ammasso.com
-Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace
- verbs implementation
-Message-Id: <20050426122850.44d06fa6.akpm@osdl.org>
-In-Reply-To: <52mzrlsflu.fsf@topspin.com>
-References: <20050425135401.65376ce0.akpm@osdl.org>
-	<521x8yv9vb.fsf@topspin.com>
-	<20050425151459.1f5fb378.akpm@osdl.org>
-	<426D6D68.6040504@ammasso.com>
-	<20050425153256.3850ee0a.akpm@osdl.org>
-	<52vf6atnn8.fsf@topspin.com>
-	<20050425171145.2f0fd7f8.akpm@osdl.org>
-	<52acnmtmh6.fsf@topspin.com>
-	<20050425173757.1dbab90b.akpm@osdl.org>
-	<52wtqpsgff.fsf@topspin.com>
-	<20050426084234.A10366@topspin.com>
-	<52mzrlsflu.fsf@topspin.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Tue, 26 Apr 2005 15:33:34 -0400
+Received: from postman4.arcor-online.net ([151.189.20.158]:54964 "EHLO
+	postman.arcor.de") by vger.kernel.org with ESMTP id S261752AbVDZTd1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 15:33:27 -0400
+Date: Tue, 26 Apr 2005 21:34:40 +0200
+From: Juergen Quade <quade@hsnr.de>
+To: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: system-freeze: kprobe and do_gettimeofday
+Message-ID: <20050426193440.GA16597@hsnr.de>
+References: <20050423101251.GA327@hsnr.de> <20050425155649.GA30272@in.ibm.com> <20050425160859.GA23019@hsnr.de> <20050426145210.GC32766@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <20050426145210.GC32766@in.ibm.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier <roland@topspin.com> wrote:
->
->     Libor>   Do you mean that the set/clear parameters to do_mlock()
->     Libor> are the actual flags which are set/cleared by the caller? 
->     Libor> Also, the issue remains that the flags are not reference
->     Libor> counted which is a problem if you are dealing with
->     Libor> overlapping memory region, or even if one region ends and
->     Libor> another begins on the same page. Since the desire is to be
->     Libor> able to pin any memory that a user can malloc this is a
->     Libor> likely scenario.
+On Tue, Apr 26, 2005 at 08:22:10PM +0530, Prasanna S Panchamukhi wrote:
 > 
-> Good point... we need to figure out how to handle:
+> On Mon, Apr 25, 2005 at 06:08:59PM +0200, Juergen Quade wrote:
+> > On Mon, Apr 25, 2005 at 09:26:49PM +0530, Prasanna S Panchamukhi wrote:
+> > > On Sat, Apr 23, 2005 at 12:12:51PM +0200, Juergen Quade wrote:
+> > > > Playing around with kprobe I noticed, that "kprobing"
+> > > > the function "do_gettimeofday" completly freezes the
+> > > > system (2.6.12-rc3). Other functions like "do_fork" or
+> > > 
+> > > Kprobe on "do_gettimeofday" seems to work fine on 4-way SMP i386 box.
+> > > What is configuration of your machine?
+> > 
+> > Thank you for your answer!
+> > Find my kernel-config attached.
+> > The processor of the system is an Pentium M
+> > (1400MHz, 512MByte Memory - nothing specific).
+> > 
 > 
->     a) app registers 0x0000 through 0x17ff
->     b) app registers 0x1800 through 0x2fff
->     c) app unregisters 0x0000 through 0x17ff
->     d) the page at 0x1000 must stay pinned
+> I tested with your configuration file and it still
+> works fine. Can you get some more info about current tasks 
+> using Alt+SysRq+t and  Alt+SysRq+d keys.
 
-The userspace library should be able to track the tree and the overlaps,
-etc.  Things might become interesting when the memory is MAP_SHARED
-pagecache and multiple independent processes are involved, although I guess
-that'd work OK.
+I did now a lot of additional tests. When running
+"insmod kgettime.ko" from the console (not from x-windows)
+I get:
 
-But afaict the problem wherein part of a page needs VM_DONTCOPY and the
-other part does not cannot be solved.
+kprobe registered address c0107bd0 // output from the module
+double fault, gdt at c049bd00 [255 bytes]
+double fault, tss at c03d4060
+eip = c0103c86, esp = db932000
+eax = ffffffff, ebx = db932134, ecx = 0000000d, edx = 00000000
+esi = db932080, edi = 0000000d
 
+Alt+SysRq did not work...
+
+Then I removed all my modules (except 2) I was able to load the module
+without problems. I added module by module and checked every time with
+"insmod kgettime.ko". When loading the "ohci1394" module it crashed
+again. But next time I loaded the "ohci"-module first - no crash.  (So I
+don't think it is the ohci-module). I was able to load all modules and
+it still worked.
+
+Hmmm. What else to check?
+
+          Juergen.

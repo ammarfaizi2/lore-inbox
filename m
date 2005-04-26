@@ -1,314 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261799AbVDZVex@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261801AbVDZVj5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261799AbVDZVex (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 17:34:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261800AbVDZVew
+	id S261801AbVDZVj5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 17:39:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbVDZVj5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 17:34:52 -0400
-Received: from mail.dif.dk ([193.138.115.101]:43728 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261799AbVDZVe3 (ORCPT
+	Tue, 26 Apr 2005 17:39:57 -0400
+Received: from mailfe10.swipnet.se ([212.247.155.33]:48801 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S261801AbVDZVjy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 17:34:29 -0400
-Date: Tue, 26 Apr 2005 23:37:44 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Robert Love <rml@novell.com>, kpreempt-tech@lists.sourceforge.net,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] streamline preempt_count type across archs
-Message-ID: <Pine.LNX.4.62.0504262328190.2071@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 26 Apr 2005 17:39:54 -0400
+X-T2-Posting-ID: k1c2aGMK8Lj9Cnpb+Eju4eOhqUzXuhsckJNC9B9P7R8=
+Date: Tue, 26 Apr 2005 23:42:41 +0200
+From: Frederik Deweerdt <dev.deweerdt@laposte.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Don't oops when unregistering unknown kprobes
+Message-ID: <20050426214241.GF27406@gilgamesh.home.res>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20050426162203.GE27406@gilgamesh.home.res> <20050426162751.GD32766@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="uQr8t48UFsdbeI+V"
+Content-Disposition: inline
+In-Reply-To: <20050426162751.GD32766@in.ibm.com>
+User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The preempt_count member of struct thread_info is currently either defined 
-as int, unsigned int or __s32 depending on arch. This patch makes the type 
-of preempt_count an int on all archs.
-Having preempt_count be an unsigned type prevents the catching of 
-preempt_count < 0 bugs, and using int on some archs and __s32 on others is 
-not exactely "neat" - much nicer when it's just int all over.
 
-A previous version of this patch was already ACK'ed by Robert Love, and 
-the only change in this version of the patch compared to the one he ACK'ed 
-is that this one also makes sure the preempt_count member is consistently 
-commented.
+--uQr8t48UFsdbeI+V
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Please consider applying.
+Le 26/04/05 21:57 +0530, Prasanna S Panchamukhi =E9crivit:
+> This is wrong. You should call get_kprobe() with spin_lock().
+> =20
+Right, corrected patch attached. It also sets flags to zero.
 
+Signed-off-by: Frederik Deweerdt <frederik.deweerdt@laposte.net>
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
----
+Regards,
+Frederik
 
- include/asm-arm/thread_info.h       |    2 +-
- include/asm-arm26/thread_info.h     |    2 +-
- include/asm-cris/thread_info.h      |    2 +-
- include/asm-frv/thread_info.h       |    2 +-
- include/asm-h8300/thread_info.h     |    2 +-
- include/asm-i386/thread_info.h      |    2 +-
- include/asm-ia64/thread_info.h      |    2 +-
- include/asm-m32r/thread_info.h      |    2 +-
- include/asm-m68k/thread_info.h      |    2 +-
- include/asm-m68knommu/thread_info.h |    2 +-
- include/asm-mips/thread_info.h      |    2 +-
- include/asm-parisc/thread_info.h    |    2 +-
- include/asm-ppc/thread_info.h       |    3 ++-
- include/asm-ppc64/thread_info.h     |    2 +-
- include/asm-s390/thread_info.h      |    2 +-
- include/asm-sh/thread_info.h        |    2 +-
- include/asm-sh64/thread_info.h      |    2 +-
- include/asm-sparc/thread_info.h     |    4 ++--
- include/asm-sparc64/thread_info.h   |    2 +-
- include/asm-um/thread_info.h        |    2 +-
- include/asm-v850/thread_info.h      |    3 ++-
- include/asm-x86_64/thread_info.h    |    2 +-
- 22 files changed, 25 insertions(+), 23 deletions(-)
+--=20
+o----------------------------------------------o
+| http://open-news.net : l'info alternative    |
+| Tech - Sciences - Politique - International  |
+o----------------------------------------------o
 
---- linux-2.6.12-rc2-mm3-orig/include/asm-m68knommu/thread_info.h	2005-04-05 21:21:49.000000000 +0200
-+++ linux-2.6.12-rc2-mm3/include/asm-m68knommu/thread_info.h	2005-04-26 22:57:21.000000000 +0200
-@@ -36,7 +36,7 @@
- 	struct exec_domain *exec_domain;	/* execution domain */
- 	unsigned long	   flags;		/* low level flags */
- 	int		   cpu;			/* cpu we're on */
--	int		   preempt_count;	/* 0 => preemptable, <0 => BUG*/
-+	int		   preempt_count;	/* 0 => preemptable, <0 => BUG */
- 	struct restart_block restart_block;
- };
- 
---- linux-2.6.12-rc2-mm3-orig/include/asm-sh/thread_info.h	2005-03-02 08:38:13.000000000 +0100
-+++ linux-2.6.12-rc2-mm3/include/asm-sh/thread_info.h	2005-04-23 23:18:20.000000000 +0200
-@@ -20,7 +20,7 @@
- 	struct exec_domain	*exec_domain;	/* execution domain */
- 	__u32			flags;		/* low level flags */
- 	__u32			cpu;
--	__s32			preempt_count; /* 0 => preemptable, <0 => BUG */
-+	int			preempt_count; /* 0 => preemptable, <0 => BUG */
- 	struct restart_block	restart_block;
- 	__u8			supervisor_stack[0];
- };
---- linux-2.6.12-rc2-mm3-orig/include/asm-um/thread_info.h	2005-03-02 08:37:54.000000000 +0100
-+++ linux-2.6.12-rc2-mm3/include/asm-um/thread_info.h	2005-04-26 22:58:07.000000000 +0200
-@@ -17,7 +17,7 @@
- 	struct exec_domain	*exec_domain;	/* execution domain */
- 	unsigned long		flags;		/* low level flags */
- 	__u32			cpu;		/* current CPU */
--	__s32			preempt_count;  /* 0 => preemptable, 
-+	int			preempt_count;  /* 0 => preemptable, 
- 						   <0 => BUG */
- 	mm_segment_t		addr_limit;	/* thread address space:
- 					 	   0-0xBFFFFFFF for user
---- linux-2.6.12-rc2-mm3-orig/include/asm-parisc/thread_info.h	2005-04-05 21:21:49.000000000 +0200
-+++ linux-2.6.12-rc2-mm3/include/asm-parisc/thread_info.h	2005-04-23 23:17:55.000000000 +0200
-@@ -12,7 +12,7 @@
- 	unsigned long flags;		/* thread_info flags (see TIF_*) */
- 	mm_segment_t addr_limit;	/* user-level address space limit */
- 	__u32 cpu;			/* current CPU */
--	__s32 preempt_count;		/* 0=premptable, <0=BUG; will also serve as bh-counter */
-+	int preempt_count;		/* 0=premptable, <0=BUG; will also serve as bh-counter */
- 	struct restart_block restart_block;
- };
- 
---- linux-2.6.12-rc2-mm3-orig/include/asm-x86_64/thread_info.h	2005-04-05 21:21:49.000000000 +0200
-+++ linux-2.6.12-rc2-mm3/include/asm-x86_64/thread_info.h	2005-04-26 22:59:15.000000000 +0200
-@@ -29,7 +29,7 @@
- 	__u32			flags;		/* low level flags */
- 	__u32			status;		/* thread synchronous flags */
- 	__u32			cpu;		/* current CPU */
--	int 			preempt_count;
-+	int 			preempt_count;	/* 0 => preemptable, <0 => BUG */
- 
- 	mm_segment_t		addr_limit;	
- 	struct restart_block    restart_block;
---- linux-2.6.12-rc2-mm3-orig/include/asm-arm26/thread_info.h	2005-03-02 08:37:50.000000000 +0100
-+++ linux-2.6.12-rc2-mm3/include/asm-arm26/thread_info.h	2005-04-23 23:16:22.000000000 +0200
-@@ -44,7 +44,7 @@
-  */
- struct thread_info {
- 	unsigned long		flags;		/* low level flags */
--	__s32			preempt_count;	/* 0 => preemptable, <0 => bug */
-+	int			preempt_count;	/* 0 => preemptable, <0 => bug */
- 	mm_segment_t		addr_limit;	/* address limit */
- 	struct task_struct	*task;		/* main task structure */
- 	struct exec_domain      *exec_domain;   /* execution domain */
---- linux-2.6.12-rc2-mm3-orig/include/asm-h8300/thread_info.h	2005-03-02 08:38:37.000000000 +0100
-+++ linux-2.6.12-rc2-mm3/include/asm-h8300/thread_info.h	2005-04-26 22:59:41.000000000 +0200
-@@ -23,7 +23,7 @@
- 	struct exec_domain *exec_domain;	/* execution domain */
- 	unsigned long	   flags;		/* low level flags */
- 	int		   cpu;			/* cpu we're on */
--	int		   preempt_count;	/* 0 => preemptable, <0 => BUG*/
-+	int		   preempt_count;	/* 0 => preemptable, <0 => BUG */
- 	struct restart_block restart_block;
- };
- 
---- linux-2.6.12-rc2-mm3-orig/include/asm-ppc64/thread_info.h	2005-04-05 21:21:49.000000000 +0200
-+++ linux-2.6.12-rc2-mm3/include/asm-ppc64/thread_info.h	2005-04-26 23:00:01.000000000 +0200
-@@ -24,7 +24,7 @@
- 	struct task_struct *task;		/* main task structure */
- 	struct exec_domain *exec_domain;	/* execution domain */
- 	int		cpu;			/* cpu we're on */
--	int		preempt_count;
-+	int		preempt_count;		/* 0 => preemptable, <0 => BUG */
- 	struct restart_block restart_block;
- 	/* set by force_successful_syscall_return */
- 	unsigned char	syscall_noerror;
---- linux-2.6.12-rc2-mm3-orig/include/asm-sparc/thread_info.h	2005-03-02 08:38:26.000000000 +0100
-+++ linux-2.6.12-rc2-mm3/include/asm-sparc/thread_info.h	2005-04-26 23:00:46.000000000 +0200
-@@ -30,9 +30,9 @@
- 	struct task_struct	*task;		/* main task structure */
- 	struct exec_domain	*exec_domain;	/* execution domain */
- 	unsigned long		flags;		/* low level flags */
--
- 	int			cpu;		/* cpu we're on */
--	int			preempt_count;
-+	int			preempt_count;	/* 0 => preemptable, 
-+						   <0 => BUG */
- 	int			softirq_count;
- 	int			hardirq_count;
- 
---- linux-2.6.12-rc2-mm3-orig/include/asm-i386/thread_info.h	2005-04-05 21:21:48.000000000 +0200
-+++ linux-2.6.12-rc2-mm3/include/asm-i386/thread_info.h	2005-04-26 23:01:06.000000000 +0200
-@@ -31,7 +31,7 @@
- 	unsigned long		flags;		/* low level flags */
- 	unsigned long		status;		/* thread-synchronous flags */
- 	__u32			cpu;		/* current CPU */
--	__s32			preempt_count; /* 0 => preemptable, <0 => BUG */
-+	int			preempt_count;	/* 0 => preemptable, <0 => BUG */
- 
- 
- 	mm_segment_t		addr_limit;	/* thread address space:
---- linux-2.6.12-rc2-mm3-orig/include/asm-cris/thread_info.h	2005-03-02 08:38:32.000000000 +0100
-+++ linux-2.6.12-rc2-mm3/include/asm-cris/thread_info.h	2005-04-26 23:01:17.000000000 +0200
-@@ -31,7 +31,7 @@
- 	struct exec_domain	*exec_domain;	/* execution domain */
- 	unsigned long		flags;		/* low level flags */
- 	__u32			cpu;		/* current CPU */
--	__s32			preempt_count; /* 0 => preemptable, <0 => BUG */
-+	int			preempt_count;	/* 0 => preemptable, <0 => BUG */
- 
- 	mm_segment_t		addr_limit;	/* thread address space:
- 					 	   0-0xBFFFFFFF for user-thead
---- linux-2.6.12-rc2-mm3-orig/include/asm-m32r/thread_info.h	2005-03-02 08:38:26.000000000 +0100
-+++ linux-2.6.12-rc2-mm3/include/asm-m32r/thread_info.h	2005-04-26 23:01:25.000000000 +0200
-@@ -28,7 +28,7 @@
- 	unsigned long		flags;		/* low level flags */
- 	unsigned long		status;		/* thread-synchronous flags */
- 	__u32			cpu;		/* current CPU */
--	__s32			preempt_count; /* 0 => preemptable, <0 => BUG */
-+	int			preempt_count;	/* 0 => preemptable, <0 => BUG */
- 
- 	mm_segment_t		addr_limit;	/* thread address space:
- 					 	   0-0xBFFFFFFF for user-thread
---- linux-2.6.12-rc2-mm3-orig/include/asm-ia64/thread_info.h	2005-03-02 08:38:33.000000000 +0100
-+++ linux-2.6.12-rc2-mm3/include/asm-ia64/thread_info.h	2005-04-23 23:17:04.000000000 +0200
-@@ -25,7 +25,7 @@
- 	__u32 flags;			/* thread_info flags (see TIF_*) */
- 	__u32 cpu;			/* current CPU */
- 	mm_segment_t addr_limit;	/* user-level address space limit */
--	__s32 preempt_count;		/* 0=premptable, <0=BUG; will also serve as bh-counter */
-+	int preempt_count;		/* 0=premptable, <0=BUG; will also serve as bh-counter */
- 	struct restart_block restart_block;
- 	struct {
- 		int signo;
---- linux-2.6.12-rc2-mm3-orig/include/asm-m68k/thread_info.h	2005-04-05 21:21:49.000000000 +0200
-+++ linux-2.6.12-rc2-mm3/include/asm-m68k/thread_info.h	2005-04-26 23:01:46.000000000 +0200
-@@ -8,7 +8,7 @@
- struct thread_info {
- 	struct task_struct	*task;		/* main task structure */
- 	struct exec_domain	*exec_domain;	/* execution domain */
--	__s32			preempt_count; /* 0 => preemptable, <0 => BUG */
-+	int			preempt_count;	/* 0 => preemptable, <0 => BUG */
- 	__u32 cpu; /* should always be 0 on m68k */
- 	struct restart_block    restart_block;
- 
---- linux-2.6.12-rc2-mm3-orig/include/asm-mips/thread_info.h	2005-03-02 08:37:30.000000000 +0100
-+++ linux-2.6.12-rc2-mm3/include/asm-mips/thread_info.h	2005-04-26 23:01:57.000000000 +0200
-@@ -27,7 +27,7 @@
- 	struct exec_domain	*exec_domain;	/* execution domain */
- 	unsigned long		flags;		/* low level flags */
- 	__u32			cpu;		/* current CPU */
--	__s32			preempt_count; /* 0 => preemptable, <0 => BUG */
-+	int			preempt_count;	/* 0 => preemptable, <0 => BUG */
- 
- 	mm_segment_t		addr_limit;	/* thread address space:
- 					 	   0-0xBFFFFFFF for user-thead
---- linux-2.6.12-rc2-mm3-orig/include/asm-s390/thread_info.h	2005-03-02 08:38:13.000000000 +0100
-+++ linux-2.6.12-rc2-mm3/include/asm-s390/thread_info.h	2005-04-26 23:02:27.000000000 +0200
-@@ -50,7 +50,7 @@
- 	struct exec_domain	*exec_domain;	/* execution domain */
- 	unsigned long		flags;		/* low level flags */
- 	unsigned int		cpu;		/* current CPU */
--	unsigned int		preempt_count; /* 0 => preemptable */
-+	int			preempt_count;	/* 0 => preemptable, <0 => BUG */
- 	struct restart_block	restart_block;
- };
- 
---- linux-2.6.12-rc2-mm3-orig/include/asm-v850/thread_info.h	2005-03-02 08:38:06.000000000 +0100
-+++ linux-2.6.12-rc2-mm3/include/asm-v850/thread_info.h	2005-04-26 23:03:02.000000000 +0200
-@@ -30,7 +30,8 @@
- 	struct exec_domain	*exec_domain;	/* execution domain */
- 	unsigned long		flags;		/* low level flags */
- 	int			cpu;		/* cpu we're on */
--	int			preempt_count;
-+	int			preempt_count;	/* 0 => preemptable, 
-+						   <0 => BUG */
- 	struct restart_block	restart_block;
- };
- 
---- linux-2.6.12-rc2-mm3-orig/include/asm-sh64/thread_info.h	2005-04-05 21:21:49.000000000 +0200
-+++ linux-2.6.12-rc2-mm3/include/asm-sh64/thread_info.h	2005-04-26 23:03:23.000000000 +0200
-@@ -22,7 +22,7 @@
- 	struct exec_domain	*exec_domain;	/* execution domain */
- 	unsigned long		flags;		/* low level flags */
- 	/* Put the 4 32-bit fields together to make asm offsetting easier. */
--	__s32			preempt_count; /* 0 => preemptable, <0 => BUG */
-+	int			preempt_count;	/* 0 => preemptable, <0 => BUG */
- 	__u16			cpu;
- 
- 	mm_segment_t		addr_limit;
---- linux-2.6.12-rc2-mm3-orig/include/asm-arm/thread_info.h	2005-03-02 08:38:08.000000000 +0100
-+++ linux-2.6.12-rc2-mm3/include/asm-arm/thread_info.h	2005-04-23 23:16:04.000000000 +0200
-@@ -45,7 +45,7 @@
-  */
- struct thread_info {
- 	unsigned long		flags;		/* low level flags */
--	__s32			preempt_count;	/* 0 => preemptable, <0 => bug */
-+	int			preempt_count;	/* 0 => preemptable, <0 => bug */
- 	mm_segment_t		addr_limit;	/* address limit */
- 	struct task_struct	*task;		/* main task structure */
- 	struct exec_domain	*exec_domain;	/* execution domain */
---- linux-2.6.12-rc2-mm3-orig/include/asm-frv/thread_info.h	2005-03-02 08:37:50.000000000 +0100
-+++ linux-2.6.12-rc2-mm3/include/asm-frv/thread_info.h	2005-04-23 23:16:37.000000000 +0200
-@@ -33,7 +33,7 @@
- 	unsigned long		flags;		/* low level flags */
- 	unsigned long		status;		/* thread-synchronous flags */
- 	__u32			cpu;		/* current CPU */
--	__s32			preempt_count;	/* 0 => preemptable, <0 => BUG */
-+	int			preempt_count;	/* 0 => preemptable, <0 => BUG */
- 
- 	mm_segment_t		addr_limit;	/* thread address space:
- 					 	   0-0xBFFFFFFF for user-thead
---- linux-2.6.12-rc2-mm3-orig/include/asm-ppc/thread_info.h	2005-03-02 08:38:37.000000000 +0100
-+++ linux-2.6.12-rc2-mm3/include/asm-ppc/thread_info.h	2005-04-26 23:04:19.000000000 +0200
-@@ -20,7 +20,8 @@
- 	unsigned long		flags;		/* low level flags */
- 	unsigned long		local_flags;	/* non-racy flags */
- 	int			cpu;		/* cpu we're on */
--	int			preempt_count;
-+	int			preempt_count;	/* 0 => preemptable, 
-+						   <0 => BUG */
- 	struct restart_block	restart_block;
- };
- 
---- linux-2.6.12-rc2-mm3-orig/include/asm-sparc64/thread_info.h	2005-03-02 08:38:13.000000000 +0100
-+++ linux-2.6.12-rc2-mm3/include/asm-sparc64/thread_info.h	2005-04-26 23:04:57.000000000 +0200
-@@ -46,7 +46,7 @@
- 	unsigned long		fault_address;
- 	struct pt_regs		*kregs;
- 	struct exec_domain	*exec_domain;
--	int			preempt_count;
-+	int			preempt_count;	/* 0 => preemptable, <0 => BUG */
- 	int			__pad;
- 
- 	unsigned long		*utraps;
+--uQr8t48UFsdbeI+V
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="dont.oops.on.unregister.unknown.kprobe.patch"
 
+--- linux-2.6.12-rc3/kernel/kprobes.c	2005-04-26 16:35:22.000000000 +0200
++++ linux-2.6.12-rc3-devel/kernel/kprobes.c	2005-04-26 23:18:47.000000000 +0200
+@@ -106,13 +106,22 @@ rm_kprobe:
+ 
+ void unregister_kprobe(struct kprobe *p)
+ {
+-	unsigned long flags;
++	unsigned long flags = 0;
++
++	spin_lock_irqsave(&kprobe_lock, flags);
++	if (!get_kprobe(p)) {
++		printk(KERN_WARNING "Warning: Attempt to unregister "
++					"unknown kprobe (addr:0x%lx)\n",
++					(unsigned long) p);
++		goto out;
++	}
+ 	arch_remove_kprobe(p);
+ 	spin_lock_irqsave(&kprobe_lock, flags);
+ 	*p->addr = p->opcode;
+ 	hlist_del(&p->hlist);
+ 	flush_icache_range((unsigned long) p->addr,
+ 			   (unsigned long) p->addr + sizeof(kprobe_opcode_t));
++out:
+ 	spin_unlock_irqrestore(&kprobe_lock, flags);
+ }
+ 
 
+--uQr8t48UFsdbeI+V--

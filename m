@@ -1,60 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbVDZE6m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbVDZFA5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261315AbVDZE6m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 00:58:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbVDZE6m
+	id S261318AbVDZFA5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 01:00:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbVDZFA5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 00:58:42 -0400
-Received: from 216-237-124-58.infortech.net ([216.237.124.58]:14722 "EHLO
-	mail.dvmed.net") by vger.kernel.org with ESMTP id S261290AbVDZE6i
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 00:58:38 -0400
-Message-ID: <426DCA75.901@pobox.com>
-Date: Tue, 26 Apr 2005 00:58:29 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
+	Tue, 26 Apr 2005 01:00:57 -0400
+Received: from smtp.istop.com ([66.11.167.126]:1717 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S261318AbVDZFAn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 01:00:43 -0400
+From: Daniel Phillips <phillips@istop.com>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Subject: Re: [PATCH 1b/7] dlm: core locking
+Date: Tue, 26 Apr 2005 01:00:54 -0400
+User-Agent: KMail/1.7
+Cc: David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+References: <20050425165826.GB11938@redhat.com> <Pine.LNX.4.62.0504252105430.2941@dragon.hyggekrogen.localhost>
+In-Reply-To: <Pine.LNX.4.62.0504252105430.2941@dragon.hyggekrogen.localhost>
 MIME-Version: 1.0
-To: pasky@ucw.cz, git@vger.kernel.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Cogito-0.8 (former git-pasky, big changes!)
-References: <20050426032422.GQ13467@pasky.ji.cz>
-In-Reply-To: <20050426032422.GQ13467@pasky.ji.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200504260100.54490.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Baudis wrote:
->   Hello,
-> 
->   here goes Cogito-0.8, my SCMish layer over Linus Torvald's git tree
-> history tracker. This package was formerly called git-pasky, however
-> this release brings big changes. The usage is significantly different,
-> as well as some basic concepts; the history changed again (hopefully the
-> last time?) because of fixing dates of some old commits. The .git/
-> directory layout changed too.
+On Monday 25 April 2005 16:41, Jesper Juhl wrote:
+> > +     }
+> > +
+> > +     if (!lkb->lkb_lvbptr)
+> > +             return;
+>
+> goto out;
+>
+> > +
+> > +     if (!(lkb->lkb_exflags & DLM_LKF_VALBLK))
+> > +             return;
+>
+> goto out;
+>
+> > +
+> > +     if (!r->res_lvbptr)
+> > +             r->res_lvbptr = allocate_lvb(r->res_ls);
+> > +
+> > +     memcpy(r->res_lvbptr, lkb->lkb_lvbptr, DLM_LVB_LEN);
+> > +     r->res_lvbseq++;
+> > +     clear_bit(RESFL_VALNOTVALID, &r->res_flags);
+>
+> out:
+>         return;
+>
+> > +}
+>
+> A single return function exit point instead of multiple reduces the risk
+> of errors when code is later modified.
+> Applies to many other functions besides this one (and this one may not
+> even be the best example, but hey, I wanted to make that comment, and
+> this function was at hand).
 
-tar xvfj $x
-cd x
-make
-...
-gcc -g -O2 -Wall '-DSHA1_HEADER=<openssl/sha.h>' -o rpull rpull.c 
-libgit.a rsh.c -lz -lssl
-gcc -g -O2 -Wall '-DSHA1_HEADER=<openssl/sha.h>' -o rev-list rev-list.c 
-libgit.a -lz -lssl
-gcc -g -O2 -Wall '-DSHA1_HEADER=<openssl/sha.h>' -o git-mktag 
-git-mktag.c libgit.a -lz -lssl
-gcc -g -O2 -Wall '-DSHA1_HEADER=<openssl/sha.h>' -o diff-tree-helper 
-diff-tree-helper.c libgit.a -lz -lssl
-make: commit-id: Command not found
-Generating cg-version...
+Great comments on the whole, but this one is really well into the "matter of 
+taste" zone.  Naked return vs goto return... either way is ugly.  I prefer 
+the style that is two lines shorter and does not make my eyes do an extra 
+hop.
 
+Regards,
 
-
-So, it still complains about commit-id
-
-	Jeff
-
-
+Daniel

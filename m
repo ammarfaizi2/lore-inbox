@@ -1,58 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbVDZDws@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbVDZDxT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261333AbVDZDws (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Apr 2005 23:52:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261341AbVDZDws
+	id S261298AbVDZDxT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Apr 2005 23:53:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbVDZDxS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Apr 2005 23:52:48 -0400
-Received: from h80ad2469.async.vt.edu ([128.173.36.105]:31502 "EHLO
-	h80ad2469.async.vt.edu") by vger.kernel.org with ESMTP
-	id S261333AbVDZDwa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Apr 2005 23:52:30 -0400
-Message-Id: <200504260352.j3Q3qGEP010127@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 7/7] dlm: build 
-In-Reply-To: Your message of "Mon, 25 Apr 2005 14:25:25 PDT."
-             <20050425142525.70e72e93.akpm@osdl.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20050425151333.GH6826@redhat.com>
-            <20050425142525.70e72e93.akpm@osdl.org>
+	Mon, 25 Apr 2005 23:53:18 -0400
+Received: from gate.crashing.org ([63.228.1.57]:18630 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261303AbVDZDw6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Apr 2005 23:52:58 -0400
+Subject: Re: [PATCH] PCI: Add pci shutdown ability
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Dave Jones <davej@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, Alan Stern <stern@rowland.harvard.edu>,
+       alexn@dsv.su.se, Greg KH <greg@kroah.com>, gud@eth.net,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Jeff Garzik <jgarzik@pobox.com>,
+       cramerj@intel.com, Linux-USB <linux-usb-devel@lists.sourceforge.net>
+In-Reply-To: <20050425221326.GC15366@redhat.com>
+References: <1114458325.983.17.camel@localhost.localdomain>
+	 <Pine.LNX.4.44L0.0504251609420.7408-100000@iolanthe.rowland.org>
+	 <20050425145831.48f27edb.akpm@osdl.org> <20050425221326.GC15366@redhat.com>
+Content-Type: text/plain
+Date: Tue, 26 Apr 2005 13:52:16 +1000
+Message-Id: <1114487537.7182.26.camel@gaston>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1114487535_3571P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
-Date: Mon, 25 Apr 2005 23:52:15 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1114487535_3571P
-Content-Type: text/plain; charset=us-ascii
 
-On Mon, 25 Apr 2005 14:25:25 PDT, Andrew Morton said:
-> David Teigland <teigland@redhat.com> wrote:
-> >
-> >  +config DLM 
+>  > I have vague memories of this being discussed at some length last year. 
+>  > Nothing comprehensive came of it, except that perhaps the kdump code should
+>  > spin with irqs off for a couple of seconds so the DMA and IRQs stop.
+>  > 
+>  > (Ongoing DMA is not a problem actually, because the kdump kernel won't be
+>  > using that memory anyway)
+> 
+> Actually, some cpufreq drivers *should* do their speed transitions with
+> all PCI mastering disabled. The lack of any infrastructure to quiesce drivers
+> and prevent new DMA transactions from occuring whilst the transition occurs
+> means that currently.. we don't.  So +1 for any driver model work that
+> may lead to something we can use here.
 
-> Shouldn't it enable SCTP?  Depend on NET?
+True, I have the same problem on pmac with some machines that use PMU
+based speed switch. On those, the CPU is hard rebooted, so we need to
+flush all caches which can't always be done in a completely "safe" way
+with pending DMAs...
 
-Looks like it.  As a related question, is the SCTP dependency something
-fairly innate to the design, or would layering it over other low-level
-transports in the future be a possibility? A first glance makes it look
-like only lowcomms.c and maybe midcomms.c would be affected.
+> This is the main reason the longhaul cpufreq driver is currently busted.
+> That it ever worked at all is a miracle.
+
+Well, In my case, I disp-flush so much more than is normally necessary
+that I end up with something that seem stable, but I agree it's dodgy.
+
+The PMSG_FREEZE semantics that we defined for suspend-to-disk however is
+just what we need here. It basically tells driver to stop any DMA
+activity and freeze processing. It should be used for kexec too.
+
+The problem is, as far as I understand what David told me a while ago,
+some USB chips simply _cannot_ disable DMA without actually suspending
+the bus, which itself is a complex process that takes some time and can
+involve all sort of problems with devices / drivers that don't deal with
+suspended busses properly. I suspect other kind of chips may be
+similarily busted by design.
 
 
---==_Exmh_1114487535_3571P
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFCbbrvcC3lWbTT17ARAkbKAKCJe/XkGyVL5npeFhmoXNqQ2f4s5QCgvpoF
-kA2BV++YAgWRIyp7iAPCTlQ=
-=cbV4
------END PGP SIGNATURE-----
 
---==_Exmh_1114487535_3571P--

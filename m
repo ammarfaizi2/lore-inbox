@@ -1,57 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbVDZPlC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261592AbVDZPnM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261601AbVDZPlC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 11:41:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbVDZPlB
+	id S261592AbVDZPnM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 11:43:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbVDZPln
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 11:41:01 -0400
-Received: from fire.osdl.org ([65.172.181.4]:59071 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261601AbVDZPk2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 11:40:28 -0400
-Date: Tue, 26 Apr 2005 08:40:19 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: ismail =?ISO-8859-1?Q?d=F6nmez?= <ismail.donmez@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Make dmfe documentation nicer
-Message-Id: <20050426084019.59582738.rddunlap@osdl.org>
-In-Reply-To: <2a4f155d050425235677549af6@mail.gmail.com>
-References: <2a4f155d050425235677549af6@mail.gmail.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 26 Apr 2005 11:41:43 -0400
+Received: from ms004msg.fastwebnet.it ([213.140.2.58]:23198 "EHLO
+	ms004msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S261576AbVDZPkL convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 11:40:11 -0400
+From: Alessandro Amici <lists@b-open-solutions.it>
+Organization: B-Open Solutions srl
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.30 PicoPower IRQ router
+Date: Tue, 26 Apr 2005 17:40:08 +0200
+User-Agent: KMail/1.7.2
+Cc: Sune =?iso-8859-1?q?M=F8lgaard?= <sune@molgaard.org>
+References: <426C9DED.9010206@molgaard.org>
+In-Reply-To: <426C9DED.9010206@molgaard.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200504261740.08794.lists@b-open-solutions.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Apr 2005 09:56:36 +0300
-ismail dönmez <ismail.donmez@gmail.com> wrote:
 
-> Hi,
-> 
-> I sent this patch to Rusty Russell's trivial patch monkey _months_ ago
-> but its still not in mainline so here I send it again. So please apply
-> it to mainline.
-> Here is what it changes :
-> 
-> - Indent it nicely
-> - Add a tip that CNET network cards use Davicom chipsets
-> - Add Maintainers/Contributors to the end of documentation like in other docs.
+Alle 09:36, lunedì 25 aprile 2005, Sune Mølgaard ha scritto:
+> Patch is made from recommendations from David Hinds.
 
-Please submit in proper format, including corrected
-file name level (begin at linux/drivers/net/tulip/....).
+just in case you didn't notice: your patch is empty :)
 
-See Documentation/SubmittingPatches,
-http://linux.yyz.us/patch-format.html , and
-http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt
-
-
-then send it to jgarzik@pobox.com and netdev@oss.sgi.com, please.
-
-
-Alternatively, you can try kernel-janitors if Rusty is not
-responding...  (see http://janitor.kernelnewbies.org/ )
+and try to gather info on someone actually in charge of the subsystem 
+you are modifying and CC him. random patches on l-k may not get the 
+needed attention.
 
 -- 
-~Randy
+B-Open Solutions srl - http://www.bopen.it/

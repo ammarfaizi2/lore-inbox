@@ -1,91 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261325AbVDZF03@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVDZFbr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261325AbVDZF03 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 01:26:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVDZF03
+	id S261243AbVDZFbr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 01:31:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVDZFbq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 01:26:29 -0400
-Received: from fmr22.intel.com ([143.183.121.14]:8146 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261325AbVDZF0Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 01:26:25 -0400
-Subject: Re: Linux 2.6.12-rc3
-From: Len Brown <len.brown@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Greg KH <greg@kroah.com>, pavel@ucw.cz, drzeus-list@drzeus.cx,
-       Linus Torvalds <torvalds@osdl.org>, pasky@ucw.cz,
-       linux-kernel@vger.kernel.org, Larry McVoy <lm@bitmover.com>
-In-Reply-To: <20050424032622.3aef8c9f.akpm@osdl.org>
-References: <20050421162220.GD30991@pasky.ji.cz>
-	 <20050421232201.GD31207@elf.ucw.cz> <20050422002150.GY7443@pasky.ji.cz>
-	 <20050422231839.GC1789@elf.ucw.cz>
-	 <Pine.LNX.4.58.0504221718410.2344@ppc970.osdl.org>
-	 <20050423111900.GA2226@openzaurus.ucw.cz>
-	 <Pine.LNX.4.58.0504230654190.2344@ppc970.osdl.org>
-	 <426A7775.60207@drzeus.cx> <20050423220213.GA20519@kroah.com>
-	 <20050423222946.GF1884@elf.ucw.cz> <20050423233809.GA21754@kroah.com>
-	 <20050424032622.3aef8c9f.akpm@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1114493158.2937.253.camel@d845pe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 26 Apr 2005 01:25:58 -0400
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Apr 2005 01:31:46 -0400
+Received: from smtp.istop.com ([66.11.167.126]:26293 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S261243AbVDZFaH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 01:30:07 -0400
+From: Daniel Phillips <phillips@istop.com>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Subject: Re: [PATCH 0/7] dlm: overview
+Date: Tue, 26 Apr 2005 01:30:16 -0400
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org
+References: <20050425151136.GA6826@redhat.com> <20050425203952.GE25002@ca-server1.us.oracle.com> <20050425210915.GX32085@marowsky-bree.de>
+In-Reply-To: <20050425210915.GX32085@marowsky-bree.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200504260130.17016.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-04-24 at 06:26, Andrew Morton wrote:
+On Monday 25 April 2005 17:09, Lars Marowsky-Bree wrote:
+> Now that we have two (or three) options with actual users, now is the
+> right time to finally come up with sane and useful abstractions. This is
+> great.
 
-> Andrew has some work to do before he can regain momentum:
-> 
-> - Which subsystem maintainers will have public git trees?
-> 
-> - Which maintainers will continue to use bk?
+Great thought, but it won't work unless you actually read them all, which I 
+hope is what you're proposing.
 
-I will continue to use bk
-until an alternative emerges that makes my role
-as a sub-system maintainer easier -- rather than harder.
+> With APIs, I think we do need a DLM-switch in the kernel, but also the
+> DLMs should really seem much the same to user-space apps. From what I've
+> seen, dlmfs is OCFS2 wasn't doing too badly there. The icing would of
+> course be if even the configuration was roughly similar, and if OCFS2's
+> configfs might prove valuable to other users too.
 
-My employer pays for a commercial bk license.
+I'm a little skeptical about the chance of fitting an 11-parameter function 
+call into a generic kernel plug-in framework.  Are those the exact same 11 
+parameters that God intended?
 
-> - Can Andrew legally use the bk client?
-> 
-> - Can Andrew legally use a bk client which won't go phut at cset 65535?
+While it would be great to share a single dlm between gfs and ocfs2 - maybe 
+Lustre too - my crystal ball says that that laudable goal is unlikely to be 
+achieved in the near future, whereas there isn't much choice but to sort out 
+a common membership framework right now.
 
-I don't see why not.  Given your central role to the Linux development
-process, I would think it would be trivial to justify OSDL arming you
-with any and all tools you desire if they make you even slightly more effective.
+As far as I can see, only cluster membership wants or needs a common 
+framework.  And I'm not sure that any of that even needs to be in-kernel.
 
-Also, I would think Bitmover would be interested in having you enabled
-to keep people like me as happy paying customers.
+Regards,
 
-The question for bk use is what do we do for a reference "Linus tree"
-history.  It would be most effective if we could have a single bk history
-rather than everybody rolling their own.
-
-> - How do I do a bk `gcapatch' is there is no Linus bk tree to base it off?
-> 
-> - If none of the above, which maintainers will put up-to-date raw patches
->   in places where Andrew can get at them?
-
-I can do this if you require it.  The current "acpi patch" includes
-68 patches: 200 files changed, 7780 insertions(+), 5455 deletions(-)
-
-Everything in it is intended to go to Linus on day-one of 2.6.13.
-Some of it should really go into 2.6.12 - but frankly, I hesitate
-to touch 2.6.12 while the tools are in such flux.
-
-> I don't know how all this will pan out.  I guess the next -mm won't have
-> many subsystem trees and I'll gradually add them as things get sorted out.
-
-Please do not roll -mm without including the ACPI sub-system.
--mm provides the broadest pre-integration test coverage we've ever had.
-It has allowed us to significantly reduce regressions in Linus' tree
-as we encounter the inevitable setbacks associated with making
-the ACPI sub-system in Linux the best in the industry.
-
-thanks,
--Len
+Daniel
 
 
+
+> The cluster summit in June will certainly be a very ... exciting place.
+> Let's hope this also stirs up KS a bit ;-)
+>
+> Oh, and just to anticipate that discussion, anyone who suggests to adopt
+> the SAF AIS locking API into the kernel should be preemptively struck;
+> that naming etc is just beyond words.
+>
+>
+> Sincerely,
+>     Lars Marowsky-Brée <lmb@suse.de>

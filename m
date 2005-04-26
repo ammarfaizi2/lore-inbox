@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261697AbVDZRYP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261686AbVDZRYP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261697AbVDZRYP (ORCPT <rfc822;willy@w.ods.org>);
+	id S261686AbVDZRYP (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 26 Apr 2005 13:24:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbVDZRWk
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbVDZRWg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 13:22:40 -0400
-Received: from rproxy.gmail.com ([64.233.170.206]:34613 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261690AbVDZRW1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 13:22:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=B95/mBJeh/HiTzyGVIcpWY6tVz5y4i8UETUoR6R7uqNKJsi6VvEXgn1CYjBorIO9iXhNaHrHc1JDgfBnd5VyNWtSpXwju39a6FwcAGJ6QisceWAUMq8mx9p+kk7WDVeHD+WM+1Uast6fXG30IwNGG39vbc80R6yHx5MHzPjJ+T4=
-Date: Tue, 26 Apr 2005 19:22:20 +0200
-From: Diego Calleja <diegocg@gmail.com>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: john@stoffel.org, dedekind@oktetlabs.ru, v@iki.fi,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: filesystem transactions API
-Message-Id: <20050426192220.4979de4d.diegocg@gmail.com>
-In-Reply-To: <20050426152434.GB14297@mail.shareable.org>
-References: <20050424211942.GN13052@parcelfarce.linux.theplanet.co.uk>
-	<OF32F95BBA.F38B2D1F-ON88256FEE.006FE841-88256FEE.00742E46@us.ibm.com>
-	<20050426134629.GU16169@viasys.com>
-	<20050426141426.GC10833@mail.shareable.org>
-	<426E4EBD.6070104@oktetlabs.ru>
-	<20050426143247.GF10833@mail.shareable.org>
-	<17006.22498.394169.98413@smtp.charter.net>
-	<20050426152434.GB14297@mail.shareable.org>
-X-Mailer: Sylpheed version 1.9.9+svn (GTK+ 2.6.4; i686-pc-linux-gnu)
+	Tue, 26 Apr 2005 13:22:36 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:53966 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261686AbVDZRTu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 13:19:50 -0400
+Subject: Re: [PATCH] PCI: Add pci shutdown ability
+From: Lee Revell <rlrevell@joe-job.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Grant Grundler <grundler@parisc-linux.org>,
+       "Richard B. Johnson" <linux-os@analogic.com>,
+       Alexander Nyberg <alexn@dsv.su.se>, Greg KH <greg@kroah.com>,
+       Amit Gud <gud@eth.net>, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, akpm@osdl.org, jgarzik@pobox.com,
+       cramerj@intel.com,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.44L0.0504261311290.12725-100000@iolanthe.rowland.org>
+References: <Pine.LNX.4.44L0.0504261311290.12725-100000@iolanthe.rowland.org>
+Content-Type: text/plain
+Date: Tue, 26 Apr 2005 13:19:48 -0400
+Message-Id: <1114535988.5410.4.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution 2.2.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Tue, 26 Apr 2005 16:24:34 +0100,
-Jamie Lokier <jamie@shareable.org> escribió:
+On Tue, 2005-04-26 at 13:12 -0400, Alan Stern wrote:
+> On Tue, 26 Apr 2005, Grant Grundler wrote:
+> 
+> > On Tue, Apr 26, 2005 at 12:07:41PM -0400, Richard B. Johnson wrote:
+> > > DMAs don't go on "forever"
+> > 
+> > They don't. But we also don't know when they will stop.
+> > E.g. NICs will stop DMA when the RX descriptor ring is full.
+> > I don't know when USB stop on it's own.
+> 
+> USB doesn't stop DMA on its own.  It goes on forever until it's told to
+> stop or it encounters an error.
 
-> It's even harder without kernel support! :)
+Ditto sound cards.  Once you start capture or playback the device will
+DMA to/from the assigned area forever.
 
-This seems to implement something in userspace which might be interesting:
-http://users.auriga.wearlab.de/~alb/libjio/
+Lee
+

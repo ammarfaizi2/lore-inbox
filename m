@@ -1,85 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261840AbVDZXJT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261846AbVDZX3k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261840AbVDZXJT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 19:09:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbVDZXJT
+	id S261846AbVDZX3k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 19:29:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbVDZX3k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 19:09:19 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:47745 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261840AbVDZXJN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 19:09:13 -0400
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: Adrian Bunk <bunk@stusta.de>, akpm@osdl.org, pfg@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] gcc4 fix for sn_serial.c
-References: <200503141132.39284.jbarnes@engr.sgi.com>
-	<20050315010358.GF3207@stusta.de>
-	<200503150948.03100.jbarnes@engr.sgi.com>
-	<jesm1dgn7f.fsf@sykes.suse.de>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: QUIET!!  I'm being CREATIVE!!  Is it GREAT yet?  It's s'posed to
- SMOKEY THE BEAR...
-Date: Wed, 27 Apr 2005 01:09:11 +0200
-In-Reply-To: <jesm1dgn7f.fsf@sykes.suse.de> (Andreas Schwab's message of
- "Wed, 27 Apr 2005 00:58:12 +0200")
-Message-ID: <jeoec1gmp4.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Tue, 26 Apr 2005 19:29:40 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:30726 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261846AbVDZX3Z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 19:29:25 -0400
+Date: Wed, 27 Apr 2005 09:28:57 +1000
+To: Patrick McHardy <kaber@trash.net>
+Cc: Yair@arx.com, linux-kernel@vger.kernel.org,
+       netfilter-devel@lists.netfilter.org, netdev@oss.sgi.com
+Subject: Re: Re-routing packets via netfilter (ip_rt_bug)
+Message-ID: <20050426232857.GA18358@gondor.apana.org.au>
+References: <E1DQ1Ct-00055s-00@gondolin.me.apana.org.au> <426D0CB9.4060500@trash.net> <20050425213400.GB29288@gondor.apana.org.au> <426D8672.1030001@trash.net> <20050426003925.GA13650@gondor.apana.org.au> <426E3F67.8090006@trash.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <426E3F67.8090006@trash.net>
+User-Agent: Mutt/1.5.6+20040907i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Schwab <schwab@suse.de> writes:
+On Tue, Apr 26, 2005 at 03:17:27PM +0200, Patrick McHardy wrote:
+> 
+> Looks like we have no choice but to also use saddr=0 and
+> ip_route_output() in this case.
 
-> Jesse Barnes <jbarnes@engr.sgi.com> writes:
->
->> On Monday, March 14, 2005 5:03 pm, Adrian Bunk wrote:
->>> > -static struct uart_driver sal_console_uart = {
->>> > +struct uart_driver sal_console_uart = {
->>> >   .owner = THIS_MODULE,
->>> >   .driver_name = "sn_console",
->>> >   .dev_name = DEVICE_NAME,
->>>
->>> Why can't you solve this without making sal_console_uart global?
->>
->> I think that would mean moving some of the structure initializaiton into an 
->> init function somewhere.
->
-> Just make the tentative definition static.
+Let's look at the bigger picture.  There are three users of
+ip_route_me_harder: nat, mangle and queue.  They're all done
+in LOCAL_OUT.
 
-And this is the complete patch:
+For nat/mangle, the source address cannot change so it's
+guaranteed to be a local IP address.  On the face of it,
+queue could be changing the source address.  However, the
+more I think about it the more I reckon that it should
+be disallowed.
 
-Make sal_console_uart static again.
+If the user is changing the source address in LOCAL_OUT/queue
+then he's doing SNAT in LOCAL_OUT.  This violates some fundamental
+assumptions in netfilter.  The user also isn't going to have
+an easy time setting up the reverse DNAT since the corresponding
+location on the reverse side does not have a ip_route_me_harder
+call.
 
-Signed-off-by: Andreas Schwab <schwab@suse.de>
+Even if there is really a demand for SNAT in LOCAL_OUT, we
+should probably be implementing it properly rather than having
+the user craft their own in user-space.
 
---- linux-2.6/drivers/serial/sn_console.c.~1~	2005-04-25 00:33:34.000000000 +0200
-+++ linux-2.6/drivers/serial/sn_console.c	2005-04-27 01:05:29.000000000 +0200
-@@ -787,7 +787,7 @@ static void __init sn_sal_switch_to_inte
- 
- static void sn_sal_console_write(struct console *, const char *, unsigned);
- static int __init sn_sal_console_setup(struct console *, char *);
--extern struct uart_driver sal_console_uart;
-+static struct uart_driver sal_console_uart;
- extern struct tty_driver *uart_console_device(struct console *, int *);
- 
- static struct console sal_console = {
-@@ -801,7 +801,7 @@ static struct console sal_console = {
- 
- #define SAL_CONSOLE	&sal_console
- 
--struct uart_driver sal_console_uart = {
-+static struct uart_driver sal_console_uart = {
- 	.owner = THIS_MODULE,
- 	.driver_name = "sn_console",
- 	.dev_name = DEVICE_NAME,
-
-Andreas.
-
+Cheers,
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

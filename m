@@ -1,254 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261696AbVDZRau@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261690AbVDZRbD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261696AbVDZRau (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 13:30:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbVDZRat
+	id S261690AbVDZRbD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 13:31:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261702AbVDZRa7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 13:30:49 -0400
-Received: from mail.dif.dk ([193.138.115.101]:11197 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261712AbVDZR2G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 13:28:06 -0400
-Date: Tue, 26 Apr 2005 19:31:19 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
+	Tue, 26 Apr 2005 13:30:59 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:30159 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261695AbVDZR2h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 13:28:37 -0400
+Subject: Re: [PATCH][RFC] Linux VM hooks for advanced RDMA NICs
+From: Lee Revell <rlrevell@joe-job.com>
 To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Robert Love <rml@novell.com>,
-       kpreempt-tech@lists.sourceforge.net
-Subject: Re: preempt-count oddities - still looking for comments :)
-In-Reply-To: <Pine.LNX.4.62.0504232254050.2474@dragon.hyggekrogen.localhost>
-Message-ID: <Pine.LNX.4.62.0504261929230.2071@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0504232254050.2474@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: David Addison <addy@quadrics.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       David Addison <david.addison@quadrics.com>
+In-Reply-To: <Pine.LNX.4.62.0504261918210.2071@dragon.hyggekrogen.localhost>
+References: <426E62ED.5090803@quadrics.com>
+	 <Pine.LNX.4.62.0504261829110.2071@dragon.hyggekrogen.localhost>
+	 <1114535584.5410.2.camel@mindpipe>
+	 <Pine.LNX.4.62.0504261918210.2071@dragon.hyggekrogen.localhost>
+Content-Type: text/plain
+Date: Tue, 26 Apr 2005 13:28:31 -0400
+Message-Id: <1114536511.5410.14.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-04-26 at 19:20 +0200, Jesper Juhl wrote:
+> I don't know what you do, but when I'm grep'ing the tree for some function 
+> I'm often looking for its return type, having that on the same line as the 
+> function name lets me grep for the function name and the grep output will 
+> contain the return type and function name nicely on the same line.
+> 
 
-Replying to myself here since the initial mail got no response. Here's 
-hoping that it showing up on the list again draws some comments :-)
+I do a lot of looking at large hunks of code I'm not familiar with and
+trying to figure out how it works.  It's quite handy to grep for
+foo_func to see all usages, then ^foo_func to see the function.  I guess
+my preferred style favors people trying to grok code for the first time,
+while the kernel style favors those who know it inside out.
 
--- 
-Jesper
+Anyway, the coding style guidelines also state clearly that these points
+are not up for debate on LKML so I'll stop now...
 
+Lee
 
-On Sat, 23 Apr 2005, Jesper Juhl wrote:
-
-> While looking through the tree and checking out possible signedness issues 
-> pointed out to me by gcc -W I came across this one : 
->   kernel/timer.c:464: warning: comparison between signed and unsigned
-> The issue there is this little bit of code :
->   [...]
->   462        u32 preempt_count = preempt_count();
->   463        fn(data);
->   464        if (preempt_count != preempt_count()) {
->   [...]
-> gcc is complaining about that since preempt_count in struct thread_info 
-> (which is what preempt_count() returns) is a signed integer. Initially I 
-> thought "that's a bit sloppy, I'll just make the local variable a s32 and 
-> that should be that", but then I looked a little closer at struct 
-> thread_info for the different archs, and found that the type used differs 
-> between archs and it's not even a signed type on all (s390 being the 
-> unsigned exception). So all of a sudden fixing up this little warning was 
-> not so simple after all.
-> The different types used for struct thread_info.preempt_count are 
-> __s32, int and unsigned int.
-> 
-> Why are different types used for struct thread_info.preempt_count? Would 
-> it not make sense to make it a __s32 or plain int on all archs? I would 
-> think that consistency here would be a good thing.
-> And why on earth is it an unsigned int on s390? It seems to me that that 
-> makes it impossible to catch bugs where preempt_count is decremented below 
-> zero.
-> 
-> Any reason not to apply a patch like this one? 
-> my choice of 'int' over '__s32' was pretty arbitrary - as far as I know we 
-> don't support any archs where 'int' is less than 32bits, do we? So I 
-> figured that using a plain int type should give us at least 32 bits 
-> everywhere as well as using the given platforms fastest type. If any of 
-> the archs have <32bit int types, then I guess __s32 would be a better 
-> choice.
-> 
-> Signed-of-by: Jesper Juhl <juhl-lkml@dif.dk>
-> 
-> --- linux-2.6.12-rc2-mm3-orig/include/asm-arm/thread_info.h	2005-03-02 08:38:08.000000000 +0100
-> +++ linux-2.6.12-rc2-mm3/include/asm-arm/thread_info.h	2005-04-23 23:16:04.000000000 +0200
-> @@ -45,7 +45,7 @@
->   */
->  struct thread_info {
->  	unsigned long		flags;		/* low level flags */
-> -	__s32			preempt_count;	/* 0 => preemptable, <0 => bug */
-> +	int			preempt_count;	/* 0 => preemptable, <0 => bug */
->  	mm_segment_t		addr_limit;	/* address limit */
->  	struct task_struct	*task;		/* main task structure */
->  	struct exec_domain	*exec_domain;	/* execution domain */
-> --- linux-2.6.12-rc2-mm3-orig/include/asm-arm26/thread_info.h	2005-03-02 08:37:50.000000000 +0100
-> +++ linux-2.6.12-rc2-mm3/include/asm-arm26/thread_info.h	2005-04-23 23:16:22.000000000 +0200
-> @@ -44,7 +44,7 @@
->   */
->  struct thread_info {
->  	unsigned long		flags;		/* low level flags */
-> -	__s32			preempt_count;	/* 0 => preemptable, <0 => bug */
-> +	int			preempt_count;	/* 0 => preemptable, <0 => bug */
->  	mm_segment_t		addr_limit;	/* address limit */
->  	struct task_struct	*task;		/* main task structure */
->  	struct exec_domain      *exec_domain;   /* execution domain */
-> --- linux-2.6.12-rc2-mm3-orig/include/asm-cris/thread_info.h	2005-03-02 08:38:32.000000000 +0100
-> +++ linux-2.6.12-rc2-mm3/include/asm-cris/thread_info.h	2005-04-23 23:16:29.000000000 +0200
-> @@ -31,7 +31,7 @@
->  	struct exec_domain	*exec_domain;	/* execution domain */
->  	unsigned long		flags;		/* low level flags */
->  	__u32			cpu;		/* current CPU */
-> -	__s32			preempt_count; /* 0 => preemptable, <0 => BUG */
-> +	int			preempt_count; /* 0 => preemptable, <0 => BUG */
->  
->  	mm_segment_t		addr_limit;	/* thread address space:
->  					 	   0-0xBFFFFFFF for user-thead
-> --- linux-2.6.12-rc2-mm3-orig/include/asm-frv/thread_info.h	2005-03-02 08:37:50.000000000 +0100
-> +++ linux-2.6.12-rc2-mm3/include/asm-frv/thread_info.h	2005-04-23 23:16:37.000000000 +0200
-> @@ -33,7 +33,7 @@
->  	unsigned long		flags;		/* low level flags */
->  	unsigned long		status;		/* thread-synchronous flags */
->  	__u32			cpu;		/* current CPU */
-> -	__s32			preempt_count;	/* 0 => preemptable, <0 => BUG */
-> +	int			preempt_count;	/* 0 => preemptable, <0 => BUG */
->  
->  	mm_segment_t		addr_limit;	/* thread address space:
->  					 	   0-0xBFFFFFFF for user-thead
-> --- linux-2.6.12-rc2-mm3-orig/include/asm-i386/thread_info.h	2005-04-05 21:21:48.000000000 +0200
-> +++ linux-2.6.12-rc2-mm3/include/asm-i386/thread_info.h	2005-04-23 23:16:50.000000000 +0200
-> @@ -31,7 +31,7 @@
->  	unsigned long		flags;		/* low level flags */
->  	unsigned long		status;		/* thread-synchronous flags */
->  	__u32			cpu;		/* current CPU */
-> -	__s32			preempt_count; /* 0 => preemptable, <0 => BUG */
-> +	int			preempt_count; /* 0 => preemptable, <0 => BUG */
->  
->  
->  	mm_segment_t		addr_limit;	/* thread address space:
-> --- linux-2.6.12-rc2-mm3-orig/include/asm-ia64/thread_info.h	2005-03-02 08:38:33.000000000 +0100
-> +++ linux-2.6.12-rc2-mm3/include/asm-ia64/thread_info.h	2005-04-23 23:17:04.000000000 +0200
-> @@ -25,7 +25,7 @@
->  	__u32 flags;			/* thread_info flags (see TIF_*) */
->  	__u32 cpu;			/* current CPU */
->  	mm_segment_t addr_limit;	/* user-level address space limit */
-> -	__s32 preempt_count;		/* 0=premptable, <0=BUG; will also serve as bh-counter */
-> +	int preempt_count;		/* 0=premptable, <0=BUG; will also serve as bh-counter */
->  	struct restart_block restart_block;
->  	struct {
->  		int signo;
-> --- linux-2.6.12-rc2-mm3-orig/include/asm-m32r/thread_info.h	2005-03-02 08:38:26.000000000 +0100
-> +++ linux-2.6.12-rc2-mm3/include/asm-m32r/thread_info.h	2005-04-23 23:17:21.000000000 +0200
-> @@ -28,7 +28,7 @@
->  	unsigned long		flags;		/* low level flags */
->  	unsigned long		status;		/* thread-synchronous flags */
->  	__u32			cpu;		/* current CPU */
-> -	__s32			preempt_count; /* 0 => preemptable, <0 => BUG */
-> +	int			preempt_count; /* 0 => preemptable, <0 => BUG */
->  
->  	mm_segment_t		addr_limit;	/* thread address space:
->  					 	   0-0xBFFFFFFF for user-thread
-> --- linux-2.6.12-rc2-mm3-orig/include/asm-m68k/thread_info.h	2005-04-05 21:21:49.000000000 +0200
-> +++ linux-2.6.12-rc2-mm3/include/asm-m68k/thread_info.h	2005-04-23 23:17:29.000000000 +0200
-> @@ -8,7 +8,7 @@
->  struct thread_info {
->  	struct task_struct	*task;		/* main task structure */
->  	struct exec_domain	*exec_domain;	/* execution domain */
-> -	__s32			preempt_count; /* 0 => preemptable, <0 => BUG */
-> +	int			preempt_count; /* 0 => preemptable, <0 => BUG */
->  	__u32 cpu; /* should always be 0 on m68k */
->  	struct restart_block    restart_block;
->  
-> --- linux-2.6.12-rc2-mm3-orig/include/asm-mips/thread_info.h	2005-03-02 08:37:30.000000000 +0100
-> +++ linux-2.6.12-rc2-mm3/include/asm-mips/thread_info.h	2005-04-23 23:17:47.000000000 +0200
-> @@ -27,7 +27,7 @@
->  	struct exec_domain	*exec_domain;	/* execution domain */
->  	unsigned long		flags;		/* low level flags */
->  	__u32			cpu;		/* current CPU */
-> -	__s32			preempt_count; /* 0 => preemptable, <0 => BUG */
-> +	int			preempt_count; /* 0 => preemptable, <0 => BUG */
->  
->  	mm_segment_t		addr_limit;	/* thread address space:
->  					 	   0-0xBFFFFFFF for user-thead
-> --- linux-2.6.12-rc2-mm3-orig/include/asm-parisc/thread_info.h	2005-04-05 21:21:49.000000000 +0200
-> +++ linux-2.6.12-rc2-mm3/include/asm-parisc/thread_info.h	2005-04-23 23:17:55.000000000 +0200
-> @@ -12,7 +12,7 @@
->  	unsigned long flags;		/* thread_info flags (see TIF_*) */
->  	mm_segment_t addr_limit;	/* user-level address space limit */
->  	__u32 cpu;			/* current CPU */
-> -	__s32 preempt_count;		/* 0=premptable, <0=BUG; will also serve as bh-counter */
-> +	int preempt_count;		/* 0=premptable, <0=BUG; will also serve as bh-counter */
->  	struct restart_block restart_block;
->  };
->  
-> --- linux-2.6.12-rc2-mm3-orig/include/asm-s390/thread_info.h	2005-03-02 08:38:13.000000000 +0100
-> +++ linux-2.6.12-rc2-mm3/include/asm-s390/thread_info.h	2005-04-23 23:18:12.000000000 +0200
-> @@ -50,7 +50,7 @@
->  	struct exec_domain	*exec_domain;	/* execution domain */
->  	unsigned long		flags;		/* low level flags */
->  	unsigned int		cpu;		/* current CPU */
-> -	unsigned int		preempt_count; /* 0 => preemptable */
-> +	int			preempt_count; /* 0 => preemptable */
->  	struct restart_block	restart_block;
->  };
->  
-> --- linux-2.6.12-rc2-mm3-orig/include/asm-sh/thread_info.h	2005-03-02 08:38:13.000000000 +0100
-> +++ linux-2.6.12-rc2-mm3/include/asm-sh/thread_info.h	2005-04-23 23:18:20.000000000 +0200
-> @@ -20,7 +20,7 @@
->  	struct exec_domain	*exec_domain;	/* execution domain */
->  	__u32			flags;		/* low level flags */
->  	__u32			cpu;
-> -	__s32			preempt_count; /* 0 => preemptable, <0 => BUG */
-> +	int			preempt_count; /* 0 => preemptable, <0 => BUG */
->  	struct restart_block	restart_block;
->  	__u8			supervisor_stack[0];
->  };
-> --- linux-2.6.12-rc2-mm3-orig/include/asm-sh64/thread_info.h	2005-04-05 21:21:49.000000000 +0200
-> +++ linux-2.6.12-rc2-mm3/include/asm-sh64/thread_info.h	2005-04-23 23:18:27.000000000 +0200
-> @@ -22,7 +22,7 @@
->  	struct exec_domain	*exec_domain;	/* execution domain */
->  	unsigned long		flags;		/* low level flags */
->  	/* Put the 4 32-bit fields together to make asm offsetting easier. */
-> -	__s32			preempt_count; /* 0 => preemptable, <0 => BUG */
-> +	int			preempt_count; /* 0 => preemptable, <0 => BUG */
->  	__u16			cpu;
->  
->  	mm_segment_t		addr_limit;
-> --- linux-2.6.12-rc2-mm3-orig/include/asm-um/thread_info.h	2005-03-02 08:37:54.000000000 +0100
-> +++ linux-2.6.12-rc2-mm3/include/asm-um/thread_info.h	2005-04-23 23:18:50.000000000 +0200
-> @@ -17,7 +17,7 @@
->  	struct exec_domain	*exec_domain;	/* execution domain */
->  	unsigned long		flags;		/* low level flags */
->  	__u32			cpu;		/* current CPU */
-> -	__s32			preempt_count;  /* 0 => preemptable, 
-> +	int			preempt_count;  /* 0 => preemptable, 
->  						   <0 => BUG */
->  	mm_segment_t		addr_limit;	/* thread address space:
->  					 	   0-0xBFFFFFFF for user
-> 
-> 
-> and then the litle detail in kernel/timer.c can be fixed nicely like this: 
-> 
-> Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-> 
-> --- linux-2.6.12-rc2-mm3-orig/kernel/timer.c	2005-04-11 21:20:56.000000000 +0200
-> +++ linux-2.6.12-rc2-mm3/kernel/timer.c	2005-04-23 23:19:21.000000000 +0200
-> @@ -459,7 +459,7 @@ static inline void __run_timers(tvec_bas
->  			detach_timer(timer, 1);
->  			spin_unlock_irq(&base->t_base.lock);
->  			{
-> -				u32 preempt_count = preempt_count();
-> +				int preempt_count = preempt_count();
->  				fn(data);
->  				if (preempt_count != preempt_count()) {
->  					printk("huh, entered %p with %08x, exited with %08x?\n", fn, preempt_count, preempt_count());
-> 
-> 
-> or is there some good reason I'm missing that make the above a bad idea?
-> 
-> 
-> -- 
-> Jesper Juhl
-> 
-> PS. Please CC: me on replies.
-> 
-> 

@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261370AbVDZOvr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261400AbVDZOw3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261370AbVDZOvr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 10:51:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbVDZOvr
+	id S261400AbVDZOw3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 10:52:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261491AbVDZOw2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 10:51:47 -0400
-Received: from [62.206.217.67] ([62.206.217.67]:58517 "EHLO kaber.coreworks.de")
-	by vger.kernel.org with ESMTP id S261370AbVDZOvp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 10:51:45 -0400
-Message-ID: <426E5571.8000101@trash.net>
-Date: Tue, 26 Apr 2005 16:51:29 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Ed Tomlinson <tomlins@cam.org>, Alexander Nyberg <alexn@dsv.su.se>,
-       Parag Warudkar <kernel-stuff@comcast.net>, linux-kernel@vger.kernel.org
-Subject: Re: X86_64: 2.6.12-rc3 spontaneous reboot
-References: <200504240008.35435.kernel-stuff@comcast.net> <1114332119.916.1.camel@localhost.localdomain> <200504240903.31377.tomlins@cam.org> <426CADF1.2000100@trash.net> <20050425153541.GC16828@wotan.suse.de> <426E3C6F.6010001@trash.net> <20050426135312.GI5098@wotan.suse.de> <426E48C0.9090503@trash.net> <426E4DD2.8060808@trash.net> <20050426142252.GJ5098@wotan.suse.de>
-In-Reply-To: <20050426142252.GJ5098@wotan.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Apr 2005 10:52:28 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:24821 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261400AbVDZOwV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 10:52:21 -0400
+Date: Tue, 26 Apr 2005 20:22:10 +0530
+From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+To: Juergen Quade <quade@hsnr.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: system-freeze: kprobe and do_gettimeofday
+Message-ID: <20050426145210.GC32766@in.ibm.com>
+Reply-To: prasanna@in.ibm.com
+References: <20050423101251.GA327@hsnr.de> <20050425155649.GA30272@in.ibm.com> <20050425160859.GA23019@hsnr.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050425160859.GA23019@hsnr.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> Hmm actually - on some systems I broke the NMI watchdog. Can you
-> check your dmesg to see if check_nmi_watchdog doesnt report it 
-> as stuck? If yes please put a return on top of check_nmi_watchdog
-> that should fix it. You can verify it works by looking at the
-> per CPU NMI counters in /proc/interrupts. An nmi watchdog
-> backtrace would be nice to see.
 
-No occurences of check_nmi_watchdog in dmesg or my logs, just
-"Using local APIC NMI watchdog using perfctr0". /proc/interrupts
-shows:
+On Mon, Apr 25, 2005 at 06:08:59PM +0200, Juergen Quade wrote:
+> On Mon, Apr 25, 2005 at 09:26:49PM +0530, Prasanna S Panchamukhi wrote:
+> > On Sat, Apr 23, 2005 at 12:12:51PM +0200, Juergen Quade wrote:
+> > > Playing around with kprobe I noticed, that "kprobing"
+> > > the function "do_gettimeofday" completly freezes the
+> > > system (2.6.12-rc3). Other functions like "do_fork" or
+> > 
+> > Kprobe on "do_gettimeofday" seems to work fine on 4-way SMP i386 box.
+> > What is configuration of your machine?
+> 
+> Thank you for your answer!
+> Find my kernel-config attached.
+> The processor of the system is an Pentium M
+> (1400MHz, 512MByte Memory - nothing specific).
+> 
 
-NMI:        181
+I tested with your configuration file and it still
+works fine. Can you get some more info about current tasks 
+using Alt+SysRq+t and  Alt+SysRq+d keys.
 
-Regards
-Patrick
+Thanks
+Prasanna
+-- 
+
+Prasanna S Panchamukhi
+Linux Technology Center
+India Software Labs, IBM Bangalore
+Ph: 91-80-25044636
+<prasanna@in.ibm.com>

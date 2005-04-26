@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261295AbVDZEpj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbVDZE6m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261295AbVDZEpj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 00:45:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbVDZEpj
+	id S261315AbVDZE6m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 00:58:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbVDZE6m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 00:45:39 -0400
-Received: from 70-56-217-9.albq.qwest.net ([70.56.217.9]:9685 "EHLO
-	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S261295AbVDZEpe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 00:45:34 -0400
-Date: Mon, 25 Apr 2005 22:47:53 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Li Shaohua <shaohua.li@intel.com>
-cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH]broadcast IPI race condition on CPU hotplug
-In-Reply-To: <1114489490.7416.2.camel@sli10-desk.sh.intel.com>
-Message-ID: <Pine.LNX.4.61.0504252245530.26521@montezuma.fsmlabs.com>
-References: <1114482044.7068.17.camel@sli10-desk.sh.intel.com> 
- <Pine.LNX.4.61.0504252222230.26521@montezuma.fsmlabs.com>
- <1114489490.7416.2.camel@sli10-desk.sh.intel.com>
+	Tue, 26 Apr 2005 00:58:42 -0400
+Received: from 216-237-124-58.infortech.net ([216.237.124.58]:14722 "EHLO
+	mail.dvmed.net") by vger.kernel.org with ESMTP id S261290AbVDZE6i
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 00:58:38 -0400
+Message-ID: <426DCA75.901@pobox.com>
+Date: Tue, 26 Apr 2005 00:58:29 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: pasky@ucw.cz, git@vger.kernel.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Cogito-0.8 (former git-pasky, big changes!)
+References: <20050426032422.GQ13467@pasky.ji.cz>
+In-Reply-To: <20050426032422.GQ13467@pasky.ji.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Apr 2005, Li Shaohua wrote:
+Petr Baudis wrote:
+>   Hello,
+> 
+>   here goes Cogito-0.8, my SCMish layer over Linus Torvald's git tree
+> history tracker. This package was formerly called git-pasky, however
+> this release brings big changes. The usage is significantly different,
+> as well as some basic concepts; the history changed again (hopefully the
+> last time?) because of fixing dates of some old commits. The .git/
+> directory layout changed too.
 
-> On Tue, 2005-04-26 at 12:25, Zwane Mwaikambo wrote:
-> > 
-> > > After a CPU is booted but before it's officially up (set online map, and
-> > > enable interrupt), the CPU possibly will receive a broadcast IPI. After
-> > > it's up, it will handle the stale interrupt soon and maybe cause oops if
-> > > it's a smp-call-function-interrupt. This is quite possible in CPU
-> > > hotplug case, but nearly can't occur at boot time. Below patch replaces
-> > > broadcast IPI with send_ipi_mask just like the cluster mode.
-> > 
-> > Ok, but isn't it sufficient to use send_ipi_mask in smp_call_function 
-> > instead?
-> I'm not sure if other routines using broadcast IPI have this bug. Fixing
-> the send_ipi_all API looks more generic. Is there any reason we should
-> use broadcast IPI?
+tar xvfj $x
+cd x
+make
+...
+gcc -g -O2 -Wall '-DSHA1_HEADER=<openssl/sha.h>' -o rpull rpull.c 
+libgit.a rsh.c -lz -lssl
+gcc -g -O2 -Wall '-DSHA1_HEADER=<openssl/sha.h>' -o rev-list rev-list.c 
+libgit.a -lz -lssl
+gcc -g -O2 -Wall '-DSHA1_HEADER=<openssl/sha.h>' -o git-mktag 
+git-mktag.c libgit.a -lz -lssl
+gcc -g -O2 -Wall '-DSHA1_HEADER=<openssl/sha.h>' -o diff-tree-helper 
+diff-tree-helper.c libgit.a -lz -lssl
+make: commit-id: Command not found
+Generating cg-version...
 
-I'd prefer only touching smp_call_function because the others are 
-primitives, we should only be fixing the users of the primitives, 
-otherwise we'll end up with code which won't be as versatile.
 
-Thanks,
-	Zwane
+
+So, it still complains about commit-id
+
+	Jeff
+
+

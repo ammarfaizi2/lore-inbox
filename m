@@ -1,69 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbVDZFdt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261221AbVDZFgt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261265AbVDZFdt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 01:33:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVDZFdt
+	id S261221AbVDZFgt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 01:36:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbVDZFgt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 01:33:49 -0400
-Received: from gate.crashing.org ([63.228.1.57]:28103 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261265AbVDZFdp (ORCPT
+	Tue, 26 Apr 2005 01:36:49 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:16618 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261221AbVDZFgo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 01:33:45 -0400
-Subject: pci-sysfs resource mmap broken
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: linux-pci@atrey.karlin.mff.cuni.cz
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
-Content-Type: text/plain
-Date: Tue, 26 Apr 2005 15:33:29 +1000
-Message-Id: <1114493609.7183.55.camel@gaston>
+	Tue, 26 Apr 2005 01:36:44 -0400
+Date: Tue, 26 Apr 2005 13:39:30 +0800
+From: David Teigland <teigland@redhat.com>
+To: Wim Coekaerts <wim.coekaerts@oracle.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 0/7] dlm: overview
+Message-ID: <20050426053930.GA12096@redhat.com>
+References: <20050425151136.GA6826@redhat.com> <20050425203952.GE25002@ca-server1.us.oracle.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050425203952.GE25002@ca-server1.us.oracle.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Mon, Apr 25, 2005 at 01:39:52PM -0700, Wim Coekaerts wrote:
+> > This is a distributed lock manager (dlm) that we'd like to see added to
+> > the kernel.  The dlm programming api is very similar to that found on
+> > other operating systems, but this is modeled most closely after that in
+> > VMS.
+> 
+> do you have any performance data at all on this ? I like to see a dlm
+> but I like to see something that will also perform well. 
 
-While chasing an interesting bug in ppc/ppc64 implementation of pci
-mmap, I discovered that the pci sysfs code is in fact broken and cannot
-be made to work on those archs (well, at least for IO space). In fact,
-it can, but then, it would break the /proc code :)
+No.  What kind of performance measurements do you have in mind?  Most dlm
+lock requests involve sending a message to a remote machine and waiting
+for a reply.  I expect this network round-trip is the bulk of the time for
+a request, which is why I'm a bit confused by your question.
 
-The problem is that they are both calling the same arch routine
-(pci_mmap_page_range) with the offset argument having a different
-semantic.
+Now, sometimes there are two remote messages (when a resource directory
+lookup is needed).  You can eliminate that by not using a resource
+directory, which will soon be a configurable option.
 
-In the /proc code, it comes from userland directly, and is supposedly,
-the raw BAR value.
 
-In sysfs, it's passing the device resource[]->start value.
+> My main concern is that I have not seen anything relying on this code do
+> "reasonably well". eg can you show gfs numbers w/ number of nodes and
+> scalability ?
 
-The problem is that can only work ... on architectures where the
-resources contain the same thing as the BAR values. On ppc, where this
-is not the case, it will not work. On ppc, resources are "fixed up" in
-various ways (for example, PReP adds a fixed offset to all memory
-resources to match the HW translation since PCI isn't 1:1 on those, and
-all PPCs with more than one domain play tricks with IO resources).
+I'd suggest that if some cluster application is using the dlm and has poor
+performance or scalability, the reason and solution lies mostly in the
+app, not in the dlm.  That's assuming we're not doing anything blatantly
+dumb in the dlm, butI think you may be placing too much emphasis on the
+role of the dlm here.
 
-What would be the proper fix here ? Having pci_mmap_resource() actually
-read the BAR value for the resource ?
 
-In a similar vein, the "resource" is exposing directly to userland the
-content of "struct resource". This doesn't mean anything. The kernel is
-internally playing all sort of offset tricks on these values, so they
-can't be used for anything useful, either via /dev/mem, or for io port
-accesses, or whatever.
+> I think it's time we submit ocfs2 w/ it's cluster stack so that folks
+> can compare (including actual data/numbers), we have been waiting to
+> stabilize everything but I guess there is this preemptive strike going
+> on so we might just as well. at least we have had hch and folks comment,
+> before sending to submit code.
 
-Shouldn't we expose the BAR values & size rather here ? That is,
-reconsitutes non-offset'd resources, possibly with arch help, or just
-reading BAR to get base, and apply resource size & flags ?
+Strike?  Preemption?  That sounds frightfully conspiratorial and
+contentious; who have you been talking to?  It's obvious to me that ocfs2
+and gfs each have their own happy niche; they're hardly equivalent (more
+so considering all the flavors of local file systems.)  This is surely a
+case of "different", not "conflict"!
 
-Unless you are on x86 of course ...
 
-There is some serious brokenness in there, it needs to be fixed if we
-want things like X.org to be ever properly adapted (and we'll have to
-deal with existing broken kernels, gack).
+> Andrew - we will submit ocfs2 so you can have a look, compare and move
+> on.  we will work with any stack that eventuslly gets accepted, just want 
+> to see the choice out there and an educated decision.
+> 
+> hopefully tomorrow, including data comparing single node and multinode
+> performance.
 
-Ben.
+I'd really like to see ocfs succeed, but good heavens, why do we need to
+study an entire cluster fs when looking at a dlm!?  A cluster fs may use a
+dlm, but a dlm is surely a stand-alone entity with _many_ applications
+beyond a cluster fs (which is frankly a rather obscure app.)
 
+We've made great effort to make the dlm broadly useful beyond the realm of
+gfs or cluster file systems.  In the long run I expect other cluster apps
+will out-use the dlm by far.
+
+Dave
 

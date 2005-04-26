@@ -1,44 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbVDZPOo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbVDZPT2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261584AbVDZPOo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 11:14:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261579AbVDZPOe
+	id S261586AbVDZPT2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 11:19:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261583AbVDZPTZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 11:14:34 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:7296 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S261568AbVDZPON
+	Tue, 26 Apr 2005 11:19:25 -0400
+Received: from mail.shareable.org ([81.29.64.88]:10921 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S261568AbVDZPTW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 11:14:13 -0400
-Date: Tue, 26 Apr 2005 11:14:10 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       <alexn@dsv.su.se>, Greg KH <greg@kroah.com>, <gud@eth.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       <linux-pci@atrey.karlin.mff.cuni.cz>, Jeff Garzik <jgarzik@pobox.com>,
-       <cramerj@intel.com>, Linux-USB <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] PCI: Add pci shutdown ability
-In-Reply-To: <1114487537.7182.26.camel@gaston>
-Message-ID: <Pine.LNX.4.44L0.0504261112320.12725-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 26 Apr 2005 11:19:22 -0400
+Date: Tue, 26 Apr 2005 16:19:16 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: "Artem B. Bityuckiy" <dedekind@oktetlabs.ru>
+Cc: Ville Herva <v@iki.fi>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: filesystem transactions API
+Message-ID: <20050426151916.GA14297@mail.shareable.org>
+References: <20050424211942.GN13052@parcelfarce.linux.theplanet.co.uk> <OF32F95BBA.F38B2D1F-ON88256FEE.006FE841-88256FEE.00742E46@us.ibm.com> <20050426134629.GU16169@viasys.com> <20050426141426.GC10833@mail.shareable.org> <426E4EBD.6070104@oktetlabs.ru> <20050426143247.GF10833@mail.shareable.org> <426E5428.2090306@oktetlabs.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <426E5428.2090306@oktetlabs.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Apr 2005, Benjamin Herrenschmidt wrote:
+Artem B. Bityuckiy wrote:
+> Hmm, so the whole point to implement transactions in the kernel space is 
+> to do the transactions in a way that nobody can see any intermediate 
+> inconsistent state ?
 
-> The problem is, as far as I understand what David told me a while ago,
-> some USB chips simply _cannot_ disable DMA without actually suspending
-> the bus, which itself is a complex process that takes some time and can
-> involve all sort of problems with devices / drivers that don't deal with
-> suspended busses properly. I suspect other kind of chips may be
-> similarily busted by design.
+Yes.
 
-That's correct.  However, during shutdown we don't really need to take the 
-time and we don't care about problems with drivers not handling suspended 
-buses properly.  (USB devices, at least, _can_ handle such things -- it's 
-part of the spec.)
-
-Alan Stern
-
+-- Jamie

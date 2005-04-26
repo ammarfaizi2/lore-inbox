@@ -1,61 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbVDZNF5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261510AbVDZNJC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261502AbVDZNF5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 09:05:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVDZNF5
+	id S261510AbVDZNJC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 09:09:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVDZNIK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 09:05:57 -0400
-Received: from colin.muc.de ([193.149.48.1]:19216 "EHLO colin2.muc.de")
-	by vger.kernel.org with ESMTP id S261502AbVDZNFt (ORCPT
+	Tue, 26 Apr 2005 09:08:10 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:53178 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S261505AbVDZNGE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 09:05:49 -0400
-Date: 26 Apr 2005 15:05:48 +0200
-Date: Tue, 26 Apr 2005 15:05:47 +0200
-From: Andi Kleen <ak@muc.de>
-To: Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp>
-Cc: Valdis.Kletnieks@vt.edu, Kyle Moffett <mrmacman_g4@mac.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH x86_64] Live Patching Function on 2.6.11.7
-Message-ID: <20050426130547.GE65287@muc.de>
-References: <4263275A.2020405@lab.ntt.co.jp> <m1y8b9xyaw.fsf@muc.de> <426C51C4.9040902@lab.ntt.co.jp> <e83d0cb60cb50a56b38294e9160d7712@mac.com> <426CC8F7.8070905@lab.ntt.co.jp> <200504251636.j3PGa9SJ015388@turing-police.cc.vt.edu> <426D9AC0.5020908@lab.ntt.co.jp>
+	Tue, 26 Apr 2005 09:06:04 -0400
+Subject: Re: IRQ Disabling
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Al Niessner <Al.Niessner@jpl.nasa.gov>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1114453001.19173.47.camel@morte.jpl.nasa.gov>
+References: <1114453001.19173.47.camel@morte.jpl.nasa.gov>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1114517101.18330.73.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <426D9AC0.5020908@lab.ntt.co.jp>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 26 Apr 2005 13:05:03 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 26, 2005 at 10:34:56AM +0900, Takashi Ikebe wrote:
-> I think that's the common sense in every carrier.
-> If we reboot the switch, the service will be disrupted.
-> The phone network is lifeline, and does not allow to be disrupt by just 
-> bug fix.
-> I think same kind of function is needed in many real 
-> enterprise/mission-critical/business area.
+On Llu, 2005-04-25 at 19:16, Al Niessner wrote:
+> 1) Write some general handler that resets the IRQ and nothing else and
+> install it as the default handler instead of the current one that is
+> disabling the IRQ?
 > 
-> All do with ptrace may affect target process's time critical task. (need 
-> to stop target process whenever fix)
+> 2) Is there critical information in the report from /var/log/messages
+> that I am missing or do not recognize that would allow me to locate and
+> identify the rouge hardware that is generating the anomalous interrupt?
+> 
+> 3) Some other option that I am totally unaware of?
 
-Sorry, but what are your exact time requirements for this? 
+poll ?
 
-Remember any x86-64 CPU is really fast and it can do a _lot_ of ptrace
-operations in a very short time.
+The -ac kernel btw has code that handles unidentified IRQs by trying all
+the IRQ handlers that have been registered and in "irqpoll" mode polling
+them each timer tick to handle lost IRQs. In the case where the problem
+is simply bad plumbing it works rather well for rescuing otherwise
+unusable laptops
 
-Just a vague "it may be too slow" is not enough justification to 
-push a lot of redundant code into the kernel. Also if ptrace
-should be really too slow (which I doubt, but you are welcome
-to show some numbers together with real time requirements from
-a real system) then we could optimize ptrace for this, e.g.
-by adding a ptrace subcommand to copy whole memory blocks
-more efficiently or maybe even do a mmap like thing.
-
-But unless someone actually demonstrates this is needed it seems far overkill. 
-
-> All implement in user application costs too much, need to implement all 
-> the application...(and I do not know this approach really works on time 
-> critical applications yet.)
-
-I think you have a lot of unproved and doubtful assumptions here.
-
--Andi

@@ -1,72 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261587AbVDZPdU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261527AbVDZPiy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261587AbVDZPdU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 11:33:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261527AbVDZPdT
+	id S261527AbVDZPiy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 11:38:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261579AbVDZPiy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 11:33:19 -0400
-Received: from groover.houseafrika.com ([12.162.17.52]:35341 "EHLO
-	Mansi.STRATNET.NET") by vger.kernel.org with ESMTP id S261614AbVDZPbd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 11:31:33 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: timur.tabi@ammasso.com, hch@infradead.org, hozer@hozed.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
-X-Message-Flag: Warning: May contain useful information
-References: <200544159.Ahk9l0puXy39U6u6@topspin.com>
-	<20050411163342.GE26127@kalmia.hozed.org> <5264yt1cbu.fsf@topspin.com>
-	<20050411180107.GF26127@kalmia.hozed.org> <52oeclyyw3.fsf@topspin.com>
-	<20050411171347.7e05859f.akpm@osdl.org> <4263DEC5.5080909@ammasso.com>
-	<20050418164316.GA27697@infradead.org> <4263E445.8000605@ammasso.com>
-	<20050423194421.4f0d6612.akpm@osdl.org> <426BABF4.3050205@ammasso.com>
-	<52is2bvvz5.fsf@topspin.com> <20050425135401.65376ce0.akpm@osdl.org>
-	<521x8yv9vb.fsf@topspin.com> <20050425151459.1f5fb378.akpm@osdl.org>
-	<426D6D68.6040504@ammasso.com> <20050425153256.3850ee0a.akpm@osdl.org>
-	<52vf6atnn8.fsf@topspin.com> <20050425171145.2f0fd7f8.akpm@osdl.org>
-	<52acnmtmh6.fsf@topspin.com> <20050425173757.1dbab90b.akpm@osdl.org>
-From: Roland Dreier <roland@topspin.com>
-Date: Tue, 26 Apr 2005 08:31:32 -0700
-In-Reply-To: <20050425173757.1dbab90b.akpm@osdl.org> (Andrew Morton's
- message of "Mon, 25 Apr 2005 17:37:57 -0700")
-Message-ID: <52wtqpsgff.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+	Tue, 26 Apr 2005 11:38:54 -0400
+Received: from ns.suse.de ([195.135.220.2]:54166 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261527AbVDZPit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 11:38:49 -0400
+From: Chris Mason <mason@suse.com>
+To: Magnus Damm <magnus.damm@gmail.com>
+Subject: Re: Mercurial 0.3 vs git benchmarks
+Date: Tue, 26 Apr 2005 11:38:45 -0400
+User-Agent: KMail/1.8
+Cc: Linus Torvalds <torvalds@osdl.org>, Mike Taht <mike.taht@timesys.com>,
+       Matt Mackall <mpm@selenic.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
+References: <20050426004111.GI21897@waste.org> <200504260713.26020.mason@suse.com> <aec7e5c305042608095731d571@mail.gmail.com>
+In-Reply-To: <aec7e5c305042608095731d571@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 26 Apr 2005 15:31:32.0621 (UTC) FILETIME=[063CE3D0:01C54A75]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200504261138.46339.mason@suse.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Andrew> umm, how about we
+On Tuesday 26 April 2005 11:09, Magnus Damm wrote:
+> On 4/26/05, Chris Mason <mason@suse.com> wrote:
+> > This agrees with my tests here, the time to apply patches is somewhat
+> > disk bound, even for the small 100 or 200 patch series.  The io should be
+> > coming from data=ordered, since the commits are still every 5 seconds or
+> > so.
+>
+> Yes, as long as you apply the patches to disk that is. I've hacked up
+> a small backend tool that applies patches to files kept in memory and
+> uses a modifed rabin-karp search to match hunks. So you basically read
+> once and write once per file instead of moving data around for each
+> applied patch. But it needs two passes.
+>
+> And no, the source code for the entire Linux kernel is not kept in
+> memory - you need a smart frontend to manage the file cache. Drop me a
+> line if you are interested.
 
-    Andrew> - force the special pages into a separate vma
+Sorry, you've lost me.  Right now the cycle goes like this:
 
-    Andrew> - run get_user_pages() against it all
+1) patch reads patch file, reads source file, writes source file
+2) update-cache reads source file, writes git file
 
-    Andrew> - use RLIMIT_MEMLOCK accounting to check whether the user
-    Andrew> is allowed to do this thing
+Which of those writes are you avoiding?  We have a smart way to manage the 
+cache already for the source files...the vm does pretty well.  There's 
+nothing to manage for the git files.  For the apply a bunch of patches 
+workload, they are write once, read never (except for the index).
 
-    Andrew> - undo the RMLIMIT_MEMLOCK accounting in ->release
+-chris
 
-    Andrew> This will all interact with user-initiated mlock/munlock
-    Andrew> in messy ways. Maybe a new kernel-internal vma->vm_flag
-    Andrew> which works like VM_LOCKED but is unaffected by
-    Andrew> mlock/munlock activity is needed.
-
-    Andrew> A bit of generalisation in do_mlock() should suit?
-
-Yes, it seems that modifying do_mlock() to something like
-
-	int do_mlock(unsigned long start, size_t len,
-		     unsigned int set, unsigned int clear)
-
-and then exporting a function along the lines of
-
-	int do_mem_pin(unsigned long start, size_t len, int on)
-
-that sets/clears (VM_LOCKED_KERNEL | VM_DONTCOPY) according to the on
-flag.
-
-Seem reasonable?  If so I can code this up.
-
- - R.

@@ -1,47 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261599AbVDZP2w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261587AbVDZPdU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261599AbVDZP2w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 11:28:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbVDZP2u
+	id S261587AbVDZPdU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 11:33:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261527AbVDZPdT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 11:28:50 -0400
-Received: from rproxy.gmail.com ([64.233.170.194]:44847 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261599AbVDZP13 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 11:27:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:x-enigmail-version:x-enigmail-supports:content-type:content-transfer-encoding;
-        b=REnufFmAz/1eVLsJJZ925wO04s4TORvD20MXBC8LL/lDgIeqNB9V+nXc+exudUnezrKCLjKw9JLbL7Z3tLN5B1t039gNuXYUO3Xuaoj/JAm65nCMYS+vHOxklM2NB3pRohiBx9cvLBtAjFmY4SO5QaZZBsBG8iXPHtC9c2wU22k=
-Message-ID: <426E5C44.2060002@gmail.com>
-Date: Tue, 26 Apr 2005 11:20:36 -0400
-From: Florin Malita <fmalita@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Tue, 26 Apr 2005 11:33:19 -0400
+Received: from groover.houseafrika.com ([12.162.17.52]:35341 "EHLO
+	Mansi.STRATNET.NET") by vger.kernel.org with ESMTP id S261614AbVDZPbd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 11:31:33 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: timur.tabi@ammasso.com, hch@infradead.org, hozer@hozed.org,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+X-Message-Flag: Warning: May contain useful information
+References: <200544159.Ahk9l0puXy39U6u6@topspin.com>
+	<20050411163342.GE26127@kalmia.hozed.org> <5264yt1cbu.fsf@topspin.com>
+	<20050411180107.GF26127@kalmia.hozed.org> <52oeclyyw3.fsf@topspin.com>
+	<20050411171347.7e05859f.akpm@osdl.org> <4263DEC5.5080909@ammasso.com>
+	<20050418164316.GA27697@infradead.org> <4263E445.8000605@ammasso.com>
+	<20050423194421.4f0d6612.akpm@osdl.org> <426BABF4.3050205@ammasso.com>
+	<52is2bvvz5.fsf@topspin.com> <20050425135401.65376ce0.akpm@osdl.org>
+	<521x8yv9vb.fsf@topspin.com> <20050425151459.1f5fb378.akpm@osdl.org>
+	<426D6D68.6040504@ammasso.com> <20050425153256.3850ee0a.akpm@osdl.org>
+	<52vf6atnn8.fsf@topspin.com> <20050425171145.2f0fd7f8.akpm@osdl.org>
+	<52acnmtmh6.fsf@topspin.com> <20050425173757.1dbab90b.akpm@osdl.org>
+From: Roland Dreier <roland@topspin.com>
+Date: Tue, 26 Apr 2005 08:31:32 -0700
+In-Reply-To: <20050425173757.1dbab90b.akpm@osdl.org> (Andrew Morton's
+ message of "Mon, 25 Apr 2005 17:37:57 -0700")
+Message-ID: <52wtqpsgff.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-To: akpm@osdl.org
-CC: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: [PATCH] do_mounts.c: Minor ROOT_DEV comment cleanup
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 26 Apr 2005 15:31:32.0621 (UTC) FILETIME=[063CE3D0:01C54A75]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The ROOT_DEV comment is no longer accurate, it now seems to be 
-initialized in init/do_mounts.c.
+    Andrew> umm, how about we
 
+    Andrew> - force the special pages into a separate vma
 
-Signed-off-by: Florin Malita <fmalita@gmail.com>
+    Andrew> - run get_user_pages() against it all
 
---- linux-2.6.12-rc3/init/do_mounts.c   2005-04-20 20:03:16 -0400
-+++ linux/init/do_mounts.c      2005-04-26 10:23:39 -0400
-@@ -22,7 +22,6 @@
-  char * __initdata root_device_name;
-  static char __initdata saved_root_name[64];
+    Andrew> - use RLIMIT_MEMLOCK accounting to check whether the user
+    Andrew> is allowed to do this thing
 
--/* this is initialized in init/main.c */
-  dev_t ROOT_DEV;
+    Andrew> - undo the RMLIMIT_MEMLOCK accounting in ->release
 
-  EXPORT_SYMBOL(ROOT_DEV);
+    Andrew> This will all interact with user-initiated mlock/munlock
+    Andrew> in messy ways. Maybe a new kernel-internal vma->vm_flag
+    Andrew> which works like VM_LOCKED but is unaffected by
+    Andrew> mlock/munlock activity is needed.
+
+    Andrew> A bit of generalisation in do_mlock() should suit?
+
+Yes, it seems that modifying do_mlock() to something like
+
+	int do_mlock(unsigned long start, size_t len,
+		     unsigned int set, unsigned int clear)
+
+and then exporting a function along the lines of
+
+	int do_mem_pin(unsigned long start, size_t len, int on)
+
+that sets/clears (VM_LOCKED_KERNEL | VM_DONTCOPY) according to the on
+flag.
+
+Seem reasonable?  If so I can code this up.
+
+ - R.

@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbVDZEVZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbVDZEX0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261321AbVDZEVZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 00:21:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVDZEVR
+	id S261336AbVDZEX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 00:23:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbVDZEXU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 00:21:17 -0400
-Received: from fire.osdl.org ([65.172.181.4]:34750 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261314AbVDZEVH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 00:21:07 -0400
-Date: Mon, 25 Apr 2005 21:22:58 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Chris Wedgwood <cw@f00f.org>
-cc: Matt Mackall <mpm@selenic.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-Subject: Re: Mercurial 0.3 vs git benchmarks
-In-Reply-To: <20050426040933.GA21178@taniwha.stupidest.org>
-Message-ID: <Pine.LNX.4.58.0504252120211.18901@ppc970.osdl.org>
-References: <20050426004111.GI21897@waste.org> <Pine.LNX.4.58.0504251859550.18901@ppc970.osdl.org>
- <20050426040933.GA21178@taniwha.stupidest.org>
+	Tue, 26 Apr 2005 00:23:20 -0400
+Received: from 70-56-217-9.albq.qwest.net ([70.56.217.9]:53460 "EHLO
+	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S261331AbVDZEXF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 00:23:05 -0400
+Date: Mon, 25 Apr 2005 22:25:17 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Li Shaohua <shaohua.li@intel.com>
+cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH]broadcast IPI race condition on CPU hotplug
+In-Reply-To: <1114482044.7068.17.camel@sli10-desk.sh.intel.com>
+Message-ID: <Pine.LNX.4.61.0504252222230.26521@montezuma.fsmlabs.com>
+References: <1114482044.7068.17.camel@sli10-desk.sh.intel.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Shaohua,
 
+On Tue, 26 Apr 2005, Li Shaohua wrote:
 
-On Mon, 25 Apr 2005, Chris Wedgwood wrote:
->
-> On Mon, Apr 25, 2005 at 07:08:28PM -0700, Linus Torvalds wrote:
-> 
-> > If you're checking in a change to 1000+ files, you're doing
-> > something wrong.
-> 
-> arch or subsystem merge?
+> After a CPU is booted but before it's officially up (set online map, and
+> enable interrupt), the CPU possibly will receive a broadcast IPI. After
+> it's up, it will handle the stale interrupt soon and maybe cause oops if
+> it's a smp-call-function-interrupt. This is quite possible in CPU
+> hotplug case, but nearly can't occur at boot time. Below patch replaces
+> broadcast IPI with send_ipi_mask just like the cluster mode.
 
-No, if it's a merge, you just suck in all the already-compressed objects.  
+Ok, but isn't it sufficient to use send_ipi_mask in smp_call_function 
+instead?
 
-You never compress anything new - you get the objects, you update your
-tree index, and you're done. No overhead anywhere - a clean merge may
-_look_ like it's changing thousands of files, but it didn't change a
-single _object_ anywhere, it just re-arranged the objects and created a
-new view of them.
-
-Most merges are literally just a tree-level thing. Sometimes you have to 
-do a content merge, but that tends to be a file or two.
-
-			Linus
+Thanks,
+	Zwane

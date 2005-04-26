@@ -1,41 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261423AbVDZJWj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbVDZJYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261423AbVDZJWj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 05:22:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbVDZJWi
+	id S261425AbVDZJYU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 05:24:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbVDZJYU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 05:22:38 -0400
-Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:24735 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261418AbVDZJWc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 05:22:32 -0400
-To: hch@infradead.org
-CC: jamie@shareable.org, linuxram@us.ibm.com, 7eggert@gmx.de, bulb@ucw.cz,
-       viro@parcelfarce.linux.theplanet.co.uk, hch@infradead.org,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-In-reply-to: <20050426091921.GA29810@infradead.org> (message from Christoph
-	Hellwig on Tue, 26 Apr 2005 10:19:21 +0100)
-Subject: Re: [PATCH] private mounts
-References: <3WWGj-3nm-3@gated-at.bofh.it> <3WWQ9-3uA-15@gated-at.bofh.it> <3WWZG-3AC-7@gated-at.bofh.it> <3X630-2qD-21@gated-at.bofh.it> <3X8HA-4IH-15@gated-at.bofh.it> <3Xagd-5Wb-1@gated-at.bofh.it> <E1DQ5LA-0003ZR-SM@be1.7eggert.dyndns.org> <1114445923.4480.94.camel@localhost> <20050425191015.GC28294@mail.shareable.org> <E1DQMB0-00008a-00@dorka.pomaz.szeredi.hu> <20050426091921.GA29810@infradead.org>
-Message-Id: <E1DQMGZ-00009n-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Tue, 26 Apr 2005 11:22:03 +0200
+	Tue, 26 Apr 2005 05:24:20 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:33810 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261425AbVDZJYN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 05:24:13 -0400
+Date: Tue, 26 Apr 2005 10:24:05 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: pci-sysfs resource mmap broken
+Message-ID: <20050426102405.B14242@flint.arm.linux.org.uk>
+Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	linux-pci@atrey.karlin.mff.cuni.cz,
+	Linux Kernel list <linux-kernel@vger.kernel.org>,
+	Greg KH <greg@kroah.com>
+References: <1114493609.7183.55.camel@gaston> <1114495782.7112.60.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1114495782.7112.60.camel@gaston>; from benh@kernel.crashing.org on Tue, Apr 26, 2005 at 04:09:41PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > The most important difference between orinary filesystems and FUSE is
-> > the fact, that the filesystem data/metadata is provided by a userspace
-> > process run with the privileges of the mount "owner" instead of the
-> > kernel, or some remote entity usually running with elevated
-> > privileges.
+On Tue, Apr 26, 2005 at 04:09:41PM +1000, Benjamin Herrenschmidt wrote:
+> Ok, after a bit more thinking, I think I'll go that way for now, please
+> let me know if you think I'm wrong:
 > 
-> define "mount owner".  Right now mount requires CAP_SYS_ADMIN which means
-> fairly privilegued.
+> rename "resource" to "resources" and make it contain a start address
+> that matches the BAR value, that is something that has at least some
+> sort of meaning in userland and can be passed to pci_mmap_page_range().
+> To do that "translation", I'll read the BAR value, and use it as start,
+> then use the resource size & flags.
+> 
+> The name change will also allow userland to "detect" the fixed
+> implementation.
 
-FUSE uses a suid root helper (as explained below).  Please read the
-whole mail.
+I'll wait until I see code before commenting.
 
-Thanks,
-Miklos
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,63 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261388AbVDZIyx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261401AbVDZI7I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261388AbVDZIyx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 04:54:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVDZIyw
+	id S261401AbVDZI7I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 04:59:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbVDZI7I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 04:54:52 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:29646 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261388AbVDZIyu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 04:54:50 -0400
-Date: Tue, 26 Apr 2005 14:24:48 +0530
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Nagesh Sharyathi <sharyathi@in.ibm.com>, vgoyal@in.ibm.com, akpm@osdl.org,
-       ebiederm@xmission.com, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org, maneesh@in.ibm.com
-Subject: Re: [Fastboot] Re: Kdump Testing
-Message-ID: <20050426085448.GB4234@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <1114227003.4269c13be5f8b@imap.linux.ibm.com> <OFB57B3D45.D8C338C5-ON65256FEE.0042F961-65256FEE.0043D4CB@in.ibm.com> <20050425160925.3a48adc5.rddunlap@osdl.org>
+	Tue, 26 Apr 2005 04:59:08 -0400
+Received: from cimice4.lam.cz ([212.71.168.94]:43433 "EHLO vagabond.light.src")
+	by vger.kernel.org with ESMTP id S261401AbVDZI7B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 04:59:01 -0400
+Date: Tue, 26 Apr 2005 10:58:18 +0200
+From: Jan Hudec <bulb@ucw.cz>
+To: Bryan Henderson <hbryan@us.ibm.com>
+Cc: 7eggert@gmx.de, akpm@osdl.org, hch@infradead.org,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Miklos Szeredi <miklos@szeredi.hu>,
+       viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [PATCH] private mounts
+Message-ID: <20050426085817.GA9131@vagabond>
+References: <E1DQ5LA-0003ZR-SM@be1.7eggert.dyndns.org> <OF9C5A2A1D.78873E27-ON88256FEE.00683441-88256FEE.00688DC9@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="OgqxwSJOaUobr8KG"
 Content-Disposition: inline
-In-Reply-To: <20050425160925.3a48adc5.rddunlap@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <OF9C5A2A1D.78873E27-ON88256FEE.00683441-88256FEE.00688DC9@us.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> 2.6.12-rc2-mm3 reboots vmlinux-recover-UP on panic.
-> (vmlinux-recover-SMP hangs during [early] reboot, but -UP
-> goes further....)
-> 
-> (BTW, how does I do serial console from the second
-> kernel...?  It has the drivers, but not the command
-> line info?  TBD.)
-> 
 
+--OgqxwSJOaUobr8KG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-While pre-loading the capture kernel using kexec, you can specify the command
-line options to second kernel using --append="". You must already be passing
-the root device. Add you serial console parameters as well something like
---append="console=ttyS0, 38400"
+On Mon, Apr 25, 2005 at 12:02:43 -0700, Bryan Henderson wrote:
+> >mknamespace -p users/$UID # (like mkdir -p)
+> >setnamespace users/$UID   # (like cd)
+>        ^^^^^^^^
+>=20
+> You realize that 'cd' is a shell command, and has to be, I hope.  That=20
+> little fact has thrown a wrench into many of the ideas in this thread.
 
+You don't want to have such command, really! What you want is a PAM
+module, that looks whether there is already a session for that user and
+switches to it's namespace, if it does. Remember that it's namespace
+- it can be first created, then attached and then populated with mounts.
 
-> vmlinux-recover-UP gets to this point, hand-written,
-> several lines missing:
-> 
-> kfree_debugcheck: bad ptr c3dbffb0h.  ( == %esi)
-> kernel BUG at <bad filename>:23128!
-> invalid operand: 0000 [#1]
-> DEBUG_PAGEALLOC
-> EIP is at kfree_debugcheck+0x45/0x50
-> 
-> Stack dump shows lots of ext3 cache and inode functions...
-> 
+---------------------------------------------------------------------------=
+----
+						 Jan 'Bulb' Hudec <bulb@ucw.cz>
 
-Can you post a full serial console output of second kernel? That would help.
+--OgqxwSJOaUobr8KG
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-Thanks
-Vivek
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
+iD8DBQFCbgKpRel1vVwhjGURAvcCAJ9uTr5iy8uvbR1xwY0a7xMC/Qv51wCfVRsm
+QVgUu6PUrJCwZDYQ1YLvkjQ=
+=519K
+-----END PGP SIGNATURE-----
+
+--OgqxwSJOaUobr8KG--

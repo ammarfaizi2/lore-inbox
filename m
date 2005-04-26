@@ -1,69 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbVDZPoo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261645AbVDZPtp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261445AbVDZPoo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 11:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbVDZPnk
+	id S261645AbVDZPtp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 11:49:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261636AbVDZPtd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 11:43:40 -0400
-Received: from webmail.houseafrika.com ([12.162.17.52]:26130 "EHLO
-	Mansi.STRATNET.NET") by vger.kernel.org with ESMTP id S261576AbVDZPmf
+	Tue, 26 Apr 2005 11:49:33 -0400
+Received: from mail.shareable.org ([81.29.64.88]:14249 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S261622AbVDZPrT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 11:42:35 -0400
-Date: Tue, 26 Apr 2005 08:42:34 -0700
-From: Libor Michalek <libor@topspin.com>
-To: Roland Dreier <roland@topspin.com>
-Cc: Andrew Morton <akpm@osdl.org>, hch@infradead.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org,
-       timur.tabi@ammasso.com
-Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
-Message-ID: <20050426084234.A10366@topspin.com>
-References: <20050425135401.65376ce0.akpm@osdl.org> <521x8yv9vb.fsf@topspin.com> <20050425151459.1f5fb378.akpm@osdl.org> <426D6D68.6040504@ammasso.com> <20050425153256.3850ee0a.akpm@osdl.org> <52vf6atnn8.fsf@topspin.com> <20050425171145.2f0fd7f8.akpm@osdl.org> <52acnmtmh6.fsf@topspin.com> <20050425173757.1dbab90b.akpm@osdl.org> <52wtqpsgff.fsf@topspin.com>
+	Tue, 26 Apr 2005 11:47:19 -0400
+Date: Tue, 26 Apr 2005 16:47:08 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: John Stoffel <john@stoffel.org>,
+       "Artem B. Bityuckiy" <dedekind@oktetlabs.ru>, Ville Herva <v@iki.fi>,
+       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: filesystem transactions API
+Message-ID: <20050426154708.GC14297@mail.shareable.org>
+References: <20050424211942.GN13052@parcelfarce.linux.theplanet.co.uk> <OF32F95BBA.F38B2D1F-ON88256FEE.006FE841-88256FEE.00742E46@us.ibm.com> <20050426134629.GU16169@viasys.com> <20050426141426.GC10833@mail.shareable.org> <426E4EBD.6070104@oktetlabs.ru> <20050426143247.GF10833@mail.shareable.org> <17006.22498.394169.98413@smtp.charter.net> <1114528782.13568.8.camel@lade.trondhjem.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <52wtqpsgff.fsf@topspin.com>; from roland@topspin.com on Tue, Apr 26, 2005 at 08:31:32AM -0700
-X-OriginalArrivalTime: 26 Apr 2005 15:42:35.0062 (UTC) FILETIME=[91155D60:01C54A76]
+In-Reply-To: <1114528782.13568.8.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 26, 2005 at 08:31:32AM -0700, Roland Dreier wrote:
->     Andrew> umm, how about we
+Trond Myklebust wrote:
+> > Jamie> No.  A transaction means that _all_ processes will see the
+> > Jamie> whole transaction or not.
+> > 
+> > This is really hard.  How do you handle the case where process X
+> > starts a transaction modifies files a, b & c, but process Y has file b
+> > open for writing, and never lets it go?  Or the file gets unlinked?  
 > 
->     Andrew> - force the special pages into a separate vma
-> 
->     Andrew> - run get_user_pages() against it all
-> 
->     Andrew> - use RLIMIT_MEMLOCK accounting to check whether the user
->     Andrew> is allowed to do this thing
-> 
->     Andrew> - undo the RMLIMIT_MEMLOCK accounting in ->release
-> 
->     Andrew> This will all interact with user-initiated mlock/munlock
->     Andrew> in messy ways. Maybe a new kernel-internal vma->vm_flag
->     Andrew> which works like VM_LOCKED but is unaffected by
->     Andrew> mlock/munlock activity is needed.
-> 
->     Andrew> A bit of generalisation in do_mlock() should suit?
-> 
-> Yes, it seems that modifying do_mlock() to something like
-> 
-> 	int do_mlock(unsigned long start, size_t len,
-> 		     unsigned int set, unsigned int clear)
-> 
-> and then exporting a function along the lines of
-> 
-> 	int do_mem_pin(unsigned long start, size_t len, int on)
-> 
-> that sets/clears (VM_LOCKED_KERNEL | VM_DONTCOPY) according to the on
-> flag.
+> That is why implementing it as a form of lock makes sense.
 
-  Do you mean that the set/clear parameters to do_mlock() are the
-actual flags which are set/cleared by the caller? Also, the issue
-remains that the flags are not reference counted which is a problem
-if you are dealing with overlapping memory region, or even if one
-region ends and another begins on the same page. Since the desire is
-to be able to pin any memory that a user can malloc this is a likely
-scenario.
+The problem with making them exclusive locks is that you halt the
+system for the duration of the transaction.  If it's a big transaction
+such as updating 1000 files for a package update, that blocks a lot of
+programs for a long time, and it's not necessary.
 
--Libor
+And, because that's a potential denial of service, you have to limit
+the size of transactions and their duration, especially for ordinary
+users.  That makes transactions a lot less useful than they can be.
+
+I would implement them as a combination of time-limited lock, and
+abortable transaction with file & directory reads establishing
+prerequisites.
+
+While the transaction lock is held, everything read (i.e. read byte
+ranges, lock byte ranges, directory lookups, and stat results) cause
+the corresponding range or inode to be exclusively locked for this
+transaction, and also cause them to be recorded in the prerequisite
+set for this transaction.  Everything written (i.e. byte ranges or any
+other filesystem modifying operation) is queued.
+
+If the transaction lock timeout is reached before the transaction is
+closed, all the exlusive locks for this transaction are released, and
+the transaction lock itself is released, and the prerequisite set
+continues to be recorded.
+
+If at any time, another process tries to modify any of the information
+in the transaction's prerequisite set, then firstly: if the
+transaction lock is held, the other process is blocked until that lock
+is released.  Secondly: if the other process successfully modifies
+information in the transaction's prerequisite set, the transaction is
+aborted.  All further operations in this transaction will fail,
+including reads, writes, and the final close which commits writes.
+
+Finally, when the transaction is closed, either it fails because
+prerequisites were modified, or it commits all the pending filesystem
+modifications of this transaction.
+
+Why two phases?
+
+The second phase, with no exclusive locking, is to allow ordinary
+users to use transactions without blocking other processes or hogging
+excessive system resources.  It allows other processes to progress
+while a big transaction is in progress.  In other words, it prevents
+some kinds of denial-of-service, allows arbitrarily large transactions
+as long as there's enough space in the filesystem, and is generally
+better.
+
+The first phase, with exlusive locking, uses a randomised timeout for
+the lock.  This is to prevent starvation of transacting processes by
+other processes.  It's analogous to the problem of readers starving
+writers in some kinds of read-write locks.  The randomised timeout is
+to prevent mutual starvation between two or more transacting
+processes, which might otherwise get into synchronised livelock.
+
+Enjoy :)
+-- Jamie

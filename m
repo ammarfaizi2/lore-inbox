@@ -1,47 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbVDZOyA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbVDZPBt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261491AbVDZOyA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 10:54:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbVDZOyA
+	id S261546AbVDZPBt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 11:01:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbVDZPBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 10:54:00 -0400
-Received: from mx2.suse.de ([195.135.220.15]:29394 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261491AbVDZOxx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 10:53:53 -0400
-Date: Tue, 26 Apr 2005 16:53:51 +0200
-From: Andi Kleen <ak@suse.de>
-To: Patrick McHardy <kaber@trash.net>
-Cc: Andi Kleen <ak@suse.de>, Ed Tomlinson <tomlins@cam.org>,
-       Alexander Nyberg <alexn@dsv.su.se>,
-       Parag Warudkar <kernel-stuff@comcast.net>, linux-kernel@vger.kernel.org
-Subject: Re: X86_64: 2.6.12-rc3 spontaneous reboot
-Message-ID: <20050426145351.GD13305@wotan.suse.de>
-References: <1114332119.916.1.camel@localhost.localdomain> <200504240903.31377.tomlins@cam.org> <426CADF1.2000100@trash.net> <20050425153541.GC16828@wotan.suse.de> <426E3C6F.6010001@trash.net> <20050426135312.GI5098@wotan.suse.de> <426E48C0.9090503@trash.net> <426E4DD2.8060808@trash.net> <20050426142252.GJ5098@wotan.suse.de> <426E5571.8000101@trash.net>
+	Tue, 26 Apr 2005 11:01:49 -0400
+Received: from wproxy.gmail.com ([64.233.184.192]:58629 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261546AbVDZPBp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 11:01:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=p73oCTtbeVtc3UwmyFguO39/mGTHpn3qu7KjcCSH+saS7pedf1F6+f2ngaiRpr1gj7IjGMRYsUOABjxIr5REJL/Ua1gPGQvsbUawPjvgX87HU7ZJdo4mNkzIt86likPcgM0U+eR1KNIVhErYVOXUcdv/sVxvTJnVvPhB4YLfn9g=
+Message-ID: <a4e6962a05042608013534505a@mail.gmail.com>
+Date: Tue, 26 Apr 2005 10:01:45 -0500
+From: Eric Van Hensbergen <ericvh@gmail.com>
+Reply-To: Eric Van Hensbergen <ericvh@gmail.com>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Subject: Re: [PATCH] private mounts
+Cc: hch@infradead.org, akpm@osdl.org, jamie@shareable.org, linuxram@us.ibm.com,
+       7eggert@gmx.de, bulb@ucw.cz, viro@parcelfarce.linux.theplanet.co.uk,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <E1DQQpD-0000dL-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <426E5571.8000101@trash.net>
+References: <1114445923.4480.94.camel@localhost>
+	 <E1DQMGZ-00009n-00@dorka.pomaz.szeredi.hu>
+	 <20050426093628.GA30208@infradead.org>
+	 <E1DQMYu-0000DL-00@dorka.pomaz.szeredi.hu>
+	 <20050426030010.63757c8c.akpm@osdl.org>
+	 <20050426100412.GA30762@infradead.org>
+	 <20050426031414.260568b5.akpm@osdl.org>
+	 <20050426103859.GA31468@infradead.org>
+	 <a4e6962a05042606053c1e6ba8@mail.gmail.com>
+	 <E1DQQpD-0000dL-00@dorka.pomaz.szeredi.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 26, 2005 at 04:51:29PM +0200, Patrick McHardy wrote:
-> Andi Kleen wrote:
-> >Hmm actually - on some systems I broke the NMI watchdog. Can you
-> >check your dmesg to see if check_nmi_watchdog doesnt report it 
-> >as stuck? If yes please put a return on top of check_nmi_watchdog
-> >that should fix it. You can verify it works by looking at the
-> >per CPU NMI counters in /proc/interrupts. An nmi watchdog
-> >backtrace would be nice to see.
+On 4/26/05, Miklos Szeredi <miklos@szeredi.hu> wrote:
+> > that complicates things a great deal, however -- if you split the
+> > concept of "srv points" from file system mounts and remount the file
+> > system (perhaps automatically as part of initiating the session) for
+> > every new login -- then you can revalidate security at each of these
+> > mounts.
 > 
-> No occurences of check_nmi_watchdog in dmesg or my logs, just
-> "Using local APIC NMI watchdog using perfctr0". /proc/interrupts
-> shows:
+> Why would you have to revalidate?  A simple bind mount would suffice.
+> However, joining another sessions namespace makes more sense, than
+> copying the mounts individually.
 > 
-> NMI:        181
 
-It is Checking NMI watchdog .... if you see "stuck" after that it is
-broken. Or do the NMIs actually increase when you make the machine
-busy (run while true ; do true ; done on each CPU)?
+Well, the forced revalidation was an attempt to protect "user-data"
+from root, which, as you pointed out in your reply, is a somewhat
+sketchy thing.  It may also be useful if you wish to share a
+filesystem/namespace with a subset of users with a permissions model
+outside of the normal user/groups model (which the user doesn't really
+have any control over).
 
--Andi
+Anyways, just an additional idea for consideration -- as I said, I
+don't really feel a strong need for this, so perhaps its best
+forgotten for now.
+
+          -eric

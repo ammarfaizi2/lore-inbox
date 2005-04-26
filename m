@@ -1,73 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261386AbVDZHOb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261384AbVDZHQB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261386AbVDZHOb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 03:14:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbVDZHOY
+	id S261384AbVDZHQB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 03:16:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVDZHOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 03:14:24 -0400
-Received: from colino.net ([213.41.131.56]:64240 "EHLO paperstreet.colino.net")
-	by vger.kernel.org with ESMTP id S261381AbVDZHOK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 03:14:10 -0400
-Date: Tue, 26 Apr 2005 09:14:03 +0200
-From: Colin Leroy <colin@colino.net>
-To: Colin Leroy <colin@colino.net>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] hfsplus: don't oops on bad FS
-Message-ID: <20050426091403.099cee53@colin.toulouse>
-In-Reply-To: <20050426085914.2b278856@colin.toulouse>
-References: <20050425211915.126ddab5@jack.colino.net>
-	<Pine.LNX.4.61.0504252145220.25129@scrub.home>
-	<20050425220345.6b2ed6d5@jack.colino.net>
-	<Pine.LNX.4.61.0504252218570.25129@scrub.home>
-	<20050426085914.2b278856@colin.toulouse>
-X-Mailer: Sylpheed-Claws 1.9.6 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Tue, 26 Apr 2005 03:14:53 -0400
+Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:61388 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S261379AbVDZHOP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 03:14:15 -0400
+Subject: Re: [linux-pm] Re: [PATCH] PCI: Add pci shutdown ability
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Adam Belay <ambx1@neo.rr.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Linux-USB <linux-usb-devel@lists.sourceforge.net>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       alexn@dsv.su.se, gud@eth.net, Adam Belay <abelay@novell.com>,
+       Dave Jones <DaveJ@redhat.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       Jeff Garzik <jgarzik@pobox.com>, cramerj@intel.com
+In-Reply-To: <20050426062314.GC3951@neo.rr.com>
+References: <1114458325.983.17.camel@localhost.localdomain>
+	 <Pine.LNX.4.44L0.0504251609420.7408-100000@iolanthe.rowland.org>
+	 <20050425145831.48f27edb.akpm@osdl.org> <20050425221326.GC15366@redhat.com>
+	 <20050425232330.GG27771@neo.rr.com> <1114489949.7111.43.camel@gaston>
+	 <20050426062314.GC3951@neo.rr.com>
+Content-Type: text/plain
+Message-Id: <1114499693.30859.151.camel@desktop.cunningham.myip.net.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Tue, 26 Apr 2005 17:14:53 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Apr 2005 08:59:14 +0200
-Colin Leroy <colin@colino.net> wrote:
+Hi.
 
->  cleanup:
-> +       kfree(sb->s_fs_info);
-> +       sb->s_fs_info = NULL;
-> +
+On Tue, 2005-04-26 at 16:23, Adam Belay wrote:
+> Ok, here's a new idea.
+> 
+> For many devices "->suspend" and "->resume" with pm_message_t is exactly what
+> we need.  However, as we support more advanced power management features, such
+> as runtime power management, or power containers, we need something a little
+> more specific.  The exact power state must be specified among other issues.
+> 
+> We might do something like this:
+> 
+> Keep "->suspend" and "->resume" around unchanged. (so the states would
+> probably remain as PMSG_FREEZE and PMSG_SUSPEND).  If the driver doesn't
+> support the more advanced PM methods just use these.  They work well enough
+> for system sleep states etc.
 
-Also, that may be wrong: maybe hfsplus_put_super has a job to do if
-mounting fails later than "no hfs+ fs found".
+Ok, so for each driver we have either ->suspend & ->resume or
+->change_state, ->halt and ->continue, right?
 
-My understanding of the driver is limited, that's why my initial patch
-did the less possible functionality change. But I'd like to remember
-you (maybe you forgot) that my initial patch wasn't about fixing the
-s_fs_info leak, but rather fixing an oops that happens in
-hfsplus_put_super. That's why I don't think we can run the current code
-in hfsplus_put_super from hfsplus_fill_super cleanup part : 
+Is it safe to assume that these later methods would get called from the
+same places in device_suspend and device_resume that ->suspend &
+->resume are called from at the moment? That would seem to me to be the
+cleanest way of addressing ordering ... but then I find myself asking,
+why not just do one or the other?
 
-HFS+-fs: unable to find HFS+ superblock
-Oops: kernel access of bad area, sig: 11 [#1]
-NIP: EA4707F4 LR: EA470AC8 SP: CC91DAA0 REGS: cc91d9f0 TRAP: 0300    Not tainted
-MSR: 00009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
-DAR: 00000004, DSISR: 40000000
-TASK = ce48cdf0[20295] 'mount' THREAD: cc91c000
-Last syscall: 21
-GPR00: 00000000 CC91DAA0 CE48CDF0 CB2FF200 C0373ECC 00000004 E756CD60 3B9ACA00
-GPR08: C2B71F60 C0360000 00000000 BE932A74 0000D903 1002957C 10020000 10026810
-GPR16: 100267E0 10026840 7FF3F4DD 100267D0 7FF3F4B3 00000000 10026820 10026820
-GPR24: 7FF3EF70 EA4709EC EA105714 00000000 00000000 C9341000 C2B71F60 CB2FF200
-NIP [ea4707f4] hfsplus_put_super+0x9c/0x114 [hfsplus]
-LR [ea470ac8] hfsplus_fill_super+0xdc/0x5a8 [hfsplus]
-Call trace:
- [ea470ac8] hfsplus_fill_super+0xdc/0x5a8 [hfsplus]
- [c00644e4] get_sb_bdev+0x14c/0x1d4
- [ea471018] hfsplus_get_sb+0x18/0x28 [hfsplus]
- [c0064824] do_kern_mount+0x5c/0x130
- [c007c774] do_mount+0x46c/0x6cc
- [c007ce18] sys_mount+0x98/0xe8
- [c0004840] ret_from_syscall+0x0/0x44
+I have to admit that I've never liked ->suspend & ->resume. They imply
+too much knowledge in the caller about what start the device was in. I'd
+like, instead, to see all of the decision making as to what state to
+actually be in exist in the driver and the helpers it uses. Then the
+semantics becomes requests and notifications of system/child/parent
+state changes rather than _commands_ to suspend/resume. This should be a
+lot cleaner in the context of runtime power management as well.
 
+> When changing system state, we call "change_state" for every device with power
+> resources.  Devices that do not directly consume power or have power states
+> will not implement "change_state" so we will call "halt" and "continue"
+> instead.
+
+Now you're confusing me...
+
+if (driver->suspend | driver->resume)
+	driver->suspend|resume
+elseif (driver->change_state)
+	driver->change_state
+elseif (driver->halt | driver->continue)
+	driver->halt|continue
+else
+	printk("Urgh. No driver power management methods for %s.\n");
+
+
+> When shutting down the system, halt has the option of turning off the device,
+> as it will see the SHUTDOWN reason.  So it's a driver-knows-best approach
+> instead of assuming everything must be turned off, or everything must just be
+> stopped.
+
+I do like this idea. Especially if we can say "I'm rebooting rather than
+powering off."
+
+> So in theory, with cpufreq, we could stop userspace, ->halt every device
+> (drivers won't do anything if they know it's not necessary), change the
+> frequency, and then resume operation.
+
+That looks like a good idea too. But it also sounds like an abuse of
+suspend|resume. Perhaps it implies the need/desire for more genericness
+to pm_message_t (sounds familiar!).
+
+Regards,
+
+Nigel
 -- 
-Colin
+Nigel Cunningham
+Software Engineer, Canberra, Australia
+http://www.cyclades.com
+Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
+
+Maintainer of Suspend2 Kernel Patches http://suspend2.net
+

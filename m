@@ -1,43 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261453AbVDZKQz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261460AbVDZKQy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261453AbVDZKQz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 06:16:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261480AbVDZKN2
+	id S261460AbVDZKQy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 06:16:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbVDZKNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 06:13:28 -0400
-Received: from wproxy.gmail.com ([64.233.184.197]:6224 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261463AbVDZKLb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 06:11:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iEoNbbGQSq1SHdgw8oALDz+opckCTQNCQsQGLa3i7N2vAzYhyYP1dSlz/JFUPQyOrxHgWzdbq/gVNyBEuhsgtJxi9d3dnesnY7lirBguLUM6PrvZouV3tONAshZbpQ5aKAOj9r4eblUQ9rtjgOJtlyTZG3Dq86WyKr0+2ywB5ks=
-Message-ID: <84144f020504260311260fa8c5@mail.gmail.com>
-Date: Tue, 26 Apr 2005 13:11:30 +0300
-From: Pekka Enberg <penberg@gmail.com>
-Reply-To: Pekka Enberg <penberg@gmail.com>
-To: "David N. Welton" <davidw@dedasys.com>
-Subject: Re: rootdelay
-Cc: dsd@gentoo.org, linux-kernel@vger.kernel.org
-In-Reply-To: <87wtrphuvj.fsf@dedasys.com>
+	Tue, 26 Apr 2005 06:13:54 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:39344 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261443AbVDZKJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 06:09:58 -0400
+Date: Tue, 26 Apr 2005 11:09:53 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: hch@infradead.org, jamie@shareable.org, linuxram@us.ibm.com,
+       7eggert@gmx.de, bulb@ucw.cz, viro@parcelfarce.linux.theplanet.co.uk,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH] private mounts
+Message-ID: <20050426100953.GB30762@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Miklos Szeredi <miklos@szeredi.hu>, jamie@shareable.org,
+	linuxram@us.ibm.com, 7eggert@gmx.de, bulb@ucw.cz,
+	viro@parcelfarce.linux.theplanet.co.uk,
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+	akpm@osdl.org
+References: <20050425191015.GC28294@mail.shareable.org> <E1DQMB0-00008a-00@dorka.pomaz.szeredi.hu> <20050426091921.GA29810@infradead.org> <E1DQMGZ-00009n-00@dorka.pomaz.szeredi.hu> <20050426093628.GA30208@infradead.org> <E1DQMYu-0000DL-00@dorka.pomaz.szeredi.hu> <20050426094727.GA30379@infradead.org> <E1DQMkX-0000Fy-00@dorka.pomaz.szeredi.hu> <20050426095608.GA30554@infradead.org> <E1DQMsX-0000IX-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <87wtrphuvj.fsf@dedasys.com>
+In-Reply-To: <E1DQMsX-0000IX-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Apr 26, 2005 at 12:01:17PM +0200, Miklos Szeredi wrote:
+> And for the first part, please _explain_ why you think it's crap.
 
-On 30 Mar 2005 20:05:36 +0200, David N. Welton <davidw@dedasys.com> wrote:
-> I was wondering if there were any interest in my own efforts in that
-> direction:
-> 
-> http://dedasys.com/freesoftware/patches/blkdev_wakeup.patch
+Problem 1:
 
-Please read Documentation/CodingStyle and follow it if you want your
-patches to be reviewed (or merged).
+ - you're mounting things into the global namespace, but expect it only
+   be visible to a certain subset of processes.  these processes are also
+   not specicified by a tradition unix session / process group / etc but
+   against all the process attributes we have based on the uid
 
-                                     Pekka
+Problem 2, which is related:
+
+ - in fuse you're re-routing filesystem request to userspace, so fine so good
+ - mount is currently a privilegued operation, and expects a privilegued
+   filesystem implementation, not an ordinary user
+ - to bypass that you have a suid mount wrapper
+ - now you need various hacks to make sure this can't be used by other users
+
+in short you are hacking around the namespace management which sits above
+the filesystems in a rather broken way.

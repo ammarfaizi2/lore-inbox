@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbVDZHgp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbVDZHgq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261373AbVDZHgp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 03:36:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261372AbVDZHfo
+	id S261354AbVDZHgq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 03:36:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbVDZHfK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 03:35:44 -0400
-Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:44705 "HELO
+	Tue, 26 Apr 2005 03:35:10 -0400
+Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:42657 "HELO
 	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261400AbVDZHeS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 03:34:18 -0400
+	id S261395AbVDZHeR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 03:34:17 -0400
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 5/5] make driver's name be const char *
-Date: Tue, 26 Apr 2005 02:34:05 -0500
+Subject: [PATCH 3/5] Make kobject's name be const char *
+Date: Tue, 26 Apr 2005 02:32:00 -0500
 User-Agent: KMail/1.8
 Cc: Greg KH <gregkh@suse.de>
 References: <200504260229.03866.dtor_core@ameritech.net>
@@ -22,86 +22,84 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200504260234.05750.dtor_core@ameritech.net>
+Message-Id: <200504260232.01017.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Driver core:
-  change driver's, bus's, class's and platform device's names
-  to be const char * so one can use
-            const char *drv_name = "asdfg";
-  when initializing structures.
-  Also kill couple of whitespaces.
+kobject: make kobject's name const char * since users should not
+	 attempt to change it (except by calling kobject_rename).
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- drivers/usb/core/devices.c |    2 +-
- include/linux/device.h     |   12 ++++++------
- 2 files changed, 7 insertions(+), 7 deletions(-)
+ include/linux/kobject.h |    6 +++---
+ lib/kobject.c           |    2 +-
+ lib/kobject_uevent.c    |    4 ++--
+ 3 files changed, 6 insertions(+), 6 deletions(-)
 
-Index: dtor/include/linux/device.h
+Index: dtor/include/linux/kobject.h
 ===================================================================
---- dtor.orig/include/linux/device.h
-+++ dtor/include/linux/device.h
-@@ -47,7 +47,7 @@ struct class_device;
- struct class_simple;
+--- dtor.orig/include/linux/kobject.h
++++ dtor/include/linux/kobject.h
+@@ -33,7 +33,7 @@
+ extern u64 hotplug_seqnum;
  
- struct bus_type {
--	char			* name;
-+	const char		* name;
+ struct kobject {
+-	char			* k_name;
++	const char		* k_name;
+ 	char			name[KOBJ_NAME_LEN];
+ 	struct kref		kref;
+ 	struct list_head	entry;
+@@ -46,7 +46,7 @@ struct kobject {
+ extern int kobject_set_name(struct kobject *, const char *, ...)
+ 	__attribute__((format(printf,2,3)));
  
- 	struct subsystem	subsys;
- 	struct kset		drivers;
-@@ -98,17 +98,17 @@ extern int bus_create_file(struct bus_ty
- extern void bus_remove_file(struct bus_type *, struct bus_attribute *);
- 
- struct device_driver {
--	char			* name;
-+	const char		* name;
- 	struct bus_type		* bus;
- 
- 	struct completion	unloaded;
- 	struct kobject		kobj;
- 	struct list_head	devices;
- 
--	struct module 		* owner;
-+	struct module		* owner;
- 
- 	int	(*probe)	(struct device * dev);
--	int 	(*remove)	(struct device * dev);
-+	int	(*remove)	(struct device * dev);
- 	void	(*shutdown)	(struct device * dev);
- 	int	(*suspend)	(struct device * dev, pm_message_t state, u32 level);
- 	int	(*resume)	(struct device * dev, u32 level);
-@@ -142,7 +142,7 @@ extern void driver_remove_file(struct de
-  * device classes
-  */
- struct class {
--	char			* name;
-+	const char		* name;
- 
- 	struct subsystem	subsys;
- 	struct list_head	children;
-@@ -369,7 +369,7 @@ extern struct device *device_find(const 
- /* drivers/base/platform.c */
- 
- struct platform_device {
--	char		* name;
-+	const char	* name;
- 	u32		id;
- 	struct device	dev;
- 	u32		num_resources;
-Index: dtor/drivers/usb/core/devices.c
-===================================================================
---- dtor.orig/drivers/usb/core/devices.c
-+++ dtor/drivers/usb/core/devices.c
-@@ -239,7 +239,7 @@ static char *usb_dump_interface_descript
- 	int setno)
+-static inline char * kobject_name(struct kobject * kobj)
++static inline const char * kobject_name(const struct kobject * kobj)
  {
- 	const struct usb_interface_descriptor *desc = &intfc->altsetting[setno].desc;
--	char *driver_name = "";
-+	const char *driver_name = "";
+ 	return kobj->k_name;
+ }
+@@ -57,7 +57,7 @@ extern void kobject_cleanup(struct kobje
+ extern int kobject_add(struct kobject *);
+ extern void kobject_del(struct kobject *);
  
- 	if (start > end)
- 		return start;
+-extern int kobject_rename(struct kobject *, char *new_name);
++extern int kobject_rename(struct kobject *, const char *new_name);
+ 
+ extern int kobject_register(struct kobject *);
+ extern void kobject_unregister(struct kobject *);
+Index: dtor/lib/kobject.c
+===================================================================
+--- dtor.orig/lib/kobject.c
++++ dtor/lib/kobject.c
+@@ -280,7 +280,7 @@ EXPORT_SYMBOL(kobject_set_name);
+  *	@new_name: object's new name
+  */
+ 
+-int kobject_rename(struct kobject * kobj, char *new_name)
++int kobject_rename(struct kobject * kobj, const char *new_name)
+ {
+ 	int error = 0;
+ 
+Index: dtor/lib/kobject_uevent.c
+===================================================================
+--- dtor.orig/lib/kobject_uevent.c
++++ dtor/lib/kobject_uevent.c
+@@ -197,7 +197,7 @@ void kobject_hotplug(struct kobject *kob
+ 	int i = 0;
+ 	int retval;
+ 	char *kobj_path = NULL;
+-	char *name = NULL;
++	const char *name = NULL;
+ 	char *action_string;
+ 	u64 seq;
+ 	struct kobject *top_kobj = kobj;
+@@ -249,7 +249,7 @@ void kobject_hotplug(struct kobject *kob
+ 		name = kobject_name(&kset->kobj);
+ 
+ 	argv [0] = hotplug_path;
+-	argv [1] = name;
++	argv [1] = (char *)name; /* won't be changed but 'const' has to go */
+ 	argv [2] = NULL;
+ 
+ 	/* minimal command environment */

@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261727AbVD0Pzk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261700AbVD0P5O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261727AbVD0Pzk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 11:55:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbVD0Pzj
+	id S261700AbVD0P5O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 11:57:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbVD0P5O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 11:55:39 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:47827 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261700AbVD0Pza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 11:55:30 -0400
-Date: Wed, 27 Apr 2005 16:55:26 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Jes Sorensen <jes@wildopensource.com>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: returning non-ram via ->nopage, was Re: [patch] mspec driver for 2.6.12-rc2-mm3
-Message-ID: <20050427155526.GA25921@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Jes Sorensen <jes@wildopensource.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <16987.39773.267117.925489@jaguar.mkp.net> <20050412032747.51c0c514.akpm@osdl.org> <yq07jj8123j.fsf@jaguar.mkp.net> <20050413204335.GA17012@infradead.org> <yq08y3bys4e.fsf@jaguar.mkp.net> <20050424101615.GA22393@infradead.org> <yq03btftb9u.fsf@jaguar.mkp.net> <20050425144749.GA10093@infradead.org> <yq0ll75rxsl.fsf@jaguar.mkp.net> <426FB56B.5000006@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <426FB56B.5000006@pobox.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 27 Apr 2005 11:57:14 -0400
+Received: from filip.math.uni.lodz.pl ([212.191.65.243]:524 "EHLO
+	filip.math.uni.lodz.pl") by vger.kernel.org with ESMTP
+	id S261700AbVD0P4z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 11:56:55 -0400
+Message-ID: <426FB641.2070802@filip.math.uni.lodz.pl>
+Date: Wed, 27 Apr 2005 17:56:49 +0200
+From: Filip Zyzniewski <lkml@filip.math.uni.lodz.pl>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050420)
+X-Accept-Language: pl, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Panic on a BIOSless machine.
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 27, 2005 at 11:53:15AM -0400, Jeff Garzik wrote:
-> I don't see anything wrong with a ->nopage approach.
-> 
-> At Linus's suggestion, I used ->nopage in the implementation of 
-> sound/oss/via82cxxx_audio.c.
+Hi, I managed to boot kernel on a biosless box (Compaq T1000 Windows
+based terminal). It has 32MB of ram.
 
-The difference is that you return kernel memory (actually pci_alloc_consistant
-memory that has it's own set of problems), while this is memory not in mem_map,
-so he allocates some regularly kernel memory too to have a struct page and
-just leaks it
 
+But it panics (sometimes it even launches bash and allows me to run some
+stuff).
+
+kernel log gathered from serial console:
+http://filip.math.uni.lodz.pl/t1000-panic/panic.log
+
+asm code used to boot kernel:
+http://filip.math.uni.lodz.pl/t1000-panic/boot.S
+
+tool bundling boot and kernel together:
+http://filip.math.uni.lodz.pl/t1000-panic/mk.c
+
+kernel config:
+http://filip.math.uni.lodz.pl/t1000-panic/kernel-config
+
+I had to comment out: jnz 2f # New command line protocol
+from arch/i386/kernel/head.S (2.6.11.7) (bootloader too old?).
+
+Is there anything I could do to prevent it? I don't know memory map of
+this computer, is this the cause? I can't see video RAM on board, so
+maybe it is shared with system RAM? What do you think?
+
+bye,
+Filip Zyzniewski
+Ekatalog

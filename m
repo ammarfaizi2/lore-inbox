@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261842AbVD0Rqw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261863AbVD0RtA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261842AbVD0Rqw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 13:46:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbVD0RpU
+	id S261863AbVD0RtA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 13:49:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbVD0Rs4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 13:45:20 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:23982 "EHLO
-	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
-	id S261888AbVD0Roo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 13:44:44 -0400
-Message-ID: <426FCF7B.5020806@nortel.com>
-Date: Wed, 27 Apr 2005 11:44:27 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Robert Love <rml@novell.com>
-CC: "Artem B. Bityuckiy" <dedekind@oktetlabs.ru>, linux-kernel@vger.kernel.org
-Subject: Re: any way to find out kernel memory usage?
-References: <426FBFED.9090409@nortel.com> <426FC0FE.2090900@oktetlabs.ru>	 <426FC46C.4070306@nortel.com> <1114622438.10836.8.camel@betsy>
-In-Reply-To: <1114622438.10836.8.camel@betsy>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Apr 2005 13:48:56 -0400
+Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:28837 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261857AbVD0Rr5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 13:47:57 -0400
+To: linuxram@us.ibm.com
+CC: lmb@suse.de, mj@ucw.cz, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-reply-to: <1114623598.4480.181.camel@localhost> (message from Ram on Wed,
+	27 Apr 2005 10:39:59 -0700)
+Subject: Re: [PATCH] private mounts
+References: <20050426094727.GA30379@infradead.org>
+	 <20050426131943.GC2226@openzaurus.ucw.cz>
+	 <E1DQQ73-0000Zv-00@dorka.pomaz.szeredi.hu>
+	 <20050426201411.GA20109@elf.ucw.cz>
+	 <E1DQiEa-0001hi-00@dorka.pomaz.szeredi.hu>
+	 <20050427092450.GB1819@elf.ucw.cz>
+	 <E1DQjzY-0001no-00@dorka.pomaz.szeredi.hu>
+	 <20050427143126.GB1957@mail.shareable.org>
+	 <E1DQno0-00029a-00@dorka.pomaz.szeredi.hu>
+	 <20050427153320.GA19065@atrey.karlin.mff.cuni.cz>
+	 <20050427155022.GR4431@marowsky-bree.de>
+	 <E1DQqQ0-0002PB-00@dorka.pomaz.szeredi.hu> <1114623598.4480.181.camel@localhost>
+Message-Id: <E1DQqdW-0002SN-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 27 Apr 2005 19:47:46 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
-> On Wed, 2005-04-27 at 10:57 -0600, Chris Friesen wrote:
-> 
-> 
->>I assume kmalloc/vmalloc use the "size-x" slabs?
-> 
-> 
-> kmalloc, yes.
-> 
-> vmalloc is separate, totally unrelated, space.
-> 
-> Statistics are in /proc/meminfo.
+> I think you need to disallow overmounts on invisible mounts by any user
+> other than the owner. If not, some other user (including root) can
+> overmount on your mount and the user will end up with DoS.
 
-Okay, so can I get the total amount of memory used by the kernel based 
-on meminfo output?  (Slab + VmallocUsed) maybe?
+I'm not following you here.  How would an overmount cause DoS?
 
-Chris
-
-
-
+Thanks,
+Miklos

@@ -1,64 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261939AbVD0Scc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbVD0SeO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261939AbVD0Scc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 14:32:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261937AbVD0Scc
+	id S261943AbVD0SeO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 14:34:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVD0Sc6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 14:32:32 -0400
-Received: from alog0561.analogic.com ([208.224.223.98]:21416 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261935AbVD0SaU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 14:30:20 -0400
-Date: Wed, 27 Apr 2005 14:29:28 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: coywolf@lovecn.org
-cc: Chris Friesen <cfriesen@nortel.com>, linux-kernel@vger.kernel.org
-Subject: Re: any way to find out kernel memory usage?
-In-Reply-To: <2cd57c90050427110717b6e841@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0504271419090.22842@chaos.analogic.com>
-References: <426FBFED.9090409@nortel.com> <2cd57c90050427110717b6e841@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 27 Apr 2005 14:32:58 -0400
+Received: from fire.osdl.org ([65.172.181.4]:27818 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261938AbVD0ScO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 14:32:14 -0400
+Date: Wed, 27 Apr 2005 11:31:37 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: davem@davemloft.net, jurij@wooyd.org
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>, Cliff White <cliffw@osdl.org>,
+       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
+Subject: [08/07] sparc64: Fix copy_siginfo_to_user32()
+Message-ID: <20050427183137.GT493@shell0.pdx.osdl.net>
+References: <20050427171446.GA3195@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050427171446.GA3195@kroah.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Apr 2005, Coywolf Qi Hunt wrote:
+-stable review patch.  If anyone has any objections, please let us know.
 
-> On 4/28/05, Chris Friesen <cfriesen@nortel.com> wrote:
->>
->> We recently had an issue with a kernel module leaking memory on unload,
->> and a userspace app that unloaded it way too many times.
->>
->> This ended up using up a bunch of memory, which triggered the oom-killer
->> to run, which went wild killing everything in sight since userspace
->> wasn't actually the culprt.
->>
->> One idea we had to prevent this in the future is to configure the OOM
->> killer to reset the system if the kernel uses more than a certain amount
->> of memory.  (Reset is better than hang for our purposes.) Is there any
->
-> Curiously, how to reset? Reboot? (Teach oom killer to kill) or restart
-> the related
-> kernel thread?
->
+------------------
 
-In user-mode code... `man 2 reboot` tells all.
-Quickest way in kernel mode on ix86 is a processor reset.
 
->
->> way to find out how much memory the kernel is using?  I don't see
->> anything in /proc, but maybe something internal that isn't currently
->> exported?
->>
->> Chris
->
+Because this routine was not filling in the siginfo
+values for si_band and si_fd, this broke applications
+trying to actually get at this data.
 
-In the kernel nr_free_pages() <swap.h> gives you a hint of what's left,
-num_physpages() tells you what RAM you started with.
+This makes the sparc64 code in line with PowerPC64's
+implementation, which already gets it right.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Chris Wright <chrisw@osdl.org>
+---
+
+===== arch/sparc64/kernel/signal32.c 1.52 vs edited =====
+--- 1.52/arch/sparc64/kernel/signal32.c	2005-03-13 15:29:47 -08:00
++++ edited/arch/sparc64/kernel/signal32.c	2005-04-17 14:37:13 -07:00
+@@ -192,9 +192,12 @@
+ 			err |= __put_user(from->si_uid, &to->si_uid);
+ 			break;
+ 		case __SI_FAULT >> 16:
+-		case __SI_POLL >> 16:
+ 			err |= __put_user(from->si_trapno, &to->si_trapno);
+ 			err |= __put_user((unsigned long)from->si_addr, &to->si_addr);
++			break;
++		case __SI_POLL >> 16:
++			err |= __put_user(from->si_band, &to->si_band);
++			err |= __put_user(from->si_fd, &to->si_fd);
+ 			break;
+ 		case __SI_RT >> 16: /* This is not generated by the kernel as of now.  */
+ 		case __SI_MESGQ >> 16:
+

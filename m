@@ -1,66 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261802AbVD0Phr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261768AbVD0Pjq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261802AbVD0Phr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 11:37:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261803AbVD0Phc
+	id S261768AbVD0Pjq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 11:39:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261755AbVD0Pjf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 11:37:32 -0400
-Received: from alog0087.analogic.com ([208.224.220.102]:22178 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261760AbVD0Pf3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 11:35:29 -0400
-Date: Wed, 27 Apr 2005 11:34:45 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: k8 s <uint32@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Doubt Regarding Multithreading and Device Driver
-In-Reply-To: <699a19ea050427080545fb1676@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0504271123001.21751@chaos.analogic.com>
-References: <699a19ea050427080545fb1676@mail.gmail.com>
+	Wed, 27 Apr 2005 11:39:35 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:56794 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S261627AbVD0Pig (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 11:38:36 -0400
+Message-ID: <426FB1F9.9010401@adaptec.com>
+Date: Wed, 27 Apr 2005 11:38:33 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: dougg@torque.net
+CC: Christoph Hellwig <hch@infradead.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       andrew.patterson@hp.com, Eric.Moore@lsil.com, mike.miller@hp.com,
+       Madhuresh_Nagshain@adaptec.com
+Subject: Re: [RFC] SAS domain layout for Linux sysfs
+References: <425D392F.2080702@adaptec.com> <20050424111908.GA23010@infradead.org> <426D1572.70508@adaptec.com> <20050425161411.GA11938@infradead.org> <426D2723.8070308@adaptec.com> <20050425181831.GA14190@infradead.org> <426E5BAF.4040003@adaptec.com> <426F86D3.4070909@torque.net>
+In-Reply-To: <426F86D3.4070909@torque.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 Apr 2005 15:38:34.0921 (UTC) FILETIME=[2C5C8190:01C54B3F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Apr 2005, k8 s wrote:
+On 04/27/05 08:34, Douglas Gilbert wrote:
+> Once the SAS discovery algorithm has been run should we
+> show its results in sysfs?? We probably want to know
+> about SCSI target devices (like we do for other transports).
+> The SAS discovery algorithm may have found other interesting
+> things:
+>     - other expanders (beyond what the silicon has seen)
+>     - other initiators (implies a multi initiator environment)
+>     - miswired SAS domains (since SAS expander routing rules
+>       have restrictions)
 
-> hello,
->
-> I have a doubt regarding user space threads and device drivers
-> implementation issue.
->
-> I have a device driver for /dev/skn
-> It implements basic driver operations skn_open,skn_release, skn_ioctl.
->
-> I am storing something into struct file*filp->private_data.
-> As this is not shared across processes I am not doing any locking
-> stuff while accessing or putting anything into it.
->
-> Will There be a race condition in a multithreaded program in the ioctl
-> call on smp kernel accessing filp->private_data.
->
+Yes, I think we should know about those other devices, part
+of SAS SDS.
+ 
+> Other tools may want to access SMP (and SCSI log pages
+> in SCSI target devices) to identify bottlenecks and access
+> vendor extensions.
 
-Of course. But that's not the only race. You need to make certain that
-any shared resource (your driver) only allows a single execution-
-thread anywhere there is shared data or the hardware itself. This
-is generally accomplished with semaphore(s), a.k.a, down() and up().
+Yes, very true.  I can imagine user space apps sending SMP
+and what not to expanders/RAID devices/enclosures past
+expanders, to control the storage network.
 
-Note that each open() call provides its own 'struct file' pointer.
-The kernel won't get them mixed up. You can use your private-data
-pointer available in this structure in each open() and use that
-for private data in each access. You can free such private data
-in a close(). But, that's just the obvious stuff. User-mode threads
-share open files!
+A sysfs representation of the discovery result could make this
+easy, since as you pointed out expanders are not SAS devices,
+and thus do not fit the linux-scsi HCTL space.
 
-That means that your driver has no way of isolating such access
-except by using semaphores.
-
-> S.Kartikeyan
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+	Luben

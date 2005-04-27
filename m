@@ -1,56 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262097AbVD0XbZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262098AbVD0Xbq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262097AbVD0XbZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 19:31:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbVD0XbZ
+	id S262098AbVD0Xbq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 19:31:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbVD0Xbq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 19:31:25 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:56284 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262097AbVD0XbX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 19:31:23 -0400
-In-Reply-To: <d3c101b00bd9573e30aa843e2335439e@mac.com>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Felix von Leitner <felix-linuxkernel@fefe.de>,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       Pekka Savola <pekkas@netcore.fi>,
-       "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>
+	Wed, 27 Apr 2005 19:31:46 -0400
+Received: from smtp815.mail.sc5.yahoo.com ([66.163.170.1]:12668 "HELO
+	smtp815.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262098AbVD0Xbm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 19:31:42 -0400
+Message-ID: <427020DA.4030504@sbcglobal.net>
+Date: Wed, 27 Apr 2005 18:31:38 -0500
+From: "Robert W. Fuller" <orangemagicbus@sbcglobal.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041223
+X-Accept-Language: en
 MIME-Version: 1.0
-Subject: Re: IPv6 has trouble assigning an interface
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OF383E111F.F9F6791E-ON88256FF0.007F9539-88256FF0.00813651@us.ibm.com>
-From: David Stevens <dlstevens@us.ibm.com>
-Date: Wed, 27 Apr 2005 16:31:18 -0700
-X-MIMETrack: Serialize by Router on D03NM121/03/M/IBM(Release 6.53HF294 | January 28, 2005) at
- 04/27/2005 17:31:19,
-	Serialize complete at 04/27/2005 17:31:19
-Content-Type: text/plain; charset="US-ASCII"
+To: Jonas Oreland <jonas.oreland@mysql.com>
+CC: "Robert W. Fuller" <fullerrw@uindy.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: TI Yenta socket Fish Please Report
+References: <426F3A89.3010702@uindy.edu> <426F3FD1.3040007@mysql.com>
+In-Reply-To: <426F3FD1.3040007@mysql.com>
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-netdev-bounce@oss.sgi.com wrote on 04/27/2005 03:57:05 PM:
+Jonas Oreland wrote:
+> Robert W. Fuller wrote:
+>>
+>> Looks like I have the same problem that was discussed here in February 
+>> with PCI resources being assigned to the same range as RAM.  This is 
+>> the old thread: "IBM Thinkpad G41 PCMCIA problems [Was: Yenta TI: ... 
+>> no PCIinterrupts. Fish. Please report.]"  I'm having this problem on 
+>> 2.6.11.
+>>
+>> Did the patch for this ever make it into the main kernel?  Is it still 
+>> in the -mm tree?  Will it ever be in the main kernel?  How do I figure 
+>> these things out?  Is there some bug database I can check?
+>>
+> I think it made it somehow.
+> I have a G40 which had the problem before I upgraded to 2.6.11
 
-> On Apr 26, 2005, at 02:10, Felix von Leitner wrote:
-> > OK for unicast. But multicast?  I expected link-local multicast
-> > to send on _all_ interfaces if I don't specify one.
+Did it make it in for x86_64 kernel I wonder?
 
-(I didn't see the article this is quoting-- apparently wasn't CC-ed
-to "netdev" as the original was).
-        Multicasting doesn't work that way. Multicast group memberships
-are per-device (whether or not they are link-local). If you join
-the same group address on two different devices, they'll only be the
-same group if there are multicast routers on the two links connecting
-them in the same multicast routing hierarchy. With a scope broader
-than link-local, and a multicast router on that link, the packets
-can be forwarded to other links, but they won't be forwarded to
-every host on the internet in that group (!), and there are sometimes
-good reasons for having different partitions of the same group
-within a single organization. So, the same group number on two
-different links is not necessarily the same group. It depends
-entirely on whether the two groups have common multicast routers
-with no policy restricting forwarding for that group between them.
-        This is how IPv4 multicasting works, too. You join a group
-on a particular device.
+> I however also had problem with a netgear wlan card.
+> And got a patch, that I haven't seen in any released kernel yet...
 
-                                                                +-DLS
+Would you mind sending me the patches you have?
 
+> /Jonas
+
+Thank you.
+
+Rob

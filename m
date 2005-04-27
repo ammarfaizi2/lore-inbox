@@ -1,95 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261501AbVD0L5K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261489AbVD0MAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261501AbVD0L5K (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 07:57:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbVD0L5K
+	id S261489AbVD0MAi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 08:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261515AbVD0MAg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 07:57:10 -0400
-Received: from fire.osdl.org ([65.172.181.4]:30595 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261501AbVD0L4b (ORCPT
+	Wed, 27 Apr 2005 08:00:36 -0400
+Received: from cimice4.lam.cz ([212.71.168.94]:49846 "EHLO vagabond.light.src")
+	by vger.kernel.org with ESMTP id S261489AbVD0MAY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 07:56:31 -0400
-Date: Wed, 27 Apr 2005 04:55:46 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] 2.6.12-rc3: unkillable java process in TASK_RUNNING on
- AMD64
-Message-Id: <20050427045546.7c769a4f.akpm@osdl.org>
-In-Reply-To: <200504271305.10882.rjw@sisk.pl>
-References: <200504271152.15423.rjw@sisk.pl>
-	<20050427031956.7fd67b31.akpm@osdl.org>
-	<200504271305.10882.rjw@sisk.pl>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Wed, 27 Apr 2005 08:00:24 -0400
+Date: Wed, 27 Apr 2005 13:57:54 +0200
+From: Jan Hudec <bulb@ucw.cz>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: pavel@suse.cz, hch@infradead.org, jamie@shareable.org, linuxram@us.ibm.com,
+       7eggert@gmx.de, viro@parcelfarce.linux.theplanet.co.uk,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH] private mounts
+Message-ID: <20050427115754.GA8981@vagabond>
+References: <E1DQMGZ-00009n-00@dorka.pomaz.szeredi.hu> <20050426093628.GA30208@infradead.org> <E1DQMYu-0000DL-00@dorka.pomaz.szeredi.hu> <20050426094727.GA30379@infradead.org> <20050426131943.GC2226@openzaurus.ucw.cz> <E1DQQ73-0000Zv-00@dorka.pomaz.szeredi.hu> <20050426201411.GA20109@elf.ucw.cz> <E1DQiEa-0001hi-00@dorka.pomaz.szeredi.hu> <20050427092450.GB1819@elf.ucw.cz> <E1DQjzY-0001no-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="oyUTqETQ0mS9luUI"
+Content-Disposition: inline
+In-Reply-To: <E1DQjzY-0001no-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
->
-> On Wednesday, 27 of April 2005 12:19, Andrew Morton wrote:
-> > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> > >
-> > > Hi,
-> > > 
-> > > I'm having a problem with 2.6.12-rc3 and the Java VM (from SuSE 9.2)
-> > > on AMD64.  Namely, after trying to open a web page containing a Java
-> > > applet, my browser starts a java process that takes almost 100% of the CPU
-> > > (system load, according to gkrellm) and cannot be killed (even by root,
-> > > although it executes with a non-root UID).  Apparently, it is in TASK_RUNNING
-> > > (according to ps).
-> > > 
-> > > The problem is 100% reproducible (it is enough to visit
-> > > http://java.sun.com/docs/books/tutorial/getStarted/index.html to trigger it)
-> > > and it does not depend on the web browser used.
-> > > 
-> > > The Java JRE version is:
-> > > 
-> > > java version "1.4.2_06"
-> > > Java(TM) 2 Runtime Environment, Standard Edition (build 1.4.2_06-b03)
-> > > Java HotSpot(TM) Client VM (build 1.4.2_06-b03, mixed mode)
-> > > 
-> > > (I guess it's 32-bit, but I'm not quite sure) and I've installed it from the
-> > > SuSE 9.2 RPM.
-> > > 
-> > > It really is a show stopper to me, so please advise.
-> > 
-> > Where is it running?
-> > 
-> > You can tell this from a kernel profile, or by using sysrq-P five or ten
-> > times then looking at the output.
-> 
-> >From sysrq-P, I get this:
-> 
-> Pid: 11073, comm: java Not tainted 2.6.12-rc3
-> RIP: 0010:[<ffffffff8010f675>] <ffffffff8010f675>{retint_signal+20}
-> RSP: 0018:ffff810012d6ff58  EFLAGS: 00000282
-> RAX: 0000000000020000 RBX: ffff810010868820 RCX: ffff810012d6e000
-> RDX: 0000000000020000 RSI: 0000000000000000 RDI: ffff810012d6ff58
-> RBP: 000000a30c153a4a R08: ffff810012d6e000 R09: ffffffff804c6068
-> R10: 0000000000000001 R11: 0000000000000001 R12: ffffffff804ccd40
-> R13: ffff810010868820 R14: ffff81002cff2cf0 R15: ffffffff8010d3a7
-> FS:  00002aaaae6389c0(0000) GS:ffffffff8054a600(0063) knlGS:00000000556c9080
-> CS:  0010 DS: 002b ES: 002b CR0: 000000008005003b
-> CR2: 00002aaaaabab000 CR3: 0000000012930000 CR4: 00000000000006e0
-> 
-> Call Trace:<ffffffff8010f697>{retint_signal+54}
-> 
-> all the time.
 
-All the time?  Exactly the same?  If you could do something crude like hit
-sysrq-P 100 times then do `dmesg|grep RIP' we could possibly determine
-whether things are indeed stuck in that potential infinite loop in there.
+--oyUTqETQ0mS9luUI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I assume you're using CONFIG_PREEMPT?
+On Wed, Apr 27, 2005 at 12:42:04 +0200, Miklos Szeredi wrote:
+> > > This is the controversial part in all it's glory:
+> > >=20
+> > > 	if (!(fc->flags & FUSE_ALLOW_OTHER) && current->fsuid !=3D fc->user_=
+id)
+> > > 		return -EACCES;
+> > >=20
+> > > Leaving it out would gain us what exactly?
+> >=20
+> > Well, if it brings us ugly semantics, keeping those two lines out for
+> > a while can help merge a lot...
+>=20
+> To the mount owner the semantics are quite normal.  Others will be
+> denied access to the mountpoint, which doesn't introduce any new
+> semantics either.
 
-It'd be interesting to know the interrupt rate and context switch rate
-which this is going on.
+What makes you think Pavel was talking about semantics?!
 
+The point was that:
+Ok, there is a strong disagreement about these two lines. Could we have
+a patch with everything but these two lines, so it can be integrated
+immediately to profit of the testing and generally be useful, and then
+the controversial bits when the issue is beaten to death?
 
-> I've also found out that in fact the problem is not 100% reproducible, but it is much
-> more likely to be reproduced if the CPU is heavily loaded.
+So, please, could you send a stripped-down version, that is not safe for
+mounting by users, but can be tested for many cases where that is
+sufficient?
 
+> If you look at it from the POV of _any_ process, there are NO NEW
+> SEMANTICS.  Nothing that programs, scripts or anything has to be
+> modified for.  Nothing that could cause _any_ problems later, if this
+> check was removed.
+>=20
+> Prove me wrong!
 
+As I understand it, doing things like this is butt ugly. Not just in
+fuse -- in NFS, in samba, everywhere where such hacks are employed. But
+now they just have enough of those hacks and want a cleaner solution.
+
+---------------------------------------------------------------------------=
+----
+						 Jan 'Bulb' Hudec <bulb@ucw.cz>
+
+--oyUTqETQ0mS9luUI
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQFCb35CRel1vVwhjGURApqsAKDv4ro7NEKrI2CCT7kNU8Y29EmbOQCfeMmV
+mOz00Q5hxBXtxctkvIM1NEc=
+=SjGs
+-----END PGP SIGNATURE-----
+
+--oyUTqETQ0mS9luUI--

@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbVD0N2I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbVD0Ngs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261357AbVD0N2I (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 09:28:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261312AbVD0N2I
+	id S261522AbVD0Ngs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 09:36:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbVD0Ngs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 09:28:08 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:37811 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261357AbVD0N1V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 09:27:21 -0400
-Date: Wed, 27 Apr 2005 21:30:56 +0800
-From: David Teigland <teigland@redhat.com>
-To: Domen Puncer <domen@coderock.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH 1b/7] dlm: core locking
-Message-ID: <20050427133056.GD16502@redhat.com>
-References: <20050425165826.GB11938@redhat.com> <20050427123340.GB18533@nd47.coderock.org>
-Mime-Version: 1.0
+	Wed, 27 Apr 2005 09:36:48 -0400
+Received: from one.firstfloor.org ([213.235.205.2]:16352 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S261312AbVD0Ngp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 09:36:45 -0400
+To: "Artem B. Bityuckiy" <dedekind@oktetlabs.ru>
+Cc: Ville Herva <v@iki.fi>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, jamie@shareable.org
+Subject: Re: filesystem transactions API
+References: <20050424211942.GN13052@parcelfarce.linux.theplanet.co.uk>
+	<OF32F95BBA.F38B2D1F-ON88256FEE.006FE841-88256FEE.00742E46@us.ibm.com>
+	<20050426134629.GU16169@viasys.com>
+	<20050426141426.GC10833@mail.shareable.org>
+	<426E4EBD.6070104@oktetlabs.ru>
+From: Andi Kleen <ak@muc.de>
+Date: Wed, 27 Apr 2005 15:36:43 +0200
+In-Reply-To: <426E4EBD.6070104@oktetlabs.ru> (Artem B. Bityuckiy's message
+ of "Tue, 26 Apr 2005 18:22:53 +0400")
+Message-ID: <m1ll74xrx0.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050427123340.GB18533@nd47.coderock.org>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 27, 2005 at 02:33:40PM +0200, Domen Puncer wrote:
+"Artem B. Bityuckiy" <dedekind@oktetlabs.ru> writes:
 
-> > +	if (!r->res_lvbptr)
-> > +		r->res_lvbptr = allocate_lvb(r->res_ls);
-> > +
-> > +	memcpy(r->res_lvbptr, lkb->lkb_lvbptr, DLM_LVB_LEN);
-> 
-> So... can it fail?
+> Jamie Lokier wrote:
+>> I think I've wanted something like that for _years_ in unix.
+>> It's an old, old idea, and I've often wondered why we haven't
+>> implemented it.
+>>
+>
+> I thought it is possible to rather easily to implement this on top
+> of non-transactional FS (albeit I didn't try) and there is no need
+> to overcomplicate an FS. Just implement a specialized user-space
+> library and utilize it.
 
-Yes, fixed now, thanks
-Dave
+Yes it is. e.g. newer sleepycat DB has a nice library for this.
+It should be somewhere on your distribution.
 
+-Andi

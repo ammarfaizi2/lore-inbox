@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261918AbVD0Ryt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261887AbVD0R4r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261918AbVD0Ryt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 13:54:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbVD0RxK
+	id S261887AbVD0R4r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 13:56:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbVD0RzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 13:53:10 -0400
-Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:31141 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261867AbVD0Rwh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 13:52:37 -0400
-To: lmb@suse.de
-CC: mj@ucw.cz, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-In-reply-to: <20050427174641.GZ4431@marowsky-bree.de> (message from Lars
-	Marowsky-Bree on Wed, 27 Apr 2005 19:46:41 +0200)
+	Wed, 27 Apr 2005 13:55:18 -0400
+Received: from albireo.ucw.cz ([84.242.65.67]:15746 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id S261867AbVD0RyX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 13:54:23 -0400
+Date: Wed, 27 Apr 2005 19:54:25 +0200
+From: Martin Mares <mj@ucw.cz>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: lmb@suse.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] private mounts
-References: <E1DQQ73-0000Zv-00@dorka.pomaz.szeredi.hu> <20050426201411.GA20109@elf.ucw.cz> <E1DQiEa-0001hi-00@dorka.pomaz.szeredi.hu> <20050427092450.GB1819@elf.ucw.cz> <E1DQjzY-0001no-00@dorka.pomaz.szeredi.hu> <20050427143126.GB1957@mail.shareable.org> <E1DQno0-00029a-00@dorka.pomaz.szeredi.hu> <20050427153320.GA19065@atrey.karlin.mff.cuni.cz> <20050427155022.GR4431@marowsky-bree.de> <E1DQqQ0-0002PB-00@dorka.pomaz.szeredi.hu> <20050427174641.GZ4431@marowsky-bree.de>
-Message-Id: <E1DQqi1-0002T3-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 27 Apr 2005 19:52:25 +0200
+Message-ID: <20050427175425.GA4241@ucw.cz>
+References: <20050426201411.GA20109@elf.ucw.cz> <E1DQiEa-0001hi-00@dorka.pomaz.szeredi.hu> <20050427092450.GB1819@elf.ucw.cz> <E1DQjzY-0001no-00@dorka.pomaz.szeredi.hu> <20050427143126.GB1957@mail.shareable.org> <E1DQno0-00029a-00@dorka.pomaz.szeredi.hu> <20050427153320.GA19065@atrey.karlin.mff.cuni.cz> <20050427155022.GR4431@marowsky-bree.de> <20050427164652.GA3129@ucw.cz> <E1DQqUi-0002Pt-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1DQqUi-0002Pt-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > the ability to change the layout underneath, you might trigger bugs in
-> > > root programs: Are they really capable of seeing the same filename
-> > > twice, or can you throw them into a deep recursion by simulating
-> > > infinitely deep directories/circular hardlinks...?
-> > Circular or otherwise hardlinked directories are not allowed since it
-> > would not only confuse applications but the VFS as well.
-> 
-> Right, that you can catch. But can you prevent a user fs module from
-> creating an infinitely deep directory structure out of thin air? Do you
-> limit the maximum path length / depth?
+Hi Miklos!
 
-No. 
+> Is it possible to limit all these from kernelspace?  Probably yes,
+> although a timeout for operations is something that cuts either way.
+> And the compexity of these checks would probably be orders of
+> magnitude higher then the check we are currently discussing.
 
-> (Sending this privately and not to LKML, because I first wanted to check
-> the facts ;-)
+Yes ... but does the check we are discussing really solve the problem?
 
-OK, CC restored.  You shouldn't be afraid to send to LKML.  It's the
-ultimate spam list ;)
+Let's say that you attempt to export home directories of users by a user-space
+NFS daemon. This daemon probably changes its fsuid to match the remote user,
+so the check happily accepts the access and the user is able to lock up the
+daemon.
 
-> > > Certainly a useful tool for hardening applications, but I can see the
-> > > point of not wanting to let unwary applications run into a namespace
-> > > controlled by a user. Of course, this is sort-of similar to "find
-> > > -xdev", but I'm not sure whether it is not indeed new behaviour.
-> > 
-> > A trivial DoS against any process entering the userspace filesystem is
-> > just not to answer the filesystem request.
-> > 
-> > So it's not just information leak, but also a fine way to _control_
-> > certain behavior of applications.
-> 
-> Yes. I first thought the check was superfluous, because hey, why
-> shouldn't root be able to access everything... But then it struck me
-> that that might actually be a good idea for all those reasons. root's
-> tools don't expect that the namespace they are traversing is
-> _completely_ controlled by a user.
+It doesn't seem that there is any simple and universal cure -- root programs
+or setuid programs altering their fsuid are just too similar to the real user
+programs to separate them cleanly.
 
-Exactly.
+I see a lot of similarities with symlinks -- many programs also need to take
+extra care of symlinks to be safe. However, symlinks are already senior
+citizens of Unix systems and programs know how to cope with them since ages.
 
-Thanks,
-Miklos
+Maybe this could be taken advantage of by keeping all user mounts in a separate
+directory like /mnt/usr (and /mnt is very likely to be avoided by all programs
+traversing directory structure automatically) and symlinking from the requested
+mount points there (with symlinks naturally not followed by automatic traversals).
+
+I agree it isn't a neat solution, but it seems to be the first one which is
+close to working.
+
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+Lisp Users: Due to the holiday, there will be no garbage collection on Monday.

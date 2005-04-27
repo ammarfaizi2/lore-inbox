@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261841AbVD0RtB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261877AbVD0Ru5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261841AbVD0RtB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 13:49:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbVD0Rsq
+	id S261877AbVD0Ru5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 13:50:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbVD0RtJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 13:48:46 -0400
-Received: from fire.osdl.org ([65.172.181.4]:7576 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261841AbVD0Rsb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 13:48:31 -0400
-Date: Wed, 27 Apr 2005 10:46:52 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Greg KH <gregkh@suse.de>, blaisorblade@yahoo.it,
-       user-mode-linux-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>, Cliff White <cliffw@osdl.org>,
-       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org
-Subject: Re: [01/07] uml: add nfsd syscall when nfsd is modular
-Message-ID: <20050427174652.GL23013@shell0.pdx.osdl.net>
-References: <20050427171446.GA3195@kroah.com> <20050427171552.GB3195@kroah.com> <1114619612.18355.113.camel@localhost.localdomain>
+	Wed, 27 Apr 2005 13:49:09 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:63899 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261852AbVD0Rrk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 13:47:40 -0400
+Subject: Re: any way to find out kernel memory usage?
+From: Robert Love <rml@novell.com>
+To: Chris Friesen <cfriesen@nortel.com>
+Cc: "Artem B. Bityuckiy" <dedekind@oktetlabs.ru>, linux-kernel@vger.kernel.org
+In-Reply-To: <426FCF7B.5020806@nortel.com>
+References: <426FBFED.9090409@nortel.com> <426FC0FE.2090900@oktetlabs.ru>
+	 <426FC46C.4070306@nortel.com> <1114622438.10836.8.camel@betsy>
+	 <426FCF7B.5020806@nortel.com>
+Content-Type: text/plain
+Date: Wed, 27 Apr 2005 13:47:15 -0400
+Message-Id: <1114624035.10836.19.camel@betsy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1114619612.18355.113.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Alan Cox (alan@lxorguk.ukuu.org.uk) wrote:
-> On Mer, 2005-04-27 at 18:15, Greg KH wrote:
-> > -stable review patch.  If anyone has any objections, please let us know.
-> 
-> Don't see why this one is a critical bug.
+On Wed, 2005-04-27 at 11:44 -0600, Chris Friesen wrote:
 
-I guess without it, modular nfsd has no syscall interface (for UML, or
-course).
+> Okay, so can I get the total amount of memory used by the kernel based 
+> on meminfo output?  (Slab + VmallocUsed) maybe?
 
-thanks,
--chris
+I don't think that will include page tables, unless the architecture
+allocates page tables from slab (some might, especially recently).
+
+And it won't have memory that didn't come from slab, e.g.
+get_free_pages() or anything else right off the buddy allocator.
+
+There is no easy way to do this.  To do it right, we'd need fine-grained
+accounting.
+
+	Robert Love
+
+

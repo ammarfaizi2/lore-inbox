@@ -1,121 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbVD0UUd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262000AbVD0UWg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261614AbVD0UUd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 16:20:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbVD0UUd
+	id S262000AbVD0UWg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 16:22:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261999AbVD0UWg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 16:20:33 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:48067 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S261614AbVD0UUR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 16:20:17 -0400
-Date: Wed, 27 Apr 2005 22:20:09 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Daniel Phillips <phillips@istop.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/7] dlm: overview
-Message-ID: <20050427202009.GE4431@marowsky-bree.de>
-References: <20050425151136.GA6826@redhat.com> <200504260130.17016.phillips@istop.com> <20050427135635.GA4431@marowsky-bree.de> <200504271600.57993.phillips@istop.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200504271600.57993.phillips@istop.com>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.6i
+	Wed, 27 Apr 2005 16:22:36 -0400
+Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:48261 "EHLO
+	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
+	id S261898AbVD0UWE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 16:22:04 -0400
+X-SBRSScore: None
+X-IronPort-AV: i="3.92,135,1112565600"; 
+   d="scan'208"; a="8253184:sNHT23495184"
+Message-ID: <426FF466.10501@fujitsu-siemens.com>
+Date: Wed, 27 Apr 2005 22:21:58 +0200
+From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Martin Schwidefsky <schwidefsky@de.ibm.com>, Jeff Dike <jdike@addtoit.com>,
+       user-mode-linux devel 
+	<user-mode-linux-devel@lists.sourceforge.net>
+Subject: Again: UML on s390 (31Bit)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2005-04-27T16:00:57, Daniel Phillips <phillips@istop.com> wrote:
+I'm sending this mail again, because unfortunately I didn't receive
+any reply. It was sent the first time at April, 5th.
 
-> > Questions which need to be settled, or which the API at least needs to
-> > export so we know what is expected from us:
-> >
-> > - How do the node ids look like? Are they sparse integers, continuous
-> >   ints, uuids, IPv4 or IPv6 address of the 'primary' IP of a node,
-> >   hostnames...?
-> 32 bit integers at the moment.  I hope it stays that way.
-
-You have just excluded a certain number of clustering stacks from
-working. Or at least required them to maintain translation tables. A
-UUID has many nice properties; one of the most important ones being that
-it is inherently unique (and thus doesn't require an adminstrator to
-assign a node id), and that it also happens to be big enough to hold
-anything else you might want to, like the primary IPv6 address of a
-node.
-
-We've had that discussion on the OCF list, and I think that was one of
-the few really good ones.
-
-> > - How are the communication links configured? How to tell it which
-> >   interfaces to use for IP, for example?
-> CMAN provides a PF_CLUSTER.  This facility seems cool, but I haven't got much 
-> experience with it, and certainly not enough to know if PF_CLUSTER is really 
-> necessary, or should be put forth as a required component of the common 
-> infrastructure.  It is not clear to me that SCTP can't be used directly, 
-> perhaps with some library support.
-
-You've missed the point of my question. I did not mean "How does an
-application use the cluster comm links", but "How is the kernel
-component told which paths/IPs it should use".
-
-> > - How do we actually deliver the membership events - echo "current
-> > node list" >/sys/cluster/gfs/membership or...?
-> This is rather nice: event messages are delivered over a socket.  The
-> specific form of the messages sucks somewhat, as do the wrappers
-> provided.  These need some public pondering.
-
-Again, you've told me how user-space learns about the events. This
-wasn't the question; I was asking how user-space tells the kernel about
-the membership.
-
-> > - What kind of semantics are expected: Can we deliver the membership
-> >   events as they come, do we need to introduce suspend/resume barriers
-> >   etc?
-> Suspend/resume barriers take the form of a simple message protocol, 
-> administered by CMAN.
-
-Not what I asked; see the discussion with David.
-
-> > - How to security credentials play into this, and where are they
-> >   enforced - so that a user-space app doesn't mess with kernel locks?
-> Security?  What is that?  (Too late for me to win that dinner now...)
-> Security is currently provided by restricting socket access to root.
-
-So you'd expect a user-level suid daemon of sorts to wrap around this.
-Fair enough.
-
-> Yes.  For the next month or two it should be ambitious enough just to ensure 
-> that the interfaces are simple, sane, and known to satisfy the base 
-> requirements of everybody with existing cluster code to contribute. 
-
-Which is what the above questions were about ;-) heartbeat uses UUIDs
-for node identification; we've got a pretty strict security model, and
-we do not necessarily use IP as the transport mechanism, and our
-membership runs in user-space.
-
-The automagic aspects are the icing on the cake ;-)
-
-> > Or maybe these will be abstracted by user-space wrapper libraries, and
-> > everybody does in the kernel what they deem best.
-> I _hope_ that we can arrive at a base membership infrastructure that is 
-> convenient to use either from kernel or user space.  User space libraries 
-> already exist, but with warts of various sizes.
-
-... which is why I asked the above questions: User-space needs to
-interface with the kernel to tell it the membership (if the membership
-is user-space driven), or retrieve it (if it is kernel driven).
-
-This implies we need to understand the expected semantics of the kernel,
-and either standarize them, or have a way for user-space to figure out
-which are wanted when interfacing with a particular kernel.
+Regards, Bodo
 
 
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
+Hi,
 
--- 
-High Availability & Clustering
-SUSE Labs, Research and Development
-SUSE LINUX Products GmbH - A Novell Business
+currently I'm porting UML to s390 31-bit.
+A first 2.6.11 UML system already is running in UML-SKAS0 mode,
+which normally should run on an unpatched host (no skas3-patch).
 
+To make UML build and run on s390, I needed to do these two little
+changes (the patches are copy and paste. I hope that doesn't hurt,
+since they are very small):
+
+1) UML includes some of the subarch's (s390) headers. I had to
+    change one of them with the following one-liner, to make this
+    compile. AFAICS, this change doesn't break compilation of s390
+    itself.
+
+==============================================================================
+--- linux-2.6.11.orig/include/asm-s390/user.h	2004-12-09 18:45:02.000000000 +0100
++++ linux-2.6.11/include/asm-s390/user.h	2004-12-09 18:48:11.000000000 +0100
+@@ -10,7 +10,7 @@
+  #define _S390_USER_H
+
+  #include <asm/page.h>
+-#include <linux/ptrace.h>
++#include <asm/ptrace.h>
+  /* Core file format: The core file is written in such a way that gdb
+     can understand it and provide useful information to the user (under
+     linux we use the 'trad-core' bfd).  There are quite a number of
+==============================================================================
+
+2) UML needs to intercept syscalls via ptrace to invalidate the syscall,
+    read syscall's parameters and write the result with the result of
+    UML's syscall processing. Also, UML needs to make sure, that the host
+    does no syscall restart processing. On i386 for example, this can be
+    done by writing -1 to orig_eax on the 2nd syscall interception
+    (orig_eax is the syscall number, which after the interception is used
+    as a "interrupt was a syscall" flag only.
+    Unfortunately, s390 holds syscall number and syscall result in gpr2 and
+    its "interrupt was a syscall" flag (trap) is unreachable via ptrace.
+    So I changed the host to set trap to -1, if the syscall number is written
+    to a negative value on the first syscall interception.
+    I hope, this adds what UML needs without changing ptrace visibly to other
+    ptrace users.
+    (This isn't tested on a 2.6 host yet, because my host still is a 2.4.21 SuSE.
+    But I've adapted this change to 2.4 and tested, it works.)
+
+
+==============================================================================
+--- linux-2.6.11.orig/arch/s390/kernel/ptrace.c	2005-04-04 18:57:38.000000000 +0200
++++ linux-2.6.11/arch/s390/kernel/ptrace.c	2005-04-04 19:01:51.000000000 +0200
+@@ -726,6 +726,13 @@
+				  ? 0x80 : 0));
+
+  	/*
++	 * If debugger has set an invalid syscall number,
++	 * we prepare to skip syscall restart handling
++	 */
++	if (!entryexit && (long )regs->gprs[2] < 0 )
++		regs->trap = -1;
++
++	/*
+  	 * this isn't the same as continuing with a signal, but it will do
+  	 * for normal use.  strace only continues with a signal if the
+  	 * stopping signal is not SIGTRAP.  -brl
+==============================================================================
+
+
+It would be very helpful for me, if these changes could go into s390 mainline.
+If there is something wrong with them, please help me find a better solution.
+
+
+Regards, Bodo

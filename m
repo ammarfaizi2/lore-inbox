@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261557AbVD0Mji@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261541AbVD0Mi5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261557AbVD0Mji (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 08:39:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbVD0Mjf
+	id S261541AbVD0Mi5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 08:38:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261542AbVD0Mi5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 08:39:35 -0400
-Received: from quechua.inka.de ([193.197.184.2]:61346 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S261542AbVD0MjZ (ORCPT
+	Wed, 27 Apr 2005 08:38:57 -0400
+Received: from colin.muc.de ([193.149.48.1]:10771 "EHLO colin2.muc.de")
+	by vger.kernel.org with ESMTP id S261541AbVD0Miy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 08:39:25 -0400
-Date: Wed, 27 Apr 2005 14:38:27 +0200
-From: Bernd Eckenfels <be-mail2005@lina.inka.de>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] 2.6.12-rc3: unkillable java process in TASK_RUNNING on AMD64
-Message-ID: <20050427123827.GA31107@lina.inka.de>
-References: <E1DQkId-0007AA-00@calista.eckenfels.6bone.ka-ip.net> <200504271313.31865.rjw@sisk.pl>
+	Wed, 27 Apr 2005 08:38:54 -0400
+Date: 27 Apr 2005 14:38:52 +0200
+Date: Wed, 27 Apr 2005 14:38:52 +0200
+From: Andi Kleen <ak@muc.de>
+To: "Yu, Luming" <luming.yu@intel.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, racing.guo@intel.com
+Subject: Re: [PATCH]porting lockless mce from x86_64 to i386
+Message-ID: <20050427123852.GD12597@muc.de>
+References: <200504261327.30928.luming.yu@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200504271313.31865.rjw@sisk.pl>
-User-Agent: Mutt/1.5.6+20040907i
-X-Scanner: exiscan *1DQloB-00086J-00*U/E5m4teazg*
+In-Reply-To: <200504261327.30928.luming.yu@intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 27, 2005 at 01:13:31PM +0200, Rafael J. Wysocki wrote:
-> It looks like a kernel bug to me this time.
+On Tue, Apr 26, 2005 at 01:27:30PM +0800, Yu, Luming wrote:
+> 
+> Forward a patch :
 
-Which kernel works? Have  you tried a stable one? (2.6.11.7 is recent)
+Some comments: 
 
-Gruss
-Bernd
--- 
-  (OO)      -- Bernd_Eckenfels@Mörscher_Strasse_8.76185Karlsruhe.de --
- ( .. )      ecki@{inka.de,linux.de,debian.org}  http://www.eckes.org/
-  o--o     1024D/E383CD7E  eckes@IRCNet  v:+497211603874  f:+497211606754
-(O____O)  When cryptography is outlawed, bayl bhgynjf jvyy unir cevinpl!
+The asmlinkage on x86-64 is not really needed. You can remove
+the ifdef. fastcall is fine, although it is a nop.
+
+The u64 tsc[NR CPUS] on the stack is a stack overflow with big
+NR_CPUS. I have
+a patch locally here to fix it, but you could just apply it
+anyways when you move the code. Fix is to use kmalloc here.
+
+-Andi
+

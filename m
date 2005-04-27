@@ -1,43 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261938AbVD0So5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261955AbVD0Srt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261938AbVD0So5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 14:44:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbVD0Sna
+	id S261955AbVD0Srt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 14:47:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbVD0Spf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 14:43:30 -0400
-Received: from fire.osdl.org ([65.172.181.4]:51629 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261938AbVD0SnM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 14:43:12 -0400
-Date: Wed, 27 Apr 2005 11:42:38 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: tab@snarc.org, ak@suse.de, linux-kernel@vger.kernel.org,
-       ian.pratt@cl.cam.ac.uk
-Subject: Re: [PATCH 5/6][XEN][x86_64] Add macro for debugreg
-Message-Id: <20050427114238.4e97f03d.akpm@osdl.org>
-In-Reply-To: <20050427130459.GI13305@wotan.suse.de>
-References: <20050426113149.GE26614@snarc.org>
-	<20050426131707.GB5098@wotan.suse.de>
-	<20050426152638.GA23714@snarc.org>
-	<20050427130459.GI13305@wotan.suse.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Apr 2005 14:45:35 -0400
+Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:51109 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261946AbVD0SnX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 14:43:23 -0400
+To: mj@ucw.cz
+CC: lmb@suse.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+In-reply-to: <20050427182528.GD4241@ucw.cz> (message from Martin Mares on Wed,
+	27 Apr 2005 20:25:28 +0200)
+Subject: Re: [PATCH] private mounts
+References: <20050427092450.GB1819@elf.ucw.cz> <E1DQjzY-0001no-00@dorka.pomaz.szeredi.hu> <20050427143126.GB1957@mail.shareable.org> <E1DQno0-00029a-00@dorka.pomaz.szeredi.hu> <20050427153320.GA19065@atrey.karlin.mff.cuni.cz> <20050427155022.GR4431@marowsky-bree.de> <20050427164652.GA3129@ucw.cz> <E1DQqUi-0002Pt-00@dorka.pomaz.szeredi.hu> <20050427175425.GA4241@ucw.cz> <E1DQquc-0002W6-00@dorka.pomaz.szeredi.hu> <20050427182528.GD4241@ucw.cz>
+Message-Id: <E1DQrUr-0003MI-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 27 Apr 2005 20:42:53 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> wrote:
->
-> On Tue, Apr 26, 2005 at 05:26:38PM +0200, Vincent Hanquez wrote:
-> > On Tue, Apr 26, 2005 at 03:17:07PM +0200, Andi Kleen wrote:
-> > > It looks good, except that the name of the macro is too long.
-> > > I will queue it and fix the name up when I apply. 
-> > 
-> > fine. let me know the new name, I'll regenerate a new set of patch for
-> > x86 too. It's probably better to have the same name between the 2 archs.
+> > So yes the check fsuid is not the perfect solution.  However let me
+> > remind you that neither is the one with private namespace.
 > 
-> Just dropping the cpu_ should be enough.
+> What I'm arguing about is that the fsuid check is obscure (it breaks
+> traditional semantics of file permissions [*],
 
-I've edited the six diffs to remove the cpu_.
+No, the permissions are not visible to any other user.  So there are
+no semantics to break.
+
+> it doesn't allow an user to grant access to his user mount to other
+> users,
+
+Yes, but that granting must be explicitly acknowledget by the grantee,
+to avoid the problems previously discussed.  It's probably something
+possible to do with the private namespaces (sending mounts to other
+user's namespaces, etc)
+
+> even if the permissions allow that and so on) and it doesn't
+> fully solve the problem anyway.
+
+I think I know how to fully solve the problem.  If the user has
+permission to ptrace the process in question then he can already do
+whatever he likes with that process, so userspace filesystem operation
+can unconditionally be allowed.  Otherwise it's no-no by default.
+
+This thread is proving to be ever more useful :)  Thanks everyone!
+
+> For similar reasons, I don't advocate for private namespaces either.
+> 
+> The cure more likely lies in simple policy rules like the "all user mounts
+> belong to /mnt/usr" one, instead of putting dubious policy to the kernel.
+
+I'm keeping policy out of the kernel by making the check optional.
+Then the userspace daemon can enforce such policies as /mnt/usr.
+
+I'll prefer the checking one, since, I'm all alone on my machine,
+don't want to share anything, but _do_ want to have mounts under my
+home directory.  You prefer the /mnt/usr, since you want to share it
+with others.  A combination is also possible: the user choses for each
+mount which is preferable.
+
+Agreed?
+
+Miklos

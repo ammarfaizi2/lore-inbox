@@ -1,67 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbVD0D2k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261904AbVD0DxK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261900AbVD0D2k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 23:28:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbVD0D2j
+	id S261904AbVD0DxK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 23:53:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbVD0DxK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 23:28:39 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:48620 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261900AbVD0D2V (ORCPT
+	Tue, 26 Apr 2005 23:53:10 -0400
+Received: from colo.lackof.org ([198.49.126.79]:17892 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S261904AbVD0DxG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 23:28:21 -0400
-Date: Wed, 27 Apr 2005 11:32:00 +0800
-From: David Teigland <teigland@redhat.com>
-To: Mark Fasheh <mark.fasheh@oracle.com>
-Cc: Wim Coekaerts <wim.coekaerts@oracle.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH 0/7] dlm: overview
-Message-ID: <20050427033200.GC9963@redhat.com>
-References: <20050425151136.GA6826@redhat.com> <20050425203952.GE25002@ca-server1.us.oracle.com> <20050426053930.GA12096@redhat.com> <20050426184845.GA938@ca-server1.us.oracle.com>
+	Tue, 26 Apr 2005 23:53:06 -0400
+Date: Tue, 26 Apr 2005 21:55:35 -0600
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Grant Grundler <grundler@parisc-linux.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>, bjorn.helgaas@hp.com
+Subject: Re: pci-sysfs resource mmap broken
+Message-ID: <20050427035535.GI2612@colo.lackof.org>
+References: <1114493609.7183.55.camel@gaston> <20050426163042.GE2612@colo.lackof.org> <1114555655.7183.81.camel@gaston>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050426184845.GA938@ca-server1.us.oracle.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1114555655.7183.81.camel@gaston>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 26, 2005 at 11:48:45AM -0700, Mark Fasheh wrote:
-> On Tue, Apr 26, 2005 at 01:39:30PM +0800, David Teigland wrote:
+On Wed, Apr 27, 2005 at 08:47:34AM +1000, Benjamin Herrenschmidt wrote:
+> No. I don't agree. userspace has no business understanding the kernel
+> resources content.
 
-> > No.  What kind of performance measurements do you have in mind?  Most
-> > dlm lock requests involve sending a message to a remote machine and
-> > waiting for a reply.  I expect this network round-trip is the bulk of
-> > the time for a request, which is why I'm a bit confused by your
-> > question.
+Sorry - you are right. Userspace doesn't need to understand kernel
+resources. It just needs some sort of handle so it can talk
+to the device in whatever way is appropriate. I was thinking
+the resource content (which happens to be CPU View of a BAR)
+could be that handle.
 
-> Resource lookup times, times to deliver events to clients (asts, basts,
-> etc) for starters. How long does recovery take after a node crash? How
-> does all of this scale as you increase the number of nodes in your
-> cluster?  Sure, network speed is a part of the equation, but it's not
-> the *whole* equation and I've seen dlms that can get downright nasty
-> when it comes to recovery speeds, etc.
-
-Ok, we'll look into how to measure some of that in a way that's
-meaningful.
+...
+> The only thing I dislike a bit is that forces me to read the BAR on
+> every access to "un-offset" the kernel resource. We may be able to have
+> some arch hook do that properly, but for now, that would fix the problem
+> and make the whole stuff work again.
 
 
-> > > My main concern is that I have not seen anything relying on this
-> > > code do "reasonably well". eg can you show gfs numbers w/ number of
-> > > nodes and scalability ?
-> > 
-> > I'd suggest that if some cluster application is using the dlm and has
-> > poor performance or scalability, the reason and solution lies mostly
-> > in the app, not in the dlm.  That's assuming we're not doing anything
-> > blatantly dumb in the dlm, butI think you may be placing too much
-> > emphasis on the role of the dlm here.
+What is wrong with reading the BAR?
+Is the "IO View" needed in the performance path someplace?
 
-> Well, obviously the dlm is only one component of an entire system, but
-> for a cluster application it can certainly be an important component,
-> one whose performance is worth looking into. I don't think asking for
-> this information is out of the question.
+It should be trivial since config space is exported via /sys and /proc.
+libpci probably already has everything that's needed.
 
-GFS measurements will wait until gfs comes along, but we can do some dlm
-measuring now.
-
-Dave
-
+grant

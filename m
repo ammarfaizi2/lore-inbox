@@ -1,59 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbVD0J3E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261352AbVD0Jeq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261307AbVD0J3E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 05:29:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbVD0J3E
+	id S261352AbVD0Jeq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 05:34:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbVD0Jeq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 05:29:04 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:1702 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261307AbVD0J25 (ORCPT
+	Wed, 27 Apr 2005 05:34:46 -0400
+Received: from cimice4.lam.cz ([212.71.168.94]:33717 "EHLO vagabond.light.src")
+	by vger.kernel.org with ESMTP id S261308AbVD0Jed (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 05:28:57 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <Pine.LNX.4.58.0504260737040.18901@ppc970.osdl.org> 
-References: <Pine.LNX.4.58.0504260737040.18901@ppc970.osdl.org>  <20050417033806.65a5786a.sfr@canb.auug.org.au> <26687.1113576302@redhat.com> <4872.1114506372@redhat.com> 
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: akpm@osdl.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: [PATCH] NFS4: Don't use __user with compat_uptr_t 
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Wed, 27 Apr 2005 10:28:32 +0100
-Message-ID: <27018.1114594112@redhat.com>
+	Wed, 27 Apr 2005 05:34:33 -0400
+Date: Wed, 27 Apr 2005 11:34:12 +0200
+From: Jan Hudec <bulb@ucw.cz>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: John Stoffel <john@stoffel.org>,
+       "Artem B. Bityuckiy" <dedekind@oktetlabs.ru>, Ville Herva <v@iki.fi>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: filesystem transactions API
+Message-ID: <20050427093412.GB1904@vagabond>
+References: <20050426134629.GU16169@viasys.com> <20050426141426.GC10833@mail.shareable.org> <426E4EBD.6070104@oktetlabs.ru> <20050426143247.GF10833@mail.shareable.org> <17006.22498.394169.98413@smtp.charter.net> <20050426152434.GB14297@mail.shareable.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="CUfgB8w4ZwR/yMy5"
+Content-Disposition: inline
+In-Reply-To: <20050426152434.GB14297@mail.shareable.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The attached patch removes __user from compat_uptr_t types in the NFS4 mount
-32-bit->64-bit compatibility structures.
+--CUfgB8w4ZwR/yMy5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
-warthog>diffstat -p1 nfs4-compat-2612rc3.diff 
- fs/compat.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+On Tue, Apr 26, 2005 at 16:24:34 +0100, Jamie Lokier wrote:
+> John Stoffel wrote:
+> > >>>>> "Jamie" =3D=3D Jamie Lokier <jamie@shareable.org> writes:
+> >=20
+> > Jamie> No.  A transaction means that _all_ processes will see the
+> > Jamie> whole transaction or not.
+> >=20
+> > This is really hard.  How do you handle the case where process X
+> > starts a transaction modifies files a, b & c, but process Y has file b
+> > open for writing, and never lets it go?  Or the file gets unlinked? =20
+>=20
+> Then it starts to depend on what kind of transactions you want to
+> implement.
+>=20
+> You can say that a transaction isn't allowed when a process has one of
+> the files opened for writing.  Or you can say a transaction is
+> equivalent to calling all of the I/O system calls at once.  You can
+> also decide if you want the reads and directory lookups performed in
+> the transactions to become prerequisites for the transaction
+> completing (so it's aborted if another process writes to those file
+> regions or changes the directory structure in a way which breaks a
+> prerequisite), or if you want those to lock the things which are read
+> for the duration of the transaction, or even just ignore reads for
+> transaction purposes.  Or, you can say that transactions are limited
+> to just directory structure, and not file contents (that's good enough
+> for package management), or you can say they're limited to just file
+> contents (that's good enough for databases and text file edits).
+>=20
+> Etc, etc, quite a lot of semantic choices.
 
-diff -uNrp linux-2.6.12-rc3/fs/compat.c linux-2.6.12-rc3-nfs4compat/fs/compat.c
---- linux-2.6.12-rc3/fs/compat.c	2005-04-27 10:21:13.660310933 +0100
-+++ linux-2.6.12-rc3-nfs4compat/fs/compat.c	2005-04-27 10:24:09.176911721 +0100
-@@ -809,7 +809,7 @@ static void *do_smb_super_data_conv(void
- 
- struct compat_nfs_string {
- 	compat_uint_t len;
--	compat_uptr_t __user data;
-+	compat_uptr_t data;
- };
- 
- static inline void compat_nfs_string(struct nfs_string *dst,
-@@ -834,10 +834,10 @@ struct compat_nfs4_mount_data_v1 {
- 	struct compat_nfs_string mnt_path;
- 	struct compat_nfs_string hostname;
- 	compat_uint_t host_addrlen;
--	compat_uptr_t __user host_addr;
-+	compat_uptr_t host_addr;
- 	compat_int_t proto;
- 	compat_int_t auth_flavourlen;
--	compat_uptr_t __user auth_flavours;
-+	compat_uptr_t auth_flavours;
- };
- 
- static int do_nfs4_super_data_conv(void *raw_data)
+How do we specify which calls belong to a transaction? By some kind of
+extra file handle?
+
+I'd think having global per-process transaction is not the best way.
+So I think we should have some kind of transaction handle (probably in
+the file handle space) and a way to say that a syscall is done within
+a transaction. To avoid duplicating all syscalls, we could have
+set_active_transaction() operation.
+
+Now I think the criteria for semantics should be serializability. That
+would mean, that lookup paths would have to be locked IFF the lookup was
+done within the transaction -- but you would be free to open a file
+without transaction, then set_active_transaction and write that file.
+That way the write would become atomic, but someone else could freely
+rename the file from under you.
+
+Note: Editors currently write to a temporary file and rename over the
+original (if they have permissions to do it), which is as good
+transaction as they need.
+
+> > What about programs that are already open and running? =20
+> >=20
+> > It might be doable in some sense, but I can see that details are
+> > really hard to get right.  Esp without breaking existing Unix
+> > semantics. =20
+>=20
+> It's even harder without kernel support! :)
+
+If every syscall (touching filesystem) was turned into a transaction of
+it's own, it wouldn't break any semantics.
+
+---------------------------------------------------------------------------=
+----
+						 Jan 'Bulb' Hudec <bulb@ucw.cz>
+
+--CUfgB8w4ZwR/yMy5
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQFCb1yURel1vVwhjGURAiuiAKCQdRJciPFUIzzFFEeqfbYCHwdP5ACglWd9
+NxZZO77UfbIp2rJb7jMmS3w=
+=OsxQ
+-----END PGP SIGNATURE-----
+
+--CUfgB8w4ZwR/yMy5--

@@ -1,51 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262067AbVD0W5e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262076AbVD0XAH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262067AbVD0W5e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 18:57:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbVD0W5e
+	id S262076AbVD0XAH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 19:00:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262077AbVD0XAH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 18:57:34 -0400
-Received: from smtpout.mac.com ([17.250.248.89]:50113 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S262067AbVD0W50 (ORCPT
+	Wed, 27 Apr 2005 19:00:07 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:33450 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262076AbVD0W7z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 18:57:26 -0400
-In-Reply-To: <20050426061011.GA8527@codeblau.de>
-References: <20050311202122.GA13205@fefe.de> <20050311173308.7a076e8f.akpm@osdl.org> <20050324.205902.119922975.yoshfuji@linux-ipv6.org> <20050425195736.GB3123@codeblau.de> <Pine.LNX.4.61.0504252359580.4921@netcore.fi> <20050426061011.GA8527@codeblau.de>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <d3c101b00bd9573e30aa843e2335439e@mac.com>
-Content-Transfer-Encoding: 7bit
-Cc: Pekka Savola <pekkas@netcore.fi>, netdev@oss.sgi.com,
-       "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>,
-       linux-kernel@vger.kernel.org
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: IPv6 has trouble assigning an interface
-Date: Wed, 27 Apr 2005 18:57:05 -0400
-To: Felix von Leitner <felix-linuxkernel@fefe.de>
-X-Mailer: Apple Mail (2.619.2)
+	Wed, 27 Apr 2005 18:59:55 -0400
+Date: Wed, 27 Apr 2005 16:58:42 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: bulb@ucw.cz, hch@infradead.org, jamie@shareable.org, linuxram@us.ibm.com,
+       7eggert@gmx.de, viro@parcelfarce.linux.theplanet.co.uk,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH] private mounts
+Message-ID: <20050427145842.GD28119@elf.ucw.cz>
+References: <20050426131943.GC2226@openzaurus.ucw.cz> <E1DQQ73-0000Zv-00@dorka.pomaz.szeredi.hu> <20050426201411.GA20109@elf.ucw.cz> <E1DQiEa-0001hi-00@dorka.pomaz.szeredi.hu> <20050427092450.GB1819@elf.ucw.cz> <E1DQjzY-0001no-00@dorka.pomaz.szeredi.hu> <20050427115754.GA8981@vagabond> <E1DQla0-0001vG-00@dorka.pomaz.szeredi.hu> <20050427123944.GA11020@vagabond> <E1DQmUm-0001yy-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1DQmUm-0001yy-00@dorka.pomaz.szeredi.hu>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 26, 2005, at 02:10, Felix von Leitner wrote:
-> OK for unicast. But multicast?  I expected link-local multicast
-> to send on _all_ interfaces if I don't specify one.
+Hi!
 
-This statement makes no sense.  "link-local ... on all interfaces".
-Isn't "link-local" supposed to mean that the address is unique and
-available only on that interface (ethernet segment)?  It's possible
-to get the _same_ link-local address on multiple ethernet segments,
-so in that case, where would you send the packet???  When you send
-link-local packets, you must specify the link to which it is local.
+> > The userland tools don't need to know. They just need to not be suid.
+> 
+> But I'd want to continue distribute the non-crippled kernel module
+> too, with suid fusermount.  Then fusermount _has_ to know which kernel
+> module is currently active.
 
-Cheers,
-Kyle Moffett
+Add a mount flag and make kernel refuse mount on unknown flags?
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
+> > Ok, here I say it is ugly (but not that it's crap). And the reason is,
+> > that there is a permission system, with some semantics, and then various
+> > filesystems adapt it in varous ways to fit what they want. So every
+> > filesystem ends up with it's onw little different behaviour.
+> > 
+> > That being said, fuse does just about the same as NFS, samba and others
+> > and I don't really see the reason why it couldn't be integrated. But
+> > I am not the one to decide.
+> 
+> Every opinion counts.
+> 
+> I'm not trying to convince people that the current solution is
+> perfect.  What I'm saying that it's
+> 
+>   a) not harmful
+> 
+>   b) it makes non-privileged mounts possible
+> 
+> And b) is _the_ most important feature IMO, so the argument for
+> stripping it out has to be very good.
 
+Well, you'll have problems with suid programs suddenly not being able
+to access files. nfs gets away with it, but nfs is perceived as
+"broken" anyway...
 
+								Pavel
+-- 
+Boycott Kodak -- for their patent abuse against Java.

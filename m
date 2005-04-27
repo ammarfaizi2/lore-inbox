@@ -1,105 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262070AbVD0WTt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262050AbVD0Wvi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262070AbVD0WTt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 18:19:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbVD0WTF
+	id S262050AbVD0Wvi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 18:51:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262076AbVD0Wvg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 18:19:05 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:24766 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262057AbVD0WRC (ORCPT
+	Wed, 27 Apr 2005 18:51:36 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:13797 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262067AbVD0WTj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 18:17:02 -0400
-Date: Wed, 27 Apr 2005 17:16:40 -0500 (CDT)
+	Wed, 27 Apr 2005 18:19:39 -0400
+Date: Wed, 27 Apr 2005 17:19:25 -0500 (CDT)
 From: Kylene Hall <kjhall@us.ibm.com>
 X-X-Sender: kjhall@jo.austin.ibm.com
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Greg K-H <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH 5 of 12] Fix TPM driver -- large stack objects
-In-Reply-To: <422FC42B.7@pobox.com>
-Message-ID: <Pine.LNX.4.61.0504271445330.3929@jo.austin.ibm.com>
-References: <1110415321526@kroah.com> <422FC42B.7@pobox.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 12 of 12] Fix Tpm driver -- locks
+Message-ID: <Pine.LNX.4.61.0504271705220.3929@jo.austin.ibm.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Mar 2005, Jeff Garzik wrote:
-> Greg KH wrote:
-
-<snip>
-
-> > +static ssize_t show_pubek(struct device *dev, char *buf)
-> > +{
-> > +	u8 data[READ_PUBEK_RESULT_SIZE];
-> 
-> massive obj on stack
-
-<snip>
-
-> 
-> > +static ssize_t show_caps(struct device *dev, char *buf)
-> > +{
-> > +	u8 data[READ_PUBEK_RESULT_SIZE];
-> 
-> massive obj on stack
-
-<snip>
-
-The patch below containes fixes for these large stack objects.
+A lock in the register hardware is missing and the one in release is 
+misplaced. This patch fixes these issues.
 
 Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
 ---
---- linux-2.6.12-rc2/drivers/char/tpm/tpm.c	2005-04-21 18:11:12.000000000 -0500
-+++ linux-2.6.12-rc2-tpmdd/drivers/char/tpm/tpm.c	2005-04-21 18:13:10.000000000 -0500
-@@ -253,7 +253,7 @@ static const u8 readpubek[] = {
- 
- ssize_t tpm_show_pubek(struct device *dev, char *buf)
+--- linux-2.6.12-rc2/drivers/char/tpm/tpm.c	2005-04-27 14:19:17.000000000 -0500
++++ linux-2.6.12-rc2-tpmdd/drivers/char/tpm/tpm.c	2005-04-27 14:25:04.000000000 -0500
+@@ -445,15 +445,15 @@ EXPORT_SYMBOL_GPL(tpm_open);
+ int tpm_release(struct inode *inode, struct file *file)
  {
--	u8 data[READ_PUBEK_RESULT_SIZE];
-+	u8 *data;
- 	ssize_t len;
- 	int i, rc;
- 	char *str = buf;
-@@ -263,12 +263,18 @@ ssize_t tpm_show_pubek(struct device *de
- 	if (chip == NULL)
- 		return -ENODEV;
+ 	struct tpm_chip *chip = file->private_data;
+-	
+-	file->private_data = NULL;
  
-+	data = kmalloc(READ_PUBEK_RESULT_SIZE, GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
-+
- 	memcpy(data, readpubek, sizeof(readpubek));
- 	memset(data + sizeof(readpubek), 0, 20);	/* zero nonce */
- 
--	if ((len = tpm_transmit(chip, data, sizeof(data))) <
--	    READ_PUBEK_RESULT_SIZE)
--		return len;
-+	if ((len = tpm_transmit(chip, data, READ_PUBEK_RESULT_SIZE)) <
-+	    READ_PUBEK_RESULT_SIZE) {
-+		rc = len;
-+		goto out;
-+	}
- 
- 	/* 
- 	   ignore header 10 bytes
-@@ -298,7 +304,10 @@ ssize_t tpm_show_pubek(struct device *de
- 		if ((i + 1) % 16 == 0)
- 			str += sprintf(str, "\n");
- 	}
--	return str - buf;
-+	rc = str - buf;
-+out:
-+	kfree(data);
-+	return rc;
+ 	spin_lock(&driver_lock);
++	file->private_data = NULL;
+ 	chip->num_opens--;
+ 	del_singleshot_timer_sync(&chip->user_read_timer);
+ 	atomic_set(&chip->data_pending, 0);
+-
+ 	pci_dev_put(chip->pci_dev);
++	kfree(chip->data_buffer);
++	spin_unlock(&driver_lock);
+ 	return 0;
  }
  
- EXPORT_SYMBOL_GPL(tpm_show_pubek);
-@@ -324,7 +333,7 @@ static const u8 cap_manufacturer[] = {
+@@ -665,10 +665,14 @@ dev_num_search_complete:
+ 		return -ENODEV;
+ 	}
  
- ssize_t tpm_show_caps(struct device *dev, char *buf)
- {
--	u8 data[READ_PUBEK_RESULT_SIZE];
-+	u8 data[sizeof(cap_manufacturer)];
- 	ssize_t len;
- 	char *str = buf;
++	spin_lock(&driver_lock);
++
+ 	pci_set_drvdata(pci_dev, chip);
+ 
+ 	list_add(&chip->list, &tpm_chip_list);
+ 
++	spin_unlock(&driver_lock);
++
+ 	for (i = 0; i < TPM_NUM_ATTR; i++)
+ 		device_create_file(&pci_dev->dev, &chip->vendor->attr[i]);
  

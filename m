@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbVD0Ifb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVD0IfD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261186AbVD0Ifb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 04:35:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVD0Ifb
+	id S261179AbVD0IfD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 04:35:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbVD0IfD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 04:35:31 -0400
-Received: from web40712.mail.yahoo.com ([66.218.78.169]:24246 "HELO
-	web40712.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261186AbVD0IfH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 04:35:07 -0400
+	Wed, 27 Apr 2005 04:35:03 -0400
+Received: from web40711.mail.yahoo.com ([66.218.78.168]:20027 "HELO
+	web40711.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261179AbVD0Iez (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 04:34:55 -0400
 Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com;
-  b=OrV9v6By/GK6StjBoiYa9l5s1rddhn8FWI3wynidSNtsg2Sm4kBLB/Qelrp214HqC9xswAZXvI0Fe0Oj/V1LJ3d8VWGiQDEsuUvc9q2zKz0SuUQwHgTifb+/1nIfhC5nCswOKUg/xPcJ58BRdU/mYSdOezj9xaCoPIoCZ5ScVKo=  ;
-Message-ID: <20050427083455.41437.qmail@web40712.mail.yahoo.com>
-Date: Wed, 27 Apr 2005 01:34:55 -0700 (PDT)
+  b=HeKKPcUeyVLmr+9ouxEK5kQnDRXX0/9FhXFyifr4pX/8dhSqT2xSfWy+s3Z1e2tsuYwTZC/SntRKLaULAHSuBtMp6aG7xK1qy+Q9vcCjSXKT0wTmrCNMyGq/UEVGUd/WSuiin7oJ3wIe3fAP2CxvmF+fkTtThIAGMGfKS0ZgmF4=  ;
+Message-ID: <20050427083454.26893.qmail@web40711.mail.yahoo.com>
+Date: Wed, 27 Apr 2005 01:34:54 -0700 (PDT)
 From: dipankar das <dipankar_dd@yahoo.com>
 Subject: Re: [kernel oops when locking the cluster using HAS]
 To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,

@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbVD0PCI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbVD0PFd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261708AbVD0PCI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 11:02:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbVD0PCI
+	id S261705AbVD0PFd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 11:05:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbVD0PFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 11:02:08 -0400
-Received: from mail.enyo.de ([212.9.189.167]:9613 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id S261703AbVD0PCE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 11:02:04 -0400
-From: Florian Weimer <fw@deneb.enyo.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       magnus.damm@gmail.com, mason@suse.com, mike.taht@timesys.com,
-       mpm@selenic.com, linux-kernel@vger.kernel.org, git@vger.kernel.org
-Subject: Re: Mercurial 0.3 vs git benchmarks
-References: <20050426004111.GI21897@waste.org>
-	<200504260713.26020.mason@suse.com>
-	<aec7e5c305042608095731d571@mail.gmail.com>
-	<200504261138.46339.mason@suse.com>
-	<aec7e5c305042609231a5d3f0@mail.gmail.com>
-	<20050426135606.7b21a2e2.akpm@osdl.org>
-	<Pine.LNX.4.58.0504261405050.18901@ppc970.osdl.org>
-	<20050426155609.06e3ddcf.akpm@osdl.org> <426ED20B.9070706@zytor.com>
-Date: Wed, 27 Apr 2005 17:01:47 +0200
-In-Reply-To: <426ED20B.9070706@zytor.com> (H. Peter Anvin's message of "Tue,
-	26 Apr 2005 16:43:07 -0700")
-Message-ID: <871x8wb6w4.fsf@deneb.enyo.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 27 Apr 2005 11:05:33 -0400
+Received: from zproxy.gmail.com ([64.233.162.202]:24495 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261705AbVD0PF3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 11:05:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=ITOnrfOnkVxy7Lji5tpHiZpyj4BMfd14E0oftVmWNXl9yRWFjdOPflTYERmolsIe2+5Eg+cJOnuMgXeM6yfmqbHVBXIQjrLncBulVyxrKev9mvi2EGghuN6okfno+6SJOVD+YT8Bc4QF+zEwHgFqJGsGw+dm3bQKM0ABZyzsmG0=
+Message-ID: <699a19ea050427080545fb1676@mail.gmail.com>
+Date: Wed, 27 Apr 2005 20:35:28 +0530
+From: k8 s <uint32@gmail.com>
+Reply-To: k8 s <uint32@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Doubt Regarding Multithreading and Device Driver
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* H. Peter Anvin:
+hello,
 
-> While you're doing this anyway, you might want to make sure you enable 
-> -O +dir_index and run fsck -D.
+I have a doubt regarding user space threads and device drivers
+implementation issue.
 
-Directory hashing has a negative impact on some applications (notably
-tar and unpatched mutt on large Maildir folders).  For git, it's a win
-because hashing destroys locality anyway.
+I have a device driver for /dev/skn
+It implements basic driver operations skn_open,skn_release, skn_ioctl.
+
+I am storing something into struct file*filp->private_data.
+As this is not shared across processes I am not doing any locking
+stuff while accessing or putting anything into it.
+
+Will There be a race condition in a multithreaded program in the ioctl
+call on smp kernel accessing filp->private_data.
+
+S.Kartikeyan

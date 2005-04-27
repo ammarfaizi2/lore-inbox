@@ -1,50 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262011AbVD0U4O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262020AbVD0U6k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262011AbVD0U4O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 16:56:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbVD0U4M
+	id S262020AbVD0U6k (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 16:58:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbVD0U6j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 16:56:12 -0400
-Received: from mail.enyo.de ([212.9.189.167]:9110 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id S262011AbVD0U4D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 16:56:03 -0400
-From: Florian Weimer <fw@deneb.enyo.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       magnus.damm@gmail.com, mason@suse.com, mike.taht@timesys.com,
-       mpm@selenic.com, linux-kernel@vger.kernel.org, git@vger.kernel.org
-Subject: Re: Mercurial 0.3 vs git benchmarks
-References: <aec7e5c305042608095731d571@mail.gmail.com>
-	<200504261138.46339.mason@suse.com>
-	<aec7e5c305042609231a5d3f0@mail.gmail.com>
-	<20050426135606.7b21a2e2.akpm@osdl.org>
-	<Pine.LNX.4.58.0504261405050.18901@ppc970.osdl.org>
-	<20050426155609.06e3ddcf.akpm@osdl.org> <426ED20B.9070706@zytor.com>
-	<871x8wb6w4.fsf@deneb.enyo.de>
-	<20050427151357.GH1087@cip.informatik.uni-erlangen.de>
-	<426FDFCD.6000309@zytor.com>
-	<20050427190144.GA28848@cip.informatik.uni-erlangen.de>
-Date: Wed, 27 Apr 2005 22:55:50 +0200
-In-Reply-To: <20050427190144.GA28848@cip.informatik.uni-erlangen.de> (Thomas
-	Glanzmann's message of "Wed, 27 Apr 2005 21:01:44 +0200")
-Message-ID: <874qds5489.fsf@deneb.enyo.de>
+	Wed, 27 Apr 2005 16:58:39 -0400
+Received: from mail.dif.dk ([193.138.115.101]:43419 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S262009AbVD0U5Y convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 16:57:24 -0400
+Date: Wed, 27 Apr 2005 23:00:45 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: =?ISO-8859-1?Q?Sune_M=F8lgaard?= <sune@molgaard.org>
+Cc: linux-kernel@vger.kernel.org, mj@ucw.cz
+Subject: Re: [PATCH] 2.4.30 PicoPower IRQ router
+In-Reply-To: <426FD8C7.5080800@molgaard.org>
+Message-ID: <Pine.LNX.4.62.0504272250300.2481@dragon.hyggekrogen.localhost>
+References: <426C9DED.9010206@molgaard.org> <200504261740.08794.lists@b-open-solutions.it>
+ <426E8FE4.5040307@molgaard.org> <20050427112850.GA18533@nd47.coderock.org>
+ <426FD8C7.5080800@molgaard.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Thomas Glanzmann:
 
->> Directory hashing slows down operations that do linear sweeps through 
->> the filesystem reading every single file, simply because without 
->> dir_index, there is likely to be a correlation between inode order and 
->> directory order, whereas with dir_index, readdir() returns entries in 
->> hash order.
->
-> thank you for the awareness training. Than mutt should be slower, too.
-> Maybe I should repeat that tests.
+A few more style comments below. Nice cleanup compared to the first 
+version though. Now let's get it perfect :-)
 
-Benchmarks are actually a bit tricky because as far as I can tell,
-once you hash the directories, they are tainted even if you mount your
-file system with ext2.
+On Wed, 27 Apr 2005, Sune Mølgaard wrote:
+
+> Domen Puncer wrote:
+> > On 26/04/05 21:00 +0200, Sune Mølgaard wrote:
+> > 
+> > Signed-off-by? And weird indentification, try to use tabs.
+> > 
+> 
+> Signed-off-by Sune Molgaard sune@molgaard.org
+
+Proper form would be:  Signed-off-by: Sune Molgaard <sune@molgaard.org>
+
+
+> +static int pirq_pico_set(struct pci_dev *router, struct pci_dev *dev, int
+> pirq, int irq)
+> +{
+> +        outb(0x10+((pirq-1)>>1), 0x24);
+   ^^^^^^^^
+   Proper indentation depth (8 chars)
+
+> +       unsigned int x;
+   ^^^^^^^
+   Only 7 char indentation.
+
+This mismatch is found several places in the patch. Besides, the patch 
+seems whitespace damaged - the lines seem to be indented with spaces, not 
+tabs. Perhaps your email client mangled it?
+
+(note: Chapter 1 of Documentation/CodingStyle describes proper 
+ indentation)
+
+
+> +        switch(device)
+> +       {
+
+The opening brace goes on the same line as the switch statement.
+
+See Documentation/CodingStyle Chapter 2
+
+
+-- 
+Jesper Juhl
+
+

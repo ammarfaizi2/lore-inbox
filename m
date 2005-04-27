@@ -1,75 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262020AbVD0U6k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262021AbVD0U7i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262020AbVD0U6k (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 16:58:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbVD0U6j
+	id S262021AbVD0U7i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 16:59:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262017AbVD0U7a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 16:58:39 -0400
-Received: from mail.dif.dk ([193.138.115.101]:43419 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S262009AbVD0U5Y convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 16:57:24 -0400
-Date: Wed, 27 Apr 2005 23:00:45 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: =?ISO-8859-1?Q?Sune_M=F8lgaard?= <sune@molgaard.org>
-Cc: linux-kernel@vger.kernel.org, mj@ucw.cz
-Subject: Re: [PATCH] 2.4.30 PicoPower IRQ router
-In-Reply-To: <426FD8C7.5080800@molgaard.org>
-Message-ID: <Pine.LNX.4.62.0504272250300.2481@dragon.hyggekrogen.localhost>
-References: <426C9DED.9010206@molgaard.org> <200504261740.08794.lists@b-open-solutions.it>
- <426E8FE4.5040307@molgaard.org> <20050427112850.GA18533@nd47.coderock.org>
- <426FD8C7.5080800@molgaard.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 27 Apr 2005 16:59:30 -0400
+Received: from karnickel.franken.de ([193.141.110.11]:12810 "EHLO
+	karnickel.franken.de") by vger.kernel.org with ESMTP
+	id S262012AbVD0U6y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 16:58:54 -0400
+Subject: Re: [04/07] partitions/msdos.c fix
+From: Erik Tews <erik@debian.franken.de>
+To: Andries Brouwer <Andries.Brouwer@cwi.nl>
+Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>, Cliff White <cliffw@osdl.org>,
+       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
+In-Reply-To: <20050427203440.GA26759@apps.cwi.nl>
+References: <20050427171446.GA3195@kroah.com>
+	 <20050427171627.GE3195@kroah.com>  <20050427203440.GA26759@apps.cwi.nl>
+Content-Type: text/plain
+Date: Wed, 27 Apr 2005 22:49:28 +0200
+Message-Id: <1114634968.18249.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-A few more style comments below. Nice cleanup compared to the first 
-version though. Now let's get it perfect :-)
-
-On Wed, 27 Apr 2005, Sune Mølgaard wrote:
-
-> Domen Puncer wrote:
-> > On 26/04/05 21:00 +0200, Sune Mølgaard wrote:
-> > 
-> > Signed-off-by? And weird indentification, try to use tabs.
-> > 
+Am Mittwoch, den 27.04.2005, 22:34 +0200 schrieb Andries Brouwer:
+> On Wed, Apr 27, 2005 at 10:16:27AM -0700, Greg KH wrote:
 > 
-> Signed-off-by Sune Molgaard sune@molgaard.org
+> > -stable review patch.  If anyone has any objections, please let us know.
+> > 
+> > ------------------
+> > 
+> > Erik reports this fixes an oops on boot for him.
+> 
+> No objections. But..
+> 
+> The purpose of this patch was not to fix an oops, but to avoid
+> partition table parsing in a situation where almost surely
+> no partition table is present.
+> 
+> If this fixes an oops, then I want to know precisely what oops.
+> No doubt that same oops could occur in other circumstances where
+> this patch does not happen to help.
 
-Proper form would be:  Signed-off-by: Sune Molgaard <sune@molgaard.org>
+Hi, this happend on my laptop (ibm thinkpad t41p, intel cpu, no special
+kind of partition layout). Because this happend during partition table
+parsing (during bootup), I was not able to copy it.
 
-
-> +static int pirq_pico_set(struct pci_dev *router, struct pci_dev *dev, int
-> pirq, int irq)
-> +{
-> +        outb(0x10+((pirq-1)>>1), 0x24);
-   ^^^^^^^^
-   Proper indentation depth (8 chars)
-
-> +       unsigned int x;
-   ^^^^^^^
-   Only 7 char indentation.
-
-This mismatch is found several places in the patch. Besides, the patch 
-seems whitespace damaged - the lines seem to be indented with spaces, not 
-tabs. Perhaps your email client mangled it?
-
-(note: Chapter 1 of Documentation/CodingStyle describes proper 
- indentation)
-
-
-> +        switch(device)
-> +       {
-
-The opening brace goes on the same line as the switch statement.
-
-See Documentation/CodingStyle Chapter 2
-
-
--- 
-Jesper Juhl
-
+But this should only affect the first 512 bytes of my harddisk, or? If
+so, I can copy this data and send it to you.
 

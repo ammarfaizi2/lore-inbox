@@ -1,53 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262017AbVD0VMg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262026AbVD0VST@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262017AbVD0VMg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 17:12:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262026AbVD0VMf
+	id S262026AbVD0VST (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 17:18:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbVD0VST
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 17:12:35 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:63438 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S262017AbVD0VMQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 17:12:16 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <4270001F.8020504@s5r6.in-berlin.de>
-Date: Wed, 27 Apr 2005 23:11:59 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: linux1394-devel@lists.sourceforge.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/ieee1394/: remove unneeded EXPORT_SYMBOL's
-References: <20050417195706.GD3625@stusta.de>	 <20050419191328.GJ1111@conscoop.ottawa.on.ca>	 <1113939827.6277.86.camel@laptopd505.fenrus.org>	 <42657F7C.8060305@s5r6.in-berlin.de>	 <1113981989.6238.30.camel@laptopd505.fenrus.org>	 <426683E9.4080708@s5r6.in-berlin.de> <1114029144.5085.20.camel@kino.dennedy.org>
-In-Reply-To: <1114029144.5085.20.camel@kino.dennedy.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: (-1.508) AWL,BAYES_00
+	Wed, 27 Apr 2005 17:18:19 -0400
+Received: from atlmail.prod.rxgsys.com ([64.74.124.160]:52112 "EHLO
+	bastet.signetmail.com") by vger.kernel.org with ESMTP
+	id S262026AbVD0VSI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 17:18:08 -0400
+Date: Wed, 27 Apr 2005 17:17:50 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: [BK PATCHES] 2.4.x net driver updates
+Message-ID: <20050427211750.GA27516@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Dennedy wrote on 2005-04-20:
-> There are technical
-> merits for removal of the external symbols that I accept. I also accept
-> that we have no way of maintaining any sort of stable subsystem for
-> external projects we are not aware of or who are not communicating with
-> us about their requirements (it goes beyond just a stable interface).
-...
-> I vote to remove external symbols not used by the Linux1394.org modules
-> or the module at http://sourceforge.net/projects/video-2-1394/
 
-Nobody else posted specific requirements so far. So let's clean up the 
-API. How about this:
-  - Determine a date or event at which unused symbols and functions will
-    vanish. ("Unused": Not used by the mainline drivers and video-2-1394
-    or any other project of similar scope of which the linux1394
-    maintainers are informed soon enough.)
-  - Add an according entry to Documentation/feature-removal-schedule.txt.
-  - Add warning comments next to obsolete EXPORT_SYMBOLs. Add warning
-    printks to obsolete functions? (If there are any.)
-Are there proposals for a date? How about end of June?
--- 
-Stefan Richter
--=====-=-=-= -=-- ==-==
-http://arcgraph.de/sr/
+Ditto for net drivers... this is my last 'bk pull' request for you,
+before we both (presumably) switch to git.
+
+Please do a
+
+	bk pull bk://gkernel.bkbits.net/net-drivers-2.4
+
+This will update the following files:
+
+ drivers/net/bonding/bond_main.c |   15 +++++++++++----
+ drivers/net/pcnet32.c           |    3 ++-
+ 2 files changed, 13 insertions(+), 5 deletions(-)
+
+through these ChangeSets:
+
+<willy@w.ods.org> (05/03/30 1.1448.129.2)
+   [PATCH] bonding fix
+   
+   It fixes a stack dump when unloading the bonding module in 802.3ad mode
+   if spinlock debugging is turned on, and it was already merged in 2.6.
+   
+   Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
+
+<brazilnut@us.ibm.com> (05/03/30 1.1448.129.1)
+   [PATCH] pcnet32: 79C975 fiber fix
+   
+   From: "HARDY, Steven" <steven.hardy@astrium.eads.net>
+   
+   I have found a bug in the pcnet32 driver (drivers/net/pcnet32.c)
+   affecting all ethernet cards based on the AMD79C975 chip, using the
+   fiber interface.
+   
+   It's a one line fix, where some config registers get corrupted during
+   initialisation (which stops the Fiber interface working with this chip)
+   
+   This bug was introduced somewhere betweeen 2.4.17 and 2.6.x (noticed
+   whilst upgrading to 2.6), and it may affect other chips too.  I have
+   checked all versions up to 2.6.11-bk6 and they are all broken.
+   
+   Signed-off-by: Andrew Morton <akpm@osdl.org>
+   Signed-off-by: Don Fry <brazilnut@us.ibm.com>
+   Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
+
+diff -Nru a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+--- a/drivers/net/bonding/bond_main.c	2005-04-27 17:16:28 -04:00
++++ b/drivers/net/bonding/bond_main.c	2005-04-27 17:16:28 -04:00
+@@ -469,6 +469,13 @@
+  *	  * Add support for VLAN hardware acceleration capable slaves.
+  *	  * Add capability to tag self generated packets in ALB/TLB modes.
+  *	  Set version to 2.6.0.
++ * 2004/10/29 - Mitch Williams <mitch.a.williams at intel dot com>
++ *	- Fixed bug when unloading module while using 802.3ad.  If
++ *	  spinlock debugging is turned on, this causes a stack dump.
++ *	  Solution is to move call to dev_remove_pack outside of the
++ *	  spinlock.
++ *	  Set version to 2.6.1.
++ *
+  */
+ 
+ //#define BONDING_DEBUG 1
+@@ -3565,14 +3572,14 @@
+ {
+ 	struct bonding *bond = bond_dev->priv;
+ 
+-	write_lock_bh(&bond->lock);
+-
+-	bond_mc_list_destroy(bond);
+-
+ 	if (bond->params.mode == BOND_MODE_8023AD) {
+ 		/* Unregister the receive of LACPDUs */
+ 		bond_unregister_lacpdu(bond);
+ 	}
++
++	write_lock_bh(&bond->lock);
++
++	bond_mc_list_destroy(bond);
+ 
+ 	/* signal timers not to re-arm */
+ 	bond->kill_timers = 1;
+diff -Nru a/drivers/net/pcnet32.c b/drivers/net/pcnet32.c
+--- a/drivers/net/pcnet32.c	2005-04-27 17:16:28 -04:00
++++ b/drivers/net/pcnet32.c	2005-04-27 17:16:28 -04:00
+@@ -1348,7 +1348,8 @@
+ 	printk(KERN_INFO "%s: registered as %s\n", dev->name, lp->name);
+     cards_found++;
+ 
+-    a->write_bcr(ioaddr, 2, 0x1002);	/* enable LED writes */
++    /* enable LED writes */
++    a->write_bcr(ioaddr, 2, a->read_bcr(ioaddr, 2) | 0x1000);
+ 
+     return 0;
+ 

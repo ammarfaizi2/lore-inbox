@@ -1,137 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261433AbVD0L2s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbVD0L3S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261433AbVD0L2s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 07:28:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVD0L2s
+	id S261444AbVD0L3S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 07:29:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbVD0L3S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 07:28:48 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:221 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261433AbVD0L2m (ORCPT
+	Wed, 27 Apr 2005 07:29:18 -0400
+Received: from coderock.org ([193.77.147.115]:61376 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261444AbVD0L3B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 07:28:42 -0400
-Date: Wed, 27 Apr 2005 07:28:41 -0400
-From: Neil Horman <nhorman@redhat.com>
-To: Dave Jones <davej@redhat.com>, Neil Horman <nhorman@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch] add check to /proc/devices read routines
-Message-ID: <20050427112841.GA3305@hmsendeavour.rdu.redhat.com>
-References: <20050427010827.GA2451@hmsendeavour.rdu.redhat.com> <20050427012003.GA31496@redhat.com>
+	Wed, 27 Apr 2005 07:29:01 -0400
+Date: Wed, 27 Apr 2005 13:28:51 +0200
+From: Domen Puncer <domen@coderock.org>
+To: Sune =?iso-8859-1?Q?M=F8lgaard?= <sune@molgaard.org>
+Cc: linux-kernel@vger.kernel.org, mj@ucw.cz
+Subject: Re: [PATCH] 2.4.30 PicoPower IRQ router
+Message-ID: <20050427112850.GA18533@nd47.coderock.org>
+References: <426C9DED.9010206@molgaard.org> <200504261740.08794.lists@b-open-solutions.it> <426E8FE4.5040307@molgaard.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20050427012003.GA31496@redhat.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <426E8FE4.5040307@molgaard.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 26, 2005 at 09:20:03PM -0400, Dave Jones wrote:
-> On Tue, Apr 26, 2005 at 09:08:27PM -0400, Neil Horman wrote:
->  > Patch to add check to get_chrdev_list and get_blkdev_list to prevent reads of
->  > /proc/devices from spilling over the provided page if more than 4096 bytes of
->  > string data are generated from all the registered character and block devices in
->  > a system
+On 26/04/05 21:00 +0200, Sune Mølgaard wrote:
+> Alessandro Amici wrote:
+> >just in case you didn't notice: your patch is empty :)
+> 
+> How so? I see it fine in the mail that came back to me, but ok. I'll
+> repost below.
+> 
+> >and try to gather info on someone actually in charge of the subsystem 
+> >you are modifying and CC him. random patches on l-k may not get the 
+> >needed attention.
+> >
+> 
+> I thought of that and forwarded to Martin Mares, but thank you for the tip
+> 
+> Best regards,
+> 
+> Sune
+> 
+> --Start patch--
 
-Crud, your right, sorry.  I misnamed my origional file for genhd, so it skipped
-when I ran gendiff.  New patch attached with missing genhd.c bits.  Regards the
-seq_file change, I agree that that would probably be the best long term
-solution, but at the moment everything in proc_misc.c does this, and has a
-simmilar check.  I'll happily work on the seq_file conversion, but since thats a
-larger amount of work, I figure it would be best to plug this oops in the same
-way the other files do it in the short term.
+Signed-off-by? And weird indentification, try to use tabs.
 
-Signed-off-by: Neil Horman <nhorman@redhat.com>
+> 
+> --- linux-2.4.30/arch/i386/kernel/pci-irq.c	2005-04-04
+> 03:42:19.000000000 +0200
+> +++ linux/arch/i386/kernel/pci-irq.c	2005-04-25 08:43:02.501678464 +0200
+> @@ -157,6 +157,25 @@
+>  }
+> 
+>  /*
+> + * PicoPower PT86C523
+> + */
+> +
+> +static int pirq_pico_get(struct pci_dev *router, struct pci_dev *dev,
+> int pirq)
+> +{
+> +  outb(0x10+((pirq-1)>>1), 0x24);
+> +  return ((pirq-1)&1) ? (inb(0x26)>>4) : (inb(0x26)&0xf);
+> +}
+> +
+> +static int pirq_pico_set(struct pci_dev *router, struct pci_dev *dev,
+> int pirq, int irq)
+> +{
+> +  outb(0x10+((pirq-1)>>1), 0x24);
+> +  unsigned int x;
+> +  x = inb(0x26);
+> +  x = ((pirq-1)&1) ? ((x&0x0f)|(irq<<4)) : ((x&0xf0)|(irq));
+> +  outb(x,0x26);
+> +}
 
- drivers/block/genhd.c |   12 ++++++++++--
- fs/char_dev.c         |   13 ++++++++++++-
- fs/proc/proc_misc.c   |    2 +-
- include/linux/genhd.h |    2 +-
- 4 files changed, 24 insertions(+), 5 deletions(-)
+I really don't know about this, but existing code (2.6.x) uses
+{read,write}_config_nybble which looks suspiciously similar.
+
+> +
+> +/*
+>   * ALI pirq entries are damn ugly, and completely undocumented.
+>   * This has been figured out from pirq tables, and it's not a pretty
+>   * picture.
+> @@ -609,6 +628,23 @@
+> 
+>  #endif
+> 
+> +static __init int pico_router_probe(struct irq_router *r, struct
+> pci_dev *router, u16 device)
+> +{
+> +  switch(device)
+> +  {
+> +    case 0x0002:
+
+Use/define some PCI_DEVICE_ID_
+
+> +      r->name = "PicoPower PT86C523";
+> +      r->get = pirq_pico_get;
+> +      r->set = pirq_pico_set;
+> +      return 1;
+> +
+> +    case 0x8002:
+> +      r->name = "PicoPower PT86C523 rev. BB+";
+> +      r->get = pirq_pico_get;
+> +      r->set = pirq_pico_set;
+> +      return 1;
+> +  }
+> +}
+
+return 0; missing
+
+> 
+>  static __init int intel_router_probe(struct irq_router *r, struct
+> pci_dev *router, u16 device)
+>  {
+> @@ -814,6 +850,7 @@
+>  }
+>  		
+>  static __initdata struct irq_router_handler pirq_routers[] = {
+> +        { 0x1066, pico_router_probe },
+
+PCI_VENDOR_ID_?
+
+>  	{ PCI_VENDOR_ID_INTEL, intel_router_probe },
+>  	{ PCI_VENDOR_ID_AL, ali_router_probe },
+>  	{ PCI_VENDOR_ID_ITE, ite_router_probe },
+> 
 
 
---- linux-2.6-test/fs/char_dev.c.fixproc	2005-04-26 15:27:31.000000000 -0400
-+++ linux-2.6-test/fs/char_dev.c	2005-04-26 15:58:16.000000000 -0400
-@@ -57,10 +57,21 @@ int get_chrdev_list(char *page)
- 
- 	down(&chrdevs_lock);
- 	for (i = 0; i < ARRAY_SIZE(chrdevs) ; i++) {
--		for (cd = chrdevs[i]; cd; cd = cd->next)
-+		for (cd = chrdevs[i]; cd; cd = cd->next) {
-+			/*
-+			 * if the current name, plus the 5 extra characters
-+			 * in the device line for this entry
-+			 * would run us off the page, we're done
-+			 */
-+			if((len+strlen(cd->name) + 5) >= PAGE_SIZE) 
-+				goto page_full;
-+
-+
- 			len += sprintf(page+len, "%3d %s\n",
- 				       cd->major, cd->name);
-+		}
- 	}
-+page_full:
- 	up(&chrdevs_lock);
- 
- 	return len;
---- linux-2.6-test/fs/proc/proc_misc.c.fixproc	2005-04-26 15:23:14.000000000 -0400
-+++ linux-2.6-test/fs/proc/proc_misc.c	2005-04-26 15:23:32.000000000 -0400
-@@ -433,7 +433,7 @@ static int devices_read_proc(char *page,
- 				 int count, int *eof, void *data)
- {
- 	int len = get_chrdev_list(page);
--	len += get_blkdev_list(page+len);
-+	len += get_blkdev_list(page+len, len);
- 	return proc_calc_metrics(page, start, off, count, eof, len);
- }
- 
---- linux-2.6-test/include/linux/genhd.h.fixproc	2005-04-26 15:25:53.000000000 -0400
-+++ linux-2.6-test/include/linux/genhd.h	2005-04-26 15:26:00.000000000 -0400
-@@ -224,7 +224,7 @@ static inline void free_disk_stats(struc
- extern void disk_round_stats(struct gendisk *disk);
- 
- /* drivers/block/genhd.c */
--extern int get_blkdev_list(char *);
-+extern int get_blkdev_list(char *, int);
- extern void add_disk(struct gendisk *disk);
- extern void del_gendisk(struct gendisk *gp);
- extern void unlink_gendisk(struct gendisk *gp);
---- linux-2.6-test/drivers/block/genhd.c.fixproc	2005-04-26 14:33:01.000000000 -0400
-+++ linux-2.6-test/drivers/block/genhd.c	2005-04-26 16:27:41.000000000 -0400
-@@ -39,7 +39,7 @@ static inline int major_to_index(int maj
- 
- #ifdef CONFIG_PROC_FS
- /* get block device names in somewhat random order */
--int get_blkdev_list(char *p)
-+int get_blkdev_list(char *p, int used)
- {
- 	struct blk_major_name *n;
- 	int i, len;
-@@ -48,10 +48,18 @@ int get_blkdev_list(char *p)
- 
- 	down(&block_subsys_sem);
- 	for (i = 0; i < ARRAY_SIZE(major_names); i++) {
--		for (n = major_names[i]; n; n = n->next)
-+		for (n = major_names[i]; n; n = n->next) {
-+			/*
-+			 *if the curent string plus the 5 extra characters 
-+			 *in the line would run us off the page, then we're done
-+			 */
-+			if((len+used+strlen(n->name)+5) >= PAGE_SIZE)
-+				goto page_full;
- 			len += sprintf(p+len, "%3d %s\n",
- 				       n->major, n->name);
-+		}
- 	}
-+page_full:
- 	up(&block_subsys_sem);
- 
- 	return len;
--- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *Red Hat, Inc.
- *nhorman@redhat.com
- *gpg keyid: 1024D / 0x92A74FA1
- *http://pgp.mit.edu
- ***************************************************/
+	Domen

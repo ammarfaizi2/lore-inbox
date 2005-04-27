@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261698AbVD0OzW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbVD0PCI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261698AbVD0OzW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 10:55:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261694AbVD0OzV
+	id S261708AbVD0PCI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 11:02:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbVD0PCI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 10:55:21 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:21928 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S261673AbVD0OzA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 10:55:00 -0400
-Subject: Re: [RFC] SAS domain layout for Linux sysfs
-To: dougg@torque.net
-Cc: andrew.patterson@hp.com, Eric.Moore@lsil.com,
-       Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       linux-scsi-owner@vger.kernel.org,
-       Luben Tuikov <luben_tuikov@adaptec.com>, Madhuresh_Nagshain@adaptec.com,
-       mike.miller@hp.com
-X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
-Message-ID: <OF4CE413A0.DAB8B74B-ONC1256FF0.00505593-C1256FF0.0052A229@de.ibm.com>
-From: Martin Peschke3 <MPESCHKE@de.ibm.com>
-Date: Wed, 27 Apr 2005 16:54:53 +0200
-X-MIMETrack: Serialize by Router on D12ML067/12/M/IBM(Release 6.53HF247 | January 6, 2005) at
- 27/04/2005 16:54:55
+	Wed, 27 Apr 2005 11:02:08 -0400
+Received: from mail.enyo.de ([212.9.189.167]:9613 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S261703AbVD0PCE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 11:02:04 -0400
+From: Florian Weimer <fw@deneb.enyo.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       magnus.damm@gmail.com, mason@suse.com, mike.taht@timesys.com,
+       mpm@selenic.com, linux-kernel@vger.kernel.org, git@vger.kernel.org
+Subject: Re: Mercurial 0.3 vs git benchmarks
+References: <20050426004111.GI21897@waste.org>
+	<200504260713.26020.mason@suse.com>
+	<aec7e5c305042608095731d571@mail.gmail.com>
+	<200504261138.46339.mason@suse.com>
+	<aec7e5c305042609231a5d3f0@mail.gmail.com>
+	<20050426135606.7b21a2e2.akpm@osdl.org>
+	<Pine.LNX.4.58.0504261405050.18901@ppc970.osdl.org>
+	<20050426155609.06e3ddcf.akpm@osdl.org> <426ED20B.9070706@zytor.com>
+Date: Wed, 27 Apr 2005 17:01:47 +0200
+In-Reply-To: <426ED20B.9070706@zytor.com> (H. Peter Anvin's message of "Tue,
+	26 Apr 2005 16:43:07 -0700")
+Message-ID: <871x8wb6w4.fsf@deneb.enyo.de>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Douglas Gilbert wrote
-> It has been stated that the SAS discovery algorithm (i.e. the
-> recursive use of SMP) should be implemented once in the SAS
-> transport layer so that all SAS LLDs can use it. Putting
-> the SAS discovery algorithm in the user space may be
-> even more politically correct.
+* H. Peter Anvin:
 
-Similarly, in the case of Fibre Channel, a common N_Port or
-SCSI target device discovery, preferably in user space, seems
-to be desirable. This would require some CT and / or ELS
-passthrough interface, for example in order to issue queries
-to fabric switches.
+> While you're doing this anyway, you might want to make sure you enable 
+> -O +dir_index and run fsck -D.
 
-regards
-Martin Peschke
-
+Directory hashing has a negative impact on some applications (notably
+tar and unpatched mutt on large Maildir folders).  For git, it's a win
+because hashing destroys locality anyway.

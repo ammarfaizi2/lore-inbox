@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbVD0BIB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261879AbVD0BOw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbVD0BIB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 21:08:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbVD0BIA
+	id S261879AbVD0BOw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 21:14:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261880AbVD0BOw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 21:08:00 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:9480 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261875AbVD0BH5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 21:07:57 -0400
-Date: Wed, 27 Apr 2005 11:07:30 +1000
-To: Patrick McHardy <kaber@trash.net>
-Cc: Yair@arx.com, linux-kernel@vger.kernel.org,
-       netfilter-devel@lists.netfilter.org, netdev@oss.sgi.com
-Subject: Re: Re-routing packets via netfilter (ip_rt_bug)
-Message-ID: <20050427010730.GA18919@gondor.apana.org.au>
-References: <E1DQ1Ct-00055s-00@gondolin.me.apana.org.au> <426D0CB9.4060500@trash.net> <20050425213400.GB29288@gondor.apana.org.au> <426D8672.1030001@trash.net> <20050426003925.GA13650@gondor.apana.org.au> <426E3F67.8090006@trash.net> <20050426232857.GA18358@gondor.apana.org.au> <426EE350.1070902@trash.net>
+	Tue, 26 Apr 2005 21:14:52 -0400
+Received: from fmr20.intel.com ([134.134.136.19]:43217 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261879AbVD0BOu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 21:14:50 -0400
+Subject: Re: [PATCH]broadcast IPI race condition on CPU hotplug
+From: Li Shaohua <shaohua.li@intel.com>
+To: Andi Kleen <ak@suse.de>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>
+In-Reply-To: <20050426132149.GF5098@wotan.suse.de>
+References: <1114482044.7068.17.camel@sli10-desk.sh.intel.com>
+	 <20050426132149.GF5098@wotan.suse.de>
+Content-Type: text/plain
+Message-Id: <1114564068.12809.7.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <426EE350.1070902@trash.net>
-User-Agent: Mutt/1.5.6+20040907i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 27 Apr 2005 09:11:59 +0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 27, 2005 at 02:56:48AM +0200, Patrick McHardy wrote:
+On Tue, 2005-04-26 at 21:21, Andi Kleen wrote:
+> On Tue, Apr 26, 2005 at 10:20:44AM +0800, Li Shaohua wrote:
+> > Hi,
+> > After a CPU is booted but before it's officially up (set online map, and
+> > enable interrupt), the CPU possibly will receive a broadcast IPI. After
+> > it's up, it will handle the stale interrupt soon and maybe cause oops if
+> > it's a smp-call-function-interrupt. This is quite possible in CPU
+> > hotplug case, but nearly can't occur at boot time. Below patch replaces
+> > broadcast IPI with send_ipi_mask just like the cluster mode.
 > 
-> The ipt_REJECT target can send TCP RSTs with foreign source which
-> go through LOCAL_OUT. Restricting it to this case and adding proper
+> No way we are making this common operation much slower just
+> to fix an obscure race at boot time. PLease come up with a fix
+> that only impacts the boot process.
+We can't prevent a CPU to receive a broadcast interrupt. Ack the
+interrupt and mark the cpu online can't be atomic operation, so the CPU
+either receives unexpected interrupt or loses interrupt.
 
-Couldn't we feed the TCP RST packets with foreign sources through
-the FORWARD table? We're lying to the routing system already by
-telling it that the packet is forwarded.  So I don't see anything
-wrong with lying to netfilter as well :)
+Thanks,
+Shaohua
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

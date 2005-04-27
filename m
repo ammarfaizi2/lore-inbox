@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261757AbVD0HM4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261729AbVD0Hb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261757AbVD0HM4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 03:12:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbVD0HMZ
+	id S261729AbVD0Hb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 03:31:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261749AbVD0Hb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 03:12:25 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:43735 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S261757AbVD0HJJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 03:09:09 -0400
-Message-ID: <426F3BC1.2060408@jp.fujitsu.com>
-Date: Wed, 27 Apr 2005 16:14:09 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: ja, en-us, en
+	Wed, 27 Apr 2005 03:31:57 -0400
+Received: from mailgate1.mysql.com ([213.115.162.47]:56220 "EHLO
+	mailgate.mysql.com") by vger.kernel.org with ESMTP id S261729AbVD0Hbz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 03:31:55 -0400
+Message-ID: <426F3FD1.3040007@mysql.com>
+Date: Wed, 27 Apr 2005 09:31:29 +0200
+From: Jonas Oreland <jonas.oreland@mysql.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050314
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
-Subject: Re: [PATCH] counting bounce buffer in vmstat
-References: <426F3445.9060701@jp.fujitsu.com> <20050426234725.1ed66aff.akpm@osdl.org>
-In-Reply-To: <20050426234725.1ed66aff.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: "Robert W. Fuller" <fullerrw@uindy.edu>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: TI Yenta socket Fish Please Report
+References: <426F3A89.3010702@uindy.edu>
+In-Reply-To: <426F3A89.3010702@uindy.edu>
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Robert W. Fuller wrote:
+> Hola,
 > 
-> That's not really right.
+> Looks like I have the same problem that was discussed here in February 
+> with PCI resources being assigned to the same range as RAM.  This is the 
+> old thread: "IBM Thinkpad G41 PCMCIA problems [Was: Yenta TI: ... no 
+> PCIinterrupts. Fish. Please report.]"  I'm having this problem on 2.6.11.
 > 
-> There are two functions: get_page_state() and get_full_page_state(). 
-> get_page_state() only gets those fields up to and including
-> GET_PAGE_STATE_LAST.  The way you have the code laid out there implies that
-> get_page_state() also calculates the total nr_bounce, only it doesn't.
-> 
-> I'll fix it up.
-> 
+> Did the patch for this ever make it into the main kernel?  Is it still 
+> in the -mm tree?  Will it ever be in the main kernel?  How do I figure 
+> these things out?  Is there some bug database I can check?
 
-Oh, I misunderstood that.
+I think it made it somehow.
+I have a G40 which had the problem before I upgraded to 2.6.11
 
-Thank you.
+I however also had problem with a netgear wlan card.
+And got a patch, that I haven't seen in any released kernel yet...
 
--- Kame
+/Jonas
 
-
+-- 
+Jonas Oreland, Software Engineer
+MySQL AB, www.mysql.com

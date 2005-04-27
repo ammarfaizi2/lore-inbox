@@ -1,1227 +1,300 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbVD0OIo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261624AbVD0OLc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbVD0OIo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 10:08:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbVD0OIo
+	id S261624AbVD0OLc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 10:11:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbVD0OLc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 10:08:44 -0400
-Received: from baloney.puettmann.net ([194.97.54.34]:40844 "EHLO
-	baloney.puettmann.net") by vger.kernel.org with ESMTP
-	id S261605AbVD0OEW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 10:04:22 -0400
-Date: Wed, 27 Apr 2005 16:03:42 +0200
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.11.7 kernel panic on boot on AMD64
-Message-ID: <20050427140342.GG10685@puettmann.net>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="Pgaa2uWPnPrfixyx"
+	Wed, 27 Apr 2005 10:11:32 -0400
+Received: from smtp06.auna.com ([62.81.186.16]:34258 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id S261624AbVD0OJy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 10:09:54 -0400
+Date: Wed, 27 Apr 2005 14:09:30 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: gcc-4.0: a couple oopses
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>
+X-Mailer: Balsa 2.3.0
+Message-Id: <1114610970l.5419l.0l@werewolf.able.es>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
-From: Ruben Puettmann <ruben@puettmann.net>
-X-Scanner: exiscan *1DQn8g-0001Ro-00*ugogfz/XD56* (Puettmann.NeT, Germany)
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi...
+
+I have just built 2.6.12-rc2-mm3 with gcc4 final. I got this couple oopses on boot.
+This is almost plain rc3-mm3, the only patches applied are the syscall traps
+changes by Stas Sergeev and the segment loading patch from Ingo.
+Apart from this, things _seem_ to work...
+
+Oopses follow:
+
+ksymoops 2.4.9 on i686 2.6.11-jam14.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.6.11-jam14/ (default)
+     -m /boot/System.map-2.6.11-jam14 (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Error (regular_file): read_ksyms stat /proc/ksyms failed
+No modules in ksyms, skipping objects
+No ksyms, skipping lsmod
+Apr 27 15:52:44 werewolf kernel: Unable to handle kernel paging request at virtual address 10a316b4
+Apr 27 15:52:44 werewolf kernel: b011f5d5
+Apr 27 15:52:44 werewolf kernel: *pde = 00000000
+Apr 27 15:52:44 werewolf kernel: Oops: 0002 [#1]
+Apr 27 15:52:44 werewolf kernel: CPU:    0
+Apr 27 15:52:44 werewolf kernel: EIP:    0060:[do_proc_dointvec_conv+15/58]    Not tainted VLI
+Apr 27 15:52:44 werewolf kernel: EIP:    0060:[<b011f5d5>]    Not tainted VLI
+Using defaults from ksymoops -t elf32-i386 -a i386
+Apr 27 15:52:44 werewolf kernel: EFLAGS: 00010246   (2.6.11-jam14) 
+Apr 27 15:52:44 werewolf kernel: eax: 00000000   ebx: 00000001   ecx: 10a316b4   edx: ef4eef1c
+Apr 27 15:52:44 werewolf kernel: esi: a7f5f001   edi: ef4eef03   ebp: 00000001   esp: ef4eeedc
+Apr 27 15:52:44 werewolf kernel: ds: 007b   es: 007b   ss: 0068
+Apr 27 15:52:44 werewolf kernel: Stack: b011f8b2 00000001 00000000 00000001 eed6332c 10a316b4 00000001 00000001 
+Apr 27 15:52:44 werewolf kernel:        00000000 30000000 0000000a ef4eefbc ef507550 a7f5f000 00000001 ef4eef04 
+Apr 27 15:52:44 werewolf kernel:        00000000 00000000 a7f5f000 a7f5f000 00000001 efd9e8e0 b011f95c a7f5f000 
+Apr 27 15:52:44 werewolf kernel: Call Trace:
+Apr 27 15:52:44 werewolf kernel:  [<b011f8b2>] do_proc_dointvec+0x2b2/0x32c
+Apr 27 15:52:44 werewolf kernel:  [<b011f95c>] proc_dointvec+0x30/0x35
+Apr 27 15:52:44 werewolf kernel:  [<b011f5c6>] do_proc_dointvec_conv+0x0/0x3a
+Apr 27 15:52:44 werewolf kernel:  [<b011f311>] do_rw_proc+0x78/0x84
+Apr 27 15:52:44 werewolf kernel:  [<b011f354>] proc_writesys+0x0/0x24
+Apr 27 15:52:44 werewolf kernel:  [<b011f373>] proc_writesys+0x1f/0x24
+Apr 27 15:52:44 werewolf kernel:  [<b0152032>] vfs_write+0x89/0x12a
+Apr 27 15:52:44 werewolf kernel:  [<b015217e>] sys_write+0x41/0x6a
+Apr 27 15:52:44 werewolf kernel:  [<b0102993>] sysenter_past_esp+0x54/0x75
+Apr 27 15:52:44 werewolf kernel: Code: c1 89 d8 ba ff ff 00 00 f0 0f c1 10 0f 85 9a 12 00 00 89 c8 83 c4 0c 5b 5e 5f 5d c3 83 7c 24 04 00 74 0d 8b 00 85 c0 75 18 8b 02 <89> 01 31 c0 c3 8b 09 85 c9 78 13 c7 00 00 00 00 00 89 0a 31 c0 
+
+
+>>EIP; b011f5d5 <do_proc_dointvec_conv+f/3a>   <=====
+
+>>ecx; 10a316b4 <phys_startup_32+109316b4/b0000000>
+>>edx; ef4eef1c <pg0+3f0ddf1c/4fbed400>
+>>esi; a7f5f001 <phys_startup_32+a7e5f001/b0000000>
+>>edi; ef4eef03 <pg0+3f0ddf03/4fbed400>
+>>esp; ef4eeedc <pg0+3f0ddedc/4fbed400>
+
+Trace; b011f8b2 <do_proc_dointvec+2b2/32c>
+Trace; b011f95c <proc_dointvec+30/35>
+Trace; b011f5c6 <do_proc_dointvec_conv+0/3a>
+Trace; b011f311 <do_rw_proc+78/84>
+Trace; b011f354 <proc_writesys+0/24>
+Trace; b011f373 <proc_writesys+1f/24>
+Trace; b0152032 <vfs_write+89/12a>
+Trace; b015217e <sys_write+41/6a>
+Trace; b0102993 <sysenter_past_esp+54/75>
+
+This architecture has variable length instructions, decoding before eip
+is unreliable, take these instructions with a pinch of salt.
+
+Code;  b011f5aa <proc_doutsstring+8c/a8>
+00000000 <_EIP>:
+Code;  b011f5aa <proc_doutsstring+8c/a8>
+   0:   c1 89 d8 ba ff ff 00      rorl   $0x0,0xffffbad8(%ecx)
+Code;  b011f5b1 <proc_doutsstring+93/a8>
+   7:   00 f0                     add    %dh,%al
+Code;  b011f5b3 <proc_doutsstring+95/a8>
+   9:   0f c1 10                  xadd   %edx,(%eax)
+Code;  b011f5b6 <proc_doutsstring+98/a8>
+   c:   0f 85 9a 12 00 00         jne    12ac <_EIP+0x12ac>
+Code;  b011f5bc <proc_doutsstring+9e/a8>
+  12:   89 c8                     mov    %ecx,%eax
+Code;  b011f5be <proc_doutsstring+a0/a8>
+  14:   83 c4 0c                  add    $0xc,%esp
+Code;  b011f5c1 <proc_doutsstring+a3/a8>
+  17:   5b                        pop    %ebx
+Code;  b011f5c2 <proc_doutsstring+a4/a8>
+  18:   5e                        pop    %esi
+Code;  b011f5c3 <proc_doutsstring+a5/a8>
+  19:   5f                        pop    %edi
+Code;  b011f5c4 <proc_doutsstring+a6/a8>
+  1a:   5d                        pop    %ebp
+Code;  b011f5c5 <proc_doutsstring+a7/a8>
+  1b:   c3                        ret    
+Code;  b011f5c6 <do_proc_dointvec_conv+0/3a>
+  1c:   83 7c 24 04 00            cmpl   $0x0,0x4(%esp)
+Code;  b011f5cb <do_proc_dointvec_conv+5/3a>
+  21:   74 0d                     je     30 <_EIP+0x30>
+Code;  b011f5cd <do_proc_dointvec_conv+7/3a>
+  23:   8b 00                     mov    (%eax),%eax
+Code;  b011f5cf <do_proc_dointvec_conv+9/3a>
+  25:   85 c0                     test   %eax,%eax
+Code;  b011f5d1 <do_proc_dointvec_conv+b/3a>
+  27:   75 18                     jne    41 <_EIP+0x41>
+Code;  b011f5d3 <do_proc_dointvec_conv+d/3a>
+  29:   8b 02                     mov    (%edx),%eax
+
+This decode from eip onwards should be reliable
+
+Code;  b011f5d5 <do_proc_dointvec_conv+f/3a>
+00000000 <_EIP>:
+Code;  b011f5d5 <do_proc_dointvec_conv+f/3a>   <=====
+   0:   89 01                     mov    %eax,(%ecx)   <=====
+Code;  b011f5d7 <do_proc_dointvec_conv+11/3a>
+   2:   31 c0                     xor    %eax,%eax
+Code;  b011f5d9 <do_proc_dointvec_conv+13/3a>
+   4:   c3                        ret    
+Code;  b011f5da <do_proc_dointvec_conv+14/3a>
+   5:   8b 09                     mov    (%ecx),%ecx
+Code;  b011f5dc <do_proc_dointvec_conv+16/3a>
+   7:   85 c9                     test   %ecx,%ecx
+Code;  b011f5de <do_proc_dointvec_conv+18/3a>
+   9:   78 13                     js     1e <_EIP+0x1e>
+Code;  b011f5e0 <do_proc_dointvec_conv+1a/3a>
+   b:   c7 00 00 00 00 00         movl   $0x0,(%eax)
+Code;  b011f5e6 <do_proc_dointvec_conv+20/3a>
+  11:   89 0a                     mov    %ecx,(%edx)
+Code;  b011f5e8 <do_proc_dointvec_conv+22/3a>
+  13:   31 c0                     xor    %eax,%eax
+
+
+1 warning and 1 error issued.  Results may not be reliable.
+
+
+ksymoops 2.4.9 on i686 2.6.11-jam14.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.6.11-jam14/ (default)
+     -m /boot/System.map-2.6.11-jam14 (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Error (regular_file): read_ksyms stat /proc/ksyms failed
+No modules in ksyms, skipping objects
+No ksyms, skipping lsmod
+Apr 27 15:52:44 werewolf kernel: Unable to handle kernel paging request at virtual address 10a316b4
+Apr 27 15:52:44 werewolf kernel: b011f5d5
+Apr 27 15:52:44 werewolf kernel: *pde = 00000000
+Apr 27 15:52:44 werewolf kernel: Oops: 0002 [#2]
+Apr 27 15:52:44 werewolf kernel: CPU:    3
+Apr 27 15:52:44 werewolf kernel: EIP:    0060:[do_proc_dointvec_conv+15/58]    Not tainted VLI
+Apr 27 15:52:44 werewolf kernel: EIP:    0060:[<b011f5d5>]    Not tainted VLI
+Using defaults from ksymoops -t elf32-i386 -a i386
+Apr 27 15:52:44 werewolf kernel: EFLAGS: 00010246   (2.6.11-jam14) 
+Apr 27 15:52:44 werewolf kernel: eax: 00000000   ebx: 00000001   ecx: 10a316b4   edx: eeee0f1c
+Apr 27 15:52:45 werewolf kernel: esi: a7fa3001   edi: eeee0f03   ebp: 00000001   esp: eeee0edc
+Apr 27 15:52:45 werewolf kernel: ds: 007b   es: 007b   ss: 0068
+Apr 27 15:52:45 werewolf kernel: Stack: b011f8b2 00000001 00000000 00000001 ef3410ac 10a316b4 00000001 00000001 
+Apr 27 15:52:45 werewolf kernel:        00000000 30000000 0000000a eeee0fbc ef245a70 a7fa3000 00000001 eeee0f04 
+Apr 27 15:52:45 werewolf kernel:        00000000 00000000 a7fa3000 a7fa3000 00000001 efd9e8e0 b011f95c a7fa3000 
+Apr 27 15:52:45 werewolf kernel: Call Trace:
+Apr 27 15:52:45 werewolf kernel:  [<b011f8b2>] do_proc_dointvec+0x2b2/0x32c
+Apr 27 15:52:45 werewolf kernel:  [<b011f95c>] proc_dointvec+0x30/0x35
+Apr 27 15:52:45 werewolf kernel:  [<b011f5c6>] do_proc_dointvec_conv+0x0/0x3a
+Apr 27 15:52:45 werewolf kernel:  [<b011f311>] do_rw_proc+0x78/0x84
+Apr 27 15:52:45 werewolf kernel:  [<b011f354>] proc_writesys+0x0/0x24
+Apr 27 15:52:45 werewolf kernel:  [<b011f373>] proc_writesys+0x1f/0x24
+Apr 27 15:52:45 werewolf kernel:  [<b0152032>] vfs_write+0x89/0x12a
+Apr 27 15:52:45 werewolf kernel:  [<b015217e>] sys_write+0x41/0x6a
+Apr 27 15:52:45 werewolf kernel:  [<b0102993>] sysenter_past_esp+0x54/0x75
+Apr 27 15:52:45 werewolf kernel: Code: c1 89 d8 ba ff ff 00 00 f0 0f c1 10 0f 85 9a 12 00 00 89 c8 83 c4 0c 5b 5e 5f 5d c3 83 7c 24 04 00 74 0d 8b 00 85 c0 75 18 8b 02 <89> 01 31 c0 c3 8b 09 85 c9 78 13 c7 00 00 00 00 00 89 0a 31 c0 
+
+
+>>EIP; b011f5d5 <do_proc_dointvec_conv+f/3a>   <=====
+
+>>ecx; 10a316b4 <phys_startup_32+109316b4/b0000000>
+>>edx; eeee0f1c <pg0+3eacff1c/4fbed400>
+>>esi; a7fa3001 <phys_startup_32+a7ea3001/b0000000>
+>>edi; eeee0f03 <pg0+3eacff03/4fbed400>
+>>esp; eeee0edc <pg0+3eacfedc/4fbed400>
+
+Trace; b011f8b2 <do_proc_dointvec+2b2/32c>
+Trace; b011f95c <proc_dointvec+30/35>
+Trace; b011f5c6 <do_proc_dointvec_conv+0/3a>
+Trace; b011f311 <do_rw_proc+78/84>
+Trace; b011f354 <proc_writesys+0/24>
+Trace; b011f373 <proc_writesys+1f/24>
+Trace; b0152032 <vfs_write+89/12a>
+Trace; b015217e <sys_write+41/6a>
+Trace; b0102993 <sysenter_past_esp+54/75>
+
+This architecture has variable length instructions, decoding before eip
+is unreliable, take these instructions with a pinch of salt.
+
+Code;  b011f5aa <proc_doutsstring+8c/a8>
+00000000 <_EIP>:
+Code;  b011f5aa <proc_doutsstring+8c/a8>
+   0:   c1 89 d8 ba ff ff 00      rorl   $0x0,0xffffbad8(%ecx)
+Code;  b011f5b1 <proc_doutsstring+93/a8>
+   7:   00 f0                     add    %dh,%al
+Code;  b011f5b3 <proc_doutsstring+95/a8>
+   9:   0f c1 10                  xadd   %edx,(%eax)
+Code;  b011f5b6 <proc_doutsstring+98/a8>
+   c:   0f 85 9a 12 00 00         jne    12ac <_EIP+0x12ac>
+Code;  b011f5bc <proc_doutsstring+9e/a8>
+  12:   89 c8                     mov    %ecx,%eax
+Code;  b011f5be <proc_doutsstring+a0/a8>
+  14:   83 c4 0c                  add    $0xc,%esp
+Code;  b011f5c1 <proc_doutsstring+a3/a8>
+  17:   5b                        pop    %ebx
+Code;  b011f5c2 <proc_doutsstring+a4/a8>
+  18:   5e                        pop    %esi
+Code;  b011f5c3 <proc_doutsstring+a5/a8>
+  19:   5f                        pop    %edi
+Code;  b011f5c4 <proc_doutsstring+a6/a8>
+  1a:   5d                        pop    %ebp
+Code;  b011f5c5 <proc_doutsstring+a7/a8>
+  1b:   c3                        ret    
+Code;  b011f5c6 <do_proc_dointvec_conv+0/3a>
+  1c:   83 7c 24 04 00            cmpl   $0x0,0x4(%esp)
+Code;  b011f5cb <do_proc_dointvec_conv+5/3a>
+  21:   74 0d                     je     30 <_EIP+0x30>
+Code;  b011f5cd <do_proc_dointvec_conv+7/3a>
+  23:   8b 00                     mov    (%eax),%eax
+Code;  b011f5cf <do_proc_dointvec_conv+9/3a>
+  25:   85 c0                     test   %eax,%eax
+Code;  b011f5d1 <do_proc_dointvec_conv+b/3a>
+  27:   75 18                     jne    41 <_EIP+0x41>
+Code;  b011f5d3 <do_proc_dointvec_conv+d/3a>
+  29:   8b 02                     mov    (%edx),%eax
+
+This decode from eip onwards should be reliable
+
+Code;  b011f5d5 <do_proc_dointvec_conv+f/3a>
+00000000 <_EIP>:
+Code;  b011f5d5 <do_proc_dointvec_conv+f/3a>   <=====
+   0:   89 01                     mov    %eax,(%ecx)   <=====
+Code;  b011f5d7 <do_proc_dointvec_conv+11/3a>
+   2:   31 c0                     xor    %eax,%eax
+Code;  b011f5d9 <do_proc_dointvec_conv+13/3a>
+   4:   c3                        ret    
+Code;  b011f5da <do_proc_dointvec_conv+14/3a>
+   5:   8b 09                     mov    (%ecx),%ecx
+Code;  b011f5dc <do_proc_dointvec_conv+16/3a>
+   7:   85 c9                     test   %ecx,%ecx
+Code;  b011f5de <do_proc_dointvec_conv+18/3a>
+   9:   78 13                     js     1e <_EIP+0x1e>
+Code;  b011f5e0 <do_proc_dointvec_conv+1a/3a>
+   b:   c7 00 00 00 00 00         movl   $0x0,(%eax)
+Code;  b011f5e6 <do_proc_dointvec_conv+20/3a>
+  11:   89 0a                     mov    %ecx,(%edx)
+Code;  b011f5e8 <do_proc_dointvec_conv+22/3a>
+  13:   31 c0                     xor    %eax,%eax
+
+
+1 warning and 1 error issued.  Results may not be reliable.
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandriva Linux release 2006.0 (Cooker) for i586
+Linux 2.6.11-jam14 (gcc 4.0.0 (4.0.0-1mdk for Mandriva Linux
 
---Pgaa2uWPnPrfixyx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-                hy,                                                                                             
-                                                                                                                
-                                                                                                                
-I'm trying to install linux on an HP DL385 but directly on boot I got                                           
-this kernel panic:
-
-        http://www.puettmann.net/temp/panic.jpg
-
-Config attached.
-
-
-                Ruben
-
--- 
-Ruben Puettmann
-ruben@puettmann.net
-http://www.puettmann.net
-
---Pgaa2uWPnPrfixyx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=config-amd
-
-#
-# Automatically generated make config: don't edit
-# Linux kernel version: 2.6.11.7
-# Mon Apr 25 17:54:52 2005
-#
-CONFIG_X86_64=y
-CONFIG_64BIT=y
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_RWSEM_GENERIC_SPINLOCK=y
-CONFIG_GENERIC_CALIBRATE_DELAY=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_EARLY_PRINTK=y
-CONFIG_HPET_TIMER=y
-CONFIG_HPET_EMULATE_RTC=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_GENERIC_IOMAP=y
-
-#
-# Code maturity level options
-#
-CONFIG_EXPERIMENTAL=y
-CONFIG_CLEAN_COMPILE=y
-CONFIG_LOCK_KERNEL=y
-
-#
-# General setup
-#
-CONFIG_LOCALVERSION=""
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-# CONFIG_POSIX_MQUEUE is not set
-# CONFIG_BSD_PROCESS_ACCT is not set
-CONFIG_SYSCTL=y
-# CONFIG_AUDIT is not set
-CONFIG_LOG_BUF_SHIFT=15
-# CONFIG_HOTPLUG is not set
-CONFIG_KOBJECT_UEVENT=y
-CONFIG_IKCONFIG=y
-CONFIG_IKCONFIG_PROC=y
-# CONFIG_EMBEDDED is not set
-CONFIG_KALLSYMS=y
-# CONFIG_KALLSYMS_ALL is not set
-# CONFIG_KALLSYMS_EXTRA_PASS is not set
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
-CONFIG_SHMEM=y
-CONFIG_CC_ALIGN_FUNCTIONS=0
-CONFIG_CC_ALIGN_LABELS=0
-CONFIG_CC_ALIGN_LOOPS=0
-CONFIG_CC_ALIGN_JUMPS=0
-# CONFIG_TINY_SHMEM is not set
-
-#
-# Loadable module support
-#
-# CONFIG_MODULES is not set
-
-#
-# Processor type and features
-#
-CONFIG_MK8=y
-# CONFIG_MPSC is not set
-# CONFIG_GENERIC_CPU is not set
-CONFIG_X86_L1_CACHE_BYTES=64
-CONFIG_X86_L1_CACHE_SHIFT=6
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_MICROCODE=y
-CONFIG_X86_MSR=y
-CONFIG_X86_CPUID=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_MTRR=y
-CONFIG_SMP=y
-# CONFIG_PREEMPT is not set
-CONFIG_SCHED_SMT=y
-CONFIG_K8_NUMA=y
-# CONFIG_NUMA_EMU is not set
-CONFIG_DISCONTIGMEM=y
-CONFIG_NUMA=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_NR_CPUS=8
-CONFIG_GART_IOMMU=y
-CONFIG_SWIOTLB=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_INTEL=y
-CONFIG_GENERIC_HARDIRQS=y
-CONFIG_GENERIC_IRQ_PROBE=y
-
-#
-# Power management options
-#
-# CONFIG_PM is not set
-
-#
-# ACPI (Advanced Configuration and Power Interface) Support
-#
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_AC=y
-CONFIG_ACPI_BATTERY=y
-CONFIG_ACPI_BUTTON=y
-CONFIG_ACPI_VIDEO=y
-CONFIG_ACPI_FAN=y
-CONFIG_ACPI_PROCESSOR=y
-CONFIG_ACPI_THERMAL=y
-# CONFIG_ACPI_NUMA is not set
-CONFIG_ACPI_ASUS=y
-CONFIG_ACPI_IBM=y
-CONFIG_ACPI_TOSHIBA=y
-CONFIG_ACPI_BLACKLIST_YEAR=0
-# CONFIG_ACPI_DEBUG is not set
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-# CONFIG_ACPI_CONTAINER is not set
-
-#
-# CPU Frequency scaling
-#
-# CONFIG_CPU_FREQ is not set
-
-#
-# Bus options (PCI etc.)
-#
-CONFIG_PCI=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_MMCONFIG=y
-# CONFIG_UNORDERED_IO is not set
-# CONFIG_PCI_MSI is not set
-CONFIG_PCI_LEGACY_PROC=y
-CONFIG_PCI_NAMES=y
-
-#
-# PCCARD (PCMCIA/CardBus) support
-#
-# CONFIG_PCCARD is not set
-
-#
-# PC-card bridges
-#
-
-#
-# PCI Hotplug Support
-#
-# CONFIG_HOTPLUG_PCI is not set
-
-#
-# Executable file formats / Emulations
-#
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-# CONFIG_IA32_EMULATION is not set
-
-#
-# Device Drivers
-#
-
-#
-# Generic Driver Options
-#
-CONFIG_STANDALONE=y
-CONFIG_PREVENT_FIRMWARE_BUILD=y
-# CONFIG_FW_LOADER is not set
-# CONFIG_DEBUG_DRIVER is not set
-
-#
-# Memory Technology Devices (MTD)
-#
-# CONFIG_MTD is not set
-
-#
-# Parallel port support
-#
-CONFIG_PARPORT=y
-CONFIG_PARPORT_PC=y
-CONFIG_PARPORT_PC_CML1=y
-# CONFIG_PARPORT_SERIAL is not set
-# CONFIG_PARPORT_PC_FIFO is not set
-# CONFIG_PARPORT_PC_SUPERIO is not set
-# CONFIG_PARPORT_OTHER is not set
-# CONFIG_PARPORT_1284 is not set
-
-#
-# Plug and Play support
-#
-CONFIG_PNP=y
-# CONFIG_PNP_DEBUG is not set
-
-#
-# Protocols
-#
-CONFIG_PNPACPI=y
-
-#
-# Block devices
-#
-CONFIG_BLK_DEV_FD=y
-# CONFIG_PARIDE is not set
-CONFIG_BLK_CPQ_DA=y
-CONFIG_BLK_CPQ_CISS_DA=y
-CONFIG_CISS_SCSI_TAPE=y
-CONFIG_BLK_DEV_DAC960=y
-# CONFIG_BLK_DEV_UMEM is not set
-# CONFIG_BLK_DEV_COW_COMMON is not set
-CONFIG_BLK_DEV_LOOP=y
-# CONFIG_BLK_DEV_CRYPTOLOOP is not set
-# CONFIG_BLK_DEV_NBD is not set
-CONFIG_BLK_DEV_SX8=y
-# CONFIG_BLK_DEV_UB is not set
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_RAM_COUNT=16
-CONFIG_BLK_DEV_RAM_SIZE=65536
-CONFIG_BLK_DEV_INITRD=y
-CONFIG_INITRAMFS_SOURCE=""
-# CONFIG_LBD is not set
-# CONFIG_CDROM_PKTCDVD is not set
-
-#
-# IO Schedulers
-#
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=y
-CONFIG_IOSCHED_DEADLINE=y
-CONFIG_IOSCHED_CFQ=y
-# CONFIG_ATA_OVER_ETH is not set
-
-#
-# ATA/ATAPI/MFM/RLL support
-#
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-
-#
-# Please see Documentation/ide.txt for help/info on IDE drives
-#
-# CONFIG_BLK_DEV_IDE_SATA is not set
-# CONFIG_BLK_DEV_HD_IDE is not set
-CONFIG_BLK_DEV_IDEDISK=y
-# CONFIG_IDEDISK_MULTI_MODE is not set
-CONFIG_BLK_DEV_IDECD=y
-# CONFIG_BLK_DEV_IDETAPE is not set
-# CONFIG_BLK_DEV_IDEFLOPPY is not set
-# CONFIG_BLK_DEV_IDESCSI is not set
-CONFIG_IDE_TASK_IOCTL=y
-
-#
-# IDE chipset support/bugfixes
-#
-CONFIG_IDE_GENERIC=y
-CONFIG_BLK_DEV_CMD640=y
-CONFIG_BLK_DEV_CMD640_ENHANCED=y
-# CONFIG_BLK_DEV_IDEPNP is not set
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-# CONFIG_BLK_DEV_OFFBOARD is not set
-CONFIG_BLK_DEV_GENERIC=y
-# CONFIG_BLK_DEV_OPTI621 is not set
-# CONFIG_BLK_DEV_RZ1000 is not set
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_IDEDMA_ONLYDISK=y
-# CONFIG_BLK_DEV_AEC62XX is not set
-CONFIG_BLK_DEV_ALI15X3=y
-# CONFIG_WDC_ALI15X3 is not set
-CONFIG_BLK_DEV_AMD74XX=y
-CONFIG_BLK_DEV_ATIIXP=y
-CONFIG_BLK_DEV_CMD64X=y
-CONFIG_BLK_DEV_TRIFLEX=y
-# CONFIG_BLK_DEV_CY82C693 is not set
-CONFIG_BLK_DEV_CS5520=y
-CONFIG_BLK_DEV_CS5530=y
-# CONFIG_BLK_DEV_HPT34X is not set
-CONFIG_BLK_DEV_HPT366=y
-# CONFIG_BLK_DEV_SC1200 is not set
-CONFIG_BLK_DEV_PIIX=y
-# CONFIG_BLK_DEV_NS87415 is not set
-CONFIG_BLK_DEV_PDC202XX_OLD=y
-# CONFIG_PDC202XX_BURST is not set
-CONFIG_BLK_DEV_PDC202XX_NEW=y
-# CONFIG_PDC202XX_FORCE is not set
-CONFIG_BLK_DEV_SVWKS=y
-CONFIG_BLK_DEV_SIIMAGE=y
-CONFIG_BLK_DEV_SIS5513=y
-CONFIG_BLK_DEV_SLC90E66=y
-# CONFIG_BLK_DEV_TRM290 is not set
-CONFIG_BLK_DEV_VIA82CXXX=y
-# CONFIG_IDE_ARM is not set
-CONFIG_BLK_DEV_IDEDMA=y
-# CONFIG_IDEDMA_IVB is not set
-CONFIG_IDEDMA_AUTO=y
-# CONFIG_BLK_DEV_HD is not set
-
-#
-# SCSI device support
-#
-CONFIG_SCSI=y
-CONFIG_SCSI_PROC_FS=y
-
-#
-# SCSI support type (disk, tape, CD-ROM)
-#
-CONFIG_BLK_DEV_SD=y
-CONFIG_CHR_DEV_ST=y
-# CONFIG_CHR_DEV_OSST is not set
-CONFIG_BLK_DEV_SR=y
-CONFIG_BLK_DEV_SR_VENDOR=y
-# CONFIG_CHR_DEV_SG is not set
-
-#
-# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
-#
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_CONSTANTS=y
-# CONFIG_SCSI_LOGGING is not set
-
-#
-# SCSI Transport Attributes
-#
-CONFIG_SCSI_SPI_ATTRS=y
-# CONFIG_SCSI_FC_ATTRS is not set
-# CONFIG_SCSI_ISCSI_ATTRS is not set
-
-#
-# SCSI low-level drivers
-#
-# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
-# CONFIG_SCSI_3W_9XXX is not set
-# CONFIG_SCSI_ACARD is not set
-# CONFIG_SCSI_AACRAID is not set
-CONFIG_SCSI_AIC7XXX=y
-CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
-CONFIG_AIC7XXX_RESET_DELAY_MS=15000
-# CONFIG_AIC7XXX_DEBUG_ENABLE is not set
-CONFIG_AIC7XXX_DEBUG_MASK=0
-# CONFIG_AIC7XXX_REG_PRETTY_PRINT is not set
-# CONFIG_SCSI_AIC7XXX_OLD is not set
-CONFIG_SCSI_AIC79XX=y
-CONFIG_AIC79XX_CMDS_PER_DEVICE=32
-CONFIG_AIC79XX_RESET_DELAY_MS=15000
-# CONFIG_AIC79XX_ENABLE_RD_STRM is not set
-# CONFIG_AIC79XX_DEBUG_ENABLE is not set
-CONFIG_AIC79XX_DEBUG_MASK=0
-# CONFIG_AIC79XX_REG_PRETTY_PRINT is not set
-# CONFIG_MEGARAID_NEWGEN is not set
-# CONFIG_MEGARAID_LEGACY is not set
-CONFIG_SCSI_SATA=y
-CONFIG_SCSI_SATA_AHCI=y
-CONFIG_SCSI_SATA_SVW=y
-CONFIG_SCSI_ATA_PIIX=y
-CONFIG_SCSI_SATA_NV=y
-CONFIG_SCSI_SATA_PROMISE=y
-CONFIG_SCSI_SATA_QSTOR=y
-CONFIG_SCSI_SATA_SX4=y
-CONFIG_SCSI_SATA_SIL=y
-CONFIG_SCSI_SATA_SIS=y
-CONFIG_SCSI_SATA_ULI=y
-CONFIG_SCSI_SATA_VIA=y
-CONFIG_SCSI_SATA_VITESSE=y
-# CONFIG_SCSI_BUSLOGIC is not set
-# CONFIG_SCSI_DMX3191D is not set
-CONFIG_SCSI_EATA=y
-CONFIG_SCSI_EATA_TAGGED_QUEUE=y
-# CONFIG_SCSI_EATA_LINKED_COMMANDS is not set
-CONFIG_SCSI_EATA_MAX_TAGS=16
-# CONFIG_SCSI_EATA_PIO is not set
-# CONFIG_SCSI_FUTURE_DOMAIN is not set
-CONFIG_SCSI_GDTH=y
-CONFIG_SCSI_IPS=y
-# CONFIG_SCSI_INITIO is not set
-# CONFIG_SCSI_INIA100 is not set
-# CONFIG_SCSI_PPA is not set
-# CONFIG_SCSI_IMM is not set
-CONFIG_SCSI_SYM53C8XX_2=y
-CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=1
-CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=16
-CONFIG_SCSI_SYM53C8XX_MAX_TAGS=64
-# CONFIG_SCSI_SYM53C8XX_IOMAPPED is not set
-# CONFIG_SCSI_IPR is not set
-# CONFIG_SCSI_QLOGIC_ISP is not set
-# CONFIG_SCSI_QLOGIC_FC is not set
-# CONFIG_SCSI_QLOGIC_1280 is not set
-CONFIG_SCSI_QLA2XXX=y
-# CONFIG_SCSI_QLA21XX is not set
-# CONFIG_SCSI_QLA22XX is not set
-# CONFIG_SCSI_QLA2300 is not set
-# CONFIG_SCSI_QLA2322 is not set
-# CONFIG_SCSI_QLA6312 is not set
-# CONFIG_SCSI_DC395x is not set
-# CONFIG_SCSI_DC390T is not set
-# CONFIG_SCSI_DEBUG is not set
-
-#
-# Multi-device support (RAID and LVM)
-#
-CONFIG_MD=y
-CONFIG_BLK_DEV_MD=y
-CONFIG_MD_LINEAR=y
-CONFIG_MD_RAID0=y
-CONFIG_MD_RAID1=y
-# CONFIG_MD_RAID10 is not set
-CONFIG_MD_RAID5=y
-# CONFIG_MD_RAID6 is not set
-CONFIG_MD_MULTIPATH=y
-# CONFIG_MD_FAULTY is not set
-# CONFIG_BLK_DEV_DM is not set
-
-#
-# Fusion MPT device support
-#
-CONFIG_FUSION=y
-CONFIG_FUSION_MAX_SGE=40
-CONFIG_FUSION_CTL=y
-
-#
-# IEEE 1394 (FireWire) support
-#
-# CONFIG_IEEE1394 is not set
-
-#
-# I2O device support
-#
-# CONFIG_I2O is not set
-
-#
-# Networking support
-#
-CONFIG_NET=y
-
-#
-# Networking options
-#
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-# CONFIG_NETLINK_DEV is not set
-CONFIG_UNIX=y
-# CONFIG_NET_KEY is not set
-CONFIG_INET=y
-# CONFIG_IP_MULTICAST is not set
-CONFIG_IP_ADVANCED_ROUTER=y
-CONFIG_IP_MULTIPLE_TABLES=y
-CONFIG_IP_ROUTE_MULTIPATH=y
-CONFIG_IP_ROUTE_VERBOSE=y
-CONFIG_IP_PNP=y
-CONFIG_IP_PNP_DHCP=y
-# CONFIG_IP_PNP_BOOTP is not set
-# CONFIG_IP_PNP_RARP is not set
-# CONFIG_NET_IPIP is not set
-# CONFIG_NET_IPGRE is not set
-# CONFIG_ARPD is not set
-CONFIG_SYN_COOKIES=y
-# CONFIG_INET_AH is not set
-# CONFIG_INET_ESP is not set
-# CONFIG_INET_IPCOMP is not set
-# CONFIG_INET_TUNNEL is not set
-CONFIG_IP_TCPDIAG=y
-# CONFIG_IP_TCPDIAG_IPV6 is not set
-# CONFIG_IPV6 is not set
-# CONFIG_NETFILTER is not set
-
-#
-# SCTP Configuration (EXPERIMENTAL)
-#
-# CONFIG_IP_SCTP is not set
-# CONFIG_ATM is not set
-# CONFIG_BRIDGE is not set
-CONFIG_VLAN_8021Q=y
-# CONFIG_DECNET is not set
-# CONFIG_LLC2 is not set
-# CONFIG_IPX is not set
-# CONFIG_ATALK is not set
-# CONFIG_X25 is not set
-# CONFIG_LAPB is not set
-# CONFIG_NET_DIVERT is not set
-# CONFIG_ECONET is not set
-# CONFIG_WAN_ROUTER is not set
-
-#
-# QoS and/or fair queueing
-#
-# CONFIG_NET_SCHED is not set
-# CONFIG_NET_CLS_ROUTE is not set
-
-#
-# Network testing
-#
-# CONFIG_NET_PKTGEN is not set
-# CONFIG_NETPOLL is not set
-# CONFIG_NET_POLL_CONTROLLER is not set
-# CONFIG_HAMRADIO is not set
-# CONFIG_IRDA is not set
-# CONFIG_BT is not set
-CONFIG_NETDEVICES=y
-# CONFIG_DUMMY is not set
-# CONFIG_BONDING is not set
-# CONFIG_EQUALIZER is not set
-# CONFIG_TUN is not set
-# CONFIG_NET_SB1000 is not set
-
-#
-# ARCnet devices
-#
-# CONFIG_ARCNET is not set
-
-#
-# Ethernet (10 or 100Mbit)
-#
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=y
-# CONFIG_HAPPYMEAL is not set
-# CONFIG_SUNGEM is not set
-CONFIG_NET_VENDOR_3COM=y
-CONFIG_VORTEX=y
-CONFIG_TYPHOON=y
-
-#
-# Tulip family network device support
-#
-CONFIG_NET_TULIP=y
-# CONFIG_DE2104X is not set
-# CONFIG_TULIP is not set
-CONFIG_DE4X5=y
-# CONFIG_WINBOND_840 is not set
-# CONFIG_DM9102 is not set
-# CONFIG_HP100 is not set
-CONFIG_NET_PCI=y
-CONFIG_PCNET32=y
-CONFIG_AMD8111_ETH=y
-# CONFIG_AMD8111E_NAPI is not set
-CONFIG_ADAPTEC_STARFIRE=y
-# CONFIG_ADAPTEC_STARFIRE_NAPI is not set
-CONFIG_B44=y
-# CONFIG_FORCEDETH is not set
-# CONFIG_DGRS is not set
-# CONFIG_EEPRO100 is not set
-CONFIG_E100=y
-# CONFIG_E100_NAPI is not set
-# CONFIG_FEALNX is not set
-# CONFIG_NATSEMI is not set
-# CONFIG_NE2K_PCI is not set
-CONFIG_8139CP=y
-CONFIG_8139TOO=y
-# CONFIG_8139TOO_PIO is not set
-CONFIG_8139TOO_TUNE_TWISTER=y
-CONFIG_8139TOO_8129=y
-# CONFIG_8139_OLD_RX_RESET is not set
-CONFIG_SIS900=y
-CONFIG_EPIC100=y
-# CONFIG_SUNDANCE is not set
-CONFIG_VIA_RHINE=y
-# CONFIG_VIA_RHINE_MMIO is not set
-
-#
-# Ethernet (1000 Mbit)
-#
-CONFIG_ACENIC=y
-# CONFIG_ACENIC_OMIT_TIGON_I is not set
-CONFIG_DL2K=y
-CONFIG_E1000=y
-# CONFIG_E1000_NAPI is not set
-# CONFIG_NS83820 is not set
-# CONFIG_HAMACHI is not set
-# CONFIG_YELLOWFIN is not set
-CONFIG_R8169=y
-# CONFIG_R8169_NAPI is not set
-# CONFIG_R8169_VLAN is not set
-CONFIG_SK98LIN=y
-CONFIG_VIA_VELOCITY=y
-CONFIG_TIGON3=y
-
-#
-# Ethernet (10000 Mbit)
-#
-CONFIG_IXGB=y
-# CONFIG_IXGB_NAPI is not set
-CONFIG_S2IO=y
-# CONFIG_S2IO_NAPI is not set
-# CONFIG_2BUFF_MODE is not set
-
-#
-# Token Ring devices
-#
-# CONFIG_TR is not set
-
-#
-# Wireless LAN (non-hamradio)
-#
-# CONFIG_NET_RADIO is not set
-
-#
-# Wan interfaces
-#
-# CONFIG_WAN is not set
-# CONFIG_FDDI is not set
-# CONFIG_HIPPI is not set
-# CONFIG_PLIP is not set
-# CONFIG_PPP is not set
-# CONFIG_SLIP is not set
-# CONFIG_NET_FC is not set
-# CONFIG_SHAPER is not set
-# CONFIG_NETCONSOLE is not set
-
-#
-# ISDN subsystem
-#
-# CONFIG_ISDN is not set
-
-#
-# Telephony Support
-#
-# CONFIG_PHONE is not set
-
-#
-# Input device support
-#
-CONFIG_INPUT=y
-
-#
-# Userland interfaces
-#
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-# CONFIG_INPUT_JOYDEV is not set
-# CONFIG_INPUT_TSDEV is not set
-# CONFIG_INPUT_EVDEV is not set
-# CONFIG_INPUT_EVBUG is not set
-
-#
-# Input I/O drivers
-#
-# CONFIG_GAMEPORT is not set
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=y
-# CONFIG_SERIO_CT82C710 is not set
-# CONFIG_SERIO_PARKBD is not set
-CONFIG_SERIO_PCIPS2=y
-CONFIG_SERIO_LIBPS2=y
-# CONFIG_SERIO_RAW is not set
-
-#
-# Input Device Drivers
-#
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-# CONFIG_KEYBOARD_SUNKBD is not set
-# CONFIG_KEYBOARD_LKKBD is not set
-# CONFIG_KEYBOARD_XTKBD is not set
-# CONFIG_KEYBOARD_NEWTON is not set
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-# CONFIG_MOUSE_SERIAL is not set
-# CONFIG_MOUSE_VSXXXAA is not set
-# CONFIG_INPUT_JOYSTICK is not set
-# CONFIG_INPUT_TOUCHSCREEN is not set
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_PCSPKR=y
-# CONFIG_INPUT_UINPUT is not set
-
-#
-# Character devices
-#
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-# CONFIG_SERIAL_NONSTANDARD is not set
-
-#
-# Serial drivers
-#
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_8250_CONSOLE=y
-# CONFIG_SERIAL_8250_ACPI is not set
-CONFIG_SERIAL_8250_NR_UARTS=4
-# CONFIG_SERIAL_8250_EXTENDED is not set
-
-#
-# Non-8250 serial port support
-#
-CONFIG_SERIAL_CORE=y
-CONFIG_SERIAL_CORE_CONSOLE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_LEGACY_PTYS=y
-CONFIG_LEGACY_PTY_COUNT=256
-CONFIG_PRINTER=y
-# CONFIG_LP_CONSOLE is not set
-# CONFIG_PPDEV is not set
-# CONFIG_TIPAR is not set
-
-#
-# IPMI
-#
-# CONFIG_IPMI_HANDLER is not set
-
-#
-# Watchdog Cards
-#
-# CONFIG_WATCHDOG is not set
-CONFIG_HW_RANDOM=y
-CONFIG_NVRAM=y
-CONFIG_RTC=y
-# CONFIG_DTLK is not set
-# CONFIG_R3964 is not set
-# CONFIG_APPLICOM is not set
-
-#
-# Ftape, the floppy tape device driver
-#
-CONFIG_AGP=y
-CONFIG_AGP_AMD64=y
-# CONFIG_AGP_INTEL_MCH is not set
-# CONFIG_DRM is not set
-# CONFIG_MWAVE is not set
-# CONFIG_RAW_DRIVER is not set
-# CONFIG_HPET is not set
-# CONFIG_HANGCHECK_TIMER is not set
-
-#
-# I2C support
-#
-# CONFIG_I2C is not set
-
-#
-# Dallas's 1-wire bus
-#
-# CONFIG_W1 is not set
-
-#
-# Misc devices
-#
-# CONFIG_IBM_ASM is not set
-
-#
-# Multimedia devices
-#
-# CONFIG_VIDEO_DEV is not set
-
-#
-# Digital Video Broadcasting Devices
-#
-# CONFIG_DVB is not set
-
-#
-# Graphics support
-#
-CONFIG_FB=y
-# CONFIG_FB_MODE_HELPERS is not set
-# CONFIG_FB_TILEBLITTING is not set
-# CONFIG_FB_CIRRUS is not set
-# CONFIG_FB_PM2 is not set
-# CONFIG_FB_CYBER2000 is not set
-# CONFIG_FB_ASILIANT is not set
-# CONFIG_FB_IMSTT is not set
-# CONFIG_FB_VGA16 is not set
-CONFIG_FB_VESA=y
-CONFIG_VIDEO_SELECT=y
-# CONFIG_FB_HGA is not set
-# CONFIG_FB_RIVA is not set
-# CONFIG_FB_MATROX is not set
-# CONFIG_FB_RADEON_OLD is not set
-# CONFIG_FB_RADEON is not set
-# CONFIG_FB_ATY128 is not set
-# CONFIG_FB_ATY is not set
-# CONFIG_FB_SAVAGE is not set
-# CONFIG_FB_SIS is not set
-# CONFIG_FB_NEOMAGIC is not set
-# CONFIG_FB_KYRO is not set
-# CONFIG_FB_3DFX is not set
-# CONFIG_FB_VOODOO1 is not set
-# CONFIG_FB_TRIDENT is not set
-# CONFIG_FB_VIRTUAL is not set
-
-#
-# Console display driver support
-#
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FRAMEBUFFER_CONSOLE=y
-# CONFIG_FONTS is not set
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
-
-#
-# Logo configuration
-#
-CONFIG_LOGO=y
-CONFIG_LOGO_LINUX_MONO=y
-CONFIG_LOGO_LINUX_VGA16=y
-CONFIG_LOGO_LINUX_CLUT224=y
-# CONFIG_BACKLIGHT_LCD_SUPPORT is not set
-
-#
-# Sound
-#
-# CONFIG_SOUND is not set
-
-#
-# USB support
-#
-CONFIG_USB=y
-# CONFIG_USB_DEBUG is not set
-
-#
-# Miscellaneous USB options
-#
-CONFIG_USB_DEVICEFS=y
-# CONFIG_USB_BANDWIDTH is not set
-# CONFIG_USB_DYNAMIC_MINORS is not set
-# CONFIG_USB_OTG is not set
-CONFIG_USB_ARCH_HAS_HCD=y
-CONFIG_USB_ARCH_HAS_OHCI=y
-
-#
-# USB Host Controller Drivers
-#
-CONFIG_USB_EHCI_HCD=y
-# CONFIG_USB_EHCI_SPLIT_ISO is not set
-CONFIG_USB_EHCI_ROOT_HUB_TT=y
-CONFIG_USB_OHCI_HCD=y
-CONFIG_USB_UHCI_HCD=y
-# CONFIG_USB_SL811_HCD is not set
-
-#
-# USB Device Class drivers
-#
-# CONFIG_USB_BLUETOOTH_TTY is not set
-# CONFIG_USB_ACM is not set
-# CONFIG_USB_PRINTER is not set
-
-#
-# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support' may also be needed; see USB_STORAGE Help for more information
-#
-CONFIG_USB_STORAGE=y
-# CONFIG_USB_STORAGE_DEBUG is not set
-# CONFIG_USB_STORAGE_RW_DETECT is not set
-CONFIG_USB_STORAGE_DATAFAB=y
-CONFIG_USB_STORAGE_FREECOM=y
-CONFIG_USB_STORAGE_ISD200=y
-CONFIG_USB_STORAGE_DPCM=y
-CONFIG_USB_STORAGE_HP8200e=y
-CONFIG_USB_STORAGE_SDDR09=y
-CONFIG_USB_STORAGE_SDDR55=y
-CONFIG_USB_STORAGE_JUMPSHOT=y
-
-#
-# USB Input Devices
-#
-# CONFIG_USB_HID is not set
-
-#
-# USB HID Boot Protocol drivers
-#
-CONFIG_USB_KBD=y
-CONFIG_USB_MOUSE=y
-# CONFIG_USB_AIPTEK is not set
-# CONFIG_USB_WACOM is not set
-# CONFIG_USB_KBTAB is not set
-# CONFIG_USB_POWERMATE is not set
-# CONFIG_USB_MTOUCH is not set
-# CONFIG_USB_EGALAX is not set
-# CONFIG_USB_XPAD is not set
-# CONFIG_USB_ATI_REMOTE is not set
-
-#
-# USB Imaging devices
-#
-# CONFIG_USB_MDC800 is not set
-# CONFIG_USB_MICROTEK is not set
-
-#
-# USB Multimedia devices
-#
-# CONFIG_USB_DABUSB is not set
-
-#
-# Video4Linux support is needed for USB Multimedia device support
-#
-
-#
-# USB Network Adapters
-#
-# CONFIG_USB_CATC is not set
-# CONFIG_USB_KAWETH is not set
-# CONFIG_USB_PEGASUS is not set
-# CONFIG_USB_RTL8150 is not set
-# CONFIG_USB_USBNET is not set
-
-#
-# USB port drivers
-#
-# CONFIG_USB_USS720 is not set
-
-#
-# USB Serial Converter support
-#
-# CONFIG_USB_SERIAL is not set
-
-#
-# USB Miscellaneous drivers
-#
-# CONFIG_USB_EMI62 is not set
-# CONFIG_USB_EMI26 is not set
-# CONFIG_USB_AUERSWALD is not set
-# CONFIG_USB_RIO500 is not set
-# CONFIG_USB_LEGOTOWER is not set
-# CONFIG_USB_LCD is not set
-# CONFIG_USB_LED is not set
-# CONFIG_USB_CYTHERM is not set
-# CONFIG_USB_PHIDGETKIT is not set
-# CONFIG_USB_PHIDGETSERVO is not set
-# CONFIG_USB_IDMOUSE is not set
-# CONFIG_USB_TEST is not set
-
-#
-# USB ATM/DSL drivers
-#
-
-#
-# USB Gadget Support
-#
-# CONFIG_USB_GADGET is not set
-
-#
-# MMC/SD Card support
-#
-# CONFIG_MMC is not set
-
-#
-# InfiniBand support
-#
-# CONFIG_INFINIBAND is not set
-
-#
-# Firmware Drivers
-#
-# CONFIG_EDD is not set
-
-#
-# File systems
-#
-CONFIG_EXT2_FS=y
-# CONFIG_EXT2_FS_XATTR is not set
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-# CONFIG_EXT3_FS_POSIX_ACL is not set
-# CONFIG_EXT3_FS_SECURITY is not set
-CONFIG_JBD=y
-# CONFIG_JBD_DEBUG is not set
-CONFIG_FS_MBCACHE=y
-CONFIG_REISERFS_FS=y
-# CONFIG_REISERFS_CHECK is not set
-CONFIG_REISERFS_PROC_INFO=y
-# CONFIG_REISERFS_FS_XATTR is not set
-CONFIG_JFS_FS=y
-# CONFIG_JFS_POSIX_ACL is not set
-# CONFIG_JFS_SECURITY is not set
-# CONFIG_JFS_DEBUG is not set
-CONFIG_JFS_STATISTICS=y
-
-#
-# XFS support
-#
-CONFIG_XFS_FS=y
-CONFIG_XFS_EXPORT=y
-# CONFIG_XFS_RT is not set
-# CONFIG_XFS_QUOTA is not set
-# CONFIG_XFS_SECURITY is not set
-# CONFIG_XFS_POSIX_ACL is not set
-CONFIG_MINIX_FS=y
-# CONFIG_ROMFS_FS is not set
-# CONFIG_QUOTA is not set
-CONFIG_DNOTIFY=y
-# CONFIG_AUTOFS_FS is not set
-# CONFIG_AUTOFS4_FS is not set
-
-#
-# CD-ROM/DVD Filesystems
-#
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_ZISOFS_FS=y
-CONFIG_UDF_FS=y
-CONFIG_UDF_NLS=y
-
-#
-# DOS/FAT/NT Filesystems
-#
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_FAT_DEFAULT_CODEPAGE=437
-CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
-CONFIG_NTFS_FS=y
-# CONFIG_NTFS_DEBUG is not set
-CONFIG_NTFS_RW=y
-
-#
-# Pseudo filesystems
-#
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
-CONFIG_SYSFS=y
-CONFIG_DEVFS_FS=y
-# CONFIG_DEVFS_MOUNT is not set
-# CONFIG_DEVFS_DEBUG is not set
-# CONFIG_DEVPTS_FS_XATTR is not set
-CONFIG_TMPFS=y
-# CONFIG_TMPFS_XATTR is not set
-# CONFIG_HUGETLBFS is not set
-# CONFIG_HUGETLB_PAGE is not set
-CONFIG_RAMFS=y
-
-#
-# Miscellaneous filesystems
-#
-# CONFIG_ADFS_FS is not set
-# CONFIG_AFFS_FS is not set
-# CONFIG_HFS_FS is not set
-# CONFIG_HFSPLUS_FS is not set
-# CONFIG_BEFS_FS is not set
-# CONFIG_BFS_FS is not set
-# CONFIG_EFS_FS is not set
-CONFIG_CRAMFS=y
-CONFIG_VXFS_FS=y
-# CONFIG_HPFS_FS is not set
-# CONFIG_QNX4FS_FS is not set
-CONFIG_SYSV_FS=y
-CONFIG_UFS_FS=y
-# CONFIG_UFS_FS_WRITE is not set
-
-#
-# Network File Systems
-#
-CONFIG_NFS_FS=y
-CONFIG_NFS_V3=y
-# CONFIG_NFS_V4 is not set
-# CONFIG_NFS_DIRECTIO is not set
-CONFIG_NFSD=y
-CONFIG_NFSD_V3=y
-# CONFIG_NFSD_V4 is not set
-CONFIG_NFSD_TCP=y
-CONFIG_ROOT_NFS=y
-CONFIG_LOCKD=y
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=y
-CONFIG_SUNRPC=y
-# CONFIG_RPCSEC_GSS_KRB5 is not set
-# CONFIG_RPCSEC_GSS_SPKM3 is not set
-CONFIG_SMB_FS=y
-CONFIG_SMB_NLS_DEFAULT=y
-CONFIG_SMB_NLS_REMOTE="cp437"
-# CONFIG_CIFS is not set
-# CONFIG_NCP_FS is not set
-# CONFIG_CODA_FS is not set
-# CONFIG_AFS_FS is not set
-
-#
-# Partition Types
-#
-CONFIG_PARTITION_ADVANCED=y
-# CONFIG_ACORN_PARTITION is not set
-CONFIG_OSF_PARTITION=y
-# CONFIG_AMIGA_PARTITION is not set
-# CONFIG_ATARI_PARTITION is not set
-# CONFIG_MAC_PARTITION is not set
-CONFIG_MSDOS_PARTITION=y
-CONFIG_BSD_DISKLABEL=y
-# CONFIG_MINIX_SUBPARTITION is not set
-CONFIG_SOLARIS_X86_PARTITION=y
-CONFIG_UNIXWARE_DISKLABEL=y
-CONFIG_LDM_PARTITION=y
-# CONFIG_LDM_DEBUG is not set
-# CONFIG_SGI_PARTITION is not set
-# CONFIG_ULTRIX_PARTITION is not set
-CONFIG_SUN_PARTITION=y
-# CONFIG_EFI_PARTITION is not set
-
-#
-# Native Language Support
-#
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=y
-# CONFIG_NLS_CODEPAGE_737 is not set
-# CONFIG_NLS_CODEPAGE_775 is not set
-CONFIG_NLS_CODEPAGE_850=y
-# CONFIG_NLS_CODEPAGE_852 is not set
-# CONFIG_NLS_CODEPAGE_855 is not set
-# CONFIG_NLS_CODEPAGE_857 is not set
-# CONFIG_NLS_CODEPAGE_860 is not set
-# CONFIG_NLS_CODEPAGE_861 is not set
-# CONFIG_NLS_CODEPAGE_862 is not set
-# CONFIG_NLS_CODEPAGE_863 is not set
-# CONFIG_NLS_CODEPAGE_864 is not set
-# CONFIG_NLS_CODEPAGE_865 is not set
-# CONFIG_NLS_CODEPAGE_866 is not set
-# CONFIG_NLS_CODEPAGE_869 is not set
-# CONFIG_NLS_CODEPAGE_936 is not set
-# CONFIG_NLS_CODEPAGE_950 is not set
-# CONFIG_NLS_CODEPAGE_932 is not set
-# CONFIG_NLS_CODEPAGE_949 is not set
-# CONFIG_NLS_CODEPAGE_874 is not set
-# CONFIG_NLS_ISO8859_8 is not set
-# CONFIG_NLS_CODEPAGE_1250 is not set
-# CONFIG_NLS_CODEPAGE_1251 is not set
-# CONFIG_NLS_ASCII is not set
-CONFIG_NLS_ISO8859_1=y
-# CONFIG_NLS_ISO8859_2 is not set
-# CONFIG_NLS_ISO8859_3 is not set
-# CONFIG_NLS_ISO8859_4 is not set
-# CONFIG_NLS_ISO8859_5 is not set
-# CONFIG_NLS_ISO8859_6 is not set
-# CONFIG_NLS_ISO8859_7 is not set
-# CONFIG_NLS_ISO8859_9 is not set
-# CONFIG_NLS_ISO8859_13 is not set
-# CONFIG_NLS_ISO8859_14 is not set
-CONFIG_NLS_ISO8859_15=y
-# CONFIG_NLS_KOI8_R is not set
-# CONFIG_NLS_KOI8_U is not set
-CONFIG_NLS_UTF8=y
-
-#
-# Profiling support
-#
-# CONFIG_PROFILING is not set
-
-#
-# Kernel hacking
-#
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-# CONFIG_SCHEDSTATS is not set
-# CONFIG_DEBUG_SLAB is not set
-# CONFIG_DEBUG_SPINLOCK is not set
-# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
-# CONFIG_DEBUG_KOBJECT is not set
-# CONFIG_DEBUG_INFO is not set
-# CONFIG_DEBUG_FS is not set
-# CONFIG_INIT_DEBUG is not set
-# CONFIG_IOMMU_DEBUG is not set
-# CONFIG_KPROBES is not set
-
-#
-# Security options
-#
-# CONFIG_KEYS is not set
-# CONFIG_SECURITY is not set
-
-#
-# Cryptographic options
-#
-# CONFIG_CRYPTO is not set
-
-#
-# Hardware crypto devices
-#
-
-#
-# Library routines
-#
-CONFIG_CRC_CCITT=y
-CONFIG_CRC32=y
-CONFIG_LIBCRC32C=y
-CONFIG_ZLIB_INFLATE=y
-
---Pgaa2uWPnPrfixyx--
+

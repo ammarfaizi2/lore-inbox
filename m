@@ -1,104 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261542AbVD0MnF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261558AbVD0My6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261542AbVD0MnF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 08:43:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261543AbVD0Mmy
+	id S261558AbVD0My6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 08:54:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbVD0My6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 08:42:54 -0400
-Received: from cimice4.lam.cz ([212.71.168.94]:62902 "EHLO vagabond.light.src")
-	by vger.kernel.org with ESMTP id S261542AbVD0Mks (ORCPT
+	Wed, 27 Apr 2005 08:54:58 -0400
+Received: from mailfe07.swip.net ([212.247.154.193]:16796 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S261558AbVD0My4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 08:40:48 -0400
-Date: Wed, 27 Apr 2005 14:39:44 +0200
-From: Jan Hudec <bulb@ucw.cz>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: pavel@suse.cz, hch@infradead.org, jamie@shareable.org, linuxram@us.ibm.com,
-       7eggert@gmx.de, viro@parcelfarce.linux.theplanet.co.uk,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] private mounts
-Message-ID: <20050427123944.GA11020@vagabond>
-References: <E1DQMYu-0000DL-00@dorka.pomaz.szeredi.hu> <20050426094727.GA30379@infradead.org> <20050426131943.GC2226@openzaurus.ucw.cz> <E1DQQ73-0000Zv-00@dorka.pomaz.szeredi.hu> <20050426201411.GA20109@elf.ucw.cz> <E1DQiEa-0001hi-00@dorka.pomaz.szeredi.hu> <20050427092450.GB1819@elf.ucw.cz> <E1DQjzY-0001no-00@dorka.pomaz.szeredi.hu> <20050427115754.GA8981@vagabond> <E1DQla0-0001vG-00@dorka.pomaz.szeredi.hu>
+	Wed, 27 Apr 2005 08:54:56 -0400
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Subject: Re: [BUG] 2.6.12-rc3: unkillable java process in TASK_RUNNING on
+	AMD64
+From: Alexander Nyberg <alexn@telia.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, ak@suse.de, linux-kernel@vger.kernel.org
+In-Reply-To: <200504271412.51565.rjw@sisk.pl>
+References: <200504271152.15423.rjw@sisk.pl>
+	 <200504271305.10882.rjw@sisk.pl> <20050427045546.7c769a4f.akpm@osdl.org>
+	 <200504271412.51565.rjw@sisk.pl>
+Content-Type: text/plain
+Date: Wed, 27 Apr 2005 14:54:54 +0200
+Message-Id: <1114606494.868.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="fdj2RfSjLxBAspz7"
-Content-Disposition: inline
-In-Reply-To: <E1DQla0-0001vG-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > > >From sysrq-P, I get this:
+> > > 
+> > > Pid: 11073, comm: java Not tainted 2.6.12-rc3
+> > > RIP: 0010:[<ffffffff8010f675>] <ffffffff8010f675>{retint_signal+20}
+> > > RSP: 0018:ffff810012d6ff58  EFLAGS: 00000282
+> > > RAX: 0000000000020000 RBX: ffff810010868820 RCX: ffff810012d6e000
+> > > RDX: 0000000000020000 RSI: 0000000000000000 RDI: ffff810012d6ff58
+> > > RBP: 000000a30c153a4a R08: ffff810012d6e000 R09: ffffffff804c6068
+> > > R10: 0000000000000001 R11: 0000000000000001 R12: ffffffff804ccd40
+> > > R13: ffff810010868820 R14: ffff81002cff2cf0 R15: ffffffff8010d3a7
+> > > FS:  00002aaaae6389c0(0000) GS:ffffffff8054a600(0063) knlGS:00000000556c9080
+> > > CS:  0010 DS: 002b ES: 002b CR0: 000000008005003b
+> > > CR2: 00002aaaaabab000 CR3: 0000000012930000 CR4: 00000000000006e0
+> > > 
+> > > Call Trace:<ffffffff8010f697>{retint_signal+54}
+> > > 
+> > > all the time.
 
---fdj2RfSjLxBAspz7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+My mind tells me this might be the problem but statistics also tell me
+processes should get stuck all the time here...
 
-On Wed, Apr 27, 2005 at 14:23:48 +0200, Miklos Szeredi wrote:
-> > What makes you think Pavel was talking about semantics?!
->=20
->     Well, if it brings us ugly semantics, keeping those two lines out for
->                                ^^^^^^^^^
->     a while can help merge a lot...
->=20
-> > The point was that:
-> > Ok, there is a strong disagreement about these two lines. Could we have
-> > a patch with everything but these two lines, so it can be integrated
-> > immediately to profit of the testing and generally be useful, and then
-> > the controversial bits when the issue is beaten to death?
->=20
-> I could remove this check.
->=20
-> But it would only cause confusion.  How would the userspace utilities
-> differentiate between the safe out-of-kernel and the unsafe in-kernel
-> module?  Adding hacks to make this possible is far more ugly IMO than
-> integrating the current well tested solution.
->=20
-> It makes no sense.  If someone would give me a rational explanation
-> why it is bad, I would be content.  But you just tell me it's
-> terrible, ugly, crap which may well be true, but are not technical
-> terms, which I can relate to.
+In retint_signal %rdi is destroyed, need to jump to the label above
+retint_check that sets %edi back to $_TIF_WORK_MASK
 
-Where the hell do you see it above. The only thing I said above is it is
-controversial.
+Signed-off-by: Alexander Nyberg <alexn@telia.com>
 
-The userland tools don't need to know. They just need to not be suid.
+Index: linux-2.6/arch/x86_64/kernel/entry.S
+===================================================================
+--- linux-2.6.orig/arch/x86_64/kernel/entry.S	2005-04-27 13:08:50.000000000 +0200
++++ linux-2.6/arch/x86_64/kernel/entry.S	2005-04-27 14:43:20.000000000 +0200
+@@ -491,7 +491,7 @@
+ 	RESTORE_REST
+ 	cli
+ 	GET_THREAD_INFO(%rcx)	
+-	jmp retint_check
++	jmp retint_with_reschedule
+ 
+ #ifdef CONFIG_PREEMPT
+ 	/* Returning to kernel space. Check if we need preemption */
 
-> > As I understand it, doing things like this is butt ugly. Not just in
-> > fuse -- in NFS, in samba, everywhere where such hacks are employed. But
-> > now they just have enough of those hacks and want a cleaner solution.
->=20
-> Please do.  I want it too.
->=20
-> _When_ we have a better solution, all the hacks can be removed, and
-> the world will rejoice.
->=20
-> Until then, let the hacks live!  Please!
 
-Ok, here I say it is ugly (but not that it's crap). And the reason is,
-that there is a permission system, with some semantics, and then various
-filesystems adapt it in varous ways to fit what they want. So every
-filesystem ends up with it's onw little different behaviour.
-
-That being said, fuse does just about the same as NFS, samba and others
-and I don't really see the reason why it couldn't be integrated. But
-I am not the one to decide.
-
----------------------------------------------------------------------------=
-----
-						 Jan 'Bulb' Hudec <bulb@ucw.cz>
-
---fdj2RfSjLxBAspz7
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCb4gQRel1vVwhjGURAunBAJ0Ybg56uPEfFWLK2eAG2iRcIIrCkQCfbs6y
-tjSaFOB5BVKwlWd8R3YfcYc=
-=WXHD
------END PGP SIGNATURE-----
-
---fdj2RfSjLxBAspz7--

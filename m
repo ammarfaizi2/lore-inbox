@@ -1,142 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261854AbVDZX4U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261855AbVD0AGB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261854AbVDZX4U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 19:56:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261855AbVDZX4U
+	id S261855AbVD0AGB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 20:06:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbVD0AGB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 19:56:20 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:11765 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261854AbVDZXzw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 19:55:52 -0400
-Subject: Re: del_timer_sync needed for UP  RT systems.
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: ganzinger@mvista.com
-Cc: ingo@mvista.com,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <426ED1EC.80500@mvista.com>
-References: <426ED1EC.80500@mvista.com>
-Content-Type: multipart/mixed; boundary="=-dAQNtLoU82z49w/72wTo"
-Organization: MontaVista
-Message-Id: <1114559749.12773.67.camel@dhcp153.mvista.com>
+	Tue, 26 Apr 2005 20:06:01 -0400
+Received: from fire.osdl.org ([65.172.181.4]:52878 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261855AbVD0AFs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 20:05:48 -0400
+Date: Tue, 26 Apr 2005 17:05:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Roland Dreier <roland@topspin.com>
+Cc: libor@topspin.com, hch@infradead.org, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, timur.tabi@ammasso.com
+Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace
+ verbs implementation
+Message-Id: <20050426170513.33b81f76.akpm@osdl.org>
+In-Reply-To: <521x8xs04v.fsf@topspin.com>
+References: <20050425135401.65376ce0.akpm@osdl.org>
+	<521x8yv9vb.fsf@topspin.com>
+	<20050425151459.1f5fb378.akpm@osdl.org>
+	<426D6D68.6040504@ammasso.com>
+	<20050425153256.3850ee0a.akpm@osdl.org>
+	<52vf6atnn8.fsf@topspin.com>
+	<20050425171145.2f0fd7f8.akpm@osdl.org>
+	<52acnmtmh6.fsf@topspin.com>
+	<20050425173757.1dbab90b.akpm@osdl.org>
+	<52wtqpsgff.fsf@topspin.com>
+	<20050426084234.A10366@topspin.com>
+	<52mzrlsflu.fsf@topspin.com>
+	<20050426122850.44d06fa6.akpm@osdl.org>
+	<5264y9s3bs.fsf@topspin.com>
+	<20050426133229.416a5e66.akpm@osdl.org>
+	<521x8xs04v.fsf@topspin.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 26 Apr 2005 16:55:49 -0700
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
---=-dAQNtLoU82z49w/72wTo
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-Basically , there is a race condition in sys_timer_delete() and
-posix_timer_event() .
-
->From sys_timer_delete() :
-
-   /*
-	 * This keeps any tasks waiting on the spin lock from thinking
-	 * they got something (see the lock code above).
-	 */
-	if (timer->it_process) {
-		if (timer->it_sigev_notify ==
-(SIGEV_SIGNAL|SIGEV_THREAD_ID))
-			put_task_struct(timer->it_process);
-		timer->it_process = NULL;
-	}
-	unlock_timer(timer, flags);
-	/* Preemption happens here. */
-	release_posix_timer(timer, IT_ID_SET);
-
-
-So when the timer is getting triggered , right before it takes the timer
-lock, preemption happens. You finish the code above. Then your preempted
-again right after unlock timer, shown above.
-
-At this point, your triggering a timer that is half deleted, in posix_timer_fn() .
-timer->it_process = NULL , so when you try to send the signal to the
-timer owner you crash with an OOPS , cause the timer owner was just set
-to NULL.
-
-George, at least CC me, after all I found/documented this bug ..
-
-Preliminary fix included ..
-
-Daniel
-
-On Tue, 2005-04-26 at 16:42, George Anzinger wrote:
-> Ingo,
+Roland Dreier <roland@topspin.com> wrote:
+>
+>     Andrew> Well I was vaguely proposing that the userspace library
+>     Andrew> keep track of the byteranges and the underlying page
+>     Andrew> states.  So in the above scenario userspace would leave
+>     Andrew> the page at 0x1000 registered until all registrations
+>     Andrew> against that page have been undone.
 > 
-> In tracking down the failure of a system running the RT patch we have found a 
-> preemption between the time run_timer_list clears its spinlock and the call back 
-> function (in this case in posix-timers.c) gets its spinlock.  The bad news is 
-> that it is possible for the timer to be released at this point leaving the call 
-> back code with a pointer to a bogus timer.
+> OK, I already have code in userspace that keeps reference counts for
+> overlapping regions, etc.  However I'm not sure how to tie this in
+> with reliable accounting of pinned memory -- we don't want malicious
+> userspace code to be able fool the accounting, right?
 > 
-> This was/is possible, of course, in SMP systems and is why del_timer_sync() 
-> exists.  I suspect that del_timer_sync() needs to also do the "right thing" in 
-> UP RT systems.
+> So I'm still trying to puzzle out what to do.  I don't want to keep a
+> complicated data structure in the kernel keeping track of what memory
+> has been registered.  Right now, I just keep a list of structs, one
+> for each region, and when a process dies, I just go through region by
+> region and do a put_page() to balance off the get_user_pages().
 > 
-> This means removing the #ifdef CONFIG_SMP at about line 56 of kernel/timer.c 
-> thus setting up base->running_timer in all cases (or at least in SMP and RT 
-> cases) and also the #ifdef CONFIG_SMP around del_timer_sync() and, of course, 
-> the defines that redirect calls to these functions.
+> However I don't see how to make it work if I put the reference
+> counting for overlapping regions in userspace but when I want mlock()
+> accounting in the kernel.  If a buggy/malicious app does:
 > 
-> Does this make sense?
+>     a) register from 0x0000 to 0x2fff
+>     b) register from 0x1000 to 0x1fff
+>     c) unregister from 0x0000 to 0x2fff
 
---=-dAQNtLoU82z49w/72wTo
-Content-Disposition: attachment; filename=fix_posix_timer_half_delete.patch
-Content-Type: text/plain; name=fix_posix_timer_half_delete.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+As far as the kernel is concerned, step b) should be a no-op.  (The kernel
+might choose to split the vma, but that's not significant).
 
-Source: MontaVista Software, Inc.
-MR: 11506 
-Type: Defect Fix
-Disposition: needs submitting to LKML 
-Signed-off-by: Daniel Walker <dwalker@mvista.com>
-Description:
-	Ok, so here is the run down.. Basically , there is a race condition in
-sys_timer_delete() and posix_timer_event() .
+> then it seems the kernel is screwed unless it counts how many times a
+> vma has been pinned.  And adding a pin_count member to vm_struct seems
+> like a pretty damn major step.
+> 
+> We definitely have to make sure that userspace is never able to either
+> unpin a page that is still registered with RDMA hardware, because that
+> can lead to DMA to into memory that someone else owns.  On the other
+> hand, we don't want userspace to be able to defeat resource accounting
+> by tricking the kernel into keeping page_count elevated after it
+> credits the memory back to a process's limit on locked pages.
 
->From sys_timer_delete() :
-		timer->it_process = NULL;
-	}
-	unlock_timer(timer, flags);
-	/* Preemption happens here. */
-	release_posix_timer(timer, IT_ID_SET);
+The kernel can simply register and unregister ranges for RDMA.  So
+effectively a particular page is in either the registered or unregistered
+state.  Kernel accounting counts the number of registered pages and
+compares this with rlimits.
 
+On top of all that, your userspace library needs to keep track of when
+pages should really be registered and unregistered with the kernel.  Using
+overlap logic and per-page refcounting or whatever.
 
-So when the timer is getting triggered , right before it takes the timer
-lock, preemption happens. You finish the code above. Then your preempted
-again right after unlock timer, shown above.
-
-At this point, your triggering a timer that is half deleted, in posix_timer_fn() .
-timer->it_process = NULL , so when you try to send the signal to the
-timer owner you crash with an OOPS , because the timer owner was just set
-to NULL.
-
-Index: linux-2.6.10/kernel/posix-timers.c
-===================================================================
---- linux-2.6.10.orig/kernel/posix-timers.c	2005-04-26 17:38:25.000000000 +0000
-+++ linux-2.6.10/kernel/posix-timers.c	2005-04-26 17:53:54.000000000 +0000
-@@ -433,6 +433,14 @@ exit:
- 
- int posix_timer_event(struct k_itimer *timr,int si_private)
- {
-+	/*
-+	 * If it_process is NULL then this timer is
-+	 * in the process of being deleted. At this
-+	 * point we can't do very much. So we
-+	 * try to return gracefuly.
-+	 */
-+	if (timr->it_process == NULL) return 1;
-+
- 	memset(&timr->sigq->info, 0, sizeof(siginfo_t));
- 	timr->sigq->info.si_sys_private = si_private;
- 	/*
-
---=-dAQNtLoU82z49w/72wTo--
-
+No?

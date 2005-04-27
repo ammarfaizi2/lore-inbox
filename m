@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261983AbVD0Ttl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbVD0T4S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261983AbVD0Ttl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 15:49:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbVD0Ttl
+	id S261984AbVD0T4S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 15:56:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261986AbVD0T4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 15:49:41 -0400
-Received: from rproxy.gmail.com ([64.233.170.201]:50981 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261983AbVD0Ttj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 15:49:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=e93hcZ6PGgGy9Ub7k4ks2PfTXpG9JRGW71puA0NWkbj+Rq0YAsDb/vzFgn3pS7Jwpz7jnCu8hJ0B0qYLwfV73l/tCMod/ckAnO/O0z9yfYBTjKsVct+4gRwizaT3SdlW8lZ377lS3TE6aRjxVLm5DelZIfI3K2KCu6XCpKYwJXg=
-Message-ID: <d120d50005042712496e6e598@mail.gmail.com>
-Date: Wed, 27 Apr 2005 14:49:38 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Greg KH <gregkh@suse.de>
-Subject: Re: [03/07] I2C: Fix incorrect sysfs file permissions in it87 and via686a drivers
-Cc: khali@linux-fr.org, sensors@stimpy.netroedge.com,
-       linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>, Cliff White <cliffw@osdl.org>,
-       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <d120d50005042712417656ba3a@mail.gmail.com>
+	Wed, 27 Apr 2005 15:56:18 -0400
+Received: from thunk.org ([69.25.196.29]:25270 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S261984AbVD0T4O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 15:56:14 -0400
+Date: Wed, 27 Apr 2005 15:55:54 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, magnus.damm@gmail.com, mason@suse.com,
+       mike.taht@timesys.com, mpm@selenic.com, linux-kernel@vger.kernel.org,
+       git@vger.kernel.org
+Subject: Re: Mercurial 0.3 vs git benchmarks
+Message-ID: <20050427195554.GA7793@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+	magnus.damm@gmail.com, mason@suse.com, mike.taht@timesys.com,
+	mpm@selenic.com, linux-kernel@vger.kernel.org, git@vger.kernel.org
+References: <20050426004111.GI21897@waste.org> <200504260713.26020.mason@suse.com> <aec7e5c305042608095731d571@mail.gmail.com> <200504261138.46339.mason@suse.com> <aec7e5c305042609231a5d3f0@mail.gmail.com> <20050426135606.7b21a2e2.akpm@osdl.org> <Pine.LNX.4.58.0504261405050.18901@ppc970.osdl.org> <20050426155609.06e3ddcf.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050427171446.GA3195@kroah.com> <20050427171617.GD3195@kroah.com>
-	 <d120d50005042712417656ba3a@mail.gmail.com>
+In-Reply-To: <20050426155609.06e3ddcf.akpm@osdl.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/27/05, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> On 4/27/05, Greg KH <gregkh@suse.de> wrote:
-> >
-> > -stable review patch.  If anyone has any objections, please let us know.
-> >
-> 
-> While the patch is correct I'd have something like this as well:
-> 
-> --- linux-2.6.11.orig/fs/sysfs/file.c
-> +++ linux-2.6.11/fs/sysfs/file.c
-> @@ -36,7 +36,7 @@ subsys_attr_store(struct kobject * kobj,
-> {
->        struct subsystem * s = to_subsys(kobj);
->        struct subsys_attribute * sattr = to_sattr(attr);
-> -       ssize_t ret = 0;
-> +       ssize_t ret = -ENOSYS;
-> 
->        if (sattr->store)
->                ret = sattr->store(s,page,count);
-> 
-> So writes without store handler would return "not implemented".
-> 
+On Tue, Apr 26, 2005 at 03:56:09PM -0700, Andrew Morton wrote:
+> - umount the fs
+> - tune2fs -O ^has_journal /dev/whatever
+> - fsck -fy                              (to clean up the now-orphaned journal inode)
 
-Obviously driver_sysfs_ops, bus_sysfs_ops, etc need the same treatment...
+Using moderately recent versions of e2fsprogs, tune2fs will clean up
+the journal inode, so there's no reason to do an fsck.  (Harmless, but
+it shouldn't be necessary and it takes time).
 
--- 
-Dmitry
+> - tune2fs -j -J size=nblocks    (normally 4k blocks)
+
+The argument to "-J size" is in megabytes, not in blocks.
+
+						- Ted

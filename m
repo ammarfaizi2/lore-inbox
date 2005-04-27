@@ -1,68 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262076AbVD0XAH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262083AbVD0XDC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262076AbVD0XAH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 19:00:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262077AbVD0XAH
+	id S262083AbVD0XDC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 19:03:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262084AbVD0XDB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 19:00:07 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:33450 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262076AbVD0W7z (ORCPT
+	Wed, 27 Apr 2005 19:03:01 -0400
+Received: from fire.osdl.org ([65.172.181.4]:7586 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262083AbVD0XC4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 18:59:55 -0400
-Date: Wed, 27 Apr 2005 16:58:42 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: bulb@ucw.cz, hch@infradead.org, jamie@shareable.org, linuxram@us.ibm.com,
-       7eggert@gmx.de, viro@parcelfarce.linux.theplanet.co.uk,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] private mounts
-Message-ID: <20050427145842.GD28119@elf.ucw.cz>
-References: <20050426131943.GC2226@openzaurus.ucw.cz> <E1DQQ73-0000Zv-00@dorka.pomaz.szeredi.hu> <20050426201411.GA20109@elf.ucw.cz> <E1DQiEa-0001hi-00@dorka.pomaz.szeredi.hu> <20050427092450.GB1819@elf.ucw.cz> <E1DQjzY-0001no-00@dorka.pomaz.szeredi.hu> <20050427115754.GA8981@vagabond> <E1DQla0-0001vG-00@dorka.pomaz.szeredi.hu> <20050427123944.GA11020@vagabond> <E1DQmUm-0001yy-00@dorka.pomaz.szeredi.hu>
+	Wed, 27 Apr 2005 19:02:56 -0400
+Date: Wed, 27 Apr 2005 16:02:11 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Kylene Hall <kjhall@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 11 of 12] Fix Tpm driver -- add cancel function
+Message-Id: <20050427160211.1d724a11.rddunlap@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0504271654260.3929@jo.austin.ibm.com>
+References: <Pine.LNX.4.61.0504271654260.3929@jo.austin.ibm.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: SvC&!/v_Hr`MvpQ*|}uez16KH[#EmO2Tn~(r-y+&Jb}?Zhn}c:Eee&zq`cMb_[5`tT(22ms
+ (.P84,bq_GBdk@Kgplnrbj;Y`9IF`Q4;Iys|#3\?*[:ixU(UR.7qJT665DxUP%K}kC0j5,UI+"y-Sw
+ mn?l6JGvyI^f~2sSJ8vd7s[/CDY]apD`a;s1Wf)K[,.|-yOLmBl0<axLBACB5o^ZAs#&m?e""k/2vP
+ E#eG?=1oJ6}suhI%5o#svQ(LvGa=r
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1DQmUm-0001yy-00@dorka.pomaz.szeredi.hu>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, 27 Apr 2005 17:19:17 -0500 (CDT) Kylene Hall wrote:
 
-> > The userland tools don't need to know. They just need to not be suid.
-> 
-> But I'd want to continue distribute the non-crippled kernel module
-> too, with suid fusermount.  Then fusermount _has_ to know which kernel
-> module is currently active.
+| Userspcace needs to be able to cancel functions which have been sent to 
+| the TPM (part of the spec.).  Add a sysfs file that communicates this 
+| desire to the driver and device.
+| 
+| Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
+| ---
 
-Add a mount flag and make kernel refuse mount on unknown flags?
+| --- linux-2.6.12-rc2/drivers/char/tpm/tpm.c	2005-04-27 11:13:29.000000000 -0500
+| +++ linux-2.6.12-rc2-tpmdd/drivers/chat/tpm/tpm.c	2005-04-27 11:32:35.000000000 -0500
+                                     chat ???  :)
+might cause patch(1) problems.
 
-> > Ok, here I say it is ugly (but not that it's crap). And the reason is,
-> > that there is a permission system, with some semantics, and then various
-> > filesystems adapt it in varous ways to fit what they want. So every
-> > filesystem ends up with it's onw little different behaviour.
-> > 
-> > That being said, fuse does just about the same as NFS, samba and others
-> > and I don't really see the reason why it couldn't be integrated. But
-> > I am not the one to decide.
-> 
-> Every opinion counts.
-> 
-> I'm not trying to convince people that the current solution is
-> perfect.  What I'm saying that it's
-> 
->   a) not harmful
-> 
->   b) it makes non-privileged mounts possible
-> 
-> And b) is _the_ most important feature IMO, so the argument for
-> stripping it out has to be very good.
-
-Well, you'll have problems with suid programs suddenly not being able
-to access files. nfs gets away with it, but nfs is perceived as
-"broken" anyway...
-
-								Pavel
--- 
-Boycott Kodak -- for their patent abuse against Java.
+---
+~Randy

@@ -1,120 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbVD0N5v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbVD0OEW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261623AbVD0N5v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 09:57:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261600AbVD0N5v
+	id S261597AbVD0OEW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 10:04:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbVD0OEW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 09:57:51 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:64446 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S261597AbVD0N4q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 09:56:46 -0400
-Date: Wed, 27 Apr 2005 15:56:35 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Daniel Phillips <phillips@istop.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/7] dlm: overview
-Message-ID: <20050427135635.GA4431@marowsky-bree.de>
-References: <20050425151136.GA6826@redhat.com> <20050425203952.GE25002@ca-server1.us.oracle.com> <20050425210915.GX32085@marowsky-bree.de> <200504260130.17016.phillips@istop.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Wed, 27 Apr 2005 10:04:22 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:27325 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261597AbVD0OEP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 10:04:15 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Alexander Nyberg <alexn@telia.com>
+Subject: Re: [BUG] 2.6.12-rc3: unkillable java process in TASK_RUNNING on AMD64
+Date: Wed, 27 Apr 2005 16:04:21 +0200
+User-Agent: KMail/1.7.1
+Cc: Andrew Morton <akpm@osdl.org>, ak@suse.de, linux-kernel@vger.kernel.org
+References: <200504271152.15423.rjw@sisk.pl> <200504271412.51565.rjw@sisk.pl> <1114606494.868.6.camel@localhost.localdomain>
+In-Reply-To: <1114606494.868.6.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200504260130.17016.phillips@istop.com>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.6i
+Message-Id: <200504271604.22001.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2005-04-26T01:30:16, Daniel Phillips <phillips@istop.com> wrote:
+On Wednesday, 27 of April 2005 14:54, Alexander Nyberg wrote:
+> > > > >From sysrq-P, I get this:
+> > > > 
+> > > > Pid: 11073, comm: java Not tainted 2.6.12-rc3
+> > > > RIP: 0010:[<ffffffff8010f675>] <ffffffff8010f675>{retint_signal+20}
+> > > > RSP: 0018:ffff810012d6ff58  EFLAGS: 00000282
+> > > > RAX: 0000000000020000 RBX: ffff810010868820 RCX: ffff810012d6e000
+> > > > RDX: 0000000000020000 RSI: 0000000000000000 RDI: ffff810012d6ff58
+> > > > RBP: 000000a30c153a4a R08: ffff810012d6e000 R09: ffffffff804c6068
+> > > > R10: 0000000000000001 R11: 0000000000000001 R12: ffffffff804ccd40
+> > > > R13: ffff810010868820 R14: ffff81002cff2cf0 R15: ffffffff8010d3a7
+> > > > FS:  00002aaaae6389c0(0000) GS:ffffffff8054a600(0063) knlGS:00000000556c9080
+> > > > CS:  0010 DS: 002b ES: 002b CR0: 000000008005003b
+> > > > CR2: 00002aaaaabab000 CR3: 0000000012930000 CR4: 00000000000006e0
+> > > > 
+> > > > Call Trace:<ffffffff8010f697>{retint_signal+54}
+> > > > 
+> > > > all the time.
+> 
+> My mind tells me this might be the problem but statistics also tell me
+> processes should get stuck all the time here...
+> 
+> In retint_signal %rdi is destroyed, need to jump to the label above
+> retint_check that sets %edi back to $_TIF_WORK_MASK
+> 
+> Signed-off-by: Alexander Nyberg <alexn@telia.com>
+> 
+> Index: linux-2.6/arch/x86_64/kernel/entry.S
+> ===================================================================
+> --- linux-2.6.orig/arch/x86_64/kernel/entry.S	2005-04-27 13:08:50.000000000 +0200
+> +++ linux-2.6/arch/x86_64/kernel/entry.S	2005-04-27 14:43:20.000000000 +0200
+> @@ -491,7 +491,7 @@
+>  	RESTORE_REST
+>  	cli
+>  	GET_THREAD_INFO(%rcx)	
+> -	jmp retint_check
+> +	jmp retint_with_reschedule
+>  
+>  #ifdef CONFIG_PREEMPT
+>  	/* Returning to kernel space. Check if we need preemption */
 
-> > Now that we have two (or three) options with actual users, now is
-> > the right time to finally come up with sane and useful abstractions.
-> > This is great.
-> Great thought, but it won't work unless you actually read them all,
-> which I hope is what you're proposing.
+With this patch I'm unable to reproduce the problem, though I've tried really hard.  Thanks!
 
-Sure. As time permits ;-)
-
-> I'm a little skeptical about the chance of fitting an 11-parameter function 
-> call into a generic kernel plug-in framework.  Are those the exact same 11 
-> parameters that God intended?
-
-An 11-parameter function, frankly, more often than not indicates that
-the interface is wrong. I know it's inherited from VMS, which is a
-perfectly legitimate reason, but I assume it might get cleaned / broken
-up in the future.
-
-> While it would be great to share a single dlm between gfs and ocfs2 - maybe 
-> Lustre too - my crystal ball says that that laudable goal is unlikely to be 
-> achieved in the near future, whereas there isn't much choice but to sort out 
-> a common membership framework right now.
-
-Oh, sure. I just like to keep a long term vision in mind, an idea I'd
-think you approve of. ;-)
-
-Also I didn't say that they should necessarily _share_ a DLM; I assume
-there'll be more than one, just like we have more than one filesystem.
-But, can this be mapped to a common subset of features which an
-application/user/filesystem can assume to be present in every DLM,
-accessed via a common API? This does not preclude the option that one
-DLM will perform substantially better for some user than another one, or
-that one DLM takes advantage of some specific hardware feature which
-makes it run a magnitude faster on the z-Series for example.
-
-As I said, this is not something to do right now, but something to keep
-in mind going forward, but to keep in mind at every step.
-
-> As far as I can see, only cluster membership wants or needs a common 
-> framework.  And I'm not sure that any of that even needs to be in-kernel.
-
-Well, right now nobody proposes the membership to be in-kernel. What I'd
-like to see though is a common way of _feeding_ the membership to a
-given kernel component, and being able to query the kind of syntax &
-semantics it expects.
-
-Note that I said "given kernel component", because I assume from the
-start that a node might be part of several overlapping clusters. The
-membership I feed to the GFS DLM might not be the same I feed to OCFS2
-for another mount.
-
-Questions which need to be settled, or which the API at least needs to
-export so we know what is expected from us:
-
-- How do the node ids look like? Are they sparse integers, continuous
-  ints, uuids, IPv4 or IPv6 address of the 'primary' IP of a node,
-  hostnames...?
-
-- How are the communication links configured? How to tell it which
-  interfaces to use for IP, for example?
-
-- How do we actually deliver the membership events -
-  echo "current node list" >/sys/cluster/gfs/membership
-  or...?
-  
-- What kind of semantics are expected: Can we deliver the membership
-  events as they come, do we need to introduce suspend/resume barriers
-  etc?
-
-- How to security credentials play into this, and where are they
-  enforced - so that a user-space app doesn't mess with kernel locks?
-
-Maybe initially we'll end up with those being "exported" in
-Documentation/{OCFS2,GFS}-DLM/ files, but ultimately it'd be nice if
-user-space could auto-discover them and do the right thing w/a minimum
-amount of configuration.
-
-Or maybe these will be abstracted by user-space wrapper libraries, and
-everybody does in the kernel what they deem best.
-
-It's just something which needs to be answered and decided ;-)
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
+Greets,
+Rafael
+ 
 
 -- 
-High Availability & Clustering
-SUSE Labs, Research and Development
-SUSE LINUX Products GmbH - A Novell Business
-
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

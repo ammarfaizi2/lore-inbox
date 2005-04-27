@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261794AbVD0QU7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbVD0Q2K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261794AbVD0QU7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 12:20:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbVD0QU7
+	id S261786AbVD0Q2K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 12:28:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbVD0Q2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 12:20:59 -0400
-Received: from 70-56-217-9.albq.qwest.net ([70.56.217.9]:46728 "EHLO
-	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S261794AbVD0QUn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 12:20:43 -0400
-Date: Wed, 27 Apr 2005 10:23:01 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Filip Zyzniewski <lkml@filip.math.uni.lodz.pl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Panic on a BIOSless machine.
-In-Reply-To: <426FB641.2070802@filip.math.uni.lodz.pl>
-Message-ID: <Pine.LNX.4.61.0504271022460.26410@montezuma.fsmlabs.com>
-References: <426FB641.2070802@filip.math.uni.lodz.pl>
+	Wed, 27 Apr 2005 12:28:09 -0400
+Received: from darkside.froggycorp.com ([213.41.129.184]:31410 "HELO
+	froggycorp.com") by vger.kernel.org with SMTP id S261786AbVD0Q2H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 12:28:07 -0400
+Message-ID: <426FBDEE.D50F8564@froggycorp.com>
+Date: Wed, 27 Apr 2005 18:29:34 +0200
+From: "Froggy / Froggy Corp." <froggy@froggycorp.com>
+Organization: .oO Froggy Corporation Oo.
+X-Mailer: Mozilla 4.8 [en] (Windows NT 5.0; U)
+X-Accept-Language: fr,en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Erik Mouw <erik@harddisk-recovery.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Memory problem
+References: <426BAFF2.54160A91@froggycorp.com> <20050427131858.GC3918@harddisk-recovery.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Apr 2005, Filip Zyzniewski wrote:
+Thx, in fact i just solve my problem before reading your email.
+Problem came from bios, but i dont understand where, because all "memory
+hole" were disable ...
 
-> Hi, I managed to boot kernel on a biosless box (Compaq T1000 Windows
-> based terminal). It has 32MB of ram.
-> 
-> 
-> But it panics (sometimes it even launches bash and allows me to run some
-> stuff).
-> 
-> kernel log gathered from serial console:
-> http://filip.math.uni.lodz.pl/t1000-panic/panic.log
-> 
-> asm code used to boot kernel:
-> http://filip.math.uni.lodz.pl/t1000-panic/boot.S
-> 
-> tool bundling boot and kernel together:
-> http://filip.math.uni.lodz.pl/t1000-panic/mk.c
-> 
-> kernel config:
-> http://filip.math.uni.lodz.pl/t1000-panic/kernel-config
-> 
-> I had to comment out: jnz 2f # New command line protocol
-> from arch/i386/kernel/head.S (2.6.11.7) (bootloader too old?).
-> 
-> Is there anything I could do to prevent it? I don't know memory map of
-> this computer, is this the cause? I can't see video RAM on board, so
-> maybe it is shared with system RAM? What do you think?
+Thx again.
 
-Try booting a kernel without the tulip driver
+Erik Mouw wrote:
 
+> Might be a BIOS bug, or the BIOS RAM tester decided only 275 MB is
+> useable. Try upgrading the BIOS, or reset the CMOS.
+> 
+> Erik
+> 
+> --
+> +-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+> | Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

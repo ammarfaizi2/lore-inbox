@@ -1,32 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261647AbVD0O1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261632AbVD0Obs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261647AbVD0O1y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 10:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261629AbVD0OYR
+	id S261632AbVD0Obs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 10:31:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbVD0Obi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 10:24:17 -0400
-Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:37028 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261632AbVD0OWs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 10:22:48 -0400
-To: dedekind@infradead.org
-CC: linux-kernel@vger.kernel.org, dwmw2@infradead.org, viro@math.psu.edu,
-       linux-fsdevel@vger.kernel.org
-In-reply-to: <1114607741.12617.4.camel@sauron.oktetlabs.ru>
-	(dedekind@infradead.org)
-Subject: Re: [PATCH] VFS bugfix: two read_inode() calles without clear_inode()
-	call between
-References: <1114607741.12617.4.camel@sauron.oktetlabs.ru>
-Message-Id: <E1DQnQq-00025E-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 27 Apr 2005 16:22:28 +0200
+	Wed, 27 Apr 2005 10:31:38 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:59057 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S261632AbVD0ObN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 10:31:13 -0400
+Message-Id: <200504271431.j3REV3kc020813@zeus2.kernel.org>
+From: "Fabrizio Cano" <Alvarez.Yamila@bolsamaria.com>
+Reply-To: "Fabrizio Cano" <Alvarez.Yamila@bolsamaria.com>
+To: linux-kernel@vger.kernel.org
+Subject: University Degrees Based On Life Expirience
+Date: Wed, 27 Apr 2005 17:25:07 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: cavilling revelatory 4.5 (8989)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The following patch fixes the problem. It was tested with JFFS2 (only)
-> and works perfectly.
+University Degrees Based On Life Expirience
 
-You should send it to Andrew Morton, so it gets some more testing.
-FWIW it looks good to me too.
+Get a degree from a prestigous non accredited university within just a 
+few weeks based on your life experience and current knowledge.
 
-Miklos
+These degrees are accepted worldwide, and can be used for anything you 
+like.
+
+We offer Bachelors, Masters, MBA and PhD degrees.
+
+Call us anytime on 1-206-600-6376
+ 
+Confidentailaity Assured

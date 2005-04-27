@@ -1,61 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261716AbVD0POZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261714AbVD0PSc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261716AbVD0POZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 11:14:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261714AbVD0POZ
+	id S261714AbVD0PSc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 11:18:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVD0PSc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 11:14:25 -0400
-Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:46493 "EHLO
-	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S261711AbVD0POR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 11:14:17 -0400
-Date: Wed, 27 Apr 2005 17:13:57 +0200
-From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
-To: Florian Weimer <fw@DENEB.ENYO.DE>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, magnus.damm@gmail.com,
-       mason@suse.com, mike.taht@timesys.com, mpm@selenic.com,
-       linux-kernel@vger.kernel.org, git@vger.kernel.org
-Subject: Re: Mercurial 0.3 vs git benchmarks
-Message-ID: <20050427151357.GH1087@cip.informatik.uni-erlangen.de>
-Mail-Followup-To: Florian Weimer <fw@DENEB.ENYO.DE>,
-	"H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@osdl.org>,
-	Linus Torvalds <torvalds@osdl.org>, magnus.damm@gmail.com,
-	mason@suse.com, mike.taht@timesys.com, mpm@selenic.com,
-	linux-kernel@vger.kernel.org, git@vger.kernel.org
-References: <20050426004111.GI21897@waste.org> <200504260713.26020.mason@suse.com> <aec7e5c305042608095731d571@mail.gmail.com> <200504261138.46339.mason@suse.com> <aec7e5c305042609231a5d3f0@mail.gmail.com> <20050426135606.7b21a2e2.akpm@osdl.org> <Pine.LNX.4.58.0504261405050.18901@ppc970.osdl.org> <20050426155609.06e3ddcf.akpm@osdl.org> <426ED20B.9070706@zytor.com> <871x8wb6w4.fsf@deneb.enyo.de>
+	Wed, 27 Apr 2005 11:18:32 -0400
+Received: from mail.shareable.org ([81.29.64.88]:59305 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S261714AbVD0PSN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 11:18:13 -0400
+Date: Wed, 27 Apr 2005 16:17:58 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Ville Herva <vherva@vianova.fi>
+Cc: Jan Hudec <bulb@ucw.cz>, John Stoffel <john@stoffel.org>,
+       "Artem B. Bityuckiy" <dedekind@oktetlabs.ru>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: filesystem transactions API
+Message-ID: <20050427151758.GE1957@mail.shareable.org>
+References: <20050426134629.GU16169@viasys.com> <20050426141426.GC10833@mail.shareable.org> <426E4EBD.6070104@oktetlabs.ru> <20050426143247.GF10833@mail.shareable.org> <17006.22498.394169.98413@smtp.charter.net> <20050426152434.GB14297@mail.shareable.org> <20050427093412.GB1904@vagabond> <20050427134331.GT5470@viasys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <871x8wb6w4.fsf@deneb.enyo.de>
-X-URL: http://wwwcip.informatik.uni-erlangen.de/~sithglan/
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20050427134331.GT5470@viasys.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Ville Herva wrote:
+> > How do we specify which calls belong to a transaction? By some kind of
+> > extra file handle?
+> > 
+> > I'd think having global per-process transaction is not the best way.
+> > So I think we should have some kind of transaction handle (probably in
+> > the file handle space) and a way to say that a syscall is done within
+> > a transaction. To avoid duplicating all syscalls, we could have
+> > set_active_transaction() operation.
+> 
+> That's more or less what NTFS does. See the example at
+> http://blogs.msdn.com/because_we_can/
 
-> Directory hashing has a negative impact on some applications (notably
-> tar and unpatched mutt on large Maildir folders).  For git, it's a win
-> because hashing destroys locality anyway.
+That's the obvious choice but it limits the usefulness quite a lot.
 
-this is inaccurate. Actually turning on directory hashing speeds-up big
-maildirs a lot (tested with mutt-1.5.4 and higher with a maildir
-containing 30thousand messages). But in the mutt case you also have the
-header cache[1] which speeds up a lot - with or without hashed
-directories. See also MEs comment[2] on this.
+If we have transactions, then I'd like to be able to do this from a shell:
 
-For tar I have no idea why it should slow down the operation, but maybe
-you can enlighten us.
+    transaction_open t
 
-	Thomas
+    tar xvpSfz blahblah.tar.gz
+    cd blahblah
+    patch -p1 -E < foo.patch
+    # etc.
 
-[1] http://wwwcip.informatik.uni-erlangen.de/~sithglan/mutt/
-	- wait till TLR has released mutt-1.5.10
-	- use mutt CVS HEAD
-	- use mutt-1.5.9 + http://wwwcip.informatik.uni-erlangen.de/~sithglan/mutt/mutt-cvs-header-cache.29
-	- and put the following in your .muttrc:
-	set header_cache=/tmp/login-hcache
-	set maildir_header_cache_verify=no
+    transaction_close $t
 
-[2] http://www.advogato.org/person/scandal/
+I'd also like to write inside a single C program:
+
+    transaction * t = transaction_open ();
+
+    /* Ordinary complicated filesystem operations here... */
+    link (a, b);
+    rename (c, d);
+    read, write, stat etc.
+    conf = open ("/etc/blahblah.conf", O_RDONLY);
+    read (conf, ...)
+    close (conf);
+    /* If /etc/blahblah.conf is changed by another program during
+       the transaction, the transaction is invalidated, because the
+       dbm update below is dependent on what was read... */
+    dbm_open (...);
+    do_dbm_stuff (...);
+    dbm_close (...);
+    /* Whatever this command does, I'd like to include in the transaction. */
+    system ("perl -pi -e 's/old_value/new_value/g' /etc/another.conf");
+
+    transaction_close (t);
+
+Fundamentally, if transactions are supported in the kernel then these
+two usages are easy to offer:
+
+    1. Ordinary file system calls as part of a transaction.
+
+       This allows libraries which are not transaction-aware to be
+       used, such as the dbm example above, and other things like XML
+       parsers/writers.
+
+    2. Subprocesses inherit a transaction, so a program can execute
+       complex transactions by using other programs.
+
+It's useful, and there is no good reason to disallow that.
+
+Nonetheless, there's a need for some kind of transaction handles.  A
+file descriptor representing a transaction seems like a natural fit.
+
+Complex programs will want to have multiple transactions at the same
+time: For example, any program structured using event-driven logic or
+async I/O may have multiple independent state machines per thread,
+each wanting to be able to have their own transactions.
+
+This suggests a few things:
+
+  - Transactions have a file descriptor to represent them.
+
+  - Each thread has a "current transaction" that applies to all filesystem
+    operations.
+
+  - Concurrent threads will need their own current transactions, even
+    while keeping "current directory" global to the whole process for
+    POSIX reasons.  A process wide "current transaction" is too coarse.
+
+  - Transactions should be automatically nestable: a program or
+    library which uses transactions should itself be callable from a
+    program or library which is using a transaction.
+
+  - Transactions should record whether they cannot provide
+    transactions for some operation that is attempted (e.g. writing to
+    a file on a remote filesystem), aborting the transaction.
+
+  - When a transaction aborts due to the actions of _another_ process
+    (or thread) which is outside the transaction, that abort is an
+    event which should be detectable synchronously (by polling the
+    transaction fd) or asynchronously (by a signal - the SIGIO
+    mechanism is fine for this).
+
+  - An exclusive locking period should be optional, requested by a
+    flag when opening the transaction.  Most usages will want the
+    locking period with its default parameters.
+
+  - Ideally, programs or mechanisms which provide alternative views of
+    part of a filesystem, such as search results (Beagle), tarfs, or
+    mailfs, should be able to update synchronously with transactions
+    that affect whatever the view is watching, so that the view
+    changes are effectively part of the transaction.  This does _not_
+    mean that a transaction must wait for watchers to calculate
+    anything.  It does mean a transaction must synchronously and
+    simultaneously invalidate caches held by watchers during the
+    atomic commit.
+
+-- Jamie

@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261864AbVD0AlN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261869AbVD0Auy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261864AbVD0AlN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 20:41:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbVD0AlN
+	id S261869AbVD0Auy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 20:50:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbVD0Auy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 20:41:13 -0400
-Received: from fmr22.intel.com ([143.183.121.14]:13283 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261864AbVD0AlI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 20:41:08 -0400
-Date: Tue, 26 Apr 2005 17:40:42 -0700
-From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Rohit Seth <rohit.seth@intel.com>, mark.gross@intel.com
-Subject: Re: [PATCH] Increase number of e820 entries hard limit from 32 to 128
-Message-ID: <20050426174042.A17750@unix-os.sc.intel.com>
-References: <20050422181441.A18205@unix-os.sc.intel.com> <Pine.LNX.4.58.0504221851140.2344@ppc970.osdl.org> <20050422193250.A18512@unix-os.sc.intel.com> <20050423151048.GE7715@wotan.suse.de>
+	Tue, 26 Apr 2005 20:50:54 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:18430 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261869AbVD0Aut
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 20:50:49 -0400
+Subject: Re: del_timer_sync needed for UP  RT systems.
+From: Daniel Walker <dwalker@mvista.com>
+Reply-To: dwalker@mvista.com
+To: george@mvista.com
+Cc: ganzinger@mvista.com, Ingo Molnar <mingo@elte.hu>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <426EDE19.3030600@mvista.com>
+References: <426ED1EC.80500@mvista.com>
+	 <1114559749.12773.67.camel@dhcp153.mvista.com>
+	 <426ED97B.4050204@mvista.com>
+	 <1114561446.12772.71.camel@dhcp153.mvista.com>
+	 <426EDE19.3030600@mvista.com>
+Content-Type: text/plain
+Organization: MontaVista
+Message-Id: <1114563040.12772.85.camel@dhcp153.mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050423151048.GE7715@wotan.suse.de>; from ak@suse.de on Sat, Apr 23, 2005 at 05:10:48PM +0200
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 26 Apr 2005 17:50:40 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 23, 2005 at 05:10:48PM +0200, Andi Kleen wrote:
-> On Fri, Apr 22, 2005 at 07:32:50PM -0700, Venkatesh Pallipadi wrote:
-> > On Fri, Apr 22, 2005 at 06:51:59PM -0700, Linus Torvalds wrote:
-> > > On Fri, 22 Apr 2005, Venkatesh Pallipadi wrote:
-> > > > The specifications that talk about E820 map doesn't have an upper limit
-> > > > on the number of E820 entries. But, today's kernel has a hard limit of 32.
-> > > > With increase in memory size, we are seeing the number of E820 entries
-> > > > reaching close to 32. Patch below bumps the number upto 128. 
-> > > 
-> > > Hmm. Anything that changes setup.S tends to have bootloader dependencies. 
-> > > I worry whether this one does too..
-> > > 
-> > 
-> > The setup.S change in this patch should be OK. As it is adding to the 
-> > existing zero-page and keeping it within one page. I tested it on systems 
-> > with grub, adding some dummy E820 entries and it worked fine.
+On Tue, 2005-04-26 at 17:34, George Anzinger wrote:
+> I agree.  The change to do this is to use the del_timer_sync() or the 
+> del_singleshot_timer() code.
 > 
-> The last time I tried to extend the zero page (with a longer command line)
-> it broke lilo on systems with EDID support and CONFIG_EDID enabled.
-> Make sure you test that case.
-> 
+> It is possible and desirable to be able to delete a running timer.  We don't 
+> want to take it away from the timer call back routine, however, as that leads to 
+> "bad things".  That is why these two del_* routines were written.
 
-Tested this patch with some more configuration and I did not see any breakage.
-- LILO with EDID enabled
-- pxeboot
 
-And in the current zero-page, EDID info is at a lower address (before E820MAP).
-So, there should not be any issues with EDID info. Only field (other than E820) 
-that is changing in zero page is EDDBUF (that comes after E820MAP). 
-The patch changes the reference to EDDBUF inside kernel to new position in 
-zero page. And I don't see EDDBUF being used by boot loader anywhere. So, we 
-should be OK with that change.
+I'll defer to you on that, since I don't really know what timer people
+need.. 
 
-Thanks,
-Venki
+After reviewing, del_timer_sync() I don't think that will stop this
+race. Because the wakeup happens before posix_timer_fn() is called in
+__run_timers() .
+
+Daniel
 

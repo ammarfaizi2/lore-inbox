@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261609AbVD0Pdf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261762AbVD0PfV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261609AbVD0Pdf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 11:33:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVD0Pd3
+	id S261762AbVD0PfV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 11:35:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261755AbVD0PfR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 11:33:29 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:2974 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261609AbVD0PdW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 11:33:22 -0400
-Date: Wed, 27 Apr 2005 17:33:20 +0200
-From: Martin Mares <mj@ucw.cz>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: jamie@shareable.org, pavel@suse.cz, hch@infradead.org, linuxram@us.ibm.com,
-       7eggert@gmx.de, bulb@ucw.cz, viro@parcelfarce.linux.theplanet.co.uk,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] private mounts
-Message-ID: <20050427153320.GA19065@atrey.karlin.mff.cuni.cz>
-References: <E1DQMYu-0000DL-00@dorka.pomaz.szeredi.hu> <20050426094727.GA30379@infradead.org> <20050426131943.GC2226@openzaurus.ucw.cz> <E1DQQ73-0000Zv-00@dorka.pomaz.szeredi.hu> <20050426201411.GA20109@elf.ucw.cz> <E1DQiEa-0001hi-00@dorka.pomaz.szeredi.hu> <20050427092450.GB1819@elf.ucw.cz> <E1DQjzY-0001no-00@dorka.pomaz.szeredi.hu> <20050427143126.GB1957@mail.shareable.org> <E1DQno0-00029a-00@dorka.pomaz.szeredi.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1DQno0-00029a-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 27 Apr 2005 11:35:17 -0400
+Received: from vena.lwn.net ([206.168.112.25]:56977 "HELO lwn.net")
+	by vger.kernel.org with SMTP id S261784AbVD0PfA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 11:35:00 -0400
+Message-ID: <20050427153458.20748.qmail@lwn.net>
+To: k8 s <uint32@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Doubt Regarding Multithreading and Device Driver 
+From: corbet@lwn.net (Jonathan Corbet)
+In-reply-to: Your message of "Wed, 27 Apr 2005 20:35:28 +0530."
+             <699a19ea050427080545fb1676@mail.gmail.com> 
+Date: Wed, 27 Apr 2005 09:34:58 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+> I am storing something into struct file*filp->private_data.
+> As this is not shared across processes I am not doing any locking
+> stuff while accessing or putting anything into it.
+> 
+> Will There be a race condition in a multithreaded program in the ioctl
+> call on smp kernel accessing filp->private_data.
 
-> It is not there for the purpose of protecting user's data.  Rather for
-> protecting other users (including root) from unknowingly entering the
-> FUSE directory and thus leaking otherwise inaccessible information
-> (exact file operations performed) to the mount owner.
+If you are only accessing ->private_date in an ioctl() method, you have
+lucked out: straight ioctl() remains protected by the big kernel lock,
+and you will not have concurrent accesses.
 
-Huh? Do you really suppose that there could be anything secret in the
-operations somebody else is performing on your files?
+That said, it's not that hard for you to add the proper locking yourself
+and have code which will be robust in the future.  Why not do it right?
+There's lots of information in LDD3 (http://lwn.net/Kernel/LDD3/) and
+elsewhere on how to do that.
 
-I still don't see any real problem this check could ever solve.
+jon
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-God is real, unless declared integer.
+Jonathan Corbet
+Executive editor, LWN.net
+corbet@lwn.net
+

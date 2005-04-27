@@ -1,94 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261874AbVD0BIl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbVD0BIB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261874AbVD0BIl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 21:08:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbVD0BIl
+	id S261875AbVD0BIB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 21:08:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbVD0BIA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 21:08:41 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:9657 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261874AbVD0BI2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 21:08:28 -0400
-Date: Tue, 26 Apr 2005 21:08:27 -0400
-From: Neil Horman <nhorman@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: [Patch] add check to /proc/devices read routines
-Message-ID: <20050427010827.GA2451@hmsendeavour.rdu.redhat.com>
+	Tue, 26 Apr 2005 21:08:00 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:9480 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261875AbVD0BH5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 21:07:57 -0400
+Date: Wed, 27 Apr 2005 11:07:30 +1000
+To: Patrick McHardy <kaber@trash.net>
+Cc: Yair@arx.com, linux-kernel@vger.kernel.org,
+       netfilter-devel@lists.netfilter.org, netdev@oss.sgi.com
+Subject: Re: Re-routing packets via netfilter (ip_rt_bug)
+Message-ID: <20050427010730.GA18919@gondor.apana.org.au>
+References: <E1DQ1Ct-00055s-00@gondolin.me.apana.org.au> <426D0CB9.4060500@trash.net> <20050425213400.GB29288@gondor.apana.org.au> <426D8672.1030001@trash.net> <20050426003925.GA13650@gondor.apana.org.au> <426E3F67.8090006@trash.net> <20050426232857.GA18358@gondor.apana.org.au> <426EE350.1070902@trash.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <426EE350.1070902@trash.net>
+User-Agent: Mutt/1.5.6+20040907i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch to add check to get_chrdev_list and get_blkdev_list to prevent reads of
-/proc/devices from spilling over the provided page if more than 4096 bytes of
-string data are generated from all the registered character and block devices in
-a system
+On Wed, Apr 27, 2005 at 02:56:48AM +0200, Patrick McHardy wrote:
+> 
+> The ipt_REJECT target can send TCP RSTs with foreign source which
+> go through LOCAL_OUT. Restricting it to this case and adding proper
 
-Signed-off-by: Neil Horman <nhorman@redhat.com>
+Couldn't we feed the TCP RST packets with foreign sources through
+the FORWARD table? We're lying to the routing system already by
+telling it that the packet is forwarded.  So I don't see anything
+wrong with lying to netfilter as well :)
 
-
- fs/char_dev.c         |   13 ++++++++++++-
- fs/proc/proc_misc.c   |    2 +-
- include/linux/genhd.h |    2 +-
- 3 files changed, 14 insertions(+), 3 deletions(-)
-
-
-
---- linux-2.6-test/fs/char_dev.c.fixproc	2005-04-26 15:27:31.000000000 -0400
-+++ linux-2.6-test/fs/char_dev.c	2005-04-26 15:25:31.000000000 -0400
-@@ -57,10 +57,21 @@ int get_chrdev_list(char *page)
- 
- 	down(&chrdevs_lock);
- 	for (i = 0; i < ARRAY_SIZE(chrdevs) ; i++) {
--		for (cd = chrdevs[i]; cd; cd = cd->next)
-+		for (cd = chrdevs[i]; cd; cd = cd->next) {
-+			/*
-+			 * if the current name, plus the 5 extra characters
-+			 * in the device line for this entry
-+			 * would run us off the page, we're done
-+			 */
-+			if((len+strlen(chrdevs[i].name) + 5) >= PAGE_SIZE) 
-+				goto page_full;
-+
-+
- 			len += sprintf(page+len, "%3d %s\n",
- 				       cd->major, cd->name);
-+		}
- 	}
-+page_full:
- 	up(&chrdevs_lock);
- 
- 	return len;
---- linux-2.6-test/fs/proc/proc_misc.c.fixproc	2005-04-26 15:23:14.000000000 -0400
-+++ linux-2.6-test/fs/proc/proc_misc.c	2005-04-26 15:23:32.000000000 -0400
-@@ -433,7 +433,7 @@ static int devices_read_proc(char *page,
- 				 int count, int *eof, void *data)
- {
- 	int len = get_chrdev_list(page);
--	len += get_blkdev_list(page+len);
-+	len += get_blkdev_list(page+len, len);
- 	return proc_calc_metrics(page, start, off, count, eof, len);
- }
- 
---- linux-2.6-test/include/linux/genhd.h.fixproc	2005-04-26 15:25:53.000000000 -0400
-+++ linux-2.6-test/include/linux/genhd.h	2005-04-26 15:26:00.000000000 -0400
-@@ -224,7 +224,7 @@ static inline void free_disk_stats(struc
- extern void disk_round_stats(struct gendisk *disk);
- 
- /* drivers/block/genhd.c */
--extern int get_blkdev_list(char *);
-+extern int get_blkdev_list(char *, int);
- extern void add_disk(struct gendisk *disk);
- extern void del_gendisk(struct gendisk *gp);
- extern void unlink_gendisk(struct gendisk *gp);
+Cheers,
 -- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *Red Hat, Inc.
- *nhorman@redhat.com
- *gpg keyid: 1024D / 0x92A74FA1
- *http://pgp.mit.edu
- ***************************************************/
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

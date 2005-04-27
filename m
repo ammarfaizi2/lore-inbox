@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262096AbVD0XWV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262097AbVD0XbZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262096AbVD0XWV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 19:22:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262094AbVD0XWV
+	id S262097AbVD0XbZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 19:31:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbVD0XbZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 19:22:21 -0400
-Received: from pat.uio.no ([129.240.130.16]:42138 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262093AbVD0XWP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 19:22:15 -0400
-Subject: Re: [PATCH] private mounts
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, bulb@ucw.cz, hch@infradead.org,
-       jamie@shareable.org, linuxram@us.ibm.com, 7eggert@gmx.de,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050427145842.GD28119@elf.ucw.cz>
-References: <20050426131943.GC2226@openzaurus.ucw.cz>
-	 <E1DQQ73-0000Zv-00@dorka.pomaz.szeredi.hu>
-	 <20050426201411.GA20109@elf.ucw.cz>
-	 <E1DQiEa-0001hi-00@dorka.pomaz.szeredi.hu>
-	 <20050427092450.GB1819@elf.ucw.cz>
-	 <E1DQjzY-0001no-00@dorka.pomaz.szeredi.hu> <20050427115754.GA8981@vagabond>
-	 <E1DQla0-0001vG-00@dorka.pomaz.szeredi.hu>
-	 <20050427123944.GA11020@vagabond>
-	 <E1DQmUm-0001yy-00@dorka.pomaz.szeredi.hu>
-	 <20050427145842.GD28119@elf.ucw.cz>
-Content-Type: text/plain
-Date: Wed, 27 Apr 2005 19:21:56 -0400
-Message-Id: <1114644116.9947.14.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.864, required 12,
-	autolearn=disabled, AWL 1.14, UIO_MAIL_IS_INTERNAL -5.00)
+	Wed, 27 Apr 2005 19:31:25 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:56284 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262097AbVD0XbX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 19:31:23 -0400
+In-Reply-To: <d3c101b00bd9573e30aa843e2335439e@mac.com>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Felix von Leitner <felix-linuxkernel@fefe.de>,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       Pekka Savola <pekkas@netcore.fi>,
+       "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>
+MIME-Version: 1.0
+Subject: Re: IPv6 has trouble assigning an interface
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OF383E111F.F9F6791E-ON88256FF0.007F9539-88256FF0.00813651@us.ibm.com>
+From: David Stevens <dlstevens@us.ibm.com>
+Date: Wed, 27 Apr 2005 16:31:18 -0700
+X-MIMETrack: Serialize by Router on D03NM121/03/M/IBM(Release 6.53HF294 | January 28, 2005) at
+ 04/27/2005 17:31:19,
+	Serialize complete at 04/27/2005 17:31:19
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-on den 27.04.2005 Klokka 16:58 (+0200) skreiv Pavel Machek:
+netdev-bounce@oss.sgi.com wrote on 04/27/2005 03:57:05 PM:
 
-> > 
-> > And b) is _the_ most important feature IMO, so the argument for
-> > stripping it out has to be very good.
-> 
-> Well, you'll have problems with suid programs suddenly not being able
-> to access files. nfs gets away with it, but nfs is perceived as
-> "broken" anyway...
+> On Apr 26, 2005, at 02:10, Felix von Leitner wrote:
+> > OK for unicast. But multicast?  I expected link-local multicast
+> > to send on _all_ interfaces if I don't specify one.
 
-Really?
+(I didn't see the article this is quoting-- apparently wasn't CC-ed
+to "netdev" as the original was).
+        Multicasting doesn't work that way. Multicast group memberships
+are per-device (whether or not they are link-local). If you join
+the same group address on two different devices, they'll only be the
+same group if there are multicast routers on the two links connecting
+them in the same multicast routing hierarchy. With a scope broader
+than link-local, and a multicast router on that link, the packets
+can be forwarded to other links, but they won't be forwarded to
+every host on the internet in that group (!), and there are sometimes
+good reasons for having different partitions of the same group
+within a single organization. So, the same group number on two
+different links is not necessarily the same group. It depends
+entirely on whether the two groups have common multicast routers
+with no policy restricting forwarding for that group between them.
+        This is how IPv4 multicasting works, too. You join a group
+on a particular device.
 
-The NFS security model is based on the principle that the administrator
-of the SERVER can override access permissions on his/her hardware. Pray
-tell why you think that is "broken"?
-
-Cheers,
-  Trond
-
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
+                                                                +-DLS
 

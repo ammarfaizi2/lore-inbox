@@ -1,45 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261877AbVD0Ru5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261918AbVD0Ryt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261877AbVD0Ru5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 13:50:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbVD0RtJ
+	id S261918AbVD0Ryt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 13:54:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbVD0RxK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 13:49:09 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:63899 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261852AbVD0Rrk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 13:47:40 -0400
-Subject: Re: any way to find out kernel memory usage?
-From: Robert Love <rml@novell.com>
-To: Chris Friesen <cfriesen@nortel.com>
-Cc: "Artem B. Bityuckiy" <dedekind@oktetlabs.ru>, linux-kernel@vger.kernel.org
-In-Reply-To: <426FCF7B.5020806@nortel.com>
-References: <426FBFED.9090409@nortel.com> <426FC0FE.2090900@oktetlabs.ru>
-	 <426FC46C.4070306@nortel.com> <1114622438.10836.8.camel@betsy>
-	 <426FCF7B.5020806@nortel.com>
-Content-Type: text/plain
-Date: Wed, 27 Apr 2005 13:47:15 -0400
-Message-Id: <1114624035.10836.19.camel@betsy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Apr 2005 13:53:10 -0400
+Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:31141 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261867AbVD0Rwh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 13:52:37 -0400
+To: lmb@suse.de
+CC: mj@ucw.cz, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+In-reply-to: <20050427174641.GZ4431@marowsky-bree.de> (message from Lars
+	Marowsky-Bree on Wed, 27 Apr 2005 19:46:41 +0200)
+Subject: Re: [PATCH] private mounts
+References: <E1DQQ73-0000Zv-00@dorka.pomaz.szeredi.hu> <20050426201411.GA20109@elf.ucw.cz> <E1DQiEa-0001hi-00@dorka.pomaz.szeredi.hu> <20050427092450.GB1819@elf.ucw.cz> <E1DQjzY-0001no-00@dorka.pomaz.szeredi.hu> <20050427143126.GB1957@mail.shareable.org> <E1DQno0-00029a-00@dorka.pomaz.szeredi.hu> <20050427153320.GA19065@atrey.karlin.mff.cuni.cz> <20050427155022.GR4431@marowsky-bree.de> <E1DQqQ0-0002PB-00@dorka.pomaz.szeredi.hu> <20050427174641.GZ4431@marowsky-bree.de>
+Message-Id: <E1DQqi1-0002T3-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 27 Apr 2005 19:52:25 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-04-27 at 11:44 -0600, Chris Friesen wrote:
+> > > the ability to change the layout underneath, you might trigger bugs in
+> > > root programs: Are they really capable of seeing the same filename
+> > > twice, or can you throw them into a deep recursion by simulating
+> > > infinitely deep directories/circular hardlinks...?
+> > Circular or otherwise hardlinked directories are not allowed since it
+> > would not only confuse applications but the VFS as well.
+> 
+> Right, that you can catch. But can you prevent a user fs module from
+> creating an infinitely deep directory structure out of thin air? Do you
+> limit the maximum path length / depth?
 
-> Okay, so can I get the total amount of memory used by the kernel based 
-> on meminfo output?  (Slab + VmallocUsed) maybe?
+No. 
 
-I don't think that will include page tables, unless the architecture
-allocates page tables from slab (some might, especially recently).
+> (Sending this privately and not to LKML, because I first wanted to check
+> the facts ;-)
 
-And it won't have memory that didn't come from slab, e.g.
-get_free_pages() or anything else right off the buddy allocator.
+OK, CC restored.  You shouldn't be afraid to send to LKML.  It's the
+ultimate spam list ;)
 
-There is no easy way to do this.  To do it right, we'd need fine-grained
-accounting.
+> > > Certainly a useful tool for hardening applications, but I can see the
+> > > point of not wanting to let unwary applications run into a namespace
+> > > controlled by a user. Of course, this is sort-of similar to "find
+> > > -xdev", but I'm not sure whether it is not indeed new behaviour.
+> > 
+> > A trivial DoS against any process entering the userspace filesystem is
+> > just not to answer the filesystem request.
+> > 
+> > So it's not just information leak, but also a fine way to _control_
+> > certain behavior of applications.
+> 
+> Yes. I first thought the check was superfluous, because hey, why
+> shouldn't root be able to access everything... But then it struck me
+> that that might actually be a good idea for all those reasons. root's
+> tools don't expect that the namespace they are traversing is
+> _completely_ controlled by a user.
 
-	Robert Love
+Exactly.
 
-
+Thanks,
+Miklos

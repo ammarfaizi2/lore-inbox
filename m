@@ -1,125 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262074AbVD0W1A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262073AbVD0Wa3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262074AbVD0W1A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 18:27:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262054AbVD0WYL
+	id S262073AbVD0Wa3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 18:30:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbVD0W1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 18:24:11 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:57820 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262066AbVD0WT3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 18:19:29 -0400
-Date: Wed, 27 Apr 2005 17:19:17 -0500 (CDT)
-From: Kylene Hall <kjhall@us.ibm.com>
-X-X-Sender: kjhall@jo.austin.ibm.com
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 11 of 12] Fix Tpm driver -- add cancel function
-Message-ID: <Pine.LNX.4.61.0504271654260.3929@jo.austin.ibm.com>
+	Wed, 27 Apr 2005 18:27:09 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:34564 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S262073AbVD0WZG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 18:25:06 -0400
+Message-ID: <427010FB.4080706@rtr.ca>
+Date: Wed, 27 Apr 2005 18:23:55 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Chris Friesen <cfriesen@nortel.com>, linux-kernel@vger.kernel.org
+Subject: Re: any way to find out kernel memory usage?
+References: <426FBFED.9090409@nortel.com> <426FC0FE.2090900@oktetlabs.ru>	 <426FC46C.4070306@nortel.com> <1114622438.10836.8.camel@betsy>	 <426FCF7B.5020806@nortel.com> <1114624035.10836.19.camel@betsy>
+In-Reply-To: <1114624035.10836.19.camel@betsy>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Userspcace needs to be able to cancel functions which have been sent to 
-the TPM (part of the spec.).  Add a sysfs file that communicates this 
-desire to the driver and device.
+How about in your private kernel build (Chris),
+instrument alloc_pages() and free_pages() to maintain
+a simple running tally of GFP_KERNEL and GFP_ATOMIC
+page allocation counts ?
 
-Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
----
---- linux-2.6.12-rc2/drivers/char/tpm/tpm.h	2005-04-21 18:11:12.000000000 -0500
-+++ linux-2.6.12-rc2-tpmdd/drivers/char/tpm/tpm.h	2005-04-21 18:28:09.000000000 -0500
-@@ -52,6 +52,7 @@ struct tpm_chip;
- struct tpm_vendor_specific {
- 	u8 req_complete_mask;
- 	u8 req_complete_val;
-+	u8 req_canceled;
- 	u16 base;		/* TPM base address */
- 
- 	int (*recv) (struct tpm_chip *, u8 *, size_t);
-diff -urpN --exclude='*.orig' linux-2.6.12-rc2/drivers/char/tpm/tpm_atmel.c linux-2.6.12-rc2-tpmdd/drivers/char/tpm/tpm_atmel.c
---- linux-2.6.12-rc2/drivers/char/tpm/tpm_atmel.c	2005-04-25 18:49:08.000000000 -0500
-+++ linux-2.6.12-rc2-tpmdd/drivers/char/tpm/tpm_atmel.c	2005-04-26 15:31:57.000000000 -0500
-@@ -132,6 +132,7 @@ static struct tpm_vendor_specific tpm_at
- 	.cancel = tpm_atml_cancel,
- 	.req_complete_mask = ATML_STATUS_BUSY | ATML_STATUS_DATA_AVAIL,
- 	.req_complete_val = ATML_STATUS_DATA_AVAIL,
-+	.req_canceled = ATML_STATUS_READY,
- 	.base = TPM_ATML_BASE,
- 	.attr = TPM_DEVICE_ATTRS,
- 	.miscdev.fops = &atmel_ops,
-diff -urpN --exclude='*.orig' linux-2.6.12-rc2/drivers/char/tpm/tpm_nsc.c linux-2.6.12-rc2-tpmdd/drivers/char/tpm/tpm_nsc.c
---- linux-2.6.12-rc2/drivers/char/tpm/tpm_nsc.c	2005-04-25 18:49:08.000000000 -0500
-+++ linux-2.6.12-rc2-tpmdd/drivers/char/tpm/tpm_nsc.c	2005-04-26 15:32:26.000000000 -0500
-@@ -230,6 +230,7 @@ static struct tpm_vendor_specific tpm_ns
- 	.cancel = tpm_nsc_cancel,
- 	.req_complete_mask = NSC_STATUS_OBF,
- 	.req_complete_val = NSC_STATUS_OBF,
-+	.req_canceled = NSC_STATUS_RDY,
- 	.base = TPM_NSC_BASE,
- 	.attr = TPM_DEVICE_ATTRS,
- 	.miscdev.fops = &nsc_ops,
---- linux-2.6.12-rc2/drivers/char/tpm/tpm.c	2005-04-27 11:13:29.000000000 -0500
-+++ linux-2.6.12-rc2-tpmdd/drivers/chat/tpm/tpm.c	2005-04-27 11:32:35.000000000 -0500
-@@ -140,7 +140,7 @@ EXPORT_SYMBOL_GPL(tpm_lpc_bus_init);
- static ssize_t tpm_transmit(struct tpm_chip *chip, const char *buf,
- 			    size_t bufsiz)
- {
--	ssize_t len;
-+	ssize_t rc;
- 	u32 count;
- 	__be32 *native_size;
-        unsigned long stop;
-@@ -158,10 +158,10 @@ static ssize_t tpm_transmit(struct tpm_c
- 
- 	down(&chip->tpm_mutex);
- 
--	if ((len = chip->vendor->send(chip, (u8 *) buf, count)) < 0) {
-+	if ((rc = chip->vendor->send(chip, (u8 *) buf, count)) < 0) {
- 		dev_err(&chip->pci_dev->dev,
--			"tpm_transmit: tpm_send: error %d\n", len);
--		return len;
-+			"tpm_transmit: tpm_send: error %Zd\n", rc);
-+		goto out;
- 	}
- 
-        stop = jiffies + 2 * 60 * HZ;
-@@ -171,23 +171,31 @@ static ssize_t tpm_transmit(struct tpm_c
- 		    chip->vendor->req_complete_val) {
- 			goto out_recv;
- 		}
--               msleep(TPM_TIMEOUT); /* CHECK */
-+
-+		if ((status == chip->vendor->req_canceled)) {
-+			dev_err(&chip->pci_dev->dev, "Operation Canceled\n");
-+			rc = -ECANCELED;
-+			goto out;
-+		}
-+
-+		msleep(TPM_TIMEOUT);	/* CHECK */
- 		rmb();
-        } while (time_before(jiffies, stop));
- 
- 
- 	chip->vendor->cancel(chip);
--	dev_err(&chip->pci_dev->dev, "Time expired\n");
--	up(&chip->tpm_mutex);
--	return -EIO;
-+	dev_err(&chip->pci_dev->dev, "Operation Timed out\n");
-+	rc = -ETIME;
-+	goto out;
- 
- out_recv:
--	len = chip->vendor->recv(chip, (u8 *) buf, bufsiz);
--	if (len < 0)
-+	rc = chip->vendor->recv(chip, (u8 *) buf, bufsiz);
-+	if (rc < 0)
- 		dev_err(&chip->pci_dev->dev,
--			"tpm_transmit: tpm_recv: error %d\n", len);
-+			"tpm_transmit: tpm_recv: error %Zd\n", rc);
-+out:
- 	up(&chip->tpm_mutex);
--	return len;
-+	return rc;
- }
- 
- #define TPM_DIGEST_SIZE 20
+I wonder if that would catch all kernel allocations?
+
+Cheers

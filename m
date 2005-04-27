@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261798AbVD0Qqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261803AbVD0Q5d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261798AbVD0Qqz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 12:46:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261803AbVD0Qqz
+	id S261803AbVD0Q5d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 12:57:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbVD0Q5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 12:46:55 -0400
-Received: from albireo.ucw.cz ([84.242.65.67]:44161 "EHLO albireo.ucw.cz")
-	by vger.kernel.org with ESMTP id S261798AbVD0Qqv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 12:46:51 -0400
-Date: Wed, 27 Apr 2005 18:46:52 +0200
-From: Martin Mares <mj@ucw.cz>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] private mounts
-Message-ID: <20050427164652.GA3129@ucw.cz>
-References: <20050426131943.GC2226@openzaurus.ucw.cz> <E1DQQ73-0000Zv-00@dorka.pomaz.szeredi.hu> <20050426201411.GA20109@elf.ucw.cz> <E1DQiEa-0001hi-00@dorka.pomaz.szeredi.hu> <20050427092450.GB1819@elf.ucw.cz> <E1DQjzY-0001no-00@dorka.pomaz.szeredi.hu> <20050427143126.GB1957@mail.shareable.org> <E1DQno0-00029a-00@dorka.pomaz.szeredi.hu> <20050427153320.GA19065@atrey.karlin.mff.cuni.cz> <20050427155022.GR4431@marowsky-bree.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050427155022.GR4431@marowsky-bree.de>
-User-Agent: Mutt/1.3.28i
+	Wed, 27 Apr 2005 12:57:33 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:24483 "EHLO
+	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
+	id S261803AbVD0Q5b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 12:57:31 -0400
+Message-ID: <426FC46C.4070306@nortel.com>
+Date: Wed, 27 Apr 2005 10:57:16 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Artem B. Bityuckiy" <dedekind@oktetlabs.ru>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: any way to find out kernel memory usage?
+References: <426FBFED.9090409@nortel.com> <426FC0FE.2090900@oktetlabs.ru>
+In-Reply-To: <426FC0FE.2090900@oktetlabs.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Artem B. Bityuckiy wrote:
+> Chris Friesen wrote:
+>>  Is 
+>> there any way to find out how much memory the kernel is using?  I 
+>> don't see anything in /proc, but maybe something internal that isn't 
+>> currently exported?
+>>
+> How about /proc/slabinfo ?
 
-> It is certainly an information leak not otherwise available. And with
-> the ability to change the layout underneath, you might trigger bugs in
-> root programs: Are they really capable of seeing the same filename
-> twice, or can you throw them into a deep recursion by simulating
-> infinitely deep directories/circular hardlinks...?
+Hmm...if I'm reading that correctly, I should be able to get the total 
+kernel memory usage by summing up
 
-Yes, it can help you trigger bugs, but all these bugs are triggerable
-without user filesystems as well, although it's harder to do so.
+num_slabs*pagesperslab
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-If the government wants us to respect the law, it should set a better example.
+for all listed slabs.  Does that sound right?
+
+I assume kmalloc/vmalloc use the "size-x" slabs?
+
+
+Chris

@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261826AbVD0RTx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261811AbVD0RR4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261826AbVD0RTx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 13:19:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbVD0RTN
+	id S261811AbVD0RR4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 13:17:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbVD0RRu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 13:19:13 -0400
-Received: from mail.kroah.org ([69.55.234.183]:28358 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261824AbVD0RRp (ORCPT
+	Wed, 27 Apr 2005 13:17:50 -0400
+Received: from mail.kroah.org ([69.55.234.183]:16838 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261811AbVD0RR0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 13:17:45 -0400
-Date: Wed, 27 Apr 2005 10:16:27 -0700
+	Wed, 27 Apr 2005 13:17:26 -0400
+Date: Wed, 27 Apr 2005 10:16:17 -0700
 From: Greg KH <gregkh@suse.de>
-To: erik@debian.franken.de, Andries.Brouwer@cwi.nl
+To: khali@linux-fr.org, sensors@stimpy.netroedge.com
 Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
        Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>, Cliff White <cliffw@osdl.org>,
        "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rddunlap@osdl.org>,
        Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
        akpm@osdl.org, alan@lxorguk.ukuu.org.uk
-Subject: [04/07] partitions/msdos.c fix
-Message-ID: <20050427171627.GE3195@kroah.com>
+Subject: [03/07] I2C: Fix incorrect sysfs file permissions in it87 and via686a drivers
+Message-ID: <20050427171617.GD3195@kroah.com>
 References: <20050427171446.GA3195@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -34,64 +34,46 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 ------------------
 
-Erik reports this fixes an oops on boot for him.
+The it87 and via686a hardware monitoring drivers each create a sysfs
+file named "alarms" in R/W mode, while they should really create it in
+read-only mode. Since we don't provide a store function for these files,
+write attempts to these files will do something undefined (I guess) and
+bad (I am sure). My own try resulted in a locked terminal (where I
+attempted the write) and a 100% CPU load until next reboot.
 
-From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+As a side note, wouldn't it make sense to check, when creating sysfs
+files, that readable files have a non-NULL show method, and writable
+files have a non-NULL store method? I know drivers are not supposed to
+do stupid things, but there is already a BUG_ON for several conditions
+in sysfs_create_file, so maybe we could add two more?
 
-A well-known kernel bug is that it guesses at the partition type and the
-partitions on any disk it encounters.  This is bad because needless I/O is
-done, slowing down the boot, sometimes quite a lot, especially when I/O
-errors occur.  And it is bad because sometimes we guess wrong.
-
-In other words, we need the user space command `partition', where
-"partition -t dos /dev/sda" reads a DOS-type partition table.  (And
-"partition /dev/sda" tries all known heuristics to decide what type of
-partitioning might be present.) The two variants are: (i) partition tells
-the kernel to do the partition table reading, and (ii) partition uses partx
-to read the partition table and tells the kernel one-by-one about the
-partitions found this way.
-
-Since this is a fundamental change, a long transition period is needed, and
-that period could start with a kernel boot parameter telling the kernel not
-to do partition table parsing on a particular disk, or a particular type of
-disks, or all disks.
-
-This could have been the intro to a patch doing that, but is not.  (It is
-just an RFC.)
-
-The tiny patch below prompted the above - it was suggested by Uwe Bonnes
-who encountered USB devices without partition table where our present
-heuristics did not suffice to stop partition table parsing.  It causes the
-kernel to ignore partitions of type 0.  A band-aid.
-
-I think nobody uses such partitions seriously, but nevertheless this should
-probably live in -mm for a while to see if anybody complains.
-
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-Signed-off-by: Chris Wright <chrisw@osdl.org>
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
----
 
-===== fs/partitions/msdos.c 1.26 vs 1.27 =====
---- 1.26/fs/partitions/msdos.c	2004-11-09 12:43:17 -08:00
-+++ 1.27/fs/partitions/msdos.c	2005-03-07 20:41:42 -08:00
-@@ -114,6 +114,9 @@ parse_extended(struct parsed_partitions 
- 		 */
- 		for (i=0; i<4; i++, p++) {
- 			u32 offs, size, next;
-+
-+			if (SYS_IND(p) == 0)
-+				continue;
- 			if (!NR_SECTS(p) || is_extended_partition(p))
- 				continue;
+--- linux-2.6.12-rc1-bk5/drivers/i2c/chips/it87.c.orig	2005-04-02 18:09:59.000000000 +0200
++++ linux-2.6.12-rc1-bk5/drivers/i2c/chips/it87.c	2005-04-02 21:12:46.000000000 +0200
+@@ -668,7 +668,7 @@
+ 	struct it87_data *data = it87_update_device(dev);
+ 	return sprintf(buf,"%d\n", ALARMS_FROM_REG(data->alarms));
+ }
+-static DEVICE_ATTR(alarms, S_IRUGO | S_IWUSR, show_alarms, NULL);
++static DEVICE_ATTR(alarms, S_IRUGO, show_alarms, NULL);
  
-@@ -430,6 +433,8 @@ int msdos_partition(struct parsed_partit
- 	for (slot = 1 ; slot <= 4 ; slot++, p++) {
- 		u32 start = START_SECT(p)*sector_size;
- 		u32 size = NR_SECTS(p)*sector_size;
-+		if (SYS_IND(p) == 0)
-+			continue;
- 		if (!size)
- 			continue;
- 		if (is_extended_partition(p)) {
+ static ssize_t
+ show_vrm_reg(struct device *dev, char *buf)
+--- linux-2.6.12-rc1-bk5/drivers/i2c/chips/via686a.c.orig	2005-04-02 18:22:48.000000000 +0200
++++ linux-2.6.12-rc1-bk5/drivers/i2c/chips/via686a.c	2005-04-02 21:12:55.000000000 +0200
+@@ -574,7 +574,7 @@
+ 	struct via686a_data *data = via686a_update_device(dev);
+ 	return sprintf(buf,"%d\n", ALARMS_FROM_REG(data->alarms));
+ }
+-static DEVICE_ATTR(alarms, S_IRUGO | S_IWUSR, show_alarms, NULL);
++static DEVICE_ATTR(alarms, S_IRUGO, show_alarms, NULL);
+ 
+ /* The driver. I choose to use type i2c_driver, as at is identical to both
+    smbus_driver and isa_driver, and clients could be of either kind */
+
+
+-- 
+Jean Delvare
+

@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261803AbVD0Q5d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261808AbVD0Q7F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261803AbVD0Q5d (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 12:57:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbVD0Q5d
+	id S261808AbVD0Q7F (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 12:59:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbVD0Q7F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 12:57:33 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:24483 "EHLO
-	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
-	id S261803AbVD0Q5b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 12:57:31 -0400
-Message-ID: <426FC46C.4070306@nortel.com>
-Date: Wed, 27 Apr 2005 10:57:16 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Artem B. Bityuckiy" <dedekind@oktetlabs.ru>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: any way to find out kernel memory usage?
-References: <426FBFED.9090409@nortel.com> <426FC0FE.2090900@oktetlabs.ru>
-In-Reply-To: <426FC0FE.2090900@oktetlabs.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Apr 2005 12:59:05 -0400
+Received: from quechua.inka.de ([193.197.184.2]:27053 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S261808AbVD0Q6w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 12:58:52 -0400
+From: Bernd Eckenfels <ecki@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: filesystem transactions API
+Organization: Private Site running Debian GNU/Linux
+In-Reply-To: <20050427151758.GE1957@mail.shareable.org>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.8.1 (i686))
+Message-Id: <E1DQprb-00024N-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Wed, 27 Apr 2005 18:58:15 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Artem B. Bityuckiy wrote:
-> Chris Friesen wrote:
->>  Is 
->> there any way to find out how much memory the kernel is using?  I 
->> don't see anything in /proc, but maybe something internal that isn't 
->> currently exported?
->>
-> How about /proc/slabinfo ?
+In article <20050427151758.GE1957@mail.shareable.org> you wrote:
+> If we have transactions, then I'd like to be able to do this from a shell:
+...
+> I'd also like to write inside a single C program:
 
-Hmm...if I'm reading that correctly, I should be able to get the total 
-kernel memory usage by summing up
+perhaps you will need to use plan9 or hurd? :)
 
-num_slabs*pagesperslab
+Because this pretty much virtualisation/snapshots. Anyway, it would be a
+nice thing to have, for sure (I am not sure if all the technical
+implications like deadlocks and serialisations can be solved in a unix
+compatible manner (and especially for at least more than one local and
+networked file system).
 
-for all listed slabs.  Does that sound right?
+> It's useful, and there is no good reason to disallow that.
 
-I assume kmalloc/vmalloc use the "size-x" slabs?
+There might be no good reasons, but a lot of hard problems.
 
+> Nonetheless, there's a need for some kind of transaction handles.  A
+> file descriptor representing a transaction seems like a natural fit.
 
-Chris
+Yes, that might be a good thing, beacause it can be passed, inherited and
+access controled and possesed.
+
+Greetings
+Bernd

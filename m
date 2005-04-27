@@ -1,39 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbVD0O4S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261698AbVD0OzW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261704AbVD0O4S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 10:56:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbVD0O4S
+	id S261698AbVD0OzW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 10:55:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261694AbVD0OzV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 10:56:18 -0400
-Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:52644 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261694AbVD0O4D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 10:56:03 -0400
-To: miklos@szeredi.hu
-CC: jamie@shareable.org, pavel@suse.cz, hch@infradead.org, linuxram@us.ibm.com,
-       7eggert@gmx.de, bulb@ucw.cz, viro@parcelfarce.linux.theplanet.co.uk,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-In-reply-to: <E1DQno0-00029a-00@dorka.pomaz.szeredi.hu> (message from Miklos
-	Szeredi on Wed, 27 Apr 2005 16:46:24 +0200)
-Subject: Re: [PATCH] private mounts
-References: <E1DQMGZ-00009n-00@dorka.pomaz.szeredi.hu> <20050426093628.GA30208@infradead.org> <E1DQMYu-0000DL-00@dorka.pomaz.szeredi.hu> <20050426094727.GA30379@infradead.org> <20050426131943.GC2226@openzaurus.ucw.cz> <E1DQQ73-0000Zv-00@dorka.pomaz.szeredi.hu> <20050426201411.GA20109@elf.ucw.cz> <E1DQiEa-0001hi-00@dorka.pomaz.szeredi.hu> <20050427092450.GB1819@elf.ucw.cz> <E1DQjzY-0001no-00@dorka.pomaz.szeredi.hu> <20050427143126.GB1957@mail.shareable.org> <E1DQno0-00029a-00@dorka.pomaz.szeredi.hu>
-Message-Id: <E1DQnwr-0002Aj-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 27 Apr 2005 16:55:33 +0200
+	Wed, 27 Apr 2005 10:55:21 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:21928 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S261673AbVD0OzA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 10:55:00 -0400
+Subject: Re: [RFC] SAS domain layout for Linux sysfs
+To: dougg@torque.net
+Cc: andrew.patterson@hp.com, Eric.Moore@lsil.com,
+       Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       linux-scsi-owner@vger.kernel.org,
+       Luben Tuikov <luben_tuikov@adaptec.com>, Madhuresh_Nagshain@adaptec.com,
+       mike.miller@hp.com
+X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
+Message-ID: <OF4CE413A0.DAB8B74B-ONC1256FF0.00505593-C1256FF0.0052A229@de.ibm.com>
+From: Martin Peschke3 <MPESCHKE@de.ibm.com>
+Date: Wed, 27 Apr 2005 16:54:53 +0200
+X-MIMETrack: Serialize by Router on D12ML067/12/M/IBM(Release 6.53HF247 | January 6, 2005) at
+ 27/04/2005 16:54:55
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Why, exactly, is this check in the kernel and not the FUSE daemon?
-> > 
-> > Someone said the FUSE daemon knows which user is making filesystem
-> > requests, and can therefore do this.  Is it true?
-> 
-> Yes.
-> 
-> The check is in the kernel, because otherwise it couldn't be enforced.
+Douglas Gilbert wrote
+> It has been stated that the SAS discovery algorithm (i.e. the
+> recursive use of SMP) should be implemented once in the SAS
+> transport layer so that all SAS LLDs can use it. Putting
+> the SAS discovery algorithm in the user space may be
+> even more politically correct.
 
-I'm going to compile a fuse-user-mount FAQ.  This is about the 4th
-time I answer this question in this thread :)
+Similarly, in the case of Fibre Channel, a common N_Port or
+SCSI target device discovery, preferably in user space, seems
+to be desirable. This would require some CT and / or ELS
+passthrough interface, for example in order to issue queries
+to fabric switches.
 
-Miklos
+regards
+Martin Peschke
+

@@ -1,50 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261827AbVD0Rem@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261844AbVD0Rfx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261827AbVD0Rem (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 13:34:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbVD0ReY
+	id S261844AbVD0Rfx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 13:35:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbVD0Rfk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 13:34:24 -0400
-Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:20645 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261827AbVD0ReO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 13:34:14 -0400
-To: lmb@suse.de
-CC: mj@ucw.cz, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-In-reply-to: <20050427155022.GR4431@marowsky-bree.de> (message from Lars
-	Marowsky-Bree on Wed, 27 Apr 2005 17:50:22 +0200)
-Subject: Re: [PATCH] private mounts
-References: <20050426094727.GA30379@infradead.org> <20050426131943.GC2226@openzaurus.ucw.cz> <E1DQQ73-0000Zv-00@dorka.pomaz.szeredi.hu> <20050426201411.GA20109@elf.ucw.cz> <E1DQiEa-0001hi-00@dorka.pomaz.szeredi.hu> <20050427092450.GB1819@elf.ucw.cz> <E1DQjzY-0001no-00@dorka.pomaz.szeredi.hu> <20050427143126.GB1957@mail.shareable.org> <E1DQno0-00029a-00@dorka.pomaz.szeredi.hu> <20050427153320.GA19065@atrey.karlin.mff.cuni.cz> <20050427155022.GR4431@marowsky-bree.de>
-Message-Id: <E1DQqQ0-0002PB-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 27 Apr 2005 19:33:48 +0200
+	Wed, 27 Apr 2005 13:35:40 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:61893 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261835AbVD0Rf2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 13:35:28 -0400
+Subject: Re: [01/07] uml: add nfsd syscall when nfsd is modular
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Greg KH <gregkh@suse.de>
+Cc: blaisorblade@yahoo.it, user-mode-linux-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>, Cliff White <cliffw@osdl.org>,
+       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       akpm@osdl.org
+In-Reply-To: <20050427171552.GB3195@kroah.com>
+References: <20050427171446.GA3195@kroah.com>
+	 <20050427171552.GB3195@kroah.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1114619612.18355.113.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 27 Apr 2005 17:33:34 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It is certainly an information leak not otherwise available. And with
-> the ability to change the layout underneath, you might trigger bugs in
-> root programs: Are they really capable of seeing the same filename
-> twice, or can you throw them into a deep recursion by simulating
-> infinitely deep directories/circular hardlinks...?
+On Mer, 2005-04-27 at 18:15, Greg KH wrote:
+> -stable review patch.  If anyone has any objections, please let us know.
 
-Circular or otherwise hardlinked directories are not allowed since it
-would not only confuse applications but the VFS as well.
+Don't see why this one is a critical bug.
 
-Hmm, looking at the code it seems that for some reason I removed this
-check from the 2.6 version of FUSE.  Stupid me!
 
-Thanks for the reminder :)
-
-> Certainly a useful tool for hardening applications, but I can see the
-> point of not wanting to let unwary applications run into a namespace
-> controlled by a user. Of course, this is sort-of similar to "find
-> -xdev", but I'm not sure whether it is not indeed new behaviour.
-
-A trivial DoS against any process entering the userspace filesystem is
-just not to answer the filesystem request.
-
-So it's not just information leak, but also a fine way to _control_
-certain behavior of applications.
-
-Thanks,
-Miklos

@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261789AbVD0HMz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261761AbVD0HM4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261789AbVD0HMz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 03:12:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbVD0HMp
+	id S261761AbVD0HM4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 03:12:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbVD0HMD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 03:12:45 -0400
-Received: from smtp816.mail.sc5.yahoo.com ([66.163.170.2]:55721 "HELO
-	smtp816.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261750AbVD0HJD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 03:09:03 -0400
-Message-ID: <426F3A89.3010702@uindy.edu>
-Date: Wed, 27 Apr 2005 02:08:57 -0500
+	Wed, 27 Apr 2005 03:12:03 -0400
+Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:40581 "HELO
+	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261769AbVD0HJ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 03:09:26 -0400
+Message-ID: <426F3AA4.6070004@uindy.edu>
+Date: Wed, 27 Apr 2005 02:09:24 -0500
 From: "Robert W. Fuller" <fullerrw@uindy.edu>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041223
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
 Subject: TI Yenta socket Fish Please Report
 X-Enigmail-Version: 0.89.6.0
 X-Enigmail-Supports: pgp-inline, pgp-mime

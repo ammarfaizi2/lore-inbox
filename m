@@ -1,106 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261899AbVD0D1g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbVD0D2k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261899AbVD0D1g (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 23:27:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbVD0D1g
+	id S261900AbVD0D2k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 23:28:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbVD0D2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 23:27:36 -0400
-Received: from ercist.iscas.ac.cn ([159.226.5.94]:45574 "EHLO
-	ercist.iscas.ac.cn") by vger.kernel.org with ESMTP id S261899AbVD0D1b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 23:27:31 -0400
-Subject: [PATCH] JFS fsync wrong behavior when I/O failure occurs
-From: fs <fs@ercist.iscas.ac.cn>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: iscas
-Message-Id: <1114612509.2999.30.camel@CoolQ>
+	Tue, 26 Apr 2005 23:28:39 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:48620 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261900AbVD0D2V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 23:28:21 -0400
+Date: Wed, 27 Apr 2005 11:32:00 +0800
+From: David Teigland <teigland@redhat.com>
+To: Mark Fasheh <mark.fasheh@oracle.com>
+Cc: Wim Coekaerts <wim.coekaerts@oracle.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH 0/7] dlm: overview
+Message-ID: <20050427033200.GC9963@redhat.com>
+References: <20050425151136.GA6826@redhat.com> <20050425203952.GE25002@ca-server1.us.oracle.com> <20050426053930.GA12096@redhat.com> <20050426184845.GA938@ca-server1.us.oracle.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 27 Apr 2005 10:35:09 -0400
-Content-Transfer-Encoding: 7bit
-X-ArGoMail-Authenticated: fs@ercist.iscas.ac.cn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050426184845.GA938@ca-server1.us.oracle.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch has sent to JFS maintainer, and ACKed,
-but filtered by LKML, so I send it again.
+On Tue, Apr 26, 2005 at 11:48:45AM -0700, Mark Fasheh wrote:
+> On Tue, Apr 26, 2005 at 01:39:30PM +0800, David Teigland wrote:
 
-JFS contains a bug with sys_fsync(jfs_fsync), also with
-fs/mpage.c:mpage_end_io_write
+> > No.  What kind of performance measurements do you have in mind?  Most
+> > dlm lock requests involve sending a message to a remote machine and
+> > waiting for a reply.  I expect this network round-trip is the bulk of
+> > the time for a request, which is why I'm a bit confused by your
+> > question.
 
-Symptom
-The open-write-fsync-close code will not return error when disk I/O
-occurs
-between open and fsync.
+> Resource lookup times, times to deliver events to clients (asts, basts,
+> etc) for starters. How long does recovery take after a node crash? How
+> does all of this scale as you increase the number of nodes in your
+> cluster?  Sure, network speed is a part of the equation, but it's not
+> the *whole* equation and I've seen dlms that can get downright nasty
+> when it comes to recovery speeds, etc.
 
-Details
-1. sys_fsync does 3 jobs: 
-  submit all pages taged with PAGECACHE_TAG_DIRTY to disk I/O, 
-  do file-system related fsync operations
-  wait all pages taged with PAGECACHE_TAG_WRITEBACK to complete.
-Here, all disk I/O are asynchronous, when finished, mpage_end_io_write
-will
-remove page from mapping's PAGECACHE_TAG_WRITEBACK tree. If I/O fails,
-it will also set PG_error flag, but it FORGET to set the mapping->flags
-AS_EIO
-flag. So in step 3, sys_fsync won't notice these pages.
-2. Besides 1, jfs_fsync should return error also, but it doesn't wait
-the page
-uptodate, e.g.:
-jfs_fsync->jfs_commit_inode->txCommit->diWrite->read_metapage->__get_metapage
-->read_cache_page reads a page from disk. Because read is async, when
-read_cache_page: err = filler(data, page), filler will not return error,
-it just submits I/O request and returns. So, page is not uptodate.
-only use if(IS_ERROR(mp->page)) is not enough, we should add 
-"|| !PageUptodate(mp->page)" - remember, mp->data = kmap(mp->page) +
-page_offst, 
-later, the outer function will have mem access with mp->data. If
-mp->data is not
-uptodate, dangerous.
-
-Patch
-diff -urN linux-2.6.11.7/fs/jfs/jfs_metapage.c
-linux-2.6.11.7.new/fs/jfs/jfs_metapage.c
---- linux-2.6.11.7/fs/jfs/jfs_metapage.c 2005-04-07 14:57:26.000000000
--0400
-+++ linux-2.6.11.7.new/fs/jfs/jfs_metapage.c 2005-04-25
-16:33:59.000000000 -0400
-@@ -347,7 +347,13 @@
-    jfs_info("__get_metapage: Calling read_cache_page");
-    mp->page = read_cache_page(mapping, lblock,
-         (filler_t *)mapping->a_ops->readpage, NULL);
--   if (IS_ERR(mp->page)) {
-+   if (IS_ERR(mp->page) || !PageUptodate(mp->page)) {
-+    /* Page hasn't been uptodate yet because of
-+     * async I/O, in most cases, I/O error has 
-+     * occurred. We must make sure the page is 
-+     * uptodate - the outer function will do mem
-+     * operations with kmap(mp->page) + page_offset
-+     */
-     jfs_err("read_cache_page failed!");
-     goto freeit;
-    } else
-diff -urN linux-2.6.11.7/fs/mpage.c linux-2.6.11.7.new/fs/mpage.c
---- linux-2.6.11.7/fs/mpage.c 2005-04-07 14:57:25.000000000 -0400
-+++ linux-2.6.11.7.new/fs/mpage.c 2005-04-25 16:38:05.000000000 -0400
-@@ -79,8 +79,10 @@
-   if (--bvec >= bio->bi_io_vec)
-    prefetchw(&bvec->bv_page->flags);
- 
--  if (!uptodate)
-+  if (!uptodate){
-    SetPageError(page);
-+   set_bit(AS_EIO, &page->mapping->flags);
-+  }
-   end_page_writeback(page);
-  } while (bvec >= bio->bi_io_vec);
-  bio_put(bio);
-
-Ref
-http://developer.osdl.jp/projects/doubt/fs-consistency-and-coherency/index.html
-
-Signed-off-by: Qu Fuping<qufuping@ercist.iscas.ac.cn>
+Ok, we'll look into how to measure some of that in a way that's
+meaningful.
 
 
+> > > My main concern is that I have not seen anything relying on this
+> > > code do "reasonably well". eg can you show gfs numbers w/ number of
+> > > nodes and scalability ?
+> > 
+> > I'd suggest that if some cluster application is using the dlm and has
+> > poor performance or scalability, the reason and solution lies mostly
+> > in the app, not in the dlm.  That's assuming we're not doing anything
+> > blatantly dumb in the dlm, butI think you may be placing too much
+> > emphasis on the role of the dlm here.
+
+> Well, obviously the dlm is only one component of an entire system, but
+> for a cluster application it can certainly be an important component,
+> one whose performance is worth looking into. I don't think asking for
+> this information is out of the question.
+
+GFS measurements will wait until gfs comes along, but we can do some dlm
+measuring now.
+
+Dave
 

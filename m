@@ -1,132 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbVD0L3S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261419AbVD0Lgk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261444AbVD0L3S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 07:29:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbVD0L3S
+	id S261419AbVD0Lgk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 07:36:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbVD0Lgk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 07:29:18 -0400
-Received: from coderock.org ([193.77.147.115]:61376 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261444AbVD0L3B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 07:29:01 -0400
-Date: Wed, 27 Apr 2005 13:28:51 +0200
-From: Domen Puncer <domen@coderock.org>
-To: Sune =?iso-8859-1?Q?M=F8lgaard?= <sune@molgaard.org>
-Cc: linux-kernel@vger.kernel.org, mj@ucw.cz
-Subject: Re: [PATCH] 2.4.30 PicoPower IRQ router
-Message-ID: <20050427112850.GA18533@nd47.coderock.org>
-References: <426C9DED.9010206@molgaard.org> <200504261740.08794.lists@b-open-solutions.it> <426E8FE4.5040307@molgaard.org>
+	Wed, 27 Apr 2005 07:36:40 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:18 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261419AbVD0Lgi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 07:36:38 -0400
+Date: Wed, 27 Apr 2005 21:35:42 +1000
+To: Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>
+Cc: Patrick McHardy <kaber@trash.net>, netdev@oss.sgi.com,
+       netfilter-devel@lists.netfilter.org, Yair@arx.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Re-routing packets via netfilter (ip_rt_bug)
+Message-ID: <20050427113542.GB22433@gondor.apana.org.au>
+References: <20050425213400.GB29288@gondor.apana.org.au> <426D8672.1030001@trash.net> <20050426003925.GA13650@gondor.apana.org.au> <426E3F67.8090006@trash.net> <20050426232857.GA18358@gondor.apana.org.au> <426EE350.1070902@trash.net> <20050427010730.GA18919@gondor.apana.org.au> <426F68C5.4010109@trash.net> <20050427103056.GB22099@gondor.apana.org.au> <Pine.LNX.4.58.0504271237350.4795@blackhole.kfki.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <426E8FE4.5040307@molgaard.org>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <Pine.LNX.4.58.0504271237350.4795@blackhole.kfki.hu>
+User-Agent: Mutt/1.5.6+20040907i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26/04/05 21:00 +0200, Sune Mølgaard wrote:
-> Alessandro Amici wrote:
-> >just in case you didn't notice: your patch is empty :)
-> 
-> How so? I see it fine in the mail that came back to me, but ok. I'll
-> repost below.
-> 
-> >and try to gather info on someone actually in charge of the subsystem 
-> >you are modifying and CC him. random patches on l-k may not get the 
-> >needed attention.
+On Wed, Apr 27, 2005 at 12:41:01PM +0200, Jozsef Kadlecsik wrote:
+> > >
+> > > Forwarded packets can't have any NAT manips in LOCAL_OUT, so it
+> > > should work. I'm not sure about it though because it would be
+> > > the only place where packets just appear in FORWARD, usually
+> > > all packets enters through PRE_ROUTING or LOCAL_OUT.
 > >
+> > It's also the only place where we generate a packet with a non-local
+> > source address :)
 > 
-> I thought of that and forwarded to Martin Mares, but thank you for the tip
-> 
-> Best regards,
-> 
-> Sune
-> 
-> --Start patch--
+> Besides the REJECT target, TARPIT in patch-o-matic-ng also generates
+> packets with non-local source addresses. We cannot assume that REJECT is
+> the only one which can create such packets.
 
-Signed-off-by? And weird indentification, try to use tabs.
+Any reason why it can't be fed through the FORWARD chain as opposed
+to LOCAL_OUT? In general, is there anything that's generating packets
+with foreign addresses that can't be fed through FORWARD?
 
-> 
-> --- linux-2.4.30/arch/i386/kernel/pci-irq.c	2005-04-04
-> 03:42:19.000000000 +0200
-> +++ linux/arch/i386/kernel/pci-irq.c	2005-04-25 08:43:02.501678464 +0200
-> @@ -157,6 +157,25 @@
->  }
-> 
->  /*
-> + * PicoPower PT86C523
-> + */
-> +
-> +static int pirq_pico_get(struct pci_dev *router, struct pci_dev *dev,
-> int pirq)
-> +{
-> +  outb(0x10+((pirq-1)>>1), 0x24);
-> +  return ((pirq-1)&1) ? (inb(0x26)>>4) : (inb(0x26)&0xf);
-> +}
-> +
-> +static int pirq_pico_set(struct pci_dev *router, struct pci_dev *dev,
-> int pirq, int irq)
-> +{
-> +  outb(0x10+((pirq-1)>>1), 0x24);
-> +  unsigned int x;
-> +  x = inb(0x26);
-> +  x = ((pirq-1)&1) ? ((x&0x0f)|(irq<<4)) : ((x&0xf0)|(irq));
-> +  outb(x,0x26);
-> +}
-
-I really don't know about this, but existing code (2.6.x) uses
-{read,write}_config_nybble which looks suspiciously similar.
-
-> +
-> +/*
->   * ALI pirq entries are damn ugly, and completely undocumented.
->   * This has been figured out from pirq tables, and it's not a pretty
->   * picture.
-> @@ -609,6 +628,23 @@
-> 
->  #endif
-> 
-> +static __init int pico_router_probe(struct irq_router *r, struct
-> pci_dev *router, u16 device)
-> +{
-> +  switch(device)
-> +  {
-> +    case 0x0002:
-
-Use/define some PCI_DEVICE_ID_
-
-> +      r->name = "PicoPower PT86C523";
-> +      r->get = pirq_pico_get;
-> +      r->set = pirq_pico_set;
-> +      return 1;
-> +
-> +    case 0x8002:
-> +      r->name = "PicoPower PT86C523 rev. BB+";
-> +      r->get = pirq_pico_get;
-> +      r->set = pirq_pico_set;
-> +      return 1;
-> +  }
-> +}
-
-return 0; missing
-
-> 
->  static __init int intel_router_probe(struct irq_router *r, struct
-> pci_dev *router, u16 device)
->  {
-> @@ -814,6 +850,7 @@
->  }
->  		
->  static __initdata struct irq_router_handler pirq_routers[] = {
-> +        { 0x1066, pico_router_probe },
-
-PCI_VENDOR_ID_?
-
->  	{ PCI_VENDOR_ID_INTEL, intel_router_probe },
->  	{ PCI_VENDOR_ID_AL, ali_router_probe },
->  	{ PCI_VENDOR_ID_ITE, ite_router_probe },
-> 
-
-
-	Domen
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

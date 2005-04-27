@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261768AbVD0Pjq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261627AbVD0Pms@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261768AbVD0Pjq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 11:39:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261755AbVD0Pjf
+	id S261627AbVD0Pms (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 11:42:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbVD0Pms
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 11:39:35 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:56794 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S261627AbVD0Pig (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 11:38:36 -0400
-Message-ID: <426FB1F9.9010401@adaptec.com>
-Date: Wed, 27 Apr 2005 11:38:33 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
+	Wed, 27 Apr 2005 11:42:48 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:57270 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S261627AbVD0Pml (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 11:42:41 -0400
+Message-ID: <426FB2C5.9030906@grupopie.com>
+Date: Wed, 27 Apr 2005 16:41:57 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
 User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: dougg@torque.net
-CC: Christoph Hellwig <hch@infradead.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       andrew.patterson@hp.com, Eric.Moore@lsil.com, mike.miller@hp.com,
-       Madhuresh_Nagshain@adaptec.com
-Subject: Re: [RFC] SAS domain layout for Linux sysfs
-References: <425D392F.2080702@adaptec.com> <20050424111908.GA23010@infradead.org> <426D1572.70508@adaptec.com> <20050425161411.GA11938@infradead.org> <426D2723.8070308@adaptec.com> <20050425181831.GA14190@infradead.org> <426E5BAF.4040003@adaptec.com> <426F86D3.4070909@torque.net>
-In-Reply-To: <426F86D3.4070909@torque.net>
-Content-Type: text/plain; charset=ISO-8859-1
+To: k8 s <uint32@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Doubt Regarding Multithreading and Device Driver
+References: <699a19ea050427080545fb1676@mail.gmail.com>	 <20050427151040.GA5717@roonstrasse.net> <699a19ea05042708305fb7194b@mail.gmail.com>
+In-Reply-To: <699a19ea05042708305fb7194b@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Apr 2005 15:38:34.0921 (UTC) FILETIME=[2C5C8190:01C54B3F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 04/27/05 08:34, Douglas Gilbert wrote:
-> Once the SAS discovery algorithm has been run should we
-> show its results in sysfs?? We probably want to know
-> about SCSI target devices (like we do for other transports).
-> The SAS discovery algorithm may have found other interesting
-> things:
->     - other expanders (beyond what the silicon has seen)
->     - other initiators (implies a multi initiator environment)
->     - miswired SAS domains (since SAS expander routing rules
->       have restrictions)
+k8 s wrote:
+> But i am sharing something in file->private_data which is a private
+> variable to the process(that is passed to the device driver
+> functions). Isn't it?
 
-Yes, I think we should know about those other devices, part
-of SAS SDS.
- 
-> Other tools may want to access SMP (and SCSI log pages
-> in SCSI target devices) to identify bottlenecks and access
-> vendor extensions.
+How do you make sure that there is only one process accessing the file?
 
-Yes, very true.  I can imagine user space apps sending SMP
-and what not to expanders/RAID devices/enclosures past
-expanders, to control the storage network.
+If you open a file and then fork another process, both have access to 
+the file using the same file descriptor.
 
-A sysfs representation of the discovery result could make this
-easy, since as you pointed out expanders are not SAS devices,
-and thus do not fit the linux-scsi HCTL space.
+You might want to do precisely this for a number of reasons, like having 
+one process that send commands to a device while the other receives 
+status information...
 
-	Luben
+-- 
+Paulo Marques - www.grupopie.com
+
+All that is necessary for the triumph of evil is that good men do nothing.
+Edmund Burke (1729 - 1797)

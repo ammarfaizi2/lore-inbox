@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261889AbVD0Roq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261842AbVD0Rqw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261889AbVD0Roq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 13:44:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbVD0Roc
+	id S261842AbVD0Rqw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 13:46:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbVD0RpU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 13:44:32 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:65477 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261867AbVD0RoO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 13:44:14 -0400
-Subject: Re: [06/07] [PATCH] SCSI tape security: require CAP_ADMIN for
-	SG_IO etc.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Greg KH <gregkh@suse.de>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>, Kai.Makisara@kolumbus.fi,
-       linux-scsi@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>, Cliff White <cliffw@osdl.org>,
-       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org
-In-Reply-To: <20050427171649.GG3195@kroah.com>
-References: <20050427171446.GA3195@kroah.com>
-	 <20050427171649.GG3195@kroah.com>
-Content-Type: text/plain
+	Wed, 27 Apr 2005 13:45:20 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:23982 "EHLO
+	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
+	id S261888AbVD0Roo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 13:44:44 -0400
+Message-ID: <426FCF7B.5020806@nortel.com>
+Date: Wed, 27 Apr 2005 11:44:27 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Robert Love <rml@novell.com>
+CC: "Artem B. Bityuckiy" <dedekind@oktetlabs.ru>, linux-kernel@vger.kernel.org
+Subject: Re: any way to find out kernel memory usage?
+References: <426FBFED.9090409@nortel.com> <426FC0FE.2090900@oktetlabs.ru>	 <426FC46C.4070306@nortel.com> <1114622438.10836.8.camel@betsy>
+In-Reply-To: <1114622438.10836.8.camel@betsy>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1114619928.18809.118.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 27 Apr 2005 17:38:49 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-04-27 at 18:16, Greg KH wrote:
-> -stable review patch.  If anyone has any objections, please let us know.
+Robert Love wrote:
+> On Wed, 2005-04-27 at 10:57 -0600, Chris Friesen wrote:
+> 
+> 
+>>I assume kmalloc/vmalloc use the "size-x" slabs?
+> 
+> 
+> kmalloc, yes.
+> 
+> vmalloc is separate, totally unrelated, space.
+> 
+> Statistics are in /proc/meminfo.
 
-This patch is just wrong on so many different levels its hard to know
-where to begin.
+Okay, so can I get the total amount of memory used by the kernel based 
+on meminfo output?  (Slab + VmallocUsed) maybe?
 
-1. The auth for arbitary commands is CAP_SYS_RAWIO
-2. "The SCSI command permissions were discussed widely on the linux
-lists but this did not result in any useful refinement of the
-permissions." - this is false. The process was refined, a table setup
-was added and debugged. Someone even wrote an fs for managing it that is
-not yet merged. Perhaps the patch author would care to re-read the
-archives and submit a new patch if one is even needed
-3. Pleas explain *what* the specific consistency problems are
+Chris
 
-And then please fix the same mess in 12rc.
 
-Alan
 

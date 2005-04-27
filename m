@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261863AbVD0RtA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261841AbVD0RtB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261863AbVD0RtA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 13:49:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbVD0Rs4
+	id S261841AbVD0RtB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 13:49:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbVD0Rsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 13:48:56 -0400
-Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:28837 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261857AbVD0Rr5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 13:47:57 -0400
-To: linuxram@us.ibm.com
-CC: lmb@suse.de, mj@ucw.cz, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-reply-to: <1114623598.4480.181.camel@localhost> (message from Ram on Wed,
-	27 Apr 2005 10:39:59 -0700)
-Subject: Re: [PATCH] private mounts
-References: <20050426094727.GA30379@infradead.org>
-	 <20050426131943.GC2226@openzaurus.ucw.cz>
-	 <E1DQQ73-0000Zv-00@dorka.pomaz.szeredi.hu>
-	 <20050426201411.GA20109@elf.ucw.cz>
-	 <E1DQiEa-0001hi-00@dorka.pomaz.szeredi.hu>
-	 <20050427092450.GB1819@elf.ucw.cz>
-	 <E1DQjzY-0001no-00@dorka.pomaz.szeredi.hu>
-	 <20050427143126.GB1957@mail.shareable.org>
-	 <E1DQno0-00029a-00@dorka.pomaz.szeredi.hu>
-	 <20050427153320.GA19065@atrey.karlin.mff.cuni.cz>
-	 <20050427155022.GR4431@marowsky-bree.de>
-	 <E1DQqQ0-0002PB-00@dorka.pomaz.szeredi.hu> <1114623598.4480.181.camel@localhost>
-Message-Id: <E1DQqdW-0002SN-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 27 Apr 2005 19:47:46 +0200
+	Wed, 27 Apr 2005 13:48:46 -0400
+Received: from fire.osdl.org ([65.172.181.4]:7576 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261841AbVD0Rsb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 13:48:31 -0400
+Date: Wed, 27 Apr 2005 10:46:52 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Greg KH <gregkh@suse.de>, blaisorblade@yahoo.it,
+       user-mode-linux-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>, Cliff White <cliffw@osdl.org>,
+       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       akpm@osdl.org
+Subject: Re: [01/07] uml: add nfsd syscall when nfsd is modular
+Message-ID: <20050427174652.GL23013@shell0.pdx.osdl.net>
+References: <20050427171446.GA3195@kroah.com> <20050427171552.GB3195@kroah.com> <1114619612.18355.113.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1114619612.18355.113.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I think you need to disallow overmounts on invisible mounts by any user
-> other than the owner. If not, some other user (including root) can
-> overmount on your mount and the user will end up with DoS.
+* Alan Cox (alan@lxorguk.ukuu.org.uk) wrote:
+> On Mer, 2005-04-27 at 18:15, Greg KH wrote:
+> > -stable review patch.  If anyone has any objections, please let us know.
+> 
+> Don't see why this one is a critical bug.
 
-I'm not following you here.  How would an overmount cause DoS?
+I guess without it, modular nfsd has no syscall interface (for UML, or
+course).
 
-Thanks,
-Miklos
+thanks,
+-chris

@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261288AbVD0JKG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbVD0JO0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261288AbVD0JKG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 05:10:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbVD0JKG
+	id S261297AbVD0JO0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 05:14:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbVD0JO0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 05:10:06 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:45319 "HELO
+	Wed, 27 Apr 2005 05:14:26 -0400
+Received: from hermine.aitel.hist.no ([158.38.50.15]:9993 "HELO
 	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S261288AbVD0JKA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 05:10:00 -0400
-Message-ID: <426F57FB.4020404@aitel.hist.no>
-Date: Wed, 27 Apr 2005 11:14:35 +0200
+	id S261297AbVD0JOX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 05:14:23 -0400
+Message-ID: <426F5902.6060901@aitel.hist.no>
+Date: Wed, 27 Apr 2005 11:18:58 +0200
 From: Helge Hafting <helge.hafting@aitel.hist.no>
 User-Agent: Debian Thunderbird 1.0 (X11/20050116)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jamie Lokier <jamie@shareable.org>
-CC: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Miklos Szeredi <miklos@szeredi.hu>, hch@infradead.org,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] private mounts
-References: <E1DPnOn-0000T0-00@localhost> <20050424201820.GA28428@infradead.org> <E1DPo3I-0000V0-00@localhost> <20050424205422.GK13052@parcelfarce.linux.theplanet.co.uk> <E1DPoCg-0000W0-00@localhost> <20050424210616.GM13052@parcelfarce.linux.theplanet.co.uk> <E1DPoRz-0000Y0-00@localhost> <20050424211942.GN13052@parcelfarce.linux.theplanet.co.uk> <20050424214339.GD9304@mail.shareable.org>
-In-Reply-To: <20050424214339.GD9304@mail.shareable.org>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+CC: Xin Zhao <uszhaoxin@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Ext3+ramdisk journaling problem
+References: <4ae3c14050424182235f916d7@mail.gmail.com> <cba141443b50f44069d7a92093a0d270@mac.com>
+In-Reply-To: <cba141443b50f44069d7a92093a0d270@mac.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
+Kyle Moffett wrote:
 
-> He wants to do this:
+> On Apr 24, 2005, at 21:22, Xin Zhao wrote:
 >
->   1. From client, login to server and do a usermount on $HOME/private.
+>> hi,
+>>
+>> I used ramdisk as an ext3 journal and mount ext3 file system with
+>> option data=journal. It worked fine and speedup the ext3 file system.
 >
->   2. From client, login to server and read the files previously mounted.
->  
 >
-This is works fine with plain "mount", except that the mount isn't
-hidden from others.  Why hide it?  Permissions can be used to prevent
-others from looking at the mounted stuff if need be.  I.e. put
-the mountpoint in a directory not readable by others, or
-have the root of that fs unreadable by others.
+> Uhh, the whole point of a journal is that when the computer goes down
+> hard and doesn't have a chance to clean up.  If you put the journal on
+> a ramdisk, you might as well just mount it as an ext2 filesystem and
+> be done with it.  Without the journal _on_disk_ you get no data or
+> filesystem reliability advantages.  If you're after speed, just forgo
+> the reliability or buy better disks.
+>
+Alternative: Buy a real ramdisk with battery-backup instead of using
+a "ramdisk" in system ram.  Such a thing will last across a reboot,
+offering both nice speed and all the comforts of a journal.
 
 Helge Hafting
+

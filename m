@@ -1,66 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261835AbVD0Rio@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261839AbVD0RkF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261835AbVD0Rio (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 13:38:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbVD0Rin
+	id S261839AbVD0RkF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 13:40:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261842AbVD0Rjq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 13:38:43 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:50304 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261841AbVD0RhY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 13:37:24 -0400
-Date: Wed, 27 Apr 2005 13:37:04 -0400
-From: Dave Jones <davej@redhat.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Hugh Dickins <hugh@veritas.com>, Chris Wright <chrisw@osdl.org>,
-       "Sergey S. Kostyliov" <rathamahata@ehouse.ru>,
-       Clem Taylor <clem.taylor@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: New debugging patch was Re: x86-64 bad pmds in 2.6.11.6 II
-Message-ID: <20050427173704.GC19011@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
-	Hugh Dickins <hugh@veritas.com>, Chris Wright <chrisw@osdl.org>,
-	"Sergey S. Kostyliov" <rathamahata@ehouse.ru>,
-	Clem Taylor <clem.taylor@gmail.com>, linux-kernel@vger.kernel.org
-References: <20050414170117.GD22573@wotan.suse.de> <Pine.LNX.4.61.0504141804480.26008@goblin.wat.veritas.com> <20050414181015.GH22573@wotan.suse.de> <20050414181133.GA18221@wotan.suse.de> <20050414182712.GG493@shell0.pdx.osdl.net> <20050415172408.GB8511@wotan.suse.de> <20050415172816.GU493@shell0.pdx.osdl.net> <Pine.LNX.4.61.0504151833020.29919@goblin.wat.veritas.com> <20050415180703.GA26289@redhat.com> <20050427142343.GN13305@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050427142343.GN13305@wotan.suse.de>
-User-Agent: Mutt/1.4.1i
+	Wed, 27 Apr 2005 13:39:46 -0400
+Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:22437 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261841AbVD0Riv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 13:38:51 -0400
+To: mj@ucw.cz
+CC: lmb@suse.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+In-reply-to: <20050427164652.GA3129@ucw.cz> (message from Martin Mares on Wed,
+	27 Apr 2005 18:46:52 +0200)
+Subject: Re: [PATCH] private mounts
+References: <20050426131943.GC2226@openzaurus.ucw.cz> <E1DQQ73-0000Zv-00@dorka.pomaz.szeredi.hu> <20050426201411.GA20109@elf.ucw.cz> <E1DQiEa-0001hi-00@dorka.pomaz.szeredi.hu> <20050427092450.GB1819@elf.ucw.cz> <E1DQjzY-0001no-00@dorka.pomaz.szeredi.hu> <20050427143126.GB1957@mail.shareable.org> <E1DQno0-00029a-00@dorka.pomaz.szeredi.hu> <20050427153320.GA19065@atrey.karlin.mff.cuni.cz> <20050427155022.GR4431@marowsky-bree.de> <20050427164652.GA3129@ucw.cz>
+Message-Id: <E1DQqUi-0002Pt-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 27 Apr 2005 19:38:40 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 27, 2005 at 04:23:44PM +0200, Andi Kleen wrote:
- > 
- > Could someone who reproduces this problem apply the following
- > patch and see if the WARN_ON triggers?
- > 
- > 
- > diff -u linux-2.6.11/mm/memory.c-o linux-2.6.11/mm/memory.c
- > --- linux-2.6.11/mm/memory.c-o	2005-03-02 08:38:08.000000000 +0100
- > +++ linux-2.6.11/mm/memory.c	2005-04-27 15:48:19.777104735 +0200
- > @@ -94,6 +94,7 @@
- >  	if (pmd_none(*pmd))
- >  		return;
- >  	if (unlikely(pmd_bad(*pmd))) {
- > +		printk("%s:%d: ", current->comm, current->pid);
- >  		pmd_ERROR(*pmd);
- >  		pmd_clear(pmd);
- >  		return;
- > @@ -113,6 +114,7 @@
- >  	unsigned long addr = start, next;
- >  	pmd_t *pmd, *__pmd;
- >  
- > +	WARN_ON(start == end);
- >  	if (pud_none(*pud))
- >  		return;
- >  	if (unlikely(pud_bad(*pud))) {
+> > It is certainly an information leak not otherwise available. And with
+> > the ability to change the layout underneath, you might trigger bugs in
+> > root programs: Are they really capable of seeing the same filename
+> > twice, or can you throw them into a deep recursion by simulating
+> > infinitely deep directories/circular hardlinks...?
+> 
+> Yes, it can help you trigger bugs, but all these bugs are triggerable
+> without user filesystems as well, although it's harder to do so.
 
-I'm up to my eyeballs in other stuff right now, so probably won't
-get a chance to test this personally. I'll add it to the Fedora
-testing rpm however, as 1-2 users are also hitting it.
+It's not just triggering bugs.  You have very fine control over what
+you present in your filesystem.  Examples are huge files, huge
+directories, operations that complete slowly or never at all.
 
-I'll let you know if I hear anything back.
+Is it possible to limit all these from kernelspace?  Probably yes,
+although a timeout for operations is something that cuts either way.
+And the compexity of these checks would probably be orders of
+magnitude higher then the check we are currently discussing.
 
-		Dave
+So this check _is_ needed on systems where the users cannot be trusted.
 
+Thanks,
+Miklos

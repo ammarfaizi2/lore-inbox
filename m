@@ -1,44 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbVD0PFd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261707AbVD0PML@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261705AbVD0PFd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 11:05:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbVD0PFd
+	id S261707AbVD0PML (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 11:12:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbVD0PML
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 11:05:33 -0400
-Received: from zproxy.gmail.com ([64.233.162.202]:24495 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261705AbVD0PF3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 11:05:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=ITOnrfOnkVxy7Lji5tpHiZpyj4BMfd14E0oftVmWNXl9yRWFjdOPflTYERmolsIe2+5Eg+cJOnuMgXeM6yfmqbHVBXIQjrLncBulVyxrKev9mvi2EGghuN6okfno+6SJOVD+YT8Bc4QF+zEwHgFqJGsGw+dm3bQKM0ABZyzsmG0=
-Message-ID: <699a19ea050427080545fb1676@mail.gmail.com>
-Date: Wed, 27 Apr 2005 20:35:28 +0530
-From: k8 s <uint32@gmail.com>
-Reply-To: k8 s <uint32@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Doubt Regarding Multithreading and Device Driver
+	Wed, 27 Apr 2005 11:12:11 -0400
+Received: from duempel.org ([81.209.165.42]:40851 "HELO duempel.org")
+	by vger.kernel.org with SMTP id S261707AbVD0PMJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 11:12:09 -0400
+Date: Wed, 27 Apr 2005 17:10:40 +0200
+From: Max Kellermann <max@duempel.org>
+To: k8 s <uint32@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Doubt Regarding Multithreading and Device Driver
+Message-ID: <20050427151040.GA5717@roonstrasse.net>
+Mail-Followup-To: k8 s <uint32@gmail.com>, linux-kernel@vger.kernel.org
+References: <699a19ea050427080545fb1676@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <699a19ea050427080545fb1676@mail.gmail.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
+On 2005/04/27 17:05, k8 s <uint32@gmail.com> wrote:
+> I am storing something into struct file*filp->private_data.
+> As this is not shared across processes I am not doing any locking
+> stuff while accessing or putting anything into it.
 
-I have a doubt regarding user space threads and device drivers
-implementation issue.
+You're talking about kernel variables, aren't you? Kernel memory is
+shared among all processes, i.e. you _do_ need locking.
 
-I have a device driver for /dev/skn
-It implements basic driver operations skn_open,skn_release, skn_ioctl.
+Max
 
-I am storing something into struct file*filp->private_data.
-As this is not shared across processes I am not doing any locking
-stuff while accessing or putting anything into it.
-
-Will There be a race condition in a multithreaded program in the ioctl
-call on smp kernel accessing filp->private_data.
-
-S.Kartikeyan

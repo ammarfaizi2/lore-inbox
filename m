@@ -1,346 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261990AbVD0T7P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261989AbVD0UBI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261990AbVD0T7P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 15:59:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261988AbVD0T7O
+	id S261989AbVD0UBI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 16:01:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261988AbVD0UBI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 15:59:14 -0400
-Received: from thunk.org ([69.25.196.29]:30902 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261986AbVD0T6R (ORCPT
+	Wed, 27 Apr 2005 16:01:08 -0400
+Received: from smtp.istop.com ([66.11.167.126]:22671 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S261991AbVD0UAe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 15:58:17 -0400
-Date: Wed, 27 Apr 2005 15:57:53 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: "H. Peter Anvin" <hpa@zytor.com>, Florian Weimer <fw@DENEB.ENYO.DE>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       magnus.damm@gmail.com, mason@suse.com, mike.taht@timesys.com,
-       mpm@selenic.com, linux-kernel@vger.kernel.org, git@vger.kernel.org
-Subject: Re: Mercurial 0.3 vs git benchmarks
-Message-ID: <20050427195753.GB7793@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	"H. Peter Anvin" <hpa@zytor.com>, Florian Weimer <fw@DENEB.ENYO.DE>,
-	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-	magnus.damm@gmail.com, mason@suse.com, mike.taht@timesys.com,
-	mpm@selenic.com, linux-kernel@vger.kernel.org, git@vger.kernel.org
-References: <200504261138.46339.mason@suse.com> <aec7e5c305042609231a5d3f0@mail.gmail.com> <20050426135606.7b21a2e2.akpm@osdl.org> <Pine.LNX.4.58.0504261405050.18901@ppc970.osdl.org> <20050426155609.06e3ddcf.akpm@osdl.org> <426ED20B.9070706@zytor.com> <871x8wb6w4.fsf@deneb.enyo.de> <20050427151357.GH1087@cip.informatik.uni-erlangen.de> <426FDFCD.6000309@zytor.com> <20050427190144.GA28848@cip.informatik.uni-erlangen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 27 Apr 2005 16:00:34 -0400
+From: Daniel Phillips <phillips@istop.com>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Subject: Re: [PATCH 0/7] dlm: overview
+Date: Wed, 27 Apr 2005 16:00:57 -0400
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org
+References: <20050425151136.GA6826@redhat.com> <200504260130.17016.phillips@istop.com> <20050427135635.GA4431@marowsky-bree.de>
+In-Reply-To: <20050427135635.GA4431@marowsky-bree.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050427190144.GA28848@cip.informatik.uni-erlangen.de>
-User-Agent: Mutt/1.5.8i
+Message-Id: <200504271600.57993.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 27, 2005 at 09:01:44PM +0200, Thomas Glanzmann wrote:
-> Hello,
-> 
-> > Directory hashing slows down operations that do linear sweeps through 
-> > the filesystem reading every single file, simply because without 
-> > dir_index, there is likely to be a correlation between inode order and 
-> > directory order, whereas with dir_index, readdir() returns entries in 
-> > hash order.
-> 
-> thank you for the awareness training. Than mutt should be slower, too.
-> Maybe I should repeat that tests.
+On Wednesday 27 April 2005 09:56, Lars Marowsky-Bree wrote:
+> An 11-parameter function, frankly, more often than not indicates that
+> the interface is wrong. I know it's inherited from VMS, which is a
+> perfectly legitimate reason, but I assume it might get cleaned / broken
+> up in the future.
 
-If you are using the mutt in Debian unstable, it has the patch applied
-which qsorts based on inode number returned from readdir(), which is
-why you may not have been seeing the problem.
+To put things in concrete terms, here it is:
 
-Or you can LD_PRELOAD the attached quick hack....
+int dlm_ls_lock( 
+   /*1*/  dlm_lshandle_t lockspace,
+   /*2*/  uint32_t mode,
+   /*3*/  struct dlm_lksb *lksb,
+   /*4*/  uint32_t flags,
+   /*5*/  void *name,
+   /*6*/  unsigned int namelen,
+   /*7*/  uint32_t parent,
+   /*8*/  void (*ast) (void *astarg),
+   /*9*/  void *astarg,
+   /*10*/ void (*bast) (void *astarg),
+   /*11*/ struct dlm_range *range);
 
-						- Ted
+> Questions which need to be settled, or which the API at least needs to
+> export so we know what is expected from us:
+>
+> - How do the node ids look like? Are they sparse integers, continuous
+>   ints, uuids, IPv4 or IPv6 address of the 'primary' IP of a node,
+>   hostnames...?
 
-/*
- * readdir accelerator
- *
- * (C) Copyright 2003, 2004 by Theodore Ts'o.
- *
- * Compile using the command:
- *
- * gcc -o spd_readdir.so -shared spd_readdir.c -ldl
- *
- * %Begin-Header%
- * This file may be redistributed under the terms of the GNU Public
- * License.
- * %End-Header%
- * 
- */
+32 bit integers at the moment.  I hope it stays that way.
 
-#define ALLOC_STEPSIZE	100
-#define MAX_DIRSIZE	0
+> - How are the communication links configured? How to tell it which
+>   interfaces to use for IP, for example?
 
-#define DEBUG
+CMAN provides a PF_CLUSTER.  This facility seems cool, but I haven't got much 
+experience with it, and certainly not enough to know if PF_CLUSTER is really 
+necessary, or should be put forth as a required component of the common 
+infrastructure.  It is not clear to me that SCTP can't be used directly, 
+perhaps with some library support.
 
-#ifdef DEBUG
-#define DEBUG_DIR(x)	{if (do_debug) { x; }}
-#else
-#define DEBUG_DIR(x)
-#endif
+> - How do we actually deliver the membership events -
+>   echo "current node list" >/sys/cluster/gfs/membership
+>   or...?
 
-#define _GNU_SOURCE
-#define __USE_LARGEFILE64
+This is rather nice: event messages are delivered over a socket.  The specific 
+form of the messages sucks somewhat, as do the wrappers provided.  These need 
+some public pondering.
 
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <stdlib.h>
-#include <string.h>
-#include <dirent.h>
-#include <errno.h>
-#include <dlfcn.h>
+> - What kind of semantics are expected: Can we deliver the membership
+>   events as they come, do we need to introduce suspend/resume barriers
+>   etc?
 
-struct dirent_s {
-	unsigned long long d_ino;
-	long long d_off;
-	unsigned short int d_reclen;
-	unsigned char d_type;
-	char *d_name;
-};
+Suspend/resume barriers take the form of a simple message protocol, 
+administered by CMAN.
 
-struct dir_s {
-	DIR	*dir;
-	int	num;
-	int	max;
-	struct dirent_s *dp;
-	int	pos;
-	int	fd;
-	struct dirent ret_dir;
-	struct dirent64 ret_dir64;
-};
+> - How to security credentials play into this, and where are they
+>   enforced - so that a user-space app doesn't mess with kernel locks?
 
-static int (*real_closedir)(DIR *dir) = 0;
-static DIR *(*real_opendir)(const char *name) = 0;
-static struct dirent *(*real_readdir)(DIR *dir) = 0;
-static struct dirent64 *(*real_readdir64)(DIR *dir) = 0;
-static off_t (*real_telldir)(DIR *dir) = 0;
-static void (*real_seekdir)(DIR *dir, off_t offset) = 0;
-static int (*real_dirfd)(DIR *dir) = 0;
-static unsigned long max_dirsize = MAX_DIRSIZE;
-static num_open = 0;
-#ifdef DEBUG
-static int do_debug = 0;
-#endif
+Security?  What is that?  (Too late for me to win that dinner now...)
+Security is currently provided by restricting socket access to root.
 
-static void setup_ptr()
-{
-	char *cp;
+> Maybe initially we'll end up with those being "exported" in
+> Documentation/{OCFS2,GFS}-DLM/ files, but ultimately it'd be nice if
+> user-space could auto-discover them and do the right thing w/a minimum
+> amount of configuration.
 
-	real_opendir = dlsym(RTLD_NEXT, "opendir");
-	real_closedir = dlsym(RTLD_NEXT, "closedir");
-	real_readdir = dlsym(RTLD_NEXT, "readdir");
-	real_readdir64 = dlsym(RTLD_NEXT, "readdir64");
-	real_telldir = dlsym(RTLD_NEXT, "telldir");
-	real_seekdir = dlsym(RTLD_NEXT, "seekdir");
-	real_dirfd = dlsym(RTLD_NEXT, "dirfd");
-	if ((cp = getenv("SPD_READDIR_MAX_SIZE")) != NULL) {
-		max_dirsize = atol(cp);
-	}
-#ifdef DEBUG
-	if (getenv("SPD_READDIR_DEBUG"))
-		do_debug++;
-#endif
-}
+Yes.  For the next month or two it should be ambitious enough just to ensure 
+that the interfaces are simple, sane, and known to satisfy the base 
+requirements of everybody with existing cluster code to contribute.  And 
+automagic aspects are also worth discussing, just to be sure we don't set up 
+roadblocks to that kind of improvement in the future.  I don't think we need 
+too much automagic just now, though.
 
-static void free_cached_dir(struct dir_s *dirstruct)
-{
-	int i;
+> Or maybe these will be abstracted by user-space wrapper libraries, and
+> everybody does in the kernel what they deem best.
 
-	if (!dirstruct->dp)
-		return;
+I _hope_ that we can arrive at a base membership infrastructure that is 
+convenient to use either from kernel or user space.  User space libraries 
+already exist, but with warts of various sizes.
 
-	for (i=0; i < dirstruct->num; i++) {
-		free(dirstruct->dp[i].d_name);
-	}
-	free(dirstruct->dp);
-	dirstruct->dp = 0;
-}	
+Regards,
 
-static int ino_cmp(const void *a, const void *b)
-{
-	const struct dirent_s *ds_a = (const struct dirent_s *) a;
-	const struct dirent_s *ds_b = (const struct dirent_s *) b;
-	ino_t i_a, i_b;
-	
-	i_a = ds_a->d_ino;
-	i_b = ds_b->d_ino;
-
-	if (ds_a->d_name[0] == '.') {
-		if (ds_a->d_name[1] == 0)
-			i_a = 0;
-		else if ((ds_a->d_name[1] == '.') && (ds_a->d_name[2] == 0))
-			i_a = 1;
-	}
-	if (ds_b->d_name[0] == '.') {
-		if (ds_b->d_name[1] == 0)
-			i_b = 0;
-		else if ((ds_b->d_name[1] == '.') && (ds_b->d_name[2] == 0))
-			i_b = 1;
-	}
-
-	return (i_a - i_b);
-}
-
-
-DIR *opendir(const char *name)
-{
-	DIR *dir;
-	struct dir_s	*dirstruct;
-	struct dirent_s *ds, *dnew;
-	struct dirent64 *d;
-	struct stat st;
-
-	if (!real_opendir)
-		setup_ptr();
-
-	DEBUG_DIR(printf("Opendir(%s) (%d open)\n", name, num_open++));
-	dir = (*real_opendir)(name);
-	if (!dir)
-		return NULL;
-
-	dirstruct = malloc(sizeof(struct dir_s));
-	if (!dirstruct) {
-		(*real_closedir)(dir);
-		errno = -ENOMEM;
-		return NULL;
-	}
-	dirstruct->num = 0;
-	dirstruct->max = 0;
-	dirstruct->dp = 0;
-	dirstruct->pos = 0;
-	dirstruct->dir = 0;
-
-	if (max_dirsize && (stat(name, &st) == 0) && 
-	    (st.st_size > max_dirsize)) {
-		DEBUG_DIR(printf("Directory size %ld, using direct readdir\n",
-				 st.st_size));
-		dirstruct->dir = dir;
-		return (DIR *) dirstruct;
-	}
-
-	while ((d = (*real_readdir64)(dir)) != NULL) {
-		if (dirstruct->num >= dirstruct->max) {
-			dirstruct->max += ALLOC_STEPSIZE;
-			DEBUG_DIR(printf("Reallocating to size %d\n", 
-					 dirstruct->max));
-			dnew = realloc(dirstruct->dp, 
-				       dirstruct->max * sizeof(struct dir_s));
-			if (!dnew)
-				goto nomem;
-			dirstruct->dp = dnew;
-		}
-		ds = &dirstruct->dp[dirstruct->num++];
-		ds->d_ino = d->d_ino;
-		ds->d_off = d->d_off;
-		ds->d_reclen = d->d_reclen;
-		ds->d_type = d->d_type;
-		if ((ds->d_name = malloc(strlen(d->d_name)+1)) == NULL) {
-			dirstruct->num--;
-			goto nomem;
-		}
-		strcpy(ds->d_name, d->d_name);
-		DEBUG_DIR(printf("readdir: %lu %s\n", 
-				 (unsigned long) d->d_ino, d->d_name));
-	}
-	dirstruct->fd = dup((*real_dirfd)(dir));
-	(*real_closedir)(dir);
-	qsort(dirstruct->dp, dirstruct->num, sizeof(struct dirent_s), ino_cmp);
-	return ((DIR *) dirstruct);
-nomem:
-	DEBUG_DIR(printf("No memory, backing off to direct readdir\n"));
-	free_cached_dir(dirstruct);
-	dirstruct->dir = dir;
-	return ((DIR *) dirstruct);
-}
-
-int closedir(DIR *dir)
-{
-	struct dir_s	*dirstruct = (struct dir_s *) dir;
-
-	DEBUG_DIR(printf("Closedir (%d open)\n", --num_open));
-	if (dirstruct->dir)
-		(*real_closedir)(dirstruct->dir);
-
-	if (dirstruct->fd >= 0)
-		close(dirstruct->fd);
-	free_cached_dir(dirstruct);
-	free(dirstruct);
-	return 0;
-}
-
-struct dirent *readdir(DIR *dir)
-{
-	struct dir_s	*dirstruct = (struct dir_s *) dir;
-	struct dirent_s *ds;
-
-	if (dirstruct->dir)
-		return (*real_readdir)(dirstruct->dir);
-
-	if (dirstruct->pos >= dirstruct->num)
-		return NULL;
-
-	ds = &dirstruct->dp[dirstruct->pos++];
-	dirstruct->ret_dir.d_ino = ds->d_ino;
-	dirstruct->ret_dir.d_off = ds->d_off;
-	dirstruct->ret_dir.d_reclen = ds->d_reclen;
-	dirstruct->ret_dir.d_type = ds->d_type;
-	strncpy(dirstruct->ret_dir.d_name, ds->d_name,
-		sizeof(dirstruct->ret_dir.d_name));
-
-	return (&dirstruct->ret_dir);
-}
-
-struct dirent64 *readdir64(DIR *dir)
-{
-	struct dir_s	*dirstruct = (struct dir_s *) dir;
-	struct dirent_s *ds;
-
-	if (dirstruct->dir)
-		return (*real_readdir64)(dirstruct->dir);
-
-	if (dirstruct->pos >= dirstruct->num)
-		return NULL;
-
-	ds = &dirstruct->dp[dirstruct->pos++];
-	dirstruct->ret_dir64.d_ino = ds->d_ino;
-	dirstruct->ret_dir64.d_off = ds->d_off;
-	dirstruct->ret_dir64.d_reclen = ds->d_reclen;
-	dirstruct->ret_dir64.d_type = ds->d_type;
-	strncpy(dirstruct->ret_dir64.d_name, ds->d_name,
-		sizeof(dirstruct->ret_dir64.d_name));
-
-	return (&dirstruct->ret_dir64);
-}
-
-off_t telldir(DIR *dir)
-{
-	struct dir_s	*dirstruct = (struct dir_s *) dir;
-
-	if (dirstruct->dir)
-		return (*real_telldir)(dirstruct->dir);
-
-	return ((off_t) dirstruct->pos);
-}
-
-void seekdir(DIR *dir, off_t offset)
-{
-	struct dir_s	*dirstruct = (struct dir_s *) dir;
-
-	if (dirstruct->dir) {
-		(*real_seekdir)(dirstruct->dir, offset);
-		return;
-	}
-
-	dirstruct->pos = offset;
-}
-
-int dirfd(DIR *dir)
-{
-	struct dir_s	*dirstruct = (struct dir_s *) dir;
-
-	if (dirstruct->dir)
-		return (*real_dirfd)(dirstruct->dir);
-
-	return (dirstruct->fd);
-}
+Daniel

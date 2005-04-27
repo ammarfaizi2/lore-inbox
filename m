@@ -1,87 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261603AbVD0Nn6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbVD0Noq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261603AbVD0Nn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 09:43:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbVD0NmR
+	id S261596AbVD0Noq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 09:44:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbVD0No3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 09:42:17 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:54206 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S261525AbVD0Nl6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 09:41:58 -0400
-Date: Wed, 27 Apr 2005 15:41:42 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: David Teigland <teigland@redhat.com>, Steven Dake <sdake@mvista.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH 1b/7] dlm: core locking
-Message-ID: <20050427134142.GZ4431@marowsky-bree.de>
-References: <20050425165826.GB11938@redhat.com> <1114466097.30427.32.camel@persist.az.mvista.com> <20050426054933.GC12096@redhat.com> <1114537223.31647.10.camel@persist.az.mvista.com> <20050427030217.GA9963@redhat.com>
+	Wed, 27 Apr 2005 09:44:29 -0400
+Received: from herkules.vianova.fi ([194.100.28.129]:56229 "HELO
+	mail.vianova.fi") by vger.kernel.org with SMTP id S261597AbVD0Nnn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 09:43:43 -0400
+Date: Wed, 27 Apr 2005 16:43:31 +0300
+From: Ville Herva <vherva@vianova.fi>
+To: Jan Hudec <bulb@ucw.cz>
+Cc: Jamie Lokier <jamie@shareable.org>, John Stoffel <john@stoffel.org>,
+       "Artem B. Bityuckiy" <dedekind@oktetlabs.ru>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: filesystem transactions API
+Message-ID: <20050427134331.GT5470@viasys.com>
+Reply-To: vherva@vianova.fi
+References: <20050426134629.GU16169@viasys.com> <20050426141426.GC10833@mail.shareable.org> <426E4EBD.6070104@oktetlabs.ru> <20050426143247.GF10833@mail.shareable.org> <17006.22498.394169.98413@smtp.charter.net> <20050426152434.GB14297@mail.shareable.org> <20050427093412.GB1904@vagabond>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050427030217.GA9963@redhat.com>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050427093412.GB1904@vagabond>
+User-Agent: Mutt/1.4.1i
+X-Operating-System: Linux herkules.vianova.fi 2.4.27
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2005-04-27T11:02:17, David Teigland <teigland@redhat.com> wrote:
+On Wed, Apr 27, 2005 at 11:34:12AM +0200, you [Jan Hudec] wrote:
+> On Tue, Apr 26, 2005 at 16:24:34 +0100, Jamie Lokier wrote:
+> > John Stoffel wrote:
+> > > >>>>> "Jamie" == Jamie Lokier <jamie@shareable.org> writes:
+> > > 
+> > > Jamie> No.  A transaction means that _all_ processes will see the
+> > > Jamie> whole transaction or not.
+> > > 
+> > > This is really hard.  How do you handle the case where process X
+> > > starts a transaction modifies files a, b & c, but process Y has file b
+> > > open for writing, and never lets it go?  Or the file gets unlinked?  
+> > 
+> > Then it starts to depend on what kind of transactions you want to
+> > implement.
+> > 
+> > You can say that a transaction isn't allowed when a process has one of
+> > the files opened for writing.  Or you can say a transaction is
+> > equivalent to calling all of the I/O system calls at once.  You can
+> > also decide if you want the reads and directory lookups performed in
+> > the transactions to become prerequisites for the transaction
+> > completing (so it's aborted if another process writes to those file
+> > regions or changes the directory structure in a way which breaks a
+> > prerequisite), or if you want those to lock the things which are read
+> > for the duration of the transaction, or even just ignore reads for
+> > transaction purposes.  Or, you can say that transactions are limited
+> > to just directory structure, and not file contents (that's good enough
+> > for package management), or you can say they're limited to just file
+> > contents (that's good enough for databases and text file edits).
+> > 
+> > Etc, etc, quite a lot of semantic choices.
+> 
+> How do we specify which calls belong to a transaction? By some kind of
+> extra file handle?
+> 
+> I'd think having global per-process transaction is not the best way.
+> So I think we should have some kind of transaction handle (probably in
+> the file handle space) and a way to say that a syscall is done within
+> a transaction. To avoid duplicating all syscalls, we could have
+> set_active_transaction() operation.
 
-Let me chime in here, because defining the properties of the membership
-events delivered to the DLM is really important to figure out if/how it
-can be integrated with other stacks.
-
-> > In this case the order of lock messages with the membership changes is
-> > important.  
-> I think this might help clarify:  no membership change is applied to the
-> lockspace on any nodes until the lockspace has first been suspended on
-> all.  Suspending means no locking activity is processed.  The lockspace on
-> all nodes is then told the new membership and does recovery.  Locking is
-> then resumed.
-
-So in effect, the delivery of the suspend/membership distribution/resume
-events are three cluster-wide barriers?
-
-I can see how that simplifies the recovery algorithm.
-
-And, I assume that the delivery of a "node down" membership event
-implies that said node also has been fenced.
-
-So we can't deliver it raw membership events. Noted.
-
-> I know you're more familiar with those details than I am.  What I keep
-> trying to explain is that the dlm is in a different, simpler category.
-
-Agreed. This is something I noticed when I looked at how the DLM fits
-into the global cluster resource management architecture, too.
-
-For example, if you talk to Stephen ;), you'll be told that every
-cluster resource is essentially a lock. But, our resources have complex
-dependencies, start/stop ordering etc; a DLM which tried to map these
-would blow up completely.
-
-So, we have the "top-level" "lock manager", our CRM, which manages these
-complex "locks". However, it's also worth noting that there's rather few
-of them to manage, and they don't change very often.
-
-Now, the DLM has simpler locking semantics, but it manages magnitudes
-more of them, and faster so.
-
-If you want to think about this in terms of locking hierarchy, it's the
-high-level feature rich sophisticated aka bloated lock manager which
-controls the "lower level" faster and more scalable "sublockspace" and
-coordinates it in terms of the other complex objects (like fencing,
-applications, filesystems etc).
-
-Just some food for thought how this all fits together rather neatly.
+That's more or less what NTFS does. See the example at
+http://blogs.msdn.com/because_we_can/
+ 
 
 
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
+-- v -- 
 
--- 
-High Availability & Clustering
-SUSE Labs, Research and Development
-SUSE LINUX Products GmbH - A Novell Business
+v@iki.fi
 

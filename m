@@ -1,137 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVD0IfD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbVD0Ium@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbVD0IfD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 04:35:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbVD0IfD
+	id S261267AbVD0Ium (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 04:50:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVD0Iul
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 04:35:03 -0400
-Received: from web40711.mail.yahoo.com ([66.218.78.168]:20027 "HELO
-	web40711.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261179AbVD0Iez (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 04:34:55 -0400
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=HeKKPcUeyVLmr+9ouxEK5kQnDRXX0/9FhXFyifr4pX/8dhSqT2xSfWy+s3Z1e2tsuYwTZC/SntRKLaULAHSuBtMp6aG7xK1qy+Q9vcCjSXKT0wTmrCNMyGq/UEVGUd/WSuiin7oJ3wIe3fAP2CxvmF+fkTtThIAGMGfKS0ZgmF4=  ;
-Message-ID: <20050427083454.26893.qmail@web40711.mail.yahoo.com>
-Date: Wed, 27 Apr 2005 01:34:54 -0700 (PDT)
-From: dipankar das <dipankar_dd@yahoo.com>
-Subject: Re: [kernel oops when locking the cluster using HAS]
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-In-Reply-To: 6667
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 27 Apr 2005 04:50:41 -0400
+Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:36515 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261190AbVD0Iub (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 04:50:31 -0400
+To: pavel@ucw.cz
+CC: hch@infradead.org, jamie@shareable.org, linuxram@us.ibm.com,
+       7eggert@gmx.de, bulb@ucw.cz, viro@parcelfarce.linux.theplanet.co.uk,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+In-reply-to: <20050426201411.GA20109@elf.ucw.cz> (message from Pavel Machek on
+	Tue, 26 Apr 2005 22:14:11 +0200)
+Subject: Re: [PATCH] private mounts
+References: <1114445923.4480.94.camel@localhost> <20050425191015.GC28294@mail.shareable.org> <E1DQMB0-00008a-00@dorka.pomaz.szeredi.hu> <20050426091921.GA29810@infradead.org> <E1DQMGZ-00009n-00@dorka.pomaz.szeredi.hu> <20050426093628.GA30208@infradead.org> <E1DQMYu-0000DL-00@dorka.pomaz.szeredi.hu> <20050426094727.GA30379@infradead.org> <20050426131943.GC2226@openzaurus.ucw.cz> <E1DQQ73-0000Zv-00@dorka.pomaz.szeredi.hu> <20050426201411.GA20109@elf.ucw.cz>
+Message-Id: <E1DQiEa-0001hi-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 27 Apr 2005 10:49:28 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---- KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-wrote:
-> Hi,
-> 
-> This is a updated version of a patch for counting
-> bouce buffer page.
-> A major change is :
-> /proc/vmstat is used to show usage.
-> 
-> Thanks
-> -- Kame
+> > > Could we get root-only fuse in, please?
 > > 
-> This is a patch for counting the number of pages for
-> bounce buffer.
-> It's shown in /proc/vmstat.
+> > chmod u-s /usr/bin/fusermount
 > 
-> Currently, the number of bounce pages are not
-> counted anywhere.
-> So, if there are many bounce pages, it seems that
-> there are
-> leaked pages. And it's difficult for a user to
-> imagine the usage of
-> bounce pages. So, it's meaningful to show # of bouce
-> pages.
-> 
-> Signed-off-by: KAMEZAWA Hiroyuki
-> <kamezawa.hiroyu@jp.fujitsu.com>
-> 
-> 
-> 
-> ---
-> 
-> 
->
-linux-2.6.12-rc2-mm3-kamezawa/include/linux/page-flags.h
-> |    1 +
->  linux-2.6.12-rc2-mm3-kamezawa/mm/highmem.c         
->      |    2 ++
->  linux-2.6.12-rc2-mm3-kamezawa/mm/page_alloc.c      
->      |    1 +
->  3 files changed, 4 insertions(+)
-> 
-> diff -puN mm/highmem.c~count_bounce mm/highmem.c
-> --- linux-2.6.12-rc2-mm3/mm/highmem.c~count_bounce
-> 2005-04-25 12:04:28.000000000 +0900
-> +++ linux-2.6.12-rc2-mm3-kamezawa/mm/highmem.c
-> 2005-04-27 10:25:51.000000000 +0900
-> @@ -325,6 +325,7 @@ static void bounce_end_io(struct
-> bio *bi
->  			continue;
->  
->  		mempool_free(bvec->bv_page, pool);	
-> +		dec_page_state(nr_bounce);
->  	}
->  
->  	bio_endio(bio_orig, bio_orig->bi_size, err);
-> @@ -405,6 +406,7 @@ static void
-> __blk_queue_bounce(request_q
->  		to->bv_page = mempool_alloc(pool, q->bounce_gfp);
->  		to->bv_len = from->bv_len;
->  		to->bv_offset = from->bv_offset;
-> +		inc_page_state(nr_bounce);
->  
->  		if (rw == WRITE) {
->  			char *vto, *vfrom;
-> diff -puN mm/page_alloc.c~count_bounce
-> mm/page_alloc.c
-> ---
-> linux-2.6.12-rc2-mm3/mm/page_alloc.c~count_bounce
-> 2005-04-27 10:15:39.000000000 +0900
-> +++ linux-2.6.12-rc2-mm3-kamezawa/mm/page_alloc.c
-> 2005-04-27 10:17:18.000000000 +0900
-> @@ -1902,6 +1902,7 @@ static char *vmstat_text[] = {
->  	"nr_page_table_pages",
->  	"nr_mapped",
->  	"nr_slab",
-> +	"nr_bounce",
->  
->  	"pgpgin",
->  	"pgpgout",
-> diff -puN include/linux/page-flags.h~count_bounce
-> include/linux/page-flags.h
-> ---
->
-linux-2.6.12-rc2-mm3/include/linux/page-flags.h~count_bounce
-> 2005-04-27 10:23:15.000000000 +0900
-> +++
->
-linux-2.6.12-rc2-mm3-kamezawa/include/linux/page-flags.h
-> 2005-04-27 10:24:11.000000000 +0900
-> @@ -89,6 +89,7 @@ struct page_state {
->  	unsigned long nr_page_table_pages;/* Pages used
-> for pagetables */
->  	unsigned long nr_mapped;	/* mapped into pagetables
-> */
->  	unsigned long nr_slab;		/* In slab */
-> +	unsigned long nr_bounce;	/* pages for bounce
-> buffers */
->  #define GET_PAGE_STATE_LAST nr_slab
->  
->  	/*
-> 
-> _
-> 
+> :-)))). I meant merging patches that are not controversial into
+> mainline. AFAICT only controversial pieces are "make it safe for
+> non-root users"...
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+This is the controversial part in all it's glory:
+
+	if (!(fc->flags & FUSE_ALLOW_OTHER) && current->fsuid != fc->user_id)
+		return -EACCES;
+
+Leaving it out would gain us what exactly?
+
+I'm not trying to say that this is somehow better than the
+pam+shared-subtrees solution discuseed.  That certainly has advantages
+over this (e.g. suid programs get permission to fuse mounted
+filesystems).
+
+But leaving it out makes no sense.  Zero, zilch, none.
+
+Maybe I'm totally dumb, but I just don't get Christoph's argument.
+
+Thanks,
+Miklos

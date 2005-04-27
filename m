@@ -1,58 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262021AbVD0U7i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262019AbVD0VFD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262021AbVD0U7i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 16:59:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262017AbVD0U7a
+	id S262019AbVD0VFD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 17:05:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262017AbVD0VFD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 16:59:30 -0400
-Received: from karnickel.franken.de ([193.141.110.11]:12810 "EHLO
-	karnickel.franken.de") by vger.kernel.org with ESMTP
-	id S262012AbVD0U6y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 16:58:54 -0400
-Subject: Re: [04/07] partitions/msdos.c fix
-From: Erik Tews <erik@debian.franken.de>
-To: Andries Brouwer <Andries.Brouwer@cwi.nl>
-Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>, Cliff White <cliffw@osdl.org>,
-       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <20050427203440.GA26759@apps.cwi.nl>
-References: <20050427171446.GA3195@kroah.com>
-	 <20050427171627.GE3195@kroah.com>  <20050427203440.GA26759@apps.cwi.nl>
-Content-Type: text/plain
-Date: Wed, 27 Apr 2005 22:49:28 +0200
-Message-Id: <1114634968.18249.5.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+	Wed, 27 Apr 2005 17:05:03 -0400
+Received: from terminus.zytor.com ([209.128.68.124]:64445 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S262012AbVD0VE6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 17:04:58 -0400
+Message-ID: <426FFE58.4050901@zytor.com>
+Date: Wed, 27 Apr 2005 14:04:24 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Florian Weimer <fw@deneb.enyo.de>
+CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       magnus.damm@gmail.com, mason@suse.com, mike.taht@timesys.com,
+       mpm@selenic.com, linux-kernel@vger.kernel.org, git@vger.kernel.org
+Subject: Re: Mercurial 0.3 vs git benchmarks
+References: <aec7e5c305042608095731d571@mail.gmail.com>	<200504261138.46339.mason@suse.com>	<aec7e5c305042609231a5d3f0@mail.gmail.com>	<20050426135606.7b21a2e2.akpm@osdl.org>	<Pine.LNX.4.58.0504261405050.18901@ppc970.osdl.org>	<20050426155609.06e3ddcf.akpm@osdl.org> <426ED20B.9070706@zytor.com>	<871x8wb6w4.fsf@deneb.enyo.de>	<20050427151357.GH1087@cip.informatik.uni-erlangen.de>	<426FDFCD.6000309@zytor.com>	<20050427190144.GA28848@cip.informatik.uni-erlangen.de> <874qds5489.fsf@deneb.enyo.de>
+In-Reply-To: <874qds5489.fsf@deneb.enyo.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, den 27.04.2005, 22:34 +0200 schrieb Andries Brouwer:
-> On Wed, Apr 27, 2005 at 10:16:27AM -0700, Greg KH wrote:
+Florian Weimer wrote:
 > 
-> > -stable review patch.  If anyone has any objections, please let us know.
-> > 
-> > ------------------
-> > 
-> > Erik reports this fixes an oops on boot for him.
-> 
-> No objections. But..
-> 
-> The purpose of this patch was not to fix an oops, but to avoid
-> partition table parsing in a situation where almost surely
-> no partition table is present.
-> 
-> If this fixes an oops, then I want to know precisely what oops.
-> No doubt that same oops could occur in other circumstances where
-> this patch does not happen to help.
+> Benchmarks are actually a bit tricky because as far as I can tell,
+> once you hash the directories, they are tainted even if you mount your
+> file system with ext2.
 
-Hi, this happend on my laptop (ibm thinkpad t41p, intel cpu, no special
-kind of partition layout). Because this happend during partition table
-parsing (during bootup), I was not able to copy it.
+That's what fsck -D is for.
 
-But this should only affect the first 512 bytes of my harddisk, or? If
-so, I can copy this data and send it to you.
-
+	-hpa

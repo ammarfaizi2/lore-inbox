@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261591AbVD0NtH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbVD0NwK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261591AbVD0NtH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 09:49:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbVD0Npa
+	id S261299AbVD0NwK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 09:52:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbVD0NwI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 09:45:30 -0400
-Received: from rproxy.gmail.com ([64.233.170.198]:7081 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261525AbVD0NmU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 09:42:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=OXOzjjWocHW7npCFwaNydwu+/Grxgyn1gg/GH2imjk8ZxL1G7cqj6rHntmsXM7JCMPCUgC4UI7WVTYuHTqLpWJItUWACvyErU7CJVskLgs//XoDLxjh3t/HXmTZDX5JsyYPwotStCGxO5XXt4+id/sjLq/htTYX3e5OYN5HG4Og=
-Message-ID: <d120d500050427064250a9450b@mail.gmail.com>
-Date: Wed, 27 Apr 2005 08:42:19 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 1/6] Toshiba driver cleanup
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050427003329.02dab427.akpm@osdl.org>
+	Wed, 27 Apr 2005 09:52:08 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:30660 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261525AbVD0Nu6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 09:50:58 -0400
+Date: Wed, 27 Apr 2005 21:54:28 +0800
+From: David Teigland <teigland@redhat.com>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 7/7] dlm: build
+Message-ID: <20050427135428.GF16502@redhat.com>
+References: <20050425151333.GH6826@redhat.com> <20050425142525.70e72e93.akpm@osdl.org> <200504260352.j3Q3qGEP010127@turing-police.cc.vt.edu> <20050426055235.GD12096@redhat.com> <20050427132547.GY4431@marowsky-bree.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200504270149.13450.dtor_core@ameritech.net>
-	 <200504270150.06196.dtor_core@ameritech.net>
-	 <20050427003329.02dab427.akpm@osdl.org>
+In-Reply-To: <20050427132547.GY4431@marowsky-bree.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/27/05, Andrew Morton <akpm@osdl.org> wrote:
-> Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> >
-> > Toshiba legacy driver cleanup:
+On Wed, Apr 27, 2005 at 03:25:47PM +0200, Lars Marowsky-Bree wrote:
+> On 2005-04-26T13:52:35, David Teigland <teigland@redhat.com> wrote:
 > 
-> --- 25/drivers/char/toshiba.c~toshiba-driver-cleanup-fix        2005-04-27 00:32:47.306512192 -0700
-> +++ 25-akpm/drivers/char/toshiba.c      2005-04-27 00:32:51.521871360 -0700
-> @@ -79,7 +79,7 @@ MODULE_DESCRIPTION("Toshiba laptop SMM d
-> MODULE_SUPPORTED_DEVICE("toshiba");
+> > Other transports are definately a possibility and something that should be
+> > quite simple since it's all encapsulated in lowcomms as you've mentioned.
 > 
-> static int tosh_fn;
-> -module_param(fn, int, 0);
-> +module_param(tosh_fn, int, 0);
-> MODULE_PARM_DESC(tosh_fn, "User specified Fn key detection port");
-> 
+> That begs the question why you have choosen SCTP for the newer DLM
+> versions. Curiousity kills the cat, so I'm asking ;-)
 
-Ahem, sorry, somehow picked up bad version... It was supposed to be
-module_param_named(). I will send an updated patch tonight.
+Because it allows you to easily take advantage of multi-homing where a
+node has redundant networks.
 
--- 
-Dmitry
+Dave
+

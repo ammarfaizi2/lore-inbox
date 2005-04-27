@@ -1,52 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261419AbVD0Lgk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbVD0LrN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261419AbVD0Lgk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 07:36:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbVD0Lgk
+	id S261454AbVD0LrN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 07:47:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261470AbVD0LrN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 07:36:40 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:18 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261419AbVD0Lgi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 07:36:38 -0400
-Date: Wed, 27 Apr 2005 21:35:42 +1000
-To: Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>
-Cc: Patrick McHardy <kaber@trash.net>, netdev@oss.sgi.com,
-       netfilter-devel@lists.netfilter.org, Yair@arx.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Re-routing packets via netfilter (ip_rt_bug)
-Message-ID: <20050427113542.GB22433@gondor.apana.org.au>
-References: <20050425213400.GB29288@gondor.apana.org.au> <426D8672.1030001@trash.net> <20050426003925.GA13650@gondor.apana.org.au> <426E3F67.8090006@trash.net> <20050426232857.GA18358@gondor.apana.org.au> <426EE350.1070902@trash.net> <20050427010730.GA18919@gondor.apana.org.au> <426F68C5.4010109@trash.net> <20050427103056.GB22099@gondor.apana.org.au> <Pine.LNX.4.58.0504271237350.4795@blackhole.kfki.hu>
+	Wed, 27 Apr 2005 07:47:13 -0400
+Received: from ip-svs-1.Informatik.Uni-Oldenburg.DE ([134.106.12.126]:53400
+	"EHLO aechz.svs.informatik.uni-oldenburg.de") by vger.kernel.org
+	with ESMTP id S261454AbVD0LrG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 07:47:06 -0400
+Date: Wed, 27 Apr 2005 13:46:48 +0200
+From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Evms-devel@lists.sourceforge.net
+Subject: RFH: ext3 on EVMS on SW-RAID1 problem
+Message-ID: <20050427114648.GA17153@titan.lahn.de>
+Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Evms-devel@lists.sourceforge.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0504271237350.4795@blackhole.kfki.hu>
-User-Agent: Mutt/1.5.6+20040907i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Organization: UUCP-Freunde Lahn e.V.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 27, 2005 at 12:41:01PM +0200, Jozsef Kadlecsik wrote:
-> > >
-> > > Forwarded packets can't have any NAT manips in LOCAL_OUT, so it
-> > > should work. I'm not sure about it though because it would be
-> > > the only place where packets just appear in FORWARD, usually
-> > > all packets enters through PRE_ROUTING or LOCAL_OUT.
-> >
-> > It's also the only place where we generate a packet with a non-local
-> > source address :)
-> 
-> Besides the REJECT target, TARPIT in patch-o-matic-ng also generates
-> packets with non-local source addresses. We cannot assume that REJECT is
-> the only one which can create such packets.
+Hello and help!
 
-Any reason why it can't be fed through the FORWARD chain as opposed
-to LOCAL_OUT? In general, is there anything that's generating packets
-with foreign addresses that can't be fed through FORWARD?
+One of our university fileservers shows strange problems since last
+friday. Syslog show the following messages:
+	attempt to access beyond end of device
+	dm-8: rw=0, want=8589934592, limit=262142
+The strange thing: If I mount a disk-image of that volume via loop,
+everything works fine!
 
-Cheers,
+The server was running Debian sarge with an unpatched 2.6.11.6 than, but
+is running an 2.6.11.7 now and still shows the same problem.
+EVMS is version 2.5.2-1 and DevMapper is version 1.01.00-4.
+
+moradin:/var/tmp# dd if=/dev/evms/bsp2005 of=/var/tmp/bsp2005.e3
+262142+0 records in
+262142+0 records out
+134216704 bytes transferred in 5.012082 seconds (26778633 bytes/sec)
+moradin:/var/tmp# mount -o loop /var/tmp/bsp2005.e3 /mnt
+moradin:/var/tmp# stat /mnt/i386-gnu-linux/tools/lib/gcc-lib/mips-linux/3.3.2/include/stddef.h
+  File: `/mnt/i386-gnu-linux/tools/lib/gcc-lib/mips-linux/3.3.2/include/stddef.h'
+  Size: 12695           Blocks: 28         IO Block: 4096   regular file
+Device: 700h/1792d      Inode: 24840       Links: 1
+Access: (0640/-rw-r-----)  Uid: ( 1000/  pmhahn)   Gid: (19992/ bsp2005)
+Access: 2005-04-27 13:06:16.000000000 +0200
+Modify: 2005-04-13 15:21:57.000000000 +0200
+Change: 2005-04-22 08:35:09.000000000 +0200
+moradin:/var/tmp# md5sum /mnt/i386-gnu-linux/tools/lib/gcc-lib/mips-linux/3.3.2/include/stddef.h
+3a5f8185367677ce39f9f8d2a72a2705  /mnt/i386-gnu-linux/tools/lib/gcc-lib/mips-linux/3.3.2/include/stddef.h
+moradin:~# umount /mnt
+
+moradin:~# mount /dev/evms/bsp2005 /mnt
+moradin:~# stat /mnt/i386-gnu-linux/tools/lib/gcc-lib/mips-linux/3.3.2/include/stddef.h
+  File: `/mnt/i386-gnu-linux/tools/lib/gcc-lib/mips-linux/3.3.2/include/stddef.h'
+  Size: 12695           Blocks: 28         IO Block: 4096   regular file
+Device: fd08h/64776d    Inode: 24840       Links: 1
+Access: (0640/-rw-r-----)  Uid: ( 1000/  pmhahn)   Gid: (19992/ bsp2005)
+Access: 2005-04-27 13:06:16.000000000 +0200
+Modify: 2005-04-13 15:21:57.000000000 +0200
+Change: 2005-04-22 08:35:09.000000000 +0200
+moradin:~# md5sum /mnt/i386-gnu-linux/tools/lib/gcc-lib/mips-linux/3.3.2/include/stddef.h
+error processing /mnt/i386-gnu-linux/tools/lib/gcc-lib/mips-linux/3.3.2/include/stddef.h: failed in buffer_read(fd): mdfile: Input/output error
+moradin:~# umount /mnt
+
+bsp2005 is an ext3-filesystem, from which a snapshot bsp2005_snap is
+created. They both live in a lvm-region, which is based on a
+Software-RAID1 using two partitions of two SCSI discs:
+	 lvm/svs/bsp2005#origin#
+	   lvm/svs/bsp2005
+	     md/md0
+	       sda4
+		 sda
+	       sdb4
+		 sdb
+
+Is something wrong with this setup or is it a known problem? Since the
+same solution was working last year without problems, I'm very confused
+about this strange error behaviour.
+
+BYtE
+Philipp
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+  / /  (_)__  __ ____  __ Philipp Hahn
+ / /__/ / _ \/ // /\ \/ /
+/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de

@@ -1,51 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261869AbVD0Auy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261870AbVD0Aw5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261869AbVD0Auy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Apr 2005 20:50:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbVD0Auy
+	id S261870AbVD0Aw5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Apr 2005 20:52:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261871AbVD0Aw5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 20:50:54 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:18430 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261869AbVD0Aut
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 20:50:49 -0400
-Subject: Re: del_timer_sync needed for UP  RT systems.
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: george@mvista.com
-Cc: ganzinger@mvista.com, Ingo Molnar <mingo@elte.hu>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <426EDE19.3030600@mvista.com>
-References: <426ED1EC.80500@mvista.com>
-	 <1114559749.12773.67.camel@dhcp153.mvista.com>
-	 <426ED97B.4050204@mvista.com>
-	 <1114561446.12772.71.camel@dhcp153.mvista.com>
-	 <426EDE19.3030600@mvista.com>
-Content-Type: text/plain
-Organization: MontaVista
-Message-Id: <1114563040.12772.85.camel@dhcp153.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 26 Apr 2005 17:50:40 -0700
+	Tue, 26 Apr 2005 20:52:57 -0400
+Received: from smtp.istop.com ([66.11.167.126]:46552 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S261870AbVD0Aws (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Apr 2005 20:52:48 -0400
+From: Daniel Phillips <phillips@istop.com>
+To: sdake@mvista.com
+Subject: Re: [PATCH 1b/7] dlm: core locking
+Date: Tue, 26 Apr 2005 20:53:07 -0400
+User-Agent: KMail/1.7
+Cc: David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+References: <20050425165826.GB11938@redhat.com> <200504261824.22382.phillips@istop.com> <1114556655.31647.90.camel@persist.az.mvista.com>
+In-Reply-To: <1114556655.31647.90.camel@persist.az.mvista.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200504262053.07836.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-04-26 at 17:34, George Anzinger wrote:
-> I agree.  The change to do this is to use the del_timer_sync() or the 
-> del_singleshot_timer() code.
-> 
-> It is possible and desirable to be able to delete a running timer.  We don't 
-> want to take it away from the timer call back routine, however, as that leads to 
-> "bad things".  That is why these two del_* routines were written.
+On Tuesday 26 April 2005 19:04, Steven Dake wrote:
+> ...Your performance impressions may be swayed by the benchmark results in
+> this message... 
+>
+> We have been over this before...  In September 2004, I posted benchmarks
+> to lkml (in a response to your questions about performance numbers)
+> which show messages per second of 7820 for 100 byte messages.
 
+Hi Steven,
 
-I'll defer to you on that, since I don't really know what timer people
-need.. 
+The source of the benchmark I alluded to is lost in the mists of my foggy 
+memory, however the numbers you just gave seem to be about the same as I 
+remember.
 
-After reviewing, del_timer_sync() I don't think that will stop this
-race. Because the wakeup happens before posix_timer_fn() is called in
-__run_timers() .
+I get >>several hundred thousand<< synchronization messages per second in my 
+cluster block devices, using ordinary tcp sockets over 100 MHz ethernet.  
+This may help put things in perspective.
+
+> I'd be 
+> impressed to see any other protocol deliver that number of messages per
+> second (in and of itself), maintain self delivery, implicit
+> acknowledgement, agreed ordering, and virtual synchrony...
+
+Well, the way I do it is so much faster than what you're seeing that I can 
+easily justify putting in the extra effort to resolve issues that virtual 
+synchrony would apparently solve for me automagically.
+
+Please let me save the details for a post tomorrow.  Then I will wax poetic 
+about what we do, or plan to do, to solve the various nasty problems that 
+come up as a result of membership changes, so that nobody runs such risks as 
+receiving messages from a node that thinks it is in the cluster but actually 
+isn't.
+
+> <benchmarks>
+> Are you suggesting this is a dribble?
+
+Sorry, in my world, that's a dribble ;-)
+
+I stand by my statement that this is too slow to handle the heavy lifting, and 
+is marginal even for "slow path" cluster recovery.  But if you think 
+otherwise, you can easily prove it, see below.
+
+> Your suggestion, reworking redhat's cluster suite to use virtual
+> synchrony (as a demo?), sounds intrigueing.  However, I just don't have
+> the bandwidth at this time to take on any more projects (although I am
+> happy to support redhat's use of virtual synchrony).  The community,
+> however, would very much benefit from redhat leading such an effort.
+
+I did not suggest reworking Red Hat's cluster suite.  I suggested reworking 
+_one file_ of my cluster snapshot device.  This file was designed to be 
+reworked by someone such as yourself, even someone without an enormous amount 
+of time on their hands.  This file (agent.c) does not handle the high-speed 
+block device synchronization, it only handles inter-node recovery messages 
+and other slow-path chores.
+
+For your convenience, the cluster snapshot device can be operated entirely 
+independently of the rest of the cluster suite, and you don't even need a 
+cluster.
+
+Regards,
 
 Daniel
-

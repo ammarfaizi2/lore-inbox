@@ -1,61 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261887AbVD0R4r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261867AbVD0SAx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261887AbVD0R4r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 13:56:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbVD0RzS
+	id S261867AbVD0SAx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 14:00:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbVD0SAK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 13:55:18 -0400
-Received: from albireo.ucw.cz ([84.242.65.67]:15746 "EHLO albireo.ucw.cz")
-	by vger.kernel.org with ESMTP id S261867AbVD0RyX (ORCPT
+	Wed, 27 Apr 2005 14:00:10 -0400
+Received: from fire.osdl.org ([65.172.181.4]:20639 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261852AbVD0R5Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 13:54:23 -0400
-Date: Wed, 27 Apr 2005 19:54:25 +0200
-From: Martin Mares <mj@ucw.cz>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: lmb@suse.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] private mounts
-Message-ID: <20050427175425.GA4241@ucw.cz>
-References: <20050426201411.GA20109@elf.ucw.cz> <E1DQiEa-0001hi-00@dorka.pomaz.szeredi.hu> <20050427092450.GB1819@elf.ucw.cz> <E1DQjzY-0001no-00@dorka.pomaz.szeredi.hu> <20050427143126.GB1957@mail.shareable.org> <E1DQno0-00029a-00@dorka.pomaz.szeredi.hu> <20050427153320.GA19065@atrey.karlin.mff.cuni.cz> <20050427155022.GR4431@marowsky-bree.de> <20050427164652.GA3129@ucw.cz> <E1DQqUi-0002Pt-00@dorka.pomaz.szeredi.hu>
+	Wed, 27 Apr 2005 13:57:24 -0400
+Date: Wed, 27 Apr 2005 10:56:55 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: andrea@suse.de, linux-kernel@vger.kernel.org, mason@suse.com
+Subject: Re: [patch] fix the 2nd buffer race properly
+Message-Id: <20050427105655.5edc13ce.akpm@osdl.org>
+In-Reply-To: <426F908C.2060804@yahoo.com.au>
+References: <426F908C.2060804@yahoo.com.au>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1DQqUi-0002Pt-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Miklos!
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>
+> When running
+>  	fsstress -v -d $DIR/tmp -n 1000 -p 1000 -l 2
+>  on an ext2 filesystem with 1024 byte block size, on SMP i386 with 4096 byte
+>  page size over loopback to an image file on a tmpfs filesystem, I would
+>  very quickly hit
+>  	BUG_ON(!buffer_async_write(bh));
+>  in fs/buffer.c:end_buffer_async_write
+> 
+>  It seems that more than one request would be submitted for a given bh
+>  at a time.
+> 
+>  What would happen is the following:
+>  2 threads doing __mpage_writepages on the same page.
+>  Thread 1 - lock the page first, and enter __block_write_full_page.
+>  Thread 1 - (eg.) mark_buffer_async_write on the first 2 buffers.
+>  Thread 1 - set page writeback, unlock page.
+>  Thread 2 - lock page, wait on page writeback
+>  Thread 1 - submit_bh on the first 2 buffers.
+>  => both requests complete, none of the page buffers are async_write,
+>     end_page_writeback is called.
+>  Thread 2 - wakes up. enters __block_write_full_page.
+>  Thread 2 - mark_buffer_async_write on (eg.) the last buffer
+>  Thread 1 - finds the last buffer has async_write set, submit_bh on that.
+>  Thread 2 - submit_bh on the last buffer.
+>  => oops.
 
-> Is it possible to limit all these from kernelspace?  Probably yes,
-> although a timeout for operations is something that cuts either way.
-> And the compexity of these checks would probably be orders of
-> magnitude higher then the check we are currently discussing.
+ah-hah.  Thanks.
 
-Yes ... but does the check we are discussing really solve the problem?
+There are two situations:
 
-Let's say that you attempt to export home directories of users by a user-space
-NFS daemon. This daemon probably changes its fsuid to match the remote user,
-so the check happily accepts the access and the user is able to lock up the
-daemon.
+a) Thread 2 comes in and tries to write a buffer which thread1 didn't write:
 
-It doesn't seem that there is any simple and universal cure -- root programs
-or setuid programs altering their fsuid are just too similar to the real user
-programs to separate them cleanly.
+   Yes, thread 1 will get confused and will try to write thread 2's buffer.
 
-I see a lot of similarities with symlinks -- many programs also need to take
-extra care of symlinks to be safe. However, symlinks are already senior
-citizens of Unix systems and programs know how to cope with them since ages.
+b) Thread 2 comes in and tries to write a buffer which thread 1 is
+   writing.  (Say, the buffer was redirtied by
+   munmap->__set_page_dirty_buffers, which doesn't lock the page or the
+   buffers)
 
-Maybe this could be taken advantage of by keeping all user mounts in a separate
-directory like /mnt/usr (and /mnt is very likely to be avoided by all programs
-traversing directory structure automatically) and symlinking from the requested
-mount points there (with symlinks naturally not followed by automatic traversals).
+   Thread 2 will fail the test_set_buffer_locked() and will redirty the page.
 
-I agree it isn't a neat solution, but it seems to be the first one which is
-close to working.
+That's all a bit too complex.   How's about this instead?
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-Lisp Users: Due to the holiday, there will be no garbage collection on Monday.
+--- 25/fs/buffer.c~fix-race-in-block_write_full_page	2005-04-27 10:42:11.191956704 -0700
++++ 25-akpm/fs/buffer.c	2005-04-27 10:42:56.548061528 -0700
+@@ -1837,7 +1837,6 @@ static int __block_write_full_page(struc
+ 	 */
+ 	BUG_ON(PageWriteback(page));
+ 	set_page_writeback(page);
+-	unlock_page(page);
+ 
+ 	do {
+ 		struct buffer_head *next = bh->b_this_page;
+@@ -1848,6 +1847,7 @@ static int __block_write_full_page(struc
+ 		put_bh(bh);
+ 		bh = next;
+ 	} while (bh != head);
++	unlock_page(page);
+ 
+ 	err = 0;
+ done:
+@@ -1901,7 +1901,6 @@ recover:
+ 	SetPageError(page);
+ 	BUG_ON(PageWriteback(page));
+ 	set_page_writeback(page);
+-	unlock_page(page);
+ 	do {
+ 		struct buffer_head *next = bh->b_this_page;
+ 		if (buffer_async_write(bh)) {
+@@ -1912,6 +1911,7 @@ recover:
+ 		put_bh(bh);
+ 		bh = next;
+ 	} while (bh != head);
++	unlock_page(page);
+ 	goto done;
+ }
+ 
+_
+
+Aside: can the redirty_page_for_writepage() ever happen any more?  Can a
+buffer against a locked page be locked by some other actor?  I guess so -
+kjournald in ordered mode might be trying to write the buffer as well,
+perhaps...
+

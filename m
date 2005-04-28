@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262223AbVD1S5b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262228AbVD1TAY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262223AbVD1S5b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 14:57:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbVD1S5b
+	id S262228AbVD1TAY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 15:00:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262227AbVD1TAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 14:57:31 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:32660 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262223AbVD1S52
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 14:57:28 -0400
-Subject: Re: Extremely poor umass transfer rates
-From: Mark Rosenstand <mark@bootless.dk>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1114714032.8326.27.camel@mjollnir.bootless.dk>
-References: <1114704142.8410.4.camel@mjollnir.bootless.dk>
-	 <20050428165915.GG30768@redhat.com>
-	 <1114710941.8326.13.camel@mjollnir.bootless.dk>
-	 <20050428110614.00a0c193.rddunlap@osdl.org> <4271292F.1000002@grupopie.com>
-	 <1114714032.8326.27.camel@mjollnir.bootless.dk>
-Content-Type: text/plain
-Organization: Bootless Enterprises
-Date: Thu, 28 Apr 2005 20:57:49 +0200
-Message-Id: <1114714669.8326.32.camel@mjollnir.bootless.dk>
+	Thu, 28 Apr 2005 15:00:24 -0400
+Received: from kanga.kvack.org ([66.96.29.28]:30696 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S262225AbVD1TAS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 15:00:18 -0400
+Date: Thu, 28 Apr 2005 14:59:56 -0400
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: linux-arch@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] unify semaphore implementations
+Message-ID: <20050428185956.GD16545@kvack.org>
+References: <20050428182926.GC16545@kvack.org> <1114714089.5022.3.camel@mulgrave>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1114714089.5022.3.camel@mulgrave>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-04-28 at 20:47 +0200, Mark Rosenstand wrote:
-> > Try mounting the device as root somewhere else without the "sync" flag 
-> > and measure the performance that way, to see the difference.
-> 
-> Wow. That seems to speed things up alot. However I can't unmount it
-> again, I keep getting "umount: /media/usbdisk: device is
-> busy" (twice(?)). It's been 5 minutes since I did the transfer (4 MB
-> file) now.
+On Thu, Apr 28, 2005 at 11:48:09AM -0700, James Bottomley wrote:
+> Could you come up with a less monolithic way to share this so that we
+> can still do a spinlock semaphore implementation instead of an atomic op
+> based one?
 
-Err, I accidently mixed up the device names of my keyring and the mp3
-player. It works allright.
+As I read the code, it doesn't make a difference: parisc will take a 
+spin lock within the atomic operation and then release it, which makes 
+the old fast path for the semaphores and the new fast path pretty much 
+equivalent (they both take and release one spinlock).  The only extra 
+cost is the address computation for the spinlock.  If there is contention 
+for the atomic spinlocks, then parisc can increase the number of buckets 
+in their hashed spinlocks.
 
-(It flushes changes to the device when I unmount it now, which takes
-around 8 seconds for a 4 MB file.)
-
-Thanks a lot, Paulo!
-
+		-ben
 -- 
-  .-.    Mark Rosenstand        (-.)
-  oo|                           cc )
- /`'\    (+45) 255 31337      3-n-(
-(\_;/)   mark@geekworld.org    _(|/`->
-
+"Time is what keeps everything from happening all at once." -- John Wheeler

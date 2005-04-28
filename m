@@ -1,48 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262156AbVD1Q0u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262162AbVD1Qe5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262156AbVD1Q0u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 12:26:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262159AbVD1Q0u
+	id S262162AbVD1Qe5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 12:34:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbVD1Qe4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 12:26:50 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:1288 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S262156AbVD1Q0q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 12:26:46 -0400
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: linux-mm@kvack.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, skodati@in.ibm.com
-Subject: Re: [PATCH] drop_buffers() shouldn't de-ref page->mapping if its NULL
-References: <1114645113.26913.662.camel@dyn318077bld.beaverton.ibm.com>
-	<1114646015.26913.668.camel@dyn318077bld.beaverton.ibm.com>
-	<87k6mn5zs6.fsf@devron.myhome.or.jp>
-	<1114701153.26913.679.camel@dyn318077bld.beaverton.ibm.com>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Fri, 29 Apr 2005 01:26:27 +0900
-In-Reply-To: <1114701153.26913.679.camel@dyn318077bld.beaverton.ibm.com> (Badari Pulavarty's message of "28 Apr 2005 08:12:34 -0700")
-Message-ID: <87oebyeuks.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 28 Apr 2005 12:34:56 -0400
+Received: from xarello.BCM.UMontreal.CA ([132.204.86.50]:65230 "EHLO xarello")
+	by vger.kernel.org with ESMTP id S262162AbVD1Qez (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 12:34:55 -0400
+Date: Thu, 28 Apr 2005 12:34:44 -0400
+To: Dave Airlie <airlied@gmail.com>
+Cc: ryantemporary@gmail.com, linux-kernel@vger.kernel.org,
+       dri-devel@lists.sourceforge.net
+Subject: Re: DRI lockup on R200, 2.6.11.7
+Message-ID: <20050428163444.GK15405@xarello>
+Reply-To: ryantemporary@gmail.com
+References: <20050426202916.GA2635@xarello> <21d7e99705042801227ed5438e@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <21d7e99705042801227ed5438e@mail.gmail.com>
+User-Agent: Mutt/1.3.28i
+From: foo@porto.bmb.uga.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty <pbadari@us.ibm.com> writes:
+On Thu, Apr 28, 2005 at 09:22:36AM +0100, Dave Airlie wrote:
+> 2.6.12 should fix this, there is patch at:
+> http://drm.bkbits.net:8080/drm-linus/gnupatch@424260f9PBUdlFvyiQw1maJBKvEtXA
 
-> Andrew confirmed that this is a valid case.
->
-> I don't understand what you want to do here ? If the mapping is NULL,
-> we can't de-ref it.  Whats the point in putting a warning and de-refing
-> it. Its going to cause NULL pointer de-ref anyway.
+Thanks a lot!  I will apply this tonight and report any further
+misbehavior.
 
-I meant your patch + warning. If it is just bh leak, not valid state,
-I thought we can notice the leak of bh by warning.
-
-I wanted above things. If it's valid state, of course warning is just
-crap.
-
-Sorry for noise.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+-ryan

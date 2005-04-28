@@ -1,68 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262336AbVD1XgD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262331AbVD1Xmh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262336AbVD1XgD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 19:36:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbVD1XgC
+	id S262331AbVD1Xmh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 19:42:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262339AbVD1Xmh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 19:36:02 -0400
-Received: from colo.lackof.org ([198.49.126.79]:21909 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S262336AbVD1Xfz (ORCPT
+	Thu, 28 Apr 2005 19:42:37 -0400
+Received: from smtp.istop.com ([66.11.167.126]:13251 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S262331AbVD1Xme (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 19:35:55 -0400
-Date: Thu, 28 Apr 2005 17:38:28 -0600
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Grant Grundler <grundler@parisc-linux.org>,
-       "David S. Miller" <davem@davemloft.net>,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>, bjorn.helgaas@hp.com,
-       "David S. Miller" <davem@redhat.com>
-Subject: Re: pci-sysfs resource mmap broken (and PATCH)
-Message-ID: <20050428233828.GI10171@colo.lackof.org>
-References: <1114493609.7183.55.camel@gaston> <20050426163042.GE2612@colo.lackof.org> <1114555655.7183.81.camel@gaston> <1114643616.7183.183.camel@gaston> <20050428053311.GH21784@colo.lackof.org> <20050427223702.21051afc.davem@davemloft.net> <1114670353.7182.246.camel@gaston> <20050427235056.0bd09a94.davem@davemloft.net> <20050428151117.GB10171@colo.lackof.org> <1114728447.7182.262.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 28 Apr 2005 19:42:34 -0400
+From: Daniel Phillips <phillips@istop.com>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Subject: Re: [PATCH 1b/7] dlm: core locking
+Date: Thu, 28 Apr 2005 19:43:12 -0400
+User-Agent: KMail/1.7
+Cc: David Teigland <teigland@redhat.com>, Steven Dake <sdake@mvista.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <20050425165826.GB11938@redhat.com> <200504272252.55525.phillips@istop.com> <20050428123720.GQ21645@marowsky-bree.de>
+In-Reply-To: <20050428123720.GQ21645@marowsky-bree.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1114728447.7182.262.camel@gaston>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.9i
+Message-Id: <200504281943.12436.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 29, 2005 at 08:47:27AM +1000, Benjamin Herrenschmidt wrote:
-> > Well, if it's a device driver decision, I guess that's ok.
-> > And the primary device driver happens to live in user space in X.org case.
-> 
-> Agreed, but 1) Do you have an idea on how to expose this capability with
-> the sysfs interface ? Adding ioctl's to it would suck big time :) and
+On Thursday 28 April 2005 08:37, Lars Marowsky-Bree wrote:
+> On 2005-04-27T22:52:55, Daniel Phillips <phillips@istop.com> wrote:
+> > > So we can't deliver it raw membership events. Noted.
+> >
+> > Just to pick a nit: there is no way to be sure a membership event might
+> > not still be on the way to the dead node, however the rest of the cluster
+> > knows the node is dead and can ignore it, in theory.  (In practice, only
+> > (g)dlm and gfs are well glued into the cman membership protocol, and
+> > other components, e.g., cluster block devices and applications, need to
+> > be looked at with squinty eyes.)
+>
+> I'm sorry, I don't get what you are saying here. Could you please
+> clarify?
+>
+> "Membership even on the way to the dead node"? ie, you mean that the
+> (now dead) node hasn't acknowledged a previous membership which still
+> included it, because it died inbetween? Well, sure, membership is never
+> certain at all; it's always in transition, essentially, because we can
+> only detect faults some time after the fact.
 
-I don't know enough about VM/TLB stuff to know the right answer.
+Exactly, and that is what the barriers are for.  I like the concept of 
+barriers a whole lot.  We should put this interface on a pedestal and really 
+dig into how to use it, or even better, how to optimize it.
 
-I suspect the MAP_* attribute/hint needs to be passed in together
-with the mmap call if any arch (ia64?) would return a different
-virtual address depending the attribute (e.g cached vs uncached).
+But for now, as I understand it, a cluster client's view of the cluster world 
+is entirely via cman events, which include things like other nodes joining 
+and leaving service groups.  (Service groups are another interface we need to 
+put on a pedestal, and start working on, because right now it's a clean idea, 
+not thought all the way through.)
 
-And write combining might be done in a "layer" below the CPU in
-the HW hierarchy. e.g. PCI Host bus controller might combine writes
-for some MMIO regions. I don't know if arch specific mmap support
-can figure out which HW is the right one to enable write combining
-in for a particular MMIO region or PCI device.
+> (It'd be cool if we could mandate nodes to pre-announce failures by a
+> couple of seconds, alas I think that's a feature you'll only find in an
+> OSDL requirement document, rated as "prio 1" ;-)
 
-I generally don't work with graphics devices and only recently
-started poking at infiniband support (128-512MB BAR depending
-on card option) to understand really well how BAR is accessed/used.
+Heh, I generally think about failing over in less than a second, preferably 
+much, much less.  Maybe you just have to scale your heuristic a little?
 
-> 2) It's still nice to have a "workaround" for existing X since the
-> performance benefit is significant, but then, it's in arch code, so
-> that's fine (and I could indeed limit it to VGA class devices as David
-> suggests).
+> I also don't understand what you're saying in the second part. How are
+> gdlm/gfs "well glued" into the CMAN membership protocol, and what are we
+> looking for when we turn our squinty eyes to applications...?
 
-Yup.
+Gdlm and gfs are well-glued because Dave and Patrick have been working on it 
+for years.  Other components barely know about the interfaces, let alone use 
+them correctly.  In the end _every component_ of the cluster stack has to do 
+the dance correctly on every node.  We've really only just started on that 
+path.  Hopefully we'll be able to move down it much more quickly now that the 
+code is coming out of the cathedral.
 
-thanks,
-grant
+Regards,
 
-> 
-> Ben.
-> 
+Daniel

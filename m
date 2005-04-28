@@ -1,36 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261573AbVD1IFc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbVD1IHV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261573AbVD1IFc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 04:05:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVD1IFc
+	id S261594AbVD1IHV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 04:07:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261922AbVD1IHU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 04:05:32 -0400
-Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:43975 "EHLO
-	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S261573AbVD1IF0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 04:05:26 -0400
-X-ORBL: [67.124.119.21]
-Date: Thu, 28 Apr 2005 01:05:22 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: aq <aquynh@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, hch@infradead.org,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fs/Kconfig: more consistent configuration of XFS
-Message-ID: <20050428080522.GB28101@taniwha.stupidest.org>
-References: <9cde8bff050428005528ecf692@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9cde8bff050428005528ecf692@mail.gmail.com>
+	Thu, 28 Apr 2005 04:07:20 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:56029 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261594AbVD1IHL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 04:07:11 -0400
+Date: Thu, 28 Apr 2005 04:06:46 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Fruhwirth Clemens <clemens@endorphin.org>
+cc: Andreas Steinmetz <ast@domdv.de>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@davemloft.net>, Andi Kleen <ak@suse.de>,
+       Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [RFC][PATCH 0/4] AES assembler implementation for x86_64
+In-Reply-To: <1114671628.13134.4.camel@ghanima>
+Message-ID: <Xine.LNX.4.44.0504280406160.21859-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 28, 2005 at 04:55:48PM +0900, aq wrote:
+On Thu, 28 Apr 2005, Fruhwirth Clemens wrote:
 
-> Here is the patch to fix the problem: it moves XFS configuration
-> from fs/xfs/Kconfig to fs/Kconfig, makes it to do all the
-> configuration in the same screen (by removing "menu" directive), and
-> removes the unnecessary fs/xfs/Kconfig.
+> > If anybody has a better assembler solution for x86_64 I'll be pleased to
+> > have my code replaced with the better solution.
+> 
+> http://loop-aes.sourceforge.net/loop-AES-latest.tar.bz2 aes-amd64.S
 
-XFS has several more configuration option not in the mainline tree.
-Doing this makes keeping things in sync harder.
+Jari's code cannot be included in the kernel.
+
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
+

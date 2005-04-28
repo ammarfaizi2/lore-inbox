@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262087AbVD1PDH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262081AbVD1PE6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262087AbVD1PDH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 11:03:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262111AbVD1PDH
+	id S262081AbVD1PE6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 11:04:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbVD1PE6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 11:03:07 -0400
-Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:57959 "EHLO
-	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
-	id S262087AbVD1PC7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 11:02:59 -0400
-X-SBRSScore: None
-X-IronPort-AV: i="3.92,136,1112565600"; 
-   d="scan'208"; a="8302990:sNHT21872256"
-Message-ID: <4270FB20.50202@fujitsu-siemens.com>
-Date: Thu, 28 Apr 2005 17:02:56 +0200
-From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-CC: Martin Schwidefsky <schwidefsky@de.ibm.com>, Jeff Dike <jdike@addtoit.com>,
-       linux-kernel@vger.kernel.org,
-       user-mode-linux devel 
-	<user-mode-linux-devel@lists.sourceforge.net>
-Subject: Re: [uml-devel] Re: Again: UML on s390 (31Bit)
-References: <OF7DA21BA7.6A0D6C67-ONC1256FF1.003C86C5-C1256FF1.0047B648@de.ibm.com> <4270E813.50706@fujitsu-siemens.com>
-In-Reply-To: <4270E813.50706@fujitsu-siemens.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Apr 2005 11:04:58 -0400
+Received: from dsl027-162-124.atl1.dsl.speakeasy.net ([216.27.162.124]:33218
+	"EHLO kevlar.burdell.org") by vger.kernel.org with ESMTP
+	id S262081AbVD1PEx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 11:04:53 -0400
+Date: Thu, 28 Apr 2005 10:44:15 -0400
+From: Sonny Rao <sonny@burdell.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>
+Subject: Re: [PATCH 0/4] ppc64: Introduce BPA platform
+Message-ID: <20050428144415.GA28779@kevlar.burdell.org>
+Mail-Followup-To: Sonny Rao <sonny@burdell.org>,
+	Arnd Bergmann <arnd@arndb.de>, linuxppc64-dev@ozlabs.org,
+	linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>,
+	Anton Blanchard <anton@samba.org>
+References: <200504190318.32556.arnd@arndb.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200504190318.32556.arnd@arndb.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bodo Stroesser wrote:
-> Martin Schwidefsky wrote:
+On Thu, Apr 28, 2005 at 09:54:00AM +0200, Arnd Bergmann wrote:
+> This series of patches add support for a fifth platform type in the
+> ppc64 architecture tree. The Broadband Processor Architecture (BPA)
+> is currently used in a single machine from IBM, with others likely
+> to be added at a later point.
 > 
->> So (!entryexit & regs->gprs[2] < 0) translates to the debugger changed 
->> the
->> guest
->> system call to something illegal on the first of the two ptrace calls. So
->> the
->> patch doesn't hurt for normal, non-ptraced operation but it might hurt
->> other
->> users of ptrace.
+> I already sent preparation patches before, these need to be applied
+> on top of them.
+> The first three patches add the actual platform code, which should
+> be usable for any BPA compatible implementation.
 > 
-> I don't think, it hurts. If a debugger willingly sets the syscall number
-> to -1, what would happen without the patch?
-> The kernel will set the result -ENOSYS into grps[2]. So, even if trap
-> still indicates a syscall and a signal is pending, no syscall restarting
-> will be done.
-> With the patch, a debugger would observe changed behavior of the kernel
-> *only*, if it writes the syscall number to -1 on the first syscall
-> interception and then writes the result to ERESTARTXXXXX on the second,
-> while at the same time a signal is pending for the debugged process.
+> The final patch introduces a new file system to make use of the
+> SPUs inside the processors. This patch is still in a prototype stage
+> and not intended for merging yet.
 > 
-> I assumed, that non of the current users of ptrace exactly does this.
-> If I'm wrong here, the patch *really* is bad.
-Addendum:
-To avoid any conflicts as far as possible, the -1 written and checked
-as the syscall number to reset trap could be replaced by some magic
-value, which then should defined in asm/ptrace.h
-In terms of performance, any method, that allows to reset trap
-without an additional ptrace call, is fine.
+> 	Arnd <><
 
-	Bodo
+Is BPA the same thing (architecture) as the STI Cell Processor?
+
+Sonny

@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262048AbVD1LWU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262069AbVD1LZS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262048AbVD1LWU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 07:22:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbVD1LWU
+	id S262069AbVD1LZS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 07:25:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbVD1LZS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 07:22:20 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:35083 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262048AbVD1LWQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 07:22:16 -0400
-Date: Thu, 28 Apr 2005 12:22:10 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: "Robert W. Fuller" <orangemagicbus@sbcglobal.net>
-Cc: Jonas Oreland <jonas.oreland@mysql.com>,
-       "Robert W. Fuller" <fullerrw@uindy.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: TI Yenta socket Fish Please Report
-Message-ID: <20050428122210.A13166@flint.arm.linux.org.uk>
-Mail-Followup-To: "Robert W. Fuller" <orangemagicbus@sbcglobal.net>,
-	Jonas Oreland <jonas.oreland@mysql.com>,
-	"Robert W. Fuller" <fullerrw@uindy.edu>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <426F3A89.3010702@uindy.edu> <426F3FD1.3040007@mysql.com> <427020DA.4030504@sbcglobal.net> <427075F1.8030009@sbcglobal.net>
+	Thu, 28 Apr 2005 07:25:18 -0400
+Received: from rproxy.gmail.com ([64.233.170.206]:53606 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262087AbVD1LYu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 07:24:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=cC//hCqYe9t6kyYPNGaq1uEKwgM/Jw8ACKR7xn68/CMLme+FRO7GQmsQkxC4OTHPtdvZMds2hXNrhY/NQsly3m2VruuZ437QXoEn+OwOCxDTJqcTGM8pdMNawj7wg3hgNrSHSiZjWIX+CPfpyEWZ8+cKYbMP52PDbUGKnOfAYag=
+Message-ID: <21d7e99705042804245015a6b1@mail.gmail.com>
+Date: Thu, 28 Apr 2005 12:24:49 +0100
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Filip Zyzniewski <lkml@filip.math.uni.lodz.pl>
+Subject: Re: Panic on a BIOSless machine.
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4270BF52.7070807@filip.math.uni.lodz.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <427075F1.8030009@sbcglobal.net>; from orangemagicbus@sbcglobal.net on Thu, Apr 28, 2005 at 12:34:41AM -0500
+References: <426FB641.2070802@filip.math.uni.lodz.pl>
+	 <Pine.LNX.4.61.0504271022460.26410@montezuma.fsmlabs.com>
+	 <4270BF52.7070807@filip.math.uni.lodz.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 28, 2005 at 12:34:41AM -0500, Robert W. Fuller wrote:
-> Robert W. Fuller wrote:
-> > Did it make it in for x86_64 kernel I wonder?
 > 
-> Hello.  Is there anybody out there?  Anybody who actually knows 
-> something about what is in what kernel?  Does anybody know how to figure 
-> this out?  Is there some kind of Bugzilla database or something I can 
-> look at?
+> Here it is:
+> http://filip.math.uni.lodz.pl/t1000-panic/panic-without-tulip.log
+> 
+> Do you think memory map is wrong?
 
-Please have some patience.  This is not a commercial support forum,
-so there's no guarantees on getting any answers what so ever.
+have you the kernel compiled with pci probing set to direct? or booted
+with pci=nobios
 
-However, please use search engines like google - they can answer these
-types of questions far faster than anyone here can.  For example, type
-"linux kernel bugzilla" into google and see what you discover.
-
-You can also use the source code repositories at http://linux.bkbits.net/
-and http://ehlo.org/~kay/gitweb.pl to find out what's in mainline kernel
-trees.
-
-And no, no one's here.  No one knows what's in any kernel.  Nobody
-knows how to figure out any problems. 8)
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Dave.

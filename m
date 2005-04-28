@@ -1,77 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262130AbVD1Nlp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262132AbVD1Nrs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262130AbVD1Nlp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 09:41:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbVD1Nlp
+	id S262132AbVD1Nrs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 09:47:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbVD1Nrs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 09:41:45 -0400
-Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:49730 "EHLO
-	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
-	id S262130AbVD1Nlm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 09:41:42 -0400
-X-SBRSScore: None
-X-IronPort-AV: i="3.92,136,1112565600"; 
-   d="scan'208"; a="8297232:sNHT22176984"
-Message-ID: <4270E813.50706@fujitsu-siemens.com>
-Date: Thu, 28 Apr 2005 15:41:39 +0200
-From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-CC: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux devel 
-	<user-mode-linux-devel@lists.sourceforge.net>
-Subject: Re: Again: UML on s390 (31Bit)
-References: <OF7DA21BA7.6A0D6C67-ONC1256FF1.003C86C5-C1256FF1.0047B648@de.ibm.com>
-In-Reply-To: <OF7DA21BA7.6A0D6C67-ONC1256FF1.003C86C5-C1256FF1.0047B648@de.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Apr 2005 09:47:48 -0400
+Received: from wproxy.gmail.com ([64.233.184.195]:57174 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262133AbVD1Nrp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 09:47:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fFeRxdi29RnfRGhjbEzwOh3uUTVhqn4swoSp8rLBb1LiP7NSJK6iDEY4AB8em7AdXrIe6W/7YQdq7fKaqf5d1Rum0a3HudHUWNELCTSnVKKqZ4XdOWeIQLWiGFbJhXyQSQP11BfiRH4ZP+3erYw29j63PYA+uzCQy/i8vpT3xw8=
+Message-ID: <a4e6962a050428064774e88f4a@mail.gmail.com>
+Date: Thu, 28 Apr 2005 08:47:44 -0500
+From: Eric Van Hensbergen <ericvh@gmail.com>
+Reply-To: Eric Van Hensbergen <ericvh@gmail.com>
+To: Jamie Lokier <jamie@shareable.org>
+Subject: Re: [PATCH] private mounts
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Miklos Szeredi <miklos@szeredi.hu>, hch@infradead.org,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+In-Reply-To: <20050426140715.GA10833@mail.shareable.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <E1DPnOn-0000T0-00@localhost> <E1DPo3I-0000V0-00@localhost>
+	 <20050424205422.GK13052@parcelfarce.linux.theplanet.co.uk>
+	 <E1DPoCg-0000W0-00@localhost>
+	 <20050424210616.GM13052@parcelfarce.linux.theplanet.co.uk>
+	 <20050424213822.GB9304@mail.shareable.org>
+	 <20050425152049.GB2508@elf.ucw.cz>
+	 <20050425190734.GB28294@mail.shareable.org>
+	 <20050426092924.GA4175@elf.ucw.cz>
+	 <20050426140715.GA10833@mail.shareable.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Schwidefsky wrote:
-> So (!entryexit & regs->gprs[2] < 0) translates to the debugger changed the
-> guest
-> system call to something illegal on the first of the two ptrace calls. So
-> the
-> patch doesn't hurt for normal, non-ptraced operation but it might hurt
-> other
-> users of ptrace.
-I don't think, it hurts. If a debugger willingly sets the syscall number
-to -1, what would happen without the patch?
-The kernel will set the result -ENOSYS into grps[2]. So, even if trap
-still indicates a syscall and a signal is pending, no syscall restarting
-will be done.
-With the patch, a debugger would observe changed behavior of the kernel
-*only*, if it writes the syscall number to -1 on the first syscall
-interception and then writes the result to ERESTARTXXXXX on the second,
-while at the same time a signal is pending for the debugged process.
+On 4/26/05, Jamie Lokier <jamie@shareable.org> wrote:
+> 
+> It's called /proc/NNN/root.
+> 
+> So no new system calls are needed.  A daemon to hand out per-user
+> namespaces (or any other policy) can be written using existing
+> kernels, and those namespaces can be joined using chroot.
+> 
+> That's the theory anyway.  It's always possible I misread the code (as
+> I don't use namespaces and don't have tools handy to try them).
+> 
 
-I assumed, that non of the current users of ptrace exactly does this.
-If I'm wrong here, the patch *really* is bad.
+Should have checked myself before posting my previous reply -- but
+this doesn't seem to work.  /proc/NNN/root is represented as a
+symlink, but when you CLONE_NS and then try to look at another one of
+your process' /proc/NNN/root the link doesn't seem to have a target
+and you get permission denied on all accesses.  I haven't looked at
+the underlying procfs code, but adapting procfs for this sort of
+purpose feels wrong.
 
-> Ok, I think I've understood the problem now. What you are basically have is
-> a process running in a UML guest that happens to have -ERESTARTXXX in grp2
-> when it gets interrupted. A signal is delivered and on return from that
-> signal
-> with sys_(rt_)sigreturn >another< signal might be pending and then
-> do_signal
-> gets confused because of -ERESTARTXXX in grp2.
-This other signal must be pending on the *host*, in UML, this might be
-SIGVTALRM.
-
-> For normal, non-uml operation
-> restore_sigregs resets regs->trap to -1 which avoids the confusion. With
-> UML
-> the host intercepts sys_rt_sigreturn and does whatever needs to be done for
-> the guest >except< resetting regs->trap to -1. So the problem seems to be
-> that you need a ptrace interface to do that. I don't think it is a good
-> idea
-> to kludge syscall_trace to reset regs->trap under some conditions.
-My idea was to enable the existing ptrace interface to do what UML
-needs, without changing it in a way observable to other users of ptrace.
-I expected my patch to exactly do that, but maybe I missed something.
-Any better idea is welcome.
-
-Regards,  Bodo
+          -eric

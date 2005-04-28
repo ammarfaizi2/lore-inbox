@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261997AbVD1JMk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261950AbVD1JIY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261997AbVD1JMk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 05:12:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261946AbVD1JJL
+	id S261950AbVD1JIY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 05:08:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262041AbVD1JFQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 05:09:11 -0400
-Received: from baloney.puettmann.net ([194.97.54.34]:61089 "EHLO
-	baloney.puettmann.net") by vger.kernel.org with ESMTP
-	id S261717AbVD1JGR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 05:06:17 -0400
-Date: Thu, 28 Apr 2005 11:05:40 +0200
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11.7 kernel panic on boot on AMD64
-Message-ID: <20050428090539.GA18972@puettmann.net>
-References: <20050427140342.GG10685@puettmann.net> <20050427152704.632a9317.rddunlap@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 28 Apr 2005 05:05:16 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:15326 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261972AbVD1JEo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 05:04:44 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] Re: [PATCH 6/6]suspend/resume SMP support
+Date: Thu, 28 Apr 2005 11:04:37 +0200
+User-Agent: KMail/1.7.1
+Cc: Pavel Machek <pavel@suse.cz>, Li Shaohua <shaohua.li@intel.com>,
+       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Len Brown <len.brown@intel.com>, Zwane Mwaikambo <zwane@linuxpower.ca>
+References: <1113283867.27646.434.camel@sli10-desk.sh.intel.com> <1114676961.26367.12.camel@sli10-desk.sh.intel.com> <20050428083459.GM1906@elf.ucw.cz>
+In-Reply-To: <20050428083459.GM1906@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050427152704.632a9317.rddunlap@osdl.org>
-User-Agent: Mutt/1.5.9i
-From: Ruben Puettmann <ruben@puettmann.net>
-X-Scanner: exiscan *1DR4xo-0004wL-00*DgzDCF67K6Q* (Puettmann.NeT, Germany)
+Message-Id: <200504281104.38702.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 27, 2005 at 03:27:04PM -0700, Randy.Dunlap wrote:
- Looks like this code in init/main.c:
+Hi,
+
+On Thursday, 28 of April 2005 10:35, Pavel Machek wrote:
+> Hi!
 > 
-> 	if (late_time_init)
-> 		late_time_init();
+> > > But does setting CONFIG_ACPI_SLEEP cause kernel/power/smp.o to be actually
+> > > compiled and linked?  I don't think so?
+> > > 
+> > > Anyway, please send a tested fix.
+> > Ha, this one should be ok. Only IA32 support SMP suspend now.
 > 
-> sees a garbage value in late_time_init (garbage being
-> %eax == 0x00307974.743d656c, which is "le=tty0\n",
-> as in "console=tty0").
-> 
-> How long is your kernel boot/command line?
-> Please post it.
+> Seems okay... Rafael, what is status of x86-64 smp swsusp?
 
-It was boot over pxe here is the append line from the
-pxelinux.cfg/default  
+Preliminary, semi-working. ;-)  Actually, I'm waiting for the i386 CPU hotplug
+to settle down a bit to see how much of it I can use on x86-64.
 
-APPEND vga=normal rw  load_ramdisk=0 root=/dev/nfs nfsroot=192.168.112.1:/store/rescue/sarge-amd64,rsize=8192,wsize=8192,timo=12,retrans=3,mountvers=3,nfsvers=3
+Greets,
+Rafael
 
-
-                       Ruben
 
 -- 
-Ruben Puettmann
-ruben@puettmann.net
-http://www.puettmann.net
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

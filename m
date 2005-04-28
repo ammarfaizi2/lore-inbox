@@ -1,66 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262041AbVD1LQF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262048AbVD1LWU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262041AbVD1LQF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 07:16:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbVD1LQF
+	id S262048AbVD1LWU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 07:22:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbVD1LWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 07:16:05 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:11210 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262041AbVD1LQA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 07:16:00 -0400
-Subject: Re: Linux 2.4.30-rc3 md/ext3 problems (ext3 gurus : please check)
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Hifumi Hisashi <hifumi.hisashi@lab.ntt.co.jp>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Neil Brown <neilb@cse.unsw.edu.au>, Andrew Morton <akpm@osdl.org>,
-       vherva@viasys.com, linux-kernel <linux-kernel@vger.kernel.org>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <6.0.0.20.2.20050428151420.03d5c6f0@mailsv2.y.ecl.ntt.co.jp>
-References: <20050326162801.GA20729@logos.cnet>
-	 <20050328073405.GQ16169@viasys.com> <20050328165501.GR16169@viasys.com>
-	 <16968.40186.628410.152511@cse.unsw.edu.au>
-	 <20050329215207.GE5018@logos.cnet>
-	 <16970.9679.874919.876412@cse.unsw.edu.au>
-	 <20050330115946.GA7331@logos.cnet>
-	 <1112740856.4148.145.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <6.0.0.20.2.20050406163929.06ef07b0@mailsv2.y.ecl.ntt.co.jp>
-	 <1113402868.3019.27.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1114640549.4885.25.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <6.0.0.20.2.20050428151420.03d5c6f0@mailsv2.y.ecl.ntt.co.jp>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1114686919.1920.7.camel@sisko.sctweedie.blueyonder.co.uk>
+	Thu, 28 Apr 2005 07:22:20 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:35083 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262048AbVD1LWQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 07:22:16 -0400
+Date: Thu, 28 Apr 2005 12:22:10 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: "Robert W. Fuller" <orangemagicbus@sbcglobal.net>
+Cc: Jonas Oreland <jonas.oreland@mysql.com>,
+       "Robert W. Fuller" <fullerrw@uindy.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: TI Yenta socket Fish Please Report
+Message-ID: <20050428122210.A13166@flint.arm.linux.org.uk>
+Mail-Followup-To: "Robert W. Fuller" <orangemagicbus@sbcglobal.net>,
+	Jonas Oreland <jonas.oreland@mysql.com>,
+	"Robert W. Fuller" <fullerrw@uindy.edu>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <426F3A89.3010702@uindy.edu> <426F3FD1.3040007@mysql.com> <427020DA.4030504@sbcglobal.net> <427075F1.8030009@sbcglobal.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Thu, 28 Apr 2005 12:15:19 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <427075F1.8030009@sbcglobal.net>; from orangemagicbus@sbcglobal.net on Thu, Apr 28, 2005 at 12:34:41AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Thu, 2005-04-28 at 09:54, Hifumi Hisashi wrote:
-> At 07:22 05/04/28, Stephen C. Tweedie wrote:
->  >In checking out the patch one last time, though, I found one anomaly.
->  >The patch that was submitted to 2.6 for this problem also changed
->  >write_inode_now() to return an error value.  The patch that got
->  >submitted to 2.4 had no such change.  Was there a reason for this
->  >difference between the two versions?
+On Thu, Apr 28, 2005 at 12:34:41AM -0500, Robert W. Fuller wrote:
+> Robert W. Fuller wrote:
+> > Did it make it in for x86_64 kernel I wonder?
 > 
-> Right. Also in ver 2.4, I know write_inode_now() has to be changed for perfect
-> I/O error detection during synchronous writing.
-> 
-> In do_generic_file_write(mm/filemap.c), does the current return value handling is
-> unchanged?
+> Hello.  Is there anybody out there?  Anybody who actually knows 
+> something about what is in what kernel?  Does anybody know how to figure 
+> this out?  Is there some kind of Bugzilla database or something I can 
+> look at?
 
-At present I'm using your changed version, but that is wrong --- in most
-cases, we want to return short writes on errors.  It's only in the
-synchronous case that we want to do otherwise, and even then only on EIO
-on the inode.  For example, if we run out of quota halfway through an
-O_SYNC write beyond EOF, then the bulk of the IO *has* completed
-successfully, and we want to indicate that in the error.  So I'll be
-re-jigging that bit of the code.
+Please have some patience.  This is not a commercial support forum,
+so there's no guarantees on getting any answers what so ever.
 
-Cheers,
- Stephen
+However, please use search engines like google - they can answer these
+types of questions far faster than anyone here can.  For example, type
+"linux kernel bugzilla" into google and see what you discover.
 
+You can also use the source code repositories at http://linux.bkbits.net/
+and http://ehlo.org/~kay/gitweb.pl to find out what's in mainline kernel
+trees.
+
+And no, no one's here.  No one knows what's in any kernel.  Nobody
+knows how to figure out any problems. 8)
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

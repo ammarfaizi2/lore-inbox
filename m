@@ -1,50 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262179AbVD1U7K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262204AbVD1U7t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262179AbVD1U7K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 16:59:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262204AbVD1U7K
+	id S262204AbVD1U7t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 16:59:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbVD1U7t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 16:59:10 -0400
-Received: from lakshmi.addtoit.com ([198.99.130.6]:29201 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S262179AbVD1U7H
+	Thu, 28 Apr 2005 16:59:49 -0400
+Received: from wproxy.gmail.com ([64.233.184.195]:29353 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262204AbVD1U7W convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 16:59:07 -0400
-Date: Thu, 28 Apr 2005 16:48:58 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: blaisorblade@yahoo.it, akpm@osdl.org, bstroesser@fujitsu-siemens.com,
-       linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] Re: [patch 1/7] uml: fix syscall table by including $(SUBARCH)'s one, for i386
-Message-ID: <20050428204858.GD25451@ccure.user-mode-linux.org>
-References: <20050424181909.81B8F33AED@zion> <20050428181053.GQ23013@shell0.pdx.osdl.net>
+	Thu, 28 Apr 2005 16:59:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=FHl/W4X0UL04HSiFo60f0Ico/jh5UXshmncQq/XnA0wJJAcxhDqJXYothhuz6/8P/g9aik+hEm8NP9c2OHhNqw8xkmRYC4O8U2u9huUhViImaiHigDXPeiQyu/1v92UcFtueemRCLUVghICoOFKUBDP2d8dJuUZxVDWJK93eQ4Y=
+Message-ID: <4ae3c1405042813591f0b5962@mail.gmail.com>
+Date: Thu, 28 Apr 2005 16:59:21 -0400
+From: Xin Zhao <uszhaoxin@gmail.com>
+Reply-To: Xin Zhao <uszhaoxin@gmail.com>
+To: linux-os@analogic.com
+Subject: Re: dumb question: How to create your own log files in a kernel module?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0504281557510.29750@chaos.analogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050428181053.GQ23013@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.4.2.1i
+References: <4ae3c14050428111073283bd3@mail.gmail.com>
+	 <Pine.LNX.4.61.0504281557510.29750@chaos.analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 28, 2005 at 11:10:53AM -0700, Chris Wright wrote:
-> * blaisorblade@yahoo.it (blaisorblade@yahoo.it) wrote:
-> > 
-> > Split the i386 entry.S files into entry.S and syscall_table.S which
-> > is included in the previous one (so actually there is no difference between
-> > them) and use the syscall_table.S in the UML build, instead of tracking by
-> > hand the syscall table changes (which is inherently error-prone).
+Thanks for kind help. 
+
+I know printk can do this job. But what I really want is to print logs
+to a file specified by me instead of /var/log/messages. And, the
+messages irrelevant to my module should not be written into that file.
+ Now my log mixed with other logs in /var/log/message, which bother me
+much. :(
+
+I guess the KERN_PRIVATE might work for this. Can you give me more details?
+
+Thanks again!
+
+Xin
+
+On 4/28/05, Richard B. Johnson <linux-os@analogic.com> wrote:
+> On Thu, 28 Apr 2005, Xin Zhao wrote:
 > 
-> Xen can use this as well (it was on my todo list).
-
-Maybe talking out of my ass here, but would it make sense to have the
-generic syscalls in asm-generic, in the form of something like:
-	SYSCALL(__NR_getpid, sys_getpid)
-?
-
-The arch include this into its syscall table, would continue to define
-__NR_*, and it would define SYSCALL (but all the syscall tables I've
-seen are just arrays of pointers).  This would allow the arches to
-automatically get all the generic system calls, and they'd continue to
-define on their own any arch-specific things.
-
-				Jeff
+> > Can anyone give me a hand? or point me to somewhere I can find related
+> > information?
+> >
+> > Thanks in advance!
+> >
+> > Xin
+> 
+> printk(KERN_XXX"whatever") was designed for this.
+> 
+> #define KERN_EMERG      "<0>"   /* system is unusable                   */
+> #define KERN_ALERT      "<1>"   /* action must be taken immediately     */
+> #define KERN_CRIT       "<2>"   /* critical conditions                  */
+> #define KERN_ERR        "<3>"   /* error conditions                     */
+> #define KERN_WARNING    "<4>"   /* warning conditions                   */
+> #define KERN_NOTICE     "<5>"   /* normal but significant condition     */
+> #define KERN_INFO       "<6>"   /* informational                        */
+> #define KERN_DEBUG      "<7>"   /* debug-level messages                 */
+>         printk(KERN_DEBUG fmt,##arg)
+>         printk(KERN_INFO fmt,##arg)
+> 
+> You could define your own, KERN_PRIVATE "<8>" and have the syslog
+> facility filter on that.
+> 
+> Other ways are to write stuff to a buffer or linked-list and
+> read it out using an ioctl() or read() in your module. If you
+> do this, make sure that your module code doesn't wait forever
+> if the buffer gets full.
+> 
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+>   Notice : All mail here is now cached for review by Dictator Bush.
+>                   98.36% of all statistics are fiction.
+>

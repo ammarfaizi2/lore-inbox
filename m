@@ -1,47 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261982AbVD1Hb1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261978AbVD1HbW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261982AbVD1Hb1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 03:31:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbVD1Hb1
+	id S261978AbVD1HbW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 03:31:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261986AbVD1HbW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 03:31:27 -0400
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:8616
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261982AbVD1HbT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 03:31:22 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:35255 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261978AbVD1HbT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 28 Apr 2005 03:31:19 -0400
-Date: Thu, 28 Apr 2005 00:22:09 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: grundler@parisc-linux.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, greg@kroah.com, bjorn.helgaas@hp.com,
-       davem@redhat.com
-Subject: Re: pci-sysfs resource mmap broken (and PATCH)
-Message-Id: <20050428002209.12bd3f37.davem@davemloft.net>
-In-Reply-To: <1114672880.7111.254.camel@gaston>
-References: <1114493609.7183.55.camel@gaston>
-	<20050426163042.GE2612@colo.lackof.org>
-	<1114555655.7183.81.camel@gaston>
-	<1114643616.7183.183.camel@gaston>
-	<20050428053311.GH21784@colo.lackof.org>
-	<20050427223702.21051afc.davem@davemloft.net>
-	<1114670353.7182.246.camel@gaston>
-	<20050427235056.0bd09a94.davem@davemloft.net>
-	<1114672880.7111.254.camel@gaston>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Subject: Re: [PATCH 6/6]suspend/resume SMP support
+From: Li Shaohua <shaohua.li@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       ACPI-DEV <acpi-devel@lists.sourceforge.net>,
+       Len Brown <len.brown@intel.com>, Pavel Machek <pavel@suse.cz>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>
+In-Reply-To: <20050428002254.461fcf32.akpm@osdl.org>
+References: <1113283867.27646.434.camel@sli10-desk.sh.intel.com>
+	 <20050428002254.461fcf32.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1114673297.26367.3.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 28 Apr 2005 15:28:17 +0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Apr 2005 17:21:19 +1000
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+On Thu, 2005-04-28 at 15:22, Andrew Morton wrote:
+> -#ifdef CONFIG_HOTPLUG_CPU
+> +#if defined(CONFIG_HOTPLUG_CPU) && defined(CONFIG_SOFTWARE_SUSPEND)
+ACPI_SLEEP also requires it. So it will be
+#if defined(CONFIG_HOTPLUG_CPU) && (defined(CONFIG_SOFTWARE_SUSPEND) || defined(CONFIG_ACPI_SLEEP))
 
-> I have a real net big performance improvement on X by doing that
-> trick ... the sysfs mmap API doesn't really provide a mean to do
-> it explicitely from userland (unlike the ioctl with the old proc api)
+Thanks,
+Shaohua
 
-You can refine your test to "if PCI class is display or VGA" and the
-prefetchability is set in the BAR, then elide the guard PTE
-protection bit.

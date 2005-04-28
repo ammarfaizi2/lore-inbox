@@ -1,75 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262214AbVD1Tak@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262249AbVD1TdH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262214AbVD1Tak (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 15:30:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262251AbVD1Taj
+	id S262249AbVD1TdH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 15:33:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262251AbVD1TbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 15:30:39 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:46020 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262245AbVD1TaG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 15:30:06 -0400
-Subject: Re: [PATCH] private mounts
-From: Ram <linuxram@us.ibm.com>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: lmb@suse.de, mj@ucw.cz, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <E1DR312-0005IZ-00@dorka.pomaz.szeredi.hu>
-References: <20050426094727.GA30379@infradead.org>
-	 <20050426131943.GC2226@openzaurus.ucw.cz>
-	 <E1DQQ73-0000Zv-00@dorka.pomaz.szeredi.hu>
-	 <20050426201411.GA20109@elf.ucw.cz>
-	 <E1DQiEa-0001hi-00@dorka.pomaz.szeredi.hu>
-	 <20050427092450.GB1819@elf.ucw.cz>
-	 <E1DQjzY-0001no-00@dorka.pomaz.szeredi.hu>
-	 <20050427143126.GB1957@mail.shareable.org>
-	 <E1DQno0-00029a-00@dorka.pomaz.szeredi.hu>
-	 <20050427153320.GA19065@atrey.karlin.mff.cuni.cz>
-	 <20050427155022.GR4431@marowsky-bree.de>
-	 <E1DQqQ0-0002PB-00@dorka.pomaz.szeredi.hu>
-	 <1114623598.4480.181.camel@localhost>
-	 <E1DQqdW-0002SN-00@dorka.pomaz.szeredi.hu>
-	 <1114624541.4480.187.camel@localhost>
-	 <E1DQqyY-0002WW-00@dorka.pomaz.szeredi.hu>
-	 <1114630811.4180.20.camel@localhost>
-	 <E1DQskk-0004dI-00@dorka.pomaz.szeredi.hu>
-	 <1114637883.4180.55.camel@localhost>
-	 <E1DR312-0005IZ-00@dorka.pomaz.szeredi.hu>
+	Thu, 28 Apr 2005 15:31:04 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:18884 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262246AbVD1TaS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 15:30:18 -0400
+Subject: Re: 2.6.12-rc3 won't boot from aic7899
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <4269C60C.3070700@cybsft.com>
+References: <4269C60C.3070700@cybsft.com>
 Content-Type: text/plain
-Organization: IBM 
-Message-Id: <1114716602.4180.701.camel@localhost>
+Date: Thu, 28 Apr 2005 12:30:11 -0700
+Message-Id: <1114716611.5022.6.camel@mulgrave>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 28 Apr 2005 12:30:02 -0700
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-04-28 at 00:00, Miklos Szeredi wrote:
-> > ok. Generally overmounts are done on the root dentry of the topmost
-> > vfsmount.  But in this case, your patch mounts it on the same dentry
-> > as that of the private mount.
-> > 
-> > Essentially I was always under the assertion that 'a dentry can hold
-> > only one vfsmount'.  But invisible mount seem to invalidate that
-> > assertion.
+On Fri, 2005-04-22 at 22:50 -0500, K.R. Foley wrote:
+> scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
+>         <Adaptec aic7899 Ultra160 SCSI adapter>
+>         aic7899: Ultra160 Wide Channel B, SCSI Id=7, 32/253 SCBs
 > 
-> You can do that without an invisible mount:
-> 
-> mkdir /tmp/mnt
-> mkdir /tmp/dir1
-> mkdir /tmp/dir1/subdir1
-> mkdir /tmp/dir2
-> mkdir /tmp/dir2/subdir2
-> 
-> cd /tmp/mnt
-> mount --bind /tmp/dir1 .
-> mount --bind /tmp/dir2 .
-> 
-> Now you have both /tmp/dir1 and /tmp/dir2 rooted at the same dentry.
+>   Vendor: SEAGATE   Model: SX118273LC        Rev: 6679
+>   Type:   Direct-Access                      ANSI SCSI revision: 02
+> scsi1:A:0:0: Tagged Queuing enabled.  Depth 32
+>  target1:0:0: Beginning Domain Validation
+> (scsi1:A:0): 6.600MB/s transfers (16bit)
+> (scsi1:A:0:0): parity error detected in Data-in phase. SEQADDR(0x6b)
+> SCSIRATE(0x80)
 
-Ok. got it!. Agreed. great example!
+
+I assume it just locks up after this?
+
+It looks like the parity error isn't propagating upwards like it should.
+What did a 2.6.11 boot sequence show for this (i.e. did the internal
+aic7xxx DV configure the device narrow)?
+
+I suspect the attached patch might fix this in the core driver, if you
+could try it out.
 
 Thanks,
-RP
+
+James
+
+--- k/drivers/scsi/aic7xxx/aic7xxx_core.c  (mode:100644)
++++ l/drivers/scsi/aic7xxx/aic7xxx_core.c  (mode:100644)
+@@ -1125,16 +1125,9 @@ ahc_handle_scsiint(struct ahc_softc *ahc
+ 			else
+ 				ahc_outb(ahc, MSG_OUT, mesg_out);
+ 		}
+-		/*
+-		 * Force a renegotiation with this target just in
+-		 * case we are out of sync for some external reason
+-		 * unknown (or unreported) by the target.
+-		 */
+-		ahc_fetch_devinfo(ahc, &devinfo);
+-		ahc_force_renegotiation(ahc, &devinfo);
+-
+-		ahc_outb(ahc, CLRINT, CLRSCSIINT);
+-		ahc_unpause(ahc);
++		if (scb != NULL)
++			ahc_set_transaction_status(scb, CAM_UNCOR_PARITY);
++		ahc_reset_channel(ahc, devinfo.channel, TRUE);
+ 	} else if ((status & SELTO) != 0) {
+ 		u_int	scbptr;
+ 
+
 

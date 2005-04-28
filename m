@@ -1,48 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261836AbVD1HO6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261837AbVD1HVg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261836AbVD1HO6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 03:14:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbVD1HOw
+	id S261837AbVD1HVg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 03:21:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbVD1HVf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 03:14:52 -0400
-Received: from isilmar.linta.de ([213.239.214.66]:28127 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S261836AbVD1HMv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 03:12:51 -0400
-Date: Thu, 28 Apr 2005 09:12:48 +0200
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: "Robert W. Fuller" <fullerrw@uindy.edu>,
-       Jonas Oreland <jonas.oreland@mysql.com>,
-       "Robert W. Fuller" <orangemagicbus@sbcglobal.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: TI Yenta socket Fish Please Report
-Message-ID: <20050428071248.GA16748@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	"Robert W. Fuller" <fullerrw@uindy.edu>,
-	Jonas Oreland <jonas.oreland@mysql.com>,
-	"Robert W. Fuller" <orangemagicbus@sbcglobal.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <426F3A89.3010702@uindy.edu> <426F3FD1.3040007@mysql.com> <427020DA.4030504@sbcglobal.net> <427075F1.8030009@sbcglobal.net> <426F3A89.3010702@uindy.edu> <426F3FD1.3040007@mysql.com> <427020DA.4030504@sbcglobal.net> <426F3A89.3010702@uindy.edu> <426F3FD1.3040007@mysql.com> <426F3A89.3010702@uindy.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <426F3AC7.6040605@sbcglobal.net> <426F3AA4.6070004@uindy.edu> <427075F1.8030009@sbcglobal.net> <427020DA.4030504@sbcglobal.net> <426F3FD1.3040007@mysql.com> <426F3A89.3010702@uindy.edu>
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 28 Apr 2005 03:21:35 -0400
+Received: from bernache.ens-lyon.fr ([140.77.167.10]:20876 "EHLO
+	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S261837AbVD1HVZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 03:21:25 -0400
+Message-ID: <42708EE9.3010503@ens-lyon.org>
+Date: Thu, 28 Apr 2005 09:21:13 +0200
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: David Addison <addy@quadrics.com>
+Cc: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] Linux VM hooks for advanced RDMA NICs
+References: <426E62ED.5090803@quadrics.com>
+In-Reply-To: <426E62ED.5090803@quadrics.com>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Report: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> @@ -267,6 +270,11 @@
+>  
+>  	unsigned long hiwater_rss;	/* High-water RSS usage */
+>  	unsigned long hiwater_vm;	/* High-water virtual memory usage */
+> +
+> +#ifdef CONFIG_IOPROC
+> +	/* hooks for io devices with advanced RDMA capabilities */
+> +	struct ioproc_ops       *ioproc_ops;
+> +#endif
+>  };
 
-On Wed, Apr 27, 2005 at 02:08:57AM -0500, Robert W. Fuller wrote:
-> Did the patch for this ever make it into the main kernel?  Is it still 
-> in the -mm tree?
-It is still in the -mm tree.
+> +int
+> +ioproc_register_ops(struct mm_struct *mm, struct ioproc_ops *ip)
+> +{
+> +	ip->next = mm->ioproc_ops;
+> +	mm->ioproc_ops = ip;
+> +
+> +	return 0;
+> +}
+> +
+> +EXPORT_SYMBOL_GPL(ioproc_register_ops);
+> +
+> +int
+> +ioproc_unregister_ops(struct mm_struct *mm, struct ioproc_ops *ip)
+> +{
+> +	struct ioproc_ops **tmp;
+> +
+> +	for (tmp = &mm->ioproc_ops; *tmp && *tmp != ip; tmp= &(*tmp)->next)
+> +		;
+> +	if (*tmp) {
+> +		*tmp = ip->next;
+> +		return 0;
+> +	}
+> +
+> +	return -EINVAL;
+> +}
+> +
+> +EXPORT_SYMBOL_GPL(ioproc_unregister_ops);
 
->  Will it ever be in the main kernel?
-It will likely be merged into the main kernel for 2.6.13
+You don't seem to use any synchronization mechanism to protect the
+ioproc list from concurrent modifications, right ?
+I understand that it might be useless as long as QsNet is the only user
+of ioprocs and takes care of locking the address space somewhere in the
+driver before adding/removing hooks.
+But, if this patch is to be merged to the mainline, you probably need
+to do something here. It's not clear how other in-kernel users
+(IB, Myri, Ammasso, ...) might use ioprocs.
+And actually, I think all ioproc list traversal need to be protected
+as well.
 
-> Is there some bug database I can check?
-There is at http://bugzilla.kernel.org , however not all bugs are reported
-or managed there. In fact, many prefer mailing list-based bugtracking.
+A spinlock_t ioproc_lock is probably appropriate here.
+I don't know whether any of the existing locks in the task_struct
+might be used instead.
 
-	Dominik
+Regards,
+Brice

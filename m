@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262142AbVD1Hos@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261915AbVD1Hoy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262142AbVD1Hos (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 03:44:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbVD1HoV
+	id S261915AbVD1Hoy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 03:44:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbVD1Hoe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 03:44:21 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:25057 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262129AbVD1HmU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 03:42:20 -0400
-Date: Thu, 28 Apr 2005 09:42:01 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Li Shaohua <shaohua.li@intel.com>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       ACPI-DEV <acpi-devel@lists.sourceforge.net>,
-       Len Brown <len.brown@intel.com>, Zwane Mwaikambo <zwane@linuxpower.ca>
-Subject: Re: [PATCH 6/6]suspend/resume SMP support
-Message-ID: <20050428074201.GA1906@elf.ucw.cz>
-References: <1113283867.27646.434.camel@sli10-desk.sh.intel.com> <20050428002254.461fcf32.akpm@osdl.org> <1114673725.26367.7.camel@sli10-desk.sh.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1114673725.26367.7.camel@sli10-desk.sh.intel.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 28 Apr 2005 03:44:34 -0400
+Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:3752 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262128AbVD1HmE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 03:42:04 -0400
+To: dedekind@infradead.org
+CC: linux-kernel@vger.kernel.org, dwmw2@infradead.org,
+       linux-fsdevel@vger.kernel.org, akpm@osdl.org
+In-reply-to: <1114673528.3483.2.camel@sauron.oktetlabs.ru>
+	(dedekind@infradead.org)
+Subject: Re: [PATCH] VFS bugfix: two read_inode() calles without
+	clear_inode() call between
+References: <1114607741.12617.4.camel@sauron.oktetlabs.ru>
+	 <E1DQoui-0002In-00@dorka.pomaz.szeredi.hu>
+	 <1114618748.12617.23.camel@sauron.oktetlabs.ru>
+	 <E1DQqZu-0002Rf-00@dorka.pomaz.szeredi.hu> <1114673528.3483.2.camel@sauron.oktetlabs.ru>
+Message-Id: <E1DR3ei-0005OC-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Thu, 28 Apr 2005 09:41:52 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> > Why do you need to move it from prune_icache() to dispose_list()?
+> > For the hash list it's the right thing, but for sb_list it's not
+> > needed, is it?
+> Yes, it is not needed but harmless. I did it only because i_hash &
+> i_sb_list insertions/deletions always come in couple. So I decided move
+> them both, to be more consistent, to make code less complicated.
+> 
+> If you regard this hazardous I might split these removals. But IMHO, my
+> variant is a bit more pleasant.
 
-> > On ia64, with tiger_defconfig:
-> > 
-> > kernel/built-in.o(.text+0x59e12): In function `suspend_prepare':
-> > : undefined reference to `disable_nonboot_cpus'
-> > kernel/built-in.o(.text+0x59e62): In function `suspend_prepare':
-> > : undefined reference to `enable_nonboot_cpus'
-> > kernel/built-in.o(.text+0x5a222): In function `suspend_finish':
-> > : undefined reference to `enable_nonboot_cpus'
-> Pavel,
-> Could IA64 do software suspend? There possibly are other troubles here.
+It's not just pleasentness.  You should be _very_ careful with any
+changes you make to this kind of code, and have a very clear
+explanation why the change is needed, and why it won't do any trouble.
 
-Someone would have to write low-level support. Bring me ia64 notebook
-and I'll do it ;-)))))))))))))))))))).
-								Pavel
--- 
-Boycott Kodak -- for their patent abuse against Java.
+I didn't actually think about the sb_list stuff, but my feeling is you
+should not move it unless there's a very clear reason to do so.
+
+Miklos

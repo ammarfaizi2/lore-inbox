@@ -1,43 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262248AbVD1UJU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262258AbVD1UKf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262248AbVD1UJU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 16:09:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262258AbVD1UJU
+	id S262258AbVD1UKf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 16:10:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbVD1UK1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 16:09:20 -0400
-Received: from THUNK.ORG ([69.25.196.29]:15294 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S262248AbVD1UJQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 16:09:16 -0400
-Date: Thu, 28 Apr 2005 16:09:08 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Davy Durham <pubaddr2@davyandbeth.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ext3 issue..
-Message-ID: <20050428200908.GB6669@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Davy Durham <pubaddr2@davyandbeth.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <4270FA5B.5060609@davyandbeth.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4270FA5B.5060609@davyandbeth.com>
-User-Agent: Mutt/1.5.8i
+	Thu, 28 Apr 2005 16:10:27 -0400
+Received: from alog0137.analogic.com ([208.224.220.152]:54164 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262258AbVD1UJe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 16:09:34 -0400
+Date: Thu, 28 Apr 2005 16:06:43 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Xin Zhao <uszhaoxin@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: dumb question: How to create your own log files in a kernel
+ module?
+In-Reply-To: <4ae3c14050428111073283bd3@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0504281557510.29750@chaos.analogic.com>
+References: <4ae3c14050428111073283bd3@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 28, 2005 at 09:59:39AM -0500, Davy Durham wrote:
-> Crazy huh?  Well, I unmounted /home and did an fsck -f  on the partition 
-> and remounted it.  Then everything looked okay.
+On Thu, 28 Apr 2005, Xin Zhao wrote:
 
-What messages were displayed by e2fsck?  What version of the kernel
-are you running?
+> Can anyone give me a hand? or point me to somewhere I can find related
+> information?
+>
+> Thanks in advance!
+>
+> Xin
 
-No, I haven't heard of any such problems with ext2/3 filesystems.
-This is the first time that someone was reported a specific problem
-with the # of blocks used accounting.  There is the standard "file
-held open so the number of blocks used is greater than blocks reported
-by du", but that won't cause df to display negative numbers.
 
-						- Ted
+printk(KERN_XXX"whatever") was designed for this.
+
+#define	KERN_EMERG	"<0>"	/* system is unusable			*/
+#define	KERN_ALERT	"<1>"	/* action must be taken immediately	*/
+#define	KERN_CRIT	"<2>"	/* critical conditions			*/
+#define	KERN_ERR	"<3>"	/* error conditions			*/
+#define	KERN_WARNING	"<4>"	/* warning conditions			*/
+#define	KERN_NOTICE	"<5>"	/* normal but significant condition	*/
+#define	KERN_INFO	"<6>"	/* informational			*/
+#define	KERN_DEBUG	"<7>"	/* debug-level messages			*/
+ 	printk(KERN_DEBUG fmt,##arg)
+ 	printk(KERN_INFO fmt,##arg)
+
+You could define your own, KERN_PRIVATE "<8>" and have the syslog
+facility filter on that.
+
+Other ways are to write stuff to a buffer or linked-list and
+read it out using an ioctl() or read() in your module. If you
+do this, make sure that your module code doesn't wait forever
+if the buffer gets full.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

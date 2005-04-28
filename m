@@ -1,83 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262068AbVD1QLc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262016AbVD1QMP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262068AbVD1QLc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 12:11:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262117AbVD1QLc
+	id S262016AbVD1QMP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 12:12:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbVD1QMP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 12:11:32 -0400
-Received: from fire.osdl.org ([65.172.181.4]:62097 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262068AbVD1QLY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 12:11:24 -0400
-Date: Thu, 28 Apr 2005 09:11:19 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: vgoyal@in.ibm.com
-Cc: akpm@osdl.org, ebiederm@xmission.com, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org, sharyathi@in.ibm.com
-Subject: Re: [Fastboot] Re: Kdump Testing
-Message-Id: <20050428091119.73568208.rddunlap@osdl.org>
-In-Reply-To: <20050428114416.GA5706@in.ibm.com>
-References: <1114227003.4269c13be5f8b@imap.linux.ibm.com>
-	<OFB57B3D45.D8C338C5-ON65256FEE.0042F961-65256FEE.0043D4CB@in.ibm.com>
-	<20050425160925.3a48adc5.rddunlap@osdl.org>
-	<20050426085448.GB4234@in.ibm.com>
-	<20050427122312.358f5bd6.rddunlap@osdl.org>
-	<20050428114416.GA5706@in.ibm.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Thu, 28 Apr 2005 12:12:15 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:62168 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262016AbVD1QMH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 12:12:07 -0400
+Subject: Re: [RFC][PATCH] Reduce ext3 allocate-with-reservation lock
+	latencies
+From: Lee Revell <rlrevell@joe-job.com>
+To: cmm@us.ibm.com
+Cc: Andrew Morton <akpm@osdl.org>, "Stephen C. Tweedie" <sct@redhat.com>,
+       Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1114673852.4104.33.camel@localhost.localdomain>
+References: <1112673094.14322.10.camel@mindpipe>
+	 <20050405041359.GA17265@elte.hu>
+	 <1112765751.3874.14.camel@localhost.localdomain>
+	 <20050407081434.GA28008@elte.hu>
+	 <1112879303.2859.78.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1112917023.3787.75.camel@dyn318043bld.beaverton.ibm.com>
+	 <1112971236.1975.104.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1112983801.10605.32.camel@dyn318043bld.beaverton.ibm.com>
+	 <1113220089.2164.52.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1113244710.4413.38.camel@localhost.localdomain>
+	 <1113249435.2164.198.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1113288087.4319.49.camel@localhost.localdomain>
+	 <1113304715.2404.39.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1113348434.4125.54.camel@dyn318043bld.beaverton.ibm.com>
+	 <1113388142.3019.12.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1114207837.7339.50.camel@localhost.localdomain>
+	 <1114659912.16933.5.camel@mindpipe>
+	 <1114673852.4104.33.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 28 Apr 2005 12:12:05 -0400
+Message-Id: <1114704726.17712.17.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Apr 2005 17:14:16 +0530
-Vivek Goyal <vgoyal@in.ibm.com> wrote:
-
-> > > Can you post a full serial console output of second kernel? That would help.
+On Thu, 2005-04-28 at 00:37 -0700, Mingming Cao wrote:
+> On Wed, 2005-04-27 at 23:45 -0400, Lee Revell wrote:
+> > On Fri, 2005-04-22 at 15:10 -0700, Mingming Cao wrote:
+> > > Please review. I have tested on fsx on SMP box. Lee, if you got time,
+> > > please try this patch.
 > > 
-> > I did another test run, same kernels (both running and recovery).
-> > The recovery kernel got a little further this time, still had
-> > Badness and a BUG.
+> > I have tested and this does fix the problem.  I ran my tests and no ext3
+> > code paths showed up on the latency tracer at all, it never went above
+> > 33 usecs.
 > > 
-> > ---
+> Thanks, Lee.
 > 
-> Ok. I am also able to see this slab corruption occurring on my machine. I can 
-> get away with the problem if I disable cachefs support. 
-> 
-> Infact, I can reproduce the problem if I boot capture kernel normally through 
-> BIOS with commandline "mem=64M". Looks like it is generic problem and not
-> associated with kexec/kdump. Cachefs might be doing some corruption.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> The patch survived on many fsx test over 20 hours on a 2cpu machine.
+> Tested the patch on the same machine with tiobench (1-64 threads), and
+> untar a kernel tree test, no regression there.
+> However I see about 5-7% throughput drop on dbench with 16 threads. It
+> probably due to the cpu cost that we have discussed.
 
-Wheeeeeeeeee.  Great, we (I) can do without cachefs,
-and when I do that, kexec + kdump works.
-First time that I've seen kdump work.  :)
+Hmm, I guess someone needs to test it on a bigger system.  AFAICT this
+should improve SMP scalability quite a bit.  Maybe that lock is rarely
+contended.
 
--rw-r--r--  1 root root 1.0G Apr 28 08:41 oldmem.0428
--r--------  1 root root 960M Apr 28 08:36 vmcore.0428
+Lee
 
-My (crashing/panic) kernel is built without -g, but gdb
-can still tell me this much:
-
-(gdb) bt
-#0  0xc010ef95 in crash_get_current_regs ()
-#1  0x00000000 in ?? ()
-#2  0xee821ea0 in ?? ()
-#3  0xee821ea0 in ?? ()
-#4  0xee821ea0 in ?? ()
-#5  0x00000046 in ?? ()
-#6  0x00000000 in ?? ()
-#7  0x00000000 in ?? ()
-#8  0x00000000 in ?? ()
-#9  0xee82c000 in ?? ()
-#10 0x00000000 in ?? ()
-#11 0xc010ed38 in machine_kexec ()
-
-
-Thanks for following up, tracking, working on this.
-
----
-~Randy

@@ -1,49 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262230AbVD1TDG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262234AbVD1TNn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262230AbVD1TDG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 15:03:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262229AbVD1TDF
+	id S262234AbVD1TNn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 15:13:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262232AbVD1TNn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 15:03:05 -0400
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:55947
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262227AbVD1TDD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 15:03:03 -0400
-Date: Thu, 28 Apr 2005 11:53:44 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: James.Bottomley@SteelEye.com, linux-arch@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] unify semaphore implementations
-Message-Id: <20050428115344.4e10a7f4.davem@davemloft.net>
-In-Reply-To: <20050428185956.GD16545@kvack.org>
-References: <20050428182926.GC16545@kvack.org>
-	<1114714089.5022.3.camel@mulgrave>
-	<20050428185956.GD16545@kvack.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Apr 2005 15:13:43 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:6090 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S262234AbVD1TNf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 15:13:35 -0400
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: vgoyal@in.ibm.com, akpm@osdl.org, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org, sharyathi@in.ibm.com
+Subject: Re: [Fastboot] Re: Kdump Testing
+References: <1114227003.4269c13be5f8b@imap.linux.ibm.com>
+	<OFB57B3D45.D8C338C5-ON65256FEE.0042F961-65256FEE.0043D4CB@in.ibm.com>
+	<20050425160925.3a48adc5.rddunlap@osdl.org>
+	<20050426085448.GB4234@in.ibm.com>
+	<20050427122312.358f5bd6.rddunlap@osdl.org>
+	<20050428114416.GA5706@in.ibm.com>
+	<20050428091119.73568208.rddunlap@osdl.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 28 Apr 2005 13:08:29 -0600
+In-Reply-To: <20050428091119.73568208.rddunlap@osdl.org>
+Message-ID: <m1mzri90sy.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Apr 2005 14:59:56 -0400
-Benjamin LaHaise <bcrl@kvack.org> wrote:
+"Randy.Dunlap" <rddunlap@osdl.org> writes:
 
-> On Thu, Apr 28, 2005 at 11:48:09AM -0700, James Bottomley wrote:
-> > Could you come up with a less monolithic way to share this so that we
-> > can still do a spinlock semaphore implementation instead of an atomic op
-> > based one?
+> On Thu, 28 Apr 2005 17:14:16 +0530
+> Vivek Goyal <vgoyal@in.ibm.com> wrote:
 > 
-> As I read the code, it doesn't make a difference: parisc will take a 
-> spin lock within the atomic operation and then release it, which makes 
-> the old fast path for the semaphores and the new fast path pretty much 
-> equivalent (they both take and release one spinlock).
+> > > > Can you post a full serial console output of second kernel? That would
+> help.
+> 
+> > > 
+> > > I did another test run, same kernels (both running and recovery).
+> > > The recovery kernel got a little further this time, still had
+> > > Badness and a BUG.
+> > > 
+> > > ---
+> > 
+> > Ok. I am also able to see this slab corruption occurring on my machine. I can
+> 
+> > get away with the problem if I disable cachefs support. 
+> > 
+> > Infact, I can reproduce the problem if I boot capture kernel normally through
+> 
+> > BIOS with commandline "mem=64M". Looks like it is generic problem and not
+> > associated with kexec/kdump. Cachefs might be doing some corruption.
+> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> 
+> Wheeeeeeeeee.  Great, we (I) can do without cachefs,
+> and when I do that, kexec + kdump works.
+> First time that I've seen kdump work.  :)
+> 
+> -rw-r--r--  1 root root 1.0G Apr 28 08:41 oldmem.0428
+> -r--------  1 root root 960M Apr 28 08:36 vmcore.0428
+> 
+> My (crashing/panic) kernel is built without -g, but gdb
+> can still tell me this much:
+> 
+> (gdb) bt
+> #0  0xc010ef95 in crash_get_current_regs ()
+> #1  0x00000000 in ?? ()
+> #2  0xee821ea0 in ?? ()
+> #3  0xee821ea0 in ?? ()
+> #4  0xee821ea0 in ?? ()
+> #5  0x00000046 in ?? ()
+> #6  0x00000000 in ?? ()
+> #7  0x00000000 in ?? ()
+> #8  0x00000000 in ?? ()
+> #9  0xee82c000 in ?? ()
+> #10 0x00000000 in ?? ()
+> #11 0xc010ed38 in machine_kexec ()
+> 
+> 
+> Thanks for following up, tracking, working on this.
 
-I think parisc should be allowed to choose their implementation of
-semaphores.  Look, if you change semaphores in some way it will
-be their problem to keep their parisc version in sync.
+Congratulations everyone.  The good really good news is when the
+recovery kernel failed it failed early enough it did not make things
+worse.  It is good to see that prediction confirmed :)
 
-Or you could provide both a spinlocked and an atomic op based implementation
-of generic semaphores, as we do for rwsem already.
+Eric

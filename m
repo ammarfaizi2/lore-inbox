@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262029AbVD1Fey@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262023AbVD1Fkj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262029AbVD1Fey (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 01:34:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbVD1Fex
+	id S262023AbVD1Fkj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 01:40:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262024AbVD1Fkj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 01:34:53 -0400
-Received: from smtp811.mail.sc5.yahoo.com ([66.163.170.81]:62543 "HELO
-	smtp811.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262024AbVD1Feq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 01:34:46 -0400
-Message-ID: <427075F1.8030009@sbcglobal.net>
-Date: Thu, 28 Apr 2005 00:34:41 -0500
-From: "Robert W. Fuller" <orangemagicbus@sbcglobal.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041223
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Robert W. Fuller" <orangemagicbus@sbcglobal.net>
-CC: Jonas Oreland <jonas.oreland@mysql.com>,
-       "Robert W. Fuller" <fullerrw@uindy.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: TI Yenta socket Fish Please Report
-References: <426F3A89.3010702@uindy.edu> <426F3FD1.3040007@mysql.com> <427020DA.4030504@sbcglobal.net>
-In-Reply-To: <427020DA.4030504@sbcglobal.net>
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Apr 2005 01:40:39 -0400
+Received: from mail.autoweb.net ([198.172.237.26]:61316 "EHLO mail.autoweb.net")
+	by vger.kernel.org with ESMTP id S262023AbVD1Fk2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 01:40:28 -0400
+Date: Thu, 28 Apr 2005 01:40:15 -0400
+From: Ryan Anderson <ryan@michonline.com>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: jdike@karaya.com, user-mode-linux-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, sam@ravnborg.org,
+       Ryan Anderson <ryan@michonline.com>
+Subject: Re: [UML] Compile error when building with seperate source and object directories
+Message-ID: <20050428054015.GC30308@mythryan2.michonline.com>
+References: <1114570958.5983.50.camel@mythical> <20050427234515.GY13052@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050427234515.GY13052@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert W. Fuller wrote:
-> Jonas Oreland wrote:
+On Thu, Apr 28, 2005 at 12:45:15AM +0100, Al Viro wrote:
+> On Tue, Apr 26, 2005 at 11:02:38PM -0400, Ryan Anderson wrote:
+> > I've been seeing a build error when trying to build User Mode Linux on
+> > an x86-32 host (Athlon, fwiw).  The kernel I'm building is a 1-day old
+> > pull from git.  This error is not new, though.  I thought it was merely
+> > an artifact of a patch stuck in a queue at first so I didn't mention it
+> > right away.
 > 
->> Robert W. Fuller wrote:
->>>
->>> Looks like I have the same problem that was discussed here in 
->>> February with PCI resources being assigned to the same range as RAM.  
->>> This is the old thread: "IBM Thinkpad G41 PCMCIA problems [Was: Yenta 
->>> TI: ... no PCIinterrupts. Fish. Please report.]"  I'm having this 
->>> problem on 2.6.11.
->>>
->>> Did the patch for this ever make it into the main kernel?  Is it 
->>> still in the -mm tree?  Will it ever be in the main kernel?  How do I 
->>> figure these things out?  Is there some bug database I can check?
->>>
->> I think it made it somehow.
->> I have a G40 which had the problem before I upgraded to 2.6.11
-> 
-> Did it make it in for x86_64 kernel I wonder?
+> That's because that stuff is not merged yet.  Speaking of which, where does
+> the current UML tree live and who should that series be Cc'ed to?
 
-Hello.  Is there anybody out there?  Anybody who actually knows 
-something about what is in what kernel?  Does anybody know how to figure 
-this out?  Is there some kind of Bugzilla database or something I can 
-look at?
+I think you hit the right people with the Cc: list I started with.
+
+> I've got a decent split-up and IMO that should be mergable.  Patches are
+> on ftp.linux.org.uk/pub/people/viro/UM*; summary in the end of mail.
+> That's a sanitized and split version of old UML-kbuild patch.
+
+Thanks, this seems to do the trick.
+
+I had an initial problem, but I think I was just working from a
+directory in a bad state, after nuking my output directory and starting
+over, it seems to be working just fine.
+
+Thanks for the fix, I have another toy to play with this week now. :)
+
+-- 
+
+Ryan Anderson
+  sometimes Pug Majere

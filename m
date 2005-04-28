@@ -1,108 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261862AbVD1IpU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261966AbVD1Ipj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261862AbVD1IpU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 04:45:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261962AbVD1InY
+	id S261966AbVD1Ipj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 04:45:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbVD1Imm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 04:43:24 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:58581 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S261898AbVD1Ihe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 04:37:34 -0400
-In-Reply-To: <426FF466.10501@fujitsu-siemens.com>
-Subject: Re: Again: UML on s390 (31Bit)
-To: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux devel 
-	<user-mode-linux-devel@lists.sourceforge.net>
-X-Mailer: Lotus Notes Build V651_12042003 December 04, 2003
-Message-ID: <OF558C84FC.0C649F6F-ONC1256FF1.002D4CEF-C1256FF1.002F4B2C@de.ibm.com>
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Date: Thu, 28 Apr 2005 10:36:34 +0200
-X-MIMETrack: Serialize by Router on D12ML062/12/M/IBM(Release 6.53HF247 | January 6, 2005) at
- 28/04/2005 10:37:31
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	Thu, 28 Apr 2005 04:42:42 -0400
+Received: from straum.hexapodia.org ([64.81.70.185]:6448 "EHLO
+	straum.hexapodia.org") by vger.kernel.org with ESMTP
+	id S261969AbVD1Ii4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 04:38:56 -0400
+Date: Thu, 28 Apr 2005 01:38:08 -0700
+From: Andy Isaacson <adi@hexapodia.org>
+To: David Addison <addy@quadrics.com>
+Cc: Brice Goglin <Brice.Goglin@ens-lyon.org>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       David Addison <david.addison@quadrics.com>
+Subject: Re: [PATCH][RFC] Linux VM hooks for advanced RDMA NICs
+Message-ID: <20050428083808.GA23849@hexapodia.org>
+References: <426E62ED.5090803@quadrics.com> <426E751A.2020507@ens-lyon.org> <426F5E33.8000906@quadrics.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <426F5E33.8000906@quadrics.com>
+User-Agent: Mutt/1.4.2i
+X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
+X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bodo Stroesser <bstroesser@fujitsu-siemens.com> wrote on 04/27/2005
-10:21:58 PM:
-
-> I'm sending this mail again, because unfortunately I didn't receive
-> any reply. It was sent the first time at April, 5th.
-
-Sorry, I put it on the to-do pile and promptly forgot about it.
-
-> currently I'm porting UML to s390 31-bit.
-
-Nice...
-
-> To make UML build and run on s390, I needed to do these two little
-> changes (the patches are copy and paste. I hope that doesn't hurt,
-> since they are very small):
+On Wed, Apr 27, 2005 at 10:41:07AM +0100, David Addison wrote:
+> Brice Goglin wrote:
+> >I worked on a similar patch to help updating a registration cache on
+> >Myrinet. I came to the problem of deciding between registering ioproc
+> >to the entire address space (1) or only to some VMA (2).
+> >You're doing (1), I tried (2).
 >
-> 1) UML includes some of the subarch's (s390) headers. I had to
->     change one of them with the following one-liner, to make this
->     compile. AFAICS, this change doesn't break compilation of s390
->     itself.
+> We have always taken approach (1) as it seems to be the simplest
+> method and offers the model where the whole user process space can be
+> made available for RDMA operations.
 
-This one isn't a problem. I'll add it to the repository.
+I agree that this is a nice patch for exploring the design space (and
+frankly, for maintaining outside the kernel tree).  I'd like to see
+something like this merged.  As it stands, the patch is a decent
+standalone implementation of (1).
 
-> 2) UML needs to intercept syscalls via ptrace to invalidate the syscall,
->     read syscall's parameters and write the result with the result of
->     UML's syscall processing. Also, UML needs to make sure, that the host
->     does no syscall restart processing. On i386 for example, this can be
->     done by writing -1 to orig_eax on the 2nd syscall interception
->     (orig_eax is the syscall number, which after the interception is used
->     as a "interrupt was a syscall" flag only.
->     Unfortunately, s390 holds syscall number and syscall result in gpr2 and
->     its "interrupt was a syscall" flag (trap) is unreachable via ptrace.
->     So I changed the host to set trap to -1, if the syscall number is written
->     to a negative value on the first syscall interception.
->     I hope, this adds what UML needs without changing ptrace visibly to other
->     ptrace users.
->     (This isn't tested on a 2.6 host yet, because my host still is a 2.4.21 SuSE.
->     But I've adapted this change to 2.4 and tested, it works.)
->
->
-> ==============================================================================
-> --- linux-2.6.11.orig/arch/s390/kernel/ptrace.c   2005-04-04 18:57:
-> 38.000000000 +0200
-> +++ linux-2.6.11/arch/s390/kernel/ptrace.c   2005-04-04 19:01:51.
-> 000000000 +0200
-> @@ -726,6 +726,13 @@
->               ? 0x80 : 0));
->
->      /*
-> +    * If debugger has set an invalid syscall number,
-> +    * we prepare to skip syscall restart handling
-> +    */
-> +   if (!entryexit && (long )regs->gprs[2] < 0 )
-> +      regs->trap = -1;
-> +
-> +   /*
->       * this isn't the same as continuing with a signal, but it will do
->       * for normal use.  strace only continues with a signal if the
->       * stopping signal is not SIGTRAP.  -brl
-> ==============================================================================
+I would personally strongly prefer that whatever is merged be low-impact
+and so obviously good that it would not need to be a CONFIG_ option.
+(Or rather, it should be a CONFIG_ option, but one which is forced to
+yes if !CONFIG_EMBEDDED.)
 
-This patch is not good. !entryexit indicates that you want to change the trap
-indication on the first of the two calls of syscall_trace for a system call. The
-second condition is gprs[2] < 0 but that can be true for a normal system call as
-well, like sys_exit(-1). It might even be true for user addresses if we really
-extent the virtual address space to full 64 bit one day (and the hardware can do
-it with a 5 level paging table). To change regs->trap to -1 with the current
-condition is definitly wrong.
-Independent from that it do not understand why you need it at all. If the
-uml host intercepted and invalidated the guest system call the system restart
-indication bit _TIF_RESTART_SVC shouldn't be set because the guest didn't
-execute a system call.
+And of course, it needs to be general-purpose enough to satisfy all the
+significant constituencies:
+1. Myrinet/Quadrics (proprietary interconnects for HPC/etc)
+2. Infiniband (slightly more general-purpose interconnect standard for
+               etc/HPC)
+3. RDMA TCP
+and I would add
+4. people who want to add a commodity card to a general-purpose server
+   and be able to take advantage of direct-to-userspace transfers
+   without breaking the general-purposeness of their server.
 
-blue skies,
-   Martin
+I think that given a reliable framework for DMA-to-userspace, other
+users will pop up.  OpenGL (DRI) is one obvious example; I think there
+are others.
 
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
+With those (fairly lofty) goals in mind, I think the verdict is not good
+for ioproc-2.6.12-rc3.patch.
 
+It's got some style-ish issues that would have to be worked out before
+it could be merged.  (#ifdef in code, for one.)
+
+It's adding a linked-list walk to a bunch of places in mm/, which is (or
+at least, seems to me) pretty unacceptable (even if it's just one
+cacheline miss) in the fast paths.
+
+Did you understand Andi's suggestion about NUMA policies?  (I'm not
+smart enough to follow it.)  Can we share code between this and the NUMA
+stuff?
+
+> static over the life of the job and hence most of the costs are taken
+> as the pages are created during job startup and initialisation.
+
+Yeah, I'm pretty skeptical about claims that "It's too much work to keep
+track of all that" regarding per-proc versus per-vma, and also regarding
+explicit-lock-from-commlib versus dynamic-pinning.  For the people who
+care (HPC), pin/unpin events are very rare (zero during normal runtime),
+so the overhead is unimportant.  It's more important to provide reliable
+operation with minimal impact to standard mm semantics.
+
+> However, I still prefer model (1) as it allows both implementations and
+> appears to be much simpler in terms of the linux kernel changes required.
+
+I agree that (1) looks easier to implement when you're doing it outside
+the kernel (and tracking).  However, if you're aiming for integration
+we should figure out what the right answer is.  It feels like that's
+per-vma, but I freely admit I don't have any code to back that up.
+
+> Thanks for your comments,
+
+Thank you for stepping up to be our archery target. :)
+
+> diff -ruN linux-2.6.12-rc3.orig/include/linux/ioproc.h linux-2.6.12-rc3.ioproc/include/linux/ioproc.h
+
+Could you add -p to your diff invocation, please...
+
+This patch is *exactly* what I'd want if I were looking for an obvious,
+easy-to-maintain externally-maintained patch to add this capability.
+(Would that I could say that for all the HPC kernel patches I've been
+subjected to.)
+
+But I think we can do better.
+
+At least I would like to see Andi (or another NUMA mm god) and you (or
+another RDMA expert) hash over the possiblity of sharing code.
+
+-andy

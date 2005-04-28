@@ -1,42 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262339AbVD1Xvi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262321AbVD1XwY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262339AbVD1Xvi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 19:51:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbVD1Xvh
+	id S262321AbVD1XwY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 19:52:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262340AbVD1XwY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 19:51:37 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:63186 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262313AbVD1Xvg
+	Thu, 28 Apr 2005 19:52:24 -0400
+Received: from rproxy.gmail.com ([64.233.170.198]:30302 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262321AbVD1XwV convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 19:51:36 -0400
-Subject: Re: [Question] Does the kernel ignore errors writng to disk?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: mike.miller@hp.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-scsi@vger.kernel.org, brace@hp.com
-In-Reply-To: <58cb370e050428162221be7338@mail.gmail.com>
-References: <20050427184022.GA16129@beardog.cca.cpqcorp.net>
-	 <1114700283.24687.193.camel@localhost.localdomain>
-	 <58cb370e050428162221be7338@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1114732207.24687.263.camel@localhost.localdomain>
+	Thu, 28 Apr 2005 19:52:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=aZBnJXPTcltCVBFfJDQZjsMTSUf1+DOBNlfbXo8Nv5Nh0WhdWfQrIxTm6/KmT/8TakGF3SENSIJsjnMstB2bs4ANK1H1CWZYgrPlqqaQ3GCPcevhqy47g0V29Djgy69hU3vpcLf0IVXfnjU7GfjHxJc7gEv8m/eaWu6fxTcdydo=
+Message-ID: <ba83582205042816522e2a7a93@mail.gmail.com>
+Date: Thu, 28 Apr 2005 16:52:21 -0700
+From: Gilles Pokam <gpokam@gmail.com>
+Reply-To: Gilles Pokam <gpokam@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel memory
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 29 Apr 2005 00:50:09 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We agreed on this but it is you to do coding, if you want it,
-> not me (and there was never any patch from you).
+Hi,
 
-I gave up sending you patches because they never got applied and all I
-got was "change this" or send a security fix and get told its got wrong
-white spacing for your personal religion.
+I'm not sure this is the right place to post my message, but I do need
+some advice for my problem.
 
-The bug is still there, and the users still need to know its dangerous.
-Perhaps that way someone will fix it. 
+I have a special user application who needs to access any part of the
+kernel memory. My question is therefore how to make the whole memory
+accessible for that particular application ?
 
-Alan
-
+Thanks.

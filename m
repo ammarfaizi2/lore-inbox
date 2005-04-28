@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261948AbVD1Pxz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262092AbVD1P5L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261948AbVD1Pxz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 11:53:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbVD1Pxz
+	id S262092AbVD1P5L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 11:57:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbVD1P5L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 11:53:55 -0400
-Received: from baloney.puettmann.net ([194.97.54.34]:62387 "EHLO
-	baloney.puettmann.net") by vger.kernel.org with ESMTP
-	id S261948AbVD1Pxx convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 11:53:53 -0400
-Date: Thu, 28 Apr 2005 17:53:13 +0200
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11.7 kernel panic on boot on AMD64
-Message-ID: <20050428155312.GC18972@puettmann.net>
-References: <20050427140342.GG10685@puettmann.net> <20050427152704.632a9317.rddunlap@osdl.org> <20050428090539.GA18972@puettmann.net> <20050428084313.1e69f59d.rddunlap@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 28 Apr 2005 11:57:11 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:20461 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S262092AbVD1P5I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 11:57:08 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: RFT: swsusp: more logical register saving order in swsusp
+Date: Thu, 28 Apr 2005 17:57:17 +0200
+User-Agent: KMail/1.7.1
+Cc: kernel list <linux-kernel@vger.kernel.org>
+References: <20050428084605.GA27554@elf.ucw.cz>
+In-Reply-To: <20050428084605.GA27554@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20050428084313.1e69f59d.rddunlap@osdl.org>
-User-Agent: Mutt/1.5.9i
-From: Ruben Puettmann <ruben@puettmann.net>
-X-Scanner: exiscan *1DRBKD-0006Na-00*hsFB0asWsE.* (Puettmann.NeT, Germany)
+Message-Id: <200504281757.17990.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 28, 2005 at 08:43:13AM -0700, Randy.Dunlap wrote:
+Hi,
+
+On Thursday, 28 of April 2005 10:46, Pavel Machek wrote:
+> I'd like this to get some testing. It is "obviously correct",
+> but... :-).
  
-> Hm, no "console=tty...." at all.  That didn't help (me) much.
-> 
-> Does this happen consistently?
+Tested on AMD64.  I have suspended-resumed the box for a couple of times
+with the patch applied and it works.
 
-Yes ist does. With the DL385 with newest Bios and with a bunch ob Tyan
-Opteron Boards. 
- 
-> What does "gcc --version" say?
-> 
+Greets,
+Rafael
 
-root@pergolesi:~# gcc --version
-gcc (GCC) 3.3.5 (Debian 1:3.3.5-12)
-
-
-Its pergolesi.debian.org one of the Debian Development Server.
-
-                Ruben
 
 -- 
-Ruben Puettmann
-ruben@puettmann.net
-http://www.puettmann.net
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

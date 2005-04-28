@@ -1,82 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262121AbVD1ASn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262125AbVD1A5u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262121AbVD1ASn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 20:18:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbVD1ASn
+	id S262125AbVD1A5u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 20:57:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262137AbVD1A5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 20:18:43 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:59016 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S262122AbVD1ASY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 20:18:24 -0400
-Date: Thu, 28 Apr 2005 09:17:45 +0900
-From: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
-Subject: Re: [RFC/PATCH] unregister_node() for hotplug use
-In-reply-to: <20050426065431.GB5889@suse.de>
-To: Greg KH <gregkh@suse.de>
-Cc: tokunaga.keiich@jp.fujitsu.com, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Message-id: <20050428091745.58ab86a9.tokunaga.keiich@jp.fujitsu.com>
-Organization: FUJITSU LIMITED
-MIME-version: 1.0
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <20050420210744.4013b3f8.tokunaga.keiich@jp.fujitsu.com>
- <20050420173235.GA17775@kroah.com>
- <20050422003009.1b96f09c.tokunaga.keiich@jp.fujitsu.com>
- <20050422003920.GD6829@kroah.com>
- <20050422113211.509005f1.tokunaga.keiich@jp.fujitsu.com>
- <20050425230333.6b8dfb33.tokunaga.keiich@jp.fujitsu.com>
- <20050426065431.GB5889@suse.de>
+	Wed, 27 Apr 2005 20:57:50 -0400
+Received: from rwcrmhc14.comcast.net ([216.148.227.89]:8689 "EHLO
+	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S262125AbVD1A5t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 20:57:49 -0400
+From: ndnguyen3@comcast.net
+To: linux-kernel@vger.kernel.org
+Cc: ndnguyen3@comcast.net
+Subject: oops data from direct memory dump of log_buf?
+Date: Thu, 28 Apr 2005 00:57:47 +0000
+Message-Id: <042820050057.1269.4270350B00034F22000004F52206998499CC020A979A09020B02@comcast.net>
+X-Mailer: AT&T Message Center Version 1 (Dec 17 2004)
+X-Authenticated-Sender: bmRuZ3V5ZW4zQGNvbWNhc3QubmV0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Apr 2005 23:54:32 -0700 Greg KH wrote:
-> On Mon, Apr 25, 2005 at 11:03:33PM +0900, Keiichiro Tokunaga wrote:
-> > On Fri, 22 Apr 2005 11:32:11 +0900 Keiichiro Tokunaga wrote:
-> > > On Thu, 21 Apr 2005 17:39:20 -0700 Greg KH wrote:
-> > > > On Fri, Apr 22, 2005 at 12:30:09AM +0900, Keiichiro Tokunaga wrote:
-> > > > > +#ifdef CONFIG_HOTPLUG
-> > > > > +void unregister_node(struct node *node)
-> > > > > +{
-> > > > > +	sysdev_remove_file(&node->sysdev, &attr_cpumap);
-> > > > > +	sysdev_remove_file(&node->sysdev, &attr_meminfo);
-> > > > > +	sysdev_remove_file(&node->sysdev, &attr_numastat);
-> > > > > +	sysdev_remove_file(&node->sysdev, &attr_distance);
-> > > > > +
-> > > > > +	sysdev_unregister(&node->sysdev);
-> > > > > +}
-> > > > > +EXPORT_SYMBOL_GPL(register_node);
-> > > > > +EXPORT_SYMBOL_GPL(unregister_node);
-> > > > > +#else /* !CONFIG_HOTPLUG */
-> > > > > +void unregister_node(struct node *node)
-> > > > > +{
-> > > > > +}
-> > > > > +#endif /* !CONFIG_HOTPLUG */
-> > <snip>
-> > > > And hey, what's the real big deal here, why not always have this
-> > > > function no matter if CONFIG_HOTPLUG is enabled or not?  I really want
-> > > > to just make that an option that is always enabled anyway, but changable
-> > > > if you are using CONFIG_TINY or something...
-> > > 
-> > >   I put the #ifdef there for users who don't need hotplug
-> > > stuffs, but I want to make the option always enabled, too.
-> > > Also a good side effect, the code would be cleaner:)  I
-> > > will be updating my patch without the #ifdef and sending
-> > > it here.
-> > 
-> >   Here is the patch.  Please apply.
-> 
-> Care to resend it with a proper change log description that I can use?
+Hello,
 
-  Sure.  But, please let me ask you something before I
-post the update patch.  I think register_node() also
-should be always there if unregister_node() is always
-there.  So, the '__devinit' attribute for register_node()
-does not seem to be necessary.  (Actually, the attribute
-'__init' of register_node() was replaced with '__devinit'
-in my previous patch.)  What do you think of this?
+I am sorry if this question is too simple or to the wrong list. In kernel 2.4.x whenever there is a kernel crash, I was able to find Oops data from a direct memory dump starting starting from log_buf. With kernel 2.6.x, I can not find the Oops data from the same memory dump. Do I need to look into different place for the Oops info for 2.6.x? Many thanks.
 
-Thanks,
-Keiichiro Tokunaga
+Best regards,
+
+Nguyen
+
+Ps: Most of the time I can use Dmesg to look for Oops info. However there are numerous times where crashes occur too "early" in the boot process. Hence I need to look at log_buf (via memory dump) to see the Oops or to read prink messages to see how far the boot process got.

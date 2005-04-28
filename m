@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261954AbVD1IJ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbVD1IMn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261954AbVD1IJ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 04:09:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbVD1IJf
+	id S261959AbVD1IMn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 04:12:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261962AbVD1IM3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 04:09:35 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:6375 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261922AbVD1IJX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 04:09:23 -0400
-Date: Thu, 28 Apr 2005 09:09:14 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: aq <aquynh@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, hch@infradead.org,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fs/Kconfig: more consistent configuration of XFS
-Message-ID: <20050428080914.GA10799@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	aq <aquynh@gmail.com>, Andrew Morton <akpm@osdl.org>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <9cde8bff050428005528ecf692@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 28 Apr 2005 04:12:29 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:21473 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261959AbVD1ILT convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 04:11:19 -0400
+From: "Yu, Luming" <luming.yu@intel.com>
+Reply-To: luming.yu@intel.com
+To: "Pavel Machek" <pavel@ucw.cz>
+Subject: Re: [ACPI] Re: [PATCH 6/6]suspend/resume SMP support
+Date: Thu, 28 Apr 2005 16:11:00 +0800
+User-Agent: KMail/1.6.1
+Cc: "Li, Shaohua" <shaohua.li@intel.com>, "Andrew Morton" <akpm@osdl.org>,
+       "lkml" <linux-kernel@vger.kernel.org>,
+       "ACPI-DEV" <acpi-devel@lists.sourceforge.net>,
+       "Brown, Len" <len.brown@intel.com>,
+       "Zwane Mwaikambo" <zwane@linuxpower.ca>
+References: <20050428074201.GA1906@elf.ucw.cz>
+In-Reply-To: <20050428074201.GA1906@elf.ucw.cz>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <9cde8bff050428005528ecf692@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200504281611.00254.luming.yu@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 28, 2005 at 04:55:48PM +0900, aq wrote:
-> hello,
-> 
-> At the moment, the configuration interface of Filesystem is not very consistent:
-> 
-> - All other filesystem configurations (like Reiserfs, JFS, ext3,...)
-> is in fs/Kconfig, but only XFS is in a separate file fs/xfs/Kconfig
-> - All other filesystem configuration is processed in the same screen
-> (using a kind of drop-down interface), but XFS configuration is done
-> in a separate screen.
-> 
-> Here is the patch to fix the problem: it moves XFS configuration from
-> fs/xfs/Kconfig to fs/Kconfig, makes it to do all the configuration in
-> the same screen (by removing "menu" directive), and removes the
-> unnecessary fs/xfs/Kconfig.
+On Thursday 28 April 2005 15:42, Pavel Machek wrote:
+> Hi!
+>
+>  > > On ia64, with tiger_defconfig:
+>  > >
+>  > > kernel/built-in.o(.text+0x59e12): In function `suspend_prepare':
+>  > > : undefined reference to `disable_nonboot_cpus'
+>  > >
+>  > > kernel/built-in.o(.text+0x59e62): In function `suspend_prepare':
+>  > > : undefined reference to `enable_nonboot_cpus'
+>  > >
+>  > > kernel/built-in.o(.text+0x5a222): In function `suspend_finish':
+>  > > : undefined reference to `enable_nonboot_cpus'
+>  >
+>  > Pavel,
+>  > Could IA64 do software suspend? There possibly are other troubles here.
+>
+>  Someone would have to write low-level support. Bring me ia64 notebook
+>  and I'll do it ;-)))))))))))))))))))).
+>                                                                  Pavel
 
-The screen bits is fine, btu please keep fs/xfs/Kconfig.  It make maintaince
-a lot a easier for us XFS people.
+I just checked DSDT on one ia64 box, it has S0, S4, S5 object.
+So, the platform should have sufficient support for sleep-to-disk.
 
+Thanks,
+Luming

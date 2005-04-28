@@ -1,90 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261780AbVD1HAZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261800AbVD1HBp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261780AbVD1HAZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 03:00:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbVD1HAZ
+	id S261800AbVD1HBp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 03:01:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbVD1HBn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 03:00:25 -0400
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:54180
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261780AbVD1HAL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 03:00:11 -0400
-Date: Wed, 27 Apr 2005 23:50:56 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: grundler@parisc-linux.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, greg@kroah.com, bjorn.helgaas@hp.com,
-       davem@redhat.com
-Subject: Re: pci-sysfs resource mmap broken (and PATCH)
-Message-Id: <20050427235056.0bd09a94.davem@davemloft.net>
-In-Reply-To: <1114670353.7182.246.camel@gaston>
-References: <1114493609.7183.55.camel@gaston>
-	<20050426163042.GE2612@colo.lackof.org>
-	<1114555655.7183.81.camel@gaston>
-	<1114643616.7183.183.camel@gaston>
-	<20050428053311.GH21784@colo.lackof.org>
-	<20050427223702.21051afc.davem@davemloft.net>
-	<1114670353.7182.246.camel@gaston>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Thu, 28 Apr 2005 03:01:43 -0400
+Received: from irulan.endorphin.org ([80.68.90.107]:35601 "EHLO
+	irulan.endorphin.org") by vger.kernel.org with ESMTP
+	id S261800AbVD1HAg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 03:00:36 -0400
+Subject: Re: [RFC][PATCH 0/4] AES assembler implementation for x86_64
+From: Fruhwirth Clemens <clemens@endorphin.org>
+To: Andreas Steinmetz <ast@domdv.de>
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       James Morris <jmorris@redhat.com>, davem@davemloft.net, ak@suse.de
+In-Reply-To: <4262B6D4.30805@domdv.de>
+References: <4262B6D4.30805@domdv.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-v5Zkt9Sjr9paGEoXwKMf"
+Date: Thu, 28 Apr 2005 09:00:28 +0200
+Message-Id: <1114671628.13134.4.camel@ghanima>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.0.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Apr 2005 16:39:13 +1000
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 
-> On Wed, 2005-04-27 at 22:37 -0700, David S. Miller wrote:
-> > On Wed, 27 Apr 2005 23:33:11 -0600
-> 
-> > The 'offset' argument is defined to be page aligned
-> > when passed to mmap().
-> 
-> mmap API in general is defined to only ever deal with page aligned
-> parameters & return values no ?
+--=-v5Zkt9Sjr9paGEoXwKMf
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Yes.
+On Sun, 2005-04-17 at 21:19 +0200, Andreas Steinmetz wrote:
+> Implementation:
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> The encrypt/decrypt code is based on an x86 implementation I did a while
+> ago which I never published. This unpublished implementation does
+> include an assembler based key schedule and precomputed tables.=20
 
-> Except from that page alignment thing ... which is the root of the
-> problem.
+Nice work! Especially because I'm planing to get one of these x86_64
+babies soon ;)
 
-You can hide all of those problems in libpci.a or whatever.
-You page align the offset, but pass back to the user a pointer
-with his sub-page offset applied to it.
+> If anybody has a better assembler solution for x86_64 I'll be pleased to
+> have my code replaced with the better solution.
 
-The kernel wants pages, so just give it pages :-)
+Jari Ruusu has a x86_64 implementation in his loop-AES package. It is
+also based on Gladman's code.
+http://loop-aes.sourceforge.net/loop-AES-latest.tar.bz2 aes-amd64.S
 
-> > I hate to say this, but the largest consumer of this stuff is the
-> > X server, so we really need to force ourselves to work in parallel
-> > on clean X server support.
-> 
-> Cleaning X.org is my goal, this is why I'm trying to clean the kernel
-> side first :) I'm also working separately on the problem of VGA access
-> arbitration (We'll probably do a joint session with the desktop summit
-> an the kernel summit about those issue).
+> Microbenchmark:
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> The microbenchmark was done in userspace with similar compile flags as
+> used during kernel compile.
 
-Yeah, that one is all about enabling VGA forwarding in the bridges.
+You might want to compare it to the one above.
 
-Taking out all of the resource garbage in the X server, and replacing
-it with properly synchronized calls in the kernel for mapping ROMs
-and changing the current VGA forwarding seems to be the way to go.
+Regards,
+--=20
+Fruhwirth Clemens - http://clemens.endorphin.org=20
+for robots: sp4mtrap@endorphin.org
 
-> > On many platforms some kind of "side effect" bit in the PTE
-> > determine if store buffer compression can happen in the processor.
-> > We'd want to not set such a bit for things like frame-buffers and
-> > the like.
-> 
-> Yes, and I think that pretty much match with PCI devices exposing a
-> "prefetchable" BAR, don't you agree ?
+--=-v5Zkt9Sjr9paGEoXwKMf
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Some scsi controllers have prefetchable set in their normal
-register BARs.  The sym53c8xx does if I remember correctly.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-Anyways, what I'm trying to say is that blinding turning prefetchable
-BAR into "don't set side effect bit in PTE" might not be so wise.
+iD8DBQBCcIoMbjN8iSMYtrsRAi1jAJ9qBOzxd/WxUee4r8G/bfKSL63m2QCfflwc
+Uq9JCTJC+27J6T7emLNyvic=
+=J786
+-----END PGP SIGNATURE-----
 
-I really think it's a userlevel decision.  That's where all the ioctl()
-garbage came from for the /proc/bus/pci mmap() stuff.  It was for chossing
-IO vs MEM space, and also for setting these kinds of mapping attributes.
+--=-v5Zkt9Sjr9paGEoXwKMf--

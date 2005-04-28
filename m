@@ -1,43 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262253AbVD1TmT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262252AbVD1Tqj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262253AbVD1TmT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 15:42:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262252AbVD1TmT
+	id S262252AbVD1Tqj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 15:46:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262244AbVD1Tqj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 15:42:19 -0400
-Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:65449 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262248AbVD1TmJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 15:42:09 -0400
-To: pavel@suse.cz
-CC: mj@ucw.cz, lmb@suse.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-reply-to: <20050428130819.GF2226@openzaurus.ucw.cz> (message from Pavel
-	Machek on Thu, 28 Apr 2005 15:08:19 +0200)
+	Thu, 28 Apr 2005 15:46:39 -0400
+Received: from pat.uio.no ([129.240.130.16]:41412 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262220AbVD1Tq1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 15:46:27 -0400
 Subject: Re: [PATCH] private mounts
-References: <20050427092450.GB1819@elf.ucw.cz> <E1DQjzY-0001no-00@dorka.pomaz.szeredi.hu> <20050427143126.GB1957@mail.shareable.org> <E1DQno0-00029a-00@dorka.pomaz.szeredi.hu> <20050427153320.GA19065@atrey.karlin.mff.cuni.cz> <20050427155022.GR4431@marowsky-bree.de> <20050427164652.GA3129@ucw.cz> <E1DQqUi-0002Pt-00@dorka.pomaz.szeredi.hu> <20050427175425.GA4241@ucw.cz> <E1DQquc-0002W6-00@dorka.pomaz.szeredi.hu> <20050428130819.GF2226@openzaurus.ucw.cz>
-Message-Id: <E1DREtK-0006Ha-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Thu, 28 Apr 2005 21:41:42 +0200
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Bryan Henderson <hbryan@us.ibm.com>
+Cc: 7eggert@gmx.de, Andrew Morton <akpm@osdl.org>, bulb@ucw.cz,
+       hch@infradead.org, jamie@shareable.org,
+       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
+       linux-kernel@vger.kernel.org, linuxram@us.ibm.com,
+       Miklos Szeredi <miklos@szeredi.hu>, Pavel Machek <pavel@ucw.cz>,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <OFF95431C8.830FB697-ON88256FF1.006112B7-88256FF1.0062D7C3@us.ibm.com>
+References: <OFF95431C8.830FB697-ON88256FF1.006112B7-88256FF1.0062D7C3@us.ibm.com>
+Content-Type: text/plain
+Date: Thu, 28 Apr 2005 15:46:07 -0400
+Message-Id: <1114717567.11547.82.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.857, required 12,
+	autolearn=disabled, AWL 1.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Exactly. So can we simply merge root-only fuse, and then worry
-> how to make it safe with user-mounted fuse. See your own unfsd example
-> why user-mounting is bad.
+to den 28.04.2005 Klokka 10:58 (-0700) skreiv Bryan Henderson:
+> >This is why you have identity squashing and/or strong security: to stop
+> >the CLIENT administrator impersonating whoever he wants and working
+> >around your security measures.
 > 
-> One possible solution would be to have root-owned fused that
-> talks to user-owned fused-s and checks they are behaving correctly?
+> That's more of a confirmation than a refutation of the statement that NFS 
+> root squashing is broken.  Root squashing itself simply does not squash a 
+> typical system administrator's ability to get at other people's files. 
+> "broken" isn't the right word, because as long as you recognize root 
+> squashing for what it is, it's working as designed.  It just isn't what it 
+> appears to be.
 
-It's very hard to do that.  What should be the timeout for requests,
-so that valid filesystems don't break, yet it's not possible to do a
-fairly ugly DoS?  It's almost impossible I'd say.
+Root squashing is there to enforce the policy that nobody gets to access
+any files with uid=0,gid=0. IOW it is a policy that is first and
+foremost meant to make root-owned files untouchable.
 
-> Second is somehow improving those two lines this long thread is all about...
+Strong security, OTOH, enforces the policy that you need to authenticate
+as a given person in order to get at that person's files.
 
-That's what I did.  See the recent documentation and code patches
-(cc-d to -fsdevel).  I'm pretty convinced it's the right thing to do.
-OK, I was with the previous solution too, but anyway ;)
+Neither can prevent man-in-the-middle style attacks by root on a client
+that is compromised nor can they stop someone who has managed to lift
+your username+password from somewhere. Every security policy has its
+limitations.
 
-Thanks,
-Miklos
+> But, in the context of the current thread, I think the perception of NFS 
+> root squashing as something broken and not to be built upon with private 
+> mounts has to do with the fact that it messes up Linux's basic file 
+> permission scheme:  a process with CAP_DAC_OVERRIDE can get EACCES. 
+> EACCESS means discretionary access controls (DAC) prevent access.  So this 
+> behavior is unexpected and unnatural.  Worse, an operation can succeed 
+> _without_ CAP_DAC_OVERRIDE, but not _with_ it.  I've seen this behavior 
+> cause trouble a number of times -- mostly because it's entirely 
+> unanticipated.
+
+Tough. Your administrator has set a certain policy on the fileserver,
+and it is being correctly enforced. If that policy decision turns out to
+be unnecessarily strict then you are quite free to plead with the
+administrator to change it.
+
+Note that these days CAP_DAC_OVERRIDE is no longer guaranteed to be
+sufficient even for local disk if the administrator is using LSE to set
+up custom policies.
+
+Cheers,
+  Trond
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
+

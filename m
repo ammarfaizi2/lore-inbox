@@ -1,41 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261951AbVD1E43@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261963AbVD1E6F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261951AbVD1E43 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 00:56:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261963AbVD1E43
+	id S261963AbVD1E6F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 00:58:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbVD1E6F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 00:56:29 -0400
-Received: from fmr17.intel.com ([134.134.136.16]:62388 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261951AbVD1E41 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 00:56:27 -0400
-Subject: Re: system reboot after reading /proc/acpi/battery/../state
-From: Li Shaohua <shaohua.li@intel.com>
-To: Andreas Happe <news_0403@flatline.ath.cx>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <slrnd6v9ir.b61.news_0403@localhost.localdomain>
-References: <slrnd6v9ir.b61.news_0403@localhost.localdomain>
-Content-Type: text/plain
-Message-Id: <1114664026.22110.37.camel@sli10-desk.sh.intel.com>
+	Thu, 28 Apr 2005 00:58:05 -0400
+Received: from rproxy.gmail.com ([64.233.170.204]:58314 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261963AbVD1E5w convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 00:57:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=pVjzU3JODBe4BRJRxznjTTXKUgvcFE6sxXDHvm7aA+9RSVfFNmbmwzsa87asdH3FcFd3YJg+zQ7obhZvddbDGJrl/h8KsWLS0HfaHV/Z8Cnpy/RcsGFnlXFRway0KWbbpLRFp/Thji09BNsDlzxfbPLSsPZ4g9T9PqW7haDx7+g=
+Message-ID: <d4757e6005042721577ba48cc@mail.gmail.com>
+Date: Thu, 28 Apr 2005 00:57:46 -0400
+From: Joe <joecool1029@gmail.com>
+Reply-To: Joe <joecool1029@gmail.com>
+To: Greg KH <greg@kroah.com>
+Subject: Re: Device Node Issues with recent mm's and udev
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <20050428041428.GB9723@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 28 Apr 2005 12:53:46 +0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <d4757e6005042716523af66bae@mail.gmail.com>
+	 <20050428041428.GB9723@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-04-27 at 22:48, Andreas Happe wrote:
-> Hi,
-> I have a regression to report: my notebook (HP Compaq nx7000) reboots
-> after reading /proc/acpi/battery/C11F/state. It's pseudo -
-> reproduceable, occurs around every second access.
+On 4/28/05, Greg KH <greg@kroah.com> wrote:
+> Is the device "disappearing" and then the udev deletes the device node,
+> and then dd starts dumping data to a file instead?
 > 
-> please contact me for further information (and what information would be
-> needed to fix this bug), I will try to compile older kernel versions to
-> find the corresponding acpi update  this annoying bug (but it happens
-> for at least one month by now).
-Unloading the watchdog driver (the TCO driver) will help you.
+> Anything in your kernel log when this happens?
+> 
+> Does this happen with 2.6.12-rc3?
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Thanks,
-Shaohua
+I've checked the kernel logs and was unable to find anything
+suspicious.  This does not seem to happen on vanilla, its a mm only
+issue.
 
+The device becomes a regular file, and udev seems to forget about it..
+even if I replug in the device, udev will not touch this file.  It
+also seems to have trouble recreating the node even when the file has
+been deleted
+
+Hope that helps, 
+
+Joe

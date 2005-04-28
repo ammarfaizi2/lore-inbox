@@ -1,102 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262018AbVD1FdH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262029AbVD1Fey@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262018AbVD1FdH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 01:33:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbVD1FdH
+	id S262029AbVD1Fey (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 01:34:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbVD1Fex
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 01:33:07 -0400
-Received: from rproxy.gmail.com ([64.233.170.204]:17504 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262018AbVD1Fc4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 01:32:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=g9rIY/lV67fQepDl+9qkPjpKc7vtER05gg3/rj6fuP+u+yTufxmy2ufyA3h66HlLCpJm7r2IkCyI2tWS9BYsUYrcDp3QeYs9OpIXGGZjnRtK5dlQ9vYoZl9HTL+x64Y5IBwPEsTrDeC3nd9sMoYk0Mdvr80Mw38LOBD+kZIC+Ro=
-Message-ID: <d4757e60050427223212fd7105@mail.gmail.com>
-Date: Thu, 28 Apr 2005 01:32:56 -0400
-From: Joe <joecool1029@gmail.com>
-Reply-To: Joe <joecool1029@gmail.com>
-To: Greg KH <greg@kroah.com>
-Subject: Re: Device Node Issues with recent mm's and udev
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <20050428052335.GA10772@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <d4757e6005042716523af66bae@mail.gmail.com>
-	 <20050428041428.GB9723@kroah.com>
-	 <d4757e6005042721577ba48cc@mail.gmail.com>
-	 <20050428050346.GB10182@kroah.com>
-	 <d4757e6005042722207e2b926@mail.gmail.com>
-	 <20050428052335.GA10772@kroah.com>
+	Thu, 28 Apr 2005 01:34:53 -0400
+Received: from smtp811.mail.sc5.yahoo.com ([66.163.170.81]:62543 "HELO
+	smtp811.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262024AbVD1Feq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 01:34:46 -0400
+Message-ID: <427075F1.8030009@sbcglobal.net>
+Date: Thu, 28 Apr 2005 00:34:41 -0500
+From: "Robert W. Fuller" <orangemagicbus@sbcglobal.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041223
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Robert W. Fuller" <orangemagicbus@sbcglobal.net>
+CC: Jonas Oreland <jonas.oreland@mysql.com>,
+       "Robert W. Fuller" <fullerrw@uindy.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: TI Yenta socket Fish Please Report
+References: <426F3A89.3010702@uindy.edu> <426F3FD1.3040007@mysql.com> <427020DA.4030504@sbcglobal.net>
+In-Reply-To: <427020DA.4030504@sbcglobal.net>
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/28/05, Greg KH <greg@kroah.com> wrote:
-> Again, usb or firewire?
-> And if usb, are you _sure_ there are no kernel log messages?  There
-> should be something there...
+Robert W. Fuller wrote:
+> Jonas Oreland wrote:
+> 
+>> Robert W. Fuller wrote:
+>>>
+>>> Looks like I have the same problem that was discussed here in 
+>>> February with PCI resources being assigned to the same range as RAM.  
+>>> This is the old thread: "IBM Thinkpad G41 PCMCIA problems [Was: Yenta 
+>>> TI: ... no PCIinterrupts. Fish. Please report.]"  I'm having this 
+>>> problem on 2.6.11.
+>>>
+>>> Did the patch for this ever make it into the main kernel?  Is it 
+>>> still in the -mm tree?  Will it ever be in the main kernel?  How do I 
+>>> figure these things out?  Is there some bug database I can check?
+>>>
+>> I think it made it somehow.
+>> I have a G40 which had the problem before I upgraded to 2.6.11
+> 
+> Did it make it in for x86_64 kernel I wonder?
 
-Ok here we go.  This is what dmesg outputs during the time I copy it over.
-
-scsi5 : SCSI emulation for USB Mass Storage devices
-usb-storage: device found at 6
-usb-storage: waiting for device to settle before scanning
-ACPI: No ACPI bus support for 1-4:1.0
-  Vendor: Apple     Model: iPod              Rev: 1.62
-  Type:   Direct-Access                      ANSI SCSI revision: 00
-SCSI device sdb: 39063023 512-byte hdwr sectors (20000 MB)
-sdb: Write Protect is off
-sdb: Mode Sense: 64 00 00 08
-sdb: assuming drive cache: write through
-SCSI device sdb: 39063023 512-byte hdwr sectors (20000 MB)
-sdb: Write Protect is off
-sdb: Mode Sense: 64 00 00 08
-sdb: assuming drive cache: write through
- sdb: sdb2 sdb3
-Attached scsi removable disk sdb at scsi5, channel 0, id 0, lun 0
-ACPI: No ACPI bus support for 5:0:0:0
-Attached scsi generic sg1 at scsi5, channel 0, id 0, lun 0,  type 0
-usb-storage: device scan complete
-
-I find it odd sdb1 disappears (as this was where I was attempting to
-copy the image during this time)
-
-Also from /var/log/messages:
-
-Apr 28 01:26:20 redefine usb 1-4: new high speed USB device using
-ehci_hcd and address 6
-Apr 28 01:26:20 redefine ACPI: No ACPI bus support for 1-4
-Apr 28 01:26:20 redefine scsi5 : SCSI emulation for USB Mass Storage devices
-Apr 28 01:26:20 redefine usb-storage: device found at 6
-Apr 28 01:26:20 redefine usb-storage: waiting for device to settle
-before scanning
-Apr 28 01:26:20 redefine ACPI: No ACPI bus support for 1-4:1.0
-Apr 28 01:26:25 redefine Vendor: Apple     Model: iPod              Rev: 1.62
-Apr 28 01:26:25 redefine Type:   Direct-Access                     
-ANSI SCSI revision: 00
-Apr 28 01:26:25 redefine SCSI device sdb: 39063023 512-byte hdwr
-sectors (20000 MB)
-Apr 28 01:26:25 redefine sdb: Write Protect is off
-Apr 28 01:26:25 redefine sdb: Mode Sense: 64 00 00 08
-Apr 28 01:26:25 redefine sdb: assuming drive cache: write through
-Apr 28 01:26:25 redefine SCSI device sdb: 39063023 512-byte hdwr
-sectors (20000 MB)
-Apr 28 01:26:25 redefine sdb: Write Protect is off
-Apr 28 01:26:25 redefine sdb: Mode Sense: 64 00 00 08
-Apr 28 01:26:25 redefine sdb: assuming drive cache: write through
-Apr 28 01:26:25 redefine sdb: sdb2 sdb3
-Apr 28 01:26:25 redefine Attached scsi removable disk sdb at scsi5,
-channel 0, id 0, lun 0
-Apr 28 01:26:25 redefine ACPI: No ACPI bus support for 5:0:0:0
-Apr 28 01:26:25 redefine Attached scsi generic sg1 at scsi5, channel
-0, id 0, lun 0,  type 0
-Apr 28 01:26:25 redefine usb-storage: device scan complete
-Apr 28 01:26:25 redefine scsi.agent[17573]: disk at
-/devices/pci0000:00/0000:00:1e.0/0000:02:09.2/usb1/1-4/1-4:1.0/host5/target5:0:0/5:0:0:0
-
-Hope This Can Help, 
-
-Joe
+Hello.  Is there anybody out there?  Anybody who actually knows 
+something about what is in what kernel?  Does anybody know how to figure 
+this out?  Is there some kind of Bugzilla database or something I can 
+look at?

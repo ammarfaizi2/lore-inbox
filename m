@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262210AbVD1SrF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262224AbVD1Ssh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262210AbVD1SrF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 14:47:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262216AbVD1SrF
+	id S262224AbVD1Ssh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 14:48:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbVD1Ssh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 14:47:05 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:47437 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S262210AbVD1SrB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 14:47:01 -0400
-Subject: Re: Extremely poor umass transfer rates
-From: Mark Rosenstand <mark@ossholes.org>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4271292F.1000002@grupopie.com>
-References: <1114704142.8410.4.camel@mjollnir.bootless.dk>
-	 <20050428165915.GG30768@redhat.com>
-	 <1114710941.8326.13.camel@mjollnir.bootless.dk>
-	 <20050428110614.00a0c193.rddunlap@osdl.org> <4271292F.1000002@grupopie.com>
+	Thu, 28 Apr 2005 14:48:37 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:47555 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262218AbVD1SsV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 14:48:21 -0400
+Subject: Re: [RFC] unify semaphore implementations
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: linux-arch@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050428182926.GC16545@kvack.org>
+References: <20050428182926.GC16545@kvack.org>
 Content-Type: text/plain
-Date: Thu, 28 Apr 2005 20:47:12 +0200
-Message-Id: <1114714032.8326.27.camel@mjollnir.bootless.dk>
+Date: Thu, 28 Apr 2005 11:48:09 -0700
+Message-Id: <1114714089.5022.3.camel@mulgrave>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-04-28 at 19:19 +0100, Paulo Marques wrote:
-> > | The line that 'hald' puts in fstab looks like this:
-> > | 
-> > | 	/dev/sdb /media/usbdisk vfat \
-> > | 		user,exec,noauto,utf8,noatime,sync,managed 0 0
-> 
-> The "sync" flag is what is killing your performance. It is needed if you 
-> intend to remove your usb pen without warning, but if you are going to 
-> unmount carefully you don't need it at all.
-> 
-> Try mounting the device as root somewhere else without the "sync" flag 
-> and measure the performance that way, to see the difference.
+On Thu, 2005-04-28 at 14:29 -0400, Benjamin LaHaise wrote:
+> Please review the following series of patches for unifying the 
+> semaphore implementation across all architectures (not posted as 
+> they're about 350K), as they have only been tested on x86-64.  The 
+> code generated is functionally identical to the earlier i386 
+> variant, but since gcc has no way of taking condition codes as 
+> results, there are two additional instructions inserted from the 
+> use of generic atomic operations.  All told the >6000 lines of code 
+> deleted makes for a much easier job for subsequent patches changing 
+> semaphore functionality.  Cheers,
 
-Wow. That seems to speed things up alot. However I can't unmount it
-again, I keep getting "umount: /media/usbdisk: device is
-busy" (twice(?)). It's been 5 minutes since I did the transfer (4 MB
-file) now.
+It's all very well for platforms that have efficient atomic operations.
+However, on parisc we have no such luxury (the processor has no atomic
+operations, so we have to fiddle them in the kernel using locks), so it
+looks like you're making our semaphore operations less efficient.
 
-> I hope this helps,
+Could you come up with a less monolithic way to share this so that we
+can still do a spinlock semaphore implementation instead of an atomic op
+based one?
 
-It sure did. Thanks!
+Thanks,
 
--- 
-  .-.    Mark Rosenstand        (-.)
-  oo|                           cc )
- /`'\    (+45) 255 31337      3-n-(
-(\_;/)   mark@geekworld.org    _(|/`->
+James
+
 

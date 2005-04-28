@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261644AbVD1BmU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261648AbVD1Bnn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261644AbVD1BmU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 21:42:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVD1BmU
+	id S261648AbVD1Bnn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 21:43:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261667AbVD1Bnn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 21:42:20 -0400
-Received: from kalmia.hozed.org ([209.234.73.41]:27266 "EHLO kalmia.hozed.org")
-	by vger.kernel.org with ESMTP id S261644AbVD1BmR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 21:42:17 -0400
-Date: Wed, 27 Apr 2005 20:42:16 -0500
-From: Troy Benjegerdes <hozer@hozed.org>
-To: David Addison <addy@quadrics.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Andrea Arcangeli <andrea@suse.de>,
-       David Addison <david.addison@quadrics.com>
-Subject: Re: [PATCH][RFC] Linux VM hooks for advanced RDMA NICs
-Message-ID: <20050428014216.GX999@kalmia.hozed.org>
-References: <426E62ED.5090803@quadrics.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 27 Apr 2005 21:43:43 -0400
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:32939 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261660AbVD1Bn1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 21:43:27 -0400
+Message-ID: <42703FB5.3050408@yahoo.com.au>
+Date: Thu, 28 Apr 2005 11:43:17 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Chris Wright <chrisw@osdl.org>
+CC: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>, Cliff White <cliffw@osdl.org>,
+       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [00/07] -stable review
+References: <20050427171446.GA3195@kroah.com> <42702AC4.2030500@yahoo.com.au> <20050428013342.GM23013@shell0.pdx.osdl.net>
+In-Reply-To: <20050428013342.GM23013@shell0.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-In-Reply-To: <426E62ED.5090803@quadrics.com>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 26, 2005 at 04:49:01PM +0100, David Addison wrote:
-> Hi,
+Chris Wright wrote:
+> * Nick Piggin (nickpiggin@yahoo.com.au) wrote:
 > 
-> here is a patch we use to integrate the Quadrics NICs into the Linux kernel.
-> The patch adds hooks to the Linux VM subsystem so that registered 'IOPROC'
-> devices can be informed of page table changes.
-> This allows the Quadrics NICs to perform user RDMAs safely, without 
-> requiring
-> page pinning. Looking through some of the recent IB and Ammasso discussions,
-> it may also prove useful to those NICs too.
+>>Wanna take some buffer fixes?
+> 
+> 
+> Do they meet the -stable criteria?  If so, please send 'em over.
 > 
 
-I think the best thing to do is post this patch to openib-general
-( http://openib.org/mailman/listinfo/openib-general )
-and get a patch developed that works on amasso, IB, and Quadrics
-hardware, and then come back to lkml.
+Where do I find the -stable criteria?
+
+They are a little bit tested, reviewed by Andrew Morton.
+
+To me they seem pretty important. But maybe they should wait until
+they have at least seen an -mm release.
+
+The first fix I think closes potential access to stale kernel memory
+if you care about that sort of thing.
+
+-- 
+SUSE Labs, Novell Inc.
+

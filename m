@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262154AbVD1PnV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262161AbVD1PtU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262154AbVD1PnV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 11:43:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262159AbVD1PnV
+	id S262161AbVD1PtU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 11:49:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262159AbVD1PtT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 11:43:21 -0400
-Received: from fire.osdl.org ([65.172.181.4]:49540 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262154AbVD1PnR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 11:43:17 -0400
-Date: Thu, 28 Apr 2005 08:43:13 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Ruben Puettmann <ruben@puettmann.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11.7 kernel panic on boot on AMD64
-Message-Id: <20050428084313.1e69f59d.rddunlap@osdl.org>
-In-Reply-To: <20050428090539.GA18972@puettmann.net>
-References: <20050427140342.GG10685@puettmann.net>
-	<20050427152704.632a9317.rddunlap@osdl.org>
-	<20050428090539.GA18972@puettmann.net>
-Organization: OSDL
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 28 Apr 2005 11:49:19 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:59855 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262158AbVD1PtN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 11:49:13 -0400
+Subject: Multiple functionality breakages in 2.6.12rc3 IDE layer
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1114703284.18809.208.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 28 Apr 2005 16:48:05 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Apr 2005 11:05:40 +0200
-Ruben Puettmann <ruben@puettmann.net> wrote:
+Ages ago we added an ide_default driver to clean up all the corner cases
+like spurious IRQs for a device with no matching driver (eg ide-cd and
+no CD driver) as well as ioctls and file access. 
 
-> On Wed, Apr 27, 2005 at 03:27:04PM -0700, Randy.Dunlap wrote:
->  Looks like this code in init/main.c:
-> > 
-> > 	if (late_time_init)
-> > 		late_time_init();
-> > 
-> > sees a garbage value in late_time_init (garbage being
-> > %eax == 0x00307974.743d656c, which is "le=tty0\n",
-> > as in "console=tty0").
-> > 
-> > How long is your kernel boot/command line?
-> > Please post it.
-> 
-> It was boot over pxe here is the append line from the
-> pxelinux.cfg/default  
-> 
-> APPEND vga=normal rw  load_ramdisk=0 root=/dev/nfs nfsroot=192.168.112.1:/store/rescue/sarge-amd64,rsize=8192,wsize=8192,timo=12,retrans=3,mountvers=3,nfsvers=3
+2.6.12rc removes it. Unfortunately it also means that if your only IDE
+interface is one you hand configure you can no longer run Linux. It also
+changes other aspects of behaviour although they don't look problematic
+for most users. You can no longer
+	- Control the bus state of an interface
+	- Reset an interface
+	- Add an interface if none exist
+	- Issue raw commands
+	- Get an objects bios geometry
+	- Read the identify data by ioctl (its still in proc but may be stale)
 
+without having a device specific driver loaded matching the media - and
+that only works if its already detected the device correctly.
 
-Hm, no "console=tty...." at all.  That didn't help (me) much.
+I don't have the tools at the moment to generate spurious IRQ's for
+devices with no driver loaded but it does look like the code may well
+then crash. From the way the changes were done it appears the current
+IDE maintainers never appreciated that ide_default existed for far more
+than just cleaning up ide-proc but also to handle IRQ's, opening of
+empty slots, ioctls and power
+management ?
 
-Does this happen consistently?
+The ability to specify the IDE ports on the command line as needed for
+some Sony laptop installs have also become "obsolete" over time. They
+still appear to work but spew a warning that the user will soon be
+screwed.
 
-What does "gcc --version" say?
+Alan
 
----
-~Randy

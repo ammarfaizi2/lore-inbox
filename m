@@ -1,128 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262112AbVD1AHs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbVD1AIe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262112AbVD1AHs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 20:07:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbVD1AHs
+	id S262114AbVD1AIe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 20:08:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbVD1AIe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 20:07:48 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:63388 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262112AbVD1AHW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 20:07:22 -0400
-Subject: [PATCH] drop_buffers() shouldn't de-ref page->mapping if its NULL
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: linux-mm@kvack.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, skodati@in.ibm.com
-In-Reply-To: <1114645113.26913.662.camel@dyn318077bld.beaverton.ibm.com>
-References: <1114645113.26913.662.camel@dyn318077bld.beaverton.ibm.com>
-Content-Type: multipart/mixed; boundary="=-3J4TqEkOOIylzGhTNYbH"
-Organization: 
-Message-Id: <1114646015.26913.668.camel@dyn318077bld.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 27 Apr 2005 16:53:38 -0700
+	Wed, 27 Apr 2005 20:08:34 -0400
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:856 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262114AbVD1AIV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 20:08:21 -0400
+Message-ID: <4270296D.9010109@yahoo.com.au>
+Date: Thu, 28 Apr 2005 10:08:13 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: andrea@suse.de, linux-kernel@vger.kernel.org, mason@suse.com
+Subject: Re: [patch] fix the 2nd buffer race properly
+References: <426F908C.2060804@yahoo.com.au> <20050427105655.5edc13ce.akpm@osdl.org>
+In-Reply-To: <20050427105655.5edc13ce.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-3J4TqEkOOIylzGhTNYbH
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-Hi,
-
-I answered my own question. It looks like we could have pages
-with buffers without page->mapping. In such cases, we shouldn't
-de-ref page->mapping in drop_buffers(). Here is the trivial
-patch to fix it.
-
-Thanks,
-Badari
-
-On Wed, 2005-04-27 at 16:38, Badari Pulavarty wrote:
-> Hi Andrew,
+Andrew Morton wrote:
+> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 > 
-> We ran into a panic in drop_buffers() while running some networking
-> tests and I am wondering if this a valid case. try_to_free_buffers()
-> seems to call drop_buffers() even if the mapping is NULL. drop_buffers()
-> seems to de-ref the mapping. This is causing NULL pointer deref.
-> 
-> But, is "mapping == NULL" still valid case here ? Can we be in the
-> code to drop buffers and have mapping NULL ? We would be in this
-> code only if PagePrivate() is set. Can we have page private with
-> out a valid mapping ?
-> 
-> Thanks,
-> Badari
-> 
-> int try_to_free_buffers(struct page *page)
-> {
->         struct address_space * const mapping = page->mapping;
->         ....
->                                                                                                                        
->         if (mapping == NULL) {          /* can this still happen? */
->                 ret = drop_buffers(page, &buffers_to_free);
->                 goto out;
->         }
-> }
-> 
-> drop_buffers(struct page *page, struct buffer_head **buffers_to_free)
-> {
->         ....
->                 if (buffer_write_io_error(bh))
->                         set_bit(AS_EIO, &page->mapping->flags); <<<<<<
-> 	...
-> }
-> 
-> 1:mon> e
-> cpu 0x1: Vector: 300 (Data Access) at [c00000007ff4b620]
->     pc: c0000000000bd524: .drop_buffers+0x40/0xcc
->     lr: c0000000000bd614: .try_to_free_buffers+0x64/0xf4
->     sp: c00000007ff4b8a0
->    msr: 8000000000009032
->    dar: 60
->  dsisr: 40000000
->   current = 0xc00000000fe7e040
->   paca    = 0xc0000000003da800
->     pid   = 40, comm = kswapd1
-> 
-> 1:mon> t
-> [c00000007ff4b920] c0000000000bd614 .try_to_free_buffers+0x64/0xf4
-> [c00000007ff4b9c0] c0000000000baadc .try_to_release_page+0x88/0x9c
-> [c00000007ff4ba40] c000000000099418 .shrink_list+0x3a0/0x608
-> [c00000007ff4bb90] c000000000099a04 .shrink_cache+0x384/0x610
-> [c00000007ff4bcd0] c00000000009a4d4 .shrink_zone+0x104/0x140
-> [c00000007ff4bd70] c00000000009aaf0 .balance_pgdat+0x270/0x448
-> [c00000007ff4be90] c00000000009ade4 .kswapd+0x11c/0x120
-> [c00000007ff4bf90] c000000000018ad0 .kernel_thread+0x4c/0x6c
+>>When running
+>> 	fsstress -v -d $DIR/tmp -n 1000 -p 1000 -l 2
+>> on an ext2 filesystem with 1024 byte block size, on SMP i386 with 4096 byte
+>> page size over loopback to an image file on a tmpfs filesystem, I would
+>> very quickly hit
+>> 	BUG_ON(!buffer_async_write(bh));
+>> in fs/buffer.c:end_buffer_async_write
+>>
+>> It seems that more than one request would be submitted for a given bh
+>> at a time.
+>>
+>> What would happen is the following:
+>> 2 threads doing __mpage_writepages on the same page.
+>> Thread 1 - lock the page first, and enter __block_write_full_page.
+>> Thread 1 - (eg.) mark_buffer_async_write on the first 2 buffers.
+>> Thread 1 - set page writeback, unlock page.
+>> Thread 2 - lock page, wait on page writeback
+>> Thread 1 - submit_bh on the first 2 buffers.
+>> => both requests complete, none of the page buffers are async_write,
+>>    end_page_writeback is called.
+>> Thread 2 - wakes up. enters __block_write_full_page.
+>> Thread 2 - mark_buffer_async_write on (eg.) the last buffer
+>> Thread 1 - finds the last buffer has async_write set, submit_bh on that.
+>> Thread 2 - submit_bh on the last buffer.
+>> => oops.
 > 
 > 
+> ah-hah.  Thanks.
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> There are two situations:
+> 
+> a) Thread 2 comes in and tries to write a buffer which thread1 didn't write:
+> 
+>    Yes, thread 1 will get confused and will try to write thread 2's buffer.
+> 
+> b) Thread 2 comes in and tries to write a buffer which thread 1 is
+>    writing.  (Say, the buffer was redirtied by
+>    munmap->__set_page_dirty_buffers, which doesn't lock the page or the
+>    buffers)
 > 
 
---=-3J4TqEkOOIylzGhTNYbH
-Content-Disposition: attachment; filename=drop_buffer_fix.patch
-Content-Type: text/plain; name=drop_buffer_fix.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+I don't think b) happens, because thread 1 has to have finished all
+its writes before the page will end writeback and thread 2 can go
+anywhere.
 
-Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
---- linux-2.6.12-rc2.org/fs/buffer.c	2005-04-27 07:19:44.000000000 -0700
-+++ linux-2.6.12-rc2/fs/buffer.c	2005-04-27 07:20:34.000000000 -0700
-@@ -2917,7 +2917,7 @@ drop_buffers(struct page *page, struct b
- 
- 	bh = head;
- 	do {
--		if (buffer_write_io_error(bh))
-+		if (buffer_write_io_error(bh) && page->mapping)
- 			set_bit(AS_EIO, &page->mapping->flags);
- 		if (buffer_busy(bh))
- 			goto failed;
+>    Thread 2 will fail the test_set_buffer_locked() and will redirty the page.
+> 
+> That's all a bit too complex.   How's about this instead?
+> 
 
---=-3J4TqEkOOIylzGhTNYbH--
+Well you really don't need to hold the page locked for that long.
+block_read_full_page, nobh_prepare_write both use the same sort of
+array of buffer heads logic - I think it makes sense not to touch
+any buffers after submitting them all for IO...?
+
+-- 
+SUSE Labs, Novell Inc.
 

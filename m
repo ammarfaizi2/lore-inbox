@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261926AbVD1HtK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261919AbVD1Hta@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261926AbVD1HtK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 03:49:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbVD1Hs5
+	id S261919AbVD1Hta (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 03:49:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbVD1HtP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 03:48:57 -0400
-Received: from gate.crashing.org ([63.228.1.57]:15842 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261926AbVD1Hr5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 03:47:57 -0400
-Subject: Re: pci-sysfs resource mmap broken (and PATCH)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: grundler@parisc-linux.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>, bjorn.helgaas@hp.com,
-       "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20050428002209.12bd3f37.davem@davemloft.net>
-References: <1114493609.7183.55.camel@gaston>
-	 <20050426163042.GE2612@colo.lackof.org> <1114555655.7183.81.camel@gaston>
-	 <1114643616.7183.183.camel@gaston> <20050428053311.GH21784@colo.lackof.org>
-	 <20050427223702.21051afc.davem@davemloft.net>
-	 <1114670353.7182.246.camel@gaston>
-	 <20050427235056.0bd09a94.davem@davemloft.net>
-	 <1114672880.7111.254.camel@gaston>
-	 <20050428002209.12bd3f37.davem@davemloft.net>
+	Thu, 28 Apr 2005 03:49:15 -0400
+Received: from [213.170.72.194] ([213.170.72.194]:22489 "EHLO
+	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261922AbVD1Hrf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 03:47:35 -0400
+Subject: Re: [PATCH] VFS bugfix: two read_inode() calles without
+	clear_inode() call between
+From: "Artem B. Bityuckiy" <dedekind@infradead.org>
+Reply-To: dedekind@infradead.org
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: linux-kernel@vger.kernel.org, dwmw2@infradead.org,
+       linux-fsdevel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <E1DR3ei-0005OC-00@dorka.pomaz.szeredi.hu>
+References: <1114607741.12617.4.camel@sauron.oktetlabs.ru>
+	 <E1DQoui-0002In-00@dorka.pomaz.szeredi.hu>
+	 <1114618748.12617.23.camel@sauron.oktetlabs.ru>
+	 <E1DQqZu-0002Rf-00@dorka.pomaz.szeredi.hu>
+	 <1114673528.3483.2.camel@sauron.oktetlabs.ru>
+	 <E1DR3ei-0005OC-00@dorka.pomaz.szeredi.hu>
 Content-Type: text/plain
-Date: Thu, 28 Apr 2005 17:46:38 +1000
-Message-Id: <1114674398.7183.257.camel@gaston>
+Organization: MTD
+Date: Thu, 28 Apr 2005 11:47:33 +0400
+Message-Id: <1114674453.3483.5.camel@sauron.oktetlabs.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-04-28 at 00:22 -0700, David S. Miller wrote:
-> On Thu, 28 Apr 2005 17:21:19 +1000
-> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> 
-> > I have a real net big performance improvement on X by doing that
-> > trick ... the sysfs mmap API doesn't really provide a mean to do
-> > it explicitely from userland (unlike the ioctl with the old proc api)
-> 
-> You can refine your test to "if PCI class is display or VGA" and the
-> prefetchability is set in the BAR, then elide the guard PTE
-> protection bit.
+> I didn't actually think about the sb_list stuff, but my feeling is you
+> should not move it unless there's a very clear reason to do so.
 
-Yes, but I was also thinking about some of those Myrinet kind of things
-who also provide large PCI shared memory region ...
+Well, no problems. Probably safeness is of greater priority. I'll take
+care not to touch it.
 
-I may end up adding an explicit list of classes/vid/did that are
-"allowed" to use the trick to avoid problems.
+Thanks for review.
 
-Ben.
-
+-- 
+Best Regards,
+Artem B. Bityuckiy,
+St.-Petersburg, Russia.
 

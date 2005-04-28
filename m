@@ -1,70 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262016AbVD1QMP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262122AbVD1QQ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262016AbVD1QMP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 12:12:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbVD1QMP
+	id S262122AbVD1QQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 12:16:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbVD1QQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 12:12:15 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:62168 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262016AbVD1QMH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 12:12:07 -0400
-Subject: Re: [RFC][PATCH] Reduce ext3 allocate-with-reservation lock
-	latencies
-From: Lee Revell <rlrevell@joe-job.com>
-To: cmm@us.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>, "Stephen C. Tweedie" <sct@redhat.com>,
-       Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1114673852.4104.33.camel@localhost.localdomain>
-References: <1112673094.14322.10.camel@mindpipe>
-	 <20050405041359.GA17265@elte.hu>
-	 <1112765751.3874.14.camel@localhost.localdomain>
-	 <20050407081434.GA28008@elte.hu>
-	 <1112879303.2859.78.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1112917023.3787.75.camel@dyn318043bld.beaverton.ibm.com>
-	 <1112971236.1975.104.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1112983801.10605.32.camel@dyn318043bld.beaverton.ibm.com>
-	 <1113220089.2164.52.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1113244710.4413.38.camel@localhost.localdomain>
-	 <1113249435.2164.198.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1113288087.4319.49.camel@localhost.localdomain>
-	 <1113304715.2404.39.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1113348434.4125.54.camel@dyn318043bld.beaverton.ibm.com>
-	 <1113388142.3019.12.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1114207837.7339.50.camel@localhost.localdomain>
-	 <1114659912.16933.5.camel@mindpipe>
-	 <1114673852.4104.33.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 28 Apr 2005 12:12:05 -0400
-Message-Id: <1114704726.17712.17.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
+	Thu, 28 Apr 2005 12:16:28 -0400
+Received: from mail.microway.com ([64.80.227.22]:8886 "EHLO mail.microway.com")
+	by vger.kernel.org with ESMTP id S262122AbVD1QQT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 12:16:19 -0400
+From: Rick Warner <rick@microway.com>
+Organization: Microway, Inc.
+To: linux-kernel@vger.kernel.org
+Subject: very strange issue with sata,<4G Ram, and ext3
+Date: Thu, 28 Apr 2005 12:16:07 -0400
+User-Agent: KMail/1.7.2
+Message-Id: <200504281216.08026.rick@microway.com>
+X-Sanitizer: Advosys mail filter
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-04-28 at 00:37 -0700, Mingming Cao wrote:
-> On Wed, 2005-04-27 at 23:45 -0400, Lee Revell wrote:
-> > On Fri, 2005-04-22 at 15:10 -0700, Mingming Cao wrote:
-> > > Please review. I have tested on fsx on SMP box. Lee, if you got time,
-> > > please try this patch.
-> > 
-> > I have tested and this does fix the problem.  I ran my tests and no ext3
-> > code paths showed up on the latency tracer at all, it never went above
-> > 33 usecs.
-> > 
-> Thanks, Lee.
-> 
-> The patch survived on many fsx test over 20 hours on a 2cpu machine.
-> Tested the patch on the same machine with tiobench (1-64 threads), and
-> untar a kernel tree test, no regression there.
-> However I see about 5-7% throughput drop on dbench with 16 threads. It
-> probably due to the cpu cost that we have discussed.
+Hello,
+ We are having a very strange issue on some 64bit systems.  We have a 32 node 
+cluster of EM64T's (supermicro boards).  We are using our node restore 
+software to propagate a linux install onto them.  We do a pxe boot to a 
+kernel and initrd image.  The initrd has some config info, a basic root 
+filesystem, and a restore script.  The kernel is passed init=/restore  (the 
+restore script itself).  The script runs dhcp, gets an ip, then nfs mounts 
+the master node of the cluster.  The backup image is stored on the master 
+node's nfs mount.  The script then applies a backed up partition table and 
+then mkfs's the partitions, mounts them, untars a backup tar to the drive, 
+and then makes it bootable with grub.
 
-Hmm, I guess someone needs to test it on a bigger system.  AFAICT this
-should improve SMP scalability quite a bit.  Maybe that lock is rarely
-contended.
+ On these systems, we are getting ext2 errors from the initrd during the 
+untarring.  Soon after, we start getting seg faults on random things (looks 
+like stuff caused by the still running dhcp client), and then a continuous 
+stream of segfaults on the restore script itself (restore[1]).
 
-Lee
+ The systems being restored are dual em64t's with 2G of ram and 200G sata 
+drives.  If we up the memory to 4G, the restores complete without error. If 
+we reduce down to 512M, the segfaults start at the mkfs stage instead of the 
+untar stage. We've tried different sata drives and controllers without 
+change.  Switching to ide drives works.  Switching to reiserfs instead of 
+ext3 for the destination drives works too.  We've tried enabling the scsi 
+debug stuff as well as the jbd debug stuff for ext3 without getting any more 
+info.  We also enabled the kernel debug options too.  We've also tried using 
+the deprecated ide based sata drivers instead of the scsi based ones without 
+success.  We have tried restoring to Intel's Jarell EM64T systems as well as 
+an Arima HDAMA opteron with the same errors.  We've also tried adding swap 
+space ASAP in the inird image.  
 
+ This problem is really baffling us and we're not quite sure what to check 
+into next.  Any ideas?
+
+
+-- 
+Richard Warner
+Lead Systems Integrator
+Microway, Inc
+(508)732-5517

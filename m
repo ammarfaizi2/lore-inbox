@@ -1,75 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261911AbVD1HZw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261982AbVD1Hb1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261911AbVD1HZw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 03:25:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbVD1HZw
+	id S261982AbVD1Hb1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 03:31:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbVD1Hb1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 03:25:52 -0400
-Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:61607 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261329AbVD1HYZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 03:24:25 -0400
-To: davidsen@tmr.com
-CC: linuxram@us.ibm.com, lmb@suse.de, mj@ucw.cz, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-reply-to: <426FFC30.1060700@tmr.com> (message from Bill Davidsen on Wed, 27
-	Apr 2005 16:55:12 -0400)
-Subject: Re: [PATCH] private mounts
-References: <E1DQqyY-0002WW-00@dorka.pomaz.szeredi.hu><20050426094727.GA30379@infradead.org> <1114630811.4180.20.camel@localhost> <426FFC30.1060700@tmr.com>
-Message-Id: <E1DR3NT-0005L0-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Thu, 28 Apr 2005 09:24:03 +0200
+	Thu, 28 Apr 2005 03:31:27 -0400
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:8616
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261982AbVD1HbT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 03:31:19 -0400
+Date: Thu, 28 Apr 2005 00:22:09 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: grundler@parisc-linux.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, greg@kroah.com, bjorn.helgaas@hp.com,
+       davem@redhat.com
+Subject: Re: pci-sysfs resource mmap broken (and PATCH)
+Message-Id: <20050428002209.12bd3f37.davem@davemloft.net>
+In-Reply-To: <1114672880.7111.254.camel@gaston>
+References: <1114493609.7183.55.camel@gaston>
+	<20050426163042.GE2612@colo.lackof.org>
+	<1114555655.7183.81.camel@gaston>
+	<1114643616.7183.183.camel@gaston>
+	<20050428053311.GH21784@colo.lackof.org>
+	<20050427223702.21051afc.davem@davemloft.net>
+	<1114670353.7182.246.camel@gaston>
+	<20050427235056.0bd09a94.davem@davemloft.net>
+	<1114672880.7111.254.camel@gaston>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I think you point out a solution could be worse that what it cures. 
-> There are clearly problems with mount over, but imagine that a user does 
-> an invisible mount over /mnt, doesn't that prevent other mounts which 
-> are usually made, like /mnt/cdrom, /mnt/loopN, etc?
+On Thu, 28 Apr 2005 17:21:19 +1000
+Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 
-As previously explained, user mounts are only allowed on directories
-for which the user has full write access.  Exactly for this reason.
+> I have a real net big performance improvement on X by doing that
+> trick ... the sysfs mmap API doesn't really provide a mean to do
+> it explicitely from userland (unlike the ioctl with the old proc api)
 
-> Every time someone suggests a solution it seems to open a new path to 
-> possible abuse. And features which only work with a monotonic kernel 
-> rather than modules would seem to indicate that the feature is nice but 
-> the implementation might benefit from more thinking time.
-
-Huh?  Where did modularitly come into this?
-
-> Frankly the whole statement that the controversial code MUST go in now 
-> and could be removed later sounds like a salesman telling me I MUST sign 
-> the contract today, but he will let me out of it if I decide it was a 
-> mistake.
-
-The point of this thread is to find a solution to a problem.  The
-discussion is turning up very interesting viewpoints and I'm
-understanding the problem better and better, and I think other people
-are too.
-
-While I disagree with the view taken by Christoph H., I'm now also
-thankful to him for stiring up the mud, because it ended up with a lot
-of useful ideas.
-
-In the end I'd like a solution that everybody is happy with.  That
-means I'm not going to give up searching because someone said, that
-the current solution is crappy.
-
-Do you understand my position?
-
-> I'm not against the feature, but a lot of people I consider competent 
-> seem to find the implementation controversial, which argues for waiting 
-> until more eyes are on the code.
-
-Yes.  I'm not going to ask Andrew to merge the code until I feel that
-everybody concerned is happy with it.  No matter how many release
-cycles it takes.
-
-> If the rest of the code is useless without the controversial part,
-> maybe it should all stay a patch to use or not as people decide.
-
-It has been distributed separately from the kernel for 3 years now.
-So people _can_ try it out.
-
-Thanks,
-Miklos
+You can refine your test to "if PCI class is display or VGA" and the
+prefetchability is set in the BAR, then elide the guard PTE
+protection bit.

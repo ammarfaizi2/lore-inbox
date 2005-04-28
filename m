@@ -1,62 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262072AbVD1LgL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262063AbVD1LnT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262072AbVD1LgL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 07:36:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbVD1LgK
+	id S262063AbVD1LnT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 07:43:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbVD1LnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 07:36:10 -0400
-Received: from pat.uio.no ([129.240.130.16]:39389 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262068AbVD1Lfs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 07:35:48 -0400
-Subject: Re: [PATCH] private mounts
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, bulb@ucw.cz, hch@infradead.org,
-       jamie@shareable.org, linuxram@us.ibm.com, 7eggert@gmx.de,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050428082444.GK1906@elf.ucw.cz>
-References: <20050426201411.GA20109@elf.ucw.cz>
-	 <E1DQiEa-0001hi-00@dorka.pomaz.szeredi.hu>
-	 <20050427092450.GB1819@elf.ucw.cz>
-	 <E1DQjzY-0001no-00@dorka.pomaz.szeredi.hu> <20050427115754.GA8981@vagabond>
-	 <E1DQla0-0001vG-00@dorka.pomaz.szeredi.hu>
-	 <20050427123944.GA11020@vagabond>
-	 <E1DQmUm-0001yy-00@dorka.pomaz.szeredi.hu>
-	 <20050427145842.GD28119@elf.ucw.cz>
-	 <1114644116.9947.14.camel@lade.trondhjem.org>
-	 <20050428082444.GK1906@elf.ucw.cz>
-Content-Type: text/plain
-Date: Thu, 28 Apr 2005 07:35:17 -0400
-Message-Id: <1114688117.10083.7.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Thu, 28 Apr 2005 07:43:19 -0400
+Received: from pcsmail.patni.com ([203.124.139.197]:52896 "EHLO
+	pcsmail.patni.com") by vger.kernel.org with ESMTP id S262063AbVD1LnL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 07:43:11 -0400
+Message-ID: <002001c54be7$0661abc0$5e91a8c0@patni.com>
+Reply-To: "lk" <linux_kernel@patni.com>
+From: "lk" <linux_kernel@patni.com>
+To: "Iwan Sanders" <iwan.sanders@tuxproject.info>,
+       <linux-kernel@vger.kernel.org>
+References: <4270A7F3.3020707@tuxproject.info>
+Subject: Re: File and partition sizes
+Date: Thu, 28 Apr 2005 04:40:06 -0700
+Organization: Patni
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.639, required 12,
-	autolearn=disabled, AWL 1.31, FORGED_RCVD_HELO 0.05,
-	UIO_MAIL_IS_INTERNAL -5.00)
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-to den 28.04.2005 Klokka 10:24 (+0200) skreiv Pavel Machek:
+the table which shows the size limits depending upon the files system...
 
-> Well, administrator on CLIENT can impersonate whoever he wants, and if
-> data happens to be cached, he can just read them from local memory. So
-> whatever SERVER administrator does, CLIENT administrator can work
-> around.
+___________________________________________________________
+File System     File Size [Byte]   File System Size [Byte]
+____________________________________________________________
+Ext2 or Ext3 (1 kB block size)   2^34 (16 GB)   2^41 (2 TB)
+Ext2 or Ext3 (2 kB block size)   2^38 (256 GB)   2^43 (8 TB)
+Ext2 or Ext3 (4 kB block size)   2^41 (2 TB)   2^44 (16 TB)
+Ext2 or Ext3 (8 kB block size)   2^46 (64 TB)   2^45 (32 TB)
+ReiserFS 3.5     2^32 (4 GB)   2^44 (16 TB)
+ReiserFS 3.6 (under Linux 2.4)    2^60 (1 EB)   2^44 (16 TB)
+XFS      2^63 (8 EB)   2^63 (8 EB)
+JFS (512 Bytes block size)   2^63 (8 EB)   2^49 (512 TB)
+JFS (4 kB block size)    2^63 (8 EB)   2^52 (4 PB)
+NFSv2 (client side)    2^31 (2 GB)   2^63 (8 EB)
+NFSv3 (client side)    2^63 (8 EB)   2^63 (8 EB)
+____________________________________________________________
 
-This is why you have identity squashing and/or strong security: to stop
-the CLIENT administrator impersonating whoever he wants and working
-around your security measures.
+apart from this the following kernel limits exist:
 
-Yes there's all the FUD about how the administrator can still take over
-your RPCSEC_GSS creds and/or read cached data once you have logged in.
-If you log into a compromised client then you're screwed. What's new?
+On 32-bit systems with Kernel 2.4.x: The size of a file and a block device
+is limited to 2 TiB. By using LVM several block devices can be combined
+enabling the handling of larger file systems.
 
-Trond
+64-bit systems: The sizes of a filesytem and of a file are limited by 2^63
+(8 EiB). But there might be hardware driver limits that do not allow to
+access such large devices.
 
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
+Kernel 2.6: For both 32-bit systems with option CONFIG_LBD set and for
+64-bit systems: The size of a file system is limited to 2^73 (far too much
+for today). On 32-bit systems (without CONFIG_LBD set) the size of a file is
+limited to 2 TiB. Note that not all filesystems and hardware drivers might
+handle such large filesystems.
+
+
+
+regards
+
+lk
+
+----- Original Message ----- 
+From: "Iwan Sanders" <iwan.sanders@tuxproject.info>
+To: <linux-kernel@vger.kernel.org>
+Sent: Thursday, April 28, 2005 2:08 AM
+Subject: File and partition sizes
+
+
+> Hi,
+>
+> I am examining the large file support in Linux. A couple of questions
+> remained unanswered that's why I thought to
+> ask the experts ;-)
+>
+> I was wondering what the current size limitation of a partition is and
+> what kernel versions will allow files larger then
+> 4 GB and why they do that.
+>
+> Regards,
+>
+> Iwan Sanders
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
 

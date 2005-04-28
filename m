@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbVD1ETm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261951AbVD1E43@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261929AbVD1ETm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 00:19:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbVD1ETm
+	id S261951AbVD1E43 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 00:56:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261963AbVD1E43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 00:19:42 -0400
-Received: from mail.kroah.org ([69.55.234.183]:4775 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261929AbVD1ETd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 00:19:33 -0400
-Date: Wed, 27 Apr 2005 21:19:16 -0700
-From: Greg KH <greg@kroah.com>
-To: Kylene Hall <kjhall@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 10 of 12] Fix Tpm driver -- sysfs owernship changes
-Message-ID: <20050428041915.GD9723@kroah.com>
-References: <Pine.LNX.4.61.0504271645170.3929@jo.austin.ibm.com>
+	Thu, 28 Apr 2005 00:56:29 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:62388 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261951AbVD1E41 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 00:56:27 -0400
+Subject: Re: system reboot after reading /proc/acpi/battery/../state
+From: Li Shaohua <shaohua.li@intel.com>
+To: Andreas Happe <news_0403@flatline.ath.cx>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <slrnd6v9ir.b61.news_0403@localhost.localdomain>
+References: <slrnd6v9ir.b61.news_0403@localhost.localdomain>
+Content-Type: text/plain
+Message-Id: <1114664026.22110.37.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0504271645170.3929@jo.austin.ibm.com>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 28 Apr 2005 12:53:46 +0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 27, 2005 at 05:19:03PM -0500, Kylene Hall wrote:
-> -	device_remove_file(&pci_dev->dev, &dev_attr_pubek);
-> -	device_remove_file(&pci_dev->dev, &dev_attr_pcrs);
-> -	device_remove_file(&pci_dev->dev, &dev_attr_caps);
-> +	for (i = 0; i < TPM_NUM_ATTR; i++)
-> +		device_remove_file(&pci_dev->dev, &chip->vendor->attr[i]);
+On Wed, 2005-04-27 at 22:48, Andreas Happe wrote:
+> Hi,
+> I have a regression to report: my notebook (HP Compaq nx7000) reboots
+> after reading /proc/acpi/battery/C11F/state. It's pseudo -
+> reproduceable, occurs around every second access.
+> 
+> please contact me for further information (and what information would be
+> needed to fix this bug), I will try to compile older kernel versions to
+> find the corresponding acpi update  this annoying bug (but it happens
+> for at least one month by now).
+Unloading the watchdog driver (the TCO driver) will help you.
 
-Use an attribute group, instead of this.  That will allow you to get
-rid of the TPM_NUM_ATTR value, and this looney macro:
+Thanks,
+Shaohua
 
-> +#define TPM_DEVICE_ATTRS { \
-> +        __ATTR(pubek, S_IRUGO, tpm_show_pubek, NULL), \
-> +        __ATTR(pcrs, S_IRUGO, tpm_show_pcrs, NULL), \
-> +        __ATTR(caps, S_IRUGO, tpm_show_caps, NULL), \
-> +        __ATTR(cancel, S_IWUSR | S_IWGRP, NULL, tpm_store_cancel) }
-
-thanks,
-
-greg k-h

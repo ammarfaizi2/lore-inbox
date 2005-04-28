@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262297AbVD1WYD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262293AbVD1WZ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262297AbVD1WYD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 18:24:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262296AbVD1WYD
+	id S262293AbVD1WZ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 18:25:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262296AbVD1WZ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 18:24:03 -0400
-Received: from orion.netbank.com.br ([200.203.199.90]:17938 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S262295AbVD1WXx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 18:23:53 -0400
-Date: Thu, 28 Apr 2005 19:23:30 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: netdev@oss.sgi.com, "David S. Miller" <davem@davemloft.net>,
-       Regina Kodato <reginak@cyclades.com>, pc300@cyclades.com,
-       Nenad Corbic <ncorbic@sangoma.com>, Henner Eisen <eis@baty.hanse.de>,
-       linux-net@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cleanups in drivers/net/wan/ - kfree of NULL pointer is valid
-Message-ID: <20050428222330.GI26945@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Jesper Juhl <juhl-lkml@dif.dk>, netdev@oss.sgi.com,
-	"David S. Miller" <davem@davemloft.net>,
-	Regina Kodato <reginak@cyclades.com>, pc300@cyclades.com,
-	Nenad Corbic <ncorbic@sangoma.com>,
-	Henner Eisen <eis@baty.hanse.de>, linux-net@vger.kernel.org,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.62.0504290009310.2476@dragon.hyggekrogen.localhost>
+	Thu, 28 Apr 2005 18:25:28 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:26833 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262293AbVD1WZV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 18:25:21 -0400
+Subject: Re: IDE problems with rmmod ide-cd
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050428172541.GN1876@suse.de>
+References: <1114706653.18330.212.camel@localhost.localdomain>
+	 <20050428172541.GN1876@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1114727044.18330.232.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0504290009310.2476@dragon.hyggekrogen.localhost>
-X-Url: http://advogato.org/person/acme
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 28 Apr 2005 23:24:05 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Fri, Apr 29, 2005 at 12:22:22AM +0200, Jesper Juhl escreveu:
-> kfree(0) is perfectly valid, checking pointers for NULL before calling 
-> kfree() on them is redundant. The patch below cleans away a few such 
-> redundant checks (and while I was around some of those bits I couldn't 
-> stop myself from making a few tiny whitespace changes as well).
+On Iau, 2005-04-28 at 18:25, Jens Axboe wrote:
+> The problem you are thinking of was also an ATAPI cache flush command,
+> so I'm not so sure I would call it harmless... I haven't changed
+> anything in there recently, Bart?
 
+Eeep - I must admit to being somewhat baffled where it is coming from
+too. Its occurring between the rmmod starting and the userspace
+notifiers from the syslog ordering but I don't see anything that would
+queue flushes on the IDE side. The power management does check and
+issues WIN_FLUSH_CACHE* stuff. The cd layer only seems to issue it in
+the dvd rw close path and that checks media written and mmc3 bits or in
+places like cdrom_mrw_exit.
 
-Acked-by: Arnaldo Carvalho de MElo <acme@ghostprotocols.net>
+One possibility might be that the specific drive is incorrectly
+reporting capabilities and register_cdrom is setting cdi->exit as a
+result. Will try and work out what is going on there tomorrow.

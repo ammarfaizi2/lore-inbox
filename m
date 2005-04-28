@@ -1,44 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbVD1Gsh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261782AbVD1GuM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261673AbVD1Gsh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 02:48:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbVD1Gsg
+	id S261782AbVD1GuM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 02:50:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbVD1GuM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 02:48:36 -0400
-Received: from smtp.istop.com ([66.11.167.126]:33442 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S261673AbVD1Gsd (ORCPT
+	Thu, 28 Apr 2005 02:50:12 -0400
+Received: from smtp05.web.de ([217.72.192.209]:25261 "EHLO smtp05.web.de")
+	by vger.kernel.org with ESMTP id S261782AbVD1GuC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 02:48:33 -0400
-From: Daniel Phillips <phillips@istop.com>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Subject: Re: [PATCH 1b/7] dlm: core locking
-Date: Thu, 28 Apr 2005 02:49:04 -0400
-User-Agent: KMail/1.7
-Cc: David Teigland <teigland@redhat.com>, Steven Dake <sdake@mvista.com>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <20050425165826.GB11938@redhat.com> <20050427030217.GA9963@redhat.com> <20050427134142.GZ4431@marowsky-bree.de>
-In-Reply-To: <20050427134142.GZ4431@marowsky-bree.de>
+	Thu, 28 Apr 2005 02:50:02 -0400
+From: Gregor Jasny <gjasny@web.de>
+To: LKML LIST <linux-kernel@vger.kernel.org>, Takashi Iwai <tiwai@suse.de>,
+       stable@kernel.org
+Subject: Re: [00/07] -stable review
+Date: Thu, 28 Apr 2005 08:49:53 +0200
+User-Agent: KMail/1.8
+References: <20050427171446.GA3195@kroah.com>
+In-Reply-To: <20050427171446.GA3195@kroah.com>
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200504280249.04735.phillips@istop.com>
+Message-Id: <200504280849.53777.gjasny@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 27 April 2005 09:41, Lars Marowsky-Bree wrote:
-> If you want to think about this in terms of locking hierarchy, it's the
-> high-level feature rich sophisticated aka bloated lock manager which
-> controls the "lower level" faster and more scalable "sublockspace" and
-> coordinates it in terms of the other complex objects (like fencing,
-> applications, filesystems etc).
->
-> Just some food for thought how this all fits together rather neatly.
+Hi Greg, hi Takashi,
 
-It's actually the membership system that glues it all together.  The dlm is 
-just another service.
+I would suggest these two patches for inclusion into the stable tree. They 
+both fix a keyboard lockup when unplugging USB audio hardware.
 
-Regards,
+With the first one applied I can plug / unplug my webcam without losing my 
+keyboard. I couldn't test the second one, but both patches are in ALSA CVS.
 
-Daniel
+http://cvs.sourceforge.net/viewcvs.py/alsa/alsa-kernel/usb/usbaudio.c?r1=1.119&r2=1.120
+http://cvs.sourceforge.net/viewcvs.py/alsa/alsa-kernel/usb/usx2y/usbusx2y.c?r1=1.9&r2=1.10
+
+Cheers,
+Gregor

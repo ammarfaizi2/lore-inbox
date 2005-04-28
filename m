@@ -1,166 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262134AbVD1Nwj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262140AbVD1OGu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262134AbVD1Nwj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 09:52:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbVD1Nwh
+	id S262140AbVD1OGu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 10:06:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262141AbVD1OGu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 09:52:37 -0400
-Received: from [151.12.57.13] ([151.12.57.13]:2822 "EHLO
-	mail2.it.atosorigin.com") by vger.kernel.org with ESMTP
-	id S262134AbVD1Nvm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 09:51:42 -0400
-From: Rao Davide <davide.rao@atosorigin.com>
-Cc: dl8bcu@dl8bcu.de, linux-kernel@vger.kernel.org, ink@jurassic.park.msu.ru
-Message-ID: <4270E6A9.4040204@atosorigin.com>
-Date: Thu, 28 Apr 2005 15:35:37 +0200
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-Subject: Re: Linux Alpha port: LVM
-References: <42569BC7.5030709@atosorigin.com> <20050408190709.GB27845@twiddle.net> <425A2442.8090607@atosorigin.com> <4263ACA9.4080507@atosorigin.com> <20050418195351.GA32124@Marvin.DL8BCU.ampr.org> <4264D77C.6010605@atosorigin.com>
-In-Reply-To: <4264D77C.6010605@atosorigin.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Apr 2005 13:57:44.0890 (UTC) FILETIME=[40ACC9A0:01C54BFA]
-To: unlisted-recipients:; (no To-header on input)
+	Thu, 28 Apr 2005 10:06:50 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:63386 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262140AbVD1OGo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 10:06:44 -0400
+Date: Thu, 28 Apr 2005 09:05:58 -0500
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linuxppc64-dev@ozlabs.org, Paul Mackerras <paulus@samba.org>,
+       linux-kernel@vger.kernel.org, Anton Blanchard <anton@samba.org>
+Subject: Re: [PATCH 3/4] ppc64: Add driver for BPA iommu
+Message-ID: <20050428140558.GB1023@austin.ibm.com>
+References: <200504190318.32556.arnd@arndb.de> <200504280813.j3S8DNLc019256@post.webmailer.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200504280813.j3S8DNLc019256@post.webmailer.de>
+User-Agent: Mutt/1.5.6+20040907i
+From: olof@austin.ibm.com (Olof Johansson)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry to bother you all ... the problem was that I issued some options 
-during configuration to specify where the kernel was, apparently I 
-should only do that on 2.4 series kernels.
+Hi,
 
-I re-extracted the kernel sources and started over again. It's nor 
-working fine now.
+Some comments below.
 
-Thanks anyway
---
-Regards
-Davide Rao
-   Client/server Unix
-   Atos Origin
-   Via C.Viola - Pont St. Martin (AO) Italy
-   Cell :  +39 3357599151
-   Tel  :  +39 125810433
-   Email:  davide.rao@atosorigin.com
+On Thu, Apr 28, 2005 at 09:59:26AM +0200, Arnd Bergmann wrote:
+> Index: linus-2.5/arch/ppc64/kernel/bpa_iommu.c
+> ===================================================================
+> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> +++ linus-2.5/arch/ppc64/kernel/bpa_iommu.c	2005-04-22 07:01:39.000000000 +0200
+> @@ -0,0 +1,433 @@
+
+> +/* some constants */
+> +enum {
+> +	/* segment table entries */
+[...]
+> +};
+
+Hmm. I thought the benefit of enum was to be able to do type checking
+later on if it's a typed enum. Here you mix different definitions in
+the same large untyped enum declaration. Can they be moved to a
+bpa_iommu.h file and #defined instead?
+
+> +/* cause link error for invalid use */
+> +extern unsigned long __ioc_invalid_page_size;
+[...]
+> +	default: /* not a known compile time constant */
+> +		ps = __ioc_invalid_page_size;
+> +		break;
+> +	}
+
+Why do we need to detect this at link time?
+
+> +	nnpt++; /* XXX is this right? */
+
+Well, does it work?  :-)
+
+> +	return (ioste) {
+> +		.val = IOST_VALID_MASK
+> +			| (iostep & IOST_PT_BASE_MASK)
+> +			| ((nnpt << 5) & IOST_NNPT_MASK)
+> +			| (ps & IOST_PS_MASK)
+> +		};
+
+Can you create a mk_ioste() inline instead of doing this construct?
+
+> +static inline unsigned long
+> +get_ioptep(ioste iost_entry, unsigned long io_address)
+> +{
+> +	unsigned long iopt_base;
+> +	unsigned long ps;
+> +	unsigned long iopt_offset;
+> +
+> +	iopt_base = iost_entry.val & IOST_PT_BASE_MASK;
+> +	ps        = iost_entry.val & IOST_PS_MASK;
+> +
+> +	iopt_offset = ((io_address & 0x0fffffff) >> (7 + 2 * ps)) & 0x7fff8ul;
+
+Magic. Can we get it explained either by defines instead of constants
+or by a comment?
+
+> +/* compute the hashed 6 bit index for the 4-way associative pte cache */
+> +static inline unsigned long
+> +get_ioc_hash(ioste iost_entry, unsigned long io_address)
+> +{
+> +	unsigned long iopte = get_ioptep(iost_entry, io_address);
+> +
+> +	return ((iopte & 0x000000000000001f8ul) >> 3)
+> +	     ^ ((iopte & 0x00000000000020000ul) >> 17)
+> +	     ^ ((iopte & 0x00000000000010000ul) >> 15)
+> +	     ^ ((iopte & 0x00000000000008000ul) >> 13)
+> +	     ^ ((iopte & 0x00000000000004000ul) >> 11)
+> +	     ^ ((iopte & 0x00000000000002000ul) >> 9)
+> +	     ^ ((iopte & 0x00000000000001000ul) >> 7);
+
+Can't you reverse the subword by just doing one XOR instead of 6?
+That's what I did for the ext2 bitops on ppc64. See
+http://www.ussg.iu.edu/hypermail/linux/kernel/0408.2/1321.html
+
+> +static inline ioste
+> +get_iost_cache(void __iomem *base, unsigned long index)
+> +{
+> +	unsigned long __iomem *p = (base + IOC_ST_CACHE_DIR);
+> +	return (ioste) { in_be64(&p[index]) };
+
+mk_ioste() would be nice here too.
+
+> +#ifdef __KERNEL__
+
+Are we ever not __KERNEL__?
+
+> +/* initialize the iommu to support a simple linear mapping */
+> +static void bpa_map_iommu(void)
+> +{
+[...]
+> +	for (address = 0; address < 0x100000000ul; address += io_page_size) {
+
+This looks like way more than the 512MB DMA window you mentioned in the
+beginning. 
 
 
-Davide Rao wrote:
->>> Is LVM working on the alpha port 2.6 kernel series ?
->>
->>  
->> works fine for me.
-> 
-> 
-> Are you using a redhat based distro (like suse, mandrake, alpha core or 
-> indeed redhat )?
-> Are you using stock kernel, libraries and tools or did you haveto build 
-> them yourself ?
-> Debian comes with LVM1 tools that do not work with 2.6 kernels so I need 
-> to compile them myself or install some ready build binary package for 
-> alpha processor and compatible with the libraries that come with debian3.
-> What alpha architecture are you running on ?
-> 
-> 
->>> If so where do I get libdevmapper so that I can build the userspace 
->>> LVM utils ?
->>>
->>> I tryied downloading 
->>> ftp://sources.redhat.com/pub/dm/multipath-toolsmultipath-tools-0.4.3.tar.bz2 
->>>
->>
->>
->> what do you think the 'dm' in that url stands for, hm?
->>
->>
->>> But I fail to compile it so I'm also unable tu build the userspace 
->>> lvm utils.
->>
->>
->>
->> 'userspace lvm utils' can be found here:
->>
->> ftp://sources.redhat.com/pub/lvm2
->>
->> multipath tools might be something different ... :)
-> 
-> 
-> It may also have something more but it has libdevmapper in it ...
-> In any case I also tried downloading and compiling 
-> device-mapper.1.00.07.tgz from the link in the LVM2.
-> It builds and installe fine but I still get compilation errore when I 
-> build LVM2.
-> Configute is fine, here are a few lines concerning libdevmapper
-> 
-> checking libdevmapper.h usability... yes
-> checking libdevmapper.h presence... yes
-> checking for libdevmapper.h... yes
-> 
-> but when I try to compile:
-> 
-> gcc -c -I. -I../include -DLVM1_INTERNAL -DPOOL_INTERNAL 
-> -DCLUSTER_LOCKING_INTERNAL -DSNAPSHOT_INTERNAL -DMIRRORED_INTERNAL 
-> -DDEVMAPPER_SUPPORT -DO_DIRECT_SUPPORT -DHAVE_LIBDL -DHAVE_GETOPTLONG 
-> -fPIC -Wall -Wundef -Wshadow -Wcast-align -Wwrite-strings 
-> -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Winline 
-> -O2 cache/lvmcache.c -o cache/lvmcache.o
-> activate/activate.c: In function `target_present':
-> activate/activate.c:303: error: `DM_DEVICE_LIST_VERSIONS' undeclared 
-> (first use in this function)
-> activate/activate.c:303: error: (Each undeclared identifier is reported 
-> only once
-> activate/activate.c:303: error: for each function it appears in.)
-> activate/activate.c:314: warning: implicit declaration of function 
-> `dm_task_get_versions'
-> activate/activate.c:314: warning: nested extern declaration of 
-> `dm_task_get_versions'
-> activate/activate.c:314: warning: assignment makes pointer from integer 
-> without a cast
-> activate/activate.c:319: error: dereferencing pointer to incomplete type
-> ...
-> same message repeated many times
-> ...
-> make[1]: *** [activate/activate.o] Error 1
-> make[1]: *** Waiting for unfinished jobs....
-> make[1]: Leaving directory `/usr/src/LVM2.2.01.09/lib'
-> make: *** [lib] Error 2
-> 
-> I'm using kernel 2.6.11.7 downloaded from kernel.org.
-> Here's the relevent section for raid/lvm in config:
-> # Multi-device support (RAID and LVM)
-> #
-> CONFIG_MD=y
-> CONFIG_BLK_DEV_MD=y
-> CONFIG_MD_LINEAR=y
-> CONFIG_MD_RAID0=y
-> CONFIG_MD_RAID1=y
-> # CONFIG_MD_RAID10 is not set
-> CONFIG_MD_RAID5=y
-> # CONFIG_MD_RAID6 is not set
-> CONFIG_MD_MULTIPATH=y
-> CONFIG_MD_FAULTY=y
-> CONFIG_BLK_DEV_DM=y
-> # CONFIG_DM_CRYPT is not set
-> # CONFIG_DM_SNAPSHOT is not set
-> # CONFIG_DM_MIRROR is not set
-> # CONFIG_DM_ZERO is not set
-> 
-> Do I need to patch kernel ?
-> 
->>
->>
->>> -- 
->>> Regards
->>> Davide Rao
->>>  Client/server Unix
->>>  Atos Origin
->>>  Via C.Viola - Pont St. Martin (AO) Italy
->>>  Cell :  +39 3357599151
->>>  Tel  :  +39 125810433
->>>  Email:  davide.rao@atosorigin.com
->>
->>
->>
->>
->> 73 Thorsten
->>
+
+
+-Olof

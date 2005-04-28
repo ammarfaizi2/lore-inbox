@@ -1,27 +1,18 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261311AbVDZEUo (ORCPT <rfc822;ralf@linux-mips.org>);
-	Tue, 26 Apr 2005 00:20:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261314AbVDZEUo
+	id S262273AbVD1V4J (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 28 Apr 2005 17:56:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262275AbVD1V4I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Apr 2005 00:20:44 -0400
-Received: from smtp2.wanadoo.fr ([193.252.22.29]:60789 "EHLO smtp2.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S261311AbVDZEUm (ORCPT
+	Thu, 28 Apr 2005 17:56:08 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:32216 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S262273AbVD1V4F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Apr 2005 00:20:42 -0400
-X-ME-UUID: 20050426042039118.1CDE31C0021D@mwinf0212.wanadoo.fr
-Message-ID: <426DC1A2.6020304@wanadoo.fr>
-Date: Tue, 26 Apr 2005 06:20:50 +0200
-From: Frederic Weisbecker <frederic.weisbecker@wanadoo.fr>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: (no subject)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Apr 2005 17:56:05 -0400
+Date: Thu, 28 Apr 2005 14:55:54 -0700
+From: fzyfeajqjwwofy@yahoo.com
+Message-Id: <200504282155.j3SLtsmd018384@zeus1.kernel.org>
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261311AbVDZEUo@vger.kernel.org>
-
-unsubscribe linux-kernel
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262273AbVD1V4J@vger.kernel.org>
 

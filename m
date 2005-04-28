@@ -1,69 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262164AbVD1QkF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262165AbVD1Qmu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262164AbVD1QkF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 12:40:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262167AbVD1QkE
+	id S262165AbVD1Qmu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 12:42:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262167AbVD1Qmt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 12:40:04 -0400
-Received: from fire.osdl.org ([65.172.181.4]:5276 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262164AbVD1Qjr (ORCPT
+	Thu, 28 Apr 2005 12:42:49 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:42368 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S262165AbVD1Qma (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 12:39:47 -0400
-Subject: Re: [PATCH 1b/7] dlm: core locking
-From: Daniel McNeil <daniel@osdl.org>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Cc: David Teigland <teigland@redhat.com>, Steven Dake <sdake@mvista.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050428123315.GP21645@marowsky-bree.de>
-References: <20050425165826.GB11938@redhat.com>
-	 <1114466097.30427.32.camel@persist.az.mvista.com>
-	 <20050426054933.GC12096@redhat.com>
-	 <1114537223.31647.10.camel@persist.az.mvista.com>
-	 <20050427030217.GA9963@redhat.com> <20050427134142.GZ4431@marowsky-bree.de>
-	 <20050427142638.GG16502@redhat.com>
-	 <20050428123315.GP21645@marowsky-bree.de>
-Content-Type: text/plain
-Message-Id: <1114706362.18352.85.camel@ibm-c.pdx.osdl.net>
+	Thu, 28 Apr 2005 12:42:30 -0400
+Date: Thu, 28 Apr 2005 18:42:21 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: David Teigland <teigland@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/7] dlm: overview
+Message-ID: <20050428164221.GE21645@marowsky-bree.de>
+References: <20050425151136.GA6826@redhat.com> <20050425203952.GE25002@ca-server1.us.oracle.com> <20050425210915.GX32085@marowsky-bree.de> <200504260130.17016.phillips@istop.com> <20050427135635.GA4431@marowsky-bree.de> <20050428162552.GH10628@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 28 Apr 2005 09:39:22 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050428162552.GH10628@redhat.com>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-04-28 at 05:33, Lars Marowsky-Bree wrote:
-> On 2005-04-27T22:26:38, David Teigland <teigland@redhat.com> wrote:
-<snip>
+On 2005-04-29T00:25:52, David Teigland <teigland@redhat.com> wrote:
+
+> On Wed, Apr 27, 2005 at 03:56:35PM +0200, Lars Marowsky-Bree wrote:
 > 
-> > > And, I assume that the delivery of a "node down" membership event
-> > > implies that said node also has been fenced.
-> > Typically it does if you're combining the dlm with something that requires
-> > fencing (like a file system).  Fencing isn't relevant to the dlm itself,
-> > though, since the dlm software isn't touching any storage.
+> > Questions which need to be settled, or which the API at least needs to
+> > export so we know what is expected from us:
 > 
-> Ack. Good point, I was thinking too much in terms of GFS/OCFS2 here ;-)
+> Here's what the dlm takes from userspace:
 > 
+> - Each lockspace takes a list of nodeid's that are the current members
+>   of that lockspace.  Nodeid's are int's.  For lockspace "alpha", it looks
+>   like this:
+>   echo "1 2 3 4" > /sys/kernel/dlm/alpha/members
+> 
+> - The dlm comms code needs to map these nodeid's to real IP addresses.
+>   A simple ioctl on a dlm char device passes in nodeid/sockaddr pairs.
+>   e.g. dlm_tool set_node 1 10.0.0.1
+>   to tell the dlm that nodeid 1 has IP address 10.0.0.1
+> 
+> - To suspend the lockspace you'd do (and similar for resuming):
+>   echo 1 > /sys/kernel/dlm/alpha/stop
 
-Since a DLM is a distributed lock manager, its usage is entirely for
-locking some shared resource (might not be storage, might be shared
-state, shared data, etc).   If the DLM can grant a lock, but not
-guarantee that other nodes (including the ones that have been kicked
-out of the cluster membership) do not have a conflicting DLM lock, then
-any applications that depend on the DLM for protection/coordination
-be in trouble.  Doesn't the GFS code depend on the DLM not being
-recovered until after fencing of dead nodes?
+Ohhh. _NEAT!_ Simple. Me like simple. This will work just perfectly well
+with our current approach (well, with some minor adjustments on our side
+for the mapping table).
 
-Is there a existing DLM that does not depend on fencing? (you said
-yours was modeled after the VMS DLM, didn't they depend on fencing?)
+I assume that we're allowed to update the nodeid/sockaddr mapping while
+suspended too? ie, if we were to reassign the nodeid to some other
+node...?
 
-How would an application use a DLM that does not depend on fencing?
+We can drive this almost directly and completely with a simple plugin.
 
-Thanks,
+> In other words, these aren't external API's; they're internal interfaces
+> within systems that happen to be split between the kernel and user-space.
 
-Daniel
+Okay, understood. So the boundary is within user-space.
 
 
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
- 
+-- 
+High Availability & Clustering
+SUSE Labs, Research and Development
+SUSE LINUX Products GmbH - A Novell Business
 

@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262270AbVD1VEB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262268AbVD1VF6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262270AbVD1VEB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 17:04:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbVD1VEB
+	id S262268AbVD1VF6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 17:05:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262272AbVD1VFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 17:04:01 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:27050 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262270AbVD1VDr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 17:03:47 -0400
-Date: Thu, 28 Apr 2005 23:03:31 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andreas Happe <news_0403@flatline.ath.cx>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: system reboot after reading /proc/acpi/battery/../state
-Message-ID: <20050428210331.GA12597@elf.ucw.cz>
-References: <slrnd6v9ir.b61.news_0403@localhost.localdomain>
+	Thu, 28 Apr 2005 17:05:54 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:32273 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S262269AbVD1VFq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 17:05:46 -0400
+Date: Thu, 28 Apr 2005 16:26:47 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       sam@ravnborg.org, Ryan Anderson <ryan@michonline.com>
+Subject: Re: [UML] Compile error when building with seperate source and object directories
+Message-ID: <20050428202647.GA25451@ccure.user-mode-linux.org>
+References: <1114570958.5983.50.camel@mythical> <20050427234515.GY13052@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <slrnd6v9ir.b61.news_0403@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050427234515.GY13052@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> That's because that stuff is not merged yet.  Speaking of which, where does
+> the current UML tree live and who should that series be Cc'ed to?
 
-> I have a regression to report: my notebook (HP Compaq nx7000) reboots
-> after reading /proc/acpi/battery/C11F/state. It's pseudo -
-> reproduceable, occurs around every second access.
-> 
-> please contact me for further information (and what information would be
-> needed to fix this bug), I will try to compile older kernel versions to
-> find the corresponding acpi update  this annoying bug (but it happens
-> for at least one month by now).
+My patchset lives at http://user-mode-linux.sf.net/patches.html, and things
+like this should be CC-ed to me.
 
-Add printks to see where it reboots... it may be faster than binary
-searching acpi updates.
-								Pavel
--- 
-Boycott Kodak -- for their patent abuse against Java.
+> I've got a decent split-up and IMO that should be mergable.  Patches are
+> on ftp.linux.org.uk/pub/people/viro/UM*; summary in the end of mail.
+> That's a sanitized and split version of old UML-kbuild patch.
+
+Thanks, merged into my tree.  It'll be visible at the above URL next time
+I push the site out, and I'll merge this and a bunch of other stuff to
+Linus and Andrew shortly.
+
+				Jeff

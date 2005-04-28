@@ -1,34 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262201AbVD1SK4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262203AbVD1SLU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262201AbVD1SK4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 14:10:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262205AbVD1SK4
+	id S262203AbVD1SLU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 14:11:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262207AbVD1SLU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 14:10:56 -0400
-Received: from wproxy.gmail.com ([64.233.184.205]:62788 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262201AbVD1SKs convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 14:10:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=nQXAtJq4wxDYbR6ygi3R5aH2pkiV5SD6zUT6pZEwWeHrHjuDhlt1jSFV6ZtAhbTZFZ0aeOZumdQ/bo5X8tlCJRbrRs2s5prSnxPPpwdV0qARKezY1X4N7LBxAXUI64rOtWu1M0jiT5XxGHfPl2Zy3WZKJUKh0eDnU8fTUFwU+IM=
-Message-ID: <4ae3c14050428111073283bd3@mail.gmail.com>
-Date: Thu, 28 Apr 2005 14:10:39 -0400
-From: Xin Zhao <uszhaoxin@gmail.com>
-Reply-To: Xin Zhao <uszhaoxin@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: dumb question: How to create your own log files in a kernel module?
+	Thu, 28 Apr 2005 14:11:20 -0400
+Received: from fire.osdl.org ([65.172.181.4]:49087 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262203AbVD1SLG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 14:11:06 -0400
+Date: Thu, 28 Apr 2005 11:10:53 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: blaisorblade@yahoo.it
+Cc: akpm@osdl.org, jdike@addtoit.com, bstroesser@fujitsu-siemens.com,
+       linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [patch 1/7] uml: fix syscall table by including $(SUBARCH)'s one, for i386
+Message-ID: <20050428181053.GQ23013@shell0.pdx.osdl.net>
+References: <20050424181909.81B8F33AED@zion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20050424181909.81B8F33AED@zion>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can anyone give me a hand? or point me to somewhere I can find related
-information?
+* blaisorblade@yahoo.it (blaisorblade@yahoo.it) wrote:
+> 
+> Split the i386 entry.S files into entry.S and syscall_table.S which
+> is included in the previous one (so actually there is no difference between
+> them) and use the syscall_table.S in the UML build, instead of tracking by
+> hand the syscall table changes (which is inherently error-prone).
 
-Thanks in advance!
+Xen can use this as well (it was on my todo list).
 
-Xin
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

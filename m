@@ -1,98 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261834AbVD1DJD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261851AbVD1DSo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261834AbVD1DJD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 23:09:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbVD1DJD
+	id S261851AbVD1DSo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 23:18:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbVD1DSo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 23:09:03 -0400
-Received: from bee.hiwaay.net ([216.180.54.11]:30107 "EHLO bee.hiwaay.net")
-	by vger.kernel.org with ESMTP id S261834AbVD1DI5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 23:08:57 -0400
-Date: Wed, 27 Apr 2005 22:08:56 -0500
-From: Chris Adams <cmadams@hiwaay.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: RFH: ext3 on EVMS on SW-RAID1 problem
-Message-ID: <20050428030856.GA699498@hiwaay.net>
+	Wed, 27 Apr 2005 23:18:44 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:47776 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261851AbVD1DSm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 23:18:42 -0400
+Subject: Re: [PATCH]broadcast IPI race condition on CPU hotplug
+From: Li Shaohua <shaohua.li@intel.com>
+To: Andi Kleen <ak@suse.de>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>
+In-Reply-To: <20050427125622.GG13305@wotan.suse.de>
+References: <1114482044.7068.17.camel@sli10-desk.sh.intel.com>
+	 <20050426132149.GF5098@wotan.suse.de>
+	 <1114564068.12809.7.camel@sli10-desk.sh.intel.com>
+	 <20050427125622.GG13305@wotan.suse.de>
+Content-Type: text/plain
+Message-Id: <1114658144.22110.31.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050427114648.GA17153@titan.lahn.de>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 28 Apr 2005 11:15:44 +0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Once upon a time, Philipp Matthias Hahn <pmhahn@titan.lahn.de> said:
->One of our university fileservers shows strange problems since last
->friday. Syslog show the following messages:
->	attempt to access beyond end of device
->	dm-8: rw=0, want=8589934592, limit=262142
->The strange thing: If I mount a disk-image of that volume via loop,
->everything works fine!
->
->The server was running Debian sarge with an unpatched 2.6.11.6 than, but
->is running an 2.6.11.7 now and still shows the same problem.
->EVMS is version 2.5.2-1 and DevMapper is version 1.01.00-4.
+On Wed, 2005-04-27 at 20:56, Andi Kleen wrote:
+> > > No way we are making this common operation much slower just
+> > > to fix an obscure race at boot time. PLease come up with a fix
+> > > that only impacts the boot process.
+> > We can't prevent a CPU to receive a broadcast interrupt. Ack the
+> > interrupt and mark the cpu online can't be atomic operation, so the CPU
+> > either receives unexpected interrupt or loses interrupt.
+> 
+> Cant you just check at the end of the CPU bootup if the CPU
+> got such an APIC interrupt and ack it then? 
+Ok, There are two solutions:
+1. boot sequence hold the 'call_lock' before LAPIC is initialized. So no
+broadcast IPI will be received. But you possibly think the lock is hold
+too long time.
+2. Hold the lock later.
+The boot sequence does:
+a.hold 'call_lock' (prevent upcoming IPI)
+b.enable interrupt (let stale IPI get handled)
+c.set cpu online
+d.unlock the lock.
+The smp_call_function_interrupt does:
+if (cpu is offline)
+	ack the interrupt and return
+But this approach will add check in smp_call_function_interrupt and
+enable interrupt before set online map. Don't know if it's an issue.
 
-I see a similar problem under recent Fedora Core 3 kernels with LVM2.
-It appears when I create a snapshot of a volume.  See Red Hat's
-Bugzilla:
+Seems no other approaches. The ISR and IRR registers are read only.
+BTW, send_ipi_mask_bitmask sends a CPU group one time, is it really much
+slower than broadcast IPI? I guess we can ignore the overhead, since the
+overhead is lighter against the call function interrupt handler.
 
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=152162
+Thanks,
+Shaohua
 
-Exact steps I used to reproduce the problem (which also results in file
-corruption, even when reading from the non-snapshot volume).  I used a
-scratch partition, /dev/sda8:
-
-########################################################################
-# create the software RAID as a 2 device mirror with 1 missing
-mdadm -C -l 1 -n 2 /dev/md0 /dev/sda8 missing
-
-# create the LVM setup
-pvcreate /dev/md0
-vgcreate lvtest /dev/md0
-lvcreate -L100m -n test lvtest
-
-# make a filesystem and put some data on it
-mke2fs -j /dev/lvtest/test
-mount /dev/lvtest/test /mnt
-cp --preserve=all -r /boot/* /mnt/
-umount /mnt
-blockdev --flushbufs /dev/lvtest/test
-
-# now mount it, create a snapshot, and see the result
-mount /dev/lvtest/test /mnt
-lvcreate -s -L10m -n snap /dev/lvtest/test
-diff -ur /boot /mnt
-########################################################################
-
-The output I got from diff was:
-
-diff: /mnt/System.map-2.6.10-1.766_FC3: Input/output error
-
-and I got a bunch of messages like:
-
-attempt to access beyond end of device
-dm-4: rw=0, want=8300006146, limit=204800
-Buffer I/O error on device dm-4, logical block 4150003072
-
-from the kernel.  These only seem to appear sometimes - other times I
-get file corruption (although the corruption appears to be
-block-aligned).
-
-If I then do:
-
-########################################################################
-lvremove /dev/lvtest/snap
-umount /mnt
-blockdev --flushbufs /dev/lvtest/test
-mount /dev/lvtest/test /mnt
-diff -ur /boot /mnt
-########################################################################
-
-It compares with no errors.
-
--- 
-Chris Adams <cmadams@hiwaay.net>
-Systems and Network Administrator - HiWAAY Internet Services
-I don't speak for anybody but myself - that's enough trouble.

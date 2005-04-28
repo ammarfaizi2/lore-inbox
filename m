@@ -1,83 +1,166 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262135AbVD1Ntk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262134AbVD1Nwj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262135AbVD1Ntk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 09:49:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbVD1Ntb
+	id S262134AbVD1Nwj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 09:52:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbVD1Nwh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 09:49:31 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:948 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262135AbVD1NtN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 09:49:13 -0400
-Subject: Re: [PATCH 1a/7] dlm: core locking
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: David Teigland <teigland@redhat.com>
-Cc: Stephen Tweedie <sct@redhat.com>, Mark Fasheh <mark.fasheh@oracle.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050428034550.GA10628@redhat.com>
-References: <20050425165705.GA11938@redhat.com>
-	 <20050427214136.GC938@ca-server1.us.oracle.com>
-	 <20050428034550.GA10628@redhat.com>
-Content-Type: text/plain
-Message-Id: <1114696137.1920.32.camel@sisko.sctweedie.blueyonder.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Thu, 28 Apr 2005 14:48:57 +0100
+	Thu, 28 Apr 2005 09:52:37 -0400
+Received: from [151.12.57.13] ([151.12.57.13]:2822 "EHLO
+	mail2.it.atosorigin.com") by vger.kernel.org with ESMTP
+	id S262134AbVD1Nvm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 09:51:42 -0400
+From: Rao Davide <davide.rao@atosorigin.com>
+Cc: dl8bcu@dl8bcu.de, linux-kernel@vger.kernel.org, ink@jurassic.park.msu.ru
+Message-ID: <4270E6A9.4040204@atosorigin.com>
+Date: Thu, 28 Apr 2005 15:35:37 +0200
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+Subject: Re: Linux Alpha port: LVM
+References: <42569BC7.5030709@atosorigin.com> <20050408190709.GB27845@twiddle.net> <425A2442.8090607@atosorigin.com> <4263ACA9.4080507@atosorigin.com> <20050418195351.GA32124@Marvin.DL8BCU.ampr.org> <4264D77C.6010605@atosorigin.com>
+In-Reply-To: <4264D77C.6010605@atosorigin.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 Apr 2005 13:57:44.0890 (UTC) FILETIME=[40ACC9A0:01C54BFA]
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Sorry to bother you all ... the problem was that I issued some options 
+during configuration to specify where the kernel was, apparently I 
+should only do that on 2.4 series kernels.
 
-On Thu, 2005-04-28 at 04:45, David Teigland wrote:
+I re-extracted the kernel sources and started over again. It's nor 
+working fine now.
 
-> A comment in _can_be_granted() quotes the VMS rule:
+Thanks anyway
+--
+Regards
+Davide Rao
+   Client/server Unix
+   Atos Origin
+   Via C.Viola - Pont St. Martin (AO) Italy
+   Cell :  +39 3357599151
+   Tel  :  +39 125810433
+   Email:  davide.rao@atosorigin.com
+
+
+Davide Rao wrote:
+>>> Is LVM working on the alpha port 2.6 kernel series ?
+>>
+>>  
+>> works fine for me.
 > 
-> "By default, a new request is immediately granted only if all three of the
-> following conditions are satisfied when the request is issued:
 > 
-> - The queue of ungranted conversion requests for the resoure is empty.
-> - The queue of ungranted new requests for the resource is empty.
-> - The mode of the new request is compatible with the most
->   restrictive mode of all granted locks on the resource."
-
-Right.  It's a fairness issue.  If you've got a read lock, then a new
-read lock request *can* be granted immediately; but if there are write
-lock requests on the queue (and remember, those may be on other nodes,
-you can't tell just from the local node state), then granting new read
-locks immediately can lead to writer starvation.
-
-By default NL requests just follow the same rule, but because it's
-always theoretically possible to grant NL immediately, you can expedite
-it.  And NL is usually used for one of two reasons: either to pin the
-lock value block for the resource in the DLM, or to keep the resource
-around while it's unlocked for performance reasons (resources are
-destroyed when there are no more locks against them; a NL lock keeps the
-resource present, so new lock requests can be granted much more
-quickly.)  In both of those cases, observing the normal lock ordering
-rules is irrelevant.
-
-> > Where's the LKM_LOCAL equivalent? What happens a dlm user wants to create a
-> > lock on a resource it knows to be unique in the cluster (think file creation
-> > for a cfs)? Does it have to hit the network for a resource lookup on those
-> > locks?
-
-That is always needed if you've got a lock directory model --- you have
-to have, at minimum, a communication with the lock directory node for
-the given resource (which might be the local node if you're lucky). 
-Even if you know the resource did not previously exist, you still need
-to tell the directory node that it *does* exist now so that future users
-can find it.  
-
-I suppose you could short-cut the wait for the response, though, to
-reduce the latency for this case.  My gut feeling, though, is that I'd
-still prefer to see the DLM doing its work properly, cluster-wide in
-this case, as precaution against accidents if we get inconsistent states
-on disk leading to two nodes trying to create the same lock at once. 
-Experience suggests that such things *do* go wrong, and it's as well to
-plan for them --- early detection is good!
-
---Stephen
-
-
+> Are you using a redhat based distro (like suse, mandrake, alpha core or 
+> indeed redhat )?
+> Are you using stock kernel, libraries and tools or did you haveto build 
+> them yourself ?
+> Debian comes with LVM1 tools that do not work with 2.6 kernels so I need 
+> to compile them myself or install some ready build binary package for 
+> alpha processor and compatible with the libraries that come with debian3.
+> What alpha architecture are you running on ?
+> 
+> 
+>>> If so where do I get libdevmapper so that I can build the userspace 
+>>> LVM utils ?
+>>>
+>>> I tryied downloading 
+>>> ftp://sources.redhat.com/pub/dm/multipath-toolsmultipath-tools-0.4.3.tar.bz2 
+>>>
+>>
+>>
+>> what do you think the 'dm' in that url stands for, hm?
+>>
+>>
+>>> But I fail to compile it so I'm also unable tu build the userspace 
+>>> lvm utils.
+>>
+>>
+>>
+>> 'userspace lvm utils' can be found here:
+>>
+>> ftp://sources.redhat.com/pub/lvm2
+>>
+>> multipath tools might be something different ... :)
+> 
+> 
+> It may also have something more but it has libdevmapper in it ...
+> In any case I also tried downloading and compiling 
+> device-mapper.1.00.07.tgz from the link in the LVM2.
+> It builds and installe fine but I still get compilation errore when I 
+> build LVM2.
+> Configute is fine, here are a few lines concerning libdevmapper
+> 
+> checking libdevmapper.h usability... yes
+> checking libdevmapper.h presence... yes
+> checking for libdevmapper.h... yes
+> 
+> but when I try to compile:
+> 
+> gcc -c -I. -I../include -DLVM1_INTERNAL -DPOOL_INTERNAL 
+> -DCLUSTER_LOCKING_INTERNAL -DSNAPSHOT_INTERNAL -DMIRRORED_INTERNAL 
+> -DDEVMAPPER_SUPPORT -DO_DIRECT_SUPPORT -DHAVE_LIBDL -DHAVE_GETOPTLONG 
+> -fPIC -Wall -Wundef -Wshadow -Wcast-align -Wwrite-strings 
+> -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Winline 
+> -O2 cache/lvmcache.c -o cache/lvmcache.o
+> activate/activate.c: In function `target_present':
+> activate/activate.c:303: error: `DM_DEVICE_LIST_VERSIONS' undeclared 
+> (first use in this function)
+> activate/activate.c:303: error: (Each undeclared identifier is reported 
+> only once
+> activate/activate.c:303: error: for each function it appears in.)
+> activate/activate.c:314: warning: implicit declaration of function 
+> `dm_task_get_versions'
+> activate/activate.c:314: warning: nested extern declaration of 
+> `dm_task_get_versions'
+> activate/activate.c:314: warning: assignment makes pointer from integer 
+> without a cast
+> activate/activate.c:319: error: dereferencing pointer to incomplete type
+> ...
+> same message repeated many times
+> ...
+> make[1]: *** [activate/activate.o] Error 1
+> make[1]: *** Waiting for unfinished jobs....
+> make[1]: Leaving directory `/usr/src/LVM2.2.01.09/lib'
+> make: *** [lib] Error 2
+> 
+> I'm using kernel 2.6.11.7 downloaded from kernel.org.
+> Here's the relevent section for raid/lvm in config:
+> # Multi-device support (RAID and LVM)
+> #
+> CONFIG_MD=y
+> CONFIG_BLK_DEV_MD=y
+> CONFIG_MD_LINEAR=y
+> CONFIG_MD_RAID0=y
+> CONFIG_MD_RAID1=y
+> # CONFIG_MD_RAID10 is not set
+> CONFIG_MD_RAID5=y
+> # CONFIG_MD_RAID6 is not set
+> CONFIG_MD_MULTIPATH=y
+> CONFIG_MD_FAULTY=y
+> CONFIG_BLK_DEV_DM=y
+> # CONFIG_DM_CRYPT is not set
+> # CONFIG_DM_SNAPSHOT is not set
+> # CONFIG_DM_MIRROR is not set
+> # CONFIG_DM_ZERO is not set
+> 
+> Do I need to patch kernel ?
+> 
+>>
+>>
+>>> -- 
+>>> Regards
+>>> Davide Rao
+>>>  Client/server Unix
+>>>  Atos Origin
+>>>  Via C.Viola - Pont St. Martin (AO) Italy
+>>>  Cell :  +39 3357599151
+>>>  Tel  :  +39 125810433
+>>>  Email:  davide.rao@atosorigin.com
+>>
+>>
+>>
+>>
+>> 73 Thorsten
+>>

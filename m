@@ -1,50 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261562AbVD1Oa5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261818AbVD1OhD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261562AbVD1Oa5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 10:30:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVD1Oa5
+	id S261818AbVD1OhD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 10:37:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261948AbVD1OhD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 10:30:57 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:16608 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261562AbVD1Oau (ORCPT
+	Thu, 28 Apr 2005 10:37:03 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:53216 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S261818AbVD1Og7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 10:30:50 -0400
-Date: Thu, 28 Apr 2005 09:30:30 -0500
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linuxppc64-dev@ozlabs.org, Paul Mackerras <paulus@samba.org>,
-       linux-kernel@vger.kernel.org, Anton Blanchard <anton@samba.org>
-Subject: Re: [PATCH 3/4] ppc64: Add driver for BPA iommu
-Message-ID: <20050428143030.GC1023@austin.ibm.com>
-References: <200504190318.32556.arnd@arndb.de> <200504280813.j3S8DNLc019256@post.webmailer.de> <20050428140558.GB1023@austin.ibm.com>
+	Thu, 28 Apr 2005 10:36:59 -0400
+Date: Thu, 28 Apr 2005 16:36:19 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Mark Fasheh <mark.fasheh@oracle.com>
+Cc: David Teigland <teigland@redhat.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH 0/7] dlm: overview
+Message-ID: <20050428143619.GZ21645@marowsky-bree.de>
+References: <20050425151136.GA6826@redhat.com> <20050425203952.GE25002@ca-server1.us.oracle.com> <20050426053930.GA12096@redhat.com> <20050426184845.GA938@ca-server1.us.oracle.com> <20050427132343.GX4431@marowsky-bree.de> <20050427181245.GB938@ca-server1.us.oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20050428140558.GB1023@austin.ibm.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: olof@austin.ibm.com (Olof Johansson)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050427181245.GB938@ca-server1.us.oracle.com>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 28, 2005 at 09:05:58AM -0500, Olof Johansson wrote:
+On 2005-04-27T11:12:45, Mark Fasheh <mark.fasheh@oracle.com> wrote:
 
-> > +/* compute the hashed 6 bit index for the 4-way associative pte cache */
-> > +static inline unsigned long
-> > +get_ioc_hash(ioste iost_entry, unsigned long io_address)
-> > +{
-> > +	unsigned long iopte = get_ioptep(iost_entry, io_address);
-> > +
-> > +	return ((iopte & 0x000000000000001f8ul) >> 3)
-> > +	     ^ ((iopte & 0x00000000000020000ul) >> 17)
-> > +	     ^ ((iopte & 0x00000000000010000ul) >> 15)
-> > +	     ^ ((iopte & 0x00000000000008000ul) >> 13)
-> > +	     ^ ((iopte & 0x00000000000004000ul) >> 11)
-> > +	     ^ ((iopte & 0x00000000000002000ul) >> 9)
-> > +	     ^ ((iopte & 0x00000000000001000ul) >> 7);
-> 
-> Can't you reverse the subword by just doing one XOR instead of 6?
+> The short answer is no but that we're collecting them. Right now, I can say
+> that if you take our whole stack into consideration OCFS2 for things like
+> kernel untars and builds (a common test over here), is typically almost as
+> fast as ext3 (single node obviously) even when we have a second or third
+> node mounted.
 
-Ugh, I wrote that before I had coffee. No you can't, you can just negate
-the value by doing the XOR. Nevermind.
+Well, agreed that's great, but that seems to imply just generic sane
+design: Why should the presence of another node (which does nothing, or
+not with overlapping objects on disk) cause any substantial slowdown?
+
+Admittedly we seem to be really short of meaningful benchmarks for DLMs
+and/or clustering filesystems...
+
+Hey. Wait. Benchmarks. Scalability issues. No real coding involved.
+Anyone from OSDL listening?  ;-)
+
+> As far as specific DLM timings go, we're in the process of collecting them.
+
+Perfect.
+
+> As you know, lately we have been deep in a process of stabilizing things :)
+
+Yes, but this also would be a great time to identify real performance
+bugs before shipping - so consider it as part of stress tesing ;-)
+
+> While we have collected timings independent of the FS in the past, we
+> haven't done that recently enough that I'd feel comfortable posting it.
+
+Understood.
 
 
--Olof
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+High Availability & Clustering
+SUSE Labs, Research and Development
+SUSE LINUX Products GmbH - A Novell Business
+

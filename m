@@ -1,61 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262267AbVD1Vwn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262272AbVD1VxV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262267AbVD1Vwn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 17:52:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbVD1Vwn
+	id S262272AbVD1VxV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 17:53:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbVD1VxV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 17:52:43 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:23505 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262267AbVD1Vwk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 17:52:40 -0400
-Subject: Re: IDE problems with rmmod ide-cd
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Jens Axboe <axboe@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <58cb370e05042813466915eebb@mail.gmail.com>
-References: <1114706653.18330.212.camel@localhost.localdomain>
-	 <20050428172541.GN1876@suse.de> <58cb370e05042813466915eebb@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1114725062.18809.226.camel@localhost.localdomain>
+	Thu, 28 Apr 2005 17:53:21 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48594 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262272AbVD1VxN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 17:53:13 -0400
+Date: Thu, 28 Apr 2005 22:53:28 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       sam@ravnborg.org, Ryan Anderson <ryan@michonline.com>
+Subject: Re: [UML] Compile error when building with seperate source and object directories
+Message-ID: <20050428215328.GC13052@parcelfarce.linux.theplanet.co.uk>
+References: <1114570958.5983.50.camel@mythical> <20050427234515.GY13052@parcelfarce.linux.theplanet.co.uk> <20050428202647.GA25451@ccure.user-mode-linux.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 28 Apr 2005 22:51:09 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050428202647.GA25451@ccure.user-mode-linux.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-04-28 at 21:46, Bartlomiej Zolnierkiewicz wrote:
-> > The problem you are thinking of was also an ATAPI cache flush command,
-> > so I'm not so sure I would call it harmless... I haven't changed
-> > anything in there recently, Bart?
+On Thu, Apr 28, 2005 at 04:26:47PM -0400, Jeff Dike wrote:
+> > That's because that stuff is not merged yet.  Speaking of which, where does
+> > the current UML tree live and who should that series be Cc'ed to?
 > 
-> I don't remember changing anything there recently.
-> Alan, please give more details of the issue.
+> My patchset lives at http://user-mode-linux.sf.net/patches.html, and things
+> like this should be CC-ed to me.
+> 
+> > I've got a decent split-up and IMO that should be mergable.  Patches are
+> > on ftp.linux.org.uk/pub/people/viro/UM*; summary in the end of mail.
+> > That's a sanitized and split version of old UML-kbuild patch.
+> 
+> Thanks, merged into my tree.  It'll be visible at the above URL next time
+> I push the site out, and I'll merge this and a bunch of other stuff to
+> Linus and Andrew shortly.
 
-Torvalds tree - head
-
-Hardware is as follows
-	Promise IDE controller on ide0/1 - no drives
-	VIA IDE controller on ide2/3 - hdd is a DVD-ROM
-	and hdg is a disk.
-
-hdd: TOSHIBA DVD-ROM SD-M1212
-
-I had some code logging the commands issued and I did rmmod ide-cd. At
-that point it sent a cache flush to the drive which then errorred it.
-
-The actual log entry is
-
-hdd: packet command error
-Gives status=0x51, error=0x50
-
-Dumping the error in detail its
-
-Error;Illegal Request (Sense 0x05)
-Invalid command operation code (0x20, 0x00)
-The failed "Flush cache" packet command was
-"35 00 00 00 00 00 ... 00"
-
-
+OK...  Out of old UML-kbuild only the chunk in ptrace.c is not covered
+by that (note that e.g. top-level Makefile is not modified at all in
+the new version).  arch/um/kernel/ptrace.c is a separate story - we
+need per-arch helper there.

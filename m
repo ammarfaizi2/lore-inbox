@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261784AbVD1UUi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262138AbVD1UVv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261784AbVD1UUi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 16:20:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262111AbVD1UUi
+	id S262138AbVD1UVv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 16:21:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbVD1UVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 16:20:38 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:4293 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261784AbVD1UU2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 16:20:28 -0400
-Subject: Re: 2.6.12-rc3 won't boot from aic7899
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <4271413F.70809@cybsft.com>
-References: <4269C60C.3070700@cybsft.com> <1114716611.5022.6.camel@mulgrave>
-	 <4271413F.70809@cybsft.com>
-Content-Type: text/plain
-Date: Thu, 28 Apr 2005 13:20:24 -0700
-Message-Id: <1114719624.5022.14.camel@mulgrave>
+	Thu, 28 Apr 2005 16:21:51 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:23515 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262111AbVD1UVq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 16:21:46 -0400
+Date: Thu, 28 Apr 2005 22:21:27 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: mj@ucw.cz, lmb@suse.de, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] private mounts
+Message-ID: <20050428202127.GC12431@elf.ucw.cz>
+References: <20050427143126.GB1957@mail.shareable.org> <E1DQno0-00029a-00@dorka.pomaz.szeredi.hu> <20050427153320.GA19065@atrey.karlin.mff.cuni.cz> <20050427155022.GR4431@marowsky-bree.de> <20050427164652.GA3129@ucw.cz> <E1DQqUi-0002Pt-00@dorka.pomaz.szeredi.hu> <20050427175425.GA4241@ucw.cz> <E1DQquc-0002W6-00@dorka.pomaz.szeredi.hu> <20050428130819.GF2226@openzaurus.ucw.cz> <E1DREtK-0006Ha-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1DREtK-0006Ha-00@dorka.pomaz.szeredi.hu>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-04-28 at 15:02 -0500, K.R. Foley wrote:
-> I am attaching the relevant part of the successful boot log from 
-> 2.6.12-rc2. I don't have a 2.6.11 boot log handy. I can boot it when I 
-> get home if it will help. I don't know if it is worth mentioning or not, 
-> but I have had to compile in the SCSI drivers since 2.6.12-rc1. Don't 
-> know if it's related to this or not.
+Hi!
+
+> > Exactly. So can we simply merge root-only fuse, and then worry
+> > how to make it safe with user-mounted fuse. See your own unfsd example
+> > why user-mounting is bad.
+> > 
+> > One possible solution would be to have root-owned fused that
+> > talks to user-owned fused-s and checks they are behaving correctly?
 > 
-> One other note: I spent enough time tracing this to find that the 
-> message "target1:0:0: Beginning Domain Validation" seems to be generated 
-> by code that is in aic79xx_osm. Is this common code or should this code 
-> not be getting executed for aic7899 cards?
+> It's very hard to do that.  What should be the timeout for requests,
+> so that valid filesystems don't break, yet it's not possible to do a
+> fairly ugly DoS?  It's almost impossible I'd say.
 
-Actually, the code is in the scsi_transport_spi class.  aic79xx still
-has its own internal domain validation.
-
-> I'll be happy to try this when I get home.
-
-Thanks ... it may not work; I don't have access to any drives with the
-problem yours exhibits.
-
-> Apr 24 23:23:30 porky kernel: scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
-> Apr 24 23:23:30 porky kernel:         <Adaptec aic7899 Ultra160 SCSI adapter>
-> Apr 24 23:23:30 porky kernel:         aic7899: Ultra160 Wide Channel B, SCSI Id=7, 32/253 SCBs
-> Apr 24 23:23:30 porky kernel: 
-> Apr 24 23:23:30 porky kernel: (scsi1:A:0): 20.000MB/s transfers (20.000MHz, offset 15)
-> Apr 24 23:23:31 porky kernel:   Vendor: SEAGATE   Model: SX118273LC        Rev: 6679
-
-Yes, that's what I suspected.  Here the internal aic7xxx DV has silently
-configured the drive to be narrow.  Probably because of cable damage or
-something else.
-
-James
-
-
+You can still put those two lines into root-owned fused, where people
+are less likely to notice them ;-).
+								Pavel
+-- 
+Boycott Kodak -- for their patent abuse against Java.

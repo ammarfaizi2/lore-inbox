@@ -1,70 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262290AbVD1WU7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262297AbVD1WYD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262290AbVD1WU7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 18:20:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262293AbVD1WU7
+	id S262297AbVD1WYD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 18:24:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262296AbVD1WYD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 18:20:59 -0400
-Received: from wproxy.gmail.com ([64.233.184.194]:26273 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262290AbVD1WUs convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 18:20:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XPTglAmYoiR6UrnxllZvn9Df6aNwFfgmCgwUp39Ahm597GiV3NLlvwPwapDJcNYulDcIo2goR7Dm/aC+f4eJyjBnVJBQHWic2erAkyCnf3VjsBCNCmSfCBE8/oxlA7QGCizZ9zFIReLJmAwZcqBSFCWiJfD1d1mhtBVw9JSGWr8=
-Message-ID: <58cb370e050428152073cb81a@mail.gmail.com>
-Date: Fri, 29 Apr 2005 00:20:48 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: IDE problems with rmmod ide-cd
-Cc: Jens Axboe <axboe@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1114725062.18809.226.camel@localhost.localdomain>
+	Thu, 28 Apr 2005 18:24:03 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:17938 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id S262295AbVD1WXx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 18:23:53 -0400
+Date: Thu, 28 Apr 2005 19:23:30 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: netdev@oss.sgi.com, "David S. Miller" <davem@davemloft.net>,
+       Regina Kodato <reginak@cyclades.com>, pc300@cyclades.com,
+       Nenad Corbic <ncorbic@sangoma.com>, Henner Eisen <eis@baty.hanse.de>,
+       linux-net@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cleanups in drivers/net/wan/ - kfree of NULL pointer is valid
+Message-ID: <20050428222330.GI26945@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Jesper Juhl <juhl-lkml@dif.dk>, netdev@oss.sgi.com,
+	"David S. Miller" <davem@davemloft.net>,
+	Regina Kodato <reginak@cyclades.com>, pc300@cyclades.com,
+	Nenad Corbic <ncorbic@sangoma.com>,
+	Henner Eisen <eis@baty.hanse.de>, linux-net@vger.kernel.org,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.62.0504290009310.2476@dragon.hyggekrogen.localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <1114706653.18330.212.camel@localhost.localdomain>
-	 <20050428172541.GN1876@suse.de>
-	 <58cb370e05042813466915eebb@mail.gmail.com>
-	 <1114725062.18809.226.camel@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.62.0504290009310.2476@dragon.hyggekrogen.localhost>
+X-Url: http://advogato.org/person/acme
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/28/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Iau, 2005-04-28 at 21:46, Bartlomiej Zolnierkiewicz wrote:
-> > > The problem you are thinking of was also an ATAPI cache flush command,
-> > > so I'm not so sure I would call it harmless... I haven't changed
-> > > anything in there recently, Bart?
-> >
-> > I don't remember changing anything there recently.
-> > Alan, please give more details of the issue.
-> 
-> Torvalds tree - head
-> 
-> Hardware is as follows
->         Promise IDE controller on ide0/1 - no drives
->         VIA IDE controller on ide2/3 - hdd is a DVD-ROM
->         and hdg is a disk.
-> 
-> hdd: TOSHIBA DVD-ROM SD-M1212
-> 
-> I had some code logging the commands issued and I did rmmod ide-cd. At
-> that point it sent a cache flush to the drive which then errorred it.
-> 
-> The actual log entry is
-> 
-> hdd: packet command error
-> Gives status=0x51, error=0x50
-> 
-> Dumping the error in detail its
-> 
-> Error;Illegal Request (Sense 0x05)
-> Invalid command operation code (0x20, 0x00)
-> The failed "Flush cache" packet command was
-> "35 00 00 00 00 00 ... 00"
- 
-I would suggest auditing MRW support in cdrom.c. 
-IDE layer itself never sends GPCMD_FLUSH_CACHE.
+Em Fri, Apr 29, 2005 at 12:22:22AM +0200, Jesper Juhl escreveu:
+> kfree(0) is perfectly valid, checking pointers for NULL before calling 
+> kfree() on them is redundant. The patch below cleans away a few such 
+> redundant checks (and while I was around some of those bits I couldn't 
+> stop myself from making a few tiny whitespace changes as well).
+
+
+Acked-by: Arnaldo Carvalho de MElo <acme@ghostprotocols.net>

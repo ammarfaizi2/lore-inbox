@@ -1,70 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262288AbVD1Xrg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262339AbVD1Xvi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262288AbVD1Xrg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 19:47:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262313AbVD1Xrg
+	id S262339AbVD1Xvi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 19:51:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbVD1Xvh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 19:47:36 -0400
-Received: from mail.kroah.org ([69.55.234.183]:6279 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262288AbVD1Xrd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 19:47:33 -0400
-Date: Thu, 28 Apr 2005 16:47:08 -0700
-From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       sensors@stimpy.netroedge.com
-Subject: Re: kernel maintainer's HOWTO for quilt and -mm
-Message-ID: <20050428234708.GA23714@kroah.com>
-References: <20050428223414.GA22785@kroah.com> <20050428223622.GC22785@kroah.com> <20050428163121.1343aa6c.akpm@osdl.org>
+	Thu, 28 Apr 2005 19:51:37 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:63186 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262313AbVD1Xvg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 19:51:36 -0400
+Subject: Re: [Question] Does the kernel ignore errors writng to disk?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: mike.miller@hp.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org, brace@hp.com
+In-Reply-To: <58cb370e050428162221be7338@mail.gmail.com>
+References: <20050427184022.GA16129@beardog.cca.cpqcorp.net>
+	 <1114700283.24687.193.camel@localhost.localdomain>
+	 <58cb370e050428162221be7338@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1114732207.24687.263.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050428163121.1343aa6c.akpm@osdl.org>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 29 Apr 2005 00:50:09 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 28, 2005 at 04:31:21PM -0700, Andrew Morton wrote:
-> Greg KH <greg@kroah.com> wrote:
-> >
-> > On Thu, Apr 28, 2005 at 03:34:14PM -0700, Greg KH wrote:
-> > > Examples of the output of this script can be seen at:
-> > > 	http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/
-> > 
-> > Andrew, I'm now putting my broken out patches in this directory so you
-> > can apply them to the -mm tree.  You can take them in the 4 big chunks
-> > (they all apply one after each other), or you can take the individual
-> > patches if you want too (they also apply, one after each other.)  It's
-> > up to you what is easier for you to handle.
-> > 
-> > Does this work out for you?
-> 
-> Yes, it does.  I'm now sucking
-> 
-> 	gregkh-01-driver
-> 	gregkh-02-i2c
-> 	gregkh-03-pci
-> 	gregkh-04-USB
-> 	cpufreq
-> 	agp
-> 	alsa
-> 
-> as individual patches and
-> 
-> 	linus.patch
-> 	git-ia64.patch
-> 	git-net.patch
-> 	git-scsi-misc.patch
-> 	git-scsi-rc-fixes.patch
-> 
-> from git repos.
-> 
-> It's a bit of a hassle that your patches aren't based on latest -linus.
+> We agreed on this but it is you to do coding, if you want it,
+> not me (and there was never any patch from you).
 
-I understand.  That will change, once the -git nightly snapshots start
-up.
+I gave up sending you patches because they never got applied and all I
+got was "change this" or send a security fix and get told its got wrong
+white spacing for your personal religion.
 
-thanks,
+The bug is still there, and the users still need to know its dangerous.
+Perhaps that way someone will fix it. 
 
-greg k-h
+Alan
+

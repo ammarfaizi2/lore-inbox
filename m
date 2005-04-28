@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261663AbVD1Gp4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbVD1Gsh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261663AbVD1Gp4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 02:45:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbVD1Gpz
+	id S261673AbVD1Gsh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 02:48:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbVD1Gsg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 02:45:55 -0400
-Received: from 70-56-217-9.albq.qwest.net ([70.56.217.9]:23447 "EHLO
-	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S261663AbVD1Gpu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 02:45:50 -0400
-Date: Thu, 28 Apr 2005 00:48:04 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Ashok Raj <ashok.raj@intel.com>
-cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu,
-       tony.luck@intel.com, gregkh@suse.de, hch@infradead.org
-Subject: Re: Deferred handling of writes to /proc/irq/xx/smp_affinity
-In-Reply-To: <20050427221538.A30702@unix-os.sc.intel.com>
-Message-ID: <Pine.LNX.4.61.0504280039490.12903@montezuma.fsmlabs.com>
-References: <20050427221538.A30702@unix-os.sc.intel.com>
+	Thu, 28 Apr 2005 02:48:36 -0400
+Received: from smtp.istop.com ([66.11.167.126]:33442 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S261673AbVD1Gsd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 02:48:33 -0400
+From: Daniel Phillips <phillips@istop.com>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Subject: Re: [PATCH 1b/7] dlm: core locking
+Date: Thu, 28 Apr 2005 02:49:04 -0400
+User-Agent: KMail/1.7
+Cc: David Teigland <teigland@redhat.com>, Steven Dake <sdake@mvista.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <20050425165826.GB11938@redhat.com> <20050427030217.GA9963@redhat.com> <20050427134142.GZ4431@marowsky-bree.de>
+In-Reply-To: <20050427134142.GZ4431@marowsky-bree.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200504280249.04735.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Apr 2005, Ashok Raj wrote:
+On Wednesday 27 April 2005 09:41, Lars Marowsky-Bree wrote:
+> If you want to think about this in terms of locking hierarchy, it's the
+> high-level feature rich sophisticated aka bloated lock manager which
+> controls the "lower level" faster and more scalable "sublockspace" and
+> coordinates it in terms of the other complex objects (like fencing,
+> applications, filesystems etc).
+>
+> Just some food for thought how this all fits together rather neatly.
 
-> Hi Andrew and all
-> 
-> It is safe to re-program rte entries in ioapic only when an intr is pending. 
-> Existing code does this incorrectly by reprogamming rte entries immediatly
-> when a value is written to /proc/irq/xx/smp_affinity. IRQ_BALANCE code in 
-> kernel does this right, but /proc/irq needs to be handled the same way so that 
-> user mode irq_balancer wont lock up systems or loose interrupts in the race.
-> 
-> This is already fixed in ia64, introduced for i386 and x86_64.
-> 
-> since this touches 3 arch's managing in -mm for trial would be best to make
-> sure nothing is broken, before considering for main line.
+It's actually the membership system that glues it all together.  The dlm is 
+just another service.
 
-Ashok, thanks for doing this, i only have minor nitpicks, can we avoid 
-the wrapper for irq_desc and just index it directly? And could we use 
-static inline functions for MOVE_IRQ and SET_IRQ_INFO macros and use nop 
-functions where required.
+Regards,
 
-Thanks,
-	Zwane
-
+Daniel

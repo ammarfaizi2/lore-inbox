@@ -1,65 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262122AbVD1QQ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262133AbVD1QWQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262122AbVD1QQ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 12:16:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbVD1QQ2
+	id S262133AbVD1QWQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 12:22:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbVD1QWQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 12:16:28 -0400
-Received: from mail.microway.com ([64.80.227.22]:8886 "EHLO mail.microway.com")
-	by vger.kernel.org with ESMTP id S262122AbVD1QQT (ORCPT
+	Thu, 28 Apr 2005 12:22:16 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:55982 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262133AbVD1QWL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 12:16:19 -0400
-From: Rick Warner <rick@microway.com>
-Organization: Microway, Inc.
-To: linux-kernel@vger.kernel.org
-Subject: very strange issue with sata,<4G Ram, and ext3
-Date: Thu, 28 Apr 2005 12:16:07 -0400
-User-Agent: KMail/1.7.2
-Message-Id: <200504281216.08026.rick@microway.com>
-X-Sanitizer: Advosys mail filter
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Apr 2005 12:22:11 -0400
+Date: Fri, 29 Apr 2005 00:25:52 +0800
+From: David Teigland <teigland@redhat.com>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/7] dlm: overview
+Message-ID: <20050428162552.GH10628@redhat.com>
+References: <20050425151136.GA6826@redhat.com> <20050425203952.GE25002@ca-server1.us.oracle.com> <20050425210915.GX32085@marowsky-bree.de> <200504260130.17016.phillips@istop.com> <20050427135635.GA4431@marowsky-bree.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20050427135635.GA4431@marowsky-bree.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
- We are having a very strange issue on some 64bit systems.  We have a 32 node 
-cluster of EM64T's (supermicro boards).  We are using our node restore 
-software to propagate a linux install onto them.  We do a pxe boot to a 
-kernel and initrd image.  The initrd has some config info, a basic root 
-filesystem, and a restore script.  The kernel is passed init=/restore  (the 
-restore script itself).  The script runs dhcp, gets an ip, then nfs mounts 
-the master node of the cluster.  The backup image is stored on the master 
-node's nfs mount.  The script then applies a backed up partition table and 
-then mkfs's the partitions, mounts them, untars a backup tar to the drive, 
-and then makes it bootable with grub.
+On Wed, Apr 27, 2005 at 03:56:35PM +0200, Lars Marowsky-Bree wrote:
 
- On these systems, we are getting ext2 errors from the initrd during the 
-untarring.  Soon after, we start getting seg faults on random things (looks 
-like stuff caused by the still running dhcp client), and then a continuous 
-stream of segfaults on the restore script itself (restore[1]).
+> Questions which need to be settled, or which the API at least needs to
+> export so we know what is expected from us:
 
- The systems being restored are dual em64t's with 2G of ram and 200G sata 
-drives.  If we up the memory to 4G, the restores complete without error. If 
-we reduce down to 512M, the segfaults start at the mkfs stage instead of the 
-untar stage. We've tried different sata drives and controllers without 
-change.  Switching to ide drives works.  Switching to reiserfs instead of 
-ext3 for the destination drives works too.  We've tried enabling the scsi 
-debug stuff as well as the jbd debug stuff for ext3 without getting any more 
-info.  We also enabled the kernel debug options too.  We've also tried using 
-the deprecated ide based sata drivers instead of the scsi based ones without 
-success.  We have tried restoring to Intel's Jarell EM64T systems as well as 
-an Arima HDAMA opteron with the same errors.  We've also tried adding swap 
-space ASAP in the inird image.  
+Here's what the dlm takes from userspace:
 
- This problem is really baffling us and we're not quite sure what to check 
-into next.  Any ideas?
+- Each lockspace takes a list of nodeid's that are the current members
+  of that lockspace.  Nodeid's are int's.  For lockspace "alpha", it looks
+  like this:
+  echo "1 2 3 4" > /sys/kernel/dlm/alpha/members
 
+- The dlm comms code needs to map these nodeid's to real IP addresses.
+  A simple ioctl on a dlm char device passes in nodeid/sockaddr pairs.
+  e.g. dlm_tool set_node 1 10.0.0.1
+  to tell the dlm that nodeid 1 has IP address 10.0.0.1
 
--- 
-Richard Warner
-Lead Systems Integrator
-Microway, Inc
-(508)732-5517
+- To suspend the lockspace you'd do (and similar for resuming):
+  echo 1 > /sys/kernel/dlm/alpha/stop
+
+GFS won't be anything like that.  To control gfs file system "alpha":
+
+- To tell it that its mount is completed:
+  echo 1 > /sys/kernel/gfs/alpha/mounted
+
+- To tell it to suspend operation while recovery is taking place:
+  echo 1 > /sys/kernel/gfs/alpha/block
+
+- To tell it to recover journal 3:
+  echo 3 > /sys/kernel/gfs/alpha/recover
+
+There's a dlm daemon in user space that works with the specific sysfs
+files above and interfaces with whatever cluster infrastructure exists.
+The same goes for gfs, but the gfs user space daemon does quite a lot more
+(gfs-specific stuff).
+
+In other words, these aren't external API's; they're internal interfaces
+within systems that happen to be split between the kernel and user-space.
+
+Dave
+

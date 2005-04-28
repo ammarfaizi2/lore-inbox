@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261703AbVD1B4e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261470AbVD1CE4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261703AbVD1B4e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 21:56:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261694AbVD1B4e
+	id S261470AbVD1CE4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 22:04:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVD1CE4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 21:56:34 -0400
-Received: from c-67-163-99-44.hsd1.tx.comcast.net ([67.163.99.44]:57313 "EHLO
-	leaper.linuxtx.org") by vger.kernel.org with ESMTP id S261703AbVD1B4a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 21:56:30 -0400
-Date: Wed, 27 Apr 2005 20:54:46 -0500
-From: "Justin M. Forbes" <jmforbes@linuxtx.org>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Chris Wright <chrisw@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
-       stable@kernel.org, Cliff White <cliffw@osdl.org>,
-       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: [00/07] -stable review
-Message-ID: <20050428015446.GA6513@linuxtx.org>
-References: <20050427171446.GA3195@kroah.com> <42702AC4.2030500@yahoo.com.au> <20050428013342.GM23013@shell0.pdx.osdl.net> <Pine.LNX.4.61.0504271951110.12903@montezuma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0504271951110.12903@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 27 Apr 2005 22:04:56 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:61432 "EHLO
+	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
+	id S261470AbVD1CEz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 22:04:55 -0400
+Message-ID: <427044AA.5030402@nortel.com>
+Date: Wed, 27 Apr 2005 20:04:26 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andrew Morton <akpm@osdl.org>,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ppc64: update to use the new 4L headers
+References: <1114652039.7112.213.camel@gaston> <42704130.9050005@yahoo.com.au>
+In-Reply-To: <42704130.9050005@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 27, 2005 at 07:51:35PM -0600, Zwane Mwaikambo wrote:
-> On Wed, 27 Apr 2005, Chris Wright wrote:
-> 
-> > * Nick Piggin (nickpiggin@yahoo.com.au) wrote:
-> > > Wanna take some buffer fixes?
-> > 
-> > Do they meet the -stable criteria?  If so, please send 'em over.
-> 
-> Shouldn't they see testing time in a tree first?
+Nick Piggin wrote:
 
-I would say that if they meet the stable criteria, testing time in another
-tree is not really necessary.  Stable should be simple bug fixes, easy to
-test.  In this case, the fact that Nick seems to think they might need a
-run in mm first would tell me that at least some of them probably should
-not be in the stable tree at this point.
+> Just a bit off-topic: I wonder how many more of these open
+> coded pt walks exist in arch code (yes I see you've cleaned
+> yours up - good).
 
-Justin
+I know there's open coded walks outside the tree (I maintain one) due to 
+there being no suitable function available from with in it...
+
+I needed something like:
+
+pte_t *va_to_ptep_map(struct mm_struct *mm, unsigned int addr)
+
+There was code in follow_page() that did basically what I needed, but it 
+was all contained within that function so I had to re-implement it.
+
+Chris
+

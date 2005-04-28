@@ -1,63 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262160AbVD2J0d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262232AbVD2JuP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262160AbVD2J0d (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 05:26:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262172AbVD2J0d
+	id S262232AbVD2JuP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 05:50:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262229AbVD2JuP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 05:26:33 -0400
-Received: from mailgate.quadrics.com ([194.202.174.11]:61108 "EHLO
-	qserv01.quadrics.com") by vger.kernel.org with ESMTP
-	id S262160AbVD2J03 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 05:26:29 -0400
-Message-ID: <4271FD9B.8000402@quadrics.com>
-Date: Fri, 29 Apr 2005 10:25:47 +0100
-From: David Addison <addy@quadrics.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Brice Goglin <Brice.Goglin@ens-lyon.org>, Andrew Morton <akpm@osdl.org>,
-       Andrea Arcangeli <andrea@suse.de>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] Linux VM hooks for advanced RDMA NICs
-References: <426E62ED.5090803@quadrics.com>  <42708EE9.3010503@ens-lyon.org> <1114762772.7183.285.camel@gaston>
-In-Reply-To: <1114762772.7183.285.camel@gaston>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 29 Apr 2005 05:50:15 -0400
+Received: from s-utl01-lapop.stsn.com ([12.129.240.11]:37868 "HELO
+	s-utl01-lapop.stsn.com") by vger.kernel.org with SMTP
+	id S262225AbVD2JuE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 05:50:04 -0400
+Subject: Re: [06/07] [PATCH] SCSI tape security: require CAP_ADMIN for
+	SG_IO etc.
+From: Arjan van de Ven <arjan@infradead.org>
+To: Kai Makisara <Kai.Makisara@kolumbus.fi>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <gregkh@suse.de>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-scsi@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>, Cliff White <cliffw@osdl.org>,
+       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0504280810140.12812@kai.makisara.local>
+References: <20050427171446.GA3195@kroah.com>
+	 <20050427171649.GG3195@kroah.com>
+	 <1114619928.18809.118.camel@localhost.localdomain>
+	 <Pine.LNX.4.61.0504280810140.12812@kai.makisara.local>
+Content-Type: text/plain
+Date: Thu, 28 Apr 2005 08:49:58 -0400
+Message-Id: <1114692598.6068.72.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 29 Apr 2005 09:19:43.0640 (UTC) FILETIME=[9449C980:01C54C9C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2005-04-28 at 08:43 +0300, Kai Makisara wrote:
+> On Wed, 27 Apr 2005, Alan Cox wrote:
+> 
+> > On Mer, 2005-04-27 at 18:16, Greg KH wrote:
+> > > -stable review patch.  If anyone has any objections, please let us know.
+> > 
+> > This patch is just wrong on so many different levels its hard to know
+> > where to begin.
+> > 
+> > 1. The auth for arbitary commands is CAP_SYS_RAWIO
+> 
+> Valid complaint.
+> 
+> > 2. "The SCSI command permissions were discussed widely on the linux
+> > lists but this did not result in any useful refinement of the
+> > permissions." - this is false. The process was refined, a table setup
+> > was added and debugged.
+> 
+> Any user having write access to the device is still allowed to send MODE 
+> SELECT (and some other commands useful for CD/DVD writers but being 
+> potentially dangerous to other). 
+
+If you give your user *WRITE ACCESS* to the tape you expect him to be
+able to do a lot of writing, right? The restrictions for *READ* are
+obviously more clear...
+
+> OK. If the Linux solution to these kind of security problems in the not so 
+> central areas of kernel is to wait and see if the problem disappears 
+> without any action, I have to accept that. But I have tried...
+
+the security problem is giving someone write access to a device and then
+somehow expect that to mean "selective write" ?
 
 
-Benjamin Herrenschmidt wrote:
->>>+ioproc_register_ops(struct mm_struct *mm, struct ioproc_ops *ip)
->>>+{
->>>+	ip->next = mm->ioproc_ops;
->>>+	mm->ioproc_ops = ip;
->>>+
->>>+	return 0;
->>>+}
->>>+
-> 
-> Why not use a list_head along with linux standard list primitives ?
-> 
-> Ben.
-> 
-> 
-The reason we didn't use the standard list primitives was that we wanted the normal
-case where no ioproc ops were registered to have minimal impact and this just comes
-down to mm->ioproc_ops being checked against being zero, which is slightly lighter weight
-than using the list primitives.
 
-Also entries are rarely removed from the list using the ioproc_deregister function as
-in the normal case they get removed in the call to ioproc_release.  Hence there is little
-need for the doubly linked list.
 
-Cheers,
-David
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

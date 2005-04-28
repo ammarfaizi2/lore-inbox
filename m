@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262103AbVD1Hfr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262123AbVD1Hiq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262103AbVD1Hfr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 03:35:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbVD1Hfl
+	id S262123AbVD1Hiq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 03:38:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbVD1Hip
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 03:35:41 -0400
-Received: from fire.osdl.org ([65.172.181.4]:49850 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262103AbVD1Hfa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 03:35:30 -0400
-Date: Thu, 28 Apr 2005 00:34:50 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: dedekind@infradead.org
-Cc: miklos@szeredi.hu, linux-kernel@vger.kernel.org, dwmw2@infradead.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] VFS bugfix: two read_inode() calles without
- clear_inode() call between
-Message-Id: <20050428003450.51687b65.akpm@osdl.org>
-In-Reply-To: <1114673528.3483.2.camel@sauron.oktetlabs.ru>
-References: <1114607741.12617.4.camel@sauron.oktetlabs.ru>
-	<E1DQoui-0002In-00@dorka.pomaz.szeredi.hu>
-	<1114618748.12617.23.camel@sauron.oktetlabs.ru>
-	<E1DQqZu-0002Rf-00@dorka.pomaz.szeredi.hu>
-	<1114673528.3483.2.camel@sauron.oktetlabs.ru>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 28 Apr 2005 03:38:45 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:1498 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262128AbVD1HiY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 03:38:24 -0400
+Subject: Re: [PATCH 6/6]suspend/resume SMP support
+From: Li Shaohua <shaohua.li@intel.com>
+To: Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       ACPI-DEV <acpi-devel@lists.sourceforge.net>,
+       Len Brown <len.brown@intel.com>, Zwane Mwaikambo <zwane@linuxpower.ca>
+In-Reply-To: <20050428002254.461fcf32.akpm@osdl.org>
+References: <1113283867.27646.434.camel@sli10-desk.sh.intel.com>
+	 <20050428002254.461fcf32.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1114673725.26367.7.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 28 Apr 2005 15:35:25 +0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Artem B. Bityuckiy" <dedekind@infradead.org> wrote:
->
->  I assume I don't need to notify Andrew about the inconsistency in the
->  old patch, or should I?
+On Thu, 2005-04-28 at 15:22, Andrew Morton wrote:
+> 
+> On ia64, with tiger_defconfig:
+> 
+> kernel/built-in.o(.text+0x59e12): In function `suspend_prepare':
+> : undefined reference to `disable_nonboot_cpus'
+> kernel/built-in.o(.text+0x59e62): In function `suspend_prepare':
+> : undefined reference to `enable_nonboot_cpus'
+> kernel/built-in.o(.text+0x5a222): In function `suspend_finish':
+> : undefined reference to `enable_nonboot_cpus'
+Pavel,
+Could IA64 do software suspend? There possibly are other troubles here.
 
-Nope, just send the new patch.  Please be sure to include a complete and
-up-to-date explanation of what it does, and why - I haven't looked at this
-yet.
+Thanks,
+Shaohua
 

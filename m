@@ -1,146 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262131AbVD1PLb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262145AbVD1P0q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262131AbVD1PLb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 11:11:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262148AbVD1PLa
+	id S262145AbVD1P0q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 11:26:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262155AbVD1P0q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 11:11:30 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:61337 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262131AbVD1PK7
+	Thu, 28 Apr 2005 11:26:46 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:25750 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262145AbVD1P0k
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 11:10:59 -0400
-Date: Thu, 28 Apr 2005 10:10:35 -0500 (CDT)
-From: Kylene Hall <kjhall@us.ibm.com>
-X-X-Sender: kjhall@dyn95395164
-To: greg@kroah.com, rddunlap@osdl.org
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 11 of 12] Fix Tpm driver -- add cancel function
-Message-ID: <Pine.LNX.4.61.0504281006150.4199@dyn95395164>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 28 Apr 2005 11:26:40 -0400
+Subject: Re: [PATCH] drop_buffers() shouldn't de-ref page->mapping if its
+	NULL
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: linux-mm@kvack.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, skodati@in.ibm.com
+In-Reply-To: <87k6mn5zs6.fsf@devron.myhome.or.jp>
+References: <1114645113.26913.662.camel@dyn318077bld.beaverton.ibm.com>
+	 <1114646015.26913.668.camel@dyn318077bld.beaverton.ibm.com>
+	 <87k6mn5zs6.fsf@devron.myhome.or.jp>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1114701153.26913.679.camel@dyn318077bld.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 28 Apr 2005 08:12:34 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>Userspcace needs to be able to cancel functions which have been sent to
->>the TPM (part of the spec.).  Add a sysfs file that communicates this
->>desire to the driver and device.
+On Wed, 2005-04-27 at 20:46, OGAWA Hirofumi wrote:
+> Badari Pulavarty <pbadari@us.ibm.com> writes:
+> 
+> > Hi,
+> >
+> > I answered my own question. It looks like we could have pages
+> > with buffers without page->mapping. In such cases, we shouldn't
+> > de-ref page->mapping in drop_buffers(). Here is the trivial
+> > patch to fix it.
+> >
+> > Thanks,
+> > Badari
+> 
+> [...]
+> 
+> >
+> > Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
+> > --- linux-2.6.12-rc2.org/fs/buffer.c	2005-04-27 07:19:44.000000000 -0700
+> > +++ linux-2.6.12-rc2/fs/buffer.c	2005-04-27 07:20:34.000000000 -0700
+> > @@ -2917,7 +2917,7 @@ drop_buffers(struct page *page, struct b
+> >  
+> >  	bh = head;
+> >  	do {
+> > -		if (buffer_write_io_error(bh))
+> > +		if (buffer_write_io_error(bh) && page->mapping)
+> >  			set_bit(AS_EIO, &page->mapping->flags);
+> >  		if (buffer_busy(bh))
+> >  			goto failed;
+> 
+> On my experience, this happened the bh leak case only.
 
-Greg KH wrote:
->Huh?  I don't see any "add a sysfs file" code in this patch.  Am I
->missing something?
 
-True, that wasn't a great description. The actual adding of the sysfs 
-function was in the patch with the other sysfs changes (number 10 of 12).  
-This function contains the logic to make the waiting loops in the command 
-processing aware that a cancel has occured.  Sorry for the confusion.
+Could you explain more on bh leak ? Is there one in the current code ?
 
-Randy Dunlap wrote:
->| --- linux-2.6.12-rc2/drivers/char/tpm/tpm.c   2005-04-27
->11:13:29.000000000 -0500
->| +++ linux-2.6.12-rc2-tpmdd/drivers/chat/tpm/tpm.c     2005-04-27
->11:32:35.000000000 -0500
-                                     chat ???  :)
->might cause patch(1) problems.
+> 
+> If you are not sure whether this is valid state or not, I worry this
+> patch hides real bug.  How about adding the warning, not just remove
+> de-ref?
 
-Sorry for the typo fixed below.
+Andrew confirmed that this is a valid case.
 
+I don't understand what you want to do here ? If the mapping is NULL,
+we can't de-ref it.  Whats the point in putting a warning and de-refing
+it. Its going to cause NULL pointer de-ref anyway.
 
-Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
----
---- linux-2.6.12-rc2/drivers/char/tpm/tpm.h	2005-04-21 18:11:12.000000000 -0500
-+++ linux-2.6.12-rc2-tpmdd/drivers/char/tpm/tpm.h	2005-04-21 18:28:09.000000000 -0500
-@@ -52,6 +52,7 @@ struct tpm_chip;
- struct tpm_vendor_specific {
- 	u8 req_complete_mask;
- 	u8 req_complete_val;
-+	u8 req_canceled;
- 	u16 base;		/* TPM base address */
- 
- 	int (*recv) (struct tpm_chip *, u8 *, size_t);
-diff -urpN --exclude='*.orig' linux-2.6.12-rc2/drivers/char/tpm/tpm_atmel.c linux-2.6.12-rc2-tpmdd/drivers/char/tpm/tpm_atmel.c
---- linux-2.6.12-rc2/drivers/char/tpm/tpm_atmel.c	2005-04-25 18:49:08.000000000 -0500
-+++ linux-2.6.12-rc2-tpmdd/drivers/char/tpm/tpm_atmel.c	2005-04-26 15:31:57.000000000 -0500
-@@ -132,6 +132,7 @@ static struct tpm_vendor_specific tpm_at
- 	.cancel = tpm_atml_cancel,
- 	.req_complete_mask = ATML_STATUS_BUSY | ATML_STATUS_DATA_AVAIL,
- 	.req_complete_val = ATML_STATUS_DATA_AVAIL,
-+	.req_canceled = ATML_STATUS_READY,
- 	.base = TPM_ATML_BASE,
- 	.attr = TPM_DEVICE_ATTRS,
- 	.miscdev.fops = &atmel_ops,
-diff -urpN --exclude='*.orig' linux-2.6.12-rc2/drivers/char/tpm/tpm_nsc.c linux-2.6.12-rc2-tpmdd/drivers/char/tpm/tpm_nsc.c
---- linux-2.6.12-rc2/drivers/char/tpm/tpm_nsc.c	2005-04-25 18:49:08.000000000 -0500
-+++ linux-2.6.12-rc2-tpmdd/drivers/char/tpm/tpm_nsc.c	2005-04-26 15:32:26.000000000 -0500
-@@ -230,6 +230,7 @@ static struct tpm_vendor_specific tpm_ns
- 	.cancel = tpm_nsc_cancel,
- 	.req_complete_mask = NSC_STATUS_OBF,
- 	.req_complete_val = NSC_STATUS_OBF,
-+	.req_canceled = NSC_STATUS_RDY,
- 	.base = TPM_NSC_BASE,
- 	.attr = TPM_DEVICE_ATTRS,
- 	.miscdev.fops = &nsc_ops,
---- linux-2.6.12-rc2/drivers/char/tpm/tpm.c	2005-04-27 11:13:29.000000000 -0500
-+++ linux-2.6.12-rc2-tpmdd/drivers/char/tpm/tpm.c	2005-04-27 11:32:35.000000000 -0500
-@@ -140,7 +140,7 @@ EXPORT_SYMBOL_GPL(tpm_lpc_bus_init);
- static ssize_t tpm_transmit(struct tpm_chip *chip, const char *buf,
- 			    size_t bufsiz)
- {
--	ssize_t len;
-+	ssize_t rc;
- 	u32 count;
- 	__be32 *native_size;
-        unsigned long stop;
-@@ -158,10 +158,10 @@ static ssize_t tpm_transmit(struct tpm_c
- 
- 	down(&chip->tpm_mutex);
- 
--	if ((len = chip->vendor->send(chip, (u8 *) buf, count)) < 0) {
-+	if ((rc = chip->vendor->send(chip, (u8 *) buf, count)) < 0) {
- 		dev_err(&chip->pci_dev->dev,
--			"tpm_transmit: tpm_send: error %d\n", len);
--		return len;
-+			"tpm_transmit: tpm_send: error %Zd\n", rc);
-+		goto out;
- 	}
- 
-        stop = jiffies + 2 * 60 * HZ;
-@@ -171,23 +171,31 @@ static ssize_t tpm_transmit(struct tpm_c
- 		    chip->vendor->req_complete_val) {
- 			goto out_recv;
- 		}
--               msleep(TPM_TIMEOUT); /* CHECK */
-+
-+		if ((status == chip->vendor->req_canceled)) {
-+			dev_err(&chip->pci_dev->dev, "Operation Canceled\n");
-+			rc = -ECANCELED;
-+			goto out;
-+		}
-+
-+		msleep(TPM_TIMEOUT);	/* CHECK */
- 		rmb();
-        } while (time_before(jiffies, stop));
- 
- 
- 	chip->vendor->cancel(chip);
--	dev_err(&chip->pci_dev->dev, "Time expired\n");
--	up(&chip->tpm_mutex);
--	return -EIO;
-+	dev_err(&chip->pci_dev->dev, "Operation Timed out\n");
-+	rc = -ETIME;
-+	goto out;
- 
- out_recv:
--	len = chip->vendor->recv(chip, (u8 *) buf, bufsiz);
--	if (len < 0)
-+	rc = chip->vendor->recv(chip, (u8 *) buf, bufsiz);
-+	if (rc < 0)
- 		dev_err(&chip->pci_dev->dev,
--			"tpm_transmit: tpm_recv: error %d\n", len);
-+			"tpm_transmit: tpm_recv: error %Zd\n", rc);
-+out:
- 	up(&chip->tpm_mutex);
--	return len;
-+	return rc;
- }
- 
- #define TPM_DIGEST_SIZE 20
+Thanks,
+Badari
+

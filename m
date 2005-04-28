@@ -1,56 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262257AbVD1WBE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262278AbVD1WDK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262257AbVD1WBE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 18:01:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262278AbVD1WBD
+	id S262278AbVD1WDK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 18:03:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbVD1WDJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 18:01:03 -0400
-Received: from free-electrons.com ([80.68.91.110]:12558 "EHLO
-	electrons.vm.bytemark.co.uk") by vger.kernel.org with ESMTP
-	id S262257AbVD1WAy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 18:00:54 -0400
-Message-ID: <42715D0E.7020108@free-electrons.com>
-Date: Fri, 29 Apr 2005 00:00:46 +0200
-From: Michael Opdenacker <michael@free-electrons.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050417 Fedora/1.7.7-1.3.1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Xin Zhao <uszhaoxin@gmail.com>
-Cc: linux-os@analogic.com, linux-kernel@vger.kernel.org
-Subject: Re: dumb question: How to create your own log files in a kernel module?
-References: <4ae3c14050428111073283bd3@mail.gmail.com>	 <Pine.LNX.4.61.0504281557510.29750@chaos.analogic.com> <4ae3c1405042813591f0b5962@mail.gmail.com>
-In-Reply-To: <4ae3c1405042813591f0b5962@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Apr 2005 18:03:09 -0400
+Received: from rproxy.gmail.com ([64.233.170.195]:46941 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262278AbVD1WCq convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 18:02:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=BvclXlBQpQ/9hpifbnVaZdtRZzSdLwXrGhMrtBObnJwW7NuCCbpkzFztltpAkYriwbbRmgpPq9h6Y28OLm9F9Mx94EK2JxlAq0TWs26zmxCl4TzRPtFflE0K4pu4ss+2SZsuQWLNQ+HhVce7Aj7ID+pN1DnGdlXyscnp/9CZ3fg=
+Message-ID: <a728f9f905042815021a39e811@mail.gmail.com>
+Date: Thu, 28 Apr 2005 18:02:43 -0400
+From: Alex Deucher <alexdeucher@gmail.com>
+Reply-To: Alex Deucher <alexdeucher@gmail.com>
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Emulex fibre channel HBA support and SAN connection
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Xin,
+Can someone point me to some documentation on setting up a fibre
+channel HBA in linux?  I can't seem to find any useful information.  I
+have a Sun 220R running 2.6.12-rc3 with an emulex LP9000 HBA connected
+to a Nexsan ATABEAST SAN.  I'm using the HBA driver included with the
+2.6.12rc3 kernel.  I cannot find any information about the GPLed
+emulex driver as far as configuration goes.  The driver seems to come
+up ok, but then I get a series of error codes:
 
->I know printk can do this job. But what I really want is to print logs
->to a file specified by me instead of /var/log/messages. And, the
->messages irrelevant to my module should not be written into that file.
-> Now my log mixed with other logs in /var/log/message, which bother me
->much. :(
->
-You seem to make a confusion here...
+Emulex LightPulse Fibre Channel SCSI driver 8.0.28
+scsi0 :  on PCI bus 00 device 20 irq 8255744
+lpfc 0001:00:04.0: 0:1303 Link Up Event x1 received Data: x1 x1 x8 x2
+lpfc 0001:00:04.0: 0:0321 Unknown IOCB command Data: x0, xa2 x0 x900 x2600
+...
+lpfc 0001:00:04.0: 0:0748 abort handler timed out waiting for abort to
+complete. Data: x0 x0 x0 x1
+lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command completion for
+iotag xa00 not found
+lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command completion for
+iotag x0 not found
+lpfc 0001:00:04.0: 0:0713 SCSI layer issued LUN reset (0, 0) Data: x2 x0 x0
+lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command completion for
+iotag xb00 not found
+lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command completion for
+iotag x0 not found
+lpfc 0001:00:04.0: 0:0714 SCSI layer issued Bus Reset Data: x2003
+scsi: Device offlined - not ready after error recovery: host 0 channel
+0 id 0 lun 0
+lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command completion for
+iotag x0 not found
 
-Don't forget that files are only an abstraction for userspace. They are 
-only meant to be read and written from userspace. Kernel code can never 
-read or write files. In the case of /var/log/messages, this file is 
-created by the syslogd program from the kernel buffer, not by the kernel 
-itself.
+I noticed here:
+http://marc.theaimsgroup.com/?l=linux-scsi&m=111383889908554&w=2
+that there is a new FC API. Was this merged into rc3 or will this
+happen after 2.6.12?  If it's not supported yet in rc3, how does one
+go about configuring it?  I'm willing to test any available tools.
 
-You could just echo something specific to your driver in your printk 
-strings, and grep this specific thing in /var/log/messages. You have 
-your file!
+Any help will be greatly appreciated.  I'll be able to test on SPARC64
+right now and on AMD64 in the next few days.
 
-    Cheers,
+Thanks,
 
-    Michael.
+Alex
 
--- 
-Michael Opdenacker
-http://free-electrons.com
-+33 621 604 642
-
+PS, please CC: me as I'm not subscribed.

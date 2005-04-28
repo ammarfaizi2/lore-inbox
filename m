@@ -1,82 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262166AbVD1Qih@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262164AbVD1QkF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262166AbVD1Qih (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 12:38:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262165AbVD1Qih
+	id S262164AbVD1QkF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 12:40:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262167AbVD1QkE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 12:38:37 -0400
-Received: from wproxy.gmail.com ([64.233.184.194]:63699 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262166AbVD1Qia convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 12:38:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kLguILe/sK7cAcM3eExqz8ERi8SDegP6GQiXZVVXODARFIME96WsTlRxgl7BFiu3B/e0xpNUfw5+purSJifN50oW+BFJTF3z+5t4EqwgROxWjR391pUTAITuDIm64BMaekaIj4FzdjQooJmR7eFJ51By0HGzFe/uHPjFh6RXxnY=
-Message-ID: <2cd57c90050428093851785879@mail.gmail.com>
-Date: Fri, 29 Apr 2005 00:38:24 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: coywolf@lovecn.org
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: 2.6.11.7 kernel panic on boot on AMD64
-Cc: Ruben Puettmann <ruben@puettmann.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050428084313.1e69f59d.rddunlap@osdl.org>
+	Thu, 28 Apr 2005 12:40:04 -0400
+Received: from fire.osdl.org ([65.172.181.4]:5276 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262164AbVD1Qjr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 12:39:47 -0400
+Subject: Re: [PATCH 1b/7] dlm: core locking
+From: Daniel McNeil <daniel@osdl.org>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: David Teigland <teigland@redhat.com>, Steven Dake <sdake@mvista.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20050428123315.GP21645@marowsky-bree.de>
+References: <20050425165826.GB11938@redhat.com>
+	 <1114466097.30427.32.camel@persist.az.mvista.com>
+	 <20050426054933.GC12096@redhat.com>
+	 <1114537223.31647.10.camel@persist.az.mvista.com>
+	 <20050427030217.GA9963@redhat.com> <20050427134142.GZ4431@marowsky-bree.de>
+	 <20050427142638.GG16502@redhat.com>
+	 <20050428123315.GP21645@marowsky-bree.de>
+Content-Type: text/plain
+Message-Id: <1114706362.18352.85.camel@ibm-c.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050427140342.GG10685@puettmann.net>
-	 <20050427152704.632a9317.rddunlap@osdl.org>
-	 <20050428090539.GA18972@puettmann.net>
-	 <20050428084313.1e69f59d.rddunlap@osdl.org>
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 28 Apr 2005 09:39:22 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/28/05, Randy.Dunlap <rddunlap@osdl.org> wrote:
-> On Thu, 28 Apr 2005 11:05:40 +0200
-> Ruben Puettmann <ruben@puettmann.net> wrote:
+On Thu, 2005-04-28 at 05:33, Lars Marowsky-Bree wrote:
+> On 2005-04-27T22:26:38, David Teigland <teigland@redhat.com> wrote:
+<snip>
 > 
-> > On Wed, Apr 27, 2005 at 03:27:04PM -0700, Randy.Dunlap wrote:
-> >  Looks like this code in init/main.c:
-> > >
-> > >     if (late_time_init)
-> > >             late_time_init();
-> > >
-> > > sees a garbage value in late_time_init (garbage being
-> > > %eax == 0x00307974.743d656c, which is "le=tty0\n",
-> > > as in "console=tty0").
-> > >
-> > > How long is your kernel boot/command line?
-> > > Please post it.
-> >
-> > It was boot over pxe here is the append line from the
-> > pxelinux.cfg/default
-> >
-> > APPEND vga=normal rw  load_ramdisk=0 root=/dev/nfs nfsroot=192.168.112.1:/store/rescue/sarge-amd64,rsize=8192,wsize=8192,timo=12,retrans=3,mountvers=3,nfsvers=3
+> > > And, I assume that the delivery of a "node down" membership event
+> > > implies that said node also has been fenced.
+> > Typically it does if you're combining the dlm with something that requires
+> > fencing (like a file system).  Fencing isn't relevant to the dlm itself,
+> > though, since the dlm software isn't touching any storage.
 > 
-> Hm, no "console=tty...." at all.  That didn't help (me) much.
+> Ack. Good point, I was thinking too much in terms of GFS/OCFS2 here ;-)
+> 
 
-Could that boot loader pxe append console=tty implicitly?
+Since a DLM is a distributed lock manager, its usage is entirely for
+locking some shared resource (might not be storage, might be shared
+state, shared data, etc).   If the DLM can grant a lock, but not
+guarantee that other nodes (including the ones that have been kicked
+out of the cluster membership) do not have a conflicting DLM lock, then
+any applications that depend on the DLM for protection/coordination
+be in trouble.  Doesn't the GFS code depend on the DLM not being
+recovered until after fencing of dead nodes?
 
->From the vmlinux Ruben gave me,
-ffffffff807980d8 A __bss_start
-ffffffff807980d8 A _edata
-ffffffff80798100 B boot_cpu_stack
-ffffffff8079c100 B boot_exception_stacks
-ffffffff807a1100 B system_state
-ffffffff807a1120 B saved_command_line
-ffffffff807a1220 B late_time_init
-ffffffff807a1228 b execute_command
-ffffffff807a1230 b panic_later
-ffffffff807a1238 b panic_param
-...
+Is there a existing DLM that does not depend on fencing? (you said
+yours was modeled after the VMS DLM, didn't they depend on fencing?)
 
-It seems possible to luckily skip the garbage. Comment out the two
-lines and see if it works.
+How would an application use a DLM that does not depend on fencing?
 
-/*     if (late_time_init)
-             late_time_init(); */
+Thanks,
 
--- 
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+Daniel
+
+
+
+ 
+

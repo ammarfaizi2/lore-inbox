@@ -1,71 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261818AbVD1OhD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261907AbVD1OjT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261818AbVD1OhD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 10:37:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261948AbVD1OhD
+	id S261907AbVD1OjT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 10:39:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261962AbVD1OjT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 10:37:03 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:53216 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S261818AbVD1Og7 (ORCPT
+	Thu, 28 Apr 2005 10:39:19 -0400
+Received: from darwin.snarc.org ([81.56.210.228]:26344 "EHLO darwin.snarc.org")
+	by vger.kernel.org with ESMTP id S261907AbVD1OjL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 10:36:59 -0400
-Date: Thu, 28 Apr 2005 16:36:19 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Mark Fasheh <mark.fasheh@oracle.com>
-Cc: David Teigland <teigland@redhat.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH 0/7] dlm: overview
-Message-ID: <20050428143619.GZ21645@marowsky-bree.de>
-References: <20050425151136.GA6826@redhat.com> <20050425203952.GE25002@ca-server1.us.oracle.com> <20050426053930.GA12096@redhat.com> <20050426184845.GA938@ca-server1.us.oracle.com> <20050427132343.GX4431@marowsky-bree.de> <20050427181245.GB938@ca-server1.us.oracle.com>
+	Thu, 28 Apr 2005 10:39:11 -0400
+Date: Thu, 28 Apr 2005 16:39:07 +0200
+From: Vincent Hanquez <vincent.hanquez@cl.cam.ac.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Vincent Hanquez <vincent.hanquez@cl.cam.ac.uk>,
+       linux-kernel@vger.kernel.org, ian.pratt@cl.cam.ac.uk
+Subject: Re: [PATCH 3/6][XEN][x86] Rename usermode macro
+Message-ID: <20050428143907.GA849@snarc.org>
+References: <20050426103804.85A7B4BE16@darwin.snarc.org> <20050426112604.GC26614@snarc.org> <20050427194343.3d3ffe2f.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050427181245.GB938@ca-server1.us.oracle.com>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050427194343.3d3ffe2f.akpm@osdl.org>
+X-Warning: Email may contain unsmilyfied humor and/or satire.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2005-04-27T11:12:45, Mark Fasheh <mark.fasheh@oracle.com> wrote:
+On Wed, Apr 27, 2005 at 07:43:43PM -0700, Andrew Morton wrote:
+> Why didn't your testing pick up the x86_64 build error?
+> 
+> arch/x86_64/oprofile/built-in.o(.text+0x1d09): In function `x86_backtrace':
+> arch/x86_64/oprofile/../../i386/oprofile/backtrace.c:94: undefined reference to `user_mode_vm'
 
-> The short answer is no but that we're collecting them. Right now, I can say
-> that if you take our whole stack into consideration OCFS2 for things like
-> kernel untars and builds (a common test over here), is typically almost as
-> fast as ext3 (single node obviously) even when we have a second or third
-> node mounted.
+ouch, sorry about that.
 
-Well, agreed that's great, but that seems to imply just generic sane
-design: Why should the presence of another node (which does nothing, or
-not with overlapping objects on disk) cause any substantial slowdown?
-
-Admittedly we seem to be really short of meaningful benchmarks for DLMs
-and/or clustering filesystems...
-
-Hey. Wait. Benchmarks. Scalability issues. No real coding involved.
-Anyone from OSDL listening?  ;-)
-
-> As far as specific DLM timings go, we're in the process of collecting them.
-
-Perfect.
-
-> As you know, lately we have been deep in a process of stabilizing things :)
-
-Yes, but this also would be a great time to identify real performance
-bugs before shipping - so consider it as part of stress tesing ;-)
-
-> While we have collected timings independent of the FS in the past, we
-> haven't done that recently enough that I'd feel comfortable posting it.
-
-Understood.
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
+the x86 and x86-64 patches has been compiled separately, which obviously
+was a wrong thing to do...
+I will do a full test on x86-64 next time I'm doing such thing.
 
 -- 
-High Availability & Clustering
-SUSE Labs, Research and Development
-SUSE LINUX Products GmbH - A Novell Business
-
+Vincent Hanquez

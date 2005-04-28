@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261915AbVD1Hoy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261926AbVD1HtK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261915AbVD1Hoy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 03:44:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbVD1Hoe
+	id S261926AbVD1HtK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 03:49:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbVD1Hs5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 03:44:34 -0400
-Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:3752 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262128AbVD1HmE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 03:42:04 -0400
-To: dedekind@infradead.org
-CC: linux-kernel@vger.kernel.org, dwmw2@infradead.org,
-       linux-fsdevel@vger.kernel.org, akpm@osdl.org
-In-reply-to: <1114673528.3483.2.camel@sauron.oktetlabs.ru>
-	(dedekind@infradead.org)
-Subject: Re: [PATCH] VFS bugfix: two read_inode() calles without
-	clear_inode() call between
-References: <1114607741.12617.4.camel@sauron.oktetlabs.ru>
-	 <E1DQoui-0002In-00@dorka.pomaz.szeredi.hu>
-	 <1114618748.12617.23.camel@sauron.oktetlabs.ru>
-	 <E1DQqZu-0002Rf-00@dorka.pomaz.szeredi.hu> <1114673528.3483.2.camel@sauron.oktetlabs.ru>
-Message-Id: <E1DR3ei-0005OC-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Thu, 28 Apr 2005 09:41:52 +0200
+	Thu, 28 Apr 2005 03:48:57 -0400
+Received: from gate.crashing.org ([63.228.1.57]:15842 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261926AbVD1Hr5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 03:47:57 -0400
+Subject: Re: pci-sysfs resource mmap broken (and PATCH)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: grundler@parisc-linux.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>, bjorn.helgaas@hp.com,
+       "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20050428002209.12bd3f37.davem@davemloft.net>
+References: <1114493609.7183.55.camel@gaston>
+	 <20050426163042.GE2612@colo.lackof.org> <1114555655.7183.81.camel@gaston>
+	 <1114643616.7183.183.camel@gaston> <20050428053311.GH21784@colo.lackof.org>
+	 <20050427223702.21051afc.davem@davemloft.net>
+	 <1114670353.7182.246.camel@gaston>
+	 <20050427235056.0bd09a94.davem@davemloft.net>
+	 <1114672880.7111.254.camel@gaston>
+	 <20050428002209.12bd3f37.davem@davemloft.net>
+Content-Type: text/plain
+Date: Thu, 28 Apr 2005 17:46:38 +1000
+Message-Id: <1114674398.7183.257.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Why do you need to move it from prune_icache() to dispose_list()?
-> > For the hash list it's the right thing, but for sb_list it's not
-> > needed, is it?
-> Yes, it is not needed but harmless. I did it only because i_hash &
-> i_sb_list insertions/deletions always come in couple. So I decided move
-> them both, to be more consistent, to make code less complicated.
+On Thu, 2005-04-28 at 00:22 -0700, David S. Miller wrote:
+> On Thu, 28 Apr 2005 17:21:19 +1000
+> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 > 
-> If you regard this hazardous I might split these removals. But IMHO, my
-> variant is a bit more pleasant.
+> > I have a real net big performance improvement on X by doing that
+> > trick ... the sysfs mmap API doesn't really provide a mean to do
+> > it explicitely from userland (unlike the ioctl with the old proc api)
+> 
+> You can refine your test to "if PCI class is display or VGA" and the
+> prefetchability is set in the BAR, then elide the guard PTE
+> protection bit.
 
-It's not just pleasentness.  You should be _very_ careful with any
-changes you make to this kind of code, and have a very clear
-explanation why the change is needed, and why it won't do any trouble.
+Yes, but I was also thinking about some of those Myrinet kind of things
+who also provide large PCI shared memory region ...
 
-I didn't actually think about the sb_list stuff, but my feeling is you
-should not move it unless there's a very clear reason to do so.
+I may end up adding an explicit list of classes/vid/did that are
+"allowed" to use the trick to avoid problems.
 
-Miklos
+Ben.
+
+

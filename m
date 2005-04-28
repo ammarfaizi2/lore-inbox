@@ -1,36 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261735AbVD1Cir@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261793AbVD1Ckp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261735AbVD1Cir (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Apr 2005 22:38:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbVD1Cir
+	id S261793AbVD1Ckp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Apr 2005 22:40:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVD1Ckp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Apr 2005 22:38:47 -0400
-Received: from 70-56-217-9.albq.qwest.net ([70.56.217.9]:29587 "EHLO
-	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S261735AbVD1Ciq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Apr 2005 22:38:46 -0400
-Date: Wed, 27 Apr 2005 20:40:35 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: "Guo, Racing" <racing.guo@intel.com>
-cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
-       "Yu, Luming" <luming.yu@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]fix warning in porting lockless mce from x86_64 to i386
-In-Reply-To: <16A54BF5D6E14E4D916CE26C9AD305750162F6E7@pdsmsx402.ccr.corp.intel.com>
-Message-ID: <Pine.LNX.4.61.0504272039470.12903@montezuma.fsmlabs.com>
-References: <16A54BF5D6E14E4D916CE26C9AD305750162F6E7@pdsmsx402.ccr.corp.intel.com>
+	Wed, 27 Apr 2005 22:40:45 -0400
+Received: from smtp.istop.com ([66.11.167.126]:22429 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S261793AbVD1Ckg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Apr 2005 22:40:36 -0400
+From: Daniel Phillips <phillips@istop.com>
+To: Mark Fasheh <mark.fasheh@oracle.com>
+Subject: Re: [PATCH 1a/7] dlm: core locking
+Date: Wed, 27 Apr 2005 22:41:04 -0400
+User-Agent: KMail/1.7
+Cc: David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+References: <20050425165705.GA11938@redhat.com> <20050427214136.GC938@ca-server1.us.oracle.com>
+In-Reply-To: <20050427214136.GC938@ca-server1.us.oracle.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200504272241.04254.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Apr 2005, Guo, Racing wrote:
+On Wednesday 27 April 2005 17:41, Mark Fasheh wrote:
+> Just a couple comments here, more will come as time permits. I know you
+> consider cluster file systems to be "obscure" apps...
 
-> Fix warning in porting lockless mce from x86_64 to i386
-> 1. fix warning in set_bit
-> 2. declare mcheck_init function
-> 3. change to "fastcall" before do_machine_check
+Oh the contrary, cluster filesystems are the main focus of and reason for the 
+current submission.
 
-Hmm i think i may have missed the original patch, could you send it to me?
+Regards,
 
-Thanks,
-	Zwane
+Daniel

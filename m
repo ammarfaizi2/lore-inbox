@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262161AbVD1PtU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261948AbVD1Pxz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262161AbVD1PtU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 11:49:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262159AbVD1PtT
+	id S261948AbVD1Pxz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 11:53:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbVD1Pxz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 11:49:19 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:59855 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262158AbVD1PtN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 11:49:13 -0400
-Subject: Multiple functionality breakages in 2.6.12rc3 IDE layer
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1114703284.18809.208.camel@localhost.localdomain>
+	Thu, 28 Apr 2005 11:53:55 -0400
+Received: from baloney.puettmann.net ([194.97.54.34]:62387 "EHLO
+	baloney.puettmann.net") by vger.kernel.org with ESMTP
+	id S261948AbVD1Pxx convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 11:53:53 -0400
+Date: Thu, 28 Apr 2005 17:53:13 +0200
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11.7 kernel panic on boot on AMD64
+Message-ID: <20050428155312.GC18972@puettmann.net>
+References: <20050427140342.GG10685@puettmann.net> <20050427152704.632a9317.rddunlap@osdl.org> <20050428090539.GA18972@puettmann.net> <20050428084313.1e69f59d.rddunlap@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 28 Apr 2005 16:48:05 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20050428084313.1e69f59d.rddunlap@osdl.org>
+User-Agent: Mutt/1.5.9i
+From: Ruben Puettmann <ruben@puettmann.net>
+X-Scanner: exiscan *1DRBKD-0006Na-00*hsFB0asWsE.* (Puettmann.NeT, Germany)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ages ago we added an ide_default driver to clean up all the corner cases
-like spurious IRQs for a device with no matching driver (eg ide-cd and
-no CD driver) as well as ioctls and file access. 
+On Thu, Apr 28, 2005 at 08:43:13AM -0700, Randy.Dunlap wrote:
+ 
+> Hm, no "console=tty...." at all.  That didn't help (me) much.
+> 
+> Does this happen consistently?
 
-2.6.12rc removes it. Unfortunately it also means that if your only IDE
-interface is one you hand configure you can no longer run Linux. It also
-changes other aspects of behaviour although they don't look problematic
-for most users. You can no longer
-	- Control the bus state of an interface
-	- Reset an interface
-	- Add an interface if none exist
-	- Issue raw commands
-	- Get an objects bios geometry
-	- Read the identify data by ioctl (its still in proc but may be stale)
+Yes ist does. With the DL385 with newest Bios and with a bunch ob Tyan
+Opteron Boards. 
+ 
+> What does "gcc --version" say?
+> 
 
-without having a device specific driver loaded matching the media - and
-that only works if its already detected the device correctly.
+root@pergolesi:~# gcc --version
+gcc (GCC) 3.3.5 (Debian 1:3.3.5-12)
 
-I don't have the tools at the moment to generate spurious IRQ's for
-devices with no driver loaded but it does look like the code may well
-then crash. From the way the changes were done it appears the current
-IDE maintainers never appreciated that ide_default existed for far more
-than just cleaning up ide-proc but also to handle IRQ's, opening of
-empty slots, ioctls and power
-management ?
 
-The ability to specify the IDE ports on the command line as needed for
-some Sony laptop installs have also become "obsolete" over time. They
-still appear to work but spew a warning that the user will soon be
-screwed.
+Its pergolesi.debian.org one of the Debian Development Server.
 
-Alan
+                Ruben
 
+-- 
+Ruben Puettmann
+ruben@puettmann.net
+http://www.puettmann.net

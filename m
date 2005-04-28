@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262049AbVD1L2t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262060AbVD1Lel@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262049AbVD1L2t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 07:28:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbVD1L2t
+	id S262060AbVD1Lel (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 07:34:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbVD1Lel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 07:28:49 -0400
-Received: from filip.math.uni.lodz.pl ([212.191.65.243]:37390 "EHLO
-	filip.math.uni.lodz.pl") by vger.kernel.org with ESMTP
-	id S262049AbVD1L2s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 07:28:48 -0400
-Message-ID: <4270C8ED.1080107@filip.math.uni.lodz.pl>
-Date: Thu, 28 Apr 2005 13:28:45 +0200
-From: Filip Zyzniewski <lkml@filip.math.uni.lodz.pl>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050420)
-X-Accept-Language: pl, en-us, en
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Panic on a BIOSless machine.
-References: <426FB641.2070802@filip.math.uni.lodz.pl>	 <Pine.LNX.4.61.0504271022460.26410@montezuma.fsmlabs.com>	 <4270BF52.7070807@filip.math.uni.lodz.pl> <21d7e99705042804245015a6b1@mail.gmail.com>
-In-Reply-To: <21d7e99705042804245015a6b1@mail.gmail.com>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+	Thu, 28 Apr 2005 07:34:41 -0400
+Received: from unthought.net ([212.97.129.88]:54935 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S262060AbVD1Lef (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 07:34:35 -0400
+Date: Thu, 28 Apr 2005 13:34:34 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>, David Addison <addy@quadrics.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Andrea Arcangeli <andrea@suse.de>,
+       David Addison <david.addison@quadrics.com>
+Subject: Re: [PATCH][RFC] Linux VM hooks for advanced RDMA NICs
+Message-ID: <20050428113434.GD17359@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Lee Revell <rlrevell@joe-job.com>, Jesper Juhl <juhl-lkml@dif.dk>,
+	David Addison <addy@quadrics.com>, linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+	David Addison <david.addison@quadrics.com>
+References: <426E62ED.5090803@quadrics.com> <Pine.LNX.4.62.0504261829110.2071@dragon.hyggekrogen.localhost> <1114535584.5410.2.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1114535584.5410.2.camel@mindpipe>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Airlie wrote:
+On Tue, Apr 26, 2005 at 01:13:04PM -0400, Lee Revell wrote:
+> On Tue, 2005-04-26 at 18:57 +0200, Jesper Juhl wrote:
+> > > 
+> > > +static inline void
+> > > +ioproc_release(struct mm_struct *mm)
+> > > +{
+> > 
+> > Return types on same line as function name makes grep'ing a lot 
+> > easier/nicer.
+> > 
+> > Here's the example from Documentation/CodingStyle : 
+> > 
+> >         int function(int x)
+> >         {
+> 
+> How so?  I never understood the reasons.  This makes it easier to grep
+> for everything that returns int.  But you make the common case (what
+> file is function() defined in?) harder.
 
->>Here it is:
->>http://filip.math.uni.lodz.pl/t1000-panic/panic-without-tulip.log
->>
->>Do you think memory map is wrong?
-> 
-> 
-> have you the kernel compiled with pci probing set to direct? or booted
-> with pci=nobios
-> 
-> Dave.
-> 
-> 
+etags/ctags end of story :)
 
-I've set pci to direct because the box has no bios. Can I set it to
-something else if box has no bios?
+-- 
 
+ / jakob
 
-bye
-Filip Zyzniewski
-Ekatalog

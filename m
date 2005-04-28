@@ -1,65 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261909AbVD1HXo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261911AbVD1HZw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261909AbVD1HXo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 03:23:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbVD1HXn
+	id S261911AbVD1HZw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 03:25:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbVD1HZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 03:23:43 -0400
-Received: from fire.osdl.org ([65.172.181.4]:20664 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261911AbVD1HXd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 03:23:33 -0400
-Date: Thu, 28 Apr 2005 00:22:54 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Li Shaohua <shaohua.li@intel.com>
-Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net,
-       len.brown@intel.com, pavel@suse.cz, zwane@linuxpower.ca
-Subject: Re: [PATCH 6/6]suspend/resume SMP support
-Message-Id: <20050428002254.461fcf32.akpm@osdl.org>
-In-Reply-To: <1113283867.27646.434.camel@sli10-desk.sh.intel.com>
-References: <1113283867.27646.434.camel@sli10-desk.sh.intel.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Apr 2005 03:25:52 -0400
+Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:61607 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261329AbVD1HYZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 03:24:25 -0400
+To: davidsen@tmr.com
+CC: linuxram@us.ibm.com, lmb@suse.de, mj@ucw.cz, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-reply-to: <426FFC30.1060700@tmr.com> (message from Bill Davidsen on Wed, 27
+	Apr 2005 16:55:12 -0400)
+Subject: Re: [PATCH] private mounts
+References: <E1DQqyY-0002WW-00@dorka.pomaz.szeredi.hu><20050426094727.GA30379@infradead.org> <1114630811.4180.20.camel@localhost> <426FFC30.1060700@tmr.com>
+Message-Id: <E1DR3NT-0005L0-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Thu, 28 Apr 2005 09:24:03 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Li Shaohua <shaohua.li@intel.com> wrote:
->
-> Using CPU hotplug to support suspend/resume SMP. Both S3 and S4 use
->  disable/enable_nonboot_cpus API. The S4 part is based on Pavel's
->  original S4 SMP patch.
+> I think you point out a solution could be worse that what it cures. 
+> There are clearly problems with mount over, but imagine that a user does 
+> an invisible mount over /mnt, doesn't that prevent other mounts which 
+> are usually made, like /mnt/cdrom, /mnt/loopN, etc?
 
+As previously explained, user mounts are only allowed on directories
+for which the user has full write access.  Exactly for this reason.
 
+> Every time someone suggests a solution it seems to open a new path to 
+> possible abuse. And features which only work with a monotonic kernel 
+> rather than modules would seem to indicate that the feature is nice but 
+> the implementation might benefit from more thinking time.
 
-On ia64, with tiger_defconfig:
+Huh?  Where did modularitly come into this?
 
-kernel/built-in.o(.text+0x59e12): In function `suspend_prepare':
-: undefined reference to `disable_nonboot_cpus'
-kernel/built-in.o(.text+0x59e62): In function `suspend_prepare':
-: undefined reference to `enable_nonboot_cpus'
-kernel/built-in.o(.text+0x5a222): In function `suspend_finish':
-: undefined reference to `enable_nonboot_cpus'
+> Frankly the whole statement that the controversial code MUST go in now 
+> and could be removed later sounds like a salesman telling me I MUST sign 
+> the contract today, but he will let me out of it if I decide it was a 
+> mistake.
 
+The point of this thread is to find a solution to a problem.  The
+discussion is turning up very interesting viewpoints and I'm
+understanding the problem better and better, and I think other people
+are too.
 
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
+While I disagree with the view taken by Christoph H., I'm now also
+thankful to him for stiring up the mud, because it ended up with a lot
+of useful ideas.
 
- include/linux/suspend.h |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+In the end I'd like a solution that everybody is happy with.  That
+means I'm not going to give up searching because someone said, that
+the current solution is crappy.
 
-diff -puN include/linux/suspend.h~suspend-resume-smp-support-fix include/linux/suspend.h
---- 25/include/linux/suspend.h~suspend-resume-smp-support-fix	Thu Apr 28 15:12:21 2005
-+++ 25-akpm/include/linux/suspend.h	Thu Apr 28 15:13:13 2005
-@@ -58,7 +58,7 @@ static inline int software_suspend(void)
- }
- #endif
- 
--#ifdef CONFIG_HOTPLUG_CPU
-+#if defined(CONFIG_HOTPLUG_CPU) && defined(CONFIG_SOFTWARE_SUSPEND)
- extern void disable_nonboot_cpus(void);
- extern void enable_nonboot_cpus(void);
- #else
-_
+Do you understand my position?
 
+> I'm not against the feature, but a lot of people I consider competent 
+> seem to find the implementation controversial, which argues for waiting 
+> until more eyes are on the code.
+
+Yes.  I'm not going to ask Andrew to merge the code until I feel that
+everybody concerned is happy with it.  No matter how many release
+cycles it takes.
+
+> If the rest of the code is useless without the controversial part,
+> maybe it should all stay a patch to use or not as people decide.
+
+It has been distributed separately from the kernel for 3 years now.
+So people _can_ try it out.
+
+Thanks,
+Miklos

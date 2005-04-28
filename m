@@ -1,91 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262485AbVD2Lsv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262500AbVD2LxH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262485AbVD2Lsv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 07:48:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262500AbVD2Lsu
+	id S262500AbVD2LxH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 07:53:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262496AbVD2LxH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 07:48:50 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:39920 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S262485AbVD2Lsa
+	Fri, 29 Apr 2005 07:53:07 -0400
+Received: from smtp04.auna.com ([62.81.186.14]:35287 "EHLO smtp04.retemail.es")
+	by vger.kernel.org with ESMTP id S262501AbVD2LxA convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 07:48:30 -0400
-In-Reply-To: <42713084.7070403@fujitsu-siemens.com>
-Subject: Re: Again: UML on s390 (31Bit)
-To: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux devel 
-	<user-mode-linux-devel@lists.sourceforge.net>
-X-Mailer: Lotus Notes Build V651_12042003 December 04, 2003
-Message-ID: <OFC64AA10F.5C318C60-ONC1256FF2.003E8736-C1256FF2.0040BFA0@de.ibm.com>
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Date: Fri, 29 Apr 2005 13:47:13 +0200
-X-MIMETrack: Serialize by Router on D12ML062/12/M/IBM(Release 6.53HF247 | January 6, 2005) at
- 29/04/2005 13:48:26
+	Fri, 29 Apr 2005 07:53:00 -0400
+Date: Thu, 28 Apr 2005 21:09:37 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: Extremely poor umass transfer rates
+To: linux-kernel@vger.kernel.org
+References: <1114704142.8410.4.camel@mjollnir.bootless.dk>
+	<20050428165915.GG30768@redhat.com>
+	<1114710941.8326.13.camel@mjollnir.bootless.dk>
+	<20050428182655.GA6812@irc.pl>
+In-Reply-To: <20050428182655.GA6812@irc.pl> (from zdzichu@irc.pl on Thu Apr
+	28 20:26:55 2005)
+X-Mailer: Balsa 2.3.0
+Message-Id: <1114722577l.15771l.0l@werewolf.able.es>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bodo Stroesser <bstroesser@fujitsu-siemens.com> wrote on 04/28/2005
-08:50:44 PM:
 
-> 5) UML runs its own sys_(rt_)sigreturn for the process, skips its own
->     syscall restart processing and writes the registers of the child with
->     the values, that result from sys_(rt_)sigreturn processing. Now GPR2
->     is loaded with ERESTARTXXXXXX again.
->
-> 6) The child is resumed with PTRACE_SYSCALL. If a further signal is
->     pending in the host for that child, the host runs do_signal().
->     As regs->trap still is set for a syscall, syscall restarting is
->     processed in the host, the process in UML will fail.
+On 04.28, Tomasz Torcz wrote:
+> On Thu, Apr 28, 2005 at 07:55:40PM +0200, Mark Rosenstand wrote:
+> > The line that 'hald' puts in fstab looks like this:
+> > 
+> > 	/dev/sdb /media/usbdisk vfat \
+> > 		user,exec,noauto,utf8,noatime,sync,managed 0 0
+> 
+>  Are you sure it's correct? I can't even mount with those options:
+> 
+> #v+
+> # mount /dev/sdb1 /mnt/other -t vfat -o user,exec,noauto,utf8,noatime,sync,managed 
+> mount: wrong fs type, bad option, bad superblock on /dev/sdb1
+>        missing codepage or other error
+>        In some cases useful info is found in syslog - try
+>        dmesg | tail  or so
+> 
+> # dmesg | tail -2 
+> usb-storage: device scan complete
+> FAT: Unrecognized mount option "managed" or missing value
+> #v-
+> 
+>  Omitting "managed" seems to work. But it's slooow:
+> 
+> # dd if=/dev/zero  bs=1M count=100 | pv > /mnt/other/100MB
+> 1,17MB 0:00:28 [41,7kB/s] [      <=>                ]
+> 
+> It stays at about 40 kB/s during all transfer. 
+> Reading is as fast as it should be = about 18 MB/s (after umount, mount
+> again, to clear cache). 
+> 
 
-That is what I was after, the additional signal that causes the problem
-is pending for the child, not for the ptrace father process.
+Je, je, you're dreaming. The limit on pendrives, flash mp3 players and so
+on is the flash memory read/write speed. You are lucky if you get 1Mb/s.
+So for a flash based device, dont ever worry about if it is USB 1.1 or 2.0.
+Things are different if you have a disk based device (iPod, iPod mini).
+A disk is a disk.
 
-> Obviously, this is a rare case. On i386, the syscall number is used as
-> trap, so -1 can be written to it at the second interception to skip
-> syscall restarting. Some months ago, UML/i386 did not yet use this, so
-> I wrote a litte program, that made the problem happen.
+The difference in total time should be minimal between sync and async mounts,
+if you take into account filesystem sync/umount time.
 
-The rare cases are always the most complicated ones. To make UML work
-reliably this needs to get fixed.
+Anyways, your 40 Kb/sec seem too sloow. But dont expect your 19Mb/s, only
+about 1Mb/s (reading, writing thigs drop to 600Kb/s).
 
-> > I don't claim to know, and that is why I don't like to see this done in the
-> > syscall_ptrace function. Perhaps via peekusr/pokeuser interface but then
-> > trap should be a member of struct user.
-> As trap could be added to struct user at the end of struct user only, this
-> would result in an additional ptrace call in UML :-(
->
-> Is it safe to increase size of struct user? What about software being
-> recompiled partly (e.g. using a private lib which isn't recompiled; or the
-> lib is recompiled, while the program isn't).
-> So maybe an additional ptrace operation (PTRACE_SETTRAP?) would be better,
-> but still we would need one more syscall in UML.
+by
 
-Yes, it is not a really good idea to add something to struct user. That will
-affect the dump format and debugging tools. So it would be an additional ptrace
-command like PTRACE_SETTRAP/PTRACE_GETTRAP. The only other solution I can think
-of is to be more specific about what the debugger can indicate to the debuggee
-what needs to be done after the first syscall_trace invocation. At the moment
-it is either
-1) a valid system call number, execute the new syscall, or
-2) an invalid system call number, skip the system call but don't change
-   regs->traps and do system call restarting if another signal is pending
-If we use more specific error codes instead of just any invalid syscall number
-we could have e.g. this:
-1) a vaild system call number, execute the new syscall,
-2) -Exxx, skip the system call, store -1 to regs->trap and then continue
-   with restarting system calls if another system call is pending.
-3) -Eyyy, skip the system call but leave regs->trap intact so that a pending
-   signal will restart the system call.
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandriva Linux release 2006.0 (Cooker) for i586
+Linux 2.6.11-jam14 (gcc 4.0.0 (4.0.0-1mdk for Mandriva Linux
 
-But we really have to be very careful not to break either strace or gdb if
-we do this change. Probably it is much easier to introduce PTRACE_SET/GET_TRAP.
-
-blue skies,
-   Martin
-
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
 

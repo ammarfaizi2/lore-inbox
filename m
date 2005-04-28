@@ -1,89 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262169AbVD1QsM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262170AbVD1RA0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262169AbVD1QsM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 12:48:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbVD1QsM
+	id S262170AbVD1RA0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 13:00:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262171AbVD1RAZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 12:48:12 -0400
-Received: from fire.osdl.org ([65.172.181.4]:2974 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262169AbVD1Qro (ORCPT
+	Thu, 28 Apr 2005 13:00:25 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:45254 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262170AbVD1RAV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 12:47:44 -0400
-Date: Thu, 28 Apr 2005 09:47:21 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: coywolf@lovecn.org
-Cc: coywolf@gmail.com, ruben@puettmann.net, linux-kernel@vger.kernel.org,
-       ak@suse.de
-Subject: Re: 2.6.11.7 kernel panic on boot on AMD64
-Message-Id: <20050428094721.4499f861.rddunlap@osdl.org>
-In-Reply-To: <2cd57c90050428093851785879@mail.gmail.com>
-References: <20050427140342.GG10685@puettmann.net>
-	<20050427152704.632a9317.rddunlap@osdl.org>
-	<20050428090539.GA18972@puettmann.net>
-	<20050428084313.1e69f59d.rddunlap@osdl.org>
-	<2cd57c90050428093851785879@mail.gmail.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
+	Thu, 28 Apr 2005 13:00:21 -0400
+Date: Thu, 28 Apr 2005 12:59:15 -0400
+From: Dave Jones <davej@redhat.com>
+To: Mark Rosenstand <mark@ossholes.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Extremely poor umass transfer rates
+Message-ID: <20050428165915.GG30768@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Mark Rosenstand <mark@ossholes.org>, linux-kernel@vger.kernel.org
+References: <1114704142.8410.4.camel@mjollnir.bootless.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1114704142.8410.4.camel@mjollnir.bootless.dk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Apr 2005 00:38:24 +0800
-Coywolf Qi Hunt <coywolf@gmail.com> wrote:
+On Thu, Apr 28, 2005 at 06:02:22PM +0200, Mark Rosenstand wrote:
+ > I get transfer rates at around 30 kB/s to USB mass storage devices. It
+ > applies to both my keyring and my mp3 player. Both are running vfat.
+ > 
+ > I'm running 2.6.12-rc3 for amd64 with patches for inotify and skge. The
+ > motherboard is an ASUS K8V-X (VIA K8T800).
+ > 
+ > It worked alright earlier (2.6.10 or 2.6.11, I'll test later if
+ > necessary.)
+ > 
+ > Also, if I transfer more than one file at a time the music tracks start
+ > overlapping on my mp3 player.
 
-> On 4/28/05, Randy.Dunlap <rddunlap@osdl.org> wrote:
-> > On Thu, 28 Apr 2005 11:05:40 +0200
-> > Ruben Puettmann <ruben@puettmann.net> wrote:
-> > 
-> > > On Wed, Apr 27, 2005 at 03:27:04PM -0700, Randy.Dunlap wrote:
-> > >  Looks like this code in init/main.c:
-> > > >
-> > > >     if (late_time_init)
-> > > >             late_time_init();
-> > > >
-> > > > sees a garbage value in late_time_init (garbage being
-> > > > %eax == 0x00307974.743d656c, which is "le=tty0\n",
-> > > > as in "console=tty0").
-> > > >
-> > > > How long is your kernel boot/command line?
-> > > > Please post it.
-> > >
-> > > It was boot over pxe here is the append line from the
-> > > pxelinux.cfg/default
-> > >
-> > > APPEND vga=normal rw  load_ramdisk=0 root=/dev/nfs nfsroot=192.168.112.1:/store/rescue/sarge-amd64,rsize=8192,wsize=8192,timo=12,retrans=3,mountvers=3,nfsvers=3
-> > 
-> > Hm, no "console=tty...." at all.  That didn't help (me) much.
-> 
-> Could that boot loader pxe append console=tty implicitly?
+Are you running it on a USB 2.0 capable interface ?
+Is your mp3 player USB2.0 capable ?
+USB1.1 is painfully slow for storage.
 
-It could... I don't know anything about pxe boot.
+		Dave
 
-
-> >From the vmlinux Ruben gave me,
-> ffffffff807980d8 A __bss_start
-> ffffffff807980d8 A _edata
-> ffffffff80798100 B boot_cpu_stack
-> ffffffff8079c100 B boot_exception_stacks
-> ffffffff807a1100 B system_state
-> ffffffff807a1120 B saved_command_line
-> ffffffff807a1220 B late_time_init
-> ffffffff807a1228 b execute_command
-> ffffffff807a1230 b panic_later
-> ffffffff807a1238 b panic_param
-> ...
-> 
-> It seems possible to luckily skip the garbage. Comment out the two
-> lines and see if it works.
-> 
-> /*     if (late_time_init)
->              late_time_init(); */
-
-Yes, that would help verify that the command line is the problem.
-I also recall Andi having a few problems with large command lines
-on x86-64... so it still smells like that to me.  (ak added to cc:)
-
----
-~Randy

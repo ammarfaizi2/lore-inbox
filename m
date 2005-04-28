@@ -1,62 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262258AbVD1UKf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262261AbVD1UNJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262258AbVD1UKf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 16:10:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbVD1UK1
+	id S262261AbVD1UNJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 16:13:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbVD1UNI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 16:10:27 -0400
-Received: from alog0137.analogic.com ([208.224.220.152]:54164 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262258AbVD1UJe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 16:09:34 -0400
-Date: Thu, 28 Apr 2005 16:06:43 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Xin Zhao <uszhaoxin@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: dumb question: How to create your own log files in a kernel
- module?
-In-Reply-To: <4ae3c14050428111073283bd3@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0504281557510.29750@chaos.analogic.com>
-References: <4ae3c14050428111073283bd3@mail.gmail.com>
+	Thu, 28 Apr 2005 16:13:08 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:2950 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S262261AbVD1UM6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 16:12:58 -0400
+Date: Thu, 28 Apr 2005 22:13:26 +0000
+From: Lana Ratliff <julysek@grungecafe.com>
+X-Mailer: The Bat! (v3.01 RC5) UNREG / 8P7WE4E5W9A1E2P3S
+Reply-To: Velma Baldwin <julysek@grungecafe.com>
+X-Priority: 3 (Normal)
+Message-ID: <27863268248967.3771450259633835@cor13-1-82-232-93-33.fbx.proxad.net>
+To: linux-kernel@vger.kernel.org
+Subject: MY MOM LOVES TO LICK MY PUSSY N
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+        charset="Windows-1251"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Apr 2005, Xin Zhao wrote:
+When I interviewed her that she is the "Queen of Bl owjobs".
 
-> Can anyone give me a hand? or point me to somewhere I can find related
-> information?
->
-> Thanks in advance!
->
-> Xin
+Dreams do come true and the only question is which of them…Nightmares…Family nightmares…Se_xual addictions sometimes do bring us to the very edge of morality and that’s when there is just a single step away from committing perhaps the worst of all possible and known offences…Poor mommies twitching helplessly in wild agonies of pain and shock because today the worst se_xual nightmares of their lives come true.
+http://diffusive.gitim.com/fn/?automaton
 
 
-printk(KERN_XXX"whatever") was designed for this.
+Black Babe Su,c ,king Dick In Bedroom
+I'll deliver a new facialed girl every week!
 
-#define	KERN_EMERG	"<0>"	/* system is unusable			*/
-#define	KERN_ALERT	"<1>"	/* action must be taken immediately	*/
-#define	KERN_CRIT	"<2>"	/* critical conditions			*/
-#define	KERN_ERR	"<3>"	/* error conditions			*/
-#define	KERN_WARNING	"<4>"	/* warning conditions			*/
-#define	KERN_NOTICE	"<5>"	/* normal but significant condition	*/
-#define	KERN_INFO	"<6>"	/* informational			*/
-#define	KERN_DEBUG	"<7>"	/* debug-level messages			*/
- 	printk(KERN_DEBUG fmt,##arg)
- 	printk(KERN_INFO fmt,##arg)
-
-You could define your own, KERN_PRIVATE "<8>" and have the syslog
-facility filter on that.
-
-Other ways are to write stuff to a buffer or linked-list and
-read it out using an ioctl() or read() in your module. If you
-do this, make sure that your module code doesn't wait forever
-if the buffer gets full.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.

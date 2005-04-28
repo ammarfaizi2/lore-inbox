@@ -1,51 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262081AbVD1PE6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262128AbVD1PGI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262081AbVD1PE6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 11:04:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbVD1PE6
+	id S262128AbVD1PGI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 11:06:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbVD1PGI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 11:04:58 -0400
-Received: from dsl027-162-124.atl1.dsl.speakeasy.net ([216.27.162.124]:33218
-	"EHLO kevlar.burdell.org") by vger.kernel.org with ESMTP
-	id S262081AbVD1PEx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 11:04:53 -0400
-Date: Thu, 28 Apr 2005 10:44:15 -0400
-From: Sonny Rao <sonny@burdell.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>
-Subject: Re: [PATCH 0/4] ppc64: Introduce BPA platform
-Message-ID: <20050428144415.GA28779@kevlar.burdell.org>
-Mail-Followup-To: Sonny Rao <sonny@burdell.org>,
-	Arnd Bergmann <arnd@arndb.de>, linuxppc64-dev@ozlabs.org,
-	linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>,
-	Anton Blanchard <anton@samba.org>
-References: <200504190318.32556.arnd@arndb.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200504190318.32556.arnd@arndb.de>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 28 Apr 2005 11:06:08 -0400
+Received: from ccerelbas04.cce.hp.com ([161.114.21.107]:58093 "EHLO
+	ccerelbas04.cce.hp.com") by vger.kernel.org with ESMTP
+	id S262113AbVD1PFw convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 11:05:52 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [Question] Does the kernel ignore errors writng to disk?
+Date: Thu, 28 Apr 2005 10:05:15 -0500
+Message-ID: <D4CFB69C345C394284E4B78B876C1CF107DC05BC@cceexc23.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Question] Does the kernel ignore errors writng to disk?
+Thread-Index: AcVMAvlp8G9xSfBnR1WNKYDOPN8+rQAAJ9uQ
+From: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       <linux-scsi@vger.kernel.org>, <brace@hp.com>
+X-OriginalArrivalTime: 28 Apr 2005 15:05:16.0602 (UTC) FILETIME=[AFAEF9A0:01C54C03]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 28, 2005 at 09:54:00AM +0200, Arnd Bergmann wrote:
-> This series of patches add support for a fifth platform type in the
-> ppc64 architecture tree. The Broadband Processor Architecture (BPA)
-> is currently used in a single machine from IBM, with others likely
-> to be added at a later point.
+> -----Original Message-----
+> From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk] 
+> Sent: Thursday, April 28, 2005 9:58 AM
+> To: Miller, Mike (OS Dev)
+> Cc: Linux Kernel Mailing List; linux-scsi@vger.kernel.org; 
+> brace@hp.com
+> Subject: Re: [Question] Does the kernel ignore errors writng to disk?
 > 
-> I already sent preparation patches before, these need to be applied
-> on top of them.
-> The first three patches add the actual platform code, which should
-> be usable for any BPA compatible implementation.
+> On Mer, 2005-04-27 at 19:40, mike.miller@hp.com wrote:
+> > It looks like the OS/filesystem (ext2/3 and reiserfs) does 
+> not wait for for a successful completion. Is this assumption correct?
 > 
-> The final patch introduces a new file system to make use of the
-> SPUs inside the processors. This patch is still in a prototype stage
-> and not intended for merging yet.
+> Of course it doesn't. At 250 ops/second for a decent disk no 
+> OS waits for completions, all batch and asynchronously queue 
+> I/O. See man fsync and also O_DIRECT if you need specific "to 
+> disk" support. If you do that be aware that you must also 
+> turn write caching off on the IDE disk. I've repeatedly asked 
+> the "maintainer" of the IDE layer to do this automatically 
+> but gave up bothering long ago. Without that setting users 
+> are playing with fire quite honestly.
 > 
-> 	Arnd <><
+> The alternative with latest 2.6 stuff is to turn on Jens 
+> Axboe's barrier work which seems to give better performance 
+> on a drive new enough to have cache flush operations.
+> 
+> Alan
+Thanks, Alan. I'll try Jens barrier.
 
-Is BPA the same thing (architecture) as the STI Cell Processor?
-
-Sonny
+> 
+> 

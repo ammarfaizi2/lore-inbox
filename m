@@ -1,77 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262251AbVD1Tj7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262253AbVD1TmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262251AbVD1Tj7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 15:39:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262238AbVD1Tj7
+	id S262253AbVD1TmT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 15:42:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262252AbVD1TmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 15:39:59 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:8104 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262252AbVD1Tjs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 15:39:48 -0400
+	Thu, 28 Apr 2005 15:42:19 -0400
+Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:65449 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262248AbVD1TmJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 15:42:09 -0400
+To: pavel@suse.cz
+CC: mj@ucw.cz, lmb@suse.de, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-reply-to: <20050428130819.GF2226@openzaurus.ucw.cz> (message from Pavel
+	Machek on Thu, 28 Apr 2005 15:08:19 +0200)
 Subject: Re: [PATCH] private mounts
-From: Ram <linuxram@us.ibm.com>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Eric Van Hensbergen <ericvh@gmail.com>, Pavel Machek <pavel@ucw.cz>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Miklos Szeredi <miklos@szeredi.hu>, hch@infradead.org,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050428192048.GA2895@mail.shareable.org>
-References: <E1DPo3I-0000V0-00@localhost>
-	 <20050424205422.GK13052@parcelfarce.linux.theplanet.co.uk>
-	 <E1DPoCg-0000W0-00@localhost>
-	 <20050424210616.GM13052@parcelfarce.linux.theplanet.co.uk>
-	 <20050424213822.GB9304@mail.shareable.org>
-	 <20050425152049.GB2508@elf.ucw.cz>
-	 <20050425190734.GB28294@mail.shareable.org>
-	 <20050426092924.GA4175@elf.ucw.cz>
-	 <20050426140715.GA10833@mail.shareable.org>
-	 <a4e6962a050428064774e88f4a@mail.gmail.com>
-	 <20050428192048.GA2895@mail.shareable.org>
-Content-Type: text/plain
-Organization: IBM 
-Message-Id: <1114717183.4180.718.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 28 Apr 2005 12:39:44 -0700
-Content-Transfer-Encoding: 7bit
+References: <20050427092450.GB1819@elf.ucw.cz> <E1DQjzY-0001no-00@dorka.pomaz.szeredi.hu> <20050427143126.GB1957@mail.shareable.org> <E1DQno0-00029a-00@dorka.pomaz.szeredi.hu> <20050427153320.GA19065@atrey.karlin.mff.cuni.cz> <20050427155022.GR4431@marowsky-bree.de> <20050427164652.GA3129@ucw.cz> <E1DQqUi-0002Pt-00@dorka.pomaz.szeredi.hu> <20050427175425.GA4241@ucw.cz> <E1DQquc-0002W6-00@dorka.pomaz.szeredi.hu> <20050428130819.GF2226@openzaurus.ucw.cz>
+Message-Id: <E1DREtK-0006Ha-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Thu, 28 Apr 2005 21:41:42 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-04-28 at 12:20, Jamie Lokier wrote:
-> Eric Van Hensbergen wrote:
-> > > It's called /proc/NNN/root.
-> > > 
-> > > So no new system calls are needed.  A daemon to hand out per-user
-> > > namespaces (or any other policy) can be written using existing
-> > > kernels, and those namespaces can be joined using chroot.
-> > > 
-> > > That's the theory anyway.  It's always possible I misread the code (as
-> > > I don't use namespaces and don't have tools handy to try them).
-> > > 
-> > 
-> > Should have checked myself before posting my previous reply -- but
-> > this doesn't seem to work.  /proc/NNN/root is represented as a
-> > symlink, but when you CLONE_NS and then try to look at another one of
-> > your process' /proc/NNN/root the link doesn't seem to have a target
-> > and you get permission denied on all accesses.
+> Exactly. So can we simply merge root-only fuse, and then worry
+> how to make it safe with user-mounted fuse. See your own unfsd example
+> why user-mounting is bad.
 > 
-> I've looked at the code.  Look in fs/proc/base.c (Linux 2.6.10),
-> proc_root_link().
-> 
-> I don't see anything there to prevent you from traversing to the
-> mounts in the other namespace.
-> 
-> So why is it failing?  Any idea?
+> One possible solution would be to have root-owned fused that
+> talks to user-owned fused-s and checks they are behaving correctly?
 
-Since you are traversing a symlink, you will be traversing the symlink
-in the context of traversing process's namespace. 
+It's very hard to do that.  What should be the timeout for requests,
+so that valid filesystems don't break, yet it's not possible to do a
+fairly ugly DoS?  It's almost impossible I'd say.
 
-If process 'x' is traversing /proc/y/root , the lookup for the root
-dentry will happen in the context of process x's  namespace, and not
-process y's namespace. Hence process 'x' wont really get into
-the namespace of the process y.
+> Second is somehow improving those two lines this long thread is all about...
 
-RP
+That's what I did.  See the recent documentation and code patches
+(cc-d to -fsdevel).  I'm pretty convinced it's the right thing to do.
+OK, I was with the previous solution too, but anyway ;)
 
+Thanks,
+Miklos

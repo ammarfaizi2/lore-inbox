@@ -1,90 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261985AbVD1KW1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261969AbVD1K3u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261985AbVD1KW1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 06:22:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbVD1KW1
+	id S261969AbVD1K3u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 06:29:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261972AbVD1K3u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 06:22:27 -0400
-Received: from s2.ukfsn.org ([217.158.120.143]:61864 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S261962AbVD1KWQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 06:22:16 -0400
-Message-ID: <4270B94B.30604@dgreaves.com>
-Date: Thu, 28 Apr 2005 11:22:03 +0100
-From: David Greaves <david@dgreaves.com>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>, pasky@ucw.cz,
-       torvalds@osdl.org, Greg KH <greg@kroah.com>,
-       GIT Mailing Lists <git@vger.kernel.org>
-Subject: Re: kernel hacker's git howto
-References: <20050428085657.GA30800@elf.ucw.cz>
-In-Reply-To: <20050428085657.GA30800@elf.ucw.cz>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Apr 2005 06:29:50 -0400
+Received: from eurogra4543-2.clients.easynet.fr ([212.180.52.86]:40338 "HELO
+	server5.heliogroup.fr") by vger.kernel.org with SMTP
+	id S261969AbVD1K3t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 06:29:49 -0400
+From: Hubert Tonneau <hubert.tonneau@fullpliant.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.12-rc3 mmap lack of consistency among runs
+Date: Thu, 28 Apr 2005 09:59:55 GMT
+Message-ID: <0561FRW12@server5.heliogroup.fr>
+X-Mailer: Pliant 93
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think a lot of people on the git list would like to see this - please 
-CC :)
+As a way to freeze then restart processes,
+the first shot of the process calls 'mmap' with NULL as 'start',
+then restarts of the process will call 'mmap' with the value received at the
+first shot, and expect to be assigned the requested area.
 
-David
+This used to work perfectly with 2.6.11 and all previous kernels (unless some
+shared libraries have been upgraded in the mean time),
+but with 2.6.12-rc3 (I have not tested rc1 and rc2) it fails half time.
 
-Pavel Machek wrote:
-
->Hi!
->
->Here's my current version of git HOWTO. I'd like your comments...
->
->	Kernel hacker's guide to git
->	~~~~~~~~~~~~~~~~~~~~~~~~~~~~
->      2005 Pavel Machek <pavel@suse.cz>
->
->You can get cogito at http://www.kernel.org/pub/software/scm/cogito/
->. Compile it, and place it somewhere in $PATH. Then you can get kernel
->by running
->
->mkdir clean-cg; cd clean-cg
->cg-init rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
->
->... Do cg-update origin to pickup latest changes from Linus. You can
->do cg-diff to see what changes you done in your local tree. cg-cancel
->will kill any such changes, and cg-commit will make them permanent.
->
->To get diff between your working tree and "next tree up", do cg-diff
->-r origin: . If you want to get the same diff but separated
->patch-by-patch, do cg-mkpatch origin: . If you want to pull changes
->from the "up" tree to your working tree, do cg-pull origin followed by
->cg-merge origin.
->
->
->How to set up your trees so that you can cooperate with linus
->~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
->
->What I did:
->
->Created clean-cg. Initialized straight from Linus (as above). Then I
->created "nice" tree, good for Linus to pull from 
->
->mkdir /data/l/linux-good; cd /data/l/linux-good
->cg-init /data/l/clean-cg
->
->and then my working tree, based on linux-good
->
->mkdir /data/l/linux-cg; cd /data/l/linux-cg
->cg-init /data/l/linux-good
->
->. I do my work in linux-cg. If someone sends me nice patch I should
->pass up, I apply it to linux-good with nice message and do
->
->cd /data/l/linux-cg; cg-pull origin; cg-merge origin
->
->  
->
-
--- 
-
+I can solve the problem through specifying a 'start' value at the first shot,
+but then I will get a more serious problem on the long run because the
+application would then have to be awared of the general layout of the address
+space enforced by the kernel and so could be disturbed by any change.

@@ -1,33 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262429AbVD2Gsc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262435AbVD2HFT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262429AbVD2Gsc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 02:48:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262435AbVD2Gsb
+	id S262435AbVD2HFT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 03:05:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbVD2HFS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 02:48:31 -0400
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:60334 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S262429AbVD2GsY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 02:48:24 -0400
-X-ORBL: [67.124.119.21]
-Date: Thu, 28 Apr 2005 23:48:19 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Gilles Pokam <gpokam@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel memory
-Message-ID: <20050429064819.GA15501@taniwha.stupidest.org>
-References: <ba83582205042816522e2a7a93@mail.gmail.com> <20050429030313.GA10344@taniwha.stupidest.org> <ba8358220504282233754de43b@mail.gmail.com> <20050429054351.GA12654@taniwha.stupidest.org> <ba8358220504282248344d5e78@mail.gmail.com> <20050429061254.GB12654@taniwha.stupidest.org> <ba83582205042823452a3446f6@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ba83582205042823452a3446f6@mail.gmail.com>
+	Fri, 29 Apr 2005 03:05:18 -0400
+Received: from www7.pochta.ru ([81.211.64.27]:33317 "EHLO www7.pochta.ru")
+	by vger.kernel.org with ESMTP id S262435AbVD2HFL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 03:05:11 -0400
+Date: Fri, 29 Apr 2005 10:44:56 +0400 (MSD)
+Message-Id: <200504290644.j3T6iuFn031391@www7.pochta.ru>
+From: "James Grisham [jamesgrisham@pisem.net]" <jamesgrisham@zwallet.com>
+To: jamesgrisham@zwallet.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Free mail service Pochta.ru; WebMail Client; Account: jamesgrisham@pisem.net
+X-Originating-IP: [81.199.84.152]
+Subject: Representative Needed!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 28, 2005 at 11:45:40PM -0700, Gilles Pokam wrote:
+Dear Sir/Madam,
 
-> the simplest way to say is: I want the pagefault handler to return a
-> memory page when it encounters a pagefault exceptions due to an
-> invalid address or incorrect page protection.
+I represent GLOBAL IMPORT/EXPORT COMPANY based in the UK. 
+My company exports cocoa and other goods/services for world 
+trade. What we really require is someone who can represent 
+this company in Europe and America We have been having 
+problems with clients in these regions because they are 
+politely refusing to pay for shipments on one excuse or the 
+other so we need a representative that can assist us in 
+clearing our money in their respective countries. 
 
-where should this page come from?
+Most of our customers pay out in cheques and we do not have 
+an account in your country that will clear this money. 
+
+It is upon this note that we seek your assistance as our 
+representative in your country.
+
+Be informed that as our representative, you will receive 
+10% of whatever amount you clear for the company and the 
+balance will be paid into an account we will avail to you. 
+The second thing required of you would be for you to 
+establish a relationship on behalf of our company with 
+other cocoa industries in your country so that we can have 
+new ideas and directions.
+
+This job is rather easy and does not require a lot of 
+expertise.
+
+If you are interested in this business offer, please email 
+me on this email address below: { 
+james_grisham@zwallet.com }
+
+
+Very Respectfully,
+
+
+Mr. James Grisham, 
+President,
+GLOBAL Import/Export co.
+Goods for Import/Export
+Freight Fwdg. Svcs.
+

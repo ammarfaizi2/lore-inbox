@@ -1,76 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262982AbVD2VQd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262995AbVD2VNu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262982AbVD2VQd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 17:16:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262998AbVD2VOS
+	id S262995AbVD2VNu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 17:13:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262992AbVD2VNO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 17:14:18 -0400
-Received: from pat.uio.no ([129.240.130.16]:49317 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262982AbVD2VNf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 17:13:35 -0400
-Subject: Re: which ioctls matter across filesystems
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Robert Love <rml@novell.com>
-Cc: Steve French <smfrench@austin.rr.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1114807648.6682.153.camel@betsy>
-References: <42728964.8000501@austin.rr.com>
-	 <1114804426.12692.49.camel@lade.trondhjem.org>
-	 <1114805033.6682.150.camel@betsy>
-	 <1114807360.12692.77.camel@lade.trondhjem.org>
-	 <1114807648.6682.153.camel@betsy>
+	Fri, 29 Apr 2005 17:13:14 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:60550 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262982AbVD2VMZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 17:12:25 -0400
+Subject: Re: [Ext2-devel] [RFC] Adding multiple block allocation
+From: Mingming Cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
+To: Andrew Morton <akpm@osdl.org>, pbadari@us.ibm.com
+Cc: suparna@in.ibm.com, sct@redhat.com, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org
+In-Reply-To: <20050429135705.3f4831bd.akpm@osdl.org>
+References: <1113220089.2164.52.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1113244710.4413.38.camel@localhost.localdomain>
+	 <1113249435.2164.198.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1113288087.4319.49.camel@localhost.localdomain>
+	 <1113304715.2404.39.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1113348434.4125.54.camel@dyn318043bld.beaverton.ibm.com>
+	 <1113388142.3019.12.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1114207837.7339.50.camel@localhost.localdomain>
+	 <1114659912.16933.5.camel@mindpipe>
+	 <1114715665.18996.29.camel@localhost.localdomain>
+	 <20050429135211.GA4539@in.ibm.com>
+	 <1114794608.10473.18.camel@localhost.localdomain>
+	 <1114803764.10473.46.camel@localhost.localdomain>
+	 <20050429135705.3f4831bd.akpm@osdl.org>
 Content-Type: text/plain
-Date: Fri, 29 Apr 2005 17:13:19 -0400
-Message-Id: <1114809199.12692.96.camel@lade.trondhjem.org>
+Organization: IBM LTC
+Date: Fri, 29 Apr 2005 14:12:19 -0700
+Message-Id: <1114809139.10473.70.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.7, required 12,
-	autolearn=disabled, AWL 1.30, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fr den 29.04.2005 Klokka 16:47 (-0400) skreiv Robert Love:
-> On Fri, 2005-04-29 at 16:42 -0400, Trond Myklebust wrote:
+On Fri, 2005-04-29 at 13:57 -0700, Andrew Morton wrote:
+> Mingming Cao <cmm@us.ibm.com> wrote:
+> >
+> > If we do direct write(block allocation) to a hole, I found that the
+> >  "create" flag passed to ext3_direct_io_get_blocks() is 0 if we are
+> >  trying to _write_ to a file hole. Is this expected? 
 > 
-> > The problem is that having the server call back a bunch of clients every
-> > time a file changes does not really scale too well. The current
-> > dnotify-like proposal therefore specifies that notification is not
-> > synchronous (i.e. there may be a delay of several seconds), and that the
-> > server may want to group several notifications into a single callback.
+> Nope.  The code in get_more_blocks() is pretty explicit.
 > 
-> Yah, so what I am asking is why not use inotify for the user-side
-> component of this system?
+> > But if it try to allocating blocks in the hole (with direct IO), blocks
+> > are allocated one by one. I am looking at it right now.
+> > 
+> 
+> Please see the comment over get_more_blocks().
+> 
 
-> Wouldn't the deferring and coalescing of events occur on the server
-> side?  So the server-side stuff would be whatever you need--your own
-> code using whatever protocol you wanted--but the client-side interface
-> would be over inotify.
+I went to look at get_more_blocks, the create flag is cleared if the
+file offset is less than the i_size. (see code below). 
 
-Sure. We're not talking about inventing new user interfaces here. Just
-how best to support the existing ones.
+static int get_more_blocks(struct dio *dio)
+{
+	..........
+	.........
+             create = dio->rw == WRITE;
+             if (dio->lock_type == DIO_LOCKING) {
+                  if (dio->block_in_file < (i_size_read(dio->inode) >>
+                                                       dio->blkbits))
+                         create = 0;
+             } else if (dio->lock_type == DIO_NO_LOCKING) {
+                    create = 0;
 
-> Even if not, I'd be willing to make changes to inotify to accommodate
-> NFS's needs.
+	     ret = (*dio->get_blocks)(dio->inode, fs_startblk, fs_count,
+                                                map_bh, create);
 
-I think what the IETF NFS working group rather needs right now is an
-advocate that is willing to stand up and demonstrate why protocol
-support for inotify-style callbacks would be a more scalable solution
-than a solution based on a combination of GETATTR polling and read
-delegations (essentially the same thing as CIFS' op-locks) for
-directories.
+}
 
-The current research (see
-http://www3.ietf.org/proceedings/05mar/slides/nfsv4-4/sld1.htm) which
-has uses real-life on-the-wire traffic actually leans more towards the
-GETATTR solution. That research was based on a set of anonymous tcpdump
-traces taken at Harvard University, though, so it reflects the traffic
-in a typical university environment. It may be that other use-cases
-exist that favour the inotify callbacks case.
-If so, now is the time to step forward and say so...
+When it is trying to direct writing to a hole, the create flag is
+cleared so that the underlying filesystem get_blocks() function will
+only do a block look up(look up will be failed and no block allocation).
 
-Cheers,
-   Trond
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
+do_direct_IO -> get_more_blocks -> ext3_direct_io_get_blocks. In
+get_more_blocks(),  do_direct_IO() handles the write to hole situation
+by simply return an error of ENOTBLK. In direct_io_worker() it detects
+this error then just simply return the size of written byte to 0. The
+real write is handled by the buffered I/O. In
+__generic_file_aio_write_nolock(), generic_file_buffered_write() will be
+called if written by generic_file_direct_write() is 0.
+
+Could you confirm my observation above?  Hope I understand this right:
+right now direct io write to a hole is actually handled by buffered IO.
+If so, there must be some valid reason that I could not see now.
+
+
+Thanks,
+Mingming
 

@@ -1,92 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262441AbVD2Gku@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262443AbVD2Goj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262441AbVD2Gku (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 02:40:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbVD2Gku
+	id S262443AbVD2Goj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 02:44:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262442AbVD2Goj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 02:40:50 -0400
-Received: from simmts5.bellnexxia.net ([206.47.199.163]:32946 "EHLO
-	simmts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S262441AbVD2Gkc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 02:40:32 -0400
-Message-ID: <3817.10.10.10.24.1114756831.squirrel@linux1>
-In-Reply-To: <20050429060157.GS21897@waste.org>
-References: <20050426004111.GI21897@waste.org>
-    <Pine.LNX.4.58.0504251859550.18901@ppc970.osdl.org>
-    <20050429060157.GS21897@waste.org>
-Date: Fri, 29 Apr 2005 02:40:31 -0400 (EDT)
-Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
-From: "Sean" <seanlkml@sympatico.ca>
-To: "Matt Mackall" <mpm@selenic.com>
-Cc: "Linus Torvalds" <torvalds@osdl.org>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-User-Agent: SquirrelMail/1.4.4-2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Fri, 29 Apr 2005 02:44:39 -0400
+Received: from gate.crashing.org ([63.228.1.57]:60544 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262443AbVD2Goh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 02:44:37 -0400
+Subject: Re: [PATCH 3/4] ppc64: Add driver for BPA iommu
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Olof Johansson <olof@lixom.net>,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       Paul Mackerras <paulus@samba.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Anton Blanchard <anton@samba.org>
+In-Reply-To: <200504290748.30055.arnd@arndb.de>
+References: <200504190318.32556.arnd@arndb.de>
+	 <200504290635.44965.arnd@arndb.de> <20050429053615.GA30219@lixom.net>
+	 <200504290748.30055.arnd@arndb.de>
+Content-Type: text/plain
+Date: Fri, 29 Apr 2005 16:43:04 +1000
+Message-Id: <1114756984.7111.268.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, April 29, 2005 2:01 am, Matt Mackall said:
+On Fri, 2005-04-29 at 07:48 +0200, Arnd Bergmann wrote:
+> On Freedag 29 April 2005 07:36, Olof Johansson wrote:
+> > On Fri, Apr 29, 2005 at 06:35:43AM +0200, Arnd Bergmann wrote:
+> >>
+> > Anyhow, enum or #define, it should be moved to bpa_iommu.h.
+> 
+> I don't interface with any other files, so I prefer to have
+> everything in one file here. If there is anyone else who
+> agrees with you on moving this into a separate file, I don't
+> mind doing that.
 
-> What I'd like to highlight here is that git's repo is growing more
-> than 10 times faster. 52 megs is twice the size of a full kernel
-> tarball. And that's going to be the bottleneck for network pull
-> operations.
+The habit here is for such "private" .h to be next to the .c, while a
+shared one goes in include/asm-* or include/linux.
 
-There isn't anything preventing optomized transfer protocols for git. 
-Give it time.
-
-
-> The fundamental problem I see with git is that the back-end has no
-> concept of the relation between files. This data is only present in
-> change nodes so you've got to potentially traverse all the commits to
-> reconstruct a file's history. That's gonna be O(top-level changes)
-> seeks. This introduces a number of problems:
->
-> - no way to easily find previous revisions of a file
->   (being able to see when a particular change was introduced is a
->   pretty critical feature)
-
-Scanning back through the history is a linear operation and will quite
-likely be just fine for many uses.   As others have pointed out, you can
-cache the result to improve subsequent lookups.
-
-
-> - no way to do bandwidth-efficient delta transfer
-
-There's nothing preventing this in the longer term.  And you know, we're
-only talking about a few megabytes per release.  We're not talking about
-video here.
-
-
-> - no way to do efficient delta storage
-
-This has been discussed.  It is a recognized and accepted design
-trade-off.  Disk is cheap.
-
-
-> - no way to do merges based on the file's history[1]
-
-What is preventing merges from looking back through the git history?
-
-
-
-The fundamental design of git is essentially done, it is what it is.
-
-Your concearns are about performance rather than real limitations and it's
-just too damn early in the development process for that.  Frankly it's
-amazing how good git is considering its age; it's already _way_ faster and
-easier to use than bk ever was for my use.
-
-
-> Mathematics is the supreme nostalgia of our time.
-
-I've been tying to figure out what this means for a while now <g>
-
-
-Sean
+Ben.
 
 

@@ -1,39 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262785AbVD2PCj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262755AbVD2PGR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262785AbVD2PCj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 11:02:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262788AbVD2PCK
+	id S262755AbVD2PGR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 11:06:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262774AbVD2PFc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 11:02:10 -0400
-Received: from web60211.mail.yahoo.com ([209.73.178.114]:23434 "HELO
-	web60211.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262783AbVD2PAL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 11:00:11 -0400
-Message-ID: <20050429150011.62598.qmail@web60211.mail.yahoo.com>
-Date: Fri, 29 Apr 2005 11:00:10 -0400 (EDT)
-From: john doe <catcowcrow@yahoo.ca>
-Subject: ATA port addresses
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Fri, 29 Apr 2005 11:05:32 -0400
+Received: from ns2.suse.de ([195.135.220.15]:227 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262755AbVD2PCu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 11:02:50 -0400
+Date: Fri, 29 Apr 2005 17:02:48 +0200
+From: Andi Kleen <ak@suse.de>
+To: Roland McGrath <roland@redhat.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] x86_64: handle iret faults better
+Message-ID: <20050429150248.GK21080@wotan.suse.de>
+References: <Pine.LNX.4.58.0504252102180.18901@ppc970.osdl.org> <200504290345.j3T3jZZr032230@magilla.sf.frob.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200504290345.j3T3jZZr032230@magilla.sf.frob.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am looking to develop a diagnostic tool for hard
-disks.  I need to identify the devices.
+> This patch makes faults in iret produce the normal signals that would
+> result from the same errors when executing some user-mode instruction.
+> To accomplish this, I've extended the exception_table mechanism to support
+> "special fixups".  Instead of a PC location to jump to, these have a
+> function called in the trap handler context and passed the full trap details.
 
-I already have the command to issue to the command
-register, how to set the device register and how to
-read the data register for the information needed.
+As written earlier I dont like this patch because it is far too complicated.
+I would just fake a simple signal in the error handler, all the other
+complicated infrastructure seems unnecessary.
 
-What I need to know is the port address space for the
-ATA device.  Specifically the port address space of
-the command bloc registers.
 
-Any help would be much appreciated
-Thank you
+Linus, Andrew, please dont apply this patch.
 
-John
-
-______________________________________________________________________ 
-Post your free ad now! http://personals.yahoo.ca
+-Andi

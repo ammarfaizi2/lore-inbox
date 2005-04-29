@@ -1,74 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262494AbVD2LqT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262485AbVD2Lsv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262494AbVD2LqT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 07:46:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262485AbVD2LqT
+	id S262485AbVD2Lsv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 07:48:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262500AbVD2Lsu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 07:46:19 -0400
-Received: from mailfe03.swip.net ([212.247.154.65]:52669 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S262494AbVD2LqB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 07:46:01 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Subject: Re: 2.6.11.7 kernel panic on boot on AMD64
-From: Alexander Nyberg <alexn@telia.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: ruben@puettmann.net, linux-kernel@vger.kernel.org, rddunlap@osdl.org,
-       ak@suse.de
-In-Reply-To: <20050429031027.62d17bfa.akpm@osdl.org>
-References: <20050427140342.GG10685@puettmann.net>
-	 <1114769162.874.4.camel@localhost.localdomain>
-	 <20050429031027.62d17bfa.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 29 Apr 2005 13:45:59 +0200
-Message-Id: <1114775159.497.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Apr 2005 07:48:50 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:39920 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S262485AbVD2Lsa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 07:48:30 -0400
+In-Reply-To: <42713084.7070403@fujitsu-siemens.com>
+Subject: Re: Again: UML on s390 (31Bit)
+To: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
+       user-mode-linux devel 
+	<user-mode-linux-devel@lists.sourceforge.net>
+X-Mailer: Lotus Notes Build V651_12042003 December 04, 2003
+Message-ID: <OFC64AA10F.5C318C60-ONC1256FF2.003E8736-C1256FF2.0040BFA0@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Date: Fri, 29 Apr 2005 13:47:13 +0200
+X-MIMETrack: Serialize by Router on D12ML062/12/M/IBM(Release 6.53HF247 | January 6, 2005) at
+ 29/04/2005 13:48:26
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fre 2005-04-29 klockan 03:10 -0700 skrev Andrew Morton:
-> Alexander Nyberg <alexn@telia.com> wrote:
-> >
-> > >                                                                                                            
-> > > I'm trying to install linux on an HP DL385 but directly on boot I got                                           
-> > > this kernel panic:
-> > > 
-> > >         http://www.puettmann.net/temp/panic.jpg
-> > 
-> > 
-> > This is bogus appending stuff to the saved_command_line and at the same
-> > time in Rubens case it touches the late_time_init() which breakes havoc.
-> 
-> -ETOOTERSE.  Do you meen that the user's command line was so long that this
-> strcat wandered off the end of the buffer and corrupted late_time_init?
+Bodo Stroesser <bstroesser@fujitsu-siemens.com> wrote on 04/28/2005
+08:50:44 PM:
 
-Yes indeed, 256 chars has now really been proven to not be long enough.
+> 5) UML runs its own sys_(rt_)sigreturn for the process, skips its own
+>     syscall restart processing and writes the registers of the child with
+>     the values, that result from sys_(rt_)sigreturn processing. Now GPR2
+>     is loaded with ERESTARTXXXXXX again.
+>
+> 6) The child is resumed with PTRACE_SYSCALL. If a further signal is
+>     pending in the host for that child, the host runs do_signal().
+>     As regs->trap still is set for a syscall, syscall restarting is
+>     processed in the host, the process in UML will fail.
 
-> 
-> > Signed-off-by: Alexander Nyberg <alexn@telia.com>
-> > 
-> > Index: linux-2.6/arch/x86_64/kernel/head64.c
-> > ===================================================================
-> > --- linux-2.6.orig/arch/x86_64/kernel/head64.c	2005-04-26 11:41:43.000000000 +0200
-> > +++ linux-2.6/arch/x86_64/kernel/head64.c	2005-04-29 11:57:46.000000000 +0200
-> > @@ -93,9 +93,6 @@
-> >  #ifdef CONFIG_SMP
-> >  	cpu_set(0, cpu_online_map);
-> >  #endif
-> > -	/* default console: */
-> > -	if (!strstr(saved_command_line, "console="))
-> > -		strcat(saved_command_line, " console=tty0"); 
-> 
-> Wasn't that code there for a reason?
+That is what I was after, the additional signal that causes the problem
+is pending for the child, not for the ptrace father process.
 
-Appending console=tty0 is from what I can see redundant. And if it
-really has a reason it needs a comment and a check to see if there
-really is room in saved_command_line for it. We'll see what Andi has to
-say...
+> Obviously, this is a rare case. On i386, the syscall number is used as
+> trap, so -1 can be written to it at the second interception to skip
+> syscall restarting. Some months ago, UML/i386 did not yet use this, so
+> I wrote a litte program, that made the problem happen.
 
-btw x64 is seemingly the only architecture that actually uses
-saved_command_line as the real working command line and not
-command_line, this is a bit confusing.
+The rare cases are always the most complicated ones. To make UML work
+reliably this needs to get fixed.
+
+> > I don't claim to know, and that is why I don't like to see this done in the
+> > syscall_ptrace function. Perhaps via peekusr/pokeuser interface but then
+> > trap should be a member of struct user.
+> As trap could be added to struct user at the end of struct user only, this
+> would result in an additional ptrace call in UML :-(
+>
+> Is it safe to increase size of struct user? What about software being
+> recompiled partly (e.g. using a private lib which isn't recompiled; or the
+> lib is recompiled, while the program isn't).
+> So maybe an additional ptrace operation (PTRACE_SETTRAP?) would be better,
+> but still we would need one more syscall in UML.
+
+Yes, it is not a really good idea to add something to struct user. That will
+affect the dump format and debugging tools. So it would be an additional ptrace
+command like PTRACE_SETTRAP/PTRACE_GETTRAP. The only other solution I can think
+of is to be more specific about what the debugger can indicate to the debuggee
+what needs to be done after the first syscall_trace invocation. At the moment
+it is either
+1) a valid system call number, execute the new syscall, or
+2) an invalid system call number, skip the system call but don't change
+   regs->traps and do system call restarting if another signal is pending
+If we use more specific error codes instead of just any invalid syscall number
+we could have e.g. this:
+1) a vaild system call number, execute the new syscall,
+2) -Exxx, skip the system call, store -1 to regs->trap and then continue
+   with restarting system calls if another system call is pending.
+3) -Eyyy, skip the system call but leave regs->trap intact so that a pending
+   signal will restart the system call.
+
+But we really have to be very careful not to break either strace or gdb if
+we do this change. Probably it is much easier to introduce PTRACE_SET/GET_TRAP.
+
+blue skies,
+   Martin
+
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
 

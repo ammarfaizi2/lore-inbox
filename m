@@ -1,71 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263010AbVD2VqC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262978AbVD2Vwd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263010AbVD2VqC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 17:46:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263009AbVD2VoO
+	id S262978AbVD2Vwd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 17:52:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262980AbVD2Vwc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 17:44:14 -0400
-Received: from fire.osdl.org ([65.172.181.4]:44469 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S263016AbVD2Vnf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 17:43:35 -0400
-Date: Fri, 29 Apr 2005 14:43:21 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: jermar@itbs.cz
-Cc: len.brown@intel.com, torvalds@osdl.org, aul.s.diefenbaugh@intel.com,
-       jun.nakajima@intel.com, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: acpi_find_rsdp() diverges from ACPI specification
-Message-Id: <20050429144321.3398db9a.rddunlap@osdl.org>
-In-Reply-To: <20050429230350.qid9o7yht3qckkg8@mail.hosting123.cz>
-References: <20050429230350.qid9o7yht3qckkg8@mail.hosting123.cz>
-Organization: OSDL
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 29 Apr 2005 17:52:32 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:60345 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262978AbVD2Vw3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 17:52:29 -0400
+Subject: Re: i386 'make install' behavior change
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+In-Reply-To: <20050429205443.GA8699@mars.ravnborg.org>
+References: <1114797161.9140.22.camel@localhost>
+	 <20050429205443.GA8699@mars.ravnborg.org>
+Content-Type: text/plain
+Date: Fri, 29 Apr 2005 14:52:24 -0700
+Message-Id: <1114811544.9140.51.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Apr 2005 23:03:50 +0200 jermar@itbs.cz wrote:
+On Fri, 2005-04-29 at 22:54 +0200, Sam Ravnborg wrote:
+> On Fri, Apr 29, 2005 at 10:52:41AM -0700, Dave Hansen wrote:
+> > Hi Sam,
+> > 
+> > I noticed in 2.6.12-rc3 that 'make install' doesn't depend on vmlinux.
+> > I first noticed this in -mm, and it was discussed a bit here:
+> > 
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=111083577531995&w=2
+> > 
+> > Could you please push that patch to Linus before 2.6.12 finalizes?
+> 
+> It's on the plate for this weekend.
 
-| Hello,
-| 
-| I found out that acpi_find_rsdp() tries to find the RSDP structure in an area
-| bit larger than the ACPI specification wants. The right interval should start
-| at 0xe0000 and end at 0xfffff. The search area is thus 128K+1B large.
+Great!  Just wanted to make sure it hadn't been dropped.
 
-The search area is thus 128 KB large, so I agree with the intent of
-this patch, except for the +1B.
+-- Dave
 
-
-| Given the semantics of acpi_scan_rsdp(), the second argument should therefore be
-| the size, not the end address.
-
-Yes.
-
-| Should there be any comments, please email me directly as I don't regularily
-| read LKM.
-| 
-| Please, apply.
-| 
-| Jakub
-| 
-| --- linux-2.6.11.7/arch/i386/kernel/acpi/boot.c 2005-04-07 20:58:17.000000000
-| +0200
-| +++ linux-2.6.11.7-acpi-patch/arch/i386/kernel/acpi/boot.c      2005-04-29
-| 21:39:08.000000000 +0200
-| @@ -644,7 +644,7 @@ acpi_find_rsdp (void)
-|          */
-|         rsdp_phys = acpi_scan_rsdp (0, 0x400);
-|         if (!rsdp_phys)
-| -               rsdp_phys = acpi_scan_rsdp (0xE0000, 0xFFFFF);
-| +               rsdp_phys = acpi_scan_rsdp (0xE0000, 128*1024 + 1);
-Just drop the "+ 1".
-
-| 
-|         return rsdp_phys;
-|  }
-
-
----
-~Randy

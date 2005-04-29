@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262909AbVD2Tpt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262912AbVD2TtS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262909AbVD2Tpt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 15:45:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262910AbVD2Tpt
+	id S262912AbVD2TtS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 15:49:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262910AbVD2TtS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 15:45:49 -0400
-Received: from webmail.houseafrika.com ([12.162.17.52]:46464 "EHLO
-	Mansi.STRATNET.NET") by vger.kernel.org with ESMTP id S262909AbVD2Tpk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 15:45:40 -0400
-To: bjordan@infinicon.com
-Cc: Caitlin Bestler <caitlin.bestler@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       hch@infradead.org, linux-kernel@vger.kernel.org,
-       openib-general@openib.org, Timur Tabi <timur.tabi@ammasso.com>
-Subject: Re: RDMA memory registration
-X-Message-Flag: Warning: May contain useful information
-References: <20050425135401.65376ce0.akpm@osdl.org>
-	<20050426084234.A10366@topspin.com> <52mzrlsflu.fsf@topspin.com>
-	<20050426122850.44d06fa6.akpm@osdl.org> <5264y9s3bs.fsf@topspin.com>
-	<426EA220.6010007@ammasso.com> <20050426133752.37d74805.akpm@osdl.org>
-	<5ebee0d105042907265ff58a73@mail.gmail.com>
-	<469958e005042908566f177b50@mail.gmail.com>
-	<52d5sdjzup.fsf_-_@topspin.com>
-	<5ebee0d1050429124333776354@mail.gmail.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Fri, 29 Apr 2005 12:45:38 -0700
-In-Reply-To: <5ebee0d1050429124333776354@mail.gmail.com> (Bill Jordan's
- message of "Fri, 29 Apr 2005 15:43:10 -0400")
-Message-ID: <52ll71icyl.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+	Fri, 29 Apr 2005 15:49:18 -0400
+Received: from fire.osdl.org ([65.172.181.4]:33157 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262913AbVD2TtD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 15:49:03 -0400
+Date: Fri, 29 Apr 2005 12:50:55 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Matt Mackall <mpm@selenic.com>
+cc: Sean <seanlkml@sympatico.ca>, linux-kernel <linux-kernel@vger.kernel.org>,
+       git@vger.kernel.org
+Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
+In-Reply-To: <20050429191207.GX21897@waste.org>
+Message-ID: <Pine.LNX.4.58.0504291248210.18901@ppc970.osdl.org>
+References: <20050426004111.GI21897@waste.org> <Pine.LNX.4.58.0504251859550.18901@ppc970.osdl.org>
+ <20050429060157.GS21897@waste.org> <3817.10.10.10.24.1114756831.squirrel@linux1>
+ <20050429074043.GT21897@waste.org> <Pine.LNX.4.58.0504290728090.18901@ppc970.osdl.org>
+ <20050429163705.GU21897@waste.org> <Pine.LNX.4.58.0504291006450.18901@ppc970.osdl.org>
+ <20050429191207.GX21897@waste.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 29 Apr 2005 19:45:38.0940 (UTC) FILETIME=[04FDCBC0:01C54CF4]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Bill> Are you suggesting making the partial pages their own VMA,
-    Bill> or marking the entire buffer with this flag? I originally
-    Bill> thought the entire buffer should be copy on fork (instead of
-    Bill> copy on write), and I believe this is the path Mellanox was
-    Bill> pursing with the VM_NO_COW flag.  However, if applications
-    Bill> are registering gigs of ram, it would be very bad to have
-    Bill> the entire area copied on fork.
 
-It's up to userspace really but I would expect that the partial pages
-would be in a vma by themselves.
 
- - R.
+On Fri, 29 Apr 2005, Matt Mackall wrote:
+> 
+> Here's an excerpt from http://selenic.com/mercurial/notes.txt on how
+> the back-end works.
 
+Any notes on how you maintain repository-level information?
+
+For example, the expense in BK wasn't the single-file history, it was the
+_repository_ history, ie the "ChangeSet" file. Which grows quite slowly,
+but because it _always_ grows, it ends up being quite big and expensive to
+parse after three years.
+
+Ie do you have the git kind of "independent trees/commits", or do you 
+create a revision history of those too?
+
+		Linus

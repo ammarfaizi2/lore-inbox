@@ -1,63 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262507AbVD2MJS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262533AbVD2MsB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262507AbVD2MJS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 08:09:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262512AbVD2MJS
+	id S262533AbVD2MsB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 08:48:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262534AbVD2MsA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 08:09:18 -0400
-Received: from fire.osdl.org ([65.172.181.4]:39371 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262507AbVD2MJN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 08:09:13 -0400
-Date: Fri, 29 Apr 2005 05:08:33 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Pedro Venda (SYSADM)" <pjvenda@rnl.ist.utl.pt>
-Cc: linux-kernel@vger.kernel.org, rnl@rnl.ist.utl.pt
-Subject: Re: ftp server crashes on heavy load: possible scheduler bug
-Message-Id: <20050429050833.6b3d805b.akpm@osdl.org>
-In-Reply-To: <200504261402.57375.pjvenda@rnl.ist.utl.pt>
-References: <200504261402.57375.pjvenda@rnl.ist.utl.pt>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 29 Apr 2005 08:48:00 -0400
+Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:23076 "EHLO
+	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
+	id S262533AbVD2Mr5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 08:47:57 -0400
+X-SBRSScore: None
+X-IronPort-AV: i="3.92,138,1112565600"; 
+   d="scan'208"; a="8351054:sNHT1595595280"
+Message-ID: <42722CF7.4000005@fujitsu-siemens.com>
+Date: Fri, 29 Apr 2005 14:47:51 +0200
+From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+CC: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
+       user-mode-linux devel 
+	<user-mode-linux-devel@lists.sourceforge.net>
+Subject: Re: Again: UML on s390 (31Bit)
+References: <OFC64AA10F.5C318C60-ONC1256FF2.003E8736-C1256FF2.0040BFA0@de.ibm.com>
+In-Reply-To: <OFC64AA10F.5C318C60-ONC1256FF2.003E8736-C1256FF2.0040BFA0@de.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Pedro Venda (SYSADM)" <pjvenda@rnl.ist.utl.pt> wrote:
->
-> We've made some changes on our ftp server, and since that it's been crashing 
->  frequently (everyday) with a kernel panic. 
-> 
->  We've configured the 5 IDE 160GB drives into md raid5 arrays with LVM on top 
->  of that. All filesystems are reiserfs. The other change we made to the server 
->  was changing from a patched 2.6.10-ac12 kernel into a newer 2.6.11.7.
-> 
->  Not being able to see the whole stacktrace on screen, we've started a 
->  netconsole to investigate. Started the server and loaded it pretty bad with 
->  rsyncs and such... until it crashed after just 20 minutes.
-> 
->  The netconsole log was surprising - "kernel BUG at kernel/sched.c:2634!"
+Martin Schwidefsky wrote:
+> Yes, it is not a really good idea to add something to struct user. That will
+> affect the dump format and debugging tools. So it would be an additional ptrace
+> command like PTRACE_SETTRAP/PTRACE_GETTRAP. The only other solution I can think
+> of is to be more specific about what the debugger can indicate to the debuggee
+> what needs to be done after the first syscall_trace invocation. At the moment
+> it is either
+> 1) a valid system call number, execute the new syscall, or
+> 2) an invalid system call number, skip the system call but don't change
+>    regs->traps and do system call restarting if another signal is pending
+> If we use more specific error codes instead of just any invalid syscall number
+> we could have e.g. this:
+> 1) a vaild system call number, execute the new syscall,
+> 2) -Exxx, skip the system call, store -1 to regs->trap and then continue
+>    with restarting system calls if another system call is pending.
+Typo with<->without?
 
-Strange.  It'd be interesting to try disabling CONFIG_4KSTACKS.  Also,
-please add this to get a bit more info.
+Yes. That's what I suggested as a "special magic number". Only if that magic
+is written as syscall number at the first interception, syscall_trace() would
+modify regs->trap to -1.
+Currently my patch uses -1 as the magic number, but there might be better
+choices.
 
-diff -puN kernel/sched.c~a kernel/sched.c
---- 25/kernel/sched.c~a	2005-04-29 05:05:24.792004408 -0700
-+++ 25-akpm/kernel/sched.c	2005-04-29 05:06:36.015176840 -0700
-@@ -2631,7 +2631,12 @@ void fastcall add_preempt_count(int val)
- 	/*
- 	 * Underflow?
- 	 */
--	BUG_ON(((int)preempt_count() < 0));
-+	if ((int)preempt_count() < 0) {
-+		printk("preempt_count=%d\n", preempt_count());
-+		BUG();
-+	}
-+	if ((int)preempt_count() > 1000)
-+		printk("preempt_count=%d\n", preempt_count());
- 	preempt_count() += val;
- 	/*
- 	 * Spinlock count overflowing soon?
-_
+> 3) -Eyyy, skip the system call but leave regs->trap intact so that a pending
+>    signal will restart the system call.
+Not only -Eyyy, but all values unequal to "special magic number" could leave
+regs->trap intact.
 
+> 
+> But we really have to be very careful not to break either strace or gdb if
+> we do this change. Probably it is much easier to introduce PTRACE_SET/GET_TRAP.
+It's easier for s390-kernel, but from UML's point of view, the magic number
+solution would be better.
+Anyway, if you decide not to allow the magic number, we have to find a way
+to use PTRACE_SETTRAP in UML without having to call it too often (Performance).
+Because of UML's splitting in kernel-obj and user-obj, this might be a bit
+tricky.
+
+BTW: I see no reason to implement PTRACE_GETTRAP, as
+PTRACE_SETOPTIONS/PTRACE_TRACESYSGOOD give us a way to distinguish between
+syscall interceptions and other SIGTRAPs.
+
+Regards, Bodo

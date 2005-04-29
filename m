@@ -1,58 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263040AbVD2XHV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263057AbVD2XTj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263040AbVD2XHV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 19:07:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263053AbVD2XHV
+	id S263057AbVD2XTj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 19:19:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263058AbVD2XTj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 19:07:21 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:16029 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S263040AbVD2XHM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 19:07:12 -0400
-Date: Fri, 29 Apr 2005 16:06:59 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Christoph Hellwig <hch@infradead.org>
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [PATCH 3/3] Page Fault Scalability V20: Avoid lock for anonymous
- write fault
-In-Reply-To: <20050429210240.GA14774@infradead.org>
-Message-ID: <Pine.LNX.4.58.0504291600500.16690@schroedinger.engr.sgi.com>
-References: <20050429195901.15694.28520.sendpatchset@schroedinger.engr.sgi.com>
- <20050429195917.15694.21053.sendpatchset@schroedinger.engr.sgi.com>
- <20050429210240.GA14774@infradead.org>
+	Fri, 29 Apr 2005 19:19:39 -0400
+Received: from mail-in-01.arcor-online.net ([151.189.21.41]:12227 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S263057AbVD2XTg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 19:19:36 -0400
+From: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
+	<7eggert@gmx.de>
+Subject: Re: [PATCH] cifs: handle termination of cifs oplockd kernel thread
+To: Steve French <smfrench@austin.rr.com>, linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Sat, 30 Apr 2005 01:18:19 +0200
+References: <3YLdQ-4vS-15@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+Message-Id: <E1DRekV-0001RN-VQ@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Apr 2005, Christoph Hellwig wrote:
+Steve French <smfrench@austin.rr.com> wrote:
 
-> On Fri, Apr 29, 2005 at 12:59:17PM -0700, Christoph Lameter wrote:
-> > Do not use the page_table_lock in do_anonymous_page. This will significantly
-> > increase the parallelism in the page fault handler for SMP systems. The patch
-> > also modifies the definitions of _mm_counter functions so that rss and anon_rss
-> > become atomic (and will use atomic64_t if available).
->
-> I thought we said all architectures should provide an atomic64_t (and
-> given that it's not actually 64bit on 32bit architecture we should
-> probably rename it to atomic_long_t)
+> As we try to gradually obsolete smbfs, this came up with various users
+> (there was even a bugzilla bug opened for adding it) who said that they
+> need the ability to unmount their own mounts for network filesystems
+> without using /etc/fstab.    Unfortunately for network filesytsems,
+> unlike local filesystems, it is impractical to put every possible mount
+> target in /etc/fstab since servers get renamed and the universe of
+> possible cifs mount targets for a user is large.
+> 
+> There seemed only three alternatives -
+> 1) mimic the smbfs ioctl -   as can be seen from smbfs and smbumount
+> source this has portability problems because apparently there is no
+> guarantee that uid_t is the same size in kernel and in userspace - smbfs
+> actually has two ioctls for different sizes of uid field - this seemed
+> like a bad idea
+> 2) export the uid in /proc/mounts - same problem as above
+> 3) call into the kernel to see if current matches the uid of the mounter
+> - this has no 16/32/64 bit uid portability issues since the check is
+> made in kernel
 
-Yes the way atomic types are provided may need a revision.
-First of all we need atomic types that are size bound
+4) Turn umounting own mounts into a non-privileged operation.
 
-	atomic8_t
-	atomic16_t
-	atomic32_t
+As (AFAI see) the only thing that needs suid privileges is the umount
+operation, and it is granted if the user mounted it himself, you can as
+well do this simple check in the kernel.
+-- 
+Funny quotes:
+40. Isn't making a smoking section in a restaurant like making a peeing
+    section in a swimming pool?
 
-and (if available)
-
-	atomic64_t
-
-and then some aliases
-
-	atomic_t -> atomic type for int
-	atomic_long_t -> atomic type for long
-
-If these types are available then this patch could be cleaned up to
-just use atomic_long_t.

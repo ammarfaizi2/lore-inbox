@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262781AbVD2Ot7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262775AbVD2O5G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262781AbVD2Ot7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 10:49:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbVD2OtB
+	id S262775AbVD2O5G (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 10:57:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262783AbVD2Oyp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 10:49:01 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:13021 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262771AbVD2Oqf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 10:46:35 -0400
-Date: Fri, 29 Apr 2005 16:46:32 +0200
-From: Andi Kleen <ak@suse.de>
-To: Alexander Nyberg <alexn@telia.com>
-Cc: Andi Kleen <ak@suse.de>, Ruben Puettmann <ruben@puettmann.net>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, rddunlap@osdl.org
-Subject: Re: 2.6.11.7 kernel panic on boot on AMD64
-Message-ID: <20050429144632.GI21080@wotan.suse.de>
-References: <20050427140342.GG10685@puettmann.net> <1114769162.874.4.camel@localhost.localdomain> <20050429143215.GE21080@wotan.suse.de> <1114785867.497.29.camel@localhost.localdomain>
+	Fri, 29 Apr 2005 10:54:45 -0400
+Received: from mail.shareable.org ([81.29.64.88]:10411 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262755AbVD2OvD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 10:51:03 -0400
+Date: Fri, 29 Apr 2005 15:50:42 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Miklos Szeredi <miklos@szeredi.hu>, linuxram@us.ibm.com, ericvh@gmail.com,
+       pavel@ucw.cz, hch@infradead.org, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Question about current->namespace and check_mnt()
+Message-ID: <20050429145042.GC17263@mail.shareable.org>
+References: <20050425190734.GB28294@mail.shareable.org> <20050426092924.GA4175@elf.ucw.cz> <20050426140715.GA10833@mail.shareable.org> <a4e6962a050428064774e88f4a@mail.gmail.com> <20050428192048.GA2895@mail.shareable.org> <1114717183.4180.718.camel@localhost> <20050428220839.GA5183@mail.shareable.org> <1114761430.4180.1566.camel@localhost> <E1DRWEt-000149-00@dorka.pomaz.szeredi.hu> <20050429144252.GA17263@mail.shareable.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1114785867.497.29.camel@localhost.localdomain>
+In-Reply-To: <20050429144252.GA17263@mail.shareable.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 29, 2005 at 04:44:27PM +0200, Alexander Nyberg wrote:
-> > Hmm? saved_command_Line should have enough space to add a simple string.
-> > It is a 1024bytes. Unless you already have a 1k command line it should
-> > be quite ok.
-> 
-> init/main.c:
-> char saved_command_line[COMMAND_LINE_SIZE];
-> 
-> inclide/asm-x86-64/setup.h:
-> #define COMMAND_LINE_SIZE	256
-> 
-> Rubens command line is a total of 251 chars, adding "console=tty0" will
-> exceed it.
+Hi Al,
 
-Ok that makes sense. I missed the fact that the original report
-had such a overlong command line.
+I have a specific namespace.c question:
 
-> 
-> > Why do you think it is bogus?
-> > 
-> 
-> I thought that saved_command_line on x64 was like the other archs, an
-> untouched copy and it wouldn't have made sense to apply another string
-> to it then, but I was wrong as it is the working line.
-> 
-> I still don't understand why console=tty0 is to be appended however.
+I really like to know what the purpose of check_mnt() is in
+namespace.c.  In standard kernels you can't enter another process'
+namespace so I don't see how check_mnt() can _ever_ fail.  Can it
+fail, or in other words, what is the purpose of that check?
 
-It was needed in some 2.5 kernel when the console subsystem was 
-very broken and I got tired of debugging it and just added this
-easy workaround. Probably should have taken it out later, but
-then these things tend to stick around.
+And if it can't fail, is there really a need for current->namespace, or
+can it just be removed?
 
--Andi
+Also, I would think the current process' rootmnt->mnt_namespace would
+adequately define the "current process namespace", so making
+current->namespace redundant in that way.  Is that right?
+
+Thanks,
+-- Jamie

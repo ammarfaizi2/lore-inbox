@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262386AbVD2EWp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262385AbVD2EXr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262386AbVD2EWp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 00:22:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262385AbVD2EVZ
+	id S262385AbVD2EXr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 00:23:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262387AbVD2EXr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 00:21:25 -0400
-Received: from mail.kroah.org ([69.55.234.183]:33188 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262382AbVD2EUu (ORCPT
+	Fri, 29 Apr 2005 00:23:47 -0400
+Received: from smtp.istop.com ([66.11.167.126]:23242 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S262385AbVD2EXa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 00:20:50 -0400
-Date: Thu, 28 Apr 2005 21:16:14 -0700
-From: Greg KH <greg@kroah.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <gregkh@suse.de>,
-       blaisorblade@yahoo.it, user-mode-linux-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>, Cliff White <cliffw@osdl.org>,
-       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org
-Subject: Re: [01/07] uml: add nfsd syscall when nfsd is modular
-Message-ID: <20050429041613.GB25474@kroah.com>
-References: <20050427171446.GA3195@kroah.com> <20050427171552.GB3195@kroah.com> <1114619612.18355.113.camel@localhost.localdomain> <20050427174652.GL23013@shell0.pdx.osdl.net> <1114622596.18809.120.camel@localhost.localdomain> <20050427184733.GW493@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 29 Apr 2005 00:23:30 -0400
+From: Daniel Phillips <phillips@istop.com>
+To: David Teigland <teigland@redhat.com>
+Subject: Re: [PATCH 0/7] dlm: overview
+Date: Fri, 29 Apr 2005 00:24:07 -0400
+User-Agent: KMail/1.7
+Cc: Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org
+References: <20050425151136.GA6826@redhat.com> <20050427135635.GA4431@marowsky-bree.de> <20050428162552.GH10628@redhat.com>
+In-Reply-To: <20050428162552.GH10628@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050427184733.GW493@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.5.8i
+Message-Id: <200504290024.08076.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 27, 2005 at 11:47:33AM -0700, Chris Wright wrote:
-> * Alan Cox (alan@lxorguk.ukuu.org.uk) wrote:
-> > On Mer, 2005-04-27 at 18:46, Chris Wright wrote:
-> > > > Don't see why this one is a critical bug.
-> > > 
-> > > I guess without it, modular nfsd has no syscall interface (for UML, or
-> > > course).
-> > 
-> > And the trivial zero risk fix is to compile it in. Its hardly pressing
-> 
-> OK, let's drop it.
+On Thursday 28 April 2005 12:25, David Teigland wrote:
+> There's a dlm daemon in user space that works with the specific sysfs
+> files above and interfaces with whatever cluster infrastructure exists.
+> The same goes for gfs, but the gfs user space daemon does quite a lot more
+> (gfs-specific stuff).
+>
+> In other words, these aren't external API's; they're internal interfaces
+> within systems that happen to be split between the kernel and user-space.
 
-Dropped.
+Traditionally, Linux kernel interfaces have been well-defined.  I do not think 
+we want to break with that tradition now.
 
-thanks,
+So please provide a pointer to the kernel interface you have in mind.
 
-greg k-h
+Regards,
+
+Daniel

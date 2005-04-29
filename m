@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262977AbVD2VAB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262939AbVD2VAA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262977AbVD2VAB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 17:00:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262978AbVD2U7c
+	id S262939AbVD2VAA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 17:00:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262983AbVD2U70
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 16:59:32 -0400
-Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:41678 "EHLO
-	ms-smtp-03-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S262939AbVD2U4E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 16:56:04 -0400
-Message-ID: <42729F4F.2020209@austin.rr.com>
-Date: Fri, 29 Apr 2005 15:55:43 -0500
-From: Steve French <smfrench@austin.rr.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org,
-       rml@novell.com
-Subject: Re: which ioctls matter across filesystems
-References: <42728964.8000501@austin.rr.com> <1114804426.12692.49.camel@lade.trondhjem.org> <1114805033.6682.150.camel@betsy> <1114807360.12692.77.camel@lade.trondhjem.org>
-In-Reply-To: <1114807360.12692.77.camel@lade.trondhjem.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 29 Apr 2005 16:59:26 -0400
+Received: from fire.osdl.org ([65.172.181.4]:21917 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262977AbVD2U5o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 16:57:44 -0400
+Date: Fri, 29 Apr 2005 13:57:05 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: cmm@us.ibm.com
+Cc: suparna@in.ibm.com, sct@redhat.com, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org
+Subject: Re: [Ext2-devel] [RFC] Adding multiple block allocation
+Message-Id: <20050429135705.3f4831bd.akpm@osdl.org>
+In-Reply-To: <1114803764.10473.46.camel@localhost.localdomain>
+References: <1113220089.2164.52.camel@sisko.sctweedie.blueyonder.co.uk>
+	<1113244710.4413.38.camel@localhost.localdomain>
+	<1113249435.2164.198.camel@sisko.sctweedie.blueyonder.co.uk>
+	<1113288087.4319.49.camel@localhost.localdomain>
+	<1113304715.2404.39.camel@sisko.sctweedie.blueyonder.co.uk>
+	<1113348434.4125.54.camel@dyn318043bld.beaverton.ibm.com>
+	<1113388142.3019.12.camel@sisko.sctweedie.blueyonder.co.uk>
+	<1114207837.7339.50.camel@localhost.localdomain>
+	<1114659912.16933.5.camel@mindpipe>
+	<1114715665.18996.29.camel@localhost.localdomain>
+	<20050429135211.GA4539@in.ibm.com>
+	<1114794608.10473.18.camel@localhost.localdomain>
+	<1114803764.10473.46.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
+Mingming Cao <cmm@us.ibm.com> wrote:
+>
+> If we do direct write(block allocation) to a hole, I found that the
+>  "create" flag passed to ext3_direct_io_get_blocks() is 0 if we are
+>  trying to _write_ to a file hole. Is this expected? 
 
->I'm therefore asking whether or not there is a killer-app out there that
->we need to support and that does want to track changes made by other
->clients. File browsers are more or less the only thing that come to
->mind.
->
->Cheers,
->  Trond
->  
->
-I believe that the spotlight facility of MacOS, and the somewhat similar 
-Longhorn feature (think Google desktop search/indexing on steroids) 
-qualify as killer-apps.   I am concerned about how to do better with our 
-implementations across a distributed (NFS, CIFS etc.) network.   And of 
-course coalescing async notifications most efficiently is a fascinating 
-and difficult area to do right - for servers at least.
+Nope.  The code in get_more_blocks() is pretty explicit.
+
+> But if it try to allocating blocks in the hole (with direct IO), blocks
+> are allocated one by one. I am looking at it right now.
+> 
+
+Please see the comment over get_more_blocks().

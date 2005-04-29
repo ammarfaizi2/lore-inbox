@@ -1,59 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262877AbVD2Sdz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262726AbVD2Se7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262877AbVD2Sdz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 14:33:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262878AbVD2Sdz
+	id S262726AbVD2Se7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 14:34:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262879AbVD2Se7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 14:33:55 -0400
-Received: from simmts8.bellnexxia.net ([206.47.199.166]:46791 "EHLO
-	simmts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S262877AbVD2Sdu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 14:33:50 -0400
-Message-ID: <2712.10.10.10.24.1114799620.squirrel@linux1>
-In-Reply-To: <200504291808.LAA25870@emf.net>
-References: <Pine.LNX.4.58.0504291051460.18901@ppc970.osdl.org> (message from
-    Linus Torvalds on Fri, 29 Apr 2005 10:56:30 -0700 (PDT))
-    <200504291808.LAA25870@emf.net>
-Date: Fri, 29 Apr 2005 14:33:40 -0400 (EDT)
-Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
-From: "Sean" <seanlkml@sympatico.ca>
-To: "Tom Lord" <lord@emf.net>
-Cc: torvalds@osdl.org, mpm@selenic.com, linux-kernel@vger.kernel.org,
-       git@vger.kernel.org
-User-Agent: SquirrelMail/1.4.4-2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Fri, 29 Apr 2005 14:34:59 -0400
+Received: from dialin-156-1.tor.primus.ca ([216.254.156.1]:33979 "EHLO
+	node1.opengeometry.net") by vger.kernel.org with ESMTP
+	id S262726AbVD2Sez (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 14:34:55 -0400
+Date: Fri, 29 Apr 2005 14:34:11 -0400
+From: William Park <opengeometry@yahoo.ca>
+To: "David N. Welton" <davidw@dedasys.com>
+Cc: Daniel Drake <dsd@gentoo.org>, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       viro@parcelfarce.linux.theplanet.co.uk, helge.hafting@hist.no
+Subject: Re: rootdelay
+Message-ID: <20050429183411.GA1998@node1.opengeometry.net>
+Mail-Followup-To: "David N. Welton" <davidw@dedasys.com>,
+	Daniel Drake <dsd@gentoo.org>, linux-kernel@vger.kernel.org,
+	akpm@osdl.org, viro@parcelfarce.linux.theplanet.co.uk,
+	helge.hafting@hist.no
+References: <87wtrphuvj.fsf@dedasys.com> <424D929A.2030801@gentoo.org> <87pswjur3c.fsf@dedasys.com> <20050425144213.GA2293@node1.opengeometry.net> <87acnmee1s.fsf@dedasys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87acnmee1s.fsf@dedasys.com>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, April 29, 2005 2:08 pm, Tom Lord said:
+On Mon, Apr 25, 2005 at 11:34:23PM +0200, David N. Welton wrote:
+> > > > > http://dedasys.com/freesoftware/patches/blkdev_wakeup.patch
 
-> The confusion here is that you are talking about computational complexity
-> while I am talking about complexity measured in hours of labor.
->
-> You are assuming that the programmer generating the signature blindly
-> trusts the tool to generate the signed document accurately.   I am
-> saying that it should be tractable for human beings to read the documents
-> they are going to sign.
+I patched it to 2.6.11, and it compiles okey.  On boot, it prints
+    "Waiting for root device to wake us up."
+then it waits for my USB key to register.  After USB partition info
+prints to screen, above message is printed
+    "Waiting for root device to wake us up."
+again.  Then, it just hangs forever.
 
-
-Developers obviously _do_ read the changes they submit to a project or
-they would lose their trusted status.  That has absolutely nothing to do
-with signing, it's the exact same way things work today, without sigs.
-
-It's not "blind trust" to expect a script to reproducibly sign documents
-you've decided to submit to a project.  The signature is not a QUALITY
-guarantee in and of itself.  It doesn't mean you have any additional
-responsibility to remove all bugs before submitting.  Conversely, not
-signing something doesn't mean you can submit crap.
-
-See?  Signing something does not change the quality guarantee one way or
-the other.  It does not put any additional demands on the developer, so
-it's fine to have an automated script do it.  It's just a way to avoid
-impersonations.
-
-Sean
-
+-- 
+William Park <opengeometry@yahoo.ca>, Toronto, Canada
+Slackware Linux -- because it works.

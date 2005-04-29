@@ -1,118 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262826AbVD2Q6E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262834AbVD2REo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262826AbVD2Q6E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 12:58:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262835AbVD2Q6E
+	id S262834AbVD2REo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 13:04:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262835AbVD2REo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 12:58:04 -0400
-Received: from salazar.rnl.ist.utl.pt ([193.136.164.251]:31942 "EHLO
-	admin.rnl.ist.utl.pt") by vger.kernel.org with ESMTP
-	id S262826AbVD2Q5j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 12:57:39 -0400
-From: "Pedro Venda (SYSADM)" <pjvenda@rnl.ist.utl.pt>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: ftp server crashes on heavy load: possible scheduler bug
-Date: Fri, 29 Apr 2005 17:57:36 +0100
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org, rnl@rnl.ist.utl.pt
-References: <200504261402.57375.pjvenda@rnl.ist.utl.pt> <20050429050833.6b3d805b.akpm@osdl.org> <200504291521.08711.pjvenda@rnl.ist.utl.pt>
-In-Reply-To: <200504291521.08711.pjvenda@rnl.ist.utl.pt>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart4332466.H6LsVmhjRR";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200504291757.36163.pjvenda@rnl.ist.utl.pt>
+	Fri, 29 Apr 2005 13:04:44 -0400
+Received: from vanguard.topspin.com ([12.162.17.52]:16960 "EHLO
+	Mansi.STRATNET.NET") by vger.kernel.org with ESMTP id S262834AbVD2RE1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 13:04:27 -0400
+Date: Fri, 29 Apr 2005 10:04:25 -0700
+From: Libor Michalek <libor@topspin.com>
+To: Caitlin Bestler <caitlin.bestler@gmail.com>
+Cc: Bill Jordan <woodennickel@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       hch@infradead.org, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, Timur Tabi <timur.tabi@ammasso.com>
+Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+Message-ID: <20050429100425.A13041@topspin.com>
+References: <20050425173757.1dbab90b.akpm@osdl.org> <52wtqpsgff.fsf@topspin.com> <20050426084234.A10366@topspin.com> <52mzrlsflu.fsf@topspin.com> <20050426122850.44d06fa6.akpm@osdl.org> <5264y9s3bs.fsf@topspin.com> <426EA220.6010007@ammasso.com> <20050426133752.37d74805.akpm@osdl.org> <5ebee0d105042907265ff58a73@mail.gmail.com> <469958e005042908566f177b50@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <469958e005042908566f177b50@mail.gmail.com>; from caitlin.bestler@gmail.com on Fri, Apr 29, 2005 at 08:56:20AM -0700
+X-OriginalArrivalTime: 29 Apr 2005 17:04:27.0003 (UTC) FILETIME=[801154B0:01C54CDD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart4332466.H6LsVmhjRR
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-On Friday 29 April 2005 15:21, Pedro Venda (SYSADM) wrote:
-> On Friday 29 April 2005 13:08, Andrew Morton wrote:
-> > "Pedro Venda (SYSADM)" <pjvenda@rnl.ist.utl.pt> wrote:
-> > > We've made some changes on our ftp server, and since that it's been
-> > > crashing frequently (everyday) with a kernel panic.
+On Fri, Apr 29, 2005 at 08:56:20AM -0700, Caitlin Bestler wrote:
+> On 4/29/05, Bill Jordan <woodennickel@gmail.com> wrote:
+> > On 4/26/05, Andrew Morton <akpm@osdl.org> wrote:
+> > 
+> > > Our point is that contemporary microprocessors cannot electrically
+> > > do what you want them to do!
 > > >
-> > >  We've configured the 5 IDE 160GB drives into md raid5 arrays with LVM
-> > > on top of that. All filesystems are reiserfs. The other change we made
-> > > to the server was changing from a patched 2.6.10-ac12 kernel into a
-> > > newer 2.6.11.7.
+> > > Now, conceeeeeeiveably the kernel could keep track of the state of the
+> > > pages down to the byte level, and could keep track of all COWed pages and
+> > > could look at faulting addresses at the byte level and could copy sub-page
+> > > ranges by hand from one process's address space into another process's
+> > > after I/O completion.  I don't think we want to do that.
 > > >
-> > >  Not being able to see the whole stacktrace on screen, we've started a
-> > >  netconsole to investigate. Started the server and loaded it pretty b=
-ad
-> > > with rsyncs and such... until it crashed after just 20 minutes.
-> > >
-> > >  The netconsole log was surprising - "kernel BUG at
-> > > kernel/sched.c:2634!"
-> >
-> > Strange.  It'd be interesting to try disabling CONFIG_4KSTACKS.  Also,
-> > please add this to get a bit more info.
->
-> hi,
->
-> I'll try that. Should I do it with or without preemption?
+> > > Methinks your specification is busted.
+> > 
+> > I agree in principal. However, I expect this issue will come up with
+> > more and more new specifications, and if it isn't addressed once in
+> > the linux kernel, it will be kludged and broken many times in many
+> > drivers.
+> > 
+> > I believe we need an kernel level interface that will pin user pages,
+> > and lock the user vma in a single step. The interface should be used
+> > by drivers when the hardware mappings are done. If the process is
+> > split into a user operation to lock the memory, and a driver operation
+> > to map the hardware, there will always be opportunity for abuse.
+> > 
+> > Reference counting needs to be done by this interface to allow
+> > different hardware to interoperate.
+> > 
+> > The interface can't overload the VM_LOCKED flag, or rely on any other
+> > attributes that the user can tinker with via any other interface.
+> > 
+> > And as much as I hate to admit it, I think on a fork, we will need to
+> > copy parts of pages at the beginning or end of user I/O buffers.
+> > 
+> 
+> I agree with all but the last part, in my opinion there is no need to deal
+> with fork issues as long as solutions do not result in failures. There is
+> *no* basis for a child process to expect that it will inherit RDMA resources.
+> A child process that uses such resources will get undefined results, nothing
+> further needs to be stated, and no heroic efforts are required to avoid them.
 
-kernel does not boot. I get (initite) repeats of=20
-"=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D" (not scaled).
+  However, you have a potential problem with registered buffers that
+do not begin or end on a page boundary, which is common with malloc.
+If the buffer resides on a portion of a page, and you mark the vm
+which contains that entire page VM_DONTCOPY, to ensure that the parent
+has access to the exact physical page after the fork, the child will
+not be able to access anything on that entire page. So if the child
+expects to access data on the same page that happens to contain the
+registered buffer it will get a segment violation.
 
-I'm testing with a preemptible kernel without 4kstacks but without the=20
-suggested patch.
+The four situations we've discussed are:
 
-regards,
-pedro venda.
+  1) Physical page does not get used for anything else.
+  2) Processes virtual to physical mapping remains fixed.
+  3) Same virtual to physical mapping after forking a child.
+  4) Forked child has access to all non-registered memory of
+     the parent.
 
->
-> regards,
-> pedro venda.
->
-> > diff -puN kernel/sched.c~a kernel/sched.c
-> > --- 25/kernel/sched.c~a	2005-04-29 05:05:24.792004408 -0700
-> > +++ 25-akpm/kernel/sched.c	2005-04-29 05:06:36.015176840 -0700
-> > @@ -2631,7 +2631,12 @@ void fastcall add_preempt_count(int val)
-> >  	/*
-> >  	 * Underflow?
-> >  	 */
-> > -	BUG_ON(((int)preempt_count() < 0));
-> > +	if ((int)preempt_count() < 0) {
-> > +		printk("preempt_count=3D%d\n", preempt_count());
-> > +		BUG();
-> > +	}
-> > +	if ((int)preempt_count() > 1000)
-> > +		printk("preempt_count=3D%d\n", preempt_count());
-> >  	preempt_count() +=3D val;
-> >  	/*
-> >  	 * Spinlock count overflowing soon?
-> > _
+The first two are now taken care of with get_user_pages, (we use to
+use VM_LOCKED for the second case) third case is handled by setting
+the vm to VM_DONTCOPY, and on the fourth case we've always punted,
+but the real answer is to break partial pages into seperate vms and
+mark them ALWAYS_COPY.
 
-=2D-=20
+-Libor
 
-Pedro Jo=E3o Lopes Venda
-email: pjvenda < at > rnl.ist.utl.pt
-http://maxwell.rnl.ist.utl.pt
 
-Equipa de Administra=E7=E3o de Sistemas
-Rede das Novas Licenciaturas (RNL)
-Instituto Superior T=E9cnico
-http://www.rnl.ist.utl.pt
-http://mega.ist.utl.pt
-
---nextPart4332466.H6LsVmhjRR
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCcmeAeRy7HWZxjWERArucAKDFbxeHOMHtakBmTqfjOwK6cTAZogCgjfmh
-batg1j5M9n6Z/C6PqEwII6Q=
-=F+dy
------END PGP SIGNATURE-----
-
---nextPart4332466.H6LsVmhjRR--

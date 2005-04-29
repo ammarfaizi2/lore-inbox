@@ -1,50 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262847AbVD2Qyp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262826AbVD2Q6E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262847AbVD2Qyp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 12:54:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262846AbVD2Qyd
+	id S262826AbVD2Q6E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 12:58:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262835AbVD2Q6E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 12:54:33 -0400
-Received: from waste.org ([216.27.176.166]:36059 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262845AbVD2Qwj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 12:52:39 -0400
-Date: Fri, 29 Apr 2005 09:52:32 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: Morten Welinder <mwelinder@gmail.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Sean <seanlkml@sympatico.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
-Message-ID: <20050429165232.GV21897@waste.org>
-References: <20050426004111.GI21897@waste.org> <Pine.LNX.4.58.0504251859550.18901@ppc970.osdl.org> <20050429060157.GS21897@waste.org> <3817.10.10.10.24.1114756831.squirrel@linux1> <20050429074043.GT21897@waste.org> <Pine.LNX.4.58.0504290728090.18901@ppc970.osdl.org> <118833cc05042908181d09bdfd@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <118833cc05042908181d09bdfd@mail.gmail.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 29 Apr 2005 12:58:04 -0400
+Received: from salazar.rnl.ist.utl.pt ([193.136.164.251]:31942 "EHLO
+	admin.rnl.ist.utl.pt") by vger.kernel.org with ESMTP
+	id S262826AbVD2Q5j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 12:57:39 -0400
+From: "Pedro Venda (SYSADM)" <pjvenda@rnl.ist.utl.pt>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: ftp server crashes on heavy load: possible scheduler bug
+Date: Fri, 29 Apr 2005 17:57:36 +0100
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org, rnl@rnl.ist.utl.pt
+References: <200504261402.57375.pjvenda@rnl.ist.utl.pt> <20050429050833.6b3d805b.akpm@osdl.org> <200504291521.08711.pjvenda@rnl.ist.utl.pt>
+In-Reply-To: <200504291521.08711.pjvenda@rnl.ist.utl.pt>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart4332466.H6LsVmhjRR";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200504291757.36163.pjvenda@rnl.ist.utl.pt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 29, 2005 at 11:18:20AM -0400, Morten Welinder wrote:
-> > I had three design goals. "disk space" wasn't one of them
-> 
-> And, if at some point it should become an issue, it's fixable. Since
-> access to objects is fairly centralized and since they are
-> immutable, it would be quite simple to move an arbitrary selection
-> of the objects into some other storage form which could take
-> similarities between objects into account.
+--nextPart4332466.H6LsVmhjRR
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-This is not a fix, this is a band-aid. A fix is fitting all the data
-in 10 times less space without sacrificing too much performance.
+On Friday 29 April 2005 15:21, Pedro Venda (SYSADM) wrote:
+> On Friday 29 April 2005 13:08, Andrew Morton wrote:
+> > "Pedro Venda (SYSADM)" <pjvenda@rnl.ist.utl.pt> wrote:
+> > > We've made some changes on our ftp server, and since that it's been
+> > > crashing frequently (everyday) with a kernel panic.
+> > >
+> > >  We've configured the 5 IDE 160GB drives into md raid5 arrays with LVM
+> > > on top of that. All filesystems are reiserfs. The other change we made
+> > > to the server was changing from a patched 2.6.10-ac12 kernel into a
+> > > newer 2.6.11.7.
+> > >
+> > >  Not being able to see the whole stacktrace on screen, we've started a
+> > >  netconsole to investigate. Started the server and loaded it pretty b=
+ad
+> > > with rsyncs and such... until it crashed after just 20 minutes.
+> > >
+> > >  The netconsole log was surprising - "kernel BUG at
+> > > kernel/sched.c:2634!"
+> >
+> > Strange.  It'd be interesting to try disabling CONFIG_4KSTACKS.  Also,
+> > please add this to get a bit more info.
+>
+> hi,
+>
+> I'll try that. Should I do it with or without preemption?
 
-> So disk space and its cousin number-of-files are both when-and-if
-> problems. And not scary ones at that.
+kernel does not boot. I get (initite) repeats of=20
+"=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D" (not scaled).
 
-But its sibling bandwidth _is_ a problem. The delta between 2.6.10 and
-2.6.11 in git terms will be much larger than a _full kernel tarball_.
-Simply checking in patch-2.6.11 on top of 2.6.10 as a single changeset
-takes 41M. Break that into a thousand overlapping deltas (ie the way
-it is actually done) and it will be much larger.
+I'm testing with a preemptible kernel without 4kstacks but without the=20
+suggested patch.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+regards,
+pedro venda.
+
+>
+> regards,
+> pedro venda.
+>
+> > diff -puN kernel/sched.c~a kernel/sched.c
+> > --- 25/kernel/sched.c~a	2005-04-29 05:05:24.792004408 -0700
+> > +++ 25-akpm/kernel/sched.c	2005-04-29 05:06:36.015176840 -0700
+> > @@ -2631,7 +2631,12 @@ void fastcall add_preempt_count(int val)
+> >  	/*
+> >  	 * Underflow?
+> >  	 */
+> > -	BUG_ON(((int)preempt_count() < 0));
+> > +	if ((int)preempt_count() < 0) {
+> > +		printk("preempt_count=3D%d\n", preempt_count());
+> > +		BUG();
+> > +	}
+> > +	if ((int)preempt_count() > 1000)
+> > +		printk("preempt_count=3D%d\n", preempt_count());
+> >  	preempt_count() +=3D val;
+> >  	/*
+> >  	 * Spinlock count overflowing soon?
+> > _
+
+=2D-=20
+
+Pedro Jo=E3o Lopes Venda
+email: pjvenda < at > rnl.ist.utl.pt
+http://maxwell.rnl.ist.utl.pt
+
+Equipa de Administra=E7=E3o de Sistemas
+Rede das Novas Licenciaturas (RNL)
+Instituto Superior T=E9cnico
+http://www.rnl.ist.utl.pt
+http://mega.ist.utl.pt
+
+--nextPart4332466.H6LsVmhjRR
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBCcmeAeRy7HWZxjWERArucAKDFbxeHOMHtakBmTqfjOwK6cTAZogCgjfmh
+batg1j5M9n6Z/C6PqEwII6Q=
+=F+dy
+-----END PGP SIGNATURE-----
+
+--nextPart4332466.H6LsVmhjRR--

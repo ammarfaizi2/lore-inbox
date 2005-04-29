@@ -1,58 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262090AbVD2Pwa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262158AbVD2Py4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262090AbVD2Pwa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 11:52:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbVD2Pwa
+	id S262158AbVD2Py4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 11:54:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbVD2Py4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 11:52:30 -0400
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:649
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262090AbVD2PwY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 11:52:24 -0400
-Date: Fri, 29 Apr 2005 08:42:42 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Grant Grundler <grundler@parisc-linux.org>
-Cc: benh@kernel.crashing.org, grundler@parisc-linux.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       greg@kroah.com, bjorn.helgaas@hp.com, davem@redhat.com
-Subject: Re: pci-sysfs resource mmap broken (and PATCH)
-Message-Id: <20050429084242.38db3aeb.davem@davemloft.net>
-In-Reply-To: <20050428233828.GI10171@colo.lackof.org>
-References: <1114493609.7183.55.camel@gaston>
-	<20050426163042.GE2612@colo.lackof.org>
-	<1114555655.7183.81.camel@gaston>
-	<1114643616.7183.183.camel@gaston>
-	<20050428053311.GH21784@colo.lackof.org>
-	<20050427223702.21051afc.davem@davemloft.net>
-	<1114670353.7182.246.camel@gaston>
-	<20050427235056.0bd09a94.davem@davemloft.net>
-	<20050428151117.GB10171@colo.lackof.org>
-	<1114728447.7182.262.camel@gaston>
-	<20050428233828.GI10171@colo.lackof.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Apr 2005 11:54:56 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:56014 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262158AbVD2Py0 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 11:54:26 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: msleep_interruptible() in ethtool ioctl and keyboard input
+Date: Fri, 29 Apr 2005 08:54:23 -0700
+Message-ID: <468F3FDA28AA87429AD807992E22D07E05195E08@orsmsx408>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: msleep_interruptible() in ethtool ioctl and keyboard input
+Thread-Index: AcVM07arVR5CRDUqSzWaE28yJRdwoQ==
+From: "Venkatesan, Ganesh" <ganesh.venkatesan@intel.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <netdev@oss.sgi.com>
+X-OriginalArrivalTime: 29 Apr 2005 15:54:25.0386 (UTC) FILETIME=[B7B574A0:01C54CD3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Apr 2005 17:38:28 -0600
-Grant Grundler <grundler@parisc-linux.org> wrote:
+In response of ethtool -p eth? [time], e1000 calls
+msleep_interruptible() to sleep for <time> seconds or forever if <time>
+is not specified. In the meantime the NIC LEDs are blinked. This works
+fine in all cases.
 
-> I suspect the MAP_* attribute/hint needs to be passed in together
-> with the mmap call if any arch (ia64?) would return a different
-> virtual address depending the attribute (e.g cached vs uncached).
+With 2.4.x kernels this continues to work fine, even if the device
+generates an interrupt (remove the cable, for instance) while blinking
+is ON. 
 
-The only problem could me getting the generic mmap() code to
-properly pass the flag down into the driver, I seem to recall
-that it either does an -EINVAL or masks out any flags which
-are not in the standard set.
+With 2.6.0+ kernels when the cable is removed, the NIC LEDs blink fine
+but the keyboard stops responding (only KDB and CTL-ALT-DEL work, all
+other keystrokes are buffered but not echoed back/acted on) till
+msleep_interruptible completes. Mouse works fine.
 
-But then again this conflicts with what I remember seeing in the
-XFree86 PCI support, in that IA64 passed in such a mmap() flag
-to indicate a framebuffer like mapping that didn't need a guard-like
-bit to be set.
+I went backwards through the 2.5.x kernels and found that this change in
+behavior happened between 2.5.50 (where this works fine) and 2.5.51
+(where this is broken). A slew of console driver changes went into
+2.5.51 but I have not been able to locate which change is the cause for
+this behavior.
 
-Someone should look at the code to make sure :-)
+Please send me comments/ideas for further tests/questions for more data.
 
+Following is the logic that implements the blinking:
+
+static void
+e1000_led_blink_callback(unsigned long data)
+{
+        struct e1000_adapter *adapter = (struct e1000_adapter *) data;
+
+        if(test_and_change_bit(E1000_LED_ON, &adapter->led_status))
+                e1000_led_off(&adapter->hw);
+        else
+                e1000_led_on(&adapter->hw);
+
+        mod_timer(&adapter->blink_timer, jiffies + E1000_ID_INTERVAL);
+}
+
+static int
+e1000_phys_id(struct net_device *netdev, uint32_t data)
+{
+        struct e1000_adapter *adapter = netdev->priv;
+
+        if(!data || data > (uint32_t)(MAX_SCHEDULE_TIMEOUT / HZ))
+                data = (uint32_t)(MAX_SCHEDULE_TIMEOUT / HZ);
+
+        if(!adapter->blink_timer.function) {
+                init_timer(&adapter->blink_timer);
+                adapter->blink_timer.function =
+e1000_led_blink_callback;
+                adapter->blink_timer.data = (unsigned long) adapter;
+        }
+
+        e1000_setup_led(&adapter->hw);
+        mod_timer(&adapter->blink_timer, jiffies);
+
+        msleep_interruptible(data * 1000);
+        del_timer_sync(&adapter->blink_timer);
+        e1000_led_off(&adapter->hw);
+        clear_bit(E1000_LED_ON, &adapter->led_status);
+        e1000_cleanup_led(&adapter->hw);
+
+        return 0;
+}

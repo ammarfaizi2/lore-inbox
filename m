@@ -1,61 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262930AbVD2UeM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262954AbVD2Uhw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262930AbVD2UeM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 16:34:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262972AbVD2Udu
+	id S262954AbVD2Uhw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 16:37:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262938AbVD2UNw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 16:33:50 -0400
-Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:34433 "EHLO
-	ms-smtp-02-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S262948AbVD2Uc1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 16:32:27 -0400
-Message-ID: <427299DA.3010005@austin.rr.com>
-Date: Fri, 29 Apr 2005 15:32:26 -0500
-From: Steve French <smfrench@austin.rr.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: which ioctls matter across filesystems
-References: <42728964.8000501@austin.rr.com> <1114804426.12692.49.camel@lade.trondhjem.org>
-In-Reply-To: <1114804426.12692.49.camel@lade.trondhjem.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Apr 2005 16:13:52 -0400
+Received: from rproxy.gmail.com ([64.233.170.193]:18666 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262936AbVD2ULm convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 16:11:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=e4behUYSQxsURPWykdjDEK0mBbMn7eLmjWW5HheUuXrNhEThtF8m4/fgHOECnmfZBX+VAKlqTlzI5crNN77mwWcaSpL+iG16/PmP6PyZXNv+hnj6EtKsvXr7uh6q+If6Srl2GAPz80wDUfXTCikTgCbcxIKgLKbR8jrWHMhb7LY=
+Message-ID: <a728f9f90504291311178728bd@mail.gmail.com>
+Date: Fri, 29 Apr 2005 16:11:41 -0400
+From: Alex Deucher <alexdeucher@gmail.com>
+Reply-To: Alex Deucher <alexdeucher@gmail.com>
+To: "James.Smart@emulex.com" <James.Smart@emulex.com>
+Subject: Re: Emulex fibre channel HBA support and SAN connection
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+In-Reply-To: <9BB4DECD4CFE6D43AA8EA8D768ED51C201ABC8@xbl3.ad.emulex.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <9BB4DECD4CFE6D43AA8EA8D768ED51C201ABC8@xbl3.ad.emulex.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
+On 4/29/05, James.Smart@emulex.com <James.Smart@emulex.com> wrote:
+> Based on the "Unknown IOCB command data" message, this appears to be out of date firmware on the adapter. See http://www.emulex.com/ts/indexemu.html.  There are some hints on downloading firmware at the tail end of  http://sourceforge.net/forum/forum.php?thread_id=1130082&forum_id=355154.
+> 
+> Note: lpfc issues are best posted to the help areas on http://sourceforge.net/projects/lpfcxxxx/
 
->What kind of real-world applications exist out there that need inotify
->functionality, and what sort of requirements do they have (in particular
->w.r.t. the notification mechanism)?
->
->Cheers,
->  Trond
->  
->
-The two cases I can think of which matter (other than the case you 
-mention) are:
-1) KDE File manager - autoupdate of directory listings which today calls 
-D_NOTIFY (a similar feature was first done IIRC in OS/2 for support of 
-the workplace shell).   Obviously this is as or more important to 
-support well over the network as it is in the local fs, but the client 
-implications.   I don't know whether their needs (and the equivalent in 
-Gnome) map better to fcntl DNOTIFY or inotify.
 
-2) Support of Network File Servers - The Samba example has already been 
-mentioned, but it is important because it would be quite common for a 
-series of Samba servers to export shares that are NFS mounted to a set 
-of NFS servers (or on other platforms mounted to a cluster 
-filesystem).   The CIFS network protocol has long had a notify 
-mechanism, and client implementations on various operating systems use 
-it, so there is pressure for Samba to support it better.   The Linux 
-CIFS client can issue these calls too, but it is marked experimental and 
-disabled by default as more work needs to be done to clean it up.
+James,
 
-A loosely related issue which will matter a lot in the long run are 
-figuring out a way to pass get/setlease requests as the network caching 
-mechanisms would otherwise not work in three tier environments (e.g. 
-SMB/CIFS client -> Samba server over NFS client mounted to -> NFS 
-server, or the reverse).
+    I just upgraded to the latest firmware on the Emulex website
+(3.92a2) and I still get the same error:
+Emulex LightPulse Fibre Channel SCSI driver 8.0.28
+scsi2 :  on PCI bus 00 device 20 irq 8132864
+lpfc 0001:00:04.0: 0:1303 Link Up Event x1 received Data: x1 xf7 x8 x0
+lpfc 0001:00:04.0: 0:0321 Unknown IOCB command Data: x0, xa2 x0 x600 x2900
+lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command completion for
+iotag x0 not found
+...
+lpfc 0001:00:04.0: 0:0748 abort handler timed out waiting for abort to
+complete. Data: x0 x0 x0 x1
+lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command completion for
+iotag x700 not found
+lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command completion for
+iotag x0 not found
+
+
+Any ideas?
+
+> 
+> Thanks.
+> 
+> -- James Smart
+>    Emulex
+> 
+> > -----Original Message-----
+> > From: linux-scsi-owner@vger.kernel.org
+> > [mailto:linux-scsi-owner@vger.kernel.org]On Behalf Of Alex Deucher
+> > Sent: Thursday, April 28, 2005 6:03 PM
+> > To: linux-kernel@vger.kernel.org; linux-scsi@vger.kernel.org
+> > Subject: Emulex fibre channel HBA support and SAN connection
+> >
+> >
+> > Can someone point me to some documentation on setting up a fibre
+> > channel HBA in linux?  I can't seem to find any useful information.  I
+> > have a Sun 220R running 2.6.12-rc3 with an emulex LP9000 HBA connected
+> > to a Nexsan ATABEAST SAN.  I'm using the HBA driver included with the
+> > 2.6.12rc3 kernel.  I cannot find any information about the GPLed
+> > emulex driver as far as configuration goes.  The driver seems to come
+> > up ok, but then I get a series of error codes:
+> >
+> > Emulex LightPulse Fibre Channel SCSI driver 8.0.28
+> > scsi0 :  on PCI bus 00 device 20 irq 8255744
+> > lpfc 0001:00:04.0: 0:1303 Link Up Event x1 received Data: x1 x1 x8 x2
+> > lpfc 0001:00:04.0: 0:0321 Unknown IOCB command Data: x0, xa2
+> > x0 x900 x2600
+> > ...
+> > lpfc 0001:00:04.0: 0:0748 abort handler timed out waiting for abort to
+> > complete. Data: x0 x0 x0 x1
+> > lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command completion for
+> > iotag xa00 not found
+> > lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command completion for
+> > iotag x0 not found
+> > lpfc 0001:00:04.0: 0:0713 SCSI layer issued LUN reset (0, 0)
+> > Data: x2 x0 x0
+> > lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command completion for
+> > iotag xb00 not found
+> > lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command completion for
+> > iotag x0 not found
+> > lpfc 0001:00:04.0: 0:0714 SCSI layer issued Bus Reset Data: x2003
+> > scsi: Device offlined - not ready after error recovery: host 0 channel
+> > 0 id 0 lun 0
+> > lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command completion for
+> > iotag x0 not found
+> >
+> > I noticed here:
+> > http://marc.theaimsgroup.com/?l=linux-scsi&m=111383889908554&w=2
+> > that there is a new FC API. Was this merged into rc3 or will this
+> > happen after 2.6.12?  If it's not supported yet in rc3, how does one
+> > go about configuring it?  I'm willing to test any available tools.
+> >
+> > Any help will be greatly appreciated.  I'll be able to test on SPARC64
+> > right now and on AMD64 in the next few days.
+> >
+> > Thanks,
+> >
+> > Alex
+> >
+> > PS, please CC: me as I'm not subscribed.

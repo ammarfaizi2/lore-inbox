@@ -1,79 +1,164 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262820AbVD2Qge@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262825AbVD2Qif@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262820AbVD2Qge (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 12:36:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262822AbVD2Qge
+	id S262825AbVD2Qif (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 12:38:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262823AbVD2Qif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 12:36:34 -0400
-Received: from yupa.krose.org ([66.92.73.159]:43248 "EHLO
-	chihiro.valley-of-wind.krose.org") by vger.kernel.org with ESMTP
-	id S262820AbVD2Qgb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 12:36:31 -0400
-Message-ID: <42726287.80104@krose.org>
-Date: Fri, 29 Apr 2005 12:36:23 -0400
-From: Kyle Rose <krose+linux-kernel@krose.org>
-Organization: krose.org
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ACPI sleep states on Tyan Thunder K8W S2885
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Apr 2005 12:38:35 -0400
+Received: from waste.org ([216.27.176.166]:8406 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262822AbVD2QhP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 12:37:15 -0400
+Date: Fri, 29 Apr 2005 09:37:05 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Sean <seanlkml@sympatico.ca>, linux-kernel <linux-kernel@vger.kernel.org>,
+       git@vger.kernel.org
+Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
+Message-ID: <20050429163705.GU21897@waste.org>
+References: <20050426004111.GI21897@waste.org> <Pine.LNX.4.58.0504251859550.18901@ppc970.osdl.org> <20050429060157.GS21897@waste.org> <3817.10.10.10.24.1114756831.squirrel@linux1> <20050429074043.GT21897@waste.org> <Pine.LNX.4.58.0504290728090.18901@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0504290728090.18901@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I can't seem to get my Tyan board (AMD 81x1 chipset) to go to sleep such
-that wake-on-LAN will wake it back up.  On my other machines, when I
-shutdown -h, it (presumably) puts the machine into S5 state
-automatically, and WOL works like a charm; on this machine, shutdown -h
-  puts the machine into an actual "off" state in which WOL won't wake it
-back up.
+On Fri, Apr 29, 2005 at 07:34:15AM -0700, Linus Torvalds wrote:
+> 
+> 
+> On Fri, 29 Apr 2005, Matt Mackall wrote:
+> > 
+> > Mercurial is even younger (Linus had a few days' head start, not to
+> > mention a bunch of help), and it is already as fast as git, relatively
+> > easy to use, much simpler, and much more space and bandwidth
+> > efficient.
+> 
+> You've not mentioned two out of my three design goals:
+>  - distribution
+>  - reliability/trustability
+> 
+> ie does mercurial do distributed merges, which git was designed for, and 
+> does mercurial notice single-bit errors in a reasonably secure manner, or 
+> can people just mess with history willy-nilly?
 
-Moreover, if I try to echo 5 > /proc/acpi/sleep with full debugging, I
-get absolutely nothing in dmesg.
+Distribution: yes, it does BK/Monotone-style branching and merging.
+In fact, these should be more "correct" than git as it has DAG
+information at the file level in the case where there are multiple
+ancestors at the changeset graph level:
 
-Here are the ACPI-related lines from my boot log (minus the lines
-regarding ACPI routing of specific IRQ's):
+M   M1   M2
 
-PCI: Using ACPI for IRQ routing
-hpet_acpi_add: no address or irqs in _CRS
-ACPI wakeup devices:
-PCI1 USB0 USB1 PS2K GOLA GLAN GOLB SMBC AC97 MODM PWRB
-ACPI: (supports S0 S1 S4 S5)
-ReiserFS: hda5: found reiserfs format "3.6" with standard journal
-ReiserFS: hda5: using ordered data mode
-ACPI: 'PS2K' and 'PCI1' have the same GPE, can't disable/enable one
-seperately
-ACPI: 'GLAN' and 'PCI1' have the same GPE, can't disable/enable one
-seperately
+AB
+ |`-------v     M2 clones M
+aB       AB     file A is change in mainline
+ |`---v  AB'    file B is changed in M2
+ |   aB / |     M1 clones M
+ |   ab/  |     M1 changes B
+ |   ab'  |     M1 merges from M2, changes to B conflict
+ |    |  A'B'   M2 changes A
+  `---+--.|
+      |  a'B'   M2 merges from mainline, changes to A conflict
+      `--.|
+         ???    depending on which ancestor we choose, we will have
+	        to redo A hand-merge, B hand-merge, or both
+                but if we look at the files independently, everything
+		is fine
 
-/proc/acpi/wakeup:
+> For the latter, the cryptographic nature of sha1 is an added bonus - the
+> _big_ issue is that it is a good hash, and an _exteremely_ effective CRC
+> of the data. You can't mess up an archive and lie about it later. And if
+> you have random memory or filesystem corruption, it's not a "shit happens"  
+> kind of situation - it's a "uhhoh, we can catch it (and hopefully even fix
+> it, thanks to distribution)" thing.
 
-Device  Sleep state     Status
-PCI1       4             enabled
-USB0       4            disabled
-USB1       4            disabled
-PS2K       1             enabled
-GOLA       4            disabled
-GLAN       4             enabled
-GOLB       4            disabled
-SMBC       4            disabled
-AC97       4            disabled
-MODM       4            disabled
-PWRB       1            *enabled
+Reliability/trustability: Mercurial is using a SHA1 hash as a checksum
+as well, much like Monotone and git. A changeset contains a hash of a
+manifest which contains a hash of each file in the project, so you can
+do things like sign the manifest hash (though I haven't implemented it
+yet. Making a backup is as simple as making a hardlink branch:
 
+ mkdir backup
+ cd backup
+ hg branch ../linux  # takes about a second
 
-and /proc/acpi/sleep:
+> I had three design goals. "disk space" wasn't one of them, so you've
+> concentrated on only one so far in your arguments.
 
-S0 S1 S4 S5
+That's because no one paid attention until I posted performance
+numbers comparing it to git! Mercurial's goals are:
 
-Furthermore, if I shut down from Windows, it *does* go into what I
-presume is the S5 state, so this is a software problem, not hardware.
+- to scale to the kernel development process
+- to do clone/pull style development
+- to be efficient in CPU, memory, bandwidth, and disk space
+  for all the common SCM operations
+- to have strong repo integrity
 
-Any suggestions on debugging?
+It's been doing all that quite nicely since its first release.
+The UI is also pretty straightforward:
 
-Cheers,
-Kyle
+Setting up a Mercurial project:
+
+ $ cd linux/
+ $ hg init         # creates .hg
+ $ hg status       # show changes between repo and working dir
+ $ hg addremove    # add all unknown files and remove all missing files
+ $ hg commit       # commit all changes, edit changelog entry
+
+ Mercurial will look for a file named .hgignore in the root of your
+ repository contains a set of regular expressions to ignore in file
+ paths.
+
+Mercurial commands:
+
+ $ hg history          # show changesets
+ $ hg log Makefile     # show commits per file
+ $ hg diff             # generate a unidiff
+ $ hg checkout         # check out the tip revision
+ $ hg checkout <hash>  # check out a specified changeset
+ $ hg add foo          # add a new file for the next commit
+ $ hg remove bar       # mark a file as removed
+
+Branching and merging:
+
+ $ cd ..
+ $ mkdir linux-work
+ $ cd linux-work
+ $ hg branch ../linux        # create a new branch
+ $ hg checkout               # populate the working directory
+ $ <make changes>
+ $ hg commit
+ $ cd ../linux
+ $ hg merge ../linux-work    # pull changesets from linux-work
+
+Importing patches:
+
+ Fast:
+ $ patch < ../p/foo.patch
+ $ hg addremove
+ $ hg commit
+
+ Faster:
+ $ patch < ../p/foo.patch
+ $ hg commit `lsdiff -p1 ../p/foo.patch`
+
+ Fastest:
+ $ cat ../p/patchlist | xargs hg import -p1 -b ../p 
+
+Network support:
+
+ # export your .hg directory as a directory on your webserver
+ foo$ ln -s .hg ~/public_html/hg-linux 
+
+ # merge changes from a remote machine
+ bar$ hg init                              # create an empty repo
+ bar$ hg merge http://foo/~user/hg-linux   # populate it
+ bar$ <do some work>
+ bar$ hg merge http://foo/~user/hg-linux   # resync
+
+ This is just a proof of concept of grabbing byte ranges, and is not
+ expected to perform well.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

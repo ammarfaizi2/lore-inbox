@@ -1,72 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262974AbVD2UnM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262948AbVD2UoO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262974AbVD2UnM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 16:43:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262972AbVD2UnL
+	id S262948AbVD2UoO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 16:44:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262929AbVD2UoE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 16:43:11 -0400
-Received: from waste.org ([216.27.176.166]:55451 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262406AbVD2UkH (ORCPT
+	Fri, 29 Apr 2005 16:44:04 -0400
+Received: from pat.uio.no ([129.240.130.16]:55427 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262963AbVD2Umy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 16:40:07 -0400
-Date: Fri, 29 Apr 2005 13:39:59 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
-Message-ID: <20050429203959.GC21897@waste.org>
-References: <20050426004111.GI21897@waste.org> <Pine.LNX.4.58.0504251859550.18901@ppc970.osdl.org> <20050429060157.GS21897@waste.org> <20050429203027.GK17379@opteron.random>
+	Fri, 29 Apr 2005 16:42:54 -0400
+Subject: Re: which ioctls matter across filesystems
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Robert Love <rml@novell.com>
+Cc: Steve French <smfrench@austin.rr.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1114805033.6682.150.camel@betsy>
+References: <42728964.8000501@austin.rr.com>
+	 <1114804426.12692.49.camel@lade.trondhjem.org>
+	 <1114805033.6682.150.camel@betsy>
+Content-Type: text/plain
+Date: Fri, 29 Apr 2005 16:42:40 -0400
+Message-Id: <1114807360.12692.77.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050429203027.GK17379@opteron.random>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.506, required 12,
+	autolearn=disabled, AWL 1.49, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 29, 2005 at 10:30:27PM +0200, Andrea Arcangeli wrote:
-> On Thu, Apr 28, 2005 at 11:01:57PM -0700, Matt Mackall wrote:
-> > change nodes so you've got to potentially traverse all the commits to
-> > reconstruct a file's history. That's gonna be O(top-level changes)
-> > seeks. This introduces a number of problems:
-> > 
-> > - no way to easily find previous revisions of a file
-> >   (being able to see when a particular change was introduced is a
-> >   pretty critical feature)
-> > - no way to do bandwidth-efficient delta transfer
-> > - no way to do efficient delta storage
-> > - no way to do merges based on the file's history[1]
+fr den 29.04.2005 Klokka 16:03 (-0400) skreiv Robert Love:
+> On Fri, 2005-04-29 at 15:53 -0400, Trond Myklebust wrote:
 > 
-> And IMHO also no-way to implement a git-on-the-fly efficient network
-> protocol if tons of clients connects at the same time, it would be
-> dosable etc... At the very least such a system would require an huge
-> amount of ram. So I see the only efficient way to design a network
-> protocol for git not to use git, but to import the data into mercurial
-> and to implement the network protocol on top of mercurial.
+> > We are discussing the equivalent of dnotify as a potential candidate for
+> > the first minor version of NFSv4, but not inotify.
+> > The purpose of our dnotify implementation is address the needs of things
+> > like file browsers that don't really care about synchronous notification
+> > of changes, but that do currently cause a lot of unnecessary traffic on
+> > the wire due to constantly polling stat() and doing readdir() updates.
+> > The jury is still out as to whether or not the callbacks actually do
+> > reduce on-the-wire traffic, though, so we may drop it.
 > 
-> The one downside is that git is sort of rock solid in the way it stores
-> data on disk, it makes rsync usage trivial too, the git fsck is reliable
-> and you can just sign the hash of the root of the tree and you sign
-> everything including file contents. And of course the checkin is
-> absolutely trivial and fast too.
+> What about inotify makes it insufficient for your needs?
 
-Mercurial is ammenable to rsync provided you devote a read-only
-repository to it on the client side. In other words, you rsync from
-kernel.org/mercurial/linus to local/linus and then you merge from
-local/linus to your own branch. Mercurial's hashing hierarchy is
-similar to git's (and Monotone's), so you can sign a single hash of
-the tree as well.
+Nothing, if you are just tracking changes that are made by local
+processes.
 
-> With a more efficient diff-based storage like mercurial we'd be losing
-> those fsck properties etc.. but those reliability properties don't worth
-> the network and disk space they take IMHO, and the checkin time
-> shouldn't be substantially different (still running in O(1) when
-> appending at the head). And we could always store the hash of the
-> changeset, to give it some basic self-checking.
+For remote filesystems like CIFS and NFS, however, there may be
+applications that want to monitor changes that are made directly on the
+server by other clients. In the above paragraph, I'm therefore referring
+to a debate about whether or not adding officially sanctioned NFSv4
+protocol support for something like dnotify/inotify makes sense.
 
-I think I can implement a decent repository check similar to git, it's
-just not been a priority.
+The problem is that having the server call back a bunch of clients every
+time a file changes does not really scale too well. The current
+dnotify-like proposal therefore specifies that notification is not
+synchronous (i.e. there may be a delay of several seconds), and that the
+server may want to group several notifications into a single callback.
+(if interested, you can view the current proposal on
+http://www.ietf.org/internet-drafts/draft-ietf-nfsv4-directory-delegation-01.txt)
 
+
+> > What kind of real-world applications exist out there that need inotify
+> > functionality, and what sort of requirements do they have (in particular
+> > w.r.t. the notification mechanism)?
+> 
+> A few worksets:
+> 
+> 	- Current users, such as FAM and Samba, that need simple file
+> 	  change notification
+> 	- Random applications that want to watch a file or two
+> 	- The Linux desktop
+> 	- Real-time live-updating indexing systems, such as Beagle,
+> 	  that compete with f.e. Apple's Spotlight.
+
+Right, but I assume that most of the use-cases (with possible exception
+of FAM) do not really involve tracking changes made by other NFS
+clients. Although I imagine in particular that the real-time indexing
+system workload trying to run on several clients and tracking the same
+files at the same time might be a lot of fun...
+
+I'm therefore asking whether or not there is a killer-app out there that
+we need to support and that does want to track changes made by other
+clients. File browsers are more or less the only thing that come to
+mind.
+
+Cheers,
+  Trond
 -- 
-Mathematics is the supreme nostalgia of our time.
+Trond Myklebust <trond.myklebust@fys.uio.no>
+

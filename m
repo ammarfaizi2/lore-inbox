@@ -1,49 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262443AbVD2Goj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262442AbVD2GqB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262443AbVD2Goj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 02:44:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262442AbVD2Goj
+	id S262442AbVD2GqB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 02:46:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbVD2GqB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 02:44:39 -0400
-Received: from gate.crashing.org ([63.228.1.57]:60544 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262443AbVD2Goh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 02:44:37 -0400
-Subject: Re: [PATCH 3/4] ppc64: Add driver for BPA iommu
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Olof Johansson <olof@lixom.net>,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
-       Paul Mackerras <paulus@samba.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Anton Blanchard <anton@samba.org>
-In-Reply-To: <200504290748.30055.arnd@arndb.de>
-References: <200504190318.32556.arnd@arndb.de>
-	 <200504290635.44965.arnd@arndb.de> <20050429053615.GA30219@lixom.net>
-	 <200504290748.30055.arnd@arndb.de>
-Content-Type: text/plain
-Date: Fri, 29 Apr 2005 16:43:04 +1000
-Message-Id: <1114756984.7111.268.camel@gaston>
+	Fri, 29 Apr 2005 02:46:01 -0400
+Received: from rproxy.gmail.com ([64.233.170.203]:28861 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262442AbVD2Gpo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 02:45:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=RcKst3sQPWXYfI7V2nPqalgix+cZFUkxh2r2P4TpjGfq9Kkdk3B8VArV3GCw4Sx1mY4ksVARXOtCUJ2xkbtLDGX1PYYRsuQYHBlJAcjPFpBzudMk7nJhqunD30E3yqkraKsm0JMifGaMt80Pc02cgayUKAIQnd6erRmmOMFPhyM=
+Message-ID: <ba83582205042823452a3446f6@mail.gmail.com>
+Date: Thu, 28 Apr 2005 23:45:40 -0700
+From: Gilles Pokam <gpokam@gmail.com>
+Reply-To: Gilles Pokam <gpokam@gmail.com>
+To: Chris Wedgwood <cw@f00f.org>
+Subject: Re: Kernel memory
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050429061254.GB12654@taniwha.stupidest.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <ba83582205042816522e2a7a93@mail.gmail.com>
+	 <20050429030313.GA10344@taniwha.stupidest.org>
+	 <ba8358220504282233754de43b@mail.gmail.com>
+	 <20050429054351.GA12654@taniwha.stupidest.org>
+	 <ba8358220504282248344d5e78@mail.gmail.com>
+	 <20050429061254.GB12654@taniwha.stupidest.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-04-29 at 07:48 +0200, Arnd Bergmann wrote:
-> On Freedag 29 April 2005 07:36, Olof Johansson wrote:
-> > On Fri, Apr 29, 2005 at 06:35:43AM +0200, Arnd Bergmann wrote:
-> >>
-> > Anyhow, enum or #define, it should be moved to bpa_iommu.h.
+On 4/28/05, Chris Wedgwood <cw@f00f.org> wrote:
+> On Thu, Apr 28, 2005 at 10:48:31PM -0700, Gilles Pokam wrote:
 > 
-> I don't interface with any other files, so I prefer to have
-> everything in one file here. If there is anyone else who
-> agrees with you on moving this into a separate file, I don't
-> mind doing that.
+> > Can you be more explicit ?
+> 
+> why can't you have the parent process of whatever your tracing mess
+> with /dev/kmem or whatever so you don't have to frob the original
+> binary?
 
-The habit here is for such "private" .h to be next to the .c, while a
-shared one goes in include/asm-* or include/linux.
+I see the point. Just to test this solution, I tried before to modify
+a test application by mmaping /dev/mem into the application address
+range. Since I don't know apriori which address is going to raise a
+pagefault, I had to mmap the entire memory to the user space. However
+this doesn't work. It looks like there is a limitation on the amount
+of memory you can mmap ?
 
-Ben.
+> i guess it's not really clear to me what you're doing entirely
+
+the simplest way to say is: I want the pagefault handler to return a
+memory page when it encounters a pagefault exceptions due to an
+invalid address or incorrect page protection.
 
 
+Thanks. 
+Gilles

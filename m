@@ -1,38 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262377AbVD2DlL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262242AbVD2DqT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262377AbVD2DlL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 23:41:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbVD2DlL
+	id S262242AbVD2DqT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 23:46:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbVD2DqT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 23:41:11 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:23712 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262377AbVD2DkV (ORCPT
+	Thu, 28 Apr 2005 23:46:19 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:62113 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262242AbVD2Dpl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 23:40:21 -0400
-Date: Thu, 28 Apr 2005 20:40:12 -0700
-Message-Id: <200504290340.j3T3eCcO032218@magilla.sf.frob.com>
+	Thu, 28 Apr 2005 23:45:41 -0400
+Date: Thu, 28 Apr 2005 20:45:35 -0700
+Message-Id: <200504290345.j3T3jZZr032230@magilla.sf.frob.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 From: Roland McGrath <roland@redhat.com>
 To: Linus Torvalds <torvalds@osdl.org>
-X-Fcc: ~/Mail/linus
 Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] i386: handle iret faults better
+Subject: [PATCH] x86_64: handle iret faults better
 In-Reply-To: Linus Torvalds's message of  Monday, 25 April 2005 21:06:28 -0700 <Pine.LNX.4.58.0504252102180.18901@ppc970.osdl.org>
 X-Fcc: ~/Mail/linus
+X-Antipastobozoticataclysm: When George Bush projectile vomits antipasto on the Japanese.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was never very happy with the special-case check for iret_exc either.
-But for the first crack, I went for the fix that didn't touch other
-infrastructure code.
-
-The fault.c changes here are really not necessary for the bug fix at all,
-it will never be used there.  But to make it a clean infrastructure
-upgrade, I made every caller of fixup_exception consistently pass in the
-complete info it uses for signals in the user-mode case.
+Here is the x86-64 version of the new patch (I just sent the i386 one).
+The same comments apply here about the fault.c changes.  I made a
+fixup_exception function like i386's, replacing the duplication of its
+contents in several places rather than adding new code to all the duplicates.
 
 
 A user process can cause a kernel-mode fault in the iret instruction, by
@@ -50,31 +46,38 @@ function called in the trap handler context and passed the full trap details.
 
 Signed-off-by: Roland McGrath <roland@redhat.com>
 
----
-commit 66b1fbcee2c94a5fd9d199e48a25d5f6382f6f05
-tree cb5e97a950137e15a400501ab3aa95fe539d0a45
-parent f6bbd250c19529f6efebc6c8bd7d3495b98e5eca
-author Roland McGrath <roland@redhat.com> 1114589292 -0700
-committer Roland McGrath <roland@redhat.com> 1114589292 -0700
-
-Index: arch/i386/kernel/entry.S
-===================================================================
---- 23cf0cf93e225498eea50480a44b038be19b333d/arch/i386/kernel/entry.S  (mode:100644 sha1:3c73dc865ead3ad2323098a3b78b0fc8042e7489)
-+++ cb5e97a950137e15a400501ab3aa95fe539d0a45/arch/i386/kernel/entry.S  (mode:100644 sha1:d8e602ca337b434e48f2014048f7ecdef221198f)
-@@ -75,6 +75,9 @@
- NT_MASK		= 0x00004000
- VM_MASK		= 0x00020000
+--- linux-2.6/arch/x86_64/kernel/entry.S  (mode:100644 sha1:3233a15cc4e074c00b75569f21c2844ee280b214)
++++ linux-2.6/arch/x86_64/kernel/entry.S  (mode:100644 sha1:85d0b453385807901a446ed0e8f6c5b2d96e0ca5)
+@@ -44,6 +44,9 @@
+ 
+ 	.code64
  
 +/* This marks an __ex_table entry that has an exception_fixup_t handler.  */
 +#define SPECIAL_FIXUP(function)	(function - __PAGE_OFFSET)
 +
- #ifdef CONFIG_PREEMPT
- #define preempt_stop		cli
- #else
-@@ -257,18 +260,27 @@
- 	RESTORE_REGS
- 	addl $4, %esp
- 1:	iret
+ #ifndef CONFIG_PREEMPT
+ #define retint_kernel retint_restore_args
+ #endif	
+@@ -459,14 +462,7 @@
+ 	iretq
+ 
+ 	.section __ex_table,"a"
+-	.quad iret_label,bad_iret	
+-	.previous
+-	.section .fixup,"ax"
+-	/* force a signal here? this matches i386 behaviour */
+-	/* running with kernel gs */
+-bad_iret:
+-	movq $-9999,%rdi	/* better code? */
+-	jmp do_exit			
++ 	.quad iret_label,SPECIAL_FIXUP(fixup_iret)
+ 	.previous	
+ 	
+ 	/* edi: workmask, edx: work */	
+@@ -509,6 +508,31 @@
+ #endif	
+ 	CFI_ENDPROC
+ 	
 +	/*
 +	 * Traps in iret mean that userland tried to restore a bogus
 +	 * cs, eip, ss, esp, or eflags.  Some kinds of bogosity just cause
@@ -87,50 +90,38 @@ Index: arch/i386/kernel/entry.S
 +	 * the whole frame we were trying to restore, so it can be seen on
 +	 * our stack by the debugger.
 +	 */
- .section .fixup,"ax"
--iret_exc:
--	sti
--	movl $__USER_DS, %edx
--	movl %edx, %ds
--	movl %edx, %es
--	movl $11,%eax
--	call do_exit
++	.section .fixup,"ax"
++	/* running with kernel gs */
 +ENTRY(iret_exc)
-+	pushl $0			# orig_eax was lost
-+	SAVE_ALL
-+	jmp ret_from_exception
- .previous
- .section __ex_table,"a"
- 	.align 4
--	.long 1b,iret_exc
-+	.long 1b,SPECIAL_FIXUP(fixup_iret)
- .previous
- 
- ldt_ss:
-@@ -293,7 +305,7 @@
- 1:	iret
- .section __ex_table,"a"
- 	.align 4
--	.long 1b,iret_exc
-+	.long 1b,SPECIAL_FIXUP(fixup_iret)
- .previous
- 
- 	# perform work that needs to be done immediately before resumption
-@@ -589,7 +601,7 @@
- 1:	iret
- .section __ex_table,"a"
- 	.align 4
--	.long 1b,iret_exc
-+	.long 1b,SPECIAL_FIXUP(fixup_iret)
- .previous
- 
- ENTRY(int3)
-Index: arch/i386/kernel/traps.c
-===================================================================
---- 23cf0cf93e225498eea50480a44b038be19b333d/arch/i386/kernel/traps.c  (mode:100644 sha1:6c0e383915b6a0d9fc516a04f328020d18b575b5)
-+++ cb5e97a950137e15a400501ab3aa95fe539d0a45/arch/i386/kernel/traps.c  (mode:100644 sha1:12b09606ace52f8d8525b6e4f1d2987ab8873308)
-@@ -357,6 +357,60 @@
- 		die(str, regs, err);
++	CFI_STARTPROC	simple
++	CFI_DEF_CFA	rsp,(SS+8-RIP)
++	CFI_REL_OFFSET	rip,0
++	CFI_REL_OFFSET	rsp,(RSP-RIP)
++	SAVE_ARGS 8
++	jmp exit_intr
++	CFI_ENDPROC
++	.previous
++
++
+ /*
+  * APIC interrupts.
+  */		
+@@ -819,7 +843,10 @@
+ 	swapgs
+ paranoid_restore:	
+ 	RESTORE_ALL 8
+-	iretq
++1:	iretq
++	.section __ex_table,"a"
++	.quad 1b,SPECIAL_FIXUP(fixup_iret)
++	.previous
+ paranoid_userspace:	
+ 	GET_THREAD_INFO(%rcx)
+ 	movl threadinfo_flags(%rcx),%ebx
+--- linux-2.6/arch/x86_64/kernel/traps.c  (mode:100644 sha1:65a37f52c56ef2c0760f2e3db9dfec9312a74d88)
++++ linux-2.6/arch/x86_64/kernel/traps.c  (mode:100644 sha1:9d199565e3a72768dfd8c352860e3d13306669f2)
+@@ -417,6 +417,59 @@
+ 	do_exit(SIGSEGV);
  }
  
 +/*
@@ -153,17 +144,15 @@ Index: arch/i386/kernel/traps.c
 +	 * the last five words that iret pops.  Instead of popping, it
 +	 * pushed another trap frame, clobbering the part of the old one
 +	 * that we had already restored.  So the restored registers are now
-+	 * all back in the new trap frame, but the eip et al show the
++	 * all back in the new trap frame, but the rip et al show the
 +	 * in-kernel state at the iret instruction.  The bad state we tried
-+	 * to restore with iret is still on the stack, right below our
-+	 * current trap frame.  The current trap frame was for an in-kernel
-+	 * trap, and so doesn't include the esp and ss words--so &regs->esp
-+	 * is where %esp was before the iret.
++	 * to restore with iret is still on the old stack below.
 +	 */
-+	struct pt_regs *oregs = container_of(&regs->esp, struct pt_regs, eip);
++	struct pt_regs *oregs = container_of((unsigned long *) regs->rsp,
++					     struct pt_regs, rip);
 +	struct task_struct *tsk = current;
 +
-+	if (likely((oregs->xcs & 3) == 3)) {
++	if (likely((oregs->cs & 3) == 3)) {
 +		/*
 +		 * The iret was trying to return to user mode.
 +		 * Turn this into a signal like do_trap would normally do.
@@ -176,7 +165,7 @@ Index: arch/i386/kernel/traps.c
 +			force_sig_info(signr, info, tsk);
 +		else
 +			force_sig(signr, tsk);
-+		regs->eip = (unsigned long) &iret_exc;
++		regs->rip = (unsigned long) &iret_exc;
 +		return 1;
 +	}
 +
@@ -187,57 +176,111 @@ Index: arch/i386/kernel/traps.c
 +	return 0;
 +}
 +
- static void do_trap(int trapnr, int signr, char *str, int vm86,
++
+ static void do_trap(int trapnr, int signr, char *str, 
  			   struct pt_regs * regs, long error_code, siginfo_t *info)
  {
-@@ -381,7 +435,7 @@
- 	}
+@@ -455,15 +508,8 @@
  
- 	kernel_trap: {
--		if (!fixup_exception(regs))
-+		if (!fixup_exception(regs, trapnr, signr, error_code, info))
- 			die(str, regs, error_code);
- 		return;
- 	}
-@@ -501,7 +555,7 @@
- 	return;
  
- gp_in_kernel:
--	if (!fixup_exception(regs)) {
-+	if (!fixup_exception(regs, 13, SIGSEGV, error_code, NULL)) {
- 		if (notify_die(DIE_GPF, "general protection fault", regs,
- 				error_code, 13, SIGSEGV) == NOTIFY_STOP)
- 			return;
-Index: arch/i386/mm/extable.c
-===================================================================
---- 23cf0cf93e225498eea50480a44b038be19b333d/arch/i386/mm/extable.c  (mode:100644 sha1:f706449319c4577e5d944561b295d199449bcc02)
-+++ cb5e97a950137e15a400501ab3aa95fe539d0a45/arch/i386/mm/extable.c  (mode:100644 sha1:14eec19b079d5afcee76547b4e9a7e33ec384cff)
-@@ -7,7 +7,8 @@
- #include <linux/spinlock.h>
- #include <asm/uaccess.h>
+ 	/* kernel trap */ 
+-	{	     
+-		const struct exception_table_entry *fixup;
+-		fixup = search_exception_tables(regs->rip);
+-		if (fixup) {
+-			regs->rip = fixup->fixup;
+-		} else	
+-			die(str, regs, error_code);
+-		return;
+-	}
++	if (!fixup_exception(regs, trapnr, signr, error_code, info))
++		die(str, regs, error_code);
+ }
  
--int fixup_exception(struct pt_regs *regs)
+ #define DO_ERROR(trapnr, signr, str, name) \
+@@ -520,7 +566,7 @@
+        }
+ #endif
+ 
+-	if ((regs->cs & 3)!=0) { 
++	if ((regs->cs & 3) != 0) {
+ 		struct task_struct *tsk = current;
+ 
+ 		if (exception_trace && unhandled_signal(tsk, SIGSEGV))
+@@ -536,18 +582,12 @@
+ 	} 
+ 
+ 	/* kernel gp */
+-	{
+-		const struct exception_table_entry *fixup;
+-		fixup = search_exception_tables(regs->rip);
+-		if (fixup) {
+-			regs->rip = fixup->fixup;
+-			return;
+-		}
+-		if (notify_die(DIE_GPF, "general protection fault", regs,
+-					error_code, 13, SIGSEGV) == NOTIFY_STOP)
+-			return;
+-		die("general protection fault", regs, error_code);
+-	}
++	if (fixup_exception(regs, 13, SIGSEGV, error_code, NULL))
++		return;
++	if (notify_die(DIE_GPF, "general protection fault", regs,
++		       error_code, 13, SIGSEGV) == NOTIFY_STOP)
++		return;
++	die("general protection fault", regs, error_code);
+ }
+ 
+ static void mem_parity_error(unsigned char reason, struct pt_regs * regs)
+@@ -729,12 +769,8 @@
+ 
+ static int kernel_math_error(struct pt_regs *regs, char *str)
+ {
+-	const struct exception_table_entry *fixup;
+-	fixup = search_exception_tables(regs->rip);
+-	if (fixup) {
+-		regs->rip = fixup->fixup;
++	if (fixup_exception(regs, 16, SIGFPE, 0, NULL))
+ 		return 1;
+-	}
+ 	notify_die(DIE_GPF, str, regs, 0, 16, SIGFPE);
+ 	/* Illegal floating point operation in the kernel */
+ 	die(str, regs, 0);
+--- linux-2.6/arch/x86_64/mm/extable.c  (mode:100644 sha1:2d78f9fb403542b72771075502c4c662cc06ca35)
++++ linux-2.6/arch/x86_64/mm/extable.c  (mode:100644 sha1:e8fd080fffb380dd4e60ea08f8b4e086f63563dd)
+@@ -33,3 +33,21 @@
+         }
+         return NULL;
+ }
++
 +int fixup_exception(struct pt_regs *regs, int trapnr, int signr,
 +		    unsigned long error_code, siginfo_t *info)
- {
- 	const struct exception_table_entry *fixup;
- 
-@@ -28,6 +29,10 @@
- 
- 	fixup = search_exception_tables(regs->eip);
- 	if (fixup) {
++{
++	const struct exception_table_entry *fixup;
++
++	fixup = search_exception_tables(regs->rip);
++	if (fixup) {
 +		if (fixup_is_special(fixup)) {
 +			exception_fixup_t *hook = special_fixup_handler(fixup);
 +			return (*hook) (regs, trapnr, signr, error_code, info);
 +		}
- 		regs->eip = fixup->fixup;
- 		return 1;
- 	}
-Index: arch/i386/mm/fault.c
-===================================================================
---- 23cf0cf93e225498eea50480a44b038be19b333d/arch/i386/mm/fault.c  (mode:100644 sha1:a509237c4815ed6f8443e85b973dda2a0f2c0688)
-+++ cb5e97a950137e15a400501ab3aa95fe539d0a45/arch/i386/mm/fault.c  (mode:100644 sha1:be670e7a9593e5a349408262400d6e31296db92d)
-@@ -374,6 +374,12 @@
++		regs->rip = fixup->fixup;
++		return 1;
++	}
++
++	return 0;
++}
+--- linux-2.6/arch/x86_64/mm/fault.c  (mode:100644 sha1:e3f90b6abb8d5fabfac28799e8a493f59759eed0)
++++ linux-2.6/arch/x86_64/mm/fault.c  (mode:100644 sha1:92168ed10c1cdb4ca1eee76b1b4b67bb91dfa984)
+@@ -298,7 +298,6 @@
+ 	struct mm_struct *mm;
+ 	struct vm_area_struct * vma;
+ 	unsigned long address;
+-	const struct exception_table_entry *fixup;
+ 	int write;
+ 	siginfo_t info;
+ 
+@@ -456,6 +455,12 @@
  	up_read(&mm->mmap_sem);
  
  bad_area_nosemaphore:
@@ -249,8 +292,8 @@ Index: arch/i386/mm/fault.c
 +
  	/* User mode accesses just cause a SIGSEGV */
  	if (error_code & 4) {
- 		/* 
-@@ -387,10 +393,6 @@
+ 		if (is_prefetch(regs, address, error_code))
+@@ -483,10 +488,6 @@
  		/* Kernel addresses are always protection faults */
  		tsk->thread.error_code = error_code | (address >= TASK_SIZE);
  		tsk->thread.trap_no = 14;
@@ -261,16 +304,20 @@ Index: arch/i386/mm/fault.c
  		force_sig_info(SIGSEGV, &info, tsk);
  		return;
  	}
-@@ -413,7 +415,7 @@
- 
+@@ -494,11 +495,8 @@
  no_context:
+ 	
  	/* Are we prepared to handle this kernel fault?  */
--	if (fixup_exception(regs))
+-	fixup = search_exception_tables(regs->rip);
+-	if (fixup) {
+-		regs->rip = fixup->fixup;
 +	if (fixup_exception(regs, 14, info.si_signo, error_code, &info))
  		return;
+-	}
  
  	/* 
-@@ -481,11 +483,20 @@
+ 	 * Hall of shame of CPU/BIOS bugs.
+@@ -544,11 +542,20 @@
  	printk("VM: killing process %s\n", tsk->comm);
  	if (error_code & 4)
  		do_exit(SIGKILL);
@@ -291,7 +338,7 @@ Index: arch/i386/mm/fault.c
  	/* Kernel mode? Handle exceptions or die */
  	if (!(error_code & 4))
  		goto no_context;
-@@ -497,14 +508,15 @@
+@@ -556,10 +563,6 @@
  	tsk->thread.cr2 = address;
  	tsk->thread.error_code = error_code;
  	tsk->thread.trap_no = 14;
@@ -301,26 +348,13 @@ Index: arch/i386/mm/fault.c
 -	info.si_addr = (void __user *)address;
  	force_sig_info(SIGBUS, &info, tsk);
  	return;
- 
- vmalloc_fault:
-+	/* Set up info passed to fixup_exception.  */
-+	info.si_signo = SIGSEGV;
-+	info.si_errno = 0;
-+	/* info.si_code has been set above */
-+	info.si_addr = (void __user *)address;
- 	{
- 		/*
- 		 * Synchronize this task's top level page-table
-Index: include/asm-i386/uaccess.h
-===================================================================
---- 23cf0cf93e225498eea50480a44b038be19b333d/include/asm-i386/uaccess.h  (mode:100644 sha1:886867aea947094185fcac17610acc67f9310caf)
-+++ cb5e97a950137e15a400501ab3aa95fe539d0a45/include/asm-i386/uaccess.h  (mode:100644 sha1:50cd8556e8825a5c6f42ec4dc062e952c27317d3)
-@@ -124,8 +124,19 @@
+ }
+--- linux-2.6/include/asm-x86_64/uaccess.h  (mode:100644 sha1:48f292752c96bac97900682b98e947651b701d6b)
++++ linux-2.6/include/asm-x86_64/uaccess.h  (mode:100644 sha1:721817e4c48297af0306137b659325425d4bf82f)
+@@ -73,6 +73,19 @@
  {
  	unsigned long insn, fixup;
  };
--
--extern int fixup_exception(struct pt_regs *regs);
 +static inline int fixup_is_special(const struct exception_table_entry *entry)
 +{
 +	return unlikely(entry->fixup < PAGE_OFFSET);
@@ -335,5 +369,5 @@ Index: include/asm-i386/uaccess.h
 +}
 +extern exception_fixup_t fixup_exception;
  
- /*
-  * These are the main single-value transfer routines.  They automatically
+ #define ARCH_HAS_SEARCH_EXTABLE
+ 

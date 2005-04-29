@@ -1,55 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262237AbVD2KGS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262265AbVD2KJN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262237AbVD2KGS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 06:06:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262244AbVD2KGR
+	id S262265AbVD2KJN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 06:09:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262264AbVD2KJL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 06:06:17 -0400
-Received: from mailfe05.swip.net ([212.247.154.129]:27023 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S262237AbVD2KGI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 06:06:08 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Subject: Re: 2.6.11.7 kernel panic on boot on AMD64
-From: Alexander Nyberg <alexn@telia.com>
-To: Ruben Puettmann <ruben@puettmann.net>, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, rddunlap@osdl.org, ak@suse.de
-In-Reply-To: <20050427140342.GG10685@puettmann.net>
-References: <20050427140342.GG10685@puettmann.net>
-Content-Type: text/plain
-Date: Fri, 29 Apr 2005 12:06:02 +0200
-Message-Id: <1114769162.874.4.camel@localhost.localdomain>
+	Fri, 29 Apr 2005 06:09:11 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:63382 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262244AbVD2KIw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 06:08:52 -0400
+Date: Fri, 29 Apr 2005 11:08:48 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Douglas Gilbert <dougg@torque.net>
+Cc: Luben Tuikov <luben_tuikov@adaptec.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       andrew.patterson@hp.com, Eric.Moore@lsil.com, mike.miller@hp.com,
+       Madhuresh_Nagshain@adaptec.com
+Subject: Re: [RFC] SAS domain layout for Linux sysfs
+Message-ID: <20050429100848.GB3342@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Douglas Gilbert <dougg@torque.net>,
+	Luben Tuikov <luben_tuikov@adaptec.com>,
+	SCSI Mailing List <linux-scsi@vger.kernel.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	andrew.patterson@hp.com, Eric.Moore@lsil.com, mike.miller@hp.com,
+	Madhuresh_Nagshain@adaptec.com
+References: <425D392F.2080702@adaptec.com> <20050424111908.GA23010@infradead.org> <426D1572.70508@adaptec.com> <20050425161411.GA11938@infradead.org> <426D2723.8070308@adaptec.com> <20050425181831.GA14190@infradead.org> <426E5BAF.4040003@adaptec.com> <426F86D3.4070909@torque.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <426F86D3.4070909@torque.net>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->                                                                                                            
-> I'm trying to install linux on an HP DL385 but directly on boot I got                                           
-> this kernel panic:
-> 
->         http://www.puettmann.net/temp/panic.jpg
+> sysfs and SAS discovery
+> -----------------------
+> It seems reasonable that sda should be visible in sysfs
+> since the silicon in the HBA (for scsi0) knows about it.
+> However the silicon for scsi1 knows about ex1 (and
+> nothing beyond that). SAS defines the Serial Management
+> Protocol (SMP) for the purpose of probing what (else) is
+> connected to an expander. SMP is similar to a SCSI command
+> set and SMP frames need to be sent via scsi1 to ex1.
+> Note that ex1 is _not_ a SCSI device (it is
+> part of the service delivery subsystem) and we have no
+> representation currently for it in sysfs. [Fibre channel
+> switches are architecturally similar to SAS expanders.]
 
+Note that the current scsi code allows to create custom per-transport
+objects below the target object.  We're using that in the fibre channel
+transport class for the concept of remote ports.
 
-This is bogus appending stuff to the saved_command_line and at the same
-time in Rubens case it touches the late_time_init() which breakes havoc.
+> Once the SAS discovery algorithm has been run should we
+> show its results in sysfs??
 
-Signed-off-by: Alexander Nyberg <alexn@telia.com>
-
-Index: linux-2.6/arch/x86_64/kernel/head64.c
-===================================================================
---- linux-2.6.orig/arch/x86_64/kernel/head64.c	2005-04-26 11:41:43.000000000 +0200
-+++ linux-2.6/arch/x86_64/kernel/head64.c	2005-04-29 11:57:46.000000000 +0200
-@@ -93,9 +93,6 @@
- #ifdef CONFIG_SMP
- 	cpu_set(0, cpu_online_map);
- #endif
--	/* default console: */
--	if (!strstr(saved_command_line, "console="))
--		strcat(saved_command_line, " console=tty0"); 
- 	s = strstr(saved_command_line, "earlyprintk=");
- 	if (s != NULL)
- 		setup_early_printk(s);
-
+I think so, yes.  Similar to how we have all fibre channel remote ports
+in sysfs, even if they are not scsi targets.
 

@@ -1,114 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262819AbVD2QbT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262820AbVD2Qge@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262819AbVD2QbT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 12:31:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262820AbVD2QbT
+	id S262820AbVD2Qge (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 12:36:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262822AbVD2Qge
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 12:31:19 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:58005 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262819AbVD2Qac
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 12:30:32 -0400
-Subject: Re: [PATCH 10 of 12] Fix Tpm driver -- sysfs owernship changes
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050429042806.GB25585@kroah.com>
-References: <Pine.LNX.4.61.0504271645170.3929@jo.austin.ibm.com>
-	 <20050428041915.GD9723@kroah.com>
-	 <Pine.LNX.4.61.0504281535330.3947@IBM-8BD8VOWT0JH.austin.ibm.com>
-	 <20050429042806.GB25585@kroah.com>
-Content-Type: text/plain
-Date: Fri, 29 Apr 2005 11:30:12 -0500
-Message-Id: <1114792213.20121.7.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Fri, 29 Apr 2005 12:36:34 -0400
+Received: from yupa.krose.org ([66.92.73.159]:43248 "EHLO
+	chihiro.valley-of-wind.krose.org") by vger.kernel.org with ESMTP
+	id S262820AbVD2Qgb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 12:36:31 -0400
+Message-ID: <42726287.80104@krose.org>
+Date: Fri, 29 Apr 2005 12:36:23 -0400
+From: Kyle Rose <krose+linux-kernel@krose.org>
+Organization: krose.org
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: ACPI sleep states on Tyan Thunder K8W S2885
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-04-28 at 21:28 -0700, Greg KH wrote:
-> On Thu, Apr 28, 2005 at 03:40:16PM -0500, Kylene Hall wrote:
-> > On Wed, 27 Apr 2005, Greg KH wrote:
-> > > On Wed, Apr 27, 2005 at 05:19:03PM -0500, Kylene Hall wrote:
-> > > > -	device_remove_file(&pci_dev->dev, &dev_attr_pubek);
-> > > > -	device_remove_file(&pci_dev->dev, &dev_attr_pcrs);
-> > > > -	device_remove_file(&pci_dev->dev, &dev_attr_caps);
-> > > > +	for (i = 0; i < TPM_NUM_ATTR; i++)
-> > > > +		device_remove_file(&pci_dev->dev, &chip->vendor->attr[i]);
-> > > 
-> > > Use an attribute group, instead of this.  That will allow you to get
-> > > rid of the TPM_NUM_ATTR value, and this looney macro:
-> > > 
-> > > > +#define TPM_DEVICE_ATTRS { \
-> > > > +        __ATTR(pubek, S_IRUGO, tpm_show_pubek, NULL), \
-> > > > +        __ATTR(pcrs, S_IRUGO, tpm_show_pcrs, NULL), \
-> > > > +        __ATTR(caps, S_IRUGO, tpm_show_caps, NULL), \
-> > > > +        __ATTR(cancel, S_IWUSR | S_IWGRP, NULL, tpm_store_cancel) }
-> > > 
-> > > thanks,
-> > > 
-> > > greg k-h
-> > > 
-> > > 
-> > 
-> > Ok, the patch below has the same functionality as the previous patch but 
-> > gets rid of the macro and implements an attribute_group.  Is there any way 
-> > to avoid the repeated code in every tpm_specific file to setup the 
-> > attribute_group and still ensure the files are owned by the tpm_specific 
-> > module?  The only thing I can come up with is either not using the 
-> > TPM_DEVICE macro at all or creating with TPM_DEVICE macro and then 
-> > changing the owner field.
-> 
-> Why are you trying to split this driver up into such tiny pieces?
-> What's wrong with one driver for all devices?
+I can't seem to get my Tyan board (AMD 81x1 chipset) to go to sleep such
+that wake-on-LAN will wake it back up.  On my other machines, when I
+shutdown -h, it (presumably) puts the machine into S5 state
+automatically, and WOL works like a charm; on this machine, shutdown -h
+  puts the machine into an actual "off" state in which WOL won't wake it
+back up.
 
-The driver was orginally all one piece and was split at the suggestion
-of Ian Campbell on this list.
+Moreover, if I try to echo 5 > /proc/acpi/sleep with full debugging, I
+get absolutely nothing in dmesg.
 
-<snip>
+Here are the ACPI-related lines from my boot log (minus the lines
+regarding ACPI routing of specific IRQ's):
 
-On Fri, 2004-12-10 at 10:56 +0000, Ian Campbell wrote: 
-> Hi, 
-> 
-> On Thu, 2004-12-09 at 09:25 -0600, Kylene Hall wrote:
-> > +	/* Determine chip type */
-> > +	if (tpm_nsc_init(chip) == 0) {
-> > +		chip->recv = tpm_nsc_recv;
-> > +		chip->send = tpm_nsc_send;
-> > +		chip->cancel = tpm_nsc_cancel;
-> > +		chip->req_complete_mask = NSC_STATUS_OBF;
-> > +		chip->req_complete_val = NSC_STATUS_OBF;
-> > +	} else if (tpm_atml_init(chip) == 0) {
-> > +		chip->recv = tpm_atml_recv;
-> > +		chip->send = tpm_atml_send;
-> > +		chip->cancel = tpm_atml_cancel;
-> > +		chip->req_complete_mask =
-> > +		    ATML_STATUS_BUSY | ATML_STATUS_DATA_AVAIL;
-> > +		chip->req_complete_val = ATML_STATUS_DATA_AVAIL;
-> > +	} else {
-> > +		rc = -ENODEV;
-> > +		goto out_release;
-> > +	}
-> 
-> The atmel part at least also comes as an I2C variant. 
-> 
-> We could continue to add to the ifelse here but perhaps it might be
-> beneficial to split the individual chip specific stuff into separate
-> files now and perhaps register them via some sort of
-> register_tpm_hardware(struct tpm_chip_ops *) type interface?
-> 
-> Ian.
-> 
+PCI: Using ACPI for IRQ routing
+hpet_acpi_add: no address or irqs in _CRS
+ACPI wakeup devices:
+PCI1 USB0 USB1 PS2K GOLA GLAN GOLB SMBC AC97 MODM PWRB
+ACPI: (supports S0 S1 S4 S5)
+ReiserFS: hda5: found reiserfs format "3.6" with standard journal
+ReiserFS: hda5: using ordered data mode
+ACPI: 'PS2K' and 'PCI1' have the same GPE, can't disable/enable one
+seperately
+ACPI: 'GLAN' and 'PCI1' have the same GPE, can't disable/enable one
+seperately
 
-<snip>
+/proc/acpi/wakeup:
 
-TPM vendor specific code can better determine whether the chip belongs
-to them or not.  Since the pci_probe process takes care of checking the
-possible drivers to claim a device it was decided to split the logic up.
-Here is a link to the thread:
-http://www.ussg.iu.edu/hypermail/linux/kernel/0412.1/0550.html
+Device  Sleep state     Status
+PCI1       4             enabled
+USB0       4            disabled
+USB1       4            disabled
+PS2K       1             enabled
+GOLA       4            disabled
+GLAN       4             enabled
+GOLB       4            disabled
+SMBC       4            disabled
+AC97       4            disabled
+MODM       4            disabled
+PWRB       1            *enabled
 
 
-Kylie
+and /proc/acpi/sleep:
 
+S0 S1 S4 S5
+
+Furthermore, if I shut down from Windows, it *does* go into what I
+presume is the S5 state, so this is a software problem, not hardware.
+
+Any suggestions on debugging?
+
+Cheers,
+Kyle

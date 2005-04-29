@@ -1,31 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262451AbVD2Hj3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262469AbVD2HlJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262451AbVD2Hj3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 03:39:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262453AbVD2Hj3
+	id S262469AbVD2HlJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 03:41:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262454AbVD2HlJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 03:39:29 -0400
-Received: from zeus2.kernel.org ([204.152.191.36]:32966 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S262451AbVD2Hj1 (ORCPT
+	Fri, 29 Apr 2005 03:41:09 -0400
+Received: from waste.org ([216.27.176.166]:12170 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262469AbVD2Hkw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 03:39:27 -0400
-Message-Id: <200504290739.j3T7dO4x001387@zeus2.kernel.org>
-From: Pamela <diqiqomod@kinki-kids.com>
-To: linux-kernel@vger.kernel.org
-Subject: Thai blow job
-Date: Fri, 29 Apr 2005 09:40:00 +0000
-MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="Windows-1251"
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Apr 2005 03:40:52 -0400
+Date: Fri, 29 Apr 2005 00:40:43 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: Sean <seanlkml@sympatico.ca>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
+Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
+Message-ID: <20050429074043.GT21897@waste.org>
+References: <20050426004111.GI21897@waste.org> <Pine.LNX.4.58.0504251859550.18901@ppc970.osdl.org> <20050429060157.GS21897@waste.org> <3817.10.10.10.24.1114756831.squirrel@linux1>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3817.10.10.10.24.1114756831.squirrel@linux1>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Glassed girl group s-ex comics Asian twink goes down on his ebony mate
-Wet Blonde S-u,c,ks Huge Black Cock & fu,ck ing
-She loves it wet, deep and hard.
+On Fri, Apr 29, 2005 at 02:40:31AM -0400, Sean wrote:
+> > - no way to do efficient delta storage
+> 
+> This has been discussed.  It is a recognized and accepted design
+> trade-off.  Disk is cheap.
 
-http://aboveground.grome.net/e/?vscun
+This trade-off FAILS, as my benchmarks against Mercurial have shown.
+It trades 10x disk space for maybe 10% performance relative to my
+approach. Meanwhile, it makes a bunch of other things hard, namely the
+ones I've listed. Yes, you can hack around them, but the back end will
+still be bloated.
 
-Mom uses a dildo fu,c king with her daughter
+> Your concearns are about performance rather than real limitations and it's
+> just too damn early in the development process for that.  Frankly it's
+> amazing how good git is considering its age; it's already _way_ faster and
+> easier to use than bk ever was for my use.
 
+Mercurial is even younger (Linus had a few days' head start, not to
+mention a bunch of help), and it is already as fast as git, relatively
+easy to use, much simpler, and much more space and bandwidth
+efficient.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

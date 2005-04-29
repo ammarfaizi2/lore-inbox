@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263057AbVD2XTj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262470AbVD2XXN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263057AbVD2XTj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 19:19:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263058AbVD2XTj
+	id S262470AbVD2XXN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 19:23:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263058AbVD2XXN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 19:19:39 -0400
-Received: from mail-in-01.arcor-online.net ([151.189.21.41]:12227 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S263057AbVD2XTg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 19:19:36 -0400
-From: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
-	<7eggert@gmx.de>
-Subject: Re: [PATCH] cifs: handle termination of cifs oplockd kernel thread
-To: Steve French <smfrench@austin.rr.com>, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Sat, 30 Apr 2005 01:18:19 +0200
-References: <3YLdQ-4vS-15@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <E1DRekV-0001RN-VQ@be1.7eggert.dyndns.org>
+	Fri, 29 Apr 2005 19:23:13 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:33532 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262470AbVD2XXH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 19:23:07 -0400
+Subject: Re: [Ext2-devel] [RFC] Adding multiple block allocation
+From: Mingming Cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: suparna@in.ibm.com, Andrew Morton <akpm@osdl.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-fsdevel@vger.kernel.org
+In-Reply-To: <427280C1.8090404@us.ibm.com>
+References: <1113220089.2164.52.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1113244710.4413.38.camel@localhost.localdomain>
+	 <1113249435.2164.198.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1113288087.4319.49.camel@localhost.localdomain>
+	 <1113304715.2404.39.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1113348434.4125.54.camel@dyn318043bld.beaverton.ibm.com>
+	 <1113388142.3019.12.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1114207837.7339.50.camel@localhost.localdomain>
+	 <1114659912.16933.5.camel@mindpipe>
+	 <1114715665.18996.29.camel@localhost.localdomain>
+	 <20050429135211.GA4539@in.ibm.com>  <427280C1.8090404@us.ibm.com>
+Content-Type: text/plain
+Organization: IBM LTC
+Date: Fri, 29 Apr 2005 16:22:59 -0700
+Message-Id: <1114816980.10473.90.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve French <smfrench@austin.rr.com> wrote:
-
-> As we try to gradually obsolete smbfs, this came up with various users
-> (there was even a bugzilla bug opened for adding it) who said that they
-> need the ability to unmount their own mounts for network filesystems
-> without using /etc/fstab.    Unfortunately for network filesytsems,
-> unlike local filesystems, it is impractical to put every possible mount
-> target in /etc/fstab since servers get renamed and the universe of
-> possible cifs mount targets for a user is large.
+On Fri, 2005-04-29 at 11:45 -0700, Badari Pulavarty wrote:
+> I touch tested your patch earlier and seems to work fine. Lets integrate
+> Mingming's getblocks() patches with this and see if we get any benifit
+> from the whole effort.
 > 
-> There seemed only three alternatives -
-> 1) mimic the smbfs ioctl -   as can be seen from smbfs and smbumount
-> source this has portability problems because apparently there is no
-> guarantee that uid_t is the same size in kernel and in userspace - smbfs
-> actually has two ioctls for different sizes of uid field - this seemed
-> like a bad idea
-> 2) export the uid in /proc/mounts - same problem as above
-> 3) call into the kernel to see if current matches the uid of the mounter
-> - this has no 16/32/64 bit uid portability issues since the check is
-> made in kernel
 
-4) Turn umounting own mounts into a non-privileged operation.
+I tried Suparna's mpage_writepages_getblocks patch with my
+ext3_get_blocks patch, seems to work fine,  except that still only one
+block is allocated at a time. I got a little confused.... 
 
-As (AFAI see) the only thing that needs suid privileges is the umount
-operation, and it is granted if the user mounted it himself, you can as
-well do this simple check in the kernel.
--- 
-Funny quotes:
-40. Isn't making a smoking section in a restaurant like making a peeing
-    section in a swimming pool?
+I did not see any delayed allocation code in your patch, I assume you
+have to update ext3_prepare_write to not call ext3_get_block, so that
+block allocation will be defered at ext3_writepages time. So without the
+delayed allocation part, the get_blocks in mpage_writepages is doing
+multiple blocks look up only, right?
+
+
+Mingming
 

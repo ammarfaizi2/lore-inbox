@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262787AbVD2PBe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262785AbVD2PCj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262787AbVD2PBe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 11:01:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262785AbVD2O7P
+	id S262785AbVD2PCj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 11:02:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262788AbVD2PCK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 10:59:15 -0400
-Received: from web60213.mail.yahoo.com ([209.73.178.116]:61865 "HELO
-	web60213.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262779AbVD2O5M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 10:57:12 -0400
-Message-ID: <20050429145707.49876.qmail@web60213.mail.yahoo.com>
-Date: Fri, 29 Apr 2005 10:57:07 -0400 (EDT)
+	Fri, 29 Apr 2005 11:02:10 -0400
+Received: from web60211.mail.yahoo.com ([209.73.178.114]:23434 "HELO
+	web60211.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262783AbVD2PAL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 11:00:11 -0400
+Message-ID: <20050429150011.62598.qmail@web60211.mail.yahoo.com>
+Date: Fri, 29 Apr 2005 11:00:10 -0400 (EDT)
 From: john doe <catcowcrow@yahoo.ca>
 Subject: ATA port addresses
 To: linux-kernel@vger.kernel.org

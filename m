@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262912AbVD2TtS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262916AbVD2Tx5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262912AbVD2TtS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 15:49:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262910AbVD2TtS
+	id S262916AbVD2Tx5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 15:53:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262917AbVD2Tx5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 15:49:18 -0400
-Received: from fire.osdl.org ([65.172.181.4]:33157 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262913AbVD2TtD (ORCPT
+	Fri, 29 Apr 2005 15:53:57 -0400
+Received: from pat.uio.no ([129.240.130.16]:16083 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262916AbVD2Txz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 15:49:03 -0400
-Date: Fri, 29 Apr 2005 12:50:55 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Matt Mackall <mpm@selenic.com>
-cc: Sean <seanlkml@sympatico.ca>, linux-kernel <linux-kernel@vger.kernel.org>,
-       git@vger.kernel.org
-Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
-In-Reply-To: <20050429191207.GX21897@waste.org>
-Message-ID: <Pine.LNX.4.58.0504291248210.18901@ppc970.osdl.org>
-References: <20050426004111.GI21897@waste.org> <Pine.LNX.4.58.0504251859550.18901@ppc970.osdl.org>
- <20050429060157.GS21897@waste.org> <3817.10.10.10.24.1114756831.squirrel@linux1>
- <20050429074043.GT21897@waste.org> <Pine.LNX.4.58.0504290728090.18901@ppc970.osdl.org>
- <20050429163705.GU21897@waste.org> <Pine.LNX.4.58.0504291006450.18901@ppc970.osdl.org>
- <20050429191207.GX21897@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 29 Apr 2005 15:53:55 -0400
+Subject: Re: which ioctls matter across filesystems
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Steve French <smfrench@austin.rr.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <42728964.8000501@austin.rr.com>
+References: <42728964.8000501@austin.rr.com>
+Content-Type: text/plain
+Date: Fri, 29 Apr 2005 15:53:45 -0400
+Message-Id: <1114804426.12692.49.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.82, required 12,
+	autolearn=disabled, AWL 1.18, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+fr den 29.04.2005 Klokka 14:22 (-0500) skreiv Steve French:
 
+> The new inotify mechanism being prototyped in -mm currently is the other 
+> one which needs work to determine how to map it across the network.   
+> Since it was added for support of Samba, the corresponding client part 
+> (for cifs) may turn out to map to the network protocol quite well 
+> already, and given NFSv4 having various similarities to CIFS, it would 
+> be interesting if the semantics of inotify would map to NFSv4 write 
+> protocol.
 
-On Fri, 29 Apr 2005, Matt Mackall wrote:
-> 
-> Here's an excerpt from http://selenic.com/mercurial/notes.txt on how
-> the back-end works.
+We are discussing the equivalent of dnotify as a potential candidate for
+the first minor version of NFSv4, but not inotify.
+The purpose of our dnotify implementation is address the needs of things
+like file browsers that don't really care about synchronous notification
+of changes, but that do currently cause a lot of unnecessary traffic on
+the wire due to constantly polling stat() and doing readdir() updates.
+The jury is still out as to whether or not the callbacks actually do
+reduce on-the-wire traffic, though, so we may drop it.
 
-Any notes on how you maintain repository-level information?
+What kind of real-world applications exist out there that need inotify
+functionality, and what sort of requirements do they have (in particular
+w.r.t. the notification mechanism)?
 
-For example, the expense in BK wasn't the single-file history, it was the
-_repository_ history, ie the "ChangeSet" file. Which grows quite slowly,
-but because it _always_ grows, it ends up being quite big and expensive to
-parse after three years.
+Cheers,
+  Trond
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
 
-Ie do you have the git kind of "independent trees/commits", or do you 
-create a revision history of those too?
-
-		Linus

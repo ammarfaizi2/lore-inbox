@@ -1,52 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263005AbVD2Vlq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263014AbVD2Vnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263005AbVD2Vlq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 17:41:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262991AbVD2VjF
+	id S263014AbVD2Vnq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 17:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263011AbVD2Vnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 17:39:05 -0400
-Received: from pat.uio.no ([129.240.130.16]:20670 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S263005AbVD2ViU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 17:38:20 -0400
-Subject: Re: which ioctls matter across filesystems
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Steve French <smfrench@austin.rr.com>
-Cc: Robert Love <rml@novell.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <4272A582.3040709@austin.rr.com>
-References: <42728964.8000501@austin.rr.com>
-	 <1114804426.12692.49.camel@lade.trondhjem.org>
-	 <1114805033.6682.150.camel@betsy>
-	 <1114807360.12692.77.camel@lade.trondhjem.org>
-	 <1114807648.6682.153.camel@betsy>
-	 <1114809199.12692.96.camel@lade.trondhjem.org>
-	 <4272A582.3040709@austin.rr.com>
-Content-Type: text/plain
-Date: Fri, 29 Apr 2005 17:38:05 -0400
-Message-Id: <1114810685.12692.109.camel@lade.trondhjem.org>
+	Fri, 29 Apr 2005 17:43:37 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:49422 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263014AbVD2VmV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 17:42:21 -0400
+Date: Fri, 29 Apr 2005 22:42:12 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Pavel Pisa <pisa@cmp.felk.cvut.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kai@germaschewski.name
+Subject: Re: [PATCH] preserve ARCH and CROSS_COMPILE in the build directory generated Makefile
+Message-ID: <20050429224212.G30010@flint.arm.linux.org.uk>
+Mail-Followup-To: Sam Ravnborg <sam@ravnborg.org>,
+	Pavel Pisa <pisa@cmp.felk.cvut.cz>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	kai@germaschewski.name
+References: <200504291335.34210.pisa@cmp.felk.cvut.cz> <20050429210053.GC8699@mars.ravnborg.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.892, required 12,
-	autolearn=disabled, AWL 1.11, UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050429210053.GC8699@mars.ravnborg.org>; from sam@ravnborg.org on Fri, Apr 29, 2005 at 11:00:53PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fr den 29.04.2005 Klokka 16:22 (-0500) skreiv Steve French:
+On Fri, Apr 29, 2005 at 11:00:53PM +0200, Sam Ravnborg wrote:
+> On Fri, Apr 29, 2005 at 01:35:33PM +0200, Pavel Pisa wrote:
+> > This patch ensures, that architecture and target cross-tools prefix
+> > is preserved in the Makefile generated in the build directory for
+> > out of source tree kernel compilation. This prevents accidental
+> > screwing of configuration and builds for the case, that make without
+> > full architecture specific options is invoked in the build
+> > directory. It is secure use accustomed "make", "make xconfig",
+> > etc. without fear and special care now.
+> 
+> Hi Pavel.
+> I will not apply this path because it introduce a difference when
+> building usign a separate output direcory compared to an in-tree build.
+> 
+> I have briefly looked into a solution where I could add this information
+> in .config but was sidetracked by other stuff so I newer got it working.
+> 
+> The build system for the kernel needs to be as predictable as possible
+> and introducing functionality that is only valid when using a separate
+> output directory does not help here.
 
-> Very interesting, I had not seen that.   FYI - There are many years of 
-> real world experience on the current transact2 notify (it is deployed in 
-> some form on most clients) but I don't know whether one of the NAS 
-> storage companies or researchers has done a good research paper on this 
-> topic - although there is no lack of customer traces in SPEC and SNIA.
+Without it, folk will then do (and this is taken from someone elses
+example):
 
-If you are able to release those traces to them, then CITI does have a
-simulator that can be used to test the various models. It is currently
-only capable of analysing NFSv3 and v4 traffic, but it might perhaps be
-possible to add a CIFS interpreter onto it.
+  cd /usr/src
+  tar -xjf /path/to/linux-2.6.x.tar.bz
+  cd linux-2.6.x
+  mkdir -p _build/arm
+  cd _build/arm
+  cat >GNUmakefile <<EOF
+VERSION = 2
+PATCHLEVEL = 6
+                                                                                
+KERNELSRC    := /usr/src/linux-2.6.x
+KERNELOUTPUT := /usr/src/linux-2.6.x/_build/arm
+                                                                                
+MAKEFLAGS += --no-print-directory
+                                                                                
+ARCH            = arm
+#CROSS_COMPILE  = arm-unknown-linux-gnu-
+CROSS_COMPILE   = arm-linux-
+                                                                                
+all:
+        $(MAKE) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) -C $(KERNELSRC) O=$(KERNELOUTPUT)
+                                                                                
+%::
+        $(MAKE) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) -C $(KERNELSRC) O=$(KERNELOUTPUT) $@
+EOF
+  make xconfig
+  make
 
-Cheers,
-  Trond
+which I think you'll agree is far worse.
+
 -- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

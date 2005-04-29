@@ -1,93 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262827AbVD2QoC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262831AbVD2QqG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262827AbVD2QoC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 12:44:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262826AbVD2QnN
+	id S262831AbVD2QqG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 12:46:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262826AbVD2QoZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 12:43:13 -0400
-Received: from fire.osdl.org ([65.172.181.4]:63670 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262827AbVD2Qmk (ORCPT
+	Fri, 29 Apr 2005 12:44:25 -0400
+Received: from mail.kroah.org ([69.55.234.183]:23432 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262828AbVD2QnV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 12:42:40 -0400
-Date: Fri, 29 Apr 2005 09:44:28 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Roland McGrath <roland@redhat.com>
-cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i386: handle iret faults better
-In-Reply-To: <200504290340.j3T3eCcO032218@magilla.sf.frob.com>
-Message-ID: <Pine.LNX.4.58.0504290941250.18901@ppc970.osdl.org>
-References: <200504290340.j3T3eCcO032218@magilla.sf.frob.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 29 Apr 2005 12:43:21 -0400
+Date: Fri, 29 Apr 2005 09:38:12 -0700
+From: Greg KH <greg@kroah.com>
+To: Kylene Jo Hall <kjhall@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 10 of 12] Fix Tpm driver -- sysfs owernship changes
+Message-ID: <20050429163812.GA32647@kroah.com>
+References: <Pine.LNX.4.61.0504271645170.3929@jo.austin.ibm.com> <20050428041915.GD9723@kroah.com> <Pine.LNX.4.61.0504281535330.3947@IBM-8BD8VOWT0JH.austin.ibm.com> <20050429042806.GB25585@kroah.com> <1114792213.20121.7.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1114792213.20121.7.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 28 Apr 2005, Roland McGrath wrote:
->
-> I was never very happy with the special-case check for iret_exc either.
-> But for the first crack, I went for the fix that didn't touch other
-> infrastructure code.
+On Fri, Apr 29, 2005 at 11:30:12AM -0500, Kylene Jo Hall wrote:
+> On Thu, 2005-04-28 at 21:28 -0700, Greg KH wrote:
+> > On Thu, Apr 28, 2005 at 03:40:16PM -0500, Kylene Hall wrote:
+> > > On Wed, 27 Apr 2005, Greg KH wrote:
+> > > > On Wed, Apr 27, 2005 at 05:19:03PM -0500, Kylene Hall wrote:
+> > > > > -	device_remove_file(&pci_dev->dev, &dev_attr_pubek);
+> > > > > -	device_remove_file(&pci_dev->dev, &dev_attr_pcrs);
+> > > > > -	device_remove_file(&pci_dev->dev, &dev_attr_caps);
+> > > > > +	for (i = 0; i < TPM_NUM_ATTR; i++)
+> > > > > +		device_remove_file(&pci_dev->dev, &chip->vendor->attr[i]);
+> > > > 
+> > > > Use an attribute group, instead of this.  That will allow you to get
+> > > > rid of the TPM_NUM_ATTR value, and this looney macro:
+> > > > 
+> > > > > +#define TPM_DEVICE_ATTRS { \
+> > > > > +        __ATTR(pubek, S_IRUGO, tpm_show_pubek, NULL), \
+> > > > > +        __ATTR(pcrs, S_IRUGO, tpm_show_pcrs, NULL), \
+> > > > > +        __ATTR(caps, S_IRUGO, tpm_show_caps, NULL), \
+> > > > > +        __ATTR(cancel, S_IWUSR | S_IWGRP, NULL, tpm_store_cancel) }
+> > > > 
+> > > > thanks,
+> > > > 
+> > > > greg k-h
+> > > > 
+> > > > 
+> > > 
+> > > Ok, the patch below has the same functionality as the previous patch but 
+> > > gets rid of the macro and implements an attribute_group.  Is there any way 
+> > > to avoid the repeated code in every tpm_specific file to setup the 
+> > > attribute_group and still ensure the files are owned by the tpm_specific 
+> > > module?  The only thing I can come up with is either not using the 
+> > > TPM_DEVICE macro at all or creating with TPM_DEVICE macro and then 
+> > > changing the owner field.
+> > 
+> > Why are you trying to split this driver up into such tiny pieces?
+> > What's wrong with one driver for all devices?
 > 
-> The fault.c changes here are really not necessary for the bug fix at all,
-> it will never be used there.  But to make it a clean infrastructure
-> upgrade, I made every caller of fixup_exception consistently pass in the
-> complete info it uses for signals in the user-mode case.
+> The driver was orginally all one piece and was split at the suggestion
+> of Ian Campbell on this list.
 
-I really ended up deciding that we can fix it with a simple one-liner 
-instead, which actually simplifies and cleans up the code, instead of 
-adding new special cases.
+Oh, I remember that.  But if it turns out to be impractical...
 
-I just committed the appended, which actually removes one line more than 
-it adds.
+thanks,
 
-		Linus
------
-commit a879cbbb34cbecfa9707fbb6e5a00c503ac1ecb9
-tree fdf247f8dedea8f04d0989aeab6922ed073eee11
-parent c06fec5022ebe014af876da2df4a0eee836e97c8
-author Linus Torvalds <torvalds@ppc970.osdl.org> Fri, 29 Apr 2005 09:38:44 -0700
-committer Linus Torvalds <torvalds@ppc970.osdl.org> Fri, 29 Apr 2005 09:38:44 -0700
-
-    x86: make traps on 'iret' be debuggable in user space
-
-    This makes a trap on the 'iret' that returns us to user space
-    cause a nice clean SIGSEGV, instead of just a hard (and silent)
-    exit.
-
-    That way a debugger can actually try to see what happened, and
-    we also properly notify everybody who might be interested about
-    us being gone.
-
-    This loses the error code, but tells the debugger what happened
-    with ILL_BADSTK in the siginfo.
-
---- k/arch/i386/kernel/entry.S  (mode:100644)
-+++ l/arch/i386/kernel/entry.S  (mode:100644)
-@@ -260,11 +260,9 @@ restore_nocheck:
- .section .fixup,"ax"
- iret_exc:
- 	sti
--	movl $__USER_DS, %edx
--	movl %edx, %ds
--	movl %edx, %es
--	movl $11,%eax
--	call do_exit
-+	pushl $0			# no error code
-+	pushl $do_iret_error
-+	jmp error_code
- .previous
- .section __ex_table,"a"
- 	.align 4
---- k/arch/i386/kernel/traps.c  (mode:100644)
-+++ l/arch/i386/kernel/traps.c  (mode:100644)
-@@ -451,6 +451,7 @@ DO_ERROR(10, SIGSEGV, "invalid TSS", inv
- DO_ERROR(11, SIGBUS,  "segment not present", segment_not_present)
- DO_ERROR(12, SIGBUS,  "stack segment", stack_segment)
- DO_ERROR_INFO(17, SIGBUS, "alignment check", alignment_check, BUS_ADRALN, 0)
-+DO_ERROR_INFO(32, SIGSEGV, "iret exception", iret_error, ILL_BADSTK, 0)
- 
- fastcall void do_general_protection(struct pt_regs * regs, long error_code)
- {
+greg k-h

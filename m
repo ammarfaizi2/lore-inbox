@@ -1,67 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262302AbVD2QAU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262807AbVD2QDw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262302AbVD2QAU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 12:00:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262808AbVD2QAT
+	id S262807AbVD2QDw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 12:03:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262809AbVD2QAu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 12:00:19 -0400
-Received: from mout.perfora.net ([217.160.230.40]:36594 "EHLO mout.perfora.net")
-	by vger.kernel.org with ESMTP id S262302AbVD2P6A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 11:58:00 -0400
-Subject: Re: x86-64 bad pmds in 2.6.11.6 II
-From: Christopher Warner <chris@servertogo.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: cwarner@kernelcode.com, Andi Kleen <ak@suse.de>,
-       Dave Jones <davej@redhat.com>, Chris Wright <chrisw@osdl.org>,
-       "Sergey S. Kostyliov" <rathamahata@ehouse.ru>,
-       Clem Taylor <clem.taylor@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0504191636570.13422@goblin.wat.veritas.com>
-References: <20050407062928.GH24469@wotan.suse.de>
-	 <Pine.LNX.4.61.0504141419250.25074@goblin.wat.veritas.com>
-	 <20050414170117.GD22573@wotan.suse.de>
-	 <Pine.LNX.4.61.0504141804480.26008@goblin.wat.veritas.com>
-	 <20050414181015.GH22573@wotan.suse.de>
-	 <20050414181133.GA18221@wotan.suse.de>
-	 <20050414182712.GG493@shell0.pdx.osdl.net>
-	 <20050415172408.GB8511@wotan.suse.de>
-	 <20050415172816.GU493@shell0.pdx.osdl.net>
-	 <Pine.LNX.4.61.0504151833020.29919@goblin.wat.veritas.com>
-	 <20050419133509.GF7715@wotan.suse.de>
-	 <Pine.LNX.4.61.0504191636570.13422@goblin.wat.veritas.com>
-Content-Type: text/plain
-Date: Fri, 29 Apr 2005 07:12:59 -0400
-Message-Id: <1114773179.9543.14.camel@jasmine>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	Fri, 29 Apr 2005 12:00:50 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:35238 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S262814AbVD2P7s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 11:59:48 -0400
+Message-ID: <427259F0.1080009@grupopie.com>
+Date: Fri, 29 Apr 2005 16:59:44 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Pedro Venda (SYSADM)" <pjvenda@rnl.ist.utl.pt>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       rnl@rnl.ist.utl.pt
+Subject: Re: ftp server crashes on heavy load: possible scheduler bug
+References: <200504261402.57375.pjvenda@rnl.ist.utl.pt> <20050429050833.6b3d805b.akpm@osdl.org> <200504291521.08711.pjvenda@rnl.ist.utl.pt>
+In-Reply-To: <200504291521.08711.pjvenda@rnl.ist.utl.pt>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Provags-ID: perfora.net abuse@perfora.net login:d2cbd72fb1ab4860f78cabc62f71ec31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> It does.  Well, I needed to restudy exec_mmap and switch_mm in detail,
-> and having done so, I agree that the only way you can get through
-> exec_mmap's activate_mm without fully flushing the cpu's TLB, is if
-> the active_mm matches the newly allocated mm (itself impossible since
-> there's a reference on the active_mm), and the cpu bit is still set
-> in cpu_vm_mask - precisely not the case if we went through leave_mm.
-> Yet I was claiming your leave_mm fix could flush TLB for exec_mmap
-> where it wasn't already done.
+Pedro Venda (SYSADM) wrote:
+> On Friday 29 April 2005 13:08, Andrew Morton wrote:
 > 
-> Sorry for letting the neatness of my pmd/stack story blind me
-> to its impossibility, and for wasting your time.
+>>"Pedro Venda (SYSADM)" <pjvenda@rnl.ist.utl.pt> wrote:
+>>
+>>>We've made some changes on our ftp server, and since that it's been
+>>>crashing frequently (everyday) with a kernel panic.
+>>>
+>>>[...]
+>>> The netconsole log was surprising - "kernel BUG at kernel/sched.c:2634!"
+>>
+>>Strange.  It'd be interesting to try disabling CONFIG_4KSTACKS.  Also,
+>>please add this to get a bit more info.
 > 
-> Hugh
-> -
+> hi,
+> 
+> I'll try that. Should I do it with or without preemption?
 
-Any updated information one should know about this before testing?
+The CONFIG_4KSTACKS is a more likely suspect than the preemption, actually.
 
-I'm getting bad pmds in 2.6.11.5; Tyan S2882/dual AMD 246 opterons. The
-problem only occurs when doing some thread intensive task. I'm going to
-try and strace/bt and send some information as it occurs. Hardware is
-almost identical to the setup above.
+When I read the post from Andrew I remembered some discussion about this 
+and reiserfs, and searched my archives for it:
 
--Christopher Warner
+http://marc.theaimsgroup.com/?l=linux-kernel&m=108680778325490&w=2
 
+I would start with turning them both off to have a stable working system.
 
+If after that you feel that your life is too boring and you want to live 
+dangerously, you might try with CONFIG_PREEMPT=y. If you really want the 
+full adrenaline rush, then go wild with CONFIG_PREEMPT_BKL=y too :)
+
+-- 
+Paulo Marques - www.grupopie.com
+
+All that is necessary for the triumph of evil is that good men do nothing.
+Edmund Burke (1729 - 1797)

@@ -1,58 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262356AbVD2AdK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262357AbVD2AeL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262356AbVD2AdK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 20:33:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262358AbVD2AdK
+	id S262357AbVD2AeL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 20:34:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262358AbVD2AeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 20:33:10 -0400
-Received: from wproxy.gmail.com ([64.233.184.206]:60744 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262355AbVD2AdF convert rfc822-to-8bit
+	Thu, 28 Apr 2005 20:34:11 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:12496 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP id S262357AbVD2AeF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 20:33:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=A1gOvi47DguXd/LNhwuOg9qcUjqEWh6xKc6VkUTg0NqGlprfQFyJE9dD0ucfHbd0iN/eqCsH7S2qfdBffarXxCBFp5P3cmna4dRpFs6v/GfzBCnpjnLmmFrfxecr8rHmtNF7214hlrtEmKJjv7k6Ef2qbPD9AC1Cy98YJ3RzRLw=
-Message-ID: <58cb370e050428173360ebdf05@mail.gmail.com>
-Date: Fri, 29 Apr 2005 02:33:04 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [Question] Does the kernel ignore errors writng to disk?
-Cc: mike.miller@hp.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-scsi@vger.kernel.org, brace@hp.com
-In-Reply-To: <1114732207.24687.263.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050427184022.GA16129@beardog.cca.cpqcorp.net>
-	 <1114700283.24687.193.camel@localhost.localdomain>
-	 <58cb370e050428162221be7338@mail.gmail.com>
-	 <1114732207.24687.263.camel@localhost.localdomain>
+	Thu, 28 Apr 2005 20:34:05 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: Daniel Phillips <phillips@istop.com>, linux-kernel@vger.kernel.org
+Date: Thu, 28 Apr 2005 17:33:52 -0700 (PDT)
+X-X-Sender: dlang@dlang.diginsite.com
+Subject: Re: [PATCH 0/7] dlm: overview
+In-Reply-To: <20050428145715.GA21645@marowsky-bree.de>
+Message-ID: <Pine.LNX.4.62.0504281731450.6139@qynat.qvtvafvgr.pbz>
+References: <20050425151136.GA6826@redhat.com> <200504271600.57993.phillips@istop.com>
+ <20050427202009.GE4431@marowsky-bree.de> <200504271838.18441.phillips@istop.com>
+ <20050428145715.GA21645@marowsky-bree.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/29/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > We agreed on this but it is you to do coding, if you want it,
-> > not me (and there was never any patch from you).
-> 
-> I gave up sending you patches because they never got applied and all I
-> got was "change this" or send a security fix and get told its got wrong
+On Thu, 28 Apr 2005, Lars Marowsky-Bree wrote:
 
-First to make it clear you never ever sent any patch 
-for this _particular_ issue.
+> On 2005-04-27T18:38:18, Daniel Phillips <phillips@istop.com> wrote:
+>
+>> Uuids's at this level are inherently bogus, unless of course you have more
+>> than 2**32 cluster nodes.  I don't know about you, but I do not have even
+>> half that many nodes over here.
+>
+> This is not quite the argument. With that argument, 16 bit would be
+> fine. And even then, I'd call you guilty of causing my lights to flicker
+> ;-)
+>
+> The argument about UUIDs goes a bit beyond that: No admin needed to
+> assign them; they can stay the same even if clusters/clusters merge (in
+> theory); they can be used for inter-cluster addressing too, because they
+> aren't just unique within a single cluster (think clusters of clusters,
+> grids etc, whatever the topology), and finally, UUID is a big enough
+> blob to put all other identifiers in, be it a two bit node id, a
+> nodename, 32bit IPv4 address or a 128bit IPv6.
+>
+> This piece is important. It defines one of the fundamental objects in
+> the API.
+>
+> I recommend you read up on the discussions on the OCF list on this; this
+> has probably been one of the hottest arguments.
 
-Oh and you've never changed "this" or even explained why is so
-so no wonder why _some_ of your patches don't get applied.
+how is this UUID that doesn't need to be touched by an admin, and will 
+always work in all possible networks (including insane things like backup 
+servers configured with the same name and IP address as the primary with 
+NAT between them to allow them to communicate) generated?
 
-> white spacing for your personal religion.
+there are a lot of software packages out there that could make use of 
+this.
 
-Sure I complain about your exotic whitespace and coding
-style but I _never_ reject patches because of this.
-
-> The bug is still there, and the users still need to know its dangerous.
-> Perhaps that way someone will fix it.
-
-Patches as usual are welcomed.
+David Lang

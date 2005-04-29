@@ -1,73 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262716AbVD2O1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262725AbVD2O0b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262716AbVD2O1K (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 10:27:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262721AbVD2O1K
+	id S262725AbVD2O0b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 10:26:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262721AbVD2O0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 10:27:10 -0400
-Received: from wproxy.gmail.com ([64.233.184.205]:50225 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262716AbVD2O0o convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 10:26:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=OOJVJhNPC2S76JnJ/Qd/N6QlwJD5r9H6BmSIy4ZqAoQkoUvIWmUFeyTAM+7hyF1MsWpR/63ebRymulWWj0GMAVKuPIYf4GyjvBcgjy0ADDryhtwZmjc1FybL9ttmHF7YGT9Eu4jL7oGr9mYZQLhXW/nmG7/2LVJGVGS65k5aA3Y=
-Message-ID: <5ebee0d105042907265ff58a73@mail.gmail.com>
-Date: Fri, 29 Apr 2005 10:26:41 -0400
-From: Bill Jordan <woodennickel@gmail.com>
-Reply-To: bjordan@infinicon.com
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
-Cc: Timur Tabi <timur.tabi@ammasso.com>, hch@infradead.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <20050426133752.37d74805.akpm@osdl.org>
+	Fri, 29 Apr 2005 10:26:30 -0400
+Received: from fire.osdl.org ([65.172.181.4]:18052 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262716AbVD2O0I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 10:26:08 -0400
+Date: Fri, 29 Apr 2005 07:26:00 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: vgoyal@in.ibm.com
+Cc: akpm@osdl.org, sharyathi@in.ibm.com, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org, ebiederm@xmission.com
+Subject: Re: [Fastboot] Re: [PATCH] Kdump docs.
+Message-Id: <20050429072600.67851fde.rddunlap@osdl.org>
+In-Reply-To: <20050429050729.GB3636@in.ibm.com>
+References: <1114227003.4269c13be5f8b@imap.linux.ibm.com>
+	<OFB57B3D45.D8C338C5-ON65256FEE.0042F961-65256FEE.0043D4CB@in.ibm.com>
+	<20050425160925.3a48adc5.rddunlap@osdl.org>
+	<20050426085448.GB4234@in.ibm.com>
+	<20050427122312.358f5bd6.rddunlap@osdl.org>
+	<20050428114416.GA5706@in.ibm.com>
+	<20050428091119.73568208.rddunlap@osdl.org>
+	<20050428200845.5211ec37.rddunlap@osdl.org>
+	<20050429050729.GB3636@in.ibm.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: SvC&!/v_Hr`MvpQ*|}uez16KH[#EmO2Tn~(r-y+&Jb}?Zhn}c:Eee&zq`cMb_[5`tT(22ms
+ (.P84,bq_GBdk@Kgplnrbj;Y`9IF`Q4;Iys|#3\?*[:ixU(UR.7qJT665DxUP%K}kC0j5,UI+"y-Sw
+ mn?l6JGvyI^f~2sSJ8vd7s[/CDY]apD`a;s1Wf)K[,.|-yOLmBl0<axLBACB5o^ZAs#&m?e""k/2vP
+ E#eG?=1oJ6}suhI%5o#svQ(LvGa=r
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050425135401.65376ce0.akpm@osdl.org>
-	 <52acnmtmh6.fsf@topspin.com> <20050425173757.1dbab90b.akpm@osdl.org>
-	 <52wtqpsgff.fsf@topspin.com> <20050426084234.A10366@topspin.com>
-	 <52mzrlsflu.fsf@topspin.com> <20050426122850.44d06fa6.akpm@osdl.org>
-	 <5264y9s3bs.fsf@topspin.com> <426EA220.6010007@ammasso.com>
-	 <20050426133752.37d74805.akpm@osdl.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/26/05, Andrew Morton <akpm@osdl.org> wrote:
+On Fri, 29 Apr 2005 10:37:29 +0530 Vivek Goyal wrote:
 
-> Our point is that contemporary microprocessors cannot electrically do what
-> you want them to do!
-> 
-> Now, conceeeeeeiveably the kernel could keep track of the state of the
-> pages down to the byte level, and could keep track of all COWed pages and
-> could look at faulting addresses at the byte level and could copy sub-page
-> ranges by hand from one process's address space into another process's
-> after I/O completion.  I don't think we want to do that.
-> 
-> Methinks your specification is busted.
+| Hi Randy,
+| 
+| > +  A) First kernel:
+| > +   a) Enable "kexec system call" feature (in Processor type and features).
+| > +	CONFIG_KEXEC=y
+| > +   b) This kernel's physical load address should be the default value of
+| > +      0x100000 (0x100000, 1 MB) (in Processor type and features).
+| > +	CONFIG_PHYSICAL_START=0x100000
+| > +   c) Enable "sysfs file system support" (in Pseudo filesystems).
+| > +	CONFIG_SYSFS=y
+| > +   d) Boot into first kernel with the command line parameter "crashkernel=Y@X".
+| > +      Use appropriate values for X and Y. Y denotes how much memory to reserve
+| > +      for the second kernel, and X denotes at what physical address the reserved
+| > +      memory section starts. For example: "crashkernel=64M@16M".
+| > +
+| > +  B) Second kernel:
+| > +   a) Enable "kernel crash dumps" feature (in Processor type and features).
+| > +	CONFIG_CRASH_DUMP=y
+| > +   b) Specify a suitable value for "Physical address where the kernel is
+| > +      loaded" (in Processor type and features). Typically this value
+| > +      should be same as X (See option b) above, e.g., 16 MB or 0x1000000.
+| 
+| Should above line be as follows.
+| "should be same as X (See option d) above."
 
-I agree in principal. However, I expect this issue will come up with
-more and more new specifications, and if it isn't addressed once in
-the linux kernel, it will be kludged and broken many times in many
-drivers.
+Yes, thanks for catching that.  Now how to update it....?
 
-I believe we need an kernel level interface that will pin user pages,
-and lock the user vma in a single step. The interface should be used
-by drivers when the hardware mappings are done. If the process is
-split into a user operation to lock the memory, and a driver operation
-to map the hardware, there will always be opportunity for abuse.
+| This will make clear what is X and what should be the new value of 
+| CONFIG_PHYSICAL_START. 
 
-Reference counting needs to be done by this interface to allow
-different hardware to interoperate.
 
-The interface can't overload the VM_LOCKED flag, or rely on any other
-attributes that the user can tinker with via any other interface.
-
-And as much as I hate to admit it, I think on a fork, we will need to
-copy parts of pages at the beginning or end of user I/O buffers.
-
--- 
-Bill Jordan
-InfiniCon Systems
+---
+~Randy

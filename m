@@ -1,72 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262353AbVD2AXp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262352AbVD2A0S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262353AbVD2AXp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 20:23:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262355AbVD2AXp
+	id S262352AbVD2A0S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 20:26:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262354AbVD2A0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 20:23:45 -0400
-Received: from wproxy.gmail.com ([64.233.184.201]:14038 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262353AbVD2AXk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 20:23:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=fNB0l+5dXFxbnbM2N6pVJu8bgTTrSHglJlaZRak0hv8uAtfGy7POHCKDFrXx2IsTFyuNSqeQ4whihcWLeEGA/l0ffzZGmgLgZ6Jz9lUKR95Aktnv53wbDH/unZFzQsSGzd2S2mVSwQ6paI5mQOS0Nbsk8+oliWRP8dyVIyYUUAg=
-Message-ID: <58cb370e05042817232461fb09@mail.gmail.com>
-Date: Fri, 29 Apr 2005 02:23:39 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Multiple functionality breakages in 2.6.12rc3 IDE layer
-Cc: linux-ide@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1114731804.24687.259.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 28 Apr 2005 20:26:18 -0400
+Received: from smtp.istop.com ([66.11.167.126]:19652 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S262352AbVD2AZ5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Apr 2005 20:25:57 -0400
+From: Daniel Phillips <phillips@istop.com>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Subject: Re: [PATCH 1b/7] dlm: core locking
+Date: Thu, 28 Apr 2005 20:26:35 -0400
+User-Agent: KMail/1.7
+Cc: David Teigland <teigland@redhat.com>, Steven Dake <sdake@mvista.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Patrick Caulfield <pcaulfie@redhat.com>
+References: <20050425165826.GB11938@redhat.com> <200504280249.04735.phillips@istop.com> <20050428125512.GR21645@marowsky-bree.de>
+In-Reply-To: <20050428125512.GR21645@marowsky-bree.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <1114703284.18809.208.camel@localhost.localdomain>
-	 <58cb370e05042813414af5bc1e@mail.gmail.com>
-	 <1114727522.18355.242.camel@localhost.localdomain>
-	 <58cb370e05042816003c2ca4be@mail.gmail.com>
-	 <1114731804.24687.259.camel@localhost.localdomain>
+Message-Id: <200504282026.36273.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/29/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Gwe, 2005-04-29 at 00:00, Bartlomiej Zolnierkiewicz wrote:
-> > > why. You've disabled open() of a device with no bound driver.
+On Thursday 28 April 2005 08:55, Lars Marowsky-Bree wrote:
+> On 2005-04-28T02:49:04, Daniel Phillips <phillips@istop.com> wrote:
+> > > Just some food for thought how this all fits together rather
+> > > neatly.
 > >
-> > Guess what open() for ide-default was doing in 2.6?
-> >
-> > return -ENXIO;
-> >
-> > and no it wasn't my change - it was the effect of fixing
-> > locking of the higher layers.
-> 
-> Yes so it needed fixing and without all the kref, kmalloc, unique object
-> structure per ide driver code spew too.
+> > It's actually the membership system that glues it all together.  The
+> > dlm is just another service.
+>
+> Membership is one of the lowest level and high privileged inputs to the
+> whole picture, of course.
+>
+> However, "membership" is already a pretty broad term, and one must
+> clearly state what one is talking about. So we're clearly focused on
+> node membership here, which is a special case of group membership; the
+> top-level, sort of.
 
-IDE is similar to SCSI now in this respect.
-Are you claiming that SCSI needs fixing too?
+Indeed, you caught me being imprecise.  By "membership system" I mean cman, 
+which includes basic cluster membership, service groups, socket interface, 
+event messages, PF_CLUSTER, and a few other odds and ends.  Really, it _is_ 
+our cluster infrastructure.  And it has warts, some really giant ones.  At 
+least it did the last time I used it.  There is apparently a new, 
+much-improved version I haven't seen yet.  I have heard that the re-rolled 
+cman is in cvs somewhere.  Patrick?  Dave?
 
-> > > The fact that the IDE layer appears to be getting worse not better,
-> > > which given the starting point is a remarkable achievement.
-> >
-> > Personal insults are easy, get technical facts.
-> 
-> I consider that a technical fact. The last IDE code I maintained fully
-> in 2.4 had mostly working locking, drive hotplug, open for unbound
-> drivers, didnt oops on spurious irqs and wasn't losing all sorts of
-> useful boot options. I had hoped that I wouldnt have to totally fork the
-> 2.6 IDE code in order to get back to where 2.4-ac was and get the
-> locking working so you can't oops it via /proc
+> Then every node has it's local view of node membership, constructed
+> typically from observing node heartbeats.
 
-Somehow you seem to forget that I took maintaince over
-2.5.5x (or 2.5.6x) and there was a lot new stuff added when
-you were away (i.e. driver-model and IDE code needs to conform
-with it to get sane power management and sysfs support)
-and that a lot of other things have changed (influencing IDE).
+Actually, it is constructed from observing cman events over the socket.
 
-Feel free to fork so you'll be wasting yours time only and not mine.
+I see that some fantastical /sys/ filesystem has wormed itself into the 
+machinery.  I need to check that this hasn't compromised the basic beauty of 
+the event messaging model.
+
+Fencing is a whole nuther issue.  It's sort of unclear how it is actually 
+supposed to work, and judging from the number of complaints I see about it on 
+mailing lists, it doesn't work very well.  We need to take a good look at 
+that.
+
+> Then the nodes communicate to reach concensus on the coordinated
+> membership, which will usually be a set of nodes with full N:N
+> connectivity (via the cluster messaging mechanism); and they'll also
+> usually aim to identify the largest possible set.
+
+Yes.  "Reaching consensus" is signalled to each node by cman sending a 
+"finish" event, as in "finish recovering".  (To be sure, this is misleading 
+terminology.  We should kill it before it has a chance to reproduce.)
+
+> Eventually, there'll be a membership view which also implies certain
+> shared data integrity guarantees if appropriate (ie, fencing in case a
+> node didn't go down cleanly, and granting access on a clean join).
+
+Each node's membership view is simply the cumulative state implied by the cman 
+events.  Necessarily, this view will suffer some skew across the cluster.  
+All cluster algorithms _must_ recognize and accomodate that.  This is where 
+barriers come into play, though that mechanism is buried inside cman, and 
+each node's view of barrier operations consists of cman events.  (The way 
+this is actually implemented smells a little scary to me, but it seems to 
+work ok for small numbers of nodes.)
+
+> These steps but the last one usually happen completely internal to the
+> membership layer; the last one requires coordination already, because
+> the fencing layer itself might need recovery before it can fence
+> something after a node failure.
+
+Right, we need to do a lot more work on the fencing interface.  For example, I 
+haven't even begun to analyze it from the point of view of memory inversion 
+deadlock.  My spider sense tells me there is some of that in there.  Fencing 
+is currently done via bash scripts, which alone sucks nearly beyond belief.
+
+> And then there's quorum computation.
+
+Aha!  There is a beautiful solution in the case of ddraid, i.e., any cluster 
+with (m of n) redundant shared disks resident on the nodes themselves:
+
+   http://sourceware.org/cluster/ddraid/
+
+For ddraid order 1 and higher, there is no quorum ambiguity at all, because 
+you _require_ a quorum of data nodes in order for any node to access the 
+cluster filesystem data.  For example, for a five node ddraid distributed 
+data cluster, you need four data nodes active or the cluster will only be 
+able to sit there stupidly doing nothing.  Four data nodes is therefore the 
+quorum group ordained by God.  Non-data nodes can come and go as they please, 
+without ever worrying about split brain or other nasty quorum-related 
+diseases.
+
+> Certainly you could also try looking at it from a membership-centric
+> angle, but the piece which coordinates the recovery of the various
+> components which makes sure the right kind of membership events are
+> delivered in the proper order, and errors during component recovery are
+> appropriately handled, is, I think, pretty much distinct from the
+> "membership" and a higher level component.
+
+Sorry for the red herring.  Where I wrote "membership" I meant to write 
+"cman", that is, cluster management.
+
+> So I'm not sure I'd buy "the membership is what glues it all together"
+> on eBay even for a low starting bid.
+
+Though I'm not sure the concept is for sale, your buy-in will be appreciated 
+nonetheless, no matter how many limp jokes we need to put up with on the way 
+there.
+
+Regards,
+
+Daniel

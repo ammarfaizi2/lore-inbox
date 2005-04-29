@@ -1,790 +1,1708 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263071AbVD2XnR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263073AbVD2XsB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263071AbVD2XnR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 19:43:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263072AbVD2XnQ
+	id S263073AbVD2XsB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 19:48:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263074AbVD2XsB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 19:43:16 -0400
-Received: from fmr21.intel.com ([143.183.121.13]:37325 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S263071AbVD2Xm2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 19:42:28 -0400
-Date: Fri, 29 Apr 2005 16:41:22 -0700
-From: Ashok Raj <ashok.raj@intel.com>
-To: akpm@osdl.org
-Cc: ak@muc.de, ashok.raj@intel.com, mingo@elte.hu, zwane@arm.linux.org.uk,
-       tony.luck@intel.com, linux-kernel@vger.kernel.org, gregkh@suse.de
-Subject: Re: patch x86-x86_64-deferred-handling-of-writes-to-proc-irq-xx-smp_affinity.patch added to -mm tree
-Message-ID: <20050429164122.A23364@unix-os.sc.intel.com>
-References: <200504282341.j3SNfVH0019917@shell0.pdx.osdl.net> <20050429153302.GC38331@muc.de>
+	Fri, 29 Apr 2005 19:48:01 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:4053 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263073AbVD2XoV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 19:44:21 -0400
+Subject: Re: [RFC][PATCH (1/4)] new timeofday core subsystem (v A4)
+From: john stultz <johnstul@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: albert@users.sourceforge.net, paulus@samba.org, schwidefsky@de.ibm.com,
+       mahuja@us.ibm.com, donf@us.ibm.com, mpm@selenic.com,
+       benh@kernel.crashing.org
+In-Reply-To: <1114814747.28231.2.camel@cog.beaverton.ibm.com>
+References: <1114814747.28231.2.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Fri, 29 Apr 2005 16:44:06 -0700
+Message-Id: <1114818246.28616.1.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050429153302.GC38331@muc.de>; from ak@muc.de on Fri, Apr 29, 2005 at 05:33:02PM +0200
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew
+Ack.  At the last minute I accidentally committed a line I didn't mean
+to, so the timeofday-core_A4 patch doesn't build.
 
-Sorry for the trouble. In the patch earlier, i missed adding a file that would
-have broke ia64 builds. Also this time i moved one more common function
-into generic hardirq framework, and deleted that from i386 and ia64 files.
+This patch fixes the problem. Please use it instead.
 
-Updated patch is attached for -mm.
-
-On Fri, Apr 29, 2005 at 05:33:02PM +0200, Andi Kleen wrote:
-> 
-> This looks all very complicated and more than a chipset bug 
-> than a feature. But anways.. Cant you just cause a dummy interrupt
-> during the reprogramming and not handle it until you reprogrammed?
-
-Iam not aware how to generate a fake interrupt, and know that this (fake intr) 
-is the interrupt firing, so we can do programming deferred. I will keep looking
-if there are better ways to do it.
-
-> 
-> I think that would be much preferable than to add a lot of 
-> code to the interrupt fast path just for this workaround.
-> 
-> -Andi
-
-
--- 
-Cheers,
-Ashok Raj
-- Open Source Technology Center
-
-
-
----
-                                                                                
-Signed-off-by: Ashok Raj <ashok.raj@intel.com>
-
-When handling writes to /proc/irq, current code is re-programming rte
-entries directly. This is not recommended and could potentially cause 
-chipset's to lockup, or cause missing interrupts.
-
-CONFIG_IRQ_BALANCE does this correctly, where it re-programs only when the 
-interrupt is pending. The same needs to be done for /proc/irq handling as well.
-Otherwise user space irq balancers are really not doing the right thing.
-
-- Changed pending_irq_balance_cpumask to pending_irq_migrate_cpumask for 
-  lack of a generic name.
-- added move_irq out of IRQ_BALANCE, and added this same to X86_64
-- Added new proc handler for write, so we can do deferred write at irq
-  handling time.
-- Display of /proc/irq/XX/smp_affinity used to display CPU_MASKALL, instead
-  it now shows only active cpu masks, or exactly what was set.
-- Provided a common move_irq implementation, instead of duplicating
-  when using generic irq framework.
-
-Tested on i386/x86_64 and ia64 with CONFIG_PCI_MSI turned on and off.
-Tested UP builds as well.
-MSI testing: tbd: i have cards, need to look for a x-over cable, although
-i did test an earlier version of this patch. Will test in a couple days.
-
----
-
- linux-2.6.12-rc2-mm3-araj/arch/i386/Kconfig            |    5 
- linux-2.6.12-rc2-mm3-araj/arch/i386/kernel/io_apic.c   |   37 +++---
- linux-2.6.12-rc2-mm3-araj/arch/ia64/Kconfig            |    5 
- linux-2.6.12-rc2-mm3-araj/arch/ia64/kernel/irq.c       |   39 ------
- linux-2.6.12-rc2-mm3-araj/arch/x86_64/Kconfig          |    5 
- linux-2.6.12-rc2-mm3-araj/arch/x86_64/kernel/io_apic.c |   97 ++++++++++-------
- linux-2.6.12-rc2-mm3-araj/drivers/pci/msi.c            |   17 --
- linux-2.6.12-rc2-mm3-araj/drivers/pci/msi.h            |    5 
- linux-2.6.12-rc2-mm3-araj/include/asm-ia64/hw_irq.h    |    7 -
- linux-2.6.12-rc2-mm3-araj/include/asm-ia64/irq.h       |    6 -
- linux-2.6.12-rc2-mm3-araj/include/linux/irq.h          |   86 +++++++++++++++
- linux-2.6.12-rc2-mm3-araj/kernel/irq/manage.c          |    8 +
- linux-2.6.12-rc2-mm3-araj/kernel/irq/proc.c            |   19 ++-
- 13 files changed, 212 insertions(+), 124 deletions(-)
-
-diff -puN arch/i386/kernel/io_apic.c~fix_irq_affinity arch/i386/kernel/io_apic.c
---- linux-2.6.12-rc2-mm3/arch/i386/kernel/io_apic.c~fix_irq_affinity	2005-04-28 23:51:28.000000000 -0700
-+++ linux-2.6.12-rc2-mm3-araj/arch/i386/kernel/io_apic.c	2005-04-29 15:07:33.000000000 -0700
-@@ -31,8 +31,8 @@
- #include <linux/mc146818rtc.h>
- #include <linux/compiler.h>
- #include <linux/acpi.h>
--
- #include <linux/sysdev.h>
-+#include <linux/irq.h>
- #include <asm/io.h>
- #include <asm/smp.h>
- #include <asm/desc.h>
-@@ -227,7 +227,14 @@ static void set_ioapic_affinity_irq(unsi
- 	int pin;
- 	struct irq_pin_list *entry = irq_2_pin + irq;
- 	unsigned int apicid_value;
-+	cpumask_t tmp;
- 	
-+	cpus_and(tmp, cpumask, cpu_online_map);
-+	if (cpus_empty(tmp))
-+		tmp = TARGET_CPUS;
-+
-+	cpus_and(cpumask, tmp, CPU_MASK_ALL);
-+
- 	apicid_value = cpu_mask_to_apicid(cpumask);
- 	/* Prepare to do the io_apic_write */
- 	apicid_value = apicid_value << 24;
-@@ -241,9 +248,12 @@ static void set_ioapic_affinity_irq(unsi
- 			break;
- 		entry = irq_2_pin + entry->next;
- 	}
-+	set_irq_info(irq, cpumask);
- 	spin_unlock_irqrestore(&ioapic_lock, flags);
- }
- 
-+#ifdef CONFIG_SMP
-+
- #if defined(CONFIG_IRQBALANCE)
- # include <asm/processor.h>	/* kernel_thread() */
- # include <linux/kernel_stat.h>	/* kstat */
-@@ -258,7 +268,6 @@ static void set_ioapic_affinity_irq(unsi
- #  define Dprintk(x...) 
- # endif
- 
--cpumask_t __cacheline_aligned pending_irq_balance_cpumask[NR_IRQS];
- 
- #define IRQBALANCE_CHECK_ARCH -999
- static int irqbalance_disabled = IRQBALANCE_CHECK_ARCH;
-@@ -331,7 +340,7 @@ static inline void balance_irq(int cpu, 
- 		unsigned long flags;
- 
- 		spin_lock_irqsave(&desc->lock, flags);
--		pending_irq_balance_cpumask[irq] = cpumask_of_cpu(new_cpu);
-+		pending_irq_cpumask[irq] = cpumask_of_cpu(new_cpu);
- 		spin_unlock_irqrestore(&desc->lock, flags);
- 	}
- }
-@@ -534,7 +543,7 @@ tryanotherirq:
- 				selected_irq, min_loaded);
- 		/* mark for change destination */
- 		spin_lock_irqsave(&desc->lock, flags);
--		pending_irq_balance_cpumask[selected_irq] =
-+		pending_irq_cpumask[selected_irq] =
- 					cpumask_of_cpu(min_loaded);
- 		spin_unlock_irqrestore(&desc->lock, flags);
- 		/* Since we made a change, come back sooner to 
-@@ -567,7 +576,7 @@ static int balanced_irq(void *unused)
- 	
- 	/* push everything to CPU 0 to give us a starting point.  */
- 	for (i = 0 ; i < NR_IRQS ; i++) {
--		pending_irq_balance_cpumask[i] = cpumask_of_cpu(0);
-+		pending_irq_cpumask[i] = cpumask_of_cpu(0);
- 	}
- 
- 	for ( ; ; ) {
-@@ -646,20 +655,9 @@ int __init irqbalance_disable(char *str)
- 
- __setup("noirqbalance", irqbalance_disable);
- 
--static inline void move_irq(int irq)
--{
--	/* note - we hold the desc->lock */
--	if (unlikely(!cpus_empty(pending_irq_balance_cpumask[irq]))) {
--		set_ioapic_affinity_irq(irq, pending_irq_balance_cpumask[irq]);
--		cpus_clear(pending_irq_balance_cpumask[irq]);
--	}
--}
--
- late_initcall(balanced_irq_init);
--
--#else /* !CONFIG_IRQBALANCE */
--static inline void move_irq(int irq) { }
- #endif /* CONFIG_IRQBALANCE */
-+#endif /* CONFIG_SMP */
- 
- #ifndef CONFIG_SMP
- void fastcall send_IPI_self(int vector)
-@@ -1247,6 +1245,7 @@ static void __init setup_IO_APIC_irqs(vo
- 		spin_lock_irqsave(&ioapic_lock, flags);
- 		io_apic_write(apic, 0x11+2*pin, *(((int *)&entry)+1));
- 		io_apic_write(apic, 0x10+2*pin, *(((int *)&entry)+0));
-+		set_native_irq_info(irq, TARGET_CPUS);
- 		spin_unlock_irqrestore(&ioapic_lock, flags);
- 	}
- 	}
-@@ -1941,6 +1940,7 @@ static void ack_edge_ioapic_vector(unsig
- {
- 	int irq = vector_to_irq(vector);
- 
-+	move_irq(vector);
- 	ack_edge_ioapic_irq(irq);
- }
- 
-@@ -1955,6 +1955,7 @@ static void end_level_ioapic_vector (uns
- {
- 	int irq = vector_to_irq(vector);
- 
-+	move_irq(vector);
- 	end_level_ioapic_irq(irq);
- }
- 
-@@ -1977,6 +1978,7 @@ static void set_ioapic_affinity_vector (
- {
- 	int irq = vector_to_irq(vector);
- 
-+	set_native_irq_info(vector, cpu_mask);
- 	set_ioapic_affinity_irq(irq, cpu_mask);
- }
- #endif
-@@ -2566,6 +2568,7 @@ int io_apic_set_pci_routing (int ioapic,
- 	spin_lock_irqsave(&ioapic_lock, flags);
- 	io_apic_write(ioapic, 0x11+2*pin, *(((int *)&entry)+1));
- 	io_apic_write(ioapic, 0x10+2*pin, *(((int *)&entry)+0));
-+	set_native_irq_info(use_pci_vector() ? entry.vector : irq, TARGET_CPUS);
- 	spin_unlock_irqrestore(&ioapic_lock, flags);
- 
- 	return 0;
-diff -puN drivers/pci/msi.c~fix_irq_affinity drivers/pci/msi.c
---- linux-2.6.12-rc2-mm3/drivers/pci/msi.c~fix_irq_affinity	2005-04-28 23:51:28.000000000 -0700
-+++ linux-2.6.12-rc2-mm3-araj/drivers/pci/msi.c	2005-04-29 14:05:23.000000000 -0700
-@@ -91,6 +91,7 @@ static void set_msi_affinity(unsigned in
- {
- 	struct msi_desc *entry;
- 	struct msg_address address;
-+	unsigned int irq = vector;
- 
- 	entry = (struct msi_desc *)msi_desc[vector];
- 	if (!entry || !entry->dev)
-@@ -112,6 +113,7 @@ static void set_msi_affinity(unsigned in
- 		entry->msi_attrib.current_cpu = cpu_mask_to_apicid(cpu_mask);
- 		pci_write_config_dword(entry->dev, msi_lower_address_reg(pos),
- 			address.lo_address.value);
-+		set_native_irq_info(irq, cpu_mask);
- 		break;
- 	}
- 	case PCI_CAP_ID_MSIX:
-@@ -125,22 +127,13 @@ static void set_msi_affinity(unsigned in
- 			MSI_TARGET_CPU_SHIFT);
- 		entry->msi_attrib.current_cpu = cpu_mask_to_apicid(cpu_mask);
- 		writel(address.lo_address.value, entry->mask_base + offset);
-+		set_native_irq_info(irq, cpu_mask);
- 		break;
- 	}
- 	default:
- 		break;
- 	}
- }
--
--#ifdef CONFIG_IRQBALANCE
--static inline void move_msi(int vector)
--{
--	if (!cpus_empty(pending_irq_balance_cpumask[vector])) {
--		set_msi_affinity(vector, pending_irq_balance_cpumask[vector]);
--		cpus_clear(pending_irq_balance_cpumask[vector]);
--	}
--}
--#endif /* CONFIG_IRQBALANCE */
- #endif /* CONFIG_SMP */
- 
- static void mask_MSI_irq(unsigned int vector)
-@@ -182,7 +175,7 @@ static void disable_msi_irq_wo_maskbit(u
- static void ack_msi_irq_wo_maskbit(unsigned int vector) {}
- static void end_msi_irq_wo_maskbit(unsigned int vector)
- {
--	move_msi(vector);
-+	move_native_irq(vector);
- 	ack_APIC_irq();
- }
- 
-@@ -211,7 +204,7 @@ static unsigned int startup_msi_irq_w_ma
- 
- static void end_msi_irq_w_maskbit(unsigned int vector)
- {
--	move_msi(vector);
-+	move_native_irq(vector);
- 	unmask_MSI_irq(vector);
- 	ack_APIC_irq();
- }
-diff -puN drivers/pci/msi.h~fix_irq_affinity drivers/pci/msi.h
---- linux-2.6.12-rc2-mm3/drivers/pci/msi.h~fix_irq_affinity	2005-04-28 23:51:28.000000000 -0700
-+++ linux-2.6.12-rc2-mm3-araj/drivers/pci/msi.h	2005-04-28 23:51:28.000000000 -0700
-@@ -19,7 +19,6 @@
- #define NR_HP_RESERVED_VECTORS 	20
- 
- extern int vector_irq[NR_VECTORS];
--extern cpumask_t pending_irq_balance_cpumask[NR_IRQS];
- extern void (*interrupt[NR_IRQS])(void);
- extern int pci_vector_resources(int last, int nr_released);
- 
-@@ -29,10 +28,6 @@ extern int pci_vector_resources(int last
- #define set_msi_irq_affinity	NULL
- #endif
- 
--#ifndef CONFIG_IRQBALANCE
--static inline void move_msi(int vector) {}
--#endif
--
- /*
-  * MSI-X Address Register
-  */
-diff -puN include/linux/irq.h~fix_irq_affinity include/linux/irq.h
---- linux-2.6.12-rc2-mm3/include/linux/irq.h~fix_irq_affinity	2005-04-28 23:51:28.000000000 -0700
-+++ linux-2.6.12-rc2-mm3-araj/include/linux/irq.h	2005-04-29 15:43:18.000000000 -0700
-@@ -71,12 +71,98 @@ typedef struct irq_desc {
- 
- extern irq_desc_t irq_desc [NR_IRQS];
- 
-+/* Return a pointer to the irq descriptor for IRQ.  */
-+static inline irq_desc_t *
-+irq_descp (int irq)
-+{
-+	return irq_desc + irq;
-+}
-+
-+
- #include <asm/hw_irq.h> /* the arch dependent stuff */
- 
- extern int setup_irq(unsigned int irq, struct irqaction * new);
- 
- #ifdef CONFIG_GENERIC_HARDIRQS
- extern cpumask_t irq_affinity[NR_IRQS];
-+
-+#ifdef CONFIG_SMP
-+static inline void set_native_irq_info(int irq, cpumask_t mask)
-+{
-+	irq_affinity[irq] = mask;
-+}
-+#else
-+static inline void set_native_irq_info(int irq, cpumask_t mask)
-+{
-+}
-+#endif
-+
-+#ifdef CONFIG_GENERIC_PENDING_IRQ
-+extern cpumask_t pending_irq_cpumask[NR_IRQS];
-+
-+static inline void
-+move_native_irq(int irq)
-+{
-+	cpumask_t tmp;
-+	irq_desc_t *desc = irq_descp(irq);
-+
-+	if (likely(cpus_empty(pending_irq_cpumask[irq])))
-+		return;
-+
-+	if (unlikely(!desc->handler->set_affinity))
-+		return;
-+
-+	/* note - we hold the desc->lock */
-+	cpus_and(tmp, pending_irq_cpumask[irq], cpu_online_map);
-+
-+	/*
-+	 * If there was a valid mask to work with, please
-+	 * do the disable, re-program, enable sequence.
-+	 * This is *not* particularly important for level triggered
-+	 * but in a edge trigger case, we might be setting rte
-+	 * when an active trigger is comming in. This could
-+	 * cause some ioapics to mal-function.
-+	 * Being paranoid i guess!
-+	 */
-+	if (unlikely(!cpus_empty(tmp))) {
-+		desc->handler->disable(irq);
-+		desc->handler->set_affinity(irq,tmp);
-+		desc->handler->enable(irq);
-+	}
-+	cpus_clear(pending_irq_cpumask[irq]);
-+}
-+
-+#ifdef CONFIG_PCI_MSI
+linux-2.6.12-rc2_timeofday-core_A4fix.patch
+===========================================
+diff -Nru a/drivers/Makefile b/drivers/Makefile
+--- a/drivers/Makefile	2005-04-29 16:39:35 -07:00
++++ b/drivers/Makefile	2005-04-29 16:39:35 -07:00
+@@ -64,3 +64,4 @@
+ obj-$(CONFIG_BLK_DEV_SGIIOC4)	+= sn/
+ obj-y				+= firmware/
+ obj-$(CONFIG_CRYPTO)		+= crypto/
++obj-$(CONFIG_NEWTOD)		+= timesource/
+diff -Nru a/drivers/timesource/Makefile b/drivers/timesource/Makefile
+--- /dev/null	Wed Dec 31 16:00:00 196900
++++ b/drivers/timesource/Makefile	2005-04-29 16:39:35 -07:00
+@@ -0,0 +1 @@
++obj-y += jiffies.o
+diff -Nru a/drivers/timesource/jiffies.c b/drivers/timesource/jiffies.c
+--- /dev/null	Wed Dec 31 16:00:00 196900
++++ b/drivers/timesource/jiffies.c	2005-04-29 16:39:35 -07:00
+@@ -0,0 +1,45 @@
 +/*
-+ * Wonder why these are dummies?
-+ * For e.g the set_ioapic_affinity_vector() calls the set_ioapic_affinity_irq()
-+ * counter part after translating the vector to irq info. We need to perform
-+ * this operation on the real irq, when we dont use vector, i.e when
-+ * pci_use_vector() is false.
++ * linux/drivers/timesource/jiffies.c
++ *
++ * Copyright (C) 2004 IBM
++ *
++ * This file contains the jiffies based time source.
++ *
 + */
-+static inline void move_irq(int irq)
++#include <linux/timesource.h>
++#include <linux/jiffies.h>
++#include <linux/init.h>
++
++/* The Jiffies based timesource is the lowest common
++ * denominator time source which should function on
++ * all systems. It has the same coarse resolution as
++ * the timer interrupt frequency HZ and it suffers
++ * inaccuracies caused by missed or lost timer
++ * interrupts and the inability for the timer
++ * interrupt hardware to accuratly tick at the
++ * requested HZ value. It is also not reccomended
++ * for "tick-less" systems.
++ */
++
++static cycle_t jiffies_read(void)
 +{
++	cycle_t ret = get_jiffies_64();
++	return ret;
 +}
 +
-+static inline void set_irq_info(int irq, cpumask_t mask)
++struct timesource_t timesource_jiffies = {
++	.name = "jiffies",
++	.priority = 0, /* lowest priority*/
++	.type = TIMESOURCE_FUNCTION,
++	.read_fnct = jiffies_read,
++	.mask = (cycle_t)-1,
++	.mult = (NSEC_PER_SEC+(HZ/2))/HZ,
++	.shift = 0,
++};
++
++static int init_jiffies_timesource(void)
 +{
++	register_timesource(&timesource_jiffies);
++	return 0;
 +}
-+#else
-+static inline void move_irq(int irq)
++module_init(init_jiffies_timesource);
+diff -Nru a/include/linux/ntp.h b/include/linux/ntp.h
+--- /dev/null	Wed Dec 31 16:00:00 196900
++++ b/include/linux/ntp.h	2005-04-29 16:39:35 -07:00
+@@ -0,0 +1,22 @@
++/*  linux/include/linux/ntp.h
++ *
++ *  Copyright (C) 2003, 2004, 2005 IBM, John Stultz (johnstul@us.ibm.com)
++ *
++ *  This file NTP state machine accessor functions.
++ */
++
++#ifndef _LINUX_NTP_H
++#define _LINUX_NTP_H
++#include <linux/types.h>
++#include <linux/time.h>
++#include <linux/timex.h>
++
++/* NTP state machine interfaces */
++nsec_t ntp_scale(nsec_t value);
++int ntp_advance(nsec_t value);
++int ntp_adjtimex(struct timex*);
++int ntp_leapsecond(struct timespec now);
++void ntp_clear(void);
++int get_ntp_status(void);
++
++#endif
+diff -Nru a/include/linux/time.h b/include/linux/time.h
+--- a/include/linux/time.h	2005-04-29 16:39:35 -07:00
++++ b/include/linux/time.h	2005-04-29 16:39:35 -07:00
+@@ -27,6 +27,10 @@
+ 
+ #ifdef __KERNEL__
+ 
++/* timeofday base types */
++typedef u64 nsec_t;
++typedef u64 cycle_t;
++
+ /* Parameters used to convert the timespec values */
+ #ifndef USEC_PER_SEC
+ #define USEC_PER_SEC (1000000L)
+diff -Nru a/include/linux/timeofday.h b/include/linux/timeofday.h
+--- /dev/null	Wed Dec 31 16:00:00 196900
++++ b/include/linux/timeofday.h	2005-04-29 16:39:35 -07:00
+@@ -0,0 +1,65 @@
++/*  linux/include/linux/timeofday.h
++ *
++ *  Copyright (C) 2003, 2004, 2005 IBM, John Stultz (johnstul@us.ibm.com)
++ *
++ *  This file contains the interface to the time of day subsystem
++ */
++#ifndef _LINUX_TIMEOFDAY_H
++#define _LINUX_TIMEOFDAY_H
++#include <linux/types.h>
++#include <linux/time.h>
++#include <linux/timex.h>
++#include <asm/div64.h>
++
++#ifdef CONFIG_NEWTOD
++nsec_t get_lowres_timestamp(void);
++nsec_t get_lowres_timeofday(void);
++nsec_t do_monotonic_clock(void);
++
++void do_gettimeofday(struct timeval *tv);
++int do_settimeofday(struct timespec *tv);
++int do_adjtimex(struct timex *tx);
++
++void timeofday_suspend_hook(void);
++void timeofday_resume_hook(void);
++
++void timeofday_init(void);
++
++
++/* Helper functions */
++static inline struct timeval ns2timeval(nsec_t ns)
 +{
-+	move_native_irq(irq);
++	struct timeval tv;
++	tv.tv_sec = div_long_long_rem(ns, NSEC_PER_SEC, &tv.tv_usec);
++	tv.tv_usec = (tv.tv_usec + NSEC_PER_USEC/2) / NSEC_PER_USEC;
++	return tv;
 +}
 +
-+static inline void set_irq_info(int irq, cpumask_t mask)
++static inline struct timespec ns2timespec(nsec_t ns)
 +{
-+	set_native_irq_info(irq, mask);
++	struct timespec ts;
++	ts.tv_sec = div_long_long_rem(ns, NSEC_PER_SEC, &ts.tv_nsec);
++	return ts;
 +}
-+#endif // CONFIG_PCI_MSI
-+#else
-+#define move_irq(x)
-+#define move_native_irq(x)
-+#endif // CONFIG_GENERIC_PENDING_IRQ
 +
- extern int no_irq_affinity;
- extern int noirqdebug_setup(char *str);
- 
-diff -puN kernel/irq/manage.c~fix_irq_affinity kernel/irq/manage.c
---- linux-2.6.12-rc2-mm3/kernel/irq/manage.c~fix_irq_affinity	2005-04-28 23:51:28.000000000 -0700
-+++ linux-2.6.12-rc2-mm3-araj/kernel/irq/manage.c	2005-04-29 07:00:09.000000000 -0700
-@@ -17,6 +17,10 @@
- 
- cpumask_t irq_affinity[NR_IRQS] = { [0 ... NR_IRQS-1] = CPU_MASK_ALL };
- 
-+#ifdef CONFIG_GENERIC_PENDING_IRQ
-+cpumask_t __cacheline_aligned pending_irq_cpumask[NR_IRQS];
++static inline nsec_t timespec2ns(struct timespec* ts)
++{
++	nsec_t ret;
++	ret = ((nsec_t)ts->tv_sec) * NSEC_PER_SEC;
++	ret += ts->tv_nsec;
++	return ret;
++}
++
++static inline nsec_t timeval2ns(struct timeval* tv)
++{
++	nsec_t ret;
++	ret = ((nsec_t)tv->tv_sec) * NSEC_PER_SEC;
++	ret += tv->tv_usec * NSEC_PER_USEC;
++	return ret;
++}
++#else /* CONFIG_NEWTOD */
++#define timeofday_suspend_hook()
++#define timeofday_resume_hook()
++#define timeofday_init()
++#endif /* CONFIG_NEWTOD */
++#endif /* _LINUX_TIMEOFDAY_H */
+diff -Nru a/include/linux/timesource.h b/include/linux/timesource.h
+--- /dev/null	Wed Dec 31 16:00:00 196900
++++ b/include/linux/timesource.h	2005-04-29 16:39:35 -07:00
+@@ -0,0 +1,159 @@
++/*  linux/include/linux/timesource.h
++ *
++ *  Copyright (C) 2003, 2004, 2005 IBM, John Stultz (johnstul@us.ibm.com)
++ *
++ *  This file contains the structure definitions for timesources.
++ *
++ *  If you are not a timesource, or the time of day code, you should
++ *  not be including this file!
++ */
++#ifndef _LINUX_TIMESORUCE_H
++#define _LINUX_TIMESORUCE_H
++
++#include <linux/types.h>
++#include <linux/time.h>
++#include <linux/timex.h>
++#include <asm/io.h>
++#include <asm/div64.h>
++
++/* struct timesource_t:
++ *      Provides mostly state-free accessors to the underlying hardware.
++ *
++ * name:                ptr to timesource name
++ * priority:            priority value for selection (higher is better)
++ * type:                defines timesource type
++ * @read_fnct:          returns a cycle value
++ * ptr:                 ptr to MMIO'ed counter
++ * mask:                bitmask for two's complement
++ *                      subtraction of non 64 bit counters
++ * mult:                cycle to nanosecond multiplier
++ * shift:               cycle to nanosecond divisor (power of two)
++ * @update_callback:    called when safe to alter timesource values
++ */
++struct timesource_t {
++	char* name;
++	int priority;
++	enum {
++		TIMESOURCE_FUNCTION,
++		TIMESOURCE_CYCLES,
++		TIMESOURCE_MMIO_32,
++		TIMESOURCE_MMIO_64
++	} type;
++	cycle_t (*read_fnct)(void);
++	void __iomem *mmio_ptr;
++	cycle_t mask;
++	u32 mult;
++	u32 shift;
++	void (*update_callback)(void);
++};
++
++
++/* Helper functions that converts a khz counter
++ * frequency to a timsource multiplier, given the
++ * timesource shift value
++ */
++static inline u32 timesource_khz2mult(u32 khz, u32 shift_constant)
++{
++	/*  khz = cyc/(Million ns)
++	 *  mult/2^shift  = ns/cyc
++	 *  mult = ns/cyc * 2^shift
++	 *  mult = 1Million/khz * 2^shift
++	 *  mult = 1000000 * 2^shift / khz
++	 *  mult = (1000000<<shift) / khz
++	 */
++	u64 tmp = ((u64)1000000) << shift_constant;
++	/* XXX - should we round here? */
++	do_div(tmp, khz);
++	return (u32)tmp;
++}
++
++/* Helper functions that converts a hz counter
++ * frequency to a timsource multiplier, given the
++ * timesource shift value
++ */
++static inline u32 timesource_hz2mult(u32 hz, u32 shift_constant)
++{
++	/*  hz = cyc/(Billion ns)
++	 *  mult/2^shift  = ns/cyc
++	 *  mult = ns/cyc * 2^shift
++	 *  mult = 1Billion/hz * 2^shift
++	 *  mult = 1000000000 * 2^shift / hz
++	 *  mult = (1000000000<<shift) / hz
++	 */
++	u64 tmp = ((u64)1000000000) << shift_constant;
++	/* XXX - should we round here? */
++	do_div(tmp, hz);
++	return (u32)tmp;
++}
++
++
++/* XXX - this should go somewhere better! */
++#ifndef readq
++static inline unsigned long long readq(void __iomem *addr)
++{
++	u32 low, high;
++	/* loop is required to make sure we get an atomic read */
++	do {
++		high = readl(addr+4);
++		low = readl(addr);
++	} while (high != readl(addr+4));
++
++	return low | (((unsigned long long)high) << 32LL);
++}
 +#endif
 +
- /**
-  *	synchronize_irq - wait for pending IRQ handlers (on other CPUs)
-  *
-@@ -36,6 +40,10 @@ void synchronize_irq(unsigned int irq)
- 
- EXPORT_SYMBOL(synchronize_irq);
- 
-+#else
-+void set_irq_info(unsigned int irq, cpumask_t mask)
++
++/* read_timesource():
++ *      Uses the timesource to return the current cycle_t value
++ */
++static inline cycle_t read_timesource(struct timesource_t *ts)
 +{
-+}
- #endif
- 
- /**
-diff -puN arch/ia64/kernel/irq.c~fix_irq_affinity arch/ia64/kernel/irq.c
---- linux-2.6.12-rc2-mm3/arch/ia64/kernel/irq.c~fix_irq_affinity	2005-04-28 23:51:28.000000000 -0700
-+++ linux-2.6.12-rc2-mm3-araj/arch/ia64/kernel/irq.c	2005-04-29 07:44:00.000000000 -0700
-@@ -91,23 +91,8 @@ skip:
- }
- 
- #ifdef CONFIG_SMP
--/*
-- * This is updated when the user sets irq affinity via /proc
-- */
--static cpumask_t __cacheline_aligned pending_irq_cpumask[NR_IRQS];
--static unsigned long pending_irq_redir[BITS_TO_LONGS(NR_IRQS)];
--
- static char irq_redir [NR_IRQS]; // = { [0 ... NR_IRQS-1] = 1 };
- 
--/*
-- * Arch specific routine for deferred write to iosapic rte to reprogram
-- * intr destination.
-- */
--void proc_set_irq_affinity(unsigned int irq, cpumask_t mask_val)
--{
--	pending_irq_cpumask[irq] = mask_val;
--}
--
- void set_irq_affinity_info (unsigned int irq, int hwid, int redir)
- {
- 	cpumask_t mask = CPU_MASK_NONE;
-@@ -116,32 +101,10 @@ void set_irq_affinity_info (unsigned int
- 
- 	if (irq < NR_IRQS) {
- 		irq_affinity[irq] = mask;
-+		set_irq_info(irq, mask);
- 		irq_redir[irq] = (char) (redir & 0xff);
- 	}
- }
--
--
--void move_irq(int irq)
--{
--	/* note - we hold desc->lock */
--	cpumask_t tmp;
--	irq_desc_t *desc = irq_descp(irq);
--	int redir = test_bit(irq, pending_irq_redir);
--
--	if (unlikely(!desc->handler->set_affinity))
--		return;
--
--	if (!cpus_empty(pending_irq_cpumask[irq])) {
--		cpus_and(tmp, pending_irq_cpumask[irq], cpu_online_map);
--		if (unlikely(!cpus_empty(tmp))) {
--			desc->handler->set_affinity(irq | (redir ? IA64_IRQ_REDIRECTED : 0),
--						    pending_irq_cpumask[irq]);
--		}
--		cpus_clear(pending_irq_cpumask[irq]);
--	}
--}
--
--
- #endif /* CONFIG_SMP */
- 
- #ifdef CONFIG_HOTPLUG_CPU
-diff -puN arch/x86_64/kernel/io_apic.c~fix_irq_affinity arch/x86_64/kernel/io_apic.c
---- linux-2.6.12-rc2-mm3/arch/x86_64/kernel/io_apic.c~fix_irq_affinity	2005-04-28 23:51:28.000000000 -0700
-+++ linux-2.6.12-rc2-mm3-araj/arch/x86_64/kernel/io_apic.c	2005-04-29 15:07:13.000000000 -0700
-@@ -75,6 +75,59 @@ int vector_irq[NR_VECTORS] = { [0 ... NR
- #define vector_to_irq(vector)	(vector)
- #endif
- 
-+#define __DO_ACTION(R, ACTION, FINAL)					\
-+									\
-+{									\
-+	int pin;							\
-+	struct irq_pin_list *entry = irq_2_pin + irq;			\
-+									\
-+	for (;;) {							\
-+		unsigned int reg;					\
-+		pin = entry->pin;					\
-+		if (pin == -1)						\
-+			break;						\
-+		reg = io_apic_read(entry->apic, 0x10 + R + pin*2);	\
-+		reg ACTION;						\
-+		io_apic_modify(entry->apic, reg);			\
-+		if (!entry->next)					\
-+			break;						\
-+		entry = irq_2_pin + entry->next;			\
-+	}								\
-+	FINAL;								\
++	switch (ts->type) {
++	case TIMESOURCE_MMIO_32:
++		return (cycle_t)readl(ts->mmio_ptr);
++	case TIMESOURCE_MMIO_64:
++		return (cycle_t)readq(ts->mmio_ptr);
++	case TIMESOURCE_CYCLES:
++		return (cycle_t)get_cycles();
++	default:/* case: TIMESOURCE_FUNCTION */
++		return ts->read_fnct();
++	}
 +}
 +
-+#ifdef CONFIG_SMP
-+static void set_ioapic_affinity_irq(unsigned int irq, cpumask_t mask)
++/* cyc2ns():
++ *      Uses the timesource and ntp ajdustment interval to
++ *      convert cycle_ts to nanoseconds.
++ */
++static inline nsec_t cyc2ns(struct timesource_t *ts, int ntp_adj, cycle_t cycles)
++{
++	u64 ret;
++	ret = (u64)cycles;
++	ret *= (ts->mult + ntp_adj);
++	ret >>= ts->shift;
++	return (nsec_t)ret;
++}
++
++/* cyc2ns_rem():
++ *      Uses the timesource and ntp ajdustment interval to
++ *      convert cycle_ts to nanoseconds. Add in remainder portion
++ *      which is stored in ns<<ts->shift units and save the new
++ *      remainder off.
++ */
++static inline nsec_t cyc2ns_rem(struct timesource_t *ts, int ntp_adj, cycle_t cycles, u64* rem)
++{
++	u64 ret;
++	ret = (u64)cycles;
++	ret *= (ts->mult + ntp_adj);
++	if (rem) {
++		ret += *rem;
++		*rem = ret & ((1<<ts->shift)-1);
++	}
++	ret >>= ts->shift;
++	return (nsec_t)ret;
++}
++
++/* used to install a new time source */
++void register_timesource(struct timesource_t*);
++struct timesource_t* get_next_timesource(void);
++
++#endif
+diff -Nru a/init/main.c b/init/main.c
+--- a/init/main.c	2005-04-29 16:39:35 -07:00
++++ b/init/main.c	2005-04-29 16:39:35 -07:00
+@@ -47,6 +47,7 @@
+ #include <linux/rmap.h>
+ #include <linux/mempolicy.h>
+ #include <linux/key.h>
++#include <linux/timeofday.h>
+ 
+ #include <asm/io.h>
+ #include <asm/bugs.h>
+@@ -467,6 +468,7 @@
+ 	pidhash_init();
+ 	init_timers();
+ 	softirq_init();
++	timeofday_init();
+ 	time_init();
+ 
+ 	/*
+diff -Nru a/kernel/Makefile b/kernel/Makefile
+--- a/kernel/Makefile	2005-04-29 16:39:35 -07:00
++++ b/kernel/Makefile	2005-04-29 16:39:35 -07:00
+@@ -9,6 +9,7 @@
+ 	    rcupdate.o intermodule.o extable.o params.o posix-timers.o \
+ 	    kthread.o wait.o kfifo.o sys_ni.o posix-cpu-timers.o
+ 
++obj-$(CONFIG_NEWTOD) += timeofday.o timesource.o ntp.o
+ obj-$(CONFIG_FUTEX) += futex.o
+ obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
+ obj-$(CONFIG_SMP) += cpu.o spinlock.o
+diff -Nru a/kernel/ntp.c b/kernel/ntp.c
+--- /dev/null	Wed Dec 31 16:00:00 196900
++++ b/kernel/ntp.c	2005-04-29 16:39:35 -07:00
+@@ -0,0 +1,500 @@
++/********************************************************************
++* linux/kernel/ntp.c
++*
++* NTP state machine and time scaling code.
++*
++* Copyright (C) 2004, 2005 IBM, John Stultz (johnstul@us.ibm.com)
++*
++* Portions rewritten from kernel/time.c and kernel/timer.c
++* Please see those files for original copyrights.
++*
++* This program is free software; you can redistribute it and/or modify
++* it under the terms of the GNU General Public License as published by
++* the Free Software Foundation; either version 2 of the License, or
++* (at your option) any later version.
++*
++* This program is distributed in the hope that it will be useful,
++* but WITHOUT ANY WARRANTY; without even the implied warranty of
++* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++* GNU General Public License for more details.
++*
++* You should have received a copy of the GNU General Public License
++* along with this program; if not, write to the Free Software
++* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++*
++* Notes:
++*
++* Hopefully you should never have to understand or touch
++* any of the code below. but don't let that keep you from trying!
++*
++* This code is loosely based on David Mills' RFC 1589 and its
++* updates. Please see the following for more details:
++*  http://www.eecis.udel.edu/~mills/database/rfc/rfc1589.txt
++*  http://www.eecis.udel.edu/~mills/database/reports/kern/kernb.pdf
++*
++* NOTE:	To simplify the code, we do not implement any of
++* the PPS code, as the code that uses it never was merged.
++*                             -johnstul@us.ibm.com
++*
++* Revision History:
++* 2004-09-02:  A0
++*   o First pass sent to lkml for review.
++* 2004-12-07:  A1
++*   o No changes, sent to lkml for review.
++* 2005-03-11:  A3
++*   o yanked ntp_scale(), ntp adjustments are done in cyc2ns
++* 2005-04-29:  A4
++*   o Added conditional debug info
++*
++* TODO List:
++*   o Move to using ppb for frequency adjustmetns
++*   o More documentation
++*   o More testing
++*   o More optimization
++*********************************************************************/
++
++#include <linux/ntp.h>
++#include <linux/errno.h>
++
++/* XXX - remove later */
++#define NTP_DEBUG 0
++
++/* NTP scaling code
++ * Functions:
++ * ----------
++ * nsec_t ntp_scale(nsec_t value):
++ *      Scales the nsec_t vale using ntp kernel state
++ * void ntp_advance(nsec_t interval):
++ *      Increments the NTP state machine by interval time
++ * static int ntp_hardupdate(long offset, struct timeval tv)
++ *      ntp_adjtimex helper function
++ * int ntp_adjtimex(struct timex* tx):
++ *      Interface to adjust NTP state machine
++ * int ntp_leapsecond(struct timespec now)
++ *      Does NTP leapsecond processing. Returns number of
++ *      seconds current time should be adjusted by.
++ * void ntp_clear(void):
++ *      Clears the ntp kernel state
++ * int get_ntp_status(void):
++ *      returns ntp_status value
++ *
++ * Variables:
++ * ----------
++ * ntp kernel state variables:
++ *      See below for full list.
++ * ntp_lock:
++ *      Protects ntp kernel state variables
++ */
++
++
++
++/* Chapter 5: Kernel Variables [RFC 1589 pg. 28] */
++/* 5.1 Interface Variables */
++static int ntp_status       = STA_UNSYNC;       /* status */
++static long ntp_offset;                         /* usec */
++static long ntp_constant    = 2;                /* ntp magic? */
++static long ntp_maxerror    = NTP_PHASE_LIMIT;  /* usec */
++static long ntp_esterror    = NTP_PHASE_LIMIT;  /* usec */
++static const long ntp_tolerance	= MAXFREQ;      /* shifted ppm */
++static const long ntp_precision	= 1;            /* constant */
++
++/* 5.2 Phase-Lock Loop Variables */
++static long ntp_freq;                           /* shifted ppm */
++static long ntp_reftime;                        /* sec */
++
++/* Extra values */
++static int ntp_state    = TIME_OK;              /* leapsecond state */
++static long ntp_tick    = USEC_PER_SEC/USER_HZ; /* tick length */
++
++static s64 ss_offset_len;   /* SINGLESHOT offset adj interval (nsec)*/
++static long singleshot_adj; /* +/- MAX_SINGLESHOT_ADJ (ppm)*/
++static long tick_adj;       /* tx->tick adjustment (ppm) */
++static long offset_adj;     /* offset adjustment (ppm) */
++
++
++/* lock for the above variables */
++static seqlock_t ntp_lock = SEQLOCK_UNLOCKED;
++
++#define MAX_SINGLESHOT_ADJ 500 /* (ppm) */
++#define SEC_PER_DAY 86400
++
++/* Required to safely shift negative values */
++#define shiftR(x,s) (x < 0) ? (-((-x) >> (s))) : ((x) >> (s))
++
++/* int ntp_advance(nsec_t interval):
++ *  Periodic hook which increments NTP state machine by interval.
++ *  Returns the signed PPM adjustment to be used for the next interval.
++ *  This is ntp_hardclock in the RFC.
++ */
++int ntp_advance(nsec_t interval)
++{
++	static u64 interval_sum = 0;
++	static long ss_adj = 0;
++	unsigned long flags;
++	long ppm_sum;
++
++	/* inc interval sum */
++	interval_sum += interval;
++
++	write_seqlock_irqsave(&ntp_lock, flags);
++
++	/* decrement singleshot offset interval */
++	ss_offset_len -= interval;
++	if(ss_offset_len < 0) /* make sure it doesn't go negative */
++		ss_offset_len = 0;
++
++	/* Do second overflow code */
++	while (interval_sum > NSEC_PER_SEC) {
++		/* XXX - I'd prefer to smoothly apply this math
++		 * at each call to ntp_advance() rather then each
++		 * second.
++		 */
++		long tmp;
++
++		/* Bump maxerror by ntp_tolerance */
++		ntp_maxerror += shiftR(ntp_tolerance, SHIFT_USEC);
++		if (ntp_maxerror > NTP_PHASE_LIMIT) {
++			ntp_maxerror = NTP_PHASE_LIMIT;
++			ntp_status |= STA_UNSYNC;
++		}
++
++		/* Calculate offset_adj for the next second */
++		tmp = ntp_offset;
++		if (!(ntp_status & STA_FLL))
++		    tmp = shiftR(tmp, SHIFT_KG + ntp_constant);
++
++		/* bound the adjustment to MAXPHASE/MINSEC */
++		tmp = min(tmp, (MAXPHASE / MINSEC) << SHIFT_UPDATE);
++		tmp = max(tmp, -(MAXPHASE / MINSEC) << SHIFT_UPDATE);
++
++		offset_adj = shiftR(tmp, SHIFT_UPDATE); /* (usec/sec) = ppm */
++		ntp_offset -= tmp;
++
++		interval_sum -= NSEC_PER_SEC;
++
++		/* calculate singleshot aproximation ppm for the next second */
++		ss_adj = singleshot_adj;
++		singleshot_adj = 0;
++	}
++
++	/* calculate total ppm adjustment for the next interval */
++	ppm_sum = tick_adj;
++	ppm_sum += offset_adj;
++	ppm_sum += shiftR(ntp_freq,SHIFT_USEC);
++	ppm_sum += ss_adj;
++
++#if NTP_DEBUG
++{ /*XXX - yank me! just for debug */
++	static int dbg = 0;
++	if(!(dbg++%300000))
++		printk("tick_adj(%d) + offset_adj(%d) + ntp_freq(%d) + ss_adj(%d) = ppm_sum(%d)\n", tick_adj, offset_adj, shiftR(ntp_freq,SHIFT_USEC), ss_adj, ppm_sum);
++}
++#endif
++
++	write_sequnlock_irqrestore(&ntp_lock, flags);
++
++	return ppm_sum;
++}
++
++/* XXX - This function needs more explanation */
++/* called only by ntp_adjtimex while holding ntp_lock */
++static int ntp_hardupdate(long offset, struct timeval tv)
++{
++	int ret;
++	long tmp, interval;
++
++	ret = 0;
++	if (!(ntp_status & STA_PLL))
++		return ret;
++
++	tmp = offset;
++	/* Make sure offset is bounded by MAXPHASE */
++	tmp = min(tmp, MAXPHASE);
++	tmp = max(tmp, -MAXPHASE);
++
++	ntp_offset = tmp << SHIFT_UPDATE;
++
++	if ((ntp_status & STA_FREQHOLD) || (ntp_reftime == 0))
++		ntp_reftime = tv.tv_sec;
++
++	/* calculate seconds since last call to hardupdate */
++	interval = tv.tv_sec - ntp_reftime;
++	ntp_reftime = tv.tv_sec;
++
++	if ((ntp_status & STA_FLL) && (interval >= MINSEC)) {
++		long damping;
++		/* XXX - should we round here? */
++		tmp = offset / interval; /* ppm (usec/sec)*/
++
++		/* convert to shifted ppm, then apply damping factor */
++
++		/* calculate damping factor - XXX bigger comment!*/
++		damping = SHIFT_KH - SHIFT_USEC;
++
++		/* apply damping factor */
++		ntp_freq += shiftR(tmp,damping);
++#if NTP_DEBUG
++		printk("ntp->freq change: %ld\n",shiftR(tmp,damping));
++#endif
++
++	} else if ((ntp_status & STA_PLL) && (interval < MAXSEC)) {
++		long damping;
++		tmp = offset * interval; /* ppm XXX - not quite*/
++
++		/* calculate damping factor - XXX bigger comment!*/
++		damping = (2 * ntp_constant) + SHIFT_KF - SHIFT_USEC;
++
++		/* apply damping factor */
++		ntp_freq += shiftR(tmp,damping);
++
++#if NTP_DEBUG
++		printk("ntp->freq change: %ld\n", shiftR(tmp,damping));
++#endif
++	} else { /* interval out of bounds */
++		printk("ntp_hardupdate(): interval out of bounds: %ld\n",
++				interval);
++		ret = -1; /* TIME_ERROR */
++	}
++
++	/* bound ntp_freq */
++	if (ntp_freq > ntp_tolerance)
++		ntp_freq = ntp_tolerance;
++	if (ntp_freq < -ntp_tolerance)
++		ntp_freq = -ntp_tolerance;
++
++	return ret;
++}
++
++/* int ntp_adjtimex(struct timex* tx)
++ *  Interface to change NTP state machine
++ */
++int ntp_adjtimex(struct timex* tx)
++{
++	long save_offset;
++	int result;
++	unsigned long flags;
++
++/* Sanity checking
++ */
++	/* frequency adjustment limited to +/- MAXFREQ */
++	if ((tx->modes & ADJ_FREQUENCY)
++			&& (abs(tx->freq) > MAXFREQ))
++		return -EINVAL;
++
++	/* maxerror adjustment limited to NTP_PHASE_LIMIT */
++	if ((tx->modes & ADJ_MAXERROR)
++			&& (tx->maxerror < 0
++				|| tx->maxerror >= NTP_PHASE_LIMIT))
++		return -EINVAL;
++
++	/* esterror adjustment limited to NTP_PHASE_LIMIT */
++	if ((tx->modes & ADJ_ESTERROR)
++			&& (tx->esterror < 0
++				|| tx->esterror >= NTP_PHASE_LIMIT))
++		return -EINVAL;
++
++	/* constant adjustment must be positive */
++	if ((tx->modes & ADJ_TIMECONST)
++			&& (tx->constant < 0))
++		return -EINVAL;
++
++	/* Single shot mode can only be used by itself */
++	if (((tx->modes & ADJ_OFFSET_SINGLESHOT) == ADJ_OFFSET_SINGLESHOT)
++			&& (tx->modes != ADJ_OFFSET_SINGLESHOT))
++		return -EINVAL;
++
++	/* offset adjustment limited to +/- MAXPHASE */
++	if ((tx->modes != ADJ_OFFSET_SINGLESHOT)
++			&& (tx->modes & ADJ_OFFSET)
++			&& (abs(tx->offset)>= MAXPHASE))
++		return -EINVAL;
++
++	/* tick adjustment limited to 10% */
++	/* XXX - should we round here? */
++	if ((tx->modes & ADJ_TICK)
++			&& ((tx->tick < 900000/USER_HZ)
++				||(tx->tick > 11000000/USER_HZ)))
++		return -EINVAL;
++
++#if NTP_DEBUG
++	/* dbg output XXX - yank me! */
++	if(tx->modes) {
++		printk("adjtimex: tx->offset: %ld    tx->freq: %ld\n",
++				tx->offset, tx->freq);
++	}
++#endif
++
++/* Kernel input bits
++ */
++	write_seqlock_irqsave(&ntp_lock, flags);
++
++	result = ntp_state;
++
++	/* For ADJ_OFFSET_SINGLESHOT we must return the old offset */
++	save_offset = shiftR(ntp_offset, SHIFT_UPDATE);
++
++	/* Process input parameters */
++	if (tx->modes & ADJ_STATUS) {
++		ntp_status &=  STA_RONLY;
++		ntp_status |= tx->status & ~STA_RONLY;
++	}
++
++	if (tx->modes & ADJ_FREQUENCY)
++		ntp_freq = tx->freq;
++
++	if (tx->modes & ADJ_MAXERROR)
++		ntp_maxerror = tx->maxerror;
++
++	if (tx->modes & ADJ_ESTERROR)
++		ntp_esterror = tx->esterror;
++
++	if (tx->modes & ADJ_TIMECONST)
++		ntp_constant = tx->constant;
++
++	if (tx->modes & ADJ_OFFSET) {
++		/* check if we're doing a singleshot adjustment */
++		if (tx->modes == ADJ_OFFSET_SINGLESHOT)
++				singleshot_adj = tx->offset;
++		/* otherwise, call hardupdate() */
++		else if (ntp_hardupdate(tx->offset, tx->time))
++			result = TIME_ERROR;
++	}
++
++	if (tx->modes & ADJ_TICK) {
++		/* first calculate usec/user_tick offset */
++		/* XXX - should we round here? */
++		tick_adj = (USEC_PER_SEC/USER_HZ) - tx->tick;
++		/* multiply by user_hz to get usec/sec => ppm */
++		tick_adj *= USER_HZ;
++		/* save tx->tick for future calls to adjtimex */
++		ntp_tick = tx->tick;
++	}
++
++	if ((ntp_status & (STA_UNSYNC|STA_CLOCKERR)) != 0 )
++		result = TIME_ERROR;
++
++/* Kernel output bits
++ */
++	/* write kernel state to user timex values*/
++	if ((tx->modes & ADJ_OFFSET_SINGLESHOT) == ADJ_OFFSET_SINGLESHOT)
++		tx->offset = save_offset;
++	else
++		tx->offset = shiftR(ntp_offset, SHIFT_UPDATE);
++
++	tx->freq = ntp_freq;
++	tx->maxerror = ntp_maxerror;
++	tx->esterror = ntp_esterror;
++	tx->status = ntp_status;
++	tx->constant = ntp_constant;
++	tx->precision = ntp_precision;
++	tx->tolerance = ntp_tolerance;
++
++	/* PPS is not implemented, so these are zero */
++	tx->ppsfreq	= /*XXX - Not Implemented!*/ 0;
++	tx->jitter	= /*XXX - Not Implemented!*/ 0;
++	tx->shift	= /*XXX - Not Implemented!*/ 0;
++	tx->stabil	= /*XXX - Not Implemented!*/ 0;
++	tx->jitcnt	= /*XXX - Not Implemented!*/ 0;
++	tx->calcnt	= /*XXX - Not Implemented!*/ 0;
++	tx->errcnt	= /*XXX - Not Implemented!*/ 0;
++	tx->stbcnt	= /*XXX - Not Implemented!*/ 0;
++
++	write_sequnlock_irqrestore(&ntp_lock, flags);
++
++	return result;
++}
++
++
++/* void ntp_leapsecond(struct timespec now):
++ *  NTP Leapsecnod processing code. Returns the number of
++ *  seconds (-1, 0, or 1) that should be added to the current
++ *  time to properly adjust for leapseconds.
++ */
++int ntp_leapsecond(struct timespec now)
++{
++	/*
++	 * Leap second processing. If in leap-insert state at
++	 * the end of the day, the system clock is set back one
++	 * second; if in leap-delete state, the system clock is
++	 * set ahead one second.
++	 */
++	static time_t leaptime = 0;
++
++	switch (ntp_state) {
++	case TIME_OK:
++		if (ntp_status & STA_INS) {
++			ntp_state = TIME_INS;
++			/* calculate end of today (23:59:59)*/
++			leaptime = now.tv_sec + SEC_PER_DAY -
++					(now.tv_sec % SEC_PER_DAY) - 1;
++		}
++		else if (ntp_status & STA_DEL) {
++			ntp_state = TIME_DEL;
++			/* calculate end of today (23:59:59)*/
++			leaptime = now.tv_sec + SEC_PER_DAY -
++					(now.tv_sec % SEC_PER_DAY) - 1;
++		}
++		break;
++
++	case TIME_INS:
++		/* Once we are at (or past) leaptime, insert the second */
++		if (now.tv_sec > leaptime) {
++			ntp_state = TIME_OOP;
++			printk(KERN_NOTICE
++				"Clock: inserting leap second 23:59:60 UTC\n");
++			return -1;
++		}
++		break;
++
++	case TIME_DEL:
++		/* Once we are at (or past) leaptime, delete the second */
++		if (now.tv_sec >= leaptime) {
++			ntp_state = TIME_WAIT;
++			printk(KERN_NOTICE
++				"Clock: deleting leap second 23:59:59 UTC\n");
++			return 1;
++		}
++		break;
++
++	case TIME_OOP:
++		/*  Wait for the end of the leap second*/
++		if (now.tv_sec > (leaptime + 1))
++			ntp_state = TIME_WAIT;
++		break;
++
++	case TIME_WAIT:
++		if (!(ntp_status & (STA_INS | STA_DEL)))
++			ntp_state = TIME_OK;
++	}
++
++	return 0;
++}
++
++/* void ntp_clear(void):
++ *  Clears the NTP state machine.
++ */
++void ntp_clear(void)
 +{
 +	unsigned long flags;
-+	unsigned int dest;
-+	cpumask_t tmp;
++	write_seqlock_irqsave(&ntp_lock, flags);
 +
-+	cpus_and(tmp, mask, cpu_online_map);
-+	if (cpus_empty(tmp))
-+		tmp = TARGET_CPUS;
++	/* clear everything */
++	ntp_status |= STA_UNSYNC;
++	ntp_maxerror = NTP_PHASE_LIMIT;
++	ntp_esterror = NTP_PHASE_LIMIT;
++	ss_offset_len = 0;
++	singleshot_adj = 0;
++	tick_adj = 0;
++	offset_adj =0;
 +
-+	cpus_and(mask, tmp, CPU_MASK_ALL);
-+
-+	dest = cpu_mask_to_apicid(mask);
-+
-+	/*
-+	 * Only the high 8 bits are valid.
-+	 */
-+	dest = SET_APIC_LOGICAL_ID(dest);
-+
-+	spin_lock_irqsave(&ioapic_lock, flags);
-+	__DO_ACTION(1, = dest, )
-+	set_irq_info(irq, mask);
-+	spin_unlock_irqrestore(&ioapic_lock, flags);
++	write_sequnlock_irqrestore(&ntp_lock, flags);
 +}
-+#else
-+static void set_ioapic_affinity_irq(unsigned int irq, cpumask_t mask)
++
++/* int get_ntp_status(void):
++ *  Returns the NTP status.
++ */
++int get_ntp_status(void)
 +{
++	return ntp_status;
++}
++
+diff -Nru a/kernel/time.c b/kernel/time.c
+--- a/kernel/time.c	2005-04-29 16:39:35 -07:00
++++ b/kernel/time.c	2005-04-29 16:39:35 -07:00
+@@ -38,6 +38,7 @@
+ 
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>
++#include <linux/timeofday.h>
+ 
+ /* 
+  * The timezone where the local system is located.  Used as a default by some
+@@ -227,6 +228,7 @@
+ /* adjtimex mainly allows reading (and writing, if superuser) of
+  * kernel time-keeping variables. used by xntpd.
+  */
++#ifndef CONFIG_NEWTOD
+ int do_adjtimex(struct timex *txc)
+ {
+         long ltemp, mtemp, save_adjust;
+@@ -410,6 +412,7 @@
+ 	notify_arch_cmos_timer();
+ 	return(result);
+ }
++#endif
+ 
+ asmlinkage long sys_adjtimex(struct timex __user *txc_p)
+ {
+@@ -566,6 +569,7 @@
+ 
+ 
+ #else
++#ifndef CONFIG_NEWTOD
+ /*
+  * Simulate gettimeofday using do_gettimeofday which only allows a timeval
+  * and therefore only yields usec accuracy
+@@ -578,6 +582,7 @@
+ 	tv->tv_sec = x.tv_sec;
+ 	tv->tv_nsec = x.tv_usec * NSEC_PER_USEC;
+ }
++#endif /* CONFIG_NEWTOD */
+ #endif
+ 
+ #if (BITS_PER_LONG < 64)
+diff -Nru a/kernel/timeofday.c b/kernel/timeofday.c
+--- /dev/null	Wed Dec 31 16:00:00 196900
++++ b/kernel/timeofday.c	2005-04-29 16:39:35 -07:00
+@@ -0,0 +1,521 @@
++/*********************************************************************
++* linux/kernel/timeofday.c
++*
++* This file contains the functions which access and manage
++* the system's time of day functionality.
++*
++* Copyright (C) 2003, 2004, 2005 IBM, John Stultz (johnstul@us.ibm.com)
++*
++* This program is free software; you can redistribute it and/or modify
++* it under the terms of the GNU General Public License as published by
++* the Free Software Foundation; either version 2 of the License, or
++* (at your option) any later version.
++*
++* This program is distributed in the hope that it will be useful,
++* but WITHOUT ANY WARRANTY; without even the implied warranty of
++* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++* GNU General Public License for more details.
++*
++* You should have received a copy of the GNU General Public License
++* along with this program; if not, write to the Free Software
++* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++*
++* Revision History:
++* 2004-09-02:   A0
++*   o First pass sent to lkml for review.
++* 2004-12-07:   A1
++*   o Rework of timesource structure
++*   o Sent to lkml for review
++* 2005-01-24:   A2
++*   o write_seqlock_irq -> writeseqlock_irqsave
++*   o arch generic interface for for get_cmos_time() equivalents
++*   o suspend/resume hooks for sleep/hibernate (lightly tested)
++*   o timesource adjust_callback hook
++*   o Sent to lkml for review
++* 2005-03-11:   A3
++*   o periodic_hook (formerly interrupt_hook) now calle by softtimer
++*   o yanked ntp_scale(), ntp adjustments are done in cyc2ns now
++*   o sent to lkml for review
++* 2005-04-29:   A4
++*   o Improved the cyc2ns remainder handling
++*   o Added getnstimeofday
++*   o Cleanups from Nish Aravamudan
++* TODO List:
++*   o vsyscall/fsyscall infrastructure
++*   o clock_was_set hook
++**********************************************************************/
++
++#include <linux/timeofday.h>
++#include <linux/timesource.h>
++#include <linux/ntp.h>
++#include <linux/timex.h>
++#include <linux/timer.h>
++#include <linux/module.h>
++#include <linux/sched.h> /* Needed for capable() */
++
++/* XXX - remove later */
++#define TIME_DBG 0
++#define TIME_DBG_FREQ 60000
++
++/* only run periodic_hook every 50ms */
++#define PERIODIC_INTERVAL_MS 50
++
++/*[Nanosecond based variables]
++ * system_time:
++ *     Monotonically increasing counter of the number of nanoseconds
++ *     since boot.
++ * wall_time_offset:
++ *     Offset added to system_time to provide accurate time-of-day
++ */
++static nsec_t system_time;
++static nsec_t wall_time_offset;
++
++/*[Cycle based variables]
++ * offset_base:
++ *     Value of the timesource at the last timeofday_periodic_hook()
++ *     (adjusted only minorly to account for rounded off cycles)
++ */
++static cycle_t offset_base;
++
++/*[Time source data]
++ * timesource:
++ *     current timesource pointer
++ */
++static struct timesource_t *timesource;
++
++/*[NTP adjustment]
++ * ntp_adj:
++ *     value of the current ntp adjustment,
++ *     stored in timesource multiplier units.
++ */
++int ntp_adj;
++
++/*[Locks]
++ * system_time_lock:
++ *     generic lock for all locally scoped time values
++ */
++static seqlock_t system_time_lock = SEQLOCK_UNLOCKED;
++
++
++/*[Suspend/Resume info]
++ * time_suspend_state:
++ *     variable that keeps track of suspend state
++ * suspend_start:
++ *     start of the suspend call
++ */
++static enum {
++	TIME_RUNNING,
++	TIME_SUSPENDED
++} time_suspend_state = TIME_RUNNING;
++
++static nsec_t suspend_start;
++
++
++/* [XXX - Hacks]
++ *  Makes stuff compile
++ */
++extern nsec_t read_persistent_clock(void);
++extern void sync_persistent_clock(struct timespec ts);
++
++
++/* get_lowres_timestamp():
++ *     Returns a low res timestamp w/ PERIODIC_INTERVAL_MS
++ *     granularity. (ie: the value of system_time as
++ *     calculated at the last invocation of
++ *     timeofday_periodic_hook())
++ */
++nsec_t get_lowres_timestamp(void)
++{
++	nsec_t ret;
++	unsigned long seq;
++	do {
++		seq = read_seqbegin(&system_time_lock);
++
++		/* quickly grab system_time*/
++		ret = system_time;
++
++	} while (read_seqretry(&system_time_lock, seq));
++
++	return ret;
++}
++
++
++/* get_lowres_timeofday():
++ *     Returns a low res time of day, as calculated at the
++ *     last invocation of timeofday_periodic_hook()
++ */
++nsec_t get_lowres_timeofday(void)
++{
++	nsec_t ret;
++	unsigned long seq;
++	do {
++		seq = read_seqbegin(&system_time_lock);
++
++		/* quickly calculate low-res time of day */
++		ret = system_time + wall_time_offset;
++
++	} while (read_seqretry(&system_time_lock, seq));
++
++	return ret;
++}
++
++
++/* update_legacy_time_values():
++ *     Private function. Used to sync legacy time values to
++ *     current timeofday. Assumes we have the system_time_lock.
++ *     Hopefully someday this function can be removed.
++ */
++static void update_legacy_time_values(void)
++{
++	unsigned long flags;
++	write_seqlock_irqsave(&xtime_lock, flags);
++	xtime = ns2timespec(system_time + wall_time_offset);
++	wall_to_monotonic = ns2timespec(wall_time_offset);
++	set_normalized_timespec(&wall_to_monotonic,
++		-wall_to_monotonic.tv_sec, -wall_to_monotonic.tv_nsec);
++	/* We don't update jiffies here because it is its own time domain */
++	write_sequnlock_irqrestore(&xtime_lock, flags);
++}
++
++
++/* __monotonic_clock():
++ *     private function, must hold system_time_lock lock when being
++ *     called. Returns the monotonically increasing number of
++ *     nanoseconds since the system booted (adjusted by NTP scaling)
++ */
++static inline nsec_t __monotonic_clock(void)
++{
++	nsec_t ret, ns_offset;
++	cycle_t now, cycle_delta;
++
++	/* read timesource */
++	now = read_timesource(timesource);
++
++	/* calculate the delta since the last timeofday_periodic_hook */
++	cycle_delta = (now - offset_base) & timesource->mask;
++
++	/* convert to nanoseconds */
++	ns_offset = cyc2ns(timesource, ntp_adj, cycle_delta);
++
++	/* add result to system time */
++	ret = system_time + ns_offset;
++
++	return ret;
++}
++
++
++/* do_monotonic_clock():
++ *     Returns the monotonically increasing number of nanoseconds
++ *     since the system booted via __monotonic_clock()
++ */
++nsec_t do_monotonic_clock(void)
++{
++	nsec_t ret;
++	unsigned long seq;
++
++	/* atomically read __monotonic_clock() */
++	do {
++		seq = read_seqbegin(&system_time_lock);
++
++		ret = __monotonic_clock();
++
++	} while (read_seqretry(&system_time_lock, seq));
++
++	return ret;
++}
++
++
++/* __gettimeofday():
++ *     private function. Returns the timeofday in nsec_t.
++ */
++static inline nsec_t __gettimeofday(void)
++{
++	nsec_t wall, sys;
++	unsigned long seq;
++
++	/* atomically read wall and sys time */
++	do {
++		seq = read_seqbegin(&system_time_lock);
++
++		wall = wall_time_offset;
++		sys = __monotonic_clock();
++
++	} while (read_seqretry(&system_time_lock, seq));
++
++	return wall + sys;
++}
++
++
++/* getnstimeofday():
++ *     Returns the time of day in a timespec
++ */
++void getnstimeofday(struct timespec *ts)
++{
++	*ts = ns2timespec(__gettimeofday());
++}
++EXPORT_SYMBOL(getnstimeofday);
++
++
++/* do_gettimeofday():
++ *     Returns the time of day in a timeval
++ */
++void do_gettimeofday(struct timeval *tv)
++{
++	*tv = ns2timeval(__gettimeofday());
++}
++EXPORT_SYMBOL(do_gettimeofday);
++
++
++/* do_settimeofday():
++ *     Sets the time of day
++ */
++int do_settimeofday(struct timespec *tv)
++{
++	unsigned long flags;
++	nsec_t newtime = timespec2ns(tv);
++
++	/* atomically adjust wall_time_offset & clear ntp state machine */
++	write_seqlock_irqsave(&system_time_lock, flags);
++
++	wall_time_offset = newtime - __monotonic_clock();
++	ntp_clear();
++
++	update_legacy_time_values();
++
++	write_sequnlock_irqrestore(&system_time_lock, flags);
++
++	return 0;
++}
++EXPORT_SYMBOL(do_settimeofday);
++
++
++/* do_adjtimex:
++ *     Userspace NTP daemon's interface to the kernel NTP variables
++ */
++int do_adjtimex(struct timex *tx)
++{
++ 	/* Check capabilities if we're trying to modify something */
++	if (tx->modes && !capable(CAP_SYS_TIME))
++		return -EPERM;
++
++	/* Note: We set tx->time first,
++	 * because ntp_adjtimex uses it
++	 */
++	do_gettimeofday(&tx->time);
++
++	/* call out to NTP code */
++	return ntp_adjtimex(tx);
++}
++
++
++/* timeofday_suspend_hook():
++ *     This function allows the timeofday subsystem to
++ *     be shutdown for a period of time. Usefull when
++ *     going into suspend/hibernate mode. The code is
++ *     very similar to the first half of
++ *     timeofday_periodic_hook().
++ */
++void timeofday_suspend_hook(void)
++{
++	unsigned long flags;
++
++	write_seqlock_irqsave(&system_time_lock, flags);
++
++	/* Make sure time_suspend_state is sane */
++	BUG_ON(time_suspend_state != TIME_RUNNING);
++
++	/* First off, save suspend start time
++	 * then quickly call __monotonic_clock.
++	 * These two calls hopefully occur quickly
++	 * because the difference between reads will
++	 * accumulate as time drift on resume.
++	 */
++	suspend_start = read_persistent_clock();
++	system_time = __monotonic_clock();
++
++	/* switch states */
++	time_suspend_state = TIME_SUSPENDED;
++
++	write_sequnlock_irqrestore(&system_time_lock, flags);
++}
++
++
++/* timeofday_resume_hook():
++ *     This function resumes the timeofday subsystem
++ *     from a previous call to timeofday_suspend_hook.
++ */
++void timeofday_resume_hook(void)
++{
++	nsec_t now, suspend_time;
++	unsigned long flags;
++
++	write_seqlock_irqsave(&system_time_lock, flags);
++
++	/* Make sure time_suspend_state is sane */
++	BUG_ON(time_suspend_state != TIME_SUSPENDED);
++
++	/* Read persistent clock to mark the end of
++	 * the suspend interval then rebase the
++	 * offset_base to current timesource value.
++	 * Again, time between these two calls will
++	 * not be accounted for and will show up as
++	 * time drift.
++	 */
++	now = read_persistent_clock();
++	offset_base = read_timesource(timesource);
++
++	/* calculate how long we were out for */
++	suspend_time = now - suspend_start;
++
++	/* update system_time */
++	system_time += suspend_time;
++
++	ntp_clear();
++
++	/* Set us back to running */
++	time_suspend_state = TIME_RUNNING;
++
++	/* finally, update legacy time values */
++	update_legacy_time_values();
++
++	write_sequnlock_irqrestore(&system_time_lock, flags);
++}
++
++struct timer_list timeofday_timer;
++
++/* timeofday_periodic_hook:
++ *     Calculates the delta since the last call,
++ *     updates system time and clears the offset.
++ *     Called via timeofday_timer.
++ */
++static void timeofday_periodic_hook(unsigned long unused)
++{
++	cycle_t now, cycle_delta;
++	static u64 remainder;
++	nsec_t ns, ns_ntp;
++	long leapsecond;
++	struct timesource_t* next;
++	unsigned long flags;
++	u64 tmp;
++
++	write_seqlock_irqsave(&system_time_lock, flags);
++
++	/* read time source & calc time since last call*/
++	now = read_timesource(timesource);
++	cycle_delta = (now - offset_base) & timesource->mask;
++
++	/* convert cycles to ntp adjusted ns and save remainder */
++	ns_ntp = cyc2ns_rem(timesource, ntp_adj, cycle_delta, &remainder);
++
++	/* convert cycles to raw ns for ntp advance */
++	ns = cyc2ns(timesource, 0, cycle_delta);
++
++#if TIME_DBG
++{	/* XXX - remove later*/
++	static int dbg=0;
++	if(!(dbg++%TIME_DBG_FREQ)){
++		printk(KERN_INFO "now: %lluc - then: %lluc = delta: %lluc -> %llu ns + %llu shift_ns (ntp_adj: %i)\n",
++			(unsigned long long)now, (unsigned long long)offset_base,
++			(unsigned long long)cycle_delta, (unsigned long long)ns,
++			(unsigned long long)remainder, ntp_adj);
++	}
++}
++#endif
++
++	/* update system_time */
++	system_time += ns_ntp;
++
++	/* reset the offset_base */
++	offset_base = now;
++
++	/* advance the ntp state machine by ns interval*/
++	ntp_adj = ntp_advance(ns);
++
++	/* do ntp leap second processing*/
++	leapsecond = ntp_leapsecond(ns2timespec(system_time+wall_time_offset));
++	wall_time_offset += leapsecond * NSEC_PER_SEC;
++
++	/* sync the persistent clock */
++	if (!(get_ntp_status() & STA_UNSYNC))
++		sync_persistent_clock(ns2timespec(system_time + wall_time_offset));
++
++	/* if necessary, switch timesources */
++	next = get_next_timesource();
++	if (next != timesource) {
++		/* immediately set new offset_base */
++		offset_base = read_timesource(next);
++		/* swap timesources */
++		timesource = next;
++		printk(KERN_INFO "Time: %s timesource has been installed.\n",
++					timesource->name);
++		ntp_clear();
++		ntp_adj = 0;
++		remainder = 0;
++	}
++
++	/* now is a safe time, so allow timesource to adjust
++	 * itself (for example: to make cpufreq changes).
++	 */
++	if(timesource->update_callback)
++		timesource->update_callback();
++
++
++	/* convert the signed ppm to timesource multiplier adjustment */
++	tmp = abs(ntp_adj);
++	tmp = tmp * timesource->mult;
++	/* XXX - should we round here? */
++	do_div(tmp, 1000000);
++	if (ntp_adj < 0)
++		ntp_adj = -(int)tmp;
++	else
++		ntp_adj = (int)tmp;
++
++	/* sync legacy values */
++	update_legacy_time_values();
++
++	write_sequnlock_irqrestore(&system_time_lock, flags);
++
++	/* Set us up to go off on the next interval */
++	mod_timer(&timeofday_timer, jiffies + (PERIODIC_INTERVAL_MS * HZ / 1000));
++}
++
++
++/* timeofday_init():
++ *     Initializes time variables
++ */
++void __init timeofday_init(void)
++{
++	unsigned long flags;
++#if TIME_DBG
++	printk(KERN_INFO "timeofday_init: Starting up!\n");
++#endif
++	write_seqlock_irqsave(&system_time_lock, flags);
++
++	/* initialize the timesource variable */
++	timesource = get_next_timesource();
++
++	/* clear and initialize offsets*/
++	offset_base = read_timesource(timesource);
++	wall_time_offset = read_persistent_clock();
++
++	/* clear NTP scaling factor & state machine */
++	ntp_adj = 0;
++	ntp_clear();
++
++	/* initialize legacy time values */
++	update_legacy_time_values();
++
++	write_sequnlock_irqrestore(&system_time_lock, flags);
++
++	/* Install timeofday_periodic_hook timer */
++	init_timer(&timeofday_timer);
++	timeofday_timer.function = timeofday_periodic_hook;
++	timeofday_timer.expires = jiffies + 1;
++	add_timer(&timeofday_timer);
++
++
++#if TIME_DBG
++	printk(KERN_INFO "timeofday_init: finished!\n");
++#endif
 +	return;
 +}
-+#endif
-+
+diff -Nru a/kernel/timer.c b/kernel/timer.c
+--- a/kernel/timer.c	2005-04-29 16:39:35 -07:00
++++ b/kernel/timer.c	2005-04-29 16:39:35 -07:00
+@@ -577,6 +577,7 @@
+ int tickadj = 500/HZ ? : 1;		/* microsecs */
+ 
+ 
++#ifndef CONFIG_NEWTOD
  /*
-  * The common case is 1:1 IRQ<->pin mappings. Sometimes there are
-  * shared ISA-space IRQs, so we have to support them. We are super
-@@ -98,26 +151,6 @@ static void add_pin_to_irq(unsigned int 
- 	entry->pin = pin;
- }
- 
--#define __DO_ACTION(R, ACTION, FINAL)					\
--									\
--{									\
--	int pin;							\
--	struct irq_pin_list *entry = irq_2_pin + irq;			\
--									\
--	for (;;) {							\
--		unsigned int reg;					\
--		pin = entry->pin;					\
--		if (pin == -1)						\
--			break;						\
--		reg = io_apic_read(entry->apic, 0x10 + R + pin*2);	\
--		reg ACTION;						\
--		io_apic_modify(entry->apic, reg);			\
--		if (!entry->next)					\
--			break;						\
--		entry = irq_2_pin + entry->next;			\
--	}								\
--	FINAL;								\
--}
- 
- #define DO_ACTION(name,R,ACTION, FINAL)					\
- 									\
-@@ -764,6 +797,7 @@ static void __init setup_IO_APIC_irqs(vo
- 		spin_lock_irqsave(&ioapic_lock, flags);
- 		io_apic_write(apic, 0x11+2*pin, *(((int *)&entry)+1));
- 		io_apic_write(apic, 0x10+2*pin, *(((int *)&entry)+0));
-+		set_native_irq_info(irq, TARGET_CPUS);
- 		spin_unlock_irqrestore(&ioapic_lock, flags);
- 	}
- 	}
-@@ -1312,6 +1346,7 @@ static unsigned int startup_edge_ioapic_
+  * phase-lock loop variables
   */
- static void ack_edge_ioapic_irq(unsigned int irq)
- {
-+	move_irq(irq);
- 	if ((irq_desc[irq].status & (IRQ_PENDING | IRQ_DISABLED))
- 					== (IRQ_PENDING | IRQ_DISABLED))
- 		mask_IO_APIC_irq(irq);
-@@ -1341,26 +1376,10 @@ static unsigned int startup_level_ioapic
- 
- static void end_level_ioapic_irq (unsigned int irq)
- {
-+	move_irq(irq);
- 	ack_APIC_irq();
+@@ -807,6 +808,9 @@
+ 		}
+ 	} while (ticks);
  }
++#else /* CONFIG_NEWTOD */
++#define update_wall_time(x)
++#endif /* CONFIG_NEWTOD */
  
--static void set_ioapic_affinity_irq(unsigned int irq, cpumask_t mask)
--{
--	unsigned long flags;
--	unsigned int dest;
--
--	dest = cpu_mask_to_apicid(mask);
--
--	/*
--	 * Only the high 8 bits are valid.
--	 */
--	dest = SET_APIC_LOGICAL_ID(dest);
--
--	spin_lock_irqsave(&ioapic_lock, flags);
--	__DO_ACTION(1, = dest, )
--	spin_unlock_irqrestore(&ioapic_lock, flags);
--}
--
- #ifdef CONFIG_PCI_MSI
- static unsigned int startup_edge_ioapic_vector(unsigned int vector)
- {
-@@ -1373,6 +1392,7 @@ static void ack_edge_ioapic_vector(unsig
- {
- 	int irq = vector_to_irq(vector);
- 
-+	move_native_irq(vector);
- 	ack_edge_ioapic_irq(irq);
- }
- 
-@@ -1387,6 +1407,7 @@ static void end_level_ioapic_vector (uns
- {
- 	int irq = vector_to_irq(vector);
- 
-+	move_native_irq(vector);
- 	end_level_ioapic_irq(irq);
- }
- 
-@@ -1409,6 +1430,7 @@ static void set_ioapic_affinity_vector (
- {
- 	int irq = vector_to_irq(vector);
- 
-+	set_native_irq_info(vector, cpu_mask);
- 	set_ioapic_affinity_irq(irq, cpu_mask);
- }
- #endif
-@@ -1979,6 +2001,7 @@ int io_apic_set_pci_routing (int ioapic,
- 	spin_lock_irqsave(&ioapic_lock, flags);
- 	io_apic_write(ioapic, 0x11+2*pin, *(((int *)&entry)+1));
- 	io_apic_write(ioapic, 0x10+2*pin, *(((int *)&entry)+0));
-+	set_native_irq_info(use_pci_vector() ?  entry.vector : irq, TARGET_CPUS);
- 	spin_unlock_irqrestore(&ioapic_lock, flags);
- 
- 	return 0;
-diff -puN arch/x86_64/Kconfig~fix_irq_affinity arch/x86_64/Kconfig
---- linux-2.6.12-rc2-mm3/arch/x86_64/Kconfig~fix_irq_affinity	2005-04-28 23:51:28.000000000 -0700
-+++ linux-2.6.12-rc2-mm3-araj/arch/x86_64/Kconfig	2005-04-28 23:51:28.000000000 -0700
-@@ -409,6 +409,11 @@ config GENERIC_IRQ_PROBE
- 	bool
- 	default y
- 
-+config GENERIC_PENDING_IRQ
-+	bool
-+	depends on GENERIC_HARDIRQS && SMP
-+	default y
+ /*
+  * Called from the timer interrupt handler to charge one tick to the current 
+diff -Nru a/kernel/timesource.c b/kernel/timesource.c
+--- /dev/null	Wed Dec 31 16:00:00 196900
++++ b/kernel/timesource.c	2005-04-29 16:39:35 -07:00
+@@ -0,0 +1,210 @@
++/*********************************************************************
++* linux/kernel/timesource.c
++*
++* This file contains the functions which manage timesource drivers.
++*
++* Copyright (C) 2004, 2005 IBM, John Stultz (johnstul@us.ibm.com)
++*
++* This program is free software; you can redistribute it and/or modify
++* it under the terms of the GNU General Public License as published by
++* the Free Software Foundation; either version 2 of the License, or
++* (at your option) any later version.
++*
++* This program is distributed in the hope that it will be useful,
++* but WITHOUT ANY WARRANTY; without even the implied warranty of
++* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++* GNU General Public License for more details.
++*
++* You should have received a copy of the GNU General Public License
++* along with this program; if not, write to the Free Software
++* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++*
++* Revision History:
++* 2004-12-07:   A1
++*   o Rework of timesource structure
++*   o Sent to lkml for review
++* 2005-04-29:   A4
++*   o Keep track of all registered timesources
++*   o Add sysfs interface for overriding default selection
++*
++* TODO List:
++*   o Allow timesource drivers to be unregistered
++*   o Use "clock=xyz" boot option for selection overrides.
++*   o get rid of timesource_jiffies extern
++**********************************************************************/
 +
- menu "Power management options"
- 
- source kernel/power/Kconfig
-diff -puN arch/i386/Kconfig~fix_irq_affinity arch/i386/Kconfig
---- linux-2.6.12-rc2-mm3/arch/i386/Kconfig~fix_irq_affinity	2005-04-28 23:51:28.000000000 -0700
-+++ linux-2.6.12-rc2-mm3-araj/arch/i386/Kconfig	2005-04-28 23:51:28.000000000 -0700
-@@ -1302,6 +1302,11 @@ config GENERIC_IRQ_PROBE
- 	bool
- 	default y
- 
-+config GENERIC_PENDING_IRQ
-+	bool
-+	depends on GENERIC_HARDIRQS && SMP
-+	default y
++#include <linux/timesource.h>
++#include <linux/sysdev.h>
++#include <linux/init.h>
 +
- config X86_SMP
- 	bool
- 	depends on SMP && !X86_VOYAGER
-diff -puN arch/ia64/Kconfig~fix_irq_affinity arch/ia64/Kconfig
---- linux-2.6.12-rc2-mm3/arch/ia64/Kconfig~fix_irq_affinity	2005-04-28 23:51:28.000000000 -0700
-+++ linux-2.6.12-rc2-mm3-araj/arch/ia64/Kconfig	2005-04-28 23:51:28.000000000 -0700
-@@ -411,6 +411,11 @@ config GENERIC_IRQ_PROBE
- 	bool
- 	default y
- 
-+config GENERIC_PENDING_IRQ
-+	bool
-+	depends on GENERIC_HARDIRQS && SMP
-+	default y
++#define MAX_TIMESOURCES 10
 +
- source "arch/ia64/hp/sim/Kconfig"
- 
- source "arch/ia64/oprofile/Kconfig"
-diff -puN kernel/irq/proc.c~fix_irq_affinity kernel/irq/proc.c
---- linux-2.6.12-rc2-mm3/kernel/irq/proc.c~fix_irq_affinity	2005-04-28 23:51:28.000000000 -0700
-+++ linux-2.6.12-rc2-mm3-araj/kernel/irq/proc.c	2005-04-29 00:11:53.000000000 -0700
-@@ -19,12 +19,27 @@ static struct proc_dir_entry *root_irq_d
-  */
- static struct proc_dir_entry *smp_affinity_entry[NR_IRQS];
- 
--void __attribute__((weak))
--proc_set_irq_affinity(unsigned int irq, cpumask_t mask_val)
-+#ifdef CONFIG_GENERIC_PENDING_IRQ
-+void proc_set_irq_affinity(unsigned int irq, cpumask_t mask_val)
++
++/* XXX - Need to have a better way for initializing curr_timesource */
++extern struct timesource_t timesource_jiffies;
++
++/*[Timesource internal variables]---------
++ * curr_timesource:
++ *     currently selected timesource. Initialized to timesource_jiffies.
++ * next_timesource:
++ *     pending next selected timesource.
++ * timesource_list:
++ *     array of pointers pointing to registered timesources
++ * timesource_list_counter:
++ *     value which counts the number of registered timesources
++ * timesource_lock:
++ *     protects manipulations to curr_timesource and next_timesource
++ *     and the timesource_list
++ */
++static struct timesource_t *curr_timesource = &timesource_jiffies;
++static struct timesource_t *next_timesource;
++static struct timesource_t *timesource_list[MAX_TIMESOURCES];
++static int timesource_list_counter;
++static seqlock_t timesource_lock = SEQLOCK_UNLOCKED;
++
++static char override_name[32];
++
++/* get_next_timesource():
++ *     Returns the selected timesource
++ */
++struct timesource_t* get_next_timesource(void)
 +{
-+	irq_desc_t	*desc = irq_descp(irq);
-+	unsigned long flags;
++	write_seqlock(&timesource_lock);
++	if (next_timesource) {
++		curr_timesource = next_timesource;
++		next_timesource = NULL;
++	}
++	write_sequnlock(&timesource_lock);
 +
-+	/*
-+	 * Save these away for later use. Re-progam when the
-+	 * interrupt is pending
-+	 */
-+	spin_lock_irqsave(&desc->lock, flags);
-+	pending_irq_cpumask[irq] = mask_val;
-+	spin_unlock_irqrestore(&desc->lock, flags);
++	return curr_timesource;
 +}
-+#else
-+void proc_set_irq_affinity(unsigned int irq, cpumask_t mask_val)
- {
- 	irq_affinity[irq] = mask_val;
- 	irq_desc[irq].handler->set_affinity(irq, mask_val);
- }
-+#endif
- 
- static int irq_affinity_read_proc(char *page, char **start, off_t off,
- 				  int count, int *eof, void *data)
-diff -puN include/asm-ia64/hw_irq.h~fix_irq_affinity include/asm-ia64/hw_irq.h
---- linux-2.6.12-rc2-mm3/include/asm-ia64/hw_irq.h~fix_irq_affinity	2005-04-28 23:51:28.000000000 -0700
-+++ linux-2.6.12-rc2-mm3-araj/include/asm-ia64/hw_irq.h	2005-04-28 23:51:28.000000000 -0700
-@@ -117,13 +117,6 @@ __ia64_local_vector_to_irq (ia64_vector 
-  * and to obtain the irq descriptor for a given irq number.
-  */
- 
--/* Return a pointer to the irq descriptor for IRQ.  */
--static inline irq_desc_t *
--irq_descp (int irq)
--{
--	return irq_desc + irq;
--}
--
- /* Extract the IA-64 vector that corresponds to IRQ.  */
- static inline ia64_vector
- irq_to_vector (int irq)
-diff -puN include/asm-ia64/irq.h~fix_irq_affinity include/asm-ia64/irq.h
---- linux-2.6.12-rc2-mm3/include/asm-ia64/irq.h~fix_irq_affinity	2005-04-29 07:17:43.000000000 -0700
-+++ linux-2.6.12-rc2-mm3-araj/include/asm-ia64/irq.h	2005-04-29 07:17:59.000000000 -0700
-@@ -30,12 +30,6 @@ extern void disable_irq_nosync (unsigned
- extern void enable_irq (unsigned int);
- extern void set_irq_affinity_info (unsigned int irq, int dest, int redir);
- 
--#ifdef CONFIG_SMP
--extern void move_irq(int irq);
--#else
--#define move_irq(irq)
--#endif
--
- struct irqaction;
- struct pt_regs;
- int handle_IRQ_event(unsigned int, struct pt_regs *, struct irqaction *);
-_
++
++/* select_timesource():
++ *     Private function. Finds the best registered timesource.
++ *     Must have a writelock on timesource_lock when called.
++ */
++static struct timesource_t* select_timesource(void)
++{
++	struct timesource_t* best = timesource_list[0];
++	int i;
++
++	for (i=0; i < timesource_list_counter; i++) {
++		/* Check for override */
++		if ((override_name[0] != 0) &&
++			(!strncmp(timesource_list[i]->name, override_name,
++				 strlen(override_name)))) {
++			best = timesource_list[i];
++			break;
++		}
++		/* Pick the highest priority */
++		if (timesource_list[i]->priority > best->priority)
++		 	best = timesource_list[i];
++	}
++	return best;
++}
++
++/* register_timesource():
++ *     Used to install new timesources
++ */
++void register_timesource(struct timesource_t* t)
++{
++	char* error_msg = 0;
++	int i;
++	write_seqlock(&timesource_lock);
++
++	/* check if timesource is already registered */
++	for (i=0; i < timesource_list_counter; i++)
++		if (!strncmp(timesource_list[i]->name, t->name, strlen(t->name))){
++			error_msg = "Already registered!";
++			break;
++		}
++
++	/* check that the list isn't full */
++	if (timesource_list_counter >= MAX_TIMESOURCES)
++		error_msg = "Too many timesources!";
++
++	if(!error_msg)
++		timesource_list[timesource_list_counter++] = t;
++	else
++		printk("register_timesource: Cannot register %s. %s\n",
++					t->name, error_msg);
++
++	/* select next timesource */
++	next_timesource = select_timesource();
++
++	write_sequnlock(&timesource_lock);
++}
++
++/* sysfs_show_timesources():
++ *     Provides sysfs interface for listing registered timesources
++ */
++static ssize_t sysfs_show_timesources(struct sys_device *dev, char *buf)
++{
++	int i;
++	char* curr = buf;
++	write_seqlock(&timesource_lock);
++	for(i=0; i < timesource_list_counter; i++) {
++		/* Mark current timesource w/ a star */
++		if (timesource_list[i] == curr_timesource)
++			curr += sprintf(curr, "*");
++		curr += sprintf(curr, "%s ",timesource_list[i]->name);
++	}
++	write_sequnlock(&timesource_lock);
++
++	curr += sprintf(curr, "\n");
++	return curr - buf;
++}
++
++/* sysfs_override_timesource():
++ *     Takes input from sysfs interface for manually overriding
++ *     the default timesource selction
++ */
++static ssize_t sysfs_override_timesource(struct sys_device *dev,
++			const char *buf, size_t count)
++{
++	/* check to avoid underflow later */
++	if (strlen(buf) == 0)
++		return count;
++
++	write_seqlock(&timesource_lock);
++
++	/* copy the name given */
++	strncpy(override_name, buf, strlen(buf)-1);
++	override_name[strlen(buf)-1] = 0;
++
++	/* see if we can find it */
++	next_timesource = select_timesource();
++
++	write_sequnlock(&timesource_lock);
++	return count;
++}
++
++/* Sysfs setup bits:
++ *      XXX - Is there a simpler way?
++ */
++
++static SYSDEV_ATTR(timesource, 0600, sysfs_show_timesources, sysfs_override_timesource);
++
++static struct sysdev_class timesource_sysclass = {
++	set_kset_name("timesource"),
++};
++
++static struct sys_device device_timesource = {
++	.id	= 0,
++	.cls	= &timesource_sysclass,
++};
++
++static int init_timesource_sysfs(void)
++{
++	int error = sysdev_class_register(&timesource_sysclass);
++	if (!error) {
++		error = sysdev_register(&device_timesource);
++		/* XXX error checking? */
++		sysdev_create_file(&device_timesource, &attr_timesource);
++	}
++	return error;
++}
++device_initcall(init_timesource_sysfs);
++
++
++/* XXX - Do we need a boot time override interface? */
+
+

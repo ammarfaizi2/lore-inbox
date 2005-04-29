@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262753AbVD2OmL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262770AbVD2Ook@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262753AbVD2OmL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 10:42:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262770AbVD2OmK
+	id S262770AbVD2Ook (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 10:44:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262755AbVD2Ooa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 10:42:10 -0400
-Received: from baloney.puettmann.net ([194.97.54.34]:56531 "EHLO
-	baloney.puettmann.net") by vger.kernel.org with ESMTP
-	id S262753AbVD2Olp convert rfc822-to-8bit (ORCPT
+	Fri, 29 Apr 2005 10:44:30 -0400
+Received: from mail.shareable.org ([81.29.64.88]:7083 "EHLO mail.shareable.org")
+	by vger.kernel.org with ESMTP id S262762AbVD2OnV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 10:41:45 -0400
-Date: Fri, 29 Apr 2005 16:41:04 +0200
-To: Andi Kleen <ak@suse.de>
-Cc: Alexander Nyberg <alexn@telia.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, rddunlap@osdl.org
-Subject: Re: 2.6.11.7 kernel panic on boot on AMD64
-Message-ID: <20050429144103.GK18972@puettmann.net>
-References: <20050427140342.GG10685@puettmann.net> <1114769162.874.4.camel@localhost.localdomain> <20050429143215.GE21080@wotan.suse.de>
+	Fri, 29 Apr 2005 10:43:21 -0400
+Date: Fri, 29 Apr 2005 15:42:52 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: linuxram@us.ibm.com, ericvh@gmail.com, pavel@ucw.cz,
+       viro@parcelfarce.linux.theplanet.co.uk, hch@infradead.org,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH] private mounts
+Message-ID: <20050429144252.GA17263@mail.shareable.org>
+References: <20050425152049.GB2508@elf.ucw.cz> <20050425190734.GB28294@mail.shareable.org> <20050426092924.GA4175@elf.ucw.cz> <20050426140715.GA10833@mail.shareable.org> <a4e6962a050428064774e88f4a@mail.gmail.com> <20050428192048.GA2895@mail.shareable.org> <1114717183.4180.718.camel@localhost> <20050428220839.GA5183@mail.shareable.org> <1114761430.4180.1566.camel@localhost> <E1DRWEt-000149-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20050429143215.GE21080@wotan.suse.de>
-User-Agent: Mutt/1.5.9i
-From: Ruben Puettmann <ruben@puettmann.net>
-X-Scanner: exiscan *1DRWfw-0002F1-00*htmOJOZNeEw* (Puettmann.NeT, Germany)
+In-Reply-To: <E1DRWEt-000149-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 29, 2005 at 04:32:15PM +0200, Andi Kleen wrote:
+Miklos Szeredi wrote:
+> Removing the check makes chroot enter the tree under the other
+> process's namespace.  However it does not actually change the
+> namespace, hence mount/umount won't work.
 > 
-> Hmm? saved_command_Line should have enough space to add a simple string.
-> It is a 1024bytes. Unless you already have a 1k command line it should
-> be quite ok.
+> So joinig a namespace does need a new syscall unfortunately.
 
-Here it seems that it is 256 bytes :
+It would be trivial to copy mnt->mnt_namespace to current->namespace
+in set_fs_root.  No need for a syscall just for that.
 
-init/main.c:char saved_command_line[COMMAND_LINE_SIZE];
+Given that it works, the right place to decide whether it's allowed is
+the permissions on /proc/NNN/root.  But remember that you can already
+access another process' namespace using ptrace on that process, so
+this doesn't relax security if /proc/NNN/root can be entered whenever
+ptrace is allowed.
 
-include/asm-x86_64/setup.h:#define COMMAND_LINE_SIZE    256
+I would really like to know what the purpose of check_mnt() is in
+namespace.c.  In standard kernels you can't enter another process'
+namespace (without the change you tried in proc/base.c), so I don't see
+how check_mnt() can _ever_ fail.  Can it?
 
- 
-> Why do you think it is bogus?
-> 
-> > This is bogus appending stuff to the saved_command_line and at the same
-> > time in Rubens case it touches the late_time_init() which breakes havoc.
-> 
-> I dont agree with this patch.
-> 
+And if it can't fail, is there any need for current->namespace, or can
+it just be removed?
 
-The patch workes here fine. After apply the Server boots without any
-problem.
-
-
-                        Ruben
-
--- 
-Ruben Puettmann
-ruben@puettmann.net
-http://www.puettmann.net
+-- Jamie

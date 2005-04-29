@@ -1,74 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262594AbVD2NT1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262592AbVD2NUM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262594AbVD2NT1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 09:19:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262592AbVD2NT1
+	id S262592AbVD2NUM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 09:20:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262599AbVD2NUM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 09:19:27 -0400
-Received: from fire.osdl.org ([65.172.181.4]:57049 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262577AbVD2NS6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 09:18:58 -0400
-Date: Fri, 29 Apr 2005 06:18:25 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: [patch] properly stop devices before poweroff
-Message-Id: <20050429061825.36f98cc0.akpm@osdl.org>
-In-Reply-To: <20050421111346.GA21421@elf.ucw.cz>
-References: <20050421111346.GA21421@elf.ucw.cz>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 29 Apr 2005 09:20:12 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:50358 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S262592AbVD2NTv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 09:19:51 -0400
+Date: Fri, 29 Apr 2005 09:19:15 -0400
+To: Davy Durham <pubaddr2@davyandbeth.com>
+Cc: "Theodore Ts'o" <tytso@mit.edu>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ext3 issue..
+Message-ID: <20050429131915.GB2297@csclub.uwaterloo.ca>
+References: <4270FA5B.5060609@davyandbeth.com> <20050428200908.GB6669@thunk.org> <42719D5D.5060106@davyandbeth.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42719D5D.5060106@davyandbeth.com>
+User-Agent: Mutt/1.3.28i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> wrote:
->
+On Thu, Apr 28, 2005 at 09:35:09PM -0500, Davy Durham wrote:
+> Well, I don't have the output of the fsck when I did the machine I did 
+> it on. And I can't do it on the production machine right now.  Perhaps I 
+> can tommorrow if I can talk to the guys about cleaning it off.  I'm a 
+> bit afraid to do it, reason being that if it's off on this accounting 
+> information, what files/data might I lose if I did an fsck on it 
+> (remember, the one I already did it on was empty).
 > 
-> Without this patch, Linux provokes emergency disk shutdowns and
-> similar nastiness. It was in SuSE kernels for some time, IIRC.
+> Also, I did an "e2fsck /home" on the running machine just expecting to 
+> get the "warning, don't do this on a mounted file system" prompt, but 
+> instead I got:
 > 
+> # e2fsck /home
+> e2fsck 1.34 (25-Jul-2003)
+> e2fsck: Is a directory while trying to open /home
 
-With this patch when running `halt -p' my ia64 Tiger (using
-tiger_defconfig) gets a stream of badnesses in iosapic_unregister_intr()
-and then hangs up.
+/home IS a directory.  You run fsck on the device NOT the mount point.
+Remember the filesystem is unmounted or at most mounted readonly when
+fsck is run after all.
 
-Unfortunately it all seems to happen after the serial port has been
-disabled because nothing comes out.  I set the console to a squitty font
-and took a piccy.  See
-http://www.zip.com.au/~akpm/linux/patches/stuff/dsc02505.jpg
-
-I guess it's an ia64 problem.  I'll leave the patch in -mm for now.
-
+> The superblock could not be read or does not describe a correct ext2
+> filesystem.  If the device is valid and it really contains an ext2
+> filesystem (and not swap or ufs or something else), then the superblock
+> is corrupt, and you might try running e2fsck with an alternate superblock:
+>    e2fsck -b 8193 <device>
 > 
-> --- clean/kernel/sys.c	2005-03-19 00:32:32.000000000 +0100
-> +++ linux/kernel/sys.c	2005-03-22 12:20:53.000000000 +0100
-> @@ -404,6 +404,7 @@
->  	case LINUX_REBOOT_CMD_HALT:
->  		notifier_call_chain(&reboot_notifier_list, SYS_HALT, NULL);
->  		system_state = SYSTEM_HALT;
-> +		device_suspend(PMSG_SUSPEND);
->  		device_shutdown();
->  		printk(KERN_EMERG "System halted.\n");
->  		machine_halt();
-> @@ -414,6 +415,7 @@
->  	case LINUX_REBOOT_CMD_POWER_OFF:
->  		notifier_call_chain(&reboot_notifier_list, SYS_POWER_OFF, NULL);
->  		system_state = SYSTEM_POWER_OFF;
-> +		device_suspend(PMSG_SUSPEND);
->  		device_shutdown();
->  		printk(KERN_EMERG "Power down.\n");
->  		machine_power_off();
-> @@ -430,6 +432,7 @@
->  
->  		notifier_call_chain(&reboot_notifier_list, SYS_RESTART, buffer);
->  		system_state = SYSTEM_RESTART;
-> +		device_suspend(PMSG_FREEZE);
->  		device_shutdown();
->  		printk(KERN_EMERG "Restarting system with command '%s'.\n", buffer);
->  		machine_restart(buffer);
+> Perhaps it's because it is mounted? (and -b 8193 didn't change 
+> anything).  Do I need to do it on the device after unmounting instead? 
+> (Probably so)
 > 
-> -- 
-> Boycott Kodak -- for their patent abuse against Java.
+> I do get the expected warning with fsck itself.  Which should I be 
+> using? e2fsck or fsck?
+
+Shouldn't matter as far as I know.  If ext3, perhaps fsck.ext3 is right.
+fsck should just figure it out I believe.
+
+> This is kernel-2.6.3-15mdk BTW (mdk 10.0official)
+> 
+> I'll try to report back tomorrow if I'm able to do anything..
+
+Len Sorensen

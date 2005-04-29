@@ -1,89 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263014AbVD2Vnq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263010AbVD2VqC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263014AbVD2Vnq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 17:43:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263011AbVD2Vnh
+	id S263010AbVD2VqC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 17:46:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263009AbVD2VoO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 17:43:37 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:49422 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263014AbVD2VmV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 17:42:21 -0400
-Date: Fri, 29 Apr 2005 22:42:12 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Pavel Pisa <pisa@cmp.felk.cvut.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       kai@germaschewski.name
-Subject: Re: [PATCH] preserve ARCH and CROSS_COMPILE in the build directory generated Makefile
-Message-ID: <20050429224212.G30010@flint.arm.linux.org.uk>
-Mail-Followup-To: Sam Ravnborg <sam@ravnborg.org>,
-	Pavel Pisa <pisa@cmp.felk.cvut.cz>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	kai@germaschewski.name
-References: <200504291335.34210.pisa@cmp.felk.cvut.cz> <20050429210053.GC8699@mars.ravnborg.org>
+	Fri, 29 Apr 2005 17:44:14 -0400
+Received: from fire.osdl.org ([65.172.181.4]:44469 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S263016AbVD2Vnf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 17:43:35 -0400
+Date: Fri, 29 Apr 2005 14:43:21 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: jermar@itbs.cz
+Cc: len.brown@intel.com, torvalds@osdl.org, aul.s.diefenbaugh@intel.com,
+       jun.nakajima@intel.com, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: acpi_find_rsdp() diverges from ACPI specification
+Message-Id: <20050429144321.3398db9a.rddunlap@osdl.org>
+In-Reply-To: <20050429230350.qid9o7yht3qckkg8@mail.hosting123.cz>
+References: <20050429230350.qid9o7yht3qckkg8@mail.hosting123.cz>
+Organization: OSDL
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050429210053.GC8699@mars.ravnborg.org>; from sam@ravnborg.org on Fri, Apr 29, 2005 at 11:00:53PM +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 29, 2005 at 11:00:53PM +0200, Sam Ravnborg wrote:
-> On Fri, Apr 29, 2005 at 01:35:33PM +0200, Pavel Pisa wrote:
-> > This patch ensures, that architecture and target cross-tools prefix
-> > is preserved in the Makefile generated in the build directory for
-> > out of source tree kernel compilation. This prevents accidental
-> > screwing of configuration and builds for the case, that make without
-> > full architecture specific options is invoked in the build
-> > directory. It is secure use accustomed "make", "make xconfig",
-> > etc. without fear and special care now.
-> 
-> Hi Pavel.
-> I will not apply this path because it introduce a difference when
-> building usign a separate output direcory compared to an in-tree build.
-> 
-> I have briefly looked into a solution where I could add this information
-> in .config but was sidetracked by other stuff so I newer got it working.
-> 
-> The build system for the kernel needs to be as predictable as possible
-> and introducing functionality that is only valid when using a separate
-> output directory does not help here.
+On Fri, 29 Apr 2005 23:03:50 +0200 jermar@itbs.cz wrote:
 
-Without it, folk will then do (and this is taken from someone elses
-example):
+| Hello,
+| 
+| I found out that acpi_find_rsdp() tries to find the RSDP structure in an area
+| bit larger than the ACPI specification wants. The right interval should start
+| at 0xe0000 and end at 0xfffff. The search area is thus 128K+1B large.
 
-  cd /usr/src
-  tar -xjf /path/to/linux-2.6.x.tar.bz
-  cd linux-2.6.x
-  mkdir -p _build/arm
-  cd _build/arm
-  cat >GNUmakefile <<EOF
-VERSION = 2
-PATCHLEVEL = 6
-                                                                                
-KERNELSRC    := /usr/src/linux-2.6.x
-KERNELOUTPUT := /usr/src/linux-2.6.x/_build/arm
-                                                                                
-MAKEFLAGS += --no-print-directory
-                                                                                
-ARCH            = arm
-#CROSS_COMPILE  = arm-unknown-linux-gnu-
-CROSS_COMPILE   = arm-linux-
-                                                                                
-all:
-        $(MAKE) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) -C $(KERNELSRC) O=$(KERNELOUTPUT)
-                                                                                
-%::
-        $(MAKE) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) -C $(KERNELSRC) O=$(KERNELOUTPUT) $@
-EOF
-  make xconfig
-  make
+The search area is thus 128 KB large, so I agree with the intent of
+this patch, except for the +1B.
 
-which I think you'll agree is far worse.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+| Given the semantics of acpi_scan_rsdp(), the second argument should therefore be
+| the size, not the end address.
+
+Yes.
+
+| Should there be any comments, please email me directly as I don't regularily
+| read LKM.
+| 
+| Please, apply.
+| 
+| Jakub
+| 
+| --- linux-2.6.11.7/arch/i386/kernel/acpi/boot.c 2005-04-07 20:58:17.000000000
+| +0200
+| +++ linux-2.6.11.7-acpi-patch/arch/i386/kernel/acpi/boot.c      2005-04-29
+| 21:39:08.000000000 +0200
+| @@ -644,7 +644,7 @@ acpi_find_rsdp (void)
+|          */
+|         rsdp_phys = acpi_scan_rsdp (0, 0x400);
+|         if (!rsdp_phys)
+| -               rsdp_phys = acpi_scan_rsdp (0xE0000, 0xFFFFF);
+| +               rsdp_phys = acpi_scan_rsdp (0xE0000, 128*1024 + 1);
+Just drop the "+ 1".
+
+| 
+|         return rsdp_phys;
+|  }
+
+
+---
+~Randy

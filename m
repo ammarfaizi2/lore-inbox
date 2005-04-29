@@ -1,37 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262347AbVD2AE0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262346AbVD2AHN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262347AbVD2AE0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 20:04:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262346AbVD2AEZ
+	id S262346AbVD2AHN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 20:07:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262348AbVD2AHN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 20:04:25 -0400
-Received: from [203.2.177.22] ([203.2.177.22]:14865 "EHLO pinot.tusc.com.au")
-	by vger.kernel.org with ESMTP id S262345AbVD2AEW (ORCPT
+	Thu, 28 Apr 2005 20:07:13 -0400
+Received: from fire.osdl.org ([65.172.181.4]:30425 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262346AbVD2AHH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 20:04:22 -0400
-Subject: Re: [PATCH] 2.6.11.7  X.25 : x25tap
-From: Andrew Hendry <ahendry@tusc.com.au>
-To: Chris Wright <chrisw@osdl.org>
-Cc: linux-x25@vger.kernel.org, eis@baty.hanse.de, linux-kernel@vger.kernel.org
-In-Reply-To: <20050428174309.GP23013@shell0.pdx.osdl.net>
-References: <1114576764.4789.36.camel@localhost.localdomain>
-	 <20050428174309.GP23013@shell0.pdx.osdl.net>
-Content-Type: text/plain
-Message-Id: <1114733031.3725.5.camel@localhost.localdomain>
+	Thu, 28 Apr 2005 20:07:07 -0400
+Date: Thu, 28 Apr 2005 17:07:29 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       sensors@stimpy.netroedge.com
+Subject: Re: kernel maintainer's HOWTO for quilt and -mm
+Message-Id: <20050428170729.0ee0e15a.akpm@osdl.org>
+In-Reply-To: <20050428234708.GA23714@kroah.com>
+References: <20050428223414.GA22785@kroah.com>
+	<20050428223622.GC22785@kroah.com>
+	<20050428163121.1343aa6c.akpm@osdl.org>
+	<20050428234708.GA23714@kroah.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 29 Apr 2005 10:03:51 +1000
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 29 Apr 2005 00:03:02.0343 (UTC) FILETIME=[CF905570:01C54C4E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the feedback.
+Greg KH <greg@kroah.com> wrote:
+>
+> > It's a bit of a hassle that your patches aren't based on latest -linus.
+> 
+> I understand.  That will change, once the -git nightly snapshots start
+> up.
 
-> Can this not be done with tun/tap?  Ethertap is gone:
+It's at http://www.zip.com.au/~akpm/linux/patches/stuff/linus.patch.gz
 
-I don't think tun/tap itself can do it. I'll look how it works and see
-if something similar could do what we need.
-
-Andrew.
-
+I'll update that a few times a day.

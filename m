@@ -1,52 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262898AbVD2TJy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262891AbVD2TOS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262898AbVD2TJy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 15:09:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262897AbVD2TJO
+	id S262891AbVD2TOS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 15:14:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262897AbVD2TOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 15:09:14 -0400
-Received: from zproxy.gmail.com ([64.233.162.206]:36472 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262889AbVD2THM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 15:07:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jSFz9PEnQTC747DK2g0+1STRS7kSq9XAV8pP3Q1wL2fmPMyEIjrgpqq8W662K3108NJEiLM6ZuIlUaMYuKQfOoXfFNTxmiyS6g7EyAhZgcPcncR5cz7CeUN8tNEn4jRhjmfrg9Q2v+3ZyYyJ69V4CT9ZHiqqis1Z5c65JcoaaTU=
-Message-ID: <5fc59ff30504291207424e6166@mail.gmail.com>
-Date: Fri, 29 Apr 2005 12:07:12 -0700
-From: Ganesh Venkatesan <ganesh.venkatesan@gmail.com>
-Reply-To: Ganesh Venkatesan <ganesh.venkatesan@gmail.com>
-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-Subject: Re: msleep_interruptible() in ethtool ioctl and keyboard input
-Cc: "Venkatesan, Ganesh" <ganesh.venkatesan@intel.com>,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-In-Reply-To: <29495f1d050429114048da1847@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <468F3FDA28AA87429AD807992E22D07E05195E08@orsmsx408>
-	 <29495f1d050429114048da1847@mail.gmail.com>
+	Fri, 29 Apr 2005 15:14:11 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:30379 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262891AbVD2TL3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 15:11:29 -0400
+In-Reply-To: <Pine.LNX.4.60.0504290824280.28101@hermes-1.csi.cam.ac.uk>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: aia21@hermes.cam.ac.uk, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org, mike.miller@hp.com
+MIME-Version: 1.0
+Subject: Re: [Question] Does the kernel ignore errors writng to disk?
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OF48BA3721.BD4798AD-ON88256FF2.00680E7E-88256FF2.0069814F@us.ibm.com>
+From: Bryan Henderson <hbryan@us.ibm.com>
+Date: Fri, 29 Apr 2005 12:11:24 -0700
+X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Build V70_M4_01112005 Beta 3|January
+ 11, 2005) at 04/29/2005 15:11:27,
+	Serialize complete at 04/29/2005 15:11:27
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> You really want this timer to go off immediately?
-> 
-Yes.
+>On Thu, 28 Apr 2005, Bryan Henderson wrote:
+>> >O_SYNC doesn't work completely on several file systems and only on the
+>> >latest kernels with some of the common ones.
+>> 
+>> Hmmm.  You didn't mention such a restriction when you suggested fsync() 
 
-> Regardless....
-> 
-> >         msleep_interruptible(data * 1000);
-> 
-> Does the same issue occur if you revert this change and make it
-> 
-> set_current_state(TASK_INTERRUPTIBLE);
-> schedule_timeout(data * HZ);
-> 
-> ?
-No. The issue happens irrespective of whether it is
-msleep_interruptible or the set_current_state/schedule_timeout combo.
+>> before.  Does fsync() work completely on these kernels where O_SYNC 
+>> doesn't?  Considering that a simple implementation of O_SYNC just does 
+the 
+>> equivalent of an fsync() inside every write(), that would be hard to 
+>> understand.
+>
+>Some file systems implement their fsync() function as "return 0;" so no, 
+>you cannot rely on it at all.
 
-ganesh.
+It's pretty clear Alan isn't talking about those cases.  I don't think he 
+would have suggested fsync() to address the delayed write error problem in 
+a case where fsync() is "return 0;".
+
+But let's talk about the no-op fsync() cases:  fsync() is supposed to 
+cause data to be written to stable storage.  "stable" is a relative 
+concept that the individual filesystem type or driver has to define for 
+itself.  In an ordinary disk-based filesystem, we usually expect it to 
+mean the data has gone onto the oxide.  But that's not really stable -- 
+the disk drive could break and the data would be gone.  For some, just 
+getting into the buffers of the disk drive is stable enough, since then 
+rebooting Linux wouldn't cause the data to be lost.  For ramfs, the Linux 
+page cache is as stable as you can hope for.
+
+So I view it as correct even if fsync() does nothing on a disk-based 
+filesystem because the programmer was lazy (or because the user wants to 
+defeat the performance-busting behavior of some paranoid application). But 
+when Alan speaks of a "not completely correct" version of synchronization, 
+which makes me think of something that doesn't implement any consistent 
+form of "stable," I want to hear more.
+
+--
+Bryan Henderson                          IBM Almaden Research Center
+San Jose CA                              Filesystems

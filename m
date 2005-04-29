@@ -1,99 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262390AbVD2Fg5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262387AbVD2Fk3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262390AbVD2Fg5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 01:36:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262388AbVD2Fg4
+	id S262387AbVD2Fk3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 01:40:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262391AbVD2Fk3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 01:36:56 -0400
-Received: from lixom.net ([66.141.50.11]:54675 "EHLO mail.lixom.net")
-	by vger.kernel.org with ESMTP id S262387AbVD2FgK (ORCPT
+	Fri, 29 Apr 2005 01:40:29 -0400
+Received: from wproxy.gmail.com ([64.233.184.207]:23243 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262387AbVD2Fjm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 01:36:10 -0400
-Date: Fri, 29 Apr 2005 00:36:15 -0500
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linuxppc64-dev@ozlabs.org, Paul Mackerras <paulus@samba.org>,
-       linux-kernel@vger.kernel.org, Anton Blanchard <anton@samba.org>
-Subject: Re: [PATCH 3/4] ppc64: Add driver for BPA iommu
-Message-ID: <20050429053615.GA30219@lixom.net>
-References: <200504190318.32556.arnd@arndb.de> <200504280813.j3S8DNLc019256@post.webmailer.de> <20050428140558.GB1023@austin.ibm.com> <200504290635.44965.arnd@arndb.de>
+	Fri, 29 Apr 2005 01:39:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type;
+        b=N2LLajnPRtEpJHJ51Axanb1f0KgEDS+eKrAfDgJEfcrzlM8FZY6eAP5J32WzlVGrmK2FjYuG1IEbRrRmmpaCckTj6046GPvJqjgZmJOgb+rGhmjnxxC9oiJbdsPkq+yCcZXJdha8ByhImNBXz/VK8KVJP4oYSy26iMOiRO9w3rI=
+Message-ID: <b0fbeec405042822394a17a11f@mail.gmail.com>
+Date: Fri, 29 Apr 2005 17:39:41 +1200
+From: John Duthie <beyondgeek@gmail.com>
+Reply-To: John Duthie <beyondgeek@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Intel E7221 Server Board SATA
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200504290635.44965.arnd@arndb.de>
-User-Agent: Mutt/1.5.6+20040907i
-From: Olof Johansson <olof@lixom.net>
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_64_22129099.1114753181127"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 29, 2005 at 06:35:43AM +0200, Arnd Bergmann wrote:
-> On Dunnersdag 28 April 2005 16:05, Olof Johansson wrote:
-> 
-> > On Thu, Apr 28, 2005 at 09:59:26AM +0200, Arnd Bergmann wrote:
-> > > +/* some constants */
-> > > +enum {
-> > > +	/* segment table entries */
-> > [...]
-> > > +};
-> > 
-> > Hmm. I thought the benefit of enum was to be able to do type checking
-> > later on if it's a typed enum. Here you mix different definitions in
-> > the same large untyped enum declaration. Can they be moved to a
-> > bpa_iommu.h file and #defined instead?
-> 
-> I prefer to avoid macros altogether, and this is one of the ways to
-> do it. We have had the discussion about how to define constants
-> a few times before on lkml without reaching a conclusion.
+------=_Part_64_22129099.1114753181127
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Most of arch/ppc64/* uses #defines, for whatever that's worth. Still,
-CodingStyle seems to recommend enums for "related constants", I assume
-it's so they can be typed. I don't care enough either way to argue
-it further.
+I have a Server here with no working SATA drives=20
 
-Anyhow, enum or #define, it should be moved to bpa_iommu.h.
+( Intel Server board SE7221BK1-E )
 
-> > Why do we need to detect this at link time?
-> 
-> I want to avoid doing BUG() or something similar, so I
-> try to detect a user error as early as possible.
+I've tried 2.6.11 and then 2.6.12-pre3=20
 
-User or developer error? I thought it was a developer one, and a quite
-specialized one at that. Either way, there's already a primitive that
-can be used instead of making your own: BUILD_BUG_ON().
+*grumble intel bleading edge products*
 
-> > > +	nnpt++; /* XXX is this right? */
-> > 
-> > Well, does it work?  :-)
-> 
-> Yes, but it seems to contradict the specs...
+anyway does anyone have any clue or patches that might make this beast
+tick (I'm supposed to be installing a file server on Tuesday :(   )
 
-A comment to that effect could be nice.
+if i get really desperate i might have to try the Redhat drivers - but
+I don't really want software raid just pain SATA .....
+=20
+attached is a lspci output=20
 
-> > > +static inline unsigned long
-> > > +get_ioptep(ioste iost_entry, unsigned long io_address)
-> > > +{
-> > > +	unsigned long iopt_base;
-> > > +	unsigned long ps;
-> > > +	unsigned long iopt_offset;
-> > > +
-> > > +	iopt_base = iost_entry.val & IOST_PT_BASE_MASK;
-> > > +	ps        = iost_entry.val & IOST_PS_MASK;
-> > > +
-> > > +	iopt_offset = ((io_address & 0x0fffffff) >> (7 + 2 * ps)) & 0x7fff8ul;
-> > 
-> > Magic. Can we get it explained either by defines instead of constants
-> > or by a comment?
-> 
-> This comes from a graphical representation in the specs. I'll add a comment
-> to point to that image.
+any other info needed ?=20
 
-I guess it'd be a bit much information to just add in a comment, but for
-readability that's probably the best way to go.  Not many people have
-the specs, but on the other hand if you're messing around with this code
-then chances are you have them.
+TIA
 
-I don't know what the status is for a release of public specifications,
-but if they're not available then people will be looking to learn from
-the implementation and the documentation around it instead.
+------=_Part_64_22129099.1114753181127
+Content-Type: text/plain; name=lspci.txt; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="lspci.txt"
 
+00:00.0 Host bridge: Intel Corp. Server Memory Controller Hub (rev 05)
+	Subsystem: Intel Corp. Server Memory Controller Hub
+	Flags: bus master, fast devsel, latency 0
+	Capabilities: [e0] #09 [2109]
 
--Olof
+00:02.0 VGA compatible controller: Intel Corp. Graphics Controller (rev 05) (prog-if 00 [VGA])
+	Subsystem: Intel Corp.: Unknown device 3444
+	Flags: bus master, fast devsel, latency 0, IRQ 10
+	Memory at dfe00000 (32-bit, non-prefetchable) [size=512K]
+	I/O ports at de00 [size=8]
+	Memory at c0000000 (32-bit, prefetchable) [size=256M]
+	Memory at dfe80000 (32-bit, non-prefetchable) [size=256K]
+	Expansion ROM at <unassigned> [disabled]
+	Capabilities: [d0] Power Management version 2
+
+00:1c.0 PCI bridge: Intel Corp. I/O Controller Hub PCI Express Port 0 (rev 03) (prog-if 00 [Normal decode])
+	Flags: bus master, fast devsel, latency 0
+	Bus: primary=00, secondary=02, subordinate=04, sec-latency=0
+	Capabilities: [40] #10 [0141]
+	Capabilities: [80] Message Signalled Interrupts: 64bit- Queue=0/0 Enable-
+	Capabilities: [90] #0d [0000]
+	Capabilities: [a0] Power Management version 2
+
+00:1d.0 USB Controller: Intel Corp. I/O Controller Hub USB (rev 03) (prog-if 00 [UHCI])
+	Subsystem: Intel Corp.: Unknown device 3444
+	Flags: bus master, medium devsel, latency 0, IRQ 23
+	I/O ports at de80 [size=32]
+
+00:1d.1 USB Controller: Intel Corp. I/O Controller Hub USB (rev 03) (prog-if 00 [UHCI])
+	Subsystem: Intel Corp.: Unknown device 3444
+	Flags: bus master, medium devsel, latency 0, IRQ 19
+	I/O ports at df00 [size=32]
+
+00:1d.2 USB Controller: Intel Corp. I/O Controller Hub USB (rev 03) (prog-if 00 [UHCI])
+	Subsystem: Intel Corp.: Unknown device 3444
+	Flags: bus master, medium devsel, latency 0, IRQ 18
+	I/O ports at df80 [size=32]
+
+00:1d.7 USB Controller: Intel Corp. I/O Controller Hub USB2 (rev 03) (prog-if 20 [EHCI])
+	Subsystem: Intel Corp. I/O Controller Hub USB2
+	Flags: bus master, medium devsel, latency 0, IRQ 23
+	Memory at dfeffc00 (32-bit, non-prefetchable) [size=1K]
+	Capabilities: [50] Power Management version 2
+	Capabilities: [58] #0a [20a0]
+
+00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB/EB/ER Hub interface to PCI Bridge (rev d3) (prog-if 01 [Subtractive decode])
+	Flags: bus master, fast devsel, latency 0
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=32
+	I/O behind bridge: 0000e000-0000efff
+	Memory behind bridge: dff00000-dfffffff
+	Capabilities: [50] #0d [0000]
+
+00:1f.0 ISA bridge: Intel Corp. I/O Controller Hub LPC (rev 03)
+	Subsystem: Intel Corp. I/O Controller Hub LPC
+	Flags: bus master, medium devsel, latency 0
+
+00:1f.1 IDE interface: Intel Corp. I/O Controller Hub PATA (rev 03) (prog-if 8a [Master SecP PriP])
+	Subsystem: Intel Corp.: Unknown device 3444
+	Flags: bus master, medium devsel, latency 0, IRQ 18
+	I/O ports at <unassigned>
+	I/O ports at <unassigned>
+	I/O ports at <unassigned>
+	I/O ports at <unassigned>
+	I/O ports at fff0 [size=16]
+
+00:1f.3 SMBus: Intel Corp. I/O Controller Hub SMBus (rev 03)
+	Subsystem: Intel Corp.: Unknown device 3444
+	Flags: medium devsel, IRQ 10
+	I/O ports at 0400 [size=32]
+
+01:02.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
+	Subsystem: Realtek Semiconductor Co., Ltd. RT8139
+	Flags: bus master, medium devsel, latency 64, IRQ 21
+	I/O ports at ee00 [size=256]
+	Memory at dffdbc00 (32-bit, non-prefetchable) [size=256]
+	Capabilities: [50] Power Management version 2
+
+01:03.0 Ethernet controller: Intel Corp. 82541GI/PI Gigabit Ethernet Controller (rev 05)
+	Subsystem: Intel Corp.: Unknown device 3444
+	Flags: bus master, 66Mhz, medium devsel, latency 64, IRQ 5
+	Memory at dffe0000 (32-bit, non-prefetchable) [size=128K]
+	I/O ports at ef80 [size=64]
+	Capabilities: [dc] Power Management version 2
+	Capabilities: [e4] PCI-X non-bridge device.
+
+02:00.0 PCI bridge: Intel Corp. PCI Bridge Hub A (rev 09) (prog-if 00 [Normal decode])
+	Flags: bus master, fast devsel, latency 0
+	Bus: primary=02, secondary=04, subordinate=04, sec-latency=48
+	Capabilities: [44] #10 [0071]
+	Capabilities: [5c] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
+	Capabilities: [6c] Power Management version 2
+	Capabilities: [d8] 
+02:00.2 PCI bridge: Intel Corp. PCI Bridge Hub B (rev 09) (prog-if 00 [Normal decode])
+	Flags: bus master, fast devsel, latency 0
+	Bus: primary=02, secondary=03, subordinate=03, sec-latency=64
+	Capabilities: [44] #10 [0071]
+	Capabilities: [5c] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
+	Capabilities: [6c] Power Management version 2
+	Capabilities: [d8] 
+Linux servert 2.6.12-rc3 #1 SMP Thu Apr 29 17:17:10 NZST 2004 i686 unknown unknown GNU/Linux
+
+------=_Part_64_22129099.1114753181127--

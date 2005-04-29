@@ -1,556 +1,790 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263067AbVD2Xgi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263071AbVD2XnR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263067AbVD2Xgi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 19:36:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263069AbVD2Xgi
+	id S263071AbVD2XnR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 19:43:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263072AbVD2XnQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 19:36:38 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:54221 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S263067AbVD2Xfu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 19:35:50 -0400
-Date: Fri, 29 Apr 2005 16:35:46 -0700
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: john stultz <johnstul@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, albert@users.sourceforge.net,
-       paulus@samba.org, schwidefsky@de.ibm.com, mahuja@us.ibm.com,
-       donf@us.ibm.com, mpm@selenic.com, benh@kernel.crashing.org
-Subject: [RFC][PATCH] new timeofday-based soft-timer subsystem
-Message-ID: <20050429233546.GB2664@us.ibm.com>
-References: <1114814747.28231.2.camel@cog.beaverton.ibm.com>
+	Fri, 29 Apr 2005 19:43:16 -0400
+Received: from fmr21.intel.com ([143.183.121.13]:37325 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S263071AbVD2Xm2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 19:42:28 -0400
+Date: Fri, 29 Apr 2005 16:41:22 -0700
+From: Ashok Raj <ashok.raj@intel.com>
+To: akpm@osdl.org
+Cc: ak@muc.de, ashok.raj@intel.com, mingo@elte.hu, zwane@arm.linux.org.uk,
+       tony.luck@intel.com, linux-kernel@vger.kernel.org, gregkh@suse.de
+Subject: Re: patch x86-x86_64-deferred-handling-of-writes-to-proc-irq-xx-smp_affinity.patch added to -mm tree
+Message-ID: <20050429164122.A23364@unix-os.sc.intel.com>
+References: <200504282341.j3SNfVH0019917@shell0.pdx.osdl.net> <20050429153302.GC38331@muc.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1114814747.28231.2.camel@cog.beaverton.ibm.com>
-X-Operating-System: Linux 2.6.11 (i686)
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050429153302.GC38331@muc.de>; from ak@muc.de on Fri, Apr 29, 2005 at 05:33:02PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* john stultz <johnstul@us.ibm.com> [2005-0429 15:45:47 -0700]:
+Hi Andrew
 
-> All,
->         This patch implements the architecture independent portion of
-> the time of day subsystem. For a brief description on the rework, see
-> here: http://lwn.net/Articles/120850/ (Many thanks to the LWN team for
-> that clear writeup!)
+Sorry for the trouble. In the patch earlier, i missed adding a file that would
+have broke ia64 builds. Also this time i moved one more common function
+into generic hardirq framework, and deleted that from i386 and ia64 files.
 
-I have been working closely with John to re-work the soft-timer subsytem
-to use the new timeofday() subsystem. The following patch attempts to
-being this process. I would greatly appreciate any comments.
+Updated patch is attached for -mm.
 
-Some design points:
+On Fri, Apr 29, 2005 at 05:33:02PM +0200, Andi Kleen wrote:
+> 
+> This looks all very complicated and more than a chipset bug 
+> than a feature. But anways.. Cant you just cause a dummy interrupt
+> during the reprogramming and not handle it until you reprogrammed?
 
-1) The patch is small but does a lot.
-	a) Renames timer_jiffies to last_timer_time (now that we are not
-	jiffies-based).
-	b) Converts the soft-timer time-vector's/bucket's entries to
-	timerinterval (a new unit) width, instead of jiffy width.
-	c) Defines timerintervals to be the current time as reported by
-	the new timeofday-subsystem shifted down by 20 bits and masked
-	to only grab the lower 32 bits. This effectively emulates a
-	32-bit millisecond value.
-	d) Uses do_monotonic_clock() (converted to timerintervals) as the
-	basis for addition and expiration instead of jiffies.
-	e) Adds some new helper functions for dealing with nanosecond
-	values.
+Iam not aware how to generate a fake interrupt, and know that this (fake intr) 
+is the interrupt firing, so we can do programming deferred. I will keep looking
+if there are better ways to do it.
 
-2) Currently, the patch is dependent upon John's timeofday core rework.
-For arches that will not have the new timeofday (or for which the rework
-is still in progress), I can emulate the existing system with a
-separate patch. The goal of this patch, though, is just to show how easy
-the new system can be implemented and the benefits.
+> 
+> I think that would be much preferable than to add a lot of 
+> code to the interrupt fast path just for this workaround.
+> 
+> -Andi
 
-3) The reason for the re-work?: Many people complain about all of the
-adding of 1 jiffy here or there to fix bugs. This new systems is
-fundamentally human-time oriented and deals with those issues correctly.
 
-The code is reasonably well commented, but does expect readers to
-understand the current system to some degree.
+-- 
+Cheers,
+Ashok Raj
+- Open Source Technology Center
 
-This is my first posting of this re-work, so I expect criticism, but am
-happy to make changes.
 
-Thanks,
-Nish
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+---
+                                                                                
+Signed-off-by: Ashok Raj <ashok.raj@intel.com>
 
-diff -urpN 2.6.12-rc2-tod2/include/linux/jiffies.h 2.6.12-rc2-tod2-timer/include/linux/jiffies.h
---- 2.6.12-rc2-tod2/include/linux/jiffies.h	2005-04-04 09:37:51.000000000 -0700
-+++ 2.6.12-rc2-tod2-timer/include/linux/jiffies.h	2005-04-29 23:04:47.000000000 -0700
-@@ -263,7 +263,7 @@ static inline unsigned int jiffies_to_ms
- #endif
- }
- 
--static inline unsigned int jiffies_to_usecs(const unsigned long j)
-+static inline unsigned long jiffies_to_usecs(const unsigned long j)
- {
- #if HZ <= 1000000 && !(1000000 % HZ)
- 	return (1000000 / HZ) * j;
-@@ -274,6 +274,17 @@ static inline unsigned int jiffies_to_us
- #endif
- }
- 
-+static inline nsec_t jiffies_to_nsecs(const unsigned long j)
-+{
-+#if HZ <= NSEC_PER_SEC && !(NSEC_PER_SEC % HZ)
-+	return (NSEC_PER_SEC / HZ) * (nsec_t)j;
-+#elif HZ > NSEC_PER_SEC && !(HZ % NSEC_PER_SEC)
-+	return ((nsec_t)j + (HZ / NSEC_PER_SEC) - 1)/(HZ / NSEC_PER_SEC);
-+#else
-+	return ((nsec_t)j * NSEC_PER_SEC) / HZ;
-+#endif
-+}
+When handling writes to /proc/irq, current code is re-programming rte
+entries directly. This is not recommended and could potentially cause 
+chipset's to lockup, or cause missing interrupts.
+
+CONFIG_IRQ_BALANCE does this correctly, where it re-programs only when the 
+interrupt is pending. The same needs to be done for /proc/irq handling as well.
+Otherwise user space irq balancers are really not doing the right thing.
+
+- Changed pending_irq_balance_cpumask to pending_irq_migrate_cpumask for 
+  lack of a generic name.
+- added move_irq out of IRQ_BALANCE, and added this same to X86_64
+- Added new proc handler for write, so we can do deferred write at irq
+  handling time.
+- Display of /proc/irq/XX/smp_affinity used to display CPU_MASKALL, instead
+  it now shows only active cpu masks, or exactly what was set.
+- Provided a common move_irq implementation, instead of duplicating
+  when using generic irq framework.
+
+Tested on i386/x86_64 and ia64 with CONFIG_PCI_MSI turned on and off.
+Tested UP builds as well.
+MSI testing: tbd: i have cards, need to look for a x-over cable, although
+i did test an earlier version of this patch. Will test in a couple days.
+
+---
+
+ linux-2.6.12-rc2-mm3-araj/arch/i386/Kconfig            |    5 
+ linux-2.6.12-rc2-mm3-araj/arch/i386/kernel/io_apic.c   |   37 +++---
+ linux-2.6.12-rc2-mm3-araj/arch/ia64/Kconfig            |    5 
+ linux-2.6.12-rc2-mm3-araj/arch/ia64/kernel/irq.c       |   39 ------
+ linux-2.6.12-rc2-mm3-araj/arch/x86_64/Kconfig          |    5 
+ linux-2.6.12-rc2-mm3-araj/arch/x86_64/kernel/io_apic.c |   97 ++++++++++-------
+ linux-2.6.12-rc2-mm3-araj/drivers/pci/msi.c            |   17 --
+ linux-2.6.12-rc2-mm3-araj/drivers/pci/msi.h            |    5 
+ linux-2.6.12-rc2-mm3-araj/include/asm-ia64/hw_irq.h    |    7 -
+ linux-2.6.12-rc2-mm3-araj/include/asm-ia64/irq.h       |    6 -
+ linux-2.6.12-rc2-mm3-araj/include/linux/irq.h          |   86 +++++++++++++++
+ linux-2.6.12-rc2-mm3-araj/kernel/irq/manage.c          |    8 +
+ linux-2.6.12-rc2-mm3-araj/kernel/irq/proc.c            |   19 ++-
+ 13 files changed, 212 insertions(+), 124 deletions(-)
+
+diff -puN arch/i386/kernel/io_apic.c~fix_irq_affinity arch/i386/kernel/io_apic.c
+--- linux-2.6.12-rc2-mm3/arch/i386/kernel/io_apic.c~fix_irq_affinity	2005-04-28 23:51:28.000000000 -0700
++++ linux-2.6.12-rc2-mm3-araj/arch/i386/kernel/io_apic.c	2005-04-29 15:07:33.000000000 -0700
+@@ -31,8 +31,8 @@
+ #include <linux/mc146818rtc.h>
+ #include <linux/compiler.h>
+ #include <linux/acpi.h>
+-
+ #include <linux/sysdev.h>
++#include <linux/irq.h>
+ #include <asm/io.h>
+ #include <asm/smp.h>
+ #include <asm/desc.h>
+@@ -227,7 +227,14 @@ static void set_ioapic_affinity_irq(unsi
+ 	int pin;
+ 	struct irq_pin_list *entry = irq_2_pin + irq;
+ 	unsigned int apicid_value;
++	cpumask_t tmp;
+ 	
++	cpus_and(tmp, cpumask, cpu_online_map);
++	if (cpus_empty(tmp))
++		tmp = TARGET_CPUS;
 +
- static inline unsigned long msecs_to_jiffies(const unsigned int m)
- {
- 	if (m > jiffies_to_msecs(MAX_JIFFY_OFFSET))
-@@ -287,7 +298,7 @@ static inline unsigned long msecs_to_jif
- #endif
- }
- 
--static inline unsigned long usecs_to_jiffies(const unsigned int u)
-+static inline unsigned long usecs_to_jiffies(const unsigned long u)
- {
- 	if (u > jiffies_to_usecs(MAX_JIFFY_OFFSET))
- 		return MAX_JIFFY_OFFSET;
-@@ -300,6 +311,24 @@ static inline unsigned long usecs_to_jif
- #endif
- }
- 
-+static inline unsigned long nsecs_to_jiffies(const nsec_t n)
-+{
-+	nsec_t temp;
-+	if (n > jiffies_to_nsecs(MAX_JIFFY_OFFSET))
-+		return MAX_JIFFY_OFFSET;
-+#if HZ <= NSEC_PER_SEC && !(NSEC_PER_SEC % HZ)
-+	temp = n + (NSEC_PER_SEC / HZ) - 1;
-+	do_div(temp, (NSEC_PER_SEC / HZ));
-+	return (unsigned long)temp;
-+#elif HZ > NSEC_PER_SEC && !(HZ % NSEC_PER_SEC)
-+	return n * (HZ / NSEC_PER_SEC);
-+#else
-+	temp = n * HZ + NSEC_PER_SEC - 1;
-+	do_div(temp, NSEC_PER_SEC);
-+	return (unsigned long)temp;
-+#endif
-+}
++	cpus_and(cpumask, tmp, CPU_MASK_ALL);
 +
- /*
-  * The TICK_NSEC - 1 rounds up the value to the next resolution.  Note
-  * that a remainder subtract here would not do the right thing as the
-diff -urpN 2.6.12-rc2-tod2/include/linux/sched.h 2.6.12-rc2-tod2-timer/include/linux/sched.h
---- 2.6.12-rc2-tod2/include/linux/sched.h	2005-04-29 23:16:59.000000000 -0700
-+++ 2.6.12-rc2-tod2-timer/include/linux/sched.h	2005-04-29 23:04:47.000000000 -0700
-@@ -182,7 +182,13 @@ extern void scheduler_tick(void);
- extern int in_sched_functions(unsigned long addr);
+ 	apicid_value = cpu_mask_to_apicid(cpumask);
+ 	/* Prepare to do the io_apic_write */
+ 	apicid_value = apicid_value << 24;
+@@ -241,9 +248,12 @@ static void set_ioapic_affinity_irq(unsi
+ 			break;
+ 		entry = irq_2_pin + entry->next;
+ 	}
++	set_irq_info(irq, cpumask);
+ 	spin_unlock_irqrestore(&ioapic_lock, flags);
+ }
  
- #define	MAX_SCHEDULE_TIMEOUT	LONG_MAX
-+#define	MAX_SCHEDULE_TIMEOUT_NSECS	((nsec_t)(-1))
-+#define	MAX_SCHEDULE_TIMEOUT_MSECS	ULONG_MAX
-+#define	MAX_SCHEDULE_TIMEOUT_USECS	UINT_MAX
- extern signed long FASTCALL(schedule_timeout(signed long timeout));
-+extern nsec_t FASTCALL(schedule_timeout_nsecs(nsec_t timeout_nsecs));
-+extern unsigned long FASTCALL(schedule_timeout_usecs(unsigned long timeout_usecs));
-+extern unsigned int FASTCALL(schedule_timeout_msecs(unsigned int timeout_msesc));
- asmlinkage void schedule(void);
++#ifdef CONFIG_SMP
++
+ #if defined(CONFIG_IRQBALANCE)
+ # include <asm/processor.h>	/* kernel_thread() */
+ # include <linux/kernel_stat.h>	/* kstat */
+@@ -258,7 +268,6 @@ static void set_ioapic_affinity_irq(unsi
+ #  define Dprintk(x...) 
+ # endif
  
- struct namespace;
-diff -urpN 2.6.12-rc2-tod2/include/linux/timer.h 2.6.12-rc2-tod2-timer/include/linux/timer.h
---- 2.6.12-rc2-tod2/include/linux/timer.h	2005-04-04 09:39:01.000000000 -0700
-+++ 2.6.12-rc2-tod2-timer/include/linux/timer.h	2005-04-29 23:04:47.000000000 -0700
-@@ -5,6 +5,7 @@
- #include <linux/list.h>
- #include <linux/spinlock.h>
- #include <linux/stddef.h>
-+#include <linux/timeofday.h>
+-cpumask_t __cacheline_aligned pending_irq_balance_cpumask[NR_IRQS];
  
- struct tvec_t_base_s;
+ #define IRQBALANCE_CHECK_ARCH -999
+ static int irqbalance_disabled = IRQBALANCE_CHECK_ARCH;
+@@ -331,7 +340,7 @@ static inline void balance_irq(int cpu, 
+ 		unsigned long flags;
  
-@@ -65,27 +66,11 @@ extern void add_timer_on(struct timer_li
- extern int del_timer(struct timer_list * timer);
- extern int __mod_timer(struct timer_list *timer, unsigned long expires);
- extern int mod_timer(struct timer_list *timer, unsigned long expires);
-+extern void add_timer(struct timer_list *timer);
-+extern int set_timer_nsecs(struct timer_list *timer, nsec_t expires_nsecs);
+ 		spin_lock_irqsave(&desc->lock, flags);
+-		pending_irq_balance_cpumask[irq] = cpumask_of_cpu(new_cpu);
++		pending_irq_cpumask[irq] = cpumask_of_cpu(new_cpu);
+ 		spin_unlock_irqrestore(&desc->lock, flags);
+ 	}
+ }
+@@ -534,7 +543,7 @@ tryanotherirq:
+ 				selected_irq, min_loaded);
+ 		/* mark for change destination */
+ 		spin_lock_irqsave(&desc->lock, flags);
+-		pending_irq_balance_cpumask[selected_irq] =
++		pending_irq_cpumask[selected_irq] =
+ 					cpumask_of_cpu(min_loaded);
+ 		spin_unlock_irqrestore(&desc->lock, flags);
+ 		/* Since we made a change, come back sooner to 
+@@ -567,7 +576,7 @@ static int balanced_irq(void *unused)
+ 	
+ 	/* push everything to CPU 0 to give us a starting point.  */
+ 	for (i = 0 ; i < NR_IRQS ; i++) {
+-		pending_irq_balance_cpumask[i] = cpumask_of_cpu(0);
++		pending_irq_cpumask[i] = cpumask_of_cpu(0);
+ 	}
  
- extern unsigned long next_timer_interrupt(void);
+ 	for ( ; ; ) {
+@@ -646,20 +655,9 @@ int __init irqbalance_disable(char *str)
  
--/***
-- * add_timer - start a timer
-- * @timer: the timer to be added
-- *
-- * The kernel will do a ->function(->data) callback from the
-- * timer interrupt at the ->expired point in the future. The
-- * current time is 'jiffies'.
-- *
-- * The timer's ->expired, ->function (and if the handler uses it, ->data)
-- * fields must be set prior calling this function.
-- *
-- * Timers with an ->expired field in the past will be executed in the next
-- * timer tick.
-- */
--static inline void add_timer(struct timer_list * timer)
+ __setup("noirqbalance", irqbalance_disable);
+ 
+-static inline void move_irq(int irq)
 -{
--	__mod_timer(timer, timer->expires);
+-	/* note - we hold the desc->lock */
+-	if (unlikely(!cpus_empty(pending_irq_balance_cpumask[irq]))) {
+-		set_ioapic_affinity_irq(irq, pending_irq_balance_cpumask[irq]);
+-		cpus_clear(pending_irq_balance_cpumask[irq]);
+-	}
 -}
+-
+ late_initcall(balanced_irq_init);
+-
+-#else /* !CONFIG_IRQBALANCE */
+-static inline void move_irq(int irq) { }
+ #endif /* CONFIG_IRQBALANCE */
++#endif /* CONFIG_SMP */
+ 
+ #ifndef CONFIG_SMP
+ void fastcall send_IPI_self(int vector)
+@@ -1247,6 +1245,7 @@ static void __init setup_IO_APIC_irqs(vo
+ 		spin_lock_irqsave(&ioapic_lock, flags);
+ 		io_apic_write(apic, 0x11+2*pin, *(((int *)&entry)+1));
+ 		io_apic_write(apic, 0x10+2*pin, *(((int *)&entry)+0));
++		set_native_irq_info(irq, TARGET_CPUS);
+ 		spin_unlock_irqrestore(&ioapic_lock, flags);
+ 	}
+ 	}
+@@ -1941,6 +1940,7 @@ static void ack_edge_ioapic_vector(unsig
+ {
+ 	int irq = vector_to_irq(vector);
+ 
++	move_irq(vector);
+ 	ack_edge_ioapic_irq(irq);
+ }
+ 
+@@ -1955,6 +1955,7 @@ static void end_level_ioapic_vector (uns
+ {
+ 	int irq = vector_to_irq(vector);
+ 
++	move_irq(vector);
+ 	end_level_ioapic_irq(irq);
+ }
+ 
+@@ -1977,6 +1978,7 @@ static void set_ioapic_affinity_vector (
+ {
+ 	int irq = vector_to_irq(vector);
+ 
++	set_native_irq_info(vector, cpu_mask);
+ 	set_ioapic_affinity_irq(irq, cpu_mask);
+ }
+ #endif
+@@ -2566,6 +2568,7 @@ int io_apic_set_pci_routing (int ioapic,
+ 	spin_lock_irqsave(&ioapic_lock, flags);
+ 	io_apic_write(ioapic, 0x11+2*pin, *(((int *)&entry)+1));
+ 	io_apic_write(ioapic, 0x10+2*pin, *(((int *)&entry)+0));
++	set_native_irq_info(use_pci_vector() ? entry.vector : irq, TARGET_CPUS);
+ 	spin_unlock_irqrestore(&ioapic_lock, flags);
+ 
+ 	return 0;
+diff -puN drivers/pci/msi.c~fix_irq_affinity drivers/pci/msi.c
+--- linux-2.6.12-rc2-mm3/drivers/pci/msi.c~fix_irq_affinity	2005-04-28 23:51:28.000000000 -0700
++++ linux-2.6.12-rc2-mm3-araj/drivers/pci/msi.c	2005-04-29 14:05:23.000000000 -0700
+@@ -91,6 +91,7 @@ static void set_msi_affinity(unsigned in
+ {
+ 	struct msi_desc *entry;
+ 	struct msg_address address;
++	unsigned int irq = vector;
+ 
+ 	entry = (struct msi_desc *)msi_desc[vector];
+ 	if (!entry || !entry->dev)
+@@ -112,6 +113,7 @@ static void set_msi_affinity(unsigned in
+ 		entry->msi_attrib.current_cpu = cpu_mask_to_apicid(cpu_mask);
+ 		pci_write_config_dword(entry->dev, msi_lower_address_reg(pos),
+ 			address.lo_address.value);
++		set_native_irq_info(irq, cpu_mask);
+ 		break;
+ 	}
+ 	case PCI_CAP_ID_MSIX:
+@@ -125,22 +127,13 @@ static void set_msi_affinity(unsigned in
+ 			MSI_TARGET_CPU_SHIFT);
+ 		entry->msi_attrib.current_cpu = cpu_mask_to_apicid(cpu_mask);
+ 		writel(address.lo_address.value, entry->mask_base + offset);
++		set_native_irq_info(irq, cpu_mask);
+ 		break;
+ 	}
+ 	default:
+ 		break;
+ 	}
+ }
+-
+-#ifdef CONFIG_IRQBALANCE
+-static inline void move_msi(int vector)
+-{
+-	if (!cpus_empty(pending_irq_balance_cpumask[vector])) {
+-		set_msi_affinity(vector, pending_irq_balance_cpumask[vector]);
+-		cpus_clear(pending_irq_balance_cpumask[vector]);
+-	}
+-}
+-#endif /* CONFIG_IRQBALANCE */
+ #endif /* CONFIG_SMP */
+ 
+ static void mask_MSI_irq(unsigned int vector)
+@@ -182,7 +175,7 @@ static void disable_msi_irq_wo_maskbit(u
+ static void ack_msi_irq_wo_maskbit(unsigned int vector) {}
+ static void end_msi_irq_wo_maskbit(unsigned int vector)
+ {
+-	move_msi(vector);
++	move_native_irq(vector);
+ 	ack_APIC_irq();
+ }
+ 
+@@ -211,7 +204,7 @@ static unsigned int startup_msi_irq_w_ma
+ 
+ static void end_msi_irq_w_maskbit(unsigned int vector)
+ {
+-	move_msi(vector);
++	move_native_irq(vector);
+ 	unmask_MSI_irq(vector);
+ 	ack_APIC_irq();
+ }
+diff -puN drivers/pci/msi.h~fix_irq_affinity drivers/pci/msi.h
+--- linux-2.6.12-rc2-mm3/drivers/pci/msi.h~fix_irq_affinity	2005-04-28 23:51:28.000000000 -0700
++++ linux-2.6.12-rc2-mm3-araj/drivers/pci/msi.h	2005-04-28 23:51:28.000000000 -0700
+@@ -19,7 +19,6 @@
+ #define NR_HP_RESERVED_VECTORS 	20
+ 
+ extern int vector_irq[NR_VECTORS];
+-extern cpumask_t pending_irq_balance_cpumask[NR_IRQS];
+ extern void (*interrupt[NR_IRQS])(void);
+ extern int pci_vector_resources(int last, int nr_released);
+ 
+@@ -29,10 +28,6 @@ extern int pci_vector_resources(int last
+ #define set_msi_irq_affinity	NULL
+ #endif
+ 
+-#ifndef CONFIG_IRQBALANCE
+-static inline void move_msi(int vector) {}
+-#endif
+-
+ /*
+  * MSI-X Address Register
+  */
+diff -puN include/linux/irq.h~fix_irq_affinity include/linux/irq.h
+--- linux-2.6.12-rc2-mm3/include/linux/irq.h~fix_irq_affinity	2005-04-28 23:51:28.000000000 -0700
++++ linux-2.6.12-rc2-mm3-araj/include/linux/irq.h	2005-04-29 15:43:18.000000000 -0700
+@@ -71,12 +71,98 @@ typedef struct irq_desc {
+ 
+ extern irq_desc_t irq_desc [NR_IRQS];
+ 
++/* Return a pointer to the irq descriptor for IRQ.  */
++static inline irq_desc_t *
++irq_descp (int irq)
++{
++	return irq_desc + irq;
++}
++
++
+ #include <asm/hw_irq.h> /* the arch dependent stuff */
+ 
+ extern int setup_irq(unsigned int irq, struct irqaction * new);
+ 
+ #ifdef CONFIG_GENERIC_HARDIRQS
+ extern cpumask_t irq_affinity[NR_IRQS];
++
++#ifdef CONFIG_SMP
++static inline void set_native_irq_info(int irq, cpumask_t mask)
++{
++	irq_affinity[irq] = mask;
++}
++#else
++static inline void set_native_irq_info(int irq, cpumask_t mask)
++{
++}
++#endif
++
++#ifdef CONFIG_GENERIC_PENDING_IRQ
++extern cpumask_t pending_irq_cpumask[NR_IRQS];
++
++static inline void
++move_native_irq(int irq)
++{
++	cpumask_t tmp;
++	irq_desc_t *desc = irq_descp(irq);
++
++	if (likely(cpus_empty(pending_irq_cpumask[irq])))
++		return;
++
++	if (unlikely(!desc->handler->set_affinity))
++		return;
++
++	/* note - we hold the desc->lock */
++	cpus_and(tmp, pending_irq_cpumask[irq], cpu_online_map);
++
++	/*
++	 * If there was a valid mask to work with, please
++	 * do the disable, re-program, enable sequence.
++	 * This is *not* particularly important for level triggered
++	 * but in a edge trigger case, we might be setting rte
++	 * when an active trigger is comming in. This could
++	 * cause some ioapics to mal-function.
++	 * Being paranoid i guess!
++	 */
++	if (unlikely(!cpus_empty(tmp))) {
++		desc->handler->disable(irq);
++		desc->handler->set_affinity(irq,tmp);
++		desc->handler->enable(irq);
++	}
++	cpus_clear(pending_irq_cpumask[irq]);
++}
++
++#ifdef CONFIG_PCI_MSI
++/*
++ * Wonder why these are dummies?
++ * For e.g the set_ioapic_affinity_vector() calls the set_ioapic_affinity_irq()
++ * counter part after translating the vector to irq info. We need to perform
++ * this operation on the real irq, when we dont use vector, i.e when
++ * pci_use_vector() is false.
++ */
++static inline void move_irq(int irq)
++{
++}
++
++static inline void set_irq_info(int irq, cpumask_t mask)
++{
++}
++#else
++static inline void move_irq(int irq)
++{
++	move_native_irq(irq);
++}
++
++static inline void set_irq_info(int irq, cpumask_t mask)
++{
++	set_native_irq_info(irq, mask);
++}
++#endif // CONFIG_PCI_MSI
++#else
++#define move_irq(x)
++#define move_native_irq(x)
++#endif // CONFIG_GENERIC_PENDING_IRQ
++
+ extern int no_irq_affinity;
+ extern int noirqdebug_setup(char *str);
+ 
+diff -puN kernel/irq/manage.c~fix_irq_affinity kernel/irq/manage.c
+--- linux-2.6.12-rc2-mm3/kernel/irq/manage.c~fix_irq_affinity	2005-04-28 23:51:28.000000000 -0700
++++ linux-2.6.12-rc2-mm3-araj/kernel/irq/manage.c	2005-04-29 07:00:09.000000000 -0700
+@@ -17,6 +17,10 @@
+ 
+ cpumask_t irq_affinity[NR_IRQS] = { [0 ... NR_IRQS-1] = CPU_MASK_ALL };
+ 
++#ifdef CONFIG_GENERIC_PENDING_IRQ
++cpumask_t __cacheline_aligned pending_irq_cpumask[NR_IRQS];
++#endif
++
+ /**
+  *	synchronize_irq - wait for pending IRQ handlers (on other CPUs)
+  *
+@@ -36,6 +40,10 @@ void synchronize_irq(unsigned int irq)
+ 
+ EXPORT_SYMBOL(synchronize_irq);
+ 
++#else
++void set_irq_info(unsigned int irq, cpumask_t mask)
++{
++}
+ #endif
+ 
+ /**
+diff -puN arch/ia64/kernel/irq.c~fix_irq_affinity arch/ia64/kernel/irq.c
+--- linux-2.6.12-rc2-mm3/arch/ia64/kernel/irq.c~fix_irq_affinity	2005-04-28 23:51:28.000000000 -0700
++++ linux-2.6.12-rc2-mm3-araj/arch/ia64/kernel/irq.c	2005-04-29 07:44:00.000000000 -0700
+@@ -91,23 +91,8 @@ skip:
+ }
  
  #ifdef CONFIG_SMP
-   extern int del_timer_sync(struct timer_list *timer);
-diff -urpN 2.6.12-rc2-tod2/kernel/timer.c 2.6.12-rc2-tod2-timer/kernel/timer.c
---- 2.6.12-rc2-tod2/kernel/timer.c	2005-04-29 23:16:52.000000000 -0700
-+++ 2.6.12-rc2-tod2-timer/kernel/timer.c	2005-04-29 23:15:45.000000000 -0700
-@@ -33,6 +33,7 @@
- #include <linux/posix-timers.h>
- #include <linux/cpu.h>
- #include <linux/syscalls.h>
-+#include <linux/timeofday.h>
+-/*
+- * This is updated when the user sets irq affinity via /proc
+- */
+-static cpumask_t __cacheline_aligned pending_irq_cpumask[NR_IRQS];
+-static unsigned long pending_irq_redir[BITS_TO_LONGS(NR_IRQS)];
+-
+ static char irq_redir [NR_IRQS]; // = { [0 ... NR_IRQS-1] = 1 };
  
- #include <asm/uaccess.h>
- #include <asm/unistd.h>
-@@ -40,6 +41,8 @@
- #include <asm/timex.h>
- #include <asm/io.h>
+-/*
+- * Arch specific routine for deferred write to iosapic rte to reprogram
+- * intr destination.
+- */
+-void proc_set_irq_affinity(unsigned int irq, cpumask_t mask_val)
+-{
+-	pending_irq_cpumask[irq] = mask_val;
+-}
+-
+ void set_irq_affinity_info (unsigned int irq, int hwid, int redir)
+ {
+ 	cpumask_t mask = CPU_MASK_NONE;
+@@ -116,32 +101,10 @@ void set_irq_affinity_info (unsigned int
  
-+#define TIMER_DBG 0
-+
- #ifdef CONFIG_TIME_INTERPOLATION
- static void time_interpolator_update(long delta_nsec);
- #else
-@@ -56,6 +59,9 @@ static void time_interpolator_update(lon
- #define TVR_SIZE (1 << TVR_BITS)
- #define TVN_MASK (TVN_SIZE - 1)
- #define TVR_MASK (TVR_SIZE - 1)
-+#define TIMERINTERVAL_BITS 20
-+#define TIMERINTERVAL_SIZE (1 << TIMERINTERVAL_BITS)
-+#define TIMERINTERVAL_MASK (TIMERINTERVAL_SIZE - 1)
- 
- typedef struct tvec_s {
- 	struct list_head vec[TVN_SIZE];
-@@ -67,7 +73,7 @@ typedef struct tvec_root_s {
- 
- struct tvec_t_base_s {
- 	spinlock_t lock;
--	unsigned long timer_jiffies;
-+	unsigned long last_timer_time;
- 	struct timer_list *running_timer;
- 	tvec_root_t tv1;
- 	tvec_t tv2;
-@@ -113,11 +119,55 @@ static inline void check_timer(struct ti
- 		check_timer_failed(timer);
+ 	if (irq < NR_IRQS) {
+ 		irq_affinity[irq] = mask;
++		set_irq_info(irq, mask);
+ 		irq_redir[irq] = (char) (redir & 0xff);
+ 	}
  }
- 
-+/*
-+ * nsecs_to_timerintervals - convert nsec value to soft-timer intervals
-+ * @n: number of nanoseconds to convert
-+ *
-+ * This is "configurable" value, meaning it can be changed at compile-time
-+ * and the soft-timer subsystem should change with it.
-+ *
-+ * Some explanation of the math is necessary:
-+ * Currently we emulate milliseconds (but try to stay efficient)
-+ * by dividing the nanosecond value by 2^20 (1048576 ~= 1000000)
-+ * and masking it to an unsigned long
-+ *
-+ * To prevent timers from being expired early, we:
-+ *	Take the ceiling when we add; and
-+ *	Take the floor when we expire.
-+ */
-+static inline unsigned long nsecs_to_timerintervals_ceiling(nsec_t nsecs)
-+{
-+	return (unsigned long)((((nsecs - 1) >> TIMERINTERVAL_BITS) & ULONG_MAX) + 1);
-+}
-+
-+static inline unsigned long nsecs_to_timerintervals_floor(nsec_t nsecs)
-+{
-+	return (unsigned long)((nsecs >> TIMERINTERVAL_BITS) & ULONG_MAX);
-+}
-+
-+/*
-+ * jiffies_to_timerintervals - convert absolute jiffies value to soft-timer intervals
-+ * @abs_jiffies: number of jiffies to convert
-+ *
-+ * First, we convert the absolute jiffies parameter to a relative
-+ * jiffies value. To maintain precision, we convert the relative
-+ * jiffies value to a relative nanosecond value and then convert that
-+ * to a relative soft-timer interval unit value. We then add this
-+ * relative value to the current time according to the timeofday-
-+ * subsystem, converted to soft-timer interval units.
-+ *
-+ */
-+static inline unsigned long jiffies_to_timerintervals(unsigned long abs_jiffies)
-+{
-+	unsigned long relative_jiffies = abs_jiffies - jiffies;
-+	return nsecs_to_timerintervals_ceiling(do_monotonic_clock()) +
-+		nsecs_to_timerintervals_ceiling(jiffies_to_nsecs(relative_jiffies));
-+}
- 
- static void internal_add_timer(tvec_base_t *base, struct timer_list *timer)
- {
- 	unsigned long expires = timer->expires;
--	unsigned long idx = expires - base->timer_jiffies;
-+	unsigned long idx = expires - base->last_timer_time;
- 	struct list_head *vec;
- 
- 	if (idx < TVR_SIZE) {
-@@ -137,7 +187,7 @@ static void internal_add_timer(tvec_base
- 		 * Can happen if you add a timer with expires == jiffies,
- 		 * or you set a timer to go off in the past
- 		 */
--		vec = base->tv1.vec + (base->timer_jiffies & TVR_MASK);
-+		vec = base->tv1.vec + (base->last_timer_time & TVR_MASK);
- 	} else {
- 		int i;
- 		/* If the timeout is larger than 0xffffffff on 64-bit
-@@ -145,7 +195,7 @@ static void internal_add_timer(tvec_base
- 		 */
- 		if (idx > 0xffffffffUL) {
- 			idx = 0xffffffffUL;
--			expires = idx + base->timer_jiffies;
-+			expires = idx + base->last_timer_time;
- 		}
- 		i = (expires >> (TVR_BITS + 3 * TVN_BITS)) & TVN_MASK;
- 		vec = base->tv5.vec + i;
-@@ -238,11 +288,36 @@ void add_timer_on(struct timer_list *tim
- 	check_timer(timer);
- 
- 	spin_lock_irqsave(&base->lock, flags);
-+	timer->expires = jiffies_to_timerintervals(timer->expires);
- 	internal_add_timer(base, timer);
- 	timer->base = base;
- 	spin_unlock_irqrestore(&base->lock, flags);
- }
- 
-+/***
-+ * add_timer - start a timer
-+ * @timer: the timer to be added
-+ *
-+ * The kernel will do a ->function(->data) callback from the
-+ * timer interrupt at the ->expired point in the future. The
-+ * current time is 'jiffies'.
-+ *
-+ * The timer's ->expired, ->function (and if the handler uses it, ->data)
-+ * fields must be set prior calling this function.
-+ *
-+ * Timers with an ->expired field in the past will be executed in the next
-+ * timer tick.
-+ *
-+ * The callers of add_timer() should be aware that the interface is now
-+ * deprecated. set_timer_nsecs() is the single interface for adding and
-+ * modifying timers.
-+ */
-+void add_timer(struct timer_list * timer)
-+{
-+	__mod_timer(timer, jiffies_to_timerintervals(timer->expires));
-+}
-+
-+EXPORT_SYMBOL(add_timer);
- 
- /***
-  * mod_timer - modify a timer's timeout
-@@ -262,6 +337,10 @@ void add_timer_on(struct timer_list *tim
-  * The function returns whether it has modified a pending timer or not.
-  * (ie. mod_timer() of an inactive timer returns 0, mod_timer() of an
-  * active timer returns 1.)
-+ *
-+ * The callers of mod_timer() should be aware that the interface is now
-+ * deprecated. set_timer_nsecs() is the single interface for adding and
-+ * modifying timers.
-  */
- int mod_timer(struct timer_list *timer, unsigned long expires)
- {
-@@ -269,6 +348,7 @@ int mod_timer(struct timer_list *timer, 
- 
- 	check_timer(timer);
- 
-+	expires = jiffies_to_timerintervals(expires);
- 	/*
- 	 * This is a common optimization triggered by the
- 	 * networking code - if the timer is re-modified
-@@ -282,6 +362,29 @@ int mod_timer(struct timer_list *timer, 
- 
- EXPORT_SYMBOL(mod_timer);
- 
-+/*
-+ * set_timer_nsecs - modify a timer's timeout in nsecs
-+ * @timer: the timer to be modified
-+ *
-+ * Do we want to modify via absolute nanoseconds instead of
-+ * relative?
-+ */
-+int set_timer_nsecs(struct timer_list *timer, nsec_t expires_nsecs)
-+{
-+	unsigned long expires;
-+
-+	BUG_ON(!timer->function);
-+
-+	check_timer(timer);
-+
-+	expires = nsecs_to_timerintervals_ceiling(expires_nsecs);
-+	if (timer_pending(timer) && timer->expires == expires)
-+		return 1;
-+
-+	return __mod_timer(timer, expires);
-+}
-+EXPORT_SYMBOL_GPL(set_timer_nsecs);
-+
- /***
-  * del_timer - deactive a timer.
-  * @timer: the timer to be deactivated
-@@ -431,17 +534,17 @@ static int cascade(tvec_base_t *base, tv
-  * This function cascades all vectors and executes all expired timer
-  * vectors.
-  */
--#define INDEX(N) (base->timer_jiffies >> (TVR_BITS + N * TVN_BITS)) & TVN_MASK
-+#define INDEX(N) (base->last_timer_time >> (TVR_BITS + N * TVN_BITS)) & TVN_MASK
- 
--static inline void __run_timers(tvec_base_t *base)
-+static inline void __run_timers(tvec_base_t *base, unsigned long current_timer_time)
- {
- 	struct timer_list *timer;
- 
- 	spin_lock_irq(&base->lock);
--	while (time_after_eq(jiffies, base->timer_jiffies)) {
-+	while (time_after_eq(current_timer_time, base->last_timer_time)) {
- 		struct list_head work_list = LIST_HEAD_INIT(work_list);
- 		struct list_head *head = &work_list;
-- 		int index = base->timer_jiffies & TVR_MASK;
-+ 		int index = base->last_timer_time & TVR_MASK;
-  
- 		/*
- 		 * Cascade timers:
-@@ -451,7 +554,7 @@ static inline void __run_timers(tvec_bas
- 				(!cascade(base, &base->tv3, INDEX(1))) &&
- 					!cascade(base, &base->tv4, INDEX(2)))
- 			cascade(base, &base->tv5, INDEX(3));
--		++base->timer_jiffies; 
-+		++base->last_timer_time;
- 		list_splice_init(base->tv1.vec + index, &work_list);
- repeat:
- 		if (!list_empty(head)) {
-@@ -500,20 +603,20 @@ unsigned long next_timer_interrupt(void)
- 
- 	base = &__get_cpu_var(tvec_bases);
- 	spin_lock(&base->lock);
--	expires = base->timer_jiffies + (LONG_MAX >> 1);
-+	expires = base->last_timer_time + (LONG_MAX >> 1);
- 	list = 0;
- 
- 	/* Look for timer events in tv1. */
--	j = base->timer_jiffies & TVR_MASK;
-+	j = base->last_timer_time & TVR_MASK;
- 	do {
- 		list_for_each_entry(nte, base->tv1.vec + j, entry) {
- 			expires = nte->expires;
--			if (j < (base->timer_jiffies & TVR_MASK))
-+			if (j < (base->last_timer_time & TVR_MASK))
- 				list = base->tv2.vec + (INDEX(0));
- 			goto found;
- 		}
- 		j = (j + 1) & TVR_MASK;
--	} while (j != (base->timer_jiffies & TVR_MASK));
-+	} while (j != (base->last_timer_time & TVR_MASK));
- 
- 	/* Check tv2-tv5. */
- 	varray[0] = &base->tv2;
-@@ -890,10 +993,14 @@ EXPORT_SYMBOL(xtime_lock);
-  */
- static void run_timer_softirq(struct softirq_action *h)
- {
-+	unsigned long current_timer_time;
- 	tvec_base_t *base = &__get_cpu_var(tvec_bases);
- 
--	if (time_after_eq(jiffies, base->timer_jiffies))
--		__run_timers(base);
-+	current_timer_time =
-+		nsecs_to_timerintervals_floor(do_monotonic_clock());
-+
-+	if (time_after_eq(current_timer_time, base->last_timer_time))
-+		__run_timers(base, current_timer_time);
- }
- 
- /*
-@@ -1133,6 +1240,69 @@ fastcall signed long __sched schedule_ti
- 
- EXPORT_SYMBOL(schedule_timeout);
- 
-+fastcall nsec_t __sched schedule_timeout_nsecs(nsec_t timeout_nsecs)
-+{
-+	struct timer_list timer;
-+	nsec_t expires;
-+
-+	if (timeout_nsecs == MAX_SCHEDULE_TIMEOUT_NSECS) {
-+		schedule();
-+		goto out;
-+	}
-+
-+	expires = do_monotonic_clock() + timeout_nsecs;
-+
-+	init_timer(&timer);
-+	timer.data = (unsigned long) current;
-+	timer.function = process_timeout;
-+
-+	set_timer_nsecs(&timer, expires);
-+	schedule();
-+	del_singleshot_timer_sync(&timer);
-+
-+	timeout_nsecs = do_monotonic_clock();
-+	if (expires < timeout_nsecs)
-+		timeout_nsecs = (nsec_t)0UL;
-+	else
-+		timeout_nsecs = expires - timeout_nsecs;
-+out:
-+	return timeout_nsecs;
-+}
-+
-+EXPORT_SYMBOL_GPL(schedule_timeout_nsecs);
-+
-+fastcall unsigned long __sched schedule_timeout_usecs(unsigned long timeout_usecs)
-+{
-+	nsec_t timeout_nsecs;
-+
-+	if (timeout_usecs == MAX_SCHEDULE_TIMEOUT_USECS)
-+		timeout_nsecs = MAX_SCHEDULE_TIMEOUT_NSECS;
-+	else
-+		timeout_nsecs = timeout_usecs * (nsec_t)1000UL;
-+	timeout_nsecs = schedule_timeout_nsecs(timeout_nsecs) - 1;
-+	do_div(timeout_nsecs, 1000UL);
-+	timeout_usecs = (unsigned long)timeout_nsecs + 1UL;
-+	return timeout_usecs;
-+}
-+
-+EXPORT_SYMBOL_GPL(schedule_timeout_usecs);
-+
-+fastcall unsigned int __sched schedule_timeout_msecs(unsigned int timeout_msecs)
-+{
-+	nsec_t timeout_nsecs;
-+
-+	if (timeout_msecs == MAX_SCHEDULE_TIMEOUT_MSECS)
-+		timeout_nsecs = MAX_SCHEDULE_TIMEOUT_NSECS;
-+	else
-+		timeout_nsecs = timeout_msecs * (nsec_t)1000000;
-+	timeout_nsecs = schedule_timeout_nsecs(timeout_nsecs) - 1;
-+	do_div(timeout_nsecs, 1000000UL);
-+	timeout_msecs = (unsigned int)timeout_nsecs + 1;
-+	return timeout_msecs;
-+}
-+
-+EXPORT_SYMBOL_GPL(schedule_timeout_msecs);
-+
- /* Thread ID - the internal kernel "pid" */
- asmlinkage long sys_gettid(void)
- {
-@@ -1302,7 +1472,11 @@ static void __devinit init_timers_cpu(in
- 	for (j = 0; j < TVR_SIZE; j++)
- 		INIT_LIST_HEAD(base->tv1.vec + j);
- 
--	base->timer_jiffies = jiffies;
-+	/*
-+	 * Under the new montonic_clock() oriented soft-timer subsystem,
-+	 * we should begin at 0
-+	 */
-+	base->last_timer_time = 0UL;
- }
+-
+-
+-void move_irq(int irq)
+-{
+-	/* note - we hold desc->lock */
+-	cpumask_t tmp;
+-	irq_desc_t *desc = irq_descp(irq);
+-	int redir = test_bit(irq, pending_irq_redir);
+-
+-	if (unlikely(!desc->handler->set_affinity))
+-		return;
+-
+-	if (!cpus_empty(pending_irq_cpumask[irq])) {
+-		cpus_and(tmp, pending_irq_cpumask[irq], cpu_online_map);
+-		if (unlikely(!cpus_empty(tmp))) {
+-			desc->handler->set_affinity(irq | (redir ? IA64_IRQ_REDIRECTED : 0),
+-						    pending_irq_cpumask[irq]);
+-		}
+-		cpus_clear(pending_irq_cpumask[irq]);
+-	}
+-}
+-
+-
+ #endif /* CONFIG_SMP */
  
  #ifdef CONFIG_HOTPLUG_CPU
+diff -puN arch/x86_64/kernel/io_apic.c~fix_irq_affinity arch/x86_64/kernel/io_apic.c
+--- linux-2.6.12-rc2-mm3/arch/x86_64/kernel/io_apic.c~fix_irq_affinity	2005-04-28 23:51:28.000000000 -0700
++++ linux-2.6.12-rc2-mm3-araj/arch/x86_64/kernel/io_apic.c	2005-04-29 15:07:13.000000000 -0700
+@@ -75,6 +75,59 @@ int vector_irq[NR_VECTORS] = { [0 ... NR
+ #define vector_to_irq(vector)	(vector)
+ #endif
+ 
++#define __DO_ACTION(R, ACTION, FINAL)					\
++									\
++{									\
++	int pin;							\
++	struct irq_pin_list *entry = irq_2_pin + irq;			\
++									\
++	for (;;) {							\
++		unsigned int reg;					\
++		pin = entry->pin;					\
++		if (pin == -1)						\
++			break;						\
++		reg = io_apic_read(entry->apic, 0x10 + R + pin*2);	\
++		reg ACTION;						\
++		io_apic_modify(entry->apic, reg);			\
++		if (!entry->next)					\
++			break;						\
++		entry = irq_2_pin + entry->next;			\
++	}								\
++	FINAL;								\
++}
++
++#ifdef CONFIG_SMP
++static void set_ioapic_affinity_irq(unsigned int irq, cpumask_t mask)
++{
++	unsigned long flags;
++	unsigned int dest;
++	cpumask_t tmp;
++
++	cpus_and(tmp, mask, cpu_online_map);
++	if (cpus_empty(tmp))
++		tmp = TARGET_CPUS;
++
++	cpus_and(mask, tmp, CPU_MASK_ALL);
++
++	dest = cpu_mask_to_apicid(mask);
++
++	/*
++	 * Only the high 8 bits are valid.
++	 */
++	dest = SET_APIC_LOGICAL_ID(dest);
++
++	spin_lock_irqsave(&ioapic_lock, flags);
++	__DO_ACTION(1, = dest, )
++	set_irq_info(irq, mask);
++	spin_unlock_irqrestore(&ioapic_lock, flags);
++}
++#else
++static void set_ioapic_affinity_irq(unsigned int irq, cpumask_t mask)
++{
++	return;
++}
++#endif
++
+ /*
+  * The common case is 1:1 IRQ<->pin mappings. Sometimes there are
+  * shared ISA-space IRQs, so we have to support them. We are super
+@@ -98,26 +151,6 @@ static void add_pin_to_irq(unsigned int 
+ 	entry->pin = pin;
+ }
+ 
+-#define __DO_ACTION(R, ACTION, FINAL)					\
+-									\
+-{									\
+-	int pin;							\
+-	struct irq_pin_list *entry = irq_2_pin + irq;			\
+-									\
+-	for (;;) {							\
+-		unsigned int reg;					\
+-		pin = entry->pin;					\
+-		if (pin == -1)						\
+-			break;						\
+-		reg = io_apic_read(entry->apic, 0x10 + R + pin*2);	\
+-		reg ACTION;						\
+-		io_apic_modify(entry->apic, reg);			\
+-		if (!entry->next)					\
+-			break;						\
+-		entry = irq_2_pin + entry->next;			\
+-	}								\
+-	FINAL;								\
+-}
+ 
+ #define DO_ACTION(name,R,ACTION, FINAL)					\
+ 									\
+@@ -764,6 +797,7 @@ static void __init setup_IO_APIC_irqs(vo
+ 		spin_lock_irqsave(&ioapic_lock, flags);
+ 		io_apic_write(apic, 0x11+2*pin, *(((int *)&entry)+1));
+ 		io_apic_write(apic, 0x10+2*pin, *(((int *)&entry)+0));
++		set_native_irq_info(irq, TARGET_CPUS);
+ 		spin_unlock_irqrestore(&ioapic_lock, flags);
+ 	}
+ 	}
+@@ -1312,6 +1346,7 @@ static unsigned int startup_edge_ioapic_
+  */
+ static void ack_edge_ioapic_irq(unsigned int irq)
+ {
++	move_irq(irq);
+ 	if ((irq_desc[irq].status & (IRQ_PENDING | IRQ_DISABLED))
+ 					== (IRQ_PENDING | IRQ_DISABLED))
+ 		mask_IO_APIC_irq(irq);
+@@ -1341,26 +1376,10 @@ static unsigned int startup_level_ioapic
+ 
+ static void end_level_ioapic_irq (unsigned int irq)
+ {
++	move_irq(irq);
+ 	ack_APIC_irq();
+ }
+ 
+-static void set_ioapic_affinity_irq(unsigned int irq, cpumask_t mask)
+-{
+-	unsigned long flags;
+-	unsigned int dest;
+-
+-	dest = cpu_mask_to_apicid(mask);
+-
+-	/*
+-	 * Only the high 8 bits are valid.
+-	 */
+-	dest = SET_APIC_LOGICAL_ID(dest);
+-
+-	spin_lock_irqsave(&ioapic_lock, flags);
+-	__DO_ACTION(1, = dest, )
+-	spin_unlock_irqrestore(&ioapic_lock, flags);
+-}
+-
+ #ifdef CONFIG_PCI_MSI
+ static unsigned int startup_edge_ioapic_vector(unsigned int vector)
+ {
+@@ -1373,6 +1392,7 @@ static void ack_edge_ioapic_vector(unsig
+ {
+ 	int irq = vector_to_irq(vector);
+ 
++	move_native_irq(vector);
+ 	ack_edge_ioapic_irq(irq);
+ }
+ 
+@@ -1387,6 +1407,7 @@ static void end_level_ioapic_vector (uns
+ {
+ 	int irq = vector_to_irq(vector);
+ 
++	move_native_irq(vector);
+ 	end_level_ioapic_irq(irq);
+ }
+ 
+@@ -1409,6 +1430,7 @@ static void set_ioapic_affinity_vector (
+ {
+ 	int irq = vector_to_irq(vector);
+ 
++	set_native_irq_info(vector, cpu_mask);
+ 	set_ioapic_affinity_irq(irq, cpu_mask);
+ }
+ #endif
+@@ -1979,6 +2001,7 @@ int io_apic_set_pci_routing (int ioapic,
+ 	spin_lock_irqsave(&ioapic_lock, flags);
+ 	io_apic_write(ioapic, 0x11+2*pin, *(((int *)&entry)+1));
+ 	io_apic_write(ioapic, 0x10+2*pin, *(((int *)&entry)+0));
++	set_native_irq_info(use_pci_vector() ?  entry.vector : irq, TARGET_CPUS);
+ 	spin_unlock_irqrestore(&ioapic_lock, flags);
+ 
+ 	return 0;
+diff -puN arch/x86_64/Kconfig~fix_irq_affinity arch/x86_64/Kconfig
+--- linux-2.6.12-rc2-mm3/arch/x86_64/Kconfig~fix_irq_affinity	2005-04-28 23:51:28.000000000 -0700
++++ linux-2.6.12-rc2-mm3-araj/arch/x86_64/Kconfig	2005-04-28 23:51:28.000000000 -0700
+@@ -409,6 +409,11 @@ config GENERIC_IRQ_PROBE
+ 	bool
+ 	default y
+ 
++config GENERIC_PENDING_IRQ
++	bool
++	depends on GENERIC_HARDIRQS && SMP
++	default y
++
+ menu "Power management options"
+ 
+ source kernel/power/Kconfig
+diff -puN arch/i386/Kconfig~fix_irq_affinity arch/i386/Kconfig
+--- linux-2.6.12-rc2-mm3/arch/i386/Kconfig~fix_irq_affinity	2005-04-28 23:51:28.000000000 -0700
++++ linux-2.6.12-rc2-mm3-araj/arch/i386/Kconfig	2005-04-28 23:51:28.000000000 -0700
+@@ -1302,6 +1302,11 @@ config GENERIC_IRQ_PROBE
+ 	bool
+ 	default y
+ 
++config GENERIC_PENDING_IRQ
++	bool
++	depends on GENERIC_HARDIRQS && SMP
++	default y
++
+ config X86_SMP
+ 	bool
+ 	depends on SMP && !X86_VOYAGER
+diff -puN arch/ia64/Kconfig~fix_irq_affinity arch/ia64/Kconfig
+--- linux-2.6.12-rc2-mm3/arch/ia64/Kconfig~fix_irq_affinity	2005-04-28 23:51:28.000000000 -0700
++++ linux-2.6.12-rc2-mm3-araj/arch/ia64/Kconfig	2005-04-28 23:51:28.000000000 -0700
+@@ -411,6 +411,11 @@ config GENERIC_IRQ_PROBE
+ 	bool
+ 	default y
+ 
++config GENERIC_PENDING_IRQ
++	bool
++	depends on GENERIC_HARDIRQS && SMP
++	default y
++
+ source "arch/ia64/hp/sim/Kconfig"
+ 
+ source "arch/ia64/oprofile/Kconfig"
+diff -puN kernel/irq/proc.c~fix_irq_affinity kernel/irq/proc.c
+--- linux-2.6.12-rc2-mm3/kernel/irq/proc.c~fix_irq_affinity	2005-04-28 23:51:28.000000000 -0700
++++ linux-2.6.12-rc2-mm3-araj/kernel/irq/proc.c	2005-04-29 00:11:53.000000000 -0700
+@@ -19,12 +19,27 @@ static struct proc_dir_entry *root_irq_d
+  */
+ static struct proc_dir_entry *smp_affinity_entry[NR_IRQS];
+ 
+-void __attribute__((weak))
+-proc_set_irq_affinity(unsigned int irq, cpumask_t mask_val)
++#ifdef CONFIG_GENERIC_PENDING_IRQ
++void proc_set_irq_affinity(unsigned int irq, cpumask_t mask_val)
++{
++	irq_desc_t	*desc = irq_descp(irq);
++	unsigned long flags;
++
++	/*
++	 * Save these away for later use. Re-progam when the
++	 * interrupt is pending
++	 */
++	spin_lock_irqsave(&desc->lock, flags);
++	pending_irq_cpumask[irq] = mask_val;
++	spin_unlock_irqrestore(&desc->lock, flags);
++}
++#else
++void proc_set_irq_affinity(unsigned int irq, cpumask_t mask_val)
+ {
+ 	irq_affinity[irq] = mask_val;
+ 	irq_desc[irq].handler->set_affinity(irq, mask_val);
+ }
++#endif
+ 
+ static int irq_affinity_read_proc(char *page, char **start, off_t off,
+ 				  int count, int *eof, void *data)
+diff -puN include/asm-ia64/hw_irq.h~fix_irq_affinity include/asm-ia64/hw_irq.h
+--- linux-2.6.12-rc2-mm3/include/asm-ia64/hw_irq.h~fix_irq_affinity	2005-04-28 23:51:28.000000000 -0700
++++ linux-2.6.12-rc2-mm3-araj/include/asm-ia64/hw_irq.h	2005-04-28 23:51:28.000000000 -0700
+@@ -117,13 +117,6 @@ __ia64_local_vector_to_irq (ia64_vector 
+  * and to obtain the irq descriptor for a given irq number.
+  */
+ 
+-/* Return a pointer to the irq descriptor for IRQ.  */
+-static inline irq_desc_t *
+-irq_descp (int irq)
+-{
+-	return irq_desc + irq;
+-}
+-
+ /* Extract the IA-64 vector that corresponds to IRQ.  */
+ static inline ia64_vector
+ irq_to_vector (int irq)
+diff -puN include/asm-ia64/irq.h~fix_irq_affinity include/asm-ia64/irq.h
+--- linux-2.6.12-rc2-mm3/include/asm-ia64/irq.h~fix_irq_affinity	2005-04-29 07:17:43.000000000 -0700
++++ linux-2.6.12-rc2-mm3-araj/include/asm-ia64/irq.h	2005-04-29 07:17:59.000000000 -0700
+@@ -30,12 +30,6 @@ extern void disable_irq_nosync (unsigned
+ extern void enable_irq (unsigned int);
+ extern void set_irq_affinity_info (unsigned int irq, int dest, int redir);
+ 
+-#ifdef CONFIG_SMP
+-extern void move_irq(int irq);
+-#else
+-#define move_irq(irq)
+-#endif
+-
+ struct irqaction;
+ struct pt_regs;
+ int handle_IRQ_event(unsigned int, struct pt_regs *, struct irqaction *);
+_

@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262976AbVD2Uzv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262977AbVD2VAB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262976AbVD2Uzv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 16:55:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262939AbVD2UzG
+	id S262977AbVD2VAB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 17:00:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262978AbVD2U7c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 16:55:06 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:44339 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S262976AbVD2UyN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 16:54:13 -0400
-Date: Fri, 29 Apr 2005 22:54:43 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: i386 'make install' behavior change
-Message-ID: <20050429205443.GA8699@mars.ravnborg.org>
-References: <1114797161.9140.22.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1114797161.9140.22.camel@localhost>
-User-Agent: Mutt/1.5.8i
+	Fri, 29 Apr 2005 16:59:32 -0400
+Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:41678 "EHLO
+	ms-smtp-03-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S262939AbVD2U4E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 16:56:04 -0400
+Message-ID: <42729F4F.2020209@austin.rr.com>
+Date: Fri, 29 Apr 2005 15:55:43 -0500
+From: Steve French <smfrench@austin.rr.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org,
+       rml@novell.com
+Subject: Re: which ioctls matter across filesystems
+References: <42728964.8000501@austin.rr.com> <1114804426.12692.49.camel@lade.trondhjem.org> <1114805033.6682.150.camel@betsy> <1114807360.12692.77.camel@lade.trondhjem.org>
+In-Reply-To: <1114807360.12692.77.camel@lade.trondhjem.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 29, 2005 at 10:52:41AM -0700, Dave Hansen wrote:
-> Hi Sam,
-> 
-> I noticed in 2.6.12-rc3 that 'make install' doesn't depend on vmlinux.
-> I first noticed this in -mm, and it was discussed a bit here:
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=111083577531995&w=2
-> 
-> Could you please push that patch to Linus before 2.6.12 finalizes?
+Trond Myklebust wrote:
 
-It's on the plate for this weekend.
-
-	Sam
+>I'm therefore asking whether or not there is a killer-app out there that
+>we need to support and that does want to track changes made by other
+>clients. File browsers are more or less the only thing that come to
+>mind.
+>
+>Cheers,
+>  Trond
+>  
+>
+I believe that the spotlight facility of MacOS, and the somewhat similar 
+Longhorn feature (think Google desktop search/indexing on steroids) 
+qualify as killer-apps.   I am concerned about how to do better with our 
+implementations across a distributed (NFS, CIFS etc.) network.   And of 
+course coalescing async notifications most efficiently is a fascinating 
+and difficult area to do right - for servers at least.

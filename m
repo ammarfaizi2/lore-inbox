@@ -1,69 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263023AbVD2WDE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263029AbVD2WVA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263023AbVD2WDE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 18:03:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbVD2WDD
+	id S263029AbVD2WVA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 18:21:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263030AbVD2WVA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 18:03:03 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:8154 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S263023AbVD2WC5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 18:02:57 -0400
-Subject: Re: [Question] Does the kernel ignore errors writng to disk?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bryan Henderson <hbryan@us.ibm.com>
-Cc: Anton Altaparmakov <aia21@cam.ac.uk>, aia21@hermes.cam.ac.uk,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-scsi@vger.kernel.org, mike.miller@hp.com
-In-Reply-To: <OF48BA3721.BD4798AD-ON88256FF2.00680E7E-88256FF2.0069814F@us.ibm.com>
-References: <OF48BA3721.BD4798AD-ON88256FF2.00680E7E-88256FF2.0069814F@us.ibm.com>
-Content-Type: text/plain
+	Fri, 29 Apr 2005 18:21:00 -0400
+Received: from ms-smtp-04.texas.rr.com ([24.93.47.43]:47566 "EHLO
+	ms-smtp-04.texas.rr.com") by vger.kernel.org with ESMTP
+	id S263029AbVD2WUu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 18:20:50 -0400
+Message-ID: <4272B335.5090207@austin.rr.com>
+Date: Fri, 29 Apr 2005 17:20:37 -0500
+From: Steve French <smfrench@austin.rr.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cifs: handle termination of cifs oplockd kernel thread
+References: <4272A275.4030801@austin.rr.com> <20050429213108.GA15262@infradead.org>
+In-Reply-To: <20050429213108.GA15262@infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1114812035.18330.396.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 29 Apr 2005 23:00:37 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-04-29 at 20:11, Bryan Henderson wrote:
-> So I view it as correct even if fsync() does nothing on a disk-based 
-> filesystem because the programmer was lazy (or because the user wants to 
-> defeat the performance-busting behavior of some paranoid application). But 
-> when Alan speaks of a "not completely correct" version of synchronization, 
-> which makes me think of something that doesn't implement any consistent 
-> form of "stable," I want to hear more.
+Christoph Hellwig wrote:
 
-On the main fs's people use with a current kernel fsync guarantees the
-data went somewhere. What it guarantees beyond that depends on the fs
-properties, the driver properties and the media properties.
+>On Fri, Apr 29, 2005 at 04:09:09PM -0500, Steve French wrote:
+>  
+>
+>>>does and who revied that?  Things like that don't have a business in the
+>>>kernel, and certainly not as ioctl.
+>>>      
+>>>
+>>Other filesystems such as smbfs had an ioctl that returned the uid of 
+>>the mounter which they used (in the smbfs case in smbumount).  This was 
+>>required by the unmount helper to determine if the unmount would allow a 
+>>user to unmount a particular mount that they mounted.   Unlike in the 
+>>case of mount, for unmount  you can not use the owner uid of the mount 
+>>target to tell who mounted that mount.   I had not received any better 
+>>suggestions as to how to address it.   I had proposed various 
+>>alternatives - exporting in in /proc/mounts e.g.   
+>>    
+>>
+>
+>exporting the uid using the show_options superblock methods sounds like
+>a much better option.
+>
+>  
+>
 
-So ext3 journal=data or jffs which are the strongest guarantee cases
-mean that your fsync() data should be on media and stable. Ditto I
-believe default ext3 behaviour because fsync has stronger rules than
-fdatasync.
+>No.  /proc/self/mounts is an ASCII format, so there's no problem with
+>differemt sizes.
+>
+>
+>  
+>
 
-The next question is what the I/O device does with the data. SCSI disks
-will cache but the scsi layer uses tags and if neccessary turns the
-cache off on the drive. In other words you should get that behaviour
-correctly on SCSI media.
+I agree that it would work for most cases [today, in 2.6 Linux] - but I 
+really feel uncomfortable introducing a user space / kernel space 
+dependency on the size of a field where none is needed - I am especially 
+nervous because I can see from the Samba change logs that:
+1) historically the size of this field changed
+2) other operating systems also have either increased the size of uid 
+(as MacOS e.g.) or mapped it (as Windows does) - to accomodate the 
+needed concept of UUID (in large networks the current uid is too small)
 
-The default IDE behaviour doesn't turn write cache off and the IDE
-device may re-order writes and ack them before they hit storage. IDE
-lacks tags, and tends to have poor performance on cache flush commands.
-With the barrier support on the right thing should occur, or with hdparm
-used to turn the write cache off.
+Ideally I would have liked a general kernel call to be able to answer 
+the question "Does the current security context match that of the 
+mounter?"  because with SELinux, and the need to increase the size of 
+uid or somehow work around it for distributed systems, it is hard for 
+user space code to take something opaque (the thing that showmounts 
+returns) and map it to what libc returns as the uid for current - 
+otherwise it would be impossible for user space code to guarantee that 
+it will match the kernel code, but this is so trivial, and has no 
+sideeffects so in the interim this seems safer.
 
-Raid controllers will cache data in their writeback caches, they will
-also write and rewrite stripes which can mean a critical failure loses
-the cache or involves a whole stripe loss, but that is very unlikely in
-most modes. The good ones either write through or have battery backed
-caches. The really good ones even let you put the battery/ram unit onto
-another card.
 
-Underlying all of this is the fact that disks aren't really disks any
-more but NAS devices on funky cables, that can mean you can lose blocks
-to drive faults that might not be the block you are currently writing.
 
-Alan
-
+   

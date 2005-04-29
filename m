@@ -1,42 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262986AbVD2VE6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263007AbVD2V3M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262986AbVD2VE6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 17:04:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262983AbVD2VDW
+	id S263007AbVD2V3M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 17:29:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263004AbVD2V1E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 17:03:22 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:30628 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262407AbVD2VCl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 17:02:41 -0400
-Date: Fri, 29 Apr 2005 22:02:40 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [PATCH 3/3] Page Fault Scalability V20: Avoid lock for anonymous write fault
-Message-ID: <20050429210240.GA14774@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, linux-ia64@vger.kernel.org
-References: <20050429195901.15694.28520.sendpatchset@schroedinger.engr.sgi.com> <20050429195917.15694.21053.sendpatchset@schroedinger.engr.sgi.com>
+	Fri, 29 Apr 2005 17:27:04 -0400
+Received: from zproxy.gmail.com ([64.233.162.196]:36201 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263007AbVD2VZj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 17:25:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=oIRDuaWQa5apXbTvreAt2jXS3NukvKevLDNGEho+IyXUSq30PHDZHLdLOphnJZZjwDy9RhW5qpOGlzFMe3J+YaYRObovavdqrSwq1bxLqLLLpZRGp2iVndK2d7kPsqu6sy2QYThLW9KI3w34CEErMhMwp4CnhYNMp0wf0VJl5bw=
+Message-ID: <29495f1d050429142515f7e2c4@mail.gmail.com>
+Date: Fri, 29 Apr 2005 14:25:32 -0700
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
+To: Paulo Marques <pmarques@grupopie.com>
+Subject: Re: setitimer timer expires too early
+Cc: Olivier Croquette <ocroquette@free.fr>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <427285CC.9090300@grupopie.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050429195917.15694.21053.sendpatchset@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+References: <42726DDD.1010204@free.fr> <427285CC.9090300@grupopie.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 29, 2005 at 12:59:17PM -0700, Christoph Lameter wrote:
-> Do not use the page_table_lock in do_anonymous_page. This will significantly
-> increase the parallelism in the page fault handler for SMP systems. The patch
-> also modifies the definitions of _mm_counter functions so that rss and anon_rss
-> become atomic (and will use atomic64_t if available).
+On 4/29/05, Paulo Marques <pmarques@grupopie.com> wrote:
+> Olivier Croquette wrote:
+> > Hello
+> >
+> > I wrote a program which uses setitimer to implement a usleep() equivalent.
+> > [...]
+> > Anyone have an idea?
+> > Can you reproduce that?
+> 
+> I can reproduce that.
+> 
+> It seems that the code responsible for this is in kernel/itimer.c:126:
+> 
+>         p->signal->real_timer.expires = jiffies + interval;
+>         add_timer(&p->signal->real_timer);
+> 
+> If you request an interval of, lets say 900 usecs, the interval given by
+> timeval_to_jiffies will be 1.
 
-I thought we said all architectures should provide an atomic64_t (and
-given that it's not actually 64bit on 32bit architecture we should
-probably rename it to atomic_long_t)
+<snip>
 
+> The complex (and more computationally expensive) solution would be to
+> check the gettimeofday time, and compute the correct number of jiffies.
+> This way, if we request a 300 usecs timer 200 usecs inside the timer
+> tick, we can wait just one tick, but not if we are 800 usecs inside the
+> tick. This would also mean that we would have to lock preemption during
+> these computations to avoid races, etc.
+
+I am working on soft-timer subsystem rework that will do exactly this,
+based upon John Stultz's timeofday-rework. Expect to see an RFC soon
+:)
+
+> I've searched the archives but couldn't find this particular issue being
+> discussed before.
+
+Perhaps not discussed before, but definitely a known issue. Check out
+sys_nanosleep(), which adds an extra jiffy to the delay if there is
+going to be one. My patch, which uses human-time (or at least more so
+than currently), should not have issues like this.
+ 
+> Attached is a patch to do the simple solution, in case anybody thinks
+> that it should be used.
+
+Your patch is the only way to guarantee no early timeouts, as far as I know.
+
+Really, what you want is:
+
+on adding timers, take the ceiling of the interval into which it could be added
+on expiring timers, take the floor
+
+This combination guarantees no timers go off early (and takes away
+many of these corner cases). I do exactly this in my patch, btw.
+
+> Signed-Off-By: Paulo Marques <pmarques@grupopie.com>
+
+Acked-By: Nishanth Aravamudan <nacc@us.ibm.com>
+
+Thanks,
+Nish

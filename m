@@ -1,72 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262394AbVD2F7y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262432AbVD2GCm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262394AbVD2F7y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 01:59:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262395AbVD2F7y
+	id S262432AbVD2GCm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 02:02:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbVD2GCl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 01:59:54 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:10457 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262394AbVD2F7a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 01:59:30 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Olof Johansson <olof@lixom.net>
-Subject: Re: [PATCH 3/4] ppc64: Add driver for BPA iommu
-Date: Fri, 29 Apr 2005 07:48:27 +0200
-User-Agent: KMail/1.7.2
-Cc: linuxppc64-dev@ozlabs.org, Paul Mackerras <paulus@samba.org>,
-       linux-kernel@vger.kernel.org, Anton Blanchard <anton@samba.org>
-References: <200504190318.32556.arnd@arndb.de> <200504290635.44965.arnd@arndb.de> <20050429053615.GA30219@lixom.net>
-In-Reply-To: <20050429053615.GA30219@lixom.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Apr 2005 02:02:41 -0400
+Received: from waste.org ([216.27.176.166]:24555 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262430AbVD2GCA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 02:02:00 -0400
+Date: Thu, 28 Apr 2005 23:01:57 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
+Subject: Mercurial 0.4b vs git patchbomb benchmark
+Message-ID: <20050429060157.GS21897@waste.org>
+References: <20050426004111.GI21897@waste.org> <Pine.LNX.4.58.0504251859550.18901@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200504290748.30055.arnd@arndb.de>
+In-Reply-To: <Pine.LNX.4.58.0504251859550.18901@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Freedag 29 April 2005 07:36, Olof Johansson wrote:
-> On Fri, Apr 29, 2005 at 06:35:43AM +0200, Arnd Bergmann wrote:
->>
-> Anyhow, enum or #define, it should be moved to bpa_iommu.h.
-
-I don't interface with any other files, so I prefer to have
-everything in one file here. If there is anyone else who
-agrees with you on moving this into a separate file, I don't
-mind doing that.
-
-> User or developer error? I thought it was a developer one, and a quite
-> specialized one at that. Either way, there's already a primitive that
-> can be used instead of making your own: BUILD_BUG_ON().
-
-Right. I had forgotten about that, thanks.
- 
-> > Yes, but it seems to contradict the specs...
+On Mon, Apr 25, 2005 at 07:08:28PM -0700, Linus Torvalds wrote:
 > 
-> A comment to that effect could be nice.
+> To make an interesting benchmark, try applying the first 200 patches in 
+> the current git kernel archive. Can you do them three per second? THAT is 
+> the thing you should optimize for, not checking in huge changes.
 
-Ok, I'll change that.
+Ok, I've optimized for it a bit. This is basically:
 
-> > This comes from a graphical representation in the specs. I'll add a comment
-> > to point to that image.
-> 
-> I guess it'd be a bit much information to just add in a comment, but for
-> readability that's probably the best way to go.  Not many people have
-> the specs, but on the other hand if you're messing around with this code
-> then chances are you have them.
+ hg import -p1 -b ../broken-out `cat ../broken-out | grep -v #`
 
-The picture should be in the parts that we are working on getting public.
+ ( latest code is at: http://selenic.com/mercurial/ )
 
-> I don't know what the status is for a release of public specifications,
-> but if they're not available then people will be looking to learn from
-> the implementation and the documentation around it instead.
+My benchmark is to apply all 819 patches from -mm3 to 2.6.12-rc:
 
-There will be a supplement to Book 1-3 of PowerPC AS that is going to
-be public. Book 4 is rarely needed and the chances of publishing that
-are not as good.
+hg:
 
-Thanks,
+real    3m22.075s
+user    1m57.195s
+sys     0m14.068s
 
-	Arnd <><
+819/(60+57.195 + 14.068) = 6.239 patches/second  user+sys
+repository: before 167M after 173M (3.5% growth)
+
+git:
+
+real    2m58.568s
+user    1m11.196s
+sys     0m50.144s
+
+819/(60+11.196+50.144) = 6.750 patches/second  user+sys
+repository: before 102M after 154M (51% growth)
+
+Again, pretty close, time-wise. My code is actually spending a fair
+amount of time doing delta compression in Python, which accounts for
+most of the extra user time. So I think I can optimize most of that
+away at some point. Interestingly hg is also using substantially less
+system time.
+
+What I'd like to highlight here is that git's repo is growing more
+than 10 times faster. 52 megs is twice the size of a full kernel
+tarball. And that's going to be the bottleneck for network pull
+operations.
+
+The fundamental problem I see with git is that the back-end has no
+concept of the relation between files. This data is only present in
+change nodes so you've got to potentially traverse all the commits to
+reconstruct a file's history. That's gonna be O(top-level changes)
+seeks. This introduces a number of problems:
+
+- no way to easily find previous revisions of a file
+  (being able to see when a particular change was introduced is a
+  pretty critical feature)
+- no way to do bandwidth-efficient delta transfer
+- no way to do efficient delta storage
+- no way to do merges based on the file's history[1]
+
+Mercurial can grab look up and grab revisions of a file in O(1)
+time/seeks. I haven't implemented annotate yet, but it can also be
+done O(1) or O(file revisions).
+
+
+[1] This last one is interesting. If we've got a repository with files A
+and B:
+
+M   M1   M2
+
+AB
+ |`-------v     M2 clones M
+aB       AB     file A is change in mainline
+ |`---v  AB'    file B is changed in M2
+ |   aB / |     M1 clones M
+ |   ab/  |     M1 changes B
+ |   ab'  |     M1 merges from M2, changes to B conflict
+ |    |  A'B'   M2 changes A
+  `---+--.|
+      |  a'B'   M2 merges from mainline, changes to A conflict
+      `--.|
+         ???    depending on which ancestor we choose, we will have
+	        to redo A hand-merge, B hand-merge, or both
+                but if we look at the files independently, everything
+		is fine
+
+-- 
+Mathematics is the supreme nostalgia of our time.

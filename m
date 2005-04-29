@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262989AbVD2U7y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262981AbVD2VFD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262989AbVD2U7y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 16:59:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262980AbVD2U7L
+	id S262981AbVD2VFD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 17:05:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262979AbVD2VES
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 16:59:11 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:43179 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S262979AbVD2U6T
+	Fri, 29 Apr 2005 17:04:18 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:40525 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262978AbVD2VAZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 16:58:19 -0400
-Subject: Re: which ioctls matter across filesystems
-From: Robert Love <rml@novell.com>
-To: Steve French <smfrench@austin.rr.com>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
-In-Reply-To: <42729F4F.2020209@austin.rr.com>
-References: <42728964.8000501@austin.rr.com>
-	 <1114804426.12692.49.camel@lade.trondhjem.org>
-	 <1114805033.6682.150.camel@betsy>
-	 <1114807360.12692.77.camel@lade.trondhjem.org>
-	 <42729F4F.2020209@austin.rr.com>
-Content-Type: text/plain
-Date: Fri, 29 Apr 2005 16:57:52 -0400
-Message-Id: <1114808272.6682.158.camel@betsy>
+	Fri, 29 Apr 2005 17:00:25 -0400
+Date: Fri, 29 Apr 2005 23:00:53 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Pavel Pisa <pisa@cmp.felk.cvut.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kai@germaschewski.name
+Subject: Re: [PATCH] preserve ARCH and CROSS_COMPILE in the build directory generated Makefile
+Message-ID: <20050429210053.GC8699@mars.ravnborg.org>
+References: <200504291335.34210.pisa@cmp.felk.cvut.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200504291335.34210.pisa@cmp.felk.cvut.cz>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-04-29 at 15:55 -0500, Steve French wrote:
+On Fri, Apr 29, 2005 at 01:35:33PM +0200, Pavel Pisa wrote:
+> This patch ensures, that architecture and target cross-tools prefix
+> is preserved in the Makefile generated in the build directory for
+> out of source tree kernel compilation. This prevents accidental
+> screwing of configuration and builds for the case, that make without
+> full architecture specific options is invoked in the build
+> directory. It is secure use accustomed "make", "make xconfig",
+> etc. without fear and special care now.
 
-> I believe that the spotlight facility of MacOS, and the somewhat similar 
-> Longhorn feature (think Google desktop search/indexing on steroids) 
-> qualify as killer-apps.   I am concerned about how to do better with our 
-> implementations across a distributed (NFS, CIFS etc.) network.   And of 
-> course coalescing async notifications most efficiently is a fascinating 
-> and difficult area to do right - for servers at least.
+Hi Pavel.
+I will not apply this path because it introduce a difference when
+building usign a separate output direcory compared to an in-tree build.
 
-If we had some way to efficiently coalesce events, even non-remote stuff
-would drool.  Beagle (our Spotlight killer) would love it.
+I have briefly looked into a solution where I could add this information
+in .config but was sidetracked by other stuff so I newer got it working.
 
-First thing is, the events cannot be stored in a linked list. ;-)
+The build system for the kernel needs to be as predictable as possible
+and introducing functionality that is only valid when using a separate
+output directory does not help here.
 
-	Robert Love
-
-
+	Sam

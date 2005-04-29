@@ -1,45 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262385AbVD2EXr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261916AbVD2Eqh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262385AbVD2EXr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 00:23:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262387AbVD2EXr
+	id S261916AbVD2Eqh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 00:46:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbVD2Eqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 00:23:47 -0400
-Received: from smtp.istop.com ([66.11.167.126]:23242 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S262385AbVD2EXa (ORCPT
+	Fri, 29 Apr 2005 00:46:34 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:399 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261916AbVD2Eqd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 00:23:30 -0400
-From: Daniel Phillips <phillips@istop.com>
-To: David Teigland <teigland@redhat.com>
-Subject: Re: [PATCH 0/7] dlm: overview
-Date: Fri, 29 Apr 2005 00:24:07 -0400
-User-Agent: KMail/1.7
-Cc: Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org
-References: <20050425151136.GA6826@redhat.com> <20050427135635.GA4431@marowsky-bree.de> <20050428162552.GH10628@redhat.com>
-In-Reply-To: <20050428162552.GH10628@redhat.com>
+	Fri, 29 Apr 2005 00:46:33 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Sonny Rao <sonny@burdell.org>
+Subject: Re: [PATCH 0/4] ppc64: Introduce BPA platform
+Date: Fri, 29 Apr 2005 06:35:28 +0200
+User-Agent: KMail/1.7.2
+Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>
+References: <200504190318.32556.arnd@arndb.de> <20050428144415.GA28779@kevlar.burdell.org>
+In-Reply-To: <20050428144415.GA28779@kevlar.burdell.org>
 MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200504290635.29604.arnd@arndb.de>
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200504290024.08076.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 April 2005 12:25, David Teigland wrote:
-> There's a dlm daemon in user space that works with the specific sysfs
-> files above and interfaces with whatever cluster infrastructure exists.
-> The same goes for gfs, but the gfs user space daemon does quite a lot more
-> (gfs-specific stuff).
->
-> In other words, these aren't external API's; they're internal interfaces
-> within systems that happen to be split between the kernel and user-space.
+On Dunnersdag 28 April 2005 16:44, Sonny Rao wrote:
 
-Traditionally, Linux kernel interfaces have been well-defined.  I do not think 
-we want to break with that tradition now.
+> Is BPA the same thing (architecture) as the STI Cell Processor?
 
-So please provide a pointer to the kernel interface you have in mind.
+Yes, that is it. BPA is what Cell is called in the official
+specification.
 
-Regards,
+	Arnd <><
 
-Daniel

@@ -1,82 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263029AbVD2WVA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263031AbVD2W1M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263029AbVD2WVA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 18:21:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263030AbVD2WVA
+	id S263031AbVD2W1M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 18:27:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263033AbVD2W1L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 18:21:00 -0400
-Received: from ms-smtp-04.texas.rr.com ([24.93.47.43]:47566 "EHLO
-	ms-smtp-04.texas.rr.com") by vger.kernel.org with ESMTP
-	id S263029AbVD2WUu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 18:20:50 -0400
-Message-ID: <4272B335.5090207@austin.rr.com>
-Date: Fri, 29 Apr 2005 17:20:37 -0500
-From: Steve French <smfrench@austin.rr.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cifs: handle termination of cifs oplockd kernel thread
-References: <4272A275.4030801@austin.rr.com> <20050429213108.GA15262@infradead.org>
-In-Reply-To: <20050429213108.GA15262@infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Apr 2005 18:27:11 -0400
+Received: from nevyn.them.org ([66.93.172.17]:42946 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S263031AbVD2W1I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 18:27:08 -0400
+Date: Fri, 29 Apr 2005 18:26:56 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Pavel Pisa <pisa@cmp.felk.cvut.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kai@germaschewski.name
+Subject: Re: [PATCH] preserve ARCH and CROSS_COMPILE in the build directory generated Makefile
+Message-ID: <20050429222656.GA10964@nevyn.them.org>
+Mail-Followup-To: Sam Ravnborg <sam@ravnborg.org>,
+	Pavel Pisa <pisa@cmp.felk.cvut.cz>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	kai@germaschewski.name
+References: <200504291335.34210.pisa@cmp.felk.cvut.cz> <20050429210053.GC8699@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050429210053.GC8699@mars.ravnborg.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
+On Fri, Apr 29, 2005 at 11:00:53PM +0200, Sam Ravnborg wrote:
+> On Fri, Apr 29, 2005 at 01:35:33PM +0200, Pavel Pisa wrote:
+> > This patch ensures, that architecture and target cross-tools prefix
+> > is preserved in the Makefile generated in the build directory for
+> > out of source tree kernel compilation. This prevents accidental
+> > screwing of configuration and builds for the case, that make without
+> > full architecture specific options is invoked in the build
+> > directory. It is secure use accustomed "make", "make xconfig",
+> > etc. without fear and special care now.
+> 
+> Hi Pavel.
+> I will not apply this path because it introduce a difference when
+> building usign a separate output direcory compared to an in-tree build.
+> 
+> I have briefly looked into a solution where I could add this information
+> in .config but was sidetracked by other stuff so I newer got it working.
+> 
+> The build system for the kernel needs to be as predictable as possible
+> and introducing functionality that is only valid when using a separate
+> output directory does not help here.
 
->On Fri, Apr 29, 2005 at 04:09:09PM -0500, Steve French wrote:
->  
->
->>>does and who revied that?  Things like that don't have a business in the
->>>kernel, and certainly not as ioctl.
->>>      
->>>
->>Other filesystems such as smbfs had an ioctl that returned the uid of 
->>the mounter which they used (in the smbfs case in smbumount).  This was 
->>required by the unmount helper to determine if the unmount would allow a 
->>user to unmount a particular mount that they mounted.   Unlike in the 
->>case of mount, for unmount  you can not use the owner uid of the mount 
->>target to tell who mounted that mount.   I had not received any better 
->>suggestions as to how to address it.   I had proposed various 
->>alternatives - exporting in in /proc/mounts e.g.   
->>    
->>
->
->exporting the uid using the show_options superblock methods sounds like
->a much better option.
->
->  
->
+You could drop it into a file unrelated to .config or Makefile; that
+might be simpler.
 
->No.  /proc/self/mounts is an ASCII format, so there's no problem with
->differemt sizes.
->
->
->  
->
-
-I agree that it would work for most cases [today, in 2.6 Linux] - but I 
-really feel uncomfortable introducing a user space / kernel space 
-dependency on the size of a field where none is needed - I am especially 
-nervous because I can see from the Samba change logs that:
-1) historically the size of this field changed
-2) other operating systems also have either increased the size of uid 
-(as MacOS e.g.) or mapped it (as Windows does) - to accomodate the 
-needed concept of UUID (in large networks the current uid is too small)
-
-Ideally I would have liked a general kernel call to be able to answer 
-the question "Does the current security context match that of the 
-mounter?"  because with SELinux, and the need to increase the size of 
-uid or somehow work around it for distributed systems, it is hard for 
-user space code to take something opaque (the thing that showmounts 
-returns) and map it to what libc returns as the uid for current - 
-otherwise it would be impossible for user space code to guarantee that 
-it will match the kernel code, but this is so trivial, and has no 
-sideeffects so in the interim this seems safer.
-
-
-
-   
+-- 
+Daniel Jacobowitz
+CodeSourcery, LLC

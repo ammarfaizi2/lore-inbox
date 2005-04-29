@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262651AbVD2N3E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262583AbVD2Ndx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262651AbVD2N3E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 09:29:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262603AbVD2N1G
+	id S262583AbVD2Ndx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 09:33:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262603AbVD2Ndx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 09:27:06 -0400
-Received: from fire.osdl.org ([65.172.181.4]:56283 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262598AbVD2N0v (ORCPT
+	Fri, 29 Apr 2005 09:33:53 -0400
+Received: from fsmlabs.com ([168.103.115.128]:55979 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S262583AbVD2Ndp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 09:26:51 -0400
-Date: Fri, 29 Apr 2005 06:26:04 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: colin@colino.net, benh@kernel.crashing.org, linux-kernel@vger.kernel.org,
-       debian-powerpc@lists.debian.org, torvalds@osdl.org
-Subject: Re: 2.6.12-rc3 cpufreq compile error on ppc32
-Message-Id: <20050429062604.536cb193.akpm@osdl.org>
-In-Reply-To: <20050429131519.GA6158@infradead.org>
-References: <20050421092611.37df940b@colin.toulouse>
-	<1114129070.5996.36.camel@gaston>
-	<20050425222039.5421fa64@jack.colino.net>
-	<20050429131519.GA6158@infradead.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Apr 2005 09:33:45 -0400
+Date: Fri, 29 Apr 2005 07:36:25 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [patch] properly stop devices before poweroff
+In-Reply-To: <20050429061825.36f98cc0.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0504290734220.30771@montezuma.fsmlabs.com>
+References: <20050421111346.GA21421@elf.ucw.cz> <20050429061825.36f98cc0.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> wrote:
->
-> On Mon, Apr 25, 2005 at 10:20:39PM +0200, Colin Leroy wrote:
->  > > > One of Ben's patches ("ppc32: Fix cpufreq problems") went in 2.6.12-
->  > > > rc3, but it depended on another patch that's still in -mm only: 
->  > > > add-suspend-method-to-cpufreq-core.patch
->  > > > 
->  > > > In addition to this, there's a third patch in -mm that fixes
->  > > > warnings and line length to the previous patch, but it doesn't
->  > > > apply cleanly anymore. It's named add-suspend-method-to-cpufreq-
->  > > > core-warning-fix.patch
->  > > 
->  > > Yup, please, Andrew, get those 2 to Linus.
->  > 
->  > Just a heads-up : I didn't see these go into the git tree?
-> 
->  still not in.  Linus, can you please put in the patch below from benh?
-> 
-> 
->  Index: linux-work/drivers/cpufreq/cpufreq.c
+On Fri, 29 Apr 2005, Andrew Morton wrote:
 
-This patch is missing a warning fix.  I'll send the correct one.
+> Pavel Machek <pavel@ucw.cz> wrote:
+> >
+> > 
+> > Without this patch, Linux provokes emergency disk shutdowns and
+> > similar nastiness. It was in SuSE kernels for some time, IIRC.
+> > 
+> 
+> With this patch when running `halt -p' my ia64 Tiger (using
+> tiger_defconfig) gets a stream of badnesses in iosapic_unregister_intr()
+> and then hangs up.
+> 
+> Unfortunately it all seems to happen after the serial port has been
+> disabled because nothing comes out.  I set the console to a squitty font
+> and took a piccy.  See
+> http://www.zip.com.au/~akpm/linux/patches/stuff/dsc02505.jpg
+> 
+> I guess it's an ia64 problem.  I'll leave the patch in -mm for now.
+
+Could you cat /proc/interrupts during runtime? It looks like the device 
+being suspended never went through pci_device_enable() (e.g. ethernet 
+interface wasn't up). It's harmless right now.
+
+Thanks,
+	Zwane
+

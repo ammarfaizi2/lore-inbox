@@ -1,155 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262794AbVD2PCl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262788AbVD2PCk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262794AbVD2PCl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 11:02:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262774AbVD2O67
+	id S262788AbVD2PCk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 11:02:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262755AbVD2PB4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 10:58:59 -0400
-Received: from salazar.rnl.ist.utl.pt ([193.136.164.251]:36014 "EHLO
-	admin.rnl.ist.utl.pt") by vger.kernel.org with ESMTP
-	id S262755AbVD2Ozc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 10:55:32 -0400
-From: "Pedro Venda (SYSADM)" <pjvenda@rnl.ist.utl.pt>
-To: Alexander Nyberg <alexn@dsv.su.se>
-Subject: Re: ftp server crashes on heavy load: possible scheduler bug
-Date: Fri, 29 Apr 2005 15:55:28 +0100
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org, rnl@rnl.ist.utl.pt
-References: <200504261402.57375.pjvenda@rnl.ist.utl.pt> <1114779578.497.15.camel@localhost.localdomain> <200504291532.09928.pjvenda@rnl.ist.utl.pt>
-In-Reply-To: <200504291532.09928.pjvenda@rnl.ist.utl.pt>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1335534.AN5eusPyXF";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200504291555.28281.pjvenda@rnl.ist.utl.pt>
+	Fri, 29 Apr 2005 11:01:56 -0400
+Received: from ns2.suse.de ([195.135.220.15]:11746 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262788AbVD2PBV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 11:01:21 -0400
+Date: Fri, 29 Apr 2005 17:01:17 +0200
+From: Andi Kleen <ak@suse.de>
+To: Roland McGrath <roland@redhat.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] i386: handle iret faults better
+Message-ID: <20050429150117.GJ21080@wotan.suse.de>
+References: <Pine.LNX.4.58.0504252102180.18901@ppc970.osdl.org> <200504290340.j3T3eCcO032218@magilla.sf.frob.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200504290340.j3T3eCcO032218@magilla.sf.frob.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1335534.AN5eusPyXF
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Thu, Apr 28, 2005 at 08:40:12PM -0700, Roland McGrath wrote:
+> I was never very happy with the special-case check for iret_exc either.
+> But for the first crack, I went for the fix that didn't touch other
+> infrastructure code.
+> 
+> The fault.c changes here are really not necessary for the bug fix at all,
+> it will never be used there.  But to make it a clean infrastructure
+> upgrade, I made every caller of fixup_exception consistently pass in the
+> complete info it uses for signals in the user-mode case.
+> 
+> 
+> A user process can cause a kernel-mode fault in the iret instruction, by
+> setting an invalid %cs and such, via ptrace or sigreturn.  The fixup code
+> now calls do_exit(11), so a process will die with SIGSEGV but never
+> generate a core dump.  This is vastly more confusing in a multithreaded
+> program, because do_exit just kills that one thread and so it appears to
+> mysteriously disappear when it calls sigreturn.
+> 
+> This patch makes faults in iret produce the normal signals that would
+> result from the same errors when executing some user-mode instruction.
+> To accomplish this, I've extended the exception_table mechanism to support
+> "special fixups".  Instead of a PC location to jump to, these have a
+> function called in the trap handler context and passed the full trap details.
+> 
 
-On Friday 29 April 2005 15:32, Pedro Venda (SYSADM) wrote:
-> On Friday 29 April 2005 13:59, Alexander Nyberg wrote:
-> > > We've made some changes on our ftp server, and since that it's been
-> > > crashing frequently (everyday) with a kernel panic.
-> > >
-> > > We've configured the 5 IDE 160GB drives into md raid5 arrays with LVM
-> > > on top of that. All filesystems are reiserfs. The other change we made
-> > > to the server was changing from a patched 2.6.10-ac12 kernel into a
-> > > newer 2.6.11.7.
-> > >
-> > > Not being able to see the whole stacktrace on screen, we've started a
-> > > netconsole to investigate. Started the server and loaded it pretty bad
-> > > with rsyncs and such... until it crashed after just 20 minutes.
-> > >
-> > > The netconsole log was surprising - "kernel BUG at
-> > > kernel/sched.c:2634!"
-> > >
-> > > Any help would be GREATLY appreciated.
-> >
-> > 5 IDE disks into one MD raid5 into one LVM volume with reiserfs on top
-> > of it? Could you give me some way to reproduce the specific load you put
-> > on the machine plus your .config and I'll see what I can do.
+I think this is still far too complicated. Or at least I would
+not accept a similar patch for x86-64 :) The infrastructure
+seems also needlessly complicated to me, because I dont know
+what it should be used for except for this.
 
-forgot about the load:
+Is it really that hard to just cause a signal in the 
+iret exception handler in entry.S?  You can get the trapno
+there anyways from orig_rax (at least on x86-64)
 
-It's an ftp server. official mirror for ubuntu linux, gentoo linux, eclipse=
-=20
-SDK, etc. see ftp://ftp.rnl.ist.utl.pt
+And having all that complicated code just to get the trapno
+seems quite pointless to me. Especially since nobody
+uses it it will be likely bitrotten more often than working
+anyways, so it is not very useful. The error code is 
+in the stack frame anyways and you can get it from there.
+And the trapno can just be faked to something.
 
-We also provide rsync service for gentoo portage users. The load tests we=20
-performed that eventually crashed the machine were about 10 simultaneous=20
-rsyncs pulling information from the server, the server was uploading with=20
-rsync via ssh at 10MB/s (100Mbit nic) and some spurious ftp download client=
-s.=20
-It lasted about 30 minutes. With normal load, it lasts for about 12-14 hour=
-s.
+-Andi
 
-I think it crashes better with rsync clients... it usually crashed at aroun=
-d=20
-00h, when some cronjobs fired rsyncs...
-
-regards,
-pedro venda.
-
->
-> ok, current setup is:
->
-> 5 160GB IDE drives spread across 2 controller cards, one onboard and a PCI
-> promise ultra133 (Promise Technology, Inc. 20269 (rev 02)). All but two of
-> the drives are alone in an IDE channel.
->
-> boot and system partitions are mirrored [raid1] across all drives (not th=
-at
-> silly because of uniform partitioning scheme for raid5 array).
->
-> About 150GB of each drive belong to a RAID5 array with total size of 576.=
-73
-> GB.
->
-> that raid5 array supports two LVM volumes of 320 and 256GB.
->
-> df -h:
-> Filesystem            Size  Used Avail Use% Mounted on
-> /dev/md5               19G  2.6G   17G  14% /
-> /dev/big/ftp          320G  260G   61G  82% /home/ftp
-> /dev/big/other        257G  149G  108G  58% /home/other
-> none                  252M     0  252M   0% /dev/shm
-> /dev/md1               69M  8.7M   57M  14% /boot
->
-> lvscan:
->   ACTIVE            '/dev/big/ftp' [320.00 GB] inherit
->   ACTIVE            '/dev/big/other' [256.73 GB] inherit
->
-> pvscan:
-> PV /dev/md6   VG big   lvm2 [576.73 GB / 0    free]
-> Total: 1 [576.73 GB] / in use: 1 [576.73 GB] / in no VG: 0 [0   ]
->
-> mdstat:
-> Personalities : [raid1] [raid5]
-> md2 : active raid1 hdc2[1] hda2[0]
->       136448 blocks [2/2] [UU]
-> md7 : active raid1 hdg2[1] hde2[0]
->       136448 blocks [2/2] [UU]
-> md1 : active raid1 hdh1[4] hdg1[3] hde1[2] hdc1[1] hda1[0]
->       72192 blocks [5/5] [UUUUU]
-> md5 : active raid5 hdh5[4] hdg5[3] hde5[2] hdc5[1] hda5[0]
->       19566592 blocks level 5, 64k chunk, algorithm 2 [5/5] [UUUUU]
-> md6 : active raid5 hdh6[4] hdg6[3] hde6[2] hdc6[1] hda6[0]
->       604750336 blocks level 5, 64k chunk, algorithm 2 [5/5] [UUUUU]
-> unused devices: <none>
->
-> hope it helps.
->
-> regards,
-> pedro venda.
-
-=2D-=20
-
-Pedro Jo=E3o Lopes Venda
-email: pjvenda < at > rnl.ist.utl.pt
-http://maxwell.rnl.ist.utl.pt
-
-Equipa de Administra=E7=E3o de Sistemas
-Rede das Novas Licenciaturas (RNL)
-Instituto Superior T=E9cnico
-http://www.rnl.ist.utl.pt
-http://mega.ist.utl.pt
-
---nextPart1335534.AN5eusPyXF
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCckrgeRy7HWZxjWERAiqCAJ45hbGKNcI6tWB0DVtYUraHU3jl6wCfSLUt
-Pt56x+yzEq7E1zseCh5glwI=
-=H66P
------END PGP SIGNATURE-----
-
---nextPart1335534.AN5eusPyXF--

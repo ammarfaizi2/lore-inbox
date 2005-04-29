@@ -1,41 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262892AbVD2TQ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262897AbVD2TOT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262892AbVD2TQ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 15:16:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262894AbVD2TOb
+	id S262897AbVD2TOT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 15:14:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262896AbVD2TNk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 15:14:31 -0400
-Received: from ip51ce7bc2.speed.planet.nl ([81.206.123.194]:44951 "HELO
-	ip51ce7bc2.speed.planet.nl") by vger.kernel.org with SMTP
-	id S262892AbVD2TOJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 15:14:09 -0400
-Reply-To: "Justin Echols" <htibobj@wspub.com>
-From: "Justin" <htibobj@wspub.com>
-Message-ID: <6486872105.20050429141408@gsdzuxgqixd>
-Date: Fri, 29 Apr 2005 14:14:08 -0500
-To: <linux-kernel@vger.kernel.org>
-Subject: russian bitches dyspeptic in action bisalt
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Apr 2005 15:13:40 -0400
+Received: from waste.org ([216.27.176.166]:25995 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262892AbVD2TMO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 15:12:14 -0400
+Date: Fri, 29 Apr 2005 12:12:08 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Sean <seanlkml@sympatico.ca>, linux-kernel <linux-kernel@vger.kernel.org>,
+       git@vger.kernel.org
+Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
+Message-ID: <20050429191207.GX21897@waste.org>
+References: <20050426004111.GI21897@waste.org> <Pine.LNX.4.58.0504251859550.18901@ppc970.osdl.org> <20050429060157.GS21897@waste.org> <3817.10.10.10.24.1114756831.squirrel@linux1> <20050429074043.GT21897@waste.org> <Pine.LNX.4.58.0504290728090.18901@ppc970.osdl.org> <20050429163705.GU21897@waste.org> <Pine.LNX.4.58.0504291006450.18901@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0504291006450.18901@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Apr 29, 2005 at 10:09:38AM -0700, Linus Torvalds wrote:
+> 
+> 
+> On Fri, 29 Apr 2005, Matt Mackall wrote:
+> > 
+> > That's because no one paid attention until I posted performance
+> > numbers comparing it to git! Mercurial's goals are:
+> > 
+> > - to scale to the kernel development process
+> > - to do clone/pull style development
+> > - to be efficient in CPU, memory, bandwidth, and disk space
+> >   for all the common SCM operations
+> > - to have strong repo integrity
+> 
+> Ok, sounds good. Have you looked at how it scales over time, ie what 
+> happens with files that have a lot of delta's?
 
-	Sometimes you wonder how you got on this mountain. But sometimes you wonder, ''How will I get off?''
-Fraternal greetings from the people's republic, darlin! :)
+I've done things like 10000 commits of a pair of revisions to printk.c
+and it maintains consistently high speed and compression throughout that
+range. I've also done things like commit all 500 revisions of
+linux/Makefile from bkcvs. This took a couple seconds and resulted in
+an 88k repo file (bkcvs takes 250k).
 
-Have you ever seen pretty sexy duressor girls get fucked laryngotracheitis in every holes? Wanna Look?
+I haven't tried the whole kernel history corpus yet, but I've
+committed all the 2.6 releases without any difficulties popping up and
+I've had handling >1M total file revisions in my head since I sat down
+to work on it. I'll maybe take a stab at a full history import next
+week, if vacation doesn't interfere too much.
 
-http://www.geocities.com/lessie_jaramillo_31/
-	The first task of a leader is to keep hope alive.
+One downside Mercurial has is that long-lived repos can get fragmented on
+disk. Things get defragmented to some extent as you go by doing COW on
+files that are shared between local branches clones. Also a complete
+defrag is a simple cp -a or equivalent, so I think this is not a big
+deal.
 
-Exclusive content. we Realy young girls.
+Here's an excerpt from http://selenic.com/mercurial/notes.txt on how
+the back-end works.
 
-	How old would you be if you didn't know how old you are.
+---
 
-Unique high hard quality content
+Revlogs:
 
-Gold like the sun, which melts wax, but hardens clay, expands great souls.One thing about the school of experience is that it will repeat the lesson if you flunk the first time.
+The fundamental storage type in Mercurial is a "revlog". A revlog is
+the set of all revisions to a file. Each revision is either stored
+compressed in its entirety or as a compressed binary delta against the
+previous version. The decision of when to store a full version is made
+based on how much data would be needed to reconstruct the file. This
+lets us ensure that we never need to read huge amounts of data to
+reconstruct a file, regardless of how many revisions of it we store.
 
+In fact, we should always be able to do it with a single read,
+provided we know when and where to read. This is where the index comes
+in. Each revlog has an index containing a special hash (nodeid) of the
+text, hashes for its parents, and where and how much of the revlog
+data we need to read to reconstruct it. Thus, with one read of the
+index and one read of the data, we can reconstruct any version in time
+proportional to the file size.
 
+Similarly, revlogs and their indices are append-only. This means that
+adding a new version is also O(1) seeks.
+
+Generally revlogs are used to represent revisions of files, but they
+also are used to represent manifests and changesets.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

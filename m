@@ -1,180 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262437AbVD2G3j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262441AbVD2Gku@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262437AbVD2G3j (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 02:29:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262438AbVD2G3O
+	id S262441AbVD2Gku (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 02:40:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbVD2Gku
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 02:29:14 -0400
-Received: from smtp815.mail.sc5.yahoo.com ([66.163.170.1]:19039 "HELO
-	smtp815.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262439AbVD2G1p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 02:27:45 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 5/5 (take 2)] sysfs: (rest) if show/store is missing return -EIO
-Date: Fri, 29 Apr 2005 01:27:34 -0500
-User-Agent: KMail/1.8
-Cc: Robert Love <rml@novell.com>, Greg KH <gregkh@suse.de>,
-       Jean Delvare <khali@linux-fr.org>
-References: <200504280030.10214.dtor_core@ameritech.net> <1114710135.6682.60.camel@betsy> <200504290122.00679.dtor_core@ameritech.net>
-In-Reply-To: <200504290122.00679.dtor_core@ameritech.net>
+	Fri, 29 Apr 2005 02:40:50 -0400
+Received: from simmts5.bellnexxia.net ([206.47.199.163]:32946 "EHLO
+	simmts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S262441AbVD2Gkc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 02:40:32 -0400
+Message-ID: <3817.10.10.10.24.1114756831.squirrel@linux1>
+In-Reply-To: <20050429060157.GS21897@waste.org>
+References: <20050426004111.GI21897@waste.org>
+    <Pine.LNX.4.58.0504251859550.18901@ppc970.osdl.org>
+    <20050429060157.GS21897@waste.org>
+Date: Fri, 29 Apr 2005 02:40:31 -0400 (EDT)
+Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
+From: "Sean" <seanlkml@sympatico.ca>
+To: "Matt Mackall" <mpm@selenic.com>
+Cc: "Linus Torvalds" <torvalds@osdl.org>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>, git@vger.kernel.org
+User-Agent: SquirrelMail/1.4.4-2
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200504290127.35237.dtor_core@ameritech.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sysfs: fix the rest of the kernel so if an attribute doesn't
-       implement show or store method read/write will return
-       -EIO instead of 0 or -EINVAL or -EPERM.
+On Fri, April 29, 2005 2:01 am, Matt Mackall said:
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
+> What I'd like to highlight here is that git's repo is growing more
+> than 10 times faster. 52 megs is twice the size of a full kernel
+> tarball. And that's going to be the bottleneck for network pull
+> operations.
 
- drivers/acpi/scan.c             |    4 ++--
- drivers/cpufreq/cpufreq.c       |    4 ++--
- drivers/firmware/edd.c          |    2 +-
- drivers/firmware/efivars.c      |    4 ++--
- drivers/infiniband/core/sysfs.c |    2 +-
- kernel/params.c                 |    4 ++--
- security/seclvl.c               |    4 ++--
- 7 files changed, 12 insertions(+), 12 deletions(-)
+There isn't anything preventing optomized transfer protocols for git. 
+Give it time.
 
-Index: dtor/drivers/cpufreq/cpufreq.c
-===================================================================
---- dtor.orig/drivers/cpufreq/cpufreq.c
-+++ dtor/drivers/cpufreq/cpufreq.c
-@@ -521,7 +521,7 @@ static ssize_t show(struct kobject * kob
- 	policy = cpufreq_cpu_get(policy->cpu);
- 	if (!policy)
- 		return -EINVAL;
--	ret = fattr->show ? fattr->show(policy,buf) : 0;
-+	ret = fattr->show ? fattr->show(policy,buf) : -EIO;
- 	cpufreq_cpu_put(policy);
- 	return ret;
- }
-@@ -535,7 +535,7 @@ static ssize_t store(struct kobject * ko
- 	policy = cpufreq_cpu_get(policy->cpu);
- 	if (!policy)
- 		return -EINVAL;
--	ret = fattr->store ? fattr->store(policy,buf,count) : 0;
-+	ret = fattr->store ? fattr->store(policy,buf,count) : -EIO;
- 	cpufreq_cpu_put(policy);
- 	return ret;
- }
-Index: dtor/drivers/firmware/efivars.c
-===================================================================
---- dtor.orig/drivers/firmware/efivars.c
-+++ dtor/drivers/firmware/efivars.c
-@@ -352,7 +352,7 @@ static ssize_t efivar_attr_show(struct k
- {
- 	struct efivar_entry *var = to_efivar_entry(kobj);
- 	struct efivar_attribute *efivar_attr = to_efivar_attr(attr);
--	ssize_t ret = 0;
-+	ssize_t ret = -EIO;
- 
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EACCES;
-@@ -368,7 +368,7 @@ static ssize_t efivar_attr_store(struct 
- {
- 	struct efivar_entry *var = to_efivar_entry(kobj);
- 	struct efivar_attribute *efivar_attr = to_efivar_attr(attr);
--	ssize_t ret = 0;
-+	ssize_t ret = -EIO;
- 
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EACCES;
-Index: dtor/kernel/params.c
-===================================================================
---- dtor.orig/kernel/params.c
-+++ dtor/kernel/params.c
-@@ -629,7 +629,7 @@ static ssize_t module_attr_show(struct k
- 	mk = to_module_kobject(kobj);
- 
- 	if (!attribute->show)
--		return -EPERM;
-+		return -EIO;
- 
- 	if (!try_module_get(mk->mod))
- 		return -ENODEV;
-@@ -653,7 +653,7 @@ static ssize_t module_attr_store(struct 
- 	mk = to_module_kobject(kobj);
- 
- 	if (!attribute->store)
--		return -EPERM;
-+		return -EIO;
- 
- 	if (!try_module_get(mk->mod))
- 		return -ENODEV;
-Index: dtor/drivers/infiniband/core/sysfs.c
-===================================================================
---- dtor.orig/drivers/infiniband/core/sysfs.c
-+++ dtor/drivers/infiniband/core/sysfs.c
-@@ -71,7 +71,7 @@ static ssize_t port_attr_show(struct kob
- 	struct ib_port *p = container_of(kobj, struct ib_port, kobj);
- 
- 	if (!port_attr->show)
--		return 0;
-+		return -EIO;
- 
- 	return port_attr->show(p, port_attr, buf);
- }
-Index: dtor/security/seclvl.c
-===================================================================
---- dtor.orig/security/seclvl.c
-+++ dtor/security/seclvl.c
-@@ -155,7 +155,7 @@ seclvl_attr_store(struct kobject *kobj,
- 	struct seclvl_obj *obj = container_of(kobj, struct seclvl_obj, kobj);
- 	struct seclvl_attribute *attribute =
- 	    container_of(attr, struct seclvl_attribute, attr);
--	return (attribute->store ? attribute->store(obj, buf, len) : 0);
-+	return attribute->store ? attribute->store(obj, buf, len) : -EIO;
- }
- 
- static ssize_t
-@@ -164,7 +164,7 @@ seclvl_attr_show(struct kobject *kobj, s
- 	struct seclvl_obj *obj = container_of(kobj, struct seclvl_obj, kobj);
- 	struct seclvl_attribute *attribute =
- 	    container_of(attr, struct seclvl_attribute, attr);
--	return (attribute->show ? attribute->show(obj, buf) : 0);
-+	return attribute->show ? attribute->show(obj, buf) : -EIO;
- }
- 
- /**
-Index: dtor/drivers/acpi/scan.c
-===================================================================
---- dtor.orig/drivers/acpi/scan.c
-+++ dtor/drivers/acpi/scan.c
-@@ -65,14 +65,14 @@ static ssize_t acpi_device_attr_show(str
- {
- 	struct acpi_device *device = to_acpi_device(kobj);
- 	struct acpi_device_attribute *attribute = to_handle_attr(attr);
--	return attribute->show ? attribute->show(device, buf) : 0;
-+	return attribute->show ? attribute->show(device, buf) : -EIO;
- }
- static ssize_t acpi_device_attr_store(struct kobject *kobj,
- 		struct attribute *attr, const char *buf, size_t len)
- {
- 	struct acpi_device *device = to_acpi_device(kobj);
- 	struct acpi_device_attribute *attribute = to_handle_attr(attr);
--	return attribute->store ? attribute->store(device, buf, len) : len;
-+	return attribute->store ? attribute->store(device, buf, len) : -EIO;
- }
- 
- static struct sysfs_ops acpi_device_sysfs_ops = {
-Index: dtor/drivers/firmware/edd.c
-===================================================================
---- dtor.orig/drivers/firmware/edd.c
-+++ dtor/drivers/firmware/edd.c
-@@ -115,7 +115,7 @@ edd_attr_show(struct kobject * kobj, str
- {
- 	struct edd_device *dev = to_edd_device(kobj);
- 	struct edd_attribute *edd_attr = to_edd_attr(attr);
--	ssize_t ret = 0;
-+	ssize_t ret = -EIO;
- 
- 	if (edd_attr->show)
- 		ret = edd_attr->show(dev, buf);
+
+> The fundamental problem I see with git is that the back-end has no
+> concept of the relation between files. This data is only present in
+> change nodes so you've got to potentially traverse all the commits to
+> reconstruct a file's history. That's gonna be O(top-level changes)
+> seeks. This introduces a number of problems:
+>
+> - no way to easily find previous revisions of a file
+>   (being able to see when a particular change was introduced is a
+>   pretty critical feature)
+
+Scanning back through the history is a linear operation and will quite
+likely be just fine for many uses.   As others have pointed out, you can
+cache the result to improve subsequent lookups.
+
+
+> - no way to do bandwidth-efficient delta transfer
+
+There's nothing preventing this in the longer term.  And you know, we're
+only talking about a few megabytes per release.  We're not talking about
+video here.
+
+
+> - no way to do efficient delta storage
+
+This has been discussed.  It is a recognized and accepted design
+trade-off.  Disk is cheap.
+
+
+> - no way to do merges based on the file's history[1]
+
+What is preventing merges from looking back through the git history?
+
+
+
+The fundamental design of git is essentially done, it is what it is.
+
+Your concearns are about performance rather than real limitations and it's
+just too damn early in the development process for that.  Frankly it's
+amazing how good git is considering its age; it's already _way_ faster and
+easier to use than bk ever was for my use.
+
+
+> Mathematics is the supreme nostalgia of our time.
+
+I've been tying to figure out what this means for a while now <g>
+
+
+Sean
+
+

@@ -1,93 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262897AbVD2TOT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262889AbVD2TWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262897AbVD2TOT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 15:14:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262896AbVD2TNk
+	id S262889AbVD2TWj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 15:22:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262896AbVD2TWi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 15:13:40 -0400
-Received: from waste.org ([216.27.176.166]:25995 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262892AbVD2TMO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 15:12:14 -0400
-Date: Fri, 29 Apr 2005 12:12:08 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Sean <seanlkml@sympatico.ca>, linux-kernel <linux-kernel@vger.kernel.org>,
-       git@vger.kernel.org
-Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
-Message-ID: <20050429191207.GX21897@waste.org>
-References: <20050426004111.GI21897@waste.org> <Pine.LNX.4.58.0504251859550.18901@ppc970.osdl.org> <20050429060157.GS21897@waste.org> <3817.10.10.10.24.1114756831.squirrel@linux1> <20050429074043.GT21897@waste.org> <Pine.LNX.4.58.0504290728090.18901@ppc970.osdl.org> <20050429163705.GU21897@waste.org> <Pine.LNX.4.58.0504291006450.18901@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0504291006450.18901@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 29 Apr 2005 15:22:38 -0400
+Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:51866 "EHLO
+	ms-smtp-01-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S262889AbVD2TWS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 15:22:18 -0400
+Message-ID: <42728964.8000501@austin.rr.com>
+Date: Fri, 29 Apr 2005 14:22:12 -0500
+From: Steve French <smfrench@austin.rr.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: which ioctls matter across filesystems
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 29, 2005 at 10:09:38AM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Fri, 29 Apr 2005, Matt Mackall wrote:
-> > 
-> > That's because no one paid attention until I posted performance
-> > numbers comparing it to git! Mercurial's goals are:
-> > 
-> > - to scale to the kernel development process
-> > - to do clone/pull style development
-> > - to be efficient in CPU, memory, bandwidth, and disk space
-> >   for all the common SCM operations
-> > - to have strong repo integrity
-> 
-> Ok, sounds good. Have you looked at how it scales over time, ie what 
-> happens with files that have a lot of delta's?
+Other than the obvious example of
+    EXT2_IOC_GETFLAGS
+and
+    EXT2_IOC_SETFLAGS
+which are implemented by multiple filesystems (and are necessary to 
+support a few commonly used tools), are there any other ioctls which 
+should be able to be sent remotely (optionally)?   For it to be worth 
+extending the network protocol (in my case CIFS to servers such as 
+Samba, but presumably cluster filesystems have similar interests in 
+supporting all key local tools across the network), an ioctl would have 
+to be
+    - used by more than one local filesystem
+    - not have an equivalent way to do the same thing without an ioctl
 
-I've done things like 10000 commits of a pair of revisions to printk.c
-and it maintains consistently high speed and compression throughout that
-range. I've also done things like commit all 500 revisions of
-linux/Makefile from bkcvs. This took a couple seconds and resulted in
-an 88k repo file (bkcvs takes 250k).
+I have added the GET/SETFLAGS client support, but am not aware of any 
+others which would need to be remoted.   For fcntl there are more, but 
+it requires more research to figure out how to handle setlease/getlease 
+and a few others with network implications without degrading 
+performance.   Although I am not a fan of ioctls and fcntls, there are a 
+few that are necessary to achieve 100% local semantics across the network.
 
-I haven't tried the whole kernel history corpus yet, but I've
-committed all the 2.6 releases without any difficulties popping up and
-I've had handling >1M total file revisions in my head since I sat down
-to work on it. I'll maybe take a stab at a full history import next
-week, if vacation doesn't interfere too much.
-
-One downside Mercurial has is that long-lived repos can get fragmented on
-disk. Things get defragmented to some extent as you go by doing COW on
-files that are shared between local branches clones. Also a complete
-defrag is a simple cp -a or equivalent, so I think this is not a big
-deal.
-
-Here's an excerpt from http://selenic.com/mercurial/notes.txt on how
-the back-end works.
-
----
-
-Revlogs:
-
-The fundamental storage type in Mercurial is a "revlog". A revlog is
-the set of all revisions to a file. Each revision is either stored
-compressed in its entirety or as a compressed binary delta against the
-previous version. The decision of when to store a full version is made
-based on how much data would be needed to reconstruct the file. This
-lets us ensure that we never need to read huge amounts of data to
-reconstruct a file, regardless of how many revisions of it we store.
-
-In fact, we should always be able to do it with a single read,
-provided we know when and where to read. This is where the index comes
-in. Each revlog has an index containing a special hash (nodeid) of the
-text, hashes for its parents, and where and how much of the revlog
-data we need to read to reconstruct it. Thus, with one read of the
-index and one read of the data, we can reconstruct any version in time
-proportional to the file size.
-
-Similarly, revlogs and their indices are append-only. This means that
-adding a new version is also O(1) seeks.
-
-Generally revlogs are used to represent revisions of files, but they
-also are used to represent manifests and changesets.
-
--- 
-Mathematics is the supreme nostalgia of our time.
+The new inotify mechanism being prototyped in -mm currently is the other 
+one which needs work to determine how to map it across the network.   
+Since it was added for support of Samba, the corresponding client part 
+(for cifs) may turn out to map to the network protocol quite well 
+already, and given NFSv4 having various similarities to CIFS, it would 
+be interesting if the semantics of inotify would map to NFSv4 write 
+protocol.

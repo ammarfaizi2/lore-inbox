@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262678AbVD2ON6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262704AbVD2OPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262678AbVD2ON6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 10:13:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262698AbVD2ON5
+	id S262704AbVD2OPX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 10:15:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262702AbVD2OPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 10:13:57 -0400
-Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:3245 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262678AbVD2ONy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 10:13:54 -0400
-To: linuxram@us.ibm.com
-CC: jamie@shareable.org, ericvh@gmail.com, pavel@ucw.cz,
-       viro@parcelfarce.linux.theplanet.co.uk, miklos@szeredi.hu,
-       hch@infradead.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-In-reply-to: <1114761430.4180.1566.camel@localhost> (message from Ram on Fri,
-	29 Apr 2005 00:57:10 -0700)
-Subject: Re: [PATCH] private mounts
-References: <E1DPoCg-0000W0-00@localhost>
-	 <20050424210616.GM13052@parcelfarce.linux.theplanet.co.uk>
-	 <20050424213822.GB9304@mail.shareable.org>
-	 <20050425152049.GB2508@elf.ucw.cz>
-	 <20050425190734.GB28294@mail.shareable.org>
-	 <20050426092924.GA4175@elf.ucw.cz>
-	 <20050426140715.GA10833@mail.shareable.org>
-	 <a4e6962a050428064774e88f4a@mail.gmail.com>
-	 <20050428192048.GA2895@mail.shareable.org>
-	 <1114717183.4180.718.camel@localhost>
-	 <20050428220839.GA5183@mail.shareable.org> <1114761430.4180.1566.camel@localhost>
-Message-Id: <E1DRWEt-000149-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Fri, 29 Apr 2005 16:13:07 +0200
+	Fri, 29 Apr 2005 10:15:22 -0400
+Received: from kanga.kvack.org ([66.96.29.28]:13191 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S262697AbVD2OPD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 10:15:03 -0400
+Date: Fri, 29 Apr 2005 10:14:37 -0400
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Paul Mackerras <paulus@samba.org>
+Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] unify semaphore implementations
+Message-ID: <20050429141437.GA24617@kvack.org>
+References: <20050428182926.GC16545@kvack.org> <17009.33633.378204.859486@cargo.ozlabs.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17009.33633.378204.859486@cargo.ozlabs.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 
-> > Which means proc_root_link, when it switches to the vfsmnt at the root
-> > of the other process, should traverse into the tree of vfsmnts which
-> > make up the other namespace.
-> 
-> Yes. But proc_check_root() in proc_pid_follow_link() is failing the 
-> traversal, because it is expecting the root vfsmount of the traversed
-> process to belong to the vfsmount tree of the traversing process.
-> In other words its expecting them to be both in the same namespace.
-> 
-> The permissions get denied by this code in proc_check_root():
-> 
+On Fri, Apr 29, 2005 at 10:44:17AM +1000, Paul Mackerras wrote:
+> You have made semaphores bigger and slower on the architectures that
+> have load-linked/store-conditional instructions, which is at least
+> ppc, ppc64, sparc64 and alpha.  Did you take the trouble to understand
+> the ppc semaphore implementation?
 
-Removing the check makes chroot enter the tree under the other
-process's namespace.  However it does not actually change the
-namespace, hence mount/umount won't work.
+The ppc implementation does have some good ideas that are worth using.  
+It's hard to know which of the 23 versions were worth using, but I'm 
+getting a picture where at least 2 variants are need.  The atomic ops 
+variant should use the single counter as ppc does (why did nobody port 
+that to x86?).  A spinlock version is needed at least by parisc.
 
-So joinig a namespace does need a new syscall unfortunately.
+> What changes do you want to make to the semaphore functionality?
 
-Miklos
+There are at least two users who need asynchronous semaphore/mutex 
+operations: aio_write (which needs to acquire i_sem), and nfs.  
+Changing 23 different architectures and verifying that they are 
+correct is next to impossible, so it makes sense to have at least 
+some unification take place.
+
+		-ben
+-- 
+"Time is what keeps everything from happening all at once." -- John Wheeler

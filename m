@@ -1,87 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262300AbVD2LLq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262304AbVD2LSy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262300AbVD2LLq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 07:11:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262304AbVD2LLq
+	id S262304AbVD2LSy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 07:18:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbVD2LSx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 07:11:46 -0400
-Received: from baloney.puettmann.net ([194.97.54.34]:33995 "EHLO
-	baloney.puettmann.net") by vger.kernel.org with ESMTP
-	id S262300AbVD2LLb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 07:11:31 -0400
-Date: Fri, 29 Apr 2005 13:10:48 +0200
-To: Andrew Morton <akpm@osdl.org>
-Cc: Alexander Nyberg <alexn@telia.com>, linux-kernel@vger.kernel.org,
-       rddunlap@osdl.org, ak@suse.de
-Subject: Re: 2.6.11.7 kernel panic on boot on AMD64
-Message-ID: <20050429111047.GH18972@puettmann.net>
-References: <20050427140342.GG10685@puettmann.net> <1114769162.874.4.camel@localhost.localdomain> <20050429031027.62d17bfa.akpm@osdl.org>
+	Fri, 29 Apr 2005 07:18:53 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:18336 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262304AbVD2LSv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 07:18:51 -0400
+Date: Fri, 29 Apr 2005 16:48:49 +0530
+From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+To: Juergen Quade <quade@hsnr.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: system-freeze: kprobe and do_gettimeofday
+Message-ID: <20050429111849.GA5185@in.ibm.com>
+Reply-To: prasanna@in.ibm.com
+References: <20050423101251.GA327@hsnr.de> <20050425155649.GA30272@in.ibm.com> <20050425160859.GA23019@hsnr.de> <20050426145210.GC32766@in.ibm.com> <20050426193440.GA16597@hsnr.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050429031027.62d17bfa.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
-From: Ruben Puettmann <ruben@puettmann.net>
-X-Scanner: exiscan *1DRTOS-0001Hn-00*eitI5GAoWiY* (Puettmann.NeT, Germany)
+In-Reply-To: <20050426193440.GA16597@hsnr.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 29, 2005 at 03:10:27AM -0700, Andrew Morton wrote:
-> > This is bogus appending stuff to the saved_command_line and at the same
-> > time in Rubens case it touches the late_time_init() which breakes havoc.
+Juergen,
+
 > 
-> -ETOOTERSE.  Do you meen that the user's command line was so long that this
-> strcat wandered off the end of the buffer and corrupted late_time_init?
+> I did now a lot of additional tests. When running
+> "insmod kgettime.ko" from the console (not from x-windows)
+> I get:
 > 
+> kprobe registered address c0107bd0 // output from the module
+> double fault, gdt at c049bd00 [255 bytes]
+> double fault, tss at c03d4060
+> eip = c0103c86, esp = db932000
+> eax = ffffffff, ebx = db932134, ecx = 0000000d, edx = 00000000
+> esi = db932080, edi = 0000000d
 > 
-> > Signed-off-by: Alexander Nyberg <alexn@telia.com>
-> > 
-> > Index: linux-2.6/arch/x86_64/kernel/head64.c
-> > ===================================================================
-> > --- linux-2.6.orig/arch/x86_64/kernel/head64.c	2005-04-26 11:41:43.000000000 +0200
-> > +++ linux-2.6/arch/x86_64/kernel/head64.c	2005-04-29 11:57:46.000000000 +0200
-> > @@ -93,9 +93,6 @@
-> >  #ifdef CONFIG_SMP
-> >  	cpu_set(0, cpu_online_map);
-> >  #endif
-> > -	/* default console: */
-> > -	if (!strstr(saved_command_line, "console="))
-> > -		strcat(saved_command_line, " console=tty0"); 
+> Alt+SysRq did not work...
 > 
-> Wasn't that code there for a reason?
+> Then I removed all my modules (except 2) I was able to load the module
+> without problems. I added module by module and checked every time with
+> "insmod kgettime.ko". When loading the "ohci1394" module it crashed
+> again. But next time I loaded the "ohci"-module first - no crash.  (So I
+> don't think it is the ohci-module). I was able to load all modules and
+> it still worked.
 > 
+> Hmmm. What else to check?
+> 
+Thanks for providing the information, we are not able to reproduce this
+problem here. Can you pls write a similar fault handler for kprobes as shown
+below and get us the log messages.
 
-The patch didn't apply on 2.6.11.7 it gives this reject file:
+int fault_probe(struct kprobe *p, struct pt_regs *regs, int trapnr) {
+        printk("fault_handler:p->addr=0x%p, eflags=0x%lx\n", p->addr, regs->eflags);
+        return 0;
+}
 
-
-***************                                                                                                                    
-*** 93,101 ****                                                                                                                    
-  #ifdef CONFIG_SMP                                                                                                                
-         cpu_set(0, cpu_online_map);                                                                                               
-  #endif                                                                                                                           
--        /* default console: */                                                                                                    
--        if (!strstr(saved_command_line, "console="))                                                                              
--                strcat(saved_command_line, " console=tty0");                                                                      
-         s = strstr(saved_command_line, "earlyprintk=");                                                                           
-         if (s != NULL)                                                                                                            
-                 setup_early_printk(s);                                                                                            
---- 93,98 ----                                                                                                                     
-  #ifdef CONFIG_SMP                                                                                                                
-         cpu_set(0, cpu_online_map);                                                                                               
-  #endif                                                                                                                           
-         s = strstr(saved_command_line, "earlyprintk=");                                                                           
-         if (s != NULL)                                                                                                            
-                 setup_early_printk(s);                                                                                            
-                                                                                                                                   
-
-After apply by hand it works yes this was ist. Can this be fixed in the
-next Versions? 
-
-
-                        Ruben
-
+Thanks
+Prasanna
 
 -- 
-Ruben Puettmann
-ruben@puettmann.net
-http://www.puettmann.net
+
+Prasanna S Panchamukhi
+Linux Technology Center
+India Software Labs, IBM Bangalore
+Ph: 91-80-25044636
+<prasanna@in.ibm.com>

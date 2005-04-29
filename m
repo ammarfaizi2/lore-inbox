@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262889AbVD2TWj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262895AbVD2TVf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262889AbVD2TWj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 15:22:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262896AbVD2TWi
+	id S262895AbVD2TVf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 15:21:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262903AbVD2TVb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 15:22:38 -0400
-Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:51866 "EHLO
-	ms-smtp-01-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S262889AbVD2TWS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 15:22:18 -0400
-Message-ID: <42728964.8000501@austin.rr.com>
-Date: Fri, 29 Apr 2005 14:22:12 -0500
-From: Steve French <smfrench@austin.rr.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
+	Fri, 29 Apr 2005 15:21:31 -0400
+Received: from simmts8.bellnexxia.net ([206.47.199.166]:63199 "EHLO
+	simmts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S262895AbVD2TN1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 15:13:27 -0400
+Message-ID: <2944.10.10.10.24.1114802002.squirrel@linux1>
+In-Reply-To: <200504291854.LAA26550@emf.net>
+References: <2712.10.10.10.24.1114799620.squirrel@linux1>
+    (seanlkml@sympatico.ca) <200504291854.LAA26550@emf.net>
+Date: Fri, 29 Apr 2005 15:13:22 -0400 (EDT)
+Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
+From: "Sean" <seanlkml@sympatico.ca>
+To: "Tom Lord" <lord@emf.net>
+Cc: torvalds@osdl.org, mpm@selenic.com, linux-kernel@vger.kernel.org,
+       git@vger.kernel.org
+User-Agent: SquirrelMail/1.4.4-2
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: which ioctls matter across filesystems
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Other than the obvious example of
-    EXT2_IOC_GETFLAGS
-and
-    EXT2_IOC_SETFLAGS
-which are implemented by multiple filesystems (and are necessary to 
-support a few commonly used tools), are there any other ioctls which 
-should be able to be sent remotely (optionally)?   For it to be worth 
-extending the network protocol (in my case CIFS to servers such as 
-Samba, but presumably cluster filesystems have similar interests in 
-supporting all key local tools across the network), an ioctl would have 
-to be
-    - used by more than one local filesystem
-    - not have an equivalent way to do the same thing without an ioctl
+On Fri, April 29, 2005 2:54 pm, Tom Lord said:
 
-I have added the GET/SETFLAGS client support, but am not aware of any 
-others which would need to be remoted.   For fcntl there are more, but 
-it requires more research to figure out how to handle setlease/getlease 
-and a few others with network implications without degrading 
-performance.   Although I am not a fan of ioctls and fcntls, there are a 
-few that are necessary to achieve 100% local semantics across the network.
+> The process should not rely on the security of every developer's
+> machine.  The process should not rely on simply trusting quality
+> contributors by reputation (e.g., most cons begin by establishing
+> trust and continue by relying inappropriately on
+> trust-without-verification).  This relates to why Linus'
+> self-advertised process should be raising yellow and red cards all
+> over the place: either he is wasting a huge amount of his own time and
+> should be largely replaced by an automated patch queue manager, or he
+> is being trusted to do more than is humanly possible.
+>
 
-The new inotify mechanism being prototyped in -mm currently is the other 
-one which needs work to determine how to map it across the network.   
-Since it was added for support of Samba, the corresponding client part 
-(for cifs) may turn out to map to the network protocol quite well 
-already, and given NFSv4 having various similarities to CIFS, it would 
-be interesting if the semantics of inotify would map to NFSv4 write 
-protocol.
+Ahh, you don't believe in the development model that has produced Linux! 
+Personally I do believe in it, so much so that I question the value of
+signatures at the changeset level.  To me it doesn't matter where the code
+came from just so long as it works.   Signatures are just a way to
+increase the comfort level that the code has passed through a number of
+people who have shown themselves to be relatively good auditors.  That's
+why I trust the code from my distribution of choice.  Everything is out in
+the open anyway so it's much harder for a con man to do his thing.
+
+Sean
+
+
+

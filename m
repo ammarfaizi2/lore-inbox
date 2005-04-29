@@ -1,91 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262721AbVD2Oaj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262723AbVD2OcY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262721AbVD2Oaj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 10:30:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262726AbVD2Oaj
+	id S262723AbVD2OcY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 10:32:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262731AbVD2OcY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 10:30:39 -0400
-Received: from cantor.suse.de ([195.135.220.2]:18906 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S262721AbVD2O3w (ORCPT
+	Fri, 29 Apr 2005 10:32:24 -0400
+Received: from mx2.suse.de ([195.135.220.15]:41688 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262723AbVD2OcQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 10:29:52 -0400
-Date: Fri, 29 Apr 2005 16:29:47 +0200
+	Fri, 29 Apr 2005 10:32:16 -0400
+Date: Fri, 29 Apr 2005 16:32:15 +0200
 From: Andi Kleen <ak@suse.de>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: coywolf@lovecn.org, coywolf@gmail.com, ruben@puettmann.net,
-       linux-kernel@vger.kernel.org, ak@suse.de
+To: Alexander Nyberg <alexn@telia.com>
+Cc: Ruben Puettmann <ruben@puettmann.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, rddunlap@osdl.org, ak@suse.de
 Subject: Re: 2.6.11.7 kernel panic on boot on AMD64
-Message-ID: <20050429142947.GD21080@wotan.suse.de>
-References: <20050427140342.GG10685@puettmann.net> <20050427152704.632a9317.rddunlap@osdl.org> <20050428090539.GA18972@puettmann.net> <20050428084313.1e69f59d.rddunlap@osdl.org> <2cd57c90050428093851785879@mail.gmail.com> <20050428094721.4499f861.rddunlap@osdl.org>
+Message-ID: <20050429143215.GE21080@wotan.suse.de>
+References: <20050427140342.GG10685@puettmann.net> <1114769162.874.4.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050428094721.4499f861.rddunlap@osdl.org>
+In-Reply-To: <1114769162.874.4.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 28, 2005 at 09:47:21AM -0700, Randy.Dunlap wrote:
-> On Fri, 29 Apr 2005 00:38:24 +0800
-> Coywolf Qi Hunt <coywolf@gmail.com> wrote:
-> 
-> > On 4/28/05, Randy.Dunlap <rddunlap@osdl.org> wrote:
-> > > On Thu, 28 Apr 2005 11:05:40 +0200
-> > > Ruben Puettmann <ruben@puettmann.net> wrote:
-> > > 
-> > > > On Wed, Apr 27, 2005 at 03:27:04PM -0700, Randy.Dunlap wrote:
-> > > >  Looks like this code in init/main.c:
-> > > > >
-> > > > >     if (late_time_init)
-> > > > >             late_time_init();
-> > > > >
-> > > > > sees a garbage value in late_time_init (garbage being
-> > > > > %eax == 0x00307974.743d656c, which is "le=tty0\n",
-> > > > > as in "console=tty0").
-> > > > >
-> > > > > How long is your kernel boot/command line?
-> > > > > Please post it.
-> > > >
-> > > > It was boot over pxe here is the append line from the
-> > > > pxelinux.cfg/default
-> > > >
-> > > > APPEND vga=normal rw  load_ramdisk=0 root=/dev/nfs nfsroot=192.168.112.1:/store/rescue/sarge-amd64,rsize=8192,wsize=8192,timo=12,retrans=3,mountvers=3,nfsvers=3
-> > > 
-> > > Hm, no "console=tty...." at all.  That didn't help (me) much.
+On Fri, Apr 29, 2005 at 12:06:02PM +0200, Alexander Nyberg wrote:
+> >                                                                                                            
+> > I'm trying to install linux on an HP DL385 but directly on boot I got                                           
+> > this kernel panic:
 > > 
-> > Could that boot loader pxe append console=tty implicitly?
-> 
-> It could... I don't know anything about pxe boot.
+> >         http://www.puettmann.net/temp/panic.jpg
 > 
 > 
-> > >From the vmlinux Ruben gave me,
-> > ffffffff807980d8 A __bss_start
-> > ffffffff807980d8 A _edata
-> > ffffffff80798100 B boot_cpu_stack
-> > ffffffff8079c100 B boot_exception_stacks
-> > ffffffff807a1100 B system_state
-> > ffffffff807a1120 B saved_command_line
-> > ffffffff807a1220 B late_time_init
-> > ffffffff807a1228 b execute_command
-> > ffffffff807a1230 b panic_later
-> > ffffffff807a1238 b panic_param
-> > ...
-> > 
-> > It seems possible to luckily skip the garbage. Comment out the two
-> > lines and see if it works.
-> > 
-> > /*     if (late_time_init)
-> >              late_time_init(); */
-> 
-> Yes, that would help verify that the command line is the problem.
-> I also recall Andi having a few problems with large command lines
-> on x86-64... so it still smells like that to me.  (ak added to cc:)
 
+Hmm? saved_command_Line should have enough space to add a simple string.
+It is a 1024bytes. Unless you already have a 1k command line it should
+be quite ok.
 
-late_time_init is not in my tree. Someone else must have submitted it.
-iirc it was a workaround for some race in the NMI watchdog setup, but
-that has since then be properly fixed.
+Why do you think it is bogus?
 
-I would recommend to just drop the patch.
+> This is bogus appending stuff to the saved_command_line and at the same
+> time in Rubens case it touches the late_time_init() which breakes havoc.
 
+I dont agree with this patch.
 
 -Andi
+
+> 
+> Signed-off-by: Alexander Nyberg <alexn@telia.com>
+> 
+> Index: linux-2.6/arch/x86_64/kernel/head64.c
+> ===================================================================
+> --- linux-2.6.orig/arch/x86_64/kernel/head64.c	2005-04-26 11:41:43.000000000 +0200
+> +++ linux-2.6/arch/x86_64/kernel/head64.c	2005-04-29 11:57:46.000000000 +0200
+> @@ -93,9 +93,6 @@
+>  #ifdef CONFIG_SMP
+>  	cpu_set(0, cpu_online_map);
+>  #endif
+> -	/* default console: */
+> -	if (!strstr(saved_command_line, "console="))
+> -		strcat(saved_command_line, " console=tty0"); 
+>  	s = strstr(saved_command_line, "earlyprintk=");
+>  	if (s != NULL)
+>  		setup_early_printk(s);
+> 
+> 

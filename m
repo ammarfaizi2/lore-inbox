@@ -1,68 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262801AbVD2Pok@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262110AbVD2Prj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262801AbVD2Pok (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 11:44:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbVD2Pok
+	id S262110AbVD2Prj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 11:47:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262054AbVD2Pri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 11:44:40 -0400
-Received: from emf.emf.net ([205.149.0.19]:4361 "EHLO emf.net")
-	by vger.kernel.org with ESMTP id S262801AbVD2Poc (ORCPT
+	Fri, 29 Apr 2005 11:47:38 -0400
+Received: from mail.tmr.com ([64.65.253.246]:19461 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S261946AbVD2Pr2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 11:44:32 -0400
-Date: Fri, 29 Apr 2005 08:44:30 -0700 (PDT)
-From: Tom Lord <lord@emf.net>
-Message-Id: <200504291544.IAA23584@emf.net>
-To: torvalds@osdl.org
-CC: mpm@selenic.com, seanlkml@sympatico.ca, linux-kernel@vger.kernel.org,
-       git@vger.kernel.org
-In-reply-to: <Pine.LNX.4.58.0504290728090.18901@ppc970.osdl.org> (message from Linus Torvalds on Fri, 29 Apr 2005 07:34:15 -0700 (PDT))
-Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
+	Fri, 29 Apr 2005 11:47:28 -0400
+Date: Fri, 29 Apr 2005 11:34:17 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-ide@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Multiple functionality breakages in 2.6.12rc3 IDE layer
+In-Reply-To: <1114727182.24687.235.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.3.96.1050429112342.2645A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 28 Apr 2005, Alan Cox wrote:
 
+> On Iau, 2005-04-28 at 19:13, Bill Davidsen wrote:
+> > On Thu, 28 Apr 2005, Alan Cox wrote:
+> 
+> > But isn't that the stuff we use for swapping drives? Down the drive, down
+> > the interface, swap, and restart? Are these the functions called by hdparm
+> > (-bRU) which are all of a sudden not going to work? Or am I being
+> > alarmist?
+> 
+> True but the only kernels supporting that are 2.4.x-ac. There are
+> reasons I noticed this and looking at getting 2.6 IDE back to 2.4
+> standards in this area was one of them.
 
-  > ie does mercurial do distributed merges, which git was designed for, and 
-  > does mercurial notice single-bit errors in a reasonably secure manner, or 
-  > can people just mess with history willy-nilly?
+The amazing part is that I haven't had a drive fail since I went from 2.4
+to 2.6 over a year ago. As you say, it works on your 2.4 kernels, I've "oh
+shit" tested it. So if I lose a drive now I'm screwed, not my favorite
+operating status.
 
-  > For the latter, the cryptographic nature of sha1 is an added bonus - the
-  > _big_ issue is that it is a good hash, and an _exteremely_ effective CRC
-  > of the data. You can't mess up an archive and lie about it later.
+> 
+> > I missed the discussion of why it was felt that the users would no longer
+> > want to be able to do these things, or the new way to do it.
+> 
+> I'm assuming it may be accidental rather than detailed planning. Also
+> its taken this long to notice so its clearly not that critical to
+> everyone. Seems to be reasonably sane to fix too.
 
-On the other hand, you're asking people to sign whole trees and not just at
-first-import time but also for every change.
+I was being a bit sarcastic about the "missed the discussion" bit, but I'm
+pretty sure ripping out the capability was deliberate. Hopefully it's now
+going to be evaluated, and then fixed. One thing Linux doesn't seem to do
+well is recover failed drives at boot time, it always seems to take a
+bunch of fiddling or even a boot from live CD and hand recover.
+> 
+> Alan
+> 
 
-That's an impedence mismatch and undermines the security features of the
-approach you're taking and here is why:
+Thanks for jumping into this, with ATAPI storage down to about
+$1100(US)/TB it's getting really hard to justify SCSI and real hot swap
+hardware.
 
-I shouldn't sign anything I haven't reviewed pretty carefully.  For
-the kernel and in many other situations, it is too expensive to review
-the whole tree.  Thus, the thing actually signed and the thing meant
-by the signature are not equal.  I sign a tree, in this system,
-because I think the right diffs and only the right diffs have been
-applied to it.   My signature is intended to mean, though, that I vouche
-for the *diffs*, not the tree.
-
-If I've changed five files, I should be signing a statement of:
-
-	1) my belief about the identity of the immediate ancestor tree
-	2) a robust summary of my changes, sufficient to recreate my
-	   new tree given a faithful copy of the ancestor
-
-That's a short enough amount of data that a human can really review it
-and thus it makes the signatures much more meaningful.
-
-Probably doesn't matter much other than in cases where a mainline
-is undergoing massive batch-patching based mostly on a web of trust.
-
-But in that case --- someone or something generates purported diffs of
-a tree; someone or something else scans those diffs and decides they
-look good ---- and then on this basis, something distinct from
-directly using those diffs occurs.  The diffs were used to vette the
-change; the signature asserts that a certain tree is a faithful result
-of applying those diffs.  Nothing checks that second assertion -- it's
-taken on faith.
-
--t
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

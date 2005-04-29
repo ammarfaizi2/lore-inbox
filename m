@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262592AbVD2NUM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262610AbVD2N04@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262592AbVD2NUM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 09:20:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262599AbVD2NUM
+	id S262610AbVD2N04 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 09:26:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262603AbVD2N0z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 09:20:12 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:50358 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S262592AbVD2NTv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 09:19:51 -0400
-Date: Fri, 29 Apr 2005 09:19:15 -0400
-To: Davy Durham <pubaddr2@davyandbeth.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ext3 issue..
-Message-ID: <20050429131915.GB2297@csclub.uwaterloo.ca>
-References: <4270FA5B.5060609@davyandbeth.com> <20050428200908.GB6669@thunk.org> <42719D5D.5060106@davyandbeth.com>
+	Fri, 29 Apr 2005 09:26:55 -0400
+Received: from fire.osdl.org ([65.172.181.4]:37082 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262639AbVD2NXT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 09:23:19 -0400
+Date: Fri, 29 Apr 2005 06:20:53 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Hubert Tonneau <hubert.tonneau@fullpliant.org>
+Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: 2.6.12-rc3 mmap lack of consistency among runs
+Message-Id: <20050429062053.2c9943ce.akpm@osdl.org>
+In-Reply-To: <0563I2L12@server5.heliogroup.fr>
+References: <0563I2L12@server5.heliogroup.fr>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42719D5D.5060106@davyandbeth.com>
-User-Agent: Mutt/1.3.28i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 28, 2005 at 09:35:09PM -0500, Davy Durham wrote:
-> Well, I don't have the output of the fsck when I did the machine I did 
-> it on. And I can't do it on the production machine right now.  Perhaps I 
-> can tommorrow if I can talk to the guys about cleaning it off.  I'm a 
-> bit afraid to do it, reason being that if it's off on this accounting 
-> information, what files/data might I lose if I did an fsck on it 
-> (remember, the one I already did it on was empty).
+Hubert Tonneau <hubert.tonneau@fullpliant.org> wrote:
+>
+> Andrew Morton wrote:
+> >
+> > Maybe you're being bitten by the address space randomisation.
+> > 
+> > Try
+> > 	echo 0 > /proc/sys/kernel/randomize_va_space
 > 
-> Also, I did an "e2fsck /home" on the running machine just expecting to 
-> get the "warning, don't do this on a mounted file system" prompt, but 
-> instead I got:
+> Ok, it solves my issue, but:
 > 
-> # e2fsck /home
-> e2fsck 1.34 (25-Jul-2003)
-> e2fsck: Is a directory while trying to open /home
+> . desabling it through 'echo 0 > /proc/sys/kernel/randomize_va_space' is not
+>   a solution because only the application knows that it wants it to be desabled,
+>   and the application is not root so cannot write to /proc; morever the
+>   application can only speak for itself so desabling should be on a per process
+>   bias.
 
-/home IS a directory.  You run fsck on the device NOT the mount point.
-Remember the filesystem is unmounted or at most mounted readonly when
-fsck is run after all.
+You can disable randomization on a per-executable basis by setting an ELF
+personality.  I forget the magic incantation.  Arjan?
 
-> The superblock could not be read or does not describe a correct ext2
-> filesystem.  If the device is valid and it really contains an ext2
-> filesystem (and not swap or ufs or something else), then the superblock
-> is corrupt, and you might try running e2fsck with an alternate superblock:
->    e2fsck -b 8193 <device>
+>   I can hardly imagine to publish a warning in the README such as:
+>   This software only works if your Linux kernel is configured so that
+>   /proc/sys/kernel/randomize_va_space = 0
 > 
-> Perhaps it's because it is mounted? (and -b 8193 didn't change 
-> anything).  Do I need to do it on the device after unmounting instead? 
-> (Probably so)
-> 
-> I do get the expected warning with fsck itself.  Which should I be 
-> using? e2fsck or fsck?
+> . second, my process restart succeeding roughly in 50% cases means that the
+>   randomisation performed is just a toy. A virus assuming fixed memory layout
+>   will still succeed 50% of times to install.
 
-Shouldn't matter as far as I know.  If ext3, perhaps fsck.ext3 is right.
-fsck should just figure it out I believe.
+Dunno.
 
-> This is kernel-2.6.3-15mdk BTW (mdk 10.0official)
-> 
-> I'll try to report back tomorrow if I'm able to do anything..
+> All in all, I'm not concerned about Linux kernel to randomise or not,
+> but I need to have a reliable way to request a memory region and be granted
+> that I can request the same one in a futur run.
+> What is the proper way to get such a memory area ?
 
-Len Sorensen
+MAP_FIXED?

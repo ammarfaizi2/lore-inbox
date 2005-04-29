@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262371AbVD2Btu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262373AbVD2BwE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262371AbVD2Btu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Apr 2005 21:49:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262372AbVD2Btu
+	id S262373AbVD2BwE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Apr 2005 21:52:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262375AbVD2BwD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Apr 2005 21:49:50 -0400
-Received: from quechua.inka.de ([193.197.184.2]:59301 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S262371AbVD2Btq (ORCPT
+	Thu, 28 Apr 2005 21:52:03 -0400
+Received: from smtp.istop.com ([66.11.167.126]:44230 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S262373AbVD2Bvx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Apr 2005 21:49:46 -0400
-From: Bernd Eckenfels <ecki@lina.inka.de>
-To: linux-kernel@vger.kernel.org
+	Thu, 28 Apr 2005 21:51:53 -0400
+From: Daniel Phillips <phillips@istop.com>
+To: David Lang <david.lang@digitalinsight.com>
 Subject: Re: [PATCH 0/7] dlm: overview
-Organization: Private Site running Debian GNU/Linux
+Date: Thu, 28 Apr 2005 21:52:30 -0400
+User-Agent: KMail/1.7
+Cc: Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org
+References: <20050425151136.GA6826@redhat.com> <20050428145715.GA21645@marowsky-bree.de> <Pine.LNX.4.62.0504281731450.6139@qynat.qvtvafvgr.pbz>
 In-Reply-To: <Pine.LNX.4.62.0504281731450.6139@qynat.qvtvafvgr.pbz>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.8.1 (i686))
-Message-Id: <E1DRKdT-00013X-00@calista.eckenfels.6bone.ka-ip.net>
-Date: Fri, 29 Apr 2005 03:49:43 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200504282152.31137.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.62.0504281731450.6139@qynat.qvtvafvgr.pbz> you wrote:
-> how is this UUID that doesn't need to be touched by an admin, and will 
-> always work in all possible networks (including insane things like backup 
-> servers configured with the same name and IP address as the primary with 
+On Thursday 28 April 2005 20:33, David Lang wrote:
+> how is this UUID that doesn't need to be touched by an admin, and will
+> always work in all possible networks (including insane things like backup
+> servers configured with the same name and IP address as the primary with
 > NAT between them to allow them to communicate) generated?
-> 
-> there are a lot of software packages out there that could make use of 
+>
+> there are a lot of software packages out there that could make use of
 > this.
 
-It is hard to work in all cases :)
+Please do not argue that the 32 bit node ID ints should be changed to uuids, 
+please find another way to accommodate your uuids.
 
-if you use v4 UUID they are a 128bit random bitstring, others depend on the
-MAC (plus random). 
+Regards,
 
-Greetings
-Bernd
+Daniel

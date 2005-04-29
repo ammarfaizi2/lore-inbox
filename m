@@ -1,164 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262825AbVD2Qif@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262350AbVD2QmK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262825AbVD2Qif (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 12:38:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262823AbVD2Qif
+	id S262350AbVD2QmK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 12:42:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbVD2QmK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 12:38:35 -0400
-Received: from waste.org ([216.27.176.166]:8406 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262822AbVD2QhP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 12:37:15 -0400
-Date: Fri, 29 Apr 2005 09:37:05 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Sean <seanlkml@sympatico.ca>, linux-kernel <linux-kernel@vger.kernel.org>,
-       git@vger.kernel.org
-Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
-Message-ID: <20050429163705.GU21897@waste.org>
-References: <20050426004111.GI21897@waste.org> <Pine.LNX.4.58.0504251859550.18901@ppc970.osdl.org> <20050429060157.GS21897@waste.org> <3817.10.10.10.24.1114756831.squirrel@linux1> <20050429074043.GT21897@waste.org> <Pine.LNX.4.58.0504290728090.18901@ppc970.osdl.org>
+	Fri, 29 Apr 2005 12:42:10 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:49320 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262350AbVD2Ql5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 12:41:57 -0400
+Subject: Re: [RFC][PATCH] Reduce ext3 allocate-with-reservation lock
+	latencies
+From: Mingming Cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Andrew Morton <akpm@osdl.org>, "Stephen C. Tweedie" <sct@redhat.com>,
+       Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1114713258.18996.7.camel@localhost.localdomain>
+References: <1112673094.14322.10.camel@mindpipe>
+	 <20050405041359.GA17265@elte.hu>
+	 <1112765751.3874.14.camel@localhost.localdomain>
+	 <20050407081434.GA28008@elte.hu>
+	 <1112879303.2859.78.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1112917023.3787.75.camel@dyn318043bld.beaverton.ibm.com>
+	 <1112971236.1975.104.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1112983801.10605.32.camel@dyn318043bld.beaverton.ibm.com>
+	 <1113220089.2164.52.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1113244710.4413.38.camel@localhost.localdomain>
+	 <1113249435.2164.198.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1113288087.4319.49.camel@localhost.localdomain>
+	 <1113304715.2404.39.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1113348434.4125.54.camel@dyn318043bld.beaverton.ibm.com>
+	 <1113388142.3019.12.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1114207837.7339.50.camel@localhost.localdomain>
+	 <1114659912.16933.5.camel@mindpipe>
+	 <1114673852.4104.33.camel@localhost.localdomain>
+	 <1114704726.17712.17.camel@mindpipe>
+	 <1114713258.18996.7.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: IBM LTC
+Date: Thu, 28 Apr 2005 23:18:10 -0700
+Message-Id: <1114755490.2518.29.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0504290728090.18901@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 29, 2005 at 07:34:15AM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Fri, 29 Apr 2005, Matt Mackall wrote:
+On Thu, 2005-04-28 at 11:34 -0700, Mingming Cao wrote: 
+> On Thu, 2005-04-28 at 12:12 -0400, Lee Revell wrote:
+> > On Thu, 2005-04-28 at 00:37 -0700, Mingming Cao wrote:
+> > > On Wed, 2005-04-27 at 23:45 -0400, Lee Revell wrote:
+> > > > On Fri, 2005-04-22 at 15:10 -0700, Mingming Cao wrote:
+> > > > > Please review. I have tested on fsx on SMP box. Lee, if you got time,
+> > > > > please try this patch.
+> > > > 
+> > > > I have tested and this does fix the problem.  I ran my tests and no ext3
+> > > > code paths showed up on the latency tracer at all, it never went above
+> > > > 33 usecs.
+> > > > 
+> > > Thanks, Lee.
+> > > 
+> > > The patch survived on many fsx test over 20 hours on a 2cpu machine.
+> > > Tested the patch on the same machine with tiobench (1-64 threads), and
+> > > untar a kernel tree test, no regression there.
+> > > However I see about 5-7% throughput drop on dbench with 16 threads. It
+> > > probably due to the cpu cost that we have discussed.
 > > 
-> > Mercurial is even younger (Linus had a few days' head start, not to
-> > mention a bunch of help), and it is already as fast as git, relatively
-> > easy to use, much simpler, and much more space and bandwidth
-> > efficient.
+> > Hmm, I guess someone needs to test it on a bigger system.  AFAICT this
+> > should improve SMP scalability quite a bit.  Maybe that lock is rarely
+> > contended.
 > 
-> You've not mentioned two out of my three design goals:
->  - distribution
->  - reliability/trustability
-> 
-> ie does mercurial do distributed merges, which git was designed for, and 
-> does mercurial notice single-bit errors in a reasonably secure manner, or 
-> can people just mess with history willy-nilly?
+> Probably. I will try it on a relatively full filesystem(where bitmap
+> scan to find a free block takes time), and on a 4 cpu box with many
+> threads allocating at the same time.
 
-Distribution: yes, it does BK/Monotone-style branching and merging.
-In fact, these should be more "correct" than git as it has DAG
-information at the file level in the case where there are multiple
-ancestors at the changeset graph level:
+I run 64 threads dbench on a 4way box on a 90% full filesystem, patched
+kernel is slightly faster. I think part of the reason is on a 90% full
+filesystem, block bitmap scan will take a long time. Thus drop the lock
+before bitmap scan will help, although there are some overhead of
+drop/re-grab lock and extra window search/link/unlink before we found a
+window with free block.  On a freshly created filesystem where the
+regression is seen, the bitmap scan takes shorter time, thus the
+overhead of drop/re-grab lock and extra window search/link/unlink
+probably is probably be outstanding. 
 
-M   M1   M2
+I also run 1000 dd tests in parallel, each of them writing to different
+file(2M size). Seems no gain or no regression.
 
-AB
- |`-------v     M2 clones M
-aB       AB     file A is change in mainline
- |`---v  AB'    file B is changed in M2
- |   aB / |     M1 clones M
- |   ab/  |     M1 changes B
- |   ab'  |     M1 merges from M2, changes to B conflict
- |    |  A'B'   M2 changes A
-  `---+--.|
-      |  a'B'   M2 merges from mainline, changes to A conflict
-      `--.|
-         ???    depending on which ancestor we choose, we will have
-	        to redo A hand-merge, B hand-merge, or both
-                but if we look at the files independently, everything
-		is fine
+Anyway, we should not hold the global reservation lock while scanning
+the bitmap, that's a scalability issue and a latency issue. To drop the
+lock during bitmap scan we need to do extra work, I don't think it's
+avoidable.  Andrew, could you add it to mm tree? I will re-send the
+patch with the change log.
 
-> For the latter, the cryptographic nature of sha1 is an added bonus - the
-> _big_ issue is that it is a good hash, and an _exteremely_ effective CRC
-> of the data. You can't mess up an archive and lie about it later. And if
-> you have random memory or filesystem corruption, it's not a "shit happens"  
-> kind of situation - it's a "uhhoh, we can catch it (and hopefully even fix
-> it, thanks to distribution)" thing.
+Thanks,
+Mingming
 
-Reliability/trustability: Mercurial is using a SHA1 hash as a checksum
-as well, much like Monotone and git. A changeset contains a hash of a
-manifest which contains a hash of each file in the project, so you can
-do things like sign the manifest hash (though I haven't implemented it
-yet. Making a backup is as simple as making a hardlink branch:
-
- mkdir backup
- cd backup
- hg branch ../linux  # takes about a second
-
-> I had three design goals. "disk space" wasn't one of them, so you've
-> concentrated on only one so far in your arguments.
-
-That's because no one paid attention until I posted performance
-numbers comparing it to git! Mercurial's goals are:
-
-- to scale to the kernel development process
-- to do clone/pull style development
-- to be efficient in CPU, memory, bandwidth, and disk space
-  for all the common SCM operations
-- to have strong repo integrity
-
-It's been doing all that quite nicely since its first release.
-The UI is also pretty straightforward:
-
-Setting up a Mercurial project:
-
- $ cd linux/
- $ hg init         # creates .hg
- $ hg status       # show changes between repo and working dir
- $ hg addremove    # add all unknown files and remove all missing files
- $ hg commit       # commit all changes, edit changelog entry
-
- Mercurial will look for a file named .hgignore in the root of your
- repository contains a set of regular expressions to ignore in file
- paths.
-
-Mercurial commands:
-
- $ hg history          # show changesets
- $ hg log Makefile     # show commits per file
- $ hg diff             # generate a unidiff
- $ hg checkout         # check out the tip revision
- $ hg checkout <hash>  # check out a specified changeset
- $ hg add foo          # add a new file for the next commit
- $ hg remove bar       # mark a file as removed
-
-Branching and merging:
-
- $ cd ..
- $ mkdir linux-work
- $ cd linux-work
- $ hg branch ../linux        # create a new branch
- $ hg checkout               # populate the working directory
- $ <make changes>
- $ hg commit
- $ cd ../linux
- $ hg merge ../linux-work    # pull changesets from linux-work
-
-Importing patches:
-
- Fast:
- $ patch < ../p/foo.patch
- $ hg addremove
- $ hg commit
-
- Faster:
- $ patch < ../p/foo.patch
- $ hg commit `lsdiff -p1 ../p/foo.patch`
-
- Fastest:
- $ cat ../p/patchlist | xargs hg import -p1 -b ../p 
-
-Network support:
-
- # export your .hg directory as a directory on your webserver
- foo$ ln -s .hg ~/public_html/hg-linux 
-
- # merge changes from a remote machine
- bar$ hg init                              # create an empty repo
- bar$ hg merge http://foo/~user/hg-linux   # populate it
- bar$ <do some work>
- bar$ hg merge http://foo/~user/hg-linux   # resync
-
- This is just a proof of concept of grabbing byte ranges, and is not
- expected to perform well.
-
--- 
-Mathematics is the supreme nostalgia of our time.

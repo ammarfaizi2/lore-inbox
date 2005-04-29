@@ -1,68 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262964AbVD2U0c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262962AbVD2U3R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262964AbVD2U0c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 16:26:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262962AbVD2UZo
+	id S262962AbVD2U3R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 16:29:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262948AbVD2UUX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 16:25:44 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:35683
-	"EHLO opteron.random") by vger.kernel.org with ESMTP
-	id S262944AbVD2UZT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 16:25:19 -0400
-Date: Fri, 29 Apr 2005 22:30:27 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
-Message-ID: <20050429203027.GK17379@opteron.random>
-References: <20050426004111.GI21897@waste.org> <Pine.LNX.4.58.0504251859550.18901@ppc970.osdl.org> <20050429060157.GS21897@waste.org>
+	Fri, 29 Apr 2005 16:20:23 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:59865 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262942AbVD2USp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 16:18:45 -0400
+Subject: Re: [06/07] [PATCH] SCSI tape security: require CAP_ADMIN for
+	SG_IO etc.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Greg KH <greg@kroah.com>
+Cc: Kai Makisara <Kai.Makisara@kolumbus.fi>, Greg KH <gregkh@suse.de>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-scsi@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>, Cliff White <cliffw@osdl.org>,
+       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20050429042014.GC25474@kroah.com>
+References: <20050427171446.GA3195@kroah.com>
+	 <20050427171649.GG3195@kroah.com>
+	 <1114619928.18809.118.camel@localhost.localdomain>
+	 <Pine.LNX.4.61.0504280810140.12812@kai.makisara.local>
+	 <1114694511.18809.187.camel@localhost.localdomain>
+	 <20050429042014.GC25474@kroah.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1114805784.18330.297.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050429060157.GS21897@waste.org>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-User-Agent: Mutt/1.5.9i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 29 Apr 2005 21:16:27 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 28, 2005 at 11:01:57PM -0700, Matt Mackall wrote:
-> change nodes so you've got to potentially traverse all the commits to
-> reconstruct a file's history. That's gonna be O(top-level changes)
-> seeks. This introduces a number of problems:
+On Gwe, 2005-04-29 at 05:20, Greg KH wrote:
+> > Ok thats the bit I needed to know
 > 
-> - no way to easily find previous revisions of a file
->   (being able to see when a particular change was introduced is a
->   pretty critical feature)
-> - no way to do bandwidth-efficient delta transfer
-> - no way to do efficient delta storage
-> - no way to do merges based on the file's history[1]
+> So, do you still object to this patch being accepted?
 
-And IMHO also no-way to implement a git-on-the-fly efficient network
-protocol if tons of clients connects at the same time, it would be
-dosable etc... At the very least such a system would require an huge
-amount of ram. So I see the only efficient way to design a network
-protocol for git not to use git, but to import the data into mercurial
-and to implement the network protocol on top of mercurial.
+Switched to CAP_SYS_RAWIO I don't. Its the wrong answer long term I
+suspect but its definitely a good answer for now.
 
-The one downside is that git is sort of rock solid in the way it stores
-data on disk, it makes rsync usage trivial too, the git fsck is reliable
-and you can just sign the hash of the root of the tree and you sign
-everything including file contents. And of course the checkin is
-absolutely trivial and fast too.
+Alan
 
-With a more efficient diff-based storage like mercurial we'd be losing
-those fsck properties etc.. but those reliability properties don't worth
-the network and disk space they take IMHO, and the checkin time
-shouldn't be substantially different (still running in O(1) when
-appending at the head). And we could always store the hash of the
-changeset, to give it some basic self-checking.
-
-I give extreme value in a SCM in how efficiently it can represent the
-whole tree for both network downloads and backups too. Being able to
-store the whole history of 2.5 in < 100M is a very valuable feature
-IMHO, much more valuable than to be able to sign the root.
-
-Also don't get me wrong, I'm _very_ happy about git too, but I just
-happen to prefer mercurial storage (I would never use git for anything
-but the kernel, just like I wasn't using arch for similar reasons).

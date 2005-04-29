@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262952AbVD2Usk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262963AbVD2Uux@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262952AbVD2Usk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 16:48:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262929AbVD2Ur4
+	id S262963AbVD2Uux (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 16:50:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262929AbVD2Usy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 16:47:56 -0400
-Received: from fire.osdl.org ([65.172.181.4]:44442 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262963AbVD2Ur1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 16:47:27 -0400
-Date: Fri, 29 Apr 2005 13:49:18 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Matt Mackall <mpm@selenic.com>
-cc: Sean <seanlkml@sympatico.ca>, linux-kernel <linux-kernel@vger.kernel.org>,
-       git@vger.kernel.org
-Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
-In-Reply-To: <20050429202341.GB21897@waste.org>
-Message-ID: <Pine.LNX.4.58.0504291338540.18901@ppc970.osdl.org>
-References: <20050426004111.GI21897@waste.org> <Pine.LNX.4.58.0504251859550.18901@ppc970.osdl.org>
- <20050429060157.GS21897@waste.org> <3817.10.10.10.24.1114756831.squirrel@linux1>
- <20050429074043.GT21897@waste.org> <Pine.LNX.4.58.0504290728090.18901@ppc970.osdl.org>
- <20050429163705.GU21897@waste.org> <Pine.LNX.4.58.0504291006450.18901@ppc970.osdl.org>
- <20050429191207.GX21897@waste.org> <Pine.LNX.4.58.0504291248210.18901@ppc970.osdl.org>
- <20050429202341.GB21897@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 29 Apr 2005 16:48:54 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:38571 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S262939AbVD2Ur7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 16:47:59 -0400
+Subject: Re: which ioctls matter across filesystems
+From: Robert Love <rml@novell.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Steve French <smfrench@austin.rr.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1114807360.12692.77.camel@lade.trondhjem.org>
+References: <42728964.8000501@austin.rr.com>
+	 <1114804426.12692.49.camel@lade.trondhjem.org>
+	 <1114805033.6682.150.camel@betsy>
+	 <1114807360.12692.77.camel@lade.trondhjem.org>
+Content-Type: text/plain
+Date: Fri, 29 Apr 2005 16:47:28 -0400
+Message-Id: <1114807648.6682.153.camel@betsy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2005-04-29 at 16:42 -0400, Trond Myklebust wrote:
+
+> The problem is that having the server call back a bunch of clients every
+> time a file changes does not really scale too well. The current
+> dnotify-like proposal therefore specifies that notification is not
+> synchronous (i.e. there may be a delay of several seconds), and that the
+> server may want to group several notifications into a single callback.
+
+Yah, so what I am asking is why not use inotify for the user-side
+component of this system?
+
+Wouldn't the deferring and coalescing of events occur on the server
+side?  So the server-side stuff would be whatever you need--your own
+code using whatever protocol you wanted--but the client-side interface
+would be over inotify.
+
+Even if not, I'd be willing to make changes to inotify to accommodate
+NFS's needs.
+
+	Robert Love
 
 
-On Fri, 29 Apr 2005, Matt Mackall wrote:
-> 
-> The changeset log (and everything else) has an external index.
-
-I don't actually know exactly how the BK changeset file works, but your 
-explanation really sounds _very_ much like it.
-
-I didn't want to do anything that even smelled of BK. Of course, part of
-my reason for that is that I didn't feel comfortable with a delta model at
-all (I wouldn't know where to start, and I hate how they always end up
-having different rules for "delta"ble and "non-delta"ble objects).
-
-But another was that exactly since I've been using BK for so long, I
-wanted to make sure that my model just emulated the way I've been _using_
-BK, rather than any BK technical details.
-
-So it sounds like it could work fine, but it in fact sounds so much like 
-the ChangeSet file that I'd personally not have done it that way. 
-
-			Linus

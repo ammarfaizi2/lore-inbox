@@ -1,65 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263012AbVD2V0J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263000AbVD2VZF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263012AbVD2V0J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 17:26:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263009AbVD2VZn
+	id S263000AbVD2VZF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 17:25:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263007AbVD2VVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 17:25:43 -0400
-Received: from ms-smtp-04.texas.rr.com ([24.93.47.43]:39828 "EHLO
-	ms-smtp-04.texas.rr.com") by vger.kernel.org with ESMTP
-	id S262991AbVD2VW0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 17:22:26 -0400
-Message-ID: <4272A582.3040709@austin.rr.com>
-Date: Fri, 29 Apr 2005 16:22:10 -0500
-From: Steve French <smfrench@austin.rr.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: Robert Love <rml@novell.com>, linux-kernel@vger.kernel.org
-Subject: Re: which ioctls matter across filesystems
-References: <42728964.8000501@austin.rr.com> <1114804426.12692.49.camel@lade.trondhjem.org> <1114805033.6682.150.camel@betsy> <1114807360.12692.77.camel@lade.trondhjem.org> <1114807648.6682.153.camel@betsy> <1114809199.12692.96.camel@lade.trondhjem.org>
-In-Reply-To: <1114809199.12692.96.camel@lade.trondhjem.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Apr 2005 17:21:50 -0400
+Received: from waste.org ([216.27.176.166]:12963 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S263005AbVD2VVG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 17:21:06 -0400
+Date: Fri, 29 Apr 2005 14:20:52 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Sean <seanlkml@sympatico.ca>, linux-kernel <linux-kernel@vger.kernel.org>,
+       git@vger.kernel.org
+Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
+Message-ID: <20050429212052.GD21897@waste.org>
+References: <20050429060157.GS21897@waste.org> <3817.10.10.10.24.1114756831.squirrel@linux1> <20050429074043.GT21897@waste.org> <Pine.LNX.4.58.0504290728090.18901@ppc970.osdl.org> <20050429163705.GU21897@waste.org> <Pine.LNX.4.58.0504291006450.18901@ppc970.osdl.org> <20050429191207.GX21897@waste.org> <Pine.LNX.4.58.0504291248210.18901@ppc970.osdl.org> <20050429202341.GB21897@waste.org> <Pine.LNX.4.58.0504291338540.18901@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0504291338540.18901@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
+On Fri, Apr 29, 2005 at 01:49:18PM -0700, Linus Torvalds wrote:
+> 
+> 
+> On Fri, 29 Apr 2005, Matt Mackall wrote:
+> > 
+> > The changeset log (and everything else) has an external index.
+> 
+> I don't actually know exactly how the BK changeset file works, but your 
+> explanation really sounds _very_ much like it.
 
->I think what the IETF NFS working group rather needs right now is an
->advocate that is willing to stand up and demonstrate why protocol
->support for inotify-style callbacks would be a more scalable solution
->than a solution based on a combination of GETATTR polling and read
->delegations (essentially the same thing as CIFS' op-locks) for
->directories.
->
->  
->
-I agree.
+I've never used BK, but I got the impression that it was all SCCS
+under the covers, which means adding stuff and reconstructing random
+versions is expensive (just as it is in CVS). The split between index
+and data in Mercurial is intended to address that.
+ 
+> I didn't want to do anything that even smelled of BK. Of course, part of
+> my reason for that is that I didn't feel comfortable with a delta model at
+> all (I wouldn't know where to start, and I hate how they always end up
+> having different rules for "delta"ble and "non-delta"ble objects).
 
->The current research (see
->http://www3.ietf.org/proceedings/05mar/slides/nfsv4-4/sld1.htm) which
->has uses real-life on-the-wire traffic actually leans more towards the
->GETATTR solution. That research was based on a set of anonymous tcpdump
->traces taken at Harvard University, though, so it reflects the traffic
->in a typical university environment. It may be that other use-cases
->exist that favour the inotify callbacks case.
->  
->
-Very interesting, I had not seen that.   FYI - There are many years of 
-real world experience on the current transact2 notify (it is deployed in 
-some form on most clients) but I don't know whether one of the NAS 
-storage companies or researchers has done a good research paper on this 
-topic - although there is no lack of customer traces in SPEC and SNIA.
+There aren't really any such rules here. While the index contains a
+full DAG, the deltas are done opportunistically on a linearized
+(topologically sorted) version of it. We try to make a delta against
+the previous tip (regardless of whether or not it's the parent), and
+if that is a win, we store it.
 
-My gut reaction is that as
-1) directory size increases (number of files per directory)
-and
-2) change rate goes down
+> So it sounds like it could work fine, but it in fact sounds so much like 
+> the ChangeSet file that I'd personally not have done it that way. 
 
-(both of which could be client heuristics) the notify mechanism (on the 
-directory, or parent directory) is much better, but with small 
-directories and more frequent changes the getattr (Transact2 
-QueryPathinfo) approach wins.   There is no one-size-fits-all that 
-covers both cases.
+Well I originally set out to do it differently, but I decided my
+current approach was the fastest route to something that actually
+worked.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

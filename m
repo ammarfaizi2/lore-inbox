@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262610AbVD2N04@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262599AbVD2N0n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262610AbVD2N04 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 09:26:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262603AbVD2N0z
+	id S262599AbVD2N0n (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 09:26:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbVD2N0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 09:26:55 -0400
-Received: from fire.osdl.org ([65.172.181.4]:37082 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262639AbVD2NXT (ORCPT
+	Fri, 29 Apr 2005 09:26:43 -0400
+Received: from fsmlabs.com ([168.103.115.128]:8619 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S262610AbVD2NUr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 09:23:19 -0400
-Date: Fri, 29 Apr 2005 06:20:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Hubert Tonneau <hubert.tonneau@fullpliant.org>
-Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: 2.6.12-rc3 mmap lack of consistency among runs
-Message-Id: <20050429062053.2c9943ce.akpm@osdl.org>
-In-Reply-To: <0563I2L12@server5.heliogroup.fr>
-References: <0563I2L12@server5.heliogroup.fr>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Apr 2005 09:20:47 -0400
+Date: Fri, 29 Apr 2005 07:23:03 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Alexander Nyberg <alexn@dsv.su.se>
+cc: "Pedro Venda (SYSADM)" <pjvenda@rnl.ist.utl.pt>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, rnl@rnl.ist.utl.pt
+Subject: Re: ftp server crashes on heavy load: possible scheduler bug
+In-Reply-To: <1114779578.497.15.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0504290721230.30771@montezuma.fsmlabs.com>
+References: <200504261402.57375.pjvenda@rnl.ist.utl.pt>
+ <1114779578.497.15.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hubert Tonneau <hubert.tonneau@fullpliant.org> wrote:
->
-> Andrew Morton wrote:
-> >
-> > Maybe you're being bitten by the address space randomisation.
+On Fri, 29 Apr 2005, Alexander Nyberg wrote:
+
+> > We've made some changes on our ftp server, and since that it's been crashing 
+> > frequently (everyday) with a kernel panic. 
 > > 
-> > Try
-> > 	echo 0 > /proc/sys/kernel/randomize_va_space
+> > We've configured the 5 IDE 160GB drives into md raid5 arrays with LVM on top 
+> > of that. All filesystems are reiserfs. The other change we made to the server 
+> > was changing from a patched 2.6.10-ac12 kernel into a newer 2.6.11.7.
+> > 
+> > Not being able to see the whole stacktrace on screen, we've started a 
+> > netconsole to investigate. Started the server and loaded it pretty bad with 
+> > rsyncs and such... until it crashed after just 20 minutes.
+> > 
+> > The netconsole log was surprising - "kernel BUG at kernel/sched.c:2634!"
+> > 
+> > Any help would be GREATLY appreciated.
+> > 
 > 
-> Ok, it solves my issue, but:
 > 
-> . desabling it through 'echo 0 > /proc/sys/kernel/randomize_va_space' is not
->   a solution because only the application knows that it wants it to be desabled,
->   and the application is not root so cannot write to /proc; morever the
->   application can only speak for itself so desabling should be on a per process
->   bias.
+> 5 IDE disks into one MD raid5 into one LVM volume with reiserfs on top
+> of it? Could you give me some way to reproduce the specific load you put
+> on the machine plus your .config and I'll see what I can do.
 
-You can disable randomization on a per-executable basis by setting an ELF
-personality.  I forget the magic incantation.  Arjan?
+Could you also try without CONFIG_4KSTACKS?
 
->   I can hardly imagine to publish a warning in the README such as:
->   This software only works if your Linux kernel is configured so that
->   /proc/sys/kernel/randomize_va_space = 0
-> 
-> . second, my process restart succeeding roughly in 50% cases means that the
->   randomisation performed is just a toy. A virus assuming fixed memory layout
->   will still succeed 50% of times to install.
+Thanks,
+	Zwane
 
-Dunno.
-
-> All in all, I'm not concerned about Linux kernel to randomise or not,
-> but I need to have a reliable way to request a memory region and be granted
-> that I can request the same one in a futur run.
-> What is the proper way to get such a memory area ?
-
-MAP_FIXED?

@@ -1,88 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262908AbVD2Tmx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262907AbVD2TnU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262908AbVD2Tmx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 15:42:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbVD2Tmx
+	id S262907AbVD2TnU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 15:43:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262909AbVD2TnU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 15:42:53 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:8182 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262905AbVD2Tmr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 15:42:47 -0400
-Subject: Re: [Ext2-devel] [RFC] Adding multiple block allocation
-From: Mingming Cao <cmm@us.ibm.com>
-Reply-To: cmm@us.ibm.com
-To: suparna@in.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>, "Stephen C. Tweedie" <sct@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <1114794608.10473.18.camel@localhost.localdomain>
-References: <1113220089.2164.52.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1113244710.4413.38.camel@localhost.localdomain>
-	 <1113249435.2164.198.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1113288087.4319.49.camel@localhost.localdomain>
-	 <1113304715.2404.39.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1113348434.4125.54.camel@dyn318043bld.beaverton.ibm.com>
-	 <1113388142.3019.12.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1114207837.7339.50.camel@localhost.localdomain>
-	 <1114659912.16933.5.camel@mindpipe>
-	 <1114715665.18996.29.camel@localhost.localdomain>
-	 <20050429135211.GA4539@in.ibm.com>
-	 <1114794608.10473.18.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: IBM LTC
-Date: Fri, 29 Apr 2005 12:42:44 -0700
-Message-Id: <1114803764.10473.46.camel@localhost.localdomain>
+	Fri, 29 Apr 2005 15:43:20 -0400
+Received: from wproxy.gmail.com ([64.233.184.204]:24018 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262907AbVD2TnN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 15:43:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XqUyFCHdk3Oucg/OAL5po0wNmVmMEX1iYvO+TbYMBEbfSnfr2bcggYmujBcNNA8AFxYwA5xcAG0poqK23WxkT4yd+A4VtDUgGuwZyvGwr5apz0pxo4BA7CRavQcc4cNU4NQdRnZX1374VGNWmioDyJXQJKrgf0JizDfthsAKTWQ=
+Message-ID: <5ebee0d1050429124333776354@mail.gmail.com>
+Date: Fri, 29 Apr 2005 15:43:10 -0400
+From: Bill Jordan <woodennickel@gmail.com>
+Reply-To: bjordan@infinicon.com
+To: Roland Dreier <roland@topspin.com>
+Subject: Re: RDMA memory registration (was: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation)
+Cc: Caitlin Bestler <caitlin.bestler@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       hch@infradead.org, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, Timur Tabi <timur.tabi@ammasso.com>
+In-Reply-To: <52d5sdjzup.fsf_-_@topspin.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050425135401.65376ce0.akpm@osdl.org>
+	 <20050426084234.A10366@topspin.com> <52mzrlsflu.fsf@topspin.com>
+	 <20050426122850.44d06fa6.akpm@osdl.org> <5264y9s3bs.fsf@topspin.com>
+	 <426EA220.6010007@ammasso.com> <20050426133752.37d74805.akpm@osdl.org>
+	 <5ebee0d105042907265ff58a73@mail.gmail.com>
+	 <469958e005042908566f177b50@mail.gmail.com>
+	 <52d5sdjzup.fsf_-_@topspin.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-04-29 at 10:10 -0700, Mingming Cao wrote:
-> But if it try to allocating blocks in the hole (with direct IO), blocks
-> are allocated one by one. I am looking at it right now.
-> 
-Hi Andrew, Badari,
+On 4/29/05, Roland Dreier <roland@topspin.com> wrote:
+>   b) (maybe someday?) Add a VM_ALWAYSCOPY flag and extend mprotect()
+>      with PROT_ALWAYSCOPY so processes can mark pages to be
+>      pre-copied into child processes, to handle the case where only
+>      half a page is registered.
 
-If we do direct write(block allocation) to a hole, I found that the
-"create" flag passed to ext3_direct_io_get_blocks() is 0 if we are
-trying to _write_ to a file hole. Is this expected? 
+Are you suggesting making the partial pages their own VMA, or marking
+the entire buffer with this flag? I originally thought the entire
+buffer should be copy on fork (instead of copy on write), and I
+believe this is the path Mellanox was pursing with the VM_NO_COW flag.
+However, if applications are registering gigs of ram, it would be very
+bad to have the entire area copied on fork.
 
-This is what happened on mainline 2.6.12-rc2(and with my patch). To simplify, here is the problem description on mainline:
+On the other hand, I've always wondered about the choice to leave
+holes in the child process's address space. I would have chosen to map
+the zero page instead.
 
-If we do 30 blocks write to a new file at offset 800k, fine, create flag is all 1. 
-Then if seek back to offset 400k, write another 30 blocks, create flag is 0
-
--bash-2.05b# mount -t ext3 /dev/ubdc /mnt/ext3
--bash-2.05b# cd /mnt/ext3
--bash-2.05b# touch a
--bash-2.05b# /root/filetst -o 819200 -b 122880 -c 1 -w -d -f a
-Calling ext3_get_block_handle from ext3_direct_io_get_blocks: maxblocks = 30, iblock = 200, create = 1
-Calling ext3_get_block_handle from ext3_direct_io_get_blocks: maxblocks = 29, iblock = 201, create = 1
-Calling ext3_get_block_handle from ext3_direct_io_get_blocks: maxblocks = 28, iblock = 202, create = 1
-Calling ext3_get_block_handle from ext3_direct_io_get_blocks: maxblocks = 27, iblock = 203, create = 1
-Calling ext3_get_block_handle from ext3_direct_io_get_blocks: maxblocks = 26, iblock = 204, create = 1
-...................
-Calling ext3_get_block_handle from ext3_direct_io_get_blocks: maxblocks = 5, iblock = 225, create = 1
-Calling ext3_get_block_handle from ext3_direct_io_get_blocks: maxblocks = 4, iblock = 226, create = 1
-Calling ext3_get_block_handle from ext3_direct_io_get_blocks: maxblocks = 3, iblock = 227, create = 1
-Calling ext3_get_block_handle from ext3_direct_io_get_blocks: maxblocks = 2, iblock = 228, create = 1
-Calling ext3_get_block_handle from ext3_direct_io_get_blocks: maxblocks = 1, iblock = 229, create = 1
-
--bash-2.05b# /root/filetst -o 409600 -b 122880 -c 1 -w -d -f a
-Calling ext3_get_block_handle from ext3_direct_io_get_blocks: maxblocks = 30, iblock = 100, create = 0
-
-
-Because of create flag is 0, ext3_get_block will not do block allocation
-and return immediately after look up failed. Then ext3_get_block_handle
-() is called from other path(I am not sure where) other than
-ext3_direct_io_get_blocks to allocate the desired 30 blocks.(thus, when
-apply ext3_get_blocks patch, ext3_get_blocks is not called)
-
-Could you clarify?
-
-Thanks,
-Mingming
-
+-- 
+Bill Jordan
+InfiniCon Systems

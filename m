@@ -1,69 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262110AbVD2Prj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261962AbVD2Prz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262110AbVD2Prj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 11:47:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262054AbVD2Pri
+	id S261962AbVD2Prz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 11:47:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262054AbVD2Prx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 11:47:38 -0400
-Received: from mail.tmr.com ([64.65.253.246]:19461 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S261946AbVD2Pr2 (ORCPT
+	Fri, 29 Apr 2005 11:47:53 -0400
+Received: from mail.kroah.org ([69.55.234.183]:41185 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261962AbVD2Prd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 11:47:28 -0400
-Date: Fri, 29 Apr 2005 11:34:17 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-ide@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Multiple functionality breakages in 2.6.12rc3 IDE layer
-In-Reply-To: <1114727182.24687.235.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.3.96.1050429112342.2645A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 29 Apr 2005 11:47:33 -0400
+Date: Fri, 29 Apr 2005 08:43:13 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Tomasz K__oczko <kloczek@rudy.mif.pg.gda.pl>, linux-kernel@vger.kernel.org,
+       fedora-list@redhat.com, linux-scsi@vger.kernel.org,
+       andrew.vasquez@qlogic.com, Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: [QLA2300] Call Trace: sleeping function called from invalid context
+Message-ID: <20050429154312.GC31834@kroah.com>
+References: <Pine.BSO.4.62.0504281742290.10166@rudy.mif.pg.gda.pl> <20050429060718.0722b5a4.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050429060718.0722b5a4.akpm@osdl.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Apr 2005, Alan Cox wrote:
-
-> On Iau, 2005-04-28 at 19:13, Bill Davidsen wrote:
-> > On Thu, 28 Apr 2005, Alan Cox wrote:
+On Fri, Apr 29, 2005 at 06:07:18AM -0700, Andrew Morton wrote:
+> Tomasz K__oczko <kloczek@rudy.mif.pg.gda.pl> wrote:
+> >
+> > Configuration:
+> >  Sun v20z directly connected to Sun 3511 FC array. HBA:
+> >  03:01.0 Fibre Channel: QLogic Corp. QLA2300 64-bit Fibre Channel Adapter (rev 01)
+> > 
+> >  On begining on FC port aren't avalaible any luns for this host.
+> >  Change on array controler configuration for map SCSI channel to port 
+> >  connected to this host causes on this computer:
+> > 
+> >  qla2300 0000:03:01.0: LIP reset occured (f8f7).
+> >  Debug: sleeping function called from invalid context at include/linux/rwsem.h:43
+> >  in_atomic():1, irqs_disabled():1
+> > 
+> >  Call Trace: <IRQ> <ffffffff80277156>{device_for_each_child+54}
+> >          <ffffffff880317c5>{:scsi_transport_fc:fc_remote_port_block+53}
+> >          <ffffffff8803c284>{:qla2xxx:qla2x00_mark_all_devices_lost+68}
+> >          <ffffffff8804570f>{:qla2xxx:qla2x00_async_event+2127}
+> >          <ffffffff88045f30>{:qla2xxx:qla2300_intr_handler+384}
+> >          <ffffffff8016135c>{handle_IRQ_event+44} <ffffffff8016148d>{__do_IRQ+253}
+> >          <ffffffff80111678>{do_IRQ+72} <ffffffff8010f027>{ret_from_intr+0}
+> >           <EOI> <ffffffff8010d390>{default_idle+0} <ffffffff8010d3b2>{default_idle+34}
+> >          <ffffffff8010d407>{cpu_idle+71} <ffffffff8050685a>{start_kernel+474}
+> >          <ffffffff80506266>{_sinittext+614}
+> >  qla2300 0000:03:01.0: LIP occured (f7f7).
+> > 
+> >  System it is Fedora devel version (2.6.11-1.1275_FC4smp).
 > 
-> > But isn't that the stuff we use for swapping drives? Down the drive, down
-> > the interface, swap, and restart? Are these the functions called by hdparm
-> > (-bRU) which are all of a sudden not going to work? Or am I being
-> > alarmist?
+> fc_remote_port_block() calls scsi_target_block() calls device_for_each_child().
 > 
-> True but the only kernels supporting that are 2.4.x-ac. There are
-> reasons I noticed this and looking at getting 2.6 IDE back to 2.4
-> standards in this area was one of them.
-
-The amazing part is that I haven't had a drive fail since I went from 2.4
-to 2.6 over a year ago. As you say, it works on your 2.4 kernels, I've "oh
-shit" tested it. So if I lose a drive now I'm screwed, not my favorite
-operating status.
-
+> In Linus's tree, device_for_each_child() does down_read().  In -mm that
+> down_read() has been taken out, but device_for_each_child() is still doing
+> spin_lock() and hence still cannot be called from interrupts.
 > 
-> > I missed the discussion of why it was felt that the users would no longer
-> > want to be able to do these things, or the new way to do it.
+> Now, possibly we could make that locking in the new device_for_each_child()
+> (klist_iter->i_klist->k_lock) be IRQ-safe.  That'd be for Pat and Greg to
+> decide.
+
+No, we will not do this, don't call that function from irq context
+please.
+
+> I suspect they'll say no, and the qlogic driver (or scsi) need to stop
+> calling device_for_each_child() from IRQ context.
 > 
-> I'm assuming it may be accidental rather than detailed planning. Also
-> its taken this long to notice so its clearly not that critical to
-> everyone. Seems to be reasonably sane to fix too.
+> (Locking in the new device_for_each_child() looks funny to me.  Are we sure
+> it's safe?)
 
-I was being a bit sarcastic about the "missed the discussion" bit, but I'm
-pretty sure ripping out the capability was deliberate. Hopefully it's now
-going to be evaluated, and then fixed. One thing Linux doesn't seem to do
-well is recover failed drives at boot time, it always seems to take a
-bunch of fiddling or even a boot from live CD and hand recover.
-> 
-> Alan
-> 
+I think so, but others had some questions about it.  Pat has disappeared
+again, so I'm going to be taking next week to address all of the pending
+issues with the new klist code and go over the locking again.
 
-Thanks for jumping into this, with ATAPI storage down to about
-$1100(US)/TB it's getting really hard to justify SCSI and real hot swap
-hardware.
+thanks,
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+greg k-h

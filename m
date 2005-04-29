@@ -1,50 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262391AbVD2Fsd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262393AbVD2Fwf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262391AbVD2Fsd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 01:48:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262392AbVD2Fsc
+	id S262393AbVD2Fwf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 01:52:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262392AbVD2Fwe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 01:48:32 -0400
-Received: from rproxy.gmail.com ([64.233.170.198]:20826 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262391AbVD2Fsb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 01:48:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Lwc6bAbIX4soVVuDGtPuYausE8lCDa9OJySsyxIKYqV1qjhaaBJF8TYmySIaq+g2Pk7GAYLeEV927jsXqftDIY8thEgKc/NZrAd+4CGEgRtVxNnEOM4qT7QPvtHqvVMXt8mboVmJ0Ytwye3hz6Teo123q4ymp66gqIWK+lxppzg=
-Message-ID: <ba8358220504282248344d5e78@mail.gmail.com>
-Date: Thu, 28 Apr 2005 22:48:31 -0700
-From: Gilles Pokam <gpokam@gmail.com>
-Reply-To: Gilles Pokam <gpokam@gmail.com>
-To: Chris Wedgwood <cw@f00f.org>
-Subject: Re: Kernel memory
+	Fri, 29 Apr 2005 01:52:34 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:55244 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262393AbVD2Fwa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 01:52:30 -0400
+Date: Fri, 29 Apr 2005 13:56:19 +0800
+From: David Teigland <teigland@redhat.com>
+To: Mark Fasheh <mark.fasheh@oracle.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050429054351.GA12654@taniwha.stupidest.org>
+Subject: Re: [PATCH 1a/7] dlm: core locking
+Message-ID: <20050429055619.GD9900@redhat.com>
+References: <20050425165705.GA11938@redhat.com> <20050427214136.GC938@ca-server1.us.oracle.com> <20050428034550.GA10628@redhat.com> <20050428192112.GA355@ca-server1.us.oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <ba83582205042816522e2a7a93@mail.gmail.com>
-	 <20050429030313.GA10344@taniwha.stupidest.org>
-	 <ba8358220504282233754de43b@mail.gmail.com>
-	 <20050429054351.GA12654@taniwha.stupidest.org>
+In-Reply-To: <20050428192112.GA355@ca-server1.us.oracle.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/28/05, Chris Wedgwood <cw@f00f.org> wrote:
-> On Thu, Apr 28, 2005 at 10:33:16PM -0700, Gilles Pokam wrote:
-> 
-> > I was thinking of making the whole memory accessible to handle this.
-> > But I can not rely on mapping /dev/mem or /proc/kcore into the user
-> > space since this would require modifying the binary. Are there other
-> > ways of doing this ? May be disabling paging ? if so, how to do this
-> > ?
-> 
-> why can't you use a wrapper?
+On Thu, Apr 28, 2005 at 12:21:12PM -0700, Mark Fasheh wrote:
 
-Can you be more explicit ?
+> > Just to clarify, though:  when the LOCAL resource is immediately created
+> > and mastered locally, there must be a resource directory entry added for
+> > it, right?  For us, the resource directory entry is added as part of a new
+> > master lookup (which is being skipped).  If you don't add a directory
+> > entry, how does another node that later wants to lock the same resource
+> > (without LOCAL) discover who the master is?
 
-Thanks.
+> Yes, I believe LOCAL would always have to at least add a directory entry.
+> For the OCFS2 dlm which does not use a resource directory, the entry would
+> just exist on the creating node and other nodes would discover it later via
+> query.
 
-Gilles
+OK, sounds like an interesting tradeoff.  If any node can be master of a
+resource, and there's no resource directory, then any new non-LOCAL
+request must query every other node to check if it's the master.  A look
+at your dlm shows this is the case:
+
+while ((nodenum = dlm_node_iter_next(&iter)) >= 0) {
+        ret = dlm_do_master_request(mle, nodenum);
+
+Of course with a directory you just query one node to find if/who the
+master is.  Which is better would depend on the usage. 
+
+If you wanted to do a similar optimization as LOCAL with our dlm, you'd
+use parent/child locks where the parent at the top of the tree would
+require a lookup but all the child locks would only require local
+processing.
+
+
+> > If I understand LOCAL correctly, it should be simple for us to do.  We'd
+> > still have a LOCAL request _send_ the lookup to create the directory
+> > entry, but we'd simply not wait for the reply.  We'd assume, based on
+> > LOCAL, that the lookup result indicates we're the master.
+
+> I assume then that you can do that without racing the node who sent the
+> LOCAL request and another node who comes in (just afterwards) for a master
+> lookup? I bet the answer to that question would come to me if I read more of
+> the code :)
+
+Nope, my speculation on how we might do LOCAL above wouldn't work.  It now
+seems clear that LOCAL can't really be done with a directory.
+
+Dave
+

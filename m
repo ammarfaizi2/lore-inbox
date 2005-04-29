@@ -1,65 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262980AbVD2VxG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263023AbVD2WDE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262980AbVD2VxG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 17:53:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262991AbVD2VxG
+	id S263023AbVD2WDE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 18:03:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbVD2WDD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 17:53:06 -0400
-Received: from rgminet04.oracle.com ([148.87.122.33]:384 "EHLO
-	rgminet04.oracle.com") by vger.kernel.org with ESMTP
-	id S262980AbVD2Vw7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 17:52:59 -0400
-Date: Fri, 29 Apr 2005 14:52:21 -0700
-From: Mark Fasheh <mark.fasheh@oracle.com>
-To: Daniel Phillips <phillips@istop.com>
-Cc: Joel Becker <Joel.Becker@oracle.com>,
-       "Stephen C. Tweedie" <sct@redhat.com>,
-       David Teigland <teigland@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 1a/7] dlm: core locking
-Message-ID: <20050429215221.GC355@ca-server1.us.oracle.com>
-Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
-References: <20050425165705.GA11938@redhat.com> <1114696137.1920.32.camel@sisko.sctweedie.blueyonder.co.uk> <20050428171915.GE4747@ca-server1.us.oracle.com> <200504290410.13271.phillips@istop.com>
+	Fri, 29 Apr 2005 18:03:03 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:8154 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S263023AbVD2WC5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 18:02:57 -0400
+Subject: Re: [Question] Does the kernel ignore errors writng to disk?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bryan Henderson <hbryan@us.ibm.com>
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>, aia21@hermes.cam.ac.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org, mike.miller@hp.com
+In-Reply-To: <OF48BA3721.BD4798AD-ON88256FF2.00680E7E-88256FF2.0069814F@us.ibm.com>
+References: <OF48BA3721.BD4798AD-ON88256FF2.00680E7E-88256FF2.0069814F@us.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1114812035.18330.396.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200504290410.13271.phillips@istop.com>
-Organization: Oracle Corporation
-User-Agent: Mutt/1.5.9i
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 29 Apr 2005 23:00:37 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 29, 2005 at 04:10:12AM -0400, Daniel Phillips wrote:
-> Why don't you try it, and post the numbers?
+On Gwe, 2005-04-29 at 20:11, Bryan Henderson wrote:
+> So I view it as correct even if fsync() does nothing on a disk-based 
+> filesystem because the programmer was lazy (or because the user wants to 
+> defeat the performance-busting behavior of some paranoid application). But 
+> when Alan speaks of a "not completely correct" version of synchronization, 
+> which makes me think of something that doesn't implement any consistent 
+> form of "stable," I want to hear more.
 
-*Sigh*
+On the main fs's people use with a current kernel fsync guarantees the
+data went somewhere. What it guarantees beyond that depends on the fs
+properties, the driver properties and the media properties.
 
-Done from a test machine I have over here on a two node cluster. 
-I rebooted and re-formatted between tests.
+So ext3 journal=data or jffs which are the strongest guarantee cases
+mean that your fsync() data should be on media and stable. Ditto I
+believe default ext3 behaviour because fsync has stronger rules than
+fdatasync.
 
-* Without LKM_LOCAL:
-[root@ca-test7 ocfs2]# time tar -zxf /tmp/linux-2.6.11.7.tar.gz 
+The next question is what the I/O device does with the data. SCSI disks
+will cache but the scsi layer uses tags and if neccessary turns the
+cache off on the drive. In other words you should get that behaviour
+correctly on SCSI media.
 
-real    0m39.699s
-user    0m3.644s
-sys     0m8.076s
+The default IDE behaviour doesn't turn write cache off and the IDE
+device may re-order writes and ack them before they hit storage. IDE
+lacks tags, and tends to have poor performance on cache flush commands.
+With the barrier support on the right thing should occur, or with hdparm
+used to turn the write cache off.
 
+Raid controllers will cache data in their writeback caches, they will
+also write and rewrite stripes which can mean a critical failure loses
+the cache or involves a whole stripe loss, but that is very unlikely in
+most modes. The good ones either write through or have battery backed
+caches. The really good ones even let you put the battery/ram unit onto
+another card.
 
-* With LKM_LOCAL
-[root@ca-test7 ocfs2]# time tar -zxf /tmp/linux-2.6.11.7.tar.gz 
+Underlying all of this is the fact that disks aren't really disks any
+more but NAS devices on funky cables, that can mean you can lose blocks
+to drive faults that might not be the block you are currently writing.
 
-real    0m22.076s
-user    0m3.869s
-sys     0m7.234s
-
-So yes, I'd say it's worth a significant amount of performance to us :)
-	--Mark
-
---
-Mark Fasheh
-Senior Software Developer, Oracle
-mark.fasheh@oracle.com
+Alan
 

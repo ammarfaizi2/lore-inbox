@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263004AbVD2ViU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263005AbVD2Vlq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263004AbVD2ViU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 17:38:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262991AbVD2Vh3
+	id S263005AbVD2Vlq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 17:41:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262991AbVD2VjF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 17:37:29 -0400
-Received: from fire.osdl.org ([65.172.181.4]:56240 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S263017AbVD2VfI (ORCPT
+	Fri, 29 Apr 2005 17:39:05 -0400
+Received: from pat.uio.no ([129.240.130.16]:20670 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S263005AbVD2ViU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 17:35:08 -0400
-Date: Fri, 29 Apr 2005 14:34:27 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: cmm@us.ibm.com
-Cc: pbadari@us.ibm.com, suparna@in.ibm.com, sct@redhat.com,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [Ext2-devel] [RFC] Adding multiple block allocation
-Message-Id: <20050429143427.19b3990d.akpm@osdl.org>
-In-Reply-To: <1114809139.10473.70.camel@localhost.localdomain>
-References: <1113220089.2164.52.camel@sisko.sctweedie.blueyonder.co.uk>
-	<1113244710.4413.38.camel@localhost.localdomain>
-	<1113249435.2164.198.camel@sisko.sctweedie.blueyonder.co.uk>
-	<1113288087.4319.49.camel@localhost.localdomain>
-	<1113304715.2404.39.camel@sisko.sctweedie.blueyonder.co.uk>
-	<1113348434.4125.54.camel@dyn318043bld.beaverton.ibm.com>
-	<1113388142.3019.12.camel@sisko.sctweedie.blueyonder.co.uk>
-	<1114207837.7339.50.camel@localhost.localdomain>
-	<1114659912.16933.5.camel@mindpipe>
-	<1114715665.18996.29.camel@localhost.localdomain>
-	<20050429135211.GA4539@in.ibm.com>
-	<1114794608.10473.18.camel@localhost.localdomain>
-	<1114803764.10473.46.camel@localhost.localdomain>
-	<20050429135705.3f4831bd.akpm@osdl.org>
-	<1114809139.10473.70.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 29 Apr 2005 17:38:20 -0400
+Subject: Re: which ioctls matter across filesystems
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Steve French <smfrench@austin.rr.com>
+Cc: Robert Love <rml@novell.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <4272A582.3040709@austin.rr.com>
+References: <42728964.8000501@austin.rr.com>
+	 <1114804426.12692.49.camel@lade.trondhjem.org>
+	 <1114805033.6682.150.camel@betsy>
+	 <1114807360.12692.77.camel@lade.trondhjem.org>
+	 <1114807648.6682.153.camel@betsy>
+	 <1114809199.12692.96.camel@lade.trondhjem.org>
+	 <4272A582.3040709@austin.rr.com>
+Content-Type: text/plain
+Date: Fri, 29 Apr 2005 17:38:05 -0400
+Message-Id: <1114810685.12692.109.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.892, required 12,
+	autolearn=disabled, AWL 1.11, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mingming Cao <cmm@us.ibm.com> wrote:
->
->  right now direct io write to a hole is actually handled by buffered IO.
->  If so, there must be some valid reason that I could not see now.
+fr den 29.04.2005 Klokka 16:22 (-0500) skreiv Steve French:
 
-Oh yes, that's right.  It's all to do with the fixes which went in a year
-ago to prevent concurrent readers from peeking at uninitialised disk
-blocks.
+> Very interesting, I had not seen that.   FYI - There are many years of 
+> real world experience on the current transact2 notify (it is deployed in 
+> some form on most clients) but I don't know whether one of the NAS 
+> storage companies or researchers has done a good research paper on this 
+> topic - although there is no lack of customer traces in SPEC and SNIA.
+
+If you are able to release those traces to them, then CITI does have a
+simulator that can be used to test the various models. It is currently
+only capable of analysing NFSv3 and v4 traffic, but it might perhaps be
+possible to add a CIFS interpreter onto it.
+
+Cheers,
+  Trond
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
 

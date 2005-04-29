@@ -1,77 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262447AbVD2HIA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262445AbVD2HMp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262447AbVD2HIA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 03:08:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbVD2HH7
+	id S262445AbVD2HMp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 03:12:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262448AbVD2HMp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 03:07:59 -0400
-Received: from lixom.net ([66.141.50.11]:41108 "EHLO mail.lixom.net")
-	by vger.kernel.org with ESMTP id S262447AbVD2HHk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 03:07:40 -0400
-Date: Fri, 29 Apr 2005 02:07:52 -0500
-To: akpm@osdl.org
-Cc: linuxppc64-dev@ozlabs.org, anton@samba.org, paulus@samba.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] PPC64: Remove hot busy-wait loop in __hash_page
-Message-ID: <20050429070752.GA30785@lixom.net>
+	Fri, 29 Apr 2005 03:12:45 -0400
+Received: from rproxy.gmail.com ([64.233.170.201]:14312 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262445AbVD2HMn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 03:12:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Y0INYF7/hKVlflrPCOy+R9dEmd4NzO2R/uhtZpLpVonmHU2SNQ+VGlp0yhUZHYJ86XScxweDuWOQEH2sQ2/PhrmoYLLtgWNY3miI99mjbkpsHuFbWnJWqu4pi/zkCPhneemN9oQ3zRvM0YGdyBPRYWcKDgv5hM+UVFWPSwOgifw=
+Message-ID: <ba835822050429001234304bd1@mail.gmail.com>
+Date: Fri, 29 Apr 2005 00:12:43 -0700
+From: Gilles Pokam <gpokam@gmail.com>
+Reply-To: Gilles Pokam <gpokam@gmail.com>
+To: Chris Wedgwood <cw@f00f.org>
+Subject: Re: Kernel memory
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050429064819.GA15501@taniwha.stupidest.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
-From: Olof Johansson <olof@lixom.net>
+References: <ba83582205042816522e2a7a93@mail.gmail.com>
+	 <20050429030313.GA10344@taniwha.stupidest.org>
+	 <ba8358220504282233754de43b@mail.gmail.com>
+	 <20050429054351.GA12654@taniwha.stupidest.org>
+	 <ba8358220504282248344d5e78@mail.gmail.com>
+	 <20050429061254.GB12654@taniwha.stupidest.org>
+	 <ba83582205042823452a3446f6@mail.gmail.com>
+	 <20050429064819.GA15501@taniwha.stupidest.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 4/28/05, Chris Wedgwood <cw@f00f.org> wrote:
+> On Thu, Apr 28, 2005 at 11:45:40PM -0700, Gilles Pokam wrote:
+> 
+> > the simplest way to say is: I want the pagefault handler to return a
+> > memory page when it encounters a pagefault exceptions due to an
+> > invalid address or incorrect page protection.
+> 
+> where should this page come from?
 
-It turns out that our current __hash_page code will do a very hot
-busy-wait loop waiting on _PAGE_BUSY to be cleared. It even does
-ldarx/stdcx in the loop, which will bounce reservations around like crazy
-if there's more than one CPU spinning on the same PTE (or even another
-PTE in the same reservation granule). The end result is that each fault
-takes longer when there's contention, which in turn increases the chance
-of another thread hitting the same fault and also piling up. Not pretty.
-
-There's two options here:
-1. Do an out-of-line busy loop a'la spinlocks with just loads (no
-   reserves)
-2. Just bail and refault if needed.
-
-(2) makes sense here: If the PTE is busy, chances are it's in flux anyway
-and the other code path making a change might just be ready to hash it.
-
-This fixes a stampede seen on a large-ish system where a multithreaded
-HPC app faults in the same text pages on several cpus at the same time.
-
-
-Signed-off-by: Olof Johansson <olof@lixom.net>
-
-
-Index: 2.6/arch/ppc64/mm/hash_low.S
-===================================================================
---- 2.6.orig/arch/ppc64/mm/hash_low.S	2005-04-24 17:49:43.000000000 -0500
-+++ 2.6/arch/ppc64/mm/hash_low.S	2005-04-28 17:19:04.000000000 -0500
-@@ -85,7 +85,10 @@ _GLOBAL(__hash_page)
- 	bne-	htab_wrong_access
- 	/* Check if PTE is busy */
- 	andi.	r0,r31,_PAGE_BUSY
--	bne-	1b
-+	/* If so, just bail out and refault if needed. Someone else
-+	 * is changing this PTE anyway and might hash it.
-+	 */
-+	bne-	bail_ok
- 	/* Prepare new PTE value (turn access RW into DIRTY, then
- 	 * add BUSY,HASHPTE and ACCESSED)
- 	 */
-@@ -215,6 +218,10 @@ _GLOBAL(htab_call_hpte_remove)
- 	/* Try all again */
- 	b	htab_insert_pte	
- 
-+bail_ok:
-+	li	r3,0
-+	b	bail
-+
- htab_pte_insert_ok:
- 	/* Insert slot number & secondary bit in PTE */
- 	rldimi	r30,r3,12,63-15
+One way is to make the pagefault handler return a new vma that
+contains the faulty address when such a scenario is encountered. The
+normal pagefault mechanism will then apply by the time that address
+gets accessed again since the address will now be valid. So a page
+will be allocated. But I don't know how what should be changed  in the
+kernel to enable this behavior.

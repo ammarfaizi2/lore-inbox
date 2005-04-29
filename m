@@ -1,59 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262803AbVD2PmV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262801AbVD2Pok@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262803AbVD2PmV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 11:42:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262802AbVD2PmV
+	id S262801AbVD2Pok (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 11:44:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbVD2Pok
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 11:42:21 -0400
-Received: from pat.uio.no ([129.240.130.16]:9373 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262801AbVD2PmQ (ORCPT
+	Fri, 29 Apr 2005 11:44:40 -0400
+Received: from emf.emf.net ([205.149.0.19]:4361 "EHLO emf.net")
+	by vger.kernel.org with ESMTP id S262801AbVD2Poc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 11:42:16 -0400
-Subject: Re: [RFC] unify semaphore implementations
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: Paul Mackerras <paulus@samba.org>, linux-arch@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050429141437.GA24617@kvack.org>
-References: <20050428182926.GC16545@kvack.org>
-	 <17009.33633.378204.859486@cargo.ozlabs.ibm.com>
-	 <20050429141437.GA24617@kvack.org>
-Content-Type: text/plain
-Date: Fri, 29 Apr 2005 11:42:00 -0400
-Message-Id: <1114789320.10086.81.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.493, required 12,
-	autolearn=disabled, AWL 1.46, FORGED_RCVD_HELO 0.05,
-	UIO_MAIL_IS_INTERNAL -5.00)
+	Fri, 29 Apr 2005 11:44:32 -0400
+Date: Fri, 29 Apr 2005 08:44:30 -0700 (PDT)
+From: Tom Lord <lord@emf.net>
+Message-Id: <200504291544.IAA23584@emf.net>
+To: torvalds@osdl.org
+CC: mpm@selenic.com, seanlkml@sympatico.ca, linux-kernel@vger.kernel.org,
+       git@vger.kernel.org
+In-reply-to: <Pine.LNX.4.58.0504290728090.18901@ppc970.osdl.org> (message from Linus Torvalds on Fri, 29 Apr 2005 07:34:15 -0700 (PDT))
+Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fr den 29.04.2005 Klokka 10:14 (-0400) skreiv Benjamin LaHaise:
-> On Fri, Apr 29, 2005 at 10:44:17AM +1000, Paul Mackerras wrote:
-> > You have made semaphores bigger and slower on the architectures that
-> > have load-linked/store-conditional instructions, which is at least
-> > ppc, ppc64, sparc64 and alpha.  Did you take the trouble to understand
-> > the ppc semaphore implementation?
-> 
-> The ppc implementation does have some good ideas that are worth using.  
-> It's hard to know which of the 23 versions were worth using, but I'm 
-> getting a picture where at least 2 variants are need.  The atomic ops 
-> variant should use the single counter as ppc does (why did nobody port 
-> that to x86?).  A spinlock version is needed at least by parisc.
 
-The PPC implementation would be hard to port to x86, since it relies on
-the load-linked/store-conditional stuff to provide a fast primitive for
-atomic_dec_if_positive().
-The only way I found to implement that on x86 was to use cmpxchg. On my
-machine, therefore, a spinlock-based semaphore implementation turns out
-to be at least as fast for the "fast" path (and is naturally much more
-efficient for the slow path).
 
-Cheers,
-  Trond
+  > ie does mercurial do distributed merges, which git was designed for, and 
+  > does mercurial notice single-bit errors in a reasonably secure manner, or 
+  > can people just mess with history willy-nilly?
 
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
+  > For the latter, the cryptographic nature of sha1 is an added bonus - the
+  > _big_ issue is that it is a good hash, and an _exteremely_ effective CRC
+  > of the data. You can't mess up an archive and lie about it later.
+
+On the other hand, you're asking people to sign whole trees and not just at
+first-import time but also for every change.
+
+That's an impedence mismatch and undermines the security features of the
+approach you're taking and here is why:
+
+I shouldn't sign anything I haven't reviewed pretty carefully.  For
+the kernel and in many other situations, it is too expensive to review
+the whole tree.  Thus, the thing actually signed and the thing meant
+by the signature are not equal.  I sign a tree, in this system,
+because I think the right diffs and only the right diffs have been
+applied to it.   My signature is intended to mean, though, that I vouche
+for the *diffs*, not the tree.
+
+If I've changed five files, I should be signing a statement of:
+
+	1) my belief about the identity of the immediate ancestor tree
+	2) a robust summary of my changes, sufficient to recreate my
+	   new tree given a faithful copy of the ancestor
+
+That's a short enough amount of data that a human can really review it
+and thus it makes the signatures much more meaningful.
+
+Probably doesn't matter much other than in cases where a mainline
+is undergoing massive batch-patching based mostly on a web of trust.
+
+But in that case --- someone or something generates purported diffs of
+a tree; someone or something else scans those diffs and decides they
+look good ---- and then on this basis, something distinct from
+directly using those diffs occurs.  The diffs were used to vette the
+change; the signature asserts that a certain tree is a faithful result
+of applying those diffs.  Nothing checks that second assertion -- it's
+taken on faith.
+
+-t
 

@@ -1,69 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263015AbVD2VaB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263020AbVD2VhI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263015AbVD2VaB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 17:30:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263004AbVD2V3c
+	id S263020AbVD2VhI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 17:37:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263005AbVD2Vdx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 17:29:32 -0400
-Received: from zproxy.gmail.com ([64.233.162.193]:15488 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263006AbVD2V2t convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 17:28:49 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bLWwl2pggmDhLNY7JYNnWd6OBI3r0Lf6XHhyQF9c1zxLG7drR1IbLGkXT6AeMGqYDnAZL8bOQE3pLEcHo4+B6GA/2otc9vHcsXMHFVWLeQS01RUetJCF1zNd959ETZsjzN+Qa0awHR0mxwVInSNLgHyjmcL/+rdsVGNSlGqup5I=
-Message-ID: <29495f1d05042914285b83beaa@mail.gmail.com>
-Date: Fri, 29 Apr 2005 14:28:49 -0700
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: "jdavis@accessline.com" <jdavis@accessline.com>
-Subject: Re: Odd Timer behavior in 2.6 vs 2.4 (1 extra tick)
+	Fri, 29 Apr 2005 17:33:53 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:1445 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262991AbVD2VbS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 17:31:18 -0400
+Date: Fri, 29 Apr 2005 22:31:08 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Steve French <smfrench@austin.rr.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E29E71BB437ED411B12A0008C7CF755B2BC9BE@mail.accessline.com>
+Subject: Re: [PATCH] cifs: handle termination of cifs oplockd kernel thread
+Message-ID: <20050429213108.GA15262@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Steve French <smfrench@austin.rr.com>, linux-kernel@vger.kernel.org
+References: <4272A275.4030801@austin.rr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <E29E71BB437ED411B12A0008C7CF755B2BC9BE@mail.accessline.com>
+In-Reply-To: <4272A275.4030801@austin.rr.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/8/05, jdavis@accessline.com <jdavis@accessline.com> wrote:
+On Fri, Apr 29, 2005 at 04:09:09PM -0500, Steve French wrote:
+> > does and who revied that?  Things like that don't have a business in the
+> > kernel, and certainly not as ioctl.
 > 
-> 
-> Hello,
-> 
-> I've created a pretty straight forward timer using setitimer, and noticed
-> some odd differences between 2.4 and 2.6, I wonder if I could get a
-> clarification if this is the way it should work, or if I should continue to
-> try to "fix" it.
-> 
-> I create a RealTime Thread( SCHED_FIFO, maxPriority-1 ) (also tried
-> SCHED_RR) ...
-> 
-> that creates a timer ...setitimer( ITIMER_REAL, SIGALRM) with a 10 milli
-> period. (I've also tried timer_create with CLOCK_REALTIME and SIGRTMIN)
-> 
-> and then the thread does a sem_wait() on a semaphore.
-> 
-> the signal handler does a sem_post() .
-> 
-> on 2.4.X the (idle) worst case latency is ~40 microseconds,
-> on 2.6.X the (idle) latency is about the same plus 1 tick of the scheduler
-> ~1000 micro seconds... Always.. Every time.
-> So to work around this on 2.6 I simply subtract 1 millisecond from my timer
-> as a fudge factor and everything works as expected.
+> Other filesystems such as smbfs had an ioctl that returned the uid of 
+> the mounter which they used (in the smbfs case in smbumount).  This was 
+> required by the unmount helper to determine if the unmount would allow a 
+> user to unmount a particular mount that they mounted.   Unlike in the 
+> case of mount, for unmount  you can not use the owner uid of the mount 
+> target to tell who mounted that mount.   I had not received any better 
+> suggestions as to how to address it.   I had proposed various 
+> alternatives - exporting in in /proc/mounts e.g.   
 
-There are several problems with the current soft-timer subsystem in
-this area. Basically, the actual tick rate is slightly more than once
-per millisecond, which requires adding one jiffy to compensate.
-Additionally, one can't be sure ``where'' one is within a tick, so
-another jiffy has to be added, to make sure the timer does not go off
-early. sys_nanosleep() does something similar.
+exporting the uid using the show_options superblock methods sounds like
+a much better option.
 
-I will be submitting an RFC based on John Stultz's timeofday rework
-which tries to resolve these issues.
+> As we try to gradually obsolete smbfs, this came up with various users 
+> (there was even a bugzilla bug opened for adding it) who said that they 
+> need the ability to unmount their own mounts for network filesystems 
+> without using /etc/fstab.    Unfortunately for network filesytsems, 
+> unlike local filesystems, it is impractical to put every possible mount 
+> target in /etc/fstab since servers get renamed and the universe of 
+> possible cifs mount targets for a user is large.
 
-Thanks,
-Nish
+Do you use the same suid wrapper hack for mounts as fuse?  Maybe you
+should chime in on that thread so we can find a proper solution.
+
+> 
+> There seemed only three alternatives -
+> 1) mimic the smbfs ioctl -   as can be seen from smbfs and smbumount 
+> source this has portability problems because apparently there is no 
+> guarantee that uid_t is the same size in kernel and in userspace - smbfs 
+> actually has two ioctls for different sizes of uid field - this seemed 
+> like a bad idea
+> 2) export the uid in /proc/mounts - same problem as above
+
+No.  /proc/self/mounts is an ASCII format, so there's no problem with
+differemt sizes.
+

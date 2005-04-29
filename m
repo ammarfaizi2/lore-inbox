@@ -1,49 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262970AbVD2UrG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262966AbVD2Usk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262970AbVD2UrG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 16:47:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262966AbVD2Uqy
+	id S262966AbVD2Usk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 16:48:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262963AbVD2Use
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 16:46:54 -0400
-Received: from mail.kroah.org ([69.55.234.183]:16350 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262953AbVD2Uor (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 16:44:47 -0400
-Date: Fri, 29 Apr 2005 13:38:05 -0700
-From: Greg KH <greg@kroah.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Kai Makisara <Kai.Makisara@kolumbus.fi>, Greg KH <gregkh@suse.de>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-scsi@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>, Cliff White <cliffw@osdl.org>,
-       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [06/07] [PATCH] SCSI tape security: require CAP_ADMIN for SG_IO etc.
-Message-ID: <20050429203805.GA2959@kroah.com>
-References: <20050427171446.GA3195@kroah.com> <20050427171649.GG3195@kroah.com> <1114619928.18809.118.camel@localhost.localdomain> <Pine.LNX.4.61.0504280810140.12812@kai.makisara.local> <1114694511.18809.187.camel@localhost.localdomain> <20050429042014.GC25474@kroah.com> <1114805784.18330.297.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1114805784.18330.297.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.8i
+	Fri, 29 Apr 2005 16:48:34 -0400
+Received: from ms-smtp-05.texas.rr.com ([24.93.47.44]:45533 "EHLO
+	ms-smtp-05-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S262966AbVD2Urf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 16:47:35 -0400
+Message-ID: <42729D51.5050203@austin.rr.com>
+Date: Fri, 29 Apr 2005 15:47:13 -0500
+From: Steve French <smfrench@austin.rr.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Robert Love <rml@novell.com>
+CC: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
+Subject: Re: which ioctls matter across filesystems
+References: <42728964.8000501@austin.rr.com> <1114804426.12692.49.camel@lade.trondhjem.org> <1114805033.6682.150.camel@betsy>
+In-Reply-To: <1114805033.6682.150.camel@betsy>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 29, 2005 at 09:16:27PM +0100, Alan Cox wrote:
-> On Gwe, 2005-04-29 at 05:20, Greg KH wrote:
-> > > Ok thats the bit I needed to know
-> > 
-> > So, do you still object to this patch being accepted?
-> 
-> Switched to CAP_SYS_RAWIO I don't. Its the wrong answer long term I
-> suspect but its definitely a good answer for now.
+Robert Love wrote:
 
-Switch it in both capable() calls in the patch?  Kai, is this acceptable
-to you also?
+>>What about inotify makes it insufficient for your needs?
+>>
+>>    
+>>
+I am not sure - but it is obviously required that inotify can pass over 
+CIFS (and probably NFS) since change notification is hardest for the 
+user to figure out when they are on a network.   I am not sure how the 
+filesystem can detect that a new watch is added to one of its inodes - 
+it looks like you added an ioctl to a device but I am still reading 
+through your latest patch.   I was looking for something like an inode 
+operation that cifs could hook so the fs could be told when a new watch 
+was added or one was changed.   In any case I need to construct 
+functions somewhat similar to what is in fs/cifs/fcntl.c and need to 
+finish/modify CIFSSMBNotify in fs/cifs/cifssmb.c to map the inotify 
+flags to the flags available in the CIFS network protocol specifications.
+The existing network protocol support for ChangeNotify is more 
+straightforward than you might think and the filter flags & actions that 
+I have at my disposal for implementing notify across the network are in 
+fs/cifs/cifspdu.h already (search for FILE_ACTION_   and FILE_NOTIFY_ if 
+you are curious) but obviously they are similar to what the other Samba 
+team guys have already told you.
 
-thanks,
+>>What kind of real-world applications exist out there that need inotify
+>>functionality, and what sort of requirements do they have (in particular
+>>w.r.t. the notification mechanism)?
+>>    
+>>
+>
+>A few worksets:
+>
+>	- Current users, such as FAM and Samba, that need simple file
+>	  change notification
+>	- Random applications that want to watch a file or two
+>	- The Linux desktop
+>	- Real-time live-updating indexing systems, such as Beagle,
+>	  that compete with f.e. Apple's Spotlight.
+>
+>Best,
+>
+>	Robert Love
+>
+strongly agree, very strongly agree.
 
-greg k-h
+The one example we left out - distributed backup applications (those 
+guys query me from time to time asking for improvements) - they want to 
+know when a server file changes so they can do backup across CIFS.

@@ -1,134 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262941AbVD2UPS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262923AbVD2URQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262941AbVD2UPS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 16:15:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262947AbVD2UO4
+	id S262923AbVD2URQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 16:17:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262944AbVD2UOY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 16:14:56 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:39066 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S262941AbVD2UMj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 16:12:39 -0400
-Message-ID: <42729533.3080502@acm.org>
-Date: Fri, 29 Apr 2005 15:12:35 -0500
+	Fri, 29 Apr 2005 16:14:24 -0400
+Received: from rwcrmhc14.comcast.net ([216.148.227.89]:50934 "EHLO
+	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S262930AbVD2UL0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 16:11:26 -0400
+Message-ID: <427294EA.502@acm.org>
+Date: Fri, 29 Apr 2005 15:11:22 -0500
 From: Corey Minyard <minyard@acm.org>
 User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20041217
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
 Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Fix a deadlock in the IPMI driver
+Subject: [PATCH] Enable interrupts on the IPMI BT driver
 X-Enigmail-Version: 0.89.6.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: multipart/mixed;
- boundary="------------090002030802090800020104"
+ boundary="------------050605030706030707020101"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------090002030802090800020104
+--------------050605030706030707020101
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
 
---------------090002030802090800020104
+--------------050605030706030707020101
 Content-Type: text/x-patch;
- name="ipmi-deadlock-fix-0426.diff"
+ name="ipmi_bt_irq.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="ipmi-deadlock-fix-0426.diff"
+ filename="ipmi_bt_irq.diff"
 
-This patch corrects an issue with the IPMI message layer taking a lock and
-calling  lower layer driver.  If an error occrues at the lower layer the lock
-can be taken again causing a deadlock.	The lock is released before calling the
-lower layer.
+Enable interrupts for a BT interface.  There is a specific register
+that needs to be set up to enable interrupts that also must be
+modified to clear the irq.
 
-Signed-off-by: David Griego <dgriego@mvista.com>
+Also, don't reset the BMC on a BT interface.  That's probably not a
+good idea as the BMC may be performing other important functions and a
+reset should only be a last resort.  Also, that register is also used
+to enable/disable interrupts to the BT; modifying it may screw up the
+interrupts.
+
 Signed-off-by: Corey Minyard <minyard@acm.org>
 
-Index: linux-2.6.12-rc2/drivers/char/ipmi/ipmi_msghandler.c
+Index: linux-2.6.12-rc2/drivers/char/ipmi/ipmi_si_intf.c
 ===================================================================
---- linux-2.6.12-rc2.orig/drivers/char/ipmi/ipmi_msghandler.c
-+++ linux-2.6.12-rc2/drivers/char/ipmi/ipmi_msghandler.c
-@@ -2647,28 +2647,20 @@
- 	deliver_response(msg);
- }
+--- linux-2.6.12-rc2.orig/drivers/char/ipmi/ipmi_si_intf.c
++++ linux-2.6.12-rc2/drivers/char/ipmi/ipmi_si_intf.c
+@@ -100,6 +100,11 @@
+ 	/* FIXME - add watchdog stuff. */
+ };
  
--static void
--send_from_recv_msg(ipmi_smi_t intf, struct ipmi_recv_msg *recv_msg,
--		   struct ipmi_smi_msg *smi_msg,
--		   unsigned char seq, long seqid)
-+static struct ipmi_smi_msg *
-+smi_from_recv_msg(ipmi_smi_t intf, struct ipmi_recv_msg *recv_msg,
-+		  unsigned char seq, long seqid)
- {
--	if (!smi_msg)
--		smi_msg = ipmi_alloc_smi_msg();
-+	struct ipmi_smi_msg *smi_msg = ipmi_alloc_smi_msg();
- 	if (!smi_msg)
- 		/* If we can't allocate the message, then just return, we
- 		   get 4 retries, so this should be ok. */
--		return;
-+		return NULL;
- 
- 	memcpy(smi_msg->data, recv_msg->msg.data, recv_msg->msg.data_len);
- 	smi_msg->data_size = recv_msg->msg.data_len;
- 	smi_msg->msgid = STORE_SEQ_IN_MSGID(seq, seqid);
- 		
--	/* Send the new message.  We send with a zero priority.  It
--	   timed out, I doubt time is that critical now, and high
--	   priority messages are really only for messages to the local
--	   MC, which don't get resent. */
--	intf->handlers->sender(intf->send_info, smi_msg, 0);
--
- #ifdef DEBUG_MSGING
- 	{
- 		int m;
-@@ -2678,6 +2670,7 @@
- 		printk("\n");
- 	}
- #endif
-+	return smi_msg;
- }
- 
- static void
-@@ -2742,14 +2735,13 @@
- 					intf->timed_out_ipmb_commands++;
- 				spin_unlock(&intf->counter_lock);
- 			} else {
-+				struct ipmi_smi_msg *smi_msg;
- 				/* More retries, send again. */
- 
- 				/* Start with the max timer, set to normal
- 				   timer after the message is sent. */
- 				ent->timeout = MAX_MSG_TIMEOUT;
- 				ent->retries_left--;
--				send_from_recv_msg(intf, ent->recv_msg, NULL,
--						   j, ent->seqid);
- 				spin_lock(&intf->counter_lock);
- 				if (ent->recv_msg->addr.addr_type
- 				    == IPMI_LAN_ADDR_TYPE)
-@@ -2757,6 +2749,20 @@
- 				else
- 					intf->retransmitted_ipmb_commands++;
- 				spin_unlock(&intf->counter_lock);
-+				smi_msg = smi_from_recv_msg(intf, 
-+						ent->recv_msg, j, ent->seqid);
-+				if(!smi_msg)
-+					continue;
++/* Some BT-specific defines we need here. */
++#define IPMI_BT_INTMASK_REG		2
++#define IPMI_BT_INTMASK_CLEAR_IRQ_BIT	2
++#define IPMI_BT_INTMASK_ENABLE_IRQ_BIT	1
 +
-+				spin_unlock_irqrestore(&(intf->seq_lock),flags);
-+				/* Send the new message.  We send with a zero 
-+				 * priority.  It timed out, I doubt time is 
-+				 * that critical now, and high priority 
-+				 * messages are really only for messages to the
-+				 * local MC, which don't get resent. */
-+				intf->handlers->sender(intf->send_info, 
-+							smi_msg, 0);
-+				spin_lock_irqsave(&(intf->seq_lock), flags);
- 			}
- 		}
- 		spin_unlock_irqrestore(&(intf->seq_lock), flags);
+ enum si_type {
+     SI_KCS, SI_SMIC, SI_BT
+ };
+@@ -876,6 +881,17 @@
+ 	return IRQ_HANDLED;
+ }
+ 
++static irqreturn_t si_bt_irq_handler(int irq, void *data, struct pt_regs *regs)
++{
++	struct smi_info *smi_info = data;
++	/* We need to clear the IRQ flag for the BT interface. */
++	smi_info->io.outputb(&smi_info->io, IPMI_BT_INTMASK_REG,
++			     IPMI_BT_INTMASK_CLEAR_IRQ_BIT
++			     | IPMI_BT_INTMASK_ENABLE_IRQ_BIT);
++	return si_irq_handler(irq, data, regs);
++}
++
++
+ static struct ipmi_smi_handlers handlers =
+ {
+ 	.owner                  = THIS_MODULE,
+@@ -1002,11 +1018,22 @@
+ 	if (!info->irq)
+ 		return 0;
+ 
+-	rv = request_irq(info->irq,
+-			 si_irq_handler,
+-			 SA_INTERRUPT,
+-			 DEVICE_NAME,
+-			 info);
++	if (info->si_type == SI_BT) {
++		rv = request_irq(info->irq,
++				 si_bt_irq_handler,
++				 SA_INTERRUPT,
++				 DEVICE_NAME,
++				 info);
++		if (!rv)
++			/* Enable the interrupt in the BT interface. */
++			info->io.outputb(&info->io, IPMI_BT_INTMASK_REG,
++					 IPMI_BT_INTMASK_ENABLE_IRQ_BIT);
++	} else
++		rv = request_irq(info->irq,
++				 si_irq_handler,
++				 SA_INTERRUPT,
++				 DEVICE_NAME,
++				 info);
+ 	if (rv) {
+ 		printk(KERN_WARNING
+ 		       "ipmi_si: %s unable to claim interrupt %d,"
+@@ -1025,6 +1052,9 @@
+ 	if (!info->irq)
+ 		return;
+ 
++	if (info->si_type == SI_BT)
++		/* Disable the interrupt in the BT interface. */
++		info->io.outputb(&info->io, IPMI_BT_INTMASK_REG, 0);
+ 	free_irq(info->irq, info);
+ }
+ 
+Index: linux-2.6.12-rc2/drivers/char/ipmi/ipmi_bt_sm.c
+===================================================================
+--- linux-2.6.12-rc2.orig/drivers/char/ipmi/ipmi_bt_sm.c
++++ linux-2.6.12-rc2/drivers/char/ipmi/ipmi_bt_sm.c
+@@ -235,7 +235,6 @@
+ 	if (BT_STATUS & BT_B_BUSY) BT_CONTROL(BT_B_BUSY);
+ 	BT_CONTROL(BT_CLR_WR_PTR);
+ 	BT_CONTROL(BT_SMS_ATN);
+-	BT_INTMASK_W(BT_BMC_HWRST);
+ #ifdef DEVELOPMENT_ONLY_NOT_FOR_PRODUCTION
+ 	if (BT_STATUS & BT_B2H_ATN) {
+ 		int i;
 
---------------090002030802090800020104--
+--------------050605030706030707020101--

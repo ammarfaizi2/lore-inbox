@@ -1,60 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262810AbVD2QL0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262813AbVD2QMv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262810AbVD2QL0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 12:11:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262808AbVD2QL0
+	id S262813AbVD2QMv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 12:12:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262808AbVD2QMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 12:11:26 -0400
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:14217
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262811AbVD2QGQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 12:06:16 -0400
-Date: Fri, 29 Apr 2005 08:56:30 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: hubert.tonneau@fullpliant.org, linux-kernel@vger.kernel.org,
-       Eric.Moore@lsil.com, jgarzik@pobox.com
-Subject: Re: 2.6 upgrade overall failure report
-Message-Id: <20050429085630.7290e0da.davem@davemloft.net>
-In-Reply-To: <20050429021756.7bd5535f.akpm@osdl.org>
-References: <055FPDS12@server5.heliogroup.fr>
-	<20050429021756.7bd5535f.akpm@osdl.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
+	Fri, 29 Apr 2005 12:12:51 -0400
+Received: from mailout06.infosat.net ([66.18.69.6]:35796 "EHLO
+	mail02.infosat.net") by vger.kernel.org with ESMTP id S262813AbVD2QMW
+	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 12:12:22 -0400
+From: "cheick oumar" <drcheick@tsamail.co.za>
+Subject: DR.CHEICK   OUMAR
+X-Mailer: CommuniGate Pro WebUser Interface v.4.1.8
+Date: Fri, 29 Apr 2005 18:12:19 +0200
+Message-ID: <web-728440854@mail01.infosat.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Apr 2005 02:17:56 -0700
-Andrew Morton <akpm@osdl.org> wrote:
+FROM THE DESK OF DR.CHEICK OUMAR
+DEPUTY DIRECTOR OF FINANCE, 
+FOREIGN PAYMENT DEPT, WEST AFRICAN MONETARY 
+CONTROL BOARD(W.A.M.C.B) NORTH-WEST 
+REGIONAL OFFICE OUAGADOUGOU BURKINA FASO
 
-> >  . There is still a memory leak trouble (probably in tigon3 driver since others
-> >    reported so on kernel mailing list, and tigon3 is not a geek hardware since
-> >    most nowdays lowend servers use either tigon3 or pro1000)
-> 
-> Please send a report to David Miller and Jeff Garzik and cc netdev@oss.sgi.com
+SIR, 
 
-This is the first I've ever heard of any such leak, more likely
-the leak is in the networking code somewhere.
+REQUEST FOR URGENT TRANSFER OF THE SUM OF FIFTEEN MILLION
+THREE HUNDRED 
+THOUSAND DOLLAR {US$15,300,000.00}ONLY, INTO YOUR ACCOUNT.
+Compliment of the 
+season. I am the Deputy Director of finance, foreign
+payment approval dept 
+of West Africa Monetary Control Board (W.A.M.C.B).
+North-West Regional office 
+ouagadougou burkina faso. My office oversee all
+developmental projects 
+financed by the Economic Community of West African States
+(ECOWAS). Within 
+this zone (Burkina Faso, Niger, Tome Togo Mali, Ivory
+Coast, Ghana and 
+Guinea). With reference to an introduction and
+recommendation made of your 
+esteem firm by a friend who works in the burkina faso
+Chambers of Commerce 
+and Industry, I do hereby, Wish to commence talk with you
+on a highly 
+confidential level. After due consultations , i have
+decided to contact you 
+in order to arrange for a possible transfer of the sum of
+Fifteen million 
+three hundred thousand dollars (US$15.300.000.00) into your
+account. This 
+money is a subject of an over inflated 
+sum acquired from contracts awarded by my Agency in the
+past years. 
+The original contractors have however, been paid and all
+projects executed 
+by them commissioned. This over inflated amount can not be
+withdraw locally 
+from the paying Bank because the contractors concerned are
+foreign Firms. 
+As a matter of trust, honesty and secrecy, i have decided
+to contact you as 
+to assist me provide an account for this transaction if you
+have accepted to 
+assist and fully participate in this transaction, kindly
+furnish me with the 
+necessary information such as Bank address, Account number,
+Account name and 
+your full address. With this information provided, the said
+sum will be 
+transfer to your account without difficulties. 
+The terms of sharing the money after a successful transfer
+will be discuss 
+as you indicate your interest in assisting to transfer this
+money. 
+Immediately all these information gets to me ,i will then
+present every 
+document to the Bank legally. Be rest assured with our
+connections, 
+everything will be through within a short time. After many
+years of 
+meticulous services to the government and people of our sub
+region i would 
+not want my image to be dented. 
+Therefore i expect you to handle this transaction with
+utmost maturity by 
+keeping everything secret. I can assure you that if my
+instructions are 
+carefully adhered to, there will not be any hitch
+throughout the 
+transaction, there is no risk on your side, because i have
+perfected the 
+deal very well over years. After the transfer, i will be
+coming over to your country for further 
+sharing and possible investments. Waiting to hear from you
+urgently or you contact me alternatvely at
+(cheick3250@yahoo.com)
 
-> >  . Since 2.6.10, the TCP task does not work anymore with OSX (2 Mbps instead
-> >    of 60 Mbps on a 100 Mbps wire)
-> 
-> Please send a full report to David Miller and cc netdev@oss.sgi.com.
-> 
-> Also please describe a simple way of reproducing this - I'll see if it
-> happens here.
+Best regards.
+DR.CHEICK OUMAR
+ 
 
-It only happens with OS-X and it has to do with how they handle the fast
-path of TCP input.  It's a known problem but no satisfatory solution
-exists yet.  When the fast path in OS-X TCP input is hit, they always
-delay ACKs by a full 500ms, there isn't much Linux can do about broken
-behavior like that.
 
-We are thinking of possible workarounds, but this bug is very low priority
-since it is really a MAC OS-X issue.
-
-Anyways, I'm in Chicago until Monday so won't be able to look into anything
-in detail until then.
+  
+ 
+  
+ 

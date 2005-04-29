@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262661AbVD2OEo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262678AbVD2ON6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262661AbVD2OEo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 10:04:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262697AbVD2OEo
+	id S262678AbVD2ON6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 10:13:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262698AbVD2ON5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 10:04:44 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:11478 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S262661AbVD2OEm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 10:04:42 -0400
-Subject: Re: IDE problems with rmmod ide-cd
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1114727044.18330.232.camel@localhost.localdomain>
-References: <1114706653.18330.212.camel@localhost.localdomain>
-	 <20050428172541.GN1876@suse.de>
-	 <1114727044.18330.232.camel@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1114783384.18355.283.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 29 Apr 2005 15:03:06 +0100
+	Fri, 29 Apr 2005 10:13:57 -0400
+Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:3245 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262678AbVD2ONy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 10:13:54 -0400
+To: linuxram@us.ibm.com
+CC: jamie@shareable.org, ericvh@gmail.com, pavel@ucw.cz,
+       viro@parcelfarce.linux.theplanet.co.uk, miklos@szeredi.hu,
+       hch@infradead.org, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+In-reply-to: <1114761430.4180.1566.camel@localhost> (message from Ram on Fri,
+	29 Apr 2005 00:57:10 -0700)
+Subject: Re: [PATCH] private mounts
+References: <E1DPoCg-0000W0-00@localhost>
+	 <20050424210616.GM13052@parcelfarce.linux.theplanet.co.uk>
+	 <20050424213822.GB9304@mail.shareable.org>
+	 <20050425152049.GB2508@elf.ucw.cz>
+	 <20050425190734.GB28294@mail.shareable.org>
+	 <20050426092924.GA4175@elf.ucw.cz>
+	 <20050426140715.GA10833@mail.shareable.org>
+	 <a4e6962a050428064774e88f4a@mail.gmail.com>
+	 <20050428192048.GA2895@mail.shareable.org>
+	 <1114717183.4180.718.camel@localhost>
+	 <20050428220839.GA5183@mail.shareable.org> <1114761430.4180.1566.camel@localhost>
+Message-Id: <E1DRWEt-000149-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Fri, 29 Apr 2005 16:13:07 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-04-28 at 23:24, Alan Cox wrote:
-> One possibility might be that the specific drive is incorrectly
-> reporting capabilities and register_cdrom is setting cdi->exit as a
-> result. Will try and work out what is going on there tomorrow.
+> > 
+> > Which means proc_root_link, when it switches to the vfsmnt at the root
+> > of the other process, should traverse into the tree of vfsmnts which
+> > make up the other namespace.
+> 
+> Yes. But proc_check_root() in proc_pid_follow_link() is failing the 
+> traversal, because it is expecting the root vfsmount of the traversed
+> process to belong to the vfsmount tree of the traversing process.
+> In other words its expecting them to be both in the same namespace.
+> 
+> The permissions get denied by this code in proc_check_root():
+> 
 
-Looks like a dumb bug in ide-cd. The error is coming from mrw_exit.
+Removing the check makes chroot enter the tree under the other
+process's namespace.  However it does not actually change the
+namespace, hence mount/umount won't work.
 
-That gets called because ide-cd sets mask to 0 "I do everything" and
-then subtracts features by checking drive bits. What it should do is set
-the mask to every flag it knows about and then work back.
+So joinig a namespace does need a new syscall unfortunately.
 
-The ide-cd code doesn't know about CDC_MRW_W so its always a zero bit in
-the mask, CDROM_CAN(CDC_MRW_W) is always true and cache flushes get
-written.
-
-Alan
-
+Miklos

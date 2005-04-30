@@ -1,71 +1,211 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261319AbVD3SIp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbVD3SQJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261319AbVD3SIp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 14:08:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVD3SIp
+	id S261324AbVD3SQJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 14:16:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbVD3SQJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 14:08:45 -0400
-Received: from everest.sosdg.org ([66.93.203.161]:42406 "EHLO mail.sosdg.org")
-	by vger.kernel.org with ESMTP id S261319AbVD3SIh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 14:08:37 -0400
-From: "Coywolf Qi Hunt" <coywolf@lovecn.org>
-Date: Sun, 1 May 2005 02:08:23 +0800
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@muc.de>,
-       Adrian Bunk <bunk@stusta.de>
-Message-ID: <20050430180823.GA14922@lovecn.org>
-References: <20050429231653.32d2f091.akpm@osdl.org> <20050430142035.GB3571@stusta.de> <Pine.LNX.4.61.0504300940560.12903@montezuma.fsmlabs.com> <2cd57c9005043010051c6455fb@mail.gmail.com>
+	Sat, 30 Apr 2005 14:16:09 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:33805 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261324AbVD3SPk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Apr 2005 14:15:40 -0400
+Date: Sat, 30 Apr 2005 20:15:30 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: sailer@ife.ee.ethz.ch, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
+       netdev@oss.sgi.com
+Subject: [2.6 patch] drivers/net/hamradio/baycom_epp.c: cleanups
+Message-ID: <20050430181529.GF3571@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <2cd57c9005043010051c6455fb@mail.gmail.com>
 User-Agent: Mutt/1.5.9i
-X-Scan-Signature: e39eceae6eb4554774934c39b07fdc9c
-X-SA-Exim-Connect-IP: 66.93.203.161
-X-SA-Exim-Mail-From: coywolf@lovecn.org
-Subject: Re: 2.6.12-rc3-mm1
-X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
-	*      [score: 0.0000]
-X-SA-Exim-Version: 4.2 (built Tue, 12 Apr 2005 17:41:13 -0500)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 01, 2005 at 01:05:52AM +0800, Coywolf Qi Hunt wrote:
-... 
-> I was trying to fix this too. You are quicker and better than me. In
-> addition, this redundant  include should be removed.
+The times when tricky goto's produced better codes are long gone.
 
-s/redundant/duplicate/
+This patch should express the same in a better way, please check whether 
+I made any mistake.
 
-OK, since Zwane thinks my patch is "good in that its minimal impact", here it is.
-I've compile tested for SMP and UP.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-This removes the compile warning: implicit declaration of function `set_irq_info' and a duplicate include line.
-
-Signed-off-by: Coywolf Qi Hunt <coywolf@lovecn.org>
 ---
 
-diff -pruN 2.6.12-rc3-mm1/arch/i386/kernel/io_apic.c 2.6.12-rc3-mm1-cy2/arch/i386/kernel/io_apic.c
---- 2.6.12-rc3-mm1/arch/i386/kernel/io_apic.c	2005-04-30 19:15:46.000000000 +0800
-+++ 2.6.12-rc3-mm1-cy2/arch/i386/kernel/io_apic.c	2005-05-01 00:49:27.000000000 +0800
-@@ -32,7 +32,6 @@
- #include <linux/compiler.h>
- #include <linux/acpi.h>
- #include <linux/sysdev.h>
--#include <linux/irq.h>
- #include <asm/io.h>
- #include <asm/smp.h>
- #include <asm/desc.h>
-diff -pruN 2.6.12-rc3-mm1/include/linux/irq.h 2.6.12-rc3-mm1-cy2/include/linux/irq.h
---- 2.6.12-rc3-mm1/include/linux/irq.h	2005-04-30 19:16:26.000000000 +0800
-+++ 2.6.12-rc3-mm1-cy2/include/linux/irq.h	2005-05-01 00:51:31.000000000 +0800
-@@ -161,6 +161,7 @@ static inline void set_irq_info(int irq,
- #else
- #define move_irq(x)
- #define move_native_irq(x)
-+extern void set_irq_info(unsigned int irq, cpumask_t mask);
- #endif // CONFIG_GENERIC_PENDING_IRQ
+This patch was already sent on:
+- 20 Apr 2005
+
+ drivers/net/hamradio/baycom_epp.c |  126 ++++++++----------------------
+ 1 files changed, 36 insertions(+), 90 deletions(-)
+
+--- linux-2.6.12-rc2-mm3/drivers/net/hamradio/baycom_epp.c.old	2005-04-20 16:18:47.000000000 +0200
++++ linux-2.6.12-rc2-mm3/drivers/net/hamradio/baycom_epp.c	2005-04-20 17:14:36.000000000 +0200
+@@ -374,29 +374,6 @@
+ }
  
- extern int no_irq_affinity;
+ /* --------------------------------------------------------------------- */
+-/*
+- * high performance HDLC encoder
+- * yes, it's ugly, but generates pretty good code
+- */
+-
+-#define ENCODEITERA(j)                         \
+-({                                             \
+-        if (!(notbitstream & (0x1f0 << j)))    \
+-                goto stuff##j;                 \
+-  encodeend##j:    	;                      \
+-})
+-
+-#define ENCODEITERB(j)                                          \
+-({                                                              \
+-  stuff##j:                                                     \
+-        bitstream &= ~(0x100 << j);                             \
+-        bitbuf = (bitbuf & (((2 << j) << numbit) - 1)) |        \
+-                ((bitbuf & ~(((2 << j) << numbit) - 1)) << 1);  \
+-        numbit++;                                               \
+-        notbitstream = ~bitstream;                              \
+-        goto encodeend##j;                                      \
+-})
+-
+ 
+ static void encode_hdlc(struct baycom_state *bc)
+ {
+@@ -405,6 +382,7 @@
+ 	int pkt_len;
+         unsigned bitstream, notbitstream, bitbuf, numbit, crc;
+ 	unsigned char crcarr[2];
++	int j;
+ 	
+ 	if (bc->hdlctx.bufcnt > 0)
+ 		return;
+@@ -429,24 +407,14 @@
+ 		pkt_len--;
+ 		if (!pkt_len)
+ 			bp = crcarr;
+-		ENCODEITERA(0);
+-		ENCODEITERA(1);
+-		ENCODEITERA(2);
+-		ENCODEITERA(3);
+-		ENCODEITERA(4);
+-		ENCODEITERA(5);
+-		ENCODEITERA(6);
+-		ENCODEITERA(7);
+-		goto enditer;
+-		ENCODEITERB(0);
+-		ENCODEITERB(1);
+-		ENCODEITERB(2);
+-		ENCODEITERB(3);
+-		ENCODEITERB(4);
+-		ENCODEITERB(5);
+-		ENCODEITERB(6);
+-		ENCODEITERB(7);
+-	enditer:
++		for (j = 0; j < 8; j++)
++			if (unlikely(!(notbitstream & (0x1f0 << j)))) {
++				bitstream &= ~(0x100 << j);
++ 				bitbuf = (bitbuf & (((2 << j) << numbit) - 1)) |
++					((bitbuf & ~(((2 << j) << numbit) - 1)) << 1);
++				numbit++;
++				notbitstream = ~bitstream;
++			}
+ 		numbit += 8;
+ 		while (numbit >= 8) {
+ 			*wp++ = bitbuf;
+@@ -612,37 +580,6 @@
+ 	bc->stats.rx_packets++;
+ }
+ 
+-#define DECODEITERA(j)                                                        \
+-({                                                                            \
+-        if (!(notbitstream & (0x0fc << j)))              /* flag or abort */  \
+-                goto flgabrt##j;                                              \
+-        if ((bitstream & (0x1f8 << j)) == (0xf8 << j))   /* stuffed bit */    \
+-                goto stuff##j;                                                \
+-  enditer##j:      ;                                                           \
+-})
+-
+-#define DECODEITERB(j)                                                                 \
+-({                                                                                     \
+-  flgabrt##j:                                                                          \
+-        if (!(notbitstream & (0x1fc << j))) {              /* abort received */        \
+-                state = 0;                                                             \
+-                goto enditer##j;                                                       \
+-        }                                                                              \
+-        if ((bitstream & (0x1fe << j)) != (0x0fc << j))   /* flag received */          \
+-                goto enditer##j;                                                       \
+-        if (state)                                                                     \
+-                do_rxpacket(dev);                                                      \
+-        bc->hdlcrx.bufcnt = 0;                                                         \
+-        bc->hdlcrx.bufptr = bc->hdlcrx.buf;                                            \
+-        state = 1;                                                                     \
+-        numbits = 7-j;                                                                 \
+-        goto enditer##j;                                                               \
+-  stuff##j:                                                                            \
+-        numbits--;                                                                     \
+-        bitbuf = (bitbuf & ((~0xff) << j)) | ((bitbuf & ~((~0xff) << j)) << 1);        \
+-        goto enditer##j;                                                               \
+-})
+-        
+ static int receive(struct net_device *dev, int cnt)
+ {
+ 	struct baycom_state *bc = netdev_priv(dev);
+@@ -651,6 +588,7 @@
+ 	unsigned char tmp[128];
+         unsigned char *cp;
+ 	int cnt2, ret = 0;
++	int j;
+         
+         numbits = bc->hdlcrx.numbits;
+ 	state = bc->hdlcrx.state;
+@@ -671,24 +609,32 @@
+ 			bitbuf |= (*cp) << 8;
+ 			numbits += 8;
+ 			notbitstream = ~bitstream;
+-			DECODEITERA(0);
+-			DECODEITERA(1);
+-			DECODEITERA(2);
+-			DECODEITERA(3);
+-			DECODEITERA(4);
+-			DECODEITERA(5);
+-			DECODEITERA(6);
+-			DECODEITERA(7);
+-			goto enddec;
+-			DECODEITERB(0);
+-			DECODEITERB(1);
+-			DECODEITERB(2);
+-			DECODEITERB(3);
+-			DECODEITERB(4);
+-			DECODEITERB(5);
+-			DECODEITERB(6);
+-			DECODEITERB(7);
+-		enddec:
++			for (j = 0; j < 8; j++) {
++
++				/* flag or abort */
++			        if (unlikely(!(notbitstream & (0x0fc << j)))) {
++
++					/* abort received */
++					if (!(notbitstream & (0x1fc << j)))
++						state = 0;
++
++					/* not flag received */
++					else if (!(bitstream & (0x1fe << j)) != (0x0fc << j)) {
++						if (state)
++							do_rxpacket(dev);
++						bc->hdlcrx.bufcnt = 0;
++						bc->hdlcrx.bufptr = bc->hdlcrx.buf;
++						state = 1;
++						numbits = 7-j;
++						}
++					}
++
++				/* stuffed bit */
++				else if (unlikely((bitstream & (0x1f8 << j)) == (0xf8 << j))) {
++					numbits--;
++					bitbuf = (bitbuf & ((~0xff) << j)) | ((bitbuf & ~((~0xff) << j)) << 1);
++					}
++				}
+ 			while (state && numbits >= 8) {
+ 				if (bc->hdlcrx.bufcnt >= TXBUFFER_SIZE) {
+ 					state = 0;
+

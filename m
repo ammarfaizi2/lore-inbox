@@ -1,64 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262549AbVD3III@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbVD3IOi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262549AbVD3III (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 04:08:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263141AbVD3III
+	id S261151AbVD3IOi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 04:14:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbVD3IOe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 04:08:08 -0400
-Received: from fep30-0.kolumbus.fi ([193.229.0.32]:30709 "EHLO
-	fep30-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S262549AbVD3IIC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 04:08:02 -0400
-Date: Sat, 30 Apr 2005 11:10:14 +0300 (EEST)
-From: Kai Makisara <Kai.Makisara@kolumbus.fi>
-X-X-Sender: makisara@kai.makisara.local
-To: Greg KH <gregkh@suse.de>
-cc: Greg KH <greg@kroah.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-scsi@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>, Cliff White <cliffw@osdl.org>,
-       "Theodore Ts'o" <tytso@mit.edu>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [06/07] [PATCH] SCSI tape security: require CAP_ADMIN for SG_IO
- etc.
-In-Reply-To: <20050430051030.GA10005@suse.de>
-Message-ID: <Pine.LNX.4.61.0504301100430.21122@kai.makisara.local>
-References: <20050427171446.GA3195@kroah.com> <20050427171649.GG3195@kroah.com>
- <1114619928.18809.118.camel@localhost.localdomain>
- <Pine.LNX.4.61.0504280810140.12812@kai.makisara.local>
- <1114694511.18809.187.camel@localhost.localdomain> <20050429042014.GC25474@kroah.com>
- <1114805784.18330.297.camel@localhost.localdomain> <20050429203805.GA2959@kroah.com>
- <Pine.LNX.4.61.0504300849350.21122@kai.makisara.local> <20050430051030.GA10005@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 30 Apr 2005 04:14:34 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:3265 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261151AbVD3IOT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Apr 2005 04:14:19 -0400
+Subject: [PATCH]mcheck init call cleanup
+From: Li Shaohua <shaohua.li@intel.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       Racing Guo <racing.guo@intel.com>
+Content-Type: text/plain
+Message-Id: <1114848679.2616.20.camel@sli10-desk.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 30 Apr 2005 16:11:19 +0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Apr 2005, Greg KH wrote:
+Hi Andrew,
+The machine check changes in -rc3-mm1 break the SMP suspend/resume
+patches as you expected. Here is a fix.
+1. clean the __init call
+2. calling on_each_cpu in sysdev's .resume/.suspend methods (which are
+called with interrupt disabled) is known broken. The MTRR driver is a
+such case. The patch makes only BSP call the .resume.
 
-> On Sat, Apr 30, 2005 at 08:52:31AM +0300, Kai Makisara wrote:
-> > On Fri, 29 Apr 2005, Greg KH wrote:
-> > 
-...
-> > > Switch it in both capable() calls in the patch?  Kai, is this acceptable
-> > > to you also?
-> > > 
-> > Yes. Using CAP_SYS_ADMIN here was wrong.
-> 
-> Ok, care to send a new patch that I can use for the next -stable kernel
-> release?
-> 
-Sent in a different message. This patch does not restrict 
-usage of SCSI_IOCTL_START_UNIT and SCSI_IOCTL_STOP_UNIT. For tapes, those 
-mean load and unload commands. The drive status changes resulting from 
-these commands seem to be caught by st otherwise. I will do a patch for 
--12rc later today or tomorrow. It may add changing some st status bits if 
-these commands succeed but that is not -stable material.
+Thanks,
+Shaohua
 
-Thanks for the review for all participants.
 
--- 
-Kai
+Signed-off-by: Li Shaohua<shaohua.li@intel.com>
+---
+
+ linux-2.6.11-rc3-mm1-root/arch/i386/kernel/cpu/mcheck/init.c      |    8 ++--
+ linux-2.6.11-rc3-mm1-root/arch/i386/kernel/cpu/mcheck/mce.c       |   18 ++++------
+ linux-2.6.11-rc3-mm1-root/arch/i386/kernel/cpu/mcheck/mce_intel.c |    4 +-
+ linux-2.6.11-rc3-mm1-root/arch/i386/kernel/cpu/mcheck/winchip.c   |    2 -
+ 4 files changed, 15 insertions(+), 17 deletions(-)
+
+diff -puN arch/i386/kernel/cpu/mcheck/init.c~mce_init_cleanup arch/i386/kernel/cpu/mcheck/init.c
+--- linux-2.6.11-rc3-mm1/arch/i386/kernel/cpu/mcheck/init.c~mce_init_cleanup	2005-04-30 15:29:49.083231744 +0800
++++ linux-2.6.11-rc3-mm1-root/arch/i386/kernel/cpu/mcheck/init.c	2005-04-30 15:41:55.182847824 +0800
+@@ -16,9 +16,9 @@
+ 
+ #include "mce.h"
+ 
+-extern int __init mce_dont_init;
+-extern void __init intel_p5_mcheck_init(struct cpuinfo_x86 *c);
+-void __init winchip_mcheck_init(struct cpuinfo_x86 *c);
++extern int __devinitdata mce_dont_init;
++extern void __devinit intel_p5_mcheck_init(struct cpuinfo_x86 *c);
++void __devinit winchip_mcheck_init(struct cpuinfo_x86 *c);
+ fastcall void do_machine_check(struct pt_regs * regs, long error_code);
+ 
+ /* Handle unconfigured int18 (should never happen) */
+@@ -31,7 +31,7 @@ static fastcall void unexpected_machine_
+ void fastcall (*machine_check_vector)(struct pt_regs *, long error_code) = unexpected_machine_check;
+ 
+ /* This has to be run for each processor */
+-void __init machine_check_init(struct cpuinfo_x86 *c)
++void __devinit machine_check_init(struct cpuinfo_x86 *c)
+ {
+ 	if (mce_dont_init)
+ 		return;
+diff -puN arch/i386/kernel/cpu/mcheck/mce_intel.c~mce_init_cleanup arch/i386/kernel/cpu/mcheck/mce_intel.c
+--- linux-2.6.11-rc3-mm1/arch/i386/kernel/cpu/mcheck/mce_intel.c~mce_init_cleanup	2005-04-30 15:31:39.591431944 +0800
++++ linux-2.6.11-rc3-mm1-root/arch/i386/kernel/cpu/mcheck/mce_intel.c	2005-04-30 15:32:18.009591496 +0800
+@@ -47,7 +47,7 @@ done:
+ 	irq_exit();
+ }
+ 
+-static void __init intel_init_thermal(struct cpuinfo_x86 *c)
++static void __devinit intel_init_thermal(struct cpuinfo_x86 *c)
+ {
+ 	u32 l, h;
+ 	int tm2 = 0;
+@@ -98,7 +98,7 @@ static void __init intel_init_thermal(st
+ 	return;
+ }
+ 
+-void __init mce_intel_feature_init(struct cpuinfo_x86 *c)
++void __devinit mce_intel_feature_init(struct cpuinfo_x86 *c)
+ {
+ 	intel_init_thermal(c);
+ }
+diff -puN arch/i386/kernel/cpu/mcheck/mce.c~mce_init_cleanup arch/i386/kernel/cpu/mcheck/mce.c
+--- linux-2.6.11-rc3-mm1/arch/i386/kernel/cpu/mcheck/mce.c~mce_init_cleanup	2005-04-30 15:31:49.078989616 +0800
++++ linux-2.6.11-rc3-mm1-root/arch/i386/kernel/cpu/mcheck/mce.c	2005-04-30 15:47:48.764095304 +0800
+@@ -25,7 +25,7 @@
+ #define MISC_MCELOG_MINOR 227
+ #define NR_BANKS 5
+ 
+-int __initdata mce_dont_init = 0;
++int __devinitdata mce_dont_init = 0;
+ 
+ /* 0: always panic, 1: panic if deadlock possible, 2: try to avoid panic,
+    3: never panic or exit (for testing only) */
+@@ -326,7 +326,7 @@ static void mce_init(void *dummy)
+ }
+ 
+ /* Add per CPU specific workarounds here */
+-static void __init mce_cpu_quirks(struct cpuinfo_x86 *c)
++static void __devinit mce_cpu_quirks(struct cpuinfo_x86 *c)
+ {
+ 	/* This should be disabled by the BIOS, but isn't always */
+ 	if (c->x86_vendor == X86_VENDOR_AMD && c->x86 == 15) {
+@@ -336,7 +336,7 @@ static void __init mce_cpu_quirks(struct
+ 	}
+ }
+ 
+-static void __init mce_cpu_features(struct cpuinfo_x86 *c)
++static void __devinit mce_cpu_features(struct cpuinfo_x86 *c)
+ {
+ 	switch (c->x86_vendor) {
+ 	case X86_VENDOR_INTEL:
+@@ -353,13 +353,9 @@ static void __init mce_cpu_features(stru
+  */
+ void __devinit mcheck_init(struct cpuinfo_x86 *c)
+ {
+-	static cpumask_t mce_cpus __initdata = CPU_MASK_NONE;
+-
+ 	mce_cpu_quirks(c);
+ 
+-	if (mce_dont_init ||
+-	    cpu_test_and_set(smp_processor_id(), mce_cpus) ||
+-	    !mce_available(c))
++	if (mce_dont_init || !mce_available(c))
+ 		return;
+ 
+ 	mce_init(NULL);
+@@ -484,10 +480,12 @@ __setup("mce", mcheck_enable);
+  * Sysfs support
+  */
+ 
+-/* On resume clear all MCE state. Don't want to see leftovers from the BIOS. */
++/* On resume clear all MCE state. Don't want to see leftovers from the BIOS.
++ * Only BSP call this routine, APs follow boot code path.
++ */
+ static int mce_resume(struct sys_device *dev)
+ {
+-	on_each_cpu(mce_init, NULL, 1, 1);
++	mce_init(NULL);
+ 	return 0;
+ }
+ 
+diff -puN arch/i386/kernel/cpu/mcheck/winchip.c~mce_init_cleanup arch/i386/kernel/cpu/mcheck/winchip.c
+--- linux-2.6.11-rc3-mm1/arch/i386/kernel/cpu/mcheck/winchip.c~mce_init_cleanup	2005-04-30 15:42:10.926454432 +0800
++++ linux-2.6.11-rc3-mm1-root/arch/i386/kernel/cpu/mcheck/winchip.c	2005-04-30 15:42:24.909328712 +0800
+@@ -25,7 +25,7 @@ static fastcall void winchip_machine_che
+ }
+ 
+ /* Set up machine check reporting on the Winchip C6 series */
+-void __init winchip_mcheck_init(struct cpuinfo_x86 *c)
++void __devinit winchip_mcheck_init(struct cpuinfo_x86 *c)
+ {
+ 	u32 lo, hi;
+ 	machine_check_vector = winchip_machine_check;
+_
+
+
+

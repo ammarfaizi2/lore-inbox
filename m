@@ -1,56 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261436AbVD3V0t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbVD3VhU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261436AbVD3V0t (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 17:26:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbVD3V0t
+	id S261437AbVD3VhU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 17:37:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbVD3VhU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 17:26:49 -0400
-Received: from zproxy.gmail.com ([64.233.162.204]:58315 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261437AbVD3V0q convert rfc822-to-8bit
+	Sat, 30 Apr 2005 17:37:20 -0400
+Received: from postfix3-1.free.fr ([213.228.0.44]:26323 "EHLO
+	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S261437AbVD3VhN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 17:26:46 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bjkSYR5kZEDxqeO6xmgmaW2/ky58mGuy8vAXr0FwulN77W1+tcBYdhP9qJYPfoR3Ncy+NA1PcJ2wo1thCS5SaSctX30RnIupPgkt6lMzONF22t6d3hvAxNGPPwP+911LnuBOd9g7e/mHN+rySryPtkCv39E/q9hfA1IKw85+azI=
-Message-ID: <39e6f6c705043014264eb4c0c5@mail.gmail.com>
-Date: Sat, 30 Apr 2005 18:26:45 -0300
-From: Arnaldo Carvalho de Melo <arnaldo.melo@gmail.com>
-Reply-To: acme@ghostprotocols.net
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Subject: Re: [PATCH] resource release cleanup in net/
-Cc: "David S. Miller" <davem@davemloft.net>,
-       Herbert Xu <herbert@gondor.apana.org.au>,
-       Jouni Malinen <jkmaline@cc.hut.fi>,
-       James Morris <jmorris@intercode.com.au>,
-       Pedro Roque <roque@di.fc.ul.pt>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Kunihiro Ishiguro <kunihiro@ipinfusion.com>,
-       Mitsuru KANDA <mk@linux-ipv6.org>,
-       lksctp-developers@lists.sourceforge.net,
-       Andy Adamson <andros@umich.edu>, Bruce Fields <bfields@umich.edu>,
-       netdev@oss.sgi.com, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.62.0504302219520.2094@dragon.hyggekrogen.localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.62.0504302219520.2094@dragon.hyggekrogen.localhost>
+	Sat, 30 Apr 2005 17:37:13 -0400
+Message-ID: <4273FA88.1060405@free.fr>
+Date: Sat, 30 Apr 2005 23:37:12 +0200
+From: Boris Fersing <mastermac@free.fr>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050430)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Robert Hancock <hancockr@shaw.ca>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: HyperThreading, kernel 2.6.10, 1 logical CPU idle !!
+References: <3Z3u8-28Z-9@gated-at.bofh.it> <4273E2BB.9010509@shaw.ca>
+In-Reply-To: <4273E2BB.9010509@shaw.ca>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/30/05, Jesper Juhl <juhl-lkml@dif.dk> wrote:
-> Hi David,
-> 
-> Since Andrew merged the patch that makes calling crypto_free_tfm() with a
-> NULL pointer safe into 2.6.12-rc3-mm1, I made a patch to remove checks for
-> NULL before calling that function, and while I was at it I removed similar
-> redundant checks before calls to kfree() and vfree() in the same files.
-> There are also a few tiny whitespace cleanups in there.
+Robert Hancock a écrit :
 
-Jesper, I'd suggest that you left whitespaces for a separate patch, it
-is always,
-IMHO, better to have as small a patch as possible for reviewing.
+> Boris Fersing wrote:
+>
+>> Hi there,
+>> I've a p4 HT 3,06Ghz, I've HT enabled in the BIOS and in the kernel :
+>>
+>> Linux electron 2.6.10-cj5 #6 SMP Fri Mar 4 02:18:08 CET 2005 i686 Mobile
+>> Intel(R) Pentium(R) 4     CPU 3.06GHz GenuineIntel GNU/Linux .
+>>
+>> But it seems that one of my cpus is idle (gkrellm monitor or top) :
+>>
+>> Cpu0  : 88.0% us, 12.0% sy,  0.0% ni,  0.0% id,  0.0% wa,  0.0% hi,
+>> 0.0% si
+>> Cpu1  :  0.0% us,  0.3% sy,  0.0% ni, 99.7% id,  0.0% wa,  0.0% hi,
+>> 0.0% si
+>>
+>>
+>> I'm actually compiling thunderbird with MAKEOPTS="-j3", so , the second
+>> should be used, shouldn't it ?
+>
+>
+> Are you sure that it is actually compiling multiple files at once?
+>
+Yes I'm sure, Even if I launch more than 1 gcc, or for example, start a
+compilation + video encoding (mencoder) + ... the second CPU won't work
+(idle 100% or sometimes 99,9%).
 
-- Arnaldo
+Regards,
+
+Boris.

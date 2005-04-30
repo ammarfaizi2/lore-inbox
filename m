@@ -1,128 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbVD3MeK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261209AbVD3MgI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261208AbVD3MeK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 08:34:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbVD3MeJ
+	id S261209AbVD3MgI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 08:36:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbVD3MgI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 08:34:09 -0400
-Received: from mx02.stofanet.dk ([212.10.10.12]:31185 "EHLO mx02.stofanet.dk")
-	by vger.kernel.org with ESMTP id S261208AbVD3Md7 (ORCPT
+	Sat, 30 Apr 2005 08:36:08 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:9907 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S261209AbVD3Mfo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 08:33:59 -0400
-Message-ID: <42737B3E.9000804@molgaard.org>
-Date: Sat, 30 Apr 2005 14:34:06 +0200
-From: =?ISO-8859-1?Q?Sune_M=F8lgaard?= <sune@molgaard.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
+	Sat, 30 Apr 2005 08:35:44 -0400
+Message-ID: <42737D3A.ABEF2022@tv-sign.ru>
+Date: Sat, 30 Apr 2005 16:42:34 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: mj@ucw.cz
-Subject: Re: [PATCH] 2.4.30 PicoPower IRQ router
-References: <426C9DED.9010206@molgaard.org> <200504261740.08794.lists@b-open-solutions.it> <426E8FE4.5040307@molgaard.org> <20050427112850.GA18533@nd47.coderock.org> <426FD8C7.5080800@molgaard.org> <Pine.LNX.4.62.0504272250300.2481@dragon.hyggekrogen.localhost>
-In-Reply-To: <Pine.LNX.4.62.0504272250300.2481@dragon.hyggekrogen.localhost>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org,
+       Maneesh Soni <maneesh@in.ibm.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Juergen Kreileder <jk@blackdown.de>
+Subject: Re: Fw: [Bug 4559] New: cfq scheduler lockup: NMI oops while runningltp 
+ - 20050207  on 2.6.12-rc2-mm3 with kdump enabled
+References: <20050429000038.1da6f2e1.akpm@osdl.org>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One final but critical change. I accidentally used vendor ID for USR 
-instead of Picopower in pci_ids.h. Plus I didn't refer to it properly in 
-pci-irq.c
+Andrew Morton wrote:
+> 
+>  http://bugme.osdl.org/show_bug.cgi?id=4559
+> 
+> Timer bug, I guess.
 
-Signed-off-by: Sune Mølgaard <sune@molgaard.org>
+Yes, the new timer code is racy. Example:
 
---Begin patch--
-diff -Npru linux-2.4.30/arch/i386/kernel/pci-irq.c \
-linux/arch/i386/kernel/pci-irq.c
---- linux-2.4.30/arch/i386/kernel/pci-irq.c     2005-04-04
-03:42:19.000000000 +0200
-+++ linux/arch/i386/kernel/pci-irq.c    2005-04-28 12:31:34.999771672 +0200
-@@ -157,6 +157,25 @@ static void write_config_nybble(struct p
-  }
+spinlock_t LOCK;
 
-  /*
-+ * PicoPower PT86C523
-+ */
-+
-+static int pirq_pico_get(struct pci_dev *router, struct pci_dev *dev,
-int pirq)
-+{
-+       outb(0x10+((pirq-1)>>1), 0x24);
-+       return ((pirq-1)&1) ? (inb(0x26)>>4) : (inb(0x26)&0xf);
-+}
-+
-+static int pirq_pico_set(struct pci_dev *router, struct pci_dev *dev,
-int pirq, int irq)
-+{
-+       outb(0x10+((pirq-1)>>1), 0x24);
-+       unsigned int x;
-+       x = inb(0x26);
-+       x = ((pirq-1)&1) ? ((x&0x0f)|(irq<<4)) : ((x&0xf0)|(irq));
-+       outb(x,0x26);
-+}
-+
-+/*
-   * ALI pirq entries are damn ugly, and completely undocumented.
-   * This has been figured out from pirq tables, and it's not a pretty
-   * picture.
-@@ -609,6 +628,24 @@ static int pirq_bios_set(struct pci_dev
+void void timer_func()
+{
+	spin_lock(&LOCK);
+}
 
-  #endif
+timer_list TIMER = TIMER_INITIALIZER(timer_func);
 
-+static __init int pico_router_probe(struct irq_router *r, struct
-pci_dev *router, u16 device)
-+{
-+       switch(device)
-+       {
-+               case PCI_DEVICE_ID_PICOPOWER_PT86C523:
-+                       r->name = "PicoPower PT86C523";
-+                       r->get = pirq_pico_get;
-+                       r->set = pirq_pico_set;
-+                       return 1;
-+
-+               case PCI_DEVICE_ID_PICOPOWER_PT86C523BBP:
-+                       r->name = "PicoPower PT86C523 rev. BB+";
-+                       r->get = pirq_pico_get;
-+                       r->set = pirq_pico_set;
-+                       return 1;
-+       }
-+       return 0;
-+}
+-------------------------------------------------------------------
+CPU_0					CPU_1
 
-  static __init int intel_router_probe(struct irq_router *r, struct
-pci_dev *router, u16 device)
-  {
-@@ -814,6 +851,7 @@ static __init int amd_router_probe(struc
-  }
+					add_timer(&TIMER);
+spin_lock(&LOCK);
+					__run_timers:
+						sets ->running_timer = &TIMER;
+						calls timer_func()
+							waits for &LOCK
 
-  static __initdata struct irq_router_handler pirq_routers[] = {
-+       { PCI_VENDOR_ID_PICOPOWER, pico_router_probe },
-         { PCI_VENDOR_ID_INTEL, intel_router_probe },
-         { PCI_VENDOR_ID_AL, ali_router_probe },
-         { PCI_VENDOR_ID_ITE, ite_router_probe },
-diff -Npru linux-2.4.30/include/linux/pci_ids.h \
-linux/include/linux/pci_ids.h
---- linux-2.4.30/include/linux/pci_ids.h        2005-04-04
-03:42:20.000000000 +0200
-+++ linux/include/linux/pci_ids.h       2005-04-27 20:04:12.195597128 +0200
-@@ -119,6 +119,10 @@
+__mod_timer(&TIMER);
+	/* Ensure the timer is serialized. */
+	retries while ->running_timer == &TIMER
 
-  /* Vendors and devices.  Sort key: vendor first, device next. */
 
-+#define PCI_VENDOR_ID_PICOPOWER             0x104c
-+#define PCI_DEVICE_ID_PICOPOWER_PT86C523    0x0002
-+#define PCI_DEVICE_ID_PICOPOWER_PT86C523BBP 0x8002
-+
-  #define PCI_VENDOR_ID_DYNALINK         0x0675
-  #define PCI_DEVICE_ID_DYNALINK_IS64PH  0x1702
+Many thanks to Maneesh Soni for his excellent analysis in
+http://bugme.osdl.org/show_bug.cgi?id=4559.
 
---End patch--
+Note that del_timer_sync has this problem too, but this
+situation is forbidden by synchronization rules.
 
-Best regards,
+At the moment I don't have a proper solution.
 
-Sune Mølgaard
+One option is to change __mod_timer() so that it would not
+switch ->base when the timer is already running. But this
+would be behavioural change: currently __mod_timer() guarantees
+that the timer would be armed on the local cpu.
 
--- 
-Now, suddenly, dynamic HTML makes the Web as interactive as my old Apple
-IIc.
-- Peter Merholz
+I'll try to find a solution, but perhaps it's better to drop
+this patch for now.
+
+Oleg.

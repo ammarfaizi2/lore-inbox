@@ -1,78 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbVD3S6m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261342AbVD3TAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261340AbVD3S6m (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 14:58:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261341AbVD3S6m
+	id S261342AbVD3TAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 15:00:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbVD3TAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 14:58:42 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:24078 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261340AbVD3S6j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 14:58:39 -0400
-Date: Sat, 30 Apr 2005 20:58:37 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: coywolf@lovecn.org
-Cc: linux-kernel@vger.kernel.org, Zwane Mwaikambo <zwane@holomorphy.com>,
-       Andi Kleen <ak@muc.de>
-Subject: Re: 2.6.12-rc3-mm1
-Message-ID: <20050430185837.GI3571@stusta.de>
-References: <20050429231653.32d2f091.akpm@osdl.org> <20050430142035.GB3571@stusta.de> <2cd57c90050430113078133010@mail.gmail.com>
-Mime-Version: 1.0
+	Sat, 30 Apr 2005 15:00:09 -0400
+Received: from web60216.mail.yahoo.com ([209.73.178.104]:59312 "HELO
+	web60216.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261342AbVD3S7w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Apr 2005 14:59:52 -0400
+Message-ID: <20050430185946.80225.qmail@web60216.mail.yahoo.com>
+Date: Sat, 30 Apr 2005 14:59:45 -0400 (EDT)
+From: john doe <catcowcrow@yahoo.ca>
+Subject: Re: ATA port addresses
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2cd57c90050430113078133010@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 01, 2005 at 02:30:57AM +0800, Coywolf Qi Hunt wrote:
-> On 4/30/05, Adrian Bunk <bunk@stusta.de> wrote:
-> > On Fri, Apr 29, 2005 at 11:16:53PM -0700, Andrew Morton wrote:
-> > >...
-> > > Changes since 2.6.12-rc2-mm3:
-> > >...
-> > > +x86-x86_64-deferred-handling-of-writes-to-proc-irq-xx-smp_affinitypatch-added-to-mm-tree.patch
-> > >
-> > >  x86_64 updates
-> > >...
+Thanks for the advice, its probably as you say to go
+through the kernel and drivers.
+
+Thanks again!
+
+
+--- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Gwe, 2005-04-29 at 16:37, john doe wrote:
+> > Thank you for the prompt reply!
 > > 
-> > This patch contains at least two bugs:
-> > 
-> > The static inline set_irq_info() is not available
-> > for CONFIG_GENERIC_PENDING_IRQ=n, resulting in the following warning:
-> > 
-> > <--  snip  -->
-> > 
-> > ...
-> >   CC      arch/i386/kernel/io_apic.o
-> > arch/i386/kernel/io_apic.c: In function `set_ioapic_affinity_irq':
-> > arch/i386/kernel/io_apic.c:251: warning: implicit declaration of function `set_irq_info'
-> > ...
-> > 
-> > <--  snip  -->
-> > 
-> > The second bug is that although irq.h defines set_irq_info() as a static
-> > inline, this patch adds an empty function to kernel/irq/manage.c .
-> > 
-> > The second bug shadows the first bug, but both have to be fixed.
+> > I'll look at this option closer.  Is there a way
+> to
+> > bypass the IDE driver though? 
 > 
-> IMHO, there are no bugs at all, or at least not the kind of bugs you think.
+> Write your own kernel 8) There isn't really a way to
+> bypass it and since
+> you rely on the kernel for functionality like mmap
+> you rely on it for
+> trust anyway. More pressingly you need DMA
+> functionality for some
+> hardware and the newer devices are all getting very
+> clever and sometimes
+> very unique in their interfacing
+> 
+> 
 
-It depends on how you define "bug".
-
-I agree it was perhaps a too harsh word.
-
-What about "Code that could be improved."?  ;-)
-
-> Coywolf Qi Hunt
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+______________________________________________________________________ 
+Post your free ad now! http://personals.yahoo.ca

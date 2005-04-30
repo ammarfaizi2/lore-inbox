@@ -1,84 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263121AbVD3B6K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263122AbVD3CCf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263121AbVD3B6K (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 21:58:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263122AbVD3B6K
+	id S263122AbVD3CCf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 22:02:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbVD3CCd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 21:58:10 -0400
-Received: from smtp2.oregonstate.edu ([128.193.4.8]:42161 "EHLO
-	smtp2.oregonstate.edu") by vger.kernel.org with ESMTP
-	id S263121AbVD3B6D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 21:58:03 -0400
-Date: Fri, 29 Apr 2005 18:57:32 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
-       stable@kernel.org
-Subject: Linux 2.6.11.8
-Message-ID: <20050430015732.GA8943@kroah.com>
+	Fri, 29 Apr 2005 22:02:33 -0400
+Received: from rproxy.gmail.com ([64.233.170.195]:4061 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263122AbVD3CC2 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 22:02:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Cwnm6pKYeG/Dpv4JgupzN32MzRy553+q3JCQyPLk93tQVMamdft5XWnvNKTJphF++k8DCmGN0Igo1sR2XlZ2T6cg75B4LF8NUA42A17HIjl0KFezHhpYBSFbdBwFtpP3MLnHdDvsizIa4Z11EPR9LnmT7LePq+YyYg05YkoAa3Y=
+Message-ID: <9cde8bff05042919025d077eb1@mail.gmail.com>
+Date: Sat, 30 Apr 2005 11:02:27 +0900
+From: aq <aquynh@gmail.com>
+Reply-To: aq <aquynh@gmail.com>
+To: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [PATCH] fs/Kconfig: more consistent configuration of XFS
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050429212835.GD8699@mars.ravnborg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+References: <9cde8bff050428005528ecf692@mail.gmail.com>
+	 <20050428080914.GA10799@infradead.org>
+	 <9cde8bff0504280138b979c08@mail.gmail.com>
+	 <20050428083922.GA11542@infradead.org>
+	 <9cde8bff05042802213ec650e0@mail.gmail.com>
+	 <20050429212835.GD8699@mars.ravnborg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As the -stable patch review cycle is now over, I've released the
-2.6.11.8 kernel in the normal kernel.org places.  Due to some
-disagreement over some of the patches in the review cycle, I've dropped
-a number of them.
+On 4/30/05, Sam Ravnborg <sam@ravnborg.org> wrote:
+> On Thu, Apr 28, 2005 at 06:21:52PM +0900, aq wrote:
+> >
+> > OK, here is another patch. It is up to Andrew to pick the approriate.
+> > But I still prefer the first patch, which provides both consistency in
+> > interface and configuration.
+> 
+> We shall do out best to distribute info to places where it belongs.
+> A much better approch would be to move all ext2 + ext3 stuff out in
+> their respective directories.
+> When modifying xfs (or ext2,ext3) no files outside their respective
+> directories should in need to be touched - this would just impose
+> additional burden doing parrallel development.
 
-The diffstat and short summary of the fixes are below.  
+OK, I agree.
 
-I'll also be replying to this message with a copy of the patch between
-2.6.11.7 and 2.6.11.8, as it is small enough to do so.
+> 
+> About your modifications:
+> 
+> Skipping the menu part is OK.
+> While you are modifying Kconfig in xfs/ put a
+> 
+> if XFS_FS
+> ...
+> endif
+> 
+> around all config options expcept the one defining the XFS_FS option.
+> This will fix menu identing.
 
-And a personal thanks to OSU for letting me bore them by doing this in
-their meeting.
+Thanks for pointing this out. But the patch I posted is fair enough.
+It just move one menu item around, and change nothing else. Are you
+happy with it?
 
-thanks,
- 
-greg k-h
-
-------
-
- Makefile                                 |    4 ++--
- arch/sparc/kernel/ptrace.c               |   12 ------------
- arch/sparc64/kernel/ptrace.c             |   19 -------------------
- arch/sparc64/kernel/signal32.c           |    5 ++++-
- arch/sparc64/kernel/systbls.S            |    2 +-
- arch/um/include/sysdep-i386/syscalls.h   |   12 ++++++------
- arch/um/include/sysdep-x86_64/syscalls.h |    5 -----
- arch/um/kernel/sys_call_table.c          |   11 ++++-------
- drivers/i2c/chips/it87.c                 |    2 +-
- drivers/i2c/chips/via686a.c              |    2 +-
- drivers/media/video/bttv-cards.c         |    2 --
- fs/partitions/msdos.c                    |    5 +++++
- security/keys/key.c                      |    3 ++-
- 13 files changed, 26 insertions(+), 58 deletions(-)
-
-
-
-Summary of changes from v2.6.11.7 to v2.6.11.8
-==============================================
-
-Alexander Nyberg:
-  o Fix reproducible SMP crash in security/keys/key.c
-
-David S. Miller:
-  o sparc: Fix PTRACE_CONT bogosity
-  o sparc64: Fix copy_sigingo_to_user32()
-  o sparc64: use message queue compat syscalls
-
-Greg Kroah-Hartman:
-  o Linux 2.6.11.8
-
-Jean Delvare:
-  o I2C: Fix incorrect sysfs file permissions in it87 and via686a
-    drivers
-
-Johannes Stezenbach:
-  o [fix Bug 4395] modprobe bttv freezes the computer
-
-Paolo 'Blaisorblade' Giarrusso:
-  o uml: quick fix syscall table
-
+regards,
+aq

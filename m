@@ -1,39 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbVD3NnV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbVD3Nup@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261219AbVD3NnV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 09:43:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVD3NnU
+	id S261220AbVD3Nup (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 09:50:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVD3Nup
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 09:43:20 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:17296 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261219AbVD3NnR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 09:43:17 -0400
-Date: Sat, 30 Apr 2005 15:40:47 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, pavel@ucw.cz,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: [patch] properly stop devices before poweroff
-Message-ID: <20050430134046.GD585@openzaurus.ucw.cz>
-References: <20050421111346.GA21421@elf.ucw.cz> <20050429061825.36f98cc0.akpm@osdl.org> <Pine.LNX.4.61.0504290734220.30771@montezuma.fsmlabs.com> <20050430024748.19d44a8d.akpm@osdl.org>
+	Sat, 30 Apr 2005 09:50:45 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:63754 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261220AbVD3Nuj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Apr 2005 09:50:39 -0400
+Date: Sat, 30 Apr 2005 15:50:38 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Alexander Nyberg <alexn@dsv.su.se>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       shaohua.li@intel.com, Carlos Martin <carlosmn@gmail.com>
+Subject: Re: 2.6.12-rc3-mm1
+Message-ID: <20050430135038.GA3571@stusta.de>
+References: <20050429231653.32d2f091.akpm@osdl.org> <1114867539.872.35.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050430024748.19d44a8d.akpm@osdl.org>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <1114867539.872.35.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > It looks like the device 
-> > being suspended never went through pci_device_enable() (e.g. ethernet 
-> > interface wasn't up). It's harmless right now.
+On Sat, Apr 30, 2005 at 03:25:39PM +0200, Alexander Nyberg wrote:
+> > - We're still miles away from 2.6.12.  Lots of patches here, plus my
+> >   collection of bugs-post-2.6.11 is vast.  I'll start working through them
+> >   again after 2.6.12-rc4 is available to testers.
+> > 
 > 
-> Everything's up.  Perhaps we're trying to disable devices more than once?
+> sep-initializing-rework.patch doesn't even call sysenter_setup() on UP
+> boxes so it'll break the vsyscall instantly. This cannot even have been
+> boot-tested on UP...
+> 
+> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc3/2.6.12-rc3-mm1/broken-out/sep-initializing-rework.patch
 
-Maybe userspace ifconfigs eth0 down, then we device_suspend it?
+Thanks for this email, reverting this patch fixed the boot problem I 
+reported.
+
+cu
+Adrian
+
 -- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

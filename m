@@ -1,93 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262492AbVD3C4S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263135AbVD3DFM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262492AbVD3C4S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 22:56:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262471AbVD3C4S
+	id S263135AbVD3DFM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 23:05:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263136AbVD3DFM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 22:56:18 -0400
-Received: from fmr16.intel.com ([192.55.52.70]:2237 "EHLO
-	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
-	id S262492AbVD3C4K convert rfc822-to-8bit (ORCPT
+	Fri, 29 Apr 2005 23:05:12 -0400
+Received: from fire.osdl.org ([65.172.181.4]:25501 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S263135AbVD3DFE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 22:56:10 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [RFC][PATCH] i386 x86-64 Eliminate Local APIC timer interrupt
-Date: Fri, 29 Apr 2005 19:55:53 -0700
-Message-ID: <88056F38E9E48644A0F562A38C64FB60049EE97A@scsmsx403.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC][PATCH] i386 x86-64 Eliminate Local APIC timer interrupt
-Thread-Index: AcVNLP0YhPPO24RTTHKoqEJXB13yVAAAdb0g
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: <torvalds@osdl.org>, <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
-       "Shah, Rajesh" <rajesh.shah@intel.com>, <johnstul@us.ibm.com>,
-       <ak@suse.de>, "Mallick, Asit K" <asit.k.mallick@intel.com>
-X-OriginalArrivalTime: 30 Apr 2005 02:55:54.0768 (UTC) FILETIME=[206C8900:01C54D30]
+	Fri, 29 Apr 2005 23:05:04 -0400
+Date: Fri, 29 Apr 2005 20:04:53 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: vgoyal@in.ibm.com
+Cc: akpm@osdl.org, sharyathi@in.ibm.com, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org, ebiederm@xmission.com
+Subject: [PATCH] Kdump doc. fix option typo.
+Message-Id: <20050429200453.0318e633.rddunlap@osdl.org>
+In-Reply-To: <20050429050729.GB3636@in.ibm.com>
+References: <1114227003.4269c13be5f8b@imap.linux.ibm.com>
+	<OFB57B3D45.D8C338C5-ON65256FEE.0042F961-65256FEE.0043D4CB@in.ibm.com>
+	<20050425160925.3a48adc5.rddunlap@osdl.org>
+	<20050426085448.GB4234@in.ibm.com>
+	<20050427122312.358f5bd6.rddunlap@osdl.org>
+	<20050428114416.GA5706@in.ibm.com>
+	<20050428091119.73568208.rddunlap@osdl.org>
+	<20050428200845.5211ec37.rddunlap@osdl.org>
+	<20050429050729.GB3636@in.ibm.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
+On Fri, 29 Apr 2005 10:37:29 +0530 Vivek Goyal wrote:
 
->-----Original Message-----
->From: Andrew Morton [mailto:akpm@osdl.org] 
->Sent: Friday, April 29, 2005 7:33 PM
->To: Pallipadi, Venkatesh
->Cc: torvalds@osdl.org; mingo@elte.hu; 
->linux-kernel@vger.kernel.org; Shah, Rajesh; 
->johnstul@us.ibm.com; ak@suse.de; Mallick, Asit K
->Subject: Re: [RFC][PATCH] i386 x86-64 Eliminate Local APIC 
->timer interrupt
->
->The patch (at least, as I merged it) goes into a ghastly death 
->spiral early
->in boot.
->
->Serial console says:
->
->
->Initializing CPU#1
->Calibrating delay using timer specific routine.. 5615.95 
->BogoMIPS (lpj=2807978)
->CPU: Trace cache: 12K uops, L1 D cache: 8K
->CPU: L2 cache: 512K
->CPU: Physical Processor ID: 0
->CPU1: Intel Pentium 4 (Northwood) stepping 07
->Total of 2 processors activated (11238.26 BogoMIPS).
->ENABLING IO-APIC IRQs
->..TIMER: vector=0x31 pin1=2 pin2=-1
->checking TSC synchronization across 2 CPUs: passed.
->Brought up 2 CPUs
->Unable to handle kernel NULL pointer dereference
->
->which isn't very helpful.
->
->tty output is at 
->http://www.zip.com.au/~akpm/linux/patches/stuff/dsc02506.jpg
->
->which is also less that totally useful.
->
->There's waaaaaaaaay too much low-level x86 stuff happening at 
->present.  We
->need to settle it down, go more slowly, take more care and test things
->better, please.  Next -mm has already been delayed by two days 
->due to my
->having to chase down all the bugs people have been sending me.
->
+| Should above line be as follows.
+| "should be same as X (See option d) above."
+| 
+| This will make clear what is X and what should be the new value of 
+| CONFIG_PHYSICAL_START. 
 
-I did test this patch on variety of systems and didn't see any failures.
 
-Probably some other change in mm conflicting with this patch? 
-Is there way to get the all the patches in mm, so that I can try same
-Kernel and reproduce this failure?
+From: Randy Dunlap <rddunlap@osdl.org>
 
-I agree though that this patch is very risky and needs some discussion 
-and lot of testing before it goes into base.
+Fix one-letter typo of option b->d.
 
-Thanks,
-Venki
+Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
+---
+
+ Documentation/kdump.txt |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -Naurp ./Documentation/kdump.txt~kdump_doc_fix_optionb ./Documentation/kdump.txt
+--- ./Documentation/kdump.txt~kdump_doc_fix_optionb	2005-04-28 19:55:03.000000000 -0700
++++ ./Documentation/kdump.txt	2005-04-29 19:59:32.000000000 -0700
+@@ -60,7 +60,7 @@ SETUP
+ 	CONFIG_CRASH_DUMP=y
+    b) Specify a suitable value for "Physical address where the kernel is
+       loaded" (in Processor type and features). Typically this value
+-      should be same as X (See option b) above, e.g., 16 MB or 0x1000000.
++      should be same as X (See option d) above, e.g., 16 MB or 0x1000000.
+ 	CONFIG_PHYSICAL_START=0x1000000
+    c) Enable "/proc/vmcore support" (Optional, in Pseudo filesystems).
+ 	CONFIG_PROC_VMCORE=y
+
+
+---

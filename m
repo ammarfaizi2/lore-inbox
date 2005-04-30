@@ -1,106 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263113AbVD3BQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263118AbVD3BYz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263113AbVD3BQk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 21:16:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263114AbVD3BQk
+	id S263118AbVD3BYz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 21:24:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263119AbVD3BYz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 21:16:40 -0400
-Received: from 62-15-138-254.inversas.jazztel.es ([62.15.138.254]:34279 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S263113AbVD3BQf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 21:16:35 -0400
-Message-Id: <200504300117.j3U1H15c030444@localhost.localdomain>
-From: "Lincel" <info@lincel.com>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: problemas en su negocio
-Date: 30 Apr 05 03:18:33 +0100
+	Fri, 29 Apr 2005 21:24:55 -0400
+Received: from tomts13.bellnexxia.net ([209.226.175.34]:21390 "EHLO
+	tomts13-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S263118AbVD3BYv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 21:24:51 -0400
+Date: Fri, 29 Apr 2005 21:24:50 -0400 (EDT)
+From: Chris Gorman <chrisgorman@sympatico.ca>
+X-X-Sender: <chris@blackbird.cgnet.ca>
+To: <linux-kernel@vger.kernel.org>
+cc: <singsys@yahoo.com>
+Subject: Re: Kernelpanic - not syncing: VFS: Unable to mount root fs on
+ unknown-block
+Message-ID: <Pine.LNX.4.33.0504292059360.4060-100000@blackbird.cgnet.ca>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="BOUNDARYMIX"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: K-ML v3.20.329 [based on Kmail v4.2.289]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Hello All,
 
+First off, I am not on the linux-kernel list so please cc me directly on
+this if anyone has a solution.  I've experienced a very similar problem
+as S S did while upgrading from 2.6.11.6 to 2.6.11.7.  Essentialy grub
+will boot 2.6.11.6 without any problems, but using the same command line
+2.6.11.7 fails to boot with "Cannot open root device hde6 or
+unknown-block(0,0)".  The config file used was the same one as 2.6.11.6 so
+I doubt I missed a config option.
 
+The reason I chose to upgrade was because I've been getting ext3 errors
+which caused the journal to crash and the filesystem to be remounted
+read-only.  I hoped the following referenced patch would resolve it.
 
---BOUNDARYMIX
-Content-Type: text/plain;
-	Charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+[PATCH] Prevent race condition in jbd
 
+From: Stephen Tweedie <sct@redhat.com>
+Subject: Prevent race condition in jbd
 
-Muy Sres. nuestros: Les pedimos permiso para ofrecerle la siguiente publicidad:
+This patch from Stephen Tweedie which fixes a race in jbd code (it
+demonstrated itself as more or less random NULL dereferences in
+the journal code).
 
-¡Problemas económicos!
+Acked-by: Jan Kara <jack@suse.cz>
+Acked-by: Chris Mason <mason@suse.com>
+Signed-off-by: Chris Wright <chrisw@osdl.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-Tiene algún cliente, conocido o amigo
-¿Con problemas económicos?
-¿Que no pueda dormir, acosado por no poder pagar a sus proveedores?
-¿Que no puede trabajar, porque continuamete esta recibiendo avisos judiciales? 
-¿Que esta amargado, por recibir citaciones sociales?
-¿Que precise, un cambio de vida económica? 
+I only see a few other patches in the Changelog and none appear to me to
+be fs relevant.  Could this be part of our problem?  I've seen one other
+post "Re: Linux 2.6.12-rc2" by hubert.tonneau@fullpliant.org which
+describes the same symptom.  The problem occured during an upgrade from
+2.6.11 to 2.6.12-rc[12] and this person does have ext3 compiled in.
 
-Domicilie su negocio
-Nos encargamos de todo 
+Also, since grub is common between myself and S S, and my grub is a little
+old, I will try upgrading the program in case that is the problem.
 
-Prestación de nuestros servicios.
+TIA
 
-Domiciliación de sociedades terminales ante notario o no 
-Recogida de actas notariales
-Recogida de embargos
-Recogida de citaciones
-Guardia y custodia de estos documentos y su entrega en nuestro domicilio o por internet
-Desvío de llamadas al nº telefónico que desee
-1H. Mensual de Sala de Juntas o más según disposición de las mismas 
+Chris Gorman
 
-En Hire Offices nos encargaremos de que su cliente con total discreción, reciba todos sus avisos oficiales,
-sin que eso le suponga ningún tipo de molestia. 
-Avisándole con total discreción de la llegada de sus avisos oficiales, Hacienda, Seguridad Social,
-Tribunales etc., donde el cliente nos indique.
+On Apr 18, 2005 S S wrote:
+> I compiled linux kernel 2.6.11.7 on RHEL and while
+> rebooting I get this
+> error message -
+>
+> Cannot open root device /SCSIGroup00/SCSIVol000
+> Please append a correct "root=" boot option
+> Kernelpanic - not syncing: VFS: Unable to mount root
+> fs on
+> unknown-block 0,0
+>
+> This root entry in grub .conf is identical to kernel
+> image entry 2.6.9 which boots fine. However 2.6.11.7
+> compiled kernel does not find
+> /dev//SCSIGroup00/SCSIVol000
+>
+> Could anyone please suggest what could be going wrong.
 
-No dude en llamar si tiene alguna duda o desea conocer nuestras promociones
-93 183 14 94 
-
-Documentación necesaria
-
-Negocios a nombre propio: Fotocopia carne Identidad o carne de Residencia o Pasaporte.Sociedades:
-Fotocopia primeras y últimas hojas escritura de constitución y nombramiento administrador, administradores
-o consejo de administración.
-Fotocopias primeras y últimas hojas escritura de nombramiento del administrador en el caso de estar en
-escritura aparte.Fotocopia del Recibo de teléfono o de electricidad o agua con el domicilio del administrador.
-
-Desea más infomación: Pídala desde (http://www.bestsevendiamonds.com/promo/informacion.asp) 
-
-Nota de Confidencialidad Este mensaje puede contener información confidencial, sometida a secreto profesional o
-cuya divulgación esté prohibida por la ley. Si usted no es el destinatario del mensaje, por favor bórrelo y notifíquenoslo
-inmediatamente, no lo reenvíe ni copie su contenido. Si su empresa no permite la recepción de mensajes de este tipo, 
-por favor háganoslo saber inmediatamente. El correo electrónico via Internet no permite asegurar la confidencialidad
-de los mensajes que se transmiten ni su integridad o correcta recepción. No asumimos responsabilidad por estas circunstancias.
-Si el destinatario de este mensaje no consintiera la utilización del correo electrónico via Internet y la grabación de los mensajes,
-rogamos lo ponga en nuestro conocimiento de forma inmediata
-Dar de baja http://www.bestsevendiamonds.com/promo/06.asp
-
-Política de Privacidad En base a la Ley 34/2002 de Servicios de la Sociedad de la Información y de Comercio Electrónico (LSSICE),
-en vigor desde el 12 de octubre de 2002 y de la Ley Orgánica 15/1999 del 13/12/1999 de Protección de Datos Personales,
-le comunicamos que su dirección de correo electrónico forma parte de nuestro fichero automatizado,
-al objeto de continuar enviándole ofertas de nuestros servicios y / o el mantenimiento de las comunicaciones en
-nuestras relaciones contractuales. En virtud de las Leyes antes mencionadas,
-tiene derecho de oposición, acceso, rectificación y cancelación de sus datos.
-Le recordamos que sus datos nunca son suministrados a terceros bajo ningún concepto,
-siendo únicamente utilizados para el envío de nuestras comunicaciones con Vd.. 
-
-Best Seven Diamonds S.L.
-Oficina nº31 
-C/ Sicilia 141
-08013 Barcelona
-tel 93 183 14 94
-fax 93 183 14 97
-info@bestsevendiamonds.com
-
-
-
---BOUNDARYMIX--

@@ -1,70 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263093AbVD3AjZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263102AbVD3AmI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263093AbVD3AjZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 20:39:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263103AbVD3AjZ
+	id S263102AbVD3AmI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 20:42:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263099AbVD3AmH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 20:39:25 -0400
-Received: from s-utl01-lapop.stsn.com ([12.129.240.11]:45714 "HELO
-	s-utl01-lapop.stsn.com") by vger.kernel.org with SMTP
-	id S263093AbVD3AgU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 20:36:20 -0400
-Subject: Re: 2.6.12-rc3 mmap lack of consistency among runs
-From: Arjan van de Ven <arjan@infradead.org>
-To: Hubert Tonneau <hubert.tonneau@fullpliant.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <0563I2L12@server5.heliogroup.fr>
-References: <0563I2L12@server5.heliogroup.fr>
-Content-Type: text/plain
-Date: Fri, 29 Apr 2005 09:29:59 -0400
-Message-Id: <1114781399.6077.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Apr 2005 20:42:07 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:11710 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263096AbVD3Aln (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 20:41:43 -0400
+In-Reply-To: <1114812035.18330.396.camel@localhost.localdomain>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: aia21@hermes.cam.ac.uk, Anton Altaparmakov <aia21@cam.ac.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org, linux-scsi-owner@vger.kernel.org,
+       mike.miller@hp.com
+MIME-Version: 1.0
+Subject: Re: [Question] Does the kernel ignore errors writng to disk?
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OF2CF58FEB.9B007265-ON88256FF3.000369D5-88256FF3.0003E37B@us.ibm.com>
+From: Bryan Henderson <hbryan@us.ibm.com>
+Date: Fri, 29 Apr 2005 17:41:29 -0700
+X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Build V70_M4_01112005 Beta 3|January
+ 11, 2005) at 04/29/2005 20:41:37,
+	Serialize complete at 04/29/2005 20:41:37
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-04-29 at 12:44 +0000, Hubert Tonneau wrote:
-> Andrew Morton wrote:
-> >
-> > Maybe you're being bitten by the address space randomisation.
-> > 
-> > Try
-> > 	echo 0 > /proc/sys/kernel/randomize_va_space
-> 
-> Ok, it solves my issue, but:
-> 
-> . desabling it through 'echo 0 > /proc/sys/kernel/randomize_va_space' is not
->   a solution because only the application knows that it wants it to be desabled,
->   and the application is not root so cannot write to /proc; morever the
->   application can only speak for itself so desabling should be on a per process
->   bias.
+Thanks for the info on how stability works with SCSI and ATA, but I think 
+you lost the context of my question.
 
-there is the setarch command that you can use to disable it on a per
-process basis.
+You said earlier that fsync() and O_DIRECT are ways to deal with the 
+problem of delayed write errors.  I added that O_SYNC is another way.  You 
+then said that O_SYNC doesn't work completely correctly in some recent 
+(but not current) kernels.  You didn't say the same about fsync().
 
-> . second, my process restart succeeding roughly in 50% cases means that the
->   randomisation performed is just a toy. A virus assuming fixed memory layout
->   will still succeed 50% of times to install.
+I'd like to know if you mean to say that O_SYNC has some problems in some 
+kernels that fsync() does not have.
 
-actually no. 
-It just means that half the time the old value was below the current
-boundary, and half the time above. Eg half the time it was in free
-space.
-
-
-> All in all, I'm not concerned about Linux kernel to randomise or not,
-> but I need to have a reliable way to request a memory region and be granted
-> that I can request the same one in a futur run.
-
-glibc also has some randomisations in places (for cache performance) as
-did kernels before 2.6.11 on p4 hyperthreading machines (granted that
-was very small randomisation)
-
-The only reliable ways I can think of is to either take a predetermined
-address, or to mmap a big chunk first, then your real chunk and then
-free the first chunk. Neither are clean or pretty
-
-
-
+And if it isn't too much trouble, it would be nice to hear details of how 
+O_SYNC is partially correct in some kernels.
 

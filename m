@@ -1,57 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVD3LGM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbVD3LLL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbVD3LGM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 07:06:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbVD3LGM
+	id S261194AbVD3LLL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 07:11:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbVD3LLL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 07:06:12 -0400
-Received: from 2-1-3-15a.ens.sth.bostream.se ([82.182.31.214]:11993 "EHLO
-	zoo.weinigel.se") by vger.kernel.org with ESMTP id S261193AbVD3LGH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 07:06:07 -0400
-To: Dave Jones <davej@redhat.com>
+	Sat, 30 Apr 2005 07:11:11 -0400
+Received: from mailfe06.swip.net ([212.247.154.161]:59294 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S261194AbVD3LLG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Apr 2005 07:11:06 -0400
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Subject: Re: 2.6.12-rc3-mm1
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: tighten i2c dependancies
-References: <20050430055745.GB832@redhat.com>
-From: Christer Weinigel <christer@weinigel.se>
-Organization: Weinigel Ingenjorsbyra AB
-Date: 30 Apr 2005 13:06:04 +0200
-In-Reply-To: <20050430055745.GB832@redhat.com>
-Message-ID: <m34qdosew3.fsf@zoo.weinigel.se>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20050429231653.32d2f091.akpm@osdl.org>
+References: <20050429231653.32d2f091.akpm@osdl.org>
+Content-Type: text/plain
+Date: Sat, 30 Apr 2005 13:10:58 +0200
+Message-Id: <1114859458.872.26.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@redhat.com> writes:
-
-> A lot of these drivers show up on pretty much every arch
-> regardless of whether they make sense. This adds a bunch
-> of additional dependancies tying down platform specific drivers
-> that are unlikely to be used on other archs.
+> - We're still miles away from 2.6.12.  Lots of patches here, plus my
+>   collection of bugs-post-2.6.11 is vast.  I'll start working through them
+>   again after 2.6.12-rc4 is available to testers.
 > 
-> Signed-off-by: Dave Jones <davej@redhat.com>
-> 
-> --- linux-2.6.11/drivers/i2c/busses/Kconfig~	2005-04-16 01:05:36.000000000 -0400
-> +++ linux-2.6.11/drivers/i2c/busses/Kconfig	2005-04-16 01:06:09.000000000 -0400
-> @@ -376,7 +376,7 @@ config SCx200_I2C_SDA
->  
->  config SCx200_ACB
->  	tristate "NatSemi SCx200 ACCESS.bus"
-> -	depends on I2C && PCI
-> +	depends on SCx200_I2C && PCI
->  	help
->  	  Enable the use of the ACCESS.bus controllers of a SCx200 processor.
 
-This is wrong.  The ACCESS.bus driver is an alternative to the
-bitbanging driver and it's possible to use this driver even without
-any other SCx200 stuff configured into the kernel.
+Something is bad with my init process, so with debug patch below I'm
+getting:
+do_page_fault: force_sig_info SIGSEV to 1, addr ffffe018, eip b7fe576a
+do_page_fault: force_sig_info SIGSEV to 1, addr ffffe018, eip b7fe576a
+do_page_fault: force_sig_info SIGSEV to 1, addr ffffe018, eip b7fe576a
+do_page_fault: force_sig_info SIGSEV to 1, addr ffffe018, eip b7fe576a
 
-  /Christer
+continuing forever. 0xffffe018 is inside the vsyscall page so could be
+related but the eip should be there too in that case I think...
+You have any candidates? I've failed to find any.
 
--- 
-"Just how much can I get away with and still go to heaven?"
+Index: mm/arch/i386/mm/fault.c
+===================================================================
+--- mm.orig/arch/i386/mm/fault.c	2005-04-30 12:49:17.000000000 +0200
++++ mm/arch/i386/mm/fault.c	2005-04-30 12:56:31.000000000 +0200
+@@ -391,6 +391,8 @@
+ 		info.si_errno = 0;
+ 		/* info.si_code has been set above */
+ 		info.si_addr = (void __user *)address;
++		printk("%s: force_sig_info SIGSEV to %d, addr %lx, eip %lx\n",
++				__FUNCTION__, tsk->pid, address, regs->eip);
+ 		force_sig_info(SIGSEGV, &info, tsk);
+ 		return;
+ 	}
 
-Freelance consultant specializing in device driver programming for Linux 
-Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se
+
+Also, this brought me to trying to find what has changed between the
+versions which appears a little tricky. Do you think it would be
+possible to set up your scripts that currently notify the author of a
+patch about the inclusion to CC something like mm-commits list.
+
+That way people can audit patches that have got in before the tarball is
+released, it is easy to see what has gone in and when.
+

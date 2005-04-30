@@ -1,78 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVD3L0s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbVD3Lwx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261199AbVD3L0s (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 07:26:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261200AbVD3L0r
+	id S261201AbVD3Lwx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 07:52:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbVD3Lwx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 07:26:47 -0400
-Received: from fire.osdl.org ([65.172.181.4]:59803 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261199AbVD3L0o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 07:26:44 -0400
-Date: Sat, 30 Apr 2005 04:26:14 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alexander Nyberg <alexn@dsv.su.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc3-mm1
-Message-Id: <20050430042614.7858e4fa.akpm@osdl.org>
-In-Reply-To: <1114859458.872.26.camel@localhost.localdomain>
+	Sat, 30 Apr 2005 07:52:53 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:7690 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261201AbVD3Lwv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Apr 2005 07:52:51 -0400
+Date: Sat, 30 Apr 2005 13:52:49 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, venza@brownhat.org, jgarzik@pobox.com
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: [-mm patch] SIS900 must select MII
+Message-ID: <20050430115249.GA3654@stusta.de>
 References: <20050429231653.32d2f091.akpm@osdl.org>
-	<1114859458.872.26.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050429231653.32d2f091.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Nyberg <alexn@dsv.su.se> wrote:
->
-> > - We're still miles away from 2.6.12.  Lots of patches here, plus my
-> >   collection of bugs-post-2.6.11 is vast.  I'll start working through them
-> >   again after 2.6.12-rc4 is available to testers.
-> > 
-> 
-> Something is bad with my init process, so with debug patch below I'm
-> getting:
-> do_page_fault: force_sig_info SIGSEV to 1, addr ffffe018, eip b7fe576a
-> do_page_fault: force_sig_info SIGSEV to 1, addr ffffe018, eip b7fe576a
-> do_page_fault: force_sig_info SIGSEV to 1, addr ffffe018, eip b7fe576a
-> do_page_fault: force_sig_info SIGSEV to 1, addr ffffe018, eip b7fe576a
-> 
-> continuing forever. 0xffffe018 is inside the vsyscall page so could be
-> related but the eip should be there too in that case I think...
-> You have any candidates? I've failed to find any.
+This patch fixes the following compile error caused by bk-netdev:
 
-Nope.  The easiest way to identify this is to grab broken-out.tar.gz, the
-series file and use quilt to do a bisection search.  Ten compiles max.
+<--  snip  -->
 
-If you're not interested in that, please share the .config.
+...
+  LD      .tmp_vmlinux1
+drivers/built-in.o(.text+0x98528): In function `sis900_get_settings':
+: undefined reference to `mii_ethtool_gset'
+drivers/built-in.o(.text+0x98538): In function `sis900_set_settings':
+: undefined reference to `mii_ethtool_sset'
+drivers/built-in.o(.text+0x98517): In function `sis900_get_link':
+: undefined reference to `mii_link_ok'
+drivers/built-in.o(.text+0x98547): In function `sis900_nway_reset':
+: undefined reference to `mii_nway_restart'
+make: *** [.tmp_vmlinux1] Error 1
 
-> Index: mm/arch/i386/mm/fault.c
-> ===================================================================
-> --- mm.orig/arch/i386/mm/fault.c	2005-04-30 12:49:17.000000000 +0200
-> +++ mm/arch/i386/mm/fault.c	2005-04-30 12:56:31.000000000 +0200
-> @@ -391,6 +391,8 @@
->  		info.si_errno = 0;
->  		/* info.si_code has been set above */
->  		info.si_addr = (void __user *)address;
-> +		printk("%s: force_sig_info SIGSEV to %d, addr %lx, eip %lx\n",
-> +				__FUNCTION__, tsk->pid, address, regs->eip);
->  		force_sig_info(SIGSEGV, &info, tsk);
->  		return;
->  	}
-> 
-> 
-> Also, this brought me to trying to find what has changed between the
-> versions which appears a little tricky.
+<--  snip  -->
 
-Well announce.txt tells you what was added and what was removed.
 
-> Do you think it would be
-> possible to set up your scripts that currently notify the author of a
-> patch about the inclusion to CC something like mm-commits list.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Certainly could.  I'll ask davem about getting a list set up.
 
-> That way people can audit patches that have got in before the tarball is
-> released, it is easy to see what has gone in and when.
+--- linux-2.6.12-rc3-mm1/drivers/net/Kconfig.old	2005-04-30 13:47:25.000000000 +0200
++++ linux-2.6.12-rc3-mm1/drivers/net/Kconfig	2005-04-30 13:47:48.000000000 +0200
+@@ -1543,8 +1543,9 @@
+ config SIS900
+ 	tristate "SiS 900/7016 PCI Fast Ethernet Adapter support"
+ 	depends on NET_PCI && PCI
+ 	select CRC32
++	select MII
+ 	---help---
+ 	  This is a driver for the Fast Ethernet PCI network cards based on
+ 	  the SiS 900 and SiS 7016 chips. The SiS 900 core is also embedded in
+ 	  SiS 630 and SiS 540 chipsets.  If you have one of those, say Y and
+

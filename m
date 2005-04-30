@@ -1,94 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbVD3JIh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbVD3JYE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261164AbVD3JIh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 05:08:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261167AbVD3JIh
+	id S261167AbVD3JYE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 05:24:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbVD3JYE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 05:08:37 -0400
-Received: from smtp.istop.com ([66.11.167.126]:27272 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S261164AbVD3JId (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 05:08:33 -0400
-From: Daniel Phillips <phillips@istop.com>
-To: Daniel McNeil <daniel@osdl.org>
-Subject: Re: [PATCH 1b/7] dlm: core locking
-Date: Sat, 30 Apr 2005 05:09:24 -0400
-User-Agent: KMail/1.7
-Cc: David Teigland <teigland@redhat.com>, Lars Marowsky-Bree <lmb@suse.de>,
-       Steven Dake <sdake@mvista.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Patrick Caulfield <pcaulfie@redhat.com>
-References: <20050425165826.GB11938@redhat.com> <20050429040104.GB9900@redhat.com> <1114815509.18352.200.camel@ibm-c.pdx.osdl.net>
-In-Reply-To: <1114815509.18352.200.camel@ibm-c.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200504300509.24887.phillips@istop.com>
+	Sat, 30 Apr 2005 05:24:04 -0400
+Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:24240 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261167AbVD3JX6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Apr 2005 05:23:58 -0400
+To: hch@infradead.org
+CC: 7eggert@gmx.de, smfrench@austin.rr.com, linux-kernel@vger.kernel.org
+In-reply-to: <20050430082952.GA23253@infradead.org> (message from Christoph
+	Hellwig on Sat, 30 Apr 2005 09:29:52 +0100)
+Subject: Re: [PATCH] cifs: handle termination of cifs oplockd kernel thread
+References: <3YLdQ-4vS-15@gated-at.bofh.it> <E1DRekV-0001RN-VQ@be1.7eggert.dyndns.org> <20050430073238.GA22673@infradead.org> <E1DRn70-0002AD-00@dorka.pomaz.szeredi.hu> <20050430082952.GA23253@infradead.org>
+Message-Id: <E1DRoBU-0002Fk-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Sat, 30 Apr 2005 11:22:48 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 29 April 2005 18:58, Daniel McNeil wrote:
-> I have always thought that an distributed application could use the DLM
-> alone to protect access to shared storage.   The DLM would coordinate
-> access between the distributed application running on the nodes
-> in the cluster AND DLM locks would not be recovered and possibly
-> granted to applications running on the nodes still in the membership
-> until after nodes that are no longer a member of the cluster are safely
-> prevented from doing any harm.
+> > 
+> >   - global limit on user mounts
+> 
+> I don't think we need that one.
 
-As you know, this is how I currently determine ownership of such resources as  
-cluster snapshot metadata and ddraid dirty log.  I find the approach 
-distinctly unsatisfactory.  The (g)dlm is rather verbose to use, particularly 
-taking into the account the need to have two different state machine paths, 
-depending on whether a lock happens to master locally or not, and the need to 
-coordinate a number of loosely coupled elements: lock status blocks, asts, 
-the calls themselves.  The result is quite a _long_ and opaque program to do 
-a very simple thing.  It is full of long chains of reasoning, connected with 
-the behavior of lvbs, asynchronous lock event flow, error behavior, myriad 
-other details.  This just _feels wrong_ and the code looks ugly, no matter 
-how much I try to dress it up.
+We have that for open files '/proc/sys/fs/file-max'.  It limits the
+total memory usage of the thing.  Which otherwise is hard if you have
+a system with lots of users.
 
-And indeed, instinct turns out to be correct: there is a far simpler way to 
-handle this: let the oldest member of the cluster decide who owns the 
-metadata resources.  This is simple, unambiguous, fast, efficient, easy to 
-implement and obviously correct.  And it has nothing to do with the dlm, it 
-relies only on cman.  Or it would, if cman supported a stable ordering of 
-cluster node longevity, which I do not think it does.  (Please correct me if 
-I'm wrong, Patrick.)
+> >   - possibly per user limit on mounts
+> 
+> Makes sense as an ulimit, that way the sysadmin can easily disable the
+> user mount feature aswell.
+> 
+> >   - acceptable mountpoints (unlimited writablity is probably a good minimum)
+> 
+> Yupp.
+> 
+> >   - acceptable mount options (nosuid, nodev are obviously not)
+> 
+> noexecis a bit too much, so the above look good.
+> 
+> >   - filesystems "safe" to mount by users
+> 
+> what filesystem do you think is unsafe?
+> 
+>  - virtual filesystems exporting kernel data are obviously safe as
+>    they enforce permissions no matter who mounted them.  (actually we'd
+>    need to check for some odd mount options)
 
-So this is easy: fix cman so that it does support a stable ordering of cluster 
-node membership age, if it does not already.
+Maybe sysadmin doesn't want to let users see /sys for example.  How
+would you disable it if users can mount it themselfes?  OK, you can
+disable user mounts completely, but that's probably not fine grained
+enough for some.
 
-> So, when I said that the DLM was dependent on fencing, I was thinking
-> of the membership, quorum, prevention of harm (stalling of i/o to
-> prevent corrupting shared resource) as described above.
->
-> So, if an application was using your DLM to protect shared storage,
-> I think you are saying it possible the DLM lock could be granted
-> before the node that was previously holding the lock and now is not
-> part of the cluster is fenced.  Is that right?
->
-> If it is, what prevents GFS from getting a DLM lock granted and writing
-> to the shared storage before the node that previously had it is fenced?
+>  - block-based filesystems should be safe as long as the mounter has
+>    access to the underlying block device
 
-In my opinion, using the dlm to protect the shared storage resource 
-constitutes tackling the problem far too high up on the food chain.
+Not true if user controls the baking device (e.g. loopback).  Most
+block based filesystems are probably unsafe at the moment, because not
+enough consistency checking is done at runtime.  Are things like
+non-cyclic directory graphs ensured by all filesystems?  My guess is
+not.  See also Linus' comment about the state of the iso9660
+filesystem:
 
-> PS if an application is writing to local storage, what does it need a
-> DLM for?
+  http://lwn.net/Articles/128744/
 
-Good instinct.  In fact, as I've said before, you don't necessarily need a dlm 
-in a cluster application at all.  What you need is _global synchronization_, 
-however that is accomplished.  For example, I have found it simpler and more 
-efficient to use network messaging for the cluster applications I've tackled 
-so far.   This suggests to me that the dlm is going to end up pretty much as 
-a service needed only by a cfs, and not much else.  The corollary of that is, 
-we should concentrate on making the dlm work well for the cfs, and not get 
-too wrapped up in trying to make it solve every global synchronization 
-problem in the world.
+>  - network/userspace filesystems should be fine aswell
 
-Regards,
+They should, but again I wonder if NFS with all it's complexity is
+being careful enough with what it accepts from the server.
 
-Daniel
+Smbfs might be close to safe, since it's already available for users
+to mount from an arbitrary server.
+
+So safeness is a per-filesystem property, determined, how well it
+checks input.
+
+Miklos

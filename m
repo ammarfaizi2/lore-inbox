@@ -1,72 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263122AbVD3CCf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263128AbVD3CE4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263122AbVD3CCf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 22:02:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbVD3CCd
+	id S263128AbVD3CE4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 22:04:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263127AbVD3CE4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 22:02:33 -0400
-Received: from rproxy.gmail.com ([64.233.170.195]:4061 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263122AbVD3CC2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 22:02:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Cwnm6pKYeG/Dpv4JgupzN32MzRy553+q3JCQyPLk93tQVMamdft5XWnvNKTJphF++k8DCmGN0Igo1sR2XlZ2T6cg75B4LF8NUA42A17HIjl0KFezHhpYBSFbdBwFtpP3MLnHdDvsizIa4Z11EPR9LnmT7LePq+YyYg05YkoAa3Y=
-Message-ID: <9cde8bff05042919025d077eb1@mail.gmail.com>
-Date: Sat, 30 Apr 2005 11:02:27 +0900
-From: aq <aquynh@gmail.com>
-Reply-To: aq <aquynh@gmail.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [PATCH] fs/Kconfig: more consistent configuration of XFS
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050429212835.GD8699@mars.ravnborg.org>
+	Fri, 29 Apr 2005 22:04:56 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:20451 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S263128AbVD3CEk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 22:04:40 -0400
+Subject: Re: Linux 2.6.11.8
+From: Lee Revell <rlrevell@joe-job.com>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
+       stable@kernel.org
+In-Reply-To: <20050430015732.GA8943@kroah.com>
+References: <20050430015732.GA8943@kroah.com>
+Content-Type: text/plain
+Date: Fri, 29 Apr 2005 22:04:38 -0400
+Message-Id: <1114826678.8636.15.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <9cde8bff050428005528ecf692@mail.gmail.com>
-	 <20050428080914.GA10799@infradead.org>
-	 <9cde8bff0504280138b979c08@mail.gmail.com>
-	 <20050428083922.GA11542@infradead.org>
-	 <9cde8bff05042802213ec650e0@mail.gmail.com>
-	 <20050429212835.GD8699@mars.ravnborg.org>
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/30/05, Sam Ravnborg <sam@ravnborg.org> wrote:
-> On Thu, Apr 28, 2005 at 06:21:52PM +0900, aq wrote:
-> >
-> > OK, here is another patch. It is up to Andrew to pick the approriate.
-> > But I still prefer the first patch, which provides both consistency in
-> > interface and configuration.
+On Fri, 2005-04-29 at 18:57 -0700, Greg KH wrote:
+> As the -stable patch review cycle is now over, I've released the
+> 2.6.11.8 kernel in the normal kernel.org places.  Due to some
+> disagreement over some of the patches in the review cycle, I've dropped
+> a number of them.
 > 
-> We shall do out best to distribute info to places where it belongs.
-> A much better approch would be to move all ext2 + ext3 stuff out in
-> their respective directories.
-> When modifying xfs (or ext2,ext3) no files outside their respective
-> directories should in need to be touched - this would just impose
-> additional burden doing parrallel development.
 
-OK, I agree.
+Why didn't the fix for losing the keyboard when unplugging a USB audio
+device go in?  That was a serious bug that bit many, many users.
 
-> 
-> About your modifications:
-> 
-> Skipping the menu part is OK.
-> While you are modifying Kconfig in xfs/ put a
-> 
-> if XFS_FS
-> ...
-> endif
-> 
-> around all config options expcept the one defining the XFS_FS option.
-> This will fix menu identing.
+Lee
 
-Thanks for pointing this out. But the patch I posted is fair enough.
-It just move one menu item around, and change nothing else. Are you
-happy with it?
-
-regards,
-aq

@@ -1,31 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261264AbVD3Ws0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbVD3Wxw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261264AbVD3Ws0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 18:48:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbVD3Ws0
+	id S261446AbVD3Wxw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 18:53:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbVD3Wxw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 18:48:26 -0400
-Received: from mail.dif.dk ([193.138.115.101]:8867 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261264AbVD3WsV (ORCPT
+	Sat, 30 Apr 2005 18:53:52 -0400
+Received: from mail.aei.ca ([206.123.6.14]:43245 "EHLO aeimail.aei.ca")
+	by vger.kernel.org with ESMTP id S261446AbVD3Wxt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 18:48:21 -0400
-Date: Sun, 1 May 2005 00:51:49 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
+	Sat, 30 Apr 2005 18:53:49 -0400
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
 To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Ed Tomlinson <tomlins@cam.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
 Subject: Re: 2.6.12-rc3-mm1
+Date: Sat, 30 Apr 2005 18:53:40 -0400
+User-Agent: KMail/1.7.2
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20050429231653.32d2f091.akpm@osdl.org> <200504300827.44359.tomlins@cam.org> <Pine.LNX.4.61.0504301634590.3559@montezuma.fsmlabs.com>
 In-Reply-To: <Pine.LNX.4.61.0504301634590.3559@montezuma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.62.0505010050040.2094@dragon.hyggekrogen.localhost>
-References: <20050429231653.32d2f091.akpm@osdl.org> <200504300827.44359.tomlins@cam.org>
- <Pine.LNX.4.61.0504301634590.3559@montezuma.fsmlabs.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200504301853.40395.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 30 Apr 2005, Zwane Mwaikambo wrote:
-
+On Saturday 30 April 2005 18:36, Zwane Mwaikambo wrote:
 > On Sat, 30 Apr 2005, Ed Tomlinson wrote:
 > 
 > > If we stick with git it might make sense not to include a linux-patch.  cogito
@@ -50,12 +52,23 @@ On Sat, 30 Apr 2005, Zwane Mwaikambo wrote:
 > -mm shouldn't be that difficult to use. Also linus.patch used to be the 
 > current -bk snapshot.
 
-I agree. Getting a -mm kernel currently requires nothing more than patch - 
-that's good. Introducing a git/cogito requirement will reduce the 
-users/testers of -mm - not good.
+Huh?  Assuming one already has a current git tree.  Then all Andrew need do
+is publish the commit id from Linus then the complicated procedure becomes
 
+cd <checkedout git copy of kernel>
+cg-update origin
+cg-export ../<work dir> <commit id>
+cd ../<work dir>
+cp ../<default config> .config
+bzcat ../<mm patch> | patch -p1
+make oldconfig
+make
 
--- 
-Jesper Juhl
+No problem to script this at all.  Also, I suspect what when tagging starts to be 
+used, that <commit id> will be an easily typeable string.
 
+With bk there was an acceptable excuse not to use it.  With git, aside from bandwidth
+concerns (maybe mercurial can solve this), I do not see any good reason not to use it.
+
+Ed Tomlinson
 

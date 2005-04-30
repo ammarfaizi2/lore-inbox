@@ -1,73 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbVD3SIN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261319AbVD3SIp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261318AbVD3SIN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 14:08:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVD3SIN
+	id S261319AbVD3SIp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 14:08:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVD3SIp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 14:08:13 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:31470 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261318AbVD3SIF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 14:08:05 -0400
-Subject: Re: [Ext2-devel] [RFC] Adding multiple block allocation
-From: Mingming Cao <cmm@us.ibm.com>
-Reply-To: cmm@us.ibm.com
-To: suparna@in.ibm.com
-Cc: Badari Pulavarty <pbadari@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       "Stephen C. Tweedie" <sct@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <20050430171111.GA4265@in.ibm.com>
-References: <1113304715.2404.39.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1113348434.4125.54.camel@dyn318043bld.beaverton.ibm.com>
-	 <1113388142.3019.12.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1114207837.7339.50.camel@localhost.localdomain>
-	 <1114659912.16933.5.camel@mindpipe>
-	 <1114715665.18996.29.camel@localhost.localdomain>
-	 <20050429135211.GA4539@in.ibm.com> <427280C1.8090404@us.ibm.com>
-	 <1114816980.10473.90.camel@localhost.localdomain>
-	 <20050430161043.GB3941@in.ibm.com>  <20050430171111.GA4265@in.ibm.com>
-Content-Type: text/plain
-Organization: IBM LTC
-Date: Sat, 30 Apr 2005 11:07:53 -0700
-Message-Id: <1114884473.13725.6.camel@localhost.localdomain>
+	Sat, 30 Apr 2005 14:08:45 -0400
+Received: from everest.sosdg.org ([66.93.203.161]:42406 "EHLO mail.sosdg.org")
+	by vger.kernel.org with ESMTP id S261319AbVD3SIh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Apr 2005 14:08:37 -0400
+From: "Coywolf Qi Hunt" <coywolf@lovecn.org>
+Date: Sun, 1 May 2005 02:08:23 +0800
+To: Coywolf Qi Hunt <coywolf@gmail.com>
+Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@muc.de>,
+       Adrian Bunk <bunk@stusta.de>
+Message-ID: <20050430180823.GA14922@lovecn.org>
+References: <20050429231653.32d2f091.akpm@osdl.org> <20050430142035.GB3571@stusta.de> <Pine.LNX.4.61.0504300940560.12903@montezuma.fsmlabs.com> <2cd57c9005043010051c6455fb@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2cd57c9005043010051c6455fb@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
+X-Scan-Signature: e39eceae6eb4554774934c39b07fdc9c
+X-SA-Exim-Connect-IP: 66.93.203.161
+X-SA-Exim-Mail-From: coywolf@lovecn.org
+Subject: Re: 2.6.12-rc3-mm1
+X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
+	*      [score: 0.0000]
+X-SA-Exim-Version: 4.2 (built Tue, 12 Apr 2005 17:41:13 -0500)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-04-30 at 22:41 +0530, Suparna Bhattacharya wrote:
-> On Sat, Apr 30, 2005 at 09:40:43PM +0530, Suparna Bhattacharya wrote:
-> > On Fri, Apr 29, 2005 at 04:22:59PM -0700, Mingming Cao wrote:
-> > > On Fri, 2005-04-29 at 11:45 -0700, Badari Pulavarty wrote:
-> > > > I touch tested your patch earlier and seems to work fine. Lets integrate
-> > > > Mingming's getblocks() patches with this and see if we get any benifit
-> > > > from the whole effort.
-> > > > 
-> > > 
-> > > I tried Suparna's mpage_writepages_getblocks patch with my
-> > > ext3_get_blocks patch, seems to work fine,  except that still only one
-> > > block is allocated at a time. I got a little confused.... 
-> > > 
-> > > I did not see any delayed allocation code in your patch, I assume you
-> > > have to update ext3_prepare_write to not call ext3_get_block, so that
-> > > block allocation will be defered at ext3_writepages time. So without the
-> > > delayed allocation part, the get_blocks in mpage_writepages is doing
-> > > multiple blocks look up only, right?
-> > 
-> > That's right - so you could try it with mmapped writes (which don't
-> > go through a prepare write) or with Badari's patch to not call
-> > ext3_get_block in prepare write.
-> 
-> BTW, I hope you are running with NOBH.
+On Sun, May 01, 2005 at 01:05:52AM +0800, Coywolf Qi Hunt wrote:
+... 
+> I was trying to fix this too. You are quicker and better than me. In
+> addition, this redundant  include should be removed.
 
-No, it was not run with NOBH. Why we need to turn on nobh here?
+s/redundant/duplicate/
 
-There are some issue running fsx tests with both patches, w/o direct io
-option. I will spend more time on this next week.
+OK, since Zwane thinks my patch is "good in that its minimal impact", here it is.
+I've compile tested for SMP and UP.
 
-thanks,
-Mingming
+This removes the compile warning: implicit declaration of function `set_irq_info' and a duplicate include line.
 
+Signed-off-by: Coywolf Qi Hunt <coywolf@lovecn.org>
+---
+
+diff -pruN 2.6.12-rc3-mm1/arch/i386/kernel/io_apic.c 2.6.12-rc3-mm1-cy2/arch/i386/kernel/io_apic.c
+--- 2.6.12-rc3-mm1/arch/i386/kernel/io_apic.c	2005-04-30 19:15:46.000000000 +0800
++++ 2.6.12-rc3-mm1-cy2/arch/i386/kernel/io_apic.c	2005-05-01 00:49:27.000000000 +0800
+@@ -32,7 +32,6 @@
+ #include <linux/compiler.h>
+ #include <linux/acpi.h>
+ #include <linux/sysdev.h>
+-#include <linux/irq.h>
+ #include <asm/io.h>
+ #include <asm/smp.h>
+ #include <asm/desc.h>
+diff -pruN 2.6.12-rc3-mm1/include/linux/irq.h 2.6.12-rc3-mm1-cy2/include/linux/irq.h
+--- 2.6.12-rc3-mm1/include/linux/irq.h	2005-04-30 19:16:26.000000000 +0800
++++ 2.6.12-rc3-mm1-cy2/include/linux/irq.h	2005-05-01 00:51:31.000000000 +0800
+@@ -161,6 +161,7 @@ static inline void set_irq_info(int irq,
+ #else
+ #define move_irq(x)
+ #define move_native_irq(x)
++extern void set_irq_info(unsigned int irq, cpumask_t mask);
+ #endif // CONFIG_GENERIC_PENDING_IRQ
+ 
+ extern int no_irq_affinity;

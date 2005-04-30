@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263102AbVD3AmI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263099AbVD3AoI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263102AbVD3AmI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 20:42:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263099AbVD3AmH
+	id S263099AbVD3AoI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 20:44:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263097AbVD3AoI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 20:42:07 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:11710 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263096AbVD3Aln (ORCPT
+	Fri, 29 Apr 2005 20:44:08 -0400
+Received: from fsmlabs.com ([168.103.115.128]:39125 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S263099AbVD3AoA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 20:41:43 -0400
-In-Reply-To: <1114812035.18330.396.camel@localhost.localdomain>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: aia21@hermes.cam.ac.uk, Anton Altaparmakov <aia21@cam.ac.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-scsi@vger.kernel.org, linux-scsi-owner@vger.kernel.org,
-       mike.miller@hp.com
+	Fri, 29 Apr 2005 20:44:00 -0400
+Date: Fri, 29 Apr 2005 18:46:21 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       mingo@elte.hu, linux-kernel <linux-kernel@vger.kernel.org>,
+       Rajesh Shah <rajesh.shah@intel.com>, John Stultz <johnstul@us.ibm.com>,
+       Andi Kleen <ak@suse.de>, Asit K Mallick <asit.k.mallick@intel.com>
+Subject: Re: [RFC][PATCH] i386 x86-64 Eliminate Local APIC timer interrupt
+In-Reply-To: <20050429172605.A23722@unix-os.sc.intel.com>
+Message-ID: <Pine.LNX.4.61.0504291844310.15561@montezuma.fsmlabs.com>
+References: <20050429172605.A23722@unix-os.sc.intel.com>
 MIME-Version: 1.0
-Subject: Re: [Question] Does the kernel ignore errors writng to disk?
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OF2CF58FEB.9B007265-ON88256FF3.000369D5-88256FF3.0003E37B@us.ibm.com>
-From: Bryan Henderson <hbryan@us.ibm.com>
-Date: Fri, 29 Apr 2005 17:41:29 -0700
-X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Build V70_M4_01112005 Beta 3|January
- 11, 2005) at 04/29/2005 20:41:37,
-	Serialize complete at 04/29/2005 20:41:37
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the info on how stability works with SCSI and ATA, but I think 
-you lost the context of my question.
+On Fri, 29 Apr 2005, Venkatesh Pallipadi wrote:
 
-You said earlier that fsync() and O_DIRECT are ways to deal with the 
-problem of delayed write errors.  I added that O_SYNC is another way.  You 
-then said that O_SYNC doesn't work completely correctly in some recent 
-(but not current) kernels.  You didn't say the same about fsync().
+> 
+> Background: 
+> Local APIC timer stops functioning when CPU is in C3 state. As a
+> result the local APIC timer interrupt will fire at uncertain times, depending
+> on how long we spend in C3 state. And this has two side effects
+> * Idle balancing will not happen as we expect it to.
+> * Kernel statistics for idle time will not be proper (as we get less LAPIC
+>   interrupts when we are idle). This can result in confusing other parts of
+>   kernel (like ondemand cpufreq governor) which depends on this idle stats.
+> 
+> 
+> Proposed Fix: 
+> Attached is a prototype patch, that tries to eliminate the dependency on 
+> local APIC timer for update_process_times(). The patch gets rid of Local APIC 
+> timer altogether. We use the timer interrupt (IRQ 0) configured in 
+> broadcast mode in IOAPIC instead (Doesn't work with 8259). 
+> As changing anything related to basic timer interrupt is a little bit risky, 
+> I have a boot parameter currently ("useapictimer") to switch back to original 
+> local APIC timer way of doing things.
 
-I'd like to know if you mean to say that O_SYNC has some problems in some 
-kernels that fsync() does not have.
+This all looks like it'll contend on irq0 related locks really badly, have 
+you profiled this?
 
-And if it isn't too much trouble, it would be nice to hear details of how 
-O_SYNC is partially correct in some kernels.
+Thanks,
+	Zwane
 

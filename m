@@ -1,52 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261459AbVD3Xjj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261460AbVD3Xnn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261459AbVD3Xjj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 19:39:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbVD3Xjj
+	id S261460AbVD3Xnn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 19:43:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVD3Xnn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 19:39:39 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:55312 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261459AbVD3Xjh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 19:39:37 -0400
-Date: Sun, 1 May 2005 01:39:34 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/char/tty_io.c: make a function static
-Message-ID: <20050430233934.GX3571@stusta.de>
-References: <20050430200827.GT3571@stusta.de> <20050430145907.2a6b9c95.akpm@osdl.org>
+	Sat, 30 Apr 2005 19:43:43 -0400
+Received: from fire.osdl.org ([65.172.181.4]:52645 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261460AbVD3Xnb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Apr 2005 19:43:31 -0400
+Date: Sat, 30 Apr 2005 16:43:03 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.12-rc3-mm2
+Message-Id: <20050430164303.6538f47c.akpm@osdl.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050430145907.2a6b9c95.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 30, 2005 at 02:59:07PM -0700, Andrew Morton wrote:
-> Adrian Bunk <bunk@stusta.de> wrote:
-> >
-> > This patch makes a needlessly global function static.
-> > 
-> > ...
-> >  -extern int tty_paranoia_check(struct tty_struct *tty, struct inode *inode,
-> >  -			      const char *routine);
-> 
-> Is used in fs/compat_ioct.c.
 
-Sorry.
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc3/2.6.12-rc3-mm2/
 
-I missed this while grepping and it didn't show up in my i386 test 
-compiles.
+- Various fixes against 2.6.12-rc3-mm1.
 
-cu
-Adrian
 
--- 
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Changes since 2.6.12-rc3-mm1:
+
+-netlink-audit-warning-fix.patch
+-ppc64-fix-32-bit-signal-frame-back-link.patch
+
+ Merged
+
+-preserve-arch-and-cross_compile-in-the-build-directory-generated-makefile.patch
+
+ Dropped - Sam no likee.
+
++sis900-must-select-mii.patch
+
+ Net driver Kconfig fix
+
++proc-pid-smaps-fix.patch
+
+ Fix proc-pid-smaps.patch for arm
+
++x86-port-lockless-mce-implementation-fix-2.patch
+
+ Fix x86-port-lockless-mce-preparation.patch
+
++x86-x86_64-deferred-handling-of-writes-to-proc-irq-xx-smp_affinitypatch-added-to-mm-tree-fix.patch
++x86-x86_64-deferred-handling-of-writes-to-proc-irq-xx-smp_affinitypatch-added-to-mm-tree-fix-2.patch
+
+ Fix x86-x86_64-deferred-handling-of-writes-to-proc-irq-xx-smp_affinitypatch-added-to-mm-tree.patch
+
++sep-initializing-rework-fix.patch
+
+ Fix sep-initializing-rework.patch
+
++suspend-resume-smp-support-fix-3.patch
+
+ Fix suspend-resume-smp-support.patch
+
++setitimer-timer-expires-too-early.patch
+
+ setitimer fix
+
++drivers-ide-pci-sis5513c-section-fixes.patch
++uninline-tty_paranoia_check.patch
++docbook-tell-users-to-install-xmlto-not-stylesheets.patch
++drivers-char-agp-make-code-static.patch
++drivers-char-rio-rio_linuxc-make-a-variable-static.patch
++drivers-char-stallionc-make-a-function-static.patch
++drivers-char-istallionc-remove-an-unneeded-variable.patch
++drivers-char-mwave-3780ic-cleanups.patch
++drivers-char-nvramc-possible-cleanups.patch
++drivers-char-rocketc-cleanups.patch
+
+Various little fixes and cleanups
+
+
+
+number of patches in -mm: 978
+number of changesets in external trees: 468
+number of patches in -mm only: 965
+total patches: 1433
+
+
+All 978 patches: ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc3/2.6.12-rc3-mm2/patch-list
 

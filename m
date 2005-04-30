@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbVD3QcR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbVD3Qkq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261285AbVD3QcR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 12:32:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbVD3QcR
+	id S261284AbVD3Qkq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 12:40:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbVD3Qkq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 12:32:17 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:48167
-	"EHLO opteron.random") by vger.kernel.org with ESMTP
-	id S261285AbVD3QcF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 12:32:05 -0400
-Date: Sat, 30 Apr 2005 18:37:24 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
-Message-ID: <20050430163724.GE20146@opteron.random>
-References: <20050426004111.GI21897@waste.org> <Pine.LNX.4.58.0504251859550.18901@ppc970.osdl.org> <20050429060157.GS21897@waste.org> <20050429203027.GK17379@opteron.random> <20050429203959.GC21897@waste.org> <20050430025211.GP17379@opteron.random> <20050430152014.GI21897@waste.org>
+	Sat, 30 Apr 2005 12:40:46 -0400
+Received: from pat.uio.no ([129.240.130.16]:10149 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261282AbVD3Qkk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Apr 2005 12:40:40 -0400
+Subject: Re: [RFC] unify semaphore implementations
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Benjamin LaHaise <bcrl@kvack.org>, linux-arch@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <17010.58144.95239.716600@cargo.ozlabs.ibm.com>
+References: <20050428182926.GC16545@kvack.org>
+	 <17009.33633.378204.859486@cargo.ozlabs.ibm.com>
+	 <20050429141437.GA24617@kvack.org>
+	 <1114789320.10086.81.camel@lade.trondhjem.org>
+	 <17010.58144.95239.716600@cargo.ozlabs.ibm.com>
+Content-Type: text/plain
+Date: Sat, 30 Apr 2005 12:40:29 -0400
+Message-Id: <1114879229.14213.18.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050430152014.GI21897@waste.org>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.494, required 12,
+	autolearn=disabled, AWL 1.46, FORGED_RCVD_HELO 0.05,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 30, 2005 at 08:20:15AM -0700, Matt Mackall wrote:
-> Most of that psyco speed up is accelerating subsequent diffs in
-> difflib, which you probably didn't hit yet.
+On lau , 2005-04-30 at 11:45 +1000, Paul Mackerras wrote:
 
-Correct. Plus I've a 64bit python so I can't use psyco anyway.
+> What is "your machine"?  Is a single cmpxchg really slower than
+> locking and unlocking a spinlock?  If so, by how much?
 
-> I can make it some sort of environment variable, sure. I think the
-> speed is already in a domain where it's not a big deal though. There
+Sorry. Thinking back, I realize that I was testing the non-irqsafe
+spinlocks, since that was the only case that was of interest for the
+iosem stuff. I should go back and test for the case of irqsafe ones.
 
-No big deal of course, I mentioned it just because it was by far the
-most CPU userland intensive operation during checkin. Perhaps doing less
-vfs syscalls would improve checkin time too, but I'm unsure if that's
-easily feasible (while disabling compression was certainly easy ;)
+FYI, though, the machine on which I tested it is a mobile P4. When
+averaging over 1000 iterations, a single bus-locked cmpxchg took more
+than twice the amount of time to complete than a single bus-locked incb
+or decb (as used in the 386 spinlock implementations).
+The spinlocked version was therefore not much faster for the fast path,
+but for the slow path you do only a single spin_lock/spin_unlock
+combination instead of cmpxchg+spinlock/spinunlock. It is therefore
+twice as fast.
 
-> Yep, I'm rather new to actually packaging my Python hacks.
+Cheers,
+  Trond
 
-I sent you by private email a modified package that gets that right.
-
-Thanks!

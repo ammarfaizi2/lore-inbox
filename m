@@ -1,50 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261245AbVD3PEg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVD3PHU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261245AbVD3PEg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 11:04:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVD3PEg
+	id S261246AbVD3PHU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 11:07:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261248AbVD3PHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 11:04:36 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19211 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261245AbVD3PEe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 11:04:34 -0400
-Date: Sat, 30 Apr 2005 16:04:28 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.12-rc3-mm1
-Message-ID: <20050430160428.A1465@flint.arm.linux.org.uk>
-Mail-Followup-To: Richard Purdie <rpurdie@rpsys.net>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20050429231653.32d2f091.akpm@osdl.org> <031d01c54d8d$fb82d4b0$0f01a8c0@max>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <031d01c54d8d$fb82d4b0$0f01a8c0@max>; from rpurdie@rpsys.net on Sat, Apr 30, 2005 at 03:07:37PM +0100
+	Sat, 30 Apr 2005 11:07:19 -0400
+Received: from psmtp01.wxs.nl ([195.121.6.56]:32138 "EHLO psmtp01.wxs.nl")
+	by vger.kernel.org with ESMTP id S261246AbVD3PHD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Apr 2005 11:07:03 -0400
+Message-ID: <42739F18.8040502@agf-team.net>
+Date: Sat, 30 Apr 2005 17:07:04 +0200
+From: Prisoner Of War <inmate@agf-team.net>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: USB maintainer, Greg Kroah ---->> PWC discussion
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-BitDefender-SpamStamp: 1.1.3  044000040111AAAAAAC
+X-BitDefender-Scanner: Clean, Agent: BitDefender POSTFIX 1.6.2 on
+ localhost.localdomain
+X-BitDefender-Spam: No (14)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 30, 2005 at 03:07:37PM +0100, Richard Purdie wrote:
-> 2.6.12-rc3-mm1 fails to compile for an arm pxa sharp zaurus kernel:
-> 
->   LD      .tmp_vmlinux1
-> fs/built-in.o(.text+0x39110): In function `smaps_pte_range':
-> task_mmc.c: undefined reference to `clean_pmd_entry'
-> make: *** [.tmp_vmlinux1] Error 1
-> 
-> Adding #include <asm/tlbflush.h> to fs/proc/task_mmu.c "fixes" this although
-> I doubt that's the correct thing to do.
+Dear readers of this maillinglist,
 
-I think it has to - there's no way that asm/pgtable.h can include
-asm/tlbflush.h because asm/tlbflush.h needs vm_area_struct, which
-is defined by linux/mm.h, which includes asm/pgtable.h before
-vm_area_struct is defined.
+I'm most of the time very happy that there is Linux (special thanks to 
+Linus T.) and that i'm one happy computer user that isn't confronted all 
+the time with a special blue screen.
+
+I'm a user from the time kernel 2.0.xx started and yes it's not from the 
+start but it's still a long time....
+
+I'm almost very happy with the things that are going on in kernel land. 
+And yes not all things that work in Wintendo aka Winboot will work under 
+linux. But there are a few things that always worked very well. 
+Including webcams. (yes i can stay polite and be nice but that won't 
+have the effect i want....)
+
+Now my dear daughter has her own laptop and she insists to run linux on 
+it. She just had her birthday and she got a nice logitec webcam so she 
+can use it on that very stable system.
+
+BUT NO!!
+
+These days she can't anymore. Why ?? Because there's a problem between 
+hrh Greg Kroah (usb maintainer) and somebody who did his best to give 
+user the possibility of using a goodworking webcam.
+
+I don't want the discussion if it's proper or not to have that driver in 
+the kernel. I have just the problem that i have todo more before it works...
+
+I realy don't give a sh*t about that. I just want one thing and that is 
+that the webcam starts working again and work like in ASAP. Rather 
+yesterday then today.
+
+So here's a user yrh Greg Kroah that realy wants that driver back in. 
+I'm a user and i'm not alone! There are more users like me and what we 
+want is that we have hardware which should work with the os we choose. 
+We choose linux because it's stable and it's not wintendo. Are you gonna 
+decide for us what we want ?? I hope not coz history tells us that those 
+kind of people never last long...
+
+So what about it are you going to help me? And make it possible for us 
+to use our choosen hardware?
+
+
+I realy hope you listen to me / us because I / we choose linux above 
+windows...
+
+
+Regards,
+
+Gabriel Kenter
+
+
+
+
+-=-=-
+... He's turned his life around. He used to be depressed and miserable. 
+Now he's miserable and depressed.
+        -- David Frost
+* TagZilla 0.057 * http://tagzilla.mozdev.org
+
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+This message was scanned for spam and viruses by BitDefender.
+For more information please visit http://linux.bitdefender.com/
+
+

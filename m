@@ -1,104 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbVD3LMH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVD3L0s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261197AbVD3LMH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 07:12:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbVD3LMH
+	id S261199AbVD3L0s (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 07:26:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261200AbVD3L0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 07:12:07 -0400
-Received: from smtp.istop.com ([66.11.167.126]:27274 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S261197AbVD3LLy (ORCPT
+	Sat, 30 Apr 2005 07:26:47 -0400
+Received: from fire.osdl.org ([65.172.181.4]:59803 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261199AbVD3L0o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 07:11:54 -0400
-From: Daniel Phillips <phillips@istop.com>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Subject: Re: [PATCH 1b/7] dlm: core locking
-Date: Sat, 30 Apr 2005 07:12:46 -0400
-User-Agent: KMail/1.7
-Cc: Daniel McNeil <daniel@osdl.org>, David Teigland <teigland@redhat.com>,
-       Steven Dake <sdake@mvista.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Patrick Caulfield <pcaulfie@redhat.com>
-References: <20050425165826.GB11938@redhat.com> <200504300509.24887.phillips@istop.com> <20050430103221.GQ21645@marowsky-bree.de>
-In-Reply-To: <20050430103221.GQ21645@marowsky-bree.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 30 Apr 2005 07:26:44 -0400
+Date: Sat, 30 Apr 2005 04:26:14 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alexander Nyberg <alexn@dsv.su.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc3-mm1
+Message-Id: <20050430042614.7858e4fa.akpm@osdl.org>
+In-Reply-To: <1114859458.872.26.camel@localhost.localdomain>
+References: <20050429231653.32d2f091.akpm@osdl.org>
+	<1114859458.872.26.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200504300712.46835.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 30 April 2005 06:32, Lars Marowsky-Bree wrote:
-> > > If it is, what prevents GFS from getting a DLM lock granted and writing
-> > > to the shared storage before the node that previously had it is fenced?
-> >
-> > In my opinion, using the dlm to protect the shared storage resource
-> > constitutes tackling the problem far too high up on the food chain.
+Alexander Nyberg <alexn@dsv.su.se> wrote:
 >
-> Au contraire. Something pretty high up the food chain needs to decide
-> resource ownership / access permissions.
+> > - We're still miles away from 2.6.12.  Lots of patches here, plus my
+> >   collection of bugs-post-2.6.11 is vast.  I'll start working through them
+> >   again after 2.6.12-rc4 is available to testers.
+> > 
+> 
+> Something is bad with my init process, so with debug patch below I'm
+> getting:
+> do_page_fault: force_sig_info SIGSEV to 1, addr ffffe018, eip b7fe576a
+> do_page_fault: force_sig_info SIGSEV to 1, addr ffffe018, eip b7fe576a
+> do_page_fault: force_sig_info SIGSEV to 1, addr ffffe018, eip b7fe576a
+> do_page_fault: force_sig_info SIGSEV to 1, addr ffffe018, eip b7fe576a
+> 
+> continuing forever. 0xffffe018 is inside the vsyscall page so could be
+> related but the eip should be there too in that case I think...
+> You have any candidates? I've failed to find any.
 
-You confused "high up the food chain" with "being intelligent".  Nothing 
-prevents your oldest cluster node from making complex decisions, or calling 
-into play other services in order to make those decision.  It could, for 
-example, invoke some server on some other node to make the actual decision.
+Nope.  The easiest way to identify this is to grab broken-out.tar.gz, the
+series file and use quilt to do a bisection search.  Ten compiles max.
 
-The important thing is to always have an easy _starting point_ for making 
-decisions.  I do not think that dlm-based algorithms are suitable in that 
-regard, because of the unavoidable code complexity just to kick off the 
-process.  And obviously, there already is some reliable starting point or 
-cman would not work.  So let's just expose that and have a better cluster 
-stack.
+If you're not interested in that, please share the .config.
 
-> > > PS if an application is writing to local storage, what does it need
-> > > a DLM for?
-> >
-> > Good instinct.  In fact, as I've said before, you don't necessarily
-> > need a dlm in a cluster application at all.  What you need is _global
-> > synchronization_, however that is accomplished.  For example, I have
-> > found it simpler and more efficient to use network messaging for the
-> > cluster applications I've tackled so far.   This suggests to me that
-> > the dlm is going to end up pretty much as a service needed only by a
-> > cfs, and not much else.  The corollary of that is, we should
-> > concentrate on making the dlm work well for the cfs, and not get too
-> > wrapped up in trying to make it solve every global synchronization
-> > problem in the world.
->
-> This isn't quite true. It _is_ true that essentially every locking /
-> coordination mechanism can be mapped to every other one: locks can be
-> implemented via barriers, barriers via locks, locks via messages, global
-> ordering via barriers, voting via locks, locks via voting, and then
-> there's all the different possible kinds of locks... And internally,
-> they might well share certain code paths. (Ie, a DLM electing a
-> transition master for lockspace recovery internally via voting, because
-> obviously _it_ can't use itself to pull itself out of the mess ;-)
+> Index: mm/arch/i386/mm/fault.c
+> ===================================================================
+> --- mm.orig/arch/i386/mm/fault.c	2005-04-30 12:49:17.000000000 +0200
+> +++ mm/arch/i386/mm/fault.c	2005-04-30 12:56:31.000000000 +0200
+> @@ -391,6 +391,8 @@
+>  		info.si_errno = 0;
+>  		/* info.si_code has been set above */
+>  		info.si_addr = (void __user *)address;
+> +		printk("%s: force_sig_info SIGSEV to %d, addr %lx, eip %lx\n",
+> +				__FUNCTION__, tsk->pid, address, regs->eip);
+>  		force_sig_info(SIGSEGV, &info, tsk);
+>  		return;
+>  	}
+> 
+> 
+> Also, this brought me to trying to find what has changed between the
+> versions which appears a little tricky.
 
-But note that it _can_ use the oldest cluster member as a recovery master, or 
-to designate a recovery master.  It can, and should - there is no excuse for 
-making this any more complex than it needs to be.
+Well announce.txt tells you what was added and what was removed.
 
-> However, for most problems, there's one approach which makes the problem
-> you're dealing with much easier to express, and potentially more
-> efficient.
+> Do you think it would be
+> possible to set up your scripts that currently notify the author of a
+> patch about the inclusion to CC something like mm-commits list.
 
-True.  My point is that the sweet spot for cluster synchronization is, in my 
-experience, usually _not_ the dlm.
+Certainly could.  I'll ask davem about getting a list set up.
 
-> A good cluster suite should offer support for barriers, locking, voting
-> and (group) messaging with extended virtual synchrony, so that the
-> problems can be addressed correctly. Compare how the kernel offers more
-> than one form for synchronization on SMP systems: semaphores,
-> spinlocks, RCU, atomic operations...
-
-All agreed, except that voting and group messaging should be provided as 
-separate services in the style of plugins, on which the base cluster 
-infrastructure does not depend.
-
-OK, once we have found a way to plug in voting and whiz-bang messaging, I 
-think we have discovered the mythical "vcs", the virtual cluster switch.  It 
-doesn't need to be in-kernel though.
-
-Regards,
-
-Daniel
+> That way people can audit patches that have got in before the tarball is
+> released, it is easy to see what has gone in and when.

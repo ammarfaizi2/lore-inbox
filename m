@@ -1,69 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261255AbVD3Phz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbVD3PkZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261255AbVD3Phz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 11:37:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbVD3Phz
+	id S261256AbVD3PkZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 11:40:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbVD3PkY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 11:37:55 -0400
-Received: from 70-57-132-14.albq.qwest.net ([70.57.132.14]:9674 "EHLO
-	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S261255AbVD3Phr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 11:37:47 -0400
-Date: Sat, 30 Apr 2005 09:39:46 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: coywolf@lovecn.org
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc3-mm1
-In-Reply-To: <2cd57c90050430082928eae1fb@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0504300937190.12903@montezuma.fsmlabs.com>
-References: <20050429231653.32d2f091.akpm@osdl.org> <2cd57c90050430082928eae1fb@mail.gmail.com>
+	Sat, 30 Apr 2005 11:40:24 -0400
+Received: from mail.timesys.com ([65.117.135.102]:10217 "EHLO
+	exchange.timesys.com") by vger.kernel.org with ESMTP
+	id S261256AbVD3PkV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Apr 2005 11:40:21 -0400
+Message-ID: <4273A699.50806@timesys.com>
+Date: Sat, 30 Apr 2005 11:39:05 -0400
+From: john cooper <john.cooper@timesys.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: mjc@unre.st
+CC: linux-kernel@vger.kernel.org, john cooper <john.cooper@timesys.com>
+Subject: Re: Updated realtime-preempt documentation
+References: <2119.66.176.128.144.1114839452.squirrel@mail.unre.st>
+In-Reply-To: <2119.66.176.128.144.1114839452.squirrel@mail.unre.st>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 30 Apr 2005 15:34:43.0375 (UTC) FILETIME=[2196A3F0:01C54D9A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 30 Apr 2005, Coywolf Qi Hunt wrote:
+mjc@unre.st wrote:
+> Hey all,
+> 
+>  I've been following Ingo Molnar and friends' lovely realtime-preempt
+> patchset.  I'm curious, though, the only piece of documentation I've
+> found is
+> http://people.redhat.com/mingo/realtime-preempt/older/ANNOUNCE-voluntary-preempt
+>  which is, indeed, quite old.   Is anyone planning on updating this in
+> the near future or is it in too much flux? Should I try and make heads or
+> tails of the code first?
 
->   CC      arch/i386/kernel/cpu/amd.o
->   CC      arch/i386/kernel/cpu/cyrix.o
->   CC      arch/i386/kernel/cpu/intel_cacheinfo.o
->   CC      arch/i386/kernel/cpu/mcheck/init.o
->   CC      arch/i386/kernel/cpu/mcheck/mce.o
->   CC      arch/i386/kernel/cpu/mcheck/p5.o
->   CC      arch/i386/kernel/cpu/mcheck/winchip.o
->   CC      arch/i386/kernel/cpu/mcheck/mce_intel.o
-> /home/coywolf/2.6.12-rc3-mm1-cy/arch/i386/kernel/cpu/mcheck/mce_intel.c:
-> In function `smp_thermal_interrupt':
-> /home/coywolf/2.6.12-rc3-mm1-cy/arch/i386/kernel/cpu/mcheck/mce_intel.c:25:
-> warning: implicit declaration of function `ack_APIC_irq'
-> /home/coywolf/2.6.12-rc3-mm1-cy/arch/i386/kernel/cpu/mcheck/mce_intel.c:
-> In function `intel_init_thermal':
-> /home/coywolf/2.6.12-rc3-mm1-cy/arch/i386/kernel/cpu/mcheck/mce_intel.c:67:
-> warning: implicit declaration of function `apic_read'
-> /home/coywolf/2.6.12-rc3-mm1-cy/arch/i386/kernel/cpu/mcheck/mce_intel.c:67:
-> error: `APIC_LVTTHMR' undeclared (first use in this function)
-> /home/coywolf/2.6.12-rc3-mm1-cy/arch/i386/kernel/cpu/mcheck/mce_intel.c:67:
-> error: (Each undeclared identifie r is reported only once
-> /home/coywolf/2.6.12-rc3-mm1-cy/arch/i386/kernel/cpu/mcheck/mce_intel.c:67:
-> error: for each function it appea rs in.)
-> /home/coywolf/2.6.12-rc3-mm1-cy/arch/i386/kernel/cpu/mcheck/mce_intel.c:68:
-> error: `APIC_DM_SMI' undeclared ( first use in this function)
-> /home/coywolf/2.6.12-rc3-mm1-cy/arch/i386/kernel/cpu/mcheck/mce_intel.c:77:
-> error: `APIC_VECTOR_MASK' undecla red (first use in this function)
-> /home/coywolf/2.6.12-rc3-mm1-cy/arch/i386/kernel/cpu/mcheck/mce_intel.c:85:
-> error: `APIC_DM_FIXED' undeclared  (first use in this function)
-> /home/coywolf/2.6.12-rc3-mm1-cy/arch/i386/kernel/cpu/mcheck/mce_intel.c:85:
-> error: `APIC_LVT_MASKED' undeclar ed (first use in this function)
-> /home/coywolf/2.6.12-rc3-mm1-cy/arch/i386/kernel/cpu/mcheck/mce_intel.c:86:
-> warning: implicit declaration of function `apic_write_around'
-> make[4]: *** [arch/i386/kernel/cpu/mcheck/mce_intel.o] Error 1
-> make[3]: *** [arch/i386/kernel/cpu/mcheck] Error 2
-> make[2]: *** [arch/i386/kernel/cpu] Error 2
-> make[1]: *** [arch/i386/kernel] Error 2
-> make: *** [_all] Error 2
+I'd cobbled together documentation for internal use here
+though it lacks an "overall concepts" wrapper.  I should
+be revisiting this in a week or so and will look into
+making it generally available.
 
-Could you send your .config please?
+-john
 
-Thanks,
-	Zwane
 
+-- 
+john.cooper@timesys.com

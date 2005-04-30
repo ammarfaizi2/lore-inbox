@@ -1,58 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbVD3VhU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbVD3Vr3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261437AbVD3VhU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 17:37:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbVD3VhU
+	id S261439AbVD3Vr3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 17:47:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbVD3Vr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 17:37:20 -0400
-Received: from postfix3-1.free.fr ([213.228.0.44]:26323 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S261437AbVD3VhN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 17:37:13 -0400
-Message-ID: <4273FA88.1060405@free.fr>
-Date: Sat, 30 Apr 2005 23:37:12 +0200
-From: Boris Fersing <mastermac@free.fr>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050430)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Robert Hancock <hancockr@shaw.ca>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: HyperThreading, kernel 2.6.10, 1 logical CPU idle !!
-References: <3Z3u8-28Z-9@gated-at.bofh.it> <4273E2BB.9010509@shaw.ca>
-In-Reply-To: <4273E2BB.9010509@shaw.ca>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Sat, 30 Apr 2005 17:47:29 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:2987 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S261439AbVD3Vr1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Apr 2005 17:47:27 -0400
+Date: Sat, 30 Apr 2005 23:41:24 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Andy Lutomirski <luto@myrealbox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: possibly bogus AMD64 MCE reporting.
+Message-ID: <20050430214124.GA9321@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Andy Lutomirski <luto@myrealbox.com>, linux-kernel@vger.kernel.org
+References: <4273E7B1.6020500@myrealbox.com> <20050430203723.GA8122@outpost.ds9a.nl> <4273F24C.3040202@myrealbox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4273F24C.3040202@myrealbox.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Hancock a écrit :
+On Sat, Apr 30, 2005 at 02:02:04PM -0700, Andy Lutomirski wrote:
 
-> Boris Fersing wrote:
->
->> Hi there,
->> I've a p4 HT 3,06Ghz, I've HT enabled in the BIOS and in the kernel :
->>
->> Linux electron 2.6.10-cj5 #6 SMP Fri Mar 4 02:18:08 CET 2005 i686 Mobile
->> Intel(R) Pentium(R) 4     CPU 3.06GHz GenuineIntel GNU/Linux .
->>
->> But it seems that one of my cpus is idle (gkrellm monitor or top) :
->>
->> Cpu0  : 88.0% us, 12.0% sy,  0.0% ni,  0.0% id,  0.0% wa,  0.0% hi,
->> 0.0% si
->> Cpu1  :  0.0% us,  0.3% sy,  0.0% ni, 99.7% id,  0.0% wa,  0.0% hi,
->> 0.0% si
->>
->>
->> I'm actually compiling thunderbird with MAKEOPTS="-j3", so , the second
->> should be used, shouldn't it ?
->
->
-> Are you sure that it is actually compiling multiple files at once?
->
-Yes I'm sure, Even if I launch more than 1 gcc, or for example, start a
-compilation + video encoding (mencoder) + ... the second CPU won't work
-(idle 100% or sometimes 99,9%).
+> Anything I should attach to provide more info?
+> 
+> I just upgraded to mcelog-0.4, but at this rate I don't expect a new 
+> dump for awhile.
 
-Regards,
+I'll investigate the MCE reports from my opteron machine in the coming days
+and report back if they are bogus as well
 
-Boris.
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://netherlabs.nl              Open and Closed source services

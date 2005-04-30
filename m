@@ -1,87 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbVD3MHP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbVD3M17@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261203AbVD3MHP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 08:07:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbVD3MHP
+	id S261206AbVD3M17 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 08:27:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVD3M16
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 08:07:15 -0400
-Received: from wproxy.gmail.com ([64.233.184.204]:4963 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261203AbVD3MG7 convert rfc822-to-8bit
+	Sat, 30 Apr 2005 08:27:58 -0400
+Received: from mail.aei.ca ([206.123.6.14]:37082 "EHLO aeimail.aei.ca")
+	by vger.kernel.org with ESMTP id S261206AbVD3M1z convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 08:06:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=D8i42GrXVUBeNjnACBHs0R8bMFDjf5HuX85oCJdgmyfDgkThiKe7dN7/+Pen4avefxCX7zLhx3ltPohysq5RqiSBtipbaxM2S5FUGZjzqAGPbmYKiswfOtMYQ6FwPdVpzsSE8E7kycnv169HErk08u+gtcgFHBvtL107lWf7vVY=
-Message-ID: <40f323d0050430050612fb15c9@mail.gmail.com>
-Date: Sat, 30 Apr 2005 14:06:56 +0200
-From: Benoit Boissinot <bboissin@gmail.com>
-Reply-To: Benoit Boissinot <bboissin@gmail.com>
-To: Li Shaohua <shaohua.li@intel.com>
-Subject: Re: [PATCH 1/6]sep initializing rework
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       ACPI-DEV <acpi-devel@lists.sourceforge.net>,
-       Len Brown <len.brown@intel.com>, Pavel Machek <pavel@suse.cz>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1113283845.27646.424.camel@sli10-desk.sh.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sat, 30 Apr 2005 08:27:55 -0400
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.12-rc3-mm1
+Date: Sat, 30 Apr 2005 08:27:43 -0400
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org
+References: <20050429231653.32d2f091.akpm@osdl.org>
+In-Reply-To: <20050429231653.32d2f091.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-References: <1113283845.27646.424.camel@sli10-desk.sh.intel.com>
+Message-Id: <200504300827.44359.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/12/05, Li Shaohua <shaohua.li@intel.com> wrote:
-> Hi,
-> These patches (together with 5 patches followed this one) are updated
-> suspend/resume SMP patches. The patches fixed some bugs and do clean up
-> as suggested. Now they work for both suspend-to-ram and suspend-to-disk.
-> Patches are against 2.6.12-rc2-mm3.
+On Saturday 30 April 2005 02:16, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc3/2.6.12-rc3-mm1/
 > 
-> Thanks,
-> Shaohua
+> - There's still a bug in the new timer code.  If you think you hit it,
+>   please revert 
 > 
-> ---
-> Make SEP init per-cpu, so it is hotplug safed.
+>         timers-fixes-improvements-fix.patch                     then
+>         timers-fixes-improvements-smp_processor_id-fix.patch    then
+>         timers-fixes-improvements.patch
 > 
-> Signed-off-by: Li Shaohua<shaohua.li@intel.com>
+>   or, better, fix the bug.
 > 
-> ---
-> +++ linux-2.6.11-root/arch/i386/power/cpu.c     2005-04-12 10:36:00.175169792 +0800
-> @@ -33,8 +33,6 @@ unsigned long saved_context_esp, saved_c
->  unsigned long saved_context_esi, saved_context_edi;
->  unsigned long saved_context_eflags;
+> - If you use mpt-fusion, beware that the CONFIG_* names got changed - if you
+>   blindly do `make oldconfig' you won't have any disks.
 > 
-> -extern void enable_sep_cpu(void *);
-> -
->  void __save_processor_state(struct saved_context *ctxt)
->  {
->         kernel_fpu_begin();
+> - ia64 crashes when doing a PM poweroff.  It's triggered by
+>   properly-stop-devices-before-poweroff.patch but appears to be an ia64 bug.
+> 
+> - Lots of bk trees were dropped and lots of git trees and patch serieses
+>   were picked up.  I think all the subsystem trees are here, but the bk ones
+>   are starting to rot.  As far as I can tell, no subsystem maintainers are
+>   updating their bk trees (apart from acpi).ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc3/2.6.12-rc3-mm1/
+
+Andrew, 
+
+If we stick with git it might make sense not to include a linux-patch.  cogito
+is quite fast to export using a commit id.  Suspect some bandwidth could be 
+saved if you just stated the commit id that you based the mm patch on.
+
+In case anyone is wondering how build this from a cogito/git db...  Find the
+cogito announcement on lkml install and update cogito.  Then folliw the instructions
+in the README and download the kernel's db.  Next search lkml to find the commit id 
+of rc3 (a2755a80f40e5794ddc20e00f781af9d6320fafb) and verify you have it correct 
+with:
+
+cg-mkpatch a2755a80f40e5794ddc20e00f781af9d6320fafb
+
+then export a tree with
+
+cg-export ../12-3-1 a2755a80f40e5794ddc20e00f781af9d6320fafb
+
+and cd over to the new dir and patch with mm and have fun.
+
+Thanks
+
+Ed Tomlinson
 
 
-> diff -puN include/asm-i386/smp.h~sep_init_cleanup include/asm-i386/smp.h
-> --- linux-2.6.11/include/asm-i386/smp.h~sep_init_cleanup        2005-04-12 10:36:00.170170552 +0800
-> +++ linux-2.6.11-root/include/asm-i386/smp.h    2005-04-12 10:36:00.176169640 +0800
-> @@ -37,6 +37,9 @@ extern int smp_num_siblings;
->  extern cpumask_t cpu_sibling_map[];
->  extern cpumask_t cpu_core_map[];
-> 
-> +extern int sysenter_setup(void);
-> +extern void enable_sep_cpu(void);
-> +
->  extern void smp_flush_tlb(void);
->  extern void smp_message_irq(int cpl, void *dev_id, struct pt_regs *regs);
->  extern void smp_invalidate_rcv(void);          /* Process an NMI */
-> _
 
-This change adds a warning when CONFIG_SMP is not set:
 
-arch/i386/power/cpu.c: In function '__restore_processor_state':
-arch/i386/power/cpu.c:137: warning: implicit declaration of function
-'enable_sep_cpu'
-Maybe those functions should be defined somewhere else.
-
-regards,
-
-Benoit

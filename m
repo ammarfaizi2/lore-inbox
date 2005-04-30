@@ -1,83 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263118AbVD3BYz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263119AbVD3BZp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263118AbVD3BYz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 21:24:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263119AbVD3BYz
+	id S263119AbVD3BZp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 21:25:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263120AbVD3BZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 21:24:55 -0400
-Received: from tomts13.bellnexxia.net ([209.226.175.34]:21390 "EHLO
-	tomts13-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S263118AbVD3BYv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 21:24:51 -0400
-Date: Fri, 29 Apr 2005 21:24:50 -0400 (EDT)
-From: Chris Gorman <chrisgorman@sympatico.ca>
-X-X-Sender: <chris@blackbird.cgnet.ca>
-To: <linux-kernel@vger.kernel.org>
-cc: <singsys@yahoo.com>
-Subject: Re: Kernelpanic - not syncing: VFS: Unable to mount root fs on
- unknown-block
-Message-ID: <Pine.LNX.4.33.0504292059360.4060-100000@blackbird.cgnet.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 29 Apr 2005 21:25:45 -0400
+Received: from fire.osdl.org ([65.172.181.4]:51333 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S263119AbVD3BZj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 21:25:39 -0400
+Date: Fri, 29 Apr 2005 18:25:11 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Mauricio Lin <mauriciolin@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] A new entry for /proc
+Message-Id: <20050429182511.7df7d712.akpm@osdl.org>
+In-Reply-To: <3f250c71050429113616a55f28@mail.gmail.com>
+References: <3f250c7105010613115554b9d9@mail.gmail.com>
+	<20050106202339.4f9ba479.akpm@osdl.org>
+	<3f250c71050429113616a55f28@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello All,
-
-First off, I am not on the linux-kernel list so please cc me directly on
-this if anyone has a solution.  I've experienced a very similar problem
-as S S did while upgrading from 2.6.11.6 to 2.6.11.7.  Essentialy grub
-will boot 2.6.11.6 without any problems, but using the same command line
-2.6.11.7 fails to boot with "Cannot open root device hde6 or
-unknown-block(0,0)".  The config file used was the same one as 2.6.11.6 so
-I doubt I missed a config option.
-
-The reason I chose to upgrade was because I've been getting ext3 errors
-which caused the journal to crash and the filesystem to be remounted
-read-only.  I hoped the following referenced patch would resolve it.
-
-[PATCH] Prevent race condition in jbd
-
-From: Stephen Tweedie <sct@redhat.com>
-Subject: Prevent race condition in jbd
-
-This patch from Stephen Tweedie which fixes a race in jbd code (it
-demonstrated itself as more or less random NULL dereferences in
-the journal code).
-
-Acked-by: Jan Kara <jack@suse.cz>
-Acked-by: Chris Mason <mason@suse.com>
-Signed-off-by: Chris Wright <chrisw@osdl.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
-I only see a few other patches in the Changelog and none appear to me to
-be fs relevant.  Could this be part of our problem?  I've seen one other
-post "Re: Linux 2.6.12-rc2" by hubert.tonneau@fullpliant.org which
-describes the same symptom.  The problem occured during an upgrade from
-2.6.11 to 2.6.12-rc[12] and this person does have ext3 compiled in.
-
-Also, since grub is common between myself and S S, and my grub is a little
-old, I will try upgrading the program in case that is the problem.
-
-TIA
-
-Chris Gorman
-
-On Apr 18, 2005 S S wrote:
-> I compiled linux kernel 2.6.11.7 on RHEL and while
-> rebooting I get this
-> error message -
+Mauricio Lin <mauriciolin@gmail.com> wrote:
 >
-> Cannot open root device /SCSIGroup00/SCSIVol000
-> Please append a correct "root=" boot option
-> Kernelpanic - not syncing: VFS: Unable to mount root
-> fs on
-> unknown-block 0,0
->
-> This root entry in grub .conf is identical to kernel
-> image entry 2.6.9 which boots fine. However 2.6.11.7
-> compiled kernel does not find
-> /dev//SCSIGroup00/SCSIVol000
->
-> Could anyone please suggest what could be going wrong.
+> I sent some months ago the PATCH about smaps entry. Here is the new
+>  one with more features included. People that want to perform a memory
+>  consumption analysing can use it mainly if someone needs to figure out
+>  which libraries can be reduced for embedded systems. So the new
+>  features are the physical size of shared and clean [or dirty]; private
+>  and clean [or dirty]. Do you think this is important for Linux
+>  community?
+
+Well I like it - a couple of years ago an engineer at Digeo developed
+basically the same thing as an aid to working out "where the hack has all
+our memory gone" for an embedded system.
+
+Some people will get upset about the general performance and scheduling
+latency issues which it will introduce.  But whatever - I've added it to
+-mm.
 

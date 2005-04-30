@@ -1,78 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263088AbVD3A2h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263089AbVD3Abx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263088AbVD3A2h (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 20:28:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263089AbVD3A2h
+	id S263089AbVD3Abx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 20:31:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263090AbVD3Abw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 20:28:37 -0400
-Received: from 62-15-138-254.inversas.jazztel.es ([62.15.138.254]:5050 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S263088AbVD3A2Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 20:28:16 -0400
-Message-Id: <200504300028.j3U0Sa5c010417@localhost.localdomain>
-From: "lincel" <info@lincel.com>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: central de alrmas, ahorre dinero
-Date: 30 Apr 05 02:28:38 +0100
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="BOUNDARYMIX"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: K-ML v3.20.329 [based on Kmail v4.2.289]
+	Fri, 29 Apr 2005 20:31:52 -0400
+Received: from wproxy.gmail.com ([64.233.184.194]:41439 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263089AbVD3Abo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 20:31:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=OkSRVz7TfGs+5tCkyDhABz5PKPwoLGKk5ftKEnSTXMt/2u6ob1342HzWvCZ4sfJ7ItYre8iQzNappyO/hQdfYe4eV3M5/wT6vFHFtO5wQG93TdcxFHBSyrcikEg4diZ/03ZHh2g0oApNBG/NgOgl3PLVzrtXS91tQ9SUqLiRvQw=
+Message-ID: <469958e00504291731eb8287c@mail.gmail.com>
+Date: Fri, 29 Apr 2005 17:31:44 -0700
+From: Caitlin Bestler <caitlin.bestler@gmail.com>
+Reply-To: Caitlin Bestler <caitlin.bestler@gmail.com>
+To: Libor Michalek <libor@topspin.com>
+Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+Cc: Bill Jordan <woodennickel@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       hch@infradead.org, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, Timur Tabi <timur.tabi@ammasso.com>
+In-Reply-To: <20050429100425.A13041@topspin.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050425173757.1dbab90b.akpm@osdl.org>
+	 <20050426084234.A10366@topspin.com> <52mzrlsflu.fsf@topspin.com>
+	 <20050426122850.44d06fa6.akpm@osdl.org> <5264y9s3bs.fsf@topspin.com>
+	 <426EA220.6010007@ammasso.com> <20050426133752.37d74805.akpm@osdl.org>
+	 <5ebee0d105042907265ff58a73@mail.gmail.com>
+	 <469958e005042908566f177b50@mail.gmail.com>
+	 <20050429100425.A13041@topspin.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On 4/29/05, Libor Michalek <libor@topspin.com> wrote:
 
+> 
+>   However, you have a potential problem with registered buffers that
+> do not begin or end on a page boundary, which is common with malloc.
+> If the buffer resides on a portion of a page, and you mark the vm
+> which contains that entire page VM_DONTCOPY, to ensure that the parent
+> has access to the exact physical page after the fork, the child will
+> not be able to access anything on that entire page. So if the child
+> expects to access data on the same page that happens to contain the
+> registered buffer it will get a segment violation.
+> 
+> The four situations we've discussed are:
+> 
+>   1) Physical page does not get used for anything else.
+>   2) Processes virtual to physical mapping remains fixed.
+>   3) Same virtual to physical mapping after forking a child.
+>   4) Forked child has access to all non-registered memory of
+>      the parent.
+> 
+> The first two are now taken care of with get_user_pages, (we use to
+> use VM_LOCKED for the second case) third case is handled by setting
+> the vm to VM_DONTCOPY, and on the fourth case we've always punted,
+> but the real answer is to break partial pages into seperate vms and
+> mark them ALWAYS_COPY.
+> 
+> -Libor
+> 
+> 
+Attempting to provide *any* support for applications that fork children
+after doing RDMA registrations is a ratshole best avoided. The general
+rule that application developers should follow is to do RDMA *only*
+in the child processes.
 
+Keep in mind that it is not only the memory regions that must be dealt
+with, but control data invisible to the user (the QP context, etc.). This
+data frequently is interlinked between kernel residente and user resident
+data (such as a QP context has the PD ID somewhere on-chip or in
+kernel, which the Send Queue ring needs to be in user memory). Having
+two different user processes that both think they have the user half to
+this type of split data structure is just asking for trouble, even if you 
+manage to get the copy on write bit timing problems all solved.
 
---BOUNDARYMIX
-Content-Type: text/plain;
-	Charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-
-
-Muy Sres. nuestros: Les pedimos permiso para ofrecerle la siguiente publicidad:
-
-Seguridad completa
-Con una central de alarmas. Para su empresa o su vivienda 
-solo por
-1,31€ día
-(ningún gasto más)
-solo 39,44€ / mes 
-sin ningún pago por adelantado
-Materiales, instalación y cuota incluido
-Empieze a pagar unas vez listo y solo 39,44€ / mes 
-más información: http://www.bestsevendiamonds.com/matafocs/01.asp
-
-Nota de Confidencialidad Este mensaje puede contener información confidencial, sometida a secreto profesional o cuya divulgación esté prohibida por la ley.
-Si usted no es el destinatario del mensaje, por favor bórrelo y notifíquenoslo inmediatamente, no lo reenvíe ni copie su contenido.
-Si su empresa no permite la recepción de mensajes de este tipo, por favor háganoslo saber inmediatamente. El correo electrónico via Internet no
-permite asegurar la confidencialidad de los mensajes que se transmiten ni su integridad o correcta recepción. No asumimos responsabilidad por estas circunstancias.
-Si el destinatario de este mensaje no consintiera la utilización del correo electrónico via Internet y la grabación de los mensajes, rogamos lo ponga en nuestro
-conocimiento de forma inmediata dar de baja : http://www.bestsevendiamonds.com/matafocs/06.asp 
-
-Política de Privacidad En base a la Ley 34/2002 de Servicios de la Sociedad de la Información y de Comercio Electrónico (LSSICE), en vigor desde el 12 de octubre de 2002
-y de la Ley Orgánica 15/1999 del 13/12/1999 de Protección de Datos Personales, le comunicamos que su dirección de correo electrónico forma parte de nuestro fichero
-automatizado, al objeto de continuar enviándole ofertas de nuestros servicios y / o el mantenimiento de las comunicaciones en nuestras relaciones contractuales.
-En virtud de las Leyes antes mencionadas, tiene derecho de oposición, acceso, rectificación y cancelación de sus datos. Le recordamos que sus datos nunca son suministrados
-a terceros bajo ningún concepto, siendo únicamente utilizados para el envío de nuestras comunicaciones con Vd.. 
-
-Best Seven Diamonds S.L.
-Oficina nº31 
-C/ Sicilia 141
-08013 Barcelona
-tel 93 183 14 94
-fax 93 183 14 97
-info@bestsevendiamonds.com
-
-
-
-
-
- 
-
-
-
---BOUNDARYMIX--
+All of this can be avoided by a simple rule: don't fork after opening
+an RDMA device.

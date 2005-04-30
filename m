@@ -1,325 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261453AbVD3XLA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261457AbVD3X2X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261453AbVD3XLA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 19:11:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbVD3XKy
+	id S261457AbVD3X2X (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 19:28:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261459AbVD3X2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 19:10:54 -0400
-Received: from mail.dif.dk ([193.138.115.101]:40355 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261449AbVD3XKB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 19:10:01 -0400
-Date: Sun, 1 May 2005 01:13:28 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Alexey Dobriyan <adobriyan@mail.ru>
-Cc: "David S. Miller" <davem@davemloft.net>,
-       Jouni Malinen <jkmaline@cc.hut.fi>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] resource release cleanup in net/
-In-Reply-To: <20050501025349.GA9243@mipter.zuzino.mipt.ru>
-Message-ID: <Pine.LNX.4.62.0505010101580.2094@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0504302219520.2094@dragon.hyggekrogen.localhost>
- <20050501025349.GA9243@mipter.zuzino.mipt.ru>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 30 Apr 2005 19:28:23 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:21739 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261457AbVD3X2P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Apr 2005 19:28:15 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc3-V0.7.46-01
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Daniel Walker <dwalker@mvista.com>
+In-Reply-To: <20050422062714.GA23667@elte.hu>
+References: <20050325145908.GA7146@elte.hu> <20050331085541.GA21306@elte.hu>
+	 <20050401104724.GA31971@elte.hu> <20050405071911.GA23653@elte.hu>
+	 <20050421073537.GA1004@elte.hu>  <20050422062714.GA23667@elte.hu>
+Content-Type: multipart/mixed; boundary="=-h9aikHK2/K1Q03OEi+e8"
+Date: Sat, 30 Apr 2005 19:28:13 -0400
+Message-Id: <1114903693.12664.9.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 May 2005, Alexey Dobriyan wrote:
 
-> On Sat, Apr 30, 2005 at 10:36:00PM +0200, Jesper Juhl wrote:
-> > Since Andrew merged the patch that makes calling crypto_free_tfm() with a 
-> > NULL pointer safe into 2.6.12-rc3-mm1, I made a patch to remove checks for 
-> > NULL before calling that function
-> >  drivers/net/wireless/hostap/hostap_crypt_ccmp.c |    5 -
-> >  drivers/net/wireless/hostap/hostap_crypt_tkip.c |   10 +-
-> >  drivers/net/wireless/hostap/hostap_crypt_wep.c  |    5 -
-> >  net/ieee80211/ieee80211_crypt_ccmp.c            |    5 -
-> >  net/ieee80211/ieee80211_crypt_tkip.c            |   10 +-
-> >  net/ieee80211/ieee80211_crypt_wep.c             |    5 -
-> I think I have a better one for these.
+--=-h9aikHK2/K1Q03OEi+e8
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+On Fri, 2005-04-22 at 08:27 +0200, Ingo Molnar wrote:
+> i have released the -V0.7.46-01 Real-Time Preemption patch, which can be 
+> downloaded from the usual place:
 > 
-> --- linux-2.6.12-rc3-mm1/drivers/net/wireless/hostap/hostap_crypt_ccmp.c	2005-05-01 01:53:50.000000000 +0000
-> +++ linux-2.6.12-rc3-mm1-hostap/drivers/net/wireless/hostap/hostap_crypt_ccmp.c	2005-05-01 02:21:10.000000000 +0000
-> @@ -102,17 +102,14 @@ static void * hostap_ccmp_init(int key_i
->  	if (priv->tfm == NULL) {
->  		printk(KERN_DEBUG "hostap_crypt_ccmp: could not allocate "
->  		       "crypto API aes\n");
-> -		goto fail;
-> +		goto fail_free;
->  	}
->  
->  	return priv;
->  
-> +fail_free:
-> +	kfree(priv);
->  fail:
-> -	if (priv) {
-> -		if (priv->tfm)
-> -			crypto_free_tfm(priv->tfm);
-> -		kfree(priv);
-> -	}
->  	module_put(THIS_MODULE);
->  	return NULL;
->  }
+>     http://redhat.com/~mingo/realtime-preempt/
 
-Personally I find the code a lot simpler when there's just a single label 
-"fail" that takes care of all the cleanup. But, let's hear what David has 
-to say on that.
+Ingo,
 
+With Mingming's patch to resolve the ext3 allocate-with-reservation
+latency, it looks like we are finally getting close to the lower limit
+that can be achieved with PREEMPT_DESKTOP.  I've attached the trace of
+the lowest latency over several days of testing with
+2.6.12-rc3-RT-V0.7.46-02 + Mingming's patch.  It's only 127 usecs, and
+IIRC you mentioned previously that this code path can't be made
+preemptible in !PREEMPT_RT.
 
-> @@ -121,8 +118,7 @@ fail:
->  static void hostap_ccmp_deinit(void *priv)
->  {
->  	struct hostap_ccmp_data *_priv = priv;
-> -	if (_priv && _priv->tfm)
-> -		crypto_free_tfm(_priv->tfm);
-> +	crypto_free_tfm(_priv->tfm);
->  	kfree(priv);
->  	module_put(THIS_MODULE);
->  }
+Since Mingming's patch will have to live in -mm for a while, can it be
+added to the RT patchset as well?
 
-This will Oops if _priv is NULL. That's why my patch did 
+http://lkml.org/lkml/2005/4/22/127
 
-if (_priv)
-	crypto_free_tfm(_priv->tfm);
+Lee
 
+--=-h9aikHK2/K1Q03OEi+e8
+Content-Disposition: attachment; filename=signal-delivery-trace.bz2
+Content-Type: application/x-bzip; name=signal-delivery-trace.bz2
+Content-Transfer-Encoding: base64
 
-> --- linux-2.6.12-rc3-mm1/drivers/net/wireless/hostap/hostap_crypt_tkip.c	2005-05-01 01:53:50.000000000 +0000
-> +++ linux-2.6.12-rc3-mm1-hostap/drivers/net/wireless/hostap/hostap_crypt_tkip.c	2005-05-01 02:27:18.000000000 +0000
-> @@ -88,26 +88,23 @@ static void * hostap_tkip_init(int key_i
->  	if (priv->tfm_arc4 == NULL) {
->  		printk(KERN_DEBUG "hostap_crypt_tkip: could not allocate "
->  		       "crypto API arc4\n");
-> -		goto fail;
-> +		goto fail_arc4;
->  	}
->  
->  	priv->tfm_michael = crypto_alloc_tfm("michael_mic", 0);
->  	if (priv->tfm_michael == NULL) {
->  		printk(KERN_DEBUG "hostap_crypt_tkip: could not allocate "
->  		       "crypto API michael_mic\n");
-> -		goto fail;
-> +		goto fail_michael;
->  	}
->  
->  	return priv;
->  
-> +fail_michael:
-> +	crypto_free_tfm(priv->tfm_arc4);
-> +fail_arc4:
-> +	kfree(priv);
->  fail:
-> -	if (priv) {
-> -		if (priv->tfm_michael)
-> -			crypto_free_tfm(priv->tfm_michael);
-> -		if (priv->tfm_arc4)
-> -			crypto_free_tfm(priv->tfm_arc4);
-> -		kfree(priv);
-> -	}
->  	module_put(THIS_MODULE);
->  	return NULL;
->  }
-
-Again, I find the single 'fail' approach simpler.
+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
+aP8YaZMtNf/i7kinChITt8eegA==
 
 
-> @@ -116,10 +113,8 @@ fail:
->  static void hostap_tkip_deinit(void *priv)
->  {
->  	struct hostap_tkip_data *_priv = priv;
-> -	if (_priv && _priv->tfm_michael)
-> -		crypto_free_tfm(_priv->tfm_michael);
-> -	if (_priv && _priv->tfm_arc4)
-> -		crypto_free_tfm(_priv->tfm_arc4);
-> +	crypto_free_tfm(_priv->tfm_michael);
-> +	crypto_free_tfm(_priv->tfm_arc4);
->  	kfree(priv);
->  	module_put(THIS_MODULE);
->  }
-
-Oops if _priv == NULL.
-
-
-> --- linux-2.6.12-rc3-mm1/drivers/net/wireless/hostap/hostap_crypt_wep.c	2005-05-01 01:53:50.000000000 +0000
-> +++ linux-2.6.12-rc3-mm1-hostap/drivers/net/wireless/hostap/hostap_crypt_wep.c	2005-05-01 02:30:08.000000000 +0000
-> @@ -59,7 +59,7 @@ static void * prism2_wep_init(int keyidx
->  	if (priv->tfm == NULL) {
->  		printk(KERN_DEBUG "hostap_crypt_wep: could not allocate "
->  		       "crypto API arc4\n");
-> -		goto fail;
-> +		goto fail_tfm;
->  	}
->  
->  	/* start WEP IV from a random value */
-> @@ -67,12 +67,9 @@ static void * prism2_wep_init(int keyidx
->  
->  	return priv;
->  
-> +fail_tfm:
-> +	kfree(priv);
->  fail:
-> -	if (priv) {
-> -		if (priv->tfm)
-> -			crypto_free_tfm(priv->tfm);
-> -		kfree(priv);
-> -	}
->  	module_put(THIS_MODULE);
->  	return NULL;
->  }
-
-Again my preference is for the original, same for the rest of these.
-
-
-> @@ -81,8 +78,7 @@ fail:
->  static void prism2_wep_deinit(void *priv)
->  {
->  	struct prism2_wep_data *_priv = priv;
-> -	if (_priv && _priv->tfm)
-> -		crypto_free_tfm(_priv->tfm);
-> +	crypto_free_tfm(_priv->tfm);
->  	kfree(priv);
->  	module_put(THIS_MODULE);
->  }
-
-Oops if _priv == NULL.
-
-
-> --- linux-2.6.12-rc3-mm1/net/ieee80211/ieee80211_crypt_ccmp.c	2005-05-01 01:53:57.000000000 +0000
-> +++ linux-2.6.12-rc3-mm1-hostap/net/ieee80211/ieee80211_crypt_ccmp.c	2005-05-01 02:31:22.000000000 +0000
-> @@ -89,18 +89,14 @@ static void * ieee80211_ccmp_init(int ke
->  	if (priv->tfm == NULL) {
->  		printk(KERN_DEBUG "ieee80211_crypt_ccmp: could not allocate "
->  		       "crypto API aes\n");
-> -		goto fail;
-> +		goto fail_tfm;
->  	}
->  
->  	return priv;
->  
-> +fail_tfm:
-> +	kfree(priv);
->  fail:
-> -	if (priv) {
-> -		if (priv->tfm)
-> -			crypto_free_tfm(priv->tfm);
-> -		kfree(priv);
-> -	}
-> -
->  	return NULL;
->  }
->  
-> @@ -108,8 +104,7 @@ fail:
->  static void ieee80211_ccmp_deinit(void *priv)
->  {
->  	struct ieee80211_ccmp_data *_priv = priv;
-> -	if (_priv && _priv->tfm)
-> -		crypto_free_tfm(_priv->tfm);
-> +	crypto_free_tfm(_priv->tfm);
->  	kfree(priv);
->  }
->  
-if _priv is NULL this blows up.
-
-
-> --- linux-2.6.12-rc3-mm1/net/ieee80211/ieee80211_crypt_tkip.c	2005-05-01 01:53:57.000000000 +0000
-> +++ linux-2.6.12-rc3-mm1-hostap/net/ieee80211/ieee80211_crypt_tkip.c	2005-05-01 02:34:04.000000000 +0000
-> @@ -76,27 +76,23 @@ static void * ieee80211_tkip_init(int ke
->  	if (priv->tfm_arc4 == NULL) {
->  		printk(KERN_DEBUG "ieee80211_crypt_tkip: could not allocate "
->  		       "crypto API arc4\n");
-> -		goto fail;
-> +		goto fail_arc4;
->  	}
->  
->  	priv->tfm_michael = crypto_alloc_tfm("michael_mic", 0);
->  	if (priv->tfm_michael == NULL) {
->  		printk(KERN_DEBUG "ieee80211_crypt_tkip: could not allocate "
->  		       "crypto API michael_mic\n");
-> -		goto fail;
-> +		goto fail_michael;
->  	}
->  
->  	return priv;
->  
-> +fail_michael:
-> +	crypto_free_tfm(priv->tfm_arc4);
-> +fail_arc4:
-> +	kfree(priv);
->  fail:
-> -	if (priv) {
-> -		if (priv->tfm_michael)
-> -			crypto_free_tfm(priv->tfm_michael);
-> -		if (priv->tfm_arc4)
-> -			crypto_free_tfm(priv->tfm_arc4);
-> -		kfree(priv);
-> -	}
-> -
->  	return NULL;
->  }
->  
-> @@ -104,10 +100,8 @@ fail:
->  static void ieee80211_tkip_deinit(void *priv)
->  {
->  	struct ieee80211_tkip_data *_priv = priv;
-> -	if (_priv && _priv->tfm_michael)
-> -		crypto_free_tfm(_priv->tfm_michael);
-> -	if (_priv && _priv->tfm_arc4)
-> -		crypto_free_tfm(_priv->tfm_arc4);
-> +	crypto_free_tfm(_priv->tfm_michael);
-> +	crypto_free_tfm(_priv->tfm_arc4);
->  	kfree(priv);
->  }
->  
-Again we'll blow up if _priv is NULL.
-
-
-> --- linux-2.6.12-rc3-mm1/net/ieee80211/ieee80211_crypt_wep.c	2005-05-01 01:53:57.000000000 +0000
-> +++ linux-2.6.12-rc3-mm1-hostap/net/ieee80211/ieee80211_crypt_wep.c	2005-05-01 02:35:18.000000000 +0000
-> @@ -54,7 +54,7 @@ static void * prism2_wep_init(int keyidx
->  	if (priv->tfm == NULL) {
->  		printk(KERN_DEBUG "ieee80211_crypt_wep: could not allocate "
->  		       "crypto API arc4\n");
-> -		goto fail;
-> +		goto fail_tfm;
->  	}
->  
->  	/* start WEP IV from a random value */
-> @@ -62,12 +62,9 @@ static void * prism2_wep_init(int keyidx
->  
->  	return priv;
->  
-> +fail_tfm:
-> +	kfree(priv);
->  fail:
-> -	if (priv) {
-> -		if (priv->tfm)
-> -			crypto_free_tfm(priv->tfm);
-> -		kfree(priv);
-> -	}
->  	return NULL;
->  }
->  
-> @@ -75,8 +72,7 @@ fail:
->  static void prism2_wep_deinit(void *priv)
->  {
->  	struct prism2_wep_data *_priv = priv;
-> -	if (_priv && _priv->tfm)
-> -		crypto_free_tfm(_priv->tfm);
-> +	crypto_free_tfm(_priv->tfm);
->  	kfree(priv);
->  }
->  
-_priv == NULL == Oops.
-
-
-I think my version of the patch is better.
-
-Ohh and would you mind submitting patches inline? Makes it a lot easier to 
-quote and comment.
-
-
--- 
-Jesper 
-
+--=-h9aikHK2/K1Q03OEi+e8--
 

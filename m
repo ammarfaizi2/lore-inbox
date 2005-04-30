@@ -1,79 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261421AbVD3UUc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261403AbVD3UOs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261421AbVD3UUc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 16:20:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261420AbVD3UTa
+	id S261403AbVD3UOs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 16:14:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261420AbVD3UNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 16:19:30 -0400
-Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:31976 "EHLO
-	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
-	id S261414AbVD3UQv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 16:16:51 -0400
-Message-ID: <4273E7B1.6020500@myrealbox.com>
-Date: Sat, 30 Apr 2005 13:16:49 -0700
-From: Andy Lutomirski <luto@myrealbox.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [x86_64] how worried should I be about MCEs?
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 30 Apr 2005 16:13:54 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:9487 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261406AbVD3UIY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Apr 2005 16:08:24 -0400
+Date: Sat, 30 Apr 2005 22:08:22 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/char/stallion.c: make a function static
+Message-ID: <20050430200822.GS3571@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Every now and then, after rebooting, the kernel notices some MCEs. 
-Should I be worried about this?
+This patch makes a needlessly global function static.
 
-(mcelog attached)
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Thanks,
-Andy
+---
 
+This patch was already sent on:
+- 17 Apr 2005
 
-MCE 0
-CPU 0 0 data cache from boot or resume
-ADDR 480b0c84df48
-   Data cache ECC error (syndrome c8)
-        bit46 = corrected ecc error
-        bit57 = processor context corrupt
-        bit61 = error uncorrected
-        bit62 = error overflow (multiple errors)
-STATUS f66440000000438d MCGSTATUS 0
-MCE 1
-CPU 0 1 instruction cache from boot or resume
-ADDR 75e2bb87ec57f8e0
-   Instruction cache ECC error
-        bit32 = err cpu0
-        bit33 = err cpu1
-        bit35 = res3
-        bit43 = res11
-        bit45 = uncorrected ecc error
-        bit46 = corrected ecc error
-        bit55 = res23
-        bit56 = res24
-        bit57 = processor context corrupt
-        bit59 = misc error valid
-        bit61 = error uncorrected
-        bit62 = error overflow (multiple errors)
-STATUS ffe4681bd0e45d81 MCGSTATUS 0
-MCE 2
-CPU 0 3 load/store unit from boot or resume
-MISC 8005003b8005003b
-        bit57 = processor context corrupt
-        bit59 = misc error valid
-        bit61 = error uncorrected
-        bit62 = error overflow (multiple errors)
-STATUS fa0000000000d0c5 MCGSTATUS 0
-MCE 3
-CPU 0 4 northbridge from boot or resume
-ADDR 102000020
-   Northbridge ECC error
-   ECC syndrome = 0
-        bit32 = err cpu0
-        bit33 = err cpu1
-        bit40 = error found by scrub
-        bit45 = uncorrected ecc error
-        bit57 = processor context corrupt
-        bit61 = error uncorrected
-STATUS b600215300001e0f MCGSTATUS 0
+--- linux-2.6.12-rc2-mm3-full/drivers/char/stallion.c.old	2005-04-17 18:27:46.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/char/stallion.c	2005-04-17 18:28:03.000000000 +0200
+@@ -466,7 +466,7 @@
+ 
+ static unsigned long stl_atol(char *str);
+ 
+-int		stl_init(void);
++static int	stl_init(void);
+ static int	stl_open(struct tty_struct *tty, struct file *filp);
+ static void	stl_close(struct tty_struct *tty, struct file *filp);
+ static int	stl_write(struct tty_struct *tty, const unsigned char *buf, int count);
+@@ -3063,7 +3063,7 @@
+ 
+ /*****************************************************************************/
+ 
+-int __init stl_init(void)
++static int __init stl_init(void)
+ {
+ 	int i;
+ 	printk(KERN_INFO "%s: version %s\n", stl_drvtitle, stl_drvversion);
+

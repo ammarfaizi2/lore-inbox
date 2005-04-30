@@ -1,118 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVD3PUq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261250AbVD3P3h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261254AbVD3PUq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 11:20:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbVD3PUq
+	id S261250AbVD3P3h (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 11:29:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbVD3P3g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 11:20:46 -0400
-Received: from waste.org ([216.27.176.166]:52658 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261248AbVD3PUZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 11:20:25 -0400
-Date: Sat, 30 Apr 2005 08:20:15 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
-Message-ID: <20050430152014.GI21897@waste.org>
-References: <20050426004111.GI21897@waste.org> <Pine.LNX.4.58.0504251859550.18901@ppc970.osdl.org> <20050429060157.GS21897@waste.org> <20050429203027.GK17379@opteron.random> <20050429203959.GC21897@waste.org> <20050430025211.GP17379@opteron.random>
+	Sat, 30 Apr 2005 11:29:36 -0400
+Received: from wproxy.gmail.com ([64.233.184.206]:14508 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261250AbVD3P3a convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Apr 2005 11:29:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WfBaEpSOdUVMaUbw0oXvTeU+ylU8JV3/u4sh9hTBlaGmFGuqPLqrwtdvxYHSng7k5rMkf87bDRf/C1cKOPXBGBn3AeyGHFRplrHE+1ot2O04Tpj83EsA9xYNyUB75EpHUlnDwju8Sn97hHhSCei12GGzjm3TCGBua5Sc2c1S8Zg=
+Message-ID: <2cd57c90050430082928eae1fb@mail.gmail.com>
+Date: Sat, 30 Apr 2005 23:29:24 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+Reply-To: coywolf@lovecn.org
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.12-rc3-mm1
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050429231653.32d2f091.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050430025211.GP17379@opteron.random>
-User-Agent: Mutt/1.5.6+20040907i
+References: <20050429231653.32d2f091.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 30, 2005 at 04:52:11AM +0200, Andrea Arcangeli wrote:
-> On Fri, Apr 29, 2005 at 01:39:59PM -0700, Matt Mackall wrote:
-> > Mercurial is ammenable to rsync provided you devote a read-only
-> > repository to it on the client side. In other words, you rsync from
-> > kernel.org/mercurial/linus to local/linus and then you merge from
-> > local/linus to your own branch. Mercurial's hashing hierarchy is
-> > similar to git's (and Monotone's), so you can sign a single hash of
-> > the tree as well.
-> 
-> Ok fine. It's also interesting how you already enabled partial transfers
-> through http.
-> 
-> Please apply this patch so it doesn't fail on my setup ;)
-> 
-> --- mercurial-0.4b/hg.~1~	2005-04-29 02:52:52.000000000 +0200
-> +++ mercurial-0.4b/hg	2005-04-30 00:53:02.000000000 +0200
-> @@ -1,4 +1,4 @@
-> -#!/usr/bin/python
-> +#!/usr/bin/env python
-
-Done.
-
-> On a bit more technical side, one thing I'm wondering about is the
-> compression. If I change mercurial like this:
-> 
-> --- revlog.py.~1~	2005-04-29 01:33:14.000000000 +0200
-> +++ revlog.py	2005-04-30 03:54:12.000000000 +0200
-> @@ -11,9 +11,11 @@
->  import zlib, struct, mdiff, sha, binascii, os, tempfile
->  
->  def compress(text):
-> +    return text
->      return zlib.compress(text)
->  
->  def decompress(bin):
-> +    return text
->      return zlib.decompress(bin)
->  
->  def hash(text):
-> 
-> 
-> the .hg directory sizes changes from 167M to 302M _BUT_ the _compressed_
-> size of the .hg directory (i.e. like in a full network transfer with
-> rsync -z or a tar.gz backup) changes from 55M to 38M:
-> 
-> andrea@opteron:~/devel/kernel> du -sm hg-orig hg-aa hg-orig.tar.bz2 hg-aa.tar.bz2 
-> 167     hg-orig
-> 302     hg-aa
-> 55      hg-orig.tar.bz2
-> 38      hg-aa.tar.bz2
-> ^^^^^^^^^^^^^^^^^^^^^ 38M backup and network transfer is what I want
-> 
-> So I don't really see an huge benefit in compression, other than to
-> slowdown the checkins measurably [i.e. what Linus doesn't want] (the
-> time of compression is a lot higher than the time of python runtime during
-> checkin, so it's hard to believe your 100% boost with psyco in the hg file,
-> sometime psyco doesn't make any difference infact, I'd rather prefer people to
-> work on the real thing of generating native bytecode at compile time, rather
-> than at runtime, like some haskell compiler can do).
-
-Most of that psyco speed up is accelerating subsequent diffs in
-difflib, which you probably didn't hit yet.
-
-> mercurial is already good at decreasing the entropy by using an efficient
-> storage format, it doesn't need to cheat by putting compression on each blob
-> that can only leads to bad ratios when doing backups and while transferring
-> more than one blob through the network.
-> 
-> So I suggest to try disabling compression optionally, perhaps it'll be even
-> faster than git in the initial checkin that way! No need of compressing or
-> decompressing anything with mercurial (unlike with git that would explode
-> without control w/o compression).
-
-I can make it some sort of environment variable, sure. I think the
-speed is already in a domain where it's not a big deal though. There
-are other things to do first, like unifying the merge/commit/update
-code.
-
-> Http is not intended for maximal efficiency, it's there just to make
-> life easy. special protocol with zlib is required for maximum
-> efficiency.
-
-Yeah, I've got a plan here.
-
-> You also should move the .py into a hg directory, so that they won't
-> pollute the site-packages.
-
-Yep, I'm rather new to actually packaging my Python hacks.
+  CC      arch/i386/kernel/cpu/amd.o
+  CC      arch/i386/kernel/cpu/cyrix.o
+  CC      arch/i386/kernel/cpu/intel_cacheinfo.o
+  CC      arch/i386/kernel/cpu/mcheck/init.o
+  CC      arch/i386/kernel/cpu/mcheck/mce.o
+  CC      arch/i386/kernel/cpu/mcheck/p5.o
+  CC      arch/i386/kernel/cpu/mcheck/winchip.o
+  CC      arch/i386/kernel/cpu/mcheck/mce_intel.o
+/home/coywolf/2.6.12-rc3-mm1-cy/arch/i386/kernel/cpu/mcheck/mce_intel.c:
+In function `smp_thermal_interrupt':
+/home/coywolf/2.6.12-rc3-mm1-cy/arch/i386/kernel/cpu/mcheck/mce_intel.c:25:
+warning: implicit declaration of function `ack_APIC_irq'
+/home/coywolf/2.6.12-rc3-mm1-cy/arch/i386/kernel/cpu/mcheck/mce_intel.c:
+In function `intel_init_thermal':
+/home/coywolf/2.6.12-rc3-mm1-cy/arch/i386/kernel/cpu/mcheck/mce_intel.c:67:
+warning: implicit declaration of function `apic_read'
+/home/coywolf/2.6.12-rc3-mm1-cy/arch/i386/kernel/cpu/mcheck/mce_intel.c:67:
+error: `APIC_LVTTHMR' undeclared (first use in this function)
+/home/coywolf/2.6.12-rc3-mm1-cy/arch/i386/kernel/cpu/mcheck/mce_intel.c:67:
+error: (Each undeclared identifie r is reported only once
+/home/coywolf/2.6.12-rc3-mm1-cy/arch/i386/kernel/cpu/mcheck/mce_intel.c:67:
+error: for each function it appea rs in.)
+/home/coywolf/2.6.12-rc3-mm1-cy/arch/i386/kernel/cpu/mcheck/mce_intel.c:68:
+error: `APIC_DM_SMI' undeclared ( first use in this function)
+/home/coywolf/2.6.12-rc3-mm1-cy/arch/i386/kernel/cpu/mcheck/mce_intel.c:77:
+error: `APIC_VECTOR_MASK' undecla red (first use in this function)
+/home/coywolf/2.6.12-rc3-mm1-cy/arch/i386/kernel/cpu/mcheck/mce_intel.c:85:
+error: `APIC_DM_FIXED' undeclared  (first use in this function)
+/home/coywolf/2.6.12-rc3-mm1-cy/arch/i386/kernel/cpu/mcheck/mce_intel.c:85:
+error: `APIC_LVT_MASKED' undeclar ed (first use in this function)
+/home/coywolf/2.6.12-rc3-mm1-cy/arch/i386/kernel/cpu/mcheck/mce_intel.c:86:
+warning: implicit declaration of function `apic_write_around'
+make[4]: *** [arch/i386/kernel/cpu/mcheck/mce_intel.o] Error 1
+make[3]: *** [arch/i386/kernel/cpu/mcheck] Error 2
+make[2]: *** [arch/i386/kernel/cpu] Error 2
+make[1]: *** [arch/i386/kernel] Error 2
+make: *** [_all] Error 2
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+Coywolf Qi Hunt
+http://sosdg.org/~coywolf/

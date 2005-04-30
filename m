@@ -1,124 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbVD3Qmq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbVD3Qn1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261282AbVD3Qmq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 12:42:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbVD3Qmq
+	id S261283AbVD3Qn1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 12:43:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261289AbVD3QnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 12:42:46 -0400
-Received: from 70-57-132-14.albq.qwest.net ([70.57.132.14]:16075 "EHLO
-	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S261282AbVD3Qm3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 12:42:29 -0400
-Date: Sat, 30 Apr 2005 10:43:37 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@muc.de>,
-       Adrian Bunk <bunk@stusta.de>
-Subject: Re: 2.6.12-rc3-mm1
-In-Reply-To: <20050430142035.GB3571@stusta.de>
-Message-ID: <Pine.LNX.4.61.0504300940560.12903@montezuma.fsmlabs.com>
-References: <20050429231653.32d2f091.akpm@osdl.org> <20050430142035.GB3571@stusta.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 30 Apr 2005 12:43:19 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:44726 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261283AbVD3QnA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Apr 2005 12:43:00 -0400
+Date: Sat, 30 Apr 2005 22:22:16 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Mingming Cao <cmm@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [Ext2-devel] [RFC] Adding multiple block allocation
+Message-ID: <20050430165216.GD3941@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <1113249435.2164.198.camel@sisko.sctweedie.blueyonder.co.uk> <1113288087.4319.49.camel@localhost.localdomain> <1113304715.2404.39.camel@sisko.sctweedie.blueyonder.co.uk> <1113348434.4125.54.camel@dyn318043bld.beaverton.ibm.com> <1113388142.3019.12.camel@sisko.sctweedie.blueyonder.co.uk> <1114207837.7339.50.camel@localhost.localdomain> <1114659912.16933.5.camel@mindpipe> <1114715665.18996.29.camel@localhost.localdomain> <20050429135211.GA4539@in.ibm.com> <427280C1.8090404@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <427280C1.8090404@us.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 30 Apr 2005, Adrian Bunk wrote:
-
-> The static inline set_irq_info() is not available 
-> for CONFIG_GENERIC_PENDING_IRQ=n, resulting in the following warning:
-
-This could have been compile tested more :/
-
->   CC      arch/i386/kernel/io_apic.o
-> arch/i386/kernel/io_apic.c: In function `set_ioapic_affinity_irq':
-> arch/i386/kernel/io_apic.c:251: warning: implicit declaration of function `set_irq_info'
-> ...
+On Fri, Apr 29, 2005 at 11:45:21AM -0700, Badari Pulavarty wrote:
+> Suparna Bhattacharya wrote:
+> >On Thu, Apr 28, 2005 at 12:14:24PM -0700, Mingming Cao wrote:
+> >
+> >>Currently ext3_get_block()/ext3_new_block() only allocate one block at a
+> >>time.  To allocate multiple blocks, the caller, for example, ext3 direct
+> >>IO routine, has to invoke ext3_get_block() many times.  This is quite
+> >>inefficient for sequential IO workload. 
+> >>
+> >>The benefit of a real get_blocks() include
+> >>1) increase the possibility to get contiguous blocks, reduce possibility
+> >>of  fragmentation due to interleaved allocations from other threads.
+> >>(should good for non reservation case)
+> >>2) Reduces CPU cycles spent in repeated get_block() calls
+> >>3) Batch meta data update and journaling in one short
+> >>4) Could possibly speed up future get_blocks() look up by cache the last
+> >>mapped blocks in inode.
+> >>
+> >
+> >
+> >And here is the patch to make mpage_writepages use get_blocks() for
+> >multiple block lookup/allocation. It performs a radix-tree contiguous 
+> >pages lookup, and issues a get_blocks for the range together. It maintains
+> >an mpageio structure to track intermediate mapping state, somewhat
+> >like the DIO code.
+> >
+> >It does need some more testing, especially block_size < PAGE_SIZE.
+> >The JFS workaround can be dropped if the JFS get_blocks fix from
+> >Dave Kleikamp is integrated.
+> >
+> >Review feedback would be welcome.
+> >
+> >Mingming,
+> >Let me know if you have a chance to try this out with your patch.
+> >
+> >Regards
+> >Suparna
+> >
 > 
-> <--  snip  -->
+> Suparna,
 > 
+> I touch tested your patch earlier and seems to work fine. Lets integrate
+> Mingming's getblocks() patches with this and see if we get any benifit
+> from the whole effort.
 > 
-> The second bug is that although irq.h defines set_irq_info() as a static 
-> inline, this patch adds an empty function to kernel/irq/manage.c .
+> BTW,  is it the plan to remove repeated calls to getblocks() and work
+> with whatever getblocks() returned ? Or do you find the its better to
+> repeatedly do getblocks() in a loop till you satisfy all the pages
+> in the list (as long as blocks are contiguous) ?
 
-That stuff shouldn't even be built on UP (altough it does provide more 
-coverage)
+The patch only loops through repeated get_blocks upto PAGE_SIZE, just
+like the earlier mpage_writepage code - in this case if blocks aren't
+contiguous at least upto PAGE_SIZE, it would fall back to confused case
+(since it means multiple ios for the same page) just as before. 
+What is new now is just the numblocks specified to get_blocks, so in
+case it gets more contiguous blocks it can remember that mapping and 
+avoid get_blocks calls for subsequent pages.
 
-Signed-off-by: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Does that clarify ?
 
-Index: linux-2.6.12-rc3-mm1-up/arch/i386/kernel/io_apic.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.12-rc3-mm1/arch/i386/kernel/io_apic.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 io_apic.c
---- linux-2.6.12-rc3-mm1-up/arch/i386/kernel/io_apic.c	30 Apr 2005 15:29:08 -0000	1.1.1.1
-+++ linux-2.6.12-rc3-mm1-up/arch/i386/kernel/io_apic.c	30 Apr 2005 16:19:06 -0000
-@@ -221,6 +221,7 @@ static void clear_IO_APIC (void)
- 			clear_IO_APIC_pin(apic, pin);
- }
- 
-+#ifdef CONFIG_SMP
- static void set_ioapic_affinity_irq(unsigned int irq, cpumask_t cpumask)
- {
- 	unsigned long flags;
-@@ -252,8 +253,6 @@ static void set_ioapic_affinity_irq(unsi
- 	spin_unlock_irqrestore(&ioapic_lock, flags);
- }
- 
--#ifdef CONFIG_SMP
--
- #if defined(CONFIG_IRQBALANCE)
- # include <asm/processor.h>	/* kernel_thread() */
- # include <linux/kernel_stat.h>	/* kstat */
-@@ -816,6 +815,7 @@ int IO_APIC_get_PCI_irq_vector(int bus, 
-  * we need to reprogram the ioredtbls to cater for the cpus which have come online
-  * so mask in all cases should simply be TARGET_CPUS
-  */
-+#ifdef CONFIG_SMP
- void __init setup_ioapic_dest(void)
- {
- 	int pin, ioapic, irq, irq_entry;
-@@ -834,6 +834,7 @@ void __init setup_ioapic_dest(void)
- 
- 	}
- }
-+#endif
- 
- /*
-  * EISA Edge/Level control register, ELCR
-@@ -1973,6 +1974,7 @@ static void unmask_IO_APIC_vector (unsig
- 	unmask_IO_APIC_irq(irq);
- }
- 
-+#ifdef CONFIG_SMP
- static void set_ioapic_affinity_vector (unsigned int vector,
- 					cpumask_t cpu_mask)
- {
-@@ -1982,6 +1984,7 @@ static void set_ioapic_affinity_vector (
- 	set_ioapic_affinity_irq(irq, cpu_mask);
- }
- #endif
-+#endif
- 
- /*
-  * Level and edge triggered IO-APIC interrupts need different handling,
-@@ -1999,7 +2002,9 @@ static struct hw_interrupt_type ioapic_e
- 	.disable 	= disable_edge_ioapic,
- 	.ack 		= ack_edge_ioapic,
- 	.end 		= end_edge_ioapic,
-+#ifdef CONFIG_SMP
- 	.set_affinity 	= set_ioapic_affinity,
-+#endif
- };
- 
- static struct hw_interrupt_type ioapic_level_type = {
-@@ -2010,7 +2015,9 @@ static struct hw_interrupt_type ioapic_l
- 	.disable 	= disable_level_ioapic,
- 	.ack 		= mask_and_ack_level_ioapic,
- 	.end 		= end_level_ioapic,
-+#ifdef CONFIG_SMP
- 	.set_affinity 	= set_ioapic_affinity,
-+#endif
- };
- 
- static inline void init_IO_APIC_traps(void)
+Regards
+Suparna
+
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
+

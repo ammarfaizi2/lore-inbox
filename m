@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263105AbVD3A6c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263109AbVD3BK6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263105AbVD3A6c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 20:58:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263109AbVD3A6c
+	id S263109AbVD3BK6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 21:10:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263110AbVD3BK6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 20:58:32 -0400
-Received: from fmr24.intel.com ([143.183.121.16]:23220 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S263105AbVD3A4r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 20:56:47 -0400
-Date: Fri, 29 Apr 2005 17:56:30 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: YhLu <YhLu@tyan.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: x86-64 dual core mapping
-Message-ID: <20050429175629.A23904@unix-os.sc.intel.com>
-References: <3174569B9743D511922F00A0C943142309B079F4@TYANWEB>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3174569B9743D511922F00A0C943142309B079F4@TYANWEB>; from YhLu@tyan.com on Thu, Apr 28, 2005 at 12:49:42PM -0700
+	Fri, 29 Apr 2005 21:10:58 -0400
+Received: from fsmlabs.com ([168.103.115.128]:35798 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S263109AbVD3BKx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 21:10:53 -0400
+Date: Fri, 29 Apr 2005 19:13:20 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       mingo@elte.hu, linux-kernel <linux-kernel@vger.kernel.org>,
+       Rajesh Shah <rajesh.shah@intel.com>, John Stultz <johnstul@us.ibm.com>,
+       Andi Kleen <ak@suse.de>, Asit K Mallick <asit.k.mallick@intel.com>
+Subject: Re: [RFC][PATCH] i386 x86-64 Eliminate Local APIC timer interrupt
+In-Reply-To: <20050429172605.A23722@unix-os.sc.intel.com>
+Message-ID: <Pine.LNX.4.61.0504291902440.15561@montezuma.fsmlabs.com>
+References: <20050429172605.A23722@unix-os.sc.intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 28, 2005 at 12:49:42PM -0700, YhLu wrote:
-> Please refer to my patch about that.
-> 
-> --- smpboot.o.c 2005-04-28 13:00:03.611550488 -0700
-> +++ smpboot.c   2005-04-28 12:59:27.151093320 -0700
-> @@ -652,7 +652,7 @@
->                 int i;
->                 if (smp_num_siblings > 1) {
->                         for_each_online_cpu (i) {
-> -                               if (cpu_core_id[cpu] == cpu_core_id[i]) {
-> +                               if (cpu_to_node[cpu] == cpu_to_node[i]) {
->                                         siblings++;
->                                         cpu_set(i, cpu_sibling_map[cpu]);
->                                 }
+On Fri, 29 Apr 2005, Venkatesh Pallipadi wrote:
 
-This patch is wrong. It will break Intel systems and I think it is also not 
-the correct fix for the systems you are trying to fix.
+> Proposed Fix: 
+> Attached is a prototype patch, that tries to eliminate the dependency on 
+> local APIC timer for update_process_times(). The patch gets rid of Local APIC 
+> timer altogether. We use the timer interrupt (IRQ 0) configured in 
+> broadcast mode in IOAPIC instead (Doesn't work with 8259). 
+> As changing anything related to basic timer interrupt is a little bit risky, 
+> I have a boot parameter currently ("useapictimer") to switch back to original 
+> local APIC timer way of doing things.
 
-Please don't do this.
+I'm rather reluctant to advocate the broadcast scheme as i can see it 
+breaking on a lot of systems, e.g. SMP systems which use i8259 (as you 
+noted), IBM x440 and ES7000. If anything the default mode should be APIC 
+timer and have a parameter to disable it. Regarding things like variable 
+timer ticks, reprogramming the PIT is slow, and using it extensively for 
+such sounds like a step in the wrong direction. Is this feature/bug going 
+to proliferate amongst newer processor local APICs?
 
-thanks,
-suresh
+Thanks,
+	Zwane
+

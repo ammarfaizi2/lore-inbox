@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbVD3QaH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbVD3QcR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261279AbVD3QaH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 12:30:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261280AbVD3QaH
+	id S261285AbVD3QcR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 12:32:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbVD3QcR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 12:30:07 -0400
-Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:54476 "EHLO
-	ms-smtp-01-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S261279AbVD3QaC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 12:30:02 -0400
-Subject: Re: [PATCH] cifs: handle termination of cifs oplockd kernel thread
-From: Steve French <smfrench@austin.rr.com>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: hch@infradead.org, 7eggert@gmx.de, linux-kernel@vger.kernel.org
-In-Reply-To: <E1DRueC-0002gU-00@dorka.pomaz.szeredi.hu>
-References: <3YLdQ-4vS-15@gated-at.bofh.it>
-	 <E1DRekV-0001RN-VQ@be1.7eggert.dyndns.org>
-	 <20050430073238.GA22673@infradead.org>
-	 <E1DRn70-0002AD-00@dorka.pomaz.szeredi.hu>
-	 <20050430082952.GA23253@infradead.org>
-	 <E1DRoBU-0002Fk-00@dorka.pomaz.szeredi.hu>
-	 <E1DRpfS-0002Nc-00@dorka.pomaz.szeredi.hu> <427387FB.4030901@austin.rr.com>
-	 <E1DRueC-0002gU-00@dorka.pomaz.szeredi.hu>
-Content-Type: text/plain
-Message-Id: <1114874844.5119.9.camel@smfhome.smfdom>
+	Sat, 30 Apr 2005 12:32:17 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:48167
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S261285AbVD3QcF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Apr 2005 12:32:05 -0400
+Date: Sat, 30 Apr 2005 18:37:24 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
+Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
+Message-ID: <20050430163724.GE20146@opteron.random>
+References: <20050426004111.GI21897@waste.org> <Pine.LNX.4.58.0504251859550.18901@ppc970.osdl.org> <20050429060157.GS21897@waste.org> <20050429203027.GK17379@opteron.random> <20050429203959.GC21897@waste.org> <20050430025211.GP17379@opteron.random> <20050430152014.GI21897@waste.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Sat, 30 Apr 2005 10:27:24 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050430152014.GI21897@waste.org>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-04-30 at 11:16, Miklos Szeredi wrote:
+On Sat, Apr 30, 2005 at 08:20:15AM -0700, Matt Mackall wrote:
+> Most of that psyco speed up is accelerating subsequent diffs in
+> difflib, which you probably didn't hit yet.
 
-> The big problem is the page cache, because that is not limited.  The
-> user can mmap huge amounts of memory, dirty them, and then when the
-> machine runs out of memory, and writeback kicks in, it may already be
-> too late.
+Correct. Plus I've a 64bit python so I can't use psyco anyway.
 
-Yes - we have seen the inode caching get too aggressive in testcases
-with paired machines each mounting two clients and also running two
-servers - in particular running an NFS and CIFS mounts from the same
-client to a server running nfsd and Samba, and then doing the reverse
-and launching large file copy testcases going both directions at the
-same time.  To make it nastier they add exports for Samba and NFS of
-more than one local filesystem type.  Fortunately most of the issues
-there have been fixed, but it is an incredibly hard thing to guarantee
-that there is enough memory in those cases because so much is taken up
-by the page manager doing inode data caching and multimachine deadlock
-could occur if the server is blocked on a client doing writepage which
-is blocked on the other server which is blocked on the other client ...
+> I can make it some sort of environment variable, sure. I think the
+> speed is already in a domain where it's not a big deal though. There
 
+No big deal of course, I mentioned it just because it was by far the
+most CPU userland intensive operation during checkin. Perhaps doing less
+vfs syscalls would improve checkin time too, but I'm unsure if that's
+easily feasible (while disabling compression was certainly easy ;)
+
+> Yep, I'm rather new to actually packaging my Python hacks.
+
+I sent you by private email a modified package that gets that right.
+
+Thanks!

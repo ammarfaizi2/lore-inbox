@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbVD3Lwx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbVD3MEQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261201AbVD3Lwx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 07:52:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbVD3Lwx
+	id S261202AbVD3MEQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 08:04:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVD3MEQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 07:52:53 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:7690 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261201AbVD3Lwv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 07:52:51 -0400
-Date: Sat, 30 Apr 2005 13:52:49 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, venza@brownhat.org, jgarzik@pobox.com
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: [-mm patch] SIS900 must select MII
-Message-ID: <20050430115249.GA3654@stusta.de>
-References: <20050429231653.32d2f091.akpm@osdl.org>
+	Sat, 30 Apr 2005 08:04:16 -0400
+Received: from moutng.kundenserver.de ([212.227.126.183]:7390 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261202AbVD3MEM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Apr 2005 08:04:12 -0400
+To: =?iso-8859-1?Q?Paul_Mackerras?= <paulus@samba.org>
+Subject: =?iso-8859-1?Q?Re:_Re:_[PATCH_3/4]_ppc64:_Add_driver_for_BPA_iommu?=
+From: =?iso-8859-1?Q?Arnd_Bergmann?= <arnd@arndb.de>
+Cc: =?iso-8859-1?Q?Arnd_Bergmann?= <arnd@arndb.de>,
+       =?iso-8859-1?Q?Benjamin_Herrenschmidt?= <benh@kernel.crashing.org>,
+       =?iso-8859-1?Q?linuxppc64-dev?= <linuxppc64-dev@ozlabs.org>,
+       =?iso-8859-1?Q?Linux_Kernel_list?= <linux-kernel@vger.kernel.org>,
+       =?iso-8859-1?Q?Anton_Blanchard?= <anton@samba.org>
+Message-Id: <26879984$111486195242737180269552.40594107@config8.schlund.de>
+X-Binford: 6100 (more power)
+X-Originating-From: 26879984
+X-Mailer: Webmail
+X-Routing: DE
+Content-Type: text/plain; charset=US-ASCII
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050429231653.32d2f091.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Date: Sat, 30 Apr 2005 14:02:02 +0200
+X-Provags-ID: kundenserver.de abuse@kundenserver.de ident:@172.23.4.135
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes the following compile error caused by bk-netdev:
 
-<--  snip  -->
+Paul Mackerras <paulus@samba.org> schrieb am 29.04.2005, 15:06:54:
+> Arnd Bergmann writes:
+> 
+> > Implementation of software load support for the BE iommu. This is very
+> 
+> Could you expand a bit on what "software load support" is?  Your
+> description is a bit terse.
 
-...
-  LD      .tmp_vmlinux1
-drivers/built-in.o(.text+0x98528): In function `sis900_get_settings':
-: undefined reference to `mii_ethtool_gset'
-drivers/built-in.o(.text+0x98538): In function `sis900_set_settings':
-: undefined reference to `mii_ethtool_sset'
-drivers/built-in.o(.text+0x98517): In function `sis900_get_link':
-: undefined reference to `mii_link_ok'
-drivers/built-in.o(.text+0x98547): In function `sis900_nway_reset':
-: undefined reference to `mii_nway_restart'
-make: *** [.tmp_vmlinux1] Error 1
+The Cell processor can put the I/O page table either in memory like
+the hashed page table (hardware load) or have the operating system
+write the entries into memory mapped CPU registers (software load).
 
-<--  snip  -->
+I use the software load mechanism because I know that all I/O page
+table entries for the amount of installed physical memory fit into
+the IO TLB cache. At the point when we get machines with more than
+4GB of installed memory, we can either use hardware I/O page table
+access like the other platforms do or dynamically update the I/O
+TLB entries when a page fault occurs in the I/O subsystem.
 
+The software load can then use the macros that I have implemented
+for the static mapping in order to do the TLB cache updates.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+I'll make sure to add the description to the patches when I send them
+next time.
 
-
---- linux-2.6.12-rc3-mm1/drivers/net/Kconfig.old	2005-04-30 13:47:25.000000000 +0200
-+++ linux-2.6.12-rc3-mm1/drivers/net/Kconfig	2005-04-30 13:47:48.000000000 +0200
-@@ -1543,8 +1543,9 @@
- config SIS900
- 	tristate "SiS 900/7016 PCI Fast Ethernet Adapter support"
- 	depends on NET_PCI && PCI
- 	select CRC32
-+	select MII
- 	---help---
- 	  This is a driver for the Fast Ethernet PCI network cards based on
- 	  the SiS 900 and SiS 7016 chips. The SiS 900 core is also embedded in
- 	  SiS 630 and SiS 540 chipsets.  If you have one of those, say Y and
-
+       Arnd <><

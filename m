@@ -1,75 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262294AbVD3Hfs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262543AbVD3Hma@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262294AbVD3Hfs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 03:35:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbVD3Hfr
+	id S262543AbVD3Hma (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 03:42:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262546AbVD3Hma
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 03:35:47 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:34221 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262294AbVD3HfV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 03:35:21 -0400
-Date: Sat, 30 Apr 2005 08:35:18 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
+	Sat, 30 Apr 2005 03:42:30 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:55443 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262543AbVD3Hm1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Apr 2005 03:42:27 -0400
+Date: Sat, 30 Apr 2005 09:42:18 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Christoph Hellwig <hch@infradead.org>
+cc: Dave Jones <davej@redhat.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
 Subject: Re: tighten i2c dependancies
-Message-ID: <20050430073518.GB22673@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-References: <20050430055745.GB832@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050430055745.GB832@redhat.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <20050430073518.GB22673@infradead.org>
+Message-ID: <Pine.LNX.4.62.0504300941100.20788@numbat.sonytel.be>
+References: <20050430055745.GB832@redhat.com> <20050430073518.GB22673@infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 30, 2005 at 01:57:45AM -0400, Dave Jones wrote:
->  config I2C_ALI15X3
->  	tristate "ALI 15x3"
-> -	depends on I2C && PCI && EXPERIMENTAL
-> +	depends on X86 && I2C && PCI && EXPERIMENTAL
->  	help
->  	  If you say yes to this option, support will be included for the
->  	  Acer Labs Inc. (ALI) M1514 and M1543 motherboard I2C interfaces.
+On Sat, 30 Apr 2005, Christoph Hellwig wrote:
+> On Sat, Apr 30, 2005 at 01:57:45AM -0400, Dave Jones wrote:
+> >  config I2C_ALI15X3
+> >  	tristate "ALI 15x3"
+> > -	depends on I2C && PCI && EXPERIMENTAL
+> > +	depends on X86 && I2C && PCI && EXPERIMENTAL
+> >  	help
+> >  	  If you say yes to this option, support will be included for the
+> >  	  Acer Labs Inc. (ALI) M1514 and M1543 motherboard I2C interfaces.
+> 
+> one of the ali bridges is used on sparc64 aswell, not sure which one.
 
-one of the ali bridges is used on sparc64 aswell, not sure which one.
+And there's an ALi M1543 on my NEC DDB Vrc-5074 MIPS board.
 
-> @@ -41,7 +41,7 @@ config I2C_ALI15X3
->  
->  config I2C_AMD756
->  	tristate "AMD 756/766/768/8111 and nVidia nForce"
-> -	depends on I2C && PCI && EXPERIMENTAL
-> +	depends on X86 && I2C && PCI && EXPERIMENTAL
->  	help
->  	  If you say yes to this option, support will be included for the AMD
->  	  756/766/768 mainboard I2C interfaces.  The driver also includes
+Gr{oetje,eeting}s,
 
-also used on alpha and ppc64
+						Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
->  config I2C_AMD8111
->  	tristate "AMD 8111"
-> -	depends on I2C && PCI && EXPERIMENTAL
-> +	depends on X86 && I2C && PCI && EXPERIMENTAL
->  	help
->  	  If you say yes to this option, support will be included for the
->  	  second (SMBus 2.0) AMD 8111 mainboard I2C interface.
-
-ppc64
-
->  config I2C_PIIX4
->  	tristate "Intel PIIX4"
-> -	depends on I2C && PCI
-> +	depends on X86 && I2C && PCI
->  	help
->  	  If you say yes to this option, support will be included for the Intel
->  	  PIIX4 family of mainboard I2C interfaces.  Specifically, the following
-> @@ -437,7 +437,7 @@ config I2C_STUB
-
-the PIIX is used on various non-x86 systems, at least ppc and mips come to
-mind.
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

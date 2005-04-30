@@ -1,94 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVD3PHU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVD3PUq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261246AbVD3PHU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 11:07:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261248AbVD3PHT
+	id S261254AbVD3PUq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 11:20:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbVD3PUq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 11:07:19 -0400
-Received: from psmtp01.wxs.nl ([195.121.6.56]:32138 "EHLO psmtp01.wxs.nl")
-	by vger.kernel.org with ESMTP id S261246AbVD3PHD (ORCPT
+	Sat, 30 Apr 2005 11:20:46 -0400
+Received: from waste.org ([216.27.176.166]:52658 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261248AbVD3PUZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 11:07:03 -0400
-Message-ID: <42739F18.8040502@agf-team.net>
-Date: Sat, 30 Apr 2005 17:07:04 +0200
-From: Prisoner Of War <inmate@agf-team.net>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: USB maintainer, Greg Kroah ---->> PWC discussion
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-BitDefender-SpamStamp: 1.1.3  044000040111AAAAAAC
-X-BitDefender-Scanner: Clean, Agent: BitDefender POSTFIX 1.6.2 on
- localhost.localdomain
-X-BitDefender-Spam: No (14)
+	Sat, 30 Apr 2005 11:20:25 -0400
+Date: Sat, 30 Apr 2005 08:20:15 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
+Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
+Message-ID: <20050430152014.GI21897@waste.org>
+References: <20050426004111.GI21897@waste.org> <Pine.LNX.4.58.0504251859550.18901@ppc970.osdl.org> <20050429060157.GS21897@waste.org> <20050429203027.GK17379@opteron.random> <20050429203959.GC21897@waste.org> <20050430025211.GP17379@opteron.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050430025211.GP17379@opteron.random>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear readers of this maillinglist,
+On Sat, Apr 30, 2005 at 04:52:11AM +0200, Andrea Arcangeli wrote:
+> On Fri, Apr 29, 2005 at 01:39:59PM -0700, Matt Mackall wrote:
+> > Mercurial is ammenable to rsync provided you devote a read-only
+> > repository to it on the client side. In other words, you rsync from
+> > kernel.org/mercurial/linus to local/linus and then you merge from
+> > local/linus to your own branch. Mercurial's hashing hierarchy is
+> > similar to git's (and Monotone's), so you can sign a single hash of
+> > the tree as well.
+> 
+> Ok fine. It's also interesting how you already enabled partial transfers
+> through http.
+> 
+> Please apply this patch so it doesn't fail on my setup ;)
+> 
+> --- mercurial-0.4b/hg.~1~	2005-04-29 02:52:52.000000000 +0200
+> +++ mercurial-0.4b/hg	2005-04-30 00:53:02.000000000 +0200
+> @@ -1,4 +1,4 @@
+> -#!/usr/bin/python
+> +#!/usr/bin/env python
 
-I'm most of the time very happy that there is Linux (special thanks to 
-Linus T.) and that i'm one happy computer user that isn't confronted all 
-the time with a special blue screen.
+Done.
 
-I'm a user from the time kernel 2.0.xx started and yes it's not from the 
-start but it's still a long time....
+> On a bit more technical side, one thing I'm wondering about is the
+> compression. If I change mercurial like this:
+> 
+> --- revlog.py.~1~	2005-04-29 01:33:14.000000000 +0200
+> +++ revlog.py	2005-04-30 03:54:12.000000000 +0200
+> @@ -11,9 +11,11 @@
+>  import zlib, struct, mdiff, sha, binascii, os, tempfile
+>  
+>  def compress(text):
+> +    return text
+>      return zlib.compress(text)
+>  
+>  def decompress(bin):
+> +    return text
+>      return zlib.decompress(bin)
+>  
+>  def hash(text):
+> 
+> 
+> the .hg directory sizes changes from 167M to 302M _BUT_ the _compressed_
+> size of the .hg directory (i.e. like in a full network transfer with
+> rsync -z or a tar.gz backup) changes from 55M to 38M:
+> 
+> andrea@opteron:~/devel/kernel> du -sm hg-orig hg-aa hg-orig.tar.bz2 hg-aa.tar.bz2 
+> 167     hg-orig
+> 302     hg-aa
+> 55      hg-orig.tar.bz2
+> 38      hg-aa.tar.bz2
+> ^^^^^^^^^^^^^^^^^^^^^ 38M backup and network transfer is what I want
+> 
+> So I don't really see an huge benefit in compression, other than to
+> slowdown the checkins measurably [i.e. what Linus doesn't want] (the
+> time of compression is a lot higher than the time of python runtime during
+> checkin, so it's hard to believe your 100% boost with psyco in the hg file,
+> sometime psyco doesn't make any difference infact, I'd rather prefer people to
+> work on the real thing of generating native bytecode at compile time, rather
+> than at runtime, like some haskell compiler can do).
 
-I'm almost very happy with the things that are going on in kernel land. 
-And yes not all things that work in Wintendo aka Winboot will work under 
-linux. But there are a few things that always worked very well. 
-Including webcams. (yes i can stay polite and be nice but that won't 
-have the effect i want....)
+Most of that psyco speed up is accelerating subsequent diffs in
+difflib, which you probably didn't hit yet.
 
-Now my dear daughter has her own laptop and she insists to run linux on 
-it. She just had her birthday and she got a nice logitec webcam so she 
-can use it on that very stable system.
+> mercurial is already good at decreasing the entropy by using an efficient
+> storage format, it doesn't need to cheat by putting compression on each blob
+> that can only leads to bad ratios when doing backups and while transferring
+> more than one blob through the network.
+> 
+> So I suggest to try disabling compression optionally, perhaps it'll be even
+> faster than git in the initial checkin that way! No need of compressing or
+> decompressing anything with mercurial (unlike with git that would explode
+> without control w/o compression).
 
-BUT NO!!
+I can make it some sort of environment variable, sure. I think the
+speed is already in a domain where it's not a big deal though. There
+are other things to do first, like unifying the merge/commit/update
+code.
 
-These days she can't anymore. Why ?? Because there's a problem between 
-hrh Greg Kroah (usb maintainer) and somebody who did his best to give 
-user the possibility of using a goodworking webcam.
+> Http is not intended for maximal efficiency, it's there just to make
+> life easy. special protocol with zlib is required for maximum
+> efficiency.
 
-I don't want the discussion if it's proper or not to have that driver in 
-the kernel. I have just the problem that i have todo more before it works...
+Yeah, I've got a plan here.
 
-I realy don't give a sh*t about that. I just want one thing and that is 
-that the webcam starts working again and work like in ASAP. Rather 
-yesterday then today.
+> You also should move the .py into a hg directory, so that they won't
+> pollute the site-packages.
 
-So here's a user yrh Greg Kroah that realy wants that driver back in. 
-I'm a user and i'm not alone! There are more users like me and what we 
-want is that we have hardware which should work with the os we choose. 
-We choose linux because it's stable and it's not wintendo. Are you gonna 
-decide for us what we want ?? I hope not coz history tells us that those 
-kind of people never last long...
-
-So what about it are you going to help me? And make it possible for us 
-to use our choosen hardware?
-
-
-I realy hope you listen to me / us because I / we choose linux above 
-windows...
-
-
-Regards,
-
-Gabriel Kenter
-
-
-
-
--=-=-
-... He's turned his life around. He used to be depressed and miserable. 
-Now he's miserable and depressed.
-        -- David Frost
-* TagZilla 0.057 * http://tagzilla.mozdev.org
-
+Yep, I'm rather new to actually packaging my Python hacks.
 
 -- 
-This message was scanned for spam and viruses by BitDefender.
-For more information please visit http://linux.bitdefender.com/
-
-
+Mathematics is the supreme nostalgia of our time.

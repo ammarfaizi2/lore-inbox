@@ -1,91 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbVD3OR3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbVD3OVQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261227AbVD3OR3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 10:17:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261230AbVD3OR3
+	id S261231AbVD3OVQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 10:21:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVD3OVP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 10:17:29 -0400
-Received: from mail02.syd.optusnet.com.au ([211.29.132.183]:4840 "EHLO
-	mail02.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261227AbVD3ORU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 10:17:20 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: ck@vds.kolivas.org,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.6.11-ck6
-Date: Sun, 1 May 2005 00:17:33 +1000
-User-Agent: KMail/1.8
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1221434.kkyYJ2YOlm";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200505010017.36907.kernel@kolivas.org>
+	Sat, 30 Apr 2005 10:21:15 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:12811 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261231AbVD3OUh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Apr 2005 10:20:37 -0400
+Date: Sat, 30 Apr 2005 16:20:35 +0200
+From: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org, Zwane Mwaikambo <zwane@holomorphy.com>,
+       Andi Kleen <ak@muc.de>
+Subject: Re: 2.6.12-rc3-mm1
+Message-ID: <20050430142035.GB3571@stusta.de>
+References: <20050429231653.32d2f091.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050429231653.32d2f091.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1221434.kkyYJ2YOlm
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-These are patches designed to improve system responsiveness. It is=20
-configurable to any workload but the default ck* patch is aimed at the=20
-desktop and ck*-server is available with more emphasis on serverspace.
-
-Apply to 2.6.11 (already contains latest 4 point stable release):
-http://ck.kolivas.org/patches/2.6/2.6.11/2.6.11-ck6/patch-2.6.11-ck6.bz2
-or
-http://ck.kolivas.org/patches/2.6/2.6.11/2.6.11-ck6/patch-2.6.11-ck6-server=
-=2Ebz2
-
-web:
-http://kernel.kolivas.org
-all patches:
-http://ck.kolivas.org/patches/
-Split patches available.
+On Fri, Apr 29, 2005 at 11:16:53PM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.12-rc2-mm3:
+>...
+> +x86-x86_64-deferred-handling-of-writes-to-proc-irq-xx-smp_affinitypatch-added-to-mm-tree.patch
+> 
+>  x86_64 updates
+>...
 
 
-Changes since 2.6.11-ck4 (last public announcement):
-Added:
-+2.6.11-ck4_to_staircase11.diff
-Update to new version of staircase announced on mailing list
-+s11_s11.1.diff
-New staircase specific scalability improvements
-
-+scsi-dead-device.diff
-A fix for a scsi related hang that seems to hit many -ck users
-
-+patch-2.6.11.8
-Latest stable tree
-
-+2611ck6-version.diff
-Reinstate the Australian animal that's woozy from cognac
+This patch contains at least two bugs:
 
 
-Removed:
-=2Dpatch-2.6.11.7
-=2D2611ck4-version.diff
+The static inline set_irq_info() is not available 
+for CONFIG_GENERIC_PENDING_IRQ=n, resulting in the following warning:
+
+<--  snip  -->
+
+...
+  CC      arch/i386/kernel/io_apic.o
+arch/i386/kernel/io_apic.c: In function `set_ioapic_affinity_irq':
+arch/i386/kernel/io_apic.c:251: warning: implicit declaration of function `set_irq_info'
+...
+
+<--  snip  -->
 
 
-And don't forget to pour one of these before booting this kernel:
-http://ck.kolivas.org/patches/2.6/2.6.11/cognac.JPG
+The second bug is that although irq.h defines set_irq_info() as a static 
+inline, this patch adds an empty function to kernel/irq/manage.c .
+
+The second bug shadows the first bug, but both have to be fixed.
 
 
-Cheers,
-Con
+cu
+Adrian
 
---nextPart1221434.kkyYJ2YOlm
-Content-Type: application/pgp-signature
+BTW: This patch is not in anyway x86_64 specific.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+-- 
 
-iD8DBQBCc5OAZUg7+tp6mRURAkAXAJ0ZQbPanmcIzKBmQKgDQ6TPheZAIgCffofu
-YWFR1PrLDKp13+FCQUkDXP8=
-=0b0L
------END PGP SIGNATURE-----
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
---nextPart1221434.kkyYJ2YOlm--

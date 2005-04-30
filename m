@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbVD3UKO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261408AbVD3UOq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261397AbVD3UKO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 16:10:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261409AbVD3UIy
+	id S261408AbVD3UOq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 16:14:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVD3UO3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 16:08:54 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:5647 "HELO
+	Sat, 30 Apr 2005 16:14:29 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:11023 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261394AbVD3UHw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 16:07:52 -0400
-Date: Sat, 30 Apr 2005 22:07:50 +0200
+	id S261410AbVD3UId (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Apr 2005 16:08:33 -0400
+Date: Sat, 30 Apr 2005 22:08:31 +0200
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: [2.6 patch] drivers/ide/: possible cleanups
-Message-ID: <20050430200750.GM3571@stusta.de>
+Cc: Lionel.Bouton@inet6.fr, B.Zolnierkiewicz@elka.pw.edu.pl,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: [2.6 patch] drivers/ide/pci/sis5513.c: section fixes
+Message-ID: <20050430200831.GU3571@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,76 +23,46 @@ User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- pci/cy82c693.c: make a needlessly global function static
-- remove the following unneeded EXPORT_SYMBOL's:
-  - ide-taskfile.c: do_rw_taskfile
-  - ide-iops.c: default_hwif_iops
-  - ide-iops.c: default_hwif_transport
-  - ide-iops.c: wait_for_ready
+These three functions are referenced from the __devinitdata 
+sis5513_chipset.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
 This patch was already sent on:
-- 17 Apr 2005
+- 21 Apr 2005
 
- drivers/ide/ide-iops.c     |    6 ------
- drivers/ide/ide-taskfile.c |    2 --
- drivers/ide/pci/cy82c693.c |    2 +-
- 3 files changed, 1 insertion(+), 9 deletions(-)
+ drivers/ide/pci/sis5513.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
---- linux-2.6.11-rc3-mm1-full/drivers/ide/ide-taskfile.c.old	2005-02-05 02:57:03.000000000 +0100
-+++ linux-2.6.11-rc3-mm1-full/drivers/ide/ide-taskfile.c	2005-02-05 02:57:12.000000000 +0100
-@@ -161,8 +161,6 @@
- 	return ide_stopped;
- }
+--- linux-2.6.12-rc3/drivers/ide/pci/sis5513.c.old	2005-04-21 04:26:36.000000000 +0200
++++ linux-2.6.12-rc3/drivers/ide/pci/sis5513.c	2005-04-21 04:27:32.000000000 +0200
+@@ -726,7 +726,7 @@
+ */
  
--EXPORT_SYMBOL(do_rw_taskfile);
--
- /*
-  * set_multmode_intr() is invoked on completion of a WIN_SETMULT cmd.
-  */
-
---- linux-2.6.12-rc2-mm3-full/drivers/ide/pci/cy82c693.c.old	2005-04-17 21:11:22.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/ide/pci/cy82c693.c	2005-04-17 21:11:30.000000000 +0200
-@@ -469,7 +469,7 @@
- 
- static __initdata ide_hwif_t *primary;
- 
--void __init init_iops_cy82c693(ide_hwif_t *hwif)
-+static void __init init_iops_cy82c693(ide_hwif_t *hwif)
+ /* Chip detection and general config */
+-static unsigned int __init init_chipset_sis5513 (struct pci_dev *dev, const char *name)
++static unsigned int __devinit init_chipset_sis5513 (struct pci_dev *dev, const char *name)
  {
- 	if (PCI_FUNC(hwif->pci_dev->devfn) == 1)
- 		primary = hwif;
---- linux-2.6.12-rc2-mm3-full/drivers/ide/ide-iops.c.old	2005-04-17 21:12:44.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/ide/ide-iops.c	2005-04-17 21:12:54.000000000 +0200
-@@ -104,8 +104,6 @@
- 	hwif->INSL	= ide_insl;
- }
- 
--EXPORT_SYMBOL(default_hwif_iops);
--
- /*
-  *	MMIO operations, typically used for SATA controllers
-  */
-@@ -329,8 +327,6 @@
- 	hwif->atapi_output_bytes	= atapi_output_bytes;
- }
- 
--EXPORT_SYMBOL(default_hwif_transport);
--
- /*
-  * Beginning of Taskfile OPCODE Library and feature sets.
-  */
-@@ -525,8 +525,6 @@
+ 	struct pci_dev *host;
+ 	int i = 0;
+@@ -879,7 +879,7 @@
  	return 0;
  }
  
--EXPORT_SYMBOL(wait_for_ready);
--
- /*
-  * This routine busy-waits for the drive status to be not "busy".
-  * It then checks the status for all of the "good" bits and none
+-static unsigned int __init ata66_sis5513 (ide_hwif_t *hwif)
++static unsigned int __devinit ata66_sis5513 (ide_hwif_t *hwif)
+ {
+ 	u8 ata66 = 0;
+ 
+@@ -897,7 +897,7 @@
+         return ata66;
+ }
+ 
+-static void __init init_hwif_sis5513 (ide_hwif_t *hwif)
++static void __devinit init_hwif_sis5513 (ide_hwif_t *hwif)
+ {
+ 	hwif->autodma = 0;
+ 
 

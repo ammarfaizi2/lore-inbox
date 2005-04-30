@@ -1,59 +1,213 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbVD3Oge@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbVD3OoJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261235AbVD3Oge (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 10:36:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVD3Oge
+	id S261237AbVD3OoJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 10:44:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbVD3OoJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 10:36:34 -0400
-Received: from mail.shareable.org ([81.29.64.88]:44715 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261235AbVD3Og2
+	Sat, 30 Apr 2005 10:44:09 -0400
+Received: from emulex.emulex.com ([138.239.112.1]:49631 "EHLO
+	emulex.emulex.com") by vger.kernel.org with ESMTP id S261237AbVD3Onq convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 10:36:28 -0400
-Date: Sat, 30 Apr 2005 15:36:09 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: hch@infradead.org, bulb@ucw.cz, viro@parcelfarce.linux.theplanet.co.uk,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] private mounts
-Message-ID: <20050430143609.GA4362@mail.shareable.org>
-References: <20050424210616.GM13052@parcelfarce.linux.theplanet.co.uk> <E1DPoRz-0000Y0-00@localhost> <20050424211942.GN13052@parcelfarce.linux.theplanet.co.uk> <E1DPofK-0000Yu-00@localhost> <20050425071047.GA13975@vagabond> <E1DQ0Mc-0007B5-00@dorka.pomaz.szeredi.hu> <20050430083516.GC23253@infradead.org> <E1DRoDm-0002G9-00@dorka.pomaz.szeredi.hu> <20050430094218.GA32679@mail.shareable.org> <E1DRoz9-0002JL-00@dorka.pomaz.szeredi.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1DRoz9-0002JL-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.4.1i
+	Sat, 30 Apr 2005 10:43:46 -0400
+From: James.Smart@Emulex.Com
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+Subject: RE: Emulex fibre channel HBA support and SAN connection
+Date: Sat, 30 Apr 2005 10:43:10 -0400
+Message-ID: <9BB4DECD4CFE6D43AA8EA8D768ED51C206298A@xbl3.ad.emulex.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Emulex fibre channel HBA support and SAN connection
+Thread-Index: AcVNj8DIjEd4MhPWShyV/HFaRyBpawAAqaxw
+To: <shogunx@sleekfreak.ath.cx>
+Cc: <alexdeucher@gmail.com>, <linux-kernel@vger.kernel.org>,
+       <linux-scsi@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miklos Szeredi wrote:
-> > Well, if you can find a way to tell the userspace FUSE daemon to know
-> > that the mount is being done by the same user as the existing mount,
-> > you don't need (or want) to check the credentials - you want the FUSE
-> > daemon to tell the kernel code which superblock to reuse.
+IP over FC was removed from our 8.x series driver as we pushed for
+upstream acceptance. So, you must be running a older driver. Please
+go through the proper support channels for that driver rev.
+
+IP over FC would be re-added as part of making a common interface for
+all FC drivers (see Andrew Vasquez's previous email on the topic).
+
+-- james s
+
+
+> -----Original Message-----
+> From: shogunx [mailto:shogunx@sleekfreak.ath.cx]
+> Sent: Saturday, April 30, 2005 9:39 AM
+> To: Smart, James
+> Cc: alexdeucher@gmail.com; linux-kernel@vger.kernel.org;
+> linux-scsi@vger.kernel.org
+> Subject: RE: Emulex fibre channel HBA support and SAN connection
 > 
-> It sounds very _very_ complicated compared to just using bind mounts.
 > 
-> And maybe the user _does_ want a new connection to the same server
-> (for whatever reason).  Why should we _force_ a sharing of
-> superblocks?
+> On Sat, 30 Apr 2005 James.Smart@Emulex.Com wrote:
+> 
+> > Alex,
+> >
+> > We are looking into it further.  Linux on Sparc has not 
+> been a platform that we have supported in the past, although 
+> we know of no issue why it would not be.
+> 
+> Having some problems with the ip over fc on power64 also.
+> 
+> Scott
+> 
+> 
+> >
+> > -- James S
+> >
+> > > -----Original Message-----
+> > > From: Alex Deucher [mailto:alexdeucher@gmail.com]
+> > > Sent: Friday, April 29, 2005 6:42 PM
+> > > To: Smart, James
+> > > Cc: linux-kernel@vger.kernel.org; linux-scsi@vger.kernel.org
+> > > Subject: Re: Emulex fibre channel HBA support and SAN connection
+> > >
+> > >
+> > > FWIW, this seems to be a sparc64 issue.  after upgrading 
+> the firmware
+> > > and testing in a x86 box, all is well, at least on x86.  
+> I'll test on
+> > > AMD64 next week.
+> > >
+> > > Alex
+> > >
+> > > On 4/29/05, Alex Deucher <alexdeucher@gmail.com> wrote:
+> > > > On 4/29/05, James.Smart@emulex.com 
+> <James.Smart@emulex.com> wrote:
+> > > > > Based on the "Unknown IOCB command data" message, this
+> > > appears to be out of date firmware on the adapter. See
+> > > http://www.emulex.com/ts/indexemu.html.  There are some hints
+> > > on downloading firmware at the tail end of
+> > > http://sourceforge.net/forum/forum.php?thread_id=1130082&forum
+> > > _id=355154.
+> > > > >
+> > > > > Note: lpfc issues are best posted to the help areas on
+> > > http://sourceforge.net/projects/lpfcxxxx/
+> > > >
+> > > > James,
+> > > >
+> > > >     I just upgraded to the latest firmware on the Emulex website
+> > > > (3.92a2) and I still get the same error:
+> > > > Emulex LightPulse Fibre Channel SCSI driver 8.0.28
+> > > > scsi2 :  on PCI bus 00 device 20 irq 8132864
+> > > > lpfc 0001:00:04.0: 0:1303 Link Up Event x1 received Data:
+> > > x1 xf7 x8 x0
+> > > > lpfc 0001:00:04.0: 0:0321 Unknown IOCB command Data: x0,
+> > > xa2 x0 x600 x2900
+> > > > lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command 
+> completion for
+> > > > iotag x0 not found
+> > > > ...
+> > > > lpfc 0001:00:04.0: 0:0748 abort handler timed out waiting
+> > > for abort to
+> > > > complete. Data: x0 x0 x0 x1
+> > > > lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command 
+> completion for
+> > > > iotag x700 not found
+> > > > lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command 
+> completion for
+> > > > iotag x0 not found
+> > > >
+> > > > Any ideas?
+> > > >
+> > > > >
+> > > > > Thanks.
+> > > > >
+> > > > > -- James Smart
+> > > > >    Emulex
+> > > > >
+> > > > > > -----Original Message-----
+> > > > > > From: linux-scsi-owner@vger.kernel.org
+> > > > > > [mailto:linux-scsi-owner@vger.kernel.org]On Behalf Of
+> > > Alex Deucher
+> > > > > > Sent: Thursday, April 28, 2005 6:03 PM
+> > > > > > To: linux-kernel@vger.kernel.org; linux-scsi@vger.kernel.org
+> > > > > > Subject: Emulex fibre channel HBA support and SAN connection
+> > > > > >
+> > > > > >
+> > > > > > Can someone point me to some documentation on 
+> setting up a fibre
+> > > > > > channel HBA in linux?  I can't seem to find any useful
+> > > information.  I
+> > > > > > have a Sun 220R running 2.6.12-rc3 with an emulex
+> > > LP9000 HBA connected
+> > > > > > to a Nexsan ATABEAST SAN.  I'm using the HBA driver
+> > > included with the
+> > > > > > 2.6.12rc3 kernel.  I cannot find any information 
+> about the GPLed
+> > > > > > emulex driver as far as configuration goes.  The driver
+> > > seems to come
+> > > > > > up ok, but then I get a series of error codes:
+> > > > > >
+> > > > > > Emulex LightPulse Fibre Channel SCSI driver 8.0.28
+> > > > > > scsi0 :  on PCI bus 00 device 20 irq 8255744
+> > > > > > lpfc 0001:00:04.0: 0:1303 Link Up Event x1 received
+> > > Data: x1 x1 x8 x2
+> > > > > > lpfc 0001:00:04.0: 0:0321 Unknown IOCB command Data: x0, xa2
+> > > > > > x0 x900 x2600
+> > > > > > ...
+> > > > > > lpfc 0001:00:04.0: 0:0748 abort handler timed out
+> > > waiting for abort to
+> > > > > > complete. Data: x0 x0 x0 x1
+> > > > > > lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command
+> > > completion for
+> > > > > > iotag xa00 not found
+> > > > > > lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command
+> > > completion for
+> > > > > > iotag x0 not found
+> > > > > > lpfc 0001:00:04.0: 0:0713 SCSI layer issued LUN reset (0, 0)
+> > > > > > Data: x2 x0 x0
+> > > > > > lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command
+> > > completion for
+> > > > > > iotag xb00 not found
+> > > > > > lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command
+> > > completion for
+> > > > > > iotag x0 not found
+> > > > > > lpfc 0001:00:04.0: 0:0714 SCSI layer issued Bus Reset
+> > > Data: x2003
+> > > > > > scsi: Device offlined - not ready after error recovery:
+> > > host 0 channel
+> > > > > > 0 id 0 lun 0
+> > > > > > lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command
+> > > completion for
+> > > > > > iotag x0 not found
+> > > > > >
+> > > > > > I noticed here:
+> > > > > > 
+http://marc.theaimsgroup.com/?l=linux-scsi&m=111383889908554&w=2
+> > > > > that there is a new FC API. Was this merged into rc3 or
+> > will this
+> > > > > happen after 2.6.12?  If it's not supported yet in rc3,
+> > how does one
+> > > > > go about configuring it?  I'm willing to test any
+> > available tools.
+> > > > >
+> > > > > Any help will be greatly appreciated.  I'll be able to
+> > test on SPARC64
+> > > > > right now and on AMD64 in the next few days.
+> > > > >
+> > > > > Thanks,
+> > > > >
+> > > > > Alex
+> > > > >
+> > > > > PS, please CC: me as I'm not subscribed.
+> > >
+> >
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-The point is that you can decide whether to do that in userspace.
-It's up to whatever code you put in the _userspace_ FUSE commands.
+sleekfreak pirate broadcast
+http://sleekfreak.ath.cx:81/
 
-No kernel support for bind mounts from another namespace is required.
-
-Actually, in terms of complexity, it's not much different from using
-bind mounts.  Either way involves finding all the mounts of another
-session and copying them one by one: either by getting confirmation
-from the daemon to attach to the same superblock, or by getting
-handles from the daemon for all the individual directories to bind
-mount.
-
-In all, I think private namespaces are still the cleaner way to do it
-_when_ a user wants their mounts to appear in multiple sessions anyway.
-
-But bind mounts or superblock sharing are more flexible, at the same
-time as being more cumbersome as a user interface.
-
--- JAmie

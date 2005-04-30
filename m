@@ -1,55 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263099AbVD3AoI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263100AbVD3ApM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263099AbVD3AoI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 20:44:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263097AbVD3AoI
+	id S263100AbVD3ApM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 20:45:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263098AbVD3ApL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 20:44:08 -0400
-Received: from fsmlabs.com ([168.103.115.128]:39125 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S263099AbVD3AoA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 20:44:00 -0400
-Date: Fri, 29 Apr 2005 18:46:21 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       mingo@elte.hu, linux-kernel <linux-kernel@vger.kernel.org>,
-       Rajesh Shah <rajesh.shah@intel.com>, John Stultz <johnstul@us.ibm.com>,
-       Andi Kleen <ak@suse.de>, Asit K Mallick <asit.k.mallick@intel.com>
-Subject: Re: [RFC][PATCH] i386 x86-64 Eliminate Local APIC timer interrupt
-In-Reply-To: <20050429172605.A23722@unix-os.sc.intel.com>
-Message-ID: <Pine.LNX.4.61.0504291844310.15561@montezuma.fsmlabs.com>
-References: <20050429172605.A23722@unix-os.sc.intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 29 Apr 2005 20:45:11 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:20352 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S263094AbVD3Ao3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 20:44:29 -0400
+Subject: Re: [Ext2-devel] [RFC] Adding multiple block allocation
+From: Mingming Cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
+To: suparna@in.ibm.com
+Cc: Andrew Morton <akpm@osdl.org>, "Stephen C. Tweedie" <sct@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-fsdevel@vger.kernel.org
+In-Reply-To: <20050429135211.GA4539@in.ibm.com>
+References: <1113220089.2164.52.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1113244710.4413.38.camel@localhost.localdomain>
+	 <1113249435.2164.198.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1113288087.4319.49.camel@localhost.localdomain>
+	 <1113304715.2404.39.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1113348434.4125.54.camel@dyn318043bld.beaverton.ibm.com>
+	 <1113388142.3019.12.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1114207837.7339.50.camel@localhost.localdomain>
+	 <1114659912.16933.5.camel@mindpipe>
+	 <1114715665.18996.29.camel@localhost.localdomain>
+	 <20050429135211.GA4539@in.ibm.com>
+Content-Type: text/plain
+Organization: IBM LTC
+Date: Fri, 29 Apr 2005 17:44:26 -0700
+Message-Id: <1114821866.7635.7.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Apr 2005, Venkatesh Pallipadi wrote:
+Oops, sorry about the empty message ...
 
-> 
-> Background: 
-> Local APIC timer stops functioning when CPU is in C3 state. As a
-> result the local APIC timer interrupt will fire at uncertain times, depending
-> on how long we spend in C3 state. And this has two side effects
-> * Idle balancing will not happen as we expect it to.
-> * Kernel statistics for idle time will not be proper (as we get less LAPIC
->   interrupts when we are idle). This can result in confusing other parts of
->   kernel (like ondemand cpufreq governor) which depends on this idle stats.
-> 
-> 
-> Proposed Fix: 
-> Attached is a prototype patch, that tries to eliminate the dependency on 
-> local APIC timer for update_process_times(). The patch gets rid of Local APIC 
-> timer altogether. We use the timer interrupt (IRQ 0) configured in 
-> broadcast mode in IOAPIC instead (Doesn't work with 8259). 
-> As changing anything related to basic timer interrupt is a little bit risky, 
-> I have a boot parameter currently ("useapictimer") to switch back to original 
-> local APIC timer way of doing things.
+> -static int ext3_writepages_get_block(struct inode *inode, sector_t iblock,
+> -			struct buffer_head *bh, int create)
+> +static int ext3_writepages_get_blocks(struct inode *inode, sector_t iblock,
+> +		unsigned long max_blocks, struct buffer_head *bh, int create)
+>  {
+> -	return ext3_direct_io_get_blocks(inode, iblock, 1, bh, create);
+> +	return ext3_direct_io_get_blocks(inode, iblock, max_blocks, bh, create);
+>  }
+>  
 
-This all looks like it'll contend on irq0 related locks really badly, have 
-you profiled this?
+I have a question here, ext3_direct_io_get_blocks use DIO_CREDITS
+(EXT3_RESERVE_TRANS_BLOCKS + 32 = ) to reserve the space for
+journalling, but it seems based on assumption of one data block update
+once a time. Is it sufficent to re-use that routine for multiple block
+allocation here? Don't we need something like
+ext3_writepage_trans_blocks() here?
 
 Thanks,
-	Zwane
+Mingming
 

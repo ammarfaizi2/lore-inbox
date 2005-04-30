@@ -1,68 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbVD3SbE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbVD3S4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261333AbVD3SbE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 14:31:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbVD3SbE
+	id S261339AbVD3S4T (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 14:56:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbVD3S4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 14:31:04 -0400
-Received: from rproxy.gmail.com ([64.233.170.200]:2776 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261333AbVD3Sa6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 14:30:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PEYlqHi2jOpc3AztCh+2O4blQrC2OuCAbB+TbThPJsA6elkzmmN8djjkfQ3AxKD4sDmwgGn3JOLI1t+/qeqYvQ3kng2sxuvYFMNNLKepjw+i8XNiYSEp1pXYsmH4PQ+UrxpVVLPgQRA6POB/U8nJfXcW3S4PLGMSTgLiGoIVn88=
-Message-ID: <2cd57c90050430113078133010@mail.gmail.com>
-Date: Sun, 1 May 2005 02:30:57 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: coywolf@lovecn.org
-To: Adrian Bunk <bunk@stusta.de>
+	Sat, 30 Apr 2005 14:56:19 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:20494 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261339AbVD3S4K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Apr 2005 14:56:10 -0400
+Date: Sat, 30 Apr 2005 20:56:04 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Coywolf Qi Hunt <coywolf@lovecn.org>
+Cc: Coywolf Qi Hunt <coywolf@gmail.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@muc.de>
 Subject: Re: 2.6.12-rc3-mm1
-Cc: linux-kernel@vger.kernel.org, Zwane Mwaikambo <zwane@holomorphy.com>,
-       Andi Kleen <ak@muc.de>
-In-Reply-To: <20050430142035.GB3571@stusta.de>
+Message-ID: <20050430185604.GH3571@stusta.de>
+References: <20050429231653.32d2f091.akpm@osdl.org> <20050430142035.GB3571@stusta.de> <Pine.LNX.4.61.0504300940560.12903@montezuma.fsmlabs.com> <2cd57c9005043010051c6455fb@mail.gmail.com> <20050430180823.GA14922@lovecn.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050429231653.32d2f091.akpm@osdl.org>
-	 <20050430142035.GB3571@stusta.de>
+In-Reply-To: <20050430180823.GA14922@lovecn.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/30/05, Adrian Bunk <bunk@stusta.de> wrote:
-> On Fri, Apr 29, 2005 at 11:16:53PM -0700, Andrew Morton wrote:
-> >...
-> > Changes since 2.6.12-rc2-mm3:
-> >...
-> > +x86-x86_64-deferred-handling-of-writes-to-proc-irq-xx-smp_affinitypatch-added-to-mm-tree.patch
-> >
-> >  x86_64 updates
-> >...
+On Sun, May 01, 2005 at 02:08:23AM +0800, Coywolf Qi Hunt wrote:
+> On Sun, May 01, 2005 at 01:05:52AM +0800, Coywolf Qi Hunt wrote:
+> ... 
+> > I was trying to fix this too. You are quicker and better than me. In
+> > addition, this redundant  include should be removed.
 > 
-> This patch contains at least two bugs:
+> s/redundant/duplicate/
 > 
-> The static inline set_irq_info() is not available
-> for CONFIG_GENERIC_PENDING_IRQ=n, resulting in the following warning:
+> OK, since Zwane thinks my patch is "good in that its minimal impact", here it is.
+> I've compile tested for SMP and UP.
 > 
-> <--  snip  -->
+> This removes the compile warning: implicit declaration of function `set_irq_info' and a duplicate include line.
 > 
-> ...
->   CC      arch/i386/kernel/io_apic.o
-> arch/i386/kernel/io_apic.c: In function `set_ioapic_affinity_irq':
-> arch/i386/kernel/io_apic.c:251: warning: implicit declaration of function `set_irq_info'
-> ...
+> Signed-off-by: Coywolf Qi Hunt <coywolf@lovecn.org>
+> ---
 > 
-> <--  snip  -->
-> 
-> The second bug is that although irq.h defines set_irq_info() as a static
-> inline, this patch adds an empty function to kernel/irq/manage.c .
-> 
-> The second bug shadows the first bug, but both have to be fixed.
+> diff -pruN 2.6.12-rc3-mm1/arch/i386/kernel/io_apic.c 2.6.12-rc3-mm1-cy2/arch/i386/kernel/io_apic.c
+> --- 2.6.12-rc3-mm1/arch/i386/kernel/io_apic.c	2005-04-30 19:15:46.000000000 +0800
+> +++ 2.6.12-rc3-mm1-cy2/arch/i386/kernel/io_apic.c	2005-05-01 00:49:27.000000000 +0800
+> @@ -32,7 +32,6 @@
+>  #include <linux/compiler.h>
+>  #include <linux/acpi.h>
+>  #include <linux/sysdev.h>
+> -#include <linux/irq.h>
+>  #include <asm/io.h>
+>  #include <asm/smp.h>
+>  #include <asm/desc.h>
+> diff -pruN 2.6.12-rc3-mm1/include/linux/irq.h 2.6.12-rc3-mm1-cy2/include/linux/irq.h
+> --- 2.6.12-rc3-mm1/include/linux/irq.h	2005-04-30 19:16:26.000000000 +0800
+> +++ 2.6.12-rc3-mm1-cy2/include/linux/irq.h	2005-05-01 00:51:31.000000000 +0800
+> @@ -161,6 +161,7 @@ static inline void set_irq_info(int irq,
+>  #else
+>  #define move_irq(x)
+>  #define move_native_irq(x)
+> +extern void set_irq_info(unsigned int irq, cpumask_t mask);
+>  #endif // CONFIG_GENERIC_PENDING_IRQ
+>  
+>  extern int no_irq_affinity;
 
-IMHO, there are no bugs at all, or at least not the kind of bugs you think.
+
+Is it planned that the empty set_irq_info() function in 
+kernel/irq/manage.c will ever contain real code?
+
+If not, an empty static inline as in the CONFIG_PCI_MSI=y && 
+CONFIG_GENERIC_PENDING_IRQ=y case would generate better code.
+
+
+cu
+Adrian
 
 -- 
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

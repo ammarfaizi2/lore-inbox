@@ -1,164 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261228AbVD3OOi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbVD3OR3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261228AbVD3OOi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 10:14:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbVD3OOh
+	id S261227AbVD3OR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 10:17:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261230AbVD3OR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 10:14:37 -0400
-Received: from emulex.emulex.com ([138.239.112.1]:39134 "EHLO
-	emulex.emulex.com") by vger.kernel.org with ESMTP id S261226AbVD3OOL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 10:14:11 -0400
-From: James.Smart@Emulex.Com
-Content-class: urn:content-classes:message
+	Sat, 30 Apr 2005 10:17:29 -0400
+Received: from mail02.syd.optusnet.com.au ([211.29.132.183]:4840 "EHLO
+	mail02.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261227AbVD3ORU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Apr 2005 10:17:20 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: ck@vds.kolivas.org,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: 2.6.11-ck6
+Date: Sun, 1 May 2005 00:17:33 +1000
+User-Agent: KMail/1.8
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-Subject: RE: Emulex fibre channel HBA support and SAN connection
-Date: Sat, 30 Apr 2005 10:14:03 -0400
-Message-ID: <9BB4DECD4CFE6D43AA8EA8D768ED51C2062986@xbl3.ad.emulex.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Emulex fibre channel HBA support and SAN connection
-Thread-Index: AcVNDKCcgCWruBe2RjGTMKXbfC5A3QAgh70g
-To: <alexdeucher@gmail.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>
+Content-Type: multipart/signed;
+  boundary="nextPart1221434.kkyYJ2YOlm";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200505010017.36907.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex,
+--nextPart1221434.kkyYJ2YOlm
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-We are looking into it further.  Linux on Sparc has not been a platform that we have supported in the past, although we know of no issue why it would not be. 
+These are patches designed to improve system responsiveness. It is=20
+configurable to any workload but the default ck* patch is aimed at the=20
+desktop and ck*-server is available with more emphasis on serverspace.
 
--- James S
+Apply to 2.6.11 (already contains latest 4 point stable release):
+http://ck.kolivas.org/patches/2.6/2.6.11/2.6.11-ck6/patch-2.6.11-ck6.bz2
+or
+http://ck.kolivas.org/patches/2.6/2.6.11/2.6.11-ck6/patch-2.6.11-ck6-server=
+=2Ebz2
 
-> -----Original Message-----
-> From: Alex Deucher [mailto:alexdeucher@gmail.com]
-> Sent: Friday, April 29, 2005 6:42 PM
-> To: Smart, James
-> Cc: linux-kernel@vger.kernel.org; linux-scsi@vger.kernel.org
-> Subject: Re: Emulex fibre channel HBA support and SAN connection
-> 
-> 
-> FWIW, this seems to be a sparc64 issue.  after upgrading the firmware
-> and testing in a x86 box, all is well, at least on x86.  I'll test on
-> AMD64 next week.
-> 
-> Alex
-> 
-> On 4/29/05, Alex Deucher <alexdeucher@gmail.com> wrote:
-> > On 4/29/05, James.Smart@emulex.com <James.Smart@emulex.com> wrote:
-> > > Based on the "Unknown IOCB command data" message, this 
-> appears to be out of date firmware on the adapter. See 
-> http://www.emulex.com/ts/indexemu.html.  There are some hints 
-> on downloading firmware at the tail end of  
-> http://sourceforge.net/forum/forum.php?thread_id=1130082&forum
-> _id=355154.
-> > >
-> > > Note: lpfc issues are best posted to the help areas on 
-> http://sourceforge.net/projects/lpfcxxxx/
-> > 
-> > James,
-> > 
-> >     I just upgraded to the latest firmware on the Emulex website
-> > (3.92a2) and I still get the same error:
-> > Emulex LightPulse Fibre Channel SCSI driver 8.0.28
-> > scsi2 :  on PCI bus 00 device 20 irq 8132864
-> > lpfc 0001:00:04.0: 0:1303 Link Up Event x1 received Data: 
-> x1 xf7 x8 x0
-> > lpfc 0001:00:04.0: 0:0321 Unknown IOCB command Data: x0, 
-> xa2 x0 x600 x2900
-> > lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command completion for
-> > iotag x0 not found
-> > ...
-> > lpfc 0001:00:04.0: 0:0748 abort handler timed out waiting 
-> for abort to
-> > complete. Data: x0 x0 x0 x1
-> > lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command completion for
-> > iotag x700 not found
-> > lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command completion for
-> > iotag x0 not found
-> > 
-> > Any ideas?
-> > 
-> > >
-> > > Thanks.
-> > >
-> > > -- James Smart
-> > >    Emulex
-> > >
-> > > > -----Original Message-----
-> > > > From: linux-scsi-owner@vger.kernel.org
-> > > > [mailto:linux-scsi-owner@vger.kernel.org]On Behalf Of 
-> Alex Deucher
-> > > > Sent: Thursday, April 28, 2005 6:03 PM
-> > > > To: linux-kernel@vger.kernel.org; linux-scsi@vger.kernel.org
-> > > > Subject: Emulex fibre channel HBA support and SAN connection
-> > > >
-> > > >
-> > > > Can someone point me to some documentation on setting up a fibre
-> > > > channel HBA in linux?  I can't seem to find any useful 
-> information.  I
-> > > > have a Sun 220R running 2.6.12-rc3 with an emulex 
-> LP9000 HBA connected
-> > > > to a Nexsan ATABEAST SAN.  I'm using the HBA driver 
-> included with the
-> > > > 2.6.12rc3 kernel.  I cannot find any information about the GPLed
-> > > > emulex driver as far as configuration goes.  The driver 
-> seems to come
-> > > > up ok, but then I get a series of error codes:
-> > > >
-> > > > Emulex LightPulse Fibre Channel SCSI driver 8.0.28
-> > > > scsi0 :  on PCI bus 00 device 20 irq 8255744
-> > > > lpfc 0001:00:04.0: 0:1303 Link Up Event x1 received 
-> Data: x1 x1 x8 x2
-> > > > lpfc 0001:00:04.0: 0:0321 Unknown IOCB command Data: x0, xa2
-> > > > x0 x900 x2600
-> > > > ...
-> > > > lpfc 0001:00:04.0: 0:0748 abort handler timed out 
-> waiting for abort to
-> > > > complete. Data: x0 x0 x0 x1
-> > > > lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command 
-> completion for
-> > > > iotag xa00 not found
-> > > > lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command 
-> completion for
-> > > > iotag x0 not found
-> > > > lpfc 0001:00:04.0: 0:0713 SCSI layer issued LUN reset (0, 0)
-> > > > Data: x2 x0 x0
-> > > > lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command 
-> completion for
-> > > > iotag xb00 not found
-> > > > lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command 
-> completion for
-> > > > iotag x0 not found
-> > > > lpfc 0001:00:04.0: 0:0714 SCSI layer issued Bus Reset 
-> Data: x2003
-> > > > scsi: Device offlined - not ready after error recovery: 
-> host 0 channel
-> > > > 0 id 0 lun 0
-> > > > lpfc 0001:00:04.0: 0:0327 Rsp ring 0 error -  command 
-> completion for
-> > > > iotag x0 not found
-> > > >
-> > > > I noticed here:
-> > > > http://marc.theaimsgroup.com/?l=linux-scsi&m=111383889908554&w=2
-> > > > that there is a new FC API. Was this merged into rc3 or 
-> will this
-> > > > happen after 2.6.12?  If it's not supported yet in rc3, 
-> how does one
-> > > > go about configuring it?  I'm willing to test any 
-> available tools.
-> > > >
-> > > > Any help will be greatly appreciated.  I'll be able to 
-> test on SPARC64
-> > > > right now and on AMD64 in the next few days.
-> > > >
-> > > > Thanks,
-> > > >
-> > > > Alex
-> > > >
-> > > > PS, please CC: me as I'm not subscribed.
-> >
-> 
+web:
+http://kernel.kolivas.org
+all patches:
+http://ck.kolivas.org/patches/
+Split patches available.
+
+
+Changes since 2.6.11-ck4 (last public announcement):
+Added:
++2.6.11-ck4_to_staircase11.diff
+Update to new version of staircase announced on mailing list
++s11_s11.1.diff
+New staircase specific scalability improvements
+
++scsi-dead-device.diff
+A fix for a scsi related hang that seems to hit many -ck users
+
++patch-2.6.11.8
+Latest stable tree
+
++2611ck6-version.diff
+Reinstate the Australian animal that's woozy from cognac
+
+
+Removed:
+=2Dpatch-2.6.11.7
+=2D2611ck4-version.diff
+
+
+And don't forget to pour one of these before booting this kernel:
+http://ck.kolivas.org/patches/2.6/2.6.11/cognac.JPG
+
+
+Cheers,
+Con
+
+--nextPart1221434.kkyYJ2YOlm
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBCc5OAZUg7+tp6mRURAkAXAJ0ZQbPanmcIzKBmQKgDQ6TPheZAIgCffofu
+YWFR1PrLDKp13+FCQUkDXP8=
+=0b0L
+-----END PGP SIGNATURE-----
+
+--nextPart1221434.kkyYJ2YOlm--

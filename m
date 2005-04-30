@@ -1,39 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263126AbVD3Btx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263121AbVD3B6K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263126AbVD3Btx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Apr 2005 21:49:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbVD3Bt2
+	id S263121AbVD3B6K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Apr 2005 21:58:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263122AbVD3B6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Apr 2005 21:49:28 -0400
-Received: from ozlabs.org ([203.10.76.45]:48009 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S263122AbVD3BtY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Apr 2005 21:49:24 -0400
-MIME-Version: 1.0
+	Fri, 29 Apr 2005 21:58:10 -0400
+Received: from smtp2.oregonstate.edu ([128.193.4.8]:42161 "EHLO
+	smtp2.oregonstate.edu") by vger.kernel.org with ESMTP
+	id S263121AbVD3B6D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Apr 2005 21:58:03 -0400
+Date: Fri, 29 Apr 2005 18:57:32 -0700
+From: Greg KH <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
+       stable@kernel.org
+Subject: Linux 2.6.11.8
+Message-ID: <20050430015732.GA8943@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17010.58405.906123.715001@cargo.ozlabs.ibm.com>
-Date: Sat, 30 Apr 2005 11:49:25 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] unify semaphore implementations
-In-Reply-To: <20050429141437.GA24617@kvack.org>
-References: <20050428182926.GC16545@kvack.org>
-	<17009.33633.378204.859486@cargo.ozlabs.ibm.com>
-	<20050429141437.GA24617@kvack.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin LaHaise writes:
+As the -stable patch review cycle is now over, I've released the
+2.6.11.8 kernel in the normal kernel.org places.  Due to some
+disagreement over some of the patches in the review cycle, I've dropped
+a number of them.
 
-> There are at least two users who need asynchronous semaphore/mutex 
-> operations: aio_write (which needs to acquire i_sem), and nfs.  
+The diffstat and short summary of the fixes are below.  
 
-What do you mean by asynchronous semaphore/mutex operations?  Are you
-talking about a down operation that will acquire the semaphore if it
-is free, but if not, arrange for a callback and return immediately, or
-something?
+I'll also be replying to this message with a copy of the patch between
+2.6.11.7 and 2.6.11.8, as it is small enough to do so.
 
-Paul.
+And a personal thanks to OSU for letting me bore them by doing this in
+their meeting.
+
+thanks,
+ 
+greg k-h
+
+------
+
+ Makefile                                 |    4 ++--
+ arch/sparc/kernel/ptrace.c               |   12 ------------
+ arch/sparc64/kernel/ptrace.c             |   19 -------------------
+ arch/sparc64/kernel/signal32.c           |    5 ++++-
+ arch/sparc64/kernel/systbls.S            |    2 +-
+ arch/um/include/sysdep-i386/syscalls.h   |   12 ++++++------
+ arch/um/include/sysdep-x86_64/syscalls.h |    5 -----
+ arch/um/kernel/sys_call_table.c          |   11 ++++-------
+ drivers/i2c/chips/it87.c                 |    2 +-
+ drivers/i2c/chips/via686a.c              |    2 +-
+ drivers/media/video/bttv-cards.c         |    2 --
+ fs/partitions/msdos.c                    |    5 +++++
+ security/keys/key.c                      |    3 ++-
+ 13 files changed, 26 insertions(+), 58 deletions(-)
+
+
+
+Summary of changes from v2.6.11.7 to v2.6.11.8
+==============================================
+
+Alexander Nyberg:
+  o Fix reproducible SMP crash in security/keys/key.c
+
+David S. Miller:
+  o sparc: Fix PTRACE_CONT bogosity
+  o sparc64: Fix copy_sigingo_to_user32()
+  o sparc64: use message queue compat syscalls
+
+Greg Kroah-Hartman:
+  o Linux 2.6.11.8
+
+Jean Delvare:
+  o I2C: Fix incorrect sysfs file permissions in it87 and via686a
+    drivers
+
+Johannes Stezenbach:
+  o [fix Bug 4395] modprobe bttv freezes the computer
+
+Paolo 'Blaisorblade' Giarrusso:
+  o uml: quick fix syscall table
+

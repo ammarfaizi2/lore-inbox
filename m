@@ -1,59 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261587AbVEAKzU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbVEALFO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261587AbVEAKzU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 06:55:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVEAKzU
+	id S261590AbVEALFO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 07:05:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbVEALFO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 06:55:20 -0400
-Received: from ns1.suse.de ([195.135.220.2]:29882 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261587AbVEAKzN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 06:55:13 -0400
-Message-ID: <4274B587.7070909@suse.de>
-Date: Sun, 01 May 2005 12:55:03 +0200
-From: Stefan Seyfried <seife@suse.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041207 Thunderbird/1.0 Mnenhy/0.7.2.0
-X-Accept-Language: en-us, en
+	Sun, 1 May 2005 07:05:14 -0400
+Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:48062 "HELO
+	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261590AbVEALFG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 07:05:06 -0400
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Jeff Dike <jdike@addtoit.com>
+Subject: Factoring out common syscalls into asm-generic (was: Re: [uml-devel] Re: [patch 1/7] uml: fix syscall table by including $(SUBARCH)'s one, for i386
+Date: Sun, 1 May 2005 13:15:37 +0200
+User-Agent: KMail/1.8
+Cc: Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
+       bstroesser@fujitsu-siemens.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+References: <20050424181909.81B8F33AED@zion> <20050428181053.GQ23013@shell0.pdx.osdl.net> <20050428204858.GD25451@ccure.user-mode-linux.org>
+In-Reply-To: <20050428204858.GD25451@ccure.user-mode-linux.org>
 MIME-Version: 1.0
-To: lgb@lgb.hu
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Compaq Armada E500 notebook and 2.6.x kernels
-References: <20050501084951.GA19102@vega.lgb.hu>
-In-Reply-To: <20050501084951.GA19102@vega.lgb.hu>
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200505011315.37583.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gábor Lénárt wrote:
-> Hello,
-> 
-> Sorry, maybe it's an OT here but I'm out of ideas (including google). My
-> problem is our Compaq Armada E500. It worked quite well with 2.4.x kernels.
-> However with 2.6.x kernels it always freezes. No log or opps, and the exact
+On Thursday 28 April 2005 22:48, Jeff Dike wrote:
+> On Thu, Apr 28, 2005 at 11:10:53AM -0700, Chris Wright wrote:
+> > * blaisorblade@yahoo.it (blaisorblade@yahoo.it) wrote:
+> > > Split the i386 entry.S files into entry.S and syscall_table.S which
+> > > is included in the previous one (so actually there is no difference
+> > > between them) and use the syscall_table.S in the UML build, instead of
+> > > tracking by hand the syscall table changes (which is inherently
+> > > error-prone).
+> >
+> > Xen can use this as well (it was on my todo list).
+>
+> Maybe talking out of my ass here, but would it make sense to have the
+> generic syscalls in asm-generic, in the form of something like:
+> 	SYSCALL(__NR_getpid, sys_getpid)
+> ?
+>
+> The arch include this into its syscall table, would continue to define
+> __NR_*, and it would define SYSCALL (but all the syscall tables I've
+> seen are just arrays of pointers).  This would allow the arches to
+> automatically get all the generic system calls, and they'd continue to
+> define on their own any arch-specific things.
 
-> from various sources with no solution ... It renders this notebook unusable
-> for us, since distribution(s) we wanted to use already changed from 2.4.x
-> kernels to 2.6. Is there ANY ideas? On request I can send various
-> information on this notebook, but at the moment I can't. Thanx in advance.
+The problem is that probably there are little "generic" syscalls. The above 
+example is invalid on Alpha, for instance (they have sys_getxpid).
 
-I have two E500's at hand, one is mission critical (my wife's :-) and
-both run fine since 2.6.0test-days. The only minor problems i had were
-the touchpad misdetected in early 2.6 (long since fixed) and one time,
-when i had something that smelled awfully like memory corruption after
-ACPI suspend to RAM, but that one never happened again.
+Also, probably, restructuring anything to take advantage of this would be very 
+dangerous, error-prone and not rewarding... we (UML) had to do this because 
+we had serious maintenance problems, plus the fact that we must *match* other 
+syscall tables rather than having our own. Otherwise there's probably no 
+reason to rebuild the table.
 
-Note that E500 apparently come in many different "flavors", i have one
-P3-800 and one P3-650 and they need e.g. different module parameters to
-get speedstep going.
-
-My experience is almost exclusively with suse-patched kernels, but i do
-not remember putting any band-aids for the E500 into those.
-
-Are you running with APM or ACPI? Mine are running with ACPI since at
-least 18 month with everything (suspend etc) working out of the box.
+However, I guess that *new* syscalls are probably often generic, so for them 
+there would be a good reason to have some generic idea. Who knows...
 -- 
-Stefan Seyfried, QA / R&D Team Mobile Devices, SUSE LINUX Nürnberg.
+Paolo Giarrusso, aka Blaisorblade
+Skype user "PaoloGiarrusso"
+Linux registered user n. 292729
+http://www.user-mode-linux.org/~blaisorblade
 
-"Any ideas, John?"
-"Well, surrounding them's out."

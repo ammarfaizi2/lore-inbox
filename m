@@ -1,40 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbVEAFIr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261545AbVEAF4z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261322AbVEAFIr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 01:08:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261527AbVEAFIr
+	id S261545AbVEAF4z (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 01:56:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbVEAF4y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 01:08:47 -0400
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:43182 "EHLO
-	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S261322AbVEAFIq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 01:08:46 -0400
-X-ORBL: [67.124.119.21]
-Date: Sat, 30 Apr 2005 22:08:33 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Colin Leroy <colin@colino.net>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] hfsplus: don't oops on bad FS
-Message-ID: <20050501050833.GA3045@taniwha.stupidest.org>
-References: <20050425211915.126ddab5@jack.colino.net> <Pine.LNX.4.61.0504252145220.25129@scrub.home> <20050425220345.6b2ed6d5@jack.colino.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050425220345.6b2ed6d5@jack.colino.net>
+	Sun, 1 May 2005 01:56:54 -0400
+Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:32691 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261538AbVEAF4u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 01:56:50 -0400
+To: jamie@shareable.org
+CC: hch@infradead.org, bulb@ucw.cz, viro@parcelfarce.linux.theplanet.co.uk,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+In-reply-to: <20050430235453.GA11494@mail.shareable.org> (message from Jamie
+	Lokier on Sun, 1 May 2005 00:54:54 +0100)
+Subject: Re: [PATCH] private mounts
+References: <20050425071047.GA13975@vagabond> <E1DQ0Mc-0007B5-00@dorka.pomaz.szeredi.hu> <20050430083516.GC23253@infradead.org> <E1DRoDm-0002G9-00@dorka.pomaz.szeredi.hu> <20050430094218.GA32679@mail.shareable.org> <E1DRoz9-0002JL-00@dorka.pomaz.szeredi.hu> <20050430143609.GA4362@mail.shareable.org> <E1DRuNU-0002el-00@dorka.pomaz.szeredi.hu> <20050430164258.GA6498@mail.shareable.org> <E1DRvRc-0002lq-00@dorka.pomaz.szeredi.hu> <20050430235453.GA11494@mail.shareable.org>
+Message-Id: <E1DS7RB-0004Md-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Sun, 01 May 2005 07:56:17 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 25, 2005 at 10:03:45PM +0200, Colin Leroy wrote:
+> Not necessary.
+> 
+> Why not have the FUSE daemon keep open a file descriptor for the
+> directory it's mounted on, and have it sent that to new would-be
+> mounters of the same directory using a unix domain socket (rather as
+> Pavel suggested)?
 
->  cleanup:
->  	hfsplus_put_super(sb);
-> +
-> +cleanup_little:
->  	if (nls)
->  		unload_nls(nls);
-> +	sb->s_fs_info = NULL;
-> +	kfree(sbi);
+How does that help?  It doesn't matter _which_ process you try to bind
+mount /proc/XXX/fd/N from, the result will be the same.
 
-cleanup_little?  why not cleanup_no_put or something?
+> No.  The check is to prevent processes in chroot jails from accessing
+> directories outside their jail.  Even CAP_SYS_ADMIN processes must be
+> forbidden from doing that.
+
+As someone pointed out, CAP_SYS_ADMIN processes can already escape the
+chroot jail with CLONE_NEWNS.  (fd=open("."); clone(CLONE_NEWNS);
+[child:] fchdir(fd); chdir(".."))
+
+> But proc_check_root is unnecessarily strict, in that it prevents a
+> process from traversing into a "child" namespace.
+> 
+> IMHO, a better security restriction anyway would be for processes in
+> chroot jails to not be able to see processes outside the jail in /proc
+> - only processes inside the jail should be visible.  I think everyone
+> agrees that would be best.
+
+Dunno.  It's a big change possibly breaking existing applications.
+Chroot probably has other uses than jailing.
+
+> If that were implemented, then proc_check_root would be redundant and
+> could be removed entirely.
+
+Yes. 
+
+Miklos

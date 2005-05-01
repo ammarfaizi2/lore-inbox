@@ -1,130 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261555AbVEAPem@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261655AbVEAPle@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261555AbVEAPem (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 11:34:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbVEAPem
+	id S261655AbVEAPle (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 11:41:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbVEAPle
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 11:34:42 -0400
-Received: from colo.lackof.org ([198.49.126.79]:52411 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S261555AbVEAPeb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 11:34:31 -0400
-Date: Sun, 1 May 2005 09:37:09 -0600
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [RFC: 2.6 patch] drivers/pci/pci.c: remove pci_dac_set_dma_mask
-Message-ID: <20050501153709.GB17998@colo.lackof.org>
-References: <20050501135308.GC3592@stusta.de>
+	Sun, 1 May 2005 11:41:34 -0400
+Received: from wproxy.gmail.com ([64.233.184.196]:2398 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261655AbVEAPlb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 11:41:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nCBwSycFhc1B/miFtMQuqlALOeZxxAmibFysgxz9tZboxRF7Mpr+Kzkmd+KH7kLS3aB5az/4a0HiLy3WwDucPtABIgaxRg6owvpRZi7bKUpEcFUqE7aIGqgmW9VgGsfrxX90nOXel6BAV7x1vTe4L1v+6tyNmJDR1kHc1yC7D+I=
+Message-ID: <a4e6962a05050108412c50e9b5@mail.gmail.com>
+Date: Sun, 1 May 2005 10:41:30 -0500
+From: Eric Van Hensbergen <ericvh@gmail.com>
+Reply-To: Eric Van Hensbergen <ericvh@gmail.com>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Subject: Re: [PATCH] private mounts
+Cc: jamie@shareable.org, hch@infradead.org, bulb@ucw.cz,
+       viro@parcelfarce.linux.theplanet.co.uk, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <E1DS7RB-0004Md-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050501135308.GC3592@stusta.de>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.9i
+References: <20050425071047.GA13975@vagabond>
+	 <E1DRoDm-0002G9-00@dorka.pomaz.szeredi.hu>
+	 <20050430094218.GA32679@mail.shareable.org>
+	 <E1DRoz9-0002JL-00@dorka.pomaz.szeredi.hu>
+	 <20050430143609.GA4362@mail.shareable.org>
+	 <E1DRuNU-0002el-00@dorka.pomaz.szeredi.hu>
+	 <20050430164258.GA6498@mail.shareable.org>
+	 <E1DRvRc-0002lq-00@dorka.pomaz.szeredi.hu>
+	 <20050430235453.GA11494@mail.shareable.org>
+	 <E1DS7RB-0004Md-00@dorka.pomaz.szeredi.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 01, 2005 at 03:53:08PM +0200, Adrian Bunk wrote:
-> pci_dac_set_dma_mask is currently completely unused.
+On 5/1/05, Miklos Szeredi <miklos@szeredi.hu> wrote:
 > 
-> Is any usage planned in the forseeable future or is this patch to remove 
-> it OK?
+> As someone pointed out, CAP_SYS_ADMIN processes can already escape the
+> chroot jail with CLONE_NEWNS.  (fd=open("."); clone(CLONE_NEWNS);
+> [child:] fchdir(fd); chdir(".."))
+> 
 
-I think so. Drivers call pci_set_dma_mask() and check the return code.
+This really does seem like a bug.  Is there are a reason behind this
+"feature", or should one of us be looking into a patch to correct
+this?
 
-Documentation/DMA-mapping.txt needs to be updated too:
-| The first thing your driver needs to do is query the PCI platform
-| layer with your devices DAC addressing capabilities:
-| 
-|       int pci_dac_set_dma_mask(struct pci_dev *pdev, u64 mask);
-| 
-| This routine behaves identically to pci_set_dma_mask.  You may not   
-| use the following interfaces if this routine fails.
+Miklos you earlier suggested:
+>>>How about fixing fchdir, so it checks whether you gone outside the
+>>>tree under current->fs->rootmnt?  Should be fairly easy to do.
 
-thanks,
-grant
-
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> ---
-> 
->  arch/arm/mach-ixp4xx/common-pci.c |   10 ----------
->  drivers/pci/pci.c                 |   12 ------------
->  include/linux/pci.h               |    2 --
->  3 files changed, 24 deletions(-)
-> 
-> --- linux-2.6.12-rc3-mm1-full/include/linux/pci.h.old	2005-04-30 22:56:24.000000000 +0200
-> +++ linux-2.6.12-rc3-mm1-full/include/linux/pci.h	2005-04-30 22:56:31.000000000 +0200
-> @@ -815,7 +815,6 @@
->  int pci_set_mwi(struct pci_dev *dev);
->  void pci_clear_mwi(struct pci_dev *dev);
->  int pci_set_dma_mask(struct pci_dev *dev, u64 mask);
-> -int pci_dac_set_dma_mask(struct pci_dev *dev, u64 mask);
->  int pci_set_consistent_dma_mask(struct pci_dev *dev, u64 mask);
->  int pci_assign_resource(struct pci_dev *dev, int i);
->  
-> @@ -946,7 +945,6 @@
->  static inline int pci_enable_device(struct pci_dev *dev) { return -EIO; }
->  static inline void pci_disable_device(struct pci_dev *dev) { }
->  static inline int pci_set_dma_mask(struct pci_dev *dev, u64 mask) { return -EIO; }
-> -static inline int pci_dac_set_dma_mask(struct pci_dev *dev, u64 mask) { return -EIO; }
->  static inline int pci_assign_resource(struct pci_dev *dev, int i) { return -EBUSY;}
->  static inline int pci_register_driver(struct pci_driver *drv) { return 0;}
->  static inline void pci_unregister_driver(struct pci_driver *drv) { }
-> --- linux-2.6.12-rc3-mm1-full/drivers/pci/pci.c.old	2005-04-30 22:56:39.000000000 +0200
-> +++ linux-2.6.12-rc3-mm1-full/drivers/pci/pci.c	2005-04-30 22:57:07.000000000 +0200
-> @@ -806,17 +806,6 @@
->  }
->      
->  int
-> -pci_dac_set_dma_mask(struct pci_dev *dev, u64 mask)
-> -{
-> -	if (!pci_dac_dma_supported(dev, mask))
-> -		return -EIO;
-> -
-> -	dev->dma_mask = mask;
-> -
-> -	return 0;
-> -}
-> -
-> -int
->  pci_set_consistent_dma_mask(struct pci_dev *dev, u64 mask)
->  {
->  	if (!pci_dma_supported(dev, mask))
-> @@ -878,7 +867,6 @@
->  EXPORT_SYMBOL(pci_set_mwi);
->  EXPORT_SYMBOL(pci_clear_mwi);
->  EXPORT_SYMBOL(pci_set_dma_mask);
-> -EXPORT_SYMBOL(pci_dac_set_dma_mask);
->  EXPORT_SYMBOL(pci_set_consistent_dma_mask);
->  EXPORT_SYMBOL(pci_assign_resource);
->  EXPORT_SYMBOL(pci_find_parent_resource);
-> --- linux-2.6.12-rc3-mm1-full/arch/arm/mach-ixp4xx/common-pci.c.old	2005-04-30 22:57:22.000000000 +0200
-> +++ linux-2.6.12-rc3-mm1-full/arch/arm/mach-ixp4xx/common-pci.c	2005-04-30 22:57:29.000000000 +0200
-> @@ -502,15 +502,6 @@
->  }
->      
->  int
-> -pci_dac_set_dma_mask(struct pci_dev *dev, u64 mask)
-> -{
-> -	if (mask >= SZ_64M - 1 )
-> -		return 0;
-> -
-> -	return -EIO;
-> -}
-> -
-> -int
->  pci_set_consistent_dma_mask(struct pci_dev *dev, u64 mask)
->  {
->  	if (mask >= SZ_64M - 1 )
-> @@ -520,7 +511,6 @@
->  }
->  
->  EXPORT_SYMBOL(pci_set_dma_mask);
-> -EXPORT_SYMBOL(pci_dac_set_dma_mask);
->  EXPORT_SYMBOL(pci_set_consistent_dma_mask);
->  EXPORT_SYMBOL(ixp4xx_pci_read);
->  EXPORT_SYMBOL(ixp4xx_pci_write);
+         -eric

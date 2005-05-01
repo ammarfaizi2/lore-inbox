@@ -1,69 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbVEAW6b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbVEAW4R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261357AbVEAW6b (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 18:58:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbVEAW6b
+	id S261297AbVEAW4R (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 18:56:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbVEAW4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 18:58:31 -0400
-Received: from HELIOUS.MIT.EDU ([18.248.3.87]:40370 "EHLO neo.rr.com")
-	by vger.kernel.org with ESMTP id S261357AbVEAW6S (ORCPT
+	Sun, 1 May 2005 18:56:17 -0400
+Received: from fire.osdl.org ([65.172.181.4]:38095 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261297AbVEAW4M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 18:58:18 -0400
-Date: Sun, 1 May 2005 18:53:35 -0400
-From: Adam Belay <ambx1@neo.rr.com>
-To: Kyle Rose <krose+linux-kernel@krose.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ACPI sleep states on Tyan Thunder K8W S2885
-Message-ID: <20050501225335.GG3951@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Kyle Rose <krose+linux-kernel@krose.org>,
-	linux-kernel@vger.kernel.org
-References: <42726287.80104@krose.org>
+	Sun, 1 May 2005 18:56:12 -0400
+Date: Sun, 1 May 2005 15:55:35 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Nish Aravamudan <nish.aravamudan@gmail.com>
+Cc: stern@rowland.harvard.edu, arvidjaar@mail.ru,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] init 1 kill khubd on 2.6.11
+Message-Id: <20050501155535.3855d31f.akpm@osdl.org>
+In-Reply-To: <29495f1d050501154625ee7087@mail.gmail.com>
+References: <200505012021.56649.arvidjaar@mail.ru>
+	<Pine.LNX.4.44L0.0505011659130.19155-100000@netrider.rowland.org>
+	<20050501153051.2471294e.akpm@osdl.org>
+	<29495f1d050501154625ee7087@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42726287.80104@krose.org>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 29, 2005 at 12:36:23PM -0400, Kyle Rose wrote:
-> I can't seem to get my Tyan board (AMD 81x1 chipset) to go to sleep such
-> that wake-on-LAN will wake it back up.  On my other machines, when I
-> shutdown -h, it (presumably) puts the machine into S5 state
-> automatically, and WOL works like a charm; on this machine, shutdown -h
->   puts the machine into an actual "off" state in which WOL won't wake it
-> back up.
-
-The "off" state is always considered S5.  Adding wake devices does not make
-the state S5.
-
+Nish Aravamudan <nish.aravamudan@gmail.com> wrote:
+>
+> > -       /* Send me a signal to get me die (for debugging) */
+> >         do {
+> >                 hub_events();
+> > -               wait_event_interruptible(khubd_wait, !list_empty(&hub_event_list));
+> > +               wait_event_interruptible(khubd_wait,
+> > +                               !list_empty(&hub_event_list) ||
+> > +                               kthread_should_stop());
+> >                 try_to_freeze(PF_FREEZE);
+> > -       } while (!signal_pending(current));
+> > +       } while (!kthread_should_stop() || !list_empty(&hub_event_list));
 > 
-> Moreover, if I try to echo 5 > /proc/acpi/sleep with full debugging, I
-> get absolutely nothing in dmesg.
+> Shouldn't this simply be a wait_event(), instead of
+> wait_event_interruptible()?
 
--->snip
+That would cause uninterruptible sleep, which contributes to load average.
 
-> Furthermore, if I shut down from Windows, it *does* go into what I
-> presume is the S5 state, so this is a software problem, not hardware.
-> 
-> Any suggestions on debugging?
-> 
-> Cheers,
-> Kyle
+> Then the do-while() can be gotten rid of,
+> as the only reason it is there currently, I guess, is to ignore
+> signals?
 
-S5 wake devices can be a very fuzzy area.  In general, the ACPI spec
-recommends that wake capabilities are enabled before halting the system.
-Therefore, your network card driver may need to specifically handle this.
+Nope, the do-while is a basic part of the daemon's operation: keep doing
+stuff until either there's no stuff to do or until we're told to exit.
 
-For starters, we should probably look at "lspci -vv".  I'm assuming your
-network card is PCI.  This will allow us to see if it's capable of waking
-from D3-cold, the state it will most likely be in during S5.
+> Also, the while's conditional should be (!kthread_should_stop() ||
+> list_empty(&hub_event_list) to match the negation of wait_event's?
+> (wait_event() expects the condition to stop on, while while() expects
+> the condition to continue on)
 
-I would also check your BIOS configuration and see if it's possible to
-specifically enable wake-on-lan.  Let me know if this helps.
+Nope, the wait_event_interruptible test says
 
-Finally, what kernel version are you using?
+  "sleep unless the list is not empty or I am being asked to exit"
 
-Thanks,
-Adam
+the while termination test says
+
+  "loop until the list is empty and I am being asked to stop".
+
+I think.  I had to scratch my head for a while over that code ;)

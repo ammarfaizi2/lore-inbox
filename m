@@ -1,68 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbVEANnX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261611AbVEANrn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261613AbVEANnX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 09:43:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbVEANnW
+	id S261611AbVEANrn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 09:47:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbVEANrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 09:43:22 -0400
-Received: from postfix3-1.free.fr ([213.228.0.44]:44225 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S261613AbVEANnB
+	Sun, 1 May 2005 09:47:43 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:21219 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261611AbVEANrj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 09:43:01 -0400
-Subject: Re: HyperThreading, kernel 2.6.10, 1 logical CPU idle !!
-From: Boris Fersing <mastermac@free.fr>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <4273FA88.1060405@free.fr>
-References: <3Z3u8-28Z-9@gated-at.bofh.it> <4273E2BB.9010509@shaw.ca>
-	 <4273FA88.1060405@free.fr>
-Content-Type: text/plain; charset=UTF-8
-Date: Sun, 01 May 2005 15:42:48 +0200
-Message-Id: <1114954969.27940.1.camel@electron>
+	Sun, 1 May 2005 09:47:39 -0400
+Subject: Re: Non-blocking sockets, connect(), and socket states
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bernard Blackham <bernard@blackham.com.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Werner Almesberger <werner@almesberger.net>
+In-Reply-To: <20050428103451.GG4798@blackham.com.au>
+References: <20050428103451.GG4798@blackham.com.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1114955160.11309.160.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 8bit
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 01 May 2005 14:46:04 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I disabled SMT in the kernel config and yet it seems to work ...
+On Iau, 2005-04-28 at 11:34, Bernard Blackham wrote:
+> Should it be the kernel's responsibility to set SS_CONNECTED when
+> the connection is established? Or should I go file bugs and submit
+> patches on all the applications that use non-blocking sockets and
+> don't call connect() a second time?
 
-Boris.
+See posix 1003.1g drafts. I believe from the state diagram there that
+you should call connect() again once it completes.
 
-Le samedi 30 avril 2005 à 23:37 +0200, Boris Fersing a écrit :
-> Robert Hancock a écrit :
-> 
-> > Boris Fersing wrote:
-> >
-> >> Hi there,
-> >> I've a p4 HT 3,06Ghz, I've HT enabled in the BIOS and in the kernel :
-> >>
-> >> Linux electron 2.6.10-cj5 #6 SMP Fri Mar 4 02:18:08 CET 2005 i686 Mobile
-> >> Intel(R) Pentium(R) 4     CPU 3.06GHz GenuineIntel GNU/Linux .
-> >>
-> >> But it seems that one of my cpus is idle (gkrellm monitor or top) :
-> >>
-> >> Cpu0  : 88.0% us, 12.0% sy,  0.0% ni,  0.0% id,  0.0% wa,  0.0% hi,
-> >> 0.0% si
-> >> Cpu1  :  0.0% us,  0.3% sy,  0.0% ni, 99.7% id,  0.0% wa,  0.0% hi,
-> >> 0.0% si
-> >>
-> >>
-> >> I'm actually compiling thunderbird with MAKEOPTS="-j3", so , the second
-> >> should be used, shouldn't it ?
-> >
-> >
-> > Are you sure that it is actually compiling multiple files at once?
-> >
-> Yes I'm sure, Even if I launch more than 1 gcc, or for example, start a
-> compilation + video encoding (mencoder) + ... the second CPU won't work
-> (idle 100% or sometimes 99,9%).
-> 
-> Regards,
-> 
-> Boris.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261665AbVEAPqJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261666AbVEAPqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261665AbVEAPqJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 11:46:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbVEAPpE
+	id S261666AbVEAPqH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 11:46:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbVEAPpd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 11:45:04 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:45064 "HELO
+	Sun, 1 May 2005 11:45:33 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:46088 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261665AbVEAPmL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 11:42:11 -0400
-Date: Sun, 1 May 2005 17:42:10 +0200
+	id S261666AbVEAPmP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 11:42:15 -0400
+Date: Sun, 1 May 2005 17:42:14 +0200
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: dwmw2@infradead.org, jffs-dev@axis.com, linux-kernel@vger.kernel.org,
-       arjanv@infradead.org
-Subject: [2.6 patch] fs/jffs2/: make some functions static
-Message-ID: <20050501154210.GK3592@stusta.de>
+Cc: vandrove@vc.cvut.cz, linware@sh.cvut.cz, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] fs/ncpfs/: remove unused #ifdef USE_OLD_SLOW_DIRECTORY_LISTING code
+Message-ID: <20050501154214.GL3592@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,85 +22,109 @@ User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes some needlessly global functions static.
+This patch removes some unused #ifdef USE_OLD_SLOW_DIRECTORY_LISTING 
+code.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
-Acked-by: Arjan van de Ven <arjanv@infradead.org>
 
 ---
 
-This patch was already sent on:
+This patch was alread sent on:
 - 23 Apr 2005
 
- fs/jffs2/compr_rubin.c |   18 ++++++++++++------
- fs/jffs2/compr_zlib.c  |   12 ++++++++----
- 2 files changed, 20 insertions(+), 10 deletions(-)
+ fs/ncpfs/dir.c           |   13 ------------
+ fs/ncpfs/ncplib_kernel.c |   40 ---------------------------------------
+ fs/ncpfs/ncplib_kernel.h |    3 --
+ 3 files changed, 56 deletions(-)
 
---- linux-2.6.12-rc2-mm3-full/fs/jffs2/compr_rubin.c.old	2005-04-20 23:28:57.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/fs/jffs2/compr_rubin.c	2005-04-20 23:30:09.000000000 +0200
-@@ -228,8 +228,10 @@
- 	return rubin_do_compress(BIT_DIVIDER_MIPS, bits_mips, data_in, cpage_out, sourcelen, dstlen);
- }
- #endif
--int jffs2_dynrubin_compress(unsigned char *data_in, unsigned char *cpage_out, 
--		   uint32_t *sourcelen, uint32_t *dstlen, void *model)
-+static int jffs2_dynrubin_compress(unsigned char *data_in,
-+				   unsigned char *cpage_out, 
-+				   uint32_t *sourcelen, uint32_t *dstlen,
-+				   void *model)
- {
- 	int bits[8];
- 	unsigned char histo[256];
-@@ -306,15 +308,19 @@
- }		   
- 
- 
--int jffs2_rubinmips_decompress(unsigned char *data_in, unsigned char *cpage_out, 
--		   uint32_t sourcelen, uint32_t dstlen, void *model)
-+static int jffs2_rubinmips_decompress(unsigned char *data_in,
-+				      unsigned char *cpage_out, 
-+				      uint32_t sourcelen, uint32_t dstlen,
-+				      void *model)
- {
- 	rubin_do_decompress(BIT_DIVIDER_MIPS, bits_mips, data_in, cpage_out, sourcelen, dstlen);
-         return 0;
- }
- 
--int jffs2_dynrubin_decompress(unsigned char *data_in, unsigned char *cpage_out, 
--		   uint32_t sourcelen, uint32_t dstlen, void *model)
-+static int jffs2_dynrubin_decompress(unsigned char *data_in,
-+				     unsigned char *cpage_out, 
-+				     uint32_t sourcelen, uint32_t dstlen,
-+				     void *model)
- {
- 	int bits[8];
- 	int c;
---- linux-2.6.12-rc2-mm3-full/fs/jffs2/compr_zlib.c.old	2005-04-20 23:30:31.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/fs/jffs2/compr_zlib.c	2005-04-20 23:31:04.000000000 +0200
-@@ -69,8 +69,10 @@
- #define free_workspaces() do { } while(0)
- #endif /* __KERNEL__ */
- 
--int jffs2_zlib_compress(unsigned char *data_in, unsigned char *cpage_out, 
--		   uint32_t *sourcelen, uint32_t *dstlen, void *model)
-+static int jffs2_zlib_compress(unsigned char *data_in,
-+			       unsigned char *cpage_out, 
-+			       uint32_t *sourcelen, uint32_t *dstlen,
-+			       void *model)
- {
- 	int ret;
- 
-@@ -135,8 +137,10 @@
- 	return ret;
+--- linux-2.6.12-rc2-mm3-full/fs/ncpfs/dir.c.old	2005-04-20 23:53:44.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/fs/ncpfs/dir.c	2005-04-20 23:53:56.000000000 +0200
+@@ -705,18 +705,6 @@
+ 		DPRINTK("ncp_do_readdir: init failed, err=%d\n", err);
+ 		return;
+ 	}
+-#ifdef USE_OLD_SLOW_DIRECTORY_LISTING
+-	for (;;) {
+-		err = ncp_search_for_file_or_subdir(server, &seq, &entry.i);
+-		if (err) {
+-			DPRINTK("ncp_do_readdir: search failed, err=%d\n", err);
+-			break;
+-		}
+-		entry.volume = entry.i.volNumber;
+-		if (!ncp_fill_cache(filp, dirent, filldir, ctl, &entry))
+-			break;
+-	}
+-#else
+ 	/* We MUST NOT use server->buffer_size handshaked with server if we are
+ 	   using UDP, as for UDP server uses max. buffer size determined by
+ 	   MTU, and for TCP server uses hardwired value 65KB (== 66560 bytes). 
+@@ -754,7 +742,6 @@
+ 		}
+ 	} while (more);
+ 	vfree(buf);
+-#endif
+ 	return;
  }
  
--int jffs2_zlib_decompress(unsigned char *data_in, unsigned char *cpage_out,
--		      uint32_t srclen, uint32_t destlen, void *model)
-+static int jffs2_zlib_decompress(unsigned char *data_in,
-+				 unsigned char *cpage_out,
-+				 uint32_t srclen, uint32_t destlen,
-+				 void *model)
- {
- 	int ret;
- 	int wbits = MAX_WBITS;
+--- linux-2.6.12-rc2-mm3-full/fs/ncpfs/ncplib_kernel.h.old	2005-04-20 23:54:04.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/fs/ncpfs/ncplib_kernel.h	2005-04-20 23:54:11.000000000 +0200
+@@ -87,9 +87,6 @@
+ 
+ int ncp_initialize_search(struct ncp_server *, struct inode *,
+ 		      struct nw_search_sequence *target);
+-int ncp_search_for_file_or_subdir(struct ncp_server *server,
+-			      struct nw_search_sequence *seq,
+-			      struct nw_info_struct *target);
+ int ncp_search_for_fileset(struct ncp_server *server,
+ 			   struct nw_search_sequence *seq,
+ 			   int* more, int* cnt,
+--- linux-2.6.12-rc2-mm3-full/fs/ncpfs/ncplib_kernel.c.old	2005-04-20 23:54:19.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/fs/ncpfs/ncplib_kernel.c	2005-04-20 23:54:26.000000000 +0200
+@@ -845,46 +845,6 @@
+ 	return result;
+ }
+ 
+-/* Search for everything */
+-int ncp_search_for_file_or_subdir(struct ncp_server *server,
+-				  struct nw_search_sequence *seq,
+-				  struct nw_info_struct *target)
+-{
+-	int result;
+-
+-	ncp_init_request(server);
+-	ncp_add_byte(server, 3);	/* subfunction */
+-	ncp_add_byte(server, server->name_space[seq->volNumber]);
+-	ncp_add_byte(server, 0);	/* data stream (???) */
+-	ncp_add_word(server, cpu_to_le16(0x8006));	/* Search attribs */
+-	ncp_add_dword(server, RIM_ALL);		/* return info mask */
+-	ncp_add_mem(server, seq, 9);
+-#ifdef CONFIG_NCPFS_NFS_NS
+-	if (server->name_space[seq->volNumber] == NW_NS_NFS) {
+-		ncp_add_byte(server, 0);	/* 0 byte pattern */
+-	} else 
+-#endif
+-	{
+-		ncp_add_byte(server, 2);	/* 2 byte pattern */
+-		ncp_add_byte(server, 0xff);	/* following is a wildcard */
+-		ncp_add_byte(server, '*');
+-	}
+-	
+-	if ((result = ncp_request(server, 87)) != 0)
+-		goto out;
+-	memcpy(seq, ncp_reply_data(server, 0), sizeof(*seq));
+-	ncp_extract_file_info(ncp_reply_data(server, 10), target);
+-
+-	ncp_unlock_server(server);
+-	
+-	result = ncp_obtain_nfs_info(server, target);
+-	return result;
+-
+-out:
+-	ncp_unlock_server(server);
+-	return result;
+-}
+-
+ int ncp_search_for_fileset(struct ncp_server *server,
+ 			   struct nw_search_sequence *seq,
+ 			   int* more,
 

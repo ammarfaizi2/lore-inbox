@@ -1,37 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261611AbVEANrn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261622AbVEANxU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261611AbVEANrn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 09:47:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbVEANrn
+	id S261622AbVEANxU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 09:53:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261625AbVEANxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 09:47:43 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:21219 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261611AbVEANrj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 09:47:39 -0400
-Subject: Re: Non-blocking sockets, connect(), and socket states
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bernard Blackham <bernard@blackham.com.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Werner Almesberger <werner@almesberger.net>
-In-Reply-To: <20050428103451.GG4798@blackham.com.au>
-References: <20050428103451.GG4798@blackham.com.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1114955160.11309.160.camel@localhost.localdomain>
+	Sun, 1 May 2005 09:53:20 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:13319 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261622AbVEANxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 09:53:10 -0400
+Date: Sun, 1 May 2005 15:53:08 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: gregkh@suse.de
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: [RFC: 2.6 patch] drivers/pci/pci.c: remove pci_dac_set_dma_mask
+Message-ID: <20050501135308.GC3592@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 01 May 2005 14:46:04 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-04-28 at 11:34, Bernard Blackham wrote:
-> Should it be the kernel's responsibility to set SS_CONNECTED when
-> the connection is established? Or should I go file bugs and submit
-> patches on all the applications that use non-blocking sockets and
-> don't call connect() a second time?
+pci_dac_set_dma_mask is currently completely unused.
 
-See posix 1003.1g drafts. I believe from the state diagram there that
-you should call connect() again once it completes.
+Is any usage planned in the forseeable future or is this patch to remove 
+it OK?
 
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+ arch/arm/mach-ixp4xx/common-pci.c |   10 ----------
+ drivers/pci/pci.c                 |   12 ------------
+ include/linux/pci.h               |    2 --
+ 3 files changed, 24 deletions(-)
+
+--- linux-2.6.12-rc3-mm1-full/include/linux/pci.h.old	2005-04-30 22:56:24.000000000 +0200
++++ linux-2.6.12-rc3-mm1-full/include/linux/pci.h	2005-04-30 22:56:31.000000000 +0200
+@@ -815,7 +815,6 @@
+ int pci_set_mwi(struct pci_dev *dev);
+ void pci_clear_mwi(struct pci_dev *dev);
+ int pci_set_dma_mask(struct pci_dev *dev, u64 mask);
+-int pci_dac_set_dma_mask(struct pci_dev *dev, u64 mask);
+ int pci_set_consistent_dma_mask(struct pci_dev *dev, u64 mask);
+ int pci_assign_resource(struct pci_dev *dev, int i);
+ 
+@@ -946,7 +945,6 @@
+ static inline int pci_enable_device(struct pci_dev *dev) { return -EIO; }
+ static inline void pci_disable_device(struct pci_dev *dev) { }
+ static inline int pci_set_dma_mask(struct pci_dev *dev, u64 mask) { return -EIO; }
+-static inline int pci_dac_set_dma_mask(struct pci_dev *dev, u64 mask) { return -EIO; }
+ static inline int pci_assign_resource(struct pci_dev *dev, int i) { return -EBUSY;}
+ static inline int pci_register_driver(struct pci_driver *drv) { return 0;}
+ static inline void pci_unregister_driver(struct pci_driver *drv) { }
+--- linux-2.6.12-rc3-mm1-full/drivers/pci/pci.c.old	2005-04-30 22:56:39.000000000 +0200
++++ linux-2.6.12-rc3-mm1-full/drivers/pci/pci.c	2005-04-30 22:57:07.000000000 +0200
+@@ -806,17 +806,6 @@
+ }
+     
+ int
+-pci_dac_set_dma_mask(struct pci_dev *dev, u64 mask)
+-{
+-	if (!pci_dac_dma_supported(dev, mask))
+-		return -EIO;
+-
+-	dev->dma_mask = mask;
+-
+-	return 0;
+-}
+-
+-int
+ pci_set_consistent_dma_mask(struct pci_dev *dev, u64 mask)
+ {
+ 	if (!pci_dma_supported(dev, mask))
+@@ -878,7 +867,6 @@
+ EXPORT_SYMBOL(pci_set_mwi);
+ EXPORT_SYMBOL(pci_clear_mwi);
+ EXPORT_SYMBOL(pci_set_dma_mask);
+-EXPORT_SYMBOL(pci_dac_set_dma_mask);
+ EXPORT_SYMBOL(pci_set_consistent_dma_mask);
+ EXPORT_SYMBOL(pci_assign_resource);
+ EXPORT_SYMBOL(pci_find_parent_resource);
+--- linux-2.6.12-rc3-mm1-full/arch/arm/mach-ixp4xx/common-pci.c.old	2005-04-30 22:57:22.000000000 +0200
++++ linux-2.6.12-rc3-mm1-full/arch/arm/mach-ixp4xx/common-pci.c	2005-04-30 22:57:29.000000000 +0200
+@@ -502,15 +502,6 @@
+ }
+     
+ int
+-pci_dac_set_dma_mask(struct pci_dev *dev, u64 mask)
+-{
+-	if (mask >= SZ_64M - 1 )
+-		return 0;
+-
+-	return -EIO;
+-}
+-
+-int
+ pci_set_consistent_dma_mask(struct pci_dev *dev, u64 mask)
+ {
+ 	if (mask >= SZ_64M - 1 )
+@@ -520,7 +511,6 @@
+ }
+ 
+ EXPORT_SYMBOL(pci_set_dma_mask);
+-EXPORT_SYMBOL(pci_dac_set_dma_mask);
+ EXPORT_SYMBOL(pci_set_consistent_dma_mask);
+ EXPORT_SYMBOL(ixp4xx_pci_read);
+ EXPORT_SYMBOL(ixp4xx_pci_write);
 

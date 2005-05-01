@@ -1,56 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261709AbVEAPyu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbVEAQOT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261709AbVEAPyu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 11:54:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261701AbVEAPyi
+	id S261684AbVEAQOT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 12:14:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbVEAQKD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 11:54:38 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:55279 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261679AbVEAPvc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 11:51:32 -0400
-Subject: Re: scheduler/SCHED_FIFO behaviour
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Arun Srinivas <getarunsri@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <BAY10-F433C0F72A446C39BA90258D9260@phx.gbl>
-References: <BAY10-F433C0F72A446C39BA90258D9260@phx.gbl>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Sun, 01 May 2005 11:51:25 -0400
-Message-Id: <1114962685.5081.5.camel@localhost.localdomain>
+	Sun, 1 May 2005 12:10:03 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35240 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261695AbVEAQGu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 12:06:50 -0400
+Date: Sun, 1 May 2005 17:07:07 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Blaisorblade <blaisorblade@yahoo.it>
+Cc: user-mode-linux-devel@lists.sourceforge.net, Jeff Dike <jdike@addtoit.com>,
+       linux-kernel@vger.kernel.org, sam@ravnborg.org,
+       Ryan Anderson <ryan@michonline.com>
+Subject: Re: [uml-devel] Re: [UML] Compile error when building with seperate source and object directories
+Message-ID: <20050501160707.GI13052@parcelfarce.linux.theplanet.co.uk>
+References: <1114570958.5983.50.camel@mythical> <20050428202647.GA25451@ccure.user-mode-linux.org> <20050428215328.GC13052@parcelfarce.linux.theplanet.co.uk> <200505011330.58205.blaisorblade@yahoo.it>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200505011330.58205.blaisorblade@yahoo.it>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-05-01 at 07:36 +0530, Arun Srinivas wrote:
-> hi
-> 
->   I spkoe to you some days ago regarding scheduling two processes together 
-> on a HT.As I told you before I run them as SCHED_FIFO processes.I understood 
-> the theory you told me in your previous reply as to why both of SCHED_FIFO 
-> processes get scheduled only once and then run till completion.
-> 
-> But, sometimes a see a occasional reschedulei.e., the 2 processes get 
-> scheduled one more time after they are scheduled for the 1st time. I ran my 
-> code 100 times and observed this behavior 8 out of  100 times. What could be 
-> the reason?
-> (As I said i want my 2 processes to run together without any reschedule 
-> after they are scheduled for the first time).
+On Sun, May 01, 2005 at 01:30:57PM +0200, Blaisorblade wrote:
+> For now I've added an #ifdef to re-include that code for x86, while excluding 
+> it for x86_64. Also, is that up-to-date wrt. 2.6.12-rc3?
 
- The only way a real time priority process of SCHED_FIFO gets
-rescheduled, is if the process voluntarily calls schedule (you call a
-system call that calls schedule), or a higher priority process gets
-scheduled.  I don't know what your program is doing, or what priorities
-that they are running with to know if something like this has occurred.
-
-Also, if the programs you are running haven't been locked into memory
-(they exist partially on the hard drive still), then it will take time
-to map the code into memory when that code is called, and a schedule
-will occur then as well. 
-
--- Steve
-
-
+Yes, it is.  As for the ptrace.c...  IMO the right thing is per-architecture
+helper here.  Such ifdefs are OK when it's just i386 and amd64.  As soon
+as e.g. uml/s390 gets merged or uml/ia64 and uml/ppc get resurrected...

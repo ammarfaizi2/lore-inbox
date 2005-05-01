@@ -1,36 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbVEAOOj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261519AbVEAOXe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261630AbVEAOOj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 10:14:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbVEAOOj
+	id S261519AbVEAOXe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 10:23:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbVEAOXe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 10:14:39 -0400
-Received: from postfix4-2.free.fr ([213.228.0.176]:34788 "EHLO
-	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S261630AbVEAOOi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 10:14:38 -0400
-Subject: Re: Compaq Armada E500 notebook and 2.6.x kernels
-From: =?ISO-8859-1?Q?Beno=EEt?= Rouits <brouits@free.fr>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Sun, 01 May 2005 16:15:04 +0200
-Message-Id: <1114956905.12478.8.camel@localhost.localdomain>
+	Sun, 1 May 2005 10:23:34 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:35847 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261519AbVEAOXc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 10:23:32 -0400
+Date: Sun, 1 May 2005 16:23:30 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: 2003 John Klar <linpvr@projectplasma.com>, linux-kernel@vger.kernel.org,
+       video4linux-list@redhat.com
+Subject: Re: [2.6 patch] drivers/media/video/tveeprom.c: possible cleanups
+Message-ID: <20050501142330.GE3592@stusta.de>
+References: <20050419005315.GP5489@stusta.de> <20050419075348.GD15656@bytesex>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050419075348.GD15656@bytesex>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi Gábor,
-I recently installed a 2.6.10 and 2.6.11 kernel on my laptop and they
-froze about 5 minutes after booting. My solution was to give those 2
-options to the kernels:
-lilo boot: mykernel noapic nolapic
-apic and Local apic are Advanced Programmable Interrupt Controller
-I don't know why the local aic doesn't works in Sempron..
+On Tue, Apr 19, 2005 at 09:53:48AM +0200, Gerd Knorr wrote:
 
-My laptop is an HP/Compaq with an AMD Sempron inside and a phoenix bios
-HTH,
---
-ben
+> > - #if 0 the EXPORT_SYMBOL'ed but unused function tveeprom_dump
+> 
+> That's a debug helper function, please don't drop it.  #if 0 might be
+> ok, not sure though, the tveeprom module is also used by a out-of-kernel
+> driver (ivtv).  Otherwise the patch looks fine to me.
+
+As the comment says, my patch does #if 0 the function.
+
+>   Gerd
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

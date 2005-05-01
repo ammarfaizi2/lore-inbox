@@ -1,46 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbVEAP6T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261672AbVEAQJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261677AbVEAP6T (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 11:58:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbVEAPzS
+	id S261672AbVEAQJx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 12:09:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbVEAQGg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 11:55:18 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:63752 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261677AbVEAPua (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 11:50:30 -0400
-Date: Sun, 1 May 2005 17:50:22 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, gregkh@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] fix "make mandocs" after class_simple.c removal
-Message-ID: <20050501155022.GW3592@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Sun, 1 May 2005 12:06:36 -0400
+Received: from mail.dif.dk ([193.138.115.101]:7625 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261674AbVEAPrI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 11:47:08 -0400
+Date: Sun, 1 May 2005 17:50:34 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Sean Neakums <sneakums@zork.net>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org
+Subject: Re: 2.6.12-rc3-mm2: ppc pte_offset_map()
+In-Reply-To: <6uu0lnf0gm.fsf@zork.zork.net>
+Message-ID: <Pine.LNX.4.62.0505011749280.2488@dragon.hyggekrogen.localhost>
+References: <20050430164303.6538f47c.akpm@osdl.org> <6uu0lnf0gm.fsf@zork.zork.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Due to the removal of class_simple.c, "make mandocs" no longer works.
+On Sun, 1 May 2005, Sean Neakums wrote:
 
-This patch fixes this issue.
+> On my Mackertosh (PowerBook5.4), build fails with the following:
+> 
+>   fs/proc/task_mmu.c: In function `smaps_pte_range':
+>   fs/proc/task_mmu.c:177: warning: implicit declaration of function `kmap_atomic'
+>   fs/proc/task_mmu.c:177: error: `KM_PTE0' undeclared (first use in this function)
+>   fs/proc/task_mmu.c:177: error: (Each undeclared identifier is reported only once
+>   fs/proc/task_mmu.c:177: error: for each function it appears in.)
+>   fs/proc/task_mmu.c:207: warning: implicit declaration of function `kunmap_atomic'
+> 
+> With the naive patch below, it builds with this warning and everything works.
+> 
+>   fs/proc/task_mmu.c: In function `smaps_pte_range':
+>   fs/proc/task_mmu.c:208: warning: passing arg 1 of `kunmap_atomic' makes pointer from integer without a cast
+> 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Try this patch :
 
----
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-This patch was already sent on:
-- 17 Apr 2005
+--- linux-2.6.12-rc3-mm2-orig/fs/proc/task_mmu.c	2005-05-01 04:04:25.000000000 +0200
++++ linux-2.6.12-rc3-mm2/fs/proc/task_mmu.c	2005-05-01 17:49:14.000000000 +0200
+@@ -2,6 +2,7 @@
+ #include <linux/hugetlb.h>
+ #include <linux/mount.h>
+ #include <linux/seq_file.h>
++#include <linux/highmem.h>
+ 
+ #include <asm/elf.h>
+ #include <asm/uaccess.h>
+@@ -204,7 +205,7 @@ static void smaps_pte_range(pmd_t *pmd,
+ 			}
+ 		}
+ 	} while (address < end);
+-	pte_unmap(pte);
++	pte_unmap((void *)pte);
+ }
+ 
+ static void smaps_pmd_range(pud_t *pud,
 
---- linux-2.6.12-rc2-mm3-full/Documentation/DocBook/kernel-api.tmpl.old	2005-04-17 23:26:10.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/Documentation/DocBook/kernel-api.tmpl	2005-04-17 23:26:17.000000000 +0200
-@@ -338,7 +338,6 @@
- X!Iinclude/linux/device.h
- -->
- !Edrivers/base/driver.c
--!Edrivers/base/class_simple.c
- !Edrivers/base/core.c
- !Edrivers/base/firmware_class.c
- !Edrivers/base/transport_class.c
 

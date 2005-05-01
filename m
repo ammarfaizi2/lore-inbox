@@ -1,95 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVEANJw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbVEANTh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261607AbVEANJw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 09:09:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbVEANJw
+	id S261499AbVEANTh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 09:19:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbVEANTh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 09:09:52 -0400
-Received: from mail.aei.ca ([206.123.6.14]:43239 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S261607AbVEANJs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 09:09:48 -0400
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: 2.6.12-rc3-mm1
-Date: Sun, 1 May 2005 09:09:37 -0400
-User-Agent: KMail/1.7.2
-Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, akpm@osdl.org,
+	Sun, 1 May 2005 09:19:37 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:54022 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261499AbVEANTc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 09:19:32 -0400
+Date: Sun, 1 May 2005 15:19:31 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Ed Tomlinson <tomlins@cam.org>
+Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-References: <20050429231653.32d2f091.akpm@osdl.org> <Pine.LNX.4.61.0504301700470.3559@montezuma.fsmlabs.com> <20050430161032.0f5ac973.rddunlap@osdl.org>
-In-Reply-To: <20050430161032.0f5ac973.rddunlap@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: Re: 2.6.12-rc3-mm1
+Message-ID: <20050501131931.GA3592@stusta.de>
+References: <20050429231653.32d2f091.akpm@osdl.org> <200504300827.44359.tomlins@cam.org> <Pine.LNX.4.61.0504301634590.3559@montezuma.fsmlabs.com> <200504301853.40395.tomlins@cam.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200505010909.38277.tomlins@cam.org>
+In-Reply-To: <200504301853.40395.tomlins@cam.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 30 April 2005 19:10, Randy.Dunlap wrote:
-> On Sat, 30 Apr 2005 17:05:43 -0600 (MDT) Zwane Mwaikambo wrote:
+On Sat, Apr 30, 2005 at 06:53:40PM -0400, Ed Tomlinson wrote:
+> On Saturday 30 April 2005 18:36, Zwane Mwaikambo wrote:
+> > On Sat, 30 Apr 2005, Ed Tomlinson wrote:
+> > 
+> > > If we stick with git it might make sense not to include a linux-patch.  cogito
+> > > is quite fast to export using a commit id.  Suspect some bandwidth could be 
+> > > saved if you just stated the commit id that you based the mm patch on.
+> > > 
+> > > In case anyone is wondering how build this from a cogito/git db...  Find the
+> > > cogito announcement on lkml install and update cogito.  Then folliw the instructions
+> > > in the README and download the kernel's db.  Next search lkml to find the commit id 
+> > > of rc3 (a2755a80f40e5794ddc20e00f781af9d6320fafb) and verify you have it correct 
+> > > with:
+> > > 
+> > > cg-mkpatch a2755a80f40e5794ddc20e00f781af9d6320fafb
+> > > 
+> > > then export a tree with
+> > > 
+> > > cg-export ../12-3-1 a2755a80f40e5794ddc20e00f781af9d6320fafb
+> > > 
+> > > and cd over to the new dir and patch with mm and have fun.
+> > 
+> > That'd be a horribly convoluted procedure and make automation difficult,
+> > -mm shouldn't be that difficult to use. Also linus.patch used to be the 
+> > current -bk snapshot.
 > 
-> | On Sat, 30 Apr 2005, Ed Tomlinson wrote:
-> | 
-> | > Huh?  Assuming one already has a current git tree.  Then all Andrew need do
-> | > is publish the commit id from Linus then the complicated procedure becomes
-> | > 
-> | > cd <checkedout git copy of kernel>
-> | > cg-update origin
-> | > cg-export ../<work dir> <commit id>
-> | > cd ../<work dir>
-> | > cp ../<default config> .config
-> | > bzcat ../<mm patch> | patch -p1
-> | > make oldconfig
-> | > make
-> | > 
-> | > No problem to script this at all.  Also, I suspect what when tagging starts to be 
-> | > used, that <commit id> will be an easily typeable string.
-> | 
-> | Ok, now tell this to one of the users who tests kernels, now users also 
-> | need to know how to use git in order to test -mm. I'm thinking about the 
-> | case where someone reports a bug on LKML and we ask that they test latest 
-> | -mm, getting them to also understand git just to quickly test something is 
-> | silly. Also people tend to have other things to do so making things 
-> | even slightly more difficult doesn't win you testers. Maybe i'm just 
-> | lazy... *shrug*
-> 
-> Nope, you are correct...
-
-Actually you can look at this either way.  Consider, you ask someone to test mm and
-they have not built a kernel before.  So they have to:
-
-download a base kernel, untar it.
-download a RCx patch and apply it
-download the mm patch and apply it
-take their current /proc/config.gz and place it in the current dir as .config
-make oldconfig
-make and install the kernel
-
-using cogito in a few weeks this will translate to
-
-install a distro package for cogito, which will probably give you the option of downloading the kernel.
-export an RCx directory treedownload the mm patch and apply it
-take their current /proc/config.gz and place it in the current dir as .config
-make oldconfig
-make and install the kernel
-
-Which is a simpler process...   Its just different.   
-
-BTW the most complex process, from a unexperienced user POV, is probably the 
-make oldconfig as most distros automate the build and install.
-
-There is no point in going any further with this.  We will have to see what 
-happens on the SCM front.  What would be interesting is if the quilt scripts
-were integrated into the SCM.  Then Andrew would just have to publish a
-commit id (or quilt id?).
-
-Ed Tomlinson
+> Huh?  Assuming one already has a current git tree.  Then all Andrew need do
+> is publish the commit id from Linus then the complicated procedure becomes
+>...
+> With bk there was an acceptable excuse not to use it.  With git, aside from bandwidth
+> concerns (maybe mercurial can solve this), I do not see any good reason not to use it.
 
 
+The reasons why I for one do not plan to use git are:
+
+- disk space
+- bandwidth (rsync traffic has to go through our masquerader, and the 
+             amount of traffic through the masquerader I'm allowed to 
+             generate is limited)
+- I do not need Linus' tree for anything.
+  I'm working against -mm because it's further in development.
 
 
+Having said this, Andrew might perhaps be able to _additionally_ provide 
+-mm patches without linus.patch for the convenience of git users.
 
+
+> Ed Tomlinson
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

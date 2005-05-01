@@ -1,155 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbVEAKWJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262650AbVEATJY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261581AbVEAKWJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 06:22:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbVEAKVw
+	id S262650AbVEATJY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 15:09:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262649AbVEATJY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 06:21:52 -0400
-Received: from mail-relay-4.tiscali.it ([213.205.33.44]:4498 "EHLO
-	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S261581AbVEAKVQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 06:21:16 -0400
-Subject: [patch 1/1] x86_64: make string func definition work as intended
-To: akpm@osdl.org
-Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it,
-       ak@suse.de
-From: blaisorblade@yahoo.it
-Date: Sun, 01 May 2005 21:08:51 +0200
-Message-Id: <20050501190851.5FD5B45EBB@zion>
+	Sun, 1 May 2005 15:09:24 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:46239 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S262647AbVEATJL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 15:09:11 -0400
+Message-ID: <42752954.5050600@jp.fujitsu.com>
+Date: Mon, 02 May 2005 04:09:08 +0900
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: ja, en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [patch] properly stop devices before poweroff
+References: <20050421111346.GA21421@elf.ucw.cz> <20050429061825.36f98cc0.akpm@osdl.org>
+In-Reply-To: <20050429061825.36f98cc0.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-CC: Andi Kleen <ak@suse.de>
+Andrew Morton wrote:
+> Pavel Machek <pavel@ucw.cz> wrote:
+> 
+>>
+>>Without this patch, Linux provokes emergency disk shutdowns and
+>>similar nastiness. It was in SuSE kernels for some time, IIRC.
+>>
+> 
+> 
+> With this patch when running `halt -p' my ia64 Tiger (using
+> tiger_defconfig) gets a stream of badnesses in iosapic_unregister_intr()
+> and then hangs up.
+> 
+> Unfortunately it all seems to happen after the serial port has been
+> disabled because nothing comes out.  I set the console to a squitty font
+> and took a piccy.  See
+> http://www.zip.com.au/~akpm/linux/patches/stuff/dsc02505.jpg
+> 
+> I guess it's an ia64 problem.  I'll leave the patch in -mm for now.
+> 
 
-In include/asm-x86_64/string.h there are such comments:
+I guess the stream of badness was occured as follows:
 
-/* Use C out of line version for memcmp */ 
-#define memcmp __builtin_memcmp
-int memcmp(const void * cs,const void * ct,size_t count);
+    pcibios_disable_device() for ia64 assumes that pci_enable_device()
+    and pci_disable_device() are balanced. But with 'properly stop
+    devices before power off' patch, pci_disable_device() becomes to be
+    called twice for e1000 device at halt time, through reboot_notifier_list
+    callback and through device_suspend(). As a result, iosapic_unregister_intr()
+    was called for already unregistered gsi and then stream of badness
+    was displayed.
 
-This would mean that if the compiler does not decide to use __builtin_memcmp,
-it emits a call to memcmp to be satisfied by the C out-of-line version in
-lib/string.c. What happens is that after preprocessing, in lib/string.i you
-may find the definition of "__builtin_strcmp".
+I think the following patch will remove this stream of badness. I'm
+sorry but I have not checked if the stream of badness is actually
+removed because I'm on vacation and I can't look at my display
+(I'm working via remote console). Could you try this patch?
 
-Actually, by accident, in the object you will find the definition of
-strcmp and such (maybe a trick intended to redirect calls to __builtin_memcmp
-to the default memcmp when the definition is not expanded); however, this
-particular case is not a documented feature as far as I can see.
+By the way, I don't think this stream of badness is related to hang up,
+because the problem (hang up) was reproduced even on my test kernel that
+doesn't call pcibios_disable_device().
 
-Also, the EXPORT_SYMBOL does not work, so it's duplicated in the arch.
-
-I simply added some #undef to lib/string.c and removed the (now duplicated)
-exports in x86-64 and UML/x86_64 subarchs (the second ones are introduced by
-another patch I just posted for -mm).
-
-I agree this can be a bit kludgy, so if you want add another solution.
-
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+Thanks,
+Kenji Kaneshige
 ---
 
- linux-2.6.12-paolo/arch/um/sys-x86_64/ksyms.c       |    3 ---
- linux-2.6.12-paolo/arch/x86_64/kernel/x8664_ksyms.c |   13 -------------
- linux-2.6.12-paolo/lib/string.c                     |    4 ++++
- 3 files changed, 4 insertions(+), 16 deletions(-)
 
-diff -puN include/asm-x86_64/string.h~x86_64-string-func include/asm-x86_64/string.h
-diff -puN lib/string.c~x86_64-string-func lib/string.c
---- linux-2.6.12/lib/string.c~x86_64-string-func	2005-05-01 20:45:29.000000000 +0200
-+++ linux-2.6.12-paolo/lib/string.c	2005-05-01 20:45:29.000000000 +0200
-@@ -65,6 +65,7 @@ EXPORT_SYMBOL(strnicmp);
-  * @dest: Where to copy the string to
-  * @src: Where to copy the string from
-  */
-+#undef strcpy
- char * strcpy(char * dest,const char *src)
+There might be some cases that pci_disable_device() is called even if
+the device is already disabled. In this case, pcibios_disable_device()
+should not call acpi_pci_irq_disable() for the device.
+
+Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+
+
+---
+
+ linux-2.6.12-rc3-mm2-kanesige/arch/ia64/pci/pci.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
+
+diff -puN arch/ia64/pci/pci.c~fix_pcibios_disable_device_ia64 arch/ia64/pci/pci.c
+--- linux-2.6.12-rc3-mm2/arch/ia64/pci/pci.c~fix_pcibios_disable_device_ia64	2005-05-02 03:12:23.000000000 +0900
++++ linux-2.6.12-rc3-mm2-kanesige/arch/ia64/pci/pci.c	2005-05-02 03:12:23.000000000 +0900
+@@ -512,7 +512,8 @@ pcibios_enable_device (struct pci_dev *d
+ void
+ pcibios_disable_device (struct pci_dev *dev)
  {
- 	char *tmp = dest;
-@@ -132,6 +133,7 @@ EXPORT_SYMBOL(strlcpy);
-  * @dest: The string to be appended to
-  * @src: The string to append to it
-  */
-+#undef strcat
- char * strcat(char * dest, const char * src)
- {
- 	char *tmp = dest;
-@@ -209,6 +211,7 @@ EXPORT_SYMBOL(strlcat);
-  * @cs: One string
-  * @ct: Another string
-  */
-+#undef strcmp
- int strcmp(const char * cs,const char * ct)
- {
- 	register signed char __res;
-@@ -514,6 +517,7 @@ EXPORT_SYMBOL(memmove);
-  * @ct: Another area of memory
-  * @count: The size of the area.
-  */
-+#undef memcmp
- int memcmp(const void * cs,const void * ct,size_t count)
- {
- 	const unsigned char *su1, *su2;
-diff -puN arch/x86_64/kernel/x8664_ksyms.c~x86_64-string-func arch/x86_64/kernel/x8664_ksyms.c
---- linux-2.6.12/arch/x86_64/kernel/x8664_ksyms.c~x86_64-string-func	2005-05-01 20:45:29.000000000 +0200
-+++ linux-2.6.12-paolo/arch/x86_64/kernel/x8664_ksyms.c	2005-05-01 20:45:29.000000000 +0200
-@@ -139,35 +139,23 @@ EXPORT_SYMBOL_GPL(unset_nmi_callback);
- #undef memmove
- #undef memchr
- #undef strlen
--#undef strcpy
- #undef strncmp
- #undef strncpy
- #undef strchr	
--#undef strcmp 
--#undef strcpy 
--#undef strcat
--#undef memcmp
+-	acpi_pci_irq_disable(dev);
++	if (dev->is_enabled)
++		acpi_pci_irq_disable(dev);
+ }
+ #endif /* CONFIG_ACPI_DEALLOCATE_IRQ */
  
- extern void * memset(void *,int,__kernel_size_t);
- extern size_t strlen(const char *);
- extern void * memmove(void * dest,const void *src,size_t count);
--extern char * strcpy(char * dest,const char *src);
--extern int strcmp(const char * cs,const char * ct);
- extern void *memchr(const void *s, int c, size_t n);
- extern void * memcpy(void *,const void *,__kernel_size_t);
- extern void * __memcpy(void *,const void *,__kernel_size_t);
--extern char * strcat(char *, const char *);
--extern int memcmp(const void * cs,const void * ct,size_t count);
- 
- EXPORT_SYMBOL(memset);
- EXPORT_SYMBOL(strlen);
- EXPORT_SYMBOL(memmove);
--EXPORT_SYMBOL(strcpy);
- EXPORT_SYMBOL(strncmp);
- EXPORT_SYMBOL(strncpy);
- EXPORT_SYMBOL(strchr);
--EXPORT_SYMBOL(strcmp);
--EXPORT_SYMBOL(strcat);
- EXPORT_SYMBOL(strncat);
- EXPORT_SYMBOL(memchr);
- EXPORT_SYMBOL(strrchr);
-@@ -175,7 +163,6 @@ EXPORT_SYMBOL(strnlen);
- EXPORT_SYMBOL(memscan);
- EXPORT_SYMBOL(memcpy);
- EXPORT_SYMBOL(__memcpy);
--EXPORT_SYMBOL(memcmp);
- 
- #ifdef CONFIG_RWSEM_XCHGADD_ALGORITHM
- /* prototypes are wrong, these are assembly with custom calling functions */
-diff -puN arch/um/sys-x86_64/ksyms.c~x86_64-string-func arch/um/sys-x86_64/ksyms.c
---- linux-2.6.12/arch/um/sys-x86_64/ksyms.c~x86_64-string-func	2005-05-01 20:45:29.000000000 +0200
-+++ linux-2.6.12-paolo/arch/um/sys-x86_64/ksyms.c	2005-05-01 20:45:29.000000000 +0200
-@@ -14,9 +14,6 @@ EXPORT_SYMBOL(__up_wakeup);
- 
- /*XXX: we need them because they would be exported by x86_64 */
- EXPORT_SYMBOL(__memcpy);
--EXPORT_SYMBOL(strcmp);
--EXPORT_SYMBOL(strcat);
--EXPORT_SYMBOL(strcpy);
- 
- /* Networking helper routines. */
- /*EXPORT_SYMBOL(csum_partial_copy_from);
+
 _

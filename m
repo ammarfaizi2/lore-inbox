@@ -1,53 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261441AbVEALm6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261553AbVEAI3Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261441AbVEALm6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 07:42:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbVEALm6
+	id S261553AbVEAI3Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 04:29:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbVEAI3Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 07:42:58 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:3512 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261441AbVEALm4 (ORCPT
+	Sun, 1 May 2005 04:29:24 -0400
+Received: from mx2.mail.ru ([194.67.23.122]:54598 "EHLO mx2.mail.ru")
+	by vger.kernel.org with ESMTP id S261553AbVEAI3S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 07:42:56 -0400
-Date: Sun, 1 May 2005 13:42:51 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: ck@vds.kolivas.org,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [ck] 2.6.11-ck6
-Message-ID: <20050501114250.GA10166@suse.de>
-References: <200505010017.36907.kernel@kolivas.org> <20050430201321.GA8147@suse.de> <200505011014.58883.kernel@kolivas.org> <200505011033.07086.kernel@kolivas.org>
+	Sun, 1 May 2005 04:29:18 -0400
+Date: Sun, 1 May 2005 12:32:42 +0000
+From: Alexey Dobriyan <adobriyan@mail.ru>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: "David S. Miller" <davem@davemloft.net>,
+       Jouni Malinen <jkmaline@cc.hut.fi>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] resource release cleanup in net/
+Message-ID: <20050501123242.GA8407@mipter.zuzino.mipt.ru>
+Mail-Followup-To: Jesper Juhl <juhl-lkml@dif.dk>,
+	"David S. Miller" <davem@davemloft.net>,
+	Jouni Malinen <jkmaline@cc.hut.fi>, netdev@oss.sgi.com,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.62.0504302219520.2094@dragon.hyggekrogen.localhost> <20050501025349.GA9243@mipter.zuzino.mipt.ru> <Pine.LNX.4.62.0505010101580.2094@dragon.hyggekrogen.localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200505011033.07086.kernel@kolivas.org>
+In-Reply-To: <Pine.LNX.4.62.0505010101580.2094@dragon.hyggekrogen.localhost>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 01 2005, Con Kolivas wrote:
-> On Sun, 1 May 2005 10:14, Con Kolivas wrote:
-> > On Sun, 1 May 2005 06:13, Jens Axboe wrote:
-> > > On Sun, May 01 2005, Con Kolivas wrote:
-> > > > +scsi-dead-device.diff
-> > > > A fix for a scsi related hang that seems to hit many -ck users
-> > >
-> > > This looks strange, like a fix and a half. You should just apply the
-> > > patch I sent you originally, weeks ago, changing sdev->sdev_lock to
-> > > &q->__queue_lock.
-> >
-> > rarrgh
-> >
-> > Thanks for keeping an eye out on for this. Unfortunately you sent more than
-> > one patch at different times and it looks like I included the wrong one
-> > then? This is the patch I (tried to) include.
+On Sun, May 01, 2005 at 01:13:28AM +0200, Jesper Juhl wrote:
+> On Sun, 1 May 2005, Alexey Dobriyan wrote:
 > 
-> I guess from your description this was the one I should have
-> included... Looks like a ck7 should come out instead since that other
-> patch was more likely harmful than not :\
+> > On Sat, Apr 30, 2005 at 10:36:00PM +0200, Jesper Juhl wrote:
+> > > Since Andrew merged the patch that makes calling crypto_free_tfm() with a 
+> > > NULL pointer safe into 2.6.12-rc3-mm1, I made a patch to remove checks for 
+> > > NULL before calling that function
+> > >  drivers/net/wireless/hostap/hostap_crypt_ccmp.c |    5 -
+> > >  drivers/net/wireless/hostap/hostap_crypt_tkip.c |   10 +-
+> > >  drivers/net/wireless/hostap/hostap_crypt_wep.c  |    5 -
+> > >  net/ieee80211/ieee80211_crypt_ccmp.c            |    5 -
+> > >  net/ieee80211/ieee80211_crypt_tkip.c            |   10 +-
+> > >  net/ieee80211/ieee80211_crypt_wep.c             |    5 -
+> > I think I have a better one for these.
+> > 
+> > --- linux-2.6.12-rc3-mm1/drivers/net/wireless/hostap/hostap_crypt_ccmp.c	2005-05-01 01:53:50.000000000 +0000
+> > +++ linux-2.6.12-rc3-mm1-hostap/drivers/net/wireless/hostap/hostap_crypt_ccmp.c	2005-05-01 02:21:10.000000000 +0000
 
-Yep, that is the correct patch. The other one wont do any further harm,
-it just wont fix the problem fully.
+> > @@ -121,8 +118,7 @@ fail:
+> >  static void hostap_ccmp_deinit(void *priv)
+> >  {
+> >  	struct hostap_ccmp_data *_priv = priv;
+> > -	if (_priv && _priv->tfm)
+> > -		crypto_free_tfm(_priv->tfm);
+> > +	crypto_free_tfm(_priv->tfm);
+> >  	kfree(priv);
+> >  	module_put(THIS_MODULE);
+> >  }
+> 
+> This will Oops if _priv is NULL. That's why my patch did 
+> 
+> if (_priv)
+> 	crypto_free_tfm(_priv->tfm);
 
--- 
-Jens Axboe
+After hostap_ccmp_init() returns successfully:
+1. priv is valid pointer	line 95
+2. priv->tfm is valid pointer	line 102
 

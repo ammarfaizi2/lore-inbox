@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbVEABqq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbVEABs3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261495AbVEABqq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 21:46:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261496AbVEABqq
+	id S261496AbVEABs3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 21:48:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVEABsS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 21:46:46 -0400
-Received: from mail.dif.dk ([193.138.115.101]:22951 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261495AbVEABo6 (ORCPT
+	Sat, 30 Apr 2005 21:48:18 -0400
+Received: from mail.dif.dk ([193.138.115.101]:38311 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261496AbVEABrH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 21:44:58 -0400
-Date: Sun, 1 May 2005 03:48:16 +0200 (CEST)
+	Sat, 30 Apr 2005 21:47:07 -0400
+Date: Sun, 1 May 2005 03:50:25 +0200 (CEST)
 From: Jesper Juhl <juhl-lkml@dif.dk>
 To: Jesper Juhl <juhl-lkml@dif.dk>
 Cc: acme@ghostprotocols.net, Arnaldo Carvalho de Melo <arnaldo.melo@gmail.com>,
@@ -25,9 +25,9 @@ Cc: acme@ghostprotocols.net, Arnaldo Carvalho de Melo <arnaldo.melo@gmail.com>,
        Andy Adamson <andros@umich.edu>, Bruce Fields <bfields@umich.edu>,
        netdev@oss.sgi.com, linux-net@vger.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: [PATCH 1/4] resource release cleanup in net/ (take 2)
+Subject: Re: [PATCH 2/4] resource release cleanup in net/ (take 2)
 In-Reply-To: <Pine.LNX.4.62.0505010341560.2094@dragon.hyggekrogen.localhost>
-Message-ID: <Pine.LNX.4.62.0505010346280.2094@dragon.hyggekrogen.localhost>
+Message-ID: <Pine.LNX.4.62.0505010348260.2094@dragon.hyggekrogen.localhost>
 References: <Pine.LNX.4.62.0504302219520.2094@dragon.hyggekrogen.localhost>
  <39e6f6c705043014264eb4c0c5@mail.gmail.com>
  <Pine.LNX.4.62.0505010341560.2094@dragon.hyggekrogen.localhost>
@@ -67,388 +67,262 @@ On Sun, 1 May 2005, Jesper Juhl wrote:
 > a lot better than the originals.
 > 
 
-Here are the crypto_free_tfm changes.
+These are the kfree changes. Incremental patch over patch 1.
 
 Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 ---
 
- drivers/net/wireless/airo.c                     |    3 +--
- drivers/net/wireless/hostap/hostap_crypt_ccmp.c |    5 ++---
- drivers/net/wireless/hostap/hostap_crypt_tkip.c |   10 ++++------
- drivers/net/wireless/hostap/hostap_crypt_wep.c  |    5 ++---
- net/ieee80211/ieee80211_crypt_ccmp.c            |    5 ++---
- net/ieee80211/ieee80211_crypt_tkip.c            |   10 ++++------
- net/ieee80211/ieee80211_crypt_wep.c             |    5 ++---
- net/ipv4/ah4.c                                  |    9 +++------
- net/ipv4/esp4.c                                 |   12 ++++--------
- net/ipv4/ipcomp.c                               |    3 +--
- net/ipv6/addrconf.c                             |    6 ++----
- net/ipv6/ah6.c                                  |    9 +++------
- net/ipv6/esp6.c                                 |   12 ++++--------
- net/ipv6/ipcomp6.c                              |    3 +--
- net/sctp/endpointola.c                          |    3 +--
- net/sctp/socket.c                               |    3 +--
- net/sunrpc/auth_gss/gss_krb5_crypto.c           |    3 +--
- net/sunrpc/auth_gss/gss_krb5_mech.c             |    6 ++----
- net/sunrpc/auth_gss/gss_spkm3_mech.c            |    6 ++----
- 19 files changed, 42 insertions(+), 76 deletions(-)
+ drivers/net/wireless/airo.c          |   41 ++++++++++++-----------------------
+ net/ipv4/ah4.c                       |    9 ++-----
+ net/ipv4/esp4.c                      |   12 +++-------
+ net/ipv6/addrconf.c                  |    3 --
+ net/ipv6/ah6.c                       |   16 +++++--------
+ net/ipv6/esp6.c                      |   12 +++-------
+ net/ipv6/ipcomp6.c                   |    3 --
+ net/sunrpc/auth_gss/gss_krb5_mech.c  |    3 --
+ net/sunrpc/auth_gss/gss_spkm3_mech.c |    6 +----
+ 9 files changed, 37 insertions(+), 68 deletions(-)
 
---- linux-2.6.12-rc3-mm1-orig/drivers/net/wireless/airo.c	2005-04-30 18:37:01.000000000 +0200
-+++ linux-2.6.12-rc3-mm1/drivers/net/wireless/airo.c	2005-05-01 01:43:45.000000000 +0200
-@@ -2406,8 +2406,7 @@
+--- linux-2.6.12-rc3-mm1/drivers/net/wireless/airo.c.old1	2005-05-01 03:23:26.000000000 +0200
++++ linux-2.6.12-rc3-mm1/drivers/net/wireless/airo.c	2005-05-01 03:23:56.000000000 +0200
+@@ -2383,14 +2383,10 @@
+ 			dev_kfree_skb(skb);
+ 	}
+ 
+-	if (ai->flash)
+-		kfree(ai->flash);
+-	if (ai->rssi)
+-		kfree(ai->rssi);
+-	if (ai->APList)
+-		kfree(ai->APList);
+-	if (ai->SSID)
+-		kfree(ai->SSID);
++	kfree(ai->flash);
++	kfree(ai->rssi);
++	kfree(ai->APList);
++	kfree(ai->SSID);
+ 	if (freeres) {
+ 		/* PCMCIA frees this stuff, so only for PCI and ISA */
+ 	        release_region( dev->base_addr, 64 );
+@@ -3627,10 +3623,8 @@
+ 	int rc;
+ 
+ 	memset( &mySsid, 0, sizeof( mySsid ) );
+-	if (ai->flash) {
+-		kfree (ai->flash);
+-		ai->flash = NULL;
+-	}
++	kfree(ai->flash);
++	ai->flash = NULL;
+ 
+ 	/* The NOP is the first step in getting the card going */
+ 	cmd.cmd = NOP;
+@@ -3667,14 +3661,11 @@
+ 		tdsRssiRid rssi_rid;
+ 		CapabilityRid cap_rid;
+ 
+-		if (ai->APList) {
+-			kfree(ai->APList);
+-			ai->APList = NULL;
+-		}
+-		if (ai->SSID) {
+-			kfree(ai->SSID);
+-			ai->SSID = NULL;
+-		}
++		kfree(ai->APList);
++		ai->APList = NULL;
++		kfree(ai->SSID);
++		ai->SSID = NULL;
++
+ 		// general configuration (read/modify/write)
+ 		status = readConfigRid(ai, lock);
+ 		if ( status != SUCCESS ) return ERROR;
+@@ -3688,10 +3679,8 @@
+ 				memcpy(ai->rssi, (u8*)&rssi_rid + 2, 512);
  		}
-         }
- #ifdef MICSUPPORT
--	if (ai->tfm)
--		crypto_free_tfm(ai->tfm);
-+	crypto_free_tfm(ai->tfm);
- #endif
- 	del_airo_dev( dev );
- 	free_netdev( dev );
---- linux-2.6.12-rc3-mm1-orig/drivers/net/wireless/hostap/hostap_crypt_ccmp.c	2005-04-30 18:37:01.000000000 +0200
-+++ linux-2.6.12-rc3-mm1/drivers/net/wireless/hostap/hostap_crypt_ccmp.c	2005-05-01 01:44:07.000000000 +0200
-@@ -109,8 +109,7 @@
- 
- fail:
- 	if (priv) {
--		if (priv->tfm)
--			crypto_free_tfm(priv->tfm);
-+		crypto_free_tfm(priv->tfm);
- 		kfree(priv);
- 	}
- 	module_put(THIS_MODULE);
-@@ -121,7 +120,7 @@
- static void hostap_ccmp_deinit(void *priv)
+ 		else {
+-			if (ai->rssi) {
+-				kfree(ai->rssi);
+-				ai->rssi = NULL;
+-			}
++			kfree(ai->rssi);
++			ai->rssi = NULL;
+ 			if (cap_rid.softCap & 8)
+ 				ai->config.rmode |= RXMODE_NORMALIZED_RSSI;
+ 			else
+@@ -5372,8 +5361,8 @@
  {
- 	struct hostap_ccmp_data *_priv = priv;
--	if (_priv && _priv->tfm)
-+	if (_priv)
- 		crypto_free_tfm(_priv->tfm);
- 	kfree(priv);
- 	module_put(THIS_MODULE);
---- linux-2.6.12-rc3-mm1-orig/drivers/net/wireless/hostap/hostap_crypt_tkip.c	2005-04-30 18:37:01.000000000 +0200
-+++ linux-2.6.12-rc3-mm1/drivers/net/wireless/hostap/hostap_crypt_tkip.c	2005-05-01 01:44:54.000000000 +0200
-@@ -102,10 +102,8 @@
- 
- fail:
- 	if (priv) {
--		if (priv->tfm_michael)
--			crypto_free_tfm(priv->tfm_michael);
--		if (priv->tfm_arc4)
--			crypto_free_tfm(priv->tfm_arc4);
-+		crypto_free_tfm(priv->tfm_michael);
-+		crypto_free_tfm(priv->tfm_arc4);
- 		kfree(priv);
- 	}
- 	module_put(THIS_MODULE);
-@@ -116,10 +114,10 @@
- static void hostap_tkip_deinit(void *priv)
- {
- 	struct hostap_tkip_data *_priv = priv;
--	if (_priv && _priv->tfm_michael)
-+	if (_priv) {
- 		crypto_free_tfm(_priv->tfm_michael);
--	if (_priv && _priv->tfm_arc4)
- 		crypto_free_tfm(_priv->tfm_arc4);
-+	}
- 	kfree(priv);
- 	module_put(THIS_MODULE);
+ 	struct proc_data *data = (struct proc_data *)file->private_data;
+ 	if ( data->on_close != NULL ) data->on_close( inode, file );
+-	if ( data->rbuffer ) kfree( data->rbuffer );
+-	if ( data->wbuffer ) kfree( data->wbuffer );
++	kfree(data->rbuffer);
++	kfree(data->wbuffer);
+ 	kfree( data );
+ 	return 0;
  }
---- linux-2.6.12-rc3-mm1-orig/drivers/net/wireless/hostap/hostap_crypt_wep.c	2005-04-30 18:37:01.000000000 +0200
-+++ linux-2.6.12-rc3-mm1/drivers/net/wireless/hostap/hostap_crypt_wep.c	2005-05-01 01:45:11.000000000 +0200
-@@ -69,8 +69,7 @@
+--- linux-2.6.12-rc3-mm1/net/ipv4/ah4.c.old1	2005-05-01 03:23:26.000000000 +0200
++++ linux-2.6.12-rc3-mm1/net/ipv4/ah4.c	2005-05-01 03:23:56.000000000 +0200
+@@ -263,8 +263,7 @@
  
- fail:
- 	if (priv) {
--		if (priv->tfm)
--			crypto_free_tfm(priv->tfm);
-+		crypto_free_tfm(priv->tfm);
- 		kfree(priv);
- 	}
- 	module_put(THIS_MODULE);
-@@ -81,7 +80,7 @@
- static void prism2_wep_deinit(void *priv)
- {
- 	struct prism2_wep_data *_priv = priv;
--	if (_priv && _priv->tfm)
-+	if (_priv)
- 		crypto_free_tfm(_priv->tfm);
- 	kfree(priv);
- 	module_put(THIS_MODULE);
---- linux-2.6.12-rc3-mm1-orig/net/ieee80211/ieee80211_crypt_ccmp.c	2005-04-30 18:37:16.000000000 +0200
-+++ linux-2.6.12-rc3-mm1/net/ieee80211/ieee80211_crypt_ccmp.c	2005-05-01 01:45:28.000000000 +0200
-@@ -96,8 +96,7 @@
- 
- fail:
- 	if (priv) {
--		if (priv->tfm)
--			crypto_free_tfm(priv->tfm);
-+		crypto_free_tfm(priv->tfm);
- 		kfree(priv);
- 	}
- 
-@@ -108,7 +107,7 @@
- static void ieee80211_ccmp_deinit(void *priv)
- {
- 	struct ieee80211_ccmp_data *_priv = priv;
--	if (_priv && _priv->tfm)
-+	if (_priv)
- 		crypto_free_tfm(_priv->tfm);
- 	kfree(priv);
- }
---- linux-2.6.12-rc3-mm1-orig/net/ieee80211/ieee80211_crypt_tkip.c	2005-04-30 18:37:17.000000000 +0200
-+++ linux-2.6.12-rc3-mm1/net/ieee80211/ieee80211_crypt_tkip.c	2005-05-01 01:47:04.000000000 +0200
-@@ -90,10 +90,8 @@
- 
- fail:
- 	if (priv) {
--		if (priv->tfm_michael)
--			crypto_free_tfm(priv->tfm_michael);
--		if (priv->tfm_arc4)
--			crypto_free_tfm(priv->tfm_arc4);
-+		crypto_free_tfm(priv->tfm_michael);
-+		crypto_free_tfm(priv->tfm_arc4);
- 		kfree(priv);
- 	}
- 
-@@ -104,10 +102,10 @@
- static void ieee80211_tkip_deinit(void *priv)
- {
- 	struct ieee80211_tkip_data *_priv = priv;
--	if (_priv && _priv->tfm_michael)
-+	if (_priv) {
- 		crypto_free_tfm(_priv->tfm_michael);
--	if (_priv && _priv->tfm_arc4)
- 		crypto_free_tfm(_priv->tfm_arc4);
-+	}
- 	kfree(priv);
- }
- 
---- linux-2.6.12-rc3-mm1-orig/net/ieee80211/ieee80211_crypt_wep.c	2005-04-30 18:37:17.000000000 +0200
-+++ linux-2.6.12-rc3-mm1/net/ieee80211/ieee80211_crypt_wep.c	2005-05-01 01:47:24.000000000 +0200
-@@ -64,8 +64,7 @@
- 
- fail:
- 	if (priv) {
--		if (priv->tfm)
--			crypto_free_tfm(priv->tfm);
-+		crypto_free_tfm(priv->tfm);
- 		kfree(priv);
- 	}
- 	return NULL;
-@@ -75,7 +74,7 @@
- static void prism2_wep_deinit(void *priv)
- {
- 	struct prism2_wep_data *_priv = priv;
--	if (_priv && _priv->tfm)
-+	if (_priv)
- 		crypto_free_tfm(_priv->tfm);
- 	kfree(priv);
- }
---- linux-2.6.12-rc3-mm1-orig/net/ipv4/ah4.c	2005-04-30 18:25:32.000000000 +0200
-+++ linux-2.6.12-rc3-mm1/net/ipv4/ah4.c	2005-05-01 01:48:11.000000000 +0200
-@@ -265,8 +265,7 @@
+ error:
  	if (ahp) {
- 		if (ahp->work_icv)
- 			kfree(ahp->work_icv);
--		if (ahp->tfm)
--			crypto_free_tfm(ahp->tfm);
-+		crypto_free_tfm(ahp->tfm);
+-		if (ahp->work_icv)
+-			kfree(ahp->work_icv);
++		kfree(ahp->work_icv);
+ 		crypto_free_tfm(ahp->tfm);
  		kfree(ahp);
  	}
- 	return -EINVAL;
-@@ -283,10 +282,8 @@
- 		kfree(ahp->work_icv);
- 		ahp->work_icv = NULL;
- 	}
--	if (ahp->tfm) {
--		crypto_free_tfm(ahp->tfm);
--		ahp->tfm = NULL;
--	}
-+	crypto_free_tfm(ahp->tfm);
-+	ahp->tfm = NULL;
- 	kfree(ahp);
- }
- 
---- linux-2.6.12-rc3-mm1-orig/net/ipv4/esp4.c	2005-04-30 18:25:32.000000000 +0200
-+++ linux-2.6.12-rc3-mm1/net/ipv4/esp4.c	2005-05-01 01:48:36.000000000 +0200
-@@ -343,18 +343,14 @@
- 	if (!esp)
+@@ -278,10 +277,8 @@
+ 	if (!ahp)
  		return;
  
--	if (esp->conf.tfm) {
--		crypto_free_tfm(esp->conf.tfm);
--		esp->conf.tfm = NULL;
+-	if (ahp->work_icv) {
+-		kfree(ahp->work_icv);
+-		ahp->work_icv = NULL;
 -	}
-+	crypto_free_tfm(esp->conf.tfm);
-+	esp->conf.tfm = NULL;
- 	if (esp->conf.ivec) {
- 		kfree(esp->conf.ivec);
- 		esp->conf.ivec = NULL;
- 	}
--	if (esp->auth.tfm) {
--		crypto_free_tfm(esp->auth.tfm);
--		esp->auth.tfm = NULL;
--	}
-+	crypto_free_tfm(esp->auth.tfm);
-+	esp->auth.tfm = NULL;
- 	if (esp->auth.work_icv) {
- 		kfree(esp->auth.work_icv);
- 		esp->auth.work_icv = NULL;
---- linux-2.6.12-rc3-mm1-orig/net/ipv4/ipcomp.c	2005-04-30 18:25:32.000000000 +0200
-+++ linux-2.6.12-rc3-mm1/net/ipv4/ipcomp.c	2005-05-01 01:49:25.000000000 +0200
-@@ -350,8 +350,7 @@
- 
- 	for_each_cpu(cpu) {
- 		struct crypto_tfm *tfm = *per_cpu_ptr(tfms, cpu);
--		if (tfm)
--			crypto_free_tfm(tfm);
-+		crypto_free_tfm(tfm);
- 	}
- 	free_percpu(tfms);
- }
---- linux-2.6.12-rc3-mm1-orig/net/ipv6/addrconf.c	2005-04-30 18:37:17.000000000 +0200
-+++ linux-2.6.12-rc3-mm1/net/ipv6/addrconf.c	2005-05-01 01:50:00.000000000 +0200
-@@ -3604,10 +3604,8 @@
- 	rtnl_unlock();
- 
- #ifdef CONFIG_IPV6_PRIVACY
--	if (likely(md5_tfm != NULL)) {
--		crypto_free_tfm(md5_tfm);
--		md5_tfm = NULL;
--	}
-+	crypto_free_tfm(md5_tfm);
-+	md5_tfm = NULL;
- #endif
- 
- #ifdef CONFIG_PROC_FS
---- linux-2.6.12-rc3-mm1-orig/net/ipv6/ah6.c	2005-04-30 18:25:32.000000000 +0200
-+++ linux-2.6.12-rc3-mm1/net/ipv6/ah6.c	2005-05-01 01:50:22.000000000 +0200
-@@ -404,8 +404,7 @@
- 	if (ahp) {
- 		if (ahp->work_icv)
- 			kfree(ahp->work_icv);
--		if (ahp->tfm)
--			crypto_free_tfm(ahp->tfm);
-+		crypto_free_tfm(ahp->tfm);
- 		kfree(ahp);
- 	}
- 	return -EINVAL;
-@@ -422,10 +421,8 @@
- 		kfree(ahp->work_icv);
- 		ahp->work_icv = NULL;
- 	}
--	if (ahp->tfm) {
--		crypto_free_tfm(ahp->tfm);
--		ahp->tfm = NULL;
--	}
-+	crypto_free_tfm(ahp->tfm);
-+	ahp->tfm = NULL;
++	kfree(ahp->work_icv);
++	ahp->work_icv = NULL;
+ 	crypto_free_tfm(ahp->tfm);
+ 	ahp->tfm = NULL;
  	kfree(ahp);
+--- linux-2.6.12-rc3-mm1/net/ipv4/esp4.c.old1	2005-05-01 03:23:26.000000000 +0200
++++ linux-2.6.12-rc3-mm1/net/ipv4/esp4.c	2005-05-01 03:23:56.000000000 +0200
+@@ -345,16 +345,12 @@
+ 
+ 	crypto_free_tfm(esp->conf.tfm);
+ 	esp->conf.tfm = NULL;
+-	if (esp->conf.ivec) {
+-		kfree(esp->conf.ivec);
+-		esp->conf.ivec = NULL;
+-	}
++	kfree(esp->conf.ivec);
++	esp->conf.ivec = NULL;
+ 	crypto_free_tfm(esp->auth.tfm);
+ 	esp->auth.tfm = NULL;
+-	if (esp->auth.work_icv) {
+-		kfree(esp->auth.work_icv);
+-		esp->auth.work_icv = NULL;
+-	}
++	kfree(esp->auth.work_icv);
++	esp->auth.work_icv = NULL;
+ 	kfree(esp);
  }
  
---- linux-2.6.12-rc3-mm1-orig/net/ipv6/esp6.c	2005-04-30 18:25:32.000000000 +0200
-+++ linux-2.6.12-rc3-mm1/net/ipv6/esp6.c	2005-05-01 01:50:37.000000000 +0200
-@@ -277,18 +277,14 @@
- 	if (!esp)
- 		return;
+--- linux-2.6.12-rc3-mm1/net/ipv6/addrconf.c.old1	2005-05-01 03:23:26.000000000 +0200
++++ linux-2.6.12-rc3-mm1/net/ipv6/addrconf.c	2005-05-01 03:23:56.000000000 +0200
+@@ -2966,8 +2966,7 @@
  
--	if (esp->conf.tfm) {
--		crypto_free_tfm(esp->conf.tfm);
--		esp->conf.tfm = NULL;
--	}
-+	crypto_free_tfm(esp->conf.tfm);
-+	esp->conf.tfm = NULL;
- 	if (esp->conf.ivec) {
- 		kfree(esp->conf.ivec);
- 		esp->conf.ivec = NULL;
- 	}
--	if (esp->auth.tfm) {
--		crypto_free_tfm(esp->auth.tfm);
--		esp->auth.tfm = NULL;
--	}
-+	crypto_free_tfm(esp->auth.tfm);
-+	esp->auth.tfm = NULL;
- 	if (esp->auth.work_icv) {
- 		kfree(esp->auth.work_icv);
- 		esp->auth.work_icv = NULL;
---- linux-2.6.12-rc3-mm1-orig/net/ipv6/ipcomp6.c	2005-04-30 18:25:33.000000000 +0200
-+++ linux-2.6.12-rc3-mm1/net/ipv6/ipcomp6.c	2005-05-01 01:50:46.000000000 +0200
-@@ -346,8 +346,7 @@
- 
- 	for_each_cpu(cpu) {
- 		struct crypto_tfm *tfm = *per_cpu_ptr(tfms, cpu);
--		if (tfm)
--			crypto_free_tfm(tfm);
-+		crypto_free_tfm(tfm);
- 	}
- 	free_percpu(tfms);
+ nlmsg_failure:
+ rtattr_failure:
+-	if (array)
+-		kfree(array);
++	kfree(array);
+ 	skb_trim(skb, b - skb->data);
+ 	return -1;
  }
---- linux-2.6.12-rc3-mm1-orig/net/sctp/endpointola.c	2005-04-30 18:37:17.000000000 +0200
-+++ linux-2.6.12-rc3-mm1/net/sctp/endpointola.c	2005-05-01 01:51:03.000000000 +0200
-@@ -195,8 +195,7 @@
- 	sctp_unhash_endpoint(ep);
+--- linux-2.6.12-rc3-mm1/net/ipv6/ah6.c.old1	2005-05-01 03:23:26.000000000 +0200
++++ linux-2.6.12-rc3-mm1/net/ipv6/ah6.c	2005-05-01 03:23:56.000000000 +0200
+@@ -217,12 +217,11 @@
+ 	err = 0;
  
- 	/* Free up the HMAC transform. */
--	if (sctp_sk(ep->base.sk)->hmac)
--		sctp_crypto_free_tfm(sctp_sk(ep->base.sk)->hmac);
-+	sctp_crypto_free_tfm(sctp_sk(ep->base.sk)->hmac);
+ 	memcpy(top_iph, tmp_base, sizeof(tmp_base));
+-	if (tmp_ext) {
++	if (tmp_ext)
+ 		memcpy(&top_iph->daddr, tmp_ext, extlen);
+-error_free_iph:
+-		kfree(tmp_ext);
+-	}
  
- 	/* Cleanup. */
- 	sctp_inq_free(&ep->base.inqueue);
---- linux-2.6.12-rc3-mm1-orig/net/sctp/socket.c	2005-04-30 18:37:17.000000000 +0200
-+++ linux-2.6.12-rc3-mm1/net/sctp/socket.c	2005-05-01 01:51:11.000000000 +0200
-@@ -4022,8 +4022,7 @@
- 	sctp_release_sock(sk);
++error_free_iph:
++	kfree(tmp_ext);
+ error:
  	return err;
- cleanup:
--	if (tfm)
--		sctp_crypto_free_tfm(tfm);
-+	sctp_crypto_free_tfm(tfm);
- 	goto out;
+ }
+@@ -401,8 +400,7 @@
+ 
+ error:
+ 	if (ahp) {
+-		if (ahp->work_icv)
+-			kfree(ahp->work_icv);
++		kfree(ahp->work_icv);
+ 		crypto_free_tfm(ahp->tfm);
+ 		kfree(ahp);
+ 	}
+@@ -416,10 +414,8 @@
+ 	if (!ahp)
+ 		return;
+ 
+-	if (ahp->work_icv) {
+-		kfree(ahp->work_icv);
+-		ahp->work_icv = NULL;
+-	}
++	kfree(ahp->work_icv);
++	ahp->work_icv = NULL;
+ 	crypto_free_tfm(ahp->tfm);
+ 	ahp->tfm = NULL;
+ 	kfree(ahp);
+--- linux-2.6.12-rc3-mm1/net/ipv6/esp6.c.old1	2005-05-01 03:23:26.000000000 +0200
++++ linux-2.6.12-rc3-mm1/net/ipv6/esp6.c	2005-05-01 03:23:56.000000000 +0200
+@@ -279,16 +279,12 @@
+ 
+ 	crypto_free_tfm(esp->conf.tfm);
+ 	esp->conf.tfm = NULL;
+-	if (esp->conf.ivec) {
+-		kfree(esp->conf.ivec);
+-		esp->conf.ivec = NULL;
+-	}
++	kfree(esp->conf.ivec);
++	esp->conf.ivec = NULL;
+ 	crypto_free_tfm(esp->auth.tfm);
+ 	esp->auth.tfm = NULL;
+-	if (esp->auth.work_icv) {
+-		kfree(esp->auth.work_icv);
+-		esp->auth.work_icv = NULL;
+-	}
++	kfree(esp->auth.work_icv);
++	esp->auth.work_icv = NULL;
+ 	kfree(esp);
  }
  
---- linux-2.6.12-rc3-mm1-orig/net/sunrpc/auth_gss/gss_krb5_crypto.c	2005-03-02 08:37:47.000000000 +0100
-+++ linux-2.6.12-rc3-mm1/net/sunrpc/auth_gss/gss_krb5_crypto.c	2005-05-01 01:51:19.000000000 +0200
-@@ -201,8 +201,7 @@
- 	crypto_digest_final(tfm, cksum->data);
- 	code = 0;
+--- linux-2.6.12-rc3-mm1/net/ipv6/ipcomp6.c.old1	2005-05-01 03:23:26.000000000 +0200
++++ linux-2.6.12-rc3-mm1/net/ipv6/ipcomp6.c	2005-05-01 03:23:56.000000000 +0200
+@@ -130,8 +130,7 @@
+ out_put_cpu:
+ 	put_cpu();
  out:
--	if (tfm)
--		crypto_free_tfm(tfm);
-+	crypto_free_tfm(tfm);
- 	return code;
+-	if (tmp_hdr)
+-		kfree(tmp_hdr);
++	kfree(tmp_hdr);
+ 	if (err)
+ 		goto error_out;
+ 	return nexthdr;
+--- linux-2.6.12-rc3-mm1/net/sunrpc/auth_gss/gss_krb5_mech.c.old1	2005-05-01 03:23:26.000000000 +0200
++++ linux-2.6.12-rc3-mm1/net/sunrpc/auth_gss/gss_krb5_mech.c	2005-05-01 03:23:56.000000000 +0200
+@@ -187,8 +187,7 @@
+ 
+ 	crypto_free_tfm(kctx->seq);
+ 	crypto_free_tfm(kctx->enc);
+-	if (kctx->mech_used.data)
+-		kfree(kctx->mech_used.data);
++	kfree(kctx->mech_used.data);
+ 	kfree(kctx);
  }
  
---- linux-2.6.12-rc3-mm1-orig/net/sunrpc/auth_gss/gss_krb5_mech.c	2005-04-30 18:25:34.000000000 +0200
-+++ linux-2.6.12-rc3-mm1/net/sunrpc/auth_gss/gss_krb5_mech.c	2005-05-01 01:51:41.000000000 +0200
-@@ -185,10 +185,8 @@
- gss_delete_sec_context_kerberos(void *internal_ctx) {
- 	struct krb5_ctx *kctx = internal_ctx;
+--- linux-2.6.12-rc3-mm1/net/sunrpc/auth_gss/gss_spkm3_mech.c.old1	2005-05-01 03:23:26.000000000 +0200
++++ linux-2.6.12-rc3-mm1/net/sunrpc/auth_gss/gss_spkm3_mech.c	2005-05-01 03:23:56.000000000 +0200
+@@ -216,10 +216,8 @@
  
--	if (kctx->seq)
--		crypto_free_tfm(kctx->seq);
--	if (kctx->enc)
--		crypto_free_tfm(kctx->enc);
-+	crypto_free_tfm(kctx->seq);
-+	crypto_free_tfm(kctx->enc);
- 	if (kctx->mech_used.data)
- 		kfree(kctx->mech_used.data);
- 	kfree(kctx);
---- linux-2.6.12-rc3-mm1-orig/net/sunrpc/auth_gss/gss_spkm3_mech.c	2005-04-30 18:25:34.000000000 +0200
-+++ linux-2.6.12-rc3-mm1/net/sunrpc/auth_gss/gss_spkm3_mech.c	2005-05-01 01:52:04.000000000 +0200
-@@ -214,10 +214,8 @@
- gss_delete_sec_context_spkm3(void *internal_ctx) {
- 	struct spkm3_ctx *sctx = internal_ctx;
+ 	crypto_free_tfm(sctx->derived_integ_key);
+ 	crypto_free_tfm(sctx->derived_conf_key);
+-	if(sctx->share_key.data)
+-		kfree(sctx->share_key.data);
+-	if(sctx->mech_used.data)
+-		kfree(sctx->mech_used.data);
++	kfree(sctx->share_key.data);
++	kfree(sctx->mech_used.data);
+ 	kfree(sctx);
+ }
  
--	if(sctx->derived_integ_key)
--		crypto_free_tfm(sctx->derived_integ_key);
--	if(sctx->derived_conf_key)
--		crypto_free_tfm(sctx->derived_conf_key);
-+	crypto_free_tfm(sctx->derived_integ_key);
-+	crypto_free_tfm(sctx->derived_conf_key);
- 	if(sctx->share_key.data)
- 		kfree(sctx->share_key.data);
- 	if(sctx->mech_used.data)
 
 

@@ -1,79 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262717AbVEAVYs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262699AbVEAVdo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262717AbVEAVYs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 17:24:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262690AbVEAVYe
+	id S262699AbVEAVdo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 17:33:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262700AbVEAVcr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 17:24:34 -0400
-Received: from lakshmi.addtoit.com ([198.99.130.6]:28691 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S262693AbVEAVSf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 17:18:35 -0400
-Message-Id: <200505012113.j41LD94P016498@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
-To: torvalds@osdl.org
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       bstroesser@fujitsu-siemens.com
-Subject: [PATCH 22/22] UML - Header and code cleanup
+	Sun, 1 May 2005 17:32:47 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:49613 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262707AbVEAVVs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 17:21:48 -0400
+Subject: Re: [linux-usb-devel] init 1 kill khubd on 2.6.11
+From: Lee Revell <rlrevell@joe-job.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Andrey Borzenkov <arvidjaar@mail.ru>,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44L0.0505011659130.19155-100000@netrider.rowland.org>
+References: <Pine.LNX.4.44L0.0505011659130.19155-100000@netrider.rowland.org>
+Content-Type: text/plain
+Date: Sun, 01 May 2005 17:21:41 -0400
+Message-Id: <1114982502.23614.1.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 01 May 2005 17:13:09 -0400
-From: Jeff Dike <jdike@addtoit.com>
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+On Sun, 2005-05-01 at 17:01 -0400, Alan Stern wrote:
+> On Sun, 1 May 2005, Andrey Borzenkov wrote:
+> 
+> > Hub driver is using SIGKILL to terminate khubd. Unfortunately on a number of 
+> > distributions switching init levels implicitly does "killall -9", killing 
+> > khubd. The only way to restart it is to reload USB subsystem.
+> > 
+> > Is signal usage in this case really needed? What about replacing it with 
+> > simple flag (i.e. will patch be accepted)?
+> 
+> IMO the problem lies in those distributions.  They should not
+> indiscrimately kill processes when switching init levels.
 
-Remove some definitions and declarations from
-arch/um/include/skas_ptrace.h, as they have moved to
-arch/um/include/sysdep/skas_ptrace.h
-Also, remove PTRACE_SIGPENDING support in UML at all.
-
-Signed-off-by: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
-
-diff -puN arch/um/include/skas_ptrace.h~fix-skas_ptrace.h arch/um/include/skas_ptrace.h
---- linux-2.6.11/arch/um/include/skas_ptrace.h~fix-skas_ptrace.h	2005-04-06 14:22:17.000000000 +0200
-+++ linux-2.6.11-root/arch/um/include/skas_ptrace.h	2005-04-06 14:22:17.000000000 +0200
-@@ -6,22 +6,11 @@
- #ifndef __SKAS_PTRACE_H
- #define __SKAS_PTRACE_H
- 
--struct ptrace_faultinfo {
--	int is_write;
--	unsigned long addr;
--};
--
--struct ptrace_ldt {
--	int func;
--  	void *ptr;
--	unsigned long bytecount;
--};
--
- #define PTRACE_FAULTINFO 52
--#define PTRACE_SIGPENDING 53
--#define PTRACE_LDT 54
- #define PTRACE_SWITCH_MM 55
- 
-+#include "sysdep/skas_ptrace.h"
-+
- #endif
- 
- /*
-diff -puN arch/um/kernel/ptrace.c~fix-skas_ptrace.h arch/um/kernel/ptrace.c
---- linux-2.6.11/arch/um/kernel/ptrace.c~fix-skas_ptrace.h	2005-04-06 14:22:17.000000000 +0200
-+++ linux-2.6.11-root/arch/um/kernel/ptrace.c	2005-04-06 14:22:17.000000000 +0200
-@@ -242,11 +242,6 @@ long sys_ptrace(long request, long pid, 
- 			break;
- 		break;
- 	}
--	case PTRACE_SIGPENDING:
--		ret = copy_to_user((unsigned long __user *) data,
--				   &child->pending.signal,
--				   sizeof(child->pending.signal));
--		break;
- 
- #ifdef PTRACE_LDT
- 	case PTRACE_LDT: {
-_
+It's probably not indiscriminate, all the init scripts I have seen only
+resort to kill -9 if the process fails to terminate in an orderly
+fashion via the /etc/rcX.d/Kfoo script.
 

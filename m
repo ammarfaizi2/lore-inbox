@@ -1,111 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbVEACGS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261513AbVEACHp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261505AbVEACGS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 22:06:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261510AbVEACGS
+	id S261513AbVEACHp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 22:07:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbVEACHp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 22:06:18 -0400
-Received: from bay10-f43.bay10.hotmail.com ([64.4.37.43]:17293 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S261505AbVEACGI
+	Sat, 30 Apr 2005 22:07:45 -0400
+Received: from yue.linux-ipv6.org ([203.178.140.15]:19207 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S261510AbVEACHM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 22:06:08 -0400
-Message-ID: <BAY10-F433C0F72A446C39BA90258D9260@phx.gbl>
-X-Originating-IP: [146.229.139.228]
-X-Originating-Email: [getarunsri@hotmail.com]
-In-Reply-To: <1112840864.22577.38.camel@localhost.localdomain>
-From: "Arun Srinivas" <getarunsri@hotmail.com>
-To: rostedt@goodmis.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: scheduler/SCHED_FIFO behaviour
-Date: Sun, 01 May 2005 07:36:05 +0530
+	Sat, 30 Apr 2005 22:07:12 -0400
+Date: Sun, 01 May 2005 11:09:29 +0900 (JST)
+Message-Id: <20050501.110929.34344394.yoshfuji@linux-ipv6.org>
+To: juhl-lkml@dif.dk
+Cc: acme@ghostprotocols.net, arnaldo.melo@gmail.com, davem@davemloft.net,
+       herbert@gondor.apana.org.au, jkmaline@cc.hut.fi,
+       jmorris@intercode.com.au, roque@di.fc.ul.pt, kuznet@ms2.inr.ac.ru,
+       kunihiro@ipinfusion.com, mk@linux-ipv6.org,
+       lksctp-developers@lists.sourceforge.net, andros@umich.edu,
+       bfields@umich.edu, netdev@oss.sgi.com, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
+Subject: Re: [PATCH 4/4] resource release cleanup in net/ (take 2)
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <Pine.LNX.4.62.0505010352210.2094@dragon.hyggekrogen.localhost>
+References: <39e6f6c705043014264eb4c0c5@mail.gmail.com>
+	<Pine.LNX.4.62.0505010341560.2094@dragon.hyggekrogen.localhost>
+	<Pine.LNX.4.62.0505010352210.2094@dragon.hyggekrogen.localhost>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 01 May 2005 02:06:05.0797 (UTC) FILETIME=[55458150:01C54DF2]
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello.
 
-hi
+In article <Pine.LNX.4.62.0505010352210.2094@dragon.hyggekrogen.localhost> (at Sun, 1 May 2005 03:55:37 +0200 (CEST)), Jesper Juhl <juhl-lkml@dif.dk> says:
 
-  I spkoe to you some days ago regarding scheduling two processes together 
-on a HT.As I told you before I run them as SCHED_FIFO processes.I understood 
-the theory you told me in your previous reply as to why both of SCHED_FIFO 
-processes get scheduled only once and then run till completion.
+> > 	4) whitespace changes
+:
 
-But, sometimes a see a occasional reschedulei.e., the 2 processes get 
-scheduled one more time after they are scheduled for the 1st time. I ran my 
-code 100 times and observed this behavior 8 out of  100 times. What could be 
-the reason?
-(As I said i want my 2 processes to run together without any reschedule 
-after they are scheduled for the first time).
+Please add me cc: next time...
 
-Thanks
-Arun
->From: Steven Rostedt <rostedt@goodmis.org>
->To: Arun Srinivas <getarunsri@hotmail.com>
->CC: LKML <linux-kernel@vger.kernel.org>
->Subject: Re: scheduler/SCHED_FIFO behaviour
->Date: Wed, 06 Apr 2005 22:27:44 -0400
->
->On Thu, 2005-04-07 at 07:11 +0530, Arun Srinivas wrote:
-> > I am not sure if my question was clear enough or I couldnt interpret you
-> > answer correctly.(If it was the case I apologise for that).
-> >
-> > My question is, as I said I am measuring the schedule time difference
-> > between my 2 of my SCHED_FIFO process in schedule() .But, I get only one 
->set
-> > of readings (i.e., schedule() is being called once which implies my 
->process
-> > is being scheduled only once and run till completion)
-> >
-> > Also, as I said my interrupts are being processed during this time.I
-> > inspected /proc/interrupts for this.So, my question was if interrupts 
->heve
-> > been processed several times the 2 SCHED_FIFO process which has been
-> > interrupted must have been resecheduled several times and for this upon
-> > returning from the interrupt handler the schedule() function must have 
->been
-> > called  several times to schedule the 2 process which were running.But, 
->as I
-> > said I get only one reading??
-> >
-> > >From your reply, I come to understand that when an interrupt interrupts 
->my
-> > user process.....it runs straight way ....but upon return from the 
->interrupt
-> > handler does it not call schedule() to again resume my interrupted 
->process?
->
->Exactly! Even going back to a user process, if that process is the
->highest priority process than it does not need to call schedule.
->Actually the only time it would call schedule, is if the interrupt
->called wake_up_process, or did something that needed the need_resched
->for the running task set.  Even if wake_up_process was called, if the
->process was not higher in priority than the running process, then it
->would not preempt it.
->
->So...
->
->1) Task running in user land.
->2) interrupt goes off, switch to kernel mode.
->3) execute interrupt service routine.
->4) ISR calls wake_up_process (most likely on ksoftirqd)
->5) ksoftirqd not as high a priority as running process (don't set
->need_resched)
->6) return from interrupt. need_resched not set.
->7) go back to user process running in user land.
->
->There, is that clear. schedule is never called. Set ksoftirqd higher in
->priority than your tasks, and you might start seeing scheduling. But
->sometimes the functions needed to execute are done on return from
->interrupt and not though ksoftirqd, so you still might not see a
->schedule. But I'm sure you will.
->
->-- Steve
->
->
+>--- linux-2.6.12-rc3-mm1/net/ipv6/ah6.c.old3	2005-05-01 03:24:09.000000000 +0200
+>+++ linux-2.6.12-rc3-mm1/net/ipv6/ah6.c	2005-05-01 03:24:20.000000000 +0200
+>@@ -305,6 +305,7 @@
+> 	skb_pull(skb, hdr_len);
+> 	skb->h.raw = skb->data;
+> 
+>+
+> 	kfree(tmp_hdr);
+> 
+> 	return nexthdr;
 
-_________________________________________________________________
-Trailblazer Narain Karthikeyan http://server1.msn.co.in/sp05/tataracing/ 
-Will he be rookie of the year?
+Why?
 
+-- 
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+Homepage: http://www.yoshifuji.org/~hideaki/
+GPG FP  : 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

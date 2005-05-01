@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261749AbVEBF6y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261587AbVEAKzU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261749AbVEBF6y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 01:58:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbVEBF6y
+	id S261587AbVEAKzU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 06:55:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVEAKzU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 01:58:54 -0400
-Received: from c-24-10-253-213.hsd1.ut.comcast.net ([24.10.253.213]:14208 "EHLO
-	linux.site") by vger.kernel.org with ESMTP id S261749AbVEBF6w (ORCPT
+	Sun, 1 May 2005 06:55:20 -0400
+Received: from ns1.suse.de ([195.135.220.2]:29882 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261587AbVEAKzN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 01:58:52 -0400
-Subject: [patch 1/1] Added NO_IOAPIC_CHECK in io_apic_get_unique_id() for ACPI boot
-To: akpm@osdl.org
-Cc: ak@muc.de, len.brown@intel.com, venkatesh.pallipadi@intel.com,
-       linux-kernel@vger.kernel.org, zwane@arm.linux.org.uk,
-       Natalie.Protasevich@unisys.com
-From: Natalie.Protasevich@unisys.com
-Date: Sun, 01 May 2005 03:54:33 -0700
-Message-Id: <20050501105434.2B95E42AD7@linux.site>
+	Sun, 1 May 2005 06:55:13 -0400
+Message-ID: <4274B587.7070909@suse.de>
+Date: Sun, 01 May 2005 12:55:03 +0200
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041207 Thunderbird/1.0 Mnenhy/0.7.2.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: lgb@lgb.hu
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Compaq Armada E500 notebook and 2.6.x kernels
+References: <20050501084951.GA19102@vega.lgb.hu>
+In-Reply-To: <20050501084951.GA19102@vega.lgb.hu>
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Gábor Lénárt wrote:
+> Hello,
+> 
+> Sorry, maybe it's an OT here but I'm out of ideas (including google). My
+> problem is our Compaq Armada E500. It worked quite well with 2.4.x kernels.
+> However with 2.6.x kernels it always freezes. No log or opps, and the exact
 
-This patch allows xAPIC systems that don't have serial bus for interrupts delivery to by-pass the check on uniquness of IO-APIC IDs. Some of ES7000's panic failing this unnecessary check. The genapic mechanism has NO_IOAPIC_CHECK flag, which is defined in each subarch. The MP boot utilizes it, but the ACPI boot is missing it.
+> from various sources with no solution ... It renders this notebook unusable
+> for us, since distribution(s) we wanted to use already changed from 2.4.x
+> kernels to 2.6. Is there ANY ideas? On request I can send various
+> information on this notebook, but at the moment I can't. Thanx in advance.
 
-Signed-off by: Natalie Protasevich  <Natalie.Protasevich@unisys.com>
+I have two E500's at hand, one is mission critical (my wife's :-) and
+both run fine since 2.6.0test-days. The only minor problems i had were
+the touchpad misdetected in early 2.6 (long since fixed) and one time,
+when i had something that smelled awfully like memory corruption after
+ACPI suspend to RAM, but that one never happened again.
 
----
+Note that E500 apparently come in many different "flavors", i have one
+P3-800 and one P3-650 and they need e.g. different module parameters to
+get speedstep going.
 
+My experience is almost exclusively with suse-patched kernels, but i do
+not remember putting any band-aids for the E500 into those.
 
-diff -puN arch/i386/kernel/io_apic.c~no-ioapic-check arch/i386/kernel/io_apic.c
---- linux-2.6.13-rc3-mm2/arch/i386/kernel/io_apic.c~no-ioapic-check	2005-05-01 02:15:48.054362032 -0700
-+++ linux-2.6.13-rc3-mm2-root/arch/i386/kernel/io_apic.c	2005-05-01 02:28:23.282549896 -0700
-@@ -2436,13 +2436,18 @@ int __init io_apic_get_unique_id (int io
- 	unsigned long flags;
- 	int i = 0;
- 
-+	/* Don't check I/O APIC IDs for some xAPIC systems.  They have
-+	 * no meaning without the serial APIC bus. 
-+	 */
-+
-+	if (NO_IOAPIC_CHECK)
-+		return apic_id;
-+
- 	/*
- 	 * The P4 platform supports up to 256 APIC IDs on two separate APIC 
- 	 * buses (one for LAPICs, one for IOAPICs), where predecessors only 
- 	 * supports up to 16 on one shared APIC bus.
- 	 * 
--	 * TBD: Expand LAPIC/IOAPIC support on P4-class systems to take full
--	 *      advantage of new APIC bus architecture.
- 	 */
- 
- 	if (physids_empty(apic_id_map))
-_
+Are you running with APM or ACPI? Mine are running with ACPI since at
+least 18 month with everything (suspend etc) working out of the box.
+-- 
+Stefan Seyfried, QA / R&D Team Mobile Devices, SUSE LINUX Nürnberg.
+
+"Any ideas, John?"
+"Well, surrounding them's out."

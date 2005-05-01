@@ -1,133 +1,252 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262687AbVEAVYt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262724AbVEAVdn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262687AbVEAVYt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 17:24:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262713AbVEAVWn
+	id S262724AbVEAVdn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 17:33:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262699AbVEAVcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 17:22:43 -0400
-Received: from lakshmi.addtoit.com ([198.99.130.6]:26643 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S262691AbVEAVSb
+	Sun, 1 May 2005 17:32:41 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:32019 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S262700AbVEAVSk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 17:18:31 -0400
-Message-Id: <200505012112.j41LCPwY016407@ccure.user-mode-linux.org>
+	Sun, 1 May 2005 17:18:40 -0400
+Message-Id: <200505012112.j41LCRPW016412@ccure.user-mode-linux.org>
 X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
 To: torvalds@osdl.org
 cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
        viro@parcelfarce.linux.theplanet.co.uk
-Subject: [PATCH 5/22] UML - Cross-build support : kernel_offsets
+Subject: [PATCH 6/22] UML - Cross-build support : mk_thread
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 01 May 2005 17:12:25 -0400
+Date: Sun, 01 May 2005 17:12:27 -0400
 From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 >From Al Viro:
 
-	The next group of helpers is a bit trickier - they want the constants
-similar to those in user-offsets.h, but we need target sc.h for it.  So we
-can't put that into user-offsets (sc.h depends on it) and need the second
-generated header for that stuff (kernel-offsets.h.  BFD...
+	mk_thread converted
 
 Signed-off-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
 Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-diff -urN RC12-rc3-uml-sc/arch/um/Makefile RC12-rc3-uml-kernel-offsets/arch/um/Makefile
---- RC12-rc3-uml-sc/arch/um/Makefile	Wed Apr 27 18:22:28 2005
-+++ RC12-rc3-uml-kernel-offsets/arch/um/Makefile	Wed Apr 27 18:18:08 2005
-@@ -174,6 +174,19 @@
+diff -urN RC12-rc3-uml-kernel-offsets/arch/um/Makefile-i386 RC12-rc3-uml-thread/arch/um/Makefile-i386
+--- RC12-rc3-uml-kernel-offsets/arch/um/Makefile-i386	Wed Apr 27 18:18:08 2005
++++ RC12-rc3-uml-thread/arch/um/Makefile-i386	Wed Apr 27 18:13:27 2005
+@@ -35,7 +35,7 @@
+ $(SYS_UTIL_DIR)/mk_sc: scripts_basic $(ARCH_DIR)/user-offsets.h FORCE
+ 	$(Q)$(MAKE) $(build)=$(SYS_UTIL_DIR) $@
  
- CLEAN_FILES += $(ARCH_DIR)/user-offsets.s  $(ARCH_DIR)/user-offsets.h 
+-$(SYS_UTIL_DIR)/mk_thread: scripts_basic $(ARCH_SYMLINKS) $(GEN_HEADERS) FORCE
++$(SYS_UTIL_DIR)/mk_thread: scripts_basic $(ARCH_DIR)/kernel-offsets.h FORCE
+ 	$(Q)$(MAKE) $(build)=$(SYS_UTIL_DIR) $@
  
-+$(ARCH_DIR)/kernel-offsets.s: $(ARCH_DIR)/sys-$(SUBARCH)/kernel-offsets.c \
-+				   $(ARCH_SYMLINKS) \
-+				   $(SYS_DIR)/sc.h \
-+				   include/asm include/linux/version.h \
-+				   include/config/MARKER \
-+				   $(ARCH_DIR)/include/user_constants.h
-+	$(CC) $(CFLAGS) $(NOSTDINC_FLAGS) $(CPPFLAGS) -S -o $@ $<
-+
-+$(ARCH_DIR)/kernel-offsets.h: $(ARCH_DIR)/kernel-offsets.s
-+	$(call filechk,gen-asm-offsets)
-+
-+CLEAN_FILES += $(ARCH_DIR)/kernel-offsets.s  $(ARCH_DIR)/kernel-offsets.h 
-+
- $(ARCH_DIR)/include/task.h: $(ARCH_DIR)/util/mk_task
- 	$(call filechk,gen_header)
+ $(SYS_UTIL_DIR): scripts_basic include/asm FORCE
+diff -urN RC12-rc3-uml-kernel-offsets/arch/um/Makefile-x86_64 RC12-rc3-uml-thread/arch/um/Makefile-x86_64
+--- RC12-rc3-uml-kernel-offsets/arch/um/Makefile-x86_64	Wed Apr 27 18:18:08 2005
++++ RC12-rc3-uml-thread/arch/um/Makefile-x86_64	Wed Apr 27 18:13:27 2005
+@@ -26,7 +26,7 @@
+ $(SYS_UTIL_DIR)/mk_sc: scripts_basic $(ARCH_DIR)/user-offsets.h FORCE
+ 	$(Q)$(MAKE) $(build)=$(SYS_UTIL_DIR) $@
  
-diff -urN RC12-rc3-uml-sc/arch/um/include/common-offsets.h RC12-rc3-uml-kernel-offsets/arch/um/include/common-offsets.h
---- RC12-rc3-uml-sc/arch/um/include/common-offsets.h	Wed Dec 31 19:00:00 1969
-+++ RC12-rc3-uml-kernel-offsets/arch/um/include/common-offsets.h	Wed Apr 27 17:07:28 2005
-@@ -0,0 +1,14 @@
-+/* for use by sys-$SUBARCH/kernel-offsets.c */
+-$(SYS_UTIL_DIR)/mk_thread: scripts_basic $(ARCH_SYMLINKS) $(GEN_HEADERS) FORCE
++$(SYS_UTIL_DIR)/mk_thread: scripts_basic $(GEN_HEADERS) $(ARCH_DIR)/kernel-offsets.h FORCE
+ 	$(Q)$(MAKE) $(build)=$(SYS_UTIL_DIR) $@
+ 
+ CLEAN_FILES += $(SYS_HEADERS)
+diff -urN RC12-rc3-uml-kernel-offsets/arch/um/sys-i386/util/Makefile RC12-rc3-uml-thread/arch/um/sys-i386/util/Makefile
+--- RC12-rc3-uml-kernel-offsets/arch/um/sys-i386/util/Makefile	Wed Apr 27 17:07:26 2005
++++ RC12-rc3-uml-thread/arch/um/sys-i386/util/Makefile	Wed Apr 27 17:07:29 2005
+@@ -1,9 +1,5 @@
+-
+ hostprogs-y	:= mk_sc mk_thread
+ always		:= $(hostprogs-y)
+ 
+-mk_thread-objs	:= mk_thread_kern.o mk_thread_user.o
+-
+-HOSTCFLAGS_mk_thread_kern.o	:= $(CFLAGS) $(CPPFLAGS)
+-HOSTCFLAGS_mk_thread_user.o	:= $(USER_CFLAGS)
+ HOSTCFLAGS_mk_sc.o := -I$(objtree)/arch/um
++HOSTCFLAGS_mk_thread.o := -I$(objtree)/arch/um
+diff -urN RC12-rc3-uml-kernel-offsets/arch/um/sys-i386/util/mk_thread.c RC12-rc3-uml-thread/arch/um/sys-i386/util/mk_thread.c
+--- RC12-rc3-uml-kernel-offsets/arch/um/sys-i386/util/mk_thread.c	Wed Dec 31 19:00:00 1969
++++ RC12-rc3-uml-thread/arch/um/sys-i386/util/mk_thread.c	Wed Apr 27 17:07:29 2005
+@@ -0,0 +1,22 @@
++#include <stdio.h>
++#include <kernel-offsets.h>
 +
-+OFFSET(TASK_REGS, task_struct, thread.regs);
-+OFFSET(TASK_PID, task_struct, pid);
-+DEFINE(UM_KERN_PAGE_SIZE, PAGE_SIZE);
-+DEFINE(UM_NSEC_PER_SEC, NSEC_PER_SEC);
-+DEFINE_STR(UM_KERN_EMERG, KERN_EMERG);
-+DEFINE_STR(UM_KERN_ALERT, KERN_ALERT);
-+DEFINE_STR(UM_KERN_CRIT, KERN_CRIT);
-+DEFINE_STR(UM_KERN_ERR, KERN_ERR);
-+DEFINE_STR(UM_KERN_WARNING, KERN_WARNING);
-+DEFINE_STR(UM_KERN_NOTICE, KERN_NOTICE);
-+DEFINE_STR(UM_KERN_INFO, KERN_INFO);
-+DEFINE_STR(UM_KERN_DEBUG, KERN_DEBUG);
-diff -urN RC12-rc3-uml-sc/arch/um/sys-i386/kernel-offsets.c RC12-rc3-uml-kernel-offsets/arch/um/sys-i386/kernel-offsets.c
---- RC12-rc3-uml-sc/arch/um/sys-i386/kernel-offsets.c	Wed Dec 31 19:00:00 1969
-+++ RC12-rc3-uml-kernel-offsets/arch/um/sys-i386/kernel-offsets.c	Wed Apr 27 17:07:28 2005
-@@ -0,0 +1,25 @@
-+#include <linux/config.h>
-+#include <linux/stddef.h>
-+#include <linux/sched.h>
-+#include <linux/time.h>
-+#include <asm/page.h>
-+
-+#define DEFINE(sym, val) \
-+        asm volatile("\n->" #sym " %0 " #val : : "i" (val))
-+
-+#define STR(x) #x
-+#define DEFINE_STR(sym, val) asm volatile("\n->" #sym " " STR(val) " " #val: : )
-+
-+#define BLANK() asm volatile("\n->" : : )
-+
-+#define OFFSET(sym, str, mem) \
-+	DEFINE(sym, offsetof(struct str, mem));
-+
-+void foo(void)
++int main(int argc, char **argv)
 +{
-+	OFFSET(TASK_DEBUGREGS, task_struct, thread.arch.debugregs);
-+#ifdef CONFIG_MODE_TT
-+	OFFSET(TASK_EXTERN_PID, task_struct, thread.mode.tt.extern_pid);
++  printf("/*\n");
++  printf(" * Generated by mk_thread\n");
++  printf(" */\n");
++  printf("\n");
++  printf("#ifndef __UM_THREAD_H\n");
++  printf("#define __UM_THREAD_H\n");
++  printf("\n");
++  printf("#define TASK_DEBUGREGS(task) ((unsigned long *) "
++	 "&(((char *) (task))[%d]))\n", TASK_DEBUGREGS);
++#ifdef TASK_EXTERN_PID
++  printf("#define TASK_EXTERN_PID(task) *((int *) &(((char *) (task))[%d]))\n",
++	 TASK_EXTERN_PID);
 +#endif
-+#include <common-offsets.h>
++  printf("\n");
++  printf("#endif\n");
++  return(0);
 +}
-diff -urN RC12-rc3-uml-sc/arch/um/sys-x86_64/kernel-offsets.c RC12-rc3-uml-kernel-offsets/arch/um/sys-x86_64/kernel-offsets.c
---- RC12-rc3-uml-sc/arch/um/sys-x86_64/kernel-offsets.c	Wed Dec 31 19:00:00 1969
-+++ RC12-rc3-uml-kernel-offsets/arch/um/sys-x86_64/kernel-offsets.c	Wed Apr 27 17:07:28 2005
-@@ -0,0 +1,24 @@
-+#include <linux/config.h>
-+#include <linux/stddef.h>
-+#include <linux/sched.h>
-+#include <linux/time.h>
-+#include <asm/page.h>
+diff -urN RC12-rc3-uml-kernel-offsets/arch/um/sys-i386/util/mk_thread_kern.c RC12-rc3-uml-thread/arch/um/sys-i386/util/mk_thread_kern.c
+--- RC12-rc3-uml-kernel-offsets/arch/um/sys-i386/util/mk_thread_kern.c	Wed Feb  4 10:49:17 2004
++++ RC12-rc3-uml-thread/arch/um/sys-i386/util/mk_thread_kern.c	Wed Dec 31 19:00:00 1969
+@@ -1,22 +0,0 @@
+-#include "linux/config.h"
+-#include "linux/stddef.h"
+-#include "linux/sched.h"
+-
+-extern void print_head(void);
+-extern void print_constant_ptr(char *name, int value);
+-extern void print_constant(char *name, char *type, int value);
+-extern void print_tail(void);
+-
+-#define THREAD_OFFSET(field) offsetof(struct task_struct, thread.field)
+-
+-int main(int argc, char **argv)
+-{
+-  print_head();
+-  print_constant_ptr("TASK_DEBUGREGS", THREAD_OFFSET(arch.debugregs));
+-#ifdef CONFIG_MODE_TT
+-  print_constant("TASK_EXTERN_PID", "int", THREAD_OFFSET(mode.tt.extern_pid));
+-#endif
+-  print_tail();
+-  return(0);
+-}
+-
+diff -urN RC12-rc3-uml-kernel-offsets/arch/um/sys-i386/util/mk_thread_user.c RC12-rc3-uml-thread/arch/um/sys-i386/util/mk_thread_user.c
+--- RC12-rc3-uml-kernel-offsets/arch/um/sys-i386/util/mk_thread_user.c	Wed Feb  4 10:35:02 2004
++++ RC12-rc3-uml-thread/arch/um/sys-i386/util/mk_thread_user.c	Wed Dec 31 19:00:00 1969
+@@ -1,30 +0,0 @@
+-#include <stdio.h>
+-
+-void print_head(void)
+-{
+-  printf("/*\n");
+-  printf(" * Generated by mk_thread\n");
+-  printf(" */\n");
+-  printf("\n");
+-  printf("#ifndef __UM_THREAD_H\n");
+-  printf("#define __UM_THREAD_H\n");
+-  printf("\n");
+-}
+-
+-void print_constant_ptr(char *name, int value)
+-{
+-  printf("#define %s(task) ((unsigned long *) "
+-	 "&(((char *) (task))[%d]))\n", name, value);
+-}
+-
+-void print_constant(char *name, char *type, int value)
+-{
+-  printf("#define %s(task) *((%s *) &(((char *) (task))[%d]))\n", name, type, 
+-	 value);
+-}
+-
+-void print_tail(void)
+-{
+-  printf("\n");
+-  printf("#endif\n");
+-}
+diff -urN RC12-rc3-uml-kernel-offsets/arch/um/sys-x86_64/util/Makefile RC12-rc3-uml-thread/arch/um/sys-x86_64/util/Makefile
+--- RC12-rc3-uml-kernel-offsets/arch/um/sys-x86_64/util/Makefile	Wed Apr 27 17:07:26 2005
++++ RC12-rc3-uml-thread/arch/um/sys-x86_64/util/Makefile	Wed Apr 27 17:07:29 2005
+@@ -4,8 +4,5 @@
+ hostprogs-y	:= mk_sc mk_thread
+ always		:= $(hostprogs-y)
+ 
+-mk_thread-objs	:= mk_thread_kern.o mk_thread_user.o
+-
+-HOSTCFLAGS_mk_thread_kern.o	:= $(CFLAGS) $(CPPFLAGS)
+-HOSTCFLAGS_mk_thread_user.o	:= $(USER_CFLAGS)
+ HOSTCFLAGS_mk_sc.o := -I$(objtree)/arch/um
++HOSTCFLAGS_mk_thread.o := -I$(objtree)/arch/um
+diff -urN RC12-rc3-uml-kernel-offsets/arch/um/sys-x86_64/util/mk_thread.c RC12-rc3-uml-thread/arch/um/sys-x86_64/util/mk_thread.c
+--- RC12-rc3-uml-kernel-offsets/arch/um/sys-x86_64/util/mk_thread.c	Wed Dec 31 19:00:00 1969
++++ RC12-rc3-uml-thread/arch/um/sys-x86_64/util/mk_thread.c	Wed Apr 27 17:07:29 2005
+@@ -0,0 +1,20 @@
++#include <stdio.h>
++#include <kernel-offsets.h>
 +
-+#define DEFINE(sym, val) \
-+        asm volatile("\n->" #sym " %0 " #val : : "i" (val))
-+
-+#define DEFINE_STR1(x) #x
-+#define DEFINE_STR(sym, val) asm volatile("\n->" #sym " " DEFINE_STR1(val) " " #val: : )
-+
-+#define BLANK() asm volatile("\n->" : : )
-+
-+#define OFFSET(sym, str, mem) \
-+	DEFINE(sym, offsetof(struct str, mem));
-+
-+void foo(void)
++int main(int argc, char **argv)
 +{
-+#ifdef CONFIG_MODE_TT
-+	OFFSET(TASK_EXTERN_PID, task_struct, thread.mode.tt.extern_pid);
++  printf("/*\n");
++  printf(" * Generated by mk_thread\n");
++  printf(" */\n");
++  printf("\n");
++  printf("#ifndef __UM_THREAD_H\n");
++  printf("#define __UM_THREAD_H\n");
++  printf("\n");
++#ifdef TASK_EXTERN_PID
++  printf("#define TASK_EXTERN_PID(task) *((int *) &(((char *) (task))[%d]))\n",
++	 TASK_EXTERN_PID);
 +#endif
-+#include <common-offsets.h>
++  printf("\n");
++  printf("#endif\n");
++  return(0);
 +}
+diff -urN RC12-rc3-uml-kernel-offsets/arch/um/sys-x86_64/util/mk_thread_kern.c RC12-rc3-uml-thread/arch/um/sys-x86_64/util/mk_thread_kern.c
+--- RC12-rc3-uml-kernel-offsets/arch/um/sys-x86_64/util/mk_thread_kern.c	Fri Mar 11 15:54:46 2005
++++ RC12-rc3-uml-thread/arch/um/sys-x86_64/util/mk_thread_kern.c	Wed Dec 31 19:00:00 1969
+@@ -1,21 +0,0 @@
+-#include "linux/config.h"
+-#include "linux/stddef.h"
+-#include "linux/sched.h"
+-
+-extern void print_head(void);
+-extern void print_constant_ptr(char *name, int value);
+-extern void print_constant(char *name, char *type, int value);
+-extern void print_tail(void);
+-
+-#define THREAD_OFFSET(field) offsetof(struct task_struct, thread.field)
+-
+-int main(int argc, char **argv)
+-{
+-  print_head();
+-#ifdef CONFIG_MODE_TT
+-  print_constant("TASK_EXTERN_PID", "int", THREAD_OFFSET(mode.tt.extern_pid));
+-#endif
+-  print_tail();
+-  return(0);
+-}
+-
+diff -urN RC12-rc3-uml-kernel-offsets/arch/um/sys-x86_64/util/mk_thread_user.c RC12-rc3-uml-thread/arch/um/sys-x86_64/util/mk_thread_user.c
+--- RC12-rc3-uml-kernel-offsets/arch/um/sys-x86_64/util/mk_thread_user.c	Fri Mar 11 15:54:46 2005
++++ RC12-rc3-uml-thread/arch/um/sys-x86_64/util/mk_thread_user.c	Wed Dec 31 19:00:00 1969
+@@ -1,30 +0,0 @@
+-#include <stdio.h>
+-
+-void print_head(void)
+-{
+-  printf("/*\n");
+-  printf(" * Generated by mk_thread\n");
+-  printf(" */\n");
+-  printf("\n");
+-  printf("#ifndef __UM_THREAD_H\n");
+-  printf("#define __UM_THREAD_H\n");
+-  printf("\n");
+-}
+-
+-void print_constant_ptr(char *name, int value)
+-{
+-  printf("#define %s(task) ((unsigned long *) "
+-	 "&(((char *) (task))[%d]))\n", name, value);
+-}
+-
+-void print_constant(char *name, char *type, int value)
+-{
+-  printf("#define %s(task) *((%s *) &(((char *) (task))[%d]))\n", name, type,
+-	 value);
+-}
+-
+-void print_tail(void)
+-{
+-  printf("\n");
+-  printf("#endif\n");
+-}
 

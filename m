@@ -1,74 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262688AbVEAVUr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262717AbVEAVYs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262688AbVEAVUr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 17:20:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262686AbVEAVUP
+	id S262717AbVEAVYs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 17:24:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262690AbVEAVYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 17:20:15 -0400
-Received: from lakshmi.addtoit.com ([198.99.130.6]:25619 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S262688AbVEAVSa
+	Sun, 1 May 2005 17:24:34 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:28691 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S262693AbVEAVSf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 17:18:30 -0400
-Message-Id: <200505012113.j41LD7QC016493@ccure.user-mode-linux.org>
+	Sun, 1 May 2005 17:18:35 -0400
+Message-Id: <200505012113.j41LD94P016498@ccure.user-mode-linux.org>
 X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
 To: torvalds@osdl.org
 cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
        bstroesser@fujitsu-siemens.com
-Subject: [PATCH 21/22] UML - Remove a dangling symlink
+Subject: [PATCH 22/22] UML - Header and code cleanup
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 01 May 2005 17:13:07 -0400
+Date: Sun, 01 May 2005 17:13:09 -0400
 From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
 
-UML: remove no longer needed arch-signal.h
+Remove some definitions and declarations from
+arch/um/include/skas_ptrace.h, as they have moved to
+arch/um/include/sysdep/skas_ptrace.h
+Also, remove PTRACE_SIGPENDING support in UML at all.
 
 Signed-off-by: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
 Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-Index: linux-2.6.11/arch/um/Makefile
-===================================================================
---- linux-2.6.11.orig/arch/um/Makefile	2005-04-29 14:22:27.000000000 -0400
-+++ linux-2.6.11/arch/um/Makefile	2005-04-29 14:39:05.000000000 -0400
-@@ -17,7 +17,7 @@
+diff -puN arch/um/include/skas_ptrace.h~fix-skas_ptrace.h arch/um/include/skas_ptrace.h
+--- linux-2.6.11/arch/um/include/skas_ptrace.h~fix-skas_ptrace.h	2005-04-06 14:22:17.000000000 +0200
++++ linux-2.6.11-root/arch/um/include/skas_ptrace.h	2005-04-06 14:22:17.000000000 +0200
+@@ -6,22 +6,11 @@
+ #ifndef __SKAS_PTRACE_H
+ #define __SKAS_PTRACE_H
  
- # Have to precede the include because the included Makefiles reference them.
- SYMLINK_HEADERS := archparam.h system.h sigcontext.h processor.h ptrace.h \
--	arch-signal.h module.h vm-flags.h elf.h
-+	module.h vm-flags.h elf.h
- SYMLINK_HEADERS := $(foreach header,$(SYMLINK_HEADERS),include/asm-um/$(header))
- 
- # XXX: The "os" symlink is only used by arch/um/include/os.h, which includes
-Index: linux-2.6.11/include/asm-um/arch-signal-i386.h
-===================================================================
---- linux-2.6.11.orig/include/asm-um/arch-signal-i386.h	2005-04-29 13:44:52.000000000 -0400
-+++ linux-2.6.11/include/asm-um/arch-signal-i386.h	2003-09-15 09:40:47.000000000 -0400
-@@ -1,24 +0,0 @@
--/* 
-- * Copyright (C) 2002 Jeff Dike (jdike@karaya.com)
-- * Licensed under the GPL
-- */
--
--#ifndef __UM_ARCH_SIGNAL_I386_H
--#define __UM_ARCH_SIGNAL_I386_H
--
--struct arch_signal_context {
--	unsigned long extrasigs[_NSIG_WORDS];
+-struct ptrace_faultinfo {
+-	int is_write;
+-	unsigned long addr;
 -};
 -
--#endif
+-struct ptrace_ldt {
+-	int func;
+-  	void *ptr;
+-	unsigned long bytecount;
+-};
 -
--/*
-- * Overrides for Emacs so that we follow Linus's tabbing style.
-- * Emacs will notice this stuff at the end of the file and automatically
-- * adjust the settings for this buffer only.  This must remain at the end
-- * of the file.
-- * ---------------------------------------------------------------------------
-- * Local variables:
-- * c-file-style: "linux"
-- * End:
-- */
+ #define PTRACE_FAULTINFO 52
+-#define PTRACE_SIGPENDING 53
+-#define PTRACE_LDT 54
+ #define PTRACE_SWITCH_MM 55
+ 
++#include "sysdep/skas_ptrace.h"
++
+ #endif
+ 
+ /*
+diff -puN arch/um/kernel/ptrace.c~fix-skas_ptrace.h arch/um/kernel/ptrace.c
+--- linux-2.6.11/arch/um/kernel/ptrace.c~fix-skas_ptrace.h	2005-04-06 14:22:17.000000000 +0200
++++ linux-2.6.11-root/arch/um/kernel/ptrace.c	2005-04-06 14:22:17.000000000 +0200
+@@ -242,11 +242,6 @@ long sys_ptrace(long request, long pid, 
+ 			break;
+ 		break;
+ 	}
+-	case PTRACE_SIGPENDING:
+-		ret = copy_to_user((unsigned long __user *) data,
+-				   &child->pending.signal,
+-				   sizeof(child->pending.signal));
+-		break;
+ 
+ #ifdef PTRACE_LDT
+ 	case PTRACE_LDT: {
+_
 

@@ -1,46 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVEBVtn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261317AbVEAEQd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbVEBVtn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 17:49:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261164AbVEBVtn
+	id S261317AbVEAEQd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 00:16:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbVEAEQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 17:49:43 -0400
-Received: from zproxy.gmail.com ([64.233.162.199]:3435 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261161AbVEBVtl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 17:49:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=iVWm8NjgXAfVo6swiXWMw7XslA1+Z2i4t//Aj1nW6pzuaQbmmKBR9Y0Hah9Q+2zHmaB6p8piSY9hwpxqGpLx4TXkljYX+sowusJIFptOL4pPpJAw+O9mmOWJ3Y5zNm9F2/pP5Be6+9eaNcHJSF9Gwr3h4e9+LCGbqDRqe906gEQ=
-Date: Sat, 30 Apr 2005 23:34:45 +0200
-From: Diego Calleja <diegocg@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: cloos@jhcloos.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc3-mm2
-Message-Id: <20050430233445.0687e455.diegocg@gmail.com>
-In-Reply-To: <20050501222630.2fed0bd7.akpm@osdl.org>
-References: <20050430164303.6538f47c.akpm@osdl.org>
-	<m31x8q8bc5.fsf@lugabout.cloos.reno.nv.us>
-	<20050501222630.2fed0bd7.akpm@osdl.org>
-X-Mailer: Sylpheed version 1.9.9+svn (GTK+ 2.6.4; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Sun, 1 May 2005 00:16:33 -0400
+Received: from warden2-p.diginsite.com ([209.195.52.120]:36280 "HELO
+	warden2.diginsite.com") by vger.kernel.org with SMTP
+	id S261317AbVEAEQ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 00:16:29 -0400
+Date: Sat, 30 Apr 2005 21:14:45 -0700 (PDT)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: "Theodore Ts'o" <tytso@mit.edu>
+cc: Daniel Phillips <phillips@istop.com>, Lars Marowsky-Bree <lmb@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/7] dlm: overview
+In-Reply-To: <20050501035746.GA6578@thunk.org>
+Message-ID: <Pine.LNX.4.62.0504302110530.9153@qynat.qvtvafvgr.pbz>
+References: <20050425151136.GA6826@redhat.com> <20050428145715.GA21645@marowsky-bree.de>
+ <Pine.LNX.4.62.0504281731450.6139@qynat.qvtvafvgr.pbz>
+ <200504282152.31137.phillips@istop.com> <Pine.LNX.4.62.0504291011220.7439@qynat.qvtvafvgr.pbz>
+ <20050501035746.GA6578@thunk.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Sun, 1 May 2005 22:26:30 -0700,
-Andrew Morton <akpm@osdl.org> escribió:
+On Sat, 30 Apr 2005, Theodore Ts'o wrote:
 
+>> the claim was that UUID's are unique and don't have to be assigned by the
+>> admins.
+>>
+>> I'm saying that in my experiance there isn't any standard or reliable way
+>> to generate such a UUID and I'm asking for the people makeing the
+>> claim to educate me on what I'm missing becouse a reliable UUID for linux
+>> on all hardware would be extremely useful for many things.
+>
+> How to reliably generate universally unique ID's have been well
+> understood for over twenty years, and is implemented on nearly every
+> Linux system for over ten.  For more information I refer you to
+> doc/draft-leach-uuid-guids-01.txt in the e2fsprogs sources, and for an
+> implementation, the uuid library in e2fsprogs, which is used by both
+> GNOME and KDE.  UUID's are also used by Apple's Mac OS X (using
+> libuuid from e2fsprogs), Microsoft Windows, more historically by the
+> OSF DCE, and even more historically by the Apollo Domain OS (1980 --
+> 1989, RIP).  Much of this usage is due to the efforts of Paul Leach, a
+> key architect at Apollo, and OSF/DCE, before he left and joined the
+> Dark Side at Microsoft.
+>
+> Also, FYI the OSF/DCE, including the specification for generating
+> UUID's, was submitted by OSF to the X/Open where it was standardized,
+> who in turn submitted it to the ISO where it was approved as
+> Publically Available Specification (PAS).  So technically, there *is*
+> an internationally standardized way of generating UUID's, and it is
+> already implemented and deployed on nearly all Linux systems.
 
-> Nope.  At any particular point in time the tree I have here has lots of
-> problems - failing to compile, crashing, etc.  It takes me from four hours
-> to three days just to get a halfway-respectable release out the door.
-> 
-> So there's no way in which I'd want to make the tree-of-the-minute
-> externally available - it would muck people around too much and would cause
-> me to get a ton of email about stuff which I'd probably already fixed.
+thanks for the pointer. I wasn't aware of this draft (although from a 
+reasonably short search it appears that this draft was allowed to expire, 
+with no direct replacement that I could find)
 
-But is not that the whole point of -mm, giving people stuff to test?
-Wouldn't it help to test and fix things faster?
+I will say that this wasn't what I thought we was being talked about for 
+cluster membership, becouse I assumed that the generation of an ID would 
+be repeatable so that a cluster node could be rebuilt and re-join the 
+cluster with it's old ID.
+
+David Lang
+
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare

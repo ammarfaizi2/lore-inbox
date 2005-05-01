@@ -1,294 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbVD3WvP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbVEADbA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261445AbVD3WvP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 18:51:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVD3WvP
+	id S261222AbVEADbA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 23:31:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261520AbVEADa7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 18:51:15 -0400
-Received: from mx2.mail.ru ([194.67.23.122]:39809 "EHLO mx2.mail.ru")
-	by vger.kernel.org with ESMTP id S261445AbVD3Wub (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 18:50:31 -0400
-Date: Sun, 1 May 2005 02:53:49 +0000
-From: Alexey Dobriyan <adobriyan@mail.ru>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: "David S. Miller" <davem@davemloft.net>,
-       Jouni Malinen <jkmaline@cc.hut.fi>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] resource release cleanup in net/
-Message-ID: <20050501025349.GA9243@mipter.zuzino.mipt.ru>
-Mail-Followup-To: Jesper Juhl <juhl-lkml@dif.dk>,
-	"David S. Miller" <davem@davemloft.net>,
-	Jouni Malinen <jkmaline@cc.hut.fi>, netdev@oss.sgi.com,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.62.0504302219520.2094@dragon.hyggekrogen.localhost>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="4Ckj6UjgE2iN1+kY"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0504302219520.2094@dragon.hyggekrogen.localhost>
-User-Agent: Mutt/1.5.8i
+	Sat, 30 Apr 2005 23:30:59 -0400
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:60265 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261222AbVEADag (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Apr 2005 23:30:36 -0400
+Message-ID: <42744D58.7090408@yahoo.com.au>
+Date: Sun, 01 May 2005 13:30:32 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, Andrea Arcangeli <andrea@suse.de>,
+       Chris Mason <mason@suse.com>, Linus Torvalds <torvalds@osdl.org>
+Subject: [patch] alternative fix for VFS race (was Re: 2.6.12-rc3-mm2)
+References: <20050430164303.6538f47c.akpm@osdl.org>
+In-Reply-To: <20050430164303.6538f47c.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------050207030303030607040900"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------050207030303030607040900
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
---4Ckj6UjgE2iN1+kY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc3/2.6.12-rc3-mm2/
+> 
 
-On Sat, Apr 30, 2005 at 10:36:00PM +0200, Jesper Juhl wrote:
-> Since Andrew merged the patch that makes calling crypto_free_tfm() with a 
-> NULL pointer safe into 2.6.12-rc3-mm1, I made a patch to remove checks for 
-> NULL before calling that function
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc3/2.6.12-rc3-mm2/broken-out/fix-race-in-block_write_full_page.patch
 
->  drivers/net/wireless/hostap/hostap_crypt_ccmp.c |    5 -
->  drivers/net/wireless/hostap/hostap_crypt_tkip.c |   10 +-
->  drivers/net/wireless/hostap/hostap_crypt_wep.c  |    5 -
->  net/ieee80211/ieee80211_crypt_ccmp.c            |    5 -
->  net/ieee80211/ieee80211_crypt_tkip.c            |   10 +-
->  net/ieee80211/ieee80211_crypt_wep.c             |    5 -
+While this patch does fix the problem, I would like to propose the
+following attached patch instead, which is a minimal fix for the
+specific race identified.
 
-I think I have a better one for these.
+I have the following concerns about extending the lock page coverage:
+Extending lock_page coverage 1) doesn't appear to protect from any other
+races; 2) doesn't seem to be how the rest of the kernel submits asynch
+writes; 3) isn't how this path used to do locking; and 4) can hold the
+page lock for a long time while a request slot and memory is allocated.
 
---4Ckj6UjgE2iN1+kY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="hostap_free.patch"
+What's more, if there *is* a good reason to extend lock page coverage,
+then that should probably be sumbmitted as a seperate changeset on top
+of this minimal patch, with a seperate rationale. It would help future
+work on this code identify why the locking is the way it is.
 
---- linux-2.6.12-rc3-mm1/drivers/net/wireless/hostap/hostap_crypt_ccmp.c	2005-05-01 01:53:50.000000000 +0000
-+++ linux-2.6.12-rc3-mm1-hostap/drivers/net/wireless/hostap/hostap_crypt_ccmp.c	2005-05-01 02:21:10.000000000 +0000
-@@ -102,17 +102,14 @@ static void * hostap_ccmp_init(int key_i
- 	if (priv->tfm == NULL) {
- 		printk(KERN_DEBUG "hostap_crypt_ccmp: could not allocate "
- 		       "crypto API aes\n");
--		goto fail;
-+		goto fail_free;
- 	}
+
+Thanks,
+Nick
+
+-- 
+SUSE Labs, Novell Inc.
+
+--------------050207030303030607040900
+Content-Type: text/plain;
+ name="__block_write_full_page-bug.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="__block_write_full_page-bug.patch"
+
+When running
+	fsstress -v -d $DIR/tmp -n 1000 -p 1000 -l 2
+on an ext2 filesystem with 1024 byte block size, on SMP i386 with 4096 byte
+page size over loopback to an image file on a tmpfs filesystem, I would
+very quickly hit
+	BUG_ON(!buffer_async_write(bh));
+in fs/buffer.c:end_buffer_async_write
+
+It seems that more than one request would be submitted for a given bh
+at a time.
+
+What would happen is the following:
+2 threads doing __mpage_writepages on the same page.
+Thread 1 - lock the page first, and enter __block_write_full_page.
+Thread 1 - (eg.) mark_buffer_async_write on the first 2 buffers.
+Thread 1 - set page writeback, unlock page.
+Thread 2 - lock page, wait on page writeback
+Thread 1 - submit_bh on the first 2 buffers.
+=> both requests complete, none of the page buffers are async_write,
+   end_page_writeback is called.
+Thread 2 - wakes up. enters __block_write_full_page.
+Thread 2 - mark_buffer_async_write on (eg.) the last buffer
+Thread 1 - finds the last buffer has async_write set, submit_bh on that.
+Thread 2 - submit_bh on the last buffer.
+=> oops.
+
+So change __block_write_full_page to explicitly keep track of the last
+bh we need to issue, so we don't touch anything after issuing the last
+request.
+
+Signed-off-by: Nick Piggin <nickpiggin@yahoo.com.au>
+
+Index: linux-2.6/fs/buffer.c
+===================================================================
+--- linux-2.6.orig/fs/buffer.c	2005-04-27 22:43:05.000000000 +1000
++++ linux-2.6/fs/buffer.c	2005-05-01 12:44:08.000000000 +1000
+@@ -1750,7 +1750,7 @@ static int __block_write_full_page(struc
+ 	int err;
+ 	sector_t block;
+ 	sector_t last_block;
+-	struct buffer_head *bh, *head;
++	struct buffer_head *bh, *head, *last_bh = NULL;
+ 	int nr_underway = 0;
  
- 	return priv;
+ 	BUG_ON(!PageLocked(page));
+@@ -1808,7 +1808,6 @@ static int __block_write_full_page(struc
+ 	} while (bh != head);
  
-+fail_free:
-+	kfree(priv);
- fail:
--	if (priv) {
--		if (priv->tfm)
--			crypto_free_tfm(priv->tfm);
--		kfree(priv);
--	}
- 	module_put(THIS_MODULE);
- 	return NULL;
- }
-@@ -121,8 +118,7 @@ fail:
- static void hostap_ccmp_deinit(void *priv)
- {
- 	struct hostap_ccmp_data *_priv = priv;
--	if (_priv && _priv->tfm)
--		crypto_free_tfm(_priv->tfm);
-+	crypto_free_tfm(_priv->tfm);
- 	kfree(priv);
- 	module_put(THIS_MODULE);
- }
---- linux-2.6.12-rc3-mm1/drivers/net/wireless/hostap/hostap_crypt_tkip.c	2005-05-01 01:53:50.000000000 +0000
-+++ linux-2.6.12-rc3-mm1-hostap/drivers/net/wireless/hostap/hostap_crypt_tkip.c	2005-05-01 02:27:18.000000000 +0000
-@@ -88,26 +88,23 @@ static void * hostap_tkip_init(int key_i
- 	if (priv->tfm_arc4 == NULL) {
- 		printk(KERN_DEBUG "hostap_crypt_tkip: could not allocate "
- 		       "crypto API arc4\n");
--		goto fail;
-+		goto fail_arc4;
- 	}
+ 	do {
+-		get_bh(bh);
+ 		if (!buffer_mapped(bh))
+ 			continue;
+ 		/*
+@@ -1826,6 +1825,8 @@ static int __block_write_full_page(struc
+ 		}
+ 		if (test_clear_buffer_dirty(bh)) {
+ 			mark_buffer_async_write(bh);
++			get_bh(bh);
++			last_bh = bh;
+ 		} else {
+ 			unlock_buffer(bh);
+ 		}
+@@ -1844,10 +1845,13 @@ static int __block_write_full_page(struc
+ 		if (buffer_async_write(bh)) {
+ 			submit_bh(WRITE, bh);
+ 			nr_underway++;
++			put_bh(bh);
++			if (bh == last_bh)
++				break;
+ 		}
+-		put_bh(bh);
+ 		bh = next;
+ 	} while (bh != head);
++	bh = head;
  
- 	priv->tfm_michael = crypto_alloc_tfm("michael_mic", 0);
- 	if (priv->tfm_michael == NULL) {
- 		printk(KERN_DEBUG "hostap_crypt_tkip: could not allocate "
- 		       "crypto API michael_mic\n");
--		goto fail;
-+		goto fail_michael;
- 	}
- 
- 	return priv;
- 
-+fail_michael:
-+	crypto_free_tfm(priv->tfm_arc4);
-+fail_arc4:
-+	kfree(priv);
- fail:
--	if (priv) {
--		if (priv->tfm_michael)
--			crypto_free_tfm(priv->tfm_michael);
--		if (priv->tfm_arc4)
--			crypto_free_tfm(priv->tfm_arc4);
--		kfree(priv);
--	}
- 	module_put(THIS_MODULE);
- 	return NULL;
- }
-@@ -116,10 +113,8 @@ fail:
- static void hostap_tkip_deinit(void *priv)
- {
- 	struct hostap_tkip_data *_priv = priv;
--	if (_priv && _priv->tfm_michael)
--		crypto_free_tfm(_priv->tfm_michael);
--	if (_priv && _priv->tfm_arc4)
--		crypto_free_tfm(_priv->tfm_arc4);
-+	crypto_free_tfm(_priv->tfm_michael);
-+	crypto_free_tfm(_priv->tfm_arc4);
- 	kfree(priv);
- 	module_put(THIS_MODULE);
- }
---- linux-2.6.12-rc3-mm1/drivers/net/wireless/hostap/hostap_crypt_wep.c	2005-05-01 01:53:50.000000000 +0000
-+++ linux-2.6.12-rc3-mm1-hostap/drivers/net/wireless/hostap/hostap_crypt_wep.c	2005-05-01 02:30:08.000000000 +0000
-@@ -59,7 +59,7 @@ static void * prism2_wep_init(int keyidx
- 	if (priv->tfm == NULL) {
- 		printk(KERN_DEBUG "hostap_crypt_wep: could not allocate "
- 		       "crypto API arc4\n");
--		goto fail;
-+		goto fail_tfm;
- 	}
- 
- 	/* start WEP IV from a random value */
-@@ -67,12 +67,9 @@ static void * prism2_wep_init(int keyidx
- 
- 	return priv;
- 
-+fail_tfm:
-+	kfree(priv);
- fail:
--	if (priv) {
--		if (priv->tfm)
--			crypto_free_tfm(priv->tfm);
--		kfree(priv);
--	}
- 	module_put(THIS_MODULE);
- 	return NULL;
- }
-@@ -81,8 +78,7 @@ fail:
- static void prism2_wep_deinit(void *priv)
- {
- 	struct prism2_wep_data *_priv = priv;
--	if (_priv && _priv->tfm)
--		crypto_free_tfm(_priv->tfm);
-+	crypto_free_tfm(_priv->tfm);
- 	kfree(priv);
- 	module_put(THIS_MODULE);
- }
---- linux-2.6.12-rc3-mm1/net/ieee80211/ieee80211_crypt_ccmp.c	2005-05-01 01:53:57.000000000 +0000
-+++ linux-2.6.12-rc3-mm1-hostap/net/ieee80211/ieee80211_crypt_ccmp.c	2005-05-01 02:31:22.000000000 +0000
-@@ -89,18 +89,14 @@ static void * ieee80211_ccmp_init(int ke
- 	if (priv->tfm == NULL) {
- 		printk(KERN_DEBUG "ieee80211_crypt_ccmp: could not allocate "
- 		       "crypto API aes\n");
--		goto fail;
-+		goto fail_tfm;
- 	}
- 
- 	return priv;
- 
-+fail_tfm:
-+	kfree(priv);
- fail:
--	if (priv) {
--		if (priv->tfm)
--			crypto_free_tfm(priv->tfm);
--		kfree(priv);
--	}
--
- 	return NULL;
- }
- 
-@@ -108,8 +104,7 @@ fail:
- static void ieee80211_ccmp_deinit(void *priv)
- {
- 	struct ieee80211_ccmp_data *_priv = priv;
--	if (_priv && _priv->tfm)
--		crypto_free_tfm(_priv->tfm);
-+	crypto_free_tfm(_priv->tfm);
- 	kfree(priv);
- }
- 
---- linux-2.6.12-rc3-mm1/net/ieee80211/ieee80211_crypt_tkip.c	2005-05-01 01:53:57.000000000 +0000
-+++ linux-2.6.12-rc3-mm1-hostap/net/ieee80211/ieee80211_crypt_tkip.c	2005-05-01 02:34:04.000000000 +0000
-@@ -76,27 +76,23 @@ static void * ieee80211_tkip_init(int ke
- 	if (priv->tfm_arc4 == NULL) {
- 		printk(KERN_DEBUG "ieee80211_crypt_tkip: could not allocate "
- 		       "crypto API arc4\n");
--		goto fail;
-+		goto fail_arc4;
- 	}
- 
- 	priv->tfm_michael = crypto_alloc_tfm("michael_mic", 0);
- 	if (priv->tfm_michael == NULL) {
- 		printk(KERN_DEBUG "ieee80211_crypt_tkip: could not allocate "
- 		       "crypto API michael_mic\n");
--		goto fail;
-+		goto fail_michael;
- 	}
- 
- 	return priv;
- 
-+fail_michael:
-+	crypto_free_tfm(priv->tfm_arc4);
-+fail_arc4:
-+	kfree(priv);
- fail:
--	if (priv) {
--		if (priv->tfm_michael)
--			crypto_free_tfm(priv->tfm_michael);
--		if (priv->tfm_arc4)
--			crypto_free_tfm(priv->tfm_arc4);
--		kfree(priv);
--	}
--
- 	return NULL;
- }
- 
-@@ -104,10 +100,8 @@ fail:
- static void ieee80211_tkip_deinit(void *priv)
- {
- 	struct ieee80211_tkip_data *_priv = priv;
--	if (_priv && _priv->tfm_michael)
--		crypto_free_tfm(_priv->tfm_michael);
--	if (_priv && _priv->tfm_arc4)
--		crypto_free_tfm(_priv->tfm_arc4);
-+	crypto_free_tfm(_priv->tfm_michael);
-+	crypto_free_tfm(_priv->tfm_arc4);
- 	kfree(priv);
- }
- 
---- linux-2.6.12-rc3-mm1/net/ieee80211/ieee80211_crypt_wep.c	2005-05-01 01:53:57.000000000 +0000
-+++ linux-2.6.12-rc3-mm1-hostap/net/ieee80211/ieee80211_crypt_wep.c	2005-05-01 02:35:18.000000000 +0000
-@@ -54,7 +54,7 @@ static void * prism2_wep_init(int keyidx
- 	if (priv->tfm == NULL) {
- 		printk(KERN_DEBUG "ieee80211_crypt_wep: could not allocate "
- 		       "crypto API arc4\n");
--		goto fail;
-+		goto fail_tfm;
- 	}
- 
- 	/* start WEP IV from a random value */
-@@ -62,12 +62,9 @@ static void * prism2_wep_init(int keyidx
- 
- 	return priv;
- 
-+fail_tfm:
-+	kfree(priv);
- fail:
--	if (priv) {
--		if (priv->tfm)
--			crypto_free_tfm(priv->tfm);
--		kfree(priv);
--	}
- 	return NULL;
- }
- 
-@@ -75,8 +72,7 @@ fail:
- static void prism2_wep_deinit(void *priv)
- {
- 	struct prism2_wep_data *_priv = priv;
--	if (_priv && _priv->tfm)
--		crypto_free_tfm(_priv->tfm);
-+	crypto_free_tfm(_priv->tfm);
- 	kfree(priv);
+ 	err = 0;
+ done:
+@@ -1886,10 +1890,11 @@ recover:
+ 	bh = head;
+ 	/* Recovery: lock and submit the mapped buffers */
+ 	do {
+-		get_bh(bh);
+ 		if (buffer_mapped(bh) && buffer_dirty(bh)) {
+ 			lock_buffer(bh);
+ 			mark_buffer_async_write(bh);
++			get_bh(bh);
++			last_bh = bh;
+ 		} else {
+ 			/*
+ 			 * The buffer may have been set dirty during
+@@ -1908,10 +1913,13 @@ recover:
+ 			clear_buffer_dirty(bh);
+ 			submit_bh(WRITE, bh);
+ 			nr_underway++;
++			put_bh(bh);
++			if (bh == last_bh)
++				break;
+ 		}
+-		put_bh(bh);
+ 		bh = next;
+ 	} while (bh != head);
++	bh = head;
+ 	goto done;
  }
  
 
---4Ckj6UjgE2iN1+kY--
+--------------050207030303030607040900--
 

@@ -1,49 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261519AbVEAOXe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbVEAOZB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261519AbVEAOXe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 10:23:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbVEAOXe
+	id S261528AbVEAOZB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 10:25:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261642AbVEAOZB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 10:23:34 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:35847 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261519AbVEAOXc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 10:23:32 -0400
-Date: Sun, 1 May 2005 16:23:30 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: 2003 John Klar <linpvr@projectplasma.com>, linux-kernel@vger.kernel.org,
-       video4linux-list@redhat.com
-Subject: Re: [2.6 patch] drivers/media/video/tveeprom.c: possible cleanups
-Message-ID: <20050501142330.GE3592@stusta.de>
-References: <20050419005315.GP5489@stusta.de> <20050419075348.GD15656@bytesex>
+	Sun, 1 May 2005 10:25:01 -0400
+Received: from wproxy.gmail.com ([64.233.184.201]:1228 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261528AbVEAOYi convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 10:24:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=IdcH20SAfFcaFlC287q6uOQVx/Y/P+hYKUkiN13WnRF1JDU845UUE5XwPuHNAOLvAt1FQvK78sRYlBqd6n9RfaNik1sOAFTfLtpMUVk89tYgKnNn+gSIeQN+bHup5sZE9+51dYcKcVbnTExreKtRJe+bFMxPvenlsiYZDSDKKjE=
+Message-ID: <2cd57c9005050107244ffde141@mail.gmail.com>
+Date: Sun, 1 May 2005 22:24:33 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+Reply-To: coywolf@lovecn.org
+To: Boris Fersing <mastermac@free.fr>
+Subject: Re: HyperThreading, kernel 2.6.10, 1 logical CPU idle !!
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1114954969.27940.1.camel@electron>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20050419075348.GD15656@bytesex>
-User-Agent: Mutt/1.5.9i
+References: <3Z3u8-28Z-9@gated-at.bofh.it> <4273E2BB.9010509@shaw.ca>
+	 <4273FA88.1060405@free.fr> <1114954969.27940.1.camel@electron>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 19, 2005 at 09:53:48AM +0200, Gerd Knorr wrote:
+It seems the problem was already solved.Try the latest mm tree: 2.6.12-rc3-mm2.
 
-> > - #if 0 the EXPORT_SYMBOL'ed but unused function tveeprom_dump
+FYI:
+sched2-fix-smt-scheduling-problems-fix.patch
+sched2-fix-smt-scheduling-problems.patch
+
+
+On 5/1/05, Boris Fersing <mastermac@free.fr> wrote:
+> I disabled SMT in the kernel config and yet it seems to work ...
 > 
-> That's a debug helper function, please don't drop it.  #if 0 might be
-> ok, not sure though, the tveeprom module is also used by a out-of-kernel
-> driver (ivtv).  Otherwise the patch looks fine to me.
+> Boris.
+> 
+> Le samedi 30 avril 2005 à 23:37 +0200, Boris Fersing a écrit :
+> > Robert Hancock a écrit :
+> >
+> > > Boris Fersing wrote:
+> > >
+> > >> Hi there,
+> > >> I've a p4 HT 3,06Ghz, I've HT enabled in the BIOS and in the kernel :
+> > >>
+> > >> Linux electron 2.6.10-cj5 #6 SMP Fri Mar 4 02:18:08 CET 2005 i686 Mobile
+> > >> Intel(R) Pentium(R) 4     CPU 3.06GHz GenuineIntel GNU/Linux .
+> > >>
+> > >> But it seems that one of my cpus is idle (gkrellm monitor or top) :
+> > >>
+> > >> Cpu0  : 88.0% us, 12.0% sy,  0.0% ni,  0.0% id,  0.0% wa,  0.0% hi,
+> > >> 0.0% si
+> > >> Cpu1  :  0.0% us,  0.3% sy,  0.0% ni, 99.7% id,  0.0% wa,  0.0% hi,
+> > >> 0.0% si
+> > >>
+> > >>
+> > >> I'm actually compiling thunderbird with MAKEOPTS="-j3", so , the second
+> > >> should be used, shouldn't it ?
+> > >
+> > >
+> > > Are you sure that it is actually compiling multiple files at once?
+> > >
+> > Yes I'm sure, Even if I launch more than 1 gcc, or for example, start a
+> > compilation + video encoding (mencoder) + ... the second CPU won't work
+> > (idle 100% or sometimes 99,9%).
+> >
+> > Regards,
+> >
+> > Boris.
 
-As the comment says, my patch does #if 0 the function.
 
->   Gerd
-
-cu
-Adrian
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Coywolf Qi Hunt
+http://sosdg.org/~coywolf/

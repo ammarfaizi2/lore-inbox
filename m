@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261382AbVEAXQ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261433AbVEAXSp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261382AbVEAXQ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 19:16:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbVEAXQ4
+	id S261433AbVEAXSp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 19:18:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbVEAXSp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 19:16:56 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:9882 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261382AbVEAXQy (ORCPT
+	Sun, 1 May 2005 19:18:45 -0400
+Received: from mail.dif.dk ([193.138.115.101]:31198 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261405AbVEAXS1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 19:16:54 -0400
-Date: Mon, 2 May 2005 01:16:35 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Adam Belay <ambx1@neo.rr.com>, Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] properly stop devices before poweroff
-Message-ID: <20050501231635.GJ1909@elf.ucw.cz>
-References: <20050421111346.GA21421@elf.ucw.cz> <20050501222403.GF3951@neo.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050501222403.GF3951@neo.rr.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Sun, 1 May 2005 19:18:27 -0400
+Date: Mon, 2 May 2005 01:21:50 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: "David S. Miller" <davem@davemloft.net>,
+       Jouni Malinen <jkmaline@cc.hut.fi>,
+       James Morris <jmorris@intercode.com.au>,
+       Pedro Roque <roque@di.fc.ul.pt>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Kunihiro Ishiguro <kunihiro@ipinfusion.com>,
+       Mitsuru KANDA <mk@linux-ipv6.org>,
+       lksctp-developers@lists.sourceforge.net,
+       Andy Adamson <andros@umich.edu>, Bruce Fields <bfields@umich.edu>,
+       YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>, netdev@oss.sgi.com,
+       linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] resource release cleanup in net/
+In-Reply-To: <20050501230843.GA16518@gondor.apana.org.au>
+Message-ID: <Pine.LNX.4.62.0505020119070.2488@dragon.hyggekrogen.localhost>
+References: <Pine.LNX.4.62.0504302219520.2094@dragon.hyggekrogen.localhost>
+ <20050501230843.GA16518@gondor.apana.org.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, 2 May 2005, Herbert Xu wrote:
 
-> > Without this patch, Linux provokes emergency disk shutdowns and
-> > similar nastiness. It was in SuSE kernels for some time, IIRC.
+> On Sat, Apr 30, 2005 at 10:36:00PM +0200, Jesper Juhl wrote:
 > > 
-> > Signed-off-by: Pavel Machek <pavel@suse.cz>
+> > Since Andrew merged the patch that makes calling crypto_free_tfm() with a 
+> > NULL pointer safe into 2.6.12-rc3-mm1, I made a patch to remove checks for 
+> > NULL before calling that function, and while I was at it I removed similar 
+> > redundant checks before calls to kfree() and vfree() in the same files. 
+> > There are also a few tiny whitespace cleanups in there.
 > 
-> Hi Pavel,
+> Hi Jesper:
 > 
-> Although I like using pm_message_t, I'm not sure if we want to commit to only
-> PMSG_SUSPEND and PMSG_FREEZE for shutdown and reboot.  Would it be possible
-> to create a PMSG_HALT and PMSG_REBOOT?  I think this would give drivers more
-> control and flexability to make the right decision.  What is your opinion?
+> Could we wait until the crypto_free_tfm patch gets into the main tree?
+> Most people here track that instead of mm.
 > 
-> Of course, I'm still considering the posibility that we really want to do
-> PMSG_SUSPEND on a shutdown.  This may work ok on X86, I'm not sure about other
-> architectures.
 
-Thats okay, nobody really knows yet. I believe that SUSPEND and HALT
-are very similar, and flags best way to separate them. I believe that
-FREEZE and REBOOT are very similar, too, and again would use flags to
-tell between them.
+Sure. I don't have a problem with that.
 
-> I know you mentioned previously adding more flags and data to pm_message_t,
-> what exactly are your plans?
+I'll just hold on to the patches and resend them at a later date.
 
-First I want type checking for pm_message_t. That's 2.6.12-early
-material. Then, when it is *really clear* that flags are needed, I'll
-add them. "really needed" as in "we have a driver where it matters".
-									Pavel
+
 -- 
-Boycott Kodak -- for their patent abuse against Java.
+Jesper 
+
+

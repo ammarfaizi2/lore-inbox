@@ -1,249 +1,197 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262700AbVEAVdp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262714AbVEAV3e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262700AbVEAVdp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 17:33:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262691AbVEAVbh
+	id S262714AbVEAV3e (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 17:29:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262722AbVEAV0o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 17:31:37 -0400
-Received: from lakshmi.addtoit.com ([198.99.130.6]:31507 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S262699AbVEAVSj
+	Sun, 1 May 2005 17:26:44 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:28947 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S262694AbVEAVSf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 17:18:39 -0400
-Message-Id: <200505012112.j41LCKN5016397@ccure.user-mode-linux.org>
+	Sun, 1 May 2005 17:18:35 -0400
+Message-Id: <200505012112.j41LCNoE016402@ccure.user-mode-linux.org>
 X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
 To: torvalds@osdl.org
 cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
        viro@parcelfarce.linux.theplanet.co.uk
-Subject: [PATCH 3/22] UML - Start cross-build support : mk_user_constants
+Subject: [PATCH 4/22] UML - Cross-build support : mk_ptregs
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 01 May 2005 17:12:20 -0400
+Date: Sun, 01 May 2005 17:12:23 -0400
 From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 >From Al Viro:
 
-	Beginning of cross-build fixes.  Instead of expecting that
-mk_user_constants (compiled and executed on the build box) will see
-the sizeof, etc. for target box, we do what every architecture already
-does for asm-offsets.  Namely, have user-offsets.c compiled *for* *target*
-into user-offsets.s and sed it into the header with relevant constants.
-We don't need to reinvent any wheels - all tools are already there.
-
-	This patch deals with mk_user_constants.  It doesn't assume any
-relationship between target and build environment anymore - we pick all
-defines we need from user-offsets.h.  Later patches will deal with the
-rest of mk_... helpers in the same way.
+	mk_ptregs converted.  Nothing new here, it's the same situation
+as with mk_user_constants.
 
 Signed-off-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
 Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-diff -urN RC12-rc3-uml-os/arch/um/Makefile RC12-rc3-uml-user-constants/arch/um/Makefile
---- RC12-rc3-uml-os/arch/um/Makefile	Wed Apr 27 17:07:21 2005
-+++ RC12-rc3-uml-user-constants/arch/um/Makefile	Wed Apr 27 18:23:10 2005
-@@ -166,6 +166,14 @@
- $(ARCH_DIR)/include/uml-config.h : include/linux/autoconf.h
- 	$(call filechk,umlconfig)
+diff -urN RC12-rc3-uml-user-constants/arch/um/Makefile RC12-rc3-uml-ptregs/arch/um/Makefile
+--- RC12-rc3-uml-user-constants/arch/um/Makefile	Wed Apr 27 18:23:10 2005
++++ RC12-rc3-uml-ptregs/arch/um/Makefile	Wed Apr 27 18:22:38 2005
+@@ -196,7 +196,7 @@
+ $(ARCH_DIR)/util: scripts_basic $(SYS_DIR)/sc.h FORCE
+ 	$(Q)$(MAKE) $(build)=$@
  
-+$(ARCH_DIR)/user-offsets.s: $(ARCH_DIR)/sys-$(SUBARCH)/user-offsets.c
-+	$(CC) $(USER_CFLAGS) -S -o $@ $<
-+
-+$(ARCH_DIR)/user-offsets.h: $(ARCH_DIR)/user-offsets.s
-+	$(call filechk,gen-asm-offsets)
-+
-+CLEAN_FILES += $(ARCH_DIR)/user-offsets.s  $(ARCH_DIR)/user-offsets.h 
-+
- $(ARCH_DIR)/include/task.h: $(ARCH_DIR)/util/mk_task
- 	$(call filechk,gen_header)
+-$(ARCH_DIR)/kernel/skas/util: scripts_basic FORCE
++$(ARCH_DIR)/kernel/skas/util: scripts_basic $(ARCH_DIR)/user-offsets.h FORCE
+ 	$(Q)$(MAKE) $(build)=$@
  
-diff -urN RC12-rc3-uml-os/arch/um/os-Linux/util/Makefile RC12-rc3-uml-user-constants/arch/um/os-Linux/util/Makefile
---- RC12-rc3-uml-os/arch/um/os-Linux/util/Makefile	Wed Apr 20 21:25:30 2005
-+++ RC12-rc3-uml-user-constants/arch/um/os-Linux/util/Makefile	Wed Apr 27 17:07:24 2005
-@@ -1,4 +1,4 @@
- hostprogs-y		:= mk_user_constants
+ $(ARCH_DIR)/os-$(OS)/util: scripts_basic FORCE
+diff -urN RC12-rc3-uml-user-constants/arch/um/kernel/skas/util/Makefile RC12-rc3-uml-ptregs/arch/um/kernel/skas/util/Makefile
+--- RC12-rc3-uml-user-constants/arch/um/kernel/skas/util/Makefile	Fri Mar 11 15:54:46 2005
++++ RC12-rc3-uml-ptregs/arch/um/kernel/skas/util/Makefile	Wed Apr 27 17:07:25 2005
+@@ -2,3 +2,4 @@
  always			:= $(hostprogs-y)
  
--mk_user_constants-objs	:= mk_user_constants.o
-+HOSTCFLAGS_mk_user_constants.o := -I$(objtree)/arch/um
-diff -urN RC12-rc3-uml-os/arch/um/os-Linux/util/mk_user_constants.c RC12-rc3-uml-user-constants/arch/um/os-Linux/util/mk_user_constants.c
---- RC12-rc3-uml-os/arch/um/os-Linux/util/mk_user_constants.c	Wed Apr 20 21:25:30 2005
-+++ RC12-rc3-uml-user-constants/arch/um/os-Linux/util/mk_user_constants.c	Wed Apr 27 17:07:24 2005
-@@ -1,11 +1,5 @@
+ mk_ptregs-objs := mk_ptregs-$(SUBARCH).o
++HOSTCFLAGS_mk_ptregs-$(SUBARCH).o := -I$(objtree)/arch/um
+diff -urN RC12-rc3-uml-user-constants/arch/um/kernel/skas/util/mk_ptregs-i386.c RC12-rc3-uml-ptregs/arch/um/kernel/skas/util/mk_ptregs-i386.c
+--- RC12-rc3-uml-user-constants/arch/um/kernel/skas/util/mk_ptregs-i386.c	Fri Mar 11 15:54:46 2005
++++ RC12-rc3-uml-ptregs/arch/um/kernel/skas/util/mk_ptregs-i386.c	Wed Apr 27 17:07:25 2005
+@@ -1,8 +1,7 @@
  #include <stdio.h>
--#include <asm/types.h>
--/* For some reason, x86_64 nowhere defines u64 and u32, even though they're
-- * used throughout the headers.
-- */
--typedef __u64 u64;
--typedef __u32 u32;
+-#include <asm/ptrace.h>
 -#include <asm/user.h>
 +#include <user-offsets.h>
  
+-#define PRINT_REG(name, val) printf("#define HOST_%s %d\n", (name), (val))
++#define SHOW(name) printf("#define %s %d\n", #name, name)
+ 
  int main(int argc, char **argv)
  {
-@@ -20,7 +14,7 @@
-    * x86_64 (216 vs 168 bytes).  user_regs_struct is the correct size on
-    * both x86_64 and i386.
-    */
--  printf("#define UM_FRAME_SIZE %d\n", (int) sizeof(struct user_regs_struct));
-+  printf("#define UM_FRAME_SIZE %d\n", __UM_FRAME_SIZE);
+@@ -12,28 +11,27 @@
+ 	printf("#ifndef __SKAS_PT_REGS_\n");
+ 	printf("#define __SKAS_PT_REGS_\n");
+ 	printf("\n");
+-	printf("#define HOST_FRAME_SIZE %d\n", FRAME_SIZE);
+-	printf("#define HOST_FP_SIZE %d\n",
+-	       sizeof(struct user_i387_struct) / sizeof(unsigned long));
+-	printf("#define HOST_XFP_SIZE %d\n",
+-	       sizeof(struct user_fxsr_struct) / sizeof(unsigned long));
++	SHOW(HOST_FRAME_SIZE);
++	SHOW(HOST_FP_SIZE);
++	SHOW(HOST_XFP_SIZE);
++
++	SHOW(HOST_IP);
++	SHOW(HOST_SP);
++	SHOW(HOST_EFLAGS);
++	SHOW(HOST_EAX);
++	SHOW(HOST_EBX);
++	SHOW(HOST_ECX);
++	SHOW(HOST_EDX);
++	SHOW(HOST_ESI);
++	SHOW(HOST_EDI);
++	SHOW(HOST_EBP);
++	SHOW(HOST_CS);
++	SHOW(HOST_SS);
++	SHOW(HOST_DS);
++	SHOW(HOST_FS);
++	SHOW(HOST_ES);
++	SHOW(HOST_GS);
  
-   printf("\n");
-   printf("#endif\n");
-diff -urN RC12-rc3-uml-os/arch/um/sys-i386/user-offsets.c RC12-rc3-uml-user-constants/arch/um/sys-i386/user-offsets.c
---- RC12-rc3-uml-os/arch/um/sys-i386/user-offsets.c	Wed Dec 31 19:00:00 1969
-+++ RC12-rc3-uml-user-constants/arch/um/sys-i386/user-offsets.c	Wed Apr 27 17:07:24 2005
-@@ -0,0 +1,69 @@
-+#include <stdio.h>
-+#include <signal.h>
-+#include <asm/ptrace.h>
-+#include <asm/user.h>
-+#include <linux/stddef.h>
-+
-+#define DEFINE(sym, val) \
-+        asm volatile("\n->" #sym " %0 " #val : : "i" (val))
-+
-+#define OFFSET(sym, str, mem) \
-+	DEFINE(sym, offsetof(struct str, mem));
-+
-+void foo(void)
-+{
-+	OFFSET(SC_IP, sigcontext, eip);
-+	OFFSET(SC_SP, sigcontext, esp);
-+	OFFSET(SC_FS, sigcontext, fs);
-+	OFFSET(SC_GS, sigcontext, gs);
-+	OFFSET(SC_DS, sigcontext, ds);
-+	OFFSET(SC_ES, sigcontext, es);
-+	OFFSET(SC_SS, sigcontext, ss);
-+	OFFSET(SC_CS, sigcontext, cs);
-+	OFFSET(SC_EFLAGS, sigcontext, eflags);
-+	OFFSET(SC_EAX, sigcontext, eax);
-+	OFFSET(SC_EBX, sigcontext, ebx);
-+	OFFSET(SC_ECX, sigcontext, ecx);
-+	OFFSET(SC_EDX, sigcontext, edx);
-+	OFFSET(SC_EDI, sigcontext, edi);
-+	OFFSET(SC_ESI, sigcontext, esi);
-+	OFFSET(SC_EBP, sigcontext, ebp);
-+	OFFSET(SC_TRAPNO, sigcontext, trapno);
-+	OFFSET(SC_ERR, sigcontext, err);
-+	OFFSET(SC_CR2, sigcontext, cr2);
-+	OFFSET(SC_FPSTATE, sigcontext, fpstate);
-+	OFFSET(SC_SIGMASK, sigcontext, oldmask);
-+	OFFSET(SC_FP_CW, _fpstate, cw);
-+	OFFSET(SC_FP_SW, _fpstate, sw);
-+	OFFSET(SC_FP_TAG, _fpstate, tag);
-+	OFFSET(SC_FP_IPOFF, _fpstate, ipoff);
-+	OFFSET(SC_FP_CSSEL, _fpstate, cssel);
-+	OFFSET(SC_FP_DATAOFF, _fpstate, dataoff);
-+	OFFSET(SC_FP_DATASEL, _fpstate, datasel);
-+	OFFSET(SC_FP_ST, _fpstate, _st);
-+	OFFSET(SC_FXSR_ENV, _fpstate, _fxsr_env);
-+
-+	DEFINE(HOST_FRAME_SIZE, FRAME_SIZE);
-+	DEFINE(HOST_FP_SIZE,
-+		sizeof(struct user_i387_struct) / sizeof(unsigned long));
-+	DEFINE(HOST_XFP_SIZE,
-+	       sizeof(struct user_fxsr_struct) / sizeof(unsigned long));
-+
-+	DEFINE(HOST_IP, EIP);
-+	DEFINE(HOST_SP, UESP);
-+	DEFINE(HOST_EFLAGS, EFL);
-+	DEFINE(HOST_EAX, EAX);
-+	DEFINE(HOST_EBX, EBX);
-+	DEFINE(HOST_ECX, ECX);
-+	DEFINE(HOST_EDX, EDX);
-+	DEFINE(HOST_ESI, ESI);
-+	DEFINE(HOST_EDI, EDI);
-+	DEFINE(HOST_EBP, EBP);
-+	DEFINE(HOST_CS, CS);
-+	DEFINE(HOST_SS, SS);
-+	DEFINE(HOST_DS, DS);
-+	DEFINE(HOST_FS, FS);
-+	DEFINE(HOST_ES, ES);
-+	DEFINE(HOST_GS, GS);
-+	DEFINE(__UM_FRAME_SIZE, sizeof(struct user_regs_struct));
-+}
-diff -urN RC12-rc3-uml-os/arch/um/sys-x86_64/user-offsets.c RC12-rc3-uml-user-constants/arch/um/sys-x86_64/user-offsets.c
---- RC12-rc3-uml-os/arch/um/sys-x86_64/user-offsets.c	Wed Dec 31 19:00:00 1969
-+++ RC12-rc3-uml-user-constants/arch/um/sys-x86_64/user-offsets.c	Wed Apr 27 17:07:24 2005
-@@ -0,0 +1,78 @@
-+#include <stdio.h>
-+#include <stddef.h>
-+#include <signal.h>
-+#define __FRAME_OFFSETS
-+#include <asm/ptrace.h>
-+#include <asm/user.h>
-+
-+#define DEFINE(sym, val) \
-+        asm volatile("\n->" #sym " %0 " #val : : "i" (val))
-+
-+#define OFFSET(sym, str, mem) \
-+	DEFINE(sym, offsetof(struct str, mem));
-+
-+void foo(void)
-+{
-+	OFFSET(SC_RBX, sigcontext, rbx);
-+	OFFSET(SC_RCX, sigcontext, rcx);
-+	OFFSET(SC_RDX, sigcontext, rdx);
-+	OFFSET(SC_RSI, sigcontext, rsi);
-+	OFFSET(SC_RDI, sigcontext, rdi);
-+	OFFSET(SC_RBP, sigcontext, rbp);
-+	OFFSET(SC_RAX, sigcontext, rax);
-+	OFFSET(SC_R8, sigcontext, r8);
-+	OFFSET(SC_R9, sigcontext, r9);
-+	OFFSET(SC_R10, sigcontext, r10);
-+	OFFSET(SC_R11, sigcontext, r11);
-+	OFFSET(SC_R12, sigcontext, r12);
-+	OFFSET(SC_R13, sigcontext, r13);
-+	OFFSET(SC_R14, sigcontext, r14);
-+	OFFSET(SC_R15, sigcontext, r15);
-+	OFFSET(SC_IP, sigcontext, rip);
-+	OFFSET(SC_SP, sigcontext, rsp);
-+	OFFSET(SC_CR2, sigcontext, cr2);
-+	OFFSET(SC_ERR, sigcontext, err);
-+	OFFSET(SC_TRAPNO, sigcontext, trapno);
-+	OFFSET(SC_CS, sigcontext, cs);
-+	OFFSET(SC_FS, sigcontext, fs);
-+	OFFSET(SC_GS, sigcontext, gs);
-+	OFFSET(SC_EFLAGS, sigcontext, eflags);
-+	OFFSET(SC_SIGMASK, sigcontext, oldmask);
-+#if 0
-+	OFFSET(SC_ORIG_RAX, sigcontext, orig_rax);
-+	OFFSET(SC_DS, sigcontext, ds);
-+	OFFSET(SC_ES, sigcontext, es);
-+	OFFSET(SC_SS, sigcontext, ss);
-+#endif
-+
-+	DEFINE(HOST_FRAME_SIZE, FRAME_SIZE);
-+	DEFINE(HOST_RBX, RBX);
-+	DEFINE(HOST_RCX, RCX);
-+	DEFINE(HOST_RDI, RDI);
-+	DEFINE(HOST_RSI, RSI);
-+	DEFINE(HOST_RDX, RDX);
-+	DEFINE(HOST_RBP, RBP);
-+	DEFINE(HOST_RAX, RAX);
-+	DEFINE(HOST_R8, R8);
-+	DEFINE(HOST_R9, R9);
-+	DEFINE(HOST_R10, R10);
-+	DEFINE(HOST_R11, R11);
-+	DEFINE(HOST_R12, R12);
-+	DEFINE(HOST_R13, R13);
-+	DEFINE(HOST_R14, R14);
-+	DEFINE(HOST_R15, R15);
-+	DEFINE(HOST_ORIG_RAX, ORIG_RAX);
-+	DEFINE(HOST_CS, CS);
-+	DEFINE(HOST_SS, SS);
-+	DEFINE(HOST_EFLAGS, EFLAGS);
-+#if 0
-+	DEFINE(HOST_FS, FS);
-+	DEFINE(HOST_GS, GS);
-+	DEFINE(HOST_DS, DS);
-+	DEFINE(HOST_ES, ES);
-+#endif
-+
-+	DEFINE(HOST_IP, RIP);
-+	DEFINE(HOST_SP, RSP);
-+	DEFINE(__UM_FRAME_SIZE, sizeof(struct user_regs_struct));
-+}
+-	PRINT_REG("IP", EIP);
+-	PRINT_REG("SP", UESP);
+-	PRINT_REG("EFLAGS", EFL);
+-	PRINT_REG("EAX", EAX);
+-	PRINT_REG("EBX", EBX);
+-	PRINT_REG("ECX", ECX);
+-	PRINT_REG("EDX", EDX);
+-	PRINT_REG("ESI", ESI);
+-	PRINT_REG("EDI", EDI);
+-	PRINT_REG("EBP", EBP);
+-	PRINT_REG("CS", CS);
+-	PRINT_REG("SS", SS);
+-	PRINT_REG("DS", DS);
+-	PRINT_REG("FS", FS);
+-	PRINT_REG("ES", ES);
+-	PRINT_REG("GS", GS);
+ 	printf("\n");
+ 	printf("#endif\n");
+ 	return(0);
+diff -urN RC12-rc3-uml-user-constants/arch/um/kernel/skas/util/mk_ptregs-x86_64.c RC12-rc3-uml-ptregs/arch/um/kernel/skas/util/mk_ptregs-x86_64.c
+--- RC12-rc3-uml-user-constants/arch/um/kernel/skas/util/mk_ptregs-x86_64.c	Fri Mar 11 15:54:46 2005
++++ RC12-rc3-uml-ptregs/arch/um/kernel/skas/util/mk_ptregs-x86_64.c	Wed Apr 27 17:07:25 2005
+@@ -5,11 +5,10 @@
+  */
+ 
+ #include <stdio.h>
+-#define __FRAME_OFFSETS
+-#include <asm/ptrace.h>
++#include <user-offsets.h>
+ 
+-#define PRINT_REG(name, val) \
+-	printf("#define HOST_%s (%d / sizeof(unsigned long))\n", (name), (val))
++#define SHOW(name) \
++	printf("#define %s (%d / sizeof(unsigned long))\n", #name, name)
+ 
+ int main(int argc, char **argv)
+ {
+@@ -18,36 +17,35 @@
+ 	printf("\n");
+ 	printf("#ifndef __SKAS_PT_REGS_\n");
+ 	printf("#define __SKAS_PT_REGS_\n");
+-	printf("#define HOST_FRAME_SIZE (%d / sizeof(unsigned long))\n",
+-	       FRAME_SIZE);
+-	PRINT_REG("RBX", RBX);
+-	PRINT_REG("RCX", RCX);
+-	PRINT_REG("RDI", RDI);
+-	PRINT_REG("RSI", RSI);
+-	PRINT_REG("RDX", RDX);
+-	PRINT_REG("RBP", RBP);
+-	PRINT_REG("RAX", RAX);
+-	PRINT_REG("R8", R8);
+-	PRINT_REG("R9", R9);
+-	PRINT_REG("R10", R10);
+-	PRINT_REG("R11", R11);
+-	PRINT_REG("R12", R12);
+-	PRINT_REG("R13", R13);
+-	PRINT_REG("R14", R14);
+-	PRINT_REG("R15", R15);
+-	PRINT_REG("ORIG_RAX", ORIG_RAX);
+-	PRINT_REG("CS", CS);
+-	PRINT_REG("SS", SS);
+-	PRINT_REG("EFLAGS", EFLAGS);
++	SHOW(HOST_FRAME_SIZE);
++	SHOW(HOST_RBX);
++	SHOW(HOST_RCX);
++	SHOW(HOST_RDI);
++	SHOW(HOST_RSI);
++	SHOW(HOST_RDX);
++	SHOW(HOST_RBP);
++	SHOW(HOST_RAX);
++	SHOW(HOST_R8);
++	SHOW(HOST_R9);
++	SHOW(HOST_R10);
++	SHOW(HOST_R11);
++	SHOW(HOST_R12);
++	SHOW(HOST_R13);
++	SHOW(HOST_R14);
++	SHOW(HOST_R15);
++	SHOW(HOST_ORIG_RAX);
++	SHOW(HOST_CS);
++	SHOW(HOST_SS);
++	SHOW(HOST_EFLAGS);
+ #if 0
+-	PRINT_REG("FS", FS);
+-	PRINT_REG("GS", GS);
+-	PRINT_REG("DS", DS);
+-	PRINT_REG("ES", ES);
++	SHOW(HOST_FS);
++	SHOW(HOST_GS);
++	SHOW(HOST_DS);
++	SHOW(HOST_ES);
+ #endif
+ 
+-	PRINT_REG("IP", RIP);
+-	PRINT_REG("SP", RSP);
++	SHOW(HOST_IP);
++	SHOW(HOST_SP);
+ 	printf("#define HOST_FP_SIZE 0\n");
+ 	printf("#define HOST_XFP_SIZE 0\n");
+ 	printf("\n");
 

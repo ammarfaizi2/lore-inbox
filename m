@@ -1,74 +1,192 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262641AbVEASlO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261583AbVEAKYf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262641AbVEASlO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 14:41:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262642AbVEASlO
+	id S261583AbVEAKYf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 06:24:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbVEAKXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 14:41:14 -0400
-Received: from wproxy.gmail.com ([64.233.184.203]:41609 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262641AbVEASlG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 14:41:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Y0IvQJjDu3PAR/V+0sVWsYDmAQjWr4S01LbqwXGGM4LIvoh5YiZPSY9Ux0mvEiPGve2s3jC55i+E7r3HYIKLi2qkvIeeyrdhtALvITBwffKMEGeMUWZlrZW1Xmkf9Z/NwGSYO/aJeeSgygbT0yWYn3hOdoDllnPXxXQneDk97KM=
-Message-ID: <58cb370e0505011141a2b3c58@mail.gmail.com>
-Date: Sun, 1 May 2005 20:41:03 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Richard Purdie <rpurdie@rpsys.net>
-Subject: Re: IDE problems in 2.6.12-rc1-bk1 onwards (was Re: 2.6.12-rc3-mm1)
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dominik Brodowski <linux@brodo.de>, Andrew Morton <akpm@osdl.org>,
-       linux-ide@vger.kernel.org
-In-Reply-To: <03be01c54e77$83d86980$0f01a8c0@max>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <03be01c54e77$83d86980$0f01a8c0@max>
+	Sun, 1 May 2005 06:23:40 -0400
+Received: from mail-relay-3.tiscali.it ([213.205.33.43]:64211 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S261583AbVEAKVY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 06:21:24 -0400
+Subject: [patch 1/1] Uml: kludgy compilation fixes for x86-64 subarch modules support [for -mm]
+To: akpm@osdl.org
+Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it,
+       ak@suse.de
+From: blaisorblade@yahoo.it
+Date: Sun, 01 May 2005 20:45:15 +0200
+Message-Id: <20050501184515.F1AA48D835@zion>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/1/05, Richard Purdie <rpurdie@rpsys.net> wrote:
-> I've switched back to 2.6.12-rc3-mm1 and added some debuging to all the ide
-> functions to trace the order functions are getting called. I've shown the
-> result below for two different oops. There is more than one problem. The
-> first problem was introduced in 2.6.12-rc1-bk1 in the ide-disk changes. The
-> second has been around for a while but is showing up again.
->  
-> The problem is idedisk_cleanup() gets called twice from ide_unregister().
-> Once here:
-> 
->  for (unit = 0; unit < MAX_DRIVES; ++unit) {
->   drive = &hwif->drives[unit];
->   if (!drive->present)
->    continue;
->   DRIVER(drive)->cleanup(drive);
->  }
-> 
-> and secondly in ide_unregister indirectly via:
-> 
->   blk_cleanup_queue(drive->queue);
->   printk(KERN_ERR "ide_unregister4()\n");
->   device_unregister(&drive->gendev);
->   down(&drive->gendev_rel_sem);
->   spin_lock_irq(&ide_lock);
->   drive->queue = NULL;
->   printk(KERN_ERR "ide_unregister5()\n");
-> 
-> device_unregister()  triggers ide_drive_remove() which calls
-> DRIVER(drive)->cleanup(drive);
-> 
-> In the first call to idedisk_cleanup(), ide_disk_put(idkp) is called which
-> decreases the reference counter to zero. This triggers ide_disk_release()
-> which calls kfree(idkp). Hence the second call to idedisk_cleanup() calls
-> what is now a null pointer (or worse).
 
-Thanks for excellent debugging.
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+Cc: Andi Kleen <ak@suse.de>
 
-Both problems should be fixed by "convert IDE device drivers to 
-driver-model" patch but I need to resync it against latest kernels.
+These are some trivial fixes for the x86-64 subarch module support. The only
+potential problem is that I have to modify arch/x86_64/kernel/module.c, to
+avoid copying the whole of it.
 
-Bartlomiej
+I can't use it verbatim because it depends on a special vmalloc-like area for
+modules, which for now (maybe that's to fix, I guess not) UML/x86-64 has not.
+I went the easy way and reused the i386 vmalloc()-based allocator.
+
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
+
+ linux-2.6.12-paolo/arch/um/sys-x86_64/Makefile    |    7 ++++-
+ linux-2.6.12-paolo/arch/um/sys-x86_64/ksyms.c     |   23 ++++++++++++++++++
+ linux-2.6.12-paolo/arch/um/sys-x86_64/um_module.c |   19 +++++++++++++++
+ linux-2.6.12-paolo/arch/x86_64/kernel/module.c    |    4 +++
+ linux-2.6.12-paolo/include/asm-um/elf.h           |   27 ++++++++++++++++++++++
+ 5 files changed, 79 insertions(+), 1 deletion(-)
+
+diff -puN /dev/null arch/um/sys-x86_64/ksyms.c
+--- /dev/null	2005-04-30 21:19:18.900148040 +0200
++++ linux-2.6.12-paolo/arch/um/sys-x86_64/ksyms.c	2005-05-01 20:40:52.000000000 +0200
+@@ -0,0 +1,23 @@
++#include "linux/module.h"
++#include "linux/in6.h"
++#include "linux/rwsem.h"
++#include "asm/byteorder.h"
++#include "asm/semaphore.h"
++#include "asm/uaccess.h"
++#include "asm/checksum.h"
++#include "asm/errno.h"
++
++EXPORT_SYMBOL(__down_failed);
++EXPORT_SYMBOL(__down_failed_interruptible);
++EXPORT_SYMBOL(__down_failed_trylock);
++EXPORT_SYMBOL(__up_wakeup);
++
++/*XXX: we need them because they would be exported by x86_64 */
++EXPORT_SYMBOL(__memcpy);
++EXPORT_SYMBOL(strcmp);
++EXPORT_SYMBOL(strcat);
++EXPORT_SYMBOL(strcpy);
++
++/* Networking helper routines. */
++/*EXPORT_SYMBOL(csum_partial_copy_from);
++EXPORT_SYMBOL(csum_partial_copy_to);*/
+diff -puN arch/um/sys-x86_64/Makefile~uml-x86-64-compilation arch/um/sys-x86_64/Makefile
+--- linux-2.6.12/arch/um/sys-x86_64/Makefile~uml-x86-64-compilation	2005-05-01 20:40:52.000000000 +0200
++++ linux-2.6.12-paolo/arch/um/sys-x86_64/Makefile	2005-05-01 20:40:52.000000000 +0200
+@@ -4,14 +4,18 @@
+ # Licensed under the GPL
+ #
+ 
++#XXX: why into lib-y?
+ lib-y = bitops.o bugs.o csum-partial.o delay.o fault.o mem.o memcpy.o \
+ 	ptrace.o ptrace_user.o semaphore.o sigcontext.o signal.o \
+ 	syscalls.o sysrq.o thunk.o syscall_table.o
+ 
++obj-y := ksyms.o
++obj-$(CONFIG_MODULES) += module.o um_module.o
++
+ USER_OBJS := ptrace_user.o sigcontext.o
+ 
+ SYMLINKS = bitops.c csum-copy.S csum-partial.c csum-wrappers.c memcpy.S \
+-	semaphore.c thunk.S
++	semaphore.c thunk.S module.c
+ 
+ bitops.c-dir = lib
+ csum-copy.S-dir = lib
+@@ -20,6 +24,7 @@ csum-wrappers.c-dir = lib
+ memcpy.S-dir = lib
+ semaphore.c-dir = kernel
+ thunk.S-dir = lib
++module.c-dir = kernel
+ 
+ CFLAGS_csum-partial.o := -Dcsum_partial=arch_csum_partial
+ 
+diff -puN /dev/null arch/um/sys-x86_64/um_module.c
+--- /dev/null	2005-04-30 21:19:18.900148040 +0200
++++ linux-2.6.12-paolo/arch/um/sys-x86_64/um_module.c	2005-05-01 20:40:52.000000000 +0200
+@@ -0,0 +1,19 @@
++#include <linux/vmalloc.h>
++#include <linux/moduleloader.h>
++
++/*Copied from i386 arch/i386/kernel/module.c */
++void *module_alloc(unsigned long size)
++{
++	if (size == 0)
++		return NULL;
++	return vmalloc_exec(size);
++}
++
++/* Free memory returned from module_alloc */
++void module_free(struct module *mod, void *module_region)
++{
++	vfree(module_region);
++	/* FIXME: If module_region == mod->init_region, trim exception
++           table entries. */
++}
++
+diff -puN arch/x86_64/kernel/module.c~uml-x86-64-compilation arch/x86_64/kernel/module.c
+--- linux-2.6.12/arch/x86_64/kernel/module.c~uml-x86-64-compilation	2005-05-01 20:40:52.000000000 +0200
++++ linux-2.6.12-paolo/arch/x86_64/kernel/module.c	2005-05-01 20:40:52.000000000 +0200
+@@ -30,9 +30,12 @@
+ 
+ #define DEBUGP(fmt...) 
+ 
++#ifndef CONFIG_UML
+ void module_free(struct module *mod, void *module_region)
+ {
+ 	vfree(module_region);
++	/* FIXME: If module_region == mod->init_region, trim exception
++           table entries. */
+ }
+ 
+ void *module_alloc(unsigned long size)
+@@ -51,6 +54,7 @@ void *module_alloc(unsigned long size)
+ 
+ 	return __vmalloc_area(area, GFP_KERNEL, PAGE_KERNEL_EXEC);
+ }
++#endif
+ 
+ /* We don't need anything special. */
+ int module_frob_arch_sections(Elf_Ehdr *hdr,
+diff -puN include/asm-um/elf.h~uml-x86-64-compilation include/asm-um/elf.h
+--- linux-2.6.12/include/asm-um/elf.h~uml-x86-64-compilation	2005-05-01 20:40:52.000000000 +0200
++++ linux-2.6.12-paolo/include/asm-um/elf.h	2005-05-01 20:40:52.000000000 +0200
+@@ -21,6 +21,8 @@ extern long elf_aux_hwcap;
+ 
+ #define USE_ELF_CORE_DUMP
+ 
++#if defined(CONFIG_UML_X86) && !defined(CONFIG_64BIT)
++
+ #define R_386_NONE	0
+ #define R_386_32	1
+ #define R_386_PC32	2
+@@ -34,4 +36,29 @@ extern long elf_aux_hwcap;
+ #define R_386_GOTPC	10
+ #define R_386_NUM	11
+ 
++#elif defined(CONFIG_UML_X86) && defined(CONFIG_64BIT)
++
++/* x86-64 relocation types */
++#define R_X86_64_NONE		0	/* No reloc */
++#define R_X86_64_64		1	/* Direct 64 bit  */
++#define R_X86_64_PC32		2	/* PC relative 32 bit signed */
++#define R_X86_64_GOT32		3	/* 32 bit GOT entry */
++#define R_X86_64_PLT32		4	/* 32 bit PLT address */
++#define R_X86_64_COPY		5	/* Copy symbol at runtime */
++#define R_X86_64_GLOB_DAT	6	/* Create GOT entry */
++#define R_X86_64_JUMP_SLOT	7	/* Create PLT entry */
++#define R_X86_64_RELATIVE	8	/* Adjust by program base */
++#define R_X86_64_GOTPCREL	9	/* 32 bit signed pc relative
++					   offset to GOT */
++#define R_X86_64_32		10	/* Direct 32 bit zero extended */
++#define R_X86_64_32S		11	/* Direct 32 bit sign extended */
++#define R_X86_64_16		12	/* Direct 16 bit zero extended */
++#define R_X86_64_PC16		13	/* 16 bit sign extended pc relative */
++#define R_X86_64_8		14	/* Direct 8 bit sign extended  */
++#define R_X86_64_PC8		15	/* 8 bit sign extended pc relative */
++
++#define R_X86_64_NUM		16
++
++#endif
++
+ #endif
+_

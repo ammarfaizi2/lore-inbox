@@ -1,69 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbVEALFO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbVEAL05@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261590AbVEALFO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 07:05:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbVEALFO
+	id S261601AbVEAL05 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 07:26:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbVEAL05
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 07:05:14 -0400
-Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:48062 "HELO
-	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261590AbVEALFG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 07:05:06 -0400
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Jeff Dike <jdike@addtoit.com>
-Subject: Factoring out common syscalls into asm-generic (was: Re: [uml-devel] Re: [patch 1/7] uml: fix syscall table by including $(SUBARCH)'s one, for i386
-Date: Sun, 1 May 2005 13:15:37 +0200
-User-Agent: KMail/1.8
-Cc: Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
-       bstroesser@fujitsu-siemens.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-References: <20050424181909.81B8F33AED@zion> <20050428181053.GQ23013@shell0.pdx.osdl.net> <20050428204858.GD25451@ccure.user-mode-linux.org>
-In-Reply-To: <20050428204858.GD25451@ccure.user-mode-linux.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 1 May 2005 07:26:57 -0400
+Received: from rproxy.gmail.com ([64.233.170.199]:24289 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261601AbVEAL0p convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 07:26:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=s6Af1MrmCoXjle7ELORve/vvKt6eABX1+EqUIV2/Lw+1UnW7LgzNY0zViFbG4+IgdgrVnKwWTRKD4zi77PLMjoCnLoDEQlsE0BseRARN7JymAbpDIx+48Rb2SMDZTNAyIuC2nlvw2CDW18uCLnhBKdKSH2gbirXx+AkEihN3pY8=
+Message-ID: <9cde8bff05050104264aeeb365@mail.gmail.com>
+Date: Sun, 1 May 2005 20:26:42 +0900
+From: aq <aquynh@gmail.com>
+Reply-To: aq <aquynh@gmail.com>
+To: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [PATCH] fs/Kconfig: more consistent configuration of XFS
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050430060923.GB3977@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200505011315.37583.blaisorblade@yahoo.it>
+References: <9cde8bff050428005528ecf692@mail.gmail.com>
+	 <20050428080914.GA10799@infradead.org>
+	 <9cde8bff0504280138b979c08@mail.gmail.com>
+	 <20050428083922.GA11542@infradead.org>
+	 <9cde8bff05042802213ec650e0@mail.gmail.com>
+	 <20050429212835.GD8699@mars.ravnborg.org>
+	 <9cde8bff05042919025d077eb1@mail.gmail.com>
+	 <20050430060923.GB3977@mars.ravnborg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 April 2005 22:48, Jeff Dike wrote:
-> On Thu, Apr 28, 2005 at 11:10:53AM -0700, Chris Wright wrote:
-> > * blaisorblade@yahoo.it (blaisorblade@yahoo.it) wrote:
-> > > Split the i386 entry.S files into entry.S and syscall_table.S which
-> > > is included in the previous one (so actually there is no difference
-> > > between them) and use the syscall_table.S in the UML build, instead of
-> > > tracking by hand the syscall table changes (which is inherently
-> > > error-prone).
+On 4/30/05, Sam Ravnborg <sam@ravnborg.org> wrote:
+> On Sat, Apr 30, 2005 at 11:02:27AM +0900, aq wrote:
 > >
-> > Xen can use this as well (it was on my todo list).
->
-> Maybe talking out of my ass here, but would it make sense to have the
-> generic syscalls in asm-generic, in the form of something like:
-> 	SYSCALL(__NR_getpid, sys_getpid)
-> ?
->
-> The arch include this into its syscall table, would continue to define
-> __NR_*, and it would define SYSCALL (but all the syscall tables I've
-> seen are just arrays of pointers).  This would allow the arches to
-> automatically get all the generic system calls, and they'd continue to
-> define on their own any arch-specific things.
+> > >
+> > > About your modifications:
+> > >
+> > > Skipping the menu part is OK.
+> > > While you are modifying Kconfig in xfs/ put a
+> > >
+> > > if XFS_FS
+> > > ...
+> > > endif
+> > >
+> > > around all config options expcept the one defining the XFS_FS option.
+> > > This will fix menu identing.
+> >
+> > Thanks for pointing this out. But the patch I posted is fair enough.
+> > It just move one menu item around, and change nothing else. Are you
+> > happy with it?
+> If indention is OK for all menu entries in XFS - yes. Otherwise not.
 
-The problem is that probably there are little "generic" syscalls. The above 
-example is invalid on Alpha, for instance (they have sys_getxpid).
+I have tested it. Identation is fine.
 
-Also, probably, restructuring anything to take advantage of this would be very 
-dangerous, error-prone and not rewarding... we (UML) had to do this because 
-we had serious maintenance problems, plus the fact that we must *match* other 
-syscall tables rather than having our own. Otherwise there's probably no 
-reason to rebuild the table.
-
-However, I guess that *new* syscalls are probably often generic, so for them 
-there would be a good reason to have some generic idea. Who knows...
--- 
-Paolo Giarrusso, aka Blaisorblade
-Skype user "PaoloGiarrusso"
-Linux registered user n. 292729
-http://www.user-mode-linux.org/~blaisorblade
-
+regards,
+aq

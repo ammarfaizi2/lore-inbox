@@ -1,35 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbVEAWKA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbVEAWMr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbVEAWKA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 18:10:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbVEAWJw
+	id S261207AbVEAWMr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 18:12:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVEAWKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 18:09:52 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38843 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261805AbVEAWGB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 18:06:01 -0400
-Date: Sun, 1 May 2005 23:06:23 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Jeff Dike <jdike@addtoit.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4/22] UML - Cross-build support : mk_ptregs
-Message-ID: <20050501220623.GJ13052@parcelfarce.linux.theplanet.co.uk>
-References: <200505012112.j41LCNoE016402@ccure.user-mode-linux.org>
+	Sun, 1 May 2005 18:10:11 -0400
+Received: from fire.osdl.org ([65.172.181.4]:37577 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262691AbVEAWHF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 18:07:05 -0400
+Date: Sun, 1 May 2005 15:06:24 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Damir Perisa <damir.perisa@solnet.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc3-mm2 - kswapd0 keeps running
+Message-Id: <20050501150624.7696fc31.akpm@osdl.org>
+In-Reply-To: <200505011707.35461.damir.perisa@solnet.ch>
+References: <20050430164303.6538f47c.akpm@osdl.org>
+	<200505011707.35461.damir.perisa@solnet.ch>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200505012112.j41LCNoE016402@ccure.user-mode-linux.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 01, 2005 at 05:12:23PM -0400, Jeff Dike wrote:
-> >From Al Viro:
+Damir Perisa <damir.perisa@solnet.ch> wrote:
+>
+> i updated from rc2-mm3 to rc3-mm2 and now i observe something strange: 
+>  the cpu is running all the time at 100% because of the kswapd0 that is 
+>  running always and not becomming idle. 
 > 
-> 	mk_ptregs converted.  Nothing new here, it's the same situation
-> as with mk_user_constants.
+>  after having the computer running for about one hour, top says this about 
+>  kswapd0:
+> 
+>    PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+>    155 root      25   0     0    0    0 R 89.6  0.0  38:56.06 kswapd0
 
-... and after that patch should be mk_sc conversion.  Another missing bit
-(OTOH, that one might be in -mm already) is removal of -L/usr/lib in the
-final link.
+Could you type sysrq-P a few times, see if we can work out where it's stuck?
+
+Thanks.

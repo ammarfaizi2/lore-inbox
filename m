@@ -1,45 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262628AbVEARsv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262629AbVEARtm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262628AbVEARsv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 13:48:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262629AbVEARsv
+	id S262629AbVEARtm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 13:49:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262630AbVEARt2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 13:48:51 -0400
-Received: from zproxy.gmail.com ([64.233.162.195]:40724 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262628AbVEARsl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 13:48:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=h9nJ8Byk6dqdSeIo2rpMHYz7a8RIvyhi6hhceHrX2oga7aBCYjmnJOZs+tmwVK7ojFh6WhzzZJsw+upLm+JVLrETLe7CqsRASWsSn6Zdg+0vgm9MOwuJQrjTLGpXGMhmJiGI6G2Ukdgjla93u5QnRFEgT3YJzS0StW+b9bQX134=
-Message-ID: <29495f1d05050110485399d82a@mail.gmail.com>
-Date: Sun, 1 May 2005 10:48:36 -0700
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: gabriele.kalus@fysik.lu.se
-Subject: Re: bug report 2.4.21-280-athlon
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <42750A98.6040601@fysik.lu.se>
+	Sun, 1 May 2005 13:49:28 -0400
+Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:12819 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S262629AbVEARtM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 13:49:12 -0400
+Date: Sun, 1 May 2005 19:50:05 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <sensors@Stimpy.netroedge.com>,
+       Corey Minyard <minyard@acm.org>
+Subject: [PATCH 2.4] I2C updates for 2.4.31-pre1 (2/3)
+Message-Id: <20050501195005.41c99f62.khali@linux-fr.org>
+In-Reply-To: <20050501185236.2f76a5ba.khali@linux-fr.org>
+References: <20050501185236.2f76a5ba.khali@linux-fr.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <42750A98.6040601@fysik.lu.se>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/1/05, Gabriele Kalus <gabriele.kalus@fysik.lu.se> wrote:
-> Hi,
+Fix I2C_FUNC_* defines in i2c.h. These defines lack surrounding
+parentheses, which might cause unexpected results where used. These were
+originally fixed by Corey Minyard in Linux 2.6.
 
-<snip>
+http://marc.theaimsgroup.com/?l=linux-kernel&m=110928784629301
+http://linux.bkbits.net:8080/linux-2.5/diffs/include/linux/i2c.h@1.48
 
-> We downgraded to 2.4.21-273-athlon which seems to show that there is a 
-> problem with the SuSE 9.0 2.4.21-280-athlon kernel.
+--- linux-2.4.30-rc1/include/linux/i2c.h.orig	2005-03-19 13:17:40.000000000 +0100
++++ linux-2.4.30-rc1/include/linux/i2c.h	2005-03-19 13:22:52.000000000 +0100
+@@ -390,23 +390,23 @@
+ #define I2C_FUNC_SMBUS_READ_I2C_BLOCK	0x04000000 /* New I2C-like block */
+ #define I2C_FUNC_SMBUS_WRITE_I2C_BLOCK	0x08000000 /* transfer */
+ 
+-#define I2C_FUNC_SMBUS_BYTE I2C_FUNC_SMBUS_READ_BYTE | \
+-                            I2C_FUNC_SMBUS_WRITE_BYTE
+-#define I2C_FUNC_SMBUS_BYTE_DATA I2C_FUNC_SMBUS_READ_BYTE_DATA | \
+-                                 I2C_FUNC_SMBUS_WRITE_BYTE_DATA
+-#define I2C_FUNC_SMBUS_WORD_DATA I2C_FUNC_SMBUS_READ_WORD_DATA | \
+-                                 I2C_FUNC_SMBUS_WRITE_WORD_DATA
+-#define I2C_FUNC_SMBUS_BLOCK_DATA I2C_FUNC_SMBUS_READ_BLOCK_DATA | \
+-                                  I2C_FUNC_SMBUS_WRITE_BLOCK_DATA
+-#define I2C_FUNC_SMBUS_I2C_BLOCK I2C_FUNC_SMBUS_READ_I2C_BLOCK | \
+-                                  I2C_FUNC_SMBUS_WRITE_I2C_BLOCK
+-
+-#define I2C_FUNC_SMBUS_EMUL I2C_FUNC_SMBUS_QUICK | \
+-                            I2C_FUNC_SMBUS_BYTE | \
+-                            I2C_FUNC_SMBUS_BYTE_DATA | \
+-                            I2C_FUNC_SMBUS_WORD_DATA | \
+-                            I2C_FUNC_SMBUS_PROC_CALL | \
+-                            I2C_FUNC_SMBUS_WRITE_BLOCK_DATA
++#define I2C_FUNC_SMBUS_BYTE (I2C_FUNC_SMBUS_READ_BYTE | \
++                             I2C_FUNC_SMBUS_WRITE_BYTE)
++#define I2C_FUNC_SMBUS_BYTE_DATA (I2C_FUNC_SMBUS_READ_BYTE_DATA | \
++                                  I2C_FUNC_SMBUS_WRITE_BYTE_DATA)
++#define I2C_FUNC_SMBUS_WORD_DATA (I2C_FUNC_SMBUS_READ_WORD_DATA | \
++                                  I2C_FUNC_SMBUS_WRITE_WORD_DATA)
++#define I2C_FUNC_SMBUS_BLOCK_DATA (I2C_FUNC_SMBUS_READ_BLOCK_DATA | \
++                                   I2C_FUNC_SMBUS_WRITE_BLOCK_DATA)
++#define I2C_FUNC_SMBUS_I2C_BLOCK (I2C_FUNC_SMBUS_READ_I2C_BLOCK | \
++                                  I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)
++
++#define I2C_FUNC_SMBUS_EMUL (I2C_FUNC_SMBUS_QUICK | \
++                             I2C_FUNC_SMBUS_BYTE | \
++                             I2C_FUNC_SMBUS_BYTE_DATA | \
++                             I2C_FUNC_SMBUS_WORD_DATA | \
++                             I2C_FUNC_SMBUS_PROC_CALL | \
++                             I2C_FUNC_SMBUS_WRITE_BLOCK_DATA)
+ 
+ /* 
+  * Data for SMBus Messages 
 
-You probably should contact SuSE for instance with this issue. If you
-can demonstrate that the bug exists with the current 2.4 mainline
-kernel, then you should file a bug on bugzilla.kernel.org.
 
-Thanks,
-Nish
+-- 
+Jean Delvare

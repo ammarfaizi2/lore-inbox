@@ -1,114 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbVEAKVW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262641AbVEASlO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261580AbVEAKVW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 06:21:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261583AbVEAKVW
+	id S262641AbVEASlO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 14:41:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262642AbVEASlO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 06:21:22 -0400
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:64211 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S261580AbVEAKVB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 06:21:01 -0400
-Subject: [patch 1/1] Uml: obvious compile fixes for x86-64 Subarch and x86 regression fixes [for 2.6.12]
-To: akpm@osdl.org
-Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
-From: blaisorblade@yahoo.it
-Date: Sun, 01 May 2005 20:40:41 +0200
-Message-Id: <20050501184043.8347F400F1@zion>
+	Sun, 1 May 2005 14:41:14 -0400
+Received: from wproxy.gmail.com ([64.233.184.203]:41609 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262641AbVEASlG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 14:41:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Y0IvQJjDu3PAR/V+0sVWsYDmAQjWr4S01LbqwXGGM4LIvoh5YiZPSY9Ux0mvEiPGve2s3jC55i+E7r3HYIKLi2qkvIeeyrdhtALvITBwffKMEGeMUWZlrZW1Xmkf9Z/NwGSYO/aJeeSgygbT0yWYn3hOdoDllnPXxXQneDk97KM=
+Message-ID: <58cb370e0505011141a2b3c58@mail.gmail.com>
+Date: Sun, 1 May 2005 20:41:03 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Richard Purdie <rpurdie@rpsys.net>
+Subject: Re: IDE problems in 2.6.12-rc1-bk1 onwards (was Re: 2.6.12-rc3-mm1)
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dominik Brodowski <linux@brodo.de>, Andrew Morton <akpm@osdl.org>,
+       linux-ide@vger.kernel.org
+In-Reply-To: <03be01c54e77$83d86980$0f01a8c0@max>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <03be01c54e77$83d86980$0f01a8c0@max>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 5/1/05, Richard Purdie <rpurdie@rpsys.net> wrote:
+> I've switched back to 2.6.12-rc3-mm1 and added some debuging to all the ide
+> functions to trace the order functions are getting called. I've shown the
+> result below for two different oops. There is more than one problem. The
+> first problem was introduced in 2.6.12-rc1-bk1 in the ide-disk changes. The
+> second has been around for a while but is showing up again.
+>  
+> The problem is idedisk_cleanup() gets called twice from ide_unregister().
+> Once here:
+> 
+>  for (unit = 0; unit < MAX_DRIVES; ++unit) {
+>   drive = &hwif->drives[unit];
+>   if (!drive->present)
+>    continue;
+>   DRIVER(drive)->cleanup(drive);
+>  }
+> 
+> and secondly in ide_unregister indirectly via:
+> 
+>   blk_cleanup_queue(drive->queue);
+>   printk(KERN_ERR "ide_unregister4()\n");
+>   device_unregister(&drive->gendev);
+>   down(&drive->gendev_rel_sem);
+>   spin_lock_irq(&ide_lock);
+>   drive->queue = NULL;
+>   printk(KERN_ERR "ide_unregister5()\n");
+> 
+> device_unregister()  triggers ide_drive_remove() which calls
+> DRIVER(drive)->cleanup(drive);
+> 
+> In the first call to idedisk_cleanup(), ide_disk_put(idkp) is called which
+> decreases the reference counter to zero. This triggers ide_disk_release()
+> which calls kfree(idkp). Hence the second call to idedisk_cleanup() calls
+> what is now a null pointer (or worse).
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+Thanks for excellent debugging.
 
-This patch does some totally trivial compilation fixes. It also restores the
-debugregs manipulation, which was commented out simply because it doesn't
-compile on x86_64 (we haven't yet implemented there debugregs handling).
+Both problems should be fixed by "convert IDE device drivers to 
+driver-model" patch but I need to resync it against latest kernels.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
-
- linux-2.6.12-paolo/arch/um/kernel/ptrace.c         |    4 +++-
- linux-2.6.12-paolo/arch/um/sys-x86_64/syscalls.c   |    2 ++
- linux-2.6.12-paolo/include/asm-um/ipc.h            |    7 +------
- linux-2.6.12-paolo/include/asm-um/page.h           |    3 +++
- linux-2.6.12-paolo/include/asm-um/pgtable-3level.h |    2 +-
- 5 files changed, 10 insertions(+), 8 deletions(-)
-
-diff -puN arch/um/kernel/ptrace.c~uml-simple-x86-64-compilation arch/um/kernel/ptrace.c
---- linux-2.6.12/arch/um/kernel/ptrace.c~uml-simple-x86-64-compilation	2005-05-01 20:37:38.000000000 +0200
-+++ linux-2.6.12-paolo/arch/um/kernel/ptrace.c	2005-05-01 20:37:38.000000000 +0200
-@@ -98,12 +98,14 @@ long sys_ptrace(long request, long pid, 
- 		if(addr < MAX_REG_OFFSET){
- 			tmp = getreg(child, addr);
- 		}
-+#if defined(CONFIG_UML_X86) && !defined(CONFIG_64BIT)
- 		else if((addr >= offsetof(struct user, u_debugreg[0])) &&
- 			(addr <= offsetof(struct user, u_debugreg[7]))){
- 			addr -= offsetof(struct user, u_debugreg[0]);
- 			addr = addr >> 2;
- 			tmp = child->thread.arch.debugregs[addr];
- 		}
-+#endif
- 		ret = put_user(tmp, (unsigned long __user *) data);
- 		break;
- 	}
-@@ -127,7 +129,7 @@ long sys_ptrace(long request, long pid, 
- 			ret = putreg(child, addr, data);
- 			break;
- 		}
--#if 0 /* XXX x86_64 */
-+#if defined(CONFIG_UML_X86) && !defined(CONFIG_64BIT)
- 		else if((addr >= offsetof(struct user, u_debugreg[0])) &&
- 			(addr <= offsetof(struct user, u_debugreg[7]))){
- 			  addr -= offsetof(struct user, u_debugreg[0]);
-diff -puN arch/um/sys-x86_64/syscalls.c~uml-simple-x86-64-compilation arch/um/sys-x86_64/syscalls.c
---- linux-2.6.12/arch/um/sys-x86_64/syscalls.c~uml-simple-x86-64-compilation	2005-05-01 20:37:38.000000000 +0200
-+++ linux-2.6.12-paolo/arch/um/sys-x86_64/syscalls.c	2005-05-01 20:37:38.000000000 +0200
-@@ -7,6 +7,8 @@
- #include "linux/linkage.h"
- #include "linux/slab.h"
- #include "linux/shm.h"
-+#include "linux/utsname.h"
-+#include "linux/personality.h"
- #include "asm/uaccess.h"
- #define __FRAME_OFFSETS
- #include "asm/ptrace.h"
-diff -puN include/asm-um/ipc.h~uml-simple-x86-64-compilation include/asm-um/ipc.h
---- linux-2.6.12/include/asm-um/ipc.h~uml-simple-x86-64-compilation	2005-05-01 20:37:38.000000000 +0200
-+++ linux-2.6.12-paolo/include/asm-um/ipc.h	2005-05-01 20:37:38.000000000 +0200
-@@ -1,6 +1 @@
--#ifndef __UM_IPC_H
--#define __UM_IPC_H
--
--#include "asm/arch/ipc.h"
--
--#endif
-+#include <asm-generic/ipc.h>
-diff -puN include/asm-um/page.h~uml-simple-x86-64-compilation include/asm-um/page.h
---- linux-2.6.12/include/asm-um/page.h~uml-simple-x86-64-compilation	2005-05-01 20:37:38.000000000 +0200
-+++ linux-2.6.12-paolo/include/asm-um/page.h	2005-05-01 20:37:38.000000000 +0200
-@@ -45,6 +45,9 @@ typedef struct { unsigned long pgd; } pg
- 	({ (pte).pte_high = (phys) >> 32; \
- 	   (pte).pte_low = (phys) | pgprot_val(prot); })
- 
-+#define pmd_val(x)	((x).pmd)
-+#define __pmd(x) ((pmd_t) { (x) } )
-+
- typedef unsigned long long pfn_t;
- typedef unsigned long long phys_t;
- 
-diff -puN include/asm-um/pgtable-3level.h~uml-simple-x86-64-compilation include/asm-um/pgtable-3level.h
---- linux-2.6.12/include/asm-um/pgtable-3level.h~uml-simple-x86-64-compilation	2005-05-01 20:37:38.000000000 +0200
-+++ linux-2.6.12-paolo/include/asm-um/pgtable-3level.h	2005-05-01 20:37:38.000000000 +0200
-@@ -149,7 +149,7 @@ static inline pmd_t pfn_pmd(pfn_t page_n
- 
- #define pte_to_pgoff(p) ((p).pte >> 32)
- 
--#define pgoff_to_pte(off) ((pte_t) { ((off) < 32) | _PAGE_FILE })
-+#define pgoff_to_pte(off) ((pte_t) { ((off) << 32) | _PAGE_FILE })
- 
- #else
- 
-_
+Bartlomiej

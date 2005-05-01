@@ -1,83 +1,294 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261518AbVEACkA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbVD3WvP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261518AbVEACkA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Apr 2005 22:40:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbVEACkA
+	id S261445AbVD3WvP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Apr 2005 18:51:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVD3WvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Apr 2005 22:40:00 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:50819 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261516AbVEACjy (ORCPT
+	Sat, 30 Apr 2005 18:51:15 -0400
+Received: from mx2.mail.ru ([194.67.23.122]:39809 "EHLO mx2.mail.ru")
+	by vger.kernel.org with ESMTP id S261445AbVD3Wub (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Apr 2005 22:39:54 -0400
-Subject: Re: [PATCH] private mounts
-From: Ram <linuxram@us.ibm.com>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Olivier Galibert <galibert@pobox.com>, Miklos Szeredi <miklos@szeredi.hu>,
-       hch@infradead.org, bulb@ucw.cz, viro@parcelfarce.linux.theplanet.co.uk,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050430235829.GB11494@mail.shareable.org>
-References: <E1DQ0Mc-0007B5-00@dorka.pomaz.szeredi.hu>
-	 <20050430083516.GC23253@infradead.org>
-	 <E1DRoDm-0002G9-00@dorka.pomaz.szeredi.hu>
-	 <20050430094218.GA32679@mail.shareable.org>
-	 <E1DRoz9-0002JL-00@dorka.pomaz.szeredi.hu>
-	 <20050430143609.GA4362@mail.shareable.org>
-	 <E1DRuNU-0002el-00@dorka.pomaz.szeredi.hu>
-	 <20050430164258.GA6498@mail.shareable.org>
-	 <E1DRvRc-0002lq-00@dorka.pomaz.szeredi.hu>
-	 <20050430182016.GA41358@dspnet.fr.eu.org>
-	 <20050430235829.GB11494@mail.shareable.org>
-Content-Type: text/plain
-Organization: IBM 
-Message-Id: <1114915182.4180.2110.camel@localhost>
+	Sat, 30 Apr 2005 18:50:31 -0400
+Date: Sun, 1 May 2005 02:53:49 +0000
+From: Alexey Dobriyan <adobriyan@mail.ru>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: "David S. Miller" <davem@davemloft.net>,
+       Jouni Malinen <jkmaline@cc.hut.fi>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] resource release cleanup in net/
+Message-ID: <20050501025349.GA9243@mipter.zuzino.mipt.ru>
+Mail-Followup-To: Jesper Juhl <juhl-lkml@dif.dk>,
+	"David S. Miller" <davem@davemloft.net>,
+	Jouni Malinen <jkmaline@cc.hut.fi>, netdev@oss.sgi.com,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.62.0504302219520.2094@dragon.hyggekrogen.localhost>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 30 Apr 2005 19:39:43 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="4Ckj6UjgE2iN1+kY"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0504302219520.2094@dragon.hyggekrogen.localhost>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-04-30 at 16:58, Jamie Lokier wrote:
-> Olivier Galibert wrote:
-> > > > "mount --bind /proc/self/fd/N mount_point" works, try it.
-> > > 
-> > > What do people think about that?
-> > 
-> > To me it looks like an atrocious hack that works only because of the
-> > way the implementation is done and not really by design.
-> 
-> >From fs/namespace.c:do_loopback, the function which does bind mounts:
-> 
-> 	if (check_mnt(nd->mnt) && (!recurse || check_mnt(old_nd.mnt))) {
-> 
-> check_mnt() verifies that a mountpoint is in the same namespace as the
-> current process.  recurse is set for --rbind mounts, but not --bind mounts.
-> 
-> Notice how old_nd.mnt is explicitly _not_ checked for being in the current
-> namespace when doing --bind?
 
-> That says to me that Al thought about this case, and coded for it...
-> 
-> (I'm still not clear why the check_mnt() calls are needed at all, though).
-> 
-Making a wild guess.
+--4Ckj6UjgE2iN1+kY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-What if some filesystem allowed access to vfsmount in other namespace?
-Just like the proc filesystem having the ability to do so, but
-marginally stops it through the check in proc_check_root().
+On Sat, Apr 30, 2005 at 10:36:00PM +0200, Jesper Juhl wrote:
+> Since Andrew merged the patch that makes calling crypto_free_tfm() with a 
+> NULL pointer safe into 2.6.12-rc3-mm1, I made a patch to remove checks for 
+> NULL before calling that function
 
-However the check you mentioned above where-a-bind-mount-across-
-namespace is allowed, implies that there is some legal way of getting
-access to vfsmounts in other namespace.  Or maybe a remote possibility
-that its a bug?
+>  drivers/net/wireless/hostap/hostap_crypt_ccmp.c |    5 -
+>  drivers/net/wireless/hostap/hostap_crypt_tkip.c |   10 +-
+>  drivers/net/wireless/hostap/hostap_crypt_wep.c  |    5 -
+>  net/ieee80211/ieee80211_crypt_ccmp.c            |    5 -
+>  net/ieee80211/ieee80211_crypt_tkip.c            |   10 +-
+>  net/ieee80211/ieee80211_crypt_wep.c             |    5 -
 
-RP
+I think I have a better one for these.
 
+--4Ckj6UjgE2iN1+kY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="hostap_free.patch"
 
-> -- Jamie
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--- linux-2.6.12-rc3-mm1/drivers/net/wireless/hostap/hostap_crypt_ccmp.c	2005-05-01 01:53:50.000000000 +0000
++++ linux-2.6.12-rc3-mm1-hostap/drivers/net/wireless/hostap/hostap_crypt_ccmp.c	2005-05-01 02:21:10.000000000 +0000
+@@ -102,17 +102,14 @@ static void * hostap_ccmp_init(int key_i
+ 	if (priv->tfm == NULL) {
+ 		printk(KERN_DEBUG "hostap_crypt_ccmp: could not allocate "
+ 		       "crypto API aes\n");
+-		goto fail;
++		goto fail_free;
+ 	}
+ 
+ 	return priv;
+ 
++fail_free:
++	kfree(priv);
+ fail:
+-	if (priv) {
+-		if (priv->tfm)
+-			crypto_free_tfm(priv->tfm);
+-		kfree(priv);
+-	}
+ 	module_put(THIS_MODULE);
+ 	return NULL;
+ }
+@@ -121,8 +118,7 @@ fail:
+ static void hostap_ccmp_deinit(void *priv)
+ {
+ 	struct hostap_ccmp_data *_priv = priv;
+-	if (_priv && _priv->tfm)
+-		crypto_free_tfm(_priv->tfm);
++	crypto_free_tfm(_priv->tfm);
+ 	kfree(priv);
+ 	module_put(THIS_MODULE);
+ }
+--- linux-2.6.12-rc3-mm1/drivers/net/wireless/hostap/hostap_crypt_tkip.c	2005-05-01 01:53:50.000000000 +0000
++++ linux-2.6.12-rc3-mm1-hostap/drivers/net/wireless/hostap/hostap_crypt_tkip.c	2005-05-01 02:27:18.000000000 +0000
+@@ -88,26 +88,23 @@ static void * hostap_tkip_init(int key_i
+ 	if (priv->tfm_arc4 == NULL) {
+ 		printk(KERN_DEBUG "hostap_crypt_tkip: could not allocate "
+ 		       "crypto API arc4\n");
+-		goto fail;
++		goto fail_arc4;
+ 	}
+ 
+ 	priv->tfm_michael = crypto_alloc_tfm("michael_mic", 0);
+ 	if (priv->tfm_michael == NULL) {
+ 		printk(KERN_DEBUG "hostap_crypt_tkip: could not allocate "
+ 		       "crypto API michael_mic\n");
+-		goto fail;
++		goto fail_michael;
+ 	}
+ 
+ 	return priv;
+ 
++fail_michael:
++	crypto_free_tfm(priv->tfm_arc4);
++fail_arc4:
++	kfree(priv);
+ fail:
+-	if (priv) {
+-		if (priv->tfm_michael)
+-			crypto_free_tfm(priv->tfm_michael);
+-		if (priv->tfm_arc4)
+-			crypto_free_tfm(priv->tfm_arc4);
+-		kfree(priv);
+-	}
+ 	module_put(THIS_MODULE);
+ 	return NULL;
+ }
+@@ -116,10 +113,8 @@ fail:
+ static void hostap_tkip_deinit(void *priv)
+ {
+ 	struct hostap_tkip_data *_priv = priv;
+-	if (_priv && _priv->tfm_michael)
+-		crypto_free_tfm(_priv->tfm_michael);
+-	if (_priv && _priv->tfm_arc4)
+-		crypto_free_tfm(_priv->tfm_arc4);
++	crypto_free_tfm(_priv->tfm_michael);
++	crypto_free_tfm(_priv->tfm_arc4);
+ 	kfree(priv);
+ 	module_put(THIS_MODULE);
+ }
+--- linux-2.6.12-rc3-mm1/drivers/net/wireless/hostap/hostap_crypt_wep.c	2005-05-01 01:53:50.000000000 +0000
++++ linux-2.6.12-rc3-mm1-hostap/drivers/net/wireless/hostap/hostap_crypt_wep.c	2005-05-01 02:30:08.000000000 +0000
+@@ -59,7 +59,7 @@ static void * prism2_wep_init(int keyidx
+ 	if (priv->tfm == NULL) {
+ 		printk(KERN_DEBUG "hostap_crypt_wep: could not allocate "
+ 		       "crypto API arc4\n");
+-		goto fail;
++		goto fail_tfm;
+ 	}
+ 
+ 	/* start WEP IV from a random value */
+@@ -67,12 +67,9 @@ static void * prism2_wep_init(int keyidx
+ 
+ 	return priv;
+ 
++fail_tfm:
++	kfree(priv);
+ fail:
+-	if (priv) {
+-		if (priv->tfm)
+-			crypto_free_tfm(priv->tfm);
+-		kfree(priv);
+-	}
+ 	module_put(THIS_MODULE);
+ 	return NULL;
+ }
+@@ -81,8 +78,7 @@ fail:
+ static void prism2_wep_deinit(void *priv)
+ {
+ 	struct prism2_wep_data *_priv = priv;
+-	if (_priv && _priv->tfm)
+-		crypto_free_tfm(_priv->tfm);
++	crypto_free_tfm(_priv->tfm);
+ 	kfree(priv);
+ 	module_put(THIS_MODULE);
+ }
+--- linux-2.6.12-rc3-mm1/net/ieee80211/ieee80211_crypt_ccmp.c	2005-05-01 01:53:57.000000000 +0000
++++ linux-2.6.12-rc3-mm1-hostap/net/ieee80211/ieee80211_crypt_ccmp.c	2005-05-01 02:31:22.000000000 +0000
+@@ -89,18 +89,14 @@ static void * ieee80211_ccmp_init(int ke
+ 	if (priv->tfm == NULL) {
+ 		printk(KERN_DEBUG "ieee80211_crypt_ccmp: could not allocate "
+ 		       "crypto API aes\n");
+-		goto fail;
++		goto fail_tfm;
+ 	}
+ 
+ 	return priv;
+ 
++fail_tfm:
++	kfree(priv);
+ fail:
+-	if (priv) {
+-		if (priv->tfm)
+-			crypto_free_tfm(priv->tfm);
+-		kfree(priv);
+-	}
+-
+ 	return NULL;
+ }
+ 
+@@ -108,8 +104,7 @@ fail:
+ static void ieee80211_ccmp_deinit(void *priv)
+ {
+ 	struct ieee80211_ccmp_data *_priv = priv;
+-	if (_priv && _priv->tfm)
+-		crypto_free_tfm(_priv->tfm);
++	crypto_free_tfm(_priv->tfm);
+ 	kfree(priv);
+ }
+ 
+--- linux-2.6.12-rc3-mm1/net/ieee80211/ieee80211_crypt_tkip.c	2005-05-01 01:53:57.000000000 +0000
++++ linux-2.6.12-rc3-mm1-hostap/net/ieee80211/ieee80211_crypt_tkip.c	2005-05-01 02:34:04.000000000 +0000
+@@ -76,27 +76,23 @@ static void * ieee80211_tkip_init(int ke
+ 	if (priv->tfm_arc4 == NULL) {
+ 		printk(KERN_DEBUG "ieee80211_crypt_tkip: could not allocate "
+ 		       "crypto API arc4\n");
+-		goto fail;
++		goto fail_arc4;
+ 	}
+ 
+ 	priv->tfm_michael = crypto_alloc_tfm("michael_mic", 0);
+ 	if (priv->tfm_michael == NULL) {
+ 		printk(KERN_DEBUG "ieee80211_crypt_tkip: could not allocate "
+ 		       "crypto API michael_mic\n");
+-		goto fail;
++		goto fail_michael;
+ 	}
+ 
+ 	return priv;
+ 
++fail_michael:
++	crypto_free_tfm(priv->tfm_arc4);
++fail_arc4:
++	kfree(priv);
+ fail:
+-	if (priv) {
+-		if (priv->tfm_michael)
+-			crypto_free_tfm(priv->tfm_michael);
+-		if (priv->tfm_arc4)
+-			crypto_free_tfm(priv->tfm_arc4);
+-		kfree(priv);
+-	}
+-
+ 	return NULL;
+ }
+ 
+@@ -104,10 +100,8 @@ fail:
+ static void ieee80211_tkip_deinit(void *priv)
+ {
+ 	struct ieee80211_tkip_data *_priv = priv;
+-	if (_priv && _priv->tfm_michael)
+-		crypto_free_tfm(_priv->tfm_michael);
+-	if (_priv && _priv->tfm_arc4)
+-		crypto_free_tfm(_priv->tfm_arc4);
++	crypto_free_tfm(_priv->tfm_michael);
++	crypto_free_tfm(_priv->tfm_arc4);
+ 	kfree(priv);
+ }
+ 
+--- linux-2.6.12-rc3-mm1/net/ieee80211/ieee80211_crypt_wep.c	2005-05-01 01:53:57.000000000 +0000
++++ linux-2.6.12-rc3-mm1-hostap/net/ieee80211/ieee80211_crypt_wep.c	2005-05-01 02:35:18.000000000 +0000
+@@ -54,7 +54,7 @@ static void * prism2_wep_init(int keyidx
+ 	if (priv->tfm == NULL) {
+ 		printk(KERN_DEBUG "ieee80211_crypt_wep: could not allocate "
+ 		       "crypto API arc4\n");
+-		goto fail;
++		goto fail_tfm;
+ 	}
+ 
+ 	/* start WEP IV from a random value */
+@@ -62,12 +62,9 @@ static void * prism2_wep_init(int keyidx
+ 
+ 	return priv;
+ 
++fail_tfm:
++	kfree(priv);
+ fail:
+-	if (priv) {
+-		if (priv->tfm)
+-			crypto_free_tfm(priv->tfm);
+-		kfree(priv);
+-	}
+ 	return NULL;
+ }
+ 
+@@ -75,8 +72,7 @@ fail:
+ static void prism2_wep_deinit(void *priv)
+ {
+ 	struct prism2_wep_data *_priv = priv;
+-	if (_priv && _priv->tfm)
+-		crypto_free_tfm(_priv->tfm);
++	crypto_free_tfm(_priv->tfm);
+ 	kfree(priv);
+ }
+ 
+
+--4Ckj6UjgE2iN1+kY--
 

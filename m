@@ -1,69 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261625AbVEAN4R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbVEAOOj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261625AbVEAN4R (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 09:56:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbVEAN4R
+	id S261630AbVEAOOj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 10:14:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbVEAOOj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 09:56:17 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:15367 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261625AbVEAN4I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 09:56:08 -0400
-Date: Sun, 1 May 2005 15:56:07 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: jkmaline@cc.hut.fi
-Cc: hostap@shmoo.com, jgarzik@pobox.com, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: [-mm patch] net/ieee80211/: remove pci.h #include's
-Message-ID: <20050501135607.GD3592@stusta.de>
+	Sun, 1 May 2005 10:14:39 -0400
+Received: from postfix4-2.free.fr ([213.228.0.176]:34788 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S261630AbVEAOOi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 10:14:38 -0400
+Subject: Re: Compaq Armada E500 notebook and 2.6.x kernels
+From: =?ISO-8859-1?Q?Beno=EEt?= Rouits <brouits@free.fr>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Sun, 01 May 2005 16:15:04 +0200
+Message-Id: <1114956905.12478.8.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was wondering why editing pci.h triggered the rebuild of three files 
-under net/, and as far as I can see, there's no reason for these three 
-files to #include pci.h .
+hi Gábor,
+I recently installed a 2.6.10 and 2.6.11 kernel on my laptop and they
+froze about 5 minutes after booting. My solution was to give those 2
+options to the kernels:
+lilo boot: mykernel noapic nolapic
+apic and Local apic are Advanced Programmable Interrupt Controller
+I don't know why the local aic doesn't works in Sempron..
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
- net/ieee80211/ieee80211_module.c |    1 -
- net/ieee80211/ieee80211_rx.c     |    1 -
- net/ieee80211/ieee80211_tx.c     |    1 -
- 3 files changed, 3 deletions(-)
-
---- linux-2.6.12-rc3-mm1-full/net/ieee80211/ieee80211_module.c.old	2005-04-30 23:23:14.000000000 +0200
-+++ linux-2.6.12-rc3-mm1-full/net/ieee80211/ieee80211_module.c	2005-04-30 23:23:18.000000000 +0200
-@@ -40,7 +40,6 @@
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/netdevice.h>
--#include <linux/pci.h>
- #include <linux/proc_fs.h>
- #include <linux/skbuff.h>
- #include <linux/slab.h>
---- linux-2.6.12-rc3-mm1-full/net/ieee80211/ieee80211_tx.c.old	2005-04-30 23:23:25.000000000 +0200
-+++ linux-2.6.12-rc3-mm1-full/net/ieee80211/ieee80211_tx.c	2005-04-30 23:23:32.000000000 +0200
-@@ -33,7 +33,6 @@
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/netdevice.h>
--#include <linux/pci.h>
- #include <linux/proc_fs.h>
- #include <linux/skbuff.h>
- #include <linux/slab.h>
---- linux-2.6.12-rc3-mm1-full/net/ieee80211/ieee80211_rx.c.old	2005-04-30 23:23:42.000000000 +0200
-+++ linux-2.6.12-rc3-mm1-full/net/ieee80211/ieee80211_rx.c	2005-04-30 23:23:46.000000000 +0200
-@@ -23,7 +23,6 @@
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/netdevice.h>
--#include <linux/pci.h>
- #include <linux/proc_fs.h>
- #include <linux/skbuff.h>
- #include <linux/slab.h>
+My laptop is an HP/Compaq with an AMD Sempron inside and a phoenix bios
+HTH,
+--
+ben
 

@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262699AbVEAVdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262740AbVEAViO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262699AbVEAVdo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 17:33:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262700AbVEAVcr
+	id S262740AbVEAViO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 17:38:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262691AbVEAVh7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 17:32:47 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:49613 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262707AbVEAVVs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 17:21:48 -0400
-Subject: Re: [linux-usb-devel] init 1 kill khubd on 2.6.11
-From: Lee Revell <rlrevell@joe-job.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Andrey Borzenkov <arvidjaar@mail.ru>,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44L0.0505011659130.19155-100000@netrider.rowland.org>
-References: <Pine.LNX.4.44L0.0505011659130.19155-100000@netrider.rowland.org>
-Content-Type: text/plain
-Date: Sun, 01 May 2005 17:21:41 -0400
-Message-Id: <1114982502.23614.1.camel@mindpipe>
+	Sun, 1 May 2005 17:37:59 -0400
+Received: from smtpout6.uol.com.br ([200.221.4.197]:53459 "EHLO
+	smtp.uol.com.br") by vger.kernel.org with ESMTP id S262696AbVEAVf6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 17:35:58 -0400
+Date: Sun, 1 May 2005 18:35:52 -0300
+From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: akpm@osdl.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc3-mm2
+Message-ID: <20050501213552.GA16994@ime.usp.br>
+Mail-Followup-To: Jesper Juhl <juhl-lkml@dif.dk>, akpm@osdl.org,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	linux-kernel@vger.kernel.org
+References: <20050501201145.GA14429@ime.usp.br> <Pine.LNX.4.62.0505012224350.2488@dragon.hyggekrogen.localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.62.0505012224350.2488@dragon.hyggekrogen.localhost>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-05-01 at 17:01 -0400, Alan Stern wrote:
-> On Sun, 1 May 2005, Andrey Borzenkov wrote:
-> 
-> > Hub driver is using SIGKILL to terminate khubd. Unfortunately on a number of 
-> > distributions switching init levels implicitly does "killall -9", killing 
-> > khubd. The only way to restart it is to reload USB subsystem.
-> > 
-> > Is signal usage in this case really needed? What about replacing it with 
-> > simple flag (i.e. will patch be accepted)?
-> 
-> IMO the problem lies in those distributions.  They should not
-> indiscrimately kill processes when switching init levels.
+On May 01 2005, Jesper Juhl wrote:
+> I recently posted this patch in another thread, give it a try : 
 
-It's probably not indiscriminate, all the init scripts I have seen only
-resort to kill -9 if the process fails to terminate in an orderly
-fashion via the /etc/rcX.d/Kfoo script.
+Hi, Jesper.
 
+I applied the patch now and I'm recompiling the kernel right now. I'll let
+you know how it works.
+
+
+Thanks for your prompt answer, Rogério Brito.
+
+-- 
+Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
+Homepage of the algorithms package : http://algorithms.berlios.de
+Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/

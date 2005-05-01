@@ -1,74 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbVEAWru@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbVEAW6b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261269AbVEAWru (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 18:47:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbVEAWru
+	id S261357AbVEAW6b (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 18:58:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbVEAW6b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 18:47:50 -0400
-Received: from fire.osdl.org ([65.172.181.4]:19918 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261297AbVEAWr2 (ORCPT
+	Sun, 1 May 2005 18:58:31 -0400
+Received: from HELIOUS.MIT.EDU ([18.248.3.87]:40370 "EHLO neo.rr.com")
+	by vger.kernel.org with ESMTP id S261357AbVEAW6S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 18:47:28 -0400
-Date: Sun, 1 May 2005 15:46:54 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: sneakums@zork.net, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
-Subject: Re: 2.6.12-rc3-mm2: ppc pte_offset_map()
-Message-Id: <20050501154654.2bf7606d.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.62.0505011749280.2488@dragon.hyggekrogen.localhost>
-References: <20050430164303.6538f47c.akpm@osdl.org>
-	<6uu0lnf0gm.fsf@zork.zork.net>
-	<Pine.LNX.4.62.0505011749280.2488@dragon.hyggekrogen.localhost>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Sun, 1 May 2005 18:58:18 -0400
+Date: Sun, 1 May 2005 18:53:35 -0400
+From: Adam Belay <ambx1@neo.rr.com>
+To: Kyle Rose <krose+linux-kernel@krose.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ACPI sleep states on Tyan Thunder K8W S2885
+Message-ID: <20050501225335.GG3951@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Kyle Rose <krose+linux-kernel@krose.org>,
+	linux-kernel@vger.kernel.org
+References: <42726287.80104@krose.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42726287.80104@krose.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl <juhl-lkml@dif.dk> wrote:
->
-> On Sun, 1 May 2005, Sean Neakums wrote:
-> 
-> > On my Mackertosh (PowerBook5.4), build fails with the following:
-> > 
-> >   fs/proc/task_mmu.c: In function `smaps_pte_range':
-> >   fs/proc/task_mmu.c:177: warning: implicit declaration of function `kmap_atomic'
-> >   fs/proc/task_mmu.c:177: error: `KM_PTE0' undeclared (first use in this function)
-> >   fs/proc/task_mmu.c:177: error: (Each undeclared identifier is reported only once
-> >   fs/proc/task_mmu.c:177: error: for each function it appears in.)
-> >   fs/proc/task_mmu.c:207: warning: implicit declaration of function `kunmap_atomic'
-> > 
-> > With the naive patch below, it builds with this warning and everything works.
-> > 
-> >   fs/proc/task_mmu.c: In function `smaps_pte_range':
-> >   fs/proc/task_mmu.c:208: warning: passing arg 1 of `kunmap_atomic' makes pointer from integer without a cast
-> > 
-> 
-> Try this patch :
-> 
-> Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-> 
-> --- linux-2.6.12-rc3-mm2-orig/fs/proc/task_mmu.c	2005-05-01 04:04:25.000000000 +0200
-> +++ linux-2.6.12-rc3-mm2/fs/proc/task_mmu.c	2005-05-01 17:49:14.000000000 +0200
-> @@ -2,6 +2,7 @@
->  #include <linux/hugetlb.h>
->  #include <linux/mount.h>
->  #include <linux/seq_file.h>
-> +#include <linux/highmem.h>
->  
->  #include <asm/elf.h>
->  #include <asm/uaccess.h>
-> @@ -204,7 +205,7 @@ static void smaps_pte_range(pmd_t *pmd,
->  			}
->  		}
->  	} while (address < end);
-> -	pte_unmap(pte);
-> +	pte_unmap((void *)pte);
->  }
+On Fri, Apr 29, 2005 at 12:36:23PM -0400, Kyle Rose wrote:
+> I can't seem to get my Tyan board (AMD 81x1 chipset) to go to sleep such
+> that wake-on-LAN will wake it back up.  On my other machines, when I
+> shutdown -h, it (presumably) puts the machine into S5 state
+> automatically, and WOL works like a charm; on this machine, shutdown -h
+>   puts the machine into an actual "off" state in which WOL won't wake it
+> back up.
 
-Should be
+The "off" state is always considered S5.  Adding wake devices does not make
+the state S5.
 
-	pte_unmap(ptep);
+> 
+> Moreover, if I try to echo 5 > /proc/acpi/sleep with full debugging, I
+> get absolutely nothing in dmesg.
 
+-->snip
 
+> Furthermore, if I shut down from Windows, it *does* go into what I
+> presume is the S5 state, so this is a software problem, not hardware.
+> 
+> Any suggestions on debugging?
+> 
+> Cheers,
+> Kyle
+
+S5 wake devices can be a very fuzzy area.  In general, the ACPI spec
+recommends that wake capabilities are enabled before halting the system.
+Therefore, your network card driver may need to specifically handle this.
+
+For starters, we should probably look at "lspci -vv".  I'm assuming your
+network card is PCI.  This will allow us to see if it's capable of waking
+from D3-cold, the state it will most likely be in during S5.
+
+I would also check your BIOS configuration and see if it's possible to
+specifically enable wake-on-lan.  Let me know if this helps.
+
+Finally, what kernel version are you using?
+
+Thanks,
+Adam

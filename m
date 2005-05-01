@@ -1,67 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261672AbVEAQJx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261709AbVEAPyu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261672AbVEAQJx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 12:09:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbVEAQGg
+	id S261709AbVEAPyu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 11:54:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261701AbVEAPyi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 12:06:36 -0400
-Received: from mail.dif.dk ([193.138.115.101]:7625 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261674AbVEAPrI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 11:47:08 -0400
-Date: Sun, 1 May 2005 17:50:34 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Sean Neakums <sneakums@zork.net>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org
-Subject: Re: 2.6.12-rc3-mm2: ppc pte_offset_map()
-In-Reply-To: <6uu0lnf0gm.fsf@zork.zork.net>
-Message-ID: <Pine.LNX.4.62.0505011749280.2488@dragon.hyggekrogen.localhost>
-References: <20050430164303.6538f47c.akpm@osdl.org> <6uu0lnf0gm.fsf@zork.zork.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 1 May 2005 11:54:38 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:55279 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261679AbVEAPvc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 11:51:32 -0400
+Subject: Re: scheduler/SCHED_FIFO behaviour
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Arun Srinivas <getarunsri@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <BAY10-F433C0F72A446C39BA90258D9260@phx.gbl>
+References: <BAY10-F433C0F72A446C39BA90258D9260@phx.gbl>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Sun, 01 May 2005 11:51:25 -0400
+Message-Id: <1114962685.5081.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 May 2005, Sean Neakums wrote:
-
-> On my Mackertosh (PowerBook5.4), build fails with the following:
+On Sun, 2005-05-01 at 07:36 +0530, Arun Srinivas wrote:
+> hi
 > 
->   fs/proc/task_mmu.c: In function `smaps_pte_range':
->   fs/proc/task_mmu.c:177: warning: implicit declaration of function `kmap_atomic'
->   fs/proc/task_mmu.c:177: error: `KM_PTE0' undeclared (first use in this function)
->   fs/proc/task_mmu.c:177: error: (Each undeclared identifier is reported only once
->   fs/proc/task_mmu.c:177: error: for each function it appears in.)
->   fs/proc/task_mmu.c:207: warning: implicit declaration of function `kunmap_atomic'
+>   I spkoe to you some days ago regarding scheduling two processes together 
+> on a HT.As I told you before I run them as SCHED_FIFO processes.I understood 
+> the theory you told me in your previous reply as to why both of SCHED_FIFO 
+> processes get scheduled only once and then run till completion.
 > 
-> With the naive patch below, it builds with this warning and everything works.
-> 
->   fs/proc/task_mmu.c: In function `smaps_pte_range':
->   fs/proc/task_mmu.c:208: warning: passing arg 1 of `kunmap_atomic' makes pointer from integer without a cast
-> 
+> But, sometimes a see a occasional reschedulei.e., the 2 processes get 
+> scheduled one more time after they are scheduled for the 1st time. I ran my 
+> code 100 times and observed this behavior 8 out of  100 times. What could be 
+> the reason?
+> (As I said i want my 2 processes to run together without any reschedule 
+> after they are scheduled for the first time).
 
-Try this patch :
+ The only way a real time priority process of SCHED_FIFO gets
+rescheduled, is if the process voluntarily calls schedule (you call a
+system call that calls schedule), or a higher priority process gets
+scheduled.  I don't know what your program is doing, or what priorities
+that they are running with to know if something like this has occurred.
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+Also, if the programs you are running haven't been locked into memory
+(they exist partially on the hard drive still), then it will take time
+to map the code into memory when that code is called, and a schedule
+will occur then as well. 
 
---- linux-2.6.12-rc3-mm2-orig/fs/proc/task_mmu.c	2005-05-01 04:04:25.000000000 +0200
-+++ linux-2.6.12-rc3-mm2/fs/proc/task_mmu.c	2005-05-01 17:49:14.000000000 +0200
-@@ -2,6 +2,7 @@
- #include <linux/hugetlb.h>
- #include <linux/mount.h>
- #include <linux/seq_file.h>
-+#include <linux/highmem.h>
- 
- #include <asm/elf.h>
- #include <asm/uaccess.h>
-@@ -204,7 +205,7 @@ static void smaps_pte_range(pmd_t *pmd,
- 			}
- 		}
- 	} while (address < end);
--	pte_unmap(pte);
-+	pte_unmap((void *)pte);
- }
- 
- static void smaps_pmd_range(pud_t *pud,
+-- Steve
 
 

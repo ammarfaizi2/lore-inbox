@@ -1,75 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbVEAPHs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbVEAPJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261643AbVEAPHs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 11:07:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261653AbVEAPHs
+	id S261497AbVEAPJx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 11:09:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261653AbVEAPJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 11:07:48 -0400
-Received: from mail01.solnet.ch ([212.101.4.135]:27910 "EHLO mail01.solnet.ch")
-	by vger.kernel.org with ESMTP id S261643AbVEAPHk (ORCPT
+	Sun, 1 May 2005 11:09:53 -0400
+Received: from zork.zork.net ([64.81.246.102]:62858 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id S261497AbVEAPJp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 11:07:40 -0400
-From: Damir Perisa <damir.perisa@solnet.ch>
+	Sun, 1 May 2005 11:09:45 -0400
+From: Sean Neakums <sneakums@zork.net>
 To: Andrew Morton <akpm@osdl.org>
-Subject: 2.6.12-rc3-mm2 - kswapd0 keeps running
-Date: Sun, 1 May 2005 17:07:29 +0200
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
+Subject: 2.6.12-rc3-mm2: ppc pte_offset_map()
 References: <20050430164303.6538f47c.akpm@osdl.org>
-In-Reply-To: <20050430164303.6538f47c.akpm@osdl.org>
-X-Face: +)fhYFmn|<pyRIlgch_);krg#jn!^z'?xy(Ur#Z6rZi)KD+_-V<Y@i>0pOVfJ4<=?utf-8?q?Q1/=26/=26z=0A=093cxqRa=3B7O=5C4g=5C=7C=5DF-!H0!ew9kx1LqK/iP?=
- =?utf-8?q?Ov8eXi=26I7=60Pez0V0VNMAxnqRL8-30qqKK=3DxGM=0A=09pExQc=5B2=7C?=
- =?utf-8?q?l6v=23?=<iwBvEO9+h|_YS[48z%/kuD2*aT*S/$0323VCL3V9?@}jq<
- =?utf-8?q?Ns6V=3A0m=27Qia=0A=09?="[#oJg[RVe}Sy/lP95E@pa[vdKzqLqn&M`exb91"`,<k`3;Vt97cLjhub0.v+]m`%|>@Z(
- =?utf-8?q?=0A=09EeC/zU7=25?=@"L6mi#..8Q^M
-Alanine: true
-Glycine: true
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linuxppc-dev@ozlabs.org
+Date: Sun, 01 May 2005 16:08:25 +0100
+In-Reply-To: <20050430164303.6538f47c.akpm@osdl.org> (Andrew Morton's message
+	of "Sat, 30 Apr 2005 16:43:03 -0700")
+Message-ID: <6uu0lnf0gm.fsf@zork.zork.net>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3013115.EtIp47ILaq";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200505011707.35461.damir.perisa@solnet.ch>
+Content-Type: text/plain; charset=us-ascii
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: sneakums@zork.net
+X-SA-Exim-Scanned: No (on zork.zork.net); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3013115.EtIp47ILaq
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On my Mackertosh (PowerBook5.4), build fails with the following:
 
-i updated from rc2-mm3 to rc3-mm2 and now i observe something strange:=20
-the cpu is running all the time at 100% because of the kswapd0 that is=20
-running always and not becomming idle.=20
+  fs/proc/task_mmu.c: In function `smaps_pte_range':
+  fs/proc/task_mmu.c:177: warning: implicit declaration of function `kmap_atomic'
+  fs/proc/task_mmu.c:177: error: `KM_PTE0' undeclared (first use in this function)
+  fs/proc/task_mmu.c:177: error: (Each undeclared identifier is reported only once
+  fs/proc/task_mmu.c:177: error: for each function it appears in.)
+  fs/proc/task_mmu.c:207: warning: implicit declaration of function `kunmap_atomic'
 
-after having the computer running for about one hour, top says this about=20
-kswapd0:
+With the naive patch below, it builds with this warning and everything works.
 
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
-  155 root      25   0     0    0    0 R 89.6  0.0  38:56.06 kswapd0
+  fs/proc/task_mmu.c: In function `smaps_pte_range':
+  fs/proc/task_mmu.c:208: warning: passing arg 1 of `kunmap_atomic' makes pointer from integer without a cast
 
-the config file you can find here:=20
-http://cvs.archlinux.org/cgi-bin/viewcvs.cgi/kernels/kernel26mm/config?rev=
-=3D1.18&cvsroot=3DExtra
+I tried including linux/highmem.h in asm-ppc/pgtable.h
+(smaps_pte_range() -> pte_offset_map() -> kmap_atomic()), but that
+doesn't work.
 
-regards,
 
-Damir Perisa
+--- S12-rc3-mm2/fs/proc/task_mmu.c~	2005-05-01 15:52:55.000000000 +0100
++++ S12-rc3-mm2/fs/proc/task_mmu.c	2005-05-01 15:23:22.000000000 +0100
+@@ -1,4 +1,5 @@
+ #include <linux/mm.h>
++#include <linux/highmem.h>
+ #include <linux/hugetlb.h>
+ #include <linux/mount.h>
+ #include <linux/seq_file.h>
 
-=2D-=20
-A thing worth doing is worth the trouble of asking somebody else to do it.
 
---nextPart3013115.EtIp47ILaq
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCdPC3PABWKV6NProRAkyeAJ9PNIKqrjr5KfkaswEBXJAEf4i2SgCeJwAQ
-2DutoBw6GOelUSFQXz5Z8Cc=
-=9lSS
------END PGP SIGNATURE-----
-
---nextPart3013115.EtIp47ILaq--
+-- 
+Dag vijandelijk luchtschip de huismeester is dood

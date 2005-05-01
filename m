@@ -1,114 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbVEAHsg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbVEAIvo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261548AbVEAHsg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 03:48:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbVEAHsg
+	id S261561AbVEAIvo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 04:51:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbVEAIvn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 03:48:36 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:25295 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261548AbVEAHs2 (ORCPT
+	Sun, 1 May 2005 04:51:43 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:48024 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261561AbVEAIvc convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 03:48:28 -0400
-Message-ID: <42748B75.D6CBF829@tv-sign.ru>
-Date: Sun, 01 May 2005 11:55:33 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Sun, 1 May 2005 04:51:32 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Maneesh Soni <maneesh@in.ibm.com>,
-       Juergen Kreileder <jk@blackdown.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: [PATCH] fix __mod_timer vs __run_timers deadlock.
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 2.6.12-rc3-mm1
+Date: Sun, 1 May 2005 16:49:14 +0800
+Message-ID: <16A54BF5D6E14E4D916CE26C9AD3057501D94959@pdsmsx402.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.12-rc3-mm1
+Thread-Index: AcVNvWTj9rgsi9f4TjKaaeeAvHU2fgAa690Q
+From: "Li, Shaohua" <shaohua.li@intel.com>
+To: "Andrew Morton" <akpm@osdl.org>, "Coywolf Qi Hunt" <coywolf@lovecn.org>
+Cc: <coywolf@gmail.com>, <zwane@arm.linux.org.uk>,
+       <linux-kernel@vger.kernel.org>, <ak@muc.de>, <bunk@stusta.de>
+X-OriginalArrivalTime: 01 May 2005 08:49:16.0052 (UTC) FILETIME=[A7C97D40:01C54E2A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The bug was identified by Maneesh Soni.
+>Thanks, guys.  I seem to have it limping along on UP now, partly with
+the
+>below.
+>
+>Li, it's a bit awkward to be calling things by hand on SMP and with an
+>initcall on UP.  Maybe something neater can be done there.
+>
+>I quickly tested suspend/resume on UP.  Appears to work.
+Thanks for fixing this. I apparently forgot testing it in UP, very sorry
+for this. Yes, an initcall possibly isn't good. I'm now on vocation for
+Chinese Labor holiday till May 7, so I might have no time to do it
+before returning to office.
 
-When __mod_timer() changes timer's base it waits for the completion
-of timer->function. It is just stupid: the caller of __mod_timer()
-can held locks which would prevent completion of the timer's handler.
-
-Solution: do not change the base of the currently running timer.
-
-Side effect: __mod_timer() doesn't garantees anymore that timer will
-run on the local cpu.
-
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-
---- rc2-mm3/kernel/timer.c~	2005-04-30 18:43:56.000000000 +0400
-+++ rc2-mm3/kernel/timer.c	2005-05-01 14:29:02.000000000 +0400
-@@ -212,41 +212,39 @@ int __mod_timer(struct timer_list *timer
- 	timer_base_t *base;
- 	tvec_base_t *new_base;
- 	unsigned long flags;
--	int ret = -1;
-+	int ret;
- 
- 	BUG_ON(!timer->function);
- 	check_timer(timer);
--
--	do {
--		base = lock_timer_base(timer, &flags);
--		new_base = &__get_cpu_var(tvec_bases);
--
--		/* Ensure the timer is serialized. */
--		if (base != &new_base->t_base
--			&& base->running_timer == timer)
--			goto unlock;
--
--		ret = 0;
--		if (timer_pending(timer)) {
--			detach_timer(timer, 0);
--			ret = 1;
--		}
--
--		if (base != &new_base->t_base) {
--			timer->base = NULL;
--			/* Safe: the timer can't be seen via ->entry,
--			 * and lock_timer_base checks ->base != 0. */
--			spin_unlock(&base->lock);
--			base = &new_base->t_base;
--			spin_lock(&base->lock);
--			timer->base = base;
--		}
--
--		timer->expires = expires;
--		internal_add_timer(new_base, timer);
--unlock:
--		spin_unlock_irqrestore(&base->lock, flags);
--	} while (ret < 0);
-+
-+	base = lock_timer_base(timer, &flags);
-+
-+	ret = 0;
-+	if (timer_pending(timer)) {
-+		detach_timer(timer, 0);
-+		ret = 1;
-+	}
-+
-+	new_base = &__get_cpu_var(tvec_bases);
-+
-+	if (base != &new_base->t_base) {
-+		if (unlikely(base->running_timer == timer))
-+			/* Don't change timer's base while it is running.
-+			 * Needed for serialization of timer wrt itself. */
-+			new_base = container_of(base, tvec_base_t, t_base);
-+		else {
-+			timer->base = NULL;
-+			/* Safe: the timer can't be seen via ->entry,
-+			 * and lock_timer_base checks ->base != 0. */
-+			spin_unlock(&base->lock);
-+			spin_lock(&new_base->t_base.lock);
-+			timer->base = &new_base->t_base;
-+		}
-+	}
-+
-+	timer->expires = expires;
-+	internal_add_timer(new_base, timer);
-+	spin_unlock_irqrestore(&new_base->t_base.lock, flags);
- 
- 	return ret;
- }
+Thanks,
+Shaohua

@@ -1,46 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262740AbVEAViO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbVEAWKA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262740AbVEAViO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 17:38:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262691AbVEAVh7
+	id S261156AbVEAWKA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 18:10:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbVEAWJw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 17:37:59 -0400
-Received: from smtpout6.uol.com.br ([200.221.4.197]:53459 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S262696AbVEAVf6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 17:35:58 -0400
-Date: Sun, 1 May 2005 18:35:52 -0300
-From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: akpm@osdl.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc3-mm2
-Message-ID: <20050501213552.GA16994@ime.usp.br>
-Mail-Followup-To: Jesper Juhl <juhl-lkml@dif.dk>, akpm@osdl.org,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	linux-kernel@vger.kernel.org
-References: <20050501201145.GA14429@ime.usp.br> <Pine.LNX.4.62.0505012224350.2488@dragon.hyggekrogen.localhost>
+	Sun, 1 May 2005 18:09:52 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38843 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261805AbVEAWGB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 18:06:01 -0400
+Date: Sun, 1 May 2005 23:06:23 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/22] UML - Cross-build support : mk_ptregs
+Message-ID: <20050501220623.GJ13052@parcelfarce.linux.theplanet.co.uk>
+References: <200505012112.j41LCNoE016402@ccure.user-mode-linux.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.62.0505012224350.2488@dragon.hyggekrogen.localhost>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <200505012112.j41LCNoE016402@ccure.user-mode-linux.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On May 01 2005, Jesper Juhl wrote:
-> I recently posted this patch in another thread, give it a try : 
+On Sun, May 01, 2005 at 05:12:23PM -0400, Jeff Dike wrote:
+> >From Al Viro:
+> 
+> 	mk_ptregs converted.  Nothing new here, it's the same situation
+> as with mk_user_constants.
 
-Hi, Jesper.
-
-I applied the patch now and I'm recompiling the kernel right now. I'll let
-you know how it works.
-
-
-Thanks for your prompt answer, Rogério Brito.
-
--- 
-Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
-Homepage of the algorithms package : http://algorithms.berlios.de
-Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/
+... and after that patch should be mk_sc conversion.  Another missing bit
+(OTOH, that one might be in -mm already) is removal of -L/usr/lib in the
+final link.

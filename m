@@ -1,35 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbVEAQOT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261674AbVEAQWy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261684AbVEAQOT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 12:14:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbVEAQKD
+	id S261674AbVEAQWy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 12:22:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbVEAQWx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 12:10:03 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35240 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261695AbVEAQGu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 12:06:50 -0400
-Date: Sun, 1 May 2005 17:07:07 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Blaisorblade <blaisorblade@yahoo.it>
-Cc: user-mode-linux-devel@lists.sourceforge.net, Jeff Dike <jdike@addtoit.com>,
-       linux-kernel@vger.kernel.org, sam@ravnborg.org,
-       Ryan Anderson <ryan@michonline.com>
-Subject: Re: [uml-devel] Re: [UML] Compile error when building with seperate source and object directories
-Message-ID: <20050501160707.GI13052@parcelfarce.linux.theplanet.co.uk>
-References: <1114570958.5983.50.camel@mythical> <20050428202647.GA25451@ccure.user-mode-linux.org> <20050428215328.GC13052@parcelfarce.linux.theplanet.co.uk> <200505011330.58205.blaisorblade@yahoo.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200505011330.58205.blaisorblade@yahoo.it>
-User-Agent: Mutt/1.4.1i
+	Sun, 1 May 2005 12:22:53 -0400
+Received: from mx1.mail.ru ([194.67.23.121]:2370 "EHLO mx1.mail.ru")
+	by vger.kernel.org with ESMTP id S261674AbVEAQV7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 12:21:59 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: init 1 kill khubd on 2.6.11
+Date: Sun, 1 May 2005 20:21:56 +0400
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart4170178.klHvLrPGtH";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200505012021.56649.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 01, 2005 at 01:30:57PM +0200, Blaisorblade wrote:
-> For now I've added an #ifdef to re-include that code for x86, while excluding 
-> it for x86_64. Also, is that up-to-date wrt. 2.6.12-rc3?
+--nextPart4170178.klHvLrPGtH
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Yes, it is.  As for the ptrace.c...  IMO the right thing is per-architecture
-helper here.  Such ifdefs are OK when it's just i386 and amd64.  As soon
-as e.g. uml/s390 gets merged or uml/ia64 and uml/ppc get resurrected...
+Hub driver is using SIGKILL to terminate khubd. Unfortunately on a number o=
+f=20
+distributions switching init levels implicitly does "killall -9", killing=20
+khubd. The only way to restart it is to reload USB subsystem.
+
+Is signal usage in this case really needed? What about replacing it with=20
+simple flag (i.e. will patch be accepted)?
+
+TIA
+
+=2Dandrey
+
+Please Cc me on reply
+
+--nextPart4170178.klHvLrPGtH
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBCdQIkR6LMutpd94wRAozFAJ0RKbjn4R+eNbguTEBMCmh12wk7PACgtvtP
+25yXFZltRS3LAM6d5xF173s=
+=hJxO
+-----END PGP SIGNATURE-----
+
+--nextPart4170178.klHvLrPGtH--

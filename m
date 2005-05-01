@@ -1,77 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262659AbVEAUWh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262667AbVEAUaR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262659AbVEAUWh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 16:22:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262660AbVEAUWh
+	id S262667AbVEAUaR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 16:30:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262665AbVEAUaR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 16:22:37 -0400
-Received: from mail.dif.dk ([193.138.115.101]:26583 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S262659AbVEAUWb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 16:22:31 -0400
-Date: Sun, 1 May 2005 22:26:01 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-Cc: akpm@osdl.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc3-mm2
-In-Reply-To: <20050501201145.GA14429@ime.usp.br>
-Message-ID: <Pine.LNX.4.62.0505012224350.2488@dragon.hyggekrogen.localhost>
-References: <20050501201145.GA14429@ime.usp.br>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Sun, 1 May 2005 16:30:17 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:30088 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262663AbVEAUaF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 16:30:05 -0400
+Subject: Re: 2.6.12-rc3 won't boot from aic7899
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <42721252.2070902@cybsft.com>
+References: <4269C60C.3070700@cybsft.com> <1114716611.5022.6.camel@mulgrave>
+	 <4271413F.70809@cybsft.com> <1114719624.5022.14.camel@mulgrave>
+	 <42721252.2070902@cybsft.com>
+Content-Type: text/plain
+Date: Sun, 01 May 2005 15:29:58 -0500
+Message-Id: <1114979399.4788.31.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 May 2005, Rogério Brito wrote:
+On Fri, 2005-04-29 at 05:54 -0500, K.R. Foley wrote:
+> I tried the patch that you sent. It looks like its blowing up now in 
+> ahc_send_async. At least now we have an oops to look at. I started 
+> trying to trace through this, but ran out of time. I am sending it on to 
+> you in hopes that you'll be able to figure this out much quicker than I can.
 
-> Hi, Andrew. Hi, Ben.
-> I've been trying to compile kernel 2.6.12-rc3-mm2 on my PowerMac 9500 with
-> a G3 upgrade card (it's an OldWorld machine) and I get compilation errors
-> with Debian's gcc-3.4 (3.4.4 20050314 (prerelease) (Debian 3.4.3-12)),
-> available in testing.
-> Here is the error that I get:
-> - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
->   CC      fs/partitions/check.o
->   CC      fs/partitions/mac.o
->   CC      fs/partitions/msdos.o
->   LD      fs/partitions/built-in.o
->   CC      fs/proc/mmu.o
->   CC      fs/proc/task_mmu.o
-> fs/proc/task_mmu.c: In function `smaps_pte_range':
-> fs/proc/task_mmu.c:177: warning: implicit declaration of function `kmap_atomic'
-> fs/proc/task_mmu.c:177: error: `KM_PTE0' undeclared (first use in this function)
-> fs/proc/task_mmu.c:177: error: (Each undeclared identifier is reported only once
-> fs/proc/task_mmu.c:177: error: for each function it appears in.)
-> fs/proc/task_mmu.c:207: warning: implicit declaration of function `kunmap_atomic'
-> make[3]: *** [fs/proc/task_mmu.o] Error 1
-> make[2]: *** [fs/proc] Error 2
-> make[1]: *** [fs] Error 2
-> make[1]: Leaving directory `/home/rbrito/src/linux'
-> make: *** [stamp-build] Error 2
-> - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Well ... there's odd news from this.  I can simulate this pretty well
+just by cutting the upper 8 bits from a wide cable (Which I got right on
+the second attempt; silly me for assuming that the strands in a ribbon
+cable would be numbered 1,2,3 etc. 1,35,2,36 is much more logical ...)
 
-I recently posted this patch in another thread, give it a try : 
+However, when I do this, I get:
 
---- linux-2.6.12-rc3-mm2-orig/fs/proc/task_mmu.c	2005-05-01 04:04:25.000000000 +0200
-+++ linux-2.6.12-rc3-mm2/fs/proc/task_mmu.c	2005-05-01 17:49:14.000000000 +0200
-@@ -2,6 +2,7 @@
- #include <linux/hugetlb.h>
- #include <linux/mount.h>
- #include <linux/seq_file.h>
-+#include <linux/highmem.h>
- 
- #include <asm/elf.h>
- #include <asm/uaccess.h>
-@@ -204,7 +205,7 @@ static void smaps_pte_range(pmd_t *pmd,
- 			}
- 		}
- 	} while (address < end);
--	pte_unmap(pte);
-+	pte_unmap((void *)pte);
- }
- 
- static void smaps_pmd_range(pud_t *pud,
+  Vendor: HP 36.4G  Model: ST336607LW        Rev: HPC3
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+scsi11:A:1:0: Tagged Queuing enabled.  Depth 32
+ target11:0:1: Beginning Domain Validation
+(scsi11:A:1): 6.600MB/s transfers (16bit)
+(scsi11:A:1:0): parity error detected in Data-in phase. SEQADDR(0x84) SCSIRATE(0x80)
+ target11:0:1: Wide Transfers Fail
+(scsi11:A:1): 3.300MB/s transfers
+(scsi11:A:1): 40.000MB/s transfers (40.000MHz, offset 63)
+ target11:0:1: Ending Domain Validation
+
+Which is what I expected, and also shows that it's not as simple as I
+was thinking: the aic7xxx not propagating the errors and trying to fix
+up on its own.
+
+However, it could be the command is getting lost in error recovery.
+Could you enable logging and boot with the parameter 
+
+scsi_logging_level=0xffff
+
+to give me a better trace of what's going on?
+
+Thanks,
+
+James
+
+
+James
 
 

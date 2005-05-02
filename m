@@ -1,64 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbVEBJZs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbVEBJba@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261166AbVEBJZs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 05:25:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbVEBJZs
+	id S261162AbVEBJba (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 05:31:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbVEBJba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 05:25:48 -0400
-Received: from smtp1.pp.htv.fi ([213.243.153.37]:21699 "EHLO smtp1.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S261166AbVEBJZl (ORCPT
+	Mon, 2 May 2005 05:31:30 -0400
+Received: from fire.osdl.org ([65.172.181.4]:44674 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261162AbVEBJb0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 05:25:41 -0400
-Date: Mon, 2 May 2005 12:25:39 +0300
-From: Paul Mundt <lethal@linux-sh.org>
-To: David Gibson <david@gibson.dropbear.id.au>, Andrew Morton <akpm@osdl.org>,
+	Mon, 2 May 2005 05:31:26 -0400
+Date: Mon, 2 May 2005 02:30:47 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: stern@rowland.harvard.edu, linux-usb-devel@lists.sourceforge.net,
        linux-kernel@vger.kernel.org
-Subject: Re: Hugepage consolidation
-Message-ID: <20050502092539.GA1766@linux-sh.org>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
-	David Gibson <david@gibson.dropbear.id.au>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050502043035.GB12670@localhost.localdomain>
+Subject: Re: [linux-usb-devel] init 1 kill khubd on 2.6.11
+Message-Id: <20050502023047.4c965f3e.akpm@osdl.org>
+In-Reply-To: <200505021200.10313.arvidjaar@mail.ru>
+References: <200505012021.56649.arvidjaar@mail.ru>
+	<Pine.LNX.4.44L0.0505011659130.19155-100000@netrider.rowland.org>
+	<20050501153051.2471294e.akpm@osdl.org>
+	<200505021200.10313.arvidjaar@mail.ru>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3V7upXqbjpZ4EhLz"
-Content-Disposition: inline
-In-Reply-To: <20050502043035.GB12670@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrey Borzenkov <arvidjaar@mail.ru> wrote:
+>
+>  > It's pretty simple to convert khubd to use the kthread API.  Something like
+>  > this (untested):
+>  >
+> 
+> 
+>  Something strange is going on with this patch.
+> 
+>  insmod usbcore; insmod uhci-hcd works as expected, finds out all devices, 
+>  triggers hotplug etc. But
+> 
+>  {pts/2}% sudo insmod ./usbcore.ko
+>  {pts/2}% sudo mount -t usbfs -o devmode=0664,devgid=43 none /proc/bus/usb
+>  {pts/2}% sudo modprobe usb-interface
+> 
+>  results in
+> 
+> ...
+>  uhci_hcd 0000:00:1f.2: Unlink after no-IRQ?  Controller is probably using the 
+>  wrong IRQ.
+>  usb 1-1: khubd timed out on ep0out
 
---3V7upXqbjpZ4EhLz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, May 02, 2005 at 02:30:35PM +1000, David Gibson wrote:
-> 	- does SH4 need s special huge_ptep_get_and_clear()??
->=20
-It does if we are trying to do multiple ptes per hugepage, but we can
-actually drop most of that stuff (including ARCH_HAS_SETCLEAR_HUGE_PTE),
-and use ptep_get_and_clear() instead.
-
-We only actual have one pte per hugepage, having multiple ptes for the
-page range at least for sh/sh64 was roughly an experiment in trying to
-get larger ranges working, but this turned out not to be useful, so we
-can pretty much switch to the more generic way of handling this.
-
-I have patches that drop this behaviour already, so I'll bounce these
-along to Andrew if this goes in -mm.
-
---3V7upXqbjpZ4EhLz
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFCdfIT1K+teJFxZ9wRAjz3AJwMQEEr+lHsaS7aJ4zluihpBcxsRwCfXjD2
-CgtNpOCcCCJx0VJlndmZF18=
-=9uEW
------END PGP SIGNATURE-----
-
---3V7upXqbjpZ4EhLz--
+Does this only happen when the convert-khubd-to-kevent patch is applied?

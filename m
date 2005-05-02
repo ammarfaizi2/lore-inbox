@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbVEBVN0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261779AbVEBVQy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261776AbVEBVN0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 17:13:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbVEBVN0
+	id S261779AbVEBVQy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 17:16:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbVEBVQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 17:13:26 -0400
-Received: from guru.webcon.ca ([216.194.67.26]:57504 "EHLO guru.webcon.ca")
-	by vger.kernel.org with ESMTP id S261776AbVEBVNW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 17:13:22 -0400
-Date: Mon, 2 May 2005 17:13:15 -0400 (EDT)
-From: "Ian E. Morgan" <imorgan@webcon.ca>
-X-X-Sender: imorgan@light.int.webcon.net
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: pavel@suse.cz
-Subject: Q: swsusp with S5 instead of S4?
-Message-ID: <Pine.LNX.4.62.0505021701090.14807@light.int.webcon.net>
-Organization: "Webcon, Inc"
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 2 May 2005 17:16:54 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:14566 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261779AbVEBVQw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 17:16:52 -0400
+Date: Mon, 2 May 2005 23:13:35 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: john stultz <johnstul@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, albert@users.sourceforge.net,
+       paulus@samba.org, schwidefsky@de.ibm.com, mahuja@us.ibm.com,
+       donf@us.ibm.com, mpm@selenic.com, benh@kernel.crashing.org
+Subject: Re: [RFC][PATCH (2/4)] new timeofday arch specific hooks (v A4)
+Message-ID: <20050502211334.GA2390@openzaurus.ucw.cz>
+References: <1114814747.28231.2.camel@cog.beaverton.ibm.com> <1114814811.28231.4.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1114814811.28231.4.camel@cog.beaverton.ibm.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm using swsusp on my new HP dv1000 notebook. In general most everything
-works just fine, in terms of general computing anyways, after resume.
+Hi!
 
-However, some of the ancilary functions, such as LCD brightness, RF kill
-switch, and volume mute button do not work after resuming.
+> ppc64 and s390. It applies on top of my linux-2.6.12-rc2_timeofday-
+> core_A4 patch and with this patch applied, you can test the new time of
+> day subsystem. 
+....
+> device_power_down(PMSG_SUSPEND);
+>  
+> +	timeofday_suspend_hook();
+>  	/* serialize with the timer interrupt */
 
-Figuring that some hardware parameters were not being restored, I verified
-that by forcing a cold boot (boot up to GRUB, issue the 'halt' command to
-power off, then power on again and let the kernel resume from swsusp),
-everything works perfectly again just as it should because the BIOS takes
-care of the initialisation then, which it normally skips after a soft-off/S4.
-
-Asside from trying to figure out exactly what hardware parameteres are not
-being saved/restored, I'm happy to let the BIOS initialise those things.
-But, I need a way to perform a normal power-off/S5 after swsusp instead of a
-soft-off/S4 so that I don't have to go though the double-grub-boot process
-every time. Can this be done?
-
-Regards,
-Ian Morgan
+You should not add hooks like this. Just add your own [sys]_device.
+				Pavel
 
 -- 
--------------------------------------------------------------------
-  Ian E. Morgan          Vice President & C.O.O.       Webcon, Inc.
-  imorgan at webcon dot ca       PGP: #2DA40D07       www.webcon.ca
-     *  Customized Linux Network Solutions for your Business  *
--------------------------------------------------------------------
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+

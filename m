@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbVEBJba@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVEBJoR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261162AbVEBJba (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 05:31:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbVEBJba
+	id S261174AbVEBJoR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 05:44:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbVEBJoR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 05:31:30 -0400
-Received: from fire.osdl.org ([65.172.181.4]:44674 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261162AbVEBJb0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 05:31:26 -0400
-Date: Mon, 2 May 2005 02:30:47 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: stern@rowland.harvard.edu, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] init 1 kill khubd on 2.6.11
-Message-Id: <20050502023047.4c965f3e.akpm@osdl.org>
-In-Reply-To: <200505021200.10313.arvidjaar@mail.ru>
-References: <200505012021.56649.arvidjaar@mail.ru>
-	<Pine.LNX.4.44L0.0505011659130.19155-100000@netrider.rowland.org>
-	<20050501153051.2471294e.akpm@osdl.org>
-	<200505021200.10313.arvidjaar@mail.ru>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 2 May 2005 05:44:17 -0400
+Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:39042 "HELO
+	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261174AbVEBJoN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 05:44:13 -0400
+Message-ID: <4275F665.1010101@yahoo.com.au>
+Date: Mon, 02 May 2005 19:44:05 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: dino@in.ibm.com
+CC: Paul Jackson <pj@sgi.com>, Simon Derr <Simon.Derr@bull.net>,
+       lkml <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>,
+       Matthew Dobson <colpatch@us.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC PATCH] Dynamic sched domains (v0.5)
+References: <20050501190947.GA5204@in.ibm.com>
+In-Reply-To: <20050501190947.GA5204@in.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey Borzenkov <arvidjaar@mail.ru> wrote:
->
->  > It's pretty simple to convert khubd to use the kthread API.  Something like
->  > this (untested):
->  >
-> 
-> 
->  Something strange is going on with this patch.
-> 
->  insmod usbcore; insmod uhci-hcd works as expected, finds out all devices, 
->  triggers hotplug etc. But
-> 
->  {pts/2}% sudo insmod ./usbcore.ko
->  {pts/2}% sudo mount -t usbfs -o devmode=0664,devgid=43 none /proc/bus/usb
->  {pts/2}% sudo modprobe usb-interface
-> 
->  results in
-> 
-> ...
->  uhci_hcd 0000:00:1f.2: Unlink after no-IRQ?  Controller is probably using the 
->  wrong IRQ.
->  usb 1-1: khubd timed out on ep0out
+Dinakar Guniguntala wrote:
 
-Does this only happen when the convert-khubd-to-kevent patch is applied?
+> +void rebuild_sched_domains(cpumask_t span1, cpumask_t span2)
+> +{
+> +	cpumask_t change_map;
+> +
+> +	cpus_or(change_map, span1, span2);
+> +
+> +	preempt_disable();
+
+Oh, you can't do this here, attach_domains does a synchronize_kernel.
+So take it out, it doesn't do anything anyway, does it?
+
+I suggest you also use some sort of locking to prevent concurrent rebuilds
+and rebuilds racing with cpu hotplug. You could probably have a static
+semaphore around rebuild_sched_domains, and take lock_cpu_hotplug here too.
+
+Or alternatively take the semaphore in the cpu hotplug notifier as well...
+Maybe both - neither are performance critical code.
+
+-- 
+SUSE Labs, Novell Inc.
+

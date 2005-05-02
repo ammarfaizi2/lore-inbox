@@ -1,105 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261609AbVEBRF6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261356AbVEBRLK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261609AbVEBRF6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 13:05:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbVEBRDp
+	id S261356AbVEBRLK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 13:11:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbVEBRK6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 13:03:45 -0400
-Received: from ns2.suse.de ([195.135.220.15]:49071 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261538AbVEBRCe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 13:02:34 -0400
-Date: Mon, 2 May 2005 19:02:28 +0200
-From: Andi Kleen <ak@suse.de>
-To: YhLu <YhLu@tyan.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: x86-64 dual core mapping
-Message-ID: <20050502170228.GK7342@wotan.suse.de>
-References: <3174569B9743D511922F00A0C943142309B075AF@TYANWEB>
+	Mon, 2 May 2005 13:10:58 -0400
+Received: from imf24aec.mail.bellsouth.net ([205.152.59.72]:42191 "EHLO
+	imf24aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S261718AbVEBRGt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 13:06:49 -0400
+Date: Mon, 2 May 2005 12:06:36 -0500
+From: Tommy Reynolds <Tommy.Reynolds@MegaCoder.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] remove BK documentation
+Message-Id: <20050502120636.7ae393d9.Tommy.Reynolds@MegaCoder.com>
+In-Reply-To: <42765546.5020600@tmr.com>
+References: <20050501233441.GC3592@stusta.de>
+	<20050501233441.GC3592@stusta.de>
+	<20050501234331.GA9244@havoc.gtf.org>
+	<42765546.5020600@tmr.com>
+X-Mailer: Sylpheed version 1.9.9+svn (GTK+ 2.6.4; i686-redhat-linux-gnu)
+X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$
+ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl
+ 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3174569B9743D511922F00A0C943142309B075AF@TYANWEB>
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Mon__2_May_2005_12_06_36_-0500_rINAWAyCL0d+WXjf"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 21, 2005 at 07:38:07PM -0700, YhLu wrote:
-> Andi,
-> 
-> I tried 2.6.12-rc3 with dual way dual cpus.
-> 
-> It seems right mapping should be
-> CPU 0(2) -> Node 0 -> Core 0
-> CPU 1(2) -> Node 0 -> Core 1
-> CPU 2(2) -> Node 1 -> Core 0
-> CPU 3(2) -> Node 1 -> Core 1
-> 
-> instead of
-> 
-> CPU 0(2) -> Node 0 -> Core 0
-> CPU 1(2) -> Node 0 -> Core 0
-> CPU 2(2) -> Node 1 -> Core 1
-> CPU 3(2) -> Node 1 -> Core 1
+--Signature=_Mon__2_May_2005_12_06_36_-0500_rINAWAyCL0d+WXjf
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hmm, yes, something seems wrong. The last time I tested 
-it worked this way, but maybe the latest merge has broken 
-it again. I will check it later.
+Uttered Bill Davidsen <davidsen@tmr.com>, spake thus:
 
-Are you sure you dont have a broken SRAT table? The SRAT
-table will overwrite the mappings, so if it is wrong
-the one Linux reports will be too.
+> Documentation authors really should mention themselves in the=20
+> introduction, docs aren't sexy and don't get your name in the news, but=20
+> they are a vital part of making Linux usable.
 
--Andi
-> 
-> YH
-> 
-> 
-> 
-> 
-> CPU 0(2) -> Node 0 -> Core 0
-> Using local APIC NMI watchdog using perfctr0
-> enabled ExtINT on CPU#0
-> ENABLING IO-APIC IRQs
-> Using IO-APIC 4
-> ...changing IO-APIC physical APIC ID to 4 ... ok.
-> Using IO-APIC 5
-> ...changing IO-APIC physical APIC ID to 5 ... ok.
-> Using IO-APIC 6
-> ...changing IO-APIC physical APIC ID to 6 ... ok.
-> Using IO-APIC 7
-> ...changing IO-APIC physical APIC ID to 7 ... ok.
-> Synchronizing Arb IDs.
-> ..TIMER: vector=0x31 pin1=0 pin2=2
-> testing the IO APIC.......................
-> 
-> 
-> 
-> 
-> .................................... done.
-> Using local APIC timer interrupts.
-> Detected 12.564 MHz APIC timer.
-> Booting processor 1/1 rip 6000 rsp ffff81007ff99f58
-> Initializing CPU#1
-> masked ExtINT on CPU#1
-> CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-> CPU: L2 Cache: 1024K (64 bytes/line)
-> CPU 1(2) -> Node 0 -> Core 0
->  stepping 00
-> Synced TSC of CPU 1 difference 30064769976
-> Booting processor 2/2 rip 6000 rsp ffff81013ffa3f58
-> Initializing CPU#2
-> masked ExtINT on CPU#2
-> CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-> CPU: L2 Cache: 1024K (64 bytes/line)
-> CPU 2(2) -> Node 1 -> Core 1
->  stepping 00
-> Synced TSC of CPU 2 difference 30064770021
-> Booting processor 3/3 rip 6000 rsp ffff81007ff49f58
-> Initializing CPU#3
-> masked ExtINT on CPU#3
-> CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-> CPU: L2 Cache: 1024K (64 bytes/line)
-> CPU 3(2) -> Node 1 -> Core 1
->  stepping 00
-> Synced TSC of CPU 3 difference 30064770021
-> Brought up 4 CPUs
+If you'd like to volunteer for the Fedora Documentation Project over at=20
+
+	http://fedora.redhat.com/docs
+
+we may be able to overcome the rest the shortcomings you mentioned ;-)
+
+--Signature=_Mon__2_May_2005_12_06_36_-0500_rINAWAyCL0d+WXjf
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFCdl4h/0ydqkQDlQERAoJjAKC2/4pagnUsZ2FROZSBtwrCp4q6uACgtFdK
+y+rnAQAGOtlnnCNrFfLcq1Q=
+=rx0+
+-----END PGP SIGNATURE-----
+
+--Signature=_Mon__2_May_2005_12_06_36_-0500_rINAWAyCL0d+WXjf--

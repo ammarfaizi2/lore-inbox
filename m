@@ -1,71 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261344AbVEBPx3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVEBP4a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261344AbVEBPx3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 11:53:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbVEBPx3
+	id S261347AbVEBP4a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 11:56:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbVEBP4M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 11:53:29 -0400
-Received: from fire.osdl.org ([65.172.181.4]:42458 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261346AbVEBPxL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 11:53:11 -0400
-Date: Mon, 2 May 2005 08:49:30 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Valdis.Kletnieks@vt.edu
-Cc: bunk@stusta.de, tomlins@cam.org, zwane@arm.linux.org.uk, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc3-mm1
-Message-Id: <20050502084930.6914e152.rddunlap@osdl.org>
-In-Reply-To: <200505021528.j42FS5QJ006515@turing-police.cc.vt.edu>
-References: <20050429231653.32d2f091.akpm@osdl.org>
-	<Pine.LNX.4.61.0504301700470.3559@montezuma.fsmlabs.com>
-	<20050430161032.0f5ac973.rddunlap@osdl.org>
-	<200505010909.38277.tomlins@cam.org>
-	<20050501133040.GB3592@stusta.de>
-	<200505021528.j42FS5QJ006515@turing-police.cc.vt.edu>
-Organization: OSDL
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: SvC&!/v_Hr`MvpQ*|}uez16KH[#EmO2Tn~(r-y+&Jb}?Zhn}c:Eee&zq`cMb_[5`tT(22ms
- (.P84,bq_GBdk@Kgplnrbj;Y`9IF`Q4;Iys|#3\?*[:ixU(UR.7qJT665DxUP%K}kC0j5,UI+"y-Sw
- mn?l6JGvyI^f~2sSJ8vd7s[/CDY]apD`a;s1Wf)K[,.|-yOLmBl0<axLBACB5o^ZAs#&m?e""k/2vP
- E#eG?=1oJ6}suhI%5o#svQ(LvGa=r
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 2 May 2005 11:56:12 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:15754 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261347AbVEBPzc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 11:55:32 -0400
+Message-ID: <42764C0C.8030604@tmr.com>
+Date: Mon, 02 May 2005 11:49:32 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Matt Mackall <mpm@selenic.com>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
+Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
+References: <20050429203959.GC21897@waste.org><20050429203959.GC21897@waste.org> <20050430025211.GP17379@opteron.random>
+In-Reply-To: <20050430025211.GP17379@opteron.random>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 02 May 2005 11:28:05 -0400 Valdis.Kletnieks@vt.edu wrote:
+Andrea Arcangeli wrote:
+> On Fri, Apr 29, 2005 at 01:39:59PM -0700, Matt Mackall wrote:
+> 
+>>Mercurial is ammenable to rsync provided you devote a read-only
+>>repository to it on the client side. In other words, you rsync from
+>>kernel.org/mercurial/linus to local/linus and then you merge from
+>>local/linus to your own branch. Mercurial's hashing hierarchy is
+>>similar to git's (and Monotone's), so you can sign a single hash of
+>>the tree as well.
+> 
+> 
+> Ok fine. It's also interesting how you already enabled partial transfers
+> through http.
+> 
+> Please apply this patch so it doesn't fail on my setup ;)
+> 
+> --- mercurial-0.4b/hg.~1~	2005-04-29 02:52:52.000000000 +0200
+> +++ mercurial-0.4b/hg	2005-04-30 00:53:02.000000000 +0200
+> @@ -1,4 +1,4 @@
+> -#!/usr/bin/python
+> +#!/usr/bin/env python
+>  #
+>  # mercurial - a minimal scalable distributed SCM
+>  # v0.4b "oedipa maas"
 
-| On Sun, 01 May 2005 15:30:40 +0200, Adrian Bunk said:
-| 
-| > How much bandwith does this require?
-| > 
-| > Currently, 2.6.12-rc3-mm1 requires 3.7 MB for the -rc3 patch (which can 
-| > be used for several -mm patches) plus 2.6 MB for the -mm patch.
-| > 
-| > The 47 MB download for 2.6.11 are required only once for the many -mm 
-| > kernels between 2.6.11 and 2.6.12.
-| > 
-| > Looking at these numbers, the average download required for every -mm 
-| > kernel is currently far below 10 MB.
-| 
-| And even *more* importantly, note that when downloading a -mm or -rc3 patch,
-| there's minimal server overhead - it opens *one* file and streams it to the
-| FTP connection.  sendfile() anybody? ;)
-| 
-| How many open/close/etc are needed to sync up 2 'git' mirrors?  I don't care *how*
-| stupendous git/mercurial/whatever are, they're going to have a *really* hard time
-| getting down to the overhead of an FTP session sending a .bz2 file.
-| 
-| Unless of course, there's only me and a dozen other people even *trying* -mm
-| kernels and the distinction is lost in the noise... (Out of curiosity, how
-| many downloads *DO* the -mm kernels get?  I know Linus and Andrew want more
-| testing.. let's keep that in mind here.. ;)
+Could you explain why this is necessary or desirable? I looked at what 
+env does, and I am missing the point of duplicating bash normal 
+behaviour regarding definition of per-process environment entries.
 
-Last I heard, Andrew had access to kernel.org transfer logs,
-but the problem is that we can't tell anything about the download
-counts from mirrors.
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me
 
----
-~Randy

@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbVEBXr6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbVEBXur@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbVEBXr6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 19:47:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbVEBXr6
+	id S261235AbVEBXur (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 19:50:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbVEBXur
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 19:47:58 -0400
-Received: from fire.osdl.org ([65.172.181.4]:40599 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261234AbVEBXr5 (ORCPT
+	Mon, 2 May 2005 19:50:47 -0400
+Received: from fire.osdl.org ([65.172.181.4]:9880 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261235AbVEBXun (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 19:47:57 -0400
-Date: Mon, 2 May 2005 16:45:01 -0700
+	Mon, 2 May 2005 19:50:43 -0400
+Date: Mon, 2 May 2005 16:51:03 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Mauricio Lin <mauriciolin@gmail.com>
-Cc: bunk@stusta.de, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc3-mm2: fs/proc/task_mmu.c warnings
-Message-Id: <20050502164501.50187481.akpm@osdl.org>
-In-Reply-To: <3f250c7105050216357ae31105@mail.gmail.com>
-References: <20050430164303.6538f47c.akpm@osdl.org>
-	<20050501222916.GB3592@stusta.de>
-	<3f250c7105050215306de620ac@mail.gmail.com>
-	<3f250c7105050216357ae31105@mail.gmail.com>
+To: blaisorblade@yahoo.it
+Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it,
+       ak@suse.de
+Subject: Re: [patch 1/1] Uml: kludgy compilation fixes for x86-64 subarch
+ modules support [for -mm]
+Message-Id: <20050502165103.6d76f394.akpm@osdl.org>
+In-Reply-To: <20050501184515.F1AA48D835@zion>
+References: <20050501184515.F1AA48D835@zion>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -27,14 +27,14 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mauricio Lin <mauriciolin@gmail.com> wrote:
+blaisorblade@yahoo.it wrote:
 >
-> I managed to replicate the warning. This happens with the vanilla
-> kernel 2.6.11.8. Before this version this warning does not exist. The
-> last patch I posted was based on 2.6.11.7. I am going to post the new
-> patch asap.
+> These are some trivial fixes for the x86-64 subarch module support. The only
+> potential problem is that I have to modify arch/x86_64/kernel/module.c, to
+> avoid copying the whole of it.
+> 
+> I can't use it verbatim because it depends on a special vmalloc-like area for
+> modules, which for now (maybe that's to fix, I guess not) UML/x86-64 has not.
+> I went the easy way and reused the i386 vmalloc()-based allocator.
 
-Please don't generate patches for the mainline kernel against the -stable
-tree.  2.6.11.7 is ancient - we've added 22MB of diff since then.
-
-I think I've fixed all the /proc/pid/smaps problems anwyay.
+Why is this "for -mm" and not for -linus?

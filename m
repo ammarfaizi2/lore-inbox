@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261717AbVEBBwE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbVEBBuG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261717AbVEBBwE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 21:52:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbVEBBvB
+	id S261704AbVEBBuG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 21:50:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbVEBBuG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 21:51:01 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:45072 "HELO
+	Sun, 1 May 2005 21:50:06 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:45840 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261703AbVEBBrc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 21:47:32 -0400
-Date: Mon, 2 May 2005 03:47:26 +0200
+	id S261704AbVEBBrd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 21:47:33 -0400
+Date: Mon, 2 May 2005 03:47:28 +0200
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/net/arcnet/: possible cleanups
-Message-ID: <20050502014726.GH3592@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] change the SOUND_PRIME handling
+Message-ID: <20050502014728.GI3592@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,11 +22,18 @@ User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- make needlessly global code static
-- arcnet.c: remove the outdated VERSION
-- arcnet.c: remove the unneeded EXPORT_SYMBOL(arc_proto_null)
-- arcnet.c: remove the unneeded EXPORT_SYMBOL(arcnet_dump_packet)
+SOUND_PRIME (for OSS) is a tristate.
+
+This doesn't make much sense if most users are checking for 
+SOUND_PRIME!=0.
+
+This patch changes the semantics of SOUND_PRIME to being a limit for all 
+OSS modules, IOW: SOUND_PRIME=m does now say that all OSS drivers can 
+only be modular.
+
+As a side effect, since SOUND_PRIME already depends on SOUND, there's no 
+longer a reason for drivers depending on SOUND_PRIME to additionally 
+depend on SOUND.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
@@ -35,152 +41,265 @@ Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 This patch was already sent on:
 - 15 Apr 2005
-- 24 Mar 2005
+- 19 Mar 2005
 
- drivers/net/arcnet/arc-rawmode.c |    2 +-
- drivers/net/arcnet/arcnet.c      |   19 ++++++++++---------
- drivers/net/arcnet/rfc1051.c     |    2 +-
- drivers/net/arcnet/rfc1201.c     |    3 +--
- include/linux/arcdevice.h        |    9 ---------
- 5 files changed, 13 insertions(+), 22 deletions(-)
+ sound/oss/Kconfig |   62 +++++++++++++++++++++++-----------------------
+ 1 files changed, 31 insertions(+), 31 deletions(-)
 
---- linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/arc-rawmode.c.old	2005-02-16 15:16:38.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/arc-rawmode.c	2005-02-16 15:16:51.000000000 +0100
-@@ -42,7 +42,7 @@
- static int prepare_tx(struct net_device *dev, struct archdr *pkt, int length,
- 		      int bufnum);
+--- linux-2.6.11-mm4-full/sound/oss/Kconfig.old	2005-03-19 13:49:39.000000000 +0100
++++ linux-2.6.11-mm4-full/sound/oss/Kconfig	2005-03-19 13:53:59.000000000 +0100
+@@ -6,7 +6,7 @@
+ # Prompt user for primary drivers.
+ config SOUND_BT878
+ 	tristate "BT878 audio dma"
+-	depends on SOUND_PRIME!=n && SOUND
++	depends on SOUND_PRIME
+ 	---help---
+ 	  Audio DMA support for bt878 based grabber boards.  As you might have
+ 	  already noticed, bt878 is listed with two functions in /proc/pci.
+@@ -22,7 +22,7 @@
  
--struct ArcProto rawmode_proto =
-+static struct ArcProto rawmode_proto =
- {
- 	.suffix		= 'r',
- 	.mtu		= XMTU,
---- linux-2.6.11-rc3-mm2-full/include/linux/arcdevice.h.old	2005-02-16 15:17:26.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-full/include/linux/arcdevice.h	2005-02-16 15:20:57.000000000 +0100
-@@ -206,7 +206,6 @@
+ config SOUND_CMPCI
+ 	tristate "C-Media PCI (CMI8338/8738)"
+-	depends on SOUND_PRIME!=n && SOUND && PCI
++	depends on SOUND_PRIME && PCI
+ 	help
+ 	  Say Y or M if you have a PCI sound card using the CMI8338
+ 	  or the CMI8738 chipset.  Data on these chips are available at
+@@ -61,7 +61,7 @@
  
- extern struct ArcProto *arc_proto_map[256], *arc_proto_default,
- 	*arc_bcast_proto, *arc_raw_proto;
--extern struct ArcProto arc_proto_null;
+ config SOUND_EMU10K1
+ 	tristate "Creative SBLive! (EMU10K1)"
+-	depends on SOUND_PRIME!=n && SOUND && PCI
++	depends on SOUND_PRIME && PCI
+ 	---help---
+ 	  Say Y or M if you have a PCI sound card using the EMU10K1 chipset,
+ 	  such as the Creative SBLive!, SB PCI512 or Emu-APS.
+@@ -87,7 +87,7 @@
  
+ config SOUND_FUSION
+ 	tristate "Crystal SoundFusion (CS4280/461x)"
+-	depends on SOUND_PRIME!=n && SOUND
++	depends on SOUND_PRIME
+ 	help
+ 	  This module drives the Crystal SoundFusion devices (CS4280/46xx
+ 	  series) when wired as native sound drivers with AC97 codecs.  If
+@@ -95,14 +95,14 @@
  
- /*
-@@ -334,17 +333,9 @@
- #define arcnet_dump_skb(dev,skb,desc) ;
- #endif
+ config SOUND_CS4281
+ 	tristate "Crystal Sound CS4281"
+-	depends on SOUND_PRIME!=n && SOUND
++	depends on SOUND_PRIME
+ 	help
+ 	  Picture and feature list at
+ 	  <http://www.pcbroker.com/crystal4281.html>.
  
--#if (ARCNET_DEBUG_MAX & D_RX) || (ARCNET_DEBUG_MAX & D_TX)
--void arcnet_dump_packet(struct net_device *dev, int bufnum, char *desc,
--			int take_arcnet_lock);
--#else
--#define arcnet_dump_packet(dev, bufnum, desc,take_arcnet_lock) ;
--#endif
--
- void arcnet_unregister_proto(struct ArcProto *proto);
- irqreturn_t arcnet_interrupt(int irq, void *dev_id, struct pt_regs *regs);
- struct net_device *alloc_arcdev(char *name);
--void arcnet_rx(struct net_device *dev, int bufnum);
+ config SOUND_BCM_CS4297A
+ 	tristate "Crystal Sound CS4297a (for Swarm)"
+-	depends on SOUND_PRIME!=n && SIBYTE_SWARM && SOUND
++	depends on SOUND_PRIME && SIBYTE_SWARM
+ 	help
+ 	  The BCM91250A has a Crystal CS4297a on synchronous serial
+ 	  port B (in addition to the DB-9 serial port).  Say Y or M
+@@ -112,7 +112,7 @@
  
- #endif				/* __KERNEL__ */
- #endif				/* _LINUX_ARCDEVICE_H */
---- linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/arcnet.c.old	2005-02-16 15:17:47.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/arcnet.c	2005-02-16 15:21:20.000000000 +0100
-@@ -41,8 +41,6 @@
-  *     <jojo@repas.de>
-  */
+ config SOUND_ES1370
+ 	tristate "Ensoniq AudioPCI (ES1370)"
+-	depends on SOUND_PRIME!=n && SOUND && PCI
++	depends on SOUND_PRIME && PCI
+ 	help
+ 	  Say Y or M if you have a PCI sound card utilizing the Ensoniq
+ 	  ES1370 chipset, such as Ensoniq's AudioPCI (non-97). To find
+@@ -125,7 +125,7 @@
  
--#define VERSION "arcnet: v3.93 BETA 2000/04/29 - by Avery Pennarun et al.\n"
--
- #include <linux/module.h>
- #include <linux/config.h>
- #include <linux/types.h>
-@@ -61,6 +59,7 @@
- static int null_prepare_tx(struct net_device *dev, struct archdr *pkt,
- 			   int length, int bufnum);
+ config SOUND_ES1371
+ 	tristate "Creative Ensoniq AudioPCI 97 (ES1371)"
+-	depends on SOUND_PRIME!=n && SOUND && PCI
++	depends on SOUND_PRIME && PCI
+ 	help
+ 	  Say Y or M if you have a PCI sound card utilizing the Ensoniq
+ 	  ES1371 chipset, such as Ensoniq's AudioPCI97. To find out if
+@@ -138,7 +138,7 @@
  
-+static void arcnet_rx(struct net_device *dev, int bufnum);
+ config SOUND_ESSSOLO1
+ 	tristate "ESS Technology Solo1" 
+-	depends on SOUND_PRIME!=n && SOUND && PCI
++	depends on SOUND_PRIME && PCI
+ 	help
+ 	  Say Y or M if you have a PCI sound card utilizing the ESS Technology
+ 	  Solo1 chip. To find out if your sound card uses a
+@@ -149,7 +149,7 @@
  
- /*
-  * one ArcProto per possible proto ID.  None of the elements of
-@@ -71,7 +70,7 @@
-  struct ArcProto *arc_proto_map[256], *arc_proto_default,
-    *arc_bcast_proto, *arc_raw_proto;
+ config SOUND_MAESTRO
+ 	tristate "ESS Maestro, Maestro2, Maestro2E driver"
+-	depends on SOUND_PRIME!=n && SOUND && PCI
++	depends on SOUND_PRIME && PCI
+ 	help
+ 	  Say Y or M if you have a sound system driven by ESS's Maestro line
+ 	  of PCI sound chips.  These include the Maestro 1, Maestro 2, and
+@@ -158,28 +158,28 @@
  
--struct ArcProto arc_proto_null =
-+static struct ArcProto arc_proto_null =
- {
- 	.suffix		= '?',
- 	.mtu		= XMTU,
-@@ -90,7 +89,6 @@
- EXPORT_SYMBOL(arc_proto_default);
- EXPORT_SYMBOL(arc_bcast_proto);
- EXPORT_SYMBOL(arc_raw_proto);
--EXPORT_SYMBOL(arc_proto_null);
- EXPORT_SYMBOL(arcnet_unregister_proto);
- EXPORT_SYMBOL(arcnet_debug);
- EXPORT_SYMBOL(alloc_arcdev);
-@@ -118,8 +116,8 @@
+ config SOUND_MAESTRO3
+ 	tristate "ESS Maestro3/Allegro driver (EXPERIMENTAL)"
+-	depends on SOUND_PRIME!=n && SOUND && PCI && EXPERIMENTAL
++	depends on SOUND_PRIME && PCI && EXPERIMENTAL
+ 	help
+ 	  Say Y or M if you have a sound system driven by ESS's Maestro 3
+ 	  PCI sound chip.
  
- 	arcnet_debug = debug;
+ config SOUND_ICH
+ 	tristate "Intel ICH (i8xx) audio support"
+-	depends on SOUND_PRIME!=n && PCI
++	depends on SOUND_PRIME && PCI
+ 	help
+ 	  Support for integral audio in Intel's I/O Controller Hub (ICH)
+ 	  chipset, as used on the 810/820/840 motherboards.
  
--	printk(VERSION);
-+	printk("arcnet loaded.\n");
-
- #ifdef ALPHA_WARNING
- 	BUGLVL(D_EXTRA) {
- 		printk("arcnet: ***\n"
-@@ -178,8 +174,8 @@
-  * Dump the contents of an ARCnet buffer
-  */
- #if (ARCNET_DEBUG_MAX & (D_RX | D_TX))
--void arcnet_dump_packet(struct net_device *dev, int bufnum, char *desc,
--			int take_arcnet_lock)
-+static void arcnet_dump_packet(struct net_device *dev, int bufnum,
-+			       char *desc, int take_arcnet_lock)
- {
- 	struct arcnet_local *lp = dev->priv;
- 	int i, length;
-@@ -208,7 +204,10 @@
+ config SOUND_HARMONY
+ 	tristate "PA Harmony audio driver"
+-	depends on GSC_LASI && SOUND_PRIME!=n
++	depends on GSC_LASI && SOUND_PRIME
+ 	help
+ 	  Say 'Y' or 'M' to include support for Harmony soundchip
+ 	  on HP 712, 715/new and many other GSC based machines.
  
- }
+ config SOUND_SONICVIBES
+ 	tristate "S3 SonicVibes"
+-	depends on SOUND_PRIME!=n && SOUND
++	depends on SOUND_PRIME
+ 	help
+ 	  Say Y or M if you have a PCI sound card utilizing the S3
+ 	  SonicVibes chipset. To find out if your sound card uses a
+@@ -190,7 +190,7 @@
  
--EXPORT_SYMBOL(arcnet_dump_packet);
-+#else
-+
-+#define arcnet_dump_packet(dev, bufnum, desc,take_arcnet_lock) do { } while (0)
-+
- #endif
+ config SOUND_VWSND
+ 	tristate "SGI Visual Workstation Sound"
+-	depends on SOUND_PRIME!=n && X86_VISWS && SOUND
++	depends on SOUND_PRIME && X86_VISWS
+ 	help
+ 	  Say Y or M if you have an SGI Visual Workstation and you want to be
+ 	  able to use its on-board audio.  Read
+@@ -199,18 +199,18 @@
  
+ config SOUND_HAL2
+ 	tristate "SGI HAL2 sound (EXPERIMENTAL)"
+-	depends on SOUND_PRIME!=n && SOUND && SGI_IP22 && EXPERIMENTAL
++	depends on SOUND_PRIME && SGI_IP22 && EXPERIMENTAL
+ 	help
+ 	  Say Y or M if you have an SGI Indy system and want to be able to
+ 	  use it's on-board A2 audio system.
  
-@@ -987,7 +986,7 @@
-  * This is a generic packet receiver that calls arcnet??_rx depending on the
-  * protocol ID found.
-  */
--void arcnet_rx(struct net_device *dev, int bufnum)
-+static void arcnet_rx(struct net_device *dev, int bufnum)
- {
- 	struct arcnet_local *lp = dev->priv;
- 	struct archdr pkt;
---- linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/rfc1051.c.old	2005-02-16 15:22:16.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/rfc1051.c	2005-02-16 15:22:23.000000000 +0100
-@@ -43,7 +43,7 @@
- 		      int bufnum);
+ config SOUND_IT8172
+ 	tristate "IT8172G Sound"
+-	depends on SOUND_PRIME!=n && (MIPS_ITE8172 || MIPS_IVR) && SOUND
++	depends on SOUND_PRIME && (MIPS_ITE8172 || MIPS_IVR)
  
+ config SOUND_VRC5477
+ 	tristate "NEC Vrc5477 AC97 sound"
+-	depends on SOUND_PRIME!=n && DDB5477 && SOUND
++	depends on SOUND_PRIME && DDB5477
+ 	help
+ 	  Say Y here to enable sound support for the NEC Vrc5477 chip, an
+ 	  integrated, multi-function controller chip for MIPS CPUs.  Works
+@@ -218,15 +218,15 @@
  
--struct ArcProto rfc1051_proto =
-+static struct ArcProto rfc1051_proto =
- {
- 	.suffix		= 's',
- 	.mtu		= XMTU - RFC1051_HDR_SIZE,
---- linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/rfc1201.c.old	2005-02-16 15:22:35.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/rfc1201.c	2005-02-16 15:22:46.000000000 +0100
-@@ -43,7 +43,7 @@
- 		      int bufnum);
- static int continue_tx(struct net_device *dev, int bufnum);
+ config SOUND_AU1000
+ 	tristate "Au1000 Sound"
+-	depends on SOUND_PRIME!=n && (SOC_AU1000 || SOC_AU1100 || SOC_AU1500) && SOUND
++	depends on SOUND_PRIME && (SOC_AU1000 || SOC_AU1100 || SOC_AU1500)
  
--struct ArcProto rfc1201_proto =
-+static struct ArcProto rfc1201_proto =
- {
- 	.suffix		= 'a',
- 	.mtu		= 1500,	/* could be more, but some receivers can't handle it... */
+ config SOUND_AU1550_AC97
+ 	tristate "Au1550 AC97 Sound"
+-	depends on SOUND_PRIME!=n && SOC_AU1550 && SOUND
++	depends on SOUND_PRIME && SOC_AU1550
+ 
+ config SOUND_TRIDENT
+ 	tristate "Trident 4DWave DX/NX, SiS 7018 or ALi 5451 PCI Audio Core"
+-	depends on SOUND_PRIME!=n && SOUND
++	depends on SOUND_PRIME
+ 	---help---
+ 	  Say Y or M if you have a PCI sound card utilizing the Trident
+ 	  4DWave-DX/NX chipset or your mother board chipset has SiS 7018
+@@ -267,7 +267,7 @@
+ 
+ config SOUND_MSNDCLAS
+ 	tristate "Support for Turtle Beach MultiSound Classic, Tahiti, Monterey"
+-	depends on SOUND_PRIME!=n && SOUND && (m || !STANDALONE)
++	depends on SOUND_PRIME && (m || !STANDALONE)
+ 	help
+ 	  Say M here if you have a Turtle Beach MultiSound Classic, Tahiti or
+ 	  Monterey (not for the Pinnacle or Fiji).
+@@ -331,7 +331,7 @@
+ 
+ config SOUND_MSNDPIN
+ 	tristate "Support for Turtle Beach MultiSound Pinnacle, Fiji"
+-	depends on SOUND_PRIME!=n && SOUND && (m || !STANDALONE)
++	depends on SOUND_PRIME && (m || !STANDALONE)
+ 	help
+ 	  Say M here if you have a Turtle Beach MultiSound Pinnacle or Fiji.
+ 	  See <file:Documentation/sound/oss/MultiSound> for important information
+@@ -492,7 +492,7 @@
+ 
+ config SOUND_VIA82CXXX
+ 	tristate "VIA 82C686 Audio Codec"
+-	depends on SOUND_PRIME!=n && PCI
++	depends on SOUND_PRIME && PCI
+ 	help
+ 	  Say Y here to include support for the audio codec found on VIA
+ 	  82Cxxx-based chips. Typically these are built into a motherboard.
+@@ -512,7 +512,7 @@
+ 
+ config SOUND_OSS
+ 	tristate "OSS sound modules"
+-	depends on SOUND_PRIME!=n && SOUND
++	depends on SOUND_PRIME
+ 	help
+ 	  OSS is the Open Sound System suite of sound card drivers.  They make
+ 	  sound programming easier since they provide a common API.  Say Y or
+@@ -1077,7 +1077,7 @@
+ 
+ config SOUND_TVMIXER
+ 	tristate "TV card (bt848) mixer support"
+-	depends on SOUND_PRIME!=n && SOUND && I2C
++	depends on SOUND_PRIME && I2C
+ 	help
+ 	  Support for audio mixer facilities on the BT848 TV frame-grabber
+ 	  card.
+@@ -1088,11 +1088,11 @@
+ 
+ config SOUND_ALI5455
+ 	tristate "ALi5455 audio support"
+-	depends on SOUND_PRIME!=n && PCI
++	depends on SOUND_PRIME && PCI
+ 
+ config SOUND_FORTE
+ 	tristate "ForteMedia FM801 driver"
+-	depends on SOUND_PRIME!=n && PCI
++	depends on SOUND_PRIME && PCI
+ 	help
+ 	  Say Y or M if you want driver support for the ForteMedia FM801 PCI
+ 	  audio controller (Abit AU10, Genius Sound Maker, HP Workstation
+@@ -1100,7 +1100,7 @@
+ 
+ config SOUND_RME96XX
+ 	tristate "RME Hammerfall (RME96XX) support"
+-	depends on SOUND_PRIME!=n && PCI
++	depends on SOUND_PRIME && PCI
+ 	help
+ 	  Say Y or M if you have a Hammerfall or Hammerfall light
+ 	  multichannel card from RME. If you want to access advanced
+@@ -1108,11 +1108,11 @@
+ 
+ config SOUND_AD1980
+ 	tristate "AD1980 front/back switch plugin"
+-	depends on SOUND_PRIME!=n
++	depends on SOUND_PRIME
+ 
+ config SOUND_SH_DAC_AUDIO
+ 	tristate "SuperH DAC audio support"
+-	depends on SOUND_PRIME!=n && SOUND && CPU_SH3
++	depends on SOUND_PRIME && CPU_SH3
+ 
+ config SOUND_SH_DAC_AUDIO_CHANNEL
+ 	int "    DAC channel"
 

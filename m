@@ -1,80 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbVEBM4v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbVEBNYF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261212AbVEBM4v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 08:56:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbVEBM4v
+	id S261232AbVEBNYF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 09:24:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbVEBNYF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 08:56:51 -0400
-Received: from [147.145.40.20] ([147.145.40.20]:1187 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S261212AbVEBM4p (ORCPT
+	Mon, 2 May 2005 09:24:05 -0400
+Received: from alpha.polcom.net ([217.79.151.115]:53647 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S261232AbVEBNYA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 08:56:45 -0400
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E5703662836@exa-atlanta>
-From: "Ju, Seokmann" <sju@lsil.com>
-To: "'kallol@nucleodyne.com'" <kallol@nucleodyne.com>,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: "Ju, Seokmann" <sju@lsil.com>
-Subject: RE: LSI Logic's Ultra320 320-4X RAID adapter
-Date: Mon, 2 May 2005 08:56:10 -0400 
+	Mon, 2 May 2005 09:24:00 -0400
+Date: Mon, 2 May 2005 15:23:57 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: linux-kernel@vger.kernel.org
+Subject: How to flush data to disk reliably?
+Message-ID: <Pine.LNX.4.62.0505021503470.11701@alpha.polcom.net>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday, April 30, 2005 9:02 PM, Kallol wrote:
-> The memory space PCI register access can not be used.
-I'm not sure what this means. Can you please add more details on it?
+Hi,
 
-> Question #1: Does 320-4X support IO Space device register access?
-No, the controller does not support IO mapped I/O.
+I am writing an app that has log files. These log files must be reliably 
+and permanently flushed to disk on some points. These log files can be:
+a. normal files on some (local) filesytem,
+b. some block device (disk/partition).
 
-> Question #2: Do we have a linux driver for it that supports 
-> IO ports also?
-Yes, to support LSI MegaRAID controllers (typically old controllers), driver
-on the 2.4 kernel supports I/O mapped I/O.
+I am asking how to flush the data from these logs to disk. I know of 
+several methods:
+1. open with O_SYNC,
+2. sync(2),
+3. fsync,
+4. fdatasync,
+5. msync (if they are mmaped).
 
-Thank you.
+Which of these are best and most reliable for (a/b) and for (IDE/SCSI)? 
+What are differences between them? Maybe some other method? Are there any 
+other precautions that I should be aware of? What about write caches? Are 
+write barriers implemented (on IDE and SATA/SCSI) or should I turn caches 
+off?
 
-Seokmann
-LSI Logic Corporation.
+I am using Linux 2.6. (But I will be glad to hear about differences 
+between 2.4 and 2.6 in this aspect if there are any.)
 
-> -----Original Message-----
-> From: kallol@nucleodyne.com [mailto:kallol@nucleodyne.com] 
-> Sent: Saturday, April 30, 2005 9:02 PM
-> To: linux-scsi@vger.kernel.org; linux-kernel@vger.kernel.org
-> Subject: LSI Logic's Ultra320 320-4X RAID adapter
-> 
-> 
-> 
-> Hello,
->       We have been evaluting different IO adapters for a 
-> storage system vendor.
-> 
-> LSI logic's 320-4X RAID controller seems to be a good choice.
-> 
-> There is an issue with the system on which we are measuring 
-> performance.
-> The memory space PCI register access can not be used.
-> 
-> Question #1: Does 320-4X support IO Space device register access?
-> Question #2: Do we have a linux driver for it that supports 
-> IO ports also?
-> 
-> The megaraid linux driver seems to check the BAR0, if it is 
-> memory bar then mem
-> space is used otherwise IO space.
-> 
-> May be the adapter supporting memory space also support IO 
-> space access.
-> 
-> 
-> Thanks,
-> Kallol
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-scsi" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+
+Thanks in advance,
+
+Grzegorz Kulewski

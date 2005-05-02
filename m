@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261635AbVEBS4A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261691AbVEBTCe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261635AbVEBS4A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 14:56:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbVEBS4A
+	id S261691AbVEBTCe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 15:02:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261656AbVEBTCe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 14:56:00 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:4519 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261635AbVEBSz4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 14:55:56 -0400
-Date: Mon, 2 May 2005 11:55:50 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org, zaitcev@redhat.com
-Subject: Re: Support multiply-LUN devices in ub
-Message-Id: <20050502115550.64531666.zaitcev@redhat.com>
-In-Reply-To: <20050502174523.GA23669@one-eyed-alien.net>
-References: <20050501160540.5b2f4e61.zaitcev@redhat.com>
-	<20050502040505.GA6914@one-eyed-alien.net>
-	<20050501212438.08ae67f1.zaitcev@redhat.com>
-	<20050502174523.GA23669@one-eyed-alien.net>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 1.9.9 (GTK+ 2.6.4; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Mon, 2 May 2005 15:02:34 -0400
+Received: from simmts12.bellnexxia.net ([206.47.199.141]:4796 "EHLO
+	simmts12-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S261654AbVEBTC3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 15:02:29 -0400
+Message-ID: <1785.10.10.10.24.1115060548.squirrel@linux1>
+In-Reply-To: <427650E7.2000802@tmr.com>
+References: <118833cc05042908181d09bdfd@mail.gmail.com><118833cc05042908181d09bdfd@mail.gmail.com>
+    <20050429165232.GV21897@waste.org> <427650E7.2000802@tmr.com>
+Date: Mon, 2 May 2005 15:02:28 -0400 (EDT)
+Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
+From: "Sean" <seanlkml@sympatico.ca>
+To: "Bill Davidsen" <davidsen@tmr.com>
+Cc: "Matt Mackall" <mpm@selenic.com>, "Morten Welinder" <mwelinder@gmail.com>,
+       "Linus Torvalds" <torvalds@osdl.org>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>, git@vger.kernel.org
+User-Agent: SquirrelMail/1.4.4-2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 May 2005 10:45:23 -0700, Matthew Dharm <mdharm-kernel@one-eyed-alien.net> wrote:
+On Mon, May 2, 2005 12:10 pm, Bill Davidsen said:
 
-> I've seen 5 and 6 LUNs, but they aren't common.
-> 
-> The best reading of the specs suggest that 8 is the practical limit.
-> 
-> Since that's not far from 4, perhaps it would be best to set the number to
-> 8 so we never have to revisit it again.
+> Now look at pulling 41MB over a T1 link. All of a sudden I care bigtime!
+> I want very much to use my bandwidth for other things, I don't want 41MB
+> added to my backup, etc. Disk space is cheap, but unless you ignore
+> backups and have an OC3 or so, these numbers are large enough to be
+> irritating. Not a huge issue, just one of those "piss me off every time
+> I do it" things.
 
-OK, how about I change it to 9 just to show that it's arbitrary? As long
-as it's 2 times smaller than 26, there should be no problem, I think.
-I don't want to resend for such a small issue, so I'll wait until
-it turns around and change it.
+That 41MB or lets say 200MB is spread over several months between
+releases.   Pulling once a day from the git public repository, makes this
+barely noticeable.  In the future there may be optimized protocols to
+handle this more efficiently.
 
-I am going to remove it completely when I revisit the naming and 26
-devices limitation.
+You bring up a good point about backups though.  Eventually it might be
+nice to have a utility that exports/imports a git repository in a flat
+file using deltas rather than snapshots.   Such an export format would
+make backups and tarballs cheaper.
 
--- Pete
+Sean
+
+

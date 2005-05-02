@@ -1,48 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbVEBQ7s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261603AbVEBQ7r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbVEBQ7s (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 12:59:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261467AbVEBQyC
+	id S261603AbVEBQ7r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 12:59:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbVEBQ6d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 12:54:02 -0400
-Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:11348 "HELO
-	smtp804.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261516AbVEBQwj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 12:52:39 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: stuffing characters to keyboard buffer.
-Date: Mon, 2 May 2005 11:52:19 -0500
-User-Agent: KMail/1.8
-Cc: "P.Manohar" <pmanohar@lantana.cs.iitm.ernet.in>
-References: <Pine.LNX.4.60.0505022126520.5301@lantana.cs.iitm.ernet.in>
-In-Reply-To: <Pine.LNX.4.60.0505022126520.5301@lantana.cs.iitm.ernet.in>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 2 May 2005 12:58:33 -0400
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:6109 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S261521AbVEBQz5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 12:55:57 -0400
+X-ORBL: [67.117.73.34]
+Date: Mon, 2 May 2005 09:56:00 -0700
+From: Tony Lindgren <tony@atomide.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Len Brown <len.brown@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Trying to coordinate moving subprojects to git
+Message-ID: <20050502165600.GC16366@atomide.com>
+References: <20050502163206.GA16366@atomide.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200505021152.19778.dtor_core@ameritech.net>
+In-Reply-To: <20050502163206.GA16366@atomide.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+Oops, incorrect address for Linus. Corrected in this one.
 
-On Monday 02 May 2005 11:29, P.Manohar wrote:
+Tony
+
+* Tony Lindgren <tony@atomide.com> [050502 09:41]:
+> Hi Linus, Andrew & Len,
 > 
-> hai,
->        I want to stuff the characters received on a serial line into the 
-> keyboard buffer, so that they will be send to applications as if they are 
-> coming from keyboard irrespective of console or x-windows mode.
+> Here's a slightly modified repost of my earlier message
+> that got eaten by the mailing list filter :)
 > 
->        For this purpose, I planned to use ioctls. Can anybody tell how to 
-> send an ioctl to keyboard driver?
->
-
-If you are working with 2.6 you'd need to create an input device, probably
-working on top of serport driver, like sermouse does. You may also want to
-take a look at uinput driver - it allows to create userspace-driven input
-devices.
-
--- 
-Dmitry
+> I'm trying to summarize some earlier dicussions on how to
+> coordinate moving BK projects over to git. This is probably
+> of interest to many other subprojects as well.
+> 
+> My main problem is where to host git trees for subprojects.
+> 
+> Here's how I see the move to git happening for various
+> subprojects:
+> 
+> - Somebody is rumored to offer a git project site soonish.[1]
+>   When that is available, subprojects can configure git
+>   trees there.
+>   
+> - Meanwhile, there should also be a BK repo for the latest
+>   kernel changes available soon.[2] Once that is available,
+>   it can be used for updating various trees.
+> 
+> Now I wonder if anybody has more news on the following:
+> 
+> - Who is working on setting a site available for git
+>   projects, and when is that site estimated to be available?
+>   
+> - Is anybody working on mirroring git changes in a BK tree?
+> 
+> I'm afraid I can't be much of help here setting up these sites
+> with my 128Kbps upstream speed...
+> 
+> Regards,
+> 
+> Tony
+> 
+> [1] http://lkml.org/lkml/2005/4/23/27
+> [1] http://lkml.org/lkml/2005/4/26/32
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

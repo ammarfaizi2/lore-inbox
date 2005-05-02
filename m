@@ -1,82 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261536AbVEBASY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261541AbVEBA3k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261536AbVEBASY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 20:18:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbVEBASY
+	id S261541AbVEBA3k (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 20:29:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbVEBA3k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 20:18:24 -0400
-Received: from mail11.syd.optusnet.com.au ([211.29.132.192]:10191 "EHLO
-	mail11.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261536AbVEBASQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 20:18:16 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
+	Sun, 1 May 2005 20:29:40 -0400
+Received: from smcc.demon.nl ([212.238.157.128]:59268 "EHLO smcc.demon.nl")
+	by vger.kernel.org with ESMTP id S261541AbVEBA3h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 20:29:37 -0400
+From: "Nemosoft Unv." <nemosoft@smcc.demon.nl>
+To: Greg Kroah <greg@kroah.com>, luc@saillard.org
+Subject: The return of PWC
+Date: Mon, 2 May 2005 02:29:35 +0200
+User-Agent: KMail/1.7.2
+Organization: I'm not organized
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-Message-ID: <17013.29103.249971.866326@wombat.chubb.wattle.id.au>
-Date: Mon, 2 May 2005 10:17:51 +1000
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Chris Friesen <cfriesen@nortel.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Andrew Morton <akpm@osdl.org>,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       pauld@gelato.unsw.edu.au
-Subject: Re: [PATCH] ppc64: update to use the new 4L headers
-In-Reply-To: <4270472E.9050708@yahoo.com.au>
-References: <1114652039.7112.213.camel@gaston>
-	<42704130.9050005@yahoo.com.au>
-	<427044AA.5030402@nortel.com>
-	<4270472E.9050708@yahoo.com.au>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Disposition: inline
+Message-Id: <200505020229.35129@smcc.demon.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Nick" == Nick Piggin <nickpiggin@yahoo.com.au> writes:
+Hello Greg, Luc
 
-Nick> Chris Friesen wrote:
->> I needed something like:
->> 
->> pte_t *va_to_ptep_map(struct mm_struct *mm, unsigned int addr)
->> 
->> There was code in follow_page() that did basically what I needed,
->> but it was all contained within that function so I had to
->> re-implement it.
->> 
+I've been out of the loop for a while, but today I was informed that PWC is 
+about to return to the main Linux kernel tree, in some form. In fact, it's 
+already in 2.4.12rc3.
 
-Nick> If you can break out exactly what you need, and make that inline
-Nick> or otherwise available via the correct header, I'm sure it would
-Nick> have a good chance of being merged.
+Unfortunately, the current implementation is not acceptable. First, there 
+are still some references to the old website 
+(http://www.smcc.demon.nl/webcam) en e-mail address. But that's no big 
+deal. What's more of a problem, though, is the decompressor code that is 
+being included.
 
-We're currently working on this, so as to be able to provide
-interfaces to alternative page tables.  We want to be able to slot in
-Liedtke's `Guarded Page Tables', or B-trees, or a hash table to see
-what happens.
+In case you hadn't noticed, that code has been reverse compiled (I would not 
+even call it "reverse engineered"), and is simply illegal. Maybe not in 
+every country, but certainly in some. There are still some intellectual 
+property rights being violated here, you know, and I'm surprised at the 
+contempt you and Linux kernel maintainers show in this regard for a few 
+lines of the law.
 
-Except we've called the function:
-       pte_t * lookup_page_table(unsigned long address, struct mm_struct *mm);
+Now don't get started on "it was GPL code before you left bla bla" or "you 
+should not have abonded the project bla bla blah" and "this court here has 
+ruled reverse engineering is allowed and so on mumble mumble". 
 
+I abandoned the project, true. But PWC was (and is) GPL, so if somebody  
+wanted to do the maintenance, that's fine because that is the intent, after 
+all. Even if that person grabbed the pre-compiled binaries and started 
+maintaining with that, that would have been borderline, but okay. But 
+you're crossing the line here with PWCX (the decompressor). If it was 
+truely reverse engineered, by studying the bitstream and trying to figure 
+out the algorithms, then that would have been a remarkable feat. But how 
+dare you decompile binary code, slap a GPL header on it and try to return 
+it to the kernel as if everything's alright now?
 
-follow_page() is essentially the same after inline expansion happens;
-but we're seeing a regression in clear_page_range() that we want to
-fix before release.
+Anyway, I'll inform my contacts at Philips tomorrow. I don't know how they 
+will react; maybe they'll go nuts, maybe they'll let it pass quitely; it's 
+hard to tell. Either way, you're putting yourself in a precarious situation 
+here. Clearly, this code was not intended to be included in the kernel 
+source, it has been obtained by rather dubious means and, above all, I 
+don't think the GPL was ever intended for this kind of "relabelling". I 
+call it theft.
 
-If you want to take a look (warning: it's still fairly rough
-work-in-progress) there's high level design being worked on at
-http://www.gelato.unsw.edu.au/IA64wiki/PageTableInterface 
-and patches from our CVS repository.  The only patch of interst is pti.patch.
+So I seriously suggest you do not put the module back into the kernel in 
+this form.
 
-cvs -d :pserver:anoncvs@gelato.unsw.edu.au:/gelato login
-Logging in to :pserver:anoncvs@lemon:2401/gelato
-CVS password:[enter anoncvs]
-$ cvs -d:pserver:anoncvs@gelato.unsw.edu.au:/gelato co kernel/page_table_interface
+Regards,
 
-or from
-
- http://www.gelato.unsw.edu.au/cgi-bin/viewcvs.cgi/cvs/kernel/page_table_interface/
-
-Peter C
+ - Nemosoft Unv.

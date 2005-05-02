@@ -1,80 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbVEBVaw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261157AbVEBVmh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261152AbVEBVaw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 17:30:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261153AbVEBVaw
+	id S261157AbVEBVmh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 17:42:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbVEBVmh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 17:30:52 -0400
-Received: from mail01.solnet.ch ([212.101.4.135]:7182 "EHLO mail01.solnet.ch")
-	by vger.kernel.org with ESMTP id S261152AbVEBVam (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 17:30:42 -0400
-From: Damir Perisa <damir.perisa@solnet.ch>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.12-rc3-mm2 - kswapd0 keeps running
-Date: Mon, 2 May 2005 23:30:19 +0200
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org
-References: <20050430164303.6538f47c.akpm@osdl.org> <200505021732.00590.damir.perisa@solnet.ch> <20050502111452.0dca6625.akpm@osdl.org>
-In-Reply-To: <20050502111452.0dca6625.akpm@osdl.org>
-X-Face: +)fhYFmn|<pyRIlgch_);krg#jn!^z'?xy(Ur#Z6rZi)KD+_-V<Y@i>0pOVfJ4<=?iso-8859-1?q?Q1/=26/=26z=0A=093cxqRa=3B7O=5C4g=5C=7C=5DF-!H0!ew9kx1LqK/?=
- =?iso-8859-1?q?iPOv8eXi=26I7=60Pez0V0VNMAxnqRL8-30qqKK=3DxGM=0A=09pExQc=5B?=
- =?iso-8859-1?q?2=7Cl6v=23?=<iwBvEO9+h|_YS[48z%/kuD2*aT*S/$0323VCL3V9?@}jq<
- =?iso-8859-1?q?Ns6V=3A0m=27Qia=0A=09?="[#oJg[RVe}Sy/lP95E@pa[vdKzqLqn&M`exb91"`,<k`3;Vt97cLjhub0.v+]m`%|>@Z(
- =?iso-8859-1?q?=0A=09EeC/zU7=25?=@"L6mi#..8Q^M
-Alanine: true
-Glycine: true
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1182279.9rhmp4uA2H";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Mon, 2 May 2005 17:42:37 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:35456 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261157AbVEBVmf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 17:42:35 -0400
+Subject: Re: How to flush data to disk reliably?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Grzegorz Kulewski <kangur@polcom.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.62.0505022057070.11701@alpha.polcom.net>
+References: <Pine.LNX.4.62.0505021503470.11701@alpha.polcom.net>
+	 <1115056355.10370.37.camel@localhost.localdomain>
+	 <Pine.LNX.4.62.0505022057070.11701@alpha.polcom.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <200505022330.22216.damir.perisa@solnet.ch>
+Message-Id: <1115070074.10338.53.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 02 May 2005 22:41:16 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1182279.9rhmp4uA2H
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Llu, 2005-05-02 at 20:18, Grzegorz Kulewski wrote:
+> What about other filesystems? Does anybody know anwser for Reiserfs3, 
+> Reiser4, JFS, XFS and any other popular server filesystems? I assume that 
+> if log file is some block device (like partition) both O_SYNC and fsync 
+> will work? What about ext2? What about some strange RAID/DM/NBD 
+> configurations? (I do not know in advance what our customers will use so I 
+> need portable method.)
 
-Le Monday 02 May 2005 20:14, Andrew Morton a =E9crit=A0:
-> hm. =A0I wonder why you had any cachefs pages anyway. =A0Is the sysrq-P
-> trace always the same?
+RAID does stripe sized rewrites so you get into the same situation as
+with actual disks - a physical media failure might lose you old data
+(but then if the disk goes bang so does the data...)
 
-since i modified it to enable magic keys, yes, every time i tried to=20
-output Regs (sysrq-P), the same outputs. i will keep observing and=20
-reporting, if cases with different output appear.
+> I already saw them. But I am asking about current implementation status on 
+> Linux. For example does fsync differ from fdatasync if file is block 
+> device? Does O_SYNC always equal "write; fsync" for all not read only 
+> operations? Is it faster because only one syscall is executed?
 
-> Does disabling cachefs in kerel config fix it?
+Benchmark it - it depends on your workload I imagine. If you are able to
+write a log entry well before it is needed then the fsync can be a big
+win because you can hope the data is already on or heading for disk when
+you fsync
 
-unfortunately, the cpu on this machine is busy for the next few days, so i=
-=20
-cannot recompile the kernel right now ... i will recompile disabling=20
-cachefs as soon as i have the resources for it (we all know, students=20
-have limited resources, especially students interested in=20
-bioinformatics). ... or is there a way to disable cachefs on the run=20
-(without recompiling/rebooting)?=20
+> Also flushing should be slow (for example 50 flushes/s) because disk seeks 
+> are slow. So if I need say 200 reliable writes to log per second may I put 
+> 4 independent disks into the server and use them as 4 independent log 
+> files? But fsync operation blocks. Is there any "submit flush request and 
+> get some info when done" command or should I use 4 threads / processes?
 
-untill then, remaining with best regards,
-Damir
+If you are trying to write logs on that kind of simplistic "reliable"
+approach then you probably want a raid card with battery backed ram, at
+that point fsync becomes very fast. Most transaction services tend to
+use different algorithms to provide reliable service due to exactly
+these kind of reasons.
 
-=2D-=20
-Because we don't think about future generations, they will never forget=20
-us.
-		-- Henrik Tikkanen
 
---nextPart1182279.9rhmp4uA2H
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCdpvuPABWKV6NProRAnJFAJ968Bq/4dVutzEABo6XRVZdQn1TggCfbMZZ
-aCUxpZ1Hh+ruIwFA5kEtiH8=
-=s/JU
------END PGP SIGNATURE-----
-
---nextPart1182279.9rhmp4uA2H--

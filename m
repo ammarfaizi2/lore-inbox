@@ -1,142 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbVEBUXW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261761AbVEBU2U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261759AbVEBUXW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 16:23:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbVEBUXV
+	id S261761AbVEBU2U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 16:28:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261760AbVEBU2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 16:23:21 -0400
-Received: from pat.uio.no ([129.240.130.16]:171 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261765AbVEBUWF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 16:22:05 -0400
-Subject: Re: [PATCH] xprt.c use after free of work_structs
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0504302142460.9467@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.61.0504302142460.9467@montezuma.fsmlabs.com>
-Content-Type: multipart/mixed; boundary="=-1T65yhkRzWo+qjBzUq5C"
-Date: Mon, 02 May 2005 16:21:54 -0400
-Message-Id: <1115065314.11854.27.camel@lade.trondhjem.org>
+	Mon, 2 May 2005 16:28:20 -0400
+Received: from fmr22.intel.com ([143.183.121.14]:46266 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261763AbVEBU14 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 16:27:56 -0400
+Date: Mon, 2 May 2005 13:27:37 -0700
+From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       mingo@elte.hu, linux-kernel <linux-kernel@vger.kernel.org>,
+       Rajesh Shah <rajesh.shah@intel.com>, John Stultz <johnstul@us.ibm.com>,
+       Asit K Mallick <asit.k.mallick@intel.com>
+Subject: Re: [RFC][PATCH] i386 x86-64 Eliminate Local APIC timer interrupt
+Message-ID: <20050502132737.A7309@unix-os.sc.intel.com>
+References: <20050429172605.A23722@unix-os.sc.intel.com> <20050502163821.GE7342@wotan.suse.de> <20050502101631.A4875@unix-os.sc.intel.com> <20050502190850.GN7342@wotan.suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.696, required 12,
-	autolearn=disabled, AWL 1.30, UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050502190850.GN7342@wotan.suse.de>; from ak@suse.de on Mon, May 02, 2005 at 09:08:50PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, May 02, 2005 at 09:08:50PM +0200, Andi Kleen wrote:
+> I thought about it more and i really dislike the broadcast timer
+> more and more. Zwanes point on creating a lot of contention
+> on irq0 datastructures is also a very good one.
+> 
 
---=-1T65yhkRzWo+qjBzUq5C
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Actually, as IRQ0 will become PER_CPU din broadcast, there are no irq0 lock 
+contention. Only contention that can be there is in scheduler idle balancing,
+which should not be an issue as the CPU is idle anyway.
 
-su den 01.05.2005 Klokka 00:02 (-0600) skreiv Zwane Mwaikambo:
-> This bug was first observed in 2.6.11-rc1-mm2 but i couldn't find the 
-> exact patch which would unmask it. The work_structs embedded in rpc_xprt 
-> are freed in xprt_destroy without waiting for all scheduled work to be 
-> completed, resulting in quite a kerfuffle. Since xprt->timer callback can 
-> schedule new work, flush the workqueue after killing the timer.
+> > Fully agree with you on the mess part :(. Few other options that we had 
+> > thought about earlier:
+> > - Have some sort of callbacks while entering/exiting C3, and hand manipulate 
+> >   Local APIC timer counter to account for the time spent in C3 state. This is
+> >   less intrusive change (affects only the system that has C3), but code starts 
+> >   getting ugly once we have time spent in C3 exceed a jiffy and spans across
+> >   multiple jiffies. And we have to have some execute some code to handle all
+> >   the lost local APIC timer idle ticks (for the statistics part) and can 
+> >   increase C3 wakeup latency higher.
+> 
+> It is a bit messy agreed, but no timer tick in idle has to do this
+> anyways. And we need to communicate with the ACPI idle code even
+> because we need to shorten delays artificially in lower sleep
+> modi (e.g. in C1 you dont want to sleep for longer than a ms 
+> before waking up and switching into C2) 
+> 
+> So given that we need this anyways (and I have it partly coded up
+> already) I think that is the way to go. The no tick code has 
+> to query the backing time in this case anyways (or rather use the TSC 
+> instead which is local - and I hope is still accurate even after C3) 
 
-Hi Zwane,
+Unfortunately no :(. TSC will also stop in C3. Myself and John are working on
+another patch to fix TSC based gettimeofday() to handle this (atleast in UP 
+case) It is almost impossible in SMP, as TSCs can go out of sync with C3 on SMP.
 
-  Thanks, I fully agree that this is needed.
+So, ACPI PM timer or HPET seem to be the only option for backing time.
 
- Chuck proposed a similar patch to me a couple of days ago, however he
-also pointed out that we need to call cancel_delayed_work() on
-xprt->sock_connect in the same code section in order to avoid trouble
-with the TCP reconnect code causing the same type of race. I've attached
-his mail.
+> and fix the timer up. So the infrastructure is there already
+> and the APIC problem can be handled in the same way.
+>
+> BTW can you confirm that the APIC timer frequency is stable
+> over cpufreq changes on your x86-64 CPUs, or does this need
+> to be handled too? 
 
-Cheers,
-  Trond
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
+I haven't seen any issues with cpufreq on APIC timer, as APIC timers run 
+based on FSB.
 
---=-1T65yhkRzWo+qjBzUq5C
-Content-Disposition: inline
-Content-Description: Vedlagt melding - [PATCH 2/2] RPC: kick off socket
-	connect operations faster
-Content-Type: message/rfc822
+> 
+> The only drawback is that these systems will pretty much need
+> no timer tick in idle then to be reliable - i had hoped
+> to keep it an experimental option at the beginning; but I guess
+> we can accelerate it a bit.
+> 
+> So I would propose to go with this variant.
+> 
+> What do you think?
+> 
 
-Return-Path: <cel@citi.umich.edu>
-Received: from mail-imap5.uio.no ([unix socket]) by mail-imap5.uio.no
-	(Cyrus v2.2.10) with LMTPA; Fri, 29 Apr 2005 21:46:09 +0200
-X-Sieve: CMU Sieve 2.2
-Delivery-date: Fri, 29 Apr 2005 21:46:09 +0200
-Received: from mail-mx6.uio.no ([129.240.10.47]) by mail-imap5.uio.no with
-	esmtp (Exim 4.43) id 1DRbRB-0001CZ-8Q for trond.myklebust@fys.uio.no; Fri,
-	29 Apr 2005 21:46:09 +0200
-Received: from climax.citi.umich.edu ([141.211.133.71]) by mail-mx6.uio.no
-	with esmtps (TLSv1:AES256-SHA:256) (Exim 4.43) id 1DRbR7-0002vq-JL for
-	trond.myklebust@fys.uio.no; Fri, 29 Apr 2005 21:46:05 +0200
-Received: from climax.citi.umich.edu (localhost.localdomain [127.0.0.1]) by
-	climax.citi.umich.edu (8.12.11/8.12.11) with ESMTP id j3TJk4V3009302 for
-	<trond.myklebust@fys.uio.no>; Fri, 29 Apr 2005 15:46:04 -0400
-Received: (from cel@localhost) by climax.citi.umich.edu
-	(8.12.11/8.12.11/Submit) id j3TJk4qo009300 for trond.myklebust@fys.uio.no;
-	Fri, 29 Apr 2005 15:46:04 -0400
-Date: Fri, 29 Apr 2005 15:46:04 -0400
-From: Chuck Lever <cel@citi.umich.edu>
-Message-Id: <200504291946.j3TJk4qo009300@climax.citi.umich.edu>
-To: trond.myklebust@fys.uio.no
-Subject: [PATCH 2/2] RPC: kick off socket connect operations faster
-X-MailScanner-Information: This message has been scanned for viruses/spam.
-	Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=0.001, required 12,
-	autolearn=disabled, AWL 0.00)
-X-Evolution-Source: imap://trondmy@imap.uio.no/
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+OK. I have some code that I had prototyped to fixup local APIC counts in 
+presence of C3s. I guess we can work together and solve this one faster. 
+I will send you the patch in a separate mail.
 
- Make the socket transport kick the event queue to start socket connects
- immediately.  This should improve responsiveness of applications that are
- sensitive to slow mount operations (like automounters).
 
- We are now also careful to cancel the connect worker before destroying
- the xprt.  This eliminates a race where xprt_destroy can finish before
- the connect worker is even allowed to run.
+> > - Other simpler solution is to remove idle from cpu_usage_stat and use 
+> >   (overall time - other accounted time) instead. This doesn't really solve
+> >   the problem, but it is a workaround for all the code that depends on 
+> >   proper idle statistics.
+> 
+> What code is that exactly?
+> 
+> In no idle tick I just do the same thing as s390 and accumulate any lost ticks
+> up in a loop. However I have not done much measurements how affected
+> the CPU time statistics are.
+> 
+> But when the choice is between better power saving and slightly
+> less accurate statistics I will prefer better power saving any day - and
+> the people who really need good statistics are always free to turn
+> off the power saving, but I doubt that will happen often as long
+> as the statistics are "good enough". e.g. we can be factor 10 worse
+> and not be worse than 2.4 with HZ=100. That is a lot of play ground.
 
- Test-plan:
- Destructive testing (unplugging the network temporarily).  Connectathon
- with UDP and TCP.  Hard-code impossibly small connect timeout.
 
- Version: Fri, 29 Apr 2005 15:32:01 -0400
- 
- Signed-off-by: Chuck Lever <cel@netapp.com>
----
- 
- net/sunrpc/xprt.c |    9 ++++++++-
- 1 files changed, 8 insertions(+), 1 deletion(-)
- 
- 
-diff -X /home/cel/src/linux/dont-diff -Naurp 10-rpc-reconnect/net/sunrpc/xprt.c 11-xprt-flush-connects/net/sunrpc/xprt.c
---- 10-rpc-reconnect/net/sunrpc/xprt.c	2005-04-29 15:18:47.677108000 -0400
-+++ 11-xprt-flush-connects/net/sunrpc/xprt.c	2005-04-29 15:29:36.637250000 -0400
-@@ -569,8 +569,11 @@ void xprt_connect(struct rpc_task *task)
- 		if (xprt->sock != NULL)
- 			schedule_delayed_work(&xprt->sock_connect,
- 					RPC_REESTABLISH_TIMEOUT);
--		else
-+		else {
- 			schedule_work(&xprt->sock_connect);
-+			if (!RPC_IS_ASYNC(task))
-+				flush_scheduled_work();
-+		}
- 	}
- 	return;
-  out_write:
-@@ -1666,6 +1669,10 @@ xprt_shutdown(struct rpc_xprt *xprt)
- 	rpc_wake_up(&xprt->backlog);
- 	wake_up(&xprt->cong_wait);
- 	del_timer_sync(&xprt->timer);
-+
-+	/* synchronously wait for connect worker to finish */
-+	cancel_delayed_work(&xprt->sock_connect);
-+	flush_scheduled_work();
- }
- 
- /*
+cpufreq_ondemand governor depends on the idle statistics. And due to the 
+wrong idle statistics, the governor will keep the CPU frequency at maximum,
+loosing all the power advantages of cpufreq. So, question is not a simple 
+power savings against accurate atatistics. Accurate statistics is related
+to power savings as well...
 
---=-1T65yhkRzWo+qjBzUq5C--
+Thanks,
+Venki
+
+
 

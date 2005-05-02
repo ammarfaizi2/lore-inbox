@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261700AbVEBCwV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261717AbVEBBwE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261700AbVEBCwV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 22:52:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbVEBBwT
+	id S261717AbVEBBwE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 21:52:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbVEBBvB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 21:52:19 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:43792 "HELO
+	Sun, 1 May 2005 21:51:01 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:45072 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261700AbVEBBr3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 21:47:29 -0400
-Date: Mon, 2 May 2005 03:47:24 +0200
+	id S261703AbVEBBrc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 21:47:32 -0400
+Date: Mon, 2 May 2005 03:47:26 +0200
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/block/ll_rw_blk.c: cleanups
-Message-ID: <20050502014724.GG3592@stusta.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/net/arcnet/: possible cleanups
+Message-ID: <20050502014726.GH3592@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,199 +23,164 @@ User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following cleanups:
+This patch contains the following possible cleanups:
 - make needlessly global code static
-- remove the following unused global functions:
-  - blkdev_scsi_issue_flush_fn
-  - __blk_attempt_remerge
-- remove the following unused EXPORT_SYMBOL's:
-  - blk_phys_contig_segment
-  - blk_hw_contig_segment
-  - blkdev_scsi_issue_flush_fn
-  - __blk_attempt_remerge
-
-This patch was already ACK'ed by Jens Axboe.
+- arcnet.c: remove the outdated VERSION
+- arcnet.c: remove the unneeded EXPORT_SYMBOL(arc_proto_null)
+- arcnet.c: remove the unneeded EXPORT_SYMBOL(arcnet_dump_packet)
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- drivers/block/ll_rw_blk.c |   67 ++++----------------------------------
- include/linux/blkdev.h    |    6 ---
- 2 files changed, 8 insertions(+), 65 deletions(-)
+This patch was already sent on:
+- 15 Apr 2005
+- 24 Mar 2005
 
---- linux-2.6.12-rc2-mm2-full/drivers/block/ll_rw_blk.c.old	2005-04-10 01:55:17.000000000 +0200
-+++ linux-2.6.12-rc2-mm2-full/drivers/block/ll_rw_blk.c	2005-04-10 01:57:49.000000000 +0200
-@@ -36,6 +36,7 @@
+ drivers/net/arcnet/arc-rawmode.c |    2 +-
+ drivers/net/arcnet/arcnet.c      |   19 ++++++++++---------
+ drivers/net/arcnet/rfc1051.c     |    2 +-
+ drivers/net/arcnet/rfc1201.c     |    3 +--
+ include/linux/arcdevice.h        |    9 ---------
+ 5 files changed, 13 insertions(+), 22 deletions(-)
+
+--- linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/arc-rawmode.c.old	2005-02-16 15:16:38.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/arc-rawmode.c	2005-02-16 15:16:51.000000000 +0100
+@@ -42,7 +42,7 @@
+ static int prepare_tx(struct net_device *dev, struct archdr *pkt, int length,
+ 		      int bufnum);
  
- static void blk_unplug_work(void *data);
- static void blk_unplug_timeout(unsigned long data);
-+static void drive_stat_acct(struct request *rq, int nr_sectors, int new_io);
+-struct ArcProto rawmode_proto =
++static struct ArcProto rawmode_proto =
+ {
+ 	.suffix		= 'r',
+ 	.mtu		= XMTU,
+--- linux-2.6.11-rc3-mm2-full/include/linux/arcdevice.h.old	2005-02-16 15:17:26.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/include/linux/arcdevice.h	2005-02-16 15:20:57.000000000 +0100
+@@ -206,7 +206,6 @@
+ 
+ extern struct ArcProto *arc_proto_map[256], *arc_proto_default,
+ 	*arc_bcast_proto, *arc_raw_proto;
+-extern struct ArcProto arc_proto_null;
+ 
  
  /*
-  * For the allocated request tables
-@@ -1149,7 +1150,7 @@
- }
+@@ -334,17 +333,9 @@
+ #define arcnet_dump_skb(dev,skb,desc) ;
+ #endif
  
- 
--int blk_phys_contig_segment(request_queue_t *q, struct bio *bio,
-+static int blk_phys_contig_segment(request_queue_t *q, struct bio *bio,
- 				   struct bio *nxt)
- {
- 	if (!(q->queue_flags & (1 << QUEUE_FLAG_CLUSTER)))
-@@ -1170,9 +1171,7 @@
- 	return 0;
- }
- 
--EXPORT_SYMBOL(blk_phys_contig_segment);
+-#if (ARCNET_DEBUG_MAX & D_RX) || (ARCNET_DEBUG_MAX & D_TX)
+-void arcnet_dump_packet(struct net_device *dev, int bufnum, char *desc,
+-			int take_arcnet_lock);
+-#else
+-#define arcnet_dump_packet(dev, bufnum, desc,take_arcnet_lock) ;
+-#endif
 -
--int blk_hw_contig_segment(request_queue_t *q, struct bio *bio,
-+static int blk_hw_contig_segment(request_queue_t *q, struct bio *bio,
- 				 struct bio *nxt)
- {
- 	if (unlikely(!bio_flagged(bio, BIO_SEG_VALID)))
-@@ -1188,8 +1187,6 @@
- 	return 1;
- }
+ void arcnet_unregister_proto(struct ArcProto *proto);
+ irqreturn_t arcnet_interrupt(int irq, void *dev_id, struct pt_regs *regs);
+ struct net_device *alloc_arcdev(char *name);
+-void arcnet_rx(struct net_device *dev, int bufnum);
  
--EXPORT_SYMBOL(blk_hw_contig_segment);
--
- /*
-  * map a request to scatterlist, return number of sg entries setup. Caller
-  * must make sure sg can hold rq->nr_phys_segments entries
-@@ -1810,7 +1807,7 @@
-  * is the behaviour we want though - once it gets a wakeup it should be given
-  * a nice run.
+ #endif				/* __KERNEL__ */
+ #endif				/* _LINUX_ARCDEVICE_H */
+--- linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/arcnet.c.old	2005-02-16 15:17:47.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/arcnet.c	2005-02-16 15:21:20.000000000 +0100
+@@ -41,8 +41,6 @@
+  *     <jojo@repas.de>
   */
--void ioc_set_batching(request_queue_t *q, struct io_context *ioc)
-+static void ioc_set_batching(request_queue_t *q, struct io_context *ioc)
+ 
+-#define VERSION "arcnet: v3.93 BETA 2000/04/29 - by Avery Pennarun et al.\n"
+-
+ #include <linux/module.h>
+ #include <linux/config.h>
+ #include <linux/types.h>
+@@ -61,6 +59,7 @@
+ static int null_prepare_tx(struct net_device *dev, struct archdr *pkt,
+ 			   int length, int bufnum);
+ 
++static void arcnet_rx(struct net_device *dev, int bufnum);
+ 
+ /*
+  * one ArcProto per possible proto ID.  None of the elements of
+@@ -71,7 +70,7 @@
+  struct ArcProto *arc_proto_map[256], *arc_proto_default,
+    *arc_bcast_proto, *arc_raw_proto;
+ 
+-struct ArcProto arc_proto_null =
++static struct ArcProto arc_proto_null =
  {
- 	if (!ioc || ioc_batching(q, ioc))
- 		return;
-@@ -2250,45 +2247,7 @@
+ 	.suffix		= '?',
+ 	.mtu		= XMTU,
+@@ -90,7 +89,6 @@
+ EXPORT_SYMBOL(arc_proto_default);
+ EXPORT_SYMBOL(arc_bcast_proto);
+ EXPORT_SYMBOL(arc_raw_proto);
+-EXPORT_SYMBOL(arc_proto_null);
+ EXPORT_SYMBOL(arcnet_unregister_proto);
+ EXPORT_SYMBOL(arcnet_debug);
+ EXPORT_SYMBOL(alloc_arcdev);
+@@ -118,8 +116,8 @@
  
- EXPORT_SYMBOL(blkdev_issue_flush);
+ 	arcnet_debug = debug;
  
--/**
-- * blkdev_scsi_issue_flush_fn - issue flush for SCSI devices
-- * @q:		device queue
-- * @disk:	gendisk
-- * @error_sector:	error offset
-- *
-- * Description:
-- *    Devices understanding the SCSI command set, can use this function as
-- *    a helper for issuing a cache flush. Note: driver is required to store
-- *    the error offset (in case of error flushing) in ->sector of struct
-- *    request.
-- */
--int blkdev_scsi_issue_flush_fn(request_queue_t *q, struct gendisk *disk,
--			       sector_t *error_sector)
--{
--	struct request *rq = blk_get_request(q, WRITE, __GFP_WAIT);
--	int ret;
--
--	rq->flags |= REQ_BLOCK_PC | REQ_SOFTBARRIER;
--	rq->sector = 0;
--	memset(rq->cmd, 0, sizeof(rq->cmd));
--	rq->cmd[0] = 0x35;
--	rq->cmd_len = 12;
--	rq->data = NULL;
--	rq->data_len = 0;
--	rq->timeout = 60 * HZ;
--
--	ret = blk_execute_rq(q, disk, rq);
--
--	if (ret && error_sector)
--		*error_sector = rq->sector;
--
--	blk_put_request(rq);
--	return ret;
--}
--
--EXPORT_SYMBOL(blkdev_scsi_issue_flush_fn);
--
--void drive_stat_acct(struct request *rq, int nr_sectors, int new_io)
-+static void drive_stat_acct(struct request *rq, int nr_sectors, int new_io)
+-	printk(VERSION);
++	printk("arcnet loaded.\n");
+
+ #ifdef ALPHA_WARNING
+ 	BUGLVL(D_EXTRA) {
+ 		printk("arcnet: ***\n"
+@@ -178,8 +174,8 @@
+  * Dump the contents of an ARCnet buffer
+  */
+ #if (ARCNET_DEBUG_MAX & (D_RX | D_TX))
+-void arcnet_dump_packet(struct net_device *dev, int bufnum, char *desc,
+-			int take_arcnet_lock)
++static void arcnet_dump_packet(struct net_device *dev, int bufnum,
++			       char *desc, int take_arcnet_lock)
  {
- 	int rw = rq_data_dir(rq);
+ 	struct arcnet_local *lp = dev->priv;
+ 	int i, length;
+@@ -208,7 +204,10 @@
  
-@@ -2548,16 +2507,6 @@
- 
- EXPORT_SYMBOL(blk_attempt_remerge);
- 
--/*
-- * Non-locking blk_attempt_remerge variant.
-- */
--void __blk_attempt_remerge(request_queue_t *q, struct request *rq)
--{
--	attempt_back_merge(q, rq);
--}
--
--EXPORT_SYMBOL(__blk_attempt_remerge);
--
- static int __make_request(request_queue_t *q, struct bio *bio)
- {
- 	struct request *req, *freereq = NULL;
-@@ -2978,7 +2927,7 @@
- 
- EXPORT_SYMBOL(submit_bio);
- 
--void blk_recalc_rq_segments(struct request *rq)
-+static void blk_recalc_rq_segments(struct request *rq)
- {
- 	struct bio *bio, *prevbio = NULL;
- 	int nr_phys_segs, nr_hw_segs;
-@@ -3020,7 +2969,7 @@
- 	rq->nr_hw_segments = nr_hw_segs;
  }
  
--void blk_recalc_rq_sectors(struct request *rq, int nsect)
-+static void blk_recalc_rq_sectors(struct request *rq, int nsect)
- {
- 	if (blk_fs_request(rq)) {
- 		rq->hard_sector += nsect;
-@@ -3611,7 +3560,7 @@
- 	.store	= queue_attr_store,
- };
+-EXPORT_SYMBOL(arcnet_dump_packet);
++#else
++
++#define arcnet_dump_packet(dev, bufnum, desc,take_arcnet_lock) do { } while (0)
++
+ #endif
  
--struct kobj_type queue_ktype = {
-+static struct kobj_type queue_ktype = {
- 	.sysfs_ops	= &queue_sysfs_ops,
- 	.default_attrs	= default_attrs,
- };
+ 
+@@ -987,7 +986,7 @@
+  * This is a generic packet receiver that calls arcnet??_rx depending on the
+  * protocol ID found.
+  */
+-void arcnet_rx(struct net_device *dev, int bufnum)
++static void arcnet_rx(struct net_device *dev, int bufnum)
+ {
+ 	struct arcnet_local *lp = dev->priv;
+ 	struct archdr pkt;
+--- linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/rfc1051.c.old	2005-02-16 15:22:16.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/rfc1051.c	2005-02-16 15:22:23.000000000 +0100
+@@ -43,7 +43,7 @@
+ 		      int bufnum);
+ 
+ 
+-struct ArcProto rfc1051_proto =
++static struct ArcProto rfc1051_proto =
+ {
+ 	.suffix		= 's',
+ 	.mtu		= XMTU - RFC1051_HDR_SIZE,
+--- linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/rfc1201.c.old	2005-02-16 15:22:35.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/net/arcnet/rfc1201.c	2005-02-16 15:22:46.000000000 +0100
+@@ -43,7 +43,7 @@
+ 		      int bufnum);
+ static int continue_tx(struct net_device *dev, int bufnum);
+ 
+-struct ArcProto rfc1201_proto =
++static struct ArcProto rfc1201_proto =
+ {
+ 	.suffix		= 'a',
+ 	.mtu		= 1500,	/* could be more, but some receivers can't handle it... */
 
---- linux-2.6.12-rc3-mm2-full/include/linux/blkdev.h.old	2005-05-02 01:19:07.000000000 +0200
-+++ linux-2.6.12-rc3-mm2-full/include/linux/blkdev.h	2005-05-02 01:22:05.000000000 +0200
-@@ -547,15 +547,12 @@
- extern void blk_put_request(struct request *);
- extern void blk_end_sync_rq(struct request *rq);
- extern void blk_attempt_remerge(request_queue_t *, struct request *);
--extern void __blk_attempt_remerge(request_queue_t *, struct request *);
- extern struct request *blk_get_request(request_queue_t *, int, int);
- extern void blk_insert_request(request_queue_t *, struct request *, int, void *);
- extern void blk_requeue_request(request_queue_t *, struct request *);
- extern void blk_plug_device(request_queue_t *);
- extern int blk_remove_plug(request_queue_t *);
- extern void blk_recount_segments(request_queue_t *, struct bio *);
--extern int blk_phys_contig_segment(request_queue_t *q, struct bio *, struct bio *);
--extern int blk_hw_contig_segment(request_queue_t *q, struct bio *, struct bio *);
- extern int scsi_cmd_ioctl(struct file *, struct gendisk *, unsigned int, void __user *);
- extern void blk_start_queue(request_queue_t *q);
- extern void blk_stop_queue(request_queue_t *q);
-@@ -637,7 +634,6 @@
- extern struct backing_dev_info *blk_get_backing_dev_info(struct block_device *bdev);
- extern void blk_queue_ordered(request_queue_t *, int);
- extern void blk_queue_issue_flush_fn(request_queue_t *, issue_flush_fn *);
--extern int blkdev_scsi_issue_flush_fn(request_queue_t *, struct gendisk *, sector_t *);
- extern struct request *blk_start_pre_flush(request_queue_t *,struct request *);
- extern int blk_complete_barrier_rq(request_queue_t *, struct request *, int);
- extern int blk_complete_barrier_rq_locked(request_queue_t *, struct request *, int);
-@@ -680,8 +676,6 @@
- 
- #define blkdev_entry_to_request(entry) list_entry((entry), struct request, queuelist)
- 
--extern void drive_stat_acct(struct request *, int, int);
--
- static inline int queue_hardsect_size(request_queue_t *q)
- {
- 	int retval = 512;

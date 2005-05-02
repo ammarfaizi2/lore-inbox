@@ -1,58 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbVEBXWS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261230AbVEBXfL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261220AbVEBXWS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 19:22:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVEBXWS
+	id S261230AbVEBXfL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 19:35:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbVEBXfL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 19:22:18 -0400
-Received: from smtp.istop.com ([66.11.167.126]:2774 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S261220AbVEBXWM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 19:22:12 -0400
-From: Daniel Phillips <phillips@istop.com>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Subject: Re: [PATCH 1b/7] dlm: core locking
-Date: Mon, 2 May 2005 19:23:30 -0400
-User-Agent: KMail/1.7
-Cc: Daniel McNeil <daniel@osdl.org>, David Teigland <teigland@redhat.com>,
-       Steven Dake <sdake@mvista.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-References: <20050425165826.GB11938@redhat.com> <200504290425.24485.phillips@istop.com> <20050502204514.GB4722@marowsky-bree.de>
-In-Reply-To: <20050502204514.GB4722@marowsky-bree.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 2 May 2005 19:35:11 -0400
+Received: from wproxy.gmail.com ([64.233.184.197]:15511 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261230AbVEBXfB convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 19:35:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=QvyhngkwiVsPJweAQsTD8vmHVu6dhtTO1AiUW6G2qSKtWVbxX6d1IZ+8ycY7NA6xCqq3YnrzzKoxlDCLHZk6Mr3lL8GlDeJNzCXVkYt/xVqrj5VyG1FClORJXs3apIFjFetk/8CtDnXsU1llppaprsuEy3mKDQuaQm3YD2YN5NI=
+Message-ID: <3f250c7105050216357ae31105@mail.gmail.com>
+Date: Mon, 2 May 2005 19:35:00 -0400
+From: Mauricio Lin <mauriciolin@gmail.com>
+Reply-To: Mauricio Lin <mauriciolin@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: 2.6.12-rc3-mm2: fs/proc/task_mmu.c warnings
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <3f250c7105050215306de620ac@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200505021923.30394.phillips@istop.com>
+References: <20050430164303.6538f47c.akpm@osdl.org>
+	 <20050501222916.GB3592@stusta.de>
+	 <3f250c7105050215306de620ac@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 02 May 2005 16:45, Lars Marowsky-Bree wrote:
-> On 2005-04-29T04:25:24, Daniel Phillips <phillips@istop.com> wrote:
-> > > It makes a whole lot of sense to combine a DLM with (appropriate)
-> > > fencing so that the shared resources are protected. I understood
-> > > David's comment to rather imply that fencing is assumed to happen
-> > > outside the DLM's world in a different component; ie more of a comment
-> > > on sane modularization instead of sane real-world configuration.
+Hi Adrian,
+
+I managed to replicate the warning. This happens with the vanilla
+kernel 2.6.11.8. Before this version this warning does not exist. The
+last patch I posted was based on 2.6.11.7. I am going to post the new
+patch asap.
+
+BR,
+
+Mauricio Lin.
+
+On 5/2/05, Mauricio Lin <mauriciolin@gmail.com> wrote:
+> Hi Adrian,
+> 
+> I tried to replicate this warning but I did not get it on vanilla
+> kernel. I put the config as
+> 
+> CONFIG_HIGHPTE=y
+> 
+> as well, but no warning. Perhaps I have to try it with mm tree. Any comments?
+> 
+> What do you think Andrew?
+> 
+> BR,
+> 
+> Mauricio Lin.
+> 
+> On 5/1/05, Adrian Bunk <bunk@stusta.de> wrote:
+> > proc-pid-smaps.patch caused the following warnings with
+> > CONFIG_HIGHPTE=y:
 > >
-> > But just because fencing is supposed to happen in an external component,
-> > we can't wave our hands at it and skip the analysis.  We _must_ identify
-> > the fencing assumptions and trace the fencing paths with respect to every
-> > recovery algorithm in every cluster component, including the dlm.
+> > <--  snip  -->
+> >
+> > ...
+> >   CC      fs/proc/task_mmu.o
+> > fs/proc/task_mmu.c: In function `smaps_pte_range':
+> > fs/proc/task_mmu.c:177: warning: implicit declaration of function `kmap_atomic'
+> > fs/proc/task_mmu.c:207: warning: implicit declaration of function `kunmap_atomic'
+> > ...
+> >
+> > <--  snip  -->
+> >
+> > Unfortunately, I do not understand how to fix this properly.
+> >
+> > cu
+> > Adrian
+> >
+> > --
+> >
+> >        "Is there not promise of rain?" Ling Tan asked suddenly out
+> >         of the darkness. There had been need of rain for many days.
+> >        "Only a promise," Lao Er said.
+> >                                        Pearl S. Buck - Dragon Seed
+> >
+> >
 >
-> "A fenced node no longer has access to any shared resource".
->
-> Is there any other assumption you have in mind?
-
-Nice problem statement.  Now we just need to see the proof that we satisfy 
-this requirement for every cluster service, application, block device, etc 
-for every possible cluster configuration and normal or failure state.
-
-My assumption is that we will achieve this in a way that is efficient, easy to 
-configure and not prone to deadlock, with emphasis on the "will".
-
-Regards,
-
-Daniel

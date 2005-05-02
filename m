@@ -1,51 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261632AbVEBIeT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261738AbVEBItM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261632AbVEBIeT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 04:34:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbVEBIeT
+	id S261738AbVEBItM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 04:49:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261714AbVEBItM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 04:34:19 -0400
-Received: from smtpout4.uol.com.br ([200.221.4.195]:38886 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S261632AbVEBIeP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 04:34:15 -0400
-Date: Mon, 2 May 2005 05:34:09 -0300
-From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.12-rc3-mm2
-Message-ID: <20050502083409.GF5764@ime.usp.br>
-Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Jesper Juhl <juhl-lkml@dif.dk>, Andrew Morton <akpm@osdl.org>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <20050501201145.GA14429@ime.usp.br> <Pine.LNX.4.62.0505012224350.2488@dragon.hyggekrogen.localhost> <1114994247.7111.347.camel@gaston>
+	Mon, 2 May 2005 04:49:12 -0400
+Received: from rgminet03.oracle.com ([148.87.122.32]:7729 "EHLO
+	rgminet03.oracle.com") by vger.kernel.org with ESMTP
+	id S261738AbVEBItI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 04:49:08 -0400
+Date: Mon, 2 May 2005 01:48:55 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] hangcheck-timer: Update to 0.9.0.
+Message-ID: <20050502084855.GQ4747@ca-server1.us.oracle.com>
+Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200505011707.j41H7VbY021843@hera.kernel.org> <1114969538.6577.21.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1114994247.7111.347.camel@gaston>
+In-Reply-To: <1114969538.6577.21.camel@localhost.localdomain>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
 User-Agent: Mutt/1.5.9i
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On May 02 2005, Benjamin Herrenschmidt wrote:
-> > -	pte_unmap(pte);
-> > +	pte_unmap((void *)pte);
-> >  }
-> >  
-> >  static void smaps_pmd_range(pud_t *pud,
+On Sun, May 01, 2005 at 01:45:37PM -0400, Arjan van de Ven wrote:
+> > +
+> > +#if defined(CONFIG_X86) || defined(CONFIG_X86_64)
+> > +# define HAVE_MONOTONIC
+> > +# define TIMER_FREQ 1000000000ULL
 > 
-> This is unrelated, and shouldn't be necessary. I don't lile patches that
-> defeat typechecking. Of pte isn't a pte_t *, then something is wrong.
+> this looks wrong!
+> 
+> does this work with HZ=100 ?
+> also there is a TSC config option which you want to use most likely
+> instead of CONFIG_X86 (and x86-64 has CONFIG_X86 defined too)
 
-I just changed this to ptep (without the cast) and the kernel has been
-successfully compiled. I will test it tomorrow morning.
+	It is right, though.  monotonic_clock() is defined as returning
+nanoseconds, not a value based on HZ.  It's supported on x86 and x86-64,
+hence using CONFIG_X86 to check.  Someday, John will get it implemented
+for the other platforms, and we'll have less mess in hangcheck-timer.c.
+He already thinks that he should have the prototype in timer.h or so (so
+I don't have to extern declare it), but he hasn't gotten around to it
+yet.
 
-
-Thanks for all the help, Rogério.
+Joel
 
 -- 
-Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
-Homepage of the algorithms package : http://algorithms.berlios.de
-Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/
+
+Life's Little Instruction Book #30
+
+	"Never buy a house without a fireplace."
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

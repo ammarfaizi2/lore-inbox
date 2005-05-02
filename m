@@ -1,50 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261782AbVEBC12@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261507AbVEBEFS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261782AbVEBC12 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 22:27:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbVEBC11
+	id S261507AbVEBEFS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 00:05:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261515AbVEBEFS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 22:27:27 -0400
-Received: from gate.crashing.org ([63.228.1.57]:59294 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261876AbVEBC0r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 22:26:47 -0400
-Subject: [PATCH] ppc32: Fix sleep on old 101 PowerBook
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Mon, 02 May 2005 12:24:44 +1000
-Message-Id: <1115000685.7111.366.camel@gaston>
+	Mon, 2 May 2005 00:05:18 -0400
+Received: from multivac.one-eyed-alien.net ([64.169.228.101]:15750 "EHLO
+	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id S261507AbVEBEFJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 00:05:09 -0400
+Date: Sun, 1 May 2005 21:05:05 -0700
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: Support multiply-LUN devices in ub
+Message-ID: <20050502040505.GA6914@one-eyed-alien.net>
+Mail-Followup-To: Pete Zaitcev <zaitcev@redhat.com>, greg@kroah.com,
+	linux-kernel@vger.kernel.org
+References: <20050501160540.5b2f4e61.zaitcev@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
+Content-Disposition: inline
+In-Reply-To: <20050501160540.5b2f4e61.zaitcev@redhat.com>
+User-Agent: Mutt/1.4.1i
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2005 Matthew Dharm, all rights reserved.
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
 
-A typo in the machine table incorrectly mark the 101 PowerBook as
-needing explicit callback from the video driver to enable sleep mode. I
-did not implement that mecanism for chipsest older than r128, so we need
-to mark this machine as always beeing able to sleep for now.
+--0F1p//8PRICkK4MW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+On Sun, May 01, 2005 at 04:05:40PM -0700, Pete Zaitcev wrote:
+> @@ -49,7 +48,14 @@
+>  #define US_SC_SCSI	0x06		/* Transparent */
+> =20
+>  /*
+> + * This many LUNs per USB device.
+> + * Every one of them takes a host, see UB_MAX_HOSTS.
+>   */
+> +#define UB_MAX_LUNS   4
+> +
+> +/*
+> + */
+> +
 
-Index: linux-work/arch/ppc/platforms/pmac_feature.c
-===================================================================
---- linux-work.orig/arch/ppc/platforms/pmac_feature.c	2005-05-02 10:48:08.000000000 +1000
-+++ linux-work/arch/ppc/platforms/pmac_feature.c	2005-05-02 12:15:22.000000000 +1000
-@@ -2249,7 +2249,7 @@
- 	},
- 	{	"PowerBook1,1",			"PowerBook 101 (Lombard)",
- 		PMAC_TYPE_101_PBOOK,		paddington_features,
--		PMAC_MB_MAY_SLEEP | PMAC_MB_MOBILE
-+		PMAC_MB_CAN_SLEEP | PMAC_MB_MOBILE
- 	},
- 	{	"PowerBook2,1",			"iBook (first generation)",
- 		PMAC_TYPE_ORIG_IBOOK,		core99_features,
+Why only 4 LUNs?
 
+Matt
 
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
 
+G:   Baaap booop BAHHHP.
+Mir: 9600 Baud?
+Mik: No, no!  9600 goes baap booop, not booop bahhhp!
+					-- Greg, Miranda and Mike
+User Friendly, 12/31/1998
+
+--0F1p//8PRICkK4MW
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFCdabxHL9iwnUZqnkRAiowAKCl/Aqk7BQm7PsngiNgHASzheTSsQCgkfs7
+xGv2vB50VRQnBvFsqpcepqI=
+=MTEN
+-----END PGP SIGNATURE-----
+
+--0F1p//8PRICkK4MW--

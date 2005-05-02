@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261731AbVEBTg6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261730AbVEBTgI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261731AbVEBTg6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 15:36:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbVEBTg6
+	id S261730AbVEBTgI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 15:36:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbVEBTgI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 15:36:58 -0400
-Received: from fire.osdl.org ([65.172.181.4]:62644 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261731AbVEBTgq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 15:36:46 -0400
-Date: Mon, 2 May 2005 12:36:09 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@muc.de>
-Cc: venkatesh.pallipadi@intel.com, racing.guo@intel.com, luming.yu@intel.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]porting lockless mce from x86_64 to i386
-Message-Id: <20050502123609.19f18124.akpm@osdl.org>
-In-Reply-To: <20050502191159.GI27150@muc.de>
-References: <88056F38E9E48644A0F562A38C64FB60049EED02@scsmsx403.amr.corp.intel.com>
-	<20050502171551.GG27150@muc.de>
-	<20050502113125.19320ceb.akpm@osdl.org>
-	<20050502191159.GI27150@muc.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 2 May 2005 15:36:08 -0400
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:11145 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261730AbVEBTgG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 15:36:06 -0400
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Adrian Bunk <bunk@stusta.de>, LKML <linux-kernel@vger.kernel.org>
+Subject: Setting the hardware clock together with the system one(was: Re: [patch 1/1] x86_64: make string func definition work as intended)
+Date: Mon, 2 May 2005 21:36:41 +0200
+User-Agent: KMail/1.8
+References: <20050501190851.5FD5B45EBB@zion> <20050501155327.GX3592@stusta.de>
+In-Reply-To: <20050501155327.GX3592@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200505022136.42202.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@muc.de> wrote:
+On Sunday 01 May 2005 17:53, Adrian Bunk wrote:
+> On Sun, May 01, 2005 at 09:08:51PM +0200, blaisorblade@yahoo.it wrote:
+> >...                    ^^^^^^^^^^^^^^^^
 >
-> On Mon, May 02, 2005 at 11:31:25AM -0700, Andrew Morton wrote:
->  > Andi Kleen <ak@muc.de> wrote:
->  > >
->  > >  > 
->  > >  > Doing it either way should be OK with this mce code. But I feel, 
->  > >  > despite of the patch size, it is better to keep all the shared 
->  > >  > code in i386 tree and link it from x86-64. Otherwise, it may become 
->  > >  > kind of messy in future, with various links between i386 and x86-64.
->  > > 
->  > >  i386 already uses code from x86-64 (earlyprintk.c) - it is nothing 
->  > >  new.
->  > 
->  > I must say I don't like the bidirectional sharing either.
-> 
->  Why exactly?
+> Please correct the time settings on your computer.
+I'm doing it by hand at every reboot. Just discovered this stupid Gentoo 
+default setting:
 
-One reason is that it makes it harder to locate the code.  I ctag each of
-my architecture trees only with stuff from ./arch/that-architecture to reduce
-duplicate hits.  So I end up with some x86 functions being unlocatable in
-the x86 tree.  We end up with both x86_64 and x86 being broken in this
-regard.
+# If you want to sync the system clock to the hardware clock during
+# shutdown, then say "yes" here.
 
-But that's a relatively minor point.  The major point is that it gives me
-the creeps in hard-to-define ways ;)
+CLOCK_SYSTOHC="no"
+
+In other words, the kernel does not auto-adjusts the hardware clock? Well, 
+that's not nice... (maybe only the Gentoo setting).
+
+Regards.
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Skype user "PaoloGiarrusso"
+Linux registered user n. 292729
+http://www.user-mode-linux.org/~blaisorblade
 

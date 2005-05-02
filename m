@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbVEBOQU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVEBOiU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261260AbVEBOQU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 10:16:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbVEBOQU
+	id S261280AbVEBOiU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 10:38:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbVEBOiU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 10:16:20 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:26579 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S261260AbVEBOQR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 10:16:17 -0400
-Message-ID: <4276362B.1010004@grupopie.com>
-Date: Mon, 02 May 2005 15:16:11 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mark Broadbent <markb@wetlettuce.com>
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, netdev@oss.sgi.com
-Subject: Re: [PATCH] Tulip interrupt uses non IRQ safe spinlock
-References: <E1DRFqC-00028H-Qi@tigger>
-In-Reply-To: <E1DRFqC-00028H-Qi@tigger>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 2 May 2005 10:38:20 -0400
+Received: from main.gmane.org ([80.91.229.2]:43923 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261280AbVEBOiP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 10:38:15 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jon Escombe <trial@dresco.co.uk>
+Subject: Re: Suspend/Resume
+Date: Mon, 2 May 2005 14:23:59 +0000 (UTC)
+Message-ID: <loom.20050502T161322-252@post.gmane.org>
+References: <4267B5B0.8050608@davyandbeth.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 62.253.64.24 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050416 Fedora/1.0.3-1.3.1 Firefox/1.0.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Broadbent wrote:
-> The interrupt handling code in the tulip network driver appears to use a non 
-> IRQ safe spinlock in an interrupt context.  The following patch should correct 
-> this.
+Davy Durham <pubaddr2 <at> davyandbeth.com> writes:
 
-Huh? Can a network interrupt handler be interrupted by the same interrupt?
+> 
+> Hi,
+>   I've been trying for the last few days to get my D810 to suspend and 
+> resume in linux.
+> 
 
-AFAIK, the spin_lock_irqsave is to disable interruptions so that an
-interrupt can not happen in the critical section, so that the interrupt
-handler can not make modifications to shared data. Am I wrong?
+I have the same problem with a 2.6.11 kernel on an IBM T43, also with the new
+Sonoma chipset. 
 
--- 
-Paulo Marques - www.grupopie.com
+Although a PATA HDD, it appears to be presented as a SATA device (/dev/sda in
+Linux). It seems to be hanging on the first disk access following a resume, and
+I'm seeing the same behaviour with both APM and ACPI.
 
-All that is necessary for the triumph of evil is that good men do nothing.
-Edmund Burke (1729 - 1797)
+Happy to provide any information/assistance that I can to help resolve this..
+
+Regards,
+Jon.
+
 

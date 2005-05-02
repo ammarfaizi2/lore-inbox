@@ -1,83 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261432AbVEBQ3O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVEBRTr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261432AbVEBQ3O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 12:29:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbVEBQ2U
+	id S261359AbVEBRTr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 13:19:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbVEBRTP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 12:28:20 -0400
-Received: from post.arx.com ([212.25.66.95]:36191 "EHLO post.arx.com")
-	by vger.kernel.org with ESMTP id S261432AbVEBQRp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 12:17:45 -0400
-X-Mimeole: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: Re-routing packets via netfilter (ip_rt_bug)
-Date: Mon, 2 May 2005 19:17:16 +0200
-Message-ID: <4151C0F9B9C25C47B3328922A6297A3286CFB8@post.arx.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Re-routing packets via netfilter (ip_rt_bug)
-Thread-Index: AcVLKiK78AJdzKpmRxyqorAryLrbSgD3ejng
-From: "Yair Itzhaki" <Yair@arx.com>
-To: "Patrick McHardy" <kaber@trash.net>,
-       "Herbert Xu" <herbert@gondor.apana.org.au>
-Cc: "Jozsef Kadlecsik" <kadlec@blackhole.kfki.hu>, <netdev@oss.sgi.com>,
-       <netfilter-devel@lists.netfilter.org>, <linux-kernel@vger.kernel.org>
+	Mon, 2 May 2005 13:19:15 -0400
+Received: from nevyn.them.org ([66.93.172.17]:31446 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S261359AbVEBRSM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 13:18:12 -0400
+Date: Mon, 2 May 2005 13:18:02 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Bill Davidsen <davidsen@tmr.com>, Andrea Arcangeli <andrea@suse.de>,
+       Matt Mackall <mpm@selenic.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
+Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
+Message-ID: <20050502171802.GA28045@nevyn.them.org>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Bill Davidsen <davidsen@tmr.com>, Andrea Arcangeli <andrea@suse.de>,
+	Matt Mackall <mpm@selenic.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
+References: <20050430025211.GP17379@opteron.random> <42764C0C.8030604@tmr.com> <Pine.LNX.4.58.0505020921080.3594@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0505020921080.3594@ppc970.osdl.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can anyone propose a patch that I can start checking?
-
-I have come up with the following:
-
---- net/core/netfilter.c.orig   2005-04-18 21:55:30.000000000 +0300
-+++ net/core/netfilter.c        2005-05-02 17:35:20.000000000 +0300
-@@ -622,9 +622,10 @@
-        /* some non-standard hacks like ipt_REJECT.c:send_reset() can cause
-         * packets with foreign saddr to appear on the NF_IP_LOCAL_OUT hook.
-         */
--       if (inet_addr_type(iph->saddr) == RTN_LOCAL) {
-+       if ((inet_addr_type(iph->saddr) == RTN_LOCAL) ||
-+           (inet_addr_type(iph->daddr) == RTN_LOCAL)) {
-                fl.nl_u.ip4_u.daddr = iph->daddr;
--               fl.nl_u.ip4_u.saddr = iph->saddr;
-+               fl.nl_u.ip4_u.saddr = 0;
-                fl.nl_u.ip4_u.tos = RT_TOS(iph->tos);
-                fl.oif = (*pskb)->sk ? (*pskb)->sk->sk_bound_dev_if : 0;
- #ifdef CONFIG_IP_ROUTE_FWMARK
-
-Please advise,
-Yair
-
-
-> -----Original Message-----
-> From: Patrick McHardy [mailto:kaber@trash.net]
-> Sent: Wednesday, April 27, 2005 14:05
-> To: Herbert Xu
-> Cc: Jozsef Kadlecsik; netdev@oss.sgi.com; 
-> netfilter-devel@lists.netfilter.org; Yair Itzhaki; 
-> linux-kernel@vger.kernel.org
-> Subject: Re: Re-routing packets via netfilter (ip_rt_bug)
+On Mon, May 02, 2005 at 09:31:06AM -0700, Linus Torvalds wrote:
+> It's not about environment.
 > 
+> It's about the fact that many people have things like python in
+> /usr/local/bin/python, because they compiled it themselves or similar.
 > 
-> Herbert Xu wrote:
-> > Here is another reason why these packets should go through FORWARD.
-> > They were generated in response to packets in INPUT/FORWARD/OUTPUT.
-> > The original packet has not undergone SNAT in any of these cases.
-> > 
-> > However, if we feed the response packet through LOCAL_OUT it will
-> > be subject to DNAT.  This creates a NAT asymmetry and we may end
-> > up with the wrong destination address.
-> > 
-> > By pushing it through FORWARD it will only undergo SNAT which is
-> > correct since the original packet would have undergone DNAT.
+> Pretty much the only path you can _really_ depend on for #! stuff is 
+> /bin/sh.
 > 
-> This is only a problem since the recent NAT changes, but I agree
-> that we should fix it by moving these packets to FORWARD.
+> Any system that doesn't have /bin/sh is so fucked up that it's not worth
+> worrying about. Anything else can be in /bin, /usr/bin or /usr/local/bin
+> (and sometimes other strange places).
 > 
-> Regards
-> Patrick
+> That said, I think the /usr/bin/env trick is stupid too. It may be more 
+> portable for various Linux distributions, but if you want _true_ 
+> portability, you use /bin/sh, and you do something like
 > 
+> 	#!/bin/sh
+> 	exec perl perlscript.pl "$@"
+> 
+> instead.
+
+Do you know any vaguely Unix-like system where #!/usr/bin/env does not
+work?  I don't; I've used it on Solaris, HP-UX, OSF/1...
+
+-- 
+Daniel Jacobowitz
+CodeSourcery, LLC

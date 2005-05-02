@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbVEBRb1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbVEBQ3P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261367AbVEBRb1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 13:31:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbVEBQ1T
+	id S261428AbVEBQ3P (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 12:29:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbVEBQ2I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 12:27:19 -0400
-Received: from colin.muc.de ([193.149.48.1]:8966 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S261370AbVEBQKa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 12:10:30 -0400
-Date: 2 May 2005 18:10:29 +0200
-Date: Mon, 2 May 2005 18:10:29 +0200
-From: Andi Kleen <ak@muc.de>
-To: "Guo, Racing" <racing.guo@intel.com>
-Cc: Andrew Morton <akpm@osdl.org>, "Yu, Luming" <luming.yu@intel.com>,
+	Mon, 2 May 2005 12:28:08 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:48401 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261428AbVEBQP4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 12:15:56 -0400
+Message-Id: <200505021611.j42GBX5x008308@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: bunk@stusta.de, tomlins@cam.org, zwane@arm.linux.org.uk, akpm@osdl.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]porting lockless mce from x86_64 to i386
-Message-ID: <20050502161029.GF27150@muc.de>
-References: <16A54BF5D6E14E4D916CE26C9AD305750162F6F1@pdsmsx402.ccr.corp.intel.com>
+Subject: Re: 2.6.12-rc3-mm1 
+In-Reply-To: Your message of "Mon, 02 May 2005 08:49:30 PDT."
+             <20050502084930.6914e152.rddunlap@osdl.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <20050429231653.32d2f091.akpm@osdl.org> <Pine.LNX.4.61.0504301700470.3559@montezuma.fsmlabs.com> <20050430161032.0f5ac973.rddunlap@osdl.org> <200505010909.38277.tomlins@cam.org> <20050501133040.GB3592@stusta.de> <200505021528.j42FS5QJ006515@turing-police.cc.vt.edu>
+            <20050502084930.6914e152.rddunlap@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16A54BF5D6E14E4D916CE26C9AD305750162F6F1@pdsmsx402.ccr.corp.intel.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/signed; boundary="==_Exmh_1115050292_5213P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 02 May 2005 12:11:33 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 02, 2005 at 09:01:53AM +0800, Guo, Racing wrote:
-> >
-> >If Luming would not move the mce.c file from x86-64 to i386 then
-> >his patch would be only 1/4 as big. I dont know why he does this
-> >anyways, it seems completely pointless.
-> 
-> mce.c mce.h and mce_intel.c are moved from x86_64 to i386. so the
-> patch is very big. The motivation is to share mce code between
-> x86_64 and i386 and avoid duplicate code in x86_64 and i386.
-> I don't know whether I completely understand what you point.
-> Correct me if I am wrong.
+--==_Exmh_1115050292_5213P
+Content-Type: text/plain; charset=us-ascii
 
-You can share code as well by linking it from x86-64 into i386,
-not only the other way round.  This is already done for earlyprintk
-for example.
+On Mon, 02 May 2005 08:49:30 PDT, "Randy.Dunlap" said:
 
--Andi
+> Last I heard, Andrew had access to kernel.org transfer logs,
+> but the problem is that we can't tell anything about the download
+> counts from mirrors.
 
+Have to admit, I'm always hitting the kernel.org one, because that's the
+URL that Andrew puts in the announcements.  Probably a lot of others do
+so as well - so figure if half the people bother using a mirror rather
+than just going clicky-click, the kernel.org logs will reflect the other
+half.  Probably not perfect, but probably good enough to tell how many
+digits are in the number at least.
 
+(I'll go out on a limb and say "barely 3 digit's worth of downloads")...
+
+--==_Exmh_1115050292_5213P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCdlE0cC3lWbTT17ARAmGKAKC6LDKjrMgrocReY67343TN+gEbDACfcIwa
+QN96Ab9ELRY7Ni4jheE12xc=
+=pgCY
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1115050292_5213P--

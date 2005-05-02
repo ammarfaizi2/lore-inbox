@@ -1,37 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261456AbVEBQ3O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261516AbVEBRdu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261456AbVEBQ3O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 12:29:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbVEBQ2c
+	id S261516AbVEBRdu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 13:33:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbVEBRcR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 12:28:32 -0400
-Received: from verein.lst.de ([213.95.11.210]:43935 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S261447AbVEBQVL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 12:21:11 -0400
-Date: Mon, 2 May 2005 18:20:57 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Andi Kleen <ak@muc.de>
-Cc: Adrian Bunk <bunk@stusta.de>, Christoph Hellwig <hch@lst.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] {,un}register_ioctl32_conversion should have been removed last month
-Message-ID: <20050502162057.GA4056@lst.de>
-References: <20050502014550.GG3592@stusta.de> <20050502160916.GE27150@muc.de>
+	Mon, 2 May 2005 13:32:17 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:21512 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261402AbVEBQ1e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 12:27:34 -0400
+Message-Id: <200505021627.j42GRPhO009004@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>, greg@kroah.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Support multiply-LUN devices in ub 
+In-Reply-To: Your message of "Sun, 01 May 2005 21:24:38 PDT."
+             <20050501212438.08ae67f1.zaitcev@redhat.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20050501160540.5b2f4e61.zaitcev@redhat.com> <20050502040505.GA6914@one-eyed-alien.net>
+            <20050501212438.08ae67f1.zaitcev@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050502160916.GE27150@muc.de>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+Content-Type: multipart/signed; boundary="==_Exmh_1115051244_5213P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 02 May 2005 12:27:25 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 02, 2005 at 06:09:16PM +0200, Andi Kleen wrote:
-> On Mon, May 02, 2005 at 03:45:51AM +0200, Adrian Bunk wrote:
-> > This removal should have happened last month.
-> 
-> Thanks. I believe I2O and s390 are still using it though. The I2O patch
-> is pending somewhere and s390 will hopefully catch up. 
+--==_Exmh_1115051244_5213P
+Content-Type: text/plain; charset=us-ascii
 
-both i2o and s390 have been converted away from it in mainline.
+On Sun, 01 May 2005 21:24:38 PDT, Pete Zaitcev said:
 
+> Why would you want more though? I have a 12-in-1 reader which only
+> exports 4 LUNs. If someone attached enterprise storage arrays to USB,
+> it might be a good idea to remove the limit completely.
+
+Hmm.. it *is* our policy to allow the sysadmin enough rope to shoot themselves
+in the foot, isn't it? ;)
+
+--==_Exmh_1115051244_5213P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCdlTscC3lWbTT17ARAqmtAKDGwazK2q+fq8PDpe/2y1E3jihIywCgqNz5
+8UWz0X/3qs3LS1QVHcVERJs=
+=XAkd
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1115051244_5213P--

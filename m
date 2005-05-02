@@ -1,105 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbVEBWsJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbVEBWuh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261206AbVEBWsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 18:48:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbVEBWsJ
+	id S261201AbVEBWuh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 18:50:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbVEBWug
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 18:48:09 -0400
-Received: from fire.osdl.org ([65.172.181.4]:38788 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261194AbVEBWr4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 18:47:56 -0400
-Date: Mon, 2 May 2005 15:49:49 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Matt Mackall <mpm@selenic.com>
-cc: Bill Davidsen <davidsen@tmr.com>, Morten Welinder <mwelinder@gmail.com>,
-       Sean <seanlkml@sympatico.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
-In-Reply-To: <20050502223002.GP21897@waste.org>
-Message-ID: <Pine.LNX.4.58.0505021540070.3594@ppc970.osdl.org>
-References: <20050429165232.GV21897@waste.org> <427650E7.2000802@tmr.com>
- <Pine.LNX.4.58.0505021457060.3594@ppc970.osdl.org> <20050502223002.GP21897@waste.org>
+	Mon, 2 May 2005 18:50:36 -0400
+Received: from smtp.blackdown.de ([213.239.206.42]:8602 "EHLO
+	smtp.blackdown.de") by vger.kernel.org with ESMTP id S261201AbVEBWu3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 18:50:29 -0400
+From: Juergen Kreileder <jk@blackdown.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
+       maneesh@in.ibm.com, benh@kernel.crashing.org
+Subject: Re: [PATCH] fix __mod_timer vs __run_timers deadlock.
+References: <42748B75.D6CBF829@tv-sign.ru>
+	<20050501023149.6908c573.akpm@osdl.org>
+X-PGP-Key: http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0x730A28A5
+X-PGP-Fingerprint: 7C19 D069 9ED5 DC2E 1B10  9859 C027 8D5B 730A 28A5
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>, Oleg Nesterov
+	<oleg@tv-sign.ru>, linux-kernel@vger.kernel.org, maneesh@in.ibm.com,
+	benh@kernel.crashing.org
+Date: Tue, 03 May 2005 00:50:24 +0200
+In-Reply-To: <20050501023149.6908c573.akpm@osdl.org> (Andrew Morton's message
+	of "Sun, 1 May 2005 02:31:49 -0700")
+Message-ID: <87vf61kztb.fsf@blackdown.de>
+Organization: Blackdown Java-Linux Team
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton <akpm@osdl.org> writes:
+
+> Oleg Nesterov <oleg@tv-sign.ru> wrote:
+>>
+>> When __mod_timer() changes timer's base it waits for the completion
+>> of timer->function. It is just stupid: the caller of __mod_timer()
+>> can held locks which would prevent completion of the timer's
+>> handler.
+>>
+>> Solution: do not change the base of the currently running timer.
+>
+> OK, fingers crossed.  Juergen, it would be great if you could test
+> Oleg's patch sometime.
+
+I had one more lockup yesterday but that probably was caused by
+something else because Azureus is running fine for 24 hours now.
+
+Thanks Oleg!
 
 
-On Mon, 2 May 2005, Matt Mackall wrote:
-> > 
-> >  - you can share the objects freely between different trees, never 
-> >    worrying about one tree corrupting another trees object by mistake.
-> 
-> Not sure if this is terribly useful. It just makes it harder to pull
-> the subset you're interested in.
+        Juergen
 
-You don't have to share things in a single subdirectory. Symlinks and 
-hardlinks work fine, as do actual filesystem tricks ;)
-
-> >  - you can drop old objects.
-> 
-> You can't drop old objects without dropping all the changesets that
-> refer to them or otherwise being prepared to deal with the broken
-> links.
-
-Absolutely. This needs support from fsck to allow us to say "commit xxxx 
-is no longer in the tree, because we pruned it".
-
-Alternatively (and that's the much less intrusive one), you keep all the
-commit objects, but drop the tree and blob objects. Again, all you need 
-for this to work is just feed a list of commits to fsck, and tell it 
-"we've pruned those from the tree", which tells fsck not to start looking 
-for the contents of those commits.
-
-So for example, you can trivially have something that automates this: take 
-each commit that is older than <x> days, add it to the "prune list", and 
-run fsck, and delete all objects that now show up as being unreachable 
-(since fsck won't be looking at what those commits reference).
-
-I could write this up in ten minutes. It's really simple.
-
-And it's simple _exactly_ because we don't do deltas.
-
-> > delta models very fundamentally don't support this. 
-> 
-> The latter can be done in a pretty straightforward manner in mercurial
-> with one pass over the data. But I have a goal to make keeping the
-> whole history cheap enough that no one balks at it.
-
-With delta's, you have two choices:
-
- - change all the sha1 names (ie a pruned tree would no longer be 
-   compatible with a non-pruned one)
- - make the delta part not show up as part of the sha1 name (which means 
-   that it's unprotected).
-
-which one would you have?
-
-> What is a tree re-linker? Finds duplicate files and hard-links them?
-> Ok, that makes some sense. But it's a win on one machine and a lose
-> everywhere else.
-
-Where would it be a loss? Esepcially since with git, it's cheap (you don't 
-need to compare content to find objects to link - you can just compare 
-filename listings).
-
-> I've added an "hg verify" command to Mercurial. It doesn't attempt to
-> fix anything up yet, but it can catch a couple things that git
-> probably can't (like file revisions that aren't owned by any
-> changeset), namely because there's more metadata around to look at.
-
-git-fsck-cache catches exactly those kinds of things. And since it checks
-pretty much every _single_ assumption in git (which is not a lot, since
-git doesn't have a lot of assumptions), I guarantee you that you can't
-find any more than it does (the filename ordering is the big missing
-piece: I _still_ don't verify that trees are ordered. I've been mentioning
-it since the beginning, but I'm lazy).
-
-In other words, your verifier can't verify anything more. It's entirely 
-possible that more things can go _wrong_, since you have more indexes, so 
-your verifier will have more to check, but that's not an advantage, that's 
-a downside.
-
-		Linus
+-- 
+Juergen Kreileder, Blackdown Java-Linux Team
+http://blog.blackdown.de/

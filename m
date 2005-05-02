@@ -1,68 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbVEBQtp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261483AbVEBQxn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261474AbVEBQtp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 12:49:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbVEBQqd
+	id S261483AbVEBQxn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 12:53:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbVEBQvB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 12:46:33 -0400
-Received: from cantor.suse.de ([195.135.220.2]:52407 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261516AbVEBQmx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 12:42:53 -0400
-Date: Mon, 2 May 2005 18:42:43 +0200
-From: Andi Kleen <ak@suse.de>
-To: Alexander Nyberg <alexn@telia.com>
-Cc: Andi Kleen <ak@suse.de>, Ruben Puettmann <ruben@puettmann.net>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, rddunlap@osdl.org
-Subject: Re: 2.6.11.7 kernel panic on boot on AMD64
-Message-ID: <20050502164243.GH7342@wotan.suse.de>
-References: <20050427140342.GG10685@puettmann.net> <1114769162.874.4.camel@localhost.localdomain> <20050429143215.GE21080@wotan.suse.de> <20050429144103.GK18972@puettmann.net> <20050429144501.GH21080@wotan.suse.de> <1114805516.7659.2.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Mon, 2 May 2005 12:51:01 -0400
+Received: from one.firstfloor.org ([213.235.205.2]:48355 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S261483AbVEBQtQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 12:49:16 -0400
+To: Andy Lutomirski <luto@myrealbox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [x86_64] how worried should I be about MCEs?
+References: <4273E7B1.6020500@myrealbox.com>
+From: Andi Kleen <ak@muc.de>
+Date: Mon, 02 May 2005 18:49:12 +0200
+In-Reply-To: <4273E7B1.6020500@myrealbox.com> (Andy Lutomirski's message of
+ "Sat, 30 Apr 2005 13:16:49 -0700")
+Message-ID: <m1d5s9y3nb.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1114805516.7659.2.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 29, 2005 at 10:11:56PM +0200, Alexander Nyberg wrote:
-> > Ok. If you really had such a overlong command line it is ok.
-> > 
-> > We should probably check this condition better too and error out.
-> > 
-> 
-> How about something like this then (I was thinking making it a panic but
-> not sure). I think it's a good idea to give some kind of indication so
-> that there is at least some message when the user discovers that some
-> things specified on cmdline don't start/work.
+Andy Lutomirski <luto@myrealbox.com> writes:
 
-Looks good.  Thanks.
+> Every now and then, after rebooting, the kernel notices some
+> MCEs. Should I be worried about this?
 
-At some point should also figure out how to make it bigger.
-I tried it once, but it broke lilo with EDID.
+
+>
+> (mcelog attached)
+>
+> Thanks,
+> Andy
+>
+>
+> MCE 0
+> CPU 0 0 data cache from boot or resume
+> ADDR 480b0c84df48
+>    Data cache ECC error (syndrome c8)
+
+These are harmless. I have one machine that generates them too.
+I think they happen because the BIOS either does something
+incorrectly while booting the POSting the CPU or these are
+expected and it forgets to clear them. Only a few BIOS
+seem to do it, so it is probably a BIOS bug. 
+
+You see them because the MCE code logs boot MCEs now.
+That is because it is the only way to log MCEs that 
+cause the system to reboot is to log them after the reboot.
+
+Some of the bit combinations are clearly non sensical, like
+corrected ECC error with error uncorrected and the Address
+is bogus.
+
+I have been pondering to add some filter to remove
+these bogus MCEs, but I have not come up with 
+a good heuristic yet. Perhaps ignore all MCEs at resume
+with addresses that are beyond the physical memory.
+But that would not have caught the last one.
 
 -Andi
 
-> 
-> 
-> Check if the user specified a too long kernel command line and warn
-> about it being truncated. 
-> 
-> Signed-off-by: Alexander Nyberg <alexn@telia.com>
-> 
-> Index: linux-2.6/init/main.c
-> ===================================================================
-> --- linux-2.6.orig/init/main.c	2005-04-26 11:41:57.000000000 +0200
-> +++ linux-2.6/init/main.c	2005-04-29 20:28:44.000000000 +0200
-> @@ -456,6 +456,8 @@
->  	build_all_zonelists();
->  	page_alloc_init();
->  	printk(KERN_NOTICE "Kernel command line: %s\n", saved_command_line);
-> +	if (strlen(saved_command_line) == COMMAND_LINE_SIZE-1)
-> +		printk(KERN_ALERT "WARNING: Too long command line! Truncated.\n");
->  	parse_early_param();
->  	parse_args("Booting kernel", command_line, __start___param,
->  		   __stop___param - __start___param,
-> 
-> 
-> 
-> 
+[intentional full quote for Mark]
+
+>         bit46 = corrected ecc error
+>         bit57 = processor context corrupt
+>         bit61 = error uncorrected
+>         bit62 = error overflow (multiple errors)
+> STATUS f66440000000438d MCGSTATUS 0
+> MCE 1
+> CPU 0 1 instruction cache from boot or resume
+> ADDR 75e2bb87ec57f8e0
+>    Instruction cache ECC error
+>         bit32 = err cpu0
+>         bit33 = err cpu1
+>         bit35 = res3
+>         bit43 = res11
+>         bit45 = uncorrected ecc error
+>         bit46 = corrected ecc error
+>         bit55 = res23
+>         bit56 = res24
+>         bit57 = processor context corrupt
+>         bit59 = misc error valid
+>         bit61 = error uncorrected
+>         bit62 = error overflow (multiple errors)
+> STATUS ffe4681bd0e45d81 MCGSTATUS 0
+> MCE 2
+> CPU 0 3 load/store unit from boot or resume
+> MISC 8005003b8005003b
+>         bit57 = processor context corrupt
+>         bit59 = misc error valid
+>         bit61 = error uncorrected
+>         bit62 = error overflow (multiple errors)
+> STATUS fa0000000000d0c5 MCGSTATUS 0
+> MCE 3
+> CPU 0 4 northbridge from boot or resume
+> ADDR 102000020
+>    Northbridge ECC error
+>    ECC syndrome = 0
+>         bit32 = err cpu0
+>         bit33 = err cpu1
+>         bit40 = error found by scrub
+>         bit45 = uncorrected ecc error
+>         bit57 = processor context corrupt
+>         bit61 = error uncorrected
+> STATUS b600215300001e0f MCGSTATUS 0

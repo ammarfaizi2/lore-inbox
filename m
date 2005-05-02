@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbVEBT2s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261731AbVEBTg6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261728AbVEBT2s (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 15:28:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbVEBT2s
+	id S261731AbVEBTg6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 15:36:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbVEBTg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 15:28:48 -0400
-Received: from diadema.skane.tbv.se ([193.13.139.13]:14236 "EHLO
-	diadema.skane.tbv.se") by vger.kernel.org with ESMTP
-	id S261724AbVEBT2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 15:28:45 -0400
-From: "Oskar Liljeblad" <oskar@osk.mine.nu>
-Date: Mon, 2 May 2005 21:28:43 +0200
-To: linux-ide@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: clock drift with two Promise Ultra133 TX2 (PDC 20269) cards
-Message-ID: <20050502192843.GA3367@oskar>
+	Mon, 2 May 2005 15:36:58 -0400
+Received: from fire.osdl.org ([65.172.181.4]:62644 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261731AbVEBTgq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 15:36:46 -0400
+Date: Mon, 2 May 2005 12:36:09 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andi Kleen <ak@muc.de>
+Cc: venkatesh.pallipadi@intel.com, racing.guo@intel.com, luming.yu@intel.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]porting lockless mce from x86_64 to i386
+Message-Id: <20050502123609.19f18124.akpm@osdl.org>
+In-Reply-To: <20050502191159.GI27150@muc.de>
+References: <88056F38E9E48644A0F562A38C64FB60049EED02@scsmsx403.amr.corp.intel.com>
+	<20050502171551.GG27150@muc.de>
+	<20050502113125.19320ceb.akpm@osdl.org>
+	<20050502191159.GI27150@muc.de>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
-X-Spam-Score: 0.0 (/)
-X-Spam-Report: Spam detection software, running on the system "diadema.skane.tbv.se", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  I'm running 2.6.11.8 on an server with two Promise
-	Ultra133 TX2 (PDC20269) PCI cards, same hardware revision (judging from
-	stickers on the cards). I'm using the CONFIG_BLK_DEV_PDC202XX_NEW
-	driver. Each card has two connected hard drives. Whenever I read from a
-	disk on one of the cards (e.g. using 'dd if=/dev/hdX of=/dev/null
-	bs=1M'), and at the same time read from a disk on the other card, there
-	is heavy software clock drift. It drifts about 2-5 seconds per minute.
-	[...] 
-	Content analysis details:   (0.0 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm running 2.6.11.8 on an server with two Promise Ultra133 TX2 (PDC20269)
-PCI cards, same hardware revision (judging from stickers on the cards).
-I'm using the CONFIG_BLK_DEV_PDC202XX_NEW driver.
-Each card has two connected hard drives. Whenever I read from a disk
-on one of the cards (e.g. using 'dd if=/dev/hdX of=/dev/null bs=1M'), and
-at the same time read from a disk on the other card, there is heavy
-software clock drift. It drifts about 2-5 seconds per minute.
+Andi Kleen <ak@muc.de> wrote:
+>
+> On Mon, May 02, 2005 at 11:31:25AM -0700, Andrew Morton wrote:
+>  > Andi Kleen <ak@muc.de> wrote:
+>  > >
+>  > >  > 
+>  > >  > Doing it either way should be OK with this mce code. But I feel, 
+>  > >  > despite of the patch size, it is better to keep all the shared 
+>  > >  > code in i386 tree and link it from x86-64. Otherwise, it may become 
+>  > >  > kind of messy in future, with various links between i386 and x86-64.
+>  > > 
+>  > >  i386 already uses code from x86-64 (earlyprintk.c) - it is nothing 
+>  > >  new.
+>  > 
+>  > I must say I don't like the bidirectional sharing either.
+> 
+>  Why exactly?
 
-This does not happen if I read from two drives connected on the same
-card, or if I read from a drive connected to the motherboard IDE
-(VIA vt8233a) and a drive on either of the Promise cards.
+One reason is that it makes it harder to locate the code.  I ctag each of
+my architecture trees only with stuff from ./arch/that-architecture to reduce
+duplicate hits.  So I end up with some x86 functions being unlocatable in
+the x86 tree.  We end up with both x86_64 and x86 being broken in this
+regard.
 
-Oskar Liljeblad (oskar@osk.mine.nu)
+But that's a relatively minor point.  The major point is that it gives me
+the creeps in hard-to-define ways ;)
+

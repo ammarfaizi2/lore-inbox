@@ -1,299 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbVEBAtt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbVEBBCh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261597AbVEBAtt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 20:49:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbVEBAtt
+	id S261378AbVEBBCh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 21:02:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261393AbVEBBCh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 20:49:49 -0400
-Received: from [203.2.177.22] ([203.2.177.22]:22281 "EHLO pinot.tusc.com.au")
-	by vger.kernel.org with ESMTP id S261591AbVEBAsO (ORCPT
+	Sun, 1 May 2005 21:02:37 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:22737 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261378AbVEBBCg convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 20:48:14 -0400
-Subject: [PATCH 2/2-2.6.11.8]x25: Fast select with no restriction on
-	response
-From: Shaun Pereira <spereira@tusc.com.au>
-Reply-To: spereira@tusc.com.au
-To: linux-x25 <linux-x25@vger.kernel.org>
-Cc: linux-kenel <linux-kernel@vger.kernel.org>,
-       x25 maintainer <eis@baty.hanse.de>
-Content-Type: text/plain
-Organization: TUSC
-Date: Mon, 02 May 2005 10:46:51 +1000
-Message-Id: <1114994811.9053.15.camel@spereira05.tusc.com.au>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 May 2005 00:46:59.0656 (UTC) FILETIME=[72C39C80:01C54EB0]
+	Sun, 1 May 2005 21:02:36 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH]porting lockless mce from x86_64 to i386
+Date: Mon, 2 May 2005 09:01:53 +0800
+Message-ID: <16A54BF5D6E14E4D916CE26C9AD305750162F6F1@pdsmsx402.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH]porting lockless mce from x86_64 to i386
+Thread-Index: AcVM0AQluF4gnHUuT92/MO2ZWHjGzgB4l4CA
+From: "Guo, Racing" <racing.guo@intel.com>
+To: "Andi Kleen" <ak@muc.de>, "Andrew Morton" <akpm@osdl.org>
+Cc: "Yu, Luming" <luming.yu@intel.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 02 May 2005 01:01:55.0075 (UTC) FILETIME=[8879B530:01C54EB2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is a follow up to patch 1 regarding "Selective Sub Address
-matching with call user data". It allows use of the Fast-Select-Acceptance 
-optional user facility for X.25. This patch just implements fast select with no 
-restriction on response (NRR). What this means (according to ITU-T 
-Recomendation 10/96 section 6.16) is that if in an incoming call packet, 
-the relevant facility bits are set for fast-select-NRR, then the called DTE can
-issue a direct response to the incoming packet using a call-accepted packet that
-contains call-user-data. This patch allows such a response. 
+>
+>If Luming would not move the mce.c file from x86-64 to i386 then
+>his patch would be only 1/4 as big. I dont know why he does this
+>anyways, it seems completely pointless.
 
-The called DTE can also respond with a clear-request packet that contains 
-call-user-data. However, this feature is currently not implemented by the patch.
-
-How is Fast Select Accetance used?
-By default, the system does not allow fast select acceptance (as before).
-To enable a response to fast select acceptance,  
-After a listen socket in created and bound as follows
-	socket(AF_X25, SOCK_SEQPACKET, 0);
-	bind(call_soc, (struct sockaddr *)&locl_addr, sizeof(locl_addr));
-but before a listen system call is made, the following ioctl should be used.
-	ioctl(call_soc,SIOCX25CALLACCPTAPPRV);
-Now the listen system call can be made
-	listen(call_soc, 4);
-After this, an incoming-call packet will be accepted, but no call-accepted 
-packet will be sent back until the following system call is made on the socket
-that accepts the call
-	ioctl(vc_soc,SIOCX25SENDCALLACCPT);
-The network (or cisco xot router used for testing here) will allow the 
-application server's call-user-data in the call-accepted packet, 
-provided the call-request was made with Fast-select NRR.
-
-Signed-off-by: Shaun Pereira <spereira@tusc.com.au>
-
-diff -uprN -X dontdiff linux-2.6.11.8-vanilla/include/linux/x25.h linux-2.6.11.8/include/linux/x25.h
---- linux-2.6.11.8-vanilla/include/linux/x25.h	2005-05-02 10:31:14.000000000 +1000
-+++ linux-2.6.11.8/include/linux/x25.h	2005-05-02 10:32:02.000000000 +1000
-@@ -19,6 +19,8 @@
- #define	SIOCX25SCALLUSERDATA	(SIOCPROTOPRIVATE + 5)
- #define	SIOCX25GCAUSEDIAG	(SIOCPROTOPRIVATE + 6)
- #define SIOCX25SCUDMATCHLEN	(SIOCPROTOPRIVATE + 7)
-+#define SIOCX25CALLACCPTAPPRV   (SIOCPROTOPRIVATE + 8)
-+#define SIOCX25SENDCALLACCPT    (SIOCPROTOPRIVATE + 9)
- 
- /*
-  *	Values for {get,set}sockopt.
-diff -uprN -X dontdiff linux-2.6.11.8-vanilla/include/net/x25.h linux-2.6.11.8/include/net/x25.h
---- linux-2.6.11.8-vanilla/include/net/x25.h	2005-05-02 10:31:14.000000000 +1000
-+++ linux-2.6.11.8/include/net/x25.h	2005-05-02 10:32:02.000000000 +1000
-@@ -78,6 +78,8 @@ enum {
- #define	X25_DEFAULT_PACKET_SIZE	X25_PS128		/* Default Packet Size */
- #define	X25_DEFAULT_THROUGHPUT	0x0A			/* Deafult Throughput */
- #define	X25_DEFAULT_REVERSE	0x00			/* Default Reverse Charging */
-+#define X25_DENY_ACCPT_APPRV   0x01			/* Default value */
-+#define X25_ALLOW_ACCPT_APPRV  0x00			/* Control enabled */
- 
- #define X25_SMODULUS 		8
- #define	X25_EMODULUS		128
-@@ -93,7 +95,7 @@ enum {
- #define	X25_FAC_CLASS_C		0x80
- #define	X25_FAC_CLASS_D		0xC0
- 
--#define	X25_FAC_REVERSE		0x01
-+#define	X25_FAC_REVERSE		0x01			/* also fast select */
- #define	X25_FAC_THROUGHPUT	0x02
- #define	X25_FAC_PACKET_SIZE	0x42
- #define	X25_FAC_WINDOW_SIZE	0x43
-@@ -133,7 +135,7 @@ struct x25_opt {
- 	struct x25_address	source_addr, dest_addr;
- 	struct x25_neigh	*neighbour;
- 	unsigned int		lci, cudmatchlength;
--	unsigned char		state, condition, qbitincl, intflag;
-+	unsigned char		state, condition, qbitincl, intflag, accptapprv;
- 	unsigned short		vs, vr, va, vl;
- 	unsigned long		t2, t21, t22, t23;
- 	unsigned short		fraglen;
-diff -uprN -X dontdiff linux-2.6.11.8-vanilla/net/x25/af_x25.c linux-2.6.11.8/net/x25/af_x25.c
---- linux-2.6.11.8-vanilla/net/x25/af_x25.c	2005-05-02 10:31:14.000000000 +1000
-+++ linux-2.6.11.8/net/x25/af_x25.c	2005-05-02 10:32:02.000000000 +1000
-@@ -31,6 +31,8 @@
-  *					x25_proc.c, using seq_file
-  *	2005-04-02	Shaun Pereira	Selective sub address matching
-  *					with call user data
-+ *	2005-04-15	Shaun Pereira	Fast select with no restriction on
-+ *					response
-  */
- 
- #include <linux/config.h>
-@@ -509,6 +511,8 @@ static int x25_create(struct socket *soc
- 	x25->t2    = sysctl_x25_ack_holdback_timeout;
- 	x25->state = X25_STATE_0;
- 	x25->cudmatchlength = 0;
-+	x25->accptapprv = X25_DENY_ACCPT_APPRV;		/* normally no cud  */
-+							/* on call accept   */
- 
- 	x25->facilities.winsize_in  = X25_DEFAULT_WINDOW_SIZE;
- 	x25->facilities.winsize_out = X25_DEFAULT_WINDOW_SIZE;
-@@ -554,6 +558,7 @@ static struct sock *x25_make_new(struct 
- 	x25->facilities = ox25->facilities;
- 	x25->qbitincl   = ox25->qbitincl;
- 	x25->cudmatchlength = ox25->cudmatchlength;
-+	x25->accptapprv = ox25->accptapprv;
- 
- 	x25_init_timers(sk);
- out:
-@@ -903,9 +908,11 @@ int x25_rx_call_request(struct sk_buff *
- 	makex25->vc_facil_mask &= ~X25_MASK_REVERSE;
- 	makex25->cudmatchlength = x25_sk(sk)->cudmatchlength;
- 
--	x25_write_internal(make, X25_CALL_ACCEPTED);
--
--	makex25->state = X25_STATE_3;
-+	/* Normally all calls are accepted immediatly */
-+	if(makex25->accptapprv & X25_DENY_ACCPT_APPRV) {
-+		x25_write_internal(make, X25_CALL_ACCEPTED);
-+		makex25->state = X25_STATE_3;
-+	}
- 
- 	/*
- 	 *	Incoming Call User Data.
-@@ -1297,7 +1304,8 @@ static int x25_ioctl(struct socket *sock
- 			if (facilities.throughput < 0x03 ||
- 			    facilities.throughput > 0xDD)
- 				break;
--			if (facilities.reverse && facilities.reverse != 1)
-+			if (facilities.reverse &&
-+				(facilities.reverse | 0x81)!= 0x81)
- 				break;
- 			x25->facilities = facilities;
- 			rc = 0;
-@@ -1351,6 +1359,27 @@ static int x25_ioctl(struct socket *sock
- 			break;
- 		}
- 
-+		case SIOCX25CALLACCPTAPPRV: {
-+			rc = -EINVAL;
-+			if (sk->sk_state != TCP_CLOSE)
-+				break;
-+			x25->accptapprv = X25_ALLOW_ACCPT_APPRV;
-+			rc = 0;
-+			break;
-+		}
-+
-+		case SIOCX25SENDCALLACCPT:  {
-+			rc = -EINVAL;
-+			if (sk->sk_state != TCP_ESTABLISHED)
-+				break;
-+			if (x25->accptapprv)	/* must call accptapprv above */
-+				break;
-+			x25_write_internal(sk, X25_CALL_ACCEPTED);
-+			x25->state = X25_STATE_3;
-+			rc = 0;
-+			break;
-+		}
-+
-  		default:
- 			rc = dev_ioctl(cmd, argp);
- 			break;
-diff -uprN -X dontdiff linux-2.6.11.8-vanilla/net/x25/x25_facilities.c linux-2.6.11.8/net/x25/x25_facilities.c
---- linux-2.6.11.8-vanilla/net/x25/x25_facilities.c	2005-04-30 11:28:36.000000000 +1000
-+++ linux-2.6.11.8/net/x25/x25_facilities.c	2005-05-02 10:32:02.000000000 +1000
-@@ -17,6 +17,8 @@
-  *	X.25 001	Split from x25_subr.c
-  *	mar/20/00	Daniela Squassoni Disabling/enabling of facilities 
-  *					  negotiation.
-+ *	apr/14/05	Shaun Pereira - Allow fast select with no restriction
-+ *					on response.
-  */
- 
- #include <linux/kernel.h>
-@@ -43,9 +45,31 @@ int x25_parse_facilities(struct sk_buff 
- 		case X25_FAC_CLASS_A:
- 			switch (*p) {
- 			case X25_FAC_REVERSE:
--				facilities->reverse = p[1] & 0x01;
--				*vc_fac_mask |= X25_MASK_REVERSE;
--				break;
-+				if((p[1] & 0x81) == 0x81) {
-+					facilities->reverse = p[1] & 0x81;
-+					*vc_fac_mask |= X25_MASK_REVERSE;
-+					break;
-+				}
-+
-+				if((p[1] & 0x01) == 0x01) {
-+					facilities->reverse = p[1] & 0x01;
-+					*vc_fac_mask |= X25_MASK_REVERSE;
-+					break;
-+				}
-+
-+				if((p[1] & 0x80) == 0x80) {
-+					facilities->reverse = p[1] & 0x80;
-+					*vc_fac_mask |= X25_MASK_REVERSE;
-+					break;
-+				}
-+
-+				if(p[1] == 0x00) {
-+					facilities->reverse
-+						= X25_DEFAULT_REVERSE;
-+					*vc_fac_mask |= X25_MASK_REVERSE;
-+					break;
-+				}
-+
- 			case X25_FAC_THROUGHPUT:
- 				facilities->throughput = p[1];
- 				*vc_fac_mask |= X25_MASK_THROUGHPUT;
-@@ -122,7 +146,7 @@ int x25_create_facilities(unsigned char 
- 
- 	if (facilities->reverse && (facil_mask & X25_MASK_REVERSE)) {
- 		*p++ = X25_FAC_REVERSE;
--		*p++ = !!facilities->reverse;
-+		*p++ = facilities->reverse;
- 	}
- 
- 	if (facilities->throughput && (facil_mask & X25_MASK_THROUGHPUT)) {
-@@ -171,7 +195,7 @@ int x25_negotiate_facilities(struct sk_b
- 	/*
- 	 *	They want reverse charging, we won't accept it.
- 	 */
--	if (theirs.reverse && ours->reverse) {
-+	if ((theirs.reverse & 0x01 ) && (ours->reverse & 0x01)) {
- 		SOCK_DEBUG(sk, "X.25: rejecting reverse charging request");
- 		return -1;
- 	}
-diff -uprN -X dontdiff linux-2.6.11.8-vanilla/net/x25/x25_subr.c linux-2.6.11.8/net/x25/x25_subr.c
---- linux-2.6.11.8-vanilla/net/x25/x25_subr.c	2005-05-02 10:31:14.000000000 +1000
-+++ linux-2.6.11.8/net/x25/x25_subr.c	2005-05-02 10:32:02.000000000 +1000
-@@ -19,6 +19,8 @@
-  *	mar/20/00	Daniela Squassoni Disabling/enabling of facilities
-  *					  negotiation.
-  *	jun/24/01	Arnaldo C. Melo	  use skb_queue_purge, cleanups
-+ *	apr/04/15	Shaun Pereira		Fast select with no
-+ *						restriction on response.
-  */
- 
- #include <linux/kernel.h>
-@@ -127,8 +129,12 @@ void x25_write_internal(struct sock *sk,
- 			len += 1 + X25_ADDR_LEN + X25_MAX_FAC_LEN +
- 			       X25_MAX_CUD_LEN;
- 			break;
--		case X25_CALL_ACCEPTED:
--			len += 1 + X25_MAX_FAC_LEN + X25_MAX_CUD_LEN;
-+		case X25_CALL_ACCEPTED: /* fast sel with no restr on resp */
-+			if(x25->facilities.reverse & 0x80) {
-+				len += 1 + X25_MAX_FAC_LEN + X25_MAX_CUD_LEN;
-+			} else {
-+				len += 1 + X25_MAX_FAC_LEN;
-+			}
- 			break;
- 		case X25_CLEAR_REQUEST:
- 		case X25_RESET_REQUEST:
-@@ -203,9 +209,16 @@ void x25_write_internal(struct sock *sk,
- 							x25->vc_facil_mask);
- 			dptr    = skb_put(skb, len);
- 			memcpy(dptr, facilities, len);
--			dptr = skb_put(skb, x25->calluserdata.cudlength);
--			memcpy(dptr, x25->calluserdata.cuddata,
--			       x25->calluserdata.cudlength);
-+
-+			/* fast select with no restriction on response
-+				allows call user data. Userland must
-+				ensure it is ours and not theirs */
-+			if(x25->facilities.reverse & 0x80) {
-+				dptr = skb_put(skb,
-+					x25->calluserdata.cudlength);
-+				memcpy(dptr, x25->calluserdata.cuddata,
-+				       x25->calluserdata.cudlength);
-+			}
- 			x25->calluserdata.cudlength = 0;
- 			break;
- 
-
-
+mce.c mce.h and mce_intel.c are moved from x86_64 to i386. so the
+patch is very big. The motivation is to share mce code between
+x86_64 and i386 and avoid duplicate code in x86_64 and i386.
+I don't know whether I completely understand what you point.
+Correct me if I am wrong.

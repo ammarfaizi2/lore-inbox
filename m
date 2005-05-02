@@ -1,78 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbVEBShu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbVEBRb1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261598AbVEBShu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 14:37:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbVEBSht
+	id S261367AbVEBRb1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 13:31:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbVEBQ1T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 14:37:49 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:41866 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261598AbVEBShi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 14:37:38 -0400
-Message-ID: <427650E7.2000802@tmr.com>
-Date: Mon, 02 May 2005 12:10:15 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matt Mackall <mpm@selenic.com>
-CC: Morten Welinder <mwelinder@gmail.com>, Linus Torvalds <torvalds@osdl.org>,
-       Sean <seanlkml@sympatico.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
-References: <118833cc05042908181d09bdfd@mail.gmail.com><118833cc05042908181d09bdfd@mail.gmail.com> <20050429165232.GV21897@waste.org>
-In-Reply-To: <20050429165232.GV21897@waste.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 2 May 2005 12:27:19 -0400
+Received: from colin.muc.de ([193.149.48.1]:8966 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S261370AbVEBQKa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 12:10:30 -0400
+Date: 2 May 2005 18:10:29 +0200
+Date: Mon, 2 May 2005 18:10:29 +0200
+From: Andi Kleen <ak@muc.de>
+To: "Guo, Racing" <racing.guo@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, "Yu, Luming" <luming.yu@intel.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]porting lockless mce from x86_64 to i386
+Message-ID: <20050502161029.GF27150@muc.de>
+References: <16A54BF5D6E14E4D916CE26C9AD305750162F6F1@pdsmsx402.ccr.corp.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16A54BF5D6E14E4D916CE26C9AD305750162F6F1@pdsmsx402.ccr.corp.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall wrote:
-> On Fri, Apr 29, 2005 at 11:18:20AM -0400, Morten Welinder wrote:
+On Mon, May 02, 2005 at 09:01:53AM +0800, Guo, Racing wrote:
+> >
+> >If Luming would not move the mce.c file from x86-64 to i386 then
+> >his patch would be only 1/4 as big. I dont know why he does this
+> >anyways, it seems completely pointless.
 > 
->>>I had three design goals. "disk space" wasn't one of them
->>
->>And, if at some point it should become an issue, it's fixable. Since
->>access to objects is fairly centralized and since they are
->>immutable, it would be quite simple to move an arbitrary selection
->>of the objects into some other storage form which could take
->>similarities between objects into account.
-> 
-> 
-> This is not a fix, this is a band-aid. A fix is fitting all the data
-> in 10 times less space without sacrificing too much performance.
-> 
-> 
->>So disk space and its cousin number-of-files are both when-and-if
->>problems. And not scary ones at that.
-> 
-> 
-> But its sibling bandwidth _is_ a problem. The delta between 2.6.10 and
-> 2.6.11 in git terms will be much larger than a _full kernel tarball_.
-> Simply checking in patch-2.6.11 on top of 2.6.10 as a single changeset
-> takes 41M. Break that into a thousand overlapping deltas (ie the way
-> it is actually done) and it will be much larger.
-> 
-At this level of performance I would say it doesn't matter. If a full 
-checkin take two minutes or three minutes doesn't concern me, because 
-I'm not going to sit and watch it, I'm going to read LKML or write my 
-beer blog in another window. I would care about two vs. three hours, but 
-minutes are too long to wait and too short to care.
+> mce.c mce.h and mce_intel.c are moved from x86_64 to i386. so the
+> patch is very big. The motivation is to share mce code between
+> x86_64 and i386 and avoid duplicate code in x86_64 and i386.
+> I don't know whether I completely understand what you point.
+> Correct me if I am wrong.
 
-Now look at pulling 41MB over a T1 link. All of a sudden I care bigtime! 
-I want very much to use my bandwidth for other things, I don't want 41MB 
-added to my backup, etc. Disk space is cheap, but unless you ignore 
-backups and have an OC3 or so, these numbers are large enough to be 
-irritating. Not a huge issue, just one of those "piss me off every time 
-I do it" things.
+You can share code as well by linking it from x86-64 into i386,
+not only the other way round.  This is already done for earlyprintk
+for example.
 
-If there is a functional reason to use git, something Mercurial doesn't 
-do, then developers will and should use git. But the associated hassles 
-with large change size, rather than the absolute size, are worth 
-considering.
+-Andi
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
 

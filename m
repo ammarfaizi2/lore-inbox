@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbVEBGHW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261792AbVEBG1T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261786AbVEBGHW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 02:07:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbVEBGHW
+	id S261792AbVEBG1T (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 02:27:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbVEBG1T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 02:07:22 -0400
-Received: from zproxy.gmail.com ([64.233.162.206]:53422 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261786AbVEBGHR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 02:07:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=EQLNB3HimmE4s9WLJDpWD3EEQ2tAgC+vXz0IQSgR4VXBbl8ssHXyivKqQOe7g1O+2tfi8/hCRqKDIS4X2GgOfCylED91XGiIzI3+1Cl9bjDyJnGpTTs4mWAgpuHerOw4F2Is4D6j0PUtHUbiK7uV9SZxL1LACNBr7NyQ3cFqf0g=
-Message-ID: <29495f1d0505012307912d6b2@mail.gmail.com>
-Date: Sun, 1 May 2005 23:07:16 -0700
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: Olivier Croquette <ocroquette@free.fr>
-Subject: Re: setitimer timer expires too early
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4273A51E.6080503@free.fr>
+	Mon, 2 May 2005 02:27:19 -0400
+Received: from gate.crashing.org ([63.228.1.57]:38048 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261792AbVEBG1P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 02:27:15 -0400
+Subject: [PATCH] cpufreq annoying warning fix
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Content-Type: text/plain
+Date: Mon, 02 May 2005 16:25:10 +1000
+Message-Id: <1115015110.6030.20.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <42726DDD.1010204@free.fr> <427285CC.9090300@grupopie.com>
-	 <29495f1d050429142515f7e2c4@mail.gmail.com> <4273A51E.6080503@free.fr>
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/30/05, Olivier Croquette <ocroquette@free.fr> wrote:
-> Nish Aravamudan wrote:
-> 
-> > Perhaps not discussed before, but definitely a known issue. Check out
-> > sys_nanosleep(), which adds an extra jiffy to the delay if there is
-> > going to be one. My patch, which uses human-time (or at least more so
-> > than currently), should not have issues like this.
-> 
-> What would be then the most precise and reliable delaying possibility in
-> the present kernel?
+Hi !
 
-With Paulo's patch, everything should be ok with itimers again. The
-best you can get with HZ=1000 and sleeping is 1 millisecond (ideally).
-If you are ok with busy-waiting, then you get pretty arbitrary delays
-(usleep(), etc.).
+The cpufreq core patch I sent earlier got only half-applied. I added a
+flag to let the low level driver disable an annoying warning on
+suspend/resume that is normal on ppc, but the "resume" part of it wasn't
+applied. This patch just adds back that missing bit. The original patch
+also reworked the resume() function to avoid nesting too many if ()
+statements along the way I did the suspend() one, but I didn't include
+that in the patch below.
 
-If you are willing to up HZ (10000 would give you 500 us resolution),
-things may get better. You could also try the HRT patches (not in
-mainline): http://sourceforge.net/projects/high-res-timers/
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-Finally, I posted my RFC for a new soft-timer subsystem based on John
-Stultz's timeofday rework last week.
+Index: linux-work/drivers/cpufreq/cpufreq.c
+===================================================================
+--- linux-work.orig/drivers/cpufreq/cpufreq.c	2005-05-02 10:48:09.000000000 +1000
++++ linux-work/drivers/cpufreq/cpufreq.c	2005-05-02 16:21:23.000000000 +1000
+@@ -1003,9 +1003,10 @@
+ 		if (unlikely(cur_freq != cpu_policy->cur)) {
+ 			struct cpufreq_freqs freqs;
+ 
+-			printk(KERN_WARNING "Warning: CPU frequency is %u, "
+-					"cpufreq assumed %u kHz.\n",
+-					cur_freq, cpu_policy->cur);
++			if (!(cpufreq_driver->flags & CPUFREQ_PM_NO_WARN))
++				printk(KERN_WARNING "Warning: CPU frequency"
++				       "is %u, cpufreq assumed %u kHz.\n",
++				       cur_freq, cpu_policy->cur);
+ 
+ 			freqs.cpu = cpu;
+ 			freqs.old = cpu_policy->cur;
 
-Good luck,
-Nish
+

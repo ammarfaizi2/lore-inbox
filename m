@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261775AbVEBU4L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261771AbVEBVDG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261775AbVEBU4L (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 16:56:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbVEBUzl
+	id S261771AbVEBVDG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 17:03:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261745AbVEBVBL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 16:55:41 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:7448 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261745AbVEBUxG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 16:53:06 -0400
-Date: Mon, 2 May 2005 22:54:18 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Linus Torvalds <torvalds@osdl.org>, Bill Davidsen <davidsen@tmr.com>,
-       Andrea Arcangeli <andrea@suse.de>, Matt Mackall <mpm@selenic.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
-Message-ID: <20050502205418.GA12409@mars.ravnborg.org>
-References: <20050430025211.GP17379@opteron.random> <42764C0C.8030604@tmr.com> <Pine.LNX.4.58.0505020921080.3594@ppc970.osdl.org> <20050502171802.GA28045@nevyn.them.org>
+	Mon, 2 May 2005 17:01:11 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:19915 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S261776AbVEBVAa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 17:00:30 -0400
+Date: Mon, 2 May 2005 23:00:15 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Daniel Phillips <phillips@istop.com>, David Teigland <teigland@redhat.com>
+Cc: Steven Dake <sdake@mvista.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, Patrick Caulfield <pcaulfie@redhat.com>
+Subject: Re: [PATCH 1b/7] dlm: core locking
+Message-ID: <20050502210015.GD4722@marowsky-bree.de>
+References: <20050425165826.GB11938@redhat.com> <200504282026.36273.phillips@istop.com> <20050429025226.GA9900@redhat.com> <200504282349.10164.phillips@istop.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20050502171802.GA28045@nevyn.them.org>
-User-Agent: Mutt/1.5.8i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200504282349.10164.phillips@istop.com>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 02, 2005 at 01:18:02PM -0400, Daniel Jacobowitz wrote:
-> > 	#!/bin/sh
-> > 	exec perl perlscript.pl "$@"
-> > 
-> > instead.
-> 
-> Do you know any vaguely Unix-like system where #!/usr/bin/env does not
-> work?  I don't; I've used it on Solaris, HP-UX, OSF/1...
+On 2005-04-28T23:49:09, Daniel Phillips <phillips@istop.com> wrote:
 
-I had to pull out a call to env from kbuild due to strange errors in
-some mandrake? based system.
-I never tracked it down fully at that time, I just realised that two
-different programs named env was present, and the less common one made
-the linux kernel build fail. env was not called with any path in that
-example so that may have cured it.
+> > ...Nothing you have said is remotely correct.
+> Please provide corrections, if you wish Dave.
 
-	Sam
+I'd really like to see those. Because right now some parts of the
+discussion seem to contradict eachother (sometimes subtle so it's hard
+to point the finger at it and ask, sometimes glaringly obvious), and I
+thought you both worked on the same project. ;-)
+
+That makes it kind-of-hard to understand where you're coming from and
+where you're headed. I know that people even on the same project have
+different opinions, but before a review, let's have a barrier and
+distributed synchronization, ok? ;-)
+
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+High Availability & Clustering
+SUSE Labs, Research and Development
+SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
+"Ignorance more frequently begets confidence than does knowledge"
+

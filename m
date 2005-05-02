@@ -1,48 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbVEBMKd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261223AbVEBMS4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261215AbVEBMKd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 08:10:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbVEBMKc
+	id S261223AbVEBMS4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 08:18:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261224AbVEBMS4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 08:10:32 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:59886 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S261215AbVEBMK2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 08:10:28 -0400
-In-Reply-To: <20050502210411.06226103.sfr@canb.auug.org.au>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: andros@citi.umich.edu, linux-kernel@vger.kernel.org,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>, matthew@wil.cx
+	Mon, 2 May 2005 08:18:56 -0400
+Received: from mx2.mail.ru ([194.67.23.122]:33284 "EHLO mx2.mail.ru")
+	by vger.kernel.org with ESMTP id S261223AbVEBMSw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 08:18:52 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [linux-usb-devel] init 1 kill khubd on 2.6.11
+Date: Mon, 2 May 2005 16:18:43 +0400
+User-Agent: KMail/1.8
+Cc: stern@rowland.harvard.edu, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+References: <200505012021.56649.arvidjaar@mail.ru> <200505021200.10313.arvidjaar@mail.ru> <20050502023047.4c965f3e.akpm@osdl.org>
+In-Reply-To: <20050502023047.4c965f3e.akpm@osdl.org>
 MIME-Version: 1.0
-Subject: Re: fcntl: F_SETLEASE/F_RDLCK question
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OFE1EB7578.FC14251E-ONC1256FF5.003E40C6-C1256FF5.0042D17B@de.ibm.com>
-From: Heiko Carstens <Heiko.Carstens@de.ibm.com>
-Date: Mon, 2 May 2005 14:10:20 +0200
-X-MIMETrack: S/MIME Sign by Notes Client on Heiko Carstens/Germany/IBM(Release 6.0.2CF1|June
- 9, 2003) at 02.05.2005 14:09:50,
-	Serialize by Notes Client on Heiko Carstens/Germany/IBM(Release 6.0.2CF1|June
- 9, 2003) at 02.05.2005 14:09:50,
-	Serialize complete at 02.05.2005 14:09:50,
-	S/MIME Sign failed at 02.05.2005 14:09:50: The cryptographic key was not
- found,
-	Serialize by Router on D12ML064/12/M/IBM(Release 6.53HF247 | January 6, 2005) at
- 02/05/2005 14:10:22,
-	Serialize complete at 02/05/2005 14:10:22
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: multipart/signed;
+  boundary="nextPart1307709.8tIub9MkeP";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200505021618.44007.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The intention of a read lease is to let the holder know is anyone tries 
-to
-> modify the file.
-> 
-> The current behaviour does not conflict with the man pages on Debian
-> (although the previous behaviour did not either :-))
+--nextPart1307709.8tIub9MkeP
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Now that I know what the intention of the read lease is, I agree that 
-there
-is no conflict :). Thanks for clarifying!
+On Monday 02 May 2005 13:30, Andrew Morton wrote:
+> Andrey Borzenkov <arvidjaar@mail.ru> wrote:
+> >  > It's pretty simple to convert khubd to use the kthread API.  Somethi=
+ng
+> >  > like this (untested):
+> >
+> >  Something strange is going on with this patch.
+> >
+> >  insmod usbcore; insmod uhci-hcd works as expected, finds out all
+> > devices, triggers hotplug etc. But
+> >
+> >  {pts/2}% sudo insmod ./usbcore.ko
+> >  {pts/2}% sudo mount -t usbfs -o devmode=3D0664,devgid=3D43 none
+> > /proc/bus/usb {pts/2}% sudo modprobe usb-interface
+> >
+> >  results in
+> >
+> > ...
+> >  uhci_hcd 0000:00:1f.2: Unlink after no-IRQ?  Controller is probably
+> > using the wrong IRQ.
+> >  usb 1-1: khubd timed out on ep0out
+>
+> Does this only happen when the convert-khubd-to-kevent patch is applied?
 
-Heiko
+(Do you mean patch posted in this thread?)
 
+Now I must admit it does happen without patch too. Sometimes it goes throug=
+h=20
+but most of the time it results in those timeouts.
+
+So I confirm that patch posted in this thread fixes original problem (khubd=
+=20
+killed by SIGKILL).
+
+W.r.t. to timeouts - I appreciate hints where to start debugging. (I am=20
+downloading vanilla kernel + -mm to give it a try).
+
+regards
+
+=2Dandrey
+
+--nextPart1307709.8tIub9MkeP
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBCdhqjR6LMutpd94wRAunMAJ9v5BXM4gqa6IA5GGuqjpB5502jSwCeMDgx
+QH4h4gG1TWwvUQBk+laXmaE=
+=2206
+-----END PGP SIGNATURE-----
+
+--nextPart1307709.8tIub9MkeP--

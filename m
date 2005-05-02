@@ -1,76 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbVEBLDz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbVEBMiV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261196AbVEBLDz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 07:03:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbVEBLDz
+	id S261200AbVEBMiV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 08:38:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVEBMiV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 07:03:55 -0400
-Received: from chilli.pcug.org.au ([203.10.76.44]:34530 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S261196AbVEBLDw (ORCPT
+	Mon, 2 May 2005 08:38:21 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:26566 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S261200AbVEBMiS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 07:03:52 -0400
-Date: Mon, 2 May 2005 21:04:11 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, andros@citi.umich.edu, matthew@wil.cx,
-       schwidefsky@de.ibm.com
-Subject: Re: fcntl: F_SETLEASE/F_RDLCK question
-Message-Id: <20050502210411.06226103.sfr@canb.auug.org.au>
-In-Reply-To: <20050502091524.GA6457@osiris.boeblingen.de.ibm.com>
-References: <20050502091524.GA6457@osiris.boeblingen.de.ibm.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Mon, 2 May 2005 08:38:18 -0400
+Date: Mon, 2 May 2005 13:21:47 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: David Lang <dlang@digitalinsight.com>, "Theodore Ts'o" <tytso@mit.edu>
+Cc: Daniel Phillips <phillips@istop.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/7] dlm: overview
+Message-ID: <20050502112147.GP4722@marowsky-bree.de>
+References: <20050425151136.GA6826@redhat.com> <20050428145715.GA21645@marowsky-bree.de> <Pine.LNX.4.62.0504281731450.6139@qynat.qvtvafvgr.pbz> <200504282152.31137.phillips@istop.com> <Pine.LNX.4.62.0504291011220.7439@qynat.qvtvafvgr.pbz> <20050501035746.GA6578@thunk.org> <Pine.LNX.4.62.0504302110530.9153@qynat.qvtvafvgr.pbz>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Mon__2_May_2005_21_04_11_+1000_heKGL50O_WCOIPom"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.62.0504302110530.9153@qynat.qvtvafvgr.pbz>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Mon__2_May_2005_21_04_11_+1000_heKGL50O_WCOIPom
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 2005-04-30T21:14:45, David Lang <dlang@digitalinsight.com> wrote:
 
-Hi Heiko,
+> I will say that this wasn't what I thought we was being talked about for 
+> cluster membership, becouse I assumed that the generation of an ID would 
+> be repeatable so that a cluster node could be rebuilt and re-join the 
+> cluster with it's old ID.
 
-On Mon, 2 May 2005 11:15:24 +0200 Heiko Carstens <heiko.carstens@de.ibm.com=
-> wrote:
->
-> the semantics of fnctl used together with F_SETLEASE and
-> argument F_RDLCK have been changed with bk changeset
-> 1.1938.185.141 (sometime between 2.6.9 and 2.6.10).
-> Since then it's only possible to get a read lease when the
-> file in question does not have _any_ writers.
-> This is at least inconsistent with the man page of fcntl
-> and looks pretty much like this is a bug in the kernel.
->=20
-> Any comments?
+Hm? Every node generates its UUID _once_ and stores it on persistent
+local storage. It doesn't get regenerated.
 
-The previous behaviour was a bug that occurred because at the time the
-original lease code was written, it was not possible to tell if there were
-writers when the read lease was being taken. Further improvements in the
-kernel have since made this possible.
 
-The intention of a read lease is to let the holder know is anyone tries to
-modify the file.
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
-The current behaviour does not conflict with the man pages on Debian
-(although the previous behaviour did not either :-))
+-- 
+High Availability & Clustering
+SUSE Labs, Research and Development
+SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
+"Ignorance more frequently begets confidence than does knowledge"
 
---=20
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-
---Signature=_Mon__2_May_2005_21_04_11_+1000_heKGL50O_WCOIPom
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCdgkx4CJfqux9a+8RAmqNAJ9XBtLNOCbPtJPhAf6lTi0fEtOMuwCcC85J
-G7hIuFGKSwVpiHsFud9MWpo=
-=AjS8
------END PGP SIGNATURE-----
-
---Signature=_Mon__2_May_2005_21_04_11_+1000_heKGL50O_WCOIPom--

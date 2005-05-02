@@ -1,57 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261438AbVEBQdN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261465AbVEBQh2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261438AbVEBQdN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 12:33:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261467AbVEBQaP
+	id S261465AbVEBQh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 12:37:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261461AbVEBQdq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 12:30:15 -0400
-Received: from fire.osdl.org ([65.172.181.4]:61670 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261438AbVEBQ3R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 12:29:17 -0400
-Date: Mon, 2 May 2005 09:31:06 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Andrea Arcangeli <andrea@suse.de>, Matt Mackall <mpm@selenic.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
-In-Reply-To: <42764C0C.8030604@tmr.com>
-Message-ID: <Pine.LNX.4.58.0505020921080.3594@ppc970.osdl.org>
-References: <20050429203959.GC21897@waste.org><20050429203959.GC21897@waste.org>
- <20050430025211.GP17379@opteron.random> <42764C0C.8030604@tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 2 May 2005 12:33:46 -0400
+Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:63189 "EHLO
+	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S261471AbVEBQcG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 12:32:06 -0400
+Date: Mon, 2 May 2005 09:32:07 -0700
+From: Tony Lindgren <tony@atomide.com>
+To: linus@atomide.com, Andrew Morton <akpm@osdl.org>,
+       Len Brown <len.brown@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Trying to coordinate moving subprojects to git
+Message-ID: <20050502163206.GA16366@atomide.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Linus, Andrew & Len,
 
+Here's a slightly modified repost of my earlier message
+that got eaten by the mailing list filter :)
 
-On Mon, 2 May 2005, Bill Davidsen wrote:
-> > -#!/usr/bin/python
-> > +#!/usr/bin/env python
+I'm trying to summarize some earlier dicussions on how to
+coordinate moving BK projects over to git. This is probably
+of interest to many other subprojects as well.
 
-> Could you explain why this is necessary or desirable? I looked at what 
-> env does, and I am missing the point of duplicating bash normal 
-> behaviour regarding definition of per-process environment entries.
+My main problem is where to host git trees for subprojects.
 
-It's not about environment.
+Here's how I see the move to git happening for various
+subprojects:
 
-It's about the fact that many people have things like python in
-/usr/local/bin/python, because they compiled it themselves or similar.
+- Somebody is rumored to offer a git project site soonish.[1]
+  When that is available, subprojects can configure git
+  trees there.
+  
+- Meanwhile, there should also be a BK repo for the latest
+  kernel changes available soon.[2] Once that is available,
+  it can be used for updating various trees.
 
-Pretty much the only path you can _really_ depend on for #! stuff is 
-/bin/sh.
+Now I wonder if anybody has more news on the following:
 
-Any system that doesn't have /bin/sh is so fucked up that it's not worth
-worrying about. Anything else can be in /bin, /usr/bin or /usr/local/bin
-(and sometimes other strange places).
+- Who is working on setting a site available for git
+  projects, and when is that site estimated to be available?
+  
+- Is anybody working on mirroring git changes in a BK tree?
 
-That said, I think the /usr/bin/env trick is stupid too. It may be more 
-portable for various Linux distributions, but if you want _true_ 
-portability, you use /bin/sh, and you do something like
+I'm afraid I can't be much of help here setting up these sites
+with my 128Kbps upstream speed...
 
-	#!/bin/sh
-	exec perl perlscript.pl "$@"
+Regards,
 
-instead.
-		Linus
+Tony
+
+[1] http://lkml.org/lkml/2005/4/23/27
+[1] http://lkml.org/lkml/2005/4/26/32

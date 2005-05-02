@@ -1,61 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261356AbVEBRLK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbVEBRTA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261356AbVEBRLK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 13:11:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbVEBRK6
+	id S261241AbVEBRTA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 13:19:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbVEBRQa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 13:10:58 -0400
-Received: from imf24aec.mail.bellsouth.net ([205.152.59.72]:42191 "EHLO
-	imf24aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S261718AbVEBRGt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 13:06:49 -0400
-Date: Mon, 2 May 2005 12:06:36 -0500
-From: Tommy Reynolds <Tommy.Reynolds@MegaCoder.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] remove BK documentation
-Message-Id: <20050502120636.7ae393d9.Tommy.Reynolds@MegaCoder.com>
-In-Reply-To: <42765546.5020600@tmr.com>
-References: <20050501233441.GC3592@stusta.de>
-	<20050501233441.GC3592@stusta.de>
-	<20050501234331.GA9244@havoc.gtf.org>
-	<42765546.5020600@tmr.com>
-X-Mailer: Sylpheed version 1.9.9+svn (GTK+ 2.6.4; i686-redhat-linux-gnu)
-X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$
- t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl
- 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
+	Mon, 2 May 2005 13:16:30 -0400
+Received: from colin.muc.de ([193.149.48.1]:18951 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S261218AbVEBRPy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 13:15:54 -0400
+Date: 2 May 2005 19:15:51 +0200
+Date: Mon, 2 May 2005 19:15:51 +0200
+From: Andi Kleen <ak@muc.de>
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Cc: "Guo, Racing" <racing.guo@intel.com>, Andrew Morton <akpm@osdl.org>,
+       "Yu, Luming" <luming.yu@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]porting lockless mce from x86_64 to i386
+Message-ID: <20050502171551.GG27150@muc.de>
+References: <88056F38E9E48644A0F562A38C64FB60049EED02@scsmsx403.amr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Mon__2_May_2005_12_06_36_-0500_rINAWAyCL0d+WXjf"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <88056F38E9E48644A0F562A38C64FB60049EED02@scsmsx403.amr.corp.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Mon__2_May_2005_12_06_36_-0500_rINAWAyCL0d+WXjf
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Mon, May 02, 2005 at 09:15:07AM -0700, Pallipadi, Venkatesh wrote:
+> >-----Original Message-----
+> >From: linux-kernel-owner@vger.kernel.org 
+> >[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Guo, Racing
+> >Sent: Sunday, May 01, 2005 6:02 PM
+> >To: Andi Kleen; Andrew Morton
+> >Cc: Yu, Luming; linux-kernel@vger.kernel.org
+> >Subject: RE: [PATCH]porting lockless mce from x86_64 to i386
+> >
+> >>
+> >>If Luming would not move the mce.c file from x86-64 to i386 then
+> >>his patch would be only 1/4 as big. I dont know why he does this
+> >>anyways, it seems completely pointless.
+> >
+> >mce.c mce.h and mce_intel.c are moved from x86_64 to i386. so the
+> >patch is very big. The motivation is to share mce code between
+> >x86_64 and i386 and avoid duplicate code in x86_64 and i386.
+> >I don't know whether I completely understand what you point.
+> >Correct me if I am wrong.
+> 
+> I think what Andi meant was that instead of copying code from x86-64 
+> to i386 and making x86-64 link to this i386 copy, you can leave the 
+> code in x86-64 and link it from i386 part of the tree. 
 
-Uttered Bill Davidsen <davidsen@tmr.com>, spake thus:
+Yep.
 
-> Documentation authors really should mention themselves in the=20
-> introduction, docs aren't sexy and don't get your name in the news, but=20
-> they are a vital part of making Linux usable.
+> 
+> Doing it either way should be OK with this mce code. But I feel, 
+> despite of the patch size, it is better to keep all the shared 
+> code in i386 tree and link it from x86-64. Otherwise, it may become 
+> kind of messy in future, with various links between i386 and x86-64.
 
-If you'd like to volunteer for the Fedora Documentation Project over at=20
+i386 already uses code from x86-64 (earlyprintk.c) - it is nothing 
+new.
 
-	http://fedora.redhat.com/docs
 
-we may be able to overcome the rest the shortcomings you mentioned ;-)
-
---Signature=_Mon__2_May_2005_12_06_36_-0500_rINAWAyCL0d+WXjf
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFCdl4h/0ydqkQDlQERAoJjAKC2/4pagnUsZ2FROZSBtwrCp4q6uACgtFdK
-y+rnAQAGOtlnnCNrFfLcq1Q=
-=rx0+
------END PGP SIGNATURE-----
-
---Signature=_Mon__2_May_2005_12_06_36_-0500_rINAWAyCL0d+WXjf--
+-Andi

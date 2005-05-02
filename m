@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261516AbVEBRdu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVEBQpy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261516AbVEBRdu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 13:33:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbVEBRcR
+	id S261455AbVEBQpy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 12:45:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbVEBQnv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 13:32:17 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:21512 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261402AbVEBQ1e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 12:27:34 -0400
-Message-Id: <200505021627.j42GRPhO009004@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>, greg@kroah.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Support multiply-LUN devices in ub 
-In-Reply-To: Your message of "Sun, 01 May 2005 21:24:38 PDT."
-             <20050501212438.08ae67f1.zaitcev@redhat.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20050501160540.5b2f4e61.zaitcev@redhat.com> <20050502040505.GA6914@one-eyed-alien.net>
-            <20050501212438.08ae67f1.zaitcev@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1115051244_5213P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Mon, 2 May 2005 12:43:51 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:22154 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261455AbVEBQ3s
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 12:29:48 -0400
+Message-ID: <42765546.5020600@tmr.com>
+Date: Mon, 02 May 2005 12:28:54 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] remove BK documentation
+References: <20050501233441.GC3592@stusta.de><20050501233441.GC3592@stusta.de> <20050501234331.GA9244@havoc.gtf.org>
+In-Reply-To: <20050501234331.GA9244@havoc.gtf.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Mon, 02 May 2005 12:27:25 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1115051244_5213P
-Content-Type: text/plain; charset=us-ascii
+Jeff Garzik wrote:
+> On Mon, May 02, 2005 at 01:34:41AM +0200, Adrian Bunk wrote:
+> 
+>>There's no longer a reason to document the obsolete BK usage.
+>>
+>>Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> 
+> If you are going to remove some documents, please at least have the
+> common courtesy of CC'ing the author of the documents.
+> 
+> Speaking as the author of 90% of Documentation/BK-usage directory,
+> I ACK this patch.
+> 
+> 	Jeff
 
-On Sun, 01 May 2005 21:24:38 PDT, Pete Zaitcev said:
+This seems like a good place to thank Adrian for his cleaning fetish, 
+which makes the kernel code and docs far less confusing, and Jeff, who 
+put in most of the effort in documenting bk.
 
-> Why would you want more though? I have a 12-in-1 reader which only
-> exports 4 LUNs. If someone attached enterprise storage arrays to USB,
-> it might be a good idea to remove the limit completely.
+Documentation authors really should mention themselves in the 
+introduction, docs aren't sexy and don't get your name in the news, but 
+they are a vital part of making Linux usable.
 
-Hmm.. it *is* our policy to allow the sysadmin enough rope to shoot themselves
-in the foot, isn't it? ;)
-
---==_Exmh_1115051244_5213P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCdlTscC3lWbTT17ARAqmtAKDGwazK2q+fq8PDpe/2y1E3jihIywCgqNz5
-8UWz0X/3qs3LS1QVHcVERJs=
-=XAkd
------END PGP SIGNATURE-----
-
---==_Exmh_1115051244_5213P--
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

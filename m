@@ -1,60 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261713AbVEBTMG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261718AbVEBTOr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261713AbVEBTMG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 15:12:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261714AbVEBTMF
+	id S261718AbVEBTOr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 15:14:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbVEBTOr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 15:12:05 -0400
-Received: from colin.muc.de ([193.149.48.1]:33547 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S261713AbVEBTMA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 15:12:00 -0400
-Date: 2 May 2005 21:11:59 +0200
-Date: Mon, 2 May 2005 21:11:59 +0200
-From: Andi Kleen <ak@muc.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: venkatesh.pallipadi@intel.com, racing.guo@intel.com, luming.yu@intel.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]porting lockless mce from x86_64 to i386
-Message-ID: <20050502191159.GI27150@muc.de>
-References: <88056F38E9E48644A0F562A38C64FB60049EED02@scsmsx403.amr.corp.intel.com> <20050502171551.GG27150@muc.de> <20050502113125.19320ceb.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 2 May 2005 15:14:47 -0400
+Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:18845 "HELO
+	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261718AbVEBTOo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 15:14:44 -0400
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: [uml-devel] Re: [UML] Compile error when building with seperate source and object directories
+Date: Mon, 2 May 2005 21:14:05 +0200
+User-Agent: KMail/1.8
+Cc: user-mode-linux-devel@lists.sourceforge.net, Jeff Dike <jdike@addtoit.com>,
+       linux-kernel@vger.kernel.org, sam@ravnborg.org,
+       Ryan Anderson <ryan@michonline.com>
+References: <1114570958.5983.50.camel@mythical> <200505011330.58205.blaisorblade@yahoo.it> <20050501160707.GI13052@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20050501160707.GI13052@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050502113125.19320ceb.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200505022114.06062.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 02, 2005 at 11:31:25AM -0700, Andrew Morton wrote:
-> Andi Kleen <ak@muc.de> wrote:
-> >
-> >  > 
-> >  > Doing it either way should be OK with this mce code. But I feel, 
-> >  > despite of the patch size, it is better to keep all the shared 
-> >  > code in i386 tree and link it from x86-64. Otherwise, it may become 
-> >  > kind of messy in future, with various links between i386 and x86-64.
-> > 
-> >  i386 already uses code from x86-64 (earlyprintk.c) - it is nothing 
-> >  new.
-> 
-> I must say I don't like the bidirectional sharing either.
+On Sunday 01 May 2005 18:07, Al Viro wrote:
+> On Sun, May 01, 2005 at 01:30:57PM +0200, Blaisorblade wrote:
+> > For now I've added an #ifdef to re-include that code for x86, while
+> > excluding it for x86_64. Also, is that up-to-date wrt. 2.6.12-rc3?
+>
+> Yes, it is.  As for the ptrace.c...  IMO the right thing is
+> per-architecture helper here.  Such ifdefs are OK when it's just i386 and
+> amd64.  As soon as e.g. uml/s390 gets merged or uml/ia64 and uml/ppc get
+> resurrected...
+Agreed, I've done it this way to reintroduce for now the code for i386. It's 
+anyway kludgy, since amd64 has too its debug registers to handle (at least it 
+should); it's just that UML does not handle them yet.
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Skype user "PaoloGiarrusso"
+Linux registered user n. 292729
+http://www.user-mode-linux.org/~blaisorblade
 
-Why exactly? X86-64 is not a "slave" of i386, they are equal peers; 
-free to share from each other, but none better than the other ... ,-) 
-
--Andi (fighting for the rights of the repressed architectures ;-)
-> 
-> But I guess it'll be simple enough to fix up if it causes any real problems
-> in the future.
-
-The only complaint I heard so far was from a kernel hacker who deleted
-all  non i386 architectures in his kernel trees, but I was not 
-very sympathetic to that one. In fact I think it is better
-when people have full trees around so when they change something
-globally grep finds really all instances.
-
--Andi
-
-
-> 

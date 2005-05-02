@@ -1,51 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261535AbVEBAQb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261536AbVEBASY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261535AbVEBAQb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 20:16:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261536AbVEBAQb
+	id S261536AbVEBASY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 20:18:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbVEBASY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 20:16:31 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:13481 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261535AbVEBAQ3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 20:16:29 -0400
-Message-ID: <42757150.3060309@pobox.com>
-Date: Sun, 01 May 2005 20:16:16 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
+	Sun, 1 May 2005 20:18:24 -0400
+Received: from mail11.syd.optusnet.com.au ([211.29.132.192]:10191 "EHLO
+	mail11.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261536AbVEBASQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 20:18:16 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] remove BK documentation
-References: <20050501233441.GC3592@stusta.de> <20050501234331.GA9244@havoc.gtf.org> <20050502000845.GE3592@stusta.de>
-In-Reply-To: <20050502000845.GE3592@stusta.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Message-ID: <17013.29103.249971.866326@wombat.chubb.wattle.id.au>
+Date: Mon, 2 May 2005 10:17:51 +1000
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Chris Friesen <cfriesen@nortel.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andrew Morton <akpm@osdl.org>,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       pauld@gelato.unsw.edu.au
+Subject: Re: [PATCH] ppc64: update to use the new 4L headers
+In-Reply-To: <4270472E.9050708@yahoo.com.au>
+References: <1114652039.7112.213.camel@gaston>
+	<42704130.9050005@yahoo.com.au>
+	<427044AA.5030402@nortel.com>
+	<4270472E.9050708@yahoo.com.au>
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> On Sun, May 01, 2005 at 07:43:31PM -0400, Jeff Garzik wrote:
-> 
->>On Mon, May 02, 2005 at 01:34:41AM +0200, Adrian Bunk wrote:
->>
->>>There's no longer a reason to document the obsolete BK usage.
->>>
->>>Signed-off-by: Adrian Bunk <bunk@stusta.de>
->>
->>If you are going to remove some documents, please at least have the
->>common courtesy of CC'ing the author of the documents.
-> 
-> 
-> I'd have done this if you were listed as author in any of the files.
+>>>>> "Nick" == Nick Piggin <nickpiggin@yahoo.com.au> writes:
 
-Look at the changelog or file revision history...
+Nick> Chris Friesen wrote:
+>> I needed something like:
+>> 
+>> pte_t *va_to_ptep_map(struct mm_struct *mm, unsigned int addr)
+>> 
+>> There was code in follow_page() that did basically what I needed,
+>> but it was all contained within that function so I had to
+>> re-implement it.
+>> 
 
-Files you wish to remove were obviously written by -somebody-.  When 
-removing things, make a serious effort to contact the author.
+Nick> If you can break out exactly what you need, and make that inline
+Nick> or otherwise available via the correct header, I'm sure it would
+Nick> have a good chance of being merged.
 
-	Jeff
+We're currently working on this, so as to be able to provide
+interfaces to alternative page tables.  We want to be able to slot in
+Liedtke's `Guarded Page Tables', or B-trees, or a hash table to see
+what happens.
+
+Except we've called the function:
+       pte_t * lookup_page_table(unsigned long address, struct mm_struct *mm);
 
 
+follow_page() is essentially the same after inline expansion happens;
+but we're seeing a regression in clear_page_range() that we want to
+fix before release.
+
+If you want to take a look (warning: it's still fairly rough
+work-in-progress) there's high level design being worked on at
+http://www.gelato.unsw.edu.au/IA64wiki/PageTableInterface 
+and patches from our CVS repository.  The only patch of interst is pti.patch.
+
+cvs -d :pserver:anoncvs@gelato.unsw.edu.au:/gelato login
+Logging in to :pserver:anoncvs@lemon:2401/gelato
+CVS password:[enter anoncvs]
+$ cvs -d:pserver:anoncvs@gelato.unsw.edu.au:/gelato co kernel/page_table_interface
+
+or from
+
+ http://www.gelato.unsw.edu.au/cgi-bin/viewcvs.cgi/cvs/kernel/page_table_interface/
+
+Peter C

@@ -1,259 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbVEBPvv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261327AbVEBP3h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261341AbVEBPvv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 11:51:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbVEBPvv
+	id S261327AbVEBP3h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 11:29:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVEBP3h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 11:51:51 -0400
-Received: from lakshmi.addtoit.com ([198.99.130.6]:30980 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261341AbVEBPvj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 11:51:39 -0400
-Message-Id: <200505021450.j42EovMx004248@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
-To: torvalds@osdl.org
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: [PATCH 4.5/22] UML - Cross-build support : mk_sc
+	Mon, 2 May 2005 11:29:37 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:55569 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261327AbVEBP3f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 11:29:35 -0400
+Message-Id: <200505021528.j42FS5QJ006515@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Ed Tomlinson <tomlins@cam.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc3-mm1 
+In-Reply-To: Your message of "Sun, 01 May 2005 15:30:40 +0200."
+             <20050501133040.GB3592@stusta.de> 
+From: Valdis.Kletnieks@vt.edu
+References: <20050429231653.32d2f091.akpm@osdl.org> <Pine.LNX.4.61.0504301700470.3559@montezuma.fsmlabs.com> <20050430161032.0f5ac973.rddunlap@osdl.org> <200505010909.38277.tomlins@cam.org>
+            <20050501133040.GB3592@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 02 May 2005 10:50:57 -0400
-From: Jeff Dike <jdike@addtoit.com>
+Content-Type: multipart/signed; boundary="==_Exmh_1115047685_5213P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 02 May 2005 11:28:05 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From Al Viro:
+--==_Exmh_1115047685_5213P
+Content-Type: text/plain; charset=us-ascii
 
-	Ditto for mk_sc
+On Sun, 01 May 2005 15:30:40 +0200, Adrian Bunk said:
 
-Signed-off-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
+> How much bandwith does this require?
+> 
+> Currently, 2.6.12-rc3-mm1 requires 3.7 MB for the -rc3 patch (which can 
+> be used for several -mm patches) plus 2.6 MB for the -mm patch.
+> 
+> The 47 MB download for 2.6.11 are required only once for the many -mm 
+> kernels between 2.6.11 and 2.6.12.
+> 
+> Looking at these numbers, the average download required for every -mm 
+> kernel is currently far below 10 MB.
 
-diff -urN RC12-rc3-uml-ptregs/arch/um/Makefile-i386 RC12-rc3-uml-sc/arch/um/Makefile-i386
---- RC12-rc3-uml-ptregs/arch/um/Makefile-i386	Wed Apr 27 18:22:38 2005
-+++ RC12-rc3-uml-sc/arch/um/Makefile-i386	Wed Apr 27 18:22:28 2005
-@@ -32,7 +32,7 @@
- $(SYS_DIR)/thread.h: $(SYS_UTIL_DIR)/mk_thread 
- 	$(call filechk,gen_header)
- 
--$(SYS_UTIL_DIR)/mk_sc: scripts_basic FORCE
-+$(SYS_UTIL_DIR)/mk_sc: scripts_basic $(ARCH_DIR)/user-offsets.h FORCE
- 	$(Q)$(MAKE) $(build)=$(SYS_UTIL_DIR) $@
- 
- $(SYS_UTIL_DIR)/mk_thread: scripts_basic $(ARCH_SYMLINKS) $(GEN_HEADERS) FORCE
-diff -urN RC12-rc3-uml-ptregs/arch/um/Makefile-x86_64 RC12-rc3-uml-sc/arch/um/Makefile-x86_64
---- RC12-rc3-uml-ptregs/arch/um/Makefile-x86_64	Wed Apr 27 18:22:38 2005
-+++ RC12-rc3-uml-sc/arch/um/Makefile-x86_64	Wed Apr 27 18:22:28 2005
-@@ -23,7 +23,7 @@
- $(SYS_DIR)/thread.h: $(SYS_UTIL_DIR)/mk_thread
- 	$(call filechk,gen_header)
- 
--$(SYS_UTIL_DIR)/mk_sc: scripts_basic FORCE
-+$(SYS_UTIL_DIR)/mk_sc: scripts_basic $(ARCH_DIR)/user-offsets.h FORCE
- 	$(Q)$(MAKE) $(build)=$(SYS_UTIL_DIR) $@
- 
- $(SYS_UTIL_DIR)/mk_thread: scripts_basic $(ARCH_SYMLINKS) $(GEN_HEADERS) FORCE
-diff -urN RC12-rc3-uml-ptregs/arch/um/sys-i386/util/Makefile RC12-rc3-uml-sc/arch/um/sys-i386/util/Makefile
---- RC12-rc3-uml-ptregs/arch/um/sys-i386/util/Makefile	Sat Oct 16 09:05:21 2004
-+++ RC12-rc3-uml-sc/arch/um/sys-i386/util/Makefile	Wed Apr 27 17:07:26 2005
-@@ -6,3 +6,4 @@
- 
- HOSTCFLAGS_mk_thread_kern.o	:= $(CFLAGS) $(CPPFLAGS)
- HOSTCFLAGS_mk_thread_user.o	:= $(USER_CFLAGS)
-+HOSTCFLAGS_mk_sc.o := -I$(objtree)/arch/um
-diff -urN RC12-rc3-uml-ptregs/arch/um/sys-i386/util/mk_sc.c RC12-rc3-uml-sc/arch/um/sys-i386/util/mk_sc.c
---- RC12-rc3-uml-ptregs/arch/um/sys-i386/util/mk_sc.c	Wed Aug 25 12:32:51 2004
-+++ RC12-rc3-uml-sc/arch/um/sys-i386/util/mk_sc.c	Wed Apr 27 17:07:26 2005
-@@ -1,52 +1,51 @@
- #include <stdio.h>
--#include <signal.h>
--#include <linux/stddef.h>
-+#include <user-offsets.h>
- 
- #define SC_OFFSET(name, field) \
--  printf("#define " name "(sc) *((unsigned long *) &(((char *) (sc))[%d]))\n",\
--	 offsetof(struct sigcontext, field))
-+  printf("#define " #name "(sc) *((unsigned long *) &(((char *) (sc))[%d]))\n",\
-+	 name)
- 
- #define SC_FP_OFFSET(name, field) \
--  printf("#define " name \
-+  printf("#define " #name \
- 	 "(sc) *((unsigned long *) &(((char *) (SC_FPSTATE(sc)))[%d]))\n",\
--	 offsetof(struct _fpstate, field))
-+	 name)
- 
- #define SC_FP_OFFSET_PTR(name, field, type) \
--  printf("#define " name \
-+  printf("#define " #name \
- 	 "(sc) ((" type " *) &(((char *) (SC_FPSTATE(sc)))[%d]))\n",\
--	 offsetof(struct _fpstate, field))
-+	 name)
- 
- int main(int argc, char **argv)
- {
--  SC_OFFSET("SC_IP", eip);
--  SC_OFFSET("SC_SP", esp);
--  SC_OFFSET("SC_FS", fs);
--  SC_OFFSET("SC_GS", gs);
--  SC_OFFSET("SC_DS", ds);
--  SC_OFFSET("SC_ES", es);
--  SC_OFFSET("SC_SS", ss);
--  SC_OFFSET("SC_CS", cs);
--  SC_OFFSET("SC_EFLAGS", eflags);
--  SC_OFFSET("SC_EAX", eax);
--  SC_OFFSET("SC_EBX", ebx);
--  SC_OFFSET("SC_ECX", ecx);
--  SC_OFFSET("SC_EDX", edx);
--  SC_OFFSET("SC_EDI", edi);
--  SC_OFFSET("SC_ESI", esi);
--  SC_OFFSET("SC_EBP", ebp);
--  SC_OFFSET("SC_TRAPNO", trapno);
--  SC_OFFSET("SC_ERR", err);
--  SC_OFFSET("SC_CR2", cr2);
--  SC_OFFSET("SC_FPSTATE", fpstate);
--  SC_OFFSET("SC_SIGMASK", oldmask);
--  SC_FP_OFFSET("SC_FP_CW", cw);
--  SC_FP_OFFSET("SC_FP_SW", sw);
--  SC_FP_OFFSET("SC_FP_TAG", tag);
--  SC_FP_OFFSET("SC_FP_IPOFF", ipoff);
--  SC_FP_OFFSET("SC_FP_CSSEL", cssel);
--  SC_FP_OFFSET("SC_FP_DATAOFF", dataoff);
--  SC_FP_OFFSET("SC_FP_DATASEL", datasel);
--  SC_FP_OFFSET_PTR("SC_FP_ST", _st, "struct _fpstate");
--  SC_FP_OFFSET_PTR("SC_FXSR_ENV", _fxsr_env, "void");
-+  SC_OFFSET(SC_IP, eip);
-+  SC_OFFSET(SC_SP, esp);
-+  SC_OFFSET(SC_FS, fs);
-+  SC_OFFSET(SC_GS, gs);
-+  SC_OFFSET(SC_DS, ds);
-+  SC_OFFSET(SC_ES, es);
-+  SC_OFFSET(SC_SS, ss);
-+  SC_OFFSET(SC_CS, cs);
-+  SC_OFFSET(SC_EFLAGS, eflags);
-+  SC_OFFSET(SC_EAX, eax);
-+  SC_OFFSET(SC_EBX, ebx);
-+  SC_OFFSET(SC_ECX, ecx);
-+  SC_OFFSET(SC_EDX, edx);
-+  SC_OFFSET(SC_EDI, edi);
-+  SC_OFFSET(SC_ESI, esi);
-+  SC_OFFSET(SC_EBP, ebp);
-+  SC_OFFSET(SC_TRAPNO, trapno);
-+  SC_OFFSET(SC_ERR, err);
-+  SC_OFFSET(SC_CR2, cr2);
-+  SC_OFFSET(SC_FPSTATE, fpstate);
-+  SC_OFFSET(SC_SIGMASK, oldmask);
-+  SC_FP_OFFSET(SC_FP_CW, cw);
-+  SC_FP_OFFSET(SC_FP_SW, sw);
-+  SC_FP_OFFSET(SC_FP_TAG, tag);
-+  SC_FP_OFFSET(SC_FP_IPOFF, ipoff);
-+  SC_FP_OFFSET(SC_FP_CSSEL, cssel);
-+  SC_FP_OFFSET(SC_FP_DATAOFF, dataoff);
-+  SC_FP_OFFSET(SC_FP_DATASEL, datasel);
-+  SC_FP_OFFSET_PTR(SC_FP_ST, _st, "struct _fpstate");
-+  SC_FP_OFFSET_PTR(SC_FXSR_ENV, _fxsr_env, "void");
-   return(0);
- }
-diff -urN RC12-rc3-uml-ptregs/arch/um/sys-x86_64/util/Makefile RC12-rc3-uml-sc/arch/um/sys-x86_64/util/Makefile
---- RC12-rc3-uml-ptregs/arch/um/sys-x86_64/util/Makefile	Fri Mar 11 15:54:46 2005
-+++ RC12-rc3-uml-sc/arch/um/sys-x86_64/util/Makefile	Wed Apr 27 17:07:26 2005
-@@ -8,3 +8,4 @@
- 
- HOSTCFLAGS_mk_thread_kern.o	:= $(CFLAGS) $(CPPFLAGS)
- HOSTCFLAGS_mk_thread_user.o	:= $(USER_CFLAGS)
-+HOSTCFLAGS_mk_sc.o := -I$(objtree)/arch/um
-diff -urN RC12-rc3-uml-ptregs/arch/um/sys-x86_64/util/mk_sc.c RC12-rc3-uml-sc/arch/um/sys-x86_64/util/mk_sc.c
---- RC12-rc3-uml-ptregs/arch/um/sys-x86_64/util/mk_sc.c	Fri Mar 11 15:54:46 2005
-+++ RC12-rc3-uml-sc/arch/um/sys-x86_64/util/mk_sc.c	Wed Apr 27 17:07:26 2005
-@@ -3,56 +3,45 @@
-  */
- 
- #include <stdio.h>
--#include <signal.h>
--#include <linux/stddef.h>
-+#include <user-offsets.h>
- 
--#define SC_OFFSET(name, field) \
--  printf("#define " name \
--	 "(sc) *((unsigned long *) &(((char *) (sc))[%ld]))\n",\
--	 offsetof(struct sigcontext, field))
--
--#define SC_FP_OFFSET(name, field) \
--  printf("#define " name \
--	 "(sc) *((unsigned long *) &(((char *) (SC_FPSTATE(sc)))[%ld]))\n",\
--	 offsetof(struct _fpstate, field))
--
--#define SC_FP_OFFSET_PTR(name, field, type) \
--  printf("#define " name \
--	 "(sc) ((" type " *) &(((char *) (SC_FPSTATE(sc)))[%d]))\n",\
--	 offsetof(struct _fpstate, field))
-+#define SC_OFFSET(name) \
-+  printf("#define " #name \
-+	 "(sc) *((unsigned long *) &(((char *) (sc))[%d]))\n",\
-+	 name)
- 
- int main(int argc, char **argv)
- {
--  SC_OFFSET("SC_RBX", rbx);
--  SC_OFFSET("SC_RCX", rcx);
--  SC_OFFSET("SC_RDX", rdx);
--  SC_OFFSET("SC_RSI", rsi);
--  SC_OFFSET("SC_RDI", rdi);
--  SC_OFFSET("SC_RBP", rbp);
--  SC_OFFSET("SC_RAX", rax);
--  SC_OFFSET("SC_R8", r8);
--  SC_OFFSET("SC_R9", r9);
--  SC_OFFSET("SC_R10", r10);
--  SC_OFFSET("SC_R11", r11);
--  SC_OFFSET("SC_R12", r12);
--  SC_OFFSET("SC_R13", r13);
--  SC_OFFSET("SC_R14", r14);
--  SC_OFFSET("SC_R15", r15);
--  SC_OFFSET("SC_IP", rip);
--  SC_OFFSET("SC_SP", rsp);
--  SC_OFFSET("SC_CR2", cr2);
--  SC_OFFSET("SC_ERR", err);
--  SC_OFFSET("SC_TRAPNO", trapno);
--  SC_OFFSET("SC_CS", cs);
--  SC_OFFSET("SC_FS", fs);
--  SC_OFFSET("SC_GS", gs);
--  SC_OFFSET("SC_EFLAGS", eflags);
--  SC_OFFSET("SC_SIGMASK", oldmask);
-+  SC_OFFSET(SC_RBX);
-+  SC_OFFSET(SC_RCX);
-+  SC_OFFSET(SC_RDX);
-+  SC_OFFSET(SC_RSI);
-+  SC_OFFSET(SC_RDI);
-+  SC_OFFSET(SC_RBP);
-+  SC_OFFSET(SC_RAX);
-+  SC_OFFSET(SC_R8);
-+  SC_OFFSET(SC_R9);
-+  SC_OFFSET(SC_R10);
-+  SC_OFFSET(SC_R11);
-+  SC_OFFSET(SC_R12);
-+  SC_OFFSET(SC_R13);
-+  SC_OFFSET(SC_R14);
-+  SC_OFFSET(SC_R15);
-+  SC_OFFSET(SC_IP);
-+  SC_OFFSET(SC_SP);
-+  SC_OFFSET(SC_CR2);
-+  SC_OFFSET(SC_ERR);
-+  SC_OFFSET(SC_TRAPNO);
-+  SC_OFFSET(SC_CS);
-+  SC_OFFSET(SC_FS);
-+  SC_OFFSET(SC_GS);
-+  SC_OFFSET(SC_EFLAGS);
-+  SC_OFFSET(SC_SIGMASK);
- #if 0
--  SC_OFFSET("SC_ORIG_RAX", orig_rax);
--  SC_OFFSET("SC_DS", ds);
--  SC_OFFSET("SC_ES", es);
--  SC_OFFSET("SC_SS", ss);
-+  SC_OFFSET(SC_ORIG_RAX);
-+  SC_OFFSET(SC_DS);
-+  SC_OFFSET(SC_ES);
-+  SC_OFFSET(SC_SS);
- #endif
-   return(0);
- }
+And even *more* importantly, note that when downloading a -mm or -rc3 patch,
+there's minimal server overhead - it opens *one* file and streams it to the
+FTP connection.  sendfile() anybody? ;)
 
+How many open/close/etc are needed to sync up 2 'git' mirrors?  I don't care *how*
+stupendous git/mercurial/whatever are, they're going to have a *really* hard time
+getting down to the overhead of an FTP session sending a .bz2 file.
+
+Unless of course, there's only me and a dozen other people even *trying* -mm
+kernels and the distinction is lost in the noise... (Out of curiosity, how
+many downloads *DO* the -mm kernels get?  I know Linus and Andrew want more
+testing.. let's keep that in mind here.. ;)
+
+--==_Exmh_1115047685_5213P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCdkcFcC3lWbTT17ARAuQNAKDLsSdO4gqooCpWfWHHHdlCF5Dc6ACg6hgF
+P0FBZ6rzpmvFItCA6qMPU5s=
+=1cCw
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1115047685_5213P--

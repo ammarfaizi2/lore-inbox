@@ -1,89 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261230AbVEBXfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbVEBXr6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261230AbVEBXfL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 19:35:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbVEBXfL
+	id S261234AbVEBXr6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 19:47:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbVEBXr6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 19:35:11 -0400
-Received: from wproxy.gmail.com ([64.233.184.197]:15511 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261230AbVEBXfB convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 19:35:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=QvyhngkwiVsPJweAQsTD8vmHVu6dhtTO1AiUW6G2qSKtWVbxX6d1IZ+8ycY7NA6xCqq3YnrzzKoxlDCLHZk6Mr3lL8GlDeJNzCXVkYt/xVqrj5VyG1FClORJXs3apIFjFetk/8CtDnXsU1llppaprsuEy3mKDQuaQm3YD2YN5NI=
-Message-ID: <3f250c7105050216357ae31105@mail.gmail.com>
-Date: Mon, 2 May 2005 19:35:00 -0400
-From: Mauricio Lin <mauriciolin@gmail.com>
-Reply-To: Mauricio Lin <mauriciolin@gmail.com>
-To: Adrian Bunk <bunk@stusta.de>
+	Mon, 2 May 2005 19:47:58 -0400
+Received: from fire.osdl.org ([65.172.181.4]:40599 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261234AbVEBXr5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 19:47:57 -0400
+Date: Mon, 2 May 2005 16:45:01 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Mauricio Lin <mauriciolin@gmail.com>
+Cc: bunk@stusta.de, linux-kernel@vger.kernel.org
 Subject: Re: 2.6.12-rc3-mm2: fs/proc/task_mmu.c warnings
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <3f250c7105050215306de620ac@mail.gmail.com>
+Message-Id: <20050502164501.50187481.akpm@osdl.org>
+In-Reply-To: <3f250c7105050216357ae31105@mail.gmail.com>
+References: <20050430164303.6538f47c.akpm@osdl.org>
+	<20050501222916.GB3592@stusta.de>
+	<3f250c7105050215306de620ac@mail.gmail.com>
+	<3f250c7105050216357ae31105@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050430164303.6538f47c.akpm@osdl.org>
-	 <20050501222916.GB3592@stusta.de>
-	 <3f250c7105050215306de620ac@mail.gmail.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian,
-
-I managed to replicate the warning. This happens with the vanilla
-kernel 2.6.11.8. Before this version this warning does not exist. The
-last patch I posted was based on 2.6.11.7. I am going to post the new
-patch asap.
-
-BR,
-
-Mauricio Lin.
-
-On 5/2/05, Mauricio Lin <mauriciolin@gmail.com> wrote:
-> Hi Adrian,
-> 
-> I tried to replicate this warning but I did not get it on vanilla
-> kernel. I put the config as
-> 
-> CONFIG_HIGHPTE=y
-> 
-> as well, but no warning. Perhaps I have to try it with mm tree. Any comments?
-> 
-> What do you think Andrew?
-> 
-> BR,
-> 
-> Mauricio Lin.
-> 
-> On 5/1/05, Adrian Bunk <bunk@stusta.de> wrote:
-> > proc-pid-smaps.patch caused the following warnings with
-> > CONFIG_HIGHPTE=y:
-> >
-> > <--  snip  -->
-> >
-> > ...
-> >   CC      fs/proc/task_mmu.o
-> > fs/proc/task_mmu.c: In function `smaps_pte_range':
-> > fs/proc/task_mmu.c:177: warning: implicit declaration of function `kmap_atomic'
-> > fs/proc/task_mmu.c:207: warning: implicit declaration of function `kunmap_atomic'
-> > ...
-> >
-> > <--  snip  -->
-> >
-> > Unfortunately, I do not understand how to fix this properly.
-> >
-> > cu
-> > Adrian
-> >
-> > --
-> >
-> >        "Is there not promise of rain?" Ling Tan asked suddenly out
-> >         of the darkness. There had been need of rain for many days.
-> >        "Only a promise," Lao Er said.
-> >                                        Pearl S. Buck - Dragon Seed
-> >
-> >
+Mauricio Lin <mauriciolin@gmail.com> wrote:
 >
+> I managed to replicate the warning. This happens with the vanilla
+> kernel 2.6.11.8. Before this version this warning does not exist. The
+> last patch I posted was based on 2.6.11.7. I am going to post the new
+> patch asap.
+
+Please don't generate patches for the mainline kernel against the -stable
+tree.  2.6.11.7 is ancient - we've added 22MB of diff since then.
+
+I think I've fixed all the /proc/pid/smaps problems anwyay.

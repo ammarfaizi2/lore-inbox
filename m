@@ -1,90 +1,302 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbVEBAmQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbVEBAs5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261582AbVEBAmQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 20:42:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261591AbVEBAmQ
+	id S261594AbVEBAs5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 20:48:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbVEBAs4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 20:42:16 -0400
-Received: from zproxy.gmail.com ([64.233.162.207]:16476 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261582AbVEBAmM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 20:42:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KP0UddOiY3QPkTk0Y6p9Qjd2mnLj1E761UAhpivP/O7TwQKc+tSpQUhP4jAzvrtzE0SAN4SocF+VkWJDI2gTwlq1LqW4zuTryzGVrFG/1ePCc/HmEBQZ8thNpnZlBnaHLya+Bj3PwX7KVlsXSTkXd0gPcXNVvAgJqjlOii20pHQ=
-Message-ID: <29495f1d050501174225504b72@mail.gmail.com>
-Date: Sun, 1 May 2005 17:42:12 -0700
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [linux-usb-devel] init 1 kill khubd on 2.6.11
-Cc: stern@rowland.harvard.edu, arvidjaar@mail.ru,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20050501155535.3855d31f.akpm@osdl.org>
+	Sun, 1 May 2005 20:48:56 -0400
+Received: from [203.2.177.22] ([203.2.177.22]:22025 "EHLO pinot.tusc.com.au")
+	by vger.kernel.org with ESMTP id S261594AbVEBAsN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 20:48:13 -0400
+Subject: [PATCH 1/2-2.6.11.8] x25: Selective sub-address matching with call
+	user data
+From: Shaun Pereira <spereira@tusc.com.au>
+Reply-To: spereira@tusc.com.au
+To: linux-x25 <linux-x25@vger.kernel.org>
+Cc: linux-kenel <linux-kernel@vger.kernel.org>,
+       x25 maintainer <eis@baty.hanse.de>
+Content-Type: text/plain
+Organization: TUSC
+Date: Mon, 02 May 2005 10:46:43 +1000
+Message-Id: <1114994803.9053.14.camel@spereira05.tusc.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200505012021.56649.arvidjaar@mail.ru>
-	 <Pine.LNX.4.44L0.0505011659130.19155-100000@netrider.rowland.org>
-	 <20050501153051.2471294e.akpm@osdl.org>
-	 <29495f1d050501154625ee7087@mail.gmail.com>
-	 <20050501155535.3855d31f.akpm@osdl.org>
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 02 May 2005 00:46:52.0593 (UTC) FILETIME=[6E8DE210:01C54EB0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/1/05, Andrew Morton <akpm@osdl.org> wrote:
-> Nish Aravamudan <nish.aravamudan@gmail.com> wrote:
-> >
-> > > -       /* Send me a signal to get me die (for debugging) */
-> > >         do {
-> > >                 hub_events();
-> > > -               wait_event_interruptible(khubd_wait, !list_empty(&hub_event_list));
-> > > +               wait_event_interruptible(khubd_wait,
-> > > +                               !list_empty(&hub_event_list) ||
-> > > +                               kthread_should_stop());
-> > >                 try_to_freeze(PF_FREEZE);
-> > > -       } while (!signal_pending(current));
-> > > +       } while (!kthread_should_stop() || !list_empty(&hub_event_list));
-> >
-> > Shouldn't this simply be a wait_event(), instead of
-> > wait_event_interruptible()?
-> 
-> That would cause uninterruptible sleep, which contributes to load average.
+Hi
+This is the first (independent of the second) patch of two that I am
+working on with x25 on linux (tested with xot on a cisco router).
+Details are as follows.
 
-True, and this is the argument I face(d) with a lot of the msleep()
-changes I made. I guess I would like a comment for this case, where
-we're using wait_event_interruptible(), but actually are ignoring the
-signals that might make us return early.
+Current state of module:
+A server using the current implementation (2.6.11.8) of the x25 module will
+accept a call request/ incoming call packet at the listening x.25 address, 
+from all callers to that address, as long as NO call user data is present 
+in the packet header.
+
+If the server needs to choose to accept a particular call request/ incoming
+call packet arriving at its listening x25 address, then the kernel has to 
+allow a match of call user data present in the call request packet with its 
+own. This is required when multiple servers listen at the same x25 address 
+and device interface. The kernel currently matches ALL call user data, 
+if present.
+
+Current Changes:
+This patch is a follow up to the patch submitted previously by Andrew Hendry, 
+and allows the user to selectively control the number of octets of call user 
+data in the call request packet, that the kernel will match. By default no call 
+user data is matched, even if call user data is present. To allow call user 
+data matching, a  cudmatchlength > 0 has to be passed into the kernel after 
+which the passed number of octets will be matched. Otherwise the kernel 
+behavior is exactly as the original implementation.
+
+This patch also ensures that as is normally the case, no call user data will
+be present in the Call accepted / call connected packet sent back to the caller 
+
+Future Changes on next patch:
+There are cases however when call user data may be present in the call accepted
+packet. According to the X.25 recommendation (ITU-T 10/96) section 5.2.3.2 
+call user data may be present in the call accepted packet provided the fast 
+select facility is used. My next patch will include this fast select utility 
+and the ability to send up to 128 octets call user data in the call accepted 
+packet provided the fast select facility is used. I am currently testing this,
+again with xot on linux and cisco. 
+Regards
+Shaun
+
+Signed-off-by: Shaun Pereira <spereira@tusc.com.au>
+
+diff -uprN -X dontdiff linux-2.6.11.8-vanilla/include/linux/x25.h linux-2.6.11.8/include/linux/x25.h
+--- linux-2.6.11.8-vanilla/include/linux/x25.h	2005-04-30 11:30:41.000000000 +1000
++++ linux-2.6.11.8/include/linux/x25.h	2005-05-02 10:26:14.000000000 +1000
+@@ -4,6 +4,8 @@
+  * 	History
+  *	mar/20/00	Daniela Squassoni Disabling/enabling of facilities 
+  *					  negotiation.
++ *	apr/02/05	Shaun Pereira Selective sub address matching with
++ *					call user data
+  */
  
-> > Then the do-while() can be gotten rid of,
-> > as the only reason it is there currently, I guess, is to ignore
-> > signals?
-> 
-> Nope, the do-while is a basic part of the daemon's operation: keep doing
-> stuff until either there's no stuff to do or until we're told to exit.
+ #ifndef	X25_KERNEL_H
+@@ -16,6 +18,7 @@
+ #define	SIOCX25GCALLUSERDATA	(SIOCPROTOPRIVATE + 4)
+ #define	SIOCX25SCALLUSERDATA	(SIOCPROTOPRIVATE + 5)
+ #define	SIOCX25GCAUSEDIAG	(SIOCPROTOPRIVATE + 6)
++#define SIOCX25SCUDMATCHLEN	(SIOCPROTOPRIVATE + 7)
+ 
+ /*
+  *	Values for {get,set}sockopt.
+@@ -109,4 +112,11 @@ struct x25_causediag {
+ 	unsigned char	diagnostic;
+ };
+ 
++/*
++ *	Further optional call user data match length selection
++ */
++struct x25_subaddr {
++	unsigned int cudmatchlength;
++};
++
+ #endif
+diff -uprN -X dontdiff linux-2.6.11.8-vanilla/include/net/x25.h linux-2.6.11.8/include/net/x25.h
+--- linux-2.6.11.8-vanilla/include/net/x25.h	2005-04-30 11:29:07.000000000 +1000
++++ linux-2.6.11.8/include/net/x25.h	2005-05-02 10:26:14.000000000 +1000
+@@ -132,7 +132,7 @@ struct x25_neigh {
+ struct x25_opt {
+ 	struct x25_address	source_addr, dest_addr;
+ 	struct x25_neigh	*neighbour;
+-	unsigned int		lci;
++	unsigned int		lci, cudmatchlength;
+ 	unsigned char		state, condition, qbitincl, intflag;
+ 	unsigned short		vs, vr, va, vl;
+ 	unsigned long		t2, t21, t22, t23;
+@@ -238,7 +238,6 @@ extern int  x25_validate_nr(struct sock 
+ extern void x25_write_internal(struct sock *, int);
+ extern int  x25_decode(struct sock *, struct sk_buff *, int *, int *, int *, int *, int *);
+ extern void x25_disconnect(struct sock *, int, unsigned char, unsigned char);
+-extern int x25_check_calluserdata(struct x25_calluserdata *,struct x25_calluserdata *);
+ 
+ /* x25_timer.c */
+ extern void x25_start_heartbeat(struct sock *);
+diff -uprN -X dontdiff linux-2.6.11.8-vanilla/net/x25/af_x25.c linux-2.6.11.8/net/x25/af_x25.c
+--- linux-2.6.11.8-vanilla/net/x25/af_x25.c	2005-04-30 11:32:00.000000000 +1000
++++ linux-2.6.11.8/net/x25/af_x25.c	2005-05-02 10:26:14.000000000 +1000
+@@ -29,6 +29,8 @@
+  *	2000-11-14	Henner Eisen    Closing datalink from NETDEV_GOING_DOWN
+  *	2002-10-06	Arnaldo C. Melo Get rid of cli/sti, move proc stuff to
+  *					x25_proc.c, using seq_file
++ *	2005-04-02	Shaun Pereira	Selective sub address matching
++ *					with call user data
+  */
+ 
+ #include <linux/config.h>
+@@ -219,7 +221,8 @@ static void x25_insert_socket(struct soc
+  *	Note: if a listening socket has cud set it must only get calls
+  *	with matching cud.
+  */
+-static struct sock *x25_find_listener(struct x25_address *addr, struct x25_calluserdata *calluserdata)
++static struct sock *x25_find_listener(struct x25_address *addr,
++					struct sk_buff *skb)
+ {
+ 	struct sock *s;
+ 	struct sock *next_best;
+@@ -230,22 +233,23 @@ static struct sock *x25_find_listener(st
+ 
+ 	sk_for_each(s, node, &x25_list)
+ 		if ((!strcmp(addr->x25_addr,
+-			     x25_sk(s)->source_addr.x25_addr) ||
+-		     !strcmp(addr->x25_addr,
+-			     null_x25_address.x25_addr)) &&
+-		     s->sk_state == TCP_LISTEN) {
+-
++			x25_sk(s)->source_addr.x25_addr) ||
++				!strcmp(addr->x25_addr,
++					null_x25_address.x25_addr)) &&
++					s->sk_state == TCP_LISTEN) {
+ 			/*
+ 			 * Found a listening socket, now check the incoming
+ 			 * call user data vs this sockets call user data
+ 			 */
+-			if (x25_check_calluserdata(&x25_sk(s)->calluserdata, calluserdata)) {
+-				sock_hold(s);
+-				goto found;
+-			}
+-			if (x25_sk(s)->calluserdata.cudlength == 0) {
++			if(skb->len > 0 && x25_sk(s)->cudmatchlength > 0) {
++			 	if((memcmp(x25_sk(s)->calluserdata.cuddata,
++			 		skb->data,
++					x25_sk(s)->cudmatchlength)) == 0) {
++					sock_hold(s);
++					goto found;
++				 }
++			} else
+ 				next_best = s;
+-			}
+ 		}
+ 	if (next_best) {
+ 		s = next_best;
+@@ -504,6 +508,7 @@ static int x25_create(struct socket *soc
+ 	x25->t23   = sysctl_x25_clear_request_timeout;
+ 	x25->t2    = sysctl_x25_ack_holdback_timeout;
+ 	x25->state = X25_STATE_0;
++	x25->cudmatchlength = 0;
+ 
+ 	x25->facilities.winsize_in  = X25_DEFAULT_WINDOW_SIZE;
+ 	x25->facilities.winsize_out = X25_DEFAULT_WINDOW_SIZE;
+@@ -548,6 +553,7 @@ static struct sock *x25_make_new(struct 
+ 	x25->t2         = ox25->t2;
+ 	x25->facilities = ox25->facilities;
+ 	x25->qbitincl   = ox25->qbitincl;
++	x25->cudmatchlength = ox25->cudmatchlength;
+ 
+ 	x25_init_timers(sk);
+ out:
+@@ -825,7 +831,6 @@ int x25_rx_call_request(struct sk_buff *
+ 	struct x25_opt *makex25;
+ 	struct x25_address source_addr, dest_addr;
+ 	struct x25_facilities facilities;
+-	struct x25_calluserdata calluserdata;
+ 	int len, rc;
+ 
+ 	/*
+@@ -848,19 +853,10 @@ int x25_rx_call_request(struct sk_buff *
+ 	skb_pull(skb,len);
+ 
+ 	/*
+-	 *	Incoming Call User Data.
+-	 */
+-	if (skb->len >= 0) {
+-		memcpy(calluserdata.cuddata, skb->data, skb->len);
+-		calluserdata.cudlength = skb->len;
+-	}
+-
+-	skb_push(skb,len);
+-
+-	/*
+ 	 *	Find a listener for the particular address/cud pair.
+ 	 */
+-	sk = x25_find_listener(&source_addr,&calluserdata);
++	sk = x25_find_listener(&source_addr,skb);
++	skb_push(skb,len);
+ 
+ 	/*
+ 	 *	We can't accept the Call Request.
+@@ -903,12 +899,22 @@ int x25_rx_call_request(struct sk_buff *
+ 	makex25->neighbour     = nb;
+ 	makex25->facilities    = facilities;
+ 	makex25->vc_facil_mask = x25_sk(sk)->vc_facil_mask;
+-	makex25->calluserdata  = calluserdata;
++	/* ensure no reverse facil on accept */
++	makex25->vc_facil_mask &= ~X25_MASK_REVERSE;
++	makex25->cudmatchlength = x25_sk(sk)->cudmatchlength;
+ 
+ 	x25_write_internal(make, X25_CALL_ACCEPTED);
+ 
+ 	makex25->state = X25_STATE_3;
+ 
++	/*
++	 *	Incoming Call User Data.
++	 */
++	if (skb->len >= 0) {
++		memcpy(makex25->calluserdata.cuddata, skb->data, skb->len);
++		makex25->calluserdata.cudlength = skb->len;
++	}
++
+ 	sk->sk_ack_backlog++;
+ 
+ 	x25_insert_socket(make);
+@@ -1328,6 +1334,23 @@ static int x25_ioctl(struct socket *sock
+ 			break;
+ 		}
+ 
++		case SIOCX25SCUDMATCHLEN: {
++			struct x25_subaddr sub_addr;
++			rc = -EINVAL;
++			if(sk->sk_state != TCP_CLOSE)
++				break;
++			rc = -EFAULT;
++			if (copy_from_user(&sub_addr, argp,
++					sizeof(&sub_addr)))
++				break;
++		 	rc = -EINVAL;
++			if(sub_addr.cudmatchlength > X25_MAX_CUD_LEN)
++				break;
++			x25->cudmatchlength = sub_addr.cudmatchlength;
++			rc = 0;
++			break;
++		}
++
+  		default:
+ 			rc = dev_ioctl(cmd, argp);
+ 			break;
+diff -uprN -X dontdiff linux-2.6.11.8-vanilla/net/x25/x25_subr.c linux-2.6.11.8/net/x25/x25_subr.c
+--- linux-2.6.11.8-vanilla/net/x25/x25_subr.c	2005-04-30 11:25:10.000000000 +1000
++++ linux-2.6.11.8/net/x25/x25_subr.c	2005-05-02 10:26:14.000000000 +1000
+@@ -354,21 +354,3 @@ void x25_check_rbuf(struct sock *sk)
+ 	}
+ }
+ 
+-/*
+- * Compare 2 calluserdata structures, used to find correct listening sockets
+- * when call user data is used.
+- */
+-int x25_check_calluserdata(struct x25_calluserdata *ours, struct x25_calluserdata *theirs)
+-{
+-	int i;
+-	if (ours->cudlength != theirs->cudlength)
+-		return 0;
+-
+-	for (i=0;i<ours->cudlength;i++) {
+-		if (ours->cuddata[i] != theirs->cuddata[i]) {
+-			return 0;
+-		}
+-	}
+-	return 1;
+-}
+-
 
-I see that now, thanks.
 
-> > Also, the while's conditional should be (!kthread_should_stop() ||
-> > list_empty(&hub_event_list) to match the negation of wait_event's?
-> > (wait_event() expects the condition to stop on, while while() expects
-> > the condition to continue on)
-> 
-> Nope, the wait_event_interruptible test says
-> 
->   "sleep unless the list is not empty or I am being asked to exit"
-> 
-> the while termination test says
-> 
->   "loop until the list is empty and I am being asked to stop".
-> 
-> I think.  I had to scratch my head for a while over that code ;)
-
-You're right again -- sorry for the noise, I must have been reading it
-wrong. Rewriting it as !(kthread_should_stop() &&
-list_empty(&hub_event_list)) helped me :)
-
-Thanks!
-Nish

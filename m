@@ -1,83 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbVEBJwz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbVEBJzg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261183AbVEBJwz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 05:52:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261185AbVEBJwz
+	id S261185AbVEBJzg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 05:55:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbVEBJzg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 05:52:55 -0400
-Received: from mail.dif.dk ([193.138.115.101]:3498 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261183AbVEBJwv (ORCPT
+	Mon, 2 May 2005 05:55:36 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:14024 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261185AbVEBJz2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 05:52:51 -0400
-Date: Mon, 2 May 2005 11:52:23 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: linux-kernel@vger.kernel.org
-Subject: kconfig: trying to assign nonexistent symbol (2.6.12-rc3-mm2)
-Message-ID: <Pine.LNX.4.62.0505021148100.15343@jjulnx.backbone.dif.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 2 May 2005 05:55:28 -0400
+Date: Mon, 2 May 2005 11:55:06 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Adam Belay <ambx1@neo.rr.com>, Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] properly stop devices before poweroff
+Message-ID: <20050502095506.GB1821@elf.ucw.cz>
+References: <20050421111346.GA21421@elf.ucw.cz> <20050501222403.GF3951@neo.rr.com> <20050501231635.GJ1909@elf.ucw.cz> <20050502000146.GI3951@neo.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050502000146.GI3951@neo.rr.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-I usually reuse my .config between kernel versions with make oldconfig, 
-but a few minutes ago I desided to build a new config from scratch and 
-noticed these messages when running "make menuconfig" without an existing 
-.config .
+> > Thats okay, nobody really knows yet. I believe that SUSPEND and HALT
+> > are very similar, and flags best way to separate them. I believe that
+> > FREEZE and REBOOT are very similar, too, and again would use flags to
+> > tell between them.
+> 
+> I'm not so sure about SUSPEND and HALT being similar.  It might be much faster
+> to have a routine that ignores slow state changes and goes directly for
+> stopping device activity.  Still, I'm not entirely decided.  On ACPI systems
+> SUSPEND should generally work, as it's the intended behavior for S4 which is
+> basically like S5 in many cases.  However, having a specific HALT message
+> might allow driver developers to clarify this ambiguity on a per-device basis.
 
-jju@jjulnx:~/download/kernel/linux-2.6.12-rc3-mm2$ make menuconfig
-  HOSTCC  scripts/basic/fixdep
-  HOSTCC  scripts/basic/split-include
-  HOSTCC  scripts/basic/docproc
-  SHIPPED scripts/kconfig/zconf.tab.h
-  HOSTCC  scripts/kconfig/conf.o
-  HOSTCC  scripts/kconfig/kxgettext.o
-  HOSTCC  scripts/kconfig/mconf.o
-  SHIPPED scripts/kconfig/zconf.tab.c
-  SHIPPED scripts/kconfig/lex.zconf.c
-  HOSTCC  scripts/kconfig/zconf.tab.o
-  HOSTLD  scripts/kconfig/mconf
-  HOSTCC  scripts/lxdialog/checklist.o
-  HOSTCC  scripts/lxdialog/inputbox.o
-  HOSTCC  scripts/lxdialog/lxdialog.o
-  HOSTCC  scripts/lxdialog/menubox.o
-  HOSTCC  scripts/lxdialog/msgbox.o
-  HOSTCC  scripts/lxdialog/textbox.o
-  HOSTCC  scripts/lxdialog/util.o
-  HOSTCC  scripts/lxdialog/yesno.o
-  HOSTLD  scripts/lxdialog/lxdialog
-scripts/kconfig/mconf arch/i386/Kconfig
-#
-# using defaults found in arch/i386/defconfig
-#
-arch/i386/defconfig:174: trying to assign nonexistent symbol PCI_USE_VECTOR
-arch/i386/defconfig:219: trying to assign nonexistent symbol PARPORT_PC_CML1
-arch/i386/defconfig:223: trying to assign nonexistent symbol PARPORT_OTHER
-arch/i386/defconfig:250: trying to assign nonexistent symbol BLK_DEV_CARMEL
-arch/i386/defconfig:271: trying to assign nonexistent symbol IDE_TASKFILE_IO
-arch/i386/defconfig:290: trying to assign nonexistent symbol BLK_DEV_ADMA
-arch/i386/defconfig:363: trying to assign nonexistent symbol SCSI_MEGARAID
-arch/i386/defconfig:404: trying to assign nonexistent symbol SCSI_QLA6322
-arch/i386/defconfig:475: trying to assign nonexistent symbol NETLINK_DEV
-arch/i386/defconfig:567: trying to assign nonexistent symbol NET_FASTROUTE
-arch/i386/defconfig:568: trying to assign nonexistent symbol NET_HW_FLOWCONTROL
-arch/i386/defconfig:718: trying to assign nonexistent symbol SOUND_GAMEPORT
-arch/i386/defconfig:774: trying to assign nonexistent symbol QIC02_TAPE
-arch/i386/defconfig:996: trying to assign nonexistent symbol USB_STORAGE_HP8200e
-arch/i386/defconfig:1022: trying to assign nonexistent symbol USB_HPUSBSCSI
-arch/i386/defconfig:1057: trying to assign nonexistent symbol USB_TIGL
-arch/i386/defconfig:1244: trying to assign nonexistent symbol X86_STD_RESOURCES
+Umm, you are right, HALT is somewhere between FREEZE and SUSPEND.
 
+> > First I want type checking for pm_message_t. That's 2.6.12-early
+> > material. Then, when it is *really clear* that flags are needed, I'll
+> > add them. "really needed" as in "we have a driver where it matters".
+> 
+> I think it's already clear that we need to pass the specific device state.
+> Also the intended global system state transition might be helpful.
 
-*** End of Linux kernel configuration.
-*** Execute 'make' to build the kernel or try 'make help'.
+Global system state transition should be clear from flags. Specific
+device state is needed for selective suspend, elsewhere I'd go for
+helper function.
 
+> However, at the moment I'm considering using a slightly different API for
+> these sort of things.  It would include "->prepare_state_change()" and
+> "->complete_state_change()"  I'll have further justification for these
+> changes soon, however, I would like to leave the current stuff around also
+> as it would still be useful for shutdown and reboot, non-PM suspend issues,
+> and backward compatibilty.
 
+I'd prefer not to have more callbacks (unless absolutely
+neccessary). We used to have them, and people got it wrong....
 
-Everything seems to be OK, just wanted to report it in case there's an 
-actual problem somewhere.
-
-
+								Pavel
 -- 
-Jesper Juhl
-
+Boycott Kodak -- for their patent abuse against Java.

@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261764AbVEBUXh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261758AbVEBUTp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261764AbVEBUXh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 16:23:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261760AbVEBUXg
+	id S261758AbVEBUTp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 16:19:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbVEBUTp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 16:23:36 -0400
-Received: from main.gmane.org ([80.91.229.2]:41157 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261764AbVEBUVJ (ORCPT
+	Mon, 2 May 2005 16:19:45 -0400
+Received: from mail.kroah.org ([69.55.234.183]:61386 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261758AbVEBUTd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 16:21:09 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jon Escombe <trial@dresco.co.uk>
-Subject: Re: Suspend/Resume
-Date: Mon, 2 May 2005 20:13:29 +0000 (UTC)
-Message-ID: <loom.20050502T221228-244@post.gmane.org>
-References: <4267B5B0.8050608@davyandbeth.com> <loom.20050502T161322-252@post.gmane.org> <20050502144703.GA1882@suse.de>
+	Mon, 2 May 2005 16:19:33 -0400
+Date: Mon, 2 May 2005 13:15:07 -0700
+From: Greg KH <greg@kroah.com>
+To: Clemens Koller <clemens.koller@anagramm.de>
+Cc: Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] I2C rtc8564.c remove duplicate include (whitespace fixed)
+Message-ID: <20050502201507.GB5938@kroah.com>
+References: <425125EC.6080201@anagramm.de> <20050409131643.4269911a.khali@linux-fr.org> <425A481A.7020801@anagramm.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 62.253.64.24 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050416 Fedora/1.0.3-1.3.1 Firefox/1.0.3)
+Content-Disposition: inline
+In-Reply-To: <425A481A.7020801@anagramm.de>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe <at> suse.de> writes:
-
-> SATA suspend is completely broken right now, so I'm not surprised. You
-> can shoe-horn this patch onto 2.6.12-rcX - it will reject for every
-> ordered_flush addition, but should be trivial to fix up. If you have
-> problems, let me know and I'll generate a proper diff for you.
+On Mon, Apr 11, 2005 at 11:49:14AM +0200, Clemens Koller wrote:
+> [PATCH] I2C rtc8564.c remove duplicate include
 > 
+> Trivial fix: removes duplicate include line.
+> Patch applies to: 2.6.11.x
+> 
+> (This is my very first patch to the linux-kernel, so let me
+> start with small things first...)
+> 
+> Signed-off-by: Clemens Koller <clemens.koller@anagramm.de>
 
-Thanks, will give that a go.. Is this a fix that's likely to make it into 2.6.12?
+Applied, thanks.
 
-Regards,
-Jon.
-
+greg k-h

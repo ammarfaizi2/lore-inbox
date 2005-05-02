@@ -1,91 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbVEBF1q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261780AbVEBGB4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261662AbVEBF1q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 01:27:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261716AbVEBF1q
+	id S261780AbVEBGB4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 02:01:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbVEBGBz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 01:27:46 -0400
-Received: from bay10-f27.bay10.hotmail.com ([64.4.37.27]:27901 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S261662AbVEBF1b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 01:27:31 -0400
-Message-ID: <BAY10-F2709F2A16EEE74732F797FD9270@phx.gbl>
-X-Originating-IP: [68.62.196.46]
-X-Originating-Email: [getarunsri@hotmail.com]
-In-Reply-To: <1114962685.5081.5.camel@localhost.localdomain>
-From: "Arun Srinivas" <getarunsri@hotmail.com>
-To: rostedt@goodmis.org
+	Mon, 2 May 2005 02:01:55 -0400
+Received: from mail01.solnet.ch ([212.101.4.135]:39440 "EHLO mail01.solnet.ch")
+	by vger.kernel.org with ESMTP id S261780AbVEBGBf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 02:01:35 -0400
+From: Damir Perisa <damir.perisa@solnet.ch>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.12-rc3-mm2 - kswapd0 keeps running
+Date: Mon, 2 May 2005 08:01:28 +0200
+User-Agent: KMail/1.8
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: scheduler/SCHED_FIFO behaviour
-Date: Mon, 02 May 2005 10:57:29 +0530
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 02 May 2005 05:27:29.0413 (UTC) FILETIME=[A214BB50:01C54ED7]
+References: <20050430164303.6538f47c.akpm@osdl.org> <200505011707.35461.damir.perisa@solnet.ch> <20050501150624.7696fc31.akpm@osdl.org>
+In-Reply-To: <20050501150624.7696fc31.akpm@osdl.org>
+X-Face: +)fhYFmn|<pyRIlgch_);krg#jn!^z'?xy(Ur#Z6rZi)KD+_-V<Y@i>0pOVfJ4<=?iso-8859-1?q?Q1/=26/=26z=0A=093cxqRa=3B7O=5C4g=5C=7C=5DF-!H0!ew9kx1LqK/?=
+ =?iso-8859-1?q?iPOv8eXi=26I7=60Pez0V0VNMAxnqRL8-30qqKK=3DxGM=0A=09pExQc=5B?=
+ =?iso-8859-1?q?2=7Cl6v=23?=<iwBvEO9+h|_YS[48z%/kuD2*aT*S/$0323VCL3V9?@}jq<
+ =?iso-8859-1?q?Ns6V=3A0m=27Qia=0A=09?="[#oJg[RVe}Sy/lP95E@pa[vdKzqLqn&M`exb91"`,<k`3;Vt97cLjhub0.v+]m`%|>@Z(
+ =?iso-8859-1?q?=0A=09EeC/zU7=25?=@"L6mi#..8Q^M
+Alanine: true
+Glycine: true
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart3746444.F2JumZdkEf";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200505020801.31860.damir.perisa@solnet.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The 2 processes which I  am measuring  are parent and child processes.I want 
-both of'em to be scheduled at the same time.My code simply does the 
-following:
+--nextPart3746444.F2JumZdkEf
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-1) From main(i.e., parent) create a shared memory seg. using shmget() and 
-shmat(). This is for communication between parent and child. I am trying to 
-use this as a locking mechanism to make them tightly coupled so that one 
-does not race before the other.
-2) create child by fork() and call shmat() to attach this segment to child 
-too
-3) In parent and child call ioctl() to pass their PID's from user space to 
-kernel space...so that I can measure when the particular PID's are scheduled 
-in the scheduler
-
-I suppose shmget() dosent use a system call.So still confused about the 
-occasional resechedule behavior.
-
-
-
->From: Steven Rostedt <rostedt@goodmis.org>
->To: Arun Srinivas <getarunsri@hotmail.com>
->CC: linux-kernel@vger.kernel.org
->Subject: Re: scheduler/SCHED_FIFO behaviour
->Date: Sun, 01 May 2005 11:51:25 -0400
+Le Monday 02 May 2005 00:06, Andrew Morton a =E9crit=A0:
+> Damir Perisa <damir.perisa@solnet.ch> wrote:
+> > i updated from rc2-mm3 to rc3-mm2 and now i observe something
+> > strange: the cpu is running all the time at 100% because of the
+> > kswapd0 that is running always and not becomming idle.
+> Could you type sysrq-P a few times, see if we can work out where it's
+> stuck?
 >
->On Sun, 2005-05-01 at 07:36 +0530, Arun Srinivas wrote:
-> > hi
-> >
-> >   I spkoe to you some days ago regarding scheduling two processes 
->together
-> > on a HT.As I told you before I run them as SCHED_FIFO processes.I 
->understood
-> > the theory you told me in your previous reply as to why both of 
->SCHED_FIFO
-> > processes get scheduled only once and then run till completion.
-> >
-> > But, sometimes a see a occasional reschedulei.e., the 2 processes get
-> > scheduled one more time after they are scheduled for the 1st time. I ran 
->my
-> > code 100 times and observed this behavior 8 out of  100 times. What 
->could be
-> > the reason?
-> > (As I said i want my 2 processes to run together without any reschedule
-> > after they are scheduled for the first time).
->
->  The only way a real time priority process of SCHED_FIFO gets
->rescheduled, is if the process voluntarily calls schedule (you call a
->system call that calls schedule), or a higher priority process gets
->scheduled.  I don't know what your program is doing, or what priorities
->that they are running with to know if something like this has occurred.
->
->Also, if the programs you are running haven't been locked into memory
->(they exist partially on the hard drive still), then it will take time
->to map the code into memory when that code is called, and a schedule
->will occur then as well.
->
->-- Steve
->
->
+> Thanks.
 
-_________________________________________________________________
-Thinking of Marriage. 
-http://www.bharatmatrimony.com/cgi-bin/bmclicks1.cgi?74 Think 
-BharatMatrimony.com
+sure. i recompiled the kernel with magic keys and debugger activated [1],=20
+and kswapd0 does idle normally, now. it seems to solve my issue, but i=20
+don't know why.=20
 
+for redundancy, here the Regs (alt-sysrq-p):
+
+[4294742.093000] SysRq : Show Regs
+[4294742.093000]
+[4294742.093000] Pid: 0, comm:              swapper
+[4294742.093000] EIP: 0060:[<c03feb42>] CPU: 0
+[4294742.093000] EIP is at acpi_processor_idle+0x103/0x29a
+[4294742.093000]  EFLAGS: 00000246    Not tainted  (2.6.12-rc3-mm2-ARCH)
+[4294742.093000] EAX: 00000000 EBX: c03fea3f ECX: 00000001 EDX: c072e000
+[4294742.093000] ESI: efa4c074 EDI: c0772380 EBP: efa4c000 DS: 007b ES:=20
+007b
+[4294742.093000] CR0: 8005003b CR2: f1473b04 CR3: 2f37d000 CR4: 00000690
+[4294742.093000]  [<c03fea3f>] acpi_processor_idle+0x0/0x29a
+[4294742.093000]  [<c0100e35>] cpu_idle+0x45/0x80
+[4294742.093000]  [<c07309e7>] start_kernel+0x197/0x1e0
+[4294742.093000]  [<c0730390>] unknown_bootoption+0x0/0x1f0
+
+the unknown_bootoption confuses me a little. the only bootoption i use is=20
+"devfs=3Dnomount" because i use udev and because people in archlinux may=20
+use instead of udev the devfs i keep devfs in the kernel.
+
+hope it helps you. as i said, now, with minimal debug options and magic=20
+keys configured into the kernel, the kswapd0 idles normally. (so a=20
+workaround to my issue is activating )=20
+
+greetings,
+Damir
+
+[1] the important part of config:
+#
+# Kernel hacking
+#
+CONFIG_PRINTK_TIME=3Dy
+CONFIG_DEBUG_KERNEL=3Dy
+CONFIG_MAGIC_SYSRQ=3Dy
+CONFIG_LOG_BUF_SHIFT=3D15
+CONFIG_DETECT_SOFTLOCKUP=3Dy
+# CONFIG_SCHEDSTATS is not set
+# CONFIG_DEBUG_SLAB is not set
+CONFIG_DEBUG_PREEMPT=3Dy
+# CONFIG_DEBUG_SPINLOCK is not set
+# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
+# CONFIG_DEBUG_KOBJECT is not set
+# CONFIG_DEBUG_HIGHMEM is not set
+CONFIG_DEBUG_BUGVERBOSE=3Dy
+# CONFIG_DEBUG_INFO is not set
+# CONFIG_PAGE_OWNER is not set
+# CONFIG_DEBUG_FS is not set
+# CONFIG_FRAME_POINTER is not set
+CONFIG_EARLY_PRINTK=3Dy
+# CONFIG_DEBUG_STACKOVERFLOW is not set
+# CONFIG_KPROBES is not set
+# CONFIG_DEBUG_STACK_USAGE is not set
+# CONFIG_DEBUG_PAGEALLOC is not set
+# CONFIG_4KSTACKS is not set
+CONFIG_X86_FIND_SMP_CONFIG=3Dy
+CONFIG_X86_MPPARSE=3Dy
+# CONFIG_KGDB is not set
+
+
+=2D-=20
+  Customer: "Eudora keeps giving me the error 'connection confused'."=20
+
+--nextPart3746444.F2JumZdkEf
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBCdcI7PABWKV6NProRAttMAKDf4lyiWZ8fysfihf/KgN//n294rwCggheO
+AD+gjNHCwzte+yClC0AD+uY=
+=Sv1w
+-----END PGP SIGNATURE-----
+
+--nextPart3746444.F2JumZdkEf--

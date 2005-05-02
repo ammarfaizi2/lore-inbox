@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVEBXQf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261217AbVEBXSa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261211AbVEBXQf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 19:16:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261213AbVEBXQf
+	id S261217AbVEBXSa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 19:18:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbVEBXSa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 19:16:35 -0400
-Received: from ipx10786.ipxserver.de ([80.190.251.108]:57491 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S261211AbVEBXQd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 19:16:33 -0400
-Date: Tue, 3 May 2005 01:15:27 +0200
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: skystar@moldova.cc, linux-dvb-maintainer@linuxtv.org,
-       video4linux-list@redhat.com, kraxel@bytesex.org,
-       linux-kernel@vger.kernel.org
-Message-ID: <20050502231527.GA11667@linuxtv.org>
-Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
-	Adrian Bunk <bunk@stusta.de>, skystar@moldova.cc,
-	linux-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com,
-	kraxel@bytesex.org, linux-kernel@vger.kernel.org
-References: <20050502014708.GZ3592@stusta.de>
+	Mon, 2 May 2005 19:18:30 -0400
+Received: from s-utl01-nypop.stsn.com ([199.106.90.52]:61100 "HELO
+	s-utl01-nypop.stsn.com") by vger.kernel.org with SMTP
+	id S261217AbVEBXSW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 19:18:22 -0400
+Subject: Re: How to flush data to disk reliably?
+From: Arjan van de Ven <arjan@infradead.org>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Grzegorz Kulewski <kangur@polcom.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.96.1050502182749.28303A-100000@gatekeeper.tmr.com>
+References: <Pine.LNX.3.96.1050502182749.28303A-100000@gatekeeper.tmr.com>
+Content-Type: text/plain
+Date: Mon, 02 May 2005 19:17:16 -0400
+Message-Id: <1115075836.6501.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050502014708.GZ3592@stusta.de>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: 217.86.176.198
-Subject: Re: [2.6 patch] drivers/media/dvb/b2c2/skystar2.c: remove an impossible code path
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 02, 2005 at 03:47:08AM +0200, Adrian Bunk wrote:
-> This patch removes an impossible code path found by the Coverity 
-> checker (look at the assignement in the first line of the context).
+On Mon, 2005-05-02 at 18:30 -0400, Bill Davidsen wrote:
+> On Mon, 2 May 2005, Alan Cox wrote:
 > 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> > On Llu, 2005-05-02 at 20:18, Grzegorz Kulewski wrote:
+> > > What about other filesystems? Does anybody know anwser for Reiserfs3, 
+> > > Reiser4, JFS, XFS and any other popular server filesystems? I assume that 
+> > > if log file is some block device (like partition) both O_SYNC and fsync 
+> > > will work? What about ext2? What about some strange RAID/DM/NBD 
+> > > configurations? (I do not know in advance what our customers will use so I 
+> > > need portable method.)
+> > 
+> > RAID does stripe sized rewrites so you get into the same situation as
+> > with actual disks - a physical media failure might lose you old data
+> > (but then if the disk goes bang so does the data...)
 > 
-> ---
-> 
-> This patch was already sent on:
-> - 10 Apr 2005
-> 
->  drivers/media/dvb/b2c2/skystar2.c |    2 +-
+> I hope I'm reading that wrong, and that rewriting a single sector of a
+> file doesn't result in r-a-w of the entire stripe. That would be a large
+> memory hit for filesystems with large stripes for mostly sequential i/o.
 
-I'm sorry that your patch got ignored the first time.
+it results in a read of the entire stripe and at least two writes (the
+actual data and the new parity)
 
-The patch is OK, but the skystar2 driver has been superseeded
-by the flexcop-pci driver in linuxtv.org CVS.
+the alternative (and I don't think linux does that) is to read the old
+data sector, and do an differential xor. 
 
 
-Thanks,
-Johannes
+

@@ -1,141 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261419AbVEBB1j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbVEBBbk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261419AbVEBB1j (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 21:27:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVEBB1j
+	id S261596AbVEBBbk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 21:31:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbVEBBbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 21:27:39 -0400
-Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:28604 "EHLO
-	ms-smtp-02-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S261419AbVEBB1c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 21:27:32 -0400
-Message-ID: <427581F6.9090201@davyandbeth.com>
-Date: Sun, 01 May 2005 20:27:18 -0500
-From: Davy Durham <pubaddr2@davyandbeth.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040804
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Theodore Ts'o" <tytso@mit.edu>
-CC: Davy Durham <pubaddr2@davyandbeth.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ext3 issue..
-References: <4270FA5B.5060609@davyandbeth.com> <20050428200908.GB6669@thunk.org>
-In-Reply-To: <20050428200908.GB6669@thunk.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 1 May 2005 21:31:40 -0400
+Received: from gate.crashing.org ([63.228.1.57]:24734 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261575AbVEBBbg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 21:31:36 -0400
+Subject: Re: [2.6 patch] drivers/ide/: possible cleanups
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       list linux-ide <linux-ide@vger.kernel.org>
+In-Reply-To: <20050501142915.GF3592@stusta.de>
+References: <20050430200750.GM3571@stusta.de>
+	 <1114954660.11309.154.camel@localhost.localdomain>
+	 <20050501142915.GF3592@stusta.de>
+Content-Type: text/plain
+Date: Mon, 02 May 2005 11:27:24 +1000
+Message-Id: <1114997244.7112.360.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, I caught another machine doing it..   So here's the output of: df, 
-unmount, fsck.ext3, mount, df
+On Sun, 2005-05-01 at 16:29 +0200, Adrian Bunk wrote:
+> On Sun, May 01, 2005 at 02:37:43PM +0100, Alan Cox wrote:
+> > On Sad, 2005-04-30 at 21:07, Adrian Bunk wrote:
+> > > This patch contains the following possible cleanups:
+> > > - pci/cy82c693.c: make a needlessly global function static
+> > > - remove the following unneeded EXPORT_SYMBOL's:
+> > >   - ide-taskfile.c: do_rw_taskfile
+> > >   - ide-iops.c: default_hwif_iops
+> > >   - ide-iops.c: default_hwif_transport
+> > >   - ide-iops.c: wait_for_ready
+> > 
+> > default_*_ops are very much API items not currently used. You need them
+> > if you
+> > want to switch from mmio back to pio (eg doing S3 resume) although
+> > nobody is currently doing that.
+> 
+> My patch only removes the EXPORT_SYMBOL's.
+> 
+> The functions themselves stay (since they are used), and if someone 
+> wants at some time in the future use them from a module, re-adding them 
+> will be trivial.
 
-I don't know if it shows anything that would indicate the cause of the 
-issue though.
+Hrm... well, that means if I ever want ide-pmac for example to be a
+module, I'll have to add them back...
 
+On the other hand, I agree that their names aren't very nice for
+exported symbols... they should have been ide_* 
 
-#df
-Filesystem Size Used Avail Use% Mounted on
+Ben.
 
-/dev/ide/host0/bus0/target0/lun0/part1
-                      2.0G  465M  1.5G  25% /
-/dev/ide/host0/bus0/target0/lun0/part6
-                       33G  -64Z   31G 101% /home
-
-
-
-# umount /home
-
-
-# fsck.ext3 -f -v /dev/ide/host0/bus0/target0/lun0/part6
-e2fsck 1.34 (25-Jul-2003)
-Pass 1: Checking inodes, blocks, and sizes
-Inode 8, i_blocks is 65616, should be 65608.  Fix<y>? yes
-
-Pass 2: Checking directory structure
-Pass 3: Checking directory connectivity
-/lost+found not found.  Create<y>? yes
-
-Pass 4: Checking reference counts
-Pass 5: Checking group summary information
-Free blocks count wrong for group #2 (47844, counted=30900).
-Fix<y>? yes
-
-Free blocks count wrong for group #4 (36926, counted=31744).
-Fix<y>? yes
-
-Free blocks count wrong (8435011, counted=8412885).
-Fix<y>? yes
-
-
-/dev/ide/host0/bus0/target0/lun0/part6: ***** FILE SYSTEM WAS MODIFIED *****
-
-      13 inodes used (0%)
-       2 non-contiguous inodes (15.4%)
-         # of inodes with ind/dind/tind blocks: 2/0/0
-  282288 blocks used (3%)
-       0 bad blocks
-       0 large files
-
-       2 regular files
-       1 directory
-       0 character device files
-       0 block device files
-       0 fifos
-       0 links
-       0 symbolic links (0 fast symbolic links)
-       0 sockets
---------
-       3 files
-
-
-# mount /home
-
-
-
-# df
-Filesystem            Size  Used Avail Use% Mounted on
-/dev/ide/host0/bus0/target0/lun0/part1
-                      2.0G  439M  1.5G  24% /
-/dev/ide/host0/bus0/target0/lun0/part6
-                       33G   39M   31G   1% /home
-
-
-# uname -r
-2.6.3-15mdk
-
-
-# uptime
- 20:25:26 up 100 days, 12 min,  1 user,  load average: 0.01, 0.08, 0.04
-
-
-
-
-
-Theodore Ts'o wrote:
-
->On Thu, Apr 28, 2005 at 09:59:39AM -0500, Davy Durham wrote:
->  
->
->>Crazy huh?  Well, I unmounted /home and did an fsck -f  on the partition 
->>and remounted it.  Then everything looked okay.
->>    
->>
->
->What messages were displayed by e2fsck?  What version of the kernel
->are you running?
->
->No, I haven't heard of any such problems with ext2/3 filesystems.
->This is the first time that someone was reported a specific problem
->with the # of blocks used accounting.  There is the standard "file
->held open so the number of blocks used is greater than blocks reported
->by du", but that won't cause df to display negative numbers.
->
->						- Ted
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->  
->
 

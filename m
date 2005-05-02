@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbVEBWAc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbVEBWYP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261167AbVEBWAc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 18:00:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261171AbVEBWAc
+	id S261181AbVEBWYP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 18:24:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbVEBWYO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 18:00:32 -0400
-Received: from fire.osdl.org ([65.172.181.4]:4837 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261165AbVEBWAX (ORCPT
+	Mon, 2 May 2005 18:24:14 -0400
+Received: from fire.osdl.org ([65.172.181.4]:40940 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261181AbVEBWYK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 18:00:23 -0400
-Date: Mon, 2 May 2005 15:02:16 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Matt Mackall <mpm@selenic.com>, Morten Welinder <mwelinder@gmail.com>,
-       Sean <seanlkml@sympatico.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
-In-Reply-To: <427650E7.2000802@tmr.com>
-Message-ID: <Pine.LNX.4.58.0505021457060.3594@ppc970.osdl.org>
-References: <118833cc05042908181d09bdfd@mail.gmail.com><118833cc05042908181d09bdfd@mail.gmail.com>
- <20050429165232.GV21897@waste.org> <427650E7.2000802@tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 2 May 2005 18:24:10 -0400
+Date: Mon, 2 May 2005 15:20:19 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Valdis.Kletnieks@vt.edu
+Cc: rddunlap@osdl.org, bunk@stusta.de, tomlins@cam.org, zwane@arm.linux.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc3-mm1
+Message-Id: <20050502152019.482a830c.akpm@osdl.org>
+In-Reply-To: <200505021611.j42GBX5x008308@turing-police.cc.vt.edu>
+References: <20050429231653.32d2f091.akpm@osdl.org>
+	<Pine.LNX.4.61.0504301700470.3559@montezuma.fsmlabs.com>
+	<20050430161032.0f5ac973.rddunlap@osdl.org>
+	<200505010909.38277.tomlins@cam.org>
+	<20050501133040.GB3592@stusta.de>
+	<200505021528.j42FS5QJ006515@turing-police.cc.vt.edu>
+	<20050502084930.6914e152.rddunlap@osdl.org>
+	<200505021611.j42GBX5x008308@turing-police.cc.vt.edu>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 2 May 2005, Bill Davidsen wrote:
+Valdis.Kletnieks@vt.edu wrote:
+>
+> On Mon, 02 May 2005 08:49:30 PDT, "Randy.Dunlap" said:
 > 
-> If there is a functional reason to use git, something Mercurial doesn't 
-> do, then developers will and should use git. But the associated hassles 
-> with large change size, rather than the absolute size, are worth 
-> considering.
+> > Last I heard, Andrew had access to kernel.org transfer logs,
+> > but the problem is that we can't tell anything about the download
+> > counts from mirrors.
+> 
+> Have to admit, I'm always hitting the kernel.org one, because that's the
+> URL that Andrew puts in the announcements.  Probably a lot of others do
+> so as well - so figure if half the people bother using a mirror rather
+> than just going clicky-click, the kernel.org logs will reflect the other
+> half.  Probably not perfect, but probably good enough to tell how many
+> digits are in the number at least.
+> 
+> (I'll go out on a limb and say "barely 3 digit's worth of downloads")...
 
-Note that we discussed this early on, and the issues with full-file 
-handling haven't changed. It does actually have real functional 
-advantages:
+More that you'd expect.
 
- - you can share the objects freely between different trees, never 
-   worrying about one tree corrupting another trees object by mistake.
- - you can drop old objects.
+2.6.11-mm1.gz and 2.6.11-mm1.bz2 were downloaded from kernel.org from 1729
+unique IP addresses using http and from an additional 321 unique IP
+addresses using ftp.
 
-delta models very fundamentally don't support this. 
+The fact that most people bother to alter the URL from ftp: to http:
+perhaps means that more people than I expect also bothered to stick the
+country code in there too.  Who knows...
 
-For example, a simple tree re-linker will work on any mirror site, and
-work reliably, even if I end up uploading new objects with some tool that
-doesn't know to break hardlinks etc. That can easily be much more than a
-10x win for a git repository site (imagine something like bkbits.net, but
-got git).
-
-Whether it is a huge deal or not, I don't know. I do know that the big 
-deal to me is just the simplicity of the git object models. It makes me 
-trust it, even in the presense of inevitable bugs. It's a very safe model, 
-and right now safe is good.
-
-		Linus

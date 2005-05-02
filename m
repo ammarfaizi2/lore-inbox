@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261461AbVEBRds@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbVEBRgJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261461AbVEBRds (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 13:33:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261467AbVEBRbi
+	id S261588AbVEBRgJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 13:36:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbVEBRf6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 13:31:38 -0400
-Received: from fire.osdl.org ([65.172.181.4]:47762 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261366AbVEBRbF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 13:31:05 -0400
-Date: Mon, 2 May 2005 10:32:38 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Daniel Jacobowitz <dan@debian.org>
-cc: Bill Davidsen <davidsen@tmr.com>, Andrea Arcangeli <andrea@suse.de>,
-       Matt Mackall <mpm@selenic.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
-In-Reply-To: <20050502171802.GA28045@nevyn.them.org>
-Message-ID: <Pine.LNX.4.58.0505021031070.3594@ppc970.osdl.org>
-References: <20050430025211.GP17379@opteron.random> <42764C0C.8030604@tmr.com>
- <Pine.LNX.4.58.0505020921080.3594@ppc970.osdl.org> <20050502171802.GA28045@nevyn.them.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 2 May 2005 13:35:58 -0400
+Received: from bay102-f13.bay102.hotmail.com ([64.4.61.23]:12919 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S261473AbVEBRey
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 13:34:54 -0400
+Message-ID: <BAY102-F13EED31CA6775F78BC88E4AE270@phx.gbl>
+X-Originating-IP: [64.4.61.200]
+X-Originating-Email: [jocosby@hotmail.com]
+From: "Joseph Cosby" <jocosby@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: PCI: Multiple domains not supported
+Date: Mon, 02 May 2005 11:34:54 -0600
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 02 May 2005 17:34:55.0122 (UTC) FILETIME=[40F36720:01C54F3D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+  I'm getting, "PCI: Multiple domains not supported," when I boot with a 
+2.6.11 kernel. Then the machine hangs after trying to bind a PCI device with 
+the message, "Invalid ACPI-PCI context for parent device PCI1."
+  The first message comes from pci_acpi_scan_root, when passed a non-zero 
+domain. This is called from acpi_pci_root_add, which passes the domain 
+obtained from _SEG. The machine that I have is AMD with 3 root PCI busses, 
+so it has _SEG=0, 1 and 2 respectively.
+  If I pass pci=noacpi to the kernel then the machine can boot, and finds 
+the devices correctly.
+  My questions are whether this is a known issue, and also if anybody knows 
+any workarounds besides the extra boot time parameters to the kernel.
+  Any help is appreciated.
 
+Thank you,
+Joseph
 
-On Mon, 2 May 2005, Daniel Jacobowitz wrote:
-> 
-> Do you know any vaguely Unix-like system where #!/usr/bin/env does not
-> work?  I don't; I've used it on Solaris, HP-UX, OSF/1...
+_________________________________________________________________
+Don’t just search. Find. Check out the new MSN Search! 
+http://search.msn.click-url.com/go/onm00200636ave/direct/01/
 
-I've used unixes where "#!" didn't work.
-
-Things like bash still have support for such unixes, I think - you can
-tell them to parse the #! line themselves, to make it appear to do the 
-right thing.
-
-Are these common? Hell no. But they definitely existed.
-
-		Linus

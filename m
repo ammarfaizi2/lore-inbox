@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbVEBCU1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261633AbVEBCat@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261623AbVEBCU1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 22:20:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbVEBCT0
+	id S261633AbVEBCat (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 22:30:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbVEBCS7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 22:19:26 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:21776 "HELO
+	Sun, 1 May 2005 22:18:59 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:23056 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261623AbVEBBqY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 21:46:24 -0400
-Date: Mon, 2 May 2005 03:46:22 +0200
+	id S261619AbVEBBq0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 21:46:26 -0400
+Date: Mon, 2 May 2005 03:46:24 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: [2.6 patch] drivers/net/ne3210.c: cleanups
-Message-ID: <20050502014622.GK3592@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/net/seeq8005.c: cleanups
+Message-ID: <20050502014624.GL3592@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,8 +24,9 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This patch contains the following cleanups:
-- make two needlessly global functions static
+- make the needlessly global function seeq8005_init static
 - kill an ancient version variable
+- remove some outdated Emacs settings
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
@@ -32,44 +34,73 @@ Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 This patch was already sent on:
 - 19 Apr 2005
+- 21 Feb 2005
 
- drivers/net/ne3210.c |    9 +++------
- 1 files changed, 3 insertions(+), 6 deletions(-)
+ drivers/net/seeq8005.c |   23 ++---------------------
+ 1 files changed, 2 insertions(+), 21 deletions(-)
 
---- linux-2.6.11-rc3-mm2-full/drivers/net/ne3210.c.old	2005-02-16 16:09:39.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-full/drivers/net/ne3210.c	2005-02-21 15:10:02.000000000 +0100
-@@ -26,9 +26,6 @@
- 	Updated to EISA probing API 5/2003 by Marc Zyngier.
- */
+--- linux-2.6.11-rc3-mm2-full/drivers/net/seeq8005.c.old	2005-02-16 18:18:56.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/net/seeq8005.c	2005-02-21 15:19:11.000000000 +0100
+@@ -12,12 +12,6 @@
+ 	This file is a network device driver for the SEEQ 8005 chipset and
+ 	the Linux operating system.
  
--static const char *version =
--	"ne3210.c: Driver revision v0.03, 30/09/98\n";
+-*/
 -
- #include <linux/module.h>
- #include <linux/eisa.h>
- #include <linux/kernel.h>
-@@ -197,7 +194,7 @@
- 	ei_status.priv = phys_mem;
+-static const char version[] =
+-	"seeq8005.c:v1.00 8/07/95 Hamish Coleman (hamish@zot.apana.org.au)\n";
+-
+-/*
+   Sources:
+   	SEEQ 8005 databook
+   	
+@@ -91,7 +85,7 @@
+ /* Example routines you must write ;->. */
+ #define tx_done(dev)	(inw(SEEQ_STATUS) & SEEQSTAT_TX_ON)
+ static void hardware_send_packet(struct net_device *dev, char *buf, int length);
+-extern void seeq8005_init(struct net_device *dev, int startp);
++static  void seeq8005_init(struct net_device *dev, int startp);
+ static inline void wait_for_buffer(struct net_device *dev);
  
- 	if (ei_debug > 0)
+ 
+@@ -150,7 +144,6 @@
+ 
+ static int __init seeq8005_probe1(struct net_device *dev, int ioaddr)
+ {
+-	static unsigned version_printed;
+ 	int i,j;
+ 	unsigned char SA_prom[32];
+ 	int old_cfg1;
+@@ -291,9 +284,6 @@
+ 	}
+ #endif
+ 
+-	if (net_debug  &&  version_printed++ == 0)
 -		printk(version);
-+		printk("ne3210 loaded.\n");
+-
+ 	printk("%s: %s found at %#3x, ", dev->name, "seeq8005", ioaddr);
  
- 	ei_status.reset_8390 = &ne3210_reset_8390;
- 	ei_status.block_input = &ne3210_block_input;
-@@ -359,12 +356,12 @@
- MODULE_DESCRIPTION("NE3210 EISA Ethernet driver");
- MODULE_LICENSE("GPL");
- 
--int ne3210_init(void)
-+static int ne3210_init(void)
- {
- 	return eisa_driver_register (&ne3210_eisa_driver);
+ 	/* Fill in the 'dev' fields. */
+@@ -637,7 +627,7 @@
+ #endif
  }
  
--void ne3210_cleanup(void)
-+static void ne3210_cleanup(void)
+-void seeq8005_init(struct net_device *dev, int startp)
++static void seeq8005_init(struct net_device *dev, int startp)
  {
- 	eisa_driver_unregister (&ne3210_eisa_driver);
+ 	struct net_local *lp = netdev_priv(dev);
+ 	int ioaddr = dev->base_addr;
+@@ -758,12 +748,3 @@
  }
+ 
+ #endif /* MODULE */
+-
+-/*
+- * Local variables:
+- *  compile-command: "gcc -D__KERNEL__ -I/usr/src/linux/net/inet -Wall -Wstrict-prototypes -O6 -m486 -c skeleton.c"
+- *  version-control: t
+- *  kept-new-versions: 5
+- *  tab-width: 4
+- * End:
+- */
 

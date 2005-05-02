@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbVEBMiV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbVEBLl1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261200AbVEBMiV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 08:38:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVEBMiV
+	id S261204AbVEBLl1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 07:41:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVEBLl1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 08:38:21 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:26566 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S261200AbVEBMiS (ORCPT
+	Mon, 2 May 2005 07:41:27 -0400
+Received: from wproxy.gmail.com ([64.233.184.192]:10909 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261204AbVEBLlZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 08:38:18 -0400
-Date: Mon, 2 May 2005 13:21:47 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: David Lang <dlang@digitalinsight.com>, "Theodore Ts'o" <tytso@mit.edu>
-Cc: Daniel Phillips <phillips@istop.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/7] dlm: overview
-Message-ID: <20050502112147.GP4722@marowsky-bree.de>
-References: <20050425151136.GA6826@redhat.com> <20050428145715.GA21645@marowsky-bree.de> <Pine.LNX.4.62.0504281731450.6139@qynat.qvtvafvgr.pbz> <200504282152.31137.phillips@istop.com> <Pine.LNX.4.62.0504291011220.7439@qynat.qvtvafvgr.pbz> <20050501035746.GA6578@thunk.org> <Pine.LNX.4.62.0504302110530.9153@qynat.qvtvafvgr.pbz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.62.0504302110530.9153@qynat.qvtvafvgr.pbz>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.6i
+	Mon, 2 May 2005 07:41:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding;
+        b=jEf1zPn09vd10W7MN9Y2MigCkNpbw66tVcKQuqlnVCpT9LUOUsGz6Hnn7mdnbUjcvqE+2siOdmldggtyTPzHyWep5kMl8RZH63tAnxwn258M3/H8fI3RO8aQUHyrHbohQbqUym9PeSr4LO20rVpAu4FPmk/xuEBmjt6nf/ZCJYE=
+Message-ID: <42761265.8020807@gmail.com>
+Date: Mon, 02 May 2005 13:43:33 +0200
+From: Mateusz Berezecki <mateuszb@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: pl, en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: kernel bug ?
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2005-04-30T21:14:45, David Lang <dlang@digitalinsight.com> wrote:
 
-> I will say that this wasn't what I thought we was being talked about for 
-> cluster membership, becouse I assumed that the generation of an ID would 
-> be repeatable so that a cluster node could be rebuilt and re-join the 
-> cluster with it's old ID.
+http://www.pastebin.com/278569
 
-Hm? Every node generates its UUID _once_ and stores it on persistent
-local storage. It doesn't get regenerated.
+testcase used
+
+hack.pl/~c0de/5.c
+
+compile and run using
+
+strace -f 5
+
+on my 2.6.12-rc3 kernel frow linus' git repo it
+produces a bunch of oopses
 
 
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-High Availability & Clustering
-SUSE Labs, Research and Development
-SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
-"Ignorance more frequently begets confidence than does knowledge"
+regards
 

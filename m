@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbVEBRTA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261634AbVEBRGd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261241AbVEBRTA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 13:19:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbVEBRQa
+	id S261634AbVEBRGd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 13:06:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261714AbVEBRGY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 13:16:30 -0400
-Received: from colin.muc.de ([193.149.48.1]:18951 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S261218AbVEBRPy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 13:15:54 -0400
-Date: 2 May 2005 19:15:51 +0200
-Date: Mon, 2 May 2005 19:15:51 +0200
-From: Andi Kleen <ak@muc.de>
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Cc: "Guo, Racing" <racing.guo@intel.com>, Andrew Morton <akpm@osdl.org>,
-       "Yu, Luming" <luming.yu@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]porting lockless mce from x86_64 to i386
-Message-ID: <20050502171551.GG27150@muc.de>
-References: <88056F38E9E48644A0F562A38C64FB60049EED02@scsmsx403.amr.corp.intel.com>
+	Mon, 2 May 2005 13:06:24 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:54720 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261598AbVEBRFR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 13:05:17 -0400
+Date: Mon, 2 May 2005 22:46:19 +0530
+From: Dinakar Guniguntala <dino@in.ibm.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Paul Jackson <pj@sgi.com>, Simon Derr <Simon.Derr@bull.net>,
+       lkml <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>,
+       Matthew Dobson <colpatch@us.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC PATCH] Dynamic sched domains (v0.5)
+Message-ID: <20050502171619.GA4418@in.ibm.com>
+Reply-To: dino@in.ibm.com
+References: <20050501190947.GA5204@in.ibm.com> <4275F665.1010101@yahoo.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <88056F38E9E48644A0F562A38C64FB60049EED02@scsmsx403.amr.corp.intel.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <4275F665.1010101@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 02, 2005 at 09:15:07AM -0700, Pallipadi, Venkatesh wrote:
-> >-----Original Message-----
-> >From: linux-kernel-owner@vger.kernel.org 
-> >[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Guo, Racing
-> >Sent: Sunday, May 01, 2005 6:02 PM
-> >To: Andi Kleen; Andrew Morton
-> >Cc: Yu, Luming; linux-kernel@vger.kernel.org
-> >Subject: RE: [PATCH]porting lockless mce from x86_64 to i386
-> >
-> >>
-> >>If Luming would not move the mce.c file from x86-64 to i386 then
-> >>his patch would be only 1/4 as big. I dont know why he does this
-> >>anyways, it seems completely pointless.
-> >
-> >mce.c mce.h and mce_intel.c are moved from x86_64 to i386. so the
-> >patch is very big. The motivation is to share mce code between
-> >x86_64 and i386 and avoid duplicate code in x86_64 and i386.
-> >I don't know whether I completely understand what you point.
-> >Correct me if I am wrong.
+On Mon, May 02, 2005 at 07:44:05PM +1000, Nick Piggin wrote:
+> Dinakar Guniguntala wrote:
 > 
-> I think what Andi meant was that instead of copying code from x86-64 
-> to i386 and making x86-64 link to this i386 copy, you can leave the 
-> code in x86-64 and link it from i386 part of the tree. 
+> >+void rebuild_sched_domains(cpumask_t span1, cpumask_t span2)
+> >+{
+> >+	cpumask_t change_map;
+> >+
+> >+	cpus_or(change_map, span1, span2);
+> >+
+> >+	preempt_disable();
+> 
+> Oh, you can't do this here, attach_domains does a synchronize_kernel.
+> So take it out, it doesn't do anything anyway, does it?
 
-Yep.
+I put that in to prevent hangs with CONFIG_PREEMPT turned on, but
+clearly didn't test it with preempt turned on. Looks like all I need to 
+do here is a local_irq_disable
 
 > 
-> Doing it either way should be OK with this mce code. But I feel, 
-> despite of the patch size, it is better to keep all the shared 
-> code in i386 tree and link it from x86-64. Otherwise, it may become 
-> kind of messy in future, with various links between i386 and x86-64.
+> I suggest you also use some sort of locking to prevent concurrent rebuilds
+> and rebuilds racing with cpu hotplug. You could probably have a static
+> semaphore around rebuild_sched_domains, and take lock_cpu_hotplug here too.
 
-i386 already uses code from x86-64 (earlyprintk.c) - it is nothing 
-new.
+I already do a lock_cpu_hotplug() in cpuset.c before calling 
+rebuild_sched_domains and also am holding cpuset_sem, so that should take
+care of both hotplug and concurrent rebuilds
 
-
--Andi
+	-Dinakar

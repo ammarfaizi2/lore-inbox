@@ -1,62 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261492AbVEBQmB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbVEBRb0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261492AbVEBQmB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 12:42:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbVEBQ1u
+	id S261383AbVEBRb0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 13:31:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbVEBQ1X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 12:27:50 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:19338 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261414AbVEBQPS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 12:15:18 -0400
-Message-ID: <42765212.8030605@tmr.com>
-Date: Mon, 02 May 2005 12:15:14 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-Newsgroups: mail.linux-kernel
-To: Sean <seanlkml@sympatico.ca>
-CC: Tom Lord <lord@emf.net>, torvalds@osdl.org, mpm@selenic.com,
-       linux-kernel@vger.kernel.org, git@vger.kernel.org
+	Mon, 2 May 2005 12:27:23 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:11564
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S261383AbVEBQLd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 12:11:33 -0400
+Date: Mon, 2 May 2005 18:17:22 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
 Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
-References: <200504291854.LAA26550@emf.net><2712.10.10.10.24.1114799620.squirrel@linux1> <2944.10.10.10.24.1114802002.squirrel@linux1>
-In-Reply-To: <2944.10.10.10.24.1114802002.squirrel@linux1>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20050502161722.GN20146@opteron.random>
+References: <20050430025211.GP17379@opteron.random> <42764C0C.8030604@tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42764C0C.8030604@tmr.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sean wrote:
-> On Fri, April 29, 2005 2:54 pm, Tom Lord said:
-> 
-> 
->>The process should not rely on the security of every developer's
->>machine.  The process should not rely on simply trusting quality
->>contributors by reputation (e.g., most cons begin by establishing
->>trust and continue by relying inappropriately on
->>trust-without-verification).  This relates to why Linus'
->>self-advertised process should be raising yellow and red cards all
->>over the place: either he is wasting a huge amount of his own time and
->>should be largely replaced by an automated patch queue manager, or he
->>is being trusted to do more than is humanly possible.
->>
-> 
-> 
-> Ahh, you don't believe in the development model that has produced Linux! 
-> Personally I do believe in it, so much so that I question the value of
-> signatures at the changeset level.  To me it doesn't matter where the code
-> came from just so long as it works.
+On Mon, May 02, 2005 at 11:49:32AM -0400, Bill Davidsen wrote:
+> Could you explain why this is necessary or desirable? I looked at what 
 
-Lawyers must love you... That approach doesn't work in court.
+This is necessary here because of this:
 
-Related: look at the new software patent law, it ignores the existing 
-law, judge and jury, and lets MS avoid paying the judgement for a suit 
-it already lost.
+andrea@opteron:~> which python
+/home/andrea/bin/x86_64/python/bin/python
 
-See Computerworld etc for details.
+Of course I've /home/andrea/bin/x86_64/python/bin in the path before
+/usr/bin.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+The generally accepted way to start it is through env, other scripts in
+mercurial were already getting that right too so it was probably not
+intentional to hardcode it in the hg binary.

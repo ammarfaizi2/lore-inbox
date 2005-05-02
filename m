@@ -1,68 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261770AbVEBVBB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261775AbVEBU4L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261770AbVEBVBB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 17:01:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261745AbVEBVBA
+	id S261775AbVEBU4L (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 16:56:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbVEBUzl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 17:01:00 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:19147 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S261773AbVEBVAa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 17:00:30 -0400
-Date: Mon, 2 May 2005 22:51:35 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Daniel Phillips <phillips@istop.com>
-Cc: Daniel McNeil <daniel@osdl.org>, David Teigland <teigland@redhat.com>,
-       Steven Dake <sdake@mvista.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Patrick Caulfield <pcaulfie@redhat.com>
-Subject: Re: [PATCH 1b/7] dlm: core locking
-Message-ID: <20050502205135.GC4722@marowsky-bree.de>
-References: <20050425165826.GB11938@redhat.com> <200504300509.24887.phillips@istop.com> <20050430103221.GQ21645@marowsky-bree.de> <200504300712.46835.phillips@istop.com>
+	Mon, 2 May 2005 16:55:41 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:7448 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261745AbVEBUxG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 16:53:06 -0400
+Date: Mon, 2 May 2005 22:54:18 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Linus Torvalds <torvalds@osdl.org>, Bill Davidsen <davidsen@tmr.com>,
+       Andrea Arcangeli <andrea@suse.de>, Matt Mackall <mpm@selenic.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
+Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
+Message-ID: <20050502205418.GA12409@mars.ravnborg.org>
+References: <20050430025211.GP17379@opteron.random> <42764C0C.8030604@tmr.com> <Pine.LNX.4.58.0505020921080.3594@ppc970.osdl.org> <20050502171802.GA28045@nevyn.them.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200504300712.46835.phillips@istop.com>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050502171802.GA28045@nevyn.them.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2005-04-30T07:12:46, Daniel Phillips <phillips@istop.com> wrote:
+On Mon, May 02, 2005 at 01:18:02PM -0400, Daniel Jacobowitz wrote:
+> > 	#!/bin/sh
+> > 	exec perl perlscript.pl "$@"
+> > 
+> > instead.
+> 
+> Do you know any vaguely Unix-like system where #!/usr/bin/env does not
+> work?  I don't; I've used it on Solaris, HP-UX, OSF/1...
 
-> process.  And obviously, there already is some reliable starting point or 
-> cman would not work.  So let's just expose that and have a better cluster 
-> stack.
+I had to pull out a call to env from kbuild due to strange errors in
+some mandrake? based system.
+I never tracked it down fully at that time, I just realised that two
+different programs named env was present, and the less common one made
+the linux kernel build fail. env was not called with any path in that
+example so that may have cured it.
 
-Most memberships internally construct such a fixed starting point from
-voting or other 'chatty' techniques.
-
-This is exposed by the membership (providing all nodes in the same order
-on all nodes), however the node level membership does not necessarily
-reflect the service/application level membership. So to get it right,
-you essentially have to run such an algorithm at that level again too.
-
-True enough it would be helpful if the group membership service provided
-such, but here we're at the node level.
-
-> But note that it _can_ use the oldest cluster member as a recovery
-> master, or to designate a recovery master.  It can, and should - there
-> is no excuse for making this any more complex than it needs to be.
-
-The oldest node might not be running that particular service, or it
-might not be healthy. To figure that out, you need to vote.
-
-This is straying a bit from LKML issues, maybe it ought to be moved to
-one of the clustering lists.
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-High Availability & Clustering
-SUSE Labs, Research and Development
-SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
-"Ignorance more frequently begets confidence than does knowledge"
-
+	Sam

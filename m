@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261727AbVEBB6j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261647AbVEBB6k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261727AbVEBB6j (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 May 2005 21:58:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVEBB5T
+	id S261647AbVEBB6k (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 May 2005 21:58:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261698AbVEBB4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 May 2005 21:57:19 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:33808 "HELO
+	Sun, 1 May 2005 21:56:50 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:34576 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261647AbVEBBqy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 May 2005 21:46:54 -0400
-Date: Mon, 2 May 2005 03:46:52 +0200
+	id S261651AbVEBBq4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 May 2005 21:46:56 -0400
+Date: Mon, 2 May 2005 03:46:55 +0200
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux@syskonnect.de, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: [2.6 patch] drivers/net/skfp/: fix LITTLE_ENDIAN
-Message-ID: <20050502014652.GU3592@stusta.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/block/sx8.c: remove unused code
+Message-ID: <20050502014655.GV3592@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,39 +22,79 @@ User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes the LITTLE_ENDIAN #define and a function prototype.
+Is it planned to ever #define IF_64BIT_DMA_IS_POSSIBLE ?
+
+If not, the patch below removes this currently completely unused code.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
 This patch was already sent on:
-- 20 Apr 2005
+- 10 Apr 2005
 
- drivers/net/skfp/h/osdef1st.h |    2 ++
- drivers/net/skfp/smt.c        |    2 +-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ drivers/block/sx8.c |   30 ++++++------------------------
+ 1 files changed, 6 insertions(+), 24 deletions(-)
 
---- linux-2.6.12-rc2-mm3-full/drivers/net/skfp/h/osdef1st.h.old	2005-04-20 01:22:21.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/net/skfp/h/osdef1st.h	2005-04-20 01:23:55.000000000 +0200
-@@ -20,6 +20,8 @@
- // HWM (HardWare Module) Definitions
- // -----------------------
+--- linux-2.6.12-rc2-mm2-full/drivers/block/sx8.c.old	2005-04-09 21:51:31.000000000 +0200
++++ linux-2.6.12-rc2-mm2-full/drivers/block/sx8.c	2005-04-09 21:52:46.000000000 +0200
+@@ -176,7 +176,6 @@ enum {
+ 	FL_NON_RAID		= FW_VER_NON_RAID,
+ 	FL_4PORT		= FW_VER_4PORT,
+ 	FL_FW_VER_MASK		= (FW_VER_NON_RAID | FW_VER_4PORT),
+-	FL_DAC			= (1 << 16),
+ 	FL_DYN_MAJOR		= (1 << 17),
+ };
  
-+#include <asm/byteorder.h>
-+
- #ifdef __LITTLE_ENDIAN
- #define LITTLE_ENDIAN
- #else
---- linux-2.6.12-rc2-mm3-full/drivers/net/skfp/smt.c.old	2005-04-20 01:26:34.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/net/skfp/smt.c	2005-04-20 01:26:22.000000000 +0200
-@@ -86,7 +86,7 @@
- static void smt_send_sif_operation(struct s_smc *smc, struct fddi_addr *dest,
- 				   u_long tid, int local);
- #ifdef LITTLE_ENDIAN
--static void smt_string_swap(void);
-+static void smt_string_swap(char *data, const char *format, int len);
- #endif
- static void smt_add_frame_len(SMbuf *mb, int len);
- static void smt_fill_una(struct s_smc *smc, struct smt_p_una *una);
+@@ -1565,7 +1564,6 @@ static int carm_init_one (struct pci_dev
+ {
+ 	static unsigned int printed_version;
+ 	struct carm_host *host;
+-	unsigned int pci_dac;
+ 	int rc;
+ 	request_queue_t *q;
+ 	unsigned int i;
+@@ -1581,28 +1579,12 @@ static int carm_init_one (struct pci_dev
+ 	if (rc)
+ 		goto err_out;
+ 
+-#if IF_64BIT_DMA_IS_POSSIBLE /* grrrr... */
+-	rc = pci_set_dma_mask(pdev, 0xffffffffffffffffULL);
+-	if (!rc) {
+-		rc = pci_set_consistent_dma_mask(pdev, 0xffffffffffffffffULL);
+-		if (rc) {
+-			printk(KERN_ERR DRV_NAME "(%s): consistent DMA mask failure\n",
+-				pci_name(pdev));
+-			goto err_out_regions;
+-		}
+-		pci_dac = 1;
+-	} else {
+-#endif
+-		rc = pci_set_dma_mask(pdev, 0xffffffffULL);
+-		if (rc) {
+-			printk(KERN_ERR DRV_NAME "(%s): DMA mask failure\n",
+-				pci_name(pdev));
+-			goto err_out_regions;
+-		}
+-		pci_dac = 0;
+-#if IF_64BIT_DMA_IS_POSSIBLE /* grrrr... */
++	rc = pci_set_dma_mask(pdev, 0xffffffffULL);
++	if (rc) {
++		printk(KERN_ERR DRV_NAME "(%s): DMA mask failure\n",
++			pci_name(pdev));
++		goto err_out_regions;
+ 	}
+-#endif
+ 
+ 	host = kmalloc(sizeof(*host), GFP_KERNEL);
+ 	if (!host) {
+@@ -1614,7 +1596,7 @@ static int carm_init_one (struct pci_dev
+ 
+ 	memset(host, 0, sizeof(*host));
+ 	host->pdev = pdev;
+-	host->flags = pci_dac ? FL_DAC : 0;
++	host->flags = 0;
+ 	spin_lock_init(&host->lock);
+ 	INIT_WORK(&host->fsm_task, carm_fsm_task, host);
+ 	init_MUTEX_LOCKED(&host->probe_sem);
 

@@ -1,48 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261718AbVEBTOr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbVEBTSn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261718AbVEBTOr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 15:14:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbVEBTOr
+	id S261720AbVEBTSn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 15:18:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261721AbVEBTSm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 15:14:47 -0400
-Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:18845 "HELO
-	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261718AbVEBTOo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 15:14:44 -0400
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: [uml-devel] Re: [UML] Compile error when building with seperate source and object directories
-Date: Mon, 2 May 2005 21:14:05 +0200
-User-Agent: KMail/1.8
-Cc: user-mode-linux-devel@lists.sourceforge.net, Jeff Dike <jdike@addtoit.com>,
-       linux-kernel@vger.kernel.org, sam@ravnborg.org,
-       Ryan Anderson <ryan@michonline.com>
-References: <1114570958.5983.50.camel@mythical> <200505011330.58205.blaisorblade@yahoo.it> <20050501160707.GI13052@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20050501160707.GI13052@parcelfarce.linux.theplanet.co.uk>
+	Mon, 2 May 2005 15:18:42 -0400
+Received: from alpha.polcom.net ([217.79.151.115]:16788 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S261720AbVEBTSi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 15:18:38 -0400
+Date: Mon, 2 May 2005 21:18:35 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: How to flush data to disk reliably?
+In-Reply-To: <1115056355.10370.37.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.62.0505022057070.11701@alpha.polcom.net>
+References: <Pine.LNX.4.62.0505021503470.11701@alpha.polcom.net>
+ <1115056355.10370.37.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200505022114.06062.blaisorblade@yahoo.it>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 01 May 2005 18:07, Al Viro wrote:
-> On Sun, May 01, 2005 at 01:30:57PM +0200, Blaisorblade wrote:
-> > For now I've added an #ifdef to re-include that code for x86, while
-> > excluding it for x86_64. Also, is that up-to-date wrt. 2.6.12-rc3?
+Thanks for your fast response!
+
+On Mon, 2 May 2005, Alan Cox wrote:
+>> I am asking how to flush the data from these logs to disk. I know of
+>> several methods:
+>> 1. open with O_SYNC,
+>> 2. sync(2),
+>> 3. fsync,
+>> 4. fdatasync,
+>> 5. msync (if they are mmaped).
+>>
+>> Which of these are best and most reliable for (a/b) and for (IDE/SCSI)?
 >
-> Yes, it is.  As for the ptrace.c...  IMO the right thing is
-> per-architecture helper here.  Such ifdefs are OK when it's just i386 and
-> amd64.  As soon as e.g. uml/s390 gets merged or uml/ia64 and uml/ppc get
-> resurrected...
-Agreed, I've done it this way to reintroduce for now the code for i386. It's 
-anyway kludgy, since amd64 has too its debug registers to handle (at least it 
-should); it's just that UML does not handle them yet.
--- 
-Paolo Giarrusso, aka Blaisorblade
-Skype user "PaoloGiarrusso"
-Linux registered user n. 292729
-http://www.user-mode-linux.org/~blaisorblade
+> For scsi the combination of O_SYNC and ext3 or fsync and ext3 should be
+> reliable. fdatasync doesn't write back all the metadata so depending on
+> the use may not be sufficient. FAT based fs's I believe you need a
+> current kernel for full O_SYNC behaviour.
+
+What about other filesystems? Does anybody know anwser for Reiserfs3, 
+Reiser4, JFS, XFS and any other popular server filesystems? I assume that 
+if log file is some block device (like partition) both O_SYNC and fsync 
+will work? What about ext2? What about some strange RAID/DM/NBD 
+configurations? (I do not know in advance what our customers will use so I 
+need portable method.)
+
+
+>> What are differences between them?
+>
+> See the manual pages and/or standard.
+
+I already saw them. But I am asking about current implementation status on 
+Linux. For example does fsync differ from fdatasync if file is block 
+device? Does O_SYNC always equal "write; fsync" for all not read only 
+operations? Is it faster because only one syscall is executed?
+
+Also flushing should be slow (for example 50 flushes/s) because disk seeks 
+are slow. So if I need say 200 reliable writes to log per second may I put 
+4 independent disks into the server and use them as 4 independent log 
+files? But fsync operation blocks. Is there any "submit flush request and 
+get some info when done" command or should I use 4 threads / processes?
+
+
+Thanks in advance,
+
+Grzegorz Kulewski
 

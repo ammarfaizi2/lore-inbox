@@ -1,58 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVEBWnu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbVEBWsJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261199AbVEBWnu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 18:43:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbVEBWnu
+	id S261206AbVEBWsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 18:48:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbVEBWsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 18:43:50 -0400
-Received: from www.tuxrocks.com ([64.62.190.123]:38668 "EHLO tuxrocks.com")
-	by vger.kernel.org with ESMTP id S261199AbVEBWnq (ORCPT
+	Mon, 2 May 2005 18:48:09 -0400
+Received: from fire.osdl.org ([65.172.181.4]:38788 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261194AbVEBWr4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 18:43:46 -0400
-Message-ID: <4276AC90.30008@tuxrocks.com>
-Date: Mon, 02 May 2005 16:41:20 -0600
-From: Frank Sorenson <frank@tuxrocks.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
+	Mon, 2 May 2005 18:47:56 -0400
+Date: Mon, 2 May 2005 15:49:49 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Matt Mackall <mpm@selenic.com>
+cc: Bill Davidsen <davidsen@tmr.com>, Morten Welinder <mwelinder@gmail.com>,
+       Sean <seanlkml@sympatico.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
+Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
+In-Reply-To: <20050502223002.GP21897@waste.org>
+Message-ID: <Pine.LNX.4.58.0505021540070.3594@ppc970.osdl.org>
+References: <20050429165232.GV21897@waste.org> <427650E7.2000802@tmr.com>
+ <Pine.LNX.4.58.0505021457060.3594@ppc970.osdl.org> <20050502223002.GP21897@waste.org>
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: Adrian Bunk <bunk@stusta.de>, Ed Tomlinson <tomlins@cam.org>,
-       "Randy.Dunlap" <rddunlap@osdl.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc3-mm1
-References: <20050429231653.32d2f091.akpm@osdl.org> <Pine.LNX.4.61.0504301700470.3559@montezuma.fsmlabs.com> <20050430161032.0f5ac973.rddunlap@osdl.org> <200505010909.38277.tomlins@cam.org>            <20050501133040.GB3592@stusta.de> <200505021528.j42FS5QJ006515@turing-police.cc.vt.edu>
-In-Reply-To: <200505021528.j42FS5QJ006515@turing-police.cc.vt.edu>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Valdis.Kletnieks@vt.edu wrote:
-> And even *more* importantly, note that when downloading a -mm or -rc3 patch,
-> there's minimal server overhead - it opens *one* file and streams it to the
-> FTP connection.  sendfile() anybody? ;)
 
-Also, note that once I've downloaded the single .bz2 file, I can easily
-copy or move it to the various computers I'll be compiling and
-installing it on.  It's much easier to transfer the one file (via USB
-memory  stick, SCP, CD, etc.) than a whole tree.
+On Mon, 2 May 2005, Matt Mackall wrote:
+> > 
+> >  - you can share the objects freely between different trees, never 
+> >    worrying about one tree corrupting another trees object by mistake.
+> 
+> Not sure if this is terribly useful. It just makes it harder to pull
+> the subset you're interested in.
 
-Frank
-- --
-Frank Sorenson - KD7TZK
-Systems Manager, Computer Science Department
-Brigham Young University
-frank@tuxrocks.com
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+You don't have to share things in a single subdirectory. Symlinks and 
+hardlinks work fine, as do actual filesystem tricks ;)
 
-iD8DBQFCdqyQaI0dwg4A47wRApg8AJ46iCEvIOO+nhS9gUTMAAWQPjnq6ACfcdc3
-OI0v0qRV4PgEFPRwClkVudo=
-=cxYG
------END PGP SIGNATURE-----
+> >  - you can drop old objects.
+> 
+> You can't drop old objects without dropping all the changesets that
+> refer to them or otherwise being prepared to deal with the broken
+> links.
+
+Absolutely. This needs support from fsck to allow us to say "commit xxxx 
+is no longer in the tree, because we pruned it".
+
+Alternatively (and that's the much less intrusive one), you keep all the
+commit objects, but drop the tree and blob objects. Again, all you need 
+for this to work is just feed a list of commits to fsck, and tell it 
+"we've pruned those from the tree", which tells fsck not to start looking 
+for the contents of those commits.
+
+So for example, you can trivially have something that automates this: take 
+each commit that is older than <x> days, add it to the "prune list", and 
+run fsck, and delete all objects that now show up as being unreachable 
+(since fsck won't be looking at what those commits reference).
+
+I could write this up in ten minutes. It's really simple.
+
+And it's simple _exactly_ because we don't do deltas.
+
+> > delta models very fundamentally don't support this. 
+> 
+> The latter can be done in a pretty straightforward manner in mercurial
+> with one pass over the data. But I have a goal to make keeping the
+> whole history cheap enough that no one balks at it.
+
+With delta's, you have two choices:
+
+ - change all the sha1 names (ie a pruned tree would no longer be 
+   compatible with a non-pruned one)
+ - make the delta part not show up as part of the sha1 name (which means 
+   that it's unprotected).
+
+which one would you have?
+
+> What is a tree re-linker? Finds duplicate files and hard-links them?
+> Ok, that makes some sense. But it's a win on one machine and a lose
+> everywhere else.
+
+Where would it be a loss? Esepcially since with git, it's cheap (you don't 
+need to compare content to find objects to link - you can just compare 
+filename listings).
+
+> I've added an "hg verify" command to Mercurial. It doesn't attempt to
+> fix anything up yet, but it can catch a couple things that git
+> probably can't (like file revisions that aren't owned by any
+> changeset), namely because there's more metadata around to look at.
+
+git-fsck-cache catches exactly those kinds of things. And since it checks
+pretty much every _single_ assumption in git (which is not a lot, since
+git doesn't have a lot of assumptions), I guarantee you that you can't
+find any more than it does (the filename ordering is the big missing
+piece: I _still_ don't verify that trees are ordered. I've been mentioning
+it since the beginning, but I'm lazy).
+
+In other words, your verifier can't verify anything more. It's entirely 
+possible that more things can go _wrong_, since you have more indexes, so 
+your verifier will have more to check, but that's not an advantage, that's 
+a downside.
+
+		Linus

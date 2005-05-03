@@ -1,163 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261843AbVECWDh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261846AbVECWFc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261843AbVECWDh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 18:03:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbVECWDh
+	id S261846AbVECWFc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 18:05:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbVECWFc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 18:03:37 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:507 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261843AbVECWD2 (ORCPT
+	Tue, 3 May 2005 18:05:32 -0400
+Received: from fire.osdl.org ([65.172.181.4]:62127 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261846AbVECWFE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 18:03:28 -0400
-Message-ID: <4277F52B.8040908@us.ibm.com>
-Date: Tue, 03 May 2005 15:03:23 -0700
-From: Matthew Dobson <colpatch@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: dino@in.ibm.com
-CC: Paul Jackson <pj@sgi.com>, Simon Derr <Simon.Derr@bull.net>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       lkml <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>,
-       Dipankar Sarma <dipankar@in.ibm.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC PATCH] Dynamic sched domains (v0.5)
-References: <20050501190947.GA5204@in.ibm.com>
-In-Reply-To: <20050501190947.GA5204@in.ibm.com>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 3 May 2005 18:05:04 -0400
+Date: Tue, 3 May 2005 15:04:48 -0700
+From: cliff white <cliffw@osdl.org>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: Andrew Morton <akpm@osdl.org>, sneakums@zork.net,
+       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
+       =?ISO-8859-1?Q?Rog?= =?ISO-8859-1?Q?=E9rio?= Brito 
+	<rbrito@ime.usp.br>
+Subject: Re: 2.6.12-rc3-mm2: ppc pte_offset_map()
+Message-ID: <20050503150448.651bf748@es175>
+In-Reply-To: <Pine.LNX.4.62.0505020054351.2488@dragon.hyggekrogen.localhost>
+References: <20050430164303.6538f47c.akpm@osdl.org>
+	<6uu0lnf0gm.fsf@zork.zork.net>
+	<Pine.LNX.4.62.0505011749280.2488@dragon.hyggekrogen.localhost>
+	<20050501154654.2bf7606d.akpm@osdl.org>
+	<Pine.LNX.4.62.0505020054351.2488@dragon.hyggekrogen.localhost>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dinakar Guniguntala wrote:
-> Ok, Here is the minimal patchset that I had promised after the
-> last discussion.
-> 
-> What it does have
-> o  The current patch enhances the meaning of exclusive cpusets by
->    attaching them (exclusive cpusets) to sched domains
-> o  It does _not_ require any additional cpumask_t variable. It
->    just parses the cpus_allowed of the parent/sibling/children
->    cpusets for manipulating sched domains
-> o  All existing operations on non-/exclusive cpusets are preserved as-is.
-> o  The sched code has been modified to bring it upto 2.6.12-rc2-mm3
-> 
-> Usage
-> o  On setting the cpu_exclusive flag of a cpuset X, it creates two
->    sched domains
->    a. One, All cpus from X's parent cpuset that dont belong to any
->       exclusive sibling cpuset of X
->    b. Two, All cpus in X's cpus_allowed
-> o  On adding/deleting cpus to/from a exclusive cpuset X that has exclusive
->    children, it creates two sched domains
->    a. One, All cpus from X's parent cpuset that dont belong to any
->       exclusive sibling cpuset of X
->    b. Two, All cpus in X's cpus_allowed, after taking away any cpus that
->       belong to exclusive child cpusets of X
-> o  On unsetting the cpu_exclusive flag of cpuset X or rmdir X, it creates a
->    single sched domain, containing all cpus from X' parent cpuset that
->    dont belong to any exclusive sibling of X and the cpus of X
-> o  It does _not_ modify the cpus_allowed variable of the parent as in the
->    previous version. It relies on user space to move tasks to proper
->    cpusets for complete isolation/exclusion
-> o  See function update_cpu_domains for more details
-> 
-> What it does not have
-> o  It is still short on documentation
-> o  Does not have hotplug support as yet
-> o  Supports only x86 as of now
-> o  No thoughts on "memory domains" (Though I am not sure, who
->    would use such a thing and what exactly are the requirements)
+On Mon, 2 May 2005 01:01:11 +0200 (CEST)
+Jesper Juhl <juhl-lkml@dif.dk> wrote:
 
-An interesting feature.  I tried a while ago to get cpusets and
-sched_domains to play nice (nicer?) and didn't have much luck.  It seems
-you're taking a better approach, with smaller patches.  Good luck!
+> On Sun, 1 May 2005, Andrew Morton wrote:
+> 
+> > Jesper Juhl <juhl-lkml@dif.dk> wrote:
+> > >
+> > > On Sun, 1 May 2005, Sean Neakums wrote:
+> > > 
+> > > > On my Mackertosh (PowerBook5.4), build fails with the following:
+> > > > 
+> > > >   fs/proc/task_mmu.c: In function `smaps_pte_range':
+> > > >   fs/proc/task_mmu.c:177: warning: implicit declaration of function `kmap_atomic'
+> > > >   fs/proc/task_mmu.c:177: error: `KM_PTE0' undeclared (first use in this function)
+> > > >   fs/proc/task_mmu.c:177: error: (Each undeclared identifier is reported only once
+> > > >   fs/proc/task_mmu.c:177: error: for each function it appears in.)
+> > > >   fs/proc/task_mmu.c:207: warning: implicit declaration of function `kunmap_atomic'
+> > > > 
+> > > > With the naive patch below, it builds with this warning and everything works.
+> > > > 
+> > > >   fs/proc/task_mmu.c: In function `smaps_pte_range':
+> > > >   fs/proc/task_mmu.c:208: warning: passing arg 1 of `kunmap_atomic' makes pointer from integer without a cast
+> > > > 
+> > > 
+> > > Try this patch :
+> > > 
+> > > Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+> > > 
+> > > --- linux-2.6.12-rc3-mm2-orig/fs/proc/task_mmu.c	2005-05-01 04:04:25.000000000 +0200
+> > > +++ linux-2.6.12-rc3-mm2/fs/proc/task_mmu.c	2005-05-01 17:49:14.000000000 +0200
+> > > @@ -2,6 +2,7 @@
+> > >  #include <linux/hugetlb.h>
+> > >  #include <linux/mount.h>
+> > >  #include <linux/seq_file.h>
+> > > +#include <linux/highmem.h>
+> > >  
+> > >  #include <asm/elf.h>
+> > >  #include <asm/uaccess.h>
+> > > @@ -204,7 +205,7 @@ static void smaps_pte_range(pmd_t *pmd,
+> > >  			}
+> > >  		}
+> > >  	} while (address < end);
+> > > -	pte_unmap(pte);
+> > > +	pte_unmap((void *)pte);
+> > >  }
+> > 
+> > Should be
+> > 
+> > 	pte_unmap(ptep);
+> > 
+> Of course, stupid me. I should have seen the 
+> 	[...]
+>         ptep = pte_offset_map(pmd, address);
+> 	[...]
+>             pte = *ptep;
+>             address += PAGE_SIZE;
+>             ptep++;
+> 	[...]
+> bit a few lines above. Guess I should have spend more than 2min creating 
+> the patch.
+> 
+> Thanks.
+> 
+> Here's an updated patch.
 
+Works for me on iBook, G4. Compiles fine and boots. No performance info yet.
+Thanks bunches 
+cliffw
 
-> diff -Naurp linux-2.6.12-rc2.orig/include/linux/init.h linux-2.6.12-rc2/include/linux/init.h
-> --- linux-2.6.12-rc2.orig/include/linux/init.h	2005-04-04 22:07:52.000000000 +0530
-> +++ linux-2.6.12-rc2/include/linux/init.h	2005-05-01 22:07:56.000000000 +0530
-> @@ -217,7 +217,7 @@ void __init parse_early_param(void);
->  #define __initdata_or_module __initdata
->  #endif /*CONFIG_MODULES*/
+> 
+> Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+> 
+> --- linux-2.6.12-rc3-mm2-orig/fs/proc/task_mmu.c	2005-05-01 04:04:25.000000000 +0200
+> +++ linux-2.6.12-rc3-mm2/fs/proc/task_mmu.c	2005-05-02 00:59:11.000000000 +0200
+> @@ -2,6 +2,7 @@
+>  #include <linux/hugetlb.h>
+>  #include <linux/mount.h>
+>  #include <linux/seq_file.h>
+> +#include <linux/highmem.h>
 >  
-> -#ifdef CONFIG_HOTPLUG
-> +#if defined(CONFIG_HOTPLUG) || defined(CONFIG_CPUSETS)
->  #define __devinit
->  #define __devinitdata
->  #define __devexit
-
-This looks just plain wrong.  Why do you need this?  It doesn't seem that
-arch_init_sched_domains() and/or update_sched_domains() are called from
-anywhere that is cpuset related, so why the #ifdef CONFIG_CPUSETS?
-
-
-> diff -Naurp linux-2.6.12-rc2.orig/kernel/sched.c linux-2.6.12-rc2/kernel/sched.c
-> --- linux-2.6.12-rc2.orig/kernel/sched.c	2005-04-28 18:24:11.000000000 +0530
-> +++ linux-2.6.12-rc2/kernel/sched.c	2005-05-01 22:06:55.000000000 +0530
-> @@ -4526,7 +4526,7 @@ int __init migration_init(void)
->  #endif
->  
->  #ifdef CONFIG_SMP
-> -#define SCHED_DOMAIN_DEBUG
-> +#undef SCHED_DOMAIN_DEBUG
->  #ifdef SCHED_DOMAIN_DEBUG
->  static void sched_domain_debug(struct sched_domain *sd, int cpu)
->  {
-
-Is this just to quiet boot for your testing?  Is there are better reason
-you're turning this off?  It seems unrelated to the rest of your patch.
-
-
-> ------------------------------------------------------------------------
-> 
-> diff -Naurp linux-2.6.12-rc2.orig/kernel/cpuset.c linux-2.6.12-rc2/kernel/cpuset.c
-> --- linux-2.6.12-rc2.orig/kernel/cpuset.c	2005-04-28 18:24:11.000000000 +0530
-> +++ linux-2.6.12-rc2/kernel/cpuset.c	2005-05-01 22:15:06.000000000 +0530
-> @@ -602,12 +602,48 @@ static int validate_change(const struct 
->  	return 0;
+>  #include <asm/elf.h>
+>  #include <asm/uaccess.h>
+> @@ -204,7 +205,7 @@ static void smaps_pte_range(pmd_t *pmd,
+>  			}
+>  		}
+>  	} while (address < end);
+> -	pte_unmap(pte);
+> +	pte_unmap(ptep);
 >  }
 >  
-> +static void update_cpu_domains(struct cpuset *cur)
-> +{
-> +	struct cpuset *c, *par = cur->parent;
-> +	cpumask_t span1, span2;
-> +
-> +	if (par == NULL || cpus_empty(cur->cpus_allowed))
-> +		return;
-> +
-> +	/* Get all non-exclusive cpus from parent domain */
-> +	span1 = par->cpus_allowed;
-> +	list_for_each_entry(c, &par->children, sibling) {
-> +		if (is_cpu_exclusive(c))
-> +			cpus_andnot(span1, span1, c->cpus_allowed);
-> +	}
-> +	if (is_removed(cur) || !is_cpu_exclusive(cur)) {
-> +		cpus_or(span1, span1, cur->cpus_allowed);
-> +		if (cpus_equal(span1, cur->cpus_allowed))
-> +			return;
-> +		span2 = CPU_MASK_NONE;
-> +	}
-> +	else {
-> +		if (cpus_empty(span1))
-> +			return;
-> +		span2 = cur->cpus_allowed;
-> +		/* If current cpuset has exclusive children, exclude from domain */
-> +		list_for_each_entry(c, &cur->children, sibling) {
-> +			if (is_cpu_exclusive(c))
-> +				cpus_andnot(span2, span2, c->cpus_allowed);
-> +		}
-> +	}
-> +
-> +	lock_cpu_hotplug();
-> +	rebuild_sched_domains(span1, span2);
-> +	unlock_cpu_hotplug();
-> +}
+>  static void smaps_pmd_range(pud_t *pud,
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Nitpicky, but span1 and span2 could do with better names.
 
-Otherwise, the patch looks good to me.
-
--Matt
+-- 
+"Ive always gone through periods where I bolt upright at four in the morning; 
+now at least theres a reason." -Michael Feldman

@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVECDUd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbVECDUj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261334AbVECDUd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 23:20:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbVECDUc
+	id S261335AbVECDUj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 23:20:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbVECDUj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 2 May 2005 23:20:39 -0400
+Received: from 70-57-132-14.albq.qwest.net ([70.57.132.14]:28816 "EHLO
+	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S261335AbVECDUc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 2 May 2005 23:20:32 -0400
-Received: from fire.osdl.org ([65.172.181.4]:28099 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261334AbVECDU0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 23:20:26 -0400
-Date: Mon, 2 May 2005 20:18:23 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Greg KH <greg@kroah.com>
-Cc: juhl-lkml@dif.dk, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc3-mm2 - /proc/ide/sr0/model: No such file or directory
-Message-Id: <20050502201823.0ab02e96.akpm@osdl.org>
-In-Reply-To: <20050503031158.GA6917@kroah.com>
-References: <20050430164303.6538f47c.akpm@osdl.org>
-	<Pine.LNX.4.62.0505010429050.2491@dragon.hyggekrogen.localhost>
-	<20050503031158.GA6917@kroah.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Date: Mon, 2 May 2005 21:21:50 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] xprt.c use after free of work_structs
+In-Reply-To: <1115065314.11854.27.camel@lade.trondhjem.org>
+Message-ID: <Pine.LNX.4.61.0505022120280.12903@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.61.0504302142460.9467@montezuma.fsmlabs.com>
+ <1115065314.11854.27.camel@lade.trondhjem.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> wrote:
->
-> On Sun, May 01, 2005 at 04:32:45AM +0200, Jesper Juhl wrote:
-> > On Sat, 30 Apr 2005, Andrew Morton wrote:
-> > 
-> > > 
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc3/2.6.12-rc3-mm2/
-> > > 
-> > 
-> > I see one small change in behaviour with this kernel.
-> > 
-> > During boot when initializing udev I see 
-> > 
-> > Initializing udev dynamic device directory.
-> > grep: /proc/ide/sr0/model: No such file or directory
-> > grep: /proc/ide/sr1/model: No such file or directory
-> > 
-> > With previous kernels I only see
-> > 
-> > Initializing udev dynamic device directory.
-> 
-> That is because you have a udev script that is expecting to see ide
-> stuff in proc.  That has now been moved to sysfs, so you should not need
-> to run external scripts to detect ide devices now.  I suggest you go bug
-> your distro, or whoever set up those rules about it.
+On Mon, 2 May 2005, Trond Myklebust wrote:
 
-err, we don't want to break existing userspace setups, please.
+> su den 01.05.2005 Klokka 00:02 (-0600) skreiv Zwane Mwaikambo:
+> > This bug was first observed in 2.6.11-rc1-mm2 but i couldn't find the 
+> > exact patch which would unmask it. The work_structs embedded in rpc_xprt 
+> > are freed in xprt_destroy without waiting for all scheduled work to be 
+> > completed, resulting in quite a kerfuffle. Since xprt->timer callback can 
+> > schedule new work, flush the workqueue after killing the timer.
+> 
+> Hi Zwane,
+> 
+>   Thanks, I fully agree that this is needed.
+> 
+>  Chuck proposed a similar patch to me a couple of days ago, however he
+> also pointed out that we need to call cancel_delayed_work() on
+> xprt->sock_connect in the same code section in order to avoid trouble
+> with the TCP reconnect code causing the same type of race. I've attached
+> his mail.
+
+Yes i wasn't sure i had caught all the cases.
+
+Takk!
+	Zwane

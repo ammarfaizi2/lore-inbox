@@ -1,109 +1,163 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261836AbVECV6w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261843AbVECWDh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261836AbVECV6w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 17:58:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbVECV6w
+	id S261843AbVECWDh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 18:03:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbVECWDh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 17:58:52 -0400
-Received: from mail09.syd.optusnet.com.au ([211.29.132.190]:65449 "EHLO
-	mail09.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261836AbVECV6q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 17:58:46 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Haoqiang Zheng <haoqiang@gmail.com>
-Subject: Re: question about contest benchmark
-Date: Wed, 4 May 2005 07:58:56 +1000
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org
-References: <d6e6e6dd05050311115d256213@mail.gmail.com>
-In-Reply-To: <d6e6e6dd05050311115d256213@mail.gmail.com>
+	Tue, 3 May 2005 18:03:37 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:507 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261843AbVECWD2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 18:03:28 -0400
+Message-ID: <4277F52B.8040908@us.ibm.com>
+Date: Tue, 03 May 2005 15:03:23 -0700
+From: Matthew Dobson <colpatch@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1338770.D3XpWRR7IH";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: dino@in.ibm.com
+CC: Paul Jackson <pj@sgi.com>, Simon Derr <Simon.Derr@bull.net>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       lkml <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>,
+       Dipankar Sarma <dipankar@in.ibm.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC PATCH] Dynamic sched domains (v0.5)
+References: <20050501190947.GA5204@in.ibm.com>
+In-Reply-To: <20050501190947.GA5204@in.ibm.com>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200505040758.58752.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1338770.D3XpWRR7IH
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Dinakar Guniguntala wrote:
+> Ok, Here is the minimal patchset that I had promised after the
+> last discussion.
+> 
+> What it does have
+> o  The current patch enhances the meaning of exclusive cpusets by
+>    attaching them (exclusive cpusets) to sched domains
+> o  It does _not_ require any additional cpumask_t variable. It
+>    just parses the cpus_allowed of the parent/sibling/children
+>    cpusets for manipulating sched domains
+> o  All existing operations on non-/exclusive cpusets are preserved as-is.
+> o  The sched code has been modified to bring it upto 2.6.12-rc2-mm3
+> 
+> Usage
+> o  On setting the cpu_exclusive flag of a cpuset X, it creates two
+>    sched domains
+>    a. One, All cpus from X's parent cpuset that dont belong to any
+>       exclusive sibling cpuset of X
+>    b. Two, All cpus in X's cpus_allowed
+> o  On adding/deleting cpus to/from a exclusive cpuset X that has exclusive
+>    children, it creates two sched domains
+>    a. One, All cpus from X's parent cpuset that dont belong to any
+>       exclusive sibling cpuset of X
+>    b. Two, All cpus in X's cpus_allowed, after taking away any cpus that
+>       belong to exclusive child cpusets of X
+> o  On unsetting the cpu_exclusive flag of cpuset X or rmdir X, it creates a
+>    single sched domain, containing all cpus from X' parent cpuset that
+>    dont belong to any exclusive sibling of X and the cpus of X
+> o  It does _not_ modify the cpus_allowed variable of the parent as in the
+>    previous version. It relies on user space to move tasks to proper
+>    cpusets for complete isolation/exclusion
+> o  See function update_cpu_domains for more details
+> 
+> What it does not have
+> o  It is still short on documentation
+> o  Does not have hotplug support as yet
+> o  Supports only x86 as of now
+> o  No thoughts on "memory domains" (Though I am not sure, who
+>    would use such a thing and what exactly are the requirements)
 
-On Wed, 4 May 2005 04:11, Haoqiang Zheng wrote:
-> I am wondering how we should interpret the CONTEST benchmark results.
-> I tried CONTEST with process_load on 2.6.12-rc3 (single CPU, P4 2.8G,
-> 1G RAM). The CPU usage of kernel compiling is 28.9%, the load consumes
-> 70.1% and the ratio is 3.98.  Based on what Con says, the result is
-> bad since the ratio is high. I did some tracing and found the
-> background load (contest) runs at a dynamic priority of 115-120, which
-> is often higher than the dynamic priority of the kernel compiling
-> processes. This explains why the process_load consumes so much CPU.
->
->  My question is why is the result bad at all? One could certainly
-> argue that contest processes shouldn't consume so much CPU time since
-> they are considered to be background jobs. But why is kernel compiling
-> considered foreground jobs? Why making kernel compiling faster is
-> better? Actually, I am wondering if CONTEST is an appropriate
-> benchmark to report system responsiveness at all?
+An interesting feature.  I tried a while ago to get cpusets and
+sched_domains to play nice (nicer?) and didn't have much luck.  It seems
+you're taking a better approach, with smaller patches.  Good luck!
 
-I don't think in my readme do I say anywhere what is the ideal balance.=20
-Process_load is a uniquely different load to the other loads which are=20
-various combinations of cpu and i/o. It spawns processes that wake up, hand=
-=20
-their data off to another process and go to sleep. Thus the processes behav=
-e=20
-like interactive one with their frequent waiting, but share their effective=
-=20
-group cpu usage amongst all the process_child processes running so none of=
-=20
-them is actually seen as cpu bound. Furthermore there are massive numbers o=
-f=20
-context switches between them meaning there is a large in-kernel "system"=20
-load that is done on behalf of the process_child ren. The purpose of the=20
-process_load in contest is to ensure that an interactive design is not=20
-DoS'able by processes behaving like this. Process_load spawns 4 times as ma=
-ny=20
-processes as the timed 'make' in contest so theoretically ideal cpu balance=
-=20
-between them should show process_load having 4x as much cpu as the make.=20
-Because their cpu binding is so intermittent it's hard to balance them=20
-perfectly. Anyway the balance in your output seems pretty good. When the=20
-interactive design goes horribly wrong process_load consumes 100 times as=20
-much cpu as the 'make'.
 
->
->  Any comments?
->
->  BTW, what benchmark do you guys use to test system responsiveness?
+> diff -Naurp linux-2.6.12-rc2.orig/include/linux/init.h linux-2.6.12-rc2/include/linux/init.h
+> --- linux-2.6.12-rc2.orig/include/linux/init.h	2005-04-04 22:07:52.000000000 +0530
+> +++ linux-2.6.12-rc2/include/linux/init.h	2005-05-01 22:07:56.000000000 +0530
+> @@ -217,7 +217,7 @@ void __init parse_early_param(void);
+>  #define __initdata_or_module __initdata
+>  #endif /*CONFIG_MODULES*/
+>  
+> -#ifdef CONFIG_HOTPLUG
+> +#if defined(CONFIG_HOTPLUG) || defined(CONFIG_CPUSETS)
+>  #define __devinit
+>  #define __devinitdata
+>  #define __devexit
 
-Note that interactivity is not responsiveness which some people try to meas=
-ure=20
-with contest, and there is still no interactivity benchmark. Responsiveness=
-=20
-is the ability of the system to continue performing tasks at a reasonable=20
-pace under various system loads. Interactivity is having low scheduling=20
-latency and jitter in those tasks where human interaction would notice the=
-=20
-latency and jitter - and what constitutes and interactive tasks has not bee=
-n=20
-quantified although we all know what they are when using the pc.
+This looks just plain wrong.  Why do you need this?  It doesn't seem that
+arch_init_sched_domains() and/or update_sched_domains() are called from
+anywhere that is cpuset related, so why the #ifdef CONFIG_CPUSETS?
 
-Cheers,
-Con
 
---nextPart1338770.D3XpWRR7IH
-Content-Type: application/pgp-signature
+> diff -Naurp linux-2.6.12-rc2.orig/kernel/sched.c linux-2.6.12-rc2/kernel/sched.c
+> --- linux-2.6.12-rc2.orig/kernel/sched.c	2005-04-28 18:24:11.000000000 +0530
+> +++ linux-2.6.12-rc2/kernel/sched.c	2005-05-01 22:06:55.000000000 +0530
+> @@ -4526,7 +4526,7 @@ int __init migration_init(void)
+>  #endif
+>  
+>  #ifdef CONFIG_SMP
+> -#define SCHED_DOMAIN_DEBUG
+> +#undef SCHED_DOMAIN_DEBUG
+>  #ifdef SCHED_DOMAIN_DEBUG
+>  static void sched_domain_debug(struct sched_domain *sd, int cpu)
+>  {
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Is this just to quiet boot for your testing?  Is there are better reason
+you're turning this off?  It seems unrelated to the rest of your patch.
 
-iD8DBQBCd/QiZUg7+tp6mRURAndZAJ9UzW8FfYLz6r2++JJBxgaMxwU9WgCeKj8x
-XnK1RSYhe37CNUmm5Ty5aVY=
-=Jnwc
------END PGP SIGNATURE-----
 
---nextPart1338770.D3XpWRR7IH--
+> ------------------------------------------------------------------------
+> 
+> diff -Naurp linux-2.6.12-rc2.orig/kernel/cpuset.c linux-2.6.12-rc2/kernel/cpuset.c
+> --- linux-2.6.12-rc2.orig/kernel/cpuset.c	2005-04-28 18:24:11.000000000 +0530
+> +++ linux-2.6.12-rc2/kernel/cpuset.c	2005-05-01 22:15:06.000000000 +0530
+> @@ -602,12 +602,48 @@ static int validate_change(const struct 
+>  	return 0;
+>  }
+>  
+> +static void update_cpu_domains(struct cpuset *cur)
+> +{
+> +	struct cpuset *c, *par = cur->parent;
+> +	cpumask_t span1, span2;
+> +
+> +	if (par == NULL || cpus_empty(cur->cpus_allowed))
+> +		return;
+> +
+> +	/* Get all non-exclusive cpus from parent domain */
+> +	span1 = par->cpus_allowed;
+> +	list_for_each_entry(c, &par->children, sibling) {
+> +		if (is_cpu_exclusive(c))
+> +			cpus_andnot(span1, span1, c->cpus_allowed);
+> +	}
+> +	if (is_removed(cur) || !is_cpu_exclusive(cur)) {
+> +		cpus_or(span1, span1, cur->cpus_allowed);
+> +		if (cpus_equal(span1, cur->cpus_allowed))
+> +			return;
+> +		span2 = CPU_MASK_NONE;
+> +	}
+> +	else {
+> +		if (cpus_empty(span1))
+> +			return;
+> +		span2 = cur->cpus_allowed;
+> +		/* If current cpuset has exclusive children, exclude from domain */
+> +		list_for_each_entry(c, &cur->children, sibling) {
+> +			if (is_cpu_exclusive(c))
+> +				cpus_andnot(span2, span2, c->cpus_allowed);
+> +		}
+> +	}
+> +
+> +	lock_cpu_hotplug();
+> +	rebuild_sched_domains(span1, span2);
+> +	unlock_cpu_hotplug();
+> +}
+
+Nitpicky, but span1 and span2 could do with better names.
+
+Otherwise, the patch looks good to me.
+
+-Matt

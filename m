@@ -1,52 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261789AbVECQRF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbVECQV3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261789AbVECQRF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 12:17:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbVECQRF
+	id S261156AbVECQV3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 12:21:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbVECQV3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 12:17:05 -0400
-Received: from fed1rmmtao06.cox.net ([68.230.241.33]:65176 "EHLO
-	fed1rmmtao06.cox.net") by vger.kernel.org with ESMTP
-	id S261789AbVECQRA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 12:17:00 -0400
-Date: Tue, 3 May 2005 09:16:58 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: David Woodhouse <dwmw2@infradead.org>,
-       Kumar Gala <kumar.gala@freescale.com>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Phil Oester <kernel@linuxace.com>, linux-kernel@vger.kernel.org
-Subject: Re: Garbage on serial console after serial driver loads
-Message-ID: <20050503161658.GP1221@smtp.west.cox.net>
-References: <20050328173652.GA31354@linuxace.com> <20050328200243.C2222@flint.arm.linux.org.uk> <1115129833.4446.23.camel@hades.cambridge.redhat.com> <20050503151159.GL1221@smtp.west.cox.net>
+	Tue, 3 May 2005 12:21:29 -0400
+Received: from citi.umich.edu ([141.211.133.111]:21115 "EHLO citi.umich.edu")
+	by vger.kernel.org with ESMTP id S261156AbVECQVZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 12:21:25 -0400
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
+To: "Michael Kerrisk" <michael.kerrisk@gmx.net>
+Cc: "William A.(Andy) Adamson" <andros@citi.umich.edu>, matthew@wil.cx,
+       sfr@canb.auug.org.au, mtk-lkml@gmx.net, heiko.carstens@de.ibm.com,
+       linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com,
+       andros@citi.umich.edu
+Subject: Re: fcntl: F_SETLEASE/F_RDLCK question 
+In-reply-to: <5531.1115131813@www41.gmx.net> 
+References: <20050503141552.F42371BAD1@citi.umich.edu> 
+ <5531.1115131813@www41.gmx.net>
+Comments: In-reply-to "Michael Kerrisk" <michael.kerrisk@gmx.net>
+   message dated "Tue, 03 May 2005 16:50:13 +0200."
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050503151159.GL1221@smtp.west.cox.net>
-User-Agent: Mutt/1.5.9i
+Date: Tue, 03 May 2005 12:21:24 -0400
+From: "William A.(Andy) Adamson" <andros@citi.umich.edu>
+Message-Id: <20050503162124.500F01BB40@citi.umich.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 03, 2005 at 08:11:59AM -0700, Tom Rini wrote:
-> On Tue, May 03, 2005 at 03:17:12PM +0100, David Woodhouse wrote:
-> > On Mon, 2005-03-28 at 20:02 +0100, Russell King wrote:
-> > > Is this patch ok for you?
+> > > On Tue, May 03, 2005 at 09:55:42AM -0400, William A.(Andy) Adamson
+> > > wrote:
+> > > > i believe the current implementation is correct. opening a file for
+> > > > write 
+> > > > means that you can not have a read lease, caller included.
+> > > 
+> > > Why not?  Certainly, others will not be able to take out a read lease,
+> > > so there's very little point to only having a read lease, but I don't
+> > > see why we should deny it.
+> > > 
 > > 
-> > Not really; it's just a quick hack applied without any real
-> > consideration of the problem. If we're messing up the baud rate when we
-> > change the master clock, then just make it change the divisor
-> > accordingly at the same time. We don't seem to store the active
-> > parameters of the serial console anywhere useful; we can do it just by
-> > reading back the divisor and multiplying by eight though...
-> > 
-> > Tom, does this also mean you don't need the 'ifndef ppc'?
+> > by definition: a read lease means there are no writers. so, the question
+> > is 
+> > not 'why not', the question is why? why hand out a read lease to an open
+> > for write?
 > 
-> I don't recall the problem well enough right now, but I'll go toss this
-> into a current git tree and let you know.
+> Andy,
+> 
+> Look more closely at my earlier table. 
+> 
+> Regardless of what the answer to your question is, the 
+> current semantics are bizarre.  As things stand, a process
+> can open a file O_RDWR, and and can place a WRITE lease 
+> but not a READ lease.  That can't be right.
 
-Dropping the 'ifndef ppc' is fine on my Motorola Sandpoint which I do
-believe exhibited the problem previously. I've cc'd Kumar Gala since I see
-on IRC that 85xx boards might also have had a problem here.
+yes - i was being too strict. looking at NFSv4 delegations; a read lease does 
+not mean there are no writers, it means there are no other clients (fl_owners) 
+writing.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+the other side of the coin would be break_lease. it should not break a read 
+lease on an open for write in the case where the fl_owner of the read lease is 
+also the owner of the open for write.
+
+-->Andy 
+
+> 
+> FWIW it's worth, I think the read lease should be allowed.
+> Oplocks are concerned with what other processes are doing, 
+> not what the caller is doing.  Also, the current semantcis
+> break backward compatibility.
+> 
+> Cheers,
+> 
+> Michael
+> 
+> -- 
+> +++ Neu: Echte DSL-Flatrates von GMX - Surfen ohne Limits +++
+> Always online ab 4,99 Euro/Monat: http://www.gmx.net/de/go/dsl
+
+

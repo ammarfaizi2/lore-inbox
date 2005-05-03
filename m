@@ -1,37 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261510AbVECMz4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbVECDGR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261510AbVECMz4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 08:55:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbVECMzz
+	id S261330AbVECDGR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 23:06:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVECDGR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 08:55:55 -0400
-Received: from lakshmi.addtoit.com ([198.99.130.6]:52484 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261510AbVECMzq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 08:55:46 -0400
-Date: Mon, 2 May 2005 23:03:29 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/22] UML - Include the linker script rather than symlink it
-Message-ID: <20050503030329.GA17992@ccure.user-mode-linux.org>
-References: <200505012112.j41LC9fa016385@ccure.user-mode-linux.org> <20050502170654.248b11ea.akpm@osdl.org> <20050503002521.GA18977@parcelfarce.linux.theplanet.co.uk> <20050502174405.0c8cad31.akpm@osdl.org> <20050503011744.GC18977@parcelfarce.linux.theplanet.co.uk> <20050502182851.27f22470.akpm@osdl.org> <20050503014543.GD18977@parcelfarce.linux.theplanet.co.uk> <20050502190250.45e37457.akpm@osdl.org>
+	Mon, 2 May 2005 23:06:17 -0400
+Received: from fire.osdl.org ([65.172.181.4]:40897 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261330AbVECDGO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 23:06:14 -0400
+Date: Mon, 2 May 2005 20:05:45 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Mateusz Berezecki <mateuszb@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc3 OOPS  in vanilla source (once more)
+Message-Id: <20050502200545.266b4e55.akpm@osdl.org>
+In-Reply-To: <42763388.1030008@gmail.com>
+References: <42763388.1030008@gmail.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050502190250.45e37457.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 02, 2005 at 07:02:50PM -0700, Andrew Morton wrote:
-> OK, did that.  Had one reject against
-> uml-kbuild-avoid-useless-rebuilds.patch, but 'twas easily fixed.
+Mateusz Berezecki <mateuszb@gmail.com> wrote:
+>
+> i send it once more....
+> 
+>  May  2 12:56:31 localhost kernel: Unable to handle kernel NULL pointer 
+>  dereference at virtual address 00000000
 
-Thanks.  Sorry about the hassle.  The vmlinux.lds botch was a symptom of
-the problem Al was fixing (the uncleaned symlink in my tree causing a reject
-in a clean tree), and the missing mk_sc patch was just an oversight on my
-part.
+The trace is unusable.  Please do
 
-				Jeff
+	dmesg -s 1000000 > /tmp/foo
+
+and see if there's anything useful in /tmp/foo.
+
+Also, please edit /etc/init.d/syslog so that it starts syslogd with the
+`-x' option.  Heaven knows when we'll be rid of the current junk.
+

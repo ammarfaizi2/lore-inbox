@@ -1,39 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261694AbVECO1h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbVECOaV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261694AbVECO1h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 10:27:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261572AbVECO0q
+	id S261610AbVECOaV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 10:30:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbVECO0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 10:26:46 -0400
-Received: from fisica.ufpr.br ([200.17.209.129]:63718 "EHLO fisica.ufpr.br")
-	by vger.kernel.org with ESMTP id S261701AbVECOZJ (ORCPT
+	Tue, 3 May 2005 10:26:31 -0400
+Received: from mx2.suse.de ([195.135.220.15]:11427 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261702AbVECOZZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 10:25:09 -0400
-Message-Id: <17015.35256.12650.37887@fisica.ufpr.br>
-Date: Tue, 3 May 2005 11:24:56 -0300
-MIME-Version: 1.0
+	Tue, 3 May 2005 10:25:25 -0400
+Date: Tue, 3 May 2005 16:25:24 +0200
+From: Andi Kleen <ak@suse.de>
+To: YhLu <YhLu@tyan.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: x86-64 dual core mapping
+Message-ID: <20050503142524.GX7342@wotan.suse.de>
+References: <3174569B9743D511922F00A0C943142309B07C1E@TYANWEB>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: linux-kernel@vger.kernel.org
-Subject: problem with nice values and cpu consumption in 2.6.11-5
-X-Mailer: VM 7.19 under Emacs 21.4.1
-From: carlos@fisica.ufpr.br (Carlos Carvalho)
+Content-Disposition: inline
+In-Reply-To: <3174569B9743D511922F00A0C943142309B07C1E@TYANWEB>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Look at this cpu usage in a two-processor machine:
+On Mon, May 02, 2005 at 02:01:00PM -0700, YhLu wrote:
+> Andi,
+> 
+> resent. FYI
 
-  893 user1   39  19  7212 5892  492 R 99.7  1.1   3694:29 mi41
- 1118 user2   25   0  155m  61m  624 R 50.0 12.3 857:54.18 b170-se.x
- 1186 user3   25   0  155m  62m  640 R 50.2 12.3 103:25.22 b170-se.x
+I retested with my tree and everything works for me as expected.
+Well actually there is a problem with the core mappings,
+but not on dual core, but on single core (more cosmetic than real)
 
-The job with nice 19 seems to be using 100% of cpu time while the
-other two nice 0 jobs share a single processor with 50% only. This is
-persistent, not a transient. I did a kill -STOP to the nice 19 job and
-a kill -CONT, and for a while it decreased the cpu usage but later
-returned to the above.
+It is possible that some patch is missing again in mainline.
+I will sync up my patchkit next week and double check then
+that mainline is in the same state as mine.
 
-This is with kernel 2.6.11-5 and top 3.2.5. What's the reason for this
-(apparent??) mis-behavior and how can I correct it? This is important
-because the machine is used for number-crunching and users get really
-upset when they don't get the expected share of cpu time...
+-Andi

@@ -1,81 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbVECQV3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbVECQ3Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbVECQV3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 12:21:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbVECQV3
+	id S261299AbVECQ3Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 12:29:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbVECQ0u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 12:21:29 -0400
-Received: from citi.umich.edu ([141.211.133.111]:21115 "EHLO citi.umich.edu")
-	by vger.kernel.org with ESMTP id S261156AbVECQVZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 12:21:25 -0400
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
-To: "Michael Kerrisk" <michael.kerrisk@gmx.net>
-Cc: "William A.(Andy) Adamson" <andros@citi.umich.edu>, matthew@wil.cx,
-       sfr@canb.auug.org.au, mtk-lkml@gmx.net, heiko.carstens@de.ibm.com,
-       linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com,
-       andros@citi.umich.edu
-Subject: Re: fcntl: F_SETLEASE/F_RDLCK question 
-In-reply-to: <5531.1115131813@www41.gmx.net> 
-References: <20050503141552.F42371BAD1@citi.umich.edu> 
- <5531.1115131813@www41.gmx.net>
-Comments: In-reply-to "Michael Kerrisk" <michael.kerrisk@gmx.net>
-   message dated "Tue, 03 May 2005 16:50:13 +0200."
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 03 May 2005 12:21:24 -0400
-From: "William A.(Andy) Adamson" <andros@citi.umich.edu>
-Message-Id: <20050503162124.500F01BB40@citi.umich.edu>
+	Tue, 3 May 2005 12:26:50 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:49549 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261190AbVECQX0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 12:23:26 -0400
+Message-ID: <4277A52E.1020601@tmr.com>
+Date: Tue, 03 May 2005 12:22:06 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matt Mackall <mpm@selenic.com>
+CC: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
+	<7eggert@gmx.de>,
+       Linus Torvalds <torvalds@osdl.org>, Ryan Anderson <ryan@michonline.com>,
+       Andrea Arcangeli <andrea@suse.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
+Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
+References: <E1DSm1T-0002Tc-FV@be1.7eggert.dyndns.org><E1DSm1T-0002Tc-FV@be1.7eggert.dyndns.org> <20050503012921.GD22038@waste.org>
+In-Reply-To: <20050503012921.GD22038@waste.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > On Tue, May 03, 2005 at 09:55:42AM -0400, William A.(Andy) Adamson
-> > > wrote:
-> > > > i believe the current implementation is correct. opening a file for
-> > > > write 
-> > > > means that you can not have a read lease, caller included.
-> > > 
-> > > Why not?  Certainly, others will not be able to take out a read lease,
-> > > so there's very little point to only having a read lease, but I don't
-> > > see why we should deny it.
-> > > 
-> > 
-> > by definition: a read lease means there are no writers. so, the question
-> > is 
-> > not 'why not', the question is why? why hand out a read lease to an open
-> > for write?
+Matt Mackall wrote:
+> On Tue, May 03, 2005 at 03:16:26AM +0200, Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org> wrote:
 > 
-> Andy,
+>>Linus Torvalds <torvalds@osdl.org> wrote:
+>>
+>>>On Mon, 2 May 2005, Ryan Anderson wrote:
+>>>
+>>>>On Mon, May 02, 2005 at 09:31:06AM -0700, Linus Torvalds wrote:
+>>
+>>>>>That said, I think the /usr/bin/env trick is stupid too. It may be more
+>>>>>portable for various Linux distributions, but if you want _true_
+>>>>>portability, you use /bin/sh, and you do something like
+>>>>>
+>>>>>#!/bin/sh
+>>>>>exec perl perlscript.pl "$@"
+>>>>
+>>>>if 0;
+>>
+>>exec may fail.
+>>
+>>#!/bin/sh
+>>exec perl -x $0 ${1+"$@"} || exit 127
+>>#!perl
+>>
+>>
+>>>>You don't really want Perl to get itself into an exec loop.
+>>>
+>>>This would _not_ be "perlscript.pl" itself. This is the shell-script, and
+>>>it's not called ".pl".
+>>
+>>In this thread, it originally was.
 > 
-> Look more closely at my earlier table. 
 > 
-> Regardless of what the answer to your question is, the 
-> current semantics are bizarre.  As things stand, a process
-> can open a file O_RDWR, and and can place a WRITE lease 
-> but not a READ lease.  That can't be right.
+> In this thread, it was originally a Python script. In particular, one
+> aimed at managing the Linux kernel source. I'm going to use
+> /usr/bin/env, systems where that doesn't exist can edit the source.
 
-yes - i was being too strict. looking at NFSv4 delegations; a read lease does 
-not mean there are no writers, it means there are no other clients (fl_owners) 
-writing.
+On the theory that my first post got lost, why use /usr/bin/env at all, 
+when bash already does that substitution? To support people who use 
+other shells?
 
-the other side of the coin would be break_lease. it should not break a read 
-lease on an open for write in the case where the fl_owner of the read lease is 
-also the owner of the open for write.
-
--->Andy 
-
-> 
-> FWIW it's worth, I think the read lease should be allowed.
-> Oplocks are concerned with what other processes are doing, 
-> not what the caller is doing.  Also, the current semantcis
-> break backward compatibility.
-> 
-> Cheers,
-> 
-> Michael
-> 
-> -- 
-> +++ Neu: Echte DSL-Flatrates von GMX - Surfen ohne Limits +++
-> Always online ab 4,99 Euro/Monat: http://www.gmx.net/de/go/dsl
-
-
+ie.:
+    FOO=xx perl -e '$a=$ENV{FOO}; print "$a\n"'
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,136 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbVECAAs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbVECAGk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261237AbVECAAs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 20:00:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVECAAs
+	id S261240AbVECAGk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 20:06:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbVECAGk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 20:00:48 -0400
-Received: from waste.org ([216.27.176.166]:33707 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261237AbVECAAX (ORCPT
+	Mon, 2 May 2005 20:06:40 -0400
+Received: from fire.osdl.org ([65.172.181.4]:37274 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261240AbVECAGj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 20:00:23 -0400
-Date: Mon, 2 May 2005 17:00:12 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Bill Davidsen <davidsen@tmr.com>, Morten Welinder <mwelinder@gmail.com>,
-       Sean <seanlkml@sympatico.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
-Message-ID: <20050503000011.GA22038@waste.org>
-References: <20050429165232.GV21897@waste.org> <427650E7.2000802@tmr.com> <Pine.LNX.4.58.0505021457060.3594@ppc970.osdl.org> <20050502223002.GP21897@waste.org> <Pine.LNX.4.58.0505021540070.3594@ppc970.osdl.org>
+	Mon, 2 May 2005 20:06:39 -0400
+Date: Mon, 2 May 2005 17:06:54 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [PATCH 1/22] UML - Include the linker script rather than
+ symlink it
+Message-Id: <20050502170654.248b11ea.akpm@osdl.org>
+In-Reply-To: <200505012112.j41LC9fa016385@ccure.user-mode-linux.org>
+References: <200505012112.j41LC9fa016385@ccure.user-mode-linux.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0505021540070.3594@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 02, 2005 at 03:49:49PM -0700, Linus Torvalds wrote:
-> > >  - you can drop old objects.
-> > 
-> > You can't drop old objects without dropping all the changesets that
-> > refer to them or otherwise being prepared to deal with the broken
-> > links.
-
-[...]
- 
-> I could write this up in ten minutes. It's really simple.
-
-It's still simple in Mercurial, but more importantly Mercurial _won't
-need it_. Dropping history is a work-around, not a feature.
- 
-> > > delta models very fundamentally don't support this. 
-> > 
-> > The latter can be done in a pretty straightforward manner in mercurial
-> > with one pass over the data. But I have a goal to make keeping the
-> > whole history cheap enough that no one balks at it.
+Jeff Dike <jdike@addtoit.com> wrote:
+>
+> >From Al Viro:
 > 
-> With delta's, you have two choices:
+> 	Make vmlinux.lds.S include appopriate script instead of playing
+> games with symlinks.
 > 
->  - change all the sha1 names (ie a pruned tree would no longer be 
->    compatible with a non-pruned one)
->  - make the delta part not show up as part of the sha1 name (which means 
->    that it's unprotected).
-> 
-> which one would you have?
+> Signed-off-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+> Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-Umm.. I am _not_ calculating the SHA of the delta itself. That'd be
-silly.
+Confused.
 
-There are an arbitrary number of ways to calculate a delta between two
-files. Similarly, there are an arbitrary number of ways to compress a
-file (gzip has at least 9, not counting all the permutations of
-flush). The only sensible thing to do is store a hash of the raw text
-and check it against the fully restored text, because that's what you
-care about being correct.
+> Index: linux-2.6.11-mm/arch/um/kernel/vmlinux.lds.S
+> ===================================================================
+> --- linux-2.6.11-mm.orig/arch/um/kernel/vmlinux.lds.S	2005-04-30 12:56:25.000000000 -0400
+> +++ linux-2.6.11-mm/arch/um/kernel/vmlinux.lds.S	2005-04-30 12:58:23.000000000 -0400
+> @@ -1,113 +1,6 @@
 
-In Mercurial, deltas are just a storage detail and are effectively
-completely hidden from everything except the innermost part of the
-back-end. What's important is that Mercurial knows that A is a
-revision of B in the backend and thus has enough information to
-opportunistically attempt to calculate a delta.
+That file doesn't exist and I think this patch doesn't want to patch it
+anyway.
 
-So if the day ever comes when I want to prune the head of a log, I
-simply reconstruct the first version to keep, store it in a new file,
-then append all the deltas, unmodified. And fix up the offsets in the
-indices. None of the hashes change.
-
-> > What is a tree re-linker? Finds duplicate files and hard-links them?
-> > Ok, that makes some sense. But it's a win on one machine and a lose
-> > everywhere else.
-> 
-> Where would it be a loss? Esepcially since with git, it's cheap (you don't 
-> need to compare content to find objects to link - you can just compare 
-> filename listings).
-
-Git repositories will be 10x larger than Mercurial everywhere that
-doesn't benefit from this linking of unrelated trees. That is, folks
-who aren't running gitbits.net.
-
-> > I've added an "hg verify" command to Mercurial. It doesn't attempt to
-> > fix anything up yet, but it can catch a couple things that git
-> > probably can't (like file revisions that aren't owned by any
-> > changeset), namely because there's more metadata around to look at.
-> 
-> git-fsck-cache catches exactly those kinds of things. And since it checks
-> pretty much every _single_ assumption in git (which is not a lot, since
-> git doesn't have a lot of assumptions), I guarantee you that you can't
-> find any more than it does (the filename ordering is the big missing
-> piece: I _still_ don't verify that trees are ordered. I've been mentioning
-> it since the beginning, but I'm lazy).
-> 
-> In other words, your verifier can't verify anything more. It's entirely 
-> possible that more things can go _wrong_, since you have more indexes, so 
-> your verifier will have more to check, but that's not an advantage, that's 
-> a downside.
-
-Uh, no. It's just like a filesystem. Redundancy is what lets you
-recover.
-
-The extra indices are also very useful in their own right:
-
-- they let you do easily do delta storage
-- they let you efficiently do delta transmission
-- they let you find past revisions of a file in O(1)
-- they let you efficiently do "annotate"
-- they let you do smarter merge
-
-At least the first four seem fairly critical to me.
-
-As various people have pointed out, you can hack delta transmission
-and file revision indexing on top of git. But to do that, you'll need
-to build the same indices that Mercurial has. And you'll need to check
-their integrity.
-
-Unfortunately, since the git back-end refuses to know anything about
-the relation between file revisions, this will all happen in the front
-end, and you'll have done almost all the work needed to do delta
-storage without actually getting it. How sad.
-
-You'll also likely end up with something quite a bit more complicated
-than Mercurial because of the extra layering. This all strongly suggests
-to me that the git back-end is just a little bit too simple.
-
--- 
-Mathematics is the supreme nostalgia of our time.
+I'll just drop the vmlinux.lds.S chunk...

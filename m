@@ -1,88 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbVECSnf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbVECSoG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261568AbVECSnf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 14:43:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbVECSnf
+	id S261561AbVECSoG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 14:44:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbVECSoG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 14:43:35 -0400
-Received: from straum.hexapodia.org ([64.81.70.185]:45829 "EHLO
-	straum.hexapodia.org") by vger.kernel.org with ESMTP
-	id S261568AbVECSn0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 14:43:26 -0400
-Date: Tue, 3 May 2005 11:43:25 -0700
-From: Andy Isaacson <adi@hexapodia.org>
-To: Caitlin Bestler <caitlin.bestler@gmail.com>
-Cc: Libor Michalek <libor@topspin.com>, Bill Jordan <woodennickel@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, hch@infradead.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org,
-       Timur Tabi <timur.tabi@ammasso.com>
-Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
-Message-ID: <20050503184325.GA19351@hexapodia.org>
+	Tue, 3 May 2005 14:44:06 -0400
+Received: from zproxy.gmail.com ([64.233.162.206]:19223 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261561AbVECSn6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 14:43:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=VdNzr/m+ALbkduqEcKMSehIr8UjLsB7LkNSa0VqvZehTlYpNyrlWqOx7Lid5vk6q/+y34pKKE+OJrU0Ki6wpUS6XGK1KjjwoR0gIBJP70hp9rVmjsdswtCJc1Adv1vT7GL2NJHiOREx+DzgVyOJV5JIMdwBUUHkINCqK7l0vwuc=
+Message-ID: <29495f1d05050311431681d259@mail.gmail.com>
+Date: Tue, 3 May 2005 11:43:54 -0700
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
+To: davidm@hpl.hp.com
+Subject: Re: sparse warning, or why does jifies_to_msecs() return an int?
+Cc: schwidefsky@de.ibm.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200501150221.j0F2L2aD021862@napali.hpl.hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <469958e00504291731eb8287c@mail.gmail.com>
-User-Agent: Mutt/1.4.2i
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
+References: <200501150221.j0F2L2aD021862@napali.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 29, 2005 at 05:31:44PM -0700, Caitlin Bestler wrote:
-> Attempting to provide *any* support for applications that fork children
-> after doing RDMA registrations is a ratshole best avoided. The general
-> rule that application developers should follow is to do RDMA *only*
-> in the child processes.
+On 1/14/05, David Mosberger <davidm@napali.hpl.hp.com> wrote:
+> I'm seeing the following warning from sparse:
+> 
+> include/linux/jiffies.h:262:9: warning: cast truncates bits from constant value (3ffffffffffffffe becomes fffffffe)
+> 
+> it took me a while to realize that this is due to
+> the jiffies_to_msecs(MAX_JIFFY_OFFSET) call in
+> msecs_to_jiffies() and due to the fact that
+> jiffies_to_msecs() returns only an "unsigned int".
+> 
+> Is there are a good reason to constrain the return value to 4 billion
+> msecs?  If so, what's the proper way to shut up sparse?
 
-I think it's unreasonable to *prohibit* fork-after-registration; for one
-thing, there's lots of code that forks under the covers.  Setuid helpers
-like getpty just assume that they're going to be able to fork.  Even
-stuff like get*by*(3) can potentially fork.  And with site-configured
-stuff like PAM, you end up with things that work on the developer's
-system but break in deployment.
+Is there any logical reason to need longer than 46 days of
+milliseconds? I mean, sure, we could support years in milliseconds,
+but why  :) ? If you need longer, specify in seconds. Or add an
+interface which does days :) I think it's perfectly reasonable to
+constrain time units representative storage in the following manner:
 
-I think it's exceedingly reasonable to say "RDMA doesn't work in
-children".  But the child should get a sane memory image:  at least
-zeros in fully-registered pages, and preferably copies of
-partially-registered pages.  Differentiating between fully-registered
-and partially-registered pages avoids (I think) the pathological case of
-having to copy a GB of data just to system("/bin/ls > /tmp/tmpfile").
-You can still go pathological if you've partially-registered gigabytes
-of address space (for example a linked list where each node is allocated
-with malloc and then registered) but that's a case of "Well, don't do
-that then".
+seconds: unsigned int
+milliseconds: unsigned int
+microseconds: unsigned long
+nanoseconds: u64
 
-Rather than replacing the fully-registered pages with pages of zeros,
-you could simply unmap them.
+These are the assumptions I have made in my timeofday-based soft-timer
+rework, for what it's worth.
 
-A consistent statement would be
+I will look into all the math, though, as all the conversions need to
+be accurate for my rework (to support existing interfaces).
 
-    After fork(2), any regions which were registered are UNDEFINED.
-    Region boundaries are byte-accurate; a registration can cover just
-    part of a page, in which case the non-registered part of the page
-    has normal fork COW semantics.
-
-Probably the most sane solution is to simply unmap the fully-registered
-pages at fork time, and copy any partially-registered pages.  But the
-statement above does not require this.
-
-> Keep in mind that it is not only the memory regions that must be dealt
-> with, but control data invisible to the user (the QP context, etc.). This
-> data frequently is interlinked between kernel residente and user resident
-> data (such as a QP context has the PD ID somewhere on-chip or in
-> kernel, which the Send Queue ring needs to be in user memory). Having
-> two different user processes that both think they have the user half to
-> this type of split data structure is just asking for trouble, even if you 
-> manage to get the copy on write bit timing problems all solved.
-
-Obviously, calling *any* RDMA-userland-stuff in the child is completely
-undefined [1].  One place where I can see a potential problem is in
-atexit()-type handlers registered by the RDMA library.  Since those
-aren't performance-critical they can and should do sanity checks with
-getpid() and/or checking with the kernel driver.
-
-[1] You might want to allow the child to start a completely new RDMA
-    context, but I don't see that as necessary.
-
--andy
+Thanks,
+Nish

@@ -1,70 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbVECHWI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbVECHbK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261416AbVECHWI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 03:22:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbVECHWI
+	id S261418AbVECHbK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 03:31:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261420AbVECHbK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 03:22:08 -0400
-Received: from fire.osdl.org ([65.172.181.4]:22253 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261416AbVECHWC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 03:22:02 -0400
-Date: Tue, 3 May 2005 00:21:26 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: blaisorblade@yahoo.it
-Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it,
-       ak@suse.de
-Subject: Re: [patch 1/1] x86_64: make string func definition work as
- intended
-Message-Id: <20050503002126.1f40f5bf.akpm@osdl.org>
-In-Reply-To: <20050501190851.5FD5B45EBB@zion>
-References: <20050501190851.5FD5B45EBB@zion>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 3 May 2005 03:31:10 -0400
+Received: from 213-229-38-66.static.adsl-line.inode.at ([213.229.38.66]:35460
+	"HELO mail.falke.at") by vger.kernel.org with SMTP id S261418AbVECHbD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 03:31:03 -0400
+Message-ID: <4277287E.4040003@winischhofer.net>
+Date: Tue, 03 May 2005 09:30:06 +0200
+From: Thomas Winischhofer <thomas@winischhofer.net>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: Andrew Morton <akpm@osdl.org>, ak@muc.de, hch@lst.de,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: [2.6 patch] {,un}register_ioctl32_conversion should have been
+ removed last month
+References: <20050502014550.GG3592@stusta.de> <20050502173052.5c78ae30.akpm@osdl.org> <20050503003959.GQ3592@stusta.de>
+In-Reply-To: <20050503003959.GQ3592@stusta.de>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-blaisorblade@yahoo.it wrote:
->
-> In include/asm-x86_64/string.h there are such comments:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Adrian Bunk wrote:
+> On Mon, May 02, 2005 at 05:30:52PM -0700, Andrew Morton wrote:
 > 
->  /* Use C out of line version for memcmp */ 
->  #define memcmp __builtin_memcmp
->  int memcmp(const void * cs,const void * ct,size_t count);
+>>Adrian Bunk <bunk@stusta.de> wrote:
+>>
+>>>This removal should have happened last month.
+>>
+>>drivers/usb/misc/sisusbvga/sisusb.c will use these functions if someone
+>>defines SISUSB_OLD_CONFIG_COMPAT, so we need to agree to zap that code
+>>before I can merge this upstream.
+
+
+Why on earth should anyone #define something with "SISUSB" in the
+beginning, on a level that might be available in a usb driver?
+
+
 > 
->  This would mean that if the compiler does not decide to use __builtin_memcmp,
->  it emits a call to memcmp to be satisfied by the C out-of-line version in
->  lib/string.c. What happens is that after preprocessing, in lib/string.i you
->  may find the definition of "__builtin_strcmp".
+> That's not a problem.
 > 
->  Actually, by accident, in the object you will find the definition of
->  strcmp and such (maybe a trick intended to redirect calls to __builtin_memcmp
->  to the default memcmp when the definition is not expanded); however, this
->  particular case is not a documented feature as far as I can see.
 > 
->  Also, the EXPORT_SYMBOL does not work, so it's duplicated in the arch.
+> Quoting drivers/usb/misc/sisusbvga/sisusb.h:
+> 
+> #ifdef CONFIG_COMPAT
+> #if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,10)
+> #include <linux/ioctl32.h>
+> #define SISUSB_OLD_CONFIG_COMPAT
+> #else
+> #define SISUSB_NEW_CONFIG_COMPAT
+> #endif
+> #endif
+> 
+> 
+> I decided not to drop the SISUSB_OLD_CONFIG_COMPAT code in my patch 
+> because it seems Thomas is sharing this code between different kernel 
+> versions, and a removal might make his life harder for no big win.
 
-This breaks the x86 build.  I guess the below is right.
 
-You wanna check other architectures please?
+Exactly. Thanks, Adrian.
 
+Thomas
 
-diff -puN arch/i386/kernel/i386_ksyms.c~x86_64-make-string-func-definition-work-as-intended-fix arch/i386/kernel/i386_ksyms.c
---- 25/arch/i386/kernel/i386_ksyms.c~x86_64-make-string-func-definition-work-as-intended-fix	2005-05-03 00:16:36.000000000 -0700
-+++ 25-akpm/arch/i386/kernel/i386_ksyms.c	2005-05-03 00:16:44.000000000 -0700
-@@ -169,10 +169,6 @@ EXPORT_SYMBOL(rtc_lock);
- EXPORT_SYMBOL_GPL(set_nmi_callback);
- EXPORT_SYMBOL_GPL(unset_nmi_callback);
- 
--#undef memcmp
--extern int memcmp(const void *,const void *,__kernel_size_t);
--EXPORT_SYMBOL(memcmp);
--
- EXPORT_SYMBOL(register_die_notifier);
- #ifdef CONFIG_HAVE_DEC_LOCK
- EXPORT_SYMBOL(_atomic_dec_and_lock);
-_
+- --
+Thomas Winischhofer
+Vienna/Austria
+thomas AT winischhofer DOT net	       *** http://www.winischhofer.net
+twini AT xfree86 DOT org
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
+iD8DBQFCdyh+zydIRAktyUcRAgTLAKDJ7woebRDkqRS70aImI5c0y+fiyQCgyNqE
+8haWeqvcbbbCjYn607Xh51E=
+=ZaoZ
+-----END PGP SIGNATURE-----

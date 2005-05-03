@@ -1,57 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbVEBX4x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbVECAAs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261236AbVEBX4x (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 19:56:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbVEBX4x
+	id S261237AbVECAAs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 20:00:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVECAAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 19:56:53 -0400
-Received: from wproxy.gmail.com ([64.233.184.202]:13982 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261236AbVEBX4v convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 19:56:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=VKnhDArPCSE9FyUhBSqGChFJqMNiK9x4LTn1xeeTItYSL/Q6ZnsLc7kzFtw0zFXvmyOu/7UG97AxcPttufFTKsDEMPFjmLe27HXX47V/OoUSSxInlm65YAafpimv0rZMdPWpfFtQ0rDBvdcIJe0aMzezOB0n43uoCLtnc1fFRME=
-Message-ID: <3f250c71050502165655f12110@mail.gmail.com>
-Date: Mon, 2 May 2005 19:56:51 -0400
-From: Mauricio Lin <mauriciolin@gmail.com>
-Reply-To: Mauricio Lin <mauriciolin@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.12-rc3-mm2: fs/proc/task_mmu.c warnings
-Cc: bunk@stusta.de, linux-kernel@vger.kernel.org
-In-Reply-To: <20050502164501.50187481.akpm@osdl.org>
+	Mon, 2 May 2005 20:00:48 -0400
+Received: from waste.org ([216.27.176.166]:33707 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261237AbVECAAX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 20:00:23 -0400
+Date: Mon, 2 May 2005 17:00:12 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Bill Davidsen <davidsen@tmr.com>, Morten Welinder <mwelinder@gmail.com>,
+       Sean <seanlkml@sympatico.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
+Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
+Message-ID: <20050503000011.GA22038@waste.org>
+References: <20050429165232.GV21897@waste.org> <427650E7.2000802@tmr.com> <Pine.LNX.4.58.0505021457060.3594@ppc970.osdl.org> <20050502223002.GP21897@waste.org> <Pine.LNX.4.58.0505021540070.3594@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050430164303.6538f47c.akpm@osdl.org>
-	 <20050501222916.GB3592@stusta.de>
-	 <3f250c7105050215306de620ac@mail.gmail.com>
-	 <3f250c7105050216357ae31105@mail.gmail.com>
-	 <20050502164501.50187481.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0505021540070.3594@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+On Mon, May 02, 2005 at 03:49:49PM -0700, Linus Torvalds wrote:
+> > >  - you can drop old objects.
+> > 
+> > You can't drop old objects without dropping all the changesets that
+> > refer to them or otherwise being prepared to deal with the broken
+> > links.
 
-On 5/2/05, Andrew Morton <akpm@osdl.org> wrote:
-> Mauricio Lin <mauriciolin@gmail.com> wrote:
-> >
-> > I managed to replicate the warning. This happens with the vanilla
-> > kernel 2.6.11.8. Before this version this warning does not exist. The
-> > last patch I posted was based on 2.6.11.7. I am going to post the new
-> > patch asap.
+[...]
+ 
+> I could write this up in ten minutes. It's really simple.
+
+It's still simple in Mercurial, but more importantly Mercurial _won't
+need it_. Dropping history is a work-around, not a feature.
+ 
+> > > delta models very fundamentally don't support this. 
+> > 
+> > The latter can be done in a pretty straightforward manner in mercurial
+> > with one pass over the data. But I have a goal to make keeping the
+> > whole history cheap enough that no one balks at it.
 > 
-> Please don't generate patches for the mainline kernel against the -stable
-> tree.  2.6.11.7 is ancient - we've added 22MB of diff since then.
+> With delta's, you have two choices:
 > 
-> I think I've fixed all the /proc/pid/smaps problems anwyay.
+>  - change all the sha1 names (ie a pruned tree would no longer be 
+>    compatible with a non-pruned one)
+>  - make the delta part not show up as part of the sha1 name (which means 
+>    that it's unprotected).
+> 
+> which one would you have?
 
-So you have fixed the warning message, right?
+Umm.. I am _not_ calculating the SHA of the delta itself. That'd be
+silly.
 
-Do you mean that I do not have to create the patch for 2.6.11.8?
+There are an arbitrary number of ways to calculate a delta between two
+files. Similarly, there are an arbitrary number of ways to compress a
+file (gzip has at least 9, not counting all the permutations of
+flush). The only sensible thing to do is store a hash of the raw text
+and check it against the fully restored text, because that's what you
+care about being correct.
 
-BR,
+In Mercurial, deltas are just a storage detail and are effectively
+completely hidden from everything except the innermost part of the
+back-end. What's important is that Mercurial knows that A is a
+revision of B in the backend and thus has enough information to
+opportunistically attempt to calculate a delta.
 
-Mauricio Lin.
+So if the day ever comes when I want to prune the head of a log, I
+simply reconstruct the first version to keep, store it in a new file,
+then append all the deltas, unmodified. And fix up the offsets in the
+indices. None of the hashes change.
+
+> > What is a tree re-linker? Finds duplicate files and hard-links them?
+> > Ok, that makes some sense. But it's a win on one machine and a lose
+> > everywhere else.
+> 
+> Where would it be a loss? Esepcially since with git, it's cheap (you don't 
+> need to compare content to find objects to link - you can just compare 
+> filename listings).
+
+Git repositories will be 10x larger than Mercurial everywhere that
+doesn't benefit from this linking of unrelated trees. That is, folks
+who aren't running gitbits.net.
+
+> > I've added an "hg verify" command to Mercurial. It doesn't attempt to
+> > fix anything up yet, but it can catch a couple things that git
+> > probably can't (like file revisions that aren't owned by any
+> > changeset), namely because there's more metadata around to look at.
+> 
+> git-fsck-cache catches exactly those kinds of things. And since it checks
+> pretty much every _single_ assumption in git (which is not a lot, since
+> git doesn't have a lot of assumptions), I guarantee you that you can't
+> find any more than it does (the filename ordering is the big missing
+> piece: I _still_ don't verify that trees are ordered. I've been mentioning
+> it since the beginning, but I'm lazy).
+> 
+> In other words, your verifier can't verify anything more. It's entirely 
+> possible that more things can go _wrong_, since you have more indexes, so 
+> your verifier will have more to check, but that's not an advantage, that's 
+> a downside.
+
+Uh, no. It's just like a filesystem. Redundancy is what lets you
+recover.
+
+The extra indices are also very useful in their own right:
+
+- they let you do easily do delta storage
+- they let you efficiently do delta transmission
+- they let you find past revisions of a file in O(1)
+- they let you efficiently do "annotate"
+- they let you do smarter merge
+
+At least the first four seem fairly critical to me.
+
+As various people have pointed out, you can hack delta transmission
+and file revision indexing on top of git. But to do that, you'll need
+to build the same indices that Mercurial has. And you'll need to check
+their integrity.
+
+Unfortunately, since the git back-end refuses to know anything about
+the relation between file revisions, this will all happen in the front
+end, and you'll have done almost all the work needed to do delta
+storage without actually getting it. How sad.
+
+You'll also likely end up with something quite a bit more complicated
+than Mercurial because of the extra layering. This all strongly suggests
+to me that the git back-end is just a little bit too simple.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

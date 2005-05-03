@@ -1,48 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbVECKpc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261457AbVECK44@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261444AbVECKpc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 06:45:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVECKpb
+	id S261457AbVECK44 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 06:56:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbVECK4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 06:45:31 -0400
-Received: from animx.eu.org ([216.98.75.249]:37767 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S261444AbVECKp1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 06:45:27 -0400
-Date: Tue, 3 May 2005 06:45:03 -0400
-From: Wakko Warner <wakko@animx.eu.org>
+	Tue, 3 May 2005 06:56:55 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:37778 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S261449AbVECK4u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 06:56:50 -0400
+Message-ID: <427758BC.1090906@grupopie.com>
+Date: Tue, 03 May 2005 11:55:56 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: zImage on 2.6?
-Message-ID: <20050503104503.GA11123@animx.eu.org>
-Mail-Followup-To: "Randy.Dunlap" <rddunlap@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20050503012951.GA10459@animx.eu.org> <20050502193503.20e6ac6e.rddunlap@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050502193503.20e6ac6e.rddunlap@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+Cc: Greg KH <greg@kroah.com>, joecool1029@gmail.com,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: Empty partition nodes not created (was device node issues with
+ recent mm's and udev)
+References: <d4757e6005050219514ece0c0a@mail.gmail.com>	<20050503031421.GA528@kroah.com> <20050502202620.04467bbd.rddunlap@osdl.org>
+In-Reply-To: <20050502202620.04467bbd.rddunlap@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Randy.Dunlap wrote:
-> On Mon, 2 May 2005 21:29:51 -0400 Wakko Warner wrote:
-> | Is it possible to use zImage on 2.6 kernels or is bzImage required?
+> On Mon, 2 May 2005 20:14:21 -0700 Greg KH wrote:
 > 
-> What processor architecture?
+> | On Mon, May 02, 2005 at 10:51:24PM -0400, Joe wrote:
+> | > Ok, first off I'd like to say, I am on 2.6.12-rc3-mm2, and this issue
+> | > is not fixed at all.  Secondly, I'd like to say that I've pinpointed
+> | > it a bit more.  It appears only Empty partitions (type 0 in fdisk) do
+> | > not create device nodes.
+> | > 
+> | > Here is the partition table from fdisk, fdisk does run fine.. its just
+> | > the fact this node is not created that threw me off before.
+> | > 
+> | >    Device Boot      Start         End      Blocks   Id  System
+> | > /dev/sdb1   *           1           2       16033+   0  Empty
+> | > /dev/sdb2   *           6        2431    19486845    b  W95 FAT32
+> | > /dev/sdb3               3           5       24097+  83  Linux
+> | > 
+> | > 
+> | > Notice, /dev/sdb1 is a Empty partition... in /dev I only have sdb,
+> | > sdb2, and sdb3.  No sdb1.  Any help would be appreciated.
+> | 
+> | Looks like it might be a scsi issue.  Redirecting to that mailing list
+> | now.  Anyone here have a clue?
+> 
+> Could this 2.6.11.8 -stable patch fix it?
+> Subject: [04/07] partitions/msdos.c fix
+> 
+> Joe, can you test 2.6.11.8, please?
 
-x86.  Does zImage work on other arches?  (I've only ever dealt with alpha
-and sparc other than x86)
+It seems to me that this exactly the other way around. The patch is 
+probably already in -mm and is doing what it is supposed to do: don't 
+report partitions whose system ID == 0.
 
-> It's supported in arch/i386/Makefile (and some others).
-> For i386, you'll need to disable enough (lots of) options to make the
-> resulting output file small enough...
+Can you try to give the empty partition a type different than zero? You 
+don't need to make a file system on it or anything, just change the type.
 
-The resultant bzImage is ~760kb.  I compiled out everything I could, only
-ram disk/initrd, and ext2 are compiled in.
+Or check if the patch Randy is pointing to is already in your tree and 
+revert it.
 
-If you'd like to see the .config, I'll send it up.
+I think this is a good argument not to include this patch on the -stable 
+release...
 
 -- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Paulo Marques - www.grupopie.com
+
+All that is necessary for the triumph of evil is that good men do nothing.
+Edmund Burke (1729 - 1797)

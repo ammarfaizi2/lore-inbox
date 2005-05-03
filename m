@@ -1,50 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbVECLcY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbVECLev@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261477AbVECLcY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 07:32:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261478AbVECLcY
+	id S261478AbVECLev (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 07:34:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbVECLev
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 07:32:24 -0400
-Received: from smarthost1.mail.uk.easynet.net ([212.135.6.11]:47883 "EHLO
-	smarthost1.mail.uk.easynet.net") by vger.kernel.org with ESMTP
-	id S261477AbVECLcV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 07:32:21 -0400
-Message-ID: <4277612F.9090503@treblig.org>
-Date: Tue, 03 May 2005 12:31:59 +0100
-From: "Dave Gilbert (Home)" <gilbertd@treblig.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040804
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: aebr@win.tue.nl, wichert@wiggy.net, linux-kernel@vger.kernel.org
-Subject: Re: negative diskspace usage
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 3 May 2005 07:34:51 -0400
+Received: from mailfe06.swip.net ([212.247.154.161]:46764 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S261478AbVECLep (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 07:34:45 -0400
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Subject: Re: 2.6.12-rc3 OOPS  in vanilla source (once more)
+From: Alexander Nyberg <alexn@telia.com>
+To: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org
+Cc: Mateusz Berezecki <mateuszb@gmail.com>, linux-kernel@vger.kernel.org,
+       zwane@arm.linux.org.uk, stsp@aknet.ru
+In-Reply-To: <20050502200545.266b4e55.akpm@osdl.org>
+References: <42763388.1030008@gmail.com>
+	 <20050502200545.266b4e55.akpm@osdl.org>
+Content-Type: text/plain
+Date: Tue, 03 May 2005 13:34:10 +0200
+Message-Id: <1115120050.945.39.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
-X-TL-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-   Just a 'me too'.
+> > i send it once more....
+> > 
+> >  May  2 12:56:31 localhost kernel: Unable to handle kernel NULL pointer 
+> >  dereference at virtual address 00000000
 
-Configuration:  2.6.11.3 (SuSE 9.2 tree)
-   3ware 9000 hardware raid setup as RAID5,
-just over 1.5T total, with a 1.5T partition with ext3
-created with mke2fs 1.27 (debian installation).
-(A rather slow 1.4GHz Athlon and 512MB of RAM on
-the box I'm using to test this RAID).
+Ok I think I have this sucker all sorted out now. The recent change
+fix-crash-in-entrys-restore_all.patch
 
-We'd been running bonnie on the partition for a while and
-also created a test file that filled the partition;
-then I rm'd that 1.5TB file - this took a while; this took
-a long while - probably over an hour, doing a df as it was going showed
-the amount of space used dropping.
+ 25-akpm/arch/i386/kernel/process.c	2005-04-10 15:31:38.000000000 -0700
+@@ -405,7 +405,7 @@ int copy_thread(int nr, unsigned long cl
+ 	childregs->esp = esp;
+ 
+ 	p->thread.esp = (unsigned long) childregs;
+-	p->thread.esp0 = (unsigned long) (childregs+1);
++	p->thread.esp0 = (unsigned long) (childregs+1) - 8;
+ 
+ 	p->thread.eip = (unsigned long) ret_from_fork;
 
-So then I start to copy stuff onto it and do a df and find it showing
-the -64Z on the free. (df (fileutils) 4.1), I've got some stuff 
-unbzip'ing on it and it now seems to be showing sensible sizes on it again.
+introduces an inconsistency between esp and esp0 before the task is run
+the first time. esp0 is no longer the actual start of the stack, but 8
+bytes off.
 
-If anyone wants me to try stuff I can since this RAID isn't in service yet.
+This shows itself clearly in a scenario when a ptracer that is set to
+also ptrace eventual children traces program1 which then clones thread1.
+Now the ptracer wants to modify the registers of thread1. The x86 ptrace
+implementation bases it's knowledge about saved user-space registers
+upon p->thread.esp0. But this will be a few bytes off causing certain
+writes to the kernel stack to overwrite a saved kernel function address
+making the kernel when actually running thread1 jump out into
+user-space. Very spectacular.
 
-Dave
+The testcase I've used is:
+/* start with strace -f ./a.out */
+#include <pthread.h>
+#include <stdio.h>
+
+void *do_thread(void *p)
+{
+	for (;;);
+}
+
+int main()
+{
+	pthread_t one;
+	pthread_create(&one, NULL, &do_thread, NULL);
+	for (;;);
+	return 0;
+}
+
+
+So, my solution is to instead of just adjusting esp0 that creates an
+inconsitent state I adjust where the user-space registers are saved with
+-8 bytes. This gives us the wanted extra bytes on the start of the stack
+and esp0 is now correct. This solves the issues I saw from the original
+testcase from Mateusz Berezecki and has survived testing here. I think
+this should go into -mm a round or two first however as there might be
+some cruft around depending on pt_regs lying on the start of the stack.
+That however would have broken with the first change too!
+
+It's actually a 2-line diff but I had to move the comment of why the -8 bytes 
+are there a few lines up. Thanks to Zwane for helping me with this.
+
+
+Signed-off-by: Alexander Nyberg <alexn@telia.com>
+
+Index: latest/arch/i386/kernel/process.c
+===================================================================
+--- latest.orig/arch/i386/kernel/process.c	2005-04-30 15:44:02.000000000 +0200
++++ latest/arch/i386/kernel/process.c	2005-05-03 12:54:16.000000000 +0200
+@@ -400,11 +400,6 @@
+ 	int err;
+ 
+ 	childregs = ((struct pt_regs *) (THREAD_SIZE + (unsigned long) p->thread_info)) - 1;
+-	*childregs = *regs;
+-	childregs->eax = 0;
+-	childregs->esp = esp;
+-
+-	p->thread.esp = (unsigned long) childregs;
+ 	/*
+ 	 * The below -8 is to reserve 8 bytes on top of the ring0 stack.
+ 	 * This is necessary to guarantee that the entire "struct pt_regs"
+@@ -415,7 +410,13 @@
+ 	 * "struct pt_regs" is possible, but they may contain the
+ 	 * completely wrong values.
+ 	 */
+-	p->thread.esp0 = (unsigned long) (childregs+1) - 8;
++	childregs = (struct pt_regs *) ((unsigned long) childregs - 8);
++	*childregs = *regs;
++	childregs->eax = 0;
++	childregs->esp = esp;
++
++	p->thread.esp = (unsigned long) childregs;
++	p->thread.esp0 = (unsigned long) (childregs+1);
+ 
+ 	p->thread.eip = (unsigned long) ret_from_fork;
+ 
+
+

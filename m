@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbVECWca@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261872AbVECWgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbVECWca (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 18:32:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbVECWc3
+	id S261872AbVECWgX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 18:36:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbVECWdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 18:32:29 -0400
-Received: from h80ad252c.async.vt.edu ([128.173.37.44]:41996 "EHLO
-	h80ad252c.async.vt.edu") by vger.kernel.org with ESMTP
-	id S261875AbVECWbo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 18:31:44 -0400
-Message-Id: <200505032231.j43MVfMC028606@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+	Tue, 3 May 2005 18:33:50 -0400
+Received: from animx.eu.org ([216.98.75.249]:42120 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S261872AbVECWcR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 18:32:17 -0400
+Date: Tue, 3 May 2005 18:31:48 -0400
+From: Wakko Warner <wakko@animx.eu.org>
 To: segin <segin11@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Error in include/linux/mod_devicetable.h 
-In-Reply-To: Your message of "Tue, 03 May 2005 14:27:15 PDT."
-             <20050503212715.94232.qmail@web21127.mail.yahoo.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20050503212715.94232.qmail@web21127.mail.yahoo.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: zImage on 2.6?
+Message-ID: <20050503223148.GF12199@animx.eu.org>
+Mail-Followup-To: segin <segin11@yahoo.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20050503221922.GC12199@animx.eu.org> <20050503222749.42151.qmail@web21124.mail.yahoo.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1115159500_3418P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 03 May 2005 18:31:40 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050503222749.42151.qmail@web21124.mail.yahoo.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1115159500_3418P
-Content-Type: text/plain; charset=us-ascii
+segin wrote:
+> I'll be honest. zImage kernels are pointless, and are _BIGGER_ than a bzImage kernel.
 
-On Tue, 03 May 2005 14:27:15 PDT, segin said:
+Others have stated this.
 
-> The error occurs when compiling a program (dosemu) that uses the include file stated above.
-> I won't hog your mailboxes with useless infomation.
+> You should realize that use of zImage kernels detucts 100 points off your IQ.
 
-> /usr/include/linux/mod_devicetable.h:18: error: parse error before "__u32"
+I was trying to do comparisions between the 2.  I would not have cared
+as long as 1) it was smaller and 2) it worked.
 
-Don't use kernel headers from userspace.  This includes the ever-popular but
-always-broken idea of symlinking the kernel headers into /usr/include, which
-you seem to have done.
+Maybe they should deduct 100 off whoever is keeping zImage target still in
+the make files.
 
 > Jeez... Is it just me or is it that most people today are too fucking retarded to use a computer?
 
-Do you really want me to answer that?
+Uh, excuse me?!  I ask a question and you have to do this?!  Really, you are
+of no help to me.
 
---==_Exmh_1115159500_3418P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCd/vLcC3lWbTT17ARAg/IAKCpvGHLU41TNwXmxtO6uCsKvPcQwQCgmH8k
-zLWqaGFv4HuPNlqp5swEDrI=
-=heDK
------END PGP SIGNATURE-----
-
---==_Exmh_1115159500_3418P--
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

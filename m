@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbVECKkn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbVECKpc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261445AbVECKkn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 06:40:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVECKkm
+	id S261444AbVECKpc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 06:45:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVECKpb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 06:40:42 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:43431 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261445AbVECKfI (ORCPT
+	Tue, 3 May 2005 06:45:31 -0400
+Received: from animx.eu.org ([216.98.75.249]:37767 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S261444AbVECKp1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 06:35:08 -0400
-Message-ID: <42775588.95EB8ECF@tv-sign.ru>
-Date: Tue, 03 May 2005 14:42:16 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: benh@kernel.crashing.org, jk@blackdown.de, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc2-mm3
-References: <20050411012532.58593bc1.akpm@osdl.org>
-		<87wtr8rdvu.fsf@blackdown.de>
-		<87u0m7aogx.fsf@blackdown.de>
-		<1113607416.5462.212.camel@gaston>
-		<877jj1aj99.fsf@blackdown.de>
-		<20050423170152.6b308c74.akpm@osdl.org>
-		<87fyxhj5p1.fsf@blackdown.de>
-		<1114308928.5443.13.camel@gaston>
-		<426B6C84.E8D41D57@tv-sign.ru> <20050502232925.752ad1d8.akpm@osdl.org>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	Tue, 3 May 2005 06:45:27 -0400
+Date: Tue, 3 May 2005 06:45:03 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: zImage on 2.6?
+Message-ID: <20050503104503.GA11123@animx.eu.org>
+Mail-Followup-To: "Randy.Dunlap" <rddunlap@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20050503012951.GA10459@animx.eu.org> <20050502193503.20e6ac6e.rddunlap@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050502193503.20e6ac6e.rddunlap@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Randy.Dunlap wrote:
+> On Mon, 2 May 2005 21:29:51 -0400 Wakko Warner wrote:
+> | Is it possible to use zImage on 2.6 kernels or is bzImage required?
 > 
-> Oleg Nesterov <oleg@tv-sign.ru> wrote:
-> >
-> > ...
-> > Before this timer patch del_timer(pending_timer) worked as
-> > a memory barrier for the caller, now it does not.
-> >
-> 
-> I wonder if we should still do this?  It would seem to be a safer approach.
-> 
-> (This barrier stuff continues to give me the creeps.  Imagine being
-> dependent upon accidental barriers in the add/del/mod_timer code.  Ugh).
+> What processor architecture?
 
-I can't judge. But if we added barriers now, it would be
-very hard to remove them later. And I think it's not good
-to have these barriers "just in case".
+x86.  Does zImage work on other arches?  (I've only ever dealt with alpha
+and sparc other than x86)
 
-Oleg.
+> It's supported in arch/i386/Makefile (and some others).
+> For i386, you'll need to disable enough (lots of) options to make the
+> resulting output file small enough...
+
+The resultant bzImage is ~760kb.  I compiled out everything I could, only
+ram disk/initrd, and ext2 are compiled in.
+
+If you'd like to see the .config, I'll send it up.
+
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

@@ -1,54 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261883AbVECWgW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261878AbVECWhk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261883AbVECWgW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 18:36:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbVECWeN
+	id S261878AbVECWhk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 18:37:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261880AbVECWhH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 18:34:13 -0400
-Received: from smtp-vbr13.xs4all.nl ([194.109.24.33]:61969 "EHLO
-	smtp-vbr13.xs4all.nl") by vger.kernel.org with ESMTP
-	id S261876AbVECWdK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 18:33:10 -0400
-Date: Wed, 4 May 2005 00:32:58 +0200
-From: Erik van Konijnenburg <ekonijn@xs4all.nl>
-To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] yaird 0.0.6, a mkinitrd based on hotplug concepts
-Message-ID: <20050504003257.A21607@banaan.localdomain>
-Mail-Followup-To: linux-hotplug-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	Tue, 3 May 2005 18:37:07 -0400
+Received: from optimus.nocdirect.com ([69.73.171.5]:60068 "EHLO
+	optimus.nocdirect.com") by vger.kernel.org with ESMTP
+	id S261878AbVECWe0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 18:34:26 -0400
+Message-ID: <32958.198.4.83.52.1115159671.squirrel@zuzulu.com>
+In-Reply-To: <20050503183335.GA19691@bougret.hpl.hp.com>
+References: <20050503183335.GA19691@bougret.hpl.hp.com>
+Date: Tue, 3 May 2005 17:34:31 -0500 (CDT)
+Subject: Re: [PATCH] dynamic wep keys for airo.c
+From: breed@zuzulu.com
+To: jt@hpl.hp.com
+Cc: "Linux kernel mailing list" <linux-kernel@vger.kernel.org>,
+       "Jouni Malinen" <jkmaline@cc.hut.fi>, chessing@users.sourceforge.net
+User-Agent: SquirrelMail/1.4.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - optimus.nocdirect.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [32338 32338] / [47 12]
+X-AntiAbuse: Sender Address Domain - zuzulu.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Version 0.0.6 of yaird is now available at:
-	http://www.xs4all.nl/~ekonijn/yaird/yaird-0.0.6.tar.gz
+Jean,
 
-Yaird is a proof of concept perl rewrite of mkinitrd.  It aims to
-reliably identify the necessary modules by using the same algorithms
-as hotplug, and comes with a template system to to tune the tool for
-different distributions and experiment with different image layouts.
-It requires a 2.6 kernel with hotplug.  There is a paper discussing it at:
+There is no patch to xsupplicant that will work without patching the
+airo.c driver. The current airo.c driver always disables the MAC before
+setting the WEP key whether it is temporary or permanent. This is
+incorrect. When the MAC is disabled the card disassociates causing the
+whole handshake to start over again.
 
-	http://www.xs4all.nl/~ekonijn/yaird/yaird.html
+ben
 
-Summary of user visible changes for version 0.0.6
-     * Support cryptsetup.  See the README file, see HTML documentation.
-     * Support aliases and options in modprobe.conf,
-       simply by using modprobe rather than doing a reimplementation in perl.
-     * tested with ulibc
-     * Bugfixes:
-       - failure to generate image on systems without LVM
-       - overcrowded /dev under Debian with udev
-       - failure to generate image if multiple links to same raid device exist
-       - uninitialised value in verbose output
+> Benjamin Reed wrote :
+>>
+>> I'm resubmitting a patch for the 2.6.11.8 aironet driver (airo.c) that
+>> will
+>> enable dynamic wep keying without disabling the MAC. It allows
+>> us to use xsupplicant with the driver.
+>>
+>> Aironet provides the ability to set WEP keys permanently or
+>> temporarily. There is a special IW_ENCODE_TEMP flag for selecting
+>> which type of key you are setting. However, apart from iwconfig,
+>> nobody seems to use this flag. When a permanent WEP key is set,
+>> the MAC must be disabled. I have added a module parameter to skip
+>> disabling the MAC even if a permanent WEP key is set. Using this
+>> flag allows xsupplicant to work without modification.
+>
+>  Hmm... I don't know why you are so afraid of submitting a
+> patch to xsupplicant (and wpa_supplicant). Having xsupplicant *always*
+> setting IW_ENCODE_TEMP would be worthwhile. Have you even try to
+> submit a patch to the author of xsupplicant ?
+>  There was other driver having issues with with not reseting
+> the MAC while changing the WEP key. For example, some Lucent firmware
+> may lock up if you set WEP without fully reseting the MAC. So, having
+> IW_ENCODE_TEMP in xsupplicant would mean that the driver could support
+> 802.1x properly if the firmware is sane and remain conservative while
+> setting static WEP keys, i.e. the best of both words. Driver that are
+> sane (moder hardware) can just ignore IW_ENCODE_TEMP.
+>  With respect to airo, I think it would be nice if xsupplicant
+> did not pollute the WEP EEprom, so that next time you roam to a static
+> WEP AP, you can resuse the EEprom keys.
+>
+>  In summary, I believe that a correct solution is not so
+> difficult to implement (just a 2 line patch for xsupplicant and
+> wpa_supplicant), therefore I don't beleive we should go with
+> workarounds.
+>
+>  Have fun...
+>
+>  Jean
+>
+>
 
-On top of the todo list are now:
-     * support NFS devices
-     * support cryptsetup-luks
-     * support loopback devices
-
-Regards,
-Erik

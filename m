@@ -1,53 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbVECCuy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261510AbVECMz4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261318AbVECCuy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 22:50:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVECCuy
+	id S261510AbVECMz4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 08:55:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbVECMzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 22:50:54 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:37005 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261318AbVECCus (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 22:50:48 -0400
-Date: Tue, 3 May 2005 10:54:19 +0800
-From: David Teigland <teigland@redhat.com>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Cc: Steven Dake <sdake@mvista.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, Patrick Caulfield <pcaulfie@redhat.com>
-Subject: Re: [PATCH 1b/7] dlm: core locking
-Message-ID: <20050503025419.GA10657@redhat.com>
-References: <20050425165826.GB11938@redhat.com> <200504282026.36273.phillips@istop.com> <20050429025226.GA9900@redhat.com> <200504282349.10164.phillips@istop.com> <20050502210015.GD4722@marowsky-bree.de>
+	Tue, 3 May 2005 08:55:55 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:52484 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261510AbVECMzq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 08:55:46 -0400
+Date: Mon, 2 May 2005 23:03:29 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/22] UML - Include the linker script rather than symlink it
+Message-ID: <20050503030329.GA17992@ccure.user-mode-linux.org>
+References: <200505012112.j41LC9fa016385@ccure.user-mode-linux.org> <20050502170654.248b11ea.akpm@osdl.org> <20050503002521.GA18977@parcelfarce.linux.theplanet.co.uk> <20050502174405.0c8cad31.akpm@osdl.org> <20050503011744.GC18977@parcelfarce.linux.theplanet.co.uk> <20050502182851.27f22470.akpm@osdl.org> <20050503014543.GD18977@parcelfarce.linux.theplanet.co.uk> <20050502190250.45e37457.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050502210015.GD4722@marowsky-bree.de>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050502190250.45e37457.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 02, 2005 at 11:00:15PM +0200, Lars Marowsky-Bree wrote:
-> > > ...Nothing you have said is remotely correct.
-> > Please provide corrections, if you wish Dave.
-> 
-> I'd really like to see those. Because right now some parts of the
-> discussion seem to contradict eachother (sometimes subtle so it's hard
-> to point the finger at it and ask, sometimes glaringly obvious), and I
-> thought you both worked on the same project. ;-)
-> 
-> That makes it kind-of-hard to understand where you're coming from and
-> where you're headed. I know that people even on the same project have
-> different opinions, but before a review, let's have a barrier and
-> distributed synchronization, ok? ;-)
+On Mon, May 02, 2005 at 07:02:50PM -0700, Andrew Morton wrote:
+> OK, did that.  Had one reject against
+> uml-kbuild-avoid-useless-rebuilds.patch, but 'twas easily fixed.
 
-If you're still reading what Daniel sends then I can't help much, I was
-completely serious before.  I've wasted too many hours in the past
-rebutting and correcting everything he says and gave up long ago, sorry.
-No, he doesn't work on the same project.  He has nothing to do with this
-software and doesn't understand the first thing about it.
+Thanks.  Sorry about the hassle.  The vmlinux.lds botch was a symptom of
+the problem Al was fixing (the uncleaned symlink in my tree causing a reject
+in a clean tree), and the missing mk_sc patch was just an oversight on my
+part.
 
-If you have questions, please ask.  If you don't want conflicting replies
-then I simply suggest ignoring either me or Daniel Phillips; it's
-completely up to you.
-
-Dave
-
+				Jeff

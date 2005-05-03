@@ -1,74 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbVECRCi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261433AbVECROT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261378AbVECRCi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 13:02:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261398AbVECRCi
+	id S261433AbVECROT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 13:14:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbVECROT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 13:02:38 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:22748 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261378AbVECRCf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 13:02:35 -0400
-Date: Tue, 3 May 2005 10:02:24 -0700
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: john stultz <johnstul@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, albert@users.sourceforge.net,
-       paulus@samba.org, schwidefsky@de.ibm.com, mahuja@us.ibm.com,
-       donf@us.ibm.com, mpm@selenic.com, benh@kernel.crashing.org
-Subject: Re: [RFC][PATCH] new timeofday-based soft-timer subsystem
-Message-ID: <20050503170224.GA2776@us.ibm.com>
-References: <1114814747.28231.2.camel@cog.beaverton.ibm.com> <20050429233546.GB2664@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050429233546.GB2664@us.ibm.com>
-X-Operating-System: Linux 2.6.12-rc3-mm2 (i686)
-User-Agent: Mutt/1.5.9i
+	Tue, 3 May 2005 13:14:19 -0400
+Received: from neapel230.server4you.de ([217.172.187.230]:13486 "EHLO
+	neapel230.server4you.de") by vger.kernel.org with ESMTP
+	id S261399AbVECROM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 13:14:12 -0400
+Message-ID: <4277B15F.1020102@lsrfire.ath.cx>
+Date: Tue, 03 May 2005 19:14:07 +0200
+From: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Matt Mackall <mpm@selenic.com>,
+       "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
+	<7eggert@gmx.de>,
+       Linus Torvalds <torvalds@osdl.org>, Ryan Anderson <ryan@michonline.com>,
+       Andrea Arcangeli <andrea@suse.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
+Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
+References: <E1DSm1T-0002Tc-FV@be1.7eggert.dyndns.org><E1DSm1T-0002Tc-FV@be1.7eggert.dyndns.org> <20050503012921.GD22038@waste.org> <4277A52E.1020601@tmr.com>
+In-Reply-To: <4277A52E.1020601@tmr.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29.04.2005 [16:35:46 -0700], Nishanth Aravamudan wrote:
-> * john stultz <johnstul@us.ibm.com> [2005-0429 15:45:47 -0700]:
+Bill Davidsen schrieb:
+> On the theory that my first post got lost, why use /usr/bin/env at 
+> all, when bash already does that substitution? To support people who 
+> use other shells?
 > 
-> > All,
-> >         This patch implements the architecture independent portion of
-> > the time of day subsystem. For a brief description on the rework, see
-> > here: http://lwn.net/Articles/120850/ (Many thanks to the LWN team for
-> > that clear writeup!)
-> 
-> I have been working closely with John to re-work the soft-timer subsytem
-> to use the new timeofday() subsystem. The following patch attempts to
-> being this process. I would greatly appreciate any comments.
+> ie.: FOO=xx perl -e '$a=$ENV{FOO}; print "$a\n"'
 
-I am not sure if anyone has looked at this patch closely, but I have
-noticed one issue: My code assumes that all the rounding will be done
-internally (rounding up on addition to find to the nearest
-timerinterval); however, current interfaces do much of the rounding
-before passing on structures on to the soft-timer subsystem, because the
-jiffies-based one always rounds down.
+/usr/bin/env is used in scripts in the shebang line (the very first line
+of the script, starting with "#!", which denotes the interpreter to use
+for that script) to make a PATH search for the real interpreter.
+Some folks keep their python (or Perl, or Bash etc.) in /usr/local/bin
+or in $HOME, that's why this construct is needed at all.
 
-This is most clear in sys_nanosleep(). Without any modifications to the
-syscall, but with my patch applied, one will see around 5 millisecond
-sleeps for a 1 millisecond request. This occurs, I believe, because
-jiffies_to_timespec() rounds up once, we add one if there is any value
-and then in internally I round up once more. If I rewrite
-sys_nanosleep() to use schedule_timeout_nsecs() and thus never convert
-from nanoseconds, I see 2 millisecond sleeps for 1 millisecond requests,
-which is much closer (and accurate, as our granularity is slightly
-greater than 1 millisecond and we are interruptiing at HZ=1000 slightly
-more often than ever millisecond). This seems to be the right solution,
-but then there is another issue: the restart_block used by
-sys_nanosleep() only allows for 4 unsigned long arguments, when, in
-fact, nanoseconds are a 64-bit quantity in the kernel. As long as the
-nanosleep() request is no more than around 4 seconds, we should be ok
-using unsigned longs. But anything longer will simply truncate
-currently. I am not certain of a clean way to modify the restart_block
-to incorporate a 64-bit quantity, as it is used by other interfaces as
-well.
+Changing environment variables is not the goal, insofar this usage
+exploits only a side-effect of env.  It is portable in practice because
+env is in /usr/bin on most modern systems.
 
-I still need to update the other version of nanosleep() (nsleep() and
-posix) before I post an updated patch. Just wanted to let everyone know
-of the issue.
+So you could replace this first line of a bash script:
 
-Thanks,
-Nish
+   #!/usr/bin/env python
+
+with this:
+
+   #!python
+
+except that the latter doesn't work because you need to specify an
+absolute path there. :]
+
+Rene

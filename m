@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261902AbVECXPX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261927AbVECXvD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261902AbVECXPX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 19:15:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbVECXPW
+	id S261927AbVECXvD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 19:51:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbVECXvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 19:15:22 -0400
-Received: from mail.tyan.com ([66.122.195.4]:36882 "EHLO tyanweb.tyan")
-	by vger.kernel.org with ESMTP id S261902AbVECXPP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 19:15:15 -0400
-Message-ID: <3174569B9743D511922F00A0C943142309B07D70@TYANWEB>
-From: YhLu <YhLu@tyan.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: x86-64 dual core mapping
-Date: Tue, 3 May 2005 16:35:25 -0700 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Tue, 3 May 2005 19:51:03 -0400
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:5309
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261927AbVECXu5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 19:50:57 -0400
+Date: Tue, 3 May 2005 16:39:16 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: paulus@samba.org, jk@blackdown.de, akpm@osdl.org, oleg@tv-sign.ru,
+       linux-kernel@vger.kernel.org, maneesh@in.ibm.com
+Subject: Re: [PATCH] fix __mod_timer vs __run_timers deadlock.
+Message-Id: <20050503163916.30d64630.davem@davemloft.net>
+In-Reply-To: <1115163893.7568.49.camel@gaston>
+References: <42748B75.D6CBF829@tv-sign.ru>
+	<20050501023149.6908c573.akpm@osdl.org>
+	<87vf61kztb.fsf@blackdown.de>
+	<1115079230.6155.35.camel@gaston>
+	<873bt5xf9v.fsf@blackdown.de>
+	<17014.59016.336852.31119@cargo.ozlabs.ibm.com>
+	<20050503115103.7461ae5e.davem@davemloft.net>
+	<1115163893.7568.49.camel@gaston>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks. 
+On Wed, 04 May 2005 09:44:53 +1000
+Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 
-For dual core cpu, if the BIOS or LinuxBIOS disable the dual core, the
-kernel will treat core0 of node 1 as core 1 of node 0.....
+> Nothing prevents it ? well, I wouldn't be that optimistic :) The USB
+> stuff is a bit complex, it inlcudes doing DMAs, so manipulating the
+> iommu, dealing with URB queues (and thus allocating/releasing them)
+> etc... and especially in the context of xmon, that mean letting the
+> driver do a lot of these at any time whatever state the system is...
 
-YH
+I think doing calls to the USB interrupt handler would work.
+I'm not being crazy :)
 
+But yeah we could do a micro-stack as well, but as you noted the
+transfer to/from the real USB HCI driver would be non-trivial.
 
-> -----Original Message-----
-> From: Andi Kleen [mailto:ak@suse.de] 
-> Sent: Tuesday, May 03, 2005 7:25 AM
-> To: YhLu
-> Cc: Andi Kleen; linux-kernel@vger.kernel.org
-> Subject: Re: x86-64 dual core mapping
-> 
-> On Mon, May 02, 2005 at 02:01:00PM -0700, YhLu wrote:
-> > Andi,
-> > 
-> > resent. FYI
-> 
-> I retested with my tree and everything works for me as expected.
-> Well actually there is a problem with the core mappings, but 
-> not on dual core, but on single core (more cosmetic than real)
-> 
-> It is possible that some patch is missing again in mainline.
-> I will sync up my patchkit next week and double check then 
-> that mainline is in the same state as mine.
-> 
-> -Andi
-> 
+I truly believe just calling the real USB HCI driver interrupt
+handler in a polling fashion is the way to go.

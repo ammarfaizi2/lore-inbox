@@ -1,75 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261493AbVECSFS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbVECSLs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261493AbVECSFS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 14:05:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbVECSFS
+	id S261495AbVECSLs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 14:11:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVECSLs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 14:05:18 -0400
-Received: from smtp3.brturbo.com.br ([200.199.201.164]:43200 "EHLO
-	smtp3.brturbo.com.br") by vger.kernel.org with ESMTP
-	id S261493AbVECSEu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 14:04:50 -0400
-Message-ID: <4277BD33.30009@brturbo.com.br>
-Date: Tue, 03 May 2005 15:04:35 -0300
-From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
-X-Accept-Language: pt-br, pt, es, en-us, en
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] PAL-M support fix for CX88 chipsets - final version
- :-)
-References: <42777318.2070508@brturbo.com.br>	<20050503083822.68a116d4.rddunlap@osdl.org>	<4277B833.9020109@brturbo.com.br> <20050503105202.42fa5ffb.rddunlap@osdl.org>
-In-Reply-To: <20050503105202.42fa5ffb.rddunlap@osdl.org>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------090108000003050401090901"
+	Tue, 3 May 2005 14:11:48 -0400
+Received: from zproxy.gmail.com ([64.233.162.201]:42882 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261495AbVECSHZ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 14:07:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PGbDGZN1FT9OzhlMFaRgzkJiOQpVRY/Rnkhd63DMLJeV+v56yxJ84vKdKXyXzfj7vmu56cRbQsMGo4fhmiChXuL0slyh2BpcaV0pFrqNiHq2VOS3xmEqtqEYKTmqQKHlu2vo3iWrazQC5tyVzc81woJsKQIHRzxl4A8DPeH8MMo=
+Message-ID: <29495f1d050503110753b644b2@mail.gmail.com>
+Date: Tue, 3 May 2005 11:07:25 -0700
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
+To: Chris Friesen <cfriesen@nortel.com>
+Subject: Re: [RFC][PATCH] new timeofday-based soft-timer subsystem
+Cc: Nishanth Aravamudan <nacc@us.ibm.com>, john stultz <johnstul@us.ibm.com>,
+       lkml <linux-kernel@vger.kernel.org>, albert@users.sourceforge.net,
+       paulus@samba.org, schwidefsky@de.ibm.com, mahuja@us.ibm.com,
+       donf@us.ibm.com, mpm@selenic.com, benh@kernel.crashing.org
+In-Reply-To: <4277B34C.4000403@nortel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1114814747.28231.2.camel@cog.beaverton.ibm.com>
+	 <20050429233546.GB2664@us.ibm.com> <20050503170224.GA2776@us.ibm.com>
+	 <4277B34C.4000403@nortel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090108000003050401090901
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On 5/3/05, Chris Friesen <cfriesen@nortel.com> wrote:
+> Nishanth Aravamudan wrote:
+> 
+> > but then there is another issue: the restart_block used by
+> > sys_nanosleep() only allows for 4 unsigned long arguments, when, in
+> > fact, nanoseconds are a 64-bit quantity in the kernel. As long as the
+> > nanosleep() request is no more than around 4 seconds, we should be ok
+> > using unsigned longs.
+> 
+> My man page for nanosleep specifies that the "nanoseconds" portion of
+> the timespec must be under 1 billion and is of type "long".  Is that no
+> longer valid?
 
-This patch fixes PAL-M chroma subcarrier frequency (FSC) to its correct 
-value of 3.5756115 MHz and adjusts horizontal total samples for PAL-M, 
-according with formula Line Draw Time / (4*FSC).
+Certainly would be, but the problem is if you pass in a timespec ts, where
 
-Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+    ts.tv_sec = 10;
+    ts.tv_nsec = 99999;
 
---------------090108000003050401090901
-Content-Type: text/plain;
- name="pal.dif"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="pal.dif"
+This will overflow a 32-bit nanosecond representation internally
+(10000099999 > 4294967296). Sorry for the confusion, the unsigned long
+I was referring to was the internal representation of the nanoseconds
+converted from the timespec parameter.
 
---- linux-2.6.12-rc3.org/drivers/media/video/cx88/cx88-core.c	2005-04-20 21:03:14.000000000 -0300
-+++ linux-2.6.12-rc3/drivers/media/video/cx88/cx88-core.c	2005-05-03 14:59:21.000000000 -0300
-@@ -736,6 +736,10 @@ static unsigned int inline norm_fsc8(str
- {
- 	static const unsigned int ntsc = 28636360;
- 	static const unsigned int pal  = 35468950;
-+	static const unsigned int palm  = 28604892;
-+
-+	if (V4L2_STD_PAL_M & norm->id)
-+		return palm;
- 
- 	return (norm->id & V4L2_STD_625_50) ? pal : ntsc;
- }
-@@ -749,6 +753,11 @@ static unsigned int inline norm_notchfil
- 
- static unsigned int inline norm_htotal(struct cx88_tvnorm *norm)
- {
-+	/* Should always be Line Draw Time / (4*FSC) */
-+
-+	if (V4L2_STD_PAL_M  & norm->id)
-+		return 909;
-+
- 	return (norm->id & V4L2_STD_625_50) ? 1135 : 910;
- }
- 
-
---------------090108000003050401090901--
+Thanks,
+Nish

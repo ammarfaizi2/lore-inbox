@@ -1,89 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261735AbVECPQR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261578AbVECPEm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261735AbVECPQR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 11:16:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261739AbVECPQR
+	id S261578AbVECPEm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 11:04:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261642AbVECPEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 11:16:17 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:22410 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261735AbVECPPy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 11:15:54 -0400
-Subject: Re: 2.6.12-rc2 + rc3: reaim with ext3 - system stalls.
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Jan Kara <jack@suse.cz>
-Cc: cliff white <cliffw@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050503144325.GF4501@atrey.karlin.mff.cuni.cz>
-References: <20050421152345.6b87aeae@es175>
-	 <20050503144325.GF4501@atrey.karlin.mff.cuni.cz>
-Content-Type: multipart/mixed; boundary="=-LBuZsEP+un6vb/N1S6Yo"
-Organization: 
-Message-Id: <1115132463.26913.828.camel@dyn318077bld.beaverton.ibm.com>
+	Tue, 3 May 2005 11:04:42 -0400
+Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:5131
+	"HELO linuxace.com") by vger.kernel.org with SMTP id S261578AbVECPEl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 11:04:41 -0400
+Date: Tue, 3 May 2005 08:04:40 -0700
+From: Phil Oester <kernel@linuxace.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
+       trini@kernel.crashing.org
+Subject: Re: Garbage on serial console after serial driver loads
+Message-ID: <20050503150440.GA9621@linuxace.com>
+References: <20050328173652.GA31354@linuxace.com> <20050328200243.C2222@flint.arm.linux.org.uk> <1115129833.4446.23.camel@hades.cambridge.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 03 May 2005 08:01:03 -0700
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1115129833.4446.23.camel@hades.cambridge.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 03, 2005 at 03:17:12PM +0100, David Woodhouse wrote:
+> Not really; it's just a quick hack applied without any real
+> consideration of the problem. If we're messing up the baud rate when we
+> change the master clock, then just make it change the divisor
+> accordingly at the same time. We don't seem to store the active
+> parameters of the serial console anywhere useful; we can do it just by
+> reading back the divisor and multiplying by eight though...
 
---=-LBuZsEP+un6vb/N1S6Yo
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-On Tue, 2005-05-03 at 07:43, Jan Kara wrote:
->   Hello,
-> 
-> > Started seeing some odd behaviour with recent kernels, haven't been able to
-> > run it down, could use some suggestions/help.
-> > 
-> > Running re-aim7 with 2.6.12-rc2 and rc3, if I use xfs, jfs, or
-> > reiserfs things work just fine.
-> > 
-> > With ext3, the  test stalls, such that:
-> > CPU is 50% idle, 50% waiting IO (top)
-> > vmstat shows one process blocked wio
->   I've looked through your dumps and I spotted where is the problem -
-> it's our well known and beloved lock inversion between PageLock and
-> transaction start (giving CC to Badari who's the author of the patch
-> that introduced it AFAIK).
-
-Yuck. It definitely not intentional.
-
->   The correct order is: first get PageLock and *then* start transaction.
-> But in ext3_writeback_writepages() first ext3_journal_start() is called
-> and then __mpage_writepages is called that tries to do LockPage and
-> deadlock is there. Badari, could you please fix that (sadly I think that
-> would not be easy)? Maybe we should back out those changes until it gets
-> fixed...
-
-Hmm.. let me take a closer look. You are right, its not going to be
-simple fix.
-
-Cliff, here is the patch to backout writepages() for ext3. Can you
-verify that problems goes away with this patch ?
+FYI, just tested this patch, and it does solve the garbage problem for me.
 
 Thanks,
-Badari
-
---=-LBuZsEP+un6vb/N1S6Yo
-Content-Disposition: attachment; filename=ext3-writeback-nowritepages.patch
-Content-Type: text/plain; name=ext3-writeback-nowritepages.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
---- linux-2.6.12-rc3.org/fs/ext3/inode.c	2005-05-02 22:28:30.000000000 -0700
-+++ linux-2.6.12-rc3/fs/ext3/inode.c	2005-05-02 22:29:00.000000000 -0700
-@@ -1621,7 +1621,9 @@ static struct address_space_operations e
- 	.readpage	= ext3_readpage,
- 	.readpages	= ext3_readpages,
- 	.writepage	= ext3_writeback_writepage,
-+#if 0
- 	.writepages	= ext3_writeback_writepages,
-+#endif
- 	.sync_page	= block_sync_page,
- 	.prepare_write	= ext3_prepare_write,
- 	.commit_write	= ext3_writeback_commit_write,
-
---=-LBuZsEP+un6vb/N1S6Yo--
-
+Phil

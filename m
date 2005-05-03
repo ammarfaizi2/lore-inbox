@@ -1,70 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbVECB3f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261292AbVECBbx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261279AbVECB3f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 21:29:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVECB3f
+	id S261292AbVECBbx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 21:31:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbVECBbn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 21:29:35 -0400
-Received: from fire.osdl.org ([65.172.181.4]:40619 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261279AbVECB3b (ORCPT
+	Mon, 2 May 2005 21:31:43 -0400
+Received: from gate.crashing.org ([63.228.1.57]:54953 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261287AbVECBbW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 21:29:31 -0400
-Date: Mon, 2 May 2005 18:28:51 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: jdike@addtoit.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/22] UML - Include the linker script rather than
- symlink it
-Message-Id: <20050502182851.27f22470.akpm@osdl.org>
-In-Reply-To: <20050503011744.GC18977@parcelfarce.linux.theplanet.co.uk>
-References: <200505012112.j41LC9fa016385@ccure.user-mode-linux.org>
-	<20050502170654.248b11ea.akpm@osdl.org>
-	<20050503002521.GA18977@parcelfarce.linux.theplanet.co.uk>
-	<20050502174405.0c8cad31.akpm@osdl.org>
-	<20050503011744.GC18977@parcelfarce.linux.theplanet.co.uk>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Mon, 2 May 2005 21:31:22 -0400
+Subject: Re: [PATCH] fix __mod_timer vs __run_timers deadlock.
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Juergen Kreileder <jk@blackdown.de>, Andrew Morton <akpm@osdl.org>,
+       Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
+       maneesh@in.ibm.com
+In-Reply-To: <1115083453.27658.6.camel@mindpipe>
+References: <42748B75.D6CBF829@tv-sign.ru>
+	 <20050501023149.6908c573.akpm@osdl.org>  <87vf61kztb.fsf@blackdown.de>
+	 <1115079230.6155.35.camel@gaston>  <1115083453.27658.6.camel@mindpipe>
+Content-Type: text/plain
+Date: Tue, 03 May 2005 11:28:51 +1000
+Message-Id: <1115083731.6156.39.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro <viro@parcelfarce.linux.theplanet.co.uk> wrote:
->
-> On Mon, May 02, 2005 at 05:44:05PM -0700, Andrew Morton wrote:
-> > 
-> > There's a bit of a tangle going on in arch/um/kernel/Makefile, but it's
-> > fairly simple stuff.
-> > 
-> > I put a rolled-up patch against 2.6.12-rc3 at
-> > http://www.zip.com.au/~akpm/linux/patches/stuff/x.bz2 if someone wants to
-> > check it all.
+On Mon, 2005-05-02 at 21:24 -0400, Lee Revell wrote:
+> On Tue, 2005-05-03 at 10:13 +1000, Benjamin Herrenschmidt wrote:
+> > Well, there may be other issues brought by this new timer code though.
+> > I'm running G5s regulary without a lockup or anything for weeks, so it
+> > would be interesting if you could try to find out what's involved in
+> > that other lockup you had.
 > 
-> Broken, due to missing mk_sc patch (it should go before mk_thread one;
+> It seems like it would not be to hard to create a timer test suite that
+> just hammers the timer subsystem, creating and deleting and modifying
+> zillions of timers, changing the system time, etc.  Combined with
+> running with HZ=10000 or something it seems like you could shake out
+> bugs a lot faster than just running & waiting for a race to show up.
 
-OK.  I ended up with an odd-looking arch/um/sys-x86_64/util/Makefile:
+Well, yes and know... the timer subsytem is very senstivie to things
+like memory barriers issues, and thus changes in the "barrier" semantics
+of a timer call may have an impact on the caller code regardless of the
+validity of the timer code itself, that sort of thing ...
+
+> I've seen timer related issues (the set_rtc_mmss issue that George
+> Anzinger fixed) while testing the RT patchset that I could only ever
+> reproduce once.
 
 
-
-# Copyright 2003 - 2004 Pathscale, Inc
-# Released under the GPL
-
-hostprogs-y	:= mk_sc mk_thread
-always		:= $(hostprogs-y)
-
-HOSTCFLAGS_mk_thread.o := -I$(objtree)/arch/um
-
-
-Is mk_sc still supposed to be in there?
-
-> how the hell did the latter manage to apply at all?)
-
-I just "fixed" things.  I do it all the time.
-
-> > Is this all considered post-2.6.12 material?
-> 
-> Once all patches are in there - up to Jeff ;-)  Seriously, kbuild patchkit
-> is decently tested and has obviously no impact on other architectures.  So
-> that one is up to maintainer of architecture in question...
-
-OK..

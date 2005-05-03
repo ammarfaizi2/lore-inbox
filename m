@@ -1,60 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261618AbVECOwN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261735AbVECPQR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261618AbVECOwN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 10:52:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVECOtL
+	id S261735AbVECPQR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 11:16:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261739AbVECPQR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 10:49:11 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:11707 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261642AbVECOon (ORCPT
+	Tue, 3 May 2005 11:16:17 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:22410 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261735AbVECPPy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 10:44:43 -0400
-Date: Tue, 3 May 2005 20:28:35 +0530
-From: Dinakar Guniguntala <dino@in.ibm.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Paul Jackson <pj@sgi.com>, Simon Derr <Simon.Derr@bull.net>,
-       lkml <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>,
-       Matthew Dobson <colpatch@us.ibm.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC PATCH] Dynamic sched domains (v0.5)
-Message-ID: <20050503145835.GA9493@in.ibm.com>
-Reply-To: dino@in.ibm.com
-References: <20050501190947.GA5204@in.ibm.com> <4275F665.1010101@yahoo.com.au> <20050502171619.GA4418@in.ibm.com> <4276B667.2050905@yahoo.com.au>
+	Tue, 3 May 2005 11:15:54 -0400
+Subject: Re: 2.6.12-rc2 + rc3: reaim with ext3 - system stalls.
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Jan Kara <jack@suse.cz>
+Cc: cliff white <cliffw@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20050503144325.GF4501@atrey.karlin.mff.cuni.cz>
+References: <20050421152345.6b87aeae@es175>
+	 <20050503144325.GF4501@atrey.karlin.mff.cuni.cz>
+Content-Type: multipart/mixed; boundary="=-LBuZsEP+un6vb/N1S6Yo"
+Organization: 
+Message-Id: <1115132463.26913.828.camel@dyn318077bld.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4276B667.2050905@yahoo.com.au>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 03 May 2005 08:01:03 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >On Mon, May 02, 2005 at 07:44:05PM +1000, Nick Piggin wrote:
+
+--=-LBuZsEP+un6vb/N1S6Yo
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+On Tue, 2005-05-03 at 07:43, Jan Kara wrote:
+>   Hello,
 > 
-> What are you protecting against, though? synchroinze_kernel can
-> sleep, so local_irq_disable is probably the wrong thing to do as well.
+> > Started seeing some odd behaviour with recent kernels, haven't been able to
+> > run it down, could use some suggestions/help.
+> > 
+> > Running re-aim7 with 2.6.12-rc2 and rc3, if I use xfs, jfs, or
+> > reiserfs things work just fine.
+> > 
+> > With ext3, the  test stalls, such that:
+> > CPU is 50% idle, 50% waiting IO (top)
+> > vmstat shows one process blocked wio
+>   I've looked through your dumps and I spotted where is the problem -
+> it's our well known and beloved lock inversion between PageLock and
+> transaction start (giving CC to Badari who's the author of the patch
+> that introduced it AFAIK).
 
-Paul, any reason why code marked "####" (fn cpuset_rmdir) is under 
-the dentry lock ??
+Yuck. It definitely not intentional.
 
-	spin_lock(&cs->dentry->d_lock);
-        parent = cs->parent;			####
-        set_bit(CS_REMOVED, &cs->flags);	####
-        if (is_cpu_exclusive(cs))
-                update_cpu_domains(cs);
-        list_del(&cs->sibling); /* delete my sibling from parent->children */
-        if (list_empty(&parent->children))
-                check_for_release(parent);
-        d = dget(cs->dentry);			<----
-        cs->dentry = NULL;			<----
-        spin_unlock(&d->d_lock);
+>   The correct order is: first get PageLock and *then* start transaction.
+> But in ext3_writeback_writepages() first ext3_journal_start() is called
+> and then __mpage_writepages is called that tries to do LockPage and
+> deadlock is there. Badari, could you please fix that (sadly I think that
+> would not be easy)? Maybe we should back out those changes until it gets
+> fixed...
 
+Hmm.. let me take a closer look. You are right, its not going to be
+simple fix.
 
-As far as I can see only the ones marked "<----" should be under the
-dentry lock, considering the fact that it already holds the cpuset_sem
-all the while.
+Cliff, here is the patch to backout writepages() for ext3. Can you
+verify that problems goes away with this patch ?
 
-I saw that calling update_cpu_domains with the dentry lock held,
-causes it to oops with preempt turned on. (Scheduling while atomic)
+Thanks,
+Badari
 
-	-Dinakar
+--=-LBuZsEP+un6vb/N1S6Yo
+Content-Disposition: attachment; filename=ext3-writeback-nowritepages.patch
+Content-Type: text/plain; name=ext3-writeback-nowritepages.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+--- linux-2.6.12-rc3.org/fs/ext3/inode.c	2005-05-02 22:28:30.000000000 -0700
++++ linux-2.6.12-rc3/fs/ext3/inode.c	2005-05-02 22:29:00.000000000 -0700
+@@ -1621,7 +1621,9 @@ static struct address_space_operations e
+ 	.readpage	= ext3_readpage,
+ 	.readpages	= ext3_readpages,
+ 	.writepage	= ext3_writeback_writepage,
++#if 0
+ 	.writepages	= ext3_writeback_writepages,
++#endif
+ 	.sync_page	= block_sync_page,
+ 	.prepare_write	= ext3_prepare_write,
+ 	.commit_write	= ext3_writeback_commit_write,
+
+--=-LBuZsEP+un6vb/N1S6Yo--
+

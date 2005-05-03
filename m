@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbVECIKQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbVECIr7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261420AbVECIKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 04:10:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261423AbVECIKP
+	id S261425AbVECIr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 04:47:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261429AbVECIr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 04:10:15 -0400
-Received: from vsmtp1.tin.it ([212.216.176.141]:27056 "EHLO vsmtp1.tin.it")
-	by vger.kernel.org with ESMTP id S261420AbVECIKJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 04:10:09 -0400
-To: William Park <opengeometry@yahoo.ca>
-Cc: Daniel Drake <dsd@gentoo.org>, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk, helge.hafting@hist.no,
-       davidnwelton@gmail.com
-Subject: Re: rootdelay
-References: <87wtrphuvj.fsf@dedasys.com> <424D929A.2030801@gentoo.org>
-	<87pswjur3c.fsf@dedasys.com>
-	<20050425144213.GA2293@node1.opengeometry.net>
-	<87acnmee1s.fsf@dedasys.com>
-	<20050429183411.GA1998@node1.opengeometry.net>
-From: davidw@dedasys.com (David N. Welton)
-Date: 03 May 2005 10:07:35 +0200
-Message-ID: <874qdkenqw.fsf@dedasys.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Tue, 3 May 2005 04:47:59 -0400
+Received: from mailgate.quadrics.com ([194.202.174.11]:39639 "EHLO
+	qserv01.quadrics.com") by vger.kernel.org with ESMTP
+	id S261425AbVECIrt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 04:47:49 -0400
+Message-ID: <42773964.1030101@quadrics.com>
+Date: Tue, 03 May 2005 09:42:12 +0100
+From: David Addison <addy@quadrics.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Grant Grundler <iod00d@hp.com>
+Cc: Brice Goglin <Brice.Goglin@ens-lyon.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, openib-general@openib.org,
+       hch@infradead.org, Caitlin Bestler <caitlin.bestler@gmail.com>
+Subject: Re: [openib-general] Re: RDMA memory registration
+References: <20050426084234.A10366@topspin.com> <52mzrlsflu.fsf@topspin.com>	<20050426122850.44d06fa6.akpm@osdl.org>	<5264y9s3bs.fsf@topspin.com> <426EA220.6010007@ammasso.com>	<20050426133752.37d74805.akpm@osdl.org>	<5ebee0d105042907265ff58a73@mail.gmail.com>	<469958e005042908566f177b50@mail.gmail.com>	<52d5sdjzup.fsf_-_@topspin.com> <42727B60.7010507@ens-lyon.org> <20050429193354.GJ24871@esmail.cup.hp.com>
+In-Reply-To: <20050429193354.GJ24871@esmail.cup.hp.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 03 May 2005 08:36:01.0218 (UTC) FILETIME=[22DAF220:01C54FBB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Park <opengeometry@yahoo.ca> writes:
-
-> On Mon, Apr 25, 2005 at 11:34:23PM +0200, David N. Welton wrote:
-> > > > > > http://dedasys.com/freesoftware/patches/blkdev_wakeup.patch
+Grant Grundler wrote:
+> On Fri, Apr 29, 2005 at 08:22:24PM +0200, Brice Goglin wrote:
+>>For instance, instead of adding PROT_DONT/ALWAYSCOPY, you may use
+>>an ioproc hook in the fork path. This hook (a function in your driver)
+>>would be called for each registered page. It will decide whether
+>>the page should be pre-copied or not and update the registration
+>>table (or whatever stores address translations in the NIC).
+>>In addition, the driver would probably pre-copy cow pages when
+>>registering them.
 > 
-> I patched it to 2.6.11, and it compiles okey.  On boot, it prints
-> "Waiting for root device to wake us up."  then it waits for my USB
-> key to register.  After USB partition info prints to screen, above
-> message is printed "Waiting for root device to wake us up."  again.
-> Then, it just hangs forever.
+> This doesn't scale well as more cards are added to the box.
+> I think I understand why it's good for single cards though.
+> 
+With the IOPROC patch the device driver hooks are registered on a per process
+or perhaps better still, a per VMA basis. And for processes/VMAs where there
+are no registrations the overhead is very low.
 
-Ok, I updated to 2.6.11.8, and indeed it does have problems that
-weren't there before - although in my case it can't mount the root
-partition because it's not quite ready yet.  In part, it seems to be
-caused by the fact that the USB start up sequence introduces a new
-thread that delays the scsi_host_scan by 5 seconds, which is long
-enough to cause problems.  I added some code to wait for not only the
-disk name to be online, but the partition, but even that doesn't seem
-to be quite enough.
+With multiple cards in a box, all using different device drivers, I guess there
+could end up being multiple registrations per process/VMA. But I'm not sure
+this will be a common case for RDMA use in real life.
 
-Is there anyplace generic that could be hooked that will report when a
-device is actually online and ready to run?  Perhaps I was just lucky
-in the past with add_disk :-/
-
-Ciao,
--- 
-David N. Welton
- - http://www.dedasys.com/davidw/
-
-Apache, Linux, Tcl Consulting
- - http://www.dedasys.com/
+Cheers
+Addy.

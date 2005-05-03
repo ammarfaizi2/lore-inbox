@@ -1,70 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261903AbVECXPf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261904AbVECXSq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261903AbVECXPf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 19:15:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbVECXPf
+	id S261904AbVECXSq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 19:18:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbVECXSq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 19:15:35 -0400
-Received: from web21127.mail.yahoo.com ([216.136.227.192]:7306 "HELO
-	web21127.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261903AbVECXPU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 19:15:20 -0400
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=5w9zqqRqn29QzWILatJn/TIXdgeidBYE1oEe2sstYGgB/qRdS8W38ShQknNFVHK4uYpD3/80AYzBuPaSSWsfyx4MaHDPQiHSBZWYExfNZQUWOnBPRhfMy3IKI+M7j8GClW9nHyyQ4mSQU6Os/2jUsS1b5Yblk70FQrFrx4TOw90=  ;
-Message-ID: <20050503231519.11002.qmail@web21127.mail.yahoo.com>
-Date: Tue, 3 May 2005 16:15:19 -0700 (PDT)
-From: segin <segin11@yahoo.com>
+	Tue, 3 May 2005 19:18:46 -0400
+Received: from fire.osdl.org ([65.172.181.4]:63432 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261904AbVECXQT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 19:16:19 -0400
+Date: Tue, 3 May 2005 16:16:02 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Wakko Warner <wakko@animx.eu.org>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: zImage on 2.6?
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20050503223148.GF12199@animx.eu.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <20050503161602.511a7dfc.rddunlap@osdl.org>
+In-Reply-To: <20050503230532.GA13063@animx.eu.org>
+References: <20050503012951.GA10459@animx.eu.org>
+	<20050502193503.20e6ac6e.rddunlap@osdl.org>
+	<20050503104503.GA11123@animx.eu.org>
+	<20050503072626.3a3c7349.rddunlap@osdl.org>
+	<20050503163343.GC11937@animx.eu.org>
+	<20050503095913.1c9b62ba.rddunlap@osdl.org>
+	<20050503221922.GC12199@animx.eu.org>
+	<20050503153737.5e3627ad.rddunlap@osdl.org>
+	<20050503230532.GA13063@animx.eu.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: SvC&!/v_Hr`MvpQ*|}uez16KH[#EmO2Tn~(r-y+&Jb}?Zhn}c:Eee&zq`cMb_[5`tT(22ms
+ (.P84,bq_GBdk@Kgplnrbj;Y`9IF`Q4;Iys|#3\?*[:ixU(UR.7qJT665DxUP%K}kC0j5,UI+"y-Sw
+ mn?l6JGvyI^f~2sSJ8vd7s[/CDY]apD`a;s1Wf)K[,.|-yOLmBl0<axLBACB5o^ZAs#&m?e""k/2vP
+ E#eG?=1oJ6}suhI%5o#svQ(LvGa=r
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Agreed. The idiot who keeps zImage as a possible target in the makefile should be taken out and
-shot, or forced to use Windows.
+On Tue, 3 May 2005 19:05:32 -0400 Wakko Warner wrote:
 
---- Wakko Warner <wakko@animx.eu.org> wrote:
+| Randy.Dunlap wrote:
+| > On Tue, 3 May 2005 18:19:22 -0400 Wakko Warner wrote:
+| > 
+| > | Randy.Dunlap wrote:
+| > | > On Tue, 3 May 2005 12:33:43 -0400 Wakko Warner wrote:
+| > | > | Yes, I do recall it says "System is 724k".  zImage failes.  bzImage says
+| > | > | 724k as well and succeeds.
+| > | > 
+| > | > The image size needs to be <= 0x7f000 (520192 bytes, 508 KB).
+| > | > 
+| > | > (No, I don't know why, just that this is what is being
+| > | > enforced.)
+| > | > 
+| > | > Just cut more out of the kernel image...
+| > | 
+| > | Any suggestions?  All that I know of that is modularizable is a module,
+| > | except for keyboard, ext2, unix sockets, ramdisk+initrd.  Some of the options I need since
+| > | this is supposed to support all relevent hardware that we use where I work.
+| > | (all scsi,ide,sata,raid cards,ethernet cards that we have)
+| > 
+| > Are those (mostly) modular?
+| 
+| Yes.
+| 
+| > Is this supposed to be a kernel that is used on a regular basis,
+| > not just a temporary quick boot thing?
+| 
+| I'd say it would be used frequently, but short lived.
+| 
+| > You want one kernel that handles many configurations but fits
+| > in < 510 KB?  That is aggressive.  :)
+| 
+| =)  hehe, if I can.
+| 
+| > I think of this as being a custom kernel, but it sounds
+| > like you want a very general-purpose (small) one.
+| 
+| Yes, very custom.
+| 
+| 
+| > | SCSI_PROC_FS=y
+| > drop this one
+| > 
+| > | AIC7XXX_DEBUG_ENABLE=y
+| > | AIC7XXX_REG_PRETTY_PRINT=y
+| > | AIC79XX_DEBUG_ENABLE=y
+| > | AIC79XX_REG_PRETTY_PRINT=y
+| > drop these.
+| 
+| All SCSI is a module, these I assume are just capabilites in the modules.
 
-> segin wrote:
-> > I'll be honest. zImage kernels are pointless, and are _BIGGER_ than a bzImage kernel.
-> 
-> Others have stated this.
-> 
-> > You should realize that use of zImage kernels detucts 100 points off your IQ.
-> 
-> I was trying to do comparisions between the 2.  I would not have cared
-> as long as 1) it was smaller and 2) it worked.
-> 
-> Maybe they should deduct 100 off whoever is keeping zImage target still in
-> the make files.
-> 
-> > Jeez... Is it just me or is it that most people today are too fucking retarded to use a
-> computer?
-> 
-> Uh, excuse me?!  I ask a question and you have to do this?!  Really, you are
-> of no help to me.
-> 
-> -- 
->  Lab tests show that use of micro$oft causes cancer in lab animals
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+OK.
 
+| > | SOUND_GAMEPORT=y
+| > drop.
+| 
+| Couldn't find a configure option to disable this.  It caught my eye too.  I
+| don't have gameport in input configured.
 
-Jeez... Is it just me or is it that most people today are too fucking retarded to use a computer?
+OK, probably hidden.
 
-Semper fi pengunius.
-Webmaster of Segin's Open Source Den. 
+| > | VT=y
+| > | VT_CONSOLE=y
+| > | HW_CONSOLE=y
+| > | VGA_CONSOLE=y
+| > | DUMMY_CONSOLE=y
+| > drop that ^^^^^
+| 
+| All of those or DUMMY_CONSOLE?
 
+I meant just DUMMY_CONSOLE.
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+| 
+| > so what's the problem with using a bzImage kernel?
+| 
+| Nothing, I wanted to see if zImage would be smaller.  As others have stated,
+| it's not.  However, I did not know this.
+| 
+| I do appriate your time in helping me.  I'm real close to getting this on a
+| single floppy (if I formatted to 1.7mb, it would be easy.  I know some of
+| our systems that I would need this on can't use these).  One goal is to use
+| the same kernel for all booting.
+
+Good luck, have fun.
+
+---
+~Randy

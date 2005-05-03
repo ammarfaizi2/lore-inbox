@@ -1,189 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261812AbVECVsW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261836AbVECV6w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261812AbVECVsW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 17:48:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbVECVsW
+	id S261836AbVECV6w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 17:58:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbVECV6w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 17:48:22 -0400
-Received: from open.hands.com ([195.224.53.39]:6875 "EHLO open.hands.com")
-	by vger.kernel.org with ESMTP id S261812AbVECVrp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 17:47:45 -0400
-Date: Tue, 3 May 2005 22:56:34 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: linux-kernel@vger.kernel.org,
-       Linux ARM Kernel list 
-	<linux-arm-kernel@lists.arm.linux.org.uk>
-Subject: tricky challenge for getting round level-driven interrupt problem: help!
-Message-ID: <20050503215634.GH8079@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-MailScanner-From: lkcl@lkcl.net
+	Tue, 3 May 2005 17:58:52 -0400
+Received: from mail09.syd.optusnet.com.au ([211.29.132.190]:65449 "EHLO
+	mail09.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261836AbVECV6q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 17:58:46 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Haoqiang Zheng <haoqiang@gmail.com>
+Subject: Re: question about contest benchmark
+Date: Wed, 4 May 2005 07:58:56 +1000
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org
+References: <d6e6e6dd05050311115d256213@mail.gmail.com>
+In-Reply-To: <d6e6e6dd05050311115d256213@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1338770.D3XpWRR7IH";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200505040758.58752.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi, please kindly respond cc to me because i am subscribed to the
-lists for post-only-and-view-archives-on-demand-to-minimise-overload
-purposes.
+--nextPart1338770.D3XpWRR7IH
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-i have a particularly acute and knotty computing problem involving
-a stupid hardware design fault in a cirrus logic "maverick" EDB 7134
-ARM processor (max 90Mhz).
+On Wed, 4 May 2005 04:11, Haoqiang Zheng wrote:
+> I am wondering how we should interpret the CONTEST benchmark results.
+> I tried CONTEST with process_load on 2.6.12-rc3 (single CPU, P4 2.8G,
+> 1G RAM). The CPU usage of kernel compiling is 28.9%, the load consumes
+> 70.1% and the ratio is 3.98.  Based on what Con says, the result is
+> bad since the ratio is high. I did some tracing and found the
+> background load (contest) runs at a dynamic priority of 115-120, which
+> is often higher than the dynamic priority of the kernel compiling
+> processes. This explains why the process_load consumes so much CPU.
+>
+>  My question is why is the result bad at all? One could certainly
+> argue that contest processes shouldn't consume so much CPU time since
+> they are considered to be background jobs. But why is kernel compiling
+> considered foreground jobs? Why making kernel compiling faster is
+> better? Actually, I am wondering if CONTEST is an appropriate
+> benchmark to report system responsiveness at all?
 
-it only does level-based interrupts and i need to create a driver
-that does two-way 8-bit data communication.
+I don't think in my readme do I say anywhere what is the ideal balance.=20
+Process_load is a uniquely different load to the other loads which are=20
+various combinations of cpu and i/o. It spawns processes that wake up, hand=
+=20
+their data off to another process and go to sleep. Thus the processes behav=
+e=20
+like interactive one with their frequent waiting, but share their effective=
+=20
+group cpu usage amongst all the process_child processes running so none of=
+=20
+them is actually seen as cpu bound. Furthermore there are massive numbers o=
+f=20
+context switches between them meaning there is a large in-kernel "system"=20
+load that is done on behalf of the process_child ren. The purpose of the=20
+process_load in contest is to ensure that an interactive design is not=20
+DoS'able by processes behaving like this. Process_load spawns 4 times as ma=
+ny=20
+processes as the timed 'make' in contest so theoretically ideal cpu balance=
+=20
+between them should show process_load having 4x as much cpu as the make.=20
+Because their cpu binding is so intermittent it's hard to balance them=20
+perfectly. Anyway the balance in your output seems pretty good. When the=20
+interactive design goes horribly wrong process_load consumes 100 times as=20
+much cpu as the 'make'.
 
-i would genuinely appreciate some advice from people with
-more experience than i on how to go about getting round
-this stupid hardware design - in order to make a RELIABLE,
-non-race-conditioned kernel driver.
+>
+>  Any comments?
+>
+>  BTW, what benchmark do you guys use to test system responsiveness?
 
+Note that interactivity is not responsiveness which some people try to meas=
+ure=20
+with contest, and there is still no interactivity benchmark. Responsiveness=
+=20
+is the ability of the system to continue performing tasks at a reasonable=20
+pace under various system loads. Interactivity is having low scheduling=20
+latency and jitter in those tasks where human interaction would notice the=
+=20
+latency and jitter - and what constitutes and interactive tasks has not bee=
+n=20
+quantified although we all know what they are when using the pc.
 
-hardware
---------
+Cheers,
+Con
 
-connected to the ARM's 8-bit port is a 6Mhz p16f877a PIC processor.
+--nextPart1338770.D3XpWRR7IH
+Content-Type: application/pgp-signature
 
-connected to the serial and other ports of the PIC processor are
-various peripherals, including an LCD, a GPS satellite receiver,
-an accelerometer and the battery level / charger detector.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-on the PIC is some assembler code that:
---------------------------------------
+iD8DBQBCd/QiZUg7+tp6mRURAndZAJ9UzW8FfYLz6r2++JJBxgaMxwU9WgCeKj8x
+XnK1RSYhe37CNUmm5Ty5aVY=
+=Jnwc
+-----END PGP SIGNATURE-----
 
-* merges GPS, Accelerometer, battery and charger information
-  into a data stream that goes out the 8-bit port of the PIC and
-  in on the ARM's 8-bit port.
-
-* receives instructions from the ARM down the same 8-bit port,
-  in a custom-designed length-encoded data stream that tells
-  the PIC what to put on the LCD, and where.
-
-interrupts are generated as follows:
-------------------------------------
-
-* on the PIC, a "read" interrupt can be asserted to the ARM.
-  it's xxxxing level-based.
-
-* on the PIC, a "write" interrupt can be asserted to the ARM.
-  it's xxxxing level-based.
-
-* on the ARM, a SINGLE interrupt can be generated to the PIC
-  by EITHER reading OR writing to the PIC's 8-bit port.
-  
-  unlike the stupid xxxxing ARM, it's edge triggered (thank god).
-
-interrupts are cleared as follows:
----------------------------------
-
-* on the PIC, in the [single!] ISR routine, if the PIC knows
-  that it was doing a read, it resets the "read" interrupt
-  flag to the ARM.
-
-  [the problem is obvious: a level-based interrupt could fail
-   to be acknowledged, could be masked out and accidentally
-   regenerated, and we are into "nightmare" scenario time]
-
-* on the PIC, in the [single!] ISR routine, if the PIC knows
-  that it was doing a read, it resets the "read" interrupt
-  flag to the ARM.
-
-  [the problem is obvious: a level-based interrupt could fail
-   to be acknowledged, could be masked out and accidentally
-   regenerated, and we are into "nightmare" scenario time]
-
-* on the ARM, in the READ isr routine, the PIC "reads" the
-  byte, THIS ACT generates an interrupt to the PIC, which
-  the ARM then acknowledges by waiting - in a tight loop - 
-  for the PIC to clear the "read" interrupt flag.
-
-  [this is the old code btw, not the new code: for brevity
-   i have not described exactly how bad the code is]
-
-* on the ARM, in the WRITE isr routine, similar situation
-  as for "read".
-
-
-the protocol that i designed to overcome the race condition
-nightmare is as follows:
-
-* ARM and PIC ****MUST**** exchange read and write bytes, interleaved.
-
-* if the ARM does not have anything to write [to the LCD] at the
-  time that a read is to be carried out, it sends a "dummy"
-  or "null" encoded data stream indicating to the PIC that it
-  is receiving data of zero length.
-
-  the sole purpose of initiating this "i-am-sending-you-zero-bytes"
-  dummy stream of bytes is to keep the read-write-read-write....
-  cycle going.
-
-* if the PIC does not have anything to be read [from the GPS
-  and other peripherals] then it sends "0xff" instead.  the ARM
-  receives this non-ascii byte and knows that it must throw it
-  away.
-
-  the sole purpose of sending this "non-ascii" byte is to keep
-  the read-write-read-write... cycle going.
-
-* if there is both read and write data to be exchanged, everything
-  is hunky-dory.
-
-* if there is no data to be exchanged, everything is hunky-dory.
-
-
-here's where i have got to, and where i am stuck:
-----------------------------------------------------
-
-on the ARM, i have cut/paste the code from sonypi.c to create
-a poll_wait "read" driver.  it is pretty much exactly the same
-structure as sonypi.c, as far as "read" is concerned.
-
-so, when reading, I/O is in non-blocking mode, the queue is
-empty, a WAITQUEUE is woken up, present kernel process is made
-"TASK_INTERRUPTIBLE", schedule()d, a read interrupt is [eventually]
-generated and read data added to queue, then pic_misc_poll() detects
-data now present, and "WAKES UP" the waiting blocking process.
-
-everything hunky-dory.
-
-
-here's where i have got to, and where i am stuck:
-----------------------------------------------------
-
-i don't know how to "wake up" an equivalent write process.
-
-because there isn't one.
-
-the situation where there is simultaneous blocking-read and
-blocking-write _could_ be covered by duplicating the sonypi.c code
-_again_ for writing.
-
-that leaves the situations where there is ONLY read occurring.
-
-bearing in mind that reads must be interleaved with writes,
-and those reads must be intitiated from inside the "read"
-interrupt service routine.... what the hell do i do?
-
-i think i have a clue in that the "old" pic_write() code would
-unmask the Write Interrupt, and a "write" interrupt would
-immediately occur - then once we'd done, Write Interrupts
-would be re-masked again.
-
-
-any advice really appreciated because this is one mean comp-sci
-classic that really only _actually_ occurs in real life when
-there's a fuckup in the hardware design and you don't have
-any choice but to make it work :)
-
-cheers,
-
-l.
-
--- 
---
-<a href="http://lkcl.net">http://lkcl.net</a>
---
+--nextPart1338770.D3XpWRR7IH--

@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261578AbVECPEm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261670AbVECPME@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261578AbVECPEm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 11:04:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261642AbVECPEm
+	id S261670AbVECPME (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 11:12:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261702AbVECPME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 11:04:42 -0400
-Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:5131
-	"HELO linuxace.com") by vger.kernel.org with SMTP id S261578AbVECPEl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 11:04:41 -0400
-Date: Tue, 3 May 2005 08:04:40 -0700
-From: Phil Oester <kernel@linuxace.com>
+	Tue, 3 May 2005 11:12:04 -0400
+Received: from fed1rmmtao01.cox.net ([68.230.241.38]:53634 "EHLO
+	fed1rmmtao01.cox.net") by vger.kernel.org with ESMTP
+	id S261670AbVECPMB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 11:12:01 -0400
+Date: Tue, 3 May 2005 08:11:59 -0700
+From: Tom Rini <trini@kernel.crashing.org>
 To: David Woodhouse <dwmw2@infradead.org>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
-       trini@kernel.crashing.org
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Phil Oester <kernel@linuxace.com>, linux-kernel@vger.kernel.org
 Subject: Re: Garbage on serial console after serial driver loads
-Message-ID: <20050503150440.GA9621@linuxace.com>
+Message-ID: <20050503151159.GL1221@smtp.west.cox.net>
 References: <20050328173652.GA31354@linuxace.com> <20050328200243.C2222@flint.arm.linux.org.uk> <1115129833.4446.23.camel@hades.cambridge.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <1115129833.4446.23.camel@hades.cambridge.redhat.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Tue, May 03, 2005 at 03:17:12PM +0100, David Woodhouse wrote:
+> On Mon, 2005-03-28 at 20:02 +0100, Russell King wrote:
+> > Is this patch ok for you?
+> 
 > Not really; it's just a quick hack applied without any real
 > consideration of the problem. If we're messing up the baud rate when we
 > change the master clock, then just make it change the divisor
 > accordingly at the same time. We don't seem to store the active
 > parameters of the serial console anywhere useful; we can do it just by
 > reading back the divisor and multiplying by eight though...
+> 
+> Tom, does this also mean you don't need the 'ifndef ppc'?
 
-FYI, just tested this patch, and it does solve the garbage problem for me.
+I don't recall the problem well enough right now, but I'll go toss this
+into a current git tree and let you know.
 
-Thanks,
-Phil
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

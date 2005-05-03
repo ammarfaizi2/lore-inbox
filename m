@@ -1,45 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbVECNiJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbVECNvK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261522AbVECNiJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 09:38:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbVECNiJ
+	id S261532AbVECNvK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 09:51:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbVECNvK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 09:38:09 -0400
-Received: from orb.pobox.com ([207.8.226.5]:33939 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S261522AbVECNiG (ORCPT
+	Tue, 3 May 2005 09:51:10 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:33196 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261532AbVECNvF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 09:38:06 -0400
-Date: Tue, 3 May 2005 06:37:59 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Andrew Morton <akpm@osdl.org>, Nathan Scott <nathans@sgi.com>,
-       Pavel Machek <pavel@suse.cz>, "Barry K. Nathan" <barryn@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc3-mm2
-Message-ID: <20050503133759.GA7647@ip68-225-251-162.oc.oc.cox.net>
-References: <20050430164303.6538f47c.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050430164303.6538f47c.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+	Tue, 3 May 2005 09:51:05 -0400
+Date: Tue, 3 May 2005 15:47:46 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Adrian Bunk <bunk@stusta.de>
+cc: Andrew Morton <akpm@osdl.org>, kbuild-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, Jesper Juhl <juhl-lkml@dif.dk>
+Subject: Re: [2.6 patch] Kconfig: rename "---help---" to "help" in Kconfig
+ files (first part)
+In-Reply-To: <20050503105743.GE3592@stusta.de>
+Message-ID: <Pine.LNX.4.61.0505031519310.996@scrub.home>
+References: <20050503003400.GO3592@stusta.de> <Pine.LNX.4.61.0505031107120.996@scrub.home>
+ <20050503092202.GC3592@stusta.de> <Pine.LNX.4.61.0505031202080.996@scrub.home>
+ <20050503105743.GE3592@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would like to see the following patch added to -mm:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=111326617622941&w=2
+Hi,
 
-(I'm guessing that Nathan Scott will need to resubmit it with proper
-changelog information.)
+On Tue, 3 May 2005, Adrian Bunk wrote:
 
-The patch fixes a problem where compiling XFS into the kernel (as
-opposed to a module) causes swsusp resumes to be waaay slower than they
-should be.
+> > So why exactly has to be removed? Is it ugly? Does it make Kconfig worse?
+> 
+> The ugly thing is that there are currently two different ways to express 
+> the same thing. It only causes confusion for people who think those 
+> different syntaxes had a different meaning.
 
-It's been tested and found to work by Pavel Machek:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=111331702916365&w=2
-as well as myself:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=111330749723995&w=2
-and I've been running with it for the last couple of weeks now with no
-problems.
+Languages often have more than one way to express something, this is not 
+different.
+Early on there was some confusion about this from people writing new 
+Kconfig entries (not just reading existing ones), but this was became a 
+non-issue since it's documented now.
 
--Barry K. Nathan <barryn@pobox.com>
+> > Sorry, but only because it's not used that often, is not enough of a 
+> > reason for me to remove it. If it helps only a little bit to spot the help 
+> > text start easier, it's IMO worth to keep it.
+> 
+> Do you or does anyone else have a problem with spotting the help text 
+> start with "only" two additional spaces indentation?
+
+It is easier to spot! Is it a big help? I don't know, but I don't see any 
+improvement in removing them.
+Personally I'd rather leave it to the maintainers of these entries, if 
+they don't like it, they can remove it. If this feature is one day not 
+used anymore, I'll remove it.
+
+> If it's only for Aunt Tillie it's not required.
+
+Please stop this. There is no point in arguing whether this is good or bad 
+for Aunt Tillie.
+
+bye, Roman

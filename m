@@ -1,77 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261783AbVECPcm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261784AbVECPfT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261783AbVECPcm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 11:32:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbVECPcm
+	id S261784AbVECPfT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 11:35:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261789AbVECPfS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 11:32:42 -0400
-Received: from fire.osdl.org ([65.172.181.4]:2456 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261783AbVECPcZ (ORCPT
+	Tue, 3 May 2005 11:35:18 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:65230 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S261784AbVECPe6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 11:32:25 -0400
-Date: Tue, 3 May 2005 08:32:17 -0700
-From: cliff white <cliffw@osdl.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Jan Kara <jack@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.12-rc2 + rc3: reaim with ext3 - system stalls.
-Message-ID: <20050503083217.35545e71@es175>
-In-Reply-To: <1115132463.26913.828.camel@dyn318077bld.beaverton.ibm.com>
-References: <20050421152345.6b87aeae@es175>
-	<20050503144325.GF4501@atrey.karlin.mff.cuni.cz>
-	<1115132463.26913.828.camel@dyn318077bld.beaverton.ibm.com>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Tue, 3 May 2005 11:34:58 -0400
+Date: Tue, 3 May 2005 08:36:51 -0700
+From: Grant Grundler <iod00d@hp.com>
+To: David Addison <addy@quadrics.com>
+Cc: Brice Goglin <Brice.Goglin@ens-lyon.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, openib-general@openib.org,
+       hch@infradead.org, Caitlin Bestler <caitlin.bestler@gmail.com>
+Subject: Re: [openib-general] Re: RDMA memory registration
+Message-ID: <20050503153651.GB11344@esmail.cup.hp.com>
+References: <20050426122850.44d06fa6.akpm@osdl.org> <5264y9s3bs.fsf@topspin.com> <426EA220.6010007@ammasso.com> <20050426133752.37d74805.akpm@osdl.org> <5ebee0d105042907265ff58a73@mail.gmail.com> <469958e005042908566f177b50@mail.gmail.com> <52d5sdjzup.fsf_-_@topspin.com> <42727B60.7010507@ens-lyon.org> <20050429193354.GJ24871@esmail.cup.hp.com> <42773964.1030101@quadrics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42773964.1030101@quadrics.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 03 May 2005 08:01:03 -0700
-Badari Pulavarty <pbadari@us.ibm.com> wrote:
+On Tue, May 03, 2005 at 09:42:12AM +0100, David Addison wrote:
+> >This doesn't scale well as more cards are added to the box.
+> >I think I understand why it's good for single cards though.
+>
+> With the IOPROC patch the device driver hooks are registered on a per 
+> process or perhaps better still, a per VMA basis.
 
-> On Tue, 2005-05-03 at 07:43, Jan Kara wrote:
-> >   Hello,
-> > 
-> > > Started seeing some odd behaviour with recent kernels, haven't been able to
-> > > run it down, could use some suggestions/help.
-> > > 
-> > > Running re-aim7 with 2.6.12-rc2 and rc3, if I use xfs, jfs, or
-> > > reiserfs things work just fine.
-> > > 
-> > > With ext3, the  test stalls, such that:
-> > > CPU is 50% idle, 50% waiting IO (top)
-> > > vmstat shows one process blocked wio
-> >   I've looked through your dumps and I spotted where is the problem -
-> > it's our well known and beloved lock inversion between PageLock and
-> > transaction start (giving CC to Badari who's the author of the patch
-> > that introduced it AFAIK).
-> 
-> Yuck. It definitely not intentional.
-> 
-> >   The correct order is: first get PageLock and *then* start transaction.
-> > But in ext3_writeback_writepages() first ext3_journal_start() is called
-> > and then __mpage_writepages is called that tries to do LockPage and
-> > deadlock is there. Badari, could you please fix that (sadly I think that
-> > would not be easy)? Maybe we should back out those changes until it gets
-> > fixed...
-> 
-> Hmm.. let me take a closer look. You are right, its not going to be
-> simple fix.
-> 
-> Cliff, here is the patch to backout writepages() for ext3. Can you
-> verify that problems goes away with this patch ?
+I was originally thinking the registrations are global (for all memory)
+and not per process. Per process or per VMA seems reasonable to me.
 
-Sure, it's semi-random behavior, so it'll take a few runs to be sure.
-cliffw
+> And for processes/VMAs where there are no registrations the overhead
+> is very low.
 
-> 
-> Thanks,
-> Badari
+Yes - thanks. I'm still reading the LKML thread you started:
+	http://lkml.org/lkml/2005/4/26/198
 
+In particular, the comments from Brice Goglin:
+	http://lkml.org/lkml/2005/4/26/222
 
--- 
-"Ive always gone through periods where I bolt upright at four in the morning; 
-now at least theres a reason." -Michael Feldman
+openib.org folks can find the IOPROC patch for 2.6.12-rc3 archived here:
+	http://lkml.org/lkml/diff/2005/4/26/198/1
+
+> With multiple cards in a box, all using different device drivers,
+> I guess there could end up being multiple registrations per process/VMA.
+> But I'm not sure this will be a common case for RDMA use in real life.
+
+I agree. Gateways between fabrics is the only case I can think of.
+This won't be a problem until someone at a large national lab tries
+to connect two "legacy" fabrics together.
+
+thanks,
+grant

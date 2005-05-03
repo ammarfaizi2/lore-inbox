@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbVECTye@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261652AbVECTz4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261651AbVECTye (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 15:54:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbVECTye
+	id S261652AbVECTz4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 15:55:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbVECTzy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 15:54:34 -0400
-Received: from mail.tmr.com ([64.65.253.246]:55822 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S261651AbVECTy1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 15:54:27 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
+	Tue, 3 May 2005 15:55:54 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:10894 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261652AbVECTz3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 15:55:29 -0400
+Message-ID: <4277B778.5020206@tmr.com>
+Date: Tue, 03 May 2005 13:40:08 -0400
 From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: [RCF] [PATCH] unprivileged mount/umount
-Date: Tue, 03 May 2005 13:30:34 -0400
-Organization: TMR Associates, Inc
-Message-ID: <d58k4o$1ha$1@gatekeeper.tmr.com>
-References: <E1DSyQx-0002ku-00@dorka.pomaz.szeredi.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1115149272 1578 192.168.12.100 (3 May 2005 19:41:12 GMT)
-X-Complaints-To: abuse@tmr.com
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
 X-Accept-Language: en-us, en
-In-Reply-To: <E1DSyQx-0002ku-00@dorka.pomaz.szeredi.hu>
+MIME-Version: 1.0
+To: Valdis.Kletnieks@vt.edu
+CC: Andrea Arcangeli <andrea@suse.de>, Matt Mackall <mpm@selenic.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
+Subject: Re: Mercurial 0.4b vs git patchbomb benchmark 
+References: <20050430025211.GP17379@opteron.random> <200505021614.j42GEufG008441@turing-police.cc.vt.edu>
+In-Reply-To: <200505021614.j42GEufG008441@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miklos Szeredi wrote:
-> This (lightly tested) patch against 2.6.12-rc* adds some
-> infrastructure and basic functionality for unprivileged mount/umount
-> system calls.
+Valdis.Kletnieks@vt.edu wrote:
+> On Mon, 02 May 2005 11:49:32 EDT, Bill Davidsen said:
 > 
-> Details:
+>>Andrea Arcangeli wrote:
+>>
+>>>On Fri, Apr 29, 2005 at 01:39:59PM -0700, Matt Mackall wrote:
 > 
->   - new mnt_owner field in struct vfsmount
->   - if mnt_owner is NULL, it's a privileged mount
->   - global limit on unprivileged mounts in  /proc/sys/fs/mount-max
->   - per user limit of mounts in rlimit
->   - allow umount for the owner (except force flag)
->   - allow unprivileged bind mount to files/directories writable by owner
->   - add nosuid,nodev flags to unprivileged mounts
 > 
-> Next step would be to add some policy for new mounts.  I'm thinking of
-> either something static: e.g. FS_SAFE flag for "safe" filesystems, or
-> a more configurable approach through sysfs or something.
+>>>-#!/usr/bin/python
+>>>+#!/usr/bin/env python
+>>> #
+>>> # mercurial - a minimal scalable distributed SCM
+>>> # v0.4b "oedipa maas"
+>>
+>>Could you explain why this is necessary or desirable? I looked at what 
+>>env does, and I am missing the point of duplicating bash normal 
+>>behaviour regarding definition of per-process environment entries.
 > 
-> Comments?
+> 
+> Most likely, his python lives elsewhere than /usr/bin, and the 'env' call
+> results in causing a walk across $PATH to find it....
 
-Are these public or private mounts? In other words, is the mount visible 
-only to the mounting process and children, or is it visible to (and can 
-effect) other processes. Clearly true private mounts open uses with 
-chroot jails and virtualization.
+Assuming that he has env in a standard place... I hope this isn't going 
+to start some rash of efforts to make packages run on non-standard 
+toolchains, which add requirements for one tool to get around 
+misplacement of another.
 
 -- 
     -bill davidsen (davidsen@tmr.com)
 "The secret to procrastination is to put things off until the
   last possible moment - but no longer"  -me
+

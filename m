@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVECAQS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261247AbVECAY7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261243AbVECAQS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 20:16:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbVECAQS
+	id S261247AbVECAY7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 20:24:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbVECAY7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 20:16:18 -0400
-Received: from gate.crashing.org ([63.228.1.57]:9641 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261243AbVECAQO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 20:16:14 -0400
-Subject: Re: [PATCH] fix __mod_timer vs __run_timers deadlock.
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Juergen Kreileder <jk@blackdown.de>
-Cc: Andrew Morton <akpm@osdl.org>, Oleg Nesterov <oleg@tv-sign.ru>,
-       linux-kernel@vger.kernel.org, maneesh@in.ibm.com
-In-Reply-To: <87vf61kztb.fsf@blackdown.de>
-References: <42748B75.D6CBF829@tv-sign.ru>
-	 <20050501023149.6908c573.akpm@osdl.org>  <87vf61kztb.fsf@blackdown.de>
-Content-Type: text/plain
-Date: Tue, 03 May 2005 10:13:50 +1000
-Message-Id: <1115079230.6155.35.camel@gaston>
+	Mon, 2 May 2005 20:24:59 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31895 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261247AbVECAY5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 20:24:57 -0400
+Date: Tue, 3 May 2005 01:25:21 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jeff Dike <jdike@addtoit.com>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/22] UML - Include the linker script rather than symlink it
+Message-ID: <20050503002521.GA18977@parcelfarce.linux.theplanet.co.uk>
+References: <200505012112.j41LC9fa016385@ccure.user-mode-linux.org> <20050502170654.248b11ea.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050502170654.248b11ea.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-03 at 00:50 +0200, Juergen Kreileder wrote:
-> Andrew Morton <akpm@osdl.org> writes:
+On Mon, May 02, 2005 at 05:06:54PM -0700, Andrew Morton wrote:
+> That file doesn't exist and I think this patch doesn't want to patch it
+> anyway.
 > 
-> > Oleg Nesterov <oleg@tv-sign.ru> wrote:
-> >>
-> >> When __mod_timer() changes timer's base it waits for the completion
-> >> of timer->function. It is just stupid: the caller of __mod_timer()
-> >> can held locks which would prevent completion of the timer's
-> >> handler.
-> >>
-> >> Solution: do not change the base of the currently running timer.
-> >
-> > OK, fingers crossed.  Juergen, it would be great if you could test
-> > Oleg's patch sometime.
-> 
-> I had one more lockup yesterday but that probably was caused by
-> something else because Azureus is running fine for 24 hours now.
+> I'll just drop the vmlinux.lds.S chunk...
 
-Well, there may be other issues brought by this new timer code though.
-I'm running G5s regulary without a lockup or anything for weeks, so it
-would be interesting if you could try to find out what's involved in
-that other lockup you had.
+Correct patch is on ftp.linux.org.uk/pub/people/viro/UM0-uml-ldscript-RC12-rc3
 
-Ben
+Short version of the story: current tree plays with a symlink from
+vmlinux.lds.S to one of two files, depending on the config.  That doesn't
+work well and confused vmlinux.lds.S chunk is actually a demonstration of
+breakage - symlink had not been properly cleaned up.
 
-
+New variant has _fixed_ vmlinux.lds.S - real file with
+#include <linux/config.h>
+#ifdef CONFIG_LD_SCRIPT_STATIC
+#include "uml.lds.S"
+#else
+#include "dyn.lds.S"
+#endif
+in it and no symlink magic in makefiles.  Since we feed it through cpp
+anyway, we can simply let cpp do all work - including picking the right
+script depending on config.

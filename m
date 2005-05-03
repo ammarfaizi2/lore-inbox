@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbVECUjH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261696AbVECUlF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261684AbVECUjH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 16:39:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbVECUjH
+	id S261696AbVECUlF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 16:41:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261698AbVECUlF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 16:39:07 -0400
-Received: from thunk.org ([69.25.196.29]:18825 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261684AbVECUjE (ORCPT
+	Tue, 3 May 2005 16:41:05 -0400
+Received: from holomorphy.com ([66.93.40.71]:51929 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261696AbVECUkx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 16:39:04 -0400
-Date: Tue, 3 May 2005 16:38:42 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-Cc: Davy Durham <pubaddr2@davyandbeth.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ext3 issue..
-Message-ID: <20050503203842.GA17985@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-	Davy Durham <pubaddr2@davyandbeth.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <4270FA5B.5060609@davyandbeth.com> <20050428200908.GB6669@thunk.org> <20050428205536.GA2297@csclub.uwaterloo.ca>
+	Tue, 3 May 2005 16:40:53 -0400
+Date: Tue, 3 May 2005 13:40:30 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Jes Sorensen <jes@wildopensource.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: returning non-ram via ->nopage, was Re: [patch] mspec driver for 2.6.12-rc2-mm3
+Message-ID: <20050503204030.GQ2104@holomorphy.com>
+References: <16987.39773.267117.925489@jaguar.mkp.net> <20050412032747.51c0c514.akpm@osdl.org> <yq07jj8123j.fsf@jaguar.mkp.net> <20050413204335.GA17012@infradead.org> <yq08y3bys4e.fsf@jaguar.mkp.net> <20050424101615.GA22393@infradead.org> <yq03btftb9u.fsf@jaguar.mkp.net> <20050425144749.GA10093@infradead.org> <yq0ll75rxsl.fsf@jaguar.mkp.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050428205536.GA2297@csclub.uwaterloo.ca>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <yq0ll75rxsl.fsf@jaguar.mkp.net>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 28, 2005 at 04:55:36PM -0400, Lennart Sorensen wrote:
-> 
-> I think I have seen this once or twice in the past.  A reboot always
-> made it go away and it didn't seem to come back.  fsck never showed
-> anything so I assumed it was just the kernel having lost its mind about
-> the state of the FS.
-> 
-> I think I was using 2.4.18 or so at the time I last saw it.  It is quite
-> a while ago but it was ext3 as well as far as I recall.
+On Tue, Apr 26, 2005 at 06:14:02PM -0400, Jes Sorensen wrote:
+> Having the page allocations and drop ins on a first touch basis is
+> consistent with what is done for cached memory and seems a pretty
+> reasonable approach to me. Sure it isn't particularly pretty to use
+> the ->nopage approach, nobody disagrees with you there, but what is
+> the alternative?
+> Is the problem more an issue of the ugliness of allocating a page
+> just to return it to the nopage handler or the fact that we're trying
+> to make the allocations node local?
+> If you have any suggestions for how to do this differently, then I'm
+> all ears.
+> Cheers,
+> Jes
+> PS: Thanks to Robin Holt for providing more info on MPI application
+> behavior than I ever wanted to know ;-)
 
-That's a different problem; in this case apparently the corruption is
-extending to the on-disk superblock accounting information (so fsck is
-detecting evidence of it).  Fortunately this sort of corruption won't
-cause data loss, but we should figure out what the heck is going on.
+This and several other issues all fall down when instead of ->nopage(),
+the vma's fault handling method takes a vma, a virtual address, and
+an access type, and returns a VM_FAULT_* code. Yes, I remember how I
+got heavily criticized the last time I wrote/suggested/whatever this.
 
-						- Ted
+
+-- wli

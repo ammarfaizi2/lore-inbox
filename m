@@ -1,65 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261721AbVECOb0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261701AbVECOaq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261721AbVECOb0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 10:31:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbVECObD
+	id S261701AbVECOaq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 10:30:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbVECOae
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 10:31:03 -0400
-Received: from fire.osdl.org ([65.172.181.4]:30855 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261686AbVECO0m (ORCPT
+	Tue, 3 May 2005 10:30:34 -0400
+Received: from ns.suse.de ([195.135.220.2]:30618 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261689AbVECO3I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 10:26:42 -0400
-Date: Tue, 3 May 2005 07:26:26 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Wakko Warner <wakko@animx.eu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: zImage on 2.6?
-Message-Id: <20050503072626.3a3c7349.rddunlap@osdl.org>
-In-Reply-To: <20050503104503.GA11123@animx.eu.org>
-References: <20050503012951.GA10459@animx.eu.org>
-	<20050502193503.20e6ac6e.rddunlap@osdl.org>
-	<20050503104503.GA11123@animx.eu.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: SvC&!/v_Hr`MvpQ*|}uez16KH[#EmO2Tn~(r-y+&Jb}?Zhn}c:Eee&zq`cMb_[5`tT(22ms
- (.P84,bq_GBdk@Kgplnrbj;Y`9IF`Q4;Iys|#3\?*[:ixU(UR.7qJT665DxUP%K}kC0j5,UI+"y-Sw
- mn?l6JGvyI^f~2sSJ8vd7s[/CDY]apD`a;s1Wf)K[,.|-yOLmBl0<axLBACB5o^ZAs#&m?e""k/2vP
- E#eG?=1oJ6}suhI%5o#svQ(LvGa=r
+	Tue, 3 May 2005 10:29:08 -0400
+Date: Tue, 3 May 2005 16:28:58 +0200
+From: Andi Kleen <ak@suse.de>
+To: Dave Jones <davej@redhat.com>, Chris Wright <chrisw@osdl.org>,
+       Christopher Warner <chris@servertogo.com>, Andi Kleen <ak@suse.de>,
+       Hugh Dickins <hugh@veritas.com>, cwarner@kernelcode.com,
+       "Sergey S. Kostyliov" <rathamahata@ehouse.ru>,
+       Clem Taylor <clem.taylor@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: x86-64 bad pmds in 2.6.11.6 II
+Message-ID: <20050503142858.GZ7342@wotan.suse.de>
+References: <20050415172816.GU493@shell0.pdx.osdl.net> <Pine.LNX.4.61.0504151833020.29919@goblin.wat.veritas.com> <20050419133509.GF7715@wotan.suse.de> <Pine.LNX.4.61.0504191636570.13422@goblin.wat.veritas.com> <1114773179.9543.14.camel@jasmine> <20050429173216.GB1832@redhat.com> <20050502170042.GJ7342@wotan.suse.de> <1115047729.19314.1.camel@jasmine> <20050502203359.GR23013@shell0.pdx.osdl.net> <20050502210839.GB2230@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050502210839.GB2230@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 May 2005 06:45:03 -0400 Wakko Warner wrote:
+On Mon, May 02, 2005 at 05:08:39PM -0400, Dave Jones wrote:
+> On Mon, May 02, 2005 at 01:33:59PM -0700, Chris Wright wrote:
+>  > * Christopher Warner (chris@servertogo.com) wrote:
+>  > > Actually I am testing your patches. Its just going to take some time.
+>  > > The problem occurs under severe load and I'm in the process of doing
+>  > > load testing this for an inhouse app this week. Soon as i'm able to send
+>  > > debug information I will.
+>  > 
+>  > Same here.  I've just never found a way to trigger other than wait.
+> 
+> *nod*, the current test-kernel update for Fedora also has your
+> debugging patches, but none of the users have hit them (or reported
+> them) yet.
 
-| Randy.Dunlap wrote:
-| > On Mon, 2 May 2005 21:29:51 -0400 Wakko Warner wrote:
-| > | Is it possible to use zImage on 2.6 kernels or is bzImage required?
-| > 
-| > What processor architecture?
-| 
-| x86.  Does zImage work on other arches?  (I've only ever dealt with alpha
-| and sparc other than x86)
+The second version with the WARN_ON? If not please update to that one.
 
-I don't know if it works, just that it's listed in:
-ppc, arm, sh, cris, arm26, m68k, ppc64, parisc, m32r, frv,
-and sh64.  and i386.
-
-| > It's supported in arch/i386/Makefile (and some others).
-| > For i386, you'll need to disable enough (lots of) options to make the
-| > resulting output file small enough...
-| 
-| The resultant bzImage is ~760kb.  I compiled out everything I could, only
-| ram disk/initrd, and ext2 are compiled in.
-| 
-| If you'd like to see the .config, I'll send it up.
-
-Are you saying that zImage still fails (image is too large?) ?
-
-I built one, but I wouldn't want to boot it.  :)
-It looks like you would need to put almost everything into
-an initrd to make it usable.
-
----
-~Randy
+-Andi

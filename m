@@ -1,74 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261487AbVECR2x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbVECTye@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261487AbVECR2x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 13:28:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVECR2x
+	id S261651AbVECTye (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 15:54:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbVECTye
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 13:28:53 -0400
-Received: from diadema.skane.tbv.se ([193.13.139.13]:33182 "EHLO
-	diadema.skane.tbv.se") by vger.kernel.org with ESMTP
-	id S261441AbVECR2s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 13:28:48 -0400
-From: "Oskar Liljeblad" <oskar@osk.mine.nu>
-Date: Tue, 3 May 2005 19:28:46 +0200
-To: Drew Winstel <DWinstel@Miltope.com>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: clock drift with two Promise Ultra133 TX2 (PDC 20269) cards
-Message-ID: <20050503172845.GA12944@oskar>
-References: <66F9227F7417874C8DB3CEB05772741704514D@MILEX0.Miltope.local>
+	Tue, 3 May 2005 15:54:34 -0400
+Received: from mail.tmr.com ([64.65.253.246]:55822 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S261651AbVECTy1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 15:54:27 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: [RCF] [PATCH] unprivileged mount/umount
+Date: Tue, 03 May 2005 13:30:34 -0400
+Organization: TMR Associates, Inc
+Message-ID: <d58k4o$1ha$1@gatekeeper.tmr.com>
+References: <E1DSyQx-0002ku-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <66F9227F7417874C8DB3CEB05772741704514D@MILEX0.Miltope.local>
-User-Agent: Mutt/1.5.6+20040907i
-X-Spam-Score: 0.0 (/)
-X-Spam-Report: Spam detection software, running on the system "diadema.skane.tbv.se", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  On Tuesday, May 03, 2005 at 11:53, Drew Winstel wrote:
-	> I think I know what the problem is. > > In include/linux/libata.h,
-	make sure the preprocessor declarations are as > follows. I think the
-	defaults have ATA_ENABLE_PATA undefined. > > #define ATA_ENABLE_ATAPI
-	/* undefine to disable ATAPI support */ > #define ATA_ENABLE_PATA /*
-	define to enable PATA support in some > * low-level drivers */ [...] 
-	Content analysis details:   (0.0 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1115149272 1578 192.168.12.100 (3 May 2005 19:41:12 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
+X-Accept-Language: en-us, en
+In-Reply-To: <E1DSyQx-0002ku-00@dorka.pomaz.szeredi.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, May 03, 2005 at 11:53, Drew Winstel wrote:
-> I think I know what the problem is.
+Miklos Szeredi wrote:
+> This (lightly tested) patch against 2.6.12-rc* adds some
+> infrastructure and basic functionality for unprivileged mount/umount
+> system calls.
 > 
-> In include/linux/libata.h, make sure the preprocessor declarations are as 
-> follows.  I think the defaults have ATA_ENABLE_PATA undefined.
+> Details:
 > 
-> #define ATA_ENABLE_ATAPI        /* undefine to disable ATAPI support */
-> #define ATA_ENABLE_PATA          /* define to enable PATA support in some
->                                  * low-level drivers */
+>   - new mnt_owner field in struct vfsmount
+>   - if mnt_owner is NULL, it's a privileged mount
+>   - global limit on unprivileged mounts in  /proc/sys/fs/mount-max
+>   - per user limit of mounts in rlimit
+>   - allow umount for the owner (except force flag)
+>   - allow unprivileged bind mount to files/directories writable by owner
+>   - add nosuid,nodev flags to unprivileged mounts
+> 
+> Next step would be to add some policy for new mounts.  I'm thinking of
+> either something static: e.g. FS_SAFE flag for "safe" filesystems, or
+> a more configurable approach through sysfs or something.
+> 
+> Comments?
 
-Thanks, now it loads correctly. Unfortunately the clock drift still occurs
-with pata_pdc2027x. I'm guessing here, but can clock drift have anything
-to do with IRQs? Also, is it normal to see errors in /proc/interrupt?
+Are these public or private mounts? In other words, is the mount visible 
+only to the mounting process and children, or is it visible to (and can 
+effect) other processes. Clearly true private mounts open uses with 
+chroot jails and virtualization.
 
-# cat /proc/interrupts 
-           CPU0       
-  0:     954189          XT-PIC  timer
-  2:          0          XT-PIC  cascade
-  8:         16          XT-PIC  rtc
-  9:          0          XT-PIC  acpi
- 10:       1630          XT-PIC  eth1
- 11:     103147          XT-PIC  libata
- 12:       9990          XT-PIC  eth0
- 14:       5993          XT-PIC  ide0
- 15:     145866          XT-PIC  libata
-NMI:          0 
-LOC:          0 
-ERR:      23672
-MIS:          0
-
-Regards,
-
-Oskar Liljeblad (oskar@osk.mine.nu)
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbVECBR6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbVECBRW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261277AbVECBR6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 21:17:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261274AbVECBR6
+	id S261265AbVECBRW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 21:17:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbVECBRW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 21:17:58 -0400
-Received: from mail-in-06.arcor-online.net ([151.189.21.46]:34255 "EHLO
-	mail-in-06.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261273AbVECBRv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 21:17:51 -0400
-From: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
-	<7eggert@gmx.de>
-Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
-To: Linus Torvalds <torvalds@osdl.org>, Ryan Anderson <ryan@michonline.com>,
-       Bill Davidsen <davidsen@tmr.com>, Andrea Arcangeli <andrea@suse.de>,
-       Matt Mackall <mpm@selenic.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Tue, 03 May 2005 03:16:26 +0200
-References: <3YQn9-8qX-5@gated-at.bofh.it> <3ZLEF-56n-1@gated-at.bofh.it> <3ZM7L-5ot-13@gated-at.bofh.it> <3ZN3P-69A-9@gated-at.bofh.it> <3ZNdz-6gK-9@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
+	Mon, 2 May 2005 21:17:22 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28057 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261265AbVECBRU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 21:17:20 -0400
+Date: Tue, 3 May 2005 02:17:44 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: jdike@addtoit.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/22] UML - Include the linker script rather than symlink it
+Message-ID: <20050503011744.GC18977@parcelfarce.linux.theplanet.co.uk>
+References: <200505012112.j41LC9fa016385@ccure.user-mode-linux.org> <20050502170654.248b11ea.akpm@osdl.org> <20050503002521.GA18977@parcelfarce.linux.theplanet.co.uk> <20050502174405.0c8cad31.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <E1DSm1T-0002Tc-FV@be1.7eggert.dyndns.org>
+Content-Disposition: inline
+In-Reply-To: <20050502174405.0c8cad31.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
-> On Mon, 2 May 2005, Ryan Anderson wrote:
->> On Mon, May 02, 2005 at 09:31:06AM -0700, Linus Torvalds wrote:
-
->> > That said, I think the /usr/bin/env trick is stupid too. It may be more
->> > portable for various Linux distributions, but if you want _true_
->> > portability, you use /bin/sh, and you do something like
->> > 
->> > #!/bin/sh
->> > exec perl perlscript.pl "$@"
->> if 0;
-
-exec may fail.
-
-#!/bin/sh
-exec perl -x $0 ${1+"$@"} || exit 127
-#!perl
-
->> You don't really want Perl to get itself into an exec loop.
+On Mon, May 02, 2005 at 05:44:05PM -0700, Andrew Morton wrote:
 > 
-> This would _not_ be "perlscript.pl" itself. This is the shell-script, and
-> it's not called ".pl".
+> There's a bit of a tangle going on in arch/um/kernel/Makefile, but it's
+> fairly simple stuff.
+> 
+> I put a rolled-up patch against 2.6.12-rc3 at
+> http://www.zip.com.au/~akpm/linux/patches/stuff/x.bz2 if someone wants to
+> check it all.
 
-In this thread, it originally was.
--- 
+Broken, due to missing mk_sc patch (it should go before mk_thread one;
+how the hell did the latter manage to apply at all?)
 
-"Our parents, worse than our grandparents, gave birth to us who are worse than
-they, and we shall in our turn bear offspring still more evil."
-        -- Horace (BC 65-8)
+> Is this all considered post-2.6.12 material?
 
+Once all patches are in there - up to Jeff ;-)  Seriously, kbuild patchkit
+is decently tested and has obviously no impact on other architectures.  So
+that one is up to maintainer of architecture in question...

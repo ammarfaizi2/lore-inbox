@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbVECKNI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbVECKkn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261443AbVECKNI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 06:13:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVECKNI
+	id S261445AbVECKkn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 06:40:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVECKkm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 06:13:08 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:18603 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261443AbVECKNF (ORCPT
+	Tue, 3 May 2005 06:40:42 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:43431 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S261445AbVECKfI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 06:13:05 -0400
-Date: Tue, 3 May 2005 12:09:37 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Adrian Bunk <bunk@stusta.de>
-cc: Andrew Morton <akpm@osdl.org>, kbuild-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, Jesper Juhl <juhl-lkml@dif.dk>
-Subject: Re: [2.6 patch] Kconfig: rename "---help---" to "help" in Kconfig
- files (first part)
-In-Reply-To: <20050503092202.GC3592@stusta.de>
-Message-ID: <Pine.LNX.4.61.0505031202080.996@scrub.home>
-References: <20050503003400.GO3592@stusta.de> <Pine.LNX.4.61.0505031107120.996@scrub.home>
- <20050503092202.GC3592@stusta.de>
+	Tue, 3 May 2005 06:35:08 -0400
+Message-ID: <42775588.95EB8ECF@tv-sign.ru>
+Date: Tue, 03 May 2005 14:42:16 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+Cc: benh@kernel.crashing.org, jk@blackdown.de, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc2-mm3
+References: <20050411012532.58593bc1.akpm@osdl.org>
+		<87wtr8rdvu.fsf@blackdown.de>
+		<87u0m7aogx.fsf@blackdown.de>
+		<1113607416.5462.212.camel@gaston>
+		<877jj1aj99.fsf@blackdown.de>
+		<20050423170152.6b308c74.akpm@osdl.org>
+		<87fyxhj5p1.fsf@blackdown.de>
+		<1114308928.5443.13.camel@gaston>
+		<426B6C84.E8D41D57@tv-sign.ru> <20050502232925.752ad1d8.akpm@osdl.org>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrew Morton wrote:
+> 
+> Oleg Nesterov <oleg@tv-sign.ru> wrote:
+> >
+> > ...
+> > Before this timer patch del_timer(pending_timer) worked as
+> > a memory barrier for the caller, now it does not.
+> >
+> 
+> I wonder if we should still do this?  It would seem to be a safer approach.
+> 
+> (This barrier stuff continues to give me the creeps.  Imagine being
+> dependent upon accidental barriers in the add/del/mod_timer code.  Ugh).
 
-On Tue, 3 May 2005, Adrian Bunk wrote:
+I can't judge. But if we added barriers now, it would be
+very hard to remove them later. And I think it's not good
+to have these barriers "just in case".
 
-> The separator used for the help is to indent help texts by two 
-> additional spaces.
-
-Yes, that's an additional indicator.
-
-> IMHO, Kconfig files are quite readable due to this indentation even 
-> though only a minority of the entries was using "---help---" even 
-> before this patch.
-
-So why exactly has to be removed? Is it ugly? Does it make Kconfig worse?
-Sorry, but only because it's not used that often, is not enough of a 
-reason for me to remove it. If it helps only a little bit to spot the help 
-text start easier, it's IMO worth to keep it.
-
-bye, Roman
+Oleg.

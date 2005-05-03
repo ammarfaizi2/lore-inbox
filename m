@@ -1,46 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261670AbVECPME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261725AbVECPM4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261670AbVECPME (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 11:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261702AbVECPME
+	id S261725AbVECPM4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 11:12:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbVECPM4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 11:12:04 -0400
-Received: from fed1rmmtao01.cox.net ([68.230.241.38]:53634 "EHLO
-	fed1rmmtao01.cox.net") by vger.kernel.org with ESMTP
-	id S261670AbVECPMB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 11:12:01 -0400
-Date: Tue, 3 May 2005 08:11:59 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Phil Oester <kernel@linuxace.com>, linux-kernel@vger.kernel.org
-Subject: Re: Garbage on serial console after serial driver loads
-Message-ID: <20050503151159.GL1221@smtp.west.cox.net>
-References: <20050328173652.GA31354@linuxace.com> <20050328200243.C2222@flint.arm.linux.org.uk> <1115129833.4446.23.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1115129833.4446.23.camel@hades.cambridge.redhat.com>
-User-Agent: Mutt/1.5.9i
+	Tue, 3 May 2005 11:12:56 -0400
+Received: from firewall.miltope.com ([208.12.184.221]:5475 "EHLO
+	smtp.miltope.com") by vger.kernel.org with ESMTP id S261702AbVECPMr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 11:12:47 -0400
+Content-class: urn:content-classes:message
+Subject: RE: clock drift with two Promise Ultra133 TX2 (PDC 20269) cards
+Date: Tue, 3 May 2005 10:13:17 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <66F9227F7417874C8DB3CEB057727417045148@MILEX0.Miltope.local>
+X-MS-Has-Attach: 
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-MS-TNEF-Correlator: 
+Thread-Topic: clock drift with two Promise Ultra133 TX2 (PDC 20269) cards
+Thread-Index: AcVP7jOBG0SQDj6uQCemhONaegOUKgAANaZQ
+From: "Drew Winstel" <DWinstel@Miltope.com>
+To: "Oskar Liljeblad" <oskar@osk.mine.nu>
+Cc: <linux-ide@vger.kernel.org>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 03, 2005 at 03:17:12PM +0100, David Woodhouse wrote:
-> On Mon, 2005-03-28 at 20:02 +0100, Russell King wrote:
-> > Is this patch ok for you?
-> 
-> Not really; it's just a quick hack applied without any real
-> consideration of the problem. If we're messing up the baud rate when we
-> change the master clock, then just make it change the divisor
-> accordingly at the same time. We don't seem to store the active
-> parameters of the serial console anywhere useful; we can do it just by
-> reading back the divisor and multiplying by eight though...
-> 
-> Tom, does this also mean you don't need the 'ifndef ppc'?
 
-I don't recall the problem well enough right now, but I'll go toss this
-into a current git tree and let you know.
+> geometry     = 30515/255/63, sectors = 490234752, start = 0
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+>/dev/hde:
+
+> Model=Maxtor 6B250R0, FwRev=BAH41BM0, SerialNo=<...>
+> Config={ Fixed }
+> RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
+> BuffType=DualPortCache, BuffSize=16384kB, MaxMultSect=16, MultSect=off
+> CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=268435455
+> IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+> PIO modes:  pio0 pio1 pio2 pio3 pio4 
+> DMA modes:  mdma0 mdma1 mdma2 
+> UDMA modes: udma0 udma1 udma2 udma3 udma4 udma5 *udma6 
+> AdvancedPM=yes: disabled (255) WriteCache=enabled
+> Drive conforms to: (null): 
+
+> * signifies the current active mode
+
+Hmm... that puzzles me, although for no other reason than I'm not familiar 
+with how Maxtor drives report themselves.  Having the BIOS-reported LBA 
+sectors not equal to the OS-reported geometry may not be a problem, but 
+I must defer to the experts on that one.  
+
+As an FYI just in case, the new libata-based driver will treat your drives 
+as SCSI drives, so you'll see the drives as sda, sdb, and so forth instead of
+hd?.  
+
+Good luck!
+
+Drew

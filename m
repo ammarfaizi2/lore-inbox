@@ -1,44 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbVECCh1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261319AbVECCqs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261313AbVECCh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 22:37:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261314AbVECCh1
+	id S261319AbVECCqs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 22:46:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbVECCqs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 22:37:27 -0400
-Received: from mailout1.samsung.com ([203.254.224.24]:28041 "EHLO
-	mailout1.samsung.com") by vger.kernel.org with ESMTP
-	id S261313AbVECChN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 22:37:13 -0400
-Date: Tue, 03 May 2005 11:35:32 +0900
-From: "Hyok S. Choi" <hyok.choi@samsung.com>
-Subject: [Benchmark] Linux 2.6.11.6 ARM MMU mode vs. noMMU mode vs. MVista
- 2.4.20
-In-reply-to: 
-To: uClinux development list <uclinux-dev@uclinux.org>,
-       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org
-Cc: CE Linux Developers List <celinux-dev@tree.celinuxforum.org>
-Message-id: <0IFW003QR79WYC@mmp1.samsung.com>
-Organization: Samsung Electronics Co.,Ltd.
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Thread-index: AcU1BWcNVc0V74LDSaahcUiPaBabRQAAA+EQAF6QSaAGQZe5wAAAYLmA
+	Mon, 2 May 2005 22:46:48 -0400
+Received: from fire.osdl.org ([65.172.181.4]:61886 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261314AbVECCqk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 22:46:40 -0400
+Date: Mon, 2 May 2005 19:48:29 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Matt Mackall <mpm@selenic.com>
+cc: Bill Davidsen <davidsen@tmr.com>, Morten Welinder <mwelinder@gmail.com>,
+       Sean <seanlkml@sympatico.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
+Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
+In-Reply-To: <20050503000011.GA22038@waste.org>
+Message-ID: <Pine.LNX.4.58.0505021932270.3594@ppc970.osdl.org>
+References: <20050429165232.GV21897@waste.org> <427650E7.2000802@tmr.com>
+ <Pine.LNX.4.58.0505021457060.3594@ppc970.osdl.org> <20050502223002.GP21897@waste.org>
+ <Pine.LNX.4.58.0505021540070.3594@ppc970.osdl.org> <20050503000011.GA22038@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FYI,
-
-I just put an newer lmbench lat_ctx benchmark result chart,
-among linux 2.6.11.6 noMMU mode vs. MMU mode vs. montavista
-linux(2.4.20-mvista) at:
-http://opensrc.sec.samsung.com/document/ctx-perf-linux-2.6.11.6.pdf
-
-you can find some graphs also at :
-http://opensrc.sec.samsung.com/document.html
-
-Hyok
 
 
+On Mon, 2 May 2005, Matt Mackall wrote:
+> 
+> Umm.. I am _not_ calculating the SHA of the delta itself. That'd be
+> silly.
 
+It's not silly.
+
+Meta-data consistency is supremely important. If people can corrupt their 
+metadata in strange an unobservable ways, that's almost as bad as 
+corrupting the data itself. In fact, to some degree it's worse, since you 
+make people trust the thing, but you don't actually guarantee it.
+
+So how _do_ you guarantee consistency of a tree and the history that led 
+up to it? 
+
+And by that I don't mean any of the individual blobs - I realize that it's 
+perfectly valid to just check out every single version, and have the sha1 
+of that. But how do you guarantee that the sha's you check are the sha's 
+that you saved in the first place, and somebody didn't replace something 
+in the middle?
+
+In other words, you need to hash the metadata too. Otherwise how do you
+consistency-check the _collection_ of files?
+
+It's absolutely not enough to just protect single-file content. That 
+doesn't help one whit. It's not what a SCM is all about. You have to 
+protect the state of _multiple_ files, ie the metadata has to be 
+verifiable too.
+
+If that meta-data is the index, then the index needs to be protected by a
+SHA1. In git, that's why we don't just sha1 every blob, but every tree and
+every commit. That's the thing that gets consistency _beyond_ a single
+file.
+
+> As various people have pointed out, you can hack delta transmission
+> and file revision indexing on top of git. But to do that, you'll need
+> to build the same indices that Mercurial has. And you'll need to check
+> their integrity.
+
+No, absolutely not.
+
+Building indeces on top of git would be stupid. You can _cache_ deltas,
+but there's a big difference between a index that actually describes how
+random blobs go together, and a cache of a delta between two
+well-specified end-points. And in particular, there is no "consistency" to
+a delta. You don't need it.
+
+Why? Because either the delta is correct, or it isn't. If it's correct,
+the end result will be the right sha1. If it's not, the end result will be
+something else. So when you do a "pull" from another repository, you can
+trivially check whether the delta's you got were valid: did applying them
+result in the same sha1 that the other repository had?
+
+So git really validates the _only_ thing that matters: it validates the 
+state of the data. It doesn't validate anything else, but if validates 
+that one thing very completely indeed.
+
+		Linus

@@ -1,86 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbVECXN1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261903AbVECXPf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261900AbVECXN1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 19:13:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbVECXN1
+	id S261903AbVECXPf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 19:15:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbVECXPf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 19:13:27 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:29880 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S261900AbVECXNU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 19:13:20 -0400
-Date: Tue, 3 May 2005 16:13:19 -0700
-To: breed@zuzulu.com
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Jouni Malinen <jkmaline@cc.hut.fi>, chessing@users.sourceforge.net
-Subject: Re: [PATCH] dynamic wep keys for airo.c
-Message-ID: <20050503231319.GA22452@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20050503183335.GA19691@bougret.hpl.hp.com> <32958.198.4.83.52.1115159671.squirrel@zuzulu.com>
-Mime-Version: 1.0
+	Tue, 3 May 2005 19:15:35 -0400
+Received: from web21127.mail.yahoo.com ([216.136.227.192]:7306 "HELO
+	web21127.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261903AbVECXPU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 19:15:20 -0400
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=5w9zqqRqn29QzWILatJn/TIXdgeidBYE1oEe2sstYGgB/qRdS8W38ShQknNFVHK4uYpD3/80AYzBuPaSSWsfyx4MaHDPQiHSBZWYExfNZQUWOnBPRhfMy3IKI+M7j8GClW9nHyyQ4mSQU6Os/2jUsS1b5Yblk70FQrFrx4TOw90=  ;
+Message-ID: <20050503231519.11002.qmail@web21127.mail.yahoo.com>
+Date: Tue, 3 May 2005 16:15:19 -0700 (PDT)
+From: segin <segin11@yahoo.com>
+Subject: Re: zImage on 2.6?
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20050503223148.GF12199@animx.eu.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <32958.198.4.83.52.1115159671.squirrel@zuzulu.com>
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-User-Agent: Mutt/1.5.9i
-From: Jean Tourrilhes <jt@hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 03, 2005 at 05:34:31PM -0500, breed@zuzulu.com wrote:
-> Jean,
+Agreed. The idiot who keeps zImage as a possible target in the makefile should be taken out and
+shot, or forced to use Windows.
+
+--- Wakko Warner <wakko@animx.eu.org> wrote:
+
+> segin wrote:
+> > I'll be honest. zImage kernels are pointless, and are _BIGGER_ than a bzImage kernel.
 > 
-> There is no patch to xsupplicant that will work without patching the
-> airo.c driver. The current airo.c driver always disables the MAC before
-> setting the WEP key whether it is temporary or permanent. This is
-> incorrect. When the MAC is disabled the card disassociates causing the
-> whole handshake to start over again.
+> Others have stated this.
+> 
+> > You should realize that use of zImage kernels detucts 100 points off your IQ.
+> 
+> I was trying to do comparisions between the 2.  I would not have cared
+> as long as 1) it was smaller and 2) it worked.
+> 
+> Maybe they should deduct 100 off whoever is keeping zImage target still in
+> the make files.
+> 
+> > Jeez... Is it just me or is it that most people today are too fucking retarded to use a
+> computer?
+> 
+> Uh, excuse me?!  I ask a question and you have to do this?!  Really, you are
+> of no help to me.
+> 
+> -- 
+>  Lab tests show that use of micro$oft causes cancer in lab animals
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-	Yes, I know perfectly. A patch is needed, however I don't
-think your current patch is the most appropriate solution.
 
-	The current solution is :
-	1) set perm key -> goes in the eeprom, reset MAC
-	2) set temp key -> not in the eeprom, reset MAC
-	o /proc can set (1) and (2)
-	o iwconfig can only set (1)
-	o xsupplicant always set (1) - broken
+Jeez... Is it just me or is it that most people today are too fucking retarded to use a computer?
 
-	You solution is :
-	1) set temp key -> not in the eeprom, not reset MAC
-	2a) set perm key -> goes in the eeprom, reset MAC
-	2b) set perm key -> goes in the eeprom, not reset MAC
-	o module parameter select (2a) or (2b)
-	o iwconfig can set (2) {default} or (1) {temp keyword}
-	o old xsupplicant set (2) - may work, depend on module parameter
-	o new xsupplicant set (1) - always work
+Semper fi pengunius.
+Webmaster of Segin's Open Source Den. 
 
-	First, do we know for sure that all Aironet firmware will
-accept to change the perm WEP key without having to reset the MAC ?
-Maybe the Cisco driver does it this way, but it only target the latest
-firware rev, whereas up to know we have included in the driver code
-for very antique firmware rev. I don't have the answer to that one.
-	Second, I think that the module parameter is counter
-productive. What we want there is people migrating to the new
-xsupplicant that does the right thing. Also, module parameter is not
-something that can be changed on the fly, and is one more thing to
-configure. We want things to always work, all the time.
 
-	What I would think is better long term :
-	1) set temp key -> not in the eeprom, not reset MAC
-	2) set perm key -> goes in the eeprom, reset MAC
-	o iwconfig can set (2) {default} or (1) {temp keyword}
-	o old xsupplicant set (2) - always broken
-	o new xsupplicant set (1) - always work
-
-	But, that's only my personal opinion, and you may want to
-check what the new xsupplicant is doing before making the final
-decision.
-
-> ben
-
-	Have fun...
-
-	Jean
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

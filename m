@@ -1,67 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261558AbVECSeX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261573AbVECSiw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261558AbVECSeX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 14:34:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbVECSeW
+	id S261573AbVECSiw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 14:38:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbVECSg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 14:34:22 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:39635 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S261558AbVECSdo (ORCPT
+	Tue, 3 May 2005 14:36:58 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:26287 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S261559AbVECSfz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 14:33:44 -0400
-Date: Tue, 3 May 2005 11:33:35 -0700
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Benjamin Reed <breed@zuzulu.com>
-Cc: Jouni Malinen <jkmaline@cc.hut.fi>, chessing@users.sourceforge.net
-Subject: Re: [PATCH] dynamic wep keys for airo.c
-Message-ID: <20050503183335.GA19691@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-User-Agent: Mutt/1.5.9i
-From: Jean Tourrilhes <jt@hpl.hp.com>
+	Tue, 3 May 2005 14:35:55 -0400
+Message-Id: <200505031846.AAA19043@harvest.india.hp.com>
+From: "Amanulla G" <amanulla@india.hp.com>
+To: "'Arjan van de Ven'" <arjan@infradead.org>
+Cc: <linux-kernel@vger.kernel.org>, <jdp@india.hp.com>
+Subject: RE: /proc on 2.4.21 & 2.6 kernels....
+Date: Wed, 4 May 2005 00:05:44 +0530
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Thread-Index: AcU6AJoeO0CnzZ/OS5+I/5oC0NMKxgWDWJ6Q
+In-Reply-To: <1112718903.6275.75.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Reed wrote :
-> 
-> I'm resubmitting a patch for the 2.6.11.8 aironet driver (airo.c) that will 
-> enable dynamic wep keying without disabling the MAC. It allows 
-> us to use xsupplicant with the driver.
-> 
-> Aironet provides the ability to set WEP keys permanently or 
-> temporarily. There is a special IW_ENCODE_TEMP flag for selecting
-> which type of key you are setting. However, apart from iwconfig, 
-> nobody seems to use this flag. When a permanent WEP key is set, 
-> the MAC must be disabled. I have added a module parameter to skip
-> disabling the MAC even if a permanent WEP key is set. Using this 
-> flag allows xsupplicant to work without modification.
+Hi, 
+Sorry for the late follow up on this.
 
-	Hmm... I don't know why you are so afraid of submitting a
-patch to xsupplicant (and wpa_supplicant). Having xsupplicant *always*
-setting IW_ENCODE_TEMP would be worthwhile. Have you even try to
-submit a patch to the author of xsupplicant ?
-	There was other driver having issues with with not reseting
-the MAC while changing the WEP key. For example, some Lucent firmware
-may lock up if you set WEP without fully reseting the MAC. So, having
-IW_ENCODE_TEMP in xsupplicant would mean that the driver could support
-802.1x properly if the firmware is sane and remain conservative while
-setting static WEP keys, i.e. the best of both words. Driver that are
-sane (moder hardware) can just ignore IW_ENCODE_TEMP.
-	With respect to airo, I think it would be nice if xsupplicant
-did not pollute the WEP EEprom, so that next time you roam to a static
-WEP AP, you can resuse the EEprom keys.
+Re:
+>> My second part of question was:
+>> On 2.6 kernels, we have  /proc/<tgid>/task/xxx 
+>> My question is /proc/<tgid> stats reflect resource utilization of the
+>> threads it has created? 
 
-	In summary, I believe that a correct solution is not so
-difficult to implement (just a 2 line patch for xsupplicant and
-wpa_supplicant), therefore I don't beleive we should go with
-workarounds.
+> yes afaik it's cumulative over the threads there.
 
-	Have fun...
 
-	Jean
+I just wrote a small program which creates a thread. The thread just hogs
+cpu and does nothing else.
+
+***********************************************
+#include <pthread.h>
+#include <stdio.h>
+void *foo(void *p)
+{
+  printf ("Thread ");
+  fflush(stdout);
+    while (1);
+}
+int main(void){
+    int ret;
+    pthread_t p1 ;
+    ret = pthread_create(&p1, NULL, foo, NULL);
+    pthread_join(p1,NULL);
+} 
+***********************************************
+
+I checked the above program on a machine with 2.6.9-5.EL running.
+
+I checked the top output, it says, global cpu util is 99.% but the cpu
+utilization of a.out is 0.0!!
+
+None of the processes that top showed has had more than 0.2% of CPU
+utilization, but still global cpu utilization is 99.9%.
+Interestingly, /proc/pid related to a.out process had two entries under
+/proc/pid/task directory
+1) Entry related to a.out
+2) Entry related to thread created by a.out
+
+But the statistics under /proc/pid/stat related to a.out process do not
+reflect the resource utilization of the thread it has created. 
+
+Could you please look into this issue? 
+
+With Best Regards,
+Amanulla
+
+
+
+
+-----Original Message-----
+From: Arjan van de Ven [mailto:arjan@infradead.org] 
+Sent: Tuesday, April 05, 2005 10:05 PM
+To: Amanulla G
+Cc: linux-kernel@vger.kernel.org; jdp@india.hp.com
+Subject: RE: /proc on 2.4.21 & 2.6 kernels....
+
+On Tue, 2005-04-05 at 21:52 +0530, Amanulla G wrote:
+>  Hi, 
+> Thanks for the mail.
+> May be I didn't put my question correctly.
+> On 2.4.21 based kernels /proc has got hidden directories which has got the
+> thread related statistics.
+
+I understood your question. 
+However 2.4.21 kernels from kernel.org do not have such hidden
+directories.
+
+> My second part of question was:
+> On 2.6 kernels, we have  /proc/<tgid>/task/xxx 
+> My question is /proc/<tgid> stats reflect resource utilization of the
+> threads it has created? 
+
+yes afaik it's cumulative over the threads there.
+
+
+
 

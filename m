@@ -1,124 +1,175 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261821AbVECVrs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261834AbVECV4a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261821AbVECVrs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 17:47:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbVECVrr
+	id S261834AbVECV4a (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 17:56:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbVECV4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 17:47:47 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:42661 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261821AbVECVrM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 17:47:12 -0400
-Date: Tue, 3 May 2005 14:47:07 -0700
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: john stultz <johnstul@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, albert@users.sourceforge.net,
-       paulus@samba.org, schwidefsky@de.ibm.com, mahuja@us.ibm.com,
-       donf@us.ibm.com, mpm@selenic.com, benh@kernel.crashing.org
-Subject: Re: [RFC][PATCH] new timeofday-based soft-timer subsystem
-Message-ID: <20050503214707.GE3372@us.ibm.com>
-References: <1114814747.28231.2.camel@cog.beaverton.ibm.com> <20050429233546.GB2664@us.ibm.com> <20050503170224.GA2776@us.ibm.com>
+	Tue, 3 May 2005 17:56:30 -0400
+Received: from MailBox.iNES.RO ([80.86.96.21]:36844 "EHLO MailBox.iNES.RO")
+	by vger.kernel.org with ESMTP id S261834AbVECV4V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 17:56:21 -0400
+Subject: kernel BUG at fs/sysfs/file.c:381
+From: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: iNES Group
+Date: Wed, 04 May 2005 00:56:19 +0300
+Message-Id: <1115157379.3441.11.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050503170224.GA2776@us.ibm.com>
-X-Operating-System: Linux 2.6.12-rc3-mm2 (i686)
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.2 (2.2.2-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 03.05.2005 [10:02:24 -0700], Nishanth Aravamudan wrote:
-> On 29.04.2005 [16:35:46 -0700], Nishanth Aravamudan wrote:
-> > * john stultz <johnstul@us.ibm.com> [2005-0429 15:45:47 -0700]:
-> > 
-> > > All,
-> > >         This patch implements the architecture independent portion of
-> > > the time of day subsystem. For a brief description on the rework, see
-> > > here: http://lwn.net/Articles/120850/ (Many thanks to the LWN team for
-> > > that clear writeup!)
-> > 
-> > I have been working closely with John to re-work the soft-timer subsytem
-> > to use the new timeofday() subsystem. The following patch attempts to
-> > being this process. I would greatly appreciate any comments.
-> 
-> I am not sure if anyone has looked at this patch closely, but I have
-> noticed one issue: My code assumes that all the rounding will be done
-> internally (rounding up on addition to find to the nearest
-> timerinterval); however, current interfaces do much of the rounding
-> before passing on structures on to the soft-timer subsystem, because the
-> jiffies-based one always rounds down.
 
-A for instance: sys_nanosleep() assumes (correctly) that the
-jiffies-based soft-timer subsystem rounds down, so it rounds up (twice).
-But since I now round-up internally, that is not necessary. Fix
-sys_nanosleep() to do this right.
+Hello,
 
-Still todo: change restart->arg0 to be a pointer to an nsec_t.
+While trying to install an PCI to PCMCIA adapter (an PCI card with an TI
+cardbus bridge on it) I stumbled upon this kernel bug and captured it
+with an serial console:
 
-diff -urpN 2.6.12-rc2-tod/kernel/timer.c 2.6.12-rc2-tod-timer/kernel/timer.c
---- 2.6.12-rc2-tod/kernel/timer.c	2005-05-02 12:59:04.000000000 -0700
-+++ 2.6.12-rc2-tod-timer/kernel/timer.c	2005-05-03 09:13:43.000000000 -0700
-@@ -1141,21 +1311,21 @@ asmlinkage long sys_gettid(void)
+Linux version 2.6.11-1.1261_FC4 (bhcompile@decompose.build.redhat.com)
+(gcc version 4.0.0 20050412 (Red Hat 4.0.0-0.42)) #1 Fri Apr 22 21:20:13
+EDT 2005
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+ BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000001ffc0000 (usable)
+ BIOS-e820: 000000001ffc0000 - 000000001fff8000 (ACPI data)
+ BIOS-e820: 000000001fff8000 - 0000000020000000 (ACPI NVS)
+ BIOS-e820: 00000000ffb80000 - 00000000ffc00000 (reserved)
+ BIOS-e820: 00000000fff00000 - 0000000100000000 (reserved)
+0MB HIGHMEM available.
+511MB LOWMEM available.
+Using x86 segment limits to approximate NX protection
+DMI 2.3 present.
+ACPI: PM-Timer IO Port: 0x408
+Allocating PCI resources starting at 20000000 (gap: 20000000:dfb80000)
+Built 1 zonelists
+Kernel command line: ro root=/dev/hda2 selinux=0 console=ttyS0,115200n8 
+Initializing CPU#0
+CPU 0 irqstacks, hard=c0454000 soft=c0453000
+PID hash table entries: 2048 (order: 11, 32768 bytes)
+Detected 731.217 MHz processor.
+Using pmtmr for high-res timesource
+Console: colour VGA+ 80x25
+Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
+Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+Memory: 514360k/524032k available (2510k kernel code, 9072k reserved,
+690k data, 176k init, 0k highmem)
+Checking if this processor honours the WP bit even in supervisor mode...
+Ok.
+Security Framework v1.0.0 initialized
+SELinux:  Disabled at boot.
+Capability LSM initialized
+Mount-cache hash table entries: 512
+CPU: L1 I cache: 16K, L1 D cache: 16K
+CPU: L2 cache: 256K
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU: Intel Pentium III (Coppermine) stepping 06
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+ACPI: setting ELCR to 0200 (from 0e08)
+checking if image is initramfs... it is
+Freeing initrd memory: 394k freed
+NET: Registered protocol family 16
+PCI: PCI BIOS revision 2.10 entry at 0xfda95, last bus=2
+PCI: Using configuration type 1
+mtrr: v2.0 (20020519)
+ACPI: Subsystem revision 20050309
+ACPI: Interpreter enabled
+ACPI: Using PIC for interrupt routing
+ACPI: PCI Root Bridge [PCI0] (0000:00)
+PCI: Probing PCI hardware (bus 00)
+PCI: Transparent bridge - 0000:00:1e.0
+------------[ cut here ]------------
+kernel BUG at fs/sysfs/file.c:381!
+invalid operand: 0000 [#1]
+Modules linked in:
+CPU:    0
+EIP:    0060:[<c01cea4b>]    Not tainted VLI
+EFLAGS: 00010202   (2.6.11-1.1261_FC4) 
+EIP is at sysfs_create_file+0x19/0x39
+eax: dfe9c000   ebx: 00000000   ecx: c03e3148   edx: c03d4301
+esi: c03d4370   edi: dfe9c148   ebp: 00000002   esp: c14d8e28
+ds: 007b   es: 007b   ss: 0068
+Process swapper (pid: 1, threadinfo=c14d8000 task=c14d9aa0)
+Stack: dfe9c0b4 dfe9c03c c02181ac dfe9c100 c038fffd 00000000 00000002
+dfc524b8 
+       dfc524b8 00000001 dfe9c148 00000001 c0218351 0000ffff dfe9c148
+00040000 
+       00000001 00000000 0340c148 dfc524b8 dfe9c148 dfe9c15c 00000001
+c0218a2f 
+Call Trace:
+ [<c02181ac>] pci_alloc_child_bus+0x85/0xd8
+ [<c0218351>] pci_scan_bridge+0xb0/0x22b
+ [<c0218a2f>] pci_scan_child_bus+0x62/0x81
+ [<c02184b4>] pci_scan_bridge+0x213/0x22b
+ [<c0218a2f>] pci_scan_child_bus+0x62/0x81
+ [<c0218be0>] pci_scan_bus_parented+0x17b/0x19b
+ [<c02faaa0>] pcibios_scan_root+0x49/0x52
+ [<c0247e45>] acpi_pci_root_add+0x198/0x1f7
+ [<c024d535>] acpi_bus_driver_init+0x2c/0x88
+ [<c024ddcf>] acpi_bus_find_driver+0x12b/0x249
+ [<c024e37f>] acpi_bus_add+0x112/0x141
+ [<c024e4af>] acpi_bus_scan+0x101/0x153
+ [<c0436ff5>] acpi_scan_init+0x48/0x5e
+ [<c04227e9>] do_initcalls+0x55/0xb1
+ [<c018595e>] kern_mount+0x15/0x19
+ [<c0100274>] init+0x0/0xfc
+ [<c0100294>] init+0x20/0xfc
+ [<c01012a8>] kernel_thread_helper+0x0/0xb
+ [<c01012ad>] kernel_thread_helper+0x5/0xb
+Code: 00 00 0f 8e b4 04 00 00 89 c8 83 c4 10 5b 5e 5f 5d c3 56 53 89 d6
+85 c0 74 29 8b 58 30 85 db 0f 94 c2 85 f6 0f 94 c0 08 c2 74 08 <0f> 0b
+7d 01 b6 93 38 c0 b9 04 00 00 00 89 f2 89 d8 5b 5e e9 57 
+ <0>Kernel panic - not syncing: Attempted to kill init!
+ [<c0120888>] panic+0x45/0x1e2
+ [<c01225f0>] profile_task_exit+0x30/0x43
+ [<c0124f05>] do_exit+0x4b4/0x510
+ [<c010463e>] die+0x22c/0x2c4
+ [<c01196ab>] fixup_exception+0xb/0x20
+ [<c010490a>] do_invalid_op+0x0/0xab
+ [<c01049ac>] do_invalid_op+0xa2/0xab
+ [<c01cea4b>] sysfs_create_file+0x19/0x39
+ [<c01cde38>] sysfs_get_dentry+0x5f/0x66
+ [<c01cf204>] create_dir+0x158/0x3b6
+ [<c0121cf8>] release_console_sem+0x96/0x26a
+ [<c01cf4a6>] sysfs_create_dir+0x2c/0x68
+ [<c020e7b1>] create_dir+0x13/0x37
+ [<c0103c7b>] error_code+0x4f/0x54
+ [<c01cea4b>] sysfs_create_file+0x19/0x39
+ [<c02181ac>] pci_alloc_child_bus+0x85/0xd8
+ [<c0218351>] pci_scan_bridge+0xb0/0x22b
+ [<c0218a2f>] pci_scan_child_bus+0x62/0x81
+ [<c02184b4>] pci_scan_bridge+0x213/0x22b
+ [<c0218a2f>] pci_scan_child_bus+0x62/0x81
+ [<c0218be0>] pci_scan_bus_parented+0x17b/0x19b
+ [<c02faaa0>] pcibios_scan_root+0x49/0x52
+ [<c0247e45>] acpi_pci_root_add+0x198/0x1f7
+ [<c024d535>] acpi_bus_driver_init+0x2c/0x88
+ [<c024ddcf>] acpi_bus_find_driver+0x12b/0x249
+ [<c024e37f>] acpi_bus_add+0x112/0x141
+ [<c024e4af>] acpi_bus_scan+0x101/0x153
+ [<c0436ff5>] acpi_scan_init+0x48/0x5e
+ [<c04227e9>] do_initcalls+0x55/0xb1
+ [<c018595e>] kern_mount+0x15/0x19
+ [<c0100274>] init+0x0/0xfc
+ [<c0100294>] init+0x20/0xfc
+ [<c01012a8>] kernel_thread_helper+0x0/0xb
+ [<c01012ad>] kernel_thread_helper+0x5/0xb
  
- static long __sched nanosleep_restart(struct restart_block *restart)
- {
--	unsigned long expire = restart->arg0, now = jiffies;
-+	nsec_t expire = restart->arg0, now = do_monotonic_clock();
- 	struct timespec __user *rmtp = (struct timespec __user *) restart->arg1;
- 	long ret;
- 
- 	/* Did it expire while we handled signals? */
--	if (!time_after(expire, now))
-+	if (now > expire)
- 		return 0;
- 
--	current->state = TASK_INTERRUPTIBLE;
--	expire = schedule_timeout(expire - now);
-+	set_current_state(TASK_INTERRUPTIBLE);
-+	expire = schedule_timeout_nsecs(expire - now);
- 
- 	ret = 0;
- 	if (expire) {
- 		struct timespec t;
--		jiffies_to_timespec(expire, &t);
-+		t = ns2timespec(expire);
- 
- 		ret = -ERESTART_RESTARTBLOCK;
- 		if (rmtp && copy_to_user(rmtp, &t, sizeof(t)))
-@@ -1168,7 +1338,7 @@ static long __sched nanosleep_restart(st
- asmlinkage long sys_nanosleep(struct timespec __user *rqtp, struct timespec __user *rmtp)
- {
- 	struct timespec t;
--	unsigned long expire;
-+	nsec_t expire;
- 	long ret;
- 
- 	if (copy_from_user(&t, rqtp, sizeof(t)))
-@@ -1177,20 +1347,20 @@ asmlinkage long sys_nanosleep(struct tim
- 	if ((t.tv_nsec >= 1000000000L) || (t.tv_nsec < 0) || (t.tv_sec < 0))
- 		return -EINVAL;
- 
--	expire = timespec_to_jiffies(&t) + (t.tv_sec || t.tv_nsec);
--	current->state = TASK_INTERRUPTIBLE;
--	expire = schedule_timeout(expire);
-+	expire = timespec2ns(&t);
-+	set_current_state(TASK_INTERRUPTIBLE);
-+	expire = schedule_timeout_nsecs(expire);
- 
- 	ret = 0;
- 	if (expire) {
- 		struct restart_block *restart;
--		jiffies_to_timespec(expire, &t);
-+		t = ns2timespec(expire);
- 		if (rmtp && copy_to_user(rmtp, &t, sizeof(t)))
- 			return -EFAULT;
- 
- 		restart = &current_thread_info()->restart_block;
- 		restart->fn = nanosleep_restart;
--		restart->arg0 = jiffies + expire;
-+		restart->arg0 = do_monotonic_clock() + expire;
- 		restart->arg1 = (unsigned long) rmtp;
- 		ret = -ERESTART_RESTARTBLOCK;
- 	}
+
+I tried various kernel parameters (acpi=off, pci=routeirq,
+pci=usepirqmask) but all give the same result.
+
+Is there any workaround for this? 
+
+-- 
+Cioby
 
 

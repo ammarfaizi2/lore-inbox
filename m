@@ -1,69 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261427AbVECJWR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261435AbVECJtL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261427AbVECJWR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 05:22:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261435AbVECJWQ
+	id S261435AbVECJtL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 05:49:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbVECJtL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 05:22:16 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:47623 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261427AbVECJWL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 05:22:11 -0400
-Date: Tue, 3 May 2005 11:22:03 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andrew Morton <akpm@osdl.org>, kbuild-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, Jesper Juhl <juhl-lkml@dif.dk>
-Subject: Re: [2.6 patch] Kconfig: rename "---help---" to "help" in Kconfig files (first part)
-Message-ID: <20050503092202.GC3592@stusta.de>
-References: <20050503003400.GO3592@stusta.de> <Pine.LNX.4.61.0505031107120.996@scrub.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0505031107120.996@scrub.home>
-User-Agent: Mutt/1.5.9i
+	Tue, 3 May 2005 05:49:11 -0400
+Received: from tornado.reub.net ([60.234.136.108]:2956 "EHLO tornado.reub.net")
+	by vger.kernel.org with ESMTP id S261435AbVECJtF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 05:49:05 -0400
+Message-ID: <4277490D.7040205@reub.net>
+Date: Tue, 03 May 2005 21:49:01 +1200
+From: Reuben Farrelly <reuben-lkml@reub.net>
+User-Agent: Mozilla Thunderbird 1.0+ (Windows/20050501)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc3-mm1
+References: <fa.gbejpad.1vj8f9r@ifi.uio.no>	<42773DC0.4050803@reub.net> <20050503020705.29bbffbd.akpm@osdl.org>
+In-Reply-To: <20050503020705.29bbffbd.akpm@osdl.org>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 03, 2005 at 11:10:48AM +0200, Roman Zippel wrote:
-> Hi,
+Hi,
+
+Andrew Morton wrote:
+> Reuben Farrelly <reuben-lkml@reub.net> wrote:
 > 
-> On Tue, 3 May 2005, Adrian Bunk wrote:
+>>Hi Andrew,
+>>
+>>Andrew Morton wrote:
+>>
+>>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc3/2.6.12-rc3-mm1/
+>>>
+>>>- There's still a bug in the new timer code.  If you think you hit it,
+>>>  please revert 
+>>>
+>>>	timers-fixes-improvements-fix.patch			then
+>>>	timers-fixes-improvements-smp_processor_id-fix.patch	then
+>>>	timers-fixes-improvements.patch
+>>>
+>>>  or, better, fix the bug.
+>>
+>>FWIW, I can reproduce this timer bug fairly consistently, by simply 
+>>rebooting my cisco router.  That means that my linux box has no default 
+>>gateway, and hence the networking blows up within about 30s and dies 
+>>with a stack trace which has references to timers.
+>>
+>>I'll back out those three patches and see if it continues, but hopefully 
+>>my little discovery is useful to someone in terms of coming up with a 
+>>fix....
+>>
 > 
-> > This patch is the majority of a patch by Jesper Juhl.
-> > 
-> > This patch renames all instances of "---help---" to simply "help" in all 
-> > of the Kconfig files.
-> > 
-> > The main reason for this patch (quoting Jesper) is:
-> > 
-> > Consistency. out of ~4000 help entries in 134 Kconfig files, 747 of 
-> > those entries use "---help---" as the keyword, the rest use just "help". 
-> > So the users of "---help---" are clearly a minority and by renaming them 
-> > we make things consistent. - I hate inconsistency. :-)
 > 
-> This has nothing to do with consistency but with readability.
-> This was introduced to better separate the help in large menu entries. In 
-> order to accept this patch, I would either like hear reasons, why this 
-> isn't needed anymore or I'd like to see an alternative, more consistent 
-> separator.
+> Rather than backing things out, please add this instead:
+> 
+> 
+> From: Oleg Nesterov <oleg@tv-sign.ru>
+> 
+> The bug was identified by Maneesh Soni.
 
-The separator used for the help is to indent help texts by two 
-additional spaces.
+Yup, this patch seems to fix it.  I did 3 router reboots, and my linux 
+box held up fine.  Previous to this patch it had fatally oopsed 5 out of 
+the 6 times I reloaded the router..
 
-IMHO, Kconfig files are quite readable due to this indentation even 
-though only a minority of the entries was using "---help---" even 
-before this patch.
+Thanks :)
 
-> bye, Roman
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+reuben
 

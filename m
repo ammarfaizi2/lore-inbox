@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261536AbVECS3n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261539AbVECSbP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261536AbVECS3n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 14:29:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261548AbVECS3j
+	id S261539AbVECSbP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 14:31:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261541AbVECSbO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 14:29:39 -0400
-Received: from firewall.miltope.com ([208.12.184.221]:36372 "EHLO
-	smtp.miltope.com") by vger.kernel.org with ESMTP id S261536AbVECS3P convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 14:29:15 -0400
-Content-class: urn:content-classes:message
-Subject: RE: clock drift with two Promise Ultra133 TX2 (PDC 20269) cards
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Date: Tue, 3 May 2005 13:29:45 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Message-ID: <66F9227F7417874C8DB3CEB057727417045155@MILEX0.Miltope.local>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: clock drift with two Promise Ultra133 TX2 (PDC 20269) cards
-Thread-Index: AcVQBaT44uWrHA0NSgOcfJWhPhaiJwABVgqA
-From: "Drew Winstel" <DWinstel@Miltope.com>
-To: "Oskar Liljeblad" <oskar@osk.mine.nu>
-Cc: <linux-ide@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+	Tue, 3 May 2005 14:31:14 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:12181 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261539AbVECSaF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 14:30:05 -0400
+Subject: Re: question about contest benchmark
+From: Lee Revell <rlrevell@joe-job.com>
+To: Haoqiang Zheng <haoqiang@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <d6e6e6dd05050311115d256213@mail.gmail.com>
+References: <d6e6e6dd05050311115d256213@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 03 May 2005 14:29:59 -0400
+Message-Id: <1115144999.29445.7.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Thanks, now it loads correctly. Unfortunately the clock drift still occurs
-> with pata_pdc2027x. I'm guessing here, but can clock drift have anything
-> to do with IRQs? Also, is it normal to see errors in /proc/interrupt?
+On Tue, 2005-05-03 at 14:11 -0400, Haoqiang Zheng wrote:
+>  My question is why is the result bad at all? One could certainly
+> argue that contest processes shouldn't consume so much CPU time since
+> they are considered to be background jobs. But why is kernel compiling
+> considered foreground jobs? Why making kernel compiling faster is
+> better?
 
-I've never noticed any errors before, but that could just be a result of me 
-never actually bothering to look.
+I have reported the same problem before.  CPU bound processes like
+kernel compiles will sometimes starve interactive processes like my mail
+client (Evolution).
 
-> # cat /proc/interrupts 
+Actually, I discovered a horrible performance bug in Evolution
+(suboptimal "hide junk" implementation, and searches for "" not properly
+optimized away, see evolution-hackers for a rough patch) that was
+responsible for the massive CPU suckage.
 
-<snip>
-> ERR:      23672
+But, it seems to me that even if an interactive process briefly goes CPU
+bound (due to bloat, bugs, or intent), it should still be scheduled
+preferentially to a pure CPU bound process like a build.
 
-Hmmm....
+Lee
 
-I'm grasping at straws here.
-
-Let's do some poking into your kernel config.  What do you have set under 
-"Processor type and features"?  
-
-I experienced a similar situation once in the past, but that was a result of 
-drives losing DMA and doing simultaneous activity on eight drives and four 
-controllers.  Moving to the pata_pdc2027x driver seems to have cleared it 
-right up.
-
-Sorry I can't provide a quick cure-all!
-
-Drew

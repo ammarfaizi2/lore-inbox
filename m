@@ -1,37 +1,72 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261540AbVEBERt (ORCPT <rfc822;ralf@linux-mips.org>);
-	Mon, 2 May 2005 00:17:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbVEBERt
+	id S261186AbVECQ0V (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 3 May 2005 12:26:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbVECQ0K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 00:17:49 -0400
-Received: from zeus2.kernel.org ([204.152.191.36]:9686 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S261540AbVEBERs (ORCPT
+	Tue, 3 May 2005 12:26:10 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:24794 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S261186AbVECQXp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 00:17:48 -0400
-Message-Id: <200505020417.j424Hism017202@zeus2.kernel.org>
-From: "Tamara Vera" <tamis@terra.com>
+	Tue, 3 May 2005 12:23:45 -0400
+Message-Id: <200505031623.j43GNaCw024525@zeus2.kernel.org>
+From: "Info" <canadabooks@computermail.net>
 To: <linux-kernel@vger.kernel.org>
-Subject: Client Referral
+Subject: Canadian business database available             linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
+Date: Tue, 3 May 2005 12:23:52 -0400
 Content-Transfer-Encoding: 7BIT
-Date: Sun, 1 May 2005 23:17:47 -0500
-Reply-To: "Tamara Vera" <nlarreaa@speedy.com.pe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261540AbVEBERt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261186AbVECQ0V@vger.kernel.org>
 
-Dear Customer,
- 
-Do you want more clients? If you are not at the top of the major search
-engines, you're losing business!Our company will place qualified websites
-in the top positions of the major search engines immediately.  This
-includes Yahoo!, MSN, Alta Vista, etc. If you are interested in getting
-unlimited traffic and guaranteed positioning with discounted pricing,
-contact us today at [nlarreaa@speedy.com.pe] and find out if you qualify. 
-Please include the URL(s) you are interested in promoting.  This isn't pay
-per click.  Examples can be provided.
 
-Sincerely,
 
-Search Engine Marketing
+Press Release
+
+The Canadian Business Database 2005 is now available.
+
+This database contains more than 900,000 Canadian based businesses.
+
+It is deemed to be the perfect tool for entrepreneurs and marketing
+professionals to quickly gain access to a wealth of information to 
+start a direct marketing campaign.  
+
+It is fully exportable to suit all your direct marketing needs. 
+You can use it with your favorite software such as Avery labelPro,
+Winfax, Excel,Filemaker, Act, Goldmine, MS Office application 
+or any other software or spreadsheet.
+
+Each business includes:
+
+-Company name
+-Full mailing address
+-Telephone 
+-Fax number (when available)
+
+
+Search by over 500 categories such as:
+
+Advertising Agencies & Counselors
+Aerospace Industries
+Agricultural Engineers
+Air Conditioning & Heating
+Building Materials   
+Buildings - Metal   
+Burglar Alarm Systems & Equipment
+Nutritionists    
+Office Furniture & Equipment    
+Office Supplies    
+Oil & Gas Exploration & Development   
+Oil & Lubrication 
+
+And the list goes on...........  
+
+
+The database is sold for:  $149.95
+
+To order please call:    450-224-wcsl(9275) 
+
+
+
+linux-kernel@vger.kernel.org

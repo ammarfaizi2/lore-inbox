@@ -1,62 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261489AbVECRwQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261382AbVECSBk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261489AbVECRwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 13:52:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbVECRwP
+	id S261382AbVECSBk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 14:01:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbVECSBk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 13:52:15 -0400
-Received: from fire.osdl.org ([65.172.181.4]:1488 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261489AbVECRwL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 13:52:11 -0400
-Date: Tue, 3 May 2005 10:52:02 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] PAL-M support fix for CX88 chipsets
-Message-Id: <20050503105202.42fa5ffb.rddunlap@osdl.org>
-In-Reply-To: <4277B833.9020109@brturbo.com.br>
-References: <42777318.2070508@brturbo.com.br>
-	<20050503083822.68a116d4.rddunlap@osdl.org>
-	<4277B833.9020109@brturbo.com.br>
-Organization: OSDL
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: SvC&!/v_Hr`MvpQ*|}uez16KH[#EmO2Tn~(r-y+&Jb}?Zhn}c:Eee&zq`cMb_[5`tT(22ms
- (.P84,bq_GBdk@Kgplnrbj;Y`9IF`Q4;Iys|#3\?*[:ixU(UR.7qJT665DxUP%K}kC0j5,UI+"y-Sw
- mn?l6JGvyI^f~2sSJ8vd7s[/CDY]apD`a;s1Wf)K[,.|-yOLmBl0<axLBACB5o^ZAs#&m?e""k/2vP
- E#eG?=1oJ6}suhI%5o#svQ(LvGa=r
+	Tue, 3 May 2005 14:01:40 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:53733 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S261382AbVECSBi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 14:01:38 -0400
+Date: Tue, 3 May 2005 14:01:02 -0400
+To: Rick Warner <rick@microway.com>, linux-kernel@vger.kernel.org
+Subject: Re: zImage on 2.6?
+Message-ID: <20050503180102.GC2297@csclub.uwaterloo.ca>
+References: <20050503012951.GA10459@animx.eu.org> <200505031206.09245.rick@microway.com> <20050503164012.GE11937@animx.eu.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050503164012.GE11937@animx.eu.org>
+User-Agent: Mutt/1.3.28i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 03 May 2005 14:43:15 -0300 Mauro Carvalho Chehab wrote:
+On Tue, May 03, 2005 at 12:40:12PM -0400, Wakko Warner wrote:
+> This is a little project I'm doing to beable to load a system onto a hard
+> drive.  The linux system is short lived by design and will run out of a
+> tmpfs root populated by various tgz files found either on CDs or a USB
+> stick.
+> 
+> My goal (which I realize may not be achivable nor is it important in the
+> long run) is to get the kernel and the initrd onto a single floppy disk
+> (Currently, I'm ~80kb too large for this).
+> 
+> I decided (remembering 2.2 days and prior when zImage was normally used) to
+> try zImage to see what happened.  I was going to compare the size of the
+> resulting images.  That's when I hit the problem.
+> 
+> I understand that upx can compress the kernel better and I also remember
+> hearing about utilizing bzip2 as the compressor for the kernel and initrd
+> images.
+> 
+> As far as my question, it still stands.  Is bzImage required (i386/x86) for
+> a 2.6 kernel?
 
-| >On Tue, 03 May 2005 09:48:24 -0300 Mauro Carvalho Chehab wrote:
-| >
-| >|     This patch fixes PAL-M chroma subcarrier frequency (FSC) to its 
-| >| correct value of 3.5756115 MHz and adjusts horizontal total samples for 
-| >| PAL-M, according with formula Line Draw Time / (4*FSC), where Line Draw 
-| >| Time is 63.555 us.
-| >|      Without this patch, the Notch subcarrier filter was trying to 
-| >| capture using NTSC-M frequency, which is very close, but not equal. This 
-| >| could result in Black and White or miscolored frames.
+Due to the 640k base memory limitations, you need to use bzImage for
+any kernel that is over about 500k compressed.  There is absolutely no
+reason I can think of for not using bzImage.  All the boot loaders
+support it just fine, and the result is the same after loading.  It
+doesn't change the size of the kernel, just how large a kernel the boot
+loader can load.
 
+With the size of 2.6 kernels I consider zImage imposible to use anymore,
+and it has never caused me any trouble to use bzImage.  It seems that
+practically bzImage is requried on x86 for 2.6 kernels.  I don't know
+how small you could make it if you left out everything except initrd and
+cramfs support (assuming your kernel supports cramfs initrd's).  Even
+ext2 is rather big.
 
-This line:
-+        static const unsigned int palm  = 28604892;
-begins with spaces, not a TAB.
-
-
-+	if (V4L2_STD_PAL_M  & norm->id) return palm;
-Please only 1 space after the _M, and put the return on a
-separate line.
-
-Same comments for the next if/return.
-
-And please clean up the next (final :) version with a
-clean description and Signed-off-by: line.
-
----
-~Randy
+Len Sorensen

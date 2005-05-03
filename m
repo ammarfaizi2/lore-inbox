@@ -1,68 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbVECAlO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbVECAnt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261276AbVECAlO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 20:41:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVECAlN
+	id S261259AbVECAnt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 20:43:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbVECAnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 20:41:13 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:44306 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261264AbVECAkI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 20:40:08 -0400
-Date: Tue, 3 May 2005 02:39:59 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: ak@muc.de, hch@lst.de, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net,
-       Thomas Winischhofer <thomas@winischhofer.net>
-Subject: Re: [2.6 patch] {,un}register_ioctl32_conversion should have been removed last month
-Message-ID: <20050503003959.GQ3592@stusta.de>
-References: <20050502014550.GG3592@stusta.de> <20050502173052.5c78ae30.akpm@osdl.org>
+	Mon, 2 May 2005 20:43:49 -0400
+Received: from fire.osdl.org ([65.172.181.4]:23458 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261259AbVECAnm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 20:43:42 -0400
+Date: Mon, 2 May 2005 17:44:05 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: jdike@addtoit.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/22] UML - Include the linker script rather than
+ symlink it
+Message-Id: <20050502174405.0c8cad31.akpm@osdl.org>
+In-Reply-To: <20050503002521.GA18977@parcelfarce.linux.theplanet.co.uk>
+References: <200505012112.j41LC9fa016385@ccure.user-mode-linux.org>
+	<20050502170654.248b11ea.akpm@osdl.org>
+	<20050503002521.GA18977@parcelfarce.linux.theplanet.co.uk>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050502173052.5c78ae30.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 02, 2005 at 05:30:52PM -0700, Andrew Morton wrote:
-> Adrian Bunk <bunk@stusta.de> wrote:
-> >
-> > This removal should have happened last month.
+Al Viro <viro@parcelfarce.linux.theplanet.co.uk> wrote:
+>
+> On Mon, May 02, 2005 at 05:06:54PM -0700, Andrew Morton wrote:
+> > That file doesn't exist and I think this patch doesn't want to patch it
+> > anyway.
+> > 
+> > I'll just drop the vmlinux.lds.S chunk...
 > 
-> drivers/usb/misc/sisusbvga/sisusb.c will use these functions if someone
-> defines SISUSB_OLD_CONFIG_COMPAT, so we need to agree to zap that code
-> before I can merge this upstream.
+> Correct patch is on ftp.linux.org.uk/pub/people/viro/UM0-uml-ldscript-RC12-rc3
 
+OK...
 
-That's not a problem.
+There's a bit of a tangle going on in arch/um/kernel/Makefile, but it's
+fairly simple stuff.
 
+I put a rolled-up patch against 2.6.12-rc3 at
+http://www.zip.com.au/~akpm/linux/patches/stuff/x.bz2 if someone wants to
+check it all.
 
-Quoting drivers/usb/misc/sisusbvga/sisusb.h:
-
-#ifdef CONFIG_COMPAT
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,10)
-#include <linux/ioctl32.h>
-#define SISUSB_OLD_CONFIG_COMPAT
-#else
-#define SISUSB_NEW_CONFIG_COMPAT
-#endif
-#endif
-
-
-I decided not to drop the SISUSB_OLD_CONFIG_COMPAT code in my patch 
-because it seems Thomas is sharing this code between different kernel 
-versions, and a removal might make his life harder for no big win.
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Is this all considered post-2.6.12 material?

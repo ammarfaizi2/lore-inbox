@@ -1,42 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261869AbVECWaH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261870AbVECWdp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261869AbVECWaH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 18:30:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbVECWaG
+	id S261870AbVECWdp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 18:33:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261874AbVECWde
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 18:30:06 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:24762 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S261869AbVECW3y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 18:29:54 -0400
-From: Darren Williams <dsw@gelato.unsw.edu.au>
-To: LKML <linux-kernel@vger.kernel.org>,
-       Ia64 Linux <linux-ia64@vger.kernel.org>
-Date: Wed, 4 May 2005 08:29:51 +1000
-Cc: Git Mailing List <git@vger.kernel.org>
-Subject: Kernel autobuild now uses Git
-Message-ID: <20050503222951.GE26031@cse.unsw.EDU.AU>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040523i
+	Tue, 3 May 2005 18:33:34 -0400
+Received: from 210-55-221-221.adsl.ihug.co.nz ([210.55.221.221]:18984 "EHLO
+	kieu.family") by vger.kernel.org with ESMTP id S261870AbVECWa3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 18:30:29 -0400
+Date: Wed, 4 May 2005 10:30:24 +1200 (NZST)
+From: steve@perfectpc.co.nz
+X-X-Sender: sk@localhost.localdomain
+Reply-To: steve@perfectpc.co.nz
+To: linux-kernel@vger.kernel.org
+Subject: Journalling file system and dm-raid
+Message-ID: <Pine.LNX.4.62.0505041020540.3940@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All
-  Our ia64 autobuild system has been moved from using
-BK to Git. Here we do a nightly pull on Linus's 
-(not so mainline) Git tree and test the ia64 build.
 
-This may be a benefit to the Git developers to see
-the results of a nightly 'cg-pull'.
+Hi,
 
-Thanks to all for the effort, the conversation from BK
-to Git was relatively painless.
+I install linux system from remote to a box that has Silicon Image chipset 
+and using dmraid + device mapper. Because it is remote box, then I can not 
+get any OOP message (sorry), the problem is:
 
- - dsw
+If I use JFS + SMP kernel (this is a dual P4 box); it runs unstable (slow, 
+slugish) and when I do a rm -rf linux_source_dir  then the terminal 
+freeze, system unresponding. I have to phone someone to power it off and 
+on.
 
---------------------------------------------------
-Darren Williams <dsw AT gelato.unsw.edu.au>
-Gelato@UNSW <www.gelato.unsw.edu.au>
---------------------------------------------------
+If use JFS without SMP. it runs stable.
+
+If use reiserfs it oops on boot (no matter SMP or not), the only thing I 
+got is some sort of EIP bad value message (told by a non IT staff at the site) so I guess it 
+OOPes.
+
+Now I have to revert it to ancient but stable ext2!
+I really like JFS as I use it stably in my server box but do not its 
+behavior in SMP kernel.
+
+please let me know if it is known problem with JFS and smp, and it has 
+been fixed in recent kernel. Thank you.
+
+
+Steve Kieu
+PerfectPC Ltd. Technical Division.
+Web: http://www.perfectpc.co.nz/
+Ph: 04 461 7489
+Mob: 021 137 0260

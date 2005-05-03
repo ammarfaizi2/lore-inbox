@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261564AbVECONI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbVECOOc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261564AbVECONI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 10:13:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbVECONI
+	id S261586AbVECOOc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 10:14:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbVECONw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 10:13:08 -0400
-Received: from reserv6.univ-lille1.fr ([193.49.225.20]:1727 "EHLO
+	Tue, 3 May 2005 10:13:52 -0400
+Received: from reserv6.univ-lille1.fr ([193.49.225.20]:26559 "EHLO
 	reserv6.univ-lille1.fr") by vger.kernel.org with ESMTP
-	id S261564AbVECOJJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 10:09:09 -0400
-Message-ID: <42778601.9060807@lifl.fr>
-Date: Tue, 03 May 2005 16:09:05 +0200
+	id S261572AbVECOKG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 10:10:06 -0400
+Message-ID: <4277863B.2090208@lifl.fr>
+Date: Tue, 03 May 2005 16:10:03 +0200
 From: Eric Piel <Eric.Piel@lifl.fr>
 User-Agent: Mozilla Thunderbird 1.0.2-3mdk (X11/20050322)
 X-Accept-Language: fr, en
@@ -19,11 +19,11 @@ To: linux-kernel@vger.kernel.org
 CC: Philippe Marquet <Philippe.Marquet@lifl.fr>,
        Christophe Osuna <osuna@lifl.fr>, Julien Soula <soula@lifl.fr>,
        Jean-Luc Dekeyser <dekeyser@lifl.fr>, paul.mckenney@us.ibm.com
-Subject: [2/3] ARTiS, an asymmetric real-time scheduler - x86
+Subject: [3/3] ARTiS, an asymmetric real-time scheduler - IA-64
 References: <42778532.7090806@lifl.fr>
 In-Reply-To: <42778532.7090806@lifl.fr>
 Content-Type: multipart/mixed;
- boundary="------------070301010005050503090507"
+ boundary="------------040001070002000802020700"
 X-USTL-MailScanner-Information: Please contact the ISP for more information
 X-USTL-MailScanner: Found to be clean
 X-MailScanner-From: eric.piel@lifl.fr
@@ -31,25 +31,25 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------070301010005050503090507
+--------------040001070002000802020700
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Here is the architecture dependant part of ARTiS for x86.
+Here is the Here is the architecture dependant part of ARTiS for IA-64.
 
---------------070301010005050503090507
+--------------040001070002000802020700
 Content-Type: text/x-patch;
- name="artis-2.6.11-20050502-i386.patch"
+ name="artis-2.6.11-20050502-ia64.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="artis-2.6.11-20050502-i386.patch"
+ filename="artis-2.6.11-20050502-ia64.patch"
 
-diff -urpN -X /export/src/patches/dontdiff -X /export/src/patches/dontdiff2 2.6.11-pfm/arch/i386/Kconfig 2.6.11-artis-cvs/arch/i386/Kconfig
---- 2.6.11-pfm/arch/i386/Kconfig	2005-03-02 08:37:49.000000000 +0100
-+++ 2.6.11-artis-cvs/arch/i386/Kconfig	2005-04-22 18:08:19.000000000 +0200
-@@ -528,6 +528,32 @@ config PREEMPT_BKL
- 	  Say Y here if you are building a kernel for a desktop system.
- 	  Say N if you are unsure.
+diff -urpN -X /export/src/patches/dontdiff -X /export/src/patches/dontdiff2 2.6.11-pfm/arch/ia64/Kconfig 2.6.11-artis-cvs/arch/ia64/Kconfig
+--- 2.6.11-pfm/arch/ia64/Kconfig	2005-03-02 08:38:26.000000000 +0100
++++ 2.6.11-artis-cvs/arch/ia64/Kconfig	2005-04-22 18:08:19.000000000 +0200
+@@ -46,6 +46,32 @@ config GENERIC_IOMAP
+ 	bool
+ 	default y
  
 +config ARTIS
 +	bool "Compile the kernel with ARTiS support (EXPERIMENTAL)"
@@ -58,194 +58,182 @@ diff -urpN -X /export/src/patches/dontdiff -X /export/src/patches/dontdiff2 2.6.
 +		ARTiS is an "Asymmetric Real-Time Scheduling". When activated,
 +		the real-time tasks will be insured of low latencies. It works
 +		by automatically migrating the normal tasks out from CPUs running
-+		real-time tasks when they would trigger a preemption disable or a
++		real-time tasks when they would trigger a preemption disable or an
 +		IRQ disable. Obviously, a SMP system is required (SMT works too).
 +		Note that it will not be activated by default, you need to select
 +		it at boot time. For more information, see Documentation/artis.txt.
 +
 +config ARTIS_DEBUG
-+	bool "Compile the kernel with ARTiS debugging support (EXPERIMENTAL)"
-+	depends on ARTIS
-+	help
++       bool "Compile the kernel with ARTiS debugging support (EXPERIMENTAL)"
++       depends on ARTIS
++       help
 +		Activate debuging code in ARTiS, you probably don't want this, excepted
 +		if you want to hack on ARTiS.
 +
 +config ARTIS_STAT
-+	bool "Compile the kernel with ARTiS accounting support (EXPERIMENTAL)"
-+	depends on ARTIS
-+	help
++       bool "Compile the kernel with ARTiS accounting support (EXPERIMENTAL)"
++       depends on ARTIS
++       help
 +		Activate statistics about ARTiS, available in /proc. There is no (or
 +		very little) performance penalty, so you can safely say "yes" here.
 +
- config X86_UP_APIC
- 	bool "Local APIC support on uniprocessors" if !SMP
- 	depends on !(X86_VISWS || X86_VOYAGER)
-diff -urpN -X /export/src/patches/dontdiff -X /export/src/patches/dontdiff2 2.6.11-pfm/arch/i386/kernel/entry.S 2.6.11-artis-cvs/arch/i386/kernel/entry.S
---- 2.6.11-pfm/arch/i386/kernel/entry.S	2005-03-02 08:37:51.000000000 +0100
-+++ 2.6.11-artis-cvs/arch/i386/kernel/entry.S	2005-04-26 01:21:48.000000000 +0200
-@@ -361,13 +361,25 @@ common_interrupt:
- 	call do_IRQ
- 	jmp ret_from_intr
- 
-+#ifdef CONFIG_ARTIS
- #define BUILD_INTERRUPT(name, nr)	\
- ENTRY(name)				\
- 	pushl $nr-256;			\
- 	SAVE_ALL			\
-+	call function_artis_migration_disable; \
- 	movl %esp,%eax;			\
- 	call smp_/**/name;		\
-+	call function_artis_migration_enable; \
- 	jmp ret_from_intr;
-+#else
-+#define BUILD_INTERRUPT(name, nr)	\
-+ENTRY(name)				\
-+	pushl $nr-256;			\
-+	SAVE_ALL			\
-+	movl %esp,%eax;			\
-+	call smp_/**/name;	\
-+	jmp ret_from_intr;
-+#endif
- 
- /* The include is where all of the SMP etc. interrupts come from */
- #include "entry_arch.h"
-diff -urpN -X /export/src/patches/dontdiff -X /export/src/patches/dontdiff2 2.6.11-pfm/arch/i386/kernel/traps.c 2.6.11-artis-cvs/arch/i386/kernel/traps.c
---- 2.6.11-pfm/arch/i386/kernel/traps.c	2005-03-02 08:37:49.000000000 +0100
-+++ 2.6.11-artis-cvs/arch/i386/kernel/traps.c	2005-03-25 19:47:46.000000000 +0100
-@@ -95,6 +95,31 @@ static int kstack_depth_to_print = 24;
- struct notifier_block *i386die_chain;
- static DEFINE_SPINLOCK(die_notifier_lock);
+ choice
+ 	prompt "System type"
+ 	default IA64_GENERIC
+diff -urpN -X /export/src/patches/dontdiff -X /export/src/patches/dontdiff2 2.6.11-pfm/arch/ia64/kernel/process.c 2.6.11-artis-cvs/arch/ia64/kernel/process.c
+--- 2.6.11-pfm/arch/ia64/kernel/process.c	2005-03-02 08:38:08.000000000 +0100
++++ 2.6.11-artis-cvs/arch/ia64/kernel/process.c	2005-03-25 19:47:46.000000000 +0100
+@@ -229,6 +229,43 @@ static inline void play_dead(void)
+ }
+ #endif /* CONFIG_HOTPLUG_CPU */
  
 +#ifdef CONFIG_ARTIS_DEBUG
-+void artis_put_trace(void **bt, struct task_struct *task, unsigned long * stack)
++#include <linux/artis.h>
++void
++artis_ia64_put_trace(struct unw_frame_info *info, void *arg)
 +{
-+       int i, artis_skip_bt=0;
-+       unsigned long addr;
++	void **bt = (void **)arg;
++	int i, artis_skip_bt, r_unw;
++	unsigned long ip, sp, bsp;
 +
-+       if (!stack)
-+               stack = (unsigned long*)&stack;
-+       memset(bt, 0, ARTIS_BT_SIZE*sizeof(void *));
-+       for(i=artis_skip_bt; i>0 && !kstack_end(stack); ) {
-+               addr = *stack++;
-+               if (kernel_text_address(addr))
-+                       i--;
-+       }
-+       for(i=ARTIS_BT_SIZE; i>0 && !kstack_end(stack); ) {
-+               addr = *stack++;
-+               if (kernel_text_address(addr)) {
-+                       i--;
-+                       bt[i]=(void *)addr;
-+               }
-+       }
++	memset(bt, 0, ARTIS_BT_SIZE*sizeof(void *));
++	r_unw=0; 
++	artis_skip_bt=0;
++	for(i=artis_skip_bt-1;
++			i>=0 && r_unw>=0; 
++			i--, r_unw=unw_unwind(info)) {
++		unw_get_ip(info, &ip);
++		if (ip == 0)
++			break;
++		unw_get_sp(info, &sp);
++		unw_get_bsp(info, &bsp);
++	}
++	for(i=ARTIS_BT_SIZE-1;
++			i>=0 && r_unw>=0; 
++			i--, r_unw=unw_unwind(info)) {
++		unw_get_ip(info, &ip);
++		if (ip == 0)
++			break;
++		unw_get_sp(info, &sp);
++		unw_get_bsp(info, &bsp);
++		bt[i] = (void *)ip;
++	}
++}
++void
++artis_put_trace(void **bt, struct task_struct *task, unsigned long *stack) {
++		unw_init_running(artis_ia64_put_trace, (void *)bt);
 +}
 +#endif
-+
-+
- int register_die_notifier(struct notifier_block *nb)
+ 
+ void cpu_idle_wait(void)
  {
- 	int err = 0;
-diff -urpN -X /export/src/patches/dontdiff -X /export/src/patches/dontdiff2 2.6.11-pfm/include/asm-i386/bug.h 2.6.11-artis-cvs/include/asm-i386/bug.h
---- 2.6.11-pfm/include/asm-i386/bug.h	2005-03-02 08:37:49.000000000 +0100
-+++ 2.6.11-artis-cvs/include/asm-i386/bug.h	2005-03-25 19:47:46.000000000 +0100
-@@ -2,6 +2,7 @@
- #define _I386_BUG_H
+diff -urpN -X /export/src/patches/dontdiff -X /export/src/patches/dontdiff2 2.6.11-pfm/include/asm-ia64/bug.h 2.6.11-artis-cvs/include/asm-ia64/bug.h
+--- 2.6.11-pfm/include/asm-ia64/bug.h	2005-03-02 08:38:34.000000000 +0100
++++ 2.6.11-artis-cvs/include/asm-ia64/bug.h	2005-03-25 19:47:46.000000000 +0100
+@@ -1,12 +1,20 @@
+ #ifndef _ASM_IA64_BUG_H
+ #define _ASM_IA64_BUG_H
  
- #include <linux/config.h>
 +#include <linux/artis-macros.h>
- 
- /*
-  * Tell the user there is some problem.
-@@ -10,13 +11,19 @@
-  */
- 
- #ifdef CONFIG_DEBUG_BUGVERBOSE
--#define BUG()				\
-+#define _old_BUG()				\
-  __asm__ __volatile__(	"ud2\n"		\
- 			"\t.word %c0\n"	\
- 			"\t.long %c1\n"	\
- 			 : : "i" (__LINE__), "i" (__FILE__))
++
+ #if (__GNUC__ > 3) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1)
+ # define ia64_abort()	__builtin_trap()
  #else
--#define BUG() __asm__ __volatile__("ud2\n")
-+#define _old_BUG() __asm__ __volatile__("ud2\n")
-+#endif
+ # define ia64_abort()	(*(volatile int *) 0 = 0)
+ #endif
+-#define BUG() do { printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); ia64_abort(); } while (0)
++#define _old_BUG() do { printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); ia64_abort(); } while (0)
 +
 +#if defined(CONFIG_ARTIS_DEBUG)
-+#define BUG() ARTIS_BUG(1,0)
++#define BUG() do { ARTIS_BUG(1,0); } while (0)
 +#else
 +#define BUG() _old_BUG()
- #endif
++#endif
  
+ /* should this BUG should be made generic? */
  #define HAVE_ARCH_BUG
-diff -urpN -X /export/src/patches/dontdiff -X /export/src/patches/dontdiff2 2.6.11-pfm/include/asm-i386/system.h 2.6.11-artis-cvs/include/asm-i386/system.h
---- 2.6.11-pfm/include/asm-i386/system.h	2005-03-02 08:37:30.000000000 +0100
-+++ 2.6.11-artis-cvs/include/asm-i386/system.h	2005-03-25 19:47:46.000000000 +0100
-@@ -441,9 +441,13 @@ struct alt_instr { 
- #define set_wmb(var, value) do { var = value; wmb(); } while (0)
+diff -urpN -X /export/src/patches/dontdiff -X /export/src/patches/dontdiff2 2.6.11-pfm/include/asm-ia64/system.h 2.6.11-artis-cvs/include/asm-ia64/system.h
+--- 2.6.11-pfm/include/asm-ia64/system.h	2005-03-02 08:38:07.000000000 +0100
++++ 2.6.11-artis-cvs/include/asm-ia64/system.h	2005-03-25 19:47:46.000000000 +0100
+@@ -121,7 +121,7 @@ extern struct ia64_boot_param {
+  *   write a floating-point register right before reading the PSR
+  *   and that writes to PSR.mfl
+  */
+-#define __local_irq_save(x)			\
++#define _raw__local_irq_save(x)			\
+ do {						\
+ 	ia64_stop();				\
+ 	(x) = ia64_getreg(_IA64_REG_PSR);	\
+@@ -129,13 +129,47 @@ do {						\
+ 	ia64_rsm(IA64_PSR_I);			\
+ } while (0)
  
- /* interrupt control.. */
--#define local_save_flags(x)	do { typecheck(unsigned long,x); __asm__ __volatile__("pushfl ; popl %0":"=g" (x): /* no input */); } while (0)
--#define local_irq_restore(x) 	do { typecheck(unsigned long,x); __asm__ __volatile__("pushl %0 ; popfl": /* no output */ :"g" (x):"memory", "cc"); } while (0)
--#define local_irq_disable() 	__asm__ __volatile__("cli": : :"memory")
-+#define local_save_flags(x)		\
-+do { 					\
-+	typecheck(unsigned long,x); 	\
-+	__asm__ __volatile__("pushfl ; popl %0":"=g" (x): /* no input */); \
-+} while (0)
-+
-+#define _raw_local_irq_disable() __asm__ __volatile__("cli": : :"memory")
- #define local_irq_enable()	__asm__ __volatile__("sti": : :"memory")
- /* used in the idle loop; sti takes one instruction cycle to complete */
- #define safe_halt()		__asm__ __volatile__("sti; hlt": : :"memory")
-@@ -456,7 +460,48 @@ struct alt_instr { 
- })
+-#define __local_irq_disable()			\
++#define _raw__local_irq_disable()		\
+ do {						\
+ 	ia64_stop();				\
+ 	ia64_rsm(IA64_PSR_I);			\
+ } while (0)
  
- /* For spinlocks etc */
--#define local_irq_save(x)	__asm__ __volatile__("pushfl ; popl %0 ; cli":"=g" (x): /* no input */ :"memory")
-+#define _raw_local_irq_save(x) __asm__ __volatile__("pushfl ; popl %0 ; cli":"=g" (x): /* no input */ :"memory")
-+
+-#define __local_irq_restore(x)	ia64_intrin_local_irq_restore((x) & IA64_PSR_I)
++#define _raw__local_irq_restore(x)	ia64_intrin_local_irq_restore((x) & IA64_PSR_I)
 +
 +#ifdef CONFIG_ARTIS
++#include <linux/artis-macros.h>
 +
-+/* ARTIS: force migration on irq disable. We use the "preempt_disable" work
-+ * around to do it because the funtion "artis_try_to_migrate" assume
-+ * that preemption is already disabled */
-+#define local_irq_restore(x)   		\
-+do { 					\
-+	typecheck(unsigned long,x); 	\
-+	if (!((x) & (1<<9))) { 		\
-+		artis_force_migration();\
-+	}; 				\
-+	__asm__ __volatile__("pushl %0 ; popfl": /* no output */ :"g" (x):"memory", "cc");  \
++/* Overwrite all functions "dangerous" for real-time: migrate task on
++ * non real-time CPU */
++
++#define __local_irq_save(x) 			\
++do { 						\
++	artis_force_migration(); 		\
++	_raw__local_irq_save(x); 		\
 +} while (0)
 +
-+#define local_irq_disable()    		\
-+do {  					\
-+	artis_force_migration();	\
-+	_raw_local_irq_disable(); 	\
++#define __local_irq_disable() 			\
++do { 						\
++	artis_force_migration(); 		\
++	_raw__local_irq_disable(); 		\
 +} while (0)
 +
-+#define local_irq_save(x)      		\
-+do { 					\
-+	artis_force_migration();	\
-+	_raw_local_irq_save(x); 	\
-+} while(0)
++#define __local_irq_restore(x) 			\
++do { 						\
++	if (!((x) & IA64_PSR_I)) 		\
++		artis_force_migration(); 	\
++	_raw__local_irq_restore(x); 		\
++} while (0)
 +
 +#else
 +
-+#define local_irq_restore(x)      	\
-+do { 					\
-+	typecheck(unsigned long,x); 	\
-+	__asm__ __volatile__("pushl %0 ; popfl": /* no output */ :"g" (x):"memory", "cc");  				\
-+} while (0)
-+
-+#define local_irq_disable() _raw_local_irq_disable()
-+#define local_irq_save(x) _raw_local_irq_save(x)
++#define __local_irq_save(x) 	_raw__local_irq_save(x)
++#define __local_irq_disable() 	_raw__local_irq_disable()
++#define __local_irq_restore(x) 	_raw__local_irq_restore(x)
 +
 +#endif
 +
  
- /*
-  * disable hlt during certain critical i/o operations
+ #ifdef CONFIG_IA64_DEBUG_IRQ
+ 
+@@ -282,6 +316,20 @@ do {						\
+ #define finish_arch_switch(rq, prev)	spin_unlock_irq(&(prev)->switch_lock)
+ #define task_running(rq, p) 		((rq)->curr == (p) || spin_is_locked(&(p)->switch_lock))
+ 
++#ifdef CONFIG_ARTIS
++/* On IA64, the end of scheduler releases the runqueue lock, 
++ * so a wake-up has re-activated the task and we must
++ * deactivate it
++ * */
++#define artis_complete_arch(rq, task) 		\
++do { 						\
++	spin_lock(&(rq)->lock); 		\
++	if ((task)->array) 			\
++		deactivate_task((task),(rq)); 	\
++} while(0)
++#define artis_finish_complete_arch(rq, task) spin_unlock(&(rq)->lock)
++#endif
++
+ #define ia64_platform_is(x) (strcmp(x, platform_name) == 0)
+ 
+ void cpu_idle_wait(void);
 
---------------070301010005050503090507--
+--------------040001070002000802020700--

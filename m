@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbVECU0d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbVECUjH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261682AbVECU0d (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 16:26:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbVECU0d
+	id S261684AbVECUjH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 16:39:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbVECUjH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 16:26:33 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:39839 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261682AbVECU0c
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 16:26:32 -0400
-Subject: [ANNOUNCE] jfsutils-1.1.8
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: JFS Discussion <jfs-discussion@lists.sourceforge.net>,
+	Tue, 3 May 2005 16:39:07 -0400
+Received: from thunk.org ([69.25.196.29]:18825 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S261684AbVECUjE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 16:39:04 -0400
+Date: Tue, 3 May 2005 16:38:42 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+Cc: Davy Durham <pubaddr2@davyandbeth.com>,
        linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Tue, 03 May 2005 15:26:28 -0500
-Message-Id: <1115151988.8067.10.camel@localhost>
+Subject: Re: ext3 issue..
+Message-ID: <20050503203842.GA17985@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+	Davy Durham <pubaddr2@davyandbeth.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <4270FA5B.5060609@davyandbeth.com> <20050428200908.GB6669@thunk.org> <20050428205536.GA2297@csclub.uwaterloo.ca>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050428205536.GA2297@csclub.uwaterloo.ca>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Release 1.1.8 of jfsutils was made available today.
- 
- This release include the following changes to the utilities:
- 
- - fsck should not bail out if reserved (but unused) inode 1 is bad
- - code cleanup - remove unused variables, eliminate compiler warnings
- - Added blocks parameter to jfs_mkfs to specify file system size
- - Ensure that data gets flushed to disk
- - Fix bug in replaying journal that corrupted inodes
- - Update directory index table when moving directory entries
- - Use O_DIRECT when checking for bad blocks (jfs_mkfs -c)
+On Thu, Apr 28, 2005 at 04:55:36PM -0400, Lennart Sorensen wrote:
+> 
+> I think I have seen this once or twice in the past.  A reboot always
+> made it go away and it didn't seem to come back.  fsck never showed
+> anything so I assumed it was just the kernel having lost its mind about
+> the state of the FS.
+> 
+> I think I was using 2.4.18 or so at the time I last saw it.  It is quite
+> a while ago but it was ext3 as well as far as I recall.
 
- For more details about JFS, please see our website:
- http://jfs.sourceforge.net
--- 
-David Kleikamp
-IBM Linux Technology Center
+That's a different problem; in this case apparently the corruption is
+extending to the on-disk superblock accounting information (so fsck is
+detecting evidence of it).  Fortunately this sort of corruption won't
+cause data loss, but we should figure out what the heck is going on.
 
+						- Ted

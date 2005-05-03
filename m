@@ -1,77 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261457AbVECK44@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261453AbVECK5z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261457AbVECK44 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 06:56:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbVECK4z
+	id S261453AbVECK5z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 06:57:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbVECK5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 06:56:55 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:37778 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S261449AbVECK4u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 06:56:50 -0400
-Message-ID: <427758BC.1090906@grupopie.com>
-Date: Tue, 03 May 2005 11:55:56 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Greg KH <greg@kroah.com>, joecool1029@gmail.com,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: Empty partition nodes not created (was device node issues with
- recent mm's and udev)
-References: <d4757e6005050219514ece0c0a@mail.gmail.com>	<20050503031421.GA528@kroah.com> <20050502202620.04467bbd.rddunlap@osdl.org>
-In-Reply-To: <20050502202620.04467bbd.rddunlap@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 3 May 2005 06:57:55 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:52488 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261453AbVECK5r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 06:57:47 -0400
+Date: Tue, 3 May 2005 12:57:43 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andrew Morton <akpm@osdl.org>, kbuild-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, Jesper Juhl <juhl-lkml@dif.dk>
+Subject: Re: [2.6 patch] Kconfig: rename "---help---" to "help" in Kconfig files (first part)
+Message-ID: <20050503105743.GE3592@stusta.de>
+References: <20050503003400.GO3592@stusta.de> <Pine.LNX.4.61.0505031107120.996@scrub.home> <20050503092202.GC3592@stusta.de> <Pine.LNX.4.61.0505031202080.996@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0505031202080.996@scrub.home>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-> On Mon, 2 May 2005 20:14:21 -0700 Greg KH wrote:
+On Tue, May 03, 2005 at 12:09:37PM +0200, Roman Zippel wrote:
+> Hi,
 > 
-> | On Mon, May 02, 2005 at 10:51:24PM -0400, Joe wrote:
-> | > Ok, first off I'd like to say, I am on 2.6.12-rc3-mm2, and this issue
-> | > is not fixed at all.  Secondly, I'd like to say that I've pinpointed
-> | > it a bit more.  It appears only Empty partitions (type 0 in fdisk) do
-> | > not create device nodes.
-> | > 
-> | > Here is the partition table from fdisk, fdisk does run fine.. its just
-> | > the fact this node is not created that threw me off before.
-> | > 
-> | >    Device Boot      Start         End      Blocks   Id  System
-> | > /dev/sdb1   *           1           2       16033+   0  Empty
-> | > /dev/sdb2   *           6        2431    19486845    b  W95 FAT32
-> | > /dev/sdb3               3           5       24097+  83  Linux
-> | > 
-> | > 
-> | > Notice, /dev/sdb1 is a Empty partition... in /dev I only have sdb,
-> | > sdb2, and sdb3.  No sdb1.  Any help would be appreciated.
-> | 
-> | Looks like it might be a scsi issue.  Redirecting to that mailing list
-> | now.  Anyone here have a clue?
+> On Tue, 3 May 2005, Adrian Bunk wrote:
 > 
-> Could this 2.6.11.8 -stable patch fix it?
-> Subject: [04/07] partitions/msdos.c fix
+> > The separator used for the help is to indent help texts by two 
+> > additional spaces.
 > 
-> Joe, can you test 2.6.11.8, please?
+> Yes, that's an additional indicator.
+> 
+> > IMHO, Kconfig files are quite readable due to this indentation even 
+> > though only a minority of the entries was using "---help---" even 
+> > before this patch.
+> 
+> So why exactly has to be removed? Is it ugly? Does it make Kconfig worse?
 
-It seems to me that this exactly the other way around. The patch is 
-probably already in -mm and is doing what it is supposed to do: don't 
-report partitions whose system ID == 0.
+The ugly thing is that there are currently two different ways to express 
+the same thing. It only causes confusion for people who think those 
+different syntaxes had a different meaning.
 
-Can you try to give the empty partition a type different than zero? You 
-don't need to make a file system on it or anything, just change the type.
+> Sorry, but only because it's not used that often, is not enough of a 
+> reason for me to remove it. If it helps only a little bit to spot the help 
+> text start easier, it's IMO worth to keep it.
 
-Or check if the patch Randy is pointing to is already in your tree and 
-revert it.
+Do you or does anyone else have a problem with spotting the help text 
+start with "only" two additional spaces indentation?
 
-I think this is a good argument not to include this patch on the -stable 
-release...
+If it's only for Aunt Tillie it's not required.
+
+> bye, Roman
+
+cu
+Adrian
 
 -- 
-Paulo Marques - www.grupopie.com
 
-All that is necessary for the triumph of evil is that good men do nothing.
-Edmund Burke (1729 - 1797)
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

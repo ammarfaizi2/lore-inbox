@@ -1,43 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbVECQgr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbVECQkw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261297AbVECQgr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 12:36:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVECQgr
+	id S261312AbVECQkw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 12:40:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbVECQkv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 12:36:47 -0400
-Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:24231 "EHLO
-	pickle.fieldses.org") by vger.kernel.org with ESMTP id S261297AbVECQgn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 12:36:43 -0400
-Date: Tue, 3 May 2005 12:36:28 -0400
-To: "William A.(Andy) Adamson" <andros@citi.umich.edu>
-Cc: Michael Kerrisk <michael.kerrisk@gmx.net>, matthew@wil.cx,
-       sfr@canb.auug.org.au, mtk-lkml@gmx.net, heiko.carstens@de.ibm.com,
-       linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com
-Subject: Re: fcntl: F_SETLEASE/F_RDLCK question
-Message-ID: <20050503163628.GB24293@fieldses.org>
-References: <20050503141552.F42371BAD1@citi.umich.edu> <5531.1115131813@www41.gmx.net> <20050503162124.500F01BB40@citi.umich.edu>
+	Tue, 3 May 2005 12:40:51 -0400
+Received: from animx.eu.org ([216.98.75.249]:13960 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S261312AbVECQkp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 12:40:45 -0400
+Date: Tue, 3 May 2005 12:40:12 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: Rick Warner <rick@microway.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: zImage on 2.6?
+Message-ID: <20050503164012.GE11937@animx.eu.org>
+Mail-Followup-To: Rick Warner <rick@microway.com>,
+	linux-kernel@vger.kernel.org
+References: <20050503012951.GA10459@animx.eu.org> <200505031206.09245.rick@microway.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050503162124.500F01BB40@citi.umich.edu>
-User-Agent: Mutt/1.5.9i
-From: "J. Bruce Fields" <bfields@fieldses.org>
+In-Reply-To: <200505031206.09245.rick@microway.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 03, 2005 at 12:21:24PM -0400, William A.(Andy) Adamson wrote:
-> the other side of the coin would be break_lease.
+Please keep me CCd
 
-Yeah, I'm a little confused as to why anyone would have the expectation
-that read leases would not conflict with write opens by the same
-process, given that break_lease() has never functioned that way, so
-later write opens by the same process have always broken any read lease.
+Rick Warner wrote:
+> On Monday 02 May 2005 09:29 pm, Wakko Warner wrote:
+> > Is it possible to use zImage on 2.6 kernels or is bzImage required?
+> Why do you need the zImage anyway?  Maybe there is another way around the 
+> problem you are having.  Can you post what you are trying to do (end goal) ?
 
-Are there applications that actually depend on the old behaviour?  Is
-there any documentation that blesses it?  All I can find is the fcntl
-man page, and as far as I can tell an implementation that makes read
-leases conflict with all write opens (by the same process or not) is
-consistent with that man page.
+This is a little project I'm doing to beable to load a system onto a hard
+drive.  The linux system is short lived by design and will run out of a
+tmpfs root populated by various tgz files found either on CDs or a USB
+stick.
 
---b.
+My goal (which I realize may not be achivable nor is it important in the
+long run) is to get the kernel and the initrd onto a single floppy disk
+(Currently, I'm ~80kb too large for this).
+
+I decided (remembering 2.2 days and prior when zImage was normally used) to
+try zImage to see what happened.  I was going to compare the size of the
+resulting images.  That's when I hit the problem.
+
+I understand that upx can compress the kernel better and I also remember
+hearing about utilizing bzip2 as the compressor for the kernel and initrd
+images.
+
+As far as my question, it still stands.  Is bzImage required (i386/x86) for
+a 2.6 kernel?
+
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

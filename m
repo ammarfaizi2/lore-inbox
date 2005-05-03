@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261372AbVECES1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261374AbVECEQj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261372AbVECES1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 00:18:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261379AbVECESZ
+	id S261374AbVECEQj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 00:16:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbVECEQj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 00:18:25 -0400
-Received: from rproxy.gmail.com ([64.233.170.202]:46407 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261372AbVECESL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 00:18:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Nqxyrn5TUegxLcNZvxjMIBoSkEFCVqbxxkWIhHyH4CNfvQX6QwCHHF2CXyryLlbaAhGBP00tSFYBxy2oD3Ov2pjz/98zhdpWN4Ls/XxmzgZP6jnnRlNWz61iFeGrBwj1VVbgdNsm0Yw5hAL6GMAfdMiAV9mU/88mJs14uysU4QI=
-Message-ID: <d4757e600505022118131ec083@mail.gmail.com>
-Date: Tue, 3 May 2005 00:18:05 -0400
-From: Joe <joecool1029@gmail.com>
-Reply-To: Joe <joecool1029@gmail.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: Empty partition nodes not created (was device node issues with recent mm's and udev)
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>
-In-Reply-To: <20050502202620.04467bbd.rddunlap@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <d4757e6005050219514ece0c0a@mail.gmail.com>
-	 <20050503031421.GA528@kroah.com>
-	 <20050502202620.04467bbd.rddunlap@osdl.org>
+	Tue, 3 May 2005 00:16:39 -0400
+Received: from fire.osdl.org ([65.172.181.4]:61386 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261374AbVECEQb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 00:16:31 -0400
+Date: Mon, 2 May 2005 21:18:23 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Matt Mackall <mpm@selenic.com>
+cc: Bill Davidsen <davidsen@tmr.com>, Morten Welinder <mwelinder@gmail.com>,
+       Sean <seanlkml@sympatico.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
+Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
+In-Reply-To: <20050503032916.GE22038@waste.org>
+Message-ID: <Pine.LNX.4.58.0505022116080.3594@ppc970.osdl.org>
+References: <20050429165232.GV21897@waste.org> <427650E7.2000802@tmr.com>
+ <Pine.LNX.4.58.0505021457060.3594@ppc970.osdl.org> <20050502223002.GP21897@waste.org>
+ <Pine.LNX.4.58.0505021540070.3594@ppc970.osdl.org> <20050503000011.GA22038@waste.org>
+ <Pine.LNX.4.58.0505021932270.3594@ppc970.osdl.org> <20050503032916.GE22038@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/2/05, Randy.Dunlap <rddunlap@osdl.org> wrote:
-> Could this 2.6.11.8 -stable patch fix it?
-> Subject: [04/07] partitions/msdos.c fix
-> 
-> Joe, can you test 2.6.11.8, please?
-> 
-> ---
-> ~Randy
-> 
 
-Randy, Can't run vanilla at the moment on this setup, any way you can
-get the patch seperate?  I also don't think that will fix it because
-this is an empty, not a msdos partition.
 
-Thanks,
-Joe
+On Mon, 2 May 2005, Matt Mackall wrote:
+> 
+> The delta is not the object I care about and its representation is
+> arbitrary. In fact different branches will store different deltas
+> depending on how their DAGs get topologically sorted. The object I
+> care about is the original text, so that's the hash I store.
+
+Ok. In that case, it sounds like you're really doing everything git is
+doing, except your "blob" objects effectively can have pointers to a
+previous object (and you have a different on-disk representation)?  Is
+that correct?
+
+			Linus

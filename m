@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261659AbVECT77@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261674AbVECUKc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261659AbVECT77 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 15:59:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbVECT77
+	id S261674AbVECUKc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 16:10:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261675AbVECUKc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 15:59:59 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:64483 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S261659AbVECT7p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 15:59:45 -0400
-Date: Tue, 3 May 2005 12:59:39 -0700
-To: Chris Hessing <Chris.Hessing@utah.edu>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Benjamin Reed <breed@zuzulu.com>, Jouni Malinen <jkmaline@cc.hut.fi>,
-       chessing@users.sourceforge.net
-Subject: Re: [PATCH] dynamic wep keys for airo.c
-Message-ID: <20050503195939.GA19741@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20050503183335.GA19691@bougret.hpl.hp.com> <4277C8CA.5070503@utah.edu>
+	Tue, 3 May 2005 16:10:32 -0400
+Received: from h80ad252c.async.vt.edu ([128.173.37.44]:37393 "EHLO
+	h80ad252c.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261674AbVECUK0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 16:10:26 -0400
+Message-Id: <200505032009.j43K9qQJ023179@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Haoqiang Zheng <haoqiang@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: question about contest benchmark 
+In-Reply-To: Your message of "Tue, 03 May 2005 14:29:59 EDT."
+             <1115144999.29445.7.camel@mindpipe> 
+From: Valdis.Kletnieks@vt.edu
+References: <d6e6e6dd05050311115d256213@mail.gmail.com>
+            <1115144999.29445.7.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4277C8CA.5070503@utah.edu>
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-User-Agent: Mutt/1.5.9i
-From: Jean Tourrilhes <jt@hpl.hp.com>
+Content-Type: multipart/signed; boundary="==_Exmh_1115150991_3418P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 03 May 2005 16:09:51 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 03, 2005 at 12:54:02PM -0600, Chris Hessing wrote:
-> 
-> I agree completely with Jean.  In fact, the needed patch to use 
-> IW_ENCODE_TEMP is already in Xsupplicant.  However, to remain on the 
-> conservative side I have provided a command line switch to disable the 
-> use of IW_ENCODE_TEMP.  (Although I don't know of anything that would 
-> require it.)
-> 
-> There was a new pre-release of Xsupplicant yesterday that will make use 
-> of IW_ENCODE_TEMP.  Please let me know if anything additional is needed.
+--==_Exmh_1115150991_3418P
+Content-Type: text/plain; charset=us-ascii
 
-	Wow ! That's even better ! Thanks a lot !
+On Tue, 03 May 2005 14:29:59 EDT, Lee Revell said:
 
-> Thanks!
+> But, it seems to me that even if an interactive process briefly goes CPU
+> bound (due to bloat, bugs, or intent), it should still be scheduled
+> preferentially to a pure CPU bound process like a build.
 
-	Jean
+So you want it to schedule that big image (Evolution) that's already used 5
+minutes of CPU since it started (this morning, admittedly) in preference to
+that cc1 process that will be gone before it's used 2 seconds of CPU, plus all
+the disk I/O that cc1 performs (hopefully the cache will help here, but it may
+indeed go to disk to read the source files)?
+
+
+--==_Exmh_1115150991_3418P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCd9qPcC3lWbTT17ARAq25AJ9xBIOm89gdTh8kmEfC8cQWh+pFswCg2lB9
+shjcg0AELsNxWWubRmB02n8=
+=Hz5r
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1115150991_3418P--

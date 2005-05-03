@@ -1,48 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbVECDUj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbVECD0g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261335AbVECDUj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 May 2005 23:20:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbVECDUj
+	id S261340AbVECD0g (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 May 2005 23:26:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbVECD0f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 May 2005 23:20:39 -0400
-Received: from 70-57-132-14.albq.qwest.net ([70.57.132.14]:28816 "EHLO
-	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S261335AbVECDUc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 May 2005 23:20:32 -0400
-Date: Mon, 2 May 2005 21:21:50 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] xprt.c use after free of work_structs
-In-Reply-To: <1115065314.11854.27.camel@lade.trondhjem.org>
-Message-ID: <Pine.LNX.4.61.0505022120280.12903@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.61.0504302142460.9467@montezuma.fsmlabs.com>
- <1115065314.11854.27.camel@lade.trondhjem.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 2 May 2005 23:26:35 -0400
+Received: from fire.osdl.org ([65.172.181.4]:13508 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261340AbVECD0a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 May 2005 23:26:30 -0400
+Date: Mon, 2 May 2005 20:26:20 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Greg KH <greg@kroah.com>
+Cc: joecool1029@gmail.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: Empty partition nodes not created (was device node issues with
+ recent mm's and udev)
+Message-Id: <20050502202620.04467bbd.rddunlap@osdl.org>
+In-Reply-To: <20050503031421.GA528@kroah.com>
+References: <d4757e6005050219514ece0c0a@mail.gmail.com>
+	<20050503031421.GA528@kroah.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 May 2005, Trond Myklebust wrote:
+On Mon, 2 May 2005 20:14:21 -0700 Greg KH wrote:
 
-> su den 01.05.2005 Klokka 00:02 (-0600) skreiv Zwane Mwaikambo:
-> > This bug was first observed in 2.6.11-rc1-mm2 but i couldn't find the 
-> > exact patch which would unmask it. The work_structs embedded in rpc_xprt 
-> > are freed in xprt_destroy without waiting for all scheduled work to be 
-> > completed, resulting in quite a kerfuffle. Since xprt->timer callback can 
-> > schedule new work, flush the workqueue after killing the timer.
-> 
-> Hi Zwane,
-> 
->   Thanks, I fully agree that this is needed.
-> 
->  Chuck proposed a similar patch to me a couple of days ago, however he
-> also pointed out that we need to call cancel_delayed_work() on
-> xprt->sock_connect in the same code section in order to avoid trouble
-> with the TCP reconnect code causing the same type of race. I've attached
-> his mail.
+| On Mon, May 02, 2005 at 10:51:24PM -0400, Joe wrote:
+| > Ok, first off I'd like to say, I am on 2.6.12-rc3-mm2, and this issue
+| > is not fixed at all.  Secondly, I'd like to say that I've pinpointed
+| > it a bit more.  It appears only Empty partitions (type 0 in fdisk) do
+| > not create device nodes.
+| > 
+| > Here is the partition table from fdisk, fdisk does run fine.. its just
+| > the fact this node is not created that threw me off before.
+| > 
+| >    Device Boot      Start         End      Blocks   Id  System
+| > /dev/sdb1   *           1           2       16033+   0  Empty
+| > /dev/sdb2   *           6        2431    19486845    b  W95 FAT32
+| > /dev/sdb3               3           5       24097+  83  Linux
+| > 
+| > 
+| > Notice, /dev/sdb1 is a Empty partition... in /dev I only have sdb,
+| > sdb2, and sdb3.  No sdb1.  Any help would be appreciated.
+| 
+| Looks like it might be a scsi issue.  Redirecting to that mailing list
+| now.  Anyone here have a clue?
 
-Yes i wasn't sure i had caught all the cases.
+Could this 2.6.11.8 -stable patch fix it?
+Subject: [04/07] partitions/msdos.c fix
 
-Takk!
-	Zwane
+Joe, can you test 2.6.11.8, please?
+
+---
+~Randy

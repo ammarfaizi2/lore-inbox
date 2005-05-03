@@ -1,83 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261923AbVECXq1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261950AbVEDAaS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261923AbVECXq1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 19:46:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbVECXq1
+	id S261950AbVEDAaS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 20:30:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbVEDAaR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 19:46:27 -0400
-Received: from mailfe08.swip.net ([212.247.154.225]:747 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S261923AbVECXqU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 19:46:20 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Subject: Re: 2.6.12-rc3 OOPS  in vanilla source (once more)
-From: Alexander Nyberg <alexn@telia.com>
-To: Stas Sergeev <stsp@aknet.ru>
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       Mateusz Berezecki <mateuszb@gmail.com>, linux-kernel@vger.kernel.org,
-       zwane@arm.linux.org.uk
-In-Reply-To: <4277B2EC.70605@aknet.ru>
-References: <42763388.1030008@gmail.com>
-	 <20050502200545.266b4e55.akpm@osdl.org>
-	 <1115120050.945.39.camel@localhost.localdomain>  <4277B2EC.70605@aknet.ru>
-Content-Type: text/plain
-Date: Wed, 04 May 2005 01:45:58 +0200
-Message-Id: <1115163958.945.76.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Tue, 3 May 2005 20:30:17 -0400
+Received: from de01egw01.freescale.net ([192.88.165.102]:22986 "EHLO
+	de01egw01.freescale.net") by vger.kernel.org with ESMTP
+	id S261950AbVEDAaA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 20:30:00 -0400
+Date: Tue, 3 May 2005 18:50:38 -0500 (CDT)
+From: Kumar Gala <galak@freescale.com>
+X-X-Sender: galak@nylon.am.freescale.net
+To: Greg KH <greg@kroah.com>
+cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com,
+       linuxppc-embedded <linuxppc-embedded@ozlabs.org>
+Subject: [PATCH] I2C-MPC: Allow for sharing of the interrupt line
+Message-ID: <Pine.LNX.4.61.0505031849120.19691@nylon.am.freescale.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > So, my solution is to instead of just adjusting esp0 that creates an
-> > inconsitent state I adjust where the user-space registers are saved with
-> > -8 bytes.
-> When I did that offending patch,
-> I was thinking the following way:
-> - Do we need to adjust that initial
-> copy of child regs by the 8 bytes too?
-> - Well, we need that 8 bytes only
-> when the "struct pt_regs" is incomplete.
-> Here we copy the *complete* "struct pt_regs",
-> so shifting that here makes no sense.
-> 
-> And so I adjusted only esp0 and
-> nothing else. I think this may
-> actually still be valid.
+I2C-MPC: Allow for sharing of the interrupt line
 
-No I don't think it's valid. esp0 indicates the start of the stack and
-right before it you copy the saved registers to a position that does not
-correspond to this. And at this point, like you say we know the size of
-what will be copied onto the stack so it makes even more sense to make
-it correct from the beginning. Having inconsistent states is just asking
-for more trouble.
+On the MPC8548 devices we have multiple I2C-MPC buses however they are on the
+same interrupt line.  Made request_irq pass SA_SHIRQ now so the second bus can
+register for the same IRQ.
 
-> > This gives us the wanted extra bytes on the start of the stack
-> > and esp0 is now correct.
-> Yes, it is now correct by the mean
-> that it points to the top of the
-> "struct pt_regs" on the thread startup.
-> However, it is not *always* points
-> to the top of the "struct pt_regs".
-> This -8 means exactly that esp0 can
-> also point 8 bytes below the top of
-> the "struct pt_regs" - that's what
-> we've seen on a sysenter path, and
-> that's what used crash either.
-> So I think using esp0 to locate the
-> top of the "struct pt_regs" is wrong.
-> It doesn't always point to the top
-> of that struct. Sometimes it does,
-> but sometimes points 8 bytes lower.
-> IMHO the ptrace.c have to be fixed
-> instead so to not use this wrong
-> assumption any more. What do you think?
+Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 
->From my reading a task that is scheduled away cannot have a partial
-saved pt_regs. If this is correct then ptrace won't suffer from this
-problem as the traced child is scheduled away before the parent
-investigates its status.
+---
+commit cc75b79f8142eb8a50432cf612bb1ab189136cd0
+tree 79fd2184cd5cfee440f3ca2952f7c9f834ece443
+parent 52292c9b8c16aa9024a65aaeeca434bb8fec7d24
+author Kumar K. Gala <kumar.gala@freescale.com> 1115164017 -0500
+committer Kumar K. Gala <kumar.gala@freescale.com> 1115164017 -0500
 
-I need to look at the partial stack issue closer, don't think I fully
-understand it yet.
-
+Index: drivers/i2c/busses/i2c-mpc.c
+===================================================================
+--- 59c7aae8cab7c4e1e557dd3a4fff6afbffab38e2/drivers/i2c/busses/i2c-mpc.c  (mode:100644 sha1:6f33496d31c31e6c57d3d2479db4afb4dad23617)
++++ 79fd2184cd5cfee440f3ca2952f7c9f834ece443/drivers/i2c/busses/i2c-mpc.c  (mode:100644 sha1:c8a8703dcbcb16fdd5ccd5fddf8f322d2509d5dd)
+@@ -325,7 +325,7 @@
+ 	if (i2c->irq != OCP_IRQ_NA)
+ 	{
+ 		if ((result = request_irq(ocp->def->irq, mpc_i2c_isr,
+-					  0, "i2c-mpc", i2c)) < 0) {
++					  SA_SHIRQ, "i2c-mpc", i2c)) < 0) {
+ 			printk(KERN_ERR
+ 			       "i2c-mpc - failed to attach interrupt\n");
+ 			goto fail_irq;
+@@ -424,7 +424,7 @@
+ 
+ 	if (i2c->irq != 0)
+ 		if ((result = request_irq(i2c->irq, mpc_i2c_isr,
+-					  0, "fsl-i2c", i2c)) < 0) {
++					  SA_SHIRQ, "i2c-mpc", i2c)) < 0) {
+ 			printk(KERN_ERR
+ 			       "i2c-mpc - failed to attach interrupt\n");
+ 			goto fail_irq;

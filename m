@@ -1,66 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261589AbVECOWS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261694AbVECO1h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261589AbVECOWS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 10:22:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261572AbVECOVH
+	id S261694AbVECO1h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 10:27:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261572AbVECO0q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 10:21:07 -0400
-Received: from firewall.miltope.com ([208.12.184.221]:49706 "EHLO
-	smtp.miltope.com") by vger.kernel.org with ESMTP id S261610AbVECOSY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 10:18:24 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 3 May 2005 10:26:46 -0400
+Received: from fisica.ufpr.br ([200.17.209.129]:63718 "EHLO fisica.ufpr.br")
+	by vger.kernel.org with ESMTP id S261701AbVECOZJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 10:25:09 -0400
+Message-Id: <17015.35256.12650.37887@fisica.ufpr.br>
+Date: Tue, 3 May 2005 11:24:56 -0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: clock drift with two Promise Ultra133 TX2 (PDC 20269) cards
-Date: Tue, 3 May 2005 09:18:58 -0500
-Message-ID: <66F9227F7417874C8DB3CEB057727417045146@MILEX0.Miltope.local>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: clock drift with two Promise Ultra133 TX2 (PDC 20269) cards
-Thread-Index: AcVPTT5SbPXilsQYQMqO31c0dBm7kQAnKCyQ
-From: "Drew Winstel" <DWinstel@Miltope.com>
-To: "Oskar Liljeblad" <oskar@osk.mine.nu>, <linux-ide@vger.kernel.org>
-Cc: <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Subject: problem with nice values and cpu consumption in 2.6.11-5
+X-Mailer: VM 7.19 under Emacs 21.4.1
+From: carlos@fisica.ufpr.br (Carlos Carvalho)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Look at this cpu usage in a two-processor machine:
 
+  893 user1   39  19  7212 5892  492 R 99.7  1.1   3694:29 mi41
+ 1118 user2   25   0  155m  61m  624 R 50.0 12.3 857:54.18 b170-se.x
+ 1186 user3   25   0  155m  62m  640 R 50.2 12.3 103:25.22 b170-se.x
 
->I'm running 2.6.11.8 on an server with two Promise Ultra133 TX2 (PDC20269)
->PCI cards, same hardware revision (judging from stickers on the cards).
->I'm using the CONFIG_BLK_DEV_PDC202XX_NEW driver.
->Each card has two connected hard drives. Whenever I read from a disk
->on one of the cards (e.g. using 'dd if=/dev/hdX of=/dev/null bs=1M'), and
->at the same time read from a disk on the other card, there is heavy
->software clock drift. It drifts about 2-5 seconds per minute.
+The job with nice 19 seems to be using 100% of cpu time while the
+other two nice 0 jobs share a single processor with 50% only. This is
+persistent, not a transient. I did a kill -STOP to the nice 19 job and
+a kill -CONT, and for a while it decreased the cpu usage but later
+returned to the above.
 
->This does not happen if I read from two drives connected on the same
->card, or if I read from a drive connected to the motherboard IDE
->(VIA vt8233a) and a drive on either of the Promise cards.
-
->Oskar Liljeblad (oskar@osk.mine.nu)
-
-Just to verify your setup:
-
-You have a total of four hard drives connected to your PDC20269, hde, hdg, 
-hdi, and hdk, correct?
-
-Are all four drives running in DMA mode?
-
-Please post the output of lspci -vv and hdparm run on each of the four hard 
-drives.
-
-Also, you may want to try downloading and using Albert Lee's pata_pdc2027x 
-driver (part of libata-dev-2.6 tree).  See info at my thread from earlier:
-http://marc.theaimsgroup.com/?l=linux-ide&m=110902518625384&w=2
-
-Download the latest libata-dev patch set at 
-http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/
-
-Hope this gets you started.
-
-Drew
+This is with kernel 2.6.11-5 and top 3.2.5. What's the reason for this
+(apparent??) mis-behavior and how can I correct it? This is important
+because the machine is used for number-crunching and users get really
+upset when they don't get the expected share of cpu time...

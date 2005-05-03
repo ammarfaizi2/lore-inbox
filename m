@@ -1,74 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261806AbVECVms@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261821AbVECVrs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261806AbVECVms (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 17:42:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbVECVms
+	id S261821AbVECVrs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 17:47:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbVECVrr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 17:42:48 -0400
-Received: from mail.microway.com ([64.80.227.22]:3989 "EHLO mail.microway.com")
-	by vger.kernel.org with ESMTP id S261806AbVECVmp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 17:42:45 -0400
-From: Rick Warner <rick@microway.com>
-Organization: Microway, Inc.
-To: Wakko Warner <wakko@animx.eu.org>
-Subject: Re: zImage on 2.6?
-Date: Tue, 3 May 2005 17:42:40 -0400
-User-Agent: KMail/1.7.2
-References: <20050503012951.GA10459@animx.eu.org> <200505031206.09245.rick@microway.com> <20050503164012.GE11937@animx.eu.org>
-In-Reply-To: <20050503164012.GE11937@animx.eu.org>
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <200505031742.40554.rick@microway.com>
-X-Sanitizer: Advosys mail filter
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 3 May 2005 17:47:47 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:42661 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261821AbVECVrM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 17:47:12 -0400
+Date: Tue, 3 May 2005 14:47:07 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: john stultz <johnstul@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, albert@users.sourceforge.net,
+       paulus@samba.org, schwidefsky@de.ibm.com, mahuja@us.ibm.com,
+       donf@us.ibm.com, mpm@selenic.com, benh@kernel.crashing.org
+Subject: Re: [RFC][PATCH] new timeofday-based soft-timer subsystem
+Message-ID: <20050503214707.GE3372@us.ibm.com>
+References: <1114814747.28231.2.camel@cog.beaverton.ibm.com> <20050429233546.GB2664@us.ibm.com> <20050503170224.GA2776@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20050503170224.GA2776@us.ibm.com>
+X-Operating-System: Linux 2.6.12-rc3-mm2 (i686)
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 03 May 2005 12:40 pm, Wakko Warner wrote:
-> Please keep me CCd
->
-> Rick Warner wrote:
-> > On Monday 02 May 2005 09:29 pm, Wakko Warner wrote:
-> > > Is it possible to use zImage on 2.6 kernels or is bzImage required?
-> >
-> > Why do you need the zImage anyway?  Maybe there is another way around the
-> > problem you are having.  Can you post what you are trying to do (end
-> > goal) ?
->
-> This is a little project I'm doing to beable to load a system onto a hard
-> drive.  The linux system is short lived by design and will run out of a
-> tmpfs root populated by various tgz files found either on CDs or a USB
-> stick.
->
-> My goal (which I realize may not be achivable nor is it important in the
-> long run) is to get the kernel and the initrd onto a single floppy disk
-> (Currently, I'm ~80kb too large for this).
->
-> I decided (remembering 2.2 days and prior when zImage was normally used) to
-> try zImage to see what happened.  I was going to compare the size of the
-> resulting images.  That's when I hit the problem.
->
-> I understand that upx can compress the kernel better and I also remember
-> hearing about utilizing bzip2 as the compressor for the kernel and initrd
-> images.
->
-> As far as my question, it still stands.  Is bzImage required (i386/x86) for
-> a 2.6 kernel?
+On 03.05.2005 [10:02:24 -0700], Nishanth Aravamudan wrote:
+> On 29.04.2005 [16:35:46 -0700], Nishanth Aravamudan wrote:
+> > * john stultz <johnstul@us.ibm.com> [2005-0429 15:45:47 -0700]:
+> > 
+> > > All,
+> > >         This patch implements the architecture independent portion of
+> > > the time of day subsystem. For a brief description on the rework, see
+> > > here: http://lwn.net/Articles/120850/ (Many thanks to the LWN team for
+> > > that clear writeup!)
+> > 
+> > I have been working closely with John to re-work the soft-timer subsytem
+> > to use the new timeofday() subsystem. The following patch attempts to
+> > being this process. I would greatly appreciate any comments.
+> 
+> I am not sure if anyone has looked at this patch closely, but I have
+> noticed one issue: My code assumes that all the rounding will be done
+> internally (rounding up on addition to find to the nearest
+> timerinterval); however, current interfaces do much of the rounding
+> before passing on structures on to the soft-timer subsystem, because the
+> jiffies-based one always rounds down.
 
-As others have mentioned, bzImage seems to be a requirement now for x86.  
-However, zImage will not do any better for you.  I recall doing testing of 
-zImage vs bzImage a long time back, and the bzImage kernels were slightly 
-smaller than the zImage ones anyway.  I think you're going to be out of luck 
-trying to get your kernel that small.  A single floppy boot/root disk isn't 
-really possible with 2.6 kernels anymore.  Have you looked into pxe booting 
-instead?  I work at a cluster company and we do tons of pxe/network booting 
-stuff.
+A for instance: sys_nanosleep() assumes (correctly) that the
+jiffies-based soft-timer subsystem rounds down, so it rounds up (twice).
+But since I now round-up internally, that is not necessary. Fix
+sys_nanosleep() to do this right.
 
--- 
-Richard Warner
-Lead Systems Integrator
-Microway, Inc
-(508)732-5517
+Still todo: change restart->arg0 to be a pointer to an nsec_t.
+
+diff -urpN 2.6.12-rc2-tod/kernel/timer.c 2.6.12-rc2-tod-timer/kernel/timer.c
+--- 2.6.12-rc2-tod/kernel/timer.c	2005-05-02 12:59:04.000000000 -0700
++++ 2.6.12-rc2-tod-timer/kernel/timer.c	2005-05-03 09:13:43.000000000 -0700
+@@ -1141,21 +1311,21 @@ asmlinkage long sys_gettid(void)
+ 
+ static long __sched nanosleep_restart(struct restart_block *restart)
+ {
+-	unsigned long expire = restart->arg0, now = jiffies;
++	nsec_t expire = restart->arg0, now = do_monotonic_clock();
+ 	struct timespec __user *rmtp = (struct timespec __user *) restart->arg1;
+ 	long ret;
+ 
+ 	/* Did it expire while we handled signals? */
+-	if (!time_after(expire, now))
++	if (now > expire)
+ 		return 0;
+ 
+-	current->state = TASK_INTERRUPTIBLE;
+-	expire = schedule_timeout(expire - now);
++	set_current_state(TASK_INTERRUPTIBLE);
++	expire = schedule_timeout_nsecs(expire - now);
+ 
+ 	ret = 0;
+ 	if (expire) {
+ 		struct timespec t;
+-		jiffies_to_timespec(expire, &t);
++		t = ns2timespec(expire);
+ 
+ 		ret = -ERESTART_RESTARTBLOCK;
+ 		if (rmtp && copy_to_user(rmtp, &t, sizeof(t)))
+@@ -1168,7 +1338,7 @@ static long __sched nanosleep_restart(st
+ asmlinkage long sys_nanosleep(struct timespec __user *rqtp, struct timespec __user *rmtp)
+ {
+ 	struct timespec t;
+-	unsigned long expire;
++	nsec_t expire;
+ 	long ret;
+ 
+ 	if (copy_from_user(&t, rqtp, sizeof(t)))
+@@ -1177,20 +1347,20 @@ asmlinkage long sys_nanosleep(struct tim
+ 	if ((t.tv_nsec >= 1000000000L) || (t.tv_nsec < 0) || (t.tv_sec < 0))
+ 		return -EINVAL;
+ 
+-	expire = timespec_to_jiffies(&t) + (t.tv_sec || t.tv_nsec);
+-	current->state = TASK_INTERRUPTIBLE;
+-	expire = schedule_timeout(expire);
++	expire = timespec2ns(&t);
++	set_current_state(TASK_INTERRUPTIBLE);
++	expire = schedule_timeout_nsecs(expire);
+ 
+ 	ret = 0;
+ 	if (expire) {
+ 		struct restart_block *restart;
+-		jiffies_to_timespec(expire, &t);
++		t = ns2timespec(expire);
+ 		if (rmtp && copy_to_user(rmtp, &t, sizeof(t)))
+ 			return -EFAULT;
+ 
+ 		restart = &current_thread_info()->restart_block;
+ 		restart->fn = nanosleep_restart;
+-		restart->arg0 = jiffies + expire;
++		restart->arg0 = do_monotonic_clock() + expire;
+ 		restart->arg1 = (unsigned long) rmtp;
+ 		ret = -ERESTART_RESTARTBLOCK;
+ 	}
+
+

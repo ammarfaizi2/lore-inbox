@@ -1,60 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261784AbVECPfT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261793AbVECPj0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261784AbVECPfT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 11:35:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261789AbVECPfS
+	id S261793AbVECPj0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 11:39:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261794AbVECPj0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 11:35:18 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:65230 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S261784AbVECPe6 (ORCPT
+	Tue, 3 May 2005 11:39:26 -0400
+Received: from fire.osdl.org ([65.172.181.4]:55192 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261793AbVECPim (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 11:34:58 -0400
-Date: Tue, 3 May 2005 08:36:51 -0700
-From: Grant Grundler <iod00d@hp.com>
-To: David Addison <addy@quadrics.com>
-Cc: Brice Goglin <Brice.Goglin@ens-lyon.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, openib-general@openib.org,
-       hch@infradead.org, Caitlin Bestler <caitlin.bestler@gmail.com>
-Subject: Re: [openib-general] Re: RDMA memory registration
-Message-ID: <20050503153651.GB11344@esmail.cup.hp.com>
-References: <20050426122850.44d06fa6.akpm@osdl.org> <5264y9s3bs.fsf@topspin.com> <426EA220.6010007@ammasso.com> <20050426133752.37d74805.akpm@osdl.org> <5ebee0d105042907265ff58a73@mail.gmail.com> <469958e005042908566f177b50@mail.gmail.com> <52d5sdjzup.fsf_-_@topspin.com> <42727B60.7010507@ens-lyon.org> <20050429193354.GJ24871@esmail.cup.hp.com> <42773964.1030101@quadrics.com>
+	Tue, 3 May 2005 11:38:42 -0400
+Date: Tue, 3 May 2005 08:38:22 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] PAL-M support fix for CX88 chipsets
+Message-Id: <20050503083822.68a116d4.rddunlap@osdl.org>
+In-Reply-To: <42777318.2070508@brturbo.com.br>
+References: <42777318.2070508@brturbo.com.br>
+Organization: OSDL
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: SvC&!/v_Hr`MvpQ*|}uez16KH[#EmO2Tn~(r-y+&Jb}?Zhn}c:Eee&zq`cMb_[5`tT(22ms
+ (.P84,bq_GBdk@Kgplnrbj;Y`9IF`Q4;Iys|#3\?*[:ixU(UR.7qJT665DxUP%K}kC0j5,UI+"y-Sw
+ mn?l6JGvyI^f~2sSJ8vd7s[/CDY]apD`a;s1Wf)K[,.|-yOLmBl0<axLBACB5o^ZAs#&m?e""k/2vP
+ E#eG?=1oJ6}suhI%5o#svQ(LvGa=r
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42773964.1030101@quadrics.com>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 03, 2005 at 09:42:12AM +0100, David Addison wrote:
-> >This doesn't scale well as more cards are added to the box.
-> >I think I understand why it's good for single cards though.
->
-> With the IOPROC patch the device driver hooks are registered on a per 
-> process or perhaps better still, a per VMA basis.
+On Tue, 03 May 2005 09:48:24 -0300 Mauro Carvalho Chehab wrote:
 
-I was originally thinking the registrations are global (for all memory)
-and not per process. Per process or per VMA seems reasonable to me.
+|     This patch fixes PAL-M chroma subcarrier frequency (FSC) to its 
+| correct value of 3.5756115 MHz and adjusts horizontal total samples for 
+| PAL-M, according with formula Line Draw Time / (4*FSC), where Line Draw 
+| Time is 63.555 us.
+|      Without this patch, the Notch subcarrier filter was trying to 
+| capture using NTSC-M frequency, which is very close, but not equal. This 
+| could result in Black and White or miscolored frames.
 
-> And for processes/VMAs where there are no registrations the overhead
-> is very low.
+This patch does not apply cleanly:
+patching file cx88-core.c
+Hunk #1 FAILED at 736.
+Hunk #2 FAILED at 752.
+2 out of 2 hunks FAILED -- saving rejects to file cx88-core.c.rej
 
-Yes - thanks. I'm still reading the LKML thread you started:
-	http://lkml.org/lkml/2005/4/26/198
+due to tabs being converted to spaces.
+Please mail it to yourself and then try to apply the patch
+to see if that works.  You may have to use a different
+mail client/app.  Hm, thunderbird.  Did you copy/paste the
+patch?  That usually doesn't work.
 
-In particular, the comments from Brice Goglin:
-	http://lkml.org/lkml/2005/4/26/222
+Oh, and kernel comment style is /* ... */, not //.
 
-openib.org folks can find the IOPROC patch for 2.6.12-rc3 archived here:
-	http://lkml.org/lkml/diff/2005/4/26/198/1
+| -----
+| 
+| diff -puNr linux-2.6.12-rc3.org/drivers/media/video/cx88/cx88-core.c 
+| linux-2.6.12-rc3/drivers/media/video/cx88/cx88-core.c
+| --- linux-2.6.12-rc3.org/drivers/media/video/cx88/cx88-core.c   
+| 2005-04-20 21:03:14.000000000 -0300
+| +++ linux-2.6.12-rc3/drivers/media/video/cx88/cx88-core.c       
+| 2005-05-03 09:23:21.000000000 -0300
+| @@ -736,6 +736,9 @@ static unsigned int inline norm_fsc8(str
+|  {
+|         static const unsigned int ntsc = 28636360;
+|         static const unsigned int pal  = 35468950;
+| +        static const unsigned int palm  = 28604892;
+| +
+| +       if (V4L2_STD_PAL_M  & norm->id) return palm;
+| 
+|         return (norm->id & V4L2_STD_625_50) ? pal : ntsc;
+|  }
+| @@ -749,6 +752,8 @@ static unsigned int inline norm_notchfil
+| 
+|  static unsigned int inline norm_htotal(struct cx88_tvnorm *norm)
+|  {
+| +       // Should allways be Line Draw Time / 4FSC
+| +       if (V4L2_STD_PAL_M  & norm->id) return 909;
+|         return (norm->id & V4L2_STD_625_50) ? 1135 : 910;
+|  }
 
-> With multiple cards in a box, all using different device drivers,
-> I guess there could end up being multiple registrations per process/VMA.
-> But I'm not sure this will be a common case for RDMA use in real life.
 
-I agree. Gateways between fabrics is the only case I can think of.
-This won't be a problem until someone at a large national lab tries
-to connect two "legacy" fabrics together.
-
-thanks,
-grant
+---
+~Randy

@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261982AbVEEAoF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261844AbVEDOeq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261982AbVEEAoF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 20:44:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261988AbVEEAoE
+	id S261844AbVEDOeq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 10:34:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbVEDOeq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 20:44:04 -0400
-Received: from s-utl01-nypop.stsn.com ([199.106.90.52]:61950 "HELO
-	s-utl01-nypop.stsn.com") by vger.kernel.org with SMTP
-	id S261982AbVEEAnx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 20:43:53 -0400
-Subject: Re: System call v.s. errno
-From: Arjan van de Ven <arjan@infradead.org>
-To: linux-os@analogic.com
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0505040849150.8743@chaos.analogic.com>
-References: <Pine.LNX.4.61.0505040849150.8743@chaos.analogic.com>
-Content-Type: text/plain
-Date: Wed, 04 May 2005 10:22:02 -0400
-Message-Id: <1115216522.6053.4.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Wed, 4 May 2005 10:34:46 -0400
+Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:20242 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261841AbVEDOeb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 10:34:31 -0400
+To: tali@admingilde.org
+CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       ericvh@gmail.com, smfrench@austin.rr.com, hch@infradead.org
+In-reply-to: <20050504134717.GD3562@admingilde.org> (message from Martin Waitz
+	on Wed, 4 May 2005 15:47:17 +0200)
+Subject: Re: [RCF] [PATCH] unprivileged mount/umount
+References: <E1DSyQx-0002ku-00@dorka.pomaz.szeredi.hu> <20050504134717.GD3562@admingilde.org>
+Message-Id: <E1DTKwt-0003s6-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 04 May 2005 16:34:03 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-05-04 at 09:22 -0400, Richard B. Johnson wrote:
-> Does anybody know for sure if global 'errno' is supposed to
+> > This (lightly tested) patch against 2.6.12-rc* adds some
+> > infrastructure and basic functionality for unprivileged mount/umount
+> > system calls.
+> 
+> most of this unprivileged mount policy can be handled by a suid
+> userspace helper (e.g. pmount)
 
-errno is a glibc level thing really, and in recent glibc tehre is no
-global errno anymore, only a per thread errno.
+Yes.  This patch was created because certain people (including myself
+to some extent) don't like that approach.
 
-> The answer is not obvious because the 'C' runtime library
-> doesn't really give access to 'errno' instead it is dereferenced
-> off some pointer returned from a function called __errno_location().
+> what are the pros/cons of handling that in the kernel?
 
-yeah to make sure you get the per thread errno instead. Any reasonable
-sane code (and all standards conforming code) just deals with that fine.
-The case that is known to break is if your app has it's own
+pro:
 
-extern int errno;
+  - mount would still work in "suidless" private namespace
 
-in it, instead of using the proper header to get it.
+con:
 
+  - kernel bloat
 
+I'm sure there are others, they just elude me for the moment :)
 
+Thanks,
+Miklos

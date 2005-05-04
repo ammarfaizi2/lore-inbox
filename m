@@ -1,85 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261714AbVEDRVK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261967AbVEDRT7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261714AbVEDRVK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 13:21:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbVEDRR5
+	id S261967AbVEDRT7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 13:19:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261671AbVEDRSN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 13:17:57 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:33441 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261873AbVEDRQy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 13:16:54 -0400
-Date: Wed, 4 May 2005 18:15:38 +0100
-From: Alasdair G Kergon <agk@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>
-Subject: [PATCH] device-mapper: Some missing statics
-Message-ID: <20050504171538.GU10195@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Adrian Bunk <bunk@stusta.de>
+	Wed, 4 May 2005 13:18:13 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:32780 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261845AbVEDRQl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 13:16:41 -0400
+Message-Id: <200505041716.j44HGPbV016851@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] update SubmittingPatches to clarify attachment policy 
+In-Reply-To: Your message of "Wed, 04 May 2005 10:01:56 PDT."
+             <20050504170156.87F67CE5@kernel.beaverton.ibm.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20050504170156.87F67CE5@kernel.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/signed; boundary="==_Exmh_1115226984_4721P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 04 May 2005 13:16:25 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes some needlessly global code static.
+--==_Exmh_1115226984_4721P
+Content-Type: text/plain; charset=us-ascii
 
-Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+On Wed, 04 May 2005 10:01:56 PDT, Dave Hansen said:
 
---- diff/drivers/md/dm-hw-handler.c	2005-04-21 18:38:05.000000000 +0100
-+++ source/drivers/md/dm-hw-handler.c	2005-04-21 19:03:59.000000000 +0100
-@@ -23,7 +23,7 @@
- static LIST_HEAD(_hw_handlers);
- static DECLARE_RWSEM(_hwh_lock);
- 
--struct hwh_internal *__find_hw_handler_type(const char *name)
-+static struct hwh_internal *__find_hw_handler_type(const char *name)
- {
- 	struct hwh_internal *hwhi;
- 
---- diff/drivers/md/dm-path-selector.c	2005-04-04 17:38:05.000000000 +0100
-+++ source/drivers/md/dm-path-selector.c	2005-04-21 19:03:59.000000000 +0100
-@@ -26,7 +26,7 @@
- static LIST_HEAD(_path_selectors);
- static DECLARE_RWSEM(_ps_lock);
- 
--struct ps_internal *__find_path_selector_type(const char *name)
-+static struct ps_internal *__find_path_selector_type(const char *name)
- {
- 	struct ps_internal *psi;
- 
---- diff/drivers/md/dm-table.c	2005-04-04 17:39:42.000000000 +0100
-+++ source/drivers/md/dm-table.c	2005-04-21 19:03:59.000000000 +0100
-@@ -242,7 +242,7 @@
- 	}
- }
- 
--void table_destroy(struct dm_table *t)
-+static void table_destroy(struct dm_table *t)
- {
- 	unsigned int i;
- 
---- diff/drivers/md/dm-zero.c	2005-04-04 17:38:23.000000000 +0100
-+++ source/drivers/md/dm-zero.c	2005-04-21 19:03:59.000000000 +0100
-@@ -55,7 +55,7 @@
- 	.map    = zero_map,
- };
- 
--int __init dm_zero_init(void)
-+static int __init dm_zero_init(void)
- {
- 	int r = dm_register_target(&zero_target);
- 
-@@ -65,7 +65,7 @@
- 	return r;
- }
- 
--void __exit dm_zero_exit(void)
-+static void __exit dm_zero_exit(void)
- {
- 	int r = dm_unregister_target(&zero_target);
- 
+> -6) No MIME, no links, no compression, no attachments.  Just plain text.
+> +6) No MIME, no links, no compression.  Just plain text.
+
+Logically buggy.  You can't have an attachment without the MIME markup that
+*says* it's an attachment.  I think what you meant was "No Content-Type-Encoding":
+i.e. 'none' is acceptable, but 'quoted-printable' (which causes all the
+spurious =20 and =3D you sometimes see) and 'base64' (uuencode on steroids)
+aren't....
+
+--==_Exmh_1115226984_4721P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCeQNocC3lWbTT17ARAtC6AJ9OAttjU1/6L/UJM4PMS/2gV2y/aACgs63w
+qt2GmGK4c7pUR6GLDmHN4Lg=
+=cGIJ
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1115226984_4721P--

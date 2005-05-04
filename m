@@ -1,44 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbVEDVoj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbVEDVpm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261708AbVEDVoj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 17:44:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbVEDVoa
+	id S261681AbVEDVpm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 17:45:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbVEDVpl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 17:44:30 -0400
-Received: from fire.osdl.org ([65.172.181.4]:47260 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261688AbVEDVnC (ORCPT
+	Wed, 4 May 2005 17:45:41 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:50830 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S261688AbVEDVpN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 17:43:02 -0400
-Date: Wed, 4 May 2005 14:43:29 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jim Faulkner <jfaulkne@ccs.neu.edu>
-Cc: vortex@scyld.com, Bogdan.Costescu@iwr.uni-heidelberg.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: strange 3c59x behaviour under 2.6.11.7
-Message-Id: <20050504144329.14908845.akpm@osdl.org>
-In-Reply-To: <Pine.GSO.4.58.0505041639400.5735@denali.ccs.neu.edu>
-References: <Pine.LNX.4.44.0505031057380.9939-100000@kenzo.iwr.uni-heidelberg.de>
-	<Pine.GSO.4.58.0505041639400.5735@denali.ccs.neu.edu>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 4 May 2005 17:45:13 -0400
+Subject: Re: tricky challenge for getting round level-driven interrupt
+	problem: help!
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux ARM Kernel list 
+	<linux-arm-kernel@lists.arm.linux.org.uk>
+In-Reply-To: <20050504205831.GF8537@lkcl.net>
+References: <20050503215634.GH8079@lkcl.net>
+	 <1115171395.14869.147.camel@localhost.localdomain>
+	 <20050504205831.GF8537@lkcl.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1115243014.19844.62.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 04 May 2005 22:43:35 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Faulkner <jfaulkne@ccs.neu.edu> wrote:
->
-> However, I found this patch (the one at the very bottom of the page):
-> http://www.mail-archive.com/linux-kernel@vger.kernel.org/msg78894.html
-> 
-> And after adapting it to the 2.6.11.7 kernel, everything works again!
-> I've rebooted the machine several times, and the 3com cards initialized
-> successfully every time.
-> 
-> I'm CC'ing linux-kernel in the hopes that this fix can make it into the
-> mainstream kernel sometime soon.  I'm sure my mother would appreciate it
-> greatly. :)
+On Mer, 2005-05-04 at 21:58, Luke Kenneth Casson Leighton wrote:
+>  i believe i get it: you raise a level-triggered interrupt which _stays_
+>  raised until such time as your fifo is empty.
 
-I was planning on merging that post-2.6.12, but I guess it looks fairly
-safe...
+Bingo. It only goes away when the chip really has nothing left to say.
+
+>  all - that sometimes (frequently, in fact - about 1 in every
+>  50 times) it hasn't got round to clearing the level-driven
+>  interrupt by the time we come out of the ARM ISR (!)
+
+So you'll poll again and find there is no pending work to do.
+
+>  hence the redesign to do alternate read-write-read-write, and making
+>  reads exclusive of writes, etc.
+
+and maybe even turn the IRQ off and use a timer if its slow and not
+sensitive to latency.. ?
+
+>  ... so - in your opinion, alan, is the old approach we had
+>  actually _on_ the right lines?
+
+level triggered IRQ does sort of expect the other end responds promptly
+to be efficient as opposed to merely reliable.
+
+>  also, are you going to ukuug in august, it being _in_
+>  aberystwyth and all :)
+
+Its not in Aberystwyth, but I might be. Its in Swansea 8)
+
 

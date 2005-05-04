@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbVEDVAv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261647AbVEDUxo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261546AbVEDVAv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 17:00:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbVEDUxx
+	id S261647AbVEDUxo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 16:53:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbVEDUxW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 16:53:53 -0400
-Received: from wproxy.gmail.com ([64.233.184.201]:11960 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261546AbVEDUvT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 16:51:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Iz40WYHTVL8U+nP3yPslJb85P9gMAjVbkbfxtLuPJSNdrbyg9eQzwXHmOv6v8tF0SzoQ4tI4n8YEenVVwGgvbdya+ne4L+W9d0/0xuvYqpVhh0X0PHcp1iUtLz/ZtXZqLHMTVuX3z7qcrA5T5MEUDDs39xUXxK7uk3khHCRXqXM=
-Message-ID: <81b0412b05050413514544d29c@mail.gmail.com>
-Date: Wed, 4 May 2005 22:51:16 +0200
-From: Alex Riesen <raa.lkml@gmail.com>
-Reply-To: Alex Riesen <raa.lkml@gmail.com>
-To: Deepak <deepakgaur@fastmail.fm>
-Subject: Re: Hanged/Hunged process in Linux
+	Wed, 4 May 2005 16:53:22 -0400
+Received: from bernache.ens-lyon.fr ([140.77.167.10]:38805 "EHLO
+	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S261601AbVEDUvw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 16:51:52 -0400
+Message-ID: <427935DF.5010505@ens-lyon.org>
+Date: Wed, 04 May 2005 22:51:43 +0200
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1115185128.12535.233322099@webmail.messagingengine.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1115185128.12535.233322099@webmail.messagingengine.com>
+Subject: Re: Soft lockup with -mm
+References: <42792BC8.9010005@ens-lyon.org> <20050504132302.2ce4869b.akpm@osdl.org>
+In-Reply-To: <20050504132302.2ce4869b.akpm@osdl.org>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+X-Spam-Report: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/4/05, Deepak <deepakgaur@fastmail.fm> wrote:
-> (1) A process not accepting any signals and consuming system resources
+Andrew Morton a écrit :
+> Brice Goglin <Brice.Goglin@ens-lyon.org> wrote:
+> 
+>>I was seeing a lockup with several -mm releases since 2.6.12-rc2-mm1
+>>(IIRC). With 2.6.12-rc2-mm1, I remember getting the lockup a few minutes
+>>after boot time.
+>>With 2.6.12-rc3-mm1, I waited several days before getting it.
+>>But, I finally caught this one with netconsole. So here it is:
+>>
+>>BUG: soft lockup detected on CPU#0!
+>>Pid: 0, comm:              swapper
+>>EIP: 0060:[<c02d40a5>] CPU: 0
+>>EIP is at _spin_unlock_irqrestore+0x5/0x30
+>> EFLAGS: 00000286    Not tainted  (2.6.12-rc3-mm1=Pignouf)
+>>EAX: c18e8160 EBX: c18e8160 ECX: 00000001 EDX: 00000286
+>>ESI: c18e0160 EDI: dbf96c64 EBP: ffffffff DS: 007b ES: 007b
+>>CR0: 8005003b CR2: b6e43000 CR3: 0e912000 CR4: 00000690
+>> [<c012a635>] __mod_timer+0xc5/0xf0
+> 
+> 
+> It could be the timer bug.  Can you try it with Oleg's fix?
 
-wrong. It may have decided to go through a critical section of its job, and
-the job takes a long time.
+Ok, thanks.
+I applied it on top of mm2 and started praying for a few days
+until something happens or not.
 
-> (2) A process in STOP state
-
-wrong. The prosess is being debugged or is stopped (killall -STOP bash).
-Besides, often the RUNNING state is more suspicious.
-
-> (3) A process in deadlock state
-
-how can you detect this from outside of the process(es)?!
-
-> Process conforming to definition 3 will be due to race conditions/bad
-> programming.Definition 1 does define a proper hanged process but is it
-> possible to create such a process in LInux as in linux signal delivery
-> to the process and its handling is assured by the Linux kernel.
-
-Anything, except for SIGKILL and SIGSTOP can be overridden.
-And it doesn't help you anyway in detecting of runaway processes.
-
-> Anybody having another definition for a "Hanged process" in Linux
-> context
-
-Except for the case described by Valdis Klietnieks, it's hard to define.
-How do you distinguish between a very busy process and the deadly
-locked in itself one?
-You'll probably end up defining some arbitrary timeouts for the
-processes under your control, some watchdog interface for the
-processes and plain old kill(..., SIGCONT); kill(..., SIGKILL); restart();
+Brice

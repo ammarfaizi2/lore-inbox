@@ -1,39 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbVECXxp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261938AbVEDAHs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261929AbVECXxp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 19:53:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbVECXxp
+	id S261938AbVEDAHs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 20:07:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbVEDAHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 19:53:45 -0400
-Received: from 210-55-221-221.adsl.ihug.co.nz ([210.55.221.221]:57385 "EHLO
-	kieu.family") by vger.kernel.org with ESMTP id S261929AbVECXxo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 19:53:44 -0400
-Date: Wed, 4 May 2005 11:53:37 +1200 (NZST)
-From: steve@perfectpc.co.nz
-X-X-Sender: sk@localhost.localdomain
-Reply-To: steve@perfectpc.co.nz
-To: Alexander Nyberg <alexn@dsv.su.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Journalling file system and dm-raid
-In-Reply-To: <1115164093.945.79.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.62.0505041152290.4490@localhost.localdomain>
-References: <Pine.LNX.4.62.0505041020540.3940@localhost.localdomain>
- <1115164093.945.79.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 3 May 2005 20:07:48 -0400
+Received: from gate.crashing.org ([63.228.1.57]:25271 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261938AbVEDAHm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 20:07:42 -0400
+Subject: Re: [PATCH] fix __mod_timer vs __run_timers deadlock.
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: paulus@samba.org, jk@blackdown.de, akpm@osdl.org, oleg@tv-sign.ru,
+       linux-kernel@vger.kernel.org, maneesh@in.ibm.com
+In-Reply-To: <20050503163916.30d64630.davem@davemloft.net>
+References: <42748B75.D6CBF829@tv-sign.ru>
+	 <20050501023149.6908c573.akpm@osdl.org> <87vf61kztb.fsf@blackdown.de>
+	 <1115079230.6155.35.camel@gaston> <873bt5xf9v.fsf@blackdown.de>
+	 <17014.59016.336852.31119@cargo.ozlabs.ibm.com>
+	 <20050503115103.7461ae5e.davem@davemloft.net>
+	 <1115163893.7568.49.camel@gaston>
+	 <20050503163916.30d64630.davem@davemloft.net>
+Content-Type: text/plain
+Date: Wed, 04 May 2005 10:05:08 +1000
+Message-Id: <1115165108.7567.76.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-05-03 at 16:39 -0700, David S. Miller wrote:
+> On Wed, 04 May 2005 09:44:53 +1000
+> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> 
+> > Nothing prevents it ? well, I wouldn't be that optimistic :) The USB
+> > stuff is a bit complex, it inlcudes doing DMAs, so manipulating the
+> > iommu, dealing with URB queues (and thus allocating/releasing them)
+> > etc... and especially in the context of xmon, that mean letting the
+> > driver do a lot of these at any time whatever state the system is...
+> 
+> I think doing calls to the USB interrupt handler would work.
+> I'm not being crazy :)
 
-Hi,
+Maybe, but it will trigger all other USB drivers around and really
+weird things might happen.. Oh well, I may give it a try one of
+these days anyway. I could probably even do some hack to force the
+OHCI to only service incoming interrupt URBs for input devices or
+such things...
 
-> filesystems that have been well tested under circumstances with stacking
-> like dmraid/device-mapper etc.
+> But yeah we could do a micro-stack as well, but as you noted the
+> transfer to/from the real USB HCI driver would be non-trivial.
+> 
+> I truly believe just calling the real USB HCI driver interrupt
+> handler in a polling fashion is the way to go.
 
-Will do as you advise. Is it ext3 stable enought for this case?
+But it feels very fragile... Oh well, I will experiment with that one of
+these days (no time right now though).
+
+Ben.
 
 
->
-> !DSPAM:42780de8418998623215903!
->

@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262073AbVEDH3z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbVEDHg6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262073AbVEDH3z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 03:29:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262079AbVEDH31
+	id S262085AbVEDHg6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 03:36:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbVEDHeI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 03:29:27 -0400
-Received: from smtp.seznam.cz ([212.80.76.43]:51127 "HELO smtp.seznam.cz")
-	by vger.kernel.org with SMTP id S262073AbVEDH2B (ORCPT
+	Wed, 4 May 2005 03:34:08 -0400
+Received: from smtp.seznam.cz ([212.80.76.43]:64440 "HELO smtp.seznam.cz")
+	by vger.kernel.org with SMTP id S262076AbVEDH3G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 03:28:01 -0400
-Date: Wed, 4 May 2005 08:13:13 +0200
+	Wed, 4 May 2005 03:29:06 -0400
+Date: Wed, 4 May 2005 08:13:54 +0200
 To: Greg KH <greg@kroah.com>
 Cc: Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>,
        LM Sensors <sensors@Stimpy.netroedge.com>,
        James Chapman <jchapman@katalix.com>
-Subject: [PATCH] ds1337 1/3
-Message-ID: <20050504061313.GB1439@orphique>
+Subject: [PATCH] ds1337 2/3
+Message-ID: <20050504061354.GC1439@orphique>
 References: <20050407231848.GD27226@orphique> <u5mZNEX1.1112954918.3200720.khali@localhost> <20050408130639.GC7054@orphique> <20050502204136.GE32713@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,46 +26,57 @@ From: Ladislav Michl <ladis@linux-mips.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg,
-
-thanks for applying changes. Here is next batch of incremental
-patches for ds1337. These were created against 2.6.12-rc2 patched with
-ds1337 [123]/4. Changes were discussed with James Chapman privately
-and he sent me his Signed-off-by line for submition.
-
-
-Make time format consistent with other RTC drivers.
+i2c_transfer returns number of sucessfully transfered messages. Change
+error checking to accordingly. (ds1337_set_datetime never returned
+sucess)
 
 Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
 Signed-off-by: James Chapman <jchapman@katalix.com>
 
---- linux-omap/drivers/i2c/chips/ds1337.c.orig	2005-04-13 11:48:32.000000000 +0200
-+++ linux-omap/drivers/i2c/chips/ds1337.c	2005-04-18 09:22:45.531771744 +0200
-@@ -130,8 +130,8 @@ static int ds1337_get_datetime(struct i2
- 		dt->tm_wday = BCD2BIN(buf[3]) - 1;
- 		dt->tm_mday = BCD2BIN(buf[4]);
- 		val = buf[5] & 0x7f;
--		dt->tm_mon = BCD2BIN(val);
--		dt->tm_year = 1900 + BCD2BIN(buf[6]);
-+		dt->tm_mon = BCD2BIN(val) - 1;
-+		dt->tm_year = BCD2BIN(buf[6]);
- 		if (buf[5] & 0x80)
- 			dt->tm_year += 100;
+--- linux-omap/drivers/i2c/chips/ds1337.c.orig	2005-04-20 20:08:46.580603672 +0200
++++ linux-omap/drivers/i2c/chips/ds1337.c	2005-04-20 20:34:31.622721568 +0200
+@@ -122,7 +122,7 @@
+ 		__FUNCTION__, result, buf[0], buf[1], buf[2], buf[3],
+ 		buf[4], buf[5], buf[6]);
  
-@@ -171,12 +171,11 @@ static int ds1337_set_datetime(struct i2
- 	buf[3] = BIN2BCD(dt->tm_hour) | (1 << 6);
- 	buf[4] = BIN2BCD(dt->tm_wday) + 1;
- 	buf[5] = BIN2BCD(dt->tm_mday);
--	buf[6] = BIN2BCD(dt->tm_mon);
--	if (dt->tm_year >= 2000) {
--		val = dt->tm_year - 2000;
-+	buf[6] = BIN2BCD(dt->tm_mon) + 1;
-+	val = dt->tm_year;
-+	if (val >= 100) {
-+		val -= 100;
- 		buf[6] |= (1 << 7);
+-	if (result >= 0) {
++	if (result == 2) {
+ 		dt->tm_sec = BCD2BIN(buf[0]);
+ 		dt->tm_min = BCD2BIN(buf[1]);
+ 		val = buf[2] & 0x3f;
+@@ -140,12 +140,12 @@
+ 			__FUNCTION__, dt->tm_sec, dt->tm_min,
+ 			dt->tm_hour, dt->tm_mday,
+ 			dt->tm_mon, dt->tm_year, dt->tm_wday);
 -	} else {
--		val = dt->tm_year - 1900;
+-		dev_err(&client->dev, "error reading data! %d\n", result);
+-		result = -EIO;
++
++		return 0;
  	}
- 	buf[7] = BIN2BCD(val);
  
+-	return result;
++	dev_err(&client->dev, "error reading data! %d\n", result);
++	return -EIO;
+ }
+ 
+ static int ds1337_set_datetime(struct i2c_client *client, struct rtc_time *dt)
+@@ -185,14 +185,11 @@
+ 	msg[0].buf = &buf[0];
+ 
+ 	result = i2c_transfer(client->adapter, msg, 1);
+-	if (result < 0) {
+-		dev_err(&client->dev, "error writing data! %d\n", result);
+-		result = -EIO;
+-	} else {
+-		result = 0;
+-	}
++	if (result == 1)
++		return 0;
+ 
+-	return result;
++	dev_err(&client->dev, "error writing data! %d\n", result);
++	return -EIO;
+ }
+ 
+ static int ds1337_command(struct i2c_client *client, unsigned int cmd,

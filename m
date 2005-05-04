@@ -1,71 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbVEDXLS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261952AbVEDXL6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261941AbVEDXLS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 19:11:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbVEDXLS
+	id S261952AbVEDXL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 19:11:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbVEDXL6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 19:11:18 -0400
-Received: from h-64-105-159-118.phlapafg.covad.net ([64.105.159.118]:49332
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261941AbVEDXLN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 19:11:13 -0400
-Subject: [PATCH] Saving ARCH and CROSS_COMPILE in generated Makefile
-From: Pavel Roskin <proski@gnu.org>
-To: linux <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 04 May 2005 19:11:07 -0400
-Message-Id: <1115248267.12758.21.camel@dv.roinet.com>
+	Wed, 4 May 2005 19:11:58 -0400
+Received: from open.hands.com ([195.224.53.39]:17315 "EHLO open.hands.com")
+	by vger.kernel.org with ESMTP id S261952AbVEDXLq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 19:11:46 -0400
+Date: Thu, 5 May 2005 00:20:24 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux ARM Kernel list 
+	<linux-arm-kernel@lists.arm.linux.org.uk>
+Subject: Re: tricky challenge for getting round level-driven interrupt problem: help!
+Message-ID: <20050504232024.GH8537@lkcl.net>
+References: <20050503215634.GH8079@lkcl.net> <1115171395.14869.147.camel@localhost.localdomain> <20050504205831.GF8537@lkcl.net> <1115243014.19844.62.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1115243014.19844.62.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Wed, May 04, 2005 at 10:43:35PM +0100, Alan Cox wrote:
+> On Mer, 2005-05-04 at 21:58, Luke Kenneth Casson Leighton wrote:
+> >  i believe i get it: you raise a level-triggered interrupt which _stays_
+> >  raised until such time as your fifo is empty.
+> 
+> Bingo. It only goes away when the chip really has nothing left to say.
+> 
+> >  all - that sometimes (frequently, in fact - about 1 in every
+> >  50 times) it hasn't got round to clearing the level-driven
+> >  interrupt by the time we come out of the ARM ISR (!)
+> 
+> So you'll poll again and find there is no pending work to do.
 
-I don't want to specify ARCH and CROSS_COMPILE with every make
-invocation when cross-compiling the kernel.  I believe they should be
-saved somewhere.  The most natural place would be .config, but I guess
-it's not acceptable for some reason, or it would have been done long
-ago.
+ oh.
 
-The second best place would be the Makefile generated in the build
-directory when the kernel is compiled outside the source tree.  The
-patch below implements that.
+ ah.
 
-Unfortunately, builds in the source directory would not profit from this
-patch.  Perhaps we could always generate "makefile" or "GNUmakefile" in
-the build directory, but it would be another patch.  Anyway, few people
-cross-compile their kernels, and it's not unreasonable to encourage them
-to use out-of-tree builds.
+ wait - this might be the bit i don't get 
 
-SUBARCH is not saved on purpose, since users are not supposed to
-override it.
+ when you say poll again, do you mean poll again inside the ISR?
 
-Compiling external modules against the build tree does the right thing
-without ARCH and CROSS_COMPILE being specified.
-
-Signed-off-by: Pavel Roskin <proski@gnu.org>
-
-Index: scripts/mkmakefile
-===================================================================
---- 2aa9e4732d7014dcda4c0e80d2e377f52e2262e9/scripts/mkmakefile  (mode:100644 sha1:c4d621b30d0db1649d99f9cebf31377cc2d8d32b)
-+++ uncommitted/scripts/mkmakefile  (mode:100644)
-@@ -21,6 +21,11 @@
+ so:
  
- MAKEFLAGS += --no-print-directory
+ * we do the read (which creates the interrupt to the PIC) and
+   then sit there polling the level-driven interrupt status
+   register
  
-+ARCH = $ARCH
-+CROSS_COMPILE = $CROSS_COMPILE
-+
-+export ARCH CROSS_COMPILE
-+
- all:
- 	\$(MAKE) -C \$(KERNELSRC) O=\$(KERNELOUTPUT)
+ * the PIC, having no more bytes to write, clears the ARM
+   level-driven interrupt.
+
+ * the ARM detects the change of the level-driven interrupt
+   status register
+
+ * the ARM pauses for, oh, i dunno... mmm... 6mhz equals 166ns
+   so we call udelay(10) or something ridiculously long...
+
+ * the ARM then checks the level-driven interrupt status register
+   AGAIN, and if it's clear, goes "oh, we ain't gonna get no
+   more data".
+
+ something like that? [am trying it now, anyway - on the basis that it
+ can't hurt :)]
+
+ i'm not being deliberately thick - honest - i've just never had to
+ do this sort of thing before.
+
+ btw alan where would you recommend i read up on this type of thing?
+ [_please_ don't say "on the inside of my skull" i'll be tempted to
+ go get a saw and a spoon i've _so_ got to get this to work...]
  
 
+> >  hence the redesign to do alternate read-write-read-write, and making
+> >  reads exclusive of writes, etc.
+> 
+> and maybe even turn the IRQ off and use a timer if its slow and not
+> sensitive to latency.. ?
+ 
+ tried that last month [i'm not sending to lkml about this as a first
+ resort - honest!]
+ 
+ the baud rate from the GPS is 4800 baud, so that's 600 chars/sec.
 
--- 
-Regards,
-Pavel Roskin
+ the jiffies timer on the ARM is ... er... 250? per second?
+
+ so ... hey, yeh, that would explain why i saw about 1
+ character in 3 :)
+
+
+
+> >  ... so - in your opinion, alan, is the old approach we had
+> >  actually _on_ the right lines?
+> 
+> level triggered IRQ does sort of expect the other end responds promptly
+> to be efficient as opposed to merely reliable.
+
+ ... and a 6mhz processor vs a 90mhz processor... 
+
+> >  also, are you going to ukuug in august, it being _in_
+> >  aberystwyth and all :)
+> 
+> Its not in Aberystwyth, but I might be. Its in Swansea 8)
+
+ ahhh :)
+
+ glad i checked then, 'cos up until 30 seconds ago i was gonna
+ drive to aber.
+
+ *wonders why the hell i've been let loose on this project...*
 

@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261560AbVEDVFM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261672AbVEDVJr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261560AbVEDVFM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 17:05:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbVEDVFF
+	id S261672AbVEDVJr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 17:09:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbVEDVJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 17:05:05 -0400
-Received: from amber.ccs.neu.edu ([129.10.116.51]:12235 "EHLO
-	amber.ccs.neu.edu") by vger.kernel.org with ESMTP id S261560AbVEDVCE
+	Wed, 4 May 2005 17:09:44 -0400
+Received: from wproxy.gmail.com ([64.233.184.200]:21228 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261673AbVEDVGN convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 17:02:04 -0400
-Date: Wed, 4 May 2005 17:01:55 -0400 (EDT)
-From: Jim Faulkner <jfaulkne@ccs.neu.edu>
-To: vortex@scyld.com
-cc: Bogdan.Costescu@iwr.uni-heidelberg.de, linux-kernel@vger.kernel.org
-Subject: Re: strange 3c59x behaviour under 2.6.11.7
-In-Reply-To: <Pine.LNX.4.44.0505031057380.9939-100000@kenzo.iwr.uni-heidelberg.de>
-Message-ID: <Pine.GSO.4.58.0505041639400.5735@denali.ccs.neu.edu>
-References: <Pine.LNX.4.44.0505031057380.9939-100000@kenzo.iwr.uni-heidelberg.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 4 May 2005 17:06:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GIgkcP05Wj4VUOyGOSKmNvGEWANQbslVvterL8fuIy0ADzLOHvI1Rs8YdyOwLWLEiNgmMwQ4U/yNZK0RO0FS7/A1fz3m0JfyRXswyv8pRJOBI5dmWfQ9YyJIRZsbsBz2l6Q35mir5KhIZVd/Yzh0nd2OqmoRAXTZ9v+qWySeFB0=
+Message-ID: <81b0412b0505041406297427ba@mail.gmail.com>
+Date: Wed, 4 May 2005 23:06:09 +0200
+From: Alex Riesen <raa.lkml@gmail.com>
+Reply-To: Alex Riesen <raa.lkml@gmail.com>
+To: "Richard B. Johnson" <linux-os@analogic.com>,
+       Olivier Croquette <ocroquette@free.fr>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduler: SIGSTOP on multi threaded processes
+In-Reply-To: <20050504191604.GA29730@nevyn.them.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4279084C.9030908@free.fr>
+	 <Pine.LNX.4.61.0505041403310.21458@chaos.analogic.com>
+	 <20050504191604.GA29730@nevyn.them.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 5/4/05, Daniel Jacobowitz <dan@debian.org> wrote:
+> On Wed, May 04, 2005 at 02:16:24PM -0400, Richard B. Johnson wrote:
+> > The kernel doesn't do SIGSTOP or SIGCONT. Within init, there is
+> > a SIGSTOP and SIGCONT handler. These can be inherited by others
+> > unless changed, perhaps by a 'C' runtime library. Basically,
+> > the SIGSTOP handler executes pause() until the SIGCONT signal
+> > is received.
+> >
+> > Any delay in stopping is the time necessary for the signal to
+> > be delivered. It is possible that the section of code that
+> > contains the STOP/CONT handler was paged out and needs to be
+> > paged in before the signal can be delivered.
+> >
+> > You might quicken this up by installing your own handler for
+> > SIGSTOP and SIGCONT....
+> 
+> I don't know what RTOSes you've been working with recently, but none of
+> the above is true for Linux.  I don't think it ever has been.
+> 
 
-Some background for the linux-kernel folks:
-
-http://www.scyld.com/pipermail/vortex/2005-May/002483.html
-
-http://www.scyld.com/pipermail/vortex/2005-May/002484.html
-
-On Tue, 3 May 2005, Bogdan Costescu wrote:
-
-> > Any ideas on what is causing this problem, and how to fix it?
->
-> Try booting with acpi=off.
-> Try updating BIOS and/or modify power related options in BIOS.
-
-I've tried disabling ACPI in the kernel, turning on APM support in the
-BIOS, and the combination of the two, and unfortunately the problem
-persisted.
-
-However, I found this patch (the one at the very bottom of the page):
-http://www.mail-archive.com/linux-kernel@vger.kernel.org/msg78894.html
-
-And after adapting it to the 2.6.11.7 kernel, everything works again!
-I've rebooted the machine several times, and the 3com cards initialized
-successfully every time.
-
-I'm CC'ing linux-kernel in the hopes that this fix can make it into the
-mainstream kernel sometime soon.  I'm sure my mother would appreciate it
-greatly. :)
-
-Please CC my e-mail address in any replies as I am not subscribed to this
-list.
-
-thanks,
-Jim Faulkner
+I don't even think it was true for anything. It's his usual way of
+saying things.

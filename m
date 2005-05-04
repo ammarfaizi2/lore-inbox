@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbVECX6E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261945AbVEDAUr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261932AbVECX6E (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 19:58:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVECX6E
+	id S261945AbVEDAUr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 20:20:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261946AbVEDAUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 19:58:04 -0400
-Received: from mail.tyan.com ([66.122.195.4]:778 "EHLO tyanweb.tyan")
-	by vger.kernel.org with ESMTP id S261932AbVECX6A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 19:58:00 -0400
-Message-ID: <3174569B9743D511922F00A0C943142309B07D82@TYANWEB>
-From: YhLu <YhLu@tyan.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: x86-64 dual core mapping
-Date: Tue, 3 May 2005 17:18:15 -0700 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Tue, 3 May 2005 20:20:36 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:10447 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S261945AbVEDAU1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 20:20:27 -0400
+From: Darren Williams <dsw@gelato.unsw.edu.au>
+To: LKML <linux-kernel@vger.kernel.org>
+Date: Wed, 4 May 2005 10:20:24 +1000
+Cc: Ia64 Linux <linux-ia64@vger.kernel.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: Kernel autobuild now uses Git
+Message-ID: <20050504002024.GG26031@cse.unsw.EDU.AU>
+References: <20050503222951.GE26031@cse.unsw.EDU.AU>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050503222951.GE26031@cse.unsw.EDU.AU>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi,
+Hi Darren
 
-Did you try "acpi=off" on you test?
+On Wed, 04 May 2005, Darren Williams wrote:
 
-YH 
+> Hi All
+>   Our ia64 autobuild system has been moved from using
+> BK to Git. Here we do a nightly pull on Linus's 
+> (not so mainline) Git tree and test the ia64 build.
+> 
+> This may be a benefit to the Git developers to see
+> the results of a nightly 'cg-pull'.
+> 
+> Thanks to all for the effort, the conversation from BK
+> to Git was relatively painless.
+> 
+>  - dsw
+> 
 
-> -----Original Message-----
-> From: Andi Kleen [mailto:ak@suse.de] 
-> Sent: Tuesday, May 03, 2005 7:25 AM
-> To: YhLu
-> Cc: Andi Kleen; linux-kernel@vger.kernel.org
-> Subject: Re: x86-64 dual core mapping
-> 
-> On Mon, May 02, 2005 at 02:01:00PM -0700, YhLu wrote:
-> > Andi,
-> > 
-> > resent. FYI
-> 
-> I retested with my tree and everything works for me as expected.
-> Well actually there is a problem with the core mappings, but 
-> not on dual core, but on single core (more cosmetic than real)
-> 
-> It is possible that some patch is missing again in mainline.
-> I will sync up my patchkit next week and double check then 
-> that mainline is in the same state as mine.
-> 
-> -Andi
-> 
+Hmmm, how about a URL
+http://www.gelato.unsw.edu.au/kerncomp/ 
+
+--------------------------------------------------
+Darren Williams <dsw AT gelato.unsw.edu.au>
+Gelato@UNSW <www.gelato.unsw.edu.au>
+--------------------------------------------------

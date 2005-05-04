@@ -1,66 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261956AbVEDAvF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261957AbVEDAwL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261956AbVEDAvF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 20:51:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbVEDAvF
+	id S261957AbVEDAwL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 20:52:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbVEDAwL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 20:51:05 -0400
-Received: from fire.osdl.org ([65.172.181.4]:33245 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261956AbVEDAu5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 20:50:57 -0400
-Date: Tue, 3 May 2005 17:50:23 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jason Baron <jbaron@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] tty races
-Message-Id: <20050503175023.627bd904.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0505030923560.10633@dhcp83-105.boston.redhat.com>
-References: <Pine.LNX.4.61.0504201227370.13902@dhcp83-105.boston.redhat.com>
-	<20050425232251.6ffac97c.akpm@osdl.org>
-	<Pine.LNX.4.61.0504260922001.26392@dhcp83-105.boston.redhat.com>
-	<20050502232721.19dde63d.akpm@osdl.org>
-	<Pine.LNX.4.61.0505030923560.10633@dhcp83-105.boston.redhat.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 3 May 2005 20:52:11 -0400
+Received: from warden3-p.diginsite.com ([208.147.64.186]:27034 "HELO
+	warden3.diginsite.com") by vger.kernel.org with SMTP
+	id S261957AbVEDAv6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 20:51:58 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Rik van Riel <riel@redhat.com>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Date: Tue, 3 May 2005 17:51:43 -0700 (PDT)
+X-X-Sender: dlang@dlang.diginsite.com
+Subject: Re: [RFC] how do we move the VM forward? (was Re: [RFC] cleanup
+ ofuse-once)
+In-Reply-To: <42781AC5.1000201@yahoo.com.au>
+Message-ID: <Pine.LNX.4.62.0505031749010.12818@qynat.qvtvafvgr.pbz>
+References: <Pine.LNX.4.61.0505030037100.27756@chimarrao.boston.redhat.com>
+ <42771904.7020404@yahoo.com.au> <Pine.LNX.4.61.0505030913480.27756@chimarrao.boston.redhat.com>
+ <42781AC5.1000201@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jason Baron <jbaron@redhat.com> wrote:
+On Wed, 4 May 2005, Nick Piggin wrote:
+
 >
-> > 
-> > I don't see anywhere which takes lock_kernel() on the tty_open() path.
-> > 
-> 
-> fs/char_dev.c:chrdev_open():        
-> 
-> 	if (filp->f_op->open) {
->                 lock_kernel();
->                 ret = filp->f_op->open(inode,filp);
->                 unlock_kernel();
->         }
-> 
+> Also having a box or two for running regression and stress
+> testing is a must. I can do a bit here, but unfortunately
+> "kernel compiles until it hurts" is probably not the best
+> workload to target.
+>
+> In general most systems and their workloads aren't constantly
+> swapping, so we should aim to minimise IO for normal
+> workloads. Databases that use the pagecache (eg. postgresql)
+> would be a good test. But again we don't want to focus on one
+> thing.
+>
+> That said, of course we don't want to hurt the "really
+> thrashing" case - and hopefully improve it if possible.
 
-hm, we're still doing that.
+may I suggest useing OpenOffice as one test, it can eat up horrendous 
+amounts of ram in operation (I have one spreadsheet I can send you if 
+needed that takes 45min of cpu time on a Athlon64 3200 with 1G of ram just 
+to open, at which time it shows openoffice takeing more then 512M of ram)
 
-> > 
-> > We want to move away from lock_kernel()-based locking.
-> > 
-> 
-> I completely agree, but unfortunately lock_kernel() is currently used 
-> extensively throughout the tty layer. 
+David Lang
 
-Well no - it's being migrated over to use tty_sem.  We shouldn't start
-heading in the reverse direction.  Plus your patch reverts part of
-http://linux.bkbits.net:8080/linux-2.5/diffs/drivers/char/tty_io.c@1.156?nav=index.html|src/|src/drivers|src/drivers/char|hist/drivers/char/tty_io.c
-in ways which might be unsafe.
-
-> lock_kernel() is used extensively throughout the tty layer. We can 
-> re-write the locking for the layer, but I'd like to see this bug fix in 
-> 2.6.12, if that isn't done in time.
-
-Sorry, but AFAICT all you have done is to advocate for the existing patch
-without having attempted to fix this problem with tty_sem.  Please try to
-come up with a tty_sem-based fix.
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare

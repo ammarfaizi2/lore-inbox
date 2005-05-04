@@ -1,68 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261342AbVEDRq3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261213AbVEDRvu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261342AbVEDRq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 13:46:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVEDRqV
+	id S261213AbVEDRvu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 13:51:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbVEDRvt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 13:46:21 -0400
-Received: from quark.didntduck.org ([69.55.226.66]:37538 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP id S261314AbVEDRpu
+	Wed, 4 May 2005 13:51:49 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:14480 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261165AbVEDRve
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 13:45:50 -0400
-Message-ID: <42790A86.9070002@didntduck.org>
-Date: Wed, 04 May 2005 13:46:46 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+	Wed, 4 May 2005 13:51:34 -0400
+Message-ID: <42790B8A.9010406@tmr.com>
+Date: Wed, 04 May 2005 13:51:06 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Timmy Douglas <timmy+lkml@cc.gatech.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: macro in linux/compiler.h pollutes gcc __attribute__ namespace
-References: <87vf5y99o3.fsf@mail.gatech.edu>
-In-Reply-To: <87vf5y99o3.fsf@mail.gatech.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
+CC: Matt Mackall <mpm@selenic.com>,
+       "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
+	<7eggert@gmx.de>,
+       Linus Torvalds <torvalds@osdl.org>, Ryan Anderson <ryan@michonline.com>,
+       Andrea Arcangeli <andrea@suse.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
+Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
+References: <4277A52E.1020601@tmr.com><4277A52E.1020601@tmr.com> <4277B15F.1020102@lsrfire.ath.cx>
+In-Reply-To: <4277B15F.1020102@lsrfire.ath.cx>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timmy Douglas wrote:
-> (I'm not subscribed so please CC me replies that you want me to reply
-> to.)
+Rene Scharfe wrote:
+> Bill Davidsen schrieb:
 > 
-> Recently I've found a problem with emacs where gcc optimizes a
-> function to be inline where it shouldn't be. The emacs developers use
-> a macro like this:
-> 
-> #define NO_INLINE __attribute__((noinline))
-> 
-> that would normally work fine but when we compile the file with
-> NO_INLINE, the -E output looks like:
-> 
-> static void __attribute__(())
-> x_error_quitter (display, error)
->      Display *display;
->      XErrorEvent *error;
-> {
->   char buf[256], buf1[356];
-> 
-> ...etc
+>>On the theory that my first post got lost, why use /usr/bin/env at 
+>>all, when bash already does that substitution? To support people who 
+>>use other shells?
+>>
+>>ie.: FOO=xx perl -e '$a=$ENV{FOO}; print "$a\n"'
 > 
 > 
-> I've realized that this file includes linux/compiler.h which does:
+> /usr/bin/env is used in scripts in the shebang line (the very first line
+> of the script, starting with "#!", which denotes the interpreter to use
+> for that script) to make a PATH search for the real interpreter.
+> Some folks keep their python (or Perl, or Bash etc.) in /usr/local/bin
+> or in $HOME, that's why this construct is needed at all.
 > 
+> Changing environment variables is not the goal, insofar this usage
+> exploits only a side-effect of env.  It is portable in practice because
+> env is in /usr/bin on most modern systems.
 > 
->    139
->    140  #ifndef noinline
->    141  #define noinline
->    142  #endif
->    143
+> So you could replace this first line of a bash script:
 > 
-> which causes __atribute__((noinline)) to change into
-> __attribute__(()). I'm not sure how linux developers keep a function
-> from getting inlined, but I'm hoping someone will consider removing or
-> changing this macro.
+>    #!/usr/bin/env python
+> 
+> with this:
+> 
+>    #!python
+> 
+> except that the latter doesn't work because you need to specify an
+> absolute path there. :]
 
-The right question to be asking is why is emacs including kernel headers?
+Assuming that you want the PATH search rather than a symlink in 
+/usr/bin, of course. This opens the door to forgetting you just loaded 
+the CVS daily of python into your test directory and doing an unplanned 
+test of alpha software, but if people think the application should work 
+with non-standard tool chains, and realize it has possible unwanted 
+effects, that's a design decision.
 
---
-				Brian Gerst
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

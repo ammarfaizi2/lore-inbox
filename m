@@ -1,60 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261947AbVEDArn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261956AbVEDAvF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261947AbVEDArn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 20:47:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbVEDArn
+	id S261956AbVEDAvF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 20:51:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbVEDAvF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 20:47:43 -0400
-Received: from [203.16.207.254] ([203.16.207.254]:6585 "EHLO
-	trantor.sbss.com.au") by vger.kernel.org with ESMTP id S261947AbVEDArl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 20:47:41 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: [PATCH] 2.6.11 fix PROMISC/bridging in TLAN driver
-Date: Wed, 4 May 2005 10:47:41 +1000
-Message-ID: <AEC6C66638C05B468B556EA548C1A77D7A092B@trantor.int.sbss.com.au>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] 2.6.11 fix PROMISC/bridging in TLAN driver
-Thread-Index: AcVQQuBWdhsL5vjnTrCacwP1F9qJyw==
-From: "James Harper" <james.harper@bendigoit.com.au>
-To: <linux-kernel@vger.kernel.org>
+	Tue, 3 May 2005 20:51:05 -0400
+Received: from fire.osdl.org ([65.172.181.4]:33245 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261956AbVEDAu5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 20:50:57 -0400
+Date: Tue, 3 May 2005 17:50:23 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jason Baron <jbaron@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] tty races
+Message-Id: <20050503175023.627bd904.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0505030923560.10633@dhcp83-105.boston.redhat.com>
+References: <Pine.LNX.4.61.0504201227370.13902@dhcp83-105.boston.redhat.com>
+	<20050425232251.6ffac97c.akpm@osdl.org>
+	<Pine.LNX.4.61.0504260922001.26392@dhcp83-105.boston.redhat.com>
+	<20050502232721.19dde63d.akpm@osdl.org>
+	<Pine.LNX.4.61.0505030923560.10633@dhcp83-105.boston.redhat.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm re-sending this in the hope that someone will pick it up. I have
-made several attempts to contact the maintainer without success,
-although none recently.
+Jason Baron <jbaron@redhat.com> wrote:
+>
+> > 
+> > I don't see anywhere which takes lock_kernel() on the tty_open() path.
+> > 
+> 
+> fs/char_dev.c:chrdev_open():        
+> 
+> 	if (filp->f_op->open) {
+>                 lock_kernel();
+>                 ret = filp->f_op->open(inode,filp);
+>                 unlock_kernel();
+>         }
+> 
 
-This has been a problem for me for ages. When using bridging, the driver
-is switched into promiscuous mode before the link init is complete. The
-init complete routine then resets the promisc bit on the card so the
-kernel still thinks the card is in promiscuous mode but the card isn't.
-doh.
+hm, we're still doing that.
 
-I think this bug only shows up in bridging when the bridge is started at
-boot time (or something else that sets promisc at the same time the card
-was started). If promisc is enabled later it works.
+> > 
+> > We want to move away from lock_kernel()-based locking.
+> > 
+> 
+> I completely agree, but unfortunately lock_kernel() is currently used 
+> extensively throughout the tty layer. 
 
-Here's a trivial (and hopefully correct) patch that works for me. It
-just calls the promisc/multicast setup routine after init.
+Well no - it's being migrated over to use tty_sem.  We shouldn't start
+heading in the reverse direction.  Plus your patch reverts part of
+http://linux.bkbits.net:8080/linux-2.5/diffs/drivers/char/tty_io.c@1.156?nav=index.html|src/|src/drivers|src/drivers/char|hist/drivers/char/tty_io.c
+in ways which might be unsafe.
 
-James
+> lock_kernel() is used extensively throughout the tty layer. We can 
+> re-write the locking for the layer, but I'd like to see this bug fix in 
+> 2.6.12, if that isn't done in time.
 
-
---- linux/drivers/net/tlan.c    2004-07-05 12:10:31.000000000 +1000
-+++ linux-2.4.26-xen0/drivers/net/tlan.c        2004-07-05
-11:43:48.000000000 +1000
-@@ -2378,6 +2378,7 @@
-                TLan_SetTimer( dev, (10*HZ), TLAN_TIMER_FINISH_RESET );
-                return;
-        }
-+       TLan_SetMulticastList(dev);
-
- } /* TLan_FinishReset */
-
+Sorry, but AFAICT all you have done is to advocate for the existing patch
+without having attempted to fix this problem with tty_sem.  Please try to
+come up with a tty_sem-based fix.

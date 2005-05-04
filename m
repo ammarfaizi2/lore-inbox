@@ -1,55 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261996AbVEDDqd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261999AbVEDDuF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261996AbVEDDqd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 23:46:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261997AbVEDDqd
+	id S261999AbVEDDuF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 23:50:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262002AbVEDDuE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 23:46:33 -0400
-Received: from warlock.miem.edu.ru ([80.250.162.2]:19728 "EHLO
-	warlock.miem.edu.ru") by vger.kernel.org with ESMTP id S261996AbVEDDqb
+	Tue, 3 May 2005 23:50:04 -0400
+Received: from rproxy.gmail.com ([64.233.170.192]:53493 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261997AbVEDDt5 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 23:46:31 -0400
-Message-ID: <4278455D.308@aknet.ru>
-Date: Wed, 04 May 2005 07:45:33 +0400
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
-X-Accept-Language: ru, en-us, en
-MIME-Version: 1.0
-To: Alexander Nyberg <alexn@telia.com>
-CC: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       Mateusz Berezecki <mateuszb@gmail.com>, linux-kernel@vger.kernel.org,
-       zwane@arm.linux.org.uk
-Subject: Re: 2.6.12-rc3 OOPS  in vanilla source (once more)
-References: <42763388.1030008@gmail.com>	 <20050502200545.266b4e55.akpm@osdl.org> <1115120050.945.39.camel@localhost.localdomain>
-In-Reply-To: <1115120050.945.39.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 3 May 2005 23:49:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=OPBsKHdItuSJKRMzi1JzMPrP+TAXMhpvjURgkiOTrAYSv0nDXnsyCuoRpujSbtbpA1vRmVIHXX6zLdZE+lC7fGyvqgfZH3vs8CVC8HtR0zbPYRgjfP8MDpuZPIyC8SAS49myD7YEUWaredF5g2MtsgEdH9Rk//JmPl+LeL974QM=
+Message-ID: <d4757e600505032049716c811b@mail.gmail.com>
+Date: Tue, 3 May 2005 23:49:55 -0400
+From: Joe <joecool1029@gmail.com>
+Reply-To: Joe <joecool1029@gmail.com>
+To: 7eggert@gmx.de
+Subject: Re: Empty partition nodes not created (was device node issues with recent mm's and udev)
+Cc: linux-scsi@vger.kernel.org, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <E1DTAgo-0002uD-F0@be1.7eggert.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <3ZVNP-5cq-7@gated-at.bofh.it>
+	 <E1DTAgo-0002uD-F0@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On 5/3/05, Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
+<7eggert@gmx.de> wrote:
+> Joe <joecool1029@gmail.com> wrote:
+> 
+> > Here is the partition table from fdisk, fdisk does run fine.. its just
+> > the fact this node is not created that threw me off before.
+> >
+> >    Device Boot      Start         End      Blocks   Id  System
+> > /dev/sdb1   *           1           2       16033+   0  Empty
+> > /dev/sdb2   *           6        2431    19486845    b  W95 FAT32
+> > /dev/sdb3               3           5       24097+  83  Linux
+> >
+> > Notice, /dev/sdb1 is a Empty partition... in /dev I only have sdb,
+> > sdb2, and sdb3.  No sdb1.  Any help would be appreciated.
+> 
+> Some vendors depend on empty partitions not showing up. That's why this
+> patch was introduced.
 
-Alexander Nyberg wrote:
-> /From my reading a task that is scheduled away cannot have a partial/
-> saved pt_regs. If this is correct then ptrace won't suffer from this
-> problem
-This is most likely correct, I
-just wanted to be sure.
+It would be interesting to see just how important it is to hide this. 
+ 
+> BTW: Is there a special reason you why choose "empty"?
+> Is this partition showing up in other systems at all?
 
-> I need to look at the partial stack issue closer, don't think I fully
-> understand it yet.
-When the IRQ/NMI interrupts the
-ring0 code (kernel), since the
-handler is also ring0, the interrupt
-gate doesn't save the SS and ESP
-when switching, so you miss the 8 bytes.
-After looking at the code again I
-don't think this can affect the
-ptrace since the ptrace probably
-never traces from an IRQ context
-(I hope).
-So I think it is safe to ignore my
-previous comment. (if only perhaps
-the "optimized" version of the patch
-is to have a look)
+Actually, yes there is.. its a firmware partition that would normally
+not be mounted, but in order to dd new firmware versions to it, I
+depended on the node... which has ceased to exist.
 
+I would like to see an easier workaround then just ignoring it like
+that, but if its really needed....
+
+Anyways, thanks everyone for the info, its much appreciated.
+
+Joe

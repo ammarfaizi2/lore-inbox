@@ -1,64 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261663AbVEDML6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261676AbVEDMMh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261663AbVEDML6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 08:11:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261676AbVEDML6
+	id S261676AbVEDMMh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 08:12:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbVEDMMh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 08:11:58 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:53773 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261663AbVEDML4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 08:11:56 -0400
-Date: Wed, 4 May 2005 14:11:53 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: James Courtier-Dutton <James@superbug.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to get a git repository?
-Message-ID: <20050504121153.GO3592@stusta.de>
-References: <4278BF5E.6060002@superbug.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4278BF5E.6060002@superbug.co.uk>
-User-Agent: Mutt/1.5.9i
+	Wed, 4 May 2005 08:12:37 -0400
+Received: from mail20.syd.optusnet.com.au ([211.29.132.201]:24044 "EHLO
+	mail20.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261676AbVEDMM0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 08:12:26 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Carlos Carvalho <carlos@fisica.ufpr.br>
+Subject: Re: problem with nice values and cpu consumption in 2.6.11-5
+Date: Wed, 4 May 2005 22:12:24 +1000
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>
+References: <17015.35256.12650.37887@fisica.ufpr.br>
+In-Reply-To: <17015.35256.12650.37887@fisica.ufpr.br>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1778492.AlAufnxKsl";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200505042212.26453.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 04, 2005 at 01:26:06PM +0100, James Courtier-Dutton wrote:
+--nextPart1778492.AlAufnxKsl
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> Hi,
+On Wed, 4 May 2005 00:24, Carlos Carvalho wrote:
+> Look at this cpu usage in a two-processor machine:
+>
+>   893 user1   39  19  7212 5892  492 R 99.7  1.1   3694:29 mi41
+>  1118 user2   25   0  155m  61m  624 R 50.0 12.3 857:54.18 b170-se.x
+>  1186 user3   25   0  155m  62m  640 R 50.2 12.3 103:25.22 b170-se.x
+>
+> The job with nice 19 seems to be using 100% of cpu time while the
+> other two nice 0 jobs share a single processor with 50% only. This is
+> persistent, not a transient. I did a kill -STOP to the nice 19 job and
+> a kill -CONT, and for a while it decreased the cpu usage but later
+> returned to the above.
+>
+> This is with kernel 2.6.11-5 and top 3.2.5. What's the reason for this
+> (apparent??) mis-behavior and how can I correct it? This is important
+> because the machine is used for number-crunching and users get really
+> upset when they don't get the expected share of cpu time...
 
-Hi James,
+We currently do not have "nice" aware SMP balancing. The balancing is purel=
+y=20
+designed with throughput in mind, and something about the behaviour of the=
+=20
+tasks you are running makes the scheduler design to balance them in this wa=
+y.=20
+The only way around this is to use affinities to bind tasks to cpus. The on=
+ly=20
+cross-cpu "nice" awareness we currently have is between hyperthread (SMT)=20
+logical siblings, and not true physical cores.
 
-> I am maintainer of a very small part of the Linux kernel.
-> EMU10K1 SOUND DRIVER
-> 
-> This is the old OSS driver for SB Live and Audigy sound cards.
-> I have been sent some patches recently, so I was thinking about the best
-> way to get them added to the kernel.
->...
-> So, can anybody help me with the best way to do this?
+I've been experimenting with code to make the SMP balancing "nice" aware bu=
+t=20
+the balancing design in the 2.6 scheduler changes every 3 minutes for some=
+=20
+apparent gain somewhere (it is getting impossible to track these) and there=
+=20
+is no baseline for me to work off, so I have, for the moment, given up on=20
+that idea.
 
-They best way to get your patches into the kernel might be to send them 
-through Andrew, who will add them to his -mm tree and later forward them 
-to Linus.
+Cheers,
+Con
 
-If I assume correctly that "I have been sent some patches recently" 
-means half a dozen patches and the whole amount of patches every year 
-might be two dozen, I don't see any real reason for you to not simply 
-handling them manually.
+--nextPart1778492.AlAufnxKsl
+Content-Type: application/pgp-signature
 
-> Kind Regards
-> 
-> James
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-cu
-Adrian
+iD8DBQBCeLwqZUg7+tp6mRURAjQ3AJ9Ad3oPIChfY7bONn71eioJyj1QgwCfXvaS
+aZKRSqnMBogy1uLUUZ3y7RI=
+=Tqod
+-----END PGP SIGNATURE-----
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+--nextPart1778492.AlAufnxKsl--

@@ -1,94 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbVEDUMa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261399AbVEDUUH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261357AbVEDUMa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 16:12:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbVEDUMa
+	id S261399AbVEDUUH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 16:20:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVEDUUH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 16:12:30 -0400
-Received: from aquila.skane.tbv.se ([193.13.139.7]:22433 "EHLO
-	diadema.skane.tbv.se") by vger.kernel.org with ESMTP
-	id S261357AbVEDUKU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 16:10:20 -0400
-From: "Oskar Liljeblad" <oskar@osk.mine.nu>
-Date: Wed, 4 May 2005 22:10:11 +0200
-To: Drew Winstel <DWinstel@Miltope.com>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Bill Davidsen <davidsen@tmr.com>
-Subject: Re: clock drift with two Promise Ultra133 TX2 (PDC 20269) cards
-Message-ID: <20050504201011.GA817@oskar>
-References: <66F9227F7417874C8DB3CEB057727417045155@MILEX0.Miltope.local>
+	Wed, 4 May 2005 16:20:07 -0400
+Received: from fire.osdl.org ([65.172.181.4]:8066 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261399AbVEDUUB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 16:20:01 -0400
+Date: Wed, 4 May 2005 13:20:32 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: dmo@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] DAC960: add support for Mylex AcceleRAID 4/5/600
+Message-Id: <20050504132032.3aed8ce8.akpm@osdl.org>
+In-Reply-To: <20050504181721.GA19777@lst.de>
+References: <20050425141738.GA2749@lst.de>
+	<20050504181721.GA19777@lst.de>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <66F9227F7417874C8DB3CEB057727417045155@MILEX0.Miltope.local>
-User-Agent: Mutt/1.5.9i
-X-Spam-Score: 0.2 (/)
-X-Spam-Report: Spam detection software, running on the system "diadema.skane.tbv.se", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  On Tuesday, May 03, 2005 at 13:45, Drew Winstel wrote:
-	> > Thanks, now it loads correctly. Unfortunately the clock drift still
-	occurs > > with pata_pdc2027x. I'm guessing here, but can clock drift
-	have anything > > to do with IRQs? Also, is it normal to see errors in
-	/proc/interrupt? > > I've never noticed any errors before, but that
-	could just be a result of me > never actually bothering to look. [...] 
-	Content analysis details:   (0.2 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.2 UPPERCASE_25_50        message body is 25-50% uppercase
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, May 03, 2005 at 13:45, Drew Winstel wrote:
-> > Thanks, now it loads correctly. Unfortunately the clock drift still occurs
-> > with pata_pdc2027x. I'm guessing here, but can clock drift have anything
-> > to do with IRQs? Also, is it normal to see errors in /proc/interrupt?
-> 
-> I've never noticed any errors before, but that could just be a result of me 
-> never actually bothering to look.
+Christoph Hellwig <hch@lst.de> wrote:
+>
+> > This patch adds support for a new class of DAC960 controllers.  It's
+> > based on the GPLed idac320 driver from IBM for Linux 2.4.18.  That
+> > driver is a fork of the 2.4.18 version of DAC960 that adds support for
+> > this new type of controllers (internally called "GEM Series"), that
+> > differ from other DAC960 V2 firmware controllers only in the register
+> > offsets and removes support for all others.
+> > 
+> > This patch instead integrates support for these controllers into the
+> > DAC960 driver.
+> > 
+> > Thanks to Anders Norrbring for pointing me to the idac320 driver and
+> > testing this patch.
+> > 
+> > No Signed-Off: line because all code is either copy & pasted from IBM's
+> > idac320 driver or support for other controllers in the 2.6 DAC960
+> > driver.
 
-Are interrupts errors serious? Can anyone tell? The error count was higher
-when I had a fifth PCI card in the computer (natsemi ethernet NIC).
-Could there be some kind of PCI card conflict? Maybe I should try to
-remove a few of them...
+I think a S-O-B is still appropriate in this case.  You worked on it, so..
 
-[..]
-> Let's do some poking into your kernel config.  What do you have set under 
-> "Processor type and features"?
+> > Note: the really odd formating matches the rest of the DAC960 driver.
 
-CONFIG_X86_PC=y
-CONFIG_MK7=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=6
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_GENERIC_CALIBRATE_DELAY=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_USE_3DNOW=y
-CONFIG_HPET_TIMER=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_TSC=y
-
-In other words, Athlon/Duron/K7 + HPET + Local APIC + IO-Apic
-(though I have tried with both XT-PIC and Local APIC, with same
-drift).
-
-And no, the clock drift occurs no matter if ntpd is running or not.
-It's having a very hard time to syncronize with the remote servers,
-because the clock drift is too high. (It also says somewhere in the
-NTP documentation that it doesn't handle too high clock drift.)
-
-Regards,
-
-Oskar Liljeblad (oskar@osk.mine.nu)
+Yeah, maybe a big Lindenting is called for.  Although that would make
+patches such as this one a heck of a lot harder.

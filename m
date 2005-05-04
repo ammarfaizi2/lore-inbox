@@ -1,76 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261830AbVEDNtn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261826AbVEDNtx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261830AbVEDNtn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 09:49:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbVEDNtn
+	id S261826AbVEDNtx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 09:49:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261833AbVEDNtx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 09:49:43 -0400
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:5561 "EHLO
-	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S261830AbVEDNtg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 09:49:36 -0400
-Date: Wed, 4 May 2005 15:47:17 +0200
-From: Martin Waitz <tali@admingilde.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       ericvh@gmail.com, smfrench@austin.rr.com, hch@infradead.org
-Subject: Re: [RCF] [PATCH] unprivileged mount/umount
-Message-ID: <20050504134717.GD3562@admingilde.org>
-Mail-Followup-To: Miklos Szeredi <miklos@szeredi.hu>,
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-	ericvh@gmail.com, smfrench@austin.rr.com, hch@infradead.org
-References: <E1DSyQx-0002ku-00@dorka.pomaz.szeredi.hu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="81cS/AQiHTJECVaz"
-Content-Disposition: inline
-In-Reply-To: <E1DSyQx-0002ku-00@dorka.pomaz.szeredi.hu>
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 4 May 2005 09:49:53 -0400
+Received: from alog0497.analogic.com ([208.224.223.34]:22241 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261826AbVEDNtt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 09:49:49 -0400
+Date: Wed, 4 May 2005 09:49:37 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Jakub Jelinek <jakub@redhat.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: System call v.s. errno
+In-Reply-To: <20050504134224.GE17420@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.61.0505040948450.8903@chaos.analogic.com>
+References: <Pine.LNX.4.61.0505040849150.8743@chaos.analogic.com>
+ <20050504134224.GE17420@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 4 May 2005, Jakub Jelinek wrote:
 
---81cS/AQiHTJECVaz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Wed, May 04, 2005 at 09:22:09AM -0400, Richard B. Johnson wrote:
+>> Does anybody know for sure if global 'errno' is supposed to
+>> be altered after a successful system call? I'm trying to
+>> track down a problem where system calls return with EINTR
+>> even though all signal handlers are set with SA_RESTART in
+>> the flags. It appears as though there may be a race somewhere
+>> because if I directly set errno to 0x1234, within a few
+>> hundred system calls, it gets set to EINTR even though all
+>> system calls seemed to return 'good'. This makes it
+>> hard to trace down the real problem.
+>
+> http://www.opengroup.org/onlinepubs/009695399/functions/errno.html
+> is very clear on this.  Unless indicated that errno is valid after a call
+> (for many syscalls it is valid when the syscall returns -1), errno has
+> unspecified value.
+>
+> 	Jakub
+> -
 
-hoi :)
+Okay, thanks. That means that it's okay for it to get trashed
+NotGood(tm) for debugging.
 
-On Tue, May 03, 2005 at 04:31:35PM +0200, Miklos Szeredi wrote:
-> This (lightly tested) patch against 2.6.12-rc* adds some
-> infrastructure and basic functionality for unprivileged mount/umount
-> system calls.
-
-most of this unprivileged mount policy can be handled by a suid
-userspace helper (e.g. pmount)
-
-what are the pros/cons of handling that in the kernel?
-
---=20
-Martin Waitz
-
---81cS/AQiHTJECVaz
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFCeNJlj/Eaxd/oD7IRAi6rAJ4pPLJv2jbjJqvcBhcsvY4yrARmCQCeOUm8
-os3F8qeMZOIdKx121zdinWU=
-=LVn/
------END PGP SIGNATURE-----
-
---81cS/AQiHTJECVaz--
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

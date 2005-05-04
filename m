@@ -1,45 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbVEDVR1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbVEDVVu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261596AbVEDVR1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 17:17:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbVEDVR1
+	id S261643AbVEDVVu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 17:21:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbVEDVVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 17:17:27 -0400
-Received: from dns.toxicfilms.tv ([150.254.220.184]:8117 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S261596AbVEDVRY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 17:17:24 -0400
-X-QSS-TOXIC-Mail-From: solt2@dns.toxicfilms.tv via dns
-X-QSS-TOXIC: 1.25st (Clear:RC:1(213.238.100.215):. Processed in 0.045188 secs Process 28856)
-Date: Wed, 4 May 2005 23:17:22 +0200
-From: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
-X-Mailer: The Bat! (v3.0.1.33) UNREG / CD5BF9353B3B7091
-Reply-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
-X-Priority: 3 (Normal)
-Message-ID: <1104082357.20050504231722@dns.toxicfilms.tv>
-To: linux-kernel@vger.kernel.org
-Subject: Re[2]: ata over ethernet question
-In-Reply-To: <1115236116.7761.19.camel@dhollis-lnx.sunera.com>
-References: <1416215015.20050504193114@dns.toxicfilms.tv>
- <1115236116.7761.19.camel@dhollis-lnx.sunera.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 4 May 2005 17:21:50 -0400
+Received: from mailfe02.swip.net ([212.247.154.33]:10462 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S261643AbVEDVVr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 17:21:47 -0400
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Subject: Re: A patch for the file kernel/fork.c
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: Andrew Morton <akpm@osdl.org>
+Cc: andre@cachola.com.br, cw@f00f.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20050504124104.3573e7f3.akpm@osdl.org>
+References: <4278E03A.1000605@cachola.com.br>
+	 <20050504175457.GA31789@taniwha.stupidest.org>
+	 <427913E4.3070908@cachola.com.br>
+	 <20050504184318.GA644@taniwha.stupidest.org>
+	 <42791CD2.5070408@cachola.com.br>
+	 <1115234213.2562.28.camel@localhost.localdomain>
+	 <20050504124104.3573e7f3.akpm@osdl.org>
+Content-Type: text/plain
+Date: Wed, 04 May 2005 23:21:27 +0200
+Message-Id: <1115241687.2562.50.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello David,
+> > > I think that maybe it's good to put a:
+> > >        WARN_ON(!mm);
+> > > but a BUG_ON or without this patch, the kernel will halt, even if the 
+> > > problem is not so severe.
+> > 
+> > Patching up the kernel hiding things that must not happen is not the way
+> > to go. All kernel bugs are severe (as you just showed us!). Adding extra
+> > checks like your original patch did may even cause much more harm
+> > because it may hide other problems causing silent problems.
+> 
+> If I understand Andre correctly, his patch will prevent infinite recursion
+> in the oops path - if some process oopses after having run exit_mm().
+> 
+> If so then it's a reasonable debugging aid.  Although there might be better
+> places to do it, such as
+> 
+> 	if (!current->i_tried_to_exit++)
+> 		return;
+> 
+> in do_exit().   Dunno.
 
-Wednesday, May 4, 2005, 9:48:36 PM, you wrote:
-> That seems to be the basic idea but there doesn't seem to be a provider
-> stack just yet, just a 'client' (though I could be wrong).  AOE is
-> similar in concept to iSCSI with the biggest difference being that AOE
-> runs over Ethernet and is thus non-routeable.  iSCSI operates over IP so
-> you can do all kinds of fun IP games with it.
-Thanks, this is interesting. Does the iSCSI implementation out there have
-this provider stack ?
+This patch is very crude but it is quite resistant to recursive faults
+in do_exit(), survives the LTP hammering I've given it. The problem is
+not knowing where in the previous path it broke down so I'd rather just
+leave it lying around and try a graceful reset/power off. But if anyone
+has a better suggestion than the msleep() I'm all ears but this area is
+sensitive.
 
-Regards,
-Maciej
+Where is that anonymous patch hot-line...
+
+
+Index: mm/kernel/exit.c
+===================================================================
+--- mm.orig/kernel/exit.c	2005-05-04 22:24:57.000000000 +0200
++++ mm/kernel/exit.c	2005-05-04 23:19:08.000000000 +0200
+@@ -29,6 +29,7 @@
+ #include <linux/perfctr.h>
+ #include <linux/syscalls.h>
+ #include <linux/signal.h>
++#include <linux/delay.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>
+@@ -797,6 +798,14 @@
+ 		ptrace_notify((PTRACE_EVENT_EXIT << 8) | SIGTRAP);
+ 	}
+ 
++	/* We're taking recursive faults originating here in do_exit. Safest 
++	 * is to just leave this task alone and wait for reboot. */
++	if (tsk->flags & PF_EXITING) {
++		printk(KERN_ALERT "\nFixing recursive fault but reboot is needed!\n");
++		for (;;)
++			msleep(1000 * 10);
++	}
++
+ 	tsk->flags |= PF_EXITING;
+ 
+ 	/*
 
 

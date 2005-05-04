@@ -1,90 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbVEDHCQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262055AbVEDHIr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261600AbVEDHCQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 03:02:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbVEDHCQ
+	id S262055AbVEDHIr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 03:08:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbVEDHGD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 03:02:16 -0400
-Received: from mail.kroah.org ([69.55.234.183]:47844 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261600AbVEDHCI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 03:02:08 -0400
-Date: Wed, 4 May 2005 00:01:07 -0700
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: [GIT PATCH] PCI bugfixes for 2.6.12-rc3
-Message-ID: <20050504070107.GA17791@kroah.com>
+	Wed, 4 May 2005 03:06:03 -0400
+Received: from mail.kroah.org ([69.55.234.183]:3045 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262051AbVEDHCY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 03:02:24 -0400
+Cc: kaneshige.kenji@soft.fujitsu.com
+Subject: [PATCH] PCI: 'is_enabled' flag should be set/cleared when the device is actually enabled/disabled
+In-Reply-To: <20050504070107.GA17791@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Wed, 4 May 2005 00:02:16 -0700
+Message-Id: <1115190136453@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are a number of PCI bugfixes for 2.6.12-rc3.  They include a
-long-standing 64bit sysfs pci bug (has been fixed in the SuSE kernels
-for months) and some PCI hotplug bugfixes (hopefully the drivers are all
-now working again...) Almost all of these patches have been in the past
-few -mm releases.
+[PATCH] PCI: 'is_enabled' flag should be set/cleared when the device is actually enabled/disabled
 
-Pull from:
-	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
+I think 'is_enabled' flag in pci_dev structure should be set/cleared
+when the device actually enabled/disabled. Especially about
+pci_enable_device(), it can be failed. By this change, we will also
+get the possibility of refering 'is_enabled' flag from the functions
+called through pci_enable_device()/pci_disable_device().
 
-Full patches will be sent to the linux-kernel and linux-pci mailing lists, if
-anyone wants to see them.
+Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-thanks,
+---
+commit ceb43744cd48a20212e2179e0c7ff2f450a3c97e
+tree f9554643bc9d70fe761840a603adce393c0e9f08
+parent 8800cea62025a5209d110c5fa5990429239d6eee
+author Kenji Kaneshige <kaneshige.kenji@soft.fujitsu.com> 1112939611 +0900
+committer Greg KH <gregkh@suse.de> 1115189113 -0700
 
-greg k-h
-
- Documentation/pci.txt                |    1 
- Documentation/power/pci.txt          |   35 --------------
- arch/arm/mach-ixp4xx/common-pci.c    |   10 ----
- drivers/pci/hotplug/ibmphp.h         |    2 
- drivers/pci/hotplug/ibmphp_hpc.c     |    6 +-
- drivers/pci/hotplug/ibmphp_pci.c     |    7 ++
- drivers/pci/hotplug/pci_hotplug.h    |    2 
- drivers/pci/hotplug/pciehp_core.c    |   23 +++++++--
- drivers/pci/hotplug/pcihp_skeleton.c |    2 
- drivers/pci/msi.c                    |    6 +-
- drivers/pci/pci-acpi.c               |    2 
- drivers/pci/pci-driver.c             |   11 ++++
- drivers/pci/pci-sysfs.c              |   82 ++++++++++++++++++++++++-----------
- drivers/pci/pci.c                    |   20 +-------
- drivers/pci/probe.c                  |    1 
- drivers/pci/proc.c                   |    1 
- drivers/pci/quirks.c                 |    2 
- include/linux/pci.h                  |    3 -
- 18 files changed, 113 insertions(+), 103 deletions(-)
-
-
-<ssant:in.ibm.com>:
-  o PCI: fix up word-aligned 16-bit PCI config access through sysfs This patch adds the possibility to do word-aligned 16-bit atomic PCI configuration space accesses via the sysfs PCI interface. As a result, problems with Emulex LFPC on IBM PowerPC64 are fixed.
-
-Adrian Bunk:
-  o PCI: drivers/pci/pci.c: remove pci_dac_set_dma_mask pci_dac_set_dma_mask is currently completely unused.
-
-Dely Sy:
-  o PCI Hotplug: fix pciehp regression I fogot to remove the code that freed the memory in cleanup_slots().
-
-Greg Kroah-Hartman:
-  o PCI: Add pci shutdown ability Now pci drivers can know when the system is going down without having to add a reboot notifier event.
-  o PCI: Clean up a lot of sparse "Should it be static?" warnings
-
-Matthew Wilcox:
-  o PCI: update PCI documentation for pci_get_slot() depreciation pci_find_slot() doesn't work on multiple-domain boxes so pci_get_slot() should be used instead.
-
-Pavel Machek:
-  o PCI: fix stale PCI pm docs This fixes u32 vs. pm_message_t confusion in documentation, and removes references to no-longer-existing (*save_state), too. With exception of USB (I hope David will fix/apply my patch), this should fix last piece of this confusion... famous last words.
-
-Rolf Eike Beer:
-  o PCI Hotplug ibmphp_pci.c: Fix masking out needed information too early here is the patch that fixes the bug introduced by my previous patch which already went into 2.6.12-rc2 and is likely to cause trouble is someone hits
-
-Rudolf Marek:
-  o PCI: Rapid Hance quirk This patch just adds Intel's Hance Rapid south bridge IDs to ICH4 region quirk.
-
-Steven Cole:
-  o PCI: Spelling fixes for drivers/pci
-
+Index: drivers/pci/pci.c
+===================================================================
+--- 2aa9e4732d7014dcda4c0e80d2e377f52e2262e9/drivers/pci/pci.c  (mode:100644 sha1:bfbff83352688dc99776706033e1bb80b8282946)
++++ f9554643bc9d70fe761840a603adce393c0e9f08/drivers/pci/pci.c  (mode:100644 sha1:fc8cc6c53778b6336e26ef23b1ac3e78eb16c7a2)
+@@ -398,10 +398,10 @@
+ {
+ 	int err;
+ 
+-	dev->is_enabled = 1;
+ 	if ((err = pci_enable_device_bars(dev, (1 << PCI_NUM_RESOURCES) - 1)))
+ 		return err;
+ 	pci_fixup_device(pci_fixup_enable, dev);
++	dev->is_enabled = 1;
+ 	return 0;
+ }
+ 
+@@ -427,16 +427,15 @@
+ {
+ 	u16 pci_command;
+ 	
+-	dev->is_enabled = 0;
+-	dev->is_busmaster = 0;
+-
+ 	pci_read_config_word(dev, PCI_COMMAND, &pci_command);
+ 	if (pci_command & PCI_COMMAND_MASTER) {
+ 		pci_command &= ~PCI_COMMAND_MASTER;
+ 		pci_write_config_word(dev, PCI_COMMAND, pci_command);
+ 	}
++	dev->is_busmaster = 0;
+ 
+ 	pcibios_disable_device(dev);
++	dev->is_enabled = 0;
+ }
+ 
+ /**
 

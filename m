@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbVEDSYi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbVEDS0B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261371AbVEDSYi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 14:24:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVEDSWW
+	id S261324AbVEDS0B (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 14:26:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVEDSYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 14:22:22 -0400
-Received: from mx2.suse.de ([195.135.220.15]:26808 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261300AbVEDSVs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 14:21:48 -0400
-Date: Wed, 4 May 2005 20:21:43 +0200
-From: Andi Kleen <ak@suse.de>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: avoid infinite loop in x86_64 interrupt return
-Message-ID: <20050504182142.GE28441@wotan.suse.de>
-References: <20050504050132.GA3899@opteron.random> <200505041100.33099.rjw@sisk.pl> <20050504133129.GD3899@opteron.random>
+	Wed, 4 May 2005 14:24:54 -0400
+Received: from zproxy.gmail.com ([64.233.162.197]:20883 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261324AbVEDSWF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 14:22:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MQ9RbIvL52SquiX6E4iskSAKGRVIrc/Wluua0eE++j3dNxux3BOkfILWFgjb8N30W3bLRTgJwSxUYB+ktATP8+xKfvuzlJgzqBA5a7pJpdrDcFHVDCo0xtOFTF6P5rSydApDCa9trrRDFQQcM0p/cw5tN95nKpF2ghpOozAKtSY=
+Message-ID: <78d18e2050504112240e43a08@mail.gmail.com>
+Date: Wed, 4 May 2005 14:22:00 -0400
+From: William Jordan <bjordan.ics@gmail.com>
+Reply-To: William Jordan <bjordan.ics@gmail.com>
+To: Andy Isaacson <adi@hexapodia.org>
+Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+Cc: Caitlin Bestler <caitlin.bestler@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, openib-general@openib.org,
+       hch@infradead.org, Timur Tabi <timur.tabi@ammasso.com>
+In-Reply-To: <20050503184325.GA19351@hexapodia.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050504133129.GD3899@opteron.random>
+References: <469958e00504291731eb8287c@mail.gmail.com>
+	 <20050503184325.GA19351@hexapodia.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 04, 2005 at 03:31:29PM +0200, Andrea Arcangeli wrote:
-> On Wed, May 04, 2005 at 11:00:32AM +0200, Rafael J. Wysocki wrote:
-> > You also need to add two missing clis.  Please have a look at the attached
-> > patch from Andi.
-> 
-> Those two clis seems unrelated, so I don't see why I should mix them in
-> the same patch. I couldn't trigger the other problems, only the one with
-> rdi corruption.
+On 5/3/05, Andy Isaacson <adi@hexapodia.org> wrote:
+> Rather than replacing the fully-registered pages with pages of zeros,
+> you could simply unmap them.
 
-THere was a second patch which essentially got the line you posted
-together with the missing clis.
+I don't like this option. It is nearly free to map all of the pages to
+the zero-page. You never have to allocate a page if the user never
+writes to it.
 
-I originally fixed it in a slightly different way (in the version
-that got lost), but this one was equivalent.
+Buf if you unmap the page, there could be issues. The memory region
+could be on the stack, or malloc'ed. In these cases, the child should
+be able to return from the function, or free the memory without
+setting a timebomb.
 
-> 
-> Note that those clis seems superflous, cli is only needed before swapgs,
-> so adding cli before swapgs in retint_swapgs sounds a better idea than
-> to keep irq off for a longer time for no apparent good reason. But I've
-> no real idea why those cli are needed so I guess I must be missing
-> something. there's no commentary attached to your patch that can exlain
-> why the cli are needed _way_ before calling swapgs.
-
-To avoid losing schedule events and signals. Between checking for them
-and returning to user space interrupts need to be off. When they are
-reenabled everything needs to be rechecked.
-
--Andi
+-- 
+Bill Jordan
+InfiniCon Systems

@@ -1,56 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbVEDUtG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbVEDUtl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbVEDUtG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 16:49:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261529AbVEDUpZ
+	id S261661AbVEDUtl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 16:49:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbVEDUtg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 16:45:25 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:19920 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261643AbVEDUmL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 16:42:11 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [RFC][PATCH] update SubmittingPatches to clarify attachment policy
-Date: Wed, 4 May 2005 22:42:33 +0200
-User-Agent: KMail/1.8
-Cc: Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org
-References: <20050504170156.87F67CE5@kernel.beaverton.ibm.com> <9e47339105050410107d9193b2@mail.gmail.com>
-In-Reply-To: <9e47339105050410107d9193b2@mail.gmail.com>
+	Wed, 4 May 2005 16:49:36 -0400
+Received: from penta.pentaserver.com ([216.74.97.66]:60835 "EHLO
+	penta.pentaserver.com") by vger.kernel.org with ESMTP
+	id S261650AbVEDUss (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 16:48:48 -0400
+Message-ID: <4279343A.1000707@kromtek.com>
+Date: Thu, 05 May 2005 00:44:42 +0400
+From: Manu Abraham <manu@kromtek.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: akpm@osdl.org
+CC: linux-kernel@vger.kernel.org, greg@kroah.com, js@linuxtv.org,
+       kraxel@bytesex.org
+Subject: [PATCH] Fix dst i2c read/write timeout failure.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200505042242.33949.rjw@sisk.pl>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - penta.pentaserver.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - kromtek.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Wednesday, 4 of May 2005 19:10, Jon Smirl wrote:
-> On 5/4/05, Dave Hansen <haveblue@us.ibm.com> wrote:
-> > 
-> > I think the general opinion of posting patches as attachments
-> > has changed over the last few years.  Mailers have been getting
-> > a lot better at handling them, even quoting non-message-body
-> > plain/text attachments in replies.
-> 
-> There is also the problem of things like gmail/yahoo where you can't
-> control the word wrapping.  The only way to submit patches from those
-> services is as an plain text attachment. If you try to submit then
-> in-line and they wrap wrong you will collect a lot of hate mail from
-> Andrew.
-
-Well, IMHO, if your mailer does not handle patches correctly, you can try to
-include your patch in the message body and say something like "sorry, my
-mailer messes up with patches so I'm attaching it too", _and_ attach it ...
-
-Greets,
-Rafael
+Attached is a patch to bttv which fixes the following problems.
 
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Affected cards and problems:
+~~~~~~~~~~~~~~~~~~~~~~~~
+o VP-1020 (200103A) Tuning problems, device detection.
+o VP-1020 (DST-MOT) Errors during tuning, device detection fails in a while.
+o VP-1030 (DST-CI) Tuning sometimes fails after CI commands.
+o VP-2031 (DCT-CI) Tuning problems
+
+
+The timeout happens before the actual timeout occured in the MCU
+on the board, and hence the problems.
+
+
+Changes: (bttv-i2c.diff)
+~~~~~~~~~~~~~~~~~~~~~~~~
+o Changed the custom wait queue to wait_event_interruptible_timeout()
+      - Suggestion by Johannes Stezenbach.
+
+o Fixed the wait queue timeout problem
+      - This fixes the timeout problem on various cards.
+      - This problem was visible as many
+          * Cannot tune to channels, when signal levels are very low.
+          * app_info does not work in some conditions for CI based cards
+      - Smaller values worked good for newer cards, but the older cards
+suffered, settled down to the worst case values that could happen in any
+eventuality.
+
+
+Signed-off-by: Manu Abraham <manu@kromtek.com>
+
+
+Index: linux-2.6.12-rc3/drivers/media/video/bttv-i2c.c
+========================================
+--- linux-2.6.12-rc3.orig/drivers/media/video/bttv-i2c.c	2005-05-03
+16:04:28.000000000 +0400
++++ linux-2.6.12-rc3/drivers/media/video/bttv-i2c.c	2005-05-05
+00:01:00.000000000 +0400
+@@ -29,6 +29,7 @@
+   #include <linux/moduleparam.h>
+   #include <linux/init.h>
+   #include <linux/delay.h>
++#include <linux/jiffies.h>
+   #include <asm/io.h>
+
+   #include "bttvp.h"
+@@ -130,17 +131,14 @@ static u32 functionality(struct i2c_adap
+   static int
+   bttv_i2c_wait_done(struct bttv *btv)
+   {
+-	DECLARE_WAITQUEUE(wait, current);
+   	int rc = 0;
+
+-	add_wait_queue(&btv->i2c_queue, &wait);
+-	if (0 == btv->i2c_done)
+-		msleep_interruptible(20);
+-	remove_wait_queue(&btv->i2c_queue, &wait);
+-
+-	if (0 == btv->i2c_done)
+-		/* timeout */
+-		rc = -EIO;
++	/* timeout */
++	if (wait_event_interruptible_timeout(btv->i2c_queue,
++		btv->i2c_done, msecs_to_jiffies(85)) == -ERESTARTSYS)
++
++	rc = -EIO;
++	
+   	if (btv->i2c_done & BT848_INT_RACK)
+   		rc = 1;
+   	btv->i2c_done = 0;
+
+
+

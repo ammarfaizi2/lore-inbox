@@ -1,53 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbVEDS0A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbVEDS35@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261300AbVEDS0A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 14:26:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbVEDSZK
+	id S261363AbVEDS35 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 14:29:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbVEDS33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 14:25:10 -0400
-Received: from alog0132.analogic.com ([208.224.220.147]:2269 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261300AbVEDSX5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 14:23:57 -0400
-Date: Wed, 4 May 2005 14:23:36 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] update SubmittingPatches to clarify attachment
- policy
-In-Reply-To: <20050504175422.GY24187@lug-owl.de>
-Message-ID: <Pine.LNX.4.61.0505041419360.21458@chaos.analogic.com>
-References: <20050504170156.87F67CE5@kernel.beaverton.ibm.com>
- <9e47339105050410107d9193b2@mail.gmail.com> <20050504175422.GY24187@lug-owl.de>
+	Wed, 4 May 2005 14:29:29 -0400
+Received: from p4.gsnoc.net ([209.51.147.210]:27859 "EHLO p4.gsnoc.net")
+	by vger.kernel.org with ESMTP id S261363AbVEDS0s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 14:26:48 -0400
+Message-ID: <427913E4.3070908@cachola.com.br>
+Date: Wed, 04 May 2005 15:26:44 -0300
+From: =?ISO-8859-1?Q?Andr=E9_Pereira_de_Almeida?= <andre@cachola.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050420 Debian/1.7.7-2
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Chris Wedgwood <cw@f00f.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: A patch for the file kernel/fork.c
+References: <4278E03A.1000605@cachola.com.br> <20050504175457.GA31789@taniwha.stupidest.org>
+In-Reply-To: <20050504175457.GA31789@taniwha.stupidest.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - p4.gsnoc.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - cachola.com.br
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 May 2005, Jan-Benedict Glaw wrote:
+Chris Wedgwood wrote:
 
-> On Wed, 2005-05-04 13:10:35 -0400, Jon Smirl <jonsmirl@gmail.com> wrote:
->> On 5/4/05, Dave Hansen <haveblue@us.ibm.com> wrote:
->>>
->>> I think the general opinion of posting patches as attachments
->>> has changed over the last few years.  Mailers have been getting
->>> a lot better at handling them, even quoting non-message-body
->>> plain/text attachments in replies.
+>On Wed, May 04, 2005 at 11:46:18AM -0300, Andr? Pereira de Almeida wrote:
+>
+>  
+>
+>>-       if (tsk->clear_child_tid && atomic_read(&mm->mm_users) > 1) {
+>>+       if (mm && tsk->clear_child_tid && atomic_read(&mm->mm_users) > 1) {
+>>    
 >>
->> There is also the problem of things like gmail/yahoo where you can't
->> control the word wrapping.  The only way to submit patches from those
->> services is as an plain text attachment. If you try to submit then
->> in-line and they wrap wrong you will collect a lot of hate mail from
->> Andrew.
 >
-> Well, why should someone use a broken mail service at all?
+>did you actually see a problem here?
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
 >
-> MfG, JBG
+In a preemptible kernel with the serport module and a serial port try to 
+run the following program:
 
-Because the net Nazis make often make it the only way to send/receive
-mail in a domain. There is nothing coming or going here that doesn't
-go through a M$ mail-killer that even saves every thread of evidence.
+int main(int argc, char **argv)
+{
+        int ldisc,fd;
 
-For instance, there is no signature on this file. I'll bet that
-by the time you read it, there is one.
+        fd = open("/dev/ttyS0", O_RDWR | O_NOCTTY | O_NONBLOCK);
+        ldisc = N_MOUSE;
+        ioctl(fd, TIOCSETD, &ldisc);
+        read(fd, NULL, 0);
+        return 0;
+}
+
+and kill it.
+In my case it will hang the computer. I think this is a problem with the 
+serport module. With this patch, the serial mouse stop working, but the 
+computer don't hang.
+

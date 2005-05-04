@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262051AbVEDHIq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262045AbVEDHEM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262051AbVEDHIq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 03:08:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262055AbVEDHG2
+	id S262045AbVEDHEM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 03:04:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262047AbVEDHED
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 03:06:28 -0400
-Received: from mail.kroah.org ([69.55.234.183]:5349 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262052AbVEDHCZ convert rfc822-to-8bit
+	Wed, 4 May 2005 03:04:03 -0400
+Received: from mail.kroah.org ([69.55.234.183]:1253 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262048AbVEDHCX convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 03:02:25 -0400
-Cc: matthew@wil.cx
-Subject: [PATCH] PCI: update PCI documentation for pci_get_slot() depreciation
-In-Reply-To: <11151901361631@kroah.com>
+	Wed, 4 May 2005 03:02:23 -0400
+Cc: gregkh@suse.de
+Subject: [PATCH] PCI: Clean up a lot of sparse "Should it be static?" warnings.
+In-Reply-To: <11151901373923@kroah.com>
 X-Mailer: gregkh_patchbomb
 Date: Wed, 4 May 2005 00:02:17 -0700
-Message-Id: <11151901373923@kroah.com>
+Message-Id: <11151901371766@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,31 +24,76 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] PCI: update PCI documentation for pci_get_slot() depreciation
+[PATCH] PCI: Clean up a lot of sparse "Should it be static?" warnings.
 
-pci_find_slot() doesn't work on multiple-domain boxes so pci_get_slot()
-should be used instead.
-
-Signed-off-by: Matthew Wilcox <matthew@wil.cx>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit a3ea7fbac12fdb2d70c90bb36f81afa3c66e18f4
-tree be9655df6ea3a0cf2c53a0eb8ff8870962d46871
-parent ceb43744cd48a20212e2179e0c7ff2f450a3c97e
-author Matthew Wilcox <matthew@wil.cx> 1112119728 +0100
+commit bc56b9e01190b9f1ad6b7c5c694b61bfe34c7aa5
+tree 9979aed502d987538c51d9820be9c288462f9996
+parent 92df516e6264f9caff4be49718926d6884fa50ed
+author Greg KH <gregkh@suse.de> 1112939611 +0900
 committer Greg KH <gregkh@suse.de> 1115189114 -0700
 
-Index: Documentation/pci.txt
+Index: drivers/pci/pci-acpi.c
 ===================================================================
---- f9554643bc9d70fe761840a603adce393c0e9f08/Documentation/pci.txt  (mode:100644 sha1:67514bf87ccde2db27f138fc52348899bf8ec351)
-+++ be9655df6ea3a0cf2c53a0eb8ff8870962d46871/Documentation/pci.txt  (mode:100644 sha1:62b1dc5d97e2e90523e8010b93054f81ef3ffe58)
-@@ -279,6 +279,7 @@
- pci_for_each_bus()		Superseded by pci_find_next_bus()
- pci_find_device()		Superseded by pci_get_device()
- pci_find_subsys()		Superseded by pci_get_subsys()
-+pci_find_slot()			Superseded by pci_get_slot()
- pcibios_find_class()		Superseded by pci_get_class()
- pci_find_class()		Superseded by pci_get_class()
- pci_(read|write)_*_nodev()	Superseded by pci_bus_(read|write)_*()
+--- 1b09131f91db847c9f3d6de98ed5cc1ebd0e9325/drivers/pci/pci-acpi.c  (mode:100644 sha1:968eb32f292d7e075bb982359d9d7332a5f93f15)
++++ 9979aed502d987538c51d9820be9c288462f9996/drivers/pci/pci-acpi.c  (mode:100644 sha1:bc01d34e2634ca12b582e8b42c8dab7aee01da79)
+@@ -19,7 +19,7 @@
+ 
+ static u32 ctrlset_buf[3] = {0, 0, 0};
+ static u32 global_ctrlsets = 0;
+-u8 OSC_UUID[16] = {0x5B, 0x4D, 0xDB, 0x33, 0xF7, 0x1F, 0x1C, 0x40, 0x96, 0x57, 0x74, 0x41, 0xC0, 0x3D, 0xD7, 0x66};
++static u8 OSC_UUID[16] = {0x5B, 0x4D, 0xDB, 0x33, 0xF7, 0x1F, 0x1C, 0x40, 0x96, 0x57, 0x74, 0x41, 0xC0, 0x3D, 0xD7, 0x66};
+ 
+ static acpi_status  
+ acpi_query_osc (
+Index: drivers/pci/pci.c
+===================================================================
+--- 1b09131f91db847c9f3d6de98ed5cc1ebd0e9325/drivers/pci/pci.c  (mode:100644 sha1:fc8cc6c53778b6336e26ef23b1ac3e78eb16c7a2)
++++ 9979aed502d987538c51d9820be9c288462f9996/drivers/pci/pci.c  (mode:100644 sha1:88cbe5b5b3f3f60fbee7915ba3339d2f2f4dc5cf)
+@@ -16,6 +16,7 @@
+ #include <linux/module.h>
+ #include <linux/spinlock.h>
+ #include <asm/dma.h>	/* isa_dma_bridge_buggy */
++#include "pci.h"
+ 
+ 
+ /**
+Index: drivers/pci/probe.c
+===================================================================
+--- 1b09131f91db847c9f3d6de98ed5cc1ebd0e9325/drivers/pci/probe.c  (mode:100644 sha1:6f0edadd132cfeee9f8327a4af8d178b7ad16353)
++++ 9979aed502d987538c51d9820be9c288462f9996/drivers/pci/probe.c  (mode:100644 sha1:b7ae87823c69777f772717947b6911ffdeac6b2b)
+@@ -9,6 +9,7 @@
+ #include <linux/slab.h>
+ #include <linux/module.h>
+ #include <linux/cpumask.h>
++#include "pci.h"
+ 
+ #define CARDBUS_LATENCY_TIMER	176	/* secondary latency timer */
+ #define CARDBUS_RESERVE_BUSNR	3
+Index: drivers/pci/proc.c
+===================================================================
+--- 1b09131f91db847c9f3d6de98ed5cc1ebd0e9325/drivers/pci/proc.c  (mode:100644 sha1:84cc4f620d8d4807db5830d4aa37f376bfa74463)
++++ 9979aed502d987538c51d9820be9c288462f9996/drivers/pci/proc.c  (mode:100644 sha1:e68bbfb1e7c318d0c34c11e3c76774ae17f3c60a)
+@@ -15,6 +15,7 @@
+ 
+ #include <asm/uaccess.h>
+ #include <asm/byteorder.h>
++#include "pci.h"
+ 
+ static int proc_initialized;	/* = 0 */
+ 
+Index: drivers/pci/quirks.c
+===================================================================
+--- 1b09131f91db847c9f3d6de98ed5cc1ebd0e9325/drivers/pci/quirks.c  (mode:100644 sha1:15a398051682ae19334a358600ecee9b85f1a434)
++++ 9979aed502d987538c51d9820be9c288462f9996/drivers/pci/quirks.c  (mode:100644 sha1:00388a14a3c61693ac734dee4c4cef172b2a0acc)
+@@ -18,6 +18,7 @@
+ #include <linux/pci.h>
+ #include <linux/init.h>
+ #include <linux/delay.h>
++#include "pci.h"
+ 
+ /* Deal with broken BIOS'es that neglect to enable passive release,
+    which can cause problems in combination with the 82441FX/PPro MTRRs */
 

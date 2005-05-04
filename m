@@ -1,51 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261840AbVEDOqV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261861AbVEDOve@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261840AbVEDOqV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 10:46:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbVEDOqV
+	id S261861AbVEDOve (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 10:51:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbVEDOve
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 10:46:21 -0400
-Received: from p4.gsnoc.net ([209.51.147.210]:52667 "EHLO p4.gsnoc.net")
-	by vger.kernel.org with ESMTP id S261840AbVEDOqO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 10:46:14 -0400
-Message-ID: <4278E03A.1000605@cachola.com.br>
-Date: Wed, 04 May 2005 11:46:18 -0300
-From: =?ISO-8859-1?Q?Andr=E9_Pereira_de_Almeida?= <andre@cachola.com.br>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050420 Debian/1.7.7-2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: A patch for the file kernel/fork.c
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - p4.gsnoc.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - cachola.com.br
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Wed, 4 May 2005 10:51:34 -0400
+Received: from wproxy.gmail.com ([64.233.184.207]:31386 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261861AbVEDOvS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 10:51:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GWQPJRNB4V1o8I9Xuji47NGCzu300tC35wC84xsi+82aDH+JzIEhzEL8aNRW7/I2e/48n9JNJE28gReJqL5ImViQ0EXRk3VnOTj7J1EP3nlI5Z4kQMR4VXRZZzSltuCsxQ1HVrXFTlHmNdnCJUTLONHV6GAb/Ws5TLf1IbqtwcY=
+Message-ID: <a4e6962a0505040751359025e5@mail.gmail.com>
+Date: Wed, 4 May 2005 09:51:17 -0500
+From: Eric Van Hensbergen <ericvh@gmail.com>
+Reply-To: Eric Van Hensbergen <ericvh@gmail.com>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Subject: Re: [RCF] [PATCH] unprivileged mount/umount
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       smfrench@austin.rr.com, hch@infradead.org,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <E1DTKkd-0003rC-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <E1DSyQx-0002ku-00@dorka.pomaz.szeredi.hu>
+	 <a4e6962a05050406086e3ab83b@mail.gmail.com>
+	 <E1DTKkd-0003rC-00@dorka.pomaz.szeredi.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  I think that the file kernel/fork.c should be patched as following:
+On 5/4/05, Miklos Szeredi <miklos@szeredi.hu> wrote:
+> 
+> Where did you see 10 as the limit?  The initial global limit is zero,
+> the initial per-user limit is infinity (I did actually test these ;)
+> 
 
---- linux-2.6.12-rc3.orig/kernel/fork.c 2005-05-03 22:31:21.000000000 -0300
-+++ linux-2.6.12-rc3/kernel/fork.c      2005-05-04 09:37:46.000000000 -0300
-@@ -429,7 +429,7 @@
-                tsk->vfork_done = NULL;
-                complete(vfork_done);
-        }
--       if (tsk->clear_child_tid && atomic_read(&mm->mm_users) > 1) {
-+       if (mm && tsk->clear_child_tid && atomic_read(&mm->mm_users) > 1) {
-                u32 __user * tidptr = tsk->clear_child_tid;
-                tsk->clear_child_tid = NULL;
+The verdict is: I should stop trying to read code before I've had my
+coffee in the morning.  Sorry about that.
 
-If a process is killed and, for some reason, when closing all files a 
-pagefault is generated (should not happen, but...) after the function 
-exit_mm had been called, the kernel will try to exit this process again, 
-calling exit_mm and mm_release with a null mm, and will generate another 
-pagefault in atomic_read(&mm->mm_users), and so on and the system will 
-hang. I think this patch solve this problem.
+> 
+> > My  major complaint is that I really think having user mounts without
+> > requiring them to be in a user's private namespace creates quite a
+> > mess.  It potentially pollutes the system's namespace and opens up the
+> > possibility of all sorts of synthetic file system "traps".  I'd rather
+> > see the private namespace stuff enforced before enabling user-mounts.
+> 
+> Yes, I see your point.  However the problem of malicious filesystem
+> "traps" applies to private namespaces as well (because of suid
+> programs).
+>
+
+I'm not sure I quite get this (perhaps I haven't had enough coffee
+yet...hmmm).  There are, of course, multiple potential vulnerabilities
+here -- but if you confine a user's modification to a private
+namespace, system daemons and other users would be safe unless they
+explicitly suid to the user and we had the per-user namespace
+semantics that are being discussed in the other thread.
+
+So, two comments here - if the per-user namespace semantics exist and
+someone/something suid's to that user - they make themselves
+vulnerable.  I imagine there are numerous traps you can set for
+someone that suids to your profile.  Do any of the system daemons
+actually do this?
+
+The other comment is that this is why I don't like per-user namespaces
+- per process namespaces avoid this vulnerability.  However, that
+discussion is already being covered to some length in the other
+thread, so I don't really want to go into it again here.
+
+>  ...
+
+I don't like any of the proposed solutions.  Invisible mounts just
+aren't the right solution.  Restricting suid/sgid in a cloned
+namespace seems like it would be impractical and cause lots of
+problems.
+
+Viro - you put in the private namespace stuff originally, and use it
+from a user-context (binding your bin directories and what not). 
+What's your vision on this?  What do we need to do to make user
+mounts/binds/private-namespace a reality?
+ 
+       -eric

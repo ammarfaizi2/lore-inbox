@@ -1,83 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261877AbVEDAnz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261947AbVEDArn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261877AbVEDAnz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 20:43:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261947AbVEDAnz
+	id S261947AbVEDArn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 20:47:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbVEDArn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 20:43:55 -0400
-Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:32870 "HELO
-	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261877AbVEDAnw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 20:43:52 -0400
-Message-ID: <42781AC5.1000201@yahoo.com.au>
-Date: Wed, 04 May 2005 10:43:49 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
+	Tue, 3 May 2005 20:47:43 -0400
+Received: from [203.16.207.254] ([203.16.207.254]:6585 "EHLO
+	trantor.sbss.com.au") by vger.kernel.org with ESMTP id S261947AbVEDArl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 20:47:41 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Rik van Riel <riel@redhat.com>
-CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] how do we move the VM forward? (was Re: [RFC] cleanup of
- use-once)
-References: <Pine.LNX.4.61.0505030037100.27756@chimarrao.boston.redhat.com> <42771904.7020404@yahoo.com.au> <Pine.LNX.4.61.0505030913480.27756@chimarrao.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.61.0505030913480.27756@chimarrao.boston.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: [PATCH] 2.6.11 fix PROMISC/bridging in TLAN driver
+Date: Wed, 4 May 2005 10:47:41 +1000
+Message-ID: <AEC6C66638C05B468B556EA548C1A77D7A092B@trantor.int.sbss.com.au>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] 2.6.11 fix PROMISC/bridging in TLAN driver
+Thread-Index: AcVQQuBWdhsL5vjnTrCacwP1F9qJyw==
+From: "James Harper" <james.harper@bendigoit.com.au>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> On Tue, 3 May 2005, Nick Piggin wrote:
-> 
->> I think the biggest problem with our twine and duct tape page reclaim
->> scheme is that somehow *works* (for some value of works).
-> 
-> 
->> I think we branch a new tree for all interested VM developers to work
->> on and try to get performing well. Probably try to restrict it to page
->> reclaim and related fundamentals so it stays as small as possible and
->> worth testing.
-> 
-> 
-> Sounds great.  I'd be willing to maintain a quilt tree for
-> this - in fact, I've already got a few patches ;)
-> 
+I'm re-sending this in the hope that someone will pick it up. I have
+made several attempts to contact the maintainer without success,
+although none recently.
 
-OK I'll help maintain and review patches.
+This has been a problem for me for ages. When using bridging, the driver
+is switched into promiscuous mode before the link init is complete. The
+init complete routine then resets the promisc bit on the card so the
+kernel still thinks the card is in promiscuous mode but the card isn't.
+doh.
 
-Also having a box or two for running regression and stress
-testing is a must. I can do a bit here, but unfortunately
-"kernel compiles until it hurts" is probably not the best
-workload to target.
+I think this bug only shows up in bridging when the bridge is started at
+boot time (or something else that sets promisc at the same time the card
+was started). If promisc is enabled later it works.
 
-In general most systems and their workloads aren't constantly
-swapping, so we should aim to minimise IO for normal
-workloads. Databases that use the pagecache (eg. postgresql)
-would be a good test. But again we don't want to focus on one
-thing.
+Here's a trivial (and hopefully correct) patch that works for me. It
+just calls the promisc/multicast setup routine after init.
 
-That said, of course we don't want to hurt the "really
-thrashing" case - and hopefully improve it if possible.
+James
 
-> Also, we should probably keep track of exactly what we're
-> working towards.  I've put my ideas on a wiki page, feel
-> free to add yours - probably a new page for stuff that's
-> not page replacement related ;)
-> 
 
-I guess some of those page replacement algorithms would be
-really interesting to explore - and we definitely should be
-looking into them at some stage as part of our -vm tree.
+--- linux/drivers/net/tlan.c    2004-07-05 12:10:31.000000000 +1000
++++ linux-2.4.26-xen0/drivers/net/tlan.c        2004-07-05
+11:43:48.000000000 +1000
+@@ -2378,6 +2378,7 @@
+                TLan_SetTimer( dev, (10*HZ), TLAN_TIMER_FINISH_RESET );
+                return;
+        }
++       TLan_SetMulticastList(dev);
 
-Though my initial aims are to first simplify and rationalise
-and unify things where possible.
-
-NUMA "issues" related to page reclaim are also interesting to
-me.
-
-I'll try to get some time to get my patches into shape in the
-next week or so.
-
--- 
-SUSE Labs, Novell Inc.
+ } /* TLan_FinishReset */
 

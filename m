@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbVEDJ7w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbVEDKNw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261580AbVEDJ7w (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 05:59:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261581AbVEDJ7w
+	id S261584AbVEDKNw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 06:13:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbVEDKNw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 05:59:52 -0400
-Received: from mail.portrix.net ([212.202.157.208]:36564 "EHLO
-	zoidberg.portrix.net") by vger.kernel.org with ESMTP
-	id S261580AbVEDJ7u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 05:59:50 -0400
-Message-ID: <42789D07.5000501@ppp0.net>
-Date: Wed, 04 May 2005 11:59:35 +0200
-From: Jan Dittmer <jdittmer@ppp0.net>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Wed, 4 May 2005 06:13:52 -0400
+Received: from zone4.gcu-squad.org ([213.91.10.50]:63952 "EHLO
+	zone4.gcu-squad.org") by vger.kernel.org with ESMTP id S261584AbVEDKNu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 06:13:50 -0400
+Date: Wed, 4 May 2005 12:07:11 +0200 (CEST)
+To: ladis@linux-mips.org
+Subject: Re: [PATCH] ds1337 3/3
+X-IlohaMail-Blah: khali@localhost
+X-IlohaMail-Method: mail() [mem]
+X-IlohaMail-Dummy: moo
+X-Mailer: IlohaMail/0.8.14 (On: webmail.gcu.info)
+Message-ID: <Ky47NT3d.1115201231.3150830.khali@localhost>
+In-Reply-To: <20050504061438.GD1439@orphique>
+From: "Jean Delvare" <khali@linux-fr.org>
+Bounce-To: "Jean Delvare" <khali@linux-fr.org>
+CC: "LKML" <linux-kernel@vger.kernel.org>,
+       "LM Sensors" <sensors@Stimpy.netroedge.com>,
+       "James Chapman" <jchapman@katalix.com>, "Greg KH" <greg@kroah.com>
 MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: torvalds@osdl.org, Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: Git-commits mailing list feed.
-References: <200504210422.j3L4Mo8L021495@hera.kernel.org>	 <42674724.90005@ppp0.net> <20050422002922.GB6829@kroah.com>	 <426A4669.7080500@ppp0.net>	 <1114266083.3419.40.camel@localhost.localdomain>	 <426A5BFC.1020507@ppp0.net>	 <1114266907.3419.43.camel@localhost.localdomain>	 <42788F8C.6090908@ppp0.net> <1115198418.16187.41.camel@hades.cambridge.redhat.com>
-In-Reply-To: <1115198418.16187.41.camel@hades.cambridge.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse wrote:
-> On Wed, 2005-05-04 at 11:02 +0200, Jan Dittmer wrote:
-> 
->>Here is an updated version of the script, working with paskys latest
->>tree.
-> 
-> 
-> Thanks. I was planning to get this working today -- looks like you've
-> saved me the trouble.
-> 
-> The chronological output from cg-log is still the wrong thing to do, but
-> I suppose it'll have to suffice for now.
 
-Btw. it depends on cg-tag-ls having chronological order. I _hope_ that's
-correct. At least with my 4 test -git tags it was.
-Otherwise one had to use fsck-cache --tags, extract the dates, sort by
-date, ...
+Hi Ladislav, hi all,
 
-Jan
+> Chip is searched by bus number rather than its own proprietary id.
+
+Yes, I think it makes much more sense (especially since the proprietary
+id was not known by anyone outside of the ds1337 driver).
+
+I think I understand that ds1337_do_command() will be called from some
+other kernel driver. Why isn't it exported then? I'd expect:
+EXPORT_SYMBOL(ds1337_do_command);
+next to the end of the ds1337 driver. Maybe it would also make sense to
+have a ds1337.h header file declaring this function?
+
+Additionally, I would welcome an additional patch documenting the fact
+that the ds1337 driver will work fine with the Dallas DS1339 real-time
+clock chip.
+
+Thanks,
+--
+Jean Delvare

@@ -1,89 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261676AbVEDMMh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbVEDMRw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261676AbVEDMMh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 08:12:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbVEDMMh
+	id S261678AbVEDMRw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 08:17:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbVEDMRv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 08:12:37 -0400
-Received: from mail20.syd.optusnet.com.au ([211.29.132.201]:24044 "EHLO
-	mail20.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261676AbVEDMM0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 08:12:26 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Carlos Carvalho <carlos@fisica.ufpr.br>
-Subject: Re: problem with nice values and cpu consumption in 2.6.11-5
-Date: Wed, 4 May 2005 22:12:24 +1000
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>
-References: <17015.35256.12650.37887@fisica.ufpr.br>
-In-Reply-To: <17015.35256.12650.37887@fisica.ufpr.br>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1778492.AlAufnxKsl";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200505042212.26453.kernel@kolivas.org>
+	Wed, 4 May 2005 08:17:51 -0400
+Received: from [213.170.72.194] ([213.170.72.194]:3532 "EHLO
+	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261678AbVEDMRj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 08:17:39 -0400
+Subject: Re: [PATCH] VFS bugfix: two read_inode() calles without
+	clear_inode() call between
+From: "Artem B. Bityuckiy" <dedekind@infradead.org>
+Reply-To: dedekind@infradead.org
+To: Andrew Morton <akpm@osdl.org>
+Cc: miklos@szeredi.hu, linux-kernel@vger.kernel.org, dwmw2@infradead.org,
+       linux-fsdevel@vger.kernel.org
+In-Reply-To: <20050428003450.51687b65.akpm@osdl.org>
+References: <1114607741.12617.4.camel@sauron.oktetlabs.ru>
+	 <E1DQoui-0002In-00@dorka.pomaz.szeredi.hu>
+	 <1114618748.12617.23.camel@sauron.oktetlabs.ru>
+	 <E1DQqZu-0002Rf-00@dorka.pomaz.szeredi.hu>
+	 <1114673528.3483.2.camel@sauron.oktetlabs.ru>
+	 <20050428003450.51687b65.akpm@osdl.org>
+Content-Type: multipart/mixed; boundary="=-sshnUMV0dxyS7CixPepE"
+Organization: MTD
+Date: Wed, 04 May 2005 16:17:35 +0400
+Message-Id: <1115209055.8559.12.camel@sauron.oktetlabs.ru>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1778492.AlAufnxKsl
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-On Wed, 4 May 2005 00:24, Carlos Carvalho wrote:
-> Look at this cpu usage in a two-processor machine:
->
->   893 user1   39  19  7212 5892  492 R 99.7  1.1   3694:29 mi41
->  1118 user2   25   0  155m  61m  624 R 50.0 12.3 857:54.18 b170-se.x
->  1186 user3   25   0  155m  62m  640 R 50.2 12.3 103:25.22 b170-se.x
->
-> The job with nice 19 seems to be using 100% of cpu time while the
-> other two nice 0 jobs share a single processor with 50% only. This is
-> persistent, not a transient. I did a kill -STOP to the nice 19 job and
-> a kill -CONT, and for a while it decreased the cpu usage but later
-> returned to the above.
->
-> This is with kernel 2.6.11-5 and top 3.2.5. What's the reason for this
-> (apparent??) mis-behavior and how can I correct it? This is important
-> because the machine is used for number-crunching and users get really
-> upset when they don't get the expected share of cpu time...
+--=-sshnUMV0dxyS7CixPepE
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-We currently do not have "nice" aware SMP balancing. The balancing is purel=
-y=20
-designed with throughput in mind, and something about the behaviour of the=
-=20
-tasks you are running makes the scheduler design to balance them in this wa=
-y.=20
-The only way around this is to use affinities to bind tasks to cpus. The on=
-ly=20
-cross-cpu "nice" awareness we currently have is between hyperthread (SMT)=20
-logical siblings, and not true physical cores.
+Hello Andrew,
 
-I've been experimenting with code to make the SMP balancing "nice" aware bu=
-t=20
-the balancing design in the 2.6 scheduler changes every 3 minutes for some=
-=20
-apparent gain somewhere (it is getting impossible to track these) and there=
-=20
-is no baseline for me to work off, so I have, for the moment, given up on=20
-that idea.
+here you can find a new patch for the VFS bug which was discussed at
+http://lkml.org/lkml/2005/4/27/84
+
+I added wake_up_inode() invocation just as Miklos suggested.
+
+
+Bug symptoms
+~~~~~~~~~~~~
+For the same inode VFS calls read_inode() twice and doesn't call
+clear_inode() between the two read_inode() invocations.
+
+Bug description
+~~~~~~~~~~~~~~~
+Suppose we have an inode which has zero reference count but is still in
+the inode cache. Suppose kswapd invokes shrink_icache_memory() to free
+some RAM. In prune_icache() inodes are removed from i_hash. prune_icache
+() is then going to call clear_inode(), but drops the inode_lock
+spinlock before this. If in this moment another task calls iget() for an
+inode which was just removed from i_hash by prune_icache(), then iget()
+invokes read_inode() for this inode, because it is *already removed*
+from i_hash.
+
+The end result is: we call iget(#N) then iput(#N); inode #N has zero
+i_count now and is in the inode cache; kswapd starts. kswapd removes the
+inode #N from i_hash ans is preempted; we call iget(#N) again;
+read_inode() is invoked as the result; but we expect clear_inode()
+before.
+
+Fix
+~~~~~~~
+To fix the bug I remove inodes from i_hash later, when clear_inode() is
+actually called. I remove them from i_hash under spinlock protection.
+Since the i_state is set to I_FREEING, it is safe to do this. The others
+will sleep waiting for the inode state change.
+
+I also postpone removing inodes from i_sb_list. It is not compulsory to
+do so but I do it for readability reasons. Inodes are added/removed to
+the lists together everywhere in the code and there is no point to
+change this rule. This is harmless because the only user of i_sb_list
+which somehow may interfere with me (invalidate_list()) is excluded by
+the iprune_sem mutex.
+
+The same race is possible in invalidate_list() so I do the same for it.
+
+The patch is against linux 2.6.11.5.
+The patch was tested for JFFS2.
+
+Please. apply/comment.
 
 Cheers,
-Con
+Artem.
 
---nextPart1778492.AlAufnxKsl
-Content-Type: application/pgp-signature
+-- 
+Best Regards,
+Artem B. Bityuckiy,
+St.-Petersburg, Russia.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+--=-sshnUMV0dxyS7CixPepE
+Content-Disposition: attachment; filename=vfs-double_inode_read-2.diff
+Content-Type: text/x-patch; name=vfs-double_inode_read-2.diff; charset=KOI8-R
+Content-Transfer-Encoding: 7bit
 
-iD8DBQBCeLwqZUg7+tp6mRURAjQ3AJ9Ad3oPIChfY7bONn71eioJyj1QgwCfXvaS
-aZKRSqnMBogy1uLUUZ3y7RI=
-=Tqod
------END PGP SIGNATURE-----
+diff -auNrp linux-2.6.11.5/fs/inode.c linux-2.6.11.5_fixed/fs/inode.c
+--- linux-2.6.11.5/fs/inode.c	2005-03-19 09:35:04.000000000 +0300
++++ linux-2.6.11.5_fixed/fs/inode.c	2005-05-04 14:51:14.000000000 +0400
+@@ -284,6 +284,13 @@ static void dispose_list(struct list_hea
+ 		if (inode->i_data.nrpages)
+ 			truncate_inode_pages(&inode->i_data, 0);
+ 		clear_inode(inode);
++		
++		spin_lock(&inode_lock);
++		hlist_del_init(&inode->i_hash);
++		list_del_init(&inode->i_sb_list);
++		spin_unlock(&inode_lock);
++		
++		wake_up_inode(inode);
+ 		destroy_inode(inode);
+ 		nr_disposed++;
+ 	}
+@@ -319,8 +326,6 @@ static int invalidate_list(struct list_h
+ 		inode = list_entry(tmp, struct inode, i_sb_list);
+ 		invalidate_inode_buffers(inode);
+ 		if (!atomic_read(&inode->i_count)) {
+-			hlist_del_init(&inode->i_hash);
+-			list_del(&inode->i_sb_list);
+ 			list_move(&inode->i_list, dispose);
+ 			inode->i_state |= I_FREEING;
+ 			count++;
+@@ -455,8 +460,6 @@ static void prune_icache(int nr_to_scan)
+ 			if (!can_unuse(inode))
+ 				continue;
+ 		}
+-		hlist_del_init(&inode->i_hash);
+-		list_del_init(&inode->i_sb_list);
+ 		list_move(&inode->i_list, &freeable);
+ 		inode->i_state |= I_FREEING;
+ 		nr_pruned++;
 
---nextPart1778492.AlAufnxKsl--
+--=-sshnUMV0dxyS7CixPepE--
+

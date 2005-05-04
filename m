@@ -1,25 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbVEDWVH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261936AbVEDWnB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261914AbVEDWVH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 18:21:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261917AbVEDWVH
+	id S261936AbVEDWnB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 18:43:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261940AbVEDWnB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 18:21:07 -0400
-Received: from fire.osdl.org ([65.172.181.4]:63653 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261914AbVEDWVF (ORCPT
+	Wed, 4 May 2005 18:43:01 -0400
+Received: from fire.osdl.org ([65.172.181.4]:42665 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261936AbVEDWm4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 18:21:05 -0400
-Date: Wed, 4 May 2005 15:20:55 -0700
+	Wed, 4 May 2005 18:42:56 -0400
+Date: Wed, 4 May 2005 15:42:45 -0700
 From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Manu Abraham <manu@kromtek.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, greg@kroah.com,
-       js@linuxtv.org, kraxel@bytesex.org
-Subject: Re: [PATCH] Re: [PATCH] Fix dst i2c read/write timeout failure.
-Message-Id: <20050504152055.45eaf8eb.rddunlap@osdl.org>
-In-Reply-To: <42793E46.3070007@kromtek.com>
-References: <4279343A.1000707@kromtek.com>
-	<20050504135735.713e99ba.akpm@osdl.org>
-	<42793E46.3070007@kromtek.com>
+To: Leszek Koltunski <leszek@serwer.3miasto.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Cannot read from /dev/kmem
+Message-Id: <20050504154245.28d27a6f.rddunlap@osdl.org>
+In-Reply-To: <Pine.NEB.4.60.0505041712240.12334@serwer.3miasto.net>
+References: <Pine.NEB.4.60.0505041712240.12334@serwer.3miasto.net>
 Organization: OSDL
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
@@ -28,20 +25,82 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 05 May 2005 01:27:34 +0400
-Manu Abraham <manu@kromtek.com> wrote:
+On Wed, 4 May 2005 17:20:36 +0200 (CEST)
+Leszek Koltunski <leszek@serwer.3miasto.net> wrote:
 
 > 
-> Oh, i am sorry, resending it ..
+> Kernel 2.6.11 , I cannot seem to be able to read from /dev/kmem... The 
+> following little proggie
 > 
+> #include <stdio.h>
+> #include <fcntl.h>
+> #include <errno.h>
 > 
-> Attached is a patch to bttv which fixes the following problems.
+> struct {
+>          unsigned short limit;
+>          unsigned int base;
+> } __attribute__ ((packed)) idtr;
+> 
+> struct {
+>          unsigned short off1;
+>          unsigned short sel;
+>          unsigned char none,flags;
+>          unsigned short off2;
+> } __attribute__ ((packed)) idt;
+> 
+> int main()
+> {
+>          int result, kmem = open ("/dev/kmem",O_RDONLY);
+> 
+>          asm ("sidt %0" : "=m" (idtr));
+>          printf("idtr base at 0x%X\n",(int)idtr.base);
+> 
+>          if (kmem<0) return 1;
+> 
+>          if (lseek(kmem,  idtr.base + 8*0x80,SEEK_SET) != idtr.base + 
+> 8*0x80 )
+>          {
+>                  perror("kmem lseek"); exit(1);
+>          }
+> 
+>          result = read(kmem, &idt , sizeof(idt) );
+> 
+>          if( result != sizeof(idt) )
+>          {
+>                  printf("result: %d, sizeof(idt)= %d errno=%d\n", result, 
+> sizeof(idt), errno);
+>          }
+> 
+>          close(kmem);
+> 
+>          return 0;
+> }
+> 
+> returns
+> 
+> utumno:/home/leszek/progs/module/hijack# ./test
+> idtr base at 0xC0423000
+> result: -1, sizeof(idt)= 8 errno=22
+> 
+> ??? EINVAL
+> 
+> I remember this working on a 2.4.x kernel....
 
+Hm, let me see if I can explain what I see here...
 
-Has 2 instances of trailing whitespace added (one space, one tab).
+vfs_llseek() sets f_pos (file position) to 0xffffffff.c04230000 (due
+to sign extension).  In read(), rw_verify_area() sees that pos
+as < 0 and balks on it.
 
-You can check for that with one of several available scripts
-or with several editors...
+I futzed around with lseek() and read(), to no avail.
+However, I did get your test program to work by using lseek64()
+instead of lseek().  It prints (after I added code) a selector
+value of 0x60, which makes sense.
 
+Maybe you have to use llseek() or lseek64() with large 32-bit
+file offsets (that look like 32-bit negative numbers)...
+I dunno.
+
+HTH.
 ---
 ~Randy

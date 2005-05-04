@@ -1,66 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261980AbVEDCIP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262007AbVEDENz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261980AbVEDCIP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 22:08:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbVEDCIP
+	id S262007AbVEDENz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 00:13:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbVEDENz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 22:08:15 -0400
-Received: from aibo.runbox.com ([193.71.199.94]:5281 "EHLO cujo.runbox.com")
-	by vger.kernel.org with ESMTP id S261980AbVEDCII (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 22:08:08 -0400
-Message-ID: <42782F20.5080401@dwheeler.com>
-Date: Tue, 03 May 2005 22:10:40 -0400
-From: "David A. Wheeler" <dwheeler@dwheeler.com>
-Reply-To: dwheeler@dwheeler.com
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
-X-Accept-Language: en-us, en
+	Wed, 4 May 2005 00:13:55 -0400
+Received: from de01egw02.freescale.net ([192.88.165.103]:20707 "EHLO
+	de01egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S262007AbVEDENv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 00:13:51 -0400
+Date: Tue, 3 May 2005 21:52:19 -0500 (CDT)
+From: Kumar Gala <galak@freescale.com>
+X-X-Sender: galak@nylon.am.freescale.net
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
+Subject: [PATCH] ppc32: Simplified PPC core revision report
+Message-ID: <Pine.LNX.4.61.0505032150260.19926@nylon.am.freescale.net>
 MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Valdis.Kletnieks@vt.edu, Andrea Arcangeli <andrea@suse.de>,
-       Matt Mackall <mpm@selenic.com>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-Subject: Re: Mercurial 0.4b vs git patchbomb benchmark (/usr/bin/env again)
-References: <20050430025211.GP17379@opteron.random> <200505021614.j42GEufG008441@turing-police.cc.vt.edu> <4277B778.5020206@tmr.com>
-In-Reply-To: <4277B778.5020206@tmr.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
->> Most likely, his python lives elsewhere than /usr/bin, and the 'env' call
->> results in causing a walk across $PATH to find it....
+We can identify new Freescale PPC cores by the fact that the MSB of the PVR is
+set.  If we are a new Freescale core the decode of major/minor revision numbers
+is simplified so we dont have to add new case checks for a every new Freescale
+core.
 
-Bill Davidsen wrote:
-> Assuming that he has env in a standard place... I hope this isn't going 
-> to start some rash of efforts to make packages run on non-standard 
-> toolchains, which add requirements for one tool to get around 
-> misplacement of another.
+Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 
-The #!/usr/bin/env prefix is, in my opinion, a very good idea.
-There are a very few systems where env isn't in /usr/bin, but they
-were extremely rare years ago & are essentially extinct now.
-Basically, it's a 99% solution; getting the last 1% is really painful,
-but since getting the 99% is easy, let's do it and be happy.
+---
+commit 1ecd8eef1f05b100f3933a7de25f88a3314b0a97
+tree 739c8916a8f4edd214007de1dd8610d0e1c49235
+parent cc75b79f8142eb8a50432cf612bb1ab189136cd0
+author Kumar K. Gala <kumar.gala@freescale.com> 1115174649 -0500
+committer Kumar K. Gala <kumar.gala@freescale.com> 1115174649 -0500
 
-There are LOTS of systems where Python, bash, etc., do NOT
-live in whatever place you think of as "standard".
-I routinely use an OpenBSD 3.1 system; there is no /usr/bin/bash,
-but there _IS_ a /usr/local/bin/bash (in my PATH) and a /usr/bin/env.
-So this /usr/bin/env stuff REALLY is useful on a lot of systems, such
-as OpenBSD.  It's critical to me, at least!
-
-This is actually really useful on ANY system, though.
-Even if some interpreter IS where you think it should be,
-that is NOT necessarily the interpreter you want to use.
-Using "/usr/bin/env" lets you use PATH
-to override things, so you don't HAVE to use the interpreter
-in some fixed location.  That's REALLY handy for testing... I
-can download the whizbang Python 9.8.2, set it on the path,
-and see if everything works as expected.  It's also nice
-if someone insists on never upgrading a package; you can
-install an interpreter "locally".  Yes, you can patch all the
-files up, but resetting a PATH is _much_ easier.
-
---- David A. Wheeler
+Index: arch/ppc/kernel/setup.c
+===================================================================
+--- 79fd2184cd5cfee440f3ca2952f7c9f834ece443/arch/ppc/kernel/setup.c  (mode:100644 sha1:e97ce635b99e6d84640457c775c77d7eb49f4efb)
++++ 739c8916a8f4edd214007de1dd8610d0e1c49235/arch/ppc/kernel/setup.c  (mode:100644 sha1:5dfb42f1a1529d561bf73b5b5c1411a3e51f6402)
+@@ -221,27 +221,26 @@
+ 			return err;
+ 	}
+ 
+-	switch (PVR_VER(pvr)) {
+-	case 0x0020:	/* 403 family */
+-		maj = PVR_MAJ(pvr) + 1;
+-		min = PVR_MIN(pvr);
+-		break;
+-	case 0x1008:	/* 740P/750P ?? */
+-		maj = ((pvr >> 8) & 0xFF) - 1;
+-		min = pvr & 0xFF;
+-		break;
+-	case 0x8083:	/* e300 */
+-		maj = PVR_MAJ(pvr);
+-		min = PVR_MIN(pvr);
+-		break;
+-	case 0x8020:	/* e500 */
++	/* If we are a Freescale core do a simple check so
++	 * we dont have to keep adding cases in the future */
++	if ((PVR_VER(pvr) & 0x8000) == 0x8000) {
+ 		maj = PVR_MAJ(pvr);
+ 		min = PVR_MIN(pvr);
+-		break;
+-	default:
+-		maj = (pvr >> 8) & 0xFF;
+-		min = pvr & 0xFF;
+-		break;
++	} else {
++		switch (PVR_VER(pvr)) {
++			case 0x0020:	/* 403 family */
++				maj = PVR_MAJ(pvr) + 1;
++				min = PVR_MIN(pvr);
++				break;
++			case 0x1008:	/* 740P/750P ?? */
++				maj = ((pvr >> 8) & 0xFF) - 1;
++				min = pvr & 0xFF;
++				break;
++			default:
++				maj = (pvr >> 8) & 0xFF;
++				min = pvr & 0xFF;
++				break;
++		}
+ 	}
+ 
+ 	seq_printf(m, "revision\t: %hd.%hd (pvr %04x %04x)\n",

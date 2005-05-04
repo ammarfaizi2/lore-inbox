@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbVEDLxV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261663AbVEDML6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261641AbVEDLxV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 07:53:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261675AbVEDLxU
+	id S261663AbVEDML6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 08:11:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261676AbVEDML6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 07:53:20 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:55338 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S261641AbVEDLw1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 07:52:27 -0400
-Message-ID: <4278B772.5080806@sw.ru>
-Date: Wed, 04 May 2005 15:52:18 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
-MIME-Version: 1.0
-To: Carlos Carvalho <carlos@fisica.ufpr.br>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: problem with nice values and cpu consumption in 2.6.11-5
-References: <17015.35256.12650.37887@fisica.ufpr.br>
-In-Reply-To: <17015.35256.12650.37887@fisica.ufpr.br>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 4 May 2005 08:11:58 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:53773 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261663AbVEDML4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 08:11:56 -0400
+Date: Wed, 4 May 2005 14:11:53 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: James Courtier-Dutton <James@superbug.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to get a git repository?
+Message-ID: <20050504121153.GO3592@stusta.de>
+References: <4278BF5E.6060002@superbug.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4278BF5E.6060002@superbug.co.uk>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a real problem with O(1)-scheduler in 2.6... :(
-The only workaround for you right now is to run 2.4 or move to some type 
-of virtualization solutions with fair cpu scheduler...
+On Wed, May 04, 2005 at 01:26:06PM +0100, James Courtier-Dutton wrote:
 
-Kirill
+> Hi,
 
-> Look at this cpu usage in a two-processor machine:
-> 
->   893 user1   39  19  7212 5892  492 R 99.7  1.1   3694:29 mi41
->  1118 user2   25   0  155m  61m  624 R 50.0 12.3 857:54.18 b170-se.x
->  1186 user3   25   0  155m  62m  640 R 50.2 12.3 103:25.22 b170-se.x
-> 
-> The job with nice 19 seems to be using 100% of cpu time while the
-> other two nice 0 jobs share a single processor with 50% only. This is
-> persistent, not a transient. I did a kill -STOP to the nice 19 job and
-> a kill -CONT, and for a while it decreased the cpu usage but later
-> returned to the above.
-> 
-> This is with kernel 2.6.11-5 and top 3.2.5. What's the reason for this
-> (apparent??) mis-behavior and how can I correct it? This is important
-> because the machine is used for number-crunching and users get really
-> upset when they don't get the expected share of cpu time...
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Hi James,
 
+> I am maintainer of a very small part of the Linux kernel.
+> EMU10K1 SOUND DRIVER
+> 
+> This is the old OSS driver for SB Live and Audigy sound cards.
+> I have been sent some patches recently, so I was thinking about the best
+> way to get them added to the kernel.
+>...
+> So, can anybody help me with the best way to do this?
+
+They best way to get your patches into the kernel might be to send them 
+through Andrew, who will add them to his -mm tree and later forward them 
+to Linus.
+
+If I assume correctly that "I have been sent some patches recently" 
+means half a dozen patches and the whole amount of patches every year 
+might be two dozen, I don't see any real reason for you to not simply 
+handling them manually.
+
+> Kind Regards
+> 
+> James
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

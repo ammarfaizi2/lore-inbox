@@ -1,35 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261772AbVEDNSZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261795AbVEDNWX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261772AbVEDNSZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 09:18:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261795AbVEDNSZ
+	id S261795AbVEDNWX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 09:22:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbVEDNWX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 09:18:25 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:48531 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261772AbVEDNSX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 09:18:23 -0400
-Date: Wed, 4 May 2005 15:18:22 +0200
-From: Andi Kleen <ak@suse.de>
-To: YhLu <YhLu@tyan.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: x86-64 dual core mapping
-Message-ID: <20050504131822.GD1174@wotan.suse.de>
-References: <3174569B9743D511922F00A0C943142309B07D82@TYANWEB>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3174569B9743D511922F00A0C943142309B07D82@TYANWEB>
+	Wed, 4 May 2005 09:22:23 -0400
+Received: from alog0497.analogic.com ([208.224.223.34]:59602 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261795AbVEDNWP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 09:22:15 -0400
+Date: Wed, 4 May 2005 09:22:09 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: System call v.s. errno
+Message-ID: <Pine.LNX.4.61.0505040849150.8743@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 03, 2005 at 05:18:15PM -0700, YhLu wrote:
-> Andi,
-> 
-> Did you try "acpi=off" on you test?
+Does anybody know for sure if global 'errno' is supposed to
+be altered after a successful system call? I'm trying to
+track down a problem where system calls return with EINTR
+even though all signal handlers are set with SA_RESTART in
+the flags. It appears as though there may be a race somewhere
+because if I directly set errno to 0x1234, within a few
+hundred system calls, it gets set to EINTR even though all
+system calls seemed to return 'good'. This makes it
+hard to trace down the real problem.
 
-numa=noacpi yes which is equivalent.
+The answer is not obvious because the 'C' runtime library
+doesn't really give access to 'errno' instead it is dereferenced
+off some pointer returned from a function called __errno_location().
 
-Please wait until after the tree resync with this.
+This problem does not exist with Linux-2.4.x. It started to show
+up when user's updated their machines to newer RH stuff that uses
+linux-2.6.5-1.358.
 
--Andi
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

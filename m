@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbVEDRHF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbVEDRIb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261194AbVEDRHF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 13:07:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVEDRHF
+	id S261239AbVEDRIb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 13:08:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVEDRIa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 13:07:05 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:15770 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261228AbVEDRFL (ORCPT
+	Wed, 4 May 2005 13:08:30 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:26267 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261177AbVEDRHH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 13:05:11 -0400
-Date: Wed, 4 May 2005 18:04:58 +0100
+	Wed, 4 May 2005 13:07:07 -0400
+Date: Wed, 4 May 2005 18:06:56 +0100
 From: Alasdair G Kergon <agk@redhat.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>
-Subject: [PATCH] device-mapper: [3/5] Let freeze_bdev return error
-Message-ID: <20050504170458.GP10195@agk.surrey.redhat.com>
+Subject: [PATCH] device-mapper: [4/5] Handle __lock_fs error
+Message-ID: <20050504170656.GQ10195@agk.surrey.redhat.com>
 Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
 	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
 	Christoph Hellwig <hch@lst.de>
@@ -25,49 +25,63 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allow freeze_bdev() to return an error.
+Handle error from __lock_fs()
 
 Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
 From: Christoph Hellwig <hch@lst.de>
---- diff/drivers/md/dm.c	2005-04-21 16:07:21.000000000 +0100
-+++ source/drivers/md/dm.c	2005-04-21 16:08:10.000000000 +0100
-@@ -991,22 +991,38 @@
-  */
- static int __lock_fs(struct mapped_device *md)
+--- diff/drivers/md/dm.c	2005-04-21 16:08:10.000000000 +0100
++++ source/drivers/md/dm.c	2005-04-21 16:08:19.000000000 +0100
+@@ -1048,6 +1048,7 @@
  {
-+	int error = -ENOMEM;
-+
- 	if (test_and_set_bit(DMF_FS_LOCKED, &md->flags))
- 		return 0;
+ 	struct dm_table *map;
+ 	DECLARE_WAITQUEUE(wait, current);
++	int error;
  
- 	md->frozen_bdev = bdget_disk(md->disk, 0);
- 	if (!md->frozen_bdev) {
- 		DMWARN("bdget failed in __lock_fs");
--		return -ENOMEM;
-+		goto out;
+ 	/* Flush I/O to the device. */
+ 	down_read(&md->lock);
+@@ -1056,25 +1057,29 @@
+ 		return -EINVAL;
  	}
  
- 	WARN_ON(md->frozen_sb);
-+
- 	md->frozen_sb = freeze_bdev(md->frozen_bdev);
-+	if (IS_ERR(md->frozen_sb)) {
-+		error = PTR_ERR(md->frozen_sb);
-+		goto out_bdput;
++	error = __lock_fs(md);
++	if (error) {
++		up_read(&md->lock);
++		return error;
 +	}
 +
- 	/* don't bdput right now, we don't want the bdev
- 	 * to go away while it is locked.  We'll bdput
- 	 * in __unlock_fs
- 	 */
- 	return 0;
-+
-+out_bdput:
-+	bdput(md->frozen_bdev);
-+	md->frozen_sb = NULL;
-+	md->frozen_bdev = NULL;
-+out:
-+	clear_bit(DMF_FS_LOCKED, &md->flags);
-+	return error;
- }
+ 	map = dm_get_table(md);
+ 	if (map)
+ 		dm_table_presuspend_targets(map);
+-	__lock_fs(md);
  
- static void __unlock_fs(struct mapped_device *md)
+ 	up_read(&md->lock);
+ 
+ 	/*
+-	 * First we set the BLOCK_IO flag so no more ios will be
+-	 * mapped.
++	 * First we set the BLOCK_IO flag so no more ios will be mapped.
++	 *
++	 * If the flag is already set we know another thread is trying to
++	 * suspend as well, so we leave the fs locked for this thread.
+ 	 */
+ 	down_write(&md->lock);
+ 	if (test_bit(DMF_BLOCK_IO, &md->flags)) {
+-		/*
+-		 * If we get here we know another thread is
+-		 * trying to suspend as well, so we leave the fs
+-		 * locked for this thread.
+-		 */
+ 		up_write(&md->lock);
++		if (map)
++			dm_table_put(map);
+ 		return -EINVAL;
+ 	}
+ 
+@@ -1107,6 +1112,7 @@
+ 
+ 	/* were we interrupted ? */
+ 	if (atomic_read(&md->pending)) {
++		/* FIXME Undo the presuspend_targets */
+ 		__unlock_fs(md);
+ 		clear_bit(DMF_BLOCK_IO, &md->flags);
+ 		up_write(&md->lock);

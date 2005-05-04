@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261856AbVEDPFm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261866AbVEDPMj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261856AbVEDPFm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 11:05:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbVEDPFm
+	id S261866AbVEDPMj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 11:12:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261871AbVEDPMj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 11:05:42 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:31617 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261856AbVEDPFf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 11:05:35 -0400
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc3-V0.7.46-01
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Daniel Walker <dwalker@mvista.com>
-In-Reply-To: <20050504082241.GA13380@elte.hu>
-References: <20050325145908.GA7146@elte.hu> <20050331085541.GA21306@elte.hu>
-	 <20050401104724.GA31971@elte.hu> <20050405071911.GA23653@elte.hu>
-	 <20050421073537.GA1004@elte.hu> <20050422062714.GA23667@elte.hu>
-	 <1114903693.12664.9.camel@mindpipe>  <20050504082241.GA13380@elte.hu>
-Content-Type: text/plain
-Date: Wed, 04 May 2005 11:05:34 -0400
-Message-Id: <1115219134.935.20.camel@mindpipe>
+	Wed, 4 May 2005 11:12:39 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:20138 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261866AbVEDPMh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 11:12:37 -0400
+Date: Wed, 4 May 2005 16:12:31 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, Nathan Scott <nathans@sgi.com>,
+       Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc3-mm2
+Message-ID: <20050504151231.GA24105@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Barry K. Nathan" <barryn@pobox.com>, Andrew Morton <akpm@osdl.org>,
+	Nathan Scott <nathans@sgi.com>, Pavel Machek <pavel@suse.cz>,
+	linux-kernel@vger.kernel.org
+References: <20050430164303.6538f47c.akpm@osdl.org> <20050503133759.GA7647@ip68-225-251-162.oc.oc.cox.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050503133759.GA7647@ip68-225-251-162.oc.oc.cox.net>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-05-04 at 10:22 +0200, Ingo Molnar wrote:
-> * Lee Revell <rlrevell@joe-job.com> wrote:
-> > it looks like we are finally getting close to the lower limit 
-> > that can be achieved with PREEMPT_DESKTOP ... It's only 127 usecs, and 
-> > IIRC you mentioned previously that this code path can't be made 
-> > preemptible in !PREEMPT_RT.
+On Tue, May 03, 2005 at 06:37:59AM -0700, Barry K. Nathan wrote:
+> I would like to see the following patch added to -mm:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=111326617622941&w=2
 > 
-> yeah, signal delivery will have to stay atomic in !PREEMPT_RT kernels.
+> (I'm guessing that Nathan Scott will need to resubmit it with proper
+> changelog information.)
 > 
-
-OK.  I found a few more.
-
-When umounting, shrink_dcache_sb() will produce a 3-4 ms. bump.  However
-it's not clear this can be made preemptible.  AFAICT the whole thing
-needs to be under the dcache_lock.  This one is pretty obvious so I'm
-not attaching a trace.
-
-There's also still one path in the VM related to page freeing that can
-produce ~500 usec latencies but I don't have a trace handy now.
-
-> > Since Mingming's patch will have to live in -mm for a while, can it be 
-> > added to the RT patchset as well?
+> The patch fixes a problem where compiling XFS into the kernel (as
+> opposed to a module) causes swsusp resumes to be waaay slower than they
+> should be.
 > 
-> i think so - i'll add it to the next patch.
+> It's been tested and found to work by Pavel Machek:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=111331702916365&w=2
+> as well as myself:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=111330749723995&w=2
+> and I've been running with it for the last couple of weeks now with no
+> problems.
 
-OK, great.
-
-Lee
-
+Nathan is on paternity leave the next weeks, I'll send Andrew a bunch of
+XFS updates one of the next days.

@@ -1,74 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261213AbVEDRvu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVEDRxm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261213AbVEDRvu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 13:51:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbVEDRvt
+	id S261165AbVEDRxm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 13:53:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbVEDRxk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 13:51:49 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:14480 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261165AbVEDRve
+	Wed, 4 May 2005 13:53:40 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:35736 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261165AbVEDRwM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 13:51:34 -0400
-Message-ID: <42790B8A.9010406@tmr.com>
-Date: Wed, 04 May 2005 13:51:06 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
-CC: Matt Mackall <mpm@selenic.com>,
-       "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
-	<7eggert@gmx.de>,
-       Linus Torvalds <torvalds@osdl.org>, Ryan Anderson <ryan@michonline.com>,
-       Andrea Arcangeli <andrea@suse.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-Subject: Re: Mercurial 0.4b vs git patchbomb benchmark
-References: <4277A52E.1020601@tmr.com><4277A52E.1020601@tmr.com> <4277B15F.1020102@lsrfire.ath.cx>
-In-Reply-To: <4277B15F.1020102@lsrfire.ath.cx>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 4 May 2005 13:52:12 -0400
+Date: Wed, 4 May 2005 10:51:51 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: Chris Friesen <cfriesen@nortel.com>
+Cc: george@mvista.com, john stultz <johnstul@us.ibm.com>,
+       Liu Qi <liuqi@ict.ac.cn>,
+       "'high-res-timers-discourse@lists.sourceforge.net'" 
+	<high-res-timers-discourse@lists.sourceforge.net>,
+       Darren Hart <dvhltc@us.ibm.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Help with the high res timers
+Message-ID: <20050504175151.GA2698@us.ibm.com>
+References: <E1DSl7F-0002v2-Ck@sc8-sf-web4.sourceforge.net> <20050503024336.GA4023@ict.ac.cn> <4277EEF7.8010609@mvista.com> <1115158804.13738.56.camel@cog.beaverton.ibm.com> <427805F8.7000309@mvista.com> <20050504001307.GF3372@us.ibm.com> <42790207.30709@mvista.com> <42790A18.4000008@nortel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42790A18.4000008@nortel.com>
+X-Operating-System: Linux 2.6.12-rc3-mm2 (i686)
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rene Scharfe wrote:
-> Bill Davidsen schrieb:
+On 04.05.2005 [11:44:56 -0600], Chris Friesen wrote:
+> George Anzinger wrote:
 > 
->>On the theory that my first post got lost, why use /usr/bin/env at 
->>all, when bash already does that substitution? To support people who 
->>use other shells?
->>
->>ie.: FOO=xx perl -e '$a=$ENV{FOO}; print "$a\n"'
+> >The, I think, elegant solution to the timer storm problem is to 
+> >not restart the timer until the user picks up the prior expiration.  
+> >This dynamically adjusts the timer response to the amount of machine 
+> >available at the time.
 > 
-> 
-> /usr/bin/env is used in scripts in the shebang line (the very first line
-> of the script, starting with "#!", which denotes the interpreter to use
-> for that script) to make a PATH search for the real interpreter.
-> Some folks keep their python (or Perl, or Bash etc.) in /usr/local/bin
-> or in $HOME, that's why this construct is needed at all.
-> 
-> Changing environment variables is not the goal, insofar this usage
-> exploits only a side-effect of env.  It is portable in practice because
-> env is in /usr/bin on most modern systems.
-> 
-> So you could replace this first line of a bash script:
-> 
->    #!/usr/bin/env python
-> 
-> with this:
-> 
->    #!python
-> 
-> except that the latter doesn't work because you need to specify an
-> absolute path there. :]
+> The disadvantage is that you then lose accuracy since each timer 
+> interval is increased by some random amount based on system scheduling. 
+>  What about some kind of ulimit-type thing to specify the minimum 
+> recurring interval that can be specified?  If root so specifies, you 
+> could have 1usec interval timers and the system would hang.  This is 
+> conceptually no different than busy-looping in a SCHED_FIFO task.
 
-Assuming that you want the PATH search rather than a symlink in 
-/usr/bin, of course. This opens the door to forgetting you just loaded 
-the CVS daily of python into your test directory and doing an unplanned 
-test of alpha software, but if people think the application should work 
-with non-standard tool chains, and realize it has possible unwanted 
-effects, that's a design decision.
+If I understand your point correctly, I think this is achieved by
+TIMERINTERVAL_BITS in my patch (not to claim my patch is function, but
+conceptually). No matter what you actually request, the best you can do
+is 2^TIMERINTERVAL_BITS nanoseconds, and usually worse because the
+tick-rate and timerinterval length do not necessarily line up.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Thanks,
+Nish

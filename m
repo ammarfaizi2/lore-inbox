@@ -1,87 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261861AbVEDOve@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261865AbVEDOzy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261861AbVEDOve (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 10:51:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbVEDOve
+	id S261865AbVEDOzy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 10:55:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbVEDOzy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 10:51:34 -0400
-Received: from wproxy.gmail.com ([64.233.184.207]:31386 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261861AbVEDOvS convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 10:51:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=GWQPJRNB4V1o8I9Xuji47NGCzu300tC35wC84xsi+82aDH+JzIEhzEL8aNRW7/I2e/48n9JNJE28gReJqL5ImViQ0EXRk3VnOTj7J1EP3nlI5Z4kQMR4VXRZZzSltuCsxQ1HVrXFTlHmNdnCJUTLONHV6GAb/Ws5TLf1IbqtwcY=
-Message-ID: <a4e6962a0505040751359025e5@mail.gmail.com>
-Date: Wed, 4 May 2005 09:51:17 -0500
-From: Eric Van Hensbergen <ericvh@gmail.com>
-Reply-To: Eric Van Hensbergen <ericvh@gmail.com>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Subject: Re: [RCF] [PATCH] unprivileged mount/umount
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       smfrench@austin.rr.com, hch@infradead.org,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <E1DTKkd-0003rC-00@dorka.pomaz.szeredi.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <E1DSyQx-0002ku-00@dorka.pomaz.szeredi.hu>
-	 <a4e6962a05050406086e3ab83b@mail.gmail.com>
-	 <E1DTKkd-0003rC-00@dorka.pomaz.szeredi.hu>
+	Wed, 4 May 2005 10:55:54 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:5518 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S261865AbVEDOzo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 10:55:44 -0400
+Message-ID: <4278E261.1080503@t-online.de>
+Date: Wed, 04 May 2005 16:55:29 +0200
+From: Tobias Margitan <t.margitan@t-online.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: kernel panics with ide/pci hpt372
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ID: bjnkOUZfYew6FCqEyE2z3A0lk2HlIQRccrjVuVxdx8WYcqjaAubWZJ@t-dialin.net
+X-TOI-MSGID: 4ed934df-fe21-4d42-bcdf-acf4c61faf7e
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/4/05, Miklos Szeredi <miklos@szeredi.hu> wrote:
-> 
-> Where did you see 10 as the limit?  The initial global limit is zero,
-> the initial per-user limit is infinity (I did actually test these ;)
-> 
+Hi folks,
+I got troubles with kernel panics shown below since 2.6.8
 
-The verdict is: I should stop trying to read code before I've had my
-coffee in the morning.  Sorry about that.
+Distribution: Gentoo Linux 2005.0
+Hardware Environment: Asus CUR-DLS Dual P3 / Serverworks Chip + Highpoint 372
+softraid crap controller
+Software Environment: 2.6.11, actual gentoo ~x86 tree
+Problem Description: since 2.6.8 I get Kernel Panics in module hpt372 wich is
+included in hpt366 driver
 
-> 
-> > My  major complaint is that I really think having user mounts without
-> > requiring them to be in a user's private namespace creates quite a
-> > mess.  It potentially pollutes the system's namespace and opens up the
-> > possibility of all sorts of synthetic file system "traps".  I'd rather
-> > see the private namespace stuff enforced before enabling user-mounts.
-> 
-> Yes, I see your point.  However the problem of malicious filesystem
-> "traps" applies to private namespaces as well (because of suid
-> programs).
->
+Steps to reproduce:
+Since I use that controller due to unstabilities just as normal ide controller I
+got no more trouble. But 2.6.7 was the las kernel that was able to bring hpt372
+up. I dont need to boot from that device but my storage HDDs are on its line.
+What I can see from the error is this, although there is quite more above that.
+Screen begins with:
 
-I'm not sure I quite get this (perhaps I haven't had enough coffee
-yet...hmmm).  There are, of course, multiple potential vulnerabilities
-here -- but if you confine a user's modification to a private
-namespace, system daemons and other users would be safe unless they
-explicitly suid to the user and we had the per-user namespace
-semantics that are being discussed in the other thread.
+Process swapper (pid: 1, threadinfo=dffc1000 task=dffc0a40)
+Stack: c0311375... <many more 8bit columns>
+Call Trace: [<c0311375>] hpt372_tune_chipset+0xd5/0x160
+next in call trace are more ide and htp related things connected to the stack
+numbers
+Code: ff 85 c0 ba... and more of 2 bit code
+<0>Kernel panic - not syncing: Attempted to kill init!
 
-So, two comments here - if the per-user namespace semantics exist and
-someone/something suid's to that user - they make themselves
-vulnerable.  I imagine there are numerous traps you can set for
-someone that suids to your profile.  Do any of the system daemons
-actually do this?
+and thats the point where I have to go with the reset button and be happy my
+2.6.7 still exists :/
 
-The other comment is that this is why I don't like per-user namespaces
-- per process namespaces avoid this vulnerability.  However, that
-discussion is already being covered to some length in the other
-thread, so I don't really want to go into it again here.
+There were added three patches to the sources described in here:
+http://www.kernel.org/pub/linux/kernel/v2.6/ChangeLog-2.6.8
+just search the changelog for "hpt" and you'll find.
+is it possible to undo that patches? at least one of them has to cause the errors...
 
->  ...
+I tried the Highpoint Own linux sources but when i modprobe them there is write errors
+and it takes more than 5 minutes to load the first hdd in line and by the second one
+the driver gives up trying.
 
-I don't like any of the proposed solutions.  Invisible mounts just
-aren't the right solution.  Restricting suid/sgid in a cloned
-namespace seems like it would be impractical and cause lots of
-problems.
+thanks for reading
 
-Viro - you put in the private namespace stuff originally, and use it
-from a user-context (binding your bin directories and what not). 
-What's your vision on this?  What do we need to do to make user
-mounts/binds/private-namespace a reality?
- 
-       -eric
+

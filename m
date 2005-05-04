@@ -1,59 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261818AbVEDNb4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261808AbVEDNbU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261818AbVEDNb4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 09:31:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261819AbVEDNb4
+	id S261808AbVEDNbU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 09:31:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVEDNbU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 09:31:56 -0400
-Received: from main.gmane.org ([80.91.229.2]:3772 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261818AbVEDNbv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 09:31:51 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Subject: Re: System call v.s. errno
-Date: Wed, 04 May 2005 15:30:02 +0200
-Message-ID: <yw1xoebr9l0l.fsf@ford.inprovide.com>
-References: <Pine.LNX.4.61.0505040849150.8743@chaos.analogic.com>
+	Wed, 4 May 2005 09:31:20 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:25676
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S261808AbVEDNbS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 09:31:18 -0400
+Date: Wed, 4 May 2005 15:31:29 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: avoid infinite loop in x86_64 interrupt return
+Message-ID: <20050504133129.GD3899@opteron.random>
+References: <20050504050132.GA3899@opteron.random> <200505041100.33099.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 76.80-203-227.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:0Oy83ee+gIf+YzDBP50X8SLc3/0=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200505041100.33099.rjw@sisk.pl>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <linux-os@analogic.com> writes:
+On Wed, May 04, 2005 at 11:00:32AM +0200, Rafael J. Wysocki wrote:
+> You also need to add two missing clis.  Please have a look at the attached
+> patch from Andi.
 
-> Does anybody know for sure if global 'errno' is supposed to
-> be altered after a successful system call? I'm trying to
-> track down a problem where system calls return with EINTR
-> even though all signal handlers are set with SA_RESTART in
-> the flags. It appears as though there may be a race somewhere
-> because if I directly set errno to 0x1234, within a few
-> hundred system calls, it gets set to EINTR even though all
-> system calls seemed to return 'good'. This makes it
-> hard to trace down the real problem.
->
-> The answer is not obvious because the 'C' runtime library
-> doesn't really give access to 'errno' instead it is dereferenced
-> off some pointer returned from a function called __errno_location().
+Those two clis seems unrelated, so I don't see why I should mix them in
+the same patch. I couldn't trigger the other problems, only the one with
+rdi corruption.
 
-The kernel knows nothing about errno.  Have you tried using strace to
-check the actual return values of the system calls?
-
-> This problem does not exist with Linux-2.4.x. It started to show
-> up when user's updated their machines to newer RH stuff that uses
-> linux-2.6.5-1.358.
-
-So go file a bug with redhat.  It wouldn't be the first time they ship
-broken stuff.
-
--- 
-Måns Rullgård
-mru@inprovide.com
-
+Note that those clis seems superflous, cli is only needed before swapgs,
+so adding cli before swapgs in retint_swapgs sounds a better idea than
+to keep irq off for a longer time for no apparent good reason. But I've
+no real idea why those cli are needed so I guess I must be missing
+something. there's no commentary attached to your patch that can exlain
+why the cli are needed _way_ before calling swapgs.

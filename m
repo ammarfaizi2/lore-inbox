@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbVEDLu4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbVEDLxV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261630AbVEDLu4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 07:50:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261627AbVEDLuz
+	id S261641AbVEDLxV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 07:53:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261675AbVEDLxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 07:50:55 -0400
-Received: from smtp-vbr2.xs4all.nl ([194.109.24.22]:26885 "EHLO
-	smtp-vbr2.xs4all.nl") by vger.kernel.org with ESMTP id S261641AbVEDLuj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 07:50:39 -0400
-Date: Wed, 4 May 2005 13:50:26 +0200
-From: Jurriaan <thunder7@xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Subject: super speed raid pIII_sse memory access in 2.6.12-rc3-mm2
-Message-ID: <20050504115026.GA20674@middle.of.nowhere>
-Reply-To: Jurriaan <thunder7@xs4all.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Message-Flag: Still using Outlook? As you can see, it has some errors.
-User-Agent: Mutt/1.5.9i
+	Wed, 4 May 2005 07:53:20 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:55338 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S261641AbVEDLw1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 07:52:27 -0400
+Message-ID: <4278B772.5080806@sw.ru>
+Date: Wed, 04 May 2005 15:52:18 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
+MIME-Version: 1.0
+To: Carlos Carvalho <carlos@fisica.ufpr.br>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: problem with nice values and cpu consumption in 2.6.11-5
+References: <17015.35256.12650.37887@fisica.ufpr.br>
+In-Reply-To: <17015.35256.12650.37887@fisica.ufpr.br>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From my /var/log/messages:
+This is a real problem with O(1)-scheduler in 2.6... :(
+The only workaround for you right now is to run 2.4 or move to some type 
+of virtualization solutions with fair cpu scheduler...
 
-Apr 22 18:39:38 middle kernel: Linux version 2.6.12-rc2-mm3 (jurriaan@middle) (gcc version 3.3.5 (Debian 1:3.3.5-12)) #4 SMP PREEMPT Sat Apr 16 11:54:02 CEST 2005
-Apr 22 18:39:38 middle kernel:    pIII_sse  :  3048.000 MB/sec
-May  4 08:55:40 middle kernel: Linux version 2.6.12-rc3-mm2 (jurriaan@middle) (gcc version 3.3.5 (Debian 1:3.3.5-12)) #2 SMP PREEMPT Wed May 4 08:47:53 CEST 2005
-May  4 08:55:40 middle kernel:    pIII_sse  : 192764.000 MB/sec
+Kirill
 
-Now the i875 chipset should have reasonable memory access speed, but 192
-GB/s looks a tiny bit suspect :-)
+> Look at this cpu usage in a two-processor machine:
+> 
+>   893 user1   39  19  7212 5892  492 R 99.7  1.1   3694:29 mi41
+>  1118 user2   25   0  155m  61m  624 R 50.0 12.3 857:54.18 b170-se.x
+>  1186 user3   25   0  155m  62m  640 R 50.2 12.3 103:25.22 b170-se.x
+> 
+> The job with nice 19 seems to be using 100% of cpu time while the
+> other two nice 0 jobs share a single processor with 50% only. This is
+> persistent, not a transient. I did a kill -STOP to the nice 19 job and
+> a kill -CONT, and for a while it decreased the cpu usage but later
+> returned to the above.
+> 
+> This is with kernel 2.6.11-5 and top 3.2.5. What's the reason for this
+> (apparent??) mis-behavior and how can I correct it? This is important
+> because the machine is used for number-crunching and users get really
+> upset when they don't get the expected share of cpu time...
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Jurriaan
--- 
-"You want to save them all, ATerafin?" She laughed, and the laugh
-was chilling. "Try, try with my blessings." There was no question
-whatever to Margret that the words were a curse, meant to cause
-pain; they implied certain failure, and the amusement of the
-powerful at the pathetic struggles of those doomed to fail.
-	Michelle West - The Shining Court
-Debian (Unstable) GNU/Linux 2.6.12-rc3-mm2 2x4791 bogomips load 0.64
+

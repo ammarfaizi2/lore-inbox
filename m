@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbVEDHCb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262048AbVEDHEL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbVEDHCb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 03:02:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262054AbVEDHCb
+	id S262048AbVEDHEL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 03:04:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262044AbVEDHDV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 03:02:31 -0400
-Received: from mail.kroah.org ([69.55.234.183]:57828 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261605AbVEDHCT convert rfc822-to-8bit
+	Wed, 4 May 2005 03:03:21 -0400
+Received: from mail.kroah.org ([69.55.234.183]:64740 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262045AbVEDHCW convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 03:02:19 -0400
-Cc: dlsy@snoqualmie.dp.intel.com
-Subject: [PATCH] PCI Hotplug: fix pciehp regression
-In-Reply-To: <1115190138979@kroah.com>
+	Wed, 4 May 2005 03:02:22 -0400
+Cc: gregkh@suse.de
+Subject: [PATCH] PCI: Add pci shutdown ability
+In-Reply-To: <11151901373936@kroah.com>
 X-Mailer: gregkh_patchbomb
 Date: Wed, 4 May 2005 00:02:18 -0700
-Message-Id: <11151901381752@kroah.com>
+Message-Id: <11151901383259@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,68 +24,57 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] PCI Hotplug: fix pciehp regression
+[PATCH] PCI: Add pci shutdown ability
 
-I fogot to remove the code that freed the memory in cleanup_slots().
-Here is the new patch, which I have also taken care of the comment
-by Eike to remove the cast in hotplug_slot->private.
+Now pci drivers can know when the system is going down without having to
+add a reboot notifier event.
 
-Signed-off-by: Dely Sy <dely.l.sy@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit b308240b49ff5a1bddc6e10513c2c83f37a0bc78
-tree 7fda5a4f25632d19ae03589bee0d920efe8026c3
-parent eaae4b3a84a3781543a32bcaf0a33306ae915574
-author Dely Sy <dlsy@snoqualmie.dp.intel.com> 1114736933 -0700
-committer Greg KH <gregkh@suse.de> 1115189116 -0700
+commit c8958177224622411b9979eabb5610e30b06034b
+tree 09ceb4ce69813c9ac2a3e3c7ea6eff9d5361fe9c
+parent 4c0619add8c3a8b28e7fae8b15cc7b62de2f8148
+author Greg KH <gregkh@suse.de> 1112939611 +0900
+committer Greg KH <gregkh@suse.de> 1115189115 -0700
 
-Index: drivers/pci/hotplug/pciehp_core.c
+Index: drivers/pci/pci-driver.c
 ===================================================================
---- 2d3db5e9713dd0baeba0be2577731233780f072f/drivers/pci/hotplug/pciehp_core.c  (mode:100644 sha1:72baf749e65ef812d8e7f6ed69fba0b44cfc7d58)
-+++ 7fda5a4f25632d19ae03589bee0d920efe8026c3/drivers/pci/hotplug/pciehp_core.c  (mode:100644 sha1:ed1fd8d6178d7f7418d840f93db0ef6e04142c67)
-@@ -90,6 +90,22 @@
-   	.get_cur_bus_speed =	get_cur_bus_speed,
- };
+--- 2e27d1c516480dd6f3686c05caac09b196475951/drivers/pci/pci-driver.c  (mode:100644 sha1:37b7961efc44a93fff15ee41c125be1e71c5d9e5)
++++ 09ceb4ce69813c9ac2a3e3c7ea6eff9d5361fe9c/drivers/pci/pci-driver.c  (mode:100644 sha1:b42466ccbb309f4961b7a653aa079c3577d7cbb7)
+@@ -318,6 +318,14 @@
+ 	return 0;
+ }
  
-+/**
-+ * release_slot - free up the memory used by a slot
-+ * @hotplug_slot: slot to free
-+ */
-+static void release_slot(struct hotplug_slot *hotplug_slot)
++static void pci_device_shutdown(struct device *dev)
 +{
-+	struct slot *slot = hotplug_slot->private;
++	struct pci_dev *pci_dev = to_pci_dev(dev);
++	struct pci_driver *drv = pci_dev->driver;
 +
-+	dbg("%s - physical_slot = %s\n", __FUNCTION__, hotplug_slot->name);
-+
-+	kfree(slot->hotplug_slot->info);
-+	kfree(slot->hotplug_slot->name);
-+	kfree(slot->hotplug_slot);
-+	kfree(slot);
++	if (drv && drv->shutdown)
++		drv->shutdown(pci_dev);
 +}
-+
- static int init_slots(struct controller *ctrl)
- {
- 	struct slot *new_slot;
-@@ -139,7 +155,8 @@
  
- 		/* register this slot with the hotplug pci core */
- 		new_slot->hotplug_slot->private = new_slot;
--		make_slot_name (new_slot->hotplug_slot->name, SLOT_NAME_SIZE, new_slot);
-+		new_slot->hotplug_slot->release = &release_slot;
-+		make_slot_name(new_slot->hotplug_slot->name, SLOT_NAME_SIZE, new_slot);
- 		new_slot->hotplug_slot->ops = &pciehp_hotplug_slot_ops;
+ #define kobj_to_pci_driver(obj) container_of(obj, struct device_driver, kobj)
+ #define attr_to_driver_attribute(obj) container_of(obj, struct driver_attribute, attr)
+@@ -385,6 +393,7 @@
+ 	drv->driver.bus = &pci_bus_type;
+ 	drv->driver.probe = pci_device_probe;
+ 	drv->driver.remove = pci_device_remove;
++	drv->driver.shutdown = pci_device_shutdown,
+ 	drv->driver.owner = drv->owner;
+ 	drv->driver.kobj.ktype = &pci_driver_kobj_type;
+ 	pci_init_dynids(&drv->dynids);
+Index: include/linux/pci.h
+===================================================================
+--- 2e27d1c516480dd6f3686c05caac09b196475951/include/linux/pci.h  (mode:100644 sha1:3c89148ae28a6e28d4ec21e680a6e383fb885e3d)
++++ 09ceb4ce69813c9ac2a3e3c7ea6eff9d5361fe9c/include/linux/pci.h  (mode:100644 sha1:cff5ba3ac8ce816c8261dd588be17f488de89507)
+@@ -671,6 +671,7 @@
+ 	int  (*suspend) (struct pci_dev *dev, pm_message_t state);	/* Device suspended */
+ 	int  (*resume) (struct pci_dev *dev);	                /* Device woken up */
+ 	int  (*enable_wake) (struct pci_dev *dev, pci_power_t state, int enable);   /* Enable wake event */
++	void (*shutdown) (struct pci_dev *dev);
  
- 		new_slot->hpc_ops->get_power_status(new_slot, &(new_slot->hotplug_slot->info->power_status));
-@@ -188,10 +205,6 @@
- 	while (old_slot) {
- 		next_slot = old_slot->next;
- 		pci_hp_deregister (old_slot->hotplug_slot);
--		kfree(old_slot->hotplug_slot->info);
--		kfree(old_slot->hotplug_slot->name);
--		kfree(old_slot->hotplug_slot);
--		kfree(old_slot);
- 		old_slot = next_slot;
- 	}
- 
+ 	struct device_driver	driver;
+ 	struct pci_dynids dynids;
 

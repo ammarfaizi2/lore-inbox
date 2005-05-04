@@ -1,72 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbVEDRaI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261644AbVEDRRM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbVEDRaI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 13:30:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbVEDRZc
+	id S261644AbVEDRRM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 13:17:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261642AbVEDRQL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 13:25:32 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:64530 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261256AbVEDRNt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 13:13:49 -0400
-Message-Id: <200505041713.j44HDe9Y016718@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Serge van den Boom <svdb@stack.nl>
+	Wed, 4 May 2005 13:16:11 -0400
+Received: from rproxy.gmail.com ([64.233.170.201]:41525 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261671AbVEDRPg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 13:15:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=oNcd6GaLg7OZhHyAtqIpYUQRE6GLSceW7jdjlMxOeNJFHkIqRHNzXSqC3/RbITuGIDXj8jQh+NvKakg2ML7NNyBdG1DCzjkleJxc/Dt2I7Ha/Ah2jE9a0hPFMZqwcd5UXXdKzT2ElJxS/runbNGm0dkOMKF4vbhmtbIZ+J6js7A=
+Message-ID: <d120d5000505041015641129de@mail.gmail.com>
+Date: Wed, 4 May 2005 12:15:31 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [RFC][PATCH] update SubmittingPatches to clarify attachment policy
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: /proc/$PID/mem rationale 
-In-Reply-To: Your message of "Wed, 04 May 2005 17:40:31 +0200."
-             <20050504170503.L89175@toad.stack.nl> 
-From: Valdis.Kletnieks@vt.edu
-References: <20050504170503.L89175@toad.stack.nl>
+In-Reply-To: <20050504170156.87F67CE5@kernel.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1115226820_4721P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 04 May 2005 13:13:40 -0400
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050504170156.87F67CE5@kernel.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1115226820_4721P
-Content-Type: text/plain; charset=us-ascii
+On 5/4/05, Dave Hansen <haveblue@us.ibm.com> wrote:
+> 
+> I think the general opinion of posting patches as attachments
+> has changed over the last few years.  Mailers have been getting
+> a lot better at handling them, even quoting non-message-body
+> plain/text attachments in replies.
 
-On Wed, 04 May 2005 17:40:31 +0200, Serge van den Boom said:
+What, Linus updated his pine?????
 
-> Could someone explain the reasoning behind these two design decisions
-> regarding /proc/$PID/mem?
-> - You can only read() from this file from a process which is attached to
->   the file's process through ptrace(). Why this requirement?
->   The following command line could be rather useful, but the ptrace()
->   requirement prevents this from working:
->       dd if=/proc/$SOME_PID/mem bs=1 seek=$ADDRESS
-
-It's prohibited *because* it could be rather useful - to a hacker.  It's an
-issue of information leakage - there are some corner cases where the permissions
-on /proc/PID/mem would appear to allow a read, but you don't in fact want to
-allow it (for the full list, look at the ptrace() code and the tests it makes
-for things like euid != uid and so on).  There's a bunch of race conditions
-in there too.
-
-> - You can only read() from the mem file from the process that open()ed it.
->   Even if the ptrace() requirement were dropped, you wouldn't be able
->   to do something like the following command because of this:
->       dd bs=1 seek=$ADDRESS < /proc/$SOME_PID/mem
-
-Same reasons.  ptrace() is able to make some checks and set some bits that
-read() isn't allowed anywhere near (in particular, ptrace() can *stop* a process
-so it can't race - read() can't do that.)
-
-
-
---==_Exmh_1115226820_4721P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCeQLEcC3lWbTT17ARAsidAKDtBsDcH/SoPrwPAyYA5OeFbYLlbQCg327s
-p7VKmPkg1zqoas7M2WviWrE=
-=1/JU
------END PGP SIGNATURE-----
-
---==_Exmh_1115226820_4721P--
+-- 
+Dmitry

@@ -1,67 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261909AbVEDRCE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261481AbVEDRDm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261909AbVEDRCE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 13:02:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbVEDRCE
+	id S261481AbVEDRDm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 13:03:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbVEDRDl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 13:02:04 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:52469 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261909AbVEDRB7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 13:01:59 -0400
-Subject: [RFC][PATCH] update SubmittingPatches to clarify attachment policy
-To: linux-kernel@vger.kernel.org
-Cc: Dave Hansen <haveblue@us.ibm.com>
-From: Dave Hansen <haveblue@us.ibm.com>
-Date: Wed, 04 May 2005 10:01:56 -0700
-Message-Id: <20050504170156.87F67CE5@kernel.beaverton.ibm.com>
+	Wed, 4 May 2005 13:03:41 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:1177 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261918AbVEDRDQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 13:03:16 -0400
+Date: Wed, 4 May 2005 18:02:56 +0100
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>
+Subject: [PATCH] device-mapper: [1/5] Store bdev while frozen
+Message-ID: <20050504170256.GN10195@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Christoph Hellwig <hch@lst.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Store the struct block_device while device is frozen, saving us one 
+call to bdget_disk().
 
-I think the general opinion of posting patches as attachments
-has changed over the last few years.  Mailers have been getting
-a lot better at handling them, even quoting non-message-body
-plain/text attachments in replies.  
-
-Plus, a plain/text attachment message saved to a file can go
-into 'patch' the same way that an inline one can.
-
-Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
----
-
- memhotplug-dave/Documentation/SubmittingPatches |   11 +++++++++--
- 1 files changed, 9 insertions(+), 2 deletions(-)
-
-diff -L Documentation/Submitting -puN /dev/null /dev/null
-diff -puN Documentation/SubmittingPatches~submitting-patches Documentation/SubmittingPatches
---- memhotplug/Documentation/SubmittingPatches~submitting-patches	2005-05-04 08:07:25.000000000 -0700
-+++ memhotplug-dave/Documentation/SubmittingPatches	2005-05-04 09:11:27.000000000 -0700
-@@ -181,17 +181,24 @@ patches. Trivial patches must qualify fo
+Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
+From: Christoph Hellwig <hch@lst.de>
+--- diff/drivers/md/dm.c	2005-04-04 17:39:06.000000000 +0100
++++ source/drivers/md/dm.c	2005-04-21 16:06:40.000000000 +0100
+@@ -97,6 +97,7 @@
+ 	 * freeze/thaw support require holding onto a super block
+ 	 */
+ 	struct super_block *frozen_sb;
++	struct block_device *frozen_bdev;
+ };
  
+ #define MIN_IOS 256
+@@ -990,19 +991,17 @@
+  */
+ static int __lock_fs(struct mapped_device *md)
+ {
+-	struct block_device *bdev;
+-
+ 	if (test_and_set_bit(DMF_FS_LOCKED, &md->flags))
+ 		return 0;
  
+-	bdev = bdget_disk(md->disk, 0);
+-	if (!bdev) {
++	md->frozen_bdev = bdget_disk(md->disk, 0);
++	if (!md->frozen_bdev) {
+ 		DMWARN("bdget failed in __lock_fs");
+ 		return -ENOMEM;
+ 	}
  
--6) No MIME, no links, no compression, no attachments.  Just plain text.
-+6) No MIME, no links, no compression.  Just plain text.
+ 	WARN_ON(md->frozen_sb);
+-	md->frozen_sb = freeze_bdev(bdev);
++	md->frozen_sb = freeze_bdev(md->frozen_bdev);
+ 	/* don't bdput right now, we don't want the bdev
+ 	 * to go away while it is locked.  We'll bdput
+ 	 * in __unlock_fs
+@@ -1012,21 +1011,15 @@
  
- Linus and other kernel developers need to be able to read and comment
- on the changes you are submitting.  It is important for a kernel
- developer to be able to "quote" your changes, using standard e-mail
- tools, so that they may comment on specific portions of your code.
+ static int __unlock_fs(struct mapped_device *md)
+ {
+-	struct block_device *bdev;
+-
+ 	if (!test_and_clear_bit(DMF_FS_LOCKED, &md->flags))
+ 		return 0;
  
--For this reason, all patches should be submitting e-mail "inline".
-+For this reason, the preferred way of submitting patches in e-mail is
-+"inline", in the same part of the message with everything else.
- WARNING:  Be wary of your editor's word-wrap corrupting your patch,
- if you choose to cut-n-paste your patch.
+-	bdev = bdget_disk(md->disk, 0);
+-	if (!bdev) {
+-		DMWARN("bdget failed in __unlock_fs");
+-		return -ENOMEM;
+-	}
++	thaw_bdev(md->frozen_bdev, md->frozen_sb);
++	bdput(md->frozen_bdev);
  
-+Many maintainers will now accept patches submitted to them as
-+text/plain attachments.  Many mailers quote these attachements in the
-+same way that they do for inline patches.  But, some maintainers still
-+prefer inlines and they are certainly the safest bet.  In any case,
-+never attach more than one patch to a single e-mail.
+-	thaw_bdev(bdev, md->frozen_sb);
+ 	md->frozen_sb = NULL;
+-	bdput(bdev);
+-	bdput(bdev);
++	md->frozen_bdev = NULL;
 +
- Do not attach the patch as a MIME attachment, compressed or not.
- Many popular e-mail applications will not always transmit a MIME
- attachment as plain text, making it impossible to comment on your
-_
+ 	return 0;
+ }
+ 

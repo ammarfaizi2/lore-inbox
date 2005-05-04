@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261529AbVEDUw4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbVEDVAv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261529AbVEDUw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 16:52:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbVEDUuR
+	id S261546AbVEDVAv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 17:00:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbVEDUxx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 16:50:17 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:49646 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261649AbVEDUrt
+	Wed, 4 May 2005 16:53:53 -0400
+Received: from wproxy.gmail.com ([64.233.184.201]:11960 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261546AbVEDUvT convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 16:47:49 -0400
-To: torvalds@osdl.org
-Subject: [git pull] jfs update
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Message-Id: <20050504204744.DA0A0849AD@kleikamp.dyn.webahead.ibm.com>
-Date: Wed,  4 May 2005 15:47:44 -0500 (CDT)
-From: shaggy@austin.ibm.com (Dave Kleikamp)
+	Wed, 4 May 2005 16:51:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Iz40WYHTVL8U+nP3yPslJb85P9gMAjVbkbfxtLuPJSNdrbyg9eQzwXHmOv6v8tF0SzoQ4tI4n8YEenVVwGgvbdya+ne4L+W9d0/0xuvYqpVhh0X0PHcp1iUtLz/ZtXZqLHMTVuX3z7qcrA5T5MEUDDs39xUXxK7uk3khHCRXqXM=
+Message-ID: <81b0412b05050413514544d29c@mail.gmail.com>
+Date: Wed, 4 May 2005 22:51:16 +0200
+From: Alex Riesen <raa.lkml@gmail.com>
+Reply-To: Alex Riesen <raa.lkml@gmail.com>
+To: Deepak <deepakgaur@fastmail.fm>
+Subject: Re: Hanged/Hunged process in Linux
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1115185128.12535.233322099@webmail.messagingengine.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1115185128.12535.233322099@webmail.messagingengine.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
-I think I've got this set up right.  I have created a HEAD-for-linus and
-HEAD-for-mm in the same git repo.
+On 5/4/05, Deepak <deepakgaur@fastmail.fm> wrote:
+> (1) A process not accepting any signals and consuming system resources
 
-I've got one patch that I'd like in 2.6.12, and I've got some cleanups
-that can just stay in -mm for now.
- 
-Please pull from
+wrong. It may have decided to go through a critical section of its job, and
+the job takes a long time.
 
-rsync://rsync.kernel.org/pub/scm/linux/kernel/git/shaggy/jfs-2.6.git/HEAD-for-linus
+> (2) A process in STOP state
 
-This will update the following files:
+wrong. The prosess is being debugged or is stopped (killall -STOP bash).
+Besides, often the RUNNING state is more suspicious.
 
- fs/jfs/jfs_xtree.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+> (3) A process in deadlock state
 
-through these ChangeSets:
+how can you detect this from outside of the process(es)?!
 
-commit 6b6bf51081a27e80334e7ebe2993ae1d046a3222
-tree 30c44cf22caf3bbe090f333460711f7719e848af
-parent 8800cea62025a5209d110c5fa5990429239d6eee
-author Dave Kleikamp <shaggy@austin.ibm.com> Wed, 04 May 2005 09:11:49 -0500
-committer Dave Kleikamp <shaggy@austin.ibm.com> Wed, 04 May 2005 09:11:49 -0500
+> Process conforming to definition 3 will be due to race conditions/bad
+> programming.Definition 1 does define a proper hanged process but is it
+> possible to create such a process in LInux as in linux signal delivery
+> to the process and its handling is assured by the Linux kernel.
 
-    JFS: Endian errors
+Anything, except for SIGKILL and SIGSTOP can be overridden.
+And it doesn't help you anyway in detecting of runaway processes.
 
-    Thanks sparse!
+> Anybody having another definition for a "Hanged process" in Linux
+> context
 
-    Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
-
+Except for the case described by Valdis Klietnieks, it's hard to define.
+How do you distinguish between a very busy process and the deadly
+locked in itself one?
+You'll probably end up defining some arbitrary timeouts for the
+processes under your control, some watchdog interface for the
+processes and plain old kill(..., SIGCONT); kill(..., SIGKILL); restart();

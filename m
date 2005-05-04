@@ -1,93 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbVEDVVu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbVEDVba@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261643AbVEDVVu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 17:21:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbVEDVVu
+	id S261601AbVEDVba (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 17:31:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbVEDVba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 17:21:50 -0400
-Received: from mailfe02.swip.net ([212.247.154.33]:10462 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S261643AbVEDVVr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 17:21:47 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Subject: Re: A patch for the file kernel/fork.c
-From: Alexander Nyberg <alexn@dsv.su.se>
+	Wed, 4 May 2005 17:31:30 -0400
+Received: from penta.pentaserver.com ([216.74.97.66]:48526 "EHLO
+	penta.pentaserver.com") by vger.kernel.org with ESMTP
+	id S261601AbVEDVbY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 17:31:24 -0400
+Message-ID: <42793E46.3070007@kromtek.com>
+Date: Thu, 05 May 2005 01:27:34 +0400
+From: Manu Abraham <manu@kromtek.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
-Cc: andre@cachola.com.br, cw@f00f.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20050504124104.3573e7f3.akpm@osdl.org>
-References: <4278E03A.1000605@cachola.com.br>
-	 <20050504175457.GA31789@taniwha.stupidest.org>
-	 <427913E4.3070908@cachola.com.br>
-	 <20050504184318.GA644@taniwha.stupidest.org>
-	 <42791CD2.5070408@cachola.com.br>
-	 <1115234213.2562.28.camel@localhost.localdomain>
-	 <20050504124104.3573e7f3.akpm@osdl.org>
-Content-Type: text/plain
-Date: Wed, 04 May 2005 23:21:27 +0200
-Message-Id: <1115241687.2562.50.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+CC: linux-kernel@vger.kernel.org, greg@kroah.com, js@linuxtv.org,
+       kraxel@bytesex.org
+Subject: [PATCH] Re: [PATCH] Fix dst i2c read/write timeout failure.
+References: <4279343A.1000707@kromtek.com> <20050504135735.713e99ba.akpm@osdl.org>
+In-Reply-To: <20050504135735.713e99ba.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------090107030902090608010000"
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - penta.pentaserver.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - kromtek.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > I think that maybe it's good to put a:
-> > >        WARN_ON(!mm);
-> > > but a BUG_ON or without this patch, the kernel will halt, even if the 
-> > > problem is not so severe.
-> > 
-> > Patching up the kernel hiding things that must not happen is not the way
-> > to go. All kernel bugs are severe (as you just showed us!). Adding extra
-> > checks like your original patch did may even cause much more harm
-> > because it may hide other problems causing silent problems.
-> 
-> If I understand Andre correctly, his patch will prevent infinite recursion
-> in the oops path - if some process oopses after having run exit_mm().
-> 
-> If so then it's a reasonable debugging aid.  Although there might be better
-> places to do it, such as
-> 
-> 	if (!current->i_tried_to_exit++)
-> 		return;
-> 
-> in do_exit().   Dunno.
+This is a multi-part message in MIME format.
+--------------090107030902090608010000
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-This patch is very crude but it is quite resistant to recursive faults
-in do_exit(), survives the LTP hammering I've given it. The problem is
-not knowing where in the previous path it broke down so I'd rather just
-leave it lying around and try a graceful reset/power off. But if anyone
-has a better suggestion than the msleep() I'm all ears but this area is
-sensitive.
+Andrew Morton wrote:
+> Manu Abraham <manu@kromtek.com> wrote:
+> 
+>>User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+>>
+> 
+> 
+> uh-oh.
+> 
+> 
+>>Attached is a patch to bttv which fixes the following problems.
+> 
+> 
+> Mozilla space-stuffed it.  Please resend as an attachment.
+> 
+> 
+> 
 
-Where is that anonymous patch hot-line...
+Oh, i am sorry, resending it ..
 
 
-Index: mm/kernel/exit.c
-===================================================================
---- mm.orig/kernel/exit.c	2005-05-04 22:24:57.000000000 +0200
-+++ mm/kernel/exit.c	2005-05-04 23:19:08.000000000 +0200
+Attached is a patch to bttv which fixes the following problems.
+
+
+Affected cards and problems:
+~~~~~~~~~~~~~~~~~~~~~~~~
+o VP-1020 (200103A) Tuning problems, device detection.
+o VP-1020 (DST-MOT) Errors during tuning, device detection fails in a while.
+o VP-1030 (DST-CI) Tuning sometimes fails after CI commands.
+o VP-2031 (DCT-CI) Tuning problems
+
+
+The timeout happens before the actual timeout occured in the MCU
+on the board, and hence the problems.
+
+
+Changes: (bttv-i2c.diff)
+~~~~~~~~~~~~~~~~~~~~~~~~
+o Changed the custom wait queue to wait_event_interruptible_timeout()
+      - Suggestion by Johannes Stezenbach.
+
+o Fixed the wait queue timeout problem
+      - This fixes the timeout problem on various cards.
+      - This problem was visible as many
+          * Cannot tune to channels, when signal levels are very low.
+          * app_info does not work in some conditions for CI based cards
+      - Smaller values worked good for newer cards, but the older cards
+suffered, settled down to the worst case values that could happen in any
+eventuality.
+
+
+Signed-off-by: Manu Abraham <manu@kromtek.com>
+
+--------------090107030902090608010000
+Content-Type: text/x-patch;
+ name="bttv-i2c.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="bttv-i2c.diff"
+
+--- linux-2.6.12-rc3.orig/drivers/media/video/bttv-i2c.c	2005-05-03 16:04:28.000000000 +0400
++++ linux-2.6.12-rc3/drivers/media/video/bttv-i2c.c	2005-05-05 00:01:00.000000000 +0400
 @@ -29,6 +29,7 @@
- #include <linux/perfctr.h>
- #include <linux/syscalls.h>
- #include <linux/signal.h>
-+#include <linux/delay.h>
+ #include <linux/moduleparam.h>
+ #include <linux/init.h>
+ #include <linux/delay.h>
++#include <linux/jiffies.h>
+ #include <asm/io.h>
  
- #include <asm/uaccess.h>
- #include <asm/unistd.h>
-@@ -797,6 +798,14 @@
- 		ptrace_notify((PTRACE_EVENT_EXIT << 8) | SIGTRAP);
- 	}
+ #include "bttvp.h"
+@@ -130,17 +131,14 @@ static u32 functionality(struct i2c_adap
+ static int
+ bttv_i2c_wait_done(struct bttv *btv)
+ {
+-	DECLARE_WAITQUEUE(wait, current);
+ 	int rc = 0;
  
-+	/* We're taking recursive faults originating here in do_exit. Safest 
-+	 * is to just leave this task alone and wait for reboot. */
-+	if (tsk->flags & PF_EXITING) {
-+		printk(KERN_ALERT "\nFixing recursive fault but reboot is needed!\n");
-+		for (;;)
-+			msleep(1000 * 10);
-+	}
+-	add_wait_queue(&btv->i2c_queue, &wait);
+-	if (0 == btv->i2c_done)
+-		msleep_interruptible(20);
+-	remove_wait_queue(&btv->i2c_queue, &wait);
+-
+-	if (0 == btv->i2c_done)
+-		/* timeout */
+-		rc = -EIO;
++	/* timeout */
++	if (wait_event_interruptible_timeout(btv->i2c_queue, 
++		btv->i2c_done, msecs_to_jiffies(85)) == -ERESTARTSYS)
 +
- 	tsk->flags |= PF_EXITING;
- 
- 	/*
++	rc = -EIO;
++	
+ 	if (btv->i2c_done & BT848_INT_RACK)
+ 		rc = 1;
+ 	btv->i2c_done = 0;
 
-
+--------------090107030902090608010000--

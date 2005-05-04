@@ -1,65 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261686AbVEDVfl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261906AbVEDQGF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261686AbVEDVfl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 17:35:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbVEDVd5
+	id S261906AbVEDQGF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 12:06:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261909AbVEDQGF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 17:33:57 -0400
-Received: from hera.kernel.org ([209.128.68.125]:23700 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S261666AbVEDVdo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 17:33:44 -0400
-To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: System call v.s. errno
-Date: Wed, 4 May 2005 09:03:07 -0700
-Organization: Open Source Development Lab
-Message-ID: <20050504090307.07c1c50a@dxpl.pdx.osdl.net>
-References: <Pine.LNX.4.61.0505040849150.8743@chaos.analogic.com>
-	<20050504134224.GE17420@devserv.devel.redhat.com>
-	<Pine.LNX.4.61.0505040948450.8903@chaos.analogic.com>
+	Wed, 4 May 2005 12:06:05 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:24490 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S261906AbVEDQFx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 12:05:53 -0400
+Date: Wed, 4 May 2005 18:04:37 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: bstroesser@fujitsu-siemens.com
+Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: Again: UML on s390 (31Bit)
+Message-ID: <20050504160437.GA573@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Trace: build.pdx.osdl.net 1115222587 14750 10.8.0.74 (4 May 2005 16:03:07 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Wed, 4 May 2005 16:03:07 +0000 (UTC)
-X-Newsreader: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 May 2005 09:49:37 -0400 (EDT)
-"Richard B. Johnson" <linux-os@analogic.com> wrote:
-
-> On Wed, 4 May 2005, Jakub Jelinek wrote:
+> Yes. That's what I suggested as a "special magic number". Only if that magic
+> is written as syscall number at the first interception, syscall_trace() would
+> modify regs->trap to -1.
+> Currently my patch uses -1 as the magic number, but there might be better
+> choices.
 > 
-> > On Wed, May 04, 2005 at 09:22:09AM -0400, Richard B. Johnson wrote:
-> >> Does anybody know for sure if global 'errno' is supposed to
-> >> be altered after a successful system call? I'm trying to
-> >> track down a problem where system calls return with EINTR
-> >> even though all signal handlers are set with SA_RESTART in
-> >> the flags. It appears as though there may be a race somewhere
-> >> because if I directly set errno to 0x1234, within a few
-> >> hundred system calls, it gets set to EINTR even though all
-> >> system calls seemed to return 'good'. This makes it
-> >> hard to trace down the real problem.
-> >
-> > http://www.opengroup.org/onlinepubs/009695399/functions/errno.html
-> > is very clear on this.  Unless indicated that errno is valid after a call
-> > (for many syscalls it is valid when the syscall returns -1), errno has
-> > unspecified value.
-> >
-> > 	Jakub
-> > -
+> > 3) -Eyyy, skip the system call but leave regs->trap intact so that a pending
+> >    signal will restart the system call.
+> Not only -Eyyy, but all values unequal to "special magic number" could leave
+> regs->trap intact.
 > 
-> Okay, thanks. That means that it's okay for it to get trashed
-> NotGood(tm) for debugging.
+> > 
+> > But we really have to be very careful not to break either strace or gdb if
+> > we do this change. Probably it is much easier to introduce PTRACE_SET/GET_TRAP.
+> It's easier for s390-kernel, but from UML's point of view, the magic number
+> solution would be better.
+> Anyway, if you decide not to allow the magic number, we have to find a way
+> to use PTRACE_SETTRAP in UML without having to call it too often (Performance).
+> Because of UML's splitting in kernel-obj and user-obj, this might be a bit
+> tricky.
 > 
-> Cheers,
-> Dick Johnson
+> BTW: I see no reason to implement PTRACE_GETTRAP, as
+> PTRACE_SETOPTIONS/PTRACE_TRACESYSGOOD give us a way to distinguish between
+> syscall interceptions and other SIGTRAPs.
 
-Also, on with NPTL and many thread libraries errno is really a macro
-that refers to a per-thread variable.
+I talked with Uli about the problem and we came up with a more
+elegant solution. We already have a debugger specific code in
+do_signal that sets up the registers for system call restarting
+BEFORE calling the debugger. Only if the debugger did not change
+the restart psw and the return value still indicates 
+-ERESTARTNOHAND or -ERESTARTSYS we undo this change. In the case
+that the debugger did change the psw or the return value we do
+not want to restart a system call if another signal is pending.
+This is in fact a bug in the signal delivery code. To fix it we
+have to set regs->traps to something != __LC_SVC_OLD_PSW while
+the debugger has control. regs->traps is reset to the value
+indicating a system call if the system call is not restarted
+after all.
 
--- 
-Stephen Hemminger	<shemminger@osdl.org>
+Will that make UML happy?
+
+blue skies,
+  Martin.
+
+---
+
+Index: arch/s390/kernel/signal.c
+===================================================================
+RCS file: /home/cvs/linux-2.5/arch/s390/kernel/signal.c,v
+retrieving revision 1.22
+diff -u -p -r1.22 signal.c
+--- arch/s390/kernel/signal.c	23 Mar 2005 08:30:01 -0000	1.22
++++ arch/s390/kernel/signal.c	4 May 2005 14:51:31 -0000
+@@ -482,6 +482,7 @@ int do_signal(struct pt_regs *regs, sigs
+ 		} else if (retval == -ERESTART_RESTARTBLOCK) {
+ 			regs->gprs[2] = -EINTR;
+ 		}
++		regs->trap = -1;
+ 	}
+ 
+ 	/* Get signal to deliver.  When running under ptrace, at this point
+@@ -497,6 +498,7 @@ int do_signal(struct pt_regs *regs, sigs
+ 			      & SA_RESTART))) {
+ 			regs->gprs[2] = -EINTR;
+ 			regs->psw.addr = continue_addr;
++			regs->trap = __LC_SVC_OLD_PSW;
+ 		}
+ 	}
+ 

@@ -1,42 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261958AbVEDXXM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261955AbVEDX1K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261958AbVEDXXM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 19:23:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261955AbVEDXXL
+	id S261955AbVEDX1K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 19:27:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbVEDX1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 19:23:11 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18820 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261958AbVEDXXJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 19:23:09 -0400
-Date: Thu, 5 May 2005 00:23:38 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Pavel Roskin <proski@gnu.org>
-Cc: linux <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Saving ARCH and CROSS_COMPILE in generated Makefile
-Message-ID: <20050504232338.GF18977@parcelfarce.linux.theplanet.co.uk>
-References: <1115248267.12758.21.camel@dv.roinet.com>
+	Wed, 4 May 2005 19:27:10 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:6334 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261955AbVEDX1F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 19:27:05 -0400
+Subject: Re: Help with the high res timers
+From: john stultz <johnstul@us.ibm.com>
+To: George Anzinger <george@mvista.com>
+Cc: Liu Qi <liuqi@ict.ac.cn>,
+       "'high-res-timers-discourse@lists.sourceforge.net'" 
+	<high-res-timers-discourse@lists.sourceforge.net>,
+       Nishanth Aravamudan <nacc@us.ibm.com>, Darren Hart <dvhltc@us.ibm.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <42795125.9030905@mvista.com>
+References: <E1DSl7F-0002v2-Ck@sc8-sf-web4.sourceforge.net>
+	 <20050503024336.GA4023@ict.ac.cn>  <4277EEF7.8010609@mvista.com>
+	 <1115158804.13738.56.camel@cog.beaverton.ibm.com>
+	 <427805F8.7000309@mvista.com>
+	 <1115166592.13738.96.camel@cog.beaverton.ibm.com>
+	 <42790A5C.4050403@mvista.com>
+	 <1115244798.13738.127.camel@cog.beaverton.ibm.com>
+	 <42795125.9030905@mvista.com>
+Content-Type: text/plain
+Date: Wed, 04 May 2005 16:27:02 -0700
+Message-Id: <1115249222.13738.138.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1115248267.12758.21.camel@dv.roinet.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 04, 2005 at 07:11:07PM -0400, Pavel Roskin wrote:
-> Unfortunately, builds in the source directory would not profit from this
-> patch.  Perhaps we could always generate "makefile" or "GNUmakefile" in
-> the build directory, but it would be another patch.  Anyway, few people
-> cross-compile their kernels, and it's not unreasonable to encourage them
-> to use out-of-tree builds.
+On Wed, 2005-05-04 at 15:48 -0700, George Anzinger wrote:
+> john stultz wrote:
+> > Here is my possible solution: Still keeping Nish's soft-timer rework
+> > where we use nanoseconds instead of ticks or jiffies, provide an
+> > expected interrupt-period value, which gives you the maximum interval
+> > length between ticks. Thus you schedule a regular-low-res timer for the
+> > nanosecond value (exp_ns - expected_interrupt_period). When that timer
+> > expires, you move the timer to the HR timer list and schedule an
+> > interrupt for the remaining time.
 > 
-> SUBARCH is not saved on purpose, since users are not supposed to
-> override it.
+> Oh, I have been thinking along these same lines.  I don't recall at the moment, 
+> but I depend on the timer retaining the absolute expire time as I set it.  This 
+> is used both by the secondary timer, and by the rearm code.  I need to look more 
+> closely at that.  
 
-WTF not?  Consider, e.g. uml/i386 and uml/amd64.
+Glad we're on similar wavelengths. :)
 
-In any case, there's no reason to mess with that at all.  This stuff is
-trivally dealt with by a wrapper script that takes target name as its
-first argument (the rest is passed to make unchanged) and figures out
-ARCH, CROSS_COMPILE, SUBARCH and build directory by it.  End of story.
+> But this is picking things apart at a very low level and does 
+> not, I think, address timer ordering to the point where I feel completely safe. 
+>   I.e. will such a scheme allow a LR time at time X to expire after a HR timer 
+> for time X+y.
+
+Hmm. That sounds like an interesting problem as well, although I'm not
+familiar enough with it to make a reasonable comment. Let me ponder it
+for awhile and see what can be done.
+
+thanks
+-john
+
+
+

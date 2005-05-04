@@ -1,75 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261833AbVEDNz4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261851AbVEDOV5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261833AbVEDNz4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 09:55:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbVEDNzz
+	id S261851AbVEDOV5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 10:21:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261848AbVEDOV5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 09:55:55 -0400
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:8377 "EHLO
-	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S261833AbVEDNzm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 09:55:42 -0400
-Date: Wed, 4 May 2005 15:55:37 +0200
-From: Martin Waitz <tali@admingilde.org>
-To: "Richard B. Johnson" <linux-os@analogic.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: System call v.s. errno
-Message-ID: <20050504135537.GE3562@admingilde.org>
-Mail-Followup-To: "Richard B. Johnson" <linux-os@analogic.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.61.0505040849150.8743@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DuNoGD3ogd33HnLq"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0505040849150.8743@chaos.analogic.com>
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 4 May 2005 10:21:57 -0400
+Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:65035 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261847AbVEDOVj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 10:21:39 -0400
+To: ericvh@gmail.com
+CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       smfrench@austin.rr.com, hch@infradead.org
+In-reply-to: <a4e6962a05050406086e3ab83b@mail.gmail.com> (message from Eric
+	Van Hensbergen on Wed, 4 May 2005 08:08:00 -0500)
+Subject: Re: [RCF] [PATCH] unprivileged mount/umount
+References: <E1DSyQx-0002ku-00@dorka.pomaz.szeredi.hu> <a4e6962a05050406086e3ab83b@mail.gmail.com>
+Message-Id: <E1DTKkd-0003rC-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 04 May 2005 16:21:23 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I was starting down this track in my tree, but I'm glad you beat me
+> to it ;).  Your initial limit (10) seems low if you consider binds
+> as mounts.
 
---DuNoGD3ogd33HnLq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Where did you see 10 as the limit?  The initial global limit is zero,
+the initial per-user limit is infinity (I did actually test these ;)
 
-hoi :)
+> I can easily see a user using more than 10 binds in an environment.
+> As Ram mentioned earlier - we are going to run into problems with
+> the shared-subtree stuff if propagations into private namespaces
+> count as a new mount.  We need to think through how we are going to
+> deal with this.
 
-On Wed, May 04, 2005 at 09:22:09AM -0400, Richard B. Johnson wrote:
-> Does anybody know for sure if global 'errno' is supposed to
-> be altered after a successful system call? I'm trying to
-> track down a problem where system calls return with EINTR
-> even though all signal handlers are set with SA_RESTART in
-> the flags.
+Hmm, interesting question.  The safest is to account all mounts in
+private namespace (including initial and propagated mounts) to the
+user creating the namespace.
 
-syscalls are only automatically restarted by the interrupt if the
-syscall returns -ERESTARTSYS. If it returns -EINTR itself then that will
-be delivered to userspace even when it sets SA_RESTART.
+> My  major complaint is that I really think having user mounts without
+> requiring them to be in a user's private namespace creates quite a
+> mess.  It potentially pollutes the system's namespace and opens up the
+> possibility of all sorts of synthetic file system "traps".  I'd rather
+> see the private namespace stuff enforced before enabling user-mounts.
 
---=20
-Martin Waitz
+Yes, I see your point.  However the problem of malicious filesystem
+"traps" applies to private namespaces as well (because of suid
+programs).
 
---DuNoGD3ogd33HnLq
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+So if a user creates a private namespace, it should have the choice of:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+   1) Giving up all suid rights (i.e. all mounts are cloned and
+      propagated with nosuid)
 
-iD8DBQFCeNRYj/Eaxd/oD7IRAomRAKCDmGEk4uAcnPRJ/LJN0/spj3W3ywCfWkx2
-/myGu1YQLkVaBRR8fcZshRw=
-=zj61
------END PGP SIGNATURE-----
+   2) Not giving up suid for cloned and propagated mounts, but having
+      extra limitations (suid/sgid programs cannot access unprivileged
+      "synthetic" mounts)
 
---DuNoGD3ogd33HnLq--
+1) could have the advantage of allowing the user _arbitrary_
+modification to the namespace, without limitations on mountpoint
+writablity, etc.
+
+Bind mounts are less problematic than user-controlled "synthetic"
+filesystems, but it could still cause problems (e.g. trick updatedb to
+enter directories which are otherwise in it's prune list).
+
+So what are the possible solutions?
+
+  a) Use "invisible" mounts (a-la my earlier patch) to hide
+     problematic mounts from other users.  This would not be a
+     replacement for private namespaces, rather a supplement.
+
+  b) same as a) but disallow unprivileged mounts in the global
+     namespace completely
+
+  c/d) same as a/b) but without invisible mounts, simply by not
+       allowing processes owned by other users (incl. suid/sgid
+       processes started by mount owner) to access the files.  FUSE
+       now does c).
+
+  e) ???
+
+My order of preference is a), c), d), b).  I don't see any advantage
+of b) over a).
+
+Opinions?  Ideas?
+
+Thanks,
+Miklos

@@ -1,137 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbVEDVba@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261671AbVEDVde@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261601AbVEDVba (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 17:31:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbVEDVba
+	id S261671AbVEDVde (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 17:33:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbVEDVde
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 17:31:30 -0400
-Received: from penta.pentaserver.com ([216.74.97.66]:48526 "EHLO
-	penta.pentaserver.com") by vger.kernel.org with ESMTP
-	id S261601AbVEDVbY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 17:31:24 -0400
-Message-ID: <42793E46.3070007@kromtek.com>
-Date: Thu, 05 May 2005 01:27:34 +0400
-From: Manu Abraham <manu@kromtek.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
+	Wed, 4 May 2005 17:33:34 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:30654 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S261665AbVEDVd3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 17:33:29 -0400
+From: Ulrich Weigand <uweigand@de.ibm.com>
+Message-Id: <200505042133.j44LX8Xk010820@53v30g15.boeblingen.de.ibm.com>
+Subject: Re: Again: UML on s390 (31Bit)
+To: bstroesser@fujitsu-siemens.com
+Date: Wed, 4 May 2005 23:33:08 +0200 (CEST)
+Cc: schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, greg@kroah.com, js@linuxtv.org,
-       kraxel@bytesex.org
-Subject: [PATCH] Re: [PATCH] Fix dst i2c read/write timeout failure.
-References: <4279343A.1000707@kromtek.com> <20050504135735.713e99ba.akpm@osdl.org>
-In-Reply-To: <20050504135735.713e99ba.akpm@osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------090107030902090608010000"
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - penta.pentaserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kromtek.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090107030902090608010000
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Bodo Stroesser wrote:
 
-Andrew Morton wrote:
-> Manu Abraham <manu@kromtek.com> wrote:
-> 
->>User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
->>
-> 
-> 
-> uh-oh.
-> 
-> 
->>Attached is a patch to bttv which fixes the following problems.
-> 
-> 
-> Mozilla space-stuffed it.  Please resend as an attachment.
-> 
-> 
-> 
+>Unfortunately, I guess this will not help. But maybe I'm missing
+>something, as I don't even understand, what the effect of the
+>attached patch should be.
+Have you tried it?
 
-Oh, i am sorry, resending it ..
+>AFAICS, after each call to do_signal(),
+>entry.S will return to user without regs->trap being checked again.
+>do_signal() is the only place, where regs->trap is checked, and
+>it will be called on return to user exactly once.
+It will be called multiple times if *multiple* signals are pending,
+and this is exactly the situation in your problem case (some other
+signal is pending after the ptrace intercept SIGTRAP was delievered).
 
+>So a practical solution should allow to reset regs->trap while the
+>child is on the first or second syscall interception.
+This is exactly what this patch is supposed to do: whenever during
+a ptrace intercept the PSW is changed (as it presumably is by your
+sigreturn implementation), regs->trap is automatically reset.
 
-Attached is a patch to bttv which fixes the following problems.
+Bye,
+Ulrich
 
-
-Affected cards and problems:
-~~~~~~~~~~~~~~~~~~~~~~~~
-o VP-1020 (200103A) Tuning problems, device detection.
-o VP-1020 (DST-MOT) Errors during tuning, device detection fails in a while.
-o VP-1030 (DST-CI) Tuning sometimes fails after CI commands.
-o VP-2031 (DCT-CI) Tuning problems
-
-
-The timeout happens before the actual timeout occured in the MCU
-on the board, and hence the problems.
-
-
-Changes: (bttv-i2c.diff)
-~~~~~~~~~~~~~~~~~~~~~~~~
-o Changed the custom wait queue to wait_event_interruptible_timeout()
-      - Suggestion by Johannes Stezenbach.
-
-o Fixed the wait queue timeout problem
-      - This fixes the timeout problem on various cards.
-      - This problem was visible as many
-          * Cannot tune to channels, when signal levels are very low.
-          * app_info does not work in some conditions for CI based cards
-      - Smaller values worked good for newer cards, but the older cards
-suffered, settled down to the worst case values that could happen in any
-eventuality.
-
-
-Signed-off-by: Manu Abraham <manu@kromtek.com>
-
---------------090107030902090608010000
-Content-Type: text/x-patch;
- name="bttv-i2c.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="bttv-i2c.diff"
-
---- linux-2.6.12-rc3.orig/drivers/media/video/bttv-i2c.c	2005-05-03 16:04:28.000000000 +0400
-+++ linux-2.6.12-rc3/drivers/media/video/bttv-i2c.c	2005-05-05 00:01:00.000000000 +0400
-@@ -29,6 +29,7 @@
- #include <linux/moduleparam.h>
- #include <linux/init.h>
- #include <linux/delay.h>
-+#include <linux/jiffies.h>
- #include <asm/io.h>
- 
- #include "bttvp.h"
-@@ -130,17 +131,14 @@ static u32 functionality(struct i2c_adap
- static int
- bttv_i2c_wait_done(struct bttv *btv)
- {
--	DECLARE_WAITQUEUE(wait, current);
- 	int rc = 0;
- 
--	add_wait_queue(&btv->i2c_queue, &wait);
--	if (0 == btv->i2c_done)
--		msleep_interruptible(20);
--	remove_wait_queue(&btv->i2c_queue, &wait);
--
--	if (0 == btv->i2c_done)
--		/* timeout */
--		rc = -EIO;
-+	/* timeout */
-+	if (wait_event_interruptible_timeout(btv->i2c_queue, 
-+		btv->i2c_done, msecs_to_jiffies(85)) == -ERESTARTSYS)
-+
-+	rc = -EIO;
-+	
- 	if (btv->i2c_done & BT848_INT_RACK)
- 		rc = 1;
- 	btv->i2c_done = 0;
-
---------------090107030902090608010000--
+-- 
+  Dr. Ulrich Weigand
+  Linux on zSeries Development
+  Ulrich.Weigand@de.ibm.com

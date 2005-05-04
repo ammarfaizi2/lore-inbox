@@ -1,87 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbVEDRIb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbVEDRLU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbVEDRIb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 13:08:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVEDRIa
+	id S261177AbVEDRLU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 13:11:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbVEDRIy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 13:08:30 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:26267 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261177AbVEDRHH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 13:07:07 -0400
-Date: Wed, 4 May 2005 18:06:56 +0100
-From: Alasdair G Kergon <agk@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>
-Subject: [PATCH] device-mapper: [4/5] Handle __lock_fs error
-Message-ID: <20050504170656.GQ10195@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Christoph Hellwig <hch@lst.de>
+	Wed, 4 May 2005 13:08:54 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:11276 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261251AbVEDRIJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 13:08:09 -0400
+Message-Id: <200505041708.j44H80lR016289@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Deepak <deepakgaur@fastmail.fm>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Hanged/Hunged process in Linux 
+In-Reply-To: Your message of "Wed, 04 May 2005 14:38:48 +0900."
+             <1115185128.12535.233322099@webmail.messagingengine.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <1115185128.12535.233322099@webmail.messagingengine.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/signed; boundary="==_Exmh_1115226479_4721P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 04 May 2005 13:08:00 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Handle error from __lock_fs()
+--==_Exmh_1115226479_4721P
+Content-Type: text/plain; charset=us-ascii
 
-Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
-From: Christoph Hellwig <hch@lst.de>
---- diff/drivers/md/dm.c	2005-04-21 16:08:10.000000000 +0100
-+++ source/drivers/md/dm.c	2005-04-21 16:08:19.000000000 +0100
-@@ -1048,6 +1048,7 @@
- {
- 	struct dm_table *map;
- 	DECLARE_WAITQUEUE(wait, current);
-+	int error;
- 
- 	/* Flush I/O to the device. */
- 	down_read(&md->lock);
-@@ -1056,25 +1057,29 @@
- 		return -EINVAL;
- 	}
- 
-+	error = __lock_fs(md);
-+	if (error) {
-+		up_read(&md->lock);
-+		return error;
-+	}
-+
- 	map = dm_get_table(md);
- 	if (map)
- 		dm_table_presuspend_targets(map);
--	__lock_fs(md);
- 
- 	up_read(&md->lock);
- 
- 	/*
--	 * First we set the BLOCK_IO flag so no more ios will be
--	 * mapped.
-+	 * First we set the BLOCK_IO flag so no more ios will be mapped.
-+	 *
-+	 * If the flag is already set we know another thread is trying to
-+	 * suspend as well, so we leave the fs locked for this thread.
- 	 */
- 	down_write(&md->lock);
- 	if (test_bit(DMF_BLOCK_IO, &md->flags)) {
--		/*
--		 * If we get here we know another thread is
--		 * trying to suspend as well, so we leave the fs
--		 * locked for this thread.
--		 */
- 		up_write(&md->lock);
-+		if (map)
-+			dm_table_put(map);
- 		return -EINVAL;
- 	}
- 
-@@ -1107,6 +1112,7 @@
- 
- 	/* were we interrupted ? */
- 	if (atomic_read(&md->pending)) {
-+		/* FIXME Undo the presuspend_targets */
- 		__unlock_fs(md);
- 		clear_bit(DMF_BLOCK_IO, &md->flags);
- 		up_write(&md->lock);
+On Wed, 04 May 2005 14:38:48 +0900, Deepak said:
+> I am working on a Linux based system and developing a monitoring process
+> which shall do the following function
+
+> Anybody having another definition for a "Hanged process" in Linux
+> context
+
+Around here, the big issue is usually a process stuck in 'D' state - in
+other words, a process that's done a syscall or otherwise entered the
+kernel (page faults and AIO being other possibilities) and hasn't returned.
+Since signals are delivered at return time, even a 'kill -9' wont do the
+desired thing.  These are almost always the result of either kernel bugs
+or hardware failures.
+
+There was a lengthy thread a while ago about how to deal with these, and the
+consensus was that there's *NO* good general way to un-wedge such a process,
+and that fixing the underlying bug or hardware fault is the only way to deal
+with it.
+
+--==_Exmh_1115226479_4721P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCeQFvcC3lWbTT17ARAmGUAKDxLax6U1n+ENwKZKYS6/TPoFdRhgCg3q6z
+ia04Qu/3ql9mTzQXnnceqrE=
+=8pEM
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1115226479_4721P--

@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbVEDSHp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261264AbVEDSLE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261238AbVEDSHp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 14:07:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVEDSFy
+	id S261264AbVEDSLE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 14:11:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVEDSLE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 14:05:54 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:65040 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S261238AbVEDR7v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 13:59:51 -0400
-Date: Wed, 4 May 2005 13:59:33 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Dave Hansen <haveblue@us.ibm.com>
+	Wed, 4 May 2005 14:11:04 -0400
+Received: from deliverator7.gatech.edu ([130.207.165.169]:53120 "EHLO
+	deliverator7.gatech.edu") by vger.kernel.org with ESMTP
+	id S261264AbVEDSKr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 14:10:47 -0400
+To: Brian Gerst <bgerst@didntduck.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] update SubmittingPatches to clarify attachment policy
-Message-ID: <20050504175932.GB10345@tuxdriver.com>
-Mail-Followup-To: Dave Hansen <haveblue@us.ibm.com>,
-	linux-kernel@vger.kernel.org
-References: <20050504170156.87F67CE5@kernel.beaverton.ibm.com>
-Mime-Version: 1.0
+Subject: Re: macro in linux/compiler.h pollutes gcc __attribute__ namespace
+References: <87vf5y99o3.fsf@mail.gatech.edu> <42790A86.9070002@didntduck.org>
+From: Timmy Douglas <timmy+lkml@cc.gatech.edu>
+Date: Wed, 04 May 2005 14:10:21 -0400
+In-Reply-To: <42790A86.9070002@didntduck.org> (Brian Gerst's message of "Wed,
+	04 May 2005 13:46:46 -0400")
+Message-ID: <87fyx2vp4i.fsf@mail.gatech.edu>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050504170156.87F67CE5@kernel.beaverton.ibm.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 04, 2005 at 10:01:56AM -0700, Dave Hansen wrote:
-> 
-> I think the general opinion of posting patches as attachments
-> has changed over the last few years.  Mailers have been getting
-> a lot better at handling them, even quoting non-message-body
-> plain/text attachments in replies.  
+Brian Gerst <bgerst@didntduck.org> writes:
 
-Personally, I hate seeing patches as attachments.  No offense, but
-I hope this patch is ignored.
+> Timmy Douglas wrote:
+>> (I'm not subscribed so please CC me replies that you want me to reply
+>> to.)
+>> Recently I've found a problem with emacs where gcc optimizes a
+>> function to be inline where it shouldn't be. The emacs developers use
+>> a macro like this:
+>>[snip]
+>> I've realized that this file includes linux/compiler.h which does:
+>>    139
+>>    140  #ifndef noinline
+>>    141  #define noinline
+>>    142  #endif
+>>    143
+>>[snip]
+>
+> The right question to be asking is why is emacs including kernel headers?
 
-John
--- 
-John W. Linville
-linville@tuxdriver.com
+I'm guessing it goes sort of like this:
+
+signal.h -> bits/sigcontext.h -> asm/sigcontext.h -> linux/compiler.h
+

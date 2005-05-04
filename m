@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbVEDIsD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbVEDIql@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261503AbVEDIsD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 04:48:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbVEDIsD
+	id S261496AbVEDIql (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 04:46:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVEDIql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 04:48:03 -0400
-Received: from zone4.gcu-squad.org ([213.91.10.50]:58067 "EHLO
-	zone4.gcu-squad.org") by vger.kernel.org with ESMTP id S261503AbVEDIry convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 04:47:54 -0400
-Date: Wed, 4 May 2005 10:41:10 +0200 (CEST)
-To: ladis@linux-mips.org
-Subject: Re: [PATCH] ds1337 1/3
-X-IlohaMail-Blah: khali@localhost
-X-IlohaMail-Method: mail() [mem]
-X-IlohaMail-Dummy: moo
-X-Mailer: IlohaMail/0.8.14 (On: webmail.gcu.info)
-Message-ID: <iO2X3Jfr.1115196070.5809360.khali@localhost>
-In-Reply-To: <20050504061313.GB1439@orphique>
-From: "Jean Delvare" <khali@linux-fr.org>
-Bounce-To: "Jean Delvare" <khali@linux-fr.org>
-CC: "LKML" <linux-kernel@vger.kernel.org>,
-       "LM Sensors" <sensors@Stimpy.netroedge.com>,
-       "James Chapman" <jchapman@katalix.com>, "Greg KH" <greg@kroah.com>
+	Wed, 4 May 2005 04:46:41 -0400
+Received: from lantana.tenet.res.in ([202.144.28.166]:47295 "EHLO
+	lantana.cs.iitm.ernet.in") by vger.kernel.org with ESMTP
+	id S261496AbVEDIqj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 04:46:39 -0400
+Date: Wed, 4 May 2005 14:17:13 +0530 (IST)
+From: "P.Manohar" <pmanohar@lantana.cs.iitm.ernet.in>
+To: linux-kernel@vger.kernel.org
+Subject: Re: stuffing characters to keyboard buffer.
+In-Reply-To: <200505021152.19778.dtor_core@ameritech.net>
+Message-ID: <Pine.LNX.4.60.0505041409150.12570@lantana.cs.iitm.ernet.in>
+References: <Pine.LNX.4.60.0505022126520.5301@lantana.cs.iitm.ernet.in>
+ <200505021152.19778.dtor_core@ameritech.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Mail-scanner Found to be clean
+X-MailScanner-From: pmanohar@lantana.cs.iitm.ernet.in
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Ladislav, all,
+I am working in 
+2.4.20-8 kernel.
+To fill the keyboard buffer  with characters from user space, I used 
+TIOCSTI
+ioctls. Is there a similar method so I can send raw keyboard codes into
+the scancode buffer? 
+ioctls("/dev/tty0",TIOCSTI,&c);
+    it worked in Console.
 
-> Here is next batch of incremental patches for ds1337.
-> (...)
-> Make time format consistent with other RTC drivers.
+ioctls("/dev/tty7",TIOCSTI,&c);
+   is not working in x-windows. Here c is a character.
 
-Reviewed, looks OK to me.
+Can you guide me in this regard.
 
-Thanks,
---
-Jean Delvare
+  ThanksInAdvance,
+   P.Manohar,
+

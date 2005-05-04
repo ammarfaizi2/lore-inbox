@@ -1,56 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261647AbVEDUxo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261658AbVEDVAu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261647AbVEDUxo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 16:53:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbVEDUxW
+	id S261658AbVEDVAu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 17:00:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbVEDU6B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 16:53:22 -0400
-Received: from bernache.ens-lyon.fr ([140.77.167.10]:38805 "EHLO
-	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S261601AbVEDUvw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 16:51:52 -0400
-Message-ID: <427935DF.5010505@ens-lyon.org>
-Date: Wed, 04 May 2005 22:51:43 +0200
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: fr, en
+	Wed, 4 May 2005 16:58:01 -0400
+Received: from p4.gsnoc.net ([209.51.147.210]:11749 "EHLO p4.gsnoc.net")
+	by vger.kernel.org with ESMTP id S261643AbVEDUyk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 16:54:40 -0400
+Message-ID: <42793688.2090700@cachola.com.br>
+Date: Wed, 04 May 2005 17:54:32 -0300
+From: =?ISO-8859-1?Q?Andr=E9_Pereira_de_Almeida?= <andre@cachola.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050420 Debian/1.7.7-2
+X-Accept-Language: en
 MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Soft lockup with -mm
-References: <42792BC8.9010005@ens-lyon.org> <20050504132302.2ce4869b.akpm@osdl.org>
-In-Reply-To: <20050504132302.2ce4869b.akpm@osdl.org>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+CC: Alexander Nyberg <alexn@dsv.su.se>, cw@f00f.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: A patch for the file kernel/fork.c
+References: <4278E03A.1000605@cachola.com.br>	<20050504175457.GA31789@taniwha.stupidest.org>	<427913E4.3070908@cachola.com.br>	<20050504184318.GA644@taniwha.stupidest.org>	<42791CD2.5070408@cachola.com.br>	<1115234213.2562.28.camel@localhost.localdomain> <20050504124104.3573e7f3.akpm@osdl.org>
+In-Reply-To: <20050504124104.3573e7f3.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Spam-Report: 
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - p4.gsnoc.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - cachola.com.br
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton a écrit :
-> Brice Goglin <Brice.Goglin@ens-lyon.org> wrote:
-> 
->>I was seeing a lockup with several -mm releases since 2.6.12-rc2-mm1
->>(IIRC). With 2.6.12-rc2-mm1, I remember getting the lockup a few minutes
->>after boot time.
->>With 2.6.12-rc3-mm1, I waited several days before getting it.
->>But, I finally caught this one with netconsole. So here it is:
+Andrew Morton wrote:
+
+>Alexander Nyberg <alexn@dsv.su.se> wrote:
+>  
+>
+>>>[4300748.423000] Call Trace:
+>>>[4300748.423000]  [<c0104bfa>] show_stack+0x7a/0x90
+>>>[4300748.423000]  [<c0104d7d>] show_registers+0x14d/0x1b0
+>>>[4300748.423000]  [<c0104fcc>] die+0x14c/0x2c0
+>>>[4300748.423000]  [<c0118b6f>] do_page_fault+0x31f/0x638
+>>>[4300748.423000]  [<c01046df>] error_code+0x4f/0x54
+>>>[4300748.423000]  [<c02b88fd>] tty_wakeup+0x5d/0x60
+>>>
+>>>I think that maybe it's good to put a:
+>>>       WARN_ON(!mm);
+>>>but a BUG_ON or without this patch, the kernel will halt, even if the 
+>>>problem is not so severe.
+>>>      
+>>>
+>>Patching up the kernel hiding things that must not happen is not the way
+>>to go. All kernel bugs are severe (as you just showed us!). Adding extra
+>>checks like your original patch did may even cause much more harm
+>>because it may hide other problems causing silent problems.
+>>    
 >>
->>BUG: soft lockup detected on CPU#0!
->>Pid: 0, comm:              swapper
->>EIP: 0060:[<c02d40a5>] CPU: 0
->>EIP is at _spin_unlock_irqrestore+0x5/0x30
->> EFLAGS: 00000286    Not tainted  (2.6.12-rc3-mm1=Pignouf)
->>EAX: c18e8160 EBX: c18e8160 ECX: 00000001 EDX: 00000286
->>ESI: c18e0160 EDI: dbf96c64 EBP: ffffffff DS: 007b ES: 007b
->>CR0: 8005003b CR2: b6e43000 CR3: 0e912000 CR4: 00000690
->> [<c012a635>] __mod_timer+0xc5/0xf0
-> 
-> 
-> It could be the timer bug.  Can you try it with Oleg's fix?
-
-Ok, thanks.
-I applied it on top of mm2 and started praying for a few days
-until something happens or not.
-
-Brice
+>
+>If I understand Andre correctly, his patch will prevent infinite recursion
+>in the oops path - if some process oopses after having run exit_mm().
+>
+>If so then it's a reasonable debugging aid.  Although there might be better
+>places to do it, such as
+>
+>	if (!current->i_tried_to_exit++)
+>		return;
+>
+>in do_exit().   Dunno.
+>
+>  
+>
+I agree. If you need this patch, the you are in already in trouble, your 
+kernel had already oopsed, your system is halted and you can't even send 
+a bug report because you can't read read the call trace (it's an 
+infinite recursion) and you can see only the end of it. It's not 
+intended to hide the problem, the problem will be already in your screen.
+André.

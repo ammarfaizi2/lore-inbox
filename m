@@ -1,126 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbVEDJAa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261513AbVEDJCs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261505AbVEDJAa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 05:00:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbVEDJAa
+	id S261513AbVEDJCs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 05:02:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbVEDJCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 05:00:30 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:51125 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261505AbVEDJAN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 05:00:13 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: avoid infinite loop in x86_64 interrupt return
-Date: Wed, 4 May 2005 11:00:32 +0200
-User-Agent: KMail/1.8
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <20050504050132.GA3899@opteron.random>
-In-Reply-To: <20050504050132.GA3899@opteron.random>
+	Wed, 4 May 2005 05:02:47 -0400
+Received: from mail.portrix.net ([212.202.157.208]:41407 "EHLO
+	zoidberg.portrix.net") by vger.kernel.org with ESMTP
+	id S261513AbVEDJCd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 05:02:33 -0400
+Message-ID: <42788F8C.6090908@ppp0.net>
+Date: Wed, 04 May 2005 11:02:04 +0200
+From: Jan Dittmer <jdittmer@ppp0.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050116 Thunderbird/1.0 Mnenhy/0.6.0.104
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_x8IeC1X/WVGb5j9"
-Message-Id: <200505041100.33099.rjw@sisk.pl>
+To: David Woodhouse <dwmw2@infradead.org>
+CC: torvalds@osdl.org, Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: Git-commits mailing list feed.
+References: <200504210422.j3L4Mo8L021495@hera.kernel.org>	 <42674724.90005@ppp0.net> <20050422002922.GB6829@kroah.com>	 <426A4669.7080500@ppp0.net>	 <1114266083.3419.40.camel@localhost.localdomain>	 <426A5BFC.1020507@ppp0.net> <1114266907.3419.43.camel@localhost.localdomain>
+In-Reply-To: <1114266907.3419.43.camel@localhost.localdomain>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------020402030607000106090104"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_x8IeC1X/WVGb5j9
-Content-Type: text/plain;
-  charset="iso-8859-1"
+This is a multi-part message in MIME format.
+--------------020402030607000106090104
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-Hi,
-
-On Wednesday, 4 of May 2005 07:01, Andrea Arcangeli wrote:
-> Hello,
+David Woodhouse wrote:
+> On Sat, 2005-04-23 at 16:30 +0200, Jan Dittmer wrote:
 > 
-> A few minutes ago I've got an unkillable task in R state with vanilla
-> 2.6.12-rc3 on x86_64, luckily system was still up with the other cpu (on
-> the desktop, so I had no kgdb environment set). Debugging revelaed rdi
-> corrupt when entering retint_signal (not set to $_TIF_WORK_MASK as
-> expected). This lead the rdx&rdi to return 0x20000 -> infinite loop.
-> Precisely rdi is set to ffff810030923f58 instead of $_TIF_WORK_MASK. So
-> it was the combination of ...2xxxx as rsp with TIF_IA32 in the task
-> flags. After noticing the rdi screwup the bug was quite clear: rdi was
-> set to pt_regs instead of $_TIF_WORK_MASK. Of course rsp is set to
-> ffff810030923f58 too (which also means do_notify_resume didn't clobber
-> rdi even if it could).
+>>>LASTRELEASE=`ls -rt .git/tags | grep -v git | grep -v MailDone | tail -1`
+>>
+>>My .git/tags is empty. At least 2.6.12-rc3 is not tagged so I wasn't sure
+>>how to extract the latest release from the git tree.
+>>ketchup was the most comfortable way.
 > 
-> The below should fix the problem, I've no idea how to reproduce the
-> problem but it works on basic testing. The task looping was java (32bit,
-> that's where the 0x20000 come from), but it wasn't me starting java, it
-> must have been some random website (java was hanging around with 100%
-> system time for half an hour once I noticed it).
 > 
-> Signed-off-by: Andrea Arcangeli <andrea@suse.de>
+> Nah, asking Linus to tag his releases is the most comfortable way.
 > 
-> --- 2.6.12-rc3/arch/x86_64/kernel/entry.S.orig	2005-05-04 06:47:02.000000000 +0200
-> +++ 2.6.12-rc3/arch/x86_64/kernel/entry.S	2005-05-04 06:50:34.000000000 +0200
-> @@ -489,6 +489,7 @@ retint_signal:
->  	movq %rsp,%rdi		# &pt_regs
->  	call do_notify_resume
->  	RESTORE_REST
-> +	movl $_TIF_WORK_MASK,%edi
->  	cli
->  	GET_THREAD_INFO(%rcx)	
->  	jmp retint_check
-> -
 
-You also need to add two missing clis.  Please have a look at the attached
-patch from Andi.
-
-Greets,
-Rafael
-
+Here is an updated version of the script, working with paskys latest tree.
 
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Jan
 
---Boundary-00=_x8IeC1X/WVGb5j9
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="2.6.12-rc3-unkillable-java-ak.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="2.6.12-rc3-unkillable-java-ak.patch"
+--------------020402030607000106090104
+Content-Type: application/x-shellscript;
+ name="snapjdi.sh"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="snapjdi.sh"
 
-Signed-off-by: Andi Kleen <ak@suse.de>
-
-
-diff -u linux-2.6.12rc3/arch/x86_64/kernel/entry.S-o linux-2.6.12rc3/arch/x86_64/kernel/entry.S
---- linux-2.6.12rc3/arch/x86_64/kernel/entry.S-o	2005-04-22 12:48:11.000000000 +0200
-+++ linux-2.6.12rc3/arch/x86_64/kernel/entry.S	2005-04-27 15:52:49.305183345 +0200
-@@ -296,6 +296,7 @@
- 	call syscall_trace_leave
- 	popq %rdi
- 	andl $~(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SINGLESTEP),%edi
-+	cli	
- 	jmp int_restore_rest
- 	
- int_signal:
-@@ -307,6 +308,7 @@
- 1:	movl $_TIF_NEED_RESCHED,%edi	
- int_restore_rest:
- 	RESTORE_REST
-+	cli	
- 	jmp int_with_check
- 	CFI_ENDPROC
- 		
-@@ -490,7 +492,8 @@
- 	call do_notify_resume
- 	RESTORE_REST
- 	cli
--	GET_THREAD_INFO(%rcx)	
-+	GET_THREAD_INFO(%rcx)
-+	movl $_TIF_WORK_MASK,%edi	
- 	jmp retint_check
- 
- #ifdef CONFIG_PREEMPT
-
-
-
---Boundary-00=_x8IeC1X/WVGb5j9--
+IyEvYmluL3NoCgpTVEFHRT0vaG9tZS9qZGl0dG1lci9zcmMvbGsvd29yay8KCmNkIC9ob21l
+L2pkaXR0bWVyL3NyYy9say9naXQKCiMgY2ctdXBkYXRlIG9yaWdpbiB8fCBleGl0IDEKClJF
+TE5BTUU9YGNnLXRhZy1scyB8IGdyZXAgLXYgJ2dpdCcgfCB0YWlsIC1uMSB8IGN1dCAtZjFg
+ClJFTENPTU09YGNnLXRhZy1scyB8IGdyZXAgLXYgJ2dpdCcgfCB0YWlsIC1uMSB8IGN1dCAt
+ZjJgClNOQVBOQU1FPWBjZy10YWctbHMgfCBncmVwIC0tICIkUkVMTkFNRS1naXQiIHwgdGFp
+bCAtbjEgfCBjdXQgLWYxYApTTkFQQ09NTT1gY2ctdGFnLWxzIHwgZ3JlcCAtLSAiJFJFTE5B
+TUUtZ2l0IiB8IHRhaWwgLW4xIHwgY3V0IC1mMmAKQ1VSQ09NTT1gY2F0IC5naXQvSEVBRGAK
+CiMgZWNobyByZWxlYXNlICAkUkVMTkFNRSAkUkVMQ09NTQojIGVjaG8gbGFzdHNuYXAgJFNO
+QVBOQU1FICRTTkFQQ09NTSAKIyBlY2hvICRDVVJDT01NCgpbICIkU05BUENPTU0iID09ICIk
+Q1VSQ09NTSIgXSAmJiBleGl0IDAKCgppZiBbICIkU05BUE5BTUUiID09ICIiIF07IHRoZW4K
+CUNVUk5BTUU9IiRSRUxOQU1FLWdpdDEiCmVsc2UKCU9MREdJVE5VTT1gZWNobyAkU05BUE5B
+TUUgfCBzZWQgcy9eLiotZ2l0Ly9gCglORVdHSVROVU09YGV4cHIgJE9MREdJVE5VTSArIDFg
+CglDVVJOQU1FPSIkUkVMTkFNRS1naXQkTkVXR0lUTlVNIgpmaQoKI2VjaG8gbmV3c25hcCAg
+JENVUk5BTUUgJENVUkNPTU0KCkNVUlRSRUU9JENVUkNPTU0KUkVMVFJFRT1gZ2l0LWNhdC1m
+aWxlIHRhZyAkUkVMQ09NTSB8IGhlYWQgLW4xIHwgY3V0IC1mMiAtZCcgJ2AKIyBlY2hvICRD
+VVJUUkVFOiRSRUxUUkVFCgojIFRoaXMgaXMsIHVuZm9ydHVuYXRlbHksIGluIGNocm9ub2xv
+Z2ljYWwgb3JkZXIuIFdhbGtpbmcgdGhlIHRyZWUgd291bGQKIyBiZSBiZXR0ZXIuCmNnLWxv
+ZyAkQ1VSVFJFRTokUkVMVFJFRSA+ICRTVEFHRS8kQ1VSTkFNRS5sb2cKY2ctZGlmZiAtciAk
+Q1VSVFJFRTokUkVMVFJFRSB8IGd6aXAgLTkgPiAkU1RBR0UvcGF0Y2gtJENVUk5BTUUuZ3oK
+Y2ctdGFnICRDVVJOQU1FICRDVVJDT01NCgplY2hvIE5ldyBTbmFwc2hvdCAkQ1VSTkFNRQo=
+--------------020402030607000106090104--

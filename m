@@ -1,52 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261399AbVEDUUH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbVEDUVV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261399AbVEDUUH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 16:20:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVEDUUH
+	id S261482AbVEDUVV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 16:21:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbVEDUVV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 16:20:07 -0400
-Received: from fire.osdl.org ([65.172.181.4]:8066 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261399AbVEDUUB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 16:20:01 -0400
-Date: Wed, 4 May 2005 13:20:32 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: dmo@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] DAC960: add support for Mylex AcceleRAID 4/5/600
-Message-Id: <20050504132032.3aed8ce8.akpm@osdl.org>
-In-Reply-To: <20050504181721.GA19777@lst.de>
-References: <20050425141738.GA2749@lst.de>
-	<20050504181721.GA19777@lst.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 4 May 2005 16:21:21 -0400
+Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:46045
+	"EHLO pinky.shadowen.org") by vger.kernel.org with ESMTP
+	id S261482AbVEDUVK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 16:21:10 -0400
+To: akpm@osdl.org
+Subject: [0/6] SPARSEMEM memory model patches
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, apw@shadowen.org,
+       haveblue@us.ibm.com, kravetz@us.ibm.com
+Message-Id: <E1DTQMa-0002UX-OU@pinky.shadowen.org>
+From: Andy Whitcroft <apw@shadowen.org>
+Date: Wed, 04 May 2005 21:20:56 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@lst.de> wrote:
->
-> > This patch adds support for a new class of DAC960 controllers.  It's
-> > based on the GPLed idac320 driver from IBM for Linux 2.4.18.  That
-> > driver is a fork of the 2.4.18 version of DAC960 that adds support for
-> > this new type of controllers (internally called "GEM Series"), that
-> > differ from other DAC960 V2 firmware controllers only in the register
-> > offsets and removes support for all others.
-> > 
-> > This patch instead integrates support for these controllers into the
-> > DAC960 driver.
-> > 
-> > Thanks to Anders Norrbring for pointing me to the idac320 driver and
-> > testing this patch.
-> > 
-> > No Signed-Off: line because all code is either copy & pasted from IBM's
-> > idac320 driver or support for other controllers in the 2.6 DAC960
-> > driver.
+After long testing outside -mm we believe that the SPARSEMEM patches
+are ready for wider testing, please consider for -mm.
 
-I think a S-O-B is still appropriate in this case.  You worked on it, so..
+SPARSEMEM essentially is a replacement for DISCONTIGMEM providing
+support for non-contigious memory but with the advantage of
+handling both inter- and intra-node memory holes.  The goal of the
+implementation was to design a clean memory memory model covering
+the needs of both UMA and NUMA discontigouos memory layouts whilst
+providing a basis for hotplug.  This should allow us to consolidate
+the implementation of various "discontiguous" memory model whilst
+trying to fix its short comings.  Ultimatly it should allow us to
+remove DISCONTIGMEM.
 
-> > Note: the really odd formating matches the rest of the DAC960 driver.
+Following this mail are 6 patches which provide SPARSEMEM for i386,
+they introduce SPARSEMEM as an alternative to DISCONTIGMEM without
+removing it:
 
-Yeah, maybe a big Lindenting is called for.  Although that would make
-patches such as this one a heck of a lot harder.
+[1/6] generify early_pfn_to_nid
+[2/6] generify memory present
+[3/6] sparsemem memory model
+[4/6] sparsemem memory model for i386
+[5/6] sparsemem swiss cheese numa layouts
+[6/6] sparsemem hotplug base
+
+These patches have been compiled, booted and tested on 2.6.12-rc2
+(plus the -mm patches listed below).  They have been compile and boot
+tested against 2.6.12-rc3-mm2.  They do assume a number of patches
+already incorporated into -mm including the latest configuration
+updates from Dave Hansen <haveblue@us.ibm.com>.
+
+remove-non-discontig-use-of-pgdat-node_mem_map.patch
+resubmit-sparsemem-base-early_pfn_to_nid-works-before-sparse-is-initialized.patch
+resubmit-sparsemem-base-simple-numa-remap-space-allocator.patch
+resubmit-sparsemem-base-reorganize-page-flags-bit-operations.patch
+resubmit-sparsemem-base-teach-discontig-about-sparse-ranges.patch
+create-mm-kconfig-for-arch-independent-memory-options.patch
+make-each-arch-use-mm-kconfig.patch
+update-all-defconfigs-for-arch_discontigmem_enable.patch
+introduce-new-kconfig-option-for-numa-or-discontig.patch
+sparsemem-fix-minor-defaults-issue-in-mm-kconfig.patch
+mm-kconfig-kill-unused-arch_flatmem_disable.patch
+mm-kconfig-hide-memory-model-selection-menu.patch
+
+Comments/feedback appreciated.
+
+-apw

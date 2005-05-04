@@ -1,101 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVEDSwz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261379AbVEDTGB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261385AbVEDSwz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 14:52:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVEDSwz
+	id S261379AbVEDTGB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 15:06:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbVEDTGB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 14:52:55 -0400
-Received: from khc.piap.pl ([195.187.100.11]:27652 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S261385AbVEDSwv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 14:52:51 -0400
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Valdis.Kletnieks@vt.edu,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] update SubmittingPatches to clarify attachment
- policy
-References: <20050504170156.87F67CE5@kernel.beaverton.ibm.com>
-	<200505041716.j44HGPbV016851@turing-police.cc.vt.edu>
-	<1115227516.22718.4.camel@localhost>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Wed, 04 May 2005 20:52:45 +0200
-In-Reply-To: <1115227516.22718.4.camel@localhost> (Dave Hansen's message of
- "Wed, 04 May 2005 10:25:16 -0700")
-Message-ID: <m364xysu0y.fsf@defiant.localdomain>
+	Wed, 4 May 2005 15:06:01 -0400
+Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:38536 "HELO
+	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261379AbVEDTFy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 15:05:54 -0400
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] Re: [patch 1/1] Uml: kludgy compilation fixes for x86-64 subarch modules support [for -mm]
+Date: Wed, 4 May 2005 21:01:30 +0200
+User-Agent: KMail/1.8
+Cc: Andrew Morton <akpm@osdl.org>, jdike@addtoit.com,
+       linux-kernel@vger.kernel.org, ak@suse.de
+References: <20050501184515.F1AA48D835@zion> <20050502165103.6d76f394.akpm@osdl.org>
+In-Reply-To: <20050502165103.6d76f394.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200505042101.30458.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen <haveblue@us.ibm.com> writes:
-
-> +Many maintainers will now accept patches submitted to them as
-> +text/plain attachments.  Many mailers quote these attachements in the
-> +same way that they do for inline patches.  But, some maintainers still
-> +prefer inlines and they are certainly the safest bet.
-
-There is MIME "Content-Disposition: inline".
-Personally I think it's at least as good as plain text - it's MIME
-attachment (you can extract automatically, you have well-defined patch
-boundaries, original file name etc.) _and_ mail readers are supposed to
-(and do) display such attachments as normal message parts.
-
-The message is readable with MIME-unaware readers (scripts etc.) as well.
-
-Such attachment (raw message data) looks like:
-
-From: xxx@yyy
-To: lkml
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
---=-=-=
-
-Normal message text etc.
-
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: inline; filename=xxx.patch
-
---- linux-2.6/xxx.c 25 May 2003 22:13:37
-+++ linux-2.6/xxx.c 25 May 2003 22:13:38
-the rest of patch text
-
---=-=-=--
-
-> +code.  If you must use an attachment,
-
-Nearly no one "must" use attachments. I can only think of people using
-broken mail servers ("corporate servers").
-
-> verify that it has no
-> +Content-Type-Encoding.
-
-Content-Transfer-Encoding.
-
-I'd say "verify that it's binary-encoded - quoted-printable and base64
-encodings are not permitted".
-
-I.e., it's perfectly fine to specify "Content-Transfer-Encoding: 7bit"
-(or "8bit" or possibly "binary", though I don't exactly know the
-difference between "8bit" and "binary").
-
->  A MIME attachment also takes Linus a bit more
-> +time to process, decreasing the likelihood of your MIME-attached
-> +change being accepted.
-
-I don't think so. Badly formatted MIME attachments, sure. I'd be
-surprised if Linus applies them at all.
-
->  Exception:  If your mailer is mangling patches then someone may ask
-> -you to re-send them using MIME.
-> +you to re-send them compressed or using other MIME encodings.
-
-Rather: "... someone may ask you to re-send them as properly encoded
-MIME attachments".
-
-
-In fact I'd encourage using binary-encoded inlined MIME attachments
-at all times, with non-MIME 7bit or 8bit plain text being accepted
-as secondary format.
+On Tuesday 03 May 2005 01:51, Andrew Morton wrote:
+> blaisorblade@yahoo.it wrote:
+> > These are some trivial fixes for the x86-64 subarch module support. The
+> > only potential problem is that I have to modify
+> > arch/x86_64/kernel/module.c, to avoid copying the whole of it.
+> >
+> > I can't use it verbatim because it depends on a special vmalloc-like area
+> > for modules, which for now (maybe that's to fix, I guess not) UML/x86-64
+> > has not. I went the easy way and reused the i386 vmalloc()-based
+> > allocator.
+>
+> Why is this "for -mm" and not for -linus?
+That's a report on the current "review/testing" status, in this case because I 
+wanted an ACK from Andi Kleen. Which acked it for himself but warned about 
+the possible breakage for other archs.
 -- 
-Krzysztof Halasa
+Paolo Giarrusso, aka Blaisorblade
+Skype user "PaoloGiarrusso"
+Linux registered user n. 292729
+http://www.user-mode-linux.org/~blaisorblade
+

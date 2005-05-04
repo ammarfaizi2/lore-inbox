@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbVEDS0B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbVEDS0A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261324AbVEDS0B (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 14:26:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVEDSYy
+	id S261300AbVEDS0A (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 14:26:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbVEDSZK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 14:24:54 -0400
-Received: from zproxy.gmail.com ([64.233.162.197]:20883 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261324AbVEDSWF convert rfc822-to-8bit
+	Wed, 4 May 2005 14:25:10 -0400
+Received: from alog0132.analogic.com ([208.224.220.147]:2269 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261300AbVEDSX5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 14:22:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=MQ9RbIvL52SquiX6E4iskSAKGRVIrc/Wluua0eE++j3dNxux3BOkfILWFgjb8N30W3bLRTgJwSxUYB+ktATP8+xKfvuzlJgzqBA5a7pJpdrDcFHVDCo0xtOFTF6P5rSydApDCa9trrRDFQQcM0p/cw5tN95nKpF2ghpOozAKtSY=
-Message-ID: <78d18e2050504112240e43a08@mail.gmail.com>
-Date: Wed, 4 May 2005 14:22:00 -0400
-From: William Jordan <bjordan.ics@gmail.com>
-Reply-To: William Jordan <bjordan.ics@gmail.com>
-To: Andy Isaacson <adi@hexapodia.org>
-Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
-Cc: Caitlin Bestler <caitlin.bestler@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, openib-general@openib.org,
-       hch@infradead.org, Timur Tabi <timur.tabi@ammasso.com>
-In-Reply-To: <20050503184325.GA19351@hexapodia.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <469958e00504291731eb8287c@mail.gmail.com>
-	 <20050503184325.GA19351@hexapodia.org>
+	Wed, 4 May 2005 14:23:57 -0400
+Date: Wed, 4 May 2005 14:23:36 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] update SubmittingPatches to clarify attachment
+ policy
+In-Reply-To: <20050504175422.GY24187@lug-owl.de>
+Message-ID: <Pine.LNX.4.61.0505041419360.21458@chaos.analogic.com>
+References: <20050504170156.87F67CE5@kernel.beaverton.ibm.com>
+ <9e47339105050410107d9193b2@mail.gmail.com> <20050504175422.GY24187@lug-owl.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/3/05, Andy Isaacson <adi@hexapodia.org> wrote:
-> Rather than replacing the fully-registered pages with pages of zeros,
-> you could simply unmap them.
+On Wed, 4 May 2005, Jan-Benedict Glaw wrote:
 
-I don't like this option. It is nearly free to map all of the pages to
-the zero-page. You never have to allocate a page if the user never
-writes to it.
+> On Wed, 2005-05-04 13:10:35 -0400, Jon Smirl <jonsmirl@gmail.com> wrote:
+>> On 5/4/05, Dave Hansen <haveblue@us.ibm.com> wrote:
+>>>
+>>> I think the general opinion of posting patches as attachments
+>>> has changed over the last few years.  Mailers have been getting
+>>> a lot better at handling them, even quoting non-message-body
+>>> plain/text attachments in replies.
+>>
+>> There is also the problem of things like gmail/yahoo where you can't
+>> control the word wrapping.  The only way to submit patches from those
+>> services is as an plain text attachment. If you try to submit then
+>> in-line and they wrap wrong you will collect a lot of hate mail from
+>> Andrew.
+>
+> Well, why should someone use a broken mail service at all?
+>
+> MfG, JBG
 
-Buf if you unmap the page, there could be issues. The memory region
-could be on the stack, or malloc'ed. In these cases, the child should
-be able to return from the function, or free the memory without
-setting a timebomb.
+Because the net Nazis make often make it the only way to send/receive
+mail in a domain. There is nothing coming or going here that doesn't
+go through a M$ mail-killer that even saves every thread of evidence.
 
--- 
-Bill Jordan
-InfiniCon Systems
+For instance, there is no signature on this file. I'll bet that
+by the time you read it, there is one.

@@ -1,72 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261622AbVEDLKW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261640AbVEDLmp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261622AbVEDLKW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 07:10:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261627AbVEDLKW
+	id S261640AbVEDLmp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 07:42:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbVEDLmo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 07:10:22 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:48608 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261622AbVEDLKO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 07:10:14 -0400
+	Wed, 4 May 2005 07:42:44 -0400
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:20450 "EHLO
+	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261594AbVEDLmj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 07:42:39 -0400
+Date: Wed, 4 May 2005 13:42:34 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Joe <joecool1029@gmail.com>
+Cc: 7eggert@gmx.de, linux-scsi@vger.kernel.org, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: Empty partition nodes not created (was device node issues with
+ recent mm's and udev)
+In-Reply-To: <d4757e600505032049716c811b@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0505041337110.12821@be1.lrz>
+References: <3ZVNP-5cq-7@gated-at.bofh.it>  <E1DTAgo-0002uD-F0@be1.7eggert.dyndns.org>
+ <d4757e600505032049716c811b@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17016.44418.735245.751747@alkaid.it.uu.se>
-Date: Wed, 4 May 2005 13:09:54 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc3: Bad page state at prep_new_page
-In-Reply-To: <20050429045447.44649c8e.akpm@osdl.org>
-References: <17006.3525.908807.563680@alkaid.it.uu.se>
-	<20050429045447.44649c8e.akpm@osdl.org>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
- > Mikael Pettersson <mikpe@user.it.uu.se> wrote:
- > >
- > > My trusty network server (440BX PentiumIII box serving NFS and News)
- > >  just threw the following at me:
- > > 
- > >  Bad page state at prep_new_page (in process 'python', page c10984e0)
- > >  flags:0x20021008 mapping:00000000 mapcount:0 count:0
- > >  Backtrace:
- > >   [<c0137555>] bad_page+0x75/0xb0
- > >   [<c01378aa>] prep_new_page+0x2a/0x70
- > >   [<c0137e60>] buffered_rmqueue+0xc0/0x1c0
- > >   [<c01380f0>] __alloc_pages+0xc0/0x400
- > >   [<c01425a9>] do_anonymous_page+0x79/0x150
- > >   [<c0142870>] do_no_page+0x1f0/0x360
- > >   [<c0142c2d>] handle_mm_fault+0x13d/0x170
- > >   [<c0110c92>] do_page_fault+0x2a2/0x6bf
- > >   [<c0111d12>] recalc_task_prio+0xc2/0x170
- > >   [<c026b49b>] schedule+0x31b/0x5c0
- > >   [<c01109f0>] do_page_fault+0x0/0x6bf
- > >   [<c0102dbf>] error_code+0x4f/0x54
- > >  Trying to fix it up, but a reboot is needed
- > > 
- > >  It's running 2.6.12-rc3 since last Friday, but had been running
- > >  2.6.12-rc2 for weeks before that w/o problems. 2.4 kernels and
- > >  most recent 2.6 kernels have always been rock solid on it.
- > > 
- > 
- > PG_swapcache is set.  It wasn't set when this page was returned to the page
- > allocator.
- > 
- > >  This is the first time this box has had a problem like this.
- > >  While I can't rule out bad memory (I'll memtest86 it when I
- > >  get a chance to), I'm inclined to suspect a 2.6 kernel bug.
- > 
- > Could be a bug, but it'd be a damn unusual one.  I wouldn't rule out a
- > bitflip.
+On Tue, 3 May 2005, Joe wrote:
 
-Confirmed, it was a HW issue. Please disregard the original problem report.
+> On 5/3/05, Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
+> <7eggert@gmx.de> wrote:
+> > Joe <joecool1029@gmail.com> wrote:
+> > 
+> > > Here is the partition table from fdisk, fdisk does run fine.. its just
+> > > the fact this node is not created that threw me off before.
+> > >
+> > >    Device Boot      Start         End      Blocks   Id  System
+> > > /dev/sdb1   *           1           2       16033+   0  Empty
+> > > /dev/sdb2   *           6        2431    19486845    b  W95 FAT32
+> > > /dev/sdb3               3           5       24097+  83  Linux
+> > >
+> > > Notice, /dev/sdb1 is a Empty partition... in /dev I only have sdb,
+> > > sdb2, and sdb3.  No sdb1.  Any help would be appreciated.
+> > 
+> > Some vendors depend on empty partitions not showing up. That's why this
+> > patch was introduced.
+> 
+> It would be interesting to see just how important it is to hide this. 
 
-(A recent upgrade led to a combination of front side bus speed setting
-and number of unregistered memory modules that the chipset couldn't quite
-handle. Darn, I would have preferred it to have been a bad SIMM.)
+The size and position values were quite random, and the useless extra
+partition caused some problems.
 
-/Mikael
+> > BTW: Is there a special reason you why choose "empty"?
+> > Is this partition showing up in other systems at all?
+> 
+> Actually, yes there is.. its a firmware partition that would normally
+> not be mounted, but in order to dd new firmware versions to it, I
+> depended on the node... which has ceased to exist.
+
+So it isn't empty.-) I asume it will be in a custom system, so you can
+hijack the compaq partition type (which was used for a similar purpose).
+
+BTW: If you can do that, you should move the partition to the end of the
+disk into the slower area of he disk.
+
+-- 
+"Bravery is being the only one who knows you're afraid."
+-David Hackworth

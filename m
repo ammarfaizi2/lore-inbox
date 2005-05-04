@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261938AbVEDAHs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261939AbVEDAJR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261938AbVEDAHs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 20:07:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbVEDAHs
+	id S261939AbVEDAJR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 20:09:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261941AbVEDAJM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 20:07:48 -0400
-Received: from gate.crashing.org ([63.228.1.57]:25271 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261938AbVEDAHm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 20:07:42 -0400
-Subject: Re: [PATCH] fix __mod_timer vs __run_timers deadlock.
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: paulus@samba.org, jk@blackdown.de, akpm@osdl.org, oleg@tv-sign.ru,
-       linux-kernel@vger.kernel.org, maneesh@in.ibm.com
-In-Reply-To: <20050503163916.30d64630.davem@davemloft.net>
-References: <42748B75.D6CBF829@tv-sign.ru>
-	 <20050501023149.6908c573.akpm@osdl.org> <87vf61kztb.fsf@blackdown.de>
-	 <1115079230.6155.35.camel@gaston> <873bt5xf9v.fsf@blackdown.de>
-	 <17014.59016.336852.31119@cargo.ozlabs.ibm.com>
-	 <20050503115103.7461ae5e.davem@davemloft.net>
-	 <1115163893.7568.49.camel@gaston>
-	 <20050503163916.30d64630.davem@davemloft.net>
-Content-Type: text/plain
-Date: Wed, 04 May 2005 10:05:08 +1000
-Message-Id: <1115165108.7567.76.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+	Tue, 3 May 2005 20:09:12 -0400
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:61556 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261940AbVEDAIx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 May 2005 20:08:53 -0400
+Message-ID: <42781286.7080801@yahoo.com.au>
+Date: Wed, 04 May 2005 10:08:38 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Matthew Dobson <colpatch@us.ibm.com>
+CC: dino@in.ibm.com, Paul Jackson <pj@sgi.com>,
+       Simon Derr <Simon.Derr@bull.net>, lkml <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>,
+       Dipankar Sarma <dipankar@in.ibm.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC PATCH] Dynamic sched domains (v0.5)
+References: <20050501190947.GA5204@in.ibm.com> <4277F52B.8040908@us.ibm.com>
+In-Reply-To: <4277F52B.8040908@us.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-03 at 16:39 -0700, David S. Miller wrote:
-> On Wed, 04 May 2005 09:44:53 +1000
-> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+Matthew Dobson wrote:
+> Dinakar Guniguntala wrote:
 > 
-> > Nothing prevents it ? well, I wouldn't be that optimistic :) The USB
-> > stuff is a bit complex, it inlcudes doing DMAs, so manipulating the
-> > iommu, dealing with URB queues (and thus allocating/releasing them)
-> > etc... and especially in the context of xmon, that mean letting the
-> > driver do a lot of these at any time whatever state the system is...
+>>+	lock_cpu_hotplug();
+>>+	rebuild_sched_domains(span1, span2);
+>>+	unlock_cpu_hotplug();
+>>+}
 > 
-> I think doing calls to the USB interrupt handler would work.
-> I'm not being crazy :)
-
-Maybe, but it will trigger all other USB drivers around and really
-weird things might happen.. Oh well, I may give it a try one of
-these days anyway. I could probably even do some hack to force the
-OHCI to only service incoming interrupt URBs for input devices or
-such things...
-
-> But yeah we could do a micro-stack as well, but as you noted the
-> transfer to/from the real USB HCI driver would be non-trivial.
 > 
-> I truly believe just calling the real USB HCI driver interrupt
-> handler in a polling fashion is the way to go.
+> Nitpicky, but span1 and span2 could do with better names.
+> 
 
-But it feels very fragile... Oh well, I will experiment with that one of
-these days (no time right now though).
+As could rebuild_sched_domains while we're at it.
 
-Ben.
+partition_disjoint_sched_domains(partition1, partition2);
+?
 
+Dunno. That isn't really great, but maybe better? Pretty
+long, but it'll only ever be called in one or two places.
+
+-- 
+SUSE Labs, Novell Inc.
 

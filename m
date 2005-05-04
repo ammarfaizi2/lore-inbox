@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261391AbVEDTMt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261394AbVEDTQR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261391AbVEDTMt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 15:12:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVEDTMs
+	id S261394AbVEDTQR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 15:16:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVEDTQR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 15:12:48 -0400
-Received: from zproxy.gmail.com ([64.233.162.206]:7454 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261394AbVEDTMb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 15:12:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=DeNSZOUeVIuaBTRf0NAZs9/94sDnAk1XIQjl9Z5Dehev0z0/TZImTgIZDtqLxMEIHJiEF0VpewJRna4va/27pNe3yxcgZwyPDzwZkjt3MdusZh1P9MRa8us4xOU2W+JLWmX4haQXx7wHyM0gVIPqv8F7jjEGp2FXqyFlq2967xg=
-Message-ID: <b6d0f5fb05050412126dc4cd28@mail.gmail.com>
-Date: Wed, 4 May 2005 20:12:29 +0100
-From: Cameron Harris <thecwin@gmail.com>
-Reply-To: Cameron Harris <thecwin@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc3-mm2 - kswapd0 keeps running
-In-Reply-To: <200505011707.35461.damir.perisa@solnet.ch>
+	Wed, 4 May 2005 15:16:17 -0400
+Received: from nevyn.them.org ([66.93.172.17]:35205 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S261394AbVEDTQG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 15:16:06 -0400
+Date: Wed, 4 May 2005 15:16:04 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: "Richard B. Johnson" <linux-os@analogic.com>
+Cc: Olivier Croquette <ocroquette@free.fr>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduler: SIGSTOP on multi threaded processes
+Message-ID: <20050504191604.GA29730@nevyn.them.org>
+Mail-Followup-To: "Richard B. Johnson" <linux-os@analogic.com>,
+	Olivier Croquette <ocroquette@free.fr>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <4279084C.9030908@free.fr> <Pine.LNX.4.61.0505041403310.21458@chaos.analogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050430164303.6538f47c.akpm@osdl.org>
-	 <200505011707.35461.damir.perisa@solnet.ch>
+In-Reply-To: <Pine.LNX.4.61.0505041403310.21458@chaos.analogic.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/1/05, Damir Perisa <damir.perisa@solnet.ch> wrote:
-> i updated from rc2-mm3 to rc3-mm2 and now i observe something strange:
-> the cpu is running all the time at 100% because of the kswapd0 that is
-> running always and not becomming idle.
+On Wed, May 04, 2005 at 02:16:24PM -0400, Richard B. Johnson wrote:
+> The kernel doesn't do SIGSTOP or SIGCONT. Within init, there is
+> a SIGSTOP and SIGCONT handler. These can be inherited by others
+> unless changed, perhaps by a 'C' runtime library. Basically,
+> the SIGSTOP handler executes pause() until the SIGCONT signal
+> is received.
 > 
-> after having the computer running for about one hour, top says this about
-> kswapd0:
+> Any delay in stopping is the time necessary for the signal to
+> be delivered. It is possible that the section of code that
+> contains the STOP/CONT handler was paged out and needs to be
+> paged in before the signal can be delivered.
 > 
->   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
->   155 root      25   0     0    0    0 R 89.6  0.0  38:56.06 kswapd0
-> 
-> the config file you can find here:
-> http://cvs.archlinux.org/cgi-bin/viewcvs.cgi/kernels/kernel26mm/config?rev=1.18&cvsroot=Extra
-> 
-> regards,
-> 
-> Damir Perisa
-> 
-> --
-> A thing worth doing is worth the trouble of asking somebody else to do it.
-> 
-> 
-> 
+> You might quicken this up by installing your own handler for
+> SIGSTOP and SIGCONT....
 
-I can sort of confirm this, except on a different kernel version.
-This kswapd0 taking 100% cpu is on my 2.6.12-rc2-mm3 compiled with cachefs. 
-Next time I boot into it I can check my sysrq-P and see if cachefs is
-causing it on mine...
-It tends to be after something has heavily used my hard drive. 
+I don't know what RTOSes you've been working with recently, but none of
+the above is true for Linux.  I don't think it ever has been.
+
 -- 
-Cameron Harris
+Daniel Jacobowitz
+CodeSourcery, LLC

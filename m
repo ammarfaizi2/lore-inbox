@@ -1,60 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbVEDSRo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbVEDSRq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261227AbVEDSRo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 14:17:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbVEDSRI
+	id S261269AbVEDSRq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 14:17:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbVEDSQ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 14:17:08 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:34956 "EHLO
-	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
-	id S261300AbVEDSQj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 14:16:39 -0400
-Message-ID: <42791160.7090905@nortel.com>
-Date: Wed, 04 May 2005 12:16:00 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
+	Wed, 4 May 2005 14:16:59 -0400
+Received: from alog0132.analogic.com ([208.224.220.147]:15316 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261269AbVEDSQh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 14:16:37 -0400
+Date: Wed, 4 May 2005 14:16:24 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Olivier Croquette <ocroquette@free.fr>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduler: SIGSTOP on multi threaded processes
+In-Reply-To: <4279084C.9030908@free.fr>
+Message-ID: <Pine.LNX.4.61.0505041403310.21458@chaos.analogic.com>
+References: <4279084C.9030908@free.fr>
 MIME-Version: 1.0
-To: Nishanth Aravamudan <nacc@us.ibm.com>
-CC: george@mvista.com, john stultz <johnstul@us.ibm.com>,
-       Liu Qi <liuqi@ict.ac.cn>,
-       "'high-res-timers-discourse@lists.sourceforge.net'" 
-	<high-res-timers-discourse@lists.sourceforge.net>,
-       Darren Hart <dvhltc@us.ibm.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Help with the high res timers
-References: <E1DSl7F-0002v2-Ck@sc8-sf-web4.sourceforge.net> <20050503024336.GA4023@ict.ac.cn> <4277EEF7.8010609@mvista.com> <1115158804.13738.56.camel@cog.beaverton.ibm.com> <427805F8.7000309@mvista.com> <20050504001307.GF3372@us.ibm.com> <42790207.30709@mvista.com> <42790A18.4000008@nortel.com> <20050504175151.GA2698@us.ibm.com>
-In-Reply-To: <20050504175151.GA2698@us.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nishanth Aravamudan wrote:
+On Wed, 4 May 2005, Olivier Croquette wrote:
 
-> If I understand your point correctly, I think this is achieved by
-> TIMERINTERVAL_BITS in my patch (not to claim my patch is function, but
-> conceptually). No matter what you actually request, the best you can do
-> is 2^TIMERINTERVAL_BITS nanoseconds, and usually worse because the
-> tick-rate and timerinterval length do not necessarily line up.
+> Hello
+>
+> On a 2.6.11 x86 system, I am SIGSTOP'ing processes which have started
+> several threads before.
+>
+> As expected, all threads are suspended.
+>
+> But surprisingly, it can happen that some threads are still scheduled
+> after the SIGSTOP has been issued.
+>
+> Typically, they get scheduled 2 times within the next 5ms, before being
+> really stopped.
+>
+> Sadly, I could not reproduce that in a smaller example yet.
+>
+> As this behaviour is IMA against the SIGSTOP concept, I tried to analyze
+> the kernel code responsible for that. I could not really find the exact
+> lines.
+>
+> So here are my questions:
+>
+> 1. do you know any reason for which the SIGSTOP would not stop
+> immediatly all threads of a process?
+>
+> 2. where do the threads get suspended exactly in the kernel? I think it
+> is in signal.c but I am not sure exactly were.
+>
+> 3. can you confirm that the bug MUST be in my code? :)
+>
+> Thanks!
+>
+> Best regards
+>
+> Olivier
 
-My point is simply that the timer for the next interval should start at 
-the time the timer expires, not the time that userspace picks up the 
-prior expiration.  Throttling the timer rate should be done at the time 
-of timer request rather than timer expiry.
 
-If I have usec-accuracy in the timer subsystem, I should be able to set 
-a timer with an interval of 9.999ms and have it remain accurate over 
-time (subject to scheduler jitter, of course).  N timer intervals later 
-my timer should expire at (original_time + N*9.999ms + jitter).  In this 
-case the error is roughly constant with time.
+The kernel doesn't do SIGSTOP or SIGCONT. Within init, there is
+a SIGSTOP and SIGCONT handler. These can be inherited by others
+unless changed, perhaps by a 'C' runtime library. Basically,
+the SIGSTOP handler executes pause() until the SIGCONT signal
+is received.
 
-If the timer doesn't start counting the next interval until the user 
-detects expiry, I'm going to get some non-zero addition to *each* 
-interval such that my timers will not remain accurate over long periods 
-of time.  In this case N timer intervals later my timer will expire at 
-(original_time + N*(9.999ms + jitter)) which is a very different thing. 
-  Since jitter will always be positive, the error increases with time.
+Any delay in stopping is the time necessary for the signal to
+be delivered. It is possible that the section of code that
+contains the STOP/CONT handler was paged out and needs to be
+paged in before the signal can be delivered.
 
-Chris
+You might quicken this up by installing your own handler for
+SIGSTOP and SIGCONT....
+
+static int stp;
+
+static void contsig(int sig)	// SIGCONT handler
+{
+    stp = 0;
+}
+
+static void stopsig(int sig)  // SIGSTOP handler
+{
+     stp = 1;
+     while(stp)
+         pause();
+}
+
+Put this near the code that will be executing most of the time.
+
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

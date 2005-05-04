@@ -1,75 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262053AbVEDHeE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbVEDHCQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262053AbVEDHeE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 03:34:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbVEDHd0
+	id S261600AbVEDHCQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 03:02:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbVEDHCQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 03:33:26 -0400
-Received: from smtp.seznam.cz ([212.80.76.43]:12218 "HELO smtp.seznam.cz")
-	by vger.kernel.org with SMTP id S262072AbVEDHaL (ORCPT
+	Wed, 4 May 2005 03:02:16 -0400
+Received: from mail.kroah.org ([69.55.234.183]:47844 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261600AbVEDHCI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 03:30:11 -0400
-Date: Wed, 4 May 2005 08:14:38 +0200
-To: Greg KH <greg@kroah.com>
-Cc: Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <sensors@Stimpy.netroedge.com>,
-       James Chapman <jchapman@katalix.com>
-Subject: [PATCH] ds1337 3/3
-Message-ID: <20050504061438.GD1439@orphique>
-References: <20050407231848.GD27226@orphique> <u5mZNEX1.1112954918.3200720.khali@localhost> <20050408130639.GC7054@orphique> <20050502204136.GE32713@kroah.com>
+	Wed, 4 May 2005 03:02:08 -0400
+Date: Wed, 4 May 2005 00:01:07 -0700
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: [GIT PATCH] PCI bugfixes for 2.6.12-rc3
+Message-ID: <20050504070107.GA17791@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050502204136.GE32713@kroah.com>
-User-Agent: Mutt/1.5.9i
-From: Ladislav Michl <ladis@linux-mips.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chip is searched by bus number rather than its own proprietary id.
+Here are a number of PCI bugfixes for 2.6.12-rc3.  They include a
+long-standing 64bit sysfs pci bug (has been fixed in the SuSE kernels
+for months) and some PCI hotplug bugfixes (hopefully the drivers are all
+now working again...) Almost all of these patches have been in the past
+few -mm releases.
 
-Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
-Signed-off-by: James Chapman <jchapman@katalix.com>
+Pull from:
+	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
 
---- linux-omap/drivers/i2c/chips/ds1337.c.orig	2005-04-20 20:34:31.622721568 +0200
-+++ linux-omap/drivers/i2c/chips/ds1337.c	2005-04-20 20:50:05.043819992 +0200
-@@ -69,13 +69,11 @@
- struct ds1337_data {
- 	struct i2c_client client;
- 	struct list_head list;
--	int id;
- };
- 
- /*
-  * Internal variables
-  */
--static int ds1337_id;
- static LIST_HEAD(ds1337_clients);
- 
- static inline int ds1337_read(struct i2c_client *client, u8 reg, u8 *value)
-@@ -213,7 +211,7 @@
-  * Public API for access to specific device. Useful for low-level
-  * RTC access from kernel code.
-  */
--int ds1337_do_command(int id, int cmd, void *arg)
-+int ds1337_do_command(int bus, int cmd, void *arg)
- {
- 	struct list_head *walk;
- 	struct list_head *tmp;
-@@ -221,7 +219,7 @@
- 
- 	list_for_each_safe(walk, tmp, &ds1337_clients) {
- 		data = list_entry(walk, struct ds1337_data, list);
--		if (data->id == id)
-+		if (data->client.adapter->nr == bus)
- 			return ds1337_command(&data->client, cmd, arg);
- 	}
- 
-@@ -331,7 +329,6 @@
- 	ds1337_init_client(new_client);
- 
- 	/* Add client to local list */
--	data->id = ds1337_id++;
- 	list_add(&data->list, &ds1337_clients);
- 
- 	return 0;
+Full patches will be sent to the linux-kernel and linux-pci mailing lists, if
+anyone wants to see them.
+
+thanks,
+
+greg k-h
+
+ Documentation/pci.txt                |    1 
+ Documentation/power/pci.txt          |   35 --------------
+ arch/arm/mach-ixp4xx/common-pci.c    |   10 ----
+ drivers/pci/hotplug/ibmphp.h         |    2 
+ drivers/pci/hotplug/ibmphp_hpc.c     |    6 +-
+ drivers/pci/hotplug/ibmphp_pci.c     |    7 ++
+ drivers/pci/hotplug/pci_hotplug.h    |    2 
+ drivers/pci/hotplug/pciehp_core.c    |   23 +++++++--
+ drivers/pci/hotplug/pcihp_skeleton.c |    2 
+ drivers/pci/msi.c                    |    6 +-
+ drivers/pci/pci-acpi.c               |    2 
+ drivers/pci/pci-driver.c             |   11 ++++
+ drivers/pci/pci-sysfs.c              |   82 ++++++++++++++++++++++++-----------
+ drivers/pci/pci.c                    |   20 +-------
+ drivers/pci/probe.c                  |    1 
+ drivers/pci/proc.c                   |    1 
+ drivers/pci/quirks.c                 |    2 
+ include/linux/pci.h                  |    3 -
+ 18 files changed, 113 insertions(+), 103 deletions(-)
+
+
+<ssant:in.ibm.com>:
+  o PCI: fix up word-aligned 16-bit PCI config access through sysfs This patch adds the possibility to do word-aligned 16-bit atomic PCI configuration space accesses via the sysfs PCI interface. As a result, problems with Emulex LFPC on IBM PowerPC64 are fixed.
+
+Adrian Bunk:
+  o PCI: drivers/pci/pci.c: remove pci_dac_set_dma_mask pci_dac_set_dma_mask is currently completely unused.
+
+Dely Sy:
+  o PCI Hotplug: fix pciehp regression I fogot to remove the code that freed the memory in cleanup_slots().
+
+Greg Kroah-Hartman:
+  o PCI: Add pci shutdown ability Now pci drivers can know when the system is going down without having to add a reboot notifier event.
+  o PCI: Clean up a lot of sparse "Should it be static?" warnings
+
+Matthew Wilcox:
+  o PCI: update PCI documentation for pci_get_slot() depreciation pci_find_slot() doesn't work on multiple-domain boxes so pci_get_slot() should be used instead.
+
+Pavel Machek:
+  o PCI: fix stale PCI pm docs This fixes u32 vs. pm_message_t confusion in documentation, and removes references to no-longer-existing (*save_state), too. With exception of USB (I hope David will fix/apply my patch), this should fix last piece of this confusion... famous last words.
+
+Rolf Eike Beer:
+  o PCI Hotplug ibmphp_pci.c: Fix masking out needed information too early here is the patch that fixes the bug introduced by my previous patch which already went into 2.6.12-rc2 and is likely to cause trouble is someone hits
+
+Rudolf Marek:
+  o PCI: Rapid Hance quirk This patch just adds Intel's Hance Rapid south bridge IDs to ICH4 region quirk.
+
+Steven Cole:
+  o PCI: Spelling fixes for drivers/pci
+
+

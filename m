@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261171AbVEDR50@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261216AbVEDRzg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261171AbVEDR50 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 13:57:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbVEDRz5
+	id S261216AbVEDRzg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 13:55:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbVEDRzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 13:55:57 -0400
-Received: from lug-owl.de ([195.71.106.12]:52111 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S261175AbVEDRyX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 13:54:23 -0400
-Date: Wed, 4 May 2005 19:54:22 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] update SubmittingPatches to clarify attachment policy
-Message-ID: <20050504175422.GY24187@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20050504170156.87F67CE5@kernel.beaverton.ibm.com> <9e47339105050410107d9193b2@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <9e47339105050410107d9193b2@mail.gmail.com>
-X-Operating-System: Linux mail 2.6.10-rc2-bk5lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 4 May 2005 13:55:35 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:26810 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261228AbVEDRyy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 13:54:54 -0400
+Date: Wed, 4 May 2005 13:54:48 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Nikita Danilov <nikita@clusterfs.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] cleanup of use-once
+In-Reply-To: <17015.26421.403622.767581@gargle.gargle.HOWL>
+Message-ID: <Pine.LNX.4.61.0505041351440.18390@chimarrao.boston.redhat.com>
+References: <Pine.LNX.4.61.0505030037100.27756@chimarrao.boston.redhat.com>
+ <17015.26421.403622.767581@gargle.gargle.HOWL>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-05-04 13:10:35 -0400, Jon Smirl <jonsmirl@gmail.com> wrote:
-> On 5/4/05, Dave Hansen <haveblue@us.ibm.com> wrote:
-> > 
-> > I think the general opinion of posting patches as attachments
-> > has changed over the last few years.  Mailers have been getting
-> > a lot better at handling them, even quoting non-message-body
-> > plain/text attachments in replies.
+On Tue, 3 May 2005, Nikita Danilov wrote:
+
+> So file system pages never get to the active list? Hmm... this doesn't
+> sound right.
+
+Yes they will, I changed vmscan.c to compensate.
+
+>  > +		if (referenced) {
+>  > +			/* New page. Let's see if it'll get used again... */
+>  > +			if (TestClearPageNew(page))
+>  > +				goto keep_locked;
+>  >  			goto activate_locked;
+>  > +		}
 > 
-> There is also the problem of things like gmail/yahoo where you can't
-> control the word wrapping.  The only way to submit patches from those
-> services is as an plain text attachment. If you try to submit then
-> in-line and they wrap wrong you will collect a lot of hate mail from
-> Andrew.
+> This will screw scanning most likely: no referenced page is ever
+> reclaimed unless lowest scanning priority is reached---this looks like
+> sure way to oom and has capacity to increase CPU consumption
+> significantly.
 
-Well, why should someone use a broken mail service at all?
+Doubtful, the VM always manages to clear the referenced bits
+faster than they can be set, especially on pages that aren't
+even mapped!
 
-MfG, JBG
+The problem you describe should be a lot worse for mapped
+pages, where we already do not run into the problem, despite
+the VM taking no precautions.
 
 -- 
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             _ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  _ _ O
- fuer einen Freien Staat voll Freier Bürger" | im Internet! |   im Irak!   O O O
-ret = do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA));
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

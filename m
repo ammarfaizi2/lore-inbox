@@ -1,47 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261964AbVEDB3s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261972AbVEDBvj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261964AbVEDB3s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 21:29:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbVEDB3s
+	id S261972AbVEDBvj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 21:51:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbVEDBvj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 21:29:48 -0400
-Received: from animx.eu.org ([216.98.75.249]:57992 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S261964AbVEDB3r (ORCPT
+	Tue, 3 May 2005 21:51:39 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:22409 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S261972AbVEDBvg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 21:29:47 -0400
-Date: Tue, 3 May 2005 21:29:10 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: shogunx <shogunx@sleekfreak.ath.cx>
-Cc: segin <segin11@yahoo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: zImage on 2.6?
-Message-ID: <20050504012910.GC13360@animx.eu.org>
-Mail-Followup-To: shogunx <shogunx@sleekfreak.ath.cx>,
-	segin <segin11@yahoo.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20050503223148.GF12199@animx.eu.org> <Pine.LNX.4.44.0505032026360.1510-100000@sleekfreak.ath.cx>
+	Tue, 3 May 2005 21:51:36 -0400
+Subject: Re: tricky challenge for getting round level-driven interrupt
+	problem: help!
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux ARM Kernel list 
+	<linux-arm-kernel@lists.arm.linux.org.uk>
+In-Reply-To: <20050503215634.GH8079@lkcl.net>
+References: <20050503215634.GH8079@lkcl.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1115171395.14869.147.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0505032026360.1510-100000@sleekfreak.ath.cx>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 04 May 2005 02:50:01 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-shogunx wrote:
-> On Tue, 3 May 2005, Wakko Warner wrote:
-> 
-> On an interesting side note, when running linux on IBM rs/6000, which is
-> a ppc64 machine, one must use a zImage kernel dd'ed into a small PReP
-> partition to boot the machine... bzImage kernels will not work.
+On Maw, 2005-05-03 at 22:56, Luke Kenneth Casson Leighton wrote:
+> it only does level-based interrupts and i need to create a driver
+> that does two-way 8-bit data communication.
 
-Some time ago, I thought they decided to make zImage = bzImage.  That was
-going through my mind when I tried "make zImage" and was actually surprised
-it didn't work.
+Level triggered is generally considered a feature by people less than
+200 years old 8)
 
-So I guess for some arches (x86 in this case) they could either make zImage
-= bzImage or just remove it.  Although I'm not sure how many people actually
-try it anymore =)
+> i would genuinely appreciate some advice from people with
+> more experience than i on how to go about getting round
+> this stupid hardware design - in order to make a RELIABLE,
+> non-race-conditioned kernel driver.
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Assuming you are using the core Linux IRQ code then you shouldn't have
+any great problem. The basic rules with level triggered IRQ are that 
+
+- You must ack the IRQ on the device to clear it either specifically or
+as part of some other process.
+- The device must raise the IRQ again if the irq condition is present
+*at* or after the point of the IRQ ack (or in many implementations 'just
+before' in fact)
+
+the core Linux code deals with masking on the controller to ensure IRQ's
+dont get called recursively, and ensuring an IRQ gets rechecked/recalled
+on the unmask/exit path if it is still asserted.
+
+So an implementation is much like a serial port fifo, assert the IRQ
+until the PC has fetched all the bits. In fact the IRQ line is
+essentially "NOT(fifo_empty)" and rechecked each time a byte is fetched.
+
+*WAY* simpler than nasty edge triggered stuff 8)
+
+Alan
+

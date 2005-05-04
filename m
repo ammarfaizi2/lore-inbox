@@ -1,62 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261972AbVEDBvj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261980AbVEDCIP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261972AbVEDBvj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 May 2005 21:51:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbVEDBvj
+	id S261980AbVEDCIP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 May 2005 22:08:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbVEDCIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 May 2005 21:51:39 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:22409 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S261972AbVEDBvg (ORCPT
+	Tue, 3 May 2005 22:08:15 -0400
+Received: from aibo.runbox.com ([193.71.199.94]:5281 "EHLO cujo.runbox.com")
+	by vger.kernel.org with ESMTP id S261980AbVEDCII (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 May 2005 21:51:36 -0400
-Subject: Re: tricky challenge for getting round level-driven interrupt
-	problem: help!
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux ARM Kernel list 
-	<linux-arm-kernel@lists.arm.linux.org.uk>
-In-Reply-To: <20050503215634.GH8079@lkcl.net>
-References: <20050503215634.GH8079@lkcl.net>
-Content-Type: text/plain
+	Tue, 3 May 2005 22:08:08 -0400
+Message-ID: <42782F20.5080401@dwheeler.com>
+Date: Tue, 03 May 2005 22:10:40 -0400
+From: "David A. Wheeler" <dwheeler@dwheeler.com>
+Reply-To: dwheeler@dwheeler.com
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bill Davidsen <davidsen@tmr.com>
+CC: Valdis.Kletnieks@vt.edu, Andrea Arcangeli <andrea@suse.de>,
+       Matt Mackall <mpm@selenic.com>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
+Subject: Re: Mercurial 0.4b vs git patchbomb benchmark (/usr/bin/env again)
+References: <20050430025211.GP17379@opteron.random> <200505021614.j42GEufG008441@turing-police.cc.vt.edu> <4277B778.5020206@tmr.com>
+In-Reply-To: <4277B778.5020206@tmr.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1115171395.14869.147.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 04 May 2005 02:50:01 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-05-03 at 22:56, Luke Kenneth Casson Leighton wrote:
-> it only does level-based interrupts and i need to create a driver
-> that does two-way 8-bit data communication.
+Valdis.Kletnieks@vt.edu wrote:
+>> Most likely, his python lives elsewhere than /usr/bin, and the 'env' call
+>> results in causing a walk across $PATH to find it....
 
-Level triggered is generally considered a feature by people less than
-200 years old 8)
+Bill Davidsen wrote:
+> Assuming that he has env in a standard place... I hope this isn't going 
+> to start some rash of efforts to make packages run on non-standard 
+> toolchains, which add requirements for one tool to get around 
+> misplacement of another.
 
-> i would genuinely appreciate some advice from people with
-> more experience than i on how to go about getting round
-> this stupid hardware design - in order to make a RELIABLE,
-> non-race-conditioned kernel driver.
+The #!/usr/bin/env prefix is, in my opinion, a very good idea.
+There are a very few systems where env isn't in /usr/bin, but they
+were extremely rare years ago & are essentially extinct now.
+Basically, it's a 99% solution; getting the last 1% is really painful,
+but since getting the 99% is easy, let's do it and be happy.
 
-Assuming you are using the core Linux IRQ code then you shouldn't have
-any great problem. The basic rules with level triggered IRQ are that 
+There are LOTS of systems where Python, bash, etc., do NOT
+live in whatever place you think of as "standard".
+I routinely use an OpenBSD 3.1 system; there is no /usr/bin/bash,
+but there _IS_ a /usr/local/bin/bash (in my PATH) and a /usr/bin/env.
+So this /usr/bin/env stuff REALLY is useful on a lot of systems, such
+as OpenBSD.  It's critical to me, at least!
 
-- You must ack the IRQ on the device to clear it either specifically or
-as part of some other process.
-- The device must raise the IRQ again if the irq condition is present
-*at* or after the point of the IRQ ack (or in many implementations 'just
-before' in fact)
+This is actually really useful on ANY system, though.
+Even if some interpreter IS where you think it should be,
+that is NOT necessarily the interpreter you want to use.
+Using "/usr/bin/env" lets you use PATH
+to override things, so you don't HAVE to use the interpreter
+in some fixed location.  That's REALLY handy for testing... I
+can download the whizbang Python 9.8.2, set it on the path,
+and see if everything works as expected.  It's also nice
+if someone insists on never upgrading a package; you can
+install an interpreter "locally".  Yes, you can patch all the
+files up, but resetting a PATH is _much_ easier.
 
-the core Linux code deals with masking on the controller to ensure IRQ's
-dont get called recursively, and ensuring an IRQ gets rechecked/recalled
-on the unmask/exit path if it is still asserted.
-
-So an implementation is much like a serial port fifo, assert the IRQ
-until the PC has fetched all the bits. In fact the IRQ line is
-essentially "NOT(fifo_empty)" and rechecked each time a byte is fetched.
-
-*WAY* simpler than nasty edge triggered stuff 8)
-
-Alan
-
+--- David A. Wheeler

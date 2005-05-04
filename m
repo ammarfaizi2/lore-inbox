@@ -1,63 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbVEDRLU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbVEDRLU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261177AbVEDRLU (ORCPT <rfc822;willy@w.ods.org>);
+	id S261315AbVEDRLU (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 4 May 2005 13:11:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbVEDRIy
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbVEDRJa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 13:08:54 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:11276 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261251AbVEDRIJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 13:08:09 -0400
-Message-Id: <200505041708.j44H80lR016289@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Deepak <deepakgaur@fastmail.fm>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Hanged/Hunged process in Linux 
-In-Reply-To: Your message of "Wed, 04 May 2005 14:38:48 +0900."
-             <1115185128.12535.233322099@webmail.messagingengine.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <1115185128.12535.233322099@webmail.messagingengine.com>
+	Wed, 4 May 2005 13:09:30 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:4764 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261209AbVEDRIU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 13:08:20 -0400
+Date: Wed, 4 May 2005 18:08:04 +0100
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>
+Subject: [PATCH] device-mapper: [5/5] Tidy dm_suspend
+Message-ID: <20050504170804.GR10195@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Christoph Hellwig <hch@lst.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1115226479_4721P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 04 May 2005 13:08:00 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1115226479_4721P
-Content-Type: text/plain; charset=us-ascii
+Tidy dm_suspend.
 
-On Wed, 04 May 2005 14:38:48 +0900, Deepak said:
-> I am working on a Linux based system and developing a monitoring process
-> which shall do the following function
-
-> Anybody having another definition for a "Hanged process" in Linux
-> context
-
-Around here, the big issue is usually a process stuck in 'D' state - in
-other words, a process that's done a syscall or otherwise entered the
-kernel (page faults and AIO being other possibilities) and hasn't returned.
-Since signals are delivered at return time, even a 'kill -9' wont do the
-desired thing.  These are almost always the result of either kernel bugs
-or hardware failures.
-
-There was a lengthy thread a while ago about how to deal with these, and the
-consensus was that there's *NO* good general way to un-wedge such a process,
-and that fixing the underlying bug or hardware fault is the only way to deal
-with it.
-
---==_Exmh_1115226479_4721P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCeQFvcC3lWbTT17ARAmGUAKDxLax6U1n+ENwKZKYS6/TPoFdRhgCg3q6z
-ia04Qu/3ql9mTzQXnnceqrE=
-=8pEM
------END PGP SIGNATURE-----
-
---==_Exmh_1115226479_4721P--
+Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
+From: Christoph Hellwig <hch@lst.de>
+--- diff/drivers/md/dm.c	2005-04-21 16:08:19.000000000 +0100
++++ source/drivers/md/dm.c	2005-04-21 16:09:16.000000000 +0100
+@@ -1048,20 +1048,16 @@
+ {
+ 	struct dm_table *map;
+ 	DECLARE_WAITQUEUE(wait, current);
+-	int error;
++	int error = -EINVAL;
+ 
+ 	/* Flush I/O to the device. */
+ 	down_read(&md->lock);
+-	if (test_bit(DMF_BLOCK_IO, &md->flags)) {
+-		up_read(&md->lock);
+-		return -EINVAL;
+-	}
++	if (test_bit(DMF_BLOCK_IO, &md->flags))
++		goto out_read_unlock;
+ 
+ 	error = __lock_fs(md);
+-	if (error) {
+-		up_read(&md->lock);
+-		return error;
+-	}
++	if (error)
++		goto out_read_unlock;
+ 
+ 	map = dm_get_table(md);
+ 	if (map)
+@@ -1075,15 +1071,14 @@
+ 	 * If the flag is already set we know another thread is trying to
+ 	 * suspend as well, so we leave the fs locked for this thread.
+ 	 */
++	error = -EINVAL;
+ 	down_write(&md->lock);
+-	if (test_bit(DMF_BLOCK_IO, &md->flags)) {
+-		up_write(&md->lock);
++	if (test_and_set_bit(DMF_BLOCK_IO, &md->flags)) {
+ 		if (map)
+ 			dm_table_put(map);
+-		return -EINVAL;
++		goto out_write_unlock;
+ 	}
+ 
+-	set_bit(DMF_BLOCK_IO, &md->flags);
+ 	add_wait_queue(&md->wait, &wait);
+ 	up_write(&md->lock);
+ 
+@@ -1111,13 +1106,9 @@
+ 	remove_wait_queue(&md->wait, &wait);
+ 
+ 	/* were we interrupted ? */
+-	if (atomic_read(&md->pending)) {
+-		/* FIXME Undo the presuspend_targets */
+-		__unlock_fs(md);
+-		clear_bit(DMF_BLOCK_IO, &md->flags);
+-		up_write(&md->lock);
+-		return -EINTR;
+-	}
++	error = -EINTR;
++	if (atomic_read(&md->pending))
++		goto out_unfreeze;
+ 
+ 	set_bit(DMF_SUSPENDED, &md->flags);
+ 
+@@ -1128,6 +1119,18 @@
+ 	up_write(&md->lock);
+ 
+ 	return 0;
++
++out_unfreeze:
++	/* FIXME Undo dm_table_presuspend_targets */
++	__unlock_fs(md);
++	clear_bit(DMF_BLOCK_IO, &md->flags);
++out_write_unlock:
++	up_write(&md->lock);
++	return error;
++
++out_read_unlock:
++	up_read(&md->lock);
++	return error;
+ }
+ 
+ int dm_resume(struct mapped_device *md)

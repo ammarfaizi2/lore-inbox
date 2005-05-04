@@ -1,53 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261866AbVEDPMj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261876AbVEDPUy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261866AbVEDPMj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 11:12:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261871AbVEDPMj
+	id S261876AbVEDPUy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 11:20:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbVEDPUy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 11:12:39 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:20138 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261866AbVEDPMh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 11:12:37 -0400
-Date: Wed, 4 May 2005 16:12:31 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: Andrew Morton <akpm@osdl.org>, Nathan Scott <nathans@sgi.com>,
-       Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc3-mm2
-Message-ID: <20050504151231.GA24105@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Barry K. Nathan" <barryn@pobox.com>, Andrew Morton <akpm@osdl.org>,
-	Nathan Scott <nathans@sgi.com>, Pavel Machek <pavel@suse.cz>,
-	linux-kernel@vger.kernel.org
-References: <20050430164303.6538f47c.akpm@osdl.org> <20050503133759.GA7647@ip68-225-251-162.oc.oc.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050503133759.GA7647@ip68-225-251-162.oc.oc.cox.net>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 4 May 2005 11:20:54 -0400
+Received: from mail.3miasto.net ([153.19.176.2]:39654 "EHLO serwer.3miasto.net")
+	by vger.kernel.org with ESMTP id S261876AbVEDPUo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 11:20:44 -0400
+Date: Wed, 4 May 2005 17:20:36 +0200 (CEST)
+From: Leszek Koltunski <leszek@serwer.3miasto.net>
+To: linux-kernel@vger.kernel.org
+Subject: Cannot read from /dev/kmem
+Message-ID: <Pine.NEB.4.60.0505041712240.12334@serwer.3miasto.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 03, 2005 at 06:37:59AM -0700, Barry K. Nathan wrote:
-> I would like to see the following patch added to -mm:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=111326617622941&w=2
-> 
-> (I'm guessing that Nathan Scott will need to resubmit it with proper
-> changelog information.)
-> 
-> The patch fixes a problem where compiling XFS into the kernel (as
-> opposed to a module) causes swsusp resumes to be waaay slower than they
-> should be.
-> 
-> It's been tested and found to work by Pavel Machek:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=111331702916365&w=2
-> as well as myself:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=111330749723995&w=2
-> and I've been running with it for the last couple of weeks now with no
-> problems.
 
-Nathan is on paternity leave the next weeks, I'll send Andrew a bunch of
-XFS updates one of the next days.
+Kernel 2.6.11 , I cannot seem to be able to read from /dev/kmem... The 
+following little proggie
+
+#include <stdio.h>
+#include <fcntl.h>
+#include <errno.h>
+
+struct {
+         unsigned short limit;
+         unsigned int base;
+} __attribute__ ((packed)) idtr;
+
+struct {
+         unsigned short off1;
+         unsigned short sel;
+         unsigned char none,flags;
+         unsigned short off2;
+} __attribute__ ((packed)) idt;
+
+int main()
+{
+         int result, kmem = open ("/dev/kmem",O_RDONLY);
+
+         asm ("sidt %0" : "=m" (idtr));
+         printf("idtr base at 0x%X\n",(int)idtr.base);
+
+         if (kmem<0) return 1;
+
+         if (lseek(kmem,  idtr.base + 8*0x80,SEEK_SET) != idtr.base + 
+8*0x80 )
+         {
+                 perror("kmem lseek"); exit(1);
+         }
+
+         result = read(kmem, &idt , sizeof(idt) );
+
+         if( result != sizeof(idt) )
+         {
+                 printf("result: %d, sizeof(idt)= %d errno=%d\n", result, 
+sizeof(idt), errno);
+         }
+
+         close(kmem);
+
+         return 0;
+}
+
+
+
+returns
+
+utumno:/home/leszek/progs/module/hijack# ./test
+idtr base at 0xC0423000
+result: -1, sizeof(idt)= 8 errno=22
+
+
+??? EINVAL
+
+I remember this working on a 2.4.x kernel....
+
+Leszek Koltunski

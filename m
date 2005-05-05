@@ -1,75 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261975AbVEEA2P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261979AbVEEAeA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261975AbVEEA2P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 20:28:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbVEEA2P
+	id S261979AbVEEAeA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 20:34:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbVEEAeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 20:28:15 -0400
-Received: from ozlabs.org ([203.10.76.45]:40682 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261975AbVEEA2J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 20:28:09 -0400
-Date: Thu, 5 May 2005 10:27:59 +1000
-From: David Gibson <hermes@gibson.dropbear.id.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Pavel Roskin <proski@gnu.org>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: [proski@gnu.org: [PATCH] Mailing lists, homepage for orinoco driver]
-Message-ID: <20050505002759.GB18270@localhost.localdomain>
-Mail-Followup-To: David Gibson <hermes@gibson.dropbear.id.au>,
-	Andrew Morton <akpm@osdl.org>, Pavel Roskin <proski@gnu.org>,
-	netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 4 May 2005 20:34:00 -0400
+Received: from alog0211.analogic.com ([208.224.220.226]:10216 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261979AbVEEAd5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 20:33:57 -0400
+Date: Wed, 4 May 2005 20:33:42 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Daniel Jacobowitz <dan@debian.org>
+cc: Olivier Croquette <ocroquette@free.fr>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduler: SIGSTOP on multi threaded processes
+In-Reply-To: <20050504191604.GA29730@nevyn.them.org>
+Message-ID: <Pine.LNX.4.61.0505042031120.22323@chaos.analogic.com>
+References: <4279084C.9030908@free.fr> <Pine.LNX.4.61.0505041403310.21458@chaos.analogic.com>
+ <20050504191604.GA29730@nevyn.them.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think this can go straight to Andrew and Linus, without having to go
-via netdev.  Andrew, please apply.
+On Wed, 4 May 2005, Daniel Jacobowitz wrote:
 
-Acked-by: David Gibson <hermes@gibson.dropbear.id.au>
+> On Wed, May 04, 2005 at 02:16:24PM -0400, Richard B. Johnson wrote:
+>> The kernel doesn't do SIGSTOP or SIGCONT. Within init, there is
+>> a SIGSTOP and SIGCONT handler. These can be inherited by others
+>> unless changed, perhaps by a 'C' runtime library. Basically,
+>> the SIGSTOP handler executes pause() until the SIGCONT signal
+>> is received.
+>>
+>> Any delay in stopping is the time necessary for the signal to
+>> be delivered. It is possible that the section of code that
+>> contains the STOP/CONT handler was paged out and needs to be
+>> paged in before the signal can be delivered.
+>>
+>> You might quicken this up by installing your own handler for
+>> SIGSTOP and SIGCONT....
+>
+> I don't know what RTOSes you've been working with recently, but none of
+> the above is true for Linux.  I don't think it ever has been.
+>
+> -- 
+> Daniel Jacobowitz
+> CodeSourcery, LLC
+>
 
+Grab a copy of your favorite init source. SIGSTOP and SIGCONT are
+signals. They are handled by signal handlers, always have been
+on Unix and Unix clones like Linux.
 
------ Forwarded message from Pavel Roskin <proski@gnu.org> -----
-
-Subject: [PATCH] Mailing lists, homepage for orinoco driver
-From: Pavel Roskin <proski@gnu.org>
-To: David Gibson <hermes@gibson.dropbear.id.au>, netdev@oss.sgi.com
-Date: Thu, 21 Apr 2005 22:23:23 -0400
-
-Hello!
-
-Please add mailing list addresses for Orinoco and update its homepage.
-
-Signed-off-by: Pavel Roskin <proski@gnu.org>
-
-MAINTAINERS: 4333b69e56bdefdbc30858e0d4ccaf887d9b2ae0
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -1699,7 +1699,9 @@ P:	Pavel Roskin
- M:	proski@gnu.org
- P:	David Gibson
- M:	hermes@gibson.dropbear.id.au
--W:	http://www.ozlabs.org/people/dgibson/dldwd
-+L:	orinoco-users@lists.sourceforge.net
-+L:	orinoco-devel@lists.sourceforge.net
-+W:	http://www.nongnu.org/orinoco/
- S:	Maintained
- 
- PARALLEL PORT SUPPORT
-
-
--- 
-Regards,
-Pavel Roskin
-
-
------ End forwarded message -----
-
--- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/people/dgibson
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

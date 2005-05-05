@@ -1,78 +1,166 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262028AbVEEKR6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262026AbVEEKRw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262028AbVEEKR6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 06:17:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbVEEKR6
+	id S262026AbVEEKRw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 06:17:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbVEEKRv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 06:17:58 -0400
-Received: from bernache.ens-lyon.fr ([140.77.167.10]:10390 "EHLO
-	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S262028AbVEEKRp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 06:17:45 -0400
-Message-ID: <4279F2B3.4010409@ens-lyon.org>
-Date: Thu, 05 May 2005 12:17:23 +0200
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>, trond.myklebust@fys.uio.no
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Crash when unmounting NFS/TCP with -f
-References: <4268EEC9.8010305@ens-lyon.org> <426945CC.6040100@tmr.com> <426DF305.7060109@ens-lyon.org>
-In-Reply-To: <426DF305.7060109@ens-lyon.org>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-X-Spam-Report: 
+	Thu, 5 May 2005 06:17:51 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:63128 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262026AbVEEKRo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 06:17:44 -0400
+Date: Thu, 5 May 2005 12:17:26 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: [patch] swsusp: clean assembly parts
+Message-ID: <20050505101726.GA6124@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brice Goglin a écrit :
-> The ssh command is just
-> $ ssh kwad -L 2249:localhost:2049 -L 2248:localhost:870 -N -f
-> (port is forwarded to 2249 while mountport if forwarded to 2248)
-> 
-> Options is /proc/mounts are
-> rw,v2,rsize=8192,wsize=8192,hard,tcp,nolock,addr=localhost
-> 
-> I just had another network failure. I ran umount -f from vt1 to see
-> kernel message. I waited for about 1 minute but didn't get any crash.
-> So I switched back to X... and got the crash then.
-> Looks like this crash doesn't want me to see any message...
+This patch fixes register saving so that each register is only
+saved once, and adds missing saving of %cr8 on x86-64. Some reordering
+so that save/restore is more logical/safer (segment registers should be
+restored after gdt).
 
-I just got it through netconsole.
-Unfortunatelly, the call trace doesn't appear.
-Maybe the netconsole didn't have time send it before crashing.
-Hope this helps.
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-Brice
+---
+commit 1f9ca1262e6b27dde44d456a87c456d15f0a9b80
+tree de65e7579ed050d324357e3040b37c561676ab7d
+parent e8108c98dd6d65613fa0ec9d2300f89c48d554bf
+author <pavel@amd.(none)> 1114677870 +0200
+committer <pavel@amd.(none)> 1114677870 +0200
+
+Index: arch/i386/power/cpu.c
+===================================================================
+--- 3608de2fc88b062070a9d197eda9cac1fb9635d3/arch/i386/power/cpu.c  (mode:100644 sha1:cf337c673d92a23d2d3ed339ec6e3065998a0a5e)
++++ de65e7579ed050d324357e3040b37c561676ab7d/arch/i386/power/cpu.c  (mode:100644 sha1:3e7e54b402a6ad11bbace158ab5d399a4efd149b)
+@@ -44,7 +44,6 @@
+ 	 */
+ 	asm volatile ("sgdt %0" : "=m" (ctxt->gdt_limit));
+ 	asm volatile ("sidt %0" : "=m" (ctxt->idt_limit));
+-	asm volatile ("sldt %0" : "=m" (ctxt->ldt));
+ 	asm volatile ("str %0"  : "=m" (ctxt->tr));
+ 
+ 	/*
+@@ -107,7 +106,6 @@
+ 
+ void __restore_processor_state(struct saved_context *ctxt)
+ {
+-
+ 	/*
+ 	 * control registers
+ 	 */
+@@ -117,6 +115,13 @@
+ 	asm volatile ("movl %0, %%cr0" :: "r" (ctxt->cr0));
+ 
+ 	/*
++	 * now restore the descriptor tables to their proper values
++	 * ltr is done i fix_processor_context().
++	 */
++	asm volatile ("lgdt %0" :: "m" (ctxt->gdt_limit));
++	asm volatile ("lidt %0" :: "m" (ctxt->idt_limit));
++
++	/*
+ 	 * segment registers
+ 	 */
+ 	asm volatile ("movw %0, %%es" :: "r" (ctxt->es));
+@@ -125,14 +130,6 @@
+ 	asm volatile ("movw %0, %%ss" :: "r" (ctxt->ss));
+ 
+ 	/*
+-	 * now restore the descriptor tables to their proper values
+-	 * ltr is done i fix_processor_context().
+-	 */
+-	asm volatile ("lgdt %0" :: "m" (ctxt->gdt_limit));
+-	asm volatile ("lidt %0" :: "m" (ctxt->idt_limit));
+-	asm volatile ("lldt %0" :: "m" (ctxt->ldt));
+-
+-	/*
+ 	 * sysenter MSRs
+ 	 */
+ 	if (boot_cpu_has(X86_FEATURE_SEP))
+Index: arch/x86_64/kernel/suspend.c
+===================================================================
+--- 3608de2fc88b062070a9d197eda9cac1fb9635d3/arch/x86_64/kernel/suspend.c  (mode:100644 sha1:ebaa1e37d6579b7e0912e093fc1daa4fc186646d)
++++ de65e7579ed050d324357e3040b37c561676ab7d/arch/x86_64/kernel/suspend.c  (mode:100644 sha1:6c0f402e3a889c9b7234a6ed8de80b259bd12a38)
+@@ -44,7 +44,6 @@
+ 	 */
+ 	asm volatile ("sgdt %0" : "=m" (ctxt->gdt_limit));
+ 	asm volatile ("sidt %0" : "=m" (ctxt->idt_limit));
+-	asm volatile ("sldt %0" : "=m" (ctxt->ldt));
+ 	asm volatile ("str %0"  : "=m" (ctxt->tr));
+ 
+ 	/* XMM0..XMM15 should be handled by kernel_fpu_begin(). */
+@@ -69,6 +68,7 @@
+ 	asm volatile ("movq %%cr2, %0" : "=r" (ctxt->cr2));
+ 	asm volatile ("movq %%cr3, %0" : "=r" (ctxt->cr3));
+ 	asm volatile ("movq %%cr4, %0" : "=r" (ctxt->cr4));
++	asm volatile ("movq %%cr8, %0" : "=r" (ctxt->cr8));
+ }
+ 
+ void save_processor_state(void)
+@@ -90,12 +90,20 @@
+ 	/*
+ 	 * control registers
+ 	 */
++	asm volatile ("movq %0, %%cr8" :: "r" (ctxt->cr8));
+ 	asm volatile ("movq %0, %%cr4" :: "r" (ctxt->cr4));
+ 	asm volatile ("movq %0, %%cr3" :: "r" (ctxt->cr3));
+ 	asm volatile ("movq %0, %%cr2" :: "r" (ctxt->cr2));
+ 	asm volatile ("movq %0, %%cr0" :: "r" (ctxt->cr0));
+ 
+ 	/*
++	 * now restore the descriptor tables to their proper values
++	 * ltr is done i fix_processor_context().
++	 */
++	asm volatile ("lgdt %0" :: "m" (ctxt->gdt_limit));
++	asm volatile ("lidt %0" :: "m" (ctxt->idt_limit));
++
++	/*
+ 	 * segment registers
+ 	 */
+ 	asm volatile ("movw %0, %%ds" :: "r" (ctxt->ds));
+@@ -108,14 +116,6 @@
+ 	wrmsrl(MSR_GS_BASE, ctxt->gs_base);
+ 	wrmsrl(MSR_KERNEL_GS_BASE, ctxt->gs_kernel_base);
+ 
+-	/*
+-	 * now restore the descriptor tables to their proper values
+-	 * ltr is done i fix_processor_context().
+-	 */
+-	asm volatile ("lgdt %0" :: "m" (ctxt->gdt_limit));
+-	asm volatile ("lidt %0" :: "m" (ctxt->idt_limit));
+-	asm volatile ("lldt %0" :: "m" (ctxt->ldt));
+-
+ 	fix_processor_context();
+ 
+ 	do_fpu_end();
+Index: include/asm-x86_64/suspend.h
+===================================================================
+--- 3608de2fc88b062070a9d197eda9cac1fb9635d3/include/asm-x86_64/suspend.h  (mode:100644 sha1:ec745807feae4892ec7d560e9fc930ca04591acb)
++++ de65e7579ed050d324357e3040b37c561676ab7d/include/asm-x86_64/suspend.h  (mode:100644 sha1:bb9f40597d097dacf7e08ae8de2cc23dfbb2adab)
+@@ -16,7 +16,7 @@
+ struct saved_context {
+   	u16 ds, es, fs, gs, ss;
+ 	unsigned long gs_base, gs_kernel_base, fs_base;
+-	unsigned long cr0, cr2, cr3, cr4;
++	unsigned long cr0, cr2, cr3, cr4, cr8;
+ 	u16 gdt_pad;
+ 	u16 gdt_limit;
+ 	unsigned long gdt_base;
 
 
-RPC: error 5 connecting to server localhost
-RPC: error 5 connecting to server localhost
-RPC: error 5 connecting to server localhost
-RPC: error 5 connecting to server localhost
-RPC: error 5 connecting to server localhost
-Unable to handle kernel paging request at virtual address ffffff98
- printing eip:
-e0aaa07a
-*pde = 00002067
-*pte = 00000000
-Oops: 0002 [#1]
-PREEMPT
+
+!-------------------------------------------------------------flip-
 
-Modules linked in: netconsole sd_mod usb_storage vfat fat loop isofs
-zlib_inflate nls_cp850 nls_iso8859_15 smbfs nfs lockd sunrpc i915 tun
-ipt_MASQUERADE iptable_nat ipt_state ip_conntrack iptable_filter
-ip_tables floppy uhci_hcd ehci_hcd dm_mod snd_intel8x0 snd_ac97_codec
 
-CPU:    0
-EIP:    0060:[<e0aaa07a>]    Not tainted VLI
-EFLAGS: 00010297   (2.6.11=Macvin)
-EIP is at rpc_wake_up_status+0x6a/0x80 [sunrpc]
-eax: ffffff84   ebx: d0065888   ecx: 00000001   edx: c146e000
-esi: fffffffb   edi: d0065888   ebp: d0065800   esp: c146ef14
-ds: 007b   es: 007b   ss: 0068
-Process events/0 (pid: 3, threadinfo=c146e000 task=c1473020)
-Stack: c146ef44 d0065800 00000283 fffffffb e0aa710e d0065888 fffffffb
-00120dcb c1473184 00000000 d0065904
+
+-- 
+Boycott Kodak -- for their patent abuse against Java.

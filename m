@@ -1,52 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262105AbVEENa0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262108AbVEENsc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262105AbVEENa0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 09:30:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbVEENaZ
+	id S262108AbVEENsc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 09:48:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbVEENsc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 09:30:25 -0400
-Received: from cantor.suse.de ([195.135.220.2]:2492 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S262108AbVEENaM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 09:30:12 -0400
-From: Andreas Schwab <schwab@suse.de>
-To: linux-os@analogic.com
-Cc: Daniel Jacobowitz <dan@debian.org>, Olivier Croquette <ocroquette@free.fr>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Scheduler: SIGSTOP on multi threaded processes
-References: <4279084C.9030908@free.fr>
-	<Pine.LNX.4.61.0505041403310.21458@chaos.analogic.com>
-	<20050504191604.GA29730@nevyn.them.org>
-	<Pine.LNX.4.61.0505042031120.22323@chaos.analogic.com>
-	<Pine.LNX.4.61.0505050814340.24130@chaos.analogic.com>
-X-Yow: UH-OH!!  We're out of AUTOMOBILE PARTS and RUBBER GOODS!
-Date: Thu, 05 May 2005 15:30:09 +0200
-In-Reply-To: <Pine.LNX.4.61.0505050814340.24130@chaos.analogic.com> (Richard
-	B. Johnson's message of "Thu, 5 May 2005 08:24:54 -0400 (EDT)")
-Message-ID: <jezmv9ream.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Thu, 5 May 2005 09:48:32 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:10143 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262108AbVEENs1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 09:48:27 -0400
+Subject: Re: A patch for the file kernel/fork.c
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Alexander Nyberg <alexn@dsv.su.se>
+Cc: linux-kernel@vger.kernel.org, cw@f00f.org, andre@cachola.com.br,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1115241687.2562.50.camel@localhost.localdomain>
+References: <4278E03A.1000605@cachola.com.br>
+	 <20050504175457.GA31789@taniwha.stupidest.org>
+	 <427913E4.3070908@cachola.com.br>
+	 <20050504184318.GA644@taniwha.stupidest.org>
+	 <42791CD2.5070408@cachola.com.br>
+	 <1115234213.2562.28.camel@localhost.localdomain>
+	 <20050504124104.3573e7f3.akpm@osdl.org>
+	 <1115241687.2562.50.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Thu, 05 May 2005 09:48:07 -0400
+Message-Id: <1115300887.21180.14.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <linux-os@analogic.com> writes:
+On Wed, 2005-05-04 at 23:21 +0200, Alexander Nyberg wrote:
 
-> I don't think the kernel handler gets a chance to do anything
-> because SYS-V init installs its own handler(s).
+> This patch is very crude but it is quite resistant to recursive faults
+> in do_exit(), survives the LTP hammering I've given it. The problem is
+> not knowing where in the previous path it broke down so I'd rather just
+> leave it lying around and try a graceful reset/power off. But if anyone
+> has a better suggestion than the msleep() I'm all ears but this area is
+> sensitive.
+> 
+> Where is that anonymous patch hot-line...
+> 
 
-It's impossible to install a handler for SIGSTOP.
+> +	/* We're taking recursive faults originating here in do_exit. Safest 
+> +	 * is to just leave this task alone and wait for reboot. */
+> +	if (tsk->flags & PF_EXITING) {
+> +		printk(KERN_ALERT "\nFixing recursive fault but reboot is needed!\n");
+> +		for (;;)
+> +			msleep(1000 * 10);
+> +	}
+> +
+>  	tsk->flags |= PF_EXITING;
+>  
 
-> There are comments about Linux misbehavior in the code. It turns out
-> that I was right about SIGSTOP and SIGCONT...
+Instead of the for(;;) msleep, why not just take it permanently off the
+run queue? With the following:
 
-No, you are wrong.  SIGTSTP != SIGSTOP.
+   set_current_state(TASK_UNINTERRUPTIBLE);
+   schedule();
 
-Andreas.
+It basically gives the same effect, but is cleaner.
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+-- Steve
+
+

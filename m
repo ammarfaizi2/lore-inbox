@@ -1,79 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262181AbVEETEt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262191AbVEETQw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262181AbVEETEt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 15:04:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbVEETEU
+	id S262191AbVEETQw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 15:16:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbVEETQl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 15:04:20 -0400
-Received: from c-24-22-18-178.hsd1.or.comcast.net ([24.22.18.178]:46225 "EHLO
+	Thu, 5 May 2005 15:16:41 -0400
+Received: from c-24-22-18-178.hsd1.or.comcast.net ([24.22.18.178]:49041 "EHLO
 	w-gerrit.beaverton.ibm.com") by vger.kernel.org with ESMTP
-	id S262183AbVEES3N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 14:29:13 -0400
-Message-Id: <20050505180931.874820000@us.ibm.com>
+	id S262191AbVEES3R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 14:29:17 -0400
+Message-Id: <20050505180932.333979000@us.ibm.com>
 References: <20050505180731.010896000@us.ibm.com>
-Date: Thu, 05 May 2005 11:07:42 -0700
+Date: Thu, 05 May 2005 11:07:43 -0700
 To: linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
-Subject: [patch 11/21] CKRM: Change ipaddr_port syntax
+Subject: [patch 12/21] CKRM: Check to see if my guarantee is set to DONTCARE
 From: gh@us.ibm.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 --
-Content-Disposition: inline; filename=06b-ckrm_sockc
+Content-Disposition: inline; filename=07a-numtasks_config
 
 
 Signed-Off-By: Chandra Seetharaman <sekharan@us.ibm.com>
-Signed-Off-By: Vivek Kashyap <kashyapv@us.ibm.com
+Signed-Off-By: Vivek Kashyap <kashyapv@us.ibm.com>
 Signed-Off-By: Gerrit Huizenga <gh@us.ibm.com>
 
-Change the ipaddr_port syntax from "xxx.xxx.xxx.xxx\\YY" to
-"xxx.xxx.xxx.xxx:YY" to make it easy for cut-n-paste.
+recalc and propagate was not checking for class's my_guarantee and
+my_limit againt DONT_CARE. This was leading to different wierd
+problems. This patch fixes it.
 
+ ckrm_numtasks.c |    9 ++++++---
+ 1 files changed, 6 insertions(+), 3 deletions(-)
 
- ckrm_sockc.c |   10 +++++-----
- 1 files changed, 5 insertions(+), 5 deletions(-)
-
-Index: linux-2.6.12-rc3-ckrm5/kernel/ckrm/ckrm_sockc.c
+Index: linux-2.6.12-rc3-ckrm5/kernel/ckrm/ckrm_numtasks.c
 ===================================================================
---- linux-2.6.12-rc3-ckrm5.orig/kernel/ckrm/ckrm_sockc.c	2005-05-05 09:35:09.000000000 -0700
-+++ linux-2.6.12-rc3-ckrm5/kernel/ckrm/ckrm_sockc.c	2005-05-05 09:36:27.000000000 -0700
-@@ -343,7 +343,7 @@ static int ckrm_sock_show_members(struct
- 	class_lock(core);
- 	list_for_each(lh, &core->objlist) {
- 		ns = container_of(lh, struct ckrm_net_struct, ckrm_link);
--		seq_printf(seq, "%d.%d.%d.%d\\%d\n",
-+		seq_printf(seq, "%d.%d.%d.%d:%d\n",
- 			   NIPQUAD(ns->ns_daddrv4), ns->ns_dport);
- 	}
- 	class_unlock(core);
-@@ -459,7 +459,7 @@ ckrm_sock_forced_reclassify(struct ckrm_
- 			return -EPERM;
- 		if (id != 0)
- 			return -EINVAL;
--		printk("ckrm_sock_class: reclassify all not net implemented\n");
-+		printk("socketclass: reclassify all not implemented yet\n");
- 		return 0;
- 	}
+--- linux-2.6.12-rc3-ckrm5.orig/kernel/ckrm/ckrm_numtasks.c	2005-05-05 09:35:11.000000000 -0700
++++ linux-2.6.12-rc3-ckrm5/kernel/ckrm/ckrm_numtasks.c	2005-05-05 09:36:29.000000000 -0700
+@@ -296,7 +296,8 @@ recalc_and_propagate(struct ckrm_numtask
+ 		struct ckrm_shares *self = &res->shares;
  
-@@ -478,15 +478,15 @@ ckrm_sock_forced_reclassify(struct ckrm_
- 			while (*p2 && (*p2 != '='))
- 				++p2;
- 			p2++;
--			p2 = v4toi(p2, '\\', &(v4addr));
-+			p2 = v4toi(p2, ':', &(v4addr));
- 			ns.ns_daddrv4 = htonl(v4addr);
- 			ns.ns_family = AF_INET;
--			p2 = v4toi(++p2, ':', &tmp);
-+			p2 = v4toi(++p2, '/', &tmp);
- 			ns.ns_dport = (__u16) tmp;
- 			if (*p2)
- 				p2 = v4toi(++p2, '\0', &ns.ns_pid);
- 			ckrm_sock_forced_reclassify_ns(&ns, target);
--			break;
-+			return 0;
+ 		/* calculate cnt_guarantee and cnt_limit */
+-		if (parres->cnt_guarantee == CKRM_SHARE_DONTCARE) {
++		if ((parres->cnt_guarantee == CKRM_SHARE_DONTCARE) ||
++				(self->my_guarantee == CKRM_SHARE_DONTCARE)) {
+ 			res->cnt_guarantee = CKRM_SHARE_DONTCARE;
+ 		} else if (par->total_guarantee) {
+ 			u64 temp = (u64) self->my_guarantee * parres->cnt_guarantee;
+@@ -306,7 +307,8 @@ recalc_and_propagate(struct ckrm_numtask
+ 			res->cnt_guarantee = 0;
+ 		}
  
- 		case IPV6:
- 			printk(KERN_INFO "rcfs: IPV6 not supported yet\n");
+-		if (parres->cnt_limit == CKRM_SHARE_DONTCARE) {
++		if ((parres->cnt_limit == CKRM_SHARE_DONTCARE) ||
++				(self->my_limit == CKRM_SHARE_DONTCARE)) {
+ 			res->cnt_limit = CKRM_SHARE_DONTCARE;
+ 		} else if (par->max_limit) {
+ 			u64 temp = (u64) self->my_limit * parres->cnt_limit;
+@@ -317,7 +319,8 @@ recalc_and_propagate(struct ckrm_numtask
+ 		}
+ 
+ 		/* Calculate unused units */
+-		if (res->cnt_guarantee == CKRM_SHARE_DONTCARE) {
++		if ((res->cnt_guarantee == CKRM_SHARE_DONTCARE) ||
++				(self->my_guarantee == CKRM_SHARE_DONTCARE)) {
+ 			res->cnt_unused = CKRM_SHARE_DONTCARE;
+ 		} else if (self->total_guarantee) {
+ 			u64 temp = (u64) self->unused_guarantee * res->cnt_guarantee;
 
 --
 

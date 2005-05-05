@@ -1,121 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbVEEMZh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262075AbVEEM0h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262071AbVEEMZh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 08:25:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262075AbVEEMZh
+	id S262075AbVEEM0h (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 08:26:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262076AbVEEM0h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 08:25:37 -0400
-Received: from alog0174.analogic.com ([208.224.220.189]:37769 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262071AbVEEMZQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 08:25:16 -0400
-Date: Thu, 5 May 2005 08:24:54 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Daniel Jacobowitz <dan@debian.org>
-cc: Olivier Croquette <ocroquette@free.fr>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Scheduler: SIGSTOP on multi threaded processes
-In-Reply-To: <Pine.LNX.4.61.0505042031120.22323@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.61.0505050814340.24130@chaos.analogic.com>
-References: <4279084C.9030908@free.fr> <Pine.LNX.4.61.0505041403310.21458@chaos.analogic.com>
- <20050504191604.GA29730@nevyn.them.org> <Pine.LNX.4.61.0505042031120.22323@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 5 May 2005 08:26:37 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:54149 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262075AbVEEM0R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 08:26:17 -0400
+Subject: Re: [PATCH 1b/7] dlm: core locking
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Daniel Phillips <phillips@istop.com>
+Cc: Stephen Tweedie <sct@redhat.com>, Daniel McNeil <daniel@osdl.org>,
+       David Teigland <teigland@redhat.com>, Lars Marowsky-Bree <lmb@suse.de>,
+       Steven Dake <sdake@mvista.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Patrick Caulfield <pcaulfie@redhat.com>
+In-Reply-To: <200504300509.24887.phillips@istop.com>
+References: <20050425165826.GB11938@redhat.com>
+	 <20050429040104.GB9900@redhat.com>
+	 <1114815509.18352.200.camel@ibm-c.pdx.osdl.net>
+	 <200504300509.24887.phillips@istop.com>
+Content-Type: text/plain
+Message-Id: <1115295930.1988.229.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Thu, 05 May 2005 13:25:30 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-I don't think the kernel handler gets a chance to do anything
-because SYS-V init installs its own handler(s). There are comments
-about Linux misbehavior in the code. It turns out that I was
-right about SIGSTOP and SIGCONT...
+On Sat, 2005-04-30 at 10:09, Daniel Phillips wrote:
+
+> As you know, this is how I currently determine ownership of such resources as  
+> cluster snapshot metadata and ddraid dirty log.  I find the approach 
+> distinctly unsatisfactory.  The (g)dlm is rather verbose to use, particularly 
+> taking into the account the need to have two different state machine paths, 
+> depending on whether a lock happens to master locally or not, and the need to 
+> coordinate a number of loosely coupled elements: lock status blocks, asts, 
+> the calls themselves.  The result is quite a _long_ and opaque program to do 
+> a very simple thing.
+
+Why on earth do you need to care where a lock is mastered?  Use of ASTs
+etc. should be optional, too --- you can just use blocking variants of
+the lock primitives if you want.  There's a status block, sure, but you
+can call the lock grant function synchronously and the status block is
+guaranteed unambiguously to be filled on return.  
+
+So the easy way to use the DLM for metadata ownership is simply to have
+a thread which tries, synchronously, to acquire an EX lock on a
+resource.  You get it or you stay waiting; when you get it, you own the
+metadata.  Pretty simple.  (The only real complication in this
+particular case is how to deal with the resource going away while you
+wait, eg. unmount.)
+
+> And indeed, instinct turns out to be correct: there is a far simpler way to 
+> handle this: let the oldest member of the cluster decide who owns the 
+> metadata resources.
+
+Deciding who owns it is one thing.  You still need the smarts to work
+out if recovery is *already* in progress somewhere, and to coordinate
+wakeup of whoever you've granted the new metadata ownership to, etc. 
+Using a lock effectively gets you much of that for free, once you've
+done the work to acquire the EX lock in the first place.
+
+> Good instinct.  In fact, as I've said before, you don't necessarily need a dlm 
+> in a cluster application at all.  What you need is _global synchronization_, 
+> however that is accomplished.  For example, I have found it simpler and more 
+> efficient to use network messaging for the cluster applications I've tackled 
+> so far.
+
+Yes, there is definitely room for both.  In particular, the more your
+application looks like client/server, the less appropriate a DLM is.
+
+>    This suggests to me that the dlm is going to end up pretty much as 
+> a service needed only by a cfs, and not much else.
+
+But once you've got a CFS, it suddenly becomes possible to do so much
+more in user-space in a properly distributed fashion, rather than via
+client/server.  Cluster-wide /etc/passwd?  Just lock for read, access
+the file, unlock.  Things like shared batch/print queues become easier. 
+And using messaging is often completely the wrong model for such things,
+simply because there's no server to send the message to.  A DLM will
+often be a far better fit for such applications.
+
+> The corollary of that is, 
+> we should concentrate on making the dlm work well for the cfs, and not get 
+> too wrapped up in trying to make it solve every global synchronization 
+> problem in the world.
+
+Trouble is, I think you're mixing problems here.  There are two
+different problems: whether the DLM locking model is a good primitive to
+use for a given case; and whether the specific DLM API in question is a
+good fit for the model itself.
+
+And your initial complaints about needing to know local vs. remote
+master, dealing with ASTs etc. are really complaints about the API, not
+the model.  Using blocking, interruptible APIs gets rid of the AST issue
+entirely for applications that don't need that level of complexity.  And
+you obviously want to have an API variant that doesn't care where the
+lock gets mastered --- for one thing, a remotely mastered lock can turn
+into a locally mastered one after a cluster membership transition.
+
+So let's keep the two separate.  Sure, there will be cases where a DLM
+model is more or less appropriate; but given that there are cases where
+the model does work, what are the particular unnecessary complications
+that the current API forces on us?  Remove those and you've made the DLM
+model a lot more attractive to use for non-CFS applications.
+
+--Stephen
 
 
-Source-code header..... Current init version is 2.85 but I can't find
-the source. This is 2.62
-
-/*
-  * Init		A System-V Init Clone.
-  *
-  * Usage:	/sbin/init
-  *		     init [0123456SsQqAaBbCc]
-  *		  telinit [0123456SsQqAaBbCc]
-  *
-  * Version:	@(#)init.c  2.62  29-May-1996  MvS
-  *
-  *		This file is part of the sysvinit suite,
-
-[SNIPPED...]
-
-/*
-  * Linux ignores all signals sent to init when the
-  * SIG_DFL handler is installed. Therefore we must catch SIGTSTP
-  * and SIGCONT, or else they won't work....
-  *
-  * The SIGCONT handler
-  */
-void cont_handler()
-{
-   got_cont = 1;
-}
-
-/*
-  * The SIGSTOP & SIGTSTP handler
-  */
-void stop_handler()
-{
-   got_cont = 0;
-   while(!got_cont) pause();
-   got_cont = 0;
-}
-
-
-Now, if POSIX threads signals were implimented within the kernel,
-without first purging the universe of all copies of the SYS-V init
-that was distributed with early copies of RedHat and others (don't
-know about current copies, a very long search failed to find the
-source), then whatever you do in the kernel is wasted.
-
-On Wed, 4 May 2005, Richard B. Johnson wrote:
-> On Wed, 4 May 2005, Daniel Jacobowitz wrote:
->
->> On Wed, May 04, 2005 at 02:16:24PM -0400, Richard B. Johnson wrote:
->>> The kernel doesn't do SIGSTOP or SIGCONT. Within init, there is
->>> a SIGSTOP and SIGCONT handler. These can be inherited by others
->>> unless changed, perhaps by a 'C' runtime library. Basically,
->>> the SIGSTOP handler executes pause() until the SIGCONT signal
->>> is received.
->>> 
->>> Any delay in stopping is the time necessary for the signal to
->>> be delivered. It is possible that the section of code that
->>> contains the STOP/CONT handler was paged out and needs to be
->>> paged in before the signal can be delivered.
->>> 
->>> You might quicken this up by installing your own handler for
->>> SIGSTOP and SIGCONT....
->> 
->> I don't know what RTOSes you've been working with recently, but none of
->> the above is true for Linux.  I don't think it ever has been.
->> 
->> -- 
->> Daniel Jacobowitz
->> CodeSourcery, LLC
->> 
->
-> Grab a copy of your favorite init source. SIGSTOP and SIGCONT are
-> signals. They are handled by signal handlers, always have been
-> on Unix and Unix clones like Linux.
->
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-> Notice : All mail here is now cached for review by Dictator Bush.
->                 98.36% of all statistics are fiction.
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.

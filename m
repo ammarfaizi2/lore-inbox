@@ -1,44 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262166AbVEESU3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262193AbVEEUON@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262166AbVEESU3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 14:20:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbVEESU3
+	id S262193AbVEEUON (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 16:14:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbVEETdG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 14:20:29 -0400
-Received: from fire.osdl.org ([65.172.181.4]:32957 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262166AbVEESUY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 14:20:24 -0400
-Date: Thu, 5 May 2005 11:22:21 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Dave Kleikamp <shaggy@austin.ibm.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [git pull] jfs update
-In-Reply-To: <427A630E.5000008@pobox.com>
-Message-ID: <Pine.LNX.4.58.0505051119440.2328@ppc970.osdl.org>
-References: <20050504204744.DA0A0849AD@kleikamp.dyn.webahead.ibm.com>
- <Pine.LNX.4.58.0505041437060.2328@ppc970.osdl.org> <427A630E.5000008@pobox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 5 May 2005 15:33:06 -0400
+Received: from solarneutrino.net ([66.199.224.43]:55558 "EHLO
+	tau.solarneutrino.net") by vger.kernel.org with ESMTP
+	id S262195AbVEESlt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 14:41:49 -0400
+Date: Thu, 5 May 2005 14:41:47 -0400
+To: Dave Airlie <airlied@gmail.com>
+Cc: linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
+Subject: Re: DRI lockup on R200, 2.6.11.7
+Message-ID: <20050505184147.GA13505@tau.solarneutrino.net>
+References: <20050426202916.GA2635@xarello> <21d7e99705042801227ed5438e@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <21d7e99705042801227ed5438e@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
+From: Ryan Richter <ryan@tau.solarneutrino.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Apr 28, 2005 at 09:22:36AM +0100, Dave Airlie wrote:
+> 2.6.12 should fix this, there is patch at:
+> http://drm.bkbits.net:8080/drm-linus/gnupatch@424260f9PBUdlFvyiQw1maJBKvEtXA
 
+Another crash today, same thing.  It seems to have made it less common,
+though (maybe).  One thing that was different was that this time killing
+X didn't reset the machine.
 
-On Thu, 5 May 2005, Jeff Garzik wrote:
-> 
-> FWIW I'm definitely interested in some sort of pull mechanism where I 
-> can say "pull from foo://.../libata-2.6.git/HEAD-for-linus" also.
-
-I already changed my scripts to be able to do that. They default to HEAD, 
-but if you tell them something else, they'll get that instead.
-
-So I'd do a
-
-	git-pull-script foo://.../libata-2.6.git/ HEAD-for-linus
-
-except right now my pull script only works with rsync or ssh, not http. 
-I'll fix that up asap.
-
-		Linus
+-ryan

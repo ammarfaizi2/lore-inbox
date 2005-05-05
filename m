@@ -1,30 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262177AbVEEStW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262174AbVEESnL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262177AbVEEStW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 14:49:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262172AbVEEStW
+	id S262174AbVEESnL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 14:43:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262172AbVEESnL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 14:49:22 -0400
-Received: from c-24-22-18-178.hsd1.or.comcast.net ([24.22.18.178]:42385 "EHLO
+	Thu, 5 May 2005 14:43:11 -0400
+Received: from c-24-22-18-178.hsd1.or.comcast.net ([24.22.18.178]:41361 "EHLO
 	w-gerrit.beaverton.ibm.com") by vger.kernel.org with ESMTP
-	id S262177AbVEES3L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 14:29:11 -0400
-Message-Id: <20050505180935.358378000@us.ibm.com>
+	id S262174AbVEES3K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 14:29:10 -0400
+Message-Id: <20050505180935.427069000@us.ibm.com>
 References: <20050505180731.010896000@us.ibm.com>
-Date: Thu, 05 May 2005 11:07:49 -0700
+Date: Thu, 05 May 2005 11:07:50 -0700
 To: linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
-Subject: [patch 18/21] CKRM: Rule Based Classification Engine, full CE
+Subject: [patch 19/21] CKRM: Rule Based Classification Engine, more advanced classification engine
 From: gh@us.ibm.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 --
-Content-Disposition: inline; filename=09-04-rbce_opt-core
+Content-Disposition: inline; filename=09-05-rbce_core-crbce
 
 
-Part 4 of 5 patches to support Rule Based Classification Engine for CKRM.
-This patch connects RBCE with CKRM core. Full functionality of RBCE 
-achieved with this patch.
+Part 5 of 5 patches to support Rule Based Classification Engine for CKRM.
+This patch provides the enhanced RBCE, CRBCE. CRBCE allows the per-process
+delay data and additioanl user level monmitoring support.
 
 Signed-Off-By: Hubertus Franke <frankeh@us.ibm.com>
 Signed-Off-By: Chandra Seetharaman <sekharan@us.ibm.com>
@@ -32,36 +32,247 @@ Signed-Off-By: Shailabh Nagar <nagar@us.ibm.com>
 Signed-Off-By: Vivek Kashyap <vivk@us.ibm.com>
 Signed-Off-By: Gerrit Huizenga <gh@us.ibm.com>
 
- Makefile        |    2 
- rbce_core.c     |  890 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- rbce_internal.h |   23 +
- rbce_main.c     |   67 ++--
- 4 files changed, 961 insertions(+), 21 deletions(-)
+ include/linux/crbce.h            |  164 +++++++++++
+ include/linux/netlink.h          |    1 
+ include/linux/rbce.h             |   50 +++
+ init/Kconfig                     |   12 
+ kernel/ckrm/rbce/Makefile        |    6 
+ kernel/ckrm/rbce/crbce_ext.c     |  580 +++++++++++++++++++++++++++++++++++++++
+ kernel/ckrm/rbce/crbce_main.c    |    2 
+ kernel/ckrm/rbce/rbce_core.c     |   45 ++-
+ kernel/ckrm/rbce/rbce_internal.h |   10 
+ kernel/ckrm/rbce/rbce_main.c     |   24 +
+ 10 files changed, 886 insertions(+), 8 deletions(-)
 
-Index: linux-2.6.12-rc3-ckrm5/kernel/ckrm/rbce/Makefile
-===================================================================
---- linux-2.6.12-rc3-ckrm5.orig/kernel/ckrm/rbce/Makefile	2005-05-05 09:38:03.000000000 -0700
-+++ linux-2.6.12-rc3-ckrm5/kernel/ckrm/rbce/Makefile	2005-05-05 09:38:06.000000000 -0700
-@@ -3,4 +3,4 @@
- #
- 
- obj-$(CONFIG_CKRM_RBCE)	+= rbce.o
--rbce-objs := rbce_fs.o rbce_main.o rbce_token.o
-+rbce-objs := rbce_fs.o rbce_main.o rbce_token.o rbce_core.o
-Index: linux-2.6.12-rc3-ckrm5/kernel/ckrm/rbce/rbce_core.c
+Index: linux-2.6.12-rc3-ckrm5/include/linux/crbce.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.12-rc3-ckrm5/kernel/ckrm/rbce/rbce_core.c	2005-05-05 09:38:06.000000000 -0700
-@@ -0,0 +1,890 @@
-+/* Rule-based Classification Engine (RBCE) and
-+ * Consolidated RBCE module code (combined)
++++ linux-2.6.12-rc3-ckrm5/include/linux/crbce.h	2005-05-05 09:38:07.000000000 -0700
+@@ -0,0 +1,164 @@
++/*
++ * crbce.h
 + *
 + * Copyright (C) Hubertus Franke, IBM Corp. 2003
-+ *           (C) Chandra Seetharaman, IBM Corp. 2003
-+ *           (C) Vivek Kashyap, IBM Corp. 2004
++ * Copyright (C) Chandra Seetharaman, IBM Corp. 2004
 + *
-+ * Module for loading of classification policies and providing
-+ * a user API for Class-based Kernel Resource Management (CKRM)
++ * This files contains the type definition of the record
++ * created by the CRBCE CKRM classification engine
++ *
++ *
++ * Latest version, more details at http://ckrm.sf.net
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of version 2.1 of the GNU Lesser General Public License
++ * as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it would be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++ *
++ *
++ */
++
++#ifndef _LINUX_CRBCE_H
++#define _LINUX_CRBCE_H
++
++#ifdef __KERNEL__
++#include <linux/autoconf.h>
++#else
++#define  CONFIG_CKRM
++#define  CONFIG_CRBCE
++#define  CONFIG_DELAY_ACCT
++#endif
++
++#include <linux/types.h>
++#include <linux/ckrm_events.h>
++#include <linux/ckrm_ce.h>
++
++#define CRBCE_MAX_CLASS_NAME_LEN  256
++
++/****************************************************************
++ *
++ *  CRBCE EVENT SET is an extension to the standard CKRM_EVENTS
++ *
++ ****************************************************************/
++
++typedef int __bitwise crbce_event_t;
++enum crbce_event {
++
++	/* we use the standard CKRM_EVENT_<..>
++	 * to identify reclassification cause actions
++	 * and extend by additional ones we need
++	 */
++
++	/* up event flow */
++
++	CRBCE_REC_EXIT = (__force crbce_event_t) (CKRM_NUM_EVENTS+1),
++	CRBCE_REC_DATA_DELIMITER = (__force crbce_event_t) (CRBCE_REC_EXIT+2),
++	CRBCE_REC_SAMPLE = (__force crbce_event_t) (CRBCE_REC_EXIT+3),
++	CRBCE_REC_TASKINFO = (__force crbce_event_t) (CRBCE_REC_EXIT+4),
++	CRBCE_REC_SYS_INFO = (__force crbce_event_t) (CRBCE_REC_EXIT+5),
++	CRBCE_REC_CLASS_INFO = (__force crbce_event_t) (CRBCE_REC_EXIT+6),
++	CRBCE_REC_KERNEL_CMD_DONE = (__force crbce_event_t) (CRBCE_REC_EXIT+7),
++	CRBCE_REC_UKCC_FULL = (__force crbce_event_t) (CRBCE_REC_EXIT+8),
++
++	/* down command issueance */
++	CRBCE_REC_KERNEL_CMD = (__force crbce_event_t) (CRBCE_REC_EXIT+9),
++
++	CRBCE_NUM_EVENTS = (__force crbce_event_t) (CRBCE_REC_EXIT+10)
++};
++
++struct task_sample_info {
++	uint32_t cpu_running;
++	uint32_t cpu_waiting;
++	uint32_t io_delayed;
++	uint32_t memio_delayed;
++};
++
++/*********************************************
++ *          KERNEL -> USER  records          *
++ *********************************************/
++
++/* we have records with either a time stamp or not */
++struct crbce_hdr {
++	int type;
++	pid_t pid;
++};
++
++struct crbce_hdr_ts {
++	int type;
++	pid_t pid;
++	uint32_t jiffies;
++	uint64_t cls;
++};
++
++/* individual records */
++
++struct crbce_rec_fork {
++	struct crbce_hdr_ts hdr;
++	pid_t ppid;
++};
++
++struct crbce_rec_data_delim {
++	struct crbce_hdr_ts hdr;
++	int is_stop;		/* 0 start, 1 stop */
++};
++
++struct crbce_rec_task_data {
++	struct crbce_hdr_ts hdr;
++	struct task_sample_info sample;
++	struct task_delay_info delay;
++};
++
++struct crbce_ukcc_full {
++	struct crbce_hdr_ts hdr;
++};
++
++struct crbce_class_info {
++	struct crbce_hdr_ts hdr;
++	int action;
++	int namelen;
++	char name[CRBCE_MAX_CLASS_NAME_LEN];
++};
++
++/*********************************************
++ *           USER -> KERNEL records          *
++ *********************************************/
++
++typedef int __bitwise crbce_kernel_cmd_t;
++enum crbce_kernel_cmd {
++	CRBCE_CMD_START = (__force crbce_kernel_cmd_t) 1,
++	CRBCE_CMD_STOP = (__force crbce_kernel_cmd_t) 2,
++	CRBCE_CMD_SET_TIMER = (__force crbce_kernel_cmd_t) 3,
++	CRBCE_CMD_SEND_DATA = (__force crbce_kernel_cmd_t) 4,
++};
++
++struct crbce_command {
++	int type;		/* we need this for the K->U reflection */
++	int cmd;
++	uint32_t len;	/* added in the kernel for reflection */
++};
++
++#define set_cmd_hdr(rec,tok) \
++	((rec).hdr.type=CRBCE_REC_KERNEL_CMD,(rec).hdr.cmd=(tok))
++
++struct crbce_cmd_done {
++	struct crbce_command hdr;
++	int rc;
++};
++
++struct crbce_cmd {
++	struct crbce_command hdr;
++};
++
++struct crbce_cmd_send_data {
++	struct crbce_command hdr;
++	int delta_mode;
++};
++
++struct crbce_cmd_settimer {
++	struct crbce_command hdr;
++	uint32_t interval;	/* in msec .. 0 means stop */
++};
++#endif
+Index: linux-2.6.12-rc3-ckrm5/include/linux/netlink.h
+===================================================================
+--- linux-2.6.12-rc3-ckrm5.orig/include/linux/netlink.h	2005-03-01 23:38:25.000000000 -0800
++++ linux-2.6.12-rc3-ckrm5/include/linux/netlink.h	2005-05-05 09:38:07.000000000 -0700
+@@ -14,6 +14,7 @@
+ #define NETLINK_SELINUX		7	/* SELinux event notifications */
+ #define NETLINK_ARPD		8
+ #define NETLINK_AUDIT		9	/* auditing */
++#define NETLINK_CKRM		10	/* CKRM */
+ #define NETLINK_ROUTE6		11	/* af_inet6 route comm channel */
+ #define NETLINK_IP6_FW		13
+ #define NETLINK_DNRTMSG		14	/* DECnet routing messages */
+Index: linux-2.6.12-rc3-ckrm5/init/Kconfig
+===================================================================
+--- linux-2.6.12-rc3-ckrm5.orig/init/Kconfig	2005-05-05 09:38:01.000000000 -0700
++++ linux-2.6.12-rc3-ckrm5/init/Kconfig	2005-05-05 09:38:07.000000000 -0700
+@@ -215,6 +215,18 @@ config CKRM_RBCE
+ 
+ 	  If unsure, say N.
+ 
++config CKRM_CRBCE
++	tristate "Enhanced Rule-based Classification Engine (RBCE)"
++	depends on CKRM && RCFS_FS && DELAY_ACCT
++	default m
++	help
++	  Provides an optional module to support creation of rules for automatic
++	  classification of kernel objects, just like RBCE above. In addition,
++	  CRBCE provides per-process delay data (requires DELAY_ACCT configured)
++	  enabled) and makes information on significant kernel events available
++	  to userspace tools through relayfs (requires RELAYFS_FS configured).
++
++	  If unsure, say N.
+ endmenu
+ 
+ config SYSCTL
+Index: linux-2.6.12-rc3-ckrm5/kernel/ckrm/rbce/Makefile
+===================================================================
+--- linux-2.6.12-rc3-ckrm5.orig/kernel/ckrm/rbce/Makefile	2005-05-05 09:38:06.000000000 -0700
++++ linux-2.6.12-rc3-ckrm5/kernel/ckrm/rbce/Makefile	2005-05-05 09:38:07.000000000 -0700
+@@ -4,3 +4,9 @@
+ 
+ obj-$(CONFIG_CKRM_RBCE)	+= rbce.o
+ rbce-objs := rbce_fs.o rbce_main.o rbce_token.o rbce_core.o
++
++obj-$(CONFIG_CKRM_CRBCE)	+= crbce.o
++crbce-objs := rbce_fs.o crbce_main.o rbce_token.o rbce_core.o crbce_ext.o
++
++CFLAGS_crbce_main.o += -DCRBCE_EXTENSION
++CFLAGS_crbce_ext.o += -DCRBCE_EXTENSION
+Index: linux-2.6.12-rc3-ckrm5/kernel/ckrm/rbce/crbce_ext.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.12-rc3-ckrm5/kernel/ckrm/rbce/crbce_ext.c	2005-05-05 09:38:07.000000000 -0700
+@@ -0,0 +1,580 @@
++/* Data Collection Extension to Rule-based Classification Engine (RBCE) module
++ *
++ * Copyright (C) Hubertus Franke, IBM Corp. 2003
++ *
++ * Extension to be included into RBCE to collect delay and sample information
++ * Requires user daemon e.g. crbcedmn to activate.
 + *
 + * Latest version, more details at http://ckrm.sf.net
 + *
@@ -76,1070 +287,852 @@ Index: linux-2.6.12-rc3-ckrm5/kernel/ckrm/rbce/rbce_core.c
 + *
 + */
 +
++/*
++ *   User-Kernel Communication Channel (UKCC)
++ *   Protocol and communication handling based on netlink
++ */
++
++#include <net/sock.h>
++#include <linux/netlink.h>
 +#include "rbce_internal.h"
 +
-+/*
-+ * Callback from core when a class is deleted.
-+ */
-+static void
-+rbce_class_deletecb(const char *classname, void *classobj, int classtype)
-+{
-+	static struct rbce_class *cls;
-+	struct named_obj_hdr *pos;
-+	struct rbce_rule *rule;
++#define PSAMPLE(pdata)    (&((pdata)->ext_data.sample))
++#define NETLINK_GFP_MASK	GFP_ATOMIC
 +
-+	write_lock(&rbce_rwlock);
-+	cls = find_class_name(classname);
-+	if (cls) {
-+		if (cls->classobj != classobj) {
-+			printk(KERN_ERR "rbce: class %s changed identity\n",
-+			       classname);
++typedef int __bitwise ukcc_state_t;
++enum ukcc_state {
++	UKCC_OK = (__force ukcc_state_t) 0,
++	UKCC_STANDBY = (__force ukcc_state_t) 1,
++	UKCC_FULL =  (__force ukcc_state_t) 2
++};
++
++int ukcc_channel = -1;
++static enum ukcc_state chan_state = UKCC_STANDBY;
++static void ukcc_cmd_deliver(int rchan_id, char *from, u32 len);
++static struct sock *ukcc_sock = NULL;
++
++static inline int ukcc_ok(void)
++{
++	return (chan_state == UKCC_OK);
++}
++
++static inline int ukcc_send(void *data, int len)
++{
++	int rc;
++	char *saddr;
++	struct sk_buff *skb;
++	struct nlmsghdr *nlh = NULL;
++	int nlmessage_len = NLMSG_LENGTH(sizeof(struct nlmsghdr) + len);
++
++	skb = alloc_skb(nlmessage_len, NETLINK_GFP_MASK);
++	if (!skb)
++		return -ENOMEM;
++	nlh = NLMSG_PUT(skb, 0, 0, NETLINK_CKRM, len); /* pid, type, event */
++	saddr = NLMSG_DATA(nlh);
++	memcpy(saddr, data, len);
++
++	rc = netlink_broadcast(ukcc_sock, skb, 0, 1, NETLINK_GFP_MASK);
++	return (rc < 0) ? rc : 1;
++
++nlmsg_failure:
++	return -1;
++}
++
++static void ukcc_netlink_recv(struct sock *sk, int len)
++{
++	int skblen;
++	struct sk_buff *skb;
++	struct nlmsghdr *nlh;
++
++	while ((skb = skb_dequeue(&sk->sk_receive_queue)) != NULL) {
++		skblen = skb->len;
++		nlh = (struct nlmsghdr *)skb->data;
++		if (!NLMSG_OK(nlh, skblen))
++			return;
++		if (nlh->nlmsg_type == NLMSG_NOOP)
++			return;
++		if (nlh->nlmsg_flags & MSG_TRUNC) {
++			netlink_ack(skb, nlh, -ECOMM);
++			return;
 +		}
-+		cls->classobj = NULL;
-+		list_for_each_entry(pos, &rules_list[cls->classtype], link) {
-+			rule = (struct rbce_rule *)pos;
-+			if (rule->target_class) {
-+				if (!strcmp
-+				    (rule->target_class->obj.name, classname)) {
-+					put_class(cls);
-+					rule->target_class = NULL;
-+					rule->classtype = -1;
-+				}
++		if (nlh->nlmsg_flags & NLM_F_ACK)
++			netlink_ack(skb, nlh, 0);
++
++		/* write the command back to the sender
++		 * this can be probably done better through setup in
++		 * userspace, but we have no guarantee of ordering then..
++		 */
++		(void) ukcc_send(NLMSG_DATA(nlh), skblen - NLMSG_LENGTH(0));
++		ukcc_cmd_deliver(0, NLMSG_DATA(nlh), skblen - NLMSG_LENGTH(0));
++		kfree_skb(skb);
++	}
++}
++
++static int create_ukcc_channel(void)
++{
++	ukcc_sock = netlink_kernel_create(NETLINK_CKRM, ukcc_netlink_recv);
++
++	if (!ukcc_sock) {
++		printk(KERN_ERR "kevent: "
++			"unable to create netlink socket; aborting\n");
++		return -ENODEV;
++	}
++	ukcc_channel = 0;
++	return ukcc_channel;
++}
++
++static inline void close_ukcc_channel(void)
++{
++	if (ukcc_channel >= 0) {
++		sock_release(ukcc_sock->sk_socket);
++		ukcc_channel = -1;
++		chan_state = UKCC_STANDBY;
++	}
++}
++
++#define rec_set_hdr(r,t,p)      ((r)->hdr.type = (t), (r)->hdr.pid = (p))
++#define rec_set_timehdr(r,t,p,c)  (rec_set_hdr(r,t,p), \
++	(r)->hdr.jiffies = jiffies, (r)->hdr.cls=(unsigned long)(c) )
++
++#if CHANNEL_AUTO_CONT
++
++/* we only provide this for debugging.. it allows us to send records
++ * based on availability in the channel when the UKCC stalles rather
++ * going through the UKCC recovery protocol
++ */
++static inline void rec_send_len(void *r, size_t l)
++{
++	int chan_wasok = (chan_state == UKCC_OK);
++	int chan_isok = (ukcc_send(r, l) > 0);
++
++	chan_state = chan_isok ? UKCC_OK : UKCC_STANDBY;
++	if (chan_wasok && !chan_isok)
++		printk(KERN_WARN "Channel stalled\n");
++	else if (!chan_wasok && chan_isok)
++		printk(KERN_INFO "Channel continues\n");
++}
++
++#else
++
++/* Default UKCC channel protocol.
++ * Though a UKCC buffer overflow should not happen ever, it is possible iff
++ * the user daemon stops reading for some reason. Hence we provide a simple
++ * protocol based on 3 states
++ *     UKCC_OK      :=	channel is active and properly working. When a
++ *			channel write fails we move to state CHAN_FULL.
++ *     UKCC_FULL    :=	channel is active, but the last send_rec has failed.
++ *			As a result we will try to send an indication to
++ *			the daemon that this has happened. When that
++ *			succeeds, we move to state UKCC_STANDBY.
++ *     UKCC_STANDBY := 	we are waiting to be restarted by the user daemon
++ *
++ */
++
++static void ukcc_full(void)
++{
++	static spinlock_t ukcc_state_lock = SPIN_LOCK_UNLOCKED;
++	/*
++	 * protect transition from OK -> FULL to ensure only one record
++	 * is sent, rest we do not need to protect, protocol implies
++	 * that.
++	*/
++	int send = 0;
++	spin_lock(&ukcc_state_lock);
++	if ((send = (chan_state != UKCC_STANDBY)))
++		chan_state = UKCC_STANDBY;	/* assume we can send */
++	spin_unlock(&ukcc_state_lock);
++
++	if (send) {
++		struct crbce_ukcc_full rec;
++		rec_set_timehdr(&rec, CRBCE_REC_UKCC_FULL, 0, 0);
++		if (ukcc_send(&rec, sizeof(rec)) < 0)
++			/* channel is remains full .. try with next one */
++			chan_state = UKCC_FULL;
++	}
++}
++
++static inline void rec_send_len(void *r, size_t l)
++{
++	switch (chan_state) {
++	case UKCC_OK:
++		if (ukcc_send(r, l) > 0)
++			break;
++		/*FALLTHRU*/
++	case UKCC_FULL:
++		ukcc_full();
++		break;
++	default:
++		break;
++	}
++}
++
++#endif
++
++#define rec_send(r)	rec_send_len(r, sizeof(*(r)))
++
++/****************************************************************************
++ *
++ *  Callbacks for the CKRM engine.
++ *    In each we do the necessary classification and event record generation
++ *    We generate 3 kind of records in the callback
++ *    (a) FORK              	send the pid, the class and the ppid
++ *    (b) RECLASSIFICATION  	send the pid, the class and < sample data +
++ *				delay data >
++ *    (b) EXIT              	send the pid
++ *
++*****************************************************************************/
++
++int delta_mode = 0;
++
++static inline void copy_delay(struct task_delay_info *delay,
++			      struct task_struct *tsk)
++{
++	*delay = tsk->delays;
++}
++
++static inline void zero_delay(struct task_delay_info *delay)
++{
++	memset(delay, 0, sizeof(struct task_delay_info));
++	/* we need to think about doing this 64-bit atomic */
++}
++
++static inline void zero_sample(struct task_sample_info *sample)
++{
++	memset(sample, 0, sizeof(struct task_sample_info));
++	/* we need to think about doing this 64-bit atomic */
++}
++
++static inline int check_zero(void *ptr, int len)
++{
++	int iszero = 1;
++	int i;
++	unsigned long *uptr = (unsigned long *)ptr;
++
++	for (i = len / sizeof(unsigned long); i-- && iszero; uptr++)
++		/* assume its rounded */
++		iszero &= (*uptr == 0);
++	return iszero;
++}
++
++static inline int check_not_zero(void *ptr, int len)
++{
++	int i;
++	unsigned long *uptr = (unsigned long *)ptr;
++
++	for (i = len / sizeof(unsigned long); i--; uptr++)
++		/* assume its rounded */
++		if (*uptr)
++			return 1;
++	return 0;
++}
++
++static inline int sample_changed(struct task_sample_info *s)
++{
++	return check_not_zero(s, sizeof(*s));
++}
++static inline int delay_changed(struct task_delay_info *d)
++{
++	return check_not_zero(d, sizeof(*d));
++}
++
++static inline int
++send_task_record(struct task_struct *tsk, int event,
++		 struct ckrm_core_class *core, int send_forced)
++{
++	struct crbce_rec_task_data rec;
++	struct rbce_private_data *pdata;
++	int send = 0;
++
++	if (!ukcc_ok())
++		return 0;
++	pdata = RBCE_DATA(tsk);
++	if (pdata == NULL)
++		return 0;
++	if (send_forced || (delta_mode == 0)
++	    || sample_changed(PSAMPLE(RBCE_DATA(tsk)))
++	    || delay_changed(&tsk->delays)) {
++		rec_set_timehdr(&rec, event, tsk->pid,
++				core ? core : (struct ckrm_core_class *)tsk->
++				taskclass);
++		rec.sample = *PSAMPLE(RBCE_DATA(tsk));
++		copy_delay(&rec.delay, tsk);
++		rec_send(&rec);
++		if (delta_mode || send_forced) {
++			/* on reclassify or delta mode reset the counters */
++			zero_sample(PSAMPLE(RBCE_DATA(tsk)));
++			zero_delay(&tsk->delays);
++		}
++		send = 1;
++	}
++	return send;
++}
++
++void send_exit_notification(struct task_struct *tsk)
++{
++	send_task_record(tsk, CRBCE_REC_EXIT, NULL, 1);
++}
++
++void
++rbce_tc_ext_notify(int event, void *core, struct task_struct *tsk)
++{
++	struct crbce_rec_fork rec;
++
++	switch (event) {
++	case CKRM_EVENT_FORK:
++		if (ukcc_ok()) {
++			rec.ppid = tsk->parent->pid;
++			rec_set_timehdr(&rec, CKRM_EVENT_FORK, tsk->pid, core);
++			rec_send(&rec);
++		}
++		break;
++	case CKRM_EVENT_MANUAL:
++		rbce_tc_manual(tsk);
++
++	default:
++		send_task_record(tsk, event, (struct ckrm_core_class *)core, 1);
++		break;
++	}
++}
++
++/*====================== end classification engine =======================*/
++
++static void sample_task_data(unsigned long unused);
++
++struct timer_list sample_timer = {.expires = 0,.function = sample_task_data };
++unsigned long timer_interval_length = (250 * HZ) / 1000;
++
++inline void stop_sample_timer(void)
++{
++	if (sample_timer.expires > 0) {
++		del_timer_sync(&sample_timer);
++		sample_timer.expires = 0;
++	}
++}
++
++inline void start_sample_timer(void)
++{
++	if (timer_interval_length > 0) {
++		sample_timer.expires =
++		    jiffies + (timer_interval_length * HZ) / 1000;
++		add_timer(&sample_timer);
++	}
++}
++
++static void send_task_data(void)
++{
++	struct crbce_rec_data_delim limrec;
++	struct task_struct *proc, *thread;
++	int sendcnt = 0;
++	int taskcnt = 0;
++	limrec.is_stop = 0;
++	rec_set_timehdr(&limrec, CRBCE_REC_DATA_DELIMITER, 0, 0);
++	rec_send(&limrec);
++
++	read_lock(&tasklist_lock);
++	do_each_thread(proc, thread) {
++		taskcnt++;
++		task_lock(thread);
++		sendcnt += send_task_record(thread, CRBCE_REC_SAMPLE, NULL, 0);
++		task_unlock(thread);
++	} while_each_thread(proc, thread);
++	read_unlock(&tasklist_lock);
++
++	limrec.is_stop = 1;
++	rec_set_timehdr(&limrec, CRBCE_REC_DATA_DELIMITER, 0, 0);
++	rec_send(&limrec);
++
++}
++
++void notify_class_action(struct rbce_class *cls, int action)
++{
++	struct crbce_class_info cinfo;
++	int len;
++
++	rec_set_timehdr(&cinfo, CRBCE_REC_CLASS_INFO, 0, cls->classobj);
++	cinfo.action = action;
++	len = strnlen(cls->obj.name, CRBCE_MAX_CLASS_NAME_LEN - 1);
++	memcpy(&cinfo.name, cls->obj.name, len);
++	cinfo.name[len] = '\0';
++	len++;
++	cinfo.namelen = len;
++
++	len += sizeof(cinfo) - CRBCE_MAX_CLASS_NAME_LEN;
++	rec_send_len(&cinfo, len);
++}
++
++static void send_classlist(void)
++{
++	struct rbce_class *cls;
++
++	read_lock(&rbce_rwlock);
++	list_for_each_entry(cls, &class_list, obj.link)
++		notify_class_action(cls, 1);
++	read_unlock(&rbce_rwlock);
++}
++
++/*
++ *  resend_task_info
++ *
++ *  This function resends all essential task information to the client.
++ */
++static void resend_task_info(void)
++{
++	struct crbce_rec_data_delim limrec;
++	struct crbce_rec_fork rec;
++	struct task_struct *proc, *thread;
++
++	send_classlist();	/* first send available class information */
++
++	limrec.is_stop = 2;
++	rec_set_timehdr(&limrec, CRBCE_REC_DATA_DELIMITER, 0, 0);
++	rec_send(&limrec);
++
++	write_lock(&tasklist_lock);	/* avoid any mods during this phase */
++	do_each_thread(proc, thread)
++		if (ukcc_ok()) {
++			rec.ppid = thread->parent->pid;
++			rec_set_timehdr(&rec, CRBCE_REC_TASKINFO, thread->pid,
++					thread->taskclass);
++			rec_send(&rec);
++		}
++	while_each_thread(proc, thread);
++	write_unlock(&tasklist_lock);
++
++	limrec.is_stop = 3;
++	rec_set_timehdr(&limrec, CRBCE_REC_DATA_DELIMITER, 0, 0);
++	rec_send(&limrec);
++}
++
++extern int task_running_sys(struct task_struct *);
++
++static void add_all_private_data(void)
++{
++	struct task_struct *proc, *thread;
++
++	write_lock(&tasklist_lock);
++	do_each_thread(proc, thread)
++		if (RBCE_DATA(thread) == NULL)
++			RBCE_DATAP(thread) = create_private_data(NULL, 0);
++	while_each_thread(proc, thread);
++	write_unlock(&tasklist_lock);
++}
++
++static void sample_task_data(unsigned long unused)
++{
++	struct task_struct *proc, *thread;
++
++	int run = 0;
++	int wait = 0;
++	read_lock(&tasklist_lock);
++	do_each_thread(proc, thread) {
++		struct rbce_private_data *pdata = RBCE_DATA(thread);
++
++		if (pdata == NULL)
++			/* some wierdo race condition .. simply ignore */
++			continue;
++		if (thread->state == TASK_RUNNING) {
++			if (task_running_sys(thread)) {
++				atomic_inc((atomic_t *) &
++					   (PSAMPLE(pdata)->cpu_running));
++				run++;
++			} else {
++				atomic_inc((atomic_t *) &
++					   (PSAMPLE(pdata)->cpu_waiting));
++				wait++;
 +			}
 +		}
-+		if ((cls = find_class_name(classname)) != NULL) {
-+			printk(KERN_ERR
-+			       "rbce ERROR: class %s exists in rbce after "
-+			       "removal in core\n", classname);
++		/* update IO state */
++		if (thread->flags & PF_IOWAIT) {
++			if (thread->flags & PF_MEMIO)
++				atomic_inc((atomic_t *) &
++					   (PSAMPLE(pdata)->memio_delayed));
++			else
++				atomic_inc((atomic_t *) &
++					   (PSAMPLE(pdata)->io_delayed));
 +		}
 +	}
++	while_each_thread(proc, thread);
++	read_unlock(&tasklist_lock);
++	start_sample_timer();
++}
++
++static void ukcc_cmd_deliver(int rchan_id, char *from, u32 len)
++{
++	struct crbce_command *cmdrec = (struct crbce_command *)from;
++	struct crbce_cmd_done cmdret;
++	int rc = 0;
++
++	cmdrec->len = len;	/*
++				 * add this to reflection so the user doesn't
++				 * accidently write the wrong length and the
++				 * protocol is getting screwed up
++				 */
++
++	if (cmdrec->type != CRBCE_REC_KERNEL_CMD) {
++		rc = EINVAL;
++		goto out;
++	}
++
++	switch (cmdrec->cmd) {
++	case CRBCE_CMD_SET_TIMER:
++		{
++			struct crbce_cmd_settimer *cptr =
++			    (struct crbce_cmd_settimer *)cmdrec;
++			if (len != sizeof(*cptr)) {
++				rc = EINVAL;
++				break;
++			}
++			stop_sample_timer();
++			timer_interval_length = cptr->interval;
++			if ((timer_interval_length > 0)
++			    && (timer_interval_length < 10))
++				timer_interval_length = 10;
++				/* anything finer can create problems */
++			printk(KERN_INFO "CRBCE set sample collect timer %lu\n",
++			       timer_interval_length);
++			start_sample_timer();
++			break;
++		}
++	case CRBCE_CMD_SEND_DATA:
++		{
++			struct crbce_cmd_send_data *cptr =
++			    (struct crbce_cmd_send_data *)cmdrec;
++			if (len != sizeof(*cptr)) {
++				rc = EINVAL;
++				break;
++			}
++			delta_mode = cptr->delta_mode;
++			send_task_data();
++			break;
++		}
++	case CRBCE_CMD_START:
++		add_all_private_data();
++		chan_state = UKCC_OK;
++		resend_task_info();
++		break;
++
++	case CRBCE_CMD_STOP:
++		chan_state = UKCC_STANDBY;
++		free_all_private_data();
++		break;
++
++	default:
++		rc = EINVAL;
++		break;
++	}
++
++out:
++	cmdret.hdr.type = CRBCE_REC_KERNEL_CMD_DONE;
++	cmdret.hdr.cmd = cmdrec->cmd;
++	cmdret.rc = rc;
++	rec_send(&cmdret);
++}
++
++int init_rbce_ext_pre(void)
++{
++	int rc;
++
++	rc = create_ukcc_channel();
++	return ((rc < 0) ? rc : 0);
++}
++
++int init_rbce_ext_post(void)
++{
++	init_timer(&sample_timer);
++	return 0;
++}
++
++void exit_rbce_ext(void)
++{
++	stop_sample_timer();
++	close_ukcc_channel();
++}
+Index: linux-2.6.12-rc3-ckrm5/kernel/ckrm/rbce/crbce_main.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.12-rc3-ckrm5/kernel/ckrm/rbce/crbce_main.c	2005-05-05 09:38:07.000000000 -0700
+@@ -0,0 +1,2 @@
++/* Easiest way to transmit a symbolic link as a patch */
++#include "rbce_main.c"
+Index: linux-2.6.12-rc3-ckrm5/kernel/ckrm/rbce/rbce_core.c
+===================================================================
+--- linux-2.6.12-rc3-ckrm5.orig/kernel/ckrm/rbce/rbce_core.c	2005-05-05 09:38:06.000000000 -0700
++++ linux-2.6.12-rc3-ckrm5/kernel/ckrm/rbce/rbce_core.c	2005-05-05 09:38:07.000000000 -0700
+@@ -23,6 +23,23 @@
+ 
+ #include "rbce_internal.h"
+ 
++/* Callback from core when a class is created */
++static void rbce_class_addcb(const char *classname, void *clsobj, int classtype)
++{
++	struct rbce_class *cls;
++
++	write_lock(&rbce_rwlock);
++	cls = find_class_name((char *)classname);
++	if (cls)
++		cls->classobj = clsobj;
++	else
++		cls = create_rbce_class(classname, classtype, clsobj);
++	if (cls)
++		notify_class_action(cls, 1);
 +	write_unlock(&rbce_rwlock);
 +	return;
 +}
 +
-+/*====================== Classification Functions =======================*/
-+
-+/*
-+ * Match the given full path name with the command expression.
-+ * This function treats the folowing 2 charaters as special if seen in
-+ * cmd_exp, all other chanracters are compared as is:
-+ *		? - compares to any one single character
-+ *		* - compares to one or more single characters
-+ *
-+ * If fullpath is 1, tsk_comm is compared in full. otherwise only the command
-+ * name (basename(tsk_comm)) is compared.
-+ */
-+static inline int
-+match_cmd(const char *tsk_comm, const char *cmd_exp, int fullpath)
-+{
-+	const char *c, *t, *last_ast, *cmd = tsk_comm;
-+	char next_c;
-+
-+	/* get the command name if we don't have to match the fullpath */
-+	if (!fullpath && ((c = strrchr(tsk_comm, '/')) != NULL)) {
-+		cmd = c + 1;
-+	}
-+
-+	/* now faithfully assume the entire pathname is in cmd */
-+
-+	/* we now have to effectively implement a regular expression
-+	 * for now assume
-+	 *    '?'   any single character
-+	 *    '*'   one or more '?'
-+	 *    rest  must match
-+	 */
-+
-+	c = cmd_exp;
-+	t = cmd;
-+	if (t == NULL || c == NULL) {
-+		return 0;
-+	}
-+
-+	last_ast = NULL;
-+	next_c = '\0';
-+
-+	while (*c && *t) {
-+		switch (*c) {
-+		case '?':
-+			if (*t == '/') {
-+				return 0;
-+			}
-+			c++;
-+			t++;
-+			continue;
-+		case '*':
-+			if (*t == '/') {
-+				return 0;
-+			}
-+			/* eat up all '*' in c */
-+			while (*(c + 1) == '*')
-+				c++;
-+			next_c = '\0';
-+			last_ast = c;
-+			/*t++; 	Add this for matching '*' with "one"
-+				or more chars. */
-+			while (*t && (*t != *(c + 1)) && *t != '/')
-+				t++;
-+			if (*t == *(c + 1)) {
-+				c++;
-+				if (*c != '/') {
-+					if (*c == '?') {
-+						if (*t == '/') {
-+							return 0;
-+						}
-+						t++;
-+						c++;
-+					}
-+					next_c = *c;
-+					if (*c) {
-+						if (*t == '/') {
-+							return 0;
-+						}
-+						t++;
-+						c++;
-+						if (!*c && *t)
-+							c = last_ast;
-+					}
-+				} else {
-+					last_ast = NULL;
-+				}
-+				continue;
-+			}
-+			return 0;
-+		case '/':
-+			next_c = '\0';
-+		 /*FALLTHRU*/ default:
-+			if (*t == *c && next_c != *t) {
-+				c++, t++;
-+				continue;
-+			} else {
-+				/* reset to last asterix and
-+				   continue from there */
-+				if (last_ast) {
-+					c = last_ast;
-+				} else {
-+					return 0;
-+				}
-+			}
-+		}
-+	}
-+
-+	/* check for trailing "*" */
-+	while (*c == '*')
-+		c++;
-+
-+	return (!*c && !*t);
-+}
-+
-+static inline void reverse(char *str, int n)
-+{
-+	char s;
-+	int i, j = n - 1;
-+
-+	for (i = 0; i < j; i++, j--) {
-+		s = str[i];
-+		str[i] = str[j];
-+		str[j] = s;
-+	}
-+}
-+
-+static inline int itoa(int n, char *str)
-+{
-+	int i = 0, sz = 0;
-+
-+	do {
-+		str[i++] = n % 10 + '0';
-+		sz++;
-+		n = n / 10;
-+	} while (n > 0);
-+
-+	(void)reverse(str, sz);
-+	return sz;
-+}
-+
-+static inline int v4toa(__u32 y, char *a)
-+{
-+	int i;
-+	int size = 0;
-+
-+	for (i = 0; i < 4; i++) {
-+		size += itoa(y & 0xff, &a[size]);
-+		a[size++] = '.';
-+		y >>= 8;
-+	}
-+	return --size;
-+}
-+
-+static inline int match_ipv4(struct ckrm_net_struct *ns, char **string)
-+{
-+	char *ptr = *string;
-+	int size;
-+	char a4[16];
-+
-+	size = v4toa(ns->ns_daddrv4, a4);
-+
-+	*string += size;
-+	return !strncmp(a4, ptr, size);
-+}
-+
-+static inline int match_port(struct ckrm_net_struct *ns, char *ptr)
-+{
-+	char a[5];
-+	int size = itoa(ns->ns_dport, a);
-+
-+	return !strncmp(a, ptr, size);
-+}
-+
-+static int __evaluate_rule(struct task_struct *tsk, struct ckrm_net_struct *ns,
-+			   struct rbce_rule *rule, bitvector_t * vec_eval,
-+			   bitvector_t * vec_true, char **filename);
-+/*
-+ * evaluate the given task against the given rule with the vec_eval and
-+ * vec_true in context. Return 1 if the task satisfies the given rule, 0
-+ * otherwise.
-+ *
-+ * If the bit corresponding to the rule is set in the vec_eval, then the
-+ * corresponding bit in vec_true is the result. If it is not set, evaluate
-+ * the rule and set the bits in both the vectors accordingly.
-+ *
-+ * On return, filename will have the pointer to the pathname of the task's
-+ * executable, if the rule had any command related terms.
-+ *
-+ * Caller must hold the rbce_rwlock atleast in read mode.
-+ */
-+static inline int
-+evaluate_rule(struct task_struct *tsk, struct ckrm_net_struct *ns,
-+	      struct rbce_rule *rule, bitvector_t * vec_eval,
-+	      bitvector_t * vec_true, char **filename)
-+{
-+	int tidx = rule->index;
-+
-+	if (!bitvector_test(tidx, vec_eval)) {
-+		if (__evaluate_rule
-+		    (tsk, ns, rule, vec_eval, vec_true, filename)) {
-+			bitvector_set(tidx, vec_true);
-+		}
-+		bitvector_set(tidx, vec_eval);
-+	}
-+	return bitvector_test(tidx, vec_true);
-+}
-+
-+/*
-+ * evaluate the given task against every term in the given rule with
-+ * vec_eval and vec_true in context.
-+ *
-+ * If the bit corresponding to a rule term is set in the vec_eval, then the
-+ * corresponding bit in vec_true is the result for taht particular. If it is
-+ * not set, evaluate the rule term and set the bits in both the vectors
-+ * accordingly.
-+ *
-+ * This fucntions returns true only if all terms in the rule evaluate true.
-+ *
-+ * On return, filename will have the pointer to the pathname of the task's
-+ * executable, if the rule had any command related terms.
-+ *
-+ * Caller must hold the rbce_rwlock atleast in read mode.
-+ */
-+static int
-+__evaluate_rule(struct task_struct *tsk, struct ckrm_net_struct *ns,
-+		struct rbce_rule *rule, bitvector_t * vec_eval,
-+		bitvector_t * vec_true, char **filename)
-+{
-+	int i;
-+	int no_ip = 1;
-+
-+	for (i = rule->num_terms; --i >= 0;) {
-+		int rc = 1, tidx = rule->terms[i];
-+
-+		if (!bitvector_test(tidx, vec_eval)) {
-+			struct rbce_rule_term *term = &gl_terms[tidx];
-+
-+			switch (term->op) {
-+
-+			case RBCE_RULE_CMD_PATH:
-+			case RBCE_RULE_CMD:
-+#if __NOT_YET__
-+				if (!*filename) {	/* get this once */
-+					if (((*filename =
-+					      kmalloc(NAME_MAX,
-+						      GFP_ATOMIC)) == NULL)
-+					    ||
-+					    (get_exe_path_name
-+					     (tsk, *filename, NAME_MAX) < 0)) {
-+						rc = 0;
-+						break;
-+					}
-+				}
-+				rc = match_cmd(*filename, term->u.string,
-+					       (term->op ==
-+						RBCE_RULE_CMD_PATH));
-+#else
-+				rc = match_cmd(tsk->comm, term->u.string,
-+					       (term->op ==
-+						RBCE_RULE_CMD_PATH));
-+#endif
-+				break;
-+			case RBCE_RULE_REAL_UID:
-+				if (term->operator == RBCE_LESS_THAN) {
-+					rc = (tsk->uid < term->u.id);
-+				} else if (term->operator == RBCE_GREATER_THAN){
-+					rc = (tsk->uid > term->u.id);
-+				} else if (term->operator == RBCE_NOT) {
-+					rc = (tsk->uid != term->u.id);
-+				} else {
-+					rc = (tsk->uid == term->u.id);
-+				}
-+				break;
-+			case RBCE_RULE_REAL_GID:
-+				if (term->operator == RBCE_LESS_THAN) {
-+					rc = (tsk->gid < term->u.id);
-+				} else if (term->operator == RBCE_GREATER_THAN){
-+					rc = (tsk->gid > term->u.id);
-+				} else if (term->operator == RBCE_NOT) {
-+					rc = (tsk->gid != term->u.id);
-+				} else {
-+					rc = (tsk->gid == term->u.id);
-+				}
-+				break;
-+			case RBCE_RULE_EFFECTIVE_UID:
-+				if (term->operator == RBCE_LESS_THAN) {
-+					rc = (tsk->euid < term->u.id);
-+				} else if (term->operator == RBCE_GREATER_THAN){
-+					rc = (tsk->euid > term->u.id);
-+				} else if (term->operator == RBCE_NOT) {
-+					rc = (tsk->euid != term->u.id);
-+				} else {
-+					rc = (tsk->euid == term->u.id);
-+				}
-+				break;
-+			case RBCE_RULE_EFFECTIVE_GID:
-+				if (term->operator == RBCE_LESS_THAN) {
-+					rc = (tsk->egid < term->u.id);
-+				} else if (term->operator == RBCE_GREATER_THAN){
-+					rc = (tsk->egid > term->u.id);
-+				} else if (term->operator == RBCE_NOT) {
-+					rc = (tsk->egid != term->u.id);
-+				} else {
-+					rc = (tsk->egid == term->u.id);
-+				}
-+				break;
-+			case RBCE_RULE_APP_TAG:
-+				rc = (RBCE_DATA(tsk)
-+				      && RBCE_DATA(tsk)->
-+				      app_tag) ? !strcmp(RBCE_DATA(tsk)->
-+							 app_tag,
-+							 term->u.string) : 0;
-+				break;
-+			case RBCE_RULE_DEP_RULE:
-+				rc = evaluate_rule(tsk, NULL, term->u.deprule,
-+						   vec_eval, vec_true,
-+						   filename);
-+				break;
-+
-+			case RBCE_RULE_IPV4:
-+				/* TBD: add NOT_EQUAL match. At present */
-+				/* rbce recognises EQUAL matches only.  */
-+				if (ns && term->operator == RBCE_EQUAL) {
-+					int ma = 0;
-+					int mp = 0;
-+					char *ptr = term->u.string;
-+
-+					if (term->u.string[0] == '*')
-+						ma = 1;
-+					else
-+						ma = match_ipv4(ns, &ptr);
-+
-+					if (*ptr != '\\') {
-+						rc = 0;
-+						break;
-+					} else {
-+						++ptr;
-+						if (*ptr == '*')
-+							mp = 1;
-+						else
-+							mp = match_port(ns,
-+									ptr);
-+					}
-+					rc = mp && ma;
-+				} else
-+					rc = 0;
-+				no_ip = 0;
-+				break;
-+
-+			case RBCE_RULE_IPV6:	/* no support yet */
-+				rc = 0;
-+				no_ip = 0;
-+				break;
-+
-+			default:
-+				rc = 0;
-+				printk(KERN_ERR "Error evaluate term op=%d\n",
-+				       term->op);
-+				break;
-+			}
-+			if (!rc && no_ip) {
-+				bitvector_clear(tidx, vec_true);
-+			} else {
-+				bitvector_set(tidx, vec_true);
-+			}
-+			bitvector_set(tidx, vec_eval);
-+		} else {
-+			rc = bitvector_test(tidx, vec_true);
-+		}
-+		if (!rc) {
-+			return 0;
-+		}
-+	}
-+	return 1;
-+}
-+
-+/*
-+ * This is some old debug code which needs to be trimmed.
-+ */
-+
-+#define valid_pdata(pdata) (1)
-+#define store_pdata(pdata)
-+#define unstore_pdata(pdata)
-+
-+struct rbce_private_data *create_private_data(struct rbce_private_data
-+						     *src, int copy_sample)
-+{
-+	int vsize = 0, psize, bsize = 0;
-+	struct rbce_private_data *pdata;
-+
-+	if (use_persistent_state) {
-+		vsize = gl_allocated;
-+		bsize = vsize / 8 + sizeof(bitvector_t);
-+		psize = sizeof(struct rbce_private_data) + 2 * bsize;
-+	} else {
-+		psize = sizeof(struct rbce_private_data);
-+	}
-+
-+	pdata = kmalloc(psize, GFP_ATOMIC);
-+	if (pdata != NULL) {
-+		if (use_persistent_state) {
-+			pdata->bitmap_version = gl_bitmap_version;
-+			pdata->eval = (bitvector_t *) & pdata->data[0];
-+			pdata->true = (bitvector_t *) & pdata->data[bsize];
-+			if (src && (src->bitmap_version == gl_bitmap_version)) {
-+				memcpy(pdata->data, src->data, 2 * bsize);
-+			} else {
-+				bitvector_init(pdata->eval, vsize);
-+				bitvector_init(pdata->true, vsize);
-+			}
-+		}
-+		pdata->evaluate = 1;
-+		pdata->rules_version = src ? src->rules_version : 0;
-+		pdata->app_tag = NULL;
-+	}
-+	store_pdata(pdata);
-+	return pdata;
-+}
-+
-+static inline void free_private_data(struct rbce_private_data *pdata)
-+{
-+	if (valid_pdata(pdata)) {
-+		unstore_pdata(pdata);
-+		kfree(pdata);
-+	}
-+}
-+
-+void free_all_private_data(void)
-+{
-+	struct task_struct *proc, *thread;
-+
-+	read_lock(&tasklist_lock);
-+	do_each_thread(proc, thread) {
-+		struct rbce_private_data *pdata;
-+
-+		pdata = RBCE_DATA(thread);
-+		RBCE_DATAP(thread) = NULL;
-+		free_private_data(pdata);
-+	} while_each_thread(proc, thread);
-+	read_unlock(&tasklist_lock);
-+	return;
-+}
-+
-+/*
-+ * reclassify function, which is called by all the callback functions.
-+ *
-+ * Takes that task to be reclassified and ruleflags that indicates the
-+ * attributes that caused this reclassification request.
-+ *
-+ * On success, returns the core class pointer to which the given task should
-+ * belong to.
-+ */
-+static struct ckrm_core_class *rbce_classify(struct task_struct *tsk,
-+					     struct ckrm_net_struct *ns,
-+					     unsigned long termflag,
-+					     int classtype)
-+{
-+	int i;
-+	struct rbce_rule *rule;
-+	bitvector_t *vec_true = NULL, *vec_eval = NULL;
-+	struct rbce_class *tgt = NULL;
-+	struct ckrm_core_class *cls = NULL;
-+	char *filename = NULL;
-+
-+	if (!valid_pdata(RBCE_DATA(tsk))) {
-+		return NULL;
-+	}
-+	if (classtype >= CKRM_MAX_CLASSTYPES) {
-+		/* can't handle more than CKRM_MAX_CLASSTYPES */
-+		return NULL;
-+	}
-+	/* fast path to avoid locking in case CE is not enabled or */
-+	/* if no rules are defined or if no evaluation is needed.  */
-+	if (!rbce_enabled || !gl_num_rules ||
-+	    (RBCE_DATA(tsk) && !RBCE_DATA(tsk)->evaluate)) {
-+		return NULL;
-+	}
-+	/* FIXME: optimize_policy should be called from here if      */
-+	/* gl_action is non-zero. Also, it has to be called with the */
-+	/* rbce_rwlock held in write mode.                           */
-+
-+	read_lock(&rbce_rwlock);
-+
-+	vec_eval = vec_true = NULL;
-+	if (use_persistent_state) {
-+		struct rbce_private_data *pdata = RBCE_DATA(tsk);
-+
-+		if (!pdata
-+		    || (pdata
-+			&& (gl_bitmap_version != pdata->bitmap_version))) {
-+			struct rbce_private_data *new_pdata =
-+			    create_private_data(pdata, 1);
-+
-+			if (new_pdata) {
-+				if (pdata) {
-+					new_pdata->rules_version =
-+					    pdata->rules_version;
-+					new_pdata->evaluate = pdata->evaluate;
-+					new_pdata->app_tag = pdata->app_tag;
-+					free_private_data(pdata);
-+				}
-+				pdata = RBCE_DATAP(tsk) = new_pdata;
-+				termflag = RBCE_TERMFLAG_ALL;
-+				/* need to evaluate them all */
-+			} else {
-+				/*
-+				 * we shouldn't free the pdata as it has more
-+				 * details than the vectors. But, this
-+				 * reclassification should go thru
-+				 */
-+				pdata = NULL;
-+			}
-+		}
-+		if (!pdata) {
-+			goto cls_determined;
-+		}
-+		vec_eval = pdata->eval;
-+		vec_true = pdata->true;
-+	} else {
-+		int bsize = gl_allocated;
-+
-+		vec_eval = bitvector_alloc(bsize);
-+		vec_true = bitvector_alloc(bsize);
-+
-+		if (vec_eval == NULL || vec_true == NULL) {
-+			goto cls_determined;
-+		}
-+		termflag = RBCE_TERMFLAG_ALL;
-+		/* need to evaluate all of them now */
-+	}
-+
-+	/*
-+	 * using bit ops invalidate all terms related to this termflag
-+	 * context (only in per task vec)
-+	 */
-+
-+	if (termflag == RBCE_TERMFLAG_ALL) {
-+		bitvector_zero(vec_eval);
-+	} else {
-+		for (i = 0; i < NUM_TERM_MASK_VECTOR; i++) {
-+			if (test_bit(i, &termflag)) {
-+				bitvector_t *maskvec = get_gl_mask_vecs(i);
-+
-+				bitvector_and_not(vec_eval, vec_eval, maskvec);
-+			}
-+		}
-+	}
-+	bitvector_and(vec_true, vec_true, vec_eval);
-+
-+	/* run through the rules in order and see what needs evaluation */
-+	list_for_each_entry(rule, &rules_list[classtype], obj.link) {
-+		if (rule->state == RBCE_RULE_ENABLED &&
-+		    rule->target_class &&
-+		    rule->target_class->classobj &&
-+		    evaluate_rule(tsk, ns, rule, vec_eval, vec_true,
-+				  &filename)) {
-+			tgt = rule->target_class;
-+			cls = rule->target_class->classobj;
-+			break;
-+		}
-+	}
-+
-+      cls_determined:
-+	if (!use_persistent_state) {
-+		if (vec_eval) {
-+			bitvector_free(vec_eval);
-+		}
-+		if (vec_true) {
-+			bitvector_free(vec_true);
-+		}
-+	}
-+	ckrm_core_grab(cls);
-+	read_unlock(&rbce_rwlock);
-+	if (filename) {
-+		kfree(filename);
-+	}
-+	if (RBCE_DATA(tsk)) {
-+		RBCE_DATA(tsk)->rules_version = gl_rules_version;
-+	}
-+	return cls;
-+}
-+
-+/*****************************************************************************
-+ *
-+ * Module specific utilization of core RBCE functionality
-+ *
-+ * Includes support for the various classtypes
-+ * New classtypes will require extensions here
-+ *
-+ *****************************************************************************/
-+
-+/* helper functions that are required in the extended version */
-+
-+static inline void rbce_tc_manual(struct task_struct *tsk)
-+{
-+	read_lock(&rbce_rwlock);
-+
-+	if (!RBCE_DATA(tsk)) {
-+		RBCE_DATAP(tsk) =
-+		    (void *)create_private_data(RBCE_DATA(tsk->parent), 0);
-+	}
-+	if (RBCE_DATA(tsk)) {
-+		RBCE_DATA(tsk)->evaluate = 0;
-+	}
-+	read_unlock(&rbce_rwlock);
-+	return;
-+}
-+
-+/*****************************************************************************
-+ *    VARIOUS CLASSTYPES
-+ *****************************************************************************/
-+
-+/* to enable type coercion of the function pointers */
-+
-+/*============================================================================
-+ *    TASKCLASS CLASSTYPE
-+ *============================================================================*/
-+
-+int tc_classtype = -1;
-+
-+/*
-+ * fork callback to be registered with core module.
-+ */
-+static inline void *rbce_tc_forkcb(struct task_struct *tsk)
-+{
-+	int rule_version_changed = 1;
-+	struct ckrm_core_class *cls;
-+	read_lock(&rbce_rwlock);
-+	/* dup ce_data */
-+	RBCE_DATAP(tsk) =
-+	    (void *)create_private_data(RBCE_DATA(tsk->parent), 0);
-+	read_unlock(&rbce_rwlock);
-+
-+	if (RBCE_DATA(tsk->parent)) {
-+		rule_version_changed =
-+		    (RBCE_DATA(tsk->parent)->rules_version != gl_rules_version);
-+	}
-+	cls = rule_version_changed ?
-+	    rbce_classify(tsk, NULL, RBCE_TERMFLAG_ALL, tc_classtype) : NULL;
-+
-+	/*
-+	 * note the fork notification to any user client will be sent through
-+	 * the guaranteed fork-reclassification
-+	 */
-+	return cls;
-+}
-+
-+/*
-+ * exit callback to be registered with core module.
-+ */
-+static void rbce_tc_exitcb(struct task_struct *tsk)
-+{
-+	struct rbce_private_data *pdata;
-+
-+	pdata = RBCE_DATA(tsk);
-+	RBCE_DATAP(tsk) = NULL;
-+	if (pdata) {
-+		if (pdata->app_tag) {
-+			kfree(pdata->app_tag);
-+		}
-+		free_private_data(pdata);
-+	}
-+	return;
-+}
-+
-+static void *rbce_tc_classify(enum ckrm_event event, ...)
-+{
-+	va_list args;
-+	void *cls = NULL;
-+	struct task_struct *tsk;
-+	struct rbce_private_data *pdata;
-+
-+	va_start(args, event);
-+	tsk = va_arg(args, struct task_struct *);
-+	va_end(args);
-+
-+	/* we only have to deal with events between
-+	 * [ CKRM_LATCHABLE_EVENTS .. CKRM_NONLATCHABLE_EVENTS )
-+	 */
-+	switch (event) {
-+
-+	case CKRM_EVENT_FORK:
-+		cls = rbce_tc_forkcb(tsk);
-+		break;
-+
-+	case CKRM_EVENT_EXIT:
-+		rbce_tc_exitcb(tsk);
-+		break;
-+
-+	case CKRM_EVENT_EXEC:
-+		cls = rbce_classify(tsk, NULL, RBCE_TERMFLAG_CMD |
-+				    RBCE_TERMFLAG_UID | RBCE_TERMFLAG_GID,
-+				    tc_classtype);
-+		break;
-+
-+	case CKRM_EVENT_UID:
-+		cls = rbce_classify(tsk, NULL, RBCE_TERMFLAG_UID, tc_classtype);
-+		break;
-+
-+	case CKRM_EVENT_GID:
-+		cls = rbce_classify(tsk, NULL, RBCE_TERMFLAG_GID, tc_classtype);
-+		break;
-+
-+	case CKRM_EVENT_LOGIN:
-+	case CKRM_EVENT_USERADD:
-+	case CKRM_EVENT_USERDEL:
-+	case CKRM_EVENT_LISTEN_START:
-+	case CKRM_EVENT_LISTEN_STOP:
-+	case CKRM_EVENT_APPTAG:
-+		/* no interest in this events .. */
-+		break;
-+
-+	default:
-+		/* catch all */
-+		break;
-+
-+	case CKRM_EVENT_RECLASSIFY:
-+		if ((pdata = (RBCE_DATA(tsk)))) {
-+			pdata->evaluate = 1;
-+		}
-+		cls = rbce_classify(tsk, NULL, RBCE_TERMFLAG_ALL, tc_classtype);
-+		break;
-+
-+	}
-+
-+	return cls;
-+}
-+
-+static void rbce_tc_notify(int event, void *core, struct task_struct *tsk)
-+{
-+	if (event != CKRM_EVENT_MANUAL)
-+		return;
-+	rbce_tc_manual(tsk);
-+}
-+
-+static struct ckrm_eng_callback rbce_taskclass_ecbs = {
-+	.c_interest = (unsigned long)(-1),	/* set whole bitmap */
-+	.classify = (ce_classify_fct) rbce_tc_classify,
-+	.class_delete = rbce_class_deletecb,
-+	.n_interest = (1 << CKRM_EVENT_MANUAL),
-+	.notify = (ce_notify_fct) rbce_tc_notify,
-+	.always_callback = 0,
-+};
-+
-+/*============================================================================
-+ *    ACCEPTQ CLASSTYPE
-+ *============================================================================*/
-+
-+int sc_classtype = -1;
-+
-+static void *rbce_sc_classify(enum ckrm_event event, ...)
-+{
-+	/* no special consideratation */
-+	void *result;
-+	va_list args;
-+	struct task_struct *tsk;
-+	struct ckrm_net_struct *ns;
-+
-+	va_start(args, event);
-+	ns = va_arg(args, struct ckrm_net_struct *);
-+	tsk = va_arg(args, struct task_struct *);
-+	va_end(args);
-+
-+	result = rbce_classify(tsk, ns, RBCE_TERMFLAG_ALL, sc_classtype);
-+
-+	return result;
-+}
-+
-+static struct ckrm_eng_callback rbce_acceptQclass_ecbs = {
-+	.c_interest = (unsigned long)(-1),
-+	.always_callback = 0,	/* enable during debugging only */
-+	.classify = (ce_classify_fct) & rbce_sc_classify,
-+	.class_delete = rbce_class_deletecb,
-+};
-+
-+/*============================================================================
-+ *    Module Initialization ...
-+ *============================================================================*/
-+
-+#define TASKCLASS_NAME  "taskclass"
-+#define SOCKCLASS_NAME  "socket_class"
-+
-+struct ce_regtable_struct {
-+	const char *name;
-+	struct ckrm_eng_callback *cbs;
-+	int *clsvar;
-+};
-+
-+struct ce_regtable_struct ce_regtable[] = {
-+	{TASKCLASS_NAME, &rbce_taskclass_ecbs, &tc_classtype},
-+	{SOCKCLASS_NAME, &rbce_acceptQclass_ecbs, &sc_classtype},
-+	{NULL}
-+};
-+
-+void unregister_classtype_engines(void)
-+{
-+	int rc;
-+	struct ce_regtable_struct *ceptr = ce_regtable;
-+
-+	while (ceptr->name) {
-+		if (*ceptr->clsvar >= 0) {
-+			while ((rc = ckrm_unregister_engine(ceptr->name)) == -EAGAIN)
-+				;
-+			*ceptr->clsvar = -1;
-+		}
-+		ceptr++;
-+	}
-+}
-+
-+int register_classtype_engines(void)
-+{
-+	int rc;
-+	struct ce_regtable_struct *ceptr = ce_regtable;
-+
-+	while (ceptr->name) {
-+		rc = ckrm_register_engine(ceptr->name, ceptr->cbs);
-+		if ((rc < 0) && (rc != -ENOENT)) {
-+			unregister_classtype_engines();
-+			return (rc);
-+		}
-+		if (rc != -ENOENT)
-+			*ceptr->clsvar = rc;
-+		ceptr++;
-+	}
-+	return 0;
-+}
-Index: linux-2.6.12-rc3-ckrm5/kernel/ckrm/rbce/rbce_internal.h
-===================================================================
---- linux-2.6.12-rc3-ckrm5.orig/kernel/ckrm/rbce/rbce_internal.h	2005-05-05 09:38:05.000000000 -0700
-+++ linux-2.6.12-rc3-ckrm5/kernel/ckrm/rbce/rbce_internal.h	2005-05-05 09:38:06.000000000 -0700
-@@ -41,6 +41,8 @@
- #include <asm/io.h>
- #include <asm/uaccess.h>
- 
-+#include "rbce_bitvector.h"
-+
  /*
-  * comman data structure used for identification of class and rules
-  * in the RBCE namespace
-@@ -205,14 +207,25 @@ struct rbce_private_data {
- 	bitvector_t *eval;
- 	bitvector_t *true;
- 	char *app_tag;
-+	unsigned long bitmap_version;
-   	char data[0];		/* bitvectors eval and true */
+  * Callback from core when a class is deleted.
+  */
+@@ -40,6 +57,7 @@ rbce_class_deletecb(const char *classnam
+ 			printk(KERN_ERR "rbce: class %s changed identity\n",
+ 			       classname);
+ 		}
++		notify_class_action(cls, 0);
+ 		cls->classobj = NULL;
+ 		list_for_each_entry(pos, &rules_list[cls->classtype], link) {
+ 			rule = (struct rbce_rule *)pos;
+@@ -53,9 +71,7 @@ rbce_class_deletecb(const char *classnam
+ 			}
+ 		}
+ 		if ((cls = find_class_name(classname)) != NULL) {
+-			printk(KERN_ERR
+-			       "rbce ERROR: class %s exists in rbce after "
+-			       "removal in core\n", classname);
++			put_class(cls); /* propably created thru addcb */
+ 		}
+ 	}
+ 	write_unlock(&rbce_rwlock);
+@@ -446,6 +462,16 @@ __evaluate_rule(struct task_struct *tsk,
+ #define store_pdata(pdata)
+ #define unstore_pdata(pdata)
+ 
++static inline void
++copy_ext_private_data(struct rbce_private_data *src,
++		      struct rbce_private_data *dst)
++{
++	if (src)
++		dst->ext_data = src->ext_data;
++	else
++		memset(&dst->ext_data, 0, sizeof(dst->ext_data));
++}
++
+ struct rbce_private_data *create_private_data(struct rbce_private_data
+ 						     *src, int copy_sample)
+ {
+@@ -473,6 +499,7 @@ struct rbce_private_data *create_private
+ 				bitvector_init(pdata->true, vsize);
+ 			}
+ 		}
++		copy_ext_private_data(src, pdata);
+ 		pdata->evaluate = 1;
+ 		pdata->rules_version = src ? src->rules_version : 0;
+ 		pdata->app_tag = NULL;
+@@ -655,7 +682,7 @@ static struct ckrm_core_class *rbce_clas
+ 
+ /* helper functions that are required in the extended version */
+ 
+-static inline void rbce_tc_manual(struct task_struct *tsk)
++void rbce_tc_manual(struct task_struct *tsk)
+ {
+ 	read_lock(&rbce_rwlock);
+ 
+@@ -716,6 +743,7 @@ static void rbce_tc_exitcb(struct task_s
+ {
+ 	struct rbce_private_data *pdata;
+ 
++	send_exit_notification(tsk);
+ 	pdata = RBCE_DATA(tsk);
+ 	RBCE_DATAP(tsk) = NULL;
+ 	if (pdata) {
+@@ -790,20 +818,29 @@ static void *rbce_tc_classify(enum ckrm_
+ 	return cls;
+ }
+ 
++#ifndef CRBCE_EXTENSION
+ static void rbce_tc_notify(int event, void *core, struct task_struct *tsk)
+ {
+ 	if (event != CKRM_EVENT_MANUAL)
+ 		return;
+ 	rbce_tc_manual(tsk);
+ }
++#endif
+ 
+ static struct ckrm_eng_callback rbce_taskclass_ecbs = {
+ 	.c_interest = (unsigned long)(-1),	/* set whole bitmap */
+ 	.classify = (ce_classify_fct) rbce_tc_classify,
+ 	.class_delete = rbce_class_deletecb,
++	.class_add = rbce_class_addcb,
++#ifndef CRBCE_EXTENSION
+ 	.n_interest = (1 << CKRM_EVENT_MANUAL),
+ 	.notify = (ce_notify_fct) rbce_tc_notify,
+ 	.always_callback = 0,
++#else
++	.n_interest = (unsigned long)(-1),      /* set whole bitmap */
++	.notify = (ce_notify_fct) rbce_tc_ext_notify,
++	.always_callback = 1,
++#endif
  };
  
- #define RBCE_DATA(tsk) ((struct rbce_private_data*)((tsk)->ce_data))
- #define RBCE_DATAP(tsk) ((tsk)->ce_data)
- 
-+/* Other rbce global stuff. */
-+
+ /*============================================================================
+Index: linux-2.6.12-rc3-ckrm5/kernel/ckrm/rbce/rbce_internal.h
+===================================================================
+--- linux-2.6.12-rc3-ckrm5.orig/kernel/ckrm/rbce/rbce_internal.h	2005-05-05 09:38:06.000000000 -0700
++++ linux-2.6.12-rc3-ckrm5/kernel/ckrm/rbce/rbce_internal.h	2005-05-05 09:38:07.000000000 -0700
+@@ -202,6 +202,7 @@ enum op_token {
+  *
+  */
+ struct rbce_private_data {
++	struct rbce_ext_private_data ext_data;
+   	int evaluate;		/* whether to evaluate rules or not ? */
+   	int rules_version;	/* rules_version at last evaluation */
+ 	bitvector_t *eval;
+@@ -219,6 +220,7 @@ struct rbce_private_data {
  extern struct rbce_eng_callback rbce_rcfs_ecbs;
  extern int rbce_enabled;
-+extern struct list_head rules_list[];
-+extern const int use_persistent_state;
-+extern int gl_num_rules;
-+extern int gl_bitmap_version;
-+extern int gl_allocated;
-+extern struct rbce_rule_term *gl_terms;
-+extern int gl_rules_version;
-+extern rwlock_t rbce_rwlock;
+ extern struct list_head rules_list[];
++extern struct list_head class_list;
+ extern const int use_persistent_state;
+ extern int gl_num_rules;
+ extern int gl_bitmap_version;
+@@ -251,4 +253,12 @@ extern void free_all_private_data(void);
+ extern void unregister_classtype_engines(void);
+ extern int register_classtype_engines(void);
  
- extern int rbce_mkdir(struct inode *, struct dentry *, int);
- extern int rbce_rmdir(struct inode *, struct dentry *);
-@@ -228,4 +241,14 @@ extern int rbce_rename_rule(const char *
- 
- extern int rules_parse(char *, struct rbce_rule_term **, int *);
- 
-+extern struct rbce_private_data *create_private_data(struct rbce_private_data
-+						     *, int);
-+extern bitvector_t *get_gl_mask_vecs(int);
-+extern struct rbce_class *find_class_name(const char *);
-+extern void put_class(struct rbce_class *);
-+extern void free_all_private_data(void);
-+
-+extern void unregister_classtype_engines(void);
-+extern int register_classtype_engines(void);
-+
++extern struct rbce_class *create_rbce_class(const char *, int, void *);
++extern void rbce_tc_manual(struct task_struct *);
++extern void notify_class_action(struct rbce_class *, int);
++extern void send_exit_notification(struct task_struct *);
++extern void rbce_tc_ext_notify(int, void *, struct task_struct *);
++extern int init_rbce_ext_pre(void);
++extern int init_rbce_ext_post(void);
++extern void exit_rbce_ext(void);
  #endif /* _RBCE_INTERNAL_H */
 Index: linux-2.6.12-rc3-ckrm5/kernel/ckrm/rbce/rbce_main.c
 ===================================================================
---- linux-2.6.12-rc3-ckrm5.orig/kernel/ckrm/rbce/rbce_main.c	2005-05-05 09:38:05.000000000 -0700
-+++ linux-2.6.12-rc3-ckrm5/kernel/ckrm/rbce/rbce_main.c	2005-05-05 09:38:06.000000000 -0700
-@@ -23,7 +23,6 @@
-  */
- 
- #include "rbce_internal.h"
--#include "rbce_bitvector.h"
- 
- MODULE_DESCRIPTION(RBCE_MOD_DESCR);
- MODULE_AUTHOR("Hubertus Franke, Chandra Seetharaman (IBM)");
-@@ -57,19 +56,20 @@ int termop_2_vecidx[RBCE_RULE_INVALID] =
+--- linux-2.6.12-rc3-ckrm5.orig/kernel/ckrm/rbce/rbce_main.c	2005-05-05 09:38:06.000000000 -0700
++++ linux-2.6.12-rc3-ckrm5/kernel/ckrm/rbce/rbce_main.c	2005-05-05 09:38:07.000000000 -0700
+@@ -56,7 +56,7 @@ int termop_2_vecidx[RBCE_RULE_INVALID] =
  
  extern int errno;
  
--int rbce_enabled = 1;
--const int use_persistent_state = 1;
--
- static LIST_HEAD(class_list);
--static struct list_head rules_list[CKRM_MAX_CLASSTYPES];
--static int gl_num_rules;
-+struct list_head rules_list[CKRM_MAX_CLASSTYPES];
+-static LIST_HEAD(class_list);
++LIST_HEAD(class_list);
+ struct list_head rules_list[CKRM_MAX_CLASSTYPES];
  static int gl_action, gl_num_terms;
--static int gl_bitmap_version, gl_action, gl_num_terms;
--static int gl_allocated, gl_released;
--static struct rbce_rule_term *gl_terms;
--static int gl_rules_version;
-+static int gl_released;
- static bitvector_t *gl_mask_vecs[NUM_TERM_MASK_VECTOR];
--static rwlock_t rbce_rwlock = RW_LOCK_UNLOCKED;
-+
-+int rbce_enabled = 1;
-+const int use_persistent_state = 1;
-+int gl_num_rules;
-+int gl_bitmap_version;
-+int gl_allocated;
-+struct rbce_rule_term *gl_terms;
-+int gl_rules_version;
-+rwlock_t rbce_rwlock = RW_LOCK_UNLOCKED;
- 	/*
- 	 * One lock to protect them all !!!
- 	 * Additions, deletions to rules must
-@@ -84,6 +84,12 @@ static rwlock_t rbce_rwlock = RW_LOCK_UN
+ static int gl_released;
+@@ -1205,11 +1205,16 @@ int init_rbce(void)
+ 		INIT_LIST_HEAD(&rules_list[i]);
+ 	}
  
- static void optimize_policy(void);
- 
-+bitvector_t *
-+get_gl_mask_vecs(int index)
-+{
-+	return gl_mask_vecs[index];
-+}
-+
- static inline struct rbce_rule *find_rule_name(const char *name)
- {
- 	struct named_obj_hdr *pos;
-@@ -353,7 +359,7 @@ static inline int __delete_rule(struct r
- /*
-  * Optimize the rule evaluation logic
-  *
-- * Caller must hold global_rwlock in write mode.
-+ * Caller must hold rbce_rwlock in write mode.
-  */
- static void optimize_policy(void)
- {
-@@ -1127,12 +1133,6 @@ int rbce_rule_exists(const char *rname)
- }
- 
- /*====================== Magic file handling =======================*/
--struct rbce_private_data *create_private_data(struct rbce_private_data *a,
--						     int b)
--{
--	return NULL;
--}
--
- static inline
- void reset_evaluation(struct rbce_private_data *pdata,int termflag)
- {
-@@ -1197,15 +1197,25 @@ out:
- 
- int init_rbce(void)
- {
--	int rc, line;
-+	int rc, i, line;
- 
- 	printk(KERN_INFO "Installing \'%s\' module\n", modname);
- 
--	rc = rcfs_register_engine(&rbce_rcfs_ecbs);
-+	for (i = 0; i < CKRM_MAX_CLASSTYPES; i++) {
-+		INIT_LIST_HEAD(&rules_list[i]);
-+	}
-+
-+	rc = register_classtype_engines();
+-	rc = register_classtype_engines();
++	rc = init_rbce_ext_pre();
  	line = __LINE__;
  	if (rc)
  		goto out;
  
-+	/* register any other class type engine here */
-+  	rc = rcfs_register_engine(&rbce_rcfs_ecbs);
-+  	line = __LINE__;
-+  	if (rc)
-+		goto out_unreg_classtype;;
++	rc = register_classtype_engines();
++	line = __LINE__;
++	if (rc)
++		goto out_unreg_ckrm;
 +
+ 	/* register any other class type engine here */
+   	rc = rcfs_register_engine(&rbce_rcfs_ecbs);
+   	line = __LINE__;
+@@ -1219,13 +1224,22 @@ int init_rbce(void)
  	if (rcfs_mounted) {
  		rc = rbce_create_config();
  		line = __LINE__;
-@@ -1214,6 +1224,8 @@ int init_rbce(void)
+-		if (!rc)
+-			goto out;
++		if (rc)
++			goto out_unreg_rcfs;
  	}
  
++	rc = init_rbce_ext_post();
++	line = __LINE__;
++	if (rc)
++		goto out_unreg_rcfs;
++	return 0;
++
++out_unreg_rcfs:
  	rcfs_unregister_engine(&rbce_rcfs_ecbs);
-+out_unreg_classtype:
-+ 	unregister_classtype_engines();
+ out_unreg_classtype:
+  	unregister_classtype_engines();
++out_unreg_ckrm:
++	exit_rbce_ext();
  out:
  	printk(KERN_ERR "%s: error installing rc=%d line=%d\n",
  		__FUNCTION__, rc, line);
-@@ -1222,12 +1234,27 @@ out:
- 
- void exit_rbce(void)
- {
-+	int i;
+@@ -1237,6 +1251,8 @@ void exit_rbce(void)
+ 	int i;
  	printk(KERN_INFO "Removing \'%s\' module\n", modname);
  
-+	/* Print warnings if lists are not empty, which is a bug */
-+	if (!list_empty(&class_list)) {
-+		printk(KERN_WARNING "exit_rbce: Class list is not empty\n");
-+	}
++	exit_rbce_ext();
 +
-+	for (i = 0; i < CKRM_MAX_CLASSTYPES; i++) {
-+		if (!list_empty(&rules_list[i])) {
-+			printk(KERN_WARNING "exit_rbce: Rules list for "
-+				"classtype %d is not empty\n", i);
-+		}
-+	}
+ 	/* Print warnings if lists are not empty, which is a bug */
+ 	if (!list_empty(&class_list)) {
+ 		printk(KERN_WARNING "exit_rbce: Class list is not empty\n");
+Index: linux-2.6.12-rc3-ckrm5/include/linux/rbce.h
+===================================================================
+--- linux-2.6.12-rc3-ckrm5.orig/include/linux/rbce.h	2005-05-05 09:38:01.000000000 -0700
++++ linux-2.6.12-rc3-ckrm5/include/linux/rbce.h	2005-05-05 09:38:07.000000000 -0700
+@@ -22,7 +22,57 @@
+ #ifndef _LINUX_RBCE_H
+ #define _LINUX_RBCE_H
+ 
++struct rbce_class;
++#ifndef CRBCE_EXTENSION
 +
- 	if (rcfs_mounted)
- 		rbce_clear_config();
++/****************************************************************************
++ *
++ *   RBCE STANDALONE VERSION, NO CHOICE FOR DATA COLLECTION
++ *
++ ****************************************************************************/
++
+ #define RBCE_MOD_DESCR "Rule Based Classification Engine Module for CKRM"
+ #define RBCE_MOD_NAME  "rbce"
  
- 	rcfs_unregister_engine(&rbce_rcfs_ecbs);
-+	unregister_classtype_engines();
-+	free_all_private_data();
- }
- 
- module_init(init_rbce);
++struct rbce_ext_private_data {
++	/* no data */
++};
++static inline void send_exit_notification(struct task_struct *tsk)
++{
++}
++static inline void notify_class_action(struct rbce_class *cls, int action)
++{
++}
++/* extension initialization and destruction at module init and exit */
++static inline int init_rbce_ext_pre(void)
++{
++	return 0;
++}
++static inline int init_rbce_ext_post(void)
++{
++	return 0;
++}
++static inline void exit_rbce_ext(void)
++{
++}
++#else /* CRBCE_EXTENSION */
++
++/***************************************************************************
++ *
++ *   RBCE with User Level Notification
++ *
++ ***************************************************************************/
++
++#define RBCE_MOD_DESCR 	"Rule Based Classification Engine Module" \
++			"with Data Sampling/Delivery for CKRM"
++#define RBCE_MOD_NAME 	"crbce"
++
++#include <linux/crbce.h>
++
++struct rbce_ext_private_data {
++	struct task_sample_info sample;
++};
++
++#endif	/* CRBCE_EXTENSION */
++
+ #endif	/* _LINUX_RBCE_H */
 
 --
 

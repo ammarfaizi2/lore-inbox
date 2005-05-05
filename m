@@ -1,51 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262104AbVEEN0Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262098AbVEENN5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262104AbVEEN0Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 09:26:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262105AbVEEN0Z
+	id S262098AbVEENN5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 09:13:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262097AbVEENN5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 09:26:25 -0400
-Received: from everest.sosdg.org ([66.93.203.161]:12778 "EHLO mail.sosdg.org")
-	by vger.kernel.org with ESMTP id S262104AbVEEN0X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 09:26:23 -0400
-From: "Coywolf Qi Hunt" <coywolf@lovecn.org>
-Date: Thu, 5 May 2005 21:26:10 +0800
-To: sam@ravnborg.org
-Cc: kai@germaschewski.name, akpm@osdl.org, linux-kernel@vger.kernel.org
-Message-ID: <20050505132610.GA21833@lovecn.org>
+	Thu, 5 May 2005 09:13:57 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:39894 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262098AbVEENNv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 09:13:51 -0400
+Date: Thu, 5 May 2005 18:56:55 +0530
+From: Dinakar Guniguntala <dino@in.ibm.com>
+To: Matthew Dobson <colpatch@us.ibm.com>
+Cc: Paul Jackson <pj@sgi.com>, Simon Derr <Simon.Derr@bull.net>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       lkml <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>,
+       Dipankar Sarma <dipankar@in.ibm.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC PATCH] Dynamic sched domains (v0.5)
+Message-ID: <20050505132655.GA4028@in.ibm.com>
+Reply-To: dino@in.ibm.com
+References: <20050501190947.GA5204@in.ibm.com> <4277F52B.8040908@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
-X-Scan-Signature: 5e46532232fd70c4de6004b73fafcbb3
-X-SA-Exim-Connect-IP: 66.93.203.161
-X-SA-Exim-Mail-From: coywolf@lovecn.org
-Subject: [patch] kbuild: display compile version
-X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
-	*      [score: 0.0000]
-X-SA-Exim-Version: 4.2 (built Tue, 12 Apr 2005 17:41:13 -0500)
+In-Reply-To: <4277F52B.8040908@us.ibm.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
+On Tue, May 03, 2005 at 03:03:23PM -0700, Matthew Dobson wrote:
+> An interesting feature.  I tried a while ago to get cpusets and
+> sched_domains to play nice (nicer?) and didn't have much luck.  It seems
+> you're taking a better approach, with smaller patches.  Good luck!
 
-I am always trying to make sure I've booted the right kernel after a new install.
-Too paranoid maybe. But I guess there're other people like me. So let's make kbuild
-display the compile version number at the end to give us a hint. I know we may be
-booting vmlinux someday, but don't care about it for now.
+Thanks ! I would very much like to know your findings as far as
+memory/node domains are concerned or are you going to be working on it?
+I dont have any thoughts on it right now
 
+> > -#ifdef CONFIG_HOTPLUG
+> > +#if defined(CONFIG_HOTPLUG) || defined(CONFIG_CPUSETS)
+> >  #define __devinit
+> >  #define __devinitdata
+> >  #define __devexit
+> 
+> This looks just plain wrong.  Why do you need this?  It doesn't seem that
+> arch_init_sched_domains() and/or update_sched_domains() are called from
+> anywhere that is cpuset related, so why the #ifdef CONFIG_CPUSETS?
 
-Signed-off-by: Coywolf Qi Hunt <coywolf@lovecn.org>
+cpu_attach_domain is defined as a __devinit, maybe I need to remove that
+instead of the #ifdef
 
---- 2.6.12-rc3-mm3/arch/i386/boot/Makefile	2005-05-05 18:52:51.000000000 +0800
-+++ 2.6.12-rc3-mm3-cy/arch/i386/boot/Makefile	2005-05-05 20:45:57.000000000 +0800
-@@ -48,7 +48,7 @@
- $(obj)/zImage $(obj)/bzImage: $(obj)/bootsect $(obj)/setup \
- 			      $(obj)/vmlinux.bin $(obj)/tools/build FORCE
- 	$(call if_changed,image)
--	@echo 'Kernel: $@ is ready'
-+	@echo 'Kernel: $@ is ready' '(#'`cat .version`')'
- 
- $(obj)/vmlinux.bin: $(obj)/compressed/vmlinux FORCE
- 	$(call if_changed,objcopy)
+> >  #ifdef CONFIG_SMP
+> > -#define SCHED_DOMAIN_DEBUG
+> > +#undef SCHED_DOMAIN_DEBUG
+> >  #ifdef SCHED_DOMAIN_DEBUG
+> >  static void sched_domain_debug(struct sched_domain *sd, int cpu)
+> >  {
+> 
+> Is this just to quiet boot for your testing?  Is there are better reason
+> you're turning this off?  It seems unrelated to the rest of your patch.
+> 
+
+This gets called from cpu_attach_domain, and so everytime partitioning is done
+and not only during boot with my changes
+
+Thanks for your review !
+
+	-Dinakar

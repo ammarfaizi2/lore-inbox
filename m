@@ -1,48 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbVEES3P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262188AbVEETSi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261298AbVEES3P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 14:29:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbVEES3O
+	id S262188AbVEETSi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 15:18:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbVEETRv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 14:29:14 -0400
-Received: from c-24-22-18-178.hsd1.or.comcast.net ([24.22.18.178]:40593 "EHLO
+	Thu, 5 May 2005 15:17:51 -0400
+Received: from c-24-22-18-178.hsd1.or.comcast.net ([24.22.18.178]:47505 "EHLO
 	w-gerrit.beaverton.ibm.com") by vger.kernel.org with ESMTP
-	id S261298AbVEES3J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 14:29:09 -0400
-Message-Id: <20050505180936.044586000@us.ibm.com>
+	id S262190AbVEES3R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 14:29:17 -0400
+Message-Id: <20050505180936.211142000@us.ibm.com>
 References: <20050505180731.010896000@us.ibm.com>
-Date: Thu, 05 May 2005 11:07:51 -0700
+Date: Thu, 05 May 2005 11:07:52 -0700
 To: linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
-Subject: [patch 20/21] CKRM: Clean up typo in printk message
+Subject: [patch 21/21] CKRM: Fix for compiler warnings
 From: gh@us.ibm.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 --
-Content-Disposition: inline; filename=ckrm-printf-cleanup
+Content-Disposition: inline; filename=compiler-warning-fix
 
 
-Description: Simple typo, but makes code look incomplete.
+Signed-Off-By: Vivek Kashyap <kashyapv@us.ibm.com>
+Signed-Off-By: Gerrit Huizenga <gh@us.ibm.com>
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-Signed-off-by: Gerrit Huizenga <gh@us.ibm.com>
+The attached patch fixes warnings seen when event callback table
+is initialized.
 
- ckrm.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+ kernel/ckrm/ckrm_sockc.c |    6 ++++--
+ kernel/ckrm/ckrm_tc.c    |   21 +++++++++++++--------
+ 2 files changed, 17 insertions(+), 10 deletions(-)
 
-Index: linux-2.6.12-rc3-ckrm5/kernel/ckrm/ckrm.c
+Index: linux-2.6.12-rc3-ckrm6/kernel/ckrm/ckrm_tc.c
 ===================================================================
---- linux-2.6.12-rc3-ckrm5.orig/kernel/ckrm/ckrm.c	2005-05-05 09:35:14.000000000 -0700
-+++ linux-2.6.12-rc3-ckrm5/kernel/ckrm/ckrm.c	2005-05-05 09:43:47.000000000 -0700
-@@ -598,7 +598,7 @@ ckrm_register_res_ctlr(struct ckrm_class
- 		 */
- 		read_lock(&ckrm_class_lock);
- 		list_for_each_entry(core, &clstype->classes, clslist) {
--			printk("CKRM .. create res clsobj for resouce <%s>"
-+			printk(KERN_NOTICE "CKRM .. create res clsobj for resource <%s>"
- 			       "class <%s> par=%p\n", rcbs->res_name,
- 			       core->name, core->hnode.parent);
- 			ckrm_alloc_res_class(core, core->hnode.parent, resid);
+--- linux-2.6.12-rc3-ckrm6.orig/kernel/ckrm/ckrm_tc.c	2005-05-05 10:50:23.000000000 -0700
++++ linux-2.6.12-rc3-ckrm6/kernel/ckrm/ckrm_tc.c	2005-05-05 10:50:58.000000000 -0700
+@@ -253,14 +253,17 @@ do {						\
+ 	ce_release(&ct_taskclass);              \
+ } while (0)
+ 
+-static void cb_taskclass_newtask(struct task_struct *tsk)
++static void cb_taskclass_newtask(void *tsk1)
+ {
++	struct task_struct *tsk = (struct task_struct *)tsk1;
++
+ 	tsk->taskclass = NULL;
+ 	INIT_LIST_HEAD(&tsk->taskclass_link);
+ }
+ 
+-static void cb_taskclass_fork(struct task_struct *tsk)
++static void cb_taskclass_fork(void *tsk1)
+ {
++	struct task_struct *tsk = (struct task_struct *)tsk1;
+ 	struct ckrm_task_class *cls = NULL;
+ 
+ 	pr_debug("%p:%d:%s\n", tsk, tsk->pid, tsk->comm);
+@@ -281,26 +284,28 @@ static void cb_taskclass_fork(struct tas
+ 	ce_release(&ct_taskclass);
+ }
+ 
+-static void cb_taskclass_exit(struct task_struct *tsk)
++static void cb_taskclass_exit(void *tsk1)
+ {
++	struct task_struct *tsk = (struct task_struct *)tsk1;
++
+ 	CE_CLASSIFY_NORET(&ct_taskclass, CKRM_EVENT_EXIT, tsk);
+ 	ckrm_set_taskclass(tsk, (void *)-1, NULL, CKRM_EVENT_EXIT);
+ }
+ 
+-static void cb_taskclass_exec(const char *filename)
++static void cb_taskclass_exec(void *filename)
+ {
+ 	pr_debug("%p:%d:%s <%s>\n", current, current->pid, current->comm,
+-		   filename);
++		   (const char *)filename);
+ 	CE_CLASSIFY_TASK_PROTECT(CKRM_EVENT_EXEC, current);
+ }
+ 
+-static void cb_taskclass_uid(void)
++static void cb_taskclass_uid(void *arg)
+ {
+ 	pr_debug("%p:%d:%s\n", current, current->pid, current->comm);
+ 	CE_CLASSIFY_TASK_PROTECT(CKRM_EVENT_UID, current);
+ }
+ 
+-static void cb_taskclass_gid(void)
++static void cb_taskclass_gid(void *arg)
+ {
+ 	pr_debug("%p:%d:%s\n", current, current->pid, current->comm);
+ 	CE_CLASSIFY_TASK_PROTECT(CKRM_EVENT_GID, current);
+@@ -313,7 +318,7 @@ static struct ckrm_event_spec taskclass_
+ 	{CKRM_EVENT_EXIT, { cb_taskclass_exit, NULL }},
+ 	{CKRM_EVENT_UID, { cb_taskclass_uid, NULL }},
+ 	{CKRM_EVENT_GID, { cb_taskclass_gid, NULL }},
+-	{-1, { -1, NULL }}
++	{-1, { NULL, NULL }}
+ };
+ 
+ /*
+Index: linux-2.6.12-rc3-ckrm6/kernel/ckrm/ckrm_sockc.c
+===================================================================
+--- linux-2.6.12-rc3-ckrm6.orig/kernel/ckrm/ckrm_sockc.c	2005-05-05 10:50:23.000000000 -0700
++++ linux-2.6.12-rc3-ckrm6/kernel/ckrm/ckrm_sockc.c	2005-05-05 10:50:58.000000000 -0700
+@@ -172,8 +172,9 @@ static void ckrm_sock_add_resctrl(struct
+  *                   Functions called from classification points          *
+  **************************************************************************/
+ 
+-static void cb_sockclass_listen_start(struct sock *sk)
++static void cb_sockclass_listen_start(void *sk1)
+ {
++	struct sock *sk = (struct sock *)sk1;
+ 	struct ckrm_net_struct *ns = NULL;
+ 	struct ckrm_sock_class *newcls = NULL;
+ 	struct ckrm_res_ctlr *rcbs;
+@@ -243,8 +244,9 @@ static void cb_sockclass_listen_start(st
+ 	return;
+ }
+ 
+-static void cb_sockclass_listen_stop(struct sock *sk)
++static void cb_sockclass_listen_stop(void *sk1)
+ {
++	struct sock *sk = (struct sock *)sk1;
+ 	struct ckrm_net_struct *ns = NULL;
+ 	struct ckrm_sock_class *newcls = NULL;
+ 
 
 --
 

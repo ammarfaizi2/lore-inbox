@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262163AbVEESAX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262164AbVEESBa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262163AbVEESAX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 14:00:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262166AbVEESAX
+	id S262164AbVEESBa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 14:01:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262165AbVEESB3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 14:00:23 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:27029 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262163AbVEESAS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 14:00:18 -0400
-Subject: Re: /proc/ide/hd?/settings obsolete in 2.6.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Wakko Warner <wakko@animx.eu.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050505163316.GB17861@animx.eu.org>
-References: <20050505004854.GA16550@animx.eu.org>
-	 <58cb370e050505031041c2c164@mail.gmail.com>
-	 <20050505111324.GA17223@animx.eu.org>
-	 <58cb370e050505051360d0588c@mail.gmail.com>
-	 <1115304977.23360.83.camel@localhost.localdomain>
-	 <20050505153807.GB17724@animx.eu.org>
-	 <1115310081.19842.89.camel@localhost.localdomain>
-	 <20050505163316.GB17861@animx.eu.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1115315925.19842.92.camel@localhost.localdomain>
+	Thu, 5 May 2005 14:01:29 -0400
+Received: from fire.osdl.org ([65.172.181.4]:7863 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262164AbVEESBZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 14:01:25 -0400
+Date: Thu, 5 May 2005 11:00:52 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: 2.6.12-rc3-mm3
+Message-Id: <20050505110052.62c1c2cb.akpm@osdl.org>
+In-Reply-To: <20050505115502.GA4414@electric-eye.fr.zoreil.com>
+References: <20050504221057.1e02a402.akpm@osdl.org>
+	<20050505115502.GA4414@electric-eye.fr.zoreil.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 05 May 2005 18:58:47 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-05-05 at 17:33, Wakko Warner wrote:
-> Now, i have programs that I can't tell it the geometry (which it does use
-> and requires to be correct.  My guesses using edd are correct).  I was using
-> /proc/ide/hdX/settings to tell the kernel what geometry I want so the
-> programs that can only ask the kernel can get it right.
+Francois Romieu <romieu@fr.zoreil.com> wrote:
+>
+> Andrew Morton <akpm@osdl.org> :
+> [...]
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc3/2.6.12-rc3-mm3/
+> 
+> r8169-new-pci-id.patch was announced in 2.6.12-rc3-mm1. It disappeared in
+> 2.6.12-rc3-mm{2/3} without notification.
 
-And the geometry ioctls are obsolete for the applications too.
+Nope, it's in -rc3-mm3.
 
-> If the "right" way is via IOCTL, my scripts are written in perl that do the
-> bulk of the guess work.
+> ...
+> 
+> On a related note, is it suggested to wait for a renewed -netdev tree or
+> to feed the pending r8169 stuff to -mm ?
+> 
 
-I suspect it is for other programs that are still using that geometry
-data and
-really mkdosfs is what needs fixing ?
-
+You may as well send them out - I'll scoop them up.  Normally I'll autospam
+Jeff and Dave with net stuff until one of them takes it ;) 

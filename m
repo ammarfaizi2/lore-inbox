@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262033AbVEELOK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262034AbVEELYM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbVEELOK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 07:14:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbVEELOK
+	id S262034AbVEELYM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 07:24:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbVEELYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 07:14:10 -0400
-Received: from animx.eu.org ([216.98.75.249]:49290 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S262033AbVEELOG (ORCPT
+	Thu, 5 May 2005 07:24:12 -0400
+Received: from open.hands.com ([195.224.53.39]:61630 "EHLO open.hands.com")
+	by vger.kernel.org with ESMTP id S262034AbVEELYI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 07:14:06 -0400
-Date: Thu, 5 May 2005 07:13:24 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: /proc/ide/hd?/settings obsolete in 2.6.
-Message-ID: <20050505111324.GA17223@animx.eu.org>
-Mail-Followup-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <20050505004854.GA16550@animx.eu.org> <58cb370e050505031041c2c164@mail.gmail.com>
+	Thu, 5 May 2005 07:24:08 -0400
+Date: Thu, 5 May 2005 12:32:54 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux ARM Kernel list 
+	<linux-arm-kernel@lists.arm.linux.org.uk>
+Subject: Re: tricky challenge for getting round level-driven interrupt problem: help!
+Message-ID: <20050505113254.GI8537@lkcl.net>
+References: <20050503215634.GH8079@lkcl.net> <1115171395.14869.147.camel@localhost.localdomain> <20050504205831.GF8537@lkcl.net> <1115243014.19844.62.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <58cb370e050505031041c2c164@mail.gmail.com>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <1115243014.19844.62.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-> On 5/5/05, Wakko Warner <wakko@animx.eu.org> wrote:
-> > If this interface is obsolete and will be removed, is there any non-obsolete
-> > way of telling the kernel what geometry I want to use for this ide device?
+On Wed, May 04, 2005 at 10:43:35PM +0100, Alan Cox wrote:
+
+> >  hence the redesign to do alternate read-write-read-write, and making
+> >  reads exclusive of writes, etc.
 > 
-> Yes, physical geometry - through boot parameters and logical geometry
-> is not needed for IDE layer to function properly.
+> and maybe even turn the IRQ off and use a timer if its slow and not
+> sensitive to latency.. ?
 
-I did not ask if it was needed for it to function, I asked how to set it
-since the "settings" file is obsolete.  Yes, I do need to set this.  I want
-to know what the "non-obsolete" way is.  A project I'm working on uses linux
-to do something with the drive and that is dependant on the geometry that
-linux provides to programs be the same as what the bios thinks.  I know how
-to obtain the bios values.  I have to set these values to the kernel so
-everything functions properly.
+ good suggestion...
+ 
+ been there, tried that [i really _am_ sending to lkml as
+ last resort, not first!]
 
-If there is no "non-obsolete" way of doing this, then fine, I'll continue
-with the settings thing.
+ jiffies equals approx 250? per second?
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+ baud rate from PIC is determined by GPS - 4800 baud - approx
+ 600 per second.
+
+ so that'd explain why i only got one character every 3.
+
+ *cold sweat*.  
+
+ i could always use the FIQ, which will be running off the back
+ of the Audio DAC/ADC's interrupts, 8khz....
+
+ *shudder*...
+

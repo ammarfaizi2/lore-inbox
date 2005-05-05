@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262103AbVEEN2j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262105AbVEENa0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262103AbVEEN2j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 09:28:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262105AbVEEN2j
+	id S262105AbVEENa0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 09:30:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbVEENaZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 09:28:39 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:2732 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S262103AbVEEN2g
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 09:28:36 -0400
-Subject: Re: [2.6 patch] net/bluetooth/: possible cleanups
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: marcel@holtmann.or, maxk@qualcomm.com, bluez-devel@lists.sf.net,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20050505002310.GF3593@stusta.de>
-References: <20050505002310.GF3593@stusta.de>
-Content-Type: text/plain
-Date: Thu, 05 May 2005 15:28:30 +0200
-Message-Id: <1115299710.8496.168.camel@pegasus>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+	Thu, 5 May 2005 09:30:25 -0400
+Received: from cantor.suse.de ([195.135.220.2]:2492 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S262108AbVEENaM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 09:30:12 -0400
+From: Andreas Schwab <schwab@suse.de>
+To: linux-os@analogic.com
+Cc: Daniel Jacobowitz <dan@debian.org>, Olivier Croquette <ocroquette@free.fr>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduler: SIGSTOP on multi threaded processes
+References: <4279084C.9030908@free.fr>
+	<Pine.LNX.4.61.0505041403310.21458@chaos.analogic.com>
+	<20050504191604.GA29730@nevyn.them.org>
+	<Pine.LNX.4.61.0505042031120.22323@chaos.analogic.com>
+	<Pine.LNX.4.61.0505050814340.24130@chaos.analogic.com>
+X-Yow: UH-OH!!  We're out of AUTOMOBILE PARTS and RUBBER GOODS!
+Date: Thu, 05 May 2005 15:30:09 +0200
+In-Reply-To: <Pine.LNX.4.61.0505050814340.24130@chaos.analogic.com> (Richard
+	B. Johnson's message of "Thu, 5 May 2005 08:24:54 -0400 (EDT)")
+Message-ID: <jezmv9ream.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian,
+"Richard B. Johnson" <linux-os@analogic.com> writes:
 
-> This patch contains the following possible cleanups:
-> - #ifdef HCI_DATA_DUMP the following function:
->   lib.c: bt_dump
-> - #if 0 the following unused global functions:
->   - hci_core.c: hci_suspend_dev
->   - hci_core.c: hci_resume_dev
-> - remove the following unneeded EXPORT_SYMBOL's:
->   - hci_core.c: hci_dev_get
->   - hci_core.c: hci_send_cmd
->   - hci_event.c: hci_si_event
-> 
-> Please review which of these changes do make sense and which conflict 
-> with pending patches.
+> I don't think the kernel handler gets a chance to do anything
+> because SYS-V init installs its own handler(s).
 
-I like to let hci_suspend_dev() and hci_resume_dev() stay for now. No
-driver uses it, but actually nobody really looked deep enough to really
-understand the needs for suspend of Bluetooth devices.
+It's impossible to install a handler for SIGSTOP.
 
-The hci_dev_get(), hci_send_cmd() and hci_si_event() doesn't need to be
-exported. And I think that the bt_dump() and and BT_DMP() stuff can be
-removed completely.
+> There are comments about Linux misbehavior in the code. It turns out
+> that I was right about SIGSTOP and SIGCONT...
 
-Please redo the patch and actually it is enough to copy the bluez-devel
-mailing list. I will take care of getting it back into mainline.
+No, you are wrong.  SIGTSTP != SIGSTOP.
 
-Regards
+Andreas.
 
-Marcel
-
-
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

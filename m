@@ -1,94 +1,175 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261898AbVEEFfl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262001AbVEEFkB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261898AbVEEFfl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 01:35:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbVEEFfc
+	id S262001AbVEEFkB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 01:40:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbVEEFjw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 01:35:32 -0400
-Received: from tomts13.bellnexxia.net ([209.226.175.34]:30649 "EHLO
-	tomts13-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S261896AbVEEFfN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 01:35:13 -0400
-Date: Thu, 5 May 2005 01:35:11 -0400 (EDT)
-From: Chris Gorman <chrisgorman@sympatico.ca>
-X-X-Sender: chris@eagle.cgnet.ca
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernelpanic - not syncing: VFS: Unable to mount root fs on
- unknown-block
-In-Reply-To: <Pine.LNX.4.33.0504292059360.4060-100000@blackbird.cgnet.ca>
-Message-ID: <Pine.LNX.4.61.0505050133590.1348@eagle.cgnet.ca>
-References: <Pine.LNX.4.33.0504292059360.4060-100000@blackbird.cgnet.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 5 May 2005 01:39:52 -0400
+Received: from fire.osdl.org ([65.172.181.4]:12700 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261922AbVEEFic (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 01:38:32 -0400
+Date: Wed, 4 May 2005 22:38:24 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Mike Christie <michaelc@cs.wisc.edu>
+Cc: linux-kernel@vger.kernel.org, linux-scsi <linux-scsi@vger.kernel.org>,
+       netdev <netdev@oss.sgi.com>
+Subject: Re: [PATCH 3/3] add open iscsi netlink interface to iscsi transport class
+Message-ID: <20050505053824.GV23013@shell0.pdx.osdl.net>
+References: <42798ADD.5070803@cs.wisc.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42798ADD.5070803@cs.wisc.edu>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Mike Christie (michaelc@cs.wisc.edu) wrote:
 
-An upgrade to 2.6.11.8 has solved this problem for me.
+> +static int
+> +iscsi_if_recv_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
+> +{
+> +	int err = 0;
+> +	struct iscsi_uevent *ev = NLMSG_DATA(nlh);
+> +	struct iscsi_transport *transport = iscsi_ptr(ev->transport_handle);
+> +
+> +	if (nlh->nlmsg_type != ISCSI_UEVENT_TRANS_LIST &&
+> +	    iscsi_if_transport_lookup(transport) < 0)
+> +		return -EEXIST;
+> +
+> +	daemon_pid = NETLINK_CREDS(skb)->pid;
+> +
 
-Thanks
+Are any of these message types privileged operations?  I didn't notice
+any real credential check.
 
-Chris
-
-On Fri, 29 Apr 2005, Chris Gorman wrote:
-
-> Hello All,
->
-> First off, I am not on the linux-kernel list so please cc me directly on
-> this if anyone has a solution.  I've experienced a very similar problem
-> as S S did while upgrading from 2.6.11.6 to 2.6.11.7.  Essentialy grub
-> will boot 2.6.11.6 without any problems, but using the same command line
-> 2.6.11.7 fails to boot with "Cannot open root device hde6 or
-> unknown-block(0,0)".  The config file used was the same one as 2.6.11.6 so
-> I doubt I missed a config option.
->
-> The reason I chose to upgrade was because I've been getting ext3 errors
-> which caused the journal to crash and the filesystem to be remounted
-> read-only.  I hoped the following referenced patch would resolve it.
->
-> [PATCH] Prevent race condition in jbd
->
-> From: Stephen Tweedie <sct@redhat.com>
-> Subject: Prevent race condition in jbd
->
-> This patch from Stephen Tweedie which fixes a race in jbd code (it
-> demonstrated itself as more or less random NULL dereferences in
-> the journal code).
->
-> Acked-by: Jan Kara <jack@suse.cz>
-> Acked-by: Chris Mason <mason@suse.com>
-> Signed-off-by: Chris Wright <chrisw@osdl.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
->
-> I only see a few other patches in the Changelog and none appear to me to
-> be fs relevant.  Could this be part of our problem?  I've seen one other
-> post "Re: Linux 2.6.12-rc2" by hubert.tonneau@fullpliant.org which
-> describes the same symptom.  The problem occured during an upgrade from
-> 2.6.11 to 2.6.12-rc[12] and this person does have ext3 compiled in.
->
-> Also, since grub is common between myself and S S, and my grub is a little
-> old, I will try upgrading the program in case that is the problem.
->
-> TIA
->
-> Chris Gorman
->
-> On Apr 18, 2005 S S wrote:
->> I compiled linux kernel 2.6.11.7 on RHEL and while
->> rebooting I get this
->> error message -
->>
->> Cannot open root device /SCSIGroup00/SCSIVol000
->> Please append a correct "root=" boot option
->> Kernelpanic - not syncing: VFS: Unable to mount root
->> fs on
->> unknown-block 0,0
->>
->> This root entry in grub .conf is identical to kernel
->> image entry 2.6.9 which boots fine. However 2.6.11.7
->> compiled kernel does not find
->> /dev//SCSIGroup00/SCSIVol000
->>
->> Could anyone please suggest what could be going wrong.
->
->
+> +	switch (nlh->nlmsg_type) {
+> +	case ISCSI_UEVENT_TRANS_LIST: {
+> +		int i;
+> +
+> +		for (i = 0; i < ISCSI_TRANSPORT_MAX; i++) {
+> +			if (transport_table[i]) {
+> +				ev->r.t_list.elements[i].trans_handle =
+> +					iscsi_handle(transport_table[i]);
+> +				strncpy(ev->r.t_list.elements[i].name,
+> +					transport_table[i]->name,
+> +					ISCSI_TRANSPORT_NAME_MAXLEN);
+> +			} else
+> +				ev->r.t_list.elements[i].trans_handle =
+> +					iscsi_handle(NULL);
+> +		}
+> +	      } break;
+> +	case ISCSI_UEVENT_CREATE_SESSION:
+> +		err = iscsi_if_create_snx(transport, ev);
+> +		break;
+> +	case ISCSI_UEVENT_DESTROY_SESSION:
+> +		err = iscsi_if_destroy_snx(transport, ev);
+> +		break;
+> +	case ISCSI_UEVENT_CREATE_CNX:
+> +		err = iscsi_if_create_cnx(transport, ev);
+> +		break;
+> +	case ISCSI_UEVENT_DESTROY_CNX:
+> +		err = iscsi_if_destroy_cnx(transport, ev);
+> +		break;
+> +	case ISCSI_UEVENT_BIND_CNX:
+> +		if (!iscsi_if_find_cnx(ev->u.b_cnx.cnx_handle, H_TYPE_TRANS))
+> +			return -EEXIST;
+> +		ev->r.retcode = transport->bind_cnx(
+> +			ev->u.b_cnx.session_handle,
+> +			ev->u.b_cnx.cnx_handle,
+> +			ev->u.b_cnx.transport_fd,
+> +			ev->u.b_cnx.is_leading);
+> +		break;
+> +	case ISCSI_UEVENT_SET_PARAM:
+> +		if (!iscsi_if_find_cnx(ev->u.set_param.cnx_handle,
+> +				       H_TYPE_TRANS))
+> +			return -EEXIST;
+> +		ev->r.retcode = transport->set_param(
+> +			ev->u.set_param.cnx_handle,
+> +			ev->u.set_param.param, ev->u.set_param.value);
+> +		break;
+> +	case ISCSI_UEVENT_START_CNX:
+> +		if (!iscsi_if_find_cnx(ev->u.start_cnx.cnx_handle,
+> +				       H_TYPE_TRANS))
+> +			return -EEXIST;
+> +		ev->r.retcode = transport->start_cnx(
+> +			ev->u.start_cnx.cnx_handle);
+> +		break;
+> +	case ISCSI_UEVENT_STOP_CNX:
+> +		if (!iscsi_if_find_cnx(ev->u.stop_cnx.cnx_handle, H_TYPE_TRANS))
+> +			return -EEXIST;
+> +		transport->stop_cnx(ev->u.stop_cnx.cnx_handle,
+> +			ev->u.stop_cnx.flag);
+> +		break;
+> +	case ISCSI_UEVENT_SEND_PDU:
+> +		if (!iscsi_if_find_cnx(ev->u.send_pdu.cnx_handle,
+> +				       H_TYPE_TRANS))
+> +			return -EEXIST;
+> +		ev->r.retcode = transport->send_pdu(
+> +		       ev->u.send_pdu.cnx_handle,
+> +		       (struct iscsi_hdr*)((char*)ev + sizeof(*ev)),
+> +		       (char*)ev + sizeof(*ev) + ev->u.send_pdu.hdr_size,
+> +			ev->u.send_pdu.data_size);
+> +		break;
+> +	case ISCSI_UEVENT_GET_STATS: {
+> +		struct iscsi_stats *stats;
+> +		struct sk_buff *skbstat;
+> +		struct iscsi_if_cnx *cnx;
+> +		struct nlmsghdr	*nlhstat;
+> +		struct iscsi_uevent *evstat;
+> +		int len = NLMSG_SPACE(sizeof(*ev) +
+> +				sizeof(struct iscsi_stats) +
+> +                                sizeof(struct iscsi_stats_custom) *
+> +                                                ISCSI_STATS_CUSTOM_MAX);
+> +		int err;
+> +
+> +		cnx = iscsi_if_find_cnx(ev->u.get_stats.cnx_handle,
+> +					H_TYPE_TRANS);
+> +		if (!cnx)
+> +			return -EEXIST;
+> +
+> +		do {
+> +			int actual_size;
+> +
+> +			skbstat = mempool_zone_get_skb(&cnx->z_pdu);
+> +			if (!skbstat) {
+> +				printk("iscsi%d: can not deliver stats: OOM\n",
+> +				       cnx->host->host_no);
+> +				return -ENOMEM;
+> +			}
+> +
+> +			nlhstat = __nlmsg_put(skbstat, daemon_pid, 0, 0,
+> +						(len - sizeof(*nlhstat)));
+> +			evstat = NLMSG_DATA(nlhstat);
+> +			memset(evstat, 0, sizeof(*evstat));
+> +			evstat->transport_handle = iscsi_handle(cnx->transport);
+> +			evstat->type = nlh->nlmsg_type;
+> +			if (cnx->z_pdu.allocated >= cnx->z_pdu.hiwat)
+> +				evstat->iferror = -ENOMEM;
+> +			evstat->u.get_stats.cnx_handle =
+> +					ev->u.get_stats.cnx_handle;
+> +			stats = (struct iscsi_stats *)
+> +					((char*)evstat + sizeof(*evstat));
+> +			memset(stats, 0, sizeof(*stats));
+> +
+> +			transport->get_stats(ev->u.get_stats.cnx_handle, stats);
+> +			actual_size = NLMSG_SPACE(sizeof(struct iscsi_uevent) +
+> +					sizeof(struct iscsi_stats) +
+> +                                	sizeof(struct iscsi_stats_custom) *
+> +						stats->custom_length);
+> +			actual_size -= sizeof(*nlhstat);
+> +			actual_size = NLMSG_LENGTH(actual_size);
+> +			skb_trim(skb, NLMSG_ALIGN(actual_size));
+> +			nlhstat->nlmsg_len = actual_size;
+> +
+> +			err = iscsi_unicast_skb(&cnx->z_pdu, skbstat);
+> +		} while (err < 0 && err != -ECONNREFUSED);
+> +		} break;
+> +	default:
+> +		err = -EINVAL;
+> +		break;
+> +	}
+> +
+> +	return err;
+> +}

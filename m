@@ -1,37 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262031AbVEEK7L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262033AbVEELOK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262031AbVEEK7L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 06:59:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbVEEK7L
+	id S262033AbVEELOK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 07:14:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbVEELOK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 06:59:11 -0400
-Received: from out2.smtp.messagingengine.com ([66.111.4.26]:32714 "EHLO
-	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S262031AbVEEK7J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 06:59:09 -0400
-Message-Id: <1115290744.30022.233426961@webmail.messagingengine.com>
-X-Sasl-Enc: nN+agx85TU1/us6tZT7F+nwv+u723r0+P+0ZFM/BbdEJ 1115290744
-From: "Deepak" <deepakgaur@fastmail.fm>
-To: linux-kernel@vger.kernel.org
+	Thu, 5 May 2005 07:14:10 -0400
+Received: from animx.eu.org ([216.98.75.249]:49290 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S262033AbVEELOG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 07:14:06 -0400
+Date: Thu, 5 May 2005 07:13:24 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: /proc/ide/hd?/settings obsolete in 2.6.
+Message-ID: <20050505111324.GA17223@animx.eu.org>
+Mail-Followup-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+	linux-kernel@vger.kernel.org
+References: <20050505004854.GA16550@animx.eu.org> <58cb370e050505031041c2c164@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="ISO-8859-1"
-MIME-Version: 1.0
-X-Mailer: MIME::Lite 1.5  (F2.73; T1.001; A1.64; B3.05; Q3.03)
-Subject: Real Time Signals In Powerpc Linux
-Date: Thu, 05 May 2005 19:59:04 +0900
+In-Reply-To: <58cb370e050505031041c2c164@mail.gmail.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bartlomiej Zolnierkiewicz wrote:
+> On 5/5/05, Wakko Warner <wakko@animx.eu.org> wrote:
+> > If this interface is obsolete and will be removed, is there any non-obsolete
+> > way of telling the kernel what geometry I want to use for this ide device?
+> 
+> Yes, physical geometry - through boot parameters and logical geometry
+> is not needed for IDE layer to function properly.
 
-I am working on a linux (v 2.4.20) based powerpc(8260) board. During
-development of an application program I planned to use real time
-signals(SIGRTMIN to SIGRTMAX) for interprocess communication. On giving
-the command 'kill -l' on the terminal window of ppc linux  it displayed
-only 32 signals while giving the same command on an Intel based Linux PC
-(same kernel version) showed all 64 signals. 
+I did not ask if it was needed for it to function, I asked how to set it
+since the "settings" file is obsolete.  Yes, I do need to set this.  I want
+to know what the "non-obsolete" way is.  A project I'm working on uses linux
+to do something with the drive and that is dependant on the geometry that
+linux provides to programs be the same as what the bios thinks.  I know how
+to obtain the bios values.  I have to set these values to the kernel so
+everything functions properly.
 
-Anyone having idea whether these signals are present in powerpc Linux
-kernal v 2.4.20 ?
+If there is no "non-obsolete" way of doing this, then fine, I'll continue
+with the settings thing.
 
-Deepak Gaur
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

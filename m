@@ -1,64 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262016AbVEEPiu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262088AbVEEPlF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262016AbVEEPiu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 11:38:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbVEEPiu
+	id S262088AbVEEPlF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 11:41:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262135AbVEEPlE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 11:38:50 -0400
-Received: from animx.eu.org ([216.98.75.249]:6539 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S262016AbVEEPir (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 11:38:47 -0400
-Date: Thu, 5 May 2005 11:38:07 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: /proc/ide/hd?/settings obsolete in 2.6.
-Message-ID: <20050505153807.GB17724@animx.eu.org>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20050505004854.GA16550@animx.eu.org> <58cb370e050505031041c2c164@mail.gmail.com> <20050505111324.GA17223@animx.eu.org> <58cb370e050505051360d0588c@mail.gmail.com> <1115304977.23360.83.camel@localhost.localdomain>
+	Thu, 5 May 2005 11:41:04 -0400
+Received: from bay10-f36.bay10.hotmail.com ([64.4.37.36]:50053 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S262088AbVEEPkY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 11:40:24 -0400
+Message-ID: <BAY10-F3687DB92C3312BF50504CBD61A0@phx.gbl>
+X-Originating-IP: [61.246.101.228]
+X-Originating-Email: [agovinda04@hotmail.com]
+From: "govind raj" <agovinda04@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: ssh and serial console problem
+Date: Thu, 05 May 2005 21:08:22 +0530
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1115304977.23360.83.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 05 May 2005 15:38:22.0772 (UTC) FILETIME=[786CB740:01C55188]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Iau, 2005-05-05 at 13:13, Bartlomiej Zolnierkiewicz wrote:
-> > Please be aware that new applications are expected to use
-> > /sys/firmware/edd/default_* instead of legacy HDIO_GETGEO ioctl
-> > and there is currently no way to set these sysfs entries (maybe it
-> > would be worthwile to add such functionality?).
-> 
-> Please be aware that edd is platform specific, buggy and dependant on
-> firmware features that many machines don't have. Don't use the EDD data
-> its junk. Bartlomiej's advice isn't something I'd agree with on this
-> point.
+Hi all,
 
-As stated in my last email, I am using EDD.  I only need the legacy heads
-and sectors.  I can figure out the cylinders by that and the size of the
-disk.
 
-> The fundamental issue behind all this though and the problem with
-> HDIO_GETGEO and friends is that geometry is basically a convenient
-> fiction for legacy software that needs an answer and apps that interact
-> with it.
+I have a customized Linux which supports a serial console interface.
 
-Again, I am working with legacy stuff.  I'm trying to move away from 2.4 due
-to the convienences of 2.6
+I am able to successfully ssh into this Linux system. If I try to use any of 
+the secure (ssh, scp) programs from this ssh session, I am able to 
+successfully use them. If I try the same program from the serial console, I 
+get a "Login failed: Permission denied" message.
 
-> For PC type systems you actually want to go and look at the partition
-> table itself and then follow that if one exists. If it doesn't exist
-> then you are in firmware magic land and you need to look at the drive's
-> current geometry reporting as well as the BIOS CMOS data, EDD on the
-> boxes that have it, openprom etc and so forth. Or better yet look at
-> parted and at least keep all the crap in one place.
+Since the same userid is able to login from/to this system from a ssh 
+session into this box, I presume that this eliminates any user-specific or 
+ssh-configuration-specific problems/issues?
 
-I have some utils (mkdosfs comes to mind) that do not let the user specify
-heads/sectors/cyls (it doesn't use cyl actually).
+Are there any known limitations in running the ssh/scp programs on the 
+/dev/console interface? It does not allow me to enter the password on this 
+session and then quickly scrolls out to the attempt till it fails in the 3rd 
+attempt and reports the failure?
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Here is the relevant output:
+
+bash-2.05a# ssh -v 192.168.0.24
+OpenSSH_3.9p1, OpenSSL 0.9.7a Feb 19 2003
+debug1: Reading configuration data /etc/ssh/ssh_config
+debug1: Connecting to 192.168.0.24 [192.168.0.24] port 22.
+debug1: Connection established.
+debug1: permanently_set_uid: 0/0
+debug1: identity file /root/.ssh/identity type -1
+debug1: identity file /root/.ssh/id_rsa type -1
+debug1: identity file /root/.ssh/id_dsa type -1
+debug1: Remote protocol version 1.99, remote software version OpenSSH_3.9p1
+debug1: match: OpenSSH_3.9p1 pat OpenSSH*
+debug1: Enabling compatibility mode for protocol 2.0
+debug1: Local version string SSH-2.0-OpenSSH_3.9p1
+debug1: SSH2_MSG_KEXINIT sent
+debug1: SSH2_MSG_KEXINIT received
+debug1: kex: server->client aes128-cbc hmac-md5 none
+debug1: kex: client->server aes128-cbc hmac-md5 none
+debug1: SSH2_MSG_KEX_DH_GEX_REQUEST(1024<1024<8192) sent
+debug1: expecting SSH2_MSG_KEX_DH_GEX_GROUP
+debug1: SSH2_MSG_KEX_DH_GEX_INIT sent
+debug1: expecting SSH2_MSG_KEX_DH_GEX_REPLY
+debug1: Host '192.168.0.24' is known and matches the RSA host key.
+debug1: Found key in /root/.ssh/known_hosts:1
+debug1: ssh_rsa_verify: signature correct
+debug1: SSH2_MSG_NEWKEYS sent
+debug1: expecting SSH2_MSG_NEWKEYS
+debug1: SSH2_MSG_NEWKEYS received
+debug1: SSH2_MSG_SERVICE_REQUEST sent
+debug1: SSH2_MSG_SERVICE_ACCEPT received
+debug1: Authentications that can continue: 
+publickey,gssapi-with-mic,password,ke
+debug1: Next authentication method: publickey
+debug1: Trying private key: /root/.ssh/identity
+debug1: Trying private key: /root/.ssh/id_rsa
+debug1: Trying private key: /root/.ssh/id_dsa
+debug1: Next authentication method: keyboard-interactive
+debug1: Authentications that can continue: 
+publickey,gssapi-with-mic,password,ke
+debug1: Next authentication method: password
+debug1: Authentications that can continue: 
+publickey,gssapi-with-mic,password,ke
+Permission denied, please try again.
+debug1: Authentications that can continue: 
+publickey,gssapi-with-mic,password,ke
+Permission denied, please try again.
+debug1: Authentications that can continue: 
+publickey,gssapi-with-mic,password,ke
+debug1: No more authentication methods to try.
+Permission denied (publickey,gssapi-with-mic,password,keyboard-interactive).
+bash-2.05a#
+
+Thanks in advance for your help and time,
+
+Govind
+http://www.sahasrasolutions.com
+
+_________________________________________________________________
+Mother's Day is Here! 
+http://adfarm.mediaplex.com/ad/ck/4686-26272-10936-264?ck=Sell Find a 
+present for your Mom right here on eBay!
+

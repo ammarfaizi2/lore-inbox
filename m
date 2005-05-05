@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262210AbVEETkj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262209AbVEETkj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262210AbVEETkj (ORCPT <rfc822;willy@w.ods.org>);
+	id S262209AbVEETkj (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 5 May 2005 15:40:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262172AbVEETjo
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262184AbVEETkY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 15:39:44 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:49609 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262184AbVEETKs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 15:10:48 -0400
-Date: Thu, 5 May 2005 14:10:03 -0500 (CDT)
+	Thu, 5 May 2005 15:40:24 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:57310 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262193AbVEETK6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 15:10:58 -0400
+Date: Thu, 5 May 2005 14:10:46 -0500 (CDT)
 From: Kylene Hall <kjhall@us.ibm.com>
 X-X-Sender: kjhall@localhost.localdomain
 To: akpm@osdl.org
 cc: jgarzik@pobox.com, greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: [PATCH: 3 of 12] Fix TPM driver --remove unnecessary module stuff 
-Message-ID: <Pine.LNX.4.62.0505051326330.5303@localhost.localdomain>
+Subject: [PATCH 4 of 12] Fix TPM driver -- read return code issue
+Message-ID: <Pine.LNX.4.62.0505051327480.5303@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -33,48 +33,87 @@ On Wed, 9 Mar 2005, Jeff Garzik wrote:
 
 <snip>
 
-> > +
-> > +static int __init init_tpm(void)
+> > +ssize_t tpm_read(struct file * file, char __user * buf,
+> > +		 size_t size, loff_t * off)
 > > +{
-> > +	return 0;
-> > +}
+> > +	struct tpm_chip *chip = file->private_data;
+> > +	int ret_size = -ENODATA;
 > > +
-> > +static void __exit cleanup_tpm(void)
-> > +{
+> > +	if (atomic_read(&chip->data_pending) != 0) {	/* Result available */
+> > +		down(&chip->timer_manipulation_mutex);
+> > +		del_singleshot_timer_sync(&chip->user_read_timer);
+> > +		up(&chip->timer_manipulation_mutex);
 > > +
-> > +}
+> > +		down(&chip->buffer_mutex);
 > > +
-> > +module_init(init_tpm);
-> > +module_exit(cleanup_tpm);
+> > +		ret_size = atomic_read(&chip->data_pending);
+> > +		atomic_set(&chip->data_pending, 0);
+> > +
+> > +		if (ret_size == 0)	/* timeout just occurred */
+> > +			ret_size = -ETIME;
+> > +		else if (ret_size > 0) {	/* relay data */
+> > +			if (size < ret_size)
+> > +				ret_size = size;
+> > +
+> > +			if (copy_to_user((void __user *) buf,
+> > +					 chip->data_buffer, ret_size)) {
+> > +				ret_size = -EFAULT;
+> > +			}
+> > +		}
+> > +		up(&chip->buffer_mutex);
+> > +	}
+> > +
+> > +	return ret_size;
 > 
-> why?  just delete these, I would say.
-> 
+> POSIX violation -- when there is no data available, returning a non-standard
+> error is silly
 
 <snip>
 
-No reason for these module definitions.  This patch removes them.
+The patch below fixes this erroneous return code when no data is 
+available.
 
-Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
+Signed-of-by: Kylene Hall <kjhall@us.ibm.com>
 ---
---- linux-2.6.12-rc2/drivers/chat/tpm/tpm.c	2005-04-21 17:45:30.000000000 -0500
-+++ linux-2.6.12-rc2-tpmdd/drivers/char/tpm/tpm.c	2005-04-21 17:36:59.000000000 -0500
-@@ -668,19 +668,6 @@ dev_num_search_complete:
+--- linux-2.6.12-rc2/drivers/char/tpm/tpm.c	2005-04-21 17:36:59.000000000 -0500
++++ linux-2.6.12-rc2-tpmdd/drivers/char/tpm/tpm.c	2005-04-21 17:57:39.000000000 -0500
+@@ -483,29 +483,19 @@ ssize_t tpm_read(struct file * file, cha
+ 		 size_t size, loff_t * off)
+ {
+ 	struct tpm_chip *chip = file->private_data;
+-	int ret_size = -ENODATA;
++	int ret_size;
  
- EXPORT_SYMBOL_GPL(tpm_register_hardware);
+-	if (atomic_read(&chip->data_pending) != 0) {	/* Result available */
+-		down(&chip->timer_manipulation_mutex);
+-		del_singleshot_timer_sync(&chip->user_read_timer);
+-		up(&chip->timer_manipulation_mutex);
++	del_singleshot_timer_sync(&chip->user_read_timer);
++	ret_size = atomic_read(&chip->data_pending);
++	atomic_set(&chip->data_pending, 0);
++	if (ret_size > 0) {	/* relay data */
++		if (size < ret_size)
++			ret_size = size;
  
--static int __init init_tpm(void)
--{
--	return 0;
--}
+ 		down(&chip->buffer_mutex);
 -
--static void __exit cleanup_tpm(void)
--{
+-		ret_size = atomic_read(&chip->data_pending);
+-		atomic_set(&chip->data_pending, 0);
 -
--}
+-		if (ret_size == 0)	/* timeout just occurred */
+-			ret_size = -ETIME;
+-		else if (ret_size > 0) {	/* relay data */
+-			if (size < ret_size)
+-				ret_size = size;
 -
--module_init(init_tpm);
--module_exit(cleanup_tpm);
--
- MODULE_AUTHOR("Leendert van Doorn (leendert@watson.ibm.com)");
- MODULE_DESCRIPTION("TPM Driver");
- MODULE_VERSION("2.0");
+-			if (copy_to_user((void __user *) buf,
+-					 chip->data_buffer, ret_size)) {
+-				ret_size = -EFAULT;
+-			}
+-		}
++		if (copy_to_user
++		    ((void __user *) buf, chip->data_buffer, ret_size))
++			ret_size = -EFAULT;
+ 		up(&chip->buffer_mutex);
+ 	}
+ 

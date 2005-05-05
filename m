@@ -1,72 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262096AbVEENNv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262102AbVEENP7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262096AbVEENNv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 09:13:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbVEENNv
+	id S262102AbVEENP7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 09:15:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbVEENP6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 09:13:51 -0400
-Received: from alog0047.analogic.com ([208.224.220.62]:38880 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262096AbVEENNs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 09:13:48 -0400
-Date: Thu, 5 May 2005 09:13:34 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: linux <kernel@wired-net.gr>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: copy_to_user question
-In-Reply-To: <001d01c5516f$b5f37c20$0101010a@dioxide>
-Message-ID: <Pine.LNX.4.61.0505050909440.25004@chaos.analogic.com>
-References: <20050425165826.GB11938@redhat.com> <20050429040104.GB9900@redhat.com>
- <1114815509.18352.200.camel@ibm-c.pdx.osdl.net> <200504300509.24887.phillips@istop.com>
- <1115295930.1988.229.camel@sisko.sctweedie.blueyonder.co.uk>
- <001d01c5516f$b5f37c20$0101010a@dioxide>
+	Thu, 5 May 2005 09:15:58 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:35488 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262102AbVEENPi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 09:15:38 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: linux-os@analogic.com, Daniel Jacobowitz <dan@debian.org>
+Subject: Re: Scheduler: SIGSTOP on multi threaded processes
+Date: Thu, 5 May 2005 16:14:55 +0300
+User-Agent: KMail/1.5.4
+Cc: Olivier Croquette <ocroquette@free.fr>,
+       LKML <linux-kernel@vger.kernel.org>
+References: <4279084C.9030908@free.fr> <Pine.LNX.4.61.0505042031120.22323@chaos.analogic.com> <Pine.LNX.4.61.0505050814340.24130@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0505050814340.24130@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200505051614.55899.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 May 2005, linux wrote:
+On Thursday 05 May 2005 15:24, Richard B. Johnson wrote:
+> 
+> I don't think the kernel handler gets a chance to do anything
+> because SYS-V init installs its own handler(s). There are comments
+> about Linux misbehavior in the code. It turns out that I was
+> right about SIGSTOP and SIGCONT...
 
-> Hi all, i have a question about copy_to_user function.
-> I have a module which declares a struct test { int size; char *name; int
-> value_add };
-> I like to transfer that struct to userspace through an ioctl command like
-> that:
->
-> struct test test_struct;
-> memset(&test_struct,0,sizeof(test_struct);
-> test_struct.size= 100;
-> test_struct.name = "test name";
-> test_struct.value_add = 2;
-> copy_to_user((void __user *)arg,&test_struct,sizeof(struct test));
->
->
-> When i use the ioctl command in user-space and try to get the name item a
-> segfault occurs.Can u tell me why??
-> Can we transfer from kernel-space to user-space pointers like the one i use
-> or this is a fault approach???
->
->
-> Best regards,
-> Chris.
+No you are not.
+--
+vda
 
-Accessing a kernel pointer from user-space isn't going to work.
-But you can transfer data to/from user-space/kernel-space so
-just don't use a pointer, do...
-
-struct test struct {
-      char name[BIG_ENOUGN];
-      int size;
-      ....
-      };
-
-
-Write your strings to the name[] buffer-member and everybody is happy.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.

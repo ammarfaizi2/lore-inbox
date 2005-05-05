@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261799AbVEECJW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261814AbVEECdj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261799AbVEECJW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 22:09:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261800AbVEECJW
+	id S261814AbVEECdj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 22:33:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbVEECdj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 22:09:22 -0400
-Received: from deliverator6.gatech.edu ([130.207.165.168]:25838 "EHLO
-	deliverator6.gatech.edu") by vger.kernel.org with ESMTP
-	id S261799AbVEECJQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 22:09:16 -0400
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Brian Gerst <bgerst@didntduck.org>, linux-kernel@vger.kernel.org
-Subject: Re: macro in linux/compiler.h pollutes gcc __attribute__ namespace
-References: <87vf5y99o3.fsf@mail.gatech.edu> <42790A86.9070002@didntduck.org>
-	<87fyx2vp4i.fsf@mail.gatech.edu>
-	<FBE10E17-C501-4182-9B51-554A37362D10@mac.com>
-From: Timmy Douglas <timmy+lkml@cc.gatech.edu>
-Date: Wed, 04 May 2005 22:08:46 -0400
-In-Reply-To: <FBE10E17-C501-4182-9B51-554A37362D10@mac.com> (Kyle Moffett's
-	message of "Wed, 4 May 2005 16:55:53 -0400")
-Message-ID: <87br7qv2z5.fsf@mail.gatech.edu>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
+	Wed, 4 May 2005 22:33:39 -0400
+Received: from lixom.net ([66.141.50.11]:53702 "EHLO mail.lixom.net")
+	by vger.kernel.org with ESMTP id S261814AbVEECde (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 22:33:34 -0400
+Date: Wed, 4 May 2005 21:31:19 -0500
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: linuxppc64-dev@ozlabs.org, paulus@samba.org, anton@samba.org,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org, haveblue@us.ibm.com,
+       kravetz@us.ibm.com
+Subject: Re: [2/3] add memory present for ppc64
+Message-ID: <20050505023119.GA20283@austin.ibm.com>
+References: <E1DTQVJ-0002WU-Fd@pinky.shadowen.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1DTQVJ-0002WU-Fd@pinky.shadowen.org>
+User-Agent: Mutt/1.5.6+20040907i
+From: Olof Johansson <olof@lixom.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle Moffett <mrmacman_g4@mac.com> writes:
+On Wed, May 04, 2005 at 09:29:57PM +0100, Andy Whitcroft wrote:
 
-> On May 4, 2005, at 14:10:21, Timmy Douglas wrote:
->> I'm guessing it goes sort of like this:
->>
->> signal.h -> bits/sigcontext.h -> asm/sigcontext.h -> linux/compiler.h
->
-> Installing headers directly from the kernel has been deprecated for
-> quite a while.  Please look for the "linux-kernel-headers" package
-> in whatever your package management system is.  It has a set of
-> cleaned headers.  IIRC, there were some proposals a while back for
-> how to fix this and make a set of headers useable from userspace,
-> but nothing substantial ever got done.
+> diff -X /home/apw/brief/lib/vdiff.excl -rupN reference/arch/ppc64/Kconfig current/arch/ppc64/Kconfig
+> --- reference/arch/ppc64/Kconfig	2005-05-04 20:54:50.000000000 +0100
+> +++ current/arch/ppc64/Kconfig	2005-05-04 20:54:50.000000000 +0100
+> @@ -212,8 +212,8 @@ config ARCH_FLATMEM_ENABLE
+>  source "mm/Kconfig"
+>  
+>  config HAVE_ARCH_EARLY_PFN_TO_NID
+> -	bool
+> -	default y
+> +	def_bool y
+> +	depends on NEED_MULTIPLE_NODES
 
-Thanks for the input. It seems this is a gentoo bug then because it
-leaves this #define in their version of the source (even though it
-removes some other things). I don't see this problem on a debian box I
-have though. Too bad this wasn't standardized on.
+Ok, time to show my lack of undestanding here, but when can we ever be
+CONFIG_NUMA and NOT need multiple nodes?
 
-Thanks again.
+> @@ -481,6 +483,7 @@ static void __init setup_nonnuma(void)
+>  
+>  	for (i = 0 ; i < top_of_ram; i += MEMORY_INCREMENT)
+>  		numa_memory_lookup_table[i >> MEMORY_INCREMENT_SHIFT] = 0;
+> +	memory_present(0, 0, init_node_data[0].node_end_pfn);
 
+Isn't the memory_present stuff and numa_memory_lookup_table two
+implementations doing the same thing (mapping memory to nodes)?
+Can we kill numa_memory_lookup_table with this?
+
+
+-Olof

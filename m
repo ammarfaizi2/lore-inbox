@@ -1,40 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262102AbVEENP7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262104AbVEEN0Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262102AbVEENP7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 09:15:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbVEENP6
+	id S262104AbVEEN0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 09:26:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262105AbVEEN0Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 09:15:58 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:35488 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262102AbVEENPi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 09:15:38 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: linux-os@analogic.com, Daniel Jacobowitz <dan@debian.org>
-Subject: Re: Scheduler: SIGSTOP on multi threaded processes
-Date: Thu, 5 May 2005 16:14:55 +0300
-User-Agent: KMail/1.5.4
-Cc: Olivier Croquette <ocroquette@free.fr>,
-       LKML <linux-kernel@vger.kernel.org>
-References: <4279084C.9030908@free.fr> <Pine.LNX.4.61.0505042031120.22323@chaos.analogic.com> <Pine.LNX.4.61.0505050814340.24130@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0505050814340.24130@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 5 May 2005 09:26:25 -0400
+Received: from everest.sosdg.org ([66.93.203.161]:12778 "EHLO mail.sosdg.org")
+	by vger.kernel.org with ESMTP id S262104AbVEEN0X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 09:26:23 -0400
+From: "Coywolf Qi Hunt" <coywolf@lovecn.org>
+Date: Thu, 5 May 2005 21:26:10 +0800
+To: sam@ravnborg.org
+Cc: kai@germaschewski.name, akpm@osdl.org, linux-kernel@vger.kernel.org
+Message-ID: <20050505132610.GA21833@lovecn.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200505051614.55899.vda@ilport.com.ua>
+User-Agent: Mutt/1.5.9i
+X-Scan-Signature: 5e46532232fd70c4de6004b73fafcbb3
+X-SA-Exim-Connect-IP: 66.93.203.161
+X-SA-Exim-Mail-From: coywolf@lovecn.org
+Subject: [patch] kbuild: display compile version
+X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
+	*      [score: 0.0000]
+X-SA-Exim-Version: 4.2 (built Tue, 12 Apr 2005 17:41:13 -0500)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 May 2005 15:24, Richard B. Johnson wrote:
-> 
-> I don't think the kernel handler gets a chance to do anything
-> because SYS-V init installs its own handler(s). There are comments
-> about Linux misbehavior in the code. It turns out that I was
-> right about SIGSTOP and SIGCONT...
+hello,
 
-No you are not.
---
-vda
+I am always trying to make sure I've booted the right kernel after a new install.
+Too paranoid maybe. But I guess there're other people like me. So let's make kbuild
+display the compile version number at the end to give us a hint. I know we may be
+booting vmlinux someday, but don't care about it for now.
 
+
+Signed-off-by: Coywolf Qi Hunt <coywolf@lovecn.org>
+
+--- 2.6.12-rc3-mm3/arch/i386/boot/Makefile	2005-05-05 18:52:51.000000000 +0800
++++ 2.6.12-rc3-mm3-cy/arch/i386/boot/Makefile	2005-05-05 20:45:57.000000000 +0800
+@@ -48,7 +48,7 @@
+ $(obj)/zImage $(obj)/bzImage: $(obj)/bootsect $(obj)/setup \
+ 			      $(obj)/vmlinux.bin $(obj)/tools/build FORCE
+ 	$(call if_changed,image)
+-	@echo 'Kernel: $@ is ready'
++	@echo 'Kernel: $@ is ready' '(#'`cat .version`')'
+ 
+ $(obj)/vmlinux.bin: $(obj)/compressed/vmlinux FORCE
+ 	$(call if_changed,objcopy)

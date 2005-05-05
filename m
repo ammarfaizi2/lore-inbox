@@ -1,402 +1,188 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262112AbVEEOHU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262113AbVEEOjg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262112AbVEEOHU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 10:07:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262111AbVEEOHT
+	id S262113AbVEEOjg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 10:39:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262111AbVEEOje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 10:07:19 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:9401 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S262109AbVEEOGR (ORCPT
+	Thu, 5 May 2005 10:39:34 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:56993 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262110AbVEEOjI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 10:06:17 -0400
-Date: Thu, 5 May 2005 07:06:11 -0700
-From: David Mosberger <davidm@napali.hpl.hp.com>
-Message-Id: <200505051406.j45E6BdT028804@napali.hpl.hp.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-ia64@vger.kernel.org
-Subject: prposal for new arch_ptrace_stop() hook
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
-Reply-To: davidm@hpl.hp.com
+	Thu, 5 May 2005 10:39:08 -0400
+Date: Thu, 5 May 2005 20:09:58 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>, mingo@elte.hu
+Cc: george@mvista.com, high-res-timers-discourse@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: VST and Sched Load Balance
+Message-ID: <20050505143958.GA20162@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20050407124629.GA17268@in.ibm.com> <425530AB.90605@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <425530AB.90605@yahoo.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Below is a proposal for adding a new arch-hook arch_ptrace_stop()
-which allows architectures to do a bit of extra work before a task
-stops for ptrace.  The idea was originally proposed by Roland McGrath
-and allows significant simplification in the ia64 ptrace code.  For
-reference, the patch below includes both the addition of the new hook
-(affects linux/ptrace.h and kernel/signal.c) and the ia64-specific
-changes (which you can ignore; it's just there to show how the hook
-would be used).
+On Thu, Apr 07, 2005 at 11:07:55PM +1000, Nick Piggin wrote:
+> Srivatsa Vaddagiri wrote:
+> 
+> >I think a potential area which VST may need to address is 
+> >scheduler load balance. If idle CPUs stop taking local timer ticks for 
+> >some time, then during that period it could cause the various runqueues to 
+> >go out of balance, since the idle CPUs will no longer pull tasks from 
+> >non-idle CPUs. 
+> >
+> 
+> Yep.
+> 
+> >Do we care about this imbalance? Especially considering that most 
+> >implementations will let the idle CPUs sleep only for some max duration
+> >(~900 ms in case of x86).
+> >
+> 
+> I think we do care, yes. It could be pretty harmful to sleep for
+> even a few 10s of ms on a regular basis for some workloads. Although
+> I guess many of those will be covered by try_to_wake_up events...
+> 
+> Not sure in practice, I would imagine it will hurt some multiprocessor
+> workloads.
 
-The tricky part is the change to signal.c: the problem is that
-arch_ptrace_stop() may need to access user-level and as such may block
-(e.g., to bring in a page).  The patch below does that _after_
-releasing the sighand->siglock.  It also ends up moving the
-set_current_state(TASK_TRACED) out of the area protected by
-sighand->siglock.  I think that may be OK now, since no signal should
-change a task in TASK_TRACED state (I believe the old order was needed
-back in the days when TASK_STOPPED was used instead of TASK_TRACED).
-Having said that, I'm not 100% sure I didn't miss anything, so I'd
-appreciate additional reviews & feedback.
+I am looking at the recent changes in load balance and I see that load
+balance on fork has been introduced (SD_BALANCE_FORK). I think this changes
+the whole scenario.
 
-Also, I considered using the existing ptrace_signal_deliver() hook but
-that one doesn't cover the ptrace_notify() case, so it wouldn't work
-as is.
+Considering the fact that there was already balance on wake_up and the 
+fact that the scheduler checks for imbalance before running the idle task
+(load_balance_newidle), I don't know if sleeping idle CPUs can cause a 
+load imbalance (fork/wakeup happening on other CPUs will probably push
+tasks to it and wake it up anyway? exits can change the balance, but probably
+is not relevant here?)
 
-	--david
+Except for a small fact: if the CPU sleeps w/o taking rebalance_ticks,
+its cpu_load[] can become incorrect over a period.
 
- include/linux/ptrace.h    |    4 +
- kernel/signal.c           |    4 -
- arch/ia64/kernel/head.S   |   11 +++
- arch/ia64/kernel/ptrace.c |  165 ++++++++++++++++++++++++----------------------
- include/asm-ia64/ptrace.h |   17 ++++
- 5 files changed, 122 insertions(+), 79 deletions(-)
+I noticed that load_balance_newidle uses newidle_idx to gauge the current cpu's 
+load. As a result, it can see non-zero load for the idle cpu. Because of this 
+it can decide to not pull tasks.  
 
-Index: include/linux/ptrace.h
-===================================================================
---- 173f941991f1b68da820e9926a3b7ebdd3a2c8b9/include/linux/ptrace.h  (mode:100644 sha1:a373fc254df29431c52c2a879a67e766d9e3133c)
-+++ uncommitted/include/linux/ptrace.h  (mode:100644 sha1:a3701847ea2be078fc68791ff2e2b8f9987c1513)
-@@ -117,6 +117,10 @@
- #define force_successful_syscall_return() do { } while (0)
- #endif
+The rationale here (of using non-zero load): is it to try and let the
+cpu become idle? Somehow, this doesn't make sense, because in the very next 
+rebalance_tick (assuming that the idle cpu does not sleep), it will start using 
+the idle_idx, which will cause the load to show up as zero and can cause the 
+idle CPU to pull some tasks.
+
+Have I missed something here?
+
+Anyway, if the idle cpu were to sleep instead, the next rebalance_tick will 
+not happen and it will not pull the tasks to restore load balance.
+
+If my above understanding is correct, I see two potential solutions for this:
+
+
+	A. Have load_balance_newidle use zero load for current cpu while
+	  checking for busiest cpu.
+	B. Or, if we want to retain load_balance_newidle the way it is, have 
+	  the idle thread call back scheduler to zero the load and retry
+	  load balance, _when_ it decides that it wants to sleep (there
+	  are conditions under which a idle cpu may not want to sleep. for ex:
+	  the next timer is only a tick, 1ms, away).
+
+In either case, if the load balance still fails to pull any tasks, then it means
+there is really no imbalance. Tasks that will be added into the system later 
+(fork/wake_up) will be balanced across the CPUs because of the load-balance 
+code that runs during those events.
+
+A possible patch for B follows below:
+
+
+---
+
+ linux-2.6.12-rc3-mm2-vatsa/include/linux/sched.h |    1 
+ linux-2.6.12-rc3-mm2-vatsa/kernel/sched.c        |   38 +++++++++++++++++++++++
+ 2 files changed, 39 insertions(+)
+
+diff -puN kernel/sched.c~sched-nohz kernel/sched.c
+--- linux-2.6.12-rc3-mm2/kernel/sched.c~sched-nohz	2005-05-04 18:23:30.000000000 +0530
++++ linux-2.6.12-rc3-mm2-vatsa/kernel/sched.c	2005-05-05 11:37:12.000000000 +0530
+@@ -2214,6 +2214,44 @@ static inline void idle_balance(int this
+ 	}
+ }
  
-+#ifndef HAVE_ARCH_PTRACE_STOP
-+#define arch_ptrace_stop(info)		do { } while (0)
++#ifdef CONFIG_NO_IDLE_HZ
++/*
++ * Try hard to pull tasks. Called by idle task before it sleeps shutting off
++ * local timer ticks.  This clears the various load counters and tries to pull
++ * tasks. If it cannot, then it means that there is really no imbalance at this
++ * point. Any imbalance that arises in future (because of fork/wake_up) will be
++ * handled by the load balance that happens during those events.
++ *
++ * Returns 1 if tasks were pulled over, 0 otherwise.
++ */
++int idle_balance_retry(void)
++{
++	int j, moved = 0, this_cpu = smp_processor_id();
++	struct sched_domain *sd;
++	runqueue_t *this_rq = this_rq();
++	unsigned long flags;
++
++	spin_lock_irqsave(&this_rq->lock, flags);
++
++	for (j = 0; j < 3; j++)
++		this_rq->cpu_load[j] = 0;
++
++	for_each_domain(this_cpu, sd) {
++		if (sd->flags & SD_BALANCE_NEWIDLE) {
++			if (load_balance_newidle(this_cpu, this_rq, sd)) {
++				/* We've pulled tasks over so stop searching */
++				moved = 1;
++				break;
++			}
++		}
++	}
++
++	spin_unlock_irqrestore(&this_rq->lock, flags);
++
++	return moved;
++}
 +#endif
 +
- #endif
- 
- #endif
-Index: kernel/signal.c
-===================================================================
---- 173f941991f1b68da820e9926a3b7ebdd3a2c8b9/kernel/signal.c  (mode:100644 sha1:8f3debc77c5b2c6db5c7e360d18f9d2e2502a068)
-+++ uncommitted/kernel/signal.c  (mode:100644 sha1:205b6b5e0e101eb0b7cc67b8683f151d78a45cd3)
-@@ -1593,10 +1593,12 @@
- 
- 	current->last_siginfo = info;
- 	current->exit_code = exit_code;
-+	spin_unlock_irq(&current->sighand->siglock);
-+
-+	arch_ptrace_stop(current, info);
- 
- 	/* Let the debugger run.  */
- 	set_current_state(TASK_TRACED);
--	spin_unlock_irq(&current->sighand->siglock);
- 	read_lock(&tasklist_lock);
- 	if (likely(current->ptrace & PT_PTRACED) &&
- 	    likely(current->parent != current->real_parent ||
-Index: arch/ia64/kernel/head.S
-===================================================================
---- 173f941991f1b68da820e9926a3b7ebdd3a2c8b9/arch/ia64/kernel/head.S  (mode:100644 sha1:8d3a9291b47f835c43c25d916e400828d590798f)
-+++ uncommitted/arch/ia64/kernel/head.S  (mode:100644 sha1:92e0705e8b7293fde75f8fc480666e4848c494c3)
-@@ -1010,6 +1010,17 @@
- 1:	br.sptk.few 1b				// not reached
- END(start_kernel_thread)
- 
-+GLOBAL_ENTRY(ia64_flush_rbs)
-+	flushrs
-+	;;
-+	mov ar.rsc = 0
-+	;;
-+	mov r8 = ar.bspstore
-+	mov r9 = ar.rnat
-+	mov ar.rsc = 3
-+	br.ret.sptk.many rp
-+END(ia64_flush_rbs)
-+
- #ifdef CONFIG_IA64_BRL_EMU
- 
  /*
-Index: arch/ia64/kernel/ptrace.c
-===================================================================
---- 173f941991f1b68da820e9926a3b7ebdd3a2c8b9/arch/ia64/kernel/ptrace.c  (mode:100644 sha1:c253fd5914fcb6e4144f1bc8dc2930a22dbde161)
-+++ uncommitted/arch/ia64/kernel/ptrace.c  (mode:100644 sha1:df4d470b2fa9013b74bfaf0e70849dbaa3fb873d)
-@@ -402,8 +402,7 @@
- {
- 	unsigned long *bspstore, *krbs, regnum, *laddr, *urbs_end, *rnat_addr;
- 	struct pt_regs *child_regs;
--	size_t copied;
--	long ret;
-+	long ret, err;
+  * active_load_balance is run by migration threads. It pushes running tasks
+  * off the busiest CPU onto idle CPUs. It requires at least 1 task to be
+diff -puN include/linux/sched.h~sched-nohz include/linux/sched.h
+--- linux-2.6.12-rc3-mm2/include/linux/sched.h~sched-nohz	2005-05-04 18:23:30.000000000 +0530
++++ linux-2.6.12-rc3-mm2-vatsa/include/linux/sched.h	2005-05-04 18:23:37.000000000 +0530
+@@ -897,6 +897,7 @@ extern int task_curr(const task_t *p);
+ extern int idle_cpu(int cpu);
+ extern int sched_setscheduler(struct task_struct *, int, struct sched_param *);
+ extern task_t *idle_task(int cpu);
++extern int idle_balance_retry(void);
  
- 	urbs_end = (long *) user_rbs_end;
- 	laddr = (unsigned long *) addr;
-@@ -451,8 +450,12 @@
- 			return 0;
- 		}
- 	}
--	copied = access_process_vm(child, addr, &ret, sizeof(ret), 0);
--	if (copied != sizeof(ret))
-+	if (child == current)
-+		err = get_user(ret, (long __user *) addr);
-+	else
-+		err = (access_process_vm(child, addr, &ret, sizeof(ret), 0)
-+		       != sizeof(ret));
-+	if (err)
- 		return -EIO;
- 	*val = ret;
- 	return 0;
-@@ -534,97 +537,110 @@
- 		    unsigned long user_rbs_start, unsigned long user_rbs_end)
- {
- 	unsigned long addr, val;
--	long ret;
-+	long ret, err;
-+
-+	if (child == current &&
-+	    !access_ok(VERIFY_WRITE, user_rbs_start,
-+		       (user_rbs_end - user_rbs_start)))
-+	    return -EIO;
+ void yield(void);
  
- 	/* now copy word for word from kernel rbs to user rbs: */
- 	for (addr = user_rbs_start; addr < user_rbs_end; addr += 8) {
--		ret = ia64_peek(child, sw, user_rbs_end, addr, &val);
--		if (ret < 0)
-+		if ((ret = ia64_peek(child, sw, user_rbs_end, addr, &val)) < 0)
- 			return ret;
--		if (access_process_vm(child, addr, &val, sizeof(val), 1)
--		    != sizeof(val))
-+		if (child == current)
-+			err = __put_user(val, (unsigned long __user *) addr);
-+		else
-+			err = access_process_vm(child, addr, &val, sizeof(val),
-+						1) != sizeof(val);
-+		if (err)
- 			return -EIO;
- 	}
- 	return 0;
- }
- 
--static inline int
--thread_matches (struct task_struct *thread, unsigned long addr)
-+void
-+arch_ptrace_stop (struct task_struct *child, siginfo_t *info)
- {
--	unsigned long thread_rbs_end;
--	struct pt_regs *thread_regs;
-+	struct pt_regs *regs = ia64_task_regs(child);
-+	struct switch_stack *sw;
-+	unsigned long rbs_end;
- 
--	if (ptrace_check_attach(thread, 0) < 0)
-+	if (likely (child == current)) {
-+		struct ia64_flush_rbs_retval rv;
- 		/*
--		 * If the thread is not in an attachable state, we'll
--		 * ignore it.  The net effect is that if ADDR happens
--		 * to overlap with the portion of the thread's
--		 * register backing store that is currently residing
--		 * on the thread's kernel stack, then ptrace() may end
--		 * up accessing a stale value.  But if the thread
--		 * isn't stopped, that's a problem anyhow, so we're
--		 * doing as well as we can...
-+		 * Create a minimal switch-stack which just contains enough
-+		 * info to do ia64_peek().
- 		 */
--		return 0;
-+		sw = kmalloc(sizeof(*sw), GFP_KERNEL);
-+		rv = ia64_flush_rbs();
-+		sw->ar_bspstore = rv.bspstore;
-+		sw->ar_rnat = rv.rnat;
-+	} else
-+		sw = (struct switch_stack *) (child->thread.ksp + 16);
- 
--	thread_regs = ia64_task_regs(thread);
--	thread_rbs_end = ia64_get_user_rbs_end(thread, thread_regs, NULL);
--	if (!on_kernel_rbs(addr, thread_regs->ar_bspstore, thread_rbs_end))
--		return 0;
-+	/*
-+	 * Copy this task's dirty partition from the kernel stack back
-+	 * to user-level so ptrace() gets a consistent view of this
-+	 * task's stack.
-+	 */
-+	rbs_end = ia64_get_user_rbs_end(child, regs, NULL);
-+	ia64_sync_user_rbs(child, sw, regs->ar_bspstore, rbs_end);
- 
--	return 1;	/* looks like we've got a winner */
-+	if (child == current)
-+		kfree(sw);
- }
- 
- /*
-- * GDB apparently wants to be able to read the register-backing store
-- * of any thread when attached to a given process.  If we are peeking
-- * or poking an address that happens to reside in the kernel-backing
-- * store of another thread, we need to attach to that thread, because
-- * otherwise we end up accessing stale data.
-- *
-- * task_list_lock must be read-locked before calling this routine!
-+ * After PTRACE_ATTACH, a thread's register backing store area in user
-+ * space is assumed to contain correct data whenever the thread is
-+ * stopped.  arch_ptrace_stop takes care of this on tracing stops.
-+ * But if the child was already stopped for job control when we attach
-+ * to it, then it might not ever get into ptrace_stop by the time we
-+ * want to examine the user memory containing the RBS.
-  */
--static struct task_struct *
--find_thread_for_addr (struct task_struct *child, unsigned long addr)
-+static void
-+ptrace_attach_sync_user_rbs (struct task_struct *child)
- {
--	struct task_struct *g, *p;
--	struct mm_struct *mm;
--	int mm_users;
--
--	if (!(mm = get_task_mm(child)))
--		return child;
--
--	/* -1 because of our get_task_mm(): */
--	mm_users = atomic_read(&mm->mm_users) - 1;
--	if (mm_users <= 1)
--		goto out;		/* not multi-threaded */
-+	int stopped = 0;
- 
- 	/*
--	 * First, traverse the child's thread-list.  Good for scalability with
--	 * NPTL-threads.
-+	 * If the child is in TASK_STOPPED, we need to change that to
-+	 * TASK_TRACED momentarily while we operate on it.  This ensures
-+	 * that the child won't be woken up and return to user mode while
-+	 * we are doing the sync.  (It can only be woken up for SIGKILL.)
- 	 */
--	p = child;
--	do {
--		if (thread_matches(p, addr)) {
--			child = p;
--			goto out;
-+
-+	read_lock(&tasklist_lock);
-+	if (child->signal) {
-+		spin_lock_irq(&child->sighand->siglock);
-+		if (child->state == TASK_STOPPED) {
-+			child->state = TASK_TRACED;
-+			stopped = 1;
- 		}
--		if (mm_users-- <= 1)
--			goto out;
--	} while ((p = next_thread(p)) != child);
-+		spin_unlock_irq(&child->sighand->siglock);
-+	}
-+	read_unlock(&tasklist_lock);
- 
--	do_each_thread(g, p) {
--		if (child->mm != mm)
--			continue;
-+	if (!stopped)
-+		return;
- 
--		if (thread_matches(p, addr)) {
--			child = p;
--			goto out;
-+	arch_ptrace_stop(child, NULL);
-+
-+	/*
-+	 * Now move the child back into TASK_STOPPED if it should be in a
-+	 * job control stop, so that SIGCONT can be used to wake it up.
-+	 */
-+	read_lock(&tasklist_lock);
-+	if (child->signal) {
-+		spin_lock_irq(&child->sighand->siglock);
-+		if (child->state == TASK_TRACED &&
-+		    (child->signal->flags & SIGNAL_STOP_STOPPED)) {
-+			child->state = TASK_STOPPED;
- 		}
--	} while_each_thread(g, p);
--  out:
--	mmput(mm);
--	return child;
-+		spin_unlock_irq(&child->sighand->siglock);
-+	}
-+	read_unlock(&tasklist_lock);
- }
- 
- /*
-@@ -1375,7 +1391,7 @@
- sys_ptrace (long request, pid_t pid, unsigned long addr, unsigned long data)
- {
- 	struct pt_regs *pt;
--	unsigned long urbs_end, peek_or_poke;
-+	unsigned long urbs_end;
- 	struct task_struct *child;
- 	struct switch_stack *sw;
- 	long ret;
-@@ -1394,19 +1410,12 @@
- 		goto out;
- 	}
- 
--	peek_or_poke = (request == PTRACE_PEEKTEXT
--			|| request == PTRACE_PEEKDATA
--			|| request == PTRACE_POKETEXT
--			|| request == PTRACE_POKEDATA);
- 	ret = -ESRCH;
- 	read_lock(&tasklist_lock);
- 	{
- 		child = find_task_by_pid(pid);
--		if (child) {
--			if (peek_or_poke)
--				child = find_thread_for_addr(child, addr);
-+		if (child)
- 			get_task_struct(child);
--		}
- 	}
- 	read_unlock(&tasklist_lock);
- 	if (!child)
-@@ -1417,6 +1426,8 @@
- 
- 	if (request == PTRACE_ATTACH) {
- 		ret = ptrace_attach(child);
-+		if (ret == 0)
-+			ptrace_attach_sync_user_rbs(child);
- 		goto out_tsk;
- 	}
- 
-Index: include/asm-ia64/ptrace.h
-===================================================================
---- 173f941991f1b68da820e9926a3b7ebdd3a2c8b9/include/asm-ia64/ptrace.h  (mode:100644 sha1:0bef19538406f2b4e89e07d18809c3e985592eb0)
-+++ uncommitted/include/asm-ia64/ptrace.h  (mode:100644 sha1:386eb0c61f920598acdabb8371b5310cfc1f175b)
-@@ -2,7 +2,7 @@
- #define _ASM_IA64_PTRACE_H
- 
- /*
-- * Copyright (C) 1998-2004 Hewlett-Packard Co
-+ * Copyright (C) 1998-2005 Hewlett-Packard Co
-  *	David Mosberger-Tang <davidm@hpl.hp.com>
-  *	Stephane Eranian <eranian@hpl.hp.com>
-  * Copyright (C) 2003 Intel Co
-@@ -271,6 +271,11 @@
-   struct task_struct;			/* forward decl */
-   struct unw_frame_info;		/* forward decl */
- 
-+  struct ia64_flush_rbs_retval {
-+	  unsigned long bspstore;
-+	  unsigned long rnat;
-+  };
-+
-   extern void show_regs (struct pt_regs *);
-   extern void ia64_do_show_stack (struct unw_frame_info *, void *);
-   extern unsigned long ia64_get_user_rbs_end (struct task_struct *, struct pt_regs *,
-@@ -283,6 +288,12 @@
-   extern void ia64_sync_fph (struct task_struct *);
-   extern long ia64_sync_user_rbs (struct task_struct *, struct switch_stack *,
- 				  unsigned long, unsigned long);
-+  /*
-+   * Flush the register-backing store to memory and return the
-+   * resulting AR.BSPSTORE and AR.RNAT.
-+   */
-+  extern struct ia64_flush_rbs_retval ia64_flush_rbs (void);
-+
- 
-   /* get nat bits for scratch registers such that bit N==1 iff scratch register rN is a NaT */
-   extern unsigned long ia64_get_scratch_nat_bits (struct pt_regs *pt, unsigned long scratch_unat);
-@@ -292,6 +303,10 @@
-   extern void ia64_increment_ip (struct pt_regs *pt);
-   extern void ia64_decrement_ip (struct pt_regs *pt);
- 
-+  struct siginfo;
-+  extern void arch_ptrace_stop (struct task_struct *, struct siginfo *);
-+# define HAVE_ARCH_PTRACE_STOP
-+
- #endif /* !__KERNEL__ */
- 
- /* pt_all_user_regs is used for PTRACE_GETREGS PTRACE_SETREGS */
+
+_
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- 
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

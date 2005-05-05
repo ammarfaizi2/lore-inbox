@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261937AbVEEG7A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261908AbVEEG5X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261937AbVEEG7A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 02:59:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVEEG5i
+	id S261908AbVEEG5X (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 02:57:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVEEG5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 02:57:38 -0400
-Received: from mail.kroah.org ([69.55.234.183]:21158 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261937AbVEEG5W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 02:57:22 -0400
-Date: Wed, 4 May 2005 23:56:09 -0700
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [GIT PATCH] driver core bugfixes for 2.6.12-rc3
-Message-ID: <20050505065609.GA838@kroah.com>
+	Thu, 5 May 2005 02:57:23 -0400
+Received: from mail.kroah.org ([69.55.234.183]:18598 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261908AbVEEG5T convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 02:57:19 -0400
+Cc: alexn@dsv.su.se
+Subject: [PATCH] Hotplug: Make dev->bus checking consistent
+In-Reply-To: <20050505065609.GA838@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Wed, 4 May 2005 23:57:01 -0700
+Message-Id: <11152762214193@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are two driver core bugfixes for 2.6.12-rc3.
+[PATCH] Hotplug: Make dev->bus checking consistent
 
-Pull from:
-	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
+Earlier in the same function dev->bus is checked before dereferenced,
+make consistent although I honestly don't know if dev->bus could
+ever be NULL
 
-Full patches will be sent to the linux-kernel mailing lists, if anyone
-wants to see them.
+Found by the Coverity tool
 
-thanks,
+Signed-off-by: Alexander Nyberg <alexn@dsv.su.se>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-greg k-h
+---
+commit 177a4324944478f2799ce4ede2797cb0f602f274
+tree cc42dcdbce1c3b53ea147abd3ebf784f0d2bf1bc
+parent 897f5ab2cd733a77a2279268262919caa8154b9d
+author Alexander Nyberg <alexn@dsv.su.se> 1109421531 +0100
+committer Greg KH <gregkh@suse.de> 1115275477 -0700
 
--------------
-
- drivers/base/bus.c  |    5 ++---
- drivers/base/core.c |    2 +-
- 2 files changed, 3 insertions(+), 4 deletions(-)
-
-Alexander Nyberg:
-  o Hotplug: Make dev->bus checking consistent
-
-Roman Kagan:
-  o drivers/base/bus.c: fix iteration in driver_detach()
-
+Index: drivers/base/core.c
+===================================================================
+--- 95866d31faa6db4ec786399296238344c7cfea0c/drivers/base/core.c  (mode:100644 sha1:a7cedd8cefe5385a8d2eb6f334c8661454c443d7)
++++ cc42dcdbce1c3b53ea147abd3ebf784f0d2bf1bc/drivers/base/core.c  (mode:100644 sha1:268a9c8d168b6ac72a46e0c624830b030b79df51)
+@@ -139,7 +139,7 @@
+ 	buffer = &buffer[length];
+ 	buffer_size -= length;
+ 
+-	if (dev->bus->hotplug) {
++	if (dev->bus && dev->bus->hotplug) {
+ 		/* have the bus specific function add its stuff */
+ 		retval = dev->bus->hotplug (dev, envp, num_envp, buffer, buffer_size);
+ 			if (retval) {
 

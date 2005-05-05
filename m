@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262201AbVEETqv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262203AbVEETtm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262201AbVEETqv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 15:46:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbVEETqi
+	id S262203AbVEETtm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 15:49:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262199AbVEETrL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 15:46:38 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:57054 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262205AbVEETML (ORCPT
+	Thu, 5 May 2005 15:47:11 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:15327 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262204AbVEETMV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 15:12:11 -0400
-Date: Thu, 5 May 2005 14:11:59 -0500 (CDT)
+	Thu, 5 May 2005 15:12:21 -0400
+Date: Thu, 5 May 2005 14:12:10 -0500 (CDT)
 From: Kylene Hall <kjhall@us.ibm.com>
 X-X-Sender: kjhall@localhost.localdomain
 To: akpm@osdl.org
-cc: greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: [PATCH 11 of 12] Fix Tpm driver -- add cancel function
-Message-ID: <Pine.LNX.4.62.0505051402290.5303@localhost.localdomain>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 12 of 12] Fix Tpm driver -- locks
+Message-ID: <Pine.LNX.4.62.0505051407310.5303@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -25,110 +25,49 @@ Please apply these fixes to the Tpm driver.  I am resubmitting the entire
 patch set that was orginally sent to LKML on April 27 with the changes
 that were requested fixed.
 
-Fixed in this patch are the patch description and a typo.
+This patch was updated to reflect a change in a previous patch in this 
+set so it will cleanly apply.
 
 Thanks,
 Kylie
 
-This patch provides the logic to check if an operation has been canceled 
-while waiting for the response to arrive.
+A lock in the register hardware is missing and the one in release is 
+misplaced. This patch fixes these issues.
 
 Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
 ---
---- linux-2.6.12-rc2/drivers/char/tpm/tpm.h	2005-04-21 18:11:12.000000000 -0500
-+++ linux-2.6.12-rc2-tpmdd/drivers/char/tpm/tpm.h	2005-04-21 18:28:09.000000000 -0500
-@@ -52,6 +52,7 @@ struct tpm_chip;
- struct tpm_vendor_specific {
- 	u8 req_complete_mask;
- 	u8 req_complete_val;
-+	u8 req_canceled;
- 	u16 base;		/* TPM base address */
- 
- 	int (*recv) (struct tpm_chip *, u8 *, size_t);
-diff -urpN --exclude='*.orig' linux-2.6.12-rc2/drivers/char/tpm/tpm_atmel.c linux-2.6.12-rc2-tpmdd/drivers/char/tpm/tpm_atmel.c
---- linux-2.6.12-rc2/drivers/char/tpm/tpm_atmel.c	2005-04-25 18:49:08.000000000 -0500
-+++ linux-2.6.12-rc2-tpmdd/drivers/char/tpm/tpm_atmel.c	2005-04-26 15:31:57.000000000 -0500
-@@ -132,6 +132,7 @@ static struct tpm_vendor_specific tpm_at
- 	.cancel = tpm_atml_cancel,
- 	.req_complete_mask = ATML_STATUS_BUSY | ATML_STATUS_DATA_AVAIL,
- 	.req_complete_val = ATML_STATUS_DATA_AVAIL,
-+	.req_canceled = ATML_STATUS_READY,
- 	.base = TPM_ATML_BASE,
- 	.attr = TPM_DEVICE_ATTRS,
- 	.miscdev.fops = &atmel_ops,
-diff -urpN --exclude='*.orig' linux-2.6.12-rc2/drivers/char/tpm/tpm_nsc.c linux-2.6.12-rc2-tpmdd/drivers/char/tpm/tpm_nsc.c
---- linux-2.6.12-rc2/drivers/char/tpm/tpm_nsc.c	2005-04-25 18:49:08.000000000 -0500
-+++ linux-2.6.12-rc2-tpmdd/drivers/char/tpm/tpm_nsc.c	2005-04-26 15:32:26.000000000 -0500
-@@ -230,6 +230,7 @@ static struct tpm_vendor_specific tpm_ns
- 	.cancel = tpm_nsc_cancel,
- 	.req_complete_mask = NSC_STATUS_OBF,
- 	.req_complete_val = NSC_STATUS_OBF,
-+	.req_canceled = NSC_STATUS_RDY,
- 	.base = TPM_NSC_BASE,
- 	.attr = TPM_DEVICE_ATTRS,
- 	.miscdev.fops = &nsc_ops,
---- linux-2.6.12-rc2/drivers/char/tpm/tpm.c	2005-04-27 11:13:29.000000000 -0500
-+++ linux-2.6.12-rc2-tpmdd/drivers/char/tpm/tpm.c	2005-04-27 11:32:35.000000000 -0500
-@@ -140,7 +140,7 @@ EXPORT_SYMBOL_GPL(tpm_lpc_bus_init);
- static ssize_t tpm_transmit(struct tpm_chip *chip, const char *buf,
- 			    size_t bufsiz)
+--- linux-2.6.12-rc2/drivers/char/tpm/tpm.c	2005-04-27 14:19:17.000000000 -0500
++++ linux-2.6.12-rc2-tpmdd/drivers/char/tpm/tpm.c	2005-04-27 14:25:04.000000000 -0500
+@@ -445,15 +445,15 @@ EXPORT_SYMBOL_GPL(tpm_open);
+ int tpm_release(struct inode *inode, struct file *file)
  {
--	ssize_t len;
-+	ssize_t rc;
- 	u32 count;
- 	__be32 *native_size;
-        unsigned long stop;
-@@ -158,10 +158,10 @@ static ssize_t tpm_transmit(struct tpm_c
+ 	struct tpm_chip *chip = file->private_data;
+-	
+-	file->private_data = NULL;
  
- 	down(&chip->tpm_mutex);
- 
--	if ((len = chip->vendor->send(chip, (u8 *) buf, count)) < 0) {
-+	if ((rc = chip->vendor->send(chip, (u8 *) buf, count)) < 0) {
- 		dev_err(&chip->pci_dev->dev,
--			"tpm_transmit: tpm_send: error %d\n", len);
--		return len;
-+			"tpm_transmit: tpm_send: error %Zd\n", rc);
-+		goto out;
- 	}
- 
-        stop = jiffies + 2 * 60 * HZ;
-@@ -171,23 +171,31 @@ static ssize_t tpm_transmit(struct tpm_c
- 		    chip->vendor->req_complete_val) {
- 			goto out_recv;
- 		}
--               msleep(TPM_TIMEOUT); /* CHECK */
-+
-+		if ((status == chip->vendor->req_canceled)) {
-+			dev_err(&chip->pci_dev->dev, "Operation Canceled\n");
-+			rc = -ECANCELED;
-+			goto out;
-+		}
-+
-+		msleep(TPM_TIMEOUT);	/* CHECK */
- 		rmb();
-        } while (time_before(jiffies, stop));
- 
- 
- 	chip->vendor->cancel(chip);
--	dev_err(&chip->pci_dev->dev, "Time expired\n");
--	up(&chip->tpm_mutex);
--	return -EIO;
-+	dev_err(&chip->pci_dev->dev, "Operation Timed out\n");
-+	rc = -ETIME;
-+	goto out;
- 
- out_recv:
--	len = chip->vendor->recv(chip, (u8 *) buf, bufsiz);
--	if (len < 0)
-+	rc = chip->vendor->recv(chip, (u8 *) buf, bufsiz);
-+	if (rc < 0)
- 		dev_err(&chip->pci_dev->dev,
--			"tpm_transmit: tpm_recv: error %d\n", len);
-+			"tpm_transmit: tpm_recv: error %Zd\n", rc);
-+out:
- 	up(&chip->tpm_mutex);
--	return len;
-+	return rc;
+ 	spin_lock(&driver_lock);
++	file->private_data = NULL;
+ 	chip->num_opens--;
+ 	del_singleshot_timer_sync(&chip->user_read_timer);
+ 	atomic_set(&chip->data_pending, 0);
+-
+ 	pci_dev_put(chip->pci_dev);
++	kfree(chip->data_buffer);
++	spin_unlock(&driver_lock);
+ 	return 0;
  }
  
- #define TPM_DIGEST_SIZE 20
+@@ -665,9 +665,13 @@ dev_num_search_complete:
+ 		return -ENODEV;
+ 	}
+ 
++	spin_lock(&driver_lock);
++
+ 	pci_set_drvdata(pci_dev, chip);
+ 
+ 	list_add(&chip->list, &tpm_chip_list);
+ 
++	spin_unlock(&driver_lock);
++
+	sysfs_create_group(&pci_dev->dev.kobj, chip->vendor->attr_group);
+

@@ -1,68 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262130AbVEEPWv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262013AbVEEPdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262130AbVEEPWv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 11:22:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbVEEPWv
+	id S262013AbVEEPdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 11:33:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbVEEPdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 11:22:51 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:27921 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262130AbVEEPWs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 11:22:48 -0400
-Date: Thu, 5 May 2005 17:22:47 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Valdis.Kletnieks@vt.edu
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc3-mm3
-Message-ID: <20050505152247.GB3590@stusta.de>
-References: <20050504221057.1e02a402.akpm@osdl.org> <200505051457.j45EvAm6013062@turing-police.cc.vt.edu>
+	Thu, 5 May 2005 11:33:08 -0400
+Received: from mailfe02.swip.net ([212.247.154.33]:40326 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S262013AbVEEPdD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 11:33:03 -0400
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Subject: Re: A patch for the file kernel/fork.c
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: linux-kernel@vger.kernel.org, cw@f00f.org, andre@cachola.com.br,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1115300887.21180.14.camel@localhost.localdomain>
+References: <4278E03A.1000605@cachola.com.br>
+	 <20050504175457.GA31789@taniwha.stupidest.org>
+	 <427913E4.3070908@cachola.com.br>
+	 <20050504184318.GA644@taniwha.stupidest.org>
+	 <42791CD2.5070408@cachola.com.br>
+	 <1115234213.2562.28.camel@localhost.localdomain>
+	 <20050504124104.3573e7f3.akpm@osdl.org>
+	 <1115241687.2562.50.camel@localhost.localdomain>
+	 <1115300887.21180.14.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 05 May 2005 17:32:56 +0200
+Message-Id: <1115307176.3993.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200505051457.j45EvAm6013062@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 05, 2005 at 10:57:10AM -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Wed, 04 May 2005 22:10:57 PDT, Andrew Morton said:
-> > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc3/2.6.12-rc3-mm3/
-> > 
-> > - device mapper updates
-> > 
-> > - more UML updates
-> > 
-> > - -mm seems unusually stable at present.
+> Instead of the for(;;) msleep, why not just take it permanently off the
+> run queue? With the following:
 > 
-> Indeed.  Line counts for the announcement e-mails for the 2.6.12-rc*-mm*:
+>    set_current_state(TASK_UNINTERRUPTIBLE);
+>    schedule();
 > 
-> 2.6.12-rc1-mm1 2345
-> 2.6.12-rc1-mm2 3048
-> 2.6.12-rc1-mm3 2861
-> 2.6.12-rc1-mm4 2612
-> 2.6.12-rc2-mm1 2460
-> 2.6.12-rc2-mm2 2610
-> 2.6.12-rc2-mm3 2763
-> 2.6.12-rc3-mm1 1236
-> 2.6.12-rc3-mm2  105
-> 2.6.12-rc3-mm3  796
-> 
-> (Presuming that the linecounts are at least roughly proportional to the
-> churn in patches added/merged/dropped).
->...
+> It basically gives the same effect, but is cleaner.
 
-Your presumption is only correct starting with 2.6.12-rc3-mm1, because 
-since 2.6.12-rc3-mm1 the announcements do no longer contain the big 
-detailed listing of all patches in -mm.
+Ah perfect, now it looks ok. Thanks!
 
-cu
-Adrian
+Prevent recursive faults in do_exit() by leaving the task alone and wait
+for reboot. This may allow a more graceful shutdown and possibly save
+the original oops.
 
--- 
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Signed-off-by: Alexander Nyberg <alexn@telia.com>
+
+Index: mm/kernel/exit.c
+===================================================================
+--- mm.orig/kernel/exit.c	2005-05-05 16:44:20.000000000 +0200
++++ mm/kernel/exit.c	2005-05-05 17:29:40.000000000 +0200
+@@ -797,6 +797,14 @@
+ 		ptrace_notify((PTRACE_EVENT_EXIT << 8) | SIGTRAP);
+ 	}
+ 
++	/* We're taking recursive faults here in do_exit. Safest 
++	 * is to just leave this task alone and wait for reboot. */
++	if (unlikely(tsk->flags & PF_EXITING)) {
++		printk(KERN_ALERT "\nFixing recursive fault but reboot is needed!\n");
++		set_current_state(TASK_UNINTERRUPTIBLE);
++		schedule();
++	}
++
+ 	tsk->flags |= PF_EXITING;
+ 
+ 	/*
+
 

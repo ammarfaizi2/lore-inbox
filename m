@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261907AbVEEGNX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261937AbVEEG7A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261907AbVEEGNX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 02:13:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261908AbVEEGNX
+	id S261937AbVEEG7A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 02:59:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVEEG5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 02:13:23 -0400
-Received: from wproxy.gmail.com ([64.233.184.205]:6236 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261907AbVEEGNU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 02:13:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=Gymrq3Z3BjxDbQkP5jBI6H0GjQ2DlVoMqu0v5EOymtXfQEr5eRi+vdKlQkvGEA15+8ZTUdwiTnygt4ySNsWkm3VpOq06N1uEaACBKjt3oCijZM5oiq0YWWlu2HgVWxpFHdjko+ElaGKxSGe+/v/1IyzbeSsYRE5xMQIZxb3Ceho=
-Message-ID: <3cac075b05050423135a8efa2@mail.gmail.com>
-Date: Thu, 5 May 2005 11:13:20 +0500
-From: Nauman <mailtonauman@gmail.com>
-Reply-To: Nauman <mailtonauman@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: EXT2-FS Error (ext2_new_block) Where is this comming from?? can anyone help
+	Thu, 5 May 2005 02:57:38 -0400
+Received: from mail.kroah.org ([69.55.234.183]:21158 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261937AbVEEG5W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 02:57:22 -0400
+Date: Wed, 4 May 2005 23:56:09 -0700
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [GIT PATCH] driver core bugfixes for 2.6.12-rc3
+Message-ID: <20050505065609.GA838@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear linux gurus, 
-I have set up a Block Device over a SCSI drive. I write data to the
-actual target drive after writing same blocks in my RAMDISK. I am
-using RAMDISK of 2 GB. once the allcoated blocks of my RAMDISK are
-full i start freeing those blocks (WRITE THROUGH). at  this point i
-get this message during Write operations
-Ext2 FS- Error: ext2_new_block : Allocating blocks in System zone. <block_nr>
-Is this some sort of calculation error or some other configuration problem?? 
+Here are two driver core bugfixes for 2.6.12-rc3.
 
--- 
-When the going gets tough, The tough gets going...!
-Peace ,  
-Nauman.
+Pull from:
+	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
+
+Full patches will be sent to the linux-kernel mailing lists, if anyone
+wants to see them.
+
+thanks,
+
+greg k-h
+
+-------------
+
+ drivers/base/bus.c  |    5 ++---
+ drivers/base/core.c |    2 +-
+ 2 files changed, 3 insertions(+), 4 deletions(-)
+
+Alexander Nyberg:
+  o Hotplug: Make dev->bus checking consistent
+
+Roman Kagan:
+  o drivers/base/bus.c: fix iteration in driver_detach()
+
+

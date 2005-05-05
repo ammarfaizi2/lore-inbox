@@ -1,76 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262121AbVEEO5Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262127AbVEEPDD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262121AbVEEO5Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 10:57:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbVEEO5Z
+	id S262127AbVEEPDD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 11:03:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbVEEPDD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 10:57:25 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:22801 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262121AbVEEO5T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 10:57:19 -0400
-Message-Id: <200505051457.j45EvAm6013062@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+	Thu, 5 May 2005 11:03:03 -0400
+Received: from ZIVLNX17.UNI-MUENSTER.DE ([128.176.188.79]:21477 "EHLO
+	ZIVLNX17.uni-muenster.de") by vger.kernel.org with ESMTP
+	id S262127AbVEEPCp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 11:02:45 -0400
+From: Borislav Petkov <petkov@uni-muenster.de>
 To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.12-rc3-mm3
+Date: Thu, 5 May 2005 16:59:37 +0200
+User-Agent: KMail/1.7.2
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc3-mm3 
-In-Reply-To: Your message of "Wed, 04 May 2005 22:10:57 PDT."
-             <20050504221057.1e02a402.akpm@osdl.org> 
-From: Valdis.Kletnieks@vt.edu
 References: <20050504221057.1e02a402.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1115305030_3889P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+In-Reply-To: <20050504221057.1e02a402.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Thu, 05 May 2005 10:57:10 -0400
+Content-Disposition: inline
+Message-Id: <200505051659.38341.petkov@uni-muenster.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1115305030_3889P
-Content-Type: text/plain; charset=us-ascii
+build.log:
 
-On Wed, 04 May 2005 22:10:57 PDT, Andrew Morton said:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc3/2.6.12-rc3-mm3/
-> 
-> - device mapper updates
-> 
-> - more UML updates
-> 
-> - -mm seems unusually stable at present.
+<snip>
+fs/namei.c: In function `vfs_rename':
+fs/namei.c:2177: warning: passing arg 1 of `fsnotify_oldname_init' from 
+incompatible pointer type
+</snip>
 
-Indeed.  Line counts for the announcement e-mails for the 2.6.12-rc*-mm*:
+trivial fix for when !CONFIG_INOTIFY
 
-2.6.12-rc1-mm1 2345
-2.6.12-rc1-mm2 3048
-2.6.12-rc1-mm3 2861
-2.6.12-rc1-mm4 2612
-2.6.12-rc2-mm1 2460
-2.6.12-rc2-mm2 2610
-2.6.12-rc2-mm3 2763
-2.6.12-rc3-mm1 1236
-2.6.12-rc3-mm2  105
-2.6.12-rc3-mm3  796
+Signed-off-by: Borislav Petkov <petkov@uni-muenster.de>
 
-(Presuming that the linecounts are at least roughly proportional to the
-churn in patches added/merged/dropped).  The surprising thing for me this
-time around was the 223 "merged upstream" patches - seemed a bit high for
-this point in -rc3.  I admit *not* having looked at the list in detail and
-they might all be minor bugfixes, or compared it to similar stages of
-previous -rc3's.
-
-And yes, it compiles and boots cleanly on my Dell laptop, for what that's worth. ;)
-
---==_Exmh_1115305030_3889P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCejRFcC3lWbTT17ARAp8tAJ93de2Fy5oA73Ho7nMFbVnuZIOPxACfaK87
-mAuGHZ6/5wiaSrVxa8SRrSk=
-=m+gg
------END PGP SIGNATURE-----
-
---==_Exmh_1115305030_3889P--
+--- include/linux/fsnotify.h.orig	2005-05-05 15:56:41.000000000 +0200
++++ include/linux/fsnotify.h	2005-05-05 16:53:11.000000000 +0200
+@@ -241,7 +241,7 @@ static inline void fsnotify_oldname_free
+ 
+ #else	/* CONFIG_INOTIFY */
+ 
+-static inline char *fsnotify_oldname_init(struct dentry *old_dentry)
++static inline char *fsnotify_oldname_init(const char *name)
+ {
+ 	return NULL;
+ }

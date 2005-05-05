@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262149AbVEEQUX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262148AbVEEQXK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262149AbVEEQUX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 12:20:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262146AbVEEQUV
+	id S262148AbVEEQXK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 12:23:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262146AbVEEQXJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 12:20:21 -0400
-Received: from hellhawk.shadowen.org ([80.68.90.175]:47120 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S262148AbVEEQUD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 12:20:03 -0400
-Message-ID: <427A4787.4030802@shadowen.org>
-Date: Thu, 05 May 2005 17:19:19 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: jschopp@austin.ibm.com
-CC: linuxppc64-dev@ozlabs.org, paulus@samba.org, anton@samba.org,
-       linux-mm@kvack.org, haveblue@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [1/3] add early_pfn_to_nid for ppc64
-References: <E1DTQUL-0002WE-D6@pinky.shadowen.org> <427A3F6A.6060405@austin.ibm.com>
-In-Reply-To: <427A3F6A.6060405@austin.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 5 May 2005 12:23:09 -0400
+Received: from animx.eu.org ([216.98.75.249]:10635 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S262148AbVEEQVS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 12:21:18 -0400
+Date: Thu, 5 May 2005 12:20:40 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: Pozs?r Bal?zs <pozsy@uhulinux.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: /proc/ide/hd?/settings obsolete in 2.6.
+Message-ID: <20050505162040.GA17861@animx.eu.org>
+Mail-Followup-To: Pozs?r Bal?zs <pozsy@uhulinux.hu>,
+	linux-kernel@vger.kernel.org
+References: <20050505004854.GA16550@animx.eu.org> <58cb370e050505031041c2c164@mail.gmail.com> <20050505111324.GA17223@animx.eu.org> <58cb370e050505051360d0588c@mail.gmail.com> <20050505153327.GA17724@animx.eu.org> <20050505155318.GD19927@ojjektum.uhulinux.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050505155318.GD19927@ojjektum.uhulinux.hu>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joel Schopp wrote:
->> +#ifdef CONFIG_HAVE_ARCH_EARLY_PFN_TO_NID
->> +#define early_pfn_to_nid(pfn)  pa_to_nid(((unsigned long)pfn) <<
->> PAGE_SHIFT)
->> +#endif
+Pozs?r Bal?zs wrote:
+> On Thu, May 05, 2005 at 11:33:27AM -0400, Wakko Warner wrote:
+> > I am using edd to retrieve these parameters.  Unfortunately there are some
+> > utils that I use that I cannot give it the geometry.  Those utils depend on
+> > having the proper geometry so that the system can boot properly (no, it's
+> > not booting linux).
+> > 
+> > I need to work around what I can't fix otherwise.  So far, the proc entry is
+> > the only solution I have seen.
 > 
-> 
-> Is there a reason we didn't just use pfn_to_nid() directly here instead
-> of pa_to_nid()?  I'm just thinking of having DISCONTIG/NUMA off and
-> pfn_to_nid() being #defined to zero for those cases.
+> If those utils just open and read some files under /proc, you could 
+> always overmount those files or use some LD_PRELOAD magic.
 
-The problem is that pfn_to_nid is defined by the memory model.  In the
-SPARSEMEM case it isn't always usable until after the we have
-initialised and allocated the sparse mem_maps.  It is allocations during
-this phase that need this early_pfn_to_nid() form, to guide its
-allocations of the mem_map to obtain locality with the physical memory
-blocks.
+No no, I'm using /proc to set the right geometry.  The programs use
+HDGETGEO.
 
-This is clearer in the i386 port where the early_pfn_to_nid()
-implementation uses low level table to determine the location.  As has
-been mentioned in another thread, we are using what is effectivly a
-DISCONTIGMEM data structure here.  I have some work in progress to split
-that last part and move to a true early implementation on ppc64 too.
-
--apw
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

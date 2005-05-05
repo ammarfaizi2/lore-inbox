@@ -1,74 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262013AbVEEPdJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262008AbVEEPe3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262013AbVEEPdJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 11:33:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbVEEPdI
+	id S262008AbVEEPe3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 11:34:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262088AbVEEPe2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 11:33:08 -0400
-Received: from mailfe02.swip.net ([212.247.154.33]:40326 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S262013AbVEEPdD (ORCPT
+	Thu, 5 May 2005 11:34:28 -0400
+Received: from animx.eu.org ([216.98.75.249]:5515 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S262008AbVEEPeQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 11:33:03 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Subject: Re: A patch for the file kernel/fork.c
-From: Alexander Nyberg <alexn@dsv.su.se>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: linux-kernel@vger.kernel.org, cw@f00f.org, andre@cachola.com.br,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1115300887.21180.14.camel@localhost.localdomain>
-References: <4278E03A.1000605@cachola.com.br>
-	 <20050504175457.GA31789@taniwha.stupidest.org>
-	 <427913E4.3070908@cachola.com.br>
-	 <20050504184318.GA644@taniwha.stupidest.org>
-	 <42791CD2.5070408@cachola.com.br>
-	 <1115234213.2562.28.camel@localhost.localdomain>
-	 <20050504124104.3573e7f3.akpm@osdl.org>
-	 <1115241687.2562.50.camel@localhost.localdomain>
-	 <1115300887.21180.14.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 05 May 2005 17:32:56 +0200
-Message-Id: <1115307176.3993.9.camel@localhost.localdomain>
+	Thu, 5 May 2005 11:34:16 -0400
+Date: Thu, 5 May 2005 11:33:27 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: /proc/ide/hd?/settings obsolete in 2.6.
+Message-ID: <20050505153327.GA17724@animx.eu.org>
+Mail-Followup-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+	linux-kernel@vger.kernel.org
+References: <20050505004854.GA16550@animx.eu.org> <58cb370e050505031041c2c164@mail.gmail.com> <20050505111324.GA17223@animx.eu.org> <58cb370e050505051360d0588c@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <58cb370e050505051360d0588c@mail.gmail.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Instead of the for(;;) msleep, why not just take it permanently off the
-> run queue? With the following:
+Bartlomiej Zolnierkiewicz wrote:
+> On 5/5/05, Wakko Warner <wakko@animx.eu.org> wrote:
+> > If there is no "non-obsolete" way of doing this, then fine, I'll continue
+> > with the settings thing.
 > 
->    set_current_state(TASK_UNINTERRUPTIBLE);
->    schedule();
-> 
-> It basically gives the same effect, but is cleaner.
+> Please be aware that new applications are expected to use
+> /sys/firmware/edd/default_* instead of legacy HDIO_GETGEO ioctl
+> and there is currently no way to set these sysfs entries (maybe it
+> would be worthwile to add such functionality?).
 
-Ah perfect, now it looks ok. Thanks!
+I am using edd to retrieve these parameters.  Unfortunately there are some
+utils that I use that I cannot give it the geometry.  Those utils depend on
+having the proper geometry so that the system can boot properly (no, it's
+not booting linux).
 
-Prevent recursive faults in do_exit() by leaving the task alone and wait
-for reboot. This may allow a more graceful shutdown and possibly save
-the original oops.
+I need to work around what I can't fix otherwise.  So far, the proc entry is
+the only solution I have seen.
 
-
-Signed-off-by: Alexander Nyberg <alexn@telia.com>
-
-Index: mm/kernel/exit.c
-===================================================================
---- mm.orig/kernel/exit.c	2005-05-05 16:44:20.000000000 +0200
-+++ mm/kernel/exit.c	2005-05-05 17:29:40.000000000 +0200
-@@ -797,6 +797,14 @@
- 		ptrace_notify((PTRACE_EVENT_EXIT << 8) | SIGTRAP);
- 	}
- 
-+	/* We're taking recursive faults here in do_exit. Safest 
-+	 * is to just leave this task alone and wait for reboot. */
-+	if (unlikely(tsk->flags & PF_EXITING)) {
-+		printk(KERN_ALERT "\nFixing recursive fault but reboot is needed!\n");
-+		set_current_state(TASK_UNINTERRUPTIBLE);
-+		schedule();
-+	}
-+
- 	tsk->flags |= PF_EXITING;
- 
- 	/*
-
-
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

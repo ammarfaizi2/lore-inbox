@@ -1,354 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261969AbVEEAM2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261970AbVEEAXY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261969AbVEEAM2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 20:12:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbVEEAM2
+	id S261970AbVEEAXY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 20:23:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261971AbVEEAXY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 20:12:28 -0400
-Received: from khc.piap.pl ([195.187.100.11]:28164 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S261969AbVEEAMK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 20:12:10 -0400
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.6.current Oops: strace + waitpid()?
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Thu, 05 May 2005 02:12:03 +0200
-Message-ID: <m3mzrapm3w.fsf@defiant.localdomain>
-MIME-Version: 1.0
+	Wed, 4 May 2005 20:23:24 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:14089 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261970AbVEEAXN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 20:23:13 -0400
+Date: Thu, 5 May 2005 02:23:10 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: marcel@holtmann.or, maxk@qualcomm.com
+Cc: bluez-devel@lists.sf.net, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] net/bluetooth/: possible cleanups
+Message-ID: <20050505002310.GF3593@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This patch contains the following possible cleanups:
+- #ifdef HCI_DATA_DUMP the following function:
+  lib.c: bt_dump
+- #if 0 the following unused global functions:
+  - hci_core.c: hci_suspend_dev
+  - hci_core.c: hci_resume_dev
+- remove the following unneeded EXPORT_SYMBOL's:
+  - hci_core.c: hci_dev_get
+  - hci_core.c: hci_send_cmd
+  - hci_event.c: hci_si_event
 
-intrepid:~$ cat test.pl
-#!/usr/bin/perl
+Please review which of these changes do make sense and which conflict 
+with pending patches.
 
-open my $fd, "-|", "/bin/true";
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-intrepid:~$ strace -f ./test.pl
+---
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
- printing eip:
-00000000
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMPT 
-Modules linked in: binfmt_misc ohci1394 ieee1394 pci200syn hdlc syncppp
-emu10k1_gp snd_cmipci gameport snd_opl3_lib snd_mpu401_uart epic100 sg
-sym53c8xx scsi_transport_spi evdev
-CPU:    0
-EIP:    0060:[<00000000>]    Not tainted VLI
-EFLAGS: 00010286   (2.6.12-rc3) 
-EIP is at 0x0
-eax: ca476000   ebx: 01200011   ecx: 00000000   edx: 00000000
-esi: cfbd3060   edi: 00000000   ebp: ca476000   esp: ca476fc4
-ds: 007b   es: 007b   ss: 0068
-Process test.pl (pid: 3168, threadinfo=ca476000 task=cfbd3060)
-Stack: 01202011 00000000 00000000 00000000 b7c9a708 bfea12cc 00000000 0000007b 
-       0000007b 00000078 ffffe410 00000073 00000282 bfea121c 0000007b 
-Call Trace:
-Code:  Bad EIP value.
+ include/net/bluetooth/hci_core.h |    2 --
+ net/bluetooth/hci_core.c         |    6 ++++--
+ net/bluetooth/hci_event.c        |    1 -
+ net/bluetooth/lib.c              |    2 ++
+ 4 files changed, 6 insertions(+), 5 deletions(-)
 
-2.6.12-rc3 (current), gcc version 3.4.3 20050227 (Red Hat 3.4.3-22.fc3),
-Athlon XP.
+--- linux-2.6.12-rc3-mm2-full/include/net/bluetooth/hci_core.h.old	2005-05-03 10:38:41.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/include/net/bluetooth/hci_core.h	2005-05-03 10:38:49.000000000 +0200
+@@ -375,8 +375,6 @@
+ void hci_free_dev(struct hci_dev *hdev);
+ int hci_register_dev(struct hci_dev *hdev);
+ int hci_unregister_dev(struct hci_dev *hdev);
+-int hci_suspend_dev(struct hci_dev *hdev);
+-int hci_resume_dev(struct hci_dev *hdev);
+ int hci_dev_open(__u16 dev);
+ int hci_dev_close(__u16 dev);
+ int hci_dev_reset(__u16 dev);
+--- linux-2.6.12-rc3-mm2-full/net/bluetooth/hci_core.c.old	2005-05-03 10:38:58.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/net/bluetooth/hci_core.c	2005-05-03 10:47:49.000000000 +0200
+@@ -299,7 +299,6 @@
+ 	read_unlock(&hci_dev_list_lock);
+ 	return hdev;
+ }
+-EXPORT_SYMBOL(hci_dev_get);
+ 
+ /* ---- Inquiry support ---- */
+ static void inquiry_cache_flush(struct hci_dev *hdev)
+@@ -899,6 +898,8 @@
+ }
+ EXPORT_SYMBOL(hci_unregister_dev);
+ 
++#if 0
++
+ /* Suspend HCI device */
+ int hci_suspend_dev(struct hci_dev *hdev)
+ {
+@@ -915,6 +916,8 @@
+ }
+ EXPORT_SYMBOL(hci_resume_dev);
+ 
++#endif  /*  0  */
++
+ /* ---- Interface to upper protocols ---- */
+ 
+ /* Register/Unregister protocols.
+@@ -1042,7 +1045,6 @@
+ 
+ 	return 0;
+ }
+-EXPORT_SYMBOL(hci_send_cmd);
+ 
+ /* Get data from the previously sent command */
+ void *hci_sent_cmd_data(struct hci_dev *hdev, __u16 ogf, __u16 ocf)
+--- linux-2.6.12-rc3-mm2-full/net/bluetooth/lib.c.old	2005-05-03 10:39:29.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/net/bluetooth/lib.c	2005-05-03 10:39:49.000000000 +0200
+@@ -34,6 +34,7 @@
+ 
+ #include <net/bluetooth/bluetooth.h>
+ 
++#ifdef HCI_DATA_DUMP
+ void bt_dump(char *pref, __u8 *buf, int count)
+ {
+ 	char *ptr;
+@@ -58,6 +59,7 @@
+ 		printk(KERN_INFO "%s:%s\n", pref, line);
+ }
+ EXPORT_SYMBOL(bt_dump);
++#endif  /*  HCI_DATA_DUMP  */
+ 
+ void baswap(bdaddr_t *dst, bdaddr_t *src)
+ {
+--- linux-2.6.12-rc3-mm2-full/net/bluetooth/hci_event.c.old	2005-05-03 10:48:13.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/net/bluetooth/hci_event.c	2005-05-03 10:48:21.000000000 +0200
+@@ -1040,4 +1040,3 @@
+ 	hci_send_to_sock(hdev, skb);
+ 	kfree_skb(skb);
+ }
+-EXPORT_SYMBOL(hci_si_event);
 
-The machine is still alive, oops is 100% reproducible.
-
- 3174 ?        Ss     0:00 \_ xterm -rv
- 3176 pts/1    Ss     0:00     \_ bash
- 3210 pts/1    S+     0:00         \_ strace -f ./test.pl
- 3211 pts/1    T+     0:00             \_ /usr/bin/perl ./test.pl
- 3212 pts/1    Z+     0:00                 \_ [test.pl] <defunct>
-
-Any idea?
--- 
-Krzysztof Halasa
-
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_GENERIC_IOMAP=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_CLEAN_COMPILE=y
-CONFIG_BROKEN_ON_SMP=y
-CONFIG_LOCK_KERNEL=y
-CONFIG_INIT_ENV_ARG_LIMIT=32
-CONFIG_LOCALVERSION=""
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_POSIX_MQUEUE=y
-CONFIG_SYSCTL=y
-CONFIG_HOTPLUG=y
-CONFIG_KOBJECT_UEVENT=y
-CONFIG_KALLSYMS=y
-CONFIG_PRINTK=y
-CONFIG_BUG=y
-CONFIG_BASE_FULL=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_SHMEM=y
-CONFIG_CC_ALIGN_FUNCTIONS=0
-CONFIG_CC_ALIGN_LABELS=0
-CONFIG_CC_ALIGN_LOOPS=0
-CONFIG_CC_ALIGN_JUMPS=0
-CONFIG_BASE_SMALL=0
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_KMOD=y
-CONFIG_X86_PC=y
-CONFIG_MK7=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=6
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_GENERIC_CALIBRATE_DELAY=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_USE_3DNOW=y
-CONFIG_HPET_TIMER=y
-CONFIG_PREEMPT=y
-CONFIG_PREEMPT_BKL=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_NONFATAL=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_REGPARM=y
-CONFIG_SECCOMP=y
-CONFIG_PM=y
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_BUTTON=y
-CONFIG_ACPI_BLACKLIST_YEAR=0
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_PCI=y
-CONFIG_PCI_GODIRECT=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_ISA_DMA_API=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=m
-CONFIG_STANDALONE=y
-CONFIG_PREVENT_FIRMWARE_BUILD=y
-CONFIG_PNP=y
-CONFIG_PNPACPI=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_BLK_DEV_RAM_COUNT=16
-CONFIG_INITRAMFS_SOURCE=""
-CONFIG_CDROM_PKTCDVD=m
-CONFIG_CDROM_PKTCDVD_BUFFERS=8
-CONFIG_CDROM_PKTCDVD_WCACHE=y
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=y
-CONFIG_IOSCHED_DEADLINE=y
-CONFIG_IOSCHED_CFQ=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_SCSI=y
-CONFIG_SCSI_PROC_FS=y
-CONFIG_BLK_DEV_SD=m
-CONFIG_CHR_DEV_SG=m
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_SCSI_SPI_ATTRS=m
-CONFIG_SCSI_SYM53C8XX_2=m
-CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=0
-CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=16
-CONFIG_SCSI_SYM53C8XX_MAX_TAGS=64
-CONFIG_SCSI_QLA2XXX=y
-CONFIG_MD=y
-CONFIG_BLK_DEV_MD=y
-CONFIG_MD_RAID1=y
-CONFIG_IEEE1394=m
-CONFIG_IEEE1394_OHCI1394=m
-CONFIG_IEEE1394_VIDEO1394=m
-CONFIG_IEEE1394_DV1394=m
-CONFIG_IEEE1394_RAWIO=m
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_ADVANCED_ROUTER=y
-CONFIG_IP_ROUTE_MULTIPATH=y
-CONFIG_IP_ROUTE_VERBOSE=y
-CONFIG_IP_TCPDIAG=m
-CONFIG_BRIDGE=m
-CONFIG_VLAN_8021Q=m
-CONFIG_NET_SCHED=y
-CONFIG_NET_SCH_CLK_JIFFIES=y
-CONFIG_NET_SCH_TEQL=m
-CONFIG_NETDEVICES=y
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=y
-CONFIG_NET_PCI=y
-CONFIG_EPIC100=m
-CONFIG_WAN=y
-CONFIG_DSCC4=m
-CONFIG_HDLC=m
-CONFIG_HDLC_RAW=y
-CONFIG_HDLC_RAW_ETH=y
-CONFIG_HDLC_CISCO=y
-CONFIG_HDLC_FR=y
-CONFIG_HDLC_PPP=y
-CONFIG_PCI200SYN=m
-CONFIG_WANXL=m
-CONFIG_PC300=m
-CONFIG_FARSYNC=m
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_JOYDEV=m
-CONFIG_INPUT_EVDEV=m
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_INPUT_JOYSTICK=y
-CONFIG_JOYSTICK_ANALOG=m
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_PCSPKR=m
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_PCIPS2=y
-CONFIG_SERIO_LIBPS2=y
-CONFIG_GAMEPORT=m
-CONFIG_GAMEPORT_EMU10K1=m
-CONFIG_SOUND_GAMEPORT=m
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_8250_ACPI=y
-CONFIG_SERIAL_8250_NR_UARTS=2
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_LEGACY_PTYS=y
-CONFIG_LEGACY_PTY_COUNT=32
-CONFIG_RTC=y
-CONFIG_AGP=y
-CONFIG_AGP_VIA=y
-CONFIG_DRM=y
-CONFIG_DRM_RADEON=y
-CONFIG_HPET=y
-CONFIG_HPET_MMAP=y
-CONFIG_I2C=y
-CONFIG_I2C_CHARDEV=y
-CONFIG_I2C_VIAPRO=y
-CONFIG_I2C_SENSOR=y
-CONFIG_SENSORS_ASB100=y
-CONFIG_SENSORS_EEPROM=m
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_SOUND=y
-CONFIG_SND=y
-CONFIG_SND_TIMER=y
-CONFIG_SND_PCM=y
-CONFIG_SND_HWDEP=y
-CONFIG_SND_RAWMIDI=y
-CONFIG_SND_SEQUENCER=y
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=m
-CONFIG_SND_PCM_OSS=m
-CONFIG_SND_RTCTIMER=m
-CONFIG_SND_MPU401_UART=m
-CONFIG_SND_OPL3_LIB=m
-CONFIG_SND_AC97_CODEC=y
-CONFIG_SND_EMU10K1=y
-CONFIG_SND_CMIPCI=m
-CONFIG_USB_ARCH_HAS_HCD=y
-CONFIG_USB_ARCH_HAS_OHCI=y
-CONFIG_USB=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_SUSPEND=y
-CONFIG_USB_EHCI_HCD=y
-CONFIG_USB_EHCI_SPLIT_ISO=y
-CONFIG_USB_UHCI_HCD=y
-CONFIG_USB_PRINTER=m
-CONFIG_USB_STORAGE=m
-CONFIG_USB_HID=m
-CONFIG_USB_HIDINPUT=y
-CONFIG_HID_FF=y
-CONFIG_HID_PID=y
-CONFIG_LOGITECH_FF=y
-CONFIG_THRUSTMASTER_FF=y
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-CONFIG_DNOTIFY=y
-CONFIG_AUTOFS4_FS=m
-CONFIG_ISO9660_FS=m
-CONFIG_JOLIET=y
-CONFIG_UDF_FS=m
-CONFIG_UDF_NLS=y
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_FAT_DEFAULT_CODEPAGE=852
-CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-2"
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
-CONFIG_SYSFS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_NFS_FS=y
-CONFIG_NFS_V3=y
-CONFIG_NFS_V4=y
-CONFIG_NFS_DIRECTIO=y
-CONFIG_LOCKD=y
-CONFIG_LOCKD_V4=y
-CONFIG_SUNRPC=y
-CONFIG_SUNRPC_GSS=y
-CONFIG_RPCSEC_GSS_KRB5=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-2"
-CONFIG_NLS_CODEPAGE_852=m
-CONFIG_NLS_CODEPAGE_1250=m
-CONFIG_NLS_ASCII=m
-CONFIG_NLS_ISO8859_2=m
-CONFIG_NLS_UTF8=m
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_LOG_BUF_SHIFT=15
-CONFIG_DEBUG_BUGVERBOSE=y
-CONFIG_EARLY_PRINTK=y
-CONFIG_4KSTACKS=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-CONFIG_CRYPTO=y
-CONFIG_CRYPTO_MD5=y
-CONFIG_CRYPTO_DES=y
-CONFIG_CRC32=y
-CONFIG_GENERIC_HARDIRQS=y
-CONFIG_GENERIC_IRQ_PROBE=y
-CONFIG_X86_BIOS_REBOOT=y
-CONFIG_PC=y

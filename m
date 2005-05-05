@@ -1,50 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262065AbVEEMD1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262067AbVEEMFi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262065AbVEEMD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 08:03:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbVEEMD1
+	id S262067AbVEEMFi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 08:05:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbVEEMFi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 08:03:27 -0400
-Received: from mx2.suse.de ([195.135.220.15]:56557 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262065AbVEEMDV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 08:03:21 -0400
-Date: Thu, 5 May 2005 14:03:11 +0200
-From: Andi Kleen <ak@suse.de>
-To: Len Brown <len.brown@intel.com>
-Cc: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, mingo@elte.hu,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "Shah, Rajesh" <rajesh.shah@intel.com>,
-       John Stultz <johnstul@us.ibm.com>, Andi Kleen <ak@suse.de>,
-       Asit K Mallick <asit.k.mallick@intel.com>
-Subject: Re: [RFC][PATCH] i386 x86-64 Eliminate Local APIC timer interrupt
-Message-ID: <20050505120311.GM28441@wotan.suse.de>
-References: <88056F38E9E48644A0F562A38C64FB60049EE972@scsmsx403.amr.corp.intel.com> <1115266581.7644.52.camel@d845pe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1115266581.7644.52.camel@d845pe>
+	Thu, 5 May 2005 08:05:38 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:22544 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S262067AbVEEMF3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 08:05:29 -0400
+Message-ID: <427A0BBA.1080803@shadowen.org>
+Date: Thu, 05 May 2005 13:04:10 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Olof Johansson <olof@lixom.net>
+CC: linuxppc64-dev@ozlabs.org, paulus@samba.org, anton@samba.org,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org, haveblue@us.ibm.com,
+       kravetz@us.ibm.com
+Subject: Re: [2/3] add memory present for ppc64
+References: <E1DTQVJ-0002WU-Fd@pinky.shadowen.org> <20050505023119.GA20283@austin.ibm.com>
+In-Reply-To: <20050505023119.GA20283@austin.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 05, 2005 at 12:16:21AM -0400, Brown, Len wrote:
-> On Fri, 2005-04-29 at 22:43, Pallipadi, Venkatesh wrote:
+Olof Johansson wrote:
+> On Wed, May 04, 2005 at 09:29:57PM +0100, Andy Whitcroft wrote:
 > 
-> > The patch as it is should handle 8259 case using the regular APIC
-> > timer.  It only adds broadcast when IOAPIC is used for timer
-> > interrupt.
 > 
-> While they don't need the broadcast capability of this patch,
-> uniprocessors do need the change to stop using LAPIC timer
-> if they support C3 (as virtually all laptops do).
-> It was a mistake to allow using the LOC on a uniprocessor
-> in the first place -- as the UP system runs perfectly fine
-> with timers coming in on IRQ0 and doesn't need another interrupt.
+>>diff -X /home/apw/brief/lib/vdiff.excl -rupN reference/arch/ppc64/Kconfig current/arch/ppc64/Kconfig
+>>--- reference/arch/ppc64/Kconfig	2005-05-04 20:54:50.000000000 +0100
+>>+++ current/arch/ppc64/Kconfig	2005-05-04 20:54:50.000000000 +0100
+>>@@ -212,8 +212,8 @@ config ARCH_FLATMEM_ENABLE
+>> source "mm/Kconfig"
+>> 
+>> config HAVE_ARCH_EARLY_PFN_TO_NID
+>>-	bool
+>>-	default y
+>>+	def_bool y
+>>+	depends on NEED_MULTIPLE_NODES
+> 
+> 
+> Ok, time to show my lack of undestanding here, but when can we ever be
+> CONFIG_NUMA and NOT need multiple nodes?
+> 
+> 
+>>@@ -481,6 +483,7 @@ static void __init setup_nonnuma(void)
+>> 
+>> 	for (i = 0 ; i < top_of_ram; i += MEMORY_INCREMENT)
+>> 		numa_memory_lookup_table[i >> MEMORY_INCREMENT_SHIFT] = 0;
+>>+	memory_present(0, 0, init_node_data[0].node_end_pfn);
+> 
+> 
+> Isn't the memory_present stuff and numa_memory_lookup_table two
+> implementations doing the same thing (mapping memory to nodes)?
+> Can we kill numa_memory_lookup_table with this?
 
-Yes I agree. It does not make much sense to run two timers
-on a CPU. I already changed that in my x86-64 tree. i386 will
-hopefully follow at some point.
+This table basically is part of the DISCONTIGMEM implementation and used
+lightly by SPARSEMEM.  In the i386 port we have already pushd that out
+into a discontigmem implementation of memory_present.  That is a logical
+next step in this port and I've got some of it already done.  That
+should sit nicely on this lot.  I'll work on this one.
 
--Andi
+-apw

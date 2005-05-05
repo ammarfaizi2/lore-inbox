@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262059AbVEEMB2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262065AbVEEMD1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262059AbVEEMB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 08:01:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbVEEMB2
+	id S262065AbVEEMD1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 08:03:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbVEEMD1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 08:01:28 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:7830 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S262059AbVEEMBT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 08:01:19 -0400
-Message-ID: <427A0B04.1030408@grupopie.com>
-Date: Thu, 05 May 2005 13:01:08 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Rik van Riel <riel@redhat.com>, Dave Hansen <haveblue@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] update SubmittingPatches to clarify attachment policy
-References: <20050504170156.87F67CE5@kernel.beaverton.ibm.com>	<Pine.LNX.4.61.0505042109020.18390@chimarrao.boston.redhat.com> <m38y2uoukg.fsf@defiant.localdomain>
-In-Reply-To: <m38y2uoukg.fsf@defiant.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 5 May 2005 08:03:27 -0400
+Received: from mx2.suse.de ([195.135.220.15]:56557 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262065AbVEEMDV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 08:03:21 -0400
+Date: Thu, 5 May 2005 14:03:11 +0200
+From: Andi Kleen <ak@suse.de>
+To: Len Brown <len.brown@intel.com>
+Cc: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, mingo@elte.hu,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "Shah, Rajesh" <rajesh.shah@intel.com>,
+       John Stultz <johnstul@us.ibm.com>, Andi Kleen <ak@suse.de>,
+       Asit K Mallick <asit.k.mallick@intel.com>
+Subject: Re: [RFC][PATCH] i386 x86-64 Eliminate Local APIC timer interrupt
+Message-ID: <20050505120311.GM28441@wotan.suse.de>
+References: <88056F38E9E48644A0F562A38C64FB60049EE972@scsmsx403.amr.corp.intel.com> <1115266581.7644.52.camel@d845pe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1115266581.7644.52.camel@d845pe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Krzysztof Halasa wrote:
-> Rik van Riel <riel@redhat.com> writes:
+On Thu, May 05, 2005 at 12:16:21AM -0400, Brown, Len wrote:
+> On Fri, 2005-04-29 at 22:43, Pallipadi, Venkatesh wrote:
 > 
+> > The patch as it is should handle 8259 case using the regular APIC
+> > timer.  It only adds broadcast when IOAPIC is used for timer
+> > interrupt.
 > 
->>The problem is replying to an attachment.  The reason why having
->>the patch in the main mail body is good is that it gets quoted
->>by the email software and you can easily reply to individual
->>parts of the patch.
-> 
-> 
-> If the attachment is "disposition=inline", does the problem still exist?
+> While they don't need the broadcast capability of this patch,
+> uniprocessors do need the change to stop using LAPIC timer
+> if they support C3 (as virtually all laptops do).
+> It was a mistake to allow using the LOC on a uniprocessor
+> in the first place -- as the UP system runs perfectly fine
+> with timers coming in on IRQ0 and doesn't need another interrupt.
 
-I've just checked this with Thunderbird (which is the mail client I use).
+Yes I agree. It does not make much sense to run two timers
+on a CPU. I already changed that in my x86-64 tree. i386 will
+hopefully follow at some point.
 
-It not only sets the disposition=inline by default when attaching 
-patches, it also places the patch inline when replying to it, allowing 
-the user to write between the text of the patch as if it were part of 
-the email text.
-
-However if we Copy+Paste the patch into the mail it gets line wrapped / 
-white space mangled.
-
-So at least for Thunderbird users it would be better to use attached 
-patches with "Content-Disposition: inline".
-
--- 
-Paulo Marques - www.grupopie.com
-
-All that is necessary for the triumph of evil is that good men do nothing.
-Edmund Burke (1729 - 1797)
+-Andi

@@ -1,59 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262125AbVEEPEi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262131AbVEEPLy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262125AbVEEPEi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 11:04:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbVEEPEi
+	id S262131AbVEEPLy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 11:11:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbVEEPLy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 11:04:38 -0400
-Received: from penta.pentaserver.com ([216.74.97.66]:10936 "EHLO
-	penta.pentaserver.com") by vger.kernel.org with ESMTP
-	id S262125AbVEEPEc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 11:04:32 -0400
-Message-ID: <427A350D.8040806@kromtek.com>
-Date: Thu, 05 May 2005 19:00:29 +0400
-From: Manu Abraham <manu@kromtek.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org, greg@kroah.com,
-       js@linuxtv.org, kraxel@bytesex.org
-Subject: Re: [PATCH] Re: [PATCH] Fix dst i2c read/write timeout failure.
-References: <4279343A.1000707@kromtek.com>	<20050504135735.713e99ba.akpm@osdl.org>	<42793E46.3070007@kromtek.com> <20050504152055.45eaf8eb.rddunlap@osdl.org>
-In-Reply-To: <20050504152055.45eaf8eb.rddunlap@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - penta.pentaserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kromtek.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Thu, 5 May 2005 11:11:54 -0400
+Received: from ms-smtp-01-smtplb.tampabay.rr.com ([65.32.5.131]:62887 "EHLO
+	ms-smtp-01.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id S262131AbVEEPLs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 11:11:48 -0400
+Subject: Re: Re[2]: ata over ethernet question
+From: David Hollis <dhollis@davehollis.com>
+To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1104082357.20050504231722@dns.toxicfilms.tv>
+References: <1416215015.20050504193114@dns.toxicfilms.tv>
+	 <1115236116.7761.19.camel@dhollis-lnx.sunera.com>
+	 <1104082357.20050504231722@dns.toxicfilms.tv>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-rFfXKbTPwLBG55iw68e1"
+Date: Thu, 05 May 2005 11:09:54 -0400
+Message-Id: <1115305794.3071.5.camel@dhollis-lnx.sunera.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-1) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-> On Thu, 05 May 2005 01:27:34 +0400
-> Manu Abraham <manu@kromtek.com> wrote:
-> 
-> 
->>Oh, i am sorry, resending it ..
->>
->>
->>Attached is a patch to bttv which fixes the following problems.
-> 
-> 
-> 
-> Has 2 instances of trailing whitespace added (one space, one tab).
-> 
-> You can check for that with one of several available scripts
-> or with several editors...
-> 
 
-Should i cleanup and send again ?
+--=-rFfXKbTPwLBG55iw68e1
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+On Wed, 2005-05-04 at 23:17 +0200, Maciej Soltysiak wrote:
+> Hello David,
+>=20
+> Wednesday, May 4, 2005, 9:48:36 PM, you wrote:
+> > That seems to be the basic idea but there doesn't seem to be a provider
+> > stack just yet, just a 'client' (though I could be wrong).  AOE is
+> > similar in concept to iSCSI with the biggest difference being that AOE
+> > runs over Ethernet and is thus non-routeable.  iSCSI operates over IP s=
+o
+> > you can do all kinds of fun IP games with it.
+> Thanks, this is interesting. Does the iSCSI implementation out there have
+> this provider stack ?
+>=20
+> Regards,
+> Maciej
 
-Manu
+There seem to be a few iSCSI implementations floating around for Linux,
+hopefully one will be added to mainline soon.  Most of those
+implementations are for the client side though there is at least one
+target implementation that allows you to provide local storage to iSCSI
+clients.  I don't remember the name of it or if it's still maintained or
+not.
+
+--=20
+David Hollis <dhollis@davehollis.com>
+
+--=-rFfXKbTPwLBG55iw68e1
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBCejdBxasLqOyGHncRAvU1AJ0bRInq0YDA/1cagSseZRo4CTmudwCfaqO3
+VSn/zpPmm702qgSC43A925Q=
+=1SU1
+-----END PGP SIGNATURE-----
+
+--=-rFfXKbTPwLBG55iw68e1--
 

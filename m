@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262000AbVEEJLS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262015AbVEEJwh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262000AbVEEJLS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 05:11:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbVEEJLS
+	id S262015AbVEEJwh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 05:52:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbVEEJwh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 05:11:18 -0400
-Received: from casper2.cs.uct.ac.za ([137.158.96.99]:60927 "EHLO
-	casper2.cs.uct.ac.za") by vger.kernel.org with ESMTP
-	id S262003AbVEEJLE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 05:11:04 -0400
-Date: Thu, 5 May 2005 11:11:31 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Holding ref to /proc/<pid> dentry prevents task being freed
-Message-ID: <20050505091131.GA4472@omnius.cs.uct.ac.za>
+	Thu, 5 May 2005 05:52:37 -0400
+Received: from yue.linux-ipv6.org ([203.178.140.15]:60422 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S262005AbVEEJwZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 05:52:25 -0400
+Date: Thu, 05 May 2005 18:55:03 +0900 (JST)
+Message-Id: <20050505.185503.78606493.yoshfuji@linux-ipv6.org>
+To: michaelc@cs.wisc.edu
+Cc: linux-scsi@vger.kernel.org, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
+Subject: Re: [PATCH 2/3] add open iscsi netlink interface to iscsi
+ transport class
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <42798AC1.2010308@cs.wisc.edu>
+References: <42798AC1.2010308@cs.wisc.edu>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
-From: bmerry@cs.uct.ac.za
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Please CC me on replies. I'm not subscribed to LKML]
+In article <42798AC1.2010308@cs.wisc.edu> (at Wed, 04 May 2005 19:53:53 -0700), Mike Christie <michaelc@cs.wisc.edu> says:
 
-Hi
+> +struct iscsi_uevent {
+:
+> +} __attribute__ ((aligned (sizeof(unsigned long))));
 
-I'm busy writing a security module that does some very basic ACL stuff
-on a per-task basis. If my module obtains and holds a dentry for
-/proc/<pid> (via path_lookup), then the task_free_security hook is
-never called for that process. Since the module releases the dentry in
-task_free_security, this creates a chicken-and-egg problem and neither
-the task nor the dentry is ever released. A side-effect is that the
-module refcount never drops to 0.
+I think it'd be better to use sizeof(uint64_t) or something.
+Please check other spots, too. e.g.:
 
-Perhaps the LSM framework needs a hook for a task exiting (transition
-to zombie state), in addition to the task_free_security hook? That
-would allow resources to be freed from zombies, including these types
-of circular references.
+> +	struct iscsi_stats_custom custom[0]
+> +		__attribute__ ((aligned (sizeof(unsigned long))));
 
-Thanks
-Bruce
-
-[Please CC me on replies. I'm not subscribed to LKML]
--- 
-/--------------------------------------------------------------------\
-| Bruce Merry                      | bmerry at cs . uct . ac . za    |
-| Proud user of Gentoo GNU/Linux   | http://www.cs.uct.ac.za/~bmerry |
-|        Despite the high cost of living, it remains popular.        |
-\--------------------------------------------------------------------/
+--yoshfuji

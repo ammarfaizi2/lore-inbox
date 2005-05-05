@@ -1,39 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262100AbVEENQR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262103AbVEEN2j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262100AbVEENQR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 09:16:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262097AbVEENQP
+	id S262103AbVEEN2j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 09:28:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262105AbVEEN2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 09:16:15 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:1717 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262100AbVEENPJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 09:15:09 -0400
-Date: Thu, 5 May 2005 18:58:21 +0530
-From: Dinakar Guniguntala <dino@in.ibm.com>
-To: Matthew Dobson <colpatch@us.ibm.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Paul Jackson <pj@sgi.com>,
-       Simon Derr <Simon.Derr@bull.net>, lkml <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>,
-       Dipankar Sarma <dipankar@in.ibm.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC PATCH] Dynamic sched domains (v0.5)
-Message-ID: <20050505132820.GB4028@in.ibm.com>
-Reply-To: dino@in.ibm.com
-References: <20050501190947.GA5204@in.ibm.com> <4277F52B.8040908@us.ibm.com> <42781286.7080801@yahoo.com.au> <42781724.3010703@us.ibm.com>
+	Thu, 5 May 2005 09:28:39 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:2732 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S262103AbVEEN2g
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 09:28:36 -0400
+Subject: Re: [2.6 patch] net/bluetooth/: possible cleanups
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: marcel@holtmann.or, maxk@qualcomm.com, bluez-devel@lists.sf.net,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20050505002310.GF3593@stusta.de>
+References: <20050505002310.GF3593@stusta.de>
+Content-Type: text/plain
+Date: Thu, 05 May 2005 15:28:30 +0200
+Message-Id: <1115299710.8496.168.camel@pegasus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42781724.3010703@us.ibm.com>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 03, 2005 at 05:28:20PM -0700, Matthew Dobson wrote:
+Hi Adrian,
+
+> This patch contains the following possible cleanups:
+> - #ifdef HCI_DATA_DUMP the following function:
+>   lib.c: bt_dump
+> - #if 0 the following unused global functions:
+>   - hci_core.c: hci_suspend_dev
+>   - hci_core.c: hci_resume_dev
+> - remove the following unneeded EXPORT_SYMBOL's:
+>   - hci_core.c: hci_dev_get
+>   - hci_core.c: hci_send_cmd
+>   - hci_event.c: hci_si_event
 > 
-> build_disjoint_sched_domains(partition1, partition2)?  Or just
-> partition_sched_domains(partition1, partition2)?  Partition and disjoint
-> seem mildly redundant to me, for varying definitions of partition... ;)
+> Please review which of these changes do make sense and which conflict 
+> with pending patches.
 
-partition_sched_domains sounds fine to me, Thanks
+I like to let hci_suspend_dev() and hci_resume_dev() stay for now. No
+driver uses it, but actually nobody really looked deep enough to really
+understand the needs for suspend of Bluetooth devices.
 
-	-Dinakar
+The hci_dev_get(), hci_send_cmd() and hci_si_event() doesn't need to be
+exported. And I think that the bt_dump() and and BT_DMP() stuff can be
+removed completely.
+
+Please redo the patch and actually it is enough to copy the bluez-devel
+mailing list. I will take care of getting it back into mainline.
+
+Regards
+
+Marcel
+
+

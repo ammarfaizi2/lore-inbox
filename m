@@ -1,49 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbVEEVhv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261954AbVEEV4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261943AbVEEVhv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 17:37:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261949AbVEEVhv
+	id S261954AbVEEV4T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 17:56:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbVEEV4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 17:37:51 -0400
-Received: from khc.piap.pl ([195.187.100.11]:30468 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S261943AbVEEVhr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 17:37:47 -0400
-To: Rick Warner <rick@microway.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: very strange issue with sata,<4G Ram, and ext3
-References: <200504281216.08026.rick@microway.com>
-	<1114728503.24687.248.camel@localhost.localdomain>
-	<200504291045.58893.rick@microway.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Thu, 05 May 2005 23:37:43 +0200
-In-Reply-To: <200504291045.58893.rick@microway.com> (Rick Warner's message
- of "Fri, 29 Apr 2005 10:45:58 -0400")
-Message-ID: <m364xxtkuw.fsf@defiant.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 5 May 2005 17:56:19 -0400
+Received: from h-64-105-159-118.phlapafg.covad.net ([64.105.159.118]:51340
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261954AbVEEV4M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 17:56:12 -0400
+Subject: Re: [PATCH] Saving ARCH and CROSS_COMPILE in generated Makefile
+From: Pavel Roskin <proski@gnu.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: linux <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050505212003.GA16877@mars.ravnborg.org>
+References: <1115248267.12758.21.camel@dv.roinet.com>
+	 <20050504232338.GF18977@parcelfarce.linux.theplanet.co.uk>
+	 <1115263105.17646.1.camel@dv.roinet.com>
+	 <20050505212003.GA16877@mars.ravnborg.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 05 May 2005 17:56:11 -0400
+Message-Id: <1115330171.3838.24.camel@dv.roinet.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rick Warner <rick@microway.com> writes:
+On Thu, 2005-05-05 at 23:20 +0200, Sam Ravnborg wrote:
+>  > > In any case, there's no reason to mess with that at all.  This stuff is
+> > > trivally dealt with by a wrapper script that takes target name as its
+> > > first argument (the rest is passed to make unchanged) and figures out
+> > > ARCH, CROSS_COMPILE, SUBARCH and build directory by it.  End of story.
+> > 
+> > I'm using such script now.  It's called kmake.
+> 
+> Use a Makefile called either makefile or GNUMakefile to call make with
+> correct arguments. No kmake script required.
+> And no difference in behaviour using O= or not.
+> You could teach kmake to create such a file if not present.
 
-> This morning, we tried updating to a newer pxelinux (3.07) and had the same 
-> results.  We then tried using etherboot with a mknbi tagged image and also 
-> had the same results.   Since we are getting the same problem on 3 different 
-> motherboards with 2 different network adapters, I have not looked into 
-> updating the boot rom on the nics.  Should I?
+Or we could teach scripts/mkmakefile to do it for all of us.  I can post
+a patch that would call scripts/mkmakefile regardless of whether O= is
+used, and scripts/mkmakefile would generate makefile rather than
+Makefile.
 
-I remember I had memory corruption problems with an old version of
-Etherboot few years ago. The machines were mostly AMD K6 based,
-network cards were SMC EPIC100 (Etherpower II) and/or RTL 8139.
+> > I keep forgetting to run
+> > kmake instead of make, so it's an annoyance for me (usually it end up
+> > with a full screen of error messages, but I'm afraid I could get a mix
+> > of object files for different architectures in some cases).
+> 
+> Nope. .o files are rebuild if commandline changes. This works well.
+> This works so well that when you change name of gcc you have to rebuild
+> the kernel - no matter the arguments used.
+> It amy be a shift from gcc 2.96 to gcc 4.0.
 
-Memtest86 (downloaded with Etherboot) complained about random errors.
-I think Linux didn't show any such illness.
-This was Etherboot 4.something. Upgrading to 5.something fixed the
-problem.
+Good to know.  But my point still stands.
 
-I suspect you're using Etherboot newer than 4.x though. I'd probably
-give memtest86 loaded from network a try.
+If I have a build tree already compiled for a specific architecture, and
+I'm going to compile an external driver against that tree, why do I need
+to set ARCH and CROSS_COMPILE to match those used during compilation?
+Why cannot the build system do it for me?
+
+Also, if I want to recompile the kernel after changing the source, I
+want to run make in the build tree.  That's what the generated Makefile
+is for.  But if I overrode ARCH or CROSS_COMPILE, I have to remember to
+do it again.  And that's what I want to fix.
+
+I'm sure I can write a very intelligent script tuned for my system that
+would do the right thing and that will even set CROSS_COMPILE based on
+the architecture from .config file.  But I want to share my code, not to
+hoard it.
+
+Maybe I should try to implement saving ARCH and CROSS_COMPILE in .config
+file, but it would be more intrusive.
+
 -- 
-Krzysztof Halasa
+Regards,
+Pavel Roskin
+

@@ -1,38 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262178AbVEETfc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262180AbVEETfb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262178AbVEETfc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 15:35:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbVEETes
+	id S262180AbVEETfb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 15:35:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262178AbVEETex
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 15:34:48 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:901 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262178AbVEETEi (ORCPT
+	Thu, 5 May 2005 15:34:53 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:3717 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S262180AbVEETHE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 15:04:38 -0400
-Message-ID: <427A6E3F.5090904@pobox.com>
-Date: Thu, 05 May 2005 15:04:31 -0400
+	Thu, 5 May 2005 15:07:04 -0400
+Message-ID: <427A6ECD.4010205@pobox.com>
+Date: Thu, 05 May 2005 15:06:53 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Matt Mackall <mpm@selenic.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Mercurial v0.4d
-References: <20050504025852.GK22038@waste.org> <20050504181802.GS22038@waste.org>
-In-Reply-To: <20050504181802.GS22038@waste.org>
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: Chris Wright <chrisw@osdl.org>, Valdis.Kletnieks@vt.edu,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] update SubmittingPatches to clarify attachment	policy
+References: <20050504170156.87F67CE5@kernel.beaverton.ibm.com>	 <200505041716.j44HGPbV016851@turing-police.cc.vt.edu>	 <1115227516.22718.4.camel@localhost>	 <20050504175535.GT23013@shell0.pdx.osdl.net> <1115230450.22718.14.camel@localhost>
+In-Reply-To: <1115230450.22718.14.camel@localhost>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall wrote:
-> The web protocol is painfully slow, mostly because it makes an http
-> round trip per file revision to pull. I'm about to start working on a
-> replacement that minimizes round trips.
+Dave Hansen wrote:
+> As an aside: is there a proper way to do patch text/plain attachments
+> from Evolution?  Maybe we need a quick tutorial on what the best way to
+> send patches is with several popular mailers.
 
-Can you make it do HTTP 1.1 pipelining?
+I feel this is needed, yes.  Don't forget to include Microsoft Outlook :)
 
 	Jeff
 

@@ -1,50 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262090AbVEEM5m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262096AbVEENNv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262090AbVEEM5m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 08:57:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbVEEM5m
+	id S262096AbVEENNv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 09:13:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbVEENNv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 08:57:42 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:58601 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S262090AbVEEM5k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 08:57:40 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc3-mm3
-Date: Thu, 5 May 2005 14:58:08 +0200
-User-Agent: KMail/1.8
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
-References: <20050504221057.1e02a402.akpm@osdl.org>
-In-Reply-To: <20050504221057.1e02a402.akpm@osdl.org>
+	Thu, 5 May 2005 09:13:51 -0400
+Received: from alog0047.analogic.com ([208.224.220.62]:38880 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262096AbVEENNs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 09:13:48 -0400
+Date: Thu, 5 May 2005 09:13:34 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: linux <kernel@wired-net.gr>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: copy_to_user question
+In-Reply-To: <001d01c5516f$b5f37c20$0101010a@dioxide>
+Message-ID: <Pine.LNX.4.61.0505050909440.25004@chaos.analogic.com>
+References: <20050425165826.GB11938@redhat.com> <20050429040104.GB9900@redhat.com>
+ <1114815509.18352.200.camel@ibm-c.pdx.osdl.net> <200504300509.24887.phillips@istop.com>
+ <1115295930.1988.229.camel@sisko.sctweedie.blueyonder.co.uk>
+ <001d01c5516f$b5f37c20$0101010a@dioxide>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200505051458.08659.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 5 of May 2005 07:10, Andrew Morton wrote:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc3/2.6.12-rc3-mm3/
-> 
-> - device mapper updates
-> 
-> - more UML updates
-> 
-> - -mm seems unusually stable at present.
+On Thu, 5 May 2005, linux wrote:
 
-Well, it does not boot on my box (Athlon64 + NForce3, 64-bit).  Apparently, it
-loops forever in the early stage (ie before displaying the pengiun).  I'll try
-to get more information when I find something to attach to the serial port ...
+> Hi all, i have a question about copy_to_user function.
+> I have a module which declares a struct test { int size; char *name; int
+> value_add };
+> I like to transfer that struct to userspace through an ioctl command like
+> that:
+>
+> struct test test_struct;
+> memset(&test_struct,0,sizeof(test_struct);
+> test_struct.size= 100;
+> test_struct.name = "test name";
+> test_struct.value_add = 2;
+> copy_to_user((void __user *)arg,&test_struct,sizeof(struct test));
+>
+>
+> When i use the ioctl command in user-space and try to get the name item a
+> segfault occurs.Can u tell me why??
+> Can we transfer from kernel-space to user-space pointers like the one i use
+> or this is a fault approach???
+>
+>
+> Best regards,
+> Chris.
 
-Greets,
-Rafael
+Accessing a kernel pointer from user-space isn't going to work.
+But you can transfer data to/from user-space/kernel-space so
+just don't use a pointer, do...
+
+struct test struct {
+      char name[BIG_ENOUGN];
+      int size;
+      ....
+      };
 
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Write your strings to the name[] buffer-member and everybody is happy.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

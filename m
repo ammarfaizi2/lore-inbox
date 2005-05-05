@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261988AbVEEBEl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261768AbVEEBJ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261988AbVEEBEl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 21:04:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261991AbVEEBEl
+	id S261768AbVEEBJ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 21:09:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261782AbVEEBJ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 21:04:41 -0400
-Received: from straum.hexapodia.org ([64.81.70.185]:27036 "EHLO
-	straum.hexapodia.org") by vger.kernel.org with ESMTP
-	id S261988AbVEEBEk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 21:04:40 -0400
-Date: Wed, 4 May 2005 18:04:38 -0700
-From: Andy Isaacson <adi@hexapodia.org>
-To: "Richard B. Johnson" <linux-os@analogic.com>
-Cc: Olivier Croquette <ocroquette@free.fr>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Scheduler: SIGSTOP on multi threaded processes
-Message-ID: <20050505010438.GA30227@hexapodia.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0505041403310.21458@chaos.analogic.com>
-User-Agent: Mutt/1.4.2i
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
+	Wed, 4 May 2005 21:09:56 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:22202 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261768AbVEEBJz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 21:09:55 -0400
+Date: Wed, 4 May 2005 21:09:49 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] update SubmittingPatches to clarify attachment
+ policy
+In-Reply-To: <20050504170156.87F67CE5@kernel.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.61.0505042109020.18390@chimarrao.boston.redhat.com>
+References: <20050504170156.87F67CE5@kernel.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 04, 2005 at 02:16:24PM -0400, Richard B. Johnson wrote:
-> On Wed, 4 May 2005, Olivier Croquette wrote:
-> >On a 2.6.11 x86 system, I am SIGSTOP'ing processes which have started
-> >several threads before.
-> 
-> The kernel doesn't do SIGSTOP or SIGCONT.
+On Wed, 4 May 2005, Dave Hansen wrote:
 
-Dear Wrongbot,
+> Plus, a plain/text attachment message saved to a file can go
+> into 'patch' the same way that an inline one can.
 
-No.
+The problem is replying to an attachment.  The reason why having
+the patch in the main mail body is good is that it gets quoted
+by the email software and you can easily reply to individual
+parts of the patch.
 
--andy
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

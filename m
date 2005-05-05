@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262197AbVEETme@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262198AbVEEToz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262197AbVEETme (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 15:42:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262183AbVEETmH
+	id S262198AbVEEToz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 15:44:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262214AbVEETnH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 15:42:07 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:14478 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262197AbVEETLP
+	Thu, 5 May 2005 15:43:07 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:40671 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262198AbVEETLZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 15:11:15 -0400
-Date: Thu, 5 May 2005 14:11:03 -0500 (CDT)
+	Thu, 5 May 2005 15:11:25 -0400
+Date: Thu, 5 May 2005 14:11:13 -0500 (CDT)
 From: Kylene Hall <kjhall@us.ibm.com>
 X-X-Sender: kjhall@localhost.localdomain
 To: akpm@osdl.org
 cc: jgarzik@pobox.com, greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: [PATCH 6 of 12] Fix TPM driver -- how timer is initialized
-Message-ID: <Pine.LNX.4.62.0505051336080.5303@localhost.localdomain>
+Subject: [PATCH 7 of 12] Fix TPM driver -- use to_pci_dev
+Message-ID: <Pine.LNX.4.62.0505051337060.5303@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -32,124 +32,75 @@ On Wed, 9 Mar 2005, Jeff Garzik wrote:
 > Greg KH wrote:
 
 <snip>
-> > +
-> > +	down(&chip->timer_manipulation_mutex);
-> > +	chip->time_expired = 0;
-> > +	init_timer(&chip->device_timer);
-> > +	chip->device_timer.function = tpm_time_expired;
-> > +	chip->device_timer.expires = jiffies + 2 * 60 * HZ;
-> > +	chip->device_timer.data = (unsigned long) &chip->time_expired;
-> > +	add_timer(&chip->device_timer);
-> 
-> very wrong.  you init_timer() when you initialize 'chip'... once.  then during
-> the device lifetime you add/mod/del the timer.
-> 
-> calling init_timer() could lead to corruption of state.
-> 
 
-<snip>
-
-> > +	/* Set a timeout by which the reader must come claim the result */
-> > +	down(&chip->timer_manipulation_mutex);
-> > +	init_timer(&chip->user_read_timer);
-> > +	chip->user_read_timer.function = user_reader_timeout;
-> > +	chip->user_read_timer.data = (unsigned long) chip;
-> > +	chip->user_read_timer.expires = jiffies + (60 * HZ);
-> > +	add_timer(&chip->user_read_timer);
-> 
-> again, don't repeatedly init_timer()
-
-<snip>
-
-> > +int tpm_register_hardware(struct pci_dev *pci_dev,
-> > +			  struct tpm_vendor_specific *entry)
+> > +static ssize_t show_pcrs(struct device *dev, char *buf)
 > > +{
-> > +	char devname[7];
-> > +	struct tpm_chip *chip;
-> > +	int i, j;
+> > +	u8 data[READ_PCR_RESULT_SIZE];
+> > +	ssize_t len;
+> > +	int i, j, index, num_pcrs;
+> > +	char *str = buf;
 > > +
-> > +	/* Driver specific per-device data */
-> > +	chip = kmalloc(sizeof(*chip), GFP_KERNEL);
-> > +	if (chip == NULL)
-> > +		return -ENOMEM;
-> > +
-> > +	memset(chip, 0, sizeof(struct tpm_chip));
-> > +
-
-> > +	init_MUTEX(&chip->buffer_mutex);
-> > +	init_MUTEX(&chip->tpm_mutex);
-> > +	init_MUTEX(&chip->timer_manipulation_mutex);
-> > +	INIT_LIST_HEAD(&chip->list);
+> > +	struct tpm_chp *chip =
+> > +	    pci_get_drvdata(container_of(dev, struct pci_dev, dev));
 > 
-> timer init should be here
+> use to_pci_dev()
 
 <snip>
 
-Fix the timer to be inited and modified properly.  This work depends on 
-the fixing of the msleep stuff which was submitted in a patch by Nish 
-Aravamudan on March 10.
+> > +	ssize_t len;
+> > +	__be32 *native_val;
+> > +	int i;
+> > +	char *str = buf;
+> > +
+> > +	struct tpm_chip *chip =
+> > +	    pci_get_drvdata(container_of(dev, struct pci_dev, dev));
+> 
+> to_pci_dev()
 
-Signed-of-by: Kylene Hall <kjhall@us.ibm.com>
+<snip>
+
+> > +	ssize_t len;
+> > +	char *str = buf;
+> > +
+> > +	struct tpm_chip *chip =
+> > +	    pci_get_drvdata(container_of(dev, struct pci_dev, dev));
+> 
+> to_pci_dev()
+
+<snip>
+
+The following patch changes these container_of calls to 'to_pci_dev' as 
+suggested above.
+
+Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
 ---
-diff -urpN --exclude='*.orig' linux-2.6.12-rc2/drivers/char/tpm/tpm.c linux-2.6.12-rc2-tpmdd/drivers/char/tpm/tpm.c
---- linux-2.6.12-rc2/drivers/char/tpm/tpm.c	2005-04-25 18:49:08.000000000 -0500
-+++ linux-2.6.12-rc2-tpmdd/drivers/char/tpm/tpm.c	2005-04-26 12:47:20.000000000 -0500
-@@ -456,16 +456,7 @@ int tpm_release(struct inode *inode, str
+--- linux-2.6.12-rc2/drivers/char/tpm/tpm.c	2005-04-26 16:45:51.000000000 -0500
++++ linux-2.6.12-rc2-tpmdd/drivers/char/tpm/tpm.c	2005-04-26 16:48:12.000000000 -0500
+@@ -230,7 +230,7 @@ ssize_t tpm_show_pcrs(struct device *dev
+ 	char *str = buf;
  
- 	spin_lock(&driver_lock);
- 	chip->num_opens--;
--	spin_unlock(&driver_lock);
--
--	down(&chip->timer_manipulation_mutex);
--	if (timer_pending(&chip->user_read_timer))
--		del_singleshot_timer_sync(&chip->user_read_timer);
--	else if (timer_pending(&chip->device_timer))
--		del_singleshot_timer_sync(&chip->device_timer);
--	up(&chip->timer_manipulation_mutex);
--
--	kfree(chip->data_buffer);
-+	del_singleshot_timer_sync(&chip->user_read_timer);
- 	atomic_set(&chip->data_pending, 0);
+ 	struct tpm_chip *chip =
+-	    pci_get_drvdata(container_of(dev, struct pci_dev, dev));
++	    pci_get_drvdata(to_pci_dev(dev));
+ 	if (chip == NULL)
+ 		return -ENODEV;
  
- 	pci_dev_put(chip->pci_dev);
-@@ -504,13 +495,7 @@ tpm_write(struct file * file, const char
- 	up(&chip->buffer_mutex);
+@@ -273,7 +273,7 @@ ssize_t tpm_show_pubek(struct device *de
+ 	char *str = buf;
  
- 	/* Set a timeout by which the reader must come claim the result */
--	down(&chip->timer_manipulation_mutex);
--	init_timer(&chip->user_read_timer);
--	chip->user_read_timer.function = user_reader_timeout;
--	chip->user_read_timer.data = (unsigned long) chip;
--	chip->user_read_timer.expires = jiffies + (60 * HZ);
--	add_timer(&chip->user_read_timer);
--	up(&chip->timer_manipulation_mutex);
-+	mod_timer(&chip->user_read_timer, jiffies + (60 * HZ));
+ 	struct tpm_chip *chip =
+-	    pci_get_drvdata(container_of(dev, struct pci_dev, dev));
++	    pci_get_drvdata(to_pci_dev(dev));
+ 	if (chip == NULL)
+ 		return -ENODEV;
  
- 	return in_size;
- }
-@@ -639,9 +624,12 @@ int tpm_register_hardware(struct pci_dev
+@@ -352,7 +352,7 @@ ssize_t tpm_show_caps(struct device *dev
+ 	char *str = buf;
  
- 	init_MUTEX(&chip->buffer_mutex);
- 	init_MUTEX(&chip->tpm_mutex);
--	init_MUTEX(&chip->timer_manipulation_mutex);
- 	INIT_LIST_HEAD(&chip->list);
+ 	struct tpm_chip *chip =
+-	    pci_get_drvdata(container_of(dev, struct pci_dev, dev));
++	    pci_get_drvdata(to_pci_dev(dev));
+ 	if (chip == NULL)
+ 		return -ENODEV;
  
-+	init_timer(&chip->user_read_timer);
-+	chip->user_read_timer.function = user_reader_timeout;
-+	chip->user_read_timer.data = (unsigned long) chip;
-+
- 	chip->vendor = entry;
- 
- 	chip->dev_num = -1;
-diff -urpN --exclude='*.orig' linux-2.6.12-rc2/drivers/char/tpm/tpm.h linux-2.6.12-rc2-tpmdd/drivers/char/tpm/tpm.h
---- linux-2.6.12-rc2/drivers/char/tpm/tpm.h	2005-04-25 18:49:08.000000000 -0500
-+++ linux-2.6.12-rc2-tpmdd/drivers/char/tpm/tpm.h	2005-04-26 12:53:29.000000000 -0500
-@@ -76,8 +76,6 @@ struct tpm_chip {
- 
- 	struct timer_list user_read_timer;	/* user needs to claim result */
- 	struct semaphore tpm_mutex;	/* tpm is processing */
--	struct timer_list device_timer;	/* tpm is processing */
--	struct semaphore timer_manipulation_mutex;
- 
- 	struct tpm_vendor_specific *vendor;
- 
+\

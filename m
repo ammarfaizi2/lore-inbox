@@ -1,81 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261954AbVEEV4T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbVEEV5n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261954AbVEEV4T (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 17:56:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbVEEV4T
+	id S261959AbVEEV5n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 17:57:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbVEEV5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 17:56:19 -0400
-Received: from h-64-105-159-118.phlapafg.covad.net ([64.105.159.118]:51340
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261954AbVEEV4M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 17:56:12 -0400
-Subject: Re: [PATCH] Saving ARCH and CROSS_COMPILE in generated Makefile
-From: Pavel Roskin <proski@gnu.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: linux <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050505212003.GA16877@mars.ravnborg.org>
-References: <1115248267.12758.21.camel@dv.roinet.com>
-	 <20050504232338.GF18977@parcelfarce.linux.theplanet.co.uk>
-	 <1115263105.17646.1.camel@dv.roinet.com>
-	 <20050505212003.GA16877@mars.ravnborg.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 05 May 2005 17:56:11 -0400
-Message-Id: <1115330171.3838.24.camel@dv.roinet.com>
+	Thu, 5 May 2005 17:57:42 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:19604 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261959AbVEEV5c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 17:57:32 -0400
+Date: Thu, 5 May 2005 16:57:25 -0500
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>,
+       Andrew Morton <akpm@osdl.org>,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH [PPC64]: dead processes never reaped
+Message-ID: <20050505215725.GJ11745@austin.ibm.com>
+References: <20050418193833.GW15596@austin.ibm.com> <1113975850.5515.377.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1113975850.5515.377.camel@gaston>
+User-Agent: Mutt/1.5.6+20040818i
+From: Linas Vepstas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-05-05 at 23:20 +0200, Sam Ravnborg wrote:
->  > > In any case, there's no reason to mess with that at all.  This stuff is
-> > > trivally dealt with by a wrapper script that takes target name as its
-> > > first argument (the rest is passed to make unchanged) and figures out
-> > > ARCH, CROSS_COMPILE, SUBARCH and build directory by it.  End of story.
+On Wed, Apr 20, 2005 at 03:44:10PM +1000, Benjamin Herrenschmidt was heard to remark:
+> On Mon, 2005-04-18 at 14:38 -0500, Linas Vepstas wrote:
 > > 
-> > I'm using such script now.  It's called kmake.
-> 
-> Use a Makefile called either makefile or GNUMakefile to call make with
-> correct arguments. No kmake script required.
-> And no difference in behaviour using O= or not.
-> You could teach kmake to create such a file if not present.
+> > The patch below appears to fix a problem where a number of dead processes
+> > linger on the system.  On a highly loaded system, dozens of processes 
+> > were found stuck in do_exit(), calling thier very last schedule(), and
+> > then being lost forever.  
 
-Or we could teach scripts/mkmakefile to do it for all of us.  I can post
-a patch that would call scripts/mkmakefile regardless of whether O= is
-used, and scripts/mkmakefile would generate makefile rather than
-Makefile.
+And this problem seems to be unreproducible.  Dang, it was one of the
+more interesting ones I've seen.
 
-> > I keep forgetting to run
-> > kmake instead of make, so it's an annoyance for me (usually it end up
-> > with a full screen of error messages, but I'm afraid I could get a mix
-> > of object files for different architectures in some cases).
-> 
-> Nope. .o files are rebuild if commandline changes. This works well.
-> This works so well that when you change name of gcc you have to rebuild
-> the kernel - no matter the arguments used.
-> It amy be a shift from gcc 2.96 to gcc 4.0.
-
-Good to know.  But my point still stands.
-
-If I have a build tree already compiled for a specific architecture, and
-I'm going to compile an external driver against that tree, why do I need
-to set ARCH and CROSS_COMPILE to match those used during compilation?
-Why cannot the build system do it for me?
-
-Also, if I want to recompile the kernel after changing the source, I
-want to run make in the build tree.  That's what the generated Makefile
-is for.  But if I overrode ARCH or CROSS_COMPILE, I have to remember to
-do it again.  And that's what I want to fix.
-
-I'm sure I can write a very intelligent script tuned for my system that
-would do the right thing and that will even set CROSS_COMPILE based on
-the architecture from .config file.  But I want to share my code, not to
-hoard it.
-
-Maybe I should try to implement saving ARCH and CROSS_COMPILE in .config
-file, but it would be more intrusive.
-
--- 
-Regards,
-Pavel Roskin
-
+--linas

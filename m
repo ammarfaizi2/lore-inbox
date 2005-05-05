@@ -1,175 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262001AbVEEFkB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261907AbVEEGNX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262001AbVEEFkB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 01:40:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbVEEFjw
+	id S261907AbVEEGNX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 02:13:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261908AbVEEGNX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 01:39:52 -0400
-Received: from fire.osdl.org ([65.172.181.4]:12700 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261922AbVEEFic (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 01:38:32 -0400
-Date: Wed, 4 May 2005 22:38:24 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Mike Christie <michaelc@cs.wisc.edu>
-Cc: linux-kernel@vger.kernel.org, linux-scsi <linux-scsi@vger.kernel.org>,
-       netdev <netdev@oss.sgi.com>
-Subject: Re: [PATCH 3/3] add open iscsi netlink interface to iscsi transport class
-Message-ID: <20050505053824.GV23013@shell0.pdx.osdl.net>
-References: <42798ADD.5070803@cs.wisc.edu>
+	Thu, 5 May 2005 02:13:23 -0400
+Received: from wproxy.gmail.com ([64.233.184.205]:6236 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261907AbVEEGNU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 02:13:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Gymrq3Z3BjxDbQkP5jBI6H0GjQ2DlVoMqu0v5EOymtXfQEr5eRi+vdKlQkvGEA15+8ZTUdwiTnygt4ySNsWkm3VpOq06N1uEaACBKjt3oCijZM5oiq0YWWlu2HgVWxpFHdjko+ElaGKxSGe+/v/1IyzbeSsYRE5xMQIZxb3Ceho=
+Message-ID: <3cac075b05050423135a8efa2@mail.gmail.com>
+Date: Thu, 5 May 2005 11:13:20 +0500
+From: Nauman <mailtonauman@gmail.com>
+Reply-To: Nauman <mailtonauman@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: EXT2-FS Error (ext2_new_block) Where is this comming from?? can anyone help
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <42798ADD.5070803@cs.wisc.edu>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Mike Christie (michaelc@cs.wisc.edu) wrote:
+Dear linux gurus, 
+I have set up a Block Device over a SCSI drive. I write data to the
+actual target drive after writing same blocks in my RAMDISK. I am
+using RAMDISK of 2 GB. once the allcoated blocks of my RAMDISK are
+full i start freeing those blocks (WRITE THROUGH). at  this point i
+get this message during Write operations
+Ext2 FS- Error: ext2_new_block : Allocating blocks in System zone. <block_nr>
+Is this some sort of calculation error or some other configuration problem?? 
 
-> +static int
-> +iscsi_if_recv_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
-> +{
-> +	int err = 0;
-> +	struct iscsi_uevent *ev = NLMSG_DATA(nlh);
-> +	struct iscsi_transport *transport = iscsi_ptr(ev->transport_handle);
-> +
-> +	if (nlh->nlmsg_type != ISCSI_UEVENT_TRANS_LIST &&
-> +	    iscsi_if_transport_lookup(transport) < 0)
-> +		return -EEXIST;
-> +
-> +	daemon_pid = NETLINK_CREDS(skb)->pid;
-> +
-
-Are any of these message types privileged operations?  I didn't notice
-any real credential check.
-
-> +	switch (nlh->nlmsg_type) {
-> +	case ISCSI_UEVENT_TRANS_LIST: {
-> +		int i;
-> +
-> +		for (i = 0; i < ISCSI_TRANSPORT_MAX; i++) {
-> +			if (transport_table[i]) {
-> +				ev->r.t_list.elements[i].trans_handle =
-> +					iscsi_handle(transport_table[i]);
-> +				strncpy(ev->r.t_list.elements[i].name,
-> +					transport_table[i]->name,
-> +					ISCSI_TRANSPORT_NAME_MAXLEN);
-> +			} else
-> +				ev->r.t_list.elements[i].trans_handle =
-> +					iscsi_handle(NULL);
-> +		}
-> +	      } break;
-> +	case ISCSI_UEVENT_CREATE_SESSION:
-> +		err = iscsi_if_create_snx(transport, ev);
-> +		break;
-> +	case ISCSI_UEVENT_DESTROY_SESSION:
-> +		err = iscsi_if_destroy_snx(transport, ev);
-> +		break;
-> +	case ISCSI_UEVENT_CREATE_CNX:
-> +		err = iscsi_if_create_cnx(transport, ev);
-> +		break;
-> +	case ISCSI_UEVENT_DESTROY_CNX:
-> +		err = iscsi_if_destroy_cnx(transport, ev);
-> +		break;
-> +	case ISCSI_UEVENT_BIND_CNX:
-> +		if (!iscsi_if_find_cnx(ev->u.b_cnx.cnx_handle, H_TYPE_TRANS))
-> +			return -EEXIST;
-> +		ev->r.retcode = transport->bind_cnx(
-> +			ev->u.b_cnx.session_handle,
-> +			ev->u.b_cnx.cnx_handle,
-> +			ev->u.b_cnx.transport_fd,
-> +			ev->u.b_cnx.is_leading);
-> +		break;
-> +	case ISCSI_UEVENT_SET_PARAM:
-> +		if (!iscsi_if_find_cnx(ev->u.set_param.cnx_handle,
-> +				       H_TYPE_TRANS))
-> +			return -EEXIST;
-> +		ev->r.retcode = transport->set_param(
-> +			ev->u.set_param.cnx_handle,
-> +			ev->u.set_param.param, ev->u.set_param.value);
-> +		break;
-> +	case ISCSI_UEVENT_START_CNX:
-> +		if (!iscsi_if_find_cnx(ev->u.start_cnx.cnx_handle,
-> +				       H_TYPE_TRANS))
-> +			return -EEXIST;
-> +		ev->r.retcode = transport->start_cnx(
-> +			ev->u.start_cnx.cnx_handle);
-> +		break;
-> +	case ISCSI_UEVENT_STOP_CNX:
-> +		if (!iscsi_if_find_cnx(ev->u.stop_cnx.cnx_handle, H_TYPE_TRANS))
-> +			return -EEXIST;
-> +		transport->stop_cnx(ev->u.stop_cnx.cnx_handle,
-> +			ev->u.stop_cnx.flag);
-> +		break;
-> +	case ISCSI_UEVENT_SEND_PDU:
-> +		if (!iscsi_if_find_cnx(ev->u.send_pdu.cnx_handle,
-> +				       H_TYPE_TRANS))
-> +			return -EEXIST;
-> +		ev->r.retcode = transport->send_pdu(
-> +		       ev->u.send_pdu.cnx_handle,
-> +		       (struct iscsi_hdr*)((char*)ev + sizeof(*ev)),
-> +		       (char*)ev + sizeof(*ev) + ev->u.send_pdu.hdr_size,
-> +			ev->u.send_pdu.data_size);
-> +		break;
-> +	case ISCSI_UEVENT_GET_STATS: {
-> +		struct iscsi_stats *stats;
-> +		struct sk_buff *skbstat;
-> +		struct iscsi_if_cnx *cnx;
-> +		struct nlmsghdr	*nlhstat;
-> +		struct iscsi_uevent *evstat;
-> +		int len = NLMSG_SPACE(sizeof(*ev) +
-> +				sizeof(struct iscsi_stats) +
-> +                                sizeof(struct iscsi_stats_custom) *
-> +                                                ISCSI_STATS_CUSTOM_MAX);
-> +		int err;
-> +
-> +		cnx = iscsi_if_find_cnx(ev->u.get_stats.cnx_handle,
-> +					H_TYPE_TRANS);
-> +		if (!cnx)
-> +			return -EEXIST;
-> +
-> +		do {
-> +			int actual_size;
-> +
-> +			skbstat = mempool_zone_get_skb(&cnx->z_pdu);
-> +			if (!skbstat) {
-> +				printk("iscsi%d: can not deliver stats: OOM\n",
-> +				       cnx->host->host_no);
-> +				return -ENOMEM;
-> +			}
-> +
-> +			nlhstat = __nlmsg_put(skbstat, daemon_pid, 0, 0,
-> +						(len - sizeof(*nlhstat)));
-> +			evstat = NLMSG_DATA(nlhstat);
-> +			memset(evstat, 0, sizeof(*evstat));
-> +			evstat->transport_handle = iscsi_handle(cnx->transport);
-> +			evstat->type = nlh->nlmsg_type;
-> +			if (cnx->z_pdu.allocated >= cnx->z_pdu.hiwat)
-> +				evstat->iferror = -ENOMEM;
-> +			evstat->u.get_stats.cnx_handle =
-> +					ev->u.get_stats.cnx_handle;
-> +			stats = (struct iscsi_stats *)
-> +					((char*)evstat + sizeof(*evstat));
-> +			memset(stats, 0, sizeof(*stats));
-> +
-> +			transport->get_stats(ev->u.get_stats.cnx_handle, stats);
-> +			actual_size = NLMSG_SPACE(sizeof(struct iscsi_uevent) +
-> +					sizeof(struct iscsi_stats) +
-> +                                	sizeof(struct iscsi_stats_custom) *
-> +						stats->custom_length);
-> +			actual_size -= sizeof(*nlhstat);
-> +			actual_size = NLMSG_LENGTH(actual_size);
-> +			skb_trim(skb, NLMSG_ALIGN(actual_size));
-> +			nlhstat->nlmsg_len = actual_size;
-> +
-> +			err = iscsi_unicast_skb(&cnx->z_pdu, skbstat);
-> +		} while (err < 0 && err != -ECONNREFUSED);
-> +		} break;
-> +	default:
-> +		err = -EINVAL;
-> +		break;
-> +	}
-> +
-> +	return err;
-> +}
+-- 
+When the going gets tough, The tough gets going...!
+Peace ,  
+Nauman.

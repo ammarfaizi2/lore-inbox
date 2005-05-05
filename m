@@ -1,41 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262142AbVEEQew@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262169AbVEEQny@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262142AbVEEQew (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 12:34:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262146AbVEEQew
+	id S262169AbVEEQny (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 12:43:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262168AbVEEQny
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 12:34:52 -0400
-Received: from fire.osdl.org ([65.172.181.4]:5784 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262142AbVEEQes (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 12:34:48 -0400
-Date: Thu, 5 May 2005 09:34:13 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: bmerry@cs.uct.ac.za
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Holding ref to /proc/<pid> dentry prevents task being freed
-Message-ID: <20050505163413.GW23013@shell0.pdx.osdl.net>
-References: <20050505091131.GA4472@omnius.cs.uct.ac.za>
+	Thu, 5 May 2005 12:43:54 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:52104 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262159AbVEEQnm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 12:43:42 -0400
+Subject: Re: [RFC][PATCH] update SubmittingPatches to clarify attachment
+	policy
+From: Lee Revell <rlrevell@joe-job.com>
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+Cc: "Richard B. Johnson" <linux-os@analogic.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050505081250.GB24187@lug-owl.de>
+References: <20050504170156.87F67CE5@kernel.beaverton.ibm.com>
+	 <9e47339105050410107d9193b2@mail.gmail.com>
+	 <20050504175422.GY24187@lug-owl.de>
+	 <Pine.LNX.4.61.0505041419360.21458@chaos.analogic.com>
+	 <20050505081250.GB24187@lug-owl.de>
+Content-Type: text/plain
+Date: Thu, 05 May 2005 12:43:39 -0400
+Message-Id: <1115311419.9901.57.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050505091131.GA4472@omnius.cs.uct.ac.za>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* bmerry@cs.uct.ac.za (bmerry@cs.uct.ac.za) wrote:
-> I'm busy writing a security module that does some very basic ACL stuff
-> on a per-task basis. If my module obtains and holds a dentry for
-> /proc/<pid> (via path_lookup), then the task_free_security hook is
-> never called for that process. Since the module releases the dentry in
-> task_free_security, this creates a chicken-and-egg problem and neither
-> the task nor the dentry is ever released. A side-effect is that the
-> module refcount never drops to 0.
+On Thu, 2005-05-05 at 10:12 +0200, Jan-Benedict Glaw wrote:
+> On Wed, 2005-05-04 14:23:36 -0400, Richard B. Johnson <linux-os@analogic.com> wrote:
+> > On Wed, 4 May 2005, Jan-Benedict Glaw wrote:
+> 
+> > >Well, why should someone use a broken mail service at all?
+> > 
+> > Because the net Nazis make often make it the only way to send/receive
+> > mail in a domain. There is nothing coming or going here that doesn't
+> > go through a M$ mail-killer that even saves every thread of evidence.
+> 
+> No way to send emails with a locally installed email client? There are
+> so many, even for Windows. ...and I guess quite some of those can be
+> configured to produce real emails, not only bullshit...
 
-Why are you holding that dentry?  Some more background please.
+Hell no.  You think any sane admin is going to let every workstation on
+the corporate network make outgoing port 25 connections to wherever they
+want?
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Lee
+

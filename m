@@ -1,115 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261978AbVEEHhs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261991AbVEEIMx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261978AbVEEHhs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 03:37:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbVEEHhs
+	id S261991AbVEEIMx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 04:12:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbVEEIMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 03:37:48 -0400
-Received: from mxsf09.cluster1.charter.net ([209.225.28.209]:50617 "EHLO
-	mxsf09.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S261978AbVEEHhe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 03:37:34 -0400
-X-Ironport-AV: i="3.92,155,1112587200"; 
-   d="scan'208"; a="890198839:sNHT13590440"
-Subject: [PATCH] kbtab tweaks, pen tool reporting
-From: Dave Ahlswede <mightyquinn@letterboxes.org>
-To: linux-kernel@vger.kernel.org
-Cc: vojtech@suse.cz
-Content-Type: text/plain
-Date: Thu, 05 May 2005 03:37:29 -0400
-Message-Id: <1115278649.31630.22.camel@localhost.localdomain>
+	Thu, 5 May 2005 04:12:53 -0400
+Received: from lug-owl.de ([195.71.106.12]:13218 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S261991AbVEEIMv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 04:12:51 -0400
+Date: Thu, 5 May 2005 10:12:50 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: "Richard B. Johnson" <linux-os@analogic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] update SubmittingPatches to clarify attachment policy
+Message-ID: <20050505081250.GB24187@lug-owl.de>
+Mail-Followup-To: "Richard B. Johnson" <linux-os@analogic.com>,
+	linux-kernel@vger.kernel.org
+References: <20050504170156.87F67CE5@kernel.beaverton.ibm.com> <9e47339105050410107d9193b2@mail.gmail.com> <20050504175422.GY24187@lug-owl.de> <Pine.LNX.4.61.0505041419360.21458@chaos.analogic.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <Pine.LNX.4.61.0505041419360.21458@chaos.analogic.com>
+X-Operating-System: Linux mail 2.6.10-rc2-bk5lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch improves the kbtab behavior with regards to the pen tool a
-little bit. I previously submitted a patch with the rather bad behavior
-of reporting the pen tool as not-in-use when the device was opened, but
-I've changed it around a little this time.
+On Wed, 2005-05-04 14:23:36 -0400, Richard B. Johnson <linux-os@analogic.com> wrote:
+> On Wed, 4 May 2005, Jan-Benedict Glaw wrote:
 
-With this patch, the driver will report the pen tool as not-in-use if it
-hasn't received input events for over a second-- given the somewhat
-sloppy hardware, this seems to be the only way to get a sensible value
-here. I hope this is acceptable. 
+> >Well, why should someone use a broken mail service at all?
+> 
+> Because the net Nazis make often make it the only way to send/receive
+> mail in a domain. There is nothing coming or going here that doesn't
+> go through a M$ mail-killer that even saves every thread of evidence.
 
-There's also a few minor tweaks in the last block. I've turned off fuzz
-compensation for the X and Y axes, as I found that these actually made
-the jitter seem worse when drawing, causing sudden pixel-sized jumps
-instead of the more gradual usually-subpixel jumps without the jitter. 
+No way to send emails with a locally installed email client? There are
+so many, even for Windows. ...and I guess quite some of those can be
+configured to produce real emails, not only bullshit...
 
-Conversely, some small fuzz compensation seems good on the pressure axis
-to help prevent stray click-and-release under low pressure.
+> For instance, there is no signature on this file. I'll bet that
+> by the time you read it, there is one.
 
-Finally, as before, I've corrected the pressure limit to 127 instead of
-255 (The upper limit as observed on two KBGear tablets)
+Nope, your email was fine. No extra crap like copyright/property
+disclaimers and the like.
 
-Please CC me on any replies; I'm not subscribed to lkml. Thanks much!
+MfG, JBG
 
-Patch against 2.6.11.7 (seems to apply to .12-rc3 too) follows:
-
---- ../../../../linux-2.6.11.7/drivers/usb/input/kbtab.c 2005-04-07
-14:57:08.000000000 -0400
-+++ linux/drivers/usb/input/kbtab.c 2005-05-05 02:57:13.000000000 -0400
-@@ -1,3 +1,4 @@
-+#include <linux/jiffies.h>
- #include <linux/kernel.h>
- #include <linux/slab.h>
- #include <linux/input.h>
-@@ -13,6 +14,9 @@
-  * v0.0.2 - Updated, works with 2.5.62 and 2.4.20;
-  *           - added pressure-threshold modules param code from
-  *              Alex Perry <alex.perry@ieee.org>
-+ *           - Report pen tool not in use after ~1 second idle
-+ *              Tweak jitter and max pressure limit
-+ *              Dave Ahlswede <mightyquinn@letterboxes.org>
-  */
- 
- #define DRIVER_VERSION "v0.0.2"
-@@ -25,6 +29,7 @@
- MODULE_LICENSE(DRIVER_LICENSE);
- 
- #define USB_VENDOR_ID_KBGEAR	0x084e
-+#define KBTAB_PEN_TIMEOUT_DELAY     1000
- 
- static int kb_pressure_click = 0x10;
- module_param(kb_pressure_click, int, 0);
-@@ -40,6 +45,7 @@
- 	int x, y;
- 	int button;
- 	int pressure;
-+	unsigned long pen_timeout;
- 	__u32 serial[2];
- 	char phys[32];
- };
-@@ -71,7 +77,11 @@
- 
- 	kbtab->pressure = (data[5]);
- 
--	input_report_key(dev, BTN_TOOL_PEN, 1);
-+	if (time_after(jiffies, kbtab->pen_timeout))
-+		input_report_key(dev, BTN_TOOL_PEN, 0);
-+	else
-+		input_report_key(dev, BTN_TOOL_PEN, 1);
-+	kbtab->pen_timeout = jiffies + KBTAB_PEN_TIMEOUT_DELAY;
- 
- 	input_report_abs(dev, ABS_X, kbtab->x);
- 	input_report_abs(dev, ABS_Y, kbtab->y);
-@@ -160,10 +170,11 @@
- 
- 	kbtab->dev.absmax[ABS_X] = 0x2000;
- 	kbtab->dev.absmax[ABS_Y] = 0x1750;
--	kbtab->dev.absmax[ABS_PRESSURE] = 0xff;
-+	kbtab->dev.absmax[ABS_PRESSURE] = 0x7F;
- 	
--	kbtab->dev.absfuzz[ABS_X] = 4;
--	kbtab->dev.absfuzz[ABS_Y] = 4;
-+	kbtab->dev.absfuzz[ABS_X] = 0;
-+	kbtab->dev.absfuzz[ABS_Y] = 0;
-+	kbtab->dev.absfuzz[ABS_PRESSURE] = 2;
- 
- 	kbtab->dev.private = kbtab;
- 	kbtab->dev.open = kbtab_open;
-
-
+-- 
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             _ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  _ _ O
+ fuer einen Freien Staat voll Freier Bürger" | im Internet! |   im Irak!   O O O
+ret = do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA));

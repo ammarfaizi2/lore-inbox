@@ -1,73 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261918AbVEEVeu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbVEEVhv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261918AbVEEVeu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 17:34:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVEEVeu
+	id S261943AbVEEVhv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 17:37:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261949AbVEEVhv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 17:34:50 -0400
-Received: from mailwasher.lanl.gov ([192.65.95.54]:54453 "EHLO
-	mailwasher.lanl.gov") by vger.kernel.org with ESMTP id S261918AbVEEVer
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 17:34:47 -0400
-Message-ID: <427A9169.6050300@mesatop.com>
-Date: Thu, 05 May 2005 15:34:33 -0600
-From: Steven Cole <elenstev@mesatop.com>
-User-Agent: Thunderbird 1.0 (Multics)
-X-Accept-Language: en-us, en
+	Thu, 5 May 2005 17:37:51 -0400
+Received: from khc.piap.pl ([195.187.100.11]:30468 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S261943AbVEEVhr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 17:37:47 -0400
+To: Rick Warner <rick@microway.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: very strange issue with sata,<4G Ram, and ext3
+References: <200504281216.08026.rick@microway.com>
+	<1114728503.24687.248.camel@localhost.localdomain>
+	<200504291045.58893.rick@microway.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Thu, 05 May 2005 23:37:43 +0200
+In-Reply-To: <200504291045.58893.rick@microway.com> (Rick Warner's message
+ of "Fri, 29 Apr 2005 10:45:58 -0400")
+Message-ID: <m364xxtkuw.fsf@defiant.localdomain>
 MIME-Version: 1.0
-To: Paulo Marques <pmarques@grupopie.com>
-CC: Krzysztof Halasa <khc@pm.waw.pl>, Rik van Riel <riel@redhat.com>,
-       Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] update SubmittingPatches to clarify attachment policy
-References: <20050504170156.87F67CE5@kernel.beaverton.ibm.com>	<Pine.LNX.4.61.0505042109020.18390@chimarrao.boston.redhat.com> <m38y2uoukg.fsf@defiant.localdomain> <427A0B04.1030408@grupopie.com>
-In-Reply-To: <427A0B04.1030408@grupopie.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-PMX-Version: 4.7.0.111621
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paulo Marques wrote:
-> Krzysztof Halasa wrote:
-> 
->> Rik van Riel <riel@redhat.com> writes:
->>
->>
->>> The problem is replying to an attachment.  The reason why having
->>> the patch in the main mail body is good is that it gets quoted
->>> by the email software and you can easily reply to individual
->>> parts of the patch.
->>
->>
->>
->> If the attachment is "disposition=inline", does the problem still exist?
-> 
-> 
-> I've just checked this with Thunderbird (which is the mail client I use).
-> 
-> It not only sets the disposition=inline by default when attaching 
-> patches, it also places the patch inline when replying to it, allowing 
-> the user to write between the text of the patch as if it were part of 
-> the email text.
-> 
-> However if we Copy+Paste the patch into the mail it gets line wrapped / 
-> white space mangled.
+Rick Warner <rick@microway.com> writes:
 
-That depends on where you are Copy+Pasting from.  Granted, Copy+Paste from
-a variety of sources is a nightmare.  But, Copy+Paste from Tbird to Tbird
-seems to actually work.
+> This morning, we tried updating to a newer pxelinux (3.07) and had the same 
+> results.  We then tried using etherboot with a mknbi tagged image and also 
+> had the same results.   Since we are getting the same problem on 3 different 
+> motherboards with 2 different network adapters, I have not looked into 
+> updating the boot rom on the nics.  Should I?
 
-> 
-> So at least for Thunderbird users it would be better to use attached 
-> patches with "Content-Disposition: inline".
-> 
+I remember I had memory corruption problems with an old version of
+Etherboot few years ago. The machines were mostly AMD K6 based,
+network cards were SMC EPIC100 (Etherpower II) and/or RTL 8139.
 
-Here is a trick you can play with Thunderbird to get inlined patches:
+Memtest86 (downloaded with Etherboot) complained about random errors.
+I think Linux didn't show any such illness.
+This was Etherboot 4.something. Upgrading to 5.something fixed the
+problem.
 
-1) Mail the patch to yourself as an attachment.
-2) Read the mail you just got, copy and paste the patch to your new message.
-
-This method preserves the tabs/whitespace. Of course, you have to set the
-wordwrap settings appropriately. It works for me.
-
-Steven
+I suspect you're using Etherboot newer than 4.x though. I'd probably
+give memtest86 loaded from network a try.
+-- 
+Krzysztof Halasa

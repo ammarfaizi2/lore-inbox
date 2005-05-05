@@ -1,51 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262169AbVEEQny@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262156AbVEEQov@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262169AbVEEQny (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 12:43:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262168AbVEEQny
+	id S262156AbVEEQov (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 12:44:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbVEEQov
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 12:43:54 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:52104 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262159AbVEEQnm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 12:43:42 -0400
-Subject: Re: [RFC][PATCH] update SubmittingPatches to clarify attachment
-	policy
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-Cc: "Richard B. Johnson" <linux-os@analogic.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050505081250.GB24187@lug-owl.de>
-References: <20050504170156.87F67CE5@kernel.beaverton.ibm.com>
-	 <9e47339105050410107d9193b2@mail.gmail.com>
-	 <20050504175422.GY24187@lug-owl.de>
-	 <Pine.LNX.4.61.0505041419360.21458@chaos.analogic.com>
-	 <20050505081250.GB24187@lug-owl.de>
-Content-Type: text/plain
-Date: Thu, 05 May 2005 12:43:39 -0400
-Message-Id: <1115311419.9901.57.camel@mindpipe>
+	Thu, 5 May 2005 12:44:51 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:4115 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262157AbVEEQoj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 12:44:39 -0400
+Date: Thu, 5 May 2005 18:44:37 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Valdis.Kletnieks@vt.edu
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc3-mm3
+Message-ID: <20050505164437.GC3590@stusta.de>
+References: <20050504221057.1e02a402.akpm@osdl.org> <200505051457.j45EvAm6013062@turing-police.cc.vt.edu> <20050505152247.GB3590@stusta.de> <200505051549.j45FnBKE015372@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200505051549.j45FnBKE015372@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-05-05 at 10:12 +0200, Jan-Benedict Glaw wrote:
-> On Wed, 2005-05-04 14:23:36 -0400, Richard B. Johnson <linux-os@analogic.com> wrote:
-> > On Wed, 4 May 2005, Jan-Benedict Glaw wrote:
+On Thu, May 05, 2005 at 11:49:11AM -0400, Valdis.Kletnieks@vt.edu wrote:
+> On Thu, 05 May 2005 17:22:47 +0200, Adrian Bunk said:
 > 
-> > >Well, why should someone use a broken mail service at all?
-> > 
-> > Because the net Nazis make often make it the only way to send/receive
-> > mail in a domain. There is nothing coming or going here that doesn't
-> > go through a M$ mail-killer that even saves every thread of evidence.
+> > Your presumption is only correct starting with 2.6.12-rc3-mm1, because 
+> > since 2.6.12-rc3-mm1 the announcements do no longer contain the big 
+> > detailed listing of all patches in -mm.
 > 
-> No way to send emails with a locally installed email client? There are
-> so many, even for Windows. ...and I guess quite some of those can be
-> configured to produce real emails, not only bullshit...
+> Note to self:  Ingest caffeine, *THEN* do statistics. :) I *thought* the
+> last few -mm announces looked different, couldn't put my finger on what though ;)
+> 
+> OK.. Adding the number of 'All NNN patches' to the -rc3-mm*:
+>...
 
-Hell no.  You think any sane admin is going to let every workstation on
-the corporate network make outgoing port 25 connections to wherever they
-want?
+Actually you'd have to add 3 x NNN to get a roughly correct number.
 
-Lee
+But then there's the question what you want to measure. Now you are 
+measuring the amount of patches (that is already printed in the 
+announcements). If you want to measure the amount of changes, you should 
+better substract this from the older ones instead of adding it to the 
+newer ones.
+
+The next problem is that e.g. in BK times, Greg's trees were only a few 
+lines of the announcement, while now every single patch in his trees is 
+listed...
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

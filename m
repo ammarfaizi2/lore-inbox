@@ -1,29 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261915AbVEEAts@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261988AbVEEBEl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261915AbVEEAts (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 May 2005 20:49:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbVEEAtr
+	id S261988AbVEEBEl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 May 2005 21:04:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261991AbVEEBEl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 May 2005 20:49:47 -0400
-Received: from animx.eu.org ([216.98.75.249]:30346 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S261915AbVEEAtd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 May 2005 20:49:33 -0400
-Date: Wed, 4 May 2005 20:48:54 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: /proc/ide/hd?/settings  obsolete in 2.6.
-Message-ID: <20050505004854.GA16550@animx.eu.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Wed, 4 May 2005 21:04:41 -0400
+Received: from straum.hexapodia.org ([64.81.70.185]:27036 "EHLO
+	straum.hexapodia.org") by vger.kernel.org with ESMTP
+	id S261988AbVEEBEk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 May 2005 21:04:40 -0400
+Date: Wed, 4 May 2005 18:04:38 -0700
+From: Andy Isaacson <adi@hexapodia.org>
+To: "Richard B. Johnson" <linux-os@analogic.com>
+Cc: Olivier Croquette <ocroquette@free.fr>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduler: SIGSTOP on multi threaded processes
+Message-ID: <20050505010438.GA30227@hexapodia.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <Pine.LNX.4.61.0505041403310.21458@chaos.analogic.com>
+User-Agent: Mutt/1.4.2i
+X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
+X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If this interface is obsolete and will be removed, is there any non-obsolete
-way of telling the kernel what geometry I want to use for this ide device?
+On Wed, May 04, 2005 at 02:16:24PM -0400, Richard B. Johnson wrote:
+> On Wed, 4 May 2005, Olivier Croquette wrote:
+> >On a 2.6.11 x86 system, I am SIGSTOP'ing processes which have started
+> >several threads before.
+> 
+> The kernel doesn't do SIGSTOP or SIGCONT.
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Dear Wrongbot,
+
+No.
+
+-andy

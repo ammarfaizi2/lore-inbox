@@ -1,272 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbVEFXPT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbVEFX1w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261332AbVEFXPT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 19:15:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVEFXPS
+	id S261365AbVEFX1w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 19:27:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbVEFX10
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 19:15:18 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:62470 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261335AbVEFXN4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 19:13:56 -0400
-Date: Sat, 7 May 2005 01:13:49 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: neilb@cse.unsw.edu.au, trond.myklebust@fys.uio.no
-Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net,
-       netdev@oss.sgi.com
-Subject: [RFC: 2.6 patch] net/sunrpc/: possible cleanups
-Message-ID: <20050506231349.GA3590@stusta.de>
+	Fri, 6 May 2005 19:27:26 -0400
+Received: from wproxy.gmail.com ([64.233.184.199]:15519 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261331AbVEFXPu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 May 2005 19:15:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=JzIvcLAluM7f5qzbs2vKNJZbOhZWurrTmxm7e8zt4z/Z6OYk7zNQfhfN+xEzlrMVyzBKnSR5En9rh390QQkQE28PT9qyyjO3LyXafDA+awgUopgBELEXttAdTw2gQ4nYsHtOd/uNlebkO2eSOO9157hHnyjoUbziOklMmjDuWsg=
+Message-ID: <92df317505050616152d07f7f@mail.gmail.com>
+Date: Fri, 6 May 2005 19:15:47 -0400
+From: Yuly Finkelberg <liquidicecube@gmail.com>
+Reply-To: Yuly Finkelberg <liquidicecube@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Problem while stopping many threads within a module
+In-Reply-To: <d5e597$jok$1@news.cistron.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+References: <4279084C.9030908@free.fr> <20050504191604.GA29730@nevyn.them.org>
+	 <Pine.LNX.4.61.0505042031120.22323@chaos.analogic.com>
+	 <Pine.LNX.4.61.0505050814340.24130@chaos.analogic.com>
+	 <d5e597$jok$1@news.cistron.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- make needlessly global code static
-- #if 0 the following unused global function:
-  - xdr.c: xdr_decode_string
-- remove the following unneeded EXPORT_SYMBOL's:
-  - auth_gss/gss_mech_switch.c: gss_mech_get
-  - auth_gss/gss_mech_switch.c: gss_mech_get_by_name
-  - auth_gss/gss_mech_switch.c: gss_mech_get_by_pseudoflavor
-  - auth_gss/gss_mech_switch.c: gss_pseudoflavor_to_service
-  - auth_gss/gss_mech_switch.c: gss_service_to_auth_domain_name
-  - auth_gss/gss_mech_switch.c: gss_mech_put
-  - sunrpc_syms.c: rpc_wake_up_next
-  - sunrpc_syms.c: rpc_new_child
-  - sunrpc_syms.c: rpc_run_child
-  - sunrpc_syms.c: rpc_new_task
-  - sunrpc_syms.c: rpc_release_task
-  - sunrpc_syms.c: rpc_release_client
-  - sunrpc_syms.c: xprt_udp_slot_table_entries
-  - sunrpc_syms.c: xprt_tcp_slot_table_entries
-  - sunrpc_syms.c: svc_drop
-  - sunrpc_syms.c: svc_authenticate
-  - sunrpc_syms.c: xdr_decode_string
+Hello -
 
-Please review which of these patches do make sense and which conflict 
-with pending patches.
+I'm having a strange thread scheduling issue in a project that I'm
+working on.  We have a module, with an interface that can be called by
+many (currently 50) threads simulatenously.  Threads that have entered
+the kernel, sleep on a wait queue until everyone else has entered.  At
+this point, a "master" process wakes up the first thread, which does
+some work, then wakes up the second, etc.  After waking up its
+successor, each thread changes its state to STOPPED and sends itself a
+SIGSTOP.  Note that the threads are created with
+CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND but NOT CLONE_THREAD so
+there is no group stop.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Basically, the structure is the following:
+kernel_entry_point() {
+        wait until its your turn
+        ...... do some work .... (serialized)
+        wake up the next thread
+        send SIGSTOP to yourself
+}
 
----
+At the same time, a monitoring process polls until all the threads
+have stopped themselves:
+monitor() {
+repeat:
+        for each thread
+               if (thread->state < TASK_STOPPED)
+                       yield()
+                       goto repeat
+}
 
- include/linux/sunrpc/clnt.h           |    1 -
- include/linux/sunrpc/gss_api.h        |    3 ---
- include/linux/sunrpc/xdr.h            |    2 --
- net/sunrpc/auth_gss/gss_mech_switch.c |   13 +------------
- net/sunrpc/clnt.c                     |    3 ++-
- net/sunrpc/sunrpc_syms.c              |   11 -----------
- net/sunrpc/xdr.c                      |    4 +++-
- 7 files changed, 6 insertions(+), 31 deletions(-)
+Now, here's the problem.  On 2.6.9 UP (Preempt), it is often the case
+that one thread gets "stuck" in between the wake up of the next thread
+and stopping itself -- this causes the monitor to poll for extended
+periods of time, since the thread remains RUNNING.  Strangely enough,
+it generally gets unstuck by itself, sometimes within 10 seconds,
+sometimes after as long as 10 minutes.  When peeking at the kernel
+stack of the offending process via the monitor, I only see that it is
+in schedule and the stack looks like this:
 
---- linux-2.6.12-rc3-mm3-full/include/linux/sunrpc/gss_api.h.old	2005-05-05 23:05:01.000000000 +0200
-+++ linux-2.6.12-rc3-mm3-full/include/linux/sunrpc/gss_api.h	2005-05-05 23:05:10.000000000 +0200
-@@ -110,9 +110,6 @@
- /* Similar, but get by pseudoflavor. */
- struct gss_api_mech *gss_mech_get_by_pseudoflavor(u32);
- 
--/* Just increments the mechanism's reference count and returns its input: */
--struct gss_api_mech * gss_mech_get(struct gss_api_mech *);
--
- /* For every succesful gss_mech_get or gss_mech_get_by_* call there must be a
-  * corresponding call to gss_mech_put. */
- void gss_mech_put(struct gss_api_mech *);
---- linux-2.6.12-rc3-mm3-full/net/sunrpc/auth_gss/gss_mech_switch.c.old	2005-05-05 23:05:17.000000000 +0200
-+++ linux-2.6.12-rc3-mm3-full/net/sunrpc/auth_gss/gss_mech_switch.c	2005-05-05 23:19:33.000000000 +0200
-@@ -133,14 +133,13 @@
- 
- EXPORT_SYMBOL(gss_mech_unregister);
- 
--struct gss_api_mech *
-+static struct gss_api_mech *
- gss_mech_get(struct gss_api_mech *gm)
- {
- 	__module_get(gm->gm_owner);
- 	return gm;
- }
- 
--EXPORT_SYMBOL(gss_mech_get);
- 
- struct gss_api_mech *
- gss_mech_get_by_name(const char *name)
-@@ -160,8 +159,6 @@
- 
- }
- 
--EXPORT_SYMBOL(gss_mech_get_by_name);
--
- static inline int
- mech_supports_pseudoflavor(struct gss_api_mech *gm, u32 pseudoflavor)
- {
-@@ -193,8 +190,6 @@
- 	return gm;
- }
- 
--EXPORT_SYMBOL(gss_mech_get_by_pseudoflavor);
--
- u32
- gss_pseudoflavor_to_service(struct gss_api_mech *gm, u32 pseudoflavor)
- {
-@@ -207,8 +202,6 @@
- 	return 0;
- }
- 
--EXPORT_SYMBOL(gss_pseudoflavor_to_service);
--
- char *
- gss_service_to_auth_domain_name(struct gss_api_mech *gm, u32 service)
- {
-@@ -221,16 +214,12 @@
- 	return NULL;
- }
- 
--EXPORT_SYMBOL(gss_service_to_auth_domain_name);
--
- void
- gss_mech_put(struct gss_api_mech * gm)
- {
- 	module_put(gm->gm_owner);
- }
- 
--EXPORT_SYMBOL(gss_mech_put);
--
- /* The mech could probably be determined from the token instead, but it's just
-  * as easy for now to pass it in. */
- int
---- linux-2.6.12-rc3-mm3-full/include/linux/sunrpc/clnt.h.old	2005-05-05 23:05:45.000000000 +0200
-+++ linux-2.6.12-rc3-mm3-full/include/linux/sunrpc/clnt.h	2005-05-05 23:05:50.000000000 +0200
-@@ -134,7 +134,6 @@
- void		rpc_clnt_sigunmask(struct rpc_clnt *clnt, sigset_t *oldset);
- void		rpc_setbufsize(struct rpc_clnt *, unsigned int, unsigned int);
- size_t		rpc_max_payload(struct rpc_clnt *);
--int		rpc_ping(struct rpc_clnt *clnt, int flags);
- 
- static __inline__
- int rpc_call(struct rpc_clnt *clnt, u32 proc, void *argp, void *resp, int flags)
---- linux-2.6.12-rc3-mm3-full/net/sunrpc/clnt.c.old	2005-05-05 23:05:58.000000000 +0200
-+++ linux-2.6.12-rc3-mm3-full/net/sunrpc/clnt.c	2005-05-05 23:06:21.000000000 +0200
-@@ -63,6 +63,7 @@
- static u32 *	call_header(struct rpc_task *task);
- static u32 *	call_verify(struct rpc_task *task);
- 
-+static int	rpc_ping(struct rpc_clnt *clnt, int flags);
- 
- static int
- rpc_setup_pipedir(struct rpc_clnt *clnt, char *dir_name)
-@@ -1178,7 +1179,7 @@
- 	.p_decode = rpcproc_decode_null,
- };
- 
--int rpc_ping(struct rpc_clnt *clnt, int flags)
-+static int rpc_ping(struct rpc_clnt *clnt, int flags)
- {
- 	struct rpc_message msg = {
- 		.rpc_proc = &rpcproc_null,
---- linux-2.6.12-rc3-mm3-full/include/linux/sunrpc/xdr.h.old	2005-05-05 23:06:40.000000000 +0200
-+++ linux-2.6.12-rc3-mm3-full/include/linux/sunrpc/xdr.h	2005-05-05 23:07:23.000000000 +0200
-@@ -91,7 +91,6 @@
- u32 *	xdr_encode_opaque_fixed(u32 *p, const void *ptr, unsigned int len);
- u32 *	xdr_encode_opaque(u32 *p, const void *ptr, unsigned int len);
- u32 *	xdr_encode_string(u32 *p, const char *s);
--u32 *	xdr_decode_string(u32 *p, char **sp, int *lenp, int maxlen);
- u32 *	xdr_decode_string_inplace(u32 *p, char **sp, int *lenp, int maxlen);
- u32 *	xdr_encode_netobj(u32 *p, const struct xdr_netobj *);
- u32 *	xdr_decode_netobj(u32 *p, struct xdr_netobj *);
-@@ -147,7 +146,6 @@
- extern int xdr_buf_subsegment(struct xdr_buf *, struct xdr_buf *, int, int);
- extern int xdr_buf_read_netobj(struct xdr_buf *, struct xdr_netobj *, int);
- extern int read_bytes_from_xdr_buf(struct xdr_buf *, int, void *, int);
--extern int write_bytes_to_xdr_buf(struct xdr_buf *, int, void *, int);
- 
- /*
-  * Helper structure for copying from an sk_buff.
---- linux-2.6.12-rc3-mm3-full/net/sunrpc/xdr.c.old	2005-05-05 23:06:52.000000000 +0200
-+++ linux-2.6.12-rc3-mm3-full/net/sunrpc/xdr.c	2005-05-05 23:07:56.000000000 +0200
-@@ -95,6 +95,7 @@
- 	return xdr_encode_array(p, string, strlen(string));
- }
- 
-+#if 0
- u32 *
- xdr_decode_string(u32 *p, char **sp, int *lenp, int maxlen)
- {
-@@ -115,6 +116,7 @@
- 	*sp = string;
- 	return p + XDR_QUADLEN(len);
- }
-+#endif  /*  0  */
- 
- u32 *
- xdr_decode_string_inplace(u32 *p, char **sp, int *lenp, int maxlen)
-@@ -882,7 +884,7 @@
- }
- 
- /* obj is assumed to point to allocated memory of size at least len: */
--int
-+static int
- write_bytes_to_xdr_buf(struct xdr_buf *buf, int base, void *obj, int len)
- {
- 	struct xdr_buf subbuf;
---- linux-2.6.12-rc3-mm3-full/net/sunrpc/sunrpc_syms.c.old	2005-05-05 23:07:30.000000000 +0200
-+++ linux-2.6.12-rc3-mm3-full/net/sunrpc/sunrpc_syms.c	2005-05-05 23:36:43.000000000 +0200
-@@ -29,15 +29,10 @@
- EXPORT_SYMBOL(rpc_execute);
- EXPORT_SYMBOL(rpc_init_task);
- EXPORT_SYMBOL(rpc_sleep_on);
--EXPORT_SYMBOL(rpc_wake_up_next);
- EXPORT_SYMBOL(rpc_wake_up_task);
--EXPORT_SYMBOL(rpc_new_child);
--EXPORT_SYMBOL(rpc_run_child);
- EXPORT_SYMBOL(rpciod_down);
- EXPORT_SYMBOL(rpciod_up);
--EXPORT_SYMBOL(rpc_new_task);
- EXPORT_SYMBOL(rpc_wake_up_status);
--EXPORT_SYMBOL(rpc_release_task);
- 
- /* RPC client functions */
- EXPORT_SYMBOL(rpc_create_client);
-@@ -45,7 +40,6 @@
- EXPORT_SYMBOL(rpc_bind_new_program);
- EXPORT_SYMBOL(rpc_destroy_client);
- EXPORT_SYMBOL(rpc_shutdown_client);
--EXPORT_SYMBOL(rpc_release_client);
- EXPORT_SYMBOL(rpc_killall_tasks);
- EXPORT_SYMBOL(rpc_call_sync);
- EXPORT_SYMBOL(rpc_call_async);
-@@ -63,8 +57,6 @@
- /* Client transport */
- EXPORT_SYMBOL(xprt_create_proto);
- EXPORT_SYMBOL(xprt_set_timeout);
--EXPORT_SYMBOL(xprt_udp_slot_table_entries);
--EXPORT_SYMBOL(xprt_tcp_slot_table_entries);
- 
- /* Client credential cache */
- EXPORT_SYMBOL(rpcauth_register);
-@@ -81,7 +73,6 @@
- EXPORT_SYMBOL(svc_create_thread);
- EXPORT_SYMBOL(svc_exit_thread);
- EXPORT_SYMBOL(svc_destroy);
--EXPORT_SYMBOL(svc_drop);
- EXPORT_SYMBOL(svc_process);
- EXPORT_SYMBOL(svc_recv);
- EXPORT_SYMBOL(svc_wake_up);
-@@ -89,7 +80,6 @@
- EXPORT_SYMBOL(svc_reserve);
- EXPORT_SYMBOL(svc_auth_register);
- EXPORT_SYMBOL(auth_domain_lookup);
--EXPORT_SYMBOL(svc_authenticate);
- EXPORT_SYMBOL(svc_set_client);
- 
- /* RPC statistics */
-@@ -122,7 +112,6 @@
- 
- /* Generic XDR */
- EXPORT_SYMBOL(xdr_encode_string);
--EXPORT_SYMBOL(xdr_decode_string);
- EXPORT_SYMBOL(xdr_decode_string_inplace);
- EXPORT_SYMBOL(xdr_decode_netobj);
- EXPORT_SYMBOL(xdr_encode_netobj);
+       c55e7ad0 00000086 c55e6000 c55e7a94 00000046 c55e6000 c55e7ad0 c0109c2d 
+       00000000 c03ddae0 00000001 fd0b6c12 0013bc9f c6502130 001770fe fd478e5c 
+       0013bc9f c55d546c c05d3960 00002710 c05d3960 c55e6000 c0106f25 c05d3960 
+Call Trace:
+[<c0106f25>] need_resched+0x27/0x32
 
+It also continues to be charged ticks, indicating that its being
+scheduled but is making no progress?  However, I can't find anything
+that this thread could be spinning on.  Also, I don't understand why
+there is no further context on the stack -- the thread does eventually
+finish and never leaves the kernel, so the stack shouldn't be
+corrupted...  How can it finish if it has nowhere to return?
+
+I realize that this is a long shot, but if anyone has any ideas, I'd
+appreciate hearing them.  Please let me know if I can provide any
+further information.
+
+Thanks,
+-Yuly

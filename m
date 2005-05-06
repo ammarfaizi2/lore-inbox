@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261270AbVEFV3l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbVEFVcd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261270AbVEFV3l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 17:29:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbVEFV3k
+	id S261271AbVEFVcd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 17:32:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbVEFVcb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 17:29:40 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:54533 "HELO
+	Fri, 6 May 2005 17:32:31 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:57093 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261271AbVEFV17 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 17:27:59 -0400
-Date: Fri, 6 May 2005 23:27:35 +0200
+	id S261271AbVEFV3x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 May 2005 17:29:53 -0400
+Date: Fri, 6 May 2005 23:29:35 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: pavel@suse.cz
-Cc: linux-pm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] kernel/power/swsusp.c: make a variable static
-Message-ID: <20050506212734.GQ3590@stusta.de>
+To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [-mm patch] init/calibrate.c: make a function static
+Message-ID: <20050506212933.GR3590@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,19 +22,28 @@ User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes a needlessly global variable static.
+This patch makes a needlessly global function static.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.12-rc3-mm2-full/kernel/power/swsusp.c.old	2005-05-03 07:48:39.000000000 +0200
-+++ linux-2.6.12-rc3-mm2-full/kernel/power/swsusp.c	2005-05-03 07:48:49.000000000 +0200
-@@ -81,7 +81,7 @@
- extern char resume_file[];
+--- linux-2.6.12-rc3-mm2-full/init/calibrate.c.old	2005-05-03 07:30:39.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/init/calibrate.c	2005-05-03 07:31:15.000000000 +0200
+@@ -29,7 +29,7 @@
+ #define DELAY_CALIBRATION_TICKS			((HZ < 100) ? 1 : (HZ/100))
+ #define MAX_DIRECT_CALIBRATION_RETRIES		5
  
- /* Local variables that should not be affected by save */
--unsigned int nr_copy_pages __nosavedata = 0;
-+static unsigned int nr_copy_pages __nosavedata = 0;
+-unsigned long __devinit calibrate_delay_direct(void)
++static unsigned long __devinit calibrate_delay_direct(void)
+ {
+ 	unsigned long pre_start, start, post_start;
+ 	unsigned long pre_end, end, post_end;
+@@ -102,7 +102,7 @@
+ 	return 0;
+ }
+ #else
+-unsigned long __devinit calibrate_delay_direct(void) {return 0;}
++static unsigned long __devinit calibrate_delay_direct(void) {return 0;}
+ #endif
  
- /* Suspend pagedir is allocated before final copy, therefore it
-    must be freed after resume
+ /*
 

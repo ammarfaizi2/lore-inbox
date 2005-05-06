@@ -1,43 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbVEFQn7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbVEFVZH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261237AbVEFQn7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 12:43:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVEFQn7
+	id S261260AbVEFVZH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 17:25:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbVEFVZG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 12:43:59 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:54421 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261157AbVEFQnz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 12:43:55 -0400
-In-Reply-To: <20050506080437.GE4604@pclin040.win.tue.nl>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Joe <joecool1029@gmail.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, "Randy.Dunlap" <rddunlap@osdl.org>
-MIME-Version: 1.0
-Subject: Re: Empty partition nodes not created (was device node issues with recent
- mm's and udev)
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OF36D48B29.45D85BB9-ON88256FF9.005B311E-88256FF9.005BEEB7@us.ibm.com>
-From: Bryan Henderson <hbryan@us.ibm.com>
-Date: Fri, 6 May 2005 09:43:37 -0700
-X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Build V70_04122005|April 12, 2005) at
- 05/06/2005 12:43:54,
-	Serialize complete at 05/06/2005 12:43:54
-Content-Type: text/plain; charset="US-ASCII"
+	Fri, 6 May 2005 17:25:06 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21987 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261260AbVEFVYk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 May 2005 17:24:40 -0400
+Date: Fri, 6 May 2005 13:50:33 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Dimitris Zilaskos <dzila@tassadar.physics.auth.gr>,
+       openafs-info@openafs.org, linux-kernel@vger.kernel.org
+Subject: Re: Openafs 1.3.78 and kernel 2.4.29 oopses , same for 2.4.30 and openafs 1.3.82
+Message-ID: <20050506165033.GA2105@logos.cnet>
+References: <Pine.LNX.4.62.0505060209040.31479@tassadar.physics.auth.gr> <20050506052803.GE777@alpha.home.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050506052803.GE777@alpha.home.local>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->There is a misunderstanding in terminology here.
->"DOS-type partition table" is for most Linux users the only type
->they have ever seen. The msdos in this context does not refer
->to a particular filesystem, like the fat or msdos filesystem.
+On Fri, May 06, 2005 at 07:28:03AM +0200, Willy Tarreau wrote:
+> Hi,
+> 
+> On Fri, May 06, 2005 at 02:55:40AM +0300, Dimitris Zilaskos wrote:
+> > 
+> > 	Hello ,
+> > 
+> > [1.] One line summary of the problem:
+> > 
+> > Oopses on an openafs client system using openafs 1.3.78 and kernel 2.4.29.
+> > Oopses also occur afer moving to kernel 2.4.30 and openafs 1.3.82
+> 
+> The problem you encounter on 2.4.30 is not the same as on 2.4.29. The problem
+> in 2.4.29 is related to link_path_walk, which has been fixed in 2.4.30.
+> 
+> You might want to try 1.3.78 (or other) with 2.4.29-hf7 to check if your
+> 2.4.30 problem was brought by kernel 2.4.30 or openafs 1.3.82, as the
+> link_path_walk bug is also fixed in hf7. The patch is available on :
 
-As long as we're talking terminology: fat and msdos aren't particular 
-filesystems.  They're particular filesystem types.  The contents of a 
-particular DOS-fomatted floppy disk would be an example of a particular 
-filesystem.
 
---
-Bryan Henderson                          IBM Almaden Research Center
-San Jose CA                              Filesystems
+Willy,
+
+The link_path_walk fix in v2.4.30 is related to a reference counting
+bug triggered by "umount"...
+
+As Christoph noted OpenAFS seems to be doing nasty things...  it seems 
+to play with dentries inode i_state directly? If that is the case, 
+maybe it should define d_iput? 
+
+static inline void dentry_iput(struct dentry * dentry)
+{
+        struct inode *inode = dentry->d_inode;
+        if (inode) {
+                dentry->d_inode = NULL;
+                list_del_init(&dentry->d_alias);
+                spin_unlock(&dcache_lock);
+                if (dentry->d_op && dentry->d_op->d_iput)
+                        dentry->d_op->d_iput(dentry, inode);
+
+
+
+May  6 04:55:29 system kernel: kernel BUG at inode.c:1204!

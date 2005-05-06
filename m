@@ -1,73 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbVEFI5z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbVEFJGJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261191AbVEFI5z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 04:57:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbVEFI5y
+	id S261192AbVEFJGJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 05:06:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbVEFJGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 04:57:54 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:24535 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261191AbVEFI5v (ORCPT
+	Fri, 6 May 2005 05:06:09 -0400
+Received: from fire.osdl.org ([65.172.181.4]:53478 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261192AbVEFJGA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 04:57:51 -0400
-Message-ID: <427B333F.5A0BB431@tv-sign.ru>
-Date: Fri, 06 May 2005 13:05:03 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: Daniel Walker <dwalker@mvista.com>,
-       Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] Priority Lists for the RT mutex
-Content-Type: text/plain; charset=us-ascii
+	Fri, 6 May 2005 05:06:00 -0400
+Date: Fri, 6 May 2005 02:05:18 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andries Brouwer <Andries.Brouwer@cwi.nl>
+Cc: chrisw@osdl.org, aebr@win.tue.nl, rddunlap@osdl.org, greg@kroah.com,
+       joecool1029@gmail.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Empty partition nodes not created (was device node issues with
+ recent mm's and udev)
+Message-Id: <20050506020518.0b0afdc3.akpm@osdl.org>
+In-Reply-To: <20050506084259.GB25418@apps.cwi.nl>
+References: <d4757e6005050219514ece0c0a@mail.gmail.com>
+	<20050503031421.GA528@kroah.com>
+	<20050502202620.04467bbd.rddunlap@osdl.org>
+	<20050506080056.GD4604@pclin040.win.tue.nl>
+	<20050506081009.GX23013@shell0.pdx.osdl.net>
+	<20050506084259.GB25418@apps.cwi.nl>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Walker wrote:
+Andries Brouwer <Andries.Brouwer@cwi.nl> wrote:
 >
-> Description:
-> 	This patch adds the priority list data structure from Inaky Perez-Gonzalez 
-> to the Preempt Real-Time mutex.
->
-> ...
->
-> +#define plist_for_each(pos1, pos2, head)	\
-> +	list_for_each_entry(pos1, &((head)->dp_node), dp_node)	\
-> +		list_for_each_entry(pos2, &((pos1)->sp_node), sp_node)
+> On Fri, May 06, 2005 at 01:10:09AM -0700, Chris Wright wrote:
+> > * Andries Brouwer (aebr@win.tue.nl) wrote:
+> > > No, there is no problem but an intentional change in behaviour in -mm
+> > > and now also in 2.6.11.8.
+> > 
+> > I think this should be backed out of -stable.
+> 
+> I was surprised to find it in, after I had written
+> 
+> ============
+> Date: Sat, 30 Apr 2005 21:58:07 +0200
+> 
+> For the time being, although I do not object to the patch,
+> obviously, since it is my own, I cannot see any reason to
+> add it to the "fixed" release.
+> ============
+> 
+> but maybe including it was done by mistake?
+> It wasn't mentioned, I think, in the changelog.
+> 
+> There was a report that it fixed an oops,
+> but the report is unconfirmed and ununderstood.
+> 
+> Should it be backed out of 2.6.11.8? Possibly - but if it will be
+> part of 2.6.12 or 2.6.13 then I would be inclined to leave it.
+> 
+> Andrew asks whether it should be removed from -mm.
 
-I can't understand how this can work.
+It was merged into Linus's tree on March 8th (via bk, thank gawd.  How do
+you find out that sort of info using git?  Generating a full log is
+cheating).
 
-The fist list_for_each_entry(->dp_node) will iterate over nodes
-with different priorities, ok. But the second one will skip the
-first node (which starts new priority group), because list_for_each(head)
-does not count head.
+> Will first read all my mail and then reply to that letter.
+> Maybe you should coordinate with Andrew and take the same decision.
 
-To be sure, I wrote simple test:
-
-#include <stdio.h>
-#include <limits.h>
-#include "list.h"
-#include "plist.h"
-
-int main(void)
-{
-	struct plist head, node, *pos1, *pos2;
-
-	plist_init(&head, 0);
-	plist_init(&node, 0);
-
-	plist_add(&node, &head);
-
-	plist_for_each(pos1, pos2, &head)
-		printf("Strange ???\n");
-
-	return 0;
-}
-
-Prints nothing.
-
-My apologies if I'm misunderstanding something.
-
-Oleg.
+I'm proposing that we revert that change from Linus's tree.

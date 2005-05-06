@@ -1,55 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVEFXca@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261356AbVEFXlh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbVEFXca (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 19:32:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVEFXbl
+	id S261356AbVEFXlh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 19:41:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbVEFXlb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 19:31:41 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:15073 "EHLO
-	pd3mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S261333AbVEFX3I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 19:29:08 -0400
-Date: Fri, 06 May 2005 17:28:30 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: No rule to make target 'modules'
-In-reply-to: <41jbh-xV-5@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <427BFD9E.9080305@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <41jbh-xV-5@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+	Fri, 6 May 2005 19:41:31 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:44997 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261392AbVEFXkV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 May 2005 19:40:21 -0400
+To: Andrew Morton <akpm@osdl.org>
+cc: sharada@in.ibm.com, paulus@samba.org, torvalds@osdl.org, anton@samba.org,
+       linux-kernel@vger.kernel.org, miltonm@bga.com, fastboot@lists.osdl.org
+Reply-To: Gerrit Huizenga <gh@us.ibm.com>
+From: Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: [PATCH] ppc64: kexec support for ppc64 
+In-reply-to: Your message of Fri, 06 May 2005 16:05:46 PDT.
+             <20050506160546.388aeed4.akpm@osdl.org> 
+Date: Fri, 06 May 2005 16:40:08 -0700
+Message-Id: <E1DUCQS-0005Sq-00@w-gerrit.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kevin Crofts wrote:
-> Hi,
-> I'm a complete Newbie to Linux and I am trying to compile a driver and
-> application on Red Hat 9.0. I have installed Red Hat 9.0 without GUI
-> and only development tools. I have installed the source code from Disk2
-> - Kernel-source-2.4.20-8.I386.rpm.
-> I then ran
-> make mrproper
-> I removed 'custom' from the Makefile in /usr/drc/linux-2.4.20-8/Makefile
-> EXTRAVERSION = -8custom
 
-Don't do this, you'll trash your existing kernel.
+On Fri, 06 May 2005 16:05:46 PDT, Andrew Morton wrote:
+> R Sharada <sharada@in.ibm.com> wrote:
+> >
+> > This patch implements the kexec support for ppc64
+> 
+> Well that's pretty neat.   How well does this work?
+> 
+> I assume you'll be working on kdump-via-kexec for ppc64?
+> 
+> This kdump/kexec stuff has been hanging around for far too long, IMO.  I'd
+> like to think about what we can do to get things moving along a bit more.
+ 
+ Agreed!
 
-> I then ran
-> make oldconfig
-> make dep
-> make modules && make modules_install
-> I can see files in /lib/modules/2.3.20-8/build and also I can see Rules.make
-> in this folder.
-> When I run Make in the application folder I get the following error:
-> No rule to make target 'modules'.
+> I have two issues with it:
+> 
+> a) Vague feelings that the low-level ia32 changes may cause APIC/etc
+>    breakage with some PCs.
+> 
+> b) Much more significantly: I still do not believe that it has been
+>    demonstrated that the whole kdump-via-kexec scheme will have a
+>    sufficiently high success rate for this to become Linux's way of doing
+>    crashdumps.
+> 
+>    And it would not be good if in six months time we decide that the
+>    practical problems in getting it all working sufficiently well are
+>    insurmountable and we have to revert it all and start working on
+>    something else.
+> 
+>    Recently I've seem a couple of "kdump worked for me" reports, which are
+>    greatly appreciated, but I don't think they're statistically
+>    significant.
+> 
+>    So am I right to have this concern?  If so, how can we settle this? 
+>    (ie: who's going to do it?  ;))
+> 
+> Perhaps we could declare that kexec is sufficiently useful and mature in
+> its own right and just merge up those bits while we work on kdump.  This
+> also gives us a bit of pipelining: continue to test and stabilise kexec
+> while kdump remains in development.
+> 
+> Opinions are sought...
 
-What application folder?
+ I'm in favor of getting as much of kexec moving towards wider integration
+ and testing as possible.  We won't catch your issue on ia32 without
+ wider testing on ia32 boxen - and I think it is stable enough that
+ that type of testing should drive it towards full stability sooner.
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+ On your second issue, kdump-via-kexec is *way* better than all the
+ alternatives.  We have a lot of distro/customer experience with
+ the alternatives and, well, they all suck, badly.  Kexec has some
+ tough issues with some of the low level interactions and ensuring
+ that control can get transferred to the new kernel but those are
+ relatively minor compared to the "copy all my innards out out from a 
+ broken kernel" approach.
 
+ You recently mentioned the pain of a single bug in an -mm tree taking
+ three painful days to track down.  With the current dump solutions, we
+ often spend *weeks* trying to get to a root cause where the customer
+ is begging that we get their business running again.  As a result, some
+ otherwise relatively simple-to-fix, hard-to-find problems aren't getting
+ diagnosed for weeks or even months, if ever.  Getting a crash dump
+ allows us to pore over these problems without keeping a real user's
+ machine out of production, and without hoping that the problem might
+ happen again in the future.
+
+ Also, the major distros have widly varying solutions in this space;
+ writing supporting tools and patching bugs is being done multiple times,
+ being done only for the distros, and not improving mainline at all.
+ Convergence here would help us focus more efforts on mainline instead
+ of replicating efforts on distros that don't benefit mainline and
+ are constantly being re-implemented (e.g. a big waste of resources
+ that could be better applied to making everyone's lives better).
+
+ Kexec offers as much assurance as is possible of being able to get a
+ crash dump quickly.  The only thing better would be a firmware implemented
+ memory dumper, which just isn't an option on most common platforms.
+
+ If it takes a little list or test matrix of platforms tested over the
+ short term to help verify what machines work, we might be able to set
+ something like that up as well.
+
+ gerrit

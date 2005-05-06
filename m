@@ -1,62 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbVEFJtB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVEFJrt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261198AbVEFJtB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 05:49:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261194AbVEFJtB
+	id S261193AbVEFJrt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 05:47:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261194AbVEFJrt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 05:49:01 -0400
-Received: from ausmtp01.au.ibm.com ([202.81.18.186]:49372 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S261198AbVEFJsk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 05:48:40 -0400
-From: Michael Ellerman <michael@ellerman.id.au>
-Reply-To: michael@ellerman.id.au
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: [2.6 patch] drivers/block/rd.c: don't make a variable static
-Date: Fri, 6 May 2005 19:48:31 +1000
-User-Agent: KMail/1.8
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>
-References: <20050502014719.GE3592@stusta.de>
-In-Reply-To: <20050502014719.GE3592@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 6 May 2005 05:47:49 -0400
+Received: from ns.itc.it ([217.77.80.3]:36575 "EHLO mail.itc.it")
+	by vger.kernel.org with ESMTP id S261193AbVEFJrp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 May 2005 05:47:45 -0400
+Date: Fri, 6 May 2005 11:50:23 +0200
+From: Fabio Brugnara <brugnara@itc.it>
+To: linux-kernel@vger.kernel.org
+Subject: problem with mmap over nfs
+Message-ID: <20050506095023.GS9742@maestoso.itc.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200505061948.31332.michael@ellerman.id.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 May 2005 11:47, Adrian Bunk wrote:
-> This patch makes a needlessly global variable static.
->
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
->
-> --- linux-2.6.12-rc2-mm2-full/drivers/block/rd.c.old	2005-04-10
-> 02:00:08.000000000 +0200 +++
-> linux-2.6.12-rc2-mm2-full/drivers/block/rd.c	2005-04-10 02:01:00.000000000
-> +0200 @@ -74,7 +74,7 @@
->   * architecture-specific setup routine (from the stored boot sector
->   * information).
->   */
-> -int rd_size = CONFIG_BLK_DEV_RAM_SIZE;		/* Size of the RAM disks */
-> +static int rd_size = CONFIG_BLK_DEV_RAM_SIZE;	/* Size of the RAM disks */
->  /*
->   * It would be very desirable to have a soft-blocksize (that in the case
->   * of the ramdisk driver is also the hardblocksize ;) of PAGE_SIZE because
+Hi all,
 
+	I hope I will be able to find some advice for solving a problem I
+observed from going to linux 2.4 to linux 2.6. I'm not a kernel expert, and
+was not able to get help from those I know. I tried to search the archives
+for something related, but was also unsuccessful. So I try here hoping that
+someone will have the patience to read the message and maybe give some
+help.
 
-This patch breaks PPC iSeries in arch/ppc64/kernel/iSeries_setup.c
+	If anyone answers, please post also the message in CC directly to
+me, as I'm not subscribed to the list (it doesn't make much sense at my
+level of expertise).
 
+	The problem is related to the use of memory mapped files over a nfs
+mounted filesystem. In a rather complex system (speech recognition) that we
+developed and use, we need to share large read-only data structures between
+different processes, also on several machines. Until a few months ago, we
+observed that it was perfectly adequate to just mmap() a file residing on a
+particular disk, that machines other as the owner mounted via nfs. This was
+very convenient, as we had only a single physical copy of the data
+structure, and it did not introduce any significant performance penalty. We
+have used this method for years.
+	Now, after the machines have been upgraded to kernel 2.6.10 from
+kernel 2.4.20, something disappointing happens. Everything still works
+correctly, but somehow it introduces a massive slowdown of the machines.
+While the processes are running, the machines that map the shared file via
+nfs (not the one that owns it) report (with "top") a very high usage of
+system time (e.g. 50% or more), and also become very unresponsive at the
+shell prompt.
+	Another strange thing that can be seen is that in this situation
+the "top" process itself, that normally reports something like 0.3% CPU
+time), starts using percentages of 30% CPU time or more.
+	Beside observing the behavior with "top", we also measure the time
+processes take in the program itself, using the "times()" primitive at
+the end of the processing. A typical short run of the system on the old
+kernel reported numbers such as:
 
---- veth-fixes/drivers/block/rd.c	2005-05-06 19:26:53.000000000 +1000
-+++ 2.6.12-rc3/drivers/block/rd.c	2005-04-29 15:14:23.000000000 +1000
-@@ -74,7 +74,7 @@
-  * architecture-specific setup routine (from the stored boot sector
-  * information).
-  */
--static int rd_size = CONFIG_BLK_DEV_RAM_SIZE;	/* Size of the RAM disks */
-+int rd_size = CONFIG_BLK_DEV_RAM_SIZE;		/* Size of the RAM disks */
- /*
-  * It would be very desirable to have a soft-blocksize (that in the case
-  * of the ramdisk driver is also the hardblocksize ;) of PAGE_SIZE because
+Times: user: 1125.50, system: 6.28
+
+that is, with a proportion always much lower that 1% between system time
+and user time. Now, we see things like:
+
+Times: user: 660.29, system: 326.64
+
+i.e., a proportion of 50% between the two (Absolute values cannot
+be compared, as the hardware is different).
+Typically we run two of these processes on each machine, which
+are 2-CPU SMP Xeon systems with 2 or 4 Gb of memory.
+
+	Notice that, if we take care to copy the shared file on local
+disks on each machine, and perform the mmap() on the local copy for each
+of them, the problem disappears, i.e. the machine do not become overloaded,
+and all timings are perfectly reasonable as before. So it's not a problem
+of mmap() in itself, but something that comes from the combination of
+mmap() and nfs, and maybe sychronization in the access of shared pages
+on an SMP system.
+	I'm aware that I should present some simple program that triggers
+the misbehavior, but unfortunately I was not able to reproduce the problem
+in a simple context. The system in question is rather complex,
+computationally expensive and makes an intensive use both of these static
+shared structures, and of large amounts of dynamically allocated memory
+(process size is typically of several hundreds Mb, and CPU usage as high
+as possible).
+
+If all this story flashes some lamp in the knowledgeable heads that
+populate this list, please let me know
+
+best regards,
+thank you for your patience
+Fabio

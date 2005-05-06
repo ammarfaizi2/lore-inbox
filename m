@@ -1,63 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbVEFOSu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbVEFOT1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbVEFOSu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 10:18:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbVEFOQ3
+	id S261240AbVEFOT1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 10:19:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbVEFOTX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 10:16:29 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:40613 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S261229AbVEFOPc (ORCPT
+	Fri, 6 May 2005 10:19:23 -0400
+Received: from soundwarez.org ([217.160.171.123]:55500 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S261229AbVEFOSY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 10:15:32 -0400
-Message-ID: <427B7BEA.5050808@drzeus.cx>
-Date: Fri, 06 May 2005 16:15:06 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-CC: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linus Torvalds <torvalds@osdl.org>, Ian Molton <spyro@f2s.com>,
-       Richard Purdie <rpurdie@rpsys.net>
-Subject: Re: [PATCH][MMC] Secure Digital (SD) support
-References: <422701A0.8030408@drzeus.cx> <20050305113730.B26541@flint.arm.linux.org.uk> <4229A4B4.1000208@drzeus.cx> <20050305124420.A342@flint.arm.linux.org.uk> <4229B847.5050301@drzeus.cx>
-In-Reply-To: <4229B847.5050301@drzeus.cx>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 6 May 2005 10:18:24 -0400
+Subject: Re: Empty partition nodes not created (was device node issues with
+	recent mm's and udev)
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>, chrisw@osdl.org, aebr@win.tue.nl,
+       rddunlap@osdl.org, greg@kroah.com, joecool1029@gmail.com,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20050506020518.0b0afdc3.akpm@osdl.org>
+References: <d4757e6005050219514ece0c0a@mail.gmail.com>
+	 <20050503031421.GA528@kroah.com>
+	 <20050502202620.04467bbd.rddunlap@osdl.org>
+	 <20050506080056.GD4604@pclin040.win.tue.nl>
+	 <20050506081009.GX23013@shell0.pdx.osdl.net>
+	 <20050506084259.GB25418@apps.cwi.nl>
+	 <20050506020518.0b0afdc3.akpm@osdl.org>
+Content-Type: text/plain
+Date: Fri, 06 May 2005 16:18:22 +0200
+Message-Id: <1115389102.32065.11.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-1) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Ossman wrote:
-> Russell King wrote:
+On Fri, 2005-05-06 at 02:05 -0700, Andrew Morton wrote:
+> Andries Brouwer <Andries.Brouwer@cwi.nl> wrote:
+> >
+> > On Fri, May 06, 2005 at 01:10:09AM -0700, Chris Wright wrote:
+> > > * Andries Brouwer (aebr@win.tue.nl) wrote:
+> > > > No, there is no problem but an intentional change in behaviour in -mm
+> > > > and now also in 2.6.11.8.
+> > > 
+> > > I think this should be backed out of -stable.
+> > 
+> > I was surprised to find it in, after I had written
+> > 
+> > ============
+> > Date: Sat, 30 Apr 2005 21:58:07 +0200
+> > 
+> > For the time being, although I do not object to the patch,
+> > obviously, since it is my own, I cannot see any reason to
+> > add it to the "fixed" release.
+> > ============
+> > 
+> > but maybe including it was done by mistake?
+> > It wasn't mentioned, I think, in the changelog.
+> > 
+> > There was a report that it fixed an oops,
+> > but the report is unconfirmed and ununderstood.
+> > 
+> > Should it be backed out of 2.6.11.8? Possibly - but if it will be
+> > part of 2.6.12 or 2.6.13 then I would be inclined to leave it.
+> > 
+> > Andrew asks whether it should be removed from -mm.
 > 
->> We'll also need to run this by Linus first, explaining why you believe
->> it's now ok to merge this.  (Added Linus...)
->>
-> 
-> It was also pointed out in the previous thread by myself, Alan Cox and
-> Ian Molton that SD specs have been publically available from different
-> companies for quite some time. As such it is difficult for anyone to
-> claim that these are secret and can be regulated by a NDA. The only part
-> that hasn't been found in the wild is the spec for the 'secure' parts of
-> the cards. But that also means that it isn't included in this patch so
-> it shouldn't pose a problem.
-> 
+> It was merged into Linus's tree on March 8th (via bk, thank gawd.  How do
+> you find out that sort of info using git?  Generating a full log is
+> cheating).
 
-This issue doesn't seem to reach any kind of resolution so I figured I'd
-take a poke at the people responsible. :)
+You can get the commit-history for a file out of the web interface.
+Here's another example, cause this change is not in the repository: 
+  http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=history;f=lib/kobject.c
 
-Just to back up the claim that the specs are in the open here are some
-links:
+Thanks,
+Kay
 
-http://www.google.com/search?hl=en&q=%22Secure+Digital+Card%22+%22Product+Manual%22+site%3Asandisk.com&btnG=Google+Search
-
-Which gives you several PDF:s with enough information to implement a SD
-host. The one I've been using is:
-
-http://www.sandisk.com/download/Product%20Manuals/Product%20ManualSDCardv1.7.pdf
-
-
-Rgds
-Pierre

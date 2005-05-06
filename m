@@ -1,60 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261230AbVEFQg6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbVEFQfP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261230AbVEFQg6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 12:36:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVEFQfY
+	id S261186AbVEFQfP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 12:35:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVEFQfP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 12:35:24 -0400
-Received: from spc2-brig1-3-0-cust232.asfd.broadband.ntl.com ([82.1.142.232]:61405
-	"EHLO ppgpenguin.kenmoffat.uklinux.net") by vger.kernel.org with ESMTP
-	id S261218AbVEFQeo convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 12:34:44 -0400
-Date: Fri, 6 May 2005 17:34:41 +0100 (BST)
-From: Ken Moffat <ken@kenmoffat.uklinux.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11.7 apparently locked with xscreensaver, 2.6.11.7
-In-Reply-To: <Pine.LNX.4.58.0505061625250.23675@ppg_penguin.kenmoffat.uklinux.net>
-Message-ID: <Pine.LNX.4.58.0505061731130.23961@ppg_penguin.kenmoffat.uklinux.net>
-References: <Pine.LNX.4.58.0505061625250.23675@ppg_penguin.kenmoffat.uklinux.net>
+	Fri, 6 May 2005 12:35:15 -0400
+Received: from s0003.shadowconnect.net ([213.239.201.226]:22535 "EHLO
+	mail.shadowconnect.com") by vger.kernel.org with ESMTP
+	id S261186AbVEFQem (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 May 2005 12:34:42 -0400
+Message-ID: <427B9DDB.7030307@shadowconnect.com>
+Date: Fri, 06 May 2005 18:39:55 +0200
+From: Markus Lidel <Markus.Lidel@shadowconnect.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: best practise for ioremap / ioremap_nocache / MTRR
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 May 2005, Ken Moffat wrote:
+Hello,
 
->
->  Any suggestions on debugging this ?
->
+first of all some background information to the hardware itself.
 
-Forgot to post the ver_linux.
+In my special case (the I2O driver see also drivers/message/i2o/* for 
+further information) the hardware uses a memory mapped I/O region of 
+around 128kb. This memory region contains 3 control ports which IMHO 
+don't make send to be cached.
 
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
+The remaining memory is divided into 512 byte sized message frames. The 
+driver have to request one of the 512 byte message frames by reading on 
+one of the control ports, and gets back an address of the message frame 
+which he could use to write data into it. After finishing the address of 
+the message frame must be written back to the control register.
 
-Linux bluesbreaker 2.6.11.7-k832-1 #1 Thu Apr 21 15:34:05 BST 2005 i686 athlon-4 i386 GNU/Linux
+At the moment the driver writes each 32-bit word directly into the I/O 
+memory region.
 
-Gnu C                  3.4.3
-Gnu make               3.80
-binutils               2.15.94.0.2.2
-util-linux             2.12q
-mount                  2.12q
-module-init-tools      3.1
-e2fsprogs              1.37
-reiserfsprogs          line
-reiser4progs           line
-nfs-utils              1.0.6
-Linux C Library        2.3.4
-Dynamic linker (ldd)   2.3.4
-Linux C++ Library      6.0.3
-Procps                 3.2.5
-Kbd                    1.12
-Sh-utils               5.2.1
-udev                   056
-Modules Loaded         via_velocity crc_ccitt
 
--- 
- das eine Mal als Tragödie, das andere Mal als Farce
+My questions now are:
 
+1) does the ioremap() have any advantage over ioremap_nocache() in this 
+case, because the memory is only written once, and not read by the driver 
+again?
+
+2) does it make sense to prepare the message in kernel using a mempool, 
+and then copy over to the I/O memory at once using memcpy_toio instead of 
+writing each 32-bit word directly to the I/O memory?
+
+3) at the moment MTRR is used for the messages (but not for the control 
+registers), does this have an advantage because each 32-bit word is 
+written separately? Or is it better to not use MTRR, and use the approach 
+described in 2)?
+
+Any advice would be appreciated! Thank you very much in advance!
+
+
+
+Best regards,
+
+
+Markus Lidel
+------------------------------------------
+Markus Lidel (Senior IT Consultant)
+
+Shadow Connect GmbH
+Carl-Reisch-Weg 12
+D-86381 Krumbach
+Germany
+
+Phone:  +49 82 82/99 51-0
+Fax:    +49 82 82/99 51-11
+
+E-Mail: Markus.Lidel@shadowconnect.com
+URL:    http://www.shadowconnect.com

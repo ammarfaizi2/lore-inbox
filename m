@@ -1,92 +1,254 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbVEFX1w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVEFXbW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261365AbVEFX1w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 19:27:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbVEFX10
+	id S261334AbVEFXbW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 19:31:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVEFXaG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 19:27:26 -0400
-Received: from wproxy.gmail.com ([64.233.184.199]:15519 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261331AbVEFXPu convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 19:15:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JzIvcLAluM7f5qzbs2vKNJZbOhZWurrTmxm7e8zt4z/Z6OYk7zNQfhfN+xEzlrMVyzBKnSR5En9rh390QQkQE28PT9qyyjO3LyXafDA+awgUopgBELEXttAdTw2gQ4nYsHtOd/uNlebkO2eSOO9157hHnyjoUbziOklMmjDuWsg=
-Message-ID: <92df317505050616152d07f7f@mail.gmail.com>
-Date: Fri, 6 May 2005 19:15:47 -0400
-From: Yuly Finkelberg <liquidicecube@gmail.com>
-Reply-To: Yuly Finkelberg <liquidicecube@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Problem while stopping many threads within a module
-In-Reply-To: <d5e597$jok$1@news.cistron.nl>
+	Fri, 6 May 2005 19:30:06 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:1543 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261334AbVEFXSG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 May 2005 19:18:06 -0400
+Date: Sat, 7 May 2005 01:18:03 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: netdev@oss.sgi.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [RFC: 2.6 patch] net/ipv4/: possible cleanups
+Message-ID: <20050506231803.GB3590@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <4279084C.9030908@free.fr> <20050504191604.GA29730@nevyn.them.org>
-	 <Pine.LNX.4.61.0505042031120.22323@chaos.analogic.com>
-	 <Pine.LNX.4.61.0505050814340.24130@chaos.analogic.com>
-	 <d5e597$jok$1@news.cistron.nl>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello -
+This patch contains the following possible cleanups:
+- make needlessly global code static
+- #if 0 the following unused global function:
+  - xfrm4_state.c: xfrm4_state_fini
+- remove the following unneeded EXPORT_SYMBOL's:
+  - ip_output.c: ip_finish_output
+  - ip_output.c: sysctl_ip_default_ttl
+  - fib_frontend.c: ip_dev_find
+  - inetpeer.c: inet_peer_idlock
+  - ip_options.c: ip_options_compile
+  - ip_options.c: ip_options_undo
+  - tcp_ipv4.c: sysctl_max_syn_backlog
 
-I'm having a strange thread scheduling issue in a project that I'm
-working on.  We have a module, with an interface that can be called by
-many (currently 50) threads simulatenously.  Threads that have entered
-the kernel, sleep on a wait queue until everyone else has entered.  At
-this point, a "master" process wakes up the first thread, which does
-some work, then wakes up the second, etc.  After waking up its
-successor, each thread changes its state to STOPPED and sends itself a
-SIGSTOP.  Note that the threads are created with
-CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND but NOT CLONE_THREAD so
-there is no group stop.
+Please review which of these changes are correct and which might 
+conflict with pending patches.
 
-Basically, the structure is the following:
-kernel_entry_point() {
-        wait until its your turn
-        ...... do some work .... (serialized)
-        wake up the next thread
-        send SIGSTOP to yourself
-}
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-At the same time, a monitoring process polls until all the threads
-have stopped themselves:
-monitor() {
-repeat:
-        for each thread
-               if (thread->state < TASK_STOPPED)
-                       yield()
-                       goto repeat
-}
+---
 
-Now, here's the problem.  On 2.6.9 UP (Preempt), it is often the case
-that one thread gets "stuck" in between the wake up of the next thread
-and stopping itself -- this causes the monitor to poll for extended
-periods of time, since the thread remains RUNNING.  Strangely enough,
-it generally gets unstuck by itself, sometimes within 10 seconds,
-sometimes after as long as 10 minutes.  When peeking at the kernel
-stack of the offending process via the monitor, I only see that it is
-in schedule and the stack looks like this:
+ include/net/ip.h         |    2 --
+ include/net/route.h      |    4 ----
+ include/net/tcp.h        |    2 --
+ include/net/tcp_ecn.h    |   13 -------------
+ include/net/xfrm.h       |    1 -
+ net/ipv4/fib_frontend.c  |    1 -
+ net/ipv4/inetpeer.c      |    2 --
+ net/ipv4/ip_options.c    |    3 ---
+ net/ipv4/ip_output.c     |    7 +------
+ net/ipv4/multipath_drr.c |    2 +-
+ net/ipv4/route.c         |    4 +++-
+ net/ipv4/tcp_input.c     |   15 ++++++++++++++-
+ net/ipv4/tcp_ipv4.c      |    1 -
+ net/ipv4/xfrm4_state.c   |    2 ++
+ 14 files changed, 21 insertions(+), 38 deletions(-)
 
-       c55e7ad0 00000086 c55e6000 c55e7a94 00000046 c55e6000 c55e7ad0 c0109c2d 
-       00000000 c03ddae0 00000001 fd0b6c12 0013bc9f c6502130 001770fe fd478e5c 
-       0013bc9f c55d546c c05d3960 00002710 c05d3960 c55e6000 c0106f25 c05d3960 
-Call Trace:
-[<c0106f25>] need_resched+0x27/0x32
+--- linux-2.6.12-rc3-mm2-full/include/net/ip.h.old	2005-05-05 02:35:00.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/include/net/ip.h	2005-05-05 02:35:07.000000000 +0200
+@@ -140,8 +140,6 @@
+ void ip_send_reply(struct sock *sk, struct sk_buff *skb, struct ip_reply_arg *arg,
+ 		   unsigned int len); 
+ 
+-extern int ip_finish_output(struct sk_buff *skb);
+-
+ struct ipv4_config
+ {
+ 	int	log_martians;
+--- linux-2.6.12-rc3-mm2-full/net/ipv4/multipath_drr.c.old	2005-05-05 02:37:58.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/net/ipv4/multipath_drr.c	2005-05-05 02:38:06.000000000 +0200
+@@ -107,7 +107,7 @@
+ 	return NOTIFY_DONE;
+ }
+ 
+-struct notifier_block drr_dev_notifier = {
++static struct notifier_block drr_dev_notifier = {
+ 	.notifier_call	= drr_dev_event,
+ };
+ 
+--- linux-2.6.12-rc3-mm3-full/net/ipv4/ip_output.c.old	2005-05-05 21:43:22.000000000 +0200
++++ linux-2.6.12-rc3-mm3-full/net/ipv4/ip_output.c	2005-05-05 21:44:36.000000000 +0200
+@@ -216,7 +216,7 @@
+ 	return -EINVAL;
+ }
+ 
+-int ip_finish_output(struct sk_buff *skb)
++static int ip_finish_output(struct sk_buff *skb)
+ {
+ 	struct net_device *dev = skb->dst->dev;
+ 
+@@ -1351,12 +1351,7 @@
+ #endif
+ }
+ 
+-EXPORT_SYMBOL(ip_finish_output);
+ EXPORT_SYMBOL(ip_fragment);
+ EXPORT_SYMBOL(ip_generic_getfrag);
+ EXPORT_SYMBOL(ip_queue_xmit);
+ EXPORT_SYMBOL(ip_send_check);
+-
+-#ifdef CONFIG_SYSCTL
+-EXPORT_SYMBOL(sysctl_ip_default_ttl);
+-#endif
+--- linux-2.6.12-rc3-mm3-full/include/net/route.h.old	2005-05-05 21:21:09.000000000 +0200
++++ linux-2.6.12-rc3-mm3-full/include/net/route.h	2005-05-05 21:22:19.000000000 +0200
+@@ -105,10 +105,6 @@
+         unsigned int out_hlist_search;
+ };
+ 
+-extern struct rt_cache_stat *rt_cache_stat;
+-#define RT_CACHE_STAT_INC(field)					  \
+-		(per_cpu_ptr(rt_cache_stat, _smp_processor_id())->field++)
+-
+ extern struct ip_rt_acct *ip_rt_acct;
+ 
+ struct in_device;
+--- linux-2.6.12-rc3-mm3-full/net/ipv4/route.c.old	2005-05-05 21:21:21.000000000 +0200
++++ linux-2.6.12-rc3-mm3-full/net/ipv4/route.c	2005-05-05 21:22:14.000000000 +0200
+@@ -209,7 +209,9 @@
+ static int			rt_hash_log;
+ static unsigned int		rt_hash_rnd;
+ 
+-struct rt_cache_stat *rt_cache_stat;
++static struct rt_cache_stat *rt_cache_stat;
++#define RT_CACHE_STAT_INC(field)					  \
++		(per_cpu_ptr(rt_cache_stat, _smp_processor_id())->field++)
+ 
+ static int rt_intern_hash(unsigned hash, struct rtable *rth,
+ 				struct rtable **res);
+--- linux-2.6.12-rc3-mm3-full/include/net/tcp.h.old	2005-05-05 21:23:42.000000000 +0200
++++ linux-2.6.12-rc3-mm3-full/include/net/tcp.h	2005-05-05 21:23:52.000000000 +0200
+@@ -825,8 +825,6 @@
+ 	}
+ }
+ 
+-extern void tcp_enter_quickack_mode(struct tcp_sock *tp);
+-
+ static __inline__ void tcp_delack_init(struct tcp_sock *tp)
+ {
+ 	memset(&tp->ack, 0, sizeof(tp->ack));
+--- linux-2.6.12-rc3-mm3-full/include/net/tcp_ecn.h.old	2005-05-05 21:25:48.000000000 +0200
++++ linux-2.6.12-rc3-mm3-full/include/net/tcp_ecn.h	2005-05-05 21:25:57.000000000 +0200
+@@ -78,19 +78,6 @@
+ 	tp->ecn_flags &= ~TCP_ECN_DEMAND_CWR;
+ }
+ 
+-static inline void TCP_ECN_check_ce(struct tcp_sock *tp, struct sk_buff *skb)
+-{
+-	if (tp->ecn_flags&TCP_ECN_OK) {
+-		if (INET_ECN_is_ce(TCP_SKB_CB(skb)->flags))
+-			tp->ecn_flags |= TCP_ECN_DEMAND_CWR;
+-		/* Funny extension: if ECT is not set on a segment,
+-		 * it is surely retransmit. It is not in ECN RFC,
+-		 * but Linux follows this rule. */
+-		else if (INET_ECN_is_not_ect((TCP_SKB_CB(skb)->flags)))
+-			tcp_enter_quickack_mode(tp);
+-	}
+-}
+-
+ static inline void TCP_ECN_rcv_synack(struct tcp_sock *tp, struct tcphdr *th)
+ {
+ 	if ((tp->ecn_flags&TCP_ECN_OK) && (!th->ece || th->cwr))
+--- linux-2.6.12-rc3-mm3-full/net/ipv4/tcp_input.c.old	2005-05-05 21:24:11.000000000 +0200
++++ linux-2.6.12-rc3-mm3-full/net/ipv4/tcp_input.c	2005-05-05 21:25:04.000000000 +0200
+@@ -183,13 +183,26 @@
+ 		tp->ack.quick = min(quickacks, TCP_MAX_QUICKACKS);
+ }
+ 
+-void tcp_enter_quickack_mode(struct tcp_sock *tp)
++static void tcp_enter_quickack_mode(struct tcp_sock *tp)
+ {
+ 	tcp_incr_quickack(tp);
+ 	tp->ack.pingpong = 0;
+ 	tp->ack.ato = TCP_ATO_MIN;
+ }
+ 
++static inline void TCP_ECN_check_ce(struct tcp_sock *tp, struct sk_buff *skb)
++{
++	if (tp->ecn_flags&TCP_ECN_OK) {
++		if (INET_ECN_is_ce(TCP_SKB_CB(skb)->flags))
++			tp->ecn_flags |= TCP_ECN_DEMAND_CWR;
++		/* Funny extension: if ECT is not set on a segment,
++		 * it is surely retransmit. It is not in ECN RFC,
++		 * but Linux follows this rule. */
++		else if (INET_ECN_is_not_ect((TCP_SKB_CB(skb)->flags)))
++			tcp_enter_quickack_mode(tp);
++	}
++}
++
+ /* Send ACKs quickly, if "quick" count is not exhausted
+  * and the session is not interactive.
+  */
+--- linux-2.6.12-rc3-mm3-full/include/net/xfrm.h.old	2005-05-05 21:26:56.000000000 +0200
++++ linux-2.6.12-rc3-mm3-full/include/net/xfrm.h	2005-05-05 21:27:01.000000000 +0200
+@@ -799,7 +799,6 @@
+ extern void xfrm6_fini(void);
+ extern void xfrm_state_init(void);
+ extern void xfrm4_state_init(void);
+-extern void xfrm4_state_fini(void);
+ extern void xfrm6_state_init(void);
+ extern void xfrm6_state_fini(void);
+ 
+--- linux-2.6.12-rc3-mm3-full/net/ipv4/xfrm4_state.c.old	2005-05-05 21:27:09.000000000 +0200
++++ linux-2.6.12-rc3-mm3-full/net/ipv4/xfrm4_state.c	2005-05-05 21:27:24.000000000 +0200
+@@ -119,8 +119,10 @@
+ 	xfrm_state_register_afinfo(&xfrm4_state_afinfo);
+ }
+ 
++#if 0
+ void __exit xfrm4_state_fini(void)
+ {
+ 	xfrm_state_unregister_afinfo(&xfrm4_state_afinfo);
+ }
++#endif  /*  0  */
+ 
+--- linux-2.6.12-rc3-mm3-full/net/ipv4/fib_frontend.c.old	2005-05-05 21:38:28.000000000 +0200
++++ linux-2.6.12-rc3-mm3-full/net/ipv4/fib_frontend.c	2005-05-05 21:38:40.000000000 +0200
+@@ -607,5 +607,4 @@
+ }
+ 
+ EXPORT_SYMBOL(inet_addr_type);
+-EXPORT_SYMBOL(ip_dev_find);
+ EXPORT_SYMBOL(ip_rt_ioctl);
+--- linux-2.6.12-rc3-mm3-full/net/ipv4/inetpeer.c.old	2005-05-05 21:41:06.000000000 +0200
++++ linux-2.6.12-rc3-mm3-full/net/ipv4/inetpeer.c	2005-05-05 21:41:14.000000000 +0200
+@@ -456,5 +456,3 @@
+ 			peer_total / inet_peer_threshold * HZ;
+ 	add_timer(&peer_periodic_timer);
+ }
+-
+-EXPORT_SYMBOL(inet_peer_idlock);
+--- linux-2.6.12-rc3-mm3-full/net/ipv4/ip_options.c.old	2005-05-05 21:42:02.000000000 +0200
++++ linux-2.6.12-rc3-mm3-full/net/ipv4/ip_options.c	2005-05-05 21:42:33.000000000 +0200
+@@ -620,6 +620,3 @@
+ 	}
+ 	return 0;
+ }
+-
+-EXPORT_SYMBOL(ip_options_compile);
+-EXPORT_SYMBOL(ip_options_undo);
+--- linux-2.6.12-rc3-mm3-full/net/ipv4/tcp_ipv4.c.old	2005-05-05 21:58:55.000000000 +0200
++++ linux-2.6.12-rc3-mm3-full/net/ipv4/tcp_ipv4.c	2005-05-05 21:59:33.000000000 +0200
+@@ -2660,7 +2660,6 @@
+ EXPORT_SYMBOL(tcp_proc_unregister);
+ #endif
+ EXPORT_SYMBOL(sysctl_local_port_range);
+-EXPORT_SYMBOL(sysctl_max_syn_backlog);
+ EXPORT_SYMBOL(sysctl_tcp_low_latency);
+ EXPORT_SYMBOL(sysctl_tcp_tw_reuse);
+ 
 
-It also continues to be charged ticks, indicating that its being
-scheduled but is making no progress?  However, I can't find anything
-that this thread could be spinning on.  Also, I don't understand why
-there is no further context on the stack -- the thread does eventually
-finish and never leaves the kernel, so the stack shouldn't be
-corrupted...  How can it finish if it has nowhere to return?
-
-I realize that this is a long shot, but if anyone has any ideas, I'd
-appreciate hearing them.  Please let me know if I can provide any
-further information.
-
-Thanks,
--Yuly

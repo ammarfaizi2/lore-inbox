@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbVEFVcd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbVEFVd0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261271AbVEFVcd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 17:32:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbVEFVcb
+	id S261265AbVEFVd0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 17:33:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVEFVd0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 17:32:31 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:57093 "HELO
+	Fri, 6 May 2005 17:33:26 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:59397 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261271AbVEFV3x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 17:29:53 -0400
-Date: Fri, 6 May 2005 23:29:35 +0200
+	id S261265AbVEFVcv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 May 2005 17:32:51 -0400
+Date: Fri, 6 May 2005 23:32:39 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] init/calibrate.c: make a function static
-Message-ID: <20050506212933.GR3590@stusta.de>
+To: jgarzik@pobox.com
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: [-mm patch] net/ieee80211/: make two functions static
+Message-ID: <20050506213238.GS3590@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,28 +22,40 @@ User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes a needlessly global function static.
+This patch makes two needlessly global functions static.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.12-rc3-mm2-full/init/calibrate.c.old	2005-05-03 07:30:39.000000000 +0200
-+++ linux-2.6.12-rc3-mm2-full/init/calibrate.c	2005-05-03 07:31:15.000000000 +0200
-@@ -29,7 +29,7 @@
- #define DELAY_CALIBRATION_TICKS			((HZ < 100) ? 1 : (HZ/100))
- #define MAX_DIRECT_CALIBRATION_RETRIES		5
+---
+
+ net/ieee80211/ieee80211_crypt_ccmp.c |    4 ++--
+ net/ieee80211/ieee80211_tx.c         |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+--- linux-2.6.12-rc3-mm2-full/net/ieee80211/ieee80211_crypt_ccmp.c.old	2005-05-05 02:29:22.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/net/ieee80211/ieee80211_crypt_ccmp.c	2005-05-05 02:29:35.000000000 +0200
+@@ -59,8 +59,8 @@
+ 	u8 rx_b0[AES_BLOCK_LEN], rx_b[AES_BLOCK_LEN], rx_a[AES_BLOCK_LEN];
+ };
  
--unsigned long __devinit calibrate_delay_direct(void)
-+static unsigned long __devinit calibrate_delay_direct(void)
+-void ieee80211_ccmp_aes_encrypt(struct crypto_tfm *tfm,
+-			     const u8 pt[16], u8 ct[16])
++static void ieee80211_ccmp_aes_encrypt(struct crypto_tfm *tfm,
++				       const u8 pt[16], u8 ct[16])
  {
- 	unsigned long pre_start, start, post_start;
- 	unsigned long pre_end, end, post_end;
-@@ -102,7 +102,7 @@
- 	return 0;
- }
- #else
--unsigned long __devinit calibrate_delay_direct(void) {return 0;}
-+static unsigned long __devinit calibrate_delay_direct(void) {return 0;}
- #endif
+ 	struct scatterlist src, dst;
  
- /*
+--- linux-2.6.12-rc3-mm2-full/net/ieee80211/ieee80211_tx.c.old	2005-05-05 02:29:51.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/net/ieee80211/ieee80211_tx.c	2005-05-05 02:29:59.000000000 +0200
+@@ -211,8 +211,8 @@
+ 	kfree(txb);
+ }
+ 
+-struct ieee80211_txb *ieee80211_alloc_txb(int nr_frags, int txb_size,
+-					  int gfp_mask)
++static struct ieee80211_txb *ieee80211_alloc_txb(int nr_frags, int txb_size,
++						 int gfp_mask)
+ {
+ 	struct ieee80211_txb *txb;
+ 	int i;
 

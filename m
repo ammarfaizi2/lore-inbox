@@ -1,69 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbVEFVln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbVEFVpa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261276AbVEFVln (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 17:41:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbVEFVln
+	id S261282AbVEFVpa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 17:45:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbVEFVpa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 17:41:43 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:23379 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S261276AbVEFVlT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 17:41:19 -0400
-Message-ID: <427BE47B.303@tls.msk.ru>
-Date: Sat, 07 May 2005 01:41:15 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
+	Fri, 6 May 2005 17:45:30 -0400
+Received: from dslsmtp.struer.net ([62.242.36.21]:34566 "EHLO
+	dslsmtp.struer.net") by vger.kernel.org with ESMTP id S261282AbVEFVpV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 May 2005 17:45:21 -0400
+Message-ID: <33091.80.160.117.125.1115415913.squirrel@80.160.117.125>
+In-Reply-To: <cbf07e669ed84066a0bc366ca254123b@freescale.com>
+References: <cbf07e669ed84066a0bc366ca254123b@freescale.com>
+Date: Fri, 6 May 2005 23:45:13 +0200 (CEST)
+Subject: Re: PPC uImage build not reporting correctly
+From: "Sam Ravnborg" <sam@ravnborg.org>
+To: "Kumar Gala" <kumar.gala@freescale.com>
+Cc: "Sam Ravnborg" <sam@ravnborg.org>,
+       "linuxppc-embedded list" <linuxppc-embedded@ozlabs.org>,
+       "Tom Rini" <trini@kernel.crashing.org>,
+       "Linux Kernel list" <linux-kernel@vger.kernel.org>
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
 MIME-Version: 1.0
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 3c509 module and 2.6 kernel: not all NICs are recognized?
-References: <427BD143.4010909@tls.msk.ru> <427BDD22.1080601@tls.msk.ru> <427BE3A0.7010000@didntduck.org>
-In-Reply-To: <427BE3A0.7010000@didntduck.org>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brian Gerst wrote:
-> Michael Tokarev wrote:
-[]
->>> It have 4 3c509 cards, one EISA and 3 ISA.  Here's the dmesg
-[]
->> All the ISA cards are in EISA mode (set in 3c5x9cfg.exe utility).
->> IRQs are assigned by the EISA bus (set by EISA configuration utility).
->> If any of the ISA cards are in non-EISA mode, the some of them
->> does not work at all, starting from EISA BIOS config during boot.
->> So I can't switch the cards into PNP mode.
-[]
-> 
-> what does dmesg|grep EISA show?
+> Sam,
+>
+> Tom pointed me at you to look at a makefile issue with
+> arch/ppc/boot/images/Makefile.  When I do the following:
+>
+> $ make uImage
+>    CHK     include/linux/version.h
+> make[1]: `arch/ppc/kernel/asm-offsets.s' is up to date.
+>    CHK     include/linux/compile.h
+>    CHK     usr/initramfs_list
+>    UIMAGE  arch/ppc/boot/images/uImage
+> Image Name:   Linux-2.6.12-rc3
+> Created:      Fri May  6 10:19:28 2005
+> Image Type:   PowerPC Linux Kernel Image (gzip compressed)
+> Data Size:    993322 Bytes = 970.04 kB = 0.95 MB
+> Load Address: 0x00000000
+> Entry Point:  0x00000000
+>    Image: arch/ppc/boot/images/uImage not made
+>
+> The issue is that the file arch/ppc/boot/images/uImage does exit (the
+> 'not made' is not correct).
+>
+> $(obj)/uImage: $(obj)/vmlinux.gz
+>          $(Q)rm -f $@
+>          $(call if_changed,uimage)
+>          @echo '  Image: $@' $(if $(wildcard $@),'is ready','not made')
+>
+> It seems the $(wildcard $@) expands at the start of the rule.  Any
+> ideas?
 
-Looks like I already found it by looking at the driver source.
+It probarly uses the build-in cache in make - and I see no easy way to
+tell make not to use the cache in this case.
+Could you try to replace "$(wildcard $@)" with something like:
+$(shell if -f $@ echo Y; fi)
 
-struct eisa_device_id el3_eisa_ids[] = {
-                { "TCM5092" },
-                { "TCM5093" },
-                { "TCM5095" },     <==== I added this line
-                { "" }
-};
+Untested - I'm not on a Linux box right now.
 
-and now it works.
-
-EISA: Probing bus 0 at 0000:00:06.0
-EISA: Mainboard ACR1C01 detected.
-EISA: slot 2 : TCM5095 detected.
-EISA: slot 3 : TCM5095 detected.
-EISA: slot 4 : TCM5095 detected.
-EISA: slot 5 : TCM5093 detected.
-EISA: Detected 4 cards.
+   Sam
 
 
-I'm not sure if it will work with ISA cards in ISA mode.
-As I pointed out above, this machine does not want to
-initialize EISA bus if at least one of the cards isn't
-in EISA mode.  Will "plain" (in ISA mode) 3c509 be shown
-in EISA scan too?
-
-/mjt

@@ -1,58 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261157AbVEFUTW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbVEFUX2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261157AbVEFUTW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 16:19:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVEFUTW
+	id S261208AbVEFUX2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 16:23:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbVEFUX2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 16:19:22 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:32351 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S261157AbVEFUTS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 16:19:18 -0400
-Message-ID: <427BD143.4010909@tls.msk.ru>
-Date: Sat, 07 May 2005 00:19:15 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 3c509 module and 2.6 kernel: not all NICs are recognized?
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 6 May 2005 16:23:28 -0400
+Received: from bay14-f14.bay14.hotmail.com ([64.4.49.14]:22233 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S261208AbVEFUXZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 May 2005 16:23:25 -0400
+Message-ID: <BAY14-F1410E2991A3B02364FD18BD41B0@phx.gbl>
+X-Originating-IP: [200.41.1.210]
+X-Originating-Email: [emendoza19@hotmail.com]
+From: "Edison Giovanny Mendoza" <emendoza19@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Date: Fri, 06 May 2005 20:23:19 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+X-OriginalArrivalTime: 06 May 2005 20:23:24.0286 (UTC) FILETIME=[742269E0:01C55279]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Finally, I tried to boot our gateway machine into 2.6 (2.6.11.8
-to be certain) kernel.  The machine is quite old, it's 100MHz
-Pentium-classic, yet it works as a router just fine.
 
-And surprizingly, this is the first machine I tried to upgrade
-to 2.6 which does not work.
+SALUDOS;
 
-It have 4 3c509 cards, one EISA and 3 ISA.  Here's the dmesg
-output when I load 3c509 module on 2.4 kernel:
+FAVOR ENVIARME TODA LA INFORMACION QUE DISPONGAN DE LINUX LES CONFESARE QUE 
+NO CONOSCO NADA .
 
-eth0: 3c5x9 at 0x2000, 10baseT port, address  00 60 08 4b 31 bf, IRQ 15.
-3c509.c:1.19 16Oct2002 becker@scyld.com
-http://www.scyld.com/network/3c509.html
-eth1: 3c5x9 at 0x3000, 10baseT port, address  00 20 af 92 f6 ef, IRQ 7.
-3c509.c:1.19 16Oct2002 becker@scyld.com
-http://www.scyld.com/network/3c509.html
-eth2: 3c5x9 at 0x4000, 10baseT port, address  00 20 af 92 83 02, IRQ 5.
-3c509.c:1.19 16Oct2002 becker@scyld.com
-http://www.scyld.com/network/3c509.html
-eth3: 3c5x9 at 0x5000, BNC port, address  00 20 af 99 f2 ac, IRQ 12.
-3c509.c:1.19 16Oct2002 becker@scyld.com
-http://www.scyld.com/network/3c509.html
+MUCHAS  GRACIAS
 
-(the last one, with IRQ#12 and BNC port, is EISA).
+AT.
+EDISON MENDOZA
+ECUADOR -QUITO
 
-But when in 2.6, only this last EISA one is recognized by
-3c509 module.
+_________________________________________________________________
+Charla con tus amigos en línea mediante MSN Messenger: 
+http://messenger.latam.msn.com/
 
-Any ideas?
-
-Thanks.
-
-/mjt

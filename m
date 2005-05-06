@@ -1,61 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbVEFNjx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbVEFNoo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261162AbVEFNjx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 09:39:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbVEFNjj
+	id S261194AbVEFNoo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 09:44:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbVEFNon
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 09:39:39 -0400
-Received: from mail.microway.com ([64.80.227.22]:63146 "EHLO mail.microway.com")
-	by vger.kernel.org with ESMTP id S261162AbVEFNjX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 09:39:23 -0400
-From: Rick Warner <rick@microway.com>
-Organization: Microway, Inc.
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Subject: Re: very strange issue with sata,<4G Ram, and ext3
-Date: Fri, 6 May 2005 09:39:15 -0400
-User-Agent: KMail/1.7.2
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200504281216.08026.rick@microway.com> <200504291045.58893.rick@microway.com> <m364xxtkuw.fsf@defiant.localdomain>
-In-Reply-To: <m364xxtkuw.fsf@defiant.localdomain>
-Message-Id: <200505060939.15476.rick@microway.com>
-X-Sanitizer: Advosys mail filter
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+	Fri, 6 May 2005 09:44:43 -0400
+Received: from [213.170.72.194] ([213.170.72.194]:56806 "EHLO
+	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261172AbVEFNoi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 May 2005 09:44:38 -0400
+Subject: Re: [PATCH] __wait_on_freeing_inode fix
+From: "Artem B. Bityuckiy" <dedekind@infradead.org>
+Reply-To: dedekind@infradead.org
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: dwmw2@infradead.org, akpm@osdl.org, wli@holomorphy.com,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <E1DU32M-00068d-00@dorka.pomaz.szeredi.hu>
+References: <E1DU1Hy-00060Q-00@dorka.pomaz.szeredi.hu>
+	 <1115386405.16187.196.camel@hades.cambridge.redhat.com>
+	 <E1DU32M-00068d-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain
+Organization: MTD
+Date: Fri, 06 May 2005 17:44:32 +0400
+Message-Id: <1115387072.27158.31.camel@sauron.oktetlabs.ru>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 May 2005 05:37 pm, Krzysztof Halasa wrote:
-> Rick Warner <rick@microway.com> writes:
-> > This morning, we tried updating to a newer pxelinux (3.07) and had the
-> > same results.  We then tried using etherboot with a mknbi tagged image
-> > and also had the same results.   Since we are getting the same problem on
-> > 3 different motherboards with 2 different network adapters, I have not
-> > looked into updating the boot rom on the nics.  Should I?
->
-> I remember I had memory corruption problems with an old version of
-> Etherboot few years ago. The machines were mostly AMD K6 based,
-> network cards were SMC EPIC100 (Etherpower II) and/or RTL 8139.
->
-> Memtest86 (downloaded with Etherboot) complained about random errors.
-> I think Linux didn't show any such illness.
-> This was Etherboot 4.something. Upgrading to 5.something fixed the
-> problem.
->
-> I suspect you're using Etherboot newer than 4.x though. I'd probably
-> give memtest86 loaded from network a try.
-
-We actually run memtest86 from the network regularly.  This cluster had run 
-dozens of passes of memtest booted over the network before doing any of this.  
-We also did an md5sum of our initrd from the network boot server, and then 
-had the initrd do an md5sum of itself on the network boot.  They matched.  
-Thanks for the advice though!  I appreciate it.
+> I think it should work without Artem's patch too, since prune_icache()
+> removes the inode from the hash chain at the same time (under
+> inode_lock) as changing it's state to I_FREEING.  So the pruned inode
+> will never be seen by iget().
+> 
+I suppose this doesn't mean that your patch fixes my problem (it mustn't
+I believe) ?
 
 -- 
-Richard Warner
-Lead Systems Integrator
-Microway, Inc
-(508)732-5517
+Best Regards,
+Artem B. Bityuckiy,
+St.-Petersburg, Russia.
+

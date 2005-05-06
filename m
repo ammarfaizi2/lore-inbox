@@ -1,62 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261218AbVEFUcq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbVEFVJ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261218AbVEFUcq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 16:32:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbVEFUcq
+	id S261268AbVEFVJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 17:09:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbVEFVJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 16:32:46 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:24712
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S261218AbVEFUco (ORCPT
+	Fri, 6 May 2005 17:09:59 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:34645 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S261268AbVEFVJz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 16:32:44 -0400
-Reply-To: <abonilla@linuxwireless.org>
-From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
-To: "'Edison Giovanny Mendoza'" <emendoza19@hotmail.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: 
-Date: Fri, 6 May 2005 14:32:39 -0600
-Message-ID: <003601c5527a$bf7300c0$9f0cc60a@amer.sykes.com>
+	Fri, 6 May 2005 17:09:55 -0400
+Message-ID: <427BDD22.1080601@tls.msk.ru>
+Date: Sat, 07 May 2005 01:09:54 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 3c509 module and 2.6 kernel: not all NICs are recognized?
+References: <427BD143.4010909@tls.msk.ru>
+In-Reply-To: <427BD143.4010909@tls.msk.ru>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <BAY14-F1410E2991A3B02364FD18BD41B0@phx.gbl>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+A bit more information.
 
-|SALUDOS;
-|
-|FAVOR ENVIARME TODA LA INFORMACION QUE DISPONGAN DE LINUX LES
-|CONFESARE QUE
-|NO CONOSCO NADA .
-|
+Michael Tokarev wrote:
+> Finally, I tried to boot our gateway machine into 2.6 (2.6.11.8
+> to be certain) kernel.  The machine is quite old, it's 100MHz
+> Pentium-classic, yet it works as a router just fine.
+> 
+> And surprizingly, this is the first machine I tried to upgrade
+> to 2.6 which does not work.
+> 
+> It have 4 3c509 cards, one EISA and 3 ISA.  Here's the dmesg
+> output when I load 3c509 module on 2.4 kernel:
+> 
+> eth0: 3c5x9 at 0x2000, 10baseT port, address  00 60 08 4b 31 bf, IRQ 15.
+> 3c509.c:1.19 16Oct2002 becker@scyld.com
+> http://www.scyld.com/network/3c509.html
+> eth1: 3c5x9 at 0x3000, 10baseT port, address  00 20 af 92 f6 ef, IRQ 7.
+> 3c509.c:1.19 16Oct2002 becker@scyld.com
+> http://www.scyld.com/network/3c509.html
+> eth2: 3c5x9 at 0x4000, 10baseT port, address  00 20 af 92 83 02, IRQ 5.
+> 3c509.c:1.19 16Oct2002 becker@scyld.com
+> http://www.scyld.com/network/3c509.html
+> eth3: 3c5x9 at 0x5000, BNC port, address  00 20 af 99 f2 ac, IRQ 12.
+> 3c509.c:1.19 16Oct2002 becker@scyld.com
+> http://www.scyld.com/network/3c509.html
+> 
+> (the last one, with IRQ#12 and BNC port, is EISA).
 
-Edison,
+All the ISA cards are in EISA mode (set in 3c5x9cfg.exe utility).
+IRQs are assigned by the EISA bus (set by EISA configuration utility).
+If any of the ISA cards are in non-EISA mode, the some of them
+does not work at all, starting from EISA BIOS config during boot.
+So I can't switch the cards into PNP mode.
 
-La mayor informacion que haya esta en google.com ademas en lugares como
-kernel.org linux.org y otros websites como el de la distribucion que te
-interesa
+Also, I tried setting the cards manually with 3c509 module
+parameters.  The only parameter one can tweak is irq=,
+but it seems the parameter is ignored -- I tried
+ modprobe 3c509 irq=15,7,5,12
+but it still detects only the EISA card with irq=12, just
+like without irq= line at all.
 
-Esta es una lista de desarrollo, no de preguntas basicas y de solo Ingles.
-
-Gracias,
-
-- Alejandro.
-
-(I'm telling him that this is english only and that this is not a normal
-help questions ML)
-
-
-|MUCHAS  GRACIAS
-|
-|AT.
-|EDISON MENDOZA
-|ECUADOR -QUITO
+> But when in 2.6, only this last EISA one is recognized by
+> 3c509 module.
+> 
+> Any ideas?
+> 
+> Thanks.
+> 
+> /mjt
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

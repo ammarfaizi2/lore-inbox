@@ -1,62 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbVEFLJF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbVEFLGO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261215AbVEFLJF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 07:09:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVEFLJF
+	id S261210AbVEFLGO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 07:06:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbVEFLGO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 07:09:05 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:7405 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261211AbVEFLIz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 07:08:55 -0400
-Subject: Re: [PATCH] VFS bugfix: two read_inode() calles without
-	clear_inode() call between
-From: David Woodhouse <dwmw2@infradead.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: akpm@osdl.org, dedekind@infradead.org, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <E1DTj3z-0005By-00@dorka.pomaz.szeredi.hu>
-References: <1114607741.12617.4.camel@sauron.oktetlabs.ru>
-	 <E1DQoui-0002In-00@dorka.pomaz.szeredi.hu>
-	 <1114618748.12617.23.camel@sauron.oktetlabs.ru>
-	 <E1DQqZu-0002Rf-00@dorka.pomaz.szeredi.hu>
-	 <1114673528.3483.2.camel@sauron.oktetlabs.ru>
-	 <20050428003450.51687b65.akpm@osdl.org>
-	 <1115209055.8559.12.camel@sauron.oktetlabs.ru>
-	 <20050504130450.7c90a422.akpm@osdl.org>
-	 <1115242507.12012.394.camel@baythorne.infradead.org>
-	 <20050504145811.63e9bb10.akpm@osdl.org>
-	 <1115284240.12012.416.camel@baythorne.infradead.org>
-	 <E1DTj3z-0005By-00@dorka.pomaz.szeredi.hu>
-Content-Type: text/plain
-Date: Fri, 06 May 2005 12:08:49 +0100
-Message-Id: <1115377730.16187.189.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-1.dwmw2.1) 
+	Fri, 6 May 2005 07:06:14 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:46812 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S261210AbVEFLGF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 May 2005 07:06:05 -0400
+Message-ID: <427B5147.36DE54D1@tv-sign.ru>
+Date: Fri, 06 May 2005 15:13:11 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, Daniel Walker <dwalker@mvista.com>,
+       Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH] Priority Lists for the RT mutex
+References: <427B333F.5A0BB431@tv-sign.ru>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-05-05 at 18:18 +0200, Miklos Szeredi wrote:
-> Using yield() to wait for a precisely defined event (clear_inode()
-> finishing) doesn't seem like a very good idea.  Especially, since
-> Artem's patch will probably make it trigger more often.
+Oleg Nesterov wrote:
+>
+> Daniel Walker wrote:
+> >
+> > Description:
+> > 	This patch adds the priority list data structure from Inaky Perez-Gonzalez
+> > to the Preempt Real-Time mutex.
+> >
+> ...
+>
+> I can't understand how this can work.
 
-Agreed. Even before Artem's patch, we're still effectively busy-waiting
-for something which calls back into the file system's clear_inode method
-and may well sleep and perform I/O.
+And I think it is possible to simplify plist's design.
 
-> How about this (totally untested) patch?  Even if I_LOCK is not set
-> initially, wake_up_inode() should do the right thing and wake up the
-> waiting task after clear_inode().  It shouldn't cause spurious
-> wakeups, since there should be no other reference to the inode.
+struct plist {
+	int prio;
+	struct list_head prio_list;
+	struct list_head node_list;
+};
 
-Since Artem introduced a wake_up_inode() in dispose_list(), your patch
-seems reasonable.
+#define	plist_for_each(pos, head)	\
+	 list_for_each_entry(pos, &(head)->node_list, node_list)
 
--- 
-dwmw2
+static inline void plist_add(struct plist *new, struct plist *head)
+{
+	struct plist* pos;
 
+	INIT_LIST_HEAD(&new->prio_list);
+
+	list_for_each_entry(pos, &head->prio_list, prio_list)
+		if (new->prio < pos->prio)
+			goto lt_prio;
+		else if (new->prio == pos->prio) {
+			pos = list_entry(pos->prio_list.next,
+					 struct plist, prio_list);
+			goto eq_prio;
+		}
+
+lt_prio:
+	list_add_tail(&new->prio_list, &pos->prio_list);
+eq_prio:
+	list_add_tail(&new->node_list, &pos->node_list);
+}
+
+static inline void plist_del(struct plist *del)
+{
+	if (!list_empty(&del->prio_list)) {
+		struct plist *next = list_entry(del->node_list.next,
+						struct plist, node_list);
+		list_move_tail(&next->prio_list, &del->prio_list);
+		list_del_init(&del->prio_list);
+	}
+
+	list_del_init(&del->node_list);
+}
+
+All nodes in prio list are chained via ->node_list, sorted in ascending
+->prio/fifo order. Nodes which start different priority slice are chained
+via ->prio_list, ascending ->prio order.
+
+Slightly tested, seems to work.
+
+I think this would be even better:
+
+struct plist_head {
+	struct list_head prio_list;
+	struct list_head node_list;
+}
+
+struct plist {
+	int prio;
+	struct plist_head head;
+}
+
+The plist_head's min/max prio can be found from
+plist_head.prio_list.next/prev.
+
+What do you think?
+
+Oleg.

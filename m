@@ -1,93 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVEFJrt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbVEFKOp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbVEFJrt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 05:47:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261194AbVEFJrt
+	id S261201AbVEFKOp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 06:14:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbVEFKOo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 05:47:49 -0400
-Received: from ns.itc.it ([217.77.80.3]:36575 "EHLO mail.itc.it")
-	by vger.kernel.org with ESMTP id S261193AbVEFJrp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 05:47:45 -0400
-Date: Fri, 6 May 2005 11:50:23 +0200
-From: Fabio Brugnara <brugnara@itc.it>
-To: linux-kernel@vger.kernel.org
-Subject: problem with mmap over nfs
-Message-ID: <20050506095023.GS9742@maestoso.itc.it>
+	Fri, 6 May 2005 06:14:44 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:34003 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261201AbVEFKOi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 May 2005 06:14:38 -0400
+Date: Fri, 6 May 2005 12:14:34 +0200
+From: Jan Kara <jack@suse.cz>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Cliff White <cliffw@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.12-rc2 + rc3: reaim with ext3 - system stalls.
+Message-ID: <20050506101434.GC25677@atrey.karlin.mff.cuni.cz>
+References: <20050421152345.6b87aeae@es175> <20050503144325.GF4501@atrey.karlin.mff.cuni.cz> <1115132463.26913.828.camel@dyn318077bld.beaverton.ibm.com> <E1DTMKq-00043x-BO@es175> <1115315827.26913.907.camel@dyn318077bld.beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1115315827.26913.907.camel@dyn318077bld.beaverton.ibm.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+  Hello Badari!
 
-	I hope I will be able to find some advice for solving a problem I
-observed from going to linux 2.4 to linux 2.6. I'm not a kernel expert, and
-was not able to get help from those I know. I tried to search the archives
-for something related, but was also unsuccessful. So I try here hoping that
-someone will have the patience to read the message and maybe give some
-help.
+> I have an extremely simple patch to fix the problem.
+> Basically, move the journal_start_handle from writepages()
+> to ext3_writepages_get_block() (which gets called after locking
+> the page). What am I missing here ? The patch can't
+> be that simple :(
+  Umm. I think this change does not help much - you solve the problem
+for the first page but then you unlock that page and you'd like to lock
+the next one and you're again in trouble (trying to acquire PageLock
+wile holding transaction open).
+  I can see three solutions of the problem:
+Either do ext3_journal_start/stop for each page - you should be actually
+getting the handle of the same transaction until the transaction gets
+filled. But still you'll have some overhead of the calls in JBD. I
+actually don't see much difference to the approach we used before your
+patch but probably there's some.
+  Or rewrite __mpage_writepages() to lock a page range (e.g. lock pages
+until we find some on which we'd block) and then call some filesystem
+routine to write-out all the locked pages (which would start a
+transaction and so on). But this is more work.
+  Finally there's the theoretical ;) possibility to rewrite all the
+write-out code and change the lock ordering to journal->PageLock...
 
-	If anyone answers, please post also the message in CC directly to
-me, as I'm not subscribed to the list (it doesn't make much sense at my
-level of expertise).
+								Honza
 
-	The problem is related to the use of memory mapped files over a nfs
-mounted filesystem. In a rather complex system (speech recognition) that we
-developed and use, we need to share large read-only data structures between
-different processes, also on several machines. Until a few months ago, we
-observed that it was perfectly adequate to just mmap() a file residing on a
-particular disk, that machines other as the owner mounted via nfs. This was
-very convenient, as we had only a single physical copy of the data
-structure, and it did not introduce any significant performance penalty. We
-have used this method for years.
-	Now, after the machines have been upgraded to kernel 2.6.10 from
-kernel 2.4.20, something disappointing happens. Everything still works
-correctly, but somehow it introduces a massive slowdown of the machines.
-While the processes are running, the machines that map the shared file via
-nfs (not the one that owns it) report (with "top") a very high usage of
-system time (e.g. 50% or more), and also become very unresponsive at the
-shell prompt.
-	Another strange thing that can be seen is that in this situation
-the "top" process itself, that normally reports something like 0.3% CPU
-time), starts using percentages of 30% CPU time or more.
-	Beside observing the behavior with "top", we also measure the time
-processes take in the program itself, using the "times()" primitive at
-the end of the processing. A typical short run of the system on the old
-kernel reported numbers such as:
+> On Wed, 2005-05-04 at 09:02, Cliff White wrote:
+> > > 
+> > > --=-LBuZsEP+un6vb/N1S6Yo
+> > > Content-Type: text/plain
+> > > Content-Transfer-Encoding: 7bit
+> > > 
+> > > On Tue, 2005-05-03 at 07:43, Jan Kara wrote:
+> > > >   Hello,
+> > > > 
+> > > > > Started seeing some odd behaviour with recent kernels, haven't been able 
+> > > to
+> > > > > run it down, could use some suggestions/help.
+> > > > > 
+> > > > > Running re-aim7 with 2.6.12-rc2 and rc3, if I use xfs, jfs, or
+> > > > > reiserfs things work just fine.
+> > > > > 
+> > > > > With ext3, the  test stalls, such that:
+> > > > > CPU is 50% idle, 50% waiting IO (top)
+> > > > > vmstat shows one process blocked wio
+> > > >   I've looked through your dumps and I spotted where is the problem -
+> > > > it's our well known and beloved lock inversion between PageLock and
+> > > > transaction start (giving CC to Badari who's the author of the patch
+> > > > that introduced it AFAIK).
+> > > 
+> > > Yuck. It definitely not intentional.
+> > > 
+> > > >   The correct order is: first get PageLock and *then* start transaction.
+> > > > But in ext3_writeback_writepages() first ext3_journal_start() is called
+> > > > and then __mpage_writepages is called that tries to do LockPage and
+> > > > deadlock is there. Badari, could you please fix that (sadly I think that
+> > > > would not be easy)? Maybe we should back out those changes until it gets
+> > > > fixed...
+> > > 
+> > > Hmm.. let me take a closer look. You are right, its not going to be
+> > > simple fix.
+> > > 
+> > > Cliff, here is the patch to backout writepages() for ext3. Can you
+> > > verify that problems goes away with this patch ?
+> > > 
+> > I can now verify that the problem is not there with Badari's no-writepages
+> > patch  - all the runs last night completed, performance is about what it was
+> > for 2.6.12-rc1.
+> > cliffw
+> 
 
-Times: user: 1125.50, system: 6.28
+> --- linux-2.6.12-rc3.org/fs/ext3/inode.c	2005-05-02 22:28:30.000000000 -0700
+> +++ linux-2.6.12-rc3/fs/ext3/inode.c	2005-05-05 00:09:59.000000000 -0700
+> @@ -869,6 +869,14 @@ get_block:
+>  static int ext3_writepages_get_block(struct inode *inode, sector_t iblock,
+>  			struct buffer_head *bh, int create)
+>  {
+> +	handle_t *handle = journal_current_handle();
+> +
+> +	if (!handle) {
+> +		handle = ext3_journal_start(inode, 
+> +				ext3_writepage_trans_blocks(inode));
+> +		if (IS_ERR(handle)) 
+> +			return PTR_ERR(handle);
+> +	}
+>  	return ext3_direct_io_get_blocks(inode, iblock, 1, bh, create);
+>  }
+>  
+> @@ -1360,24 +1368,10 @@ ext3_writeback_writepages(struct address
+>  	handle_t *handle = NULL;
+>  	int err, ret = 0;
+>  
+> -	if (!mapping_tagged(mapping, PAGECACHE_TAG_DIRTY))
+> -		return ret;
+> -
+> -	handle = ext3_journal_start(inode, ext3_writepage_trans_blocks(inode));
+> -	if (IS_ERR(handle)) {
+> -		ret = PTR_ERR(handle);
+> -		return ret;
+> -	}
+> -
+>          ret = __mpage_writepages(mapping, wbc, ext3_writepages_get_block,
+>  					ext3_writeback_writepage_helper);
+>  
+> -	/*
+> -	 * Need to reaquire the handle since ext3_writepages_get_block()
+> -	 * can restart the handle
+> -	 */
+>  	handle = journal_current_handle();
+> -
+>  	err = ext3_journal_stop(handle);
+>  	if (!ret)
+>  		ret = err;
 
-that is, with a proportion always much lower that 1% between system time
-and user time. Now, we see things like:
-
-Times: user: 660.29, system: 326.64
-
-i.e., a proportion of 50% between the two (Absolute values cannot
-be compared, as the hardware is different).
-Typically we run two of these processes on each machine, which
-are 2-CPU SMP Xeon systems with 2 or 4 Gb of memory.
-
-	Notice that, if we take care to copy the shared file on local
-disks on each machine, and perform the mmap() on the local copy for each
-of them, the problem disappears, i.e. the machine do not become overloaded,
-and all timings are perfectly reasonable as before. So it's not a problem
-of mmap() in itself, but something that comes from the combination of
-mmap() and nfs, and maybe sychronization in the access of shared pages
-on an SMP system.
-	I'm aware that I should present some simple program that triggers
-the misbehavior, but unfortunately I was not able to reproduce the problem
-in a simple context. The system in question is rather complex,
-computationally expensive and makes an intensive use both of these static
-shared structures, and of large amounts of dynamically allocated memory
-(process size is typically of several hundreds Mb, and CPU usage as high
-as possible).
-
-If all this story flashes some lamp in the knowledgeable heads that
-populate this list, please let me know
-
-best regards,
-thank you for your patience
-Fabio
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

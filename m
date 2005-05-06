@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbVEFVd0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbVEFWIk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261265AbVEFVd0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 17:33:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVEFVd0
+	id S261299AbVEFWIk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 18:08:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbVEFWIj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 17:33:26 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:59397 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261265AbVEFVcv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 17:32:51 -0400
-Date: Fri, 6 May 2005 23:32:39 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: jgarzik@pobox.com
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: [-mm patch] net/ieee80211/: make two functions static
-Message-ID: <20050506213238.GS3590@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Fri, 6 May 2005 18:08:39 -0400
+Received: from ns.suse.de ([195.135.220.2]:55018 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261299AbVEFWIU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 May 2005 18:08:20 -0400
+Message-ID: <427BE2CA.7030007@suse.de>
+Date: Fri, 06 May 2005 23:34:02 +0200
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041207 Thunderbird/1.0 Mnenhy/0.7.2.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Shawn Starr <shawn.starr@rogers.com>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.12-rc3][SUSPEND] qla1280 (QLogic 12160 Ultra3) blows up
+ on A7M266-D
+References: <20050503181018.37973.qmail@web88008.mail.re2.yahoo.com>
+In-Reply-To: <20050503181018.37973.qmail@web88008.mail.re2.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes two needlessly global functions static.
+Shawn Starr wrote:
+> I was feeling lucky yesterday and decided to try my
+> luck on an A7M266-D with suspend-to-disk. I noticed
+> two things
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 1) If I use XFS /w the SCSI controller (connected to 2
+> IBM HD 10K Ultra3 SCSI disks) I can suspend to disk no
+> problem, but resuming all hell breaks loose. It takes
+> a half an hour to reload the swap memory dumped to
+> disk.
 
----
+Known, XFS was broken / breaking wrt suspend. Pavel fixed this with the
+XFS guys IIRC and i think those patches were on lkml also, but am not
+sure. => this should work soon.
 
- net/ieee80211/ieee80211_crypt_ccmp.c |    4 ++--
- net/ieee80211/ieee80211_tx.c         |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+> 2) If I use EXT3, suspending to disk is fine resuming
+> is fine there is no long delay to load the swap memory
+> back to RAM. But when it finishes resuming I get the
+> same ISP error and the partition table gets corrupt as
+> well.
 
---- linux-2.6.12-rc3-mm2-full/net/ieee80211/ieee80211_crypt_ccmp.c.old	2005-05-05 02:29:22.000000000 +0200
-+++ linux-2.6.12-rc3-mm2-full/net/ieee80211/ieee80211_crypt_ccmp.c	2005-05-05 02:29:35.000000000 +0200
-@@ -59,8 +59,8 @@
- 	u8 rx_b0[AES_BLOCK_LEN], rx_b[AES_BLOCK_LEN], rx_a[AES_BLOCK_LEN];
- };
- 
--void ieee80211_ccmp_aes_encrypt(struct crypto_tfm *tfm,
--			     const u8 pt[16], u8 ct[16])
-+static void ieee80211_ccmp_aes_encrypt(struct crypto_tfm *tfm,
-+				       const u8 pt[16], u8 ct[16])
- {
- 	struct scatterlist src, dst;
- 
---- linux-2.6.12-rc3-mm2-full/net/ieee80211/ieee80211_tx.c.old	2005-05-05 02:29:51.000000000 +0200
-+++ linux-2.6.12-rc3-mm2-full/net/ieee80211/ieee80211_tx.c	2005-05-05 02:29:59.000000000 +0200
-@@ -211,8 +211,8 @@
- 	kfree(txb);
- }
- 
--struct ieee80211_txb *ieee80211_alloc_txb(int nr_frags, int txb_size,
--					  int gfp_mask)
-+static struct ieee80211_txb *ieee80211_alloc_txb(int nr_frags, int txb_size,
-+						 int gfp_mask)
- {
- 	struct ieee80211_txb *txb;
- 	int i;
+> Is it likely this SCSI driver doesn't know how to
+> handle suspend events?
+
+Yes. Almost all drivers that are not commonly used in notebooks are
+totally ignorant of suspend / resume. Even the brand new SATA driver
+stuff (that is actually in almost every new notebook) had no suspend
+support until some days ago.
+-- 
+Stefan Seyfried
+QA / R&D Team Mobile Devices        |              "Any ideas, John?"
+SUSE LINUX Products GmbH, Nürnberg  | "Well, surrounding them's out."
 

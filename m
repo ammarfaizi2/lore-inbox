@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262195AbVEFEB5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262196AbVEFECB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262195AbVEFEB5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 00:01:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262199AbVEFEB5
+	id S262196AbVEFECB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 00:02:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262199AbVEFECB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 00:01:57 -0400
-Received: from ozlabs.org ([203.10.76.45]:7127 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262195AbVEFEBz (ORCPT
+	Fri, 6 May 2005 00:02:01 -0400
+Received: from ozlabs.org ([203.10.76.45]:7383 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262196AbVEFEBz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 6 May 2005 00:01:55 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17018.58526.779356.782923@cargo.ozlabs.ibm.com>
-Date: Fri, 6 May 2005 13:29:34 +1000
+Message-ID: <17018.58856.453073.883611@cargo.ozlabs.ibm.com>
+Date: Fri, 6 May 2005 13:35:04 +1000
 From: Paul Mackerras <paulus@samba.org>
 To: akpm@osdl.org, torvalds@osdl.org
 CC: apw@us.ibm.com, anton@samba.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] ppc64: fix prom.c compile warning
+Subject: [PATCH] ppc64: fix reloc_offset comment
 X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The code in unflatten_device_tree knows that get_property is written to
-only return with lenp equal to 1 when also returning a valid pointer.
-The gcc 3.3.3 compiler is not able to prove this to itself, so it warns
-about a possible uninitialized pointer dereference:
+The code in reloc_offset is actually subtracting the address in the link
+register from the address calculated by the linker.  Perhaps the
+extended mnemonic `sub' replaced an original `subf' and the comment just
+did not get updated.
 
- .../arch/ppc64/kernel/prom.c: In function `unflatten_device_tree':
- .../arch/ppc64/kernel/prom.c:828:
- warning: `p' might be used uninitialized in this function
-
-Unless it is desired to rework the interaction between the two
-functions, this will keep the existing behavior but quiet the compiler.
+        bl      1f
+1:      mflr    r3
+        LOADADDR(r4,1b)
+        sub     r3,r4,r3
 
 Signed-off-by: Amos Waterland <apw@us.ibm.com>
 Signed-off-by: Paul Mackerras <paulus@samba.org>
 ---
-diff -urN linux-2.6/arch/ppc64/kernel/prom.c test/arch/ppc64/kernel/prom.c
---- linux-2.6/arch/ppc64/kernel/prom.c	2005-05-02 08:29:36.000000000 +1000
-+++ test/arch/ppc64/kernel/prom.c	2005-05-06 13:27:29.000000000 +1000
-@@ -834,7 +834,7 @@
- {
- 	unsigned long start, mem, size;
- 	struct device_node **allnextp = &allnodes;
--	char *p;
-+	char *p = NULL;
- 	int l = 0;
+===== arch/ppc64/kernel/misc.S 1.98 vs edited =====
+--- 1.98/arch/ppc64/kernel/misc.S	2005-01-14 14:56:04 -05:00
++++ edited/arch/ppc64/kernel/misc.S	2005-03-22 21:35:48 -05:00
+@@ -32,7 +32,7 @@
+ 	.text
  
- 	DBG(" -> unflatten_device_tree()\n");
+ /*
+- * Returns (address we're running at) - (address we were linked at)
++ * Returns (address we were linked at) - (address we are running at)
+  * for use before the text and data are mapped to KERNELBASE.
+  */
+ 
+

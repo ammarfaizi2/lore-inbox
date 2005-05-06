@@ -1,60 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbVEFXkf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbVEFXpg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261331AbVEFXkf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 19:40:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbVEFX14
+	id S261330AbVEFXpg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 19:45:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbVEFX0k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 19:27:56 -0400
-Received: from fire.osdl.org ([65.172.181.4]:41684 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261326AbVEFXRu (ORCPT
+	Fri, 6 May 2005 19:26:40 -0400
+Received: from mail.dif.dk ([193.138.115.101]:12753 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261330AbVEFXPR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 19:17:50 -0400
-Date: Fri, 6 May 2005 16:18:04 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: davej@redhat.com, torvalds@osdl.org, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering
-Message-Id: <20050506161804.3ee419aa.akpm@osdl.org>
-In-Reply-To: <20050506235842.A23651@flint.arm.linux.org.uk>
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
-	<20050302230634.A29815@flint.arm.linux.org.uk>
-	<42265023.20804@pobox.com>
-	<Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org>
-	<20050303002733.GH10124@redhat.com>
-	<20050302203812.092f80a0.akpm@osdl.org>
-	<20050304105247.B3932@flint.arm.linux.org.uk>
-	<20050304032632.0a729d11.akpm@osdl.org>
-	<20050304113626.E3932@flint.arm.linux.org.uk>
-	<20050506235842.A23651@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 6 May 2005 19:15:17 -0400
+Date: Sat, 7 May 2005 01:19:01 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: linux-kernel@vger.kernel.org
+Cc: Ken Pizzini <ken@halcyon.com>, Ron Jeppesen <ronj.an@site007.saic.com>,
+       Corey Minyard <minyard@wf-rch.cirr.com>, akpm@osdl.org
+Subject: [PATCH] remove pointless NULL check before kfree in sony535.c
+Message-ID: <Pine.LNX.4.62.0505070114160.2384@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
->
-> > So "rd_size" got deleted in -mm kernels without reference to anyone else
-> > who's using it.  Greeeeaaatttt....
-> 
-> And guess what?  This patch is now in Linus kernel. Greeeeaaaattttt
-> stuff whoever did that.  Truely wonderful job.
+There's no need to check for NULL, kfree() can cope.
 
-megamolehill, Russell.
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+---
 
-> Thanks for taking notice of me a month ago.
+ drivers/cdrom/sonycd535.c |    1 -
+ 1 files changed, 1 deletion(-)
 
-I immediately dropped that patch when the problem was pointed out.
+--- linux-2.6.12-rc3-mm3-orig/drivers/cdrom/sonycd535.c	2005-03-02 08:38:37.000000000 +0100
++++ linux-2.6.12-rc3-mm3/drivers/cdrom/sonycd535.c	2005-05-07 01:13:30.000000000 +0200
+@@ -1605,7 +1605,6 @@ out7:
+ 	put_disk(cdu_disk);
+ out6:
+ 	for (i = 0; i < sony_buffer_sectors; i++)
+-		if (sony_buffer[i]) 
+ 			kfree(sony_buffer[i]);
+ out5:
+ 	kfree(sony_buffer);
 
-But early this month Adrian resent the same patch and I applied it again
-and it slipped through.
 
-> I really appreciate it.
-> Especially when stuff gets merged which has already been pointed out
-> as needlessly _BREAKING_ stuff.
-
-Stuff happens.  That's why we have -rc kernels.
-
-I already have the fix for this queued up.

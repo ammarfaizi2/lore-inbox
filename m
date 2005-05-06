@@ -1,39 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbVEFH1X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262179AbVEFCoU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261158AbVEFH1X (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 03:27:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbVEFH1X
+	id S262179AbVEFCoU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 22:44:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbVEFCoU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 03:27:23 -0400
-Received: from mail-in-02.arcor-online.net ([151.189.21.42]:40635 "EHLO
-	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261158AbVEFH1U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 03:27:20 -0400
-From: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
-	<7eggert@gmx.de>
-Subject: Re: telnet bug in fedora Core 4 test 2
-To: kylin <fierykylin@gmail.com>, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Fri, 06 May 2005 04:37:19 +0200
-References: <40QM4-1IO-21@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <E1DTsiN-0002cd-KI@be1.7eggert.dyndns.org>
+	Thu, 5 May 2005 22:44:20 -0400
+Received: from fire.osdl.org ([65.172.181.4]:54660 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262179AbVEFCoS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 22:44:18 -0400
+Date: Thu, 5 May 2005 19:43:42 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: hubert.tonneau@fullpliant.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc3 fails to read partition table
+Message-Id: <20050505194342.5ecde856.akpm@osdl.org>
+In-Reply-To: <20050505161610.GA4604@pclin040.win.tue.nl>
+References: <055UDZ711@server5.heliogroup.fr>
+	<20050505161610.GA4604@pclin040.win.tue.nl>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kylin <fierykylin@gmail.com> wrote:
+Andries Brouwer <aebr@win.tue.nl> wrote:
+>
+> Earlier Linux disregarded partition types, today 0 means "unused".
 
-> when i try to start it  using telnetd....
-> then error evolves like this:
-> telnetd:get peername:socket operation on non-socket
-
-RTFM, telnetd is to be started by inetd.
--- 
-Why did the hacker cross the road? To get to the other side.
-Why did the cracker cross the road? To get what was on the other side.
-The difference is small, but important.
-        -- Gandalf Parker
-
+A number of people are being bitten by this.  Don't you think we should
+revert this change?  

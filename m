@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbVEFNwi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261225AbVEFNxE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbVEFNwi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 09:52:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVEFNwi
+	id S261225AbVEFNxE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 09:53:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbVEFNw6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 09:52:38 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:51331 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261226AbVEFNwY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 09:52:24 -0400
+	Fri, 6 May 2005 09:52:58 -0400
+Received: from [213.170.72.194] ([213.170.72.194]:60902 "EHLO
+	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261225AbVEFNwo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 May 2005 09:52:44 -0400
 Subject: Re: [PATCH] __wait_on_freeing_inode fix
-From: David Woodhouse <dwmw2@infradead.org>
+From: "Artem B. Bityuckiy" <dedekind@infradead.org>
+Reply-To: dedekind@infradead.org
 To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: akpm@osdl.org, dedekind@infradead.org, wli@holomorphy.com,
+Cc: akpm@osdl.org, dwmw2@infradead.org, wli@holomorphy.com,
        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <E1DU32M-00068d-00@dorka.pomaz.szeredi.hu>
+In-Reply-To: <E1DU1Hy-00060Q-00@dorka.pomaz.szeredi.hu>
 References: <E1DU1Hy-00060Q-00@dorka.pomaz.szeredi.hu>
-	 <1115386405.16187.196.camel@hades.cambridge.redhat.com>
-	 <E1DU32M-00068d-00@dorka.pomaz.szeredi.hu>
 Content-Type: text/plain
-Date: Fri, 06 May 2005 14:52:17 +0100
-Message-Id: <1115387537.16187.209.camel@hades.cambridge.redhat.com>
+Organization: MTD
+Date: Fri, 06 May 2005 17:52:42 +0400
+Message-Id: <1115387562.27158.39.camel@sauron.oktetlabs.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-1.dwmw2.1) 
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-05-06 at 15:38 +0200, Miklos Szeredi wrote:
-> I think it should work without Artem's patch too, since prune_icache()
-> removes the inode from the hash chain at the same time (under
-> inode_lock) as changing it's state to I_FREEING.  So the pruned inode
-> will never be seen by iget().
+> Compile tested only.  This condition is very hard to trigger normally
+> (simultaneous clear_inode() with iget()) so probably only heavy stress
+> testing can reveal any change of behavior.
 
-Doh. Yes, of course -- it had temporarily escaped my notice that the
-whole _point_ of Artem's patch is that prune_icache() is currently
-broken in precisely the way you describe.
+Well, my stress test works fine with your patch. I've tested it on JFFS2
+FS which works on top of RAM-emulated flash. I tried it together with my
+patch since otherwise the stress test crashes due to the race that my
+patch fixes.
+
+On vanilla linux-2.6.11.5 the stress test usually crashes in about 5
+minutes, but linux-2.6.11.5 + the 2 patches (as well as + only one my
+patch) it is stable for 2 hours already.
 
 -- 
-dwmw2
+Best Regards,
+Artem B. Bityuckiy,
+St.-Petersburg, Russia.
 

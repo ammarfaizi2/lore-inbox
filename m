@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbVEFUGA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVEFUFf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261284AbVEFUGA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 16:06:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbVEFUFk
+	id S261280AbVEFUFf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 16:05:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbVEFUFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 16:05:40 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:19681 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261284AbVEFUFa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 16:05:30 -0400
-Subject: Re: [PATCH][RESEND]drivers/scsi/megaraid/megaraid_{mm,mbox}
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "Ju, Seokmann" <sju@lsil.com>
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E57060CCE54@exa-atlanta>
-References: <0E3FA95632D6D047BA649F95DAB60E57060CCE54@exa-atlanta>
-Content-Type: text/plain
-Date: Fri, 06 May 2005 15:05:21 -0500
-Message-Id: <1115409921.4989.53.camel@mulgrave>
+	Fri, 6 May 2005 16:05:34 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:56324 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261280AbVEFUF2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 May 2005 16:05:28 -0400
+Date: Fri, 6 May 2005 22:05:23 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, mhw@wittsend.com
+Subject: [2.6 patch] update Computone MAINTAINERS entry
+Message-ID: <20050506200523.GL3590@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-05-06 at 15:43 -0400, Bagalkote, Sreenivas wrote:
-> I am resending a patch sent by Seokmann Ju on Mar 17, 2005.
+This patch states that Michael still maintains this driver and removes 
+a no longer mailing list.
 
-The patch is malformed ... your mailer is breaking lines past 80
-characters.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Also, I asked for a fix up of the patch on 17 March because it didn't
-apply without rejections, so this better contain those fixups rather
-than be a simple resend.
+---
 
-James
+This patch was already sent on:
+- 2 Feb 2005
 
+--- linux-2.6.11-rc2-mm2-full/MAINTAINERS.old	2005-02-02 18:51:25.000000000 +0100
++++ linux-2.6.11-rc2-mm2-full/MAINTAINERS	2005-02-02 18:52:13.000000000 +0100
+@@ -561,10 +561,9 @@
+ 
+ COMPUTONE INTELLIPORT MULTIPORT CARD
+ P:	Michael H. Warfield
+-M:	Michael H. Warfield <mhw@wittsend.com>
++M:	mhw@wittsend.com
+ W:	http://www.wittsend.com/computone.html
+-L:	linux-computone@lazuli.wittsend.com
+-S:	Orphaned
++S:	Maintained
+ 
+ COSA/SRP SYNC SERIAL DRIVER
+ P:	Jan "Yenya" Kasprzak
 

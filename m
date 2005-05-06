@@ -1,55 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261530AbVEFEcJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbVEFFUf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261530AbVEFEcJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 00:32:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbVEFEcJ
+	id S261151AbVEFFUf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 01:20:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbVEFFUf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 00:32:09 -0400
-Received: from mail.kroah.org ([69.55.234.183]:53407 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261530AbVEFEcC (ORCPT
+	Fri, 6 May 2005 01:20:35 -0400
+Received: from ozlabs.org ([203.10.76.45]:43482 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261151AbVEFFUb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 00:32:02 -0400
-Date: Thu, 5 May 2005 21:30:49 -0700
-From: Greg KH <greg@kroah.com>
-To: Kumar Gala <kumar.gala@freescale.com>
-Cc: Deepak Saxena <dsaxena@plexity.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 64-bit resources?
-Message-ID: <20050506043049.GB13207@kroah.com>
-References: <20050310173522.GA17285@kroah.com> <7ade2efc25e965ee53a271cd599ff5ae@freescale.com>
-Mime-Version: 1.0
+	Fri, 6 May 2005 01:20:31 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7ade2efc25e965ee53a271cd599ff5ae@freescale.com>
-User-Agent: Mutt/1.5.8i
+Content-Transfer-Encoding: 7bit
+Message-ID: <17018.64606.662481.104228@cargo.ozlabs.ibm.com>
+Date: Fri, 6 May 2005 15:10:54 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/4] ppc64: rename arch/ppc64/kernel/pSeries_pci.c
+In-Reply-To: <200504200152.58965.arnd@arndb.de>
+References: <200504200149.22063.arnd@arndb.de>
+	<200504200152.58965.arnd@arndb.de>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 05, 2005 at 11:12:34PM -0500, Kumar Gala wrote:
-> On Mar 10, 2005, at 11:35 AM, Greg KH wrote:
-> 
-> >On Thu, Mar 10, 2005 at 01:46:10AM -0600, Kumar Gala wrote:
-> > > Greg,
-> > >
-> >> I was wondering what the state of the change to 64-bit resources was?
-> >
-> >On hold till I get the time to fix all of the kernel tree up due to the
-> > changes required.
-> >
-> >Unless someone else wants to volunteer to do the work :)
-> 
-> I'll like to see if we can get things into a state to have this ready 
-> for 2.6.13.  Do you have a tree around with the changes in it?  Do you 
-> have a sense of what work needs to be done.  If you give me some 
-> direction on things needing fixing I can start taking a look and 
-> working on patches.
+Arnd Bergmann writes:
 
-Sorry, no tree, but here is the patch and info:
-	http://www.kernel.org/pub/linux/kernel/people/gregkh/pci/2.6/2.6.11-rc3/bk-resource*
+> Rename pSeries_pci.c to rtas_pci.c as a preparation to generalize it
+> for use by BPA. Most of the file can be used by any machine that
+> implements rtas.
 
-I do have a few other patches laying around, but that should be a good
-start :)
+Hmmm, you rename pSeries_pci.c to rtas_pci.c and then in the next
+patch you recreate pSeries_pci.c and move some stuff from rtas_pci.c
+into it.  Could we have one patch that creates rtas_pci.c and just
+moves stuff from pSeries_pci.c to it?
 
-Good luck,
-
-greg k-h
+Paul.

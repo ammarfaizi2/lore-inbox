@@ -1,132 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbVEFWUq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261278AbVEFWWR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261291AbVEFWUq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 18:20:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbVEFWUq
+	id S261278AbVEFWWR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 18:22:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbVEFWWQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 18:20:46 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:28422 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261291AbVEFWU2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 18:20:28 -0400
-Date: Sat, 7 May 2005 00:20:25 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC: 2.6 patch] kernel/sched.c: remove two unused functions
-Message-ID: <20050506222025.GU3590@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Fri, 6 May 2005 18:22:16 -0400
+Received: from lexus.itbs.cz ([217.11.254.38]:15987 "EHLO lexus.itbs.cz")
+	by vger.kernel.org with ESMTP id S261278AbVEFWVx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 May 2005 18:21:53 -0400
+Message-ID: <427BEDF7.3010508@itbs.cz>
+Date: Sat, 07 May 2005 00:21:43 +0200
+From: Jakub Jermar <jermar@itbs.cz>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: akpm@osdl.org
+Cc: len.brown@intel.com, "Randy.Dunlap" <rddunlap@osdl.org>, torvalds@osdl.org,
+       aul.s.diefenbaugh@intel.com, jun.nakajima@intel.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: PATCH: acpi_find_rsdp() diverges from ACPI specification
+References: <20050429230350.qid9o7yht3qckkg8@mail.hosting123.cz> <20050429144321.3398db9a.rddunlap@osdl.org>
+In-Reply-To: <20050429144321.3398db9a.rddunlap@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes the unused functions wait_for_completion_timeout and 
-wait_for_completion_interruptible_timeout.
+Hello,
 
-Is any usage for them planned or is this patch OK?
+here I resend corrected patch for acpi_find_rsdp().
+Please, apply this patch.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
----
+--- linux-2.6.11.7/arch/i386/kernel/acpi/boot.c 2005-04-07 20:58:17.000000000 +0200
++++ linux-2.6.11.7-acpi-patch/arch/i386/kernel/acpi/boot.c      2005-04-29 21:39:08.000000000 +0200
+@@ -644,7 +644,7 @@ acpi_find_rsdp (void)
+          */
+         rsdp_phys = acpi_scan_rsdp (0, 0x400);
+         if (!rsdp_phys)
+-               rsdp_phys = acpi_scan_rsdp (0xE0000, 0xFFFFF);
++               rsdp_phys = acpi_scan_rsdp (0xE0000, 128*1024);
 
- include/linux/completion.h |    4 --
- kernel/sched.c             |   66 -------------------------------------
- 2 files changed, 70 deletions(-)
+         return rsdp_phys;
+  }
 
---- linux-2.6.12-rc3-mm2-full/include/linux/completion.h.old	2005-05-03 07:52:14.000000000 +0200
-+++ linux-2.6.12-rc3-mm2-full/include/linux/completion.h	2005-05-03 07:52:32.000000000 +0200
-@@ -29,10 +29,6 @@
- 
- extern void FASTCALL(wait_for_completion(struct completion *));
- extern int FASTCALL(wait_for_completion_interruptible(struct completion *x));
--extern unsigned long FASTCALL(wait_for_completion_timeout(struct completion *x,
--						   unsigned long timeout));
--extern unsigned long FASTCALL(wait_for_completion_interruptible_timeout(
--			struct completion *x, unsigned long timeout));
- 
- extern void FASTCALL(complete(struct completion *));
- extern void FASTCALL(complete_all(struct completion *));
---- linux-2.6.12-rc3-mm2-full/kernel/sched.c.old	2005-05-03 07:52:42.000000000 +0200
-+++ linux-2.6.12-rc3-mm2-full/kernel/sched.c	2005-05-03 07:53:03.000000000 +0200
-@@ -3146,36 +3146,6 @@
- }
- EXPORT_SYMBOL(wait_for_completion);
- 
--unsigned long fastcall __sched
--wait_for_completion_timeout(struct completion *x, unsigned long timeout)
--{
--	might_sleep();
--
--	spin_lock_irq(&x->wait.lock);
--	if (!x->done) {
--		DECLARE_WAITQUEUE(wait, current);
--
--		wait.flags |= WQ_FLAG_EXCLUSIVE;
--		__add_wait_queue_tail(&x->wait, &wait);
--		do {
--			__set_current_state(TASK_UNINTERRUPTIBLE);
--			spin_unlock_irq(&x->wait.lock);
--			timeout = schedule_timeout(timeout);
--			spin_lock_irq(&x->wait.lock);
--			if (!timeout) {
--				__remove_wait_queue(&x->wait, &wait);
--				goto out;
--			}
--		} while (!x->done);
--		__remove_wait_queue(&x->wait, &wait);
--	}
--	x->done--;
--out:
--	spin_unlock_irq(&x->wait.lock);
--	return timeout;
--}
--EXPORT_SYMBOL(wait_for_completion_timeout);
--
- int fastcall __sched wait_for_completion_interruptible(struct completion *x)
- {
- 	int ret = 0;
-@@ -3209,42 +3179,6 @@
- }
- EXPORT_SYMBOL(wait_for_completion_interruptible);
- 
--unsigned long fastcall __sched
--wait_for_completion_interruptible_timeout(struct completion *x,
--					  unsigned long timeout)
--{
--	might_sleep();
--
--	spin_lock_irq(&x->wait.lock);
--	if (!x->done) {
--		DECLARE_WAITQUEUE(wait, current);
--
--		wait.flags |= WQ_FLAG_EXCLUSIVE;
--		__add_wait_queue_tail(&x->wait, &wait);
--		do {
--			if (signal_pending(current)) {
--				timeout = -ERESTARTSYS;
--				__remove_wait_queue(&x->wait, &wait);
--				goto out;
--			}
--			__set_current_state(TASK_INTERRUPTIBLE);
--			spin_unlock_irq(&x->wait.lock);
--			timeout = schedule_timeout(timeout);
--			spin_lock_irq(&x->wait.lock);
--			if (!timeout) {
--				__remove_wait_queue(&x->wait, &wait);
--				goto out;
--			}
--		} while (!x->done);
--		__remove_wait_queue(&x->wait, &wait);
--	}
--	x->done--;
--out:
--	spin_unlock_irq(&x->wait.lock);
--	return timeout;
--}
--EXPORT_SYMBOL(wait_for_completion_interruptible_timeout);
--
- 
- #define	SLEEP_ON_VAR					\
- 	unsigned long flags;				\
+Best regards,
+Jakub
 
+
+Randy.Dunlap wrote:
+> On Fri, 29 Apr 2005 23:03:50 +0200 jermar@itbs.cz wrote:
+> 
+> | Hello,
+> | 
+> | I found out that acpi_find_rsdp() tries to find the RSDP structure in an area
+> | bit larger than the ACPI specification wants. The right interval should start
+> | at 0xe0000 and end at 0xfffff. The search area is thus 128K+1B large.
+> 
+> The search area is thus 128 KB large, so I agree with the intent of
+> this patch, except for the +1B.
+> 
+> 
+> | Given the semantics of acpi_scan_rsdp(), the second argument should therefore be
+> | the size, not the end address.
+> 
+> Yes.
+> 
+> | Should there be any comments, please email me directly as I don't regularily
+> | read LKM.
+> | 
+> | Please, apply.
+> | 
+> | Jakub
+> | 
+> | --- linux-2.6.11.7/arch/i386/kernel/acpi/boot.c 2005-04-07 20:58:17.000000000
+> | +0200
+> | +++ linux-2.6.11.7-acpi-patch/arch/i386/kernel/acpi/boot.c      2005-04-29
+> | 21:39:08.000000000 +0200
+> | @@ -644,7 +644,7 @@ acpi_find_rsdp (void)
+> |          */
+> |         rsdp_phys = acpi_scan_rsdp (0, 0x400);
+> |         if (!rsdp_phys)
+> | -               rsdp_phys = acpi_scan_rsdp (0xE0000, 0xFFFFF);
+> | +               rsdp_phys = acpi_scan_rsdp (0xE0000, 128*1024 + 1);
+> Just drop the "+ 1".
+> 
+> | 
+> |         return rsdp_phys;
+> |  }
+> 
+> 
+> ---
+> ~Randy

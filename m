@@ -1,69 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbVEFVZH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261224AbVEFReq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261260AbVEFVZH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 17:25:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbVEFVZG
+	id S261224AbVEFReq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 13:34:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbVEFReq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 17:25:06 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21987 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261260AbVEFVYk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 17:24:40 -0400
-Date: Fri, 6 May 2005 13:50:33 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Dimitris Zilaskos <dzila@tassadar.physics.auth.gr>,
-       openafs-info@openafs.org, linux-kernel@vger.kernel.org
-Subject: Re: Openafs 1.3.78 and kernel 2.4.29 oopses , same for 2.4.30 and openafs 1.3.82
-Message-ID: <20050506165033.GA2105@logos.cnet>
-References: <Pine.LNX.4.62.0505060209040.31479@tassadar.physics.auth.gr> <20050506052803.GE777@alpha.home.local>
+	Fri, 6 May 2005 13:34:46 -0400
+Received: from fmr22.intel.com ([143.183.121.14]:2991 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261224AbVEFReo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 May 2005 13:34:44 -0400
+Subject: Re: [patch 1/1] Do not enforce unique IO_APIC_ID for Xeon
+	processors in EM64T mode (x86_64)
+From: Len Brown <len.brown@intel.com>
+To: Natalie Protasevich <Natalie.Protasevich@UNISYS.com>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050505221117.508BB42AE4@linux.site>
+References: <20050505221117.508BB42AE4@linux.site>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1115400848.12770.10.camel@d845pe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050506052803.GE777@alpha.home.local>
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 06 May 2005 13:34:08 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 06, 2005 at 07:28:03AM +0200, Willy Tarreau wrote:
-> Hi,
+On Thu, 2005-05-05 at 18:11, Natalie.Protasevich@unisys.com wrote:
 > 
-> On Fri, May 06, 2005 at 02:55:40AM +0300, Dimitris Zilaskos wrote:
-> > 
-> > 	Hello ,
-> > 
-> > [1.] One line summary of the problem:
-> > 
-> > Oopses on an openafs client system using openafs 1.3.78 and kernel 2.4.29.
-> > Oopses also occur afer moving to kernel 2.4.30 and openafs 1.3.82
+> This patch disables unique IO_APIC_ID check for xAPIC systems running
+> in EM64T mode. Xeon-based ES7000s panic failing this unnecessary
+> check. I added IOAPIC_ID_CHECK config option and turned it off for
+> Intel processors. Also added the boot option that overrides default
+> and turnes this check on/off in case it is needed for some reason.
+> Hope this is acceptable way to fix the problem.
 > 
-> The problem you encounter on 2.4.30 is not the same as on 2.4.29. The problem
-> in 2.4.29 is related to link_path_walk, which has been fixed in 2.4.30.
+> Signed-off by: Natalie Protasevich  <Natalie.Protasevich@unisys.com>
 > 
-> You might want to try 1.3.78 (or other) with 2.4.29-hf7 to check if your
-> 2.4.30 problem was brought by kernel 2.4.30 or openafs 1.3.82, as the
-> link_path_walk bug is also fixed in hf7. The patch is available on :
 
+> +config NO_IOAPIC_CHECK
+> +       bool
+> +       depends on GENERIC_CPU || MPSC
+> +       default y
+> +
 
-Willy,
+A run-time solution would be preferable to adding
+a config option that only changes the default behaviour.
 
-The link_path_walk fix in v2.4.30 is related to a reference counting
-bug triggered by "umount"...
+In general, the more config options, the more kernels
+we force distros to build and support.  We really want
+to going the other way and simplifying, when possible.
 
-As Christoph noted OpenAFS seems to be doing nasty things...  it seems 
-to play with dentries inode i_state directly? If that is the case, 
-maybe it should define d_iput? 
+cheers,
+-Len
 
-static inline void dentry_iput(struct dentry * dentry)
-{
-        struct inode *inode = dentry->d_inode;
-        if (inode) {
-                dentry->d_inode = NULL;
-                list_del_init(&dentry->d_alias);
-                spin_unlock(&dcache_lock);
-                if (dentry->d_op && dentry->d_op->d_iput)
-                        dentry->d_op->d_iput(dentry, inode);
-
-
-
-May  6 04:55:29 system kernel: kernel BUG at inode.c:1204!

@@ -1,72 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbVEFJGJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbVEFJtB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261192AbVEFJGJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 05:06:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbVEFJGJ
+	id S261198AbVEFJtB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 05:49:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261194AbVEFJtB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 05:06:09 -0400
-Received: from fire.osdl.org ([65.172.181.4]:53478 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261192AbVEFJGA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 05:06:00 -0400
-Date: Fri, 6 May 2005 02:05:18 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andries Brouwer <Andries.Brouwer@cwi.nl>
-Cc: chrisw@osdl.org, aebr@win.tue.nl, rddunlap@osdl.org, greg@kroah.com,
-       joecool1029@gmail.com, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Empty partition nodes not created (was device node issues with
- recent mm's and udev)
-Message-Id: <20050506020518.0b0afdc3.akpm@osdl.org>
-In-Reply-To: <20050506084259.GB25418@apps.cwi.nl>
-References: <d4757e6005050219514ece0c0a@mail.gmail.com>
-	<20050503031421.GA528@kroah.com>
-	<20050502202620.04467bbd.rddunlap@osdl.org>
-	<20050506080056.GD4604@pclin040.win.tue.nl>
-	<20050506081009.GX23013@shell0.pdx.osdl.net>
-	<20050506084259.GB25418@apps.cwi.nl>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 6 May 2005 05:49:01 -0400
+Received: from ausmtp01.au.ibm.com ([202.81.18.186]:49372 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S261198AbVEFJsk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 May 2005 05:48:40 -0400
+From: Michael Ellerman <michael@ellerman.id.au>
+Reply-To: michael@ellerman.id.au
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: [2.6 patch] drivers/block/rd.c: don't make a variable static
+Date: Fri, 6 May 2005 19:48:31 +1000
+User-Agent: KMail/1.8
+Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>
+References: <20050502014719.GE3592@stusta.de>
+In-Reply-To: <20050502014719.GE3592@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200505061948.31332.michael@ellerman.id.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer <Andries.Brouwer@cwi.nl> wrote:
+On Mon, 2 May 2005 11:47, Adrian Bunk wrote:
+> This patch makes a needlessly global variable static.
 >
-> On Fri, May 06, 2005 at 01:10:09AM -0700, Chris Wright wrote:
-> > * Andries Brouwer (aebr@win.tue.nl) wrote:
-> > > No, there is no problem but an intentional change in behaviour in -mm
-> > > and now also in 2.6.11.8.
-> > 
-> > I think this should be backed out of -stable.
-> 
-> I was surprised to find it in, after I had written
-> 
-> ============
-> Date: Sat, 30 Apr 2005 21:58:07 +0200
-> 
-> For the time being, although I do not object to the patch,
-> obviously, since it is my own, I cannot see any reason to
-> add it to the "fixed" release.
-> ============
-> 
-> but maybe including it was done by mistake?
-> It wasn't mentioned, I think, in the changelog.
-> 
-> There was a report that it fixed an oops,
-> but the report is unconfirmed and ununderstood.
-> 
-> Should it be backed out of 2.6.11.8? Possibly - but if it will be
-> part of 2.6.12 or 2.6.13 then I would be inclined to leave it.
-> 
-> Andrew asks whether it should be removed from -mm.
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+>
+> --- linux-2.6.12-rc2-mm2-full/drivers/block/rd.c.old	2005-04-10
+> 02:00:08.000000000 +0200 +++
+> linux-2.6.12-rc2-mm2-full/drivers/block/rd.c	2005-04-10 02:01:00.000000000
+> +0200 @@ -74,7 +74,7 @@
+>   * architecture-specific setup routine (from the stored boot sector
+>   * information).
+>   */
+> -int rd_size = CONFIG_BLK_DEV_RAM_SIZE;		/* Size of the RAM disks */
+> +static int rd_size = CONFIG_BLK_DEV_RAM_SIZE;	/* Size of the RAM disks */
+>  /*
+>   * It would be very desirable to have a soft-blocksize (that in the case
+>   * of the ramdisk driver is also the hardblocksize ;) of PAGE_SIZE because
 
-It was merged into Linus's tree on March 8th (via bk, thank gawd.  How do
-you find out that sort of info using git?  Generating a full log is
-cheating).
 
-> Will first read all my mail and then reply to that letter.
-> Maybe you should coordinate with Andrew and take the same decision.
+This patch breaks PPC iSeries in arch/ppc64/kernel/iSeries_setup.c
 
-I'm proposing that we revert that change from Linus's tree.
+
+--- veth-fixes/drivers/block/rd.c	2005-05-06 19:26:53.000000000 +1000
++++ 2.6.12-rc3/drivers/block/rd.c	2005-04-29 15:14:23.000000000 +1000
+@@ -74,7 +74,7 @@
+  * architecture-specific setup routine (from the stored boot sector
+  * information).
+  */
+-static int rd_size = CONFIG_BLK_DEV_RAM_SIZE;	/* Size of the RAM disks */
++int rd_size = CONFIG_BLK_DEV_RAM_SIZE;		/* Size of the RAM disks */
+ /*
+  * It would be very desirable to have a soft-blocksize (that in the case
+  * of the ramdisk driver is also the hardblocksize ;) of PAGE_SIZE because

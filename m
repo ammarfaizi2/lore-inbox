@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262128AbVEFCJc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262208AbVEFD13@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262128AbVEFCJc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 22:09:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbVEFCJc
+	id S262208AbVEFD13 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 23:27:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262216AbVEFD13
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 22:09:32 -0400
-Received: from ozlabs.org ([203.10.76.45]:52436 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262128AbVEFCJ3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 22:09:29 -0400
+	Thu, 5 May 2005 23:27:29 -0400
+Received: from mail-in-03.arcor-online.net ([151.189.21.43]:18089 "EHLO
+	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
+	id S262208AbVEFD10 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 23:27:26 -0400
+From: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
+	<7eggert@gmx.de>
+Subject: Re: ssh and serial console problem
+To: govind raj <agovinda04@hotmail.com>, linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Fri, 06 May 2005 04:35:12 +0200
+References: <40QM8-1IO-35@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17018.53756.948706.526038@cargo.ozlabs.ibm.com>
-Date: Fri, 6 May 2005 12:10:04 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: akpm@osdl.org, torvalds@osdl.org
-CC: anton@samba.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] arch/ppc64: Replace custom MIN macro
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Transfer-Encoding: 7Bit
+Message-Id: <E1DTsgK-0002cd-Sp@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is from Tobias Klauser.
+govind raj <agovinda04@hotmail.com> wrote:
 
-Replace a custom MIN() macro with the min() macro from kernel.h
-This patch removes 4 lines of redundant code.
+> I have a customized Linux which supports a serial console interface.
+> 
+> I am able to successfully ssh into this Linux system. If I try to use any of
+> the secure (ssh, scp) programs from this ssh session, I am able to
+> successfully use them. If I try the same program from the serial console, I
+> get a "Login failed: Permission denied" message.
 
-Signed-off-by: Tobias Klauser <tklauser@nuerscht.ch>
-Signed-off-by: Paul Mackerras <paulus@samba.org>
----
-diff -urpN linux-2.6.12-rc2.orig/arch/ppc64/kernel/signal.c linux-2.6.12-rc2/arch/ppc64/kernel/signal.c
---- linux-2.6.12-rc2.orig/arch/ppc64/kernel/signal.c	2005-04-07 16:18:30.287667016 +0200
-+++ linux-2.6.12-rc2/arch/ppc64/kernel/signal.c	2005-04-07 16:19:14.159997408 +0200
-@@ -42,11 +42,7 @@
- 
- #define _BLOCKABLE (~(sigmask(SIGKILL) | sigmask(SIGSTOP)))
- 
--#ifndef MIN
--#define MIN(a,b) (((a) < (b)) ? (a) : (b))
--#endif
--
--#define GP_REGS_SIZE	MIN(sizeof(elf_gregset_t), sizeof(struct pt_regs))
-+#define GP_REGS_SIZE	min(sizeof(elf_gregset_t), sizeof(struct pt_regs))
- #define FP_REGS_SIZE	sizeof(elf_fpregset_t)
- 
- #define TRAMP_TRACEBACK	3
+Maybe the login process did not aquire the serial line as it's controling
+terminal.
+
+What's the output of tty? How do you login from the serial line?
+-- 
+"When the pin is pulled, Mr. Grenade is not our friend.
+-U.S. Marine Corps
+

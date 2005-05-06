@@ -1,107 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbVEFLGO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVEFLPN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbVEFLGO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 07:06:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbVEFLGO
+	id S261211AbVEFLPN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 07:15:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261217AbVEFLPN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 07:06:14 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:46812 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261210AbVEFLGF (ORCPT
+	Fri, 6 May 2005 07:15:13 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:64218 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S261211AbVEFLPA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 07:06:05 -0400
-Message-ID: <427B5147.36DE54D1@tv-sign.ru>
-Date: Fri, 06 May 2005 15:13:11 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Daniel Walker <dwalker@mvista.com>,
-       Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] Priority Lists for the RT mutex
-References: <427B333F.5A0BB431@tv-sign.ru>
+	Fri, 6 May 2005 07:15:00 -0400
+Date: Fri, 6 May 2005 13:14:45 +0200
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andries Brouwer <aebr@win.tue.nl>, hubert.tonneau@fullpliant.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc3 fails to read partition table
+Message-ID: <20050506111445.GC25418@apps.cwi.nl>
+References: <055UDZ711@server5.heliogroup.fr> <20050505161610.GA4604@pclin040.win.tue.nl> <20050505194342.5ecde856.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20050505194342.5ecde856.akpm@osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov wrote:
->
-> Daniel Walker wrote:
+On Thu, May 05, 2005 at 07:43:42PM -0700, Andrew Morton wrote:
+> Andries Brouwer <aebr@win.tue.nl> wrote:
 > >
-> > Description:
-> > 	This patch adds the priority list data structure from Inaky Perez-Gonzalez
-> > to the Preempt Real-Time mutex.
-> >
-> ...
->
-> I can't understand how this can work.
+> > Earlier Linux disregarded partition types, today 0 means "unused".
+> 
+> A number of people are being bitten by this.  Don't you think we should
+> revert this change?
 
-And I think it is possible to simplify plist's design.
+Executive summary: No strong opinion. Maybe, yes.
 
-struct plist {
-	int prio;
-	struct list_head prio_list;
-	struct list_head node_list;
-};
+Two people report that it fixes an oops, four people notice that
+partitions of type 0 are ignored now.
 
-#define	plist_for_each(pos, head)	\
-	 list_for_each_entry(pos, &(head)->node_list, node_list)
+Discussion:
 
-static inline void plist_add(struct plist *new, struct plist *head)
-{
-	struct plist* pos;
+(i) Why was it added?
+Because of the report by Uwe Bonnes:
 
-	INIT_LIST_HEAD(&new->prio_list);
+----
+the partition table of the USB stick in question is valid:
 
-	list_for_each_entry(pos, &head->prio_list, prio_list)
-		if (new->prio < pos->prio)
-			goto lt_prio;
-		else if (new->prio == pos->prio) {
-			pos = list_entry(pos->prio_list.next,
-					 struct plist, prio_list);
-			goto eq_prio;
-		}
+ 1B0:  00 00 00 00 00 00 00 00   53 3F 3C B9 00 00 00 01 ........S?<.....
+ 1C0:  01 00 06 10 21 7D 25 00   00 00 DB F3 01 00 00 00 ....!}%.........
+ 1D0:  00 00 00 00 00 00 00 00   00 00 00 00 00 00 00 00 ................
+   *
+ 1F0:  00 00 00 00 00 00 00 54   72 75 6D 70 4D 53 55 AA .......TrumpMSU.
 
-lt_prio:
-	list_add_tail(&new->prio_list, &pos->prio_list);
-eq_prio:
-	list_add_tail(&new->node_list, &pos->node_list);
-}
+Entry 1 is a FAT partition of exactly the size of the stick, and entries 2
+to 4 are empty, marked by id zero. However the manufacturer decided to put a
+name string  "Trump" ( /sbin/lsusb gives
+Bus 004 Device 012: ID 090a:1bc0 Trumpion Microelectronics, Inc.) just before
+the "55 AA" partition table magic and our code reads this string as a
+(bogus) size for the fourth entry, taking it for real.
 
-static inline void plist_del(struct plist *del)
-{
-	if (!list_empty(&del->prio_list)) {
-		struct plist *next = list_entry(del->node_list.next,
-						struct plist, node_list);
-		list_move_tail(&next->prio_list, &del->prio_list);
-		list_del_init(&del->prio_list);
-	}
+> on a Suse 9.2 System with Suse Hotplug, the phantom partition was somehow
+> recognized as Reiserfs, and then the Hotplug mechanism trying to mount the 
+> bogus partition as a Reiser Filesystem ended in an Oops...
+----
 
-	list_del_init(&del->node_list);
-}
+So: the reason to add it is weak: a bad manufacturer sells devices
+with a non-standard partition table that happens to work under Windows
+because type 0 is ignored there, and a bad Linux vendor does recognition,
+also known as guessing, and guesses wrong, and a bad kernel does not
+survive mounting garbage as reiserfs.
 
-All nodes in prio list are chained via ->node_list, sorted in ascending
-->prio/fifo order. Nodes which start different priority slice are chained
-via ->prio_list, ascending ->prio order.
 
-Slightly tested, seems to work.
+If the patch is reverted, and we spend some more time fixing
+filesystem code so that it survives mounting garbage, then
+the kernel is OK and we can put the remaining blame with SuSE.
 
-I think this would be even better:
 
-struct plist_head {
-	struct list_head prio_list;
-	struct list_head node_list;
-}
+(ii) Was adding this check a step in the right direction?
 
-struct plist {
-	int prio;
-	struct plist_head head;
-}
+No, it was just a bandaid - although handling things more like
+other OSs do might be viewed a step in the right direction.
 
-The plist_head's min/max prio can be found from
-plist_head.prio_list.next/prev.
+The right direction as far as I am concerned is moving partition parsing
+out to user space, to udev or upart or so.
 
-What do you think?
 
-Oleg.
+(iii) Should it be reverted?
+
+I have no strong opinion on this.
+As far as I know type 0 is ignored by Microsoft and is not
+created by Linux vendor installation programs, or by Linux
+*fdisk type programs, unless the user asks for it explicitly.
+So, the number of people that hit this will be small, and since
+they put the 0 there themselves will be able to put something else there.
+
+I think I saw four people so far. Now that all readers of l-k know,
+anybody who encounters a problem will be told quickly how to avoid it.
+
+
+(iv) If I were maintainer of 2.6 - would I revert it?
+
+Hmm... Not sure... Maybe, yes.
+
+Andries

@@ -1,95 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261278AbVEFWWR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbVEFWYu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261278AbVEFWWR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 18:22:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbVEFWWQ
+	id S261286AbVEFWYu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 18:24:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbVEFWYu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 18:22:16 -0400
-Received: from lexus.itbs.cz ([217.11.254.38]:15987 "EHLO lexus.itbs.cz")
-	by vger.kernel.org with ESMTP id S261278AbVEFWVx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 18:21:53 -0400
-Message-ID: <427BEDF7.3010508@itbs.cz>
-Date: Sat, 07 May 2005 00:21:43 +0200
-From: Jakub Jermar <jermar@itbs.cz>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: akpm@osdl.org
-Cc: len.brown@intel.com, "Randy.Dunlap" <rddunlap@osdl.org>, torvalds@osdl.org,
-       aul.s.diefenbaugh@intel.com, jun.nakajima@intel.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: PATCH: acpi_find_rsdp() diverges from ACPI specification
-References: <20050429230350.qid9o7yht3qckkg8@mail.hosting123.cz> <20050429144321.3398db9a.rddunlap@osdl.org>
-In-Reply-To: <20050429144321.3398db9a.rddunlap@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 6 May 2005 18:24:50 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:30214 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261286AbVEFWYO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 May 2005 18:24:14 -0400
+Date: Sat, 7 May 2005 00:24:10 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: irda-users@lists.sourceforge.net
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] net/irda/: passible cleanups
+Message-ID: <20050506222410.GV3590@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+This patch contains the following possible cleanups:
+- make the following needlessly global function static:
+  - irnet/irnet_ppp.c: irnet_init
+- remove the following unneeded EXPORT_SYMBOL's:
+  - irlmp.c: sysctl_discovery_timeout
+  - irlmp.c: irlmp_reasons
+  - irlmp.c: irlmp_dup
+  - irqueue.c: hashbin_find_next
 
-here I resend corrected patch for acpi_find_rsdp().
-Please, apply this patch.
+Please review which of these changes do make sense and which conflict 
+with pending patches.
 
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.11.7/arch/i386/kernel/acpi/boot.c 2005-04-07 20:58:17.000000000 +0200
-+++ linux-2.6.11.7-acpi-patch/arch/i386/kernel/acpi/boot.c      2005-04-29 21:39:08.000000000 +0200
-@@ -644,7 +644,7 @@ acpi_find_rsdp (void)
-          */
-         rsdp_phys = acpi_scan_rsdp (0, 0x400);
-         if (!rsdp_phys)
--               rsdp_phys = acpi_scan_rsdp (0xE0000, 0xFFFFF);
-+               rsdp_phys = acpi_scan_rsdp (0xE0000, 128*1024);
+---
 
-         return rsdp_phys;
-  }
+ net/irda/irlmp.c           |    3 ---
+ net/irda/irnet/irnet.h     |    3 ---
+ net/irda/irnet/irnet_ppp.c |    2 +-
+ net/irda/irqueue.c         |    1 -
+ 4 files changed, 1 insertion(+), 8 deletions(-)
 
-Best regards,
-Jakub
+--- linux-2.6.12-rc3-mm3-full/net/irda/irnet/irnet.h.old	2005-05-05 22:38:59.000000000 +0200
++++ linux-2.6.12-rc3-mm3-full/net/irda/irnet/irnet.h	2005-05-05 22:39:12.000000000 +0200
+@@ -517,9 +517,6 @@
+ 	irda_irnet_init(void);		/* Initialise IrDA part of IrNET */
+ extern void
+ 	irda_irnet_cleanup(void);	/* Teardown IrDA part of IrNET */
+-/* ---------------------------- MODULE ---------------------------- */
+-extern int
+-	irnet_init(void);		/* Initialise IrNET module */
+ 
+ /**************************** VARIABLES ****************************/
+ 
+--- linux-2.6.12-rc3-mm3-full/net/irda/irnet/irnet_ppp.c.old	2005-05-05 22:39:21.000000000 +0200
++++ linux-2.6.12-rc3-mm3-full/net/irda/irnet/irnet_ppp.c	2005-05-05 22:39:29.000000000 +0200
+@@ -1107,7 +1107,7 @@
+ /*
+  * Module main entry point
+  */
+-int __init
++static int __init
+ irnet_init(void)
+ {
+   int err;
+--- linux-2.6.12-rc3-mm3-full/net/irda/irlmp.c.old	2005-05-05 22:46:47.000000000 +0200
++++ linux-2.6.12-rc3-mm3-full/net/irda/irlmp.c	2005-05-05 22:50:52.000000000 +0200
+@@ -53,7 +53,6 @@
+ /* These can be altered by the sysctl interface */
+ int  sysctl_discovery         = 0;
+ int  sysctl_discovery_timeout = 3; /* 3 seconds by default */
+-EXPORT_SYMBOL(sysctl_discovery_timeout);
+ int  sysctl_discovery_slots   = 6; /* 6 slots by default */
+ int  sysctl_lap_keepalive_time = LM_IDLE_TIMEOUT * 1000 / HZ;
+ char sysctl_devname[65];
+@@ -67,7 +66,6 @@
+ 	"LM_INIT_DISCONNECT",
+ 	"ERROR, NOT USED",
+ };
+-EXPORT_SYMBOL(irlmp_reasons);
+ 
+ /*
+  * Function irlmp_init (void)
+@@ -675,7 +673,6 @@
+ 
+ 	return new;
+ }
+-EXPORT_SYMBOL(irlmp_dup);
+ 
+ /*
+  * Function irlmp_disconnect_request (handle, userdata)
+--- linux-2.6.12-rc3-mm3-full/net/irda/irqueue.c.old	2005-05-05 22:48:55.000000000 +0200
++++ linux-2.6.12-rc3-mm3-full/net/irda/irqueue.c	2005-05-05 22:49:03.000000000 +0200
+@@ -822,7 +822,6 @@
+ 
+ 	return entry;
+ }
+-EXPORT_SYMBOL(hashbin_find_next);
+ 
+ /*
+  * Function hashbin_get_first (hashbin)
 
-
-Randy.Dunlap wrote:
-> On Fri, 29 Apr 2005 23:03:50 +0200 jermar@itbs.cz wrote:
-> 
-> | Hello,
-> | 
-> | I found out that acpi_find_rsdp() tries to find the RSDP structure in an area
-> | bit larger than the ACPI specification wants. The right interval should start
-> | at 0xe0000 and end at 0xfffff. The search area is thus 128K+1B large.
-> 
-> The search area is thus 128 KB large, so I agree with the intent of
-> this patch, except for the +1B.
-> 
-> 
-> | Given the semantics of acpi_scan_rsdp(), the second argument should therefore be
-> | the size, not the end address.
-> 
-> Yes.
-> 
-> | Should there be any comments, please email me directly as I don't regularily
-> | read LKM.
-> | 
-> | Please, apply.
-> | 
-> | Jakub
-> | 
-> | --- linux-2.6.11.7/arch/i386/kernel/acpi/boot.c 2005-04-07 20:58:17.000000000
-> | +0200
-> | +++ linux-2.6.11.7-acpi-patch/arch/i386/kernel/acpi/boot.c      2005-04-29
-> | 21:39:08.000000000 +0200
-> | @@ -644,7 +644,7 @@ acpi_find_rsdp (void)
-> |          */
-> |         rsdp_phys = acpi_scan_rsdp (0, 0x400);
-> |         if (!rsdp_phys)
-> | -               rsdp_phys = acpi_scan_rsdp (0xE0000, 0xFFFFF);
-> | +               rsdp_phys = acpi_scan_rsdp (0xE0000, 128*1024 + 1);
-> Just drop the "+ 1".
-> 
-> | 
-> |         return rsdp_phys;
-> |  }
-> 
-> 
-> ---
-> ~Randy

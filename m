@@ -1,92 +1,260 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbVEFVYQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbVEFV3c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261249AbVEFVYQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 17:24:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbVEFVYQ
+	id S261266AbVEFV3c (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 17:29:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbVEFV3b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 17:24:16 -0400
-Received: from mail.kroah.org ([69.55.234.183]:7313 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261249AbVEFVW1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 17:22:27 -0400
-Date: Fri, 6 May 2005 14:22:27 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] hotplug-ng 002 release
-Message-ID: <20050506212227.GA24066@kroah.com>
+	Fri, 6 May 2005 17:29:31 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:52229 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261266AbVEFVZ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 May 2005 17:25:29 -0400
+Date: Fri, 6 May 2005 23:25:10 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] lib/zlib*: possible cleanups
+Message-ID: <20050506212509.GP3590@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After a very long delay, the 002 release of the hotplug-ng package
-finally escaped from my box and can be found at:
-	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-ng-002.tar.gz
+This patch contains the following possible cleanups:
+- #if 0 the following unused functions:
+  - zlib_deflate/deflate.c: zlib_deflateSetDictionary
+  - zlib_deflate/deflate.c: zlib_deflateParams
+  - zlib_deflate/deflate.c: zlib_deflateCopy
+  - zlib_inflate/infblock.c: zlib_inflate_set_dictionary
+  - zlib_inflate/infblock.c: zlib_inflate_blocks_sync_point
+  - zlib_inflate/inflate_sync.c: zlib_inflateSync
+  - zlib_inflate/inflate_sync.c: zlib_inflateSyncPoint
+- remove the following unneeded EXPORT_SYMBOL's:
+  - zlib_deflate/deflate_syms.c: zlib_deflateCopy
+  - zlib_deflate/deflate_syms.c: zlib_deflateParams
+  - zlib_inflate/inflate_syms.c: zlib_inflateSync
+  - zlib_inflate/inflate_syms.c: zlib_inflateSyncPoint
 
-The development tree has been converted over to a git archive, and can
-be found at:
-	rsync://rsync.kernel.org/pub/scm/linux/hotplug/hotplug-ng.git
-and can be browsed online at:
-	http://www.kernel.org/git/gitweb.cgi?p=linux%2Fhotplug%2Fhotplug-ng.git;a=log
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Nothing major in this release, just lots of bugfixes from a bunch of
-different people.  Thanks to all of you who sent me fixes for the same
-argc bug, I have been sufficiently chastised for such a stupid thing...
+---
 
-Full changelog can be found below, or browsed online at the link above.
+ include/linux/zlib.h            |   11 +++++++++++
+ lib/zlib_deflate/deflate.c      |    6 ++++++
+ lib/zlib_deflate/deflate_syms.c |    2 --
+ lib/zlib_inflate/infblock.c     |    4 ++++
+ lib/zlib_inflate/infblock.h     |    4 ++++
+ lib/zlib_inflate/inflate_syms.c |    2 --
+ lib/zlib_inflate/inflate_sync.c |    4 ++++
+ 7 files changed, 29 insertions(+), 4 deletions(-)
 
-So, where to next?  After the 001 release announcement, the main thing
-that has happened is that this project is pretty much obsolete
-already...
-
-Now, with the 2.6.12-rc3 kernel, and a patch for module-init-tools, the
-USB hotplug program can be written with a simple one line shell script:
-	modprobe $MODALIAS
-
-So, with a few more kernel patches for the other subsystems (hint, I'll
-gladly take them...) the other helper programs can too go away entirely.
-That will leave us with only the main /sbin/hotplug multiplexor program
-that any distro that uses udev is starting to abandon entirely.
-
-Oh, and the upstream module-init-tools maintainer needs to accept that
-patch one of these days...
-
-If I've missed any patches for the code from anyone, my apologies, can
-you please resend them against this latest tree?
-
-thanks,
-
-greg k-h
-
-Summary of changes v001 to v002
-============================================
-
-Christian Borntraeger:
-  o fix segfault when no parameters are used for agents
-  o typo in make uninstall
-
-Greg Kroah-Hartman:
-  o Add manpage to the install/uninstall rules
-  o delete klibc/klibc.spec, which is a generated file
-  o fix 'make release' to work properly with git
-  o update makefile to allow me to do a tarball interm release for someone
-  o fix up argc test in module_form.c
-  o make the release tarballs have writable files
-
-Kay Sievers:
-  o rename LOG to USE_LOG
-  o cleanup logging.h and list.h
-  o libsysfs: new version
-  o remove old klibc_fixups
-  o klibc: version 1.0.3
-
-Pozsar Balazs:
-  o Add ieee1394 support
-  o fix width of pci ids
-
-Tobias Klauser:
-  o Manpage for hotplug-ng
+--- linux-2.6.12-rc3-mm2-full/include/linux/zlib.h.old	2005-05-03 09:10:20.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/include/linux/zlib.h	2005-05-03 09:13:57.000000000 +0200
+@@ -442,9 +442,11 @@
+    not perform any compression: this will be done by deflate().
+ */
+                             
++#if 0
+ extern int zlib_deflateSetDictionary (z_streamp strm,
+ 						     const Byte *dictionary,
+ 						     uInt  dictLength);
++#endif
+ /*
+      Initializes the compression dictionary from the given byte sequence
+    without producing any compressed output. This function must be called
+@@ -478,7 +480,10 @@
+    perform any compression: this will be done by deflate().
+ */
+ 
++#if 0
+ extern int zlib_deflateCopy (z_streamp dest, z_streamp source);
++#endif
++
+ /*
+      Sets the destination stream as a complete copy of the source stream.
+ 
+@@ -506,7 +511,9 @@
+    stream state was inconsistent (such as zalloc or state being NULL).
+ */
+ 
++#if 0
+ extern int zlib_deflateParams (z_streamp strm, int level, int strategy);
++#endif
+ /*
+      Dynamically update the compression level and compression strategy.  The
+    interpretation of level and strategy is as in deflateInit2.  This can be
+@@ -566,7 +573,9 @@
+    inflate().
+ */
+ 
++#if 0
+ extern int zlib_inflateSync (z_streamp strm);
++#endif
+ /* 
+     Skips invalid compressed data until a full flush point (see above the
+   description of deflate with Z_FULL_FLUSH) can be found, or until all
+@@ -631,7 +640,9 @@
+ #endif
+ 
+ extern const char  * zlib_zError           (int err);
++#if 0
+ extern int           zlib_inflateSyncPoint (z_streamp z);
++#endif
+ extern const uLong * zlib_get_crc_table    (void);
+ 
+ #endif /* _ZLIB_H */
+--- linux-2.6.12-rc3-mm2-full/lib/zlib_deflate/deflate.c.old	2005-05-03 09:10:46.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/lib/zlib_deflate/deflate.c	2005-05-03 09:12:39.000000000 +0200
+@@ -255,6 +255,7 @@
+ }
+ 
+ /* ========================================================================= */
++#if 0
+ int zlib_deflateSetDictionary(
+ 	z_streamp strm,
+ 	const Byte *dictionary,
+@@ -297,6 +298,7 @@
+     if (hash_head) hash_head = 0;  /* to make compiler happy */
+     return Z_OK;
+ }
++#endif  /*  0  */
+ 
+ /* ========================================================================= */
+ int zlib_deflateReset(
+@@ -330,6 +332,7 @@
+ }
+ 
+ /* ========================================================================= */
++#if 0
+ int zlib_deflateParams(
+ 	z_streamp strm,
+ 	int level,
+@@ -365,6 +368,7 @@
+     s->strategy = strategy;
+     return err;
+ }
++#endif  /*  0  */
+ 
+ /* =========================================================================
+  * Put a short in the pending buffer. The 16-bit value is put in MSB order.
+@@ -572,6 +576,7 @@
+ /* =========================================================================
+  * Copy the source state to the destination state.
+  */
++#if 0
+ int zlib_deflateCopy (
+ 	z_streamp dest,
+ 	z_streamp source
+@@ -624,6 +629,7 @@
+     return Z_OK;
+ #endif
+ }
++#endif  /*  0  */
+ 
+ /* ===========================================================================
+  * Read a new buffer from the current input stream, update the adler32
+--- linux-2.6.12-rc3-mm2-full/lib/zlib_deflate/deflate_syms.c.old	2005-05-03 09:11:13.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/lib/zlib_deflate/deflate_syms.c	2005-05-03 09:12:02.000000000 +0200
+@@ -16,6 +16,4 @@
+ EXPORT_SYMBOL(zlib_deflateInit2_);
+ EXPORT_SYMBOL(zlib_deflateEnd);
+ EXPORT_SYMBOL(zlib_deflateReset);
+-EXPORT_SYMBOL(zlib_deflateCopy);
+-EXPORT_SYMBOL(zlib_deflateParams);
+ MODULE_LICENSE("GPL");
+--- linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/infblock.h.old	2005-05-03 09:12:49.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/infblock.h	2005-05-03 09:34:30.000000000 +0200
+@@ -33,12 +33,16 @@
+     inflate_blocks_statef *,
+     z_streamp);
+ 
++#if 0
+ extern void zlib_inflate_set_dictionary (
+     inflate_blocks_statef *s,
+     const Byte *d,  /* dictionary */
+     uInt  n);       /* dictionary length */
++#endif  /*  0  */
+ 
++#if 0
+ extern int zlib_inflate_blocks_sync_point (
+     inflate_blocks_statef *s);
++#endif  /*  0  */
+ 
+ #endif /* _INFBLOCK_H */
+--- linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/infblock.c.old	2005-05-03 09:13:13.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/infblock.c	2005-05-03 09:34:46.000000000 +0200
+@@ -338,6 +338,7 @@
+ }
+ 
+ 
++#if 0
+ void zlib_inflate_set_dictionary(
+ 	inflate_blocks_statef *s,
+ 	const Byte *d,
+@@ -347,15 +348,18 @@
+   memcpy(s->window, d, n);
+   s->read = s->write = s->window + n;
+ }
++#endif  /*  0  */
+ 
+ 
+ /* Returns true if inflate is currently at the end of a block generated
+  * by Z_SYNC_FLUSH or Z_FULL_FLUSH. 
+  * IN assertion: s != NULL
+  */
++#if 0
+ int zlib_inflate_blocks_sync_point(
+ 	inflate_blocks_statef *s
+ )
+ {
+   return s->mode == LENS;
+ }
++#endif  /*  0  */
+--- linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/inflate_sync.c.old	2005-05-03 09:14:12.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/inflate_sync.c	2005-05-03 09:14:52.000000000 +0200
+@@ -7,6 +7,7 @@
+ #include "infblock.h"
+ #include "infutil.h"
+ 
++#if 0
+ int zlib_inflateSync(
+ 	z_streamp z
+ )
+@@ -57,6 +58,7 @@
+   z->state->mode = BLOCKS;
+   return Z_OK;
+ }
++#endif  /*  0  */
+ 
+ 
+ /* Returns true if inflate is currently at the end of a block generated
+@@ -66,6 +68,7 @@
+  * decompressing, PPP checks that at the end of input packet, inflate is
+  * waiting for these length bytes.
+  */
++#if 0
+ int zlib_inflateSyncPoint(
+ 	z_streamp z
+ )
+@@ -74,6 +77,7 @@
+     return Z_STREAM_ERROR;
+   return zlib_inflate_blocks_sync_point(z->state->blocks);
+ }
++#endif  /*  0  */
+ 
+ /*
+  * This subroutine adds the data at next_in/avail_in to the output history
+--- linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/inflate_syms.c.old	2005-05-03 09:15:06.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/inflate_syms.c	2005-05-03 09:15:13.000000000 +0200
+@@ -15,8 +15,6 @@
+ EXPORT_SYMBOL(zlib_inflateInit_);
+ EXPORT_SYMBOL(zlib_inflateInit2_);
+ EXPORT_SYMBOL(zlib_inflateEnd);
+-EXPORT_SYMBOL(zlib_inflateSync);
+ EXPORT_SYMBOL(zlib_inflateReset);
+-EXPORT_SYMBOL(zlib_inflateSyncPoint);
+ EXPORT_SYMBOL(zlib_inflateIncomp); 
+ MODULE_LICENSE("GPL");
 
 

@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261223AbVEFN25@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbVEFNgm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261223AbVEFN25 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 09:28:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbVEFN25
+	id S261236AbVEFNgm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 09:36:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261224AbVEFNgl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 09:28:57 -0400
-Received: from zorg.st.net.au ([203.16.233.9]:49816 "EHLO borg.st.net.au")
-	by vger.kernel.org with ESMTP id S261208AbVEFN2x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 09:28:53 -0400
-Message-ID: <427B704A.10202@torque.net>
-Date: Fri, 06 May 2005 23:25:30 +1000
-From: Douglas Gilbert <dougg@torque.net>
-Reply-To: dougg@torque.net
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-scsi@vger.kernel.org
-CC: linux-kernel@vger.kernel.org
-Subject: [Announce] sg3_utils-1.14 available
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 6 May 2005 09:36:41 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:18819 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261235AbVEFNdb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 May 2005 09:33:31 -0400
+Subject: Re: [PATCH] __wait_on_freeing_inode fix
+From: David Woodhouse <dwmw2@infradead.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: akpm@osdl.org, dedekind@infradead.org, wli@holomorphy.com,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <E1DU1Hy-00060Q-00@dorka.pomaz.szeredi.hu>
+References: <E1DU1Hy-00060Q-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain
+Date: Fri, 06 May 2005 14:33:24 +0100
+Message-Id: <1115386405.16187.196.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-1.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sg3_utils is a package of command line utilities for sending
-SCSI commands to devices. This package targets the lk 2.6 and
-lk 2.4 series. In the lk 2.6 series these utilities (except
-sgp_dd) can be used with any devices that support the SG_IO
-ioctl.
+On Fri, 2005-05-06 at 13:46 +0200, Miklos Szeredi wrote:
+> The solution is to restore the old behavior, of unconditionally
+> waiting on the waitqueue.  It doesn't matter if I_LOCK is not set
+> initally, the task will go to sleep, and wake up when wake_up_inode()
+> is called from generic_delete_inode() after removing the inode from
+> the hash chain.
 
-This version adds sg_rmsn to read media serial number(s).
-The tarball contains a spec file for building rpms. That
-spec file builds two binary rpms: sg3_utils and libsgutils.
-In the future my plan is to make other utilities such as
-sdparm depend on libsgutils. See CHANGELOG for other changes.
+That's all well and good if it's actually generic_delete_inode() which
+removes the inode from the hash chain. But if it's prune_icache() which
+does that, you don't get the wakeup.
 
-A tarball, rpm and deb can be found on (see table 2):
-http://www.torque.net/sg
-For an overview of sg3_utils see this page:
-http://www.torque.net/sg/u_index.html
-The sg_dd utility has its own page at:
-http://www.torque.net/sg/sg_dd.html
-A changelog can be found at:
-http://www.torque.net/sg/p/sg3_utils.CHANGELOG
+Applying Artem's patch will fix that.
 
-A release announcement has been sent to freshmeat.net .
+-- 
+dwmw2
 
-Doug Gilbert

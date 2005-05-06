@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261790AbVEFAvc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262099AbVEFBYl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261790AbVEFAvc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 May 2005 20:51:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbVEFAvc
+	id S262099AbVEFBYl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 May 2005 21:24:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbVEFBYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 May 2005 20:51:32 -0400
-Received: from fmr24.intel.com ([143.183.121.16]:33765 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261790AbVEFAva (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 May 2005 20:51:30 -0400
-Date: Thu, 5 May 2005 17:51:00 -0700
-From: Ashok Raj <ashok.raj@intel.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Ashok Raj <ashok.raj@intel.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, zwane@arm.linux.org.uk, shaohua.li@intel.com
-Subject: Re: make smp_prepare_cpu to a weak function
-Message-ID: <20050505175059.A18081@unix-os.sc.intel.com>
-References: <20050505170727.A17919@unix-os.sc.intel.com> <1115340027.6503.1.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Thu, 5 May 2005 21:24:41 -0400
+Received: from ozlabs.org ([203.10.76.45]:16083 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262099AbVEFBYk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 May 2005 21:24:40 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1115340027.6503.1.camel@localhost.localdomain>; from arjan@infradead.org on Thu, May 05, 2005 at 08:40:27PM -0400
+Content-Transfer-Encoding: 7bit
+Message-ID: <17018.51064.311305.718975@cargo.ozlabs.ibm.com>
+Date: Fri, 6 May 2005 11:25:12 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org
+CC: johnrose@austin.ibm.com, linux-kernel@vger.kernel.org, anton@samba.org
+Subject: [PATCH] enable CONFIG_RTAS_PROC by default
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 05, 2005 at 08:40:27PM -0400, Arjan van de Ven wrote:
-> On Thu, 2005-05-05 at 17:07 -0700, Ashok Raj wrote:
-> > +int __attribute__((weak)) smp_prepare_cpu (int cpu)
-> > +{
-> > +	return 0;
-> > +}
-> 
-> 
-> ehhh what does this attribute mean here?????
-> 
-> 
+This patch enables CONFIG_RTAS_PROC by default on pSeries.  This will
+preserve /proc/ppc64/rtas/rmo_buffer, which is needed by librtas.
 
-This function exists only for i386. Today for smp suspend they are using
-cpu hotplug code, but since i386 startup code is not like
-true smp bringup, so there is this hack to prepare something before calling
-__cpu_up().
+This patch should go in 2.6.12.
 
-This is just to provide a default implementation, in the case arch
-doesnt provide a smp_prepare_cpu(). 
-
-Hope i answered the right question, unless you have something subtle here :-(
-
-Cheers,
-ashok
--- 
-Cheers,
-Ashok Raj
-- Open Source Technology Center
+Signed-off-by: John Rose <johnrose@austin.ibm.com>
+Signed-off-by: Paul Mackerras <paulus@samba.org>
+---
+diff -puN arch/ppc64/Kconfig~fix_Kconfig arch/ppc64/Kconfig
+--- 2_6_linus_3/arch/ppc64/Kconfig~fix_Kconfig	2005-04-12 18:03:45.000000000 -0500
++++ 2_6_linus_3-johnrose/arch/ppc64/Kconfig	2005-04-12 18:03:56.000000000 -0500
+@@ -262,6 +262,7 @@ config PPC_RTAS
+ config RTAS_PROC
+ 	bool "Proc interface to RTAS"
+ 	depends on PPC_RTAS
++	default y
+ 
+ config RTAS_FLASH
+ 	tristate "Firmware flash interface"

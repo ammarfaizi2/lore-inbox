@@ -1,88 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbVEFLrp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbVEFLsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261169AbVEFLrp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 07:47:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbVEFLro
+	id S261166AbVEFLsS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 07:48:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbVEFLsS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 07:47:44 -0400
-Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:5897 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261163AbVEFLrh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 07:47:37 -0400
-To: akpm@osdl.org
-CC: dwmw2@infradead.org, dedekind@infradead.org, wli@holomorphy.com,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: [PATCH] __wait_on_freeing_inode fix
-Message-Id: <E1DU1Hy-00060Q-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Fri, 06 May 2005 13:46:38 +0200
+	Fri, 6 May 2005 07:48:18 -0400
+Received: from fire.osdl.org ([65.172.181.4]:37045 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261166AbVEFLsC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 May 2005 07:48:02 -0400
+Date: Fri, 6 May 2005 04:47:20 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andries Brouwer <Andries.Brouwer@cwi.nl>
+Cc: aebr@win.tue.nl, hubert.tonneau@fullpliant.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc3 fails to read partition table
+Message-Id: <20050506044720.2bb95792.akpm@osdl.org>
+In-Reply-To: <20050506111445.GC25418@apps.cwi.nl>
+References: <055UDZ711@server5.heliogroup.fr>
+	<20050505161610.GA4604@pclin040.win.tue.nl>
+	<20050505194342.5ecde856.akpm@osdl.org>
+	<20050506111445.GC25418@apps.cwi.nl>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+Andries Brouwer <Andries.Brouwer@cwi.nl> wrote:
+>
+> Discussion:
 
-This patch fixes queer behavior in __wait_on_freeing_inode().
+Thanks for that.
 
-If I_LOCK was not set it called yield(), effectively busy waiting for
-the removal of the inode from the hash.  This change was introduced
-within "[PATCH] eliminate inode waitqueue hashtable" Changeset
-1.1938.166.16 last october by wli.
+> 
+> (iv) If I were maintainer of 2.6 - would I revert it?
+> 
+> Hmm... Not sure... Maybe, yes.
+> 
 
-The solution is to restore the old behavior, of unconditionally
-waiting on the waitqueue.  It doesn't matter if I_LOCK is not set
-initally, the task will go to sleep, and wake up when wake_up_inode()
-is called from generic_delete_inode() after removing the inode from
-the hash chain.
+How about the old fallback?
 
-Comment is also updated to better reflect current behavior.
 
-Compile tested only.  This condition is very hard to trigger normally
-(simultaneous clear_inode() with iget()) so probably only heavy stress
-testing can reveal any change of behavior.
+From: Andrew Morton <akpm@osdl.org>
 
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+Since early March we've been skipping partitions which have a signature byte
+of zero - this was to accomodate an incorrectly manufactured USB stick.
 
---- inode.c~	2005-05-02 11:24:49.000000000 +0200
-+++ inode.c	2005-05-06 13:25:12.000000000 +0200
-@@ -1253,29 +1253,21 @@
- }
- 
- /*
-- * If we try to find an inode in the inode hash while it is being deleted, we
-- * have to wait until the filesystem completes its deletion before reporting
-- * that it isn't found.  This is because iget will immediately call
-- * ->read_inode, and we want to be sure that evidence of the deletion is found
-- * by ->read_inode.
-+ * If we try to find an inode in the inode hash while it is being
-+ * deleted, we have to wait until the filesystem completes its
-+ * deletion before reporting that it isn't found.  This function waits
-+ * until the deletion _might_ have completed.  Callers are responsible
-+ * to recheck inode state.
-+ * 
-+ * It doesn't matter if I_LOCK is not set initially, a call to
-+ * wake_up_inode() after removing from the hash list will DTRT.
-+ *
-  * This is called with inode_lock held.
+But it broke a few people's setups because it caused device renumbering.
+
+So add a new boot option `msdos_skip_null_part' to enable this workaround.
+
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ Documentation/kernel-parameters.txt |    6 ++++++
+ fs/partitions/msdos.c               |   14 ++++++++++++--
+ 2 files changed, 18 insertions(+), 2 deletions(-)
+
+diff -puN fs/partitions/msdos.c~msdos-partitions-null-handling-boot-option fs/partitions/msdos.c
+--- 25/fs/partitions/msdos.c~msdos-partitions-null-handling-boot-option	2005-05-06 04:37:32.000000000 -0700
++++ 25-akpm/fs/partitions/msdos.c	2005-05-06 04:46:16.000000000 -0700
+@@ -20,6 +20,7 @@
   */
- static void __wait_on_freeing_inode(struct inode *inode)
+ 
+ #include <linux/config.h>
++#include <linux/init.h>
+ 
+ #include "check.h"
+ #include "msdos.h"
+@@ -53,6 +54,15 @@ static inline int is_extended_partition(
+ #define MSDOS_LABEL_MAGIC1	0x55
+ #define MSDOS_LABEL_MAGIC2	0xAA
+ 
++static int skip_null_part;
++
++static int __init msdos_skip_null_part(char *str)
++{
++	skip_null_part = 1;
++	return 0;
++}
++__setup("msdos_skip_null_part", msdos_skip_null_part);
++
+ static inline int
+ msdos_magic_present(unsigned char *p)
  {
- 	wait_queue_head_t *wq;
- 	DEFINE_WAIT_BIT(wait, &inode->i_state, __I_LOCK);
--
--	/*
--	 * I_FREEING and I_CLEAR are cleared in process context under
--	 * inode_lock, so we have to give the tasks who would clear them
--	 * a chance to run and acquire inode_lock.
--	 */
--	if (!(inode->i_state & I_LOCK)) {
--		spin_unlock(&inode_lock);
--		yield();
--		spin_lock(&inode_lock);
--		return;
--	}
- 	wq = bit_waitqueue(&inode->i_state, __I_LOCK);
- 	prepare_to_wait(wq, &wait.wait, TASK_UNINTERRUPTIBLE);
- 	spin_unlock(&inode_lock);
-
-
+@@ -115,7 +125,7 @@ parse_extended(struct parsed_partitions 
+ 		for (i=0; i<4; i++, p++) {
+ 			u32 offs, size, next;
+ 
+-			if (SYS_IND(p) == 0)
++			if (skip_null_part && SYS_IND(p) == 0)
+ 				continue;
+ 			if (!NR_SECTS(p) || is_extended_partition(p))
+ 				continue;
+@@ -433,7 +443,7 @@ int msdos_partition(struct parsed_partit
+ 	for (slot = 1 ; slot <= 4 ; slot++, p++) {
+ 		u32 start = START_SECT(p)*sector_size;
+ 		u32 size = NR_SECTS(p)*sector_size;
+-		if (SYS_IND(p) == 0)
++		if (skip_null_part && SYS_IND(p) == 0)
+ 			continue;
+ 		if (!size)
+ 			continue;
+diff -puN Documentation/kernel-parameters.txt~msdos-partitions-null-handling-boot-option Documentation/kernel-parameters.txt
+--- 25/Documentation/kernel-parameters.txt~msdos-partitions-null-handling-boot-option	2005-05-06 04:43:52.000000000 -0700
++++ 25-akpm/Documentation/kernel-parameters.txt	2005-05-06 04:45:43.000000000 -0700
+@@ -808,6 +808,12 @@ running once the system is up.
+ 	mpu401=		[HW,OSS]
+ 			Format: <io>,<irq>
+ 
++	msdos_skip_null_part
++			Make the MSDOS partition parsing code skip partitions
++			which have a signature of zero.  This can help with
++			mounting some incorrectly manufactured USB memory
++			devices.
++
+ 	MTD_Partition=	[MTD]
+ 			Format: <name>,<region-number>,<size>,<offset>
+ 
+_
 

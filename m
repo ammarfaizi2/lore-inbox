@@ -1,136 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbVEGAza@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261435AbVEGBJ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261420AbVEGAza (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 20:55:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbVEGAz3
+	id S261435AbVEGBJ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 21:09:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbVEGBJ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 20:55:29 -0400
-Received: from mail.dif.dk ([193.138.115.101]:15572 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261420AbVEGAyb (ORCPT
+	Fri, 6 May 2005 21:09:27 -0400
+Received: from fire.osdl.org ([65.172.181.4]:42219 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261435AbVEGBJW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 20:54:31 -0400
-Date: Sat, 7 May 2005 02:58:14 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: linux-kernel@vger.kernel.org
-Cc: Ed Okerson <eokerson@quicknet.net>, akpm@osdl.org
-Subject: [PATCH] kfree cleanups (remove redundant NULL checks) in drivers/telephony/
- (actually ixj.c only)
-Message-ID: <Pine.LNX.4.62.0505070254180.2384@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 6 May 2005 21:09:22 -0400
+Date: Fri, 6 May 2005 18:08:36 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alexander Nyberg <alexn@dsv.su.se>
+Cc: rostedt@goodmis.org, linux-kernel@vger.kernel.org, cw@f00f.org,
+       andre@cachola.com.br
+Subject: Re: A patch for the file kernel/fork.c
+Message-Id: <20050506180836.2d431ab2.akpm@osdl.org>
+In-Reply-To: <1115307176.3993.9.camel@localhost.localdomain>
+References: <4278E03A.1000605@cachola.com.br>
+	<20050504175457.GA31789@taniwha.stupidest.org>
+	<427913E4.3070908@cachola.com.br>
+	<20050504184318.GA644@taniwha.stupidest.org>
+	<42791CD2.5070408@cachola.com.br>
+	<1115234213.2562.28.camel@localhost.localdomain>
+	<20050504124104.3573e7f3.akpm@osdl.org>
+	<1115241687.2562.50.camel@localhost.localdomain>
+	<1115300887.21180.14.camel@localhost.localdomain>
+	<1115307176.3993.9.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes redundant checks for NULL pointer before kfree() in 
-drivers/telephony/
+Alexander Nyberg <alexn@dsv.su.se> wrote:
+>
+> +	/* We're taking recursive faults here in do_exit. Safest 
+>  +	 * is to just leave this task alone and wait for reboot. */
+
+I find this comment-block style a bit hard to maintain, and am anal about
+consistency.
+
+>  +	if (unlikely(tsk->flags & PF_EXITING)) {
+>  +		printk(KERN_ALERT "\nFixing recursive fault but reboot is needed!\n");
+>  +		set_current_state(TASK_UNINTERRUPTIBLE);
+>  +		schedule();
+>  +	}
+>  +
+
+In the printk string, a \n will terminate the current facility level, so
+your KERN_ALERT there is a no-op.  I simply removed it, which might cause
+messy output sometimes but that seems better than always adding a newline.
 
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
----
-
- drivers/telephony/ixj.c |   48 +++++++++++++++++-------------------------------
- 1 files changed, 17 insertions(+), 31 deletions(-)
-
-diff -upr linux-2.6.12-rc3-mm3-orig/drivers/telephony/ixj.c linux-2.6.12-rc3-mm3/drivers/telephony/ixj.c
---- linux-2.6.12-rc3-mm3-orig/drivers/telephony/ixj.c	2005-05-06 23:21:17.000000000 +0200
-+++ linux-2.6.12-rc3-mm3/drivers/telephony/ixj.c	2005-05-07 02:53:15.000000000 +0200
-@@ -329,10 +329,8 @@ static IXJ *ixj_alloc()
- 
- static void ixj_fsk_free(IXJ *j)
- {
--	if(j->fskdata != NULL) {
--		kfree(j->fskdata);
--		j->fskdata = NULL;
--	}
-+	kfree(j->fskdata);
-+	j->fskdata = NULL;
- }
- 
- static void ixj_fsk_alloc(IXJ *j)
-@@ -3869,11 +3867,9 @@ static int set_rec_codec(IXJ *j, int rat
- 	default:
- 		j->rec_frame_size = 0;
- 		j->rec_mode = -1;
--		if (j->read_buffer) {
--			kfree(j->read_buffer);
--			j->read_buffer = NULL;
--			j->read_buffer_size = 0;
--		}
-+		kfree(j->read_buffer);
-+		j->read_buffer = NULL;
-+		j->read_buffer_size = 0;
- 		retval = 1;
- 		break;
+--- 25/kernel/exit.c~avoid-recursive-oopses	2005-05-06 18:03:45.000000000 -0700
++++ 25-akpm/kernel/exit.c	2005-05-06 18:06:01.000000000 -0700
+@@ -795,6 +795,17 @@ fastcall NORET_TYPE void do_exit(long co
+ 		ptrace_notify((PTRACE_EVENT_EXIT << 8) | SIGTRAP);
  	}
-@@ -3994,11 +3990,9 @@ static void ixj_record_stop(IXJ *j)
- 	if(ixjdebug & 0x0002)
- 		printk("IXJ %d Stopping Record Codec %d at %ld\n", j->board, j->rec_codec, jiffies);
  
--	if (j->read_buffer) {
--		kfree(j->read_buffer);
--		j->read_buffer = NULL;
--		j->read_buffer_size = 0;
--	}
-+	kfree(j->read_buffer);
-+	j->read_buffer = NULL;
-+	j->read_buffer_size = 0;
- 	if (j->rec_mode > -1) {
- 		ixj_WriteDSPCommand(0x5120, j);
- 		j->rec_mode = -1;
-@@ -4451,11 +4445,9 @@ static int set_play_codec(IXJ *j, int ra
- 	default:
- 		j->play_frame_size = 0;
- 		j->play_mode = -1;
--		if (j->write_buffer) {
--			kfree(j->write_buffer);
--			j->write_buffer = NULL;
--			j->write_buffer_size = 0;
--		}
-+		kfree(j->write_buffer);
-+		j->write_buffer = NULL;
-+		j->write_buffer_size = 0;
- 		retval = 1;
- 		break;
- 	}
-@@ -4581,11 +4573,9 @@ static void ixj_play_stop(IXJ *j)
- 	if(ixjdebug & 0x0002)
- 		printk("IXJ %d Stopping Play Codec %d at %ld\n", j->board, j->play_codec, jiffies);
++	/*
++	 * We're taking recursive faults here in do_exit. Safest is to just
++	 * leave this task alone and wait for reboot.
++	 */
++	if (unlikely(tsk->flags & PF_EXITING)) {
++		printk(KERN_ALERT
++			"Fixing recursive fault but reboot is needed!\n");
++		set_current_state(TASK_UNINTERRUPTIBLE);
++		schedule();
++	}
++
+ 	tsk->flags |= PF_EXITING;
  
--	if (j->write_buffer) {
--		kfree(j->write_buffer);
--		j->write_buffer = NULL;
--		j->write_buffer_size = 0;
--	}
-+	kfree(j->write_buffer);
-+	j->write_buffer = NULL;
-+	j->write_buffer_size = 0;
- 	if (j->play_mode > -1) {
- 		ixj_WriteDSPCommand(0x5221, j);	/* Stop playback and flush buffers.  8022 reference page 9-40 */
- 
-@@ -5810,9 +5800,7 @@ static void ixj_cpt_stop(IXJ *j)
- 		ixj_play_tone(j, 0);
- 		j->tone_state = j->tone_cadence_state = 0;
- 		if (j->cadence_t) {
--			if (j->cadence_t->ce) {
--				kfree(j->cadence_t->ce);
--			}
-+			kfree(j->cadence_t->ce);
- 			kfree(j->cadence_t);
- 			j->cadence_t = NULL;
- 		}
-@@ -7497,10 +7485,8 @@ static void cleanup(void)
- 					printk(KERN_INFO "IXJ: Releasing XILINX address for /dev/phone%d\n", cnt);
- 				release_region(j->XILINXbase, 4);
- 			}
--			if (j->read_buffer)
--				kfree(j->read_buffer);
--			if (j->write_buffer)
--				kfree(j->write_buffer);
-+			kfree(j->read_buffer);
-+			kfree(j->write_buffer);
- 			if (j->dev)
- 				pnp_device_detach(j->dev);
- 			if (ixjdebug & 0x0002)
-
-
+ 	/*
+_
 

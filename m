@@ -1,37 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262735AbVEGSIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262740AbVEGSKP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262735AbVEGSIs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 14:08:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262737AbVEGSIr
+	id S262740AbVEGSKP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 14:10:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262737AbVEGSKP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 14:08:47 -0400
-Received: from lakshmi.addtoit.com ([198.99.130.6]:11527 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S262735AbVEGSIq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 14:08:46 -0400
-Date: Sat, 7 May 2005 14:03:56 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Alexander Nyberg <alexn@telia.com>
-Cc: Antoine Martin <antoine@nagafix.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11.8 + UML/x86_64 (2.6.12-rc3+) = oops
-Message-ID: <20050507180356.GA10793@ccure.user-mode-linux.org>
-References: <20050504191828.620C812EE7@sc8-sf-spam2.sourceforge.net> <1115248927.12088.52.camel@cobra> <1115392141.12197.3.camel@cobra> <1115483506.12131.33.camel@cobra> <1115481468.925.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1115481468.925.9.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
+	Sat, 7 May 2005 14:10:15 -0400
+Received: from sweetums.bluetronic.net ([24.199.150.42]:18319 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id S262740AbVEGSJq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 14:09:46 -0400
+Date: Sat, 7 May 2005 14:05:45 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: Stefan Smietanowski <stesmi@stesmi.com>
+cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: /proc/cpuinfo format - arch dependent!
+In-Reply-To: <427D000B.40803@stesmi.com>
+Message-ID: <Pine.GSO.4.33.0505071351360.19035-100000@sweetums.bluetronic.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 07, 2005 at 05:57:48PM +0200, Alexander Nyberg wrote:
-> I never get uml to compile around here, 2.6.12-rc3 + that patchkit from
-> the link you sent blows up with defconfig any my minimal config. Please
-> attach your guest .config and if you can you might aswell put your guest
-> vmlinux somewhere where i can download it too.
+On Sat, 7 May 2005, Stefan Smietanowski wrote:
+>> Back when I first brought this up (8 years ago?), it was simple... numcpu
+>> was it.  There weren't any virtual processors or multi-core critters.
 
-Start with -rc3, and all the patches from
-	http://user-mode-linux.sf.net/patches.html
-up to and including skas0.  You'll see a note to x86_64 users on that patch.
+... as far as linux was concerned, which is the whole point.  We aren't
+talking about those ancient cray's and other oddball (by modern definition)
+quad 386's -- yes, I've seen one of those; yes, it was more dust than
+actual computer :-)
 
-				Jeff
+>Pretty big generalization there. But tell me, a HT DualCore CPU - how
+>DO you think it should end up being visible?
+
+One has to make generalizations.  I'm not typin' for days here.
+
+Your HT DC CPU counts as 4 cpus total... the same as two HT processors.
+The system does not fundamentally need to make a distinction on dual core
+vs. two actual chips + heat sinks + fans.  The system will perform almost
+identically (if not acutally identically) to a dual (single core) processor
+system.
+
+>Also, remember the some database vendors have said that they will charge
+>per cpu package and some have said it's per cpu core.
+
+That's between you and the licensor.  Some count virtual processors, some
+count logical processors, and I'm sure there are some that are worded
+based on the physical number of processor chips (even if they aren't online.)
+But I don't pander to the greedy bastard database vendors :-)  "I swear
+we're only running Oracle on *one* of the 8 processors.  Honest."
+(you can never satisfy everyone all of the time.)
+
+Personally, I don't count HT as a "second processor"... because it's not.
+
+--Ricky
+
+

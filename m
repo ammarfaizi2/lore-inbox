@@ -1,306 +1,155 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262638AbVEGQFJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbVEGQai@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262638AbVEGQFJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 12:05:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262726AbVEGQFJ
+	id S261339AbVEGQai (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 12:30:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbVEGQai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 12:05:09 -0400
-Received: from zproxy.gmail.com ([64.233.162.193]:41054 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262638AbVEGQD6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 12:03:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=L4+O6SSzxb1406+Nsgl5z6E569/D/iFH8MA/nQjU1wEWMr1XHE696dyJmLYDcj3Ep3Ah/sImBRoGCzhhBk8hTTH8iAekeSad9LDy908TIE0c7NiocED9Rywk2PsaXYUeahmFRyGg67uQGYbCaKDGx95ZRq9mkQNbSZbDIw3mLtM=
-Message-ID: <87ab37ab0505070903c286c54@mail.gmail.com>
-Date: Sun, 8 May 2005 00:03:56 +0800
-From: kylin <fierykylin@gmail.com>
-Reply-To: kylin <fierykylin@gmail.com>
-To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: BroadCom 5721 NICs conflict with each other and USB under linux 2.6.12-rc3-git1
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Sat, 7 May 2005 12:30:38 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:63816 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261339AbVEGQaS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 12:30:18 -0400
+Date: Sat, 7 May 2005 17:30:52 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Timur Tabi <timur.tabi@ammasso.com>
+cc: Libor Michalek <libor@topspin.com>, Andrew Morton <akpm@osdl.org>,
+       Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace verbs
+       implementation
+In-Reply-To: <427CD49E.6080300@ammasso.com>
+Message-ID: <Pine.LNX.4.61.0505071617470.5718@goblin.wat.veritas.com>
+References: <200544159.Ahk9l0puXy39U6u6@topspin.com> 
+    <20050411142213.GC26127@kalmia.hozed.org> <52mzs51g5g.fsf@topspin.com> 
+    <20050411163342.GE26127@kalmia.hozed.org> <5264yt1cbu.fsf@topspin.com> 
+    <20050411180107.GF26127@kalmia.hozed.org> <52oeclyyw3.fsf@topspin.com> 
+    <20050411171347.7e05859f.akpm@osdl.org> 
+    <20050412180447.E6958@topspin.com> <20050425203110.A9729@topspin.com> 
+    <4279142A.8050501@ammasso.com> <427A6A7E.8000604@ammasso.com> 
+    <427BF8E1.2080006@ammasso.com> 
+    <Pine.LNX.4.61.0505071304010.4713@goblin.wat.veritas.com> 
+    <427CD49E.6080300@ammasso.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+X-OriginalArrivalTime: 07 May 2005 16:30:16.0815 (UTC) 
+    FILETIME=[0D5D77F0:01C55322]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I suddenly found that my 2 BroadCom 5721 NICs can not work
-intercurrently, if one works, the other will not.
-i have enable the "pci=routeirq" option in grub for the Dmesg hinted.
-but still  conflict.when i look in to the proc/interrupts:i got:
-           CPU0       
-  0:    9084632          XT-PIC  timer
-  1:         10          XT-PIC  i8042
-  2:          0          XT-PIC  cascade
-  3:         21          XT-PIC  ehci_hcd:usb1
-  5:          0          XT-PIC  parport0
-  7:     945888          XT-PIC  megaraid, uhci_hcd:usb4,
-radeon@pci:0000:10:0d.0
-  8:          0          XT-PIC  rtc
-  9:          1          XT-PIC  acpi
- 10:          0          XT-PIC  uhci_hcd:usb3
- 11:    2436114          XT-PIC  uhci_hcd:usb2, eth0, eth1
- 12:        101          XT-PIC  i8042
- 14:         11          XT-PIC  ide0
-NMI:          0 
-ERR:          0
-also ,the USB disk can not work well 
-i am using the intel E7520 chipset on Dell PE 2800 with PCI express supported,
-and BroadCom 5721 NICs is a PCIe ethernet card.
-I doubt that is because the IRQ 's fault . can some kind hearted help me out ?
+On Sat, 7 May 2005, Timur Tabi wrote:
+> 
+> > Oh, well, maybe, but what is the real problem?
+> > Are you sure that copy-on-write doesn't come into it?
+> 
+> No, but I do know that my test case doesn't call fork(), so it's reproducible
+> without involving COW.  Of course, I'm sure someone's going to tell me now
+> that COW comes into effect even without fork().  If so, please explain.
 
-i am running a kernel 2.6.12-rc3-git1 #2 Sun May 8 00:00:05 CST 2005
-i686 i686 i386 GNU/Linux of Fedora Core 4 Test 2,
+I'll try.  COW comes into effect whenever you're sharing a page and
+then need to make private changes to it.  Fork is one way of sharing
+(with ancestor and descendant processes).  Using the empty zero page
+is another way of sharing (with all other processes and parts of your
+own address space with a readonly page full of zeroes).  Using a file
+page from the page cache is another way of sharing.
 
-if useful ,below is the lspci:
-00:00.0 Host bridge: Intel Corporation E7520 Memory Controller Hub (rev 09)
-	Subsystem: Dell: Unknown device 016e
-	Flags: bus master, fast devsel, latency 0
-	Capabilities: [40] Vendor Specific Information
+None of those is actually your case, but our test for whether a page
+is shared has been inadequate: oversimplifying, if page_count is more
+than 1 then we have to assume it is shared and do the copy-on-write
+(if the modifications are to be private).  But there are various places
+where the page_count is temporarily raised (e.g. while paging out),
+which we cannot distinguish, so occasionally we'll copy on write even
+when it's not necessary, but we lack the information to tell us so.
 
-00:02.0 PCI bridge: Intel Corporation E7525/E7520/E7320 PCI Express
-Port A (rev 09) (prog-if 00 [Normal decode])
-	Flags: bus master, fast devsel, latency 0
-	Bus: primary=00, secondary=01, subordinate=03, sec-latency=0
-	Memory behind bridge: dfc00000-dfefffff
-	Prefetchable memory behind bridge: 00000000da000000-00000000da000000
-	Capabilities: [50] Power Management version 2
-	Capabilities: [58] Message Signalled Interrupts: 64bit- Queue=0/1 Enable-
-	Capabilities: [64] Express Root Port (Slot-) IRQ 0
-	Capabilities: [100] Advanced Error Reporting
+In particular, of course, get_user_pages raises page_count to pin
+the page: so making a page appear shared when it's not shared at all.
 
-00:03.0 PCI bridge: Intel Corporation E7525/E7520/E7320 PCI Express
-Port A1 (rev 09) (prog-if 00 [Normal decode])
-	Flags: bus master, fast devsel, latency 0
-	Bus: primary=00, secondary=04, subordinate=06, sec-latency=0
-	Memory behind bridge: dfb00000-dfbfffff
-	Capabilities: [50] Power Management version 2
-	Capabilities: [58] Message Signalled Interrupts: 64bit- Queue=0/1 Enable-
-	Capabilities: [64] Express Root Port (Slot-) IRQ 0
-	Capabilities: [100] Advanced Error Reporting
+> The short answer: under "extreme" memory pressure, the data inside a page
+> pinned by get_user_pages() is swapped out, moved, or deleted (I'm not sure
+> which).  Some other data is placed into that physical location.
+> 
+> By extreme memory pressure, I mean having the process allocate and touch as
+> much memory as possible.  Something like this:
+> 
+> num_bytes = get_amount_of_physical_ram();
+> char *p = malloc(num_bytes);
+> for (i=0; i<num_bytes; i+=PAGE_SIZE)
+> p[i] = 0;
+> 
+> The above over-simplified code fails on earlier 2.6 kernels (or earlier
+> versions of glibc that accompany most distros the use the earlier 2.6
+> kernels).  Either malloc() returns NULL, or the p[i]=0 part causes a segfault.
+> I haven't bothered to trace down why.  But when it does work, the page pinned
+> by get_user_pages() changes.
 
-00:04.0 PCI bridge: Intel Corporation E7525/E7520 PCI Express Port B
-(rev 09) (prog-if 00 [Normal decode])
-	Flags: bus master, fast devsel, latency 0
-	Bus: primary=00, secondary=07, subordinate=09, sec-latency=0
-	I/O behind bridge: 0000d000-0000efff
-	Memory behind bridge: df900000-dfafffff
-	Prefetchable memory behind bridge: 00000000d9000000-00000000d9f00000
-	Capabilities: [50] Power Management version 2
-	Capabilities: [58] Message Signalled Interrupts: 64bit- Queue=0/1 Enable-
-	Capabilities: [64] Express Root Port (Slot+) IRQ 0
-	Capabilities: [100] Advanced Error Reporting
+Which has to be a bug with get_user_pages, which has no other purpose
+than to pin the pages.  I cannot criticize you for working around it
+to get your app working on lots of releases, but what _we_ have to do
+is fix get_user_pages - and it appears that Andrea did so a year ago.
 
-00:05.0 PCI bridge: Intel Corporation E7520 PCI Express Port B1 (rev
-09) (prog-if 00 [Normal decode])
-	Flags: bus master, fast devsel, latency 0
-	Bus: primary=00, secondary=0a, subordinate=0c, sec-latency=0
-	I/O behind bridge: 0000b000-0000cfff
-	Memory behind bridge: df400000-df8fffff
-	Capabilities: [50] Power Management version 2
-	Capabilities: [58] Message Signalled Interrupts: 64bit- Queue=0/1 Enable-
-	Capabilities: [64] Express Root Port (Slot-) IRQ 0
-	Capabilities: [100] Advanced Error Reporting
+I'm surprised if it's as simple as you describe (you do say over-
+simplified, maybe the critical points have fallen out), since GUP
+users would have complained long ago if it wasn't doing the job in
+normal cases of memory pressure.  Andrea's case does involve the
+process independently trying to touch a page it has pinned for I/O
+with get_user_pages.  Or (and I've only just thought of this, suspect
+it might be exactly your case) not touch, but apply get_user_pages
+again to a page already so pinned (while memory pressure has caused
+try_to_unmap_one temporarily to detach it from the user address space
+- the aspect of the problem that Andrea's fix attacks).
 
-00:06.0 PCI bridge: Intel Corporation E7520 PCI Express Port C (rev
-09) (prog-if 00 [Normal decode])
-	Flags: bus master, fast devsel, latency 0
-	Bus: primary=00, secondary=0d, subordinate=0f, sec-latency=0
-	I/O behind bridge: 00009000-0000afff
-	Memory behind bridge: df200000-df3fffff
-	Prefetchable memory behind bridge: 00000000d8000000-00000000d8f00000
-	Capabilities: [50] Power Management version 2
-	Capabilities: [58] Message Signalled Interrupts: 64bit- Queue=0/1 Enable-
-	Capabilities: [64] Express Root Port (Slot+) IRQ 0
-	Capabilities: [100] Advanced Error Reporting
+> My understanding is that mlock() could in theory allow the page to be moved,
+> but that currently nothing in the kernel would actually move it.  However,
+> that could change in the future to allow hot-swapping of RAM.
 
-00:1d.0 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB
-UHCI Controller #1 (rev 02) (prog-if 00 [UHCI])
-	Subsystem: Dell: Unknown device 016e
-	Flags: bus master, medium devsel, latency 0, IRQ 11
-	I/O ports at 7ce0 [size=32]
+That's my understanding too, that nothing currently does so.  Aside from
+hot-swapping RAM, there's also a need to be able to migrate pages around
+RAM, either to unfragment memory allowing higher-order allocations to
+succeed more often, or to get around extreme dmamem/normal-mem/highmem
+imbalances without dedicating huge reserves.  Those would more often
+succeed if uninhibited by mlock.
 
-00:1d.1 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB
-UHCI Controller #2 (rev 02) (prog-if 00 [UHCI])
-	Subsystem: Dell: Unknown device 016e
-	Flags: bus master, medium devsel, latency 0, IRQ 10
-	I/O ports at 7cc0 [size=32]
+> So I need to take into account distro vendors that use an earlier kernel, like
+> 2.6.5, and back-port the patch from 2.6.7.  The distro vendor will keep the
+> 2.6.5 version number, which is why I can't rely on it.
+> 
+> I need to know exactly what the fix is, so that when I scan mm/rmap.c, I know
+> what to look for.  Currently, I look for this regex:
+> 
+> try_to_unmap_one.*vm_area_struct
+> 
+> which seems to work.  However, now I think it's just a coincidence.
 
-00:1d.2 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB
-UHCI #3 (rev 02) (prog-if 00 [UHCI])
-	Subsystem: Dell: Unknown device 016e
-	Flags: bus master, medium devsel, latency 0, IRQ 7
-	I/O ports at 7ca0 [size=32]
+Perhaps any release based on 2.6.7 or above, or any release which
+mentions "get_user_pages" in its mm/rmap.c or mm/objrmap.c?
 
-00:1d.7 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB2
-EHCI Controller (rev 02) (prog-if 20 [EHCI])
-	Subsystem: Dell: Unknown device 016e
-	Flags: bus master, medium devsel, latency 0, IRQ 3
-	Memory at dff00000 (32-bit, non-prefetchable) [size=1K]
-	Capabilities: [50] Power Management version 2
-	Capabilities: [58] Debug port
+> > By the way, please don't be worried when soon the try_to_unmap_one
+> > comment and code that you identified above disappear.  When I'm
+> > back in patch submission mode, I'll be sending Andrew a patch which
+> > removes it, instead reworking can_share_swap_page to rely on the
+> > page_mapcount instead of page_count, which avoids the ironical
+> > behaviour my comment refers to, and allows an awkward page migration
+> > case to proceed (once unpinned).  Andrea and I now both prefer this
+> > page_mapcount approach.
+> 
+> Ugh, that means my regex is probably going to break.  Not only that, but I
+> don't understand what you're saying either.  Trying to understand the VM is
+> really hard.
 
-00:1e.0 PCI bridge: Intel Corporation 82801 PCI Bridge (rev c2)
-(prog-if 00 [Normal decode])
-	Flags: bus master, fast devsel, latency 0
-	Bus: primary=00, secondary=10, subordinate=10, sec-latency=32
-	I/O behind bridge: 00008000-00008fff
-	Memory behind bridge: df000000-df1fffff
-	Prefetchable memory behind bridge: d0000000-d7ffffff
+Sorry about that, but suiting your regex is low in our priorities for
+VM design!  I was tempted to offer to keep a comment on get_user_pages
+in mm/rmap.c after the change, but that's really rather babyish: just
+assume 2.6.7 and upwards are fixed (or complain if you find not).
 
-00:1f.0 ISA bridge: Intel Corporation 82801EB/ER (ICH5/ICH5R) LPC
-Interface Bridge (rev 02)
-	Flags: bus master, medium devsel, latency 0
+Perhaps I'll manage a clearer explanation when I come to write the
+change description for the patch, we'll have to see.
 
-00:1f.1 IDE interface: Intel Corporation 82801EB/ER (ICH5/ICH5R) IDE
-Controller (rev 02) (prog-if 8a [Master SecP PriP])
-	Subsystem: Dell: Unknown device 016e
-	Flags: bus master, medium devsel, latency 0
-	I/O ports at <unassigned>
-	I/O ports at <unassigned>
-	I/O ports at <unassigned>
-	I/O ports at <unassigned>
-	I/O ports at fc00 [size=16]
-	Memory at 40000000 (32-bit, non-prefetchable) [size=1K]
+> I guess in this specific case, it doesn't really matter, because calling
+> mlock() when I should be calling get_user_pages() is not a bad thing.
 
-01:00.0 PCI bridge: Intel Corporation 80332 [Dobson] I/O processor
-(rev 06) (prog-if 00 [Normal decode])
-	Flags: bus master, fast devsel, latency 0
-	Bus: primary=01, secondary=02, subordinate=02, sec-latency=64
-	Memory behind bridge: dfd00000-dfefffff
-	Prefetchable memory behind bridge: 00000000da000000-00000000da000000
-	Capabilities: [44] Express PCI/PCI-X Bridge IRQ 0
-	Capabilities: [5c] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
-	Capabilities: [6c] Power Management version 2
-	Capabilities: [d8] PCI-X bridge device.
-	Capabilities: [100] Advanced Error Reporting
-	Capabilities: [300] Power Budgeting
+If you can afford to keep that amount of memory mlocked, and have to
+capability to do so, yes, it should do no harm.  We were just upset
+to think that mlock was still needed to get around a get_user_pages
+bug which was fixed a year ago.
 
-01:00.2 PCI bridge: Intel Corporation 80332 [Dobson] I/O processor
-(rev 06) (prog-if 00 [Normal decode])
-	Flags: bus master, fast devsel, latency 0
-	Bus: primary=01, secondary=03, subordinate=03, sec-latency=64
-	Capabilities: [44] Express PCI/PCI-X Bridge IRQ 0
-	Capabilities: [5c] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
-	Capabilities: [6c] Power Management version 2
-	Capabilities: [d8] PCI-X bridge device.
-	Capabilities: [100] Advanced Error Reporting
-	Capabilities: [300] Power Budgeting
-
-02:0e.0 RAID bus controller: Dell PowerEdge Expandable RAID controller
-4 (rev 06)
-	Subsystem: Dell PowerEdge Expandable RAID Controller 4e/Di
-	Flags: bus master, stepping, 66Mhz, medium devsel, latency 64, IRQ 7
-	Memory at da0f0000 (32-bit, prefetchable) [size=64K]
-	Memory at dfdc0000 (32-bit, non-prefetchable) [size=256K]
-	Expansion ROM at dfe00000 [disabled] [size=128K]
-	Capabilities: [c0] Power Management version 2
-	Capabilities: [d0] Message Signalled Interrupts: 64bit+ Queue=0/1 Enable-
-	Capabilities: [e0] PCI-X non-bridge device.
-
-04:00.0 PCI bridge: Intel Corporation 6700PXH PCI Express-to-PCI
-Bridge A (rev 09) (prog-if 00 [Normal decode])
-	Flags: bus master, fast devsel, latency 0
-	Bus: primary=04, secondary=05, subordinate=05, sec-latency=64
-	Capabilities: [44] Express PCI/PCI-X Bridge IRQ 0
-	Capabilities: [5c] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
-	Capabilities: [6c] Power Management version 2
-	Capabilities: [d8] PCI-X bridge device.
-	Capabilities: [100] Advanced Error Reporting
-	Capabilities: [300] Power Budgeting
-
-04:00.2 PCI bridge: Intel Corporation 6700PXH PCI Express-to-PCI
-Bridge B (rev 09) (prog-if 00 [Normal decode])
-	Flags: bus master, fast devsel, latency 0
-	Bus: primary=04, secondary=06, subordinate=06, sec-latency=64
-	Capabilities: [44] Express PCI/PCI-X Bridge IRQ 0
-	Capabilities: [5c] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
-	Capabilities: [6c] Power Management version 2
-	Capabilities: [d8] PCI-X bridge device.
-	Capabilities: [100] Advanced Error Reporting
-	Capabilities: [300] Power Budgeting
-
-07:00.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5721
-Gigabit Ethernet PCI Express (rev 11)
-	Subsystem: Broadcom Corporation NetXtreme BCM5721 Gigabit Ethernet PCI Express
-	Flags: bus master, fast devsel, latency 0, IRQ 11
-	Memory at df9f0000 (64-bit, non-prefetchable) [size=64K]
-	Capabilities: [48] Power Management version 2
-	Capabilities: [50] Vital Product Data
-	Capabilities: [58] Message Signalled Interrupts: 64bit+ Queue=0/3 Enable-
-	Capabilities: [d0] Express Endpoint IRQ 0
-	Capabilities: [100] Advanced Error Reporting
-	Capabilities: [13c] Virtual Channel
-
-0a:00.0 PCI bridge: Intel Corporation 6700PXH PCI Express-to-PCI
-Bridge A (rev 09) (prog-if 00 [Normal decode])
-	Flags: bus master, fast devsel, latency 0
-	Bus: primary=0a, secondary=0b, subordinate=0b, sec-latency=32
-	I/O behind bridge: 0000c000-0000cfff
-	Memory behind bridge: df700000-df8fffff
-	Capabilities: [44] Express PCI/PCI-X Bridge IRQ 0
-	Capabilities: [5c] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
-	Capabilities: [6c] Power Management version 2
-	Capabilities: [d8] PCI-X bridge device.
-	Capabilities: [100] Advanced Error Reporting
-	Capabilities: [300] Power Budgeting
-
-0a:00.2 PCI bridge: Intel Corporation 6700PXH PCI Express-to-PCI
-Bridge B (rev 09) (prog-if 00 [Normal decode])
-	Flags: bus master, fast devsel, latency 0
-	Bus: primary=0a, secondary=0c, subordinate=0c, sec-latency=32
-	I/O behind bridge: 0000b000-0000bfff
-	Memory behind bridge: df500000-df6fffff
-	Capabilities: [44] Express PCI/PCI-X Bridge IRQ 0
-	Capabilities: [5c] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
-	Capabilities: [6c] Power Management version 2
-	Capabilities: [d8] PCI-X bridge device.
-	Capabilities: [100] Advanced Error Reporting
-	Capabilities: [300] Power Budgeting
-
-0b:07.0 Ethernet controller: Intel Corporation 82541GI/PI Gigabit
-Ethernet Controller (rev 05)
-	Subsystem: Dell: Unknown device 016d
-	Flags: bus master, 66Mhz, medium devsel, latency 32, IRQ 11
-	Memory at df7e0000 (32-bit, non-prefetchable) [size=128K]
-	I/O ports at ccc0 [size=64]
-	Capabilities: [dc] Power Management version 2
-	Capabilities: [e4] PCI-X non-bridge device.
-
-0c:08.0 Ethernet controller: Intel Corporation 82541GI/PI Gigabit
-Ethernet Controller (rev 05)
-	Subsystem: Dell: Unknown device 016d
-	Flags: bus master, 66Mhz, medium devsel, latency 32, IRQ 11
-	Memory at df5e0000 (32-bit, non-prefetchable) [size=128K]
-	I/O ports at bcc0 [size=64]
-	Capabilities: [dc] Power Management version 2
-	Capabilities: [e4] PCI-X non-bridge device.
-
-0d:00.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5721
-Gigabit Ethernet PCI Express (rev 11)
-	Subsystem: Broadcom Corporation NetXtreme BCM5721 Gigabit Ethernet PCI Express
-	Flags: bus master, fast devsel, latency 0, IRQ 11
-	Memory at df2f0000 (64-bit, non-prefetchable) [size=64K]
-	Capabilities: [48] Power Management version 2
-	Capabilities: [50] Vital Product Data
-	Capabilities: [58] Message Signalled Interrupts: 64bit+ Queue=0/3 Enable-
-	Capabilities: [d0] Express Endpoint IRQ 0
-	Capabilities: [100] Advanced Error Reporting
-	Capabilities: [13c] Virtual Channel
-
-10:0d.0 VGA compatible controller: ATI Technologies Inc Radeon RV100
-QY [Radeon 7000/VE] (prog-if 00 [VGA])
-	Subsystem: Dell: Unknown device 016e
-	Flags: bus master, VGA palette snoop, stepping, medium devsel,
-latency 32, IRQ 7
-	Memory at d0000000 (32-bit, prefetchable) [size=128M]
-	I/O ports at 8c00 [size=256]
-	Memory at df0f0000 (32-bit, non-prefetchable) [size=64K]
-	Capabilities: [50] Power Management version 2
-
-
-
--- 
-we who r about to die,salute u!
+Hugh

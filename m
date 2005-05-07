@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbVEGADP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbVEGAdT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261313AbVEGADP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 20:03:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbVEGADP
+	id S261366AbVEGAdT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 20:33:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbVEGAdS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 20:03:15 -0400
-Received: from mail.dif.dk ([193.138.115.101]:51666 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261313AbVEGAC4 (ORCPT
+	Fri, 6 May 2005 20:33:18 -0400
+Received: from fire.osdl.org ([65.172.181.4]:18148 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261366AbVEGAcv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 20:02:56 -0400
-Date: Sat, 7 May 2005 02:06:39 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Dave Jones <davej@redhat.com>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, linux-kernel@vger.kernel.org,
-       Ken Pizzini <ken@halcyon.com>, Ron Jeppesen <ronj.an@site007.saic.com>,
-       Corey Minyard <minyard@wf-rch.cirr.com>, akpm@osdl.org
-Subject: Re: [PATCH] remove pointless NULL check before kfree in sony535.c
-In-Reply-To: <20050506235722.GB825@redhat.com>
-Message-ID: <Pine.LNX.4.62.0505070205180.2384@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0505070114160.2384@dragon.hyggekrogen.localhost>
- <20050506235722.GB825@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 6 May 2005 20:32:51 -0400
+Date: Fri, 6 May 2005 17:32:11 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Gerrit Huizenga <gh@us.ibm.com>
+Cc: sharada@in.ibm.com, paulus@samba.org, torvalds@osdl.org, anton@samba.org,
+       linux-kernel@vger.kernel.org, miltonm@bga.com, fastboot@lists.osdl.org
+Subject: Re: [PATCH] ppc64: kexec support for ppc64
+Message-Id: <20050506173211.0bc2db7e.akpm@osdl.org>
+In-Reply-To: <E1DUCQS-0005Sq-00@w-gerrit.beaverton.ibm.com>
+References: <20050506160546.388aeed4.akpm@osdl.org>
+	<E1DUCQS-0005Sq-00@w-gerrit.beaverton.ibm.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 May 2005, Dave Jones wrote:
+Gerrit Huizenga <gh@us.ibm.com> wrote:
+>
+> [ ... ]
+>
 
-> On Sat, May 07, 2005 at 01:19:01AM +0200, Jesper Juhl wrote:
->  > --- linux-2.6.12-rc3-mm3-orig/drivers/cdrom/sonycd535.c	2005-03-02 08:38:37.000000000 +0100
->  > +++ linux-2.6.12-rc3-mm3/drivers/cdrom/sonycd535.c	2005-05-07 01:13:30.000000000 +0200
->  > @@ -1605,7 +1605,6 @@ out7:
->  >  	put_disk(cdu_disk);
->  >  out6:
->  >  	for (i = 0; i < sony_buffer_sectors; i++)
->  > -		if (sony_buffer[i]) 
->  >  			kfree(sony_buffer[i]);
->  >  out5:
+But you didn't address the question of whether the kexec feature is
+sufficiently useful in its own right to justify merging.
+
 > 
-> This breaks the indentation.
-> 
+>   If it takes a little list or test matrix of platforms tested over the
+>   short term to help verify what machines work, we might be able to set
+>   something like that up as well.
 
-Right you are. Sorry about that. Fixed patch below.
+Yes, please do that.  But remember that Linux has a distributed test team
+of thousands.  I have a separate proposal:
 
+My big checkbox for kdump is "can I personally use kdump to diagnose and
+solve testers' bug reports?".
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+If we can reach the stage where a random person downloads a -mm kernel,
+hits a bug and, with a reasonable success rate, can send me a kernel core
+file which I find useful then yeah, it's proven.
 
---- linux-2.6.12-rc3-mm3-orig/drivers/cdrom/sonycd535.c	2005-03-02 08:38:37.000000000 +0100
-+++ linux-2.6.12-rc3-mm3/drivers/cdrom/sonycd535.c	2005-05-07 02:04:45.000000000 +0200
-@@ -1605,8 +1605,7 @@ out7:
- 	put_disk(cdu_disk);
- out6:
- 	for (i = 0; i < sony_buffer_sectors; i++)
--		if (sony_buffer[i]) 
--			kfree(sony_buffer[i]);
-+		kfree(sony_buffer[i]);
- out5:
- 	kfree(sony_buffer);
- out4:
+Problem is, I haven't gotten around to moving this idea an inch forward and
+am unlikely to do so.
 
+It would really help if some of the kdump developers could assist: make
+sure the instructions are easy, that the tools are available, work with
+people on the mailing list to get a core file from them, then, using the
+core file, work with the relevant maintainer to identify and solve the bug.
+We did this a few weeks ago with the -mm timer deadlock.  Off-list, I think.
 
-
+Possible?

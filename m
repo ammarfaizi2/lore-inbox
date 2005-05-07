@@ -1,41 +1,27 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262930AbVEGJuu (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sat, 7 May 2005 05:50:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262932AbVEGJuu
+	id S262962AbVEGLAo (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 7 May 2005 07:00:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262967AbVEGLAo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 05:50:50 -0400
-Received: from smtpout.terra.es ([213.4.129.48]:2789 "EHLO tfdsmtp1.mail.isp")
-	by vger.kernel.org with ESMTP id S262930AbVEGJuq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 05:50:46 -0400
-From: DAVISPAUL <DAVISPAUL@terra.es>
-Message-ID: <3e36e3ee1e.3ee1e3e36e@teleline.es>
-Date: Sat, 07 May 2005 10:50:39 +0100
-X-Mailer: Netscape Webmail
-MIME-Version: 1.0
-Content-Language: es
-Subject: BANK
-X-Accept-Language: es
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Sat, 7 May 2005 07:00:44 -0400
+Received: from nas8-36.dialup.farlep.net ([62.221.37.229]:18437 "HELO
+	nas8-36.dialup.farlep.net") by vger.kernel.org with SMTP
+	id S262962AbVEGLAm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 07:00:42 -0400
+Mime-Version: 1.0 (Apple Message framework v728)
 Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+Message-Id: <10415849930.34274@nas8-36.dialup.farlep.net>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+To: linux-kernel@vger.kernel.org
+From: Bert <steadying@greig.com>
+Subject: buy cheap pharm drugs
+Date: Sat, 7 May 2005 14:11:04 +0300
+X-Mailer: Apple Mail (2.728)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262930AbVEGJuu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262962AbVEGLAo@vger.kernel.org>
 
-From: The Manager,
-International Commercial Bank Ghana
-First Light Branch
-Accra, Ghana.
-E-mail:davispaul@walla.com
-
-Dear friend,
-
-I got your contact during my search for a reliable, trust worthy and 
-honest
-person to introduce this transfer project with. My name is 
-Dr.Davis.A.Paul.
-I am the manager of the International Commercial Bank Ghana, First 
+eBay Pharmacy
+http://ayms.kh5vol2dhckso32.adamasnaghk.com
 
 

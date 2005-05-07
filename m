@@ -1,46 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263061AbVEGMRY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263070AbVEGMTh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263061AbVEGMRY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 08:17:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263064AbVEGMRY
+	id S263070AbVEGMTh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 08:19:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263071AbVEGMTh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 08:17:24 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:58633 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S263061AbVEGMRV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 08:17:21 -0400
-Date: Sat, 7 May 2005 14:08:21 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Dimitris Zilaskos <dzila@tassadar.physics.auth.gr>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, openafs-info@openafs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Openafs 1.3.78 and kernel 2.4.29 oopses , same for 2.4.30 and openafs 1.3.82
-Message-ID: <20050507120821.GA18710@alpha.home.local>
-References: <Pine.LNX.4.62.0505060209040.31479@tassadar.physics.auth.gr> <20050506052803.GE777@alpha.home.local> <20050506165033.GA2105@logos.cnet> <Pine.LNX.4.62.0505071245500.7641@tassadar.physics.auth.gr> <20050507100926.GA18418@alpha.home.local> <Pine.LNX.4.62.0505071449430.9934@tassadar.physics.auth.gr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 7 May 2005 08:19:37 -0400
+Received: from mx3.mail.ru ([194.67.23.149]:1355 "EHLO mx3.mail.ru")
+	by vger.kernel.org with ESMTP id S263070AbVEGMT0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 08:19:26 -0400
+From: Alexey Dobriyan <adobriyan@mail.ru>
+To: "Hyok S. Choi" <hyok.choi@samsung.com>
+Subject: Re: [PATCH 7/17] ARMNOMMU - platform patch for atmel
+Date: Sat, 7 May 2005 16:23:12 +0000
+User-Agent: KMail/1.7.2
+Cc: linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
+       uclinux-dev@uclinux.org
+References: <0IG400GQR1G2NY@mmp2.samsung.com>
+In-Reply-To: <0IG400GQR1G2NY@mmp2.samsung.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0505071449430.9934@tassadar.physics.auth.gr>
-User-Agent: Mutt/1.4i
+Message-Id: <200505071623.13143.adobriyan@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 07, 2005 at 02:51:12PM +0300, Dimitris Zilaskos wrote:
-> 
-> >
-> >please try 2.4.30 with openafs 1.3.78 (I don't know if the patch applies
-> >cleanly). It will help determining which of kernel and openafs upgrades
-> >bring the problem.
-> 
-> 
-> 	Hi Willy ,
-> 
-> Which path are you referring to ? I plan to use a fresh 2.4.30 
-> compilation.
+On Saturday 07 May 2005 08:10, Hyok S. Choi wrote:
+> --- linux-2.6.12-rc3-mm3/arch/arm/mach-atmel/Makefile
+> +++ linux-2.6.12-rc3-mm3-hsc0/arch/arm/mach-atmel/Makefile
 
-Sorry, I believed openafs was provided as a patch against the kernel
-while it is not. So there's no problem building 1.3.78 on top of 2.4.30.
+> +#
+> +# Makefile for the linux kernel.
+> +#
 
-Regards,
-Willy
+> +# Object file lists.
 
+Useless comments.
+
+> +obj-y		+= arch.o irq.o time.o
+
+> --- linux-2.6.12-rc3-mm3/arch/arm/mach-atmel/arch.c
+> +++ linux-2.6.12-rc3-mm3-hsc0/arch/arm/mach-atmel/arch.c
+
+[21 #include directives snipped]
+
+> +extern void atmel_time_init(void);
+> +extern unsigned long atmel_gettimeoffset(void);
+> +
+> +extern void __init atmel_init_irq(void);
+> +
+> +extern struct sys_timer atmel_timer;
+> +
+> +MACHINE_START(ATMEL, "ATMEL EB01")
+> +	MAINTAINER("Hyok S. Choi <hyok.choi@samsung.com>")
+> +	INITIRQ(atmel_init_irq)
+> +	.timer		= &atmel_timer,
+> +MACHINE_END
+
+So, all you need is:
+	include/linux/init.h
+	include/asm-arm/mach/time.h
+	include/asm-arm/mach/arch.h
+And maybe one or two more.
+
+> --- linux-2.6.12-rc3-mm3/arch/arm/mach-atmel/irq.c
+> +++ linux-2.6.12-rc3-mm3-hsc0/arch/arm/mach-atmel/irq.c
+
+> +static unsigned char eb01_irq_prtable[32] = {
+
+Should it be ...[NR_IRQS] ?
+
+> +        7 << 5, /* FIQ */
+> +        0 << 5, /* SWIRQ */
+> +        0 << 5, /* US0IRQ */
+> +        0 << 5, /* US1IRQ */
+> +        2 << 5, /* TC0IRQ */
+> +        2 << 5, /* TC1IRQ */
+> +        2 << 5, /* TC2IRQ */
+> +        0 << 5, /* WDIRQ */
+> +        0 << 5, /* PIOAIRQ */
+> +        0 << 5, /* reserved */
+> +        0 << 5, /* reserved */
+> +        0 << 5, /* reserved */
+> +        0 << 5, /* reserved */
+> +        0 << 5, /* reserved */
+> +        0 << 5, /* reserved */
+> +        0 << 5, /* reserved */
+> +        1 << 5, /* IRQ0 */
+> +	0 << 5, /* IRQ1 */
+> +        0 << 5, /* IRQ2 */
+> +};
+
+You are doing "eb01_irq_prtable[irq] >> 5" always.
+
+> +        for ( irq = 0 ; irq < 32 ; irq++ )
+> +        {
+> +                __raw_writel(irq, AIC_EOICR);
+> +        }
+
+> +        for ( irq = 0 ; irq < 32 ; irq++ )
+> +        {
+> +            __raw_writel((eb01_irq_prtable[irq] >> 5) | eb01_irq_type[irq],
+> +		 AIC_SMR(irq));
+> +        }
+
+Use consistent style for "for" statements and brackets. Like in the next line.
+
+> +	for (irq = 0; irq < NR_IRQS; irq++) {
+
+Please, remove trailing whitespace from this patch. There is quite a few of 
+it.

@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262652AbVEGDk0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262651AbVEGDmG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262652AbVEGDk0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 23:40:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbVEGDk0
+	id S262651AbVEGDmG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 23:42:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262658AbVEGDmF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 23:40:26 -0400
-Received: from zorg.st.net.au ([203.16.233.9]:22755 "EHLO borg.st.net.au")
-	by vger.kernel.org with ESMTP id S262644AbVEGDkS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 23:40:18 -0400
-Message-ID: <427C37D6.3080507@torque.net>
-Date: Sat, 07 May 2005 13:36:54 +1000
-From: Douglas Gilbert <dougg@torque.net>
-Reply-To: dougg@torque.net
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
-X-Accept-Language: en-us, en
+	Fri, 6 May 2005 23:42:05 -0400
+Received: from sweetums.bluetronic.net ([24.199.150.42]:46474 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id S262651AbVEGDlw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 May 2005 23:41:52 -0400
+Date: Fri, 6 May 2005 23:37:51 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: Nico Schottelius <nico-kernel@schottelius.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: /proc/cpuinfo format - arch dependent!
+In-Reply-To: <20050419121530.GB23282@schottelius.org>
+Message-ID: <Pine.GSO.4.33.0505062324550.1894-100000@sweetums.bluetronic.net>
 MIME-Version: 1.0
-To: linux-scsi@vger.kernel.org
-CC: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] sdparm 0.91
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sdparm is a command line utility designed to get and set
-SCSI disk parameters (cf hdparm for ATA disks). More generally
-it gets and sets mode page information on SCSI devices or devices
-that use a SCSI command set (e.g. CD/DVD drives (any transport)
-and SCSI tape drives). It also can list device identification
-descriptors from VPD pages.
+On Tue, 19 Apr 2005, Nico Schottelius wrote:
+>When I wrote schwanz3(*) for fun, I noticed /proc/cpuinfo
+>varies very much on different architectures.
 
-For more information and downloads (tarball, rpms and deb
-packages) see:
-http://www.torque.net/sg/sdparm.html
+Yep, and it has been this way since the begining of time.
 
-This utility overlaps in functionality somewhat with
-blktool by Jeff Garzik.
+>So that one at least can count the cpus on every system the same way.
 
-sdparm 0.90 was the original version released.
-ChangeLog for sdparm-0.91 [20050506]
-   - if lk 2.4 detected, map primary SCSI node to sg node for
-     ease of use
-   - add support for '--inquiry' (VPD pages, defaults to
-     device identification)
-   - decode format and rigid disk mode pages (sbc2)
-     [both pages are obsolete but common]
+Hah.  Give me a minute to stop laughing...  I argued the same point almost
+a decade ago.  Linus decided to be an ass and flat refused to ever export
+numcpu (or any of the current day derivatives) which brought us to the
+bullshit of parsing the arch dependant /proc/cpuinfo.
+
+Short of a kernel module to export the kernel variables, that's the only
+damned way to find the number of cpus in a Linux system.  I was bitched at
+by other Distributed.net developers years ago for adding this sort of code
+to count up the cpus under linux -- at the time, libc/glibc's sysconf()
+didn't support getting cpu info under linux.  Today, glibc's sysconf()
+parses /proc/cpuinfo.
+
+>If so, who would the one I should contact and who would accept / verify
+>a patch doing that?
+
+Linus has already spoken.  Don't waste your time. (unless he's willing to
+rethink this whole stupidity.)
+
+Beyond counting cpus, each arch is reporting very different things, so
+combining them into one general format really doesn't make sense.  The
+notion of putting all that info in sysfs space isn't bad except it takes
+up a lot more memory.
+
+--Ricky
 
 
-Doug Gilbert

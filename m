@@ -1,89 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261492AbVEGBvH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbVEGCD1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261492AbVEGBvH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 21:51:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbVEGBvH
+	id S261502AbVEGCD1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 22:03:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbVEGCD1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 21:51:07 -0400
-Received: from mail.dif.dk ([193.138.115.101]:50133 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261492AbVEGBvD (ORCPT
+	Fri, 6 May 2005 22:03:27 -0400
+Received: from fire.osdl.org ([65.172.181.4]:52361 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261502AbVEGCDX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 21:51:03 -0400
-Date: Sat, 7 May 2005 03:54:47 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
+	Fri, 6 May 2005 22:03:23 -0400
+Date: Fri, 6 May 2005 19:02:12 -0700
+From: Andrew Morton <akpm@osdl.org>
 To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: linux-kernel@vger.kernel.org, Ed Okerson <eokerson@quicknet.net>,
-       Joe Perches <joe@perches.com>, akpm@osdl.org
+Cc: juhl-lkml@dif.dk, linux-kernel@vger.kernel.org, eokerson@quicknet.net,
+       joe@perches.com
 Subject: Re: [PATCH] kfree cleanups (remove redundant NULL checks) in
  drivers/telephony/ (actually ixj.c only)
-In-Reply-To: <Pine.LNX.4.62.0505070254180.2384@dragon.hyggekrogen.localhost>
-Message-ID: <Pine.LNX.4.62.0505070345430.2384@dragon.hyggekrogen.localhost>
+Message-Id: <20050506190212.0d6a5300.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.62.0505070345430.2384@dragon.hyggekrogen.localhost>
 References: <Pine.LNX.4.62.0505070254180.2384@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	<Pine.LNX.4.62.0505070345430.2384@dragon.hyggekrogen.localhost>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 May 2005, Jesper Juhl wrote:
 
-> This patch removes redundant checks for NULL pointer before kfree() in 
-> drivers/telephony/
-> 
-Joe Perches pointed out to me that 
-	kfree
-followed by
-	setting all structure members would be slightly better. 
+This patch adds behavioural changes:
 
-Incremental patch below.
+-		if (j->read_buffer) {
+-			kfree(j->read_buffer);
+-			j->read_buffer = NULL;
+-			j->read_buffer_size = 0;
+-		}
++		j->read_buffer = NULL;
++		j->read_buffer_size = 0;
 
+Now we'll zero ->read_buffer_size even if ->read_buffer was already NULL.
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
----
-
- drivers/telephony/ixj.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
-
---- linux-2.6.12-rc3-mm3/drivers/telephony/ixj.c.old	2005-05-07 03:50:43.000000000 +0200
-+++ linux-2.6.12-rc3-mm3/drivers/telephony/ixj.c	2005-05-07 03:53:22.000000000 +0200
-@@ -3865,9 +3865,9 @@ static int set_rec_codec(IXJ *j, int rat
- 		j->rec_mode = 7;
- 		break;
- 	default:
-+		kfree(j->read_buffer);
- 		j->rec_frame_size = 0;
- 		j->rec_mode = -1;
--		kfree(j->read_buffer);
- 		j->read_buffer = NULL;
- 		j->read_buffer_size = 0;
- 		retval = 1;
-@@ -3987,7 +3987,7 @@ static int ixj_record_start(IXJ *j)
- 
- static void ixj_record_stop(IXJ *j)
- {
--	if(ixjdebug & 0x0002)
-+	if (ixjdebug & 0x0002)
- 		printk("IXJ %d Stopping Record Codec %d at %ld\n", j->board, j->rec_codec, jiffies);
- 
- 	kfree(j->read_buffer);
-@@ -4443,9 +4443,9 @@ static int set_play_codec(IXJ *j, int ra
- 		j->play_mode = 5;
- 		break;
- 	default:
-+		kfree(j->write_buffer);
- 		j->play_frame_size = 0;
- 		j->play_mode = -1;
--		kfree(j->write_buffer);
- 		j->write_buffer = NULL;
- 		j->write_buffer_size = 0;
- 		retval = 1;
-@@ -4570,7 +4570,7 @@ static int ixj_play_start(IXJ *j)
- 
- static void ixj_play_stop(IXJ *j)
- {
--	if(ixjdebug & 0x0002)
-+	if (ixjdebug & 0x0002)
- 		printk("IXJ %d Stopping Play Codec %d at %ld\n", j->board, j->play_codec, jiffies);
- 
- 	kfree(j->write_buffer);
-
+It's hard to believe that this could cause any problems, but please check
+that.
 

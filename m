@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262770AbVEGIHX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262776AbVEGIKo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262770AbVEGIHX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 04:07:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262775AbVEGIHX
+	id S262776AbVEGIKo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 04:10:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVEGIKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 04:07:23 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:51465 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S262770AbVEGIHQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 04:07:16 -0400
-Date: Sat, 7 May 2005 09:58:29 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ricky Beam <jfbeam@bluetronic.net>, nico-kernel@schottelius.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: /proc/cpuinfo format - arch dependent!
-Message-ID: <20050507075828.GF777@alpha.home.local>
-References: <20050419121530.GB23282@schottelius.org> <Pine.GSO.4.33.0505062324550.1894-100000@sweetums.bluetronic.net> <20050506211455.3d2b3f29.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050506211455.3d2b3f29.akpm@osdl.org>
-User-Agent: Mutt/1.4i
+	Sat, 7 May 2005 04:10:44 -0400
+Received: from mailout3.samsung.com ([203.254.224.33]:8356 "EHLO
+	mailout3.samsung.com") by vger.kernel.org with ESMTP
+	id S262776AbVEGIKh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 04:10:37 -0400
+Date: Sat, 07 May 2005 17:08:57 +0900
+From: "Hyok S. Choi" <hyok.choi@samsung.com>
+Subject: [PATCH 1/17] ARMNOMMU - nommu/mpu patch for arch/arm/kernel/*
+To: linux-arm-kernel@lists.arm.linux.org.uk,
+       Linux-Kernel List <linux-kernel@vger.kernel.org>,
+       uClinux development list <uclinux-dev@uclinux.org>
+Message-id: <0IG40014N1DNL0@mmp1.samsung.com>
+Organization: Samsung Electronics Co.,Ltd.
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Thread-index: AcVS3ARlztbExuh/RxWCyG6k8a0tRQ==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+nommu/mpu patch set against 2.6.12-rc3-mm3 [1/17]
 
-On Fri, May 06, 2005 at 09:14:55PM -0700, Andrew Morton wrote:
-> Ricky Beam <jfbeam@bluetronic.net> wrote:
-> >
-> > Short of a kernel module to export the kernel variables, that's the only
-> >  damned way to find the number of cpus in a Linux system.
-> 
-> Question is: do you need to know the number of CPUs (why?) or do you need
-> to know the number of CPUs which you're currently allowed to use or do you
-> need to know the maximum number of CPUs which you are allowed to bind
-> yourself to, or what?
+- nommu/mpu patch for arch/arm/kernel/*
 
-I personally think that what would be useful is not "the number of CPUs"
-(which does not make any sense), but an enumeration of :
+ arch/arm/kernel/Makefile       |    9 +-
+ arch/arm/kernel/calls.S        |   16 +++
+ arch/arm/kernel/entry-armv.S   |    8 +
+ arch/arm/kernel/entry-common.S |    2
+ arch/arm/kernel/head-common.S  |  171
++++++++++++++++++++++++++++++++++++++++++
+ arch/arm/kernel/head-nommu.S   |  119 ++++++++++++++++++++++++++++
+ arch/arm/kernel/head.S         |  162
+--------------------------------------
+ arch/arm/kernel/module.c       |    8 +
+ arch/arm/kernel/process.c      |    4
+ arch/arm/kernel/setup.c        |   42 ++++++++++
+ arch/arm/kernel/sys_arm.c      |    2
+ arch/arm/kernel/traps.c        |   25 +++++
+ arch/arm/kernel/vmlinux.lds.S  |    2
+ 13 files changed, 402 insertions(+), 168 deletions(-)
 
-    - the physical nodes (for NUMA)
-    - the physical CPUs
-    - each CPU's cores (for multi-core)
-    - each core's siblings (for HT/SMT)
+Signed-off-by: Hyok S. Choi <hyok.choi@samsung.com>
+the patch :
+http://opensrc.sec.samsung.com/download/linux-2.6.12-rc3-mm3-hsc0-arm_kernel
+.patch.bz2
 
-each of which would report their respective id for {set,get}_affinity().
-This way, the application would be able to choose how it needs to spread
-over available CPUs depending on its workload. But IMHO, this should
-definitely not be put in cpuinfo. I consider that cpuinfo is for the human.
-
-> Probably these things can be worked out via the get/set_affinity() syscalls
-> and/or via the cpuset sysfs interfaces, but it isn't as simple as you're
-> assuming.
-
-At least it would be simpler with some layout info like above.
-
-Cheers,
-Willy
+---
+Hyok S. Choi
+[Linux 2.6 for MMU-less ARM Project] http://opensrc.sec.samsung.com/
 

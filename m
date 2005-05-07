@@ -1,72 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263194AbVEGOPY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263199AbVEGOUe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263194AbVEGOPY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 10:15:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263199AbVEGOPY
+	id S263199AbVEGOUe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 10:20:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263201AbVEGOUe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 10:15:24 -0400
-Received: from derlin.nsgroup.net ([195.84.17.145]:43656 "EHLO
-	derlin.nsgroup.net") by vger.kernel.org with ESMTP id S263194AbVEGOPQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 10:15:16 -0400
-Subject: powernow-k8 in 2.6.8 - 2.6.11.8 causes system hang
-From: Gustav Petersson <gustav.petersson@karlskrona.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Sat, 07 May 2005 16:15:14 +0200
-Message-Id: <1115475314.4985.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+	Sat, 7 May 2005 10:20:34 -0400
+Received: from web60522.mail.yahoo.com ([209.73.178.170]:26772 "HELO
+	web60522.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263199AbVEGOU1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 10:20:27 -0400
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=W6tUjIGqUdan0t2K8gcCuOTYsYlJVLGv2P2PMr/TWFGBXukXsw0g9RWG6D5aJy147HXsA+vlH6NKAFanSI2nh1moui2EjdQ2KXIP0L+7T3wj5x2IF40WErLbK6va2f6bd0vdjqEeft+QHUV/LI14waBkzgw5nlKc7gzvbYt52XY=  ;
+Message-ID: <20050507142027.61160.qmail@web60522.mail.yahoo.com>
+Date: Sat, 7 May 2005 07:20:26 -0700 (PDT)
+From: li nux <lnxluv@yahoo.com>
+Subject: Re: compiling "hello world" kernel module on 2.6 kernel
+To: Espen =?ISO-8859-1?Q?=20=22Fjellv=E6r=22?= Olsen 
+	<espenfjo@gmail.com>
+Cc: linux <linux-kernel@vger.kernel.org>
+In-Reply-To: 6667
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all, I haven't found any reports on this issue anywhere so I'm
-starting to think it's a motherboard or BIOS issue but I figure I should
-report it anyway.
+Thanks Espen, but it didnt worked.
+Please tell me where i am wrong:
+hello.c is at /local/usr/linux-2.6.5-7.162
+i did a cd to /local/usr/linux-2.6.5-7.162
+created makefile called Makefile.1 as u suggested.
+and did a make -f Makefile.1
 
-I have an Asus K8N-E Deluxe (socket 754) with an Athlon64 3000+. I've
-tried with different BIOS versions, from 1005 to 1007-beta without
-success. 
-
-I've tried using powernowd, cpufreqd, ondemand governor and userspace
-governor and manually setting the speed. There is no error reported in
-dmesg when the system starts to behave strangely, core dumps etc., and
-eventually it hangs occasionally producing a kernel oops. Please tell me
-if I've forgotten to include any infomation that could help you figure
-out what the problem is.
-
-Here is my /proc/cpuinfo:
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 15
-model           : 12
-model name      : AMD Athlon(tm) 64 Processor 3000+
-stepping        : 0
-cpu MHz         : 2009.811
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov pat pse36 clflush mmx fxsr sse sse2 pni syscall nx mmxext lm
-3dnowext 3dnow
-bogomips        : 3981.31
+--- Espen Fjellvær Olsen <espenfjo@gmail.com> wrote:
+> On 5/7/05, li nux <lnxluv@yahoo.com> wrote:
+> > 
+> > default:
+> >          $(MAKE) -C $(KERNELDIR) M=$(PWD) modules
+> 
+> Try changing this to:
+> " $(MAKE) -C $(KERNELDIR) SUBDIRS=$(PWD) modules"
+> 
+> 
+> -- 
+> Mvh / Best regards
+> Espen Fjellvær Olsen
+> espenfjo@gmail.com
+> Norway
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 
-...and the relevant parts of dmesg:
-powernow-k8: Found 1 AMD Athlon 64 / Opteron processors (version
-1.00.09e)
-powernow-k8:    0 : fid 0x2 (1000 MHz), vid 0x12 (1100 mV)
-powernow-k8:    1 : fid 0xa (1800 MHz), vid 0x6 (1400 mV)
-powernow-k8:    2 : fid 0xc (2000 MHz), vid 0x2 (1500 mV)
-cpu_init done, current fid 0xc, vid 0x2
-
-Br
-Gustav Petersson
+		
+Discover Yahoo! 
+Find restaurants, movies, travel and more fun for the weekend. Check it out! 
+http://discover.yahoo.com/weekend.html 
 

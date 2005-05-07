@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262756AbVEGWSo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbVEGWZg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262756AbVEGWSo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 18:18:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261153AbVEGWSo
+	id S261153AbVEGWZg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 18:25:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbVEGWZg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 18:18:44 -0400
-Received: from exo1066.net2.nerim.net ([213.41.175.60]:64645 "EHLO
+	Sat, 7 May 2005 18:25:36 -0400
+Received: from exo1066.net2.nerim.net ([213.41.175.60]:390 "EHLO
 	mail-out1.exosec.net") by vger.kernel.org with ESMTP
-	id S262757AbVEGWSd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 18:18:33 -0400
-Date: Sun, 8 May 2005 00:18:27 +0200
+	id S261153AbVEGWZ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 18:25:28 -0400
+Date: Sun, 8 May 2005 00:25:25 +0200
 From: Willy Tarreau <wtarreau@exosec.fr>
 To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.29-hf8
-Message-ID: <20050507221827.GA13611@exosec.fr>
+Subject: Linux 2.4.30-hf1
+Message-ID: <20050507222525.GA23035@exosec.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
@@ -24,25 +24,25 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello,
 
-Here comes the eighth hotfix release for kernel 2.4.29. It should be the last
-*announced* version, but will silently follow 2.4.30-hf updates. To support
-multiple parallel versions, I've inserted a directory level on the site with
-the base version number. I prefered risking breaking a few bookmarks now than
-adding confusion later. The release is available at usual places :
+Here comes the first hotfix release for kernel 2.4.30 :
 
     http://linux.exosec.net/kernel/2.4-hf/
 
-Small changelog below. Nothing critical there.
+It only contains 4 minor patches. Please check small
+changelog below. Only compiled on x86 right now, but
+I'm testing it on sparc64 and alpha right now in order
+to be confident in the first release.
 
 Regards,
 Willy
 
-Changelog From 2.4.29-hf7 to 2.4.29-hf8 (semi-automated)
+
+Changelog From 2.4.30 to 2.4.30-hf1 (semi-automated)
 ---------------------------------------
 '+' = added ; '-' = removed
 
 
-+ 2.4.30-panic-if-more-than-one-moxa-1                         (David Monniaux)
++ 2.4.30-panic-if-more-than-one-moxa-2                         (David Monniaux)
 
   [PATCH] fix moxa crash with more than one 1 board.
   The current Moxa Intellio driver (moxa.c) panics when using > 1 board.
@@ -53,13 +53,13 @@ Changelog From 2.4.29-hf7 to 2.4.29-hf8 (semi-automated)
   It fixes a stack dump when unloading the bonding module in 802.3ad mode
   if spinlock debugging is turned on, and it was already merged in 2.6.
 
-+ 2.4.29-sk_rmem_alloc-assertion-failure-1                         (Herbert Xu)
++ 2.4.30-madvise-must-return-EIO-1                               (Hugh Dickins)
 
-  [NETLINK]: Fix sk_rmem_alloc assertion failure in af_netlink.c.
-  In netlink_dump we're operating on sk after dropping the cb lock. This is
-  racy because the owner of the socket could close it after we drop the cb
-  lock. The solution is to hold a ref count on the socket before we drop the
-  cb lock.
+  [PATCH] madvise_willneed -EIO beyond EOF.
+  When the rlim_rss was removed from madvise_willneed, we unintentionally
+  changed its error when applied to an area wholly beyond end of file: it
+  used to report -EIO (whereas 2.6 reports success), it currently reports
+  the confusingly inappropriate -EBADF.  Revert to -EIO in that case.
 
 + 2.4.30-rwsem-spinlocks-must-disable-interrupts-2              (David Howells)
 
@@ -68,5 +68,4 @@ Changelog From 2.4.29-hf7 to 2.4.29-hf8 (semi-automated)
   spinlocks in the slow path, thus rendering the up functions and trylock
   functions available for use in interrupt context.  This matches the
   regular semaphore behaviour. Typo fixed by Mikael Pettersson.
-
 

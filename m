@@ -1,47 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261514AbVEGPFo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261412AbVEGPJJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261514AbVEGPFo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 11:05:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261755AbVEGPFo
+	id S261412AbVEGPJJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 11:09:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261755AbVEGPJJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 11:05:44 -0400
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:33434 "EHLO
-	favonius.humilis.net") by vger.kernel.org with ESMTP
-	id S261514AbVEGPFj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 11:05:39 -0400
-Date: Sat, 7 May 2005 17:05:38 +0200
-From: Sander <sander@humilis.net>
-To: David Hollis <dhollis@davehollis.com>
-Cc: Maciej Soltysiak <solt2@dns.toxicfilms.tv>, linux-kernel@vger.kernel.org
-Subject: Re: Re[2]: ata over ethernet question
-Message-ID: <20050507150538.GA800@favonius>
-Reply-To: sander@humilis.net
-References: <1416215015.20050504193114@dns.toxicfilms.tv> <1115236116.7761.19.camel@dhollis-lnx.sunera.com> <1104082357.20050504231722@dns.toxicfilms.tv> <1115305794.3071.5.camel@dhollis-lnx.sunera.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1115305794.3071.5.camel@dhollis-lnx.sunera.com>
-X-Uptime: 16:09:14 up 3 min,  7 users,  load average: 0.23, 0.14, 0.06
-User-Agent: Mutt/1.5.9i
+	Sat, 7 May 2005 11:09:09 -0400
+Received: from rrcs-24-123-59-149.central.biz.rr.com ([24.123.59.149]:18672
+	"EHLO galon.ev-en.org") by vger.kernel.org with ESMTP
+	id S261412AbVEGPIy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 11:08:54 -0400
+Message-ID: <427CDA00.9040203@ev-en.org>
+Date: Sat, 07 May 2005 16:08:48 +0100
+From: Baruch Even <baruch@ev-en.org>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: li nux <lnxluv@yahoo.com>
+Cc: linux <linux-kernel@vger.kernel.org>
+Subject: Re: oprofile: enabling cpu events
+References: <20050507123956.53734.qmail@web60524.mail.yahoo.com>
+In-Reply-To: <20050507123956.53734.qmail@web60524.mail.yahoo.com>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------000009070907000805020204"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Hollis wrote (ao):
-> There seem to be a few iSCSI implementations floating around for
-> Linux, hopefully one will be added to mainline soon. Most of those
-> implementations are for the client side though there is at least one
-> target implementation that allows you to provide local storage to
-> iSCSI clients. I don't remember the name of it or if it's still
-> maintained or not.
+This is a multi-part message in MIME format.
+--------------000009070907000805020204
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Quite active even:
+li nux wrote:
+> I want to profile cpu events using oprofile, when i
+> issue following command, it gives me an error saying
+> that oprofile is in timer mode.
+> What does it mean ?
+> the link
+> http://oprofile.sourceforge.net/docs/intel-piii-events.php3
+> says event=CPU_CLK_UNHALTED is suppported for Pentium
+> II processor.
+> 
+> Is there any way i can enable cpu events ?
+> 
+> # opcontrol --setup  --event=CPU_CLK_UNHALTED
+> You cannot specify any performance counter events
+> because OProfile is in timer mode.
 
-http://sourceforge.net/projects/iscsitarget/
+The code has some "protection" against too new processors, the kernel 
+folks prefer that you use older CPUs, or use newer kernels.
 
-The "Quick Guide to iSCSI on Linux" is a good starting point btw.
+The patch that worked for me against 2.6.6 is attached.
 
-Also check out http://www.open-iscsi.org/ (the client, aka 'initiator').
+Baruch
 
--- 
-Humilis IT Services and Solutions
-http://www.humilis.net
+--------------000009070907000805020204
+Content-Type: text/x-patch;
+ name="oprofile.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="oprofile.patch"
+
+ arch/i386/oprofile/nmi_int.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+Index: 2.6.6/arch/i386/oprofile/nmi_int.c
+===================================================================
+--- 2.6.6.orig/arch/i386/oprofile/nmi_int.c
++++ 2.6.6/arch/i386/oprofile/nmi_int.c
+@@ -313,7 +313,7 @@ static int __init p4_init(void)
+ {
+ 	__u8 cpu_model = current_cpu_data.x86_model;
+ 
+-	if (cpu_model > 3)
++	if (cpu_model > 100)
+ 		return 0;
+ 
+ #ifndef CONFIG_SMP
+
+--------------000009070907000805020204--

@@ -1,60 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbVEGOpg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVEGOqZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261348AbVEGOpg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 10:45:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261361AbVEGOpg
+	id S261361AbVEGOqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 10:46:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261412AbVEGOqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 10:45:36 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:6158 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261348AbVEGOp1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 10:45:27 -0400
-Date: Sat, 7 May 2005 16:45:23 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Jan Dittmer <jdittmer@ppp0.net>, dhowells@redhat.com,
-       uclinux-v850@lsi.nec.co.jp
-Cc: linux-kernel@vger.kernel.org
-Subject: frv, v850: no defconfig's
-Message-ID: <20050507144522.GM3590@stusta.de>
-References: <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org> <20050303002733.GH10124@redhat.com> <20050302203812.092f80a0.akpm@osdl.org> <20050304105247.B3932@flint.arm.linux.org.uk> <20050304032632.0a729d11.akpm@osdl.org> <20050304113626.E3932@flint.arm.linux.org.uk> <20050506235842.A23651@flint.arm.linux.org.uk> <427C9DBD.1030905@ppp0.net> <20050507122622.C11839@flint.arm.linux.org.uk> <427CC082.4000603@ppp0.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <427CC082.4000603@ppp0.net>
-User-Agent: Mutt/1.5.9i
+	Sat, 7 May 2005 10:46:25 -0400
+Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:53739 "EHLO
+	ms-smtp-01-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S261361AbVEGOqG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 10:46:06 -0400
+Message-ID: <427CD49E.6080300@ammasso.com>
+Date: Sat, 07 May 2005 09:45:50 -0500
+From: Timur Tabi <timur.tabi@ammasso.com>
+User-Agent: Mozilla/5.0 (Macintosh; U; PPC Mac OS X Mach-O; en-US; rv:1.7.6) Gecko/20050319
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hugh Dickins <hugh@veritas.com>
+CC: Libor Michalek <libor@topspin.com>, Andrew Morton <akpm@osdl.org>,
+       Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace verbs
+    implementation
+References: <200544159.Ahk9l0puXy39U6u6@topspin.com>     <20050411142213.GC26127@kalmia.hozed.org> <52mzs51g5g.fsf@topspin.com>     <20050411163342.GE26127@kalmia.hozed.org> <5264yt1cbu.fsf@topspin.com>     <20050411180107.GF26127@kalmia.hozed.org> <52oeclyyw3.fsf@topspin.com>     <20050411171347.7e05859f.akpm@osdl.org>     <20050412180447.E6958@topspin.com> <20050425203110.A9729@topspin.com>     <4279142A.8050501@ammasso.com> <427A6A7E.8000604@ammasso.com>     <427BF8E1.2080006@ammasso.com> <Pine.LNX.4.61.0505071304010.4713@goblin.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.61.0505071304010.4713@goblin.wat.veritas.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 07, 2005 at 03:20:02PM +0200, Jan Dittmer wrote:
->...
-> - frv: still broken
->   Details: http://l4x.org/k/?d=3479
->...
-> - v850: still broken
->   Details: http://l4x.org/k/?d=3497
-> 
-> Summary: 8 ok, 14 failed
-> Link to this page: http://l4x.org/k/?diff[v1]=mm
+Hugh Dickins wrote:
 
-@ David, Miles:
-Could you add defconfig's?
+> Oh, well, maybe, but what is the real problem?
+> Are you sure that copy-on-write doesn't come into it?
 
-They serve at least two purposes:
-- give people a starting point for their kernel configuration
-- allow simple cross-compile tests like the one Jan did
+No, but I do know that my test case doesn't call fork(), so it's reproducible without 
+involving COW.  Of course, I'm sure someone's going to tell me now that COW comes into 
+effect even without fork().  If so, please explain.
 
-A defconfig isn't something special, it's simply one reasonable .config 
-for this architecture.
+> I haven't reread through the whole thread, but my recollection is
+> that you never quite said what the real problem is: you'd found some
+> time ago that get_user_pages sometimes failed to pin the pages for
+> your complex app, so were forced to mlock too; but couldn't provide
+> any simple test case for the failure (which can indeed be a lot of
+> work to devise), so we were all in the dark as to what went wrong.
 
-> Jan
+The short answer: under "extreme" memory pressure, the data inside a page pinned by 
+get_user_pages() is swapped out, moved, or deleted (I'm not sure which).  Some other data 
+is placed into that physical location.
 
-cu
-Adrian
+By extreme memory pressure, I mean having the process allocate and touch as much memory as 
+possible.  Something like this:
 
--- 
+num_bytes = get_amount_of_physical_ram();
+char *p = malloc(num_bytes);
+for (i=0; i<num_bytes; i+=PAGE_SIZE)
+   p[i] = 0;
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+The above over-simplified code fails on earlier 2.6 kernels (or earlier versions of glibc 
+that accompany most distros the use the earlier 2.6 kernels).  Either malloc() returns 
+NULL, or the p[i]=0 part causes a segfault.  I haven't bothered to trace down why.  But 
+when it does work, the page pinned by get_user_pages() changes.
 
+> But you've now found that 2.6.7 and later kernels allow your app to
+> work correctly without mlock, good.  get_user_pages is certainly the
+> right tool to use for such pinning.  (On the question of whether
+> mlock guarantees that user virtual addresses map to the same physical
+> addresses, I prefer Arjan's view that it does not; but accept that
+> there might prove to be difficulties in holding that position.)
+
+My understanding is that mlock() could in theory allow the page to be moved, but that 
+currently nothing in the kernel would actually move it.  However, that could change in the 
+future to allow hot-swapping of RAM.
+
+> So, it works now, you've exonerated today's get_user_pages, and you've
+> identified at least one get_user_pages fix which went in at that time:
+> do we really need to chase this further?
+
+My driver needs to support all 2.4 and 2.6 kernel versions.  My makefile scans the kernel 
+source tree with 'grep' to identify various characterists, and I use #ifdefs to 
+conditionally compile code depending on what features are present in the kernel.  I can't 
+use the kernel version number, because that's not reliable - distros will incorporate 
+patches from future kernels without changing the version ID.
+
+So I need to take into account distro vendors that use an earlier kernel, like 2.6.5, and 
+back-port the patch from 2.6.7.  The distro vendor will keep the 2.6.5 version number, 
+which is why I can't rely on it.
+
+I need to know exactly what the fix is, so that when I scan mm/rmap.c, I know what to look 
+for.  Currently, I look for this regex:
+
+try_to_unmap_one.*vm_area_struct
+
+which seems to work.  However, now I think it's just a coincidence.
+
+> By the way, please don't be worried when soon the try_to_unmap_one
+> comment and code that you identified above disappear.  When I'm
+> back in patch submission mode, I'll be sending Andrew a patch which
+> removes it, instead reworking can_share_swap_page to rely on the
+> page_mapcount instead of page_count, which avoids the ironical
+> behaviour my comment refers to, and allows an awkward page migration
+> case to proceed (once unpinned).  Andrea and I now both prefer this
+> page_mapcount approach.
+
+Ugh, that means my regex is probably going to break.  Not only that, but I don't 
+understand what you're saying either.  Trying to understand the VM is really hard.
+
+I guess in this specific case, it doesn't really matter, because calling mlock() when I 
+should be calling get_user_pages() is not a bad thing.

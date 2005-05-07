@@ -1,53 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262741AbVEGSqf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262751AbVEGUX0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262741AbVEGSqf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 14:46:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262745AbVEGSqf
+	id S262751AbVEGUX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 16:23:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262753AbVEGUX0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 14:46:35 -0400
-Received: from pythagoras.zen.co.uk ([212.23.3.140]:50089 "EHLO
-	pythagoras.zen.co.uk") by vger.kernel.org with ESMTP
-	id S262741AbVEGSqd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 14:46:33 -0400
-Date: Sat, 7 May 2005 19:46:10 +0100
-From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-To: Ricky Beam <jfbeam@bluetronic.net>
-Cc: Stefan Smietanowski <stesmi@stesmi.com>,
-       Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: /proc/cpuinfo format - arch dependent!
-Message-ID: <20050507184610.GE7130@gallifrey>
-References: <427D000B.40803@stesmi.com> <Pine.GSO.4.33.0505071351360.19035-100000@sweetums.bluetronic.net>
+	Sat, 7 May 2005 16:23:26 -0400
+Received: from open.hands.com ([195.224.53.39]:18070 "EHLO open.hands.com")
+	by vger.kernel.org with ESMTP id S262751AbVEGUXT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 16:23:19 -0400
+Date: Sat, 7 May 2005 21:32:12 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: linux-kernel@vger.kernel.org,
+       Linux ARM Kernel list 
+	<linux-arm-kernel@lists.arm.linux.org.uk>
+Subject: disabling "double-calling" of level-driven interrupts
+Message-ID: <20050507203212.GG17194@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.33.0505071351360.19035-100000@sweetums.bluetronic.net>
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.6.10-5-k7-smp (i686)
-X-Uptime: 19:40:17 up  7:22,  1 user,  load average: 2.09, 2.06, 2.01
-User-Agent: Mutt/1.5.6+20040907i
-X-Originating-Pythagoras-IP: [212.23.14.246]
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Ricky Beam (jfbeam@bluetronic.net) wrote:
-> 
-> Your HT DC CPU counts as 4 cpus total... the same as two HT processors.
-> The system does not fundamentally need to make a distinction on dual core
-> vs. two actual chips + heat sinks + fans.  The system will perform almost
-> identically (if not acutally identically) to a dual (single core) processor
-> system.
+hi, please respond cc direct, thank you.
 
-That *might* be the case for a current one; but I'm sure dual core
-processors will end up sharing a level of cache/bus arbitration
-sometime.  Anyway it is a bit nasty not to real dual-core'd ness
-to things, after all they might get upset if someone tried to hotswap
-one.....
+a kind response from alan alerted me to investigate some issues
+that we are having with the skyminder (arm 720 cirrus logic
+"maverick" EDB7134 whatever).
 
-Dave
-P.S. On the side note of early dual core chips; there is an R65c00/21
-and R65c29 listed in a 1985 Rockwell datasheet I've got - dual 6502s!
+something he said made me go "twitch" - the infrastructure involving
+interrupts in the 2.6 kernel - that they can be called TWICE.
 
- -----Open up your eyes, open up your mind, open up your code -------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+well, that's exactly what i am seeing happen - even when the
+relevant INTSR1 bit is clear.
+
+at the top of the interrupt service routine, i double-check the
+bit of INTSR1 that caused the interrupt.
+
+i find it to be clear.
+
+doing an immediate return IRQ_HANDLED results in working code,
+whereas before, the behaviour of our LCD was utterly unreliable.
+
+[we have a communications protocol to a PIC, over the 8-bit port,
+indicating where and what the PIC is to blop onto the LCD screen.
+the protocol is variable-length-encoded: if it gets screwed,
+for example by a double-interrupt adding in an extra character...]
+
+so.
+
+i have some questions.
+
+1) _why_ am i getting double-interrupts, even under circumstances
+   where i double-check the relevant INTSR1 bit and ONLY drop out
+   of the interrupt service routine once that bit is cleared?
+
+2) is there something i am supposed to do, some function i
+   am supposed to call, which stops the interrupt handler from
+   being double-called?
+
+3) could i have got something wrong, is there some interrupt
+   function i am supposed to write, which is _supposed_ to check
+   for this condition?
+
+4) could there be something missing from the CLPS711x irq.c which
+   is supposed to be there?
+
+5) other
+
+many thanks for any assistance.
+
+l.
+
+-- 
+--
+<a href="http://lkcl.net">http://lkcl.net</a>
+--

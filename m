@@ -1,71 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbVEGWZg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262757AbVEGWjG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261153AbVEGWZg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 18:25:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbVEGWZg
+	id S262757AbVEGWjG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 18:39:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262759AbVEGWjF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 18:25:36 -0400
-Received: from exo1066.net2.nerim.net ([213.41.175.60]:390 "EHLO
-	mail-out1.exosec.net") by vger.kernel.org with ESMTP
-	id S261153AbVEGWZ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 18:25:28 -0400
-Date: Sun, 8 May 2005 00:25:25 +0200
-From: Willy Tarreau <wtarreau@exosec.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.30-hf1
-Message-ID: <20050507222525.GA23035@exosec.fr>
-Mime-Version: 1.0
+	Sat, 7 May 2005 18:39:05 -0400
+Received: from mail-in-03.arcor-online.net ([151.189.21.43]:30096 "EHLO
+	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
+	id S262757AbVEGWjD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 18:39:03 -0400
+From: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
+	<7eggert@gmx.de>
+Subject: Re: Scheduler: Spinning until tasks are STOPPED
+To: Yuly Finkelberg <liquidicecube@gmail.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Sun, 08 May 2005 00:38:54 +0200
+References: <41r8S-6Y0-13@gated-at.bofh.it> <41rLz-7zl-5@gated-at.bofh.it> <41BrD-79c-29@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 7Bit
+Message-Id: <E1DUXwl-0001E3-Bs@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Yuly Finkelberg <liquidicecube@gmail.com> wrote:
 
-Here comes the first hotfix release for kernel 2.4.30 :
+> If you have any ideas as to what can be happening or a better way to
+> accomplish this (in the kernel), I'd appreciate hearing it.
 
-    http://linux.exosec.net/kernel/2.4-hf/
-
-It only contains 4 minor patches. Please check small
-changelog below. Only compiled on x86 right now, but
-I'm testing it on sparc64 and alpha right now in order
-to be confident in the first release.
-
-Regards,
-Willy
-
-
-Changelog From 2.4.30 to 2.4.30-hf1 (semi-automated)
----------------------------------------
-'+' = added ; '-' = removed
-
-
-+ 2.4.30-panic-if-more-than-one-moxa-2                         (David Monniaux)
-
-  [PATCH] fix moxa crash with more than one 1 board.
-  The current Moxa Intellio driver (moxa.c) panics when using > 1 board.
-  Fixed build by declaring variable prior to usage - Willy.
-
-+ 2.4.30-bonding-rmmod-oops-1                                  (Mitch Williams)
-
-  It fixes a stack dump when unloading the bonding module in 802.3ad mode
-  if spinlock debugging is turned on, and it was already merged in 2.6.
-
-+ 2.4.30-madvise-must-return-EIO-1                               (Hugh Dickins)
-
-  [PATCH] madvise_willneed -EIO beyond EOF.
-  When the rlim_rss was removed from madvise_willneed, we unintentionally
-  changed its error when applied to an area wholly beyond end of file: it
-  used to report -EIO (whereas 2.6 reports success), it currently reports
-  the confusingly inappropriate -EBADF.  Revert to -EIO in that case.
-
-+ 2.4.30-rwsem-spinlocks-must-disable-interrupts-2              (David Howells)
-
-  [PATCH] rwsem: Make rwsems use interrupt disabling spinlocks.
-  The attached patch makes read/write semaphores use interrupt disabling
-  spinlocks in the slow path, thus rendering the up functions and trylock
-  functions available for use in interrupt context.  This matches the
-  regular semaphore behaviour. Typo fixed by Mikael Pettersson.
+Accomplish what? You didn't tell much.
+-- 
+Top 100 things you don't want the sysadmin to say:
+88. Management says...
 

@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262832AbVEGIpF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262867AbVEGJMf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262832AbVEGIpF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 04:45:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262802AbVEGInh
+	id S262867AbVEGJMf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 05:12:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262890AbVEGJMf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 04:43:37 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:18191 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262832AbVEGIlE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 04:41:04 -0400
-Date: Sat, 7 May 2005 09:40:57 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: "Hyok S. Choi" <hyok.choi@samsung.com>
-Cc: Linux-Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: drivers/block/rd.c rd_size reference problem of ARM
-Message-ID: <20050507094057.B11839@flint.arm.linux.org.uk>
-Mail-Followup-To: "Hyok S. Choi" <hyok.choi@samsung.com>,
-	Linux-Kernel List <linux-kernel@vger.kernel.org>
-References: <0IG400GKZ1K24Y@mmp2.samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <0IG400GKZ1K24Y@mmp2.samsung.com>; from hyok.choi@samsung.com on Sat, May 07, 2005 at 05:12:48PM +0900
+	Sat, 7 May 2005 05:12:35 -0400
+Received: from relay1.tiscali.de ([62.26.116.129]:38579 "EHLO
+	webmail.tiscali.de") by vger.kernel.org with ESMTP id S262867AbVEGJMe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 05:12:34 -0400
+Message-ID: <427C8678.3080800@tiscali.de>
+Date: Sat, 07 May 2005 11:12:24 +0200
+From: Matthias-Christian Ott <matthias.christian@tiscali.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: kylin <fierykylin@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: How can i get Freebsd via TortoiseCVS
+References: <87ab37ab05050501213b515d0@mail.gmail.com> <87ab37ab0505061834603512b1@mail.gmail.com>
+In-Reply-To: <87ab37ab0505061834603512b1@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 07, 2005 at 05:12:48PM +0900, Hyok S. Choi wrote:
-> the variable "rd_size" of drivers/block/rd.c is changed to be "static" in
-> 2.6.12-rc3-mm3.
-> it causes compilation error to ARM architecture because of the reference of
-> that.
->  
-> I blocked the reference as below, for compilation, but need to refine.
-
-The change which caused this has been removed in -rc4, and Andrew is
-probably going to drop this as well.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+kylin wrote:
+> TortoiseCVS ,a CVS tool that  i download in sourceforge ask me to
+> enter in
+> CVSROOT:
+> SERVER
+> PORT
+> User Name and so on...
+> so boring ,i just want to get some files new in linux source code:(
+> can some kind hearted help me out?
+> 
+> --
+> we who r about to die,salute u!
+> 
+> 
+This is the _Linux Kernel_ Mailinglist, not the Freebsd Mailinglist.

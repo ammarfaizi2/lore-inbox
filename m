@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262704AbVEGFAW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262724AbVEGF5o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262704AbVEGFAW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 01:00:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262705AbVEGFAV
+	id S262724AbVEGF5o (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 01:57:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262725AbVEGF5o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 01:00:21 -0400
-Received: from zproxy.gmail.com ([64.233.162.203]:2499 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262704AbVEGFAR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 01:00:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=TcBvusllSypBdkAU9WpOnzfW1K9i5a/MpLFKXBnyhcJaPB5566V5WPfZYxNBGVGiksw74g7emF5RBAdhSJOU0tOmkPsOHXzdMADLyGs6ql7dZ5xmc3WUWVeywzZSlI2fpFSpMrcGAN5O6S6RI7YTe7hER/7sP7uTX9jXX5/CQu0=
-Message-ID: <7d04ec5605050622006f3ad56c@mail.gmail.com>
-Date: Fri, 6 May 2005 22:00:17 -0700
-From: rajat swarup <rajats@gmail.com>
-Reply-To: rajat swarup <rajats@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: sending ICMP messages in kernel module
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Sat, 7 May 2005 01:57:44 -0400
+Received: from fire.osdl.org ([65.172.181.4]:47040 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262724AbVEGF5m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 01:57:42 -0400
+Date: Fri, 6 May 2005 22:59:38 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Linux v2.6.12-rc4
+Message-ID: <Pine.LNX.4.58.0505062245160.2233@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I have placed a netfilter hook in which I grab the packets in the
-pre-routing stage.
-I need to send ICMP messages in response to certain messages in this hook.
-I looked at alloc_skb(), skb_reserve() and skb_put() functions but it
-is still not clear to me as to how to construct the packets using
-these methods.
-Since I am getting the packets in the Pre-routing stage should I
-explicitly construct the MAC header, IP header & data & ICMP message?
-Also, I'll need to calculate the checksum to be transmitted in the
-ICMP packet...which method could I use to do that?
 
-Any help will be really appreciated!
+You know the drill.
 
-Thanks and regards,
-Rajat.
-http://rajatswarup.blogspot.com/
+git trees, patches, tar-balls, you name it. I've still not made a shortlog 
+script, and right now I'm too tired to generate the shortlog from the full 
+log, so you can either find it all in the git archives, or just parse down 
+the full log in ChangeLog-2.6.12-rc4 to a more manageable format.
+
+Both the full log and the diffstat are too big for the mailing list to 
+accept, so I'll not spam your mailboxes.
+
+But you could just use gitweb, in case you haven't noticed already. So
+point your browsers at http://www.kernel.org/git and see what you find out
+that way.
+
+What's changed? ia64, arm, UML, ppc64, jfs, cifs updates. And drivers. And 
+tons of small stuff all over.
+
+Me, I'm off for a week of vacationing. Flee the country, like I usually do 
+after releases. Leave you suckers^H^H^H^H^H^H^Hgentle people to test it 
+all out.
+
+			Linus

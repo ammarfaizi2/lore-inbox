@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263064AbVEGMic@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263090AbVEGMkN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263064AbVEGMic (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 08:38:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263085AbVEGMic
+	id S263090AbVEGMkN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 08:40:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263089AbVEGMkN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 08:38:32 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:47628 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263064AbVEGMia (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 08:38:30 -0400
-Date: Sat, 7 May 2005 14:38:17 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Ganesh Venkatesan <ganesh.venkatesan@gmail.com>,
-       ayyappan.veeraiyan@intel.com, ganesh.venkatesan@intel.com,
-       john.ronciak@intel.com, jgarzik@pobox.com, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/net/ixgb/: possible cleanups
-Message-ID: <20050507123814.GJ3590@stusta.de>
-References: <20050506211834.GM3590@stusta.de> <5fc59ff3050506153523cd12dd@mail.gmail.com> <1115468645.6388.37.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
+	Sat, 7 May 2005 08:40:13 -0400
+Received: from web60524.mail.yahoo.com ([209.73.178.172]:61361 "HELO
+	web60524.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263085AbVEGMj7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 08:39:59 -0400
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=cPqqVjLHm5jcsRr4hJQHE/HP+CWAVbVom1vBeYtLdImkG6UQthdfXQMSOKPK/tBE5x3N/SBd7hgDauz6OlDYfNTYFuqjAMJQ0p1h9r9zYLaNl97QVOMEaBMG/nrlPW9ECapmIQE4b+tqVaj0+GcF6ifQqplpFECF3dtoRN5aTzc=  ;
+Message-ID: <20050507123956.53734.qmail@web60524.mail.yahoo.com>
+Date: Sat, 7 May 2005 05:39:56 -0700 (PDT)
+From: li nux <lnxluv@yahoo.com>
+Subject: oprofile: enabling cpu events
+To: linux <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1115468645.6388.37.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 07, 2005 at 02:24:04PM +0200, Arjan van de Ven wrote:
-> On Fri, 2005-05-06 at 15:35 -0700, Ganesh Venkatesan wrote:
-> > Adrian:
-> > 
-> > Some of your suggestions are already part of the driver we are
-> > currently testing. This was based partly on your Feb '05 patch. We
-> > will not be able to apply your patch as is since some of the changes
-> > are in part of code that is shared with other drivers that are not
-> > GPLd.
-> 
-> this sounds really bad.
-> 
-> Can you talk to the intel people in the ACPI group, they had a similar
-> issue before but were able to resolve it by a proper dual license
-> comment. It would be much preferable if people CAN do changes to the
-> entire driver... what's the point of having it open source otherwise ;)
+I want to profile cpu events using oprofile, when i
+issue following command, it gives me an error saying
+that oprofile is in timer mode.
+What does it mean ?
+the link
+http://oprofile.sourceforge.net/docs/intel-piii-events.php3
+says event=CPU_CLK_UNHALTED is suppported for Pentium
+II processor.
 
-I'm not sure whether Ganesh was really talking about license issues, or 
-whether the problem is that my patch #if 0's away code they use in other 
-non-GPL'ed drivers.
+Is there any way i can enable cpu events ?
 
-cu
-Adrian
+# opcontrol --setup  --event=CPU_CLK_UNHALTED
+You cannot specify any performance counter events
+because OProfile is in timer mode.
 
--- 
+#opcontrol --event=CPU_CLK_UNHALTED
+You cannot specify any performance counter events
+because OProfile is in timer mode.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+-lnxluv
 
+
+
+
+
+		
+__________________________________ 
+Yahoo! Mail Mobile 
+Take Yahoo! Mail with you! Check email on your mobile phone. 
+http://mobile.yahoo.com/learn/mail 

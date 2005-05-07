@@ -1,114 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263070AbVEGMTh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263080AbVEGMYh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263070AbVEGMTh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 08:19:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263071AbVEGMTh
+	id S263080AbVEGMYh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 08:24:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263078AbVEGMYY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 08:19:37 -0400
-Received: from mx3.mail.ru ([194.67.23.149]:1355 "EHLO mx3.mail.ru")
-	by vger.kernel.org with ESMTP id S263070AbVEGMT0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 08:19:26 -0400
-From: Alexey Dobriyan <adobriyan@mail.ru>
-To: "Hyok S. Choi" <hyok.choi@samsung.com>
-Subject: Re: [PATCH 7/17] ARMNOMMU - platform patch for atmel
-Date: Sat, 7 May 2005 16:23:12 +0000
-User-Agent: KMail/1.7.2
-Cc: linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
-       uclinux-dev@uclinux.org
-References: <0IG400GQR1G2NY@mmp2.samsung.com>
-In-Reply-To: <0IG400GQR1G2NY@mmp2.samsung.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 7 May 2005 08:24:24 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:61605 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S263076AbVEGMYV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 08:24:21 -0400
+Subject: Re: [2.6 patch] drivers/net/ixgb/: possible cleanups
+From: Arjan van de Ven <arjan@infradead.org>
+To: Ganesh Venkatesan <ganesh.venkatesan@gmail.com>
+Cc: Adrian Bunk <bunk@stusta.de>, ayyappan.veeraiyan@intel.com,
+       ganesh.venkatesan@intel.com, john.ronciak@intel.com, jgarzik@pobox.com,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+In-Reply-To: <5fc59ff3050506153523cd12dd@mail.gmail.com>
+References: <20050506211834.GM3590@stusta.de>
+	 <5fc59ff3050506153523cd12dd@mail.gmail.com>
+Content-Type: text/plain
+Date: Sat, 07 May 2005 14:24:04 +0200
+Message-Id: <1115468645.6388.37.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200505071623.13143.adobriyan@mail.ru>
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 07 May 2005 08:10, Hyok S. Choi wrote:
-> --- linux-2.6.12-rc3-mm3/arch/arm/mach-atmel/Makefile
-> +++ linux-2.6.12-rc3-mm3-hsc0/arch/arm/mach-atmel/Makefile
+On Fri, 2005-05-06 at 15:35 -0700, Ganesh Venkatesan wrote:
+> Adrian:
+> 
+> Some of your suggestions are already part of the driver we are
+> currently testing. This was based partly on your Feb '05 patch. We
+> will not be able to apply your patch as is since some of the changes
+> are in part of code that is shared with other drivers that are not
+> GPLd.
 
-> +#
-> +# Makefile for the linux kernel.
-> +#
+this sounds really bad.
 
-> +# Object file lists.
+Can you talk to the intel people in the ACPI group, they had a similar
+issue before but were able to resolve it by a proper dual license
+comment. It would be much preferable if people CAN do changes to the
+entire driver... what's the point of having it open source otherwise ;)
 
-Useless comments.
 
-> +obj-y		+= arch.o irq.o time.o
-
-> --- linux-2.6.12-rc3-mm3/arch/arm/mach-atmel/arch.c
-> +++ linux-2.6.12-rc3-mm3-hsc0/arch/arm/mach-atmel/arch.c
-
-[21 #include directives snipped]
-
-> +extern void atmel_time_init(void);
-> +extern unsigned long atmel_gettimeoffset(void);
-> +
-> +extern void __init atmel_init_irq(void);
-> +
-> +extern struct sys_timer atmel_timer;
-> +
-> +MACHINE_START(ATMEL, "ATMEL EB01")
-> +	MAINTAINER("Hyok S. Choi <hyok.choi@samsung.com>")
-> +	INITIRQ(atmel_init_irq)
-> +	.timer		= &atmel_timer,
-> +MACHINE_END
-
-So, all you need is:
-	include/linux/init.h
-	include/asm-arm/mach/time.h
-	include/asm-arm/mach/arch.h
-And maybe one or two more.
-
-> --- linux-2.6.12-rc3-mm3/arch/arm/mach-atmel/irq.c
-> +++ linux-2.6.12-rc3-mm3-hsc0/arch/arm/mach-atmel/irq.c
-
-> +static unsigned char eb01_irq_prtable[32] = {
-
-Should it be ...[NR_IRQS] ?
-
-> +        7 << 5, /* FIQ */
-> +        0 << 5, /* SWIRQ */
-> +        0 << 5, /* US0IRQ */
-> +        0 << 5, /* US1IRQ */
-> +        2 << 5, /* TC0IRQ */
-> +        2 << 5, /* TC1IRQ */
-> +        2 << 5, /* TC2IRQ */
-> +        0 << 5, /* WDIRQ */
-> +        0 << 5, /* PIOAIRQ */
-> +        0 << 5, /* reserved */
-> +        0 << 5, /* reserved */
-> +        0 << 5, /* reserved */
-> +        0 << 5, /* reserved */
-> +        0 << 5, /* reserved */
-> +        0 << 5, /* reserved */
-> +        0 << 5, /* reserved */
-> +        1 << 5, /* IRQ0 */
-> +	0 << 5, /* IRQ1 */
-> +        0 << 5, /* IRQ2 */
-> +};
-
-You are doing "eb01_irq_prtable[irq] >> 5" always.
-
-> +        for ( irq = 0 ; irq < 32 ; irq++ )
-> +        {
-> +                __raw_writel(irq, AIC_EOICR);
-> +        }
-
-> +        for ( irq = 0 ; irq < 32 ; irq++ )
-> +        {
-> +            __raw_writel((eb01_irq_prtable[irq] >> 5) | eb01_irq_type[irq],
-> +		 AIC_SMR(irq));
-> +        }
-
-Use consistent style for "for" statements and brackets. Like in the next line.
-
-> +	for (irq = 0; irq < NR_IRQS; irq++) {
-
-Please, remove trailing whitespace from this patch. There is quite a few of 
-it.

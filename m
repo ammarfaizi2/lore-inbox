@@ -1,60 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262831AbVEGIch@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262839AbVEGIk5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262831AbVEGIch (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 04:32:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262783AbVEGI1T
+	id S262839AbVEGIk5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 04:40:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262832AbVEGIid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 04:27:19 -0400
-Received: from mailout3.samsung.com ([203.254.224.33]:9637 "EHLO
-	mailout3.samsung.com") by vger.kernel.org with ESMTP
-	id S262782AbVEGIOa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 04:14:30 -0400
-Date: Sat, 07 May 2005 17:12:48 +0900
-From: "Hyok S. Choi" <hyok.choi@samsung.com>
-Subject: drivers/block/rd.c rd_size reference problem of ARM
-To: linux-arm-kernel@lists.arm.linux.org.uk,
-       Linux-Kernel List <linux-kernel@vger.kernel.org>
-Message-id: <0IG400GKZ1K24Y@mmp2.samsung.com>
-Organization: Samsung Electronics Co.,Ltd.
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Thread-index: AcVS3I46hf2I3g0zSMyGjqW7/qoafw==
+	Sat, 7 May 2005 04:38:33 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:37791 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262794AbVEGIZy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 04:25:54 -0400
+Date: Sat, 7 May 2005 09:25:48 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Stefan Seyfried <seife@suse.de>
+Cc: Shawn Starr <shawn.starr@rogers.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.12-rc3][SUSPEND] qla1280 (QLogic 12160 Ultra3) blows up on A7M266-D
+Message-ID: <20050507082548.GA18700@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Stefan Seyfried <seife@suse.de>,
+	Shawn Starr <shawn.starr@rogers.com>,
+	kernel list <linux-kernel@vger.kernel.org>
+References: <20050503181018.37973.qmail@web88008.mail.re2.yahoo.com> <427BE2CA.7030007@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <427BE2CA.7030007@suse.de>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-the variable "rd_size" of drivers/block/rd.c is changed to be "static" in
-2.6.12-rc3-mm3.
-it causes compilation error to ARM architecture because of the reference of
-that.
- 
-I blocked the reference as below, for compilation, but need to refine.
- 
-==================
-diff -Naur linux-2.6.12-rc3-mm3/arch/arm/kernel/setup.c
-linux-2.6.12-rc3-mm3-hsc0/arch/arm/kernel/setup.c
---- linux-2.6.12-rc3-mm3/arch/arm/kernel/setup.c 2005-05-06
-09:53:10.000000000 +0900
-+++ linux-2.6.12-rc3-mm3-hsc0/arch/arm/kernel/setup.c 2005-05-06
-20:25:46.000000000 +0900
-@@ -429,9 +465,13 @@
-  rd_prompt = prompt;
-  rd_doload = doload;
- 
-+ /* FIXME: rd_size became 'static'. (drivers/block/rd.c) */
-+#if 0
-  if (rd_sz)
-   rd_size = rd_sz;
- #endif
-+
-+#endif
- }
- 
- static void __init
+On Fri, May 06, 2005 at 11:34:02PM +0200, Stefan Seyfried wrote:
+> Known, XFS was broken / breaking wrt suspend. Pavel fixed this with the
+> XFS guys IIRC and i think those patches were on lkml also, but am not
+> sure. => this should work soon.
 
----
-Hyok S. Choi
-[Linux 2.6 for MMU-less ARM Project] http://opensrc.sec.samsung.com/
+Pavel's fix wasn't enough.  The fix that has been verified to work is
+in 2.6.12-rc4.
 
+> > 2) If I use EXT3, suspending to disk is fine resuming
+> > is fine there is no long delay to load the swap memory
+> > back to RAM. But when it finishes resuming I get the
+> > same ISP error and the partition table gets corrupt as
+> > well.
+> 
+> > Is it likely this SCSI driver doesn't know how to
+> > handle suspend events?
+> 
+> Yes. Almost all drivers that are not commonly used in notebooks are
+> totally ignorant of suspend / resume. Even the brand new SATA driver
+> stuff (that is actually in almost every new notebook) had no suspend
+> support until some days ago.
+
+qla1280 doesn't handle suspend/resume indeed.

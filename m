@@ -1,82 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbVEGAxZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbVEGAza@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261417AbVEGAxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 20:53:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbVEGAxZ
+	id S261420AbVEGAza (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 20:55:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbVEGAz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 20:53:25 -0400
-Received: from zorg.st.net.au ([203.16.233.9]:62419 "EHLO borg.st.net.au")
-	by vger.kernel.org with ESMTP id S261417AbVEGAxP (ORCPT
+	Fri, 6 May 2005 20:55:29 -0400
+Received: from mail.dif.dk ([193.138.115.101]:15572 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261420AbVEGAyb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 20:53:15 -0400
-Message-ID: <427C10B0.2000008@torque.net>
-Date: Sat, 07 May 2005 10:49:52 +1000
-From: Douglas Gilbert <dougg@torque.net>
-Reply-To: dougg@torque.net
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
-X-Accept-Language: en-us, en
+	Fri, 6 May 2005 20:54:31 -0400
+Date: Sat, 7 May 2005 02:58:14 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: linux-kernel@vger.kernel.org
+Cc: Ed Okerson <eokerson@quicknet.net>, akpm@osdl.org
+Subject: [PATCH] kfree cleanups (remove redundant NULL checks) in drivers/telephony/
+ (actually ixj.c only)
+Message-ID: <Pine.LNX.4.62.0505070254180.2384@dragon.hyggekrogen.localhost>
 MIME-Version: 1.0
-To: Drew Winstel <DWinstel@Miltope.com>
-CC: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [Announce] sg3_utils-1.14 available
-References: <66F9227F7417874C8DB3CEB05772741712AC33@MILEX0.Miltope.local>
-In-Reply-To: <66F9227F7417874C8DB3CEB05772741712AC33@MILEX0.Miltope.local>
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Drew Winstel wrote:
-> Hello,
-> 
-> 
->>This version adds sg_rmsn to read media serial number(s).
-> 
-> 
-> It appears that this doesn't quite work as I had hoped.
-> 
-> Ideally, should it not work upon every drive in which sq_inq reads the serial 
-> number?
-
-Drew,
-No. sg_rmsn issues a READ MEDIA SERIAL NUMBER SCSI command.
-This command (opcode 0xab, service action 1) was added in
-SPC-3 revision 11 (12th February 2003) and is not marked as
-mandatory. If supported, this command yields a "free format"
-media serial number. I have not seen any SCSI device that
-supports it (but being in SPC-3 all device types, especially
-those with removable media, could support it).
-
-On the other hand the SCSI INQUIRY command is mandatory for
-all SCSI devices. Further, recent SPC-3 drafts have made
-support for the Device Identification VPD page (0x83)
-mandatory. The information in the Device Identification
-VPD page is much more structured, supporting multiple
-descriptors that indicate _what_ is being identified:
-   - target port, or
-   - target device, or
-   - logical unit
-with various types of identifiers supported:
-   - EUI-64 based
-   - naa
-   - SCSI name string (UTF-8 strings used by iSCSI)
-   - T10 identifiers
-   - vendor
-
-For devices with non removable media, the logical unit
-identifier could be viewed as a media serial number.
-There seems to be a move away from free format, vendor
-specific serial numbers (as provided by the Unit
-Serial Number VPD page (0x80)).
+This patch removes redundant checks for NULL pointer before kfree() in 
+drivers/telephony/
 
 
-Looking for other SCSI command standards that mention
-"media serial number" doesn't turn up much. MMC-4
-has its "features and profiles", one of which is the
-media serial number feature (0x109). These can viewed
-with the sg_get_config utility in sg3_utils.
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+---
 
-I have updated the sg_rmsn man page to reflect some of
-the information above.
+ drivers/telephony/ixj.c |   48 +++++++++++++++++-------------------------------
+ 1 files changed, 17 insertions(+), 31 deletions(-)
 
-Doug Gilbert
+diff -upr linux-2.6.12-rc3-mm3-orig/drivers/telephony/ixj.c linux-2.6.12-rc3-mm3/drivers/telephony/ixj.c
+--- linux-2.6.12-rc3-mm3-orig/drivers/telephony/ixj.c	2005-05-06 23:21:17.000000000 +0200
++++ linux-2.6.12-rc3-mm3/drivers/telephony/ixj.c	2005-05-07 02:53:15.000000000 +0200
+@@ -329,10 +329,8 @@ static IXJ *ixj_alloc()
+ 
+ static void ixj_fsk_free(IXJ *j)
+ {
+-	if(j->fskdata != NULL) {
+-		kfree(j->fskdata);
+-		j->fskdata = NULL;
+-	}
++	kfree(j->fskdata);
++	j->fskdata = NULL;
+ }
+ 
+ static void ixj_fsk_alloc(IXJ *j)
+@@ -3869,11 +3867,9 @@ static int set_rec_codec(IXJ *j, int rat
+ 	default:
+ 		j->rec_frame_size = 0;
+ 		j->rec_mode = -1;
+-		if (j->read_buffer) {
+-			kfree(j->read_buffer);
+-			j->read_buffer = NULL;
+-			j->read_buffer_size = 0;
+-		}
++		kfree(j->read_buffer);
++		j->read_buffer = NULL;
++		j->read_buffer_size = 0;
+ 		retval = 1;
+ 		break;
+ 	}
+@@ -3994,11 +3990,9 @@ static void ixj_record_stop(IXJ *j)
+ 	if(ixjdebug & 0x0002)
+ 		printk("IXJ %d Stopping Record Codec %d at %ld\n", j->board, j->rec_codec, jiffies);
+ 
+-	if (j->read_buffer) {
+-		kfree(j->read_buffer);
+-		j->read_buffer = NULL;
+-		j->read_buffer_size = 0;
+-	}
++	kfree(j->read_buffer);
++	j->read_buffer = NULL;
++	j->read_buffer_size = 0;
+ 	if (j->rec_mode > -1) {
+ 		ixj_WriteDSPCommand(0x5120, j);
+ 		j->rec_mode = -1;
+@@ -4451,11 +4445,9 @@ static int set_play_codec(IXJ *j, int ra
+ 	default:
+ 		j->play_frame_size = 0;
+ 		j->play_mode = -1;
+-		if (j->write_buffer) {
+-			kfree(j->write_buffer);
+-			j->write_buffer = NULL;
+-			j->write_buffer_size = 0;
+-		}
++		kfree(j->write_buffer);
++		j->write_buffer = NULL;
++		j->write_buffer_size = 0;
+ 		retval = 1;
+ 		break;
+ 	}
+@@ -4581,11 +4573,9 @@ static void ixj_play_stop(IXJ *j)
+ 	if(ixjdebug & 0x0002)
+ 		printk("IXJ %d Stopping Play Codec %d at %ld\n", j->board, j->play_codec, jiffies);
+ 
+-	if (j->write_buffer) {
+-		kfree(j->write_buffer);
+-		j->write_buffer = NULL;
+-		j->write_buffer_size = 0;
+-	}
++	kfree(j->write_buffer);
++	j->write_buffer = NULL;
++	j->write_buffer_size = 0;
+ 	if (j->play_mode > -1) {
+ 		ixj_WriteDSPCommand(0x5221, j);	/* Stop playback and flush buffers.  8022 reference page 9-40 */
+ 
+@@ -5810,9 +5800,7 @@ static void ixj_cpt_stop(IXJ *j)
+ 		ixj_play_tone(j, 0);
+ 		j->tone_state = j->tone_cadence_state = 0;
+ 		if (j->cadence_t) {
+-			if (j->cadence_t->ce) {
+-				kfree(j->cadence_t->ce);
+-			}
++			kfree(j->cadence_t->ce);
+ 			kfree(j->cadence_t);
+ 			j->cadence_t = NULL;
+ 		}
+@@ -7497,10 +7485,8 @@ static void cleanup(void)
+ 					printk(KERN_INFO "IXJ: Releasing XILINX address for /dev/phone%d\n", cnt);
+ 				release_region(j->XILINXbase, 4);
+ 			}
+-			if (j->read_buffer)
+-				kfree(j->read_buffer);
+-			if (j->write_buffer)
+-				kfree(j->write_buffer);
++			kfree(j->read_buffer);
++			kfree(j->write_buffer);
+ 			if (j->dev)
+ 				pnp_device_detach(j->dev);
+ 			if (ixjdebug & 0x0002)
+
+
+

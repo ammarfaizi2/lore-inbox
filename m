@@ -1,34 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262754AbVEGWQQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262755AbVEGWR4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262754AbVEGWQQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 18:16:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262755AbVEGWQQ
+	id S262755AbVEGWR4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 18:17:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbVEGWRz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 18:16:16 -0400
-Received: from wproxy.gmail.com ([64.233.184.198]:39309 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262754AbVEGWQO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 18:16:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding;
-        b=OsIWWMpkGkHM96xFrlttbMMH70vV/Ur6kwxDbfUVqqY6EDtQLCplN867qq4ljcAUgUVdNO5rPYCa1t1VkW05dMKvzY0xZi0YbdDo0CckCMWBL0i8eFh5M54EM8sxZqWwMPkEtv2xjETjofxJvjDoOqvO8zGbdP1eCl9X9gFV6qI=
-Message-ID: <427D3E2D.1010503@gmail.com>
-Date: Sat, 07 May 2005 18:16:13 -0400
-From: Keenan Pepper <keenanpepper@gmail.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+	Sat, 7 May 2005 18:17:55 -0400
+Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:123 "HELO
+	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262755AbVEGWRo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 18:17:44 -0400
+Message-ID: <427D3E7E.2020405@yahoo.com>
+Date: Sat, 07 May 2005 18:17:34 -0400
+From: "J. Scott Kasten" <jscottkasten@yahoo.com>
+User-Agent: Mozilla/5.0 (X11; U; IRIX64 IP30; en-US; rv:1.4.1) Gecko/20040105
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Pause for debugging?
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: rajat swarup <rajats@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: sending ICMP messages in kernel module
+References: <7d04ec5605050622006f3ad56c@mail.gmail.com>
+In-Reply-To: <7d04ec5605050622006f3ad56c@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there a way to make the entire kernel pause for a few seconds for 
-debugging purposes? I looked at kdb and kgdb but neither of those works 
-on powerpc, and I don't need all that functionality anyway, I just want 
-it to pause for a few seconds and then resume.
 
-Keenan Pepper
+rajat swarup wrote:
+
+>Hi,
+>I have placed a netfilter hook in which I grab the packets in the
+>pre-routing stage.
+>I need to send ICMP messages in response to certain messages in this hook.
+>I looked at alloc_skb(), skb_reserve() and skb_put() functions but it
+>is still not clear to me as to how to construct the packets using
+>these methods.
+>Since I am getting the packets in the Pre-routing stage should I
+>explicitly construct the MAC header, IP header & data & ICMP message?
+>Also, I'll need to calculate the checksum to be transmitted in the
+>ICMP packet...which method could I use to do that?
+>  
+>
+Hello,
+
+I had a similar problem once.  In the icmp.c file, look at how the ping 
+echo reply works.  That is as close to a tutorial as you will find in 
+the code.  I think you might find it strait forward from there.
+
+-Scott-
+

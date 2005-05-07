@@ -1,40 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbVEGCgO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262652AbVEGDk0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261522AbVEGCgO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 May 2005 22:36:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbVEGCgO
+	id S262652AbVEGDk0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 May 2005 23:40:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbVEGDk0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 May 2005 22:36:14 -0400
-Received: from ozlabs.org ([203.10.76.45]:17336 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261522AbVEGCgM (ORCPT
+	Fri, 6 May 2005 23:40:26 -0400
+Received: from zorg.st.net.au ([203.16.233.9]:22755 "EHLO borg.st.net.au")
+	by vger.kernel.org with ESMTP id S262644AbVEGDkS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 May 2005 22:36:12 -0400
+	Fri, 6 May 2005 23:40:18 -0400
+Message-ID: <427C37D6.3080507@torque.net>
+Date: Sat, 07 May 2005 13:36:54 +1000
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-scsi@vger.kernel.org
+CC: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] sdparm 0.91
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17020.10671.866725.569831@cargo.ozlabs.ibm.com>
-Date: Sat, 7 May 2005 12:36:31 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Gerrit Huizenga <gh@us.ibm.com>, sharada@in.ibm.com, torvalds@osdl.org,
-       anton@samba.org, linux-kernel@vger.kernel.org, miltonm@bga.com,
-       fastboot@lists.osdl.org
-Subject: Re: [PATCH] ppc64: kexec support for ppc64
-In-Reply-To: <20050506173211.0bc2db7e.akpm@osdl.org>
-References: <20050506160546.388aeed4.akpm@osdl.org>
-	<E1DUCQS-0005Sq-00@w-gerrit.beaverton.ibm.com>
-	<20050506173211.0bc2db7e.akpm@osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
+sdparm is a command line utility designed to get and set
+SCSI disk parameters (cf hdparm for ATA disks). More generally
+it gets and sets mode page information on SCSI devices or devices
+that use a SCSI command set (e.g. CD/DVD drives (any transport)
+and SCSI tape drives). It also can list device identification
+descriptors from VPD pages.
 
-> But you didn't address the question of whether the kexec feature is
-> sufficiently useful in its own right to justify merging.
+For more information and downloads (tarball, rpms and deb
+packages) see:
+http://www.torque.net/sg/sdparm.html
 
-On POWER4 boxes running in SMP (non-partitioned) mode it would be
-extremely useful, because the firmware takes such an age to boot the
-machine.
+This utility overlaps in functionality somewhat with
+blktool by Jeff Garzik.
 
-Paul.
+sdparm 0.90 was the original version released.
+ChangeLog for sdparm-0.91 [20050506]
+   - if lk 2.4 detected, map primary SCSI node to sg node for
+     ease of use
+   - add support for '--inquiry' (VPD pages, defaults to
+     device identification)
+   - decode format and rigid disk mode pages (sbc2)
+     [both pages are obsolete but common]
+
+
+Doug Gilbert

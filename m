@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262734AbVEGR5l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262733AbVEGR7l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262734AbVEGR5l (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 13:57:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262733AbVEGR5l
+	id S262733AbVEGR7l (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 13:59:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262738AbVEGR7Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 13:57:41 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:35033 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262735AbVEGR5i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 13:57:38 -0400
-Date: Sat, 7 May 2005 18:57:42 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix impossible VmallocChunk
-Message-ID: <Pine.LNX.4.61.0505071855190.6031@goblin.wat.veritas.com>
+	Sat, 7 May 2005 13:59:25 -0400
+Received: from fisica.ufpr.br ([200.17.209.129]:30383 "EHLO fisica.ufpr.br")
+	by vger.kernel.org with ESMTP id S262737AbVEGR7P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 13:59:15 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-X-OriginalArrivalTime: 07 May 2005 17:57:05.0058 (UTC) 
-    FILETIME=[2DB84820:01C5532E]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <17021.486.683745.867241@fisica.ufpr.br>
+Date: Sat, 7 May 2005 14:59:02 -0300
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ck@vds.kolivas.org, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] implement nice support across physical cpus on SMP
+In-Reply-To: <200505072342.32997.kernel@kolivas.org>
+References: <200505072342.32997.kernel@kolivas.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+From: carlos@fisica.ufpr.br (Carlos Carvalho)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-VmallocTotal: 34359738367 kB
-VmallocUsed:    266288 kB
-VmallocChunk: 18014366299193295 kB
-is unsettling - x86_64 and some other architectures keep a separate address
-range for modules in vmalloc's vmlist, which /proc/meminfo should pass over.
+Con Kolivas (kernel@kolivas.org) wrote on 7 May 2005 23:42:
+ >SMP balancing is currently designed purely with throughput in mind. This 
+ >working patch implements a mechanism for supporting 'nice' across physical 
+ >cpus without impacting throughput.
+ >
+ >This is a version for stable kernel 2.6.11.*
+ >
+ >Carlos, if you could test this with your test case it would be appreciated.
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
+Unfortunately it doesn't seem to have any effect:
 
---- 2.6.12-rc4/fs/proc/mmu.c	2005-03-02 07:37:50.000000000 +0000
-+++ linux/fs/proc/mmu.c	2005-05-07 18:32:32.000000000 +0100
-@@ -50,13 +50,23 @@ void get_vmalloc_info(struct vmalloc_inf
- 		read_lock(&vmlist_lock);
- 
- 		for (vma = vmlist; vma; vma = vma->next) {
-+			unsigned long addr = (unsigned long) vma->addr;
-+
-+			/*
-+			 * Some archs keep another range for modules in vmlist
-+			 */
-+			if (addr < VMALLOC_START)
-+				continue;
-+			if (addr >= VMALLOC_END)
-+				break;
-+
- 			vmi->used += vma->size;
- 
--			free_area_size = (unsigned long) vma->addr - prev_end;
-+			free_area_size = addr - prev_end;
- 			if (vmi->largest_chunk < free_area_size)
- 				vmi->largest_chunk = free_area_size;
- 
--			prev_end = vma->size + (unsigned long) vma->addr;
-+			prev_end = vma->size + addr;
- 		}
- 
- 		if (VMALLOC_END - prev_end > vmi->largest_chunk)
+  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+  184 user1    39  19  7220 5924  520 R 99.9  1.1 209:40.68 mi41
+  266 user2    25   0  1760  480  420 R 50.5  0.1  86:36.31 xdipole1
+  227 user3    25   0  155m  62m  640 R 49.5 12.3  95:07.89 b170-se.x
+
+Note that the nice 19 job monopolizes one processor while the other
+two nice 0 ones share a single processor.
+
+This is really a showstopper for this kind of application :-(

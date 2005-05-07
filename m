@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262740AbVEGSKP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262743AbVEGSOf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262740AbVEGSKP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 14:10:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262737AbVEGSKP
+	id S262743AbVEGSOf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 14:14:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262741AbVEGSOa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 14:10:15 -0400
-Received: from sweetums.bluetronic.net ([24.199.150.42]:18319 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id S262740AbVEGSJq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 14:09:46 -0400
-Date: Sat, 7 May 2005 14:05:45 -0400 (EDT)
-From: Ricky Beam <jfbeam@bluetronic.net>
+	Sat, 7 May 2005 14:14:30 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:3082 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S262737AbVEGSO0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 14:14:26 -0400
+Date: Sat, 7 May 2005 20:05:20 +0200
+From: Willy Tarreau <willy@w.ods.org>
 To: Stefan Smietanowski <stesmi@stesmi.com>
-cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Ricky Beam <jfbeam@bluetronic.net>,
+       nico-kernel@schottelius.org, linux-kernel@vger.kernel.org
 Subject: Re: /proc/cpuinfo format - arch dependent!
-In-Reply-To: <427D000B.40803@stesmi.com>
-Message-ID: <Pine.GSO.4.33.0505071351360.19035-100000@sweetums.bluetronic.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20050507180520.GB19380@alpha.home.local>
+References: <20050419121530.GB23282@schottelius.org> <Pine.GSO.4.33.0505062324550.1894-100000@sweetums.bluetronic.net> <20050506211455.3d2b3f29.akpm@osdl.org> <20050507075828.GF777@alpha.home.local> <427D00E8.4070208@stesmi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <427D00E8.4070208@stesmi.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 May 2005, Stefan Smietanowski wrote:
->> Back when I first brought this up (8 years ago?), it was simple... numcpu
->> was it.  There weren't any virtual processors or multi-core critters.
+On Sat, May 07, 2005 at 07:54:48PM +0200, Stefan Smietanowski wrote:
+ 
+> When one defines it one way you can be sure there'll come some company
+> and figure something out that doesn't fit into that representation.
+> 
+> Like - Stick a board into the CPU slot of some motherboard. That board
+> has two DualCore, SMT chips.
+> 
+> Oops.
+> 
+> Now the funny part - there is a company selling those things (not
+> dualcore yet, but SMT anyhow).
+>
+> How do you fit it into that model?
 
-... as far as linux was concerned, which is the whole point.  We aren't
-talking about those ancient cray's and other oddball (by modern definition)
-quad 386's -- yes, I've seen one of those; yes, it was more dust than
-actual computer :-)
+Two CPU on a board accessing the memory through a same bus is just like
+a NUMA node. Anyway, as Dave told it, it's even better to have the kernel
+translate the application needs into hardware ressources as it is the
+best one to deal with those hardware builders' fantasies.
 
->Pretty big generalization there. But tell me, a HT DualCore CPU - how
->DO you think it should end up being visible?
-
-One has to make generalizations.  I'm not typin' for days here.
-
-Your HT DC CPU counts as 4 cpus total... the same as two HT processors.
-The system does not fundamentally need to make a distinction on dual core
-vs. two actual chips + heat sinks + fans.  The system will perform almost
-identically (if not acutally identically) to a dual (single core) processor
-system.
-
->Also, remember the some database vendors have said that they will charge
->per cpu package and some have said it's per cpu core.
-
-That's between you and the licensor.  Some count virtual processors, some
-count logical processors, and I'm sure there are some that are worded
-based on the physical number of processor chips (even if they aren't online.)
-But I don't pander to the greedy bastard database vendors :-)  "I swear
-we're only running Oracle on *one* of the 8 processors.  Honest."
-(you can never satisfy everyone all of the time.)
-
-Personally, I don't count HT as a "second processor"... because it's not.
-
---Ricky
-
+Regards,
+Willy
 

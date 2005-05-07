@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262677AbVEGEPl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262691AbVEGEWg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262677AbVEGEPl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 00:15:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262679AbVEGEPk
+	id S262691AbVEGEWg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 00:22:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbVEGEWg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 00:15:40 -0400
-Received: from fire.osdl.org ([65.172.181.4]:56999 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262677AbVEGEPh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 00:15:37 -0400
-Date: Fri, 6 May 2005 21:14:55 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ricky Beam <jfbeam@bluetronic.net>
-Cc: nico-kernel@schottelius.org, linux-kernel@vger.kernel.org
-Subject: Re: /proc/cpuinfo format - arch dependent!
-Message-Id: <20050506211455.3d2b3f29.akpm@osdl.org>
-In-Reply-To: <Pine.GSO.4.33.0505062324550.1894-100000@sweetums.bluetronic.net>
-References: <20050419121530.GB23282@schottelius.org>
-	<Pine.GSO.4.33.0505062324550.1894-100000@sweetums.bluetronic.net>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 7 May 2005 00:22:36 -0400
+Received: from sweetums.bluetronic.net ([24.199.150.42]:62858 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id S262691AbVEGEWe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 00:22:34 -0400
+Date: Sat, 7 May 2005 00:18:38 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: Xin Zhao <uszhaoxin@gmail.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Can NFS map different clients to different uid/gid?
+In-Reply-To: <4ae3c1405043023127a2584bf@mail.gmail.com>
+Message-ID: <Pine.GSO.4.33.0505070015370.1894-100000@sweetums.bluetronic.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ricky Beam <jfbeam@bluetronic.net> wrote:
->
-> Short of a kernel module to export the kernel variables, that's the only
->  damned way to find the number of cpus in a Linux system.
+On Sun, 1 May 2005, Xin Zhao wrote:
+>Subject: Can NFS map different clients to different uid/gid?
+...
 
-Question is: do you need to know the number of CPUs (why?) or do you need
-to know the number of CPUs which you're currently allowed to use or do you
-need to know the maximum number of CPUs which you are allowed to bind
-yourself to, or what?
+see also: rpc.ugidd
 
-Probably these things can be worked out via the get/set_affinity() syscalls
-and/or via the cpuset sysfs interfaces, but it isn't as simple as you're
-assuming.
+Unfortunately, it looks like ugidd went away years ago.  It was also a
+security concern, but then again, no more so than nfsd trusting the uid
+in the request.
+
+knfsd does not support this.  Your best bet looks like gss/krb5, but I've
+never used it. (I prefer to avoid NFS entirely, wherever possible)
+
+--Ricky
+
+

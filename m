@@ -1,80 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262744AbVEGHSe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262767AbVEGH7l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262744AbVEGHSe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 03:18:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262746AbVEGHSe
+	id S262767AbVEGH7l (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 03:59:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262770AbVEGH7l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 03:18:34 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:20356 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S262744AbVEGHSa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 03:18:30 -0400
-Message-ID: <427C6D7D.878935F1@tv-sign.ru>
-Date: Sat, 07 May 2005 11:25:49 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Sat, 7 May 2005 03:59:41 -0400
+Received: from sweetums.bluetronic.net ([24.199.150.42]:64395 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id S262767AbVEGH7i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 03:59:38 -0400
+Date: Sat, 7 May 2005 03:55:36 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: Stefan Smietanowski <stesmi@stesmi.com>
+cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: /proc/cpuinfo format - arch dependent!
+In-Reply-To: <427C3D8A.9080600@stesmi.com>
+Message-ID: <Pine.GSO.4.33.0505070228400.19035-100000@sweetums.bluetronic.net>
 MIME-Version: 1.0
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-Cc: linux-kernel@vger.kernel.org, Daniel Walker <dwalker@mvista.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] Priority Lists for the RT mutex
-References: <F989B1573A3A644BAB3920FBECA4D25A0331776B@orsmsx407>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Perez-Gonzalez, Inaky" wrote:
+On Sat, 7 May 2005, I wrote:
+>> Hah.  Give me a minute to stop laughing...  I argued the same point almost
+>> a decade ago.  Linus decided to be an ass and flat refused to ever export
+>> numcpu (or any of the current day derivatives) which brought us to the
+>> bullshit of parsing the arch dependant /proc/cpuinfo.
 >
-> >Oleg Nesterov wrote:
-> >>
-> >> Daniel Walker wrote:
-> >> >
-> >> > Description:
-> >> > 	This patch adds the priority list data structure from Inaky Perez-Gonzalez
-> >> > to the Preempt Real-Time mutex.
-> >> >
-> >> ...
-> >And I think it is possible to simplify plist's design.
-> >
-> > ...
-> >
-> >lt_prio:
-> >	list_add_tail(&new->prio_list, &pos->prio_list);
-> >eq_prio:
-> >	list_add_tail(&new->node_list, &pos->node_list);
-> >}
->
-> Isn't this adding them to *both* lists in the lt_prio
-> case? I don't understand what do you want to accomplish
-> in this case.
+>Not to be a pain but how exactly would that interface look today
+>in your eyes?
+...
 
-Yes. ->node_list contains *ALL* nodes, that is why we can:
+That's why I said, "or any of the current day derivatives".
 
-	#define	plist_for_each(pos, head)	\
-		 list_for_each_entry(pos, &(head)->node_list, node_list)
+Back when I first brought this up (8 years ago?), it was simple... numcpu
+was it.  There weren't any virtual processors or multi-core critters.
+CPU affinity, cpumasks, and sysfs weren't even dreams.
 
-head <=======>  prio=1 <===> prio=2 <===> ...
-                 /\        /|  /\
-                 |         |   |
-                 \/        |   \/
-                prio=1     | prio=2
-                 /\       /    /\
-                 |       /     |
-                 \/     /      \/
-                prio=1 /      ....
-                  <---/
+Today, things are more complicated... much more complicated.  However,
+they've generally already been hashed out and handled in some fashion.
+The kernel already knows how many cpus there are, how many are online,
+which ones are virtual (at least to the point that the scheduler knows),
+etc.  I'm not sure what difference multi-core chips really make as they're
+just two+ cpus in the same package -- yes, that means all of them have to
+be offline to physically remove the processor, but that's pretty hardcore,
+specialized function to begin with.
 
-                               /\
-Where <===> means ->prio_list, |  ->node_list.
-                               \/
+The issue with detecting HT enabled processors came up shortly after
+they became available and /proc/cpuinfo and associated apps were updated
+accordingly.
 
-Daniel Walker wrote:
->
-> Make a patch .
+My point is, and has always been, it's much faster and far more efficient
+to have a "binary" view of what the kernel has always known than spinning
+around in one's chair groking a wad of mostly meaningless ASCII text
+engineered to make sense only to the eyeballs of humans.  Most of
+/proc fits in this boat... with cpuinfo in the driver's seat.
 
-Will do. However, I'm unfamiliar with Ingo's tree, so I
-can send only new plist's implementation.
+(I won't launch into my oft repeated ASCII vs. binary /proc flamewar.
+ We have 4GHz processors now, so nobody cares about being efficient
+ despite about a 10x(+) speedup if the ascii middleman were taken out
+ and shot.)
 
-Oleg.
+--Ricky
+
+

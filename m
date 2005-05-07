@@ -1,81 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262751AbVEGUX0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262753AbVEGVpq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262751AbVEGUX0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 16:23:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262753AbVEGUX0
+	id S262753AbVEGVpq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 17:45:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262747AbVEGVpq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 16:23:26 -0400
-Received: from open.hands.com ([195.224.53.39]:18070 "EHLO open.hands.com")
-	by vger.kernel.org with ESMTP id S262751AbVEGUXT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 16:23:19 -0400
-Date: Sat, 7 May 2005 21:32:12 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: linux-kernel@vger.kernel.org,
-       Linux ARM Kernel list 
-	<linux-arm-kernel@lists.arm.linux.org.uk>
-Subject: disabling "double-calling" of level-driven interrupts
-Message-ID: <20050507203212.GG17194@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-MailScanner-From: lkcl@lkcl.net
+	Sat, 7 May 2005 17:45:46 -0400
+Received: from mail05.syd.optusnet.com.au ([211.29.132.186]:5582 "EHLO
+	mail05.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262753AbVEGVpg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 17:45:36 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Carlos Carvalho <carlos@fisica.ufpr.br>
+Subject: Re: [PATCH] implement nice support across physical cpus on SMP
+Date: Sun, 8 May 2005 07:45:32 +1000
+User-Agent: KMail/1.8
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ck@vds.kolivas.org, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>
+References: <200505072342.32997.kernel@kolivas.org> <17021.486.683745.867241@fisica.ufpr.br>
+In-Reply-To: <17021.486.683745.867241@fisica.ufpr.br>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1834525.zM7EFSxZ52";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200505080745.36906.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi, please respond cc direct, thank you.
+--nextPart1834525.zM7EFSxZ52
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-a kind response from alan alerted me to investigate some issues
-that we are having with the skyminder (arm 720 cirrus logic
-"maverick" EDB7134 whatever).
+On Sun, 8 May 2005 03:59, Carlos Carvalho wrote:
+> Con Kolivas (kernel@kolivas.org) wrote on 7 May 2005 23:42:
+>  >SMP balancing is currently designed purely with throughput in mind. This
+>  >working patch implements a mechanism for supporting 'nice' across
+>  > physical cpus without impacting throughput.
+>  >
+>  >This is a version for stable kernel 2.6.11.*
+>  >
+>  >Carlos, if you could test this with your test case it would be
+>  > appreciated.
+>
+> Unfortunately it doesn't seem to have any effect:
+>
+>   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+>   184 user1    39  19  7220 5924  520 R 99.9  1.1 209:40.68 mi41
+>   266 user2    25   0  1760  480  420 R 50.5  0.1  86:36.31 xdipole1
+>   227 user3    25   0  155m  62m  640 R 49.5 12.3  95:07.89 b170-se.x
+>
+> Note that the nice 19 job monopolizes one processor while the other
+> two nice 0 ones share a single processor.
+>
+> This is really a showstopper for this kind of application :-(
 
-something he said made me go "twitch" - the infrastructure involving
-interrupts in the 2.6 kernel - that they can be called TWICE.
+Ok back to the drawing board. I have to try and figure out why it doesn't w=
+ork=20
+for your case. I tried it on 4x with lots of cpu bound tasks so I'm not sur=
+e=20
+why it doesn't help with tyours.
 
-well, that's exactly what i am seeing happen - even when the
-relevant INTSR1 bit is clear.
+Cheers,
+Con
 
-at the top of the interrupt service routine, i double-check the
-bit of INTSR1 that caused the interrupt.
+--nextPart1834525.zM7EFSxZ52
+Content-Type: application/pgp-signature
 
-i find it to be clear.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-doing an immediate return IRQ_HANDLED results in working code,
-whereas before, the behaviour of our LCD was utterly unreliable.
+iD8DBQBCfTcAZUg7+tp6mRURAsDNAJ9J5vAdRJpHtMdZXq+vS8K0+/NiYQCfRzDC
+xsLgJGQ4mGavyODfLQrdJro=
+=K0M0
+-----END PGP SIGNATURE-----
 
-[we have a communications protocol to a PIC, over the 8-bit port,
-indicating where and what the PIC is to blop onto the LCD screen.
-the protocol is variable-length-encoded: if it gets screwed,
-for example by a double-interrupt adding in an extra character...]
-
-so.
-
-i have some questions.
-
-1) _why_ am i getting double-interrupts, even under circumstances
-   where i double-check the relevant INTSR1 bit and ONLY drop out
-   of the interrupt service routine once that bit is cleared?
-
-2) is there something i am supposed to do, some function i
-   am supposed to call, which stops the interrupt handler from
-   being double-called?
-
-3) could i have got something wrong, is there some interrupt
-   function i am supposed to write, which is _supposed_ to check
-   for this condition?
-
-4) could there be something missing from the CLPS711x irq.c which
-   is supposed to be there?
-
-5) other
-
-many thanks for any assistance.
-
-l.
-
--- 
---
-<a href="http://lkcl.net">http://lkcl.net</a>
---
+--nextPart1834525.zM7EFSxZ52--

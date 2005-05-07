@@ -1,47 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263087AbVEGMk5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263093AbVEGMpT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263087AbVEGMk5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 08:40:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263089AbVEGMk4
+	id S263093AbVEGMpT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 08:45:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263094AbVEGMpT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 08:40:56 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:20390 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S263087AbVEGMkq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 08:40:46 -0400
-Date: Sat, 7 May 2005 13:40:41 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Ganesh Venkatesan <ganesh.venkatesan@gmail.com>
-Cc: Adrian Bunk <bunk@stusta.de>, ayyappan.veeraiyan@intel.com,
-       ganesh.venkatesan@intel.com, john.ronciak@intel.com, jgarzik@pobox.com,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/net/ixgb/: possible cleanups
-Message-ID: <20050507124041.GA22088@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ganesh Venkatesan <ganesh.venkatesan@gmail.com>,
-	Adrian Bunk <bunk@stusta.de>, ayyappan.veeraiyan@intel.com,
-	ganesh.venkatesan@intel.com, john.ronciak@intel.com,
-	jgarzik@pobox.com, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-References: <20050506211834.GM3590@stusta.de> <5fc59ff3050506153523cd12dd@mail.gmail.com>
-Mime-Version: 1.0
+	Sat, 7 May 2005 08:45:19 -0400
+Received: from web60518.mail.yahoo.com ([209.73.178.166]:21083 "HELO
+	web60518.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263093AbVEGMpN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 08:45:13 -0400
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=jEL3+GEA5MiGBPIvQ3S1HMVwdQz5Y8EDs9FkyvXF12TFxXOv53YBiGmnRwzJJryhijrOEgzWZsafkwbwkvI33X5++zAV0j/ADo5NlZ6PbDkaSx64aBcilH7THPUZvQd6/dCEdDo9G6G5NIw9EwoVbh+MeUMhm/PD40N+2EU5c30=  ;
+Message-ID: <20050507124513.95097.qmail@web60518.mail.yahoo.com>
+Date: Sat, 7 May 2005 05:45:13 -0700 (PDT)
+From: li nux <lnxluv@yahoo.com>
+Subject: oprofile: profiling kernel
+To: linux <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5fc59ff3050506153523cd12dd@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 06, 2005 at 03:35:52PM -0700, Ganesh Venkatesan wrote:
-> Adrian:
-> 
-> Some of your suggestions are already part of the driver we are
-> currently testing. This was based partly on your Feb '05 patch. We
-> will not be able to apply your patch as is since some of the changes
-> are in part of code that is shared with other drivers that are not
-> GPLd.
+Using oprofile Is it possible to profile how many
+times  a function say try_to_unmap_cluster() is called
+within the kernel in a certain time interval ?
+If yes, then how ?
+What settings are needed for that.
 
-I don't think Adrian can claim copyright on code removal even if he
-wanted to (which I doubt :))
+-lnxluv
 
+
+		
+__________________________________ 
+Yahoo! Mail Mobile 
+Take Yahoo! Mail with you! Check email on your mobile phone. 
+http://mobile.yahoo.com/learn/mail 

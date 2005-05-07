@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262730AbVEGR1w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262727AbVEGRgZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262730AbVEGR1w (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 13:27:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262731AbVEGR1w
+	id S262727AbVEGRgZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 13:36:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262731AbVEGRgZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 13:27:52 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:1034 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S262730AbVEGR1u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 13:27:50 -0400
-Date: Sat, 7 May 2005 19:18:51 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Ricky Beam <jfbeam@bluetronic.net>, nico-kernel@schottelius.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: /proc/cpuinfo format - arch dependent!
-Message-ID: <20050507171850.GA19380@alpha.home.local>
-References: <20050419121530.GB23282@schottelius.org> <Pine.GSO.4.33.0505062324550.1894-100000@sweetums.bluetronic.net> <20050506211455.3d2b3f29.akpm@osdl.org> <20050507075828.GF777@alpha.home.local> <20050507165357.GA19601@redhat.com> <20050507170555.GA19329@alpha.home.local> <20050507172005.GB26088@redhat.com>
+	Sat, 7 May 2005 13:36:25 -0400
+Received: from wproxy.gmail.com ([64.233.184.201]:44924 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262727AbVEGRgW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 13:36:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NE2xTQyU6HliMDx9VrgXyg6NNXAvAizdEjHuyZNLPkz6kDiO198YKFJQVn9le+I3CnRZXDbyWH8EcTWsewrQmNe5HoHLAp7iNelHC74X1AB/z6ewgR7F6/S0YFZtk7sQNSYVbZMcqMFW7/vLrT6aJU+gMVVRC73J0w8Ry2kRCrE=
+Message-ID: <92df3175050507103621a88554@mail.gmail.com>
+Date: Sat, 7 May 2005 13:36:21 -0400
+From: Yuly Finkelberg <liquidicecube@gmail.com>
+Reply-To: Yuly Finkelberg <liquidicecube@gmail.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: Scheduler: Spinning until tasks are STOPPED
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <427C6A5C.6090900@yahoo.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050507172005.GB26088@redhat.com>
-User-Agent: Mutt/1.4i
+References: <92df3175050506233110a19a60@mail.gmail.com>
+	 <427C6A5C.6090900@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 07, 2005 at 01:20:05PM -0400, Dave Jones wrote:
-> On Sat, May 07, 2005 at 07:05:56PM +0200, Willy Tarreau wrote:
-> 
->  > Well, that's exactly for this that I formulated the proposal. A
->  > CPU-intensive application which benefits from the cache would better
->  > choose to run on HT pairs. A network-hungry application will prefer
->  > running on only one sibling of each HT pair, and probably one process
->  > per core, particularly when each core receives one NIC's interrupt.
->  > A memory bandwidth intensive application will choose to run on a
->  > single NUMA node, etc... So either the application can choose this
->  > itself from its understanding of the CPU layout, or it can ask the
->  > system "hey, I'd like this type of workload, how many process should
->  > I start, and where should I bind them ?".
-> 
-> I think generalising this and having a method to do this in the kernel
-> is a much better idea than each application parsing this themselves.
-> Things are only getting more and more complex as time goes on,
-> and I don't trust application developers to get it right.
-> 
-> Centralising this in the kernel (or maybe even glibc) means we can get
-> it right, and have every application benefit. If we get it wrong, we
-> fix it, and all the applications are fixed without needing fixing/recompiling.
+Nick,
 
-Agreed.
+> You're doing this in the *kernel*? It sounds like it should be done
+> in userspace or done a different way (ie. not with 50 tasks).
 
-Even more, support for newer layouts would only require a kernel upgrade
-and not an application update. And porting applications to other
-architectures would be more transparent.
+These are tasks that are running in the kernel on behalf of a new system call.  
 
-Regards,
-Willy
+> And using signals and spinning on yield for synchronisation and
+> process control in the kernel like this is fairly crazy.
 
+The problem appears to be not with the process that is
+spinning/yielding, but rather the one process which gets stuck.  It is
+charged almost all the system time.  I agree that it's not pretty
+though...
+
+> Can't you use a semaphore or something?
+
+There is noone to call up() when a process is actually stopped.
+
+If you have any ideas as to what can be happening or a better way to
+accomplish this (in the kernel), I'd appreciate hearing it.

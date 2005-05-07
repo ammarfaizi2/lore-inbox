@@ -1,48 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262733AbVEGR7l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262735AbVEGSIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262733AbVEGR7l (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 13:59:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262738AbVEGR7Z
+	id S262735AbVEGSIs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 14:08:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262737AbVEGSIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 13:59:25 -0400
-Received: from fisica.ufpr.br ([200.17.209.129]:30383 "EHLO fisica.ufpr.br")
-	by vger.kernel.org with ESMTP id S262737AbVEGR7P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 13:59:15 -0400
-MIME-Version: 1.0
+	Sat, 7 May 2005 14:08:47 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:11527 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S262735AbVEGSIq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 14:08:46 -0400
+Date: Sat, 7 May 2005 14:03:56 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Alexander Nyberg <alexn@telia.com>
+Cc: Antoine Martin <antoine@nagafix.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11.8 + UML/x86_64 (2.6.12-rc3+) = oops
+Message-ID: <20050507180356.GA10793@ccure.user-mode-linux.org>
+References: <20050504191828.620C812EE7@sc8-sf-spam2.sourceforge.net> <1115248927.12088.52.camel@cobra> <1115392141.12197.3.camel@cobra> <1115483506.12131.33.camel@cobra> <1115481468.925.9.camel@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <17021.486.683745.867241@fisica.ufpr.br>
-Date: Sat, 7 May 2005 14:59:02 -0300
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       ck@vds.kolivas.org, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] implement nice support across physical cpus on SMP
-In-Reply-To: <200505072342.32997.kernel@kolivas.org>
-References: <200505072342.32997.kernel@kolivas.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-From: carlos@fisica.ufpr.br (Carlos Carvalho)
+Content-Disposition: inline
+In-Reply-To: <1115481468.925.9.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas (kernel@kolivas.org) wrote on 7 May 2005 23:42:
- >SMP balancing is currently designed purely with throughput in mind. This 
- >working patch implements a mechanism for supporting 'nice' across physical 
- >cpus without impacting throughput.
- >
- >This is a version for stable kernel 2.6.11.*
- >
- >Carlos, if you could test this with your test case it would be appreciated.
+On Sat, May 07, 2005 at 05:57:48PM +0200, Alexander Nyberg wrote:
+> I never get uml to compile around here, 2.6.12-rc3 + that patchkit from
+> the link you sent blows up with defconfig any my minimal config. Please
+> attach your guest .config and if you can you might aswell put your guest
+> vmlinux somewhere where i can download it too.
 
-Unfortunately it doesn't seem to have any effect:
+Start with -rc3, and all the patches from
+	http://user-mode-linux.sf.net/patches.html
+up to and including skas0.  You'll see a note to x86_64 users on that patch.
 
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
-  184 user1    39  19  7220 5924  520 R 99.9  1.1 209:40.68 mi41
-  266 user2    25   0  1760  480  420 R 50.5  0.1  86:36.31 xdipole1
-  227 user3    25   0  155m  62m  640 R 49.5 12.3  95:07.89 b170-se.x
-
-Note that the nice 19 job monopolizes one processor while the other
-two nice 0 ones share a single processor.
-
-This is really a showstopper for this kind of application :-(
+				Jeff

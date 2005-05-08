@@ -1,77 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262766AbVEHA05@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262768AbVEHAcH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262766AbVEHA05 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 20:26:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262768AbVEHA04
+	id S262768AbVEHAcH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 20:32:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262769AbVEHAcG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 20:26:56 -0400
-Received: from orb.pobox.com ([207.8.226.5]:59299 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S262766AbVEHA0x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 20:26:53 -0400
-Date: Sat, 7 May 2005 19:26:48 -0500
-From: Nathan Lynch <ntl@pobox.com>
-To: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
-Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [RFC/PATCH] unregister_node() for hotplug use
-Message-ID: <20050508002648.GD3614@otto>
-References: <20050420210744.4013b3f8.tokunaga.keiich@jp.fujitsu.com> <20050420173235.GA17775@kroah.com> <20050422003009.1b96f09c.tokunaga.keiich@jp.fujitsu.com> <20050422003920.GD6829@kroah.com> <20050422113211.509005f1.tokunaga.keiich@jp.fujitsu.com> <20050425230333.6b8dfb33.tokunaga.keiich@jp.fujitsu.com> <20050426065431.GB5889@suse.de> <20050507211141.4829d4c0.tokunaga.keiich@jp.fujitsu.com>
-Mime-Version: 1.0
+	Sat, 7 May 2005 20:32:06 -0400
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:9660 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S262768AbVEHAcD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 20:32:03 -0400
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: linux-kernel@vger.kernel.org,
+       Linux ARM Kernel list 
+	<linux-arm-kernel@lists.arm.linux.org.uk>
+Subject: Re: disabling "double-calling" of level-driven interrupts
+Date: Sun, 08 May 2005 10:31:52 +1000
+Organization: <http://scatter.mine.nu/>
+Message-ID: <62nq71hrnt1tirf8lgap5469bo5lstp18v@4ax.com>
+References: <20050507203212.GG17194@lkcl.net>
+In-Reply-To: <20050507203212.GG17194@lkcl.net>
+X-Mailer: Forte Agent 2.0/32.652
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050507211141.4829d4c0.tokunaga.keiich@jp.fujitsu.com>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This adds a generic function 'unregister_node()'.
-> It is used to remove objects of a node going away
-> for hotplug.
-> 
-> Signed-off-by: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
-> ---
-> 
->  linux-2.6.12-rc3-mm3-kei/drivers/base/node.c  |   15 +++++++++++++--
->  linux-2.6.12-rc3-mm3-kei/include/linux/node.h |    1 +
->  2 files changed, 14 insertions(+), 2 deletions(-)
-> 
-> diff -puN drivers/base/node.c~numa_hp_base drivers/base/node.c
-> --- linux-2.6.12-rc3-mm3/drivers/base/node.c~numa_hp_base	2005-05-07 19:58:15.000000000 +0900
-> +++ linux-2.6.12-rc3-mm3-kei/drivers/base/node.c	2005-05-07 19:58:15.000000000 +0900
-> @@ -136,7 +136,7 @@ static SYSDEV_ATTR(distance, S_IRUGO, no
->   *
->   * Initialize and register the node device.
->   */
-> -int __init register_node(struct node *node, int num, struct node *parent)
-> +int register_node(struct node *node, int num, struct node *parent)
->  {
->  	int error;
->  
-> @@ -153,8 +153,19 @@ int __init register_node(struct node *no
->  	return error;
->  }
->  
-> +void unregister_node(struct node *node)
-> +{
-> +	sysdev_remove_file(&node->sysdev, &attr_cpumap);
-> +	sysdev_remove_file(&node->sysdev, &attr_meminfo);
-> +	sysdev_remove_file(&node->sysdev, &attr_numastat);
-> +	sysdev_remove_file(&node->sysdev, &attr_distance);
-> +
-> +	sysdev_unregister(&node->sysdev);
-> +}
+On Sat, 7 May 2005 21:32:12 +0100, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
 
-Is it a bug to call unregister_node() if there are still cpus or
-memory present in the node?  Note that register_cpu() creates a
-symlink under the node directory to the cpu -- are you assuming that
-all the node's cpu sysdevs will have been unregistered by the time
-unregister_node is called?  If so, is it possible to enforce that, or
-at least document it?
+>something he said made me go "twitch" - the infrastructure involving
+>interrupts in the 2.6 kernel - that they can be called TWICE.
+>
+>well, that's exactly what i am seeing happen - even when the
+>relevant INTSR1 bit is clear.
+>
+>at the top of the interrupt service routine, i double-check the
+>bit of INTSR1 that caused the interrupt.
+>
+>i find it to be clear.
+>
+>doing an immediate return IRQ_HANDLED results in working code,
+>whereas before, the behaviour of our LCD was utterly unreliable.
 
-> +EXPORT_SYMBOL_GPL(register_node);
-> +EXPORT_SYMBOL_GPL(unregister_node);
+Isn't that the whole idea of level triggered interrupts?  Your 
+device may not be the one asserting IRQ, if the IRQ is not yours, 
+let it go and something else will check to see if the IRQ is theirs.
 
-What module code needs to call these?  ACPI?
+--Grant.
 
-
-Nathan

@@ -1,41 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262934AbVEHVJH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262987AbVEHVnY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262934AbVEHVJH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 May 2005 17:09:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262966AbVEHVJG
+	id S262987AbVEHVnY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 May 2005 17:43:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262989AbVEHVnY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 May 2005 17:09:06 -0400
-Received: from fed1rmmtao07.cox.net ([68.230.241.32]:20909 "EHLO
-	fed1rmmtao07.cox.net") by vger.kernel.org with ESMTP
-	id S262934AbVEHVJB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 May 2005 17:09:01 -0400
-To: Michael Tokarev <mjt@tls.msk.ru>
-Cc: jdow <jdow@earthlink.net>, James Purser <purserj@ksit.dynalias.com>,
-       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       LKML <linux-kernel@vger.kernel.org>, GIT <git@vger.kernel.org>
+	Sun, 8 May 2005 17:43:24 -0400
+Received: from smtp04.auna.com ([62.81.186.14]:4832 "EHLO smtp04.retemail.es")
+	by vger.kernel.org with ESMTP id S262987AbVEHVnS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 May 2005 17:43:18 -0400
+Date: Sun, 08 May 2005 21:43:05 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
 Subject: Re: [PATCH] Really *do* nothing in while loop
+To: linux-kernel@vger.kernel.org
 References: <20050508093440.GA9873@cip.informatik.uni-erlangen.de>
-	<427DE086.40307@tls.msk.ru> <1115551204.3085.0.camel@kryten>
-	<12e801c553c1$c454ea20$1225a8c0@kittycat>
-	<427DFAB8.5050000@tls.msk.ru>
-From: Junio C Hamano <junkio@cox.net>
-Date: Sun, 08 May 2005 14:08:58 -0700
-In-Reply-To: <427DFAB8.5050000@tls.msk.ru> (Michael Tokarev's message of
- "Sun, 08 May 2005 15:40:40 +0400")
-Message-ID: <7vy8ap4e8l.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	<427DE086.40307@tls.msk.ru>
+In-Reply-To: <427DE086.40307@tls.msk.ru> (from mjt@tls.msk.ru on Sun May  8
+	11:48:54 2005)
+X-Mailer: Balsa 2.3.1
+Message-Id: <1115588585l.7394l.0l@werewolf.able.es>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "MT" == Michael Tokarev <mjt@tls.msk.ru> writes:
 
-MT> As I already said, deflate() in this case does only ONE iteration.
-MT> stream.avail_in is NOT changed in the loop (except of the deflate()
-MT> itself, where it will be set to 0 - provided out buffer have enouth
-MT> room)....
+On 05.08, Michael Tokarev wrote:
+> Thomas Glanzmann wrote:
+> > [PATCH] Really *do* nothing in while loop
+> > 
+> > Signed-Off-by: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
+> > 
+> > --- a/sha1_file.c
+> > +++ b/sha1_file.c
+> > @@ -335,7 +335,7 @@
+> >  	stream.next_in = hdr;
+> >  	stream.avail_in = hdrlen;
+> >  	while (deflate(&stream, 0) == Z_OK)
+> > -		/* nothing */
+> > +		/* nothing */;
+> >  
+> >  	/* Then the data itself.. */
+> >  	stream.next_in = buf;
+> 
+> Well, the lack of semicolon is wrong really (and funny).
+> 
+> But is the whole while loop needed at all?  deflate()
+> consumes as much input as it can, producing as much output
+> as it can.  So without the loop, and without updating the
+> buffer pointers ({next,avail}_{in,out}) it will do just
+> fine without the loop, and will return something != Z_OK
+> on next iteration.  If this is to mean to flush output,
+> it should be deflate(&stream, Z_FLUSH) or something.
+> 
 
-Just a stupid question, but what happens when we do not have
-enough room in the buffer?
+This changes the code in the corner case when deflate(...) IS NOT Z_OK
+in the first iteration.
+Old code: next_in is not assigned if deflate(&stream, 0) != Z_OK
+New code: next_is is _always_ assigned
+
+Other point is if old code was wrong...hidden bug ?
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandriva Linux release 2006.0 (Cooker) for i586
+Linux 2.6.11-jam16 (gcc 4.0.0 (4.0.0-3mdk for Mandriva Linux release 2006.0))
+
 

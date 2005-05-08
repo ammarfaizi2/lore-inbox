@@ -1,350 +1,237 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262855AbVEHMTO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262853AbVEHMYY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262855AbVEHMTO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 May 2005 08:19:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262856AbVEHMTO
+	id S262853AbVEHMYY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 May 2005 08:24:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262856AbVEHMYY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 May 2005 08:19:14 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:22252 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262855AbVEHMSv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 May 2005 08:18:51 -0400
-Date: Sun, 8 May 2005 17:49:32 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, schwidefsky@de.ibm.com,
-       jdike@addtoit.com, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, rmk+lkml@arm.linux.org.uk,
-       linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [RFC] (How to) Let idle CPUs sleep
-Message-ID: <20050508121932.GA3055@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20050507182728.GA29592@in.ibm.com> <1115524211.17482.23.camel@localhost.localdomain> <427D921F.8070602@yahoo.com.au>
+	Sun, 8 May 2005 08:24:24 -0400
+Received: from open.hands.com ([195.224.53.39]:62637 "EHLO open.hands.com")
+	by vger.kernel.org with ESMTP id S262853AbVEHMYC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 May 2005 08:24:02 -0400
+Date: Sun, 8 May 2005 13:32:35 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux ARM Kernel list 
+	<linux-arm-kernel@lists.arm.linux.org.uk>
+Subject: Re: tricky challenge for getting round level-driven interrupt problem: help!
+Message-ID: <20050508123235.GQ17194@lkcl.net>
+References: <20050503215634.GH8079@lkcl.net> <1115171395.14869.147.camel@localhost.localdomain> <20050504205831.GF8537@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <427D921F.8070602@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050504205831.GF8537@lkcl.net>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 08, 2005 at 02:14:23PM +1000, Nick Piggin wrote:
-> Yeah probably something around that order of magnitude. I suspect
-> there will fast be a point where either you'll get other timers
-> going off more frequently, and / or you simply get very quickly
-> diminishing returns on the amount of power saving gained from
-> increasing the period.
+hi: just a fyi.
 
-I am looking at it from the other perspective also i.e, virtualized
-env. Any amount of unnecessary timer ticks will lead to equivalent amount
-of unnecessary context switches among the guest OSes.
+i do not know, cannot tell, and do not care [ItNowWorks(tm)] why what i
+have done manages to GetItToWork(tm) - i am merely providing you with
+information such that _other people_ may dissect this issue, may look at
+this in six months/years and go "oh yeah, maybe i should try that too".
 
-> It is not so much a matter of "fixing" the scheduler as just adding
-> more heuristics. When are we too busy? When should we wake another
-> CPU? What if that CPU is an SMT sibling? What if it is across the
-> other side of the topology, and other CPUs closer to it are busy
-> as well? What if they're busy but not as busy as we are? etc.
+in the write communications, i have REMOVED the use of interrupts and am
+PURELY using the INTMR1 bit for polling purposes (!!!)
+
+the code goes something like this:
+
+int pic_misc_write( ..... char *data, int len)
+{
+	for (i = 0; i < data; i++)
+	{
+		pic_queue_byte(data[i]);
+		pic_writable_int(0, 0, NULL);
+	}
+}
+
+ha ha, i hear you say, very funny.
+
+well, in pic_writable_int - which USED to be called as an interrupt
+handler, i have this:
+
+irq_return_t pic_writable_int(int irq, ....)
+{
+	/* check that the PIC is ready for us to proceed */
+	while (!(clps_readl(INTMR) & 0x40)) {
+	}
+	...
+	...
+
+	/* place the byte on the 
+	clps_writeb(pic_get_queued_byte(), PORT_A_DATA_REGISTER);
+
+	/* this generates an interrupt to the PIC */
+	clps_writeb(0x...., PORT_A_SOMETHING_REGISTER);
+
+	/* ... which we sit there twiddling our thumbs waiting for
+	   it to be cleared 
+	 */
+	while ((clps_readl(INTMR) & 0x40)) {
+	}
+}
+
+ironically, it's _still_ not 100% reliable: about 1 in every 400 bytes
+gets corrupted.
+
+but that's probably due to bugs in the PIC assembly code, which i can
+live with / get these guys to fix, or it's to do with the setup timing
+of the port directions - again, i can deal with that.
+
+... the question is - what the _hell_ is going on with the linux 2.6
+level-based interrupt handling / my-braindead-way-of-using-them
+that causes the above approach to be [virtually] 100% reliable
+as compared to a 95%-reliable cock-up?
+
+l.
+
+On Wed, May 04, 2005 at 09:58:31PM +0100, Luke Kenneth Casson Leighton wrote:
+> alan, thanks for responding directly.
 > 
-> We've already got that covered in the existing periodic pull balancing,
-> so instead of duplicating this logic and moving this extra work to busy
-> CPUs, we can just use the existing framework.
-
-I don't think we have to duplicate the logic, just "reuse" whatever logic
-exists (in find_busiest_group etc). However I do agree there is movement
-of extra work to busy CPUs, but that is only to help the idle CPU sleep longer.
-Whether it justifies the additional complexity or not is what this RFC is
-about I guess!
-
-FWIW, I have also made some modifications in the original proposal 
-for reducing the watchdog workload (instead of the same non-idle cpu waking 
-up all the sleeping CPUs it finds in the same rebalance_tick, the task
-is spread over multiple non-idle tasks in different rebalance_ticks).
-New (lightly tested) patch is in the mail below.
-
-
-> At least we should try method A first, and if that isn't good enough
-> (though I suspect it will be), then think about adding more complexity
-> to the scheduler.
-
-What would be good to measure between the two approaches is the CPU utilization 
-(over a period of time - say 10 hrs) of somewhat lightly loaded SMP guest OSes 
-(i.e some CPUs are idle and other CPUs of the same guest are not idle), when 
-multiple such guest OSes are running simultaneously on the same box.  This 
-means I need a port of VST to UML :(
-
-> Well in the UP case, both A and B should basically degenerate to the
-> same thing.
-
-I agree.
-
-> Probably the more important case for the scheduler is to be able to
-> turn off idle SMP hypervisor clients, Srivatsa?
-
-True. To make a distinction, these SMP clients can be either completely
-idle (all their CPUs idle) or partially idle (only fraction of CPUs idle).
-It would be good to cater to both kind of clients.
-
-My latest watchdog implementation is below for reference:
-
----
-
- linux-2.6.12-rc3-mm2-vatsa/include/linux/sched.h |    1 
- linux-2.6.12-rc3-mm2-vatsa/kernel/sched.c        |  150 ++++++++++++++++++++++-
- 2 files changed, 146 insertions(+), 5 deletions(-)
-
-diff -puN kernel/sched.c~sched-nohz kernel/sched.c
---- linux-2.6.12-rc3-mm2/kernel/sched.c~sched-nohz	2005-05-04 18:23:30.000000000 +0530
-+++ linux-2.6.12-rc3-mm2-vatsa/kernel/sched.c	2005-05-07 22:09:04.000000000 +0530
-@@ -1875,6 +1875,25 @@ out:
- 	return pulled;
- }
- 
-+static inline struct sched_domain *
-+sched_domain_ptr(int dst_cpu, int src_cpu, struct sched_domain *src_ptr)
-+{
-+	struct sched_domain *tmp, *dst_ptr;
-+
-+	dst_ptr = cpu_rq(dst_cpu)->sd;
-+
-+	for_each_domain(src_cpu, tmp) {
-+		if (tmp == src_ptr || !dst_ptr)
-+			break;
-+		dst_ptr = dst_ptr->parent;
-+	}
-+
-+	if (tmp == NULL)
-+		dst_ptr = NULL;
-+
-+	return dst_ptr;
-+}
-+
- /*
-  * find_busiest_group finds and returns the busiest CPU group within the
-  * domain. It calculates and returns the number of tasks which should be
-@@ -1882,11 +1901,18 @@ out:
-  */
- static struct sched_group *
- find_busiest_group(struct sched_domain *sd, int this_cpu,
--		   unsigned long *imbalance, enum idle_type idle)
-+		   unsigned long *imbalance, enum idle_type idle,
-+		   cpumask_t *wakemaskp)
- {
- 	struct sched_group *busiest = NULL, *this = NULL, *group = sd->groups;
- 	unsigned long max_load, avg_load, total_load, this_load, total_pwr;
- 	int load_idx;
-+#ifdef CONFIG_NO_IDLE_HZ
-+	int grp_sleeping = 0, woken = 0;
-+	cpumask_t tmpmask;
-+	struct sched_domain *sd1;
-+	unsigned long interval;
-+#endif
- 
- 	max_load = this_load = total_load = total_pwr = 0;
- 	if (idle == NOT_IDLE)
-@@ -1896,6 +1922,11 @@ find_busiest_group(struct sched_domain *
- 	else
- 		load_idx = sd->idle_idx;
- 
-+#ifdef CONFIG_NO_IDLE_HZ
-+	if (wakemaskp)
-+		cpus_clear(*wakemaskp);
-+#endif
-+
- 	do {
- 		unsigned long load;
- 		int local_group;
-@@ -1906,6 +1937,17 @@ find_busiest_group(struct sched_domain *
- 		/* Tally up the load of all CPUs in the group */
- 		avg_load = 0;
- 
-+#ifdef CONFIG_NO_IDLE_HZ
-+		grp_sleeping = 0;
-+		woken = 0;
-+		if (wakemaskp && idle == NOT_IDLE) {
-+			/* Are all CPUs in the group sleeping ? */
-+			cpus_and(tmpmask, group->cpumask, nohz_cpu_mask);
-+			if (cpus_equal(tmpmask, group->cpumask))
-+				grp_sleeping = 1;
-+		}
-+#endif
-+
- 		for_each_cpu_mask(i, group->cpumask) {
- 			/* Bias balancing toward cpus of our domain */
- 			if (local_group)
-@@ -1914,6 +1956,36 @@ find_busiest_group(struct sched_domain *
- 				load = source_load(i, load_idx);
- 
- 			avg_load += load;
-+
-+#ifdef CONFIG_NO_IDLE_HZ
-+			/* Try to find a CPU that can be woken up from the
-+			 * sleeping group. After we wake up one CPU, we will let
-+			 * it wakeup others in its group.
-+			 */
-+			if (!grp_sleeping || woken)
-+				continue;
-+
-+			sd1 = sched_domain_ptr(i, this_cpu, sd);
-+
-+			if (!sd1 || !sd1->flags & SD_LOAD_BALANCE)
-+				continue;
-+
-+			interval = sd1->balance_interval;
-+			/* scale ms to jiffies */
-+			interval = msecs_to_jiffies(interval);
-+	                if (unlikely(!interval))
-+        	                interval = 1;
-+
-+			if (jiffies - sd1->last_balance >= interval) {
-+				/* Lets record this CPU as a possible target
-+				 * to be woken up. Whether we actually wake it
-+				 * up or not depends on the CPU's imbalance wrt
-+				 * others in the domain.
-+				 */
-+				woken = 1;
-+				cpu_set(i, *wakemaskp);
-+			}
-+#endif
- 		}
- 
- 		total_load += avg_load;
-@@ -2050,11 +2122,15 @@ static int load_balance(int this_cpu, ru
- 	unsigned long imbalance;
- 	int nr_moved, all_pinned = 0;
- 	int active_balance = 0;
-+	cpumask_t wakemask;
-+#ifdef CONFIG_NO_IDLE_HZ
-+	struct sched_domain *sd1;
-+#endif
- 
- 	spin_lock(&this_rq->lock);
- 	schedstat_inc(sd, lb_cnt[idle]);
- 
--	group = find_busiest_group(sd, this_cpu, &imbalance, idle);
-+	group = find_busiest_group(sd, this_cpu, &imbalance, idle, &wakemask);
- 	if (!group) {
- 		schedstat_inc(sd, lb_nobusyg[idle]);
- 		goto out_balanced;
-@@ -2130,9 +2206,11 @@ static int load_balance(int this_cpu, ru
- 			sd->balance_interval *= 2;
- 	}
- 
--	return nr_moved;
-+	goto out_nohz;
- 
- out_balanced:
-+	nr_moved = 0;
-+
- 	spin_unlock(&this_rq->lock);
- 
- 	schedstat_inc(sd, lb_balanced[idle]);
-@@ -2143,7 +2221,36 @@ out_balanced:
- 			(sd->balance_interval < sd->max_interval))
- 		sd->balance_interval *= 2;
- 
--	return 0;
-+out_nohz:
-+#ifdef CONFIG_NO_IDLE_HZ
-+	if (!cpus_empty(wakemask)) {
-+		int i;
-+
-+		/* Lets try to wakeup one CPU from the mask. Rest of the cpus
-+		 * in the mask can be woken up by other CPUs when they do load
-+		 * balancing in this domain. That way, the overhead of watchdog
-+		 * functionality is spread across (non-idle) CPUs in the domain.
-+		 */
-+
-+		for_each_cpu_mask(i, wakemask) {
-+
-+			sd1 = sched_domain_ptr(i, this_cpu, sd);
-+
-+			if (!sd1)
-+				continue;
-+
-+			find_busiest_group(sd1, i, &imbalance, SCHED_IDLE,
-+					   			NULL);
-+			if (imbalance > 0) {
-+				spin_lock(&cpu_rq(i)->lock);
-+				resched_task(cpu_rq(i)->idle);
-+				spin_unlock(&cpu_rq(i)->lock);
-+				break;
-+			}
-+		}
-+	}
-+#endif
-+	return nr_moved;
- }
- 
- /*
-@@ -2162,7 +2269,7 @@ static int load_balance_newidle(int this
- 	int nr_moved = 0;
- 
- 	schedstat_inc(sd, lb_cnt[NEWLY_IDLE]);
--	group = find_busiest_group(sd, this_cpu, &imbalance, NEWLY_IDLE);
-+	group = find_busiest_group(sd, this_cpu, &imbalance, NEWLY_IDLE, NULL);
- 	if (!group) {
- 		schedstat_inc(sd, lb_nobusyg[NEWLY_IDLE]);
- 		goto out_balanced;
-@@ -2323,6 +2430,39 @@ static void rebalance_tick(int this_cpu,
- 		}
- 	}
- }
-+
-+#ifdef CONFIG_NO_IDLE_HZ
-+/*
-+ * Try hard to pull tasks. Called by idle task before it sleeps cutting off
-+ * local timer ticks.  This clears the various load counters and tries to pull
-+ * tasks.
-+ *
-+ * Returns 1 if tasks were pulled over, 0 otherwise.
-+ */
-+int idle_balance_retry(void)
-+{
-+	int j, moved = 0, this_cpu = smp_processor_id();
-+	runqueue_t *this_rq = this_rq();
-+	unsigned long flags;
-+
-+	local_irq_save(flags);
-+
-+	for (j = 0; j < 3; j++)
-+		this_rq->cpu_load[j] = 0;
-+
-+	rebalance_tick(this_cpu, this_rq, SCHED_IDLE);
-+
-+	if (this_rq->nr_running) {
-+		moved = 1;
-+		set_tsk_need_resched(current);
-+	}
-+
-+	local_irq_restore(flags);
-+
-+	return moved;
-+}
-+#endif
-+
- #else
- /*
-  * on UP we do not need to balance between CPUs:
-diff -puN include/linux/sched.h~sched-nohz include/linux/sched.h
---- linux-2.6.12-rc3-mm2/include/linux/sched.h~sched-nohz	2005-05-04 18:23:30.000000000 +0530
-+++ linux-2.6.12-rc3-mm2-vatsa/include/linux/sched.h	2005-05-04 18:23:37.000000000 +0530
-@@ -897,6 +897,7 @@ extern int task_curr(const task_t *p);
- extern int idle_cpu(int cpu);
- extern int sched_setscheduler(struct task_struct *, int, struct sched_param *);
- extern task_t *idle_task(int cpu);
-+extern int idle_balance_retry(void);
- 
- void yield(void);
- 
-
-_
+> the internet is down at the moment (at least, bt's bit is) so
+> your continued direct responses, if you have the time, greatly
+> appreciated.
+> 
+> i can't get http or ssh access to _anywhere_, but bizarrely,
+> smtp is getting through.
+> 
+> [sod bt.  royally.]
+> 
+> On Wed, May 04, 2005 at 02:50:01AM +0100, Alan Cox wrote:
+> 
+> > On Maw, 2005-05-03 at 22:56, Luke Kenneth Casson Leighton wrote:
+> > > it only does level-based interrupts and i need to create a driver
+> > > that does two-way 8-bit data communication.
+> > 
+> > Level triggered is generally considered a feature by people less than
+> > 200 years old 8)
+>  
+>  lots of experience, then, you'd say?  my experience with doing this
+>  kind of stuff is kinda limited (doesn't stop me trying) so your
+>  response is really appreciated.
+> 
+> > > i would genuinely appreciate some advice from people with
+> > > more experience than i on how to go about getting round
+> > > this stupid hardware design - in order to make a RELIABLE,
+> > > non-race-conditioned kernel driver.
+> > 
+> > Assuming you are using the core Linux IRQ code 
+> 
+>  yep.
+> 
+> > then you shouldn't have
+> > any great problem. The basic rules with level triggered IRQ are that 
+> > 
+> > - You must ack the IRQ on the device to clear it either specifically or
+> > as part of some other process.
+> > - The device must raise the IRQ again if the irq condition is present
+> > *at* or after the point of the IRQ ack (or in many implementations 'just
+> > before' in fact)
+> > 
+> > the core Linux code deals with masking on the controller to ensure IRQ's
+> > dont get called recursively, and ensuring an IRQ gets rechecked/recalled
+> > on the unmask/exit path if it is still asserted.
+> > 
+> > So an implementation is much like a serial port fifo, assert the IRQ
+> > until the PC has fetched all the bits. In fact the IRQ line is
+> > essentially "NOT(fifo_empty)" and rechecked each time a byte is fetched.
+>  
+>  okay.
+> 
+> > *WAY* simpler than nasty edge triggered stuff 8)
+>  
+>  bleh :)
+> 
+>  okay.
+> 
+>  i believe i get it: you raise a level-triggered interrupt which _stays_
+>  raised until such time as your fifo is empty.
+> 
+>  the original protocol that was written [by somebody even less
+>  experienced than i] was designed the way it is because the PIC chip
+>  that's connected to the ARM only has *one* interrupt.
+> 
+>  that interrupt is triggered:
+> 
+>  * on a port read (there are four 8-bit ports!)
+>  * on a port write 
+>  * by the serial port
+>  * by the timer
+> 
+>  [skip this bit if you're busy, it's just background info]
+> 
+> 	 so there's now a _thousand_ lines of hand-written assembly code
+> 	 which took well over a year to write and debug on the PIC, that
+> 	 implements the state-machine to deal with the GPS on the serial
+> 	 port, interleaving the "device status" info into the GPS data
+> 	 stream, getting the GPS data stream over the 8-bit port and
+> 	 receiving LCD commands over the 8-bit port, interpreting them
+> 	 and then feeding the LCD.
+> 
+>  okay.
+> 
+>  so.
+> 
+>  assuming that i can handle the pic having only a single interrupt, then
+>  does the process go something like this (for read, e.g.):
+> 
+>  1) the ARM unmasks read interrupts when it's ready.
+> 
+>  2) when the PIC has data to be read (which is only ever a single byte),
+>    it asserts the level-triggered read interrupt to the ARM.
+> 
+>  3) the ARM receives the interrupt, and reads the byte.  the _act_ of
+>    reading the byte causes an edge-triggered interrupt to the PIC.
+> 
+> 
+>  5) the first thing the PIC does in its [one] ISR is to de-assert the
+>    read interrupt.  why? because there is only a one byte buffer.
+> 
+>  
+>  we have an additional step in the chain - step 4 - which is:
+> 
+>  4) in the ISR, the ARM goes into a tight loop checking that the 
+>     PIC has cleared the level-triggered interrupt.
+>  
+> 
+>  the reason for checking this is so that when we come out of the
+>  ISR on the ARM, the PIC is *SOOO* slow - it's only 6mhz after
+>  all - that sometimes (frequently, in fact - about 1 in every
+>  50 times) it hasn't got round to clearing the level-driven
+>  interrupt by the time we come out of the ARM ISR (!)
+> 
+>  the problem we're having is actually worse than that.
+> 
+>  sometimes something goes screwy and _despite_ having this loop-check,
+>  we get duplicated characters.
+> 
+>  sometimes, even worse, we lose sync, and the ARM sits there in the
+>  loop...
+> 
+> 
+>  i was getting _so_ fed up with this that i was thinking that there
+>  was a problem with the approach being taken.
+> 
+>  hence the redesign to do alternate read-write-read-write, and making
+>  reads exclusive of writes, etc.
+> 
+>  awful.  just awful :)
+> 
+> 
+>  ... so - in your opinion, alan, is the old approach we had
+>  actually _on_ the right lines?
+> 
+>  also, are you going to ukuug in august, it being _in_
+>  aberystwyth and all :)
+> 
+>  l.
+> 
 
 -- 
-
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017
+--
+<a href="http://lkcl.net">http://lkcl.net</a>
+--

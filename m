@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262804AbVEHDuV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262807AbVEHDx3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262804AbVEHDuV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 23:50:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262806AbVEHDuV
+	id S262807AbVEHDx3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 23:53:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262810AbVEHDx3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 23:50:21 -0400
-Received: from ozlabs.org ([203.10.76.45]:65003 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262804AbVEHDuN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 23:50:13 -0400
-Subject: Re: [RFC] (How to) Let idle CPUs sleep
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: vatsa@in.ibm.com
-Cc: schwidefsky@de.ibm.com, jdike@addtoit.com, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-In-Reply-To: <20050507182728.GA29592@in.ibm.com>
-References: <20050507182728.GA29592@in.ibm.com>
+	Sat, 7 May 2005 23:53:29 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:25991 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262807AbVEHDx1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 23:53:27 -0400
+Subject: Re: Suspend/Resume
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Jon Escombe <trial@dresco.co.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+In-Reply-To: <20050503141017.GD6115@suse.de>
+References: <4267B5B0.8050608@davyandbeth.com>
+	 <loom.20050502T161322-252@post.gmane.org> <20050502144703.GA1882@suse.de>
+	 <loom.20050502T221228-244@post.gmane.org>  <20050503141017.GD6115@suse.de>
 Content-Type: text/plain
-Date: Sun, 08 May 2005 13:50:10 +1000
-Message-Id: <1115524211.17482.23.camel@localhost.localdomain>
+Date: Sat, 07 May 2005 22:53:21 -0500
+Message-Id: <1115524401.5942.13.camel@mulgrave>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-05-07 at 23:57 +0530, Srivatsa Vaddagiri wrote:
-> Two solutions have been proposed so far:
+On Tue, 2005-05-03 at 16:10 +0200, Jens Axboe wrote:
+> I don't know, depends on what Jeff/James think of this approach. There
+> are many different way to solve this problem. I let the scsi bus called
+> suspend/resume for the devices on that bus, and let the scsi host
+> adapter perform any device dependent actions. The pci helpers are less
+> debatable.
 > 
-> 	A. As per Nick's suggestion, impose a max limit (say some 100 ms or
-> 	   say a second, Nick?) on how long a idle CPU can avoid taking
-> 	   local-timer ticks. As a result, the load imbalance could exist only
-> 	   for this max duration, after which the sleeping CPU will wake up
-> 	   and balance itself. If there is no imbalance, it can go and sleep
-> 	   again for the max duration.
-> 
->  	   For ex, lets say a idle CPU found that it doesn't have any near timer
-> 	   for the next 1 minute. Instead of letting it sleep for 1 minute in
-> 	   a single stretch, we let it sleep in bursts of 100 msec (or whatever
-> 	   is the max. duration chosen). This still is better than having
-> 	   the idle CPU take HZ ticks a second.
-> 
-> 	   As a special case, when all the CPUs of an image go idle, we
-> 	   could consider completely shutting off local timer ticks
-> 	   across all CPUs (till the next non-timer interrupt).
-> 
-> 
-> 	B. Don't impose any max limit on how long a idle CPU can sleep.
-> 	   Here we let the idle CPU sleep as long as it wants. It is
-> 	   woken up by a "busy" CPU when it detects an imbalance. The
-> 	   busy CPU acts as a watchdog here. If there are no such
-> 	   busy CPUs, then it means that nobody will acts as watchdogs
-> 	   and idle CPUs sleep as long as they want. A possible watchdog
-> 	   implementation has been discussed at:
-> 
-> 	http://marc.theaimsgroup.com/?l=linux-kernel&m=111287808905764&w=2
+> Jeff/James? Here's a patch that applies to current git.
 
-My preference would be the second: fix the scheduler so it doesn't rely
-on regular polling.  However, as long as the UP case runs with no timer
-interrupts when idle, many people will be happy (eg. most embedded).
+The patch looks fine as far as it goes ... however, shouldn't we be
+spinning *internal* suspended drives down as well like IDE does (i.e. at
+least the sd ULD needs to be a party to the suspend)?  Of course this is
+a complete can of worms since we really have no idea which busses are
+internal and which are external, although it might be something that
+userland can determine.
 
-Rusty.
--- 
-A bad analogy is like a leaky screwdriver -- Richard Braakman
+James
+
+P.S.  I noticed the gratuitous coding style corrections ...
+
 

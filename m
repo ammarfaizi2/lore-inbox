@@ -1,82 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262866AbVEHNkr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262870AbVEHNok@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262866AbVEHNkr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 May 2005 09:40:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262869AbVEHNkq
+	id S262870AbVEHNok (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 May 2005 09:44:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262872AbVEHNok
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 May 2005 09:40:46 -0400
-Received: from mx1.suse.de ([195.135.220.2]:48007 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S262866AbVEHNkg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 May 2005 09:40:36 -0400
-Date: Sun, 8 May 2005 15:40:35 +0200
-From: Andi Kleen <ak@suse.de>
-To: Bernd Paysan <bernd.paysan@gmx.de>
-Cc: suse-amd64@suse.com, linux-kernel@vger.kernel.org
-Subject: Re: [suse-amd64] False "lost ticks" on dual-Opteron system (=> timer twice as fast)
-Message-ID: <20050508134035.GC15724@wotan.suse.de>
-References: <200505081445.26663.bernd.paysan@gmx.de>
+	Sun, 8 May 2005 09:44:40 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:9160 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262870AbVEHNoe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 May 2005 09:44:34 -0400
+Subject: Re: [RFC] (How to) Let idle CPUs sleep
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andi Kleen <ak@muc.de>
+Cc: vatsa@in.ibm.com, schwidefsky@de.ibm.com, jdike@addtoit.com,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, rmk+lkml@arm.linux.org.uk,
+       linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+In-Reply-To: <m1oeblvo3x.fsf@muc.de>
+References: <20050507182728.GA29592@in.ibm.com>
+	 <1115524211.17482.23.camel@localhost.localdomain>
+	 <1115547230.5998.10.camel@laptopd505.fenrus.org>  <m1oeblvo3x.fsf@muc.de>
+Content-Type: text/plain
+Date: Sun, 08 May 2005 15:44:14 +0200
+Message-Id: <1115559855.5998.26.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200505081445.26663.bernd.paysan@gmx.de>
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 08, 2005 at 02:45:20PM +0200, Bernd Paysan wrote:
-> Hi,
-> 
-> I've recently set up a dual Opteron RAID server (AMD-8000-based Tyan 
-> Thunder K8S Pro SCSI board, 2 246 Opterons, stepping 10). Kernel is a 
-> modified 2.6.11.4-20a from SuSE 9.3 (SMP version, sure). The Opterons 
-> are capable of changing the CPU frequency (between 1GHz and 2GHz).
 
-Your system should be using the HPET timer to work exactly around
-this. AMD 8000 has HPET. Can you post a boot.log?
+> But it has to be *really* lightweight because these transistion can
+> happen a lot (consider a CPU that very often goes to sleep for a short time)
 
-> 
-> The system clock runs (on average) about twice as fast as it should be. 
-> A closer observation revealed that the clock jumps forward by about 
-> 10-30 seconds every 10-30 seconds (plus other oddities, including 
-> backward clock jumps). The timer interrupts are distributed roughly 
-> evenly among the two CPUs, but looking at the timer interrupt number 
-> (grep timer /proc/interrupts) revealed that for about 10-30 seconds, 
-> one CPU gets the interrupt, and then the other CPU gets them; the 
-> transition causes the system clock to advance.
-> 
-> A quick look at timer_interrupt shows what I suspect is the culprit: 
-> Each CPU keeps track of the last TSC at a timer interrupt, and adds the 
+lightweight is good of course. But even if it's medium weight.. it just
+means you need to be REALLY idle (eg for longer time) for it to trigger.
+I guess we need some sort of per arch "idleness threshhold" for this.
 
-No, it doesn't. TSC is kept only globally right now.  Obviously
-that is problem if the TSCs run at different frequencies (it actually
-is a problem even without powernow, just a much smaller one), but
-that is why HPET is used instead.
 
-There are some plans to change that in the future, but it hasn't 
-happened yet.
-
-> "lost" ticks to jiffies when perceived necessary. If there's only a 
-> single jiffies, but two vxtime.last_tsc, it can't work.
-> 
-> A quick workaround would be to ditch the handling of the "lost" jiffies. 
-> I still anticipate to have annoying time skews by do_gettimeoffset() 
-> (that's what explains the other oddities - if I do gettimeofday() on 
-> the CPU that isn't getting interrupts, I'll going to add the "lost" 
-> jiffies, too). A proposed fix would be to *also* store the last jiffies 
-> value in the vxtime variable, and verify if it's really *this* CPU that 
-> did miss the timer interrupts. This local "last-stored-jiffies" can 
-> help do_gettimeoffset() to calculate the local time good enough on both 
-> CPUs.
-
-The current design is that only the BP runs the main timer, and the other
-CPUs use the APIC timer and don't do any own time keeping. I think you
-misread the code quite a bit.
-
-And lost jiffie handling can't be dropped no.
-
-A common problem however is that the irq 0 is misrouted somehow,
-and gets broadcasted and processed on multiple CPUs. That results
-in the time running far too fast. You can check that by looking
-at /proc/interrupts.
-
--Andi

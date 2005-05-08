@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262830AbVEHJsx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262834AbVEHJtY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262830AbVEHJsx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 May 2005 05:48:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262834AbVEHJsx
+	id S262834AbVEHJtY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 May 2005 05:49:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262835AbVEHJtH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 May 2005 05:48:53 -0400
-Received: from colino.net ([213.41.131.56]:51960 "EHLO paperstreet.colino.net")
-	by vger.kernel.org with ESMTP id S262830AbVEHJsv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 May 2005 05:48:51 -0400
-Date: Sun, 8 May 2005 11:48:39 +0200
-From: Colin Leroy <colin@colino.net>
-To: =?ISO-8859-15?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-Cc: linux-kernel@vger.kernel.org, debian-powerpc@lists.debian.org,
-       Roman Zippel <zippel@linux-m68k.org>, Brad Boyer <flar@allandria.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>, rtbrito@ig.com.br
-Subject: Re: Oops and BUG's with hfsplus module
-Message-ID: <20050508114839.44ed10dc@jack.colino.net>
-In-Reply-To: <20050507235454.GA16058@ime.usp.br>
-References: <20050507235454.GA16058@ime.usp.br>
-X-Mailer: Sylpheed-Claws 1.9.6cvs36 (GTK+ 2.6.4; powerpc-unknown-linux-gnu)
-X-Face: Fy:*XpRna1/tz}cJ@O'0^:qYs:8b[Rg`*8,+o^[fI?<%5LeB,Xz8ZJK[r7V0hBs8G)*&C+XA0qHoR=LoTohe@7X5K$A-@cN6n~~J/]+{[)E4h'lK$13WQf$.R+Pi;E09tk&{t|;~dakRD%CLHrk6m!?gA,5|Sb=fJ=>[9#n1Bu8?VngkVM4{'^'V_qgdA.8yn3)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Sun, 8 May 2005 05:49:07 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:55388 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S262834AbVEHJs7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 May 2005 05:48:59 -0400
+Message-ID: <427DE086.40307@tls.msk.ru>
+Date: Sun, 08 May 2005 13:48:54 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, GIT <git@vger.kernel.org>
+Subject: Re: [PATCH] Really *do* nothing in while loop
+References: <20050508093440.GA9873@cip.informatik.uni-erlangen.de>
+In-Reply-To: <20050508093440.GA9873@cip.informatik.uni-erlangen.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 07 May 2005 at 20h05, Rogério Brito wrote:
-
-Hi, 
-
-> The drive is an IDE HD in a firewire enclosure and it seems to work
-> well for the first few operations. Then, the kernel generates loads
-> of messages, when I try to do some simple things.
+Thomas Glanzmann wrote:
+> [PATCH] Really *do* nothing in while loop
 > 
-> Yesterday, I got a quite scary ooops and, today, after trying a newer
-> kernel, I got many messages in my dmesg logs.
+> Signed-Off-by: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
+> 
+> --- a/sha1_file.c
+> +++ b/sha1_file.c
+> @@ -335,7 +335,7 @@
+>  	stream.next_in = hdr;
+>  	stream.avail_in = hdrlen;
+>  	while (deflate(&stream, 0) == Z_OK)
+> -		/* nothing */
+> +		/* nothing */;
+>  
+>  	/* Then the data itself.. */
+>  	stream.next_in = buf;
 
-I've had problems mounting my iPod with Firewire, whereas USB works ok.
-Do you have the ability to test an hfsplus filesystem over usb-storage?
-Maybe the problem comes from sbp2.
+Well, the lack of semicolon is wrong really (and funny).
 
-Also, can you try with 2.6.12-rc4?
+But is the whole while loop needed at all?  deflate()
+consumes as much input as it can, producing as much output
+as it can.  So without the loop, and without updating the
+buffer pointers ({next,avail}_{in,out}) it will do just
+fine without the loop, and will return something != Z_OK
+on next iteration.  If this is to mean to flush output,
+it should be deflate(&stream, Z_FLUSH) or something.
 
--- 
-Colin
+/mjt
+
+P.S.  What's git@vger.kernel.org for ?

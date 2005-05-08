@@ -1,79 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262845AbVEHLVs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262849AbVEHLd6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262845AbVEHLVs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 May 2005 07:21:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262848AbVEHLVs
+	id S262849AbVEHLd6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 May 2005 07:33:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262851AbVEHLd6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 May 2005 07:21:48 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:22026 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S262845AbVEHLV1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 May 2005 07:21:27 -0400
-Date: Sun, 8 May 2005 13:12:16 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: moreau francis <francis_moreau2000@yahoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: advices for a lcd driver design.
-Message-ID: <20050508111216.GB18600@alpha.home.local>
-References: <20050508103330.93937.qmail@web25105.mail.ukl.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050508103330.93937.qmail@web25105.mail.ukl.yahoo.com>
-User-Agent: Mutt/1.4i
+	Sun, 8 May 2005 07:33:58 -0400
+Received: from smtpauth01.mail.atl.earthlink.net ([209.86.89.61]:13999 "EHLO
+	smtpauth01.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
+	id S262848AbVEHLdx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 May 2005 07:33:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=simple;
+  s=test1; d=earthlink.net;
+  h=Message-ID:From:To:Cc:References:Subject:Date:MIME-Version:Content-Type:Content-Transfer-Encoding:X-Priority:X-MSMail-Priority:X-Mailer:X-MimeOLE;
+  b=Pm6XpWlcauPPQHBk9sF7HmitC1DOPS8Lq3x0afeCvI9s8X65vxhwIqIyzM9Ivpw2;
+Message-ID: <12e801c553c1$c454ea20$1225a8c0@kittycat>
+From: "jdow" <jdow@earthlink.net>
+To: "James Purser" <purserj@ksit.dynalias.com>,
+       "Michael Tokarev" <mjt@tls.msk.ru>
+Cc: "Thomas Glanzmann" <sithglan@stud.uni-erlangen.de>,
+       "LKML" <linux-kernel@vger.kernel.org>, "GIT" <git@vger.kernel.org>
+References: <20050508093440.GA9873@cip.informatik.uni-erlangen.de> <427DE086.40307@tls.msk.ru> <1115551204.3085.0.camel@kryten>
+Subject: Re: [PATCH] Really *do* nothing in while loop
+Date: Sun, 8 May 2005 04:33:32 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1478
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
+X-ELNK-Trace: bb89ecdb26a8f9f24d2b10475b571120c73c103b50c9d9f17c7629a5d77f7b0ecf2db02f6bc5f712350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
+X-Originating-IP: 4.16.241.254
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Francis,
+From: "James Purser" <purserj@ksit.dynalias.com>
 
-There already are several drivers for this display, why write another one ?
-One I use and know (because I wrote it :-)) is available here :
- 
-  http://linux.exosec.net/kernel/lcdpanel/
+> On Sun, 2005-05-08 at 19:48, Michael Tokarev wrote:
+> > Thomas Glanzmann wrote:
+> > > [PATCH] Really *do* nothing in while loop
+> > > 
+> > > Signed-Off-by: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
+> > > 
+> > > --- a/sha1_file.c
+> > > +++ b/sha1_file.c
+> > > @@ -335,7 +335,7 @@
+> > >  stream.next_in = hdr;
+> > >  stream.avail_in = hdrlen;
+> > >  while (deflate(&stream, 0) == Z_OK)
+> > > - /* nothing */
+> > > + /* nothing */;
+> > >  
+> > >  /* Then the data itself.. */
+> > >  stream.next_in = buf;
+> > 
+> > Well, the lack of semicolon is wrong really (and funny).
 
-It works with any combination of data and control bits from a parallel port,
-and can initialize early in the kernel to display a booting message. It also
-supports a keypad. I know that several appliance makers who use it. It uses
-/dev/lcd to send data and some ANSI codes to move the cursor, and to define
-up to 8 graphics characters. It uses /dev/keypad for keypad input.
+You guys REALLY do not see the changed semantics here? You are
+changing:
+  while (deflate(&stream, 0) == Z_OK)
+      stream.next_in = buf;
 
-Another one exists, I don't remember its name but it used to be announced
-on freshmeat. It emulates a vt52 terminal IIRC.
+into
 
-Hoping this helps,
-Willy
+  while (deflate(&stream, 0) == Z_OK)
+    ;
+  /* Then the data itself.. */
+  stream.next_in = buf;
 
-On Sun, May 08, 2005 at 12:33:30PM +0200, moreau francis wrote:
-> Hi,
-> 
-> I'm trying to write a lcd driver for a HD44780 compatible display.
-> Basicaly it will be the only screen available on my linux board.
-> My problem is that I don't know which desgin I should use when
-> implementing the lcd's driver, because several choices are possible:
-> 
-> 1) implementing a dumb char device  "/dev/lcd"
-> 2) implementing a console driver
-> 3) implementing a tty driver
-> 
-> I can't find any documentation on vt that makes the choice quite
-> hard but when looking at the code it may be the best choice for
-> user-space. Do you think it's the good direction ?
-> 
-> Thanks for your advices,
-> 
->       Francis.
-> 
-> 
-> 	
-> 
-> 	
-> 		
-> __________________________________________________________________ 
-> Découvrez le nouveau Yahoo! Mail : 250 Mo d'espace de stockage pour vos mails ! 
-> Créez votre Yahoo! Mail sur http://fr.mail.yahoo.com/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I suspect the results of that tiny bit of code would be slightly
+different, especially if "stream.next_in" is volatile, "buf"
+is volatile, or if the assignment to next_in has an effect on
+the "deflate" operation.
+
+{^_^}
+
+
+

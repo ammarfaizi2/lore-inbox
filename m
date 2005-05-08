@@ -1,56 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbVEHGKr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262816AbVEHGMB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261397AbVEHGKr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 May 2005 02:10:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262818AbVEHGKr
+	id S262816AbVEHGMB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 May 2005 02:12:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262817AbVEHGMB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 May 2005 02:10:47 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46557 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261397AbVEHGKk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 May 2005 02:10:40 -0400
-Date: Sun, 8 May 2005 07:10:44 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Jeff Dike <jdike@addtoit.com>
-Cc: Alexander Nyberg <alexn@telia.com>, Antoine Martin <antoine@nagafix.co.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11.8 + UML/x86_64 (2.6.12-rc3+) = oops
-Message-ID: <20050508061044.GB32143@parcelfarce.linux.theplanet.co.uk>
-References: <20050504191828.620C812EE7@sc8-sf-spam2.sourceforge.net> <1115248927.12088.52.camel@cobra> <1115392141.12197.3.camel@cobra> <1115483506.12131.33.camel@cobra> <1115481468.925.9.camel@localhost.localdomain> <20050507180356.GA10793@ccure.user-mode-linux.org> <20050508001832.GA32143@parcelfarce.linux.theplanet.co.uk>
+	Sun, 8 May 2005 02:12:01 -0400
+Received: from wproxy.gmail.com ([64.233.184.200]:18882 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262816AbVEHGLn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 May 2005 02:11:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=YRxA1R3rmAnnfBUVxXLxqfpOwLeKwz/ha8/3M+CFtCeyMFKFbwThS66Rpu+QJDRw02eWLHgGJMadYNIjqK9yDgQy38sIvHEKy11wzK7GzRYDNINW0Zw4iIdpfAW1MB/kv+lz15D6gSvnYUFGI5AuIHQsMOZAla0qng3ooOcVmDQ=
+Message-ID: <d6e6e6dd050507231174d99fb0@mail.gmail.com>
+Date: Sun, 8 May 2005 02:11:41 -0400
+From: Haoqiang Zheng <haoqiang@gmail.com>
+Reply-To: Haoqiang Zheng <haoqiang@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC PATCH] swap-sched: schedule with dynamic dependency detection (2.6.12-rc3)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050508001832.GA32143@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 08, 2005 at 01:18:32AM +0100, Al Viro wrote:
-> 	a) stub.S handling breaks on O= builds.   Actually, your unprofile
-> breaks there - it's bypassing the machinery that deals with include path.
+swap-sched is a patch that solves dynamic priority inversion problem.
 
-Solved.
+Run X at normal priority (nice 0) and keep the system really busy by
+running a lot of interactive jobs (with dynamic priority at 115), or
+simply run some CPU bound tasks at nice -10. Then start a mpeg player
+at a high priority (nice -20). What would you expect? In my machine,
+the mpeg player runs at poorly 4 frm/s. Why the tasks running at
+dynamic priorities of 115 can have such dramatic impact on the
+performance of mpeg player running at nice -20? What happens is the
+mpeg player often blocks to wait the normal priority X to render the
+frames. Without knowing such dependency between mpeg player and X, the
+existing Linux scheduler would select other tasks to run and thus
+results in poor video playback quality. This problem is generally
+known as priority inversion.
 
-> 	p) TOP_ADDR in Kconfig_x86_64 got lost in transmission - your patchset
-> has it, but same patch in Linus' tree does not.
+Certainly, this very problem can be solved by setting the priority of
+X to nice -10 (like what Redhat etc. does). However, inter-process
+communication mechanisms like pipe, socket and signal etc. are widely
+used in modern applications, and thus the inter-process dependencies
+are everywhere in today's computer systems. It's not possible for a
+system administrator to find out all the dependencies and set the
+priorities properly. Obviously, we need a system that can dynamically
+detects the dependencies among the tasks and take the dependency
+information into account when scheduling. swap-sched is such a system.
 
-	q) skas/mmu.c is calling pte_alloc_map() without ->page_table_lock.
-Trivially fixed, needed if you want spinlock debugging to produce something
-useful.
-	r) when built static, kernel dies ugly death with
-#0  0x00000000601e4178 in ptmalloc_init () at swab.h:134
-#1  0x00000000601e4034 in malloc_hook_ini () at swab.h:134
-#2  0x00000000601e1698 in malloc () at swab.h:134
-#3  0x00000000602068ee in _dl_init_paths () at swab.h:134
-#4  0x00000000601eba45 in _dl_non_dynamic_init () at swab.h:134
-#5  0x00000000601ebc60 in __libc_init_first () at swab.h:134
-#6  0x00000000601cfa4f in __libc_start_main () at swab.h:134
-#7  0x000000006001202a in _start () at proc_fs.h:183
-as stack trace.  Buggered offsets in uml.lds, perhaps?
+swap-sched consists of two components: the automatic dependency
+detection component and the dependency based scheduling
+component. swap-sched detects the dependency among tasks by
+monitoring/instrumenting the inter-process
+communication/synchronization related system calls. Since all the
+inter-process communications/synchronizations (except shared-memory)
+are done via system calls, the dynamic dependencies can be effectively
+detected by instrumenting these system calls.
 
-Dynamically built it works; for i386 the same tree works both with both
-static and dynamic.  It _might_ be libc difference, in theory (i386 libc
-is 2.3.2.ds1-18, amd64 - 2.3.2.ds1-21, both from sarge), but I wouldn't
-bet on it.  Anyway, I'm going down right now; carving the fixes into
-sane patch series + experimenting with static/amd64 breakage will have
-to wait until the morning...
+In a conventional CPU scheduler, a task is removed from the runqueue
+once it's blocked. This is a PROBLEM since a high priority task's
+request is ignored once it's blocked, even though it's blocked because
+of waiting for the execution of another task. Based on this
+observation, swap-sched solves the priority inversion problem by make
+two simple changes to the existing CPU scheduler. First, it keeps all
+the tasks that are blocked but depends on some other tasks that are
+runnable in runqueue. (We call such tasks are virtual runnable
+tasks). Second, the existing CPU scheduler is called as usual. But since the
+virtual runnable tasks are in runqueue, they may be scheduled. In this
+case the swap scheduler is called to choose one of the providers of
+the task (the task that the virtual runnable task depends on) to run.
+
+ Our results show that SWAP has low overhead, effectively solves the
+priority inversion problem and can provide substantial improvements in
+system performance in scheduling processes with dependencies. For the
+mpeg player + X scenario discussed above, mpeg player can play at 23
+frm/s with swap-sched enabled!!!
+
+Please visit our swap-sched project homepage at
+http://swap-sched.sourceforge.net/ for details and latest
+patches. Suggestions/Comments are welcomed.
+
+
+Haoqiang

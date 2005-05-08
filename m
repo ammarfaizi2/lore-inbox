@@ -1,71 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262765AbVEHASj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262766AbVEHA05@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262765AbVEHASj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 20:18:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbVEHASj
+	id S262766AbVEHA05 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 20:26:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262768AbVEHA04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 20:18:39 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16067 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262765AbVEHASg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 20:18:36 -0400
-Date: Sun, 8 May 2005 01:18:32 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Jeff Dike <jdike@addtoit.com>
-Cc: Alexander Nyberg <alexn@telia.com>, Antoine Martin <antoine@nagafix.co.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11.8 + UML/x86_64 (2.6.12-rc3+) = oops
-Message-ID: <20050508001832.GA32143@parcelfarce.linux.theplanet.co.uk>
-References: <20050504191828.620C812EE7@sc8-sf-spam2.sourceforge.net> <1115248927.12088.52.camel@cobra> <1115392141.12197.3.camel@cobra> <1115483506.12131.33.camel@cobra> <1115481468.925.9.camel@localhost.localdomain> <20050507180356.GA10793@ccure.user-mode-linux.org>
+	Sat, 7 May 2005 20:26:56 -0400
+Received: from orb.pobox.com ([207.8.226.5]:59299 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S262766AbVEHA0x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 20:26:53 -0400
+Date: Sat, 7 May 2005 19:26:48 -0500
+From: Nathan Lynch <ntl@pobox.com>
+To: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [RFC/PATCH] unregister_node() for hotplug use
+Message-ID: <20050508002648.GD3614@otto>
+References: <20050420210744.4013b3f8.tokunaga.keiich@jp.fujitsu.com> <20050420173235.GA17775@kroah.com> <20050422003009.1b96f09c.tokunaga.keiich@jp.fujitsu.com> <20050422003920.GD6829@kroah.com> <20050422113211.509005f1.tokunaga.keiich@jp.fujitsu.com> <20050425230333.6b8dfb33.tokunaga.keiich@jp.fujitsu.com> <20050426065431.GB5889@suse.de> <20050507211141.4829d4c0.tokunaga.keiich@jp.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050507180356.GA10793@ccure.user-mode-linux.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050507211141.4829d4c0.tokunaga.keiich@jp.fujitsu.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 07, 2005 at 02:03:56PM -0400, Jeff Dike wrote:
-> On Sat, May 07, 2005 at 05:57:48PM +0200, Alexander Nyberg wrote:
-> > I never get uml to compile around here, 2.6.12-rc3 + that patchkit from
-> > the link you sent blows up with defconfig any my minimal config. Please
-> > attach your guest .config and if you can you might aswell put your guest
-> > vmlinux somewhere where i can download it too.
+> This adds a generic function 'unregister_node()'.
+> It is used to remove objects of a node going away
+> for hotplug.
 > 
-> Start with -rc3, and all the patches from
-> 	http://user-mode-linux.sf.net/patches.html
-> up to and including skas0.  You'll see a note to x86_64 users on that patch.
+> Signed-off-by: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+> ---
+> 
+>  linux-2.6.12-rc3-mm3-kei/drivers/base/node.c  |   15 +++++++++++++--
+>  linux-2.6.12-rc3-mm3-kei/include/linux/node.h |    1 +
+>  2 files changed, 14 insertions(+), 2 deletions(-)
+> 
+> diff -puN drivers/base/node.c~numa_hp_base drivers/base/node.c
+> --- linux-2.6.12-rc3-mm3/drivers/base/node.c~numa_hp_base	2005-05-07 19:58:15.000000000 +0900
+> +++ linux-2.6.12-rc3-mm3-kei/drivers/base/node.c	2005-05-07 19:58:15.000000000 +0900
+> @@ -136,7 +136,7 @@ static SYSDEV_ATTR(distance, S_IRUGO, no
+>   *
+>   * Initialize and register the node device.
+>   */
+> -int __init register_node(struct node *node, int num, struct node *parent)
+> +int register_node(struct node *node, int num, struct node *parent)
+>  {
+>  	int error;
+>  
+> @@ -153,8 +153,19 @@ int __init register_node(struct node *no
+>  	return error;
+>  }
+>  
+> +void unregister_node(struct node *node)
+> +{
+> +	sysdev_remove_file(&node->sysdev, &attr_cpumap);
+> +	sysdev_remove_file(&node->sysdev, &attr_meminfo);
+> +	sysdev_remove_file(&node->sysdev, &attr_numastat);
+> +	sysdev_remove_file(&node->sysdev, &attr_distance);
+> +
+> +	sysdev_unregister(&node->sysdev);
+> +}
 
-Hrm...
-	a) stub.S handling breaks on O= builds.   Actually, your unprofile
-breaks there - it's bypassing the machinery that deals with include path.
-	b) stub_segv.c on amd64 includes <signal.h>.  Not a good idea...
-	c) sysdep-x86_64/checksum.h in -rc4 has csum_partial_copy_from_user()
-that needs updating (AFAICS, you have that in your patchset, but it hadn't
-reached Linus)
-	d) ip_compute_csum() prototype is missing (same file)
-	e) #define UPT_SYSCALL_RET(r) UPT_RAX(r) is needed in amd64 ptrace.h
-	f) take a good look at UPT_SET() in the same file ;-)
-	g) CFLAGS_csum-partial.o := -Dcsum_partial=arch_csum_partial in
-sys-x86_64/Makefile needs to be removed.
-	h) Makefile.rules should be included _after_ SYMLINKS = in the same
-file.
-	i) sys-x86_64/delay.c needs exports of __udelay() and __const_udelay(),
-include of linux/module.h and barriers in your delay loop bodies (or games
-with volatile - anything that would guarantee that gcc won't decide to optimize
-the entire loop away).  The last part applies to i386 as well.
-	j) ip_compute_csum should be exported on amd64.
-	k) sys-x86_64/syscalls.c needs include "kern.h"
-	l) elf-i386.h should include <asm/user.h>, not "user.h"
-	m) elf-x86_64.h lacks R_X86_64_... definitions
-	n) WTF _is_ that #ifdef TIF_IA32 in there?  Aside of the trailing \,
-we could as well put #error there - free-floating clear_thread_flag(TIF_IA32);
-outside of any function body will have that effect anyway.
-	o) in drivers/chan_kern.c we have several printf(KERN_ERR "...");
-these should become printk, as they clearly had been intended.  As it is,
-they give instant panic if we ever call them.
-	p) TOP_ADDR in Kconfig_x86_64 got lost in transmission - your patchset
-has it, but same patch in Linus' tree does not.
+Is it a bug to call unregister_node() if there are still cpus or
+memory present in the node?  Note that register_cpu() creates a
+symlink under the node directory to the cpu -- are you assuming that
+all the node's cpu sysdevs will have been unregistered by the time
+unregister_node is called?  If so, is it possible to enforce that, or
+at least document it?
 
-I've got patches for everything except (a); that one is really nasty.  I hope
-to sort it out by tonight; if not, I'll just send what I've got by now.
+> +EXPORT_SYMBOL_GPL(register_node);
+> +EXPORT_SYMBOL_GPL(unregister_node);
+
+What module code needs to call these?  ACPI?
+
+
+Nathan

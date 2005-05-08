@@ -1,77 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262892AbVEHQWd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262893AbVEHQfh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262892AbVEHQWd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 May 2005 12:22:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262893AbVEHQWd
+	id S262893AbVEHQfh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 May 2005 12:35:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262894AbVEHQfh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 May 2005 12:22:33 -0400
-Received: from pop.gmx.net ([213.165.64.20]:46570 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262892AbVEHQWY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 May 2005 12:22:24 -0400
-X-Authenticated: #153925
-From: Bernd Paysan <bernd.paysan@gmx.de>
-To: suse-amd64@suse.com
-Subject: Re: [suse-amd64] False "lost ticks" on dual-Opteron system (=> timer twice as fast)
-Date: Sun, 8 May 2005 18:22:20 +0200
-User-Agent: KMail/1.8
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-References: <200505081445.26663.bernd.paysan@gmx.de> <20050508134035.GC15724@wotan.suse.de>
-In-Reply-To: <20050508134035.GC15724@wotan.suse.de>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2072349.kILzOkktL3";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200505081822.21304.bernd.paysan@gmx.de>
-X-Y-GMX-Trusted: 0
+	Sun, 8 May 2005 12:35:37 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:63751 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S262893AbVEHQfV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 May 2005 12:35:21 -0400
+Date: Sun, 8 May 2005 12:28:18 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: Alexander Nyberg <alexn@telia.com>, Antoine Martin <antoine@nagafix.co.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11.8 + UML/x86_64 (2.6.12-rc3+) = oops
+Message-ID: <20050508162818.GA25130@ccure.user-mode-linux.org>
+References: <20050504191828.620C812EE7@sc8-sf-spam2.sourceforge.net> <1115248927.12088.52.camel@cobra> <1115392141.12197.3.camel@cobra> <1115483506.12131.33.camel@cobra> <1115481468.925.9.camel@localhost.localdomain> <20050507180356.GA10793@ccure.user-mode-linux.org> <20050508001832.GA32143@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050508001832.GA32143@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2072349.kILzOkktL3
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Sun, May 08, 2005 at 01:18:32AM +0100, Al Viro wrote:
+> Hrm...
 
-On Sunday 08 May 2005 15:40, Andi Kleen wrote:
-> Your system should be using the HPET timer to work exactly around
-> this. AMD 8000 has HPET. Can you post a boot.log?
+I had a lot of these fixed already.  These will be mostly in the fixlets
+patch.
 
-Will come tomorrow - I don't sit right at the machine, and while trying=20
-to figure out what happens, I accidentally shut it down or caused it to=20
-crash (I can't log in remotely ATM).
+> 	a) stub.S handling breaks on O= builds.   Actually, your unprofile
+> breaks there - it's bypassing the machinery that deals with include path.
 
-> The current design is that only the BP runs the main timer, and the
-> other CPUs use the APIC timer and don't do any own time keeping. I
-> think you misread the code quite a bit.
->=20
-> And lost jiffie handling can't be dropped no.
->
-> A common problem however is that the irq 0 is misrouted somehow,
-> and gets broadcasted and processed on multiple CPUs. That results
-> in the time running far too fast. You can check that by looking
-> at /proc/interrupts.
+This?
+	$(patsubst -pg,,$(patsubst -fprofile-arcs -ftest-coverage,,$(1)))
 
-Yes, that's sort of what's happening. /proc/interrupts shows that all=20
-CPUs overall get an even share of IRQ 0 - but each IRQ0 is processed by=20
-just one CPU. How can I examine and set the interrupt routing?
+I don't see any connection to include paths there.
 
-=2D-=20
-Bernd Paysan
-"If you want it done right, you have to do it yourself"
-http://www.jwdt.com/~paysan/
 
---nextPart2072349.kILzOkktL3
-Content-Type: application/pgp-signature
+> 	b) stub_segv.c on amd64 includes <signal.h>.  Not a good idea...
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
+x86_64 doesn't, but i386 does.  Fixed now.
 
-iD8DBQBCfjy9i4ILt2cAfDARAnEmAJ9lOSgfAYI74+Ho3YjPfoOLTPqoSwCglsYT
-UywxSkYwdCUTJsykgC67gPs=
-=fsAY
------END PGP SIGNATURE-----
+> 	c) sysdep-x86_64/checksum.h in -rc4 has csum_partial_copy_from_user()
+> that needs updating (AFAICS, you have that in your patchset, but it hadn't
+> reached Linus)
 
---nextPart2072349.kILzOkktL3--
+Fixed.
+
+> 	d) ip_compute_csum() prototype is missing (same file)
+> 	j) ip_compute_csum should be exported on amd64.
+
+OK, I need to look at this a bit more.
+
+> 	e) #define UPT_SYSCALL_RET(r) UPT_RAX(r) is needed in amd64 ptrace.h
+
+Fixed.
+
+> 	f) take a good look at UPT_SET() in the same file ;-)
+
+Sigh.  Fixed now.
+
+> 	g) CFLAGS_csum-partial.o := -Dcsum_partial=arch_csum_partial in
+> sys-x86_64/Makefile needs to be removed.
+
+Fixed.
+
+> 	h) Makefile.rules should be included _after_ SYMLINKS = in the same
+> file.
+
+Fixed.
+
+> 	i) sys-x86_64/delay.c needs exports of __udelay() and __const_udelay(),
+> include of linux/module.h and barriers in your delay loop bodies (or games
+> with volatile - anything that would guarantee that gcc won't decide to optimize
+> the entire loop away).  The last part applies to i386 as well.
+
+Looks to me like it all applies to i386 too, except that __delay looks 
+unoptimizable.
+
+It also looks to me like I could implement __udelay as n=... ; __delay(n);
+
+And also never mind the fact that __udelay and __const_udelay are identical.
+
+> 	k) sys-x86_64/syscalls.c needs include "kern.h"
+
+Fixed now.
+
+> 	l) elf-i386.h should include <asm/user.h>, not "user.h"
+
+Fixed now.
+
+> 	m) elf-x86_64.h lacks R_X86_64_... definitions
+
+Fixed now.
+
+> 	n) WTF _is_ that #ifdef TIF_IA32 in there?  Aside of the trailing \,
+> we could as well put #error there - free-floating clear_thread_flag(TIF_IA32);> outside of any function body will have that effect anyway.
+
+The trailing \ aside, which is fixed, that's a reminder for me when I add
+the 32-bit compatibility code.
+
+> 	o) in drivers/chan_kern.c we have several printf(KERN_ERR "...");
+> these should become printk, as they clearly had been intended.  As it is,
+> they give instant panic if we ever call them.
+
+Oops.  This requires a bit of thought.  Offhand, I think they need to be 
+printf, because that early in boot, printk'd stuff may not reach the screen
+if UML exits then.
+
+> 	p) TOP_ADDR in Kconfig_x86_64 got lost in transmission - your patchset
+> has it, but same patch in Linus' tree does not.
+
+Fixed
+
+> 
+> I've got patches for everything except (a); that one is really nasty.  I hope
+> to sort it out by tonight; if not, I'll just send what I've got by now.
+
+OK, send me what you have, and if we've fixed the same thing differently,
+I choose one or the other.
+
+				Jeff

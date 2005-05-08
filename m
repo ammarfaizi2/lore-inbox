@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262862AbVEHNYk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262864AbVEHNbE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262862AbVEHNYk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 May 2005 09:24:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262865AbVEHNYj
+	id S262864AbVEHNbE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 May 2005 09:31:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262866AbVEHNbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 May 2005 09:24:39 -0400
-Received: from one.firstfloor.org ([213.235.205.2]:15081 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S262862AbVEHNYb
+	Sun, 8 May 2005 09:31:04 -0400
+Received: from one.firstfloor.org ([213.235.205.2]:15337 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S262864AbVEHNbB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 May 2005 09:24:31 -0400
-To: 7eggert@gmx.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: /proc/cpuinfo format - arch dependent!
-References: <3UZS7-5ue-17@gated-at.bofh.it> <41ouh-4QE-1@gated-at.bofh.it>
-	<41oXl-5hl-7@gated-at.bofh.it> <41sxX-8cN-11@gated-at.bofh.it>
-	<41BL4-7l7-15@gated-at.bofh.it>
-	<E1DUYnC-0001Hd-5g@be1.7eggert.dyndns.org>
+	Sun, 8 May 2005 09:31:01 -0400
+To: vatsa@in.ibm.com
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [RFC] (How to) Let idle CPUs sleep
+References: <20050507182728.GA29592@in.ibm.com>
 From: Andi Kleen <ak@muc.de>
-Date: Sun, 08 May 2005 15:24:30 +0200
-In-Reply-To: <E1DUYnC-0001Hd-5g@be1.7eggert.dyndns.org> (Bodo Eggert's
- message of "Sun, 08 May 2005 01:33:05 +0200")
-Message-ID: <m1zmv5voj5.fsf@muc.de>
+Date: Sun, 08 May 2005 15:31:00 +0200
+In-Reply-To: <20050507182728.GA29592@in.ibm.com> (Srivatsa Vaddagiri's
+ message of "Sat, 7 May 2005 23:57:28 +0530")
+Message-ID: <m1vf5tvo8b.fsf@muc.de>
 User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" <7eggert@gmx.de> writes:
+Srivatsa Vaddagiri <vatsa@in.ibm.com> writes:
 
->
-> Obviously it must be a tree of CPU groups. CPUs in one NUMA node go into
-> one group, multi-core CPUs have all cores in one group and HT is a group,
-> too. This will scale from UP (degenerated tree with just one CPU) to
-> clusters with multicore HT-capable CPUs on PCI boards.
+> Hello,
+> 	I need some inputs from the community (specifically from virtual
+> machine and embedded/power-management folks) on something that I am working on.
 
-All this informtation (except HT/multicore are folded into a single
-level) is already there in sysfs.
 
-libnuma uses it to discover the topology and report it to the
-user.
+I think the best way is to let other CPUs handle the load balancing
+for idle CPUs. Basically when a CPU goes fully idle then you mark
+this in some global data structure, and CPUs doing load balancing
+after doing their own thing look for others that need to be balanced
+too and handle them too. When no CPU is left non idle then nothing needs
+to be load balanced anyways. When a idle CPU gets a task it just gets
+an reschedule IPI as usual, that wakes it up. 
 
+I call this the "scoreboard".
+
+The trick is to evenly load balance the work over the remaining CPUs.
+Something simple like never doing work for more than 1/idlecpus is
+probably enough. In theory one could even use machine NUMA topology
+information for this, but that would be probably overkill for the
+first implementation.
+
+With the scoreboard implementation CPus could be virtually idle
+forever, which I think is best for virtualization.
+
+BTW we need a very similar thing for RCU too.
 
 -Andi

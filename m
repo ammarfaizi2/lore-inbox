@@ -1,72 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261787AbVEHQVr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262892AbVEHQWd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261787AbVEHQVr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 May 2005 12:21:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262892AbVEHQVr
+	id S262892AbVEHQWd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 May 2005 12:22:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262893AbVEHQWd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 May 2005 12:21:47 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:60044 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261787AbVEHQVo (ORCPT
+	Sun, 8 May 2005 12:22:33 -0400
+Received: from pop.gmx.net ([213.165.64.20]:46570 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262892AbVEHQWY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 May 2005 12:21:44 -0400
-In-Reply-To: <1115524401.5942.13.camel@mulgrave>
-References: <4267B5B0.8050608@davyandbeth.com> <loom.20050502T161322-252@post.gmane.org> <20050502144703.GA1882@suse.de> <loom.20050502T221228-244@post.gmane.org>  <20050503141017.GD6115@suse.de> <1115524401.5942.13.camel@mulgrave>
-Mime-Version: 1.0 (Apple Message framework v728)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <A01CAA87-63E8-46D9-BB64-54C33DB773D4@suse.de>
-Cc: Jon Escombe <trial@dresco.co.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
+	Sun, 8 May 2005 12:22:24 -0400
+X-Authenticated: #153925
+From: Bernd Paysan <bernd.paysan@gmx.de>
+To: suse-amd64@suse.com
+Subject: Re: [suse-amd64] False "lost ticks" on dual-Opteron system (=> timer twice as fast)
+Date: Sun, 8 May 2005 18:22:20 +0200
+User-Agent: KMail/1.8
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+References: <200505081445.26663.bernd.paysan@gmx.de> <20050508134035.GC15724@wotan.suse.de>
+In-Reply-To: <20050508134035.GC15724@wotan.suse.de>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2072349.kILzOkktL3";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-From: Jens Axboe <axboe@suse.de>
-Subject: Re: Suspend/Resume
-Date: Sun, 8 May 2005 18:21:42 +0200
-To: James Bottomley <James.Bottomley@SteelEye.com>
-X-Mailer: Apple Mail (2.728)
+Message-Id: <200505081822.21304.bernd.paysan@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--nextPart2072349.kILzOkktL3
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-On May 8, 2005, at 5:53 AM, James Bottomley wrote:
+On Sunday 08 May 2005 15:40, Andi Kleen wrote:
+> Your system should be using the HPET timer to work exactly around
+> this. AMD 8000 has HPET. Can you post a boot.log?
 
-> On Tue, 2005-05-03 at 16:10 +0200, Jens Axboe wrote:
+Will come tomorrow - I don't sit right at the machine, and while trying=20
+to figure out what happens, I accidentally shut it down or caused it to=20
+crash (I can't log in remotely ATM).
+
+> The current design is that only the BP runs the main timer, and the
+> other CPUs use the APIC timer and don't do any own time keeping. I
+> think you misread the code quite a bit.
+>=20
+> And lost jiffie handling can't be dropped no.
 >
->> I don't know, depends on what Jeff/James think of this approach.  
->> There
->> are many different way to solve this problem. I let the scsi bus  
->> called
->> suspend/resume for the devices on that bus, and let the scsi host
->> adapter perform any device dependent actions. The pci helpers are  
->> less
->> debatable.
->>
->> Jeff/James? Here's a patch that applies to current git.
->>
->
-> The patch looks fine as far as it goes ... however, shouldn't we be
-> spinning *internal* suspended drives down as well like IDE does  
-> (i.e. at
-> least the sd ULD needs to be a party to the suspend)?  Of course  
-> this is
-> a complete can of worms since we really have no idea which busses are
-> internal and which are external, although it might be something that
-> userland can determine.
+> A common problem however is that the irq 0 is misrouted somehow,
+> and gets broadcasted and processed on multiple CPUs. That results
+> in the time running far too fast. You can check that by looking
+> at /proc/interrupts.
 
-I'm not sure I know what you mean by 'internal suspended drives' that  
-aren't spun down? For every device known on the sata "bus", we do the  
-standby routine.
+Yes, that's sort of what's happening. /proc/interrupts shows that all=20
+CPUs overall get an even share of IRQ 0 - but each IRQ0 is processed by=20
+just one CPU. How can I examine and set the interrupt routing?
 
-There is room for improvement for software suspend, notably it is  
-extremely annoying that we cannot tell the difference between  
-'freeze' and 'suspend' currently, this adds overhead for suspend-to- 
-disk both in time spent and actual drive wear due to an excessive  
-spin down+up cycle.
+=2D-=20
+Bernd Paysan
+"If you want it done right, you have to do it yourself"
+http://www.jwdt.com/~paysan/
 
-> P.S.  I noticed the gratuitous coding style corrections ...
+--nextPart2072349.kILzOkktL3
+Content-Type: application/pgp-signature
 
-Heh woops, I usually don't sneak those in with other changes. I think  
-this one got in because I actually had another change there that I  
-later reverted.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
-Jens
+iD8DBQBCfjy9i4ILt2cAfDARAnEmAJ9lOSgfAYI74+Ho3YjPfoOLTPqoSwCglsYT
+UywxSkYwdCUTJsykgC67gPs=
+=fsAY
+-----END PGP SIGNATURE-----
 
+--nextPart2072349.kILzOkktL3--

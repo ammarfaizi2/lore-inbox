@@ -1,72 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262890AbVEHQJ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261787AbVEHQVr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262890AbVEHQJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 May 2005 12:09:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262891AbVEHQJ7
+	id S261787AbVEHQVr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 May 2005 12:21:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262892AbVEHQVr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 May 2005 12:09:59 -0400
-Received: from smtp100.rog.mail.re2.yahoo.com ([206.190.36.78]:27997 "HELO
-	smtp100.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S262890AbVEHQJx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 May 2005 12:09:53 -0400
-Subject: Re: /proc/cpuinfo format - arch dependent!
-From: John Kacur <jkacur@rogers.com>
-Reply-To: jkacur@rogers.com
-To: Jim Nance <jlnance@sdf.lonestar.org>
-Cc: Dave Jones <davej@redhat.com>, Willy Tarreau <willy@w.ods.org>,
-       Andrew Morton <akpm@osdl.org>, Ricky Beam <jfbeam@bluetronic.net>,
-       nico-kernel@schottelius.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20050508012521.GA24268@SDF.LONESTAR.ORG>
-References: <20050419121530.GB23282@schottelius.org>
-	 <Pine.GSO.4.33.0505062324550.1894-100000@sweetums.bluetronic.net>
-	 <20050506211455.3d2b3f29.akpm@osdl.org>
-	 <20050507075828.GF777@alpha.home.local> <20050507165357.GA19601@redhat.com>
-	 <20050507170555.GA19329@alpha.home.local>
-	 <20050507172005.GB26088@redhat.com>
-	 <20050508012521.GA24268@SDF.LONESTAR.ORG>
-Content-Type: text/plain
-Message-Id: <1115568673.5536.18.camel@linux.site>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 08 May 2005 12:11:14 -0400
+	Sun, 8 May 2005 12:21:47 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:60044 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261787AbVEHQVo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 May 2005 12:21:44 -0400
+In-Reply-To: <1115524401.5942.13.camel@mulgrave>
+References: <4267B5B0.8050608@davyandbeth.com> <loom.20050502T161322-252@post.gmane.org> <20050502144703.GA1882@suse.de> <loom.20050502T221228-244@post.gmane.org>  <20050503141017.GD6115@suse.de> <1115524401.5942.13.camel@mulgrave>
+Mime-Version: 1.0 (Apple Message framework v728)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <A01CAA87-63E8-46D9-BB64-54C33DB773D4@suse.de>
+Cc: Jon Escombe <trial@dresco.co.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
 Content-Transfer-Encoding: 7bit
+From: Jens Axboe <axboe@suse.de>
+Subject: Re: Suspend/Resume
+Date: Sun, 8 May 2005 18:21:42 +0200
+To: James Bottomley <James.Bottomley@SteelEye.com>
+X-Mailer: Apple Mail (2.728)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-05-07 at 21:25, Jim Nance wrote:
-> On Sat, May 07, 2005 at 01:20:05PM -0400, Dave Jones wrote:
-> > On Sat, May 07, 2005 at 07:05:56PM +0200, Willy Tarreau wrote:
-> 
-> >  > system "hey, I'd like this type of workload, how many process should
-> >  > I start, and where should I bind them ?".
-> > 
-> > I think generalising this and having a method to do this in the kernel
-> > is a much better idea than each application parsing this themselves.
-> > Things are only getting more and more complex as time goes on,
-> > and I don't trust application developers to get it right.
-> 
-> As a developer of a multiprocess/multithreaded application I can assure
-> you that you are right not to trust application developers to get this
-> right.  The idea that a programmer understands the behavior of the
-> applications they write is largely a myth.  Furthermore, I suspect
-> that SMT will evolve in directions that make the idea of a processor
-> more and more fuzzy.  I don't think it is wise to construct any
-> interface that suggests knowing the hardware details is good, or that
-> processes should be bound by userland.  Certainly it is sometimes
-> necessary for userland to do this, but we should look at that as a
-> bug in the kernel.
-> 
-> Thanks,
-> 
-> Jim
 
-Aw c'mon. Don't we believe in the C programming philosphy of trusting
-the programmer? You know, give them enough rope to hang themselves?
-Personally, I don't care because I can parse cpuid and the like directly
-myself, but examples of legitimate uses for this knowledge are
-compilers, jvms, and threading libraries, all which although lowlevel,
-are technically userland. I don't think it's our job to protect the user
-from themselves, it's to give them a reasonable default, and the
-interfaces to take advantage of the tricker stuff for special purposes
-if they wish.
+On May 8, 2005, at 5:53 AM, James Bottomley wrote:
+
+> On Tue, 2005-05-03 at 16:10 +0200, Jens Axboe wrote:
+>
+>> I don't know, depends on what Jeff/James think of this approach.  
+>> There
+>> are many different way to solve this problem. I let the scsi bus  
+>> called
+>> suspend/resume for the devices on that bus, and let the scsi host
+>> adapter perform any device dependent actions. The pci helpers are  
+>> less
+>> debatable.
+>>
+>> Jeff/James? Here's a patch that applies to current git.
+>>
+>
+> The patch looks fine as far as it goes ... however, shouldn't we be
+> spinning *internal* suspended drives down as well like IDE does  
+> (i.e. at
+> least the sd ULD needs to be a party to the suspend)?  Of course  
+> this is
+> a complete can of worms since we really have no idea which busses are
+> internal and which are external, although it might be something that
+> userland can determine.
+
+I'm not sure I know what you mean by 'internal suspended drives' that  
+aren't spun down? For every device known on the sata "bus", we do the  
+standby routine.
+
+There is room for improvement for software suspend, notably it is  
+extremely annoying that we cannot tell the difference between  
+'freeze' and 'suspend' currently, this adds overhead for suspend-to- 
+disk both in time spent and actual drive wear due to an excessive  
+spin down+up cycle.
+
+> P.S.  I noticed the gratuitous coding style corrections ...
+
+Heh woops, I usually don't sneak those in with other changes. I think  
+this one got in because I actually had another change there that I  
+later reverted.
+
+Jens
 

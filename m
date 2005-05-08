@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262997AbVEHWmw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262999AbVEHWwo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262997AbVEHWmw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 May 2005 18:42:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262999AbVEHWmw
+	id S262999AbVEHWwo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 May 2005 18:52:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263000AbVEHWwo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 May 2005 18:42:52 -0400
-Received: from wproxy.gmail.com ([64.233.184.202]:3850 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262997AbVEHWmu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 May 2005 18:42:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding;
-        b=HNHnowOyARp8/FbvrFnzvYFLucIcXA9BSZMXRrLa3Y/pLhWizJiKWAfuv7JmPeH3MpOauk16IqS3VS0rqTFqnuerfGFgduHyCFaKOC3VZVj8tmrqvHes2ompYDEN1Pob4uhTiRDbtUJqdEnOEZG33GdHhEjVlND+TujE+QEyHno=
-Message-ID: <427EA3D8.1060001@gmail.com>
-Date: Mon, 09 May 2005 01:42:16 +0200
-From: Eugene San <eugenesan@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Sun, 8 May 2005 18:52:44 -0400
+Received: from 1-1-2-5a.f.sth.bostream.se ([81.26.255.57]:10946 "EHLO
+	1-1-2-5a.f.sth.bostream.se") by vger.kernel.org with ESMTP
+	id S262999AbVEHWwn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 May 2005 18:52:43 -0400
+Date: Mon, 9 May 2005 00:52:02 +0200 (CEST)
+From: Per Liden <per@fukt.bth.se>
+X-X-Sender: per@1-1-2-5a.f.sth.bostream.se
+To: Greg KH <gregkh@suse.de>
+cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] hotplug-ng 002 release
+In-Reply-To: <20050506212227.GA24066@kroah.com>
+Message-ID: <Pine.LNX.4.63.0505090025280.7682@1-1-2-5a.f.sth.bostream.se>
+References: <20050506212227.GA24066@kroah.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Davicom 9102AF (dmfe) / Alladin V IDE(ali15xx) on sparc64(v100/Netra-x)
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Probem with Davicom91xx ethernet NIC on sparc64(v100/Netra-x) is well 
-known (google ::dmfe+sparc).
-The problem is that specific driver (dmfe)  can be loaded but once used 
-couses errors on PCI/sabre and at the end couses Kernel Panic.
-Some pepole advice using (tulip) wich loads but fails to work normaly: 
-it works at ~10Mbps in 10BaseT4 mode while all other modes brings
-huge amount of carierr/TX errors and VERY low throuput(sometimes less 
-then 50Kbps) and after some time at mid/high load driver fails
-with some kind of TX errors.
-Another problem is with DMA on Alladin V wich used on thoses machines.
-Usualy kernel unable to boot if strated without ide=nodma. If DMA 
-set-on  after boot is often couses data loses.
+On Fri, 6 May 2005, Greg KH wrote:
 
-Bothe problems well known for a long time but somehow not treated till now.
-The problems exists in kernels since 2.4.17 up to latest 2.6.11 ( all 
-versions in that range tested by me :-( )
+[...]
+> Now, with the 2.6.12-rc3 kernel, and a patch for module-init-tools, the
+> USB hotplug program can be written with a simple one line shell script:
+> 	modprobe $MODALIAS
 
-I wonder if there anything that can be done to make those sparc64 
-machines usable with linux.
+Nice, but why not just convert all this to a call to 
+request_module($MODALIAS)? Seems to me like the natural thing to do.
 
-Thanks ahead.
+[...]
+> Oh, and the upstream module-init-tools maintainer needs to accept that
+> patch one of these days...
+
+Where can this patch be found?
+
+/Per

@@ -1,51 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262807AbVEHDx3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262810AbVEHD52@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262807AbVEHDx3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 23:53:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262810AbVEHDx3
+	id S262810AbVEHD52 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 23:57:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262811AbVEHD52
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 23:53:29 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:25991 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262807AbVEHDx1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 23:53:27 -0400
-Subject: Re: Suspend/Resume
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Jon Escombe <trial@dresco.co.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <20050503141017.GD6115@suse.de>
-References: <4267B5B0.8050608@davyandbeth.com>
-	 <loom.20050502T161322-252@post.gmane.org> <20050502144703.GA1882@suse.de>
-	 <loom.20050502T221228-244@post.gmane.org>  <20050503141017.GD6115@suse.de>
-Content-Type: text/plain
-Date: Sat, 07 May 2005 22:53:21 -0500
-Message-Id: <1115524401.5942.13.camel@mulgrave>
+	Sat, 7 May 2005 23:57:28 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:12485 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S262810AbVEHD5T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 23:57:19 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: Joel Becker <joel.becker@oracle.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch 2.4.12-rc4] Add skip_hangcheck_timer()
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 08 May 2005 13:56:44 +1000
+Message-ID: <1679.1115524604@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-03 at 16:10 +0200, Jens Axboe wrote:
-> I don't know, depends on what Jeff/James think of this approach. There
-> are many different way to solve this problem. I let the scsi bus called
-> suspend/resume for the devices on that bus, and let the scsi host
-> adapter perform any device dependent actions. The pci helpers are less
-> debatable.
-> 
-> Jeff/James? Here's a patch that applies to current git.
+There are at least two cases where the existing hangcheck
+code falls down :-
 
-The patch looks fine as far as it goes ... however, shouldn't we be
-spinning *internal* suspended drives down as well like IDE does (i.e. at
-least the sd ULD needs to be a party to the suspend)?  Of course this is
-a complete can of worms since we really have no idea which busses are
-internal and which are external, although it might be something that
-userland can determine.
+(1) Some kernel events such as dumping or debugging will legitimately
+    disable interrupts for long periods.  Restarting after these events
+    must ignore the hangcheck.
 
-James
+(2) During hotplug cpu changes, the hangcheck timer can move from one
+    cpu to another, see migrate_timers().  There is no guarantee that
+    the clock on the new cpu is in sync with the old clock so hangcheck
+    may trip with a spurious error.
 
-P.S.  I noticed the gratuitous coding style corrections ...
+Like the NMI watchdog, hangcheck-timer needs a facility to ignore the
+timeout for special cases.  Add touch_hangcheck_timer().
 
+Signed-off-by: Keith Owens <kaos@sgi.com>
+
+Index: linux/include/linux/hangcheck.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux/include/linux/hangcheck.h	2005-05-08 12:50:00.407071808 +1000
+@@ -0,0 +1,17 @@
++#ifndef LINUX_HANGCHECK_H
++#define LINUX_HANGCHECK_H
++
++/**
++ * touch_hangcheck_timer - restart HANGCHECK timer timeout.
++ *
++ * If the kernel supports the HANGCHECK code, touch_hangcheck_timer() may be
++ * used to reset the timeout - for code which intentionally disables interrupts
++ * for a long time. This call is stateless.
++ */
++#ifdef CONFIG_HANGCHECK_TIMER
++extern void touch_hangcheck_timer(void);
++#else
++#define touch_hangcheck_timer() do { } while(0)
++#endif
++
++#endif
+Index: linux/drivers/char/hangcheck-timer.c
+===================================================================
+--- linux.orig/drivers/char/hangcheck-timer.c	2005-05-08 12:47:19.785980026 +1000
++++ linux/drivers/char/hangcheck-timer.c	2005-05-08 13:18:44.928535058 +1000
+@@ -143,6 +143,14 @@ static inline unsigned long long monoton
+ }
+ #endif  /* HAVE_MONOTONIC */
+ 
++/* Allow single shot ignore of the timer check */
++static int skip_hangcheck_timer;
++
++void touch_hangcheck_timer(void)
++{
++	skip_hangcheck_timer = 1;
++}
++EXPORT_SYMBOL(touch_hangcheck_timer);
+ 
+ /* Last time scheduled */
+ static unsigned long long hangcheck_tsc, hangcheck_tsc_margin;
+@@ -164,6 +172,11 @@ static void hangcheck_fire(unsigned long
+ 	else
+ 		tsc_diff = (cur_tsc + (~0ULL - hangcheck_tsc)); /* or something */
+ 
++	if (skip_hangcheck_timer) {
++		skip_hangcheck_timer = 0;
++		tsc_diff = 0;
++	}
++
+ 	if (tsc_diff > hangcheck_tsc_margin) {
+ 		if (hangcheck_dump_tasks) {
+ 			printk(KERN_CRIT "Hangcheck: Task state:\n");
 

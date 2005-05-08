@@ -1,57 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262781AbVEHB0T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262794AbVEHDOG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262781AbVEHB0T (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 21:26:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262786AbVEHB0T
+	id S262794AbVEHDOG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 23:14:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262796AbVEHDOG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 21:26:19 -0400
-Received: from mx.freeshell.org ([192.94.73.21]:43747 "EHLO sdf.lonestar.org")
-	by vger.kernel.org with ESMTP id S262781AbVEHB0P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 21:26:15 -0400
-From: Jim Nance <jlnance@sdf.lonestar.org>
-Date: Sun, 8 May 2005 01:25:21 +0000
-To: Dave Jones <davej@redhat.com>, Willy Tarreau <willy@w.ods.org>,
-       Andrew Morton <akpm@osdl.org>, Ricky Beam <jfbeam@bluetronic.net>,
-       nico-kernel@schottelius.org, linux-kernel@vger.kernel.org
-Subject: Re: /proc/cpuinfo format - arch dependent!
-Message-ID: <20050508012521.GA24268@SDF.LONESTAR.ORG>
-References: <20050419121530.GB23282@schottelius.org> <Pine.GSO.4.33.0505062324550.1894-100000@sweetums.bluetronic.net> <20050506211455.3d2b3f29.akpm@osdl.org> <20050507075828.GF777@alpha.home.local> <20050507165357.GA19601@redhat.com> <20050507170555.GA19329@alpha.home.local> <20050507172005.GB26088@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050507172005.GB26088@redhat.com>
-User-Agent: Mutt/1.4.2.1i
+	Sat, 7 May 2005 23:14:06 -0400
+Received: from mailout2.samsung.com ([203.254.224.25]:5261 "EHLO
+	mailout2.samsung.com") by vger.kernel.org with ESMTP
+	id S262794AbVEHDOB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 23:14:01 -0400
+Date: Sun, 08 May 2005 12:12:21 +0900
+From: "Hyok S. Choi" <hyok.choi@samsung.com>
+Subject: [PATCH 7/17][REFINED] ARMNOMMU - platform patch for atmel
+In-reply-to: <200505071623.13143.adobriyan@mail.ru>
+To: "'Alexey Dobriyan'" <adobriyan@mail.ru>,
+       "'Russell King'" <rmk@arm.linux.org.uk>,
+       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
+       uclinux-dev@uclinux.org
+Cc: "'Greg Ungerer'" <gerg@snapgear.com>
+Message-id: <0IG500D0HIBBF1@mmp1.samsung.com>
+Organization: Samsung Electronics Co.,Ltd.
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Thread-index: AcVS/wL5e9Qo6JKDSAKFBnRl/69sDgAenKjg
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 07, 2005 at 01:20:05PM -0400, Dave Jones wrote:
-> On Sat, May 07, 2005 at 07:05:56PM +0200, Willy Tarreau wrote:
+Here is the refined atmel patch of nommu/mpu patch set against
+2.6.12-rc3-mm3 [7/17]
+which accepted all the Alexey Dobriyan's comments.
 
->  > system "hey, I'd like this type of workload, how many process should
->  > I start, and where should I bind them ?".
-> 
-> I think generalising this and having a method to do this in the kernel
-> is a much better idea than each application parsing this themselves.
-> Things are only getting more and more complex as time goes on,
-> and I don't trust application developers to get it right.
+- platform patch for atmel
 
-As a developer of a multiprocess/multithreaded application I can assure
-you that you are right not to trust application developers to get this
-right.  The idea that a programmer understands the behavior of the
-applications they write is largely a myth.  Furthermore, I suspect
-that SMT will evolve in directions that make the idea of a processor
-more and more fuzzy.  I don't think it is wise to construct any
-interface that suggests knowing the hardware details is good, or that
-processes should be bound by userland.  Certainly it is sometimes
-necessary for userland to do this, but we should look at that as a
-bug in the kernel.
+ arch/arm/mach-atmel/Kconfig              |   61 +++++++
+ arch/arm/mach-atmel/Makefile             |    1
+ arch/arm/mach-atmel/Makefile.boot        |    2
+ arch/arm/mach-atmel/arch.c               |   37 ++++
+ arch/arm/mach-atmel/head.S               |   83 ++++++++++
+ arch/arm/mach-atmel/irq.c                |  212 +++++++++++++++++++++++++
+ arch/arm/mach-atmel/time.c               |  100 ++++++++++++
+ include/asm-arm/arch-atmel/at91x40.h     |   57 ++++++
+ include/asm-arm/arch-atmel/at91x63.h     |   73 ++++++++
+ include/asm-arm/arch-atmel/dma.h         |   26 +++
+ include/asm-arm/arch-atmel/entry-macro.S |   39 ++++
+ include/asm-arm/arch-atmel/hardware.h    |  255
++++++++++++++++++++++++++++++++
+ include/asm-arm/arch-atmel/io.h          |   40 ++++
+ include/asm-arm/arch-atmel/irq.h         |   22 ++
+ include/asm-arm/arch-atmel/irqs.h        |   65 +++++++
+ include/asm-arm/arch-atmel/keyboard.h    |   21 ++
+ include/asm-arm/arch-atmel/memory.h      |   30 +++
+ include/asm-arm/arch-atmel/param.h       |    6
+ include/asm-arm/arch-atmel/sizes.h       |   52 ++++++
+ include/asm-arm/arch-atmel/system.h      |   42 +++++
+ include/asm-arm/arch-atmel/time.h        |   29 +++
+ include/asm-arm/arch-atmel/timex.h       |   10 +
+ include/asm-arm/arch-atmel/uncompress.h  |   58 +++++++
+ include/asm-arm/arch-atmel/vmalloc.h     |   35 ++++
+ 24 files changed, 1356 insertions(+)
+ 
+Signed-off-by: Hyok S. Choi <hyok.choi@samsung.com>
+the patch :
+http://opensrc.sec.samsung.com/download/linux-2.6.12-rc3-mm3-hsc0-atmel2.pat
+ch.bz2
+ 
+---
+Hyok S. Choi
+[Linux 2.6 for MMU-less ARM Project] http://opensrc.sec.samsung.com/
 
-Thanks,
-
-Jim
-
-
--- 
-jlnance@sdf.lonestar.org
-SDF Public Access UNIX System - http://sdf.lonestar.org

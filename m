@@ -1,70 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262897AbVEHRJo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262903AbVEHR2r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262897AbVEHRJo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 May 2005 13:09:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262896AbVEHRJd
+	id S262903AbVEHR2r (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 May 2005 13:28:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262904AbVEHR2q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 May 2005 13:09:33 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:47759 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262895AbVEHRJ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 May 2005 13:09:27 -0400
-Subject: Re: Suspend/Resume
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Jon Escombe <trial@dresco.co.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <A01CAA87-63E8-46D9-BB64-54C33DB773D4@suse.de>
-References: <4267B5B0.8050608@davyandbeth.com>
-	 <loom.20050502T161322-252@post.gmane.org> <20050502144703.GA1882@suse.de>
-	 <loom.20050502T221228-244@post.gmane.org>  <20050503141017.GD6115@suse.de>
-	 <1115524401.5942.13.camel@mulgrave>
-	 <A01CAA87-63E8-46D9-BB64-54C33DB773D4@suse.de>
-Content-Type: text/plain
-Date: Sun, 08 May 2005 12:08:22 -0500
-Message-Id: <1115572102.18977.8.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Sun, 8 May 2005 13:28:46 -0400
+Received: from usbb-lacimss2.unisys.com ([192.63.108.52]:4356 "EHLO
+	usbb-lacimss2.unisys.com") by vger.kernel.org with ESMTP
+	id S262903AbVEHR2m convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 May 2005 13:28:42 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [patch 1/1] Do not enforce unique IO_APIC_ID for Xeon processors in EM64T mode (x86_64)
+Date: Sun, 8 May 2005 12:28:26 -0500
+Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04B51@USRV-EXCH4.na.uis.unisys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch 1/1] Do not enforce unique IO_APIC_ID for Xeon processors in EM64T mode (x86_64)
+Thread-Index: AcVT1MfIJXn4FaURSrazSygboeoqzQAHfvOA
+From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: <akpm@osdl.org>, <zwane@arm.linux.org.uk>, <len.brown@intel.com>,
+       <venkatesh.pallipadi@intel.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 08 May 2005 17:28:26.0735 (UTC) FILETIME=[57EEBFF0:01C553F3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-05-08 at 18:21 +0200, Jens Axboe wrote:
-> On May 8, 2005, at 5:53 AM, James Bottomley wrote:
-> > The patch looks fine as far as it goes ... however, shouldn't we be
-> > spinning *internal* suspended drives down as well like IDE does  
-> > (i.e. at
-> > least the sd ULD needs to be a party to the suspend)?  Of course  
-> > this is
-> > a complete can of worms since we really have no idea which busses are
-> > internal and which are external, although it might be something that
-> > userland can determine.
+
+> > Sure, I will remove the io_apic_get_unique_id() then. 
+> Perhaps, it will 
+> > be easy to put it back in if someone implements a chipset 
+> that needs it.
 > 
-> I'm not sure I know what you mean by 'internal suspended drives' that  
-> aren't spun down? For every device known on the sata "bus", we do the  
-> standby routine.
+> I did it myself now.
+>
 
-I mean that at the moment, the suspend code doesn't seem to spin down
-any SCSI drives.  However, if it did we'd need to distinguish between
-drives that uniquely belong to us (i.e. drives that are internal to the
-system) and drives that are external on a shared bus for which we'd
-annoy other systems if we spun them down.
-
-> There is room for improvement for software suspend, notably it is  
-> extremely annoying that we cannot tell the difference between  
-> 'freeze' and 'suspend' currently, this adds overhead for suspend-to- 
-> disk both in time spent and actual drive wear due to an excessive  
-> spin down+up cycle.
+Ok, great, I was about to put it together, but you beat me to it :) You
+probably don't need the "#define IO_APIC_MAX_ID		0xFE: line
+anymore?
+ 
+> > 
+> > Andi, I submitted the patch for i386 a little while ago 
+> > 
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0505.0/0195.html
+>  (I sent 
+> > it to you also, but just noticed that it was not your usual email 
+> > address - where did I get if from? have no idea...) Genapic in i386 
+> > has a NO_IOAPIC_CHECK flag that is defined in every 
+> subarch, so it was 
+> > easy to fix the problem by making use of it in ACPI boot 
+> path just as 
+> > it was used in MP path.
 > 
-> > P.S.  I noticed the gratuitous coding style corrections ...
+> That will not help on the other systems who don't have an own 
+> subarchitecture but still run into problems with the check. 
 > 
-> Heh woops, I usually don't sneak those in with other changes. I think  
-> this one got in because I actually had another change there that I  
-> later reverted.
-
-;-)
-
-James
-
-
+> I think the right strategy for i386 would be to remove this 
+> check thing from the subarchitecture and implement the 
+> heuristic described in the last mail.
+> 
+OK, I will do it next then. 
+Thanks,
+--Natalie

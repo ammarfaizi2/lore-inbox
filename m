@@ -1,69 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262903AbVEHR2r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262905AbVEHRfZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262903AbVEHR2r (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 May 2005 13:28:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262904AbVEHR2q
+	id S262905AbVEHRfZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 May 2005 13:35:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262907AbVEHRfY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 May 2005 13:28:46 -0400
-Received: from usbb-lacimss2.unisys.com ([192.63.108.52]:4356 "EHLO
-	usbb-lacimss2.unisys.com") by vger.kernel.org with ESMTP
-	id S262903AbVEHR2m convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 May 2005 13:28:42 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [patch 1/1] Do not enforce unique IO_APIC_ID for Xeon processors in EM64T mode (x86_64)
-Date: Sun, 8 May 2005 12:28:26 -0500
-Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04B51@USRV-EXCH4.na.uis.unisys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch 1/1] Do not enforce unique IO_APIC_ID for Xeon processors in EM64T mode (x86_64)
-Thread-Index: AcVT1MfIJXn4FaURSrazSygboeoqzQAHfvOA
-From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-To: "Andi Kleen" <ak@suse.de>
-Cc: <akpm@osdl.org>, <zwane@arm.linux.org.uk>, <len.brown@intel.com>,
-       <venkatesh.pallipadi@intel.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 08 May 2005 17:28:26.0735 (UTC) FILETIME=[57EEBFF0:01C553F3]
+	Sun, 8 May 2005 13:35:24 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:4872 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S262905AbVEHRfV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 May 2005 13:35:21 -0400
+Date: Sun, 8 May 2005 12:38:53 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Andi Kleen <ak@muc.de>
+Cc: Antoine Martin <antoine@nagafix.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11.8 + UML/x86_64 (2.6.12-rc3+) = oops
+Message-ID: <20050508163853.GB25130@ccure.user-mode-linux.org>
+References: <20050504191828.620C812EE7@sc8-sf-spam2.sourceforge.net> <1115248927.12088.52.camel@cobra> <1115392141.12197.3.camel@cobra> <1115483506.12131.33.camel@cobra> <m1ekchvmb0.fsf@muc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1ekchvmb0.fsf@muc.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Are you sure you did not apply any strange UML related patches
+> to the host kernel? Maybe those are buggy.
 
-> > Sure, I will remove the io_apic_get_unique_id() then. 
-> Perhaps, it will 
-> > be easy to put it back in if someone implements a chipset 
-> that needs it.
-> 
-> I did it myself now.
->
+No, stock x86_64 kernel is horribly unstable running UML.  I haven't seen
+anything but output-free hangs, so I haven't had much information to 
+contribute.  Antoine is actually getting capturable oopses.
 
-Ok, great, I was about to put it together, but you beat me to it :) You
-probably don't need the "#define IO_APIC_MAX_ID		0xFE: line
-anymore?
- 
-> > 
-> > Andi, I submitted the patch for i386 a little while ago 
-> > 
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0505.0/0195.html
->  (I sent 
-> > it to you also, but just noticed that it was not your usual email 
-> > address - where did I get if from? have no idea...) Genapic in i386 
-> > has a NO_IOAPIC_CHECK flag that is defined in every 
-> subarch, so it was 
-> > easy to fix the problem by making use of it in ACPI boot 
-> path just as 
-> > it was used in MP path.
-> 
-> That will not help on the other systems who don't have an own 
-> subarchitecture but still run into problems with the check. 
-> 
-> I think the right strategy for i386 would be to remove this 
-> check thing from the subarchitecture and implement the 
-> heuristic described in the last mail.
-> 
-OK, I will do it next then. 
-Thanks,
---Natalie
+I've tried every recent FC3 kernel, plus stock 2.6.10, and none of them
+survive very long with UML running.  Haven't tried stock 2.6.11 or anything
+later yet.
+
+				Jeff

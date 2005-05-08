@@ -1,41 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263000AbVEHXMO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263002AbVEHXT0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263000AbVEHXMO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 May 2005 19:12:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263001AbVEHXMO
+	id S263002AbVEHXT0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 May 2005 19:19:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263005AbVEHXTZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 May 2005 19:12:14 -0400
-Received: from rproxy.gmail.com ([64.233.170.204]:44003 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263000AbVEHXMM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 May 2005 19:12:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XkX9xMy/h9T8fsaQuwkFBZRqUqsDQrZeZdZATI7zK1gQCR5QOD8zu7nspj1xWoMfihmAVF0LfMIByyO1F9EtNIL7gp+EgiN1ufik66JquspZ3f5/9ROtIlASSFoFVuc2Ndtw5o7WILQ/fPP0nKn4155USAWvpDC43l2ZXEFf40I=
-Message-ID: <aec8d6fc05050816123cea0537@mail.gmail.com>
-Date: Sun, 8 May 2005 23:12:12 +0000
-From: Mateusz Berezecki <mateuszb@gmail.com>
-Reply-To: Mateusz Berezecki <mateuszb@gmail.com>
-To: Alexander Nyberg <alexn@telia.com>
-Subject: Re: 2.6.12-rc3 OOPS in vanilla source (once more)
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, zwane@arm.linux.org.uk, stsp@aknet.ru
-In-Reply-To: <1115120050.945.39.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <42763388.1030008@gmail.com>
-	 <20050502200545.266b4e55.akpm@osdl.org>
-	 <1115120050.945.39.camel@localhost.localdomain>
+	Sun, 8 May 2005 19:19:25 -0400
+Received: from jagor.srce.hr ([161.53.2.130]:23245 "EHLO jagor.srce.hr")
+	by vger.kernel.org with ESMTP id S263002AbVEHXTX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 May 2005 19:19:23 -0400
+Message-ID: <427E9E6A.9050500@spymac.com>
+Date: Mon, 09 May 2005 01:19:06 +0200
+From: zhilla <zhilla@spymac.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFT/PATCH] KVMS, mouse losing sync and going crazy
+References: <200505080226.43168.dtor_core@ameritech.net>
+In-Reply-To: <200505080226.43168.dtor_core@ameritech.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry for a _slight_ delay. I was offline for a longer while
-anyways I really appreciate fixing this issue quite fast.
-problems are gone. for now... ;-)
+hi dmitrty, i am now testing psmouse-resync-2.6.11.patch.gz on ms-600, 
+with no problems so far... should i start testing 
+psmouse-resync-2.6.11-v4.patch.gz or?
 
-
-kind regards
-/mb
+btw, cursed ms600 seems to be working properly for now, unfortunately i 
+don't know if its because of the patch (no dmesg messages yet) or 
+because  i opened it up and cleaned it :) oh yeah, it also fell to the 
+floor couple of times, perhaps that's it :)

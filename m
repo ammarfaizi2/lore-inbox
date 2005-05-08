@@ -1,68 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262844AbVEHLTV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262845AbVEHLVs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262844AbVEHLTV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 May 2005 07:19:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262845AbVEHLTM
+	id S262845AbVEHLVs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 May 2005 07:21:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262848AbVEHLVs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 May 2005 07:19:12 -0400
-Received: from dsl-202-52-56-051.nsw.veridas.net ([202.52.56.51]:23943 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262844AbVEHLS7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 May 2005 07:18:59 -0400
-Subject: Re: [PATCH] Really *do* nothing in while loop
-From: James Purser <purserj@ksit.dynalias.com>
-To: Michael Tokarev <mjt@tls.msk.ru>
-Cc: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       LKML <linux-kernel@vger.kernel.org>, GIT <git@vger.kernel.org>
-In-Reply-To: <427DE086.40307@tls.msk.ru>
-References: <20050508093440.GA9873@cip.informatik.uni-erlangen.de>
-	 <427DE086.40307@tls.msk.ru>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1115551204.3085.0.camel@kryten>
+	Sun, 8 May 2005 07:21:48 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:22026 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S262845AbVEHLV1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 May 2005 07:21:27 -0400
+Date: Sun, 8 May 2005 13:12:16 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: moreau francis <francis_moreau2000@yahoo.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: advices for a lcd driver design.
+Message-ID: <20050508111216.GB18600@alpha.home.local>
+References: <20050508103330.93937.qmail@web25105.mail.ukl.yahoo.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 08 May 2005 21:20:04 +1000
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050508103330.93937.qmail@web25105.mail.ukl.yahoo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-05-08 at 19:48, Michael Tokarev wrote:
-> Thomas Glanzmann wrote:
-> > [PATCH] Really *do* nothing in while loop
-> > 
-> > Signed-Off-by: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
-> > 
-> > --- a/sha1_file.c
-> > +++ b/sha1_file.c
-> > @@ -335,7 +335,7 @@
-> >  	stream.next_in = hdr;
-> >  	stream.avail_in = hdrlen;
-> >  	while (deflate(&stream, 0) == Z_OK)
-> > -		/* nothing */
-> > +		/* nothing */;
-> >  
-> >  	/* Then the data itself.. */
-> >  	stream.next_in = buf;
+Hi Francis,
+
+There already are several drivers for this display, why write another one ?
+One I use and know (because I wrote it :-)) is available here :
+ 
+  http://linux.exosec.net/kernel/lcdpanel/
+
+It works with any combination of data and control bits from a parallel port,
+and can initialize early in the kernel to display a booting message. It also
+supports a keypad. I know that several appliance makers who use it. It uses
+/dev/lcd to send data and some ANSI codes to move the cursor, and to define
+up to 8 graphics characters. It uses /dev/keypad for keypad input.
+
+Another one exists, I don't remember its name but it used to be announced
+on freshmeat. It emulates a vt52 terminal IIRC.
+
+Hoping this helps,
+Willy
+
+On Sun, May 08, 2005 at 12:33:30PM +0200, moreau francis wrote:
+> Hi,
 > 
-> Well, the lack of semicolon is wrong really (and funny).
+> I'm trying to write a lcd driver for a HD44780 compatible display.
+> Basicaly it will be the only screen available on my linux board.
+> My problem is that I don't know which desgin I should use when
+> implementing the lcd's driver, because several choices are possible:
 > 
-> But is the whole while loop needed at all?  deflate()
-> consumes as much input as it can, producing as much output
-> as it can.  So without the loop, and without updating the
-> buffer pointers ({next,avail}_{in,out}) it will do just
-> fine without the loop, and will return something != Z_OK
-> on next iteration.  If this is to mean to flush output,
-> it should be deflate(&stream, Z_FLUSH) or something.
+> 1) implementing a dumb char device  "/dev/lcd"
+> 2) implementing a console driver
+> 3) implementing a tty driver
 > 
-> /mjt
+> I can't find any documentation on vt that makes the choice quite
+> hard but when looking at the code it may be the best choice for
+> user-space. Do you think it's the good direction ?
 > 
-> P.S.  What's git@vger.kernel.org for ?
-Its the mailing list for git development.
+> Thanks for your advices,
+> 
+>       Francis.
+> 
+> 
+> 	
+> 
+> 	
+> 		
+> __________________________________________________________________ 
+> Découvrez le nouveau Yahoo! Mail : 250 Mo d'espace de stockage pour vos mails ! 
+> Créez votre Yahoo! Mail sur http://fr.mail.yahoo.com/
 > -
-> To unsubscribe from this list: send the line "unsubscribe git" in
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
--- 
-James Purser
-http://ksit.dynalias.com
-
+> Please read the FAQ at  http://www.tux.org/lkml/

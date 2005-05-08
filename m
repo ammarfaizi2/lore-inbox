@@ -1,35 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263002AbVEHXT0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263005AbVEHX0Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263002AbVEHXT0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 May 2005 19:19:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263005AbVEHXTZ
+	id S263005AbVEHX0Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 May 2005 19:26:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263003AbVEHX0Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 May 2005 19:19:25 -0400
-Received: from jagor.srce.hr ([161.53.2.130]:23245 "EHLO jagor.srce.hr")
-	by vger.kernel.org with ESMTP id S263002AbVEHXTX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 May 2005 19:19:23 -0400
-Message-ID: <427E9E6A.9050500@spymac.com>
-Date: Mon, 09 May 2005 01:19:06 +0200
-From: zhilla <zhilla@spymac.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
+	Sun, 8 May 2005 19:26:24 -0400
+Received: from smtp04.auna.com ([62.81.186.14]:60832 "EHLO smtp04.retemail.es")
+	by vger.kernel.org with ESMTP id S263005AbVEHX0L convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 May 2005 19:26:11 -0400
+Date: Sun, 08 May 2005 23:24:40 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: 2.6.12-rc3-mm3: ALSA broken ?
+To: linux-kernel@vger.kernel.org
+References: <20050504221057.1e02a402.akpm@osdl.org>
+	<1115510869l.7472l.0l@werewolf.able.es>
+In-Reply-To: <1115510869l.7472l.0l@werewolf.able.es> (from
+	jamagallon@able.es on Sun May  8 02:07:49 2005)
+X-Mailer: Balsa 2.3.1
+Message-Id: <1115594680l.7540l.0l@werewolf.able.es>
 MIME-Version: 1.0
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFT/PATCH] KVMS, mouse losing sync and going crazy
-References: <200505080226.43168.dtor_core@ameritech.net>
-In-Reply-To: <200505080226.43168.dtor_core@ameritech.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi dmitrty, i am now testing psmouse-resync-2.6.11.patch.gz on ms-600, 
-with no problems so far... should i start testing 
-psmouse-resync-2.6.11-v4.patch.gz or?
 
-btw, cursed ms600 seems to be working properly for now, unfortunately i 
-don't know if its because of the patch (no dmesg messages yet) or 
-because  i opened it up and cleaned it :) oh yeah, it also fell to the 
-floor couple of times, perhaps that's it :)
+On 05.08, J.A. Magallon wrote:
+> 
+> On 05.05, Andrew Morton wrote:
+> > 
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc3/2.6.12-rc3-mm3/
+> > 
+> > - device mapper updates
+> > 
+> > - more UML updates
+> > 
+> > - -mm seems unusually stable at present.
+> > 
+> 
+> Ehem, is ALSA broken ?
+> 
+> I can't spread stereo output to 4 channel. More specific, I can't switch
+> one of my female jacks between in and out.
+> 
+> Long explanation: I have an
+> 
+> 00:1f.5 Multimedia audio controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) AC'97 Audio Controller (rev 02)
+> 
+> It has three outputs. One is always output, for normal stereo or front in 4
+> channel. One other is LineIn/Back-for-4-channel. And the third is
+> Mic/Bass-Center.
+> 
+> In 2.6.11 I have two
+> toggles in ALSA: 'Spread front to center...' and 'surround jack as input'
+> Adjusting both I could get to duplicate the output in the Back jack.
+> In 2.6.12-rc3-mm3 there is no way to get this working.
+> 
+
+I have just tested in 2.6.12-rc4 and works fine. I even feed the stereo
+signal to the 6 channels, so 4 go to my desktop speaker system and one
+other pair to may home stereo.
+
+Something is broken in -mm wrt ALSA. If you need me to test some specific
+version, pleas just ask.
+
+Side note: trying to load settings from rc4 in -mm says:
+
+alsactl: set_control:930: warning: name mismatch (Surround Jack as Input/Surround Jack Mode) for control #42
+alsactl: set_control:932: warning: index mismatch (0/0) for control #42
+alsactl: set_control:1030: bad control.42.value type
+
+Hope this helps.
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandriva Linux release 2006.0 (Cooker) for i586
+Linux 2.6.11-jam16 (gcc 4.0.0 (4.0.0-3mdk for Mandriva Linux release 2006.0))
+
+

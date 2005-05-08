@@ -1,63 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262854AbVEHLky@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262852AbVEHL6f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262854AbVEHLky (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 May 2005 07:40:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262852AbVEHLkx
+	id S262852AbVEHL6f (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 May 2005 07:58:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262853AbVEHL6f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 May 2005 07:40:53 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:45152 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S262851AbVEHLko (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 May 2005 07:40:44 -0400
-Message-ID: <427DFAB8.5050000@tls.msk.ru>
-Date: Sun, 08 May 2005 15:40:40 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-Organization: Telecom Service, JSC
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: jdow <jdow@earthlink.net>
-Cc: James Purser <purserj@ksit.dynalias.com>,
-       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       LKML <linux-kernel@vger.kernel.org>, GIT <git@vger.kernel.org>
-Subject: Re: [PATCH] Really *do* nothing in while loop
-References: <20050508093440.GA9873@cip.informatik.uni-erlangen.de> <427DE086.40307@tls.msk.ru> <1115551204.3085.0.camel@kryten> <12e801c553c1$c454ea20$1225a8c0@kittycat>
-In-Reply-To: <12e801c553c1$c454ea20$1225a8c0@kittycat>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 8 May 2005 07:58:35 -0400
+Received: from smtpout2.uol.com.br ([200.221.4.193]:38552 "EHLO
+	smtp.uol.com.br") by vger.kernel.org with ESMTP id S262852AbVEHL6d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 May 2005 07:58:33 -0400
+Date: Sun, 8 May 2005 08:58:20 -0300
+From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
+To: Colin Leroy <colin@colino.net>
+Cc: linux-kernel@vger.kernel.org, debian-powerpc@lists.debian.org,
+       Roman Zippel <zippel@linux-m68k.org>, Brad Boyer <flar@allandria.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: Oops and BUG's with hfsplus module
+Message-ID: <20050508115820.GA6640@ime.usp.br>
+Mail-Followup-To: Colin Leroy <colin@colino.net>,
+	linux-kernel@vger.kernel.org, debian-powerpc@lists.debian.org,
+	Roman Zippel <zippel@linux-m68k.org>,
+	Brad Boyer <flar@allandria.com>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>
+References: <20050507235454.GA16058@ime.usp.br> <20050508114839.44ed10dc@jack.colino.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050508114839.44ed10dc@jack.colino.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jdow wrote:
-> From: "James Purser" <purserj@ksit.dynalias.com>
+On May 08 2005, Colin Leroy wrote:
+> On 07 May 2005 at 20h05, Rogério Brito wrote:
+> > Yesterday, I got a quite scary ooops and, today, after trying a newer
+> > kernel, I got many messages in my dmesg logs.
 > 
-   while (deflate(&stream, 0) == Z_OK)
--  /* nothing */
-+  /* nothing */;
-  stream.next_in = buf;
-> 
-> You guys REALLY do not see the changed semantics here? You are
-> changing:
->   while (deflate(&stream, 0) == Z_OK)
->       stream.next_in = buf;
-> 
-> into
-> 
->   while (deflate(&stream, 0) == Z_OK)
->     ;
->   /* Then the data itself.. */
->   stream.next_in = buf;
-> 
-> I suspect the results of that tiny bit of code would be slightly
-> different, especially if "stream.next_in" is volatile, "buf"
-> is volatile, or if the assignment to next_in has an effect on
-> the "deflate" operation.
+> I've had problems mounting my iPod with Firewire, whereas USB works ok.
+> Do you have the ability to test an hfsplus filesystem over usb-storage?
 
-As I already said, deflate() in this case does only ONE iteration.
-stream.avail_in is NOT changed in the loop (except of the deflate()
-itself, where it will be set to 0 - provided out buffer have enouth
-room).  So the whole while loop does only ONE iteration, returning
-Z_NEED_DATA or something the next one.  So no, the semantics here
-(actual semantics) does NOT change.
+Yes, I have. This is a dual Firewire/USB enclosre. I can test with
+usb-storage, but I had really scary problems with it some time ago (like it
+saying that the media from my HD was removed --- when it obviously wasn't
+and, to top it off, I could reproduce it, but it was with kernels like
+2.6.7 or so).
 
-/mjt
+I think that I can also try some stress tests with an ext2/ext3 filesystem
+and Firewire (i.e., trying to rule out the hfsplus variable from the
+problem).
+
+> Maybe the problem comes from sbp2.
+
+Yes, that can't be ruled out, but the messages all mentioned the problem
+inside the hfsplus module. I will test it anyway.
+
+> Also, can you try with 2.6.12-rc4?
+
+Yes, I will recompile a newer copy as soon as I get up (it's really early
+in the morning here and I need to sleep now).
+
+Anyway, if any further information is necessary, please let me know.
+
+
+Thanks for the prompt response, Rogério Brito.
+
+
+-- 
+Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
+Homepage of the algorithms package : http://algorithms.berlios.de
+Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/

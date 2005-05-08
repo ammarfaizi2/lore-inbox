@@ -1,74 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262763AbVEHAIJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262765AbVEHASj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262763AbVEHAIJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 May 2005 20:08:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262765AbVEHAIJ
+	id S262765AbVEHASj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 May 2005 20:18:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbVEHASj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 20:08:09 -0400
-Received: from smtp05.auna.com ([62.81.186.15]:48125 "EHLO smtp05.retemail.es")
-	by vger.kernel.org with ESMTP id S262763AbVEHAID convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 20:08:03 -0400
-Date: Sun, 08 May 2005 00:07:49 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: 2.6.12-rc3-mm3: ALSA broken ?
-To: linux-kernel@vger.kernel.org
-References: <20050504221057.1e02a402.akpm@osdl.org>
-In-Reply-To: <20050504221057.1e02a402.akpm@osdl.org> (from akpm@osdl.org on
-	Thu May  5 07:10:57 2005)
-X-Mailer: Balsa 2.3.1
-Message-Id: <1115510869l.7472l.0l@werewolf.able.es>
-MIME-Version: 1.0
+	Sat, 7 May 2005 20:18:39 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16067 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262765AbVEHASg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 May 2005 20:18:36 -0400
+Date: Sun, 8 May 2005 01:18:32 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: Alexander Nyberg <alexn@telia.com>, Antoine Martin <antoine@nagafix.co.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11.8 + UML/x86_64 (2.6.12-rc3+) = oops
+Message-ID: <20050508001832.GA32143@parcelfarce.linux.theplanet.co.uk>
+References: <20050504191828.620C812EE7@sc8-sf-spam2.sourceforge.net> <1115248927.12088.52.camel@cobra> <1115392141.12197.3.camel@cobra> <1115483506.12131.33.camel@cobra> <1115481468.925.9.camel@localhost.localdomain> <20050507180356.GA10793@ccure.user-mode-linux.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20050507180356.GA10793@ccure.user-mode-linux.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 05.05, Andrew Morton wrote:
+On Sat, May 07, 2005 at 02:03:56PM -0400, Jeff Dike wrote:
+> On Sat, May 07, 2005 at 05:57:48PM +0200, Alexander Nyberg wrote:
+> > I never get uml to compile around here, 2.6.12-rc3 + that patchkit from
+> > the link you sent blows up with defconfig any my minimal config. Please
+> > attach your guest .config and if you can you might aswell put your guest
+> > vmlinux somewhere where i can download it too.
 > 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc3/2.6.12-rc3-mm3/
-> 
-> - device mapper updates
-> 
-> - more UML updates
-> 
-> - -mm seems unusually stable at present.
-> 
+> Start with -rc3, and all the patches from
+> 	http://user-mode-linux.sf.net/patches.html
+> up to and including skas0.  You'll see a note to x86_64 users on that patch.
 
-Ehem, is ALSA broken ?
+Hrm...
+	a) stub.S handling breaks on O= builds.   Actually, your unprofile
+breaks there - it's bypassing the machinery that deals with include path.
+	b) stub_segv.c on amd64 includes <signal.h>.  Not a good idea...
+	c) sysdep-x86_64/checksum.h in -rc4 has csum_partial_copy_from_user()
+that needs updating (AFAICS, you have that in your patchset, but it hadn't
+reached Linus)
+	d) ip_compute_csum() prototype is missing (same file)
+	e) #define UPT_SYSCALL_RET(r) UPT_RAX(r) is needed in amd64 ptrace.h
+	f) take a good look at UPT_SET() in the same file ;-)
+	g) CFLAGS_csum-partial.o := -Dcsum_partial=arch_csum_partial in
+sys-x86_64/Makefile needs to be removed.
+	h) Makefile.rules should be included _after_ SYMLINKS = in the same
+file.
+	i) sys-x86_64/delay.c needs exports of __udelay() and __const_udelay(),
+include of linux/module.h and barriers in your delay loop bodies (or games
+with volatile - anything that would guarantee that gcc won't decide to optimize
+the entire loop away).  The last part applies to i386 as well.
+	j) ip_compute_csum should be exported on amd64.
+	k) sys-x86_64/syscalls.c needs include "kern.h"
+	l) elf-i386.h should include <asm/user.h>, not "user.h"
+	m) elf-x86_64.h lacks R_X86_64_... definitions
+	n) WTF _is_ that #ifdef TIF_IA32 in there?  Aside of the trailing \,
+we could as well put #error there - free-floating clear_thread_flag(TIF_IA32);
+outside of any function body will have that effect anyway.
+	o) in drivers/chan_kern.c we have several printf(KERN_ERR "...");
+these should become printk, as they clearly had been intended.  As it is,
+they give instant panic if we ever call them.
+	p) TOP_ADDR in Kconfig_x86_64 got lost in transmission - your patchset
+has it, but same patch in Linus' tree does not.
 
-I can't spread stereo output to 4 channel. More specific, I can't switch
-one of my female jacks between in and out.
-
-Long explanation: I have an
-
-00:1f.5 Multimedia audio controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) AC'97 Audio Controller (rev 02)
-
-It has three outputs. One is always output, for normal stereo or front in 4
-channel. One other is LineIn/Back-for-4-channel. And the third is
-Mic/Bass-Center.
-
-In 2.6.11 I have two
-toggles in ALSA: 'Spread front to center...' and 'surround jack as input'
-Adjusting both I could get to duplicate the output in the Back jack.
-In 2.6.12-rc3-mm3 there is no way to get this working.
-
-More, after I booted 2.6.11 to retest, just after reboot in 2.6.12-rc3-mm3
-it was working. As soon as I touched the 'Surround Jack Mode' in alsamixer
-it went silent again, and I could not restore it.
-The old options have been renamed/killed.
-
-Is ALSA broken in kernel ? Is just the userspace out of sync ?
-Which should be the correct setup to get this working ?
-
-TIA
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandriva Linux release 2006.0 (Cooker) for i586
-Linux 2.6.11-jam16 (gcc 4.0.0 (4.0.0-3mdk for Mandriva Linux release 2006.0))
-
-
+I've got patches for everything except (a); that one is really nasty.  I hope
+to sort it out by tonight; if not, I'll just send what I've got by now.

@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262838AbVEHTQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262847AbVEHTQi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262838AbVEHTQk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 May 2005 15:16:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbVEHTPX
+	id S262847AbVEHTQi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 May 2005 15:16:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262851AbVEHTQa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 May 2005 15:15:23 -0400
-Received: from ipx10786.ipxserver.de ([80.190.251.108]:58518 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262759AbVEHTJm
+	Sun, 8 May 2005 15:16:30 -0400
+Received: from ipx10786.ipxserver.de ([80.190.251.108]:59542 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262847AbVEHTJn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 May 2005 15:09:42 -0400
-Message-Id: <20050508184346.575481000@abc>
+	Sun, 8 May 2005 15:09:43 -0400
+Message-Id: <20050508184346.661263000@abc>
 References: <20050508184229.957247000@abc>
-Date: Sun, 08 May 2005 20:42:40 +0200
+Date: Sun, 08 May 2005 20:42:41 +0200
 From: Johannes Stezenbach <js@linuxtv.org>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Content-Disposition: inline; filename=dvb-av7110-debug-comment.patch
+Content-Disposition: inline; filename=dvb-av7110-ca-formatting.patch
 X-SA-Exim-Connect-IP: 217.231.45.168
-Subject: [DVB patch 11/37] av7110: fix comment
+Subject: [DVB patch 12/37] av7110: fix indentation
 X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
 X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fixed debugging instructions: av7110_debug -> debug (Oliver Endirss)
+fix indentation
 
 Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
 ---
 
- drivers/media/dvb/ttpci/av7110_ir.c |    2 +-
+ drivers/media/dvb/ttpci/av7110_ca.c |    2 +-
  1 files changed, 1 insertion(+), 1 deletion(-)
 
-Index: linux-2.6.12-rc4/drivers/media/dvb/ttpci/av7110_ir.c
+Index: linux-2.6.12-rc4/drivers/media/dvb/ttpci/av7110_ca.c
 ===================================================================
---- linux-2.6.12-rc4.orig/drivers/media/dvb/ttpci/av7110_ir.c	2005-05-08 15:55:38.000000000 +0200
-+++ linux-2.6.12-rc4/drivers/media/dvb/ttpci/av7110_ir.c	2005-05-08 16:14:54.000000000 +0200
-@@ -10,7 +10,7 @@
+--- linux-2.6.12-rc4.orig/drivers/media/dvb/ttpci/av7110_ca.c	2005-05-08 15:55:38.000000000 +0200
++++ linux-2.6.12-rc4/drivers/media/dvb/ttpci/av7110_ca.c	2005-05-08 16:15:50.000000000 +0200
+@@ -123,7 +123,7 @@ static void ci_ll_release(struct dvb_rin
+ }
  
- #define UP_TIMEOUT (HZ/4)
- 
--/* enable ir debugging by or'ing av7110_debug with 16 */
-+/* enable ir debugging by or'ing debug with 16 */
- 
- static int ir_initialized;
- static struct input_dev input_dev;
+ static int ci_ll_reset(struct dvb_ringbuffer *cibuf, struct file *file,
+-		int slots, ca_slot_info_t *slot)
++		       int slots, ca_slot_info_t *slot)
+ {
+ 	int i;
+ 	int len = 0;
 
 --
 

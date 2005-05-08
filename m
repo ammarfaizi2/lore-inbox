@@ -1,163 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262857AbVEHM3o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262858AbVEHMpv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262857AbVEHM3o (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 May 2005 08:29:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262858AbVEHM3o
+	id S262858AbVEHMpv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 May 2005 08:45:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262860AbVEHMpv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 May 2005 08:29:44 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:54474 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S262857AbVEHM3d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 May 2005 08:29:33 -0400
-Date: Sun, 08 May 2005 21:28:53 +0900
-From: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
-Subject: Re: [RFC/PATCH] unregister_node() for hotplug use
-In-reply-to: <20050508002648.GD3614@otto>
-To: Nathan Lynch <ntl@pobox.com>, gregkh@suse.de
-Cc: tokunaga.keiich@jp.fujitsu.com, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Message-id: <20050508212853.1e71e8a5.tokunaga.keiich@jp.fujitsu.com>
-Organization: FUJITSU LIMITED
-MIME-version: 1.0
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <20050420210744.4013b3f8.tokunaga.keiich@jp.fujitsu.com>
- <20050420173235.GA17775@kroah.com>
- <20050422003009.1b96f09c.tokunaga.keiich@jp.fujitsu.com>
- <20050422003920.GD6829@kroah.com>
- <20050422113211.509005f1.tokunaga.keiich@jp.fujitsu.com>
- <20050425230333.6b8dfb33.tokunaga.keiich@jp.fujitsu.com>
- <20050426065431.GB5889@suse.de>
- <20050507211141.4829d4c0.tokunaga.keiich@jp.fujitsu.com>
- <20050508002648.GD3614@otto>
+	Sun, 8 May 2005 08:45:51 -0400
+Received: from mail.gmx.net ([213.165.64.20]:29162 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262858AbVEHMpk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 May 2005 08:45:40 -0400
+X-Authenticated: #153925
+From: Bernd Paysan <bernd.paysan@gmx.de>
+To: suse-amd64@suse.com, linux-kernel@vger.kernel.org
+Subject: False "lost ticks" on dual-Opteron system (=> timer twice as fast)
+Date: Sun, 8 May 2005 14:45:20 +0200
+User-Agent: KMail/1.8
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2020310.ZEz7mpIodj";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200505081445.26663.bernd.paysan@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 07 May 2005 19:26:48 -0500 Nathan Lynch wrote:
-> > This adds a generic function 'unregister_node()'.
-> > It is used to remove objects of a node going away
-> > for hotplug.
-> > 
-> > Signed-off-by: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
-> > ---
-> > 
-> >  linux-2.6.12-rc3-mm3-kei/drivers/base/node.c  |   15 +++++++++++++--
-> >  linux-2.6.12-rc3-mm3-kei/include/linux/node.h |    1 +
-> >  2 files changed, 14 insertions(+), 2 deletions(-)
-> > 
-> > diff -puN drivers/base/node.c~numa_hp_base drivers/base/node.c
-> > --- linux-2.6.12-rc3-mm3/drivers/base/node.c~numa_hp_base	2005-05-07 19:58:15.000000000 +0900
-> > +++ linux-2.6.12-rc3-mm3-kei/drivers/base/node.c	2005-05-07 19:58:15.000000000 +0900
-> > @@ -136,7 +136,7 @@ static SYSDEV_ATTR(distance, S_IRUGO, no
-> >   *
-> >   * Initialize and register the node device.
-> >   */
-> > -int __init register_node(struct node *node, int num, struct node *parent)
-> > +int register_node(struct node *node, int num, struct node *parent)
-> >  {
-> >  	int error;
-> >  
-> > @@ -153,8 +153,19 @@ int __init register_node(struct node *no
-> >  	return error;
-> >  }
-> >  
-> > +void unregister_node(struct node *node)
-> > +{
-> > +	sysdev_remove_file(&node->sysdev, &attr_cpumap);
-> > +	sysdev_remove_file(&node->sysdev, &attr_meminfo);
-> > +	sysdev_remove_file(&node->sysdev, &attr_numastat);
-> > +	sysdev_remove_file(&node->sysdev, &attr_distance);
-> > +
-> > +	sysdev_unregister(&node->sysdev);
-> > +}
-> 
-> Is it a bug to call unregister_node() if there are still cpus or
-> memory present in the node?  Note that register_cpu() creates a
-> symlink under the node directory to the cpu -- are you assuming that
-> all the node's cpu sysdevs will have been unregistered by the time
-> unregister_node is called?  If so, is it possible to enforce that, or
-> at least document it?
+--nextPart2020310.ZEz7mpIodj
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-  Yes, this code is assuming that.  I will document it in
-a function description of unregister_node().
+Hi,
 
-> > +EXPORT_SYMBOL_GPL(register_node);
-> > +EXPORT_SYMBOL_GPL(unregister_node);
-> 
-> What module code needs to call these?  ACPI?
+I've recently set up a dual Opteron RAID server (AMD-8000-based Tyan=20
+Thunder K8S Pro SCSI board, 2 246 Opterons, stepping 10). Kernel is a=20
+modified 2.6.11.4-20a from SuSE 9.3 (SMP version, sure). The Opterons=20
+are capable of changing the CPU frequency (between 1GHz and 2GHz).
 
-  Nobody today.  I thought it was necessary for my another
-patch to support node hotplug, but I found out it's not.
-My mistake...  I will remove them.
+The system clock runs (on average) about twice as fast as it should be.=20
+A closer observation revealed that the clock jumps forward by about=20
+10-30 seconds every 10-30 seconds (plus other oddities, including=20
+backward clock jumps). The timer interrupts are distributed roughly=20
+evenly among the two CPUs, but looking at the timer interrupt number=20
+(grep timer /proc/interrupts) revealed that for about 10-30 seconds,=20
+one CPU gets the interrupt, and then the other CPU gets them; the=20
+transition causes the system clock to advance.
 
-  I'm attaching an updated patch.
+A quick look at timer_interrupt shows what I suspect is the culprit:=20
+Each CPU keeps track of the last TSC at a timer interrupt, and adds the=20
+"lost" ticks to jiffies when perceived necessary. If there's only a=20
+single jiffies, but two vxtime.last_tsc, it can't work.
 
-Thanks,
-Keiichiro Tokunaga
+A quick workaround would be to ditch the handling of the "lost" jiffies.=20
+I still anticipate to have annoying time skews by do_gettimeoffset()=20
+(that's what explains the other oddities - if I do gettimeofday() on=20
+the CPU that isn't getting interrupts, I'll going to add the "lost"=20
+jiffies, too). A proposed fix would be to *also* store the last jiffies=20
+value in the vxtime variable, and verify if it's really *this* CPU that=20
+did miss the timer interrupts. This local "last-stored-jiffies" can=20
+help do_gettimeoffset() to calculate the local time good enough on both=20
+CPUs.
 
+What I can't believe is that I'm the only one who has this problem.
 
+<rant>I know the timer system on an Intel or AMD system is broken by=20
+design, because there should be a single constant-clocked atomically=20
+read-only system-wide timer. But this is no excuse for that ;-).</rant>
 
-This adds a generic function 'unregister_node()'.
-It is used to remove objects of a node going away
-for hotplug.  All the devices on the node must be
-unregistered before calling this function.
+=2D-=20
+Bernd Paysan
+"If you want it done right, you have to do it yourself"
+http://www.jwdt.com/~paysan/
 
-Signed-off-by: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
----
+--nextPart2020310.ZEz7mpIodj
+Content-Type: application/pgp-signature
 
- linux-2.6.12-rc3-mm3-kei/drivers/base/node.c  |   20 ++++++++++++++++++--
- linux-2.6.12-rc3-mm3-kei/include/linux/node.h |    1 +
- 2 files changed, 19 insertions(+), 2 deletions(-)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
-diff -puN drivers/base/node.c~numa_hp_base drivers/base/node.c
---- linux-2.6.12-rc3-mm3/drivers/base/node.c~numa_hp_base	2005-05-07 19:58:15.000000000 +0900
-+++ linux-2.6.12-rc3-mm3-kei/drivers/base/node.c	2005-05-08 20:27:32.000000000 +0900
-@@ -136,7 +136,7 @@ static SYSDEV_ATTR(distance, S_IRUGO, no
-  *
-  * Initialize and register the node device.
-  */
--int __init register_node(struct node *node, int num, struct node *parent)
-+int register_node(struct node *node, int num, struct node *parent)
- {
- 	int error;
- 
-@@ -153,8 +153,24 @@ int __init register_node(struct node *no
- 	return error;
- }
- 
-+/**
-+ * unregister_node - unregister a node device
-+ * @node: node going away
-+ *
-+ * Unregisters a node device @node.  All the devices on the node must be
-+ * unregistered before calling this function.
-+ */
-+void unregister_node(struct node *node)
-+{
-+	sysdev_remove_file(&node->sysdev, &attr_cpumap);
-+	sysdev_remove_file(&node->sysdev, &attr_meminfo);
-+	sysdev_remove_file(&node->sysdev, &attr_numastat);
-+	sysdev_remove_file(&node->sysdev, &attr_distance);
-+
-+	sysdev_unregister(&node->sysdev);
-+}
- 
--int __init register_node_type(void)
-+static int __init register_node_type(void)
- {
- 	return sysdev_class_register(&node_class);
- }
-diff -puN include/linux/node.h~numa_hp_base include/linux/node.h
---- linux-2.6.12-rc3-mm3/include/linux/node.h~numa_hp_base	2005-05-07 19:58:15.000000000 +0900
-+++ linux-2.6.12-rc3-mm3-kei/include/linux/node.h	2005-05-07 19:58:15.000000000 +0900
-@@ -27,6 +27,7 @@ struct node {
- };
- 
- extern int register_node(struct node *, int, struct node *);
-+extern void unregister_node(struct node *node);
- 
- #define to_node(sys_device) container_of(sys_device, struct node, sysdev)
- 
+iD8DBQBCfgnmi4ILt2cAfDARAov4AKC/SiGoxYsOarWw1M9F4LfU6Yz5lgCgleXf
+SwaaYgcimNJRoszjgvon+yU=
+=lPco
+-----END PGP SIGNATURE-----
 
-_
+--nextPart2020310.ZEz7mpIodj--

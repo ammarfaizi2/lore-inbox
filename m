@@ -1,87 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262816AbVEHGMB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbVEHHJn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262816AbVEHGMB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 May 2005 02:12:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262817AbVEHGMB
+	id S261404AbVEHHJn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 May 2005 03:09:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262819AbVEHHJY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 May 2005 02:12:01 -0400
-Received: from wproxy.gmail.com ([64.233.184.200]:18882 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262816AbVEHGLn convert rfc822-to-8bit
+	Sun, 8 May 2005 03:09:24 -0400
+Received: from [192.171.113.101] ([192.171.113.101]:30609 "EHLO
+	fir.nerdvana.com") by vger.kernel.org with ESMTP id S261404AbVEHHJU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 May 2005 02:11:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=YRxA1R3rmAnnfBUVxXLxqfpOwLeKwz/ha8/3M+CFtCeyMFKFbwThS66Rpu+QJDRw02eWLHgGJMadYNIjqK9yDgQy38sIvHEKy11wzK7GzRYDNINW0Zw4iIdpfAW1MB/kv+lz15D6gSvnYUFGI5AuIHQsMOZAla0qng3ooOcVmDQ=
-Message-ID: <d6e6e6dd050507231174d99fb0@mail.gmail.com>
-Date: Sun, 8 May 2005 02:11:41 -0400
-From: Haoqiang Zheng <haoqiang@gmail.com>
-Reply-To: Haoqiang Zheng <haoqiang@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC PATCH] swap-sched: schedule with dynamic dependency detection (2.6.12-rc3)
+	Sun, 8 May 2005 03:09:20 -0400
+Subject: Re: PROBLEM: Reiserfs stall 2.6.10-bk7 up through 2.6.12-rc3
+From: George Ronkin <gronkin@nerdvana.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1115428405.2233.65.camel@fir.nerdvana.com>
+References: <1115428405.2233.65.camel@fir.nerdvana.com>
+Content-Type: text/plain
+Date: Sun, 08 May 2005 00:09:08 -0700
+Message-Id: <1115536148.9660.17.camel@fir.nerdvana.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-swap-sched is a patch that solves dynamic priority inversion problem.
+On Fri, 2005-05-06 at 18:13 -0700, George Ronkin wrote:
+> ... one of my machines now stalls
+> attempting to access the reiserfs file system used as that server's
+> spool...  This problem did not occur before 2.6.10-bk7.  That and all subsequent
+> kernels I've tried (Debian 2.6.11, stock 2.6.12-rc3, and 2.6.12-rc3-mm3)
+> cause the problem, consistently and repeatably.
+	As does 2.6.12-rc4.  The unusual 1K block size I used for this reiserfs
+seems to have exposed the problem; all my other reiserfs use 4K and have
+no problem.  I copied its contents to a new reiserfs I created with 4K
+blocks and the later kernels work fine with the copy.  I also tried
+turning off CONFIG_QUOTA on 2.6.12-rc4 - that worked with the 1K block
+reiserfs as well.  I'm keeping the 4K block copy, since that works with
+QUOTA, and turning QUOTA off affects non-reiserfs fs as well.
+	Note also:
 
-Run X at normal priority (nice 0) and keep the system really busy by
-running a lot of interactive jobs (with dynamic priority at 115), or
-simply run some CPU bound tasks at nice -10. Then start a mpeg player
-at a high priority (nice -20). What would you expect? In my machine,
-the mpeg player runs at poorly 4 frm/s. Why the tasks running at
-dynamic priorities of 115 can have such dramatic impact on the
-performance of mpeg player running at nice -20? What happens is the
-mpeg player often blocks to wait the normal priority X to render the
-frames. Without knowing such dependency between mpeg player and X, the
-existing Linux scheduler would select other tasks to run and thus
-results in poor video playback quality. This problem is generally
-known as priority inversion.
+- The 1K block fs caused the problem even though no quota mount options
+were set.
 
-Certainly, this very problem can be solved by setting the priority of
-X to nice -10 (like what Redhat etc. does). However, inter-process
-communication mechanisms like pipe, socket and signal etc. are widely
-used in modern applications, and thus the inter-process dependencies
-are everywhere in today's computer systems. It's not possible for a
-system administrator to find out all the dependencies and set the
-priorities properly. Obviously, we need a system that can dynamically
-detects the dependencies among the tasks and take the dependency
-information into account when scheduling. swap-sched is such a system.
+- All my reiserfs are devmapped, so I don't know if the problem occurs
+without it on a physical partition, or whether the symptoms would
+differ.
+	HTH,
+-- 
+George Ronkin <gronkin@nerdvana.com>
 
-swap-sched consists of two components: the automatic dependency
-detection component and the dependency based scheduling
-component. swap-sched detects the dependency among tasks by
-monitoring/instrumenting the inter-process
-communication/synchronization related system calls. Since all the
-inter-process communications/synchronizations (except shared-memory)
-are done via system calls, the dynamic dependencies can be effectively
-detected by instrumenting these system calls.
-
-In a conventional CPU scheduler, a task is removed from the runqueue
-once it's blocked. This is a PROBLEM since a high priority task's
-request is ignored once it's blocked, even though it's blocked because
-of waiting for the execution of another task. Based on this
-observation, swap-sched solves the priority inversion problem by make
-two simple changes to the existing CPU scheduler. First, it keeps all
-the tasks that are blocked but depends on some other tasks that are
-runnable in runqueue. (We call such tasks are virtual runnable
-tasks). Second, the existing CPU scheduler is called as usual. But since the
-virtual runnable tasks are in runqueue, they may be scheduled. In this
-case the swap scheduler is called to choose one of the providers of
-the task (the task that the virtual runnable task depends on) to run.
-
- Our results show that SWAP has low overhead, effectively solves the
-priority inversion problem and can provide substantial improvements in
-system performance in scheduling processes with dependencies. For the
-mpeg player + X scenario discussed above, mpeg player can play at 23
-frm/s with swap-sched enabled!!!
-
-Please visit our swap-sched project homepage at
-http://swap-sched.sourceforge.net/ for details and latest
-patches. Suggestions/Comments are welcomed.
-
-
-Haoqiang

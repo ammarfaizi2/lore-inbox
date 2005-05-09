@@ -1,49 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbVEIPUJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbVEIPWW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261416AbVEIPUJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 11:20:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbVEIPUG
+	id S261425AbVEIPWW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 11:22:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261424AbVEIPWW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 11:20:06 -0400
-Received: from web25102.mail.ukl.yahoo.com ([217.12.10.50]:1180 "HELO
-	web25102.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261416AbVEIPTv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 11:19:51 -0400
-Message-ID: <20050509151942.90582.qmail@web25102.mail.ukl.yahoo.com>
-Date: Mon, 9 May 2005 17:19:42 +0200 (CEST)
-From: moreau francis <francis_moreau2000@yahoo.fr>
-Subject: Re: advices for a lcd driver design.
-To: Willy Tarreau <willy@w.ods.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: 6667
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 9 May 2005 11:22:22 -0400
+Received: from moutng.kundenserver.de ([212.227.126.171]:21186 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261426AbVEIPVx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 11:21:53 -0400
+Date: Mon, 9 May 2005 17:21:39 +0200
+From: lkml@think-future.de
+To: Linux Kernel-Liste <linux-kernel@vger.kernel.org>
+Subject: bind racoon/ipsec config to specific interfaces?
+Reply-To: Nils Radtke <Nils.Radtke@Think-Future.de>
+Mail-Followup-To: Nils Radtke <Nils.Radtke@Think-Future.de>,
+	Linux Kernel-Liste <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="rwEMma7ioTxnRzrJ"
+Content-Disposition: inline
+X-Url: http://www.Think-Future.de
+X-Editor: Vi it! http://www.vim.org
+X-Bkp: p2mi
+X-GnuPG-Key: gpg --keyserver gpg-keyserver.de --recv-keys 06232116
+User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <20050509152140.0D45C144050@service.i-think-future.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:35131867b06e6a502cee335cb348919d
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Willy
 
---- Willy Tarreau <willy@w.ods.org> a écrit:
-> Hi Francis,
-> 
-> There already are several drivers for this display, why write another one ?
-> One I use and know (because I wrote it :-)) is available here :
+--rwEMma7ioTxnRzrJ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-sorry I wasn't clear in my last email, when I said 'HD44780 compatible display'
-I was talking about electrical signals compatibity.
-Actually I will use a lcd that supports graphical or text (80x20) mode. 
-I assume that a design for this kind of lcd is different from hd44780's one. 
-And that's the reason I want to use kernel vc...
+  Hi,
 
-        Francis
+  is there a viable way to bind the racoon config to a specific
+  interface?
+
+  We need this in order to get transparent ipsec to work.=20
+  So far, the racoon config is global that is, all interfaces are
+  affected. This results from the configurability based on network
+  addresses only.
+  What we have here is a bridge that needs to do an ipsec job.
+
+  Thanks for ideas and hints!
 
 
+    Nils
 
-	
 
-	
-		
-__________________________________________________________________
-Découvrez le nouveau Yahoo! Mail : 250 Mo d'espace de stockage pour vos mails ! 
-Créez votre Yahoo! Mail sur http://fr.mail.yahoo.com/
+--=20
+A+
+* N.Radtke@                 * University of Stuttgart *    icq / lc   *
+*      www.Think-Future.de  *    dep.comp.science     * 9336272/92045 *
+:x                            UTM 32 0515651 5394088                 :)
+   The executioner is, I hear, very expert, and my neck is very
+   slender.   -- Anne Boleyn=20
+  =20
+
+--rwEMma7ioTxnRzrJ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Nils Radtke
+
+iD8DBQFCf4ACX3r3ggYjIRYRAv4lAJ45GJVhrnlu2Qz2Akjc3FRrCrSzRwCfWqoW
+JnKIKdxwfzXFm0G0zkx+Jzs=
+=b2oZ
+-----END PGP SIGNATURE-----
+
+--rwEMma7ioTxnRzrJ--

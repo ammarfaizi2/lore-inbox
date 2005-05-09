@@ -1,47 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261372AbVEIXKM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVEIXN4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261372AbVEIXKM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 19:10:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVEIXKM
+	id S261254AbVEIXN4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 19:13:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbVEIXN4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 19:10:12 -0400
-Received: from graphe.net ([209.204.138.32]:1299 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S261372AbVEIXKH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 19:10:07 -0400
-Date: Mon, 9 May 2005 16:10:04 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Andrew Morton <akpm@osdl.org>
-cc: oleg@tv-sign.ru, linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       mingo@elte.hu, kenneth.w.chen@intel.com
-Subject: Re: [RFC][PATCH] timers fixes/improvements
-In-Reply-To: <20050509144255.17d3b9aa.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0505091607310.31531@graphe.net>
-References: <424D373F.1BCBF2AC@tv-sign.ru> <424E6441.12A6BC03@tv-sign.ru>
- <Pine.LNX.4.58.0505091312490.27740@graphe.net> <20050509144255.17d3b9aa.akpm@osdl.org>
+	Mon, 9 May 2005 19:13:56 -0400
+Received: from one.firstfloor.org ([213.235.205.2]:45034 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S261254AbVEIXNx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 19:13:53 -0400
+To: rudi@asics.ws
+Cc: "Frank Denis (Jedi/Sector One)" <j@pureftpd.org>,
+       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: kernel (64bit) 4GB memory support II
+References: <41BAC68D.6050303@pobox.com> <1102760002.10824.170.camel@cpu0>
+	<41BB32A4.2090301@pobox.com> <1102824735.17081.187.camel@cpu0>
+	<Pine.LNX.4.61.0412112141180.7847@montezuma.fsmlabs.com>
+	<1102828235.17081.189.camel@cpu0>
+	<Pine.LNX.4.61.0412120131570.7847@montezuma.fsmlabs.com>
+	<1102842902.10322.200.camel@cpu0>
+	<Pine.LNX.4.61.0412120934160.14734@montezuma.fsmlabs.com>
+	<1103027130.3650.73.camel@cpu0> <20041216074905.GA2417@c9x.org>
+	<1103213359.31392.71.camel@cpu0>
+	<Pine.LNX.4.61.0412201246180.12334@montezuma.fsmlabs.com>
+	<1103646195.3652.196.camel@cpu0>
+	<Pine.LNX.4.61.0412210930280.28648@montezuma.fsmlabs.com>
+	<1103647158.3659.199.camel@cpu0>
+	<Pine.LNX.4.61.0412210955130.28648@montezuma.fsmlabs.com>
+	<1115654185.3296.658.camel@cpu10>
+From: Andi Kleen <ak@muc.de>
+In-Reply-To: <1115654185.3296.658.camel@cpu10> (Rudolf Usselmann's message
+ of "Mon, 09 May 2005 22:56:25 +0700")
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+Date: Tue, 10 May 2005 01:13:52 +0200
+Message-ID: <m1zmv4t2kv.fsf_-_@muc.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.9
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 May 2005, Andrew Morton wrote:
-
-> 2.6.12-rc3-mm3 has different patches:
+Rudolf Usselmann <rudi@asics.ws> writes:
 >
-> timers-fixes-improvements.patch
-> timers-fixes-improvements-smp_processor_id-fix.patch
-> timers-fixes-improvements-fix.patch
-> timers-fix-__mod_timer-vs-__run_timers-deadlock.patch
-> timers-fix-__mod_timer-vs-__run_timers-deadlock-tidy.patch
-> timers-comments-update.patch
-> kernel-timerc-remove-a-goto-construct.patch
+> Just curious, did anybody ever look in to this at all ? I keep
+> on downloading new kernels and trying 4GB of memory - still no
+> luck.
+>
+> I did file a bug report but didn't get any notifications at all.
+> I don't subscribe to the linux-kernel list so not sure if anything
+> ever came up or not.
+>
+> Is there a way to get this fixed ?
 
-Tried these. Result is the same:
+Does the following patch (against a 2.6.12rc3 kernel) fix your problems?
 
-register_netdevice eth%d: ptype_all = 00000010:00000010
-ptype_all corrupted = 00000010:00000010. ptype_all fixed up
-10 9e 56 c0 10 9e 56 c0 18 9e 56 c0 18 9e 56 c0 10 00 00 00 10 00 00 00 00
-00 00 00 00 00 00 00
+-Andi
 
+[...]
+
+Please use this version instead, previous one was broken.
+
+Don't look up struct page * of physical address in iounmap
+
+it could be in a memory hole not mapped in mem_map
+
+Signed-off-by: Andi Kleen <ak@suse.de>
+
+Index: linux/arch/x86_64/mm/ioremap.c
+===================================================================
+--- linux.orig/arch/x86_64/mm/ioremap.c
++++ linux/arch/x86_64/mm/ioremap.c
+@@ -272,7 +272,7 @@ void iounmap(volatile void __iomem *addr
+ 	if ((p->flags >> 20) &&
+ 		p->phys_addr + p->size - 1 < virt_to_phys(high_memory)) {
+ 		/* p->size includes the guard page, but cpa doesn't like that */
+-		change_page_attr(virt_to_page(__va(p->phys_addr)),
++		change_page_attr_addr(__va(p->phys_addr),
+ 				 p->size >> PAGE_SHIFT,
+ 				 PAGE_KERNEL);
+ 		global_flush_tlb();

@@ -1,42 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261453AbVEIRhI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261452AbVEIRhU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261453AbVEIRhI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 13:37:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbVEIRhH
+	id S261452AbVEIRhU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 13:37:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbVEIRhU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 13:37:07 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:27802 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261453AbVEIRhD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 13:37:03 -0400
-Subject: Re: Two oops reports
-From: Lee Revell <rlrevell@joe-job.com>
-To: Peter Jay Salzman <p@dirac.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050509172435.GA6826@dirac.org>
-References: <20050509172435.GA6826@dirac.org>
-Content-Type: text/plain
-Date: Mon, 09 May 2005 13:37:00 -0400
-Message-Id: <1115660221.8156.2.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
+	Mon, 9 May 2005 13:37:20 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:4249 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S261452AbVEIRhE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 13:37:04 -0400
+Message-ID: <427F9FA2.30506@grupopie.com>
+Date: Mon, 09 May 2005 18:36:34 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.12-rc4: IRQ14 nobody cared
+References: <Pine.LNX.4.58.0505062245160.2233@ppc970.osdl.org>	 <427F6F00.9030305@grupopie.com> <58cb370e050509074352e98f6a@mail.gmail.com>
+In-Reply-To: <58cb370e050509074352e98f6a@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-05-09 at 13:24 -0400, Peter Jay Salzman wrote:
-> I've never sent in an oops report before.  From oops-tracing.txt, man
-> ksymoops and the ksymoops output, I need /proc/ksyms, but it appears that
-> file has disappeared from the kernel.  However, judging by the actual text
-> of the oops report, it appears that the object translation was performed
-> automatically.  I'm seeing things that look like function names, so perhaps
-> the man page, oops-tracing.txt, and ksymoops output are all out of date?
+Bartlomiej Zolnierkiewicz wrote:
+> On 5/9/05, Paulo Marques <pmarques@grupopie.com> wrote:
+>>[...]
+>>
+>>2.6.12-rc4 halts during boot with a "IRQ 14: nobody cared" message.
+>>
+>>2.6.12-rc3 boots (and works) fine with the same configuration.
+>>
+>>[...]
+> 
+> Perhaps you can try first -rc3 git snapshot (still a lot of stuff):
+> http://www.kernel.org/pub/linux/kernel/v2.6/snapshots/patch-2.6.12-rc3-git1.bz2
 
-Yes, they are.  I finally posted a patch which corrects the docs, post
-2.6.11.
+I tried this version with the same results.
 
-Anyway these two traces appear to have nothing to do with one another.
-Random Oopses like this usually indicate failing hardware.  Try memtest.
+It seems that I've got something weird in my compilation setup.
 
-Lee
+I set up a serial console to see the messages from boot and near the 
+beggining I get:
 
+"Unknown bustype PCI    - ignoring"
+
+The code that generates this is at arch/i386/mpparse.c:
+
+> 	} else if (strncmp(str, BUSTYPE_PCI, sizeof(BUSTYPE_PCI)-1) == 0) {
+> 		...
+> 	} else if (strncmp(str, BUSTYPE_MCA, sizeof(BUSTYPE_MCA)-1) == 0) {
+ >		...
+> 	} else {
+> 		printk(KERN_WARNING "Unknown bustype %s - ignoring\n", str);
+> 	}
+
+BUSTYPE_PCI is defined at include/asm-i386/mpspec_def.h:
+
+#define BUSTYPE_PCI	"PCI"
+
+so that first "if" statement translates to
+
+ > 	} else if (strncmp(str, "PCI", 3) == 0) {
+
+which should be always valid for "PCI   ", and that message should never 
+appear :(
+
+Well, sorry about the noise, I must dig deeper now...
+
+-- 
+Paulo Marques - www.grupopie.com
+
+An expert is a person who has made all the mistakes that can be
+made in a very narrow field.
+Niels Bohr (1885 - 1962)

@@ -1,83 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263055AbVEIGGE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263056AbVEIGM1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263055AbVEIGGE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 02:06:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263056AbVEIGGE
+	id S263056AbVEIGM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 02:12:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263058AbVEIGM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 02:06:04 -0400
-Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:31584 "HELO
-	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263065AbVEIGF0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 02:05:26 -0400
-Message-ID: <427EFD9B.7010808@yahoo.com.au>
-Date: Mon, 09 May 2005 16:05:15 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Yuly Finkelberg <liquidicecube@gmail.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Scheduler: Spinning until tasks are STOPPED
-References: <92df3175050506233110a19a60@mail.gmail.com>	 <427C6A5C.6090900@yahoo.com.au>	 <92df3175050507103621a88554@mail.gmail.com>	 <427D8EC3.9040409@yahoo.com.au> <92df317505050817071d852623@mail.gmail.com>
-In-Reply-To: <92df317505050817071d852623@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 9 May 2005 02:12:27 -0400
+Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:65203 "EHLO
+	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
+	id S263056AbVEIGMS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 02:12:18 -0400
+Date: Mon, 09 May 2005 10:12:12 +0400
+From: Mitch <Mitch@0Bits.COM>
+Subject: Re: [RFT/PATCH] KVMS, mouse losing sync and going crazy
+To: dtor_core@ameritech.net, linux-kernel@vger.kernel.org
+Message-id: <427EFF3C.1040706@0Bits.COM>
+MIME-version: 1.0
+Content-type: multipart/mixed; boundary="Boundary_(ID_6BIBSR3OAprzuGGLZg5hvA)"
+User-Agent: Mail/News Client 1.0+ (X11/20050427)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yuly Finkelberg wrote:
->>Well it still sounds like the kernel is doing too much. For example,
->>why don't you just have a syscall (or char device) just to send out
->>the events, and do everything else (all the queueing and
->>synchronisation and signalling) in userspace?
-> 
-> 
-> True, it does :)
-> However, the operation requires that a consistent in-kernel state will
-> hold for the tasks.  They all (except for the last one) do some work,
-> send a SIGSTOP to themselves, and return to usermode (handling the
-> STOP signal).  The last task does not stop itself, but instead
-> verifies that all of the others are stopped before it returns.
-> 
+This is a multi-part message in MIME format.
 
-Well you can do that all from userspace basically.
-At least you should be able to do it as well as you can from
-kernel (providing you have a syscall/device to retrieve events).
+--Boundary_(ID_6BIBSR3OAprzuGGLZg5hvA)
+Content-type: text/plain; charset=ISO-8859-15; format=flowed
+Content-transfer-encoding: 7BIT
 
-> 
->>OK, for a simple example, instead of spinning on yield(), do a
->>down() on a locked mutex.
->>Then have maybe an `atomic_t nr_running` which is incremented for
->>each worker task running. When they are ready to stop, they can
->>do an atomic_dec_and_test of nr_running, and the last one can up()
->>the mutex. If you absolutely need to know when the process is
->>actually stopped, why?
-> 
-> 
-> I need to ensure that the internal state of the processes will not
-> change (unless of course some other signal gets delivered, which will
-> not be the case).
-> 
+Log file as requested...
 
-They won't change *much*. Nothing that is detectable from userspace
-(except for perhaps /proc entries).
+Cheers
+Mitch
 
-> It doesn't look like the problem is with the task that is spinning
-> until the others have stopped.  Instead, it looks like one of the
-> other tasks is spinning somewhere in between the time that it wakes up
-> its successor and the time that it sends it self the STOP signal.  It
-> is clearly getting preempted but then makes no progress (sometimes for
-> a VERY long time).
+-------- Original Message --------
+Subject: Re: [RFT/PATCH] KVMS, mouse losing sync and going crazy
+Date: Mon, 9 May 2005 01:02:33 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Mitch <Mitch@0Bits.COM>
+CC: linux-kernel@vger.kernel.org
+References: <427EF9D5.2010606@0Bits.COM>
+
+On Monday 09 May 2005 00:49, Mitch wrote:
+> I applied your v4 patch, and that fixes it somewhat insomuch as it it 
+> working, but it keeps resetting itself if i stop using it for a few 
+> milliseconds, so the mouse appears sluggish as it performs a reset 
+> whenever i use it. Here are the messages i see (100's of them).
 > 
+> ALPS Touchpad (Dualpoint) detected
+>    Disabling hardware tapping
+> input: AlpsPS/2 ALPS TouchPad on isa0060/serio1
+> psmouse.c: resync failed, issuing reconnect request
+> psmouse.c: resync failed, issuing reconnect request
+> ALPS Touchpad (Dualpoint) detected
+>    Disabling hardware tapping
+> input: AlpsPS/2 ALPS TouchPad on isa0060/serio1
+> psmouse.c: resync failed, issuing reconnect request
+> ALPS Touchpad (Dualpoint) detected
+>    Disabling hardware tapping
+> input: AlpsPS/2 ALPS TouchPad on isa0060/serio1
+>
 
-Well it is a bit difficult to help further because you haven't posted
-the working code or said what you are trying to do.
+Could you please do the following:
 
-Stick a few printks around the place or try a kernel debugger to see
-if you can't work out what is going wrong. Compiling the kernel with
-debug info can allow you to find out what line of code EIP is pointing
-to, which can also be helpful.
+1. Reboot with the patch applied
+2. "echo 1 > /sys/modules/i8042/parameters/debug"
+3. Wait 5-10 seconds
+4. Touch your touchpad briefly
+5. "echo 0 > /sys/modules/i8042/parameters/debug"
+6. send me dmesg
+
+Thanks!
 
 -- 
-SUSE Labs, Novell Inc.
+Dmitry
 
+--Boundary_(ID_6BIBSR3OAprzuGGLZg5hvA)
+Content-type: application/gzip; name=log.gz
+Content-transfer-encoding: BASE64
+Content-disposition: inline; filename=log.gz
+
+H4sICO7+fkIAA2xvZwC9nEGO2zgQRfc5hZYZIJkmKZIijWBukBMEs1DL9IyRbrtj
+2YPk9qMECJK4nHIJ/MVdOov/8D+LZImi/H780nW5s2Zj0saH7uk4jU//Hudz97Gc
+DuVp073Mz8fLXP6cNt2pzF8OU7cb909l+6bbz/Nlf/hn+e/peDiU6bz869OlzOdX
+73+o5o3pb6huT/v/yml+2B9eLueHuZz2x4d9Mt595eSpe/e2+/Zn93p/OJfT6fJy
+ftN9fFyo9o/ugx0G70z/968gm9eCdrvboPHyeQG5b6RsfPbVpK3v3v71nTQdn5/H
+wxYovzM/yb+Mp/G5LGaQgFGWVNZNql6+PLJJ1QNkSQVTPyYmyUihnmRkpKEZSbXO
+QqiPrIxMnSEAwjoLoqSqF3lw/oB5ntj8m83zmFQrFSBvuL0DARAmNdTPCS4pgHyJ
+XFIAgDCpZFSTAsjzSQEA0qR0awogfyepZjWVrWpSAPmSuaQAAGlSzfqpDFncBaRo
+6mdk9DKS06wzhDzbOSAAsjqLuj0uQp7tHBAAYVJWtcdCyJeBSwoAECbldGcfQJ5P
+CgCQJlX/LMsmVS9/J6l6gDCpXrVzQMiznQMCIE0qVpOck5EAi7uM5OtnpJV1Dl61
+l0fI8zMSABDWWVB9PkTI80kBANKkVE/2EfJ3kmp1sh+jbk0B5HeBSwoBECalWlND
+BCwjXFIU4IxOUsNwvfOuJ3FJAeT5pBAAYVLX3Rw4qXr5O0kBALKk0vXswyYFkGe7
+UQRAmBQ5MVtPclZGun5Tv55khKT6tcsI09OdkQB5fkYiAKKkEnnTDU0KIc8mBQHI
+krKq+yFCnk8KARAmdX1iBk6qXv5OUgCALClXvyJySQHkd55LCgGQJdVfn2RgkwLI
+s7e8IABhUtenS+Ck6uXZt6oIgDApf33ih00KIM8nBQAIkwr1PSKXFECeTwoAECZF
+TjKwSQHk+b0PARAmpdqjZ4A8e0sQAZAllXVPYhDyu55LqtlJTB5UV3SEfOT6KQRA
+mFTSrSmAPHvTAwGQJqW7TgHkDTv7AABhUuRLBmxSAHm2S0AApEmp9ugIefa5DwKQ
+JGWNISuiXT3ov7ll99MHS9nFnjz0rwb533zy8SvIkw5Lx9GNQ8TVoEniKJH7ic5p
+OOoN3R5Xg/yjCETqW8dRSORYQMdRoLuAjqNoG41RtI3GKJLPgbQchVZjBCgGmaPU
+aIwGR7ZuHUcDubmn5Sg0mkcD+dpKyxFtr5Qc0Y1Px1FyjcYouUZjlOj1EiVH9PRk
+9YfoMkeZjNFqkMhRpl2QjqNMLqpqOaItsZIj8nGeliN600XFkb/x2KLiaAGRlUHJ
+kSert5Ij32qM6NOEkiP6NKHjyNpGY2RtozGygGKQOfKtxig1qjpLe28dR4723jqO
+HO29lRzR3lvJUWizw3pHe28lR7T31nHU095bx1HvGo1RH8lLaiVHsT46maNGvfcC
+arTW+Ua99wJqNI/80Ghl8K1679Cq96a/c6TlqFXvHeiNIiVHrXrv0Kr3DoC1bhI5
+omud13C0VDd5Kl8N8lsRiKwMOo4crbrVoEniyNGqWw0yRQAa+voxSiIQLe9bP0fJ
+OxKU91LdxNFqUBKAoqGvdVaD7P2fwsyx//pU/j/34mYDylMAAA==
+
+--Boundary_(ID_6BIBSR3OAprzuGGLZg5hvA)--

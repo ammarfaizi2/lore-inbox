@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261434AbVEIQNd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbVEIQdW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261434AbVEIQNd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 12:13:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbVEIQNd
+	id S261446AbVEIQdW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 12:33:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbVEIQdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 12:13:33 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:18609 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261434AbVEIQN1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 12:13:27 -0400
-Message-ID: <427F8DE2.50DAD436@tv-sign.ru>
-Date: Mon, 09 May 2005 20:20:50 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Daniel Walker <dwalker@mvista.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>
-Subject: Re: [PATCH 2/4] rt_mutex: add new plist implementation
-References: <Pine.LNX.4.44.0505090840010.14167-100000@dhcp153.mvista.com>
-Content-Type: text/plain; charset=koi8-r
+	Mon, 9 May 2005 12:33:22 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:7598 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261446AbVEIQdT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 12:33:19 -0400
+Subject: Re: The return of PWC
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Rob van Nieuwkerk <robn@berrymount.nl>
+Cc: "Nemosoft Unv." <nemosoft@smcc.demon.nl>, Greg Kroah <greg@kroah.com>,
+       Luc Saillard <luc@saillard.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050504052747.76f3e9c2.robn@berrymount.nl>
+References: <200505020229.35129@smcc.demon.nl>
+	 <20050504052747.76f3e9c2.robn@berrymount.nl>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1115656299.1448.53.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 09 May 2005 17:31:39 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Walker wrote:
->
-> On Mon, 9 May 2005, Oleg Nesterov wrote:
->
-> > This patch adds new plist implementation, see
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=111547290706136
-> >
-> > Changes:
-> >
-> > 	added plist_next_entry() helper (was plist_entry)
-> >
-> > 	added plist_unhashed() helper, see PATCH 4/4
-> >
->
-> 	Naw , stick with Inaky's API ..
+> Oh boy, it's Nemosoft time again ..
+> 
+> Just some interesting information for people not familiar with
+> you and the PWC story:
 
-This patch breaks Inaky's API anyway, plist_del() now has only one
-argument, and I think this is good.
+>     +--------------------------------------------------------------+
+>     | The NDA you signed with Philips concerning the decompression |
+>     | algorithms used by PWC HAS EXPIRED ALMOST 2 YEARS AGO !!!    |
+>     +--------------------------------------------------------------+
 
-I don't mind doing s/plist_next_entry/plist_entry/ if you wish,
-but I think this is consistent with plist_next/plist_prev helpers.
 
-And original plist_empty() is confusing. When used on plist's head
-it is ok, but it is wrong to use plist_empty(&plist_node).
+The points he raised still seem valid to me. You may not like the
+messenger but the message does need looking into and right now I think
+he has a real point. Still waiting for his 'philips contact' to drop me
+a note so I can get it all sorted out nicely.
 
-> Your stuff looks nothing like list.h ..
+Alan
 
-Is it bad?
-
-Yes, plist_empty/plist_unhashed mimics hlist_empty/hlist_unhashed.
-
-Oleg.

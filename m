@@ -1,74 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261511AbVEIUf0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261513AbVEIUiY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261511AbVEIUf0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 16:35:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbVEIUf0
+	id S261513AbVEIUiY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 16:38:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261515AbVEIUiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 16:35:26 -0400
-Received: from graphe.net ([209.204.138.32]:50961 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S261511AbVEIUfS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 16:35:18 -0400
-Date: Mon, 9 May 2005 13:35:12 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Oleg Nesterov <oleg@tv-sign.ru>
-cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC][PATCH] timers fixes/improvements
-In-Reply-To: <424E6441.12A6BC03@tv-sign.ru>
-Message-ID: <Pine.LNX.4.58.0505091312490.27740@graphe.net>
-References: <424D373F.1BCBF2AC@tv-sign.ru> <424E6441.12A6BC03@tv-sign.ru>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.9
+	Mon, 9 May 2005 16:38:24 -0400
+Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:16301 "EHLO
+	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S261513AbVEIUiQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 16:38:16 -0400
+Date: Mon, 9 May 2005 22:38:08 +0200
+From: Martin Waitz <tali@admingilde.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] DocBook: only use tabular style for long synopsis
+Message-ID: <20050509203808.GT3562@admingilde.org>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have some strange race conditions as a result of the timer
-scalability fixes.
+hoi :)
 
-ptype_all is set to 0x10:0x10 on faster systems (Xeon 3.6Ghz).
-Slower systems do fine(Xeon 3.0Ghz) and do not corrupt ptype_all.
+there was a complaint that function declarations are shown tabular
+in the documentation since switching to xmlto.
+This patch disables tabular mode when the function fits in one line.
 
-Its not clear to me how ptype_all could relate to timer operations but
-if I apply these timer patches I get ptype_all corruption.
+---
+ Documentation/DocBook/stylesheet.xsl |    1 +
+ 1 files changed, 1 insertion(+)
 
-timers-fixes-improvements.patch
-timers-fixes-improvements-smp_processor_id-fix.patch
-timers-fixes-improvements-fix.patch
-timer-deadlock-fix
-(It does not matter if the last three are applied)
+Index: linux-docbook/Documentation/DocBook/stylesheet.xsl
+===================================================================
+--- linux-docbook.orig/Documentation/DocBook/stylesheet.xsl	2005-05-02 09:16:19.000000000 +0200
++++ linux-docbook/Documentation/DocBook/stylesheet.xsl	2005-05-09 22:28:46.328079051 +0200
+@@ -2,4 +2,5 @@
+ <stylesheet xmlns="http://www.w3.org/1999/XSL/Transform" version="1.0">
+ <param name="chunk.quietly">1</param>
+ <param name="funcsynopsis.style">ansi</param>
++<param name="funcsynopsis.tabular.threshold">80</param>
+ </stylesheet>
 
-I put some printk's in an get the following output (2.6.12-rc4 + patches):
-
-net_dev_init: ptype_all = c0569e20:c0569e20
-Machine check exception polling timer started.
-No per-cpu room for modules.
-highmem bounce pool size: 64 pages
-Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
-SGI XFS with large block numbers, no debug enabled
-Intel E7520/7320/7525 detected.<6>ACPI: Power Button (FF) [PWRF]
-PNP: No PS/2 controller found. Probing ports directly.
-serio: i8042 AUX port at 0x60,0x64 irq 12
-serio: i8042 KBD port at 0x60,0x64 irq 1
-Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing disabled
-ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-io scheduler noop registered
-io scheduler anticipatory registered
-io scheduler deadline registered
-io scheduler cfq registered
-floppy0: no floppy controllers found
-loop: loaded (max 8 devices)
-Intel(R) PRO/1000 Network Driver - version 5.7.6-k2
-Copyright (c) 1999-2004 Intel Corporation.
-ACPI: PCI Interrupt
-register_netdevice eth%d: ptype_all = 00000010:00000010
-ptype_all corrupted = 00000010:00000010. ptype_all fixed up
-10 9e 56 c0 10 9e 56 c0 18 9e 56 c0 18 9e 56 c0 10 00 00 00 10 00 00 00 00 00 00 00 00 00 00 00
-e1000: eth0: e1000_probe: Intel(R) PRO/1000 Network Connection
-ACPI: PCI Interrupt
-register_netdevice eth%d: ptype_all = c0569e20:c0569e20
-
+-- 
+Martin Waitz

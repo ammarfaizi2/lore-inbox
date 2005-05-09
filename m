@@ -1,147 +1,170 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbVEILjT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbVEILrf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbVEILjT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 07:39:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbVEILjT
+	id S261267AbVEILrf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 07:47:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbVEILrf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 07:39:19 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:18646 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261252AbVEILjC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 07:39:02 -0400
-Subject: Re: [PATCH 2.6.12-rc3-mm3] connector: add a fork connector
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-To: Alexander Nyberg <alexn@dsv.su.se>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Jay Lan <jlan@engr.sgi.com>, aq <aquynh@gmail.com>,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>
-In-Reply-To: <1115631107.936.25.camel@localhost.localdomain>
-References: <1115626029.8548.24.camel@frecb000711.frec.bull.fr>
-	 <1115631107.936.25.camel@localhost.localdomain>
-Date: Mon, 09 May 2005 13:38:44 +0200
-Message-Id: <1115638724.8540.59.camel@frecb000711.frec.bull.fr>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 09/05/2005 13:49:18,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 09/05/2005 13:49:28,
-	Serialize complete at 09/05/2005 13:49:28
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
+	Mon, 9 May 2005 07:47:35 -0400
+Received: from mail28.syd.optusnet.com.au ([211.29.133.169]:42409 "EHLO
+	mail28.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261267AbVEILrU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 07:47:20 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: ck@vds.kolivas.org, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [ck] Re: [PATCH] implement nice support across physical cpus on SMP
+Date: Mon, 9 May 2005 21:47:05 +1000
+User-Agent: KMail/1.8
+Cc: Markus =?iso-8859-1?q?T=F6rnqvist?= <mjt@nysv.org>,
+       linux-kernel@vger.kernel.org, AndrewMorton <akpm@osdl.org>,
+       Carlos Carvalho <carlos@fisica.ufpr.br>
+References: <20050509112446.GZ1399@nysv.org>
+In-Reply-To: <20050509112446.GZ1399@nysv.org>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_620fCH2PJk0sKdZ"
+Message-Id: <200505092147.06384.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-05-09 at 11:31 +0200, Alexander Nyberg wrote:
-> > +static inline void fork_connector(pid_t parent, pid_t child)
-> > +{
-> > +	if (cn_fork_enable) {
-> > +		struct cn_msg *msg;
-> > +		struct cn_fork_msg *forkmsg;
-> > +		__u8 buffer[CN_FORK_MSG_SIZE];	
-> > +
-> > +		msg = (struct cn_msg *)buffer;
-> > +			
-> > +		memcpy(&msg->id, &cb_fork_id, sizeof(msg->id));
-> > +		
-> > +		msg->ack = 0; /* not used */
-> > +		msg->seq = get_cpu_var(fork_counts)++;
-> > +
-> > +		msg->len = CN_FORK_INFO_SIZE;
-> > +		forkmsg = (struct cn_fork_msg *)msg->data;
-> > +		forkmsg->cpu = smp_processor_id();
-> > +		forkmsg->ppid = parent;
-> > +		forkmsg->cpid = child;
-> > +
-> > +		put_cpu_var(fork_counts);
-> > +
-> > +		cn_netlink_send(msg, CN_IDX_FORK, GFP_ATOMIC);
-> 
-> Why is this GFP_ATOMIC?
+--Boundary-00=_620fCH2PJk0sKdZ
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-In the previous connector, cn_netlink_send(struct cn_msg *msg, u32
-__groups) called alloc_skb(size, GFP_ATOMIC). Now a third parameter is
-used with cn_netlink_send() in order to call alloc_skb(size, gfp_mask)
-with a specific gfp_mask. So, I'm using GFP_ATOMIC as the third argument
-to keep the same behavior.
+On Mon, 9 May 2005 21:24, Markus T=F6rnqvist wrote:
+> I beg to differ with Mr. Carvalho's assesment with this patch;
+> it works like a charm, and then some.
+>
+> The rest of the message is just my analysis of the situation
+> ran on a Dell PowerEdge 2850, dual hyperthread Xeon EM64Ts, with
+> Debian Pure64 Sarge installed.
 
-> > +	}
-> > +}
-> > +#else
-> > +static inline void fork_connector(pid_t parent, pid_t child) 
-> > +{
-> > +	return; 
-> > +}
-> > +#endif /* CONFIG_FORK_CONNECTOR */
-> > +#endif /* __KERNEL__ */
-> > +
-> > +#endif /* CN_FORK_H */
-> > Index: linux-2.6.12-rc3-mm3/include/linux/connector.h
-> > ===================================================================
-> > --- linux-2.6.12-rc3-mm3.orig/include/linux/connector.h	2005-05-09 07:45:56.000000000 +0200
-> > +++ linux-2.6.12-rc3-mm3/include/linux/connector.h	2005-05-09 09:50:01.000000000 +0200
-> > @@ -26,6 +26,8 @@
-> >  
-> >  #define CN_IDX_CONNECTOR		0xffffffff
-> >  #define CN_VAL_CONNECTOR		0xffffffff
-> > +#define CN_IDX_FORK			0xfeed  /* fork events */
-> > +#define CN_VAL_FORK			0xbeef
-> >  
-> >  /*
-> >   * Maximum connector's message size.
-> > Index: linux-2.6.12-rc3-mm3/kernel/fork.c
-> > ===================================================================
-> > --- linux-2.6.12-rc3-mm3.orig/kernel/fork.c	2005-05-09 07:45:56.000000000 +0200
-> > +++ linux-2.6.12-rc3-mm3/kernel/fork.c	2005-05-09 08:03:15.000000000 +0200
-> > @@ -41,6 +41,7 @@
-> >  #include <linux/profile.h>
-> >  #include <linux/rmap.h>
-> >  #include <linux/acct.h>
-> > +#include <linux/cn_fork.h>
-> >  
-> >  #include <asm/pgtable.h>
-> >  #include <asm/pgalloc.h>
-> > @@ -63,6 +64,14 @@ DEFINE_PER_CPU(unsigned long, process_co
-> >  
-> >  EXPORT_SYMBOL(tasklist_lock);
-> >  
-> > +#ifdef CONFIG_FORK_CONNECTOR
-> > +/* 
-> > + * fork_counts is used by the fork_connector() inline routine as 
-> > + * the sequence number of the netlink message.
-> > + */
-> > +static DEFINE_PER_CPU(unsigned long, fork_counts); 
-> > +#endif /* CONFIG_FORK_CONNECTOR */
-> > +
-> 
-> The above should go into cn_fork.c
+Thanks for feedback.
 
-I don't see why. It's used by fork_connector which is an inline routine
-so, IMHO, 'fork_counts' must be defined here and declared in
-include/linux/cn_fork.h
+>   PID USER      PR  NI  VIRT  SHR S %CPU %MEM    TIME+  #C COMMAND
+>  3917 mjt       26   0  5660  936 R 99.9  0.0   3:37.61  0 load_base.sh
+>  3918 mjt       25   0  5660  936 R 99.9  0.0   3:37.60  3 load_base.sh
+>  3916 mjt       26   0  5660  936 R 52.7  0.0   2:02.37  2 load_base.sh
+>  3919 mjt       39  19  5660  936 R  7.0  0.0   0:13.80  1 load_base.sh
+>  3920 mjt       39  19  5660  936 R  3.0  0.0   0:06.05  2 load_base.sh
+>
+> top - 11:09:24 up 15:30,  2 users,  load average: 4.99, 3.55, 1.63
+>   PID USER      PR  NI  VIRT  SHR S %CPU %MEM    TIME+  #C COMMAND
+>  3917 mjt       25   0  5660  936 R 99.6  0.0   6:11.35  0 load_base.sh
+>  3918 mjt       24   0  5660  936 R 99.6  0.0   6:11.34  3 load_base.sh
+>  3916 mjt       39   0  5660  936 R 65.7  0.0   3:28.95  2 load_base.sh
+>  3919 mjt       39  19  5660  936 R  7.0  0.0   0:23.54  1 load_base.sh
+>  3920 mjt       39  19  5660  936 R  3.0  0.0   0:10.33  2 load_base.sh
 
-> >  int nr_processes(void)
-> >  {
-> >  	int cpu;
-> > @@ -1252,6 +1261,8 @@ long do_fork(unsigned long clone_flags,
-> >  			if (unlikely (current->ptrace & PT_TRACE_VFORK_DONE))
-> >  				ptrace_notify ((PTRACE_EVENT_VFORK_DONE << 8) | SIGTRAP);
-> >  		}
-> > +		
-> > +		fork_connector(current->pid, p->pid);
-> 
-> Are you sure this is what you want? ->pid has a special meaning to the
-> kernel and doesn't necessarily mean the same to user-space, so I think
-> you want ->tgid here. If you look at sys_getpid() and sys_gettid()
-> you'll see what I mean.
+These runs don't look absolutely "ideal" as one nice 19 task is bound to cp=
+u1=20
+however since you're running hyperthreading it would seem the SMT nice code=
+=20
+is keeping that under check anyway (0:23 vs 6:11)
 
-Yes, I think you're right. If I look the code of the BSD process
-accounting they're using the field ->tgid to get the process ID. I fix
-that.
+> top - 11:12:32 up 15:33,  2 users,  load average: 4.99, 4.22, 2.24
+>   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  #C COMMAND
+>  3917 mjt       35   0  5660 1136  936 R 99.9  0.0   9:28.56  0
+> load_base.sh 3918 mjt       34   0  5660 1136  936 R 99.5  0.0   9:28.54 =
+ 3
+> load_base.sh 3916 mjt       35   0  5660 1136  936 R 61.7  0.0   5:19.77 =
+ 2
+> load_base.sh 3919 mjt       39  19  5660 1136  936 R  6.0  0.0   0:36.07 =
+ 1
+> load_base.sh 3920 mjt       39  19  5660 1136  936 R  3.0  0.0   0:15.82 =
+ 2
+> load_base.sh
+>
+> $ ./load.sh 7
+> top - 11:13:49 up 15:35,  2 users,  load average: 5.17, 4.40, 2.45
+>   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  #C COMMAND
+>  3952 mjt       29   0  5660 1140  936 R 99.9  0.0   0:33.53  2
+> load_base.sh 3950 mjt       31   0  5660 1140  936 R 99.5  0.0   0:33.33 =
+ 1
+> load_base.sh 3953 mjt       30   0  5660 1140  936 R 55.7  0.0   0:16.82 =
+ 3
+> load_base.sh 3951 mjt       39   0  5660 1140  936 R 43.8  0.0   0:16.70 =
+ 3
+> load_base.sh 3949 mjt       39   0  5660 1140  936 R 23.9  0.0   0:13.18 =
+ 0
+> load_base.sh 3954 mjt       39  19  5660 1140  936 R  2.0  0.0   0:00.64 =
+ 0
+> load_base.sh 3955 mjt       39  19  5660 1140  936 R  2.0  0.0   0:00.64 =
+ 0
+> load_base.sh
+>
+> top - 11:14:53 up 15:36,  2 users,  load average: 6.38, 4.91, 2.76
+>   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  #C COMMAND
+>  3950 mjt       23   0  5660 1140  936 R 99.9  0.0   1:39.67  1
+> load_base.sh 3952 mjt       21   0  5660 1140  936 R 99.9  0.0   1:39.87 =
+ 2
+> load_base.sh 3951 mjt       39   0  5660 1140  936 R 52.7  0.0   0:49.91 =
+ 3
+> load_base.sh 3953 mjt       22   0  5660 1140  936 R 47.8  0.0   0:49.95 =
+ 3
+> load_base.sh 3949 mjt       39   0  5660 1140  936 R 43.8  0.0   0:38.70 =
+ 0
+> load_base.sh 3954 mjt       39  19  5660 1140  936 R  2.0  0.0   0:01.90 =
+ 0
+> load_base.sh 3955 mjt       39  19  5660 1140  936 R  2.0  0.0   0:01.90 =
+ 0
 
-Thank you very much for your comments,
-Best regards,
+These runs pretty much confirm what I found to happen. My test machine for=
+=20
+this was also 4x. I can't see how the code would behave differently on 2x.=
+=20
+Perhaps if I make the prio_bias multiplied instead of added to the cpu load=
+=20
+it will be less affected by SCHED_LOAD_SCALE. The attached patch was=20
+confirmed during testing to also provide smp distribution according to nice=
+=20
+on 4x. Carlos I know your machine is in production so you testing may not b=
+e=20
+easy for you. Please try this on top if you have time.
 
-Guillaume
+Cheers,
+Con
 
+=2D--
+This patch alters the effect priority bias has on busy rebalancing by=20
+multiplying the cpu load by the total priority instead of adding it.
+
+Signed-off-by: Con Kolivas <kernel@kolivas.org>
+
+--Boundary-00=_620fCH2PJk0sKdZ
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="alter_prio_bias.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="alter_prio_bias.diff"
+
+Index: linux-2.6.11-smpnice/kernel/sched.c
+===================================================================
+--- linux-2.6.11-smpnice.orig/kernel/sched.c	2005-05-07 23:25:15.000000000 +1000
++++ linux-2.6.11-smpnice/kernel/sched.c	2005-05-09 21:42:02.000000000 +1000
+@@ -953,8 +953,8 @@ static inline unsigned long source_load(
+ 		 * If we are balancing busy runqueues the load is biased by
+ 		 * priority to create 'nice' support across cpus.
+ 		 */
+-		cpu_load += rq->prio_bias;
+-		load_now += rq->prio_bias;
++		cpu_load *= rq->prio_bias;
++		load_now *= rq->prio_bias;
+ 	}
+ 	return min(cpu_load, load_now);
+ }
+@@ -969,8 +969,8 @@ static inline unsigned long target_load(
+ 		load_now = rq->nr_running * SCHED_LOAD_SCALE;
+ 
+ 	if (idle == NOT_IDLE) {
+-		cpu_load += rq->prio_bias;
+-		load_now += rq->prio_bias;
++		cpu_load *= rq->prio_bias;
++		load_now *= rq->prio_bias;
+ 	}
+ 	return max(cpu_load, load_now);
+ }
+
+--Boundary-00=_620fCH2PJk0sKdZ--

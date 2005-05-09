@@ -1,26 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbVEIJSf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261178AbVEIJRV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261219AbVEIJSf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 05:18:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbVEIJSe
+	id S261178AbVEIJRV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 05:17:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbVEIJPS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 05:18:34 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:52665 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261174AbVEIJSI (ORCPT
+	Mon, 9 May 2005 05:15:18 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:42680 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261174AbVEIJLx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 05:18:08 -0400
-Date: Mon, 9 May 2005 11:17:09 +0200
+	Mon, 9 May 2005 05:11:53 -0400
+Date: Mon, 9 May 2005 11:11:33 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: kus Kusche Klaus <kus@keba.com>
-Cc: linux-kernel@vger.kernel.org, inaky.perez-gonzalez@intel.com,
-       dwalker@mvista.com
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-00
-Message-ID: <20050509091709.GA27126@elte.hu>
-References: <AAD6DA242BC63C488511C611BD51F367323202@MAILIT.keba.co.at>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+       linux-kernel@vger.kernel.org, Daniel Walker <dwalker@mvista.com>
+Subject: Re: [PATCH] Priority Lists for the RT mutex
+Message-ID: <20050509091133.GA25959@elte.hu>
+References: <F989B1573A3A644BAB3920FBECA4D25A0331776B@orsmsx407> <427C6D7D.878935F1@tv-sign.ru> <20050509073043.GA12976@elte.hu> <427F1A99.58BCCB88@tv-sign.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <AAD6DA242BC63C488511C611BD51F367323202@MAILIT.keba.co.at>
+In-Reply-To: <427F1A99.58BCCB88@tv-sign.ru>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -32,29 +32,26 @@ X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* kus Kusche Klaus <kus@keba.com> wrote:
 
-> > i have released the -V0.7.47-00 Real-Time Preemption patch, 
-> > which can be 
-> > downloaded from the usual place:
+* Oleg Nesterov <oleg@tv-sign.ru> wrote:
+
+> > i've uploaded my latest tree to:
 > > 
 > >     http://redhat.com/~mingo/realtime-preempt/
 > > 
-> > this patch reintroduces the plist.h code from Daniel Walker and Inaky 
-> > Perez-Gonzalez. It's also a merge to 2.6.12-rc4.
-> > 
-> > to build a -V0.7.47-00 tree, the following patches have to be applied:
-> > 
-> >    http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.11.tar.bz2
-> >    
-> > http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.12-rc4.bz2
-> >    
-> >
-> http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.12-rc4-V0
-> .7.47-00
 > 
-> It lacks "plist.h", but two "#include" refer to it?
+> Ok, I'll try to do it. Do you have any comments/objections to
+> "[RFC][PATCH] alternative implementation of Priority Lists", see
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=111547290706136
+> ?
 
-yeah - patch messup. I've uploaded -01 which adds the missing file.
+i havent reviewed them closely, but on the face of it the changes seem 
+plausible.
+
+What would be nice to achieve are [low-cost] reductions of the size of 
+struct rt_mutex (in include/linux/rt_lock.h), upon which all other 
+PI-aware locking objects are based. Right now it's 9 words, of which 
+struct plist is 5 words. Would be nice to trim this to 8 words - which 
+would give a nice round size of 32 bytes on 32-bit.
 
 	Ingo

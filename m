@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbVEIMn4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbVEIMqZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261345AbVEIMn4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 08:43:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbVEIMn4
+	id S261357AbVEIMqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 08:46:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbVEIMqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 08:43:56 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:36826 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261345AbVEIMnz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 08:43:55 -0400
-Subject: Re: [PATCH 2.6.12-rc3-mm3] connector: add a fork connector
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-To: Alexander Nyberg <alexn@dsv.su.se>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Jay Lan <jlan@engr.sgi.com>, aq <aquynh@gmail.com>,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>
-In-Reply-To: <1115641352.936.45.camel@localhost.localdomain>
-References: <1115626029.8548.24.camel@frecb000711.frec.bull.fr>
-	 <1115631107.936.25.camel@localhost.localdomain>
-	 <1115638724.8540.59.camel@frecb000711.frec.bull.fr>
-	 <1115641352.936.45.camel@localhost.localdomain>
-Date: Mon, 09 May 2005 14:43:47 +0200
-Message-Id: <1115642627.8548.68.camel@frecb000711.frec.bull.fr>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 09/05/2005 14:54:21,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 09/05/2005 14:54:22,
-	Serialize complete at 09/05/2005 14:54:22
+	Mon, 9 May 2005 08:46:25 -0400
+Received: from mail.suse.de ([195.135.220.2]:19638 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261349AbVEIMqQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 08:46:16 -0400
+Message-ID: <427F230E.4040906@suse.de>
+Date: Mon, 09 May 2005 10:45:02 +0200
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041207 Thunderbird/1.0 Mnenhy/0.7.2.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Shawn Starr <spstarr@sh0n.net>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Shawn Starr <shawn.starr@rogers.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.12-rc3][SUSPEND] qla1280 (QLogic 12160 Ultra3) blows up
+ on A7M266-D
+References: <20050503181018.37973.qmail@web88008.mail.re2.yahoo.com> <20050507082548.GA18700@infradead.org> <427CC24F.9010304@suse.de> <200505090245.05662.spstarr@sh0n.net>
+In-Reply-To: <200505090245.05662.spstarr@sh0n.net>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-05-09 at 14:22 +0200, Alexander Nyberg wrote:
-> 
-> And before any abi sets itself I think you might want to consider
-> including both thread & process id of parent & child. This way the
-> user-space client can distinguish what is a thread and a group leader
-> although I admittedly don't know all your goals with this, just a
-> thought.
+Shawn Starr wrote:
+> Well, it makes sense,
 
-Yes I completely agree :)
+I tend to disagree
 
-  I will include both thread & process id of parent and child in the
-next release. I also removed the DEFINE_PER_CPU(...) from kernel/fork.c
-and I use a call instead of putting the code in the header file.
+> normally you won't find SCSI on
 
-Thank you for your comments,
-Best regards,
+low-end-
 
-Guillaume
+> desktops so why bother 
+> with suspend.
+
+One example: developers often have SCSI systems. They cannot help fixing
+their (audio|video|network card) drivers because they cannot test it.
+
+> I don't know if the cards can do it or not, since they need 
+> their firmware loaded at driver init.
+
+Lots of drivers do this without much problems. Wireless cards are a
+prime example.
+
+> The firmware would need to be modified 
+> to support such state?
+
+I don't believe so.
+-- 
+seife
+                                 Never trust a computer you can't lift.
 

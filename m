@@ -1,72 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbVEITWp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261479AbVEITZg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261485AbVEITWp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 15:22:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbVEITWp
+	id S261479AbVEITZg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 15:25:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbVEITYb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 15:22:45 -0400
-Received: from mail.tmr.com ([64.65.253.246]:51211 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S261485AbVEITWh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 15:22:37 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
+	Mon, 9 May 2005 15:24:31 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:37532 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261479AbVEITWu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 15:22:50 -0400
+Message-ID: <427FA557.3030400@tmr.com>
+Date: Mon, 09 May 2005 14:00:55 -0400
 From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: /proc/cpuinfo format - arch dependent!
-Date: Mon, 09 May 2005 14:14:14 -0400
-Organization: TMR Associates, Inc
-Message-ID: <427FA876.7000401@tmr.com>
-References: <20050507172005.GB26088@redhat.com><20050507172005.GB26088@redhat.com> <20050508012521.GA24268@SDF.LONESTAR.ORG>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1115666539 7980 192.168.12.100 (9 May 2005 19:22:19 GMT)
-X-Complaints-To: abuse@tmr.com
-Cc: Dave Jones <davej@redhat.com>, Willy Tarreau <willy@w.ods.org>,
-       Andrew Morton <akpm@osdl.org>, Ricky Beam <jfbeam@bluetronic.net>,
-       nico-kernel@schottelius.org, linux-kernel@vger.kernel.org
-To: Jim Nance <jlnance@sdf.lonestar.org>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
 X-Accept-Language: en-us, en
-In-Reply-To: <20050508012521.GA24268@SDF.LONESTAR.ORG>
+MIME-Version: 1.0
+To: Ricky Beam <jfbeam@bluetronic.net>
+CC: Nico Schottelius <nico-kernel@schottelius.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: /proc/cpuinfo format - arch dependent!
+References: <20050419121530.GB23282@schottelius.org> <Pine.GSO.4.33.0505062324550.1894-100000@sweetums.bluetronic.net>
+In-Reply-To: <Pine.GSO.4.33.0505062324550.1894-100000@sweetums.bluetronic.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Nance wrote:
-> On Sat, May 07, 2005 at 01:20:05PM -0400, Dave Jones wrote:
+Ricky Beam wrote:
+> On Tue, 19 Apr 2005, Nico Schottelius wrote:
 > 
->>On Sat, May 07, 2005 at 07:05:56PM +0200, Willy Tarreau wrote:
-> 
-> 
->> > system "hey, I'd like this type of workload, how many process should
->> > I start, and where should I bind them ?".
->>
->>I think generalising this and having a method to do this in the kernel
->>is a much better idea than each application parsing this themselves.
->>Things are only getting more and more complex as time goes on,
->>and I don't trust application developers to get it right.
+>>When I wrote schwanz3(*) for fun, I noticed /proc/cpuinfo
+>>varies very much on different architectures.
 > 
 > 
-> As a developer of a multiprocess/multithreaded application I can assure
-> you that you are right not to trust application developers to get this
-> right.  The idea that a programmer understands the behavior of the
-> applications they write is largely a myth.  Furthermore, I suspect
-> that SMT will evolve in directions that make the idea of a processor
-> more and more fuzzy.  I don't think it is wise to construct any
-> interface that suggests knowing the hardware details is good, or that
-> processes should be bound by userland.  Certainly it is sometimes
-> necessary for userland to do this, but we should look at that as a
-> bug in the kernel.
+> Yep, and it has been this way since the begining of time.
+> 
+> 
+>>So that one at least can count the cpus on every system the same way.
+> 
+> 
+> Hah.  Give me a minute to stop laughing...  I argued the same point almost
+> a decade ago.  Linus decided to be an ass and flat refused to ever export
+> numcpu (or any of the current day derivatives) which brought us to the
+> bullshit of parsing the arch dependant /proc/cpuinfo.
 
-Might I suggest that if you like the "we know best just trust us" 
-approach, there is another OS to use. Making information available to 
-good applications will improve system performance, or at least allow 
-better limitation of requests for resources, and bad applications will 
-be bad regardless of what you hide. You don't hide the CPU hardware any 
-more than the memory size.
+Don't ever take up a career as a diplomat, no one in their right mind 
+would want such a tactless person for a diplomatic job, say UN ambasador 
+for instance.
+
+Linus did what was probably right then. I would agree that there is room 
+for something better now. Just to prove it could be done (not that this 
+is the only or best way):
+
+   cpu0 {
+     socket: 0
+     chip-cache: 0
+     num-core: 2
+     per-core-cache: 512k
+     num-siblings: 2
+     sibling-cache: 0
+     family: i86
+     features: sse2 sse3 xxs bvd
+     # stepping and revision info
+   }
+   cpu1 {
+     socket: 1
+     chip-cache: 0
+     num-core: 1
+     pre-core-cache: 512k
+     num-siblings: 2
+     sibling-cache: 64k
+     family: i86
+     features: sse2 sse3 xxs bvd kook2
+     # stepping and revision info
+   }
+
+This is just proof of concept, you can have per-chip, per-core, and 
+per-sibling cache for instance, but I can't believe that anyone would 
+make a chip where the cache per core or per sibling differed, or the 
+instruction set, etc. Depending on where you buy your BS, Intel and AMD 
+will (or won't) make single and dual core chips to fit the same socket.
+
+The complexity wasn't needed a decade ago, and I'm not sure it is now, 
+other than it being easy to display if people don't complain about 
+breaking the existing format.
 
 -- 
     -bill davidsen (davidsen@tmr.com)
 "The secret to procrastination is to put things off until the
   last possible moment - but no longer"  -me
+

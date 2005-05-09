@@ -1,60 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261524AbVEIVHe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261526AbVEIVIC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261524AbVEIVHe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 17:07:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbVEIVHe
+	id S261526AbVEIVIC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 17:08:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbVEIVIB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 17:07:34 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:11273 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261524AbVEIVH1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 17:07:27 -0400
-Message-Id: <200505092107.j49L7J7C028882@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: KC <kcc1967@gmail.com>
-Cc: Erik Mouw <erik@harddisk-recovery.com>, linux-kernel@vger.kernel.org
-Subject: Re: proc_mknod() replacement 
-In-Reply-To: Your message of "Tue, 10 May 2005 01:06:08 +0800."
-             <5eb4b065050509100638bd7970@mail.gmail.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <5eb4b06505050904172655477c@mail.gmail.com> <20050509154147.GC5799@harddisk-recovery.com>
-            <5eb4b065050509100638bd7970@mail.gmail.com>
+	Mon, 9 May 2005 17:08:01 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29592 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261526AbVEIVHu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 17:07:50 -0400
+Date: Mon, 9 May 2005 22:07:53 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: Alexander Nyberg <alexn@telia.com>, Antoine Martin <antoine@nagafix.co.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11.8 + UML/x86_64 (2.6.12-rc3+) = oops
+Message-ID: <20050509210753.GA1150@parcelfarce.linux.theplanet.co.uk>
+References: <20050504191828.620C812EE7@sc8-sf-spam2.sourceforge.net> <1115248927.12088.52.camel@cobra> <1115392141.12197.3.camel@cobra> <1115483506.12131.33.camel@cobra> <1115481468.925.9.camel@localhost.localdomain> <20050507180356.GA10793@ccure.user-mode-linux.org> <20050508001832.GA32143@parcelfarce.linux.theplanet.co.uk> <20050508061044.GB32143@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1115672835_6742P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 09 May 2005 17:07:16 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050508061044.GB32143@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1115672835_6742P
-Content-Type: text/plain; charset=us-ascii
+On Sun, May 08, 2005 at 07:10:44AM +0100, Al Viro wrote:
+> 	r) when built static, kernel dies ugly death with
+> #0  0x00000000601e4178 in ptmalloc_init () at swab.h:134
+> #1  0x00000000601e4034 in malloc_hook_ini () at swab.h:134
+> #2  0x00000000601e1698 in malloc () at swab.h:134
+> #3  0x00000000602068ee in _dl_init_paths () at swab.h:134
+> #4  0x00000000601eba45 in _dl_non_dynamic_init () at swab.h:134
+> #5  0x00000000601ebc60 in __libc_init_first () at swab.h:134
+> #6  0x00000000601cfa4f in __libc_start_main () at swab.h:134
+> #7  0x000000006001202a in _start () at proc_fs.h:183
+> as stack trace.  Buggered offsets in uml.lds, perhaps?
 
-On Tue, 10 May 2005 01:06:08 +0800, KC said:
+Apparently solved by adding .tdata and .tbss to uml.lds.S.  That change does
+not give any visible regression on i386.
 
-> Why I want to use proc_mknod() in driver ?  I write a small package, ovi-dev,
-> which can be downloaded from
-> http://www.sourceforge.net/projects/ovi
-> The ovi-dev will scan the PCI bus and if it found, eg, 3 PCI devices, it
-> will create 3 device entries (nodes) automatically at module load time.
-> So number of device entries (nodes) will match number of devices
-> of the system ... well, UNIX/Linux doesn't work that way ... there are a lot
-> of device entries ... but no corresponding hardware existed.
-
-Congrats.  You've re-invented udev.
-
-
-
---==_Exmh_1115672835_6742P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCf9EDcC3lWbTT17ARArMPAJ0YYmrvwJ9jicTQb6hAcV0piZhR4gCeL1ro
-nT6fb+dsA6bLk4+DP71PraQ=
-=2pNL
------END PGP SIGNATURE-----
-
---==_Exmh_1115672835_6742P--
+	s) i386 TT-only won't compile, due to mispaced include in
+sysdep/ptrace.h (under ifdef for skas).  Trivial fix apparently gets it
+to work correctly.  Which is surprising - when running that sucker on
+amd64 we get zero from
+        *host_size_out = ROUND_4M((unsigned long) &arg);
+Of course, the real size rounded up to 4M is 4Gb there - 32bit tasks do not
+have to share the lower 4Gb of address space with the kernel.  Looks like
+we survive, though - it boots and apparently works both on i386 and (as
+32bit process) on amd64.
+	t) amd64 TT-only builds just fine, but gets buggered due to
+mismatch between CONFIG_TOP_ADDR and start address - we get *both* set
+to 0x60000000, which is obviously b0rken and doesn't match the old
+code, while we are at it.  We want TOP_ADDR at 0x80000000 to match start
+address.
+	u) amd64 TT is _still_ buggered due to unmap_fin.o attempts at
+magic.  errno sits in TLS for amd64, so unmap_fin.o gets very interesting
+stuff leaking from libc and messing the link.  IMO that should be dealt
+with by brute force; namely, unmap-$(SUBARCH).S instead of trying to
+play games with pulling stuff from libc.a.  For fsck sake, we are just
+making 3 syscalls there and switcheroo() is as low-level as it gets...
+Will post once that's done...

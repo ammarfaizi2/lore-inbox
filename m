@@ -1,151 +1,306 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbVEINun@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbVEIN6N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261371AbVEINun (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 09:50:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261373AbVEINun
+	id S261367AbVEIN6N (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 09:58:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261373AbVEIN6N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 09:50:43 -0400
-Received: from smtp.blackdown.de ([213.239.206.42]:39110 "EHLO
-	smtp.blackdown.de") by vger.kernel.org with ESMTP id S261371AbVEINuW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 09:50:22 -0400
-From: Juergen Kreileder <jk@blackdown.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Stephen Frost <sfrost@snowman.net>, netfilter-devel@lists.netfilter.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] ipt_recent fixes
-X-PGP-Key: http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0x730A28A5
-X-PGP-Fingerprint: 7C19 D069 9ED5 DC2E 1B10  9859 C027 8D5B 730A 28A5
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, Stephen Frost
-	<sfrost@snowman.net>, netfilter-devel@lists.netfilter.org,
-	linux-kernel@vger.kernel.org
-Date: Mon, 09 May 2005 15:50:09 +0200
-Message-ID: <87ll6o1pbi.fsf@blackdown.de>
-Organization: Blackdown Java-Linux Team
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 9 May 2005 09:58:13 -0400
+Received: from mailfe02.swip.net ([212.247.154.33]:11238 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S261367AbVEIN5w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 09:57:52 -0400
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Subject: Re: [PATCH 2.6.12-rc3-mm3] connector: add a fork connector
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Jay Lan <jlan@engr.sgi.com>, aq <aquynh@gmail.com>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>
+In-Reply-To: <1115644436.8540.83.camel@frecb000711.frec.bull.fr>
+References: <1115626029.8548.24.camel@frecb000711.frec.bull.fr>
+	 <1115644436.8540.83.camel@frecb000711.frec.bull.fr>
+Content-Type: text/plain
+Date: Mon, 09 May 2005 15:57:41 +0200
+Message-Id: <1115647061.936.76.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> Index: linux-2.6.12-rc3-mm3/drivers/connector/cn_fork.c
+> ===================================================================
+> --- linux-2.6.12-rc3-mm3.orig/drivers/connector/cn_fork.c	2003-01-30 11:24:37.000000000 +0100
+> +++ linux-2.6.12-rc3-mm3/drivers/connector/cn_fork.c	2005-05-09 14:36:22.000000000 +0200
+> @@ -0,0 +1,132 @@
+> +/*
+> + * cn_fork.c - Fork connector
+> + *
+> + * Copyright (C) 2005 BULL SA.
+> + * Written by Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+> + * 
+> + * This module implements the fork connector. It allows to send a
+> + * netlink datagram, when enabled, from the do_fork() routine. The 
+> + * message can be read by a user space application. By this way, 
+> + * the user space application is alerted when a fork occurs.
+> + *
+> + * It uses the userspace <-> kernelspace connector that works on top of
+> + * the netlink protocol. The fork connector is enabled or disabled by
+> + * sending a message to the connector. The unique sequence number of
+> + * messages can be used to check if a message is lost.  
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/kernel.h>
+> +#include <linux/init.h>
+> +
+> +#include <linux/cn_fork.h>
+> +
+> +#define CN_FORK_INFO_SIZE	sizeof(struct cn_fork_msg)
+> +#define CN_FORK_MSG_SIZE 	(sizeof(struct cn_msg) + CN_FORK_INFO_SIZE)
+> +
+> +static int cn_fork_enable = 0;
+> +struct cb_id cb_fork_id = { CN_IDX_FORK, CN_VAL_FORK };
+> +
+> +/* fork_counts is used as the sequence number of the netlink message */
+> +static DEFINE_PER_CPU(unsigned long, fork_counts);
+> +
+> +void fork_connector(pid_t thread, pid_t parent, pid_t child)
+> +{
+> +	if (cn_fork_enable) {
+> +		struct cn_msg *msg;
+> +		struct cn_fork_msg *forkmsg;
+> +		__u8 buffer[CN_FORK_MSG_SIZE];	
+> +
+> +		msg = (struct cn_msg *)buffer;
+> +			
+> +		memcpy(&msg->id, &cb_fork_id, sizeof(msg->id));
+> +		
+> +		msg->ack = 0; /* not used */
+> +		msg->seq = get_cpu_var(fork_counts)++;
+> +
+> +		msg->len = CN_FORK_INFO_SIZE;
+> +		forkmsg = (struct cn_fork_msg *)msg->data;
+> +		forkmsg->cpu = smp_processor_id();
+> +		forkmsg->tgid = thread;
+> +		forkmsg->ppid = parent;
+> +		forkmsg->cpid = child;
+> +
+> +		put_cpu_var(fork_counts);
+> +
+> +		cn_netlink_send(msg, CN_IDX_FORK, GFP_KERNEL|__GFP_NOFAIL);
+> +	}
+> +}
+> +EXPORT_SYMBOL_GPL(fork_connector);
 
-I've had some ipt_recent rules acting strangely after an uptime of
-about 25 days.  The broken behavior is reproducible in the 5 minutes
-before the first jiffies roll-over right after booting too.
+the export symbol police will get you for this, any intended users?
 
-The cause of the problem is the jiffies comparision which doesn't work
-like intended if one of the last hits was more than LONG_MAX seconds
-ago or if the table of last hits contains empty slots and jiffies
-is > LONG_MAX.
+> +
+> +static inline void cn_fork_send_status(void)
+> +{
+> +	/* TODO: An informational line in log is maybe not enough... */
+> +	printk(KERN_INFO "cn_fork_enable == %d\n", cn_fork_enable);
+> +}
+> +
+> +/**
+> + * cn_fork_callback - enable or disable the fork connector
+> + * @data: message send by the connector 
+> + *
+> + * The callback allows to enable or disable the sending of information
+> + * about fork in the do_fork() routine. To enable the fork, the user 
+> + * space application must send the integer 1 in the data part of the 
+> + * message. To disable the fork connector, it must send the integer 0.
+> + */
+> +static void cn_fork_callback(void *data) 
+> +{
+> +	struct cn_msg *msg = data;
+> +	int action;
+> +
+> +	if (cn_already_initialized && (msg->len == sizeof(cn_fork_enable))) {
+> +		memcpy(&action, msg->data, sizeof(cn_fork_enable));
+> +		switch(action) {
+> +			case FORK_CN_START:
+> +				cn_fork_enable = 1;
+> +				break;
+> +			case FORK_CN_STOP:
+> +				cn_fork_enable = 0;
+> +				break;
+> +			case FORK_CN_STATUS:
+> +				cn_fork_send_status();
 
-This patch fixes the problem by using get_seconds() instead of
-jiffies.  It also fixes some 64-bit issues.
+Why does this not pass down the status to the app asking about it
+instead?
+
+> +				break;
+> +		}
+> +	}
+> +}
+> +
+> +/**
+> + * cn_fork_init - initialization entry point
+> + *
+> + * This routine will be run at kernel boot time because this driver is
+> + * built in the kernel. It adds the connector callback to the connector 
+> + * driver.
+> + */
+> +int __init cn_fork_init(void)
+> +{
+> +	int err;
+> +	
+> +	err = cn_add_callback(&cb_fork_id, "cn_fork", &cn_fork_callback);
+> +	if (err) {
+> +		printk(KERN_WARNING "Failed to register cn_fork\n");
+> +		return -EINVAL;
+> +	}	
+> +		
+> +	printk(KERN_NOTICE "cn_fork is registered\n");
+> +	return 0;
+> +}
+> +
+> +__initcall(cn_fork_init);
+> Index: linux-2.6.12-rc3-mm3/include/linux/cn_fork.h
+> ===================================================================
+> --- linux-2.6.12-rc3-mm3.orig/include/linux/cn_fork.h	2003-01-30 11:24:37.000000000 +0100
+> +++ linux-2.6.12-rc3-mm3/include/linux/cn_fork.h	2005-05-09 14:34:36.000000000 +0200
+> @@ -0,0 +1,54 @@
+> +/*
+> + * cn_fork.h - Fork connector
+> + *
+> + * Copyright (C) 2005 Nguyen Anh Quynh <aquynh@gmail.com>
+> + * Copyright (C) 2005 Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+> + * 
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+> + */
+> +
+> +#ifndef CN_FORK_H
+> +#define CN_FORK_H
+> +
+> +#include <linux/connector.h>
+> +
+> +#define FORK_CN_STOP	0
+> +#define FORK_CN_START	1
+> +#define FORK_CN_STATUS	2
+> +
+> +struct cn_fork_msg
+> +{
+> +	int cpu;	/* ID of the cpu where the fork occured */
+> +	pid_t tgid;	/* thread leader PID */
+> +	pid_t ppid;	/* the parent PID */
+> +	pid_t cpid;	/* the child PID  */
+> +};
+> +
+
+What I meant here was something like:
+struct cn_fork_msg {
+	int cpu;
+	pid_t ppid;	/* parent process id */
+	pid_t ptid;	/* parent thread id */
+	pid_t cpid;	/* child process id */
+	pid_t ctid;	/* child thread id */
+
+};
+
+Now if cpid == ctid it is a group leader but you cannot know this
+otherwise. I don't know if you specifically need this but there may be
+other users, and this is more complete. If not you may receive multiple
+messages with the same child pid. Again I don't know how much you care.
+
+As this is shared with user-space the fields need to switched like this:
+ppid = current->tgid, 
+ptid = current->pid,
+cpid = p->tgid, 
+ctid = current->pid
+
+and perhaps a comment to explain why we assign the fields like this.
+Please think through what you need to pass down to user-space, it's
+important.
+
+> +/* Code above is only inside the kernel */
+> +#ifdef __KERNEL__
+> +
+> +extern int cn_already_initialized;
+
+this should go into linux/connector.h
+
+> +#ifdef CONFIG_FORK_CONNECTOR
+> +extern void fork_connector(pid_t, pid_t, pid_t);
+> +#else
+> +static inline void fork_connector(pid_t thread, pid_t parent, pid_t child) 
+> +{ 
+> +	return; 
+> +}
+> +#endif /* CONFIG_FORK_CONNECTOR */
+> +
+> +#endif /* __KERNEL__ */
+> +#endif /* CN_FORK_H */
+> Index: linux-2.6.12-rc3-mm3/include/linux/connector.h
+> ===================================================================
+> --- linux-2.6.12-rc3-mm3.orig/include/linux/connector.h	2005-05-09 07:45:56.000000000 +0200
+> +++ linux-2.6.12-rc3-mm3/include/linux/connector.h	2005-05-09 09:50:01.000000000 +0200
+> @@ -26,6 +26,8 @@
+>  
+>  #define CN_IDX_CONNECTOR		0xffffffff
+>  #define CN_VAL_CONNECTOR		0xffffffff
+> +#define CN_IDX_FORK			0xfeed  /* fork events */
+> +#define CN_VAL_FORK			0xbeef
+>  
+>  /*
+>   * Maximum connector's message size.
+> Index: linux-2.6.12-rc3-mm3/kernel/fork.c
+> ===================================================================
+> --- linux-2.6.12-rc3-mm3.orig/kernel/fork.c	2005-05-09 07:45:56.000000000 +0200
+> +++ linux-2.6.12-rc3-mm3/kernel/fork.c	2005-05-09 14:23:04.000000000 +0200
+> @@ -41,6 +41,7 @@
+>  #include <linux/profile.h>
+>  #include <linux/rmap.h>
+>  #include <linux/acct.h>
+> +#include <linux/cn_fork.h>
+>  
+>  #include <asm/pgtable.h>
+>  #include <asm/pgalloc.h>
+> @@ -1252,6 +1253,8 @@ long do_fork(unsigned long clone_flags,
+>  			if (unlikely (current->ptrace & PT_TRACE_VFORK_DONE))
+>  				ptrace_notify ((PTRACE_EVENT_VFORK_DONE << 8) | SIGTRAP);
+>  		}
+> +		
+> +		fork_connector(current->tgid, current->pid, p->pid);
+
+With your current implementation this is wrong, first two args should
+switched, third arg should be p->tgid. The differences between kernel
+and user pid must be hidden as you share struct cn_fork_msg with
+user-space.
+
+>  	} else {
+>  		free_pidmap(pid);
+>  		pid = PTR_ERR(p);
+> 
+> 
 
 
-        Juergen
-
-Signed-off-by: Juergen Kreileder <jk@blackdown.de>
-
-diff --exclude=arch --exclude-from=Documentation/dontdiff -ur ../linux-2.6.12-rc3-mm3/include/linux/netfilter_ipv4/ipt_recent.h ./include/linux/netfilter_ipv4/ipt_recent.h
---- ../linux-2.6.12-rc3-mm3/include/linux/netfilter_ipv4/ipt_recent.h	2005-03-02 08:38:10.000000000 +0100
-+++ ./include/linux/netfilter_ipv4/ipt_recent.h	2005-05-09 14:50:40.000000000 +0200
-@@ -2,7 +2,7 @@
- #define _IPT_RECENT_H
- 
- #define RECENT_NAME	"ipt_recent"
--#define RECENT_VER	"v0.3.1"
-+#define RECENT_VER	"v0.3.2"
- 
- #define IPT_RECENT_CHECK  1
- #define IPT_RECENT_SET    2
-diff --exclude=arch --exclude-from=Documentation/dontdiff -ur ../linux-2.6.12-rc3-mm3/net/ipv4/netfilter/ipt_recent.c ./net/ipv4/netfilter/ipt_recent.c
---- ../linux-2.6.12-rc3-mm3/net/ipv4/netfilter/ipt_recent.c	2005-03-02 08:37:48.000000000 +0100
-+++ ./net/ipv4/netfilter/ipt_recent.c	2005-05-09 15:06:58.000000000 +0200
-@@ -15,6 +15,7 @@
- #include <linux/ctype.h>
- #include <linux/ip.h>
- #include <linux/vmalloc.h>
-+#include <linux/time.h>
- #include <linux/moduleparam.h>
- 
- #include <linux/netfilter_ipv4/ip_tables.h>
-@@ -64,7 +65,7 @@
- 
- struct time_info_list {
- 	u_int32_t position;
--	u_int32_t time;
-+	unsigned long time;
- };
- 
- /* Structure of our linked list of tables of recent lists. */
-@@ -223,7 +224,7 @@
- 			curr_table->table[count].last_seen = 0;
- 			curr_table->table[count].addr = 0;
- 			curr_table->table[count].ttl = 0;
--			memset(curr_table->table[count].last_pkts,0,ip_pkt_list_tot*sizeof(u_int32_t));
-+			memset(curr_table->table[count].last_pkts,0,ip_pkt_list_tot*sizeof(unsigned long));
- 			curr_table->table[count].oldest_pkt = 0;
- 			curr_table->table[count].time_pos = 0;
- 			curr_table->time_info[count].position = count;
-@@ -418,8 +419,8 @@
- 	if(debug) printk(KERN_INFO RECENT_NAME ": match(): checking table, addr: %u, ttl: %u, orig_ttl: %u\n",addr,ttl,skb->nh.iph->ttl);
- #endif
- 
--	/* Get jiffies now in case they changed while we were waiting for a lock */
--	now = jiffies;
-+	/* Get time now in case it changed while we were waiting for a lock */
-+	now = get_seconds();
- 	hash_table = curr_table->hash_table;
- 	time_info = curr_table->time_info;
- 
-@@ -502,7 +503,7 @@
- 		location = time_info[curr_table->time_pos].position;
- 		hash_table[r_list[location].hash_entry] = -1;
- 		hash_table[hash_result] = location;
--		memset(r_list[location].last_pkts,0,ip_pkt_list_tot*sizeof(u_int32_t));
-+		memset(r_list[location].last_pkts,0,ip_pkt_list_tot*sizeof(unsigned long));
- 		r_list[location].time_pos = curr_table->time_pos;
- 		r_list[location].addr = addr;
- 		r_list[location].ttl = ttl;
-@@ -528,11 +529,11 @@
- 		if(info->check_set & IPT_RECENT_CHECK || info->check_set & IPT_RECENT_UPDATE) {
- 			if(!info->seconds && !info->hit_count) ans = !info->invert; else ans = info->invert;
- 			if(info->seconds && !info->hit_count) {
--				if(time_before_eq(now,r_list[location].last_seen+info->seconds*HZ)) ans = !info->invert; else ans = info->invert;
-+				if(now <= r_list[location].last_seen+info->seconds) ans = !info->invert; else ans = info->invert;
- 			}
- 			if(info->seconds && info->hit_count) {
- 				for(pkt_count = 0, hits_found = 0; pkt_count < ip_pkt_list_tot; pkt_count++) {
--					if(time_before_eq(now,r_list[location].last_pkts[pkt_count]+info->seconds*HZ)) hits_found++;
-+					if(now <= r_list[location].last_pkts[pkt_count]+info->seconds) hits_found++;
- 				}
- 				if(hits_found >= info->hit_count) ans = !info->invert; else ans = info->invert;
- 			}
-@@ -631,7 +632,7 @@
- 			r_list[location].last_seen = 0;
- 			r_list[location].addr = 0;
- 			r_list[location].ttl = 0;
--			memset(r_list[location].last_pkts,0,ip_pkt_list_tot*sizeof(u_int32_t));
-+			memset(r_list[location].last_pkts,0,ip_pkt_list_tot*sizeof(unsigned long));
- 			r_list[location].oldest_pkt = 0;
- 			ans = !info->invert;
- 		}
-@@ -734,10 +735,10 @@
- 	memset(curr_table->table,0,sizeof(struct recent_ip_list)*ip_list_tot);
- #ifdef DEBUG
- 	if(debug) printk(KERN_INFO RECENT_NAME ": checkentry: Allocating %d for pkt_list.\n",
--			sizeof(u_int32_t)*ip_pkt_list_tot*ip_list_tot);
-+			sizeof(unsigned long)*ip_pkt_list_tot*ip_list_tot);
- #endif
- 
--	hold = vmalloc(sizeof(u_int32_t)*ip_pkt_list_tot*ip_list_tot);
-+	hold = vmalloc(sizeof(unsigned long)*ip_pkt_list_tot*ip_list_tot);
- #ifdef DEBUG
- 	if(debug) printk(KERN_INFO RECENT_NAME ": checkentry: After pkt_list allocation.\n");
- #endif
-=
-
--- 
-Juergen Kreileder, Blackdown Java-Linux Team
-http://blog.blackdown.de/

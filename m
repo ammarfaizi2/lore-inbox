@@ -1,67 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261433AbVEIPtw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbVEIP4g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261433AbVEIPtw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 11:49:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbVEIPtw
+	id S261440AbVEIP4g (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 11:56:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261441AbVEIP4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 11:49:52 -0400
-Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:42976
-	"EHLO pinky.shadowen.org") by vger.kernel.org with ESMTP
-	id S261433AbVEIPta (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 11:49:30 -0400
-To: akpm@osdl.org
-Subject: sparsemem ppc64 tidy flat memory comments and fix benign mempresent call
-Cc: anton@samba.org, apw@shadowen.org, haveblue@us.ibm.com, kravetz@us.ibm.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       linuxppc64-dev@ozlabs.org, olof@lixom.net, paulus@samba.org
-In-Reply-To: <427A59BC.1020208@shadowen.org>
-Message-Id: <E1DVAVE-00012m-Pq@pinky.shadowen.org>
-From: Andy Whitcroft <apw@shadowen.org>
-Date: Mon, 09 May 2005 16:49:04 +0100
+	Mon, 9 May 2005 11:56:35 -0400
+Received: from picard.ine.co.th ([203.152.41.3]:62668 "EHLO picard.ine.co.th")
+	by vger.kernel.org with ESMTP id S261440AbVEIP4c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 11:56:32 -0400
+Subject: Re: kernel (64bit) 4GB memory support
+From: Rudolf Usselmann <rudi@asics.ws>
+Reply-To: rudi@asics.ws
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: "Frank Denis (Jedi/Sector One)" <j@pureftpd.org>,
+       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+In-Reply-To: <Pine.LNX.4.61.0412210955130.28648@montezuma.fsmlabs.com>
+References: <41BAC68D.6050303@pobox.com> <1102760002.10824.170.camel@cpu0>
+	 <41BB32A4.2090301@pobox.com> <1102824735.17081.187.camel@cpu0>
+	 <Pine.LNX.4.61.0412112141180.7847@montezuma.fsmlabs.com>
+	 <1102828235.17081.189.camel@cpu0>
+	 <Pine.LNX.4.61.0412120131570.7847@montezuma.fsmlabs.com>
+	 <1102842902.10322.200.camel@cpu0>
+	 <Pine.LNX.4.61.0412120934160.14734@montezuma.fsmlabs.com>
+	 <1103027130.3650.73.camel@cpu0>  <20041216074905.GA2417@c9x.org>
+	 <1103213359.31392.71.camel@cpu0>
+	 <Pine.LNX.4.61.0412201246180.12334@montezuma.fsmlabs.com>
+	 <1103646195.3652.196.camel@cpu0>
+	 <Pine.LNX.4.61.0412210930280.28648@montezuma.fsmlabs.com>
+	 <1103647158.3659.199.camel@cpu0>
+	 <Pine.LNX.4.61.0412210955130.28648@montezuma.fsmlabs.com>
+Content-Type: text/plain
+Organization: ASICS.ws - Solutions for your ASICS & FPGA needs -
+Date: Mon, 09 May 2005 22:56:25 +0700
+Message-Id: <1115654185.3296.658.camel@cpu10>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was going to rediff the memory present patches, but as -mm has
-picked these up already here is a simple patch to clean up this
-errant comment and address a benign call to memory_present().
-Applies onto the existing patches.
+On Tue, 2004-12-21 at 09:56 -0700, Zwane Mwaikambo wrote:
+> On Tue, 21 Dec 2004, Rudolf Usselmann wrote:
+> 
+> > On Tue, 2004-12-21 at 23:33, Zwane Mwaikambo wrote:
+> > > 
+> > > Ok don't worry about trying to isolate it, there should be a fix for it by 
+> > > 2.6.10.
+> > > 
+> > > Thanks,
+> > > 	Zwane
+> > 
+> > Well, if somebody is working on it, I would be happy to very the
+> > fixes and assist in providing additional debugging information.
+> > Please don't take my previous email the wrong way - I do want to
+> > help any way I can ...
+> 
+> Not to worry, if you'd like to be notified when the bug is resolved or a 
+> patch is immediately available you may open a bug on bugzilla.kernel.org, 
+> upon completion just send me the bug number and i'll assign myself as the 
+> owner.
+> 
+> Thanks again,
+> 	Zwane
 
--apw
 
-Tidy up the comments for the ppc64 flat memory support and fix
-a currently benign double call to memory_present() for the first
-memory block.
 
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
+Just curious, did anybody ever look in to this at all ? I keep
+on downloading new kernels and trying 4GB of memory - still no
+luck.
 
----
- init.c |    9 +++++----
- 1 files changed, 5 insertions(+), 4 deletions(-)
+I did file a bug report but didn't get any notifications at all.
+I don't subscribe to the linux-kernel list so not sure if anything
+ever came up or not.
 
-diff -upN reference/arch/ppc64/mm/init.c current/arch/ppc64/mm/init.c
---- reference/arch/ppc64/mm/init.c
-+++ current/arch/ppc64/mm/init.c
-@@ -631,18 +631,19 @@ void __init do_init_bootmem(void)
- 
- 	max_pfn = max_low_pfn;
- 
--	/* add all physical memory to the bootmem map. Also, find the first
--	 * presence of all LMBs*/
-+	/* Add all physical memory to the bootmem map, mark each area
-+	 * present.  The first block has already been marked present above.
-+	 */
- 	for (i=0; i < lmb.memory.cnt; i++) {
- 		unsigned long physbase, size;
- 
- 		physbase = lmb.memory.region[i].physbase;
- 		size = lmb.memory.region[i].size;
--		if (i) { /* already created mappings for first LMB */
-+		if (i) {
- 			start_pfn = physbase >> PAGE_SHIFT;
- 			end_pfn = start_pfn + (size >> PAGE_SHIFT);
-+			memory_present(0, start_pfn, end_pfn);
- 		}
--		memory_present(0, start_pfn, end_pfn);
- 		free_bootmem(physbase, size);
- 	}
- 
+Is there a way to get this fixed ?
+
+Thanks,
+rudi
+=============================================================
+Rudolf Usselmann,  ASICS World Services,  http://www.asics.ws
+Your Partner for IP Cores, Design, Verification and Synthesis
+

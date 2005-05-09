@@ -1,38 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbVEIOZ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261394AbVEIO20@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261383AbVEIOZ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 10:25:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVEIOZ2
+	id S261394AbVEIO20 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 10:28:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbVEIO0E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 10:25:28 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:20911 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261388AbVEIOYz (ORCPT
+	Mon, 9 May 2005 10:26:04 -0400
+Received: from colino.net ([213.41.131.56]:19447 "EHLO paperstreet.colino.net")
+	by vger.kernel.org with ESMTP id S261395AbVEIOZK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 10:24:55 -0400
-Message-ID: <427F746E.612E2CB9@tv-sign.ru>
-Date: Mon, 09 May 2005 18:32:14 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
-       linux-kernel@vger.kernel.org, Daniel Walker <dwalker@mvista.com>
-Subject: Re: [PATCH] Priority Lists for the RT mutex
-References: <F989B1573A3A644BAB3920FBECA4D25A0331776B@orsmsx407> <427C6D7D.878935F1@tv-sign.ru> <20050509073043.GA12976@elte.hu> <427F1A99.58BCCB88@tv-sign.ru> <20050509091133.GA25959@elte.hu>
-Content-Type: text/plain; charset=koi8-r
+	Mon, 9 May 2005 10:25:10 -0400
+Date: Mon, 9 May 2005 16:24:54 +0200
+From: Colin Leroy <colin@colino.net>
+To: linux-kernel@vger.kernel.org
+Cc: linux-usb-devel@lists.sf.net
+Subject: [2.6.12-rc4] network wlan connection goes down
+Message-ID: <20050509162454.1c1c09a9@colin.toulouse>
+X-Mailer: Sylpheed-Claws 1.9.9 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> 
-> What would be nice to achieve are [low-cost] reductions of the size of
-> struct rt_mutex (in include/linux/rt_lock.h), upon which all other
-> PI-aware locking objects are based. Right now it's 9 words, of which
-> struct plist is 5 words. Would be nice to trim this to 8 words - which
-> would give a nice round size of 32 bytes on 32-bit.
+Hi,
 
-Yes, the size of pl_head in that patch is 4 words, it doesn't have ->prio.
+I upgraded to 2.6.12-rc4, and noticed something strange after that.
+After a few hours, the network connection goes down. The network
+connectivity is done via a USB wifi stick driven by zd1201.
 
-Oleg.
+After that, nothing gets through, not even a ping. ifconfig wlan0 shows
+the interface UP and configured; iwconfig shows the Wifi is correctly
+associated with the access point (and the access point's client list
+shows the zd1201's MAC as associated). The LED on the stick is lit as
+usual (when associated). The kernel log doesn't show anything useful.
+
+The connection comes back when running my network configuration script
+again. The script issues four commands:
+iwconfig wlan0 essid foo channel 11 key xx:xx...:xx 
+ifconfig wlan0 192.168.0.11
+route del default
+route add default gw 192.168.0.100
+(I have to find out which of the four commands reenables the
+connection, didn't try yet)
+
+Everything was fine using 2.6.12-rc3; the only zd1201 patch that went
+in 2.6.12-rc4 is "USB: drivers/usb/net/zd1201.c: make some code static"
+by Adrian Bunk, which I think can't be harmful at all.
+
+Would anyone have any hint about what could have changed in the usb
+subsystem (ohci driver) or in the network subsystem, that might cause
+that?
+
+Thanks,
+-- 
+Colin

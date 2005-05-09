@@ -1,79 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbVEIPWW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261424AbVEIPXl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261425AbVEIPWW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 11:22:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261424AbVEIPWW
+	id S261424AbVEIPXl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 11:23:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbVEIPXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 11:22:22 -0400
-Received: from moutng.kundenserver.de ([212.227.126.171]:21186 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S261426AbVEIPVx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 11:21:53 -0400
-Date: Mon, 9 May 2005 17:21:39 +0200
-From: lkml@think-future.de
-To: Linux Kernel-Liste <linux-kernel@vger.kernel.org>
-Subject: bind racoon/ipsec config to specific interfaces?
-Reply-To: Nils Radtke <Nils.Radtke@Think-Future.de>
-Mail-Followup-To: Nils Radtke <Nils.Radtke@Think-Future.de>,
-	Linux Kernel-Liste <linux-kernel@vger.kernel.org>
+	Mon, 9 May 2005 11:23:40 -0400
+Received: from zproxy.gmail.com ([64.233.162.196]:29733 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261424AbVEIPWi convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 11:22:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=BWwaWj/Jp/hO7/5P4eg2aWiI1dl88yHkxFJwwXcreChyJM1Bb1cumJPhOKxzAXEjf0iCNH6rUOKK14nNZCKKG1eYaHk0T2sjM2Bd8gFVtyPb9BxGkDS0P03cioE0UCknGjQ9Xp+5hIVYt9B6x8rCXYXsb9cwnDnx+RPeIyJiwQQ=
+Message-ID: <3993a49805050908221f005d61@mail.gmail.com>
+Date: Mon, 9 May 2005 17:22:38 +0200
+From: Jouke Witteveen <j.witteveen@gmail.com>
+Reply-To: Jouke Witteveen <j.witteveen@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Compile third-party module into the kernel
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="rwEMma7ioTxnRzrJ"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-X-Url: http://www.Think-Future.de
-X-Editor: Vi it! http://www.vim.org
-X-Bkp: p2mi
-X-GnuPG-Key: gpg --keyserver gpg-keyserver.de --recv-keys 06232116
-User-Agent: Mutt/1.5.6+20040907i
-Message-Id: <20050509152140.0D45C144050@service.i-think-future.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:35131867b06e6a502cee335cb348919d
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---rwEMma7ioTxnRzrJ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I'm about to compile my new 2.4.27 (Debian Sarge) kernel. There is
+only one hurdle left to take.
+For my 3C905C-TX-M I wan't to use the latest vendor driver since I
+heard the famous 3c59x is not optimal for that card. The driver of
+choice is: http://support.3com.com/infodeli/tools/nic/linux/3c90x-102.tar.gz.
+How do I compile this source (3c90x.c and 3c90x.h) directly into the
+kernel (not as a module)? And how as a module inside a
+my-kernel_modules.deb like ALSA
+get's compiled?
 
-  Hi,
-
-  is there a viable way to bind the racoon config to a specific
-  interface?
-
-  We need this in order to get transparent ipsec to work.=20
-  So far, the racoon config is global that is, all interfaces are
-  affected. This results from the configurability based on network
-  addresses only.
-  What we have here is a bridge that needs to do an ipsec job.
-
-  Thanks for ideas and hints!
-
-
-    Nils
-
-
---=20
-A+
-* N.Radtke@                 * University of Stuttgart *    icq / lc   *
-*      www.Think-Future.de  *    dep.comp.science     * 9336272/92045 *
-:x                            UTM 32 0515651 5394088                 :)
-   The executioner is, I hear, very expert, and my neck is very
-   slender.   -- Anne Boleyn=20
-  =20
-
---rwEMma7ioTxnRzrJ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Nils Radtke
-
-iD8DBQFCf4ACX3r3ggYjIRYRAv4lAJ45GJVhrnlu2Qz2Akjc3FRrCrSzRwCfWqoW
-JnKIKdxwfzXFm0G0zkx+Jzs=
-=b2oZ
------END PGP SIGNATURE-----
-
---rwEMma7ioTxnRzrJ--
+Kind regards,
+Jouke

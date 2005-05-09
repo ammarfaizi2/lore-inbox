@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbVEIS7R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261501AbVEITBl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261497AbVEIS7R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 14:59:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbVEIS7Q
+	id S261501AbVEITBl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 15:01:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVEITBl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 14:59:16 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:14051 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261497AbVEIS7J
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 14:59:09 -0400
-Subject: Re: [patch] updated inotify.
-From: Robert Love <rml@novell.com>
-To: coywolf@lovecn.org
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       John McCutchan <ttb@tentacle.dhs.org>
-In-Reply-To: <2cd57c9005050911561b9b987@mail.gmail.com>
-References: <1115654707.6734.134.camel@betsy>
-	 <2cd57c90050509104363efed0e@mail.gmail.com>
-	 <1115661400.6734.149.camel@betsy>
-	 <2cd57c9005050911561b9b987@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 09 May 2005 14:58:19 -0400
-Message-Id: <1115665099.6734.154.camel@betsy>
+	Mon, 9 May 2005 15:01:41 -0400
+Received: from fire.osdl.org ([65.172.181.4]:8606 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261501AbVEITBe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 15:01:34 -0400
+Date: Mon, 9 May 2005 12:01:15 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Kristian =?iso-8859-1?Q?S=F8rensen?= <ks@cs.aau.dk>
+Cc: Chris Friesen <cfriesen@nortel.com>, James Morris <jmorris@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Any work in implementing Secure IPC for Linux?
+Message-ID: <20050509190115.GA23013@shell0.pdx.osdl.net>
+References: <Xine.LNX.4.44.0505091058560.5582-100000@thoron.boston.redhat.com> <200505091940.22260.ks@linnovative.dk> <427FA3D4.1080706@nortel.com> <200505092044.29440.ks@cs.aau.dk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200505092044.29440.ks@cs.aau.dk>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-10 at 02:56 +0800, Coywolf Qi Hunt wrote:
+* Kristian S?rensen (ks@cs.aau.dk) wrote:
+> On Monday 09 May 2005 19:54, Chris Friesen wrote:
+> > How about unix sockets?
+> > 	--you can have sockets in the filesystem namespace with regular file
+> > permissions to control who is allowed to send messages to particular
+> > addresses
+> This is the same problem: Basing access control on user and group is not 
+> enough - especially as the root-user can overrule any access control 
+> specified by the normal DAC file attributes.
 
-> This warning is fixed in the previous patch.  It''s not necessary for
-> this update. Better change it back to keep the placeholder one and the
-> real.one of the same declaration.
+If you want the application involved/aware, you can still use finer
+grained credentials, have a look at getpeersec.
 
-I thought so.  Thanks.
-
-My patch is actually fine, except I did not update the other function.
-Anyhow..
-
-	Robert Love
-
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

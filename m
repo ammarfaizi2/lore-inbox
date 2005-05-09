@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbVEIPhQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261429AbVEIPlE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261426AbVEIPhQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 11:37:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261429AbVEIPhQ
+	id S261429AbVEIPlE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 11:41:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbVEIPlD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 11:37:16 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:63623 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261426AbVEIPhL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 11:37:11 -0400
-Subject: Re: Real-Time Preemption: Magic Sysrq p doesn't work
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: kus Kusche Klaus <kus@keba.com>, linux-kernel@vger.kernel.org,
-       dwalker@mvista.com
-In-Reply-To: <20050509140257.GA4714@elte.hu>
-References: <AAD6DA242BC63C488511C611BD51F367323204@MAILIT.keba.co.at>
-	 <20050509140257.GA4714@elte.hu>
-Content-Type: text/plain
-Date: Mon, 09 May 2005 11:37:10 -0400
-Message-Id: <1115653030.7483.24.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 9 May 2005 11:41:03 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:27640 "EHLO
+	dhcp153.mvista.com") by vger.kernel.org with ESMTP id S261429AbVEIPlA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 11:41:00 -0400
+Date: Mon, 9 May 2005 08:40:54 -0700 (PDT)
+From: Daniel Walker <dwalker@mvista.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+cc: Ingo Molnar <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
+       Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>
+Subject: Re: [PATCH 2/4] rt_mutex: add new plist implementation
+In-Reply-To: <427F763B.FEF0EA91@tv-sign.ru>
+Message-ID: <Pine.LNX.4.44.0505090840010.14167-100000@dhcp153.mvista.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-05-09 at 16:02 +0200, Ingo Molnar wrote:
-> * kus Kusche Klaus <kus@keba.com> wrote:
-> 
-> > I've been asked to analyze the various tools and possibilities 
-> > available to debug an RT kernel.
-> > 
-> > Up to now, what I've found is not too impressive:
-> > * Plain GDB can be used to display the current value of kernel variables
-> > symbolically, but no more: It won't tell anything about the kernel's
-> > current activity.
-> > * kgdb and kdb seem to be deeply incompatible with the RT patches (they
-> > mess with the scheduler, interrupts etc.), applying their patches to an
-> > RT tree fails quite impressively.
-> 
-> kgdb is in the -mm tree, and there are periodic ports to the -mm tree. 
-> Someone used it too on PREEMPT_RT - with some success. There's no deep 
-> incompatibility with the -RT kernel - just line-for-line collisions.
 
-That was me.  And it did work.  Ingo is right, I only had to make some
-trivial changes to apply the patch.
 
-Lee
+On Mon, 9 May 2005, Oleg Nesterov wrote:
+
+> This patch adds new plist implementation, see
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=111547290706136
+> 
+> Changes:
+> 
+> 	added plist_next_entry() helper (was plist_entry)
+> 
+> 	added plist_unhashed() helper, see PATCH 4/4
+> 
+
+
+	Naw , stick with Inaky's API .. Your stuff looks nothing like 
+list.h ..
+
+Daniel
 

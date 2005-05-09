@@ -1,57 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbVEIL2j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261250AbVEILbt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261238AbVEIL2j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 07:28:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVEIL2j
+	id S261250AbVEILbt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 07:31:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbVEILbt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 07:28:39 -0400
-Received: from nysv.org ([213.157.66.145]:32938 "EHLO nysv.org")
-	by vger.kernel.org with ESMTP id S261238AbVEIL2h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 07:28:37 -0400
-Date: Mon, 9 May 2005 14:28:28 +0300
-To: linux-kernel@vger.kernel.org
-Cc: ck@vds.kolivas.org, AndrewMorton <akpm@osdl.org>,
-       Carlos Carvalho <carlos@fisica.ufpr.br>
-Subject: Re: [ck] Re: [PATCH] implement nice support across physical cpus on SMP
-Message-ID: <20050509112828.GA1399@nysv.org>
-References: <200505072342.32997.kernel@kolivas.org> <20050509112446.GZ1399@nysv.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="36+Jv5wzUORg1Ut4"
-Content-Disposition: inline
-In-Reply-To: <20050509112446.GZ1399@nysv.org>
-User-Agent: Mutt/1.5.6+20040907i
-From: mjt@nysv.org (Markus  =?ISO-8859-1?Q?=20T=F6rnqvist?=)
+	Mon, 9 May 2005 07:31:49 -0400
+Received: from alog0153.analogic.com ([208.224.220.168]:4579 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261250AbVEILbo
+	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Mon, 9 May 2005 07:31:44 -0400
+Date: Mon, 9 May 2005 07:31:08 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: "aguel.raouf" <aguel.raouf@laposte.net>
+cc: Linux-Kernel <Linux-Kernel@vger.kernel.org>
+Subject: Re: Raouf From Tunisia
+In-Reply-To: <IG7S3H$ECDE8351FD5BB869516C40901B57C29E@laposte.net>
+Message-ID: <Pine.LNX.4.61.0505090729440.27328@chaos.analogic.com>
+References: <IG7S3H$ECDE8351FD5BB869516C40901B57C29E@laposte.net>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="1879706418-512160917-1115638268=:27328"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
---36+Jv5wzUORg1Ut4
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+--1879706418-512160917-1115638268=:27328
+Content-Type: TEXT/PLAIN; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-On Mon, May 09, 2005 at 02:24:46PM +0300, Markus T=F6rnqvist wrote:
->The rest of the message is just my analysis of the situation
+On Mon, 9 May 2005, aguel.raouf wrote:
 
-Typing faster than thinking syndrome, running late for an exam ;)
+>
+> Hi
+>
+>
+> I must modify my distro to not test the status of root
+> directory  (whether it is (is not) writable). For example,
+> Slackware is testing the status of the root partition during
+> boot and if it's read-write,it will display a message and will
+> wait for user input. This is something we don't like, right?
+> Unionfs can't be remounted ro, to skip the test. i will need
+> to do something for my distro.
+> I want to know what i can do, how i can patch my distro
+>
+> thanks have a good day
+>
+> Acc=E9dez au courrier =E9lectronique de La Poste : www.laposte.net ;
+> 3615 LAPOSTENET (0,34EUR/mn) ; t=E9l : 08 92 68 13 50 (0,34EUR/mn)
+>
 
---=20
-mjt
+Not a kernel question. File /etc/rc.sysinit is the init script
+that is executed during startup.
 
 
---36+Jv5wzUORg1Ut4
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFCf0lcIqNMpVm8OhwRAnnmAKDBDimEpkBPbOBB/Amb6FnPa6FeNACfT7DO
-yFzhr5uHV+5rfxI/taIpX+w=
-=Kc+e
------END PGP SIGNATURE-----
-
---36+Jv5wzUORg1Ut4--
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.
+--1879706418-512160917-1115638268=:27328--

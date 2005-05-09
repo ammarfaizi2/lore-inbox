@@ -1,61 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263052AbVEIGCm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263055AbVEIGGE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263052AbVEIGCm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 02:02:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263055AbVEIGCm
+	id S263055AbVEIGGE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 02:06:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263056AbVEIGGE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 02:02:42 -0400
-Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:35249 "HELO
-	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263052AbVEIGCg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 02:02:36 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Mitch <Mitch@0Bits.COM>
-Subject: Re: [RFT/PATCH] KVMS, mouse losing sync and going crazy
-Date: Mon, 9 May 2005 01:02:33 -0500
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org
-References: <427EF9D5.2010606@0Bits.COM>
-In-Reply-To: <427EF9D5.2010606@0Bits.COM>
+	Mon, 9 May 2005 02:06:04 -0400
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:31584 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263065AbVEIGF0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 02:05:26 -0400
+Message-ID: <427EFD9B.7010808@yahoo.com.au>
+Date: Mon, 09 May 2005 16:05:15 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+To: Yuly Finkelberg <liquidicecube@gmail.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduler: Spinning until tasks are STOPPED
+References: <92df3175050506233110a19a60@mail.gmail.com>	 <427C6A5C.6090900@yahoo.com.au>	 <92df3175050507103621a88554@mail.gmail.com>	 <427D8EC3.9040409@yahoo.com.au> <92df317505050817071d852623@mail.gmail.com>
+In-Reply-To: <92df317505050817071d852623@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200505090102.33395.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 09 May 2005 00:49, Mitch wrote:
-> I applied your v4 patch, and that fixes it somewhat insomuch as it it 
-> working, but it keeps resetting itself if i stop using it for a few 
-> milliseconds, so the mouse appears sluggish as it performs a reset 
-> whenever i use it. Here are the messages i see (100's of them).
+Yuly Finkelberg wrote:
+>>Well it still sounds like the kernel is doing too much. For example,
+>>why don't you just have a syscall (or char device) just to send out
+>>the events, and do everything else (all the queueing and
+>>synchronisation and signalling) in userspace?
 > 
-> ALPS Touchpad (Dualpoint) detected
->    Disabling hardware tapping
-> input: AlpsPS/2 ALPS TouchPad on isa0060/serio1
-> psmouse.c: resync failed, issuing reconnect request
-> psmouse.c: resync failed, issuing reconnect request
-> ALPS Touchpad (Dualpoint) detected
->    Disabling hardware tapping
-> input: AlpsPS/2 ALPS TouchPad on isa0060/serio1
-> psmouse.c: resync failed, issuing reconnect request
-> ALPS Touchpad (Dualpoint) detected
->    Disabling hardware tapping
-> input: AlpsPS/2 ALPS TouchPad on isa0060/serio1
->
+> 
+> True, it does :)
+> However, the operation requires that a consistent in-kernel state will
+> hold for the tasks.  They all (except for the last one) do some work,
+> send a SIGSTOP to themselves, and return to usermode (handling the
+> STOP signal).  The last task does not stop itself, but instead
+> verifies that all of the others are stopped before it returns.
+> 
 
-Could you please do the following:
+Well you can do that all from userspace basically.
+At least you should be able to do it as well as you can from
+kernel (providing you have a syscall/device to retrieve events).
 
-1. Reboot with the patch applied
-2. "echo 1 > /sys/modules/i8042/parameters/debug"
-3. Wait 5-10 seconds
-4. Touch your touchpad briefly
-5. "echo 0 > /sys/modules/i8042/parameters/debug"
-6. send me dmesg
+> 
+>>OK, for a simple example, instead of spinning on yield(), do a
+>>down() on a locked mutex.
+>>Then have maybe an `atomic_t nr_running` which is incremented for
+>>each worker task running. When they are ready to stop, they can
+>>do an atomic_dec_and_test of nr_running, and the last one can up()
+>>the mutex. If you absolutely need to know when the process is
+>>actually stopped, why?
+> 
+> 
+> I need to ensure that the internal state of the processes will not
+> change (unless of course some other signal gets delivered, which will
+> not be the case).
+> 
 
-Thanks!
+They won't change *much*. Nothing that is detectable from userspace
+(except for perhaps /proc entries).
+
+> It doesn't look like the problem is with the task that is spinning
+> until the others have stopped.  Instead, it looks like one of the
+> other tasks is spinning somewhere in between the time that it wakes up
+> its successor and the time that it sends it self the STOP signal.  It
+> is clearly getting preempted but then makes no progress (sometimes for
+> a VERY long time).
+> 
+
+Well it is a bit difficult to help further because you haven't posted
+the working code or said what you are trying to do.
+
+Stick a few printks around the place or try a kernel debugger to see
+if you can't work out what is going wrong. Compiling the kernel with
+debug info can allow you to find out what line of code EIP is pointing
+to, which can also be helpful.
 
 -- 
-Dmitry
+SUSE Labs, Novell Inc.
+

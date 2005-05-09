@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261424AbVEIPXl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbVEIPhQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261424AbVEIPXl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 11:23:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbVEIPXk
+	id S261426AbVEIPhQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 11:37:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261429AbVEIPhQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 11:23:40 -0400
-Received: from zproxy.gmail.com ([64.233.162.196]:29733 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261424AbVEIPWi convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 11:22:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=BWwaWj/Jp/hO7/5P4eg2aWiI1dl88yHkxFJwwXcreChyJM1Bb1cumJPhOKxzAXEjf0iCNH6rUOKK14nNZCKKG1eYaHk0T2sjM2Bd8gFVtyPb9BxGkDS0P03cioE0UCknGjQ9Xp+5hIVYt9B6x8rCXYXsb9cwnDnx+RPeIyJiwQQ=
-Message-ID: <3993a49805050908221f005d61@mail.gmail.com>
-Date: Mon, 9 May 2005 17:22:38 +0200
-From: Jouke Witteveen <j.witteveen@gmail.com>
-Reply-To: Jouke Witteveen <j.witteveen@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Compile third-party module into the kernel
+	Mon, 9 May 2005 11:37:16 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:63623 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261426AbVEIPhL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 11:37:11 -0400
+Subject: Re: Real-Time Preemption: Magic Sysrq p doesn't work
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: kus Kusche Klaus <kus@keba.com>, linux-kernel@vger.kernel.org,
+       dwalker@mvista.com
+In-Reply-To: <20050509140257.GA4714@elte.hu>
+References: <AAD6DA242BC63C488511C611BD51F367323204@MAILIT.keba.co.at>
+	 <20050509140257.GA4714@elte.hu>
+Content-Type: text/plain
+Date: Mon, 09 May 2005 11:37:10 -0400
+Message-Id: <1115653030.7483.24.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 2005-05-09 at 16:02 +0200, Ingo Molnar wrote:
+> * kus Kusche Klaus <kus@keba.com> wrote:
+> 
+> > I've been asked to analyze the various tools and possibilities 
+> > available to debug an RT kernel.
+> > 
+> > Up to now, what I've found is not too impressive:
+> > * Plain GDB can be used to display the current value of kernel variables
+> > symbolically, but no more: It won't tell anything about the kernel's
+> > current activity.
+> > * kgdb and kdb seem to be deeply incompatible with the RT patches (they
+> > mess with the scheduler, interrupts etc.), applying their patches to an
+> > RT tree fails quite impressively.
+> 
+> kgdb is in the -mm tree, and there are periodic ports to the -mm tree. 
+> Someone used it too on PREEMPT_RT - with some success. There's no deep 
+> incompatibility with the -RT kernel - just line-for-line collisions.
 
-I'm about to compile my new 2.4.27 (Debian Sarge) kernel. There is
-only one hurdle left to take.
-For my 3C905C-TX-M I wan't to use the latest vendor driver since I
-heard the famous 3c59x is not optimal for that card. The driver of
-choice is: http://support.3com.com/infodeli/tools/nic/linux/3c90x-102.tar.gz.
-How do I compile this source (3c90x.c and 3c90x.h) directly into the
-kernel (not as a module)? And how as a module inside a
-my-kernel_modules.deb like ALSA
-get's compiled?
+That was me.  And it did work.  Ingo is right, I only had to make some
+trivial changes to apply the patch.
 
-Kind regards,
-Jouke
+Lee
+

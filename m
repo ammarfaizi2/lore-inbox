@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVEIXXb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261411AbVEIXpa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261385AbVEIXXb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 19:23:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbVEIXWC
+	id S261411AbVEIXpa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 19:45:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbVEIXpa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 19:22:02 -0400
-Received: from [151.97.230.9] ([151.97.230.9]:32786 "HELO ssc.unict.it")
-	by vger.kernel.org with SMTP id S261392AbVEIXVi (ORCPT
+	Mon, 9 May 2005 19:45:30 -0400
+Received: from fire.osdl.org ([65.172.181.4]:25738 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261411AbVEIXpZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 19:21:38 -0400
-Subject: [patch 2/6] uml: critical change memcpy to memmove [critical, for 2.6.12]
-To: akpm@osdl.org
+	Mon, 9 May 2005 19:45:25 -0400
+Date: Mon, 9 May 2005 16:45:46 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Blaisorblade <blaisorblade@yahoo.it>
 Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
-From: blaisorblade@yahoo.it
-Date: Tue, 10 May 2005 00:45:12 +0200
-Message-Id: <20050509224512.A9DFB13C214@zion>
+       user-mode-linux-devel@lists.sourceforge.net,
+       bstroesser@fujitsu-siemens.com
+Subject: Re: [patch 0/6] latest bugfixes for 2.6.12
+Message-Id: <20050509164546.0d6d136b.akpm@osdl.org>
+In-Reply-To: <200505100110.16920.blaisorblade@yahoo.it>
+References: <200505100110.16920.blaisorblade@yahoo.it>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Blaisorblade <blaisorblade@yahoo.it> wrote:
+>
+> Here are some more fixes intended for 2.6.12 (and well tested). Can you merge 
+> them soon, Andrew? Thanks.
 
-Replace one memcpy() call with overlapping source and dest arguments with one
-call to memmove(), to avoid data corruption.
+Sure.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
+> The first is a particularly bad one since it shows up when you *start* 
+> compiling UML (due to a quilt patch -> normal patch conversion problem, a 
+> file wasn't actually deleted, but it was when applied through quilt). Was 
+> this too quick a merge, maybe? What's your "merging policy" (if any) for 
+> patches?
 
- linux-2.6.12-paolo/arch/um/kernel/irq_user.c |   10 ++++++++--
- 1 files changed, 8 insertions(+), 2 deletions(-)
+Jeff sent in fixes which were dependent on other things I had, we're maybe
+several weeks away from 2.6.12, so I figured there was plenty of time to
+get things fixed up - best to get it all flushed out and fix any fallout
+rather than hang around, given that UML seems to be still changing in
+fairly significant ways.
 
-diff -puN arch/um/kernel/irq_user.c~uml-critical-change-memcpy-to-memmove arch/um/kernel/irq_user.c
---- linux-2.6.12/arch/um/kernel/irq_user.c~uml-critical-change-memcpy-to-memmove	2005-05-02 17:54:20.000000000 +0200
-+++ linux-2.6.12-paolo/arch/um/kernel/irq_user.c	2005-05-02 17:54:20.000000000 +0200
-@@ -236,9 +236,15 @@ static void free_irq_by_cb(int (*test)(s
- 				       (*prev)->fd, pollfds[i].fd);
- 				goto out;
- 			}
--			memcpy(&pollfds[i], &pollfds[i + 1],
--			       (pollfds_num - i - 1) * sizeof(pollfds[0]));
-+
- 			pollfds_num--;
-+
-+			/* This moves the *whole* array after pollfds[i] (though
-+			 * it doesn't spot as such)! */
-+
-+			memmove(&pollfds[i], &pollfds[i + 1],
-+			       (pollfds_num - i) * sizeof(pollfds[0]));
-+
- 			if(last_irq_ptr == &old_fd->next) 
- 				last_irq_ptr = prev;
- 			*prev = (*prev)->next;
-_

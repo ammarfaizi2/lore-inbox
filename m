@@ -1,51 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbVEITWT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbVEITWp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261478AbVEITWT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 15:22:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbVEITWT
+	id S261485AbVEITWp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 15:22:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbVEITWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 15:22:19 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:6865 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261478AbVEITWQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 15:22:16 -0400
-Subject: Re: [PATCH] Priority Lists for the RT mutex
-From: Steven Rostedt <rostedt@goodmis.org>
-To: dwalker@mvista.com
-Cc: linux-kernel@vger.kernel.org,
-       "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1115662430.16016.4.camel@dhcp153.mvista.com>
-References: <F989B1573A3A644BAB3920FBECA4D25A0331776B@orsmsx407>
-	 <427C6D7D.878935F1@tv-sign.ru> <20050509073043.GA12976@elte.hu>
-	 <427F1A99.58BCCB88@tv-sign.ru>  <20050509091133.GA25959@elte.hu>
-	 <1115662430.16016.4.camel@dhcp153.mvista.com>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Mon, 09 May 2005 15:21:46 -0400
-Message-Id: <1115666506.15027.3.camel@localhost.localdomain>
+	Mon, 9 May 2005 15:22:45 -0400
+Received: from mail.tmr.com ([64.65.253.246]:51211 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S261485AbVEITWh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 15:22:37 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: /proc/cpuinfo format - arch dependent!
+Date: Mon, 09 May 2005 14:14:14 -0400
+Organization: TMR Associates, Inc
+Message-ID: <427FA876.7000401@tmr.com>
+References: <20050507172005.GB26088@redhat.com><20050507172005.GB26088@redhat.com> <20050508012521.GA24268@SDF.LONESTAR.ORG>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1115666539 7980 192.168.12.100 (9 May 2005 19:22:19 GMT)
+X-Complaints-To: abuse@tmr.com
+Cc: Dave Jones <davej@redhat.com>, Willy Tarreau <willy@w.ods.org>,
+       Andrew Morton <akpm@osdl.org>, Ricky Beam <jfbeam@bluetronic.net>,
+       nico-kernel@schottelius.org, linux-kernel@vger.kernel.org
+To: Jim Nance <jlnance@sdf.lonestar.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
+X-Accept-Language: en-us, en
+In-Reply-To: <20050508012521.GA24268@SDF.LONESTAR.ORG>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-05-09 at 11:13 -0700, Daniel Walker wrote:
-> On Mon, 2005-05-09 at 02:11, Ingo Molnar wrote:
+Jim Nance wrote:
+> On Sat, May 07, 2005 at 01:20:05PM -0400, Dave Jones wrote:
 > 
-> > What would be nice to achieve are [low-cost] reductions of the size of 
-> > struct rt_mutex (in include/linux/rt_lock.h), upon which all other 
-> > PI-aware locking objects are based. Right now it's 9 words, of which 
-> > struct plist is 5 words. Would be nice to trim this to 8 words - which 
-> > would give a nice round size of 32 bytes on 32-bit.
+>>On Sat, May 07, 2005 at 07:05:56PM +0200, Willy Tarreau wrote:
 > 
-> Why not make rt_mutex->wait_lock a pointer ? Set it to NULL and handle
-> it in rt.c .
+> 
+>> > system "hey, I'd like this type of workload, how many process should
+>> > I start, and where should I bind them ?".
+>>
+>>I think generalising this and having a method to do this in the kernel
+>>is a much better idea than each application parsing this themselves.
+>>Things are only getting more and more complex as time goes on,
+>>and I don't trust application developers to get it right.
+> 
+> 
+> As a developer of a multiprocess/multithreaded application I can assure
+> you that you are right not to trust application developers to get this
+> right.  The idea that a programmer understands the behavior of the
+> applications they write is largely a myth.  Furthermore, I suspect
+> that SMT will evolve in directions that make the idea of a processor
+> more and more fuzzy.  I don't think it is wise to construct any
+> interface that suggests knowing the hardware details is good, or that
+> processes should be bound by userland.  Certainly it is sometimes
+> necessary for userland to do this, but we should look at that as a
+> bug in the kernel.
 
-That may make the rt_mutex structure smaller but this increases the size
-of the kernel by the size of that pointer (times every rt_mutex in the
-kernel!). You still need to allocate the size of the raw spin lock,
-although now you just point to it. Is rounding worth that much overhead?
+Might I suggest that if you like the "we know best just trust us" 
+approach, there is another OS to use. Making information available to 
+good applications will improve system performance, or at least allow 
+better limitation of requests for resources, and bad applications will 
+be bad regardless of what you hide. You don't hide the CPU hardware any 
+more than the memory size.
 
--- Steve
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

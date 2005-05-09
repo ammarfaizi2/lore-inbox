@@ -1,56 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261394AbVEIO20@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261386AbVEIO20@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261394AbVEIO20 (ORCPT <rfc822;willy@w.ods.org>);
+	id S261386AbVEIO20 (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 9 May 2005 10:28:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbVEIO0E
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbVEIOZn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 10:26:04 -0400
-Received: from colino.net ([213.41.131.56]:19447 "EHLO paperstreet.colino.net")
-	by vger.kernel.org with ESMTP id S261395AbVEIOZK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 10:25:10 -0400
-Date: Mon, 9 May 2005 16:24:54 +0200
-From: Colin Leroy <colin@colino.net>
-To: linux-kernel@vger.kernel.org
-Cc: linux-usb-devel@lists.sf.net
-Subject: [2.6.12-rc4] network wlan connection goes down
-Message-ID: <20050509162454.1c1c09a9@colin.toulouse>
-X-Mailer: Sylpheed-Claws 1.9.9 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Mon, 9 May 2005 10:25:43 -0400
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:40647 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261391AbVEIOZC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 10:25:02 -0400
+From: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
+	<7eggert@gmx.de>
+Subject: Re: [PATCH] Support for dx directories in ext3_get_parent (NFSD)
+To: Andreas Dilger <adilger@clusterfs.com>,
+       Henrik =?ISO-8859-1?Q?Grubbstr=F6m?= <grubba@grubba.org>,
+       sct@redhat.com, akpm@osdl.org, neilb@cse.unsw.edu.au,
+       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+Reply-To: 7eggert@gmx.de
+Date: Mon, 09 May 2005 16:24:26 +0200
+References: <42chI-3Rf-49@gated-at.bofh.it> <42cKy-4jT-9@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E1DV9BT-0000v0-1H@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andreas Dilger <adilger@clusterfs.com> wrote:
 
-I upgraded to 2.6.12-rc4, and noticed something strange after that.
-After a few hours, the network connection goes down. The network
-connectivity is done via a USB wifi stick driven by zd1201.
+> +     if (namelen > 2 || name[0] != '.'||(name[1] != '.' && name[1] != '\0')){
 
-After that, nothing gets through, not even a ping. ifconfig wlan0 shows
-the interface UP and configured; iwconfig shows the Wifi is correctly
-associated with the access point (and the access point's client list
-shows the zd1201's MAC as associated). The LED on the stick is lit as
-usual (when associated). The kernel log doesn't show anything useful.
+The patch was supposed to affect only '..'.
 
-The connection comes back when running my network configuration script
-again. The script issues four commands:
-iwconfig wlan0 essid foo channel 11 key xx:xx...:xx 
-ifconfig wlan0 192.168.0.11
-route del default
-route add default gw 192.168.0.100
-(I have to find out which of the four commands reenables the
-connection, didn't try yet)
-
-Everything was fine using 2.6.12-rc3; the only zd1201 patch that went
-in 2.6.12-rc4 is "USB: drivers/usb/net/zd1201.c: make some code static"
-by Adrian Bunk, which I think can't be harmful at all.
-
-Would anyone have any hint about what could have changed in the usb
-subsystem (ohci driver) or in the network subsystem, that might cause
-that?
-
-Thanks,
+Maybe you can add a 'unlikely', too.
 -- 
-Colin
+A "sucking chest wound" is nature's way of telling you to slow down. 
+

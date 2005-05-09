@@ -1,63 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261250AbVEILbt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbVEILjT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261250AbVEILbt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 07:31:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbVEILbt
+	id S261252AbVEILjT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 07:39:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbVEILjT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 07:31:49 -0400
-Received: from alog0153.analogic.com ([208.224.220.168]:4579 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261250AbVEILbo
-	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Mon, 9 May 2005 07:31:44 -0400
-Date: Mon, 9 May 2005 07:31:08 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: "aguel.raouf" <aguel.raouf@laposte.net>
-cc: Linux-Kernel <Linux-Kernel@vger.kernel.org>
-Subject: Re: Raouf From Tunisia
-In-Reply-To: <IG7S3H$ECDE8351FD5BB869516C40901B57C29E@laposte.net>
-Message-ID: <Pine.LNX.4.61.0505090729440.27328@chaos.analogic.com>
-References: <IG7S3H$ECDE8351FD5BB869516C40901B57C29E@laposte.net>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1879706418-512160917-1115638268=:27328"
+	Mon, 9 May 2005 07:39:19 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:18646 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261252AbVEILjC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 07:39:02 -0400
+Subject: Re: [PATCH 2.6.12-rc3-mm3] connector: add a fork connector
+From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+To: Alexander Nyberg <alexn@dsv.su.se>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Jay Lan <jlan@engr.sgi.com>, aq <aquynh@gmail.com>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>
+In-Reply-To: <1115631107.936.25.camel@localhost.localdomain>
+References: <1115626029.8548.24.camel@frecb000711.frec.bull.fr>
+	 <1115631107.936.25.camel@localhost.localdomain>
+Date: Mon, 09 May 2005 13:38:44 +0200
+Message-Id: <1115638724.8540.59.camel@frecb000711.frec.bull.fr>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 09/05/2005 13:49:18,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 09/05/2005 13:49:28,
+	Serialize complete at 09/05/2005 13:49:28
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Mon, 2005-05-09 at 11:31 +0200, Alexander Nyberg wrote:
+> > +static inline void fork_connector(pid_t parent, pid_t child)
+> > +{
+> > +	if (cn_fork_enable) {
+> > +		struct cn_msg *msg;
+> > +		struct cn_fork_msg *forkmsg;
+> > +		__u8 buffer[CN_FORK_MSG_SIZE];	
+> > +
+> > +		msg = (struct cn_msg *)buffer;
+> > +			
+> > +		memcpy(&msg->id, &cb_fork_id, sizeof(msg->id));
+> > +		
+> > +		msg->ack = 0; /* not used */
+> > +		msg->seq = get_cpu_var(fork_counts)++;
+> > +
+> > +		msg->len = CN_FORK_INFO_SIZE;
+> > +		forkmsg = (struct cn_fork_msg *)msg->data;
+> > +		forkmsg->cpu = smp_processor_id();
+> > +		forkmsg->ppid = parent;
+> > +		forkmsg->cpid = child;
+> > +
+> > +		put_cpu_var(fork_counts);
+> > +
+> > +		cn_netlink_send(msg, CN_IDX_FORK, GFP_ATOMIC);
+> 
+> Why is this GFP_ATOMIC?
 
---1879706418-512160917-1115638268=:27328
-Content-Type: TEXT/PLAIN; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+In the previous connector, cn_netlink_send(struct cn_msg *msg, u32
+__groups) called alloc_skb(size, GFP_ATOMIC). Now a third parameter is
+used with cn_netlink_send() in order to call alloc_skb(size, gfp_mask)
+with a specific gfp_mask. So, I'm using GFP_ATOMIC as the third argument
+to keep the same behavior.
 
-On Mon, 9 May 2005, aguel.raouf wrote:
+> > +	}
+> > +}
+> > +#else
+> > +static inline void fork_connector(pid_t parent, pid_t child) 
+> > +{
+> > +	return; 
+> > +}
+> > +#endif /* CONFIG_FORK_CONNECTOR */
+> > +#endif /* __KERNEL__ */
+> > +
+> > +#endif /* CN_FORK_H */
+> > Index: linux-2.6.12-rc3-mm3/include/linux/connector.h
+> > ===================================================================
+> > --- linux-2.6.12-rc3-mm3.orig/include/linux/connector.h	2005-05-09 07:45:56.000000000 +0200
+> > +++ linux-2.6.12-rc3-mm3/include/linux/connector.h	2005-05-09 09:50:01.000000000 +0200
+> > @@ -26,6 +26,8 @@
+> >  
+> >  #define CN_IDX_CONNECTOR		0xffffffff
+> >  #define CN_VAL_CONNECTOR		0xffffffff
+> > +#define CN_IDX_FORK			0xfeed  /* fork events */
+> > +#define CN_VAL_FORK			0xbeef
+> >  
+> >  /*
+> >   * Maximum connector's message size.
+> > Index: linux-2.6.12-rc3-mm3/kernel/fork.c
+> > ===================================================================
+> > --- linux-2.6.12-rc3-mm3.orig/kernel/fork.c	2005-05-09 07:45:56.000000000 +0200
+> > +++ linux-2.6.12-rc3-mm3/kernel/fork.c	2005-05-09 08:03:15.000000000 +0200
+> > @@ -41,6 +41,7 @@
+> >  #include <linux/profile.h>
+> >  #include <linux/rmap.h>
+> >  #include <linux/acct.h>
+> > +#include <linux/cn_fork.h>
+> >  
+> >  #include <asm/pgtable.h>
+> >  #include <asm/pgalloc.h>
+> > @@ -63,6 +64,14 @@ DEFINE_PER_CPU(unsigned long, process_co
+> >  
+> >  EXPORT_SYMBOL(tasklist_lock);
+> >  
+> > +#ifdef CONFIG_FORK_CONNECTOR
+> > +/* 
+> > + * fork_counts is used by the fork_connector() inline routine as 
+> > + * the sequence number of the netlink message.
+> > + */
+> > +static DEFINE_PER_CPU(unsigned long, fork_counts); 
+> > +#endif /* CONFIG_FORK_CONNECTOR */
+> > +
+> 
+> The above should go into cn_fork.c
 
->
-> Hi
->
->
-> I must modify my distro to not test the status of root
-> directory  (whether it is (is not) writable). For example,
-> Slackware is testing the status of the root partition during
-> boot and if it's read-write,it will display a message and will
-> wait for user input. This is something we don't like, right?
-> Unionfs can't be remounted ro, to skip the test. i will need
-> to do something for my distro.
-> I want to know what i can do, how i can patch my distro
->
-> thanks have a good day
->
-> Acc=E9dez au courrier =E9lectronique de La Poste : www.laposte.net ;
-> 3615 LAPOSTENET (0,34EUR/mn) ; t=E9l : 08 92 68 13 50 (0,34EUR/mn)
->
+I don't see why. It's used by fork_connector which is an inline routine
+so, IMHO, 'fork_counts' must be defined here and declared in
+include/linux/cn_fork.h
 
-Not a kernel question. File /etc/rc.sysinit is the init script
-that is executed during startup.
+> >  int nr_processes(void)
+> >  {
+> >  	int cpu;
+> > @@ -1252,6 +1261,8 @@ long do_fork(unsigned long clone_flags,
+> >  			if (unlikely (current->ptrace & PT_TRACE_VFORK_DONE))
+> >  				ptrace_notify ((PTRACE_EVENT_VFORK_DONE << 8) | SIGTRAP);
+> >  		}
+> > +		
+> > +		fork_connector(current->pid, p->pid);
+> 
+> Are you sure this is what you want? ->pid has a special meaning to the
+> kernel and doesn't necessarily mean the same to user-space, so I think
+> you want ->tgid here. If you look at sys_getpid() and sys_gettid()
+> you'll see what I mean.
 
+Yes, I think you're right. If I look the code of the BSD process
+accounting they're using the field ->tgid to get the process ID. I fix
+that.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
---1879706418-512160917-1115638268=:27328--
+Thank you very much for your comments,
+Best regards,
+
+Guillaume
+

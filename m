@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261484AbVEITRx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbVEITWT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261484AbVEITRx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 15:17:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbVEITRw
+	id S261478AbVEITWT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 15:22:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbVEITWT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 15:17:52 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:1409 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261478AbVEITRh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 15:17:37 -0400
-Date: Mon, 9 May 2005 21:17:22 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Jens Axboe <axboe@suse.de>, Jon Escombe <trial@dresco.co.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: Suspend/Resume
-Message-ID: <20050509191722.GB3085@elf.ucw.cz>
-References: <4267B5B0.8050608@davyandbeth.com> <loom.20050502T161322-252@post.gmane.org> <20050502144703.GA1882@suse.de> <loom.20050502T221228-244@post.gmane.org> <20050503141017.GD6115@suse.de> <1115524401.5942.13.camel@mulgrave> <20050509101344.GA24478@atrey.karlin.mff.cuni.cz> <1115647641.5051.1.camel@mulgrave>
+	Mon, 9 May 2005 15:22:19 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:6865 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261478AbVEITWQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 15:22:16 -0400
+Subject: Re: [PATCH] Priority Lists for the RT mutex
+From: Steven Rostedt <rostedt@goodmis.org>
+To: dwalker@mvista.com
+Cc: linux-kernel@vger.kernel.org,
+       "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+       Oleg Nesterov <oleg@tv-sign.ru>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1115662430.16016.4.camel@dhcp153.mvista.com>
+References: <F989B1573A3A644BAB3920FBECA4D25A0331776B@orsmsx407>
+	 <427C6D7D.878935F1@tv-sign.ru> <20050509073043.GA12976@elte.hu>
+	 <427F1A99.58BCCB88@tv-sign.ru>  <20050509091133.GA25959@elte.hu>
+	 <1115662430.16016.4.camel@dhcp153.mvista.com>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Mon, 09 May 2005 15:21:46 -0400
+Message-Id: <1115666506.15027.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1115647641.5051.1.camel@mulgrave>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Po 09-05-05 09:07:21, James Bottomley wrote:
-> On Mon, 2005-05-09 at 12:13 +0200, Pavel Machek wrote:
-> > In IDE we do that to reliably flush drive caches... If write caching
-> > actually works on SCSI, we should not need that hacks.
+On Mon, 2005-05-09 at 11:13 -0700, Daniel Walker wrote:
+> On Mon, 2005-05-09 at 02:11, Ingo Molnar wrote:
 > 
-> Define "works".  Actual write caching works fine with IDE (it doesn't
-> lose the data).  On the other hand, turning the cache off or flushing it
-> can be problematic because not all IDE devices respond to these
-> commands.
+> > What would be nice to achieve are [low-cost] reductions of the size of 
+> > struct rt_mutex (in include/linux/rt_lock.h), upon which all other 
+> > PI-aware locking objects are based. Right now it's 9 words, of which 
+> > struct plist is 5 words. Would be nice to trim this to 8 words - which 
+> > would give a nice round size of 32 bytes on 32-bit.
 > 
-> So, what I think you're saying is that you don't want the internal
-> drives to spin down, but you do want to send a synchronize cache command
-> to those which have a writeback cache enabled?
+> Why not make rt_mutex->wait_lock a pointer ? Set it to NULL and handle
+> it in rt.c .
 
-Yes, something like that. I don't care if drivers are spinning or not,
-but I need caches to be properly flushed and drive ready for system
-powerdown.
-								Pavel
--- 
-Boycott Kodak -- for their patent abuse against Java.
+That may make the rt_mutex structure smaller but this increases the size
+of the kernel by the size of that pointer (times every rt_mutex in the
+kernel!). You still need to allocate the size of the raw spin lock,
+although now you just point to it. Is rounding worth that much overhead?
+
+-- Steve
+

@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVEIRlL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbVEIRkD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261455AbVEIRlL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 13:41:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbVEIRlK
+	id S261451AbVEIRkD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 13:40:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbVEIRkD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 13:41:10 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:50314 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261455AbVEIRk6 convert rfc822-to-8bit
+	Mon, 9 May 2005 13:40:03 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:17820 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261451AbVEIRjh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 13:40:58 -0400
-From: Kristian =?iso-8859-1?q?S=F8rensen?= <ks@linnovative.dk>
-Organization: Linnovative
-To: James Morris <jmorris@redhat.com>
-Subject: Re: Any work in implementing Secure IPC for Linux?
-Date: Mon, 9 May 2005 19:40:21 +0200
-User-Agent: KMail/1.8
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Xine.LNX.4.44.0505091058560.5582-100000@thoron.boston.redhat.com>
-In-Reply-To: <Xine.LNX.4.44.0505091058560.5582-100000@thoron.boston.redhat.com>
+	Mon, 9 May 2005 13:39:37 -0400
+Message-ID: <427FA061.2090103@tmr.com>
+Date: Mon, 09 May 2005 13:39:45 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200505091940.22260.ks@linnovative.dk>
+To: linux-os@analogic.com
+CC: James Dingwall <james.dingwall@cramer.com>, linux-kernel@vger.kernel.org,
+       Andries.Brouwer@cwi.nl, Chris Wright <chrisw@osdl.org>
+Subject: Re: Bug: 2.6.11.8 msdos.c
+References: <427B782E.6040309@tmr.com><3E116F19B784CD47A7CE7F923A436499014C8E39@s2.cramer.co.uk> <Pine.LNX.4.61.0505061007480.6588@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0505061007480.6588@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 09 May 2005 17:00, James Morris wrote:
-> On Mon, 9 May 2005, Kristian Sørensen wrote:
-> > Does anyone here know of work being done in order to implement secure IPC
-> > for Linux?
->
-> What do you mean by secure IPC?
-As I understand it, presently the memory for the message queue is shared based 
-on user and group ownership of the process. By "secure IPC" is meaning a 
-security mechanism that provides a more fine granularity of specifying who 
-are allowed to send (or receive) messages... and maby also a way to resolve 
-the question of "Can I trust the message I received?"
+Richard B. Johnson wrote:
+> On Fri, 6 May 2005, Bill Davidsen wrote:
+> 
+>> James Dingwall wrote:
 
+>>> Andries' hint about changing the partition types to !0 is a fix for the
+>>> problem.
+>>
+>>
+>> What is the reason for the patch in the first place? Obviously it's
+>> intended to do something, or not do something bad, but what's wrong with
+>> a reserved partition?
+>>
+>> I looked at the rest of msdos.c and it wasn't blindingly clear what the
+>> original intent was. A partition type of zero is unusual, but it's not
+>> illegal, is it? (as in violates some standard)
+> 
+> 
+> Can't the problem be fixed by just using Linux fdisk to put in the
+> correct ID?  Unlike MS-DOS fdisk, the Linux fdisk can modify things
+> without destroying everything else on the drive.
+
+Yes, that works. My question was why a zero was considered a bad value 
+instead of "reserved." Not that I disagree, I just don't see the reason.
 
 -- 
-Kristian Sørensen
-  The Umbrella Project  --  Security for Consumer Electronics
-  Linnovative  --  www.linnovative.dk
-  ks@linnovative.dk  --  +45 2972 3816
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

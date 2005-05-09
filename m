@@ -1,75 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263066AbVEIG5U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263067AbVEIHYG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263066AbVEIG5U (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 02:57:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263069AbVEIG5U
+	id S263067AbVEIHYG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 03:24:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263069AbVEIHYG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 02:57:20 -0400
-Received: from nwkea-mail-2.sun.com ([192.18.42.14]:48810 "EHLO
-	nwkea-mail-2.sun.com") by vger.kernel.org with ESMTP
-	id S263066AbVEIG5M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 02:57:12 -0400
-Date: Mon, 09 May 2005 10:57:05 +0400
-From: Mitch <Mitch@0Bits.COM>
-Subject: Re: [RFT/PATCH] KVMS, mouse losing sync and going crazy
-To: dtor_core@ameritech.net, linux-kernel@vger.kernel.org
-Message-id: <427F09C1.8010703@0Bits.COM>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-15; format=flowed
-Content-transfer-encoding: 7BIT
-User-Agent: Mail/News Client 1.0+ (X11/20050427)
+	Mon, 9 May 2005 03:24:06 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:15527 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S263067AbVEIHYD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 03:24:03 -0400
+Date: Mon, 9 May 2005 09:23:50 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc3-V0.7.46-01
+Message-ID: <20050509072350.GA11976@elte.hu>
+References: <20050422154931.GA22534@elte.hu> <Pine.LNX.4.44.0504220852310.22042-100000@dhcp153.mvista.com> <20050422155549.GB22795@elte.hu> <1114537755.12772.26.camel@dhcp153.mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1114537755.12772.26.camel@dhcp153.mvista.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dmitry,
 
-No, no change with the attached patch either. Mouse goes to sleep and 
-need to be re-enabled constantly.
+* Daniel Walker <dwalker@mvista.com> wrote:
 
-Cheers
-Mitch
-
--------- Original Message --------
-Subject: Re: [RFT/PATCH] KVMS, mouse losing sync and going crazy
-Date: Mon, 9 May 2005 01:26:34 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Mitch <Mitch@0Bits.COM>
-CC: linux-kernel@vger.kernel.org
-References: <427EFF3C.1040706@0Bits.COM>
-
-On Monday 09 May 2005 01:12, Mitch wrote:
-> Log file as requested...
+> On Fri, 2005-04-22 at 08:55, Ingo Molnar wrote:
 > 
+> > i used:
+> > 
+> >   ./test --tasks 10 file.hist
+> 
+> This patch cleanup the delays on increased numbers of tasks. It goes 
+> on to of the current plist snapshot.
 
-*sign* ALPS decided to return bare PS/2 packet instead of full 6-byte
-packet...
+ok, these fixes for priority init appear to have solved the pi-test 
+latencies. I've uploaded the -rc4-RT-V0.7.47-00 patch with the plist 
+code re-added again. It's looking good so far on my testboxes.
 
-Hmm, could you please try the patch below and see if it makes any
-difference (although I doubt). I'll probably have to do special case
-for ALPS.
-
--- 
-Dmitry
-
---- drivers/input/mouse/psmouse-base.c.orig	2005-05-09 
-01:19:17.000000000 -0500
-+++ drivers/input/mouse/psmouse-base.c	2005-05-09 01:20:22.000000000 -0500
-@@ -657,7 +657,7 @@
-  	int attempt;
-
-  	for (attempt = 0; attempt < 5; attempt++) {
--		if (!ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_SETSTREAM))
-+		if (!ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_ENABLE))
-  			return 0;
-  		msleep(200);
-  	}
-@@ -693,7 +693,7 @@
-   * transmitting motion packet, so we use ps2_sendbyte() instead of
-   * ps2_command() to avoid delay.
-   */
--	ps2_sendbyte(&psmouse->ps2dev, PSMOUSE_CMD_SETPOLL, 20);
-+	ps2_sendbyte(&psmouse->ps2dev, PSMOUSE_CMD_DISABLE, 20);
-
-  	ps2_command(&psmouse->ps2dev, psmouse->packet, PSMOUSE_CMD_POLL | 
-0x0600);
-  	if (psmouse->ps2dev.cmdcnt != 6 - psmouse->pktsize)
+	Ingo

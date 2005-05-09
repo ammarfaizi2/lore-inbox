@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbVEISDO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261473AbVEISG7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261468AbVEISDO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 14:03:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbVEISDO
+	id S261473AbVEISG7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 14:06:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVEISG6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 14:03:14 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:51716 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261468AbVEISDK
+	Mon, 9 May 2005 14:06:58 -0400
+Received: from relay1.tiscali.de ([62.26.116.129]:47287 "EHLO
+	webmail.tiscali.de") by vger.kernel.org with ESMTP id S261473AbVEISGt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 14:03:10 -0400
-Message-ID: <427FA5E9.4080409@tmr.com>
-Date: Mon, 09 May 2005 14:03:21 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
+	Mon, 9 May 2005 14:06:49 -0400
+Message-ID: <427FA6AF.4090803@tiscali.de>
+Date: Mon, 09 May 2005 20:06:39 +0200
+From: Matthias-Christian Ott <matthias.christian@tiscali.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Ricky Beam <jfbeam@bluetronic.net>, nico-kernel@schottelius.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: /proc/cpuinfo format - arch dependent!
-References: <Pine.GSO.4.33.0505062324550.1894-100000@sweetums.bluetronic.net><20050419121530.GB23282@schottelius.org> <20050506211455.3d2b3f29.akpm@osdl.org>
-In-Reply-To: <20050506211455.3d2b3f29.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: =?ISO-8859-1?Q?Kristian_S=F8rensen?= <ks@linnovative.dk>
+CC: James Morris <jmorris@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Any work in implementing Secure IPC for Linux?
+References: <Xine.LNX.4.44.0505091058560.5582-100000@thoron.boston.redhat.com> <200505091940.22260.ks@linnovative.dk>
+In-Reply-To: <200505091940.22260.ks@linnovative.dk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Ricky Beam <jfbeam@bluetronic.net> wrote:
+Kristian Sørensen wrote:
+> On Monday 09 May 2005 17:00, James Morris wrote:
 > 
->>Short of a kernel module to export the kernel variables, that's the only
->> damned way to find the number of cpus in a Linux system.
+>>On Mon, 9 May 2005, Kristian Sørensen wrote:
+>>
+>>>Does anyone here know of work being done in order to implement secure IPC
+>>>for Linux?
+>>
+>>What do you mean by secure IPC?
+> 
+> As I understand it, presently the memory for the message queue is shared based 
+> on user and group ownership of the process. By "secure IPC" is meaning a 
+> security mechanism that provides a more fine granularity of specifying who 
+> are allowed to send (or receive) messages... and maby also a way to resolve 
+> the question of "Can I trust the message I received?"
 > 
 > 
-> Question is: do you need to know the number of CPUs (why?) or do you need
-> to know the number of CPUs which you're currently allowed to use or do you
-> need to know the maximum number of CPUs which you are allowed to bind
-> yourself to, or what?
+I think the gnumach (sorry for the typo in my last e-mail) concept, fixes 
+the sending and receiving permission problem. See the gnumach 
+documentation and source code.
 
-I can see responsible programs checking Ncpu before deciding how many 
-threads to start, so it seems that some accurate info could be useful in 
-the real world.
-
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Matthias-Christian Ott

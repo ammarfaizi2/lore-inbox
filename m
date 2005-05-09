@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbVEIOfG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbVEIOg5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261413AbVEIOfG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 10:35:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261403AbVEIOek
+	id S261395AbVEIOg5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 10:36:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbVEIOfh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 10:34:40 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:39855 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261418AbVEIOcp (ORCPT
+	Mon, 9 May 2005 10:35:37 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:38319 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S261416AbVEIOcm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 10:32:45 -0400
-Message-ID: <427F763B.FEF0EA91@tv-sign.ru>
-Date: Mon, 09 May 2005 18:39:55 +0400
+	Mon, 9 May 2005 10:32:42 -0400
+Message-ID: <427F7642.8D5DC3F2@tv-sign.ru>
+Date: Mon, 09 May 2005 18:40:02 +0400
 From: Oleg Nesterov <oleg@tv-sign.ru>
 X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
 X-Accept-Language: en
@@ -18,170 +18,76 @@ MIME-Version: 1.0
 To: Ingo Molnar <mingo@elte.hu>
 Cc: linux-kernel@vger.kernel.org, Daniel Walker <dwalker@mvista.com>,
        Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>
-Subject: [PATCH 2/4] rt_mutex: add new plist implementation
+Subject: [PATCH 4/4] rt_mutex: possible bugfixes
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds new plist implementation, see
-http://marc.theaimsgroup.com/?l=linux-kernel&m=111547290706136
+This is my first look at the kernel/rt.c, so I am probably very wrong.
 
-Changes:
 
-	added plist_next_entry() helper (was plist_entry)
+pi_setprio()
+	if (rt_task(p) && plist_empty(&w->pi_list)) {
+	                  ^^^^^^^^^^^
+		plist_init(&w->pi_list, prio);
+		plist_add(&w->pi_list, &lock->owner->pi_waiters);
 
-	added plist_unhashed() helper, see PATCH 4/4
+plist_empty() checks list_empty(&w->pi_list->dp_node), this does not
+garantees that this w->pi_list is not on list, because all nodes with
+the same priority have empty ->dp_node, except the first one.
+I have changed this to plist_unhashed(&w->pi_list).
+
+
+__up_mutex()
+	RACE_BUG_ON(!lock->wait_list.dp_node.prev && !lock->wait_list.dp_node.next);
+	                                         ^^^^
+I guess, this should be '||' ?
+
+
+init_lists()
+	// we have to do this until the static initializers get fixed:
+	if (!lock->wait_list.dp_node.prev && !lock->wait_list.dp_node.next)
+
+I can't understand this comment, just changed ->dp_node to ->prio_list.
 
 Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
---- V0.7.47-01/include/linux/plist.h~1_PLIST	2005-05-09 17:06:05.000000000 +0400
-+++ V0.7.47-01/include/linux/plist.h	2005-05-09 20:11:26.000000000 +0400
-@@ -0,0 +1,97 @@
-+#ifndef _LINUX_PLIST_H_
-+#define _LINUX_PLIST_H_
-+
-+#include <linux/list.h>
-+
-+struct pl_head {
-+	struct list_head prio_list;
-+	struct list_head node_list;
-+};
-+
-+struct pl_node {
-+	int		prio;
-+	struct pl_head	plist;
-+};
-+
-+#define PL_HEAD_INIT(head)	\
-+{							\
-+	.prio_list = LIST_HEAD_INIT((head).prio_list),	\
-+	.node_list = LIST_HEAD_INIT((head).node_list),	\
-+}
-+
-+#define PL_NODE_INIT(node, __prio)	\
-+{							\
-+	.prio  = (__prio),				\
-+	.plist = PL_HEAD_INIT((node).plist),		\
-+}
-+
-+static inline void pl_head_init(struct pl_head *head)
-+{
-+	INIT_LIST_HEAD(&head->prio_list);
-+	INIT_LIST_HEAD(&head->node_list);
-+}
-+
-+static inline void pl_node_init(struct pl_node *node, int prio)
-+{
-+	node->prio = prio;
-+	pl_head_init(&node->plist);
-+}
-+
-+extern void plist_add(struct pl_node *node, struct pl_head *head);
-+extern void plist_del(struct pl_node *node);
-+
-+#define plist_for_each(pos, head)	\
-+	 list_for_each_entry(pos, &(head)->node_list, plist.node_list)
-+
-+#define plist_for_each_safe(pos, n, head)	\
-+	 list_for_each_entry_safe(pos, n, &(head)->node_list, plist.node_list)
-+
-+#define plist_for_each_entry(pos, head, mem)	\
-+	 list_for_each_entry(pos, &(head)->node_list, mem.plist.node_list)
-+
-+#define plist_for_each_entry_safe(pos, n, head, mem)	\
-+	 list_for_each_entry_safe(pos, n, &(head)->node_list, mem.plist.node_list)
-+
-+static inline int plist_empty(const struct pl_head *head)
-+{
-+	return list_empty(&head->node_list);
-+}
-+
-+static inline int plist_unhashed(const struct pl_node *node)
-+{
-+	return list_empty(&node->plist.node_list);
-+}
-+
-+/* All functions below assume the pl_head is not empty. */
-+
-+#define plist_next_entry(head, type, member)	\
-+	container_of(plist_next(head), type, member)
-+
-+#define plist_prev_entry(head, type, member)	\
-+	container_of(plist_prev(head), type, member)
-+
-+#define __pl_head_node(head, list, dir)	\
-+	list_entry((head)->list.dir, struct pl_node, plist.list)
-+
-+static inline struct pl_node* plist_next(const struct pl_head *head)
-+{
-+	return __pl_head_node(head, node_list, next);
-+}
-+
-+static inline struct pl_node* plist_prev(const struct pl_head *head)
-+{
-+	return __pl_head_node(head, node_list, prev);
-+}
-+
-+static inline struct pl_node* plist_prio_next(const struct pl_head *head)
-+{
-+	return __pl_head_node(head, prio_list, next);
-+}
-+
-+static inline struct pl_node* plist_prio_prev(const struct pl_head *head)
-+{
-+	return __pl_head_node(head, prio_list, prev);
-+}
-+
-+#undef	__pl_head_node
-+#endif
---- V0.7.47-01/lib/plist.c~1_PLIST	2005-05-09 17:06:05.000000000 +0400
-+++ V0.7.47-01/lib/plist.c	2005-05-09 19:55:31.000000000 +0400
-@@ -0,0 +1,36 @@
-+/*
-+ * lib/plist.c - Priority List implementation.
-+ */
-+
-+#include <linux/plist.h>
-+
-+void plist_add(struct pl_node *node, struct pl_head *head)
-+{
-+	struct pl_node *iter;
-+
-+	INIT_LIST_HEAD(&node->plist.prio_list);
-+
-+	list_for_each_entry(iter, &head->prio_list, plist.prio_list)
-+		if (node->prio < iter->prio)
-+			goto lt_prio;
-+		else if (node->prio == iter->prio) {
-+			iter = plist_prio_next(&iter->plist);
-+			goto eq_prio;
-+		}
-+
-+lt_prio:
-+	list_add_tail(&node->plist.prio_list, &iter->plist.prio_list);
-+eq_prio:
-+	list_add_tail(&node->plist.node_list, &iter->plist.node_list);
-+}
-+
-+void plist_del(struct pl_node *node)
-+{
-+	if (!list_empty(&node->plist.prio_list)) {
-+		struct pl_node *next = plist_next(&node->plist);
-+		list_move_tail(&next->plist.prio_list, &node->plist.prio_list);
-+		list_del_init(&node->plist.prio_list);
-+	}
-+
-+	list_del_init(&node->plist.node_list);
-+}
---- V0.7.47-01/lib/Makefile~1_PLIST	2005-05-09 16:46:06.000000000 +0400
-+++ V0.7.47-01/lib/Makefile	2005-05-09 17:12:48.000000000 +0400
-@@ -15,6 +15,8 @@ CFLAGS_kobject.o += -DDEBUG
- CFLAGS_kobject_uevent.o += -DDEBUG
- endif
+--- V0.7.47-01/kernel/rt.c~3_UNSURE	2005-05-09 19:13:33.000000000 +0400
++++ V0.7.47-01/kernel/rt.c	2005-05-09 19:43:47.000000000 +0400
+@@ -627,7 +627,7 @@ static void pi_setprio(struct rt_mutex *
+ 		lock = w->lock;
+ 		TRACE_BUG_ON(!lock);
+ 		TRACE_BUG_ON(!lock->owner);
+-		if (rt_task(p) && plist_empty(&w->pi_list)) {
++		if (rt_task(p) && plist_unhashed(&w->pi_list)) {
+ 			TRACE_BUG_ON(was_rt);
+ 			w->pi_list.prio = prio;
+ 			plist_add(&w->pi_list, &lock->owner->pi_waiters);
+@@ -645,7 +645,7 @@ static void pi_setprio(struct rt_mutex *
+ 		 * (TODO: this can be unfair to SCHED_NORMAL tasks if they
+ 		 *        get PI handled.)
+ 		 */
+-		if (!rt_task(p) && !plist_empty(&w->pi_list)) {
++		if (!rt_task(p) && !plist_unhashed(&w->pi_list)) {
+ 			TRACE_BUG_ON(!was_rt);
+ 			plist_del(&w->pi_list);
+ 			plist_del(&w->list);
+@@ -788,7 +788,7 @@ static inline struct task_struct * pick_
+ static inline void init_lists(struct rt_mutex *lock)
+ {
+ 	// we have to do this until the static initializers get fixed:
+-	if (!lock->wait_list.dp_node.prev && !lock->wait_list.dp_node.next)
++	if (!lock->wait_list.prio_list.prev && !lock->wait_list.prio_list.next)
+ 		pl_head_init(&lock->wait_list);
+ #ifdef CONFIG_RT_DEADLOCK_DETECT
+ 	if (!lock->held_list.prev && !lock->held_list.next)
+@@ -1315,7 +1315,7 @@ static void __up_mutex(struct rt_mutex *
+ 	trace_lock_irqsave(&trace_lock, flags);
+ 	TRACE_BUG_ON(!irqs_disabled());
+ 	spin_lock(&lock->wait_lock);
+-	TRACE_BUG_ON(!lock->wait_list.dp_node.prev && !lock->wait_list.dp_node.next);
++	TRACE_BUG_ON(!lock->wait_list.prio_list.prev || !lock->wait_list.prio_list.next);
  
-+obj-$(CONFIG_PREEMPT_RT) += plist.o
-+
- obj-$(CONFIG_RWSEM_GENERIC_SPINLOCK) += rwsem-spinlock.o
- lib-$(CONFIG_RWSEM_XCHGADD_ALGORITHM) += rwsem.o
- lib-$(CONFIG_GENERIC_FIND_NEXT_BIT) += find_next_bit.o
+ #ifdef CONFIG_RT_DEADLOCK_DETECT
+ 	TRACE_WARN_ON(list_empty(&lock->held_list));

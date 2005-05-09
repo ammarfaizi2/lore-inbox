@@ -1,107 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVEIJYo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVEIJ0O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbVEIJYo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 05:24:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbVEIJYg
+	id S261174AbVEIJ0O (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 05:26:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbVEIJ0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 05:24:36 -0400
-Received: from moraine.clusterfs.com ([66.96.26.190]:11481 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S261154AbVEIJYY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 05:24:24 -0400
-Date: Mon, 9 May 2005 03:24:17 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Henrik =?iso-8859-1?Q?Grubbstr=F6m?= <grubba@grubba.org>
-Cc: sct@redhat.com, akpm@osdl.org, neilb@cse.unsw.edu.au,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: [PATCH] Support for dx directories in ext3_get_parent (NFSD)
-Message-ID: <20050509092417.GF25935@schnapps.adilger.int>
-Mail-Followup-To: Henrik =?iso-8859-1?Q?Grubbstr=F6m?= <grubba@grubba.org>,
-	sct@redhat.com, akpm@osdl.org, neilb@cse.unsw.edu.au,
-	linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-References: <Pine.GSO.4.21.0505091032000.22820-100000@jms.roxen.com>
+	Mon, 9 May 2005 05:26:14 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:36050 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261174AbVEIJZ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 05:25:58 -0400
+Date: Mon, 9 May 2005 11:25:45 +0200
+From: Jan Kara <jack@suse.cz>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Cliff White <cliffw@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, suparna@in.ibm.com
+Subject: Re: 2.6.12-rc2 + rc3: reaim with ext3 - system stalls.
+Message-ID: <20050509092542.GD10739@atrey.karlin.mff.cuni.cz>
+References: <20050421152345.6b87aeae@es175> <20050503144325.GF4501@atrey.karlin.mff.cuni.cz> <1115132463.26913.828.camel@dyn318077bld.beaverton.ibm.com> <E1DTMKq-00043x-BO@es175> <1115315827.26913.907.camel@dyn318077bld.beaverton.ibm.com> <20050506101434.GC25677@atrey.karlin.mff.cuni.cz> <1115392011.26913.930.camel@dyn318077bld.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HnQK338I3UIa/qiP"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0505091032000.22820-100000@jms.roxen.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+In-Reply-To: <1115392011.26913.930.camel@dyn318077bld.beaverton.ibm.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  <snip>
+> >   Or rewrite __mpage_writepages() to lock a page range (e.g. lock pages
+> > until we find some on which we'd block) and then call some filesystem
+> > routine to write-out all the locked pages (which would start a
+> > transaction and so on). But this is more work.
+> 
+> We are re-writing mpage_writepages() anyway for supporting delayed
+> and multiblock allocation. So I will talk to Suparna and see if we
+> can do this also. But this requires more calls to figure out, if we
+> need block allocation and then start the transaction. (getblock(READ)
+> followed by getblock(WRITE) after starting transaction). Isn't it ?
+  If I'm not missing something, you could just start a transaction
+everytime and do just getblock(WRITE) (which would not do anything if
+the block is already allocated), couldn't you?. The only question is whether
+getblock(READ) costs more than the possibly unnecessary start of a
+transaction. I guess that's hard to say without some benchmarking.
 
---HnQK338I3UIa/qiP
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On May 09, 2005  10:57 +0200, Henrik Grubbstr=F6m wrote:
-> The 2.6.10 ext3_get_parent attempts to use ext3_find_entry to look up the
-> entry "..", which fails for dx directories since ".." is not present in
-> the directory hash table. The patch below solves this by looking up the
-> dotdot entry in the dx_root block.
->=20
-> Typical symptoms of the above bug are intermittent claims by nfsd that
-> files or directories are missing on exported ext3 filesystems.
->=20
-> cf https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=3D150759
-> and https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=3D144556
->=20
-> Signed-off-by: Henrik Grubbstr=F6m <grubba@grubba.org>
-
-ext3_get_parent() is IMHO the wrong place to fix this bug as it introduces
-a lot of internals from htree into that function.  Instead, I think this
-should be fixed in ext3_find_entry() as in the below patch.  This has the
-added advantage that it works for any callers of ext3_find_entry() and not
-just ext3_lookup_parent().
-
-I thought I submitted this patch to l-k at one point, but now I can't find
-any mention of that in the archives...
-
-Signed-off-by: Andreas Diler <adilger@clusterfs.com>
-
---- linux-2.6.orig/fs/ext3/namei.c	2005-04-04 05:06:46.000000000 -0600
-+++ linux-2.6/fs/ext3/namei.c	2005-04-04 05:09:18.000000000 -0600
-@@ -926,8 +926,16 @@
- 	struct inode *dir =3D dentry->d_parent->d_inode;
-=20
- 	sb =3D dir->i_sb;
--	if (!(frame =3D dx_probe(dentry, NULL, &hinfo, frames, err)))
--		return NULL;
-+	/* NFS may look up ".." - look at dx_root directory block */
-+	if (namelen > 2 || name[0] !=3D '.'||(name[1] !=3D '.' && name[1] !=3D '\=
-0')){
-+		if (!(frame =3D dx_probe(dentry, NULL, &hinfo, frames, err)))
-+			return NULL;
-+	} else {
-+		frame =3D frames;
-+		frame->bh =3D NULL;			/* for dx_release() */
-+		frame->at =3D (struct dx_entry *)frames;	/* hack for zero entry*/
-+		dx_set_block(frame->at, 0);		/* dx_root block is 0 */
-+	}
- 	hash =3D hinfo.hash;
- 	do {
- 		block =3D dx_get_block(frame->at);
-
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
-
-
---HnQK338I3UIa/qiP
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFCfyxBpIg59Q01vtYRAnL6AKCHxmloMEqmypKmYYbpqGZZrofZoACcCrqm
-fp/+z3zHqUaYqvXZ8YiIVXg=
-=IljN
------END PGP SIGNATURE-----
-
---HnQK338I3UIa/qiP--
+								Honza
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

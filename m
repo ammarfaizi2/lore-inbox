@@ -1,79 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261349AbVEINHn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261352AbVEINLQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261349AbVEINHn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 09:07:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVEINHn
+	id S261352AbVEINLQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 09:11:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVEINLQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 09:07:43 -0400
-Received: from general.keba.co.at ([193.154.24.243]:3041 "EHLO
-	helga.keba.co.at") by vger.kernel.org with ESMTP id S261349AbVEINHd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 09:07:33 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 9 May 2005 09:11:16 -0400
+Received: from mail.dif.dk ([193.138.115.101]:37096 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261352AbVEINLL convert rfc822-to-8bit
+	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Mon, 9 May 2005 09:11:11 -0400
+Date: Mon, 9 May 2005 15:10:33 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: "Richard B. Johnson" <linux-os@analogic.com>
+Cc: "aguel.raouf" <aguel.raouf@laposte.net>,
+       Linux-Kernel <Linux-Kernel@vger.kernel.org>
+Subject: Re: Raouf From Tunisia
+In-Reply-To: <Pine.LNX.4.61.0505090729440.27328@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.62.0505091509280.9393@jjulnx.backbone.dif.dk>
+References: <IG7S3H$ECDE8351FD5BB869516C40901B57C29E@laposte.net>
+ <Pine.LNX.4.61.0505090729440.27328@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
 Content-Transfer-Encoding: 8BIT
-Subject: RE: Real-Time Preemption: Magic Sysrq p doesn't work
-Date: Mon, 9 May 2005 15:07:43 +0200
-Message-ID: <AAD6DA242BC63C488511C611BD51F367323204@MAILIT.keba.co.at>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Real-Time Preemption: Magic Sysrq p doesn't work
-Thread-Index: AcVUkIs3p829ZrfUQEmcaVUIUhZ9MwABIjEA
-From: "kus Kusche Klaus" <kus@keba.com>
-To: "Ingo Molnar" <mingo@elte.hu>, "kus Kusche Klaus" <kus@keba.com>
-Cc: <linux-kernel@vger.kernel.org>, <dwalker@mvista.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> * kus Kusche Klaus <kus@keba.com> wrote:
+On Mon, 9 May 2005, Richard B. Johnson wrote:
+
+> Date: Mon, 9 May 2005 07:31:08 -0400 (EDT)
+> From: Richard B. Johnson <linux-os@analogic.com>
+> To: aguel.raouf <aguel.raouf@laposte.net>
+> Cc: Linux-Kernel <Linux-Kernel@vger.kernel.org>
+> Subject: Re: Raouf From Tunisia
 > 
-> > While testing, I noticed that Sysrq p is silently ignored 
-> on current 
-> > RT kernels with RT preemption: The syslog contains a message that 
-> > Sysrq p was pressed, but no registers are printed.
-> 
-> yes, that's because the keyboard interrupt is 'threaded' - 
-> hence there's 
-> no 'interrupted stack' to print a backtrace of. You should be able to 
-> see all (including currently running) task's backtraces in SysRq-T 
-> output.
-> 
-> are you trying to use it to debug a particular bug?
+> On Mon, 9 May 2005, aguel.raouf wrote:
+> > 
+> > Hi
+> > 
+> > 
+> > I must modify my distro to not test the status of root
+> > directory  (whether it is (is not) writable). For example,
+> > Slackware is testing the status of the root partition during
+> > boot and if it's read-write,it will display a message and will
+> > wait for user input. This is something we don't like, right?
+> > Unionfs can't be remounted ro, to skip the test. i will need
+> > to do something for my distro.
+> > I want to know what i can do, how i can patch my distro
+> > 
+> > thanks have a good day
+> > 
+> > Accédez au courrier électronique de La Poste : www.laposte.net ;
+> > 3615 LAPOSTENET (0,34EUR/mn) ; tél : 08 92 68 13 50 (0,34EUR/mn)
+> > 
+> Not a kernel question. File /etc/rc.sysinit is the init script
+> that is executed during startup.
 
-No, not yet.
-
-I've been asked to analyze the various tools and possibilities available
-to debug an RT kernel.
-
-Up to now, what I've found is not too impressive:
-* Plain GDB can be used to display the current value of kernel variables
-symbolically, but no more: It won't tell anything about the kernel's
-current activity.
-* kgdb and kdb seem to be deeply incompatible with the RT patches (they
-mess with the scheduler, interrupts etc.), applying their patches to an
-RT tree fails quite impressively.
-* LKCD is too heavy for debugging embedded systems (which do not have
-swap partitions or other permanent memory to spare); for netdump, I was
-unable to find any recent and working download (I found the server, but
-where is the client-side kernel code?); and kdump-via-kexec is "not yet
-there". Moreover, most of them are for i386 and won't support ARM (or
-PPC).
-
-So Sysrq was one of my hopes to give developers an easy tool to check
-quickly where their kernel is, if it still moves or loops, what the
-reg's are, ...
-
-Sysrq t works, but produces by far too much output for that purpose -
-it's hard to get any information (especially if things are still
-changing or already frozen) from Sysrq t "at a quick glance".
-
-Any other hints for debugging?
+Actually, on Slackware, it's /etc/rc.d/rc.S
 
 -- 
-Klaus Kusche                 (Software Development - Control Systems)
-KEBA AG             Gewerbepark Urfahr, A-4041 Linz, Austria (Europe)
-Tel: +43 / 732 / 7090-3120                 Fax: +43 / 732 / 7090-6301
-E-Mail: kus@keba.com                                WWW: www.keba.com
+Jesper Juhl
+

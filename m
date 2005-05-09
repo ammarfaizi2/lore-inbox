@@ -1,64 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261393AbVEIOYe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbVEIOZ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261393AbVEIOYe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 10:24:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbVEIOYY
+	id S261383AbVEIOZ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 10:25:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVEIOZ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 10:24:24 -0400
-Received: from zak.futurequest.net ([69.5.6.152]:32173 "HELO
-	zak.futurequest.net") by vger.kernel.org with SMTP id S261387AbVEIOXn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 10:23:43 -0400
-Date: Mon, 9 May 2005 08:23:38 -0600
-From: Bruce Guenter <bruceg@em.ca>
-To: linux-kernel@vger.kernel.org
-Subject: Re: How to diagnose a kernel memory leak
-Message-ID: <20050509142338.GB16663@em.ca>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20050509035823.GA13715@em.ca> <1115627361.936.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+pHx0qQiF2pBVqBT"
-Content-Disposition: inline
-In-Reply-To: <1115627361.936.11.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.8i
+	Mon, 9 May 2005 10:25:28 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:20911 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S261388AbVEIOYz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 10:24:55 -0400
+Message-ID: <427F746E.612E2CB9@tv-sign.ru>
+Date: Mon, 09 May 2005 18:32:14 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+       linux-kernel@vger.kernel.org, Daniel Walker <dwalker@mvista.com>
+Subject: Re: [PATCH] Priority Lists for the RT mutex
+References: <F989B1573A3A644BAB3920FBECA4D25A0331776B@orsmsx407> <427C6D7D.878935F1@tv-sign.ru> <20050509073043.GA12976@elte.hu> <427F1A99.58BCCB88@tv-sign.ru> <20050509091133.GA25959@elte.hu>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar wrote:
+> 
+> What would be nice to achieve are [low-cost] reductions of the size of
+> struct rt_mutex (in include/linux/rt_lock.h), upon which all other
+> PI-aware locking objects are based. Right now it's 9 words, of which
+> struct plist is 5 words. Would be nice to trim this to 8 words - which
+> would give a nice round size of 32 bytes on 32-bit.
 
---+pHx0qQiF2pBVqBT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yes, the size of pl_head in that patch is 4 words, it doesn't have ->prio.
 
-On Mon, May 09, 2005 at 10:29:21AM +0200, Alexander Nyberg wrote:
-> You should keep an eye on /proc/meminfo but if there is memory that is
-> not accounted for then the patch below might help as it works on a
-> lower level.  It accounts for bare pages in the system available from
-> /proc/page_owner.
-> Select Track page owner under kernel hacking.
-
-I will try that the next time I have to reboot.  As this is a server, I
-cannot arbitrarily take it down unfortunately.
-
-> Also the meminfo you posted, how long had the box been alive when you
-> took it?
-
-Almost exactly 2 days.
---=20
-Bruce Guenter <bruceg@em.ca> http://em.ca/~bruceg/ http://untroubled.org/
-OpenPGP key: 699980E8 / D0B7 C8DD 365D A395 29DA  2E2A E96F B2DC 6999 80E8
-
---+pHx0qQiF2pBVqBT
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFCf3Jq6W+y3GmZgOgRAu5/AKCWssu6XvWzs22njvsEy7B7hs/BsQCePHK5
-ogUYDOz5JFm/pnPVk+WYiwA=
-=ksCy
------END PGP SIGNATURE-----
-
---+pHx0qQiF2pBVqBT--
+Oleg.

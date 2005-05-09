@@ -1,78 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbVEIVOE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbVEIVZR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261528AbVEIVOE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 17:14:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbVEIVOE
+	id S261531AbVEIVZR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 17:25:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261532AbVEIVZR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 17:14:04 -0400
-Received: from pne-smtpout1-sn2.hy.skanova.net ([81.228.8.83]:62156 "EHLO
-	pne-smtpout1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S261528AbVEIVNz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 17:13:55 -0400
-Date: Mon, 9 May 2005 23:13:24 +0200
-From: Per Svennerbrandt <per.svennerbrandt@lbi.se>
-To: Per Liden <per@fukt.bth.se>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] hotplug-ng 002 release
-Message-ID: <20050509211323.GB5297@tsiryulnik>
-Mail-Followup-To: Per Liden <per@fukt.bth.se>,
-	linux-hotplug-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <20050506212227.GA24066@kroah.com> <Pine.LNX.4.63.0505090025280.7682@1-1-2-5a.f.sth.bostream.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0505090025280.7682@1-1-2-5a.f.sth.bostream.se>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 9 May 2005 17:25:17 -0400
+Received: from mxout.hispeed.ch ([62.2.95.247]:58554 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S261531AbVEIVZN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 17:25:13 -0400
+Message-Id: <427FD554.5030207@khandalf.com>
+Date: Mon, 09 May 2005 23:25:40 +0200
+From: "Brian O'Mahoney" <omb@khandalf.com>
+Reply-To: omb@bluewin.ch
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: /proc/cpuinfo format - arch dependent!
+References: <20050508012521.GA24268@SDF.LONESTAR.ORG>
+    <427FA876.7000401@tmr.com> <427FC366.1000506@nortel.com>
+    <20050509202637.GF2297@csclub.uwaterloo.ca>
+In-Reply-To: <20050509202637.GF2297@csclub.uwaterloo.ca>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Md5-Body: 38fe151fd5e53e3ab3a8ae53fc1da1fe
+X-Transmit-Date: Monday, 9 May 2005 23:25:48 +0200
+X-Message-Uid: 0000b49cec9d5a3f0000000200000000427fd55c0008a61f00000001000a2697
+Replyto: omb@bluewin.ch
+X-Sender-Postmaster: Postmaster@80-218-57-125.dclient.hispeed.ch.
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Per Liden (per@fukt.bth.se) wrote:
-> On Fri, 6 May 2005, Greg KH wrote:
-> 
-> [...]
-> > Now, with the 2.6.12-rc3 kernel, and a patch for module-init-tools, the
-> > USB hotplug program can be written with a simple one line shell script:
-> > 	modprobe $MODALIAS
-> 
-> Nice, but why not just convert all this to a call to 
-> request_module($MODALIAS)? Seems to me like the natural thing to do.
+I don't want to butt in on a private fight but, philosophically,
+I would argue that it is up to the kernel to report the real
+hardware configuration in an easy to use, and extensible, way.
 
-I actually have a pretty hackish proof-of-consept patch that does
-basicly that, and have been running it on my systems for the past five
-months or so, if anybody's interested.
+This only needs to be done once. To argue about what application
+writers could or should use, based on what happens today is
+just a cop-out; the only thing one must say is that if the app
+dosn't understand the architecture it must provide defaults.
 
-Along with it I also have a patch witch exports the module aliases for
-PCI and USB devices through sysfs. With it the "coldplugging" of a
-system (module wise) can be reduced to pretty much:
-
-#!/bin/sh
-
-for DEV in /sys/bus/{pci,usb}/devices/*; do
-	modprobe `cat $DEV/modalias`
-done
-
-(And I actually run exactly that on my laptop, and it works surpricingly
-well. (Largly due to the fact that the usb-controller is always attached
-below the pci-bus of course, but it really wouldn't take that much work 
-to make it do the right thing even without relying on any specific 
-ordering/topology))
-
-With the above in place my system does all the module-loading that I
-care about automaticly, and most importantly does so without relying
-on an /etc/hotplug/ dir with everything and it's grandma in it (or at
-least thousands of lines of shellscripting).
-
-But since the request_modalias() thing seemed as such an obvious thing
-to do I have been reluctant to submit it fearing that I must have missed
-some fundamental flaw in it or you guys would have implemented it that 
-way a long time ago? (at least since Rusty rewrote the module
-loader). Was I wrong*?
-
-Greg, Rusty, what do you think?
-
-/ Per Svennerbrandt
-
-* I also actually had my kernel add MODALIAS to the hotplug enviroment
-long before Roman submited his patch doing this, even calling it MODALIAS
-from the very beginning! :) So obviously I've been wrong before...
+- Brian

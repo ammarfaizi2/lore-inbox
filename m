@@ -1,79 +1,44 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262748AbVEGUGY (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sat, 7 May 2005 16:06:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262752AbVEGUGY
+	id S262837AbVEHKOu (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sun, 8 May 2005 06:14:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262840AbVEHKOu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 May 2005 16:06:24 -0400
-Received: from zeus2.kernel.org ([204.152.191.36]:65219 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S262748AbVEGUGS (ORCPT
+	Sun, 8 May 2005 06:14:50 -0400
+Received: from catv-5063dbfc.catv.broadband.hu ([80.99.219.252]:36367 "HELO
+	catv-5063dbfc.catv.broadband.hu") by vger.kernel.org with SMTP
+	id S262837AbVEHKOr convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 May 2005 16:06:18 -0400
-Message-Id: <200505072006.j47K65Si005693@zeus2.kernel.org>
-From: "Info" <canadabooks@internetmailing.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: 900,000 Canadian business database        linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Date: Sat, 7 May 2005 16:06:15 -0400
-Content-Transfer-Encoding: 7BIT
+	Sun, 8 May 2005 06:14:47 -0400
+Date: Mon, 09 May 2005 04:45:36 +0200
+From: Avery Sloan <tnjtee@webtv.com>
+Subject: 0.5 cm growth per week
+To: majordomo@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Message-ID: <39A6DDFB.03248@gte.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 8BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6) Gecko/20040113
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262748AbVEGUGY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262837AbVEHKOu@vger.kernel.org>
+
+Size Gains:
+All users who have followed the Instruction Manual have obtained 
+an increase in penis length. 
+Length gained ranged from 2 inches to 4.5 full inches after 4 months. 
+With the average size gains being a 1 inch gain each 5 weeks 
+(0.5cm growth per week). 
+The-Extender is the fastest way to increase your size perminantly.
+
+Curvature Correction:
+All users that have followed the Instruction Manual have undergone improvement 
+of existing penile curvature. Improvement degree has ranged from 50% to 90% 
+correction (straightening)
+
+http://elongates.net/extender/?897
 
 
-Canda Books
-26 Bellevue
-St-Anne-des-Lacs
-Qc, Canada
-J0R 1B0
-
-
-Press Release
-
-The Canadian Business Database 2005 is now available.
-
-This database contains more than 900,000 Canadian based businesses.
-
-It is deemed to be the perfect tool for entrepreneurs and marketing
-professionals to quickly gain access to a wealth of information to 
-start a direct marketing campaign.  
-
-It is fully exportable to suit all your direct marketing needs. 
-You can use it with your favorite software such as Avery labelPro,
-Winfax, Excel,Filemaker, Act, Goldmine, MS Office application 
-or any other software or spreadsheet.
-
-Each business includes:
-
--Company name
--Full mailing address
--Telephone 
--Fax number (when available)
-
-
-Search by over 500 categories such as:
-
-Advertising Agencies & Counselors
-Aerospace Industries
-Agricultural Engineers
-Air Conditioning & Heating
-Building Materials   
-Buildings - Metal   
-Burglar Alarm Systems & Equipment
-Nutritionists    
-Office Furniture & Equipment    
-Office Supplies    
-Oil & Gas Exploration & Development   
-Oil & Lubrication 
-
-And the list goes on...........  
-
-
-The database is sold for:  $149.95
-
-To order please call:    450-224-zarl(9275)
-
-
-
-
-linux-kernel@vger.kernel.org
+No thanks, go here
+http://elongates.net/rm.php?897

@@ -1,70 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263062AbVEIGdg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263063AbVEIGp3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263062AbVEIGdg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 02:33:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263063AbVEIGdg
+	id S263063AbVEIGp3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 02:45:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263066AbVEIGp3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 02:33:36 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:57562 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S263062AbVEIGdd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 02:33:33 -0400
-Date: Mon, 9 May 2005 17:35:09 +0530
-From: R Sharada <sharada@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: paulus@samba.org, torvalds@osdl.org, anton@samba.org,
-       linux-kernel@vger.kernel.org, miltonm@bga.com, fastboot@lists.osdl.org
-Subject: Re: [PATCH] ppc64: kexec support for ppc64
-Message-ID: <20050509120509.GA9149@in.ibm.com>
-Reply-To: sharada@in.ibm.com
-References: <17019.3752.917407.742713@cargo.ozlabs.ibm.com> <20050506124158.GA2741@in.ibm.com> <20050506124409.GB2741@in.ibm.com> <20050506160546.388aeed4.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 9 May 2005 02:45:29 -0400
+Received: from smtp101.rog.mail.re2.yahoo.com ([206.190.36.79]:50365 "HELO
+	smtp101.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S263063AbVEIGpX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 02:45:23 -0400
+From: Shawn Starr <spstarr@sh0n.net>
+Organization: sh0n.net
+To: Stefan Seyfried <seife@suse.de>
+Subject: Re: [2.6.12-rc3][SUSPEND] qla1280 (QLogic 12160 Ultra3) blows up on A7M266-D
+Date: Mon, 9 May 2005 02:45:05 -0400
+User-Agent: KMail/1.7.2
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Shawn Starr <shawn.starr@rogers.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+References: <20050503181018.37973.qmail@web88008.mail.re2.yahoo.com> <20050507082548.GA18700@infradead.org> <427CC24F.9010304@suse.de>
+In-Reply-To: <427CC24F.9010304@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050506160546.388aeed4.akpm@osdl.org>
-User-Agent: Mutt/1.4i
+Message-Id: <200505090245.05662.spstarr@sh0n.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andrew,
 
-On Fri, May 06, 2005 at 04:05:46PM -0700, Andrew Morton wrote:
-> R Sharada <sharada@in.ibm.com> wrote:
+Well, it makes sense, normally you won't find SCSI on desktops so why bother 
+with suspend. I don't know if the cards can do it or not, since they need 
+their firmware loaded at driver init. The firmware would need to be modified 
+to support such state?
+
+Shawn.
+
+On May 7, 2005 09:27, Stefan Seyfried wrote:
+> Christoph Hellwig wrote:
+> > On Fri, May 06, 2005 at 11:34:02PM +0200, Stefan Seyfried wrote:
+> >> Known, XFS was broken / breaking wrt suspend. Pavel fixed this with the
+> >> XFS guys IIRC and i think those patches were on lkml also, but am not
+> >> sure. => this should work soon.
 > >
-> > This patch implements the kexec support for ppc64
-> 
-> Well that's pretty neat.   How well does this work?
-> 
-
-We have tested the kexec support for ppc64, on the following platforms:                                                                                
-- Power4 (p630), in lpar, non-lpar mode
-- Power5
-
-The Power4 testing was done on 4-cpu non-lpar and 2-cpu lpar configurations.
-                                                                                
-        It has been tested to work in both the lpar and non-lpar environments,
-on Power4 and we have tested successive kexec reboots as well and found it to
-work. The only thing that we found that had to be done was to make sure the
-network interface was brought down, prior to reboot, as otherwise it would
-sometimes cause EEH errors.
-        Milton has tested it on his Power5 environment as well.
-        On lpar on Power5, that Haren has been testing, he has been observing
-that in 2nd or 3rd successive kexec reboot, the IPR SCSI driver initially comes
-up ok but after a while interrupts seem to be getting disabled and while the h/wis sending the interrupts, they do not get serviced and are getting lost. Haren
-has been working on debugging this, with assistance from Milton.
-                                                                                
-We however, do not have the kexec-tools code for ppc64 inside of kexec-tools.
-We have been using home-grown code for loading, generating the device-tree data
-and assembly trampoline code for the kexec transition to the new kernel. This
-tools is currently hosted at the following url:
-http://www.kernel.org/pub/linux/kernel/people/suparna/kdump/ppc64-tools-20050331.tar.gz
-
-I am currently working on integrating them into Eric's kexec-tools. 
-
-> I assume you'll be working on kdump-via-kexec for ppc64?
-> 
-Yes, once the kexec-tools is integrated into Eric's kexec-tools, we will work
-on getting the kdump parts in place for ppc64.
-
-Thanks and Regards,
-Sharada
+> > Pavel's fix wasn't enough.
+>
+> That's what i wanted to tell with "...with the XFS guys..." :-)
+>
+> > The fix that has been verified to work is
+> > in 2.6.12-rc4.
+>
+> Ok, i only knew there was something in the works.
+>
+> > qla1280 doesn't handle suspend/resume indeed.
+>
+> As almost all SCSI stuff, which is no surprise to me since suspend /
+> resume seem rather uncommon on servers where SCSI is mostly used today
+> ;-) I was more baffled to find out that the brand new SATA drivers had
+> no suspend support.

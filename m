@@ -1,79 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261545AbVEIWRq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbVEIWWE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261545AbVEIWRq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 18:17:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbVEIWRq
+	id S261548AbVEIWWE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 18:22:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbVEIWWE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 18:17:46 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:2948 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S261545AbVEIWRi (ORCPT
+	Mon, 9 May 2005 18:22:04 -0400
+Received: from fsmlabs.com ([168.103.115.128]:54152 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S261548AbVEIWWB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 18:17:38 -0400
-Date: Tue, 10 May 2005 01:43:59 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: guillaume.thouvenin@bull.net, alexn@dsv.su.se,
-       linux-kernel@vger.kernel.org, jlan@engr.sgi.com, aquynh@gmail.com,
-       elsa-devel@lists.sourceforge.net
-Subject: Re: [PATCH 2.6.12-rc3-mm3] connector: add a fork connector
-Message-ID: <20050510014359.074109d8@zanzibar.2ka.mipt.ru>
-In-Reply-To: <20050509140836.066008e0.akpm@osdl.org>
-References: <1115626029.8548.24.camel@frecb000711.frec.bull.fr>
-	<1115631107.936.25.camel@localhost.localdomain>
-	<1115638724.8540.59.camel@frecb000711.frec.bull.fr>
-	<20050509154809.19076fe0@zanzibar.2ka.mipt.ru>
-	<20050509140836.066008e0.akpm@osdl.org>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [194.85.82.65]); Tue, 10 May 2005 01:44:05 +0400 (MSD)
+	Mon, 9 May 2005 18:22:01 -0400
+Date: Mon, 9 May 2005 16:24:32 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Rudolf Usselmann <rudi@asics.ws>
+cc: "Frank Denis (Jedi/Sector One)" <j@pureftpd.org>,
+       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: kernel (64bit) 4GB memory support
+In-Reply-To: <1115654185.3296.658.camel@cpu10>
+Message-ID: <Pine.LNX.4.61.0505091623540.22669@montezuma.fsmlabs.com>
+References: <41BAC68D.6050303@pobox.com> <1102760002.10824.170.camel@cpu0> 
+ <41BB32A4.2090301@pobox.com> <1102824735.17081.187.camel@cpu0> 
+ <Pine.LNX.4.61.0412112141180.7847@montezuma.fsmlabs.com> 
+ <1102828235.17081.189.camel@cpu0>  <Pine.LNX.4.61.0412120131570.7847@montezuma.fsmlabs.com>
+  <1102842902.10322.200.camel@cpu0>  <Pine.LNX.4.61.0412120934160.14734@montezuma.fsmlabs.com>
+  <1103027130.3650.73.camel@cpu0>  <20041216074905.GA2417@c9x.org> 
+ <1103213359.31392.71.camel@cpu0>  <Pine.LNX.4.61.0412201246180.12334@montezuma.fsmlabs.com>
+  <1103646195.3652.196.camel@cpu0>  <Pine.LNX.4.61.0412210930280.28648@montezuma.fsmlabs.com>
+  <1103647158.3659.199.camel@cpu0>  <Pine.LNX.4.61.0412210955130.28648@montezuma.fsmlabs.com>
+ <1115654185.3296.658.camel@cpu10>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 May 2005 14:08:36 -0700
-Andrew Morton <akpm@osdl.org> wrote:
+On Mon, 9 May 2005, Rudolf Usselmann wrote:
 
-> Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> >
-> > > In the previous connector, cn_netlink_send(struct cn_msg *msg, u32
-> > > __groups) called alloc_skb(size, GFP_ATOMIC). Now a third parameter is
-> > > used with cn_netlink_send() in order to call alloc_skb(size, gfp_mask)
-> > > with a specific gfp_mask. So, I'm using GFP_ATOMIC as the third argument
-> > > to keep the same behavior.
-> > 
-> > It was atomic there to allow non process context usage.
-> > Since do_fork() is executed in process context you can use GFP_KERNEL with 
-> > __GFP_NOFAIL  - it will guarantee memory allocation.
+> Just curious, did anybody ever look in to this at all ? I keep
+> on downloading new kernels and trying 4GB of memory - still no
+> luck.
 > 
-> Please avoid using __GFP_NOFAIL.
+> I did file a bug report but didn't get any notifications at all.
+> I don't subscribe to the linux-kernel list so not sure if anything
+> ever came up or not.
 > 
-> __GFP_NOFAIL was introduced because we had lots of places in the kernel
-> which were doing:
-> 
-> try_again:
-> 	p = allocate_something();
-> 	if (!p) {
-> 		/* A am too lame to handle this */
-> 		delay_in_some_manner();
-> 		goto try_again;
-> 	}
-> 
-> __GFP_NOFAIL simply takes the above bad code and centralises it so it's
-> always done in the same way and so that it's easily greppable for.  But
-> it's still bad (ie: deadlocky) code.
-> 
-> Well-behaved code should notice the allocation failure and should back out
-> gracefully.
+> Is there a way to get this fixed ?
 
-If system under so bad conditions that even process context allocation
-fails, then connector may drop message and will return error,
-probably in such conditions one may not even trust accounting data,
-so, Guillaume, feel free to drop it and just do not send data - 
-it's only a matter of information importance.
+I still am unable to find an associated bug with it, is there an updated 
+BIOS for your board?
 
-	Evgeniy Polyakov
-
-Only failure makes us experts. -- Theo de Raadt

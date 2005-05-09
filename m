@@ -1,80 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVEIXN4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbVEIXVj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261254AbVEIXN4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 19:13:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbVEIXN4
+	id S261354AbVEIXVj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 19:21:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261410AbVEIXVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 19:13:56 -0400
-Received: from one.firstfloor.org ([213.235.205.2]:45034 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S261254AbVEIXNx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 19:13:53 -0400
-To: rudi@asics.ws
-Cc: "Frank Denis (Jedi/Sector One)" <j@pureftpd.org>,
-       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: kernel (64bit) 4GB memory support II
-References: <41BAC68D.6050303@pobox.com> <1102760002.10824.170.camel@cpu0>
-	<41BB32A4.2090301@pobox.com> <1102824735.17081.187.camel@cpu0>
-	<Pine.LNX.4.61.0412112141180.7847@montezuma.fsmlabs.com>
-	<1102828235.17081.189.camel@cpu0>
-	<Pine.LNX.4.61.0412120131570.7847@montezuma.fsmlabs.com>
-	<1102842902.10322.200.camel@cpu0>
-	<Pine.LNX.4.61.0412120934160.14734@montezuma.fsmlabs.com>
-	<1103027130.3650.73.camel@cpu0> <20041216074905.GA2417@c9x.org>
-	<1103213359.31392.71.camel@cpu0>
-	<Pine.LNX.4.61.0412201246180.12334@montezuma.fsmlabs.com>
-	<1103646195.3652.196.camel@cpu0>
-	<Pine.LNX.4.61.0412210930280.28648@montezuma.fsmlabs.com>
-	<1103647158.3659.199.camel@cpu0>
-	<Pine.LNX.4.61.0412210955130.28648@montezuma.fsmlabs.com>
-	<1115654185.3296.658.camel@cpu10>
-From: Andi Kleen <ak@muc.de>
-In-Reply-To: <1115654185.3296.658.camel@cpu10> (Rudolf Usselmann's message
- of "Mon, 09 May 2005 22:56:25 +0700")
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-Date: Tue, 10 May 2005 01:13:52 +0200
-Message-ID: <m1zmv4t2kv.fsf_-_@muc.de>
+	Mon, 9 May 2005 19:21:38 -0400
+Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:20621 "HELO
+	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261354AbVEIXV1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 19:21:27 -0400
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: akpm@osdl.org
+Subject: [patch 0/6] latest bugfixes for 2.6.12
+Date: Tue, 10 May 2005 01:10:15 +0200
+User-Agent: KMail/1.8
+Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200505100110.16920.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rudolf Usselmann <rudi@asics.ws> writes:
->
-> Just curious, did anybody ever look in to this at all ? I keep
-> on downloading new kernels and trying 4GB of memory - still no
-> luck.
->
-> I did file a bug report but didn't get any notifications at all.
-> I don't subscribe to the linux-kernel list so not sure if anything
-> ever came up or not.
->
-> Is there a way to get this fixed ?
+Here are some more fixes intended for 2.6.12 (and well tested). Can you merge 
+them soon, Andrew? Thanks.
 
-Does the following patch (against a 2.6.12rc3 kernel) fix your problems?
+The first is a particularly bad one since it shows up when you *start* 
+compiling UML (due to a quilt patch -> normal patch conversion problem, a 
+file wasn't actually deleted, but it was when applied through quilt). Was 
+this too quick a merge, maybe? What's your "merging policy" (if any) for 
+patches?
 
--Andi
+Also, I had marked some of the patches I sent as needing some staging time in 
+-mm (especially "uml: redo console locking"), while I had marked other ones 
+as needing immediate merge. Jeff instead has sent some "cleanup / groundwork 
+for future work" (which anyway were mostly trivial) together with some urgent 
+fixes.
 
-[...]
+Actually they aren't a problem (especially because UML has almost no support 
+for SMP) however this policy risks breaking things.
 
-Please use this version instead, previous one was broken.
+We had the exactly opposite problem for 2.6.10 release - some important fixes 
+which were sent by Jeff just before 2.6.10 release to be merged in it (but 
+which weren't explicitly marked as such) were merged in 2.6.10-mm1.
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Skype user "PaoloGiarrusso"
+Linux registered user n. 292729
+http://www.user-mode-linux.org/~blaisorblade
 
-Don't look up struct page * of physical address in iounmap
-
-it could be in a memory hole not mapped in mem_map
-
-Signed-off-by: Andi Kleen <ak@suse.de>
-
-Index: linux/arch/x86_64/mm/ioremap.c
-===================================================================
---- linux.orig/arch/x86_64/mm/ioremap.c
-+++ linux/arch/x86_64/mm/ioremap.c
-@@ -272,7 +272,7 @@ void iounmap(volatile void __iomem *addr
- 	if ((p->flags >> 20) &&
- 		p->phys_addr + p->size - 1 < virt_to_phys(high_memory)) {
- 		/* p->size includes the guard page, but cpa doesn't like that */
--		change_page_attr(virt_to_page(__va(p->phys_addr)),
-+		change_page_attr_addr(__va(p->phys_addr),
- 				 p->size >> PAGE_SHIFT,
- 				 PAGE_KERNEL);
- 		global_flush_tlb();

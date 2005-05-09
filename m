@@ -1,92 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261479AbVEITZg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbVEITfm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261479AbVEITZg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 15:25:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbVEITYb
+	id S261491AbVEITfm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 15:35:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbVEITfm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 15:24:31 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:37532 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261479AbVEITWu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 15:22:50 -0400
-Message-ID: <427FA557.3030400@tmr.com>
-Date: Mon, 09 May 2005 14:00:55 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
-X-Accept-Language: en-us, en
+	Mon, 9 May 2005 15:35:42 -0400
+Received: from fmr20.intel.com ([134.134.136.19]:929 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261491AbVEITfh convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 15:35:37 -0400
+x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Ricky Beam <jfbeam@bluetronic.net>
-CC: Nico Schottelius <nico-kernel@schottelius.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: /proc/cpuinfo format - arch dependent!
-References: <20050419121530.GB23282@schottelius.org> <Pine.GSO.4.33.0505062324550.1894-100000@sweetums.bluetronic.net>
-In-Reply-To: <Pine.GSO.4.33.0505062324550.1894-100000@sweetums.bluetronic.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH 2/4] rt_mutex: add new plist implementation
+Date: Mon, 9 May 2005 12:35:13 -0700
+Message-ID: <F989B1573A3A644BAB3920FBECA4D25A0335DBE0@orsmsx407>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 2/4] rt_mutex: add new plist implementation
+Thread-Index: AcVUo/YhG+Sc0UY3QISmqWvOIKDnMAAKX4+Q
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "Oleg Nesterov" <oleg@tv-sign.ru>, "Ingo Molnar" <mingo@elte.hu>
+Cc: <linux-kernel@vger.kernel.org>, "Daniel Walker" <dwalker@mvista.com>
+X-OriginalArrivalTime: 09 May 2005 19:35:15.0868 (UTC) FILETIME=[39BE0DC0:01C554CE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ricky Beam wrote:
-> On Tue, 19 Apr 2005, Nico Schottelius wrote:
-> 
->>When I wrote schwanz3(*) for fun, I noticed /proc/cpuinfo
->>varies very much on different architectures.
-> 
-> 
-> Yep, and it has been this way since the begining of time.
-> 
-> 
->>So that one at least can count the cpus on every system the same way.
-> 
-> 
-> Hah.  Give me a minute to stop laughing...  I argued the same point almost
-> a decade ago.  Linus decided to be an ass and flat refused to ever export
-> numcpu (or any of the current day derivatives) which brought us to the
-> bullshit of parsing the arch dependant /proc/cpuinfo.
 
-Don't ever take up a career as a diplomat, no one in their right mind 
-would want such a tactless person for a diplomatic job, say UN ambasador 
-for instance.
+Hi Oleg
 
-Linus did what was probably right then. I would agree that there is room 
-for something better now. Just to prove it could be done (not that this 
-is the only or best way):
+>From: Oleg Nesterov
 
-   cpu0 {
-     socket: 0
-     chip-cache: 0
-     num-core: 2
-     per-core-cache: 512k
-     num-siblings: 2
-     sibling-cache: 0
-     family: i86
-     features: sse2 sse3 xxs bvd
-     # stepping and revision info
-   }
-   cpu1 {
-     socket: 1
-     chip-cache: 0
-     num-core: 1
-     pre-core-cache: 512k
-     num-siblings: 2
-     sibling-cache: 64k
-     family: i86
-     features: sse2 sse3 xxs bvd kook2
-     # stepping and revision info
-   }
+>+extern void plist_add(struct pl_node *node, struct pl_head *head);
+>+extern void plist_del(struct pl_node *node);
 
-This is just proof of concept, you can have per-chip, per-core, and 
-per-sibling cache for instance, but I can't believe that anyone would 
-make a chip where the cache per core or per sibling differed, or the 
-instruction set, etc. Depending on where you buy your BS, Intel and AMD 
-will (or won't) make single and dual core chips to fit the same socket.
+At least I'd add return codes for this if the head's priority 
+changes (or in this case, because head's have no prio, if the 
+first node's  prio change). Both function's  logic should make
+it easy to test and it'd save a lot of code in the caller.
 
-The complexity wasn't needed a decade ago, and I'm not sure it is now, 
-other than it being easy to display if people don't complain about 
-breaking the existing format.
-
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
-
+-- Inaky

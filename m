@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261342AbVEIM3m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261305AbVEIMcQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261342AbVEIM3m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 08:29:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVEIM32
+	id S261305AbVEIMcQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 08:32:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVEIMcQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 08:29:28 -0400
-Received: from mail.gmx.net ([213.165.64.20]:15252 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261305AbVEIM3Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 08:29:25 -0400
-X-Authenticated: #5039886
-Date: Mon, 9 May 2005 14:29:16 +0200
-From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org
-Subject: [patch] mm: fix rss counter being incremented when unmapping
-Message-ID: <20050509122916.GA30726@doener.homenet>
-Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.8i
-X-Y-GMX-Trusted: 0
+	Mon, 9 May 2005 08:32:16 -0400
+Received: from pacific.moreton.com.au ([203.143.235.130]:29960 "EHLO
+	bne.snapgear.com") by vger.kernel.org with ESMTP id S261305AbVEIMcN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 08:32:13 -0400
+Message-ID: <427F5B12.2080505@snapgear.com>
+Date: Mon, 09 May 2005 22:44:02 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: uClinux development list <uclinux-dev@uclinux.org>
+Cc: Linux-Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [uClinux-dev] [PATCH 4/4] nommu - backward compatibility patch
+ for mm/nommu.c
+References: <0IG400GWS1JUNY@mmp2.samsung.com> <5121.1115632908@redhat.com>
+In-Reply-To: <5121.1115632908@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes a bug introduced by the "mm counter operations through
-macros" patch, which replaced a decrement operation in with an increment
-macro in try_to_unmap_one().
 
-Signed-off-by: Björn Steinbrink <B.Steinbrink@gmx.de>
+David Howells wrote:
+> Hyok S. Choi <hyok.choi@samsung.com> wrote:
+> 
+> 
+>>-		    (*parent)->vma->vm_end == end)
+>>+		    (!len || (*parent)->vma->vm_end == end))
+> 
+> 
+> Please make this configurable. It's bypassing an error case check.
 
-diff -NurpP --minimal linux-2.6.12-rc4/mm/rmap.c linux-2.6.12-rc4-fixed/mm/rmap.c
---- linux-2.6.12-rc4/mm/rmap.c  2005-05-08 17:53:49.000000000 +0200
-+++ linux-2.6.12-rc4-fixed/mm/rmap.c    2005-05-09 13:38:03.000000000 +0200
-@@ -586,7 +586,7 @@ static int try_to_unmap_one(struct page 
-                dec_mm_counter(mm, anon_rss);
-        }
- 
--       inc_mm_counter(mm, rss);
-+       dec_mm_counter(mm, rss);
-        page_remove_rmap(page);
-        page_cache_release(page);
- 
+I disagree, I don't think it warrents yet another configuration option.
+
+Most uClinux archiectures don't want to do this size error check - at
+least any that rely on the current implementation of light weight uClibc
+mmap() based malloc(). And up until recently this was _every_ uClinux
+architecture.
+
+Regards
+Greg
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
+SnapGear -- a CyberGuard Company            PHONE:       +61 7 3435 2888
+825 Stanley St,                             FAX:         +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com

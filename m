@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261388AbVEIXXb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261392AbVEIX13@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261388AbVEIXXb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 19:23:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261337AbVEIXVp
+	id S261392AbVEIX13 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 19:27:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVEIXX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 19:21:45 -0400
-Received: from [151.97.230.9] ([151.97.230.9]:31506 "HELO ssc.unict.it")
-	by vger.kernel.org with SMTP id S261385AbVEIXVi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 19:21:38 -0400
-Subject: [patch 3/6] uml: add modversions support
-To: akpm@osdl.org
-Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
-From: blaisorblade@yahoo.it
-Date: Tue, 10 May 2005 00:45:15 +0200
-Message-Id: <20050509224515.4EF5F13C216@zion>
+	Mon, 9 May 2005 19:23:59 -0400
+Received: from lyle.provo.novell.com ([137.65.81.174]:26753 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S261392AbVEIXWF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 19:22:05 -0400
+Date: Mon, 9 May 2005 16:22:07 -0700
+From: Greg KH <gregkh@suse.de>
+To: Per Liden <per@fukt.bth.se>
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] hotplug-ng 002 release
+Message-ID: <20050509232207.GB24238@suse.de>
+References: <20050506212227.GA24066@kroah.com> <Pine.LNX.4.63.0505090025280.7682@1-1-2-5a.f.sth.bostream.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.63.0505090025280.7682@1-1-2-5a.f.sth.bostream.se>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, May 09, 2005 at 12:52:02AM +0200, Per Liden wrote:
+> On Fri, 6 May 2005, Greg KH wrote:
+> 
+> [...]
+> > Now, with the 2.6.12-rc3 kernel, and a patch for module-init-tools, the
+> > USB hotplug program can be written with a simple one line shell script:
+> > 	modprobe $MODALIAS
+> 
+> Nice, but why not just convert all this to a call to 
+> request_module($MODALIAS)? Seems to me like the natural thing to do.
 
-Actually, the real support was added by some earlier patches. Now we simply
-re-enable the config. option. I've actually tested it and it works well.
+Because that's not the only thing that the hotplug event causes to
+happen.  It's easier to have userspace decide what to do with this
+instead.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
+> [...]
+> > Oh, and the upstream module-init-tools maintainer needs to accept that
+> > patch one of these days...
+> 
+> Where can this patch be found?
 
- linux-2.6.git-paolo/init/Kconfig |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+Just sent it to this same thread.
 
-diff -puN init/Kconfig~uml-modversions-resupport init/Kconfig
---- linux-2.6.git/init/Kconfig~uml-modversions-resupport	2005-05-10 00:38:21.000000000 +0200
-+++ linux-2.6.git-paolo/init/Kconfig	2005-05-10 00:38:21.000000000 +0200
-@@ -442,7 +442,7 @@ config OBSOLETE_MODPARM
- 
- config MODVERSIONS
- 	bool "Module versioning support (EXPERIMENTAL)"
--	depends on MODULES && EXPERIMENTAL && !UML
-+	depends on MODULES && EXPERIMENTAL
- 	help
- 	  Usually, you have to use modules compiled with your kernel.
- 	  Saying Y here makes it sometimes possible to use modules
-_
+thanks,
+
+greg k-h

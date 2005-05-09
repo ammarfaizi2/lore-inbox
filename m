@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbVEIPTU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbVEIPUJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261418AbVEIPTU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 11:19:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbVEIPTU
+	id S261416AbVEIPUJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 11:20:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbVEIPUG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 11:19:20 -0400
-Received: from az33egw01.freescale.net ([192.88.158.102]:25053 "EHLO
-	az33egw01.freescale.net") by vger.kernel.org with ESMTP
-	id S261418AbVEIPTQ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 11:19:16 -0400
-In-Reply-To: <Pine.LNX.4.63.0505061718380.6288@xmission.xmission.com>
-References: <Pine.LNX.4.63.0505061718380.6288@xmission.xmission.com>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Message-Id: <b0aede90eb15562c0dd5a44c10d1b965@freescale.com>
-Content-Transfer-Encoding: 8BIT
-Cc: linuxppc-embedded list <linuxppc-embedded@ozlabs.org>,
-       Tom Rini <trini@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       "<cpclark@xmission.com> <cpclark@xmission.com>" 
-	<cpclark@xmission.com>
-From: Kumar Gala <kumar.gala@freescale.com>
-Subject: Re: PPC uImage build not reporting correctly
-Date: Mon, 9 May 2005 10:19:01 -0500
-To: Sam Ravnborg <sam@ravnborg.org>
-X-Mailer: Apple Mail (2.619.2)
+	Mon, 9 May 2005 11:20:06 -0400
+Received: from web25102.mail.ukl.yahoo.com ([217.12.10.50]:1180 "HELO
+	web25102.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261416AbVEIPTv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 11:19:51 -0400
+Message-ID: <20050509151942.90582.qmail@web25102.mail.ukl.yahoo.com>
+Date: Mon, 9 May 2005 17:19:42 +0200 (CEST)
+From: moreau francis <francis_moreau2000@yahoo.fr>
+Subject: Re: advices for a lcd driver design.
+To: Willy Tarreau <willy@w.ods.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: 6667
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Willy
 
-On May 6, 2005, at 6:22 PM, <cpclark@xmission.com> wrote:
+--- Willy Tarreau <willy@w.ods.org> a écrit:
+> Hi Francis,
+> 
+> There already are several drivers for this display, why write another one ?
+> One I use and know (because I wrote it :-)) is available here :
 
-> On Fri, 6 May 2005, Kumar Gala wrote:
->  > I tried the following w/o success:
->  >
-> > $(obj)/uImage: $(obj)/vmlinux.gz
-> >         $(Q)rm -f $@
->  >         $(call if_changed,uimage)
-> >         @echo '  Image: $@' $(shell if [ -f $@ ]; then echo 'is 
-> ready'; else
->  > echo 'not made'; fi)
->
-> Couldn't you eliminate the ($shell ..) construct altogether, like 
-> this?:
->
-> $(obj)/uImage: $(obj)/vmlinux.gz
->         $(Q)rm -f $@
->          $(call if_changed,uimage)
->         @echo -n '  Image: $@'
->          @if [ -f $@ ]; then echo 'is ready' ; else echo 'not made'; fi
+sorry I wasn't clear in my last email, when I said 'HD44780 compatible display'
+I was talking about electrical signals compatibity.
+Actually I will use a lcd that supports graphical or text (80x20) mode. 
+I assume that a design for this kind of lcd is different from hd44780's one. 
+And that's the reason I want to use kernel vc...
 
-Yes, and this seems to actually work.
+        Francis
 
-Sam, does this look reasonable to you.  If so I will work up a patch.
 
-thanks
 
-- kumar
+	
 
+	
+		
+__________________________________________________________________
+Découvrez le nouveau Yahoo! Mail : 250 Mo d'espace de stockage pour vos mails ! 
+Créez votre Yahoo! Mail sur http://fr.mail.yahoo.com/

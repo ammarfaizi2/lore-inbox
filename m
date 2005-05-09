@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261374AbVEIOFr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261379AbVEIOHi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261374AbVEIOFr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 10:05:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbVEIOFr
+	id S261379AbVEIOHi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 10:07:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVEIOHi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 10:05:47 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:33478 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261374AbVEIOFi convert rfc822-to-8bit
+	Mon, 9 May 2005 10:07:38 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:42233 "EHLO
+	dhcp153.mvista.com") by vger.kernel.org with ESMTP id S261380AbVEIOH2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 10:05:38 -0400
-Subject: Re: [PATCH] Support for dx directories in ext3_get_parent (NFSD)
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Henrik =?ISO-8859-1?Q?Grubbstr=F6m?= <grubba@roxen.com>
-Cc: Andreas Dilger <adilger@clusterfs.com>, "akpm@osdl.org" <akpm@osdl.org>,
-       Neil Brown <neilb@cse.unsw.edu.au>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <Pine.GSO.4.21.0505091135290.22820-100000@jms.roxen.com>
-References: <Pine.GSO.4.21.0505091135290.22820-100000@jms.roxen.com>
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1115647514.1984.71.camel@sisko.sctweedie.blueyonder.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Mon, 09 May 2005 15:05:14 +0100
+	Mon, 9 May 2005 10:07:28 -0400
+Date: Mon, 9 May 2005 07:07:21 -0700 (PDT)
+From: Daniel Walker <dwalker@mvista.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+cc: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+       <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH] Priority Lists for the RT mutex
+In-Reply-To: <427C6D7D.878935F1@tv-sign.ru>
+Message-ID: <Pine.LNX.4.44.0505090706260.6722-100000@dhcp153.mvista.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Mon, 2005-05-09 at 10:46, Henrik Grubbström wrote:
-
-> > ext3_get_parent() is IMHO the wrong place to fix this bug as it introduces
-> > a lot of internals from htree into that function.  Instead, I think this
-> > should be fixed in ext3_find_entry() as in the below patch.  This has the
-> > added advantage that it works for any callers of ext3_find_entry() and not
-> > just ext3_lookup_parent().
+On Sat, 7 May 2005, Oleg Nesterov wrote:
+> Yes. ->node_list contains *ALL* nodes, that is why we can:
 > 
-> The reason I didn't put it there is that handling of ".." is usually
-> performed by fs/namei.c:link_path_walk() and putting it in
-> ext3_find_entry() or one of the functions it calls would slow down the
-> common case.
+> 	#define	plist_for_each(pos, head)	\
+> 		 list_for_each_entry(pos, &(head)->node_list, node_list)
+> 
+> head <=======>  prio=1 <===> prio=2 <===> ...
+>                  /\        /|  /\
+>                  |         |   |
+>                  \/        |   \/
+>                 prio=1     | prio=2
+>                  /\       /    /\
+>                  |       /     |
+>                  \/     /      \/
+>                 prio=1 /      ....
+>                   <---/
+> 
+>                                /\
+> Where <===> means ->prio_list, |  ->node_list.
+>                                \/
+> Will do. However, I'm unfamiliar with Ingo's tree, so I
+> can send only new plist's implementation.
 
-True, but the extra cost is to evaluate
 
-if (namelen > 2 || name[0] != '.'||(name[1] != '.' && name[1] != '\0')
+I've got something like this queued up .. Feel free to send yours as well 
+.. 
 
-as false.  That's not going to take long most of the time.  And this
-solution has two other big advantages: it fixes things for all lookups,
-not just NFS, and hence is safer against this bug cropping up again in
-the future in unexpected places; and it includes less dependency on
-htree internals, as Andreas said.
 
-I'll have a closer review of the patch, but for now I think I like
-Andreas's version better.
-
-Cheers,
- Stephen
+Daniel
 

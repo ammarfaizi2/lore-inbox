@@ -1,59 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbVEJCFk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbVEJCPm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261482AbVEJCFk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 22:05:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbVEJCFk
+	id S261445AbVEJCPm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 22:15:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbVEJCPm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 22:05:40 -0400
-Received: from wproxy.gmail.com ([64.233.184.204]:60039 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261482AbVEJCFf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 22:05:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WcsQoMQFrvaxK8d01+LUMyj3sv6jd5u0wvZyLYcP4COjoKuUFC3oL3gxdg4T1H28hWN6fuc21BJJ1zZoJL4eC2bjUgdVCfUkYwgeRKm22UGj/N/GW+VirYZlYotexQKtiPHi0Qazy9JgvE4lhlgjm53jF0svgBVfl8TH0CYqivs=
-Message-ID: <5eb4b065050509190549b1100d@mail.gmail.com>
-Date: Tue, 10 May 2005 10:05:34 +0800
-From: KC <kcc1967@gmail.com>
-Reply-To: KC <kcc1967@gmail.com>
-To: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>
-Subject: Re: proc_mknod() replacement
-Cc: Erik Mouw <erik@harddisk-recovery.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200505092107.j49L7J7C028882@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <5eb4b06505050904172655477c@mail.gmail.com>
-	 <20050509154147.GC5799@harddisk-recovery.com>
-	 <5eb4b065050509100638bd7970@mail.gmail.com>
-	 <200505092107.j49L7J7C028882@turing-police.cc.vt.edu>
+	Mon, 9 May 2005 22:15:42 -0400
+Received: from mail-in-08.arcor-online.net ([151.189.21.48]:3240 "EHLO
+	mail-in-08.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261445AbVEJCPf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 22:15:35 -0400
+From: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
+	<7eggert@gmx.de>
+Subject: Re: [patch 1/6] uml: remove elf.h [ compile-fix, for 2.6.12 ]
+To: Andrew Morton <akpm@osdl.org>, blaisorblade@yahoo.it, jdike@addtoit.com,
+       linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
+Reply-To: 7eggert@gmx.de
+Date: Tue, 10 May 2005 04:15:14 +0200
+References: <42q12-7bE-5@gated-at.bofh.it> <42rTb-fj-11@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+Message-Id: <E1DVKHF-0004w9-Ua@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/10/05, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
-> On Tue, 10 May 2005 01:06:08 +0800, KC said:
-> 
-> > Why I want to use proc_mknod() in driver ?  I write a small package, ovi-dev,
-> > which can be downloaded from
-> > http://www.sourceforge.net/projects/ovi
-> > The ovi-dev will scan the PCI bus and if it found, eg, 3 PCI devices, it
-> > will create 3 device entries (nodes) automatically at module load time.
-> > So number of device entries (nodes) will match number of devices
-> > of the system ... well, UNIX/Linux doesn't work that way ... there are a lot
-> > of device entries ... but no corresponding hardware existed.
-> 
-> Congrats.  You've re-invented udev.
+Andrew Morton <akpm@osdl.org> wrote:
 
-No, it's not ... dynamic entry is not my purpose, but a good
-feature which I want to have in my package and I did it using
-proc_mknod() for 2.4.x ... 
-Anyway, I'll check udev to see if it's enough for me.
+> hmm, that's exciting.  How to tell diff and patch to remove a zero-length
+> file?
 
-Thanks
-KC
+$ md a b c
+$ touch a/a
+$ echo .>c/a
+$ diff -purN a c
+diff -purN a/a c/a
+--- a/a 2005-05-10 04:08:14.000000000 +0200
++++ c/a 2005-05-10 04:09:17.972505331 +0200
+@@ -0,0 +1 @@
++.
+$ diff -purN c b
+diff -purN c/a b/a
+--- c/a 2005-05-10 04:09:17.972505331 +0200
++++ b/a 1970-01-01 01:00:00.000000000 +0100
+@@ -1 +0,0 @@
+-.
+$ cd a
+$ patch -p1   # < both patches (c&p)
+<snip>
+$ ls -l
+total 0
+-- 
+If your dog is barking at the back door and your wife is
+yelling at the front door, who do you let in first?
+The dog, of course. He'll shut up once you let him in.
 
-> 
-> 
->

@@ -1,66 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbVEJJog@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261599AbVEJJ7Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261586AbVEJJog (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 05:44:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVEJJof
+	id S261599AbVEJJ7Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 05:59:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261600AbVEJJ7Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 05:44:35 -0400
-Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:36957 "HELO
-	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261586AbVEJJob (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 05:44:31 -0400
-Message-ID: <4280827A.9080108@yahoo.com.au>
-Date: Tue, 10 May 2005 19:44:26 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "linuxkernel2.20.sandos@spamgourmet.com" 
-	<majsetvger.100.sandos@spamgourmet.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: E1000 - page allocation failure - saga continues :( message 1
- of 20)
-References: <42806B78.2020708@home.se> <42806EA0.2070501@yahoo.com.au> <42807FC6.10400@spamgourmet.com>
-In-Reply-To: <42807FC6.10400@spamgourmet.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 10 May 2005 05:59:24 -0400
+Received: from attila.bofh.it ([213.92.8.2]:12484 "EHLO attila.bofh.it")
+	by vger.kernel.org with ESMTP id S261599AbVEJJ7U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 05:59:20 -0400
+Date: Tue, 10 May 2005 11:43:39 +0200
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Greg KH <gregkh@suse.de>, linux-hotplug-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] hotplug-ng 002 release
+Message-ID: <20050510094339.GC6346@wonderland.linux.it>
+Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
+	Greg KH <gregkh@suse.de>, linux-hotplug-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org
+References: <20050506212227.GA24066@kroah.com> <1115611034.14447.11.camel@localhost.localdomain> <20050509232103.GA24238@suse.de> <1115717357.10222.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="AhhlLboLdkugWU4S"
+Content-Disposition: inline
+In-Reply-To: <1115717357.10222.1.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
+From: md@Linux.IT (Marco d'Itri)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linuxkernel2.20.sandos@spamgourmet.com wrote:
-> Nick Piggin - nickpiggin@yahoo.com.au wrote:
-> 
->> linuxkernel2.20.sandos@spamgourmet.com wrote:
 
->>> It would be nice with a "cleaner" solution though.
->>>
->>
->> What kernel are you using?
->> Are you doing a lot of block IO as well?
-> 
-> 
-> I am using 2.6.11.8.
-> 
-> Yes, the server is a fileserver for both the internet (~10Mbit) and 
-> internally (1Gbit e1000). Hardware is pretty old so is pretty heavily 
-> loaded and with 256MB RAM.
-> 
+--AhhlLboLdkugWU4S
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-OK, well there are some patches in 2.6.12 that should make
-things slightly better, and then some more patches in -mm
-(not sure if they'll make it for 2.6.12) that should make
-things slightly better again.
+On May 10, Rusty Russell <rusty@rustcorp.com.au> wrote:
 
-Basically they work towards reducing the memory allocation
-"priority" for block IO requests, in relation to networking
-and other atomic allocation requirements.
+> So I rewrote it yesterday, so now it passes the testsuite.  I also added
+> a test.  It's in 3.2-pre4: if there are no more requests/bugs in the
+> next couple of days, I'll make that 3.3.
+My major request is support for /etc/hotplug/blacklist.d/ in modprobe:
+now that the hotplug subsystem does not know anymore the name of the
+module to be loaded, it's up to modprobe to check the system blacklist.
+IME, without this feature users will not accept hotplug-ng.
 
-If you can't test the latest -mm, or 2.6.12-rc4, then wait
-for 2.6.12 and 2.6.13 and check back on the problem.
+--=20
+ciao,
+Marco
 
-Thanks,
-Nick
+--AhhlLboLdkugWU4S
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
--- 
-SUSE Labs, Novell Inc.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
+iD8DBQFCgIJLFGfw2OHuP7ERAgxEAJ9Da1wXIicQ3bnJvOluIxS0LycH5gCfReRm
+1kvbi5Es4IbEnKBtM1aXgsI=
+=z3W0
+-----END PGP SIGNATURE-----
+
+--AhhlLboLdkugWU4S--

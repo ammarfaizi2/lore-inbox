@@ -1,58 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261717AbVEJRx6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbVEJR4C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261717AbVEJRx6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 13:53:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbVEJRx6
+	id S261724AbVEJR4C (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 13:56:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261721AbVEJR4C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 13:53:58 -0400
-Received: from 68-190-178-40.cs-cres.charterpipeline.net ([68.190.178.40]:47369
-	"EHLO gw.trlp.com") by vger.kernel.org with ESMTP id S261717AbVEJRxz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 13:53:55 -0400
-Date: Tue, 10 May 2005 10:52:57 -0700
-From: James Washer <washer@trlp.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: dipankar_dd@yahoo.com, akt-announce@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: Crashing red hat linux
-Message-Id: <20050510105257.186d9403.washer@trlp.com>
-In-Reply-To: <1115739760.12402.14.camel@mindpipe>
-References: <20050510082629.29225.qmail@web40704.mail.yahoo.com>
-	<1115739760.12402.14.camel@mindpipe>
-Organization: TRLP Inc
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 10 May 2005 13:56:02 -0400
+Received: from lyle.provo.novell.com ([137.65.81.174]:23712 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S261724AbVEJRzw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 13:55:52 -0400
+Date: Tue, 10 May 2005 10:55:49 -0700
+From: Greg KH <gregkh@suse.de>
+To: Ladislav Michl <ladis@linux-mips.org>
+Cc: Jean Delvare <khali@linux-fr.org>, James Chapman <jchapman@katalix.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <sensors@Stimpy.netroedge.com>
+Subject: Re: [PATCH] ds1337: export ds1337_do_command
+Message-ID: <20050510175549.GC1530@suse.de>
+References: <20050504061438.GD1439@orphique> <1DTwF8-18P-00@press.kroah.org> <20050508204021.627f9cd1.khali@linux-fr.org> <427E6E21.60001@katalix.com> <20050508222351.08bfe2e1.khali@linux-fr.org> <20050510121814.GB2492@orphique>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050510121814.GB2492@orphique>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why oh why would one do that?? 
-
-On any recent redhat kernel, simply enable magic sysrq by:
-	echo 1 > /proc/sys/kernel/sysrq
-
-Then force a panic at the console by hitting ALT-SysRq-c
-or by
-	echo c > /proc/sysrq-trigger
-
-
-On Tue, 10 May 2005 11:42:39 -0400
-Lee Revell <rlrevell@joe-job.com> wrote:
-
-> On Tue, 2005-05-10 at 01:26 -0700, dipankar das wrote:
-> > Hi
-> >  Does Red hat like Monta vista allow crashing the
-> > kernel by writing to  "/dev/crash" if not whats the
-> > easiest way ?
+On Tue, May 10, 2005 at 02:18:14PM +0200, Ladislav Michl wrote:
+> On Sun, May 08, 2005 at 10:23:51PM +0200, Jean Delvare wrote:
+> > Hi James,
+> > 
+> > > I suggest that Ladislav's patch should still be applied and a
+> > > separate patch be submitted to export the interface to modules.
+> > 
+> > Either way is fine with me as long as it actually happens.
 > 
-> cat /dev/dsp > /dev/kmem should do it.
+> Export ds1337_do_command so it could be used also if driver is built as
+> module.
 > 
-> Lee
+> Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> --- linux-omap/drivers/i2c/chips/ds1337.c.orig	2005-05-10 14:10:49.637992600 +0200
+> +++ linux-omap/drivers/i2c/chips/ds1337.c	2005-05-10 14:13:05.064404656 +0200
+> @@ -380,5 +380,7 @@
+>  MODULE_DESCRIPTION("DS1337 RTC driver");
+>  MODULE_LICENSE("GPL");
+>  
+> +EXPORT_SYMBOL(ds1337_do_command);
+
+EXPORT_SYMBOL_GPL() ok?
+
+thanks,
+
+greg k-h

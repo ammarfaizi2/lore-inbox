@@ -1,62 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261649AbVEJNkX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbVEJOBk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261649AbVEJNkX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 09:40:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261642AbVEJNkW
+	id S261657AbVEJOBk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 10:01:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261658AbVEJOBj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 09:40:22 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:27029 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261650AbVEJNkG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 09:40:06 -0400
-Subject: Re: [suse-amd64] False "lost ticks" on dual-Opteron system (=>
-	timer twice as fast)
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Bernd Paysan <bernd.paysan@gmx.de>, suse-amd64@suse.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050510132153.GJ25612@wotan.suse.de>
-References: <200505081445.26663.bernd.paysan@gmx.de>
-	 <200505101355.00341.bernd.paysan@gmx.de>
-	 <20050510130709.GI25612@wotan.suse.de>
-	 <200505101515.56177.bernd.paysan@gmx.de>
-	 <20050510132153.GJ25612@wotan.suse.de>
+	Tue, 10 May 2005 10:01:39 -0400
+Received: from gate.crashing.org ([63.228.1.57]:15767 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261657AbVEJOBf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 10:01:35 -0400
+Subject: Re: [PATCH] Fix PCI mmap on ppc and ppc64
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andreas Schwab <schwab@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-pci <linux-pci@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <je8y2nqkwk.fsf@sykes.suse.de>
+References: <1115700814.6157.7.camel@gaston>  <je8y2nqkwk.fsf@sykes.suse.de>
 Content-Type: text/plain
-Date: Tue, 10 May 2005 15:39:49 +0200
-Message-Id: <1115732389.6008.28.camel@laptopd505.fenrus.org>
+Date: Tue, 10 May 2005 23:57:49 +1000
+Message-Id: <1115733469.6157.60.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-10 at 15:21 +0200, Andi Kleen wrote:
-> On Tue, May 10, 2005 at 03:15:44PM +0200, Bernd Paysan wrote:
-> > On Tuesday 10 May 2005 15:07, Andi Kleen wrote:
-> > > That could be irqbalance doing its thing. Does it go away when
-> > > you stop it?
-> > 
-> > Yes, it seems to go away.
+On Tue, 2005-05-10 at 15:18 +0200, Andreas Schwab wrote:
+> Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
 > 
-> Ok, it is fine then. A bit unexpected, but fine.
+> > @@ -351,9 +351,12 @@
+> >  		*offset += hose->pci_mem_offset;
+> >  		res_bit = IORESOURCE_MEM;
+> >  	} else {
+> > -		io_offset = (unsigned long)hose->io_base_virt;
+> > +		io_offset = (unsigned long)hose->io_base_virt - pci_io_base;
+> > +		printk("offset: %lx, io_base_virt: %p, pci_io_base: %lx, io_offset: %
+> > lx\n",
+> > +		       *offset, hose->io_base_virt, pci_io_base, io_offset);
+> >  		*offset += io_offset;
+> >  		res_bit = IORESOURCE_IO;
+> > +		printk(" -> offset: %lx\n", *offset);
+> 
+> I don't think you want those debugging printks be left here.
 
-irqbalance nowadays rotates the timer interrupt every 10 seconds after
-some people complained that having it always on the same cpu penalized
-their HPC apps unbalanced. (they glued those tasks to each cpu). It's
-not a big deal (the irq rate isn't that high) and it does make things
-slightly more fair in the HPC case.
+Good point, looks like I got really sloppy on this patch. I'll send a
+fix tomorrow unless andrew beats me at it as this isn't yet in any
+released -mm
+
+Ben.
 
 

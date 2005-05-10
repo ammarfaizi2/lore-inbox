@@ -1,48 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbVEJKpD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbVEJKxp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbVEJKpD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 06:45:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbVEJKpC
+	id S261604AbVEJKxp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 06:53:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbVEJKxp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 06:45:02 -0400
-Received: from wproxy.gmail.com ([64.233.184.206]:19781 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261602AbVEJKoe convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 06:44:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=EDSFcUHVZ/nrrsZhrE4FTd5Eseohplr9qmIDvALmE2jHP5aJPYUlySqmyawFAl+m6w8GAcOemAFgbtxueyvuUiYk0+VlG+lwIpvrwh2/jDlUwBx/9NrmLyCRwBBhC6SayjCHu94i8gDJBV3ssUzZvHdrxmcsSry25zj2nC2wLeM=
-Message-ID: <2cd57c900505100344365e5bbc@mail.gmail.com>
-Date: Tue, 10 May 2005 18:44:34 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: coywolf@lovecn.org
-To: Raj Inguva <inguva@gmail.com>
-Subject: Re: Crashing red hat linux
-Cc: dipankar das <dipankar_dd@yahoo.com>, akt-announce@lists.sourceforge.net,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1115719421.1436.1.camel@ringuva.blr.novell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 10 May 2005 06:53:45 -0400
+Received: from mail.aei.ca ([206.123.6.14]:46039 "EHLO aeimail.aei.ca")
+	by vger.kernel.org with ESMTP id S261604AbVEJKxm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 06:53:42 -0400
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Bernd Paysan <bernd.paysan@gmx.de>
+Subject: Re: [suse-amd64] False "lost ticks" on dual-Opteron system (=> timer twice as fast)
+Date: Tue, 10 May 2005 06:53:49 -0400
+User-Agent: KMail/1.7.2
+Cc: suse-amd64@suse.com, Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+References: <200505081445.26663.bernd.paysan@gmx.de> <200505091253.21252.bernd.paysan@gmx.de> <200505091517.30555.bernd.paysan@gmx.de>
+In-Reply-To: <200505091517.30555.bernd.paysan@gmx.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20050510082629.29225.qmail@web40704.mail.yahoo.com>
-	 <1115719421.1436.1.camel@ringuva.blr.novell.com>
+Message-Id: <200505100653.50775.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/10/05, Raj Inguva <inguva@gmail.com> wrote:
-> >  Does Red hat like Monta vista allow crashing the
-> > kernel by writing to  "/dev/crash" if not whats the
-> > easiest way ?
+On Monday 09 May 2005 09:17, Bernd Paysan wrote:
+> On Monday 09 May 2005 12:53, Bernd Paysan wrote:
+> > On Sunday 08 May 2005 15:40, Andi Kleen wrote:
+> > > Your system should be using the HPET timer to work exactly around
+> > > this. AMD 8000 has HPET. Can you post a boot.log?
 > >
+> > Ok, boot.log attached. The only entry with hpet seems to indicate some
+> > problems.
 > 
-> I used to insmod a driver which calls panic() during module
-> initialization. I used to do this for testing lkcd.
+> I went through the BIOS setup, and found a disabled feature "ACPI 2.0", 
+> which I enabled. Now Linux finds the HPET timer.
+> 
+> # grep -i hpet boot.log 
+> ACPI: HPET (v001 A M I  OEMHPET  0x04000518 MSFT 0x00000097) @ 
+> 0x00000000e8ff3c30
+> ACPI: HPET id: 0x102282a0 base: 0xfec01000
+> time.c: Using 14.318180 MHz HPET timer.> 
 
+> time.c: Using HPET based timekeeping.
+> hpet0: at MMIO 0xfec01000, IRQs 2, 8, 0
+> hpet0: 69ns tick, 3 32-bit timers
+> hpet_acpi_add: no address or irqs in _CRS
+> 
+> and everything appears to work (though there's still no designated CPU to 
+> handle the timer interrupts). xntpd syncs quickly, I'm happy (so far ;-).
+> 
+> So that explains why nobody sees this problem. But the TSC-based fallback 
+> timekeeping is still broken on SMP systems with PowerNow and distributed 
+> IRQ handling, which both together seem to be rare enough ;-).
 
-Now we have crashdump shipped with kexec.
+Maybe on UP too:
 
--- 
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+May  8 18:50:25 grover kernel: [143640.507170] Attached scsi removable disk sda at scsi5, channel 0, id 0, lun 0
+May  8 18:50:25 grover kernel: [143640.520422] rtc: lost some interrupts at 1024Hz.
+May  8 18:50:25 grover kernel: [143640.554134] Attached scsi generic sg0 at scsi5, channel 0, id 0, lun 0,  type 0
+May  8 18:50:25 grover kernel: [143640.567693] rtc: lost some interrupts at 1024Hz.
+May  8 18:50:25 grover kernel: [143640.596402] usb-storage: device scan complete
+
+This from 12-rc3-mm3, UP x86_64 with powernow active.  
+
+It might be that the message is OK here since I do not see a fast clock.  I mention this
+since powernow is active here.
+
+Should HPET be available in UP?
+
+Ed Tomlinson
+

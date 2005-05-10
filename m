@@ -1,74 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261754AbVEJTja@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261760AbVEJTmh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261754AbVEJTja (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 15:39:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVEJTjX
+	id S261760AbVEJTmh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 15:42:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbVEJTmh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 15:39:23 -0400
-Received: from mail01.svc.cra.dublin.eircom.net ([159.134.118.17]:59909 "HELO
-	mail01.svc.cra.dublin.eircom.net") by vger.kernel.org with SMTP
-	id S261742AbVEJTjR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 15:39:17 -0400
-Message-ID: <42810DEC.8030902@propylon.com>
-Date: Tue, 10 May 2005 20:39:24 +0100
-From: Sean McGrath <sean.mcgrath@propylon.com>
-Reply-To: sean.mcgrath@propylon.com
-Organization: Propylon
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-CC: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: file as a directory
-References: <2c59f00304112205546349e88e@mail.gmail.com>	 <41A1FFFC.70507@hist.no> <41A21EAA.2090603@dbservice.com>	 <41A23496.505@namesys.com>  <1101287762.1267.41.camel@pear.st-and.ac.uk>	 <1115717961.3711.56.camel@grape.st-and.ac.uk>	 <4280CAEF.5060202@namesys.com> <1115739129.3711.117.camel@grape.st-and.ac.uk> <4280E1A9.3010703@propylon.com> <4280EEA7.9080403@namesys.com> <4280F1D5.3060607@propylon.com> <428102E8.2020509@namesys.com>
-In-Reply-To: <428102E8.2020509@namesys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 10 May 2005 15:42:37 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:54703 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261760AbVEJTmb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 15:42:31 -0400
+Date: Tue, 10 May 2005 12:42:25 -0700
+From: mike kravetz <kravetz@us.ibm.com>
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: jschopp@austin.ibm.com, akpm@osdl.org, anton@samba.org,
+       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       linuxppc64-dev@ozlabs.org, olof@lixom.net, paulus@samba.org
+Subject: Re: sparsemem ppc64 tidy flat memory comments and fix benign mempresent call
+Message-ID: <20050510194225.GD3915@w-mikek2.ibm.com>
+References: <E1DVAVE-00012m-Pq@pinky.shadowen.org> <427FEC57.8060505@austin.ibm.com> <4280D72C.4090203@shadowen.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4280D72C.4090203@shadowen.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote:
+On Tue, May 10, 2005 at 04:45:48PM +0100, Andy Whitcroft wrote:
+> Joel, Mike, Dave could you test this one on your platforms to confirm
+> its widly applicable, if so we can push it up to -mm.
 
->Sean McGrath wrote:
->  
->
->>Hans Reiser wrote:
->>    
->>
->>>Sean McGrath wrote: 
->>>      
->>>
->>>>The thing that interests me most is the difference (if any) between
->>>>giving a stream of bytes an opaque name e.g. "Chapter 1 of my
->>>>book.sxw" versus giving a stream of bytes a query expression that can
->>>>also be considered an opaque name e.g.
->>>>"/book/chapter[1] "
->>>>
->>>>  
->>>>        
->>>>
->>>What is an opaque name?
->>>
->>>
->>> 
->>>
->>>      
->>>
->>By "opaque name" I mean a name that is purely a label. A name that
->>cannot be interpreted as a query expression.
->>    
->>
->
->Isn't query just another name for name?
->
->  
->
-That is a major philosophical nugget :-)
+It works on my machine with various config options.
 
-I recommend Saul Kripke's Naming and Necessity:
-    http://www.answers.com/topic/saul-kripke
-
-Sean
-
-
+-- 
+Mike

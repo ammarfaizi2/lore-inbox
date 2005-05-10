@@ -1,80 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbVEJLL3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261609AbVEJLMs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbVEJLL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 07:11:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbVEJLL3
+	id S261609AbVEJLMs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 07:12:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbVEJLMr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 07:11:29 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:40641 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261595AbVEJLLX (ORCPT
+	Tue, 10 May 2005 07:12:47 -0400
+Received: from ns1.suse.de ([195.135.220.2]:48836 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261609AbVEJLM0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 07:11:23 -0400
-Message-ID: <42809897.3956381A@tv-sign.ru>
-Date: Tue, 10 May 2005 15:18:47 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Daniel Walker <dwalker@mvista.com>
-Subject: Re: [PATCH 2/4] rt_mutex: add new plist implementation
-References: <F989B1573A3A644BAB3920FBECA4D25A0335DBE0@orsmsx407>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	Tue, 10 May 2005 07:12:26 -0400
+Date: Tue, 10 May 2005 13:12:24 +0200
+From: Andi Kleen <ak@suse.de>
+To: Bernd Paysan <bernd.paysan@gmx.de>
+Cc: suse-amd64@suse.com, Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [suse-amd64] False "lost ticks" on dual-Opteron system (=> timer twice as fast)
+Message-ID: <20050510111223.GH25612@wotan.suse.de>
+References: <200505081445.26663.bernd.paysan@gmx.de> <20050508134035.GC15724@wotan.suse.de> <200505091253.21252.bernd.paysan@gmx.de> <200505091517.30555.bernd.paysan@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200505091517.30555.bernd.paysan@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Perez-Gonzalez, Inaky" wrote:
->
-> >From: Oleg Nesterov
->
-> >+extern void plist_add(struct pl_node *node, struct pl_head *head);
-> >+extern void plist_del(struct pl_node *node);
->
-> At least I'd add return codes for this if the head's priority=20
-> changes (or in this case, because head's have no prio, if the=20
-> first node's  prio change).
+> I went through the BIOS setup, and found a disabled feature "ACPI 2.0", 
+> which I enabled. Now Linux finds the HPET timer.
 
-I am not sure I understand you. Why should we track ->prio=20 changes?
-plist should be generic, I think.
+Great. The machine came like this? I wish OEMs wouldn't do such things...
 
-Original code:
-	unsigned plist_add (struct plist *pl, struct plist *plist)
-	{
-		__plist_add_sorted (plist, pl);
-		if (pl->prio < plist->prio) {
-			plist->prio = pl->prio;
-			return !0;
-		}
-		return 0;
-	}
+> 
+> # grep -i hpet boot.log 
+> ACPI: HPET (v001 A M I  OEMHPET  0x04000518 MSFT 0x00000097) @ 
+> 0x00000000e8ff3c30
+> ACPI: HPET id: 0x102282a0 base: 0xfec01000
+> time.c: Using 14.318180 MHz HPET timer.
+> time.c: Using HPET based timekeeping.
+> hpet0: at MMIO 0xfec01000, IRQs 2, 8, 0
+> hpet0: 69ns tick, 3 32-bit timers
+> hpet_acpi_add: no address or irqs in _CRS
+> 
+> and everything appears to work (though there's still no designated CPU to 
+> handle the timer interrupts). xntpd syncs quickly, I'm happy (so far ;-).
 
-This could be:
-	int plist_add_and_check_min_prio_changed(node, head)
-	{
-		plist_add(node, head);
-		return plist_next(head) == node;
-	}
+Great.
 
-Or plist_add() could be easily changed to return -1,0,+1 to indicate
-min/max prio changed/unchanged.
+> 
+> So that explains why nobody sees this problem. But the TSC-based fallback 
+> timekeeping is still broken on SMP systems with PowerNow and distributed 
+> IRQ handling, which both together seem to be rare enough ;-).
 
-But may be it is better to return 'iter' from plist_add(). This way
-we can avoid scanning ->prio_list when we add the node with the same
-->prio next time. I am not sure.
+There is a patch pending for the TSC problem - using the pmtimer instead
+in this case.
 
-And please note that pl_head "has" prio:
+But the distributed timer interrupt problem is weird. It should not happen.
+You sure it was IRQ 0 that was duplicated and not "LOC" ?
 
-	plist_empty(head) ? INT_MAX			// -1 ?
-			  : plist_next(head)->prio
+When you watch -n1 cat /proc/interrupts does the rate roughly match
+up to 1000Hz?
 
-> Both function's  logic should make it easy to test and it'd save
-> a lot of code in the caller.
 
-Currently these functions are used in void context only. I think
-it is better to add return codes when callers need them.
+-Andi
 
-What do you think?
-
-Oleg.

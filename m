@@ -1,64 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261809AbVEJVW2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261820AbVEJVZm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261809AbVEJVW2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 17:22:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261814AbVEJVU4
+	id S261820AbVEJVZm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 17:25:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVEJVZk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 17:20:56 -0400
-Received: from terminus.zytor.com ([209.128.68.124]:45956 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S261809AbVEJVT1
+	Tue, 10 May 2005 17:25:40 -0400
+Received: from smtp-vbr4.xs4all.nl ([194.109.24.24]:31756 "EHLO
+	smtp-vbr4.xs4all.nl") by vger.kernel.org with ESMTP id S261813AbVEJVWq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 17:19:27 -0400
-Message-ID: <42812450.5010102@zytor.com>
-Date: Tue, 10 May 2005 14:14:56 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Blaisorblade <blaisorblade@yahoo.it>, webmaster@kernel.org,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: Restoring the link to snapshots on kernel.org
-References: <200505100110.16920.blaisorblade@yahoo.it>	 <200505101217.56252.blaisorblade@yahoo.it>	 <20050510034212.0d1e0799.akpm@osdl.org>	 <200505101243.38102.blaisorblade@yahoo.it>  <4280DB48.70908@zytor.com> <1115741511.12402.16.camel@mindpipe>
-In-Reply-To: <1115741511.12402.16.camel@mindpipe>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 10 May 2005 17:22:46 -0400
+Date: Tue, 10 May 2005 23:22:07 +0200
+From: Erik van Konijnenburg <ekonijn@xs4all.nl>
+To: Greg KH <gregkh@suse.de>, "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] hotplug-ng 002 release
+Message-ID: <20050510232207.A7594@banaan.localdomain>
+Mail-Followup-To: Greg KH <gregkh@suse.de>,
+	"Alexander E. Patrakov" <patrakov@ums.usu.ru>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	linux-hotplug-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org
+References: <1115611034.14447.11.camel@localhost.localdomain> <20050509232103.GA24238@suse.de> <1115717357.10222.1.camel@localhost.localdomain> <20050510094339.GC6346@wonderland.linux.it> <4280AFF4.6080108@ums.usu.ru> <20050510172447.GA11263@wonderland.linux.it> <20050510201355.GB3226@suse.de> <20050510203156.GA14979@wonderland.linux.it> <20050510205239.GA3634@suse.de> <20050510210823.GB15541@wonderland.linux.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050510210823.GB15541@wonderland.linux.it>; from md@Linux.IT on Tue, May 10, 2005 at 11:08:23PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> On Tue, 2005-05-10 at 09:03 -0700, H. Peter Anvin wrote:
+On Tue, May 10, 2005 at 11:08:23PM +0200, Marco d'Itri wrote:
+> On May 10, Greg KH <gregkh@suse.de> wrote:
 > 
->>Blaisorblade wrote:
->>
->>>>Nope.  They started again five days ago.
->>>
->>>Would anybody restore the link from the main www.kernel.org/ page, then? I 
->>>only see there (and in the finger banner) the 2.4 snapshots, not the 2.6 
->>>ones.
->>>
->>>I just found
->>>http://www.kernel.org/pub/linux/kernel/v2.6/snapshots/, but only by knowing 
->>>there were the snapshots somewhere.
->>
->>It's because there is no snapshots against -rc4, simply because Linus is 
->>on vacation and thus there hasn't been any changes since -rc4.
->>
-> 
-> 
-> How about cleaning up the v2.6/testing directory?
-> 
->  [   ]  ChangeLog-2.6.9-rc4                10-Oct-2004 22:15   115k
->  [   ]  LATEST-IS-2.6.11-rc5               24-Feb-2005 10:58     0k
->  [   ]  LATEST-IS-2.6.12-rc1               17-Mar-2005 20:41     0k
->  [   ]  LATEST-IS-2.6.12-rc2               04-Apr-2005 11:41     0k
->  [   ]  LATEST-IS-2.6.12-rc3               20-Apr-2005 19:21     0k
->  [   ]  LATEST-IS-2.6.12-rc4               07-May-2005 00:41     0k
->  [DIR]  cset/                              04-Apr-2005 12:16      -
-> 
-> Lee
+> > > It's a feature which I know my users and other maintainers need
+> > > (for duplicated drivers, OSS drivers, watchdog drivers, usb{mouse,kbd}
+> > > and so on) so it's a prerequisite for the successful packaging of
+> > > hotplug-ng.
+> > Ok, then, care to make a patch to module-init-tools to provide this
+> > functionality?
+> Eventually yes if nobody else will beat me, but I cannot spend time on
+> this currently.
 
-Ask Linus.
+This patch would also be very useful for my pet project, building
+smarter initial ram images; I'll have a go at it.
 
-	-hpa
+Regards,
+Erik

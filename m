@@ -1,71 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261834AbVEJWC4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261830AbVEJWCY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261834AbVEJWC4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 18:02:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261833AbVEJWCy
+	id S261830AbVEJWCY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 18:02:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbVEJWCX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 18:02:54 -0400
-Received: from pop.gmx.de ([213.165.64.20]:33508 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261835AbVEJWBx (ORCPT
+	Tue, 10 May 2005 18:02:23 -0400
+Received: from graphe.net ([209.204.138.32]:42504 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S261830AbVEJWB3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 18:01:53 -0400
-X-Authenticated: #20450766
-Date: Wed, 11 May 2005 00:00:57 +0200 (CEST)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Sander <sander@humilis.net>
-cc: David Hollis <dhollis@davehollis.com>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: Re[2]: ata over ethernet question
-In-Reply-To: <20050507150538.GA800@favonius>
-Message-ID: <Pine.LNX.4.60.0505102352430.9008@poirot.grange>
-References: <1416215015.20050504193114@dns.toxicfilms.tv>
- <1115236116.7761.19.camel@dhollis-lnx.sunera.com> <1104082357.20050504231722@dns.toxicfilms.tv>
- <1115305794.3071.5.camel@dhollis-lnx.sunera.com> <20050507150538.GA800@favonius>
+	Tue, 10 May 2005 18:01:29 -0400
+Date: Tue, 10 May 2005 15:01:13 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: Andi Kleen <ak@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       linux-kernel@vger.kernel.org, axboe@suse.de, alexn@dsv.su.se,
+       lnxluv@yahoo.com
+Subject: Re: [BUG][Resend] 2.6.12-rc3-mm3: Kernel BUG at "mm/slab.c":1219
+ [update]
+In-Reply-To: <20050510214918.GQ25612@wotan.suse.de>
+Message-ID: <Pine.LNX.4.58.0505101457530.23713@graphe.net>
+References: <200505092239.37834.rjw@sisk.pl> <20050509145424.6ffba49a.akpm@osdl.org>
+ <200505101443.31229.rjw@sisk.pl> <20050510112224.761f5d68.akpm@osdl.org>
+ <20050510211121.GO25612@wotan.suse.de> <Pine.LNX.4.58.0505101443140.23713@graphe.net>
+ <20050510214918.GQ25612@wotan.suse.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Y-GMX-Trusted: 0
+X-Spam-Score: -5.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Tue, 10 May 2005, Andi Kleen wrote:
 
-On Sat, 7 May 2005, Sander wrote:
+> > +  . = ALIGN(32);
+>
+> This should be . = ALIGN(CONFIG_X86_L1_CACHE_BYTES)
+>
+> It was wrong on i386 already btw, which needs the same.
 
-> David Hollis wrote (ao):
-> > There seem to be a few iSCSI implementations floating around for
-> > Linux, hopefully one will be added to mainline soon. Most of those
-> > implementations are for the client side though there is at least one
-> > target implementation that allows you to provide local storage to
-> > iSCSI clients. I don't remember the name of it or if it's still
-> > maintained or not.
-> 
-> Quite active even:
-> 
-> http://sourceforge.net/projects/iscsitarget/
-> 
-> The "Quick Guide to iSCSI on Linux" is a good starting point btw.
-> 
-> Also check out http://www.open-iscsi.org/ (the client, aka 'initiator').
+i386 always specifies the numbers and does not use symbolic constants.
+We better leave that as it is.
 
-A follow up question - I recently used nbd to access a CD-ROM. It worked 
-nice, but, I had to read in 7 CDs, so, each time I had to replace a CD, I 
-had to stop the client, the server, then replace the CD, re-start the 
-server, re-start the client... I thought about extending NBD to (better) 
-support removable media, but then you start thinking about all those 
-features that your local block device has that don't get exported over 
-NBD...
+> > +  /* Rarely changed data like cpu maps */
+> > +  . = ALIGN(4096);
+>
+> Does it really need an 4096 byte alignment? That seems like
+> a waste of memory. Cache line alignment should be enough.
 
-Now, my understanding (sorry, without looking at any docs - yet) is, that 
-iSCSI is (or at least should be) free from these limitations. So, does it 
-make any sense at all extending NBD or just switch to iSCSI? Should NBD be 
-just kept simple as it is or would it be completely superseeded by iSCSI, 
-or is there still something that NBD does that iSCSI wouldn't (easily) do?
+Ok.
 
-Or am I completely misunderstanding what iSCSI target does?
+Index: linux-2.6.11/arch/i386/kernel/vmlinux.lds.S
+===================================================================
+--- linux-2.6.11.orig/arch/i386/kernel/vmlinux.lds.S	2005-05-10 13:35:25.000000000 -0700
++++ linux-2.6.11/arch/i386/kernel/vmlinux.lds.S	2005-05-10 13:59:18.000000000 -0700
+@@ -58,7 +58,7 @@ SECTIONS
+   }
 
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
+   /* rarely changed data like cpu maps */
+-  . = ALIGN(4096);
++  . = ALIGN(32);
+   .data.mostly_readonly : AT(ADDR(.data.mostly_readonly) - LOAD_OFFSET) {
+ 	*(.data.mostly_readonly)
+   }
+Index: linux-2.6.11/arch/x86_64/kernel/vmlinux.lds.S
+===================================================================
+--- linux-2.6.11.orig/arch/x86_64/kernel/vmlinux.lds.S	2005-05-10 13:35:24.000000000 -0700
++++ linux-2.6.11/arch/x86_64/kernel/vmlinux.lds.S	2005-05-10 14:02:06.000000000 -0700
+@@ -42,6 +42,13 @@ SECTIONS
+ 	CONSTRUCTORS
+ 	}
 
++  . = ALIGN(CONFIG_X86_L1_CACHE_BYTES);
++  .data.cacheline_aligned : { (.data.cacheline_aligned) }
++
++  /* Rarely changed data like cpu maps */
++  . = ALIGN(CONFIG_X86_L1_CACHE_BYTES);
++  .data.mostly_readonly : { *(.data.mostly_readonly) }
++
+   _edata = .;			/* End of data section */
+
+   __bss_start = .;		/* BSS */

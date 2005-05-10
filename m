@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbVEJNLf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbVEJNQR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261628AbVEJNLf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 09:11:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbVEJNLf
+	id S261636AbVEJNQR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 09:16:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbVEJNQR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 09:11:35 -0400
-Received: from wproxy.gmail.com ([64.233.184.192]:29197 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261628AbVEJNLc convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 09:11:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Knn35+N/71yCsDuEimUP6oCVTJwHr4svEI41l25DAgylneOi6r4f3b1ZQfehZHaPgPLSFuuMEGWMz+sOfgTKMyawd5dYzgdJvvEWwQBg4d46I8GhDf8QIAuzmaclgERPkurOtj4bDHQJsL+K96rfheFYLZCKIibO/UZdUiwdV6c=
-Message-ID: <2cd57c9005051006117d0c343@mail.gmail.com>
-Date: Tue, 10 May 2005 21:11:31 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: coywolf@lovecn.org
-To: Borislav Petkov <petkov@uni-muenster.de>
-Subject: Re: kexec?
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200505101215.48993.petkov@uni-muenster.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050508202050.GB13789@charite.de>
-	 <20050509183428.6d7934a6.rddunlap@osdl.org>
-	 <2cd57c9005051000004c57050@mail.gmail.com>
-	 <200505101215.48993.petkov@uni-muenster.de>
+	Tue, 10 May 2005 09:16:17 -0400
+Received: from mail.gmx.de ([213.165.64.20]:51627 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261636AbVEJNQP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 09:16:15 -0400
+X-Authenticated: #153925
+From: Bernd Paysan <bernd.paysan@gmx.de>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [suse-amd64] False "lost ticks" on dual-Opteron system (=> timer twice as fast)
+Date: Tue, 10 May 2005 15:15:44 +0200
+User-Agent: KMail/1.8
+Cc: suse-amd64@suse.com, linux-kernel@vger.kernel.org
+References: <200505081445.26663.bernd.paysan@gmx.de> <200505101355.00341.bernd.paysan@gmx.de> <20050510130709.GI25612@wotan.suse.de>
+In-Reply-To: <20050510130709.GI25612@wotan.suse.de>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1456836.KRUGKBVvWJ";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200505101515.56177.bernd.paysan@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/10/05, Borislav Petkov <petkov@uni-muenster.de> wrote:
-> I've been doing some kexec tests (as described in Documentation/kdump.txt) too
-> but can't get to load the image and get similar error messages. Let me know
-> if you need more info about the hardware. The first_kernel was booted with
-> "crashkernel=64M@16M" and the 16M value was configured into the second during
-> kconfig in "Physical address where the kernel is loaded" as 0x1000000.
-> 
-> [root@zmei]: kexec -p vmlinux --args-linux --append="root=/dev/hda1 maxcpus=1
-> init 1"
+--nextPart1456836.KRUGKBVvWJ
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
- kexec-tools-1.101 loads for me, but if cmdline is used, it hangs up
-after "Starting new kernel"
+On Tuesday 10 May 2005 15:07, Andi Kleen wrote:
+> That could be irqbalance doing its thing. Does it go away when
+> you stop it?
 
--- 
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+Yes, it seems to go away.
+
+=2D-=20
+Bernd Paysan
+"If you want it done right, you have to do it yourself"
+http://www.jwdt.com/~paysan/
+
+--nextPart1456836.KRUGKBVvWJ
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBCgLQMi4ILt2cAfDARAoeGAJ0dNHsTg4Kqy0yDg3vML3zPkAEPbQCeN/Ig
+Tf/oI5UZdy8UESbAVH8esIo=
+=wzQx
+-----END PGP SIGNATURE-----
+
+--nextPart1456836.KRUGKBVvWJ--

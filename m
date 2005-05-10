@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbVEJV4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261823AbVEJV6L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261832AbVEJV4a (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 17:56:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261829AbVEJV43
+	id S261823AbVEJV6L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 17:58:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261829AbVEJV6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 17:56:29 -0400
-Received: from gannet.scg.man.ac.uk ([130.88.94.110]:27153 "EHLO
-	gannet.scg.man.ac.uk") by vger.kernel.org with ESMTP
-	id S261832AbVEJV4L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 17:56:11 -0400
-Message-ID: <42812E89.4070301@gentoo.org>
-Date: Tue, 10 May 2005 22:58:33 +0100
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050403)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-CC: linux-kernel@vger.kernel.org, Alan Lake <alan.lake@lakeinfoworks.com>,
-       petero2@telia.co.uk, vojtech@suse.cz, stuart@zeus.com
-Subject: ALPS touchpad issues still exist in 2.6.12-rc4
-References: <42801AEE.5080308@lakeinfoworks.com> <200505092305.45788.dtor_core@ameritech.net>
-In-Reply-To: <200505092305.45788.dtor_core@ameritech.net>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-UoM: Scanned by the University Mail System. See http://www.mcc.ac.uk/cos/email/scanning for details.
+	Tue, 10 May 2005 17:58:10 -0400
+Received: from smtp.lnxw.com ([207.21.185.24]:13061 "EHLO smtp.lnxw.com")
+	by vger.kernel.org with ESMTP id S261823AbVEJV6B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 17:58:01 -0400
+Date: Tue, 10 May 2005 15:01:24 -0700
+To: kus Kusche Klaus <kus@keba.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>
+Subject: Re: Real-Time Preemption: BUG initializing kgdb
+Message-ID: <20050510220124.GA16828@nietzsche.lynx.com>
+References: <AAD6DA242BC63C488511C611BD51F367323209@MAILIT.keba.co.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <AAD6DA242BC63C488511C611BD51F367323209@MAILIT.keba.co.at>
+User-Agent: Mutt/1.5.9i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, May 10, 2005 at 02:34:54PM +0200, kus Kusche Klaus wrote:
+> I tried to merge the kgdb and the rt patches (not too difficult, only
+> three rejects, and they all look trivial). The resulting kernel
+> compiles, boots, and works fine.
+...
+> Any hints or suggestions?
 
-Dmitry Torokhov wrote:
-> Do you have an ALPS touchpad? Try applying Peter Osterlund's patches
-> from here:
-> 
-> http://web.telia.com/~u89404340/patches/touchpad/2.6.11/
+Revert all spinlock_t types that kgdb uses to raw_spinlock_t to get the
+actual spinlock code. A compile trick matches up the right functions
+with the struct definition so that changes to the kernel code is minimized.
+The spinlock_t defintion in the RT patch is #defined to be a blocking lock
+which is not what kgdb wants in order to be happy.
 
-Even with these patches applied, some Gentoo users are still reporting
-problems with ALPS touchpads. Are there any suggested solutions for
-http://bugzilla.kernel.org/show_bug.cgi?id=4281 ?
+Also, make the interrupt handler setup uses SA_NODELAY or something like
+that from my memory. The rest is relatively trivial.
 
-Also see http://bugs.gentoo.org/show_bug.cgi?id=84657
+Thanks for making the attempt. Somebody needed to do this a long time
+ago. :)
 
-Thanks,
-Daniel
+bill
+

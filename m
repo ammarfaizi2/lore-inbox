@@ -1,63 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261709AbVEJQsL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261703AbVEJQzX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261709AbVEJQsL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 12:48:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbVEJQsE
+	id S261703AbVEJQzX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 12:55:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbVEJQzX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 12:48:04 -0400
-Received: from mout.perfora.net ([217.160.230.40]:9691 "EHLO mout.perfora.net")
-	by vger.kernel.org with ESMTP id S261703AbVEJQr5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 12:47:57 -0400
-Subject: Re: x86-64 bad pmds in 2.6.11.6 II
-From: Christopher Warner <chris@servertogo.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Andi Kleen <ak@suse.de>, Dave Jones <davej@redhat.com>,
-       Hugh Dickins <hugh@veritas.com>, cwarner@kernelcode.com,
-       "Sergey S. Kostyliov" <rathamahata@ehouse.ru>,
-       Clem Taylor <clem.taylor@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050510162620.GP27549@shell0.pdx.osdl.net>
-References: <20050415172408.GB8511@wotan.suse.de>
-	 <20050415172816.GU493@shell0.pdx.osdl.net>
-	 <Pine.LNX.4.61.0504151833020.29919@goblin.wat.veritas.com>
-	 <20050419133509.GF7715@wotan.suse.de>
-	 <Pine.LNX.4.61.0504191636570.13422@goblin.wat.veritas.com>
-	 <1114773179.9543.14.camel@jasmine> <20050429173216.GB1832@redhat.com>
-	 <20050502170042.GJ7342@wotan.suse.de> <1115047729.19314.1.camel@jasmine>
-	 <1115717814.7679.2.camel@jasmine>
-	 <20050510162620.GP27549@shell0.pdx.osdl.net>
-Content-Type: text/plain
-Date: Tue, 10 May 2005 08:03:58 -0400
-Message-Id: <1115726638.7679.16.camel@jasmine>
+	Tue, 10 May 2005 12:55:23 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:29079 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261703AbVEJQzN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 12:55:13 -0400
+Date: Tue, 10 May 2005 09:55:12 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Joe Seigh <jseigh_02@xemaps.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RCU + SMR for preemptive kernel/user threads.
+Message-ID: <20050510165512.GA1569@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <opsqivh7agehbc72@grunion> <opsqkajto6ehbc72@grunion>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
-X-Provags-ID: perfora.net abuse@perfora.net login:d2cbd72fb1ab4860f78cabc62f71ec31
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <opsqkajto6ehbc72@grunion>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thats from a couple of days ago. The bug used to be easily reproducible
-and then it just stopped suddenly.
-
-I've thrown the loads of the server machines in question way into the
-2000 range with lots of threads, io, cpu usage. I'm really confused as
-to what exactly it could be. I'm going to try on a couple of different
-machines this week.
-
-I'm starting to suspect it has something to do with the mobo itself,
-since I have two or three next to me I'll try on those other machines
-and then try on a completely different machine/motherboard.
-
-It's really sneaky, so we'll see what happens.
- 
-On Tue, 2005-05-10 at 09:26 -0700, Chris Wright wrote:
-> * Christopher Warner (chris@servertogo.com) wrote:
-> > 2.6.11.5 kernel,
-> > Tyan S2882/dual AMD 246 opterons
+On Tue, May 10, 2005 at 09:32:07AM -0400, Joe Seigh wrote:
+> I think you need a release memory barrier if you store into a hazard
+> pointer that is non null to prevent prior accesses from occurring after
+> the store.  That's an extra memory barrier for hazard pointers that I
+> overlooked. One thing that could be done is wait an extra RCU grace
+> period after the hazard pointer scan to ensure prior accesses have
+> completed before freeing the resource.  That would lengthen the delay
+> to approximately 2 RCU grace periods.  Could be a problem if you have
+> a high write rate and are trying to keep that delay minimal.
 > 
-> Got a time stamp by any chance (or a clue re: what was going on at the
-> time)?
-> 
-> thanks,
-> -chris
+> There might be another way.  I'd have to investigate it a little more.
 
+Here is what I thought you were suggesting for the updater:
+
+	Remove item from list
+	Send IPIs to all CPUs, relying on exact interrupts (which might
+		not be present on all CPUs) to serialize the instruction
+		streams of the other CPUs
+	Wait for all IPIs to complete
+	Wait until there are no hazard pointers referencing the item
+		before freeing.
+
+For the traverser:
+
+	1. allocate hazard pointer (SW engr problem: what to do if
+		allocation fails?  If deeply nested, holding locks, &c?)
+	2. retry:
+	3. Pick up pointer, store into hazard pointer.
+	4. Tell the compiler not to reorder memory references across this point
+	5. If hazard pointer does not match the pointer, goto retry.
+	6. begin critical section
+
+If the updater and traverser run concurrently, the interrupt forces
+serialization -- look at all the possible interleavings to see this:
+1.	Before this point, the traverser cannot see the removed element.
+2.	Ditto.
+3.	Ditto.
+4.	Before this point, the traverser might have stored a pointer to
+	the remove element into the hazard pointer, but will see the 
+	disappearance when it returns from interrupt.
+5.	Ditto.
+6.	At this point, the hazard pointer has been set, and the
+	interrupt will force memory ordering.
+
+Similar reasoning when the traverser NULLs the hazard pointer.
+
+Or am I missing something?  Or is there some CPU that Linux supports that
+does inexact interrupts?
+
+I must admit that I am not completely comfortable with this approach -- it
+needs to be beaten up pretty thoroughly with both testing and theoretical
+analysis.  And there might well be a flaw in my reasoning above.  ;-)
+
+							Thanx, Paul

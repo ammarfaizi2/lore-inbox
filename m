@@ -1,48 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261823AbVEJV6L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261834AbVEJWC4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261823AbVEJV6L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 17:58:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261829AbVEJV6K
+	id S261834AbVEJWC4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 18:02:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261833AbVEJWCy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 17:58:10 -0400
-Received: from smtp.lnxw.com ([207.21.185.24]:13061 "EHLO smtp.lnxw.com")
-	by vger.kernel.org with ESMTP id S261823AbVEJV6B (ORCPT
+	Tue, 10 May 2005 18:02:54 -0400
+Received: from pop.gmx.de ([213.165.64.20]:33508 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261835AbVEJWBx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 17:58:01 -0400
-Date: Tue, 10 May 2005 15:01:24 -0700
-To: kus Kusche Klaus <kus@keba.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>
-Subject: Re: Real-Time Preemption: BUG initializing kgdb
-Message-ID: <20050510220124.GA16828@nietzsche.lynx.com>
-References: <AAD6DA242BC63C488511C611BD51F367323209@MAILIT.keba.co.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <AAD6DA242BC63C488511C611BD51F367323209@MAILIT.keba.co.at>
-User-Agent: Mutt/1.5.9i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+	Tue, 10 May 2005 18:01:53 -0400
+X-Authenticated: #20450766
+Date: Wed, 11 May 2005 00:00:57 +0200 (CEST)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Sander <sander@humilis.net>
+cc: David Hollis <dhollis@davehollis.com>,
+       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: Re[2]: ata over ethernet question
+In-Reply-To: <20050507150538.GA800@favonius>
+Message-ID: <Pine.LNX.4.60.0505102352430.9008@poirot.grange>
+References: <1416215015.20050504193114@dns.toxicfilms.tv>
+ <1115236116.7761.19.camel@dhollis-lnx.sunera.com> <1104082357.20050504231722@dns.toxicfilms.tv>
+ <1115305794.3071.5.camel@dhollis-lnx.sunera.com> <20050507150538.GA800@favonius>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 10, 2005 at 02:34:54PM +0200, kus Kusche Klaus wrote:
-> I tried to merge the kgdb and the rt patches (not too difficult, only
-> three rejects, and they all look trivial). The resulting kernel
-> compiles, boots, and works fine.
-...
-> Any hints or suggestions?
+Hi
 
-Revert all spinlock_t types that kgdb uses to raw_spinlock_t to get the
-actual spinlock code. A compile trick matches up the right functions
-with the struct definition so that changes to the kernel code is minimized.
-The spinlock_t defintion in the RT patch is #defined to be a blocking lock
-which is not what kgdb wants in order to be happy.
+On Sat, 7 May 2005, Sander wrote:
 
-Also, make the interrupt handler setup uses SA_NODELAY or something like
-that from my memory. The rest is relatively trivial.
+> David Hollis wrote (ao):
+> > There seem to be a few iSCSI implementations floating around for
+> > Linux, hopefully one will be added to mainline soon. Most of those
+> > implementations are for the client side though there is at least one
+> > target implementation that allows you to provide local storage to
+> > iSCSI clients. I don't remember the name of it or if it's still
+> > maintained or not.
+> 
+> Quite active even:
+> 
+> http://sourceforge.net/projects/iscsitarget/
+> 
+> The "Quick Guide to iSCSI on Linux" is a good starting point btw.
+> 
+> Also check out http://www.open-iscsi.org/ (the client, aka 'initiator').
 
-Thanks for making the attempt. Somebody needed to do this a long time
-ago. :)
+A follow up question - I recently used nbd to access a CD-ROM. It worked 
+nice, but, I had to read in 7 CDs, so, each time I had to replace a CD, I 
+had to stop the client, the server, then replace the CD, re-start the 
+server, re-start the client... I thought about extending NBD to (better) 
+support removable media, but then you start thinking about all those 
+features that your local block device has that don't get exported over 
+NBD...
 
-bill
+Now, my understanding (sorry, without looking at any docs - yet) is, that 
+iSCSI is (or at least should be) free from these limitations. So, does it 
+make any sense at all extending NBD or just switch to iSCSI? Should NBD be 
+just kept simple as it is or would it be completely superseeded by iSCSI, 
+or is there still something that NBD does that iSCSI wouldn't (easily) do?
+
+Or am I completely misunderstanding what iSCSI target does?
+
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski
 

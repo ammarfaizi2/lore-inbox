@@ -1,55 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbVEJUTR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261762AbVEJU1j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261759AbVEJUTR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 16:19:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbVEJUTQ
+	id S261762AbVEJU1j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 16:27:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261774AbVEJU1j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 16:19:16 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:64516 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261759AbVEJUTB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 16:19:01 -0400
-Message-Id: <200505102018.j4AKIRT3022492@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: paulmck@us.ibm.com, dipankar@in.ibm.com, Ingo Molnar <mingo@elte.hu>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] RCU and CONFIG_PREEMPT_RT progress 
-In-Reply-To: Your message of "Tue, 10 May 2005 22:08:11 +0200."
-             <1115755692.26548.15.camel@twins> 
-From: Valdis.Kletnieks@vt.edu
-References: <20050510012444.GA3011@us.ibm.com>
-            <1115755692.26548.15.camel@twins>
+	Tue, 10 May 2005 16:27:39 -0400
+Received: from rproxy.gmail.com ([64.233.170.193]:43941 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261762AbVEJU1i convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 16:27:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=MhMb4RDyim+1P8cO4SYbUep5MIZk1FqIErMuRFl1X4anCkP7GZNEBzT7XqoVoJtxTQ9b2IUYLMeI9Jmtt+Fl0LpVDNXchkagYD8wWyUy9yX98qmIqCDQnizFCkBsza0MsPVxhf4tKbY6/Ezg92BApkT7dl/2F34gF87XfboMvsY=
+Message-ID: <7f800d9f050510132762f0ee7@mail.gmail.com>
+Date: Tue, 10 May 2005 13:27:38 -0700
+From: Andre Eisenbach <int2str@gmail.com>
+Reply-To: Andre Eisenbach <int2str@gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: High res timer?
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1115756303_8169P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 10 May 2005 16:18:25 -0400
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1115756303_8169P
-Content-Type: text/plain; charset=us-ascii
+Hello!
 
-On Tue, 10 May 2005 22:08:11 +0200, Peter Zijlstra said:
+We're currently using pth_usleep() as a timer for a userspace audio
+application. However, it doesn't seem very accurate and reliable. Is
+there a better (more accurate) timer that we can call form a userspace
+application?
 
-> How about having another boolean indicating the ability to flip the
-> selector boolean. This boolean would be set false on an actual flip and
-> cleared during a grace period. That way the flips cannot ever interfere
-> with one another such that the callbacks would be cleared prematurely.
-
-As all the dining philosophers grab a fork and a spoon and dig in. ;)
-
---==_Exmh_1115756303_8169P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCgRcOcC3lWbTT17ARAuBkAKCkdoncNR8QDTN0v3LMC+/q1cSrNwCfalbE
-C0v0rx2gTET5jmi+KS/mxNU=
-=jw8c
------END PGP SIGNATURE-----
-
---==_Exmh_1115756303_8169P--
+Thanks,
+    Andre

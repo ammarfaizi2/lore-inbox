@@ -1,46 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261665AbVEJPHa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbVEJPLp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261665AbVEJPHa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 11:07:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbVEJPHa
+	id S261651AbVEJPLp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 11:11:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbVEJPLp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 11:07:30 -0400
-Received: from rproxy.gmail.com ([64.233.170.206]:40563 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261665AbVEJPHM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 11:07:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PAcAskkHTSK2ir2a4dTqOR48Rc6fe4eSkl48TWhlhMMdeDCoYzEwyT6lF/TfqeIm8G8ncqHSAkUy8p5lV5yDVfBW7hSul4/HsicWe/6Ww3tzs3vfqrxg+klehpCVNlDiZ8ixHOmKFCBQJmiD6UhrZxK6Ri1gMZ9ecIWef8zktvU=
-Message-ID: <d120d50005051008072f316b50@mail.gmail.com>
-Date: Tue, 10 May 2005 10:07:10 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Mitch <Mitch@0bits.com>
-Subject: Re: ALPS testers wanted (Was Re: [RFT/PATCH] KVMS, mouse losing sync and going crazy)
+	Tue, 10 May 2005 11:11:45 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:51461 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261651AbVEJPLm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 11:11:42 -0400
+Message-Id: <200505101511.j4AFBYcd010704@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: KC <kcc1967@gmail.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <42806084.4010205@0Bits.COM>
+Subject: Re: kernel 2.6.x driver compiler options 
+In-Reply-To: Your message of "Tue, 10 May 2005 16:08:30 +0800."
+             <5eb4b0650505100108179ba1b6@mail.gmail.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <5eb4b0650505100108179ba1b6@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <42806084.4010205@0Bits.COM>
+Content-Type: multipart/signed; boundary="==_Exmh_1115737893_8169P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 10 May 2005 11:11:34 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/10/05, Mitch <Mitch@0bits.com> wrote:
-> Hi Dimitry,
-> 
-> No go with the patch, and even with patch and uncommenting the
-> ps2_drain(). The alps touchpad is dead as a dodo.
-> 
+--==_Exmh_1115737893_8169P
+Content-Type: text/plain; charset=us-ascii
 
-Ugh, yes, I see. Stupid cut-and-paste error.. Could you please try v7?
-Again, p2_drain may need to be uncommented. If it still does not work
-I need the debug data once more, please.
+On Tue, 10 May 2005 16:08:30 +0800, KC said:
 
-http://www.geocities.com/dt_or/input/2_6_11/psmouse-resync-2.6.11-v7.patch.gz
+> Instead of using Linux kconfig build system, can someone tell me
+> what's the compiler options used to build a device driver (.ko file) ?
 
--- 
-Dmitry
+There's plenty of documentation on how to use 'make' to build an
+out-of-tree .ko.
+
+> Or, how can I integrate kconfig with GNU tool chain (automake, autoconf ...)
+
+First, describe the semantics.  How the <bleep> is that ever "supposed to work"?
+automangle and friends are designed so you can configure userspace programs to
+run no matter what oddities the underlying system has.  Kconfig is for actually
+describing the underlying system.
+
+At *best*, all you could do is use the .config variables to answer some of
+the "is XYZ present?" tests done in ./configure - but even *that* is Pigheaded
+And Wrong, because it will get it wrong if you're pulling hints from a kernel
+tree that doesn't match the running kernel, or if it's a new-ish feature that
+requires userspace library support that isn't installed on the system...
+
+--==_Exmh_1115737893_8169P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCgM8lcC3lWbTT17ARAsL0AJ0XWWP7kDv0enT2/lht895oXYxEMQCePOXe
+swwsWBwqWXR4DWvhkBslz8c=
+=AKum
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1115737893_8169P--

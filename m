@@ -1,51 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261591AbVEJJRY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261592AbVEJJ0c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261591AbVEJJRY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 05:17:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbVEJJRY
+	id S261592AbVEJJ0c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 05:26:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261593AbVEJJ0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 05:17:24 -0400
-Received: from fire.osdl.org ([65.172.181.4]:8878 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261591AbVEJJRU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 05:17:20 -0400
-Date: Tue, 10 May 2005 02:16:45 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Johannes Stezenbach <js@linuxtv.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [DVB patch 00/37] DVB updates for 2.6.12-rc4
-Message-Id: <20050510021645.054982f5.akpm@osdl.org>
-In-Reply-To: <20050510085210.GA17601@linuxtv.org>
-References: <20050508184229.957247000@abc>
-	<20050509180411.6cff1941.akpm@osdl.org>
-	<20050510085210.GA17601@linuxtv.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 10 May 2005 05:26:31 -0400
+Received: from de01egw02.freescale.net ([192.88.165.103]:38556 "EHLO
+	de01egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S261592AbVEJJ0a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 05:26:30 -0400
+Message-ID: <9FCDBA58F226D911B202000BDBAD46738CFF9D@zch01exm40.ap.freescale.net>
+From: Chen Bill-R63518 <zwchen@freescale.com>
+To: linux-kernel@vger.kernel.org
+Subject: Disable cached memory
+Date: Tue, 10 May 2005 17:26:18 +0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Johannes Stezenbach <js@linuxtv.org> wrote:
->
->  > In future, please try to gather Signed-off-by: lines for these
->  > contributions, thanks.
-> 
->  How should we handle this with CVS? Should people add a
->  Signed-off-by: line to the CVS commit log?
+Hi,
+When I cat "/proc/meminfo", I found there were too many memory cached which may result in kernel oom and killing something. I want to disable the cacheable feature, or limit the maximum of memory sizes which could be used for cached data. But anyone know how I shall do in the kernel? I use 2.4.20 kernel. Thanks.
 
-That sounds reasonable.
-
-> If they don't,
->  can I assume that "by policy" the Signed-off-by: line for
->  the committer is implicit?
-
-I wouldn't do that.  S-O-B does imply that they have read, agreed to and
-complied with the "Developer's Certificate of Origin" from
-Documentation/SubmittingPatches.  That is not a thing which person A should
-be asserting on person B's behalf.
-
-> Or do I have to bug them to
->  mail me the Signed-off-by: line?
-
-Yes please.
+--
+Bill

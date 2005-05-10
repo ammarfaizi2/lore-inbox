@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbVEJEFy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261538AbVEJEYh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261449AbVEJEFy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 00:05:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbVEJEFx
+	id S261538AbVEJEYh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 00:24:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261519AbVEJEYd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 00:05:53 -0400
-Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:13933 "HELO
-	smtp804.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261449AbVEJEFr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 00:05:47 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Mouse pad doesn't work
-Date: Mon, 9 May 2005 23:05:45 -0500
-User-Agent: KMail/1.8
-Cc: Alan Lake <alan.lake@lakeinfoworks.com>
-References: <42801AEE.5080308@lakeinfoworks.com>
-In-Reply-To: <42801AEE.5080308@lakeinfoworks.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 10 May 2005 00:24:33 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:2315 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261542AbVEJEYa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 00:24:30 -0400
+Date: Tue, 10 May 2005 06:12:37 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Jim Nance <jlnance@sdf.lonestar.org>
+Cc: Bill Davidsen <davidsen@tmr.com>, Dave Jones <davej@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, Ricky Beam <jfbeam@bluetronic.net>,
+       nico-kernel@schottelius.org, linux-kernel@vger.kernel.org
+Subject: Re: /proc/cpuinfo format - arch dependent!
+Message-ID: <20050510041237.GA32065@alpha.home.local>
+References: <20050508012521.GA24268@SDF.LONESTAR.ORG> <427FA876.7000401@tmr.com> <20050510022301.GA13763@SDF.LONESTAR.ORG>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200505092305.45788.dtor_core@ameritech.net>
+In-Reply-To: <20050510022301.GA13763@SDF.LONESTAR.ORG>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 09 May 2005 21:22, Alan Lake wrote:
-> The following comes from 
-> www.kernel.org/pub/linux/docs/lkml/reporting-bugs.html
-> 
-> [1.] One line summary of the problem:
-> 
-> Tapping on the mouse pad of my laptop does not work.
->
+Hi Jim,
 
-Hi,
+On Tue, May 10, 2005 at 02:23:01AM +0000, Jim Nance wrote:
+ 
+> Now I know there are exceptions to rules.  But in general I would say
+> that if an application needs to know about the configuration of the
+> processors, then its compensating for shortcommings in the kernel.
 
-Do you have an ALPS touchpad? Try applying Peter Osterlund's patches
-from here:
+I cannot agree. When an application needs to know such things, it is
+because it has being developped primarily for a certain platform and
+optimized for such platform. The kernel's scheduler is written for a
+general purpose and not for some particular apps which will run two
+concurrent threads at 100% CPU each for example, with lots of memory
+exchanges through the CPU cache. It is not uncommon to have to manually
+play with /proc before starting some specific apps. It is for this case
+that some help from the kernel might be welcome. Instead of forcing eth0
+interrupt to CPU0 then binding your process to CPU0, you might prefer to
+tell the kernel "this app needs to run on the CPU which receives ints
+from eth0", whatever it is.
 
-http://web.telia.com/~u89404340/patches/touchpad/2.6.11/
+Regards,
+willy
 
-And his Synaptics X driver:
-
-http://web.telia.com/~u89404340/touchpad/index.html
-
--- 
-Dmitry

@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261799AbVEJVCH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261795AbVEJVCI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261799AbVEJVCH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 17:02:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261795AbVEJU7i
+	id S261795AbVEJVCI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 17:02:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbVEJU7N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 16:59:38 -0400
-Received: from mail.dif.dk ([193.138.115.101]:57731 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261797AbVEJU6u (ORCPT
+	Tue, 10 May 2005 16:59:13 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:13190 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261795AbVEJU6q convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 16:58:50 -0400
-Date: Tue, 10 May 2005 23:02:42 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Rui Prior <rprior@inescn.pt>, akpm@osdl.org
-Subject: Re: [PATCH] atm/nicstar: remove a bunch of pointless casts of NULL
-In-Reply-To: <200505110058.12932.adobriyan@mail.ru>
-Message-ID: <Pine.LNX.4.62.0505102259330.2386@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0505102203170.2386@dragon.hyggekrogen.localhost>
- <200505110058.12932.adobriyan@mail.ru>
+	Tue, 10 May 2005 16:58:46 -0400
+x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH 2/4] rt_mutex: add new plist implementation
+Date: Tue, 10 May 2005 13:58:22 -0700
+Message-ID: <F989B1573A3A644BAB3920FBECA4D25A0338B8B1@orsmsx407>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 2/4] rt_mutex: add new plist implementation
+Thread-Index: AcVVmKu2UFkPO3eDSHO4+XL8u48HBQACiLMQ
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: <dwalker@mvista.com>
+Cc: "Oleg Nesterov" <oleg@tv-sign.ru>, "Ingo Molnar" <mingo@elte.hu>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 10 May 2005 20:58:24.0390 (UTC) FILETIME=[018BDA60:01C555A3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 May 2005, Alexey Dobriyan wrote:
+>From: Daniel Walker [mailto:dwalker@mvista.com]
+>>
+>> So as you say, the best way is wrapping your primitives around. I'd
+>> suggest a shorter postfix, something like _prio() or _chkprio().
+>
+>I still say re-implementation of plist is a waste .. Why re-make the
+>wheel when you have a perfectly good starting point .
 
-> On Wednesday 11 May 2005 00:06, Jesper Juhl wrote:
-> > It doesn't make sense to cast NULL. This patch removes the pointless casts 
-> > from drivers/atm/nicstar.c
-> 
-> > --- linux-2.6.12-rc3-mm3-orig/drivers/atm/nicstar.c
-> > +++ linux-2.6.12-rc3-mm3/drivers/atm/nicstar.c
-> 
-> >     scq = (scq_info *) kmalloc(sizeof(scq_info), GFP_KERNEL);
->             ^^^^^^^^^^^^
-> > -   if (scq == (scq_info *) NULL)
-> > -      return (scq_info *) NULL;
-> > +   if (scq == NULL)
-> > +      return NULL;
-> 
-> >     scq->skb = (struct sk_buff **) kmalloc(sizeof(struct sk_buff *) *
->                  ^^^^^^^^^^^^^^^^^^^
-> >                                            (size / NS_SCQE_SIZE), GFP_KERNEL);
-> > -   if (scq->skb == (struct sk_buff **) NULL)
-> > +   if (scq->skb == NULL)
-> 
-> These are pointless too.
-> 
-True, but I wanted the patch to only do a single well defined thing. I was 
-not 100% sure what the reaction to such a patch would be, so I didn't want 
-to mix other things in as well...  Actually, thinking about it a bit; will 
-gcc ever generate different code for NULL pointers cast to different 
-types? As far as I know it won't, but if it will, then the casts could 
-actually make sense.
+I don't know *shrug* 
 
-I can submit a second patch to remove the casts of kmalloc return values if 
-wanted.
+In this case, Oleg's wheel looks simpler than mine and does the
+same thing, so why not use it? Simpler is beautiful.
 
--- 
-Jesper 
+I share the concern, though, of it being fully debugged and stuff,
+but being simpler it should be easier to prove it correct.
 
-
+-- Inaky

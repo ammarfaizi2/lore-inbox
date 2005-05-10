@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261773AbVEJUMM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261753AbVEJUOC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261773AbVEJUMM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 16:12:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261774AbVEJUMM
+	id S261753AbVEJUOC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 16:14:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbVEJUOC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 16:12:12 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:24463 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S261773AbVEJUMF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 16:12:05 -0400
-Message-ID: <4281158D.5090401@namesys.com>
-Date: Tue, 10 May 2005 13:11:57 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: sean.mcgrath@propylon.com
-CC: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: file as a directory
-References: <2c59f00304112205546349e88e@mail.gmail.com>	 <41A1FFFC.70507@hist.no> <41A21EAA.2090603@dbservice.com>	 <41A23496.505@namesys.com>  <1101287762.1267.41.camel@pear.st-and.ac.uk>	 <1115717961.3711.56.camel@grape.st-and.ac.uk>	 <4280CAEF.5060202@namesys.com> <1115739129.3711.117.camel@grape.st-and.ac.uk> <4280E1A9.3010703@propylon.com> <4280EEA7.9080403@namesys.com> <4280F1D5.3060607@propylon.com> <428102E8.2020509@namesys.com> <42810DEC.8030902@propylon.com>
-In-Reply-To: <42810DEC.8030902@propylon.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 10 May 2005 16:14:02 -0400
+Received: from lyle.provo.novell.com ([137.65.81.174]:45733 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S261753AbVEJUNt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 16:13:49 -0400
+Date: Tue, 10 May 2005 13:13:55 -0700
+From: Greg KH <gregkh@suse.de>
+To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] hotplug-ng 002 release
+Message-ID: <20050510201355.GB3226@suse.de>
+References: <20050506212227.GA24066@kroah.com> <1115611034.14447.11.camel@localhost.localdomain> <20050509232103.GA24238@suse.de> <1115717357.10222.1.camel@localhost.localdomain> <20050510094339.GC6346@wonderland.linux.it> <4280AFF4.6080108@ums.usu.ru> <20050510172447.GA11263@wonderland.linux.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050510172447.GA11263@wonderland.linux.it>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sean McGrath wrote:
+On Tue, May 10, 2005 at 07:24:47PM +0200, Marco d'Itri wrote:
+> On May 10, "Alexander E. Patrakov" <patrakov@ums.usu.ru> wrote:
+> 
+> > Why not this or something similar (e.g. I want to blacklist the xxx and 
+> > yyy modules)? (note, untested)
 
->
->>>> What is an opaque name?
->>>>
->>>>
->>>>
->>>>
->>>>     
->>>
->>> By "opaque name" I mean a name that is purely a label. A name that
->>> cannot be interpreted as a query expression.
->>>   
->>
->>
->> Isn't query just another name for name?
->>
->>  
->>
-> That is a major philosophical nugget :-)
->
-> I recommend Saul Kripke's Naming and Necessity:
->    http://www.answers.com/topic/saul-kripke
->
-> Sean
->
->
->
->
-I suggest considering your opaque names to be what reiser4 calls "keys",
-that is, names that exist for the purpose of finding the object via the
-storage layer.
+Nice, I like it.
 
-Hans
+> Because it's impossible to predict how it will interact with other
+> install and alias commands.
+
+Then we will just have to find out :)
+
+> A less fundamental but still major problem is that this would be a
+> different API, and both users and packages have been aware of
+> /etc/hotplug/blacklist* for a long time now.
+
+And as /etc/hotplug/* is going away for hotplug-ng, I don't think this
+is going to be an issue.  Also, the blacklisting stuff should not be
+that prevelant anymore...
+
+thanks,
+
+greg k-h

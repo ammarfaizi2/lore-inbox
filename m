@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261542AbVEJMKk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbVEJMSP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261542AbVEJMKk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 08:10:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbVEJMKk
+	id S261623AbVEJMSP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 08:18:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbVEJMSP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 08:10:40 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:28363 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261542AbVEJMKZ (ORCPT
+	Tue, 10 May 2005 08:18:15 -0400
+Received: from smtp.seznam.cz ([212.80.76.43]:20668 "HELO smtp.seznam.cz")
+	by vger.kernel.org with SMTP id S261623AbVEJMSL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 08:10:25 -0400
-Date: Tue, 10 May 2005 08:09:25 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [patch] mm: fix rss counter being incremented when unmapping
-In-Reply-To: <20050509122916.GA30726@doener.homenet>
-Message-ID: <Pine.LNX.4.61.0505100808320.24219@chimarrao.boston.redhat.com>
-References: <20050509122916.GA30726@doener.homenet>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="279726928-1609229727-1115726965=:24219"
+	Tue, 10 May 2005 08:18:11 -0400
+Date: Tue, 10 May 2005 14:18:14 +0200
+To: Greg KH <gregkh@suse.de>, Jean Delvare <khali@linux-fr.org>
+Cc: James Chapman <jchapman@katalix.com>, LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <sensors@Stimpy.netroedge.com>
+Subject: [PATCH] ds1337: export ds1337_do_command
+Message-ID: <20050510121814.GB2492@orphique>
+References: <20050504061438.GD1439@orphique> <1DTwF8-18P-00@press.kroah.org> <20050508204021.627f9cd1.khali@linux-fr.org> <427E6E21.60001@katalix.com> <20050508222351.08bfe2e1.khali@linux-fr.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050508222351.08bfe2e1.khali@linux-fr.org>
+User-Agent: Mutt/1.5.9i
+From: Ladislav Michl <ladis@linux-mips.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Sun, May 08, 2005 at 10:23:51PM +0200, Jean Delvare wrote:
+> Hi James,
+> 
+> > I suggest that Ladislav's patch should still be applied and a
+> > separate patch be submitted to export the interface to modules.
+> 
+> Either way is fine with me as long as it actually happens.
 
---279726928-1609229727-1115726965=:24219
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Export ds1337_do_command so it could be used also if driver is built as
+module.
 
-On Mon, 9 May 2005, Björn Steinbrink wrote:
+Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
 
-> This patch fixes a bug introduced by the "mm counter operations through
-> macros" patch, which replaced a decrement operation in with an increment
-> macro in try_to_unmap_one().
-
-Oops.  Patch looks good to me.
-Andrew, if you see this could you pick up the
-patch from the head of this thread? ;)
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
---279726928-1609229727-1115726965=:24219--
+--- linux-omap/drivers/i2c/chips/ds1337.c.orig	2005-05-10 14:10:49.637992600 +0200
++++ linux-omap/drivers/i2c/chips/ds1337.c	2005-05-10 14:13:05.064404656 +0200
+@@ -380,5 +380,7 @@
+ MODULE_DESCRIPTION("DS1337 RTC driver");
+ MODULE_LICENSE("GPL");
+ 
++EXPORT_SYMBOL(ds1337_do_command);
++
+ module_init(ds1337_init);
+ module_exit(ds1337_exit);

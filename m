@@ -1,54 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbVEJMra@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261627AbVEJMtD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261631AbVEJMra (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 08:47:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261629AbVEJMra
+	id S261627AbVEJMtD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 08:49:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261629AbVEJMtD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 08:47:30 -0400
-Received: from zone4.gcu-squad.org ([213.91.10.50]:4845 "EHLO
-	zone4.gcu-squad.org") by vger.kernel.org with ESMTP id S261631AbVEJMrT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 08:47:19 -0400
-Date: Tue, 10 May 2005 14:40:06 +0200 (CEST)
-To: ladis@linux-mips.org
+	Tue, 10 May 2005 08:49:03 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:36367 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261627AbVEJMsq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 08:48:46 -0400
+Date: Tue, 10 May 2005 13:48:35 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Ladislav Michl <ladis@linux-mips.org>
+Cc: Greg KH <greg@kroah.com>, Jean Delvare <khali@linux-fr.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <sensors@Stimpy.netroedge.com>,
+       James Chapman <jchapman@katalix.com>
 Subject: Re: [PATCH] ds1337 driver works also with ds1339 chip
-X-IlohaMail-Blah: khali@localhost
-X-IlohaMail-Method: mail() [mem]
-X-IlohaMail-Dummy: moo
-X-Mailer: IlohaMail/0.8.14 (On: webmail.gcu.info)
-Message-ID: <u7zs9Dp4.1115728806.6659250.khali@localhost>
-In-Reply-To: <20050510120804.GA2492@orphique>
-From: "Jean Delvare" <khali@linux-fr.org>
-Bounce-To: "Jean Delvare" <khali@linux-fr.org>
-CC: "LKML" <linux-kernel@vger.kernel.org>,
-       "LM Sensors" <sensors@Stimpy.netroedge.com>,
-       "James Chapman" <jchapman@katalix.com>, "Greg KH" <greg@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Message-ID: <20050510134834.A3358@flint.arm.linux.org.uk>
+Mail-Followup-To: Ladislav Michl <ladis@linux-mips.org>,
+	Greg KH <greg@kroah.com>, Jean Delvare <khali@linux-fr.org>,
+	LKML <linux-kernel@vger.kernel.org>,
+	LM Sensors <sensors@Stimpy.netroedge.com>,
+	James Chapman <jchapman@katalix.com>
+References: <20050504061438.GD1439@orphique> <Ky47NT3d.1115201231.3150830.khali@localhost> <20050510120804.GA2492@orphique>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050510120804.GA2492@orphique>; from ladis@linux-mips.org on Tue, May 10, 2005 at 02:08:04PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 10, 2005 at 02:08:04PM +0200, Ladislav Michl wrote:
+> On Wed, May 04, 2005 at 12:07:11PM +0200, Jean Delvare wrote:
+> > > Chip is searched by bus number rather than its own proprietary id.
+> > 
+> > Yes, I think it makes much more sense (especially since the proprietary
+> > id was not known by anyone outside of the ds1337 driver).
+> > 
+> > I think I understand that ds1337_do_command() will be called from some
+> > other kernel driver. Why isn't it exported then? I'd expect:
+> > EXPORT_SYMBOL(ds1337_do_command);
+> 
+> RTC is hooked early in boot process. It should be available even sooner
+> than rootfs is mounted. Therefore RTC drivers are usualy compiled in
+> kernel. Anyway, exporting that function shouldn't hurt :)
 
-Hi Ladislav,
+You don't have to set the kernel time during time_init(), and this
+is especially true with I2C RTCs.  The only thing that time_init()
+has to do is to start the kernel tick going.
 
-> > next to the end of the ds1337 driver. Maybe it would also make sense to
-> > have a ds1337.h header file declaring this function?
->
-> I'm not sure if adding yet another driver specific header is a good
-> idea. Perhaps we should consolidate I2C RTC drivers a bit more and
-> create common header for them?
+There is no reason why it can't be initialised during the normal
+driver initialisation - which is how we do it on a number of ARM
+platforms.
 
-Agreed, although I would go one step further. I see no reason why it
-matters whether these are *I2C* RTC or not. I have no concrete proposal
-but it really sounds like a common RTC interface would be needed here -
-if it doesn't exist already. Can't say more unfortunately, as I never
-had to use a RTC myself.
+There are some ARM platforms where we can only get the time via
+ntpdate, and this is also satisfactory.
 
-> Document the fact that ds1337 driver works also with DS1339 real-time
-> clock chip.
+So please don't get hung up on the x86 way of doing things.  It's
+both conceptually wrong and actually unnecessary.
 
-Good work, thanks.
-
---
-Jean Delvare
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,57 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261741AbVEJS6p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261738AbVEJTCI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261741AbVEJS6p (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 14:58:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261742AbVEJS6p
+	id S261738AbVEJTCI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 15:02:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261742AbVEJTCI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 14:58:45 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:22695 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261741AbVEJS6n (ORCPT
+	Tue, 10 May 2005 15:02:08 -0400
+Received: from mail.dif.dk ([193.138.115.101]:16362 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261738AbVEJTCD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 14:58:43 -0400
-Message-ID: <4281045C.4020205@us.ibm.com>
-Date: Tue, 10 May 2005 11:58:36 -0700
-From: Matthew Dobson <colpatch@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
-X-Accept-Language: en-us, en
+	Tue, 10 May 2005 15:02:03 -0400
+Date: Tue, 10 May 2005 21:05:54 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: bluez-devel@lists.sf.net, Maxim Krasnyansky <maxk@qualcomm.com>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] bluetooth: kill redundant NULL checks and casts before kfree
+Message-ID: <Pine.LNX.4.62.0505102100150.2386@dragon.hyggekrogen.localhost>
 MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [RFC/PATCH] unregister_node() for hotplug use
-References: <20050420173235.GA17775@kroah.com> <20050422003009.1b96f09c.tokunaga.keiich@jp.fujitsu.com> <20050422003920.GD6829@kroah.com> <20050422113211.509005f1.tokunaga.keiich@jp.fujitsu.com> <20050425230333.6b8dfb33.tokunaga.keiich@jp.fujitsu.com> <20050426065431.GB5889@suse.de> <20050507211141.4829d4c0.tokunaga.keiich@jp.fujitsu.com> <427FE7B3.8080200@us.ibm.com> <20050510202053.3ddd9e7b.tokunaga.keiich@jp.fujitsu.com> <4280FA41.3050403@us.ibm.com> <20050510184508.GA2463@suse.de>
-In-Reply-To: <20050510184508.GA2463@suse.de>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Tue, May 10, 2005 at 11:15:29AM -0700, Matthew Dobson wrote:
-> 
->>So I think it's probably a good idea to stick the __devinit on
->>register_node() and unregister_node(), otherwise we have no marker to know
->>which functions to remove for CONFIG_TINY.  Greg?
-> 
-> 
-> Like _anyone_ would have CONFIG_NUMA and CONFIG_TINY enabled at the same
-> time?  I don't think so...
-> 
-> I'll leave it as is for now.
-> 
-> thanks,
-> 
-> greg k-h
+(please keep me on CC when replying)
 
-No, it seems unlikely that anyone would build with CONFIG_NUMA and
-CONFIG_TINY both enabled.  But it is possible and reasonable to build with
-CONFIG_NUMA=y and CONFIG_HOTPLUG=n, which is the case I was trying to speak
-to.  If NUMA is on and HOTPLUG is off, then we're wasting kernel text
-(granted, it's a very small amount of space) for the register_node() &
-unregister_node() functions that we *know* will never be called after
-initial bootup.  That's why I suggested marking both of those functions as
-__devinit.  But it doesn't make a huge difference either way.
 
--Matt
+There's no need to check for NULL before calling kfree() on a pointer, and 
+since kfree() takes a void* argument there's no need to cast pointers to 
+other types before passing them to kfree().
+This patch cleans that up in drivers/bluetooth/
+
+Please apply.
+
+
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+---
+
+ drivers/bluetooth/bpa10x.c   |    7 ++-----
+ drivers/bluetooth/hci_usb.c  |    6 ++----
+ drivers/bluetooth/hci_vhci.c |    8 +++-----
+ 3 files changed, 7 insertions(+), 14 deletions(-)
+
+diff -upr linux-2.6.12-rc3-mm3-orig/drivers/bluetooth/bpa10x.c linux-2.6.12-rc3-mm3/drivers/bluetooth/bpa10x.c
+--- linux-2.6.12-rc3-mm3-orig/drivers/bluetooth/bpa10x.c	2005-03-02 08:38:17.000000000 +0100
++++ linux-2.6.12-rc3-mm3/drivers/bluetooth/bpa10x.c	2005-05-10 20:53:56.000000000 +0200
+@@ -367,11 +367,8 @@ static inline void bpa10x_free_urb(struc
+ 	if (!urb)
+ 		return;
+ 
+-	if (urb->setup_packet)
+-		kfree(urb->setup_packet);
+-
+-	if (urb->transfer_buffer)
+-		kfree(urb->transfer_buffer);
++	kfree(urb->setup_packet);
++	kfree(urb->transfer_buffer);
+ 
+ 	usb_free_urb(urb);
+ }
+diff -upr linux-2.6.12-rc3-mm3-orig/drivers/bluetooth/hci_usb.c linux-2.6.12-rc3-mm3/drivers/bluetooth/hci_usb.c
+--- linux-2.6.12-rc3-mm3-orig/drivers/bluetooth/hci_usb.c	2005-04-30 18:24:53.000000000 +0200
++++ linux-2.6.12-rc3-mm3/drivers/bluetooth/hci_usb.c	2005-05-10 20:56:17.000000000 +0200
+@@ -387,10 +387,8 @@ static void hci_usb_unlink_urbs(struct h
+ 			urb = &_urb->urb;
+ 			BT_DBG("%s freeing _urb %p type %d urb %p",
+ 					husb->hdev->name, _urb, _urb->type, urb);
+-			if (urb->setup_packet)
+-				kfree(urb->setup_packet);
+-			if (urb->transfer_buffer)
+-				kfree(urb->transfer_buffer);
++			kfree(urb->setup_packet);
++			kfree(urb->transfer_buffer);
+ 			_urb_free(_urb);
+ 		}
+ 
+diff -upr linux-2.6.12-rc3-mm3-orig/drivers/bluetooth/hci_vhci.c linux-2.6.12-rc3-mm3/drivers/bluetooth/hci_vhci.c
+--- linux-2.6.12-rc3-mm3-orig/drivers/bluetooth/hci_vhci.c	2005-04-30 18:24:53.000000000 +0200
++++ linux-2.6.12-rc3-mm3/drivers/bluetooth/hci_vhci.c	2005-05-10 20:58:23.000000000 +0200
+@@ -78,12 +78,10 @@ static int hci_vhci_close(struct hci_dev
+ 
+ static void hci_vhci_destruct(struct hci_dev *hdev)
+ {
+-	struct hci_vhci_struct *vhci;
++	if (!hdev)
++		return;
+ 
+-	if (!hdev) return;
+-
+-	vhci = (struct hci_vhci_struct *) hdev->driver_data;
+-	kfree(vhci);
++	kfree(hdev->driver_data)
+ }
+ 
+ static int hci_vhci_send_frame(struct sk_buff *skb)
+
+
+

@@ -1,69 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbVEJI2Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261583AbVEJIlD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261582AbVEJI2Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 04:28:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261581AbVEJI2Q
+	id S261583AbVEJIlD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 04:41:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbVEJIlD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 04:28:16 -0400
-Received: from mailfe08.swip.net ([212.247.154.225]:43193 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S261582AbVEJI2J (ORCPT
+	Tue, 10 May 2005 04:41:03 -0400
+Received: from koto.vergenet.net ([210.128.90.7]:64670 "EHLO koto.vergenet.net")
+	by vger.kernel.org with ESMTP id S261583AbVEJIkw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 04:28:09 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Subject: Re: [BUG][Resend] 2.6.12-rc3-mm3: Kernel BUG at "mm/slab.c":1219
-From: Alexander Nyberg <alexn@dsv.su.se>
-To: Jens Axboe <axboe@suse.de>
-Cc: Andi Kleen <ak@suse.de>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050510061858.GB21649@suse.de>
-References: <200505092239.37834.rjw@sisk.pl>
-	 <20050509205251.GK25167@wotan.suse.de>  <20050510061858.GB21649@suse.de>
-Content-Type: text/plain
-Date: Tue, 10 May 2005 10:28:06 +0200
-Message-Id: <1115713686.918.5.camel@localhost.localdomain>
+	Tue, 10 May 2005 04:40:52 -0400
+Date: Tue, 10 May 2005 17:09:07 +0900
+From: Horms <horms@debian.org>
+To: Carlos Rodrigues <carlos.efr@mail.telepac.pt>, 308072@bugs.debian.org
+Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, linux-kernel@vger.kernel.org
+Subject: statfs returns wrong values for 250Gb FAT fs
+Message-ID: <20050510080907.GR1998@verge.net.au>
+References: <E1DUT2T-0000fm-Nx@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1DUT2T-0000fm-Nx@localhost.localdomain>
+X-Cluestick: seven
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tis 2005-05-10 klockan 08:18 +0200 skrev Jens Axboe:
-> On Mon, May 09 2005, Andi Kleen wrote:
-> > On Mon, May 09, 2005 at 10:39:37PM +0200, Rafael J. Wysocki wrote:
-> > > Hi,
-> > > 
-> > > I get this from 2.6.12-rc3-mm3 on a UP AMD64 box (Asus L5D), 100% of the time:
-> > 
-> > Probably a generic bug. Block layer is passing some slab flag slab
-> > doesn't like.
-> 
-> Some slab change, perhaps? There's nothing special about the init_bio()
-> slab call:
-> 
->         bio_slab = kmem_cache_create("bio", sizeof(struct bio), 0,
->                             SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
+On Sat, May 07, 2005 at 06:24:29PM +0100, Carlos Rodrigues wrote:
+> Package: kernel-image-2.6.8-2-386
+> Version: 2.6.8-13
+> Severity: important
 > 
 > 
-> Hmm, this looks strange. That bug happens if:
+> I have a 250Gb external USB 2.0 hard-drive formatted with FAT32 and "df"
+> always reports 64Kb of used space on it, although it contains a couple of
+> gigabytes.
 > 
->         if ((!name) ||
->                 in_interrupt() ||
->                 (size < BYTES_PER_WORD) ||
->                 (size > (1<<MAX_OBJ_ORDER)*PAGE_SIZE) ||
->                 (dtor && !ctor)) {
->                         printk(KERN_ERR "%s: Early error in slab %s\n",
->                                         __FUNCTION__, name);
->                         BUG();
->                 }
+> At first I thought the problem might be in "df" itself, but the following
+> test code proves the statfs function is to blame. The values returned are
+> incorrect.
 > 
-> It must be in_interrupt() triggering, perhaps something change in the
-> boot sequence?
+> However, it does report correct values for another FAT32 partition I have
+> (70Gb).
 > 
+> 
+> ----------- statfs.c -----------
+> 
+> #include <sys/vfs.h>
+> 
+> 
+> int main(int argc, char *argv[])
+> {
+>     struct statfs stats;
+>     long used;
+>     int kib;
+> 
+>     if (argc < 2) {
+>         printf("USAGE: %s <mountpoint>\n", argv[0]);
+>       
+>         return 1;
+>     }
+> 
+>     statfs(argv[1], &stats);
+>     used = stats.f_blocks - stats.f_bfree;
+>   
+>     printf("f_bsize = %ld blocks\nf_blocks = %ld blocks\nf_bfree = %ld blocks\nused = %ld blocks\n",
+>            stats.f_bsize, stats.f_blocks, stats.f_bfree, used);
+> 
+>     kib = stats.f_bsize / 1024;
+>     printf("total = %ld KiB\nfree = %ld KiB\nused = %ld KiB\n",
+>            kib * stats.f_blocks,
+>            kib * stats.f_bfree,
+>            kib * used);
+> 
+>     return 0;
+> }
+> 
+> ----------- eof - statfs.c -----------
 
-The funny thing is that it seems to be the name being NULL, from the
-original post:
-kmem_cache_create: Early error in slab <NULL>
+Carlos,
 
-When looking at the code I really can't see how that can be. Rafael,
-what setup is this compiled under?
+this looks like it could be an issue with the fat file system
+handling a somewhat large filesystem. I have CCed the maintainer
+for comment. I have looked through most of the changes made
+to fat and vfat since 2.6.8.1 and I wasn't able to see anything
+there that looked like it would help your cause.
 
+-- 
+Horms

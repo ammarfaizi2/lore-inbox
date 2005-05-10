@@ -1,94 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261615AbVEJLqo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261616AbVEJLtj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261615AbVEJLqo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 07:46:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261616AbVEJLqo
+	id S261616AbVEJLtj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 07:49:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVEJLtj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 07:46:44 -0400
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:10426 "EHLO
-	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S261615AbVEJLql (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 07:46:41 -0400
-Date: Tue, 10 May 2005 13:46:19 +0200
-From: Martin Waitz <tali@admingilde.org>
+	Tue, 10 May 2005 07:49:39 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:57273 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261616AbVEJLta (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 07:49:30 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] DocBook: only use tabular style for long synopsis
-Message-ID: <20050510114619.GW3562@admingilde.org>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20050509203808.GT3562@admingilde.org> <20050509182825.0b2ac473.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qoynMflHD4PlumZh"
+Subject: Re: [BUG][Resend] 2.6.12-rc3-mm3: Kernel BUG at "mm/slab.c":1219
+Date: Tue, 10 May 2005 13:49:59 +0200
+User-Agent: KMail/1.8
+Cc: ak@suse.de, linux-kernel@vger.kernel.org
+References: <200505092239.37834.rjw@sisk.pl> <20050509145424.6ffba49a.akpm@osdl.org>
+In-Reply-To: <20050509145424.6ffba49a.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050509182825.0b2ac473.akpm@osdl.org>
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200505101349.59711.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---qoynMflHD4PlumZh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Monday, 9 of May 2005 23:54, Andrew Morton wrote:
+> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> >
+> > I get this from 2.6.12-rc3-mm3 on a UP AMD64 box (Asus L5D), 100% of the time:
+> > 
+> > ]--snip--[
+> > ACPI: bus type pci registered
+> > PCI: Using configuration type 1
+> > mtrr: v2.0 (20020519)
+> > kmem_cache_create: Early error in slab <NULL>
+> > ----------- [cut here ] --------- [please bite here ] ---------
+> > Kernel BUG at "mm/slab.c":1219
+> > invalid operand: 0000 [1]
+> > CPU 0
+> > Modules linked in:
+> > Pid: 1, comm: swapper Not tainted 2.6.12-rc3-mm3
+> > RIP: 0010:[<ffffffff80179eeb>] <ffffffff80179eeb>{kmem_cache_create+139}
+> > RSP: 0000:ffff810001ca1eb8  EFLAGS: 00010292
+> > RAX: 0000000000000034 RBX: 0000000000000000 RCX: 0000000000000000
+> > RDX: 0000000000000000 RSI: 0000000000000dd3 RDI: ffffffff804167e0
+> > RBP: 0000000000000005 R08: 0000000000000000 R09: 0000000000000000
+> > R10: 0000000000000010 R11: 0000000000000008 R12: 0000000000042000
+> > R13: 0000000000000000 R14: 0000ffffffff8010 R15: 0000000000000000
+> > FS:  0000000000000000(0000) GS:ffffffff8055a840(0000) knlGS:0000000000000000
+> > CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+> > CR2: 0000000000004000 CR3: 0000000000101000 CR4: 00000000000006e0
+> > Process swapper (pid: 1, threadinfo ffff810001ca0000, task ffff810001c5a7a0)
+> > Stack: fffffffffffffff8 0000000000000000 0000000000000000 0000000000000000
+> >        0000000000000010 0000000000000000 0000000000000005 0000000000000006
+> >        00000000ffffffff 0000ffffffff8010
+> > Call Trace:<ffffffff8057a11d>{init_bio+93} <ffffffff8010c0f2>{init+178}
+> >        <ffffffff8010fc37>{child_rip+8} <ffffffff8010c040>{init+0}
+> >        <ffffffff8010fc2f>{child_rip+0}
+> > 
+> 
+> Something kooky is happening.
+> 
+> Clearly init_bio() is not passing in a NULL `name' parameter.  Maybe the
+> backtrace is screwed due to dopey gcc autoinlining and the bad caller is
+> really biovec_init_slabs().  Try removing the
+> __cacheline_aligned_mostly_readonly from the declaration of bvec_slabs[].
+> 
+> Please tell us what gcc and binutils versions you're using.
 
-hoi :)
+rafael@albercik:~> gcc -v
+]--snip--[
+gcc version 3.3.5 20050117 (prerelease) (SUSE Linux)
 
-On Mon, May 09, 2005 at 06:28:25PM -0700, Andrew Morton wrote:
-> Are you interested in becoming the official docbook person, send in a
-> MAINTAINERS patch?
+rafael@albercik:~> ld -v
+GNU ld version 2.15.94.0.2.2 20041220 (SuSE Linux)
 
-well I don't want to write all the documentation but I can maintain
-the DocBook system.
+rafael@albercik:~> as -v
+GNU assembler version 2.15.94.0.2.2 (x86_64-suse-linux) using BFD version 2.15.94.0.2.2 20041220 (SuSE Linux)
 
----
- MAINTAINERS |    5 +++++
- 1 files changed, 5 insertions(+)
+It's the default setup for SUSE 9.3 64-bit.
 
-Index: linux-docbook/MAINTAINERS
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- linux-docbook.orig/MAINTAINERS	2005-05-02 09:16:19.000000000 +0200
-+++ linux-docbook/MAINTAINERS	2005-05-10 13:43:37.975532756 +0200
-@@ -730,6 +730,11 @@ M:	tori@unhappy.mine.nu
- L:	linux-kernel@vger.kernel.org
- S:	Maintained
-=20
-+DOCBOOK FOR DOCUMENTATION
-+P:	Martin Waitz
-+M:	tali@admingilde.org
-+S:	Maintained
-+
- DOUBLETALK DRIVER
- P:	James R. Van Zandt
- M:	jrv@vanzandt.mv.com
+Strangely enough, I've compiled 2.6.12-rc4 and 2.6.12-rc3-mm2 with the same
+gcc/binutils and they work fine.
 
---=20
-Martin Waitz
+Greets,
+Rafael
 
---qoynMflHD4PlumZh
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFCgJ8Lj/Eaxd/oD7IRAigpAJ9oEiZLRBqhVkM43UcxYD4P9W9vFgCdHnkF
-+mtimCNUZCyAh9jwgazlOQk=
-=+otM
------END PGP SIGNATURE-----
-
---qoynMflHD4PlumZh--
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

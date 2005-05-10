@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261785AbVEJUxk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261311AbVEJUyU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261785AbVEJUxk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 16:53:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbVEJUxj
+	id S261311AbVEJUyU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 16:54:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbVEJUxx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 16:53:39 -0400
-Received: from lyle.provo.novell.com ([137.65.81.174]:16303 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S261785AbVEJUwo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 16:52:44 -0400
-Date: Tue, 10 May 2005 13:52:39 -0700
-From: Greg KH <gregkh@suse.de>
-To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] hotplug-ng 002 release
-Message-ID: <20050510205239.GA3634@suse.de>
-References: <20050506212227.GA24066@kroah.com> <1115611034.14447.11.camel@localhost.localdomain> <20050509232103.GA24238@suse.de> <1115717357.10222.1.camel@localhost.localdomain> <20050510094339.GC6346@wonderland.linux.it> <4280AFF4.6080108@ums.usu.ru> <20050510172447.GA11263@wonderland.linux.it> <20050510201355.GB3226@suse.de> <20050510203156.GA14979@wonderland.linux.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050510203156.GA14979@wonderland.linux.it>
-User-Agent: Mutt/1.5.8i
+	Tue, 10 May 2005 16:53:53 -0400
+Received: from mail.dif.dk ([193.138.115.101]:23427 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261311AbVEJUu5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 16:50:57 -0400
+Date: Tue, 10 May 2005 22:54:44 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Henrik Nordstrom <uml@hno.marasystems.com>, Andrew Morton <akpm@osdl.org>,
+       blaisorblade@yahoo.it, jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] Re: [patch 1/6] uml: remove elf.h [ compile-fix,
+ for 2.6.12 ]
+In-Reply-To: <20050510204048.GX3590@stusta.de>
+Message-ID: <Pine.LNX.4.62.0505102251060.2386@dragon.hyggekrogen.localhost>
+References: <20050509224509.0C105416E4@zion> <20050509183401.28082cbc.akpm@osdl.org>
+ <Pine.LNX.4.61.0505101525360.16461@filer.marasystems.com>
+ <20050510204048.GX3590@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 10, 2005 at 10:31:56PM +0200, Marco d'Itri wrote:
-> On May 10, Greg KH <gregkh@suse.de> wrote:
+On Tue, 10 May 2005, Adrian Bunk wrote:
+
+> On Tue, May 10, 2005 at 03:37:33PM +0200, Henrik Nordstrom wrote:
+> >...
+> > The /dev/null trick only works well for adding files, not removing them.
 > 
-> > > > Why not this or something similar (e.g. I want to blacklist the xxx and 
-> > > > yyy modules)? (note, untested)
-> > Nice, I like it.
-> But it does not work.
+> It works fine for removing files except when they have a zero length.
+> 
+Then a two-patch approach would seem to work as a hack. First patch just 
+adds a blank line to the file making in non-zero length, second patch then 
+uses the /dev/null trick to kill the file. A hack? Yes, certainly, but it 
+sounds like it would work (actually, it does work, just tried it).
 
-Why not?
 
-> > > Because it's impossible to predict how it will interact with other
-> > > install and alias commands.
-> > Then we will just have to find out :)
-> It should be clear that it will interact badly with another install
-> commands, with one of them being ignored. This is not acceptable.
+-- 
+Jesper Juhl
 
-Why?  Will they not all just be checked in order?
-
-> > > A less fundamental but still major problem is that this would be a
-> > > different API, and both users and packages have been aware of
-> > > /etc/hotplug/blacklist* for a long time now.
-> > And as /etc/hotplug/* is going away for hotplug-ng, I don't think this
-> > is going to be an issue.  Also, the blacklisting stuff should not be
-> > that prevelant anymore...
-> It's a feature which I know my users and other maintainers need
-> (for duplicated drivers, OSS drivers, watchdog drivers, usb{mouse,kbd}
-> and so on) so it's a prerequisite for the successful packaging of
-> hotplug-ng.
-
-Ok, then, care to make a patch to module-init-tools to provide this
-functionality?
-
-thanks,
-
-greg k-h

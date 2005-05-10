@@ -1,70 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbVEJKeY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbVEJKnG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261598AbVEJKeY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 06:34:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261600AbVEJKeY
+	id S261600AbVEJKnG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 06:43:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbVEJKnG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 06:34:24 -0400
-Received: from mgr2.xmission.com ([198.60.22.202]:27112 "EHLO
-	mgr2.xmission.com") by vger.kernel.org with ESMTP id S261598AbVEJKeT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 06:34:19 -0400
-Date: Tue, 10 May 2005 04:34:16 -0600 (MDT)
-From: cpclark@xmission.com
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Kumar Gala <kumar.gala@freescale.com>,
-       linuxppc-embedded list <linuxppc-embedded@ozlabs.org>,
-       Tom Rini <trini@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050510042828.GA8398@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.63.0505100420380.8140@xmission.xmission.com>
-References: <Pine.LNX.4.63.0505061718380.6288@xmission.xmission.com>
- <b0aede90eb15562c0dd5a44c10d1b965@freescale.com> <20050510042828.GA8398@mars.ravnborg.org>
-Organization: Secret Conspiracy Labs
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Subject: Re: PPC uImage build not reporting correctly
-X-SA-Exim-Connect-IP: 166.70.238.3
-X-SA-Exim-Mail-From: cpclark@xmission.com
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on mgr6.xmission.com)
+	Tue, 10 May 2005 06:43:06 -0400
+Received: from fire.osdl.org ([65.172.181.4]:31184 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261600AbVEJKnD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 06:43:03 -0400
+Date: Tue, 10 May 2005 03:42:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Blaisorblade <blaisorblade@yahoo.it>
+Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net,
+       bstroesser@fujitsu-siemens.com
+Subject: Re: [patch 0/6] latest bugfixes for 2.6.12
+Message-Id: <20050510034212.0d1e0799.akpm@osdl.org>
+In-Reply-To: <200505101217.56252.blaisorblade@yahoo.it>
+References: <200505100110.16920.blaisorblade@yahoo.it>
+	<200505100139.02512.blaisorblade@yahoo.it>
+	<20050509170208.6c70a3ba.akpm@osdl.org>
+	<200505101217.56252.blaisorblade@yahoo.it>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 May 2005, Sam Ravnborg wrote:
-
-> On Mon, May 09, 2005 at 10:19:01AM -0500, Kumar Gala wrote:
-> > 
-> > On May 6, 2005, at 6:22 PM, <cpclark@xmission.com> wrote:
-> > 
-> > >On Fri, 6 May 2005, Kumar Gala wrote:
-> > > > I tried the following w/o success:
-> > > >
-> > > > $(obj)/uImage: $(obj)/vmlinux.gz
-> > > >         $(Q)rm -f $@
-> > > >         $(call if_changed,uimage)
-> > > >         @echo ' Image: $@' $(shell if [ -f $@ ]; then echo 'is ready'; else echo 'not made'; fi)
-> > >
-> > >Couldn't you eliminate the ($shell ..) construct altogether, like this?:
-> > >
-> > >$(obj)/uImage: $(obj)/vmlinux.gz
-> > >        $(Q)rm -f $@
-> > >        $(call if_changed,uimage)
-> > >        @echo -n '? Image: $@'
-> > >        @if [ -f $@ ]; then echo 'is ready' ; else echo 'not made'; fi
-> > 
-> > Yes, and this seems to actually work.
-> > 
-> > Sam, does this look reasonable to you.  If so I will work up a patch.
+Blaisorblade <blaisorblade@yahoo.it> wrote:
 >
-> Looks ok - but I do not see why use of $(shell ...) did not work out.
+> On Tuesday 10 May 2005 02:02, Andrew Morton wrote:
+> > Blaisorblade <blaisorblade@yahoo.it> wrote:
+> > > > Jeff sent in fixes which were dependent on other things I had, we're
+> > > > maybe several weeks away from 2.6.12,
+> > >
+> > > Several weeks away?
+> >
+> > Hope so.  We lost a lot of testing due to lack of daily snapshots
+>
+> Is there a technical reason they've not been restored?
 
-As I understand it, the $(shell ...) construct doesn't "work" in the case 
-cited above because make evaluates/expands the $(shell ...) stuff while it 
-is parsing the makefile and building the command list--i.e. before it has 
-issued any commands to build anything.  What seems to be desired in this 
-case is a file-existence test which runs "inline" with respect to the 
-preceding commands.  The use of $(shell ...) inside a command 
-subverts/preempts that natural sequence.  I think. :-)
-
-Chris
+Nope.  They started again five days ago.

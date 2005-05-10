@@ -1,37 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261543AbVEJEkh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbVEJEyd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261543AbVEJEkh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 00:40:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbVEJEkh
+	id S261549AbVEJEyd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 00:54:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbVEJEyd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 00:40:37 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:30173 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S261543AbVEJEkc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 00:40:32 -0400
-Date: Mon, 9 May 2005 23:50:52 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: Alexander Nyberg <alexn@telia.com>, Antoine Martin <antoine@nagafix.co.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11.8 + UML/x86_64 (2.6.12-rc3+) = oops
-Message-ID: <20050510035052.GA16892@ccure.user-mode-linux.org>
-References: <20050504191828.620C812EE7@sc8-sf-spam2.sourceforge.net> <1115248927.12088.52.camel@cobra> <1115392141.12197.3.camel@cobra> <1115483506.12131.33.camel@cobra> <1115481468.925.9.camel@localhost.localdomain> <20050507180356.GA10793@ccure.user-mode-linux.org> <20050508001832.GA32143@parcelfarce.linux.theplanet.co.uk> <20050508061044.GB32143@parcelfarce.linux.theplanet.co.uk> <20050509210753.GA1150@parcelfarce.linux.theplanet.co.uk> <20050510022631.GB1150@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050510022631.GB1150@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 10 May 2005 00:54:33 -0400
+Received: from mail.mystique-magazine.com ([205.238.173.42]:22252 "HELO
+	mail.mystique-magazine.com") by vger.kernel.org with SMTP
+	id S261549AbVEJEyb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 00:54:31 -0400
+Message-ID: <42803E86.5060107@infinity-studios.com>
+Date: Mon, 09 May 2005 23:54:30 -0500
+From: Dzuy Nguyen <dzuy@infinity-studios.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Strange 2.6 initrd/initramfs problem with shared libraries on VIA
+ C3
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 10, 2005 at 03:26:31AM +0100, Al Viro wrote:
-> Now we have
-> the following:
-> 	uml/i386 - all variants work
-> 	uml/amd64 TT-only - panics in execve() on /sbin/init (hey, a progress)
-> 	uml/amd64 other variants - work
+I'm not sure if this is a bug or whether it's been addressed, but I'm
+seeing a strange problem with 2.6 kernel on my VI C3 boards.
 
-Nice, send patches when you get a chance?
+I replace nash on FC3's initramfs with busybox compiled with shared
+libs.  I put glibc, ld and other libs in the /lib directory of the
+initramfs.  My /init is an ash script, which basically runs busybox.
+When boots, it just hangs in initramfs.
 
-				Jeff
+I use the same initramfs on other Intel pentium system and it works
+fine.  It just fails on any of my VIA C3 systems, both with the stock
+FC3 kernel and customed 2.6.11.7 kernel compiled specifically for
+Cyrix/C3 and i586/i686.
+
+When use static nash and busybox, it works (on C3).  Looking at the
+code, the kernel does an execve() on either /linuxrc or /init.  On pentium
+system, this works fine.  I just can't place why/how it fails on C3.  I 
+tried
+catching errno from execve to no avail.  I suspect that there is something
+wrong with the library loader, but can't think of any thing why it differs
+from Pentium and C3.  Can someone please shed some light?
+
+I'm not subscribed to the list, so please CC me.  Thanks.
+
+Dzuy

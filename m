@@ -1,45 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261796AbVEJWmN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261837AbVEJW63@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261796AbVEJWmN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 18:42:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbVEJWmN
+	id S261837AbVEJW63 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 18:58:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbVEJW63
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 18:42:13 -0400
-Received: from mail.kroah.org ([69.55.234.183]:46502 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261796AbVEJWmG (ORCPT
+	Tue, 10 May 2005 18:58:29 -0400
+Received: from mail.dif.dk ([193.138.115.101]:15753 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261837AbVEJW6X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 18:42:06 -0400
-Date: Tue, 10 May 2005 15:41:59 -0700
-From: Greg KH <gregkh@suse.de>
-To: Per Liden <per@fukt.bth.se>, linux-hotplug-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] hotplug-ng 002 release
-Message-ID: <20050510224159.GB4967@kroah.com>
-References: <20050506212227.GA24066@kroah.com> <Pine.LNX.4.63.0505090025280.7682@1-1-2-5a.f.sth.bostream.se> <20050509211323.GB5297@tsiryulnik>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050509211323.GB5297@tsiryulnik>
-User-Agent: Mutt/1.5.8i
+	Tue, 10 May 2005 18:58:23 -0400
+Date: Wed, 11 May 2005 01:02:16 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+Subject: [PATCH] kernel/module.c has something to hide. (whitespace cleanup)
+Message-ID: <Pine.LNX.4.62.0505110057500.2386@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 09, 2005 at 11:13:24PM +0200, Per Svennerbrandt wrote:
-> 
-> Along with it I also have a patch witch exports the module aliases for
-> PCI and USB devices through sysfs. With it the "coldplugging" of a
-> system (module wise) can be reduced to pretty much:
 
-I'd like to see this, that should be acceptable to add to the kernel.
+Quoting Documentation/CodingStyle : 
+        "Don't put multiple statements on a single line unless you have
+         something to hide:
+         
+         if (condition) do_this;
+           do_something_everytime;
+        "
 
-> #!/bin/sh
-> 
-> for DEV in /sys/bus/{pci,usb}/devices/*; do
-> 	modprobe `cat $DEV/modalias`
-> done
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+---
 
-Yes, very nice :)
+ kernel/module.c |   10 ++++++----
+ 1 files changed, 6 insertions(+), 4 deletions(-)
 
-thaks,
+--- linux-2.6.12-rc3-mm3-orig/kernel/module.c	2005-05-06 23:21:28.000000000 +0200
++++ linux-2.6.12-rc3-mm3/kernel/module.c	2005-05-11 00:56:54.000000000 +0200
+@@ -410,7 +410,8 @@ static int already_uses(struct module *a
+ static int use_module(struct module *a, struct module *b)
+ {
+ 	struct module_use *use;
+-	if (b == NULL || already_uses(a, b)) return 1;
++	if (b == NULL || already_uses(a, b))
++		return 1;
+ 
+ 	if (!strong_try_module_get(b))
+ 		return 0;
+@@ -1731,9 +1732,10 @@ static struct module *load_module(void _
+ 	kfree(args);
+  free_hdr:
+ 	vfree(hdr);
+-	if (err < 0) return ERR_PTR(err);
+-	else return ptr;
+-
++	if (err < 0)
++		return ERR_PTR(err);
++	else
++		return ptr;
+  truncated:
+ 	printk(KERN_ERR "Module len %lu truncated\n", len);
+ 	err = -ENOEXEC;
 
-greg k-h
+
+

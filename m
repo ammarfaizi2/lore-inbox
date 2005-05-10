@@ -1,65 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261599AbVEJJ7Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbVEJKCU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261599AbVEJJ7Z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 05:59:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261600AbVEJJ7Y
+	id S261601AbVEJKCU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 06:02:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbVEJKCT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 05:59:24 -0400
-Received: from attila.bofh.it ([213.92.8.2]:12484 "EHLO attila.bofh.it")
-	by vger.kernel.org with ESMTP id S261599AbVEJJ7U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 05:59:20 -0400
-Date: Tue, 10 May 2005 11:43:39 +0200
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Greg KH <gregkh@suse.de>, linux-hotplug-devel@lists.sourceforge.net,
+	Tue, 10 May 2005 06:02:19 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38605 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261601AbVEJKCO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 06:02:14 -0400
+Date: Tue, 10 May 2005 11:02:20 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: Alexander Nyberg <alexn@telia.com>, Antoine Martin <antoine@nagafix.co.uk>,
        linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] hotplug-ng 002 release
-Message-ID: <20050510094339.GC6346@wonderland.linux.it>
-Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
-	Greg KH <gregkh@suse.de>, linux-hotplug-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <20050506212227.GA24066@kroah.com> <1115611034.14447.11.camel@localhost.localdomain> <20050509232103.GA24238@suse.de> <1115717357.10222.1.camel@localhost.localdomain>
+Subject: Re: 2.6.11.8 + UML/x86_64 (2.6.12-rc3+) = oops
+Message-ID: <20050510100220.GC1150@parcelfarce.linux.theplanet.co.uk>
+References: <1115248927.12088.52.camel@cobra> <1115392141.12197.3.camel@cobra> <1115483506.12131.33.camel@cobra> <1115481468.925.9.camel@localhost.localdomain> <20050507180356.GA10793@ccure.user-mode-linux.org> <20050508001832.GA32143@parcelfarce.linux.theplanet.co.uk> <20050508061044.GB32143@parcelfarce.linux.theplanet.co.uk> <20050509210753.GA1150@parcelfarce.linux.theplanet.co.uk> <20050510022631.GB1150@parcelfarce.linux.theplanet.co.uk> <20050510035052.GA16892@ccure.user-mode-linux.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AhhlLboLdkugWU4S"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1115717357.10222.1.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
-From: md@Linux.IT (Marco d'Itri)
+In-Reply-To: <20050510035052.GA16892@ccure.user-mode-linux.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, May 09, 2005 at 11:50:52PM -0400, Jeff Dike wrote:
+> On Tue, May 10, 2005 at 03:26:31AM +0100, Al Viro wrote:
+> > Now we have
+> > the following:
+> > 	uml/i386 - all variants work
+> > 	uml/amd64 TT-only - panics in execve() on /sbin/init (hey, a progress)
+> > 	uml/amd64 other variants - work
+> 
+> Nice, send patches when you get a chance?
 
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On May 10, Rusty Russell <rusty@rustcorp.com.au> wrote:
-
-> So I rewrote it yesterday, so now it passes the testsuite.  I also added
-> a test.  It's in 3.2-pre4: if there are no more requests/bugs in the
-> next couple of days, I'll make that 3.3.
-My major request is support for /etc/hotplug/blacklist.d/ in modprobe:
-now that the hotplug subsystem does not know anymore the name of the
-module to be loaded, it's up to modprobe to check the system blacklist.
-IME, without this feature users will not accept hotplug-ng.
-
---=20
-ciao,
-Marco
-
---AhhlLboLdkugWU4S
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCgIJLFGfw2OHuP7ERAgxEAJ9Da1wXIicQ3bnJvOluIxS0LycH5gCfReRm
-1kvbi5Es4IbEnKBtM1aXgsI=
-=z3W0
------END PGP SIGNATURE-----
-
---AhhlLboLdkugWU4S--
+ftp.linux.org.uk/pub/people/viro/UM*-RC12-rc4.  The first one is your skas0
+rediffed to -rc4, the rest - fixes (matching the bug list upthread; the
+last two are actually older than the rest, missed them in the original list
+of bugs; one is obvious missing include, another is dereferencing userland
+pointer instead of dealing with copied value + missing chunk in amd64/tt
+sc_copy_...).

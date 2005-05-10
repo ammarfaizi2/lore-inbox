@@ -1,45 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261757AbVEJTpR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261761AbVEJTqR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261757AbVEJTpR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 15:45:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbVEJTpQ
+	id S261761AbVEJTqR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 15:46:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbVEJTqR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 15:45:16 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:18430 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261757AbVEJTo2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 15:44:28 -0400
-Subject: RE: [PATCH 2/4] rt_mutex: add new plist implementation
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-Cc: Oleg Nesterov <oleg@tv-sign.ru>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <F989B1573A3A644BAB3920FBECA4D25A0338B637@orsmsx407>
-References: <F989B1573A3A644BAB3920FBECA4D25A0338B637@orsmsx407>
-Content-Type: text/plain
-Organization: MontaVista
-Message-Id: <1115754260.14326.26.camel@dhcp153.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 10 May 2005 12:44:20 -0700
-Content-Transfer-Encoding: 7bit
+	Tue, 10 May 2005 15:46:17 -0400
+Received: from mail.dif.dk ([193.138.115.101]:11245 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261761AbVEJTpS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 15:45:18 -0400
+Date: Tue, 10 May 2005 21:49:04 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Marcel Holtmann <marcel@holtmann.org>, bluez-devel@lists.sf.net,
+       Maxim Krasnyansky <maxk@qualcomm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] bluetooth: kill redundant NULL checks and casts before
+ kfree
+In-Reply-To: <200505102328.15734.adobriyan@mail.ru>
+Message-ID: <Pine.LNX.4.62.0505102147190.2386@dragon.hyggekrogen.localhost>
+References: <Pine.LNX.4.62.0505102100150.2386@dragon.hyggekrogen.localhost>
+ <200505102328.15734.adobriyan@mail.ru>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-10 at 11:39, Perez-Gonzalez, Inaky wrote:
+On Tue, 10 May 2005, Alexey Dobriyan wrote:
 
+> On Tuesday 10 May 2005 23:05, Jesper Juhl wrote:
 > 
-> I guess I am still very biased by my implementation, where returning
-> that was almost free because of how the functions where implemented
-> (which steamed from the fact that they had to always compute the
-> new priority to store it in the head).
+> > There's no need to check for NULL before calling kfree() on a pointer, and
+> > since kfree() takes a void* argument there's no need to cast pointers to
+> > other types before passing them to kfree().
 > 
-> So as you say, the best way is wrapping your primitives around. I'd
-> suggest a shorter postfix, something like _prio() or _chkprio().
+> > +	kfree(hdev->driver_data)	
+> 
+> This won't compile.
+> 
+Ouch. You are right.
+I usually compile test patches, but I have to admit I didn't this time. 
+Sorry about that. Fixed patch below.
 
-I still say re-implementation of plist is a waste .. Why re-make the
-wheel when you have a perfectly good starting point .
 
-Daniel
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+--- 
+
+diff -upr linux-2.6.12-rc3-mm3-orig/drivers/bluetooth/bpa10x.c linux-2.6.12-rc3-mm3/drivers/bluetooth/bpa10x.c
+--- linux-2.6.12-rc3-mm3-orig/drivers/bluetooth/bpa10x.c	2005-03-02 08:38:17.000000000 +0100
++++ linux-2.6.12-rc3-mm3/drivers/bluetooth/bpa10x.c	2005-05-10 20:53:56.000000000 +0200
+@@ -367,11 +367,8 @@ static inline void bpa10x_free_urb(struc
+ 	if (!urb)
+ 		return;
+ 
+-	if (urb->setup_packet)
+-		kfree(urb->setup_packet);
+-
+-	if (urb->transfer_buffer)
+-		kfree(urb->transfer_buffer);
++	kfree(urb->setup_packet);
++	kfree(urb->transfer_buffer);
+ 
+ 	usb_free_urb(urb);
+ }
+diff -upr linux-2.6.12-rc3-mm3-orig/drivers/bluetooth/hci_usb.c linux-2.6.12-rc3-mm3/drivers/bluetooth/hci_usb.c
+--- linux-2.6.12-rc3-mm3-orig/drivers/bluetooth/hci_usb.c	2005-04-30 18:24:53.000000000 +0200
++++ linux-2.6.12-rc3-mm3/drivers/bluetooth/hci_usb.c	2005-05-10 20:56:17.000000000 +0200
+@@ -387,10 +387,8 @@ static void hci_usb_unlink_urbs(struct h
+ 			urb = &_urb->urb;
+ 			BT_DBG("%s freeing _urb %p type %d urb %p",
+ 					husb->hdev->name, _urb, _urb->type, urb);
+-			if (urb->setup_packet)
+-				kfree(urb->setup_packet);
+-			if (urb->transfer_buffer)
+-				kfree(urb->transfer_buffer);
++			kfree(urb->setup_packet);
++			kfree(urb->transfer_buffer);
+ 			_urb_free(_urb);
+ 		}
+ 
+diff -upr linux-2.6.12-rc3-mm3-orig/drivers/bluetooth/hci_vhci.c linux-2.6.12-rc3-mm3/drivers/bluetooth/hci_vhci.c
+--- linux-2.6.12-rc3-mm3-orig/drivers/bluetooth/hci_vhci.c	2005-04-30 18:24:53.000000000 +0200
++++ linux-2.6.12-rc3-mm3/drivers/bluetooth/hci_vhci.c	2005-05-10 21:46:48.000000000 +0200
+@@ -78,12 +78,10 @@ static int hci_vhci_close(struct hci_dev
+ 
+ static void hci_vhci_destruct(struct hci_dev *hdev)
+ {
+-	struct hci_vhci_struct *vhci;
++	if (!hdev)
++		return;
+ 
+-	if (!hdev) return;
+-
+-	vhci = (struct hci_vhci_struct *) hdev->driver_data;
+-	kfree(vhci);
++	kfree(hdev->driver_data);
+ }
+ 
+ static int hci_vhci_send_frame(struct sk_buff *skb)
+
 

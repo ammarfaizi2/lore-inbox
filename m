@@ -1,62 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261784AbVEJUuY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261785AbVEJUxk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261784AbVEJUuY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 16:50:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbVEJUto
+	id S261785AbVEJUxk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 16:53:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbVEJUxj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 16:49:44 -0400
-Received: from fire.osdl.org ([65.172.181.4]:22701 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261784AbVEJUqA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 16:46:00 -0400
-Date: Tue, 10 May 2005 13:43:33 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Dave Jones <davej@redhat.com>, Christopher Warner <chris@servertogo.com>,
-       Hugh Dickins <hugh@veritas.com>, cwarner@kernelcode.com,
-       Chris Wright <chrisw@osdl.org>,
-       "Sergey S. Kostyliov" <rathamahata@ehouse.ru>,
-       Clem Taylor <clem.taylor@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: x86-64 bad pmds in 2.6.11.6 II
-Message-ID: <20050510204333.GX27549@shell0.pdx.osdl.net>
-References: <Pine.LNX.4.61.0504191636570.13422@goblin.wat.veritas.com> <1114773179.9543.14.camel@jasmine> <20050429173216.GB1832@redhat.com> <20050502170042.GJ7342@wotan.suse.de> <1115047729.19314.1.camel@jasmine> <1115717814.7679.2.camel@jasmine> <20050510163851.GA1128@redhat.com> <20050510164649.GL25612@wotan.suse.de> <20050510165938.GA11835@redhat.com> <20050510203233.GM25612@wotan.suse.de>
+	Tue, 10 May 2005 16:53:39 -0400
+Received: from lyle.provo.novell.com ([137.65.81.174]:16303 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S261785AbVEJUwo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 16:52:44 -0400
+Date: Tue, 10 May 2005 13:52:39 -0700
+From: Greg KH <gregkh@suse.de>
+To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] hotplug-ng 002 release
+Message-ID: <20050510205239.GA3634@suse.de>
+References: <20050506212227.GA24066@kroah.com> <1115611034.14447.11.camel@localhost.localdomain> <20050509232103.GA24238@suse.de> <1115717357.10222.1.camel@localhost.localdomain> <20050510094339.GC6346@wonderland.linux.it> <4280AFF4.6080108@ums.usu.ru> <20050510172447.GA11263@wonderland.linux.it> <20050510201355.GB3226@suse.de> <20050510203156.GA14979@wonderland.linux.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050510203233.GM25612@wotan.suse.de>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050510203156.GA14979@wonderland.linux.it>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andi Kleen (ak@suse.de) wrote:
-> On Tue, May 10, 2005 at 12:59:38PM -0400, Dave Jones wrote:
-> > On Tue, May 10, 2005 at 06:46:49PM +0200, Andi Kleen wrote:
-> >  > On Tue, May 10, 2005 at 12:38:51PM -0400, Dave Jones wrote:
-> >  > > On Tue, May 10, 2005 at 05:36:54AM -0400, Christopher Warner wrote:
-> >  > >  > 2.6.11.5 kernel,
-> >  > >  > Tyan S2882/dual AMD 246 opterons
-> >  > >  > sh:18983: mm/memory.c:99: bad pmd ffff810005974cc8(00007ffffffffe46). 
-> >  > >  > sh:18983: mm/memory.c:99: bad pmd ffff810005974cd0(00007ffffffffe47).
-> >  > > 
-> >  > > That's the 3rd or 4th time I've seen this reported on this hardware.
-> >  > > It's not exclusive to it, but it does seem more susceptible
-> >  > > for some reason. Spooky.
-> >  > 
-> >  > It seems to be clear now that it is hardware independent.
-> >  > 
-> >  > I actually got it once now too, but only after 24+h stress test :/
-> >  > 
-> >  > I have a better debugging patch now that I will be testing soon,
-> >  > hopefully that turns something up.
-> > 
-> > Ok, I'm respinning the Fedora update kernel today for other
-> > reasons, if you have that patch in time, I'll toss it in too.
+On Tue, May 10, 2005 at 10:31:56PM +0200, Marco d'Itri wrote:
+> On May 10, Greg KH <gregkh@suse.de> wrote:
 > 
-> The patch has considerable overhead, probably not  good idea
-> for a production rpm.
+> > > > Why not this or something similar (e.g. I want to blacklist the xxx and 
+> > > > yyy modules)? (note, untested)
+> > Nice, I like it.
+> But it does not work.
 
-I don't mind running it here.  I've triggered it once, and not hit the
-WARN_ON(start == end).  Current was "sh", not that helpful.
+Why not?
+
+> > > Because it's impossible to predict how it will interact with other
+> > > install and alias commands.
+> > Then we will just have to find out :)
+> It should be clear that it will interact badly with another install
+> commands, with one of them being ignored. This is not acceptable.
+
+Why?  Will they not all just be checked in order?
+
+> > > A less fundamental but still major problem is that this would be a
+> > > different API, and both users and packages have been aware of
+> > > /etc/hotplug/blacklist* for a long time now.
+> > And as /etc/hotplug/* is going away for hotplug-ng, I don't think this
+> > is going to be an issue.  Also, the blacklisting stuff should not be
+> > that prevelant anymore...
+> It's a feature which I know my users and other maintainers need
+> (for duplicated drivers, OSS drivers, watchdog drivers, usb{mouse,kbd}
+> and so on) so it's a prerequisite for the successful packaging of
+> hotplug-ng.
+
+Ok, then, care to make a patch to module-init-tools to provide this
+functionality?
 
 thanks,
--chris
+
+greg k-h

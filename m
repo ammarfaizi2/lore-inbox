@@ -1,183 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261695AbVEJPpX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261690AbVEJPsK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261695AbVEJPpX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 11:45:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261698AbVEJPoa
+	id S261690AbVEJPsK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 11:48:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbVEJPsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 11:44:30 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:46798 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S261695AbVEJPmX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 11:42:23 -0400
-Date: Tue, 10 May 2005 19:41:28 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: dtor_core@ameritech.net
-Cc: dmitry.torokhov@gmail.com, netdev@oss.sgi.com, Greg KH <greg@kroah.com>,
-       Jamal Hadi Salim <hadi@cyberus.ca>, Kay Sievers <kay.sievers@vrfy.org>,
-       Herbert Xu <herbert@gondor.apana.org.au>,
-       James Morris <jmorris@redhat.com>,
-       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Thomas Graf <tgraf@suug.ch>, Jay Lan <jlan@engr.sgi.com>
-Subject: Re: [1/1] connector/CBUS: new messaging subsystem. Revision number
- next.
-Message-ID: <20050510194128.075abb67@zanzibar.2ka.mipt.ru>
-In-Reply-To: <d120d500050510075671efe331@mail.gmail.com>
-References: <20050411125932.GA19538@uganda.factory.vocord.ru>
-	<200505100118.48027.dtor_core@ameritech.net>
-	<20050510140445.36cc15cb@zanzibar.2ka.mipt.ru>
-	<d120d500050510075671efe331@mail.gmail.com>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [194.85.82.65]); Tue, 10 May 2005 19:41:36 +0400 (MSD)
+	Tue, 10 May 2005 11:48:09 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:52744 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S261690AbVEJPrT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 11:47:19 -0400
+Message-ID: <4280D72C.4090203@shadowen.org>
+Date: Tue, 10 May 2005 16:45:48 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: jschopp@austin.ibm.com
+CC: akpm@osdl.org, anton@samba.org, haveblue@us.ibm.com, kravetz@us.ibm.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       linuxppc64-dev@ozlabs.org, olof@lixom.net, paulus@samba.org
+Subject: Re: sparsemem ppc64 tidy flat memory comments and fix benign mempresent
+ call
+References: <E1DVAVE-00012m-Pq@pinky.shadowen.org> <427FEC57.8060505@austin.ibm.com>
+In-Reply-To: <427FEC57.8060505@austin.ibm.com>
+Content-Type: multipart/mixed;
+ boundary="------------060509030101080602000401"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 May 2005 09:56:45 -0500
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+This is a multi-part message in MIME format.
+--------------060509030101080602000401
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-> On 5/10/05, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> > On Tue, 10 May 2005 01:18:46 -0500
-> > Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> > 
-> > > - drop cn_dev - there is only one connector;
-> > 
-> > There may be several connectors with different socket types.
-> > I use it in my environment for tests.
-> > 
+> Instead of moving all that around why don't we just drop the duplicate
+> and the if altogether?  I tested and sent a patch back in March that
+> cleaned up the non-numa case pretty well.
 > 
-> Why do you need that? u32 ID space is not enough?
+> http://sourceforge.net/mailarchive/message.php?msg_id=11320001
 
-They use different netlink sockets.
-One of them can fail during initialisation, for example...
+Ok, Mike also expressed the feeling that it was no longer necessary to
+handle the first block separatly.  I've tested the attached patch on the
+machines I have to hand and it seems to boot just fine in the flat
+memory modes with this applied.
 
-> > > - simplify cn_notify_request to carry only one range - it simplifies code
-> > >   quite a bit - nothing stops clientd from sending several notification
-> > >   requests;
-> > 
-> > ? Nothing stops clients from sending several notification requests now.
-> > I do not see how it simplifies the things?
-> > Feel free to set idx_num and val_num to 1 and you will have the same.
-> 
-> Compare the implementaion - without variable-length notification
-> requests the code is much simplier and flexible.
+Joel, Mike, Dave could you test this one on your platforms to confirm
+its widly applicable, if so we can push it up to -mm.  The patch
+attached applies to the patches proposed for the next -mm.  A full stack
+on top of 2.6.12-rc3-mm2 can be found at the URL below (see the series
+file):
 
-Hmm, old request had a length, new one - does not.
-But instead of atomically addition of the whole set, one need to send
-couple of events.
-I do not see any profit here.
+http://www.shadowen.org/~apw/linux/sparsemem/sparsemem-2.6.12-rc3-mm2-V3/
 
-> > > - implement internal queuefor callbacks so we are not at mercy of scheduler;
-> > 
-> > Current implementation has big warning about such theoretical behaviour,
-> > if it will be triggered, I will fix that behaviour,
-> > more likely not by naive work allocation - there might be
-> > at least cache/memory pool or something...
-> 
-> What is the average expected rate for such messages? Not particularly
-> high I think. We just need to sustain sudden bursts, naive work
-> allocation will work just fine here.
+Cheers.
 
-Probably - I still think it is theoretical "misbehaviour" [dropping 
-input messages under the high load] that can not be 
-triggered, if it will - I will fix it.
+-apw
 
-> > > - admit that SKBs are message medium and do not mess up with passing around
-> > >   destructor functions.
-> > 
-> > You mess up layers.
-> > I do not see why you want it.
-> 
-> What layers? Connector core is not an onion, with my patch it is 481
-> line .c file(down from 900+), comments probably take 1/3 of it. We
-> just need to keep it simple, that's all.
+--------------060509030101080602000401
+Content-Type: text/plain;
+ name="sparsemem-ppc64-flat-first-block-is-not-special"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sparsemem-ppc64-flat-first-block-is-not-special"
 
-There is low-level medium layer - skbs.
-There is middle-level layer - logical handling attached data and appropriate callback invocation.
-There is high-level layer - various protocols over connector.
+Testing seems to confirm that we do not need to handle the first memory
+block specially in do_init_bootmem.
 
-Why any of them should know that others exist?
-Your changes with destructor removing only saved < 10 lines of code, btw.
+Signed-off-by: Andy Whitcroft <apw@shadowen.org>
 
-> > Connector with your changes just does not work.
-> 
-> As in "I tried to run it and adjusted the application for the new
-> cn_notify_req size and it does not work" or "I am saying it does not
-> work"?
+diffstat sparsemem-ppc64-flat-first-block-is-not-special
+---
 
-Second, i.e. "I am saing it does not work".
-With your changes userspace just does not see any message being sent by kernelspace.
+diff -upN reference/arch/ppc64/mm/init.c current/arch/ppc64/mm/init.c
+--- reference/arch/ppc64/mm/init.c
++++ current/arch/ppc64/mm/init.c
+@@ -612,14 +612,6 @@ void __init do_init_bootmem(void)
+ 	unsigned long start, bootmap_pages;
+ 	unsigned long total_pages = lmb_end_of_DRAM() >> PAGE_SHIFT;
+ 	int boot_mapsize;
+-	unsigned long start_pfn, end_pfn;
+-	/*
+-	 * Note presence of first (logical/coalasced) LMB which will
+-	 * contain RMO region
+-	 */
+-	start_pfn = lmb.memory.region[0].physbase >> PAGE_SHIFT;
+-	end_pfn = start_pfn + (lmb.memory.region[0].size >> PAGE_SHIFT);
+-	memory_present(0, start_pfn, end_pfn);
+ 
+ 	/*
+ 	 * Find an area to use for the bootmem bitmap.  Calculate the size of
+@@ -636,18 +628,19 @@ void __init do_init_bootmem(void)
+ 	max_pfn = max_low_pfn;
+ 
+ 	/* Add all physical memory to the bootmem map, mark each area
+-	 * present.  The first block has already been marked present above.
++	 * present.
+ 	 */
+ 	for (i=0; i < lmb.memory.cnt; i++) {
+ 		unsigned long physbase, size;
++		unsigned long start_pfn, end_pfn;
+ 
+ 		physbase = lmb.memory.region[i].physbase;
+ 		size = lmb.memory.region[i].size;
+-		if (i) {
+-			start_pfn = physbase >> PAGE_SHIFT;
+-			end_pfn = start_pfn + (size >> PAGE_SHIFT);
+-			memory_present(0, start_pfn, end_pfn);
+-		}
++
++		start_pfn = physbase >> PAGE_SHIFT;
++		end_pfn = start_pfn + (size >> PAGE_SHIFT);
++		memory_present(0, start_pfn, end_pfn);
++
+ 		free_bootmem(physbase, size);
+ 	}
+ 
 
-> > Dmitry, I do not understand why do you change things in so radical manner,
-> > especially when there are no 1. new interesting features, 2. no performance
-> > improvements, 3. no right design changes.
-> 
-> There is a right design change - it keeps the code simple. It peels
-> all the layers you invented for something that does not really need
-> layers - connector is just a simple wrapper over raw netlink.
-
-That is your opinion.
-
-Code is already as simple as possible, since it is layered and each 
-piece of code is separated from different logical entities.
-
-> When I look at the code I see the mess of unneeded refcounting, wrong
-> kinds of locking, over-engineering. Of course I want to change it.
-
-There are no unneded reference counting now.
-Locking was not wrong - you only placed semaphore instead of notify BH lock
-just to have ability to sleep under the lock and send callback addition/removing
-notification with GFP_KERNEL mask, 
-and it is probably right change from the first view, as I said, 
-but it can be implemented in a different way.
-
-> Keep it simple. Except for your testing environment why do you need to
-> have separate netlink sockets? You have an ample ID space. Why do you
-> need separate cn_dev and cn_queue_dev (and in the end have them at
-> all)? Why do you need "input" handler, do you expect to use different
-> handlers? If so which? And why? Do you expect to use other transports?
-> If so which? And why? You need to have justifiction for every
-> additional layer you putting on.
-
-Sigh.
-It was already answered so many times, as far as I remember...
-Ok, let's do it again.
-
-Several netlink sockets - if you can see, connector uses NETLINK_ULOG
-for it's notification, you can not use the same socket twice, so you
-may have new device with new socket, or several of them, and system
-may work if one initialisation failed.
-cn_dev is connector device structure, cn_queue_dev - it's queueing part.
-input handler is needed for ability to receive messages.
-Couple of next questions can be answered in one reply:
-original connector's idea was to implement notification based
-not on top of netlink protocol, but using ioctls of char device,
-so there could be different connector device, input method, 
-transport and so on. Probably I will not implement it thought.
-
-
-Over-engineering? I can not call it so... :)
-
-
-> > > BTW, I do not think that "All rights reserved" statement is applicable/
-> > > compatible with GPL this software is supposedly released under, I have
-> > > taken liberty of removing this statement.
-> > 
-> > You substitute license agreements with copyright.
-> > "All rights reserved" is targeted to copyright
-> > (avtorskoe pravo, zakon N 5351/1-1) of the code
-> > and has nothing with license.
-> 
-> Yes, you are probably right, sorry for the noise...
-> 
-> -- 
-> Dmitry
-
-
-	Evgeniy Polyakov
-
-Only failure makes us experts. -- Theo de Raadt
+--------------060509030101080602000401--

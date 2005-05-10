@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbVEJKnG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbVEJKpD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261600AbVEJKnG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 06:43:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbVEJKnG
+	id S261602AbVEJKpD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 06:45:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbVEJKpC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 06:43:06 -0400
-Received: from fire.osdl.org ([65.172.181.4]:31184 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261600AbVEJKnD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 06:43:03 -0400
-Date: Tue, 10 May 2005 03:42:12 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Blaisorblade <blaisorblade@yahoo.it>
-Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net,
-       bstroesser@fujitsu-siemens.com
-Subject: Re: [patch 0/6] latest bugfixes for 2.6.12
-Message-Id: <20050510034212.0d1e0799.akpm@osdl.org>
-In-Reply-To: <200505101217.56252.blaisorblade@yahoo.it>
-References: <200505100110.16920.blaisorblade@yahoo.it>
-	<200505100139.02512.blaisorblade@yahoo.it>
-	<20050509170208.6c70a3ba.akpm@osdl.org>
-	<200505101217.56252.blaisorblade@yahoo.it>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Tue, 10 May 2005 06:45:02 -0400
+Received: from wproxy.gmail.com ([64.233.184.206]:19781 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261602AbVEJKoe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 06:44:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=EDSFcUHVZ/nrrsZhrE4FTd5Eseohplr9qmIDvALmE2jHP5aJPYUlySqmyawFAl+m6w8GAcOemAFgbtxueyvuUiYk0+VlG+lwIpvrwh2/jDlUwBx/9NrmLyCRwBBhC6SayjCHu94i8gDJBV3ssUzZvHdrxmcsSry25zj2nC2wLeM=
+Message-ID: <2cd57c900505100344365e5bbc@mail.gmail.com>
+Date: Tue, 10 May 2005 18:44:34 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+Reply-To: coywolf@lovecn.org
+To: Raj Inguva <inguva@gmail.com>
+Subject: Re: Crashing red hat linux
+Cc: dipankar das <dipankar_dd@yahoo.com>, akt-announce@lists.sourceforge.net,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1115719421.1436.1.camel@ringuva.blr.novell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050510082629.29225.qmail@web40704.mail.yahoo.com>
+	 <1115719421.1436.1.camel@ringuva.blr.novell.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Blaisorblade <blaisorblade@yahoo.it> wrote:
->
-> On Tuesday 10 May 2005 02:02, Andrew Morton wrote:
-> > Blaisorblade <blaisorblade@yahoo.it> wrote:
-> > > > Jeff sent in fixes which were dependent on other things I had, we're
-> > > > maybe several weeks away from 2.6.12,
-> > >
-> > > Several weeks away?
+On 5/10/05, Raj Inguva <inguva@gmail.com> wrote:
+> >  Does Red hat like Monta vista allow crashing the
+> > kernel by writing to  "/dev/crash" if not whats the
+> > easiest way ?
 > >
-> > Hope so.  We lost a lot of testing due to lack of daily snapshots
->
-> Is there a technical reason they've not been restored?
+> 
+> I used to insmod a driver which calls panic() during module
+> initialization. I used to do this for testing lkcd.
 
-Nope.  They started again five days ago.
+
+Now we have crashdump shipped with kexec.
+
+-- 
+Coywolf Qi Hunt
+http://sosdg.org/~coywolf/

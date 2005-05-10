@@ -1,144 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261810AbVEJWge@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261813AbVEJWi1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261810AbVEJWge (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 18:36:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbVEJWge
+	id S261813AbVEJWi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 18:38:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261829AbVEJWi0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 18:36:34 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:50386 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261810AbVEJWgV (ORCPT
+	Tue, 10 May 2005 18:38:26 -0400
+Received: from mail.emacinc.com ([208.248.202.76]:13507 "EHLO mail.emacinc.com")
+	by vger.kernel.org with ESMTP id S261796AbVEJWiN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 18:36:21 -0400
-Date: Tue, 10 May 2005 15:36:31 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: dipankar@in.ibm.com, Ingo Molnar <mingo@elte.hu>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] RCU and CONFIG_PREEMPT_RT progress
-Message-ID: <20050510223630.GJ1566@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20050510012444.GA3011@us.ibm.com> <1115755692.26548.15.camel@twins> <20050510202915.GH1566@us.ibm.com> <1115758584.26548.33.camel@twins>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 10 May 2005 18:38:13 -0400
+From: NZG <ngustavson@emacinc.com>
+Organization: EMAC.Inc
+To: linux-kernel@vger.kernel.org
+Date: Tue, 10 May 2005 17:37:00 -0500
+User-Agent: KMail/1.7.1
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <1115758584.26548.33.camel@twins>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200505101737.00544.ngustavson@emacinc.com>
+X-SA-Exim-Connect-IP: 208.248.202.77
+X-SA-Exim-Mail-From: ngustavson@emacinc.com
+Subject: spi subsection & cfnvram
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 10, 2005 at 10:56:24PM +0200, Peter Zijlstra wrote:
-> On Tue, 2005-05-10 at 13:29 -0700, Paul E. McKenney wrote:
-> > On Tue, May 10, 2005 at 10:08:11PM +0200, Peter Zijlstra wrote:
-> > > On Mon, 2005-05-09 at 18:24 -0700, Paul E. McKenney wrote:
-> > > 
-> > > > 
-> > > > Counter-Based Approach
-> > > > 
-> > > > The current implementation in Ingo's CONFIG_PREEMPT_RT patch uses a
-> > > > counter-based approach, which seems to work, but which can result in
-> > > > indefinite-duration grace periods.  The following are very hazy thoughts
-> > > > on how to get the benefits of this approach, but with short grace periods.
-> > > > 
-> > > > 1.	The basic trick is to maintain a pair of counters per CPU.
-> > > > 	There would also be a global boolean variable that would select
-> > > > 	one or the other of each pair.  The rcu_read_lock() primitive
-> > > > 	would then increment the counter indicated by the boolean
-> > > > 	corresponding to the CPU that it is currently running on.
-> > > > 	It would also keep a pointer to that particular counter in
-> > > > 	the task structure.  The rcu_read_unlock() primitive would
-> > > > 	decrement this counter.  (And, yes, you would also have a
-> > > > 	counter in the task structure so that only the outermost of
-> > > > 	a set of nested rcu_read_lock()/rcu_read_unlock() pairs would
-> > > > 	actually increment/decrement the per-CPU counter pairs.)
-> > > > 
-> > > > 	To force a grace period, one would invert the value of the
-> > > > 	global boolean variable.  Once all the counters indicated
-> > > > 	by the old value of the global boolean variable hit zero,
-> > > > 	the corresponding set of RCU callbacks can be safely invoked.
-> > > > 
-> > > > 	The big problem with this approach is that a pair of inversions
-> > > > 	of the global boolean variable could be spaced arbitrarily 
-> > > > 	closely, especially when you consider that the read side code
-> > > > 	can be preempted.  This could cause RCU callbacks to be invoked
-> > > > 	prematurely, which could greatly reduce the life expectancy
-> > > > 	of your kernel.
-> > > 
-> > > > Thoughts?
-> > > 
-> > > How about having another boolean indicating the ability to flip the
-> > > selector boolean. This boolean would be set false on an actual flip and
-> > > cleared during a grace period. That way the flips cannot ever interfere
-> > > with one another such that the callbacks would be cleared prematurely.
-> > 
-> > But the flip is an integral part of detecting a grace period.  So, if I
-> > understand your proposal correctly, I would have to flip to figure out
-> > when it was safe to flip.
-> > 
-> > What am I missing here?
-> 
-> 
-> int can_flip = 1;
-> int selector = 0;
-> 
-> int counter[2] = {0, 0};
-> 
-> void up()
-> {
->   ++counter[current->selection = selector];
+I have 3 new beta drivers for the 5282 coldfire architecture.
+They were designed against EMAC.Inc's SoM-5282EM module.
+This is based on the MMU less 5282 processor 
 
-Suppose task 0 has just fetched the value of "selector".  How does
-force_grace() know that it is now inappropriate to invert the value
-of "selector"?
+They are as listed below:
 
-One might suppress preemption, but there can still be interrupts,
-ECC error correction, and just plain bad luck.  So up() needs to
-be able to deal with "selector" getting inverted out from under it.
+The mcf_qspi driver, ported to the new 2.6 kernel and modularized it to allow 
+stackability. Currently the new kobject methodology is not supported yet, cuz 
+I don't really understand it yet.
 
-Unless I am missing something still...
+A DS1305 driver which stacks on top of the qspi layer and provides a standard 
+misc RTC interface (somewhat SoM-5282EM dependent at this point as it's chip 
+selects a little weird).
 
-						Thanx, Paul
+And a CFNVRAM driver, which provides a simple small partitionless block 
+interface to the internal RAM of the 5282 processor(which can be battery 
+backed). 
 
-> }
-> 
-> void down()
-> {
->   if (!--counter[current->selection])
->     do_grace();
-> }
-> 
-> void do_grace()
-> {
->   // free stuff
->   can_flip = 1;
-> }
-> 
-> void force_grace()
-> {
->   if (can_flip)
->   {
->     can_flip = 0;
->     selector ^= 1;
->   }
-> }
-> 
-> 
-> The way I understood your proposal was that in order to force a grace
-> period you flip the selector and once the old one reaches zero again it
-> does a cleanup.
-> 
-> Now your problem was that when you force another flip before the old
-> counter reached zero the shit will hit the proverbial fan. So what I
-> proposed (as hopefully illustrated by the code) was another boolean; my
-> can_flip; that controls the flippability :-)
-> 
-> One can for example call force_grace every few seconds or when a
-> watermark on the rcu-callback queue has been reached. If can_flip blocks
-> the actual flip nothing is lost since a cleanup is allready pending.
-> 
-> I hope to have been clearer in explaining my idea; or if I'm missing the
-> issue tell me to read the thread in the morning ;)
-> 
-> -- 
-> Peter Zijlstra <a.p.zijlstra@chello.nl>
-> 
-> 
+They are available as stand-alone projects at
+ftp://SoM:sompublic@ftp.emacinc.com/SoM-5282EM/uClinux-projects
+
+I'm going to try to get them into an official patch submission next week(I'm 
+new to this process so please forgive my stumbles),
+
+thx,
+NZG.

@@ -1,43 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261646AbVEJNeG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261645AbVEJNiD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261646AbVEJNeG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 09:34:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbVEJNeF
+	id S261645AbVEJNiD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 09:38:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261642AbVEJNiC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 09:34:05 -0400
-Received: from main.gmane.org ([80.91.229.2]:65485 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261646AbVEJNdy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 09:33:54 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Joe Seigh" <jseigh_02@xemaps.com>
-Subject: Re: RCU + SMR for preemptive kernel/user threads.
-Date: Tue, 10 May 2005 09:32:07 -0400
-Message-ID: <opsqkajto6ehbc72@grunion>
-References: <opsqivh7agehbc72@grunion>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed	delsp=yes
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: stenquists.hsd1.ma.comcast.net
-User-Agent: Opera M2/7.54 (Win32, build 3865)
+	Tue, 10 May 2005 09:38:02 -0400
+Received: from marasystems.com ([83.241.133.2]:6078 "EHLO
+	filer.marasystems.com") by vger.kernel.org with ESMTP
+	id S261645AbVEJNh5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 09:37:57 -0400
+Date: Tue, 10 May 2005 15:37:33 +0200 (CEST)
+From: Henrik Nordstrom <uml@hno.marasystems.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: blaisorblade@yahoo.it, jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] Re: [patch 1/6] uml: remove elf.h [ compile-fix,
+ for 2.6.12 ]
+In-Reply-To: <20050509183401.28082cbc.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0505101525360.16461@filer.marasystems.com>
+References: <20050509224509.0C105416E4@zion> <20050509183401.28082cbc.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think you need a release memory barrier if you store into a hazard
-pointer that is non null to prevent prior accesses from occurring after
-the store.  That's an extra memory barrier for hazard pointers that I
-overlooked. One thing that could be done is wait an extra RCU grace
-period after the hazard pointer scan to ensure prior accesses have
-completed before freeing the resource.  That would lengthen the delay
-to approximately 2 RCU grace periods.  Could be a problem if you have
-a high write rate and are trying to keep that delay minimal.
+On Mon, 9 May 2005, Andrew Morton wrote:
 
-There might be another way.  I'd have to investigate it a little more.
+>> diff -L include/asm-um/elf.h -puN include/asm-um/elf.h~uml-remove-elf-h /dev/null
+>
+> hmm, that's exciting.  How to tell diff and patch to remove a zero-length
+> file?
 
+This has to be instructed by the patch.. If the new file is an empty file 
+with timestamp of 1 Jan 1970 then it is supposed to be deleted.
 
--- 
-Joe Seigh
+The /dev/null trick only works well for adding files, not removing them.
 
+Regards
+Henrik

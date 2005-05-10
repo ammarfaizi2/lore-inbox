@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbVEJK2F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261587AbVEJK3C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261597AbVEJK2F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 06:28:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVEJK2F
+	id S261587AbVEJK3C (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 06:29:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVEJK3C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 06:28:05 -0400
-Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:41600 "HELO
-	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261597AbVEJK2C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 06:28:02 -0400
+	Tue, 10 May 2005 06:29:02 -0400
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:7864 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261587AbVEJK26 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 06:28:58 -0400
 From: Blaisorblade <blaisorblade@yahoo.it>
 To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch 1/6] uml: remove elf.h [ compile-fix, for 2.6.12 ]
-Date: Tue, 10 May 2005 12:16:58 +0200
+Subject: Re: [patch 0/6] latest bugfixes for 2.6.12
+Date: Tue, 10 May 2005 12:17:56 +0200
 User-Agent: KMail/1.8
 Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-References: <20050509224509.0C105416E4@zion> <20050509183401.28082cbc.akpm@osdl.org>
-In-Reply-To: <20050509183401.28082cbc.akpm@osdl.org>
+       user-mode-linux-devel@lists.sourceforge.net,
+       bstroesser@fujitsu-siemens.com
+References: <200505100110.16920.blaisorblade@yahoo.it> <200505100139.02512.blaisorblade@yahoo.it> <20050509170208.6c70a3ba.akpm@osdl.org>
+In-Reply-To: <20050509170208.6c70a3ba.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200505101216.59293.blaisorblade@yahoo.it>
+Message-Id: <200505101217.56252.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 10 May 2005 03:34, Andrew Morton wrote:
-> blaisorblade@yahoo.it wrote:
-> > Actually remove elf.h in the tree. The previous patch, due to a quilt
-> > bug/misuse, left it in the tree as a 0-length file, preventing the build
-> > to see it as missing and to generate a symlink in its place.
+On Tuesday 10 May 2005 02:02, Andrew Morton wrote:
+> Blaisorblade <blaisorblade@yahoo.it> wrote:
+> > > Jeff sent in fixes which were dependent on other things I had, we're
+> > > maybe several weeks away from 2.6.12,
+> >
+> > Several weeks away?
+>
+> Hope so.  We lost a lot of testing due to lack of daily snapshots
+Is there a technical reason they've not been restored? I've kept forgetting to 
+request them.
+> and 
+> general SCM churn.
 
-Ok, I was confused by the fact that with patch-scripts, which you use, it 
-works, and thought it was patch to make it work.
 -- 
 Paolo Giarrusso, aka Blaisorblade
 Skype user "PaoloGiarrusso"

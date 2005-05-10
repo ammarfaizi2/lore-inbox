@@ -1,52 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbVEJC0e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261438AbVEJCnw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261466AbVEJC0e (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 May 2005 22:26:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbVEJC0e
+	id S261438AbVEJCnw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 May 2005 22:43:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbVEJCnw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 May 2005 22:26:34 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26791 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261466AbVEJC00 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 May 2005 22:26:26 -0400
-Date: Tue, 10 May 2005 03:26:31 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Jeff Dike <jdike@addtoit.com>
-Cc: Alexander Nyberg <alexn@telia.com>, Antoine Martin <antoine@nagafix.co.uk>,
+	Mon, 9 May 2005 22:43:52 -0400
+Received: from wproxy.gmail.com ([64.233.184.202]:55391 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261438AbVEJCns convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 May 2005 22:43:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GU2F5h9rJGgivcYPcKiaFZkWPD6U+3ylCtkWPBrAFVwE+EqrNqoOCM+6EmUHsAJZWWxXnUDjowGLfjATY5Cw5oFvK4zlZq8+NJLZO9f9YZyEPgNHSKQmINUF69byZNl1YG3+7JecldhN501XJP4i9XvpmnqkS8YxZiCnb6lnpcU=
+Message-ID: <5eb4b065050509194330611d4a@mail.gmail.com>
+Date: Tue, 10 May 2005 10:43:47 +0800
+From: KC <kcc1967@gmail.com>
+Reply-To: KC <kcc1967@gmail.com>
+To: KC <kcc1967@gmail.com>, Erik Mouw <erik@harddisk-recovery.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11.8 + UML/x86_64 (2.6.12-rc3+) = oops
-Message-ID: <20050510022631.GB1150@parcelfarce.linux.theplanet.co.uk>
-References: <20050504191828.620C812EE7@sc8-sf-spam2.sourceforge.net> <1115248927.12088.52.camel@cobra> <1115392141.12197.3.camel@cobra> <1115483506.12131.33.camel@cobra> <1115481468.925.9.camel@localhost.localdomain> <20050507180356.GA10793@ccure.user-mode-linux.org> <20050508001832.GA32143@parcelfarce.linux.theplanet.co.uk> <20050508061044.GB32143@parcelfarce.linux.theplanet.co.uk> <20050509210753.GA1150@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: proc_mknod() replacement
+In-Reply-To: <20050509220411.GA15932@mail>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050509210753.GA1150@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
+References: <5eb4b06505050904172655477c@mail.gmail.com>
+	 <20050509154147.GC5799@harddisk-recovery.com>
+	 <5eb4b065050509100638bd7970@mail.gmail.com>
+	 <20050509220411.GA15932@mail>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 09, 2005 at 10:07:53PM +0100, Al Viro wrote:
-> 	u) amd64 TT is _still_ buggered due to unmap_fin.o attempts at
-> magic.  errno sits in TLS for amd64, so unmap_fin.o gets very interesting
-> stuff leaking from libc and messing the link.  IMO that should be dealt
-> with by brute force; namely, unmap-$(SUBARCH).S instead of trying to
-> play games with pulling stuff from libc.a.  For fsck sake, we are just
-> making 3 syscalls there and switcheroo() is as low-level as it gets...
-> Will post once that's done...
-	OK, actually - C with use of _syscall(); still, per-architecture
-due to different calling conventions (mmap() has enough arguments to
-trigger irregularities).  That deals with errno / __libc_errno getting
-screwed, but there's more...
+Hi
 
-	v) phys_mappings rbtree gets screwed in fixrange_init() - no
-surprise, seeing what it does in
-        for ( ; (i < PTRS_PER_PGD) && (vaddr < end); pgd++, i++) {
-                pmd = (pmd_t *)pgd;
-                for (; (j < PTRS_PER_PMD) && (vaddr != end); pmd++, j++) {
-Note that here PTR_PER_PGD and PTRS_PER_PMD are both 512.  Fun...  Liberal
-stealing from arch/i386/mm/init.c deals with that one, AFAICS.  Now we have
-the following:
-	uml/i386 - all variants work
-	uml/amd64 TT-only - panics in execve() on /sbin/init (hey, a progress)
-	uml/amd64 other variants - work
-Now to figure out WTF is happening in that execve()...
+> >
+> > For regular file, I do agree with you.  But for device node, I don't see
+> > anything wrong by create it directly from kernel space.
+> > In fact, I do not understand why proc_mknod() is removed from
+> > 2.6.x ... I will be happy if someone can tell me why.
+> 
+> Because naming of devices is a policy that shouldn't be defined in the
+> kernel.
+
+Mmm ... generally speaking, I agree with that ... but IMHO, the better way
+should be ... kernel or driver writer should provide default policy and
+allow user space to overwrite the default ... so once the module is loaded,
+it's ready to use ... without extra deamon's help. 
+
+For example, in ovi-dev, I scan the PCI bus and if the device is found,
+create device entries as
+/proc/ovi/vendor_name/device_name-x.y where
+
+vendor_name and device_name is defined by driver writer.
+x is board ID which is determine by PCI scan.
+y is sub device ID (similar to minor number) which is defined by
+   driver writer too.
+
+This approach may not good for general hardware such as tty, hard disk ... but
+is useful for DAQ system.
+
+By using this trick, I can provide a general deivce interface (APIs) such as
+ovi_dev_open(vendor_name, device_name, boardID, subID, flags)
+ovi_dev_write[b,w,l](dev, base, offset, value)
+ovi_dev_read[b,w,l](dev, base,offset, *value)
+ovi_dev_close(dev)
+
+And if your ISA/PCI/cPCI/PXI device only use I/O and memory access, you can
+have your driver done in ~ 5 min (maybe less) without any deamon's help ...
+Just load the driver and use the API to access the devices.
+
+> >
+> > Why I want to use proc_mknod() in driver ?  I write a small package, ovi-dev,
+> > which can be downloaded from
+> > http://www.sourceforge.net/projects/ovi
+> > The ovi-dev will scan the PCI bus and if it found, eg, 3 PCI devices, it
+> > will create 3 device entries (nodes) automatically at module load time.
+> > So number of device entries (nodes) will match number of devices
+> > of the system ... well, UNIX/Linux doesn't work that way ... there are a lot
+> > of device entries ... but no corresponding hardware existed.
+> 
+> You must have not have converted to udev, it's sort of like devfs in that
+> device nodes are created dynamicly but it's a userspace daemon that
+> adds/removes device nodes in response to hotplug events generated by the kernel.
+> >
+> > The proc_mknod() can fix the problems ... but it was removed from 2.6.x ...
+> > too bad ... at least for me.   So I'm looking for an alternative way to create
+> > device entry under /dev from drivers instead of /proc ... but still don't know
+> > how.   Anyone know how to do that ?  It should be done at module_init()
+> > and the entry should be removed at module_exit().
+> 
+> I believe if you use the driver core class stuff (i.e.
+> class_simple_device_add) it should add device nodes in sysfs and generate
+> hotplug events for udev.
+
+Thanks, I will check that.
+
+
+Regards
+KC
+kccheng@LinuxDAQ-Labs.org
+
+> 
+> Jim.
+>

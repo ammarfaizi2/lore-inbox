@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261666AbVEJPco@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261693AbVEJPee@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261666AbVEJPco (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 11:32:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261675AbVEJPcn
+	id S261693AbVEJPee (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 11:34:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbVEJPeZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 11:32:43 -0400
-Received: from smtp.e7even.com ([83.151.192.5]:38545 "HELO smtp.e7even.com")
-	by vger.kernel.org with SMTP id S261666AbVEJPcf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 11:32:35 -0400
-Subject: Re: file as a directory
-From: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>
-To: Hans Reiser <reiser@namesys.com>
-Cc: sean.mcgrath@propylon.com, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-In-Reply-To: <4280CAEF.5060202@namesys.com>
-References: <2c59f00304112205546349e88e@mail.gmail.com>
-	 <41A1FFFC.70507@hist.no> <41A21EAA.2090603@dbservice.com>
-	 <41A23496.505@namesys.com>  <1101287762.1267.41.camel@pear.st-and.ac.uk>
-	 <1115717961.3711.56.camel@grape.st-and.ac.uk>
-	 <4280CAEF.5060202@namesys.com>
-Content-Type: text/plain
-Message-Id: <1115739129.3711.117.camel@grape.st-and.ac.uk>
+	Tue, 10 May 2005 11:34:25 -0400
+Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:33038
+	"HELO linuxace.com") by vger.kernel.org with SMTP id S261686AbVEJPeK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 11:34:10 -0400
+Date: Tue, 10 May 2005 08:34:07 -0700
+From: Phil Oester <kernel@linuxace.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NMI lockup
+Message-ID: <20050510153407.GA28833@linuxace.com>
+References: <20050427212643.GA20483@linuxace.com> <20050429141543.3919fdfd.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 10 May 2005 16:32:10 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050429141543.3919fdfd.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-10 at 15:53, Hans Reiser wrote:
-> I agree with the below in that sometimes you want to see a collection of
-> stuff as one file, and sometimes you want to see it as a tree, and that
-> file format browsers can be integrated into file system browsers to look
-> seamless to users.
+On Fri, Apr 29, 2005 at 02:15:43PM -0700, Andrew Morton wrote:
+> Phil Oester <kernel@linuxace.com> wrote:
+> >
+> > Trying to update from 2.6.10 to 2.6.11 on a gateway, and keep
+> >  getting an NMI lockup:
+> > 
+> >  NMI Watchdog detected LOCKUP on CPU1, eip c026a8d4, registers:
+> >  CPU:    1
+> >  EIP:    0060:[<c026a8d4>]    Not tainted VLI
+> >  EFLAGS: 00001482   (2.6.11) 
+> >  EIP is at fib_sync_down+0x74/0x140
 > 
-> A quibble: A name is just a means to select a file; he is completely
-> wrong to think that file browsers will eliminate filenames.
+> This is believed to be fixed in current kernels.  Please retest 2.6.12-rc4
+> or 2.6.12-rc3-mm1 (neither are released yet) and let us know if the problem
+> is still there?
 
-Yes, even if you think of the whole file system as a single "file", you
-need a way to select the bit you need, and you will use names for that
-(and whether you call that a filename, a file-part name or an object
-name doesn't really matter).
+Tested 2.6.12-rc4, and had same problem, although I was unable to capture
+the panic output.
 
-It is interesting that both he and I gave the example of a book and
-chapters, which is essentially a linear sequence, and the issue was just
-the selection of a part of that sequence. It would also be interesting
-to think about how you could map an arbitrary data structure more
-complicated than a linear sequence (an "object") to disk. This brings up
-issues of serialization and object databases....
-
+Phil

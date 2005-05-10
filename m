@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261750AbVEJTTl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261756AbVEJTZI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261750AbVEJTTl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 15:19:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVEJTSC
+	id S261756AbVEJTZI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 15:25:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVEJTZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 15:18:02 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:16031 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261750AbVEJTRV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 15:17:21 -0400
-Message-ID: <4280E354.9070705@tmr.com>
-Date: Tue, 10 May 2005 12:37:40 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
-X-Accept-Language: en-us, en
+	Tue, 10 May 2005 15:25:08 -0400
+Received: from wproxy.gmail.com ([64.233.184.203]:14695 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261756AbVEJTYj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 15:24:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
+        b=rYwon5lJhfR8bM+Hx56ReFCtP6lMGoA7FRuxZFupowqOHXgF9vzg2iT9KmFffgo52YtRwpa48RTKXmYymnhbPaUUm31TVVx6Q8h8wSw5KpeVnF5M3PBSysmbNepua9p5nGR3V29h49VN9gvU/Q+3IqGZQ1PWtdYNnGJnJYdV+Yg=
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Subject: Re: [PATCH] bluetooth: kill redundant NULL checks and casts before kfree
+Date: Tue, 10 May 2005 23:28:15 +0400
+User-Agent: KMail/1.7.2
+Cc: Marcel Holtmann <marcel@holtmann.org>, bluez-devel@lists.sf.net,
+       Maxim Krasnyansky <maxk@qualcomm.com>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.62.0505102100150.2386@dragon.hyggekrogen.localhost>
+In-Reply-To: <Pine.LNX.4.62.0505102100150.2386@dragon.hyggekrogen.localhost>
 MIME-Version: 1.0
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-CC: Andrew Morton <akpm@osdl.org>, jfbeam@bluetronic.net,
-       nico-kernel@schottelius.org, linux-kernel@vger.kernel.org
-Subject: Re: /proc/cpuinfo format - arch dependent!
-References: <20050419121530.GB23282@schottelius.org> <Pine.GSO.4.33.0505062324550.1894-100000@sweetums.bluetronic.net> <20050506211455.3d2b3f29.akpm@osdl.org> <20050510002121.7076feb6.pj@sgi.com> <20050510143838.GG2297@csclub.uwaterloo.ca>
-In-Reply-To: <20050510143838.GG2297@csclub.uwaterloo.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200505102328.15734.adobriyan@mail.ru>
+From: Alexey Dobriyan <adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lennart Sorensen wrote:
-> On Tue, May 10, 2005 at 12:21:21AM -0700, Paul Jackson wrote:
-> 
->>Yes - it's all there.  Sometimes the ways to discover it aren't pretty,
->>but that's one thing that libraries are good for - to wrap such detail.
-> 
-> 
-> And then when the kernel adds something new, you update one library
-> rather than 1000s of applications.
-> 
-> Perhaps making it hard to get at without a certainl library is a good
-> way to avoid too many applications poling at it just because they can.
+On Tuesday 10 May 2005 23:05, Jesper Juhl wrote:
 
-The advantage of /proc is that it works from C, Java, Perl, Python, etc. 
-Oh, and humans, the reason all the application run.
+> There's no need to check for NULL before calling kfree() on a pointer, and
+> since kfree() takes a void* argument there's no need to cast pointers to
+> other types before passing them to kfree().
 
+> +	kfree(hdev->driver_data)	
+
+This won't compile.

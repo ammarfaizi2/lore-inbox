@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261727AbVEJSgu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbVEJSib@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261727AbVEJSgu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 14:36:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbVEJSgu
+	id S261732AbVEJSib (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 14:38:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbVEJSia
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 14:36:50 -0400
-Received: from smtp.seznam.cz ([212.80.76.43]:29921 "HELO smtp.seznam.cz")
-	by vger.kernel.org with SMTP id S261727AbVEJSgs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 14:36:48 -0400
-Date: Tue, 10 May 2005 20:36:51 +0200
-To: Greg KH <gregkh@suse.de>, James Chapman <jchapman@katalix.com>
-Cc: Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <sensors@Stimpy.netroedge.com>
-Subject: Re: [PATCH] ds1337: export ds1337_do_command
-Message-ID: <20050510183651.GA10720@orphique>
-References: <20050504061438.GD1439@orphique> <1DTwF8-18P-00@press.kroah.org> <20050508204021.627f9cd1.khali@linux-fr.org> <427E6E21.60001@katalix.com> <20050508222351.08bfe2e1.khali@linux-fr.org> <20050510121814.GB2492@orphique> <20050510175549.GC1530@suse.de>
+	Tue, 10 May 2005 14:38:30 -0400
+Received: from imf21aec.mail.bellsouth.net ([205.152.59.69]:31478 "EHLO
+	imf21aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S261732AbVEJSiP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 14:38:15 -0400
+Date: Tue, 10 May 2005 13:38:06 -0500
+From: Tommy Reynolds <Tommy.Reynolds@MegaCoder.com>
+To: James Washer <washer@trlp.com>
+Cc: rlrevell@joe-job.com, dipankar_dd@yahoo.com,
+       akt-announce@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Crashing red hat linux
+Message-Id: <20050510133806.3ee54b96.Tommy.Reynolds@MegaCoder.com>
+In-Reply-To: <20050510105257.186d9403.washer@trlp.com>
+References: <20050510082629.29225.qmail@web40704.mail.yahoo.com>
+	<1115739760.12402.14.camel@mindpipe>
+	<20050510105257.186d9403.washer@trlp.com>
+X-Mailer: Sylpheed version 1.9.9+svn (GTK+ 2.6.4; i686-redhat-linux-gnu)
+X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$
+ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl
+ 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050510175549.GC1530@suse.de>
-User-Agent: Mutt/1.5.9i
-From: Ladislav Michl <ladis@linux-mips.org>
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Tue__10_May_2005_13_38_06_-0500_q5gx2jEjilV5_ExB"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 10, 2005 at 10:55:49AM -0700, Greg KH wrote:
-> > --- linux-omap/drivers/i2c/chips/ds1337.c.orig	2005-05-10 14:10:49.637992600 +0200
-> > +++ linux-omap/drivers/i2c/chips/ds1337.c	2005-05-10 14:13:05.064404656 +0200
-> > @@ -380,5 +380,7 @@
-> >  MODULE_DESCRIPTION("DS1337 RTC driver");
-> >  MODULE_LICENSE("GPL");
-> >  
-> > +EXPORT_SYMBOL(ds1337_do_command);
-> 
-> EXPORT_SYMBOL_GPL() ok?
+--Signature=_Tue__10_May_2005_13_38_06_-0500_q5gx2jEjilV5_ExB
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I do not realy care (and I think since unfamous SCO case people care
-more about licenses than writing code). James is driver author, so I'll
-do whatever he (and you) think is right. And while you bring up license
-issue, comment on top of file says GPL version 2, but MODULE_LICENSE is
-set to GPL.
+Uttered James Washer <washer@trlp.com>, spake thus:
 
-Best regards,
-	ladis
+> Why oh why would one do that??=20
+
+So you could check fail-over?  or the crash dump setup?  That's why I sent =
+the patch.
+
+Cheers
+
+--Signature=_Tue__10_May_2005_13_38_06_-0500_q5gx2jEjilV5_ExB
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFCgP+R/0ydqkQDlQERAn3tAKCBoYvEXSMoF6h0VAETQrNRgEc4OgCfc4i7
+6cqDFGSSJibENNi5RbO8Fxs=
+=1nFK
+-----END PGP SIGNATURE-----
+
+--Signature=_Tue__10_May_2005_13_38_06_-0500_q5gx2jEjilV5_ExB--

@@ -1,97 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261616AbVEJLtj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261617AbVEJLzT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261616AbVEJLtj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 07:49:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVEJLtj
+	id S261617AbVEJLzT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 07:55:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbVEJLzT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 07:49:39 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:57273 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261616AbVEJLta (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 07:49:30 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [BUG][Resend] 2.6.12-rc3-mm3: Kernel BUG at "mm/slab.c":1219
-Date: Tue, 10 May 2005 13:49:59 +0200
+	Tue, 10 May 2005 07:55:19 -0400
+Received: from pop.gmx.de ([213.165.64.20]:25324 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261617AbVEJLzG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 07:55:06 -0400
+X-Authenticated: #153925
+From: Bernd Paysan <bernd.paysan@gmx.de>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [suse-amd64] False "lost ticks" on dual-Opteron system (=> timer twice as fast)
+Date: Tue, 10 May 2005 13:54:53 +0200
 User-Agent: KMail/1.8
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
-References: <200505092239.37834.rjw@sisk.pl> <20050509145424.6ffba49a.akpm@osdl.org>
-In-Reply-To: <20050509145424.6ffba49a.akpm@osdl.org>
+Cc: suse-amd64@suse.com, linux-kernel@vger.kernel.org
+References: <200505081445.26663.bernd.paysan@gmx.de> <200505091517.30555.bernd.paysan@gmx.de> <20050510111223.GH25612@wotan.suse.de>
+In-Reply-To: <20050510111223.GH25612@wotan.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Message-Id: <200505101355.00341.bernd.paysan@gmx.de>
+Content-Type: multipart/signed;
+  boundary="nextPart3714566.A4kaZjVG7S";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200505101349.59711.rjw@sisk.pl>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--nextPart3714566.A4kaZjVG7S
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-On Monday, 9 of May 2005 23:54, Andrew Morton wrote:
-> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> >
-> > I get this from 2.6.12-rc3-mm3 on a UP AMD64 box (Asus L5D), 100% of the time:
-> > 
-> > ]--snip--[
-> > ACPI: bus type pci registered
-> > PCI: Using configuration type 1
-> > mtrr: v2.0 (20020519)
-> > kmem_cache_create: Early error in slab <NULL>
-> > ----------- [cut here ] --------- [please bite here ] ---------
-> > Kernel BUG at "mm/slab.c":1219
-> > invalid operand: 0000 [1]
-> > CPU 0
-> > Modules linked in:
-> > Pid: 1, comm: swapper Not tainted 2.6.12-rc3-mm3
-> > RIP: 0010:[<ffffffff80179eeb>] <ffffffff80179eeb>{kmem_cache_create+139}
-> > RSP: 0000:ffff810001ca1eb8  EFLAGS: 00010292
-> > RAX: 0000000000000034 RBX: 0000000000000000 RCX: 0000000000000000
-> > RDX: 0000000000000000 RSI: 0000000000000dd3 RDI: ffffffff804167e0
-> > RBP: 0000000000000005 R08: 0000000000000000 R09: 0000000000000000
-> > R10: 0000000000000010 R11: 0000000000000008 R12: 0000000000042000
-> > R13: 0000000000000000 R14: 0000ffffffff8010 R15: 0000000000000000
-> > FS:  0000000000000000(0000) GS:ffffffff8055a840(0000) knlGS:0000000000000000
-> > CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-> > CR2: 0000000000004000 CR3: 0000000000101000 CR4: 00000000000006e0
-> > Process swapper (pid: 1, threadinfo ffff810001ca0000, task ffff810001c5a7a0)
-> > Stack: fffffffffffffff8 0000000000000000 0000000000000000 0000000000000000
-> >        0000000000000010 0000000000000000 0000000000000005 0000000000000006
-> >        00000000ffffffff 0000ffffffff8010
-> > Call Trace:<ffffffff8057a11d>{init_bio+93} <ffffffff8010c0f2>{init+178}
-> >        <ffffffff8010fc37>{child_rip+8} <ffffffff8010c040>{init+0}
-> >        <ffffffff8010fc2f>{child_rip+0}
-> > 
-> 
-> Something kooky is happening.
-> 
-> Clearly init_bio() is not passing in a NULL `name' parameter.  Maybe the
-> backtrace is screwed due to dopey gcc autoinlining and the bad caller is
-> really biovec_init_slabs().  Try removing the
-> __cacheline_aligned_mostly_readonly from the declaration of bvec_slabs[].
-> 
-> Please tell us what gcc and binutils versions you're using.
+On Tuesday 10 May 2005 13:12, Andi Kleen wrote:
+> > So that explains why nobody sees this problem. But the TSC-based
+> > fallback timekeeping is still broken on SMP systems with PowerNow and
+> > distributed IRQ handling, which both together seem to be rare enough
+> > ;-).
+>
+> There is a patch pending for the TSC problem - using the pmtimer instead
+> in this case.
+>
+> But the distributed timer interrupt problem is weird. It should not
+> happen. You sure it was IRQ 0 that was duplicated and not "LOC" ?
 
-rafael@albercik:~> gcc -v
-]--snip--[
-gcc version 3.3.5 20050117 (prerelease) (SUSE Linux)
+Yes. Only one CPU actually gets and handles the timer interrupt, but which=
+=20
+one is somewhat random (for about 10 seconds, it's the same CPU, then it=20
+switches over).
 
-rafael@albercik:~> ld -v
-GNU ld version 2.15.94.0.2.2 20041220 (SuSE Linux)
+> When you watch -n1 cat /proc/interrupts does the rate roughly match
+> up to 1000Hz?
 
-rafael@albercik:~> as -v
-GNU assembler version 2.15.94.0.2.2 (x86_64-suse-linux) using BFD version 2.15.94.0.2.2 20041220 (SuSE Linux)
+Yes, and this is confirmed over longer time:
 
-It's the default setup for SUSE 9.3 64-bit.
+# grep timer /proc/interrupts; uptime
+  0:   40347440   40582285    IO-APIC-edge  timer
+  1:26pm  an  22:28,  1 user,  Durchschnittslast: 0,00, 0,01, 0,04
+# echo $[(3600*22+28*60)*1000] $[40347440+40582285]
+80880000 80929725
 
-Strangely enough, I've compiled 2.6.12-rc4 and 2.6.12-rc3-mm2 with the same
-gcc/binutils and they work fine.
+Given that uptime is only accurate to the minute, this sounds very=20
+reasonable. The distribution also is close to 50:50. That's (almost) true=20
+for all interrupt sources:
 
-Greets,
-Rafael
+ # cat /proc/interrupts=20
+           CPU0       CPU1      =20
+  0:   40523846   40753939    IO-APIC-edge  timer
+  1:          3        189    IO-APIC-edge  i8042
+  8:        261        280    IO-APIC-edge  rtc
+  9:          0          0   IO-APIC-level  acpi
+ 15:     364369     364479    IO-APIC-edge  ide1
+169:      59195      55498   IO-APIC-level  3w-9xxx
+177:     618198     604643   IO-APIC-level  3w-9xxx
+185:    8195891    8147619   IO-APIC-level  aic79xx, eth1
+193:          0         30   IO-APIC-level  aic79xx
+201:          0          0   IO-APIC-level  ohci_hcd, ohci_hcd
+NMI:       1184       1013=20
+LOC:   81273966   81271958=20
+ERR:          0
+MIS:          0
 
+=2D-=20
+Bernd Paysan
+"If you want it done right, you have to do it yourself"
+http://www.jwdt.com/~paysan/
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+--nextPart3714566.A4kaZjVG7S
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBCgKEUi4ILt2cAfDARAg/HAKCtm/QVxwtRyFF9esYehFEVPQOZQQCg38XZ
+IYGYrISsCry4CuCYkW2YvCI=
+=0Q2S
+-----END PGP SIGNATURE-----
+
+--nextPart3714566.A4kaZjVG7S--

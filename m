@@ -1,58 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVEJKzh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbVEJLAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261607AbVEJKzh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 06:55:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbVEJKzg
+	id S261608AbVEJLAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 07:00:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbVEJLAI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 06:55:36 -0400
-Received: from cantor.suse.de ([195.135.220.2]:41915 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261607AbVEJKzN (ORCPT
+	Tue, 10 May 2005 07:00:08 -0400
+Received: from mx02.stofanet.dk ([212.10.10.12]:16783 "EHLO mx02.stofanet.dk")
+	by vger.kernel.org with ESMTP id S261608AbVEJKzq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 06:55:13 -0400
-Date: Tue, 10 May 2005 12:55:06 +0200
-From: Andi Kleen <ak@suse.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: Andi Kleen <ak@suse.de>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [BUG][Resend] 2.6.12-rc3-mm3: Kernel BUG at "mm/slab.c":1219
-Message-ID: <20050510105506.GF25612@wotan.suse.de>
-References: <200505092239.37834.rjw@sisk.pl> <20050509205251.GK25167@wotan.suse.de> <20050510061858.GB21649@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050510061858.GB21649@suse.de>
+	Tue, 10 May 2005 06:55:46 -0400
+Message-ID: <42809342.4060201@molgaard.org>
+Date: Tue, 10 May 2005 12:56:02 +0200
+From: =?ISO-8859-1?Q?Sune_M=F8lgaard?= <sune@molgaard.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: New irq router in 2.6?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Some slab change, perhaps? There's nothing special about the init_bio()
-> slab call:
-> 
->         bio_slab = kmem_cache_create("bio", sizeof(struct bio), 0,
->                             SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
-> 
-> 
-> Hmm, this looks strange. That bug happens if:
-> 
->         if ((!name) ||
->                 in_interrupt() ||
->                 (size < BYTES_PER_WORD) ||
->                 (size > (1<<MAX_OBJ_ORDER)*PAGE_SIZE) ||
->                 (dtor && !ctor)) {
->                         printk(KERN_ERR "%s: Early error in slab %s\n",
->                                         __FUNCTION__, name);
->                         BUG();
->                 }
-> 
-> It must be in_interrupt() triggering, perhaps something change in the
-> boot sequence?
+Hi.
 
-I would add a printk for all arguments on top of kmem_cache_create
-and decompose the big if () into smaller if (...) BUG() so that you
-can see which condition triggers exactly.
+A while ago, I posted a patch for 2.4.30, adding a Picopower irq router 
+to arch/i386/kernel/pci-irq.c.
 
-Then if you suspect compiler issues you can edit the Makefile and
-recompile the kernel with -O1
+Could anyone point me in the right direction for making this work in 2.6?
 
-Rafael, can you try that perhaps?
+Best regards,
 
--Andi
+Sune Mølgaard
+-- 
+There are no essential bugs in our software which a significant number
+of users might wish to be removed.
+-Bill Gates, 1995

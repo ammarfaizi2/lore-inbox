@@ -1,51 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261753AbVEJUOC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbVEJUPB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261753AbVEJUOC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 16:14:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbVEJUOC
+	id S261776AbVEJUPB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 16:15:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbVEJUOT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 16:14:02 -0400
-Received: from lyle.provo.novell.com ([137.65.81.174]:45733 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S261753AbVEJUNt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 16:13:49 -0400
-Date: Tue, 10 May 2005 13:13:55 -0700
-From: Greg KH <gregkh@suse.de>
-To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] hotplug-ng 002 release
-Message-ID: <20050510201355.GB3226@suse.de>
-References: <20050506212227.GA24066@kroah.com> <1115611034.14447.11.camel@localhost.localdomain> <20050509232103.GA24238@suse.de> <1115717357.10222.1.camel@localhost.localdomain> <20050510094339.GC6346@wonderland.linux.it> <4280AFF4.6080108@ums.usu.ru> <20050510172447.GA11263@wonderland.linux.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050510172447.GA11263@wonderland.linux.it>
-User-Agent: Mutt/1.5.8i
+	Tue, 10 May 2005 16:14:19 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:39589 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261776AbVEJUNu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 16:13:50 -0400
+Message-ID: <428115F5.3030000@us.ibm.com>
+Date: Tue, 10 May 2005 13:13:41 -0700
+From: Matthew Dobson <colpatch@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <gregkh@suse.de>
+CC: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [RFC/PATCH] unregister_node() for hotplug use
+References: <20050422003920.GD6829@kroah.com> <20050422113211.509005f1.tokunaga.keiich@jp.fujitsu.com> <20050425230333.6b8dfb33.tokunaga.keiich@jp.fujitsu.com> <20050426065431.GB5889@suse.de> <20050507211141.4829d4c0.tokunaga.keiich@jp.fujitsu.com> <427FE7B3.8080200@us.ibm.com> <20050510202053.3ddd9e7b.tokunaga.keiich@jp.fujitsu.com> <4280FA41.3050403@us.ibm.com> <20050510184508.GA2463@suse.de> <4281045C.4020205@us.ibm.com> <20050510201144.GA3226@suse.de>
+In-Reply-To: <20050510201144.GA3226@suse.de>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 10, 2005 at 07:24:47PM +0200, Marco d'Itri wrote:
-> On May 10, "Alexander E. Patrakov" <patrakov@ums.usu.ru> wrote:
+Greg KH wrote:
+> On Tue, May 10, 2005 at 11:58:36AM -0700, Matthew Dobson wrote:
 > 
-> > Why not this or something similar (e.g. I want to blacklist the xxx and 
-> > yyy modules)? (note, untested)
+>>Greg KH wrote:
+>>
+>>>On Tue, May 10, 2005 at 11:15:29AM -0700, Matthew Dobson wrote:
+>>>
+>>>
+>>>>So I think it's probably a good idea to stick the __devinit on
+>>>>register_node() and unregister_node(), otherwise we have no marker to know
+>>>>which functions to remove for CONFIG_TINY.  Greg?
+>>>
+>>>
+>>>Like _anyone_ would have CONFIG_NUMA and CONFIG_TINY enabled at the same
+>>>time?  I don't think so...
+>>>
+>>>I'll leave it as is for now.
+>>
+>>No, it seems unlikely that anyone would build with CONFIG_NUMA and
+>>CONFIG_TINY both enabled.  But it is possible and reasonable to build with
+>>CONFIG_NUMA=y and CONFIG_HOTPLUG=n, which is the case I was trying to speak
+>>to.  If NUMA is on and HOTPLUG is off, then we're wasting kernel text
+>>(granted, it's a very small amount of space) for the register_node() &
+>>unregister_node() functions that we *know* will never be called after
+>>initial bootup.  That's why I suggested marking both of those functions as
+>>__devinit.  But it doesn't make a huge difference either way.
+> 
+> 
+> I do not think this is an issue, and I want to move CONFIG_HOTPLUG to be
+> under CONFIG_TINY anyway, so you could only disable it if TINY is
+> enabled.  But that's a different email thread...
+> 
+> thanks,
+> 
+> greg k-h
 
-Nice, I like it.
+Fair enough.  We'll leave those functions alone...
 
-> Because it's impossible to predict how it will interact with other
-> install and alias commands.
+-Matt
 
-Then we will just have to find out :)
-
-> A less fundamental but still major problem is that this would be a
-> different API, and both users and packages have been aware of
-> /etc/hotplug/blacklist* for a long time now.
-
-And as /etc/hotplug/* is going away for hotplug-ng, I don't think this
-is going to be an issue.  Also, the blacklisting stuff should not be
-that prevelant anymore...
-
-thanks,
-
-greg k-h

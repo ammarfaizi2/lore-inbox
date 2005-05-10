@@ -1,101 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261761AbVEJTqR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261765AbVEJTtR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261761AbVEJTqR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 15:46:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbVEJTqR
+	id S261765AbVEJTtR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 15:49:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbVEJTtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 15:46:17 -0400
-Received: from mail.dif.dk ([193.138.115.101]:11245 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261761AbVEJTpS (ORCPT
+	Tue, 10 May 2005 15:49:16 -0400
+Received: from picard.ine.co.th ([203.152.41.3]:40131 "EHLO picard.ine.co.th")
+	by vger.kernel.org with ESMTP id S261765AbVEJTsv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 15:45:18 -0400
-Date: Tue, 10 May 2005 21:49:04 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Marcel Holtmann <marcel@holtmann.org>, bluez-devel@lists.sf.net,
-       Maxim Krasnyansky <maxk@qualcomm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] bluetooth: kill redundant NULL checks and casts before
- kfree
-In-Reply-To: <200505102328.15734.adobriyan@mail.ru>
-Message-ID: <Pine.LNX.4.62.0505102147190.2386@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0505102100150.2386@dragon.hyggekrogen.localhost>
- <200505102328.15734.adobriyan@mail.ru>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 10 May 2005 15:48:51 -0400
+Subject: Re: kernel (64bit) 4GB memory support
+From: Rudolf Usselmann <rudi@asics.ws>
+Reply-To: rudi@asics.ws
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Frank Denis (Jedi/Sector One)" <j@pureftpd.org>,
+       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+In-Reply-To: <20050509200721.GE2297@csclub.uwaterloo.ca>
+References: <Pine.LNX.4.61.0412120934160.14734@montezuma.fsmlabs.com>
+	 <1103027130.3650.73.camel@cpu0> <20041216074905.GA2417@c9x.org>
+	 <1103213359.31392.71.camel@cpu0>
+	 <Pine.LNX.4.61.0412201246180.12334@montezuma.fsmlabs.com>
+	 <1103646195.3652.196.camel@cpu0>
+	 <Pine.LNX.4.61.0412210930280.28648@montezuma.fsmlabs.com>
+	 <1103647158.3659.199.camel@cpu0>
+	 <Pine.LNX.4.61.0412210955130.28648@montezuma.fsmlabs.com>
+	 <1115654185.3296.658.camel@cpu10>
+	 <20050509200721.GE2297@csclub.uwaterloo.ca>
+Content-Type: text/plain
+Organization: ASICS.ws - Solutions for your ASICS & FPGA needs -
+Date: Wed, 11 May 2005 02:48:42 +0700
+Message-Id: <1115754522.4409.16.camel@cpu10>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 May 2005, Alexey Dobriyan wrote:
-
-> On Tuesday 10 May 2005 23:05, Jesper Juhl wrote:
+On Mon, 2005-05-09 at 16:07 -0400, Lennart Sorensen wrote:
+> On Mon, May 09, 2005 at 10:56:25PM +0700, Rudolf Usselmann wrote:
+> > Just curious, did anybody ever look in to this at all ? I keep
+> > on downloading new kernels and trying 4GB of memory - still no
+> > luck.
+> > 
+> > I did file a bug report but didn't get any notifications at all.
+> > I don't subscribe to the linux-kernel list so not sure if anything
+> > ever came up or not.
+> > 
+> > Is there a way to get this fixed ?
 > 
-> > There's no need to check for NULL before calling kfree() on a pointer, and
-> > since kfree() takes a void* argument there's no need to cast pointers to
-> > other types before passing them to kfree().
+> How much ram do you see with 4GB installed running a 64bit kernel?
 > 
-> > +	kfree(hdev->driver_data)	
+> What does /proc/meminfo show?
 > 
-> This won't compile.
+> How about the memory map dmesg shows at the start of boot?
 > 
-Ouch. You are right.
-I usually compile test patches, but I have to admit I didn't this time. 
-Sorry about that. Fixed patch below.
+> Len Sorensen
 
+I do see the full 4G. With Fedora Core 2 32bit, I can use all
+4G as well. All my problems started when I "upgraded" to x86_64 ...
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
---- 
-
-diff -upr linux-2.6.12-rc3-mm3-orig/drivers/bluetooth/bpa10x.c linux-2.6.12-rc3-mm3/drivers/bluetooth/bpa10x.c
---- linux-2.6.12-rc3-mm3-orig/drivers/bluetooth/bpa10x.c	2005-03-02 08:38:17.000000000 +0100
-+++ linux-2.6.12-rc3-mm3/drivers/bluetooth/bpa10x.c	2005-05-10 20:53:56.000000000 +0200
-@@ -367,11 +367,8 @@ static inline void bpa10x_free_urb(struc
- 	if (!urb)
- 		return;
- 
--	if (urb->setup_packet)
--		kfree(urb->setup_packet);
--
--	if (urb->transfer_buffer)
--		kfree(urb->transfer_buffer);
-+	kfree(urb->setup_packet);
-+	kfree(urb->transfer_buffer);
- 
- 	usb_free_urb(urb);
- }
-diff -upr linux-2.6.12-rc3-mm3-orig/drivers/bluetooth/hci_usb.c linux-2.6.12-rc3-mm3/drivers/bluetooth/hci_usb.c
---- linux-2.6.12-rc3-mm3-orig/drivers/bluetooth/hci_usb.c	2005-04-30 18:24:53.000000000 +0200
-+++ linux-2.6.12-rc3-mm3/drivers/bluetooth/hci_usb.c	2005-05-10 20:56:17.000000000 +0200
-@@ -387,10 +387,8 @@ static void hci_usb_unlink_urbs(struct h
- 			urb = &_urb->urb;
- 			BT_DBG("%s freeing _urb %p type %d urb %p",
- 					husb->hdev->name, _urb, _urb->type, urb);
--			if (urb->setup_packet)
--				kfree(urb->setup_packet);
--			if (urb->transfer_buffer)
--				kfree(urb->transfer_buffer);
-+			kfree(urb->setup_packet);
-+			kfree(urb->transfer_buffer);
- 			_urb_free(_urb);
- 		}
- 
-diff -upr linux-2.6.12-rc3-mm3-orig/drivers/bluetooth/hci_vhci.c linux-2.6.12-rc3-mm3/drivers/bluetooth/hci_vhci.c
---- linux-2.6.12-rc3-mm3-orig/drivers/bluetooth/hci_vhci.c	2005-04-30 18:24:53.000000000 +0200
-+++ linux-2.6.12-rc3-mm3/drivers/bluetooth/hci_vhci.c	2005-05-10 21:46:48.000000000 +0200
-@@ -78,12 +78,10 @@ static int hci_vhci_close(struct hci_dev
- 
- static void hci_vhci_destruct(struct hci_dev *hdev)
- {
--	struct hci_vhci_struct *vhci;
-+	if (!hdev)
-+		return;
- 
--	if (!hdev) return;
--
--	vhci = (struct hci_vhci_struct *) hdev->driver_data;
--	kfree(vhci);
-+	kfree(hdev->driver_data);
- }
- 
- static int hci_vhci_send_frame(struct sk_buff *skb)
-
+Best Regards,
+rudi
+=============================================================
+Rudolf Usselmann,  ASICS World Services,  http://www.asics.ws
+Your Partner for IP Cores, Design, Verification and Synthesis
 

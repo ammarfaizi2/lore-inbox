@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261802AbVEJU6w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261799AbVEJVCH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261802AbVEJU6w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 16:58:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbVEJU6v
+	id S261799AbVEJVCH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 17:02:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261795AbVEJU7i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 16:58:51 -0400
-Received: from wproxy.gmail.com ([64.233.184.206]:16679 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261796AbVEJUyj (ORCPT
+	Tue, 10 May 2005 16:59:38 -0400
+Received: from mail.dif.dk ([193.138.115.101]:57731 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261797AbVEJU6u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 16:54:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
-        b=WMaAJlISL24DAyUmbC3E8gWxLcdg+SMWQN2gcMW4/jro1EOfsa8CNhPaOMYKeWrxfTp2QOngSRqgi6C0mMYT9C+VO3vueGkV+NkxHKEfvjmIB3hIs8xYC3j4Et4x3if2VAY0qML1dEEDVJCd/zj+be6rNa0Rw6+KRYPcX+gIuAE=
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Subject: Re: [PATCH] atm/nicstar: remove a bunch of pointless casts of NULL
-Date: Wed, 11 May 2005 00:58:12 +0400
-User-Agent: KMail/1.7.2
+	Tue, 10 May 2005 16:58:50 -0400
+Date: Tue, 10 May 2005 23:02:42 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Alexey Dobriyan <adobriyan@gmail.com>
 Cc: linux-kernel@vger.kernel.org, Rui Prior <rprior@inescn.pt>, akpm@osdl.org
+Subject: Re: [PATCH] atm/nicstar: remove a bunch of pointless casts of NULL
+In-Reply-To: <200505110058.12932.adobriyan@mail.ru>
+Message-ID: <Pine.LNX.4.62.0505102259330.2386@dragon.hyggekrogen.localhost>
 References: <Pine.LNX.4.62.0505102203170.2386@dragon.hyggekrogen.localhost>
-In-Reply-To: <Pine.LNX.4.62.0505102203170.2386@dragon.hyggekrogen.localhost>
+ <200505110058.12932.adobriyan@mail.ru>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200505110058.12932.adobriyan@mail.ru>
-From: Alexey Dobriyan <adobriyan@gmail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 11 May 2005 00:06, Jesper Juhl wrote:
-> It doesn't make sense to cast NULL. This patch removes the pointless casts 
-> from drivers/atm/nicstar.c
+On Wed, 11 May 2005, Alexey Dobriyan wrote:
 
-> --- linux-2.6.12-rc3-mm3-orig/drivers/atm/nicstar.c
-> +++ linux-2.6.12-rc3-mm3/drivers/atm/nicstar.c
+> On Wednesday 11 May 2005 00:06, Jesper Juhl wrote:
+> > It doesn't make sense to cast NULL. This patch removes the pointless casts 
+> > from drivers/atm/nicstar.c
+> 
+> > --- linux-2.6.12-rc3-mm3-orig/drivers/atm/nicstar.c
+> > +++ linux-2.6.12-rc3-mm3/drivers/atm/nicstar.c
+> 
+> >     scq = (scq_info *) kmalloc(sizeof(scq_info), GFP_KERNEL);
+>             ^^^^^^^^^^^^
+> > -   if (scq == (scq_info *) NULL)
+> > -      return (scq_info *) NULL;
+> > +   if (scq == NULL)
+> > +      return NULL;
+> 
+> >     scq->skb = (struct sk_buff **) kmalloc(sizeof(struct sk_buff *) *
+>                  ^^^^^^^^^^^^^^^^^^^
+> >                                            (size / NS_SCQE_SIZE), GFP_KERNEL);
+> > -   if (scq->skb == (struct sk_buff **) NULL)
+> > +   if (scq->skb == NULL)
+> 
+> These are pointless too.
+> 
+True, but I wanted the patch to only do a single well defined thing. I was 
+not 100% sure what the reaction to such a patch would be, so I didn't want 
+to mix other things in as well...  Actually, thinking about it a bit; will 
+gcc ever generate different code for NULL pointers cast to different 
+types? As far as I know it won't, but if it will, then the casts could 
+actually make sense.
 
->     scq = (scq_info *) kmalloc(sizeof(scq_info), GFP_KERNEL);
-            ^^^^^^^^^^^^
-> -   if (scq == (scq_info *) NULL)
-> -      return (scq_info *) NULL;
-> +   if (scq == NULL)
-> +      return NULL;
+I can submit a second patch to remove the casts of kmalloc return values if 
+wanted.
 
->     scq->skb = (struct sk_buff **) kmalloc(sizeof(struct sk_buff *) *
-                 ^^^^^^^^^^^^^^^^^^^
->                                            (size / NS_SCQE_SIZE), GFP_KERNEL);
-> -   if (scq->skb == (struct sk_buff **) NULL)
-> +   if (scq->skb == NULL)
+-- 
+Jesper 
 
-These are pointless too.
+

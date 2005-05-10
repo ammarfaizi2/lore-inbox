@@ -1,42 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbVEJHVt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbVEJHwv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261568AbVEJHVt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 03:21:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbVEJHVs
+	id S261570AbVEJHwv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 03:52:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261572AbVEJHwu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 03:21:48 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:32459 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261568AbVEJHVg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 03:21:36 -0400
-Date: Tue, 10 May 2005 00:21:21 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: jfbeam@bluetronic.net, nico-kernel@schottelius.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: /proc/cpuinfo format - arch dependent!
-Message-Id: <20050510002121.7076feb6.pj@sgi.com>
-In-Reply-To: <20050506211455.3d2b3f29.akpm@osdl.org>
-References: <20050419121530.GB23282@schottelius.org>
-	<Pine.GSO.4.33.0505062324550.1894-100000@sweetums.bluetronic.net>
-	<20050506211455.3d2b3f29.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 10 May 2005 03:52:50 -0400
+Received: from wproxy.gmail.com ([64.233.184.192]:45255 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261570AbVEJHwr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 03:52:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lrjlmmEm2a1WVF2hySFD/KHcIEStPkDi7J5NoR2pIHBn7RgCZVgpnDW8CXZhHCeqoz6xSJnRMd3IWDdMCQmgxgqyL5t5q5jwgqpmJN3EeEm/D/+GYQ27mhtOccmuSpZHZslsaW6iKqgAuzpPtDOUn0PIs7H3+sYRybfTBL6putk=
+Message-ID: <2cd57c90050510005247d84d9d@mail.gmail.com>
+Date: Tue, 10 May 2005 15:52:47 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+Reply-To: coywolf@lovecn.org
+To: "A.M. Fradley" <u2amf@csc.liv.ac.uk>
+Subject: Re: An attempt to improve the swap tokening:
+Cc: kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1115607333.427ed12531f96@cgi.server.csc.liv.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1113667425.426137617423a@cgi.server.csc.liv.ac.uk>
+	 <Pine.LNX.4.61L.0504271322280.13884@imladris.surriel.com>
+	 <1114676760.42709e18b0227@cgi.server.csc.liv.ac.uk>
+	 <Pine.LNX.4.61L.0504281549130.26165@imladris.surriel.com>
+	 <1115052944.42765b90ba515@cgi.server.csc.liv.ac.uk>
+	 <Pine.LNX.4.61L.0505021638110.31547@imladris.surriel.com>
+	 <1115101782.42771a56e4b81@cgi.server.csc.liv.ac.uk>
+	 <Pine.LNX.4.61L.0505031136470.2760@imladris.surriel.com>
+	 <1115216727.4278db57baad5@cgi.server.csc.liv.ac.uk>
+	 <1115607333.427ed12531f96@cgi.server.csc.liv.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew wrote:
-> Probably these things can be worked out via the get/set_affinity() syscalls
-> and/or via the cpuset sysfs interfaces, but it isn't as simple as you're
-> assuming.
+On 5/9/05, A.M. Fradley <u2amf@csc.liv.ac.uk> wrote:
+> I'd been trying to reduce the amount of page swapping in order to improve the
+> kernels behaviour during thrashing as a project for my course.  I made this
+> after Arjan van de Ven and Rik van Riel suggested I looked into the swap
+> tokening mechanism as part of my research.  I came up with a function to
+> measure the swap rate and then to activate/deactivate the token mechanism
+> depending on how much swapping was being done overall.  I think the statistics
+> I added to the thrash.c file could help it decide how to behave but I'm unsure
+> how best to use them to do that.
+> 
+> I've tried testing it a few different ways
+> but none of them seem to make any difference.  I think this is because of my
+> tests though.  I made one program that allocates a linked list, until it is
+> 128MB long, then once it's done that, it should swap in the oldest page in
+> order to free the memory and then swap the newest one back in to edit the
+> pointer to the next node then continue for 2 mins.  Then to test how much
+> progress is made
+> during the thrashing, I've been running a simple counter program that stops
+> after minute and I've been comparing the max number reached for the different
+> attempts I've been making with the kernel.  The program for causing thrashing
+> at least makes it swap pages because I can watch the memory and swap fill up in
+> system monitor.  Running the program to cause thrashing seems to work because
+> the kernel begins reporting high swap rates when the list reaches the target
+> length.
+> 
+> Does anyone know any programs that are designed to test this type of
+> thing or any comments on the code that I wrote?  I'm still new at this, so I've
+> probably misunderstood/left out some things.  The updateSwapRate() fuction is
+> called at the end of scheduler_tick().  That could probably go somewhere
+> better.  Also, I wasn't sure if changing the value of
+> swap_token_default_timeout was all I needed to do to reactivate the tokening as
+> it was disabled in 2.6.11 that I'm working with.
+> 
 
-Yes - it's all there.  Sometimes the ways to discover it aren't pretty,
-but that's one thing that libraries are good for - to wrap such detail.
+
+Wouldn't it be better shown in patch form?
+
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401
+Coywolf Qi Hunt
+http://sosdg.org/~coywolf/

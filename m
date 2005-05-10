@@ -1,41 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261733AbVEJSpQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261737AbVEJSte@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261733AbVEJSpQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 14:45:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261737AbVEJSpQ
+	id S261737AbVEJSte (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 14:49:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbVEJSte
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 14:45:16 -0400
-Received: from lyle.provo.novell.com ([137.65.81.174]:17058 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S261733AbVEJSpL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 14:45:11 -0400
-Date: Tue, 10 May 2005 11:45:08 -0700
-From: Greg KH <gregkh@suse.de>
-To: Matthew Dobson <colpatch@us.ibm.com>
-Cc: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [RFC/PATCH] unregister_node() for hotplug use
-Message-ID: <20050510184508.GA2463@suse.de>
-References: <20050420173235.GA17775@kroah.com> <20050422003009.1b96f09c.tokunaga.keiich@jp.fujitsu.com> <20050422003920.GD6829@kroah.com> <20050422113211.509005f1.tokunaga.keiich@jp.fujitsu.com> <20050425230333.6b8dfb33.tokunaga.keiich@jp.fujitsu.com> <20050426065431.GB5889@suse.de> <20050507211141.4829d4c0.tokunaga.keiich@jp.fujitsu.com> <427FE7B3.8080200@us.ibm.com> <20050510202053.3ddd9e7b.tokunaga.keiich@jp.fujitsu.com> <4280FA41.3050403@us.ibm.com>
+	Tue, 10 May 2005 14:49:34 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:9221 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261737AbVEJStb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 14:49:31 -0400
+Message-Id: <200505101849.j4AIn4fn019008@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, Daniel Walker <dwalker@mvista.com>
+Subject: Re: [PATCH 2/4] rt_mutex: add new plist implementation 
+In-Reply-To: Your message of "Tue, 10 May 2005 11:39:45 PDT."
+             <F989B1573A3A644BAB3920FBECA4D25A0338B637@orsmsx407> 
+From: Valdis.Kletnieks@vt.edu
+References: <F989B1573A3A644BAB3920FBECA4D25A0338B637@orsmsx407>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4280FA41.3050403@us.ibm.com>
-User-Agent: Mutt/1.5.8i
+Content-Type: multipart/signed; boundary="==_Exmh_1115750942_8169P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 10 May 2005 14:49:02 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 10, 2005 at 11:15:29AM -0700, Matthew Dobson wrote:
+--==_Exmh_1115750942_8169P
+Content-Type: text/plain; charset=us-ascii
+
+On Tue, 10 May 2005 11:39:45 PDT, "Perez-Gonzalez, Inaky" said:
+
+> >> At least I'd add return codes for this if the head's priority=20
+> >> changes (or in this case, because head's have no prio, if the=20
+> >> first node's  prio change).
+> >
+> >I am not sure I understand you. Why should we track ->prio=20 changes?
+> >plist should be generic, I think.
 > 
-> So I think it's probably a good idea to stick the __devinit on
-> register_node() and unregister_node(), otherwise we have no marker to know
-> which functions to remove for CONFIG_TINY.  Greg?
+> Errr....shut, that was my or your email program screwing
+> things up...that =20, I mean, that's MIME for line break.
 
-Like _anyone_ would have CONFIG_NUMA and CONFIG_TINY enabled at the same
-time?  I don't think so...
+Actually, it's the MIME encoding for "blank".  It's usually seen with trailing
+blanks, so systems that trim trailing blanks won't molest the one you left on
+the end of the line.....
 
-I'll leave it as is for now.
 
-thanks,
+--==_Exmh_1115750942_8169P
+Content-Type: application/pgp-signature
 
-greg k-h
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCgQIdcC3lWbTT17ARAspwAJ0d41CxjUF+HNLsK29VyBehx8nqyACgjGpq
++H7bpH4IYBHstqjJ36ezfk8=
+=7uU3
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1115750942_8169P--

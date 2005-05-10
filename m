@@ -1,153 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261722AbVEJSJR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbVEJSPp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261722AbVEJSJR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 14:09:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbVEJSJQ
+	id S261720AbVEJSPp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 14:15:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261721AbVEJSPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 14:09:16 -0400
-Received: from [80.227.59.61] ([80.227.59.61]:60343 "EHLO HasBox.COM")
-	by vger.kernel.org with ESMTP id S261722AbVEJSIC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 14:08:02 -0400
-Message-ID: <4280F856.2080907@0Bits.COM>
-Date: Tue, 10 May 2005 22:07:18 +0400
-From: Mitch <Mitch@0Bits.COM>
-User-Agent: Mail/News Client 1.0+ (X11/20050509)
+	Tue, 10 May 2005 14:15:45 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:28825 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261720AbVEJSPg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 14:15:36 -0400
+Message-ID: <4280FA41.3050403@us.ibm.com>
+Date: Tue, 10 May 2005 11:15:29 -0700
+From: Matthew Dobson <colpatch@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: dmitry.torokhov@gmail.com, dtor_core@ameritech.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: ALPS testers wanted (Was Re: [RFT/PATCH] KVMS, mouse losing sync
- and going crazy)
-Content-Type: multipart/mixed;
- boundary="------------080904030705060704060208"
+To: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+CC: gregkh@suse.de, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [RFC/PATCH] unregister_node() for hotplug use
+References: <20050420210744.4013b3f8.tokunaga.keiich@jp.fujitsu.com> <20050420173235.GA17775@kroah.com> <20050422003009.1b96f09c.tokunaga.keiich@jp.fujitsu.com> <20050422003920.GD6829@kroah.com> <20050422113211.509005f1.tokunaga.keiich@jp.fujitsu.com> <20050425230333.6b8dfb33.tokunaga.keiich@jp.fujitsu.com> <20050426065431.GB5889@suse.de> <20050507211141.4829d4c0.tokunaga.keiich@jp.fujitsu.com> <427FE7B3.8080200@us.ibm.com> <20050510202053.3ddd9e7b.tokunaga.keiich@jp.fujitsu.com>
+In-Reply-To: <20050510202053.3ddd9e7b.tokunaga.keiich@jp.fujitsu.com>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080904030705060704060208
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Still no go. Log attached.
-
--------- Original Message --------
-Subject: Re: ALPS testers wanted (Was Re: [RFT/PATCH] KVMS, mouse losing 
-sync and going crazy)
-Date: Tue, 10 May 2005 12:30:23 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Mitch <Mitch@0bits.com>
-CC: linux-kernel@vger.kernel.org
-References: <4280E1E8.4040906@0Bits.COM>
-
-On 5/10/05, Mitch <Mitch@0bits.com> wrote:
-> Hi Dimitry,
+Keiichiro Tokunaga wrote:
+> On Mon, 09 May 2005 15:44:03 -0700 Matthew Dobson wrote:
+>>Is there a reason to not make both register_node() and unregister_node()
+>>__devinit?  If a user has CONFIG_HOTPLUG=y then they want these functions,
+>>otherwise there is no point, as they promised they won't be hotplugging
+>>anything, right?
 > 
-> Still no go. With ps2_drain() commented (not enabled) the touchpad mouse
-> is completely unresponsive. With ps2_drain() un-commented, there is
-> initial life, but it hangs shortly after that. Log attached.
+>   The main reason is Greg advised me that we had the function
+> no matter if CONFIG_HOTPLUG is true or not.  An addtional
+> advantage of this is that the source becomes cleaner because
+> I included unregister_node() with '#ifdef CONFIG_HOTPLUG' and
+> '#endif' in my previous version of patch.
+> 
+> Thanks,
+> Keiichiro Tokunaga
 > 
 
-Thank you for the log. V8 is uploaded. Alternatively, just change
-psmouse->pktcnt to psmouse->pktsize in
-drivers/input/mouse/alps.c::alps_poll().
+You're referring to this comment:
 
+On Thu, 21 Apr 2005 17:39:20 -0700 Greg KH wrote:
+>> And hey, what's the real big deal here, why not always have this
+>> function no matter if CONFIG_HOTPLUG is enabled or not?  I really want
+>> to just make that an option that is always enabled anyway, but changable
+>> if you are using CONFIG_TINY or something...
 
--- 
-Dmitry
+correct?  I think GregKH was referring to you #ifdef'ing the function away
+so that it isn't even there if CONFIG_HOTPLUG=n, which is completely
+different from marking the function as __devinit.
 
+If you mark the function as __devinit, it will still be there for the
+kernel initialization phase whether CONFIG_HOTPLUG is on or off.  What it
+does mean, however, is that the function will get freed, along with the
+rest of the functions/data marked __init or __initdata, if CONFIG_HOTPLUG
+is off.  If CONFIG_HOTPLUG is on, __devinit is defined to be nothing and
+the function will remain because there is a possibility that someone will
+call the function after the initialization phase.  If CONFIG_HOTPLUG is
+off, the user is assuring us that no devices will be hot-added or
+hot-removed, so there is no point in bloating the kernel text (albeit very
+slightly) with functions that we *know* won't be called.
 
---------------080904030705060704060208
-Content-Type: application/x-gzip;
- name="log.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="log.gz"
+So I think it's probably a good idea to stick the __devinit on
+register_node() and unregister_node(), otherwise we have no marker to know
+which functions to remove for CONFIG_TINY.  Greg?
 
-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
-BTz1rYwNOQEA
---------------080904030705060704060208--
+-Matt

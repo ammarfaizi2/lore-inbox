@@ -1,81 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261703AbVEJQzX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbVEJQ7x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261703AbVEJQzX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 12:55:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbVEJQzX
+	id S261710AbVEJQ7x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 12:59:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbVEJQ7x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 12:55:23 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:29079 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261703AbVEJQzN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 12:55:13 -0400
-Date: Tue, 10 May 2005 09:55:12 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Joe Seigh <jseigh_02@xemaps.com>
+	Tue, 10 May 2005 12:59:53 -0400
+Received: from mail.uni-ulm.de ([134.60.1.1]:10884 "EHLO mail.uni-ulm.de")
+	by vger.kernel.org with ESMTP id S261710AbVEJQ7j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 12:59:39 -0400
+Date: Tue, 10 May 2005 19:01:28 +0200
+From: Markus Klotzbuecher <mk@creamnet.de>
+To: Eric Lammerts <eric@lammerts.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: RCU + SMR for preemptive kernel/user threads.
-Message-ID: <20050510165512.GA1569@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <opsqivh7agehbc72@grunion> <opsqkajto6ehbc72@grunion>
+Subject: Re: [ANNOUNCE] mini_fo-0.6.0 overlay file system
+Message-ID: <20050510170127.GA13280@mary>
+Mail-Followup-To: Eric Lammerts <eric@lammerts.org>,
+	linux-kernel@vger.kernel.org
+References: <20050509183135.GB27743@mary> <42804FA9.3020307@lammerts.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <opsqkajto6ehbc72@grunion>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <42804FA9.3020307@lammerts.org>
+User-Agent: Mutt/1.5.8i
+X-DCC-sgs_public_dcc_server-Metrics: gemini 1199; Body=2 Fuz1=2 Fuz2=2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 10, 2005 at 09:32:07AM -0400, Joe Seigh wrote:
-> I think you need a release memory barrier if you store into a hazard
-> pointer that is non null to prevent prior accesses from occurring after
-> the store.  That's an extra memory barrier for hazard pointers that I
-> overlooked. One thing that could be done is wait an extra RCU grace
-> period after the hazard pointer scan to ensure prior accesses have
-> completed before freeing the resource.  That would lengthen the delay
-> to approximately 2 RCU grace periods.  Could be a problem if you have
-> a high write rate and are trying to keep that delay minimal.
-> 
-> There might be another way.  I'd have to investigate it a little more.
+Hi Eric,
 
-Here is what I thought you were suggesting for the updater:
+Thank you for the feedback.
 
-	Remove item from list
-	Send IPIs to all CPUs, relying on exact interrupts (which might
-		not be present on all CPUs) to serialize the instruction
-		streams of the other CPUs
-	Wait for all IPIs to complete
-	Wait until there are no hazard pointers referencing the item
-		before freeing.
+On Tue, May 10, 2005 at 02:07:37AM -0400, Eric Lammerts wrote:
+> Some remarks:
+> Some functions return -ENOTSUPP on error, which makes "ls -l" complain 
+> loudly when getxattr() fails. This should be -EOPNOTSUPP.
 
-For the traverser:
+You're right. Fixed in attached patch.
 
-	1. allocate hazard pointer (SW engr problem: what to do if
-		allocation fails?  If deeply nested, holding locks, &c?)
-	2. retry:
-	3. Pick up pointer, store into hazard pointer.
-	4. Tell the compiler not to reorder memory references across this point
-	5. If hazard pointer does not match the pointer, goto retry.
-	6. begin critical section
+> The module taints the kernel because of MODULE_LICENSE("LGPL").
+> Since all your copyright statements say it's GPL software, better change 
+> this to "GPL".
 
-If the updater and traverser run concurrently, the interrupt forces
-serialization -- look at all the possible interleavings to see this:
-1.	Before this point, the traverser cannot see the removed element.
-2.	Ditto.
-3.	Ditto.
-4.	Before this point, the traverser might have stored a pointer to
-	the remove element into the hazard pointer, but will see the 
-	disappearance when it returns from interrupt.
-5.	Ditto.
-6.	At this point, the hazard pointer has been set, and the
-	interrupt will force memory ordering.
+It seems to be ok to change this. Patch corrects this too.
 
-Similar reasoning when the traverser NULLs the hazard pointer.
+Cheers
 
-Or am I missing something?  Or is there some CPU that Linux supports that
-does inexact interrupts?
+Markus
 
-I must admit that I am not completely comfortable with this approach -- it
-needs to be beaten up pretty thoroughly with both testing and theoretical
-analysis.  And there might well be a flaw in my reasoning above.  ;-)
 
-							Thanx, Paul
+
+diff -Nru mini_fo.ORIG/inode.c mini_fo/inode.c
+--- mini_fo.ORIG/inode.c	2005-05-06 23:59:08.000000000 +0200
++++ mini_fo/inode.c	2005-05-10 18:09:47.000000000 +0200
+@@ -1259,7 +1259,7 @@
+ STATIC int
+ mini_fo_getxattr(struct dentry *dentry, const char *name, void *value, size_t size) {
+ 	struct dentry *hidden_dentry = NULL;
+-	int err = -ENOTSUPP;
++	int err = -EOPNOTSUPP;
+ 	/* Define these anyway so we don't need as much ifdef'ed code. */
+ 	char *encoded_name = NULL;
+ 	char *encoded_value = NULL;
+@@ -1304,7 +1304,7 @@
+ 
+ {
+ 	struct dentry *hidden_dentry = NULL;
+-	int err = -ENOTSUPP;
++	int err = -EOPNOTSUPP;
+ 
+ 	/* Define these anyway, so we don't have as much ifdef'ed code. */
+ 	char *encoded_value = NULL;
+@@ -1340,7 +1340,7 @@
+ STATIC int
+ mini_fo_removexattr(struct dentry *dentry, const char *name) {
+ 	struct dentry *hidden_dentry = NULL;
+-	int err = -ENOTSUPP;
++	int err = -EOPNOTSUPP;
+ 	char *encoded_name;
+ 
+ 	check_mini_fo_dentry(dentry);
+@@ -1372,7 +1372,7 @@
+ STATIC int
+ mini_fo_listxattr(struct dentry *dentry, char *list, size_t size) {
+ 	struct dentry *hidden_dentry = NULL;
+-	int err = -ENOTSUPP;
++	int err = -EOPNOTSUPP;
+ 	char *encoded_list = NULL;
+ 
+ 	check_mini_fo_dentry(dentry);
+diff -Nru mini_fo.ORIG/main.c mini_fo/main.c
+--- mini_fo.ORIG/main.c	2005-05-06 23:59:08.000000000 +0200
++++ mini_fo/main.c	2005-05-10 17:54:13.000000000 +0200
+@@ -405,7 +405,7 @@
+ 
+ MODULE_AUTHOR("Erez Zadok <ezk@cs.sunysb.edu>");
+ MODULE_DESCRIPTION("FiST-generated mini_fo filesystem");
+-MODULE_LICENSE("LGPL");
++MODULE_LICENSE("GPL");
+ 
+ /* MODULE_PARM(fist_debug_var, "i"); */
+ /* MODULE_PARM_DESC(fist_debug_var, "Debug level"); */
+
+

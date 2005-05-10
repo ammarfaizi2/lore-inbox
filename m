@@ -1,54 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261739AbVEJSwG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261740AbVEJSwj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261739AbVEJSwG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 14:52:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbVEJSwF
+	id S261740AbVEJSwj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 14:52:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbVEJSwj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 14:52:05 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:6569 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261739AbVEJSvz convert rfc822-to-8bit (ORCPT
+	Tue, 10 May 2005 14:52:39 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:9606 "HELO thebsh.namesys.com")
+	by vger.kernel.org with SMTP id S261740AbVEJSwd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 14:51:55 -0400
-x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 10 May 2005 14:52:33 -0400
+Message-ID: <428102E8.2020509@namesys.com>
+Date: Tue, 10 May 2005 11:52:24 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH 2/4] rt_mutex: add new plist implementation 
-Date: Tue, 10 May 2005 11:51:33 -0700
-Message-ID: <F989B1573A3A644BAB3920FBECA4D25A0338B681@orsmsx407>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 2/4] rt_mutex: add new plist implementation 
-Thread-Index: AcVVkPafJcE8/hvkSP62KmKh6Ws6CwAAD3Vw
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: <Valdis.Kletnieks@vt.edu>
-Cc: "Oleg Nesterov" <oleg@tv-sign.ru>, "Ingo Molnar" <mingo@elte.hu>,
-       <linux-kernel@vger.kernel.org>, "Daniel Walker" <dwalker@mvista.com>
-X-OriginalArrivalTime: 10 May 2005 18:51:35.0185 (UTC) FILETIME=[4A1B5010:01C55591]
+To: sean.mcgrath@propylon.com
+CC: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: file as a directory
+References: <2c59f00304112205546349e88e@mail.gmail.com>	 <41A1FFFC.70507@hist.no> <41A21EAA.2090603@dbservice.com>	 <41A23496.505@namesys.com>  <1101287762.1267.41.camel@pear.st-and.ac.uk>	 <1115717961.3711.56.camel@grape.st-and.ac.uk>	 <4280CAEF.5060202@namesys.com> <1115739129.3711.117.camel@grape.st-and.ac.uk> <4280E1A9.3010703@propylon.com> <4280EEA7.9080403@namesys.com> <4280F1D5.3060607@propylon.com>
+In-Reply-To: <4280F1D5.3060607@propylon.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Valdis.Kletnieks@vt.edu [mailto:Valdis.Kletnieks@vt.edu]
->On Tue, 10 May 2005 11:39:45 PDT, "Perez-Gonzalez, Inaky" said:
+Sean McGrath wrote:
+
+> Hans Reiser wrote:
 >
->> >I am not sure I understand you. Why should we track ->prio=20
-changes?
->> >plist should be generic, I think.
+>> Sean McGrath wrote:
 >>
->> Errr....shut, that was my or your email program screwing
->> things up...that =20, I mean, that's MIME for line break.
+>>  
+>>
+>>> The thing that interests me most is the difference (if any) between
+>>> giving a stream of bytes an opaque name e.g. "Chapter 1 of my
+>>> book.sxw" versus giving a stream of bytes a query expression that can
+>>> also be considered an opaque name e.g.
+>>> "/book/chapter[1] "
+>>>
+>>>   
+>>
+>> What is an opaque name?
+>>
+>>
+>>  
+>>
+> By "opaque name" I mean a name that is purely a label. A name that
+> cannot be interpreted as a query expression.
+
+Isn't query just another name for name?
+
 >
->Actually, it's the MIME encoding for "blank".  It's usually seen with
-trailing
->blanks, so systems that trim trailing blanks won't molest the one you
-left on
->the end of the line.....
+> Sean
+>
+>
+>
+>
+>
 
-Tomatoe, tomato :)
-
-Thanks,
-
--- Inaky

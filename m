@@ -1,64 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVEJHTp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbVEJHVt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261567AbVEJHTp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 03:19:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbVEJHTo
+	id S261568AbVEJHVt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 03:21:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbVEJHVs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 03:19:44 -0400
-Received: from nwkea-mail-2.sun.com ([192.18.42.14]:8940 "EHLO
-	nwkea-mail-2.sun.com") by vger.kernel.org with ESMTP
-	id S261567AbVEJHTi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 03:19:38 -0400
-Date: Tue, 10 May 2005 11:19:32 +0400
-From: Mitch <Mitch@0Bits.COM>
-Subject: Re: ALPS testers wanted (Was Re: [RFT/PATCH] KVMS,
- mouse losing sync and going crazy)
-To: dtor_core@ameritech.net, linux-kernel@vger.kernel.org
-Message-id: <42806084.4010205@0Bits.COM>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-15; format=flowed
-Content-transfer-encoding: 7BIT
-User-Agent: Mail/News Client 1.0+ (X11/20050427)
+	Tue, 10 May 2005 03:21:48 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:32459 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261568AbVEJHVg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 03:21:36 -0400
+Date: Tue, 10 May 2005 00:21:21 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: jfbeam@bluetronic.net, nico-kernel@schottelius.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: /proc/cpuinfo format - arch dependent!
+Message-Id: <20050510002121.7076feb6.pj@sgi.com>
+In-Reply-To: <20050506211455.3d2b3f29.akpm@osdl.org>
+References: <20050419121530.GB23282@schottelius.org>
+	<Pine.GSO.4.33.0505062324550.1894-100000@sweetums.bluetronic.net>
+	<20050506211455.3d2b3f29.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dimitry,
+Andrew wrote:
+> Probably these things can be worked out via the get/set_affinity() syscalls
+> and/or via the cpuset sysfs interfaces, but it isn't as simple as you're
+> assuming.
 
-No go with the patch, and even with patch and uncommenting the 
-ps2_drain(). The alps touchpad is dead as a dodo.
-
-Cheers
-Mitch
-
--------- Original Message --------
-Subject: ALPS testers wanted (Was Re: [RFT/PATCH] KVMS, mouse losing 
-sync and going crazy)
-Date: Mon, 9 May 2005 23:03:46 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Mitch <Mitch@0Bits.COM>
-CC: linux-kernel@vger.kernel.org
-References: <427F09C1.8010703@0Bits.COM>
-
-On Monday 09 May 2005 01:57, Mitch wrote:
-> Hi Dmitry,
-> 
-> No, no change with the attached patch either. Mouse goes to sleep and 
-> need to be re-enabled constantly.
-> 
-
-Hi Mitch,
-
-OK, here is an updated patch. Hopefully if we toggle passthrough mode on
-Dualpoints we will get an absolute packet in response to POLL command.
-
-Please give it a try. If it does not work please try uncommenting call to
-ps2_drain in drivers/input/mouse/alps.c::alps_passthrough_mode().
-
-Thanks!
+Yes - it's all there.  Sometimes the ways to discover it aren't pretty,
+but that's one thing that libraries are good for - to wrap such detail.
 
 -- 
-Dmitry
-
-http://www.geocities.com/dt_or/input/2_6_11/psmouse-resync-2.6.11-v6.patch.gz
-
-
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

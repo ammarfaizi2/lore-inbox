@@ -1,56 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261700AbVEJPkK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261689AbVEJPmO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261700AbVEJPkK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 11:40:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbVEJPjW
+	id S261689AbVEJPmO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 11:42:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbVEJPmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 11:39:22 -0400
-Received: from smtp.e7even.com ([83.151.192.5]:31892 "HELO smtp.e7even.com")
-	by vger.kernel.org with SMTP id S261698AbVEJPiz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 11:38:55 -0400
-Subject: Re: file as a directory
-From: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>
-To: Valdis.Kletnieks@vt.edu
-Cc: Hans Reiser <reiser@namesys.com>, sean.mcgrath@propylon.com,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-In-Reply-To: <200505101514.j4AFEhGO010837@turing-police.cc.vt.edu>
-References: <2c59f00304112205546349e88e@mail.gmail.com>
-	 <41A1FFFC.70507@hist.no> <41A21EAA.2090603@dbservice.com>
-	 <41A23496.505@namesys.com> <1101287762.1267.41.camel@pear.st-and.ac.uk>
-	 <1115717961.3711.56.camel@grape.st-and.ac.uk>
-	 <200505101514.j4AFEhGO010837@turing-police.cc.vt.edu>
+	Tue, 10 May 2005 11:42:14 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:5272 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261689AbVEJPmF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 11:42:05 -0400
+Subject: Re: [ANNOUNCE] mini_fo-0.6.0 overlay file system
+From: Arjan van de Ven <arjan@infradead.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Eric Lammerts <eric@lammerts.org>, Markus Klotzbuecher <mk@creamnet.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1115738992.12402.10.camel@mindpipe>
+References: <20050509183135.GB27743@mary>  <42804FA9.3020307@lammerts.org>
+	 <1115738992.12402.10.camel@mindpipe>
 Content-Type: text/plain
-Message-Id: <1115739527.3711.124.camel@grape.st-and.ac.uk>
+Date: Tue, 10 May 2005 17:42:00 +0200
+Message-Id: <1115739720.6008.39.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 10 May 2005 16:38:48 +0100
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-10 at 16:14, Valdis.Kletnieks@vt.edu wrote:
-> On Tue, 10 May 2005 10:39:23 BST, Peter Foldiak said:
-> > Back in November 2004, I suggested on the linux-kernel and reiserfs
-> > lists that the Reiser4 architecture could allow us to abolish the
-> > unnatural naming distinction between directories/files/parts-of-file
-> > (i.e. to unify naming within-file-system and within-file naming) in an
-> > efficient way.
-> > I suggested that one way of doing that would be to extend XPath-like
-> > selection syntax above the (XML) file level.
+On Tue, 2005-05-10 at 11:29 -0400, Lee Revell wrote:
+> On Tue, 2005-05-10 at 02:07 -0400, Eric Lammerts wrote:
+> > Markus Klotzbuecher wrote:
+> > > mini_fo is a virtual kernel filesystem that can make read-only file
+> > > systems writable.
+> > 
+> > Nice.
+> > 
+> > Some remarks:
+> > Some functions return -ENOTSUPP on error, which makes "ls -l" complain 
+> > loudly when getxattr() fails. This should be -EOPNOTSUPP.
+> > 
+> > The module taints the kernel because of MODULE_LICENSE("LGPL").
+> > Since all your copyright statements say it's GPL software, better change 
+> > this to "GPL".
 > 
-> I believe the consensus was that this needs to happen at the VFS layer, not
-> the FS level.  The next step would be designing an API for this - what would
-> the VFS present to userspace, and in what way, and how would backward
-> combatability be maintained?
+> Ugh.  Why does an LGPL module taint the kernel again?
 
-But can it be done efficiently above the file system level??
+it's gpl anyway in practice when insmod'ed (LGPL mixed with GPL code
+becomes GPL, as per the LGPL license)
 
-As far as I understand, Reiser4 has this nice tree structure, which
-means that the part of file selection could be done with almost no extra
-effort, you just attach additional names to inside nodes of the tree, so
-the same tree can be used to store the whole object, and part of the
-same tree can be used to select the object part. Right?
-If you do this above the file system level, I don't think it would have
-such an efficient implementation. Or would it?  Peter
+you can say "GPL with additional rights" which would capture the spirit
+of LGPL although the additional rights aren't really all that useful (eg
+only for out-of-linux use)
 

@@ -1,44 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261540AbVEJGHn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261565AbVEJGUe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261540AbVEJGHn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 02:07:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbVEJGHn
+	id S261565AbVEJGUe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 02:20:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbVEJGUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 02:07:43 -0400
-Received: from uslec-66-255-166-25.cust.uslec.net ([66.255.166.25]:2534 "EHLO
-	mail.ultrawaves.com") by vger.kernel.org with ESMTP id S261540AbVEJGHj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 02:07:39 -0400
-Message-ID: <42804FA9.3020307@lammerts.org>
-Date: Tue, 10 May 2005 02:07:37 -0400
-From: Eric Lammerts <eric@lammerts.org>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050402)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Markus Klotzbuecher <mk@creamnet.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] mini_fo-0.6.0 overlay file system
-References: <20050509183135.GB27743@mary>
-In-Reply-To: <20050509183135.GB27743@mary>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 10 May 2005 02:20:21 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:23769 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261552AbVEJGTB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 02:19:01 -0400
+Date: Tue, 10 May 2005 08:18:58 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [BUG][Resend] 2.6.12-rc3-mm3: Kernel BUG at "mm/slab.c":1219
+Message-ID: <20050510061858.GB21649@suse.de>
+References: <200505092239.37834.rjw@sisk.pl> <20050509205251.GK25167@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050509205251.GK25167@wotan.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Markus Klotzbuecher wrote:
-> mini_fo is a virtual kernel filesystem that can make read-only file
-> systems writable.
+On Mon, May 09 2005, Andi Kleen wrote:
+> On Mon, May 09, 2005 at 10:39:37PM +0200, Rafael J. Wysocki wrote:
+> > Hi,
+> > 
+> > I get this from 2.6.12-rc3-mm3 on a UP AMD64 box (Asus L5D), 100% of the time:
+> 
+> Probably a generic bug. Block layer is passing some slab flag slab
+> doesn't like.
 
-Nice.
+Some slab change, perhaps? There's nothing special about the init_bio()
+slab call:
 
-Some remarks:
-Some functions return -ENOTSUPP on error, which makes "ls -l" complain 
-loudly when getxattr() fails. This should be -EOPNOTSUPP.
+        bio_slab = kmem_cache_create("bio", sizeof(struct bio), 0,
+                            SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
 
-The module taints the kernel because of MODULE_LICENSE("LGPL").
-Since all your copyright statements say it's GPL software, better change 
-this to "GPL".
 
-cheers,
+Hmm, this looks strange. That bug happens if:
 
-Eric
+        if ((!name) ||
+                in_interrupt() ||
+                (size < BYTES_PER_WORD) ||
+                (size > (1<<MAX_OBJ_ORDER)*PAGE_SIZE) ||
+                (dtor && !ctor)) {
+                        printk(KERN_ERR "%s: Early error in slab %s\n",
+                                        __FUNCTION__, name);
+                        BUG();
+                }
+
+It must be in_interrupt() triggering, perhaps something change in the
+boot sequence?
+
+-- 
+Jens Axboe
+

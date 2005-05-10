@@ -1,37 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261778AbVEJUbi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261779AbVEJUdM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261778AbVEJUbi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 16:31:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbVEJUbg
+	id S261779AbVEJUdM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 16:33:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbVEJUdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 16:31:36 -0400
-Received: from lyle.provo.novell.com ([137.65.81.174]:4270 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S261778AbVEJUbB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 16:31:01 -0400
-Date: Tue, 10 May 2005 13:30:56 -0700
-From: Greg KH <gregkh@suse.de>
-To: Ladislav Michl <ladis@linux-mips.org>
-Cc: James Chapman <jchapman@katalix.com>, Jean Delvare <khali@linux-fr.org>,
-       LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <sensors@Stimpy.netroedge.com>
-Subject: Re: [PATCH] ds1337: export ds1337_do_command
-Message-ID: <20050510203056.GA3415@suse.de>
-References: <20050504061438.GD1439@orphique> <1DTwF8-18P-00@press.kroah.org> <20050508204021.627f9cd1.khali@linux-fr.org> <427E6E21.60001@katalix.com> <20050508222351.08bfe2e1.khali@linux-fr.org> <20050510121814.GB2492@orphique> <20050510175549.GC1530@suse.de> <20050510183651.GA10720@orphique>
+	Tue, 10 May 2005 16:33:11 -0400
+Received: from ns2.suse.de ([195.135.220.15]:51923 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261783AbVEJUcq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 16:32:46 -0400
+Date: Tue, 10 May 2005 22:32:33 +0200
+From: Andi Kleen <ak@suse.de>
+To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
+       Christopher Warner <chris@servertogo.com>,
+       Hugh Dickins <hugh@veritas.com>, cwarner@kernelcode.com,
+       Chris Wright <chrisw@osdl.org>,
+       "Sergey S. Kostyliov" <rathamahata@ehouse.ru>,
+       Clem Taylor <clem.taylor@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: x86-64 bad pmds in 2.6.11.6 II
+Message-ID: <20050510203233.GM25612@wotan.suse.de>
+References: <20050419133509.GF7715@wotan.suse.de> <Pine.LNX.4.61.0504191636570.13422@goblin.wat.veritas.com> <1114773179.9543.14.camel@jasmine> <20050429173216.GB1832@redhat.com> <20050502170042.GJ7342@wotan.suse.de> <1115047729.19314.1.camel@jasmine> <1115717814.7679.2.camel@jasmine> <20050510163851.GA1128@redhat.com> <20050510164649.GL25612@wotan.suse.de> <20050510165938.GA11835@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050510183651.GA10720@orphique>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <20050510165938.GA11835@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 10, 2005 at 08:36:51PM +0200, Ladislav Michl wrote:
-> And while you bring up license issue, comment on top of file says GPL
-> version 2, but MODULE_LICENSE is set to GPL.
+On Tue, May 10, 2005 at 12:59:38PM -0400, Dave Jones wrote:
+> On Tue, May 10, 2005 at 06:46:49PM +0200, Andi Kleen wrote:
+>  > On Tue, May 10, 2005 at 12:38:51PM -0400, Dave Jones wrote:
+>  > > On Tue, May 10, 2005 at 05:36:54AM -0400, Christopher Warner wrote:
+>  > >  > 2.6.11.5 kernel,
+>  > >  > Tyan S2882/dual AMD 246 opterons
+>  > >  > sh:18983: mm/memory.c:99: bad pmd ffff810005974cc8(00007ffffffffe46). 
+>  > >  > sh:18983: mm/memory.c:99: bad pmd ffff810005974cd0(00007ffffffffe47).
+>  > > 
+>  > > That's the 3rd or 4th time I've seen this reported on this hardware.
+>  > > It's not exclusive to it, but it does seem more susceptible
+>  > > for some reason. Spooky.
+>  > 
+>  > It seems to be clear now that it is hardware independent.
+>  > 
+>  > I actually got it once now too, but only after 24+h stress test :/
+>  > 
+>  > I have a better debugging patch now that I will be testing soon,
+>  > hopefully that turns something up.
+> 
+> Ok, I'm respinning the Fedora update kernel today for other
+> reasons, if you have that patch in time, I'll toss it in too.
 
-That is correct.
+The patch has considerable overhead, probably not  good idea
+for a production rpm.
 
-thanks,
+-Andi
 
-greg k-h

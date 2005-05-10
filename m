@@ -1,60 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261687AbVEJQL4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261655AbVEJQP0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261687AbVEJQL4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 12:11:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbVEJQL4
+	id S261655AbVEJQP0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 12:15:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261696AbVEJQP0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 12:11:56 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:40068 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261687AbVEJQLy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 12:11:54 -0400
-Subject: Re: Restoring the link to snapshots on kernel.org
-From: Lee Revell <rlrevell@joe-job.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Blaisorblade <blaisorblade@yahoo.it>, webmaster@kernel.org,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       user-mode-linux-devel@lists.sourceforge.net
-In-Reply-To: <4280DB48.70908@zytor.com>
-References: <200505100110.16920.blaisorblade@yahoo.it>
-	 <200505101217.56252.blaisorblade@yahoo.it>
-	 <20050510034212.0d1e0799.akpm@osdl.org>
-	 <200505101243.38102.blaisorblade@yahoo.it>  <4280DB48.70908@zytor.com>
-Content-Type: text/plain
-Date: Tue, 10 May 2005 12:11:50 -0400
-Message-Id: <1115741511.12402.16.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 10 May 2005 12:15:26 -0400
+Received: from fmr24.intel.com ([143.183.121.16]:15249 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261655AbVEJQPX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 12:15:23 -0400
+Date: Tue, 10 May 2005 09:15:12 -0700
+From: tony.luck@intel.com
+Message-Id: <200505101615.j4AGFCM24199@unix-os.sc.intel.com>
+To: Anton Blanchard <anton@samba.org>
+Cc: torvalds@osdl.org, lkml <linux-kernel@vger.kernel.org>,
+       Yoav Zach <yoav.zach@intel.com>
+Subject: Re: [PATCH]: Don't force O_LARGEFILE for 32 bit processes on ia64 - 2.6.12-rc3
+In-Reply-To: <20050510064717.GA17819@krispykreme>
+References: <20050509214710.419.qmail@web50610.mail.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-10 at 09:03 -0700, H. Peter Anvin wrote:
-> Blaisorblade wrote:
-> > 
-> >>Nope.  They started again five days ago.
-> > 
-> > Would anybody restore the link from the main www.kernel.org/ page, then? I 
-> > only see there (and in the finger banner) the 2.4 snapshots, not the 2.6 
-> > ones.
-> > 
-> > I just found
-> > http://www.kernel.org/pub/linux/kernel/v2.6/snapshots/, but only by knowing 
-> > there were the snapshots somewhere.
+Anton Blanchard wrote:
+> A 32 bit application should not be using the native open routine. 
 > 
-> It's because there is no snapshots against -rc4, simply because Linus is 
-> on vacation and thus there hasn't been any changes since -rc4.
-> 
+> Sounds like you have a 64bit emulator running 32bit applications. The
+> other 64bit architectures need to be audited to make sure the
+> PER_LINUX32 flag is safe to use here.
 
-How about cleaning up the v2.6/testing directory?
+Yes, this issue happens when using an emulator to "run" the 32-bit
+application.
 
- [   ]  ChangeLog-2.6.9-rc4                10-Oct-2004 22:15   115k
- [   ]  LATEST-IS-2.6.11-rc5               24-Feb-2005 10:58     0k
- [   ]  LATEST-IS-2.6.12-rc1               17-Mar-2005 20:41     0k
- [   ]  LATEST-IS-2.6.12-rc2               04-Apr-2005 11:41     0k
- [   ]  LATEST-IS-2.6.12-rc3               20-Apr-2005 19:21     0k
- [   ]  LATEST-IS-2.6.12-rc4               07-May-2005 00:41     0k
- [DIR]  cset/                              04-Apr-2005 12:16      -
+Yoav's patch leaves it to each architecture to decide how to
+identify the emulated case.  ia64 has been using PER_LINUX32
+for this.  If other 64-bit architectures ever need to do the
+same thing, they can provide their own force_o_largefile()
+macro.  Right now, I don't think that any of them need this
+because they aren't using emulators for 32-bit.
 
-Lee
-
+-Tony

@@ -1,97 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261738AbVEJTCI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261743AbVEJTMY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261738AbVEJTCI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 15:02:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261742AbVEJTCI
+	id S261743AbVEJTMY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 15:12:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbVEJTMY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 15:02:08 -0400
-Received: from mail.dif.dk ([193.138.115.101]:16362 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261738AbVEJTCD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 15:02:03 -0400
-Date: Tue, 10 May 2005 21:05:54 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: bluez-devel@lists.sf.net, Maxim Krasnyansky <maxk@qualcomm.com>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] bluetooth: kill redundant NULL checks and casts before kfree
-Message-ID: <Pine.LNX.4.62.0505102100150.2386@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 10 May 2005 15:12:24 -0400
+Received: from rproxy.gmail.com ([64.233.170.205]:53775 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261743AbVEJTMV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 15:12:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jCjXKfwpk0N05DsJGNKTJynBzk8J3z+Inui64ynYyLtpW1WdxGW+/YZAi0R4KXaHNdOFJUXDVsGU1C5NnhIglTWp9bAoB8tLzEr0ifFyYnG/LcsHrlXxL9W+/5IU/FvXtvV52MWe8qBsD60TEb8eZRnmEWs9ktJsoS7Yy5z8yHI=
+Message-ID: <d120d50005051012126397d1a3@mail.gmail.com>
+Date: Tue, 10 May 2005 14:12:21 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Mitch <Mitch@0bits.com>
+Subject: Re: ALPS testers wanted (Was Re: [RFT/PATCH] KVMS, mouse losing sync and going crazy)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <d120d500050510112018b8a428@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4280F856.2080907@0Bits.COM>
+	 <d120d500050510112018b8a428@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(please keep me on CC when replying)
+On 5/10/05, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> On 5/10/05, Mitch <Mitch@0bits.com> wrote:
+> > Still no go. Log attached.
+> >
+> 
+> But I see a proper response (absolute packet) to the POLL command so
+> we are maiking progress I think. It looks like the touchpad was left
+> in disabled state somehow. Have you tried both the touchpad and
+> trackpoint? Are both of them dead?
+> 
 
+Btw, does it help if you stick "ps2_command(&psmouse->ps2dev, NULL,
+PSMOUSE_CMD_ENABLE)" at the end of alps_poll, just before "return rc"?
+Another option is sticking it before second alps_passthrough_mode.
 
-There's no need to check for NULL before calling kfree() on a pointer, and 
-since kfree() takes a void* argument there's no need to cast pointers to 
-other types before passing them to kfree().
-This patch cleans that up in drivers/bluetooth/
+Unfortunately we don't have any ALPS programming notes so we have to
+resort to trial-and-error way.
 
-Please apply.
-
-
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
----
-
- drivers/bluetooth/bpa10x.c   |    7 ++-----
- drivers/bluetooth/hci_usb.c  |    6 ++----
- drivers/bluetooth/hci_vhci.c |    8 +++-----
- 3 files changed, 7 insertions(+), 14 deletions(-)
-
-diff -upr linux-2.6.12-rc3-mm3-orig/drivers/bluetooth/bpa10x.c linux-2.6.12-rc3-mm3/drivers/bluetooth/bpa10x.c
---- linux-2.6.12-rc3-mm3-orig/drivers/bluetooth/bpa10x.c	2005-03-02 08:38:17.000000000 +0100
-+++ linux-2.6.12-rc3-mm3/drivers/bluetooth/bpa10x.c	2005-05-10 20:53:56.000000000 +0200
-@@ -367,11 +367,8 @@ static inline void bpa10x_free_urb(struc
- 	if (!urb)
- 		return;
- 
--	if (urb->setup_packet)
--		kfree(urb->setup_packet);
--
--	if (urb->transfer_buffer)
--		kfree(urb->transfer_buffer);
-+	kfree(urb->setup_packet);
-+	kfree(urb->transfer_buffer);
- 
- 	usb_free_urb(urb);
- }
-diff -upr linux-2.6.12-rc3-mm3-orig/drivers/bluetooth/hci_usb.c linux-2.6.12-rc3-mm3/drivers/bluetooth/hci_usb.c
---- linux-2.6.12-rc3-mm3-orig/drivers/bluetooth/hci_usb.c	2005-04-30 18:24:53.000000000 +0200
-+++ linux-2.6.12-rc3-mm3/drivers/bluetooth/hci_usb.c	2005-05-10 20:56:17.000000000 +0200
-@@ -387,10 +387,8 @@ static void hci_usb_unlink_urbs(struct h
- 			urb = &_urb->urb;
- 			BT_DBG("%s freeing _urb %p type %d urb %p",
- 					husb->hdev->name, _urb, _urb->type, urb);
--			if (urb->setup_packet)
--				kfree(urb->setup_packet);
--			if (urb->transfer_buffer)
--				kfree(urb->transfer_buffer);
-+			kfree(urb->setup_packet);
-+			kfree(urb->transfer_buffer);
- 			_urb_free(_urb);
- 		}
- 
-diff -upr linux-2.6.12-rc3-mm3-orig/drivers/bluetooth/hci_vhci.c linux-2.6.12-rc3-mm3/drivers/bluetooth/hci_vhci.c
---- linux-2.6.12-rc3-mm3-orig/drivers/bluetooth/hci_vhci.c	2005-04-30 18:24:53.000000000 +0200
-+++ linux-2.6.12-rc3-mm3/drivers/bluetooth/hci_vhci.c	2005-05-10 20:58:23.000000000 +0200
-@@ -78,12 +78,10 @@ static int hci_vhci_close(struct hci_dev
- 
- static void hci_vhci_destruct(struct hci_dev *hdev)
- {
--	struct hci_vhci_struct *vhci;
-+	if (!hdev)
-+		return;
- 
--	if (!hdev) return;
--
--	vhci = (struct hci_vhci_struct *) hdev->driver_data;
--	kfree(vhci);
-+	kfree(hdev->driver_data)
- }
- 
- static int hci_vhci_send_frame(struct sk_buff *skb)
-
-
-
+-- 
+Dmitry

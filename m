@@ -1,76 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbVEJHAv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVEJHOL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbVEJHAv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 03:00:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbVEJHAv
+	id S261552AbVEJHOL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 03:14:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbVEJHOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 03:00:51 -0400
-Received: from wproxy.gmail.com ([64.233.184.198]:14140 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261563AbVEJHAn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 03:00:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=cp2Qb6N3V2Bk4q5hA67KxH/edBPLn9YalV3wJfecq6Oca8PeyUekz3q2NguowYa72ffziPz/RQ2UmliujeIUtBW5FaAC+WpRKY5KDczBF12HGZfKiCmKEXM3e03uEzsWBNVMhWxxSUxxazpzW4M9XvZ+pAutjOX7nKBHLqGZ9m8=
-Message-ID: <2cd57c9005051000004c57050@mail.gmail.com>
-Date: Tue, 10 May 2005 15:00:42 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: coywolf@lovecn.org
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: kexec?
-Cc: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>,
+	Tue, 10 May 2005 03:14:11 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:38867 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261552AbVEJHOH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 03:14:07 -0400
+Date: Tue, 10 May 2005 00:13:27 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Jim Nance <jlnance@sdf.lonestar.org>
+Cc: davidsen@tmr.com, davej@redhat.com, willy@w.ods.org, akpm@osdl.org,
+       jfbeam@bluetronic.net, nico-kernel@schottelius.org,
        linux-kernel@vger.kernel.org
-In-Reply-To: <20050509183428.6d7934a6.rddunlap@osdl.org>
+Subject: Re: /proc/cpuinfo format - arch dependent!
+Message-Id: <20050510001327.5197dd21.pj@sgi.com>
+In-Reply-To: <20050510022301.GA13763@SDF.LONESTAR.ORG>
+References: <20050508012521.GA24268@SDF.LONESTAR.ORG>
+	<427FA876.7000401@tmr.com>
+	<20050510022301.GA13763@SDF.LONESTAR.ORG>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050508202050.GB13789@charite.de>
-	 <20050509183428.6d7934a6.rddunlap@osdl.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/10/05, Randy.Dunlap <rddunlap@osdl.org> wrote:
-> On Sun, 8 May 2005 22:20:50 +0200 Ralf Hildebrandt wrote:
-> 
-> | I know kexec used to be a patch, but has it gone into the mainstream
-> | kernels yet?
-> 
-> Nope, it's only in the -mm patchset.
-> Testing/reporting that could help....
- 
-coywolf@prodigy:~/kexec-tools-1.95/objdir/build/bin$ ./kexec_test
-Segmentation fault
+Jim wrote:
+> I see two problems with encouraging applications to get involved
+> with processor selection.
 
-prodigy:/home/coywolf/kexec-tools-1.95/objdir/build/sbin# ./kexec -l
-/var/local/build/vmlinux
-kexec_load failed: Cannot assign requested address
-entry       = (nil)
-nr_segments = 2
-segment[0].buf   = 0x80b4558
-segment[0].bufsz = 15c
-segment[0].mem   = (nil)
-segment[0].memsz = 15c
-segment[1].buf   = 0xb7d53008
-segment[1].bufsz = 2a0086
-segment[1].mem   = 0x100000
-segment[1].memsz = 2c8a78
+I suspect you are confusing "application" with "not kernel".
 
-prodigy:/home/coywolf/kexec-tools-1.95/objdir/build/sbin# ./kexec -l
-/var/local/build/arch/i386/boot/bzImage
-kexec_load failed: Cannot assign requested address
-entry       = 0x91734
-nr_segments = 2
-segment[0].buf   = 0x80b4480
-segment[0].bufsz = 1850
-segment[0].mem   = 0x90000
-segment[0].memsz = 1850
-segment[1].buf   = 0xb7eaa008
-segment[1].bufsz = 14032d
-segment[1].mem   = 0x100000
-segment[1].memsz = 14032d
+There are basically three layers of software on big systems:
+
+ 1) kernel
+ 2) administration (system services, libraries and utilities)
+ 3) application
+
+Something like a batch manager is an example in layer (2) that needs
+extensive knowledge of a systems hardware, and extensive ability to
+manage exactly what runs and allocates where.
+
+Large systems very much expect to manage what threads run where. These
+API's are already present - check out sched_setaffinity, mbind,
+set_mempolicy, and cpusets.  The details of what hardware is where,
+including memory, processor and interconnect, are also there as well, in
+various /proc and /sys files.
+
+No - we don't expect the application to know all this.  But we absolutely
+require that various admin level programs know this stuff in intimate
+detail, and enable the administration of large systems in a variety of
+ways.
 
 -- 
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

@@ -1,71 +1,172 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261767AbVEJTue@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261766AbVEJT6R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261767AbVEJTue (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 15:50:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbVEJTue
+	id S261766AbVEJT6R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 15:58:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbVEJT6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 15:50:34 -0400
-Received: from picard.ine.co.th ([203.152.41.3]:40900 "EHLO picard.ine.co.th")
-	by vger.kernel.org with ESMTP id S261767AbVEJTuP (ORCPT
+	Tue, 10 May 2005 15:58:17 -0400
+Received: from mail.dif.dk ([193.138.115.101]:4334 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261766AbVEJT6B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 15:50:15 -0400
-Subject: Re: kernel (64bit) 4GB memory support
-From: Rudolf Usselmann <rudi@asics.ws>
-Reply-To: rudi@asics.ws
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: "Frank Denis (Jedi/Sector One)" <j@pureftpd.org>,
-       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <Pine.LNX.4.61.0505091623540.22669@montezuma.fsmlabs.com>
-References: <41BAC68D.6050303@pobox.com> <1102760002.10824.170.camel@cpu0>
-	 <41BB32A4.2090301@pobox.com> <1102824735.17081.187.camel@cpu0>
-	 <Pine.LNX.4.61.0412112141180.7847@montezuma.fsmlabs.com>
-	 <1102828235.17081.189.camel@cpu0>
-	 <Pine.LNX.4.61.0412120131570.7847@montezuma.fsmlabs.com>
-	 <1102842902.10322.200.camel@cpu0>
-	 <Pine.LNX.4.61.0412120934160.14734@montezuma.fsmlabs.com>
-	 <1103027130.3650.73.camel@cpu0>  <20041216074905.GA2417@c9x.org>
-	 <1103213359.31392.71.camel@cpu0>
-	 <Pine.LNX.4.61.0412201246180.12334@montezuma.fsmlabs.com>
-	 <1103646195.3652.196.camel@cpu0>
-	 <Pine.LNX.4.61.0412210930280.28648@montezuma.fsmlabs.com>
-	 <1103647158.3659.199.camel@cpu0>
-	 <Pine.LNX.4.61.0412210955130.28648@montezuma.fsmlabs.com>
-	 <1115654185.3296.658.camel@cpu10>
-	 <Pine.LNX.4.61.0505091623540.22669@montezuma.fsmlabs.com>
-Content-Type: text/plain
-Organization: ASICS.ws - Solutions for your ASICS & FPGA needs -
-Date: Wed, 11 May 2005 02:50:09 +0700
-Message-Id: <1115754609.4413.19.camel@cpu10>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Tue, 10 May 2005 15:58:01 -0400
+Date: Tue, 10 May 2005 22:01:53 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Chas Williams <chas@cmf.nrl.navy.mil>
+Cc: linux-atm-general@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Christophe Lizzi <lizzi@cnam.fr>,
+       eric kinzie <ekinzie@cmf.nrl.navy.mil>,
+       Werner Almesberger <werner@almesberger.net>
+Subject: Re: [PATCH] atm: kill pointless NULL checks and casts before kfree()
+ [take two]
+In-Reply-To: <Pine.LNX.4.62.0505102126330.2386@dragon.hyggekrogen.localhost>
+Message-ID: <Pine.LNX.4.62.0505102159270.2386@dragon.hyggekrogen.localhost>
+References: <Pine.LNX.4.62.0505102126330.2386@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-05-09 at 16:24 -0600, Zwane Mwaikambo wrote:
-> On Mon, 9 May 2005, Rudolf Usselmann wrote:
+On Tue, 10 May 2005, Jesper Juhl wrote:
+
+> (please keep me on CC when replying)
 > 
-> > Just curious, did anybody ever look in to this at all ? I keep
-> > on downloading new kernels and trying 4GB of memory - still no
-> > luck.
-> > 
-> > I did file a bug report but didn't get any notifications at all.
-> > I don't subscribe to the linux-kernel list so not sure if anything
-> > ever came up or not.
-> > 
-> > Is there a way to get this fixed ?
+> This patch removes redundant NULL pointer checks before kfree() as well as 
+> a pointless cast for drivers/atm/
 > 
-> I still am unable to find an associated bug with it, is there an updated 
-> BIOS for your board?
+I made a mistake, the patch had a bug. Sorry. 
+Fixed patch below.
 
-No there is not. I already have the latest BIOS. The 32 bit
-version of Fedora Core 2 seems to work just fine. It's when
-I "upgraded" to 64 bit when I could not use 4G of memory
-anymore ...
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+---
 
-Best Regards,
-rudi
-=============================================================
-Rudolf Usselmann,  ASICS World Services,  http://www.asics.ws
-Your Partner for IP Cores, Design, Verification and Synthesis
-
+diff -upr linux-2.6.12-rc3-mm3-orig/drivers/atm/fore200e.c linux-2.6.12-rc3-mm3/drivers/atm/fore200e.c
+--- linux-2.6.12-rc3-mm3-orig/drivers/atm/fore200e.c	2005-05-06 23:21:07.000000000 +0200
++++ linux-2.6.12-rc3-mm3/drivers/atm/fore200e.c	2005-05-10 21:19:30.000000000 +0200
+@@ -383,8 +383,7 @@ fore200e_shutdown(struct fore200e* fore2
+     switch(fore200e->state) {
+ 
+     case FORE200E_STATE_COMPLETE:
+-	if (fore200e->stats)
+-	    kfree(fore200e->stats);
++	kfree(fore200e->stats);
+ 
+     case FORE200E_STATE_IRQ:
+ 	free_irq(fore200e->irq, fore200e->atm_dev);
+@@ -963,8 +962,7 @@ fore200e_tx_irq(struct fore200e* fore200
+ 		entry, txq->tail, entry->vc_map, entry->skb);
+ 
+ 	/* free copy of misaligned data */
+-	if (entry->data)
+-	    kfree(entry->data);
++	kfree(entry->data);
+ 	
+ 	/* remove DMA mapping */
+ 	fore200e->bus->dma_unmap(fore200e, entry->tpd->tsd[ 0 ].buffer, entry->tpd->tsd[ 0 ].length,
+diff -upr linux-2.6.12-rc3-mm3-orig/drivers/atm/he.c linux-2.6.12-rc3-mm3/drivers/atm/he.c
+--- linux-2.6.12-rc3-mm3-orig/drivers/atm/he.c	2005-05-06 23:21:07.000000000 +0200
++++ linux-2.6.12-rc3-mm3/drivers/atm/he.c	2005-05-10 21:19:59.000000000 +0200
+@@ -412,8 +412,7 @@ he_init_one(struct pci_dev *pci_dev, con
+ init_one_failure:
+ 	if (atm_dev)
+ 		atm_dev_deregister(atm_dev);
+-	if (he_dev)
+-		kfree(he_dev);
++	kfree(he_dev);
+ 	pci_disable_device(pci_dev);
+ 	return err;
+ }
+@@ -2534,8 +2533,7 @@ he_open(struct atm_vcc *vcc)
+ open_failed:
+ 
+ 	if (err) {
+-		if (he_vcc)
+-			kfree(he_vcc);
++		kfree(he_vcc);
+ 		clear_bit(ATM_VF_ADDR, &vcc->flags);
+ 	}
+ 	else
+diff -upr linux-2.6.12-rc3-mm3-orig/drivers/atm/nicstar.c linux-2.6.12-rc3-mm3/drivers/atm/nicstar.c
+--- linux-2.6.12-rc3-mm3-orig/drivers/atm/nicstar.c	2005-04-30 18:24:53.000000000 +0200
++++ linux-2.6.12-rc3-mm3/drivers/atm/nicstar.c	2005-05-10 21:56:46.000000000 +0200
+@@ -676,10 +676,10 @@ static int __devinit ns_init_card(int i,
+    PRINTK("nicstar%d: RSQ base at 0x%x.\n", i, (u32) card->rsq.base);
+       
+    /* Initialize SCQ0, the only VBR SCQ used */
+-   card->scq1 = (scq_info *) NULL;
+-   card->scq2 = (scq_info *) NULL;
++   card->scq1 = NULL;
++   card->scq2 = NULL;
+    card->scq0 = get_scq(VBR_SCQSIZE, NS_VRSCD0);
+-   if (card->scq0 == (scq_info *) NULL)
++   if (card->scq0 == NULL)
+    {
+       printk("nicstar%d: can't get SCQ0.\n", i);
+       error = 12;
+@@ -993,24 +993,24 @@ static scq_info *get_scq(int size, u32 s
+    int i;
+ 
+    if (size != VBR_SCQSIZE && size != CBR_SCQSIZE)
+-      return (scq_info *) NULL;
++      return NULL;
+ 
+    scq = (scq_info *) kmalloc(sizeof(scq_info), GFP_KERNEL);
+-   if (scq == (scq_info *) NULL)
+-      return (scq_info *) NULL;
++   if (scq == NULL)
++      return NULL;
+    scq->org = kmalloc(2 * size, GFP_KERNEL);
+    if (scq->org == NULL)
+    {
+       kfree(scq);
+-      return (scq_info *) NULL;
++      return NULL;
+    }
+    scq->skb = (struct sk_buff **) kmalloc(sizeof(struct sk_buff *) *
+                                           (size / NS_SCQE_SIZE), GFP_KERNEL);
+-   if (scq->skb == (struct sk_buff **) NULL)
++   if (scq->skb == NULL)
+    {
+       kfree(scq->org);
+       kfree(scq);
+-      return (scq_info *) NULL;
++      return NULL;
+    }
+    scq->num_entries = size / NS_SCQE_SIZE;
+    scq->base = (ns_scqe *) ALIGN_ADDRESS(scq->org, size);
+@@ -1498,7 +1498,7 @@ static int ns_open(struct atm_vcc *vcc)
+          vc->cbr_scd = NS_FRSCD + frscdi * NS_FRSCD_SIZE;
+ 
+          scq = get_scq(CBR_SCQSIZE, vc->cbr_scd);
+-         if (scq == (scq_info *) NULL)
++         if (scq == NULL)
+          {
+             PRINTK("nicstar%d: can't get fixed rate SCQ.\n", card->index);
+             card->scd2vc[frscdi] = NULL;
+diff -upr linux-2.6.12-rc3-mm3-orig/drivers/atm/zatm.c linux-2.6.12-rc3-mm3/drivers/atm/zatm.c
+--- linux-2.6.12-rc3-mm3-orig/drivers/atm/zatm.c	2005-04-30 18:24:53.000000000 +0200
++++ linux-2.6.12-rc3-mm3/drivers/atm/zatm.c	2005-05-10 21:59:03.000000000 +0200
+@@ -902,7 +902,7 @@ static void close_tx(struct atm_vcc *vcc
+ 		zatm_dev->tx_bw += vcc->qos.txtp.min_pcr;
+ 		dealloc_shaper(vcc->dev,zatm_vcc->shaper);
+ 	}
+-	if (zatm_vcc->ring) kfree(zatm_vcc->ring);
++	kfree(zatm_vcc->ring);
+ }
+ 
+ 
+@@ -1339,12 +1339,9 @@ static int __init zatm_start(struct atm_
+ 	return 0;
+     out:
+ 	for (i = 0; i < NR_MBX; i++)
+-		if (zatm_dev->mbx_start[i] != 0)
+-			kfree((void *) zatm_dev->mbx_start[i]);
+-	if (zatm_dev->rx_map != NULL)
+-		kfree(zatm_dev->rx_map);
+-	if (zatm_dev->tx_map != NULL)
+-		kfree(zatm_dev->tx_map);
++		kfree((void *)zatm_dev->mbx_start[i]);
++	kfree(zatm_dev->rx_map);
++	kfree(zatm_dev->tx_map);
+ 	free_irq(zatm_dev->irq, dev);
+ 	return error;
+ }

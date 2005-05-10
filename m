@@ -1,39 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261569AbVEJIG3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261573AbVEJIIg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261569AbVEJIG3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 04:06:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbVEJIG2
+	id S261573AbVEJIIg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 04:08:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbVEJIIf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 04:06:28 -0400
-Received: from gourmet.spamgourmet.com ([216.218.230.146]:37781 "EHLO
-	gourmet.spamgourmet.com") by vger.kernel.org with ESMTP
-	id S261569AbVEJIG0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 04:06:26 -0400
-Message-ID: <42806B78.2020708@home.se>
-Date: Tue, 10 May 2005 10:06:16 +0200
-From: linuxkernel2.20.sandos@spamgourmet.com
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Tue, 10 May 2005 04:08:35 -0400
+Received: from wproxy.gmail.com ([64.233.184.207]:31883 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261573AbVEJIIc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 04:08:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=INRnIV7TbDMoksw1mSCrI5a7HoL+L+lKBV+tf9uA++/jWh9g6tkB1MScMNkawdYP3HmoW/ms6sd3FusKcOD4QwEM+OobGDX2yDmRSU7wDy2cSOjPJqLC971zfZLBqnaSG6Oyprl3xxlI4WUBZVUOeWKtBacX1jE1zDke1Yweuz4=
+Message-ID: <5eb4b0650505100108179ba1b6@mail.gmail.com>
+Date: Tue, 10 May 2005 16:08:30 +0800
+From: KC <kcc1967@gmail.com>
+Reply-To: KC <kcc1967@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: E1000 - page allocation failure - saga continues :(
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-mdh_se-MailScanner-Information: Please contact the ISP for more information
-X-mdh_se-MailScanner: Found to be clean
-X-MailScanner-From: sandos@home.se
-X-Spamgourmet: 
+Subject: kernel 2.6.x driver compiler options
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- >Anyway i'll try to catch THE option that make the kernel not so happy
- >under heavy stress. Stay tuned
+Hi,
 
-How did this turn out? Any luck? Im seeing this same problem with my 
-e1000, now I did enable rx/tx flow control, I reniced kswapd and I 
-changed vm.min_free_kbytes to 65536, and the problem went away.
+Instead of using Linux kconfig build system, can someone tell me
+what's the compiler options used to build a device driver (.ko file) ?
 
-It would be nice with a "cleaner" solution though.
+Or, how can I integrate kconfig with GNU tool chain (automake, autoconf ...)
 
----
-John Bäckstrand
+Thanks
+KC
+kccheng@LinuxDAQ-Labs.org

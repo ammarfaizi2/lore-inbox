@@ -1,74 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261822AbVEJXRs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261839AbVEJXUJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261822AbVEJXRs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 19:17:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbVEJXRr
+	id S261839AbVEJXUJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 19:20:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbVEJXUI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 19:17:47 -0400
-Received: from [212.44.21.72] ([212.44.21.72]:29120 "EHLO watergate.zeus.co.uk")
-	by vger.kernel.org with ESMTP id S261822AbVEJXR0 (ORCPT
+	Tue, 10 May 2005 19:20:08 -0400
+Received: from fire.osdl.org ([65.172.181.4]:7136 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261840AbVEJXTo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 19:17:26 -0400
-Subject: Re: ALPS touchpad issues still exist in 2.6.12-rc4
-From: Stuart Shelton <stuart@zeus.com>
-To: dtor_core@ameritech.net
-Cc: Daniel Drake <dsd@gentoo.org>, linux-kernel@vger.kernel.org,
-       Alan Lake <alan.lake@lakeinfoworks.com>, petero2@telia.co.uk,
-       vojtech@suse.cz
-In-Reply-To: <d120d5000505101520ad1761@mail.gmail.com>
-References: <42801AEE.5080308@lakeinfoworks.com>
-	 <200505092305.45788.dtor_core@ameritech.net> <42812E89.4070301@gentoo.org>
-	 <d120d5000505101520ad1761@mail.gmail.com>
-Content-Type: text/plain
-Organization: Zeus Technology Ltd.
-Date: Wed, 11 May 2005 00:17:18 +0100
-Message-Id: <1115767038.12779.36.camel@callisto.dnsalias.net>
+	Tue, 10 May 2005 19:19:44 -0400
+Date: Tue, 10 May 2005 16:10:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: davidm@hpl.hp.com
+Cc: davidm@napali.hpl.hp.com, tony.luck@intel.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, roland@redhat.com
+Subject: Re: [patch] add arch_ptrace_stop() hook and use it on ia64
+Message-Id: <20050510161040.28b4a019.akpm@osdl.org>
+In-Reply-To: <17025.6719.837031.411067@napali.hpl.hp.com>
+References: <17025.6719.837031.411067@napali.hpl.hp.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Scanner: exiscan *1DVdyU-0003ha-00*rEz/R.uFPL.* (Zeus Technology Ltd)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-10 at 17:20 -0500, Dmitry Torokhov wrote:
-> On 5/10/05, Daniel Drake <dsd@gentoo.org> wrote:
-> > Hi,
-> > 
-> > Dmitry Torokhov wrote:
-> > > Do you have an ALPS touchpad? Try applying Peter Osterlund's patches
-> > > from here:
-> > >
-> > > http://web.telia.com/~u89404340/patches/touchpad/2.6.11/
-> > 
-> > Even with these patches applied, some Gentoo users are still reporting
-> > problems with ALPS touchpads. Are there any suggested solutions for
-> > http://bugzilla.kernel.org/show_bug.cgi?id=4281 ?
+David Mosberger <davidm@napali.hpl.hp.com> wrote:
+>
+> The hook lets architectures do their own thing when a task stops for
+> ptrace.  In the case of ia64, we'd like to use this to update the
+> user's virtual memory with the portion of the register-backing store
+> that ended up on the kernel-stack.
 > 
-> For tap-and-drag support and to control topuchpad's sensitivity you
-> would need to install Synaptics X driver (and/or updated GPM with
-> evedev support).
-> 
+> Note that the patch changes ptrace_stop() to release the
+> sighand->siglock before setting the task to TASK_TRACED state.  This
+> is needed such that arch_ptrace_stop() can run without holding
+> sighand->siglock (arch_ptrace_stop() may access user-memory and hence
+> indirectly modify the task's run state and hence it is not possible to
+> establish the TASK_TRACED state before running the hook).
 
-Hi,
+Are we really sure about this?  A quick peek at ptrace_check_attach() and
+ptrace_untrace() (for example) indicates that we are using ->siglock to
+synchronise access to the task state.
 
-I've been testing this on my laptop in framebuffer console mode only -
-I've not tested the Synaptics driver with the newer kernels.
+It's hard to see how swapping the assignment and the unlock in there could
+break anything, but it does need to be gone through with a toothcomb
+looking for synchronization issues as well as for missing memory barriers
+(ptrace_check_attach doesn't use them, for example).
 
-I'm not sure if an updated GPM is the right solution: tapping does very
-occasionally seem to work (although it might be some facet of the bug
-that sometimes causes the cursor to appear and select the character
-beneath it when typing).
-
-More than this, with every kernel (at least since the very early 2.4
-ones) up to 2.6.10 the ALPS touchpad has worked just fine through
-input/mice or the psaux device - why has this changed in 2.6.11, and can
-the change be reverted before 2.6.12 is released?
-
-The principal of least surprise would suggest that effectively breaking
-the input device driver for an entire class of hardware should be
-avoided if at all possible...
-
-Cheers,
-
-	Stuart
-
+Nothing specific.  Just .... worried.

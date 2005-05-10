@@ -1,42 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261756AbVEJTZI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261754AbVEJTja@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261756AbVEJTZI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 15:25:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVEJTZI
+	id S261754AbVEJTja (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 15:39:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVEJTjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 15:25:08 -0400
-Received: from wproxy.gmail.com ([64.233.184.203]:14695 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261756AbVEJTYj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 15:24:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
-        b=rYwon5lJhfR8bM+Hx56ReFCtP6lMGoA7FRuxZFupowqOHXgF9vzg2iT9KmFffgo52YtRwpa48RTKXmYymnhbPaUUm31TVVx6Q8h8wSw5KpeVnF5M3PBSysmbNepua9p5nGR3V29h49VN9gvU/Q+3IqGZQ1PWtdYNnGJnJYdV+Yg=
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Subject: Re: [PATCH] bluetooth: kill redundant NULL checks and casts before kfree
-Date: Tue, 10 May 2005 23:28:15 +0400
-User-Agent: KMail/1.7.2
-Cc: Marcel Holtmann <marcel@holtmann.org>, bluez-devel@lists.sf.net,
-       Maxim Krasnyansky <maxk@qualcomm.com>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.62.0505102100150.2386@dragon.hyggekrogen.localhost>
-In-Reply-To: <Pine.LNX.4.62.0505102100150.2386@dragon.hyggekrogen.localhost>
+	Tue, 10 May 2005 15:39:23 -0400
+Received: from mail01.svc.cra.dublin.eircom.net ([159.134.118.17]:59909 "HELO
+	mail01.svc.cra.dublin.eircom.net") by vger.kernel.org with SMTP
+	id S261742AbVEJTjR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 15:39:17 -0400
+Message-ID: <42810DEC.8030902@propylon.com>
+Date: Tue, 10 May 2005 20:39:24 +0100
+From: Sean McGrath <sean.mcgrath@propylon.com>
+Reply-To: sean.mcgrath@propylon.com
+Organization: Propylon
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Hans Reiser <reiser@namesys.com>
+CC: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: file as a directory
+References: <2c59f00304112205546349e88e@mail.gmail.com>	 <41A1FFFC.70507@hist.no> <41A21EAA.2090603@dbservice.com>	 <41A23496.505@namesys.com>  <1101287762.1267.41.camel@pear.st-and.ac.uk>	 <1115717961.3711.56.camel@grape.st-and.ac.uk>	 <4280CAEF.5060202@namesys.com> <1115739129.3711.117.camel@grape.st-and.ac.uk> <4280E1A9.3010703@propylon.com> <4280EEA7.9080403@namesys.com> <4280F1D5.3060607@propylon.com> <428102E8.2020509@namesys.com>
+In-Reply-To: <428102E8.2020509@namesys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200505102328.15734.adobriyan@mail.ru>
-From: Alexey Dobriyan <adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 10 May 2005 23:05, Jesper Juhl wrote:
+Hans Reiser wrote:
 
-> There's no need to check for NULL before calling kfree() on a pointer, and
-> since kfree() takes a void* argument there's no need to cast pointers to
-> other types before passing them to kfree().
+>Sean McGrath wrote:
+>  
+>
+>>Hans Reiser wrote:
+>>    
+>>
+>>>Sean McGrath wrote: 
+>>>      
+>>>
+>>>>The thing that interests me most is the difference (if any) between
+>>>>giving a stream of bytes an opaque name e.g. "Chapter 1 of my
+>>>>book.sxw" versus giving a stream of bytes a query expression that can
+>>>>also be considered an opaque name e.g.
+>>>>"/book/chapter[1] "
+>>>>
+>>>>  
+>>>>        
+>>>>
+>>>What is an opaque name?
+>>>
+>>>
+>>> 
+>>>
+>>>      
+>>>
+>>By "opaque name" I mean a name that is purely a label. A name that
+>>cannot be interpreted as a query expression.
+>>    
+>>
+>
+>Isn't query just another name for name?
+>
+>  
+>
+That is a major philosophical nugget :-)
 
-> +	kfree(hdev->driver_data)	
+I recommend Saul Kripke's Naming and Necessity:
+    http://www.answers.com/topic/saul-kripke
 
-This won't compile.
+Sean
+
+

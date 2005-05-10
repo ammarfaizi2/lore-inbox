@@ -1,105 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbVEJQ7x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261707AbVEJRAK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261710AbVEJQ7x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 12:59:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbVEJQ7x
+	id S261707AbVEJRAK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 13:00:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbVEJRAK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 12:59:53 -0400
-Received: from mail.uni-ulm.de ([134.60.1.1]:10884 "EHLO mail.uni-ulm.de")
-	by vger.kernel.org with ESMTP id S261710AbVEJQ7j (ORCPT
+	Tue, 10 May 2005 13:00:10 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:65437 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261707AbVEJRAB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 12:59:39 -0400
-Date: Tue, 10 May 2005 19:01:28 +0200
-From: Markus Klotzbuecher <mk@creamnet.de>
-To: Eric Lammerts <eric@lammerts.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] mini_fo-0.6.0 overlay file system
-Message-ID: <20050510170127.GA13280@mary>
-Mail-Followup-To: Eric Lammerts <eric@lammerts.org>,
-	linux-kernel@vger.kernel.org
-References: <20050509183135.GB27743@mary> <42804FA9.3020307@lammerts.org>
+	Tue, 10 May 2005 13:00:01 -0400
+Date: Tue, 10 May 2005 12:59:38 -0400
+From: Dave Jones <davej@redhat.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Christopher Warner <chris@servertogo.com>, Hugh Dickins <hugh@veritas.com>,
+       cwarner@kernelcode.com, Chris Wright <chrisw@osdl.org>,
+       "Sergey S. Kostyliov" <rathamahata@ehouse.ru>,
+       Clem Taylor <clem.taylor@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: x86-64 bad pmds in 2.6.11.6 II
+Message-ID: <20050510165938.GA11835@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
+	Christopher Warner <chris@servertogo.com>,
+	Hugh Dickins <hugh@veritas.com>, cwarner@kernelcode.com,
+	Chris Wright <chrisw@osdl.org>,
+	"Sergey S. Kostyliov" <rathamahata@ehouse.ru>,
+	Clem Taylor <clem.taylor@gmail.com>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.61.0504151833020.29919@goblin.wat.veritas.com> <20050419133509.GF7715@wotan.suse.de> <Pine.LNX.4.61.0504191636570.13422@goblin.wat.veritas.com> <1114773179.9543.14.camel@jasmine> <20050429173216.GB1832@redhat.com> <20050502170042.GJ7342@wotan.suse.de> <1115047729.19314.1.camel@jasmine> <1115717814.7679.2.camel@jasmine> <20050510163851.GA1128@redhat.com> <20050510164649.GL25612@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42804FA9.3020307@lammerts.org>
-User-Agent: Mutt/1.5.8i
-X-DCC-sgs_public_dcc_server-Metrics: gemini 1199; Body=2 Fuz1=2 Fuz2=2
+In-Reply-To: <20050510164649.GL25612@wotan.suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Eric,
+On Tue, May 10, 2005 at 06:46:49PM +0200, Andi Kleen wrote:
+ > On Tue, May 10, 2005 at 12:38:51PM -0400, Dave Jones wrote:
+ > > On Tue, May 10, 2005 at 05:36:54AM -0400, Christopher Warner wrote:
+ > >  > 2.6.11.5 kernel,
+ > >  > Tyan S2882/dual AMD 246 opterons
+ > >  > sh:18983: mm/memory.c:99: bad pmd ffff810005974cc8(00007ffffffffe46). 
+ > >  > sh:18983: mm/memory.c:99: bad pmd ffff810005974cd0(00007ffffffffe47).
+ > > 
+ > > That's the 3rd or 4th time I've seen this reported on this hardware.
+ > > It's not exclusive to it, but it does seem more susceptible
+ > > for some reason. Spooky.
+ > 
+ > It seems to be clear now that it is hardware independent.
+ > 
+ > I actually got it once now too, but only after 24+h stress test :/
+ > 
+ > I have a better debugging patch now that I will be testing soon,
+ > hopefully that turns something up.
 
-Thank you for the feedback.
+Ok, I'm respinning the Fedora update kernel today for other
+reasons, if you have that patch in time, I'll toss it in too.
 
-On Tue, May 10, 2005 at 02:07:37AM -0400, Eric Lammerts wrote:
-> Some remarks:
-> Some functions return -ENOTSUPP on error, which makes "ls -l" complain 
-> loudly when getxattr() fails. This should be -EOPNOTSUPP.
+Though as yet, no further reports from our users.
 
-You're right. Fixed in attached patch.
-
-> The module taints the kernel because of MODULE_LICENSE("LGPL").
-> Since all your copyright statements say it's GPL software, better change 
-> this to "GPL".
-
-It seems to be ok to change this. Patch corrects this too.
-
-Cheers
-
-Markus
-
-
-
-diff -Nru mini_fo.ORIG/inode.c mini_fo/inode.c
---- mini_fo.ORIG/inode.c	2005-05-06 23:59:08.000000000 +0200
-+++ mini_fo/inode.c	2005-05-10 18:09:47.000000000 +0200
-@@ -1259,7 +1259,7 @@
- STATIC int
- mini_fo_getxattr(struct dentry *dentry, const char *name, void *value, size_t size) {
- 	struct dentry *hidden_dentry = NULL;
--	int err = -ENOTSUPP;
-+	int err = -EOPNOTSUPP;
- 	/* Define these anyway so we don't need as much ifdef'ed code. */
- 	char *encoded_name = NULL;
- 	char *encoded_value = NULL;
-@@ -1304,7 +1304,7 @@
- 
- {
- 	struct dentry *hidden_dentry = NULL;
--	int err = -ENOTSUPP;
-+	int err = -EOPNOTSUPP;
- 
- 	/* Define these anyway, so we don't have as much ifdef'ed code. */
- 	char *encoded_value = NULL;
-@@ -1340,7 +1340,7 @@
- STATIC int
- mini_fo_removexattr(struct dentry *dentry, const char *name) {
- 	struct dentry *hidden_dentry = NULL;
--	int err = -ENOTSUPP;
-+	int err = -EOPNOTSUPP;
- 	char *encoded_name;
- 
- 	check_mini_fo_dentry(dentry);
-@@ -1372,7 +1372,7 @@
- STATIC int
- mini_fo_listxattr(struct dentry *dentry, char *list, size_t size) {
- 	struct dentry *hidden_dentry = NULL;
--	int err = -ENOTSUPP;
-+	int err = -EOPNOTSUPP;
- 	char *encoded_list = NULL;
- 
- 	check_mini_fo_dentry(dentry);
-diff -Nru mini_fo.ORIG/main.c mini_fo/main.c
---- mini_fo.ORIG/main.c	2005-05-06 23:59:08.000000000 +0200
-+++ mini_fo/main.c	2005-05-10 17:54:13.000000000 +0200
-@@ -405,7 +405,7 @@
- 
- MODULE_AUTHOR("Erez Zadok <ezk@cs.sunysb.edu>");
- MODULE_DESCRIPTION("FiST-generated mini_fo filesystem");
--MODULE_LICENSE("LGPL");
-+MODULE_LICENSE("GPL");
- 
- /* MODULE_PARM(fist_debug_var, "i"); */
- /* MODULE_PARM_DESC(fist_debug_var, "Debug level"); */
-
+		Dave
 

@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261815AbVEJV0C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261814AbVEJV33@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261815AbVEJV0C (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 17:26:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbVEJV0B
+	id S261814AbVEJV33 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 17:29:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbVEJV32
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 17:26:01 -0400
-Received: from main.gmane.org ([80.91.229.2]:13740 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261815AbVEJVXk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 17:23:40 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: [ANNOUNCE] hotplug-ng 002 release
-Date: Tue, 10 May 2005 23:21:50 +0200
-Message-ID: <9uws1jrpglc$.tcdpt0xg3ytu.dlg@40tude.net>
-References: <20050506212227.GA24066@kroah.com> <1115611034.14447.11.camel@localhost.localdomain> <20050509232103.GA24238@suse.de> <1115717357.10222.1.camel@localhost.localdomain> <20050510094339.GC6346@wonderland.linux.it> <4280AFF4.6080108@ums.usu.ru> <20050510172447.GA11263@wonderland.linux.it> <20050510201355.GB3226@suse.de>
+	Tue, 10 May 2005 17:29:28 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:63900 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261814AbVEJV3I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 17:29:08 -0400
+Subject: Re: High res timer?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Andre Eisenbach <int2str@gmail.com>
+Cc: Matthias-Christian Ott <matthias.christian@tiscali.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <7f800d9f050510141626f70ee4@mail.gmail.com>
+References: <7f800d9f050510132762f0ee7@mail.gmail.com>
+	 <42811D51.1030106@tiscali.de>  <7f800d9f050510141626f70ee4@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 10 May 2005 17:29:01 -0400
+Message-Id: <1115760541.14807.11.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+X-Mailer: Evolution 2.3.1 
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: adsl-ull-253-118.44-151.net24.it
-User-Agent: 40tude_Dialog/2.0.15.1
-Cc: linux-hotplug-devel@lists.sourceforge.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 May 2005 13:13:55 -0700, Greg KH wrote:
+On Tue, 2005-05-10 at 14:16 -0700, Andre Eisenbach wrote:
+> 2005/5/10, Matthias-Christian Ott <matthias.christian@tiscali.de>:
+> >
+> > What about nanosleep ()?
+> > 
+> 
+> nanosleep() seems to have some latency very similar to usleep(). Isn't
+> usleep based on nanosleep()?
+> 
+> Here's what I get if I try to nanosleep for 5 secs (for testing):
+> 
+> -> 5.009952 s
+> 
+> The .009952 part varies, but is very close to that usually.
 
-> Also, the blacklisting stuff should not be
-> that prevelant anymore...
+Is this a 2.4 kernel?  The resolution on 2.6 should be 1ms, not ~10ms.
 
-Is there a way to control the order in which modules get loaded? For
-example, I usually blacklist the parport module and only load it when
-I need it, thus freeing an IRQ (for audio, IIRC). If parport loads
-automatically, it grabs the IRQ; if it loads after the IRQ is grabbed
-already, it'll resort to polled mode. Can these things be controlled
-without the blacklist?
-
--- 
-Giuseppe "Oblomov" Bilotta
-
-"I'm never quite so stupid
- as when I'm being smart" --Linus van Pelt
+Lee
 

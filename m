@@ -1,88 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261749AbVEJTR1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261748AbVEJTR4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261749AbVEJTR1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 15:17:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbVEJTR0
+	id S261748AbVEJTR4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 15:17:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVEJTRz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 15:17:26 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:15007 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261749AbVEJTQ4
+	Tue, 10 May 2005 15:17:55 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:15775 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261748AbVEJTRB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 15:16:56 -0400
-Message-ID: <4280E27F.8040808@tmr.com>
-Date: Tue, 10 May 2005 12:34:07 -0400
+	Tue, 10 May 2005 15:17:01 -0400
+Message-ID: <4280E613.20801@tmr.com>
+Date: Tue, 10 May 2005 12:49:23 -0400
 From: Bill Davidsen <davidsen@tmr.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jim Nance <jlnance@sdf.lonestar.org>
-CC: Dave Jones <davej@redhat.com>, Willy Tarreau <willy@w.ods.org>,
-       Andrew Morton <akpm@osdl.org>, Ricky Beam <jfbeam@bluetronic.net>,
-       nico-kernel@schottelius.org, linux-kernel@vger.kernel.org
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+CC: Ricky Beam <jfbeam@bluetronic.net>,
+       Nico Schottelius <nico-kernel@schottelius.org>,
+       linux-kernel@vger.kernel.org
 Subject: Re: /proc/cpuinfo format - arch dependent!
-References: <20050508012521.GA24268@SDF.LONESTAR.ORG> <427FA876.7000401@tmr.com> <20050510022301.GA13763@SDF.LONESTAR.ORG>
-In-Reply-To: <20050510022301.GA13763@SDF.LONESTAR.ORG>
+References: <20050419121530.GB23282@schottelius.org> <Pine.GSO.4.33.0505062324550.1894-100000@sweetums.bluetronic.net> <427FA557.3030400@tmr.com> <20050509195804.GD2297@csclub.uwaterloo.ca>
+In-Reply-To: <20050509195804.GD2297@csclub.uwaterloo.ca>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Nance wrote:
-> Good Afternoon Bill,
+Lennart Sorensen wrote:
+> On Mon, May 09, 2005 at 02:00:55PM -0400, Bill Davidsen wrote:
 > 
-> Thanks for the input.  Let me make a couple of comments.
-> 
-> On Mon, May 09, 2005 at 02:14:14PM -0400, Bill Davidsen wrote:
-> 
-> 
->>Might I suggest that if you like the "we know best just trust us" 
->>approach, there is another OS to use. Making information available to 
->>good applications will improve system performance, or at least allow 
->>better limitation of requests for resources, and bad applications will 
->>be bad regardless of what you hide. You don't hide the CPU hardware any 
->>more than the memory size.
+>>Linus did what was probably right then. I would agree that there is room 
+>>for something better now. Just to prove it could be done (not that this 
+>>is the only or best way):
 > 
 > 
-> You could use a similar argument for cooperative rather than
-> preemptive multitasking.  It might even be a valid argument,
-> assuming you controlled all the processes running on the system.
-> But it didn't work very well in practice.
+> I suspect many architecture's /proc/cpuinfo were not decided by Linus at
+> all, but by whoever ported linux to that architecture.
 > 
-> I see two problems with encouraging applications to get involved
-> with processor selection.
 > 
-> The first is they don't have enough information to get it right.
+>>  cpu0 {
+>>    socket: 0
+>>    chip-cache: 0
+>>    num-core: 2
+>>    per-core-cache: 512k
+>>    num-siblings: 2
+>>    sibling-cache: 0
+>>    family: i86
+>>    features: sse2 sse3 xxs bvd
+>>    # stepping and revision info
+>>  }
+>>  cpu1 {
+>>    socket: 1
+>>    chip-cache: 0
+>>    num-core: 1
+>>    pre-core-cache: 512k
+>>    num-siblings: 2
+>>    sibling-cache: 64k
+>>    family: i86
+>>    features: sse2 sse3 xxs bvd kook2
+>>    # stepping and revision info
+>>  }
+> 
+> 
+> Where does numa nodes fit into that?
+> 
+> 
+>>This is just proof of concept, you can have per-chip, per-core, and 
+>>per-sibling cache for instance, but I can't believe that anyone would 
+>>make a chip where the cache per core or per sibling differed, or the 
+>>instruction set, etc. Depending on where you buy your BS, Intel and AMD 
+>>will (or won't) make single and dual core chips to fit the same socket.
+> 
+> 
+> Have you seen the Cell processor?  Multi core with different instruction
+> set for the smaller execution cores than the main one.
 
-The application doesn't have to get it "right" however you define that, 
-but unless you expect to extend the API to add a 
-signal(STARTMORETHREADS) it makes sense for the application to have some 
-idea what the hardware config is, because the kernel doesn't know what 
-the application is going to do (future) vs. what it already did (past).
+I'm aware of it, but until someone actually produces a multicore which 
+executes the same instruction set (386+P4?) I assume that all the cores 
+used by the program will be the same.
 
-Running a number of threads somewhat close to the number of CPUs, or 
-sockets, or something else the application can know is far better than 
-starting 64 threads in case this is a big NUMA machine, or running 
-single thread while seven of eight CPUs do nothing.
-
-By looking at Ncpu and ldavg a smart application can avoid being really 
-wrong, which gives the kernel a better chance of improving throughput.
-
-> There are going to be other processes running on the machine.
-> The optimal set of processors to run on is going to depend on
-> what else is running and what it is doing at that instant.  This
-> isn't information a usermode process has good access to.  Say I
-> have an application that wants to bind its 2 threads to the two
-> processors on a single SMT chip.  Now say I run two of these
-> applications on a machine with 2 SMT chips on it.  What keeps
-> both of them from binding themselves to the same chip?  Should
-> it be the applications responsibility to look through the process
-> table and see what other applicatioins are bound to what processors?
-> What prevents races if they do?
-
-If the application can choose a sane number of threads, that makes the 
-problem of memory management and CPU scheduling easier. Just because the 
-application can't do a perfect job doesn't mean that it should do 
-without information needed to do something reasonable.
-
-Perfect is the enemy of better.
+I wrote for the DEC Rainbow (8086 and Z80, one did disk and video, one 
+did serial+net), and IIRC the memory addresses were shared but the IO 
+addresses weren't. Also something I can't easily name which had a 68010 
+and 4 bit RISC in a single carrier. Early microcomputer days were fun, 
+or at least I thought it was fun to cope with bizarre and unreliable 
+hardware when I was young.
 

@@ -1,110 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbVEJPUs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261672AbVEJPUu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261682AbVEJPUs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 11:20:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbVEJPTG
+	id S261672AbVEJPUu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 11:20:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbVEJPRw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 11:19:06 -0400
-Received: from schlund.terranet.ro ([80.96.218.84]:41278 "EHLO
-	dizzywork.schlund.ro") by vger.kernel.org with ESMTP
-	id S261673AbVEJPOY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 11:14:24 -0400
-Message-ID: <4280CFD1.5010108@schlund.ro>
-Date: Tue, 10 May 2005 18:14:25 +0300
-From: Mihai Rusu <dizzy@schlund.ro>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050324)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Robert Love <rml@novell.com>
-Subject: [RFC][PATCH 2.4 3/4] inotify 0.22 2.4.x backport - atomic_inc_return
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------030607070104090802000902"
+	Tue, 10 May 2005 11:17:52 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:42757 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261684AbVEJPPG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 11:15:06 -0400
+Message-Id: <200505101514.j4AFEhGO010837@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>
+Cc: Hans Reiser <reiser@namesys.com>, sean.mcgrath@propylon.com,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: file as a directory 
+In-Reply-To: Your message of "Tue, 10 May 2005 10:39:23 BST."
+             <1115717961.3711.56.camel@grape.st-and.ac.uk> 
+From: Valdis.Kletnieks@vt.edu
+References: <2c59f00304112205546349e88e@mail.gmail.com> <41A1FFFC.70507@hist.no> <41A21EAA.2090603@dbservice.com> <41A23496.505@namesys.com> <1101287762.1267.41.camel@pear.st-and.ac.uk>
+            <1115717961.3711.56.camel@grape.st-and.ac.uk>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1115738064_8169P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 10 May 2005 11:14:42 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030607070104090802000902
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+--==_Exmh_1115738064_8169P
+Content-Type: text/plain; charset=us-ascii
 
-Hi
+On Tue, 10 May 2005 10:39:23 BST, Peter Foldiak said:
+> Back in November 2004, I suggested on the linux-kernel and reiserfs
+> lists that the Reiser4 architecture could allow us to abolish the
+> unnatural naming distinction between directories/files/parts-of-file
+> (i.e. to unify naming within-file-system and within-file naming) in an
+> efficient way.
+> I suggested that one way of doing that would be to extend XPath-like
+> selection syntax above the (XML) file level.
 
-Backported atomic_inc_return() from 2.6.11 for x86. Needed by inotify.c.
-I have not backported for other architectures as I don't have access to
-such devices and I could not test. It should be easy to do that tho.
-This also means that this inotify backport currently only works for x86.
+I believe the consensus was that this needs to happen at the VFS layer, not
+the FS level.  The next step would be designing an API for this - what would
+the VFS present to userspace, and in what way, and how would backward
+combatability be maintained?
 
--- 
-Mihai Rusu
-Linux System Development
+--==_Exmh_1115738064_8169P
+Content-Type: application/pgp-signature
 
-Schlund + Partner AG   Tel         : +40-21-231-2544
-Str Mircea Eliade 18   EMail       : dizzy@schlund.ro
-Sect 1, Bucuresti
-71295, Romania
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFCgM/NcC3lWbTT17ARAh13AJ0YB5RGx5tqCgOpucKRQ1Pz3e0P8gCgypAJ
+KaJMBdl6h+wiBadvbyZw4tM=
+=F4G5
+-----END PGP SIGNATURE-----
 
-
---------------030607070104090802000902
-Content-Type: text/x-patch;
- name="03_atomic_inc_return-x86-2.4.30.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="03_atomic_inc_return-x86-2.4.30.patch"
-
-
- atomic.h |   34 ++++++++++++++++++++++++++++++++++
- 1 files changed, 34 insertions(+)
-
-
-diff -uNr linux-2.4.30.orig/include/asm-i386/atomic.h linux-2.4.30/include/asm-i386/atomic.h
---- linux-2.4.30.orig/include/asm-i386/atomic.h	2001-11-22 21:46:18.000000000 +0200
-+++ linux-2.4.30/include/asm-i386/atomic.h	2005-05-09 11:58:56.000000000 +0300
-@@ -186,6 +186,40 @@
- 	return c;
- }
- 
-+/**
-+ * atomic_add_return - add and return
-+ * @v: pointer of type atomic_t
-+ * @i: integer value to add
-+ *
-+ * Atomically adds @i to @v and returns @i + @v
-+ */
-+static __inline__ int atomic_add_return(int i, atomic_t *v)
-+{
-+        int __i;
-+#ifdef CONFIG_M386
-+        if(unlikely(boot_cpu_data.x86==3))
-+                goto no_xadd;
-+#endif
-+        /* Modern 486+ processor */
-+        __i = i;
-+        __asm__ __volatile__(
-+                LOCK "xaddl %0, %1;"
-+                :"=r"(i)
-+                :"m"(v->counter), "0"(i));
-+        return i + __i;
-+
-+#ifdef CONFIG_M386
-+no_xadd: /* Legacy 386 processor */
-+        local_irq_disable();
-+        __i = atomic_read(v);
-+        atomic_set(v, i + __i);
-+        local_irq_enable();
-+        return i + __i;
-+#endif
-+}
-+
-+#define atomic_inc_return(v)  (atomic_add_return(1,v))
-+
- /* These are x86-specific, used by some header files */
- #define atomic_clear_mask(mask, addr) \
- __asm__ __volatile__(LOCK "andl %0,%1" \
-
-
-
---------------030607070104090802000902--
+--==_Exmh_1115738064_8169P--

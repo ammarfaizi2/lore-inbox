@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261829AbVEJWmI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261796AbVEJWmN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261829AbVEJWmI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 18:42:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbVEJWmI
+	id S261796AbVEJWmN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 18:42:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbVEJWmN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 18:42:08 -0400
-Received: from mail.kroah.org ([69.55.234.183]:45734 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261829AbVEJWmC (ORCPT
+	Tue, 10 May 2005 18:42:13 -0400
+Received: from mail.kroah.org ([69.55.234.183]:46502 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261796AbVEJWmG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 18:42:02 -0400
-Date: Tue, 10 May 2005 15:41:12 -0700
+	Tue, 10 May 2005 18:42:06 -0400
+Date: Tue, 10 May 2005 15:41:59 -0700
 From: Greg KH <gregkh@suse.de>
-To: Per Liden <per@fukt.bth.se>
-Cc: Per Svennerbrandt <per.svennerbrandt@lbi.se>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+To: Per Liden <per@fukt.bth.se>, linux-hotplug-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
 Subject: Re: [ANNOUNCE] hotplug-ng 002 release
-Message-ID: <20050510224112.GA4967@kroah.com>
-References: <20050506212227.GA24066@kroah.com> <Pine.LNX.4.63.0505090025280.7682@1-1-2-5a.f.sth.bostream.se> <20050509211323.GB5297@tsiryulnik> <Pine.LNX.4.63.0505102351300.8637@1-1-2-5a.f.sth.bostream.se>
+Message-ID: <20050510224159.GB4967@kroah.com>
+References: <20050506212227.GA24066@kroah.com> <Pine.LNX.4.63.0505090025280.7682@1-1-2-5a.f.sth.bostream.se> <20050509211323.GB5297@tsiryulnik>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0505102351300.8637@1-1-2-5a.f.sth.bostream.se>
+In-Reply-To: <20050509211323.GB5297@tsiryulnik>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 11, 2005 at 12:17:12AM +0200, Per Liden wrote:
-> I'd like to get a better understanding of that as well. Why invent a 
-> second on demand module loader when we have kmod? The current approach 
-> feels like a step back to something very similar to the old kerneld.
+On Mon, May 09, 2005 at 11:13:24PM +0200, Per Svennerbrandt wrote:
+> 
+> Along with it I also have a patch witch exports the module aliases for
+> PCI and USB devices through sysfs. With it the "coldplugging" of a
+> system (module wise) can be reduced to pretty much:
 
-kmod is not used at all if you are running udev on your system.  It's
-also better to allow userspace to make the decision as to if it should
-load a specific module or not, not the kernel.
+I'd like to see this, that should be acceptable to add to the kernel.
 
-And it allows us to get rid of the kmod code entirely :)
+> #!/bin/sh
+> 
+> for DEV in /sys/bus/{pci,usb}/devices/*; do
+> 	modprobe `cat $DEV/modalias`
+> done
 
-thanks,
+Yes, very nice :)
+
+thaks,
 
 greg k-h

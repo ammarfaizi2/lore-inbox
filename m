@@ -1,66 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261837AbVEJW63@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261846AbVEJXF3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261837AbVEJW63 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 18:58:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbVEJW63
+	id S261846AbVEJXF3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 19:05:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261847AbVEJXF3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 18:58:29 -0400
-Received: from mail.dif.dk ([193.138.115.101]:15753 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261837AbVEJW6X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 18:58:23 -0400
-Date: Wed, 11 May 2005 01:02:16 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-Subject: [PATCH] kernel/module.c has something to hide. (whitespace cleanup)
-Message-ID: <Pine.LNX.4.62.0505110057500.2386@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 10 May 2005 19:05:29 -0400
+Received: from wproxy.gmail.com ([64.233.184.194]:4466 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261846AbVEJXF1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 19:05:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=aA13jO5y5o7CKfL87YmrcxU8KQAXRZsq7R8NyaWRkix/srHcWSNf9xlN1n2FxXF+WMtS7SgRoFDjT4Z5+kC8x2GriNHlvYTozElYYWLD2/wVO4ZgweI8+tjxrPf+X/X9g78M/awRw3jQV/HS5q6XufXwNJZbTIH++NkUuAvfSlE=
+Message-ID: <81b0412b050510160555992daa@mail.gmail.com>
+Date: Wed, 11 May 2005 01:05:26 +0200
+From: Alex Riesen <raa.lkml@gmail.com>
+Reply-To: Alex Riesen <raa.lkml@gmail.com>
+To: Olivier Croquette <ocroquette@free.fr>
+Subject: Re: Scheduler: SIGSTOP on multi threaded processes
+Cc: linux-kernel@vger.kernel.org, roland@frob.com, alexn@dsv.su.se,
+       mingo@elte.hu
+In-Reply-To: <428120B5.5060403@free.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4279084C.9030908@free.fr>
+	 <Pine.LNX.4.61.0505041403310.21458@chaos.analogic.com>
+	 <20050504191604.GA29730@nevyn.them.org>
+	 <Pine.LNX.4.61.0505042031120.22323@chaos.analogic.com>
+	 <Pine.LNX.4.61.0505050814340.24130@chaos.analogic.com>
+	 <428120B5.5060403@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Quoting Documentation/CodingStyle : 
-        "Don't put multiple statements on a single line unless you have
-         something to hide:
-         
-         if (condition) do_this;
-           do_something_everytime;
-        "
-
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
----
-
- kernel/module.c |   10 ++++++----
- 1 files changed, 6 insertions(+), 4 deletions(-)
-
---- linux-2.6.12-rc3-mm3-orig/kernel/module.c	2005-05-06 23:21:28.000000000 +0200
-+++ linux-2.6.12-rc3-mm3/kernel/module.c	2005-05-11 00:56:54.000000000 +0200
-@@ -410,7 +410,8 @@ static int already_uses(struct module *a
- static int use_module(struct module *a, struct module *b)
- {
- 	struct module_use *use;
--	if (b == NULL || already_uses(a, b)) return 1;
-+	if (b == NULL || already_uses(a, b))
-+		return 1;
- 
- 	if (!strong_try_module_get(b))
- 		return 0;
-@@ -1731,9 +1732,10 @@ static struct module *load_module(void _
- 	kfree(args);
-  free_hdr:
- 	vfree(hdr);
--	if (err < 0) return ERR_PTR(err);
--	else return ptr;
--
-+	if (err < 0)
-+		return ERR_PTR(err);
-+	else
-+		return ptr;
-  truncated:
- 	printk(KERN_ERR "Module len %lu truncated\n", len);
- 	err = -ENOEXEC;
-
-
-
+This: http://www.opengroup.org/onlinepubs/009695399/toc.htm
+and probably all other issues of Open Group is very interesting reading.

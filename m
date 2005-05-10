@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261693AbVEJPee@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261686AbVEJPgR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261693AbVEJPee (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 11:34:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbVEJPeZ
+	id S261686AbVEJPgR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 11:36:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbVEJPgR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 11:34:25 -0400
-Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:33038
-	"HELO linuxace.com") by vger.kernel.org with SMTP id S261686AbVEJPeK
+	Tue, 10 May 2005 11:36:17 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:30952 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261686AbVEJPfC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 11:34:10 -0400
-Date: Tue, 10 May 2005 08:34:07 -0700
-From: Phil Oester <kernel@linuxace.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NMI lockup
-Message-ID: <20050510153407.GA28833@linuxace.com>
-References: <20050427212643.GA20483@linuxace.com> <20050429141543.3919fdfd.akpm@osdl.org>
+	Tue, 10 May 2005 11:35:02 -0400
+Subject: Re: [PATCH] sync_sb_inodes cleanup
+From: Robert Love <rml@novell.com>
+To: Vladimir Saveliev <vs@namesys.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "reiserfs-dev@namesys.com" <reiserfs-dev@namesys.com>
+In-Reply-To: <1115737238.4456.320.camel@tribesman.namesys.com>
+References: <1115737238.4456.320.camel@tribesman.namesys.com>
+Content-Type: text/plain
+Date: Tue, 10 May 2005 11:35:01 -0400
+Message-Id: <1115739301.6810.15.camel@betsy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050429141543.3919fdfd.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 29, 2005 at 02:15:43PM -0700, Andrew Morton wrote:
-> Phil Oester <kernel@linuxace.com> wrote:
-> >
-> > Trying to update from 2.6.10 to 2.6.11 on a gateway, and keep
-> >  getting an NMI lockup:
-> > 
-> >  NMI Watchdog detected LOCKUP on CPU1, eip c026a8d4, registers:
-> >  CPU:    1
-> >  EIP:    0060:[<c026a8d4>]    Not tainted VLI
-> >  EFLAGS: 00001482   (2.6.11) 
-> >  EIP is at fib_sync_down+0x74/0x140
-> 
-> This is believed to be fixed in current kernels.  Please retest 2.6.12-rc4
-> or 2.6.12-rc3-mm1 (neither are released yet) and let us know if the problem
-> is still there?
+On Tue, 2005-05-10 at 19:00 +0400, Vladimir Saveliev wrote:
 
-Tested 2.6.12-rc4, and had same problem, although I was unable to capture
-the panic output.
+> This patch makes generic_sync_sb_inodes to spin lock itself.
+> Please, apply this patch. It helps reiser4 to get rid of some oddities.
+>
+> [snip]
+>
+>  {
+>         const unsigned long start = jiffies;    /* livelock avoidance */
+>  
+> +       spin_lock(&inode_lock);
 
-Phil
+Looking at what jiffies is used for, it is probably is not a big deal,
+but you should move the assignment of start to after acquiring the lock,
+as that could take quite some time.
+
+	Robert Love
+
+

@@ -1,87 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261698AbVEJQ0F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261702AbVEJQ1X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261698AbVEJQ0F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 12:26:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261702AbVEJQ0F
+	id S261702AbVEJQ1X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 12:27:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbVEJQ1X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 12:26:05 -0400
-Received: from apollo.nswebhost.com ([72.9.237.194]:6841 "EHLO
-	apollo.nswebhost.com") by vger.kernel.org with ESMTP
-	id S261698AbVEJQZ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 12:25:56 -0400
-MIME-Version: 1.0
-Date: Tue, 10 May 2005 17:23:13 +0100
-To: james.harper@bendigoit.com.au
-Subject: Re: [PATCH] 2.6.11 fix PROMISC/bridging in TLAN driver
-Content-Type: text/plain; charset=iso-8859-15; format=flowed
-cc: linux-kernel@vger.kernel.org
-From: Ian Eperson <ian.eperson@dedf.co.uk>
-Organization: DeDf Co
-Message-ID: <opsqkigzqeav32i4@mail.dedf.co.uk>
-User-Agent: Opera7.03/Win32 M2 build 2670
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - apollo.nswebhost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - dedf.co.uk
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Tue, 10 May 2005 12:27:23 -0400
+Received: from fire.osdl.org ([65.172.181.4]:3778 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261702AbVEJQ1O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 12:27:14 -0400
+Date: Tue, 10 May 2005 09:26:20 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Christopher Warner <chris@servertogo.com>
+Cc: Andi Kleen <ak@suse.de>, Dave Jones <davej@redhat.com>,
+       Hugh Dickins <hugh@veritas.com>, cwarner@kernelcode.com,
+       Chris Wright <chrisw@osdl.org>,
+       "Sergey S. Kostyliov" <rathamahata@ehouse.ru>,
+       Clem Taylor <clem.taylor@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: x86-64 bad pmds in 2.6.11.6 II
+Message-ID: <20050510162620.GP27549@shell0.pdx.osdl.net>
+References: <20050415172408.GB8511@wotan.suse.de> <20050415172816.GU493@shell0.pdx.osdl.net> <Pine.LNX.4.61.0504151833020.29919@goblin.wat.veritas.com> <20050419133509.GF7715@wotan.suse.de> <Pine.LNX.4.61.0504191636570.13422@goblin.wat.veritas.com> <1114773179.9543.14.camel@jasmine> <20050429173216.GB1832@redhat.com> <20050502170042.GJ7342@wotan.suse.de> <1115047729.19314.1.camel@jasmine> <1115717814.7679.2.camel@jasmine>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1115717814.7679.2.camel@jasmine>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> I'm re-sending this in the hope that someone will pick it up. I have made several attempts to contact the maintainer without success, although none recently.
->
-> This has been a problem for me for ages. When using bridging, the driver is switched into promiscuous mode before the link init is complete. The init complete routine then resets the promisc bit on the card so the kernel still thinks the card is in promiscuous mode but the card isn't. doh.
->
-> I think this bug only shows up in bridging when the bridge is started at boot time (or something else that sets promisc at the same time the card was started). If promisc is enabled later it works.
->
-> Here's a trivial (and hopefully correct) patch that works for me. It just calls the promisc/multicast setup routine after init.
->
-> James
->
->
-> --- linux/drivers/net/tlan.c 2004-07-05 12:10:31.000000000 +1000 +++ linux-2.4.26-xen0/drivers/net/tlan.c 2004-07-05 11:43:48.000000000 +1000 @@ -2378,6 +2378,7 @@                 TLan_SetTimer( dev, (10*HZ), TLAN_TIMER_FINISH_RESET );                 return;         } + TLan_SetMulticastList(dev);
->
->  } /* TLan_FinishReset */
->
-> -
-James
+* Christopher Warner (chris@servertogo.com) wrote:
+> 2.6.11.5 kernel,
+> Tyan S2882/dual AMD 246 opterons
 
-My understanding of the operation of the TLAN interface is:
+Got a time stamp by any chance (or a clue re: what was going on at the
+time)?
 
-	The driver is initiated and starts autonegotiation (TLan_PhyStartLink).
-
-	At some point later autonegotiation completes (TLan_PhyFinishAutoNeg) and the link becomes active (TLan_FinishReset).
-
-	In TLan_FinishReset TLAN_NET_CMD is set based on TLAN_NET_CMD_NRESET, TLAN_NET_CMD_NWRAP and whether the link is half/full duplex.
-
-	The TLAN_NET_CMD in TLan_FinishReset does not take account of the original state of TLAN_NET_CMD in particular the state of TLAN_NET_CMD_CAF.
-
-This means that if the interface is set to promiscuous mode during the time between initiation and the completion of autonegotiation, the interface will revert to non-promiscuous mode when the link becomes active.
-
-Similarly if autonegotiation restarts (cable disconnected, network goes down) and then the link becomes active again, the promiscuous setting will be lost.
-
-As you say, the problem manifests itself if the ethernet bridging module is being used and is initiated as part of the kernel start up process since bridging operation requires all of the slave interfaces to operate in promiscuous mode.
-
-To solve this problem I think that the TLAN_NET_CMD setting in TLan_FinishReset should depend on the promiscuous flag.  The first few lines of TLan_FinishReset should become something like:
-
-        phy = priv->phy[priv->phyNum];
-
-        data = TLAN_NET_CMD_NRESET | TLAN_NET_CMD_NWRAP;
-        if ( priv->tlanFullDuplex ) {
-                data |= TLAN_NET_CMD_DUPLEX;
-        }
-        if ( dev->flags & IFF_PROMISC ) {		/* new test for promiscuous flag */
-                data |= TLAN_NET_CMD_CAF;		/* OR in tlans's promiscuity mode bit */
-        }
-        TLan_DioWrite8( dev->base_addr, TLAN_NET_CMD, data );
-
-Regards
-
-
-
-Ian
-
- 
+thanks,
+-chris

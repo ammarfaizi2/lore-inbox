@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbVEJJ31@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbVEJJdB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261594AbVEJJ31 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 05:29:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbVEJJ31
+	id S261596AbVEJJdB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 05:33:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVEJJdB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 05:29:27 -0400
-Received: from ozlabs.org ([203.10.76.45]:17644 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261594AbVEJJ3Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 05:29:25 -0400
-Subject: Re: [ANNOUNCE] hotplug-ng 002 release
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Greg KH <gregkh@suse.de>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux@dominikbrodowski.net
-In-Reply-To: <20050509232103.GA24238@suse.de>
-References: <20050506212227.GA24066@kroah.com>
-	 <1115611034.14447.11.camel@localhost.localdomain>
-	 <20050509232103.GA24238@suse.de>
-Content-Type: text/plain
-Date: Tue, 10 May 2005 19:29:17 +1000
-Message-Id: <1115717357.10222.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+	Tue, 10 May 2005 05:33:01 -0400
+Received: from gourmet.spamgourmet.com ([216.218.230.146]:19870 "EHLO
+	gourmet.spamgourmet.com") by vger.kernel.org with ESMTP
+	id S261596AbVEJJc7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 05:32:59 -0400
+Message-ID: <42807FC6.10400@spamgourmet.com>
+Date: Tue, 10 May 2005 11:32:54 +0200
+From: "linuxkernel2.20.sandos@spamgourmet.com" 
+	<majsetvger.100.sandos@spamgourmet.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: +linuxkernel2+sandos+f66671bddc.linux-kernel#vger.kernel.org@spamgourmet.com
+Subject: Re: E1000 - page allocation failure - saga continues :(
+ message 1 of 20)
+References: <42806B78.2020708@home.se> <42806EA0.2070501@yahoo.com.au>
+In-Reply-To: <42806EA0.2070501@yahoo.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-mdh_se-MailScanner-Information: Please contact the ISP for more information
+X-mdh_se-MailScanner: Found to be clean
+X-MailScanner-From: majsetvger.100.sandos@spamgourmet.com
+X-Spamgourmet: 
+X-Spamgourmet: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-05-09 at 16:21 -0700, Greg KH wrote: 
-> On Mon, May 09, 2005 at 01:57:14PM +1000, Rusty Russell wrote:
-> > On Fri, 2005-05-06 at 14:22 -0700, Greg KH wrote:
-> > > Oh, and the upstream module-init-tools maintainer needs to accept that
-> > > patch one of these days...
-> > 
-> > ??
-> 
-> I've attached the original message sent to you and me below.
+Nick Piggin - nickpiggin@yahoo.com.au wrote:
 
-Yes.  It broke into small pieces against the testsuite.  I know that
-Linux kernel types generally don't consider that a problem 8)
+> linuxkernel2.20.sandos@spamgourmet.com wrote:
+>
+>>  >Anyway i'll try to catch THE option that make the kernel not so happy
+>>  >under heavy stress. Stay tuned
+>>
+>> How did this turn out? Any luck? Im seeing this same problem with my 
+>> e1000, now I did enable rx/tx flow control, I reniced kswapd and I 
+>> changed vm.min_free_kbytes to 65536, and the problem went away.
+>>
+>> It would be nice with a "cleaner" solution though.
+>>
+>
+> What kernel are you using?
+> Are you doing a lot of block IO as well?
 
-So I rewrote it yesterday, so now it passes the testsuite.  I also added
-a test.  It's in 3.2-pre4: if there are no more requests/bugs in the
-next couple of days, I'll make that 3.3.
+I am using 2.6.11.8.
 
-Thanks for the prodding!
-Rusty.
--- 
-A bad analogy is like a leaky screwdriver -- Richard Braakman
+Yes, the server is a fileserver for both the internet (~10Mbit) and 
+internally (1Gbit e1000). Hardware is pretty old so is pretty heavily 
+loaded and with 256MB RAM.
 
+---
+John Bäckstrand

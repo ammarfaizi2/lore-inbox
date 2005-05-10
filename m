@@ -1,112 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261667AbVEJPB3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261658AbVEJPD1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261667AbVEJPB3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 11:01:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbVEJPB2
+	id S261658AbVEJPD1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 11:03:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbVEJPBy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 11:01:28 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:22977 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S261667AbVEJPAs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 11:00:48 -0400
-Subject: [PATCH] sync_sb_inodes cleanup
-From: Vladimir Saveliev <vs@namesys.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "reiserfs-dev@namesys.com" <reiserfs-dev@namesys.com>
-Content-Type: multipart/mixed; boundary="=-OKJMEVgsoRoNGAILEDjB"
-Message-Id: <1115737238.4456.320.camel@tribesman.namesys.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 10 May 2005 19:00:39 +0400
+	Tue, 10 May 2005 11:01:54 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:20377 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S261669AbVEJPBA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 11:01:00 -0400
+Date: Tue, 10 May 2005 20:20:53 +0900
+From: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+Subject: Re: [RFC/PATCH] unregister_node() for hotplug use
+In-reply-to: <427FE7B3.8080200@us.ibm.com>
+To: Matthew Dobson <colpatch@us.ibm.com>
+Cc: tokunaga.keiich@jp.fujitsu.com, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Message-id: <20050510202053.3ddd9e7b.tokunaga.keiich@jp.fujitsu.com>
+Organization: FUJITSU LIMITED
+MIME-version: 1.0
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <20050420210744.4013b3f8.tokunaga.keiich@jp.fujitsu.com>
+ <20050420173235.GA17775@kroah.com>
+ <20050422003009.1b96f09c.tokunaga.keiich@jp.fujitsu.com>
+ <20050422003920.GD6829@kroah.com>
+ <20050422113211.509005f1.tokunaga.keiich@jp.fujitsu.com>
+ <20050425230333.6b8dfb33.tokunaga.keiich@jp.fujitsu.com>
+ <20050426065431.GB5889@suse.de>
+ <20050507211141.4829d4c0.tokunaga.keiich@jp.fujitsu.com>
+ <427FE7B3.8080200@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 09 May 2005 15:44:03 -0700 Matthew Dobson wrote:
+> Keiichiro Tokunaga wrote:
+> >   I updated the patch for 2.6.12-rc3-mm3 based on my
+> > previous comments.  Please apply.
+> > 
+> > Thanks,
+> > Keiichiro Tokunaga
+> > 
+> > 
+> > 
+> > This adds a generic function 'unregister_node()'.
+> > It is used to remove objects of a node going away
+> > for hotplug.
+> > 
+> > Signed-off-by: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+> > ---
+> > 
+> >  linux-2.6.12-rc3-mm3-kei/drivers/base/node.c  |   15 +++++++++++++--
+> >  linux-2.6.12-rc3-mm3-kei/include/linux/node.h |    1 +
+> >  2 files changed, 14 insertions(+), 2 deletions(-)
+> > 
+> > diff -puN drivers/base/node.c~numa_hp_base drivers/base/node.c
+> > --- linux-2.6.12-rc3-mm3/drivers/base/node.c~numa_hp_base	2005-05-07 19:58:15.000000000 +0900
+> > +++ linux-2.6.12-rc3-mm3-kei/drivers/base/node.c	2005-05-07 19:58:15.000000000 +0900
+> > @@ -136,7 +136,7 @@ static SYSDEV_ATTR(distance, S_IRUGO, no
+> >   *
+> >   * Initialize and register the node device.
+> >   */
+> > -int __init register_node(struct node *node, int num, struct node *parent)
+> > +int register_node(struct node *node, int num, struct node *parent)
+> >  {
+> >  	int error;
+> >  
+> > @@ -153,8 +153,19 @@ int __init register_node(struct node *no
+> >  	return error;
+> >  }
+> >  
+> > +void unregister_node(struct node *node)
+> > +{
+> > +	sysdev_remove_file(&node->sysdev, &attr_cpumap);
+> > +	sysdev_remove_file(&node->sysdev, &attr_meminfo);
+> > +	sysdev_remove_file(&node->sysdev, &attr_numastat);
+> > +	sysdev_remove_file(&node->sysdev, &attr_distance);
+> > +
+> > +	sysdev_unregister(&node->sysdev);
+> > +}
+> 
+> Is there a reason to not make both register_node() and unregister_node()
+> __devinit?  If a user has CONFIG_HOTPLUG=y then they want these functions,
+> otherwise there is no point, as they promised they won't be hotplugging
+> anything, right?
 
---=-OKJMEVgsoRoNGAILEDjB
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+  The main reason is Greg advised me that we had the function
+no matter if CONFIG_HOTPLUG is true or not.  An addtional
+advantage of this is that the source becomes cleaner because
+I included unregister_node() with '#ifdef CONFIG_HOTPLUG' and
+'#endif' in my previous version of patch.
 
-Hello
-
-sync_sb_inodes is called twice and both times like:
-spin_lock(&inode_lock);
-sync_sb_inodes(sb, wbc);
-spin_unlock(&inode_lock);
-
-This patch makes generic_sync_sb_inodes to spin lock itself.
-Please, apply this patch. It helps reiser4 to get rid of some oddities.
-
---=-OKJMEVgsoRoNGAILEDjB
-Content-Disposition: attachment; filename=sync_sb_inodes-cleanup.patch
-Content-Type: text/plain; name=sync_sb_inodes-cleanup.patch; charset=KOI8-R
-Content-Transfer-Encoding: 7bit
-
-
-sync_sb_inodes is always called like:
-	spin_lock(&inode_lock);
-	sync_sb_inodes(sb, wbc);
-	spin_unlock(&inode_lock);
-This patch moves spin_lock/spin_unlock down to sync_sb_inodes.
-
-
- fs/fs-writeback.c |   12 ++++--------
- 1 files changed, 4 insertions(+), 8 deletions(-)
-
-diff -puN fs/fs-writeback.c~sync_sb_inodes-cleanup fs/fs-writeback.c
---- linux-2.6.12-rc3-mm3/fs/fs-writeback.c~sync_sb_inodes-cleanup	2005-05-10 18:41:30.822421511 +0400
-+++ linux-2.6.12-rc3-mm3-vs/fs/fs-writeback.c	2005-05-10 18:45:07.907203826 +0400
-@@ -283,8 +283,6 @@ __writeback_single_inode(struct inode *i
-  * WB_SYNC_HOLD is a hack for sys_sync(): reattach the inode to sb->s_dirty so
-  * that it can be located for waiting on in __writeback_single_inode().
-  *
-- * Called under inode_lock.
-- *
-  * If `bdi' is non-zero then we're being asked to writeback a specific queue.
-  * This function assumes that the blockdev superblock's inodes are backed by
-  * a variety of queues, so all inodes are searched.  For other superblocks,
-@@ -305,6 +303,8 @@ generic_sync_sb_inodes(struct super_bloc
- {
- 	const unsigned long start = jiffies;	/* livelock avoidance */
- 
-+	spin_lock(&inode_lock);
-+
- 	if (!wbc->for_kupdate || list_empty(&sb->s_io))
- 		list_splice_init(&sb->s_dirty, &sb->s_io);
- 
-@@ -384,6 +384,7 @@ generic_sync_sb_inodes(struct super_bloc
- 		if (wbc->nr_to_write <= 0)
- 			break;
- 	}
-+	spin_unlock(&inode_lock);
- 	return;		/* Leave any unwritten inodes on s_io */
- }
- EXPORT_SYMBOL(generic_sync_sb_inodes);
-@@ -436,11 +437,8 @@ restart:
- 			 * be unmounted by the time it is released.
- 			 */
- 			if (down_read_trylock(&sb->s_umount)) {
--				if (sb->s_root) {
--					spin_lock(&inode_lock);
-+				if (sb->s_root)
- 					sync_sb_inodes(sb, wbc);
--					spin_unlock(&inode_lock);
--				}
- 				up_read(&sb->s_umount);
- 			}
- 			spin_lock(&sb_lock);
-@@ -476,9 +474,7 @@ void sync_inodes_sb(struct super_block *
- 			(inodes_stat.nr_inodes - inodes_stat.nr_unused) +
- 			nr_dirty + nr_unstable;
- 	wbc.nr_to_write += wbc.nr_to_write / 2;		/* Bit more for luck */
--	spin_lock(&inode_lock);
- 	sync_sb_inodes(sb, &wbc);
--	spin_unlock(&inode_lock);
- }
- 
- /*
-
-_
-
---=-OKJMEVgsoRoNGAILEDjB--
-
+Thanks,
+Keiichiro Tokunaga

@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261768AbVEJVwP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbVEJV4a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261768AbVEJVwP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 17:52:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbVEJVwP
+	id S261832AbVEJV4a (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 17:56:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261829AbVEJV43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 17:52:15 -0400
-Received: from 1-1-2-5a.f.sth.bostream.se ([81.26.255.57]:55937 "EHLO
-	1-1-2-5a.f.sth.bostream.se") by vger.kernel.org with ESMTP
-	id S261768AbVEJVvl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 17:51:41 -0400
-Date: Tue, 10 May 2005 23:51:04 +0200 (CEST)
-From: Per Liden <per@fukt.bth.se>
-X-X-Sender: per@1-1-2-5a.f.sth.bostream.se
-To: Greg KH <gregkh@suse.de>
-cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] hotplug-ng 002 release
-In-Reply-To: <20050509232207.GB24238@suse.de>
-Message-ID: <Pine.LNX.4.63.0505101843050.2271@1-1-2-5a.f.sth.bostream.se>
-References: <20050506212227.GA24066@kroah.com>
- <Pine.LNX.4.63.0505090025280.7682@1-1-2-5a.f.sth.bostream.se>
- <20050509232207.GB24238@suse.de>
+	Tue, 10 May 2005 17:56:29 -0400
+Received: from gannet.scg.man.ac.uk ([130.88.94.110]:27153 "EHLO
+	gannet.scg.man.ac.uk") by vger.kernel.org with ESMTP
+	id S261832AbVEJV4L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 17:56:11 -0400
+Message-ID: <42812E89.4070301@gentoo.org>
+Date: Tue, 10 May 2005 22:58:33 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050403)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+CC: linux-kernel@vger.kernel.org, Alan Lake <alan.lake@lakeinfoworks.com>,
+       petero2@telia.co.uk, vojtech@suse.cz, stuart@zeus.com
+Subject: ALPS touchpad issues still exist in 2.6.12-rc4
+References: <42801AEE.5080308@lakeinfoworks.com> <200505092305.45788.dtor_core@ameritech.net>
+In-Reply-To: <200505092305.45788.dtor_core@ameritech.net>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-UoM: Scanned by the University Mail System. See http://www.mcc.ac.uk/cos/email/scanning for details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 May 2005, Greg KH wrote:
+Hi,
 
-> On Mon, May 09, 2005 at 12:52:02AM +0200, Per Liden wrote:
-> > On Fri, 6 May 2005, Greg KH wrote:
-> > 
-> > [...]
-> > > Now, with the 2.6.12-rc3 kernel, and a patch for module-init-tools, the
-> > > USB hotplug program can be written with a simple one line shell script:
-> > > 	modprobe $MODALIAS
-> > 
-> > Nice, but why not just convert all this to a call to 
-> > request_module($MODALIAS)? Seems to me like the natural thing to do.
+Dmitry Torokhov wrote:
+> Do you have an ALPS touchpad? Try applying Peter Osterlund's patches
+> from here:
 > 
-> Because that's not the only thing that the hotplug event causes to
-> happen. It's easier to have userspace decide what to do with this 
-> instead.
+> http://web.telia.com/~u89404340/patches/touchpad/2.6.11/
 
-Sure, the hotplug event could still be issued so that userspace could do 
-magic things when it wants to (load firmware or whatever), but since the 
-kernel already has all the infrastructure in place to load modules on 
-demand, and it's used all over the place, it doesn't make sense to use a 
-completely different approach here.
+Even with these patches applied, some Gentoo users are still reporting
+problems with ALPS touchpads. Are there any suggested solutions for
+http://bugzilla.kernel.org/show_bug.cgi?id=4281 ?
 
-Also, since most people never need to do anything except modprobe, they 
-can still have a working system without any scripts what so ever... again 
-just like normal on demand module loading.
+Also see http://bugs.gentoo.org/show_bug.cgi?id=84657
 
-/Per
+Thanks,
+Daniel

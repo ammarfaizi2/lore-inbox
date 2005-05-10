@@ -1,27 +1,29 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261650AbVEJNtZ (ORCPT <rfc822;ralf@linux-mips.org>);
-	Tue, 10 May 2005 09:49:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbVEJNtZ
+	id S261706AbVEJPuK (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 10 May 2005 11:50:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbVEJPsP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 09:49:25 -0400
-Received: from [222.182.39.119] ([222.182.39.119]:13584 "HELO 222.182.39.119")
-	by vger.kernel.org with SMTP id S261650AbVEJNtY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 09:49:24 -0400
-Mime-Version: 1.0 (Apple Message framework v728)
-Content-Transfer-Encoding: 7bit
-Message-Id: <4577893693.56796@222.182.39.119>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-To: linux-kernel@vger.kernel.org
-From: Eleanor <gilds@turpin.net>
-Subject: eDrugs Online
-Date: Tue, 10 May 2005 21:49:34 +0800
-X-Mailer: Apple Mail (2.728)
+	Tue, 10 May 2005 11:48:15 -0400
+Received: from todocinetv.ddnet.es ([213.139.19.37]:13982 "EHLO
+	todocinetv.ddnet.es") by vger.kernel.org with ESMTP id S261698AbVEJPrV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 11:47:21 -0400
+Message-ID: <44683.212.165.154.196.1115694505.squirrel@correo.todocinetv.com>
+Date: Tue, 10 May 2005 05:08:25 +0200 (CEST)
+Subject: SAVE MY LIFE PLS
+From: "mrschiokobi" <mrschiokobi@todocinetv.com>
+To: <mrschiokobi2@eresmas.com>
+X-Priority: 3
+Importance: Normal
+Reply-To: mrschi2005@yahoo.co.in
+X-Mailer: SquirrelMail (version 1.2.10)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261650AbVEJNtZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261706AbVEJPuK@vger.kernel.org>
 
-Drugs Online
-http://vuevl.iflb41ibfsiqmji.nbsprmsb.com
+none
 
 

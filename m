@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261775AbVEJUmo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261801AbVEJUtS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261775AbVEJUmo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 16:42:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261794AbVEJUlw
+	id S261801AbVEJUtS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 16:49:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbVEJUqG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 16:41:52 -0400
-Received: from relay1.ptmail.sapo.pt ([212.55.154.21]:54235 "HELO sapo.pt")
-	by vger.kernel.org with SMTP id S261775AbVEJUey (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 16:34:54 -0400
-X-AntiVirus: PTMail-AV 0.3.83
-Message-ID: <42811AE6.7020902@mail.telepac.pt>
-Date: Tue, 10 May 2005 21:34:46 +0100
-From: Carlos Rodrigues <carlos.efr@mail.telepac.pt>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+	Tue, 10 May 2005 16:46:06 -0400
+Received: from relay1.tiscali.de ([62.26.116.129]:33231 "EHLO
+	webmail.tiscali.de") by vger.kernel.org with ESMTP id S261795AbVEJUpL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 16:45:11 -0400
+Message-ID: <42811D51.1030106@tiscali.de>
+Date: Tue, 10 May 2005 22:45:05 +0200
+From: Matthias-Christian Ott <matthias.christian@tiscali.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-CC: Horms <horms@debian.org>, 308072@bugs.debian.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: statfs returns wrong values for 250Gb FAT fs
-References: <E1DUT2T-0000fm-Nx@localhost.localdomain>	<20050510080907.GR1998@verge.net.au> <87oebjxpcc.fsf@devron.myhome.or.jp>
-In-Reply-To: <87oebjxpcc.fsf@devron.myhome.or.jp>
+To: Andre Eisenbach <int2str@gmail.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: High res timer?
+References: <7f800d9f050510132762f0ee7@mail.gmail.com>
+In-Reply-To: <7f800d9f050510132762f0ee7@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OGAWA Hirofumi wrote:
+Andre Eisenbach wrote:
+> Hello!
+> 
+> We're currently using pth_usleep() as a timer for a userspace audio
+> application. However, it doesn't seem very accurate and reliable. Is
+> there a better (more accurate) timer that we can call form a userspace
+> application?
+> 
+> Thanks,
+>     Andre
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+What about nanosleep ()?
 
->Filesystem may have the corrupted free-cluster value.
->
->I couldn't reproduce the problem on 2.6.12-rc4.
->
->Could you try a recently dosfsck (dosfstools-2.11 or later)?
->Also could you send the output of above program?
->  
->
-
-"dosfsck" did find a problem in the free-cluster value. And also said 
-the backups FAT was different than the original FAT.
-
-I didn't use "dosfsck" to fix the problems though (not that it couldn't, 
-I just didn't try). As I had already copied everything to another disk, 
-I just used "mkdosfs" to reformat the drive, and it works just fine now.
-
-I still don't know what caused this, probably something related to some 
-"kernel panics" I was seeing on shutdown (in a Fedora 3 installation, 
-not Debian), after doing an umount+unplug.
-
-I didn't though of using "dosfsck" because Windows' checkdisk was saying 
-the filesystem was perfectly fine... It makes me feel really safe 
-trusting MS tools... not.
-
-Carlos Rodrigues
-
+Matthias-Christian

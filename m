@@ -1,70 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbVEJUPB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbVEJUTR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261776AbVEJUPB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 16:15:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbVEJUOT
+	id S261759AbVEJUTR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 16:19:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbVEJUTQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 16:14:19 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:39589 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261776AbVEJUNu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 16:13:50 -0400
-Message-ID: <428115F5.3030000@us.ibm.com>
-Date: Tue, 10 May 2005 13:13:41 -0700
-From: Matthew Dobson <colpatch@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [RFC/PATCH] unregister_node() for hotplug use
-References: <20050422003920.GD6829@kroah.com> <20050422113211.509005f1.tokunaga.keiich@jp.fujitsu.com> <20050425230333.6b8dfb33.tokunaga.keiich@jp.fujitsu.com> <20050426065431.GB5889@suse.de> <20050507211141.4829d4c0.tokunaga.keiich@jp.fujitsu.com> <427FE7B3.8080200@us.ibm.com> <20050510202053.3ddd9e7b.tokunaga.keiich@jp.fujitsu.com> <4280FA41.3050403@us.ibm.com> <20050510184508.GA2463@suse.de> <4281045C.4020205@us.ibm.com> <20050510201144.GA3226@suse.de>
-In-Reply-To: <20050510201144.GA3226@suse.de>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 10 May 2005 16:19:16 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:64516 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261759AbVEJUTB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 16:19:01 -0400
+Message-Id: <200505102018.j4AKIRT3022492@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: paulmck@us.ibm.com, dipankar@in.ibm.com, Ingo Molnar <mingo@elte.hu>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] RCU and CONFIG_PREEMPT_RT progress 
+In-Reply-To: Your message of "Tue, 10 May 2005 22:08:11 +0200."
+             <1115755692.26548.15.camel@twins> 
+From: Valdis.Kletnieks@vt.edu
+References: <20050510012444.GA3011@us.ibm.com>
+            <1115755692.26548.15.camel@twins>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1115756303_8169P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 10 May 2005 16:18:25 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Tue, May 10, 2005 at 11:58:36AM -0700, Matthew Dobson wrote:
-> 
->>Greg KH wrote:
->>
->>>On Tue, May 10, 2005 at 11:15:29AM -0700, Matthew Dobson wrote:
->>>
->>>
->>>>So I think it's probably a good idea to stick the __devinit on
->>>>register_node() and unregister_node(), otherwise we have no marker to know
->>>>which functions to remove for CONFIG_TINY.  Greg?
->>>
->>>
->>>Like _anyone_ would have CONFIG_NUMA and CONFIG_TINY enabled at the same
->>>time?  I don't think so...
->>>
->>>I'll leave it as is for now.
->>
->>No, it seems unlikely that anyone would build with CONFIG_NUMA and
->>CONFIG_TINY both enabled.  But it is possible and reasonable to build with
->>CONFIG_NUMA=y and CONFIG_HOTPLUG=n, which is the case I was trying to speak
->>to.  If NUMA is on and HOTPLUG is off, then we're wasting kernel text
->>(granted, it's a very small amount of space) for the register_node() &
->>unregister_node() functions that we *know* will never be called after
->>initial bootup.  That's why I suggested marking both of those functions as
->>__devinit.  But it doesn't make a huge difference either way.
-> 
-> 
-> I do not think this is an issue, and I want to move CONFIG_HOTPLUG to be
-> under CONFIG_TINY anyway, so you could only disable it if TINY is
-> enabled.  But that's a different email thread...
-> 
-> thanks,
-> 
-> greg k-h
+--==_Exmh_1115756303_8169P
+Content-Type: text/plain; charset=us-ascii
 
-Fair enough.  We'll leave those functions alone...
+On Tue, 10 May 2005 22:08:11 +0200, Peter Zijlstra said:
 
--Matt
+> How about having another boolean indicating the ability to flip the
+> selector boolean. This boolean would be set false on an actual flip and
+> cleared during a grace period. That way the flips cannot ever interfere
+> with one another such that the callbacks would be cleared prematurely.
 
+As all the dining philosophers grab a fork and a spoon and dig in. ;)
+
+--==_Exmh_1115756303_8169P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCgRcOcC3lWbTT17ARAuBkAKCkdoncNR8QDTN0v3LMC+/q1cSrNwCfalbE
+C0v0rx2gTET5jmi+KS/mxNU=
+=jw8c
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1115756303_8169P--

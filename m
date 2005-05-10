@@ -1,121 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbVEJKGl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbVEJKPm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbVEJKGl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 06:06:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbVEJKGl
+	id S261584AbVEJKPm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 06:15:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbVEJKPm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 06:06:41 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:35776 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S261606AbVEJKGX (ORCPT
+	Tue, 10 May 2005 06:15:42 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:27328 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S261584AbVEJKPg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 06:06:23 -0400
-Date: Tue, 10 May 2005 14:04:45 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: netdev@oss.sgi.com, Greg KH <greg@kroah.com>,
-       Jamal Hadi Salim <hadi@cyberus.ca>, Kay Sievers <kay.sievers@vrfy.org>,
-       Herbert Xu <herbert@gondor.apana.org.au>,
-       James Morris <jmorris@redhat.com>,
-       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Thomas Graf <tgraf@suug.ch>, Jay Lan <jlan@engr.sgi.com>
-Subject: Re: [1/1] connector/CBUS: new messaging subsystem. Revision number
- next.
-Message-ID: <20050510140445.36cc15cb@zanzibar.2ka.mipt.ru>
-In-Reply-To: <200505100118.48027.dtor_core@ameritech.net>
-References: <20050411125932.GA19538@uganda.factory.vocord.ru>
-	<200505100118.48027.dtor_core@ameritech.net>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 10 May 2005 06:15:36 -0400
+Message-ID: <42808B84.BCC00574@tv-sign.ru>
+Date: Tue, 10 May 2005 14:23:00 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Christoph Lameter <christoph@lameter.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, mingo@elte.hu, kenneth.w.chen@intel.com
+Subject: Re: [RFC][PATCH] timers fixes/improvements
+References: <424D373F.1BCBF2AC@tv-sign.ru> <424E6441.12A6BC03@tv-sign.ru>
+	 <Pine.LNX.4.58.0505091312490.27740@graphe.net> <20050509144255.17d3b9aa.akpm@osdl.org> <Pine.LNX.4.58.0505091449580.29090@graphe.net>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [194.85.82.65]); Tue, 10 May 2005 14:04:57 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 May 2005 01:18:46 -0500
-Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-
-> On Monday 11 April 2005 07:59, Evgeniy Polyakov wrote:
-> > /*****************************************/
-> > Kernel Connector.
-> > /*****************************************/
-> > 
-> > Kernel connector - new netlink based userspace <-> kernel space easy to use communication module.
-> > 
+Christoph Lameter wrote:
 > 
-> Hi Evgeniy,
-
-Hello, Dmitriy.
-
-> I have looked at the connector implementation one more time and I think
-> it can be improved in the following ways:
+> On Mon, 9 May 2005, Andrew Morton wrote:
 > 
-> - drop unneeded refcounting;
-
-It is already.
-
-> - start only one workqueue entry instead of one for every callback type;
-
-There is only one queue per callback device.
-
-> - drop cn_dev - there is only one connector;
-
-There may be several connectors with different socket types.
-I use it in my environment for tests.
-
-> - simplify cn_notify_request to carry only one range - it simplifies code
->   quite a bit - nothing stops clientd from sending several notification
->   requests;
-
-? Nothing stops clients from sending several notification requests now.
-I do not see how it simplifies the things?
-Feel free to set idx_num and val_num to 1 and you will have the same.
-
-> - implement internal queuefor callbacks so we are not at mercy of scheduler;
-
-Current implementation has big warning about such theoretical behaviour, 
-if it will be triggered, I will fix that behaviour, 
-more likely not by naive work allocation - there might be
-at least cache/memory pool or something...
-
-> - admit that SKBs are message medium and do not mess up with passing around
->   destructor functions.
-
-You mess up layers.
-I do not see why you want it.
-
-> - In callback notifier switch to using GFP_KERNEL since it can sleep just
->   fine;
-
-Yes, it is correct
-
-> - more... 
+> > ptype_base is an array, but I cannot see any race around ptype_base.  So
+> > look to see if ptype_base is corrupted as well, keep walking back through
+> > memory, see where the scribble starts.
 > 
-> Because there were a lot of changes I decided against doing relative patch
-> but instead a replacement patch for affected files. I have cut out cbus and
-> documentation to keep it smaller so it will be easier to review. The patch
-> is compile-tested only.
+> There is no corruption around ptype_all as you can see from the log. There
+> is a list of hex numbers which are from ptype_all -8 to ptype_all +8.
+> Looks okay to me.
 
-Connector with your changes just does not work.
+Still ptype_all could be accessed (and corrupted) as ptype_base[16].
 
+Christoph, could you please reboot with this patch?
+Just to be sure.
 
-Dmitry, I do not understand why do you change things in so radical manner,
-especially when there are no 1. new interesting features, 2. no performance
-improvements, 3. no right design changes.
-
-> BTW, I do not think that "All rights reserved" statement is applicable/
-> compatible with GPL this software is supposedly released under, I have
-> taken liberty of removing this statement.
-
-You substitute license agreements with copyright.
-"All rights reserved" is targeted to copyright 
-(avtorskoe pravo, zakon N 5351/1-1) of the code
-and has nothing with license.
-
-
-	Evgeniy Polyakov
-
-Only failure makes us experts. -- Theo de Raadt
+--- 2.6.12-rc4/net/core/dev.c~	Tue May 10 12:24:11 2005
++++ 2.6.12-rc4/net/core/dev.c	Tue May 10 14:19:29 2005
+@@ -157,7 +157,9 @@
+ 
+ static DEFINE_SPINLOCK(ptype_lock);
+ static struct list_head ptype_base[16];	/* 16 way hashed list */
++static unsigned long ptype_before[4] = { [0 ... 3] = -1 };
+ static struct list_head ptype_all;		/* Taps */
++static unsigned long ptype_after[4] = { [0 ... 3] = -1 };
+ 
+ #ifdef OFFLINE_SAMPLE
+ static void sample_queue(unsigned long dummy);

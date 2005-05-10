@@ -1,39 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261671AbVEJPNu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbVEJPRc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261671AbVEJPNu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 11:13:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbVEJPNu
+	id S261678AbVEJPRc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 11:17:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbVEJPRZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 11:13:50 -0400
-Received: from schlund.terranet.ro ([80.96.218.84]:9788 "EHLO
+	Tue, 10 May 2005 11:17:25 -0400
+Received: from schlund.terranet.ro ([80.96.218.84]:42302 "EHLO
 	dizzywork.schlund.ro") by vger.kernel.org with ESMTP
-	id S261671AbVEJPM5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 11:12:57 -0400
-Message-ID: <4280CF77.4040102@schlund.ro>
-Date: Tue, 10 May 2005 18:12:55 +0300
+	id S261683AbVEJPPd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 11:15:33 -0400
+Message-ID: <4280D011.8080302@schlund.ro>
+Date: Tue, 10 May 2005 18:15:29 +0300
 From: Mihai Rusu <dizzy@schlund.ro>
 User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050324)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
 CC: Robert Love <rml@novell.com>
-Subject: [RFC][PATCH 2.4 1/4] inotify 0.22 2.4.x backport - find_next_bit
+Subject: [RFC][PATCH 2.4 4/4] inotify 0.22 2.4.x backport - main inotify codes
 X-Enigmail-Version: 0.90.2.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------050205010304050005080901"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050205010304050005080901
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
 Hi
 
-This is the find_next_bit implementation from 2.6.11 vanilla. Needed by
-"idr.c".
+This are the inotify specific codes and the bulk of this backport.
+Because the patch exceeds 40Kbytes I am posting it on a web site.
+
+http://oss.schlund.de/inotify-2.4/04_inotify-2.4.30.patch
+
+ Documentation/00-INDEX                |    2
+ Documentation/Configure.help          |   12
+ Documentation/filesystems/inotify.txt |   81 ++
+ fs/Config.in                          |    2
+ fs/Makefile                           |    3
+ fs/attr.c                             |   34 -
+ fs/file_table.c                       |    3
+ fs/inode.c                            |   16
+ fs/inotify.c                          | 1033
+++++++++++++++++++++++++++++++++++
+ fs/namei.c                            |  140 ++--
+ fs/open.c                             |    7
+ fs/read_write.c                       |   25
+ include/linux/fs.h                    |    5
+ include/linux/fsnotify.h              |  230 +++++++
+ include/linux/inotify.h               |  113 +++
+ include/linux/sched.h                 |    5
+ kernel/user.c                         |    4
+ 17 files changed, 1595 insertions(+), 120 deletions(-)
 
 -- 
 Mihai Rusu
@@ -46,106 +63,3 @@ Sect 1, Bucuresti
 
 
 
-
-
---------------050205010304050005080901
-Content-Type: text/x-patch;
- name="01_find_next_bit-2.4.30.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="01_find_next_bit-2.4.30.patch"
-
-
- include/linux/bitops.h |    2 +
- lib/Makefile           |    2 -
- lib/find_next_bit.c    |   55 +++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 58 insertions(+), 1 deletion(-)
-
-diff -uNr linux-2.4.30.orig/include/linux/bitops.h linux-2.4.30/include/linux/bitops.h
---- linux-2.4.30.orig/include/linux/bitops.h	2001-11-22 21:46:18.000000000 +0200
-+++ linux-2.4.30/include/linux/bitops.h	2005-05-09 13:13:18.000000000 +0300
-@@ -66,6 +66,8 @@
-         return (res & 0x0F) + ((res >> 4) & 0x0F);
- }
- 
-+int find_next_bit(const unsigned long *addr, int size, int offset);
-+
- #include <asm/bitops.h>
- 
- 
-diff -uNr linux-2.4.30.orig/lib/Makefile linux-2.4.30/lib/Makefile
---- linux-2.4.30.orig/lib/Makefile	2004-04-14 16:05:40.000000000 +0300
-+++ linux-2.4.30/lib/Makefile	2005-05-09 13:16:49.000000000 +0300
-@@ -12,7 +12,7 @@
- 	       rbtree.o crc32.o firmware_class.o
- 
- obj-y := errno.o ctype.o string.o vsprintf.o brlock.o cmdline.o \
--	 bust_spinlocks.o rbtree.o dump_stack.o
-+	 bust_spinlocks.o rbtree.o dump_stack.o find_next_bit.o
- 
- obj-$(CONFIG_FW_LOADER) += firmware_class.o
- obj-$(CONFIG_RWSEM_GENERIC_SPINLOCK) += rwsem-spinlock.o
-diff -uNr linux-2.4.30.orig/lib/find_next_bit.c linux-2.4.30/lib/find_next_bit.c
---- linux-2.4.30.orig/lib/find_next_bit.c	1970-01-01 02:00:00.000000000 +0200
-+++ linux-2.4.30/lib/find_next_bit.c	2005-05-09 13:13:18.000000000 +0300
-@@ -0,0 +1,55 @@
-+/* find_next_bit.c: fallback find next bit implementation
-+ *
-+ * Copyright (C) 2004 Red Hat, Inc. All Rights Reserved.
-+ * Written by David Howells (dhowells@redhat.com)
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
-+ */
-+
-+#include <linux/bitops.h>
-+
-+int find_next_bit(const unsigned long *addr, int size, int offset)
-+{
-+	const unsigned long *base;
-+	const int NBITS = sizeof(*addr) * 8;
-+	unsigned long tmp;
-+
-+	base = addr;
-+	if (offset) {
-+		int suboffset;
-+
-+		addr += offset / NBITS;
-+
-+		suboffset = offset % NBITS;
-+		if (suboffset) {
-+			tmp = *addr;
-+			tmp >>= suboffset;
-+			if (tmp)
-+				goto finish;
-+		}
-+
-+		addr++;
-+	}
-+
-+	while ((tmp = *addr) == 0)
-+		addr++;
-+
-+	offset = (addr - base) * NBITS;
-+
-+ finish:
-+	/* count the remaining bits without using __ffs() since that takes a 32-bit arg */
-+	while (!(tmp & 0xff)) {
-+		offset += 8;
-+		tmp >>= 8;
-+	}
-+
-+	while (!(tmp & 1)) {
-+		offset++;
-+		tmp >>= 1;
-+	}
-+
-+	return offset;
-+}
-
-
-
-
---------------050205010304050005080901--

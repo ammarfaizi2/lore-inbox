@@ -1,41 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261789AbVEJUmp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261775AbVEJUmo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261789AbVEJUmp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 16:42:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261795AbVEJUla
+	id S261775AbVEJUmo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 16:42:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261794AbVEJUlw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 16:41:30 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:26265 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261781AbVEJUig (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 16:38:36 -0400
-Subject: Re: High res timer?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Andre Eisenbach <int2str@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <7f800d9f050510132762f0ee7@mail.gmail.com>
-References: <7f800d9f050510132762f0ee7@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 10 May 2005 16:38:34 -0400
-Message-Id: <1115757514.14061.30.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
+	Tue, 10 May 2005 16:41:52 -0400
+Received: from relay1.ptmail.sapo.pt ([212.55.154.21]:54235 "HELO sapo.pt")
+	by vger.kernel.org with SMTP id S261775AbVEJUey (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 16:34:54 -0400
+X-AntiVirus: PTMail-AV 0.3.83
+Message-ID: <42811AE6.7020902@mail.telepac.pt>
+Date: Tue, 10 May 2005 21:34:46 +0100
+From: Carlos Rodrigues <carlos.efr@mail.telepac.pt>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+CC: Horms <horms@debian.org>, 308072@bugs.debian.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: statfs returns wrong values for 250Gb FAT fs
+References: <E1DUT2T-0000fm-Nx@localhost.localdomain>	<20050510080907.GR1998@verge.net.au> <87oebjxpcc.fsf@devron.myhome.or.jp>
+In-Reply-To: <87oebjxpcc.fsf@devron.myhome.or.jp>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-10 at 13:27 -0700, Andre Eisenbach wrote:
-> Hello!
-> 
-> We're currently using pth_usleep() as a timer for a userspace audio
-> application. However, it doesn't seem very accurate and reliable. Is
-> there a better (more accurate) timer that we can call form a userspace
-> application?
-> 
+OGAWA Hirofumi wrote:
 
-Also, this is a bit OT for LKML.  Try linux-audio-dev at
-music.columbia.edu.  You can probably find several good ways to do it in
-the archives. 
+>Filesystem may have the corrupted free-cluster value.
+>
+>I couldn't reproduce the problem on 2.6.12-rc4.
+>
+>Could you try a recently dosfsck (dosfstools-2.11 or later)?
+>Also could you send the output of above program?
+>  
+>
 
-Lee
+"dosfsck" did find a problem in the free-cluster value. And also said 
+the backups FAT was different than the original FAT.
+
+I didn't use "dosfsck" to fix the problems though (not that it couldn't, 
+I just didn't try). As I had already copied everything to another disk, 
+I just used "mkdosfs" to reformat the drive, and it works just fine now.
+
+I still don't know what caused this, probably something related to some 
+"kernel panics" I was seeing on shutdown (in a Fedora 3 installation, 
+not Debian), after doing an umount+unplug.
+
+I didn't though of using "dosfsck" because Windows' checkdisk was saying 
+the filesystem was perfectly fine... It makes me feel really safe 
+trusting MS tools... not.
+
+Carlos Rodrigues
 

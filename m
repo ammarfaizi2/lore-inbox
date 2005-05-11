@@ -1,69 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261878AbVEKCDn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261880AbVEKCE3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261878AbVEKCDn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 22:03:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbVEKCDn
+	id S261880AbVEKCE3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 22:04:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbVEKCEV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 22:03:43 -0400
-Received: from smtp811.mail.sc5.yahoo.com ([66.163.170.81]:5289 "HELO
-	smtp811.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261878AbVEKCDk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 22:03:40 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ALPS touchpad issues still exist in 2.6.12-rc4h
-Date: Tue, 10 May 2005 20:59:36 -0500
-User-Agent: KMail/1.8
-Cc: Stuart Shelton <stuart@zeus.com>, Daniel Drake <dsd@gentoo.org>,
-       Alan Lake <alan.lake@lakeinfoworks.com>, petero2@telia.co.uk,
-       vojtech@suse.cz
-References: <42801AEE.5080308@lakeinfoworks.com> <d120d5000505101520ad1761@mail.gmail.com> <1115767038.12779.36.camel@callisto.dnsalias.net>
-In-Reply-To: <1115767038.12779.36.camel@callisto.dnsalias.net>
+	Tue, 10 May 2005 22:04:21 -0400
+Received: from mail-in-02.arcor-online.net ([151.189.21.42]:64418 "EHLO
+	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261880AbVEKCEP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 22:04:15 -0400
+From: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
+	<7eggert@gmx.de>
+Subject: Re: [ANNOUNCE] hotplug-ng 002 release
+To: Giuseppe Bilotta <bilotta78@hotpop.com>, linux-kernel@vger.kernel.org,
+       linux-hotplug-devel@lists.sourceforge.net
+Reply-To: 7eggert@gmx.de
+Date: Wed, 11 May 2005 04:04:11 +0200
+References: <41iyE-8mI-11@gated-at.bofh.it> <427KM-h4-9@gated-at.bofh.it> <42pRx-75A-19@gated-at.bofh.it> <42znJ-6x7-25@gated-at.bofh.it> <42zQL-70r-25@gated-at.bofh.it> <42CF0-YV-37@gated-at.bofh.it> <42GIH-4u3-31@gated-at.bofh.it> <42Jn3-6Qj-5@gated-at.bofh.it> <42KsY-7KW-33@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200505102059.36744.dtor_core@ameritech.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+Message-Id: <E1DVga4-0001g7-4s@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 10 May 2005 18:17, Stuart Shelton wrote:
-> 
-> Hi,
-> 
-> I've been testing this on my laptop in framebuffer console mode only -
-> I've not tested the Synaptics driver with the newer kernels.
-> 
-> I'm not sure if an updated GPM is the right solution: tapping does very
-> occasionally seem to work (although it might be some facet of the bug
-> that sometimes causes the cursor to appear and select the character
-> beneath it when typing).
+Giuseppe Bilotta <bilotta78@hotpop.com> wrote:
 
-I am not sure if I understand what you saying... Are you saying that you
-tried GPM with proper evdev support and you are seeing some issues or that
-you do not believe that GPM should be touched at all?
+> Is there a way to control the order in which modules get loaded? For
+> example, I usually blacklist the parport module and only load it when
+> I need it, thus freeing an IRQ (for audio, IIRC). If parport loads
+> automatically, it grabs the IRQ; if it loads after the IRQ is grabbed
+> already, it'll resort to polled mode. Can these things be controlled
+> without the blacklist?
 
-> 
-> More than this, with every kernel (at least since the very early 2.4
-> ones) up to 2.6.10 the ALPS touchpad has worked just fine through
-> input/mice or the psaux device - why has this changed in 2.6.11,
+Documentation/parport.txt
 
-Because some people do not want tapping and some people do not like
-default sensitivity and some like having virtual scrolling while other
-want to have different actions assigned to corner taps.
-
-> and can the change be reverted before 2.6.12 is released?
-
-You do not need to wait for 2.6.12:
-
-	modprobe psmouse proto=exps
-
-or boot with "psmouse.proto=exps" if mouse is built as a module.
-
-On a bit tangent note - anyone is willing to test resync patches? I do not
-have access to ALPS touchpad and that's the one piece of hardware that does
-not want to play nicely...
-
+The rest should be configurable in /etc/mod{ules,probe}.conf
 -- 
-Dmitry
+Top 100 things you don't want the sysadmin to say:
+69. ``Why is my "rm *.o" taking so long?''
+

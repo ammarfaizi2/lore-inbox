@@ -1,85 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261952AbVEKJFZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261942AbVEKJJb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261952AbVEKJFZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 05:05:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbVEKJEg
+	id S261942AbVEKJJb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 05:09:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbVEKJFz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 05:04:36 -0400
-Received: from web40911.mail.yahoo.com ([66.218.78.208]:51069 "HELO
-	web40911.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261938AbVEKJCJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 05:02:09 -0400
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=Q/tb25g0paNwPAsJq8bh/VZNCN5eXNyN+iMUT2aKat7Osqd1HOfTPiGDmgGCg/+xUTdaSDSH7pKP/MTn7oMZjlYlBQQr/YNMzOU8Y79aZAfZA1yjKAUXW2mOAMRtGRcOkxDVn5qtTjdzgOv54sHNBnVzJmB6a4bQLrScd0zSNAA=  ;
-Message-ID: <20050511090209.76029.qmail@web40911.mail.yahoo.com>
-Date: Wed, 11 May 2005 02:02:08 -0700 (PDT)
-From: jensen galan <jrgalan@yahoo.com>
-Subject: did i trash my kernel?
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Wed, 11 May 2005 05:05:55 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:34310 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261950AbVEKJEp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 05:04:45 -0400
+Date: Wed, 11 May 2005 11:04:36 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Tom Duffy <tduffy@sun.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Jesper Juhl <juhl-lkml@dif.dk>
+Subject: Re: [PATCH] kernel/module.c has something to hide. (whitespace cleanup)
+Message-ID: <20050511090436.GL3590@stusta.de>
+References: <20050510161657.3afb21ff.akpm@osdl.org> <20050510.161907.116353193.davem@davemloft.net> <20050510170246.5be58840.akpm@osdl.org> <20050510.170946.10291902.davem@davemloft.net> <Pine.LNX.4.62.0505110217350.2386@dragon.hyggekrogen.localhost> <20050510172913.2d47a4d4.akpm@osdl.org> <1115773263.3169.5.camel@duffman>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1115773263.3169.5.camel@duffman>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings!
+On Tue, May 10, 2005 at 06:01:03PM -0700, Tom Duffy wrote:
+> 
+> Solaris build makes sure files passes a "lint" test during the build and
+> nothing can be checked in until such a test can pass.
+> 
+> Would it make sense to add such a test during kernel compile for Linux?
+> Something that could be turned off if somebody needed really fast
+> builds.  This would check for things like whitespace violations and
+> other things that violate CodingStyle.
+> 
+> People tend to fix things quick if they break the build.
 
-I tried to create a custom kernel with an added system
-call, so the goal was to have 2 kernels to choose from
-at boot time.
+This works _after_ the kernel has been cleaned up.
 
-In /usr/src/linux-2.4.28-gentoo-r5, I edited the
-Makefile so that "EXTRAVERSION = -gentoo-r5-new", and
-recompiled my custom kernel with the following
-commands:
+And then there's the issue that some code (e.g. ACPI or XFS) is shared 
+between Linux and other OS's, and therefore a limited amount of 
+divergence from usual kernel coding style is allowed in such code.
 
-make mrproper
-make menuconfig
-make dep
-make bzImage
-make modules
-make modules-install
-make install
+> -tduffy
 
-Now I have 2 kernels, and when I boot from the
-original, I get the following error at boot:
+cu
+Adrian
 
-Bringing eth0 up via DHCP... [!!]
-ERROR: Problem starting needed services.
-"netmount" was not started.
+-- 
 
-The original kernel I compiled with genkernel.  The
-new kernel used the method described above.  Here is
-my grub.conf:
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-default 0
-timeout 30
-splashimage=(hd0,0)/grub/splash.xpm.gz
-
-title=Gentoo Linux 2.4.28-r5
-root (hd0,0)
-kernel /kernel-2.4.28-gentoo-r5 root=/dev/ram0
-init=/linuxrc 
-ramdisk=8192 real_root=/dev/hda3
-initrd /initrd-2.4.28-gentoo-r5
-
-title=Gentoo Linux 2.4.28-r5-new
-root (hd0,0)
-kernel /vmlinuz-2.4.28-gentoo-r5-new root=/dev/hda3
-
-So, did I trash my original kernel?  Was the method I
-used to compile a custom kernel incorrect?
-
-Thank you for your help.
-
-Jensen
-
-
-
-	
-		
-__________________________________ 
-Do you Yahoo!? 
-Yahoo! Mail - You care about security. So do we. 
-http://promotions.yahoo.com/new_mail

@@ -1,128 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbVEKOnS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVEKOqT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261231AbVEKOnS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 10:43:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbVEKOnK
+	id S261243AbVEKOqT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 10:46:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbVEKOoW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 10:43:10 -0400
-Received: from general.keba.co.at ([193.154.24.243]:21149 "EHLO
-	helga.keba.co.at") by vger.kernel.org with ESMTP id S261172AbVEKOlW convert rfc822-to-8bit
+	Wed, 11 May 2005 10:44:22 -0400
+Received: from wproxy.gmail.com ([64.233.184.199]:51611 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261978AbVEKOjL convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 10:41:22 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Real-Time Preemption: BUG initializing kgdb
-Date: Wed, 11 May 2005 16:41:16 +0200
-Message-ID: <AAD6DA242BC63C488511C611BD51F36732320E@MAILIT.keba.co.at>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Real-Time Preemption: BUG initializing kgdb
-Thread-Index: AcVVq1d3cESUrNB1QpiLRwJo+wPQhwAgvseA
-From: "kus Kusche Klaus" <kus@keba.com>
-To: "Bill Huey \(hui\)" <bhuey@lnxw.com>
-Cc: "Ingo Molnar" <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
-       "Lee Revell" <rlrevell@joe-job.com>
+	Wed, 11 May 2005 10:39:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Yw+4FVGlTGbUB9yNVnSH5UfgtuEvNU7NDS7gQZ8VjlOpBq4tWotrKCsdRDJck4n+5RBLi4pDPgQ9tUMvsRdSVIKvQ+x3f4OcglS+OXrVGcMbYmKEC6HOLt3OgYtX1j2MfBybTt+FdVvKX4BqcFR/yWfA9aZw1GCpHLNwSTEAWs0=
+Message-ID: <2cd57c9005051107397bef53a7@mail.gmail.com>
+Date: Wed, 11 May 2005 22:39:07 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+Reply-To: coywolf@lovecn.org
+To: Borislav Petkov <petkov@uni-muenster.de>
+Subject: Re: kexec?
+Cc: maneesh@in.ibm.com, Vivek Goyal <vgoyal@in.ibm.com>,
+       "Randy.Dunlap" <rddunlap@osdl.org>,
+       Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200505111351.42266.petkov@uni-muenster.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050508202050.GB13789@charite.de>
+	 <2cd57c9005051006117d0c343@mail.gmail.com>
+	 <20050511060434.GA8856@in.ibm.com>
+	 <200505111351.42266.petkov@uni-muenster.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, May 10, 2005 at 02:34:54PM +0200, kus Kusche Klaus wrote:
-> > I tried to merge the kgdb and the rt patches (not too 
-> difficult, only
-> > three rejects, and they all look trivial). The resulting kernel
-> > compiles, boots, and works fine.
-> ...
-> > Any hints or suggestions?
+On 5/11/05, Borislav Petkov <petkov@uni-muenster.de> wrote:
+> On Wednesday 11 May 2005 08:04, Maneesh Soni wrote:
+> <snip>
+> > > > [root@zmei]: kexec -p vmlinux --args-linux --append="root=/dev/hda1
+> > > > maxcpus=1 init 1"
+> > >
+> > >  kexec-tools-1.101 loads for me, but if cmdline is used, it hangs up
+> > > after "Starting new kernel"
+> >
+> > Thanks for trying this out. As Vivek mentioned can you please try with
+> > bulding second or dump capture kernel with CONFIG_SMP=N and _without_
+> > maxcpus= option. Basically the second kernel's job is just to save the dump
+> > and it doesnot need to be a SMP kernel. There are some issues with booting
+> > SMP kernel as dump capture kernel.
 > 
-> Revert all spinlock_t types that kgdb uses to raw_spinlock_t 
-> to get the
-> actual spinlock code. A compile trick matches up the right functions
-> with the struct definition so that changes to the kernel code 
-> is minimized.
-> The spinlock_t defintion in the RT patch is #defined to be a 
-> blocking lock
-> which is not what kgdb wants in order to be happy.
-> 
-> Also, make the interrupt handler setup uses SA_NODELAY or 
-> something like
-> that from my memory. The rest is relatively trivial.
-> 
-> Thanks for making the attempt. Somebody needed to do this a long time
-> ago. :)
-> 
-> bill
+> Hm, without 'maxcpus' seems to work. However, when booting into the new
+> kernel, the rootfs had to be fsck'ed due to "/ was not cleanly unmounted,
+> check forced." and then was forced to reboot linux due to inconsistency in
+> the fs. I simply did kexec -l <vmlinux> --args-linux --append="root=/dev/hda1
+> init 1" and then kexec -e to execute the loaded image. It seems that the
+> filesystems are not unmounted properly before loading the second kernel, (or
+> I am missing something..., which is more likely :))
 
-Your hints helped a lot, thanks.
-
-I changed three spinlocks (ts_spin, uart_interrupt_lock, one_at_atime)
-and modified the kgdb serial interrupt handler to register with
-SA_NODELAY (no need to change more locks, as I'm on a non-SMP target).
-
-These changes resulted in a kernel which compiles and works fine, they
-cured the BUG I reported yesterday, and they made kgdb "basically work":
-I can connect over serial line or over ethernet, I can get "where"s and
-variables etc., I can "cont", ...
-
-However, there are still some issues:
-
-* When debugging over ethernet, the kernel produces the following
-messages in an infinite loop at full speed as long as it is halted by
-gdb:
-
-May 11 16:13:02 OF455 kern.warn kernel: ksoftirqd/0/2: BUG in
-netpoll_poll at net/core/netpoll.c:157
-May 11 16:13:02 OF455 kern.warn kernel:  [<c0102f29>]
-dump_stack+0x17/0x19 (12)
-May 11 16:13:02 OF455 kern.warn kernel:  [<c0224ac8>]
-netpoll_poll+0xd0/0xed (36)
-May 11 16:13:02 OF455 kern.warn kernel:  [<c01da116>]
-eth_getDebugChar+0x16/0x41 (8)
-May 11 16:13:02 OF455 kern.warn kernel:  [<c010c87e>]
-getDebugChar+0x18/0x1a (8)
-May 11 16:13:02 OF455 kern.warn kernel:  [<c010cba2>]
-putpacket+0x184/0x198 (80)
-May 11 16:13:02 OF455 kern.warn kernel:  [<c010e06b>]
-kgdb_handle_exception+0xbfa/0xd0c (184)
-May 11 16:13:02 OF455 kern.warn kernel:  [<c01034a5>] do_int3+0x2c/0x9b
-(64)
-May 11 16:13:02 OF455 kern.warn kernel:  [<c0102ca6>] int3+0x1e/0x2c
-(60)
-May 11 16:13:02 OF455 kern.warn kernel:  [<c021c900>]
-net_rx_action+0x14e/0x188 (28)
-May 11 16:13:02 OF455 kern.warn kernel:  [<c0118806>]
-___do_softirq+0x42/0xc8 (44)
-May 11 16:13:02 OF455 kern.warn kernel:  [<c011890e>]
-_do_softirq+0x19/0x1c (8)
-May 11 16:13:02 OF455 kern.warn kernel:  [<c0118c1e>]
-ksoftirqd+0x8c/0xd9 (28)
-May 11 16:13:02 OF455 kern.warn kernel:  [<c012614e>] kthread+0x7b/0xab
-(32)
-May 11 16:13:02 OF455 kern.warn kernel:  [<c0100c21>]
-kernel_thread_helper+0x5/0xb (1055072276)
-
-(this is a WARN_ON_RT(irqs_disabled()) in netpoll.c)
-
-As soon as I "cont", the messages stop, and the kernel works fine. As
-soon as I hit a breakpoint, these messages start again.
-
-* When debugging over the ethernet, sooner or later all non-gdb traffic
-fails: Although remote kgdb still works fine, the host and the target
-can't even ping each other. The target even sends arp requests for the
-host (which are answered, but it doesn't help).
-
-This is a problem for me, because usually the targets neither have
-keyboards nor screens, ssh is the only way in.
-
-* Alt-SysRq-g is silently ignored when typed on the target's keyboard.
-However, "echo g > /proc/sysrq-trigger" works fine.
-
-Many thanks in advance for any help!
+kexec is like a bare reboot. 
+Add kexec -l and -e just above the reboot line in your
+/etc/init.d/reboot script,
+or umount manually( sysrq+s sysrq+u ).
 
 -- 
-Klaus Kusche                 (Software Development - Control Systems)
-KEBA AG             Gewerbepark Urfahr, A-4041 Linz, Austria (Europe)
-Tel: +43 / 732 / 7090-3120                 Fax: +43 / 732 / 7090-6301
-E-Mail: kus@keba.com                                WWW: www.keba.com
+Coywolf Qi Hunt
+http://sosdg.org/~coywolf/

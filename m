@@ -1,98 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbVEKWmy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261294AbVEKWpd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261290AbVEKWmy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 18:42:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVEKWmy
+	id S261294AbVEKWpd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 18:45:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVEKWpd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 18:42:54 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:39859 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261290AbVEKWmq (ORCPT
+	Wed, 11 May 2005 18:45:33 -0400
+Received: from main.gmane.org ([80.91.229.2]:6798 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261294AbVEKWpJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 18:42:46 -0400
-Subject: Re: [RCF] [PATCH] unprivileged mount/umount
-From: Ram <linuxram@us.ibm.com>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, 7eggert@gmx.de, ericvh@gmail.com,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       smfrench@austin.rr.com, hch@infradead.org
-In-Reply-To: <20050511212810.GD5093@mail.shareable.org>
-References: <406SQ-5P9-5@gated-at.bofh.it> <40rNB-6p8-3@gated-at.bofh.it>
-	 <40t37-7ol-5@gated-at.bofh.it> <42VeB-8hG-3@gated-at.bofh.it>
-	 <42WNo-1eJ-17@gated-at.bofh.it> <E1DVuHG-0006YJ-Q7@be1.7eggert.dyndns.org>
-	 <20050511170700.GC2141@mail.shareable.org>
-	 <E1DVwGn-0002BB-00@dorka.pomaz.szeredi.hu>
-	 <1115840139.6248.181.camel@localhost>
-	 <20050511212810.GD5093@mail.shareable.org>
-Content-Type: text/plain
-Organization: IBM 
-Message-Id: <1115851333.6248.225.camel@localhost>
+	Wed, 11 May 2005 18:45:09 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Joe Seigh" <jseigh_02@xemaps.com>
+Subject: Re: RCU + SMR for preemptive kernel/user threads.
+Date: Wed, 11 May 2005 17:47:52 -0400
+Message-ID: <opsqmr52snehbc72@grunion>
+References: <opsqivh7agehbc72@grunion> <opsqkajto6ehbc72@grunion> <20050510165512.GA1569@us.ibm.com> <opsqkzxij0ehbc72@grunion> <20050511150454.GA1343@us.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 11 May 2005 15:42:13 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed	delsp=yes
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: stenquists.hsd1.ma.comcast.net
+User-Agent: Opera M2/7.54 (Win32, build 3865)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-05-11 at 14:28, Jamie Lokier wrote:
-> Ram wrote:
-> > What if proc filesystem is removed from the kernel?
-> > 
-> > Ability to access some other namespace through the proc filesystem does
-> > not look clean. I think it should be cleanly supported through VFS.
-> 
-> You don't have to use /proc/NNN/root - that's just one convenient way
-> to do it.
-> 
-> Other ways are
-> 
->     run_in_namespace mount -t bind / /var/namespaces/$NAME
-> 
-> and
-> 
->     clone + open("/") + pass to parent using unix socket
-> 
-> which I think both work already.
-> 
-> > Also cd'ing into a new namespace just allows you to browse through
-> > the other namespace. But it does not effectively change the process's
-> > namespace.  Things like mount in the other namespace will be failed
-> > by check_mount() anyway.
-> 
-> That's correct.
-> 
-> > I think, we need sys calls like sys_cdnamespace() which switches to a
-> > new namespace.
-> 
-> Can you give a reason why sys_chdir() shouldn't have that behaviour?
+On Wed, 11 May 2005 08:04:54 -0700, Paul E. McKenney <paulmck@us.ibm.com>  
+wrote:
 
-Do you mean to say you want to change the namespace when a process
-changes to a directory which belongs to that namespace?
+> On Tue, May 10, 2005 at 06:40:20PM -0400, Joe Seigh wrote:
 
-Well it makes it totally confusing. A user would start seeing different
-set of mounts suddenly as he changes directories beloning to different
-namespaces. I am not sure, if changing namespace implicitly is a good
-idea. Not saying its a bad idea, but seems to change my notion of
-namespaces completely. 
 
-I think a process should have access to one
-namespace at any given point in time, and should have the ability
-to explicitly switch to a different namespace of its choice, provided
-it has enough access permission to that namespace.
+> In classic RCU, the release is supplied by the context switch.  In your
+> scheme, couldn't you do the following on the update side?
+>
+> 	1.  Gather up all the hazard pointers.
+> 	2.  Send IPIs to all other CPUs.
+> 	3.  Check the hazard pointers gathered in #1 against the
+> 	    blocks to be freed.
 
-having the ability to access two namespaces simultaneously can allow
-cross contamination. Which essentially makes namespaces as a concept
-irrelevent.
+You need to do the IPIs before you look at the hazard pointers.
 
-RP
+>
+> The read side would do the following when letting go of a hazard pointer:
+>
+> 	1.  Prevent the compiler from reordering memory references
+> 	    (the CPU would still be free to do so).
+> 	2.  Set the hazard pointer to NULL.
+> 	3.  begin non-critical-section code.
+>
+> Checking where the IPI is received by the read side:
+>
+> 1.  Before this point, the updater would have seen the non-NULL hazard
+>     pointer (if the hazard pointer referenced the data item that was
+>     previously removed).
+> 2.  Ditto.
+> 3.  Before this point, the hazard pointer could be seen as NULL, but
+>     the read-side CPU will also have stopped using the pointer (since
+>     we are assuming precise interrupts).
 
-> 
-> > Effectively the process's current->namespace has to be modified,
-> > for the process to be effectively work in the new namespace.
-> 
-> Or just remove current->namespace.  It's entire purpose seems to be to
-> prevent namespaces from being first class objects.  The idea of
-> "current namespace" is adequately represented by
-> current->fs->mnt_root->mnt_namespace IMHO.
-> 
-> -- Jamie
+The problem is you don't know when the hazard pointer was set to NULL.
+It could have been set soon after the IPI interrupt was received and
+any outstanding accesses made since the IPI interrupt aren't syncronized
+with respect to setting the hazard pointer to null.
+
+But if you looked at the hazard pointer in the IPI interrupt handler,
+you could use that information to decide whether you had to wait an
+additional RCU interval.  So updater logic would be
+
+          1.  Set global pointer to NULL.  // make object unreachable
+          2.  Send IPIs  to all other CPUs
+              (IPI interrupt handler will copy CPU's hazard pointers)
+          3.  Check objects to be freed against copied hazard pointers.
+          4.  There is no step 4.  Even if the actual hazard pointers
+              that pointed to the object is NULL by this point (but not
+              its copy), you'd still have to wait and addtional RCU
+              interval so you might as well leave it out as redundant.
+
+This is better.  I may try that trick I used to make NPTL condvars
+faster to see if I can keep Linux user space version of this from
+tanking.  It uses unix signals instead of IPIs.
+
+
+
+>
+> Again, not sure if all CPUs support precise interrupts.  The ones that I
+> am familiar with do, at least for IPIs.
+>
+>> Additionally if you replace any non NULL hazard pointer value you will
+>> need to use
+>> release semantics.
+>
+> The trick is that the IPI provides the release semantics, but only
+> when needed.  Right?
+>
+>> There might be something you can do to avoid the extra RCU wait but
+>> I'd have to study it a little more to get a better handle on the
+>> trade offs.
+>
+> True, there will need to be either two RCU waits or two rounds of IPIs.
+
+Yes, it might better be called RCU+SMR+RCU in that case.
+
+
+>>
+>> I suppose I should do some kind of formal analysis of this.  I'm  
+>> figuring
+>> out
+>> if this technique is interesting enough first before I go through all  
+>> that
+>> work.
+>
+> Hard to say without some experimentation.
+
+
+I've done plenty of that.  I have some atomically thread-safe reference
+counting impletations and a proxy GC based on those which I compare to
+an RCU for user threads implementation.  Using lock-free in user space
+gives you much more dramatic performance improvements than in the kernel.
+It cuts down on unnecessary context switching which can slow things down
+considerably.  Also mutexes and rwlocks are prone to starvation.  Making
+them FIFO for guaranteed service order slows them down even further.
+
+I usually use a semaphore to keep the updaters from running out of  
+resources.
+It slows down updater throughput but then I'm more concerned with reader
+throughput.  If I want faster recovery of resources I'll used the atomic
+refcounted pointer or the proxy based on it.  Slightly slower updater  
+performance
+but resources are recovered more quickly.
+
+-- 
+Joe Seigh
 

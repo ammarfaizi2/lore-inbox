@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbVEKWzx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262061AbVEKW7X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbVEKWzx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 18:55:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbVEKWzw
+	id S262061AbVEKW7X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 18:59:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbVEKW54
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 18:55:52 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:57604 "HELO
+	Wed, 11 May 2005 18:57:56 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:61188 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261730AbVEKWxz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 18:53:55 -0400
-Date: Thu, 12 May 2005 00:53:54 +0200
+	id S261309AbVEKW47 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 18:56:59 -0400
+Date: Thu, 12 May 2005 00:56:57 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Jan Dittmer <jdittmer@ppp0.net>, spyro@f2s.com, zippel@linux-m68k.org,
-       starvik@axis.com, wli@holomorphy.com, linux-kernel@vger.kernel.org,
-       kbuild-devel@lists.sourceforge.net, dev-etrax@axis.com,
-       sparclinux@vger.kernel.org
-Subject: Re: [kbuild-devel] select of non-existing I2C* symbols
-Message-ID: <20050511225354.GL6884@stusta.de>
-References: <20050302203812.092f80a0.akpm@osdl.org> <20050304105247.B3932@flint.arm.linux.org.uk> <20050304032632.0a729d11.akpm@osdl.org> <20050304113626.E3932@flint.arm.linux.org.uk> <20050506235842.A23651@flint.arm.linux.org.uk> <427C9DBD.1030905@ppp0.net> <20050507122622.C11839@flint.arm.linux.org.uk> <427CC082.4000603@ppp0.net> <20050507144135.GL3590@stusta.de> <20050508182050.GB8182@mars.ravnborg.org>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>, Andrew Morton <akpm@osdl.org>,
+       davem@davemloft.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kernel/module.c has something to hide. (whitespace cleanup)
+Message-ID: <20050511225657.GM6884@stusta.de>
+References: <20050510161657.3afb21ff.akpm@osdl.org> <20050510.161907.116353193.davem@davemloft.net> <20050510170246.5be58840.akpm@osdl.org> <20050510.170946.10291902.davem@davemloft.net> <Pine.LNX.4.62.0505110217350.2386@dragon.hyggekrogen.localhost> <20050510172913.2d47a4d4.akpm@osdl.org> <Pine.LNX.4.62.0505110236520.2386@dragon.hyggekrogen.localhost> <4281E78B.2030103@grupopie.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050508182050.GB8182@mars.ravnborg.org>
+In-Reply-To: <4281E78B.2030103@grupopie.com>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 08, 2005 at 08:20:50PM +0200, Sam Ravnborg wrote:
-> > Shouldn't kconfig exit with an error if a not available symbol gets
-> > selected?
-> No. There are meny configurations where we select a symbol that is
-> only visible in some configurations.
+On Wed, May 11, 2005 at 12:07:55PM +0100, Paulo Marques wrote:
+> Jesper Juhl wrote:
+> >On Tue, 10 May 2005, Andrew Morton wrote:
+> >
+> >>Jesper Juhl <juhl-lkml@dif.dk> wrote:
+> >>
+> >>>[...]
+> >>>Ohh, and I'd be submitting all the patches to you Andrew, not individual 
+> >>>maintainers/authors..
+> >>
+> >>That should be OK - you can test that the .o files have the same `size'
+> >>output before-and-after.
+> >>
+> >>[...]
+> >
+> >Ok, will do.
 > 
-> Several possibilities exists:
-> 1) Silently ignore SELECT SYMBOL when SYMBOL is undefined
-> 2) Warn - as we do today
-> 3) Error out as you suggest
+> Just a small sugestion: do a sha (or md5sum, or whatever hash function 
+> you prefer) to vmlinux before and after applying the patches.
 > 
-> Option 1) is preferable for 'make oldconfig' simply because target group
-> here do not care. But it would be nice to know when one do a typing
-> error in SELECT. So one *config target should continue to warn about it.
+> If all is well, it shouldn't change (since this is just whitespace 
+> cleanup), and it is a little more robust than just checking the size.
 
-I'd prefer 3) and fix up all problems.
 
-E.g. i the case of the I2C* select's the current warnings seem to 
-indicate possible configurations that do not compile.
+That's wrong.
 
-> 	Sam
+vmlinux contains the date of the compilation.
+
+
+> Paulo Marques - www.grupopie.com
+
 
 cu
 Adrian

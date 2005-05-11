@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbVEKOyO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261983AbVEKO56@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261235AbVEKOyO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 10:54:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbVEKOyN
+	id S261983AbVEKO56 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 10:57:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbVEKO54
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 10:54:13 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:6573 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S261858AbVEKOa1
+	Wed, 11 May 2005 10:57:56 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:16806 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S261234AbVEKOaT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 10:30:27 -0400
-Message-ID: <428216FF.2010909@de.ibm.com>
-Date: Wed, 11 May 2005 16:30:23 +0200
+	Wed, 11 May 2005 10:30:19 -0400
+Message-ID: <428216F7.30303@de.ibm.com>
+Date: Wed, 11 May 2005 16:30:15 +0200
 From: Carsten Otte <cotte@de.ibm.com>
 Reply-To: cotte@freenet.de
 User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
@@ -19,383 +19,566 @@ MIME-Version: 1.0
 To: cotte@freenet.de
 CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
        schwidefsky@de.ibm.com, akpm@osdl.org
-Subject: [RFC/PATCH 3/5] ext2: add execute in place support
+Subject: [RFC/PATCH 2/5] mm/fs: add execute in place support
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[RFC/PATCH 3/5] ext2: add execute in place support
-This patch adds support for execute in place in ext2. I've chosen this
-filesystem because it is simple enough for me stupido to understand,
-and well written. Afaics, other filesystems could be changed similar.
-A new config option EXT2_FS_XIP is used to switch execute in place
-support on/off. If turned on, a new mount option -o xip is available.
-If ext2 is used with a block device that does support the
-direct_access block device operation, and -o xip is used, ext2 does
-provide different address space operations for regular files:
-ext2_aops_xip, that do implement get_xip_page but not
-readpage(s)/writepage(s).
+[RFC/PATCH 2/5] mm/fs: add execute in place support
+This patch is the biggest chunk in the patchset. It adds a new address
+space operation called get_xip_page, which works similar to
+readpage/writepage but returns a reference to a struct page for the
+on-disk data for the given page. The page is supposed to be up-to-date.
+In mm/filemap.c, all generic implementations of file operations are
+extended to work with the new address space operation if provided.
 
 Signed-off-by: Carsten Otte <cotte@de.ibm.com>
 ---
-diff -ruN linux-2.6-git/fs/Kconfig linux-2.6-git-xip/fs/Kconfig
---- linux-2.6-git/fs/Kconfig	2005-05-10 11:17:10.000000000 +0200
-+++ linux-2.6-git-xip/fs/Kconfig	2005-05-10 12:54:50.513090600 +0200
-@@ -50,6 +50,22 @@
- 	  If you are not using a security module that requires using
- 	  extended attributes for file security labels, say N.
+diff -ruN linux-2.6-git/fs/open.c linux-2.6-git-xip/fs/open.c
+--- linux-2.6-git/fs/open.c	2005-05-10 14:55:18.000000000 +0200
++++ linux-2.6-git-xip/fs/open.c	2005-05-10 14:57:41.720496744 +0200
+@@ -807,7 +807,9 @@
 
-+config EXT2_FS_XIP
-+	bool "Ext2 execute in place support"
-+	help
-+	  Execute in place can be used on memory-backed block devices. If you
-+	  enable this option, you can select to mount block devices which are
-+	  capable of this feature without using the page cache.
-+
-+	  If you do not use a block device that is capable of using this,
-+	  or if unsure, say N.
-+
-+config FS_XIP
-+# execute in place
-+	bool
-+	depends on EXT2_FS_XIP
-+	default y
-+
- config EXT3_FS
- 	tristate "Ext3 journalling file system support"
- 	help
-diff -ruN linux-2.6-git/fs/ext2/Makefile linux-2.6-git-xip/fs/ext2/Makefile
---- linux-2.6-git/fs/ext2/Makefile	2005-05-10 11:17:12.000000000 +0200
-+++ linux-2.6-git-xip/fs/ext2/Makefile	2005-05-10 12:54:50.625073576 +0200
-@@ -10,3 +10,4 @@
- ext2-$(CONFIG_EXT2_FS_XATTR)	 += xattr.o xattr_user.o xattr_trusted.o
- ext2-$(CONFIG_EXT2_FS_POSIX_ACL) += acl.o
- ext2-$(CONFIG_EXT2_FS_SECURITY)	 += xattr_security.o
-+ext2-$(CONFIG_EXT2_FS_XIP)	 += xip.o
-diff -ruN linux-2.6-git/fs/ext2/ext2.h linux-2.6-git-xip/fs/ext2/ext2.h
---- linux-2.6-git/fs/ext2/ext2.h	2005-05-10 11:17:12.000000000 +0200
-+++ linux-2.6-git-xip/fs/ext2/ext2.h	2005-05-10 12:54:50.626073424 +0200
-@@ -150,6 +150,7 @@
-
- /* inode.c */
- extern struct address_space_operations ext2_aops;
-+extern struct address_space_operations ext2_aops_xip;
- extern struct address_space_operations ext2_nobh_aops;
-
- /* namei.c */
-diff -ruN linux-2.6-git/fs/ext2/inode.c linux-2.6-git-xip/fs/ext2/inode.c
---- linux-2.6-git/fs/ext2/inode.c	2005-05-10 11:17:12.000000000 +0200
-+++ linux-2.6-git-xip/fs/ext2/inode.c	2005-05-10 12:54:50.628073120 +0200
-@@ -33,6 +33,7 @@
- #include <linux/mpage.h>
- #include "ext2.h"
- #include "acl.h"
-+#include "xip.h"
-
- MODULE_AUTHOR("Remy Card and others");
- MODULE_DESCRIPTION("Second Extended Filesystem");
-@@ -594,6 +595,16 @@
- 	if (err)
- 		goto cleanup;
-
-+	if (ext2_use_xip(inode->i_sb)) {
-+		/*
-+		 * we need to clear the block
-+		 */
-+		err = ext2_clear_xip_target (inode,
-+			le32_to_cpu(chain[depth-1].key));
-+		if (err)
-+			goto cleanup;
-+	}
-+
- 	if (ext2_splice_branch(inode, iblock, chain, partial, left) < 0)
- 		goto changed;
-
-@@ -691,6 +702,11 @@
- 	.writepages		= ext2_writepages,
+ 	/* NB: we're sure to have correct a_ops only after f_op->open */
+ 	if (f->f_flags & O_DIRECT) {
+-		if (!f->f_mapping->a_ops || !f->f_mapping->a_ops->direct_IO) {
++		if (!f->f_mapping->a_ops ||
++		    ((!f->f_mapping->a_ops->direct_IO) &&
++		    (!f->f_mapping->a_ops->get_xip_page))) {
+ 			fput(f);
+ 			f = ERR_PTR(-EINVAL);
+ 		}
+diff -ruN linux-2.6-git/include/linux/fs.h linux-2.6-git-xip/include/linux/fs.h
+--- linux-2.6-git/include/linux/fs.h	2005-05-10 14:57:29.689325760 +0200
++++ linux-2.6-git-xip/include/linux/fs.h	2005-05-10 14:57:41.724496136 +0200
+@@ -330,6 +330,8 @@
+ 	int (*releasepage) (struct page *, int);
+ 	ssize_t (*direct_IO)(int, struct kiocb *, const struct iovec *iov,
+ 			loff_t offset, unsigned long nr_segs);
++	struct page* (*get_xip_page)(struct address_space *, sector_t,
++			int);
  };
 
-+struct address_space_operations ext2_aops_xip = {
-+	.bmap			= ext2_bmap,
-+	.get_xip_page		= ext2_get_xip_page,
+ struct backing_dev_info;
+@@ -1473,14 +1475,19 @@
+ 		unsigned long *, loff_t, loff_t *, size_t, size_t);
+ extern ssize_t generic_file_buffered_write(struct kiocb *, const struct iovec *,
+ 		unsigned long, loff_t, loff_t *, size_t, ssize_t);
++extern ssize_t generic_file_xip_write(struct kiocb *, const struct iovec *,
++		unsigned long, loff_t, loff_t *, size_t);
+ extern ssize_t do_sync_read(struct file *filp, char __user *buf, size_t len, loff_t *ppos);
+ extern ssize_t do_sync_write(struct file *filp, const char __user *buf, size_t len, loff_t *ppos);
+ ssize_t generic_file_write_nolock(struct file *file, const struct iovec *iov,
+ 				unsigned long nr_segs, loff_t *ppos);
+ extern ssize_t generic_file_sendfile(struct file *, loff_t *, size_t, read_actor_t, void *);
+ extern void do_generic_mapping_read(struct address_space *mapping,
+-				    struct file_ra_state *, struct file *,
+-				    loff_t *, read_descriptor_t *, read_actor_t);
++				   struct file_ra_state *, struct file *,
++				   loff_t *, read_descriptor_t *, read_actor_t);
++extern void do_xip_mapping_read   (struct address_space *mapping,
++				   struct file_ra_state *, struct file *,
++				   loff_t *, read_descriptor_t *, read_actor_t);
+ extern void
+ file_ra_state_init(struct file_ra_state *ra, struct address_space *mapping);
+ extern ssize_t generic_file_direct_IO(int rw, struct kiocb *iocb,
+@@ -1494,17 +1501,26 @@
+ extern loff_t remote_llseek(struct file *file, loff_t offset, int origin);
+ extern int generic_file_open(struct inode * inode, struct file * filp);
+ extern int nonseekable_open(struct inode * inode, struct file * filp);
++extern int xip_truncate_page(struct address_space *mapping, loff_t from);
+
+ static inline void do_generic_file_read(struct file * filp, loff_t *ppos,
+ 					read_descriptor_t * desc,
+ 					read_actor_t actor)
+ {
+-	do_generic_mapping_read(filp->f_mapping,
+-				&filp->f_ra,
+-				filp,
+-				ppos,
+-				desc,
+-				actor);
++	if (filp->f_mapping->a_ops->get_xip_page)
++		do_xip_mapping_read(filp->f_mapping,
++					&filp->f_ra,
++					filp,
++					ppos,
++					desc,
++					actor);
++	else
++		do_generic_mapping_read(filp->f_mapping,
++					&filp->f_ra,
++					filp,
++					ppos,
++					desc,
++					actor);
+ }
+
+ ssize_t __blockdev_direct_IO(int rw, struct kiocb *iocb, struct inode *inode,
+diff -ruN linux-2.6-git/mm/filemap.c linux-2.6-git-xip/mm/filemap.c
+--- linux-2.6-git/mm/filemap.c	2005-05-10 14:55:24.000000000 +0200
++++ linux-2.6-git-xip/mm/filemap.c	2005-05-10 15:09:59.416349928 +0200
+@@ -2,6 +2,9 @@
+  *	linux/mm/filemap.c
+  *
+  * Copyright (C) 1994-1999  Linus Torvalds
++ *
++ * xip functionality added by Carsten Otte <cotte@de.ibm.com>,
++ *	Copyright 2005 IBM Corporation
+  */
+
+ /*
+@@ -918,6 +921,105 @@
+
+ EXPORT_SYMBOL(do_generic_mapping_read);
+
++/*
++ * This is a generic file read routine for execute in place files, and uses
++ * the mapping->a_ops->get_xip_page() function for the actual low-level
++ * stuff.
++ *
++ * Note the struct file* is not used at all.  It may be NULL.
++ */
++void do_xip_mapping_read(struct address_space *mapping,
++			     struct file_ra_state *_ra,
++			     struct file *filp,
++			     loff_t *ppos,
++			     read_descriptor_t *desc,
++			     read_actor_t actor)
++{
++	struct inode *inode = mapping->host;
++	unsigned long index, end_index, offset;
++	loff_t isize;
++
++	BUG_ON(!mapping->a_ops->get_xip_page);
++
++	index = *ppos >> PAGE_CACHE_SHIFT;
++	offset = *ppos & ~PAGE_CACHE_MASK;
++
++	isize = i_size_read(inode);
++	if (!isize)
++		goto out;
++
++	end_index = (isize - 1) >> PAGE_CACHE_SHIFT;
++	for (;;) {
++		struct page *page;
++		unsigned long nr, ret;
++
++		/* nr is the maximum number of bytes to copy from this page */
++		nr = PAGE_CACHE_SIZE;
++		if (index >= end_index) {
++			if (index > end_index)
++				goto out;
++			nr = ((isize - 1) & ~PAGE_CACHE_MASK) + 1;
++			if (nr <= offset) {
++				goto out;
++			}
++		}
++		nr = nr - offset;
++
++		page = mapping->a_ops->get_xip_page(mapping,
++			index*(PAGE_SIZE/512), 0);
++		if (!page)
++			goto no_xip_page;
++		if (unlikely(IS_ERR(page))) {
++			if (PTR_ERR(page) == -ENODATA) {
++				/* sparse */
++				page = virt_to_page(empty_zero_page);
++			} else {
++				desc->error = PTR_ERR(page);
++				goto out;
++			}
++		} else
++			BUG_ON(!PageUptodate(page));
++
++		/* If users can be writing to this page using arbitrary
++		 * virtual addresses, take care about potential aliasing
++		 * before reading the page on the kernel side.
++		 */
++		if (mapping_writably_mapped(mapping))
++			flush_dcache_page(page);
++
++		/*
++		 * Ok, we have the page, and it's up-to-date, so
++		 * now we can copy it to user space...
++		 *
++		 * The actor routine returns how many bytes were actually used..
++		 * NOTE! This may not be the same as how much of a user buffer
++		 * we filled up (we may be padding etc), so we can only update
++		 * "pos" here (the actor routine has to update the user buffer
++		 * pointers and the remaining count).
++		 */
++		ret = actor(desc, page, offset, nr);
++		offset += ret;
++		index += offset >> PAGE_CACHE_SHIFT;
++		offset &= ~PAGE_CACHE_MASK;
++
++		if (ret == nr && desc->count)
++			continue;
++		goto out;
++
++no_xip_page:
++		/* Did not get the page. Report it */
++		desc->error = -EIO;
++		goto out;
++	}
++
++out:
++	*ppos = ((loff_t) index << PAGE_CACHE_SHIFT) + offset;
++	if (filp)
++		file_accessed(filp);
++}
++
++EXPORT_SYMBOL(do_xip_mapping_read);
++
+ int file_read_actor(read_descriptor_t *desc, struct page *page,
+ 			unsigned long offset, unsigned long size)
+ {
+@@ -968,6 +1070,7 @@
+ 	ssize_t retval;
+ 	unsigned long seg;
+ 	size_t count;
++	int xip = filp->f_mapping->a_ops->get_xip_page ? 1 : 0;
+
+ 	count = 0;
+ 	for (seg = 0; seg < nr_segs; seg++) {
+@@ -990,7 +1093,9 @@
+ 	}
+
+ 	/* coalesce the iovecs and go direct-to-BIO for O_DIRECT */
+-	if (filp->f_flags & O_DIRECT) {
++	/* do not use generic_file_direct_IO on xip files, xip IO is
++	   implicitly direct as well */
++	if (filp->f_flags & O_DIRECT && !xip) {
+ 		loff_t pos = *ppos, size;
+ 		struct address_space *mapping;
+ 		struct inode *inode;
+@@ -1110,6 +1215,9 @@
+ do_readahead(struct address_space *mapping, struct file *filp,
+ 	     unsigned long index, unsigned long nr)
+ {
++	if (mapping && mapping->a_ops && mapping->a_ops->get_xip_page)
++		return 0;
++
+ 	if (!mapping || !mapping->a_ops || !mapping->a_ops->readpage)
+ 		return -EINVAL;
+
+@@ -1527,21 +1635,139 @@
+ 	return 0;
+ }
+
++/*
++ * __filemap_xip_unmap is invoked from filemap_xip_unmap and
++ * generic_file_xip_write
++ *
++ * This function walks all vmas of the address_space and unmaps the
++ * empty_zero_page when found at pgoff. Should it go in rmap.c?
++ */
++static void __filemap_xip_unmap (struct address_space * mapping, unsigned long pgoff)
++{
++	struct vm_area_struct *vma;
++	struct mm_struct *mm;
++	struct prio_tree_iter iter;
++	unsigned long address;
++	pgd_t *pgd;
++	pud_t *pud;
++	pmd_t *pmd;
++	pte_t *pte;
++	pte_t pteval;
++
++	spin_lock(&mapping->i_mmap_lock);
++	vma_prio_tree_foreach(vma, &iter, &mapping->i_mmap, pgoff, pgoff) {
++		mm = vma->vm_mm;
++		address = vma->vm_start +
++			((pgoff - vma->vm_pgoff) << PAGE_SHIFT);
++		BUG_ON(address < vma->vm_start || address >= vma->vm_end);
++		/*
++		 * We need the page_table_lock to protect us from page faults,
++		 * munmap, fork, etc...
++		 */
++		spin_lock(&mm->page_table_lock);
++		pgd = pgd_offset(mm, address);
++		if (!pgd_present(*pgd))
++			goto next_unlock;
++		pud = pud_offset(pgd, address);
++		if (!pud_present(*pud))
++			goto next_unlock;
++		pmd = pmd_offset(pud, address);
++		if (!pmd_present(*pmd))
++			goto next_unlock;
++		
++		pte = pte_offset_map(pmd, address);
++		if (!pte_present(*pte))
++			goto next_unmap;
++		if ((page_to_pfn(virt_to_page(empty_zero_page)))
++			!= pte_pfn(*pte))
++			/* pte does already reference new xip block here */
++			goto next_unmap;
++		/* Nuke the page table entry. */
++		flush_cache_page(vma, address, pte_pfn(pte));
++		pteval = ptep_clear_flush(vma, address, pte);
++		BUG_ON(pte_dirty(pteval));
++	next_unmap:
++		pte_unmap(pte);
++	next_unlock:
++		spin_unlock(&mm->page_table_lock);
++	}
++	spin_unlock(&mapping->i_mmap_lock);
++}
++
++/*
++ * filemap_xip_nopage() is invoked via the vma operations vector for a
++ * mapped memory region to read in file data during a page fault.
++ *
++ * This function is derived from filemap_nopage, but used for execute in place
++ */
++struct page * filemap_xip_nopage(struct vm_area_struct * area, unsigned long address, int *type)
++{
++	struct file *file = area->vm_file;
++	struct address_space *mapping = file->f_mapping;
++	struct inode *inode = mapping->host;
++	struct page *page;
++	unsigned long size, pgoff, endoff;
++
++	pgoff = ((address - area->vm_start) >> PAGE_CACHE_SHIFT)
++		+ area->vm_pgoff;
++	endoff = ((area->vm_end - area->vm_start) >> PAGE_CACHE_SHIFT)
++		+ area->vm_pgoff;
++
++	size = (i_size_read(inode) + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
++	if (pgoff >= size) {
++		return NULL;
++	}
++
++	page = mapping->a_ops->get_xip_page(mapping, pgoff*(PAGE_SIZE/512), 0);
++	if (!IS_ERR(page)) {
++		BUG_ON(!PageUptodate(page));
++		return page;
++	}
++	if (PTR_ERR(page) != -ENODATA)
++		return NULL;
++
++	/* sparse block */
++	if ((area->vm_flags & (VM_WRITE | VM_MAYWRITE)) &&
++	    (area->vm_flags & (VM_SHARED| VM_MAYSHARE)) &&
++	    (!(mapping->host->i_sb->s_flags & MS_RDONLY))) {
++		/* maybe shared writable, allocate new block */
++		page = mapping->a_ops->get_xip_page (mapping,
++			pgoff*(PAGE_SIZE/512), 1);
++		if (IS_ERR(page))
++			return NULL;
++		BUG_ON(!PageUptodate(page));
++		/* unmap page at pgoff from all other vmas */
++		__filemap_xip_unmap(mapping, pgoff);
++	} else {
++		/* not shared and writable, use empty_zero_page */
++		page = virt_to_page(empty_zero_page);
++	}
++
++	return page;
 +};
 +
- struct address_space_operations ext2_nobh_aops = {
- 	.readpage		= ext2_readpage,
- 	.readpages		= ext2_readpages,
-@@ -910,7 +926,9 @@
- 	iblock = (inode->i_size + blocksize-1)
- 					>> EXT2_BLOCK_SIZE_BITS(inode->i_sb);
-
--	if (test_opt(inode->i_sb, NOBH))
-+	if (inode->i_mapping->a_ops->get_xip_page)
-+		xip_truncate_page(inode->i_mapping, inode->i_size);
-+	else if (test_opt(inode->i_sb, NOBH))
- 		nobh_truncate_page(inode->i_mapping, inode->i_size);
- 	else
- 		block_truncate_page(inode->i_mapping,
-@@ -1111,7 +1129,9 @@
- 	if (S_ISREG(inode->i_mode)) {
- 		inode->i_op = &ext2_file_inode_operations;
- 		inode->i_fop = &ext2_file_operations;
--		if (test_opt(inode->i_sb, NOBH))
-+		if (ext2_use_xip(inode->i_sb))
-+			inode->i_mapping->a_ops = &ext2_aops_xip;
-+		else if (test_opt(inode->i_sb, NOBH))
- 			inode->i_mapping->a_ops = &ext2_nobh_aops;
- 		else
- 			inode->i_mapping->a_ops = &ext2_aops;
-diff -ruN linux-2.6-git/fs/ext2/namei.c linux-2.6-git-xip/fs/ext2/namei.c
---- linux-2.6-git/fs/ext2/namei.c	2005-05-10 11:17:12.000000000 +0200
-+++ linux-2.6-git-xip/fs/ext2/namei.c	2005-05-10 12:54:50.629072968 +0200
-@@ -34,6 +34,7 @@
- #include "ext2.h"
- #include "xattr.h"
- #include "acl.h"
-+#include "xip.h"
-
- /*
-  * Couple of helper functions - make the code slightly cleaner.
-@@ -128,7 +129,9 @@
- 	if (!IS_ERR(inode)) {
- 		inode->i_op = &ext2_file_inode_operations;
- 		inode->i_fop = &ext2_file_operations;
--		if (test_opt(inode->i_sb, NOBH))
-+		if (ext2_use_xip(inode->i_sb))
-+			inode->i_mapping->a_ops = &ext2_aops_xip;
-+		else if (test_opt(inode->i_sb, NOBH))
- 			inode->i_mapping->a_ops = &ext2_nobh_aops;
- 		else
- 			inode->i_mapping->a_ops = &ext2_aops;
-diff -ruN linux-2.6-git/fs/ext2/super.c linux-2.6-git-xip/fs/ext2/super.c
---- linux-2.6-git/fs/ext2/super.c	2005-05-10 11:17:12.000000000 +0200
-+++ linux-2.6-git-xip/fs/ext2/super.c	2005-05-10 12:54:50.631072664 +0200
-@@ -31,6 +31,7 @@
- #include "ext2.h"
- #include "xattr.h"
- #include "acl.h"
-+#include "xip.h"
-
- static void ext2_sync_super(struct super_block *sb,
- 			    struct ext2_super_block *es);
-@@ -257,7 +258,7 @@
- 	Opt_bsd_df, Opt_minix_df, Opt_grpid, Opt_nogrpid,
- 	Opt_resgid, Opt_resuid, Opt_sb, Opt_err_cont, Opt_err_panic, Opt_err_ro,
- 	Opt_nouid32, Opt_check, Opt_nocheck, Opt_debug, Opt_oldalloc, Opt_orlov, Opt_nobh,
--	Opt_user_xattr, Opt_nouser_xattr, Opt_acl, Opt_noacl,
-+	Opt_user_xattr, Opt_nouser_xattr, Opt_acl, Opt_noacl, Opt_xip,
- 	Opt_ignore, Opt_err,
+ struct vm_operations_struct generic_file_vm_ops = {
+ 	.nopage		= filemap_nopage,
+ 	.populate	= filemap_populate,
  };
 
-@@ -286,6 +287,7 @@
- 	{Opt_nouser_xattr, "nouser_xattr"},
- 	{Opt_acl, "acl"},
- 	{Opt_noacl, "noacl"},
-+	{Opt_xip, "xip"},
- 	{Opt_ignore, "grpquota"},
- 	{Opt_ignore, "noquota"},
- 	{Opt_ignore, "quota"},
-@@ -397,6 +399,13 @@
- 			printk("EXT2 (no)acl options not supported\n");
- 			break;
- #endif
-+		case Opt_xip:
-+#ifdef CONFIG_EXT2_FS_XIP
-+			set_opt (sbi->s_mount_opt, XIP);
-+#else
-+			printk("EXT2 xip option not supported\n");
-+#endif
-+			break;
- 		case Opt_ignore:
- 			break;
- 		default:
-@@ -640,6 +649,9 @@
- 		((EXT2_SB(sb)->s_mount_opt & EXT2_MOUNT_POSIX_ACL) ?
- 		 MS_POSIXACL : 0);
-
-+	ext2_xip_verify_sb(sb); /* see if bdev supports xip, unset
-+				    EXT2_MOUNT_XIP if not */
++struct vm_operations_struct xip_file_vm_ops = {
++	.nopage         = filemap_xip_nopage,
++};
 +
- 	if (le32_to_cpu(es->s_rev_level) == EXT2_GOOD_OLD_REV &&
- 	    (EXT2_HAS_COMPAT_FEATURE(sb, ~0U) ||
- 	     EXT2_HAS_RO_COMPAT_FEATURE(sb, ~0U) ||
-@@ -668,6 +680,13 @@
+ /* This is used for a general mmap of a disk file */
 
- 	blocksize = BLOCK_SIZE << le32_to_cpu(sbi->s_es->s_log_block_size);
-
-+	if ((ext2_use_xip(sb)) && ((blocksize != PAGE_SIZE) ||
-+				  (sb->s_blocksize != blocksize))) {
-+		if (!silent)
-+			printk("XIP: Unsupported blocksize\n");
-+		goto failed_mount;
-+	}
-+
- 	/* If the blocksize doesn't match, re-read the thing.. */
- 	if (sb->s_blocksize != blocksize) {
- 		brelse(bh);
-@@ -916,6 +935,7 @@
+ int generic_file_mmap(struct file * file, struct vm_area_struct * vma)
  {
- 	struct ext2_sb_info * sbi = EXT2_SB(sb);
- 	struct ext2_super_block * es;
-+	unsigned long old_mount_opt = sbi->s_mount_opt;
+ 	struct address_space *mapping = file->f_mapping;
 
- 	/*
- 	 * Allow the "check" option to be passed as a remount option.
-@@ -927,6 +947,11 @@
- 		((sbi->s_mount_opt & EXT2_MOUNT_POSIX_ACL) ? MS_POSIXACL : 0);
+-	if (!mapping->a_ops->readpage)
++	if ((!mapping->a_ops->readpage) && (!mapping->a_ops->get_xip_page))
+ 		return -ENOEXEC;
+ 	file_accessed(file);
+-	vma->vm_ops = &generic_file_vm_ops;
++	if (unlikely(mapping->a_ops->get_xip_page))
++		vma->vm_ops = &xip_file_vm_ops;
++	else
++		vma->vm_ops = &generic_file_vm_ops;
+ 	return 0;
+ }
+ EXPORT_SYMBOL(filemap_populate);
+@@ -2068,6 +2294,104 @@
+ EXPORT_SYMBOL(generic_file_buffered_write);
 
- 	es = sbi->s_es;
-+	if (((sbi->s_mount_opt & EXT2_MOUNT_XIP) !=
-+	    (old_mount_opt & EXT2_MOUNT_XIP)) &&
-+	    invalidate_inodes(sb))
-+		ext2_warning(sb, __FUNCTION__, "busy inodes while remounting "\
-+			     "xip remain in cache (no functional problem)");
- 	if ((*flags & MS_RDONLY) == (sb->s_flags & MS_RDONLY))
- 		return 0;
- 	if (*flags & MS_RDONLY) {
-diff -ruN linux-2.6-git/fs/ext2/xip.c linux-2.6-git-xip/fs/ext2/xip.c
---- linux-2.6-git/fs/ext2/xip.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6-git-xip/fs/ext2/xip.c	2005-05-10 12:54:50.632072512 +0200
-@@ -0,0 +1,80 @@
-+/*
-+ *  linux/fs/ext2/xip.c
-+ *
-+ * Copyright (C) 2005 IBM Corporation
-+ * Author: Carsten Otte (cotte@de.ibm.com)
-+ */
-+
-+#include <linux/mm.h>
-+#include <linux/fs.h>
-+#include <linux/genhd.h>
-+#include <linux/buffer_head.h>
-+#include <linux/ext2_fs_sb.h>
-+#include <linux/ext2_fs.h>
-+#include "ext2.h"
-+#include "xip.h"
-+
-+static inline int
-+__inode_direct_access(struct inode *inode, sector_t sector, unsigned long *data) {
-+	BUG_ON(!inode->i_sb->s_bdev->bd_disk->fops->direct_access);
-+	return inode->i_sb->s_bdev->bd_disk->fops
-+		->direct_access(inode,sector,data);
-+}
-+
-+int
-+ext2_clear_xip_target(struct inode *inode, int block) {
-+	sector_t sector = block*(PAGE_SIZE/512);
-+	unsigned long data;
-+	int rc;
-+
-+	rc = __inode_direct_access(inode, sector, &data);
-+	if (rc)
-+		return rc;
-+	clear_page((void*)data);
-+	return 0;
-+}
-+
-+void ext2_xip_verify_sb(struct super_block *sb)
+ ssize_t
++generic_file_xip_write(struct kiocb *iocb, const struct iovec *iov,
++		unsigned long nr_segs, loff_t pos, loff_t *ppos,
++		size_t count)
 +{
-+	struct ext2_sb_info *sbi = EXT2_SB(sb);
-+	
-+	if ((sbi->s_mount_opt & EXT2_MOUNT_XIP)) {
-+		if ((sb->s_bdev == NULL) ||
-+			sb->s_bdev->bd_disk == NULL ||
-+			sb->s_bdev->bd_disk->fops == NULL ||
-+			sb->s_bdev->bd_disk->fops->direct_access == NULL) {
-+			sbi->s_mount_opt &= (~EXT2_MOUNT_XIP);
-+			ext2_warning(sb, __FUNCTION__,
-+				"ignoring xip option - not supported by bdev");
++	struct file *file = iocb->ki_filp;
++	struct address_space * mapping = file->f_mapping;
++	struct address_space_operations *a_ops = mapping->a_ops;
++	struct inode 	*inode = mapping->host;
++	long		status = 0;
++	struct page	*page;
++	size_t		bytes;
++	const struct iovec *cur_iov = iov; /* current iovec */
++	size_t		iov_base = 0;	   /* offset in the current iovec */
++	char __user	*buf;
++	ssize_t		written = 0;
++
++	BUG_ON(!mapping->a_ops->get_xip_page);
++
++	buf = iov->iov_base;
++	do {
++		unsigned long index;
++		unsigned long offset;
++		size_t copied;
++
++		offset = (pos & (PAGE_CACHE_SIZE -1)); /* Within page */
++		index = pos >> PAGE_CACHE_SHIFT;
++		bytes = PAGE_CACHE_SIZE - offset;
++		if (bytes > count)
++			bytes = count;
++
++		/*
++		 * Bring in the user page that we will copy from _first_.
++		 * Otherwise there's a nasty deadlock on copying from the
++		 * same page as we're writing to, without it being marked
++		 * up-to-date.
++		 */
++		fault_in_pages_readable(buf, bytes);
++
++		page = a_ops->get_xip_page(mapping,
++						    index*(PAGE_SIZE/512), 0);
++		if (IS_ERR(page) && (PTR_ERR(page) == -ENODATA)) {
++			/* we allocate a new page unmap it */
++			page = a_ops->get_xip_page(mapping,
++				index*(PAGE_SIZE/512), 1);
++			if (!IS_ERR(page))
++			/* unmap page at pgoff from all other vmas */
++			__filemap_xip_unmap(mapping, index);
++
 +		}
++
++		if (IS_ERR(page)) {
++			status = PTR_ERR(page);
++			break;
++		}
++
++		BUG_ON(!PageUptodate(page));
++
++		if (likely(nr_segs == 1))
++			copied = filemap_copy_from_user(page, offset,
++							buf, bytes);
++		else
++			copied = filemap_copy_from_user_iovec(page, offset,
++						cur_iov, iov_base, bytes);
++		flush_dcache_page(page);
++		if (likely(copied > 0)) {
++			status = copied;
++
++			if (status >= 0) {
++				written += status;
++				count -= status;
++				pos += status;
++				buf += status;
++				if (unlikely(nr_segs > 1))
++					filemap_set_next_iovec(&cur_iov,
++							&iov_base, status);
++			}
++		}
++		if (unlikely(copied != bytes))
++			if (status >= 0)
++				status = -EFAULT;
++		if (status < 0)
++			break;
++	} while (count);
++	*ppos = pos;
++	/*
++	 * No need to use i_size_read() here, the i_size
++	 * cannot change under us because we hold i_sem.
++	 */
++	if (pos > inode->i_size) {
++		i_size_write(inode, pos);
++		mark_inode_dirty(inode);
 +	}
++
++	return written ? written : status;
 +}
++EXPORT_SYMBOL(generic_file_xip_write);
 +
-+struct page*
-+ext2_get_xip_page(struct address_space *mapping, sector_t blockno,
-+		   int create)
-+{
-+	int rc;
-+	unsigned long data;
-+	struct buffer_head tmp;
-+
-+	tmp.b_state = 0;
-+	tmp.b_blocknr = 0;
-+	rc = ext2_get_block(mapping->host, blockno/(PAGE_SIZE/512) , &tmp,
-+				create);
-+	if (rc)
-+		return ERR_PTR(rc);
-+	if (tmp.b_blocknr == 0) {
-+		/* SPARSE block */
-+		BUG_ON(create);
-+		return ERR_PTR(-ENODATA);
-+	}
-+
-+	rc = __inode_direct_access
-+		(mapping->host,tmp.b_blocknr*(PAGE_SIZE/512) ,&data);
-+	if (rc)
-+		return ERR_PTR(rc);
-+
-+	SetPageUptodate(virt_to_page(data));
-+	return virt_to_page(data);
-+}
-diff -ruN linux-2.6-git/fs/ext2/xip.h linux-2.6-git-xip/fs/ext2/xip.h
---- linux-2.6-git/fs/ext2/xip.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6-git-xip/fs/ext2/xip.h	2005-05-10 12:54:50.632072512 +0200
-@@ -0,0 +1,21 @@
-+/*
-+ *  linux/fs/ext2/xip.h
-+ *
-+ * Copyright (C) 2005 IBM Corporation
-+ * Author: Carsten Otte (cotte@de.ibm.com)
-+ */
-+
-+#ifdef CONFIG_EXT2_FS_XIP
-+extern void ext2_xip_verify_sb (struct super_block *);
-+extern int ext2_clear_xip_target (struct inode *, int);
-+
-+static inline int ext2_use_xip (struct super_block *sb)
-+{
-+	struct ext2_sb_info *sbi = EXT2_SB(sb);
-+	return (sbi->s_mount_opt & EXT2_MOUNT_XIP);
-+}
-+struct page* ext2_get_xip_page (struct address_space *, sector_t, int);
-+#else
-+#define ext2_xip_verify_sb(sb)     do { } while (0)
-+#define ext2_use_xip(sb)	   0
-+#endif
-diff -ruN linux-2.6-git/include/linux/ext2_fs.h linux-2.6-git-xip/include/linux/ext2_fs.h
---- linux-2.6-git/include/linux/ext2_fs.h	2005-05-10 11:17:25.000000000 +0200
-+++ linux-2.6-git-xip/include/linux/ext2_fs.h	2005-05-10 12:54:50.634072208 +0200
-@@ -300,18 +300,19 @@
- /*
-  * Mount flags
-  */
--#define EXT2_MOUNT_CHECK		0x0001	/* Do mount-time checks */
--#define EXT2_MOUNT_OLDALLOC		0x0002  /* Don't use the new Orlov allocator */
--#define EXT2_MOUNT_GRPID		0x0004	/* Create files with directory's group */
--#define EXT2_MOUNT_DEBUG		0x0008	/* Some debugging messages */
--#define EXT2_MOUNT_ERRORS_CONT		0x0010	/* Continue on errors */
--#define EXT2_MOUNT_ERRORS_RO		0x0020	/* Remount fs ro on errors */
--#define EXT2_MOUNT_ERRORS_PANIC		0x0040	/* Panic on errors */
--#define EXT2_MOUNT_MINIX_DF		0x0080	/* Mimics the Minix statfs */
--#define EXT2_MOUNT_NOBH			0x0100	/* No buffer_heads */
--#define EXT2_MOUNT_NO_UID32		0x0200  /* Disable 32-bit UIDs */
--#define EXT2_MOUNT_XATTR_USER		0x4000	/* Extended user attributes */
--#define EXT2_MOUNT_POSIX_ACL		0x8000	/* POSIX Access Control Lists */
-+#define EXT2_MOUNT_CHECK		0x000001  /* Do mount-time checks */
-+#define EXT2_MOUNT_OLDALLOC		0x000002  /* Don't use the new Orlov allocator */
-+#define EXT2_MOUNT_GRPID		0x000004  /* Create files with directory's group */
-+#define EXT2_MOUNT_DEBUG		0x000008  /* Some debugging messages */
-+#define EXT2_MOUNT_ERRORS_CONT		0x000010  /* Continue on errors */
-+#define EXT2_MOUNT_ERRORS_RO		0x000020  /* Remount fs ro on errors */
-+#define EXT2_MOUNT_ERRORS_PANIC		0x000040  /* Panic on errors */
-+#define EXT2_MOUNT_MINIX_DF		0x000080  /* Mimics the Minix statfs */
-+#define EXT2_MOUNT_NOBH			0x000100  /* No buffer_heads */
-+#define EXT2_MOUNT_NO_UID32		0x000200  /* Disable 32-bit UIDs */
-+#define EXT2_MOUNT_XATTR_USER		0x004000  /* Extended user attributes */
-+#define EXT2_MOUNT_POSIX_ACL		0x008000  /* POSIX Access Control Lists */
-+#define EXT2_MOUNT_XIP			0x010000  /* Execute in place */
++ssize_t
+ __generic_file_aio_write_nolock(struct kiocb *iocb, const struct iovec *iov,
+ 				unsigned long nr_segs, loff_t *ppos)
+ {
+@@ -2123,6 +2447,13 @@
 
- #define clear_opt(o, opt)		o &= ~EXT2_MOUNT_##opt
- #define set_opt(o, opt)			o |= EXT2_MOUNT_##opt
+ 	inode_update_time(inode, 1);
+
++	if (unlikely(file->f_mapping->a_ops->get_xip_page)) {
++		/* use execute in place to copy directly to disk */
++		written = generic_file_xip_write (iocb, iov,
++			        nr_segs, pos, ppos, count);
++		goto out;
++	}
++
+ 	/* coalesce the iovecs and go direct-to-BIO for O_DIRECT */
+ 	if (unlikely(file->f_flags & O_DIRECT)) {
+ 		written = generic_file_direct_write(iocb, iov,
+@@ -2324,3 +2655,53 @@
+ 	return retval;
+ }
+ EXPORT_SYMBOL_GPL(generic_file_direct_IO);
++
++/*
++ * truncate a page used for execute in place
++ * functionality is analog to block_truncate_page but does use get_xip_page
++ * to get the page instead of page cache
++ */
++int xip_truncate_page(struct address_space *mapping, loff_t from)
++{
++	pgoff_t index = from >> PAGE_CACHE_SHIFT;
++	unsigned offset = from & (PAGE_CACHE_SIZE-1);
++	unsigned blocksize;
++	unsigned length;
++	struct page *page;
++	void *kaddr;
++	int err;
++
++	blocksize = 1 << mapping->host->i_blkbits;
++	length = offset & (blocksize - 1);
++
++	/* Block boundary? Nothing to do */
++	if (!length)
++		return 0;
++
++	length = blocksize - length;
++
++	page = mapping->a_ops->get_xip_page(mapping,
++					    index*(PAGE_SIZE/512), 0);
++	err = -ENOMEM;
++	if (!page)
++		goto out;
++	if (unlikely(IS_ERR(page))) {
++		if (PTR_ERR(page) == -ENODATA) {
++			/* Hole? No need to truncate */
++			return 0;
++		} else {
++			err = PTR_ERR(page);
++			goto out;
++		}
++	} else
++		BUG_ON(!PageUptodate(page));
++	kaddr = kmap_atomic(page, KM_USER0);
++	memset(kaddr + offset, 0, length);
++	kunmap_atomic(kaddr, KM_USER0);
++
++	flush_dcache_page(page);
++	err = 0;
++out:
++	return err;
++}
++EXPORT_SYMBOL(xip_truncate_page);
+
+
 

@@ -1,62 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbVEKK6h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261969AbVEKLBT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261206AbVEKK6h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 06:58:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVEKK6h
+	id S261969AbVEKLBT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 07:01:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbVEKLBS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 06:58:37 -0400
-Received: from attila.bofh.it ([213.92.8.2]:40644 "EHLO attila.bofh.it")
-	by vger.kernel.org with ESMTP id S261206AbVEKK6a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 06:58:30 -0400
-Date: Wed, 11 May 2005 12:58:18 +0200
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Erik van Konijnenburg <ekonijn@xs4all.nl>, Greg KH <gregkh@suse.de>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: [ANNOUNCE] hotplug-ng 002 release
-Message-ID: <20050511105818.GB8761@wonderland.linux.it>
-Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
-	Erik van Konijnenburg <ekonijn@xs4all.nl>, Greg KH <gregkh@suse.de>,
-	linux-hotplug-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <20050510203156.GA14979@wonderland.linux.it> <20050510205239.GA3634@suse.de> <20050510210823.GB15541@wonderland.linux.it> <20050510232207.A7594@banaan.localdomain> <20050511015509.B7594@banaan.localdomain> <1115770106.17201.21.camel@localhost.localdomain> <20050511031103.C7594@banaan.localdomain> <1115782753.17201.54.camel@localhost.localdomain> <20050511115955.D7594@banaan.localdomain> <1115808722.16408.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1UWUbFP1cBYEclgG"
-Content-Disposition: inline
-In-Reply-To: <1115808722.16408.3.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
-From: md@Linux.IT (Marco d'Itri)
+	Wed, 11 May 2005 07:01:18 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:12762 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S261965AbVEKLAG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 07:00:06 -0400
+Message-ID: <4281E5AE.4090601@grupopie.com>
+Date: Wed, 11 May 2005 11:59:58 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Imre Deak <imre.deak@nokia.com>
+Cc: linux-kernel@vger.kernel.org, kaos@ocs.com.au,
+       Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: arm: Inconsistent kallsyms data
+References: <1115802310.9757.20.camel@mammoth.research.nokia.com>
+In-Reply-To: <1115802310.9757.20.camel@mammoth.research.nokia.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Imre Deak wrote:
+> Hi,
+> 
+> building 2.6.12-rc4 results in "Inconsistent kallsyms data". Setting
+> CONFIG_KALLSYMS_EXTRA_PASS=y doesn't help.
+> 
+> I made a diff of .tmp_kallsyms[12].S after converting them to human
+> readable form with kallsyms_uncompress.pl .
 
---1UWUbFP1cBYEclgG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ From the diff, I can see the problem is that "__bss_start" changes 
+position with "_edata" from the first to the second pass.
 
-On May 11, Rusty Russell <rusty@rustcorp.com.au> wrote:
+If your read my post from yesterday "Re: Linux v2.6.12-rc4" (not a very 
+descriptive subject), I explain there why this is a problem.
 
-> Then perhaps depmod should be the one to read a blacklist file?  It
-> produces the modules.alias file where these things live.
-I think this would be confusing for users.
+Sam, from looking at your patch, it seems that the patch shouldn't 
+affect these particular symbols. Am I correct?
 
---=20
-ciao,
-Marco
+Maybe we really need the more robust fix to kallsyms, so that this sort 
+of thing doesn't bite us in the future, no matter what symbols change 
+position.
 
---1UWUbFP1cBYEclgG
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+> I noticed that the error is triggered by an __initdata definition. It is
+> accessed only from an __init function, so that's ok I think. Removing
+> the __initdata attribute gets rid of the error message.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
+This is just a "tape over" solution that makes the symbols change 
+positions, so that maybe these 2 symbols don't get selected for sampling.
 
-iD8DBQFCgeVKFGfw2OHuP7ERAmA0AJ94sUip5hzLP+z8/VK9HP5xJJtzKwCggzDd
-nkVKBUPiz7gmiwsNmk96VT0=
-=HJUX
------END PGP SIGNATURE-----
+> Let me know if you need more data to track the problem.
 
---1UWUbFP1cBYEclgG--
+There is a simple workaround that is to increase the WORKING_SET define 
+in scripts/kallsyms.c to something like 65536. This will include every 
+symbol in the token table calculation, so that even if symbol position 
+changes, the token table should be the same.
+
+I tested this with a configuration I have here that had a similar 
+problem and it indeed worked as expected.
+
+The problem with this approach is that it takes longer to calculate the 
+token table. (~3secs on my P4 2.8GHz, 11300 symbols)
+
+-- 
+Paulo Marques - www.grupopie.com
+
+An expert is a person who has made all the mistakes that can be
+made in a very narrow field.
+Niels Bohr (1885 - 1962)

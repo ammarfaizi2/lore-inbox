@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbVEKIwJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbVEKI5c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261932AbVEKIwJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 04:52:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVEKIwD
+	id S261941AbVEKI5c (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 04:57:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261940AbVEKI5W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 04:52:03 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:51626 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261932AbVEKIvz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 04:51:55 -0400
-Date: Wed, 11 May 2005 09:51:54 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: ericvh@gmail.com, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, smfrench@austin.rr.com, hch@infradead.org
-Subject: Re: [RCF] [PATCH] unprivileged mount/umount
-Message-ID: <20050511085154.GB24495@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Miklos Szeredi <miklos@szeredi.hu>, ericvh@gmail.com,
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-	smfrench@austin.rr.com
-References: <E1DSyQx-0002ku-00@dorka.pomaz.szeredi.hu> <a4e6962a05050406086e3ab83b@mail.gmail.com> <E1DTKkd-0003rC-00@dorka.pomaz.szeredi.hu>
-Mime-Version: 1.0
+	Wed, 11 May 2005 04:57:22 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:35762 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S261943AbVEKIzZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 04:55:25 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1DTKkd-0003rC-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 7bit
+Message-ID: <17025.51314.585943.931944@napali.hpl.hp.com>
+Date: Wed, 11 May 2005 01:55:14 -0700
+To: Roland McGrath <roland@redhat.com>
+Cc: davidm@hpl.hp.com, akpm@osdl.org, tony.luck@intel.com,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] add arch_ptrace_stop() hook and use it on ia64
+In-Reply-To: <200505110059.j4B0xkkM003452@magilla.sf.frob.com>
+References: <17025.6719.837031.411067@napali.hpl.hp.com>
+	<200505110059.j4B0xkkM003452@magilla.sf.frob.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 04, 2005 at 04:21:23PM +0200, Miklos Szeredi wrote:
-> Yes, I see your point.  However the problem of malicious filesystem
-> "traps" applies to private namespaces as well (because of suid
-> programs).
-> 
-> So if a user creates a private namespace, it should have the choice of:
-> 
->    1) Giving up all suid rights (i.e. all mounts are cloned and
->       propagated with nosuid)
-> 
->    2) Not giving up suid for cloned and propagated mounts, but having
->       extra limitations (suid/sgid programs cannot access unprivileged
->       "synthetic" mounts)
+>>>>> On Tue, 10 May 2005 17:59:46 -0700, Roland McGrath <roland@redhat.com> said:
 
-Although I hate special cases I think that we might need 2) to avoid too
-much trouble tripping over the global namespace.  OTOH that should also
-accelarate adoption of giving each user a separate namespace on login in
-the various distribution, which is a good thing ;-)
+  Roland> (This leads to threads in TASK_TRACED with a pending
+  Roland> SIGKILL, that cannot be killed with repeated kill -9s, and
+  Roland> live until the tracer uses PTRACE_CONT, detaches, or dies.)
+
+Ah, yes, I see now that SIGKILL is a rather nasty special-case.
+
+  Roland> When I suggested this change for ia64 originally, I
+  Roland> overlooked the need to handle blocking in writing to user
+  Roland> memory.  I'd like to give a little more thought to the
+  Roland> general case.  As long as only uninterruptible waits are
+  Roland> provoked by an arch hook, then I think it is reasonably
+  Roland> solvable.  I think that SIGKILL races are the only ones that
+  Roland> can arise, and those can be addressed with some signal
+  Roland> bookkeeping changes.  I'd like to give it a little more
+  Roland> thought.  I expect it will wind up being some core changes
+  Roland> that make it safe for an arch hook to drop and reacquire the
+  Roland> siglock if it's doing something that won't always complete
+  Roland> quickly, and then this will all happen before changing
+  Roland> state, unlocking, and deciding to block (which won't be done
+  Roland> if there was an intervening SIGKILL).
+
+OK, that sounds good to me.  Please keep me posted.  It would be nice
+to have this hook in place, since it does fix a bug on ia64 and makes
+the code simpler.
+
+Thanks,
+
+	--david
 

@@ -1,68 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVEKOqT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbVEKOqU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261243AbVEKOqT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 10:46:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbVEKOoW
+	id S261203AbVEKOqU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 10:46:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbVEKOn5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 10:44:22 -0400
-Received: from wproxy.gmail.com ([64.233.184.199]:51611 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261978AbVEKOjL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 10:39:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Yw+4FVGlTGbUB9yNVnSH5UfgtuEvNU7NDS7gQZ8VjlOpBq4tWotrKCsdRDJck4n+5RBLi4pDPgQ9tUMvsRdSVIKvQ+x3f4OcglS+OXrVGcMbYmKEC6HOLt3OgYtX1j2MfBybTt+FdVvKX4BqcFR/yWfA9aZw1GCpHLNwSTEAWs0=
-Message-ID: <2cd57c9005051107397bef53a7@mail.gmail.com>
-Date: Wed, 11 May 2005 22:39:07 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: coywolf@lovecn.org
-To: Borislav Petkov <petkov@uni-muenster.de>
-Subject: Re: kexec?
-Cc: maneesh@in.ibm.com, Vivek Goyal <vgoyal@in.ibm.com>,
-       "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200505111351.42266.petkov@uni-muenster.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050508202050.GB13789@charite.de>
-	 <2cd57c9005051006117d0c343@mail.gmail.com>
-	 <20050511060434.GA8856@in.ibm.com>
-	 <200505111351.42266.petkov@uni-muenster.de>
+	Wed, 11 May 2005 10:43:57 -0400
+Received: from smtp-ext-02.mx.pitdc1.expedient.net ([206.210.69.142]:36744
+	"EHLO smtp-ext-02.mx.pitdc1.expedient.net") by vger.kernel.org
+	with ESMTP id S261986AbVEKOlm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 10:41:42 -0400
+Message-ID: <42821A77.30301@psc.edu>
+Date: Wed, 11 May 2005 10:45:11 -0400
+From: Paul Nowoczynski <pauln@psc.edu>
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: E1000 - page allocation failure - saga continues :( message 1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/11/05, Borislav Petkov <petkov@uni-muenster.de> wrote:
-> On Wednesday 11 May 2005 08:04, Maneesh Soni wrote:
-> <snip>
-> > > > [root@zmei]: kexec -p vmlinux --args-linux --append="root=/dev/hda1
-> > > > maxcpus=1 init 1"
-> > >
-> > >  kexec-tools-1.101 loads for me, but if cmdline is used, it hangs up
-> > > after "Starting new kernel"
-> >
-> > Thanks for trying this out. As Vivek mentioned can you please try with
-> > bulding second or dump capture kernel with CONFIG_SMP=N and _without_
-> > maxcpus= option. Basically the second kernel's job is just to save the dump
-> > and it doesnot need to be a SMP kernel. There are some issues with booting
-> > SMP kernel as dump capture kernel.
-> 
-> Hm, without 'maxcpus' seems to work. However, when booting into the new
-> kernel, the rootfs had to be fsck'ed due to "/ was not cleanly unmounted,
-> check forced." and then was forced to reboot linux due to inconsistency in
-> the fs. I simply did kexec -l <vmlinux> --args-linux --append="root=/dev/hda1
-> init 1" and then kexec -e to execute the loaded image. It seems that the
-> filesystems are not unmounted properly before loading the second kernel, (or
-> I am missing something..., which is more likely :))
+I think the problem is related to dma activity by the e1000 and the page 
+cache hoarding
+all the pages in the system.  I've been using min_free_kbytes to get 
+around this - setting it
+at 131072.  Even at that amount I still see the page_alloc errors, 
+raising the limit to 262144
+actually lowers the amount of memory the system reserves (to about 
+90MB)!   I've seen this
+on both 2.6.7 and recently 2.6.11. 
 
-kexec is like a bare reboot. 
-Add kexec -l and -e just above the reboot line in your
-/etc/init.d/reboot script,
-or umount manually( sysrq+s sysrq+u ).
+I'd like to see more control over the page cache.  My machine do tons of 
+disk IO and really
+I find it a waste that 1.8 GB of memory is sitting idle in the page 
+cache, meanwhile the kernel
+is unable to free it fast enough when the ethernet card needs to dma.
+
+If I'm missing something please let me know.
+paul
+
+linuxkernel2.20.sandos@spamgourmet.com wrote:
+ > Nick Piggin - nickpiggin@yahoo.com.au wrote:
+ >
+ >> linuxkernel2.20.sandos@spamgourmet.com wrote:
+
+ >>> It would be nice with a "cleaner" solution though.
+ >>>
+ >>
+ >> What kernel are you using?
+ >> Are you doing a lot of block IO as well?
+ >
+ >
+ > I am using 2.6.11.8.
+ >
+ > Yes, the server is a fileserver for both the internet (~10Mbit) and
+ > internally (1Gbit e1000). Hardware is pretty old so is pretty heavily
+ > loaded and with 256MB RAM.
+ >
+
+OK, well there are some patches in 2.6.12 that should make
+things slightly better, and then some more patches in -mm
+(not sure if they'll make it for 2.6.12) that should make
+things slightly better again.
+
+Basically they work towards reducing the memory allocation
+"priority" for block IO requests, in relation to networking
+and other atomic allocation requirements.
+
+If you can't test the latest -mm, or 2.6.12-rc4, then wait
+for 2.6.12 and 2.6.13 and check back on the problem.
+
+Thanks,
+Nick
 
 -- 
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+SUSE Labs, Novell Inc.
+
+-

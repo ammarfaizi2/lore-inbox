@@ -1,51 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261940AbVEKQ3m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261985AbVEKQfo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261940AbVEKQ3m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 12:29:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261978AbVEKQ3m
+	id S261985AbVEKQfo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 12:35:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261986AbVEKQfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 12:29:42 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:26527 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261940AbVEKQ3k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 12:29:40 -0400
-Date: Thu, 12 May 2005 00:29:50 +0800
-From: "Yu, Luming" <luming.yu@intel.com>
-To: =?iso-8859-1?Q?Andr=E9?= Pereira de Almeida <andre@cachola.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: acpi poweroff
-Message-ID: <20050511162950.GA5486@linux.sh.intel.com>
-Mail-Followup-To: =?iso-8859-1?Q?Andr=E9?= Pereira de Almeida <andre@cachola.com.br>,
-	linux-kernel@vger.kernel.org
-References: <427FC554.1070306@cachola.com.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <427FC554.1070306@cachola.com.br>
-User-Agent: Mutt/1.5.6i
+	Wed, 11 May 2005 12:35:44 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:15817 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S261978AbVEKQfe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 12:35:34 -0400
+Message-ID: <42823450.8030007@freenet.de>
+Date: Wed, 11 May 2005 18:35:28 +0200
+From: Carsten Otte <cotte@freenet.de>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Woodhouse <dwmw2@infradead.org>
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       schwidefsky@de.ibm.com, akpm@osdl.org
+Subject: Re: [RFC/PATCH 0/5] add execute in place support
+References: <428216DF.8070205@de.ibm.com> <1115828389.16187.544.camel@hades.cambridge.redhat.com>
+In-Reply-To: <1115828389.16187.544.camel@hades.cambridge.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a clue to track down to the root.
-What's your machine model and kernel version?
-Thanks,
-Luming
-On 2005.05.09 17:17:24 -0300, André Pereira de Almeida wrote:
-> When I try to poweroff my computer, it reboots.
-> The only way to turn it off is to change
-> 
-> acpi_sleep_prepare(ACPI_STATE_S5);
-> 
-> to
-> 
-> acpi_sleep_prepare(ACPI_STATE_S4);
-> 
-> in the function acpi_power_off in the file drivers/acpi/sleep/poweroff.c.
-> I think it's a buggy acpi controller.
-> What's the side effect of this change?
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+David Woodhouse wrote:
+
+>On Wed, 2005-05-11 at 16:29 +0200, Carsten Otte wrote:
+>  
+>
+>>. This is also useful on embedded systems where the block device is
+>>located on a flash chip.
+>>    
+>>
+>
+>On Wed, 2005-05-11 at 17:33 +0200, Carsten Otte wrote:
+>  
+>
+>>Indeed that seems reasonable. There is no exact reason to have
+>>this built into a kernel on a platform that does not have a bdev
+>>for this.
+>>    
+>>
+>
+>The sanest way to use flash chips is not to pretend that they're a block
+>device at all; rather to use a file system directly on top of them. 
+>
+>But although you _talk_ about block devices, your code does look like it
+>should be usable even by flash file systems. I'll try to come up with a
+>test case using it on flash.
+>
+>  
+>
+Yes and no. For execute in place to work proper, you need an
+allignment of data to page boundaries "on disk" (or on flash)
+just like you have when mmap()ing to userland.
+Before choosing second extended, I also looked at some
+flash/rom filesystems. But I was unable to identify one that
+alligns the data proper (and does not compress things or
+such). The ext family with block size == PAGE_SIZE does
+fullfill that requirement once the "block device" starts on page
+boundary.
+On the other hand I believe that a filesystem specificaly
+designed for flash can provide less metadata overhead then
+second extended. Would also be interresting in our use-case
+on s390.
+

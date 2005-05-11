@@ -1,44 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbVEKWxC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbVEKWvW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261303AbVEKWxC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 18:53:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbVEKWxC
+	id S261299AbVEKWvW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 18:51:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261303AbVEKWvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 18:53:02 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:5647
-	"EHLO g5.random") by vger.kernel.org with ESMTP id S261303AbVEKWwu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 18:52:50 -0400
-Date: Thu, 12 May 2005 00:52:43 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: William Jordan <bjordan.ics@gmail.com>,
-       Timur Tabi <timur.tabi@ammasso.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
-Message-ID: <20050511225243.GM6313@g5.random>
-References: <20050412180447.E6958@topspin.com> <20050425203110.A9729@topspin.com> <4279142A.8050501@ammasso.com> <427A6A7E.8000604@ammasso.com> <427BF8E1.2080006@ammasso.com> <Pine.LNX.4.61.0505071304010.4713@goblin.wat.veritas.com> <427CD49E.6080300@ammasso.com> <Pine.LNX.4.61.0505071617470.5718@goblin.wat.veritas.com> <78d18e2050511131246075b37@mail.gmail.com> <Pine.LNX.4.61.0505112129280.7826@goblin.wat.veritas.com>
+	Wed, 11 May 2005 18:51:13 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:52484 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261299AbVEKWu7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 18:50:59 -0400
+Date: Thu, 12 May 2005 00:50:57 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Jan Dittmer <jdittmer@ppp0.net>, spyro@f2s.com, zippel@linux-m68k.org,
+       starvik@axis.com, linux-kernel@vger.kernel.org,
+       kbuild-devel@lists.sourceforge.net, dev-etrax@axis.com,
+       sparclinux@vger.kernel.org
+Subject: Re: select of non-existing I2C* symbols
+Message-ID: <20050511225057.GK6884@stusta.de>
+References: <20050302203812.092f80a0.akpm@osdl.org> <20050304105247.B3932@flint.arm.linux.org.uk> <20050304032632.0a729d11.akpm@osdl.org> <20050304113626.E3932@flint.arm.linux.org.uk> <20050506235842.A23651@flint.arm.linux.org.uk> <427C9DBD.1030905@ppp0.net> <20050507122622.C11839@flint.arm.linux.org.uk> <427CC082.4000603@ppp0.net> <20050507144135.GL3590@stusta.de> <20050511143010.GF9304@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0505112129280.7826@goblin.wat.veritas.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+In-Reply-To: <20050511143010.GF9304@holomorphy.com>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 11, 2005 at 09:42:24PM +0100, Hugh Dickins wrote:
-> proposed patches) there is no such migration of pages; that we'd prefer
-> to implement migration in such a way that mlock does not inhibit it
-> (though there might prove to be strong arguments defeating that);
-> and that get_user_pages _must_ prevent migration (and if there
-> were already such migration, I'd be saying it _does_ prevent it).
+On Wed, May 11, 2005 at 07:30:10AM -0700, William Lee Irwin III wrote:
+> On Sat, May 07, 2005 at 03:20:02PM +0200, Jan Dittmer wrote:
+> >>...
+> >> Link to this page: http://l4x.org/k/?diff[v1]=mm
+> 
+> On Sat, May 07, 2005 at 04:41:35PM +0200, Adrian Bunk wrote:
+> > arm26, cris, sparc: select of non-existing I2C* symbols:
+> > @ Ian, Mikael, William:
+> > This could be fixed by sourcing drivers/i2c/Kconfig in arch/*/Kconfig,
+> > but it would be better to switch to use drivers/Kconfig.
+> > @ Roman:
+> > Shouldn't kconfig exit with an error if a not available symbol gets
+> > selected?
+> 
+> You're telling me I have to futz with the i2c Kconfig just to cope with
+> it not existing?
 
-Indeed, mlock is a virtual pin and as such it won't be guaranteed to
-always prevent migration. While get_user_pages is a physical pin on the
-physical page so it has to prevent migration.
+What happens if a user selects one of the options that do themself 
+select one or more of the I2C* options?
 
-I think for him the physical pin is better since I guess IB would break
-(at least unless you've some method to call to stop IB, adjust the IB
-dma tracking, and restart IB, that hotplug can call). For the short term
-using only get_user_pages sounds simpler IMHO.
+This might be solved differently (e.g. via some kind of 
+ARCH_SUPPORTS_I2C), but it should be solved.
+
+> -- wli
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

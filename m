@@ -1,57 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbVEKPLP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbVEKPRW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261196AbVEKPLP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 11:11:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261181AbVEKPLP
+	id S261188AbVEKPRW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 11:17:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbVEKPRW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 11:11:15 -0400
-Received: from az33egw02.freescale.net ([192.88.158.103]:33935 "EHLO
-	az33egw02.freescale.net") by vger.kernel.org with ESMTP
-	id S261211AbVEKPLC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 11:11:02 -0400
-Date: Wed, 11 May 2005 10:10:31 -0500 (CDT)
-From: Kumar Gala <galak@freescale.com>
-X-X-Sender: galak@nylon.am.freescale.net
-To: Andrew Morton <akpm@osdl.org>
-cc: linuxppc-embedded <linuxppc-embedded@ozlabs.org>,
-       linux-kernel@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>
-Subject: [PATCH] ppc32: Fix uImage make target to report success correctly
-Message-ID: <Pine.LNX.4.61.0505111008010.9895@nylon.am.freescale.net>
+	Wed, 11 May 2005 11:17:22 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:59008 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S261188AbVEKPQp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 11:16:45 -0400
+Message-ID: <428221D1.1010800@sw.ru>
+Date: Wed, 11 May 2005 19:16:33 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix of bogus file max limit messages
+Content-Type: multipart/mixed;
+ boundary="------------000206010609070702000902"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The existing make rule when building a uImage would check to see
-if the image file existed to report 'is ready' or 'not made'.
-However make appeared to compute the file list before the rule
-was executed.
+This is a multi-part message in MIME format.
+--------------000206010609070702000902
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Chris Clark <cpclark@xmission.com>
-Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org> 
+This patch fixes incorrect and bogus kernel messages
+that file-max limit reached when the allocation fails
 
----
-commit f772a90e948f019c3111a94394b3a649874417c7
-tree c9d59c269792db4933039da49b3b3836ac5b01f5
-parent c140244727aa88fcaefe34af4abc56e85b471da2
-author Kumar K. Gala <kumar.gala@freescale.com> Tue, 10 May 2005 10:27:46 -0500
-committer Kumar K. Gala <kumar.gala@freescale.com> Tue, 10 May 2005 10:27:46 -0500
+Signed-Off-By: Kirill Korotaev <dev@sw.ru>
+Signed-Off-By: Denis Lunev <den@sw.ru>
 
- ppc/boot/images/Makefile |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
+Kirill
 
-Index: arch/ppc/boot/images/Makefile
-===================================================================
---- dd5d97e6f88b8fbfcc09878d837c8e90590484b8/arch/ppc/boot/images/Makefile  (mode:100644)
-+++ c9d59c269792db4933039da49b3b3836ac5b01f5/arch/ppc/boot/images/Makefile  (mode:100644)
-@@ -22,7 +22,8 @@
- $(obj)/uImage: $(obj)/vmlinux.gz
- 	$(Q)rm -f $@
- 	$(call if_changed,uimage)
--	@echo '  Image: $@' $(if $(wildcard $@),'is ready','not made')
-+	@echo -n '  Image: $@ '
-+	@if [ -f $@ ]; then echo 'is ready' ; else echo 'not made'; fi
+--------------000206010609070702000902
+Content-Type: text/plain;
+ name="diff-mainstream-filemax-20050216"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff-mainstream-filemax-20050216"
+
+--- ./fs/file_table.c.filemax	2005-03-02 10:37:47.000000000 +0300
++++ ./fs/file_table.c	2005-05-10 17:37:43.000000000 +0400
+@@ -63,42 +63,45 @@ static inline void file_free(struct file
+  */
+ struct file *get_empty_filp(void)
+ {
+-static int old_max;
++	static int old_max;
+ 	struct file * f;
  
- # Files generated that shall be removed upon make clean
- clean-files	:= sImage vmapus vmlinux* miboot* zImage* uImage
+ 	/*
+ 	 * Privileged users can go above max_files
+ 	 */
+-	if (files_stat.nr_files < files_stat.max_files ||
+-				capable(CAP_SYS_ADMIN)) {
+-		f = kmem_cache_alloc(filp_cachep, GFP_KERNEL);
+-		if (f) {
+-			memset(f, 0, sizeof(*f));
+-			if (security_file_alloc(f)) {
+-				file_free(f);
+-				goto fail;
+-			}
+-			eventpoll_init_file(f);
+-			atomic_set(&f->f_count, 1);
+-			f->f_uid = current->fsuid;
+-			f->f_gid = current->fsgid;
+-			rwlock_init(&f->f_owner.lock);
+-			/* f->f_version: 0 */
+-			INIT_LIST_HEAD(&f->f_list);
+-			f->f_maxcount = INT_MAX;
+-			return f;
+-		}
+-	}
++	if (files_stat.nr_files >= files_stat.max_files &&
++				!capable(CAP_SYS_ADMIN))
++		goto over;
++
++	f = kmem_cache_alloc(filp_cachep, GFP_KERNEL);
++	if (f == NULL)
++		goto fail;
++
++	memset(f, 0, sizeof(*f));
++	if (security_file_alloc(f))
++		goto fail_sec;
++
++	eventpoll_init_file(f);
++	atomic_set(&f->f_count, 1);
++	f->f_uid = current->fsuid;
++	f->f_gid = current->fsgid;
++	rwlock_init(&f->f_owner.lock);
++	/* f->f_version: 0 */
++	INIT_LIST_HEAD(&f->f_list);
++	f->f_maxcount = INT_MAX;
++	return f;
+ 
++over:
+ 	/* Ran out of filps - report that */
+-	if (files_stat.max_files >= old_max) {
++	if (files_stat.nr_files > old_max) {
+ 		printk(KERN_INFO "VFS: file-max limit %d reached\n",
+ 					files_stat.max_files);
+-		old_max = files_stat.max_files;
+-	} else {
+-		/* Big problems... */
+-		printk(KERN_WARNING "VFS: filp allocation failed\n");
++		old_max = files_stat.nr_files;
+ 	}
++	goto fail;
++
++fail_sec:
++	file_free(f);
+ fail:
+ 	return NULL;
+ }
+
+--------------000206010609070702000902--
+

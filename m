@@ -1,77 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262014AbVEKRsE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262015AbVEKRvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262014AbVEKRsE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 13:48:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262012AbVEKRsE
+	id S262015AbVEKRvN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 13:51:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbVEKRvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 13:48:04 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:28881 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S262020AbVEKRre
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 13:47:34 -0400
-Message-ID: <42824532.9040002@freenet.de>
-Date: Wed, 11 May 2005 19:47:30 +0200
-From: Carsten Otte <cotte@freenet.de>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-CC: Badari Pulavarty <pbadari@us.ibm.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>, schwidefsky@de.ibm.com,
-       Andrew Morton <akpm@osdl.org>
+	Wed, 11 May 2005 13:51:04 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43997 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262010AbVEKRuk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 13:50:40 -0400
+Date: Wed, 11 May 2005 18:50:50 +0100
+From: Matthew Wilcox <matthew@wil.cx>
+To: cotte@freenet.de
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       schwidefsky@de.ibm.com, akpm@osdl.org
 Subject: Re: [RFC/PATCH 2/5] mm/fs: add execute in place support
-References: <428216F7.30303@de.ibm.com> <1115826428.26913.1069.camel@dyn318077bld.beaverton.ibm.com> <4282307D.8060307@freenet.de> <200505111931.11799.arnd@arndb.de>
-In-Reply-To: <200505111931.11799.arnd@arndb.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Message-ID: <20050511175050.GE10567@parcelfarce.linux.theplanet.co.uk>
+References: <428216F7.30303@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <428216F7.30303@de.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd Bergmann wrote:
+On Wed, May 11, 2005 at 04:30:15PM +0200, Carsten Otte wrote:
+> +	BUG_ON(!mapping->a_ops->get_xip_page);
 
->On Middeweken 11 Mai 2005 18:19, Carsten Otte wrote:
->  
->
->>Badari Pulavarty wrote:
->>    
->>
->>>you may want to look into some how eliminating few
->>>function pointer de-refs and checks for those who don't care.
->>>(#ifdef, unlikely(), or some arch & config magic).
->>> 
->>>
->>>      
->>>
->>I do agree that addidional pointer derefs would be a nightmare
->>from the performance perspective. But afaics the patch does not
->>add such, and for checks I did already add likeleyness for the non-xip
->>case. Could you be more precise and specify which code path(es) you
->>mean?
->>    
->>
->
->I guess what Badari means is that you could add a function like
->
->#ifdef CONFIG_FS_XIP
->static inline int mapping_has_xip(struct address_space *mapping)
->{
->	return __unlikely(mapping->a_ops->get_xip_page != NULL);
->}
->#else
->#define mapping_has_xip(x) (0)
->#endif
->
->Using this in the hot path should result identical binary code to the
->current version as long as XIP is not enabled, while otherwise you
->need to access four data cache lines every time.
->
->I wouldn't expect much benefit from this since all these cache lines
->should be pretty hot and the branch gets predicted correctly anyway,
->but it surely doesn't hurt to do the abstraction.
->
->	Arnd <><
->  
->
-Agreed. Will be changed in next version, thanks for clarification.
+No need to put this assert here.  You'll get exactly as good a stack trace ...
+
+> +		page = mapping->a_ops->get_xip_page(mapping,
+> +			index*(PAGE_SIZE/512), 0);
+
+... here, when you call through a null pointer.
+
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

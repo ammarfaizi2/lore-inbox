@@ -1,56 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261946AbVEKBC2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261876AbVEKBJo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261946AbVEKBC2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 21:02:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbVEKBBs
+	id S261876AbVEKBJo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 21:09:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbVEKBJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 21:01:48 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:2996 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261868AbVEKA76 (ORCPT
+	Tue, 10 May 2005 21:09:36 -0400
+Received: from ozlabs.org ([203.10.76.45]:18096 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261868AbVEKBJ2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 20:59:58 -0400
-Date: Tue, 10 May 2005 17:59:46 -0700
-Message-Id: <200505110059.j4B0xkkM003452@magilla.sf.frob.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 10 May 2005 21:09:28 -0400
+Subject: Re: [ANNOUNCE] hotplug-ng 002 release
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: "Marco d'Itri" <md@Linux.IT>
+Cc: Greg KH <gregkh@suse.de>, "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20050511001056.GB17762@wonderland.linux.it>
+References: <20050506212227.GA24066@kroah.com>
+	 <1115611034.14447.11.camel@localhost.localdomain>
+	 <20050509232103.GA24238@suse.de>
+	 <1115717357.10222.1.camel@localhost.localdomain>
+	 <20050510094339.GC6346@wonderland.linux.it> <4280AFF4.6080108@ums.usu.ru>
+	 <20050510172447.GA11263@wonderland.linux.it>
+	 <20050510201355.GB3226@suse.de>
+	 <1115769676.17201.14.camel@localhost.localdomain>
+	 <20050511001056.GB17762@wonderland.linux.it>
+Content-Type: text/plain
+Date: Wed, 11 May 2005 11:09:14 +1000
+Message-Id: <1115773754.17201.34.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: davidm@hpl.hp.com
-X-Fcc: ~/Mail/linus
-Cc: akpm@osdl.org, tony.luck@intel.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] add arch_ptrace_stop() hook and use it on ia64
-In-Reply-To: David Mosberger's message of  Tuesday, 10 May 2005 13:31:59 -0700 <17025.6719.837031.411067@napali.hpl.hp.com>
-X-Antipastobozoticataclysm: When George Bush projectile vomits antipasto on the Japanese.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David.  Sorry I wasn't able to reply to your earlier questions about
-this before now.  I knew the question needed some thought and I was too
-busy to consider it in detail, so it fell by the wayside.  Today I've spent
-a little time thinking about it, though still not explored the subject
-completely.  It definitely will not fly to change ptrace_stop in that way.
-That opens up some race holes that the whole revamp that added the
-ptrace_stop function was intended to close.  The scenario I can think of
-off hand is a race with a SIGKILL that must resume the thread from any
-tracing stop, or prevent it from entering the tracing stop, and then will
-not.  (This leads to threads in TASK_TRACED with a pending SIGKILL, that
-cannot be killed with repeated kill -9s, and live until the tracer uses
-PTRACE_CONT, detaches, or dies.)
+On Wed, 2005-05-11 at 02:10 +0200, Marco d'Itri wrote:
+> On May 11, Rusty Russell <rusty@rustcorp.com.au> wrote:
+> 
+> > The other possible solution is for /etc/hotplug.d/blacklist to contain
+> > "install xxx /bin/false // install yyy /bin/true //
+> > include /etc/modprobe.d" and have hotplug invoke modprobe with
+> > --config=/etc/hotplug.d/blacklist.  Substitute names to fit.
 
-When I suggested this change for ia64 originally, I overlooked the need to
-handle blocking in writing to user memory.  I'd like to give a little more
-thought to the general case.  As long as only uninterruptible waits are
-provoked by an arch hook, then I think it is reasonably solvable.  I think
-that SIGKILL races are the only ones that can arise, and those can be
-addressed with some signal bookkeeping changes.  I'd like to give it a
-little more thought.  I expect it will wind up being some core changes that
-make it safe for an arch hook to drop and reacquire the siglock if it's
-doing something that won't always complete quickly, and then this will all
-happen before changing state, unlocking, and deciding to block (which won't
-be done if there was an intervening SIGKILL).
+> I understand that this modprobe would look for an alias or install
+> directive for $MODALIAS, while it's the actual module name which users
+> need to blacklist (but I know a few situations in which it would be
+> useful to be able to match $MODALIAS on the blacklist too...).
 
+Yes, I'm assuming that the config file/dir used by hotplug would simply
+look like:
 
-Thanks,
-Roland
+	# Install commands so hotplug doesn't load some modules.
+	# Use /bin/true so modprobe doesn't complain.
+
+	# evbug is a debug tool and should be loaded explicitly
+	install evbug /bin/true
+
+To blacklist by aliases, you could use install commands (which, again
+undefined, are actually implemented to override alias commands):
+
+	# hotplug thinks that the XYZ driver is great for this card.
+	# But that modprobe causes uncomfortable nasal daemons.
+	install pci:v1d1dc0sd0bc10sc10i1 /bin/hotplug-warning
+
+If that becomes important, I can document that behaviour and add a test
+case for it.
+
+Thanks!
+Rusty.
+-- 
+A bad analogy is like a leaky screwdriver -- Richard Braakman
 

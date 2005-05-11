@@ -1,86 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261261AbVEKTJY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262017AbVEKTQm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261261AbVEKTJY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 15:09:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262012AbVEKTJX
+	id S262017AbVEKTQm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 15:16:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262024AbVEKTQm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 15:09:23 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:27537
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S261261AbVEKTJI (ORCPT
+	Wed, 11 May 2005 15:16:42 -0400
+Received: from p4.gsnoc.net ([209.51.147.210]:56505 "EHLO p4.gsnoc.net")
+	by vger.kernel.org with ESMTP id S262017AbVEKTQj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 15:09:08 -0400
-Reply-To: <abonilla@linuxwireless.org>
-From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: FW: IBM ThinkPad HD APS Linux Driver
-Date: Wed, 11 May 2005 13:09:05 -0600
-Message-ID: <006701c5565c$e7304f10$9f0cc60a@amer.sykes.com>
+	Wed, 11 May 2005 15:16:39 -0400
+Message-ID: <42825A33.2010102@cachola.com.br>
+Date: Wed, 11 May 2005 16:17:07 -0300
+From: =?ISO-8859-1?Q?Andr=E9_Pereira_de_Almeida?= <andre@cachola.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050420 Debian/1.7.7-2
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: "Yu, Luming" <luming.yu@intel.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: acpi poweroff
+References: <427FC554.1070306@cachola.com.br> <20050511162950.GA5486@linux.sh.intel.com>
+In-Reply-To: <20050511162950.GA5486@linux.sh.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-Importance: Normal
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - p4.gsnoc.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - cachola.com.br
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Everyone,
+Yu, Luming wrote:
 
-    After my polite and nice email to Mr Daniel Frye. It looks like again,
-the Linux people gets ignored.
-
-I don't know if it's only me thinking that I should get more from them, or
-if it's them that simply don't care...
-
-Whoever is interested, we might just need to do back engineering.
-
-Check it out.
-
-Thanks and sorry for the Linux-kernel ones that don't have a Thinkpad.
-
-- Alejandro
-
------Original Message-----
-From: Steven Murphy [mailto:skmurph@us.lenovo.com]
-Sent: Wednesday, May 11, 2005 12:32 PM
-To: abonilla@linuxwireless.org
-Cc: daniel frye
-Subject: Fw: IBM ThinkPad HD APS Linux Driver
-
-
-
-Mr. Bonilla,
-
-Your inquiry regarding the Active Protection System and the Fingerprint
-Reader was forwarded to me by Dan Frye of IBM.  We have discussed your
-request and at this time we have decided to not release the information you
-requested.  With regards to the Active Protection System (APS), Lenovo has
-significant patented content in the software and will not be releasing any
-low level information on how APS is coded as we do not wish to have it
-released in a GPL (or similar) license at this time.  With regards to the
-Fingerprint Reader, I would direct you to work directly with UPEK for this
-functionality.  Much of the functionality is provided by UPEK and they are
-in the best position to provide you with the technical details you require.
-
-These decisions were made to protect our ThinkPad product's competitive
-advantage in the market and is not an overall statement of Lenovo's policy
-on open source software.
-
-
-Regards,
-Steven Murphy, PMP®
-Senior Project Manager , ThinkPad Project Management
-Lenovo International
-Voice:  919-254-8457
-Email: skmurph@us.lenovo.com
-
-We are the new. We are the future. We are Lenovo. Think Lenovo!
-http://www.lenovo.com
-
-
-(They are obviously not thinking in Linux.)
+>This is a clue to track down to the root.
+>What's your machine model and kernel version?
+>Thanks,
+>Luming
+>On 2005.05.09 17:17:24 -0300, André Pereira de Almeida wrote:
+>  
+>
+>>When I try to poweroff my computer, it reboots.
+>>The only way to turn it off is to change
+>>
+>>acpi_sleep_prepare(ACPI_STATE_S5);
+>>
+>>to
+>>
+>>acpi_sleep_prepare(ACPI_STATE_S4);
+>>
+>>in the function acpi_power_off in the file drivers/acpi/sleep/poweroff.c.
+>>I think it's a buggy acpi controller.
+>>What's the side effect of this change?
+>>-
+>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>the body of a message to majordomo@vger.kernel.org
+>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>Please read the FAQ at  http://www.tux.org/lkml
+>>
+>/
+>  
+>
+It is a AMD Athlon XP 1700+ processor with a Asus A7S266 Motherboard. If 
+it is of any help, the header of de ACPI's FADT says:
+OEMID: ASUS 
+OEM Table ID: A7S266VM
+OEM Revision: 1.0B
+Creator ID:  MSFT
+Creator Revision: 1011
+André.
 

@@ -1,40 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbVEKXH7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbVEKXQw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261309AbVEKXH7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 19:07:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbVEKXH7
+	id S261312AbVEKXQw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 19:16:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbVEKXQw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 19:07:59 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:296
-	"EHLO g5.random") by vger.kernel.org with ESMTP id S261309AbVEKXFa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 19:05:30 -0400
-Date: Thu, 12 May 2005 01:05:23 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Timur Tabi <timur.tabi@ammasso.com>
-Cc: William Jordan <bjordan.ics@gmail.com>, Hugh Dickins <hugh@veritas.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
-Message-ID: <20050511230523.GO6313@g5.random>
-References: <20050425203110.A9729@topspin.com> <4279142A.8050501@ammasso.com> <427A6A7E.8000604@ammasso.com> <427BF8E1.2080006@ammasso.com> <Pine.LNX.4.61.0505071304010.4713@goblin.wat.veritas.com> <427CD49E.6080300@ammasso.com> <Pine.LNX.4.61.0505071617470.5718@goblin.wat.veritas.com> <78d18e2050511131246075b37@mail.gmail.com> <20050511224947.GL6313@g5.random> <42828CF0.2080400@ammasso.com>
+	Wed, 11 May 2005 19:16:52 -0400
+Received: from smtp.lnxw.com ([207.21.185.24]:48398 "EHLO smtp.lnxw.com")
+	by vger.kernel.org with ESMTP id S261312AbVEKXQp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 19:16:45 -0400
+Date: Wed, 11 May 2005 16:20:10 -0700
+To: kus Kusche Klaus <kus@keba.com>
+Cc: "Bill Huey (hui)" <bhuey@lnxw.com>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>
+Subject: Re: Real-Time Preemption: BUG initializing kgdb
+Message-ID: <20050511232010.GA9451@nietzsche.lynx.com>
+References: <AAD6DA242BC63C488511C611BD51F36732320E@MAILIT.keba.co.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42828CF0.2080400@ammasso.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+In-Reply-To: <AAD6DA242BC63C488511C611BD51F36732320E@MAILIT.keba.co.at>
 User-Agent: Mutt/1.5.9i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 11, 2005 at 05:53:36PM -0500, Timur Tabi wrote:
-> Andrea Arcangeli wrote:
+On Wed, May 11, 2005 at 04:41:16PM +0200, kus Kusche Klaus wrote:
+> These changes resulted in a kernel which compiles and works fine, they
+> cured the BUG I reported yesterday, and they made kgdb "basically work":
+> I can connect over serial line or over ethernet, I can get "where"s and
+> variables etc., I can "cont", ...
 > 
-> >If the problem appears again even after the last fix for the COW I did
-> >last year, than it means we've another yet another bug to fix.
+> However, there are still some issues:
 > 
-> All of my memory pinning test cases pass when I use get_user_pages() with 
-> kernels 2.6.7 and later.
+> * When debugging over ethernet, the kernel produces the following
+> messages in an infinite loop at full speed as long as it is halted by
+> gdb:
 
-Well then your problem was the cow bug, that was corrupting userland
-with O_DIRECT too...
+You'll have to survey the lock graph and make sure that all locks beneath
+the reverted spinlocks are also atomic locks. You can't sleep within an
+atomic critical section which creates a deadlock situation. I suspect that
+those warnings are related to that in one way or another.
+
+That means any use of the serial or ethernet systems must have their
+locks revert to atomic locks as well. However this make those places
+non-preemptible and you'll have to be careful about this proces so that
+you don't defeat latency performance with theses changes.
+
+bill
+

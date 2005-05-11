@@ -1,51 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbVEKXQw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVEKXVS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261312AbVEKXQw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 19:16:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbVEKXQw
+	id S261316AbVEKXVS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 19:21:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbVEKXVR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 19:16:52 -0400
-Received: from smtp.lnxw.com ([207.21.185.24]:48398 "EHLO smtp.lnxw.com")
-	by vger.kernel.org with ESMTP id S261312AbVEKXQp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 19:16:45 -0400
-Date: Wed, 11 May 2005 16:20:10 -0700
-To: kus Kusche Klaus <kus@keba.com>
-Cc: "Bill Huey (hui)" <bhuey@lnxw.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>
-Subject: Re: Real-Time Preemption: BUG initializing kgdb
-Message-ID: <20050511232010.GA9451@nietzsche.lynx.com>
-References: <AAD6DA242BC63C488511C611BD51F36732320E@MAILIT.keba.co.at>
+	Wed, 11 May 2005 19:21:17 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:17675 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261316AbVEKXVP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 19:21:15 -0400
+Date: Thu, 12 May 2005 01:10:16 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Manfred Schwarb <manfred99@gmx.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.30-hf1 do_IRQ stack overflows
+Message-ID: <20050511231016.GC18600@alpha.home.local>
+References: <4699.1115820286@www19.gmx.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <AAD6DA242BC63C488511C611BD51F36732320E@MAILIT.keba.co.at>
-User-Agent: Mutt/1.5.9i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+In-Reply-To: <4699.1115820286@www19.gmx.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 11, 2005 at 04:41:16PM +0200, kus Kusche Klaus wrote:
-> These changes resulted in a kernel which compiles and works fine, they
-> cured the BUG I reported yesterday, and they made kgdb "basically work":
-> I can connect over serial line or over ethernet, I can get "where"s and
-> variables etc., I can "cont", ...
+Hi,
+
+On Wed, May 11, 2005 at 04:04:46PM +0200, Manfred Schwarb wrote:
+> [Somehow the original message didn't made it to the lkml, so here another
+> try]
 > 
-> However, there are still some issues:
 > 
-> * When debugging over ethernet, the kernel produces the following
-> messages in an infinite loop at full speed as long as it is halted by
-> gdb:
+> Hi,
+> with recent versions of the 2.4 kernel (Vanilla), I get an increasing 
+> amount of do_IRQ stack overflows.
+> This night, I got 3 of them.
+> With 2.4.28 I got an overflow about twice a year, with 2.4.29 nearly 
+> once a month and with 2.4.30 nearly every day 8-((
 
-You'll have to survey the lock graph and make sure that all locks beneath
-the reverted spinlocks are also atomic locks. You can't sleep within an
-atomic critical section which creates a deadlock situation. I suspect that
-those warnings are related to that in one way or another.
+stupid question : have you tried reverting to older versions to check
+if the problem follows kernel upgrades or if something is ageing badly
+in your machine ?
 
-That means any use of the serial or ethernet systems must have their
-locks revert to atomic locks as well. However this make those places
-non-preemptible and you'll have to be careful about this proces so that
-you don't defeat latency performance with theses changes.
+> My layout: Pentium4 HT SMP, raid1 on a promise card, driven by 
+> libata_promise, everything using reiserfs, heavy nfs and network traffic, 
+> with a Linksys (tulip) and a Realtek (8139too) NIC.
 
-bill
+do you mean that you tested both with tulip and realtek and that the
+problem happens with both of them, or that your machine needs those
+two NICs simultaneously ? Using a realtek with heavy NFS and network
+traffic seems somewhat odd, eventhough the driver is rather stable.
+
+> The used 2.4.30-hf1 is pure Vanilla.
+> 
+> Below my three overflow messages. Would the stack reduction patches of 
+> Badari Pulavarty help in my case? 
+
+I don't know. I suspect that it might delay the problem but not remove
+it.
+
+Regards,
+Willy
 

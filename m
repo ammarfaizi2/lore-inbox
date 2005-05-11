@@ -1,61 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVEKQDl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbVEKQIY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261187AbVEKQDl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 12:03:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVEKQDl
+	id S261241AbVEKQIY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 12:08:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbVEKQIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 12:03:41 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:32743 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261187AbVEKQDg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 12:03:36 -0400
-Subject: Re: [RFC/PATCH 2/5] mm/fs: add execute in place support
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Carsten Otte <cotte@freenet.de>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>, schwidefsky@de.ibm.com,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <428225E7.4070605@freenet.de>
-References: <428216F7.30303@de.ibm.com>
-	 <20050511150924.GA29976@infradead.org>  <428225E7.4070605@freenet.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1115826428.26913.1069.camel@dyn318077bld.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 11 May 2005 08:47:09 -0700
-Content-Transfer-Encoding: 7bit
+	Wed, 11 May 2005 12:08:24 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:15533 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261241AbVEKQIU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 12:08:20 -0400
+Date: Wed, 11 May 2005 17:08:56 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Kirill Korotaev <dev@sw.ru>
+cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mm acct accounting fix
+In-Reply-To: <428223E0.2070200@sw.ru>
+Message-ID: <Pine.LNX.4.61.0505111701110.7331@goblin.wat.veritas.com>
+References: <428223E0.2070200@sw.ru>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+X-OriginalArrivalTime: 11 May 2005 16:08:18.0395 (UTC) 
+    FILETIME=[A52D8AB0:01C55643]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-05-11 at 08:33, Carsten Otte wrote:
-> Christoph Hellwig wrote:
+On Wed, 11 May 2005, Kirill Korotaev wrote:
+
+> Sorry, forgot to write that all these patches are against 2.6.12-rc4...
 > 
-> > This is a lot of code for a very special case.
-> >
-> >Could you try to put all the xip code into a separate file, e.g. mm/xip.c
-> >that's only built when CONFIG_XIP is set?  It would probably require
-> >duplicating a little more code if you want clean interfaces, e.g. probably
-> >a separate set of generic operations.
-> >
-> >  
-> >
-> Indeed that seems reasonable. There is no exact reason to have
-> this built into a kernel on a platform that does not have a bdev
-> for this. On the other hand, I believe the code should stay in
-> filemap.c, because it fits there conceptually. And I personally
-> dislike #ifdef in the middle of a file.
+> This patch fixes mm->total_vm and mm->locked_vm acctounting in case
+> when move_page_tables() fails inside move_vma().
+> 
+> Signed-Off-By: Kirill Korotaev <dev@sw.ru>
+> 
+> --- ./mm/mremap.c.mmacct	2005-05-10 16:10:40.000000000 +0400
+> +++ ./mm/mremap.c	2005-05-10 18:12:13.000000000 +0400
+> @@ -213,6 +213,7 @@ static unsigned long move_vma(struct vm_
+>  		old_len = new_len;
+>  		old_addr = new_addr;
+>  		new_addr = -ENOMEM;
+> +		new_len = 0;
+>  	}
+>  
+>  	/* Conceal VM_ACCOUNT so old reservation is not undone */
 
-While I agree with your reasoning, since you are affecting very hot
-code path for every architecture, irrespective of "bdev" support
-for this - you may want to look into some how eliminating few
-function pointer de-refs and checks for those who don't care.
-(#ifdef, unlikely(), or some arch & config magic).
+Are you sure?
 
-To be honest, that file is already complicated enough - every time
-I look at it my head hurts :(
+The way it's supposed to work is that the do_munmap(,,old_len) which
+follows, which normally unmaps the area moved from, when unsuccessful
+unmaps the area moved to: which will "mistakenly" decrement total_vm etc.
+by old_len, which needs to be bumped back up by that amount before leaving.
 
-Thanks,
-Badari
-
+Hugh

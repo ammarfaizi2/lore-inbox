@@ -1,75 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261870AbVEKBTP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261871AbVEKBW3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261870AbVEKBTP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 21:19:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261871AbVEKBTP
+	id S261871AbVEKBW3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 21:22:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbVEKBW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 21:19:15 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:59385 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261870AbVEKBTH
+	Tue, 10 May 2005 21:22:28 -0400
+Received: from quark.didntduck.org ([69.55.226.66]:46522 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP id S261871AbVEKBWH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 21:19:07 -0400
-Message-ID: <42812C49.7060501@mvista.com>
-Date: Tue, 10 May 2005 14:48:57 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+	Tue, 10 May 2005 21:22:07 -0400
+Message-ID: <42815E63.5020508@didntduck.org>
+Date: Tue, 10 May 2005 21:22:43 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla Thunderbird 1.0.2-1 (X11/20050323)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Christoph Lameter <christoph@lameter.com>
-CC: Oleg Nesterov <oleg@tv-sign.ru>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, mingo@elte.hu, kenneth.w.chen@intel.com
-Subject: Re: [RFC][PATCH] timers fixes/improvements
-References: <424D373F.1BCBF2AC@tv-sign.ru> <424E6441.12A6BC03@tv-sign.ru>  <Pine.LNX.4.58.0505091312490.27740@graphe.net> <20050509144255.17d3b9aa.akpm@osdl.org> <Pine.LNX.4.58.0505091449580.29090@graphe.net> <42808B84.BCC00574@tv-sign.ru> <Pine.LNX.4.58.0505101212350.20718@graphe.net>
-In-Reply-To: <Pine.LNX.4.58.0505101212350.20718@graphe.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Per Liden <per@fukt.bth.se>
+CC: Greg KH <gregkh@suse.de>, linux-hotplug-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] hotplug-ng 002 release
+References: <20050506212227.GA24066@kroah.com> <Pine.LNX.4.63.0505090025280.7682@1-1-2-5a.f.sth.bostream.se> <20050509211323.GB5297@tsiryulnik> <Pine.LNX.4.63.0505102351300.8637@1-1-2-5a.f.sth.bostream.se> <20050510224112.GA4967@kroah.com> <Pine.LNX.4.63.0505110057550.20513@1-1-2-5a.f.sth.bostream.se>
+In-Reply-To: <Pine.LNX.4.63.0505110057550.20513@1-1-2-5a.f.sth.bostream.se>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wonder if this problem might benifit from the "breakpoint on write" capability 
-in kgdb.  If you are using the kgdb in the mm patch, look in 
-Documentation/i386/kgdb/gdbinit.hw at the hwwbrk macro.  You will, of course, 
-have to source this file from gdb to load the macro.  Then you can use the gdb 
-command: help hwwbrk to get info on how to use it.
-
-If the location is not written to too often this should help find the offender.
-
-George
--- 
-
-Christoph Lameter wrote:
-> On Tue, 10 May 2005, Oleg Nesterov wrote:
+Per Liden wrote:
+> On Tue, 10 May 2005, Greg KH wrote:
 > 
 > 
->>>There is no corruption around ptype_all as you can see from the log. There
->>>is a list of hex numbers which are from ptype_all -8 to ptype_all +8.
->>>Looks okay to me.
+>>On Wed, May 11, 2005 at 12:17:12AM +0200, Per Liden wrote:
 >>
->>Still ptype_all could be accessed (and corrupted) as ptype_base[16].
+>>>I'd like to get a better understanding of that as well. Why invent a 
+>>>second on demand module loader when we have kmod? The current approach 
+>>>feels like a step back to something very similar to the old kerneld.
 >>
->>Christoph, could you please reboot with this patch?
+>>kmod is not used at all if you are running udev on your system.
 > 
 > 
-> Ok. I added padding before and after ptype_all.
-> With padding the problem no longer occurs.
+> Since when does udev load modules for you? And how would it know when to 
+> load "device less" modules such as filesystems?
 > 
-> However, if the padding is put before ptype_base and after ptype_all
-> then the problem occurs.
 > 
-> So it looks like this is due to writes intended for ptype_base going
-> out of bounds. However, there nothing in the code in net/core/dev.c
-> that would allow this to happen. Also why is the list head set
-> to 0x10:0x10?
+>>It's also better to allow userspace to make the decision as to if it 
+>>should load a specific module or not, not the kernel.
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 > 
+> If you don't want a specific module to be loaded, then don't build it. 
+> You just said that yourself in the blacklisting dicsussion remember? ;)
+> (hint: "Don't build the OSS modules at all?").
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Think about distibution kernels that build everything possible.
+
+--
+				 Brian Gerst

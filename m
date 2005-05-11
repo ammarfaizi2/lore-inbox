@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261919AbVEKIKN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261921AbVEKIUI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261919AbVEKIKN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 04:10:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261921AbVEKIKN
+	id S261921AbVEKIUI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 04:20:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261922AbVEKIUI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 04:10:13 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:40694 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261919AbVEKIKH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 04:10:07 -0400
-Date: Wed, 11 May 2005 13:39:59 +0530
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Alexander Nyberg <alexn@telia.com>
-Cc: vgoyal@in.ibm.com,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       fastboot@lists.osdl.org, rddunlap@osdl.org, Ralf.Hildebrandt@charite.de,
-       petkov@uni-muenster.de, Morton Andrew Morton <akpm@osdl.org>,
-       coywolf@gmail.com
-Subject: Re: [Fastboot] Fw: Re: kexec?
-Message-ID: <20050511080959.GB3799@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20050510193225.53192aad.akpm@osdl.org> <20050511030201.GA3799@in.ibm.com> <1115795427.917.10.camel@localhost.localdomain>
+	Wed, 11 May 2005 04:20:08 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:51461 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261921AbVEKIUD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 04:20:03 -0400
+Date: Wed, 11 May 2005 10:19:55 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: gaa <gaa@mail.nnov.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: dosemu crashes under 2.6.12-rc4
+Message-ID: <20050511081955.GG3590@stusta.de>
+References: <20050511060223.7B62F146C83@just.ip-center.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1115795427.917.10.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20050511060223.7B62F146C83@just.ip-center.ru>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 
-> > maxcpus=1 is the culprit. Even through bios/grub kernel does not boot with 
-> > option maxcpus=1. It is a known issue with got notieced 2.6.12-rc2-mm1 onwards. 
-> > So build second kernel as uniprocessor kernel and don't specify maxcpus=1 and 
-> > test it out. It should work.
-> > 
+On Wed, May 11, 2005 at 10:03:40AM +0400, gaa wrote:
+
+> "dosemu" does not work under kernel 2.6.12-rc4(but works under 2.6.11.7).
+> Next lines are stdout of crashed dosemu process:
 > 
-> Vivek,
-> 
-> kexec-tools-1.101 does not contain your last patch series (that includes
-> --crashdump which is lacking from the above cmdline). Currently you need
-> to patch up 1.101 with the stuff from 
-> [RFC/PATCH 5/17][kexec-tools-1.101] Add command line option
-> "--crash-dump" etc.
-> 
-> It would be good having a 1.2 or something with the patches included on
-> the site...
+> Linux DOS emulator 1.2.1.0 $Date: 2004/03/06$
+>...
 
-We have uploaded the kdump related user space patches which can be 
-accessed at following link.
+That's a known problem of the dosemu in Debian unstable/sarge together 
+with recent kernels.
 
-http://lse.sourceforge.net/kdump/patches/
+Workaround:
+  echo 0 > /proc/sys/kernel/randomize_va_space
 
-A single consolidated patch can be applied on top of kexec-tools-1.101.tar.gz
-to get kdump working.
+cu
+Adrian
 
-Thanks
-Vivek
+-- 
 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

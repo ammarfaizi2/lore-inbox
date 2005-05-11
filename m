@@ -1,47 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262023AbVEKTHo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261261AbVEKTJY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262023AbVEKTHo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 15:07:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262012AbVEKTHo
+	id S261261AbVEKTJY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 15:09:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262012AbVEKTJX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 15:07:44 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:34015 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261261AbVEKTHZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 15:07:25 -0400
-Date: Wed, 11 May 2005 14:05:45 -0500
-From: serue@us.ibm.com
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: jamie@shareable.org, 7eggert@gmx.de, ericvh@gmail.com,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       smfrench@austin.rr.com, hch@infradead.org
-Subject: Re: [RCF] [PATCH] unprivileged mount/umount
-Message-ID: <20050511190545.GB14646@serge.austin.ibm.com>
-References: <406SQ-5P9-5@gated-at.bofh.it> <40rNB-6p8-3@gated-at.bofh.it> <40t37-7ol-5@gated-at.bofh.it> <42VeB-8hG-3@gated-at.bofh.it> <42WNo-1eJ-17@gated-at.bofh.it> <E1DVuHG-0006YJ-Q7@be1.7eggert.dyndns.org> <20050511170700.GC2141@mail.shareable.org> <E1DVwGn-0002BB-00@dorka.pomaz.szeredi.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1DVwGn-0002BB-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.5.8i
+	Wed, 11 May 2005 15:09:23 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:27537
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S261261AbVEKTJI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 15:09:08 -0400
+Reply-To: <abonilla@linuxwireless.org>
+From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: FW: IBM ThinkPad HD APS Linux Driver
+Date: Wed, 11 May 2005 13:09:05 -0600
+Message-ID: <006701c5565c$e7304f10$9f0cc60a@amer.sykes.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Miklos Szeredi (miklos@szeredi.hu):
-> > > > How about a new clone option "CLONE_NOSUID"?
-> > > 
-> > > IMO, the clone call ist the wrong place to create namespaces. It should be
-> > > deprecated by a mkdir/chdir-like interface.
-> > 
-> > And the mkdir/chdir interface already exists, see "cd /proc/NNN/root".
-> 
-> That's the chdir part.
-> 
-> The mkdir part is clone() or unshare().
+Hi Everyone,
 
-Right, sys_unshare(), as per Janak's patch.  Does it lack anything which
-you would need?
+    After my polite and nice email to Mr Daniel Frye. It looks like again,
+the Linux people gets ignored.
 
-> How else do you propose to create new namespaces?
+I don't know if it's only me thinking that I should get more from them, or
+if it's them that simply don't care...
 
-thanks,
--serge
+Whoever is interested, we might just need to do back engineering.
+
+Check it out.
+
+Thanks and sorry for the Linux-kernel ones that don't have a Thinkpad.
+
+- Alejandro
+
+-----Original Message-----
+From: Steven Murphy [mailto:skmurph@us.lenovo.com]
+Sent: Wednesday, May 11, 2005 12:32 PM
+To: abonilla@linuxwireless.org
+Cc: daniel frye
+Subject: Fw: IBM ThinkPad HD APS Linux Driver
+
+
+
+Mr. Bonilla,
+
+Your inquiry regarding the Active Protection System and the Fingerprint
+Reader was forwarded to me by Dan Frye of IBM.  We have discussed your
+request and at this time we have decided to not release the information you
+requested.  With regards to the Active Protection System (APS), Lenovo has
+significant patented content in the software and will not be releasing any
+low level information on how APS is coded as we do not wish to have it
+released in a GPL (or similar) license at this time.  With regards to the
+Fingerprint Reader, I would direct you to work directly with UPEK for this
+functionality.  Much of the functionality is provided by UPEK and they are
+in the best position to provide you with the technical details you require.
+
+These decisions were made to protect our ThinkPad product's competitive
+advantage in the market and is not an overall statement of Lenovo's policy
+on open source software.
+
+
+Regards,
+Steven Murphy, PMP®
+Senior Project Manager , ThinkPad Project Management
+Lenovo International
+Voice:  919-254-8457
+Email: skmurph@us.lenovo.com
+
+We are the new. We are the future. We are Lenovo. Think Lenovo!
+http://www.lenovo.com
+
+
+(They are obviously not thinking in Linux.)
+

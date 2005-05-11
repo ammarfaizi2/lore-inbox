@@ -1,55 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261419AbVEKPZo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261963AbVEKPaO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261419AbVEKPZo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 11:25:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbVEKPZn
+	id S261963AbVEKPaO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 11:30:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbVEKP3d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 11:25:43 -0400
-Received: from ausc60pc101.us.dell.com ([143.166.85.206]:17273 "EHLO
-	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
-	id S261419AbVEKPZW convert rfc822-to-8bit (ORCPT
+	Wed, 11 May 2005 11:29:33 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:5180 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S261180AbVEKP2T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 11:25:22 -0400
-X-IronPort-AV: i="3.93,96,1115010000"; 
-   d="scan'208"; a="260269666:sNHT26493604"
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-content-class: urn:content-classes:message
+	Wed, 11 May 2005 11:28:19 -0400
+Message-ID: <4282248F.3070206@sw.ru>
+Date: Wed, 11 May 2005 19:28:15 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [patch 2.6.12-rc3] dell_rbu: New Dell BIOS update driver
-Date: Wed, 11 May 2005 10:25:11 -0500
-Message-ID: <367215741E167A4CA813C8F12CE0143BCF0328@ausx2kmpc115.aus.amer.dell.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch 2.6.12-rc3] dell_rbu: New Dell BIOS update driver
-Thread-Index: AcVWD+CVpt2iIcjeS0aBmef9roeGEwALYN5Q
-From: <Abhay_Salunke@Dell.com>
-To: <xavier.bestel@free.fr>
-Cc: <linux-kernel@vger.kernel.org>, <akpm@osdl.org>, <Matt_Domsch@Dell.com>
-X-OriginalArrivalTime: 11 May 2005 15:25:12.0392 (UTC) FILETIME=[9FCCCC80:01C5563D]
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] do_swap_page() can map random data if swap read fails
+Content-Type: multipart/mixed;
+ boundary="------------010308080100070909090009"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: Xavier Bestel [mailto:xavier.bestel@free.fr]
-> Sent: Wednesday, May 11, 2005 4:57 AM
-> To: Salunke, Abhay
-> Cc: linux-kernel@vger.kernel.org; Andrew Morton; Domsch, Matt
-> Subject: Re: [patch 2.6.12-rc3] dell_rbu: New Dell BIOS update driver
-> 
-> Le mardi 10 mai 2005 à 17:05 -0500, Abhay Salunke a écrit :
-> 
-> > +2> Download the BIOS image by copying the image file to
-> /sys/firmware/rbudata
-> > +file.
-> > +e.g. echo image.hdr > /sys/firmware/rbudata
-> 
-> Don't you mean 'cat' instead of 'echo' there ?
-> 
-> 	Xav
-> 
-Yes, thanks for correcting this typo.
+This is a multi-part message in MIME format.
+--------------010308080100070909090009
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Abhay
+against 2.6.12-rc4
+
+There is a bug in do_swap_page(): when swap page happens to be 
+unreadable, page filled with random data is mapped into user
+address space.
+The fix is to check for PageUptodate and send SIGBUS in case of error.
+
+Signed-Off-By: Kirill Korotaev <dev@sw.ru>
+Signed-Off-By: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+
+--------------010308080100070909090009
+Content-Type: text/plain;
+ name="diff-mainstream-swaperrs-20050429"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff-mainstream-swaperrs-20050429"
+
+--- ./mm/memory.c.swaperr	2005-05-10 16:10:40.000000000 +0400
++++ ./mm/memory.c	2005-05-10 18:09:12.000000000 +0400
+@@ -1701,12 +1701,13 @@ static int do_swap_page(struct mm_struct
+ 	spin_lock(&mm->page_table_lock);
+ 	page_table = pte_offset_map(pmd, address);
+ 	if (unlikely(!pte_same(*page_table, orig_pte))) {
+-		pte_unmap(page_table);
+-		spin_unlock(&mm->page_table_lock);
+-		unlock_page(page);
+-		page_cache_release(page);
+ 		ret = VM_FAULT_MINOR;
+-		goto out;
++		goto out_nomap;
++	}
++
++	if (unlikely(!PageUptodate(page))) {
++		ret = VM_FAULT_SIGBUS;
++		goto out_nomap;
+ 	}
+ 
+ 	/* The page isn't present yet, go ahead with the fault. */
+@@ -1741,6 +1742,12 @@ static int do_swap_page(struct mm_struct
+ 	spin_unlock(&mm->page_table_lock);
+ out:
+ 	return ret;
++out_nomap:
++	pte_unmap(page_table);
++	spin_unlock(&mm->page_table_lock);
++	unlock_page(page);
++	page_cache_release(page);
++	goto out;
+ }
+ 
+ /*
+
+--------------010308080100070909090009--
+

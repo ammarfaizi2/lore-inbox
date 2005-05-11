@@ -1,152 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVEKKLX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbVEKKSp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbVEKKLX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 06:11:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbVEKKLX
+	id S261201AbVEKKSp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 06:18:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbVEKKSp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 06:11:23 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:20612 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261193AbVEKKLQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 06:11:16 -0400
-Message-ID: <4281DC03.36011256@tv-sign.ru>
-Date: Wed, 11 May 2005 14:18:43 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christoph Lameter <christoph@lameter.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, mingo@elte.hu,
-       kenneth.w.chen@intel.com
-Subject: Re: [RFC][PATCH] timers fixes/improvements
-References: <424D373F.1BCBF2AC@tv-sign.ru> <424E6441.12A6BC03@tv-sign.ru> 
-	 <Pine.LNX.4.58.0505091312490.27740@graphe.net> <20050509144255.17d3b9aa.akpm@osdl.org>
-	 <Pine.LNX.4.58.0505091449580.29090@graphe.net> <42808B84.BCC00574@tv-sign.ru> <Pine.LNX.4.58.0505101212350.20718@graphe.net>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	Wed, 11 May 2005 06:18:45 -0400
+Received: from hermine.aitel.hist.no ([158.38.50.15]:42511 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S261201AbVEKKSn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 06:18:43 -0400
+Date: Wed, 11 May 2005 12:23:44 +0200
+To: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>
+Cc: Valdis.Kletnieks@vt.edu, Hans Reiser <reiser@namesys.com>,
+       sean.mcgrath@propylon.com, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com
+Subject: Re: file as a directory
+Message-ID: <20050511102344.GA8277@hh.idb.hist.no>
+References: <2c59f00304112205546349e88e@mail.gmail.com> <41A1FFFC.70507@hist.no> <41A21EAA.2090603@dbservice.com> <41A23496.505@namesys.com> <1101287762.1267.41.camel@pear.st-and.ac.uk> <1115717961.3711.56.camel@grape.st-and.ac.uk> <200505101514.j4AFEhGO010837@turing-police.cc.vt.edu> <1115739527.3711.124.camel@grape.st-and.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1115739527.3711.124.camel@grape.st-and.ac.uk>
+User-Agent: Mutt/1.5.9i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
->
-> On Tue, 10 May 2005, Oleg Nesterov wrote:
->
-> > > There is no corruption around ptype_all as you can see from the log. There
-> > > is a list of hex numbers which are from ptype_all -8 to ptype_all +8.
-> > > Looks okay to me.
-> >
-> > Still ptype_all could be accessed (and corrupted) as ptype_base[16].
->
-> Ok. I added padding before and after ptype_all.
-> With padding the problem no longer occurs.
->
-> However, if the padding is put before ptype_base and after ptype_all
-> then the problem occurs.
+On Tue, May 10, 2005 at 04:38:48PM +0100, Peter Foldiak wrote:
+> On Tue, 2005-05-10 at 16:14, Valdis.Kletnieks@vt.edu wrote:
+> > On Tue, 10 May 2005 10:39:23 BST, Peter Foldiak said:
+> > > Back in November 2004, I suggested on the linux-kernel and reiserfs
+> > > lists that the Reiser4 architecture could allow us to abolish the
+> > > unnatural naming distinction between directories/files/parts-of-file
+> > > (i.e. to unify naming within-file-system and within-file naming) in an
+> > > efficient way.
+> > > I suggested that one way of doing that would be to extend XPath-like
+> > > selection syntax above the (XML) file level.
+> > 
+> > I believe the consensus was that this needs to happen at the VFS layer, not
+> > the FS level.  The next step would be designing an API for this - what would
+> > the VFS present to userspace, and in what way, and how would backward
+> > combatability be maintained?
+> 
+> But can it be done efficiently above the file system level??
+> 
+Anything that can be done at the fs level should be doable on the vfs level too.
+That is simple to show in theory: You could make the VFS api identical to
+the reiser4 api, and reiser4 should continue to work as efficiently as before.
 
-So. ptype_base/ptype_all is corrupted before e1000_probe()->register_netdev().
+> As far as I understand, Reiser4 has this nice tree structure, which
+> means that the part of file selection could be done with almost no extra
+> effort, you just attach additional names to inside nodes of the tree, so
+> the same tree can be used to store the whole object, and part of the
+> same tree can be used to select the object part. Right?
+> If you do this above the file system level, I don't think it would have
+> such an efficient implementation. Or would it?  Peter
 
-Christoph, please, could you try this patch?
+I cannot see why reiser4 should suffer - but of course this might be hard to
+implement for other filesystems.
 
-Make sure you are booting with 'init=/bin/sh', kernel should oops.
-
-My kernel oops (as expected) in arp_init()->dev_add_pack(), after 2 successful
-register_netdevice() calls.
-
-Oleg.
-
---- 2.6.12-rc4/arch/i386/kernel/cpu/common.c~HACK	2005-05-09 16:36:52.000000000 +0400
-+++ 2.6.12-rc4/arch/i386/kernel/cpu/common.c	2005-05-11 16:51:29.000000000 +0400
-@@ -542,7 +542,7 @@ void __init early_cpu_init(void)
- 	umc_init_cpu();
- 	early_cpu_detect();
- 
--#ifdef CONFIG_DEBUG_PAGEALLOC
-+#if	1
- 	/* pse is not compatible with on-the-fly unmapping,
- 	 * disable it even if the cpus claim to support it.
- 	 */
---- 2.6.12-rc4/net/core/dev.c~HACK	2005-05-09 16:37:16.000000000 +0400
-+++ 2.6.12-rc4/net/core/dev.c	2005-05-11 17:51:07.000000000 +0400
-@@ -156,8 +156,19 @@
-  */
- 
- static DEFINE_SPINLOCK(ptype_lock);
--static struct list_head ptype_base[16];	/* 16 way hashed list */
--static struct list_head ptype_all;		/* Taps */
-+
-+static struct {
-+	char pad_start[512];
-+
-+	struct list_head _ptype_base[16];	/* 16 way hashed list */
-+	struct list_head _ptype_all;		/* Taps */
-+
-+	char pad_end[PAGE_SIZE - 512 - (16+1) * sizeof(struct list_head)];
-+
-+}	PTYPE_PAGE __attribute__((__aligned__(PAGE_SIZE)));
-+
-+#define	ptype_base	(PTYPE_PAGE._ptype_base)
-+#define	ptype_all	(PTYPE_PAGE._ptype_all)
- 
- #ifdef OFFLINE_SAMPLE
- static void sample_queue(unsigned long dummy);
-@@ -2727,6 +2738,8 @@ int register_netdevice(struct net_device
- 	struct hlist_node *p;
- 	int ret;
- 
-+	printk(KERN_CRIT "%s: ENTER\n", __FUNCTION__);
-+
- 	BUG_ON(dev_boot_phase);
- 	ASSERT_RTNL();
- 
-@@ -2828,6 +2841,7 @@ int register_netdevice(struct net_device
- 	ret = 0;
- 
- out:
-+	printk(KERN_CRIT "%s: LEAVE=%d\n", __FUNCTION__, ret);
- 	return ret;
- out_err:
- 	free_divert_blk(dev);
-@@ -3255,6 +3269,33 @@ static int dev_cpu_callback(struct notif
-  *
-  */
- 
-+#define CK(e) do { if (!(e)) {							\
-+	printk(KERN_CRIT "ERR!! %d %s(%s)\n", __LINE__, __FUNCTION__, #e);	\
-+	mdelay(2000);								\
-+}} while (0)
-+
-+#include <asm/tlbflush.h>
-+
-+static void mk_writable(int yes)
-+{
-+	unsigned long addr = (unsigned long)&PTYPE_PAGE;
-+	pte_t *pte;
-+
-+	CK(!(addr & ~PAGE_MASK));
-+	CK(sizeof(PTYPE_PAGE) == PAGE_SIZE);
-+
-+	pte = lookup_address(addr);
-+
-+	CK(pte); CK(!(pte_val(*pte) & _PAGE_PSE));
-+
-+	if (yes)
-+		set_pte_atomic(pte, pte_mkwrite(*pte));
-+	else
-+		set_pte_atomic(pte, pte_wrprotect(*pte));
-+
-+	flush_tlb_all();
-+}
-+
- /*
-  *       This is called single threaded during boot, so no need
-  *       to take the rtnl semaphore.
-@@ -3277,6 +3318,8 @@ static int __init net_dev_init(void)
- 	for (i = 0; i < 16; i++) 
- 		INIT_LIST_HEAD(&ptype_base[i]);
- 
-+	mk_writable(0);
-+
- 	for (i = 0; i < ARRAY_SIZE(dev_name_head); i++)
- 		INIT_HLIST_HEAD(&dev_name_head[i]);
- 
--
+Helge Hafting

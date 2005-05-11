@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262041AbVEKU3L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262048AbVEKUb7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262041AbVEKU3L (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 16:29:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbVEKU3L
+	id S262048AbVEKUb7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 16:31:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262045AbVEKUb7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 16:29:11 -0400
-Received: from mail.kroah.org ([69.55.234.183]:56480 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262041AbVEKU3E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 16:29:04 -0400
-Date: Wed, 11 May 2005 13:28:05 -0700
-From: Greg KH <greg@kroah.com>
-To: Yani Ioannou <yani.ioannou@gmail.com>
-Cc: LM Sensors <sensors@stimpy.netroedge.com>, linux-kernel@vger.kernel.org,
-       Justin Thiessen <jthiessen@penguincomputing.com>
-Subject: Re: [PATCH 2.6.12-rc4 3/3] (dynamic sysfs callbacks) device_attribute
-Message-ID: <20050511202805.GB2222@kroah.com>
-References: <2538186705051100583c6b1ffb@mail.gmail.com> <20050511170600.GD15398@kroah.com> <25381867050511125761fcfad0@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <25381867050511125761fcfad0@mail.gmail.com>
-User-Agent: Mutt/1.5.8i
+	Wed, 11 May 2005 16:31:59 -0400
+Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:33805 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262044AbVEKUbp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 16:31:45 -0400
+To: linuxram@us.ibm.com
+CC: jamie@shareable.org, 7eggert@gmx.de, ericvh@gmail.com,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       smfrench@austin.rr.com, hch@infradead.org
+In-reply-to: <1115840139.6248.181.camel@localhost> (message from Ram on Wed,
+	11 May 2005 12:35:39 -0700)
+Subject: Re: [RCF] [PATCH] unprivileged mount/umount
+References: <406SQ-5P9-5@gated-at.bofh.it> <40rNB-6p8-3@gated-at.bofh.it>
+	 <40t37-7ol-5@gated-at.bofh.it> <42VeB-8hG-3@gated-at.bofh.it>
+	 <42WNo-1eJ-17@gated-at.bofh.it> <E1DVuHG-0006YJ-Q7@be1.7eggert.dyndns.org>
+	 <20050511170700.GC2141@mail.shareable.org>
+	 <E1DVwGn-0002BB-00@dorka.pomaz.szeredi.hu> <1115840139.6248.181.camel@localhost>
+Message-Id: <E1DVxrB-0002KF-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 11 May 2005 22:31:01 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 11, 2005 at 03:57:37PM -0400, Yani Ioannou wrote:
-> On 5/11/05, Greg KH <greg@kroah.com> wrote:
-> > On Wed, May 11, 2005 at 03:58:35AM -0400, Yani Ioannou wrote:
-> > Sorry, but I need a real patch in email form so I can apply it.  I can
-> > handle a 300K+ email :)
-> > 
-> > Or you can break it up into smaller pieces, like one per major part of
-> > the kernel.  That is the preferred way.
+> What if proc filesystem is removed from the kernel?
 > 
-> I'd like to break it up, but I think even broken up by major part of
-> the kernel it one piece will still be too large since the majority of
-> the changes take place in drivers & drivers/i2c and are very
-> asymmetric :-(. I'll send you the patch inline privately for now.
-
-No, please break it up.  "too large" is a problem for someone trying to
-review it too.  If the i2c parts are too big, then split them up into
-multiple patches too.
-
-> > We should make a __ATTR macro instead, right?
+> Ability to access some other namespace through the proc filesystem does
+> not look clean. I think it should be cleanly supported through VFS.
 > 
-> Well another __ATTR macro (e.g. ATTR_PRIVATE) would make declaring the
-> new DEVICE_ATTR_PRIVATE macro, etc, easier.
+> Also cd'ing into a new namespace just allows you to browse through
+> the other namespace. But it does not effectively change the process's
+> namespace.  Things like mount in the other namespace will be failed
+> by check_mount() anyway.
+> 
+> I think, we need sys calls like sys_cdnamespace() which switches to a
+> new namespace. 
 
-Sorry, yes, that's what I ment.
+Jamie's proposal was to make chroot() swich namespace.
 
-> The question really is, is it better to just add that new parameter to
-> the DEVICE_ATTR macro, or to declare a new DEVICE_ATTR_PRIVATE macro
-> instead. The former obviously breaks a lot of code although my scripts
-> can generate another large patch for that too...
+> Effectively the process's current->namespace has to be modified,
+> for the process to be effectively work in the new namespace.
 
-No, use a new macro.
+current->namespace could be dropped altogether, and
+current->current->fs->rootmnt->mnt_namespace could be used instead.
 
-thanks,
+It's a nice logical extension of chroot(), without needing new
+syscalls.
 
-greg k-h
+Miklos

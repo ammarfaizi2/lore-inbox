@@ -1,136 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261294AbVEKWpd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbVEKWuB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261294AbVEKWpd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 18:45:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVEKWpd
+	id S261291AbVEKWuB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 18:50:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbVEKWuA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 18:45:33 -0400
-Received: from main.gmane.org ([80.91.229.2]:6798 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261294AbVEKWpJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 18:45:09 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Joe Seigh" <jseigh_02@xemaps.com>
-Subject: Re: RCU + SMR for preemptive kernel/user threads.
-Date: Wed, 11 May 2005 17:47:52 -0400
-Message-ID: <opsqmr52snehbc72@grunion>
-References: <opsqivh7agehbc72@grunion> <opsqkajto6ehbc72@grunion> <20050510165512.GA1569@us.ibm.com> <opsqkzxij0ehbc72@grunion> <20050511150454.GA1343@us.ibm.com>
+	Wed, 11 May 2005 18:50:00 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:59743
+	"EHLO g5.random") by vger.kernel.org with ESMTP id S261291AbVEKWty
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 18:49:54 -0400
+Date: Thu, 12 May 2005 00:49:47 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: William Jordan <bjordan.ics@gmail.com>
+Cc: Hugh Dickins <hugh@veritas.com>, Timur Tabi <timur.tabi@ammasso.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+Message-ID: <20050511224947.GL6313@g5.random>
+References: <20050411171347.7e05859f.akpm@osdl.org> <20050412180447.E6958@topspin.com> <20050425203110.A9729@topspin.com> <4279142A.8050501@ammasso.com> <427A6A7E.8000604@ammasso.com> <427BF8E1.2080006@ammasso.com> <Pine.LNX.4.61.0505071304010.4713@goblin.wat.veritas.com> <427CD49E.6080300@ammasso.com> <Pine.LNX.4.61.0505071617470.5718@goblin.wat.veritas.com> <78d18e2050511131246075b37@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed	delsp=yes
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: stenquists.hsd1.ma.comcast.net
-User-Agent: Opera M2/7.54 (Win32, build 3865)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <78d18e2050511131246075b37@mail.gmail.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 May 2005 08:04:54 -0700, Paul E. McKenney <paulmck@us.ibm.com>  
-wrote:
+On Wed, May 11, 2005 at 04:12:41PM -0400, William Jordan wrote:
+> If I am reading you correctly, you are saying that mlock currently
+> prevents pages from migrating around to unfragment memory, but
+> get_user_pages does not prevent this? If this is the case, this could
 
-> On Tue, May 10, 2005 at 06:40:20PM -0400, Joe Seigh wrote:
+This is not the case. Infact get_user_pages is a stronger pin than
+mlock. But if you call it by hand and you plan to write to the page, you
+have to use the "write=1" flag, this is fundamental if you want to write
+to the physical page from userland while it's being tracked by IB dma.
 
+In short you should not use mlock and you should use only
+get_user_pages(write=1).
 
-> In classic RCU, the release is supplied by the context switch.  In your
-> scheme, couldn't you do the following on the update side?
->
-> 	1.  Gather up all the hazard pointers.
-> 	2.  Send IPIs to all other CPUs.
-> 	3.  Check the hazard pointers gathered in #1 against the
-> 	    blocks to be freed.
+If the problem appears again even after the last fix for the COW I did
+last year, than it means we've another yet another bug to fix.
 
-You need to do the IPIs before you look at the hazard pointers.
+Using mlock for this is unnecessary. mlock is a "virtual" pin and it
+provides weaker guarantees than what you need. You need _physical_ pin
+and get_user_pages(write=1) is the only one that will give it to you.
 
->
-> The read side would do the following when letting go of a hazard pointer:
->
-> 	1.  Prevent the compiler from reordering memory references
-> 	    (the CPU would still be free to do so).
-> 	2.  Set the hazard pointer to NULL.
-> 	3.  begin non-critical-section code.
->
-> Checking where the IPI is received by the read side:
->
-> 1.  Before this point, the updater would have seen the non-NULL hazard
->     pointer (if the hazard pointer referenced the data item that was
->     previously removed).
-> 2.  Ditto.
-> 3.  Before this point, the hazard pointer could be seen as NULL, but
->     the read-side CPU will also have stopped using the pointer (since
->     we are assuming precise interrupts).
+write=0 is ok too if you're never ever going to write to the page with
+the cpu from userland.
 
-The problem is you don't know when the hazard pointer was set to NULL.
-It could have been set soon after the IPI interrupt was received and
-any outstanding accesses made since the IPI interrupt aren't syncronized
-with respect to setting the hazard pointer to null.
-
-But if you looked at the hazard pointer in the IPI interrupt handler,
-you could use that information to decide whether you had to wait an
-additional RCU interval.  So updater logic would be
-
-          1.  Set global pointer to NULL.  // make object unreachable
-          2.  Send IPIs  to all other CPUs
-              (IPI interrupt handler will copy CPU's hazard pointers)
-          3.  Check objects to be freed against copied hazard pointers.
-          4.  There is no step 4.  Even if the actual hazard pointers
-              that pointed to the object is NULL by this point (but not
-              its copy), you'd still have to wait and addtional RCU
-              interval so you might as well leave it out as redundant.
-
-This is better.  I may try that trick I used to make NPTL condvars
-faster to see if I can keep Linux user space version of this from
-tanking.  It uses unix signals instead of IPIs.
-
-
-
->
-> Again, not sure if all CPUs support precise interrupts.  The ones that I
-> am familiar with do, at least for IPIs.
->
->> Additionally if you replace any non NULL hazard pointer value you will
->> need to use
->> release semantics.
->
-> The trick is that the IPI provides the release semantics, but only
-> when needed.  Right?
->
->> There might be something you can do to avoid the extra RCU wait but
->> I'd have to study it a little more to get a better handle on the
->> trade offs.
->
-> True, there will need to be either two RCU waits or two rounds of IPIs.
-
-Yes, it might better be called RCU+SMR+RCU in that case.
-
-
->>
->> I suppose I should do some kind of formal analysis of this.  I'm  
->> figuring
->> out
->> if this technique is interesting enough first before I go through all  
->> that
->> work.
->
-> Hard to say without some experimentation.
-
-
-I've done plenty of that.  I have some atomically thread-safe reference
-counting impletations and a proxy GC based on those which I compare to
-an RCU for user threads implementation.  Using lock-free in user space
-gives you much more dramatic performance improvements than in the kernel.
-It cuts down on unnecessary context switching which can slow things down
-considerably.  Also mutexes and rwlocks are prone to starvation.  Making
-them FIFO for guaranteed service order slows them down even further.
-
-I usually use a semaphore to keep the updaters from running out of  
-resources.
-It slows down updater throughput but then I'm more concerned with reader
-throughput.  If I want faster recovery of resources I'll used the atomic
-refcounted pointer or the proxy based on it.  Slightly slower updater  
-performance
-but resources are recovered more quickly.
-
--- 
-Joe Seigh
-
+In the old days there was the concept that get_user_pages wasn't a
+"pte-pin", but that was infact broken in the way COW was working with threads,
+but this is fixed now that is really a "pte-pin" again (like in 2.2
+which never had the corruption cow bug!) even though the pte may
+temporarily be set to swapcache or null. In current 2.6 you're
+guaranteed that despite the pte may be temporarly be set to not-present,
+the next minor fault will bring into memory the very same physical page
+that was there before. At least unless you map the thing writeprotect
+(i.e. write=0) and you write to it from userland.. ;).

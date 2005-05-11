@@ -1,59 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261214AbVEKN0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVEKNqO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261214AbVEKN0E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 09:26:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbVEKN0E
+	id S261161AbVEKNqO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 09:46:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbVEKNqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 09:26:04 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:4500
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S261214AbVEKNZ6 (ORCPT
+	Wed, 11 May 2005 09:46:13 -0400
+Received: from [80.227.59.61] ([80.227.59.61]:26343 "EHLO HasBox.COM")
+	by vger.kernel.org with ESMTP id S261161AbVEKNqL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 09:25:58 -0400
-Reply-To: <abonilla@linuxwireless.org>
-From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
-To: "'Rodrigo Ramos'" <rodrigo.ramos@triforsec.com.br>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: 802.1x support
-Date: Wed, 11 May 2005 07:25:48 -0600
-Message-ID: <003001c5562c$f247aae0$9f0cc60a@amer.sykes.com>
+	Wed, 11 May 2005 09:46:11 -0400
+Message-ID: <42820C76.3010008@0Bits.COM>
+Date: Wed, 11 May 2005 17:45:26 +0400
+From: Mitch <Mitch@0Bits.COM>
+User-Agent: Mail/News Client 1.0+ (X11/20050509)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: dmitry.torokhov@gmail.com, dtor_core@ameritech.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: ALPS testers wanted (Was Re: [RFT/PATCH] KVMS, mouse losing sync
+ and going crazy)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <1115813583.4959.240.camel@ZeroOne>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Dmitry,
 
-|Hi All,
-|
-|
-|Does the kernel has support to 802.1x?
-|
-|
-|Best regards,
-|--
-|Rodrigo Ramos
-|
+Still no go. I added the line in and still hands after i leave it for a 
+few seconds.
 
-The kernel has the support of Crypto used, I don't know if you are talking
-about wired or wireless.
+I'm out of town now till Monday 16th so won't be able to try any fixes 
+till the unfortunately.
 
-It has what is needed with AES, TKIP and so on for WPA, I think 1x is
-transparent to the kernel and what you really need is the supplicant
-software for the authentication. Take a look at wpa_supplicant and
-xsupplicant.
+Cheers
+Mitch
 
-You can use EAP, PEAP, LEAP and so on... I believe this is most based on the
-driver of the NIC you use, and not that much maybe with the kernel (maybe
-some interaction) but so the answer for your question would be. It has
-whatever 1x needs.
+-------- Original Message --------
+Subject: Re: ALPS testers wanted (Was Re: [RFT/PATCH] KVMS, mouse losing 
+sync and going crazy)
+Date: Tue, 10 May 2005 14:12:21 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Mitch <Mitch@0bits.com>
+CC: linux-kernel@vger.kernel.org
+References: <4280F856.2080907@0Bits.COM>	 
+<d120d500050510112018b8a428@mail.gmail.com>
 
-.Alejandro
+On 5/10/05, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> On 5/10/05, Mitch <Mitch@0bits.com> wrote:
+> > Still no go. Log attached.
+> >
+> 
+> But I see a proper response (absolute packet) to the POLL command so
+> we are maiking progress I think. It looks like the touchpad was left
+> in disabled state somehow. Have you tried both the touchpad and
+> trackpoint? Are both of them dead?
+> 
+
+Btw, does it help if you stick "ps2_command(&psmouse->ps2dev, NULL,
+PSMOUSE_CMD_ENABLE)" at the end of alps_poll, just before "return rc"?
+Another option is sticking it before second alps_passthrough_mode.
+
+Unfortunately we don't have any ALPS programming notes so we have to
+resort to trial-and-error way.
+
+-- 
+Dmitry
 

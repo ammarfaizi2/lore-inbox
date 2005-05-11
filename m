@@ -1,95 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261949AbVEKI4q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261947AbVEKJAc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261949AbVEKI4q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 04:56:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261941AbVEKI4q
+	id S261947AbVEKJAc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 05:00:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261940AbVEKJAb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 04:56:46 -0400
-Received: from smtpout.azz.ru ([81.176.69.27]:21688 "HELO smtpout.azz.ru")
-	by vger.kernel.org with SMTP id S261940AbVEKIyz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 04:54:55 -0400
-Message-ID: <4281C8A3.20804@vlnb.net>
-Date: Wed, 11 May 2005 12:56:03 +0400
-From: Vladislav Bolkhovitin <vst@vlnb.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: ru, en-us, en
-MIME-Version: 1.0
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-CC: Sander <sander@humilis.net>, David Hollis <dhollis@davehollis.com>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-       FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: ata over ethernet question
-References: <1416215015.20050504193114@dns.toxicfilms.tv> <1115236116.7761.19.camel@dhollis-lnx.sunera.com> <1104082357.20050504231722@dns.toxicfilms.tv> <1115305794.3071.5.camel@dhollis-lnx.sunera.com> <20050507150538.GA800@favonius> <Pine.LNX.4.60.0505102352430.9008@poirot.grange>
-In-Reply-To: <Pine.LNX.4.60.0505102352430.9008@poirot.grange>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 11 May 2005 05:00:31 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:64426 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261933AbVEKI7W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 04:59:22 -0400
+Date: Wed, 11 May 2005 09:59:21 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: hch@infradead.org, 7eggert@gmx.de, smfrench@austin.rr.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cifs: handle termination of cifs oplockd kernel thread
+Message-ID: <20050511085921.GB24841@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Miklos Szeredi <miklos@szeredi.hu>, 7eggert@gmx.de,
+	smfrench@austin.rr.com, linux-kernel@vger.kernel.org
+References: <3YLdQ-4vS-15@gated-at.bofh.it> <E1DRekV-0001RN-VQ@be1.7eggert.dyndns.org> <20050430073238.GA22673@infradead.org> <E1DRn70-0002AD-00@dorka.pomaz.szeredi.hu> <20050430082952.GA23253@infradead.org> <E1DRoBU-0002Fk-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1DRoBU-0002Fk-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guennadi Liakhovetski wrote:
-> Hi
+On Sat, Apr 30, 2005 at 11:22:48AM +0200, Miklos Szeredi wrote:
+> >  - virtual filesystems exporting kernel data are obviously safe as
+> >    they enforce permissions no matter who mounted them.  (actually we'd
+> >    need to check for some odd mount options)
 > 
-> On Sat, 7 May 2005, Sander wrote:
-> 
-> 
->>David Hollis wrote (ao):
->>
->>>There seem to be a few iSCSI implementations floating around for
->>>Linux, hopefully one will be added to mainline soon. Most of those
->>>implementations are for the client side though there is at least one
->>>target implementation that allows you to provide local storage to
->>>iSCSI clients. I don't remember the name of it or if it's still
->>>maintained or not.
->>
->>Quite active even:
->>
->>http://sourceforge.net/projects/iscsitarget/
->>
->>The "Quick Guide to iSCSI on Linux" is a good starting point btw.
->>
->>Also check out http://www.open-iscsi.org/ (the client, aka 'initiator').
-> 
-> 
-> A follow up question - I recently used nbd to access a CD-ROM. It worked 
-> nice, but, I had to read in 7 CDs, so, each time I had to replace a CD, I 
-> had to stop the client, the server, then replace the CD, re-start the 
-> server, re-start the client... I thought about extending NBD to (better) 
-> support removable media, but then you start thinking about all those 
-> features that your local block device has that don't get exported over 
-> NBD...
-> 
-> Now, my understanding (sorry, without looking at any docs - yet) is, that 
-> iSCSI is (or at least should be) free from these limitations. So, does it 
-> make any sense at all extending NBD or just switch to iSCSI? Should NBD be 
-> just kept simple as it is or would it be completely superseeded by iSCSI, 
-> or is there still something that NBD does that iSCSI wouldn't (easily) do?
-> 
-> Or am I completely misunderstanding what iSCSI target does?
+> Maybe sysadmin doesn't want to let users see /sys for example.  How
+> would you disable it if users can mount it themselfes?  OK, you can
+> disable user mounts completely, but that's probably not fine grained
+> enough for some.
 
-Actually, this is property not of iSCSI target itself, but of any SCSI 
-target. So, we implemented it as part of our SCSI target mid-level 
-(SCST, http://scst.sourceforge.net), therefore any target driver working 
-over it will automatically benefit from this feature. Unfortunately, 
-currently available only target drivers for Qlogic 2x00 cards and for 
-poor UNH iSCSI target (that works not too reliable and only with very 
-specific initiators). The published version supports only real SCSI 
-CDROMs. CDROM FILEIO module, which allows exporting ISO images as SCSI 
-CDROM devices, going to be available not later end of May.
+the sysadmin shouldn't do that.  sysfs is needed for proper operation
+in a modern system and there's nothing to hid in there.
 
-Vlad
+> >  - block-based filesystems should be safe as long as the mounter has
+> >    access to the underlying block device
+> 
+> Not true if user controls the baking device (e.g. loopback).
 
-> Thanks
-> Guennadi
-> ---
-> Guennadi Liakhovetski
+I didn't say we should make using the loopback driver a non-privilegued
+operation.
+
+> Most
+> block based filesystems are probably unsafe at the moment, because not
+> enough consistency checking is done at runtime.  Are things like
+> non-cyclic directory graphs ensured by all filesystems?  My guess is
+> not.  See also Linus' comment about the state of the iso9660
+> filesystem:
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+>   http://lwn.net/Articles/128744/
+
+It just mean that a) the system admin should be careful what drivers are
+loaded and b) we need to audit block based filesystems better.
+
+Note that in many current distributions users can mount iso9660 filesystems
+through user mount hacks already.  Accessible to everyone and in the global
+namespace.
 

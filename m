@@ -1,52 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261938AbVEKJFT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261952AbVEKJFZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261938AbVEKJFT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 05:05:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVEKJB5
+	id S261952AbVEKJFZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 05:05:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbVEKJEg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 05:01:57 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:65450 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261938AbVEKJAL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 05:00:11 -0400
-Date: Wed, 11 May 2005 10:00:02 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: hch@infradead.org, bulb@ucw.cz, viro@parcelfarce.linux.theplanet.co.uk,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] private mounts
-Message-ID: <20050511090002.GC24841@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Miklos Szeredi <miklos@szeredi.hu>, bulb@ucw.cz,
-	viro@parcelfarce.linux.theplanet.co.uk,
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-	akpm@osdl.org
-References: <20050424205422.GK13052@parcelfarce.linux.theplanet.co.uk> <E1DPoCg-0000W0-00@localhost> <20050424210616.GM13052@parcelfarce.linux.theplanet.co.uk> <E1DPoRz-0000Y0-00@localhost> <20050424211942.GN13052@parcelfarce.linux.theplanet.co.uk> <E1DPofK-0000Yu-00@localhost> <20050425071047.GA13975@vagabond> <E1DQ0Mc-0007B5-00@dorka.pomaz.szeredi.hu> <20050430083516.GC23253@infradead.org> <E1DRoDm-0002G9-00@dorka.pomaz.szeredi.hu>
-Mime-Version: 1.0
+	Wed, 11 May 2005 05:04:36 -0400
+Received: from web40911.mail.yahoo.com ([66.218.78.208]:51069 "HELO
+	web40911.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261938AbVEKJCJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 05:02:09 -0400
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=Q/tb25g0paNwPAsJq8bh/VZNCN5eXNyN+iMUT2aKat7Osqd1HOfTPiGDmgGCg/+xUTdaSDSH7pKP/MTn7oMZjlYlBQQr/YNMzOU8Y79aZAfZA1yjKAUXW2mOAMRtGRcOkxDVn5qtTjdzgOv54sHNBnVzJmB6a4bQLrScd0zSNAA=  ;
+Message-ID: <20050511090209.76029.qmail@web40911.mail.yahoo.com>
+Date: Wed, 11 May 2005 02:02:08 -0700 (PDT)
+From: jensen galan <jrgalan@yahoo.com>
+Subject: did i trash my kernel?
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1DRoDm-0002G9-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 30, 2005 at 11:25:10AM +0200, Miklos Szeredi wrote:
-> > > > I can't write a script that reads your mind. But I sure can write
-> > > > a script that finds out what you mounted in the other shells (with help
-> > > > of a little wrapper around the mount command).
-> > > 
-> > > How do you bind mount it from a different namespace?  You _do_ need
-> > > bind mount, since a new mount might require password input, etc...
-> > 
-> > Not nessecarily.  The filesystem gets called into ->get_sb for every mount,
-> > and can then decided whether to return an existing superblock instance or
-> > setup a new one.  If the credentials for the new mount match an old one
-> > it can just reuse it.  (e.g. for block based filesystem it will always reuse
-> > right now)
-> 
-> And if the credentials are checked in userspace (sshfs)?
+Greetings!
 
-The it needs to call to userspace in ->get_sb..
+I tried to create a custom kernel with an added system
+call, so the goal was to have 2 kernels to choose from
+at boot time.
+
+In /usr/src/linux-2.4.28-gentoo-r5, I edited the
+Makefile so that "EXTRAVERSION = -gentoo-r5-new", and
+recompiled my custom kernel with the following
+commands:
+
+make mrproper
+make menuconfig
+make dep
+make bzImage
+make modules
+make modules-install
+make install
+
+Now I have 2 kernels, and when I boot from the
+original, I get the following error at boot:
+
+Bringing eth0 up via DHCP... [!!]
+ERROR: Problem starting needed services.
+"netmount" was not started.
+
+The original kernel I compiled with genkernel.  The
+new kernel used the method described above.  Here is
+my grub.conf:
+
+default 0
+timeout 30
+splashimage=(hd0,0)/grub/splash.xpm.gz
+
+title=Gentoo Linux 2.4.28-r5
+root (hd0,0)
+kernel /kernel-2.4.28-gentoo-r5 root=/dev/ram0
+init=/linuxrc 
+ramdisk=8192 real_root=/dev/hda3
+initrd /initrd-2.4.28-gentoo-r5
+
+title=Gentoo Linux 2.4.28-r5-new
+root (hd0,0)
+kernel /vmlinuz-2.4.28-gentoo-r5-new root=/dev/hda3
+
+So, did I trash my original kernel?  Was the method I
+used to compile a custom kernel incorrect?
+
+Thank you for your help.
+
+Jensen
+
+
+
+	
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Mail - You care about security. So do we. 
+http://promotions.yahoo.com/new_mail

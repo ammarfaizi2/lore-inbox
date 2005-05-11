@@ -1,72 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261876AbVEKBJo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261868AbVEKBL7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261876AbVEKBJo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 21:09:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbVEKBJg
+	id S261868AbVEKBL7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 21:11:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbVEKBL7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 21:09:36 -0400
-Received: from ozlabs.org ([203.10.76.45]:18096 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261868AbVEKBJ2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 21:09:28 -0400
-Subject: Re: [ANNOUNCE] hotplug-ng 002 release
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: "Marco d'Itri" <md@Linux.IT>
+	Tue, 10 May 2005 21:11:59 -0400
+Received: from smtp-vbr8.xs4all.nl ([194.109.24.28]:56848 "EHLO
+	smtp-vbr8.xs4all.nl") by vger.kernel.org with ESMTP id S261868AbVEKBL2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 21:11:28 -0400
+Date: Wed, 11 May 2005 03:11:03 +0200
+From: Erik van Konijnenburg <ekonijn@xs4all.nl>
+To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Greg KH <gregkh@suse.de>, "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20050511001056.GB17762@wonderland.linux.it>
-References: <20050506212227.GA24066@kroah.com>
-	 <1115611034.14447.11.camel@localhost.localdomain>
-	 <20050509232103.GA24238@suse.de>
-	 <1115717357.10222.1.camel@localhost.localdomain>
-	 <20050510094339.GC6346@wonderland.linux.it> <4280AFF4.6080108@ums.usu.ru>
-	 <20050510172447.GA11263@wonderland.linux.it>
-	 <20050510201355.GB3226@suse.de>
-	 <1115769676.17201.14.camel@localhost.localdomain>
-	 <20050511001056.GB17762@wonderland.linux.it>
-Content-Type: text/plain
-Date: Wed, 11 May 2005 11:09:14 +1000
-Message-Id: <1115773754.17201.34.camel@localhost.localdomain>
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Roman Kagan <rkagan@mail.ru>
+Subject: Re: [PATCH] Re: [ANNOUNCE] hotplug-ng 002 release
+Message-ID: <20050511031103.C7594@banaan.localdomain>
+Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
+	Greg KH <gregkh@suse.de>,
+	"Alexander E. Patrakov" <patrakov@ums.usu.ru>,
+	linux-hotplug-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org, Roman Kagan <rkagan@mail.ru>
+References: <20050510094339.GC6346@wonderland.linux.it> <4280AFF4.6080108@ums.usu.ru> <20050510172447.GA11263@wonderland.linux.it> <20050510201355.GB3226@suse.de> <20050510203156.GA14979@wonderland.linux.it> <20050510205239.GA3634@suse.de> <20050510210823.GB15541@wonderland.linux.it> <20050510232207.A7594@banaan.localdomain> <20050511015509.B7594@banaan.localdomain> <1115770106.17201.21.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1115770106.17201.21.camel@localhost.localdomain>; from rusty@rustcorp.com.au on Wed, May 11, 2005 at 10:08:25AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-05-11 at 02:10 +0200, Marco d'Itri wrote:
-> On May 11, Rusty Russell <rusty@rustcorp.com.au> wrote:
+On Wed, May 11, 2005 at 10:08:25AM +1000, Rusty Russell wrote:
+> On Wed, 2005-05-11 at 01:55 +0200, Erik van Konijnenburg wrote:
+> > Hi,
+> > 
+> > Patch against module-init-tools-3.2-pre4 to ignore modules
+> > listed in /etc/hotplug/blacklist or blacklist.d (recursively).
 > 
-> > The other possible solution is for /etc/hotplug.d/blacklist to contain
-> > "install xxx /bin/false // install yyy /bin/true //
-> > include /etc/modprobe.d" and have hotplug invoke modprobe with
-> > --config=/etc/hotplug.d/blacklist.  Substitute names to fit.
+> That's a lot of code to make a module impossible to install, and I think
+> it kind of misses the point.  Surely a non-hotplug "modprobe
+> blacklisted-module" should work?
+> 
+> If we define the first install to override included install commands,
+> and hotplug uses --config=<blacklistfile>, I think we have a better
+> solution.
 
-> I understand that this modprobe would look for an alias or install
-> directive for $MODALIAS, while it's the actual module name which users
-> need to blacklist (but I know a few situations in which it would be
-> useful to be able to match $MODALIAS on the blacklist too...).
+Lets see:
+- You want less code (for good reason, it really is a lot more
+  than the equivalent in perl)
+- Marco wants the blacklist only to work when invoked via kernel,
+  and needs only /etc/hotplug/blacklist.d.
+- Marco wants the blacklist to apply after alias expansion
+  rather than before.
+- I want to avoid install commands whenever possible.
+  The reason is that for building an initramfs, I need to interpret
+  modprobe output and decide what goes on the image.  For 'insmod'
+  that's easy; but I don't know of a way to interpret install
+  command lines and deciding *reliably* what executables and libraries
+  need to go on the image.  (incidentally, this is a use case
+  where blacklist interpretation is desirable, even though modprobe
+  is not invoked by the kernel)
 
-Yes, I'm assuming that the config file/dir used by hotplug would simply
-look like:
+Here's an alternative approach that should cover these interests:
+- add a keyword 'blacklist' to the configuration language,
+  that will be interpreted after alias expansion, but before
+  searching modules.dep.
 
-	# Install commands so hotplug doesn't load some modules.
-	# Use /bin/true so modprobe doesn't complain.
+Advantages:
+- it needs a lot less code
+- distributions can decide whether blacklists work always,
+  never, or only for the kernel simply by playing with which
+  configuration file is used
+- my initramfs builder does not have to be special cased
+  to know that some install directives really are blacklist
+  directives.
 
-	# evbug is a debug tool and should be loaded explicitly
-	install evbug /bin/true
+If this approach seems workable to you, I plan to build something
+like this tomorrow.
 
-To blacklist by aliases, you could use install commands (which, again
-undefined, are actually implemented to override alias commands):
+> > * tested only with -n, -v and --showdeps, not in live use.
+> 
+> I'm going to start bundling the testsuite with the source, to encourage
+> people to actually use it: it's not that hard...
 
-	# hotplug thinks that the XYZ driver is great for this card.
-	# But that modprobe causes uncomfortable nasal daemons.
-	install pci:v1d1dc0sd0bc10sc10i1 /bin/hotplug-warning
+That's a hint I guess ...  OK, next patch will go through the suite.
 
-If that becomes important, I can document that behaviour and add a test
-case for it.
-
-Thanks!
-Rusty.
--- 
-A bad analogy is like a leaky screwdriver -- Richard Braakman
-
+Regards,
+Erik

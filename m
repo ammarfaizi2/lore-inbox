@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262015AbVEKRvN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262018AbVEKRuq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262015AbVEKRvN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 13:51:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbVEKRvE
+	id S262018AbVEKRuq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 13:50:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbVEKRuq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 13:51:04 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43997 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262010AbVEKRuk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 13:50:40 -0400
-Date: Wed, 11 May 2005 18:50:50 +0100
-From: Matthew Wilcox <matthew@wil.cx>
-To: cotte@freenet.de
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       schwidefsky@de.ibm.com, akpm@osdl.org
-Subject: Re: [RFC/PATCH 2/5] mm/fs: add execute in place support
-Message-ID: <20050511175050.GE10567@parcelfarce.linux.theplanet.co.uk>
-References: <428216F7.30303@de.ibm.com>
+	Wed, 11 May 2005 13:50:46 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:59777 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S262020AbVEKRt2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 13:49:28 -0400
+Subject: Re: [PATCH] sync_sb_inodes cleanup
+From: Robert Love <rml@novell.com>
+To: Vladimir Saveliev <vs@namesys.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "reiserfs-dev@namesys.com" <reiserfs-dev@namesys.com>
+In-Reply-To: <1115797036.29007.359.camel@tribesman.namesys.com>
+References: <1115737238.4456.320.camel@tribesman.namesys.com>
+	 <1115739301.6810.15.camel@betsy>
+	 <1115797036.29007.359.camel@tribesman.namesys.com>
+Content-Type: text/plain
+Date: Wed, 11 May 2005 13:49:24 -0400
+Message-Id: <1115833764.6810.32.camel@betsy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <428216F7.30303@de.ibm.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 11, 2005 at 04:30:15PM +0200, Carsten Otte wrote:
-> +	BUG_ON(!mapping->a_ops->get_xip_page);
+On Wed, 2005-05-11 at 11:37 +0400, Vladimir Saveliev wrote:
 
-No need to put this assert here.  You'll get exactly as good a stack trace ...
+> I did not want to un-const start. It would be required for the
+> assignment move, wouldn't it?
 
-> +		page = mapping->a_ops->get_xip_page(mapping,
-> +			index*(PAGE_SIZE/512), 0);
+Well, the const is just a programming convention.  It is useful here,
+but just a convention; removing it changes nothing behavior-wise.  Your
+patch, though, changes behavior.
 
-... here, when you call through a null pointer.
+How bad do you need to push the spin locks into the function?
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+	Robert Love
+
+

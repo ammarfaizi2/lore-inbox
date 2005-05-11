@@ -1,43 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261180AbVEKQSb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261954AbVEKQTc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261180AbVEKQSb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 12:18:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVEKQSb
+	id S261954AbVEKQTc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 12:19:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261940AbVEKQTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 12:18:31 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:17848 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261180AbVEKQS2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 12:18:28 -0400
-Date: Wed, 11 May 2005 17:19:03 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Kirill Korotaev <dev@sw.ru>
-cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] do_swap_page() can map random data if swap read fails
-In-Reply-To: <4282248F.3070206@sw.ru>
-Message-ID: <Pine.LNX.4.61.0505111716390.7361@goblin.wat.veritas.com>
-References: <4282248F.3070206@sw.ru>
+	Wed, 11 May 2005 12:19:31 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:41964 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S261212AbVEKQTM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 12:19:12 -0400
+Message-ID: <4282307D.8060307@freenet.de>
+Date: Wed, 11 May 2005 18:19:09 +0200
+From: Carsten Otte <cotte@freenet.de>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-X-OriginalArrivalTime: 11 May 2005 16:18:25.0035 (UTC) 
-    FILETIME=[0EC375B0:01C55645]
+To: Badari Pulavarty <pbadari@us.ibm.com>
+CC: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>, schwidefsky@de.ibm.com,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC/PATCH 2/5] mm/fs: add execute in place support
+References: <428216F7.30303@de.ibm.com>	 <20050511150924.GA29976@infradead.org>  <428225E7.4070605@freenet.de> <1115826428.26913.1069.camel@dyn318077bld.beaverton.ibm.com>
+In-Reply-To: <1115826428.26913.1069.camel@dyn318077bld.beaverton.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 May 2005, Kirill Korotaev wrote:
+Badari Pulavarty wrote:
 
-> against 2.6.12-rc4
-> 
-> There is a bug in do_swap_page(): when swap page happens to be unreadable,
-> page filled with random data is mapped into user
-> address space.
-> The fix is to check for PageUptodate and send SIGBUS in case of error.
-> 
-> Signed-Off-By: Kirill Korotaev <dev@sw.ru>
-> Signed-Off-By: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+> While I agree with your reasoning, since you are affecting very hot
+>
+>code path for every architecture, irrespective of "bdev" support
+>for this - you may want to look into some how eliminating few
+>function pointer de-refs and checks for those who don't care.
+>(#ifdef, unlikely(), or some arch & config magic).
+>  
+>
+I do agree that addidional pointer derefs would be a nightmare
+from the performance perspective. But afaics the patch does not
+add such, and for checks I did already add likeleyness for the non-xip
+case. Could you be more precise and specify which code path(es) you
+mean?
 
-Ah, yes, that surprised me years ago, but I forgot all about it.
-
-Acked-by: Hugh Dickins <hugh@veritas.com>
+>To be honest, that file is already complicated enough - every time
+>I look at it my head hurts :(
+>  
+>
+I agree on that one. I gonna put extra functions into its own file.

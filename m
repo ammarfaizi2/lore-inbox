@@ -1,74 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262038AbVEKT5u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262040AbVEKUFX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262038AbVEKT5u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 15:57:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262037AbVEKT5u
+	id S262040AbVEKUFX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 16:05:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262041AbVEKUFX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 15:57:50 -0400
-Received: from rproxy.gmail.com ([64.233.170.205]:64055 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262038AbVEKT5j convert rfc822-to-8bit
+	Wed, 11 May 2005 16:05:23 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:19110 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262040AbVEKUFR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 15:57:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Zpouuch3MtTKArccTONV4FkCDitPEEMiGdxv2YFuTc2Op7+ILnTMo6yoM8UEpVAsq9/aIDqydnpY8iGCojVtt1AFHcG8zsEJ4ewRGBcp3FTWF3rVQtQ6L4LrJlp9zSYBLLe2R6nQMbq+AVpR+9TJtUSA4Veykt53R8qwwxcwp2M=
-Message-ID: <25381867050511125761fcfad0@mail.gmail.com>
-Date: Wed, 11 May 2005 15:57:37 -0400
-From: Yani Ioannou <yani.ioannou@gmail.com>
-Reply-To: Yani Ioannou <yani.ioannou@gmail.com>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 2.6.12-rc4 3/3] (dynamic sysfs callbacks) device_attribute
-Cc: LM Sensors <sensors@stimpy.netroedge.com>, linux-kernel@vger.kernel.org,
-       Justin Thiessen <jthiessen@penguincomputing.com>
-In-Reply-To: <20050511170600.GD15398@kroah.com>
+	Wed, 11 May 2005 16:05:17 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Wed, 11 May 2005 21:59:10 +0200
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       video4linux list <video4linux-list@redhat.com>
+Subject: [patch] v4l: saa7134 byteorder fix
+Message-ID: <20050511195910.GA23126@bytesex>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <2538186705051100583c6b1ffb@mail.gmail.com>
-	 <20050511170600.GD15398@kroah.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/11/05, Greg KH <greg@kroah.com> wrote:
-> On Wed, May 11, 2005 at 03:58:35AM -0400, Yani Ioannou wrote:
-> > -static ssize_t show_in(struct device *dev, char *buf, int nr)
-> > +static ssize_t show_in(struct device *dev, char *buf, void *private)
-> >  {
-> > +     int nr = *((int*)private);
-> 
-> What's wrong with a simple:
->         int nr = (int)private;
+Fix byteorder bug in the saa7134 driver.  With that ObviouslyCorrect[tm]
+patch applied the driver reportly works on powerpc.
 
-Ouch, yes thanks for catching that, that's horribly wrong. Its a
-leftover from a previous example where I was actually was passing int*
-not int. I'll fix up the example and resend it. That is what comes
-from not being able to test it I guess.
+Signed-off-by: Gerd Knorr <kraxel@bytesex.org>
+---
+ drivers/media/video/saa7134/saa7134-core.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-> Sorry, but I need a real patch in email form so I can apply it.  I can
-> handle a 300K+ email :)
-> 
-> Or you can break it up into smaller pieces, like one per major part of
-> the kernel.  That is the preferred way.
+Index: linux-2.6.12-rc3/drivers/media/video/saa7134/saa7134-core.c
+===================================================================
+--- linux-2.6.12-rc3.orig/drivers/media/video/saa7134/saa7134-core.c	2005-04-26 12:18:56.000000000 +0200
++++ linux-2.6.12-rc3/drivers/media/video/saa7134/saa7134-core.c	2005-05-11 21:54:54.000000000 +0200
+@@ -340,7 +340,7 @@ int saa7134_pgtable_build(struct pci_dev
+ 	ptr = pt->cpu + startpage;
+ 	for (i = 0; i < length; i++, list++)
+ 		for (p = 0; p * 4096 < list->length; p++, ptr++)
+-			*ptr = sg_dma_address(list) - list->offset;
++			*ptr = cpu_to_le32(sg_dma_address(list) - list->offset);
+ 	return 0;
+ }
+ 
 
-I'd like to break it up, but I think even broken up by major part of
-the kernel it one piece will still be too large since the majority of
-the changes take place in drivers & drivers/i2c and are very
-asymmetric :-(. I'll send you the patch inline privately for now.
-
-> We should make a __ATTR macro instead, right?
-
-Well another __ATTR macro (e.g. ATTR_PRIVATE) would make declaring the
-new DEVICE_ATTR_PRIVATE macro, etc, easier. We can't really use __ATTR
-nicely though when declaring static attributes and wanting to set the
-private data, hence why I think there is the need for a macro (see
-http://archives.andrew.net.au/lm-sensors/msg31399.html).
-
-The question really is, is it better to just add that new parameter to
-the DEVICE_ATTR macro, or to declare a new DEVICE_ATTR_PRIVATE macro
-instead. The former obviously breaks a lot of code although my scripts
-can generate another large patch for that too...
-
-Thanks,
-Yani
+-- 
+-mm seems unusually stable at present.
+	-- akpm about 2.6.12-rc3-mm3

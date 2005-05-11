@@ -1,41 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVEKX6o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbVELAAo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261334AbVEKX6o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 19:58:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVEKX6o
+	id S261343AbVELAAo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 20:00:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVELAAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 19:58:44 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:62105 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261334AbVEKX6l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 19:58:41 -0400
-Date: Wed, 11 May 2005 19:58:31 -0400
-From: Dave Jones <davej@redhat.com>
-To: Erik Mckee <emckee@cs.tamu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: FC3 oops
-Message-ID: <20050511235830.GA10725@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Erik Mckee <emckee@cs.tamu.edu>, linux-kernel@vger.kernel.org
-References: <Pine.GSO.4.58.0505111847430.28589@sun>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.58.0505111847430.28589@sun>
-User-Agent: Mutt/1.4.1i
+	Wed, 11 May 2005 20:00:40 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:40269 "EHLO
+	pd4mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S261343AbVELAAD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 20:00:03 -0400
+Date: Wed, 11 May 2005 17:59:40 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Disable cached memory
+In-reply-to: <42ze5-6rp-13@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <42829C6C.9010003@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <42ze5-6rp-13@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 11, 2005 at 06:53:21PM -0500, Erik Mckee wrote:
- > I got the following complaints on my macine.  It is Intel, 3.6 GHz
- > hyperthreaded processor with SATA software RAID.  Any idea what the
- > problem is?  It looks like USB is involved, as I was attaching my iPOD at
- > the time via USB
+Chen Bill-R63518 wrote:
+> Hi,
+> When I cat "/proc/meminfo", I found there were too many memory cached which may result in kernel oom and killing something. I want to disable the cacheable feature, or limit the maximum of memory sizes which could be used for cached data. But anyone know how I shall do in the kernel? I use 2.4.20 kernel. Thanks.
 
-Fixed in the updates-testing kernel.  This blew up for lots of Fedora
-users as CFQ is the default there. As CFQ isnt the default upstream
-it wasn't deemed important enough for 2.6.11.x
-It's fixed in .12rc though.
+It doesn't work that way. If memory is needed for something else, the 
+amount of memory used for cache will be reduced.
 
-		Dave
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 

@@ -1,47 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261993AbVEKRPD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbVEKRVN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261993AbVEKRPD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 13:15:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbVEKRPD
+	id S261186AbVEKRVN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 13:21:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbVEKRVN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 13:15:03 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:12464 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S261993AbVEKROk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 13:14:40 -0400
-Subject: Re: ioctl to keyboard device file.
-From: Marcel Holtmann <marcel@holtmann.org>
-To: "P.Manohar" <pmanohar@lantana.cs.iitm.ernet.in>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.60.0505112207300.21632@lantana.cs.iitm.ernet.in>
-References: <Pine.LNX.4.60.0505112207300.21632@lantana.cs.iitm.ernet.in>
-Content-Type: text/plain
-Date: Wed, 11 May 2005 19:14:11 +0200
-Message-Id: <1115831651.23458.74.camel@pegasus>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+	Wed, 11 May 2005 13:21:13 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:36276 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261986AbVEKRVH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 13:21:07 -0400
+Date: Wed, 11 May 2005 18:21:05 +0100 (BST)
+From: James Simmons <jsimmons@www.infradead.org>
+X-X-Sender: jsimmons@pentafluge.infradead.org
+To: Karel Kulhavy <clock@twibright.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PC speaker input device
+In-Reply-To: <20050511153314.GA24815@kestrel>
+Message-ID: <Pine.LNX.4.56.0505111820200.32222@pentafluge.infradead.org>
+References: <20050511153314.GA24815@kestrel>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
->       I want to add a new ioctl to keyboard driver device file which will 
-> perform the work of copying user space data  sent to it into kernel 
-> space and send those characters  to handle_scancode function of keyboard 
-> driver.. Now I want to know
+> Hello
 > 
-> 1) what is the device file corresponding to keyboard (is it 
-> /dev/input/keyboard).
-> 2) where file operations structure is defined for that.
-> 3) where the those ioctls handled(not found in keyboard.c).
+> PC speaker (CONFIG_INPUT_PCSPKR) is in kernel make menuconfig
+> 2.6.11-gentoo-r5 -> Device Drivers -> Input device support
 > 
-> Any small help is appreciated.
+> PC speaker is output device. Why is output device in input device
+> submenu? Isn't this a mistake?
 
-why not using uinput for this job?
-
-Regards
-
-Marcel
-
-
+Some keyboards have built in speakers. 

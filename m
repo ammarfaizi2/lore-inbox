@@ -1,39 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbVEKVkr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbVEKVpR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261260AbVEKVkr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 17:40:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbVEKVkq
+	id S261285AbVEKVpR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 17:45:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbVEKVpQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 17:40:46 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:27913 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261260AbVEKVkI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 17:40:08 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: marcelo.tosatti@cyclades.com (Marcelo Tosatti)
-Subject: Re: 2.4.30-hf1 do_IRQ stack overflows
-Cc: manfred99@gmx.ch, linux-kernel@vger.kernel.org, davem@redhat.com,
-       netdev@oss.sgi.com
-Organization: Core
-In-Reply-To: <20050511124640.GE8541@logos.cnet>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1DVyuq-0005Sf-00@gondolin.me.apana.org.au>
-Date: Thu, 12 May 2005 07:38:52 +1000
+	Wed, 11 May 2005 17:45:16 -0400
+Received: from kanga.kvack.org ([66.96.29.28]:12486 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S261285AbVEKVpK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 17:45:10 -0400
+Date: Wed, 11 May 2005 17:47:49 -0400
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: reducing max segments expected to work?
+Message-ID: <20050511214749.GA14072@kvack.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
->
-> May 11 04:22:09 server kernel:   [__switch_to+82/256] [schedule+738/1344] [schedule_timeout+84/160] [process_timeout+0/96] [st:__insmod_st_O/lib/modules/2.4.30-hf1/kernel/drivers/scsi/st+4294702743/96] [st:__insmod_st_O/lib/modules/2.4.30-hf1/kernel/drivers/scsi/st+4294703097/96]
+Hello Jens et al,
 
-The stack trace becomes unreadable at this point.  Please run klogd
-with -X and then decode the messages with ksymoops.  Alternatively
-run ksymoops on the output of dmesg directly.
+Is reducing the max number of segments in the block layer supposed to 
+work (as done in the patch below), or should i be sticking to mucking 
+with MAX_PHYS_SEGMENTS?  I seem to get a kernel thatt cannot boot with 
+the below patch applied, and was wondering if you're aware of any 
+problems in this area.  I'll probably post something more detailed 
+tomorrow after trying a few things.
 
-Thanks,
+		-ben
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+"Time is what keeps everything from happening all at once." -- John Wheeler
+
+
+diff -purN v2.6.12-rc4/include/linux/blkdev.h test-rc4/include/linux/blkdev.h
+--- v2.6.12-rc4/include/linux/blkdev.h	2005-04-28 11:02:01.000000000 -0400
++++ test-rc4/include/linux/blkdev.h	2005-05-11 17:06:10.000000000 -0400
+@@ -667,8 +667,8 @@ extern long blk_congestion_wait(int rw, 
+ extern void blk_rq_bio_prep(request_queue_t *, struct request *, struct bio *);
+ extern int blkdev_issue_flush(struct block_device *, sector_t *);
+ 
+-#define MAX_PHYS_SEGMENTS 128
+-#define MAX_HW_SEGMENTS 128
++#define MAX_PHYS_SEGMENTS 32
++#define MAX_HW_SEGMENTS 32
+ #define MAX_SECTORS 255
+ 
+ #define MAX_SEGMENT_SIZE	65536

@@ -1,98 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261955AbVEKKAc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbVEKKD3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261955AbVEKKAc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 06:00:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbVEKKAc
+	id S261198AbVEKKD3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 06:03:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbVEKKD3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 06:00:32 -0400
-Received: from smtp-vbr5.xs4all.nl ([194.109.24.25]:3602 "EHLO
-	smtp-vbr5.xs4all.nl") by vger.kernel.org with ESMTP id S261955AbVEKKAQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 06:00:16 -0400
-Date: Wed, 11 May 2005 11:59:55 +0200
-From: Erik van Konijnenburg <ekonijn@xs4all.nl>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Greg KH <gregkh@suse.de>, "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Roman Kagan <rkagan@mail.ru>
-Subject: Re: [PATCH] Re: [ANNOUNCE] hotplug-ng 002 release
-Message-ID: <20050511115955.D7594@banaan.localdomain>
-Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
-	Greg KH <gregkh@suse.de>,
-	"Alexander E. Patrakov" <patrakov@ums.usu.ru>,
-	linux-hotplug-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org, Roman Kagan <rkagan@mail.ru>
-References: <20050510172447.GA11263@wonderland.linux.it> <20050510201355.GB3226@suse.de> <20050510203156.GA14979@wonderland.linux.it> <20050510205239.GA3634@suse.de> <20050510210823.GB15541@wonderland.linux.it> <20050510232207.A7594@banaan.localdomain> <20050511015509.B7594@banaan.localdomain> <1115770106.17201.21.camel@localhost.localdomain> <20050511031103.C7594@banaan.localdomain> <1115782753.17201.54.camel@localhost.localdomain>
+	Wed, 11 May 2005 06:03:29 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:60324 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261193AbVEKKDV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 06:03:21 -0400
+Subject: Re: gettimeofday() goes backwards
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: "Aradhya, Chinmaya Tm (STSD)" <chinmaya@hp.com>
+Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <8BF7471D09AA9B4190A9C96778BC2A1703E81328@qcaexc02.asiapacific.cpqcorp.net>
+References: <8BF7471D09AA9B4190A9C96778BC2A1703E81328@qcaexc02.asiapacific.cpqcorp.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Hveg4PexerW6HyaivnPW"
+Organization: Red Hat, Inc.
+Date: Wed, 11 May 2005 12:03:17 +0200
+Message-Id: <1115805798.6029.27.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1115782753.17201.54.camel@localhost.localdomain>; from rusty@rustcorp.com.au on Wed, May 11, 2005 at 01:39:13PM +1000
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 11, 2005 at 01:39:13PM +1000, Rusty Russell wrote:
-> On Wed, 2005-05-11 at 03:11 +0200, Erik van Konijnenburg wrote:
-> > Here's an alternative approach that should cover these interests:
-> > - add a keyword 'blacklist' to the configuration language,
-> >   that will be interpreted after alias expansion, but before
-> >   searching modules.dep.
-> 
-> This makes "blacklist X" equivalent to "install X /bin/true" right?  i.e
-> "ignore it".
 
-Except for output on --show-depends and total number of forks, yes.
+--=-Hveg4PexerW6HyaivnPW
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Based on comments from Greg and Christian, it would be better to apply
-blacklisting only to the result of alias expanding for kernel generated
-module maps.  So:
+On Wed, 2005-05-11 at 15:21 +0530, Aradhya, Chinmaya Tm (STSD) wrote:
+> Hi,
 
-	cat >> /etc/hotplug/blacklist.d/test <<//
-	blacklist snd_rme96
-	//
+you sent this mail to TWO of the very wrong mailinglists for this. You
+are not using an ia64 system so linux-ia64@ is very much off topic, and
+you are not using a kernel.org kernel but an (old!) vendor kernel so
+your mail is off topic for linux-kernel@ as well.
 
-would apply to
 
-	modprobe 'pci:v000010EEd00003FC0sv*sd*bc*sc*i*'
+--=-Hveg4PexerW6HyaivnPW
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-but not to
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
 
-	modprobe snd_rme96
+iD8DBQBCgdhlpv2rCoFn+CIRAldUAJ9k2W4wKvcpXAMpzKeMzSdU0jBpDwCgjB/W
+TEn4R4bcTsmDBjwzLOxyqcM=
+=PEuR
+-----END PGP SIGNATURE-----
 
-> > Advantages:
-> > - it needs a lot less code
-> > - distributions can decide whether blacklists work always,
-> >   never, or only for the kernel simply by playing with which
-> >   configuration file is used
-> > - my initramfs builder does not have to be special cased
-> >   to know that some install directives really are blacklist
-> >   directives.
-> 
-> Well, a module mentioned in hotplug's blacklist file would be a pretty
-> good candidate for exclusion from your initramfs builder.  Existing
-> install commands are already trouble for initramfs building, since they
-> can do arbitrary things...
-
-Yep.  At the moment my initramfs builder aborts on such install directives,
-because there's no correct way of handling them.  Since install isn't used
-all that much and certainly not in boot-critical stuff, thats acceptable, 
-but if we're going to use install for every blacklisted module,
-that's a problem.
-
-> How about I allow "--config=-" and hotplug can use the existing
-> blacklists and 'sed'?
-
-That would keep existing blacklist, which is good for Marco and 
-for initramfs builders.
-
-However, it would be bad for hotplug-ng: one of the strong points
-is that it speeds booting by dropping loads of shell code, and
-adding sed for blacklist processing does not fit well with that.
-
-I'll take a stab at a patch that introduces the 'blacklist' keyword
-to see if that reduces the code enough to make it acceptable.
-
-Regards,
-Erik
-
+--=-Hveg4PexerW6HyaivnPW--
 

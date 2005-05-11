@@ -1,79 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262033AbVEKTgi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262030AbVEKThm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbVEKTgi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 15:36:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbVEKTgi
+	id S262030AbVEKThm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 15:37:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbVEKThm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 15:36:38 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:33454 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262030AbVEKTgS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 15:36:18 -0400
-Subject: Re: [RCF] [PATCH] unprivileged mount/umount
-From: Ram <linuxram@us.ibm.com>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: jamie@shareable.org, 7eggert@gmx.de, ericvh@gmail.com,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       smfrench@austin.rr.com, hch@infradead.org
-In-Reply-To: <E1DVwGn-0002BB-00@dorka.pomaz.szeredi.hu>
-References: <406SQ-5P9-5@gated-at.bofh.it> <40rNB-6p8-3@gated-at.bofh.it>
-	 <40t37-7ol-5@gated-at.bofh.it> <42VeB-8hG-3@gated-at.bofh.it>
-	 <42WNo-1eJ-17@gated-at.bofh.it> <E1DVuHG-0006YJ-Q7@be1.7eggert.dyndns.org>
-	 <20050511170700.GC2141@mail.shareable.org>
-	 <E1DVwGn-0002BB-00@dorka.pomaz.szeredi.hu>
-Content-Type: text/plain
-Organization: IBM 
-Message-Id: <1115840139.6248.181.camel@localhost>
+	Wed, 11 May 2005 15:37:42 -0400
+Received: from zak.futurequest.net ([69.5.6.152]:5826 "HELO
+	zak.futurequest.net") by vger.kernel.org with SMTP id S262030AbVEKTh2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 15:37:28 -0400
+Date: Wed, 11 May 2005 13:37:26 -0600
+From: Bruce Guenter <bruceg@em.ca>
+To: linux-kernel@vger.kernel.org
+Subject: Re: How to diagnose a kernel memory leak
+Message-ID: <20050511193726.GA29463@em.ca>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20050509035823.GA13715@em.ca> <1115627361.936.11.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 11 May 2005 12:35:39 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5mCyUwZo2JvN/JJP"
+Content-Disposition: inline
+In-Reply-To: <1115627361.936.11.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-05-11 at 11:49, Miklos Szeredi wrote:
-> > > > How about a new clone option "CLONE_NOSUID"?
-> > > 
-> > > IMO, the clone call ist the wrong place to create namespaces. It should be
-> > > deprecated by a mkdir/chdir-like interface.
-> > 
-> > And the mkdir/chdir interface already exists, see "cd /proc/NNN/root".
-> 
-> That's the chdir part.
 
-What if proc filesystem is removed from the kernel?
+--5mCyUwZo2JvN/JJP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Ability to access some other namespace through the proc filesystem does
-not look clean. I think it should be cleanly supported through VFS.
+On Mon, May 09, 2005 at 10:29:21AM +0200, Alexander Nyberg wrote:
+> the patch below might help as it works on a lower
+> level. It accounts for bare pages in the system available
+> from /proc/page_owner. So a cat /proc/page_owner > tmpfile would be good
+> when the system starts to go low. There's a sorting program in
+> Documentation/page_owner.c used to sort the rather large output.
 
-Also cd'ing into a new namespace just allows you to browse through
-the other namespace. But it does not effectively change the process's
-namespace.  Things like mount in the other namespace will be failed
-by check_mount() anyway.
+I've been running this for a day and a half now, and a few hundred megs
+of memory is now missing:
 
-I think, we need sys calls like sys_cdnamespace() which switches to a
-new namespace. 
+# free
+             total       used       free     shared    buffers     cached
+Mem:       2055648    2001884      53764          0     259024     868484
+-/+ buffers/cache:     874376    1181272
+Swap:      1028152         56    1028096
 
-Effectively the process's current->namespace has to be modified,
-for the process to be effectively work in the new namespace.
+I've put the output from the sorting program up at
+	http://untroubled.org/misc/page_owner_sorted
 
+Is this useful information yet, or is there still too much in cached
+pages to really identify the source?
+--=20
+Bruce Guenter <bruceg@em.ca> http://em.ca/~bruceg/ http://untroubled.org/
+OpenPGP key: 699980E8 / D0B7 C8DD 365D A395 29DA  2E2A E96F B2DC 6999 80E8
 
-> 
-> The mkdir part is clone() or unshare().
+--5mCyUwZo2JvN/JJP
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
- clone/unshare will give you the ability to share/unshare a know
-namespace. But to share some arbitrary namespace to which a process
-has access rights to.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-> How else do you propose to create new namespaces?
-> 
+iD8DBQFCgl726W+y3GmZgOgRAiwpAJ9+y4Fn7yZ8X3bFV4CxWIves6YK6ACfY+4E
+/ionH0SKummgPnfLCCJ2bEI=
+=hQj2
+-----END PGP SIGNATURE-----
 
-RP
-
-
-> Miklos
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
+--5mCyUwZo2JvN/JJP--

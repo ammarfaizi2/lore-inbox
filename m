@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261954AbVEKQTc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261970AbVEKQUW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261954AbVEKQTc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 12:19:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261940AbVEKQTb
+	id S261970AbVEKQUW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 12:20:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbVEKQUM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 12:19:31 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:41964 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S261212AbVEKQTM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 12:19:12 -0400
-Message-ID: <4282307D.8060307@freenet.de>
-Date: Wed, 11 May 2005 18:19:09 +0200
-From: Carsten Otte <cotte@freenet.de>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Badari Pulavarty <pbadari@us.ibm.com>
-CC: Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>, schwidefsky@de.ibm.com,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC/PATCH 2/5] mm/fs: add execute in place support
-References: <428216F7.30303@de.ibm.com>	 <20050511150924.GA29976@infradead.org>  <428225E7.4070605@freenet.de> <1115826428.26913.1069.camel@dyn318077bld.beaverton.ibm.com>
-In-Reply-To: <1115826428.26913.1069.camel@dyn318077bld.beaverton.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 11 May 2005 12:20:12 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:26035 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261940AbVEKQTx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 12:19:53 -0400
+Subject: Re: [RFC/PATCH 0/5] add execute in place support
+From: David Woodhouse <dwmw2@infradead.org>
+To: cotte@freenet.de
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       schwidefsky@de.ibm.com, akpm@osdl.org
+In-Reply-To: <428216DF.8070205@de.ibm.com>
+References: <428216DF.8070205@de.ibm.com>
+Content-Type: text/plain
+Date: Wed, 11 May 2005 17:19:48 +0100
+Message-Id: <1115828389.16187.544.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-1.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty wrote:
+On Wed, 2005-05-11 at 16:29 +0200, Carsten Otte wrote:
+> . This is also useful on embedded systems where the block device is
+> located on a flash chip.
 
-> While I agree with your reasoning, since you are affecting very hot
->
->code path for every architecture, irrespective of "bdev" support
->for this - you may want to look into some how eliminating few
->function pointer de-refs and checks for those who don't care.
->(#ifdef, unlikely(), or some arch & config magic).
->  
->
-I do agree that addidional pointer derefs would be a nightmare
-from the performance perspective. But afaics the patch does not
-add such, and for checks I did already add likeleyness for the non-xip
-case. Could you be more precise and specify which code path(es) you
-mean?
+On Wed, 2005-05-11 at 17:33 +0200, Carsten Otte wrote:
+> Indeed that seems reasonable. There is no exact reason to have
+> this built into a kernel on a platform that does not have a bdev
+> for this.
 
->To be honest, that file is already complicated enough - every time
->I look at it my head hurts :(
->  
->
-I agree on that one. I gonna put extra functions into its own file.
+The sanest way to use flash chips is not to pretend that they're a block
+device at all; rather to use a file system directly on top of them. 
+
+But although you _talk_ about block devices, your code does look like it
+should be usable even by flash file systems. I'll try to come up with a
+test case using it on flash.
+
+-- 
+dwmw2
+

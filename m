@@ -1,62 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbVEKKSp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbVEKKVT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261201AbVEKKSp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 06:18:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbVEKKSp
+	id S261959AbVEKKVT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 06:21:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbVEKKVS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 06:18:45 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:42511 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S261201AbVEKKSn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 06:18:43 -0400
-Date: Wed, 11 May 2005 12:23:44 +0200
-To: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>
-Cc: Valdis.Kletnieks@vt.edu, Hans Reiser <reiser@namesys.com>,
-       sean.mcgrath@propylon.com, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-Subject: Re: file as a directory
-Message-ID: <20050511102344.GA8277@hh.idb.hist.no>
-References: <2c59f00304112205546349e88e@mail.gmail.com> <41A1FFFC.70507@hist.no> <41A21EAA.2090603@dbservice.com> <41A23496.505@namesys.com> <1101287762.1267.41.camel@pear.st-and.ac.uk> <1115717961.3711.56.camel@grape.st-and.ac.uk> <200505101514.j4AFEhGO010837@turing-police.cc.vt.edu> <1115739527.3711.124.camel@grape.st-and.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1115739527.3711.124.camel@grape.st-and.ac.uk>
-User-Agent: Mutt/1.5.9i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+	Wed, 11 May 2005 06:21:18 -0400
+Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:27145 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261950AbVEKKUe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 06:20:34 -0400
+To: hch@infradead.org
+CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       ericvh@gmail.com, smfrench@austin.rr.com
+In-reply-to: <20050511084818.GA24495@infradead.org> (message from Christoph
+	Hellwig on Wed, 11 May 2005 09:48:18 +0100)
+Subject: Re: [RCF] [PATCH] unprivileged mount/umount
+References: <E1DSyQx-0002ku-00@dorka.pomaz.szeredi.hu> <20050511084818.GA24495@infradead.org>
+Message-Id: <E1DVoK2-0001bS-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 11 May 2005 12:20:10 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 10, 2005 at 04:38:48PM +0100, Peter Foldiak wrote:
-> On Tue, 2005-05-10 at 16:14, Valdis.Kletnieks@vt.edu wrote:
-> > On Tue, 10 May 2005 10:39:23 BST, Peter Foldiak said:
-> > > Back in November 2004, I suggested on the linux-kernel and reiserfs
-> > > lists that the Reiser4 architecture could allow us to abolish the
-> > > unnatural naming distinction between directories/files/parts-of-file
-> > > (i.e. to unify naming within-file-system and within-file naming) in an
-> > > efficient way.
-> > > I suggested that one way of doing that would be to extend XPath-like
-> > > selection syntax above the (XML) file level.
+> > Details:
 > > 
-> > I believe the consensus was that this needs to happen at the VFS layer, not
-> > the FS level.  The next step would be designing an API for this - what would
-> > the VFS present to userspace, and in what way, and how would backward
-> > combatability be maintained?
+> >   - new mnt_owner field in struct vfsmount
+> >   - if mnt_owner is NULL, it's a privileged mount
+> >   - global limit on unprivileged mounts in  /proc/sys/fs/mount-max
 > 
-> But can it be done efficiently above the file system level??
+> I think the name should be different.  user-mount-max?
 > 
-Anything that can be done at the fs level should be doable on the vfs level too.
-That is simple to show in theory: You could make the VFS api identical to
-the reiser4 api, and reiser4 should continue to work as efficiently as before.
+> Acutally the accounting in your patch is a little odd, we account for
+> all mounts, and after mount-max is reached user mounts are denied.
+> Shouldn't we account only for user mounts?
 
-> As far as I understand, Reiser4 has this nice tree structure, which
-> means that the part of file selection could be done with almost no extra
-> effort, you just attach additional names to inside nodes of the tree, so
-> the same tree can be used to store the whole object, and part of the
-> same tree can be used to select the object part. Right?
-> If you do this above the file system level, I don't think it would have
-> such an efficient implementation. Or would it?  Peter
+It's done similarly to files-max.  I'm not particularly attached to
+either view.
 
-I cannot see why reiser4 should suffer - but of course this might be hard to
-implement for other filesystems.
+> > --- a6d962c4f559f3644678574a66310084fd13d130/fs/namespace.c  (mode:100644 sha1:3b93e5d750ebf8452ea1264251c5b55cc89f48f8)
+> > +++ uncommitted/fs/namespace.c  (mode:100644)
+> > @@ -42,7 +42,7 @@
+> >  static struct list_head *mount_hashtable;
+> >  static int hash_mask, hash_bits;
+> >  static kmem_cache_t *mnt_cache; 
+> > -
+> > +struct mounts_stat_struct mounts_stat;
+> >  static inline unsigned long hash(struct vfsmount *mnt, struct dentry *dentry)
+> 
+> minor nipick - please keep a empty line before the function here.
+> Also I wonder whether we should have struct mounts_stat_struct at all,
+> just having two variables seems a lot saner to me.
 
-Helge Hafting
+OK.  Again I was just copying files_stat_struct. 
+
+> > -	if (!capable(CAP_SYS_ADMIN))
+> > +	if (!capable(CAP_SYS_ADMIN) && (nd.mnt->mnt_owner != current->user ||
+> > +					(flags & MNT_FORCE)))
+> >  		goto dput_and_out;
+> 
+> although it won't have different results I'd reorder this to make reading
+> more easy:
+> 
+> 	if ((nd.mnt->mnt_owner != current->user || (flags & MNT_FORCE)) &&
+> 	    !capable(CAP_SYS_ADMIN))
+
+OK.
+
+> > -static int mount_is_safe(struct nameidata *nd)
+> > +static struct user_struct *mount_is_safe(struct nameidata *nd)
+> >  {
+> >  	if (capable(CAP_SYS_ADMIN))
+> > -		return 0;
+> > -	return -EPERM;
+> > -#ifdef notyet
+> > -	if (S_ISLNK(nd->dentry->d_inode->i_mode))
+> > -		return -EPERM;
+> > +		return NULL;
+> > +
+> > +	if (!S_ISDIR(nd->dentry->d_inode->i_mode) &&
+> > +	    !S_ISREG(nd->dentry->d_inode->i_mode))
+> > +		return ERR_PTR(-EPERM);
+> >  	if (nd->dentry->d_inode->i_mode & S_ISVTX) {
+> > -		if (current->uid != nd->dentry->d_inode->i_uid)
+> > -			return -EPERM;
+> > +		if (current->fsuid != nd->dentry->d_inode->i_uid)
+> > +			return ERR_PTR(-EPERM);
+> >  	}
+> >  	if (permission(nd->dentry->d_inode, MAY_WRITE, nd))
+> > -		return -EPERM;
+> > -	return 0;
+> > -#endif
+> > +		return ERR_PTR(-EPERM);
+> > +	return current->user;
+> 
+> Currently we do allow bind mounts over every type of file for the super
+> user.  I think we should keep allowing that.
+
+Yep.  I didn't change that check (first two lines of function), so it
+should work as it used to.
+
+>  Also I think this function wants a really big comment explaining
+> all the rules for user mounts.
+
+OK.
+
+Thanks for the comments,
+Miklos

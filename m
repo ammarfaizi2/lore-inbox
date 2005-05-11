@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbVEKXzW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVEKX6o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261335AbVEKXzW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 19:55:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbVEKXzW
+	id S261334AbVEKX6o (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 19:58:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVEKX6o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 19:55:22 -0400
-Received: from mgw-x1.nokia.com ([131.228.20.21]:51893 "EHLO mgw-x1.nokia.com")
-	by vger.kernel.org with ESMTP id S261336AbVEKXy0 (ORCPT
+	Wed, 11 May 2005 19:58:44 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:62105 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261334AbVEKX6l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 19:54:26 -0400
-X-Scanned: Thu, 12 May 2005 02:53:54 +0300 Nokia Message Protector V1.3.34 2004121512 - RELEASE
-Subject: Re: arm: Inconsistent kallsyms data
-From: Imre Deak <imre.deak@nokia.com>
-To: ext Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, kaos@ocs.com.au
-In-Reply-To: <20050511224713.A16229@flint.arm.linux.org.uk>
-References: <1115802310.9757.20.camel@mammoth.research.nokia.com>
-	 <20050511224713.A16229@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Organization: nokia
-Date: Thu, 12 May 2005 02:53:17 +0300
-Message-Id: <1115855597.9757.42.camel@mammoth.research.nokia.com>
+	Wed, 11 May 2005 19:58:41 -0400
+Date: Wed, 11 May 2005 19:58:31 -0400
+From: Dave Jones <davej@redhat.com>
+To: Erik Mckee <emckee@cs.tamu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: FC3 oops
+Message-ID: <20050511235830.GA10725@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Erik Mckee <emckee@cs.tamu.edu>, linux-kernel@vger.kernel.org
+References: <Pine.GSO.4.58.0505111847430.28589@sun>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.58.0505111847430.28589@sun>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The definition I refered to:
+On Wed, May 11, 2005 at 06:53:21PM -0500, Erik Mckee wrote:
+ > I got the following complaints on my macine.  It is Intel, 3.6 GHz
+ > hyperthreaded processor with SATA software RAID.  Any idea what the
+ > problem is?  It looks like USB is involved, as I was attaching my iPOD at
+ > the time via USB
 
-static struct platform_device *devices[] __initdata = {
-	NULL,
-};
+Fixed in the updates-testing kernel.  This blew up for lots of Fedora
+users as CFQ is the default there. As CFQ isnt the default upstream
+it wasn't deemed important enough for 2.6.11.x
+It's fixed in .12rc though.
 
-To me however it seems to be irrelevant, since meanwhile I managed to
-trigger the error multiple ways by changing something else.
-
-I sent the .tmp_map* files of one failed build to Keith.
-
---Imre
-
-On Wed, 2005-05-11 at 22:47 +0100, ext Russell King wrote:
-> On Wed, May 11, 2005 at 12:05:10PM +0300, Imre Deak wrote:
-> > I noticed that the error is triggered by an __initdata definition. It is
-> > accessed only from an __init function, so that's ok I think. Removing
-> > the __initdata attribute gets rid of the error message.
-> 
-> This sounds very vague.  Can you show us the code please?
-> 
-> Note that uninitialised variables with an __initdata marking aren't
-> legal.
-
+		Dave
 

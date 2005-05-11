@@ -1,37 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261988AbVEKQll@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261991AbVEKQnb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261988AbVEKQll (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 12:41:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261230AbVEKQlk
+	id S261991AbVEKQnb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 12:43:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261990AbVEKQnb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 12:41:40 -0400
-Received: from mail-in-07.arcor-online.net ([151.189.21.47]:52135 "EHLO
-	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261200AbVEKQli (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 12:41:38 -0400
-From: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
-	<7eggert@gmx.de>
-Subject: Re: [RCF] [PATCH] unprivileged mount/umount
-To: Miklos Szeredi <miklos@szeredi.hu>, ericvh@gmail.com,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       smfrench@austin.rr.com, hch@infradead.org
-Reply-To: 7eggert@gmx.de
-Date: Wed, 11 May 2005 18:41:32 +0200
-References: <406SQ-5P9-5@gated-at.bofh.it> <40rNB-6p8-3@gated-at.bofh.it> <40t37-7ol-5@gated-at.bofh.it> <42VeB-8hG-3@gated-at.bofh.it> <42WNo-1eJ-17@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Wed, 11 May 2005 12:43:31 -0400
+Received: from lantana.tenet.res.in ([202.144.28.166]:8401 "EHLO
+	lantana.cs.iitm.ernet.in") by vger.kernel.org with ESMTP
+	id S261230AbVEKQnW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 12:43:22 -0400
+Date: Wed, 11 May 2005 22:13:57 +0530 (IST)
+From: "P.Manohar" <pmanohar@lantana.cs.iitm.ernet.in>
+To: linux-kernel@vger.kernel.org
+Subject: ioctl to keyboard device file.
+Message-ID: <Pine.LNX.4.60.0505112207300.21632@lantana.cs.iitm.ernet.in>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <E1DVuHG-0006YJ-Q7@be1.7eggert.dyndns.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Mail-scanner Found to be clean
+X-MailScanner-From: pmanohar@lantana.cs.iitm.ernet.in
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miklos Szeredi <miklos@szeredi.hu> wrote:
 
-> How about a new clone option "CLONE_NOSUID"?
+hai,
+      I want to add a new ioctl to keyboard driver device file which will 
+perform the work of copying user space data  sent to it into kernel 
+space and send those characters  to handle_scancode function of keyboard 
+driver.. Now I want to know
 
-IMO, the clone call ist the wrong place to create namespaces. It should be
-deprecated by a mkdir/chdir-like interface.
--- 
-Incoming fire has the right of way. 
+1) what is the device file corresponding to keyboard (is it 
+/dev/input/keyboard).
+2) where file operations structure is defined for that.
+3) where the those ioctls handled(not found in keyboard.c).
 
+Any small help is appreciated.
+
+
+   Thanks&Regards,
+   P.Manohar,

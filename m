@@ -1,75 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261964AbVEKK5q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbVEKK6h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261964AbVEKK5q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 06:57:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbVEKK5q
+	id S261206AbVEKK6h (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 06:58:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVEKK6h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 06:57:46 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:44228 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S261964AbVEKK5i (ORCPT
+	Wed, 11 May 2005 06:58:37 -0400
+Received: from attila.bofh.it ([213.92.8.2]:40644 "EHLO attila.bofh.it")
+	by vger.kernel.org with ESMTP id S261206AbVEKK6a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 06:57:38 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Imre Deak <imre.deak@nokia.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: arm: Inconsistent kallsyms data 
-In-reply-to: Your message of "Wed, 11 May 2005 12:05:10 +0300."
-             <1115802310.9757.20.camel@mammoth.research.nokia.com> 
+	Wed, 11 May 2005 06:58:30 -0400
+Date: Wed, 11 May 2005 12:58:18 +0200
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Erik van Konijnenburg <ekonijn@xs4all.nl>, Greg KH <gregkh@suse.de>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: [ANNOUNCE] hotplug-ng 002 release
+Message-ID: <20050511105818.GB8761@wonderland.linux.it>
+Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
+	Erik van Konijnenburg <ekonijn@xs4all.nl>, Greg KH <gregkh@suse.de>,
+	linux-hotplug-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org
+References: <20050510203156.GA14979@wonderland.linux.it> <20050510205239.GA3634@suse.de> <20050510210823.GB15541@wonderland.linux.it> <20050510232207.A7594@banaan.localdomain> <20050511015509.B7594@banaan.localdomain> <1115770106.17201.21.camel@localhost.localdomain> <20050511031103.C7594@banaan.localdomain> <1115782753.17201.54.camel@localhost.localdomain> <20050511115955.D7594@banaan.localdomain> <1115808722.16408.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 11 May 2005 20:57:25 +1000
-Message-ID: <6946.1115809045@ocs3.ocs.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="1UWUbFP1cBYEclgG"
+Content-Disposition: inline
+In-Reply-To: <1115808722.16408.3.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
+From: md@Linux.IT (Marco d'Itri)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 May 2005 12:05:10 +0300, 
-Imre Deak <imre.deak@nokia.com> wrote:
->building 2.6.12-rc4 results in "Inconsistent kallsyms data". Setting
->CONFIG_KALLSYMS_EXTRA_PASS=y doesn't help.
->
->I made a diff of .tmp_kallsyms[12].S after converting them to human
->readable form with kallsyms_uncompress.pl .
->
->I noticed that the error is triggered by an __initdata definition. It is
->accessed only from an __init function, so that's ok I think. Removing
->the __initdata attribute gets rid of the error message.
->
->Let me know if you need more data to track the problem.
 
-A better approach is this patch, it extracts the maps including the
-section headers after each stage.  I sent it to lkml on Sat, 26 Feb
-2005 with no response.  Apply the patch, make debug_kallsyms and send
-me the .tmp_map* files.
+--1UWUbFP1cBYEclgG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
----
+On May 11, Rusty Russell <rusty@rustcorp.com.au> wrote:
 
-Make it easier to generate maps for debugging kallsyms problems.
-debug_kallsyms is only a debugging target so no help or silent mode.
+> Then perhaps depmod should be the one to read a blacklist file?  It
+> produces the modules.alias file where these things live.
+I think this would be confusing for users.
 
-Signed-off-by: Keith Owens <kaos@ocs.com.au>
+--=20
+ciao,
+Marco
 
+--1UWUbFP1cBYEclgG
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-Index: linux/Makefile
-===================================================================
---- linux.orig/Makefile	2005-02-25 16:21:44.000000000 +1100
-+++ linux/Makefile	2005-02-26 21:30:54.000000000 +1100
-@@ -722,6 +722,16 @@ quiet_cmd_kallsyms = KSYM    $@
- # Needs to visit scripts/ before $(KALLSYMS) can be used.
- $(KALLSYMS): scripts ;
- 
-+# Generate some data for debugging strange kallsyms problems
-+debug_kallsyms: .tmp_map$(last_kallsyms)
-+
-+.tmp_map%: .tmp_vmlinux% FORCE
-+	($(OBJDUMP) -h $< | awk '/^ +[0-9]/{print $$4 " 0 " $$2}'; $(NM) $<) | sort > $@
-+
-+.tmp_map3: .tmp_map2
-+
-+.tmp_map2: .tmp_map1
-+
- endif # ifdef CONFIG_KALLSYMS
- 
- # vmlinux image - including updated kernel symbols
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
+iD8DBQFCgeVKFGfw2OHuP7ERAmA0AJ94sUip5hzLP+z8/VK9HP5xJJtzKwCggzDd
+nkVKBUPiz7gmiwsNmk96VT0=
+=HJUX
+-----END PGP SIGNATURE-----
 
+--1UWUbFP1cBYEclgG--

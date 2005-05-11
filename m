@@ -1,49 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261923AbVEKIZm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261917AbVEKIan@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261923AbVEKIZm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 04:25:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261924AbVEKIZm
+	id S261917AbVEKIan (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 04:30:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261924AbVEKIan
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 04:25:42 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:17834 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261923AbVEKIZi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 04:25:38 -0400
-Subject: Re: dosemu crashes under 2.6.12-rc4
-From: Arjan van de Ven <arjan@infradead.org>
-To: gaa <gaa@mail.nnov.ru>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050511060223.7B62F146C83@just.ip-center.ru>
-References: <20050511060223.7B62F146C83@just.ip-center.ru>
+	Wed, 11 May 2005 04:30:43 -0400
+Received: from mailfe05.swip.net ([212.247.154.129]:64972 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S261917AbVEKIac (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 04:30:32 -0400
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Subject: Re: [Fastboot] Fw: Re: kexec?
+From: Alexander Nyberg <alexn@telia.com>
+To: ebiederm@xmission.com, vgoyal@in.ibm.com
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       fastboot@lists.osdl.org, rddunlap@osdl.org, Ralf.Hildebrandt@charite.de,
+       petkov@uni-muenster.de, Morton Andrew Morton <akpm@osdl.org>,
+       coywolf@gmail.com
+In-Reply-To: <20050511080959.GB3799@in.ibm.com>
+References: <20050510193225.53192aad.akpm@osdl.org>
+	 <20050511030201.GA3799@in.ibm.com>
+	 <1115795427.917.10.camel@localhost.localdomain>
+	 <20050511080959.GB3799@in.ibm.com>
 Content-Type: text/plain
-Date: Wed, 11 May 2005 10:25:29 +0200
-Message-Id: <1115799930.6029.10.camel@laptopd505.fenrus.org>
+Date: Wed, 11 May 2005 10:30:28 +0200
+Message-Id: <1115800228.917.25.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-05-11 at 10:03 +0400, gaa wrote:
-> "dosemu" does not work under kernel 2.6.12-rc4(but works under 2.6.11.7).
-> Next lines are stdout of crashed dosemu process:
+> > kexec-tools-1.101 does not contain your last patch series (that includes
+> > --crashdump which is lacking from the above cmdline). Currently you need
+> > to patch up 1.101 with the stuff from 
+> > [RFC/PATCH 5/17][kexec-tools-1.101] Add command line option
+> > "--crash-dump" etc.
+> > 
+> > It would be good having a 1.2 or something with the patches included on
+> > the site...
+> 
+> We have uploaded the kdump related user space patches which can be 
+> accessed at following link.
+> 
+> http://lse.sourceforge.net/kdump/patches/
+> 
+> A single consolidated patch can be applied on top of kexec-tools-1.101.tar.gz
+> to get kdump working.
 
-this is a bug in dosemu with a *very* bad threading library
-implementation (fixed in more recent dosemu). THat threading lib makes
-assumptions that even with newer glibc may break, or with 4G/4G patch or
-with 2G/2G or with.. well just about anything.
+I had no idea this address existed, only when looking at my lkml-archive
+i saw it posted this monday (!), prior to that I had not seen it and I
+watch things quite closely.
+
+How is anyone gonna try it out if it isn't announced and the proper
+procedure of getting it going known? Randys recent kdump.txt update made
+things alot clearer but it won't help finding the right source and
+patches. Although personally I'd put up a complete tarball instead of a
+patch so users/testers don't have to manually patch it up.
+
+Also the latest kexec patches are at http://www.xmission.com/~ebiederm/files/kexec/
+nowdays and not with Randy. And there is even more confusion to it as there is:
+kexec-tools-1.101.tar.gz
+kexec-tools-1.99.tar.gz
+
+I don't know about you but if I didn't know i'd definately go with the 1.99 one
+even if 1.101 is the latest version.
+
+Index: mm/Documentation/kdump.txt
+===================================================================
+--- mm.orig/Documentation/kdump.txt	2005-05-06 08:55:43.000000000 +0200
++++ mm/Documentation/kdump.txt	2005-05-11 10:16:38.000000000 +0200
+@@ -35,7 +35,9 @@
+ SETUP
+ =====
+ 
+-1) Download and build the appropriate version of kexec-tools.
++1) Download http://www.xmission.com/~ebiederm/files/kexec/kexec-tools-1.101.tar.gz
++   and apply http://lse.sourceforge.net/kdump/patches/kexec-tools-1.101-kdump.patch
++   and after that build the source.
+ 
+ 2) Download and build the appropriate (latest) kexec/kdump (-mm) kernel
+    patchset and apply it to the vanilla kernel tree.
+Index: mm/MAINTAINERS
+===================================================================
+--- mm.orig/MAINTAINERS	2005-05-06 08:55:57.000000000 +0200
++++ mm/MAINTAINERS	2005-05-11 10:24:35.000000000 +0200
+@@ -1339,7 +1339,6 @@
+ M:	ebiederm@xmission.com
+ M:	rddunlap@osdl.org
+ W:	http://www.xmission.com/~ebiederm/files/kexec/
+-W:	http://developer.osdl.org/rddunlap/kexec/
+ L:	linux-kernel@vger.kernel.org
+ L:	fastboot@osdl.org
+ S:	Maintained
 
 

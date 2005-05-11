@@ -1,57 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261871AbVEKBW3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261863AbVEKBdo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261871AbVEKBW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 21:22:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbVEKBW2
+	id S261863AbVEKBdo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 21:33:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbVEKBdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 21:22:28 -0400
-Received: from quark.didntduck.org ([69.55.226.66]:46522 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP id S261871AbVEKBWH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 21:22:07 -0400
-Message-ID: <42815E63.5020508@didntduck.org>
-Date: Tue, 10 May 2005 21:22:43 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla Thunderbird 1.0.2-1 (X11/20050323)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Per Liden <per@fukt.bth.se>
-CC: Greg KH <gregkh@suse.de>, linux-hotplug-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] hotplug-ng 002 release
-References: <20050506212227.GA24066@kroah.com> <Pine.LNX.4.63.0505090025280.7682@1-1-2-5a.f.sth.bostream.se> <20050509211323.GB5297@tsiryulnik> <Pine.LNX.4.63.0505102351300.8637@1-1-2-5a.f.sth.bostream.se> <20050510224112.GA4967@kroah.com> <Pine.LNX.4.63.0505110057550.20513@1-1-2-5a.f.sth.bostream.se>
-In-Reply-To: <Pine.LNX.4.63.0505110057550.20513@1-1-2-5a.f.sth.bostream.se>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 10 May 2005 21:33:44 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:11712 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261863AbVEKBdl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 21:33:41 -0400
+Date: Tue, 10 May 2005 21:33:34 -0400
+From: Dave Jones <davej@redhat.com>
+To: Eric Piel <Eric.Piel@tremplin-utc.net>
+Cc: Jan De Luyck <lkml@kcore.org>, linux-kernel@vger.kernel.org,
+       cpufreq@zenii.linux.org.uk, linux@dominikbrodowski.net
+Subject: Re: cpufreq on-demand governor up_treshold?
+Message-ID: <20050511013334.GB8039@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Eric Piel <Eric.Piel@tremplin-utc.net>,
+	Jan De Luyck <lkml@kcore.org>, linux-kernel@vger.kernel.org,
+	cpufreq@zenii.linux.org.uk, linux@dominikbrodowski.net
+References: <200503140829.04750.lkml@kcore.org> <42354400.7070500@tremplin-utc.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <42354400.7070500@tremplin-utc.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Per Liden wrote:
-> On Tue, 10 May 2005, Greg KH wrote:
-> 
-> 
->>On Wed, May 11, 2005 at 12:17:12AM +0200, Per Liden wrote:
->>
->>>I'd like to get a better understanding of that as well. Why invent a 
->>>second on demand module loader when we have kmod? The current approach 
->>>feels like a step back to something very similar to the old kerneld.
->>
->>kmod is not used at all if you are running udev on your system.
-> 
-> 
-> Since when does udev load modules for you? And how would it know when to 
-> load "device less" modules such as filesystems?
-> 
-> 
->>It's also better to allow userspace to make the decision as to if it 
->>should load a specific module or not, not the kernel.
-> 
-> 
-> If you don't want a specific module to be loaded, then don't build it. 
-> You just said that yourself in the blacklisting dicsussion remember? ;)
-> (hint: "Don't build the OSS modules at all?").
+On Mon, Mar 14, 2005 at 08:57:52AM +0100, Eric Piel wrote:
+ > Jan De Luyck a écrit :
+ > >Hello lists,
+ > >
+ > >(please cc me from cpufreq list)
+ > >
+ > >I've since yesterday started using the ondemand governor. Seems to work 
+ > >fine, tho I can't seem to find a reason why it keeps scaling my processor 
+ > >speed upwards tho the processor use never exceeds 30% (been watching top 
+ > >-d 1). 
+ > :
+ > :
+ > >Any hints?
+ > You can try the three attached patches in the order :
+ > ondemand-cleanup-factorise-idle-measurement-2.6.11.patch
+ > ondemand-save-idle-up-for-all-cpu-2.6.11.patch
+ > ondemand-automatic-downscaling-2.6.11-accepted.patch
+ > 
+ > They are available on the cpufreq list but as it's difficult to access 
+ > it I'm sending them again, all together. These are the last things that 
+ > Venki and I have been working on. It should solve your problem 
+ > (actually, only the last patch, but it depends on the two previous 
+ > patches). Please, let me know if it works.
+ > 
+ > BTW, DaveJ, Dominik, I couldn't find them in the daily-snapshot 
+ > available at codemonkey.org.uk. Should I worry, or is it just due to 
+ > some latency between your private trees and the public one?
 
-Think about distibution kernels that build everything possible.
+I'm preparing the first cpufreq->linus sync right now.
+Can you write up some descriptions & signed-off-by: lines for
+these three please ?
 
---
-				 Brian Gerst
+Thanks,
+		Dave
+

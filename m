@@ -1,52 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261217AbVEKOZi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261225AbVEKO0f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261217AbVEKOZi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 10:25:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbVEKOZh
+	id S261225AbVEKO0f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 10:26:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbVEKO0f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 10:25:37 -0400
-Received: from rproxy.gmail.com ([64.233.170.201]:48486 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261217AbVEKOZN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 10:25:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=KAV+k5TSCX18RJ9zeaoApxmWvig7k0q09YWZyGghIiSKhQYjvxfSJzGY1kN9ALaIIBP4vcrPV8oKKOdQED5MBhEWcVgSmgnUV7ryTYsARlfVT909R0jUHAQda1x7mRhG6O/0TR73FdxCkWwb0+C1XD/hjulCJMRG8nPE+qMglXA=
-Message-ID: <40a4ed5905051107255848f6b1@mail.gmail.com>
-Date: Wed, 11 May 2005 16:25:13 +0200
-From: Zeno Davatz <zdavatz@gmail.com>
-Reply-To: Zeno Davatz <zdavatz@gmail.com>
+	Wed, 11 May 2005 10:26:35 -0400
+Received: from main.gmane.org ([80.91.229.2]:53889 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261225AbVEKO0P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 10:26:15 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: Kernel Panic - not syncing: VFS: Unable to mount root fs on unknown-block(8,3)
+From: Paul Ionescu <i_p_a_u_l@yahoo.com>
+Subject: Re: statfs returns wrong values for 250Gb FAT fs
+Date: Wed, 11 May 2005 15:23:36 +0300
+Message-ID: <pan.2005.05.11.12.23.33.926661@yahoo.com>
+References: <E1DUT2T-0000fm-Nx@localhost.localdomain> <20050510080907.GR1998@verge.net.au> <87oebjxpcc.fsf@devron.myhome.or.jp> <42811AE6.7020902@mail.telepac.pt>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 217.96.20.115
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Hi,
 
-I'm trying to set up a new server with 2*200GB HD's, 2*Intel Xeon 3.4
-GHz and an Intel SE7520BD2 Motherboard (SATA).
+On Tue, 10 May 2005 21:34:46 +0100, Carlos Rodrigues wrote:
 
-I can boot perfectly fine from my Gentoo 2005.0 - minimal-install CD.
-The system is up and running except when I want to boot from the
-harddisk (root=/dev/sda3 boot=/dev/sda1, both on jfs). I can proof
-that by mounting the new system when I boot from CD and do a chroot.
+> OGAWA Hirofumi wrote:
+> 
+>>Filesystem may have the corrupted free-cluster value.
+>>
+>>I couldn't reproduce the problem on 2.6.12-rc4.
+>>
+>>Could you try a recently dosfsck (dosfstools-2.11 or later)? Also could
+>>you send the output of above program?
+>>  
+>>  
+>>
+> "dosfsck" did find a problem in the free-cluster value. And also said the
+> backups FAT was different than the original FAT.
+> 
+> I didn't use "dosfsck" to fix the problems though (not that it couldn't, I
+> just didn't try). As I had already copied everything to another disk, I
+> just used "mkdosfs" to reformat the drive, and it works just fine now.
+> 
+> I still don't know what caused this, probably something related to some
+> "kernel panics" I was seeing on shutdown (in a Fedora 3 installation, not
+> Debian), after doing an umount+unplug.
+> 
+> I didn't though of using "dosfsck" because Windows' checkdisk was saying
+> the filesystem was perfectly fine... It makes me feel really safe trusting
+> MS tools... not.
+> 
+> Carlos Rodrigues
 
-I even tried by compiling the kernel with the /proc/config.gz from the
-above CD. Same result as in the subject line:
-Kernel Panic - not syncing: VFS: Unable to mount root fs on unknown-block(8,3)
+I had the same problem with an external 250 GB vfat USB 2.0 disk.
+The disk was formatted/used previously in windows, checkdisk said is OK,
+but mounted in linux readonly, game the same error (said only some little
+space was free, when in fact it was almost full).
+However, I was able to see and copy all files from it.
+As it was not my hard disk, I did not reformatted it, nor dosfsck-ed it.
+DOSFSCK reported errors with the FAT copy, and other errors, but as I
+said, I could access all data on it.
 
-Yes, I did run lilo -v and that went smoothly; and I do get the Lilo
-manager in the beginning, but after that and some messages: Kernel
-panic...
+Best regards,
+Paul
 
-I'm on 2.6.11.8 from kernel.org
 
-Any help is greatly appreciated.
-
-Thanks
-Zeno

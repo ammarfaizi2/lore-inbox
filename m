@@ -1,77 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261865AbVEKBD1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261946AbVEKBC2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261865AbVEKBD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 May 2005 21:03:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbVEKBCo
+	id S261946AbVEKBC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 May 2005 21:02:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbVEKBBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 May 2005 21:02:44 -0400
-Received: from nwkea-mail-1.sun.com ([192.18.42.13]:55529 "EHLO
-	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
-	id S261992AbVEKBCO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 May 2005 21:02:14 -0400
-Subject: Re: [PATCH] kernel/module.c has something to hide. (whitespace
-	cleanup)
-From: Tom Duffy <tduffy@sun.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Jesper Juhl <juhl-lkml@dif.dk>
-In-Reply-To: <20050510172913.2d47a4d4.akpm@osdl.org>
-References: <20050510161657.3afb21ff.akpm@osdl.org>
-	 <20050510.161907.116353193.davem@davemloft.net>
-	 <20050510170246.5be58840.akpm@osdl.org>
-	 <20050510.170946.10291902.davem@davemloft.net>
-	 <Pine.LNX.4.62.0505110217350.2386@dragon.hyggekrogen.localhost>
-	 <20050510172913.2d47a4d4.akpm@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Sd1HRn71Eek95AvhOnMI"
-Date: Tue, 10 May 2005 18:01:03 -0700
-Message-Id: <1115773263.3169.5.camel@duffman>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Tue, 10 May 2005 21:01:48 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:2996 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261868AbVEKA76 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 May 2005 20:59:58 -0400
+Date: Tue, 10 May 2005 17:59:46 -0700
+Message-Id: <200505110059.j4B0xkkM003452@magilla.sf.frob.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: davidm@hpl.hp.com
+X-Fcc: ~/Mail/linus
+Cc: akpm@osdl.org, tony.luck@intel.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] add arch_ptrace_stop() hook and use it on ia64
+In-Reply-To: David Mosberger's message of  Tuesday, 10 May 2005 13:31:59 -0700 <17025.6719.837031.411067@napali.hpl.hp.com>
+X-Antipastobozoticataclysm: When George Bush projectile vomits antipasto on the Japanese.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi David.  Sorry I wasn't able to reply to your earlier questions about
+this before now.  I knew the question needed some thought and I was too
+busy to consider it in detail, so it fell by the wayside.  Today I've spent
+a little time thinking about it, though still not explored the subject
+completely.  It definitely will not fly to change ptrace_stop in that way.
+That opens up some race holes that the whole revamp that added the
+ptrace_stop function was intended to close.  The scenario I can think of
+off hand is a race with a SIGKILL that must resume the thread from any
+tracing stop, or prevent it from entering the tracing stop, and then will
+not.  (This leads to threads in TASK_TRACED with a pending SIGKILL, that
+cannot be killed with repeated kill -9s, and live until the tracer uses
+PTRACE_CONT, detaches, or dies.)
 
---=-Sd1HRn71Eek95AvhOnMI
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+When I suggested this change for ia64 originally, I overlooked the need to
+handle blocking in writing to user memory.  I'd like to give a little more
+thought to the general case.  As long as only uninterruptible waits are
+provoked by an arch hook, then I think it is reasonably solvable.  I think
+that SIGKILL races are the only ones that can arise, and those can be
+addressed with some signal bookkeeping changes.  I'd like to give it a
+little more thought.  I expect it will wind up being some core changes that
+make it safe for an arch hook to drop and reacquire the siglock if it's
+doing something that won't always complete quickly, and then this will all
+happen before changing state, unlocking, and deciding to block (which won't
+be done if there was an intervening SIGKILL).
 
-On Tue, 2005-05-10 at 17:29 -0700, Andrew Morton wrote:
-> Jesper Juhl <juhl-lkml@dif.dk> wrote:
-> >
-> > I'll need time to do this - no matter how you cut it there are a lot of=
-=20
-> >  files, and a lot of lines - so don't expect the patch bombing to start=
- for=20
-> >  the next few weeks.
-> >  And before I embark on this venture I'd like some feedback that when I=
- do=20
-> >  turn up with patches they'll have a resonable chance of getting merged=
- -=20
-> >  this is going to be a lot of boring work, and with no commitment to me=
-rge=20
-> >  anything it's not something I want to waste days on...  Sounds fair?
 
-Solaris build makes sure files passes a "lint" test during the build and
-nothing can be checked in until such a test can pass.
+Thanks,
+Roland
 
-Would it make sense to add such a test during kernel compile for Linux?
-Something that could be turned off if somebody needed really fast
-builds.  This would check for things like whitespace violations and
-other things that violate CodingStyle.
-
-People tend to fix things quick if they break the build.
-
--tduffy
-
---=-Sd1HRn71Eek95AvhOnMI
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCgVlPdY502zjzwbwRAiakAJ4pfqUC/VsUQRv8JGxLRPvB0dQQIACeNVma
-JmEGy9t5zKHcpRY42Jw65Xo=
-=LWcZ
------END PGP SIGNATURE-----
-
---=-Sd1HRn71Eek95AvhOnMI--

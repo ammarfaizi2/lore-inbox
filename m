@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbVEKJAC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261938AbVEKJFT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261943AbVEKJAC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 05:00:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261940AbVEKI5k
+	id S261938AbVEKJFT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 05:05:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVEKJB5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 04:57:40 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:59818 "EHLO
+	Wed, 11 May 2005 05:01:57 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:65450 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261942AbVEKI4Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 04:56:24 -0400
-Date: Wed, 11 May 2005 09:56:19 +0100
+	id S261938AbVEKJAL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 05:00:11 -0400
+Date: Wed, 11 May 2005 10:00:02 +0100
 From: Christoph Hellwig <hch@infradead.org>
-To: Steve French <smfrench@austin.rr.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cifs: handle termination of cifs oplockd kernel thread
-Message-ID: <20050511085619.GA24841@infradead.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: hch@infradead.org, bulb@ucw.cz, viro@parcelfarce.linux.theplanet.co.uk,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH] private mounts
+Message-ID: <20050511090002.GC24841@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Steve French <smfrench@austin.rr.com>, linux-kernel@vger.kernel.org
-References: <4272A275.4030801@austin.rr.com> <20050429213108.GA15262@infradead.org> <4272B335.5090207@austin.rr.com>
+	Miklos Szeredi <miklos@szeredi.hu>, bulb@ucw.cz,
+	viro@parcelfarce.linux.theplanet.co.uk,
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+	akpm@osdl.org
+References: <20050424205422.GK13052@parcelfarce.linux.theplanet.co.uk> <E1DPoCg-0000W0-00@localhost> <20050424210616.GM13052@parcelfarce.linux.theplanet.co.uk> <E1DPoRz-0000Y0-00@localhost> <20050424211942.GN13052@parcelfarce.linux.theplanet.co.uk> <E1DPofK-0000Yu-00@localhost> <20050425071047.GA13975@vagabond> <E1DQ0Mc-0007B5-00@dorka.pomaz.szeredi.hu> <20050430083516.GC23253@infradead.org> <E1DRoDm-0002G9-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4272B335.5090207@austin.rr.com>
+In-Reply-To: <E1DRoDm-0002G9-00@dorka.pomaz.szeredi.hu>
 User-Agent: Mutt/1.4.1i
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 29, 2005 at 05:20:37PM -0500, Steve French wrote:
-> I agree that it would work for most cases [today, in 2.6 Linux] - but I 
-> really feel uncomfortable introducing a user space / kernel space 
-> dependency on the size of a field where none is needed - I am especially 
-> nervous because I can see from the Samba change logs that:
+On Sat, Apr 30, 2005 at 11:25:10AM +0200, Miklos Szeredi wrote:
+> > > > I can't write a script that reads your mind. But I sure can write
+> > > > a script that finds out what you mounted in the other shells (with help
+> > > > of a little wrapper around the mount command).
+> > > 
+> > > How do you bind mount it from a different namespace?  You _do_ need
+> > > bind mount, since a new mount might require password input, etc...
+> > 
+> > Not nessecarily.  The filesystem gets called into ->get_sb for every mount,
+> > and can then decided whether to return an existing superblock instance or
+> > setup a new one.  If the credentials for the new mount match an old one
+> > it can just reuse it.  (e.g. for block based filesystem it will always reuse
+> > right now)
+> 
+> And if the credentials are checked in userspace (sshfs)?
 
-Please listen, I said you should export it in /proc/<pid>/mounts, which is
-an ASCII interface and any half-sane parser does not depend on the width
-of the field in the kernel.
-
-Can we please get rid of the broken ioctl now so it doesn't become part
-of the ABI and you'll add the trivial output to /proc/<pid>/mounts?
-
+The it needs to call to userspace in ->get_sb..

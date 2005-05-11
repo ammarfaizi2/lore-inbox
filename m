@@ -1,77 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261899AbVEKF4I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbVEKGCX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261899AbVEKF4I (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 01:56:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbVEKF4I
+	id S261900AbVEKGCX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 02:02:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbVEKGCX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 01:56:08 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:62891 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261899AbVEKF4C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 01:56:02 -0400
-Date: Wed, 11 May 2005 01:55:40 -0400
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Jack F Vogel <jfv@bluesong.net>, Andi Kleen <ak@muc.de>,
-       notting@redhat.com
-Subject: Re: [PATCH] check nmi watchdog is broken
-Message-ID: <20050511055540.GA27052@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Jack F Vogel <jfv@bluesong.net>, Andi Kleen <ak@muc.de>,
-	notting@redhat.com
-References: <200505011704.j41H4SUQ021132@hera.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200505011704.j41H4SUQ021132@hera.kernel.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 11 May 2005 02:02:23 -0400
+Received: from just.ip-center.ru ([213.177.107.6]:37868 "EHLO
+	just.ip-center.ru") by vger.kernel.org with ESMTP id S261900AbVEKGCS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 02:02:18 -0400
+From: "gaa" <gaa@mail.nnov.ru>
+Subject: dosemu crashes under 2.6.12-rc4
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 11 May 2005 10:03:40 +0400
+X-Mailer: The Bee 1.07 build 757
+Message-Id: <20050511060223.7B62F146C83@just.ip-center.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 01, 2005 at 10:04:28AM -0700, Linux Kernel wrote:
- > tree 6adb8d33585f8eee20794827c79e40991aeeaee5
- > parent fd51f666fa591294bd7462447512666e61c56ea0
- > author Jack F Vogel <jfv@bluesong.net> Sun, 01 May 2005 22:58:48 -0700
- > committer Linus Torvalds <torvalds@ppc970.osdl.org> Sun, 01 May 2005 22:58:48 -0700
- > 
- > [PATCH] check nmi watchdog is broken
- > 
- > A bug against an xSeries system showed up recently noting that the
- > check_nmi_watchdog() test was failing.
- > 
- > I have been investigating it and discovered in both i386 and x86_64 the
- > recent change to the routine to use the cpu_callin_map has uncovered a
- > problem.  Prior to that change, on an SMP box, the test was trivally
- > passing because all cpu's were found to not yet be online, but now with the
- > callin_map they are discovered, it goes on to test the counter and they
- > have not yet begun to increment, so it announces a CPU is stuck and bails
- > out.
- > 
- > On all the systems I have access to test, the announcement of failure is
- > also bougs...  by the time you can login and check /proc/interrupts, the
- > NMI count is happily incrementing on all CPUs.  Its just that the test is
- > being done too early.
- > 
- > I have tried moving the call to the test around a bit, and it was always
- > too early.  I finally hit on this proposed solution, it delays the routine
- > via a late_initcall(), seems like the right solution to me.
+"dosemu" does not work under kernel 2.6.12-rc4(but works under 2.6.11.7).
+Next lines are stdout of crashed dosemu process:
 
-My EM64T Dell Precision 470 seems to have problems both before
-and after this change, though the behaviour changes.
+Linux DOS emulator 1.2.1.0 $Date: 2004/03/06$
+Last configured at Thu Jun 24 01:04:04 UTC 2004 on linux
+This is work in progress.
+Please test against a recent version before reporting bugs and problems.
+Submit Bug Reports, Patches & New Code to linux-msdos@vger.kernel.org or via
+the SourceForge tracking system at http://www.sourceforge.net/projects/dosemu
+                                                09 2002 21:55:55]
+Kernel compatibility 7.10 - WATCOMC - FAT32 support
 
-With -rc3..
-testing NMI watchdog ... CPU#1: NMI appears to be stuck (0)!
+(C) Copyright 1995-2002 Pasquale J. Villani and The FreeDOS Project.
+All Rights Reserved. This is free software and comes with ABSOLUTELY NO
+WARRANTY; you can redistribute it and/or modify it under the terms of the
+GNU General Public License as published by the Free Software Foundation;
+either version 2, or (at your option) any later version.
+C: HD1 Pri:1 CHS=    0-1-1 start =     0MB,size =  392
+Kernel: allocated 41 Diskbuffers = 21812 Bytes in HMA
+[dosemu EMS 4.0 driver installed]
+ERROR: cpu exception in dosemu code outside of VM86()!
+trapno: 0x0e  errorcode: 0x00000005  cr2: 0xffffff8e
+eip: 0x000069ee  esp: 0xbfedffcc  eflags: 0x00010246
+cs: 0x0073  ds: 0x007b  es: 0x007b  ss: 0x007b
+Page fault: read instruction to linear address: 0xffffff8e
+CPU was in user mode
+Exception was caused by insufficient privilege
+ERROR: leavedos() called from within a signal context!
 
-With -rc4...
-Testing NMI watchdog ... CPU#4: NMI appears to be stuck (0)!
 
-The CPU #'s are consistent across reboots (Ie, they're always the same).
-Though the rc4 behaviour seems odd, as my CPUs are numbered 0-3.
 
-Bill (Cc'd) also reports that with -rc4, he sees around
-a 10 second delay when it does that 'Testing NMI watchdog'
-message.
-
-		Dave
-
+Alexander Galanin aka gaa
+11.05.2005

@@ -1,59 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbVEKPNa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbVEKPLP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261181AbVEKPNa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 11:13:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbVEKPN3
+	id S261196AbVEKPLP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 11:11:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261181AbVEKPLP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 11:13:29 -0400
-Received: from graphe.net ([209.204.138.32]:62478 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S261181AbVEKPMV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 11:12:21 -0400
-Date: Wed, 11 May 2005 08:12:16 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Oleg Nesterov <oleg@tv-sign.ru>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, mingo@elte.hu,
-       kenneth.w.chen@intel.com, shai@scalex86.org
-Subject: Re: [RFC][PATCH] timers fixes/improvements
-In-Reply-To: <4281DC03.36011256@tv-sign.ru>
-Message-ID: <Pine.LNX.4.58.0505110804540.10451@graphe.net>
-References: <424D373F.1BCBF2AC@tv-sign.ru> <424E6441.12A6BC03@tv-sign.ru>  
- <Pine.LNX.4.58.0505091312490.27740@graphe.net> <20050509144255.17d3b9aa.akpm@osdl.org>
-  <Pine.LNX.4.58.0505091449580.29090@graphe.net> <42808B84.BCC00574@tv-sign.ru>
- <Pine.LNX.4.58.0505101212350.20718@graphe.net> <4281DC03.36011256@tv-sign.ru>
+	Wed, 11 May 2005 11:11:15 -0400
+Received: from az33egw02.freescale.net ([192.88.158.103]:33935 "EHLO
+	az33egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S261211AbVEKPLC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 11:11:02 -0400
+Date: Wed, 11 May 2005 10:10:31 -0500 (CDT)
+From: Kumar Gala <galak@freescale.com>
+X-X-Sender: galak@nylon.am.freescale.net
+To: Andrew Morton <akpm@osdl.org>
+cc: linuxppc-embedded <linuxppc-embedded@ozlabs.org>,
+       linux-kernel@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>
+Subject: [PATCH] ppc32: Fix uImage make target to report success correctly
+Message-ID: <Pine.LNX.4.61.0505111008010.9895@nylon.am.freescale.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 May 2005, Oleg Nesterov wrote:
+The existing make rule when building a uImage would check to see
+if the image file existed to report 'is ready' or 'not made'.
+However make appeared to compute the file list before the rule
+was executed.
 
-> > However, if the padding is put before ptype_base and after ptype_all
-> > then the problem occurs.
->
-> So. ptype_base/ptype_all is corrupted before e1000_probe()->register_netdev().
->
-> Christoph, please, could you try this patch?
+Signed-off-by: Chris Clark <cpclark@xmission.com>
+Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org> 
 
-We found that this has nothing to do with the timer patches. There is a
-scribble in pcie_rootport_aspm_quirk that overwrites ptype_all.
+---
+commit f772a90e948f019c3111a94394b3a649874417c7
+tree c9d59c269792db4933039da49b3b3836ac5b01f5
+parent c140244727aa88fcaefe34af4abc56e85b471da2
+author Kumar K. Gala <kumar.gala@freescale.com> Tue, 10 May 2005 10:27:46 -0500
+committer Kumar K. Gala <kumar.gala@freescale.com> Tue, 10 May 2005 10:27:46 -0500
 
-quirk_aspm_offset[GET_INDEX(pdev->device, dev->devfn)]= cap_base + 0x10;
+ ppc/boot/images/Makefile |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
 
-does the evil deed. The array offset calculated by GET_INDEX is out of
-bounds.
-
-The definition of GET_INDEX is suspect:
-
-#define GET_INDEX(a, b) (((a - PCI_DEVICE_ID_INTEL_MCH_PA) << 3) + b)
-
-should this not be
-
-#define GET_INDEX(a, b) ((((a) - PCI_DEVICE_ID_INTEL_MCH_PA) << 3) + \
-				((b) & 7))
-
-?
-
-
+Index: arch/ppc/boot/images/Makefile
+===================================================================
+--- dd5d97e6f88b8fbfcc09878d837c8e90590484b8/arch/ppc/boot/images/Makefile  (mode:100644)
++++ c9d59c269792db4933039da49b3b3836ac5b01f5/arch/ppc/boot/images/Makefile  (mode:100644)
+@@ -22,7 +22,8 @@
+ $(obj)/uImage: $(obj)/vmlinux.gz
+ 	$(Q)rm -f $@
+ 	$(call if_changed,uimage)
+-	@echo '  Image: $@' $(if $(wildcard $@),'is ready','not made')
++	@echo -n '  Image: $@ '
++	@if [ -f $@ ]; then echo 'is ready' ; else echo 'not made'; fi
+ 
+ # Files generated that shall be removed upon make clean
+ clean-files	:= sImage vmapus vmlinux* miboot* zImage* uImage

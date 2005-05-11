@@ -1,49 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbVEKVgn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbVEKVkr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261266AbVEKVgn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 17:36:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbVEKVgm
+	id S261260AbVEKVkr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 17:40:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbVEKVkq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 17:36:42 -0400
-Received: from mail.shareable.org ([81.29.64.88]:55760 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261185AbVEKVge
+	Wed, 11 May 2005 17:40:46 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:27913 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261260AbVEKVkI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 17:36:34 -0400
-Date: Wed, 11 May 2005 22:36:24 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: 7eggert@gmx.de, ericvh@gmail.com, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, smfrench@austin.rr.com, hch@infradead.org
-Subject: Re: [RCF] [PATCH] unprivileged mount/umount
-Message-ID: <20050511213624.GF5093@mail.shareable.org>
-References: <406SQ-5P9-5@gated-at.bofh.it> <40rNB-6p8-3@gated-at.bofh.it> <40t37-7ol-5@gated-at.bofh.it> <42VeB-8hG-3@gated-at.bofh.it> <42WNo-1eJ-17@gated-at.bofh.it> <E1DVuHG-0006YJ-Q7@be1.7eggert.dyndns.org> <20050511170700.GC2141@mail.shareable.org> <Pine.LNX.4.58.0505112121190.11888@be1.lrz> <20050511212343.GC5093@mail.shareable.org> <E1DVyqd-0002U1-00@dorka.pomaz.szeredi.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1DVyqd-0002U1-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.4.1i
+	Wed, 11 May 2005 17:40:08 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: marcelo.tosatti@cyclades.com (Marcelo Tosatti)
+Subject: Re: 2.4.30-hf1 do_IRQ stack overflows
+Cc: manfred99@gmx.ch, linux-kernel@vger.kernel.org, davem@redhat.com,
+       netdev@oss.sgi.com
+Organization: Core
+In-Reply-To: <20050511124640.GE8541@logos.cnet>
+X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
+Message-Id: <E1DVyuq-0005Sf-00@gondolin.me.apana.org.au>
+Date: Thu, 12 May 2005 07:38:52 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miklos Szeredi wrote:
-> >      # Make a named namespace.
-> >      NSNAME='fred'
-> >      mkdir /var/namespaces/$NSNAME
-> >      run_in_new_namespace mount -t bind / /var/namespaces/$NSNAME
-> 
-> That's not going to work, since the mount will only affect the new
-> namespace.
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+>
+> May 11 04:22:09 server kernel:   [__switch_to+82/256] [schedule+738/1344] [schedule_timeout+84/160] [process_timeout+0/96] [st:__insmod_st_O/lib/modules/2.4.30-hf1/kernel/drivers/scsi/st+4294702743/96] [st:__insmod_st_O/lib/modules/2.4.30-hf1/kernel/drivers/scsi/st+4294703097/96]
 
-Ah, good point.  I'm still thinking in terms of shared subtrees, where
-it might work.
+The stack trace becomes unreadable at this point.  Please run klogd
+with -X and then decode the messages with ksymoops.  Alternatively
+run ksymoops on the output of dmesg directly.
 
-> You'd need clone(), and then in the original namespace
-> 
->    mount --bind /proc/CHILDPID/root /var/namespace/$NSNAME
-> 
-> and then child process can safely exit.
-
-Or pass the file descriptor over a unix domain socket, so that it
-doesn't need /proc.
-
--- Jamie
+Thanks,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

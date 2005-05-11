@@ -1,43 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261957AbVEKKbY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbVEKKn1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261957AbVEKKbY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 06:31:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbVEKKbY
+	id S261156AbVEKKn1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 06:43:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbVEKKn1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 06:31:24 -0400
-Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:36616 "EHLO
+	Wed, 11 May 2005 06:43:27 -0400
+Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:63250 "EHLO
 	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261957AbVEKKbU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 06:31:20 -0400
+	id S261156AbVEKKnV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 06:43:21 -0400
 To: hch@infradead.org
-CC: ericvh@gmail.com, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, smfrench@austin.rr.com
-In-reply-to: <20050511085154.GB24495@infradead.org> (message from Christoph
-	Hellwig on Wed, 11 May 2005 09:51:54 +0100)
-Subject: Re: [RCF] [PATCH] unprivileged mount/umount
-References: <E1DSyQx-0002ku-00@dorka.pomaz.szeredi.hu> <a4e6962a05050406086e3ab83b@mail.gmail.com> <E1DTKkd-0003rC-00@dorka.pomaz.szeredi.hu> <20050511085154.GB24495@infradead.org>
-Message-Id: <E1DVoUW-0001cN-00@dorka.pomaz.szeredi.hu>
+CC: bulb@ucw.cz, viro@parcelfarce.linux.theplanet.co.uk,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+In-reply-to: <20050511090002.GC24841@infradead.org> (message from Christoph
+	Hellwig on Wed, 11 May 2005 10:00:02 +0100)
+Subject: Re: [PATCH] private mounts
+References: <20050424205422.GK13052@parcelfarce.linux.theplanet.co.uk> <E1DPoCg-0000W0-00@localhost> <20050424210616.GM13052@parcelfarce.linux.theplanet.co.uk> <E1DPoRz-0000Y0-00@localhost> <20050424211942.GN13052@parcelfarce.linux.theplanet.co.uk> <E1DPofK-0000Yu-00@localhost> <20050425071047.GA13975@vagabond> <E1DQ0Mc-0007B5-00@dorka.pomaz.szeredi.hu> <20050430083516.GC23253@infradead.org> <E1DRoDm-0002G9-00@dorka.pomaz.szeredi.hu> <20050511090002.GC24841@infradead.org>
+Message-Id: <E1DVofz-0001dC-00@dorka.pomaz.szeredi.hu>
 From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 11 May 2005 12:31:00 +0200
+Date: Wed, 11 May 2005 12:42:51 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Yes, I see your point.  However the problem of malicious filesystem
-> > "traps" applies to private namespaces as well (because of suid
-> > programs).
+> > > > > I can't write a script that reads your mind. But I sure can
+> > > > > write a script that finds out what you mounted in the other
+> > > > > shells (with help of a little wrapper around the mount
+> > > > > command).
+> > > > 
+> > > > How do you bind mount it from a different namespace?  You _do_
+> > > > need bind mount, since a new mount might require password
+> > > > input, etc...
+> > > 
+> > > Not nessecarily.  The filesystem gets called into ->get_sb for
+> > > every mount, and can then decided whether to return an existing
+> > > superblock instance or setup a new one.  If the credentials for
+> > > the new mount match an old one it can just reuse it.  (e.g. for
+> > > block based filesystem it will always reuse right now)
 > > 
-> > So if a user creates a private namespace, it should have the choice of:
-> > 
-> >    1) Giving up all suid rights (i.e. all mounts are cloned and
-> >       propagated with nosuid)
-> > 
-> >    2) Not giving up suid for cloned and propagated mounts, but having
-> >       extra limitations (suid/sgid programs cannot access unprivileged
-> >       "synthetic" mounts)
+> > And if the credentials are checked in userspace (sshfs)?
 > 
-> Although I hate special cases I think that we might need 2) to avoid too
-> much trouble tripping over the global namespace.
+> The it needs to call to userspace in ->get_sb..
 
-I think it should be both.  How about a new clone option "CLONE_NOSUID"?
+That's clear.
+
+What I don't get is what's the point in adding complexity to the
+kernel and userspace programs, when it can be done without _any_
+changes, just by doing a bind mount.
+
+It's not just calling ->get_sb.  It's finding the right filesystem
+daemon, that has been started with the exact same command line
+arguments, environment etc.
+
+It's just not practical.
 
 Miklos

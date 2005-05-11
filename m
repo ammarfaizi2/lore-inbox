@@ -1,49 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261970AbVEKQUW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261976AbVEKQYD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261970AbVEKQUW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 12:20:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbVEKQUM
+	id S261976AbVEKQYD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 12:24:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261940AbVEKQXj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 12:20:12 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:26035 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261940AbVEKQTx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 12:19:53 -0400
-Subject: Re: [RFC/PATCH 0/5] add execute in place support
-From: David Woodhouse <dwmw2@infradead.org>
-To: cotte@freenet.de
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       schwidefsky@de.ibm.com, akpm@osdl.org
-In-Reply-To: <428216DF.8070205@de.ibm.com>
-References: <428216DF.8070205@de.ibm.com>
-Content-Type: text/plain
-Date: Wed, 11 May 2005 17:19:48 +0100
-Message-Id: <1115828389.16187.544.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-1.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 11 May 2005 12:23:39 -0400
+Received: from usbb-lacimss2.unisys.com ([192.63.108.52]:21772 "EHLO
+	usbb-lacimss2.unisys.com") by vger.kernel.org with ESMTP
+	id S261991AbVEKQV1 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 12:21:27 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [patch 1/1] Do not enforce unique IO_APIC_ID for Xeon processors in EM64T mode (x86_64)
+Date: Wed, 11 May 2005 11:21:15 -0500
+Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04B67@USRV-EXCH4.na.uis.unisys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch 1/1] Do not enforce unique IO_APIC_ID for Xeon processors in EM64T mode (x86_64)
+Thread-Index: AcVWG7yZkDjRZp3FSGy517DslFXU2gAKBn0w
+From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: <jamesclv@us.ibm.com>, <akpm@osdl.org>, <zwane@arm.linux.org.uk>,
+       <len.brown@intel.com>, <venkatesh.pallipadi@intel.com>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 11 May 2005 16:21:15.0698 (UTC) FILETIME=[747C9120:01C55645]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-05-11 at 16:29 +0200, Carsten Otte wrote:
-> . This is also useful on embedded systems where the block device is
-> located on a flash chip.
+> > Looks like the need in the unique id can only be keyed of the local 
+> > APIC id, and probably it is a good idea to keep the NO_IOAPIC_CHECK 
+> > for subarchs that can override the heuristics?
+> 
+> I prefer not to do that. How about a simple
+> 
+> if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL && 
+> boot_cpu_data.x86 < 15)
+> 	/* do uniqueness check */
+> else
+> 	/* don't do it */
+> 
+> ?		
+> 
+> Rationale is that P4s and newer and systems not from Intel 
+> don't have serial APIC busses and don't need this uniqueness check.
+>
 
-On Wed, 2005-05-11 at 17:33 +0200, Carsten Otte wrote:
-> Indeed that seems reasonable. There is no exact reason to have
-> this built into a kernel on a platform that does not have a bdev
-> for this.
+Yes, indeed this looks like the only undisputed (and sufficient)
+criteria. I tried the below with Xeon box and it worked fine:
 
-The sanest way to use flash chips is not to pretend that they're a block
-device at all; rather to use a file system directly on top of them. 
+--- mpparse.c.orig	2005-05-11 02:10:35.000000000 -0400
++++ mpparse.c	2005-05-11 02:12:31.000000000 -0400
+@@ -912,7 +913,15 @@ void __init mp_register_ioapic (
+ 	mp_ioapics[idx].mpc_apicaddr = address;
+ 
+ 	set_fixmap_nocache(FIX_IO_APIC_BASE_0 + idx, address);
+-	mp_ioapics[idx].mpc_apicid = io_apic_get_unique_id(idx, id);
++	if ((boot_cpu_data.x86_vendor == X86_VENDOR_INTEL) &&
+(boot_cpu_data.x86 >= 15))
++		mp_ioapics[idx].mpc_apicid = id;
++	else
++		mp_ioapics[idx].mpc_apicid = io_apic_get_unique_id(idx,
+id);
+ 	mp_ioapics[idx].mpc_apicver = io_apic_get_version(idx);
+ 	
+ 	/* 
 
-But although you _talk_ about block devices, your code does look like it
-should be usable even by flash file systems. I'll try to come up with a
-test case using it on flash.
+I am going to test this with Potomacs tonight to be sure, and then can
+send the final patch. Does the format look OK?
 
--- 
-dwmw2
-
+Thanks,
+--Natalie 

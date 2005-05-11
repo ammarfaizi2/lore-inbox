@@ -1,68 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbVEKJVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261935AbVEKJZM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261191AbVEKJVw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 05:21:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVEKJVv
+	id S261935AbVEKJZM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 05:25:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbVEKJZM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 05:21:51 -0400
-Received: from node1.80686-net.de ([194.54.168.119]:24772 "EHLO
-	mx1.80686-net.de") by vger.kernel.org with ESMTP id S261191AbVEKJVt
+	Wed, 11 May 2005 05:25:12 -0400
+Received: from ercist.iscas.ac.cn ([159.226.5.94]:11788 "EHLO
+	ercist.iscas.ac.cn") by vger.kernel.org with ESMTP id S261935AbVEKJYe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 05:21:49 -0400
-From: Manuel Schneider <root@80686-net.de>
-To: jensen galan <jrgalan@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: did i trash my kernel?
-Date: Wed, 11 May 2005 06:24:52 +0200
-User-Agent: KMail/1.8
-References: <20050511090209.76029.qmail@web40911.mail.yahoo.com>
-In-Reply-To: <20050511090209.76029.qmail@web40911.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 11 May 2005 05:24:34 -0400
+Subject: Re: [PATCH] VFS mmap wrong behavior when I/O failure occurs
+From: fs <fs@ercist.iscas.ac.cn>
+To: Andrew Morton <akpm@osdl.org>
+Cc: iscas-linaccident <iscas-linaccident@intellilink.co.jp>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       viro VFS <viro@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20050511011916.611486e7.akpm@osdl.org>
+References: <1115837231.3599.55.camel@CoolQ>
+	 <20050511011916.611486e7.akpm@osdl.org>
+Content-Type: text/plain
+Organization: iscas
+Message-Id: <1115843517.2999.16.camel@CoolQ>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 11 May 2005 16:31:57 -0400
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200505110624.52772.root@80686-net.de>
+X-ArGoMail-Authenticated: fs@ercist.iscas.ac.cn
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 2005-05-11 at 04:19, Andrew Morton wrote:
+> fs <fs@ercist.iscas.ac.cn> wrote:
+> >
+> > --- linux-2.6.11.8-orig/fs/buffer.c     2005-05-11 14:41:03.000000000
+> >  -0400
+> 
+> Your email client wordwrapped the patch.  Please fix it.
+> 
+> >  +++ linux-2.6.11.8/fs/buffer.c  2005-05-11 14:38:55.000000000 -0400
+> >  @@ -2105,7 +2105,6 @@ int block_read_full_page(struct page *pa
+> >                                  memset(kaddr + i * blocksize, 0,
+> >  blocksize);
+> >                                  flush_dcache_page(page);
+> >                                  kunmap_atomic(kaddr, KM_USER0);
+> >  -                               set_buffer_uptodate(bh);
+> >                                  continue;
+> >                          }
+> >                          /*
+> 
+> This patch will break the kernel's regular handling of file holes -
+> !buffer_mapped() means that there was no disk mapping for this buffer: it
+> sits over a hole in the file.  Zeroing out the buffer and marking it
+> uptodate is correct behaviour.
+> 
+> You probably want something like this:
+Yes, you make the point, that is what I really want.
+> 
+> --- 25/fs/buffer.c~a	2005-05-11 01:15:13.000000000 -0700
+> +++ 25-akpm/fs/buffer.c	2005-05-11 01:16:39.000000000 -0700
+> @@ -2094,9 +2094,12 @@ int block_read_full_page(struct page *pa
+>  			continue;
+>  
+>  		if (!buffer_mapped(bh)) {
+> +			int err = 0;
+> +
+>  			fully_mapped = 0;
+>  			if (iblock < lblock) {
+> -				if (get_block(inode, iblock, bh, 0))
+> +				err = get_block(inode, iblock, bh, 0);
+> +				if (err)
+>  					SetPageError(page);
+>  			}
+>  			if (!buffer_mapped(bh)) {
+> @@ -2104,7 +2107,8 @@ int block_read_full_page(struct page *pa
+>  				memset(kaddr + i * blocksize, 0, blocksize);
+>  				flush_dcache_page(page);
+>  				kunmap_atomic(kaddr, KM_USER0);
+> -				set_buffer_uptodate(bh);
+> +				if (!err)
+> +					set_buffer_uptodate(bh);
+>  				continue;
+>  			}
+>  			/*
+> _
+> 
+So the final patch will be like above:
+P.S. my mail client is a little buggy, i can't handle it correctly :(
 
-> In /usr/src/linux-2.4.28-gentoo-r5, I edited the
-> Makefile so that "EXTRAVERSION = -gentoo-r5-new", and
-> recompiled my custom kernel with the following
-> commands:
->
-> make mrproper
-> make menuconfig
-> make dep
-> make bzImage
-> make modules
-> make modules-install
-> make install
-This looks fine so far except that we don't know if the settings in 
-the .config-file match your computers hardware and needs.
+diff -uNp linux-2.6.11.8-orig/fs/buffer.c linux-2.6.11.8/fs/buffer.c
+--- linux-2.6.11.8-orig/fs/buffer.c	2005-05-11 14:41:03.000000000 -0400
++++ linux-2.6.11.8/fs/buffer.c	2005-05-11 16:20:40.000000000 -0400
+@@ -2095,17 +2095,21 @@ int block_read_full_page(struct page *pa
+ 			continue;
+ 
+ 		if (!buffer_mapped(bh)) {
++			int err = 0;
++			
+ 			fully_mapped = 0;
+ 			if (iblock < lblock) {
+-				if (get_block(inode, iblock, bh, 0))
+-					SetPageError(page);
++				err = get_block(inode, iblock, bh, 0)
++					if(err)
++						SetPageError(page);
+ 			}
+ 			if (!buffer_mapped(bh)) {
+ 				void *kaddr = kmap_atomic(page, KM_USER0);
+ 				memset(kaddr + i * blocksize, 0, blocksize);
+ 				flush_dcache_page(page);
+ 				kunmap_atomic(kaddr, KM_USER0);
+-				set_buffer_uptodate(bh);
++				if(!err)
++					set_buffer_uptodate(bh);
+ 				continue;
+ 			}
+ 			/*
 
-> Bringing eth0 up via DHCP... [!!]
-> ERROR: Problem starting needed services.
-> "netmount" was not started.
-This is NOT a kernel error message.
-This message is printed by the shellscript /etc/init.d/net.eth0 which is 
-started by init.
 
-Maybe there is no module for eth0 loaded? Log in as root and try 
-dhcpcd eth0
-What happens? What error message do you get? Fix that.
-
-> So, did I trash my original kernel?  Was the method I
-> used to compile a custom kernel incorrect?
-As I said above - this is NOT a kernel error. Maybe there's a missing module, 
-but the would depend on your kernel configuration or 
-on /etc/modules.autoload.d/kernel-2.4 (load the right modules on startup).
-
-If you have further questions concerning this error and / or gentoo linux look 
-at the forums at forums.gentoo.org or contact me directly. Don't bother the 
-LKML with this.
-
-Greets,
-
-Manuel

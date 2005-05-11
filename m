@@ -1,37 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262013AbVEKSlM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262020AbVEKSts@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262013AbVEKSlM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 14:41:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262017AbVEKSlM
+	id S262020AbVEKSts (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 14:49:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262012AbVEKSts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 14:41:12 -0400
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:10404
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262013AbVEKSlI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 14:41:08 -0400
-Date: Wed, 11 May 2005 11:40:24 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Stuffed Crust <pizza@shaftnet.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix long-standing bug in 2.6/2.4
- skb_copy/skb_copy_expand
-Message-Id: <20050511114024.278b97d4.davem@davemloft.net>
-In-Reply-To: <20050508143259.GA30676@shaftnet.org>
-References: <20050508143259.GA30676@shaftnet.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 11 May 2005 14:49:48 -0400
+Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:49927 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262000AbVEKStq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 14:49:46 -0400
+To: jamie@shareable.org
+CC: 7eggert@gmx.de, ericvh@gmail.com, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, smfrench@austin.rr.com, hch@infradead.org
+In-reply-to: <20050511170700.GC2141@mail.shareable.org> (message from Jamie
+	Lokier on Wed, 11 May 2005 18:07:00 +0100)
+Subject: Re: [RCF] [PATCH] unprivileged mount/umount
+References: <406SQ-5P9-5@gated-at.bofh.it> <40rNB-6p8-3@gated-at.bofh.it> <40t37-7ol-5@gated-at.bofh.it> <42VeB-8hG-3@gated-at.bofh.it> <42WNo-1eJ-17@gated-at.bofh.it> <E1DVuHG-0006YJ-Q7@be1.7eggert.dyndns.org> <20050511170700.GC2141@mail.shareable.org>
+Message-Id: <E1DVwGn-0002BB-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 11 May 2005 20:49:21 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 May 2005 10:32:59 -0400
-Stuffed Crust <pizza@shaftnet.org> wrote:
+> > > How about a new clone option "CLONE_NOSUID"?
+> > 
+> > IMO, the clone call ist the wrong place to create namespaces. It should be
+> > deprecated by a mkdir/chdir-like interface.
+> 
+> And the mkdir/chdir interface already exists, see "cd /proc/NNN/root".
 
-> But if the alloc_skb function 
-> allocates extra head room (ie calls skb_reserve() on the skb before it 
-> passes it to the callee, this doesn't quite work.
+That's the chdir part.
 
-alloc_skb() may call skb_reserve() in your tree, but it doesn't in anyone
-else's.
+The mkdir part is clone() or unshare().
+
+How else do you propose to create new namespaces?
+
+Miklos

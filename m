@@ -1,57 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261942AbVEKJJb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261961AbVEKJFY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261942AbVEKJJb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 05:09:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbVEKJFz
+	id S261961AbVEKJFY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 05:05:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVEKJBk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 05:05:55 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:34310 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261950AbVEKJEp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 05:04:45 -0400
-Date: Wed, 11 May 2005 11:04:36 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Tom Duffy <tduffy@sun.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Jesper Juhl <juhl-lkml@dif.dk>
-Subject: Re: [PATCH] kernel/module.c has something to hide. (whitespace cleanup)
-Message-ID: <20050511090436.GL3590@stusta.de>
-References: <20050510161657.3afb21ff.akpm@osdl.org> <20050510.161907.116353193.davem@davemloft.net> <20050510170246.5be58840.akpm@osdl.org> <20050510.170946.10291902.davem@davemloft.net> <Pine.LNX.4.62.0505110217350.2386@dragon.hyggekrogen.localhost> <20050510172913.2d47a4d4.akpm@osdl.org> <1115773263.3169.5.camel@duffman>
+	Wed, 11 May 2005 05:01:40 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:54450 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261935AbVEKI54 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 04:57:56 -0400
+Date: Wed, 11 May 2005 14:27:52 +0530
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Alexander Nyberg <alexn@telia.com>
+Cc: ebiederm@xmission.com, vgoyal@in.ibm.com,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       fastboot@lists.osdl.org, rddunlap@osdl.org, Ralf.Hildebrandt@charite.de,
+       petkov@uni-muenster.de, Morton Andrew Morton <akpm@osdl.org>,
+       coywolf@gmail.com
+Subject: Re: [Fastboot] Fw: Re: kexec?
+Message-ID: <20050511085752.GB28791@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20050510193225.53192aad.akpm@osdl.org> <20050511030201.GA3799@in.ibm.com> <1115795427.917.10.camel@localhost.localdomain> <20050511080959.GB3799@in.ibm.com> <1115800228.917.25.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1115773263.3169.5.camel@duffman>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <1115800228.917.25.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 10, 2005 at 06:01:03PM -0700, Tom Duffy wrote:
+On Wed, May 11, 2005 at 10:30:28AM +0200, Alexander Nyberg wrote:
+> > > kexec-tools-1.101 does not contain your last patch series (that includes
+> > > --crashdump which is lacking from the above cmdline). Currently you need
+> > > to patch up 1.101 with the stuff from 
+> > > [RFC/PATCH 5/17][kexec-tools-1.101] Add command line option
+> > > "--crash-dump" etc.
+> > > 
+> > > It would be good having a 1.2 or something with the patches included on
+> > > the site...
+> > 
+> > We have uploaded the kdump related user space patches which can be 
+> > accessed at following link.
+> > 
+> > http://lse.sourceforge.net/kdump/patches/
+> > 
+> > A single consolidated patch can be applied on top of kexec-tools-1.101.tar.gz
+> > to get kdump working.
 > 
-> Solaris build makes sure files passes a "lint" test during the build and
-> nothing can be checked in until such a test can pass.
+> I had no idea this address existed, only when looking at my lkml-archive
+> i saw it posted this monday (!), prior to that I had not seen it and I
+> watch things quite closely.
+
+Yes, you are right. Earlier the kexec-tools patches implementing kdump
+were just posted on mailing lists but now they are on the mentioned site.
+
+> How is anyone gonna try it out if it isn't announced and the proper
+> procedure of getting it going known? Randys recent kdump.txt update made
+> things alot clearer but it won't help finding the right source and
+> patches. Although personally I'd put up a complete tarball instead of a
+> patch so users/testers don't have to manually patch it up.
 > 
-> Would it make sense to add such a test during kernel compile for Linux?
-> Something that could be turned off if somebody needed really fast
-> builds.  This would check for things like whitespace violations and
-> other things that violate CodingStyle.
+> Also the latest kexec patches are at http://www.xmission.com/~ebiederm/files/kexec/
+> nowdays and not with Randy. And there is even more confusion to it as there is:
+> kexec-tools-1.101.tar.gz
+> kexec-tools-1.99.tar.gz
 > 
-> People tend to fix things quick if they break the build.
+> I don't know about you but if I didn't know i'd definately go with the 1.99 one
+> even if 1.101 is the latest version.
+> 
 
-This works _after_ the kernel has been cleaned up.
+You are right again and your patch for kdump.txt should clarify the confusions. Thanks for the patch.
 
-And then there's the issue that some code (e.g. ACPI or XFS) is shared 
-between Linux and other OS's, and therefore a limited amount of 
-divergence from usual kernel coding style is allowed in such code.
+Andrew,
 
-> -tduffy
+Please include the following kdump.txt patch.
 
-cu
-Adrian
+Thanks
+Vivek
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+> Index: mm/Documentation/kdump.txt
+> ===================================================================
+> --- mm.orig/Documentation/kdump.txt	2005-05-06 08:55:43.000000000 +0200
+> +++ mm/Documentation/kdump.txt	2005-05-11 10:16:38.000000000 +0200
+> @@ -35,7 +35,9 @@
+>  SETUP
+>  =====
+>  
+> -1) Download and build the appropriate version of kexec-tools.
+> +1) Download http://www.xmission.com/~ebiederm/files/kexec/kexec-tools-1.101.tar.gz
+> +   and apply http://lse.sourceforge.net/kdump/patches/kexec-tools-1.101-kdump.patch
+> +   and after that build the source.
+>  
+>  2) Download and build the appropriate (latest) kexec/kdump (-mm) kernel
+>     patchset and apply it to the vanilla kernel tree.
+> Index: mm/MAINTAINERS
+> ===================================================================
+> --- mm.orig/MAINTAINERS	2005-05-06 08:55:57.000000000 +0200
+> +++ mm/MAINTAINERS	2005-05-11 10:24:35.000000000 +0200
+> @@ -1339,7 +1339,6 @@
+>  M:	ebiederm@xmission.com
+>  M:	rddunlap@osdl.org
+>  W:	http://www.xmission.com/~ebiederm/files/kexec/
+> -W:	http://developer.osdl.org/rddunlap/kexec/
+>  L:	linux-kernel@vger.kernel.org
+>  L:	fastboot@osdl.org
+>  S:	Maintained
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 

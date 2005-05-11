@@ -1,77 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261976AbVEKQYD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261987AbVEKQXL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261976AbVEKQYD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 12:24:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261940AbVEKQXj
+	id S261987AbVEKQXL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 12:23:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbVEKQXK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 12:23:39 -0400
-Received: from usbb-lacimss2.unisys.com ([192.63.108.52]:21772 "EHLO
-	usbb-lacimss2.unisys.com") by vger.kernel.org with ESMTP
-	id S261991AbVEKQV1 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 12:21:27 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [patch 1/1] Do not enforce unique IO_APIC_ID for Xeon processors in EM64T mode (x86_64)
-Date: Wed, 11 May 2005 11:21:15 -0500
-Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04B67@USRV-EXCH4.na.uis.unisys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch 1/1] Do not enforce unique IO_APIC_ID for Xeon processors in EM64T mode (x86_64)
-Thread-Index: AcVWG7yZkDjRZp3FSGy517DslFXU2gAKBn0w
-From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-To: "Andi Kleen" <ak@suse.de>
-Cc: <jamesclv@us.ibm.com>, <akpm@osdl.org>, <zwane@arm.linux.org.uk>,
-       <len.brown@intel.com>, <venkatesh.pallipadi@intel.com>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 11 May 2005 16:21:15.0698 (UTC) FILETIME=[747C9120:01C55645]
+	Wed, 11 May 2005 12:23:10 -0400
+Received: from solarneutrino.net ([66.199.224.43]:51464 "EHLO
+	tau.solarneutrino.net") by vger.kernel.org with ESMTP
+	id S261993AbVEKQV7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 12:21:59 -0400
+Date: Wed, 11 May 2005 12:21:59 -0400
+To: Dave Airlie <airlied@gmail.com>
+Cc: linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
+Subject: Re: DRI lockup on R200, 2.6.11.7
+Message-ID: <20050511162159.GA19046@tau.solarneutrino.net>
+References: <20050426202916.GA2635@xarello> <21d7e99705042801227ed5438e@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <21d7e99705042801227ed5438e@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
+From: Ryan Richter <ryan@tau.solarneutrino.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Looks like the need in the unique id can only be keyed of the local 
-> > APIC id, and probably it is a good idea to keep the NO_IOAPIC_CHECK 
-> > for subarchs that can override the heuristics?
-> 
-> I prefer not to do that. How about a simple
-> 
-> if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL && 
-> boot_cpu_data.x86 < 15)
-> 	/* do uniqueness check */
-> else
-> 	/* don't do it */
-> 
-> ?		
-> 
-> Rationale is that P4s and newer and systems not from Intel 
-> don't have serial APIC busses and don't need this uniqueness check.
->
+On Thu, Apr 28, 2005 at 09:22:36AM +0100, Dave Airlie wrote:
+> On 4/26/05, foo@porto.bmb.uga.edu <foo@porto.bmb.uga.edu> wrote:
+> > Using 2.6.11.7, I'm experiencing the same problem as reported here:
+> > http://lkml.org/lkml/2005/3/12/99
+> > 
+> > Except it happens for me after X is running.  X locks up, only the mouse
+> > pointer moves, X spins doing this:
+> > 
+> > --- SIGALRM (Alarm clock) @ 0 (0) ---
+> > rt_sigreturn(0xe)                       = -1 EBUSY (Device or resource busy)
+> > ioctl(5, 0x6444, 0)                     = -1 EBUSY (Device or resource busy)
+> > ioctl(5, 0x6444, 0)                     = -1 EBUSY (Device or resource busy)
 
-Yes, indeed this looks like the only undisputed (and sufficient)
-criteria. I tried the below with Xeon box and it worked fine:
+Another one today, but it's a little different now.  I got to see this
+happen from the beginning today.  A few minutes before the crash, 3D
+operations become very slow.  When X hangs, it's now doing this:
 
---- mpparse.c.orig	2005-05-11 02:10:35.000000000 -0400
-+++ mpparse.c	2005-05-11 02:12:31.000000000 -0400
-@@ -912,7 +913,15 @@ void __init mp_register_ioapic (
- 	mp_ioapics[idx].mpc_apicaddr = address;
- 
- 	set_fixmap_nocache(FIX_IO_APIC_BASE_0 + idx, address);
--	mp_ioapics[idx].mpc_apicid = io_apic_get_unique_id(idx, id);
-+	if ((boot_cpu_data.x86_vendor == X86_VENDOR_INTEL) &&
-(boot_cpu_data.x86 >= 15))
-+		mp_ioapics[idx].mpc_apicid = id;
-+	else
-+		mp_ioapics[idx].mpc_apicid = io_apic_get_unique_id(idx,
-id);
- 	mp_ioapics[idx].mpc_apicver = io_apic_get_version(idx);
- 	
- 	/* 
+--- SIGALRM (Alarm clock) @ 0 (0) ---
+rt_sigreturn(0xe)                       = -1 EBUSY (Device or resource busy)
+ioctl(5, 0xc0406429, 0x7ffffffff490)    = -1 EBUSY (Device or resource busy)
+ioctl(5, 0xc0406429, 0x7ffffffff490)    = -1 EBUSY (Device or resource busy)
 
-I am going to test this with Potomacs tonight to be sure, and then can
-send the final patch. Does the format look OK?
+It seems to only happen when there are two or more opengl programs
+running.  I killed X again, but the machine was still very slow.
+Investigating, I found the two GL processes still running, both eating
+lots of cycles.  Before I could find out what they were doing, xdm
+restarted X, which caused a machine reset.  I know this because I was
+(confusedly) stracing the new X as it was coming up.  X was stat(2)ing
+the video driver modules right before the reset...
 
-Thanks,
---Natalie 
+-ryan

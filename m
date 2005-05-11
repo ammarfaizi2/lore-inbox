@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261287AbVEKTwP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262035AbVEKTze@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261287AbVEKTwP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 15:52:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbVEKTwP
+	id S262035AbVEKTze (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 15:55:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262037AbVEKTze
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 15:52:15 -0400
-Received: from orb.pobox.com ([207.8.226.5]:29100 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S261287AbVEKTwH (ORCPT
+	Wed, 11 May 2005 15:55:34 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:22742 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262035AbVEKTzZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 15:52:07 -0400
-Date: Wed, 11 May 2005 14:51:56 -0500
-From: Nathan Lynch <ntl@pobox.com>
-To: Dinakar Guniguntala <dino@in.ibm.com>
-Cc: Paul Jackson <pj@sgi.com>, Simon.Derr@bull.net,
-       lse-tech@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, V Srivatsa <vatsa@in.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cpusets+hotplug+preepmt broken
-Message-ID: <20050511195156.GE3614@otto>
+	Wed, 11 May 2005 15:55:25 -0400
+Date: Wed, 11 May 2005 12:55:08 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: dino@in.ibm.com, Simon.Derr@bull.net, lse-tech@lists.sourceforge.net,
+       akpm@osdl.org, nickpiggin@yahoo.com.au, vatsa@in.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] [PATCH] cpusets+hotplug+preepmt broken
+Message-Id: <20050511125508.20bf44ec.pj@sgi.com>
+In-Reply-To: <20050511122543.6e9f6097.pj@sgi.com>
 References: <20050511191654.GA3916@in.ibm.com>
+	<20050511122543.6e9f6097.pj@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050511191654.GA3916@in.ibm.com>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 12, 2005 at 12:46:54AM +0530, Dinakar Guniguntala wrote:
-> 
-> cpusets+hotplug+preempt hangs up the machine, if both
-> cpuset and hotplug operations are going on simultaneously
-> 
-> I also get this oops first
-> 
-> scheduling while atomic: cpuoff.sh/0x00000001/25331
->  [<c040195d>] schedule+0xa4d/0xa60
->  [<c0401b25>] wait_for_completion+0xc5/0xf0
->  [<c011a200>] default_wake_function+0x0/0x20
->  [<c0400cd3>] __down+0x83/0x110
->  [<c011a200>] default_wake_function+0x0/0x20
->  [<c0400eab>] __down_failed+0x7/0xc
->  [<c0141fe7>] .text.lock.cpuset+0x105/0x15e
->  [<c011b860>] move_task_off_dead_cpu+0x130/0x1f0
->  [<c011ba7c>] migrate_live_tasks+0x8c/0x90
->  [<c011be25>] migration_call+0x75/0x2c0
->  [<c01423f2>] __stop_machine_run+0x92/0xb0
->  [<c012e0dd>] notifier_call_chain+0x2d/0x50
->  [<c013a6fb>] cpu_down+0x16b/0x2a0
->  [<c027ddfb>] store_online+0x5b/0x80
->  [<c027ae15>] sysdev_store+0x35/0x40
->  [<c019f43e>] flush_write_buffer+0x3e/0x50
->  [<c019f4a8>] sysfs_write_file+0x58/0x80
->  [<c0163d26>] vfs_write+0xc6/0x180
->  [<c0163eb1>] sys_write+0x51/0x80
->  [<c01034e5>] syscall_call+0x7/0xb
+pj wrote:
+> Could you explain why this is -- what is the deadlock?
 
-This trace is what should be fixed -- we're trying to schedule while
-the machine is "stopped" (all cpus except for one spinning with
-interrupts off).  I'm not too familiar with the cpusets code but I
-would like to stay away from nesting these semaphores if at all
-possible.
+On further reading, I see it.  You're right.
 
-Will you share your testcase please?
+Deep in the bowels of the hotplug code, when removing a dead cpu, while
+holding the runqueue lock (task_rq_lock), the hotplug code might need to
+walk up the cpuset hierarchy, to find the nearest enclosing cpuset that
+still has online cpus, as part of figuring where to run a task that is
+being kicked off the dead cpu.  The runqueue lock is atomic, but getting
+the cpuset_sem (needed to walk up the cpuset hierarchy) can sleep.  So
+you need to get the cpuset_sem before calling task_rq_lock, so as to
+avoid the "scheduling while atomic" oops that you reported.  Therefore
+the hotplug code, and anyone else calling cpuset_cpus_allowed(), which
+means sched_setaffinity(), needs to first grab cpuset_sem, so that they
+can grab any atomic locks needed, after getting cpuset_sem, not before.
 
+Acked-by: Paul Jackson <pj@sgi.com>
 
-Nathan
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

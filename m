@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVEKU1A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262041AbVEKU3L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261280AbVEKU1A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 16:27:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbVEKU1A
+	id S262041AbVEKU3L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 16:29:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbVEKU3L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 16:27:00 -0400
-Received: from orb.pobox.com ([207.8.226.5]:65199 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S261280AbVEKU06 (ORCPT
+	Wed, 11 May 2005 16:29:11 -0400
+Received: from mail.kroah.org ([69.55.234.183]:56480 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262041AbVEKU3E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 16:26:58 -0400
-Date: Wed, 11 May 2005 15:26:48 -0500
-From: Nathan Lynch <ntl@pobox.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: dino@in.ibm.com, Simon.Derr@bull.net, lse-tech@lists.sourceforge.net,
-       akpm@osdl.org, nickpiggin@yahoo.com.au, vatsa@in.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] [PATCH] cpusets+hotplug+preepmt broken
-Message-ID: <20050511202648.GF3614@otto>
-References: <20050511191654.GA3916@in.ibm.com> <20050511122543.6e9f6097.pj@sgi.com> <20050511125508.20bf44ec.pj@sgi.com>
+	Wed, 11 May 2005 16:29:04 -0400
+Date: Wed, 11 May 2005 13:28:05 -0700
+From: Greg KH <greg@kroah.com>
+To: Yani Ioannou <yani.ioannou@gmail.com>
+Cc: LM Sensors <sensors@stimpy.netroedge.com>, linux-kernel@vger.kernel.org,
+       Justin Thiessen <jthiessen@penguincomputing.com>
+Subject: Re: [PATCH 2.6.12-rc4 3/3] (dynamic sysfs callbacks) device_attribute
+Message-ID: <20050511202805.GB2222@kroah.com>
+References: <2538186705051100583c6b1ffb@mail.gmail.com> <20050511170600.GD15398@kroah.com> <25381867050511125761fcfad0@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050511125508.20bf44ec.pj@sgi.com>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <25381867050511125761fcfad0@mail.gmail.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 11, 2005 at 12:55:08PM -0700, Paul Jackson wrote:
-> pj wrote:
-> > Could you explain why this is -- what is the deadlock?
+On Wed, May 11, 2005 at 03:57:37PM -0400, Yani Ioannou wrote:
+> On 5/11/05, Greg KH <greg@kroah.com> wrote:
+> > On Wed, May 11, 2005 at 03:58:35AM -0400, Yani Ioannou wrote:
+> > Sorry, but I need a real patch in email form so I can apply it.  I can
+> > handle a 300K+ email :)
+> > 
+> > Or you can break it up into smaller pieces, like one per major part of
+> > the kernel.  That is the preferred way.
 > 
-> On further reading, I see it.  You're right.
+> I'd like to break it up, but I think even broken up by major part of
+> the kernel it one piece will still be too large since the majority of
+> the changes take place in drivers & drivers/i2c and are very
+> asymmetric :-(. I'll send you the patch inline privately for now.
+
+No, please break it up.  "too large" is a problem for someone trying to
+review it too.  If the i2c parts are too big, then split them up into
+multiple patches too.
+
+> > We should make a __ATTR macro instead, right?
 > 
-> Deep in the bowels of the hotplug code, when removing a dead cpu, while
-> holding the runqueue lock (task_rq_lock), the hotplug code might need to
-> walk up the cpuset hierarchy, to find the nearest enclosing cpuset that
-> still has online cpus, as part of figuring where to run a task that is
-> being kicked off the dead cpu.  The runqueue lock is atomic, but getting
-> the cpuset_sem (needed to walk up the cpuset hierarchy) can sleep.  So
-> you need to get the cpuset_sem before calling task_rq_lock, so as to
-> avoid the "scheduling while atomic" oops that you reported.  Therefore
-> the hotplug code, and anyone else calling cpuset_cpus_allowed(), which
-> means sched_setaffinity(), needs to first grab cpuset_sem, so that they
-> can grab any atomic locks needed, after getting cpuset_sem, not before.
+> Well another __ATTR macro (e.g. ATTR_PRIVATE) would make declaring the
+> new DEVICE_ATTR_PRIVATE macro, etc, easier.
 
-Won't holding cpuset_sem while calling cpuset_cpus_allowed cause a
-deadlock?
+Sorry, yes, that's what I ment.
 
-Nathan
+> The question really is, is it better to just add that new parameter to
+> the DEVICE_ATTR macro, or to declare a new DEVICE_ATTR_PRIVATE macro
+> instead. The former obviously breaks a lot of code although my scripts
+> can generate another large patch for that too...
+
+No, use a new macro.
+
+thanks,
+
+greg k-h

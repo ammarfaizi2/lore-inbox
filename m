@@ -1,75 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261218AbVEKUlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262050AbVEKUqy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261218AbVEKUlm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 16:41:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbVEKUlm
+	id S262050AbVEKUqy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 16:46:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262046AbVEKUqy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 16:41:42 -0400
-Received: from rrcs-24-73-230-86.se.biz.rr.com ([24.73.230.86]:50845 "EHLO
-	shaft.shaftnet.org") by vger.kernel.org with ESMTP id S261218AbVEKUlg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 16:41:36 -0400
-Date: Wed, 11 May 2005 16:38:45 -0400
-From: Stuffed Crust <pizza@shaftnet.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: davem@davemloft.net, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] fix long-standing bug in 2.6/2.4 skb_copy/skb_copy_expand
-Message-ID: <20050511203845.GA10770@shaftnet.org>
-References: <20050508143259.GA30676@shaftnet.org> <E1DUyZO-0004Fp-00@gondolin.me.apana.org.au>
+	Wed, 11 May 2005 16:46:54 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:8399 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262052AbVEKUqI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 16:46:08 -0400
+Date: Wed, 11 May 2005 13:45:54 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Nathan Lynch <ntl@pobox.com>
+Cc: dino@in.ibm.com, Simon.Derr@bull.net, lse-tech@lists.sourceforge.net,
+       akpm@osdl.org, nickpiggin@yahoo.com.au, vatsa@in.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] [PATCH] cpusets+hotplug+preepmt broken
+Message-Id: <20050511134554.3d72db59.pj@sgi.com>
+In-Reply-To: <20050511202648.GF3614@otto>
+References: <20050511191654.GA3916@in.ibm.com>
+	<20050511122543.6e9f6097.pj@sgi.com>
+	<20050511125508.20bf44ec.pj@sgi.com>
+	<20050511202648.GF3614@otto>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
-Content-Disposition: inline
-In-Reply-To: <E1DUyZO-0004Fp-00@gondolin.me.apana.org.au>
-User-Agent: Mutt/1.4.1i
-X-milter-date-PASS: YES
-X-milter-7bit-Pass: YES
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nathan asked:
+> Won't holding cpuset_sem while calling cpuset_cpus_allowed cause a
+> deadlock?
 
---2fHTh5uZTiUOsy+g
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It definitely would, which is why Dinakar's patch both added a call to
+get cpuset_sem earlier in the hot unplug code, as well as removed the
+call to get cpuset_sem that was inside the cpuset_cpus_allowed code (as
+well as modified the other caller of cpuset_cpus_allowed, the
+sched_setaffinity code, to explicitly get cpuset_sem before calling
+cpuset_cpus_allowed, since that call no longer acquired cpuset_sem on
+its own.
 
-On Mon, May 09, 2005 at 01:04:34PM +1000, Herbert Xu wrote:
-> > This is, fortunately, generally true.  But if the alloc_skb function=20
-> > allocates extra head room (ie calls skb_reserve() on the skb before it=
-=20
-> > passes it to the callee, this doesn't quite work.  Instead, it should b=
-e=20
-> > rewritten as:
->=20
-> As far as I know the alloc_skb funciton in the kernel tree doesn't do
-> that so your patch is not necessary unless we decide to change the way
-> alloc_skb works.  If that's what you want then please provide a patch
-> to alloc_skb and a rationale as to why we should do that.
 
-It does not, and I have no intention of submitting a patch to change it.=20
-As I said in my original message, it was a crude hack which has since
-been relegated to the great bitbucket of the sky.  All that's left is
-that "bugfix" patch.
-
-I've performed my due-diligence in airing it to the powers that be, so=20
-I'll go way now.
-
- - Solomon
---=20
-Solomon Peachy        				 ICQ: 1318344
-Melbourne, FL 					 JID: pitha@myjabber.net
-Quidquid latine dictum sit, altum viditur
-
---2fHTh5uZTiUOsy+g
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFCgm1VPuLgii2759ARAp58AJ0YTlpIfHfZzO1FPsrKwvO/nkSDMwCg34Fy
-oyb6OWUtCSERK967FUx7Pks=
-=vclu
------END PGP SIGNATURE-----
-
---2fHTh5uZTiUOsy+g--
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

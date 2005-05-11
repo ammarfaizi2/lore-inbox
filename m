@@ -1,69 +1,149 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262005AbVEKSUo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbVEKSW1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262005AbVEKSUo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 14:20:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262000AbVEKSUn
+	id S261259AbVEKSW1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 14:22:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbVEKSW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 14:20:43 -0400
-Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:31139 "EHLO
-	ms-smtp-03-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S262005AbVEKST3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 14:19:29 -0400
-Message-ID: <42824CA7.9040201@austin.rr.com>
-Date: Wed, 11 May 2005 13:19:19 -0500
-From: Steve French <smfrench@austin.rr.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
+	Wed, 11 May 2005 14:22:27 -0400
+Received: from ausc60pc101.us.dell.com ([143.166.85.206]:62600 "EHLO
+	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
+	id S262000AbVEKSVX convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 14:21:23 -0400
+X-IronPort-AV: i="3.93,96,1115010000"; 
+   d="scan'208"; a="260354112:sNHT24673496"
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cifs: handle termination of cifs oplockd kernel thread
-References: <4272A275.4030801@austin.rr.com> <20050429213108.GA15262@infradead.org> <4272B335.5090207@austin.rr.com> <20050511085619.GA24841@infradead.org>
-In-Reply-To: <20050511085619.GA24841@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [patch 2.6.12-rc3] dell_rbu: New Dell BIOS update driver
+Date: Wed, 11 May 2005 13:21:19 -0500
+Message-ID: <367215741E167A4CA813C8F12CE0143B3ED37A@ausx2kmpc115.aus.amer.dell.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch 2.6.12-rc3] dell_rbu: New Dell BIOS update driver
+Thread-Index: AcVVvDgkGZhMd1qTRJSrHK1/Ha3AHgAju3ow
+From: <Abhay_Salunke@Dell.com>
+To: <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, <Matt_Domsch@Dell.com>, <greg@kroah.com>
+X-OriginalArrivalTime: 11 May 2005 18:21:19.0762 (UTC) FILETIME=[3A717F20:01C55656]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
+> > +
+> > +			/* free this memory as we need it with in 4GB
+range */
+> > +			free_pages ((unsigned long)pbuf, *ordernum);
+> > +
+> > +			/* try allocating a new buffer from the GFP_DMA
+range
+> > +			   as it is with in 16MB range.*/
+> > +			pbuf =(unsigned char *)__get_free_pages(GFP_DMA,
+> *ordernum);
+> > +
+> > +			if (pbuf == NULL)
+> > +				pr_debug("Failed to get memory of size
+%ld using
+> GFP_DMA\n", size);
+> > +		}
+> > +	}
+> > +	return pbuf;
+> > +}
+> 
+> What architecture is this code designed for?  On x86 a GFP_KERNEL
+> allocation will never return highmem.  I guess x86_64?
+> 
+> I assume this code is here because the x86_64 BIOS will only access
+the
+> lower 4GB?  If so, a comment to that extent would be useful.
+> 
+> Sometime I expect that x86_64 will gain a new zone, GFP_DMA32 which
+will
+> be
+> guaranteed to return memory below he 4GB point.  When that happens,
+this
+> driver should be converted to use it.
+> 
+This code is for all architectures but primarily is tested on x32, x64
+and x86_64.
 
->
->should export it in /proc/<pid>/mounts, which is
->an ASCII interface and any half-sane parser does not depend on the width
->of the field in the kernel.
->
->Can we please get rid of the broken ioctl now so it doesn't become part
->of the ABI and you'll add the trivial output to /proc/<pid>/mounts?
->
->
->  
->
-OK - why don't we just add this (ie the ioctl removal) to the patch
+> > +	newpacket->ordernum = ordernum;
+> > +
+> > +	++rbu_data.num_packets;
+> > +	/* initialize the newly created packet headers */
+> > +	INIT_LIST_HEAD(&newpacket->list);
+> > +	/* add this packet to the link list */
+> > +	list_add_tail(&newpacket->list, (struct list_head
+> *)&packet_data_head);
+> 
+> Does this list not need locking?
 
-[PATCH] unprivileged mount/umount
+ create_packet is called from packetize_data which is called with lock
+held.
+ Will add a comment in create_packet. 
 
-of Miklos et al, since that removes the need to modify showmounts (and 
-avoids any name collision/confusion
-with the existing meaning of the mount option "uid" ie as the default 
-uid to use for files on the system when
-mounting to servers which can not return inode owners as uids).
+> > +/*
+> > + img_update_free:
+> > + Frees the buffer allocated for storing BIOS image
+> > + Always called with lock held
+> > +*/
+> > +static void img_update_free( void)
+> 
+>    static void img_update_free(void)
+> 
+> > +{
+> > +	if (rbu_data.image_update_buffer == NULL)
+> > +		return;
+> 
+> Can this happen?
+Yes, incase some one did an rmmod immediately after an insmod (without
+actually updating any BIOS image)
+ 
+> 
+> > +	rbu_data.image_update_buffer = NULL;
+> > +	rbu_data.image_update_buffer_size = 0;
+> > +	rbu_data.bios_image_size = 0;
+> > +}
+> 
+> Are these assignments needed?
+Yes, all the variables needs to be re-initialized after calling
+free_pages.
 
-On another topic relating to ioctls, various people have suggested 
-adding an ioctl to add a table to optionally map file owner (uid / gid 
-mapping tables) on remote filesystems. Although this is easy enough to 
-do for the case of CIFS, this seems like a function (loading the table) 
-that could be done via /proc or perhaps even sysfs. Is there are 
-precedent for doing this on Linux? Googling I see various examples where 
-NFS client on other platforms (not Linux) have done something vaguely 
-similar. NFSv4 uses an upcall for this (although they are mapping 
-slightly differently since they now receive a fully qualified username 
-and have to map this to a loca uid, rather than getting a remote uid to 
-local uid as earlier nfs did). The general issue is that when mounting 
-to multiple Unix/Linux servers (especially in different domains), unlike 
-in Windows (or perhaps MacOS), similar users are defined with different 
-uids, and there are cases where mapping uids/gids or ranges of uids/gids
-from that returned from the server would be helpful. The mapping table 
-would have to hang off the tree connection or the SMB session for the 
-case of CIFS but I would rather not use an ioctl to load it, yet if the 
-table ever got big, I would prefer not to use /proc either. Is there a 
-recommended approach.
+> 
+> > +static int img_update_realloc(unsigned long size)
+> > +{
+> > +	unsigned char *image_update_buffer = NULL;
+> > +	unsigned long rc;
+> > +	int ordernum =0;
+> > +
+> > +
+> > +	/* check if the buffer of sufficient size has been already
+allocated
+> */
+> > +    if (rbu_data.image_update_buffer_size >= size) {
+> > +		/* check for corruption */
+> > +		if ((size != 0) && (rbu_data.image_update_buffer ==
+NULL)) {
+> > +			pr_debug("img_update_realloc: corruption check
+> failed\n");
+> > +			return -ENOMEM;
+> 
+> ENOMEM seems to be the wrong error to return here.
+Changed to EINVAL.
+
+> Should this feature be available for all architectures, or only for
+X86 ||
+> X86_64?  (If it compiles OK for other architectures then I'd leave it
+> as-is, for coverage).
+> 
+It supports all architectures.
+
+All the other recommended changed are being worked out and I will
+resubmit the patch with the changes.
+
+Thanks,
+Abhay Salunke
+Software Engineer
+Dell Inc.

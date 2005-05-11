@@ -1,100 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261956AbVEKKFv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVEKKLX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261956AbVEKKFv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 06:05:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbVEKKFv
+	id S261193AbVEKKLX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 06:11:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbVEKKLX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 06:05:51 -0400
-Received: from mailfe03.swip.net ([212.247.154.65]:10235 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S261956AbVEKKEl (ORCPT
+	Wed, 11 May 2005 06:11:23 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:20612 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S261193AbVEKKLQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 06:04:41 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Subject: Re: OOPS + 2.6.9-gentoo-r9 (and .10 and .11) + 2xHPT302 + RAID5
-From: Alexander Nyberg <alexn@telia.com>
-To: ray hilton <ray.hilton@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <5fcd2f1d050511013414c3f8d1@mail.gmail.com>
-References: <5fcd2f1d050511013414c3f8d1@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 11 May 2005 12:04:35 +0200
-Message-Id: <1115805875.6575.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+	Wed, 11 May 2005 06:11:16 -0400
+Message-ID: <4281DC03.36011256@tv-sign.ru>
+Date: Wed, 11 May 2005 14:18:43 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Christoph Lameter <christoph@lameter.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, mingo@elte.hu,
+       kenneth.w.chen@intel.com
+Subject: Re: [RFC][PATCH] timers fixes/improvements
+References: <424D373F.1BCBF2AC@tv-sign.ru> <424E6441.12A6BC03@tv-sign.ru> 
+	 <Pine.LNX.4.58.0505091312490.27740@graphe.net> <20050509144255.17d3b9aa.akpm@osdl.org>
+	 <Pine.LNX.4.58.0505091449580.29090@graphe.net> <42808B84.BCC00574@tv-sign.ru> <Pine.LNX.4.58.0505101212350.20718@graphe.net>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We have been trying to re-build a new system after a system disk
-> failed a couple of weeks ago.  It was a gentoo system running 2.4, but
-> this time we figured we would take the plunge and install 2.6, since
-> we had a couple of problems with 2.4 and its support of the ITE RAID
-> card.  Now we have two HPT302 cards, 7x120Gb drives, one 160Gb drive
-> attached to the motherboard, thats pretty much the only exceptional
-> configuration, other than that, DVD-R, AMD2000+, 512Mb SDR memory...
-> 
-> Anyway, we are onto our second rebuild now, the first was done using
-> reiserfs on the system disk, this had intermitent segfaults during the
-> build, which we first put down to gcc, but later we realised it was
-> something to do with the kernel's reiserfs driver since it was OOPSing
-> in that module.  We then started getting segfaults with all manner of
-> tools, including emerge (gentoo's port system) and corruption in the
-> ports tree.  I tried reinstalling all the components, rebuilding the
-> kernel with different gcc's but still the same.
-> 
-> So we figured we would rebuild and use ext3 as the root filesystem. 
-> Worked fine up until an hour ago, when it started OOPSing with the
-> following (see examples below).
-> 
-> Now, I am no C whizz, or kernel hacker, just very very confused as to
-> what is going on.  We have tried 2.6.9,2.6.10 and 2.6.11 with gcc 3.3
-> and 3.4 with a reiserfs root, and we get problems, and now we change
-> to ext3, we get the same, which leads me to suspect its not
-> reiserfs/ext3, but something messing with it.    My minimal research
-> into possible causes has led me to think that raid5/md/lvm with the
-> dual HPT302 cards could be doing something odd... I dont know how or
-> why, hence my call for help!
-> 
-> Any help would be appreciated, or perhaps a point in the right
-> direction!  I just cant beleive that something like this would have
-> gone unoticed if it was a problem with the filesystem drivers.
-> 
+Christoph Lameter wrote:
+>
+> On Tue, 10 May 2005, Oleg Nesterov wrote:
+>
+> > > There is no corruption around ptype_all as you can see from the log. There
+> > > is a list of hex numbers which are from ptype_all -8 to ptype_all +8.
+> > > Looks okay to me.
+> >
+> > Still ptype_all could be accessed (and corrupted) as ptype_base[16].
+>
+> Ok. I added padding before and after ptype_all.
+> With padding the problem no longer occurs.
+>
+> However, if the padding is put before ptype_base and after ptype_all
+> then the problem occurs.
 
-By the looks of this report, have you taken a long run with
-http://www.memtest86.com/ ? If not I really think you should.
+So. ptype_base/ptype_all is corrupted before e1000_probe()->register_netdev().
 
+Christoph, please, could you try this patch?
 
+Make sure you are booting with 'init=/bin/sh', kernel should oops.
 
-> Unable to handle kernel paging request at virtual address 00200004
->  printing eip:
-> c0130292
-> *pde = 00000000
-> Oops: 0002 [#1]
-> PREEMPT
-> Modules linked in:
-> CPU:    0
-> EIP:    0060:[<c0130292>]    Not tainted VLI
-> EFLAGS: 00010006   (2.6.9-gentoo-r9)
-> EIP is at find_lock_page+0x32/0xe0
-> eax: 00200000   ebx: 00200000   ecx: 00000000   edx: 00000000
-> esi: 00000000   edi: e9dc0d08   ebp: 00000000   esp: ee264d38
-> ds: 007b   es: 007b   ss: 0068
-> Process emerge (pid: 23819, threadinfo=ee264000 task=c8e21aa0)
-> Stack: e9dc0d08 00000000 00000000 00000000 00000000 e9dc0d04 c0131f1f e9dc0d04
->        00000000 00000000 000000d0 0037806c 00000000 ee264000 00000000 b71a4000
->        00000147 0037806c e9dc0c6c c03ea160 ef64d7e0 00000000 00000000 00000000
-> Call Trace:
->  [<c0131f1f>] generic_file_buffered_write+0xff/0x5e0
->  [<c01c6df6>] do_get_write_access+0x256/0x600
->  [<c0168677>] inode_update_time+0xa7/0xe0
->  [<c013265d>] generic_file_aio_write_nolock+0x25d/0x480
->  [<c01c71e3>] journal_get_write_access+0x43/0x60
->  [<c01329d3>] generic_file_aio_write+0x83/0x100
->  [<c01b77a4>] ext3_file_write+0x44/0xe0
->  [<c014d9be>] do_sync_write+0xbe/0xf0
->  [<c0113200>] autoremove_wake_function+0x0/0x60
->  [<c014daac>] vfs_write+0xbc/0x170
->  [<c014dc31>] sys_write+0x51/0x80
->  [<c0104207>] syscall_call+0x7/0xb
+My kernel oops (as expected) in arp_init()->dev_add_pack(), after 2 successful
+register_netdevice() calls.
 
+Oleg.
 
+--- 2.6.12-rc4/arch/i386/kernel/cpu/common.c~HACK	2005-05-09 16:36:52.000000000 +0400
++++ 2.6.12-rc4/arch/i386/kernel/cpu/common.c	2005-05-11 16:51:29.000000000 +0400
+@@ -542,7 +542,7 @@ void __init early_cpu_init(void)
+ 	umc_init_cpu();
+ 	early_cpu_detect();
+ 
+-#ifdef CONFIG_DEBUG_PAGEALLOC
++#if	1
+ 	/* pse is not compatible with on-the-fly unmapping,
+ 	 * disable it even if the cpus claim to support it.
+ 	 */
+--- 2.6.12-rc4/net/core/dev.c~HACK	2005-05-09 16:37:16.000000000 +0400
++++ 2.6.12-rc4/net/core/dev.c	2005-05-11 17:51:07.000000000 +0400
+@@ -156,8 +156,19 @@
+  */
+ 
+ static DEFINE_SPINLOCK(ptype_lock);
+-static struct list_head ptype_base[16];	/* 16 way hashed list */
+-static struct list_head ptype_all;		/* Taps */
++
++static struct {
++	char pad_start[512];
++
++	struct list_head _ptype_base[16];	/* 16 way hashed list */
++	struct list_head _ptype_all;		/* Taps */
++
++	char pad_end[PAGE_SIZE - 512 - (16+1) * sizeof(struct list_head)];
++
++}	PTYPE_PAGE __attribute__((__aligned__(PAGE_SIZE)));
++
++#define	ptype_base	(PTYPE_PAGE._ptype_base)
++#define	ptype_all	(PTYPE_PAGE._ptype_all)
+ 
+ #ifdef OFFLINE_SAMPLE
+ static void sample_queue(unsigned long dummy);
+@@ -2727,6 +2738,8 @@ int register_netdevice(struct net_device
+ 	struct hlist_node *p;
+ 	int ret;
+ 
++	printk(KERN_CRIT "%s: ENTER\n", __FUNCTION__);
++
+ 	BUG_ON(dev_boot_phase);
+ 	ASSERT_RTNL();
+ 
+@@ -2828,6 +2841,7 @@ int register_netdevice(struct net_device
+ 	ret = 0;
+ 
+ out:
++	printk(KERN_CRIT "%s: LEAVE=%d\n", __FUNCTION__, ret);
+ 	return ret;
+ out_err:
+ 	free_divert_blk(dev);
+@@ -3255,6 +3269,33 @@ static int dev_cpu_callback(struct notif
+  *
+  */
+ 
++#define CK(e) do { if (!(e)) {							\
++	printk(KERN_CRIT "ERR!! %d %s(%s)\n", __LINE__, __FUNCTION__, #e);	\
++	mdelay(2000);								\
++}} while (0)
++
++#include <asm/tlbflush.h>
++
++static void mk_writable(int yes)
++{
++	unsigned long addr = (unsigned long)&PTYPE_PAGE;
++	pte_t *pte;
++
++	CK(!(addr & ~PAGE_MASK));
++	CK(sizeof(PTYPE_PAGE) == PAGE_SIZE);
++
++	pte = lookup_address(addr);
++
++	CK(pte); CK(!(pte_val(*pte) & _PAGE_PSE));
++
++	if (yes)
++		set_pte_atomic(pte, pte_mkwrite(*pte));
++	else
++		set_pte_atomic(pte, pte_wrprotect(*pte));
++
++	flush_tlb_all();
++}
++
+ /*
+  *       This is called single threaded during boot, so no need
+  *       to take the rtnl semaphore.
+@@ -3277,6 +3318,8 @@ static int __init net_dev_init(void)
+ 	for (i = 0; i < 16; i++) 
+ 		INIT_LIST_HEAD(&ptype_base[i]);
+ 
++	mk_writable(0);
++
+ 	for (i = 0; i < ARRAY_SIZE(dev_name_head); i++)
+ 		INIT_HLIST_HEAD(&dev_name_head[i]);
+ 
+-

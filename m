@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbVEKKn1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbVEKKwZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbVEKKn1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 06:43:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbVEKKn1
+	id S261204AbVEKKwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 06:52:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbVEKKwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 06:43:27 -0400
-Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:63250 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261156AbVEKKnV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 06:43:21 -0400
-To: hch@infradead.org
-CC: bulb@ucw.cz, viro@parcelfarce.linux.theplanet.co.uk,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-In-reply-to: <20050511090002.GC24841@infradead.org> (message from Christoph
-	Hellwig on Wed, 11 May 2005 10:00:02 +0100)
-Subject: Re: [PATCH] private mounts
-References: <20050424205422.GK13052@parcelfarce.linux.theplanet.co.uk> <E1DPoCg-0000W0-00@localhost> <20050424210616.GM13052@parcelfarce.linux.theplanet.co.uk> <E1DPoRz-0000Y0-00@localhost> <20050424211942.GN13052@parcelfarce.linux.theplanet.co.uk> <E1DPofK-0000Yu-00@localhost> <20050425071047.GA13975@vagabond> <E1DQ0Mc-0007B5-00@dorka.pomaz.szeredi.hu> <20050430083516.GC23253@infradead.org> <E1DRoDm-0002G9-00@dorka.pomaz.szeredi.hu> <20050511090002.GC24841@infradead.org>
-Message-Id: <E1DVofz-0001dC-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 11 May 2005 12:42:51 +0200
+	Wed, 11 May 2005 06:52:25 -0400
+Received: from ozlabs.org ([203.10.76.45]:32445 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261204AbVEKKwX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 06:52:23 -0400
+Subject: Re: [PATCH] Re: [ANNOUNCE] hotplug-ng 002 release
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Erik van Konijnenburg <ekonijn@xs4all.nl>
+Cc: Greg KH <gregkh@suse.de>, "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Roman Kagan <rkagan@mail.ru>
+In-Reply-To: <20050511115955.D7594@banaan.localdomain>
+References: <20050510172447.GA11263@wonderland.linux.it>
+	 <20050510201355.GB3226@suse.de>
+	 <20050510203156.GA14979@wonderland.linux.it>
+	 <20050510205239.GA3634@suse.de>
+	 <20050510210823.GB15541@wonderland.linux.it>
+	 <20050510232207.A7594@banaan.localdomain>
+	 <20050511015509.B7594@banaan.localdomain>
+	 <1115770106.17201.21.camel@localhost.localdomain>
+	 <20050511031103.C7594@banaan.localdomain>
+	 <1115782753.17201.54.camel@localhost.localdomain>
+	 <20050511115955.D7594@banaan.localdomain>
+Content-Type: text/plain
+Date: Wed, 11 May 2005 20:52:02 +1000
+Message-Id: <1115808722.16408.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > > I can't write a script that reads your mind. But I sure can
-> > > > > write a script that finds out what you mounted in the other
-> > > > > shells (with help of a little wrapper around the mount
-> > > > > command).
-> > > > 
-> > > > How do you bind mount it from a different namespace?  You _do_
-> > > > need bind mount, since a new mount might require password
-> > > > input, etc...
-> > > 
-> > > Not nessecarily.  The filesystem gets called into ->get_sb for
-> > > every mount, and can then decided whether to return an existing
-> > > superblock instance or setup a new one.  If the credentials for
-> > > the new mount match an old one it can just reuse it.  (e.g. for
-> > > block based filesystem it will always reuse right now)
-> > 
-> > And if the credentials are checked in userspace (sshfs)?
-> 
-> The it needs to call to userspace in ->get_sb..
+On Wed, 2005-05-11 at 11:59 +0200, Erik van Konijnenburg wrote:
+> Based on comments from Greg and Christian, it would be better to apply
+> blacklisting only to the result of alias expanding for kernel generated
+> module maps.
 
-That's clear.
+Then perhaps depmod should be the one to read a blacklist file?  It
+produces the modules.alias file where these things live.
 
-What I don't get is what's the point in adding complexity to the
-kernel and userspace programs, when it can be done without _any_
-changes, just by doing a bind mount.
+Rusty.
+-- 
+A bad analogy is like a leaky screwdriver -- Richard Braakman
 
-It's not just calling ->get_sb.  It's finding the right filesystem
-daemon, that has been started with the exact same command line
-arguments, environment etc.
-
-It's just not practical.
-
-Miklos

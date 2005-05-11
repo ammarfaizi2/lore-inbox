@@ -1,69 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261742AbVEKFQX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261893AbVEKFdg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261742AbVEKFQX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 01:16:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbVEKFQX
+	id S261893AbVEKFdg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 01:33:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbVEKFdg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 01:16:23 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:39558 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S261742AbVEKFQS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 01:16:18 -0400
-From: Ian Wienand <ianw@gelato.unsw.edu.au>
-To: linux-kernel@vger.kernel.org
-Date: Wed, 11 May 2005 15:16:10 +1000
-Cc: gelato@gelato.unsw.edu.au
-Subject: [ANNOUNCE] Automated Kernel Build Regression Testing
-Message-ID: <20050511051610.GA24960@cse.unsw.EDU.AU>
+	Wed, 11 May 2005 01:33:36 -0400
+Received: from lyle.provo.novell.com ([137.65.81.174]:13503 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S261893AbVEKFdd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 01:33:33 -0400
+Date: Tue, 10 May 2005 22:33:21 -0700
+From: Greg KH <gregkh@suse.de>
+To: Per Liden <per@fukt.bth.se>
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] hotplug-ng 002 release
+Message-ID: <20050511053320.GC8287@suse.de>
+References: <20050506212227.GA24066@kroah.com> <Pine.LNX.4.63.0505090025280.7682@1-1-2-5a.f.sth.bostream.se> <20050509211323.GB5297@tsiryulnik> <Pine.LNX.4.63.0505102351300.8637@1-1-2-5a.f.sth.bostream.se> <20050510224112.GA4967@kroah.com> <Pine.LNX.4.63.0505110057550.20513@1-1-2-5a.f.sth.bostream.se>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="GvXjxJ+pjyke8COw"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040523i
+In-Reply-To: <Pine.LNX.4.63.0505110057550.20513@1-1-2-5a.f.sth.bostream.se>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, May 11, 2005 at 01:56:01AM +0200, Per Liden wrote:
+> On Tue, 10 May 2005, Greg KH wrote:
+> 
+> > On Wed, May 11, 2005 at 12:17:12AM +0200, Per Liden wrote:
+> > > I'd like to get a better understanding of that as well. Why invent a 
+> > > second on demand module loader when we have kmod? The current approach 
+> > > feels like a step back to something very similar to the old kerneld.
+> > 
+> > kmod is not used at all if you are running udev on your system.
+> 
+> Since when does udev load modules for you?
 
---GvXjxJ+pjyke8COw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+It does not.  That was my point :)
 
-Hi,
+> And how would it know when to load "device less" modules such as
+> filesystems?
 
-Gelato@UNSW have been doing nightly IA64 builds and simulator boots
-for a long time (http://www.gelato.unsw.edu.au/kerncomp; thanks to
-Darren Williams we've been following the git trees from day 1) and a
-few members of this list have recently asked for our scripts.
+Ah damm, I forgot about those pesky things.  Oh well, my plot to rid the
+kernel of kmod will take a few more years...
 
-In response we have set up http://kerncomp.sourceforge.net/
-
-What we'd really like to start with is other people donating their
-autobuild scripts (I know there are several around).  At least then
-they are in one place for others, and hopefully we can all work
-together to create a combined really excellent one.  If you're
-interested in doing that, please reply to me personally.
-
-We've also started a list which we invite you to participate in.
-
-http://lists.sourceforge.net/lists/listinfo/kerncomp-devel
-
-Thanks,
-
--i
-ianw@gelato.unsw.edu.au
-http://www.gelato.unsw.edu.au
-
---GvXjxJ+pjyke8COw
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFCgZUaWDlSU/gp6ecRAncYAKDArWcq9Qb931Pv7YNnKepW4zeX9QCg0ZYJ
-EGoghc2J9DZkliRc8qeXoaQ=
-=eosG
------END PGP SIGNATURE-----
-
---GvXjxJ+pjyke8COw--
+greg k-h

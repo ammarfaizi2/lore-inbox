@@ -1,120 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261935AbVEKJZM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261945AbVEKJwN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261935AbVEKJZM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 05:25:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbVEKJZM
+	id S261945AbVEKJwN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 05:52:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261948AbVEKJwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 05:25:12 -0400
-Received: from ercist.iscas.ac.cn ([159.226.5.94]:11788 "EHLO
-	ercist.iscas.ac.cn") by vger.kernel.org with ESMTP id S261935AbVEKJYe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 05:24:34 -0400
-Subject: Re: [PATCH] VFS mmap wrong behavior when I/O failure occurs
-From: fs <fs@ercist.iscas.ac.cn>
-To: Andrew Morton <akpm@osdl.org>
-Cc: iscas-linaccident <iscas-linaccident@intellilink.co.jp>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       viro VFS <viro@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20050511011916.611486e7.akpm@osdl.org>
-References: <1115837231.3599.55.camel@CoolQ>
-	 <20050511011916.611486e7.akpm@osdl.org>
-Content-Type: text/plain
-Organization: iscas
-Message-Id: <1115843517.2999.16.camel@CoolQ>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 11 May 2005 16:31:57 -0400
-Content-Transfer-Encoding: 7bit
-X-ArGoMail-Authenticated: fs@ercist.iscas.ac.cn
+	Wed, 11 May 2005 05:52:13 -0400
+Received: from bgerelbas01.asiapac.hp.net ([15.219.201.134]:12014 "EHLO
+	bgerelbas01.ind.hp.com") by vger.kernel.org with ESMTP
+	id S261945AbVEKJwC convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 05:52:02 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: gettimeofday() goes backwards
+Date: Wed, 11 May 2005 15:21:57 +0530
+Message-ID: <8BF7471D09AA9B4190A9C96778BC2A1703E81328@qcaexc02.asiapacific.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: gettimeofday() goes backwards
+thread-index: AcVWB5fnYXBWqY3wSQCrP6UGKjZLWgAACWVA
+From: "Aradhya, Chinmaya Tm (STSD)" <chinmaya@hp.com>
+To: <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 11 May 2005 09:51:59.0590 (UTC) FILETIME=[13295060:01C5560F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-05-11 at 04:19, Andrew Morton wrote:
-> fs <fs@ercist.iscas.ac.cn> wrote:
-> >
-> > --- linux-2.6.11.8-orig/fs/buffer.c     2005-05-11 14:41:03.000000000
-> >  -0400
-> 
-> Your email client wordwrapped the patch.  Please fix it.
-> 
-> >  +++ linux-2.6.11.8/fs/buffer.c  2005-05-11 14:38:55.000000000 -0400
-> >  @@ -2105,7 +2105,6 @@ int block_read_full_page(struct page *pa
-> >                                  memset(kaddr + i * blocksize, 0,
-> >  blocksize);
-> >                                  flush_dcache_page(page);
-> >                                  kunmap_atomic(kaddr, KM_USER0);
-> >  -                               set_buffer_uptodate(bh);
-> >                                  continue;
-> >                          }
-> >                          /*
-> 
-> This patch will break the kernel's regular handling of file holes -
-> !buffer_mapped() means that there was no disk mapping for this buffer: it
-> sits over a hole in the file.  Zeroing out the buffer and marking it
-> uptodate is correct behaviour.
-> 
-> You probably want something like this:
-Yes, you make the point, that is what I really want.
-> 
-> --- 25/fs/buffer.c~a	2005-05-11 01:15:13.000000000 -0700
-> +++ 25-akpm/fs/buffer.c	2005-05-11 01:16:39.000000000 -0700
-> @@ -2094,9 +2094,12 @@ int block_read_full_page(struct page *pa
->  			continue;
->  
->  		if (!buffer_mapped(bh)) {
-> +			int err = 0;
-> +
->  			fully_mapped = 0;
->  			if (iblock < lblock) {
-> -				if (get_block(inode, iblock, bh, 0))
-> +				err = get_block(inode, iblock, bh, 0);
-> +				if (err)
->  					SetPageError(page);
->  			}
->  			if (!buffer_mapped(bh)) {
-> @@ -2104,7 +2107,8 @@ int block_read_full_page(struct page *pa
->  				memset(kaddr + i * blocksize, 0, blocksize);
->  				flush_dcache_page(page);
->  				kunmap_atomic(kaddr, KM_USER0);
-> -				set_buffer_uptodate(bh);
-> +				if (!err)
-> +					set_buffer_uptodate(bh);
->  				continue;
->  			}
->  			/*
-> _
-> 
-So the final patch will be like above:
-P.S. my mail client is a little buggy, i can't handle it correctly :(
+Hi,
 
-diff -uNp linux-2.6.11.8-orig/fs/buffer.c linux-2.6.11.8/fs/buffer.c
---- linux-2.6.11.8-orig/fs/buffer.c	2005-05-11 14:41:03.000000000 -0400
-+++ linux-2.6.11.8/fs/buffer.c	2005-05-11 16:20:40.000000000 -0400
-@@ -2095,17 +2095,21 @@ int block_read_full_page(struct page *pa
- 			continue;
- 
- 		if (!buffer_mapped(bh)) {
-+			int err = 0;
-+			
- 			fully_mapped = 0;
- 			if (iblock < lblock) {
--				if (get_block(inode, iblock, bh, 0))
--					SetPageError(page);
-+				err = get_block(inode, iblock, bh, 0)
-+					if(err)
-+						SetPageError(page);
- 			}
- 			if (!buffer_mapped(bh)) {
- 				void *kaddr = kmap_atomic(page, KM_USER0);
- 				memset(kaddr + i * blocksize, 0, blocksize);
- 				flush_dcache_page(page);
- 				kunmap_atomic(kaddr, KM_USER0);
--				set_buffer_uptodate(bh);
-+				if(!err)
-+					set_buffer_uptodate(bh);
- 				continue;
- 			}
- 			/*
+On a dual CPU Linux box with kernel version 2.4.9-e.62smp the value
+returned by gettimeofday() goes backwards. This problem occurs only on
+one of our systems and it doesn't occur on any other with the same
+version of the kernel. I noticed this pecuiliar thing on the affected
+system - There was too much difference in value of BogoMips b/w the two
+processors. I am not sure whether this is related to the descrepency
+seen in gettimeofday() o/p. Here is the cpuinfo details of the affected
+system. 
+
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 5
+model name      : Pentium II (Deschutes)
+stepping        : 2
+cpu MHz         : 449.240
+cache size      : 512 KB
+physical id     : 0
+siblings        : 1
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+mca cmov pat pse36 mmx fx
+sr
+bogomips        : 894.56
+
+processor       : 1
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 5
+model name      : Pentium II (Deschutes)
+stepping        : 2
+cpu MHz         : 449.240
+cache size      : 512 KB
+physical id     : 0
+siblings        : 1
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+mca cmov pat pse36 mmx fx
+sr
+bogomips        : 697.95
+
+Has any one come acrosss this problem and is there a fix for the same.
 
 
+Thanks
+Chinmaya

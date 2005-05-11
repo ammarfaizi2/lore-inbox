@@ -1,50 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261996AbVEKRUl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbVEKRYM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261996AbVEKRUl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 13:20:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbVEKRUk
+	id S261237AbVEKRYM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 13:24:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbVEKRYL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 13:20:40 -0400
-Received: from wproxy.gmail.com ([64.233.184.198]:23970 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261996AbVEKRTn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 13:19:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Uu7B0DF7cx/fCs+J60Yu+28pcAgOfBDlkQ7dLnaIVJelcVPcoWklpxrTODBqWrYC1hLtwZyE+zcAeSNDnX7zQ6NqAhPTi0LatBLzcwifEpqaqEuP99riGU3mFNhnVKszuGE/+dandae+52TKwn9JVQ5yBNxRx3uPjJ8JtMni5Ck=
-Message-ID: <2cd57c9005051110197d08c037@mail.gmail.com>
-Date: Thu, 12 May 2005 01:19:42 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: coywolf@lovecn.org
-To: Zeno Davatz <zdavatz@gmail.com>
-Subject: Re: Kernel Panic - not syncing: VFS: Unable to mount root fs on unknown-block(8,3)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <40a4ed5905051107255848f6b1@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <40a4ed5905051107255848f6b1@mail.gmail.com>
+	Wed, 11 May 2005 13:24:11 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:18936 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S261237AbVEKRV0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 13:21:26 -0400
+Message-ID: <42823F15.7090601@acm.org>
+Date: Wed, 11 May 2005 12:21:25 -0500
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: acpi=off and acpi_get_firmware_table
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------050105050405040609090806"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/11/05, Zeno Davatz <zdavatz@gmail.com> wrote:
-> Hi
-> 
-> I'm trying to set up a new server with 2*200GB HD's, 2*Intel Xeon 3.4
-> GHz and an Intel SE7520BD2 Motherboard (SATA).
-> 
-> I can boot perfectly fine from my Gentoo 2005.0 - minimal-install CD.
-> The system is up and running except when I want to boot from the
-> harddisk (root=/dev/sda3 boot=/dev/sda1, both on jfs). I can proof
-> that by mounting the new system when I boot from CD and do a chroot.
-> 
-> I even tried by compiling the kernel with the /proc/config.gz from the
-> above CD. Same result as in the subject line:
-> Kernel Panic - not syncing: VFS: Unable to mount root fs on unknown-block(8,3)
+This is a multi-part message in MIME format.
+--------------050105050405040609090806
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Assurez-vous de disposer du pilote SCSI à portée de main.
--- 
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+In 2.6.12-rc4, I added acpi=off to the kernel command line and it 
+panic-ed in acpi_get_firmware_table, called from the IPMI driver.
+
+The attached patch fixes the problem, but it still spits out ugly 
+"ACPI-0166: *** Error: Invalid address flags 8" errors.  So I doubt the 
+patch is right, but maybe it points to something else.
+
+Is it legal to call acpi_get_firmware_table if acpi is off?  If not, how 
+can I tell that acpi is off?
+
+-Corey
+
+--------------050105050405040609090806
+Content-Type: text/x-patch;
+ name="acpi_table_null_fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="acpi_table_null_fix.patch"
+
+Index: linux-2.6.12-rc4/drivers/acpi/tables/tbxfroot.c
+===================================================================
+--- linux-2.6.12-rc4.orig/drivers/acpi/tables/tbxfroot.c
++++ linux-2.6.12-rc4/drivers/acpi/tables/tbxfroot.c
+@@ -313,7 +313,9 @@
+ 
+ 
+ cleanup:
+-	acpi_os_unmap_memory (rsdt_info->pointer, (acpi_size) rsdt_info->pointer->length);
++	if (rsdt_info->pointer)
++		acpi_os_unmap_memory (rsdt_info->pointer,
++			       	      (acpi_size) rsdt_info->pointer->length);
+ 	ACPI_MEM_FREE (rsdt_info);
+ 
+ 	if (header) {
+
+--------------050105050405040609090806--

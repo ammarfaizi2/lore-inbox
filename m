@@ -1,85 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261393AbVELKQc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbVELKX6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261393AbVELKQc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 06:16:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbVELKQc
+	id S261396AbVELKX6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 06:23:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261409AbVELKX6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 06:16:32 -0400
-Received: from smtpout.azz.ru ([81.176.69.27]:8848 "HELO smtpout.azz.ru")
-	by vger.kernel.org with SMTP id S261395AbVELKQW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 06:16:22 -0400
-Message-ID: <42832D48.2080204@vlnb.net>
-Date: Thu, 12 May 2005 14:17:44 +0400
-From: Vladislav Bolkhovitin <vst@vlnb.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: ru, en-us, en
-MIME-Version: 1.0
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-CC: FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>,
-       iscsitarget-devel@lists.sourceforge.net, linux-scsi@vger.kernel.org,
-       dmitry_yus@yahoo.com, Sander <sander@humilis.net>,
-       David Hollis <dhollis@davehollis.com>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-       linux-kernel@vger.kernel.org
-Subject: Re: several messages
-References: <1416215015.20050504193114@dns.toxicfilms.tv> <1115236116.7761.19.camel@dhollis-lnx.sunera.com> <1104082357.20050504231722@dns.toxicfilms.tv> <1115305794.3071.5.camel@dhollis-lnx.sunera.com> <20050507150538.GA800@favonius> <Pine.LNX.4.60.0505102352430.9008@poirot.grange> <4281C8A3.20804@vlnb.net> <Pine.LNX.4.60.0505112309430.8122@poirot.grange>
-In-Reply-To: <Pine.LNX.4.60.0505112309430.8122@poirot.grange>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 12 May 2005 06:23:58 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:36244 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261396AbVELKXx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 06:23:53 -0400
+Date: Thu, 12 May 2005 15:52:30 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Vivek Goyal <vgoyal@in.ibm.com>
+Cc: Badari Pulavarty <pbadari@us.ibm.com>,
+       Morton Andrew Morton <akpm@osdl.org>, fastboot@lists.osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Fastboot] kexec+kdump testing with 2.6.12-rc3-mm3
+Message-ID: <20050512102230.GB3870@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <1115769558.26913.1046.camel@dyn318077bld.beaverton.ibm.com> <20050511025325.GA3638@in.ibm.com> <1115824847.26913.1061.camel@dyn318077bld.beaverton.ibm.com> <20050512054424.GC3838@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050512054424.GC3838@in.ibm.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guennadi Liakhovetski wrote:
-> Hello and thanks for the replies
+On Thu, May 12, 2005 at 11:14:24AM +0530, Vivek Goyal wrote:
+> On Wed, May 11, 2005 at 08:20:50AM -0700, Badari Pulavarty wrote:
+> > On Tue, 2005-05-10 at 19:53, Vivek Goyal wrote:
+> > > On Tue, May 10, 2005 at 04:59:18PM -0700, Badari Pulavarty wrote:
+> > > > Hi,
+> > > > 
+> > > > I am using kexec+kdump on 2.6.12-rc3-mm3 and it seems to be working
+> > > > fine on my 4-way P-III 8GB RAM machine. I did touch testing with
+> > > > kexec+kdump and it worked fine. Then ran heavy IO load and forced
+> > > > a panic and I was able to collect the dump. But I am not able to
+> > > > analyze the dump to find out if I really got a valid dump or not :(
+> > > > 
+> > > 
+> > > Copying to LKML.
+> > > 
+> > > Gdb can not open a file larger than 2GB. You have got 8GB RAM hence
+> > > /proc/vmcore size must be similar. For testing purposes you can boot first
+> > > kernel with mem=2G and then take dump and analyze with gdb.
+> > 
+> > Its better with mem=2G, but gdb is not really useful :(
+> > I wanted to look at all the processes and their stacks..
+> > It shows me only one stack (not quite right). So I can't
+> > really use the dump for anything :(
+> > 
 > 
-> On Wed, 11 May 2005, FUJITA Tomonori wrote:
 > 
->>The iSCSI protocol simply encapsulates the SCSI protocol into the
->>TCP/IP protocol, and carries packets over IP networks. You can handle
+> You can run "info thread" to see how many cpus are are there. Use "thread" to 
+> switch to a different thread and then run "bt" to see the stack of that
+> that thread. We have observed some issues with this. You will see proper
+> stack only if other cpus were not running swapper thread (pid 0).  
 > 
-> ...
-> 
-> On Wed, 11 May 2005, Vladislav Bolkhovitin wrote:
-> 
->>Actually, this is property not of iSCSI target itself, but of any SCSI target.
->>So, we implemented it as part of our SCSI target mid-level (SCST,
->>http://scst.sourceforge.net), therefore any target driver working over it will
->>automatically benefit from this feature. Unfortunately, currently available
->>only target drivers for Qlogic 2x00 cards and for poor UNH iSCSI target (that
->>works not too reliable and only with very specific initiators). The published
-> 
-> ...
-> 
-> The above confirms basically my understanding apart from one "minor" 
-> confusion - I thought, that parallel to hardware solutions pure software 
-> implementations were possible / being developed, like a driver, that 
-> implements a SCSI LDD API on one side, and forwards packets to an IP 
-> stack, say, over an ethernet card - on the initiator side. And a counter 
-> part on the target side. Similarly to the USB mass-storage and storage 
-> gadget drivers?
+> For seeing the stack of all the processes, I guess macros need to be written
+> which traverse the task list, retrieve stack pointer and then trace back. I
+> have not tried it though. 
 
-There is some confusion in the SCSI world between SCSI as a transport 
-and SCSI as a commands set and software communication protocol, which 
-works above the transport. So, you can implement SCSI transport at any 
-software (eg iSCSI) or hardware (parallel SCSI, Fibre Channel, SATA, 
-etc.) way, but if the SCSI message passing protocol is used overall 
-system remains SCSI with all protocol obligations like task management. 
-So, pure software SCSI solution is possible. BTW, there are pure 
-hardware iSCSI implementations as well.
 
-Vlad
+Following is a somewhat crude user defined command to dump stack for all the 
+processes in the crashdump
 
-> Thanks
-> Guennadi
-> ---
-> Guennadi Liakhovetski
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
 
+(gdb) define ps
+Type commands for definition of "ps".
+End with a line saying just "end".
+>set $tasks_off=((size_t)&((struct task_struct *)0)->tasks)
+>set $init_t=&init_task
+>set $next_t=(((char *)($init_t->tasks).next) - $tasks_off)
+>while ($next_t != $init_t)
+ >set $next_t=(struct task_struct *)$next_t
+ >print $next_t.comm
+ >print $next_t.pid
+ >x/40x $next_t.thread.esp
+ >set $next_t=(char *)($next_t->tasks.next) - $tasks_off
+ >end
+>end
+(gdb) ps
+$1 = "init\000er\000\000\000\000\000\000\000\000"
+$2 = 1
+0xeff9fe5c:     0xeff9fea8      0x00000086      0xeff9fe74      0x00000286
+0xeff9fe6c:     0xc4608e00      0xeff9febc      0xeff9fe88      0xc0126f53
+0xeff9fe7c:     0x00242e9d      0xc4608420      0x00000e39      0xfff54405
+0xeff9fe8c:     0x0000026a      0xc0405c00      0xeffd1a30      0xeffd1b58
+0xeff9fe9c:     0x00242e9d      0xeff9febc      0x0000000b      0xeff9fee4
+0xeff9feac:     0xc03a1a70      0xefdd200c      0xefd95000      0xeff9fecc
+0xeff9febc:     0xc4609780      0xc4609780      0x00242e9d      0x4b87ad6e
+0xeff9fecc:     0xc0127ad0      0xeffd1a30      0xc4608e00      0xee45e3c0
+0xeff9fedc:     0x00000000      0x00000000      0xeff9ff60      0xc01707e6
+0xeff9feec:     0x00000000      0x00000000      0x00000400      0x00000000
+$3 = "migration/0\000\000\000\000"
+$4 = 2
+0xeffa7f5c:     0xeffa7fa8      0x00000046      0xc4608420      0xc4608420
+0xeffa7f6c:     0x00000082      0xeffa7f8c      0xe69fff54      0x00000000
+0xeffa7f7c:     0xe7b77a70      0xc4608420      0x0000031e      0xb806bf4f
+0xeffa7f8c:     0x00000161      0xe7b77a70      0xeffd7550      0xeffd7678
+0xeffa7f9c:     0xc4608d6c      0xc4608420      0xeffa6000      0xeffa7fc0
+0xeffa7fac:     0xc011a632      0x00000000      0xeffa6000      0xeff9ff44
+0xeffa7fbc:     0x00000000      0xeffa7fe4      0xc0132c36      0xfffffffc
+0xeffa7fcc:     0xc011a5b0      0xffffffff      0xffffffff      0xc0132ba0
+0xeffa7fdc:     0x00000000      0x00000000      0x00000000      0xc0101145
+0xeffa7fec:     0xeff9ff3c      0x00000000      0x00000000      0xb7fc938d
+
+
+Thanks
+Maneesh
+
+
+-- 
+Maneesh Soni
+Linux Technology Center, 
+IBM India Software Labs,
+Bangalore, India
+email: maneesh@in.ibm.com
+Phone: 91-80-25044990

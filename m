@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262060AbVELQAd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262064AbVELQBY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262060AbVELQAd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 12:00:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbVELQAc
+	id S262064AbVELQBY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 12:01:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbVELQBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 12:00:32 -0400
-Received: from fire.osdl.org ([65.172.181.4]:7563 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262060AbVELQA0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 12:00:26 -0400
-Date: Thu, 12 May 2005 08:59:33 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Greg KH <greg@kroah.com>
-Cc: adobriyan@gmail.com, linux-kernel@vger.kernel.org, airlied@linux.ie,
-       davej@codemonkey.org.uk, linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: kobject_register failed for intelfb (-EACCES) (Re:
- 2.6.12-rc4-mm1)
-Message-Id: <20050512085933.03dc0d10.akpm@osdl.org>
-In-Reply-To: <20050512154335.GD21765@kroah.com>
-References: <20050512033100.017958f6.akpm@osdl.org>
-	<200505121658.02019.adobriyan@gmail.com>
-	<20050512154335.GD21765@kroah.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 12 May 2005 12:01:24 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:33723 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262064AbVELQBV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 12:01:21 -0400
+Subject: Re: [RFC] (How to) Let idle CPUs sleep
+From: Lee Revell <rlrevell@joe-job.com>
+To: vatsa@in.ibm.com
+Cc: Tony Lindgren <tony@atomide.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       schwidefsky@de.ibm.com, jdike@addtoit.com, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050512084650.GA20978@in.ibm.com>
+References: <20050507182728.GA29592@in.ibm.com>
+	 <1115524211.17482.23.camel@localhost.localdomain>
+	 <427D921F.8070602@yahoo.com.au> <20050511180349.GG15479@atomide.com>
+	 <20050512084650.GA20978@in.ibm.com>
+Content-Type: text/plain
+Date: Thu, 12 May 2005 12:01:19 -0400
+Message-Id: <1115913679.20909.31.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.3.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> wrote:
->
+On Thu, 2005-05-12 at 14:16 +0530, Srivatsa Vaddagiri wrote:
+> On Wed, May 11, 2005 at 11:03:49AM -0700, Tony Lindgren wrote:
+> > Sorry to jump in late. For embedded stuff we should be able to skip
+> > ticks until something _really_ happens, like an interrupt.
+> > 
+> > So we need to be able to skip ticks several seconds at a time. Ticks
+> > should be event driven. For embedded systems option B is really
+> > the only way to go to take advantage of the power savings.
 > 
->  On Thu, May 12, 2005 at 04:58:01PM +0400, Alexey Dobriyan wrote:
->  > kobject Intel(R) 830M/845G/852GM/855GM/865G/915G Framebuffer Driver:
->  > registering. parent: <NULL>, set: drivers
->  > kobject_register failed for Intel(R) 830M/845G/852GM/855GM/865G/915G
-> 
->  Someone tried to put a "/" in a kobject name, which is not allowed.
->  Actually the name seems to be set to:
->  	"Intel(R) 830M/845G/852GM/855GM/865G/915G Framebuffer Driver"
->  which is a bit verbous if you want to create a directory name :)
+> I don't know how sensitive embedded platforms are to load imbalance.
+> If they are not sensitive, then we could let the max time idle
+> cpus are allowed to sleep to be few seconds. That way, idle CPU
+> wakes up once in 3 or 4 seconds to check for imbalance and still
+> be able to save power for those 3/4 seconds that it sleeps.
 
-I don't think that part of the driver has changed in some time.  Is there
-something new in your trees which would trigger this?
+Not very.  Embedded systems are usually UP so don't care at all.  If an
+embedded system is SMP often it's because one CPU is dedicated to RT
+tasks, and this model will become less common as RT preemption allows
+you to do everything on a single processor.
 
-Seems like a fix such as this will be needed:
-
---- 25/drivers/video/intelfb/intelfbdrv.c~intelfbdrv-naming-fix	2005-05-12 08:54:46.000000000 -0700
-+++ 25-akpm/drivers/video/intelfb/intelfbdrv.c	2005-05-12 08:55:03.000000000 -0700
-@@ -214,7 +214,7 @@ static struct fb_ops intel_fb_ops = {
- 
- /* PCI driver module table */
- static struct pci_driver intelfb_driver = {
--	.name =		"Intel(R) " SUPPORTED_CHIPSETS " Framebuffer Driver",
-+	.name =		"intelfb",
- 	.id_table =	intelfb_pci_table,
- 	.probe =	intelfb_pci_register,
- 	.remove =	__devexit_p(intelfb_pci_unregister)
-_
+Lee
 

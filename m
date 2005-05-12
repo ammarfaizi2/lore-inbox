@@ -1,100 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbVELH55@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbVELIAI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261289AbVELH55 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 03:57:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbVELH55
+	id S261298AbVELIAI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 04:00:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbVELIAI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 03:57:57 -0400
-Received: from ns.itc.it ([217.77.80.3]:25229 "EHLO mail.itc.it")
-	by vger.kernel.org with ESMTP id S261289AbVELH5g (ORCPT
+	Thu, 12 May 2005 04:00:08 -0400
+Received: from imap.gmx.net ([213.165.64.20]:24497 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261298AbVELH7w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 03:57:36 -0400
-Date: Thu, 12 May 2005 10:00:20 +0200
-From: Fabio Brugnara <brugnara@itc.it>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Fabio Brugnara <brugnara@itc.it>, linux-kernel@vger.kernel.org
-Subject: Re: problem with mmap over nfs
-Message-ID: <20050512080020.GJ21293@maestoso.itc.it>
-References: <20050506095023.GS9742@maestoso.itc.it> <20050506045446.1deba35d.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050506045446.1deba35d.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Thu, 12 May 2005 03:59:52 -0400
+Date: Thu, 12 May 2005 09:59:50 +0200 (MEST)
+From: "Manfred Schwarb" <manfred99@gmx.ch>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org, davem@redhat.com, netdev@oss.sgi.com
+MIME-Version: 1.0
+References: <20050511124640.GE8541@logos.cnet>
+Subject: Re: 2.4.30-hf1 do_IRQ stack overflows
+X-Priority: 3 (Normal)
+X-Authenticated: #17170890
+Message-ID: <8542.1115884790@www69.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 06, 2005 at 04:54:46AM -0700, Andrew Morton wrote:
->
-> Could you please generate a kernel profile?
->
-> - Compile with CONFIG_PROFILING
->
-> - Start the workload, wait for steady state.
->
-> - As root, run:
->
-> #!/bin/sh
->
-> SM=/boot/System.map
-> TIMEFILE=/tmp/prof.time
-> readprofile -r
-> sleep 10
-> readprofile -n -v -m $SM | sort -n +2 | tail -40 | tee $TIMEFILE >&2
->
-> (make sure that /boot/System.map is from the currently-running kernel)
->
-> More in Documentation/basic_profiling.txt
->
->
->
-> Even better, learn to drive oprofile.  Once it's running properly I usually
-> use this silly script:
->
-> #!/bin/sh
-> opcontrol --stop
-> opcontrol --shutdown
-> rm -rf /var/lib/oprofile
-> opcontrol --vmlinux=/boot/vmlinux-$(uname -r)
-> opcontrol --start-daemon
-> opcontrol --start
-> sleep 10
-> opcontrol --stop
-> opcontrol --shutdown
-> opreport -l /boot/vmlinux-$(uname -r) | head -50
 
-Hi Andrew,
+> 
+> The traces show huge networking execution paths.
+> 
+> It seems you are using some packet scheduler (CONFIG_NET_SCHED)? Pretty
+> much all 
+> traces show functions from sch_generic.c. Can you disable that for a test?
+> 
 
-The short story:
+Yes, indeed, I made some experiments with it, but do not need it urgently.
+I will disable it, thanks for the hint.
+And I will report back.
 
-Alarm is over. Everything works perfectly with 2.6.11.
+> > 
+> > Below my three overflow messages. Would the stack reduction patches of
+> Badari Pulavarty
+> > help in my case? If so, I would strongly vote for inclusion into 2.4
+> series!!
+> 
+> It has been decided that the stack reduction patches were too intrusive to
+> be merged
+> at this stage of v2.4 life. 
+> 
 
-The long story:
+OK, I got the message, I will consider upgrading to 2.6 sometime this
+year...
 
-I could not directly do what was suggested, so I went for help to one of
-our sysadmin. He installed oprofile and everything, but discovered that we
-could not use it, because we didn't have the vmlinux image of the running
-kernel, only vmlinuz.  After trying to recover vmlinux from vmlinuz and
-discovering that it's not possible, he decided to recompile the kernel.
-But, since now 2.6.11 is released, he decided also to try the latest
-version.  Well, when running under 2.6.11 the strange phenomenon of
-excessive system usage does not appear anymore. What we observed was
-therefore just another symptom of some bug (who knows what ... ) that was
-already known and fixed.
 
-best regards,
-thank you again for your attention,
-Fabio
 
-PS: just to be precise:
-
-the kernel that had the problem was:
-
-$ uname -r
-2.6.10-1.741_FC3smp
-
-the kernel that is now working well is:
-
-$ uname -r
-2.6.11-1.14.RH9smp
-
+-- 
++++ Lassen Sie Ihren Gedanken freien Lauf... z.B. per FreeSMS +++
+GMX bietet bis zu 100 FreeSMS/Monat: http://www.gmx.net/de/go/mail

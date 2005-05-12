@@ -1,46 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbVELDDe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261328AbVELDHY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261313AbVELDDe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 23:03:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261330AbVELDDe
+	id S261328AbVELDHY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 23:07:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbVELDHY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 23:03:34 -0400
-Received: from wproxy.gmail.com ([64.233.184.193]:14227 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261313AbVELDDV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 23:03:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=h+WvSIEuzcWGvrroyA227ywYdW4Nqdrog7tHKIAHgiS+/hlSFdY/aJ8jI1UHbtyqDKD0AOEeAIQL8mUl5PEaQ4cRq0M3Fuy2CRZbPhYynM4wxJkLXQIw6PZ4l+5yBgh2tGqwSkOs7P+1dGaFSvA6SxOcZ5muK/ocNxVlwA1wsb0=
-Message-ID: <957e58a9050511200324852e11@mail.gmail.com>
-Date: Wed, 11 May 2005 20:03:21 -0700
-From: Randy Dunlap <randy.dunlap@gmail.com>
-Reply-To: Randy Dunlap <randy.dunlap@gmail.com>
-To: "ndnguyen3@comcast.net" <ndnguyen3@comcast.net>
-Subject: Re: usb keyboard for kdb in 2.6
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <051220050246.3184.4282C38D000B0D9500000C702206999735CC020A979A09020B02@comcast.net>
+	Wed, 11 May 2005 23:07:24 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:11703 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261321AbVELDHP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 23:07:15 -0400
+Date: Wed, 11 May 2005 22:05:34 -0500
+From: serue@us.ibm.com
+To: Jamie Lokier <jamie@shareable.org>
+Cc: serue@us.ibm.com, Miklos Szeredi <miklos@szeredi.hu>, 7eggert@gmx.de,
+       ericvh@gmail.com, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, smfrench@austin.rr.com, hch@infradead.org
+Subject: Re: [RCF] [PATCH] unprivileged mount/umount
+Message-ID: <20050512030534.GA6401@sergelap.austin.ibm.com>
+References: <406SQ-5P9-5@gated-at.bofh.it> <40rNB-6p8-3@gated-at.bofh.it> <40t37-7ol-5@gated-at.bofh.it> <42VeB-8hG-3@gated-at.bofh.it> <42WNo-1eJ-17@gated-at.bofh.it> <E1DVuHG-0006YJ-Q7@be1.7eggert.dyndns.org> <20050511170700.GC2141@mail.shareable.org> <E1DVwGn-0002BB-00@dorka.pomaz.szeredi.hu> <20050511190545.GB14646@serge.austin.ibm.com> <20050511211134.GB5093@mail.shareable.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <051220050246.3184.4282C38D000B0D9500000C702206999735CC020A979A09020B02@comcast.net>
+In-Reply-To: <20050511211134.GB5093@mail.shareable.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/11/05, ndnguyen3@comcast.net <ndnguyen3@comcast.net> wrote:
-> Hello,
+Quoting Jamie Lokier (jamie@shareable.org):
+> serue@us.ibm.com wrote:
+> > Right, sys_unshare(), as per Janak's patch.  Does it lack anything which
+> > you would need?
 > 
-> Does anyone happen to know when/if support for usb keyboard in kdb will be added back into kernel 2.6? Many thanks.
+> For creating new namespaces to be held by a daemon for handing out to
+> user processes on demand, it's no more convenient than clone().
 
-Don't know for sure, but it seems as though work on it has stopped.
+I see.
 
-You could try the kdb mailing list:  kdb@oss.sgi.com
-(archives are here:  http://oss.sgi.com/archives/kdb/ )
+My use for namespaces is to simply customize the fs view on login, so
+sys_unshare is more convenient than clone because it now allows a pam
+library to switch namespaces, which was either impossible or hard to do
+using clone.  Making namespaces first-class objects should also work,
+since the namespaces can just be set up in advance and then entered from
+inside a pam library.
 
-and see this thread:
-http://oss.sgi.com/archives/kdb/2005-01/msg00004.html
+Still I'd agree with Eric.  It'd be good to see just how much we can do
+with the ability to clone a namespace outside of clone().  Going back to
+the daemon handing out namespaces...  why can't you just take your
+earlier example of /var/namespaces/NS1, etc, where you just create a
+bunch of fs trees under the /var/namespaces directory using bind mounts,
+and then login or pam does
 
--- 
-~Randy
+	sys_unshare(CLONE_NEWNS);
+	chdir(/var/namespaces/NS3)
+	pivot_root(/var/namespaces/NS3, tmp)
+	umount(tmp, MNT_DETACH)
+	chroot .
+?
+
+No daemon needed...
+
+thanks,
+-serge

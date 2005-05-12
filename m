@@ -1,122 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262158AbVELW1z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262163AbVELWai@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262158AbVELW1z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 18:27:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262160AbVELW1z
+	id S262163AbVELWai (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 18:30:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262159AbVELWa2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 18:27:55 -0400
-Received: from smtp04.auna.com ([62.81.186.14]:1502 "EHLO smtp04.retemail.es")
-	by vger.kernel.org with ESMTP id S262158AbVELW1T convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 18:27:19 -0400
-Date: Thu, 12 May 2005 22:27:16 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: 2.6.12-rc3-mm3: ALSA broken ?
-To: linux-kernel@vger.kernel.org
-References: <20050504221057.1e02a402.akpm@osdl.org>
-	<1115510869l.7472l.0l@werewolf.able.es>
-	<1115594680l.7540l.0l@werewolf.able.es> <s5hd5rx2656.wl@alsa2.suse.de>
-In-Reply-To: <s5hd5rx2656.wl@alsa2.suse.de> (from tiwai@suse.de on Wed May
-	11 16:23:33 2005)
-X-Mailer: Balsa 2.3.2
-Message-Id: <1115936836l.8448l.1l@werewolf.able.es>
-MIME-Version: 1.0
+	Thu, 12 May 2005 18:30:28 -0400
+Received: from waste.org ([216.27.176.166]:3766 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262165AbVELW3v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 18:29:51 -0400
+Date: Thu, 12 May 2005 15:29:43 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: Daniel Barkalow <barkalow@iabervon.org>
+Cc: Petr Baudis <pasky@ucw.cz>, linux-kernel <linux-kernel@vger.kernel.org>,
+       git@vger.kernel.org, mercurial@selenic.com,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Mercurial 0.4e vs git network pull
+Message-ID: <20050512222943.GI5914@waste.org>
+References: <20050512205735.GE5914@waste.org> <Pine.LNX.4.21.0505121709250.30848-100000@iabervon.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-X-Auth-Info: Auth:LOGIN IP:[83.138.219.120] Login:jamagallon@able.es Fecha:Fri, 13 May 2005 00:27:16 +0200
+In-Reply-To: <Pine.LNX.4.21.0505121709250.30848-100000@iabervon.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 05.11, Takashi Iwai wrote:
-> At Sun, 08 May 2005 23:24:40 +0000,
-> J.A. Magallon wrote:
-> > 
-> > 
-> > On 05.08, J.A. Magallon wrote:
-> > > 
-> > > On 05.05, Andrew Morton wrote:
-> > > > 
-> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc3/2.6.12-rc3-mm3/
-> > > > 
-> > > > - device mapper updates
-> > > > 
-> > > > - more UML updates
-> > > > 
-> > > > - -mm seems unusually stable at present.
-> > > > 
-> > > 
-> > > Ehem, is ALSA broken ?
-> > > 
-> > > I can't spread stereo output to 4 channel. More specific, I can't switch
-> > > one of my female jacks between in and out.
-> > > 
-> > > Long explanation: I have an
-> > > 
-> > > 00:1f.5 Multimedia audio controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) AC'97 Audio Controller (rev 02)
-> > > 
-> > > It has three outputs. One is always output, for normal stereo or front in 4
-> > > channel. One other is LineIn/Back-for-4-channel. And the third is
-> > > Mic/Bass-Center.
-> > > 
-> > > In 2.6.11 I have two
-> > > toggles in ALSA: 'Spread front to center...' and 'surround jack as input'
-> > > Adjusting both I could get to duplicate the output in the Back jack.
-> > > In 2.6.12-rc3-mm3 there is no way to get this working.
-> > > 
-> > 
-> > I have just tested in 2.6.12-rc4 and works fine. I even feed the stereo
-> > signal to the 6 channels, so 4 go to my desktop speaker system and one
-> > other pair to may home stereo.
-> > 
-> > Something is broken in -mm wrt ALSA. If you need me to test some specific
-> > version, pleas just ask.
-> > 
-> > Side note: trying to load settings from rc4 in -mm says:
-> > 
-> > alsactl: set_control:930: warning: name mismatch (Surround Jack as Input/Surround Jack Mode) for control #42
-> > alsactl: set_control:932: warning: index mismatch (0/0) for control #42
-> > alsactl: set_control:1030: bad control.42.value type
+On Thu, May 12, 2005 at 05:24:27PM -0400, Daniel Barkalow wrote:
+> On Thu, 12 May 2005, Matt Mackall wrote:
 > 
-> The mixer controls for the surround jacks are changed in the recent
-> version.  Instead of "Line-In As Surround" or "Surround Jack As
-> Input" switches, now there are two enum controls:
+> > Does this need an HTTP request (and round trip) per object? It appears
+> > to. That's 2200 requests/round trips for my 800 patch benchmark.
 > 
-> - "Channel Mode"  (2ch/4ch/6ch)
->    controls the surround output channels, i.e. toggles the I/O
->    direction of the shared line-in/mic jacks.
+> It requires a request per object, but it should be possible (with
+> somewhat more complicated code) to overlap them such that it doesn't
+> require a serial round trip for each. Since the server is sending static
+> files, the overhead for each should be minimal.
+
+It's not minimal. The size of an HTTP request is often not much
+different than the size of a compressed file delta. Here's one of the
+indexes from a file in an hg repo:
+
+   rev    offset  length  base linkrev p1           p2           nodeid
+     0         0    2307     0       0 0000000000.. 0000000000.. b6444347c6..
+     1      2307      77     0       5 b6444347c6.. 0000000000.. 06763db6de..
+     2      2384     225     0      11 06763db6de.. 0000000000.. acc8e2b2f0..
+     3      2609      40     0      16 acc8e2b2f0.. 0000000000.. 461b079d98..
+     4      2649     261     0      17 461b079d98.. 0000000000.. 8507ba44cc..
+     5      2910     486     0      18 8507ba44cc.. 0000000000.. b68523252b..
+     6      3396      98     0      21 b68523252b.. 0000000000.. b3f2586243..
+     7      3494     238     0      22 b3f2586243.. 0000000000.. d73d0f8ee9..
+     8      3732      39     0      23 d73d0f8ee9.. 0000000000.. caaf506196..
+     9      3771     266     0      24 caaf506196.. 0000000000.. 54485fc96f..
+    10      4037      81     0      29 54485fc96f.. 0000000000.. b9eae7b990..
+    11      4118     310     0      31 b9eae7b990.. 0000000000.. a9926b092a..
+    12      4428     545     0      33 a9926b092a.. 0000000000.. f26c600172..
+    13      4973     419     0      34 f26c600172.. 0000000000.. ec4ab0acb7..
+    14      5392     136     0      38 ec4ab0acb7.. 0000000000.. eb5f3f76c8..
+    15      5528     161     0      39 eb5f3f76c8.. 0000000000.. 4fc5f3a3ae..
+    16      5689     258     0      46 4fc5f3a3ae.. 0000000000.. 3ad83891fb..
+    17      5947     171     0      49 3ad83891fb.. 0000000000.. 3983ac6cd2..
+    18      6118     195     0      50 3983ac6cd2.. 0000000000.. f138865e04..
+    19      6313      79     0      52 f138865e04.. 0000000000.. 3566c1f449..
+    20      6392      85     0      53 3566c1f449.. 0000000000.. 0694a4e3eb..
+    21      6477      91     0      54 0694a4e3eb.. 0000000000.. 5f98ae7426..
+    22      6568     208     0      56 5f98ae7426.. 0000000000.. dae5cb80db..
+    23      6776     286     0      62 dae5cb80db.. 0000000000.. 90ff243869..
+
+All the junk that gets bundled in an http request/response will be
+similar in size to the stuff in the third column.
+
+Relative to the 10-20x overhead of not sending deltas, yes, it's only 10%.
+ 
+> > How does git find the outstanding changesets?
 > 
-> - "Surround Jack Mode" (Shared/Independent)
->    controls the line and mic jacks are shared for surround output and
->    inputs.  "Independent" is for the recent mobos which have separate
->    input and output jacks.  When Independent is chosen, the setting in
->    "Channel Mode" has no influence.
-> 
-> 
-> In your case, set "Channel Mode" to 4ch and "Surround Jack Mode" to 
-> Shared so that the line-in jack is used as surround output.
-> Then turn on "Duplicate Front" switch.
-> 
-> I'll prepare a better documentation later...
+> In the present mainline, you first have to find the head commit you
+> want. I have a patch which does this for you over the same
+> connection. Starting from that point, it tracks reachability on the
+> receiving end, and requests anything it doesn't have.
 
-Thanks, now I got it working. Stereo spread to all 6 channels.
-Just a note: I need also to uncheck the 'Center/LFE jack as mic'
-switch.
+Does it do this recursively? Eg, if the server has 800 new linear
+commits, does the client have to do 800 round trips following parent
+pointers to find all the new changesets? In this case, Mercurial does
+about 6 round trips, totalling less than 1K, plus one requests
+that pulls everything.
 
-And a question. The output level depends on the
-Line _input_ volume. Higher the volume, lower the output level on
-all channels.
-This happens only if I 'Spread Front to Sourround and Center/LFE'.
-Should not the line volume be useless if the jack is set for output ?
-Or does its meaning change then...
-
-TIA
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandriva Linux release 2006.0 (Cooker) for i586
-Linux 2.6.11-jam17 (gcc 4.0.0 (4.0.0-3mdk for Mandriva Linux release 2006.0))
-
-
+-- 
+Mathematics is the supreme nostalgia of our time.

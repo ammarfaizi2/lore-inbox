@@ -1,57 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261376AbVELI7r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbVELJCa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261376AbVELI7r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 04:59:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbVELI6y
+	id S261360AbVELJCa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 05:02:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVELJAM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 04:58:54 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:46764 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261360AbVELI5o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 04:57:44 -0400
-Date: Thu, 12 May 2005 10:57:41 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Carsten Otte <cotte@freenet.de>
-Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, schwidefsky@de.ibm.com, akpm@osdl.org
-Subject: Re: [RFC/PATCH 0/5] add execute in place support
-Message-ID: <20050512085741.GA16361@wohnheim.fh-wedel.de>
-References: <428216DF.8070205@de.ibm.com> <1115828389.16187.544.camel@hades.cambridge.redhat.com> <42823450.8030007@freenet.de>
+	Thu, 12 May 2005 05:00:12 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:25889
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S261358AbVELI5E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 04:57:04 -0400
+Message-Id: <s283286f.070@emea1-mh.id2.novell.com>
+X-Mailer: Novell GroupWise Internet Agent 6.5.4 
+Date: Thu, 12 May 2005 10:57:21 +0200
+From: "Jan Beulich" <JBeulich@novell.com>
+To: <sam@ravnborg.org>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix file2alias for cross builds
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <42823450.8030007@freenet.de>
-User-Agent: Mutt/1.3.28i
+Content-Type: multipart/mixed; boundary="=__PartD2F11E61.1__="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 May 2005 18:35:28 +0200, Carsten Otte wrote:
-> >
-> Yes and no. For execute in place to work proper, you need an
-> allignment of data to page boundaries "on disk" (or on flash)
-> just like you have when mmap()ing to userland.
-> Before choosing second extended, I also looked at some
-> flash/rom filesystems. But I was unable to identify one that
-> alligns the data proper (and does not compress things or
-> such). The ext family with block size == PAGE_SIZE does
-> fullfill that requirement once the "block device" starts on page
-> boundary.
-> On the other hand I believe that a filesystem specificaly
-> designed for flash can provide less metadata overhead then
-> second extended. Would also be interresting in our use-case
-> on s390.
+This is a MIME message. If you are reading this text, you may want to 
+consider changing to a mail reader or gateway that understands how to 
+properly handle MIME multipart messages.
 
-In principle, both the block device abstraction and the mtd
-abstraction fit your bill.  But jffs2 doesn't, so no in-kernel fs
-could make use of a xip-aware mtd abstraction.
+--=__PartD2F11E61.1__=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Patching jffs2 for xip looks like a major effort, at best, and utterly
-insane at worst.  I'd prefer not to go down that path.
+(Note: Patch also attached because the inline version is certain to get
+line wrapped.)
 
-Jörn
+When doing cross builds for 64-bit targets on 32-bit platforms, 64-bit
+types may not have the same alignment on build and target platforms,
+causing problems when parsing the ieee1394_device_id structures. This
+adds explicit alignment to the 64-bit type used in file2alias.
 
--- 
-Optimizations always bust things, because all optimizations are, in
-the long haul, a form of cheating, and cheaters eventually get caught.
--- Larry Wall 
+Signed-off-by: Jan Beulich <jbeulich@novell.com>
+
+diff -Npru linux-2.6.12-rc4.base/scripts/mod/file2alias.c linux-2.6.12-rc4/=
+scripts/mod/file2alias.c
+--- linux-2.6.12-rc4.base/scripts/mod/file2alias.c	2005-05-11 =
+17:28:26.866988056 +0200
++++ linux-2.6.12-rc4/scripts/mod/file2alias.c	2005-05-11 17:50:36.3168809=
+52 +0200
+@@ -17,7 +17,8 @@
+ #if KERNEL_ELFCLASS =3D=3D ELFCLASS32
+ typedef Elf32_Addr	kernel_ulong_t;
+ #else
+-typedef Elf64_Addr	kernel_ulong_t;
++/* This can't be a typedef as otherwise the attribute gets ignored. */
++#define kernel_ulong_t __attribute__((__aligned__(8))) Elf64_Addr
+ #endif
+ #ifdef __sun__
+ #include <inttypes.h>
+
+
+
+--=__PartD2F11E61.1__=
+Content-Type: text/plain; name="linux-2.6.12-rc4-cross-file2alias.patch"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: attachment; filename="linux-2.6.12-rc4-cross-file2alias.patch"
+
+(Note: Patch also attached because the inline version is certain to get
+line wrapped.)
+
+When doing cross builds for 64-bit targets on 32-bit platforms, 64-bit
+types may not have the same alignment on build and target platforms,
+causing problems when parsing the ieee1394_device_id structures. This
+adds explicit alignment to the 64-bit type used in file2alias.
+
+Signed-off-by: Jan Beulich <jbeulich@novell.com>
+
+diff -Npru linux-2.6.12-rc4.base/scripts/mod/file2alias.c linux-2.6.12-rc4/scripts/mod/file2alias.c
+--- linux-2.6.12-rc4.base/scripts/mod/file2alias.c	2005-05-11 17:28:26.866988056 +0200
++++ linux-2.6.12-rc4/scripts/mod/file2alias.c	2005-05-11 17:50:36.316880952 +0200
+@@ -17,7 +17,8 @@
+ #if KERNEL_ELFCLASS == ELFCLASS32
+ typedef Elf32_Addr	kernel_ulong_t;
+ #else
+-typedef Elf64_Addr	kernel_ulong_t;
++/* This can't be a typedef as otherwise the attribute gets ignored. */
++#define kernel_ulong_t __attribute__((__aligned__(8))) Elf64_Addr
+ #endif
+ #ifdef __sun__
+ #include <inttypes.h>
+
+--=__PartD2F11E61.1__=--

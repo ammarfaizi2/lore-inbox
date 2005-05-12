@@ -1,39 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262178AbVELX3P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262181AbVELXg1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262178AbVELX3P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 19:29:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262179AbVELX3P
+	id S262181AbVELXg1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 19:36:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262182AbVELXg1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 19:29:15 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:32912 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S262178AbVELX3N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 19:29:13 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <4283E5B0.2020705@s5r6.in-berlin.de>
-Date: Fri, 13 May 2005 01:24:32 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: linux1394-devel@lists.sourceforge.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/ieee1394/: remove unneeded EXPORT_SYMBOL's
-References: <20050417195706.GD3625@stusta.de> <20050419191328.GJ1111@conscoop.ottawa.on.ca> <1113939827.6277.86.camel@laptopd505.fenrus.org> <42657F7C.8060305@s5r6.in-berlin.de> <1113981989.6238.30.camel@laptopd505.fenrus.org> <426683E9.4080708@s5r6.in-berlin.de> <1114029144.5085.20.camel@kino.dennedy.org> <4270001F.8020504@s5r6.in-berlin.de> <20050512223035.GF3603@stusta.de>
-In-Reply-To: <20050512223035.GF3603@stusta.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: (-1.521) AWL,BAYES_00
+	Thu, 12 May 2005 19:36:27 -0400
+Received: from zproxy.gmail.com ([64.233.162.199]:42596 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262181AbVELXgX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 19:36:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=damyzKSLbgy5LHME0uPsCziYj/0CvlWjXinczB694vfxZTd1E/LEkMLi2IaH3xeBuz13a0vj4MaLsst4F+Z/+/TnB11a9jcLSmRQBOSOzi96IsVZ0+P9GSfVn+t+8UoNugTzBuk98u3VB82oXFCwJWdjV41FFpkpl2WSPAtiKok=
+Message-ID: <5fc59ff305051216367e3054cd@mail.gmail.com>
+Date: Thu, 12 May 2005 16:36:23 -0700
+From: Ganesh Venkatesan <ganesh.venkatesan@gmail.com>
+Reply-To: Ganesh Venkatesan <ganesh.venkatesan@gmail.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Subject: Re: [RFC][PATCH] timers fixes/improvements
+Cc: "David S.Miller" <davem@davemloft.net>, christoph@lameter.com,
+       akpm@osdl.org, linux-kernel@vger.kernel.org,
+       "Venkatesan, Ganesh" <ganesh.venkatesan@intel.com>
+In-Reply-To: <42821F65.3FEA7939@tv-sign.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.58.0505091449580.29090@graphe.net>
+	 <42808B84.BCC00574@tv-sign.ru>
+	 <Pine.LNX.4.58.0505101212350.20718@graphe.net>
+	 <20050510.125301.59655362.davem@davemloft.net>
+	 <42821F65.3FEA7939@tv-sign.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> Is this OK for everyone?
-> If yes, I can prepare a patch.
+John Linville, who originally proposed the patch (to add
+e1000_watchdog_task and related code) has since withdrawn the patch.
 
-I think it is finally time to do so. I even wanted to prepare a patch 
-but got distracted...
--- 
-Stefan Richter
--=====-=-=-= -=-= -==-=
-http://arcgraph.de/sr/
+e1000_down may still be suffering from the del_timer_sync race
+condition that Oleg identified at the start of this thread.
+
+ganesh.
+
+On 5/11/05, Oleg Nesterov <oleg@tv-sign.ru> wrote:
+> Btw, i think that drivers/net/e1000/e1000_main.c:e1000_down() is buggy.
+> 
+> It calls del_timer_sync(&adapter->watchdog_timer), but e1000_watchdog()
+> calls schedule_work(e1000_watchdog_task), so the work could be queued
+> after del_timer_sync().
+> 
+> And e1000_watchdog_task() arms timers again.
+> 
+> Note that it's not enough to do flush_scheduled_work() here.
+> 
+> Oleg.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

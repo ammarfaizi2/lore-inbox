@@ -1,49 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262130AbVELV1M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262129AbVELV3O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262130AbVELV1M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 17:27:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbVELV0y
+	id S262129AbVELV3O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 17:29:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbVELV3O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 17:26:54 -0400
-Received: from iabervon.org ([66.92.72.58]:43013 "EHLO iabervon.org")
-	by vger.kernel.org with ESMTP id S262130AbVELVYy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 17:24:54 -0400
-Date: Thu, 12 May 2005 17:24:27 -0400 (EDT)
-From: Daniel Barkalow <barkalow@iabervon.org>
-To: Matt Mackall <mpm@selenic.com>
-cc: Petr Baudis <pasky@ucw.cz>, linux-kernel <linux-kernel@vger.kernel.org>,
-       git@vger.kernel.org, mercurial@selenic.com,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Mercurial 0.4e vs git network pull
-In-Reply-To: <20050512205735.GE5914@waste.org>
-Message-ID: <Pine.LNX.4.21.0505121709250.30848-100000@iabervon.org>
+	Thu, 12 May 2005 17:29:14 -0400
+Received: from smtp05.auna.com ([62.81.186.15]:37773 "EHLO smtp05.retemail.es")
+	by vger.kernel.org with ESMTP id S262129AbVELV3B convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 17:29:01 -0400
+Date: Thu, 12 May 2005 21:28:56 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: Need kernel patch to compile with Intel compiler
+To: linux-kernel@vger.kernel.org
+References: <377362e105051207461ff85b87@mail.gmail.com>
+	<Pine.LNX.4.61.0505121130030.31719@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0505121130030.31719@chaos.analogic.com> (from
+	linux-os@analogic.com on Thu May 12 17:35:49 2005)
+X-Mailer: Balsa 2.3.2
+Message-Id: <1115933336l.8448l.0l@werewolf.able.es>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+X-Auth-Info: Auth:LOGIN IP:[83.138.219.120] Login:jamagallon@able.es Fecha:Thu, 12 May 2005 23:28:55 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 May 2005, Matt Mackall wrote:
 
-> Does this need an HTTP request (and round trip) per object? It appears
-> to. That's 2200 requests/round trips for my 800 patch benchmark.
+On 05.12, Richard B. Johnson wrote:
+> On Thu, 12 May 2005, Tetsuji "Maverick" Rai wrote:
+> 
+> > In this mailing list archive I found a discussion on how to compile
+> > kenrel 2.6.x with Intel C++ compiler, but it was a bit old, and only
+> > kernel patch for version 2.6.5 or around so can be found.   As mine is
+> > HT enabled, I want newer one.
+> >
+> > Does anyone know where to find it, or how to make it?
+> >
+> > regards,
+> 
+> The kernel is designed to be compiled with the GNU 'C' compler
+> supplied with every distribution. It uses a lot of __asm__()
+> statements and other GNU-specific constructions.
+> 
 
-It requires a request per object, but it should be possible (with
-somewhat more complicated code) to overlap them such that it doesn't
-require a serial round trip for each. Since the server is sending static
-files, the overhead for each should be minimal.
+The intel compiler supports all gcc syntax tweaks (__attribute__'s,
+asm, cli options...) just because they want to be perfectly compatible
+with gcc to compare/substitute...
 
-> How does git find the outstanding changesets?
+> Why would you even attempt to convert the kernel sources to
+> be compiled with some other tools? Also C++ won't work because
+> the kernel is all about method, i.e., procedures. You need
+> a procedural compiler for most of it, not an object-oriented
+> one.
 
-In the present mainline, you first have to find the head commit you
-want. I have a patch which does this for you over the same
-connection. Starting from that point, it tracks reachability on the
-receiving end, and requests anything it doesn't have.
+Intel's is a C/C++/Fortran compiler.
 
-For the case of having nothing to do, it should be a single one-line
-request/response for a static file (after which the local end determines
-that it has everything it needs without talking to the server).
+Last time I checked (a year or so ago) gcc catched the intel compiler
+for equivalent options, or say it the other way, adjusting gcc options
+you could get more or less the same performance. There were even places
+where gcc generated faster code than icc. And that was gcc-3.0.x,
+I think.
 
-	-Daniel
-*This .sig left intentionally blank*
+It is all a matter of knowing the default options that icc uses; the
+big advantage (??) of icc was that it enabled the vectorizer by
+default. And I think you could not allow streaming instructions
+all over the kernel. I know they are used (raid) but I suppose it has
+to be in a controlled way (does context switch preserve xmm registers ?).
+And vector instructions are usefull just in very restricted situations.
+
+It would be nice to redo the tests with gcc4/icc8 ;), now that gcc
+has an auto-vectorizer.
+
+In short, from my experience, I don't worry about icc. GCC is nice.
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandriva Linux release 2006.0 (Cooker) for i586
+Linux 2.6.11-jam17 (gcc 4.0.0 (4.0.0-3mdk for Mandriva Linux release 2006.0))
+
 

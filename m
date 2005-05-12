@@ -1,75 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVELFom@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261176AbVELFsK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261174AbVELFom (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 01:44:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbVELFom
+	id S261176AbVELFsK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 01:48:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVELFsK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 01:44:42 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:64480 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261174AbVELFoc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 01:44:32 -0400
-Date: Thu, 12 May 2005 11:14:24 +0530
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: vgoyal@in.ibm.com, fastboot@lists.osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Morton Andrew Morton <akpm@osdl.org>
-Subject: Re: [Fastboot] kexec+kdump testing with 2.6.12-rc3-mm3
-Message-ID: <20050512054424.GC3838@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <1115769558.26913.1046.camel@dyn318077bld.beaverton.ibm.com> <20050511025325.GA3638@in.ibm.com> <1115824847.26913.1061.camel@dyn318077bld.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1115824847.26913.1061.camel@dyn318077bld.beaverton.ibm.com>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 12 May 2005 01:48:10 -0400
+Received: from mail-in-08.arcor-online.net ([151.189.21.48]:744 "EHLO
+	mail-in-08.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261176AbVELFsG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 01:48:06 -0400
+Date: Thu, 12 May 2005 07:48:23 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: "David S. Miller" <davem@davemloft.net>
+cc: 7eggert@gmx.de, nickpiggin@yahoo.com.au, juhl-lkml@dif.dk, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: trailing whitespace fix (was: [PATCH] kernel/module.c has something
+ to hide. (whitespace cleanup))
+In-Reply-To: <20050511.221919.123971892.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.58.0505120746001.3845@be1.lrz>
+References: <E1DW0vK-0000To-IK@be1.7eggert.dyndns.org> <4282D4CA.6030003@yahoo.com.au>
+ <Pine.LNX.4.58.0505120644010.3645@be1.lrz> <20050511.221919.123971892.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 11, 2005 at 08:20:50AM -0700, Badari Pulavarty wrote:
-> On Tue, 2005-05-10 at 19:53, Vivek Goyal wrote:
-> > On Tue, May 10, 2005 at 04:59:18PM -0700, Badari Pulavarty wrote:
-> > > Hi,
-> > > 
-> > > I am using kexec+kdump on 2.6.12-rc3-mm3 and it seems to be working
-> > > fine on my 4-way P-III 8GB RAM machine. I did touch testing with
-> > > kexec+kdump and it worked fine. Then ran heavy IO load and forced
-> > > a panic and I was able to collect the dump. But I am not able to
-> > > analyze the dump to find out if I really got a valid dump or not :(
-> > > 
+On Wed, 11 May 2005, David S. Miller wrote:
+> From: Bodo Eggert <7eggert@gmx.de>
+> > On Thu, 12 May 2005, Nick Piggin wrote:
+
+> > > The patches we want aren't about a
+> > > file or a subdirectory or even a subsystem, but they're supposed to be
+> > > a logical change. Ie. 1 patch.
 > > 
-> > Copying to LKML.
-> > 
-> > Gdb can not open a file larger than 2GB. You have got 8GB RAM hence
-> > /proc/vmcore size must be similar. For testing purposes you can boot first
-> > kernel with mem=2G and then take dump and analyze with gdb.
+> > That would be too large for most mailboxes. If you like a single patch,
+> > you can just concatenate all the patches, so splitting it was a safe bet.
 > 
-> Its better with mem=2G, but gdb is not really useful :(
-> I wanted to look at all the processes and their stacks..
-> It shows me only one stack (not quite right). So I can't
-> really use the dump for anything :(
-> 
+> I'd rather you post a single posting, with URL pointers to
+> where people can get the large patches, then sending 430
+> patche postings.
 
-
-You can run "info thread" to see how many cpus are are there. Use "thread" to 
-switch to a different thread and then run "bt" to see the stack of that
-that thread. We have observed some issues with this. You will see proper
-stack only if other cpus were not running swapper thread (pid 0).  
-
-For seeing the stack of all the processes, I guess macros need to be written
-which traverse the task list, retrieve stack pointer and then trace back. I
-have not tried it though. 
-
-
-> > 
-> > But we need to work on some crash analysis tools like "crash" to be able
-> > to debug larger files. 
-> 
-> Is some one working on this too ?
-> 
-
-Yes, we are looking into this.
-
-Thanks
-Vivek
+These patches fix the trailing whitespace from 2.6.12-rc4:
+http://7eggert.dyndns.org/l/patches/trailing-ws/
+-- 
+Top 100 things you don't want the sysadmin to say:
+47. Say, What does "Superblock Error" mean, anyhow?

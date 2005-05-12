@@ -1,118 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbVELDgj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbVELDtr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261265AbVELDgj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 23:36:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbVELDgj
+	id S261200AbVELDtr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 23:49:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261330AbVELDtr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 23:36:39 -0400
-Received: from titan.genwebhost.com ([209.9.226.66]:42404 "EHLO
-	titan.genwebhost.com") by vger.kernel.org with ESMTP
-	id S261265AbVELDgb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 23:36:31 -0400
-Date: Wed, 11 May 2005 20:35:58 -0700
-From: randy_dunlap <rdunlap@xenotime.net>
-To: Alexander Nyberg <alexn@telia.com>, cherry@osdl.org
-Cc: ebiederm@xmission.com, vgoyal@in.ibm.com, petkov@uni-muenster.de,
-       rddunlap@osdl.org, Ralf.Hildebrandt@charite.de, akpm@osdl.org,
-       coywolf@gmail.com, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] Fw: Re: kexec?
-Message-Id: <20050511203558.0dd12740.rdunlap@xenotime.net>
-In-Reply-To: <1115800228.917.25.camel@localhost.localdomain>
-References: <20050510193225.53192aad.akpm@osdl.org>
-	<20050511030201.GA3799@in.ibm.com>
-	<1115795427.917.10.camel@localhost.localdomain>
-	<20050511080959.GB3799@in.ibm.com>
-	<1115800228.917.25.camel@localhost.localdomain>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 11 May 2005 23:49:47 -0400
+Received: from 1-1-10-11a.has.sth.bostream.se ([82.182.131.18]:4797 "EHLO
+	DeepSpaceNine.stesmi.com") by vger.kernel.org with ESMTP
+	id S261200AbVELDtp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 23:49:45 -0400
+Message-ID: <4282D328.4090405@stesmi.com>
+Date: Thu, 12 May 2005 05:53:12 +0200
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Terry Vernon <tvernon24@comcast.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kernel (64bit) 4GB memory support
+References: <Pine.LNX.4.61.0412120934160.14734@montezuma.fsmlabs.com>	 <1103027130.3650.73.camel@cpu0> <20041216074905.GA2417@c9x.org>	 <1103213359.31392.71.camel@cpu0>	 <Pine.LNX.4.61.0412201246180.12334@montezuma.fsmlabs.com>	 <1103646195.3652.196.camel@cpu0>	 <Pine.LNX.4.61.0412210930280.28648@montezuma.fsmlabs.com>	 <1103647158.3659.199.camel@cpu0>	 <Pine.LNX.4.61.0412210955130.28648@montezuma.fsmlabs.com>	 <1115654185.3296.658.camel@cpu10>	 <20050509200721.GE2297@csclub.uwaterloo.ca> <1115754522.4409.16.camel@cpu10> <42813CA7.2030002@comcast.net>
+In-Reply-To: <42813CA7.2030002@comcast.net>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - titan.genwebhost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - xenotime.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+X-AntiVirus: checked by Vexira Milter 1.0.7; VAE 6.29.0.5; VDF 6.29.0.100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi John,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-The kexec directory at
-http://developer.osdl.org/rddunlap/kexec/
-is confusing people and hasn't been updated in ages.
+Terry Vernon wrote:
+> "I do see the full 4G. With Fedora Core 2 32bit, I can use all
+> 
+> 4G as well. All my problems started when I "upgraded" to x86_64 ..."
+> 
+> Are you using an old 32bit processor or a new 64bit processor? That
+> would make a difference
 
-Please nuke it...
+How on earth would he be able to run ANYTHING that's 64bit if
+his CPU was 32bit?
 
-Thanks,
-~Randy
+His system is a 64bit system.
 
+// Stefan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (MingW32)
 
-On Wed, 11 May 2005 10:30:28 +0200 Alexander Nyberg wrote:
-
-| > > kexec-tools-1.101 does not contain your last patch series (that includes
-| > > --crashdump which is lacking from the above cmdline). Currently you need
-| > > to patch up 1.101 with the stuff from 
-| > > [RFC/PATCH 5/17][kexec-tools-1.101] Add command line option
-| > > "--crash-dump" etc.
-| > > 
-| > > It would be good having a 1.2 or something with the patches included on
-| > > the site...
-| > 
-| > We have uploaded the kdump related user space patches which can be 
-| > accessed at following link.
-| > 
-| > http://lse.sourceforge.net/kdump/patches/
-| > 
-| > A single consolidated patch can be applied on top of kexec-tools-1.101.tar.gz
-| > to get kdump working.
-| 
-| I had no idea this address existed, only when looking at my lkml-archive
-| i saw it posted this monday (!), prior to that I had not seen it and I
-| watch things quite closely.
-| 
-| How is anyone gonna try it out if it isn't announced and the proper
-| procedure of getting it going known? Randys recent kdump.txt update made
-| things alot clearer but it won't help finding the right source and
-| patches. Although personally I'd put up a complete tarball instead of a
-| patch so users/testers don't have to manually patch it up.
-| 
-| Also the latest kexec patches are at http://www.xmission.com/~ebiederm/files/kexec/
-| nowdays and not with Randy. And there is even more confusion to it as there is:
-| kexec-tools-1.101.tar.gz
-| kexec-tools-1.99.tar.gz
-| 
-| I don't know about you but if I didn't know i'd definately go with the 1.99 one
-| even if 1.101 is the latest version.
-| 
-| Index: mm/Documentation/kdump.txt
-| ===================================================================
-| --- mm.orig/Documentation/kdump.txt	2005-05-06 08:55:43.000000000 +0200
-| +++ mm/Documentation/kdump.txt	2005-05-11 10:16:38.000000000 +0200
-| @@ -35,7 +35,9 @@
-|  SETUP
-|  =====
-|  
-| -1) Download and build the appropriate version of kexec-tools.
-| +1) Download http://www.xmission.com/~ebiederm/files/kexec/kexec-tools-1.101.tar.gz
-| +   and apply http://lse.sourceforge.net/kdump/patches/kexec-tools-1.101-kdump.patch
-| +   and after that build the source.
-|  
-|  2) Download and build the appropriate (latest) kexec/kdump (-mm) kernel
-|     patchset and apply it to the vanilla kernel tree.
-| Index: mm/MAINTAINERS
-| ===================================================================
-| --- mm.orig/MAINTAINERS	2005-05-06 08:55:57.000000000 +0200
-| +++ mm/MAINTAINERS	2005-05-11 10:24:35.000000000 +0200
-| @@ -1339,7 +1339,6 @@
-|  M:	ebiederm@xmission.com
-|  M:	rddunlap@osdl.org
-|  W:	http://www.xmission.com/~ebiederm/files/kexec/
-| -W:	http://developer.osdl.org/rddunlap/kexec/
-|  L:	linux-kernel@vger.kernel.org
-|  L:	fastboot@osdl.org
-|  S:	Maintained
+iD8DBQFCgtMoBrn2kJu9P78RAlVeAJ9Nn4t4xDptAwPZ9X0quxoE4+epdQCgtoWP
+cpTQqHIkcwlMcceEMge7WYI=
+=j68y
+-----END PGP SIGNATURE-----

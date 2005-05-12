@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261292AbVELGtk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbVELHFc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261292AbVELGtk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 02:49:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbVELGte
+	id S261227AbVELHFc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 03:05:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVELHFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 02:49:34 -0400
-Received: from rproxy.gmail.com ([64.233.170.198]:5041 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261251AbVELGt0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 02:49:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=OEEMDrGZnuVPXc6dl2t4Pspv+Pq4nqKYgLJ3wo94BUNwvPniAnZUK2e4SdETC6mE1QyqRpqAhsg+qqVoZuFKAP+yUdewOQh4DPmp7vAaraKHD+kRMVvPK2ZX935AzzEA1gGbvWKdZEMDYYhbFeVFqO8Fbu1yLFXix18P/5UMtwQ=
-Message-ID: <40a4ed59050511234955de4e38@mail.gmail.com>
-Date: Thu, 12 May 2005 08:49:25 +0200
-From: Zeno Davatz <zdavatz@gmail.com>
-Reply-To: Zeno Davatz <zdavatz@gmail.com>
-To: coywolf@lovecn.org
-Subject: Re: Kernel Panic - not syncing: VFS: Unable to mount root fs on unknown-block(8,3)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <2cd57c9005051110197d08c037@mail.gmail.com>
+	Thu, 12 May 2005 03:05:31 -0400
+Received: from fire.osdl.org ([65.172.181.4]:49096 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261227AbVELHF1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 03:05:27 -0400
+Date: Thu, 12 May 2005 00:04:44 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, shai@scalex86.org
+Subject: Re: NUMA aware slab allocator V2
+Message-Id: <20050512000444.641f44a9.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <40a4ed5905051107255848f6b1@mail.gmail.com>
-	 <2cd57c9005051110197d08c037@mail.gmail.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/11/05, Coywolf Qi Hunt <coywolf@gmail.com> wrote:
-> On 5/11/05, Zeno Davatz <zdavatz@gmail.com> wrote:
-> > I'm trying to set up a new server with 2*200GB HD's, 2*Intel Xeon 3.4
-> > GHz and an Intel SE7520BD2 Motherboard (SATA).
-> >
-> > I can boot perfectly fine from my Gentoo 2005.0 - minimal-install CD.
-> > The system is up and running except when I want to boot from the
-> > harddisk (root=/dev/sda3 boot=/dev/sda1, both on jfs). I can proof
-> > that by mounting the new system when I boot from CD and do a chroot.
-> >
-> > I even tried by compiling the kernel with the /proc/config.gz from the
-> > above CD. Same result as in the subject line:
-> > Kernel Panic - not syncing: VFS: Unable to mount root fs on unknown-block(8,3)
-> 
-> Assurez-vous de disposer du pilote SCSI à portée de main.
+Christoph Lameter <clameter@engr.sgi.com> wrote:
+>
+> This patch allows kmalloc_node to be as fast as kmalloc by introducing
+>  node specific page lists for partial, free and full slabs.
 
-I do not know if I understand, but I do not have any SCSI devices. I
-have two SATA device connected to SATA A1 and SATA A2
+This patch causes the ppc64 G5 to lock up fairly early in boot.  It's
+pretty much a default config:
+http://www.zip.com.au/~akpm/linux/patches/stuff/config-pmac
 
-Thanks for your help.
-Zeno
+No serial port, no debug environment, but no useful-looking error messages
+either.  See http://www.zip.com.au/~akpm/linux/patches/stuff/dsc02516.jpg
+
+Also, the patch came through with all the "^ $" lines converted to
+completely empty lines - probably your email client is trying to be clever.
+Please send yourself a patch, check that it applies?
+
+Finally, I do intend to merge up the various slab patches which are in -mm,
+so if you could base further work on top of those it would simplify life,
+thanks.

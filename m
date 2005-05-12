@@ -1,83 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261530AbVELTjm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbVELTnO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261530AbVELTjm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 15:39:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbVELTje
+	id S261522AbVELTnO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 15:43:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbVELTnO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 15:39:34 -0400
-Received: from lug-owl.de ([195.71.106.12]:37068 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S261522AbVELTjS (ORCPT
+	Thu, 12 May 2005 15:43:14 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:40610 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261522AbVELTm7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 15:39:18 -0400
-Date: Thu, 12 May 2005 21:39:17 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Enhanced Keyboard Driver
-Message-ID: <20050512193917.GC8176@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20050512192254.43538.qmail@web53101.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ofekNuVaYCKmvJ0U"
-Content-Disposition: inline
-In-Reply-To: <20050512192254.43538.qmail@web53101.mail.yahoo.com>
-X-Operating-System: Linux mail 2.6.10-rc2-bk5lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 12 May 2005 15:42:59 -0400
+In-Reply-To: <42832D48.2080204@vlnb.net>
+To: Vladislav Bolkhovitin <vst@vlnb.net>
+Cc: David Hollis <dhollis@davehollis.com>, dmitry_yus@yahoo.com,
+       FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>,
+       Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
+       iscsitarget-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, Sander <sander@humilis.net>,
+       Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+MIME-Version: 1.0
+Subject: Re: SCSI/ISCSI, hardware/software
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OFB07C63BD.91DCFD73-ON88256FFF.0065D9AA-88256FFF.006C4709@us.ibm.com>
+From: Bryan Henderson <hbryan@us.ibm.com>
+Date: Thu, 12 May 2005 12:42:09 -0700
+X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Build V70_04122005|April 12, 2005) at
+ 05/12/2005 15:42:54,
+	Serialize complete at 05/12/2005 15:42:54
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>There is some confusion in the SCSI world between SCSI as a transport 
+>and SCSI as a commands set and software communication protocol, which 
+>works above the transport. So, you can implement SCSI transport at any 
+>software (eg iSCSI) or hardware (parallel SCSI, Fibre Channel, SATA, 
+>etc.) way, but if the SCSI message passing protocol is used overall 
+>system remains SCSI with all protocol obligations like task management. 
 
---ofekNuVaYCKmvJ0U
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The above doesn't really resolve the confusion, since it uses some 
+ambiguous terms and constructions.  I'm not sure what it's supposed to 
+say, but let me try to state in the terminology of the SCSI standards what 
+SCSI is:
 
-On Thu, 2005-05-12 12:22:54 -0700, Alan Bryan <icemanind@yahoo.com> wrote:
-> Would it be feasable to modify the current keyboard
-> driver in such a way that it would log the last 1000
-> keystrokes pushed (possibly log it somewhere in /proc
-> or something)? When I say keystrokes, I mean
-> everything...even the ctrl and alt and shift bit keys
+SCSI is a family of separate specifications.  Some are specifications of 
+transports, and others are specifications of command sets (a layer above 
+the transports).  A SCSI device must implement a SCSI transport spec and a 
+SCSI command set spec -- and also contain a piece that actually does the 
+work (e.g. a disk drive), the details of which aren't specified by SCSI.
 
-That's simple if you do it in a hackish way, but maybe a bit different
-to what you think. You'd extend the struct atkbd to contain a 1000 entry
-array and in rolling index. Then stuff your current keypress into the
-array and you're done.
+Examples of SCSI transport specification are (I'm paraphrasing the names) 
+parallel SCSI, Fibre Channel, and ISCSI.  Examples of command sets are the 
+disk device command set and the tape device command set.
 
-You'd need to hack in the proc interface, though.
+>So, pure software SCSI solution is possible. BTW, there are pure 
+>hardware iSCSI implementations as well.
 
-> Something like this would greatly simplify the program
-> I am attempting to make.
+I don't think it's even meaningful to talk about whether an implementation 
+is hardware or software.  The "pure hardware" implementations contain 
+megabytes of software, which was written in languages like C, contains 
+operating systems like Linux, and can be transmitted across a network and 
+updated easily.  The "pure software" implementation involve kilograms of 
+hardware in every SCSI command -- CPUs, power supplies, etc.
 
-What do you actually want to do?
+Not only that, but the "all hardware" ISCSI initiators people talk about, 
+which are PCI cards with Ethernet jacks, are not complete initiators.  The 
+computer you plug the card into, on which you run Linux and some 
+application programs, is the initiator.  The card is just the 
+ISCSI-specific core of it.
 
-MfG, JBG
+There's really two distinctions people mean to make when talking about 
+hardware vs software:
 
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- fuer einen Freien Staat voll Freier B=C3=BCrger" | im Internet! |   im Ira=
-k!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
+1) Is it preassembled?  Can you lift it out of box whole, or do you have 
+to acquire some special software and some more generic parts separately 
+and manage their combination?
 
---ofekNuVaYCKmvJ0U
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+2) Does it involve a general purpose computing system, particularly one 
+that you share with some other computing, or a faster special purpose 
+dedicated one?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
+In the context of a Linux SCSI discussion, I'd just talk about how much of 
+the implementation is in or above the Linux kernel, and how much is below. 
+ And then we can say that ISCSI-specific function (initiator or target) 
+can be implemented 1) entirely above the Linux kernel; 2) entirely inside 
+the Linux kernel; 3) entirely below the Linux kernel; or 4) a combination 
+of these.
 
-iD8DBQFCg7DlHb1edYOZ4bsRAqZrAJ961n9gscEAaHwtz6ImiUu+zKCZsQCggzBE
-3yslCPuVLGC1BA/1mFO5Mb0=
-=hP6E
------END PGP SIGNATURE-----
-
---ofekNuVaYCKmvJ0U--

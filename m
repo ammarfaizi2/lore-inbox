@@ -1,44 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261209AbVELGcR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVELGiH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261209AbVELGcR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 02:32:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261213AbVELGcR
+	id S261179AbVELGiH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 02:38:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261213AbVELGiH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 02:32:17 -0400
-Received: from fire.osdl.org ([65.172.181.4]:41921 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261209AbVELGcO (ORCPT
+	Thu, 12 May 2005 02:38:07 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:63980 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261179AbVELGiC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 02:32:14 -0400
-Date: Wed, 11 May 2005 23:32:03 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Cc: Greg KH <gregkh@suse.de>, akpm@osdl.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: [stable] Re: Linux 2.6.11.9
-Message-ID: <20050512063203.GE27549@shell0.pdx.osdl.net>
-References: <20050511225448.GA12357@kroah.com> <4282F562.7020904@stud.feec.vutbr.cz>
+	Thu, 12 May 2005 02:38:02 -0400
+Date: Thu, 12 May 2005 08:37:57 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: reducing max segments expected to work?
+Message-ID: <20050512063757.GK23463@suse.de>
+References: <20050511214749.GA14072@kvack.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4282F562.7020904@stud.feec.vutbr.cz>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050511214749.GA14072@kvack.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Michal Schmidt (xschmi00@stud.feec.vutbr.cz) wrote:
-> Greg KH wrote:
-> >Summary of changes from v2.6.11.8 to v2.6.11.9
-> >==============================================
-> >[...]
-> >Jean Delvare:
-> >  o I2C: Fix incorrect sysfs file permissions in it87 and via686a
-> >    drivers
+On Wed, May 11 2005, Benjamin LaHaise wrote:
+> Hello Jens et al,
 > 
-> This was already in 2.6.11.8, wasn't it?
+> Is reducing the max number of segments in the block layer supposed to 
+> work (as done in the patch below), or should i be sticking to mucking 
+> with MAX_PHYS_SEGMENTS?  I seem to get a kernel thatt cannot boot with 
+> the below patch applied, and was wondering if you're aware of any 
+> problems in this area.  I'll probably post something more detailed 
+> tomorrow after trying a few things.
+> 
+> 		-ben
+> -- 
+> "Time is what keeps everything from happening all at once." -- John Wheeler
+> 
+> 
+> diff -purN v2.6.12-rc4/include/linux/blkdev.h test-rc4/include/linux/blkdev.h
+> --- v2.6.12-rc4/include/linux/blkdev.h	2005-04-28 11:02:01.000000000 -0400
+> +++ test-rc4/include/linux/blkdev.h	2005-05-11 17:06:10.000000000 -0400
+> @@ -667,8 +667,8 @@ extern long blk_congestion_wait(int rw, 
+>  extern void blk_rq_bio_prep(request_queue_t *, struct request *, struct bio *);
+>  extern int blkdev_issue_flush(struct block_device *, sector_t *);
+>  
+> -#define MAX_PHYS_SEGMENTS 128
+> -#define MAX_HW_SEGMENTS 128
+> +#define MAX_PHYS_SEGMENTS 32
+> +#define MAX_HW_SEGMENTS 32
+>  #define MAX_SECTORS 255
 
-Yes.  There was a mixup, and the msdos partitions patch got mixed with
-this one (in 2.6.11.8).  So that whole cset was backed out, and this
-fix was reapplied in 2.6.11.9.
+This doesn't really do what you would think it does - the defines should
+be called DEFAULT_PHYS_SEGMENTS etc, since they are just default values
+and do not denote any max-allowed-by-driver value.
 
-thanks,
--chris
+But it is strange why your system wont boot after applying the above.
+What happens (and what kind of storage)?
+
+-- 
+Jens Axboe
+

@@ -1,68 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262082AbVELUOi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262080AbVELUWA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262082AbVELUOi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 16:14:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbVELUO1
+	id S262080AbVELUWA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 16:22:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbVELUV7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 16:14:27 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:28378 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S262106AbVELUOJ (ORCPT
+	Thu, 12 May 2005 16:21:59 -0400
+Received: from fire.osdl.org ([65.172.181.4]:39138 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262080AbVELUV5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 16:14:09 -0400
-Date: Thu, 12 May 2005 22:14:06 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org,
-       mercurial@selenic.com, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Mercurial 0.4e vs git network pull
-Message-ID: <20050512201406.GJ324@pasky.ji.cz>
-References: <20050512094406.GZ5914@waste.org> <20050512182340.GA324@pasky.ji.cz> <20050512201116.GC5914@waste.org>
+	Thu, 12 May 2005 16:21:57 -0400
+Date: Thu, 12 May 2005 13:22:30 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, shai@scalex86.org
+Subject: Re: NUMA aware slab allocator V2
+Message-Id: <20050512132230.118b0c25.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0505121252390.32276@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com>
+	<20050512000444.641f44a9.akpm@osdl.org>
+	<Pine.LNX.4.58.0505121252390.32276@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050512201116.GC5914@waste.org>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Thu, May 12, 2005 at 10:11:16PM CEST, I got a letter
-where Matt Mackall <mpm@selenic.com> told me that...
-> On Thu, May 12, 2005 at 08:23:41PM +0200, Petr Baudis wrote:
-> > Dear diary, on Thu, May 12, 2005 at 11:44:06AM CEST, I got a letter
-> > where Matt Mackall <mpm@selenic.com> told me that...
-> > > Mercurial is more than 10 times as bandwidth efficient and
-> > > considerably more I/O efficient. On the server side, rsync uses about
-> > > twice as much CPU time as the Mercurial server and has about 10 times
-> > > the I/O and pagecache footprint as well.
-> > > 
-> > > Mercurial is also much smarter than rsync at determining what
-> > > outstanding changesets exist. Here's an empty pull as a demonstration:
-> > > 
-> > >  $ time hg merge hg://selenic.com/linux-hg/
-> > >  retrieving changegroup
-> > > 
-> > >  real    0m0.363s
-> > >  user    0m0.083s
-> > >  sys     0m0.007s
-> > > 
-> > > That's a single http request and a one line response.
-> > 
-> > So, what about comparing it with something comparable, say git pull over
-> > HTTP? :-)
+Christoph Lameter <clameter@engr.sgi.com> wrote:
+>
+> On Thu, 12 May 2005, Andrew Morton wrote:
 > 
-> ..because I get a headache every time I try to figure out how to use git? :-P
+> > Christoph Lameter <clameter@engr.sgi.com> wrote:
+> > >
+> > > This patch allows kmalloc_node to be as fast as kmalloc by introducing
+> > >  node specific page lists for partial, free and full slabs.
+> >
+> > This patch causes the ppc64 G5 to lock up fairly early in boot.  It's
+> > pretty much a default config:
+> > http://www.zip.com.au/~akpm/linux/patches/stuff/config-pmac
+> >
+> > No serial port, no debug environment, but no useful-looking error messages
+> > either.  See http://www.zip.com.au/~akpm/linux/patches/stuff/dsc02516.jpg
 > 
-> Seriously, have a pointer to how this works?
+> I got rc4-mm1 and booted it on an x86_64 machines with similar
+> configuration (no NUMA but SMP, numa slab uncommented) but multiple
+> configurations worked fine (apart from another error attempting to
+> initialize a nonexistand second cpu by the NMI handler that I described
+> in another email to you). I have no ppc64 available.
+> 
+> Could we boot the box without quiet so that we can get better debug
+> messages?
 
-Either you use cogito and just pass cg-clone an HTTP URL (to the git
-repository as in the case of rsync -
-http://www.kernel.org/pub/scm/cogito/cogito.git should work), or you
-invoke git-http-pull directly (passing it desired commit ID of the
-remote HEAD you want to fetch, and the URL; see
-Documentation/git-http-pull.txt).
+OK, I'll try that, but I doubt if it'll give much more info.
 
--- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-C++: an octopus made by nailing extra legs onto a dog. -- Steve Taylor
+> Did the box boot okay without the patch?
+
+Yup, I tested base 2.6.12-rc4 and 2.6.12-rc4+the-patch-you-sent.

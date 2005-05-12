@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262124AbVELVRo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262128AbVELVVd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262124AbVELVRo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 17:17:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbVELVRn
+	id S262128AbVELVVd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 17:21:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbVELVVd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 17:17:43 -0400
-Received: from mail.gmx.de ([213.165.64.20]:52914 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262124AbVELVRd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 17:17:33 -0400
-X-Authenticated: #271361
-Date: Thu, 12 May 2005 23:17:26 +0200
-From: Edgar Toernig <froese@gmx.de>
-To: jmerkey <jmerkey@utah-nac.org>
-Cc: Scott Robert Ladd <lkml@coyotegulch.com>, linux-kernel@vger.kernel.org
-Subject: Re: Automatic .config generation
-Message-Id: <20050512231726.6198bbc6.froese@gmx.de>
-In-Reply-To: <42838D4C.3040207@utah-nac.org>
-References: <42839AF7.4030708@coyotegulch.com>
-	<42838D4C.3040207@utah-nac.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Thu, 12 May 2005 17:21:33 -0400
+Received: from dsl092-010-080.sfo1.dsl.speakeasy.net ([66.92.10.80]:33653 "EHLO
+	FILTERGUY.nuvation.com") by vger.kernel.org with ESMTP
+	id S262128AbVELVVT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 17:21:19 -0400
+Message-ID: <FC3C0DD86B79DF4FA423AF0379A54761029DD0EA@mailguy2.nuvation.com>
+From: Joe Istead <jistead@nuvation.com>
+To: linux-kernel@vger.kernel.org
+Cc: jgarzik@pobox.com
+Subject: non-PCI libata
+Date: Thu, 12 May 2005 14:20:22 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jmerkey wrote:
->
-> Scott Robert Ladd wrote:
-> >
-> >Is there a utility that creates a .config based on analysis of the
-> >target system?
->
-> Now that's a great idea ..... :-)
+Hello,
 
-Not really new though :-)
+I have a question related to an LKML post on April 5, 2005:
 
-    http://sourceforge.net/projects/kautoconfigure/
+http://lkml.org/lkml/2005/4/5/210
 
-Ciao, ET.
+Preamble:
+I'm developing a low level driver for a non-PCI AHCI controller.  In
+particular, I'm using uClinux (2.6.x kernel) on a Nios II processor (Avalon
+bus, etc etc).  
+
+It looks like porting "drivers/scsi/ahci.c" to uClinux is the easiest way to
+do this.  However, ahci.c depends on libata, and both of these are littered
+with PCI-specific calls.
+
+Question:
+Is there a non-PCI libata (or, are there plans to make one)?
+
+Thanks,
+Joe.

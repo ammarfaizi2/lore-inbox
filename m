@@ -1,74 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbVELIM7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261319AbVELIMv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261321AbVELIM7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 04:12:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbVELIM7
+	id S261319AbVELIMv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 04:12:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVELIMu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 04:12:59 -0400
-Received: from lug-owl.de ([195.71.106.12]:17594 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S261325AbVELIMm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 04:12:42 -0400
-Date: Thu, 12 May 2005 10:12:40 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: remote keyboard
-Message-ID: <20050512081240.GS8176@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.60.0505121017090.31256@lantana.cs.iitm.ernet.in>
+	Thu, 12 May 2005 04:12:50 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:3867
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S261305AbVELIMe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 04:12:34 -0400
+Message-Id: <s2831dfd.009@emea1-mh.id2.novell.com>
+X-Mailer: Novell GroupWise Internet Agent 6.5.4 
+Date: Thu, 12 May 2005 10:12:46 +0200
+From: "Jan Beulich" <JBeulich@novell.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] i386 NMI on debug stack check correction
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0pkK7MCEo5hACTvx"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.60.0505121017090.31256@lantana.cs.iitm.ernet.in>
-X-Operating-System: Linux mail 2.6.10-rc2-bk5lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: multipart/mixed; boundary="=__Part486B84EE.0__="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a MIME message. If you are reading this text, you may want to 
+consider changing to a mail reader or gateway that understands how to 
+properly handle MIME multipart messages.
 
---0pkK7MCEo5hACTvx
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+--=__Part486B84EE.0__=
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: quoted-printable
-
-On Thu, 2005-05-12 10:21:31 +0530, P.Manohar <pmanohar@lantana.cs.iitm.erne=
-t.in> wrote:
-> Instead of using the local keyboard input, I want sent the keyboard keys
-> from the remote system (another PC via Ethernet) and use it as if it=20
-> from
->  the local keyboard.
-
-Write a small server which pushed pack input via uinput into the remote
-kernel.
-
-MfG, JBG
-
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- fuer einen Freien Staat voll Freier B=C3=BCrger" | im Internet! |   im Ira=
-k!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
-
---0pkK7MCEo5hACTvx
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
 Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
+(Note: Patch also attached because the inline version is certain to get
+line wrapped.)
 
-iD8DBQFCgw/4Hb1edYOZ4bsRAvBlAJ9iHVGdy4CSBl61fJxT2k0WChvVqACeLRdM
-xI9aOwflwW4JIahfenmFjYg=
-=6R2m
------END PGP SIGNATURE-----
+Stack pointer comparisons for the NMI on debug stack check/fixup were
+incorrect.
 
---0pkK7MCEo5hACTvx--
+Signed-off-by: Jan Beulich <jbeulich@novell.com>
+
+--- linux-2.6.12-rc4.base/arch/i386/kernel/entry.S	2005-05-11 =
+17:27:52.217255616 +0200
++++ linux-2.6.12-rc4/arch/i386/kernel/entry.S	2005-05-11 17:50:36.2398926=
+56 +0200
+@@ -557,11 +557,10 @@ nmi_stack_fixup:
+ nmi_debug_stack_check:
+ 	cmpw $__KERNEL_CS,16(%esp)
+ 	jne nmi_stack_correct
+-	cmpl $debug - 1,(%esp)
+-	jle nmi_stack_correct
++	cmpl $debug,(%esp)
++	jb nmi_stack_correct
+ 	cmpl $debug_esp_fix_insn,(%esp)
+-	jle nmi_debug_stack_fixup
+-nmi_debug_stack_fixup:
++	ja nmi_stack_correct
+ 	FIX_STACK(24,nmi_stack_correct, 1)
+ 	jmp nmi_stack_correct
+=20
+
+
+
+--=__Part486B84EE.0__=
+Content-Type: text/plain; name="linux-2.6.12-rc4-i386-nmi.patch"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: attachment; filename="linux-2.6.12-rc4-i386-nmi.patch"
+
+(Note: Patch also attached because the inline version is certain to get
+line wrapped.)
+
+Stack pointer comparisons for the NMI on debug stack check/fixup were
+incorrect.
+
+Signed-off-by: Jan Beulich <jbeulich@novell.com>
+
+--- linux-2.6.12-rc4.base/arch/i386/kernel/entry.S	2005-05-11 17:27:52.217255616 +0200
++++ linux-2.6.12-rc4/arch/i386/kernel/entry.S	2005-05-11 17:50:36.239892656 +0200
+@@ -557,11 +557,10 @@ nmi_stack_fixup:
+ nmi_debug_stack_check:
+ 	cmpw $__KERNEL_CS,16(%esp)
+ 	jne nmi_stack_correct
+-	cmpl $debug - 1,(%esp)
+-	jle nmi_stack_correct
++	cmpl $debug,(%esp)
++	jb nmi_stack_correct
+ 	cmpl $debug_esp_fix_insn,(%esp)
+-	jle nmi_debug_stack_fixup
+-nmi_debug_stack_fixup:
++	ja nmi_stack_correct
+ 	FIX_STACK(24,nmi_stack_correct, 1)
+ 	jmp nmi_stack_correct
+ 
+
+--=__Part486B84EE.0__=--

@@ -1,58 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbVELHrl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261228AbVELHr5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261219AbVELHrl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 03:47:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVELHrl
+	id S261228AbVELHr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 03:47:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVELHr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 03:47:41 -0400
-Received: from ozlabs.org ([203.10.76.45]:21991 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261219AbVELHr3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 03:47:29 -0400
-From: Michael Ellerman <michael@ellerman.id.au>
-Reply-To: michael@ellerman.id.au
-To: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>
-Subject: [PATCH 1/4] iseries_veth: Don't send packets to LPARs which aren't up
-Date: Thu, 12 May 2005 17:47:27 +1000
-User-Agent: KMail/1.8
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Thu, 12 May 2005 03:47:57 -0400
+Received: from smtp-vbr13.xs4all.nl ([194.109.24.33]:13842 "EHLO
+	smtp-vbr13.xs4all.nl") by vger.kernel.org with ESMTP
+	id S261228AbVELHrw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 03:47:52 -0400
+Date: Thu, 12 May 2005 09:47:32 +0200
+From: Erik van Konijnenburg <ekonijn@xs4all.nl>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Greg KH <gregkh@suse.de>, linux-hotplug-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: [ANNOUNCE] hotplug-ng 002 release
+Message-ID: <20050512094732.I7594@banaan.localdomain>
+Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
+	Greg KH <gregkh@suse.de>, linux-hotplug-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org
+References: <20050510232207.A7594@banaan.localdomain> <20050511015509.B7594@banaan.localdomain> <1115770106.17201.21.camel@localhost.localdomain> <20050511031103.C7594@banaan.localdomain> <1115782753.17201.54.camel@localhost.localdomain> <20050511115955.D7594@banaan.localdomain> <1115808722.16408.3.camel@localhost.localdomain> <20050511105818.GB8761@wonderland.linux.it> <20050511150604.E7594@banaan.localdomain> <1115872771.6739.27.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200505121747.27752.michael@ellerman.id.au>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1115872771.6739.27.camel@localhost.localdomain>; from rusty@rustcorp.com.au on Thu, May 12, 2005 at 02:39:31PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew, Jeff,
+On Thu, May 12, 2005 at 02:39:31PM +1000, Rusty Russell wrote:
+> Applied, with testsuite and documentation, released as pre5.  Diff below
+> for your convenience.  Erik, if you could use "./tests/runtests -vv
+> 02proc.sh" and tell me what's failing for you, that'd help (an unwitting
+> distro dependency?)
 
-The iseries_veth driver has a logic bug which means it will erroneously
-send packets to LPARs for which we don't have a connection.
+False alarm.  The test suites for pre4 and pre5 now both pass here,
+so the earlier errors were probably due to some sloppyness on my side.
 
-This usually isn't a big problem because the Hypervisor call fails
-gracefully and we return, but if packets are TX'ed during the negotiation
-of the connection bad things might happen.
-
-Regardless, the right thing is to bail early if we know there's no
-connection.
-
-Signed-off-by: Michael Ellerman <michael@ellerman.id.au>
---
-
- iseries_veth.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-Index: veth-fixes/drivers/net/iseries_veth.c
-===================================================================
---- veth-fixes.orig/drivers/net/iseries_veth.c
-+++ veth-fixes/drivers/net/iseries_veth.c	
-@@ -924,7 +924,7 @@ static int veth_transmit_to_one(struct s
- 
- 	spin_lock_irqsave(&cnx->lock, flags);
- 
--	if (! cnx->state & VETH_STATE_READY)
-+	if (! (cnx->state & VETH_STATE_READY))
- 		goto drop;
- 
- 	if ((skb->len - 14) > VETH_MAX_MTU)
+Regards,
+Erik

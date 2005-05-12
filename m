@@ -1,76 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbVELHpK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbVELHrl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261197AbVELHpK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 03:45:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbVELHpK
+	id S261219AbVELHrl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 03:47:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVELHrl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 03:45:10 -0400
-Received: from pop.gmx.net ([213.165.64.20]:12248 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261197AbVELHpA (ORCPT
+	Thu, 12 May 2005 03:47:41 -0400
+Received: from ozlabs.org ([203.10.76.45]:21991 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261219AbVELHr3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 03:45:00 -0400
-Date: Thu, 12 May 2005 09:44:59 +0200 (MEST)
-From: "Manfred Schwarb" <manfred99@gmx.ch>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: linux-kernel@vger.kernel.org
+	Thu, 12 May 2005 03:47:29 -0400
+From: Michael Ellerman <michael@ellerman.id.au>
+Reply-To: michael@ellerman.id.au
+To: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>
+Subject: [PATCH 1/4] iseries_veth: Don't send packets to LPARs which aren't up
+Date: Thu, 12 May 2005 17:47:27 +1000
+User-Agent: KMail/1.8
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-References: <20050511231016.GC18600@alpha.home.local>
-Subject: Re: 2.4.30-hf1 do_IRQ stack overflows
-X-Priority: 3 (Normal)
-X-Authenticated: #17170890
-Message-ID: <16624.1115883899@www69.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200505121747.27752.michael@ellerman.id.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andrew, Jeff,
 
-> > 
-> > Hi,
-> > with recent versions of the 2.4 kernel (Vanilla), I get an increasing 
-> > amount of do_IRQ stack overflows.
-> > This night, I got 3 of them.
-> > With 2.4.28 I got an overflow about twice a year, with 2.4.29 nearly 
-> > once a month and with 2.4.30 nearly every day 8-((
-> 
-> stupid question : have you tried reverting to older versions to check
-> if the problem follows kernel upgrades or if something is ageing badly
-> in your machine ?
-> 
-No, I have not, and I think I will not find the needed time to fully 
-track it down.
+The iseries_veth driver has a logic bug which means it will erroneously
+send packets to LPARs for which we don't have a connection.
 
-> > My layout: Pentium4 HT SMP, raid1 on a promise card, driven by 
-> > libata_promise, everything using reiserfs, heavy nfs and network
-> traffic, 
-> > with a Linksys (tulip) and a Realtek (8139too) NIC.
-> 
-> do you mean that you tested both with tulip and realtek and that the
-> problem happens with both of them, or that your machine needs those
-> two NICs simultaneously ? Using a realtek with heavy NFS and network
-> traffic seems somewhat odd, eventhough the driver is rather stable.
-> 
-both simultaneously. I thought the realtek is enough for the internet
-connection, as the bottleneck clearly is the ISP (we have a 10Mb/s wire).
-"heavy" is relative, a few handful (<20) of concurrent connections.
-the other NIC is the connection to the internal network.
+This usually isn't a big problem because the Hypervisor call fails
+gracefully and we return, but if packets are TX'ed during the negotiation
+of the connection bad things might happen.
 
-> > The used 2.4.30-hf1 is pure Vanilla.
-> > 
-> > Below my three overflow messages. Would the stack reduction patches of 
-> > Badari Pulavarty help in my case? 
-> 
-> I don't know. I suspect that it might delay the problem but not remove
-> it.
-> 
-> Regards,
-> Willy
-> 
-Thanks,
-Manfred
+Regardless, the right thing is to bail early if we know there's no
+connection.
 
--- 
-+++ Neu: Echte DSL-Flatrates von GMX - Surfen ohne Limits +++
-Always online ab 4,99 Euro/Monat: http://www.gmx.net/de/go/dsl
+Signed-off-by: Michael Ellerman <michael@ellerman.id.au>
+--
+
+ iseries_veth.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+Index: veth-fixes/drivers/net/iseries_veth.c
+===================================================================
+--- veth-fixes.orig/drivers/net/iseries_veth.c
++++ veth-fixes/drivers/net/iseries_veth.c	
+@@ -924,7 +924,7 @@ static int veth_transmit_to_one(struct s
+ 
+ 	spin_lock_irqsave(&cnx->lock, flags);
+ 
+-	if (! cnx->state & VETH_STATE_READY)
++	if (! (cnx->state & VETH_STATE_READY))
+ 		goto drop;
+ 
+ 	if ((skb->len - 14) > VETH_MAX_MTU)

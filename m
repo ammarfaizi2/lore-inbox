@@ -1,82 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261302AbVELCWc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261310AbVELCbG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261302AbVELCWc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 22:22:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVELCWc
+	id S261310AbVELCbG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 22:31:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbVELCbG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 22:22:32 -0400
-Received: from usbb-lacimss2.unisys.com ([192.63.108.52]:23312 "EHLO
-	usbb-lacimss2.unisys.com") by vger.kernel.org with ESMTP
-	id S261302AbVELCW3 convert rfc822-to-8bit (ORCPT
+	Wed, 11 May 2005 22:31:06 -0400
+Received: from fire.osdl.org ([65.172.181.4]:5518 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261310AbVELCay (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 22:22:29 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [patch 1/1] Do not enforce unique IO_APIC_ID for Xeon processors in EM64T mode (x86_64)
-Date: Wed, 11 May 2005 21:22:13 -0500
-Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04B6A@USRV-EXCH4.na.uis.unisys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch 1/1] Do not enforce unique IO_APIC_ID for Xeon processors in EM64T mode (x86_64)
-Thread-Index: AcVWXtEiqwhh9gTfTHOWiZ1p9nTEdgAOSKQQ
-From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-To: "Andi Kleen" <ak@suse.de>
-Cc: <jamesclv@us.ibm.com>, <akpm@osdl.org>, <zwane@arm.linux.org.uk>,
-       <len.brown@intel.com>, <venkatesh.pallipadi@intel.com>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 12 May 2005 02:22:13.0463 (UTC) FILETIME=[6896DE70:01C55699]
+	Wed, 11 May 2005 22:30:54 -0400
+Date: Wed, 11 May 2005 19:29:42 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix of dcache race leading to busy inodes on umount
+Message-Id: <20050511192942.07614243.akpm@osdl.org>
+In-Reply-To: <42822A2A.6000909@sw.ru>
+References: <42822A2A.6000909@sw.ru>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, May 11, 2005 at 11:21:15AM -0500, Protasevich, Natalie wrote:
-> > > > Looks like the need in the unique id can only be keyed of the 
-> > > > local APIC id, and probably it is a good idea to keep the 
-> > > > NO_IOAPIC_CHECK for subarchs that can override the heuristics?
-> > > 
-> > > I prefer not to do that. How about a simple
-> > > 
-> > > if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL &&
-> > > boot_cpu_data.x86 < 15)
-> > > 	/* do uniqueness check */
-> > > else
-> > > 	/* don't do it */
-> > > 
-> > > ?		
-> > > 
-> > > Rationale is that P4s and newer and systems not from Intel don't 
-> > > have serial APIC busses and don't need this uniqueness check.
-> > >
-> > 
-> > Yes, indeed this looks like the only undisputed (and sufficient) 
-> > criteria. I tried the below with Xeon box and it worked fine:
-> > 
-> > --- mpparse.c.orig	2005-05-11 02:10:35.000000000 -0400
-> > +++ mpparse.c	2005-05-11 02:12:31.000000000 -0400
-> > @@ -912,7 +913,15 @@ void __init mp_register_ioapic (
-> >  	mp_ioapics[idx].mpc_apicaddr = address;
-> >  
-> >  	set_fixmap_nocache(FIX_IO_APIC_BASE_0 + idx, address);
-> > -	mp_ioapics[idx].mpc_apicid = io_apic_get_unique_id(idx, id);
-> > +	if ((boot_cpu_data.x86_vendor == X86_VENDOR_INTEL) &&
-> > (boot_cpu_data.x86 >= 15))
-> > +		mp_ioapics[idx].mpc_apicid = id;
-> > +	else
-> 
-> That's still wrong because it does not trigger on AMD 
-> systems. 
+Kirill Korotaev <dev@sw.ru> wrote:
+>
+> This patch fixes dcache race between shrink_dcache_XXX functions
+> and dput().
 
-So no AMD systems need that check? OK, I'll change it as below.
 
-> Please make it
+> -void dput(struct dentry *dentry)
+> +static void dput_recursive(struct dentry *dentry, struct dcache_shrinker *ds)
+>  {
+> -	if (!dentry)
+> -		return;
+> -
+> -repeat:
+>  	if (atomic_read(&dentry->d_count) == 1)
+>  		might_sleep();
+>  	if (!atomic_dec_and_lock(&dentry->d_count, &dcache_lock))
+>  		return;
+> +	dcache_shrinker_del(ds);
+>  
+> +repeat:
+>  	spin_lock(&dentry->d_lock);
+>  	if (atomic_read(&dentry->d_count)) {
+>  		spin_unlock(&dentry->d_lock);
+> @@ -182,6 +253,7 @@ unhash_it:
+>  
+>  kill_it: {
+>  		struct dentry *parent;
+> +		struct dcache_shrinker lds;
+>  
+>  		/* If dentry was on d_lru list
+>  		 * delete it from there
+> @@ -191,18 +263,43 @@ kill_it: {
+>    			dentry_stat.nr_unused--;
+>    		}
+>    		list_del(&dentry->d_child);
+> +		parent = dentry->d_parent;
+> +		dcache_shrinker_add(&lds, parent, dentry);
+>  		dentry_stat.nr_dentry--;	/* For d_free, below */
+>  		/*drops the locks, at that point nobody can reach this dentry */
+>  		dentry_iput(dentry);
+> -		parent = dentry->d_parent;
+>  		d_free(dentry);
+>  		if (dentry == parent)
+
+Aren't we leaving local variable `lds' on the global list here?
+
+>  			return;
+>  		dentry = parent;
+> -		goto repeat;
+> +		spin_lock(&dcache_lock);
+> +		dcache_shrinker_del(&lds);
+> +		if (atomic_dec_and_test(&dentry->d_count))
+> +			goto repeat;
+> +		spin_unlock(&dcache_lock);
+>  	}
+>  }
 > 
-> 	if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL && 
-> boot_cpu_data.x86 < 15)
-> 		mp_ioapics[idx].mpc_apicid = 
-> io_apic_get_unique_id(idx,id);
-> 	else
-> 		mp_ioapics[idx].mpc_apicid = id;
-> 
+
+--- 25/fs/dcache.c~fix-of-dcache-race-leading-to-busy-inodes-on-umount-fix	2005-05-11 19:24:23.000000000 -0700
++++ 25-akpm/fs/dcache.c	2005-05-11 19:27:27.000000000 -0700
+@@ -269,8 +269,12 @@ kill_it: {
+ 		/*drops the locks, at that point nobody can reach this dentry */
+ 		dentry_iput(dentry);
+ 		d_free(dentry);
+-		if (dentry == parent)
++		if (unlikely(dentry == parent)) {
++			spin_lock(&dcache_lock);
++			dcache_shrinker_del(&lds);
++			spin_unlock(&dcache_lock);
+ 			return;
++		}
+ 		dentry = parent;
+ 		spin_lock(&dcache_lock);
+ 		dcache_shrinker_del(&lds);
+_
+

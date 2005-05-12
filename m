@@ -1,23 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261349AbVELIuD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbVELIuE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261349AbVELIuD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 04:50:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbVELItC
+	id S261355AbVELIuE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 04:50:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbVELIsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 04:49:02 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:18208
+	Thu, 12 May 2005 04:48:46 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:5664
 	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S261349AbVELIsK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 04:48:10 -0400
-Message-Id: <s2832659.037@emea1-mh.id2.novell.com>
+	id S261348AbVELIqg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 04:46:36 -0400
+Message-Id: <s28325fb.011@emea1-mh.id2.novell.com>
 X-Mailer: Novell GroupWise Internet Agent 6.5.4 
-Date: Thu, 12 May 2005 10:48:27 +0200
+Date: Thu, 12 May 2005 10:46:49 +0200
 From: "Jan Beulich" <JBeulich@novell.com>
-To: <ak@suse.de>
-Cc: <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>
-Subject: [PATCH] eliminate duplicate rdpmc definition
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] adjust per_cpu definition in non-SMP case
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=__PartFAD9364B.1__="
+Content-Type: multipart/mixed; boundary="=__Part57749BE9.0__="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -25,7 +24,7 @@ This is a MIME message. If you are reading this text, you may want to
 consider changing to a mail reader or gateway that understands how to 
 properly handle MIME multipart messages.
 
---=__PartFAD9364B.1__=
+--=__Part57749BE9.0__=
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
@@ -33,57 +32,116 @@ Content-Disposition: inline
 (Note: Patch also attached because the inline version is certain to get
 line wrapped.)
 
-Eliminate duplicate definition of rdpmc in x86-64's mtrr.h.
+Fix (in the architectures I'm actually building for) the UP definition of
+per_cpu so that the cpu specified may be any expression, not just an
+identifier or a suffix expression.
 
 Signed-off-by: Jan Beulich <jbeulich@novell.com>
 
-diff -Npru linux-2.6.12-rc4.base/include/asm-x86_64/msr.h linux-2.6.12-rc4/=
-include/asm-x86_64/msr.h
---- linux-2.6.12-rc4.base/include/asm-x86_64/msr.h	2005-05-11 =
-17:28:24.819299352 +0200
-+++ linux-2.6.12-rc4/include/asm-x86_64/msr.h	2005-05-11 17:50:36.3088821=
-68 +0200
-@@ -57,11 +57,6 @@
-      (val) =3D ((unsigned long)__a) | (((unsigned long)__d)<<32); \
- } while(0)
+diff -Npru linux-2.6.12-rc4.base/include/asm-generic/percpu.h linux-2.6.12-=
+rc4/include/asm-generic/percpu.h
+--- linux-2.6.12-rc4.base/include/asm-generic/percpu.h	2005-03-02 =
+08:37:50.000000000 +0100
++++ linux-2.6.12-rc4/include/asm-generic/percpu.h	2005-03-15 =
+14:40:12.000000000 +0100
+@@ -29,7 +29,7 @@ do {								=
+\
+ #define DEFINE_PER_CPU(type, name) \
+     __typeof__(type) per_cpu__##name
 =20
--#define rdpmc(counter,low,high) \
--     __asm__ __volatile__("rdpmc" \
--			  : "=3Da" (low), "=3Dd" (high) \
--			  : "c" (counter))
--
- #define write_tsc(val1,val2) wrmsr(0x10, val1, val2)
+-#define per_cpu(var, cpu)			(*((void)cpu, &per_cpu__##v=
+ar))
++#define per_cpu(var, cpu)			(*((void)(cpu), &per_cpu__#=
+#var))
+ #define __get_cpu_var(var)			per_cpu__##var
 =20
- #define rdpmc(counter,low,high) \
+ #endif	/* SMP */
+diff -Npru linux-2.6.12-rc4.base/include/asm-ia64/percpu.h linux-2.6.12-rc4=
+/include/asm-ia64/percpu.h
+--- linux-2.6.12-rc4.base/include/asm-ia64/percpu.h	2005-03-02 =
+08:38:17.000000000 +0100
++++ linux-2.6.12-rc4/include/asm-ia64/percpu.h	2005-03-15 14:40:12.0000000=
+00 +0100
+@@ -50,7 +50,7 @@ extern void *per_cpu_init(void);
+=20
+ #else /* ! SMP */
+=20
+-#define per_cpu(var, cpu)			(*((void)cpu, &per_cpu__##v=
+ar))
++#define per_cpu(var, cpu)			(*((void)(cpu), &per_cpu__#=
+#var))
+ #define __get_cpu_var(var)			per_cpu__##var
+ #define per_cpu_init()				(__phys_per_cpu_start)
+=20
+diff -Npru linux-2.6.12-rc4.base/include/asm-x86_64/percpu.h linux-2.6.12-r=
+c4/include/asm-x86_64/percpu.h
+--- linux-2.6.12-rc4.base/include/asm-x86_64/percpu.h	2005-03-02 =
+08:38:13.000000000 +0100
++++ linux-2.6.12-rc4/include/asm-x86_64/percpu.h	2005-03-15 =
+15:19:44.000000000 +0100
+@@ -39,7 +39,7 @@ extern void setup_per_cpu_areas(void);
+ #define DEFINE_PER_CPU(type, name) \
+     __typeof__(type) per_cpu__##name
+=20
+-#define per_cpu(var, cpu)			(*((void)cpu, &per_cpu__##v=
+ar))
++#define per_cpu(var, cpu)			(*((void)(cpu), &per_cpu__#=
+#var))
+ #define __get_cpu_var(var)			per_cpu__##var
+=20
+ #endif	/* SMP */
 
 
 
---=__PartFAD9364B.1__=
-Content-Type: text/plain; name="linux-2.6.12-rc4-x86_64-rdpmc.patch"
+--=__Part57749BE9.0__=
+Content-Type: text/plain; name="linux-2.6.12-rc4-percpu.patch"
 Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="linux-2.6.12-rc4-x86_64-rdpmc.patch"
+Content-Disposition: attachment; filename="linux-2.6.12-rc4-percpu.patch"
 
 (Note: Patch also attached because the inline version is certain to get
 line wrapped.)
 
-Eliminate duplicate definition of rdpmc in x86-64's mtrr.h.
+Fix (in the architectures I'm actually building for) the UP definition of
+per_cpu so that the cpu specified may be any expression, not just an
+identifier or a suffix expression.
 
 Signed-off-by: Jan Beulich <jbeulich@novell.com>
 
-diff -Npru linux-2.6.12-rc4.base/include/asm-x86_64/msr.h linux-2.6.12-rc4/include/asm-x86_64/msr.h
---- linux-2.6.12-rc4.base/include/asm-x86_64/msr.h	2005-05-11 17:28:24.819299352 +0200
-+++ linux-2.6.12-rc4/include/asm-x86_64/msr.h	2005-05-11 17:50:36.308882168 +0200
-@@ -57,11 +57,6 @@
-      (val) = ((unsigned long)__a) | (((unsigned long)__d)<<32); \
- } while(0)
+diff -Npru linux-2.6.12-rc4.base/include/asm-generic/percpu.h linux-2.6.12-rc4/include/asm-generic/percpu.h
+--- linux-2.6.12-rc4.base/include/asm-generic/percpu.h	2005-03-02 08:37:50.000000000 +0100
++++ linux-2.6.12-rc4/include/asm-generic/percpu.h	2005-03-15 14:40:12.000000000 +0100
+@@ -29,7 +29,7 @@ do {								\
+ #define DEFINE_PER_CPU(type, name) \
+     __typeof__(type) per_cpu__##name
  
--#define rdpmc(counter,low,high) \
--     __asm__ __volatile__("rdpmc" \
--			  : "=a" (low), "=d" (high) \
--			  : "c" (counter))
--
- #define write_tsc(val1,val2) wrmsr(0x10, val1, val2)
+-#define per_cpu(var, cpu)			(*((void)cpu, &per_cpu__##var))
++#define per_cpu(var, cpu)			(*((void)(cpu), &per_cpu__##var))
+ #define __get_cpu_var(var)			per_cpu__##var
  
- #define rdpmc(counter,low,high) \
+ #endif	/* SMP */
+diff -Npru linux-2.6.12-rc4.base/include/asm-ia64/percpu.h linux-2.6.12-rc4/include/asm-ia64/percpu.h
+--- linux-2.6.12-rc4.base/include/asm-ia64/percpu.h	2005-03-02 08:38:17.000000000 +0100
++++ linux-2.6.12-rc4/include/asm-ia64/percpu.h	2005-03-15 14:40:12.000000000 +0100
+@@ -50,7 +50,7 @@ extern void *per_cpu_init(void);
+ 
+ #else /* ! SMP */
+ 
+-#define per_cpu(var, cpu)			(*((void)cpu, &per_cpu__##var))
++#define per_cpu(var, cpu)			(*((void)(cpu), &per_cpu__##var))
+ #define __get_cpu_var(var)			per_cpu__##var
+ #define per_cpu_init()				(__phys_per_cpu_start)
+ 
+diff -Npru linux-2.6.12-rc4.base/include/asm-x86_64/percpu.h linux-2.6.12-rc4/include/asm-x86_64/percpu.h
+--- linux-2.6.12-rc4.base/include/asm-x86_64/percpu.h	2005-03-02 08:38:13.000000000 +0100
++++ linux-2.6.12-rc4/include/asm-x86_64/percpu.h	2005-03-15 15:19:44.000000000 +0100
+@@ -39,7 +39,7 @@ extern void setup_per_cpu_areas(void);
+ #define DEFINE_PER_CPU(type, name) \
+     __typeof__(type) per_cpu__##name
+ 
+-#define per_cpu(var, cpu)			(*((void)cpu, &per_cpu__##var))
++#define per_cpu(var, cpu)			(*((void)(cpu), &per_cpu__##var))
+ #define __get_cpu_var(var)			per_cpu__##var
+ 
+ #endif	/* SMP */
 
---=__PartFAD9364B.1__=--
+--=__Part57749BE9.0__=--

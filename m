@@ -1,63 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbVELFBJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261274AbVELFH2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261249AbVELFBJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 01:01:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261274AbVELFBJ
+	id S261274AbVELFH2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 01:07:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbVELFH2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 01:01:09 -0400
-Received: from postfix3-2.free.fr ([213.228.0.169]:49093 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S261249AbVELFBG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 01:01:06 -0400
-Message-ID: <4282E3C0.8080604@imag.fr>
-Date: Thu, 12 May 2005 07:04:00 +0200
-From: Raphael Jacquot <raphael.jacquot@imag.fr>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050509)
-X-Accept-Language: en-us, en
+	Thu, 12 May 2005 01:07:28 -0400
+Received: from tassadar.physics.auth.gr ([155.207.123.25]:33421 "EHLO
+	tassadar.physics.auth.gr") by vger.kernel.org with ESMTP
+	id S261274AbVELFHV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 01:07:21 -0400
+Date: Thu, 12 May 2005 08:07:10 +0300 (EEST)
+From: Dimitris Zilaskos <dzila@tassadar.physics.auth.gr>
+To: ted creedon <tcreedon@easystreet.com>
+cc: openafs-info@openafs.org, linux-kernel@vger.kernel.org
+Subject: RE: [OpenAFS] Re: Openafs 1.3.78 and kernel 2.4.29 oopses , same
+ for 2.4.30 and openafs 1.3.82
+In-Reply-To: <20050509132508.55483B024@smtpauth.easystreet.com>
+Message-ID: <Pine.LNX.4.62.0505120749180.19791@tassadar.physics.auth.gr>
+References: <20050509132508.55483B024@smtpauth.easystreet.com>
 MIME-Version: 1.0
-To: "P.Manohar" <pmanohar@lantana.cs.iitm.ernet.in>,
-       linux-kernel@vger.kernel.org, industeqsite@industeqsite.com
-Subject: Re: remote keyboard
-References: <Pine.LNX.4.60.0505121017090.31256@lantana.cs.iitm.ernet.in>
-In-Reply-To: <Pine.LNX.4.60.0505121017090.31256@lantana.cs.iitm.ernet.in>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-AntiVirus: checked by AntiVir Milter (version: 1.1.0-4; AVE: 6.30.0.12; VDF: 6.30.0.170; host: tassadar)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-P.Manohar wrote:
-> 
-> " I am planning to have remote keyboard to control the operations on a
->  particular target. To explain in detail, I will have a PC with keyboard,
->  mouse etc and this PC will be connected to another PC(Remote) via
-> Ethernet.
-> Instead of using the local keyboard input, I want sent the keyboard keys
-> from the remote system (another PC via Ethernet) and use it as if it from
->  the local keyboard.
-> 
-> My Plan
->  I am planning to use the Linux keyboard driver and read the keyboard
-> buffer
-> from the remote PC and send it to the target PC, and in the target PC
->  whatever the key code I have received through the Ethernet I will put it
-> into the local keyboard buffer using the Linux keyboard driver IOCTLs.
-> 
->  Can anybody tell me is this acceptable "
-> 
-> 
-> Hai,
->    The above message appeared in kernel-mailing list,
->  I am also involved in the same problem.
-> How to put characters into keyboard buffer using the Linux keyboard
-> driver IOCTLs?
-> 
-> If anybody knows about it please guide me.
+On Mon, 9 May 2005, ted creedon wrote:
 
-are you using a graphical (Xwindow) application ?
-in that case there is absolutely no point in doing that kind of horrible
-hack, as the XWindow System is network transparent, that is, you can run
-the application on machine A, and have it display and be controlled on
-machine B
-you can even use the ssh secure shell to securely do so, in an encrypted
-manner.
+> Looks like a compile problem if there's a symbol table error.
+>
+> To eliminate that as a cause:
+> Make bzImage;make modules;make modules_install;make install;
+> Reboot into the new image
+> Run regen.sh then ./configure and built a new openafs system; install ane
+> test it.
+>
+> I think there may be small differences in the m4 macros between various
+> operating systems.
+>
+> This is the only way I can get reliable compiles. I have had one server
+> crash with 1.3.81 but I suspect the software raid filesystem.
+>
+
+
+ 	Hello ted ,
+
+I folowed your advice , and now after 60 hours of continuous  usage I had 
+no oops. I will keep stressing the system to see how it goes. Using 2.4.30 
+and openafs 1.3.78 at the moment.
+
+ 	Thanks to everyone who replied :)
+
+
+--
+=============================================================================
+
+Dimitris Zilaskos
+
+Department of Physics @ Aristotle University of Thessaloniki , Greece
+PGP key : http://tassadar.physics.auth.gr/~dzila/pgp_public_key.asc
+ 	  http://egnatia.ee.auth.gr/~dzila/pgp_public_key.asc
+MD5sum  : de2bd8f73d545f0e4caf3096894ad83f  pgp_public_key.asc
+=============================================================================
+
+
 

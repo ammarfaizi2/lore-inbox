@@ -1,142 +1,185 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262149AbVELWQI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262152AbVELWSD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262149AbVELWQI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 18:16:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262154AbVELWQI
+	id S262152AbVELWSD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 18:18:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262154AbVELWSD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 18:16:08 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:63218 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262149AbVELWPw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 18:15:52 -0400
-Message-ID: <4283D581.9070008@mvista.com>
-Date: Thu, 12 May 2005 15:15:29 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
+	Thu, 12 May 2005 18:18:03 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:24985 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262152AbVELWRb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 18:17:31 -0400
+Date: Thu, 12 May 2005 17:17:19 -0500 (CDT)
+From: Kylene Hall <kjhall@us.ibm.com>
+X-X-Sender: kjhall@localhost.localdomain
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] tpm: replace odd LPC init function
+Message-ID: <Pine.LNX.4.62.0505111720550.28226@localhost.localdomain>
 MIME-Version: 1.0
-To: Jesse Barnes <jesse.barnes@intel.com>
-CC: vatsa@in.ibm.com, Tony Lindgren <tony@atomide.com>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, schwidefsky@de.ibm.com,
-       jdike@addtoit.com, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] (How to) Let idle CPUs sleep
-References: <20050507182728.GA29592@in.ibm.com> <20050512171251.GA21656@in.ibm.com> <4283C795.1050704@mvista.com> <200505121435.01011.jesse.barnes@intel.com>
-In-Reply-To: <200505121435.01011.jesse.barnes@intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Barnes wrote:
-> On Thursday, May 12, 2005 2:16 pm, George Anzinger wrote:
-> 
->>The tickless system differs from VST in that it is designed to only
->>"tick" when there is something in the time list to do and it does
->>this ALWAYS.
-> 
-> 
-> Right, that's what I gathered (and what I was getting at).
-> 
-> 
->>And this is exactly where the tickless system runs into overload. 
->>Simply speaking, each task has with it certain limits and
->>requirements WRT time.  It is almost always time sliced, but it may
->>also have execution limits and settimer execution time interrupts
->>that it wants.
-> 
-> 
-> Right...
-> 
-> 
->>These need to be set up for each task when it is 
->>switched to and removed when the system switches away from it.
-> 
-> 
-> Why do they need to be switched when the task's slice is up?
+Realized the tpm_lpc_init function isn't really necessary.  Replaced it 
+with vendor specific logic to find out the address the BIOS mapped the TPM 
+to.  This patch removes the tpm_lpc_init function, enums associated with 
+it and calls to it.  The patch also implements the replacement 
+functionality.
 
-No, that would not be too bad, but they need to be removed when the task is 
-switched away from.  This happens FAR more often than a slice expiring.  Most 
-tasks are switched away from because they block, not because their time is over.
-
-  Can't they
-> remain in the timer list?  
-
-We are timeing the tasks slice.  It is only active when the task has the cpu...
-
-I guess I'm imagining a global outstanding
-> timer list that's manipulated by add/remove_timer, settimer, etc..  
-> When a timeout occurs the timer interrupt handler could mark tasks 
-> runnable again, bump their priority, send SIGALRM, or whatever.  Most 
-
-The timers that cause the problem are the ones that only run when the task is 
-active.  These are the slice timer, the profile timer (ITIMER_PROF), the 
-execution limit timer and the settime timer that is relative to execution time 
-(ITIMER_VIRTUAL).
-
-Again, we can colapse all these to one, but still it needs to be setup when the 
-task is switched to and removed when it is switched away.
-
-> timers are deleted before they expire anyway, right?  If that's true 
-> you definitely don't want to save and restore them on every context 
-> switch...
-
-One of these timers is almost ALWAYS needed.  And yes, mostly they do not 
-expire.  That is usually good as an expire cost more than a removal (provided 
-you do not need to reprogram the timer as a result).
-
-Timers that run on system time (ITIMER_REAL) stay in the list even when the task 
-is inactive.
-> 
-> 
->>In 
->>the test I did, I reduced all these timers to one (I think I just
->>used the slice time, but this is not the thing to do if the user is
->>trying to do profiling.  In any case, only one timer needs to be set
->>up, possibly some work needs to be done to find the min. of all the
->>execution time timers it has, but only that one needs to go in the
->>time list.).
-> 
-> 
-> Or at least only the nearest one has to be programmed as the next 
-> interrupt, and before going back to sleep the kernel could check if any 
-> timers had expired while the last one was running (aren't missing 
-> jiffies accounted for this way too, but of course jiffies would go away 
-> in this scheme)?
-> 
-> 
->>BUT it needs to happen each context switch time and 
->>thus adds overhead to the switch time.  In my testing, the overhead
->>for this became higher than the ticked system overhead for the same
->>services at a relatively low context switch rate.
-> 
-> 
-> Yeah, that does sound expensive.
-> 
-> 
->>From a systems 
->>point of view, you just don't want to increase overhead when the load
->>goes up.  This leads to fragile systems.
->>
->>Now, the question still remains, if a cpu in an SMP system is
->>sleeping because of VST, who or how is it to be wakened to responded
->>to increases in the system load.  If all CPUs are sleeping, there is
->>some event (i.e. interrupt) that does this.  I think, in an SMP
->>system, any awake CPUs should, during their load balancing, notice
->>that there are sleeping CPUs and wake them as the load increases.
-> 
-> 
-> Sounds reasonable to me, should be as simple as a 'wake up and load 
-> balance' IPI, right?
-
-I think there is already an IPI to tell another cpu that it has work.  That 
-should be enough.  Need to check, however.  From the VST point of view, any 
-interrupt wake the cpu from the VST sleep, so it need not even target the 
-scheduler..
-
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
+---
+diff -uprN linux-2.6.12-rc3/drivers/char/tpm/tpm_atmel.c kernel/linux-2.6.12-rc3-tpmdd/drivers/char/tpm/tpm_atmel.c
+--- linux-2.6.12-rc3/drivers/char/tpm/tpm_atmel.c	2005-05-09 14:15:55.000000000 -0500
++++ kernel/linux-2.6.12-rc3-tpmdd/drivers/char/tpm/tpm_atmel.c	2005-05-12 14:07:41.000000000 -0500
+@@ -22,8 +22,9 @@
+ #include "tpm.h"
+ 
+ /* Atmel definitions */
+-enum tpm_atmel_addr{
+-	TPM_ATML_BASE = 0x400
++enum tpm_atmel_addr {
++	TPM_ATMEL_BASE_ADDR_LO = 0x08,
++	TPM_ATMEL_BASE_ADDR_HI = 0x09
+ };
+ 
+ /* write status bits */
+@@ -148,7 +149,6 @@ static struct tpm_vendor_specific tpm_at
+ 	.req_complete_mask = ATML_STATUS_BUSY | ATML_STATUS_DATA_AVAIL,
+ 	.req_complete_val = ATML_STATUS_DATA_AVAIL,
+ 	.req_canceled = ATML_STATUS_READY,
+-	.base = TPM_ATML_BASE,
+ 	.attr_group = &atmel_attr_grp,
+ 	.miscdev.fops = &atmel_ops,
+ };
+@@ -158,14 +158,16 @@ static int __devinit tpm_atml_init(struc
+ {
+ 	u8 version[4];
+ 	int rc = 0;
++	int lo, hi;
+ 
+ 	if (pci_enable_device(pci_dev))
+ 		return -EIO;
+ 
+-	if (tpm_lpc_bus_init(pci_dev, TPM_ATML_BASE)) {
+-		rc = -ENODEV;
+-		goto out_err;
+-	}
++	lo = tpm_read_index( TPM_ATMEL_BASE_ADDR_LO );
++	hi = tpm_read_index( TPM_ATMEL_BASE_ADDR_HI );
++	
++	tpm_atmel.base = (hi<<8)|lo; 
++	dev_dbg( &pci_dev->dev, "Operating with base: 0x%x\n", tpm_atmel.base);
+ 
+ 	/* verify that it is an Atmel part */
+ 	if (tpm_read_index(4) != 'A' || tpm_read_index(5) != 'T'
+diff -uprN linux-2.6.12-rc3/drivers/char/tpm/tpm.c kernel/linux-2.6.12-rc3-tpmdd/drivers/char/tpm/tpm.c
+--- linux-2.6.12-rc3/drivers/char/tpm/tpm.c	2005-05-09 14:15:55.000000000 -0500
++++ kernel/linux-2.6.12-rc3-tpmdd/drivers/char/tpm/tpm.c	2005-05-12 14:07:41.000000000 -0500
+@@ -35,25 +35,6 @@ enum tpm_const {
+ 	TPM_NUM_MASK_ENTRIES = TPM_NUM_DEVICES / (8 * sizeof(int))
+ };
+ 
+-  /* PCI configuration addresses */
+-enum tpm_pci_config_addr {
+-	PCI_GEN_PMCON_1 = 0xA0,
+-	PCI_GEN1_DEC = 0xE4,
+-	PCI_LPC_EN = 0xE6,
+-	PCI_GEN2_DEC = 0xEC
+-};
+-
+-enum tpm_config {
+-	TPM_LOCK_REG = 0x0D,
+-	TPM_INTERUPT_REG = 0x0A,
+-	TPM_BASE_ADDR_LO = 0x08,
+-	TPM_BASE_ADDR_HI = 0x09,
+-	TPM_UNLOCK_VALUE = 0x55,
+-	TPM_LOCK_VALUE = 0xAA,
+-	TPM_DISABLE_INTERUPT_VALUE = 0x00
+-};
+-
+-
+ static LIST_HEAD(tpm_chip_list);
+ static DEFINE_SPINLOCK(driver_lock);
+ static int dev_mask[TPM_NUM_MASK_ENTRIES];
+@@ -585,10 +520,6 @@ int tpm_pm_resume(struct pci_dev *pci_de
+ 	if (chip == NULL)
+ 		return -ENODEV;
+ 
+-	spin_lock(&driver_lock);
+-	tpm_lpc_bus_init(pci_dev, chip->vendor->base);
+-	spin_unlock(&driver_lock);
+-
+ 	return 0;
+ }
+ 
+diff -uprN linux-2.6.12-rc3/drivers/char/tpm/tpm.h kernel/linux-2.6.12-rc3-tpmdd/drivers/char/tpm/tpm.h
+--- linux-2.6.12-rc3/drivers/char/tpm/tpm.h	2005-05-09 14:15:55.000000000 -0500
++++ kernel/linux-2.6.12-rc3-tpmdd/drivers/char/tpm/tpm.h	2005-05-12 14:07:41.000000000 -0500
+@@ -88,8 +88,6 @@ static inline void tpm_write_index(int i
+ 	outb(value & 0xFF, TPM_DATA);
+ }
+ 
+-extern int tpm_lpc_bus_init(struct pci_dev *, u16);
+-
+ extern int tpm_register_hardware(struct pci_dev *,
+ 				 struct tpm_vendor_specific *);
+ extern int tpm_open(struct inode *, struct file *);
+diff -uprN linux-2.6.12-rc3/drivers/char/tpm/tpm_nsc.c kernel/linux-2.6.12-rc3-tpmdd/drivers/char/tpm/tpm_nsc.c
+--- linux-2.6.12-rc3/drivers/char/tpm/tpm_nsc.c	2005-05-09 14:15:55.000000000 -0500
++++ kernel/linux-2.6.12-rc3-tpmdd/drivers/char/tpm/tpm_nsc.c	2005-05-12 14:07:41.000000000 -0500
+@@ -22,9 +22,13 @@
+ #include "tpm.h"
+ 
+ /* National definitions */
+-enum tpm_nsc_addr {
++enum tpm_nsc_addr{
+ 	TPM_NSC_BASE = 0x360,
+-	TPM_NSC_IRQ = 0x07
++	TPM_NSC_IRQ = 0x07,
++	TPM_NSC_BASE0_HI = 0x60,
++	TPM_NSC_BASE0_LO = 0x61,
++	TPM_NSC_BASE1_HI = 0x62,
++	TPM_NSC_BASE1_LO = 0x63
+ };
+ 
+ enum tpm_nsc_index {
+@@ -44,7 +48,7 @@ enum tpm_nsc_status_loc {
+ };
+ 
+ /* status bits */
+-enum tpm_nsc_status{
++enum tpm_nsc_status {
+ 	NSC_STATUS_OBF = 0x01,	/* output buffer full */
+ 	NSC_STATUS_IBF = 0x02,	/* input buffer full */
+ 	NSC_STATUS_F0 = 0x04,	/* F0 */
+@@ -246,7 +250,6 @@ static struct tpm_vendor_specific tpm_ns
+ 	.req_complete_mask = NSC_STATUS_OBF,
+ 	.req_complete_val = NSC_STATUS_OBF,
+ 	.req_canceled = NSC_STATUS_RDY,
+-	.base = TPM_NSC_BASE,
+ 	.attr_group = &nsc_attr_grp,
+ 	.miscdev.fops = &nsc_ops,
+ 
+@@ -256,15 +259,16 @@ static int __devinit tpm_nsc_init(struct
+ 				  const struct pci_device_id *pci_id)
+ {
+ 	int rc = 0;
++	int lo, hi;
++
++	hi = tpm_read_index(TPM_NSC_BASE0_HI);
++	lo = tpm_read_index(TPM_NSC_BASE0_LO);
++
++	tpm_nsc.base = (hi<<8) | lo;
+ 
+ 	if (pci_enable_device(pci_dev))
+ 		return -EIO;
+ 
+-	if (tpm_lpc_bus_init(pci_dev, TPM_NSC_BASE)) {
+-		rc = -ENODEV;
+-		goto out_err;
+-	}
+-
+ 	/* verify that it is a National part (SID) */
+ 	if (tpm_read_index(NSC_SID_INDEX) != 0xEF) {
+ 		rc = -ENODEV;

@@ -1,85 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262019AbVELPUX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262034AbVELPhK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262019AbVELPUX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 11:20:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262022AbVELPUX
+	id S262034AbVELPhK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 11:37:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262039AbVELPhK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 11:20:23 -0400
-Received: from zproxy.gmail.com ([64.233.162.201]:48394 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262019AbVELPTb convert rfc822-to-8bit
+	Thu, 12 May 2005 11:37:10 -0400
+Received: from alog0337.analogic.com ([208.224.222.113]:5608 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262034AbVELPhF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 11:19:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=nmIvzGr/GQDmTJkF9k+D7T2X82cgjGQI0dJ0mrfjfCx/ByaZMUuXMjlzkcCRq3pjx/iW/oDfTdoggOdBBY5GNCcEV7CjF73oqMe/HByd26fO1PUF2B05bXc1yBkhpKzqjVdBx7tWy5BU5GjVOkr+B00dq2wyJILjEyQBeebikSs=
-Message-ID: <3993a4980505120819d558bb0@mail.gmail.com>
-Date: Thu, 12 May 2005 17:19:27 +0200
-From: Jouke Witteveen <j.witteveen@gmail.com>
-Reply-To: Jouke Witteveen <j.witteveen@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Compile third-party module into the kernel
-In-Reply-To: <3993a498050510082525d8f8e2@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <3993a49805050908221f005d61@mail.gmail.com>
-	 <87ab37ab050509211458b25ff0@mail.gmail.com>
-	 <3993a498050510082525d8f8e2@mail.gmail.com>
+	Thu, 12 May 2005 11:37:05 -0400
+Date: Thu, 12 May 2005 11:35:49 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: "Tetsuji \"Maverick\" Rai" <tetsuji.rai@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Need kernel patch to compile with Intel compiler
+In-Reply-To: <377362e105051207461ff85b87@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0505121130030.31719@chaos.analogic.com>
+References: <377362e105051207461ff85b87@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can I use this patch:
-http://developer.momonga-linux.org/viewcvs/trunk/pkgs/kernel/momonga-linux-2.4.20-3c90x.patch?rev=3
-on the Debianized source 2.4.27 (rev 8)?
+On Thu, 12 May 2005, Tetsuji "Maverick" Rai wrote:
 
-- Jouke
-
-On 5/10/05, Jouke Witteveen <j.witteveen@gmail.com> wrote:
-> In the readme file from the drivers in question is stated:
-> ---
-> > To load the 3C90x driver module on a Kernel 2.4 (or above) system,
-> > place an "alias" in the file named /etc/modules.conf.
-> > For older systems, the file name may be conf.modules.
-> ---
-> This is the only time the 2.4 branch gets metioned.
-> From this I can conclude that the driver does support the 2.4 branch
-> but it is not build for this specific linux kernel.
-> How to compile it into the kernel is not described however.
-> 
-> In an older version of the driver
-> (http://support.3com.com/infodeli/tools/nic/linux/3c90x-1.0.0i.tar.gz)
-> a patch for the 2.2 series kernel source is included.
-> How should I patch the 2.4.27 kernel source to include the 3c90x?
-> 
-> 
-> On 5/10/05, kylin <fierykylin@gmail.com> wrote:
-> > is third party soft writen for the specific linux kernnel ?
-> >
-> > On 5/9/05, Jouke Witteveen <j.witteveen@gmail.com> wrote:
-> > > Hello,
-> > >
-> > > I'm about to compile my new 2.4.27 (Debian Sarge) kernel. There is
-> > > only one hurdle left to take.
-> > > For my 3C905C-TX-M I wan't to use the latest vendor driver since I
-> > > heard the famous 3c59x is not optimal for that card. The driver of
-> > > choice is: http://support.3com.com/infodeli/tools/nic/linux/3c90x-102.tar.gz.
-> > > How do I compile this source (3c90x.c and 3c90x.h) directly into the
-> > > kernel (not as a module)? And how as a module inside a
-> > > my-kernel_modules.deb like ALSA
-> > > get's compiled?
-> > >
-> > > Kind regards,
-> > > Jouke
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > >
-> >
-> > --
-> > we who r about to die,salute u!
-> >
+> In this mailing list archive I found a discussion on how to compile
+> kenrel 2.6.x with Intel C++ compiler, but it was a bit old, and only
+> kernel patch for version 2.6.5 or around so can be found.   As mine is
+> HT enabled, I want newer one.
 >
+> Does anyone know where to find it, or how to make it?
+>
+> regards,
+
+The kernel is designed to be compiled with the GNU 'C' compler
+supplied with every distribution. It uses a lot of __asm__()
+statements and other GNU-specific constructions.
+
+Why would you even attempt to convert the kernel sources to
+be compiled with some other tools? Also C++ won't work because
+the kernel is all about method, i.e., procedures. You need
+a procedural compiler for most of it, not an object-oriented
+one.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

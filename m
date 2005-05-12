@@ -1,54 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262110AbVELSYj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262102AbVELSZm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262110AbVELSYj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 14:24:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbVELSYe
+	id S262102AbVELSZm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 14:25:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbVELSY4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 14:24:34 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:65239 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S262102AbVELSXn (ORCPT
+	Thu, 12 May 2005 14:24:56 -0400
+Received: from dsl-201-137-72-215.prod-infinitum.com.mx ([201.137.72.215]:50960
+	"EHLO dsl-201-137-72-215.prod-infinitum.com.mx") by vger.kernel.org
+	with ESMTP id S262101AbVELSXI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 14:23:43 -0400
-Date: Thu, 12 May 2005 20:23:41 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org,
-       mercurial@selenic.com, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Mercurial 0.4e vs git network pull
-Message-ID: <20050512182340.GA324@pasky.ji.cz>
-References: <20050512094406.GZ5914@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050512094406.GZ5914@waste.org>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+	Thu, 12 May 2005 14:23:08 -0400
+Message-ID: <007301c55717$a8ee9700$0326000a@OuvQ>
+From: "Julia" <ascrun@aaanet.ru>
+To: "linux-kernel-owner" <linux-kernel-owner@vger.kernel.org>
+Subject: Re[1]: hi from Juliana S.
+Date: Thu, 12 May 2005 21:26:02 +0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="windows-1251"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Thu, May 12, 2005 at 11:44:06AM CEST, I got a letter
-where Matt Mackall <mpm@selenic.com> told me that...
-> Mercurial is more than 10 times as bandwidth efficient and
-> considerably more I/O efficient. On the server side, rsync uses about
-> twice as much CPU time as the Mercurial server and has about 10 times
-> the I/O and pagecache footprint as well.
-> 
-> Mercurial is also much smarter than rsync at determining what
-> outstanding changesets exist. Here's an empty pull as a demonstration:
-> 
->  $ time hg merge hg://selenic.com/linux-hg/
->  retrieving changegroup
-> 
->  real    0m0.363s
->  user    0m0.083s
->  sys     0m0.007s
-> 
-> That's a single http request and a one line response.
+Hallo!	
 
-So, what about comparing it with something comparable, say git pull over
-HTTP? :-)
+I am a lovely and lonely Lady who is looking for the man who will make me happy and whom I want to feel like in paradise with!
+If you want to be my beautiful Hero who will save me from this loneliness find me 
+http://www.vcf1tZwD0lJKzTWDg2.hiforyou.org/
+and wake me up with a warm kiss.
 
--- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-C++: an octopus made by nailing extra legs onto a dog. -- Steve Taylor
+so long...
+Julia
+
+

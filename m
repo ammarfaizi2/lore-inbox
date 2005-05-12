@@ -1,81 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261301AbVELIJw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbVELIM7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261301AbVELIJw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 04:09:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbVELIJw
+	id S261321AbVELIM7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 04:12:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbVELIM7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 04:09:52 -0400
-Received: from ozlabs.org ([203.10.76.45]:59624 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261301AbVELIJq (ORCPT
+	Thu, 12 May 2005 04:12:59 -0400
+Received: from lug-owl.de ([195.71.106.12]:17594 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S261325AbVELIMm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 04:09:46 -0400
-From: Michael Ellerman <michael@ellerman.id.au>
-Reply-To: michael@ellerman.id.au
-To: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>
-Subject: [PATCH 4/4] iseries_veth: Cleanup skbs to prevent unregister_netdevice() hanging
-Date: Thu, 12 May 2005 18:09:45 +1000
-User-Agent: KMail/1.8
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
-       "PPC64-dev" <linuxppc64-dev@ozlabs.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Thu, 12 May 2005 04:12:42 -0400
+Date: Thu, 12 May 2005 10:12:40 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: remote keyboard
+Message-ID: <20050512081240.GS8176@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.60.0505121017090.31256@lantana.cs.iitm.ernet.in>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0pkK7MCEo5hACTvx"
 Content-Disposition: inline
-Message-Id: <200505121809.45419.michael@ellerman.id.au>
+In-Reply-To: <Pine.LNX.4.60.0505121017090.31256@lantana.cs.iitm.ernet.in>
+X-Operating-System: Linux mail 2.6.10-rc2-bk5lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew, Jeff,
 
-The iseries_veth driver is badly behaved in that it will keep TX packets
-hanging around forever if they're not ACK'ed and the queue never fills up.
+--0pkK7MCEo5hACTvx
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This causes the unregister_netdevice code to wait forever when we try to take
-the device down, because there's still skbs around with references to our
-struct net_device.
+On Thu, 2005-05-12 10:21:31 +0530, P.Manohar <pmanohar@lantana.cs.iitm.erne=
+t.in> wrote:
+> Instead of using the local keyboard input, I want sent the keyboard keys
+> from the remote system (another PC via Ethernet) and use it as if it=20
+> from
+>  the local keyboard.
 
-There's already code to cleanup any un-ACK'ed packets in veth_stop_connection()
-but it's being called after we unregister the net_device, which is too late.
+Write a small server which pushed pack input via uinput into the remote
+kernel.
 
-The fix is to rearrange the module exit function so that we cleanup any
-outstanding skbs and then unregister the driver.
+MfG, JBG
 
-Signed-off-by: Michael Ellerman <michael@ellerman.id.au>
---
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ fuer einen Freien Staat voll Freier B=C3=BCrger" | im Internet! |   im Ira=
+k!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
 
- drivers/net/iseries_veth.c |   11 +++++++++--
- 1 files changed, 9 insertions(+), 2 deletions(-)
+--0pkK7MCEo5hACTvx
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-Index: veth-fixes/drivers/net/iseries_veth.c
-===================================================================
---- veth-fixes.orig/drivers/net/iseries_veth.c	2005-05-12 16:27:32.000000000 +1000
-+++ veth-fixes/drivers/net/iseries_veth.c	2005-05-12 16:27:42.000000000 +1000
-@@ -1388,18 +1388,25 @@
- {
- 	int i;
- 
--	vio_unregister_driver(&veth_driver);
-+	/* Stop the queues first to stop any new packets being sent. */
-+	for (i = 0; i < HVMAXARCHITECTEDVIRTUALLANS; i++)
-+		if (veth_dev[i])
-+			netif_stop_queue(veth_dev[i]);
- 
-+	/* Stop the connections before we unregister the driver. This
-+	 * ensures there's no skbs lying around holding the device open. */
- 	for (i = 0; i < HVMAXARCHITECTEDLPS; ++i)
- 		veth_stop_connection(i);
- 
- 	HvLpEvent_unregisterHandler(HvLpEvent_Type_VirtualLan);
- 
- 	/* Hypervisor callbacks may have scheduled more work while we
--	 * were destroying connections. Now that we've disconnected from
-+	 * were stoping connections. Now that we've disconnected from
- 	 * the hypervisor make sure everything's finished. */
- 	flush_scheduled_work();
- 
-+	vio_unregister_driver(&veth_driver);
-+
- 	for (i = 0; i < HVMAXARCHITECTEDLPS; ++i)
- 		veth_destroy_connection(i);
- 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQFCgw/4Hb1edYOZ4bsRAvBlAJ9iHVGdy4CSBl61fJxT2k0WChvVqACeLRdM
+xI9aOwflwW4JIahfenmFjYg=
+=6R2m
+-----END PGP SIGNATURE-----
+
+--0pkK7MCEo5hACTvx--

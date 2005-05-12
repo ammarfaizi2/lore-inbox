@@ -1,50 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262031AbVELTvW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262032AbVELT4S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262031AbVELTvW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 15:51:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262016AbVELTvV
+	id S262032AbVELT4S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 15:56:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbVELT4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 15:51:21 -0400
-Received: from rproxy.gmail.com ([64.233.170.193]:46719 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262031AbVELTvQ convert rfc822-to-8bit
+	Thu, 12 May 2005 15:56:17 -0400
+Received: from mail.shareable.org ([81.29.64.88]:61649 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262032AbVELT4N
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 15:51:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=TJh+iK7kKrC+5YwJ/mLPQnLshQFO1Z4lrWDFcNVYkx2UgRfC1SiQMQiaSlOH9vKVtU0nH7Mzq7/t1puFoS1QPJIznNHSldkzKiz0wCsb2dJqKaVI8n/jwiOFqNsREgGDim6yABa9bkAwynrxxK8z1j8pXxVex7ta6UssB9IkyQE=
-Message-ID: <d120d50005051212512e015286@mail.gmail.com>
-Date: Thu, 12 May 2005 14:51:16 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Alan Bryan <icemanind@yahoo.com>
-Subject: Re: Enhanced Keyboard Driver
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050512192254.43538.qmail@web53101.mail.yahoo.com>
+	Thu, 12 May 2005 15:56:13 -0400
+Date: Thu, 12 May 2005 20:56:01 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: ericvh@gmail.com, linuxram@us.ibm.com, 7eggert@gmx.de,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       smfrench@austin.rr.com, hch@infradead.org
+Subject: Re: [RCF] [PATCH] unprivileged mount/umount
+Message-ID: <20050512195601.GA21295@mail.shareable.org>
+References: <1115840139.6248.181.camel@localhost> <20050511212810.GD5093@mail.shareable.org> <1115851333.6248.225.camel@localhost> <a4e6962a0505111558337dd903@mail.gmail.com> <20050512010215.GB8457@mail.shareable.org> <a4e6962a05051119181e53634e@mail.gmail.com> <20050512064514.GA12315@mail.shareable.org> <a4e6962a0505120623645c0947@mail.gmail.com> <20050512151631.GA16310@mail.shareable.org> <E1DWIms-0005nC-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050512192254.43538.qmail@web53101.mail.yahoo.com>
+In-Reply-To: <E1DWIms-0005nC-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+Miklos Szeredi wrote:
+> I also tried bind mounting from the child's namespace to the parent's,
+> and that works too.  But the new mount's mnt_namespace is copied from
+> the old, which makes the mount un-removable.  This is most likely not
+> intentional, IOW a bug.
 
-On 5/12/05, Alan Bryan <icemanind@yahoo.com> wrote:
-> Hi all,
-> Would it be feasable to modify the current keyboard
-> driver in such a way that it would log the last 1000
-> keystrokes pushed (possibly log it somewhere in /proc
-> or something)? When I say keystrokes, I mean
-> everything...even the ctrl and alt and shift bit keys
-> 
-> Something like this would greatly simplify the program
-> I am attempting to make.
-> 
+I agree about the bug (and it's why I think the current->namespace
+checks in fs/namespace.c should be killed - the _only_ effect is to
+make un-removable mounts like the above, and the checks are completely
+redundant for "normal" namespace operations).
 
-What kind of information that you need is missing if you just read
-input events from /dev/input/eventX?
+I think the best thing to do for "jails" and such is to think of a
+private namespace as a collection of bind mounts in a private tree
+that (normally) cannot be reached from elsewhere, not can it reach
+elsewhere.
 
--- 
-Dmitry
+And leave it to adminstration to ensure that a tree isn't visible from
+another tree if you don't want it to be for security purposes.  That
+basically amounts to making sure processes that shouldn't communicate
+or ptrace each other can't.
+
+With that view, the kernel's notion of "namespace" is redundant.  It
+doesn't add anything to the security model, and it doesn't add any
+useful functionality.
+
+It's an abstract idea which does not need to be supported by kernel
+code, except for the CLONE_NEWNS operation which actually means "copy
+all mounts found recursively starting from the current root) to a new
+tree of mounts, and chroot to the new tree".
+
+In other words, is ->mnt_namespace required at all, except to contain
+namespace->sem (which could be changed)?  I don't think it adds
+anything realistic to security.  The way to make secure jails is to
+isolated their trees so they are unreachable.  ->mnt_namespace doesn't
+make any difference to that.
+
+-- Jamie

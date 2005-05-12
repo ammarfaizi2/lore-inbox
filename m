@@ -1,109 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261394AbVELJon@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbVELKAT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261394AbVELJon (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 05:44:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261386AbVELJof
+	id S261383AbVELKAT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 06:00:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbVELKAT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 05:44:35 -0400
-Received: from waste.org ([216.27.176.166]:39300 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261378AbVELJoL (ORCPT
+	Thu, 12 May 2005 06:00:19 -0400
+Received: from mailfe01.swip.net ([212.247.154.1]:26778 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S261383AbVELKAK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 05:44:11 -0400
-Date: Thu, 12 May 2005 02:44:06 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org,
-       mercurial@selenic.com, Linus Torvalds <torvalds@osdl.org>
-Subject: Mercurial 0.4e vs git network pull
-Message-ID: <20050512094406.GZ5914@waste.org>
+	Thu, 12 May 2005 06:00:10 -0400
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Subject: Re: [PATCH] adjust x86-64 watchdog tick calculation
+From: Alexander Nyberg <alexn@telia.com>
+To: Jan Beulich <JBeulich@novell.com>
+Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org, ak@suse.de
+In-Reply-To: <s2832159.057@emea1-mh.id2.novell.com>
+References: <s2832159.057@emea1-mh.id2.novell.com>
+Content-Type: text/plain
+Date: Thu, 12 May 2005 12:00:08 +0200
+Message-Id: <1115892008.918.7.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now that I'm back from vacation, there's a new Mercurial release as
-well as snapshots at:
+tor 2005-05-12 klockan 10:27 +0200 skrev Jan Beulich:
+> (Note: Patch also attached because the inline version is certain to get
+> line wrapped.)
+> 
+> Get the x86-64 watchdog tick calculation into a state where it can also
+> be used with nmi_hz other than 1Hz. Also do not turn on the watchdog by
+> default (as is already done on i386).
+> 
 
-  http://selenic.com/mercurial/
+Why shouldn't the watchdog be turned on by default? It's an extremely
+useful debugging aid and it's not like it fires NMIs often (the nmi_hz
+is far from reality).
 
-A combined self-hosting repository / web interface can be found at:
+> Signed-off-by: Jan Beulich <jbeulich@novell.com>
+> 
+> diff -Npru linux-2.6.12-rc4.base/arch/x86_64/kernel/nmi.c linux-2.6.12-rc4/arch/x86_64/kernel/nmi.c
+> --- linux-2.6.12-rc4.base/arch/x86_64/kernel/nmi.c	2005-05-11 17:27:54.848855552 +0200
+> +++ linux-2.6.12-rc4/arch/x86_64/kernel/nmi.c	2005-05-11 17:50:36.257889920 +0200
+> @@ -57,7 +57,7 @@ static unsigned int lapic_nmi_owner;
+>  int nmi_active;		/* oprofile uses this */
+>  int panic_on_timeout;
+>  
+> -unsigned int nmi_watchdog = NMI_DEFAULT;
+> +unsigned int nmi_watchdog = NMI_NONE;
+>  static unsigned int nmi_hz = HZ;
+>  unsigned int nmi_perfctr_msr;	/* the MSR to reset in NMI handler */
+>  
+> @@ -325,7 +325,7 @@ static void setup_k7_watchdog(void)
+>  		| K7_NMI_EVENT;
+>  
+>  	wrmsr(MSR_K7_EVNTSEL0, evntsel, 0);
+> -	wrmsrl(MSR_K7_PERFCTR0, -((u64)cpu_khz*1000) / nmi_hz);
+> +	wrmsrl(MSR_K7_PERFCTR0, -((u64)cpu_khz * 1000 / nmi_hz));
+>  	apic_write(APIC_LVTPC, APIC_DM_NMI);
+>  	evntsel |= K7_EVNTSEL_ENABLE;
+>  	wrmsr(MSR_K7_EVNTSEL0, evntsel, 0);
+> @@ -404,7 +404,7 @@ void nmi_watchdog_tick (struct pt_regs *
+>  		alert_counter[cpu] = 0;
+>  	}
+>  	if (nmi_perfctr_msr)
+> -		wrmsr(nmi_perfctr_msr, -(cpu_khz/nmi_hz*1000), -1);
+> +		wrmsrl(nmi_perfctr_msr, -((u64)cpu_khz * 1000 / nmi_hz));
+>  }
+>  
+>  static int dummy_nmi_callback(struct pt_regs * regs, int cpu)
+> 
+> 
 
-  http://selenic.com/hg/
 
-And there's now a mailing list at:
-
-  http://selenic.com/mailman/listinfo/mercurial
-
-The big news is that Mercurial now has a very fast network protocol.
-This benchmark is pulling and merging 819 changesets (again, taken
-from 2.6.12-rc2-mm3) from one repo to another over DSL using
-Mercurial's new delta protocol:
-
- $ time hg merge hg://selenic.com/linux-hg/
- retrieving changegroup
- merging changesets
- merging manifests
- merging files
-
- real    0m10.276s
- user    0m3.299s
- sys     0m0.689s
-
-For comparison, rsyncing the same set of changes between git repos from
-the same server:
-
- $ time rsync -a rsync://10.0.0.12:2000/git/lgb/.git .
- sent 171508 bytes  received 31225542 bytes  312408.46 bytes/sec
-
- real    1m40.470s
- user    0m0.655s
- sys     0m1.896s
-
-The original broken-out.tar.bz2: 2.3M
-The same, uncompressed:           15M
-The same, rsynced with git:       30M
-The same, pulled with hg (zlib): 2.5M  <- what I used above
-The same, pulled with hg (bz2):  2.1M
-
-The server in question is a relatively busy 1GHz Athlon. The server
-side of the hg protocol is stateless and is serviced by a simple CGI
-script run under Apache.
-
-Mercurial is more than 10 times as bandwidth efficient and
-considerably more I/O efficient. On the server side, rsync uses about
-twice as much CPU time as the Mercurial server and has about 10 times
-the I/O and pagecache footprint as well.
-
-Mercurial is also much smarter than rsync at determining what
-outstanding changesets exist. Here's an empty pull as a demonstration:
-
- $ time hg merge hg://selenic.com/linux-hg/
- retrieving changegroup
-
- real    0m0.363s
- user    0m0.083s
- sys     0m0.007s
-
-That's a single http request and a one line response.
-
-And now with rsync:
-
- $ time rsync -av rsync://10.0.0.12:2000/git/lgb/.git .
- receiving file list ... done
-
- sent 76 bytes  received 1280245 bytes  2560642.00 bytes/sec
- total size is 85993841  speedup is 67.17
-
- real    0m0.539s
- user    0m0.185s
- sys     0m0.148s
-
-Mercurial's communication here scales O(min(changed branches, log new
-changesets)) which is less than O(new changesets), while rsync scales
-with O(total number of file revisions) (ouch!). The above transfer
-size for an empty pull will go from 1.2M to >12M when there's similar
-history in git to what's in BK.
-
--- 
-Mathematics is the supreme nostalgia of our time.

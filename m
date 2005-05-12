@@ -1,38 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbVELAAo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbVELAEP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261343AbVELAAo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 20:00:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVELAAk
+	id S261222AbVELAEP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 20:04:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVELAEO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 20:00:40 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:40269 "EHLO
-	pd4mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S261343AbVELAAD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 20:00:03 -0400
-Date: Wed, 11 May 2005 17:59:40 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Disable cached memory
-In-reply-to: <42ze5-6rp-13@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <42829C6C.9010003@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <42ze5-6rp-13@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+	Wed, 11 May 2005 20:04:14 -0400
+Received: from colin.muc.de ([193.149.48.1]:35595 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S261249AbVELAEI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 20:04:08 -0400
+Date: 12 May 2005 02:04:05 +0200
+Date: Thu, 12 May 2005 02:04:05 +0200
+From: Andi Kleen <ak@muc.de>
+To: Ashok Raj <ashok.raj@intel.com>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: x86_64 patches in -mm
+Message-ID: <20050512000405.GA62935@muc.de>
+References: <20050505151522.72d6deec.akpm@osdl.org> <20050507225850.GA21873@muc.de> <20050509172731.A14676@unix-os.sc.intel.com> <20050510015125.GB97046@muc.de> <20050510162221.A29090@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050510162221.A29090@unix-os.sc.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chen Bill-R63518 wrote:
-> Hi,
-> When I cat "/proc/meminfo", I found there were too many memory cached which may result in kernel oom and killing something. I want to disable the cacheable feature, or limit the maximum of memory sizes which could be used for cached data. But anyone know how I shall do in the kernel? I use 2.4.20 kernel. Thanks.
+> This patch removes the assumption that LAPIC entries contain the BSP as its
+> first entry. This is a slight improvement to the temporary fix submitted by
+> Suresh Siddha. 
 
-It doesn't work that way. If memory is needed for something else, the 
-amount of memory used for cache will be reduced.
+[...]
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+Patch is fine for me thanks.
 
+-Andi

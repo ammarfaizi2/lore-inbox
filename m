@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbVELJ2u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261374AbVELJjs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261184AbVELJ2u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 05:28:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbVELJ2u
+	id S261374AbVELJjs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 05:39:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbVELJjs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 05:28:50 -0400
-Received: from gb.jb.147.135.revip.asianet.co.th ([61.91.147.135]:32004 "HELO
-	gb.jb.147.135.revip.asianet.co.th") by vger.kernel.org with SMTP
-	id S261184AbVELJ2t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 05:28:49 -0400
-From: "Candice Cleveland" <nathandxml@njnsolutions.com>
-Reply-To: "Candice Cleveland" <nathandxml@njnsolutions.com>
-Message-ID: <4367525309.5419525346@njnsolutions.com>
-Date: Thu, 12 May 2005 02:28:47 -0700
-To: <linux-kernel@vger.kernel.org>
-Subject: Re[3]: PED0 site. Scandal material.
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 12 May 2005 05:39:48 -0400
+Received: from zproxy.gmail.com ([64.233.162.198]:26127 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261374AbVELJjq convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 05:39:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=RSZj56LNx73al+uWBuCeyIxTf8eOtDcuqoPYOtTfpeg4MvRnPKF/GSsZKrQ4D81VwozCGv/s+HMETnmaSeBW8llVhFBtVj6ByAWnBiaSRlMFxYSRl6JeG9NAtH2i0eikY9lBKGae6k+0PMoev7CTYxs3TU7SddHFhntZQGjC1bI=
+Message-ID: <b82a8917050512023938ce1f4d@mail.gmail.com>
+Date: Thu, 12 May 2005 15:09:43 +0530
+From: Niraj kumar <niraj17@gmail.com>
+Reply-To: Niraj kumar <niraj17@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: NUMA aware slab allocator V2
+Cc: Christoph Lameter <clameter@engr.sgi.com>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, shai@scalex86.org
+In-Reply-To: <20050512000444.641f44a9.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com>
+	 <20050512000444.641f44a9.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 5/12/05, Andrew Morton <akpm@osdl.org> wrote:
+> Christoph Lameter <clameter@engr.sgi.com> wrote:
+> >
+> > This patch allows kmalloc_node to be as fast as kmalloc by introducing
+> >  node specific page lists for partial, free and full slabs.
+> 
+> This patch causes the ppc64 G5 to lock up fairly early in boot.  It's
+> pretty much a default config:
+> http://www.zip.com.au/~akpm/linux/patches/stuff/config-pmac
+> 
+> No serial port, no debug environment, but no useful-looking error messages
+> either.  See http://www.zip.com.au/~akpm/linux/patches/stuff/dsc02516.jpg
 
-	
-It offers the most amount of K1DS content, 
-Scandal material.
+The image shows that kernel comand line option "quiet" was used .
+We can probably get some more info if  booted without "quiet" .
 
-We are all of us, more or less, the slaves of opinion.Forty for you, sixty for me And equal partners we will be
-	
-11 - 15 y. old girls only just to make you fellows happy.
-
-You -- poor and obscure, and small and plain as you are -- I entreat to accept me as a husband.
-	
-Exlusive PED0 pictures. Are you ready?
-If you are, just enjoy that our member area!
-
-	http://uk.geocities.com/ujaml/?s=123&m=YbWPM-ZfSWfY.OdfS,ZfSWfY,VSd
-Temperance is simply a disposition of the mind which binds the passion.Doubt obscures the true vision of the heart.
-All bi11ing records are hidden by neutra1 company name,
-n0b0dy wi11 never know that you browsing 0ur sites!
-
-
+Niraj

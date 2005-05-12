@@ -1,51 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262125AbVELVJv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262123AbVELVQU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262125AbVELVJv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 17:09:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbVELVJu
+	id S262123AbVELVQU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 17:16:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVELVQU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 17:09:50 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:20661 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262120AbVELVJj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 17:09:39 -0400
-In-Reply-To: <E1DVoUW-0001cN-00@dorka.pomaz.szeredi.hu>
-To: Miklos Szeredi <miklos@szeredi.hu>, ericvh@gmail.com, hch@infradead.org,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       smfrench@austin.rr.com
-MIME-Version: 1.0
-Subject: Re: [RCF] [PATCH] unprivileged mount/umount
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OF1BD633A3.AED1499B-ON88256FFF.006E4A76-88256FFF.00742B3D@us.ibm.com>
-From: Bryan Henderson <hbryan@us.ibm.com>
-Date: Thu, 12 May 2005 14:08:21 -0700
-X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Build V70_04122005|April 12, 2005) at
- 05/12/2005 17:09:22,
-	Serialize complete at 05/12/2005 17:09:22
-Content-Type: text/plain; charset="US-ASCII"
+	Thu, 12 May 2005 17:16:20 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43400 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262123AbVELVQQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 17:16:16 -0400
+Date: Thu, 12 May 2005 11:24:13 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.31-pre2
+Message-ID: <20050512142413.GC18703@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So if a user creates a private namespace, it should have the choice of:
-> 
->    1) Giving up all suid rights (i.e. all mounts are cloned and
->       propagated with nosuid)
-> 
->    2) Not giving up suid for cloned and propagated mounts, but having
->       extra limitations (suid/sgid programs cannot access unprivileged
->       "synthetic" mounts)
+Hi,
 
-(2) isn't realistic.  There's no such thing as a suid program.  Suid is a 
-characteristic of a _file_.  There's no way to know whether a given 
-executing program is running with privileges that came from a suid file 
-getting exec'ed.  Bear in mind that that exec could be pretty remote -- 
-done by a now-dead ancestor with three more execs in between.
+Here goes 2.4.31-pre2.
 
-Many user space programs contain hacks to try to discern this information, 
-and they often cause me headaches and I have to fix them.  The usual hacks 
-are euid==uid, euid==suid, and/or euid==0.  It would be an order of 
-magnitude worse for the kernel to contain such a hack.
+It contains a small number of changes, most notably 
+the elf_core_dump flaw fix (CAN-2005-1263).
 
---
-Bryan Henderson                          IBM Almaden Research Center
-San Jose CA                              Filesystems
+Please refer to -hf tree for the standalone patch.
+
+http://linux.exosec.net/kernel/2.4-hf/
+
+
+Summary of changes from v2.4.31-pre1 to v2.4.31-pre2
+============================================
+
+<carlos.pardo:siliconimage.com>:
+  o sata_sil: Fix FIFO PCI Bus Arbitration
+
+<david.monniaux:ens.fr>:
+  o fix moxa crash with more than one 1 board
+
+<jason.d.gaston:intel.com>:
+  o SATA AHCI correction Intel ICH7R
+
+Brett Russ:
+  o AHCI: fix fatal error int handling
+  o libata: support descriptor sense in ctrl page
+
+Chris Wright:
+  o backport v2.6 elf_core_dump() flaw fix (CAN-2005-1263)
+
+Eugene Surovegin:
+  o ppc32: backport Book-E decrementer handling fix from 2.6
+
+Jean Delvare:
+  o I2C updates: Fix typo in a comment in i2c.h
+  o I2C updates: Fix I2C_FUNC_* defines in i2c.h
+  o I2C updates: Fix an iteration bug in the handling of i2c client module parameters
+
+Jeff Garzik:
+  o [libata ahci] support ->tf_read hook
+  o [libata sata_sil] Don't presume PCI cache-line-size reg is > 0
+
+Marcelo Tosatti:
+  o Change EXTRAVERSION to 2.4.31-pre2
+
+Mikael Pettersson:
+  o rwsem-spinlock linkage error
+
+Pete Zaitcev:
+  o USB: Add HX type pl2303
+
+Rolf Eike Beer:
+  o typo fix in drivers/scsi/sata_svw.c comment
+
+Steven HARDY:
+  o pcnet32: 79C975 fiber fix
+
+Willy Tarreau:
+  o bonding fix
+

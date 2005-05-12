@@ -1,66 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261274AbVELFH2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbVELFQ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261274AbVELFH2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 01:07:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbVELFH2
+	id S261151AbVELFQ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 01:16:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261155AbVELFQY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 01:07:28 -0400
-Received: from tassadar.physics.auth.gr ([155.207.123.25]:33421 "EHLO
-	tassadar.physics.auth.gr") by vger.kernel.org with ESMTP
-	id S261274AbVELFHV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 01:07:21 -0400
-Date: Thu, 12 May 2005 08:07:10 +0300 (EEST)
-From: Dimitris Zilaskos <dzila@tassadar.physics.auth.gr>
-To: ted creedon <tcreedon@easystreet.com>
-cc: openafs-info@openafs.org, linux-kernel@vger.kernel.org
-Subject: RE: [OpenAFS] Re: Openafs 1.3.78 and kernel 2.4.29 oopses , same
- for 2.4.30 and openafs 1.3.82
-In-Reply-To: <20050509132508.55483B024@smtpauth.easystreet.com>
-Message-ID: <Pine.LNX.4.62.0505120749180.19791@tassadar.physics.auth.gr>
-References: <20050509132508.55483B024@smtpauth.easystreet.com>
+	Thu, 12 May 2005 01:16:24 -0400
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:62380 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261151AbVELFQS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 01:16:18 -0400
+Date: Thu, 12 May 2005 07:16:30 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: 7eggert@gmx.de, Jesper Juhl <juhl-lkml@dif.dk>,
+       "David S.Miller" <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kernel/module.c has something to hide. (whitespace 
+ cleanup)
+In-Reply-To: <4282D4CA.6030003@yahoo.com.au>
+Message-ID: <Pine.LNX.4.58.0505120644010.3645@be1.lrz>
+References: <42Mbg-Tq-25@gated-at.bofh.it> <42MXA-1zI-3@gated-at.bofh.it>
+ <42MXA-1zI-1@gated-at.bofh.it> <42Nh3-1M8-17@gated-at.bofh.it>
+ <42Nh3-1M8-15@gated-at.bofh.it> <E1DW0vK-0000To-IK@be1.7eggert.dyndns.org>
+ <4282D4CA.6030003@yahoo.com.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-AntiVirus: checked by AntiVir Milter (version: 1.1.0-4; AVE: 6.30.0.12; VDF: 6.30.0.170; host: tassadar)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 May 2005, ted creedon wrote:
+On Thu, 12 May 2005, Nick Piggin wrote:
+> Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org> wrote:
+> >Jesper Juhl <juhl-lkml@dif.dk> wrote:
 
-> Looks like a compile problem if there's a symbol table error.
->
-> To eliminate that as a cause:
-> Make bzImage;make modules;make modules_install;make install;
-> Reboot into the new image
-> Run regen.sh then ./configure and built a new openafs system; install ane
-> test it.
->
-> I think there may be small differences in the m4 macros between various
-> operating systems.
->
-> This is the only way I can get reliable compiles. I have had one server
-> crash with 1.3.81 but I suspect the software raid filesystem.
->
+> >>If Andrew agrees, then I'll commit to doing this cleanup;
 
+> >>- (to a limited degree) no trailing whitespace
 
- 	Hello ted ,
+> >I just ran a script over -rc4 to remove trailing ws. The result is
+> >about 22 MB in 429 patches (iterated over ./*/*).
+> >
+> >How hard can I patch you before you start patching me?
+> >
+> >Which addresses am I supposed to send it to? I don't want to break the
+> >record for the most annoying patch series in lkml.
+> >
+> 
+> First of all, why is it 429 patches?
 
-I folowed your advice , and now after 60 hours of continuous  usage I had 
-no oops. I will keep stressing the system to see how it goes. Using 2.4.30 
-and openafs 1.3.78 at the moment.
+Because
+1) some parts will get rejected due to conflicting patches. Only those 
+parts will need to be recreated.
+2) i forgot to create the 430th patch.
 
- 	Thanks to everyone who replied :)
+> The patches we want aren't about a
+> file or a subdirectory or even a subsystem, but they're supposed to be
+> a logical change. Ie. 1 patch.
 
+That would be too large for most mailboxes. If you like a single patch,
+you can just concatenate all the patches, so splitting it was a safe bet.
 
---
-=============================================================================
+> An exception for something like this would
+> be if you want to feed it to different maintainers seperately, but it
+> sounds like you just want to bomb it somewhere...
 
-Dimitris Zilaskos
+I asume there is no automatic way to get the maintainer from a given 
+file, and I don't want to grow old and grey while doing that manually.
 
-Department of Physics @ Aristotle University of Thessaloniki , Greece
-PGP key : http://tassadar.physics.auth.gr/~dzila/pgp_public_key.asc
- 	  http://egnatia.ee.auth.gr/~dzila/pgp_public_key.asc
-MD5sum  : de2bd8f73d545f0e4caf3096894ad83f  pgp_public_key.asc
-=============================================================================
-
-
-
+-- 
+"Bravery is being the only one who knows you're afraid."
+-David Hackworth

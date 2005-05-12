@@ -1,71 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262087AbVELRnE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262089AbVELRwE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262087AbVELRnE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 13:43:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262088AbVELRnD
+	id S262089AbVELRwE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 13:52:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262088AbVELRwE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 13:43:03 -0400
-Received: from gwyn.tux.org ([199.184.165.135]:3800 "EHLO gwyn.tux.org")
-	by vger.kernel.org with ESMTP id S262087AbVELRm7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 13:42:59 -0400
-Date: Thu, 12 May 2005 13:42:58 -0400
-From: Timothy Ball <timball@tux.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: remote keyboard
-Message-ID: <20050512174258.GD29452@gwyn.tux.org>
-References: <Pine.LNX.4.60.0505121017090.31256@lantana.cs.iitm.ernet.in> <20050512081240.GS8176@lug-owl.de>
+	Thu, 12 May 2005 13:52:04 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:42153 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262086AbVELRv5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 13:51:57 -0400
+Date: Thu, 12 May 2005 07:51:15 -0500
+From: serue@us.ibm.com
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Eric Van Hensbergen <ericvh@gmail.com>, Ram <linuxram@us.ibm.com>,
+       Miklos Szeredi <miklos@szeredi.hu>, 7eggert@gmx.de,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       smfrench@austin.rr.com, hch@infradead.org
+Subject: Re: [RCF] [PATCH] unprivileged mount/umount
+Message-ID: <20050512125115.GA12439@sergelap.austin.ibm.com>
+References: <E1DVwGn-0002BB-00@dorka.pomaz.szeredi.hu> <1115840139.6248.181.camel@localhost> <20050511212810.GD5093@mail.shareable.org> <1115851333.6248.225.camel@localhost> <a4e6962a0505111558337dd903@mail.gmail.com> <20050512010215.GB8457@mail.shareable.org> <a4e6962a05051119181e53634e@mail.gmail.com> <20050512064514.GA12315@mail.shareable.org> <a4e6962a0505120623645c0947@mail.gmail.com> <20050512151631.GA16310@mail.shareable.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PEIAKu/WMn1b1Hv9"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050512081240.GS8176@lug-owl.de>
-User-Agent: Mutt/1.5.6i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gwyn.tux.org [0.0.0.0]); Thu, 12 May 2005 13:42:59 -0400 (EDT)
+In-Reply-To: <20050512151631.GA16310@mail.shareable.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Quoting Jamie Lokier (jamie@shareable.org):
+> Eric Van Hensbergen wrote:
+> > c) Get the unshare system call adopted as it seems to be generally useful
+> 
+> I'm not convinced the functionality is all that useful.  It doesn't
+> address the need which arose in this thread, which is roughly
+> equivalent to per-user namespaces (the precise meaning determined by
+> userspace policy).  So what applicatins is it useful for?  Do we have
+> examples, or is it just a nice idea?
 
---PEIAKu/WMn1b1Hv9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+[my last reply appears to have disappeared, apologies if two show up]
 
-On Thu, May 12, 2005 at 10:12:40AM +0200, Jan-Benedict Glaw wrote:
-> On Thu, 2005-05-12 10:21:31 +0530, P.Manohar <pmanohar@lantana.cs.iitm.er=
-net.in> wrote:
-> > Instead of using the local keyboard input, I want sent the keyboard keys
-> > from the remote system (another PC via Ethernet) and use it as if it=20
-> > from
-> >  the local keyboard.
->=20
-> Write a small server which pushed pack input via uinput into the remote
-> kernel.
->=20
-> MfG, JBG
->=20
+It is useful for polyinstantiated filesystems.  For instance, user u1
+opens two sessions, one at clearance L1:C1, one at clearance L3:C1,C2.
+He starts some software which expects to open tempfiles under /tmp by a
+particular name.  He later (or simultaneously) opens it also under the
+lower clearance.  The software now fails because it can't access the
+higher clearance file.
 
-If you're using X you can use this:=20
-	http://synergy2.sourceforge.net/
-works quite well cross platform.
+This is typically solved by creating /tmp/subdir-CLEARANCE for each
+clearance which needs it.  Now on login, the user gets a new namespace,
+and /tmp/subidr-CLEARANCE is bind mounted over /tmp.  (Traditionally,
+in other operating systems, instead of bind mounting, lookups under /tmp
+are just redirected to the appropriate subdir)
 
---timball
+This is also used for other dirs, this is just one example.  Note that
+MAC is used to actually enforce the clearances, so this is more to
+provide a nicer user experience.  Note also that I haven't worked on
+such a system, so I'm just telling you what I'm told  :)
 
---=20
-	GPG key available on pgpkeys.mit.edu
-pub  1024D/511FBD54 2001-07-23 Timothy Lu Hu Ball <timball@tux.org>
-Key fingerprint =3D B579 29B0 F6C8 C7AA 3840  E053 FE02 BB97 511F BD54
+Unshare is useful here because we can use it from pam.  I haven't yet
+found how we could use clone() from inside a pam library in a meaningful
+way to create a new namespace for the resulting login process, so near
+as I can tell the alternative is to hack each login program (ssh, login,
+etc) separately.
 
---PEIAKu/WMn1b1Hv9
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Unshare should also useful for apps which want to change clearance
+without needing to clone.  There is clearly a desire for this since the
+ability to transition without exec was already added to SELinux.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFCg5Wh/gK7l1EfvVQRAsZlAJ42cfHo/tnoXTTCC9+U6m+IOi/agQCfSg+z
-FBg8YNBeczxeBX/zoCnsI+4=
-=B3Jq
------END PGP SIGNATURE-----
-
---PEIAKu/WMn1b1Hv9--
+thanks,
+-serge

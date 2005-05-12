@@ -1,64 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262101AbVELSZl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262110AbVELSYj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262101AbVELSZl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 14:25:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbVELSZ0
+	id S262110AbVELSYj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 14:24:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbVELSYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 14:25:26 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:55035 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262106AbVELSY3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 14:24:29 -0400
-Date: Thu, 12 May 2005 19:25:08 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Kirill Korotaev <dev@sw.ru>
-cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mm acct accounting fix
-In-Reply-To: <42830D0A.3090109@sw.ru>
-Message-ID: <Pine.LNX.4.61.0505121912400.5204@goblin.wat.veritas.com>
-References: <428223E0.2070200@sw.ru> 
-    <Pine.LNX.4.61.0505111701110.7331@goblin.wat.veritas.com> 
-    <42830D0A.3090109@sw.ru>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-X-OriginalArrivalTime: 12 May 2005 18:24:27.0305 (UTC) 
-    FILETIME=[D4A40990:01C5571F]
+	Thu, 12 May 2005 14:24:34 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:65239 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id S262102AbVELSXn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 14:23:43 -0400
+Date: Thu, 12 May 2005 20:23:41 +0200
+From: Petr Baudis <pasky@ucw.cz>
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org,
+       mercurial@selenic.com, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Mercurial 0.4e vs git network pull
+Message-ID: <20050512182340.GA324@pasky.ji.cz>
+References: <20050512094406.GZ5914@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050512094406.GZ5914@waste.org>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 May 2005, Kirill Korotaev wrote:
+Dear diary, on Thu, May 12, 2005 at 11:44:06AM CEST, I got a letter
+where Matt Mackall <mpm@selenic.com> told me that...
+> Mercurial is more than 10 times as bandwidth efficient and
+> considerably more I/O efficient. On the server side, rsync uses about
+> twice as much CPU time as the Mercurial server and has about 10 times
+> the I/O and pagecache footprint as well.
 > 
-> It would be nice to accept this small patch with a comment.
+> Mercurial is also much smarter than rsync at determining what
+> outstanding changesets exist. Here's an empty pull as a demonstration:
+> 
+>  $ time hg merge hg://selenic.com/linux-hg/
+>  retrieving changegroup
+> 
+>  real    0m0.363s
+>  user    0m0.083s
+>  sys     0m0.007s
+> 
+> That's a single http request and a one line response.
 
-Adding such a comment is okay, but moving the total_vm += line
-away from the __vm_stat_account and locked_vm += seems odd to me
-- I'd rather you added your comment after the do_munmap(),
-but no big deal (mmap_sem is held for writing throughout).
+So, what about comparing it with something comparable, say git pull over
+HTTP? :-)
 
-Hugh
-
---- ./mm/mremap.c.mmacct	2005-05-10 16:10:40.000000000 +0400
-+++ ./mm/mremap.c	2005-05-12 11:56:17.000000000 +0400
-@@ -224,6 +224,12 @@ static unsigned long move_vma(struct vm_
- 			split = 1;
- 	}
- 
-+	/*
-+	 * if we failed to move page tables we still do total_vm increment
-+	 * since do_munmap() will decrement it by old_len == new_len
-+	 */
-+	mm->total_vm += new_len >> PAGE_SHIFT;
-+
- 	if (do_munmap(mm, old_addr, old_len) < 0) {
- 		/* OOM: unable to split vma, just get accounts right */
- 		vm_unacct_memory(excess >> PAGE_SHIFT);
-@@ -237,7 +243,6 @@ static unsigned long move_vma(struct vm_
- 			vma->vm_next->vm_flags |= VM_ACCOUNT;
- 	}
- 
--	mm->total_vm += new_len >> PAGE_SHIFT;
- 	__vm_stat_account(mm, vma->vm_flags, vma->vm_file, new_len>>PAGE_SHIFT);
- 	if (vm_flags & VM_LOCKED) {
- 		mm->locked_vm += new_len >> PAGE_SHIFT;
+-- 
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+C++: an octopus made by nailing extra legs onto a dog. -- Steve Taylor

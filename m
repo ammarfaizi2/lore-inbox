@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261310AbVELCbG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbVELCfN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261310AbVELCbG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 22:31:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbVELCbG
+	id S261286AbVELCfN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 22:35:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVELCfN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 22:31:06 -0400
-Received: from fire.osdl.org ([65.172.181.4]:5518 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261310AbVELCay (ORCPT
+	Wed, 11 May 2005 22:35:13 -0400
+Received: from fire.osdl.org ([65.172.181.4]:50830 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261286AbVELCfD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 22:30:54 -0400
-Date: Wed, 11 May 2005 19:29:42 -0700
+	Wed, 11 May 2005 22:35:03 -0400
+Date: Wed, 11 May 2005 19:33:52 -0700
 From: Andrew Morton <akpm@osdl.org>
 To: Kirill Korotaev <dev@sw.ru>
 Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Fix of dcache race leading to busy inodes on umount
-Message-Id: <20050511192942.07614243.akpm@osdl.org>
+Message-Id: <20050511193352.2c9a9201.akpm@osdl.org>
 In-Reply-To: <42822A2A.6000909@sw.ru>
 References: <42822A2A.6000909@sw.ru>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
@@ -28,75 +28,51 @@ Kirill Korotaev <dev@sw.ru> wrote:
 >
 > This patch fixes dcache race between shrink_dcache_XXX functions
 > and dput().
-
-
-> -void dput(struct dentry *dentry)
-> +static void dput_recursive(struct dentry *dentry, struct dcache_shrinker *ds)
->  {
-> -	if (!dentry)
-> -		return;
-> -
-> -repeat:
->  	if (atomic_read(&dentry->d_count) == 1)
->  		might_sleep();
->  	if (!atomic_dec_and_lock(&dentry->d_count, &dcache_lock))
->  		return;
-> +	dcache_shrinker_del(ds);
->  
-> +repeat:
->  	spin_lock(&dentry->d_lock);
->  	if (atomic_read(&dentry->d_count)) {
->  		spin_unlock(&dentry->d_lock);
-> @@ -182,6 +253,7 @@ unhash_it:
->  
->  kill_it: {
->  		struct dentry *parent;
-> +		struct dcache_shrinker lds;
->  
->  		/* If dentry was on d_lru list
->  		 * delete it from there
-> @@ -191,18 +263,43 @@ kill_it: {
->    			dentry_stat.nr_unused--;
->    		}
->    		list_del(&dentry->d_child);
-> +		parent = dentry->d_parent;
-> +		dcache_shrinker_add(&lds, parent, dentry);
->  		dentry_stat.nr_dentry--;	/* For d_free, below */
->  		/*drops the locks, at that point nobody can reach this dentry */
->  		dentry_iput(dentry);
-> -		parent = dentry->d_parent;
->  		d_free(dentry);
->  		if (dentry == parent)
-
-Aren't we leaving local variable `lds' on the global list here?
-
->  			return;
->  		dentry = parent;
-> -		goto repeat;
-> +		spin_lock(&dcache_lock);
-> +		dcache_shrinker_del(&lds);
-> +		if (atomic_dec_and_test(&dentry->d_count))
-> +			goto repeat;
-> +		spin_unlock(&dcache_lock);
->  	}
->  }
+> 
+> Example race scenario:
+> 
+> 	CPU 0				CPU 1
+> umount /dev/sda1
+> generic_shutdown_super          shrink_dcache_memory()
+> shrink_dcache_parent            dput dentry
+> select_parent                   prune_one_dentry()
+>                                  <<<< child is dead, locks are released,
+>                                    but parent is still referenced!!! >>>>
+> 
+> skip dentry->parent,
+> since it's d_count > 0
+> 
+> message: BUSY inodes after umount...
+>                                  <<< parent is left on dentry_unused
+> 				   list, referencing freed super block
+> 
+> We faced these messages about busy inodes constantly after some stress 
+> testing with mount/umount operations parrallel with some other activity.
+> This patch helped the problem.
+> 
+> The patch was heavilly tested on 2.6.8 during 2 months,
+> this forward-ported version boots and works ok as well.
 > 
 
---- 25/fs/dcache.c~fix-of-dcache-race-leading-to-busy-inodes-on-umount-fix	2005-05-11 19:24:23.000000000 -0700
-+++ 25-akpm/fs/dcache.c	2005-05-11 19:27:27.000000000 -0700
-@@ -269,8 +269,12 @@ kill_it: {
- 		/*drops the locks, at that point nobody can reach this dentry */
- 		dentry_iput(dentry);
- 		d_free(dentry);
--		if (dentry == parent)
-+		if (unlikely(dentry == parent)) {
-+			spin_lock(&dcache_lock);
-+			dcache_shrinker_del(&lds);
-+			spin_unlock(&dcache_lock);
- 			return;
-+		}
- 		dentry = parent;
- 		spin_lock(&dcache_lock);
- 		dcache_shrinker_del(&lds);
-_
+You've provided no description of how the patch solves the problem.
 
+> /* dcache_lock protects shrinker's list */
+> static void shrink_dcache_racecheck(struct dentry *parent, int *racecheck)
+> {
+> 	struct super_block *sb;
+> 	struct dcache_shrinker *ds;
+> 
+> 	sb = parent->d_sb;
+> 	list_for_each_entry(ds, &sb->s_dshrinkers, list) {
+> 		/* is one of dcache shrinkers working on the dentry? */
+> 		if (ds->dentry == parent) {
+> 			*racecheck = 1;
+> 			break;
+> 		}
+> 	}
+> }
+> 
+> 
+
+This all looks awfully hacky.  Why is it done this way, and is there no
+cleaner solution?

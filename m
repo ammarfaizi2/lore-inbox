@@ -1,188 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262137AbVELVpA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262143AbVELVql@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262137AbVELVpA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 17:45:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262144AbVELVpA
+	id S262143AbVELVql (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 17:46:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262146AbVELVpV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 17:45:00 -0400
-Received: from mail.kroah.org ([69.55.234.183]:44945 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262137AbVELVm6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 17:42:58 -0400
-Date: Thu, 12 May 2005 14:42:29 -0700
-From: Greg KH <greg@kroah.com>
-To: Per Liden <per@fukt.bth.se>, linux-hotplug-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] hotplug-ng 002 release
-Message-ID: <20050512214229.GA30233@kroah.com>
-References: <20050506212227.GA24066@kroah.com> <Pine.LNX.4.63.0505090025280.7682@1-1-2-5a.f.sth.bostream.se> <20050509211323.GB5297@tsiryulnik>
+	Thu, 12 May 2005 17:45:21 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:18697 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262143AbVELVm7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 17:42:59 -0400
+Date: Thu, 12 May 2005 23:42:58 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Andy Whitcroft <apw@shadowen.org>
+Cc: linux-kernel@vger.kernel.org, Dave Hansen <haveblue@us.ibm.com>,
+       Martin Bligh <mbligh@aracnet.com>
+Subject: [-mm patch] mm.h: fix page_zone compile error
+Message-ID: <20050512214258.GC3603@stusta.de>
+References: <20050512033100.017958f6.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050509211323.GB5297@tsiryulnik>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <20050512033100.017958f6.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 09, 2005 at 11:13:24PM +0200, Per Svennerbrandt wrote:
-> * Per Liden (per@fukt.bth.se) wrote:
-> > On Fri, 6 May 2005, Greg KH wrote:
-> > 
-> > [...]
-> > > Now, with the 2.6.12-rc3 kernel, and a patch for module-init-tools, the
-> > > USB hotplug program can be written with a simple one line shell script:
-> > > 	modprobe $MODALIAS
-> > 
-> > Nice, but why not just convert all this to a call to 
-> > request_module($MODALIAS)? Seems to me like the natural thing to do.
-> 
-> I actually have a pretty hackish proof-of-consept patch that does
-> basicly that, and have been running it on my systems for the past five
-> months or so, if anybody's interested.
-> 
-> Along with it I also have a patch witch exports the module aliases for
-> PCI and USB devices through sysfs. With it the "coldplugging" of a
-> system (module wise) can be reduced to pretty much:
-> 
-> #!/bin/sh
-> 
-> for DEV in /sys/bus/{pci,usb}/devices/*; do
-> 	modprobe `cat $DEV/modalias`
-> done
-
-Ok, as you never posted your patch, I had to do it myself :)
-
-Here's 3 patches that I just added to my trees, and will show up in the
-next -mm release.  They create the modalias file for usb and pci
-devices, and add the MODALIAS env variable for the pci hotplug event.
-
-thanks,
-
-greg k-h
+On Thu, May 12, 2005 at 03:31:00AM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.12-rc3-mm3:
+>...
+> +sparsemem-memory-model.patch
+>...
+>  More sparsemem stuff
+>...
 
 
-Subject: PCI: add MODALIAS to hotplug event for pci devices
+This causes the following compile error with gcc 3.4 on i386:
 
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+<--  snip  -->
+
+...
+  CC      mm/hugetlb.o
+mm/hugetlb.c: In function `enqueue_huge_page':
+include/linux/mm.h:500: sorry, unimplemented: inlining failed in call to 
+'page_zone': function not considered for inlining
+mm/hugetlb.c:486: sorry, unimplemented: called from here
+make[1]: *** [mm/hugetlb.o] Error 1
+make: *** [mm] Error 2
+
+<--  snip  -->
+
+
+This patch fixes this compile error.
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
- drivers/pci/hotplug.c |   10 ++++++++++
- 1 files changed, 10 insertions(+)
 
---- gregkh-2.6.orig/drivers/pci/hotplug.c	2005-05-12 14:28:39.000000000 -0700
-+++ gregkh-2.6/drivers/pci/hotplug.c	2005-05-12 14:28:47.000000000 -0700
-@@ -52,6 +52,16 @@
- 	if ((buffer_size - length <= 0) || (i >= num_envp))
- 		return -ENOMEM;
- 
-+	envp[i++] = scratch;
-+	length += scnprintf (scratch, buffer_size - length,
-+			    "MODALIAS=pci:v%08Xd%08Xsv%08Xsd%08Xbc%02Xsc%02Xi%02x\n",
-+			    pdev->vendor, pdev->device,
-+			    pdev->subsystem_vendor, pdev->subsystem_device,
-+			    (u8)(pdev->class >> 16), (u8)(pdev->class >> 8),
-+			    (u8)(pdev->class));
-+	if ((buffer_size - length <= 0) || (i >= num_envp))
-+		return -ENOMEM;
-+
- 	envp[i] = NULL;
- 
- 	return 0;
+ include/linux/mm.h |   20 ++++++++++----------
+ 1 files changed, 10 insertions(+), 10 deletions(-)
 
-
-Subject: PCI: add modalias sysfs file for pci devices
-
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
----
- drivers/pci/pci-sysfs.c |   12 ++++++++++++
- 1 files changed, 12 insertions(+)
-
---- gregkh-2.6.orig/drivers/pci/pci-sysfs.c	2005-05-12 14:28:25.000000000 -0700
-+++ gregkh-2.6/drivers/pci/pci-sysfs.c	2005-05-12 14:28:40.000000000 -0700
-@@ -73,6 +73,17 @@
- 	return (str - buf);
+--- linux-2.6.12-rc4-mm1-full/include/linux/mm.h.old	2005-05-12 22:54:04.000000000 +0200
++++ linux-2.6.12-rc4-mm1-full/include/linux/mm.h	2005-05-12 22:54:38.000000000 +0200
+@@ -480,7 +480,16 @@
+ {
+ 	return (page->flags >> ZONES_PGSHIFT) & ZONES_MASK;
  }
- 
-+static ssize_t modalias_show(struct device *dev, char *buf)
-+{
-+	struct pci_dev *pci_dev = to_pci_dev(dev);
+-static inline struct zone *page_zone(struct page *page);
 +
-+	return sprintf(buf, "pci:v%08Xd%08Xsv%08Xsd%08Xbc%02Xsc%02Xi%02x\n",
-+		       pci_dev->vendor, pci_dev->device,
-+		       pci_dev->subsystem_vendor, pci_dev->subsystem_device,
-+		       (u8)(pci_dev->class >> 16), (u8)(pci_dev->class >> 8),
-+		       (u8)(pci_dev->class));
++struct zone;
++extern struct zone *zone_table[];
++
++static inline struct zone *page_zone(struct page *page)
++{
++	return zone_table[(page->flags >> ZONETABLE_PGSHIFT) &
++			ZONETABLE_MASK];
 +}
 +
- struct device_attribute pci_dev_attrs[] = {
- 	__ATTR_RO(resource),
- 	__ATTR_RO(vendor),
-@@ -82,6 +93,7 @@
- 	__ATTR_RO(class),
- 	__ATTR_RO(irq),
- 	__ATTR_RO(local_cpus),
-+	__ATTR_RO(modalias),
- 	__ATTR_NULL,
- };
-
-
-
-Subject: USB: add modalias sysfs file for usb devices
-
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
----
- drivers/usb/core/sysfs.c |   34 ++++++++++++++++++++++++++++++++++
- 1 files changed, 34 insertions(+)
-
---- gregkh-2.6.orig/drivers/usb/core/sysfs.c	2005-05-12 14:28:59.000000000 -0700
-+++ gregkh-2.6/drivers/usb/core/sysfs.c	2005-05-12 14:29:05.000000000 -0700
-@@ -286,6 +286,39 @@
+ static inline unsigned long page_to_nid(struct page *page)
+ {
+ 	if (FLAGS_HAS_NODE)
+@@ -493,15 +502,6 @@
+ 	return (page->flags >> SECTIONS_PGSHIFT) & SECTIONS_MASK;
  }
- static DEVICE_ATTR(interface, S_IRUGO, show_interface_string, NULL);
  
-+static ssize_t show_modalias(struct device *dev, char *buf)
-+{
-+	struct usb_interface *intf;
-+	struct usb_device *udev;
-+
-+	intf = to_usb_interface(dev);
-+	udev = interface_to_usbdev(intf);
-+	if (udev->descriptor.bDeviceClass == 0) {
-+		struct usb_host_interface *alt = intf->cur_altsetting;
-+
-+		return sprintf(buf, "usb:v%04Xp%04Xd%04Xdc%02Xdsc%02Xdp%02Xic%02Xisc%02Xip%02X\n",
-+			       le16_to_cpu(udev->descriptor.idVendor),
-+			       le16_to_cpu(udev->descriptor.idProduct),
-+			       le16_to_cpu(udev->descriptor.bcdDevice),
-+			       udev->descriptor.bDeviceClass,
-+			       udev->descriptor.bDeviceSubClass,
-+			       udev->descriptor.bDeviceProtocol,
-+			       alt->desc.bInterfaceClass,
-+			       alt->desc.bInterfaceSubClass,
-+			       alt->desc.bInterfaceProtocol);
-+ 	} else {
-+		return sprintf(buf, "usb:v%04Xp%04Xd%04Xdc%02Xdsc%02Xdp%02Xic*isc*ip*\n",
-+			       le16_to_cpu(udev->descriptor.idVendor),
-+			       le16_to_cpu(udev->descriptor.idProduct),
-+			       le16_to_cpu(udev->descriptor.bcdDevice),
-+			       udev->descriptor.bDeviceClass,
-+			       udev->descriptor.bDeviceSubClass,
-+			       udev->descriptor.bDeviceProtocol);
-+	}
-+
-+}
-+static DEVICE_ATTR(modalias, S_IRUGO, show_modalias, NULL);
-+
- static struct attribute *intf_attrs[] = {
- 	&dev_attr_bInterfaceNumber.attr,
- 	&dev_attr_bAlternateSetting.attr,
-@@ -293,6 +326,7 @@
- 	&dev_attr_bInterfaceClass.attr,
- 	&dev_attr_bInterfaceSubClass.attr,
- 	&dev_attr_bInterfaceProtocol.attr,
-+	&dev_attr_modalias.attr,
- 	NULL,
- };
- static struct attribute_group intf_attr_grp = {
+-struct zone;
+-extern struct zone *zone_table[];
+-
+-static inline struct zone *page_zone(struct page *page)
+-{
+-	return zone_table[(page->flags >> ZONETABLE_PGSHIFT) &
+-			ZONETABLE_MASK];
+-}
+-
+ static inline void set_page_zone(struct page *page, unsigned long zone)
+ {
+ 	page->flags &= ~(ZONES_MASK << ZONES_PGSHIFT);
+

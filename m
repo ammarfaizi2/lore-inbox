@@ -1,89 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbVELI3h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261327AbVELIbq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261333AbVELI3h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 04:29:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbVELI33
+	id S261327AbVELIbq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 04:31:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbVELIbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 04:29:29 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:14877
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S261333AbVELI3U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 04:29:20 -0400
-Message-Id: <s28321ef.089@emea1-mh.id2.novell.com>
-X-Mailer: Novell GroupWise Internet Agent 6.5.4 
-Date: Thu, 12 May 2005 10:29:35 +0200
-From: "Jan Beulich" <JBeulich@novell.com>
-To: <sam@ravnborg.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fix ATM makefile for out-of-source-tree builds
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=__Part456689FF.1__="
+	Thu, 12 May 2005 04:31:45 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:35210 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S261327AbVELIbY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 04:31:24 -0400
+Message-ID: <42831459.2000008@sw.ru>
+Date: Thu, 12 May 2005 12:31:21 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix of dcache race leading to busy inodes on umount
+References: <42822A2A.6000909@sw.ru> <20050511192942.07614243.akpm@osdl.org>
+In-Reply-To: <20050511192942.07614243.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME message. If you are reading this text, you may want to 
-consider changing to a mail reader or gateway that understands how to 
-properly handle MIME multipart messages.
+>>This patch fixes dcache race between shrink_dcache_XXX functions
+>>and dput().
+> 
+> 
+> 
+>>-void dput(struct dentry *dentry)
+>>+static void dput_recursive(struct dentry *dentry, struct dcache_shrinker *ds)
+>> {
+>>-	if (!dentry)
+>>-		return;
+>>-
+>>-repeat:
+>> 	if (atomic_read(&dentry->d_count) == 1)
+>> 		might_sleep();
+>> 	if (!atomic_dec_and_lock(&dentry->d_count, &dcache_lock))
+>> 		return;
+>>+	dcache_shrinker_del(ds);
+>> 
+>>+repeat:
+>> 	spin_lock(&dentry->d_lock);
+>> 	if (atomic_read(&dentry->d_count)) {
+>> 		spin_unlock(&dentry->d_lock);
+>>@@ -182,6 +253,7 @@ unhash_it:
+>> 
+>> kill_it: {
+>> 		struct dentry *parent;
+>>+		struct dcache_shrinker lds;
+>> 
+>> 		/* If dentry was on d_lru list
+>> 		 * delete it from there
+>>@@ -191,18 +263,43 @@ kill_it: {
+>>   			dentry_stat.nr_unused--;
+>>   		}
+>>   		list_del(&dentry->d_child);
+>>+		parent = dentry->d_parent;
+>>+		dcache_shrinker_add(&lds, parent, dentry);
+>> 		dentry_stat.nr_dentry--;	/* For d_free, below */
+>> 		/*drops the locks, at that point nobody can reach this dentry */
+>> 		dentry_iput(dentry);
+>>-		parent = dentry->d_parent;
+>> 		d_free(dentry);
+>> 		if (dentry == parent)
+> 
+> 
+> Aren't we leaving local variable `lds' on the global list here?
+yup, my fault.
+You patch solves this.
 
---=__Part456689FF.1__=
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Kirill
 
-(Note: Patch also attached because the inline version is certain to get
-line wrapped.)
-
-Adjust ATM makefile to account for building outside of the source tree.
-
-Signed-off-by: Jan Beulich <jbeulich@novell.com>
-
-diff -Npru linux-2.6.12-rc4.base/drivers/atm/Makefile linux-2.6.12-rc4/driv=
-ers/atm/Makefile
---- linux-2.6.12-rc4.base/drivers/atm/Makefile	2005-03-02 08:38:34.0000000=
-00 +0100
-+++ linux-2.6.12-rc4/drivers/atm/Makefile	2005-03-15 14:39:36.0000000=
-00 +0100
-@@ -39,7 +39,8 @@ ifeq ($(CONFIG_ATM_FORE200E_PCA),y)
-   fore_200e-objs		+=3D fore200e_pca_fw.o
-   # guess the target endianess to choose the right PCA-200E firmware =
-image
-   ifeq ($(CONFIG_ATM_FORE200E_PCA_DEFAULT_FW),y)
--    CONFIG_ATM_FORE200E_PCA_FW =3D $(shell if test -n "`$(CC) -E -dM =
-$(src)/../../include/asm/byteorder.h | grep ' __LITTLE_ENDIAN '`"; then =
-echo $(obj)/pca200e.bin; else echo $(obj)/pca200e_ecd.bin2; fi)
-+    byteorder.h			:=3D include$(if $(patsubst =
-$(srctree),,$(objtree)),2)/asm/byteorder.h
-+    CONFIG_ATM_FORE200E_PCA_FW	:=3D $(obj)/pca200e$(if $(shell $(CC) -E =
--dM $(byteorder.h) | grep ' __LITTLE_ENDIAN '),.bin,_ecd.bin2)
-   endif
- endif
-=20
-
-
-
---=__Part456689FF.1__=
-Content-Type: text/plain; name="linux-2.6.12-rc4-atm-make.patch"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="linux-2.6.12-rc4-atm-make.patch"
-
-(Note: Patch also attached because the inline version is certain to get
-line wrapped.)
-
-Adjust ATM makefile to account for building outside of the source tree.
-
-Signed-off-by: Jan Beulich <jbeulich@novell.com>
-
-diff -Npru linux-2.6.12-rc4.base/drivers/atm/Makefile linux-2.6.12-rc4/drivers/atm/Makefile
---- linux-2.6.12-rc4.base/drivers/atm/Makefile	2005-03-02 08:38:34.000000000 +0100
-+++ linux-2.6.12-rc4/drivers/atm/Makefile	2005-03-15 14:39:36.000000000 +0100
-@@ -39,7 +39,8 @@ ifeq ($(CONFIG_ATM_FORE200E_PCA),y)
-   fore_200e-objs		+= fore200e_pca_fw.o
-   # guess the target endianess to choose the right PCA-200E firmware image
-   ifeq ($(CONFIG_ATM_FORE200E_PCA_DEFAULT_FW),y)
--    CONFIG_ATM_FORE200E_PCA_FW = $(shell if test -n "`$(CC) -E -dM $(src)/../../include/asm/byteorder.h | grep ' __LITTLE_ENDIAN '`"; then echo $(obj)/pca200e.bin; else echo $(obj)/pca200e_ecd.bin2; fi)
-+    byteorder.h			:= include$(if $(patsubst $(srctree),,$(objtree)),2)/asm/byteorder.h
-+    CONFIG_ATM_FORE200E_PCA_FW	:= $(obj)/pca200e$(if $(shell $(CC) -E -dM $(byteorder.h) | grep ' __LITTLE_ENDIAN '),.bin,_ecd.bin2)
-   endif
- endif
- 
-
---=__Part456689FF.1__=--

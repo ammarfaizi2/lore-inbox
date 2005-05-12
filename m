@@ -1,22 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbVELIRD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261305AbVELIUi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261307AbVELIRD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 04:17:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbVELIRD
+	id S261305AbVELIUi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 04:20:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbVELIUh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 04:17:03 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:27419
+	Thu, 12 May 2005 04:20:37 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:1052
 	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S261327AbVELIQJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 04:16:09 -0400
-Message-Id: <s2831ed8.056@emea1-mh.id2.novell.com>
+	id S261305AbVELIUN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 04:20:13 -0400
+Message-Id: <s2831fcc.039@emea1-mh.id2.novell.com>
 X-Mailer: Novell GroupWise Internet Agent 6.5.4 
-Date: Thu, 12 May 2005 10:16:31 +0200
+Date: Thu, 12 May 2005 10:20:25 +0200
 From: "Jan Beulich" <JBeulich@novell.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] adjust i386 watchdog tick calculation
+To: <ak@suse.de>
+Cc: <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>
+Subject: [PATCH] allow early printk to use more than 25 lines
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=__Part7655BACF.0__="
+Content-Type: multipart/mixed; boundary="=__Part6142ADD9.1__="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -24,7 +25,7 @@ This is a MIME message. If you are reading this text, you may want to
 consider changing to a mail reader or gateway that understands how to 
 properly handle MIME multipart messages.
 
---=__Part7655BACF.0__=
+--=__Part6142ADD9.1__=
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
@@ -32,170 +33,114 @@ Content-Disposition: inline
 (Note: Patch also attached because the inline version is certain to get
 line wrapped.)
 
-Get the i386 watchdog tick calculation into a state where it can also
-be used on CPUs with frequencies beyond 4GHz, and it consolidates the
-calculation into a single place (for potential furture adjustments).
+Allow early printk code to take advantage of the full size of the screen,
+not just the first 25 lines.
 
 Signed-off-by: Jan Beulich <jbeulich@novell.com>
 
-diff -Npru linux-2.6.12-rc4.base/arch/i386/kernel/nmi.c linux-2.6.12-rc4/ar=
-ch/i386/kernel/nmi.c
---- linux-2.6.12-rc4.base/arch/i386/kernel/nmi.c	2005-05-11 =
-17:27:52.239252272 +0200
-+++ linux-2.6.12-rc4/arch/i386/kernel/nmi.c	2005-05-11 17:50:36.2498911=
-36 +0200
-@@ -28,8 +28,7 @@
- #include <linux/sysctl.h>
+diff -Npru linux-2.6.12-rc4.base/arch/x86_64/kernel/early_printk.c =
+linux-2.6.12-rc4/arch/x86_64/kernel/early_printk.c
+--- linux-2.6.12-rc4.base/arch/x86_64/kernel/early_printk.c	2005-05-11 =
+17:27:54.819859960 +0200
++++ linux-2.6.12-rc4/arch/x86_64/kernel/early_printk.c	2005-05-11 =
+17:50:36.252890680 +0200
+@@ -2,20 +2,24 @@
+ #include <linux/kernel.h>
+ #include <linux/init.h>
+ #include <linux/string.h>
++#include <linux/tty.h>
+ #include <asm/io.h>
+ #include <asm/processor.h>
 =20
- #include <asm/smp.h>
--#include <asm/mtrr.h>
--#include <asm/mpspec.h>
-+#include <asm/div64.h>
- #include <asm/nmi.h>
+ /* Simple VGA output */
 =20
- #include "mach_traps.h"
-@@ -324,6 +323,16 @@ static void clear_msr_range(unsigned int
- 		wrmsr(base+i, 0, 0);
- }
+ #ifdef __i386__
++#include <asm/setup.h>
+ #define VGABASE		(__ISA_IO_base + 0xb8000)
+ #else
++#include <asm/bootsetup.h>
+ #define VGABASE		((void __iomem *)0xffffffff800b8000UL)
+ #endif
 =20
-+static inline void write_watchdog_counter(const char *descr)
-+{
-+	u64 count =3D (u64)cpu_khz * 1000;
-+
-+	do_div(count, nmi_hz);
-+	if(descr)
-+		Dprintk("setting %s to -0x%08Lx\n", descr, count);
-+	wrmsrl(nmi_perfctr_msr, 0 - count);
-+}
-+
- static void setup_k7_watchdog(void)
- {
- 	unsigned int evntsel;
-@@ -339,8 +348,7 @@ static void setup_k7_watchdog(void)
- 		| K7_NMI_EVENT;
+-#define MAX_YPOS	25
+-#define MAX_XPOS	80
++#define MAX_YPOS	max_ypos
++#define MAX_XPOS	max_xpos
 =20
- 	wrmsr(MSR_K7_EVNTSEL0, evntsel, 0);
--	Dprintk("setting K7_PERFCTR0 to %08lx\n", -(cpu_khz/nmi_hz*1000));
--	wrmsr(MSR_K7_PERFCTR0, -(cpu_khz/nmi_hz*1000), -1);
-+	write_watchdog_counter("K7_PERFCTR0");
- 	apic_write(APIC_LVTPC, APIC_DM_NMI);
- 	evntsel |=3D K7_EVNTSEL_ENABLE;
- 	wrmsr(MSR_K7_EVNTSEL0, evntsel, 0);
-@@ -361,8 +369,7 @@ static void setup_p6_watchdog(void)
- 		| P6_NMI_EVENT;
++static int max_ypos =3D 25, max_xpos =3D 80;
+ static int current_ypos =3D 1, current_xpos =3D 0;=20
 =20
- 	wrmsr(MSR_P6_EVNTSEL0, evntsel, 0);
--	Dprintk("setting P6_PERFCTR0 to %08lx\n", -(cpu_khz/nmi_hz*1000));
--	wrmsr(MSR_P6_PERFCTR0, -(cpu_khz/nmi_hz*1000), 0);
-+	write_watchdog_counter("P6_PERFCTR0");
- 	apic_write(APIC_LVTPC, APIC_DM_NMI);
- 	evntsel |=3D P6_EVNTSEL0_ENABLE;
- 	wrmsr(MSR_P6_EVNTSEL0, evntsel, 0);
-@@ -402,8 +409,7 @@ static int setup_p4_watchdog(void)
-=20
- 	wrmsr(MSR_P4_CRU_ESCR0, P4_NMI_CRU_ESCR0, 0);
- 	wrmsr(MSR_P4_IQ_CCCR0, P4_NMI_IQ_CCCR0 & ~P4_CCCR_ENABLE, 0);
--	Dprintk("setting P4_IQ_COUNTER0 to 0x%08lx\n", -(cpu_khz/nmi_hz*100=
-0));
--	wrmsr(MSR_P4_IQ_COUNTER0, -(cpu_khz/nmi_hz*1000), -1);
-+	write_watchdog_counter("P4_IQ_COUNTER0");
- 	apic_write(APIC_LVTPC, APIC_DM_NMI);
- 	wrmsr(MSR_P4_IQ_CCCR0, nmi_p4_cccr_val, 0);
- 	return 1;
-@@ -518,7 +524,7 @@ void nmi_watchdog_tick (struct pt_regs *
- 			 * other P6 variant */
- 			apic_write(APIC_LVTPC, APIC_DM_NMI);
- 		}
--		wrmsr(nmi_perfctr_msr, -(cpu_khz/nmi_hz*1000), -1);
-+		write_watchdog_counter(NULL);
+ static void early_vga_write(struct console *con, const char *str, =
+unsigned n)
+@@ -196,7 +200,10 @@ int __init setup_early_printk(char *opt)
+ 	} else if (!strncmp(buf, "ttyS", 4)) {=20
+ 		early_serial_init(buf);
+ 		early_console =3D &early_serial_console;	=09
+-	} else if (!strncmp(buf, "vga", 3)) {
++	} else if (!strncmp(buf, "vga", 3)
++	           && SCREEN_INFO.orig_video_isVGA =3D=3D 1) {
++		max_xpos =3D SCREEN_INFO.orig_video_cols;
++		max_ypos =3D SCREEN_INFO.orig_video_lines;
+ 		early_console =3D &early_vga_console;=20
  	}
- }
-=20
+ 	early_console_initialized =3D 1;
 
 
 
---=__Part7655BACF.0__=
-Content-Type: text/plain; name="linux-2.6.12-rc4-i386-watchdog.patch"
+--=__Part6142ADD9.1__=
+Content-Type: text/plain; name="linux-2.6.12-rc4-early-printk.patch"
 Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="linux-2.6.12-rc4-i386-watchdog.patch"
+Content-Disposition: attachment; filename="linux-2.6.12-rc4-early-printk.patch"
 
 (Note: Patch also attached because the inline version is certain to get
 line wrapped.)
 
-Get the i386 watchdog tick calculation into a state where it can also
-be used on CPUs with frequencies beyond 4GHz, and it consolidates the
-calculation into a single place (for potential furture adjustments).
+Allow early printk code to take advantage of the full size of the screen,
+not just the first 25 lines.
 
 Signed-off-by: Jan Beulich <jbeulich@novell.com>
 
-diff -Npru linux-2.6.12-rc4.base/arch/i386/kernel/nmi.c linux-2.6.12-rc4/arch/i386/kernel/nmi.c
---- linux-2.6.12-rc4.base/arch/i386/kernel/nmi.c	2005-05-11 17:27:52.239252272 +0200
-+++ linux-2.6.12-rc4/arch/i386/kernel/nmi.c	2005-05-11 17:50:36.249891136 +0200
-@@ -28,8 +28,7 @@
- #include <linux/sysctl.h>
+diff -Npru linux-2.6.12-rc4.base/arch/x86_64/kernel/early_printk.c linux-2.6.12-rc4/arch/x86_64/kernel/early_printk.c
+--- linux-2.6.12-rc4.base/arch/x86_64/kernel/early_printk.c	2005-05-11 17:27:54.819859960 +0200
++++ linux-2.6.12-rc4/arch/x86_64/kernel/early_printk.c	2005-05-11 17:50:36.252890680 +0200
+@@ -2,20 +2,24 @@
+ #include <linux/kernel.h>
+ #include <linux/init.h>
+ #include <linux/string.h>
++#include <linux/tty.h>
+ #include <asm/io.h>
+ #include <asm/processor.h>
  
- #include <asm/smp.h>
--#include <asm/mtrr.h>
--#include <asm/mpspec.h>
-+#include <asm/div64.h>
- #include <asm/nmi.h>
+ /* Simple VGA output */
  
- #include "mach_traps.h"
-@@ -324,6 +323,16 @@ static void clear_msr_range(unsigned int
- 		wrmsr(base+i, 0, 0);
- }
+ #ifdef __i386__
++#include <asm/setup.h>
+ #define VGABASE		(__ISA_IO_base + 0xb8000)
+ #else
++#include <asm/bootsetup.h>
+ #define VGABASE		((void __iomem *)0xffffffff800b8000UL)
+ #endif
  
-+static inline void write_watchdog_counter(const char *descr)
-+{
-+	u64 count = (u64)cpu_khz * 1000;
-+
-+	do_div(count, nmi_hz);
-+	if(descr)
-+		Dprintk("setting %s to -0x%08Lx\n", descr, count);
-+	wrmsrl(nmi_perfctr_msr, 0 - count);
-+}
-+
- static void setup_k7_watchdog(void)
- {
- 	unsigned int evntsel;
-@@ -339,8 +348,7 @@ static void setup_k7_watchdog(void)
- 		| K7_NMI_EVENT;
+-#define MAX_YPOS	25
+-#define MAX_XPOS	80
++#define MAX_YPOS	max_ypos
++#define MAX_XPOS	max_xpos
  
- 	wrmsr(MSR_K7_EVNTSEL0, evntsel, 0);
--	Dprintk("setting K7_PERFCTR0 to %08lx\n", -(cpu_khz/nmi_hz*1000));
--	wrmsr(MSR_K7_PERFCTR0, -(cpu_khz/nmi_hz*1000), -1);
-+	write_watchdog_counter("K7_PERFCTR0");
- 	apic_write(APIC_LVTPC, APIC_DM_NMI);
- 	evntsel |= K7_EVNTSEL_ENABLE;
- 	wrmsr(MSR_K7_EVNTSEL0, evntsel, 0);
-@@ -361,8 +369,7 @@ static void setup_p6_watchdog(void)
- 		| P6_NMI_EVENT;
++static int max_ypos = 25, max_xpos = 80;
+ static int current_ypos = 1, current_xpos = 0; 
  
- 	wrmsr(MSR_P6_EVNTSEL0, evntsel, 0);
--	Dprintk("setting P6_PERFCTR0 to %08lx\n", -(cpu_khz/nmi_hz*1000));
--	wrmsr(MSR_P6_PERFCTR0, -(cpu_khz/nmi_hz*1000), 0);
-+	write_watchdog_counter("P6_PERFCTR0");
- 	apic_write(APIC_LVTPC, APIC_DM_NMI);
- 	evntsel |= P6_EVNTSEL0_ENABLE;
- 	wrmsr(MSR_P6_EVNTSEL0, evntsel, 0);
-@@ -402,8 +409,7 @@ static int setup_p4_watchdog(void)
- 
- 	wrmsr(MSR_P4_CRU_ESCR0, P4_NMI_CRU_ESCR0, 0);
- 	wrmsr(MSR_P4_IQ_CCCR0, P4_NMI_IQ_CCCR0 & ~P4_CCCR_ENABLE, 0);
--	Dprintk("setting P4_IQ_COUNTER0 to 0x%08lx\n", -(cpu_khz/nmi_hz*1000));
--	wrmsr(MSR_P4_IQ_COUNTER0, -(cpu_khz/nmi_hz*1000), -1);
-+	write_watchdog_counter("P4_IQ_COUNTER0");
- 	apic_write(APIC_LVTPC, APIC_DM_NMI);
- 	wrmsr(MSR_P4_IQ_CCCR0, nmi_p4_cccr_val, 0);
- 	return 1;
-@@ -518,7 +524,7 @@ void nmi_watchdog_tick (struct pt_regs *
- 			 * other P6 variant */
- 			apic_write(APIC_LVTPC, APIC_DM_NMI);
- 		}
--		wrmsr(nmi_perfctr_msr, -(cpu_khz/nmi_hz*1000), -1);
-+		write_watchdog_counter(NULL);
+ static void early_vga_write(struct console *con, const char *str, unsigned n)
+@@ -196,7 +200,10 @@ int __init setup_early_printk(char *opt)
+ 	} else if (!strncmp(buf, "ttyS", 4)) { 
+ 		early_serial_init(buf);
+ 		early_console = &early_serial_console;		
+-	} else if (!strncmp(buf, "vga", 3)) {
++	} else if (!strncmp(buf, "vga", 3)
++	           && SCREEN_INFO.orig_video_isVGA == 1) {
++		max_xpos = SCREEN_INFO.orig_video_cols;
++		max_ypos = SCREEN_INFO.orig_video_lines;
+ 		early_console = &early_vga_console; 
  	}
- }
- 
+ 	early_console_initialized = 1;
 
---=__Part7655BACF.0__=--
+--=__Part6142ADD9.1__=--

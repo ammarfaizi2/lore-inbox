@@ -1,76 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261247AbVELEFH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261272AbVELE3T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261247AbVELEFH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 00:05:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbVELEFH
+	id S261272AbVELE3T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 00:29:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbVELE3T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 00:05:07 -0400
-Received: from picard.ine.co.th ([203.152.41.3]:19114 "EHLO picard.ine.co.th")
-	by vger.kernel.org with ESMTP id S261247AbVELEFA (ORCPT
+	Thu, 12 May 2005 00:29:19 -0400
+Received: from mail.kroah.org ([69.55.234.183]:39080 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261272AbVELE3R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 00:05:00 -0400
-Subject: Re: kernel (64bit) 4GB memory support
-From: Rudolf Usselmann <rudi@asics.ws>
-Reply-To: rudi@asics.ws
-To: Stefan Smietanowski <stesmi@stesmi.com>
-Cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Frank Denis (Jedi/Sector One)" <j@pureftpd.org>,
-       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <4282D3E1.80303@stesmi.com>
-References: <20041216074905.GA2417@c9x.org> <1103213359.31392.71.camel@cpu0>
-	 <Pine.LNX.4.61.0412201246180.12334@montezuma.fsmlabs.com>
-	 <1103646195.3652.196.camel@cpu0>
-	 <Pine.LNX.4.61.0412210930280.28648@montezuma.fsmlabs.com>
-	 <1103647158.3659.199.camel@cpu0>
-	 <Pine.LNX.4.61.0412210955130.28648@montezuma.fsmlabs.com>
-	 <1115654185.3296.658.camel@cpu10>
-	 <20050509200721.GE2297@csclub.uwaterloo.ca>
-	 <1115754522.4409.16.camel@cpu10>
-	 <20050511142745.GQ2281@csclub.uwaterloo.ca>  <4282D3E1.80303@stesmi.com>
-Content-Type: text/plain
-Organization: ASICS.ws - Solutions for your ASICS & FPGA needs -
-Date: Thu, 12 May 2005 11:04:53 +0700
-Message-Id: <1115870693.8406.53.camel@cpu10>
+	Thu, 12 May 2005 00:29:17 -0400
+Date: Wed, 11 May 2005 21:26:57 -0700
+From: Greg KH <greg@kroah.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Shaun Reitan <mailinglists@unix-scripts.com>, linux-kernel@vger.kernel.org,
+       stable@kernel.org
+Subject: Re: [stable] Re: kernel panic - not syncing: Fatal exception in interupt
+Message-ID: <20050512042657.GA16417@kroah.com>
+References: <d2vu0u$oog$1@sea.gmane.org> <Pine.LNX.4.61.0504060209200.15520@montezuma.fsmlabs.com> <03f201c53aeb$a42d1270$0201a8c0@ndciwkst01> <Pine.LNX.4.61.0504070207430.12823@montezuma.fsmlabs.com> <023b01c53f3b$a8083e20$0201a8c0@ndciwkst01> <Pine.LNX.4.61.0504120612210.14171@montezuma.fsmlabs.com> <d3ugtr$gml$1@sea.gmane.org> <20050418060744.GA5057@gondor.apana.org.au>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050418060744.GA5057@gondor.apana.org.au>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-05-12 at 05:56 +0200, Stefan Smietanowski wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Mon, Apr 18, 2005 at 04:07:44PM +1000, Herbert Xu wrote:
+> On Sun, Apr 17, 2005 at 08:32:42PM +0000, Shaun Reitan wrote:
+> > OK, finally got a full dump from the serial console!  Here is it!
 > 
-> Lennart Sorensen wrote:
-> > On Wed, May 11, 2005 at 02:48:42AM +0700, Rudolf Usselmann wrote:
-> > 
-> >>I do see the full 4G. With Fedora Core 2 32bit, I can use all
-> >>4G as well. All my problems started when I "upgraded" to x86_64 ...
-> > 
-> > 
-> > In 32bit it probably uses the PSE36 extensions or something, which isn't
-> > the same thing as flat 64bit memory access.  It could just be a matter
-> > of needing a memory hole somewhere for PCI space or something.  I only
-> > have 1G in my 64bit machine so I haven't got near these problems.
+> This was fixed about a month ago.  Here is the patch that did it.
 > 
-> I don't recall him saying he's changed kernel from the default redhat
-> kernel in which case he's running the RedHat 4G/4G split kernel and not
-> using PSE/PAE.
-> 
-> // Stefan
+> Perhaps it's time to include this in 2.6.11.*?
 
+Applied to the -stable queue, thanks.
 
-I'm using whatever is available on www.kernerl.org :*)
-
-Sorry I am totally lost what the above terminology means.
-
-Is that a configuration option that I should try, or a totally
-different branch of the kernel ?
-
-Thanks !
-rudi
-=============================================================
-Rudolf Usselmann,  ASICS World Services,  http://www.asics.ws
-Your Partner for IP Cores, Design, Verification and Synthesis
-
+greg k-h

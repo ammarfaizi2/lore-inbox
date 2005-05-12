@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261514AbVELMGf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbVELMOK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261514AbVELMGf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 08:06:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbVELMGf
+	id S261155AbVELMOK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 08:14:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVELMOK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 08:06:35 -0400
-Received: from [62.203.34.148] ([62.203.34.148]:11317 "EHLO
-	kestrel.twibright.com") by vger.kernel.org with ESMTP
-	id S261514AbVELMGd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 08:06:33 -0400
-Date: Thu, 12 May 2005 14:03:58 +0200
-From: Karel Kulhavy <clock@twibright.com>
-To: linux-kernel@vger.kernel.org
-Subject: make htmldocs doesn't work even with docbook stylesheets installed
-Message-ID: <20050512120358.GA8126@kestrel>
+	Thu, 12 May 2005 08:14:10 -0400
+Received: from rproxy.gmail.com ([64.233.170.203]:48523 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261155AbVELMOH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 08:14:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Uybe9Z3U3LS94n6J47Q7Nr0LHzujC1kwnAT4YnGbecUVjG5x4uhYjhnbL7nm0kOEt+Ruyvd17MLb4CWNr4q9OPoPYfWEaCx4j5eVGblt3b+lqUfC6oo7aSH7slFFgV7p6f4K8I4ahbCigGffhe4fw1YhvRP29Y/D458j5DEpVBc=
+Message-ID: <fe726f4e050512051439272c4e@mail.gmail.com>
+Date: Thu, 12 May 2005 14:14:07 +0200
+From: Carlos Martin <carlosmn@gmail.com>
+Reply-To: Carlos Martin <carlosmn@gmail.com>
+To: SN <talk2sumit@gmail.com>
+Subject: Re: USB Mass Storage
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1458d96105051201317c49500c@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+References: <1458d96105051201317c49500c@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-make htmldocs says thast docbook stylesheets are not installed while
-they are:
+On 5/12/05, SN <talk2sumit@gmail.com> wrote:
+> If I use a USB connected hard-disk (IDE), which device driver would I
+> be using? I understand it is recognized as a SCSI disk. So, is it the
+> SCSI driver? Or would the IDE driver be used?
 
-kestrel linux-2.6.11.9 # make htmldocs
-  HOSTCC  scripts/basic/fixdep
-  HOSTCC  scripts/basic/split-include
-  HOSTCC  scripts/basic/docproc
-  DOCPROC Documentation/DocBook/wanbook.sgml
-*** You need to install DocBook stylesheets ***
-make[1]: *** [Documentation/DocBook/wanbook.html] Error 1
-make: *** [htmldocs] Error 2
-kestrel linux-2.6.11.9 # emerge -s stylesheet
-Searching...   
-[ Results for search key : stylesheet ]
-[ Applications found : 2 ]
- 
-*  app-text/docbook-dsssl-stylesheets
-      Latest version available: 1.77-r2
-      Latest version installed: 1.77-r2
-      Size of downloaded files: 385 kB
-      Homepage:    http://docbook.sourceforge.net
-      Description: DSSSL Stylesheets for DocBook.
-      License:     as-is
+ You would use the usb-storage driver which in turn uses the scsi driver.
 
-*  app-text/docbook-xsl-stylesheets
-      Latest version available: 1.66.1
-      Latest version installed: 1.66.1
-      Size of downloaded files: 1,514 kB
-      Homepage:    http://docbook.sourceforge.net/
-      Description: XSL Stylesheets for Docbook
-      License:     || ( as-is BSD )
+   cmn
+-- 
+Carlos Martín         http://www.cmartin.tk   http://rpgscript.berlios.de
 
-Is this a bug in Linux make htmldocs?
-
-CL<
+"I'll wager it's the most extraordinary thing to happen round here
+since Queen Elizabeth's handmaid got hit by lightning and sprouted a
+beard"
+     -- T. C. Boyle, "Water Music"

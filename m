@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262073AbVELUK4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262074AbVELULc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262073AbVELUK4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 16:10:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbVELUK4
+	id S262074AbVELULc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 16:11:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262076AbVELUL2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 16:10:56 -0400
-Received: from twin.uoregon.edu ([128.223.214.27]:11981 "EHLO twin.uoregon.edu")
-	by vger.kernel.org with ESMTP id S262073AbVELUKt (ORCPT
+	Thu, 12 May 2005 16:11:28 -0400
+Received: from waste.org ([216.27.176.166]:2965 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262074AbVELULV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 16:10:49 -0400
-Date: Thu, 12 May 2005 13:10:43 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: joelja@twin.uoregon.edu
-To: Alan Bryan <icemanind@yahoo.com>
-cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>, linux-kernel@vger.kernel.org
-Subject: Re: Enhanced Keyboard Driver
-In-Reply-To: <20050512194805.52183.qmail@web53101.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.62.0505121309300.31808@twin.uoregon.edu>
-References: <20050512194805.52183.qmail@web53101.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 12 May 2005 16:11:21 -0400
+Date: Thu, 12 May 2005 13:11:16 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: Petr Baudis <pasky@ucw.cz>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org,
+       mercurial@selenic.com, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Mercurial 0.4e vs git network pull
+Message-ID: <20050512201116.GC5914@waste.org>
+References: <20050512094406.GZ5914@waste.org> <20050512182340.GA324@pasky.ji.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050512182340.GA324@pasky.ji.cz>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 May 2005, Alan Bryan wrote:
+On Thu, May 12, 2005 at 08:23:41PM +0200, Petr Baudis wrote:
+> Dear diary, on Thu, May 12, 2005 at 11:44:06AM CEST, I got a letter
+> where Matt Mackall <mpm@selenic.com> told me that...
+> > Mercurial is more than 10 times as bandwidth efficient and
+> > considerably more I/O efficient. On the server side, rsync uses about
+> > twice as much CPU time as the Mercurial server and has about 10 times
+> > the I/O and pagecache footprint as well.
+> > 
+> > Mercurial is also much smarter than rsync at determining what
+> > outstanding changesets exist. Here's an empty pull as a demonstration:
+> > 
+> >  $ time hg merge hg://selenic.com/linux-hg/
+> >  retrieving changegroup
+> > 
+> >  real    0m0.363s
+> >  user    0m0.083s
+> >  sys     0m0.007s
+> > 
+> > That's a single http request and a one line response.
+> 
+> So, what about comparing it with something comparable, say git pull over
+> HTTP? :-)
 
->>
->> What do you actually want to do?
->>
-> specifically, I am trying to write a program similar
-> to the old Sidekick program of the DOS days. A
-> "daemon", if you will, that will popup on the screen
-> when a predetermined series of keystrokes are hit. The
-> program will then do various things, like record/play
-> macros, calculator, calendar, programmer's guide, etc
-> etc...
+..because I get a headache every time I try to figure out how to use git? :-P
 
-why not just use screen? or emacs as your shell?
-
-> The part I'm having trouble with though is having it
-> popup when predetermined keystrokes are pushed. I
-> don't think Linux has a way to hook into the keyboard
-> (if I'm wrong, someone please tell me).
->
-> Alan
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Seriously, have a pointer to how this works?
 
 -- 
--------------------------------------------------------------------------- 
-Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu 
-GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
-
+Mathematics is the supreme nostalgia of our time.

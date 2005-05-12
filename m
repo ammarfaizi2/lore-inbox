@@ -1,68 +1,187 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbVELSwa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261364AbVELSxX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261267AbVELSwa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 14:52:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbVELSwa
+	id S261364AbVELSxX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 14:53:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbVELSxX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 14:52:30 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:20441 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261267AbVELSwX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 14:52:23 -0400
-Subject: Re: Re[2]: ata over ethernet question
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: Sander <sander@humilis.net>, David Hollis <dhollis@davehollis.com>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.60.0505102352430.9008@poirot.grange>
-References: <1416215015.20050504193114@dns.toxicfilms.tv>
-	 <1115236116.7761.19.camel@dhollis-lnx.sunera.com>
-	 <1104082357.20050504231722@dns.toxicfilms.tv>
-	 <1115305794.3071.5.camel@dhollis-lnx.sunera.com>
-	 <20050507150538.GA800@favonius>
-	 <Pine.LNX.4.60.0505102352430.9008@poirot.grange>
-Content-Type: text/plain
-Date: Thu, 12 May 2005 14:52:07 -0400
-Message-Id: <1115923927.5042.18.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 12 May 2005 14:53:23 -0400
+Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:52745 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261269AbVELSwu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 14:52:50 -0400
+To: jamie@shareable.org
+CC: ericvh@gmail.com, linuxram@us.ibm.com, miklos@szeredi.hu, 7eggert@gmx.de,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       smfrench@austin.rr.com, hch@infradead.org
+In-reply-to: <20050512151631.GA16310@mail.shareable.org> (message from Jamie
+	Lokier on Thu, 12 May 2005 16:16:31 +0100)
+Subject: Re: [RCF] [PATCH] unprivileged mount/umount
+References: <20050511170700.GC2141@mail.shareable.org> <E1DVwGn-0002BB-00@dorka.pomaz.szeredi.hu> <1115840139.6248.181.camel@localhost> <20050511212810.GD5093@mail.shareable.org> <1115851333.6248.225.camel@localhost> <a4e6962a0505111558337dd903@mail.gmail.com> <20050512010215.GB8457@mail.shareable.org> <a4e6962a05051119181e53634e@mail.gmail.com> <20050512064514.GA12315@mail.shareable.org> <a4e6962a0505120623645c0947@mail.gmail.com> <20050512151631.GA16310@mail.shareable.org>
+Message-Id: <E1DWIms-0005nC-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Thu, 12 May 2005 20:51:58 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-05-11 at 00:00 +0200, Guennadi Liakhovetski wrote:
-> A follow up question - I recently used nbd to access a CD-ROM. It worked 
-> nice, but, I had to read in 7 CDs, so, each time I had to replace a CD, I 
-> had to stop the client, the server, then replace the CD, re-start the 
-> server, re-start the client... I thought about extending NBD to (better) 
-> support removable media, but then you start thinking about all those 
-> features that your local block device has that don't get exported over 
-> NBD...
 
-That's correct; NBD is basically just a remote data pipe type block
-device.  It doesn't understand arbitrary packet commands.
+> > I'm not sure passing directory file descriptors is the right semantic
+> > we want - but at least it provides a point of explicit control (in
+> > much the same way as a bind).  Are you sure the clone + open("/") +
+> > pass-to-parent scenario you allows the parent to traverse the child's
+> > private name space through that fd?
+> 
+> Pretty sure.
 
-> Now, my understanding (sorry, without looking at any docs - yet) is, that 
-> iSCSI is (or at least should be) free from these limitations. So, does it 
-> make any sense at all extending NBD or just switch to iSCSI? Should NBD be 
-> just kept simple as it is or would it be completely superseeded by iSCSI, 
-> or is there still something that NBD does that iSCSI wouldn't (easily) do?
+Yup.  Attached a little program that can be used to try this out.  It
+creates a new namespace in the child, does a bind mount (so the
+namespaces can be differentiated), then sends the file descriptor of
+"/" to the parent.  The parent does fchdir(fd), then starts a shell.
 
-Caveat: I've done quite a bit of work on nbd, so I'm biased.  However,
-for what it does, nbd is extremely small, simple and efficient, so I
-think we'd want a hole in our head to replace it with something as
-complex and bloated as iSCSI---remember we'd need both a target and an
-initiator to do what nbd does today.
+So the result is that CWD is under the child namespace, while root is
+under the initial namespace.
 
-However, there is room for improvement in nbd, notably the handling of
-packet commands, which looks to be eminently doable in the current
-infrastructure (this would basically make nbd a replicator for the linux
-block system, and would probably necessitate some client side changes to
-achieve).  If you have any thoughts in this direction, you could drop an
-email to the maintainer.
+I also tried bind mounting from the child's namespace to the parent's,
+and that works too.  But the new mount's mnt_namespace is copied from
+the old, which makes the mount un-removable.  This is most likely not
+intentional, IOW a bug.
 
-James
+Miklos
 
+=== newns.c =========================================================
+#define _GNU_SOURCE
 
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <signal.h>
+#include <sched.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/un.h>
+#include <sys/socket.h>
+
+static int socks[2];
+
+static int send_fd(int sock_fd, int fd)
+{
+    int retval;
+    struct msghdr msg;
+    struct cmsghdr *p_cmsg;
+    struct iovec vec;
+    char cmsgbuf[CMSG_SPACE(sizeof(fd))];
+    int *p_fds;
+    char sendchar = 0;
+
+    msg.msg_control = cmsgbuf;
+    msg.msg_controllen = sizeof(cmsgbuf);
+    p_cmsg = CMSG_FIRSTHDR(&msg);
+    p_cmsg->cmsg_level = SOL_SOCKET;
+    p_cmsg->cmsg_type = SCM_RIGHTS;
+    p_cmsg->cmsg_len = CMSG_LEN(sizeof(fd));
+    p_fds = (int *) CMSG_DATA(p_cmsg);
+    *p_fds = fd;
+    msg.msg_controllen = p_cmsg->cmsg_len;
+    msg.msg_name = NULL;
+    msg.msg_namelen = 0;
+    msg.msg_iov = &vec;
+    msg.msg_iovlen = 1;
+    msg.msg_flags = 0;
+    /* "To pass file descriptors or credentials you need to send/read at
+     * least one byte" (man 7 unix) */
+    vec.iov_base = &sendchar;
+    vec.iov_len = sizeof(sendchar);
+    while ((retval = sendmsg(sock_fd, &msg, 0)) == -1 && errno == EINTR);
+    if (retval != 1) {
+        perror("sending file descriptor");
+        return -1;
+    }
+    return 0;
+}
+
+static int receive_fd(int fd)
+{
+    struct msghdr msg;
+    struct iovec iov;
+    char buf[1];
+    int rv;
+    int connfd = -1;
+    char ccmsg[CMSG_SPACE(sizeof(connfd))];
+    struct cmsghdr *cmsg;
+
+    iov.iov_base = buf;
+    iov.iov_len = 1;
+
+    msg.msg_name = 0;
+    msg.msg_namelen = 0;
+    msg.msg_iov = &iov;
+    msg.msg_iovlen = 1;
+    /* old BSD implementations should use msg_accrights instead of
+     * msg_control; the interface is different. */
+    msg.msg_control = ccmsg;
+    msg.msg_controllen = sizeof(ccmsg);
+
+    while(((rv = recvmsg(fd, &msg, 0)) == -1) && errno == EINTR);
+    if (rv == -1) {
+        perror("recvmsg");
+        return -1;
+    }
+    if(!rv) {
+        /* EOF */
+        return -1;
+    }
+
+    cmsg = CMSG_FIRSTHDR(&msg);
+    if (!cmsg->cmsg_type == SCM_RIGHTS) {
+        fprintf(stderr, "got control message of unknown type %d\n",
+                cmsg->cmsg_type);
+        return -1;
+    }
+    return *(int*)CMSG_DATA(cmsg);
+}
+
+int childfn(void *p)
+{
+    int fd;
+
+    (void) p;
+    mkdir("/tmp/clonetest", 755);
+    mkdir("/tmp/clonetest/dir1", 755);
+    mkdir("/tmp/clonetest/dir1/subdir1", 755);
+    mkdir("/tmp/clonetest/mnt", 755);
+    system("mount --bind /tmp/clonetest/dir1 /tmp/clonetest/mnt");
+    fd = open("/", O_RDONLY | O_DIRECTORY);
+    send_fd(socks[0], fd);
+    sleep(1000);
+    return 1;
+}
+
+int main()
+{
+    char buf[10000];
+    pid_t pid;
+    int res;
+    int childfd;
+
+    res = socketpair(AF_UNIX, SOCK_STREAM, 0, socks);
+    if (res == -1) {
+        perror("socketpair");
+        return 1;
+    }
+
+    pid = clone(childfn, buf+5000, CLONE_NEWNS | SIGCHLD, NULL);
+    if ((int) pid == -1) {
+        perror("clone");
+        exit(1);
+    }
+
+    childfd = receive_fd(socks[1]);
+    res = fchdir(childfd);
+    if (res == -1) {
+        perror("fchdir");
+        return 1;
+    }
+    execl("/bin/bash", "/bin/bash", NULL);
+    
+    return 0;
+}

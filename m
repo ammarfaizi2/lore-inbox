@@ -1,58 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262080AbVELUWA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262065AbVELU0h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262080AbVELUWA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 16:22:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbVELUV7
+	id S262065AbVELU0h (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 16:26:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262084AbVELU0h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 16:21:59 -0400
-Received: from fire.osdl.org ([65.172.181.4]:39138 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262080AbVELUV5 (ORCPT
+	Thu, 12 May 2005 16:26:37 -0400
+Received: from lug-owl.de ([195.71.106.12]:23501 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S262065AbVELU0e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 16:21:57 -0400
-Date: Thu, 12 May 2005 13:22:30 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, shai@scalex86.org
-Subject: Re: NUMA aware slab allocator V2
-Message-Id: <20050512132230.118b0c25.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0505121252390.32276@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com>
-	<20050512000444.641f44a9.akpm@osdl.org>
-	<Pine.LNX.4.58.0505121252390.32276@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 12 May 2005 16:26:34 -0400
+Date: Thu, 12 May 2005 22:26:33 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Alan Bryan <icemanind@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Enhanced Keyboard Driver
+Message-ID: <20050512202633.GE8176@lug-owl.de>
+Mail-Followup-To: Alan Bryan <icemanind@yahoo.com>,
+	linux-kernel@vger.kernel.org
+References: <20050512193917.GC8176@lug-owl.de> <20050512194805.52183.qmail@web53101.mail.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="dOtxUVmLoGkyu1PA"
+Content-Disposition: inline
+In-Reply-To: <20050512194805.52183.qmail@web53101.mail.yahoo.com>
+X-Operating-System: Linux mail 2.6.10-rc2-bk5lug-owl
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <clameter@engr.sgi.com> wrote:
->
-> On Thu, 12 May 2005, Andrew Morton wrote:
-> 
-> > Christoph Lameter <clameter@engr.sgi.com> wrote:
-> > >
-> > > This patch allows kmalloc_node to be as fast as kmalloc by introducing
-> > >  node specific page lists for partial, free and full slabs.
-> >
-> > This patch causes the ppc64 G5 to lock up fairly early in boot.  It's
-> > pretty much a default config:
-> > http://www.zip.com.au/~akpm/linux/patches/stuff/config-pmac
-> >
-> > No serial port, no debug environment, but no useful-looking error messages
-> > either.  See http://www.zip.com.au/~akpm/linux/patches/stuff/dsc02516.jpg
-> 
-> I got rc4-mm1 and booted it on an x86_64 machines with similar
-> configuration (no NUMA but SMP, numa slab uncommented) but multiple
-> configurations worked fine (apart from another error attempting to
-> initialize a nonexistand second cpu by the NMI handler that I described
-> in another email to you). I have no ppc64 available.
-> 
-> Could we boot the box without quiet so that we can get better debug
-> messages?
 
-OK, I'll try that, but I doubt if it'll give much more info.
+--dOtxUVmLoGkyu1PA
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Did the box boot okay without the patch?
+On Thu, 2005-05-12 12:48:05 -0700, Alan Bryan <icemanind@yahoo.com> wrote:
+> > What do you actually want to do?
 
-Yup, I tested base 2.6.12-rc4 and 2.6.12-rc4+the-patch-you-sent.
+> The part I'm having trouble with though is having it
+> popup when predetermined keystrokes are pushed. I
+> don't think Linux has a way to hook into the keyboard
+> (if I'm wrong, someone please tell me).
+
+Well, this sounds more like a userspace problem. Write a small app that
+select()s on /dev/input/event* and get the keystrokes from there. From
+there, you'd even start applikations. That's a lot more complicated to
+achieve in kernel space :-)
+
+MfG, JBG
+
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ fuer einen Freien Staat voll Freier B=C3=BCrger" | im Internet! |   im Ira=
+k!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
+
+--dOtxUVmLoGkyu1PA
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQFCg7v5Hb1edYOZ4bsRAhhXAJ0aK78CiPdDO5Xcq05ZqwdPeEV58ACfRXnq
+AU5UKawThW/g98TRvNgHG7Y=
+=x2Hg
+-----END PGP SIGNATURE-----
+
+--dOtxUVmLoGkyu1PA--

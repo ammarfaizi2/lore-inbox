@@ -1,79 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262065AbVELU0h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262107AbVELUcO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262065AbVELU0h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 16:26:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262084AbVELU0h
+	id S262107AbVELUcO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 16:32:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbVELUcO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 16:26:37 -0400
-Received: from lug-owl.de ([195.71.106.12]:23501 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S262065AbVELU0e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 16:26:34 -0400
-Date: Thu, 12 May 2005 22:26:33 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Alan Bryan <icemanind@yahoo.com>
+	Thu, 12 May 2005 16:32:14 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:11780 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S262107AbVELUcL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 16:32:11 -0400
+To: Paul Ionescu <i_p_a_u_l@yahoo.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Enhanced Keyboard Driver
-Message-ID: <20050512202633.GE8176@lug-owl.de>
-Mail-Followup-To: Alan Bryan <icemanind@yahoo.com>,
-	linux-kernel@vger.kernel.org
-References: <20050512193917.GC8176@lug-owl.de> <20050512194805.52183.qmail@web53101.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="dOtxUVmLoGkyu1PA"
-Content-Disposition: inline
-In-Reply-To: <20050512194805.52183.qmail@web53101.mail.yahoo.com>
-X-Operating-System: Linux mail 2.6.10-rc2-bk5lug-owl
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.6+20040907i
+Subject: Re: statfs returns wrong values for 250Gb FAT fs
+References: <E1DUT2T-0000fm-Nx@localhost.localdomain>
+	<20050510080907.GR1998@verge.net.au>
+	<87oebjxpcc.fsf@devron.myhome.or.jp>
+	<42811AE6.7020902@mail.telepac.pt>
+	<pan.2005.05.11.12.23.33.926661@yahoo.com>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Fri, 13 May 2005 05:32:06 +0900
+In-Reply-To: <pan.2005.05.11.12.23.33.926661@yahoo.com> (Paul Ionescu's message of "Wed, 11 May 2005 15:23:36 +0300")
+Message-ID: <877ji4xk1l.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Paul Ionescu <i_p_a_u_l@yahoo.com> writes:
 
---dOtxUVmLoGkyu1PA
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> I had the same problem with an external 250 GB vfat USB 2.0 disk.
+> The disk was formatted/used previously in windows, checkdisk said is OK,
+> but mounted in linux readonly, game the same error (said only some little
+> space was free, when in fact it was almost full).
+> However, I was able to see and copy all files from it.
+> As it was not my hard disk, I did not reformatted it, nor dosfsck-ed it.
+> DOSFSCK reported errors with the FAT copy, and other errors, but as I
+> said, I could access all data on it.
 
-On Thu, 2005-05-12 12:48:05 -0700, Alan Bryan <icemanind@yahoo.com> wrote:
-> > What do you actually want to do?
+If same problem happen, please report. And please let me investigate
+the details of the filesystem of this state.
 
-> The part I'm having trouble with though is having it
-> popup when predetermined keystrokes are pushed. I
-> don't think Linux has a way to hook into the keyboard
-> (if I'm wrong, someone please tell me).
-
-Well, this sounds more like a userspace problem. Write a small app that
-select()s on /dev/input/event* and get the keystrokes from there. From
-there, you'd even start applikations. That's a lot more complicated to
-achieve in kernel space :-)
-
-MfG, JBG
-
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- fuer einen Freien Staat voll Freier B=C3=BCrger" | im Internet! |   im Ira=
-k!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
-
---dOtxUVmLoGkyu1PA
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCg7v5Hb1edYOZ4bsRAhhXAJ0aK78CiPdDO5Xcq05ZqwdPeEV58ACfRXnq
-AU5UKawThW/g98TRvNgHG7Y=
-=x2Hg
------END PGP SIGNATURE-----
-
---dOtxUVmLoGkyu1PA--
+Thanks.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

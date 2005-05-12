@@ -1,71 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262122AbVELU6K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262125AbVELVJv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262122AbVELU6K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 16:58:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbVELU6J
+	id S262125AbVELVJv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 17:09:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbVELVJu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 16:58:09 -0400
-Received: from waste.org ([216.27.176.166]:56993 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262118AbVELU5o (ORCPT
+	Thu, 12 May 2005 17:09:50 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:20661 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262120AbVELVJj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 16:57:44 -0400
-Date: Thu, 12 May 2005 13:57:35 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: Petr Baudis <pasky@ucw.cz>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org,
-       mercurial@selenic.com, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Mercurial 0.4e vs git network pull
-Message-ID: <20050512205735.GE5914@waste.org>
-References: <20050512094406.GZ5914@waste.org> <20050512182340.GA324@pasky.ji.cz> <20050512201116.GC5914@waste.org> <20050512201406.GJ324@pasky.ji.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050512201406.GJ324@pasky.ji.cz>
-User-Agent: Mutt/1.5.9i
+	Thu, 12 May 2005 17:09:39 -0400
+In-Reply-To: <E1DVoUW-0001cN-00@dorka.pomaz.szeredi.hu>
+To: Miklos Szeredi <miklos@szeredi.hu>, ericvh@gmail.com, hch@infradead.org,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       smfrench@austin.rr.com
+MIME-Version: 1.0
+Subject: Re: [RCF] [PATCH] unprivileged mount/umount
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OF1BD633A3.AED1499B-ON88256FFF.006E4A76-88256FFF.00742B3D@us.ibm.com>
+From: Bryan Henderson <hbryan@us.ibm.com>
+Date: Thu, 12 May 2005 14:08:21 -0700
+X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Build V70_04122005|April 12, 2005) at
+ 05/12/2005 17:09:22,
+	Serialize complete at 05/12/2005 17:09:22
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 12, 2005 at 10:14:06PM +0200, Petr Baudis wrote:
-> Dear diary, on Thu, May 12, 2005 at 10:11:16PM CEST, I got a letter
-> where Matt Mackall <mpm@selenic.com> told me that...
-> > On Thu, May 12, 2005 at 08:23:41PM +0200, Petr Baudis wrote:
-> > > Dear diary, on Thu, May 12, 2005 at 11:44:06AM CEST, I got a letter
-> > > where Matt Mackall <mpm@selenic.com> told me that...
-> > > > Mercurial is more than 10 times as bandwidth efficient and
-> > > > considerably more I/O efficient. On the server side, rsync uses about
-> > > > twice as much CPU time as the Mercurial server and has about 10 times
-> > > > the I/O and pagecache footprint as well.
-> > > > 
-> > > > Mercurial is also much smarter than rsync at determining what
-> > > > outstanding changesets exist. Here's an empty pull as a demonstration:
-> > > > 
-> > > >  $ time hg merge hg://selenic.com/linux-hg/
-> > > >  retrieving changegroup
-> > > > 
-> > > >  real    0m0.363s
-> > > >  user    0m0.083s
-> > > >  sys     0m0.007s
-> > > > 
-> > > > That's a single http request and a one line response.
-> > > 
-> > > So, what about comparing it with something comparable, say git pull over
-> > > HTTP? :-)
-> > 
-> > ..because I get a headache every time I try to figure out how to use git? :-P
-> > 
-> > Seriously, have a pointer to how this works?
+> So if a user creates a private namespace, it should have the choice of:
 > 
-> Either you use cogito and just pass cg-clone an HTTP URL (to the git
-> repository as in the case of rsync -
-> http://www.kernel.org/pub/scm/cogito/cogito.git should work), or you
-> invoke git-http-pull directly (passing it desired commit ID of the
-> remote HEAD you want to fetch, and the URL; see
-> Documentation/git-http-pull.txt).
+>    1) Giving up all suid rights (i.e. all mounts are cloned and
+>       propagated with nosuid)
+> 
+>    2) Not giving up suid for cloned and propagated mounts, but having
+>       extra limitations (suid/sgid programs cannot access unprivileged
+>       "synthetic" mounts)
 
-Does this need an HTTP request (and round trip) per object? It appears
-to. That's 2200 requests/round trips for my 800 patch benchmark.
+(2) isn't realistic.  There's no such thing as a suid program.  Suid is a 
+characteristic of a _file_.  There's no way to know whether a given 
+executing program is running with privileges that came from a suid file 
+getting exec'ed.  Bear in mind that that exec could be pretty remote -- 
+done by a now-dead ancestor with three more execs in between.
 
-How does git find the outstanding changesets?
+Many user space programs contain hacks to try to discern this information, 
+and they often cause me headaches and I have to fix them.  The usual hacks 
+are euid==uid, euid==suid, and/or euid==0.  It would be an order of 
+magnitude worse for the kernel to contain such a hack.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+--
+Bryan Henderson                          IBM Almaden Research Center
+San Jose CA                              Filesystems

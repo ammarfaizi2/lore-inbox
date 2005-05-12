@@ -1,65 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262095AbVELSNF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262094AbVELSRE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262095AbVELSNF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 14:13:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbVELSNE
+	id S262094AbVELSRE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 14:17:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbVELSRE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 14:13:04 -0400
-Received: from zproxy.gmail.com ([64.233.162.204]:24568 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262095AbVELSKb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 14:10:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-disposition:content-type:content-transfer-encoding:message-id;
-        b=tFg1idR6z7dPUujpBD+8w0kniPAuGWytPABTQUOvWYWtX6LotoVBQRJFRa8mHn4+igxpDGn46zbzXZJeq2zx40S+L5G17TEZoXibFIg/qFl3IIVZTpnZgunhkhazTnd7v8jOsGepwmKMR82l2D3W4EEHfpEFnYdeBOdrnC2A9/M=
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH -mm] Print KBD and AUX irqs correctly.
-Date: Thu, 12 May 2005 22:14:17 +0400
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org, Adam Belay <ambx1@neo.rr.com>
-References: <20050512033100.017958f6.akpm@osdl.org>
-In-Reply-To: <20050512033100.017958f6.akpm@osdl.org>
-MIME-Version: 1.0
+	Thu, 12 May 2005 14:17:04 -0400
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:8140 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S262094AbVELSQv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 14:16:51 -0400
+X-ORBL: [67.117.73.34]
+Date: Thu, 12 May 2005 11:16:45 -0700
+From: Tony Lindgren <tony@atomide.com>
+To: Jesse Barnes <jbarnes@virtuousgeek.org>
+Cc: vatsa@in.ibm.com, Lee Revell <rlrevell@joe-job.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, schwidefsky@de.ibm.com,
+       jdike@addtoit.com, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, george@mvista.com
+Subject: Re: [RFC] (How to) Let idle CPUs sleep
+Message-ID: <20050512181644.GD15812@atomide.com>
+References: <20050507182728.GA29592@in.ibm.com> <1115913679.20909.31.camel@mindpipe> <20050512161636.GA15653@atomide.com> <200505120928.55476.jesse.barnes@intel.com> <20050512171251.GA21656@in.ibm.com> <4283999F.8080609@virtuousgeek.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200505122214.17525.adobriyan@gmail.com>
+In-Reply-To: <4283999F.8080609@virtuousgeek.org>
+User-Agent: Mutt/1.5.8i
+X-Broken-Reverse-DNS: no host name found for IP address 192.168.100.15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fun in dmesg:
+* Jesse Barnes <jbarnes@virtuousgeek.org> [050512 11:01]:
+> Srivatsa Vaddagiri wrote:
+> 
+> >Even if we were to go for this tickless design, the fundamental question
+> >remains: who wakes up the (sleeping) idle CPU upon a imbalance? Does some 
+> >other
+> >(busy) CPU wake it up (which makes the implementation complex) or the idle 
+> >CPU checks imbalance itself at periodic intervals (which restricts the 
+> >amount of
+> >time a idle CPU may sleep).
+> > 
+> >
+> Waking it up at fork or exec time might be doable, and having a busy CPU 
+> wake up other CPUs wouldn't add too much complexity, would it?
 
-    --- dmesg-2.6.12-rc4
-    +++ dmesg-2.6.12-rc4-mm1
+At least then it would be event driven rather than polling approach.
 
-    -PNP: PS/2 Controller [PNP0303:PS2K] at 0x60,0x64 irq 10	    <===
-    +PNP: PS/2 controller doesn't have AUX irq; using default 0xc
-     PNP: PS/2 Controller [PNP0303:PS2K] at 0x60,0x64 irq 112	    <======
-    +serio: i8042 AUX port at 0x60,0x64 irq 12
-     serio: i8042 KBD port at 0x60,0x64 irq 1			    <===
-
-I never realized "irq 10" meant "KBD irq 1 and you don't have AUX irq". In
-2.6.12-rc4-mm1 "irq 112" means "KBD irq 1 and AUX irq 12 (now assigned by
-default)".
-
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
-
---- linux-2.6.12-rc4-mm1/drivers/input/serio/i8042-x86ia64io.h	2005-05-12 21:22:12.000000000 +0400
-+++ linux-2.6.12-rc4-mm1-pnp/drivers/input/serio/i8042-x86ia64io.h	2005-05-12 21:22:45.000000000 +0400
-@@ -284,10 +284,10 @@ static int i8042_pnp_init(void)
- 	i8042_kbd_irq = i8042_pnp_kbd_irq;
- 	i8042_aux_irq = i8042_pnp_aux_irq;
- 
--	printk(KERN_INFO "PNP: PS/2 Controller [%s%s%s] at %#x,%#x irq %d%s%d\n",
-+	printk(KERN_INFO "PNP: PS/2 Controller [%s%s%s] at %#x,%#x irq %d,%d\n",
- 		i8042_pnp_kbd_name, (result_kbd > 0 && result_aux > 0) ? "," : "", i8042_pnp_aux_name,
- 		i8042_data_reg, i8042_command_reg, i8042_kbd_irq,
--		(result_aux > 0) ? "," : "", i8042_aux_irq);
-+		i8042_aux_irq);
- 
- 	return 0;
- }
+Tony

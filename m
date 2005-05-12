@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262079AbVELRDI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262078AbVELRMM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262079AbVELRDI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 13:03:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbVELRDI
+	id S262078AbVELRMM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 13:12:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbVELRMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 13:03:08 -0400
-Received: from mailgate.quadrics.com ([194.202.174.11]:10889 "EHLO
-	qserv01.quadrics.com") by vger.kernel.org with ESMTP
-	id S262079AbVELRDE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 13:03:04 -0400
-Message-ID: <42838C38.8060404@quadrics.com>
-Date: Thu, 12 May 2005 18:02:48 +0100
-From: David Addison <addy@quadrics.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>
-Cc: Jan Beulich <JBeulich@novell.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] enhance x86 MTRR handling
-References: <s2832b02.028@emea1-mh.id2.novell.com> <20050512161825.GC17618@redhat.com>
-In-Reply-To: <20050512161825.GC17618@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 May 2005 16:56:18.0031 (UTC) FILETIME=[83FCDFF0:01C55713]
+	Thu, 12 May 2005 13:12:12 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:4494 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262078AbVELRMH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 13:12:07 -0400
+Date: Thu, 12 May 2005 22:42:51 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Jesse Barnes <jesse.barnes@intel.com>
+Cc: Tony Lindgren <tony@atomide.com>, Lee Revell <rlrevell@joe-job.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, schwidefsky@de.ibm.com,
+       jdike@addtoit.com, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, george@mvista.com
+Subject: Re: [RFC] (How to) Let idle CPUs sleep
+Message-ID: <20050512171251.GA21656@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20050507182728.GA29592@in.ibm.com> <1115913679.20909.31.camel@mindpipe> <20050512161636.GA15653@atomide.com> <200505120928.55476.jesse.barnes@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200505120928.55476.jesse.barnes@intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> 
-> Whilst your changes may have merit, I'd much rather see effort spent
-> on getting PAT into shape than further massaging MTRR.  Its well past its
-> smell-by-date, and theres been no activity whatsoever afaik on getting
-> Terrence Ripperda's cachemap stuff beaten into shape.
-> 
-> I'll dust off the last version he sent and diff against latest-mm later
-> so it can get some more commentary. It seems everyone is in violent
-> agreement that we want PAT support, but nothing seems to happen.
-> 
-Yes we tried to contact the cachemap author but just found dead email
-addresses, so in the end we switched to using PAT.
-But rather that make kernel changes, we simply wrote a startup utility to
-program the MSR registers using /dev/cpu/%d/msr
-Our device driver then reads the IA32CR_PAT MSR and looks for a write-combining
-entry (value 0x01) and uses the slot # to program the correct PTE bits.
+On Thu, May 12, 2005 at 09:28:55AM -0700, Jesse Barnes wrote:
+> Seems like we could schedule timer interrupts based solely on add_timer 
+> type stuff; the scheduler could use it if necessary for load balancing 
+> (along with fork/exec based balancing perhaps) on large machines where 
+> load imbalances hurt throughput a lot.  But on small systems if all 
 
-But having a default write-combining MSR slot and a defined call to enable it
-would be good; I believe Hugo Kohmann from Dolphin has a patch to do this for
-x86_64 at least.
+Even if we were to go for this tickless design, the fundamental question
+remains: who wakes up the (sleeping) idle CPU upon a imbalance? Does some other
+(busy) CPU wake it up (which makes the implementation complex) or the idle CPU 
+checks imbalance itself at periodic intervals (which restricts the amount of
+time a idle CPU may sleep).
 
-Cheers
-Addy.
+> your processes were blocked, you'd just go to sleep indefinitely and 
+> save a bit of power and avoid unnecessary overhead.
+> 
+> I haven't looked at the lastest tickless patches, so I'm not sure if my 
+> claims of simplicity are overblown, but especially as multiprocessor 
+> systems become more and more common it just seems wasteful to wakeup 
+> all the CPUs every so often only to have them find that they have 
+> nothing to do.
 
+I guess George's experience in implementing tickless systems is that
+it is more of an overhead for a general purpose OS like Linux. George?
+
+
+-- 
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

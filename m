@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbVELI63@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVELJOi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261353AbVELI63 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 04:58:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbVELI4E
+	id S261359AbVELJOi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 05:14:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVELJOi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 04:56:04 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:28047 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261366AbVELIyr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 04:54:47 -0400
-Date: Thu, 12 May 2005 10:55:02 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: seife@suse.de, Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Software suspend and recalc sigpending bug fix
-Message-ID: <20050512085502.GC2005@elf.ucw.cz>
-References: <428222CF.3070002@sw.ru> <20050511180411.GB1866@elf.ucw.cz> <4282FB27.6090801@sw.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4282FB27.6090801@sw.ru>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 12 May 2005 05:14:38 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:60076 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S261368AbVELJK7 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 05:10:59 -0400
+Message-ID: <42831D97.8000600@freenet.de>
+Date: Thu, 12 May 2005 11:10:47 +0200
+From: Carsten Otte <cotte@freenet.de>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+CC: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, schwidefsky@de.ibm.com, akpm@osdl.org
+Subject: Re: [RFC/PATCH 0/5] add execute in place support
+References: <428216DF.8070205@de.ibm.com> <1115828389.16187.544.camel@hades.cambridge.redhat.com> <42823450.8030007@freenet.de> <20050512085741.GA16361@wohnheim.fh-wedel.de>
+In-Reply-To: <20050512085741.GA16361@wohnheim.fh-wedel.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On ÄŒt 12-05-05 10:43:51, Kirill Korotaev wrote:
-> >>This patch fixes recalc_sigpending() to work correctly
-> >>with tasks which are being freezed. The problem is that
-> >>freeze_processes() sets PF_FREEZE and TIF_SIGPENDING
-> >>flags on tasks, but recalc_sigpending() called from
-> >>e.g. sys_rt_sigtimedwait or any other kernel place
-> >>will clear TIF_SIGPENDING due to no pending signals queued
-> >>and the tasks won't be freezed until it recieves a real signal
-> >>or freezed_processes() fail due to timeout.
-> >>
-> >>Signed-Off-By: Kirill Korotaev <dev@sw.ru>
-> >>Signed-Off-By: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-> >
-> >
-> >This should fix our problems with mysqld, right? Yes, patch looks good
-> >(modulo missing whitespace around &)). I'll apply it to my tree. (Or
-> >andrew, if you prefer, just take it...
-> 
-> Another cleanup idea in swsusp: it would be nice if all such checks for 
-> PF_FREEZE were wrapped in inline function 
-> is_task_freezing()/any_thing_else, to make freeze code disappear when 
-> CONFIG_PM/CONFIG_SOFTWARE_SUSPEND is off...
+Jörn Engel wrote:
 
-S3 case needs this, too. Nicer solution would be to just define
-PF_FREEZE to 0 when it is not needed; but as most hooks are hidden in
-try_to_freeze(), anyway, I do not think this is worth it.
-								Pavel
--- 
-Boycott Kodak -- for their patent abuse against Java.
+> In principle, both the block device abstraction and the mtd
+>
+>abstraction fit your bill.  But jffs2 doesn't, so no in-kernel fs
+>could make use of a xip-aware mtd abstraction.
+>  
+>
+True. In fact I thought about an mtd device driver for our dcss
+segments instead of a block device driver. A filesystem on top
+of mtd that implements get_xip_page does the very same job.
+But after I decided to build on the ext family, I discarded that
+idea because ext does use the block device interface.
+
+

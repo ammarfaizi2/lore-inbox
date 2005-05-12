@@ -1,40 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbVELGKL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261178AbVELGTv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261177AbVELGKL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 02:10:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbVELGKL
+	id S261178AbVELGTv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 02:19:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261197AbVELGTv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 02:10:11 -0400
-Received: from wproxy.gmail.com ([64.233.184.204]:56871 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261177AbVELGKH convert rfc822-to-8bit
+	Thu, 12 May 2005 02:19:51 -0400
+Received: from tron.kn.vutbr.cz ([147.229.191.152]:58630 "EHLO
+	tron.kn.vutbr.cz") by vger.kernel.org with ESMTP id S261178AbVELGTt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 02:10:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=flzjz1b6he/fMpALa7l3LRHeehrbBgxcqIqPHZLDsBSpmrgbtSM20Q2phjcHkm1vMN6PVCk7VjDJo7jcoFuX61/m+qvOj0rUAKJgHvfW+m0zvPkfDNmddhfNDQ8mbFnxOMiUZFv16ZuCwMg97IgPowg1kKd3tF3yQPegc6baWmY=
-Message-ID: <336783e40505112310a1a74ce@mail.gmail.com>
-Date: Thu, 12 May 2005 11:40:07 +0530
-From: prasanna wakhare <prasanna.wakhare@gmail.com>
-Reply-To: prasanna wakhare <prasanna.wakhare@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: RPC-over-portals
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Thu, 12 May 2005 02:19:49 -0400
+Message-ID: <4282F562.7020904@stud.feec.vutbr.cz>
+Date: Thu, 12 May 2005 08:19:14 +0200
+From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050402)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <gregkh@suse.de>
+CC: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
+       stable@kernel.org
+Subject: Re: Linux 2.6.11.9
+References: <20050511225448.GA12357@kroah.com>
+In-Reply-To: <20050511225448.GA12357@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Flag: NO
+X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
+  tested this incoming email. See other headers to know if the email
+  has beed identified as possible spam.  The original message
+  has been attached to this so you can view it (if it isn't spam) or block
+  similar future email.  If you have any questions, see
+  the administrator of that system for details.
+  ____
+  Content analysis details:   (-4.2 points, 6.0 required)
+  ____
+   pts rule name              description
+  ---- ---------------------- --------------------------------------------
+   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
+  -4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+                              [score: 0.0000]
+  ____
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi ,
- I want to know that wheather RPC over "portals by sandia labs" are
-there or not.
- As lustre ptlrpc is  lustre filesystem specific which includes obd
-device etc. which
- i supposed are redundant. Like sunrpc package comes with linux kernel.
- Is such rpc package over portals is already there ? 
- If RPC over portals are not there is there any reason for not having that?
- I google it enough i did'n't get  any link.
+Greg KH wrote:
+> Summary of changes from v2.6.11.8 to v2.6.11.9
+> ==============================================
+> [...]
+> Jean Delvare:
+>   o I2C: Fix incorrect sysfs file permissions in it87 and via686a
+>     drivers
 
-Thanks,
-Prasanna.
+This was already in 2.6.11.8, wasn't it?
+
+Michal

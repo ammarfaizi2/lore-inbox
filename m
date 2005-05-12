@@ -1,77 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261356AbVELJR1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVELJVI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261356AbVELJR1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 05:17:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbVELJR0
+	id S261361AbVELJVI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 05:21:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbVELJVH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 05:17:26 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:33196 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261356AbVELJPM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 05:15:12 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Thu, 12 May 2005 11:12:55 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: jbeulich@novell.com
-Subject: [patch] some vesafb fixes
-Message-ID: <20050512091255.GA29789@bytesex>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Thu, 12 May 2005 05:21:07 -0400
+Received: from gw.exalead.com ([212.234.111.157]:1188 "EHLO exalead.com")
+	by vger.kernel.org with ESMTP id S261361AbVELJUv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 05:20:51 -0400
+Message-ID: <42831F85.1000208@exalead.com>
+Date: Thu, 12 May 2005 11:19:01 +0200
+From: Xavier Roche <roche+kml2@exalead.com>
+Organization: Exalead
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.7) Gecko/20050414
+X-Accept-Language: fr, en-us, en, ja
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [XFS] Kernel (2.6.11) deadlock (kernel hang) in user mode when
+ writing data through mmap on large files (64-bit systems)
+References: <427F6310.9020709@exalead.com> <4280D292.2030509@exalead.com> <20050510170129.GA1320@infradead.org>
+In-Reply-To: <20050510170129.GA1320@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix the size passed to release_mem_region in an error path.
+Hi,
 
-Also adjust the message printed when vesafb cannot load; the comment
-there already says this must not be fatal, so the message should also
-not mention the word 'abort' otherwise indicating a problem to worry
-about in the log.
+Christoph Hellwig wrote:
+> This is a known problem, or rather two of them:
+>  1) when dirtying lots of memory via mmap writeout happens pretty randmomly
+>     inside the file and the filesystem has problems creating nice clusters.
+>     In the case of extent based filesystems that's really bad as the extent
+>     map is fragmented now
+>  2) XFS keeps each inode's extent map in one single memory block.
 
-Signed-off-by: Jan Beulich <jbeulich@novell.com>
-Signed-off-by: Gerd Knorr <kraxel@suse.de>
+It seems that the file was really *badly* fragmented. The reason, as far 
+as we understand the problem, was:
 
-diff -Npru linux-2.6.12-rc4.base/drivers/video/vesafb.c linux-2.6.12-rc4/drivers/video/vesafb.c
---- linux-2.6.12-rc4.base/drivers/video/vesafb.c	2005-05-11 17:28:18.970188552 +0200
-+++ linux-2.6.12-rc4/drivers/video/vesafb.c	2005-05-11 17:50:36.285885664 +0200
-@@ -271,7 +271,7 @@ static int __init vesafb_probe(struct de
- 
- 	if (!request_mem_region(vesafb_fix.smem_start, size_total, "vesafb")) {
- 		printk(KERN_WARNING
--		       "vesafb: abort, cannot reserve video memory at 0x%lx\n",
-+		       "vesafb: cannot reserve video memory at 0x%lx\n",
- 			vesafb_fix.smem_start);
- 		/* We cannot make this fatal. Sometimes this comes from magic
- 		   spaces our resource handlers simply don't know about */
-@@ -279,13 +279,13 @@ static int __init vesafb_probe(struct de
- 
- 	info = framebuffer_alloc(sizeof(u32) * 256, &dev->dev);
- 	if (!info) {
--		release_mem_region(vesafb_fix.smem_start, vesafb_fix.smem_len);
-+		release_mem_region(vesafb_fix.smem_start, size_total);
- 		return -ENOMEM;
- 	}
- 	info->pseudo_palette = info->par;
- 	info->par = NULL;
- 
--        info->screen_base = ioremap(vesafb_fix.smem_start, vesafb_fix.smem_len);
-+	info->screen_base = ioremap(vesafb_fix.smem_start, vesafb_fix.smem_len);
- 	if (!info->screen_base) {
- 		printk(KERN_ERR
- 		       "vesafb: abort, cannot ioremap video memory 0x%x @ 0x%lx\n",
-@@ -386,7 +386,7 @@ static int __init vesafb_probe(struct de
- 	request_region(0x3c0, 32, "vesafb");
- 
- 	if (mtrr) {
--		int temp_size = size_total;
-+		unsigned int temp_size = size_total;
- 		/* Find the largest power-of-two */
- 		while (temp_size & (temp_size - 1))
-                 	temp_size &= (temp_size - 1);
+- a file "truncated" to _expand_ its size (using ftruncate() with a size 
+MUCH larger that the current size, which is == 0), leading to create a 
+"big sparse file" area
+- sequential write in this file (_NOT_ random) using the corresponding 
+mmapp'ed data segment
+- random (!) flush from kswapd leading to allocate fragmented pages 
+(sparse file)
 
--- 
--mm seems unusually stable at present.
-	-- akpm about 2.6.12-rc3-mm3
+The file appears to have over one million fragments:
+
+$ xfs_bmap ./data | wc -l
+1051397
+
+$ xfs_bmap ./data | head -n 20
+./data:
+         0: [0..7]: 15103824..15103831
+         1: [8..15]: 15103840..15103847
+         2: [16..23]: 15103856..15103863
+         3: [24..31]: 15103872..15103879
+         4: [32..39]: 15103888..15103895
+         5: [40..47]: 15103904..15103911
+         6: [48..55]: 15103920..15103927
+         7: [56..63]: 15103936..15103943
+         8: [64..71]: 15103952..15103959
+         9: [72..79]: 15103968..15103975
+         10: [80..87]: 15104104..15104111
+         11: [88..95]: 15104120..15104127
+         12: [96..103]: 15104136..15104143
+         13: [104..111]: 15104152..15104159
+         14: [112..119]: 15104168..15104175
+         15: [120..127]: 15104184..15104191
+         16: [128..135]: 15104200..15104207
+         17: [136..143]: 15104216..15104223
+         18: [144..151]: 15104232..15104239
+..
+
+> You're seeing allocation errors where we are trying to realloc that memory
+> block.
+> Could you try the patches that Nikita posted to -mm that should improve
+> this behaviour?
+
+Well, the reasons seems to clearly be this anormal number fo fragments - 
+is there any potential solution (in the kernel/mm), or the olny solution 
+is a patch to ensure that ftruncate() is replaced by regulars 
+fwrite()-zero calls ?
+
+
+

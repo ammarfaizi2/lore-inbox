@@ -1,106 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261295AbVELCQw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbVELCTK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261295AbVELCQw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 May 2005 22:16:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbVELCQv
+	id S261315AbVELCTK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 May 2005 22:19:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVELCTK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 May 2005 22:16:51 -0400
-Received: from leviathan.ele.uri.edu ([131.128.51.64]:60304 "EHLO
-	leviathan.ele.uri.edu") by vger.kernel.org with ESMTP
-	id S261286AbVELCQn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 May 2005 22:16:43 -0400
-Subject: Re: several messages
-From: Ming Zhang <mingz@ele.uri.edu>
-Reply-To: mingz@ele.uri.edu
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>,
-       Vladislav Bolkhovitin <vst@vlnb.net>,
-       iet-dev <iscsitarget-devel@lists.sourceforge.net>,
-       linux-scsi <linux-scsi@vger.kernel.org>,
-       Dmitry Yusupov <dmitry_yus@yahoo.com>, Sander <sander@humilis.net>,
-       David Hollis <dhollis@davehollis.com>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.60.0505112309430.8122@poirot.grange>
-References: <1416215015.20050504193114@dns.toxicfilms.tv>
-	 <1115236116.7761.19.camel@dhollis-lnx.sunera.com>
-	 <1104082357.20050504231722@dns.toxicfilms.tv>
-	 <1115305794.3071.5.camel@dhollis-lnx.sunera.com>
-	 <20050507150538.GA800@favonius>
-	 <Pine.LNX.4.60.0505102352430.9008@poirot.grange> <4281C8A3.20804@vlnb.net>
-	 <Pine.LNX.4.60.0505112309430.8122@poirot.grange>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ZpA+OTE/QB2aoEx65P/m"
-Organization: no-dole-available
-Date: Wed, 11 May 2005 22:16:16 -0400
-Message-Id: <1115864176.5513.37.camel@localhost.localdomain>
+	Wed, 11 May 2005 22:19:10 -0400
+Received: from wproxy.gmail.com ([64.233.184.196]:2903 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261310AbVELCS4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 May 2005 22:18:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PzGn+Q8syGmRHMacAi1VQlmJKD/EdVrO8DVJKdKoTkybeTusKBjUE8d5juO0+JAW+aFpcafYJgNPxwsNYd6qcos/kMhSz2zUpAPFhDQVakCy0vtosexlh51z3/+Ito7T9bRH+KdCmQjojsO+ufqsLnEaYp4GcjS3UsWujXbfsAU=
+Message-ID: <a4e6962a05051119181e53634e@mail.gmail.com>
+Date: Wed, 11 May 2005 21:18:55 -0500
+From: Eric Van Hensbergen <ericvh@gmail.com>
+Reply-To: Eric Van Hensbergen <ericvh@gmail.com>
+To: Jamie Lokier <jamie@shareable.org>
+Subject: Re: [RCF] [PATCH] unprivileged mount/umount
+Cc: Ram <linuxram@us.ibm.com>, Miklos Szeredi <miklos@szeredi.hu>,
+       7eggert@gmx.de, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, smfrench@austin.rr.com, hch@infradead.org
+In-Reply-To: <20050512010215.GB8457@mail.shareable.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <40t37-7ol-5@gated-at.bofh.it> <42WNo-1eJ-17@gated-at.bofh.it>
+	 <E1DVuHG-0006YJ-Q7@be1.7eggert.dyndns.org>
+	 <20050511170700.GC2141@mail.shareable.org>
+	 <E1DVwGn-0002BB-00@dorka.pomaz.szeredi.hu>
+	 <1115840139.6248.181.camel@localhost>
+	 <20050511212810.GD5093@mail.shareable.org>
+	 <1115851333.6248.225.camel@localhost>
+	 <a4e6962a0505111558337dd903@mail.gmail.com>
+	 <20050512010215.GB8457@mail.shareable.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 5/11/05, Jamie Lokier <jamie@shareable.org> wrote:
+> 
+> Please read carefully: I've described what _current_ kernels do.
+> 
 
---=-ZpA+OTE/QB2aoEx65P/m
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I guess I misread when you wrote:
 
-iscsi is scsi over ip.
-usb disk is scsi over usb.
-so just a different transport.
-u are rite. ;)
+>>
+>>You can't do a lot with the new namespace, because of the security
+>>restrictions on mount() on a foreign namespace.  That's what I meant
+>>about the "small fixes" - get rid of the current->namespace checks and
+>>it'll be usable.
+>>
+>>I don't see the purpose of current->namespace and the associated mount
+>>restrictions at all.  I asked Al Viro what it's for, but haven't seen
+>>a reply :(  IMHO current->namespace should simply be removed, because the
+>>"current namespace" is represented just fine by
+>>current->fs->rootmnt->mnt_namespace.
+>>
 
-ming
+That sounds an awful lot like you want to make changes to the current
+support in the kernel.
 
-On Wed, 2005-05-11 at 23:26 +0200, Guennadi Liakhovetski wrote:
-> Hello and thanks for the replies
->=20
-> On Wed, 11 May 2005, FUJITA Tomonori wrote:
-> > The iSCSI protocol simply encapsulates the SCSI protocol into the
-> > TCP/IP protocol, and carries packets over IP networks. You can handle
-> ...
->=20
-> On Wed, 11 May 2005, Vladislav Bolkhovitin wrote:
-> > Actually, this is property not of iSCSI target itself, but of any SCSI =
-target.
-> > So, we implemented it as part of our SCSI target mid-level (SCST,
-> > http://scst.sourceforge.net), therefore any target driver working over =
-it will
-> > automatically benefit from this feature. Unfortunately, currently avail=
-able
-> > only target drivers for Qlogic 2x00 cards and for poor UNH iSCSI target=
- (that
-> > works not too reliable and only with very specific initiators). The pub=
-lished
-> ...
->=20
-> The above confirms basically my understanding apart from one "minor"=20
-> confusion - I thought, that parallel to hardware solutions pure software=20
-> implementations were possible / being developed, like a driver, that=20
-> implements a SCSI LDD API on one side, and forwards packets to an IP=20
-> stack, say, over an ethernet card - on the initiator side. And a counter=20
-> part on the target side. Similarly to the USB mass-storage and storage=20
-> gadget drivers?
->=20
-> Thanks
-> Guennadi
-> ---
-> Guennadi Liakhovetski
->=20
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> It's a poorly understood area of the kernel, and I'm attempting to
+> clarify it.  This talk of new system calls for entering a namespace
+> makes no sense when you can _already_ do some things that people
+> haven't realised the kernel does.
+> 
 
---=-ZpA+OTE/QB2aoEx65P/m
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+IMHO part of the reason its so poorly understood is that people aren't
+using it.  That's why I suggest we use some of the proposed patches
+which open up name space operations to common users.  There are some
+security checks (like the one brought up justifying the CAP_SYS_ADMIN
+permissions on CLONE_NS) that need to be added, before we start
+removing others -- and I'm quite concerned that Viro hasn't weighed in
+on any of these new patches, I wonder if its because this thread seems
+to have gone off the deep end.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBCgrxwSYbkL5BnVYoRAp2QAJ9AU6kEvA0GSSFDcScH78c2t62VFgCeKb5f
-qSxl1ZZ5ecF+Jpn9jZW73Y4=
-=2nN5
------END PGP SIGNATURE-----
-
---=-ZpA+OTE/QB2aoEx65P/m--
-
+          -eric

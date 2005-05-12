@@ -1,47 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261176AbVELFsK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbVELGKL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261176AbVELFsK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 01:48:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVELFsK
+	id S261177AbVELGKL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 02:10:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbVELGKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 01:48:10 -0400
-Received: from mail-in-08.arcor-online.net ([151.189.21.48]:744 "EHLO
-	mail-in-08.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261176AbVELFsG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 01:48:06 -0400
-Date: Thu, 12 May 2005 07:48:23 +0200 (CEST)
-From: Bodo Eggert <7eggert@gmx.de>
-To: "David S. Miller" <davem@davemloft.net>
-cc: 7eggert@gmx.de, nickpiggin@yahoo.com.au, juhl-lkml@dif.dk, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: trailing whitespace fix (was: [PATCH] kernel/module.c has something
- to hide. (whitespace cleanup))
-In-Reply-To: <20050511.221919.123971892.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.58.0505120746001.3845@be1.lrz>
-References: <E1DW0vK-0000To-IK@be1.7eggert.dyndns.org> <4282D4CA.6030003@yahoo.com.au>
- <Pine.LNX.4.58.0505120644010.3645@be1.lrz> <20050511.221919.123971892.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 12 May 2005 02:10:11 -0400
+Received: from wproxy.gmail.com ([64.233.184.204]:56871 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261177AbVELGKH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 02:10:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=flzjz1b6he/fMpALa7l3LRHeehrbBgxcqIqPHZLDsBSpmrgbtSM20Q2phjcHkm1vMN6PVCk7VjDJo7jcoFuX61/m+qvOj0rUAKJgHvfW+m0zvPkfDNmddhfNDQ8mbFnxOMiUZFv16ZuCwMg97IgPowg1kKd3tF3yQPegc6baWmY=
+Message-ID: <336783e40505112310a1a74ce@mail.gmail.com>
+Date: Thu, 12 May 2005 11:40:07 +0530
+From: prasanna wakhare <prasanna.wakhare@gmail.com>
+Reply-To: prasanna wakhare <prasanna.wakhare@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: RPC-over-portals
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 May 2005, David S. Miller wrote:
-> From: Bodo Eggert <7eggert@gmx.de>
-> > On Thu, 12 May 2005, Nick Piggin wrote:
+Hi ,
+ I want to know that wheather RPC over "portals by sandia labs" are
+there or not.
+ As lustre ptlrpc is  lustre filesystem specific which includes obd
+device etc. which
+ i supposed are redundant. Like sunrpc package comes with linux kernel.
+ Is such rpc package over portals is already there ? 
+ If RPC over portals are not there is there any reason for not having that?
+ I google it enough i did'n't get  any link.
 
-> > > The patches we want aren't about a
-> > > file or a subdirectory or even a subsystem, but they're supposed to be
-> > > a logical change. Ie. 1 patch.
-> > 
-> > That would be too large for most mailboxes. If you like a single patch,
-> > you can just concatenate all the patches, so splitting it was a safe bet.
-> 
-> I'd rather you post a single posting, with URL pointers to
-> where people can get the large patches, then sending 430
-> patche postings.
-
-These patches fix the trailing whitespace from 2.6.12-rc4:
-http://7eggert.dyndns.org/l/patches/trailing-ws/
--- 
-Top 100 things you don't want the sysadmin to say:
-47. Say, What does "Superblock Error" mean, anyhow?
+Thanks,
+Prasanna.

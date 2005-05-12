@@ -1,59 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262106AbVELUp0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262119AbVELU4k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262106AbVELUp0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 16:45:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbVELUp0
+	id S262119AbVELU4k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 16:56:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262118AbVELU4k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 16:45:26 -0400
-Received: from rproxy.gmail.com ([64.233.170.196]:4072 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262106AbVELUpT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 16:45:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=r+4MYI3RrM+/SCx1CRGLUAySwV8ry+JmJY8UUPL32/6x2WBZzS+OuaRDKpEKpdbS09WcbmWMKU+QBMwm4LD/7F4BfO6dfoTvJo8erOHVyHkrQKBM/c0tIr/+bDmxXjPpEEtbtV7MxElONACHDn9uFHuCexhvDjxN/mIrnFDMfPw=
-Message-ID: <d120d50005051213453b9a0e6f@mail.gmail.com>
-Date: Thu, 12 May 2005 15:45:19 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Alan Bryan <icemanind@yahoo.com>
-Subject: Re: Enhanced Keyboard Driver
-Cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050512194805.52183.qmail@web53101.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050512193917.GC8176@lug-owl.de>
-	 <20050512194805.52183.qmail@web53101.mail.yahoo.com>
+	Thu, 12 May 2005 16:56:40 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:35792 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S262117AbVELU4e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 16:56:34 -0400
+Message-ID: <4283C2F8.6020801@pobox.com>
+Date: Thu, 12 May 2005 16:56:24 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Experimental git repositories available for SATA
+Content-Type: multipart/mixed;
+ boundary="------------080603080507080604060206"
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/12/05, Alan Bryan <icemanind@yahoo.com> wrote:
-> >
-> > What do you actually want to do?
-> >
-> specifically, I am trying to write a program similar
-> to the old Sidekick program of the DOS days. A
-> "daemon", if you will, that will popup on the screen
-> when a predetermined series of keystrokes are hit. The
-> program will then do various things, like record/play
-> macros, calculator, calendar, programmer's guide, etc
-> etc...
-> 
-> The part I'm having trouble with though is having it
-> popup when predetermined keystrokes are pushed. I
-> don't think Linux has a way to hook into the keyboard
-> (if I'm wrong, someone please tell me).
-> 
+This is a multi-part message in MIME format.
+--------------080603080507080604060206
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Well, I don't think you want to tap into the kernel driver for that. I
-mean if one uses X over the network I would assume that the popup
-driver will run on the remote box while keyboard is on my local box.
 
-The daemon is for X environment, right? You need to work with X
-server, not kernel.
+I have finally gotten around to getting 2.6.x libata development moved 
+over from BitKeeper to git.
 
--- 
-Dmitry
+
+The "for Linus/Andrew" repository is libata-2.6.git, available at
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-2.6.git/
+
+The new libata-dev repository is libata-dev.git, available at
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git/
+
+
+A word about these repositories.  I don't use any SCM besides git 
+itself.  libata-2.6.git appears as you would expect:  .git/HEAD points 
+to refs/heads/master, which is the top-of-tree, and contains patches 
+destined for upstream ASAP.
+
+libata-dev.git is a bit different, as it contains multiple branches:
+> [jgarzik@pretzel libata-dev]$ ls .git/refs/heads/
+> adma        atapi-enable        iomap        pdc2027x
+> adma-mwi    bridge-detect       iomap-step1  pdc20619
+> ahci-atapi  chs-support         master       promise-sata-pata
+> ahci-msi    ioctl-get-identity  passthru     sil24
+
+I use the attached 'git-switch-tree' script to update the working 
+directory to reflect the desired branch.
+
+As soon as I am comfortable with git merging, I will create an 'ALL' 
+branch, which contains all of these trees, merged together properly.
+
+	Jeff
+
+
+
+
+--------------080603080507080604060206
+Content-Type: text/plain;
+ name="git-switch-tree"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="git-switch-tree"
+
+#!/bin/sh
+
+if [ "x$1" != "x" ]
+then
+	if [ ! -f .git/refs/heads/$1 ]
+	then
+		echo Branch $1 not found.
+		exit 1
+	fi
+
+	( cd .git && rm -f HEAD && ln -s refs/heads/$1 HEAD )
+fi
+
+git-read-tree $(cat .git/HEAD) && git-checkout-cache -q -f -a
+
+--------------080603080507080604060206--

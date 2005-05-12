@@ -1,70 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262083AbVELRWV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262087AbVELRnE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262083AbVELRWV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 13:22:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262084AbVELRWV
+	id S262087AbVELRnE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 13:43:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262088AbVELRnD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 13:22:21 -0400
-Received: from mail.dif.dk ([193.138.115.101]:653 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S262083AbVELRWP (ORCPT
+	Thu, 12 May 2005 13:43:03 -0400
+Received: from gwyn.tux.org ([199.184.165.135]:3800 "EHLO gwyn.tux.org")
+	by vger.kernel.org with ESMTP id S262087AbVELRm7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 13:22:15 -0400
-Date: Thu, 12 May 2005 19:26:10 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       davem@davemloft.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kernel/module.c has something to hide. (whitespace
- cleanup)
-In-Reply-To: <42835BDB.40505@grupopie.com>
-Message-ID: <Pine.LNX.4.62.0505121925160.2390@dragon.hyggekrogen.localhost>
-References: <20050510161657.3afb21ff.akpm@osdl.org>
- <20050510.161907.116353193.davem@davemloft.net> <20050510170246.5be58840.akpm@osdl.org>
- <20050510.170946.10291902.davem@davemloft.net>
- <Pine.LNX.4.62.0505110217350.2386@dragon.hyggekrogen.localhost>
- <20050510172913.2d47a4d4.akpm@osdl.org> <Pine.LNX.4.62.0505110236520.2386@dragon.hyggekrogen.localhost>
- <4281E78B.2030103@grupopie.com> <20050511225657.GM6884@stusta.de>
- <42834935.9060404@grupopie.com> <42835BDB.40505@grupopie.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 12 May 2005 13:42:59 -0400
+Date: Thu, 12 May 2005 13:42:58 -0400
+From: Timothy Ball <timball@tux.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: remote keyboard
+Message-ID: <20050512174258.GD29452@gwyn.tux.org>
+References: <Pine.LNX.4.60.0505121017090.31256@lantana.cs.iitm.ernet.in> <20050512081240.GS8176@lug-owl.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="PEIAKu/WMn1b1Hv9"
+Content-Disposition: inline
+In-Reply-To: <20050512081240.GS8176@lug-owl.de>
+User-Agent: Mutt/1.5.6i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gwyn.tux.org [0.0.0.0]); Thu, 12 May 2005 13:42:59 -0400 (EDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 May 2005, Paulo Marques wrote:
 
-> Paulo Marques wrote:
-> > Adrian Bunk wrote:
-> > 
-> > > On Wed, May 11, 2005 at 12:07:55PM +0100, Paulo Marques wrote:
-> > > [...]
-> > > 
-> > > > Just a small sugestion: do a sha (or md5sum, or whatever hash function
-> > > > you prefer) to vmlinux before and after applying the patches.
-> > > > 
-> > > > If all is well, it shouldn't change (since this is just whitespace
-> > > > cleanup), and it is a little more robust than just checking the size.
-> > > 
-> > > That's wrong.
-> > > 
-> > > vmlinux contains the date of the compilation.
-> > 
-> > You're right, I forgot about that...
-> > 
-> > Removing UTS_VERSION from init/version.c would make this work, or are there
-> > other places where this might be a problem?
-> 
-> Ok, I've just tested this.
-> 
-> At least with my config, if I remove both instances of UTS_VERSION from
-> init/version.c, the resulting vmlinux files are exactly identical with the
-> same sha1sum.
-> 
-> So maybe Jesper can use this to make *really* sure that there are no actual
-> changes with the patches, just whitespace changes.
-> 
+--PEIAKu/WMn1b1Hv9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Yeah, that does seem to work. I had not thought of that - thanks.
+On Thu, May 12, 2005 at 10:12:40AM +0200, Jan-Benedict Glaw wrote:
+> On Thu, 2005-05-12 10:21:31 +0530, P.Manohar <pmanohar@lantana.cs.iitm.er=
+net.in> wrote:
+> > Instead of using the local keyboard input, I want sent the keyboard keys
+> > from the remote system (another PC via Ethernet) and use it as if it=20
+> > from
+> >  the local keyboard.
+>=20
+> Write a small server which pushed pack input via uinput into the remote
+> kernel.
+>=20
+> MfG, JBG
+>=20
 
+If you're using X you can use this:=20
+	http://synergy2.sourceforge.net/
+works quite well cross platform.
 
-/Jesper Juhl
+--timball
 
+--=20
+	GPG key available on pgpkeys.mit.edu
+pub  1024D/511FBD54 2001-07-23 Timothy Lu Hu Ball <timball@tux.org>
+Key fingerprint =3D B579 29B0 F6C8 C7AA 3840  E053 FE02 BB97 511F BD54
+
+--PEIAKu/WMn1b1Hv9
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFCg5Wh/gK7l1EfvVQRAsZlAJ42cfHo/tnoXTTCC9+U6m+IOi/agQCfSg+z
+FBg8YNBeczxeBX/zoCnsI+4=
+=B3Jq
+-----END PGP SIGNATURE-----
+
+--PEIAKu/WMn1b1Hv9--

@@ -1,51 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262034AbVELPhK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262045AbVELPnl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262034AbVELPhK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 11:37:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262039AbVELPhK
+	id S262045AbVELPnl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 11:43:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262047AbVELPnl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 11:37:10 -0400
-Received: from alog0337.analogic.com ([208.224.222.113]:5608 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262034AbVELPhF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 11:37:05 -0400
-Date: Thu, 12 May 2005 11:35:49 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: "Tetsuji \"Maverick\" Rai" <tetsuji.rai@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Need kernel patch to compile with Intel compiler
-In-Reply-To: <377362e105051207461ff85b87@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0505121130030.31719@chaos.analogic.com>
-References: <377362e105051207461ff85b87@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 12 May 2005 11:43:41 -0400
+Received: from mail.kroah.org ([69.55.234.183]:48867 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262045AbVELPni (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 11:43:38 -0400
+Date: Thu, 12 May 2005 08:43:35 -0700
+From: Greg KH <greg@kroah.com>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Dave Airlie <airlied@linux.ie>, Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: kobject_register failed for intelfb (-EACCES) (Re: 2.6.12-rc4-mm1)
+Message-ID: <20050512154335.GD21765@kroah.com>
+References: <20050512033100.017958f6.akpm@osdl.org> <200505121658.02019.adobriyan@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200505121658.02019.adobriyan@gmail.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 May 2005, Tetsuji "Maverick" Rai wrote:
+On Thu, May 12, 2005 at 04:58:01PM +0400, Alexey Dobriyan wrote:
+> kobject Intel(R) 830M/845G/852GM/855GM/865G/915G Framebuffer Driver:
+> registering. parent: <NULL>, set: drivers
+> kobject_register failed for Intel(R) 830M/845G/852GM/855GM/865G/915G
 
-> In this mailing list archive I found a discussion on how to compile
-> kenrel 2.6.x with Intel C++ compiler, but it was a bit old, and only
-> kernel patch for version 2.6.5 or around so can be found.   As mine is
-> HT enabled, I want newer one.
->
-> Does anyone know where to find it, or how to make it?
->
-> regards,
+Someone tried to put a "/" in a kobject name, which is not allowed.
+Actually the name seems to be set to:
+	"Intel(R) 830M/845G/852GM/855GM/865G/915G Framebuffer Driver"
+which is a bit verbous if you want to create a directory name :)
 
-The kernel is designed to be compiled with the GNU 'C' compler
-supplied with every distribution. It uses a lot of __asm__()
-statements and other GNU-specific constructions.
+thanks,
 
-Why would you even attempt to convert the kernel sources to
-be compiled with some other tools? Also C++ won't work because
-the kernel is all about method, i.e., procedures. You need
-a procedural compiler for most of it, not an object-oriented
-one.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+greg k-h

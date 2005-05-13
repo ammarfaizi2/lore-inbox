@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262520AbVEMU0S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262514AbVEMUcF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262520AbVEMU0S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 16:26:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262540AbVEMU0S
+	id S262514AbVEMUcF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 16:32:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262544AbVEMUcF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 16:26:18 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:46727 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262520AbVEMUAU
+	Fri, 13 May 2005 16:32:05 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:55516 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262514AbVEMUAT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 16:00:20 -0400
+	Fri, 13 May 2005 16:00:19 -0400
 From: Arnd Bergmann <arnd@arndb.de>
 To: linuxppc64-dev@ozlabs.org
-Subject: [PATCH 3/8] ppc64: add a watchdog driver for rtas
-Date: Fri, 13 May 2005 21:24:47 +0200
+Subject: [PATCH 1/8] ppc64: split out generic rtas code from pSeries_pci.c
+Date: Fri, 13 May 2005 21:21:25 +0200
 User-Agent: KMail/1.7.2
 Cc: linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>,
        Anton Blanchard <anton@samba.org>,
@@ -20,749 +20,1062 @@ Cc: linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>,
 References: <200505132117.37461.arnd@arndb.de>
 In-Reply-To: <200505132117.37461.arnd@arndb.de>
 MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200505132121.26996.arnd@arndb.de>
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200505132124.48963.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add a watchdog using the RTAS OS surveillance service. This is
-provided as a simpler alternative to rtasd. The added value
-is that it works with standard watchdog client programs and
-can therefore also do user space monitoring.
+BPA is using rtas for PCI but should not be confused by
+pSeries code. This also avoids some #ifdefs. Other
+platforms that want to use rtas_pci.c could create
+their own platform_pci.c with platform specific fixups.
 
-On BPA, rtasd is not really useful because the hardware does
-not have much to report with event-scan.
-
-The driver should also work on other platforms that support
-the OS surveillance rtas calls.
-
-From: Utz Bacher <utz.bacher@de.ibm.com>
 Signed-off-by: Arnd Bergmann <arndb@de.ibm.com>
 
---- linux-2.6-ppc.orig/drivers/char/watchdog/Kconfig	2005-03-18 07:08:59.836902728 -0500
-+++ linux-2.6-ppc/drivers/char/watchdog/Kconfig	2005-03-18 07:09:12.047905480 -0500
-@@ -414,6 +414,16 @@ config WATCHDOG_RIO
- 	  machines.  The watchdog timeout period is normally one minute but
- 	  can be changed with a boot-time parameter.
+--- linux-cg.orig/arch/ppc64/kernel/Makefile	2005-05-13 14:56:19.016994560 -0400
++++ linux-cg/arch/ppc64/kernel/Makefile	2005-05-13 15:00:05.111971888 -0400
+@@ -32,13 +32,14 @@ obj-$(CONFIG_PPC_MULTIPLATFORM) += nvram
  
-+# ppc64 RTAS watchdog
-+config WATCHDOG_RTAS
-+	tristate "RTAS watchdog"
-+	depends on WATCHDOG && PPC_RTAS
-+	help
-+	  This driver adds watchdog support for the RTAS watchdog.
-+
-+          To compile this driver as a module, choose M here. The module
-+	  will be called wdrtas.
-+
- #
- # ISA-based Watchdog Cards
- #
---- linux-2.6-ppc.orig/drivers/char/watchdog/Makefile	2005-03-18 07:08:59.857899536 -0500
-+++ linux-2.6-ppc/drivers/char/watchdog/Makefile	2005-03-18 07:09:52.344904960 -0500
-@@ -33,6 +33,7 @@ obj-$(CONFIG_USBPCWATCHDOG) += pcwd_usb.
- obj-$(CONFIG_IXP4XX_WATCHDOG) += ixp4xx_wdt.o
- obj-$(CONFIG_IXP2000_WATCHDOG) += ixp2000_wdt.o
- obj-$(CONFIG_8xx_WDT) += mpc8xx_wdt.o
-+obj-$(CONFIG_WATCHDOG_RTAS) += wdrtas.o
+ obj-$(CONFIG_PPC_PSERIES) += pSeries_pci.o pSeries_lpar.o pSeries_hvCall.o \
+ 			     pSeries_nvram.o rtasd.o ras.o pSeries_reconfig.o \
+-			     xics.o rtas.o pSeries_setup.o pSeries_iommu.o
++			     xics.o pSeries_setup.o pSeries_iommu.o
  
- # Only one watchdog can succeed. We probe the hardware watchdog
- # drivers first, then the softdog driver.  This means if your hardware
---- linux-2.6-ppc.orig/drivers/char/watchdog/wdrtas.c	1969-12-31 19:00:00.000000000 -0500
-+++ linux-2.6-ppc/drivers/char/watchdog/wdrtas.c	2005-03-18 07:09:12.051904872 -0500
-@@ -0,0 +1,691 @@
-+/*
-+ * FIXME: add wdrtas_get_status and wdrtas_get_boot_status as soon as
-+ * RTAS calls are available
-+ */
+ obj-$(CONFIG_EEH)		+= eeh.o
+ obj-$(CONFIG_PROC_FS)		+= proc_ppc64.o
+ obj-$(CONFIG_RTAS_FLASH)	+= rtas_flash.o
+ obj-$(CONFIG_SMP)		+= smp.o
+ obj-$(CONFIG_MODULES)		+= module.o ppc_ksyms.o
++obj-$(CONFIG_PPC_RTAS)		+= rtas.o rtas_pci.o
+ obj-$(CONFIG_RTAS_PROC)		+= rtas-proc.o
+ obj-$(CONFIG_SCANLOG)		+= scanlog.o
+ obj-$(CONFIG_VIOPATH)		+= viopath.o
+--- linux-cg.orig/arch/ppc64/kernel/mpic.h	2005-05-13 14:56:19.018994256 -0400
++++ linux-cg/arch/ppc64/kernel/mpic.h	2005-05-13 15:00:10.785908048 -0400
+@@ -265,3 +265,6 @@ extern void mpic_send_ipi(unsigned int i
+ extern int mpic_get_one_irq(struct mpic *mpic, struct pt_regs *regs);
+ /* This one gets to the primary mpic */
+ extern int mpic_get_irq(struct pt_regs *regs);
 +
++/* global mpic for pSeries */
++extern struct mpic *pSeries_mpic;
+--- linux-cg.orig/arch/ppc64/kernel/pSeries_pci.c	2005-05-13 14:57:09.556898776 -0400
++++ linux-cg/arch/ppc64/kernel/pSeries_pci.c	2005-05-13 15:00:10.786907896 -0400
+@@ -1,13 +1,11 @@
+ /*
+- * pSeries_pci.c
++ * arch/ppc64/kernel/pSeries_pci.c
+  *
+  * Copyright (C) 2001 Dave Engebretsen, IBM Corporation
+  * Copyright (C) 2003 Anton Blanchard <anton@au.ibm.com>, IBM
+  *
+  * pSeries specific routines for PCI.
+  * 
+- * Based on code from pci.c and chrp_pci.c
+- *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+  * the Free Software Foundation; either version 2 of the License, or
+@@ -23,430 +21,18 @@
+  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+  */
+ 
++#include <linux/init.h>
++#include <linux/ioport.h>
+ #include <linux/kernel.h>
+-#include <linux/threads.h>
+ #include <linux/pci.h>
+ #include <linux/string.h>
+-#include <linux/init.h>
+-#include <linux/bootmem.h>
+ 
+-#include <asm/io.h>
+-#include <asm/pgtable.h>
+-#include <asm/irq.h>
+-#include <asm/prom.h>
+-#include <asm/machdep.h>
+ #include <asm/pci-bridge.h>
+-#include <asm/iommu.h>
+-#include <asm/rtas.h>
++#include <asm/prom.h>
+ 
+-#include "mpic.h"
+ #include "pci.h"
+ 
+-/* RTAS tokens */
+-static int read_pci_config;
+-static int write_pci_config;
+-static int ibm_read_pci_config;
+-static int ibm_write_pci_config;
+-
+-static int s7a_workaround;
+-
+-extern struct mpic *pSeries_mpic;
+-
+-static int config_access_valid(struct device_node *dn, int where)
+-{
+-	if (where < 256)
+-		return 1;
+-	if (where < 4096 && dn->pci_ext_config_space)
+-		return 1;
+-
+-	return 0;
+-}
+-
+-static int rtas_read_config(struct device_node *dn, int where, int size, u32 *val)
+-{
+-	int returnval = -1;
+-	unsigned long buid, addr;
+-	int ret;
+-
+-	if (!dn)
+-		return PCIBIOS_DEVICE_NOT_FOUND;
+-	if (!config_access_valid(dn, where))
+-		return PCIBIOS_BAD_REGISTER_NUMBER;
+-
+-	addr = ((where & 0xf00) << 20) | (dn->busno << 16) |
+-		(dn->devfn << 8) | (where & 0xff);
+-	buid = dn->phb->buid;
+-	if (buid) {
+-		ret = rtas_call(ibm_read_pci_config, 4, 2, &returnval,
+-				addr, buid >> 32, buid & 0xffffffff, size);
+-	} else {
+-		ret = rtas_call(read_pci_config, 2, 2, &returnval, addr, size);
+-	}
+-	*val = returnval;
+-
+-	if (ret)
+-		return PCIBIOS_DEVICE_NOT_FOUND;
+-
+-	if (returnval == EEH_IO_ERROR_VALUE(size)
+-	    && eeh_dn_check_failure (dn, NULL))
+-		return PCIBIOS_DEVICE_NOT_FOUND;
+-
+-	return PCIBIOS_SUCCESSFUL;
+-}
+-
+-static int rtas_pci_read_config(struct pci_bus *bus,
+-				unsigned int devfn,
+-				int where, int size, u32 *val)
+-{
+-	struct device_node *busdn, *dn;
+-
+-	if (bus->self)
+-		busdn = pci_device_to_OF_node(bus->self);
+-	else
+-		busdn = bus->sysdata;	/* must be a phb */
+-
+-	/* Search only direct children of the bus */
+-	for (dn = busdn->child; dn; dn = dn->sibling)
+-		if (dn->devfn == devfn)
+-			return rtas_read_config(dn, where, size, val);
+-	return PCIBIOS_DEVICE_NOT_FOUND;
+-}
+-
+-static int rtas_write_config(struct device_node *dn, int where, int size, u32 val)
+-{
+-	unsigned long buid, addr;
+-	int ret;
+-
+-	if (!dn)
+-		return PCIBIOS_DEVICE_NOT_FOUND;
+-	if (!config_access_valid(dn, where))
+-		return PCIBIOS_BAD_REGISTER_NUMBER;
+-
+-	addr = ((where & 0xf00) << 20) | (dn->busno << 16) |
+-		(dn->devfn << 8) | (where & 0xff);
+-	buid = dn->phb->buid;
+-	if (buid) {
+-		ret = rtas_call(ibm_write_pci_config, 5, 1, NULL, addr, buid >> 32, buid & 0xffffffff, size, (ulong) val);
+-	} else {
+-		ret = rtas_call(write_pci_config, 3, 1, NULL, addr, size, (ulong)val);
+-	}
+-
+-	if (ret)
+-		return PCIBIOS_DEVICE_NOT_FOUND;
+-
+-	return PCIBIOS_SUCCESSFUL;
+-}
+-
+-static int rtas_pci_write_config(struct pci_bus *bus,
+-				 unsigned int devfn,
+-				 int where, int size, u32 val)
+-{
+-	struct device_node *busdn, *dn;
+-
+-	if (bus->self)
+-		busdn = pci_device_to_OF_node(bus->self);
+-	else
+-		busdn = bus->sysdata;	/* must be a phb */
+-
+-	/* Search only direct children of the bus */
+-	for (dn = busdn->child; dn; dn = dn->sibling)
+-		if (dn->devfn == devfn)
+-			return rtas_write_config(dn, where, size, val);
+-	return PCIBIOS_DEVICE_NOT_FOUND;
+-}
+-
+-struct pci_ops rtas_pci_ops = {
+-	rtas_pci_read_config,
+-	rtas_pci_write_config
+-};
+-
+-int is_python(struct device_node *dev)
+-{
+-	char *model = (char *)get_property(dev, "model", NULL);
+-
+-	if (model && strstr(model, "Python"))
+-		return 1;
+-
+-	return 0;
+-}
+-
+-static int get_phb_reg_prop(struct device_node *dev,
+-			    unsigned int addr_size_words,
+-			    struct reg_property64 *reg)
+-{
+-	unsigned int *ui_ptr = NULL, len;
+-
+-	/* Found a PHB, now figure out where his registers are mapped. */
+-	ui_ptr = (unsigned int *)get_property(dev, "reg", &len);
+-	if (ui_ptr == NULL)
+-		return 1;
+-
+-	if (addr_size_words == 1) {
+-		reg->address = ((struct reg_property32 *)ui_ptr)->address;
+-		reg->size    = ((struct reg_property32 *)ui_ptr)->size;
+-	} else {
+-		*reg = *((struct reg_property64 *)ui_ptr);
+-	}
+-
+-	return 0;
+-}
+-
+-static void python_countermeasures(struct device_node *dev,
+-				   unsigned int addr_size_words)
+-{
+-	struct reg_property64 reg_struct;
+-	void __iomem *chip_regs;
+-	volatile u32 val;
+-
+-	if (get_phb_reg_prop(dev, addr_size_words, &reg_struct))
+-		return;
+-
+-	/* Python's register file is 1 MB in size. */
+-	chip_regs = ioremap(reg_struct.address & ~(0xfffffUL), 0x100000);
+-
+-	/* 
+-	 * Firmware doesn't always clear this bit which is critical
+-	 * for good performance - Anton
+-	 */
+-
+-#define PRG_CL_RESET_VALID 0x00010000
+-
+-	val = in_be32(chip_regs + 0xf6030);
+-	if (val & PRG_CL_RESET_VALID) {
+-		printk(KERN_INFO "Python workaround: ");
+-		val &= ~PRG_CL_RESET_VALID;
+-		out_be32(chip_regs + 0xf6030, val);
+-		/*
+-		 * We must read it back for changes to
+-		 * take effect
+-		 */
+-		val = in_be32(chip_regs + 0xf6030);
+-		printk("reg0: %x\n", val);
+-	}
+-
+-	iounmap(chip_regs);
+-}
+-
+-void __init init_pci_config_tokens (void)
+-{
+-	read_pci_config = rtas_token("read-pci-config");
+-	write_pci_config = rtas_token("write-pci-config");
+-	ibm_read_pci_config = rtas_token("ibm,read-pci-config");
+-	ibm_write_pci_config = rtas_token("ibm,write-pci-config");
+-}
+-
+-unsigned long __devinit get_phb_buid (struct device_node *phb)
+-{
+-	int addr_cells;
+-	unsigned int *buid_vals;
+-	unsigned int len;
+-	unsigned long buid;
+-
+-	if (ibm_read_pci_config == -1) return 0;
+-
+-	/* PHB's will always be children of the root node,
+-	 * or so it is promised by the current firmware. */
+-	if (phb->parent == NULL)
+-		return 0;
+-	if (phb->parent->parent)
+-		return 0;
+-
+-	buid_vals = (unsigned int *) get_property(phb, "reg", &len);
+-	if (buid_vals == NULL)
+-		return 0;
+-
+-	addr_cells = prom_n_addr_cells(phb);
+-	if (addr_cells == 1) {
+-		buid = (unsigned long) buid_vals[0];
+-	} else {
+-		buid = (((unsigned long)buid_vals[0]) << 32UL) |
+-			(((unsigned long)buid_vals[1]) & 0xffffffff);
+-	}
+-	return buid;
+-}
+-
+-static int phb_set_bus_ranges(struct device_node *dev,
+-			      struct pci_controller *phb)
+-{
+-	int *bus_range;
+-	unsigned int len;
+-
+-	bus_range = (int *) get_property(dev, "bus-range", &len);
+-	if (bus_range == NULL || len < 2 * sizeof(int)) {
+-		return 1;
+- 	}
+- 
+-	phb->first_busno =  bus_range[0];
+-	phb->last_busno  =  bus_range[1];
+-
+-	return 0;
+-}
+-
+-static int __devinit setup_phb(struct device_node *dev,
+-			       struct pci_controller *phb,
+-			       unsigned int addr_size_words)
+-{
+-	pci_setup_pci_controller(phb);
+-
+-	if (is_python(dev))
+-		python_countermeasures(dev, addr_size_words);
+-
+-	if (phb_set_bus_ranges(dev, phb))
+-		return 1;
+-
+-	phb->arch_data = dev;
+-	phb->ops = &rtas_pci_ops;
+-	phb->buid = get_phb_buid(dev);
+-
+-	return 0;
+-}
+-
+-static void __devinit add_linux_pci_domain(struct device_node *dev,
+-					   struct pci_controller *phb,
+-					   struct property *of_prop)
+-{
+-	memset(of_prop, 0, sizeof(struct property));
+-	of_prop->name = "linux,pci-domain";
+-	of_prop->length = sizeof(phb->global_number);
+-	of_prop->value = (unsigned char *)&of_prop[1];
+-	memcpy(of_prop->value, &phb->global_number, sizeof(phb->global_number));
+-	prom_add_property(dev, of_prop);
+-}
+-
+-static struct pci_controller * __init alloc_phb(struct device_node *dev,
+-						unsigned int addr_size_words)
+-{
+-	struct pci_controller *phb;
+-	struct property *of_prop;
+-
+-	phb = alloc_bootmem(sizeof(struct pci_controller));
+-	if (phb == NULL)
+-		return NULL;
+-
+-	of_prop = alloc_bootmem(sizeof(struct property) +
+-				sizeof(phb->global_number));
+-	if (!of_prop)
+-		return NULL;
+-
+-	if (setup_phb(dev, phb, addr_size_words))
+-		return NULL;
+-
+-	add_linux_pci_domain(dev, phb, of_prop);
+-
+-	return phb;
+-}
+-
+-static struct pci_controller * __devinit alloc_phb_dynamic(struct device_node *dev, unsigned int addr_size_words)
+-{
+-	struct pci_controller *phb;
+-
+-	phb = (struct pci_controller *)kmalloc(sizeof(struct pci_controller),
+-					       GFP_KERNEL);
+-	if (phb == NULL)
+-		return NULL;
+-
+-	if (setup_phb(dev, phb, addr_size_words))
+-		return NULL;
+-
+-	phb->is_dynamic = 1;
+-
+-	/* TODO: linux,pci-domain? */
+-
+- 	return phb;
+-}
+-
+-unsigned long __init find_and_init_phbs(void)
+-{
+-	struct device_node *node;
+-	struct pci_controller *phb;
+-	unsigned int root_size_cells = 0;
+-	unsigned int index;
+-	unsigned int *opprop = NULL;
+-	struct device_node *root = of_find_node_by_path("/");
+-
+-	if (ppc64_interrupt_controller == IC_OPEN_PIC) {
+-		opprop = (unsigned int *)get_property(root,
+-				"platform-open-pic", NULL);
+-	}
+-
+-	root_size_cells = prom_n_size_cells(root);
+-
+-	index = 0;
+-
+-	for (node = of_get_next_child(root, NULL);
+-	     node != NULL;
+-	     node = of_get_next_child(root, node)) {
+-		if (node->type == NULL || strcmp(node->type, "pci") != 0)
+-			continue;
+-
+-		phb = alloc_phb(node, root_size_cells);
+-		if (!phb)
+-			continue;
+-
+-		pci_process_bridge_OF_ranges(phb, node);
+-		pci_setup_phb_io(phb, index == 0);
+-
+-		if (ppc64_interrupt_controller == IC_OPEN_PIC && pSeries_mpic) {
+-			int addr = root_size_cells * (index + 2) - 1;
+-			mpic_assign_isu(pSeries_mpic, index, opprop[addr]);
+-		}
+-
+-		index++;
+-	}
+-
+-	of_node_put(root);
+-	pci_devs_phb_init();
+-
+-	/*
+-	 * pci_probe_only and pci_assign_all_buses can be set via properties
+-	 * in chosen.
+-	 */
+-	if (of_chosen) {
+-		int *prop;
+-
+-		prop = (int *)get_property(of_chosen, "linux,pci-probe-only",
+-					   NULL);
+-		if (prop)
+-			pci_probe_only = *prop;
+-
+-		prop = (int *)get_property(of_chosen,
+-					   "linux,pci-assign-all-buses", NULL);
+-		if (prop)
+-			pci_assign_all_buses = *prop;
+-	}
+-
+-	return 0;
+-}
+-
+-struct pci_controller * __devinit init_phb_dynamic(struct device_node *dn)
+-{
+-	struct device_node *root = of_find_node_by_path("/");
+-	unsigned int root_size_cells = 0;
+-	struct pci_controller *phb;
+-	struct pci_bus *bus;
+-	int primary;
+-
+-	root_size_cells = prom_n_size_cells(root);
+-
+-	primary = list_empty(&hose_list);
+-	phb = alloc_phb_dynamic(dn, root_size_cells);
+-	if (!phb)
+-		return NULL;
+-
+-	pci_process_bridge_OF_ranges(phb, dn);
+-
+-	pci_setup_phb_io_dynamic(phb, primary);
+-	of_node_put(root);
+-
+-	pci_devs_phb_init_dynamic(phb);
+-	phb->last_busno = 0xff;
+-	bus = pci_scan_bus(phb->first_busno, phb->ops, phb->arch_data);
+-	phb->bus = bus;
+-	phb->last_busno = bus->subordinate;
+-
+-	return phb;
+-}
+-EXPORT_SYMBOL(init_phb_dynamic);
++static int __initdata s7a_workaround;
+ 
+ #if 0
+ void pcibios_name_device(struct pci_dev *dev)
+@@ -474,7 +60,7 @@ void pcibios_name_device(struct pci_dev 
+ DECLARE_PCI_FIXUP_HEADER(PCI_ANY_ID, PCI_ANY_ID, pcibios_name_device);
+ #endif
+ 
+-static void check_s7a(void)
++static void __init check_s7a(void)
+ {
+ 	struct device_node *root;
+ 	char *model;
+@@ -488,56 +74,6 @@ static void check_s7a(void)
+ 	}
+ }
+ 
+-/* RPA-specific bits for removing PHBs */
+-int pcibios_remove_root_bus(struct pci_controller *phb)
+-{
+-	struct pci_bus *b = phb->bus;
+-	struct resource *res;
+-	int rc, i;
+-
+-	res = b->resource[0];
+-	if (!res->flags) {
+-		printk(KERN_ERR "%s: no IO resource for PHB %s\n", __FUNCTION__,
+-				b->name);
+-		return 1;
+-	}
+-
+-	rc = unmap_bus_range(b);
+-	if (rc) {
+-		printk(KERN_ERR "%s: failed to unmap IO on bus %s\n",
+-			__FUNCTION__, b->name);
+-		return 1;
+-	}
+-
+-	if (release_resource(res)) {
+-		printk(KERN_ERR "%s: failed to release IO on bus %s\n",
+-				__FUNCTION__, b->name);
+-		return 1;
+-	}
+-
+-	for (i = 1; i < 3; ++i) {
+-		res = b->resource[i];
+-		if (!res->flags && i == 0) {
+-			printk(KERN_ERR "%s: no MEM resource for PHB %s\n",
+-				__FUNCTION__, b->name);
+-			return 1;
+-		}
+-		if (res->flags && release_resource(res)) {
+-			printk(KERN_ERR
+-			       "%s: failed to release IO %d on bus %s\n",
+-				__FUNCTION__, i, b->name);
+-			return 1;
+-		}
+-	}
+-
+-	list_del(&phb->list_node);
+-	if (phb->is_dynamic)
+-		kfree(phb);
+-
+-	return 0;
+-}
+-EXPORT_SYMBOL(pcibios_remove_root_bus);
+-
+ static void __init pSeries_request_regions(void)
+ {
+ 	if (!isa_io_base)
+--- linux-cg.orig/arch/ppc64/kernel/rtas_pci.c	1969-12-31 19:00:00.000000000 -0500
++++ linux-cg/arch/ppc64/kernel/rtas_pci.c	2005-05-13 15:00:10.788907592 -0400
+@@ -0,0 +1,495 @@
 +/*
-+ * RTAS watchdog driver
++ * arch/ppc64/kernel/rtas_pci.c
 + *
-+ * (C) Copyright IBM Corp. 2005
-+ * device driver to exploit watchdog RTAS functions
++ * Copyright (C) 2001 Dave Engebretsen, IBM Corporation
++ * Copyright (C) 2003 Anton Blanchard <anton@au.ibm.com>, IBM
 + *
-+ * Authors : Utz Bacher <utz.bacher@de.ibm.com>
++ * RTAS specific routines for PCI.
++ * 
++ * Based on code from pci.c, chrp_pci.c and pSeries_pci.c
 + *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2, or (at your option)
-+ * any later version.
-+ *
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *    
 + * This program is distributed in the hope that it will be useful,
 + * but WITHOUT ANY WARRANTY; without even the implied warranty of
 + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 + * GNU General Public License for more details.
-+ *
++ * 
 + * You should have received a copy of the GNU General Public License
 + * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 + */
 +
-+#include <linux/config.h>
-+#include <linux/fs.h>
++#include <linux/kernel.h>
++#include <linux/threads.h>
++#include <linux/pci.h>
++#include <linux/string.h>
 +#include <linux/init.h>
-+#include <linux/miscdevice.h>
-+#include <linux/module.h>
-+#include <linux/notifier.h>
-+#include <linux/reboot.h>
-+#include <linux/types.h>
-+#include <linux/watchdog.h>
++#include <linux/bootmem.h>
 +
++#include <asm/io.h>
++#include <asm/pgtable.h>
++#include <asm/irq.h>
++#include <asm/prom.h>
++#include <asm/machdep.h>
++#include <asm/pci-bridge.h>
++#include <asm/iommu.h>
 +#include <asm/rtas.h>
-+#include <asm/uaccess.h>
 +
-+#define WDRTAS_MAGIC_CHAR		42
-+#define WDRTAS_SUPPORTED_MASK		(WDIOF_SETTIMEOUT | \
-+					 WDIOF_MAGICCLOSE)
++#include "mpic.h"
++#include "pci.h"
 +
-+MODULE_AUTHOR("Utz Bacher <utz.bacher@de.ibm.com>");
-+MODULE_DESCRIPTION("RTAS watchdog driver");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
-+MODULE_ALIAS_MISCDEV(TEMP_MINOR);
++/* RTAS tokens */
++static int read_pci_config;
++static int write_pci_config;
++static int ibm_read_pci_config;
++static int ibm_write_pci_config;
 +
-+#ifdef CONFIG_WATCHDOG_NOWAYOUT
-+static int wdrtas_nowayout = 1;
-+#else
-+static int wdrtas_nowayout = 0;
++static int config_access_valid(struct device_node *dn, int where)
++{
++	if (where < 256)
++		return 1;
++	if (where < 4096 && dn->pci_ext_config_space)
++		return 1;
++
++	return 0;
++}
++
++static int rtas_read_config(struct device_node *dn, int where, int size, u32 *val)
++{
++	int returnval = -1;
++	unsigned long buid, addr;
++	int ret;
++
++	if (!dn)
++		return PCIBIOS_DEVICE_NOT_FOUND;
++	if (!config_access_valid(dn, where))
++		return PCIBIOS_BAD_REGISTER_NUMBER;
++
++	addr = ((where & 0xf00) << 20) | (dn->busno << 16) |
++		(dn->devfn << 8) | (where & 0xff);
++	buid = dn->phb->buid;
++	if (buid) {
++		ret = rtas_call(ibm_read_pci_config, 4, 2, &returnval,
++				addr, buid >> 32, buid & 0xffffffff, size);
++	} else {
++		ret = rtas_call(read_pci_config, 2, 2, &returnval, addr, size);
++	}
++	*val = returnval;
++
++	if (ret)
++		return PCIBIOS_DEVICE_NOT_FOUND;
++
++	if (returnval == EEH_IO_ERROR_VALUE(size)
++	    && eeh_dn_check_failure (dn, NULL))
++		return PCIBIOS_DEVICE_NOT_FOUND;
++
++	return PCIBIOS_SUCCESSFUL;
++}
++
++static int rtas_pci_read_config(struct pci_bus *bus,
++				unsigned int devfn,
++				int where, int size, u32 *val)
++{
++	struct device_node *busdn, *dn;
++
++	if (bus->self)
++		busdn = pci_device_to_OF_node(bus->self);
++	else
++		busdn = bus->sysdata;	/* must be a phb */
++
++	/* Search only direct children of the bus */
++	for (dn = busdn->child; dn; dn = dn->sibling)
++		if (dn->devfn == devfn)
++			return rtas_read_config(dn, where, size, val);
++	return PCIBIOS_DEVICE_NOT_FOUND;
++}
++
++static int rtas_write_config(struct device_node *dn, int where, int size, u32 val)
++{
++	unsigned long buid, addr;
++	int ret;
++
++	if (!dn)
++		return PCIBIOS_DEVICE_NOT_FOUND;
++	if (!config_access_valid(dn, where))
++		return PCIBIOS_BAD_REGISTER_NUMBER;
++
++	addr = ((where & 0xf00) << 20) | (dn->busno << 16) |
++		(dn->devfn << 8) | (where & 0xff);
++	buid = dn->phb->buid;
++	if (buid) {
++		ret = rtas_call(ibm_write_pci_config, 5, 1, NULL, addr, buid >> 32, buid & 0xffffffff, size, (ulong) val);
++	} else {
++		ret = rtas_call(write_pci_config, 3, 1, NULL, addr, size, (ulong)val);
++	}
++
++	if (ret)
++		return PCIBIOS_DEVICE_NOT_FOUND;
++
++	return PCIBIOS_SUCCESSFUL;
++}
++
++static int rtas_pci_write_config(struct pci_bus *bus,
++				 unsigned int devfn,
++				 int where, int size, u32 val)
++{
++	struct device_node *busdn, *dn;
++
++	if (bus->self)
++		busdn = pci_device_to_OF_node(bus->self);
++	else
++		busdn = bus->sysdata;	/* must be a phb */
++
++	/* Search only direct children of the bus */
++	for (dn = busdn->child; dn; dn = dn->sibling)
++		if (dn->devfn == devfn)
++			return rtas_write_config(dn, where, size, val);
++	return PCIBIOS_DEVICE_NOT_FOUND;
++}
++
++struct pci_ops rtas_pci_ops = {
++	rtas_pci_read_config,
++	rtas_pci_write_config
++};
++
++int is_python(struct device_node *dev)
++{
++	char *model = (char *)get_property(dev, "model", NULL);
++
++	if (model && strstr(model, "Python"))
++		return 1;
++
++	return 0;
++}
++
++static int get_phb_reg_prop(struct device_node *dev,
++			    unsigned int addr_size_words,
++			    struct reg_property64 *reg)
++{
++	unsigned int *ui_ptr = NULL, len;
++
++	/* Found a PHB, now figure out where his registers are mapped. */
++	ui_ptr = (unsigned int *)get_property(dev, "reg", &len);
++	if (ui_ptr == NULL)
++		return 1;
++
++	if (addr_size_words == 1) {
++		reg->address = ((struct reg_property32 *)ui_ptr)->address;
++		reg->size    = ((struct reg_property32 *)ui_ptr)->size;
++	} else {
++		*reg = *((struct reg_property64 *)ui_ptr);
++	}
++
++	return 0;
++}
++
++static void python_countermeasures(struct device_node *dev,
++				   unsigned int addr_size_words)
++{
++	struct reg_property64 reg_struct;
++	void __iomem *chip_regs;
++	volatile u32 val;
++
++	if (get_phb_reg_prop(dev, addr_size_words, &reg_struct))
++		return;
++
++	/* Python's register file is 1 MB in size. */
++	chip_regs = ioremap(reg_struct.address & ~(0xfffffUL), 0x100000);
++
++	/* 
++	 * Firmware doesn't always clear this bit which is critical
++	 * for good performance - Anton
++	 */
++
++#define PRG_CL_RESET_VALID 0x00010000
++
++	val = in_be32(chip_regs + 0xf6030);
++	if (val & PRG_CL_RESET_VALID) {
++		printk(KERN_INFO "Python workaround: ");
++		val &= ~PRG_CL_RESET_VALID;
++		out_be32(chip_regs + 0xf6030, val);
++		/*
++		 * We must read it back for changes to
++		 * take effect
++		 */
++		val = in_be32(chip_regs + 0xf6030);
++		printk("reg0: %x\n", val);
++	}
++
++	iounmap(chip_regs);
++}
++
++void __init init_pci_config_tokens (void)
++{
++	read_pci_config = rtas_token("read-pci-config");
++	write_pci_config = rtas_token("write-pci-config");
++	ibm_read_pci_config = rtas_token("ibm,read-pci-config");
++	ibm_write_pci_config = rtas_token("ibm,write-pci-config");
++}
++
++unsigned long __devinit get_phb_buid (struct device_node *phb)
++{
++	int addr_cells;
++	unsigned int *buid_vals;
++	unsigned int len;
++	unsigned long buid;
++
++	if (ibm_read_pci_config == -1) return 0;
++
++	/* PHB's will always be children of the root node,
++	 * or so it is promised by the current firmware. */
++	if (phb->parent == NULL)
++		return 0;
++	if (phb->parent->parent)
++		return 0;
++
++	buid_vals = (unsigned int *) get_property(phb, "reg", &len);
++	if (buid_vals == NULL)
++		return 0;
++
++	addr_cells = prom_n_addr_cells(phb);
++	if (addr_cells == 1) {
++		buid = (unsigned long) buid_vals[0];
++	} else {
++		buid = (((unsigned long)buid_vals[0]) << 32UL) |
++			(((unsigned long)buid_vals[1]) & 0xffffffff);
++	}
++	return buid;
++}
++
++static int phb_set_bus_ranges(struct device_node *dev,
++			      struct pci_controller *phb)
++{
++	int *bus_range;
++	unsigned int len;
++
++	bus_range = (int *) get_property(dev, "bus-range", &len);
++	if (bus_range == NULL || len < 2 * sizeof(int)) {
++		return 1;
++ 	}
++ 
++	phb->first_busno =  bus_range[0];
++	phb->last_busno  =  bus_range[1];
++
++	return 0;
++}
++
++static int __devinit setup_phb(struct device_node *dev,
++			       struct pci_controller *phb,
++			       unsigned int addr_size_words)
++{
++	pci_setup_pci_controller(phb);
++
++	if (is_python(dev))
++		python_countermeasures(dev, addr_size_words);
++
++	if (phb_set_bus_ranges(dev, phb))
++		return 1;
++
++	phb->arch_data = dev;
++	phb->ops = &rtas_pci_ops;
++	phb->buid = get_phb_buid(dev);
++
++	return 0;
++}
++
++static void __devinit add_linux_pci_domain(struct device_node *dev,
++					   struct pci_controller *phb,
++					   struct property *of_prop)
++{
++	memset(of_prop, 0, sizeof(struct property));
++	of_prop->name = "linux,pci-domain";
++	of_prop->length = sizeof(phb->global_number);
++	of_prop->value = (unsigned char *)&of_prop[1];
++	memcpy(of_prop->value, &phb->global_number, sizeof(phb->global_number));
++	prom_add_property(dev, of_prop);
++}
++
++static struct pci_controller * __init alloc_phb(struct device_node *dev,
++						unsigned int addr_size_words)
++{
++	struct pci_controller *phb;
++	struct property *of_prop;
++
++	phb = alloc_bootmem(sizeof(struct pci_controller));
++	if (phb == NULL)
++		return NULL;
++
++	of_prop = alloc_bootmem(sizeof(struct property) +
++				sizeof(phb->global_number));
++	if (!of_prop)
++		return NULL;
++
++	if (setup_phb(dev, phb, addr_size_words))
++		return NULL;
++
++	add_linux_pci_domain(dev, phb, of_prop);
++
++	return phb;
++}
++
++static struct pci_controller * __devinit alloc_phb_dynamic(struct device_node *dev, unsigned int addr_size_words)
++{
++	struct pci_controller *phb;
++
++	phb = (struct pci_controller *)kmalloc(sizeof(struct pci_controller),
++					       GFP_KERNEL);
++	if (phb == NULL)
++		return NULL;
++
++	if (setup_phb(dev, phb, addr_size_words))
++		return NULL;
++
++	phb->is_dynamic = 1;
++
++	/* TODO: linux,pci-domain? */
++
++ 	return phb;
++}
++
++unsigned long __init find_and_init_phbs(void)
++{
++	struct device_node *node;
++	struct pci_controller *phb;
++	unsigned int root_size_cells = 0;
++	unsigned int index;
++	unsigned int *opprop = NULL;
++	struct device_node *root = of_find_node_by_path("/");
++
++	if (ppc64_interrupt_controller == IC_OPEN_PIC) {
++		opprop = (unsigned int *)get_property(root,
++				"platform-open-pic", NULL);
++	}
++
++	root_size_cells = prom_n_size_cells(root);
++
++	index = 0;
++
++	for (node = of_get_next_child(root, NULL);
++	     node != NULL;
++	     node = of_get_next_child(root, node)) {
++		if (node->type == NULL || strcmp(node->type, "pci") != 0)
++			continue;
++
++		phb = alloc_phb(node, root_size_cells);
++		if (!phb)
++			continue;
++
++		pci_process_bridge_OF_ranges(phb, node);
++		pci_setup_phb_io(phb, index == 0);
++#ifdef CONFIG_PPC_PSERIES
++		if (ppc64_interrupt_controller == IC_OPEN_PIC && pSeries_mpic) {
++			int addr = root_size_cells * (index + 2) - 1;
++			mpic_assign_isu(pSeries_mpic, index, opprop[addr]);
++		}
 +#endif
-+
-+static volatile int wdrtas_miscdev_open = 0;
-+static char wdrtas_expect_close = 0;
-+
-+static int wdrtas_interval;
-+
-+#define WDRTAS_THERMAL_SENSOR		3
-+static int wdrtas_token_get_sensor_state;
-+#define WDRTAS_SURVEILLANCE_IND		9000
-+static int wdrtas_token_set_indicator;
-+#define WDRTAS_SP_SPI			28
-+static int wdrtas_token_get_sp;
-+static int wdrtas_token_event_scan;
-+
-+#define WDRTAS_DEFAULT_INTERVAL		300
-+
-+#define WDRTAS_LOGBUFFER_LEN		128
-+static char wdrtas_logbuffer[WDRTAS_LOGBUFFER_LEN];
-+
-+
-+/*** watchdog access functions */
-+
-+/**
-+ * wdrtas_set_interval - sets the watchdog interval
-+ * @interval: new interval
-+ *
-+ * returns 0 on success, <0 on failures
-+ *
-+ * wdrtas_set_interval sets the watchdog keepalive interval by calling the
-+ * RTAS function set-indicator (surveillance). The unit of interval is
-+ * seconds.
-+ */
-+static int
-+wdrtas_set_interval(int interval)
-+{
-+	long result;
-+	static int print_msg = 10;
-+
-+	/* rtas uses minutes */
-+	interval = (interval + 59) / 60;
-+
-+	result = rtas_call(wdrtas_token_set_indicator, 3, 1, NULL,
-+			   WDRTAS_SURVEILLANCE_IND, 0, interval);
-+	if ( (result < 0) && (print_msg) ) {
-+		printk("wdrtas: setting the watchdog to %i timeout failed: "
-+		       "%li\n", interval, result);
-+		print_msg--;
++		index++;
 +	}
 +
-+	return result;
-+}
++	of_node_put(root);
++	pci_devs_phb_init();
 +
-+/**
-+ * wdrtas_get_interval - returns the current watchdog interval
-+ * @fallback_value: value (in seconds) to use, if the RTAS call fails
-+ *
-+ * returns the interval
-+ *
-+ * wdrtas_get_interval returns the current watchdog keepalive interval
-+ * as reported by the RTAS function ibm,get-system-parameter. The unit
-+ * of the return value is seconds.
-+ */
-+static int
-+wdrtas_get_interval(int fallback_value)
-+{
-+	long result;
-+	char value[4];
++	/*
++	 * pci_probe_only and pci_assign_all_buses can be set via properties
++	 * in chosen.
++	 */
++	if (of_chosen) {
++		int *prop;
 +
-+	result = rtas_call(wdrtas_token_get_sp, 3, 1, NULL,
-+			   WDRTAS_SP_SPI, (void *)__pa(&value), 4);
-+	if ( (value[0] != 0) || (value[1] != 2) || (value[3] != 0) ||
-+	     (result < 0) ) {
-+		printk("wdrtas: could not get sp_spi watchdog timeout (%li). "
-+		       "Continuing\n", result);
-+		return fallback_value;
++		prop = (int *)get_property(of_chosen, "linux,pci-probe-only",
++					   NULL);
++		if (prop)
++			pci_probe_only = *prop;
++
++		prop = (int *)get_property(of_chosen,
++					   "linux,pci-assign-all-buses", NULL);
++		if (prop)
++			pci_assign_all_buses = *prop;
 +	}
 +
-+	/* rtas uses minutes */
-+	return ((int)value[2]) * 60;
++	return 0;
 +}
 +
-+/**
-+ * wdrtas_timer_start - starts watchdog
-+ *
-+ * wdrtas_timer_start starts the watchdog by calling the RTAS function
-+ * set-interval (surveillance)
-+ */
-+static void
-+wdrtas_timer_start(void)
++struct pci_controller * __devinit init_phb_dynamic(struct device_node *dn)
 +{
-+	wdrtas_set_interval(wdrtas_interval);
++	struct device_node *root = of_find_node_by_path("/");
++	unsigned int root_size_cells = 0;
++	struct pci_controller *phb;
++	struct pci_bus *bus;
++	int primary;
++
++	root_size_cells = prom_n_size_cells(root);
++
++	primary = list_empty(&hose_list);
++	phb = alloc_phb_dynamic(dn, root_size_cells);
++	if (!phb)
++		return NULL;
++
++	pci_process_bridge_OF_ranges(phb, dn);
++
++	pci_setup_phb_io_dynamic(phb, primary);
++	of_node_put(root);
++
++	pci_devs_phb_init_dynamic(phb);
++	phb->last_busno = 0xff;
++	bus = pci_scan_bus(phb->first_busno, phb->ops, phb->arch_data);
++	phb->bus = bus;
++	phb->last_busno = bus->subordinate;
++
++	return phb;
 +}
++EXPORT_SYMBOL(init_phb_dynamic);
 +
-+/**
-+ * wdrtas_timer_stop - stops watchdog
-+ *
-+ * wdrtas_timer_stop stops the watchdog timer by calling the RTAS function
-+ * set-interval (surveillance)
-+ */
-+static void
-+wdrtas_timer_stop(void)
++/* RPA-specific bits for removing PHBs */
++int pcibios_remove_root_bus(struct pci_controller *phb)
 +{
-+	wdrtas_set_interval(0);
-+}
++	struct pci_bus *b = phb->bus;
++	struct resource *res;
++	int rc, i;
 +
-+/**
-+ * wdrtas_log_scanned_event - logs an event we received during keepalive
-+ *
-+ * wdrtas_log_scanned_event prints a message to the log buffer dumping
-+ * the results of the last event-scan call
-+ */
-+static void
-+wdrtas_log_scanned_event(void)
-+{
-+	int i;
++	res = b->resource[0];
++	if (!res->flags) {
++		printk(KERN_ERR "%s: no IO resource for PHB %s\n", __FUNCTION__,
++				b->name);
++		return 1;
++	}
 +
-+	for (i = 0; i < WDRTAS_LOGBUFFER_LEN; i += 16)
-+		printk("wdrtas: dumping event (line %i/%i), data = "
-+		       "%02x %02x %02x %02x  %02x %02x %02x %02x   "
-+		       "%02x %02x %02x %02x  %02x %02x %02x %02x\n",
-+		       (i / 16) + 1, (WDRTAS_LOGBUFFER_LEN / 16),
-+		       wdrtas_logbuffer[i + 0], wdrtas_logbuffer[i + 1], 
-+		       wdrtas_logbuffer[i + 2], wdrtas_logbuffer[i + 3], 
-+		       wdrtas_logbuffer[i + 4], wdrtas_logbuffer[i + 5], 
-+		       wdrtas_logbuffer[i + 6], wdrtas_logbuffer[i + 7], 
-+		       wdrtas_logbuffer[i + 8], wdrtas_logbuffer[i + 9], 
-+		       wdrtas_logbuffer[i + 10], wdrtas_logbuffer[i + 11], 
-+		       wdrtas_logbuffer[i + 12], wdrtas_logbuffer[i + 13], 
-+		       wdrtas_logbuffer[i + 14], wdrtas_logbuffer[i + 15]);
-+}
++	rc = unmap_bus_range(b);
++	if (rc) {
++		printk(KERN_ERR "%s: failed to unmap IO on bus %s\n",
++			__FUNCTION__, b->name);
++		return 1;
++	}
 +
-+/**
-+ * wdrtas_timer_keepalive - resets watchdog timer to keep system alive
-+ *
-+ * wdrtas_timer_keepalive restarts the watchdog timer by calling the
-+ * RTAS function event-scan and repeats these calls as long as there are
-+ * events available. All events will be dumped.
-+ */
-+static void
-+wdrtas_timer_keepalive(void)
-+{
-+	long result;
++	if (release_resource(res)) {
++		printk(KERN_ERR "%s: failed to release IO on bus %s\n",
++				__FUNCTION__, b->name);
++		return 1;
++	}
 +
-+	do {
-+		result = rtas_call(wdrtas_token_event_scan, 4, 1, NULL,
-+				   RTAS_EVENT_SCAN_ALL_EVENTS, 0,
-+				   (void *)__pa(wdrtas_logbuffer),
-+				   WDRTAS_LOGBUFFER_LEN);
-+		if (result < 0)
-+			printk("wdrtas: event-scan failed: %li\n",result);
-+		if (result == 0)
-+			wdrtas_log_scanned_event();
-+	} while (result == 0);
-+}
-+
-+/**
-+ * wdrtas_get_temperature - returns current temperature
-+ *
-+ * returns temperature or <0 on failures
-+ *
-+ * wdrtas_get_temperature returns the current temperature in Fahrenheit. It
-+ * uses the RTAS call get-sensor-state, token 3 to do so
-+ */
-+static int
-+wdrtas_get_temperature(void)
-+{
-+	long result;
-+	int temperature = 0;
-+
-+	result = rtas_call(wdrtas_token_get_sensor_state, 2, 2,
-+			   (void *)__pa(&temperature),
-+			   WDRTAS_THERMAL_SENSOR, 0);
-+
-+	if (result < 0)
-+		printk("wdrtas: reading the thermal sensor faild: %li\n",
-+		       result);
-+	else
-+		temperature = ((temperature * 9) / 5) + 32; /* fahrenheit */
-+
-+	return temperature;
-+}
-+
-+/**
-+ * wdrtas_get_status - returns the status of the watchdog
-+ *
-+ * returns a bitmask of defines WDIOF_... as defined in
-+ * include/linux/watchdog.h
-+ */
-+static int
-+wdrtas_get_status(void)
-+{
-+	return 0; /* TODO */
-+}
-+
-+/**
-+ * wdrtas_get_boot_status - returns the reason for the last boot
-+ *
-+ * returns a bitmask of defines WDIOF_... as defined in
-+ * include/linux/watchdog.h, indicating why the watchdog rebooted the system
-+ */
-+static int
-+wdrtas_get_boot_status(void)
-+{
-+	return 0; /* TODO */
-+}
-+
-+/*** watchdog API and operations stuff */
-+
-+/* wdrtas_write - called when watchdog device is written to
-+ * @file: file structure
-+ * @buf: user buffer with data
-+ * @len: amount to data written
-+ * @ppos: position in file
-+ *
-+ * returns the number of successfully processed characters, which is always
-+ * the number of bytes passed to this function
-+ *
-+ * wdrtas_write processes all the data given to it and looks for the magic
-+ * character 'V'. This character allows the watchdog device to be closed
-+ * properly.
-+ */
-+static ssize_t
-+wdrtas_write(struct file *file, const char __user *buf,
-+	     size_t len, loff_t *ppos)
-+{
-+	int i;
-+	char c;
-+
-+	if (!len)
-+		goto out;
-+
-+	if (!wdrtas_nowayout) {
-+		wdrtas_expect_close = 0;
-+		/* look for 'V' */
-+		for (i = 0; i < len; i++) {
-+			if (get_user(c, buf + i))
-+				return -EFAULT;
-+			/* allow to close device */
-+			if (c == 'V')
-+				wdrtas_expect_close = WDRTAS_MAGIC_CHAR;
++	for (i = 1; i < 3; ++i) {
++		res = b->resource[i];
++		if (!res->flags && i == 0) {
++			printk(KERN_ERR "%s: no MEM resource for PHB %s\n",
++				__FUNCTION__, b->name);
++			return 1;
++		}
++		if (res->flags && release_resource(res)) {
++			printk(KERN_ERR
++			       "%s: failed to release IO %d on bus %s\n",
++				__FUNCTION__, i, b->name);
++			return 1;
 +		}
 +	}
 +
-+	wdrtas_timer_keepalive();
-+
-+out:
-+	return len;
-+}
-+
-+/**
-+ * wdrtas_ioctl - ioctl function for the watchdog device
-+ * @inode: inode structure
-+ * @file: file structure
-+ * @cmd: command for ioctl
-+ * @arg: argument pointer
-+ *
-+ * returns 0 on success, <0 on failure
-+ *
-+ * wdrtas_ioctl implements the watchdog API ioctls
-+ */
-+static int
-+wdrtas_ioctl(struct inode *inode, struct file *file,
-+	     unsigned int cmd, unsigned long arg)
-+{
-+	int __user *argp = (void *)arg;
-+	int i;
-+	static struct watchdog_info wdinfo = {
-+		.options = WDRTAS_SUPPORTED_MASK,
-+		.firmware_version = 0,
-+		.identity = "wdrtas"
-+	};
-+
-+	switch (cmd) {
-+	case WDIOC_GETSUPPORT:
-+		if (copy_to_user(argp, &wdinfo, sizeof(wdinfo)))
-+			return -EFAULT;
-+		return 0;
-+
-+	case WDIOC_GETSTATUS:
-+		i = wdrtas_get_status();
-+		return put_user(i, argp);
-+
-+	case WDIOC_GETBOOTSTATUS:
-+		i = wdrtas_get_boot_status();
-+		return put_user(i, argp);
-+
-+	case WDIOC_GETTEMP:
-+		if (wdrtas_token_get_sensor_state == RTAS_UNKNOWN_SERVICE)
-+			return -EOPNOTSUPP;
-+
-+		i = wdrtas_get_temperature();
-+		return put_user(i, argp);
-+
-+	case WDIOC_SETOPTIONS:
-+		if (get_user(i, argp))
-+			return -EFAULT;
-+		if (i & WDIOS_DISABLECARD)
-+			wdrtas_timer_stop();
-+		if (i & WDIOS_ENABLECARD) {
-+			wdrtas_timer_keepalive();
-+			wdrtas_timer_start();
-+		}
-+		if (i & WDIOS_TEMPPANIC) {
-+			/* not implemented. Done by H8 */
-+		}
-+		return 0;
-+
-+	case WDIOC_KEEPALIVE:
-+		wdrtas_timer_keepalive();
-+		return 0;
-+
-+	case WDIOC_SETTIMEOUT:
-+		if (get_user(i, argp))
-+			return -EFAULT;
-+
-+		if (wdrtas_set_interval(i))
-+			return -EINVAL;
-+
-+		wdrtas_timer_keepalive();
-+
-+		if (wdrtas_token_get_sp == RTAS_UNKNOWN_SERVICE)
-+			wdrtas_interval = i;
-+		else
-+			wdrtas_interval = wdrtas_get_interval(i);
-+		/* fallthrough */
-+
-+	case WDIOC_GETTIMEOUT:
-+		return put_user(wdrtas_interval, argp);
-+
-+	default:
-+		return -ENOIOCTLCMD;
-+	}
-+}
-+
-+/**
-+ * wdrtas_open - open function of watchdog device
-+ * @inode: inode structure
-+ * @file: file structure
-+ *
-+ * returns 0 on success, -EBUSY if the file has been opened already, <0 on
-+ * other failures
-+ *
-+ * function called when watchdog device is opened
-+ */
-+static int
-+wdrtas_open(struct inode *inode, struct file *file)
-+{
-+	/* only open once */
-+	if (xchg(&wdrtas_miscdev_open,1))
-+		return -EBUSY;
-+
-+	wdrtas_timer_start();
-+	wdrtas_timer_keepalive();
-+
-+	return nonseekable_open(inode, file);
-+}
-+
-+/**
-+ * wdrtas_close - close function of watchdog device
-+ * @inode: inode structure
-+ * @file: file structure
-+ *
-+ * returns 0 on success
-+ *
-+ * close function. Always succeeds
-+ */
-+static int
-+wdrtas_close(struct inode *inode, struct file *file)
-+{
-+	/* only stop watchdog, if this was announced using 'V' before */
-+	if (wdrtas_expect_close == WDRTAS_MAGIC_CHAR)
-+		wdrtas_timer_stop();
-+	else {
-+		printk("wdrtas: got unexpected close. Watchdog "
-+		       "not stopped.\n");
-+		wdrtas_timer_keepalive();
-+	}
-+
-+	wdrtas_expect_close = 0;
-+	xchg(&wdrtas_miscdev_open,0);
-+	return 0;
-+}
-+
-+/**
-+ * wdrtas_temp_read - gives back the temperature in fahrenheit
-+ * @file: file structure
-+ * @buf: user buffer
-+ * @count: number of bytes to be read
-+ * @ppos: position in file
-+ *
-+ * returns always 1 or -EFAULT in case of user space copy failures, <0 on
-+ * other failures
-+ *
-+ * wdrtas_temp_read gives the temperature to the users by copying this
-+ * value as one byte into the user space buffer. The unit is Fahrenheit...
-+ */
-+static ssize_t
-+wdrtas_temp_read(struct file *file, char __user *buf,
-+		 size_t count, loff_t *ppos)
-+{
-+	int temperature = 0;
-+
-+	temperature = wdrtas_get_temperature();
-+	if (temperature < 0)
-+		return temperature;
-+
-+	if (copy_to_user(buf, &temperature, 1))
-+		return -EFAULT;
-+
-+	return 1;
-+}
-+
-+/**
-+ * wdrtas_temp_open - open function of temperature device
-+ * @inode: inode structure
-+ * @file: file structure
-+ *
-+ * returns 0 on success, <0 on failure
-+ *
-+ * function called when temperature device is opened
-+ */
-+static int
-+wdrtas_temp_open(struct inode *inode, struct file *file)
-+{
-+	return nonseekable_open(inode, file);
-+}
-+
-+/**
-+ * wdrtas_temp_close - close function of temperature device
-+ * @inode: inode structure
-+ * @file: file structure
-+ *
-+ * returns 0 on success
-+ *
-+ * close function. Always succeeds
-+ */
-+static int
-+wdrtas_temp_close(struct inode *inode, struct file *file)
-+{
-+	return 0;
-+}
-+
-+/**
-+ * wdrtas_reboot - reboot notifier function
-+ * @nb: notifier block structure
-+ * @code: reboot code
-+ * @ptr: unused
-+ *
-+ * returns NOTIFY_DONE
-+ *
-+ * wdrtas_reboot stops the watchdog in case of a reboot
-+ */
-+static int
-+wdrtas_reboot(struct notifier_block *this, unsigned long code, void *ptr)
-+{
-+	if ( (code==SYS_DOWN) || (code==SYS_HALT) )
-+		wdrtas_timer_stop();
-+
-+	return NOTIFY_DONE;
-+}
-+
-+/*** initialization stuff */
-+
-+static struct file_operations wdrtas_fops = {
-+	.owner		= THIS_MODULE,
-+	.llseek		= no_llseek,
-+	.write		= wdrtas_write,
-+	.ioctl		= wdrtas_ioctl,
-+	.open		= wdrtas_open,
-+	.release	= wdrtas_close,
-+};
-+
-+static struct miscdevice wdrtas_miscdev = {
-+	.minor =	WATCHDOG_MINOR,
-+	.name =		"watchdog",
-+	.fops =		&wdrtas_fops,
-+};
-+
-+static struct file_operations wdrtas_temp_fops = {
-+	.owner		= THIS_MODULE,
-+	.llseek		= no_llseek,
-+	.read		= wdrtas_temp_read,
-+	.open		= wdrtas_temp_open,
-+	.release	= wdrtas_temp_close,
-+};
-+
-+static struct miscdevice wdrtas_tempdev = {
-+	.minor =	TEMP_MINOR,
-+	.name =		"temperature",
-+	.fops =		&wdrtas_temp_fops,
-+};
-+
-+static struct notifier_block wdrtas_notifier = {
-+	.notifier_call =	wdrtas_reboot,
-+};
-+
-+/**
-+ * wdrtas_get_tokens - reads in RTAS tokens
-+ *
-+ * returns 0 on succes, <0 on failure
-+ *
-+ * wdrtas_get_tokens reads in the tokens for the RTAS calls used in
-+ * this watchdog driver. It tolerates, if "get-sensor-state" and
-+ * "ibm,get-system-parameter" are not available.
-+ */
-+static int
-+wdrtas_get_tokens(void)
-+{
-+	wdrtas_token_get_sensor_state = rtas_token("get-sensor-state");
-+	if (wdrtas_token_get_sensor_state == RTAS_UNKNOWN_SERVICE) {
-+		printk("wdrtas: couldn't get token for get-sensor-state. "
-+		       "Trying to continue without temperature support.\n");
-+	}
-+
-+	wdrtas_token_get_sp = rtas_token("ibm,get-system-parameter");
-+	if (wdrtas_token_get_sp == RTAS_UNKNOWN_SERVICE) {
-+		printk("wdrtas: couldn't get token for "
-+		       "ibm,get-system-parameter. Trying to continue with "
-+		       "a default timeout value of %i seconds.\n",
-+		       WDRTAS_DEFAULT_INTERVAL);
-+	}
-+
-+	wdrtas_token_set_indicator = rtas_token("set-indicator");
-+	if (wdrtas_token_set_indicator == RTAS_UNKNOWN_SERVICE) {
-+		printk("wdrtas: couldn't get token for set-indicator. "
-+		       "Terminating watchdog code.\n");
-+		return -EIO;
-+	}
-+
-+	wdrtas_token_event_scan = rtas_token("event-scan");
-+	if (wdrtas_token_event_scan == RTAS_UNKNOWN_SERVICE) {
-+		printk("wdrtas: couldn't get token for event-scan. "
-+		       "Terminating watchdog code.\n");
-+		return -EIO;
-+	}
++	list_del(&phb->list_node);
++	if (phb->is_dynamic)
++		kfree(phb);
 +
 +	return 0;
 +}
-+
-+/**
-+ * wdrtas_unregister_devs - unregisters the misc dev handlers
-+ *
-+ * wdrtas_register_devs unregisters the watchdog and temperature watchdog
-+ * misc devs
-+ */
-+static void
-+wdrtas_unregister_devs(void)
-+{
-+	misc_deregister(&wdrtas_miscdev);
-+	if (wdrtas_token_get_sensor_state != RTAS_UNKNOWN_SERVICE)
-+		misc_deregister(&wdrtas_tempdev);
-+}
-+
-+/**
-+ * wdrtas_register_devs - registers the misc dev handlers
-+ *
-+ * returns 0 on succes, <0 on failure
-+ *
-+ * wdrtas_register_devs registers the watchdog and temperature watchdog
-+ * misc devs
-+ */
-+static int
-+wdrtas_register_devs(void)
-+{
-+	int result;
-+
-+	result = misc_register(&wdrtas_miscdev);
-+	if (result) {
-+		printk("wdrtas: couldn't register watchdog misc device. "
-+		       "Terminating watchdog code.\n");
-+		return result;
-+	}
-+
-+	if (wdrtas_token_get_sensor_state != RTAS_UNKNOWN_SERVICE) {
-+		result = misc_register(&wdrtas_tempdev);
-+		if (result) {
-+			printk("wdrtas: couldn't register watchdog "
-+			       "temperature misc device. Continuing without "
-+			       "temperature support.\n");
-+			wdrtas_token_get_sensor_state = RTAS_UNKNOWN_SERVICE;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-+ * wdrtas_init - init function of the watchdog driver
-+ *
-+ * returns 0 on succes, <0 on failure
-+ *
-+ * registers the file handlers and the reboot notifier
-+ */
-+static int __init
-+wdrtas_init(void)
-+{
-+	if (wdrtas_get_tokens())
-+		return -ENODEV;
-+
-+	if (wdrtas_register_devs())
-+		return -ENODEV;
-+
-+	if (register_reboot_notifier(&wdrtas_notifier)) {
-+		printk("wdrtas: could not register reboot notifier. "
-+		       "Terminating watchdog code.\n");
-+		wdrtas_unregister_devs();
-+		return -ENODEV;
-+	}
-+
-+	if (wdrtas_token_get_sp == RTAS_UNKNOWN_SERVICE)
-+		wdrtas_interval = WDRTAS_DEFAULT_INTERVAL;
-+	else
-+		wdrtas_interval = wdrtas_get_interval(WDRTAS_DEFAULT_INTERVAL);
-+
-+	return 0;
-+}
-+
-+/**
-+ * wdrtas_exit - exit function of the watchdog driver
-+ *
-+ * unregisters the file handlers and the reboot notifier
-+ */
-+static void __exit
-+wdrtas_exit(void)
-+{
-+	if (!wdrtas_nowayout)
-+		wdrtas_timer_stop();
-+
-+	wdrtas_unregister_devs();
-+
-+	unregister_reboot_notifier(&wdrtas_notifier);
-+}
-+
-+module_init(wdrtas_init);
-+module_exit(wdrtas_exit);
++EXPORT_SYMBOL(pcibios_remove_root_bus);
 

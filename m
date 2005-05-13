@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262629AbVEMXfA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262634AbVEMXey@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262629AbVEMXfA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 19:35:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262626AbVEMXeA
+	id S262634AbVEMXey (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 19:34:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262629AbVEMXdm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 19:34:00 -0400
-Received: from gate.crashing.org ([63.228.1.57]:9410 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262625AbVEMXbs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 19:31:48 -0400
-Subject: Re: [PATCH 7/8] ppc64: SPU file system
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>
-In-Reply-To: <200505132129.07603.arnd@arndb.de>
-References: <200505132117.37461.arnd@arndb.de>
-	 <200505132129.07603.arnd@arndb.de>
-Content-Type: text/plain
-Date: Sat, 14 May 2005 09:31:18 +1000
-Message-Id: <1116027079.5128.32.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+	Fri, 13 May 2005 19:33:42 -0400
+Received: from hibernia.jakma.org ([212.17.55.49]:2453 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S262630AbVEMXdJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 19:33:09 -0400
+Date: Sat, 14 May 2005 00:32:40 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@sheen.jakma.org
+To: Andi Kleen <ak@muc.de>
+cc: "Richard F. Rebel" <rrebel@whenu.com>, Gabor MICSKO <gmicsko@szintezis.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Hyper-Threading Vulnerability
+In-Reply-To: <20050513190549.GB47131@muc.de>
+Message-ID: <Pine.LNX.4.62.0505140030130.27240@sheen.jakma.org>
+References: <1115963481.1723.3.camel@alderaan.trey.hu> <m164xnatpt.fsf@muc.de>
+ <1116009483.4689.803.camel@rebel.corp.whenu.com> <20050513190549.GB47131@muc.de>
+Mail-Followup-To: paul@hibernia.jakma.org
+X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 13 May 2005, Andi Kleen wrote:
 
-> /run	A stub file that lets us do ioctl. The only ioctl
-> 	method we need is the spu_run() call. spu_run suspends
-> 	the current thread from the host CPU and transfers
-> 	the flow of execution to the SPU.
-> 	The ioctl call return to the calling thread when a state
-> 	is entered that can not be handled by the kernel, e.g.
-> 	an error in the SPU code or an exit() from it.
-> 	When a signal is pending for the host CPU thread, the
-> 	ioctl is interrupted and the SPU stopped in order to
-> 	call the signal handler.
+> No, i strongly disagree on that. The reasonable thing to do is to 
+> fix the crypto code which has this vulnerability, not break a 
+> useful performance enhancement for everybody else.
 
-ioctl's are generally considered evil ... what about a write() method
-writing a command ?
+Already done:
 
-Ben.
+http://www.openssl.org/news/secadv_20030317.txt
 
+This is old news it seems, a timing attack that has long been known 
+about and fixed.
 
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+Fortune:
+What happens when you cut back the jungle?  It recedes.

@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbVEMVZr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261465AbVEMV0U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261546AbVEMVZr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 17:25:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261527AbVEMVZr
+	id S261465AbVEMV0U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 17:26:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262526AbVEMV0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 17:25:47 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:38567 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261642AbVEMVZI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 17:25:08 -0400
-Subject: Re: Sync option destroys flash!
-From: Lee Revell <rlrevell@joe-job.com>
-To: mhw@wittsend.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1116001207.5239.38.camel@localhost.localdomain>
-References: <1116001207.5239.38.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 13 May 2005 17:25:00 -0400
-Message-Id: <1116019500.6380.33.camel@mindpipe>
+	Fri, 13 May 2005 17:26:16 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:49417 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261465AbVEMVXV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 17:23:21 -0400
+Message-Id: <200505132122.j4DLMRdU027493@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Chris Friesen <cfriesen@nortel.com>
+Cc: Bill Davidsen <davidsen@tmr.com>, linux-os@analogic.com,
+       "Srinivas G." <srinivasg@esntechnologies.co.in>,
+       linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: Y2K-like bug to hit Linux computers! - Info of the day 
+In-Reply-To: Your message of "Fri, 13 May 2005 15:07:04 MDT."
+             <428516F8.20100@nortel.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <4EE0CBA31942E547B99B3D4BFAB348114BED13@mail.esn.co.in> <200505131522.32403.vda@ilport.com.ua> <Pine.LNX.4.61.0505130825310.4428@chaos.analogic.com> <Pine.LNX.4.61.0505130837390.4781@chaos.analogic.com> <42850FC7.7010603@tmr.com> <200505132047.j4DKlcgV025923@turing-police.cc.vt.edu>
+            <428516F8.20100@nortel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
+Content-Type: multipart/signed; boundary="==_Exmh_1116019347_4705P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Fri, 13 May 2005 17:22:27 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-05-13 at 12:20 -0400, Michael H. Warfield wrote:
-> 	Under the right circumstances, even copying a single file to a flash
-> drive mounted with the "sync" option can destroy the entire drive!
-> 
-> 	Now that I have your attention!
-> 
-> 	I found this out the hard way.  (Kissed one brand new $70 USD 1GB flash
-> drive good-bye.)  According to the man pages for mount, FAT and VFAT
-> file systems ignore the "sync" option.  It lies.
+--==_Exmh_1116019347_4705P
+Content-Type: text/plain; charset=us-ascii
 
-I guess you found out the hard way that the vast majority of Linux docs
-are 2-3 years out of date...
+On Fri, 13 May 2005 15:07:04 MDT, Chris Friesen said:
 
-> On a real hard
-> drive, this will cause "head resonances" as the heads go through
-> constant high speed seeks between the cylinder with the FAT tables and
-> the data cylinders.  That can't be good, on a continuous basis, for
-> drive life.  But it's really a disaster for flash memory.
+> Because that's what the maximum negative number gives?
 
-I have seen a clueless sysadmin destroy several 15,000 RPM SCSI drives
-this way by putting the syslog partition and mail spool at opposite ends
-of the drive.  I think Alan Cox said something like "these days you can
-no longer assume that buggy software won't destroy your hardware".
+Good, somebody's paying attention.   :)
 
-Lee
+So what breaks if we change it to an 'unsigned int', and can we fix those
+issues before 2038, and will any of us here now *care* when an unsigned 32-bit
+overflows in 2106 or whenever it is? :)
 
+
+
+--==_Exmh_1116019347_4705P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFChRqScC3lWbTT17ARAlZyAKCLQjks5MCiAnDSuHvkXc4qjpV29wCgmb6Y
+w/PYh/rZ6G6FMcXurMOV9AI=
+=G1Lh
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1116019347_4705P--

@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262321AbVEMJTh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262306AbVEMJ0E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262321AbVEMJTh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 05:19:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbVEMJTb
+	id S262306AbVEMJ0E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 05:26:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbVEMJ0D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 05:19:31 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:26280 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262316AbVEMJTZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 05:19:25 -0400
-Date: Fri, 13 May 2005 14:49:24 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Ingo Molnar <mingo@elte.hu>, Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       george@mvista.com, jdike@addtoit.com,
-       Jesse Barnes <jesse.barnes@intel.com>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, Tony Lindgren <tony@atomide.com>
-Subject: Re: [RFC] (How to) Let idle CPUs sleep
-Message-ID: <20050513091924.GG23705@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20050512171251.GA21656@in.ibm.com> <OF86BA5D99.FE159896-ONC1256FFF.0062E865-C1256FFF.0063A681@de.ibm.com> <20050513062330.GD23705@in.ibm.com> <42845456.3080908@yahoo.com.au> <20050513080424.GA31206@elte.hu> <428464D5.10702@yahoo.com.au>
+	Fri, 13 May 2005 05:26:03 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:59862 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S262306AbVEMJ0C
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 05:26:02 -0400
+Subject: Re: [PATCH] sync_sb_inodes cleanup
+From: Vladimir Saveliev <vs@namesys.com>
+To: Robert Love <rml@novell.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "reiserfs-dev@namesys.com" <reiserfs-dev@namesys.com>
+In-Reply-To: <1115833764.6810.32.camel@betsy>
+References: <1115737238.4456.320.camel@tribesman.namesys.com>
+	 <1115739301.6810.15.camel@betsy>
+	 <1115797036.29007.359.camel@tribesman.namesys.com>
+	 <1115833764.6810.32.camel@betsy>
+Content-Type: text/plain
+Message-Id: <1115976353.3973.91.camel@tribesman.namesys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <428464D5.10702@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 13 May 2005 13:25:53 +0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 13, 2005 at 08:29:17AM +0000, Nick Piggin wrote:
-> And don't forget that the watchdog approach can just as easily deep
-> sleep a CPU only to immediately wake it up again if it detects an
-> imbalance.
+Hello
 
-I think we should increase the threshold beyond which the idle CPU
-is woken up (more than the imbalance_pct that exists already). This
-should justify waking up the CPU.
+On Wed, 2005-05-11 at 21:49, Robert Love wrote:
+> On Wed, 2005-05-11 at 11:37 +0400, Vladimir Saveliev wrote:
+> 
+> > I did not want to un-const start. It would be required for the
+> > assignment move, wouldn't it?
+> 
+> Well, the const is just a programming convention.  It is useful here,
+> but just a convention; removing it changes nothing behavior-wise.  Your
+> patch, though, changes behavior.
+> 
+ok, I will move assignment.
 
-> And the CPU usage / wakeup cost arguments cut both ways. The busy
-> CPUs have to do extra work in the watchdog case.
+> How bad do you need to push the spin locks into the function?
+> 
 
-Maybe with a really smart watchdog solution, we can cut down this overhead.
-I did think of other schemes - a dedicated CPU per node acting as watchdog 
-for that node and per-node wacthdog kernel threads? - to name a few. What I had
-proposed was the best I thought. But maybe we can look at improving it 
-to see if the overhead concern you have can be reduced - meeting the interests
-of both the worlds :)
+The reason is that reiser4 implements its own sync_inodes method of
+struct super_operations. reiser4_sync_inodes first calls
+generic_sync_sb_inodes and then calls reiser4' function to flush atoms
+to disk. If generic_sync_sb_inodes would exit with inode_lock locked,
+reiser4_sync_inodes would have to unlock inode_lock after
+generic_sync_sb_inodes and lock it before exit. inode_lock is static for
+fs/inode.c, so, we asked whether it would be possible to have
+spinlocking in generic_sync_sb_inodes.
 
 
--- 
-
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017

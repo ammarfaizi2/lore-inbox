@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261652AbVEMUrl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbVEMUtJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261652AbVEMUrl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 16:47:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262511AbVEMUdR
+	id S261444AbVEMUtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 16:49:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261527AbVEMUr6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 16:33:17 -0400
-Received: from pop.gmx.net ([213.165.64.20]:44775 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262492AbVEMUJw (ORCPT
+	Fri, 13 May 2005 16:47:58 -0400
+Received: from orb.pobox.com ([207.8.226.5]:14277 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S261465AbVEMUrE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 16:09:52 -0400
-X-Authenticated: #20450766
-Date: Fri, 13 May 2005 20:50:18 +0200 (CEST)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-cc: Sander <sander@humilis.net>, David Hollis <dhollis@davehollis.com>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: iSCSI vs. NBD (was Re: ata over ethernet question)
-In-Reply-To: <1115923927.5042.18.camel@mulgrave>
-Message-ID: <Pine.LNX.4.60.0505132040400.8052@poirot.grange>
-References: <1416215015.20050504193114@dns.toxicfilms.tv> 
- <1115236116.7761.19.camel@dhollis-lnx.sunera.com>  <1104082357.20050504231722@dns.toxicfilms.tv>
-  <1115305794.3071.5.camel@dhollis-lnx.sunera.com>  <20050507150538.GA800@favonius>
-  <Pine.LNX.4.60.0505102352430.9008@poirot.grange> <1115923927.5042.18.camel@mulgrave>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Y-GMX-Trusted: 0
+	Fri, 13 May 2005 16:47:04 -0400
+Date: Fri, 13 May 2005 15:46:52 -0500
+From: Nathan Lynch <ntl@pobox.com>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: Paul Jackson <pj@sgi.com>, vatsa@in.ibm.com, dino@in.ibm.com,
+       Simon.Derr@bull.net, lse-tech@lists.sourceforge.net, akpm@osdl.org,
+       nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
+       rusty@rustcorp.com.au
+Subject: Re: [Lse-tech] Re: [PATCH] cpusets+hotplug+preepmt broken
+Message-ID: <20050513204652.GI3614@otto>
+References: <20050511191654.GA3916@in.ibm.com> <20050511195156.GE3614@otto> <20050513123216.GB3968@in.ibm.com> <20050513172540.GA28018@in.ibm.com> <20050513125953.66a59436.pj@sgi.com> <20050513202058.GE5044@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050513202058.GE5044@in.ibm.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 May 2005, James Bottomley wrote:
+> > In particular, in my view, locks should guard data.  What data does
+> > lock_cpu_hotplug() guard?  I propose that it guards cpu_online_map.
+> > 
+> > I recommend considering a different name for this lock.  Perhaps
+> > 'cpu_online_sem', instead of 'cpucontrol'?   And perhaps the
+> > lock_cpu_hotplug() should be renamed, to say 'lock_cpu_online'?
+> 
+> No. CPU hotplug uses two different locking - see both lock_cpu_hotplug()
+> and __stop_machine_run(). Anyone reading cpu_online_map with
+> preemption disabled is safe from cpu hotplug even without taking
+> any lock.
 
-> However, there is room for improvement in nbd, notably the handling of
-> packet commands, which looks to be eminently doable in the current
-> infrastructure (this would basically make nbd a replicator for the linux
-> block system, and would probably necessitate some client side changes to
-> achieve).  If you have any thoughts in this direction, you could drop an
-> email to the maintainer.
+More precisely (I think), reading cpu_online_map with preemption
+disabled guarantees that none of the cpus in the map will go offline
+-- it does not prevent an online operation in progress (but most code
+only cares about the former case).  Also note that __stop_machine_run
+is used only to offline a cpu.
 
-Thanks, James
+The cpucontrol semaphore does not only protect cpu_online_map and
+cpu_present_map, but also serializes cpu hotplug operations, so that
+only one may be in progress at a time.
 
-I'll try to get some (thoughts):-) BTW, who is the maintainer of nbd? No 
-one in MAINTAINERS, in nbd.c only
- * Copyright 1997-2000 Pavel Machek <pavel@ucw.cz>
- * Parts copyright 2001 Steven Whitehouse <steve@chygwyn.com>
-Is it Pavel then?
+I've been mulling over submitting a Documentation/cpuhotplug.txt,
+sounds like there's sufficient demand...
 
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
-
+Nathan

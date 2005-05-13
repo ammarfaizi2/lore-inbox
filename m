@@ -1,84 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262441AbVEMRZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262448AbVEMR2y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262441AbVEMRZK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 13:25:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262449AbVEMRZJ
+	id S262448AbVEMR2y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 13:28:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262456AbVEMR2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 13:25:09 -0400
-Received: from mail.timesys.com ([65.117.135.102]:8766 "EHLO
-	exchange.timesys.com") by vger.kernel.org with ESMTP
-	id S262441AbVEMRYe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 13:24:34 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-X-Mailer: Evolution 2.0.4-3mdk 
-Content-Type: multipart/signed;
-	micalg=pgp-sha1;
-	protocol="application/pgp-signature";
-	boundary="=-xBv0Swrf7GBHO6gatHdB"
-Content-Class: urn:content-classes:message
-Date: Fri, 13 May 2005 13:24:30 -0400
-Subject: [PATCH 2.6.11.7] Swapping OOPS fix for ATA Over Ethernet
-Message-ID: <1116005072.9050.86.camel@jmcmullan.timesys>
-Date: Fri, 13 May 2005 13:18:40 -0400
-MIME-Version: 1.0
-Message-ID: <1116005072.9050.86.camel@jmcmullan.timesys>
-X-Mailer: Evolution 2.0.4-3mdk 
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 2.6.11.7] Swapping OOPS fix for ATA Over Ethernet
-thread-index: AcVX385qITU/sj3HQFafJYsoC0ro8w==
-From: "McMullan, Jason" <jason.mcmullan@timesys.com>
-To: "PPC_LINUX" <linuxppc-embedded@ozlabs.org>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>
+	Fri, 13 May 2005 13:28:53 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:34769 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262448AbVEMRZr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 13:25:47 -0400
+Date: Fri, 13 May 2005 22:55:40 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Dinakar Guniguntala <dino@in.ibm.com>
+Cc: Nathan Lynch <ntl@pobox.com>, Paul Jackson <pj@sgi.com>,
+       Simon.Derr@bull.net, lse-tech@lists.sourceforge.net,
+       Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [Lse-tech] Re: [PATCH] cpusets+hotplug+preepmt broken
+Message-ID: <20050513172540.GA28018@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20050511191654.GA3916@in.ibm.com> <20050511195156.GE3614@otto> <20050513123216.GB3968@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050513123216.GB3968@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, May 13, 2005 at 06:02:17PM +0530, Dinakar Guniguntala wrote:
+> attach_task in cpuset.c is called without holding the hotplug 
+> lock and it is possible to call set_cpus_allowed for a task with no 
+> online cpus. 
 
---=-xBv0Swrf7GBHO6gatHdB
-Content-Type: multipart/mixed; boundary="=-KO/UJfUyoPtCKubXaLRa"
+This in fact was the reason that we added lock_cpu_hotplug in sched_setaffinity.
 
+Also guarantee_online_cpus seems to be accessing cpu_online_map with preemption 
+enabled (& no hotplug lock taken). This is highly not recommended.
 
---=-KO/UJfUyoPtCKubXaLRa
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Given this I think the patch I sent first is the most appropriate
+> patch. 
 
-This patch fixes swapping for devices that do not need to define an
-unplug_io_fn().
+I agree that taking the hotplug lock seems reasonable here.
 
+> In addition we also need to take hotplug lock in the cpusets
+> code whenever we are modifying cpus_allowed of a task. IOW make cpusets 
+> and hotplug operations completly exclusive to each other. The same 
+> applies to memory hotplug code once it gets in.
+> 
+> However on the downside this would mean 
+> 1. A lot of nested locks (mostly in cpuset_common_file_write)
+> 2. Taking of hotplug (cpu now and later memory) locks for operations
+>    that may just be updating a flag
 
---=20
-Jason McMullan <jason.mcmullan@timesys.com>
-TimeSys Corporation
+Given the fact that CPU/Memory hotplug and cpuset operation may
+be infrequent events, this will probably be not a concern. 
 
-
---=-KO/UJfUyoPtCKubXaLRa
-Content-Disposition: attachment; filename=swapping-unplug-oops.patch
-Content-Type: text/x-patch; name=swapping-unplug-oops.patch; charset=ISO-8859-1
-Content-Transfer-Encoding: base64
-
-RGVzY3JpcHRpb246IEZpeCBPT1BTIHdoZW4gc3dhcHBpbmcgb24gYSBkZXZpY2UgdGhhdCBkb2Vz
-bid0IGhhdmUNCglhbiB1bnBsdWdfaW9fZm4gZGVmaW5lZCAoaWUsIEFUQSBPdmVyIEV0aGVybmV0
-KQ0KU2lnbmVkLU9mZi1CeTogSmFzb24gTWNNdWxsYW4gPGphc29uLm1jbXVsbGFuQHRpbWVzeXMu
-Y29tPg0KDQotLS0gbGludXgtb3JpZy9tbS9zd2FwZmlsZS5jDQorKysgbGludXgvbW0vc3dhcGZp
-bGUuYw0KQEAgLTgwLDcgKzgwLDcgQEANCiAJCVdBUk5fT04ocGFnZV9jb3VudChwYWdlKSA8PSAx
-KTsNCiANCiAJCWJkaSA9IGJkZXYtPmJkX2lub2RlLT5pX21hcHBpbmctPmJhY2tpbmdfZGV2X2lu
-Zm87DQotCQliZGktPnVucGx1Z19pb19mbihiZGksIHBhZ2UpOw0KKwkJYmxrX3J1bl9iYWNraW5n
-X2RldihiZGksIHBhZ2UpOw0KIAl9DQogCXVwX3JlYWQoJnN3YXBfdW5wbHVnX3NlbSk7DQogfQ0K
+-- 
 
 
-
---=-KO/UJfUyoPtCKubXaLRa--
-
---=-xBv0Swrf7GBHO6gatHdB
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBChOLO8/0vJ5szK6kRAjEfAJ988G8q55d34Dbr6HCnFBXxcFhtkwCgr5Zb
-mCbHr/HBHUmNaU+qDZJx9oQ=
-=r/Zv
------END PGP SIGNATURE-----
-
---=-xBv0Swrf7GBHO6gatHdB--
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

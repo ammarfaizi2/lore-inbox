@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262342AbVEMLyY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262347AbVEMMEf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262342AbVEMLyY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 07:54:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262344AbVEMLyY
+	id S262347AbVEMMEf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 08:04:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbVEMME1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 07:54:24 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:25501 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262342AbVEMLyT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 07:54:19 -0400
-Date: Fri, 13 May 2005 07:54:16 -0400
-From: John M Flinchbaugh <john@hjsoft.com>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: netdev@oss.sgi.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ipw2100: intrusive cleanups, working this time ;-)
-Message-ID: <20050513115416.GA4914@butterfly.hjsoft.com>
-References: <20050512225026.GA2822@elf.ucw.cz> <200505131136.56641.vda@ilport.com.ua> <20050513094135.GD1780@elf.ucw.cz>
+	Fri, 13 May 2005 08:04:27 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:3998 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262343AbVEMMEX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 08:04:23 -0400
+Date: Fri, 13 May 2005 17:45:20 +0530
+From: Dinakar Guniguntala <dino@in.ibm.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: Nathan Lynch <ntl@pobox.com>, Simon.Derr@bull.net,
+       lse-tech@lists.sourceforge.net, akpm@osdl.org, nickpiggin@yahoo.com.au,
+       vatsa@in.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] Re: [PATCH] cpusets+hotplug+preepmt broken
+Message-ID: <20050513121520.GA3968@in.ibm.com>
+Reply-To: dino@in.ibm.com
+References: <20050511191654.GA3916@in.ibm.com> <20050511195156.GE3614@otto> <20050511134235.5cecf85c.pj@sgi.com> <20050512151048.GA3901@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050513094135.GD1780@elf.ucw.cz>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20050512151048.GA3901@in.ibm.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, May 12, 2005 at 08:40:48PM +0530, Dinakar Guniguntala wrote:
+> 
+> I really havent had a chance to investigate whats going on, should be 
+> able to > do that tomorrow. Here is the patch I tried, my .config and 
+> scripts
 
---ikeVEW9yuYc//A+q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Ok I confirmed that this is a hotplug bug. This problem is hit by turning 
+off cpusets with only hotplug and preempt on. It happens in the latest mm 
+as well (2.6.12-rc4-mm1)
 
-On Fri, May 13, 2005 at 11:41:36AM +0200, Pavel Machek wrote:
-> > Does driver/fw/hw survive prolonged packet flood testing?
-> > I'm asking because so far I never saw 11g hw which does.
-> > I tried prism54 and acx111. Is ipw2000 worth buying?
-> I'm not sure if ipw2100 supports 802.11g....
+I will not be looking into this right now, I can provide details to
+anyone interested
 
-ipw2200 supports g, and is in a different project at
-http://ipw2200.sf.net.  ipw2100 is only b.
---=20
-John M Flinchbaugh
-john@hjsoft.com
-
---ikeVEW9yuYc//A+q
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFChJVoCGPRljI8080RAp+vAJsEzleuvSCG6mUAy39w+f3tT8EmkgCeIlGA
-KjM3cqhHhp8WVMaA9GPEoxo=
-=nhgv
------END PGP SIGNATURE-----
-
---ikeVEW9yuYc//A+q--
+	-Dinakar

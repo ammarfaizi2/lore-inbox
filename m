@@ -1,91 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262196AbVEMAeh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262179AbVEMAno@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262196AbVEMAeh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 20:34:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbVEMAe3
+	id S262179AbVEMAno (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 20:43:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262183AbVEMAno
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 20:34:29 -0400
-Received: from orb.pobox.com ([207.8.226.5]:47827 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S262179AbVEMAeS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 20:34:18 -0400
-Date: Thu, 12 May 2005 19:34:08 -0500
-From: Nathan Lynch <ntl@pobox.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: dino@in.ibm.com, Simon.Derr@bull.net, lse-tech@lists.sourceforge.net,
-       akpm@osdl.org, nickpiggin@yahoo.com.au, vatsa@in.ibm.com,
+	Thu, 12 May 2005 20:43:44 -0400
+Received: from rwcrmhc14.comcast.net ([216.148.227.89]:17029 "EHLO
+	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S262179AbVEMAnm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 20:43:42 -0400
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: george@mvista.com
+Subject: Re: [RFC] (How to) Let idle CPUs sleep
+Date: Thu, 12 May 2005 17:43:46 -0700
+User-Agent: KMail/1.8
+Cc: Jesse Barnes <jesse.barnes@intel.com>, vatsa@in.ibm.com,
+       Tony Lindgren <tony@atomide.com>, Lee Revell <rlrevell@joe-job.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, schwidefsky@de.ibm.com,
+       jdike@addtoit.com, Ingo Molnar <mingo@elte.hu>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cpusets+hotplug+preepmt broken
-Message-ID: <20050513003408.GG3614@otto>
-References: <20050511191654.GA3916@in.ibm.com> <20050511195156.GE3614@otto> <20050511134235.5cecf85c.pj@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <20050507182728.GA29592@in.ibm.com> <200505121435.01011.jesse.barnes@intel.com> <4283D581.9070008@mvista.com>
+In-Reply-To: <4283D581.9070008@mvista.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050511134235.5cecf85c.pj@sgi.com>
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200505121743.46313.jbarnes@virtuousgeek.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson wrote:
-> 
-> I share you preference for not nesting these semaphores.
-> 
-> The other choice I am aware of would be for the hotplug code to be less
-> cpuset-friendly.  In the move_task_off_dead_cpu() code, at the point it
-> says "No more Mr. Nice Guy", instead of looking for the nearest
-> enclosing cpuset that has something online, which is what the
-> cpuset_cpus_allowed() does, instead we could just take any damn cpu that
-> was online.
-> 
-> Something along the lines of the following fix:
-> 
-> --- pj/kernel.old/sched.c	2005-05-11 13:00:17.000000000 -0700
-> +++ pj/kernel.new/sched.c	2005-05-11 13:02:24.000000000 -0700
-> @@ -4229,7 +4229,7 @@ static void move_task_off_dead_cpu(int d
->  
->  	/* No more Mr. Nice Guy. */
->  	if (dest_cpu == NR_CPUS) {
-> -		tsk->cpus_allowed = cpuset_cpus_allowed(tsk);
-> +		tsk->cpus_allowed = cpu_online_map;
->  		dest_cpu = any_online_cpu(tsk->cpus_allowed);
+On Thursday, May 12, 2005 3:15 pm, George Anzinger wrote:
+> The timers that cause the problem are the ones that only run when the
+> task is active.  These are the slice timer, the profile timer
+> (ITIMER_PROF), the execution limit timer and the settime timer that
+> is relative to execution time (ITIMER_VIRTUAL).
 
-Well, CPU_MASK_ALL rather than cpu_online_map, I would think.  That is
-what the behavior was before the cpuset merge, anyway.  It might be
-the best short term solution, more below...
+ITIMER_PROF could simply be ignored if the task it corresponds to isn't 
+active when it fires, so it wouldn't incur any overhead.  
+ITIMER_VIRTUAL sounds like it would uglify things though, and of course 
+unused timer slice interrupts would have to be cleared out.
 
-> So what we'd really like to do would be to first fallback to all the
-> cpus allowed in the specified tasks cpuset (no walking the cpuset
-> hierarchy), and see if any of those cpus are still online to receive
-> this orphan task.  Unless someone has botched the system configuration,
-> and taken offline all the cpus in a cpuset, this should yield up a cpu
-> that is still both allowed and online.  If that fails, then to heck with
-> honoring cpuset placement - just take the first online cpu we can find.
-> 
-> This is doable without holding cpuset_sem.  We can look at a current
-> tasks cpuset without cpuset_sem, just with the task lock.
+> Again, we can colapse all these to one, but still it needs to be
+> setup when the task is switched to and removed when it is switched
+> away.
 
-Yes, but your patch doesn't lock the task itself (unless I'm
-misreading patches again).  However, have a look at the comments above
-task_lock in sched.h:
+Right, I see what you're saying now.  It's not as simple as I had hoped.
 
-/*
- * Protects ->fs, ->files, ->mm, ->ptrace, ->group_info, ->comm, keyring
- * subscriptions and synchronises with wait4().  Also used in procfs.
- *
- * Nests both inside and outside of read_lock(&tasklist_lock).
- * It must not be nested with write_lock_irq(&tasklist_lock),
- * neither inside nor outside.
- */
-static inline void task_lock(struct task_struct *p)
-{
-        spin_lock(&p->alloc_lock);
-}
+> Timers that run on system time (ITIMER_REAL) stay in the list even
+> when the task is inactive.
 
+Right, they'll cause the task they're associated with to become runnable 
+again, or get a signal, or whatever.
 
-Unfortunately, move_task_off_dead_cpu is called from
-migrate_live_tasks while the latter has a write_lock_irq on
-tasklist_lock.  So we can't use task_lock in this context, assuming
-the comments are valid.  Right?
+> I think there is already an IPI to tell another cpu that it has work.
+>  That should be enough.  Need to check, however.  From the VST point
+> of view, any interrupt wake the cpu from the VST sleep, so it need
+> not even target the scheduler..
 
+But in this case you probably want it to, so it can rebalance tasks to 
+the CPU that just woke up.
 
-Nathan
+Jesse

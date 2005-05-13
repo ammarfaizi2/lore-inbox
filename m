@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262534AbVEMUel@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261558AbVEMUrk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262534AbVEMUel (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 16:34:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262533AbVEMUeC
+	id S261558AbVEMUrk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 16:47:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262503AbVEMUdk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 16:34:02 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:25063 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262534AbVEMUWm (ORCPT
+	Fri, 13 May 2005 16:33:40 -0400
+Received: from mail.uni-ulm.de ([134.60.1.1]:15611 "EHLO mail.uni-ulm.de")
+	by vger.kernel.org with ESMTP id S262526AbVEMURO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 16:22:42 -0400
-Date: Sat, 14 May 2005 01:50:59 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: vatsa@in.ibm.com, dino@in.ibm.com, ntl@pobox.com, Simon.Derr@bull.net,
-       lse-tech@lists.sourceforge.net, akpm@osdl.org, nickpiggin@yahoo.com.au,
-       linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Subject: Re: [Lse-tech] Re: [PATCH] cpusets+hotplug+preepmt broken
-Message-ID: <20050513202058.GE5044@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20050511191654.GA3916@in.ibm.com> <20050511195156.GE3614@otto> <20050513123216.GB3968@in.ibm.com> <20050513172540.GA28018@in.ibm.com> <20050513125953.66a59436.pj@sgi.com>
+	Fri, 13 May 2005 16:17:14 -0400
+Date: Fri, 13 May 2005 22:18:15 +0200
+From: Markus Klotzbuecher <mk@creamnet.de>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] mini_fo-0.6.0 overlay file system
+Message-ID: <20050513201814.GA8208@mary>
+Mail-Followup-To: Kyle Moffett <mrmacman_g4@mac.com>,
+	=?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+	linux-kernel@vger.kernel.org
+References: <20050509183135.GB27743@mary> <20050512121842.GA20388@wohnheim.fh-wedel.de> <20050512164413.GA14099@mary> <2F200E69-465D-46ED-9D3A-5ED5C9FEAC9A@mac.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050513125953.66a59436.pj@sgi.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <2F200E69-465D-46ED-9D3A-5ED5C9FEAC9A@mac.com>
+User-Agent: Mutt/1.5.8i
+X-DCC-sgs_public_dcc_server-Metrics: gemini 1199; Body=3 Fuz1=3 Fuz2=3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 13, 2005 at 12:59:53PM -0700, Paul Jackson wrote:
-> Srivatsa, replying to Dinakar:
-> > This in fact was the reason that we added lock_cpu_hotplug
-> > in sched_setaffinity.
-> 
-> We do need to be clear about how these locks work, their semantics, what
-> they require and what they insure, and their various interactions.
-> 
-> This is not easy stuff to get right.
-> 
-> I notice that the documentation for lock_cpu_hotplug() is a tad on
-> the skimpy side:
-> 
-> 	/* Stop CPUs going up and down. */
-> 
-> That's it, so far as I can see.  Interaction of hotplug locking with
-> the rest of the kernel has been, is now, and will continue to be, a
-> difficult area.  More care than this needs to be put into explaining
-> the use, semantics and interactions of any locking involved.
-> 
-> In particular, in my view, locks should guard data.  What data does
-> lock_cpu_hotplug() guard?  I propose that it guards cpu_online_map.
-> 
-> I recommend considering a different name for this lock.  Perhaps
-> 'cpu_online_sem', instead of 'cpucontrol'?   And perhaps the
-> lock_cpu_hotplug() should be renamed, to say 'lock_cpu_online'?
+On Thu, May 12, 2005 at 11:18:36PM -0400, Kyle Moffett wrote:
 
-No. CPU hotplug uses two different locking - see both lock_cpu_hotplug()
-and __stop_machine_run(). Anyone reading cpu_online_map with
-preemption disabled is safe from cpu hotplug even without taking
-any lock.
+> 2) When forced to copy data, the copy should be done in the context of
+> whatever process is doing the "write" operation, and be interruptible,
+> etc.  The end result is that if you union an nfs mount over another one,
+> it will just seem like a write to a big file takes a _really_ long time
+> to complete.
 
-Thanks
-Dipankar
+This is what happens with mini_fo, provided your kernel is preemptive.
+
+> 3) ext2/3 should get an extra flag for files and directories that
+> indicates nonresidence.  This would be used by the VFS union layer to
+[...]
+
+I like the idea of copying modified data on a per block basis. This
+really would avoid unnecessary long copy operations and potentially
+save a lot of storage. But I think a unifying layer should not rely on
+specialities such as sparse files or flags provided by the lower layer
+file systems.
+
+Markus

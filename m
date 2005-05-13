@@ -1,74 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262275AbVEMXNb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262438AbVEMXNa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262275AbVEMXNb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 19:13:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262615AbVEMXMB
+	id S262438AbVEMXNa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 19:13:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262275AbVEMXM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 19:12:01 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:3804 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262452AbVEMXLH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 19:11:07 -0400
-In-Reply-To: <E1DWVby-0000zz-00@dorka.pomaz.szeredi.hu>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: bulb@ucw.cz, ericvh@gmail.com, hch@infradead.org,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       smfrench@austin.rr.com
+	Fri, 13 May 2005 19:12:27 -0400
+Received: from warden2-p.diginsite.com ([209.195.52.120]:29152 "HELO
+	warden2.diginsite.com") by vger.kernel.org with SMTP
+	id S262394AbVEMXLp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 19:11:45 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Valdis.Kletnieks@vt.edu
+Cc: Chris Friesen <cfriesen@nortel.com>, Bill Davidsen <davidsen@tmr.com>,
+       linux-os@analogic.com, "Srinivas G." <srinivasg@esntechnologies.co.in>,
+       linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
+Date: Fri, 13 May 2005 16:10:17 -0700 (PDT)
+X-X-Sender: dlang@dlang.diginsite.com
+Subject: Re: Y2K-like bug to hit Linux computers! - Info of the day 
+In-Reply-To: <200505132122.j4DLMRdU027493@turing-police.cc.vt.edu>
+Message-ID: <Pine.LNX.4.62.0505131608450.26744@qynat.qvtvafvgr.pbz>
+References: <4EE0CBA31942E547B99B3D4BFAB348114BED13@mail.esn.co.in>
+ <200505131522.32403.vda@ilport.com.ua> <Pine.LNX.4.61.0505130825310.4428@chaos.analogic.com>
+ <Pine.LNX.4.61.0505130837390.4781@chaos.analogic.com> <42850FC7.7010603@tmr.com>
+ <200505132047.j4DKlcgV025923@turing-police.cc.vt.edu><428516F8.20100@nortel.com>
+ <200505132122.j4DLMRdU027493@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-Subject: Re: [RCF] [PATCH] unprivileged mount/umount
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OF61E069CA.D46E38EE-ON88257000.00738E9B-88257000.007F4E51@us.ibm.com>
-From: Bryan Henderson <hbryan@us.ibm.com>
-Date: Fri, 13 May 2005 16:09:59 -0700
-X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Build V70_04122005|April 12, 2005) at
- 05/13/2005 19:11:02,
-	Serialize complete at 05/13/2005 19:11:02
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->For ptrace the definition is:
->     If the tracee has different privileges, than the tracer, than it
->     can't be traced.
-> For this definition, the check is not a hack. It's the only way to go.
+On Fri, 13 May 2005 Valdis.Kletnieks@vt.edu wrote:
 
-I agree this is the proper goal for ptrace and this code is not a hack. 
-It's a bug.  In Linux, uid, euid, suid, gid, egid, and sgid do not by 
-themselves determine privileges.  And that's what ptrace checks.  The main 
-determiner of basic privileges is the process capabilities.  The euid, 
-etc. do also.   I have frequently have on my system a process that runs 
-with the same uid, euid, etc. as some other process, but should not be 
-allowed to ptrace it because the tracee has CAP_DAC_OVERRIDE (the 
-privilege to access files in spite of file permissions) and the tracer 
-does not.  (Furthermore, the tracee got that privilege courtesy of a 
-set-uid file, but as we seem to agree, that is not relevant here).
+> Date: Fri, 13 May 2005 17:22:27 -0400
+> From: Valdis.Kletnieks@vt.edu
+> To: Chris Friesen <cfriesen@nortel.com>
+> Cc: Bill Davidsen <davidsen@tmr.com>, linux-os@analogic.com,
+>     Srinivas G. <srinivasg@esntechnologies.co.in>,
+>     linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
+> Subject: Re: Y2K-like bug to hit Linux computers! - Info of the day 
+> 
+> On Fri, 13 May 2005 15:07:04 MDT, Chris Friesen said:
+>
+>> Because that's what the maximum negative number gives?
+>
+> Good, somebody's paying attention.   :)
+>
+> So what breaks if we change it to an 'unsigned int', and can we fix those
+> issues before 2038, and will any of us here now *care* when an unsigned 32-bit
+> overflows in 2106 or whenever it is? :)
 
-So as with the user space programs I mentioned (where the euid check is 
-indeed a hack), I have to fix ptrace too.  Fortunately, it looks as simple 
-as comparing capability sets.
+all values that are currently prior to Jan 1 1970 would become post 2038 
+dates
 
-> Now this definition is really what is needed for the filesystem case
-> too, so I think it's not a hack either. 
+Guys, this isn't a new problem, it was discussed quite a bit in 1999 as 
+well, as were a lot of potential solutions.
 
-Maybe I got lost in the problem we were trying to solve, then.  What does 
-comparing the privileges of one process with those of another have to do 
-with this thread about making safe unprivileged mounts via namespaces? The 
-post to which I replied said we have to deal with set-uid programs. Aren't 
-we talking about the problem where someone sets a file's setuid flag on 
-with the assumption that when the program within runs, it will see certain 
-files at certain places?  And the fact that if one could mount whatever he 
-wants, that would violate the assumption?  The two ways suggested of 
-handling that are: 1) after the private mount, ignore all setuid flags. 2) 
-after the private mount, don't let a program that has gained privileges 
-via set-uid see the user-made names.
-
-My point is still that (2) can't be done because you can't know that a 
-program has gained privileged via set-uid.
-
-If it's really not about set-uid, but about ptrace-like privilege 
-borrowing, please enlighten me.
-
---
-Bryan Henderson                          IBM Almaden Research Center
-San Jose CA                              Filesystems
-
+David Lang
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare

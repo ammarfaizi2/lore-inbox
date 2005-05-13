@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262537AbVEMUOy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262522AbVEMUTU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262537AbVEMUOy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 16:14:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262530AbVEMUO0
+	id S262522AbVEMUTU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 16:19:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262533AbVEMUTT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 16:14:26 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:58610 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262526AbVEMUAV
+	Fri, 13 May 2005 16:19:19 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:60380 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262522AbVEMUAU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 16:00:21 -0400
+	Fri, 13 May 2005 16:00:20 -0400
 From: Arnd Bergmann <arnd@arndb.de>
 To: linuxppc64-dev@ozlabs.org
-Subject: [PATCH 6/8] ppc64: Add driver for BPA iommu
-Date: Fri, 13 May 2005 21:27:49 +0200
+Subject: [PATCH 5/8] ppc64: Add driver for BPA interrupt controllers
+Date: Fri, 13 May 2005 21:26:20 +0200
 User-Agent: KMail/1.7.2
 Cc: linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>,
        Anton Blanchard <anton@samba.org>,
@@ -24,517 +24,790 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200505132127.51070.arnd@arndb.de>
+Message-Id: <200505132126.21571.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Implementation of software load support for the BE iommu. This is very
-different from other iommu code on ppc64, since we only do a static mapping.
-The mapping is currently hardcoded but should really be read from the
-firmware, but they don't set up the device nodes yet. There is a single
-512MB DMA window for PCI, USB and ethernet at 0x20000000 for our RAM.
+Add support for the integrated interrupt controller on BPA
+CPUs. There is one of those for each SMT thread.
 
-The Cell processor can put the I/O page table either in memory like
-the hashed page table (hardware load) or have the operating system
-write the entries into memory mapped CPU registers (software load).
+The mapping of interrupt numbers to HW interrupt sources
+is described in arch/ppc64/kernel/bpa_iic.h.
 
-I use the software load mechanism because I know that all I/O page
-table entries for the amount of installed physical memory fit into
-the IO TLB cache. At the point when we get machines with more than
-4GB of installed memory, we can either use hardware I/O page table
-access like the other platforms do or dynamically update the I/O
-TLB entries when a page fault occurs in the I/O subsystem.
+This version hardcodes the 'Spider' chip as the secondary
+interrupt controller. That is not really generic for the
+architecture, but at the moment it is the only secondary
+PIC that exists.
 
-The software load can then use the macros that I have implemented
-for the static mapping in order to do the TLB cache updates.
+A little more work will be needed on this as soon as
+we have boards with multiple external interrupt controllers.
 
 Signed-off-by: Arnd Bergmann <arndb@de.ibm.com>
 
+Index: linus-2.5/arch/ppc64/Kconfig
+===================================================================
+--- linus-2.5.orig/arch/ppc64/Kconfig	2005-04-22 06:59:52.000000000 +0200
++++ linus-2.5/arch/ppc64/Kconfig	2005-04-22 06:59:58.000000000 +0200
+@@ -106,6 +106,21 @@
+ 	bool
+ 	default y
+ 
++config XICS
++	depends on PPC_PSERIES
++	bool
++	default y
++
++config MPIC
++	depends on PPC_PSERIES || PPC_PMAC || PPC_MAPLE
++	bool
++	default y
++
++config BPA_IIC
++	depends on PPC_BPA
++	bool
++	default y
++
+ # VMX is pSeries only for now until somebody writes the iSeries
+ # exception vectors for it
+ config ALTIVEC
 Index: linus-2.5/arch/ppc64/kernel/Makefile
 ===================================================================
---- linus-2.5.orig/arch/ppc64/kernel/Makefile	2005-04-22 07:01:07.000000000 +0200
-+++ linus-2.5/arch/ppc64/kernel/Makefile	2005-04-29 10:01:44.000000000 +0200
-@@ -34,7 +34,8 @@
- 			     pSeries_nvram.o rtasd.o ras.o pSeries_reconfig.o \
- 			     pSeries_setup.o pSeries_iommu.o
+--- linus-2.5.orig/arch/ppc64/kernel/Makefile	2005-04-22 06:59:52.000000000 +0200
++++ linus-2.5/arch/ppc64/kernel/Makefile	2005-04-22 07:01:07.000000000 +0200
+@@ -28,13 +28,13 @@
+ 			     mf.o HvLpEvent.o iSeries_proc.o iSeries_htab.o \
+ 			     iSeries_iommu.o
  
--obj-$(CONFIG_PPC_BPA) += bpa_setup.o bpa_nvram.o bpa_iic.o spider-pic.o
-+obj-$(CONFIG_PPC_BPA) += bpa_setup.o bpa_iommu.o bpa_nvram.o \
-+			 bpa_iic.o spider-pic.o
+-obj-$(CONFIG_PPC_MULTIPLATFORM) += nvram.o i8259.o prom_init.o prom.o mpic.o
++obj-$(CONFIG_PPC_MULTIPLATFORM) += nvram.o i8259.o prom_init.o prom.o
+ 
+ obj-$(CONFIG_PPC_PSERIES) += pSeries_pci.o pSeries_lpar.o pSeries_hvCall.o \
+ 			     pSeries_nvram.o rtasd.o ras.o pSeries_reconfig.o \
+-			     xics.o pSeries_setup.o pSeries_iommu.o
++			     pSeries_setup.o pSeries_iommu.o
+ 
+-obj-$(CONFIG_PPC_BPA) += bpa_setup.o bpa_nvram.o
++obj-$(CONFIG_PPC_BPA) += bpa_setup.o bpa_nvram.o bpa_iic.o spider-pic.o
  
  obj-$(CONFIG_EEH)		+= eeh.o
  obj-$(CONFIG_PROC_FS)		+= proc_ppc64.o
-Index: linus-2.5/arch/ppc64/kernel/bpa_iommu.c
+@@ -50,6 +50,8 @@
+ obj-$(CONFIG_BOOTX_TEXT)	+= btext.o
+ obj-$(CONFIG_HVCS)		+= hvcserver.o
+ obj-$(CONFIG_IBMVIO)		+= vio.o
++obj-$(CONFIG_XICS)		+= xics.o
++obj-$(CONFIG_MPIC)		+= mpic.o
+ 
+ obj-$(CONFIG_PPC_PMAC)		+= pmac_setup.o pmac_feature.o pmac_pci.o \
+ 				   pmac_time.o pmac_nvram.o pmac_low_i2c.o
+Index: linus-2.5/arch/ppc64/kernel/bpa_iic.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linus-2.5/arch/ppc64/kernel/bpa_iommu.c	2005-04-29 10:24:03.000000000 +0200
-@@ -0,0 +1,377 @@
++++ linus-2.5/arch/ppc64/kernel/bpa_iic.c	2005-04-22 06:59:58.000000000 +0200
+@@ -0,0 +1,270 @@
 +/*
-+ * IOMMU implementation for Broadband Processor Architecture
-+ * We just establish a linear mapping at boot by setting all the
-+ * IOPT cache entries in the CPU.
-+ * The mapping functions should be identical to pci_direct_iommu, 
-+ * except for the handling of the high order bit that is required
-+ * by the Spider bridge. These should be split into a separate
-+ * file at the point where we get a different bridge chip.
++ * BPA Internal Interrupt Controller
 + *
-+ * Copyright (C) 2005 IBM Deutschland Entwicklung GmbH,
-+ *			 Arnd Bergmann <arndb@de.ibm.com>
++ * (C) Copyright IBM Deutschland Entwicklung GmbH 2005
 + *
-+ * Based on linear mapping
-+ * Copyright (C) 2003 Benjamin Herrenschmidt (benh@kernel.crashing.org)
++ * Author: Arnd Bergmann <arndb@de.ibm.com>
 + *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2, or (at your option)
++ * any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 + */
 +
-+#undef DEBUG
++#include <linux/config.h>
++#include <linux/interrupt.h>
++#include <linux/irq.h>
++#include <linux/percpu.h>
++#include <linux/types.h>
 +
-+#include <linux/kernel.h>
-+#include <linux/pci.h>
-+#include <linux/delay.h>
-+#include <linux/string.h>
-+#include <linux/init.h>
-+#include <linux/bootmem.h>
-+#include <linux/mm.h>
-+#include <linux/dma-mapping.h>
-+
-+#include <asm/sections.h>
-+#include <asm/iommu.h>
 +#include <asm/io.h>
++#include <asm/pgtable.h>
 +#include <asm/prom.h>
-+#include <asm/pci-bridge.h>
-+#include <asm/machdep.h>
-+#include <asm/pmac_feature.h>
-+#include <asm/abs_addr.h>
-+#include <asm/system.h>
++#include <asm/ptrace.h>
 +
-+#include "pci.h"
-+#include "bpa_iommu.h"
++#include "bpa_iic.h"
 +
-+static inline unsigned long 
-+get_iopt_entry(unsigned long real_address, unsigned long ioid,
-+			 unsigned long prot)
-+{
-+	return (prot & IOPT_PROT_MASK)
-+	     | (IOPT_COHERENT)
-+	     | (IOPT_ORDER_VC)
-+	     | (real_address & IOPT_RPN_MASK)
-+	     | (ioid & IOPT_IOID_MASK);
-+}
-+
-+typedef struct {
-+	unsigned long val;
-+} ioste;
-+
-+static inline ioste
-+mk_ioste(unsigned long val)
-+{
-+	ioste ioste = { .val = val, };
-+	return ioste;
-+}
-+
-+static inline ioste
-+get_iost_entry(unsigned long iopt_base, unsigned long io_address, unsigned page_size)
-+{
-+	unsigned long ps;
-+	unsigned long iostep;
-+	unsigned long nnpt;
-+	unsigned long shift;
-+
-+	switch (page_size) {
-+	case 0x1000000:
-+		ps = IOST_PS_16M;
-+		nnpt = 0;  /* one page per segment */
-+		shift = 5; /* segment has 16 iopt entries */
-+		break;
-+
-+	case 0x100000:
-+		ps = IOST_PS_1M;
-+		nnpt = 0;  /* one page per segment */
-+		shift = 1; /* segment has 256 iopt entries */
-+		break;
-+
-+	case 0x10000:
-+		ps = IOST_PS_64K;
-+		nnpt = 0x07; /* 8 pages per io page table */
-+		shift = 0;   /* all entries are used */
-+		break;
-+
-+	case 0x1000:
-+		ps = IOST_PS_4K;
-+		nnpt = 0x7f; /* 128 pages per io page table */
-+		shift = 0;   /* all entries are used */
-+		break;
-+
-+	default: /* not a known compile time constant */
-+		BUILD_BUG_ON(1);
-+		break;
-+	}
-+
-+	iostep = iopt_base +
-+			 /* need 8 bytes per iopte */
-+			(((io_address / page_size * 8)
-+			 /* align io page tables on 4k page boundaries */
-+				 << shift) 
-+			 /* nnpt+1 pages go into each iopt */
-+				 & ~(nnpt << 12));
-+
-+	nnpt++; /* this seems to work, but the documentation is not clear
-+		   about wether we put nnpt or nnpt-1 into the ioste bits.
-+		   In theory, this can't work for 4k pages. */
-+	return mk_ioste(IOST_VALID_MASK
-+			| (iostep & IOST_PT_BASE_MASK)
-+			| ((nnpt << 5) & IOST_NNPT_MASK)
-+			| (ps & IOST_PS_MASK));
-+}
-+
-+/* compute the address of an io pte */
-+static inline unsigned long
-+get_ioptep(ioste iost_entry, unsigned long io_address)
-+{
-+	unsigned long iopt_base;
-+	unsigned long page_size;
-+	unsigned long page_number;
-+	unsigned long iopt_offset;
-+
-+	iopt_base = iost_entry.val & IOST_PT_BASE_MASK;
-+	page_size = iost_entry.val & IOST_PS_MASK;
-+
-+	/* decode page size to compute page number */
-+	page_number = (io_address & 0x0fffffff) >> (10 + 2 * page_size);
-+	/* page number is an offset into the io page table */
-+	iopt_offset = (page_number << 3) & 0x7fff8ul;
-+	return iopt_base + iopt_offset;
-+}
-+
-+/* compute the tag field of the iopt cache entry */
-+static inline unsigned long
-+get_ioc_tag(ioste iost_entry, unsigned long io_address)
-+{
-+	unsigned long iopte = get_ioptep(iost_entry, io_address);
-+
-+	return IOPT_VALID_MASK
-+	     | ((iopte & 0x00000000000000ff8ul) >> 3)
-+	     | ((iopte & 0x0000003fffffc0000ul) >> 9);
-+}
-+
-+/* compute the hashed 6 bit index for the 4-way associative pte cache */
-+static inline unsigned long
-+get_ioc_hash(ioste iost_entry, unsigned long io_address)
-+{
-+	unsigned long iopte = get_ioptep(iost_entry, io_address);
-+
-+	return ((iopte & 0x000000000000001f8ul) >> 3)
-+	     ^ ((iopte & 0x00000000000020000ul) >> 17)
-+	     ^ ((iopte & 0x00000000000010000ul) >> 15)
-+	     ^ ((iopte & 0x00000000000008000ul) >> 13)
-+	     ^ ((iopte & 0x00000000000004000ul) >> 11)
-+	     ^ ((iopte & 0x00000000000002000ul) >> 9)
-+	     ^ ((iopte & 0x00000000000001000ul) >> 7);
-+}
-+
-+/* same as above, but pretend that we have a simpler 1-way associative
-+   pte cache with an 8 bit index */
-+static inline unsigned long
-+get_ioc_hash_1way(ioste iost_entry, unsigned long io_address)
-+{
-+	unsigned long iopte = get_ioptep(iost_entry, io_address);
-+
-+	return ((iopte & 0x000000000000001f8ul) >> 3)
-+	     ^ ((iopte & 0x00000000000020000ul) >> 17)
-+	     ^ ((iopte & 0x00000000000010000ul) >> 15)
-+	     ^ ((iopte & 0x00000000000008000ul) >> 13)
-+	     ^ ((iopte & 0x00000000000004000ul) >> 11)
-+	     ^ ((iopte & 0x00000000000002000ul) >> 9)
-+	     ^ ((iopte & 0x00000000000001000ul) >> 7)
-+	     ^ ((iopte & 0x0000000000000c000ul) >> 8);
-+}
-+
-+static inline ioste
-+get_iost_cache(void __iomem *base, unsigned long index)
-+{
-+	unsigned long __iomem *p = (base + IOC_ST_CACHE_DIR);
-+	return mk_ioste(in_be64(&p[index]));
-+}
-+
-+static inline void
-+set_iost_cache(void __iomem *base, unsigned long index, ioste ste)
-+{
-+	unsigned long __iomem *p = (base + IOC_ST_CACHE_DIR);
-+	pr_debug("ioste %02lx was %016lx, store %016lx", index,
-+			get_iost_cache(base, index).val, ste.val);
-+	out_be64(&p[index], ste.val);
-+	pr_debug(" now %016lx\n", get_iost_cache(base, index).val);
-+}
-+
-+static inline unsigned long
-+get_iopt_cache(void __iomem *base, unsigned long index, unsigned long *tag)
-+{
-+	unsigned long __iomem *tags = (void *)(base + IOC_PT_CACHE_DIR);
-+	unsigned long __iomem *p = (void *)(base + IOC_PT_CACHE_REG);	
-+
-+	*tag = tags[index];
-+	rmb();
-+	return *p;
-+}
-+
-+static inline void
-+set_iopt_cache(void __iomem *base, unsigned long index,
-+		 unsigned long tag, unsigned long val)
-+{
-+	unsigned long __iomem *tags = base + IOC_PT_CACHE_DIR;
-+	unsigned long __iomem *p = base + IOC_PT_CACHE_REG;
-+	pr_debug("iopt %02lx was v%016lx/t%016lx, store v%016lx/t%016lx\n",
-+		index, get_iopt_cache(base, index, &oldtag), oldtag, val, tag);
-+
-+	out_be64(p, val);
-+	out_be64(&tags[index], tag);
-+}
-+
-+static inline void
-+set_iost_origin(void __iomem *base)
-+{
-+	unsigned long __iomem *p = base + IOC_ST_ORIGIN;
-+	unsigned long origin = IOSTO_ENABLE | IOSTO_SW;
-+
-+	pr_debug("iost_origin %016lx, now %016lx\n", in_be64(p), origin);
-+	out_be64(p, origin);
-+}
-+
-+static inline void
-+set_iocmd_config(void __iomem *base)
-+{
-+	unsigned long __iomem *p = base + 0xc00;
-+	unsigned long conf;
-+
-+	conf = in_be64(p);
-+	pr_debug("iost_conf %016lx, now %016lx\n", conf, conf | IOCMD_CONF_TE);
-+	out_be64(p, conf | IOCMD_CONF_TE);
-+}
-+
-+/* FIXME: get these from the device tree */
-+#define ioc_base	0x20000511000ull
-+#define ioc_mmio_base	0x20000510000ull
-+#define ioid		0x48a
-+#define iopt_phys_offset (- 0x20000000) /* We have a 512MB offset from the SB */
-+#define io_page_size	0x1000000
-+
-+static unsigned long map_iopt_entry(unsigned long address)
-+{
-+	switch (address >> 20) {
-+	case 0x600:
-+		address = 0x24020000000ull; /* spider i/o */
-+		break;
-+	default:
-+		address += iopt_phys_offset;
-+		break;
-+	}
-+
-+	return get_iopt_entry(address, ioid, IOPT_PROT_RW);
-+}
-+
-+static void iommu_bus_setup_null(struct pci_bus *b) { }
-+static void iommu_dev_setup_null(struct pci_dev *d) { }
-+
-+/* initialize the iommu to support a simple linear mapping
-+ * for each DMA window used by any device. For now, we
-+ * happen to know that there is only one DMA window in use,
-+ * starting at iopt_phys_offset. */
-+static void bpa_map_iommu(void)
-+{
-+	unsigned long address;
-+	void __iomem *base;
-+	ioste ioste;
-+	unsigned long index;
-+
-+	base = __ioremap(ioc_base, 0x1000, _PAGE_NO_CACHE);
-+	pr_debug("%lx mapped to %p\n", ioc_base, base);
-+	set_iocmd_config(base);
-+	iounmap(base);
-+
-+	base = __ioremap(ioc_mmio_base, 0x1000, _PAGE_NO_CACHE);
-+	pr_debug("%lx mapped to %p\n", ioc_mmio_base, base);
-+
-+	set_iost_origin(base);
-+
-+	for (address = 0; address < 0x100000000ul; address += io_page_size) {
-+		ioste = get_iost_entry(0x10000000000ul, address, io_page_size);
-+		if ((address & 0xfffffff) == 0) /* segment start */
-+			set_iost_cache(base, address >> 28, ioste);
-+		index = get_ioc_hash_1way(ioste, address);
-+		pr_debug("addr %08lx, index %02lx, ioste %016lx\n",
-+					 address, index, ioste.val);
-+		set_iopt_cache(base,
-+			get_ioc_hash_1way(ioste, address),
-+			get_ioc_tag(ioste, address),
-+			map_iopt_entry(address));
-+	}
-+	iounmap(base);
-+}
-+
-+
-+static void *bpa_alloc_coherent(struct device *hwdev, size_t size,
-+			   dma_addr_t *dma_handle, unsigned int __nocast flag)
-+{
-+	void *ret;
-+
-+	ret = (void *)__get_free_pages(flag, get_order(size));
-+	if (ret != NULL) {
-+		memset(ret, 0, size);
-+		*dma_handle = virt_to_abs(ret) | BPA_DMA_VALID;
-+	}
-+	return ret;
-+}
-+
-+static void bpa_free_coherent(struct device *hwdev, size_t size,
-+				 void *vaddr, dma_addr_t dma_handle)
-+{
-+	free_pages((unsigned long)vaddr, get_order(size));
-+}
-+
-+static dma_addr_t bpa_map_single(struct device *hwdev, void *ptr,
-+		size_t size, enum dma_data_direction direction)
-+{
-+	return virt_to_abs(ptr) | BPA_DMA_VALID;
-+}
-+
-+static void bpa_unmap_single(struct device *hwdev, dma_addr_t dma_addr,
-+		size_t size, enum dma_data_direction direction)
-+{
-+}
-+
-+static int bpa_map_sg(struct device *hwdev, struct scatterlist *sg,
-+		int nents, enum dma_data_direction direction)
-+{
-+	int i;
-+
-+	for (i = 0; i < nents; i++, sg++) {
-+		sg->dma_address = (page_to_phys(sg->page) + sg->offset)
-+					| BPA_DMA_VALID;
-+		sg->dma_length = sg->length;
-+	}
-+
-+	return nents;
-+}
-+
-+static void bpa_unmap_sg(struct device *hwdev, struct scatterlist *sg,
-+		int nents, enum dma_data_direction direction)
-+{
-+}
-+
-+static int bpa_dma_supported(struct device *dev, u64 mask)
-+{
-+	return mask < 0x100000000ull;
-+}
-+
-+void bpa_init_iommu(void)
-+{
-+	bpa_map_iommu();
-+
-+	/* Direct I/O, IOMMU off */
-+	ppc_md.iommu_dev_setup = iommu_dev_setup_null;
-+	ppc_md.iommu_bus_setup = iommu_bus_setup_null;
-+
-+	pci_dma_ops.alloc_coherent = bpa_alloc_coherent;
-+	pci_dma_ops.free_coherent = bpa_free_coherent;
-+	pci_dma_ops.map_single = bpa_map_single;
-+	pci_dma_ops.unmap_single = bpa_unmap_single;
-+	pci_dma_ops.map_sg = bpa_map_sg;
-+	pci_dma_ops.unmap_sg = bpa_unmap_sg;
-+	pci_dma_ops.dma_supported = bpa_dma_supported;
-+}
-Index: linus-2.5/arch/ppc64/kernel/bpa_iommu.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linus-2.5/arch/ppc64/kernel/bpa_iommu.h	2005-04-29 09:47:29.000000000 +0200
-@@ -0,0 +1,65 @@
-+#ifndef BPA_IOMMU_H
-+#define BPA_IOMMU_H
-+
-+/* some constants */
-+enum {
-+	/* segment table entries */
-+	IOST_VALID_MASK	  = 0x8000000000000000ul,
-+	IOST_TAG_MASK     = 0x3000000000000000ul,
-+	IOST_PT_BASE_MASK = 0x000003fffffff000ul,
-+	IOST_NNPT_MASK	  = 0x0000000000000fe0ul,
-+	IOST_PS_MASK	  = 0x000000000000000ful,
-+
-+	IOST_PS_4K	  = 0x1,
-+	IOST_PS_64K	  = 0x3,
-+	IOST_PS_1M	  = 0x5,
-+	IOST_PS_16M	  = 0x7,
-+
-+	/* iopt tag register */
-+	IOPT_VALID_MASK   = 0x0000000200000000ul,
-+	IOPT_TAG_MASK	  = 0x00000001fffffffful,
-+
-+	/* iopt cache register */
-+	IOPT_PROT_MASK	  = 0xc000000000000000ul,
-+	IOPT_PROT_NONE	  = 0x0000000000000000ul,
-+	IOPT_PROT_READ	  = 0x4000000000000000ul,
-+	IOPT_PROT_WRITE	  = 0x8000000000000000ul,
-+	IOPT_PROT_RW	  = 0xc000000000000000ul,
-+	IOPT_COHERENT	  = 0x2000000000000000ul,
-+	
-+	IOPT_ORDER_MASK	  = 0x1800000000000000ul,
-+	/* order access to same IOID/VC on same address */
-+	IOPT_ORDER_ADDR	  = 0x0800000000000000ul,
-+	/* similar, but only after a write access */
-+	IOPT_ORDER_WRITES = 0x1000000000000000ul,
-+	/* Order all accesses to same IOID/VC */
-+	IOPT_ORDER_VC	  = 0x1800000000000000ul,
-+	
-+	IOPT_RPN_MASK	  = 0x000003fffffff000ul,
-+	IOPT_HINT_MASK	  = 0x0000000000000800ul,
-+	IOPT_IOID_MASK	  = 0x00000000000007fful,
-+
-+	IOSTO_ENABLE	  = 0x8000000000000000ul,
-+	IOSTO_ORIGIN	  = 0x000003fffffff000ul,
-+	IOSTO_HW	  = 0x0000000000000800ul,
-+	IOSTO_SW	  = 0x0000000000000400ul,
-+
-+	IOCMD_CONF_TE	  = 0x0000800000000000ul,
-+
-+	/* memory mapped registers */
-+	IOC_PT_CACHE_DIR  = 0x000,
-+	IOC_ST_CACHE_DIR  = 0x800,
-+	IOC_PT_CACHE_REG  = 0x910,
-+	IOC_ST_ORIGIN     = 0x918,
-+	IOC_CONF	  = 0x930,
-+
-+	/* The high bit needs to be set on every DMA address,
-+	   only 2GB are addressable */
-+	BPA_DMA_VALID	  = 0x80000000,
-+	BPA_DMA_MASK	  = 0x7fffffff,
++struct iic_pending_bits {
++	u32 data;
++	u8 flags;
++	u8 class;
++	u8 source;
++	u8 prio;
 +};
 +
++enum iic_pending_flags {
++	IIC_VALID = 0x80,
++	IIC_IPI   = 0x40,
++};
 +
-+void bpa_init_iommu(void);
++struct iic_regs {
++	struct iic_pending_bits pending;
++	struct iic_pending_bits pending_destr;
++	u64 generate;
++	u64 prio;
++};
++
++struct iic {
++	struct iic_regs __iomem *regs;
++};
++
++static DEFINE_PER_CPU(struct iic, iic);
++
++void iic_local_enable(void)
++{
++	out_be64(&__get_cpu_var(iic).regs->prio, 0xff);
++}
++
++void iic_local_disable(void)
++{
++	out_be64(&__get_cpu_var(iic).regs->prio, 0x0);
++}
++
++static unsigned int iic_startup(unsigned int irq)
++{
++	return 0;
++}
++
++static void iic_enable(unsigned int irq)
++{
++	iic_local_enable();
++}
++
++static void iic_disable(unsigned int irq)
++{
++}
++
++static void iic_end(unsigned int irq)
++{
++	iic_local_enable();
++}
++
++static struct hw_interrupt_type iic_pic = {
++	.typename = " BPA-IIC  ",
++	.startup = iic_startup,
++	.enable = iic_enable,
++	.disable = iic_disable,
++	.end = iic_end,
++};
++
++static int iic_external_get_irq(struct iic_pending_bits pending)
++{
++	int irq;
++	unsigned char node, unit;
++
++	node = pending.source >> 4;
++	unit = pending.source & 0xf;
++	irq = -1;
++
++	/*
++	 * This mapping is specific to the Broadband
++	 * Engine. We might need to get the numbers
++	 * from the device tree to support future CPUs.
++	 */
++	switch (unit) {
++	case 0x00:
++	case 0x0b:
++		/*
++		 * One of these units can be connected
++		 * to an external interrupt controller.
++		 */
++		if (pending.prio > 0x3f ||
++		    pending.class != 2)
++			break;
++		irq = IIC_EXT_OFFSET
++			+ spider_get_irq(pending.prio + node * IIC_NODE_STRIDE)
++			+ node * IIC_NODE_STRIDE;
++		break;
++	case 0x01 ... 0x04:
++	case 0x07 ... 0x0a:
++		/*
++		 * These units are connected to the SPEs
++		 */
++		if (pending.class > 2)
++			break;
++		irq = IIC_SPE_OFFSET
++			+ pending.class * IIC_CLASS_STRIDE
++			+ node * IIC_NODE_STRIDE
++			+ unit;
++		break;
++	}
++	if (irq == -1)
++		printk(KERN_WARNING "Unexpected interrupt class %02x, "
++			"source %02x, prio %02x, cpu %02x\n", pending.class,
++			pending.source, pending.prio, smp_processor_id());
++	return irq;
++}
++
++/* Get an IRQ number from the pending state register of the IIC */
++int iic_get_irq(struct pt_regs *regs)
++{
++	struct iic *iic;
++	int irq;
++	struct iic_pending_bits pending;
++
++	iic = &__get_cpu_var(iic);
++	*(unsigned long *) &pending = 
++		in_be64((unsigned long __iomem *) &iic->regs->pending_destr);
++
++	irq = -1;
++	if (pending.flags & IIC_VALID) {
++		if (pending.flags & IIC_IPI) {
++			irq = IIC_IPI_OFFSET + (pending.prio >> 4);
++/*
++			if (irq > 0x80)
++				printk(KERN_WARNING "Unexpected IPI prio %02x"
++					"on CPU %02x\n", pending.prio,
++							smp_processor_id());
++*/
++		} else {
++			irq = iic_external_get_irq(pending);
++		}
++	}
++	return irq;
++}
++
++static struct iic_regs __iomem *find_iic(int cpu)
++{
++	struct device_node *np;
++	int nodeid = cpu / 2;
++	unsigned long regs;
++	struct iic_regs __iomem *iic_regs;
++
++	for (np = of_find_node_by_type(NULL, "cpu");
++	     np;
++	     np = of_find_node_by_type(np, "cpu")) {
++		if (nodeid == *(int *)get_property(np, "node-id", NULL))
++			break;
++	}
++
++	if (!np) {
++		printk(KERN_WARNING "IIC: CPU %d not found\n", cpu);
++		iic_regs = NULL;
++	} else {
++		regs = *(long *)get_property(np, "iic", NULL);
++
++		/* hack until we have decided on the devtree info */
++		regs += 0x400;
++		if (cpu & 1)
++			regs += 0x20;
++
++		printk(KERN_DEBUG "IIC for CPU %d at %lx\n", cpu, regs);
++		iic_regs = __ioremap(regs, sizeof(struct iic_regs),
++						 _PAGE_NO_CACHE);
++	}
++	return iic_regs;
++}
++
++#ifdef CONFIG_SMP
++void iic_setup_cpu(void)
++{
++	out_be64(&__get_cpu_var(iic).regs->prio, 0xff);
++}
++
++void iic_cause_IPI(int cpu, int mesg)
++{
++	out_be64(&per_cpu(iic, cpu).regs->generate, mesg);
++}
++
++static irqreturn_t iic_ipi_action(int irq, void *dev_id, struct pt_regs *regs)
++{
++
++	smp_message_recv(irq - IIC_IPI_OFFSET, regs);
++	return IRQ_HANDLED;
++}
++
++static void iic_request_ipi(int irq, const char *name)
++{
++	/* IPIs are marked SA_INTERRUPT as they must run with irqs
++	 * disabled */
++	get_irq_desc(irq)->handler = &iic_pic;
++	get_irq_desc(irq)->status |= IRQ_PER_CPU;
++	request_irq(irq, iic_ipi_action, SA_INTERRUPT, name, NULL);
++}
++
++void iic_request_IPIs(void)
++{
++	iic_request_ipi(IIC_IPI_OFFSET + PPC_MSG_CALL_FUNCTION, "IPI-call");
++	iic_request_ipi(IIC_IPI_OFFSET + PPC_MSG_RESCHEDULE, "IPI-resched");
++#ifdef CONFIG_DEBUGGER
++	iic_request_ipi(IIC_IPI_OFFSET + PPC_MSG_DEBUGGER_BREAK, "IPI-debug");
++#endif /* CONFIG_DEBUGGER */
++}
++#endif /* CONFIG_SMP */
++
++static void iic_setup_spe_handlers(void)
++{
++	int be, isrc;
++
++	/* Assume two threads per BE are present */
++	for (be=0; be < num_present_cpus() / 2; be++) {
++		for (isrc = 0; isrc < IIC_CLASS_STRIDE * 3; isrc++) {
++			int irq = IIC_NODE_STRIDE * be + IIC_SPE_OFFSET + isrc;
++			get_irq_desc(irq)->handler = &iic_pic;
++		}
++	}
++}
++
++void iic_init_IRQ(void)
++{
++	int cpu, irq_offset;
++	struct iic *iic;
++
++	irq_offset = 0;
++	for_each_cpu(cpu) {
++		iic = &per_cpu(iic, cpu);
++		iic->regs = find_iic(cpu);
++		if (iic->regs)
++			out_be64(&iic->regs->prio, 0xff);
++	}
++	iic_setup_spe_handlers();
++}
+Index: linus-2.5/arch/ppc64/kernel/bpa_iic.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linus-2.5/arch/ppc64/kernel/bpa_iic.h	2005-04-22 06:59:58.000000000 +0200
+@@ -0,0 +1,62 @@
++#ifndef ASM_BPA_IIC_H
++#define ASM_BPA_IIC_H
++#ifdef __KERNEL__
++/*
++ * Mapping of IIC pending bits into per-node
++ * interrupt numbers.
++ *
++ * IRQ     FF CC SS PP   FF CC SS PP	Description
++ *
++ * 00-3f   80 02 +0 00 - 80 02 +0 3f	South Bridge
++ * 00-3f   80 02 +b 00 - 80 02 +b 3f	South Bridge
++ * 41-4a   80 00 +1 ** - 80 00 +a **	SPU Class 0
++ * 51-5a   80 01 +1 ** - 80 01 +a **	SPU Class 1
++ * 61-6a   80 02 +1 ** - 80 02 +a **	SPU Class 2
++ * 70-7f   C0 ** ** 00 - C0 ** ** 0f	IPI
++ *
++ *    F flags
++ *    C class
++ *    S source
++ *    P Priority
++ *    + node number
++ *    * don't care
++ *
++ * A node consists of a Broadband Engine and an optional
++ * south bridge device providing a maximum of 64 IRQs.
++ * The south bridge may be connected to either IOIF0
++ * or IOIF1.
++ * Each SPE is represented as three IRQ lines, one per
++ * interrupt class.
++ * 16 IRQ numbers are reserved for inter processor
++ * interruptions, although these are only used in the
++ * range of the first node.
++ *
++ * This scheme needs 128 IRQ numbers per BIF node ID,
++ * which means that with the total of 512 lines
++ * available, we can have a maximum of four nodes.
++ */
++
++enum {
++	IIC_EXT_OFFSET   = 0x00, /* Start of south bridge IRQs */
++	IIC_NUM_EXT      = 0x40, /* Number of south bridge IRQs */
++	IIC_SPE_OFFSET   = 0x40, /* Start of SPE interrupts */
++	IIC_CLASS_STRIDE = 0x10, /* SPE IRQs per class    */
++	IIC_IPI_OFFSET   = 0x70, /* Start of IPI IRQs */
++	IIC_NUM_IPIS     = 0x10, /* IRQs reserved for IPI */
++	IIC_NODE_STRIDE  = 0x80, /* Total IRQs per node   */
++};
++
++extern void iic_init_IRQ(void);
++extern int  iic_get_irq(struct pt_regs *regs);
++extern void iic_cause_IPI(int cpu, int mesg);
++extern void iic_request_IPIs(void);
++extern void iic_setup_cpu(void);
++extern void iic_local_enable(void);
++extern void iic_local_disable(void);
++
++
++extern void spider_init_IRQ(void);
++extern int spider_get_irq(unsigned long int_pending);
 +
 +#endif
++#endif /* ASM_BPA_IIC_H */
 Index: linus-2.5/arch/ppc64/kernel/bpa_setup.c
 ===================================================================
---- linus-2.5.orig/arch/ppc64/kernel/bpa_setup.c	2005-04-22 06:59:58.000000000 +0200
-+++ linus-2.5/arch/ppc64/kernel/bpa_setup.c	2005-04-29 10:01:12.000000000 +0200
-@@ -46,6 +46,7 @@
+--- linus-2.5.orig/arch/ppc64/kernel/bpa_setup.c	2005-04-22 06:59:52.000000000 +0200
++++ linus-2.5/arch/ppc64/kernel/bpa_setup.c	2005-04-22 06:59:58.000000000 +0200
+@@ -45,6 +45,7 @@
+ #include <asm/cputable.h>
  
  #include "pci.h"
- #include "bpa_iic.h"
-+#include "bpa_iommu.h"
++#include "bpa_iic.h"
  
  #ifdef DEBUG
  #define DBG(fmt...) udbg_printf(fmt)
-@@ -179,7 +180,7 @@
+@@ -143,6 +144,9 @@
  
- 	hpte_init_native();
+ static void __init bpa_setup_arch(void)
+ {
++	ppc_md.init_IRQ       = iic_init_IRQ;
++	ppc_md.get_irq        = iic_get_irq;
++
+ #ifdef CONFIG_SMP
+ 	smp_init_pSeries();
+ #endif
+@@ -158,7 +162,7 @@
+ 	/* Find and initialize PCI host bridges */
+ 	init_pci_config_tokens();
+ 	find_and_init_phbs();
+-
++	spider_init_IRQ();
+ #ifdef CONFIG_DUMMY_CONSOLE
+ 	conswitchp = &dummy_con;
+ #endif
+Index: linus-2.5/arch/ppc64/kernel/pSeries_smp.c
+===================================================================
+--- linus-2.5.orig/arch/ppc64/kernel/pSeries_smp.c	2005-04-22 06:58:22.000000000 +0200
++++ linus-2.5/arch/ppc64/kernel/pSeries_smp.c	2005-04-22 06:59:58.000000000 +0200
+@@ -1,5 +1,5 @@
+ /*
+- * SMP support for pSeries machines.
++ * SMP support for pSeries and BPA machines.
+  *
+  * Dave Engebretsen, Peter Bergner, and
+  * Mike Corrigan {engebret|bergner|mikec}@us.ibm.com
+@@ -47,6 +47,7 @@
+ #include <asm/pSeries_reconfig.h>
  
--	pci_direct_iommu_init();
-+	bpa_init_iommu();
+ #include "mpic.h"
++#include "bpa_iic.h"
  
- 	ppc64_interrupt_controller = IC_BPA_IIC;
+ #ifdef DEBUG
+ #define DBG(fmt...) udbg_printf(fmt)
+@@ -286,6 +287,7 @@
+ 	return 1;
+ }
  
++#ifdef CONFIG_XICS
+ static inline void smp_xics_do_message(int cpu, int msg)
+ {
+ 	set_bit(msg, &xics_ipi_message[cpu].value);
+@@ -334,6 +336,37 @@
+ 	rtas_set_indicator(GLOBAL_INTERRUPT_QUEUE,
+ 		(1UL << interrupt_server_size) - 1 - default_distrib_server, 1);
+ }
++#endif /* CONFIG_XICS */
++#ifdef CONFIG_BPA_IIC
++static void smp_iic_message_pass(int target, int msg)
++{
++	unsigned int i;
++
++	if (target < NR_CPUS) {
++		iic_cause_IPI(target, msg);
++	} else {
++		for_each_online_cpu(i) {
++			if (target == MSG_ALL_BUT_SELF
++			    && i == smp_processor_id())
++				continue;
++			iic_cause_IPI(i, msg);
++		}
++	}
++}
++
++static int __init smp_iic_probe(void)
++{
++	iic_request_IPIs();
++
++	return cpus_weight(cpu_possible_map);
++}
++
++static void __devinit smp_iic_setup_cpu(int cpu)
++{
++	if (cpu != boot_cpuid)
++		iic_setup_cpu();
++}
++#endif /* CONFIG_BPA_IIC */
+ 
+ static DEFINE_SPINLOCK(timebase_lock);
+ static unsigned long timebase = 0;
+@@ -388,14 +421,15 @@
+ 
+ 	return 1;
+ }
+-
++#ifdef CONFIG_MPIC
+ static struct smp_ops_t pSeries_mpic_smp_ops = {
+ 	.message_pass	= smp_mpic_message_pass,
+ 	.probe		= smp_mpic_probe,
+ 	.kick_cpu	= smp_pSeries_kick_cpu,
+ 	.setup_cpu	= smp_mpic_setup_cpu,
+ };
+-
++#endif
++#ifdef CONFIG_XICS
+ static struct smp_ops_t pSeries_xics_smp_ops = {
+ 	.message_pass	= smp_xics_message_pass,
+ 	.probe		= smp_xics_probe,
+@@ -403,6 +437,16 @@
+ 	.setup_cpu	= smp_xics_setup_cpu,
+ 	.cpu_bootable	= smp_pSeries_cpu_bootable,
+ };
++#endif
++#ifdef CONFIG_BPA_IIC
++static struct smp_ops_t bpa_iic_smp_ops = {
++	.message_pass	= smp_iic_message_pass,
++	.probe		= smp_iic_probe,
++	.kick_cpu	= smp_pSeries_kick_cpu,
++	.setup_cpu	= smp_iic_setup_cpu,
++	.cpu_bootable	= smp_pSeries_cpu_bootable,
++};
++#endif
+ 
+ /* This is called very early */
+ void __init smp_init_pSeries(void)
+@@ -411,10 +455,25 @@
+ 
+ 	DBG(" -> smp_init_pSeries()\n");
+ 
+-	if (ppc64_interrupt_controller == IC_OPEN_PIC)
++	switch (ppc64_interrupt_controller) {
++#ifdef CONFIG_MPIC
++	case IC_OPEN_PIC:
+ 		smp_ops = &pSeries_mpic_smp_ops;
+-	else
++		break;
++#endif
++#ifdef CONFIG_XICS
++	case IC_PPC_XIC:
+ 		smp_ops = &pSeries_xics_smp_ops;
++		break;
++#endif
++#ifdef CONFIG_BPA_IIC
++	case IC_BPA_IIC:
++		smp_ops = &bpa_iic_smp_ops;
++		break;
++#endif
++	default:
++		panic("Invalid interrupt controller");
++	}
+ 
+ #ifdef CONFIG_HOTPLUG_CPU
+ 	smp_ops->cpu_disable = pSeries_cpu_disable;
+Index: linus-2.5/arch/ppc64/kernel/smp.c
+===================================================================
+--- linus-2.5.orig/arch/ppc64/kernel/smp.c	2005-04-22 06:58:22.000000000 +0200
++++ linus-2.5/arch/ppc64/kernel/smp.c	2005-04-22 06:59:58.000000000 +0200
+@@ -71,7 +71,7 @@
+ 
+ int smt_enabled_at_boot = 1;
+ 
+-#ifdef CONFIG_PPC_MULTIPLATFORM
++#if defined(CONFIG_PPC_PSERIES) || defined(CONFIG_PPC_PMAC) || defined(CONFIG_PPC_MAPLE)
+ void smp_mpic_message_pass(int target, int msg)
+ {
+ 	/* make sure we're sending something that translates to an IPI */
+Index: linus-2.5/arch/ppc64/kernel/spider-pic.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linus-2.5/arch/ppc64/kernel/spider-pic.c	2005-04-22 06:59:58.000000000 +0200
+@@ -0,0 +1,191 @@
++/*
++ * External Interrupt Controller on Spider South Bridge
++ *
++ * (C) Copyright IBM Deutschland Entwicklung GmbH 2005
++ *
++ * Author: Arnd Bergmann <arndb@de.ibm.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2, or (at your option)
++ * any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++#include <linux/interrupt.h>
++#include <linux/irq.h>
++
++#include <asm/pgtable.h>
++#include <asm/prom.h>
++#include <asm/io.h>
++
++#include "bpa_iic.h"
++
++/* register layout taken from Spider spec, table 7.4-4 */
++enum {
++	TIR_DEN		= 0x004, /* Detection Enable Register */
++	TIR_MSK		= 0x084, /* Mask Level Register */
++	TIR_EDC		= 0x0c0, /* Edge Detection Clear Register */
++	TIR_PNDA	= 0x100, /* Pending Register A */
++	TIR_PNDB	= 0x104, /* Pending Register B */
++	TIR_CS		= 0x144, /* Current Status Register */
++	TIR_LCSA	= 0x150, /* Level Current Status Register A */
++	TIR_LCSB	= 0x154, /* Level Current Status Register B */
++	TIR_LCSC	= 0x158, /* Level Current Status Register C */
++	TIR_LCSD	= 0x15c, /* Level Current Status Register D */
++	TIR_CFGA	= 0x200, /* Setting Register A0 */
++	TIR_CFGB	= 0x204, /* Setting Register B0 */
++			/* 0x208 ... 0x3ff Setting Register An/Bn */
++	TIR_PPNDA	= 0x400, /* Packet Pending Register A */
++	TIR_PPNDB	= 0x404, /* Packet Pending Register B */
++	TIR_PIERA	= 0x408, /* Packet Output Error Register A */
++	TIR_PIERB	= 0x40c, /* Packet Output Error Register B */
++	TIR_PIEN	= 0x444, /* Packet Output Enable Register */
++	TIR_PIPND	= 0x454, /* Packet Output Pending Register */
++	TIRDID		= 0x484, /* Spider Device ID Register */
++	REISTIM		= 0x500, /* Reissue Command Timeout Time Setting */
++	REISTIMEN	= 0x504, /* Reissue Command Timeout Setting */
++	REISWAITEN	= 0x508, /* Reissue Wait Control*/
++};
++
++static void __iomem *spider_pics[4];
++
++static void __iomem *spider_get_pic(int irq)
++{
++	int node = irq / IIC_NODE_STRIDE;
++	irq %= IIC_NODE_STRIDE;
++
++	if (irq >= IIC_EXT_OFFSET &&
++	    irq < IIC_EXT_OFFSET + IIC_NUM_EXT &&
++	    spider_pics)
++		return spider_pics[node];
++	return NULL;
++}
++
++static int spider_get_nr(unsigned int irq)
++{
++	return (irq % IIC_NODE_STRIDE) - IIC_EXT_OFFSET;
++}
++
++static void __iomem *spider_get_irq_config(int irq)
++{
++	void __iomem *pic;
++	pic = spider_get_pic(irq);
++	return pic + TIR_CFGA + 8 * spider_get_nr(irq);
++}
++
++static void spider_enable_irq(unsigned int irq)
++{
++	void __iomem *cfg = spider_get_irq_config(irq);
++	irq = spider_get_nr(irq);
++
++	out_be32(cfg, in_be32(cfg) | 0x3107000eu);
++	out_be32(cfg + 4, in_be32(cfg + 4) | 0x00020000u | irq);
++}
++
++static void spider_disable_irq(unsigned int irq)
++{
++	void __iomem *cfg = spider_get_irq_config(irq);
++	irq = spider_get_nr(irq);
++
++	out_be32(cfg, in_be32(cfg) & ~0x30000000u);
++}
++
++static unsigned int spider_startup_irq(unsigned int irq)
++{
++	spider_enable_irq(irq);
++	return 0;
++}
++
++static void spider_shutdown_irq(unsigned int irq)
++{
++	spider_disable_irq(irq);
++}
++
++static void spider_end_irq(unsigned int irq)
++{
++	spider_enable_irq(irq);
++}
++
++static void spider_ack_irq(unsigned int irq)
++{
++	spider_disable_irq(irq);
++	iic_local_enable();
++}
++
++static struct hw_interrupt_type spider_pic = {
++	.typename = " SPIDER  ",
++	.startup = spider_startup_irq,
++	.shutdown = spider_shutdown_irq,
++	.enable = spider_enable_irq,
++	.disable = spider_disable_irq,
++	.ack = spider_ack_irq,
++	.end = spider_end_irq,
++};
++
++
++int spider_get_irq(unsigned long int_pending)
++{
++	void __iomem *regs = spider_get_pic(int_pending);
++	unsigned long cs;
++	int irq;
++
++	cs = in_be32(regs + TIR_CS);
++
++	irq = cs >> 24;
++	if (irq != 63)
++		return irq;
++
++	return -1;
++}
++ 
++void spider_init_IRQ(void)
++{
++	int node;
++	struct device_node *dn;
++	unsigned int *property;
++	long spiderpic;
++	int n;
++
++/* FIXME: detect multiple PICs as soon as the device tree has them */
++	for (node = 0; node < 1; node++) {
++		dn = of_find_node_by_path("/");
++		n = prom_n_addr_cells(dn);
++		property = (unsigned int *) get_property(dn,
++				"platform-spider-pic", NULL);
++
++		if (!property)
++			continue;
++		for (spiderpic = 0; n > 0; --n)
++			spiderpic = (spiderpic << 32) + *property++;
++		printk(KERN_DEBUG "SPIDER addr: %lx\n", spiderpic);
++		spider_pics[node] = __ioremap(spiderpic, 0x800, _PAGE_NO_CACHE);
++		for (n = 0; n < IIC_NUM_EXT; n++) {
++			int irq = n + IIC_EXT_OFFSET + node * IIC_NODE_STRIDE;
++			get_irq_desc(irq)->handler = &spider_pic;
++
++ 		/* do not mask any interrupts because of level */
++ 		out_be32(spider_pics[node] + TIR_MSK, 0x0);
++ 		
++ 		/* disable edge detection clear */
++ 		/* out_be32(spider_pics[node] + TIR_EDC, 0x0); */
++ 		
++ 		/* enable interrupt packets to be output */
++ 		out_be32(spider_pics[node] + TIR_PIEN,
++			in_be32(spider_pics[node] + TIR_PIEN) | 0x1);
++ 		
++ 		/* Enable the interrupt detection enable bit. Do this last! */
++ 		out_be32(spider_pics[node] + TIR_DEN,
++			in_be32(spider_pics[node] +TIR_DEN) | 0x1);
++
++		}
++	}
++}
 

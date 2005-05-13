@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262405AbVEMPW2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262290AbVEMP12@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262405AbVEMPW2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 11:22:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262404AbVEMPW2
+	id S262290AbVEMP12 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 11:27:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbVEMP11
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 11:22:28 -0400
-Received: from ns9.hostinglmi.net ([213.194.149.146]:42135 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S262405AbVEMPWV
+	Fri, 13 May 2005 11:27:27 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:27592 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S262290AbVEMP1Z
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 11:22:21 -0400
-Date: Fri, 13 May 2005 17:24:03 +0200
-From: DervishD <lkml@dervishd.net>
-To: randy_dunlap <rdunlap@xenotime.net>
-Cc: srinivasg@esntechnologies.co.in, linux-kernel@vger.kernel.org
-Subject: Re: Y2K-like bug to hit Linux computers! - Info of the day
-Message-ID: <20050513152403.GB1072@DervishD>
-Mail-Followup-To: randy_dunlap <rdunlap@xenotime.net>,
-	srinivasg@esntechnologies.co.in, linux-kernel@vger.kernel.org
-References: <4EE0CBA31942E547B99B3D4BFAB348114BED13@mail.esn.co.in> <20050513143736.GA1019@DervishD> <20050513081947.3d448d61.rdunlap@xenotime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050513081947.3d448d61.rdunlap@xenotime.net>
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Fri, 13 May 2005 11:27:25 -0400
+In-Reply-To: <4284C2B5.5040604@fujitsu-siemens.com>
+Subject: Re: Again: UML on s390 (31Bit)
+To: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+Cc: Bodo Stroesser <bstroesser@fujitsu-siemens.com>,
+       linux-kernel@vger.kernel.org, Ulrich Weigand <uweigand@de.ibm.com>
+X-Mailer: Lotus Notes Build V651_12042003 December 04, 2003
+Message-ID: <OFA2B0C767.4C8614D3-ONC1257000.00541583-C1257000.0054CC70@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Date: Fri, 13 May 2005 17:26:13 +0200
+X-MIMETrack: Serialize by Router on D12ML062/12/M/IBM(Release 6.53HF247 | January 6, 2005) at
+ 13/05/2005 17:27:23
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Randy :)
+> Meanwhile I've tried.
+>
+> Your patch absolutely doesn't change host's behavior in the situation,
+> that is relevant to UML.
 
- * randy_dunlap <rdunlap@xenotime.net> dixit:
-> | home. Maybe the answer is 42.
-> but that begs the question, "to what question is 42 the answer?"   8;)
+And as I understand that is because the SIGTRAP is not delivered
+by the normal signal mechanism.
 
-    Don't worry, a planet-size computer has been built just for that
-XDDDDDDDDDDDD
+> I've prepared and attached a small program that easily can reproduce
+> the problem. I hope this will help to find a viable solution.
 
-    Raúl Núñez de Arenas Coronado
+That is cool, thanks. Will certainly speed up debugging on my side.
 
--- 
-Linux Registered User 88736 | http://www.dervishd.net
-http://www.pleyades.net & http://www.gotesdelluna.net
-It's my PC and I'll cry if I want to...
+blue skies,
+   Martin
+
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
+
+

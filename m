@@ -1,54 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262105AbVEMLeP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262241AbVEMLgZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262105AbVEMLeP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 07:34:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262252AbVEMLeP
+	id S262241AbVEMLgZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 07:36:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262252AbVEMLgY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 07:34:15 -0400
-Received: from fire.osdl.org ([65.172.181.4]:53387 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262105AbVEMLd4 (ORCPT
+	Fri, 13 May 2005 07:36:24 -0400
+Received: from [202.125.86.130] ([202.125.86.130]:43421 "EHLO
+	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
+	id S262241AbVEMLgF convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 07:33:56 -0400
-Date: Fri, 13 May 2005 04:33:11 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, shai@scalex86.org,
-       steiner@sgi.com
-Subject: Re: NUMA aware slab allocator V2
-Message-Id: <20050513043311.7961e694.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0505130411300.4500@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com>
-	<20050512000444.641f44a9.akpm@osdl.org>
-	<Pine.LNX.4.58.0505121252390.32276@schroedinger.engr.sgi.com>
-	<20050513000648.7d341710.akpm@osdl.org>
-	<Pine.LNX.4.58.0505130411300.4500@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 13 May 2005 07:36:05 -0400
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: Y2K-like bug to hit Linux computers! - Info of the day
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Date: Fri, 13 May 2005 17:13:31 +0530
+Message-ID: <4EE0CBA31942E547B99B3D4BFAB348114BED13@mail.esn.co.in>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Y2K-like bug to hit Linux computers! - Info of the day
+Thread-Index: AcVXrqvMv5M6jJ2UT0qYJAQJSZHAAw==
+From: "Srinivas G." <srinivasg@esntechnologies.co.in>
+To: "linux-kernel-Mailing-list" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <clameter@engr.sgi.com> wrote:
->
-> On Fri, 13 May 2005, Andrew Morton wrote:
-> 
-> > It didn't produce anything interesting.  For some reason the console output
-> > stops when start_kernel() runs console_init() (I guess it all comes out
-> > later) so the machine is running blind when we run kmem_cache_init().
-> > Irritating.  I just moved the console_init() call to happen later on.
-> >
-> > It's going BUG() in kmem_cache_init()->set_up_list3s->is_node_online
-> > because for some reason the !CONFIG_NUMA ppc build has MAX_NUMNODES=16,
-> > even though there's only one node.
-> 
-> Yuck.
-> 
-> The definition for the number of NUMA nodes is dependent on
-> CONFIG_FLATMEM instead of CONFIG_NUMA in mm.
-> CONFIG_FLATMEM is not set on ppc64 because CONFIG_DISCONTIG is set! And
-> consequently nodes exist in a non NUMA config.
+Tuesday, January 19 2038. Time: 03:14:07 GMT. If Linux programmers get
+nightmares, it's about this date and time. Immediately after that second
+is crossed, current computer systems running on Linux will grind to a
+halt or go into a loop. This will trip up a lot of databases. No, this
+is not another hoax raised by some anti-Linux lobby. It is Linux's own
+Y2K nightmare, says Businessworld. 
 
-I was testing 2.6.12-rc4 base.
+If you ask what this 2038 bug is, you will have to put up some technical
+argot. The bug has its origins in the way the C language, which has been
+used to write Linux, calculates time. C uses the 'time_t' data type to
+represent dates and times. ('time_t' is an integer that counts the
+number of seconds since 12.00 a.m. GMT,  January 1 1970.) 
 
+This data is stored in 32 bits, or units of memory. The first of these
+bits is for the positive or negative sign, and the remaining 31 are used
+to store the number. The highest number that these 31 bits can store
+works out to 2147483647. 
 
+Calculated from the start of January 1 1970, this number would represent
+the 2038 time and date given at the top. Problems would arise when the
+system times of computers running on Linux reach this number. They can't
+go any forward and their value actually would change to -- 2147483647,
+which translated to December 13 1901! That will lead many programs to
+return errors or crash altogether. 
+
+It's more damaging than the Y2K bug. That's because Y2K mostly involved
+higher-level applications such as credit card payment and inventory
+management. The 2038 bug, on the other hand, affects the basic
+time-keeping function. 
+
+"I would guess the biggest issue would be in the embedded field, where
+software isn't changed all that often, if at all. Process controllers,
+routers, mobile phones, game consoles, telecom switches and the like
+would be the biggest victims," says Raju Mathur, GNU and Linux
+consultant and president of the Linux Delhi Users Group. 
+
+He, however, adds that the rate at which we are changing technology,
+most systems are unlikely to use 32-bit processing by the time we get to
+2038. 
+
+But what about the present? Many applications running on Linux could
+soon be making calculations for dates 30 years away -- say, for mortgage
+and insurance calculations -- and could start giving out error messages
+well before D-day. The problem could be widespread because more and more
+corporates today are migrating to Linux because of the better security
+it offers. 
+
+"The problem is not on the radar of most people, except the techies,"
+says Charles Assissi, editor, Chip magazine. 
+
+How can the problem be sorted? Modern Linux programs could use 64-bit or
+longer time_t data storage to overcome the problem. As for the existing
+systems, the way the C language stores time_t data could be changed and
+then all the programs could be recompiled. All this is easier said than
+done. 
+
+"There must be millions, if not billions of lines of C code floating
+around that use the time_t value. Locating them, changing them, managing
+programs for which source isn't available, updating embedded systems,
+redeploying, is, in my opinion, an impossible task," says Mathur. Will
+that be another lucrative opportunity for India's army of coders?

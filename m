@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262610AbVEMXRX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262455AbVEMXWU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262610AbVEMXRX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 19:17:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262483AbVEMXQR
+	id S262455AbVEMXWU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 19:22:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262622AbVEMXWT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 19:16:17 -0400
-Received: from hummeroutlaws.com ([12.161.0.3]:13838 "EHLO atpro.com")
-	by vger.kernel.org with ESMTP id S262481AbVEMXOu (ORCPT
+	Fri, 13 May 2005 19:22:19 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:52879 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S262455AbVEMXVx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 19:14:50 -0400
-Date: Fri, 13 May 2005 19:14:19 -0400
-From: Jim Crilly <jim@why.dont.jablowme.net>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: "Richard F. Rebel" <rrebel@whenu.com>, Andi Kleen <ak@muc.de>,
-       Gabor MICSKO <gmicsko@szintezis.hu>, linux-kernel@vger.kernel.org
-Subject: Re: Hyper-Threading Vulnerability
-Message-ID: <20050513231419.GP27568@mail>
-Mail-Followup-To: "Barry K. Nathan" <barryn@pobox.com>,
-	"Richard F. Rebel" <rrebel@whenu.com>, Andi Kleen <ak@muc.de>,
-	Gabor MICSKO <gmicsko@szintezis.hu>, linux-kernel@vger.kernel.org
-References: <1115963481.1723.3.camel@alderaan.trey.hu> <m164xnatpt.fsf@muc.de> <1116009483.4689.803.camel@rebel.corp.whenu.com> <20050513191443.GN27568@mail> <20050513201840.GB7436@ip68-225-251-162.oc.oc.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050513201840.GB7436@ip68-225-251-162.oc.oc.cox.net>
-User-Agent: Mutt/1.5.9i
+	Fri, 13 May 2005 19:21:53 -0400
+Message-ID: <42853687.1050402@pobox.com>
+Date: Fri, 13 May 2005 19:21:43 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Benjamin LaHaise <bcrl@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc/patch] libata -- port configurable delays
+References: <20050513185850.GA5777@kvack.org> <1116019231.26693.499.camel@localhost.localdomain>
+In-Reply-To: <1116019231.26693.499.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 05/13/05 01:18:40PM -0700, Barry K. Nathan wrote:
-> On Fri, May 13, 2005 at 03:14:43PM -0400, Jim Crilly wrote:
-> > And what if you have more than one physical HT processor? AFAIK there's no
-> > way to disable HT and still run SMP at the same time.
+Alan Cox wrote:
+> On Gwe, 2005-05-13 at 19:58, Benjamin LaHaise wrote:
 > 
-> Actually, there is; read my post earlier in this thread:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=111598859708620&w=2
+>>is available at http://www.kvack.org/~bcrl/simple-aio-min_nr.c).  
+>>Before this patch __delay() is the number one entry in oprofile 
+>>results for this workload.  Does this look like a reasonable approach 
+>>for chipsets that aren't completely braindead?  Cheers,
 > 
-> To elaborate on the "check dmesg" part of that e-mail:
 > 
-> After you reboot with "maxcpus=2" (or however many physical CPU's you
-> have), you need to make sure you have messages like this, which indicate
-> that it really worked:
-> 
-> WARNING: No sibling found for CPU 0.
-> WARNING: No sibling found for CPU 1.
-> 
-> (and so on, if you have more than 2 CPU's)
+> If your chipset implements the 400nS lockout in hardware it certainly
+> seems to make sense. Nice to know someone has put it in hardware
 
-But what about machines that don't enumerate physical processors before
-logical? The comment in setup.c implies that the order that the BIOS
-presents CPUs is undefined and if you're unlucky enough to have a machine
-that presents the CPUs as physical, logical, physical, logical, etc you're
-screwed.
+No, it's just mostly irrelevant under SATA.
 
-Jim.
+Under SATA you are -not- talking to a device when you touch 
+Status/AltStatus, you are talking to the host controller.  Specifically, 
+you're talking to a controller buffer that stores a copy of the ATA 
+shadow registers.
+
+The ATA registers are transmitted to the device in a single packet, 
+called a FIS, when the Command or Device Control register is written.
+
+When the device updates its status, or completes a command, it sends a 
+FIS from device to controller, instructing the controller to update its 
+cached copy of the Status register.
+
+You're bitbanging a buffer, in SATA.
+
+	Jeff
+
+

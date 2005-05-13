@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262499AbVEMTLM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262504AbVEMTQB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262499AbVEMTLM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 15:11:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262502AbVEMTGu
+	id S262504AbVEMTQB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 15:16:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262495AbVEMTPD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 15:06:50 -0400
-Received: from straum.hexapodia.org ([64.81.70.185]:31846 "EHLO
-	straum.hexapodia.org") by vger.kernel.org with ESMTP
-	id S262487AbVEMTDC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 15:03:02 -0400
-Date: Fri, 13 May 2005 12:02:44 -0700
-From: Andy Isaacson <adi@hexapodia.org>
-To: Vadim Lobanov <vlobanov@speakeasy.net>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Daniel Jacobowitz <dan@debian.org>,
-       "Barry K. Nathan" <barryn@pobox.com>,
-       Gabor MICSKO <gmicsko@szintezis.hu>, linux-kernel@vger.kernel.org
+	Fri, 13 May 2005 15:15:03 -0400
+Received: from colin.muc.de ([193.149.48.1]:19718 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S262490AbVEMTF5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 15:05:57 -0400
+Date: 13 May 2005 21:05:49 +0200
+Date: Fri, 13 May 2005 21:05:49 +0200
+From: Andi Kleen <ak@muc.de>
+To: "Richard F. Rebel" <rrebel@whenu.com>
+Cc: Gabor MICSKO <gmicsko@szintezis.hu>, linux-kernel@vger.kernel.org
 Subject: Re: Hyper-Threading Vulnerability
-Message-ID: <20050513190244.GA4167@hexapodia.org>
-References: <1115963481.1723.3.camel@alderaan.trey.hu> <20050513124735.GA7436@ip68-225-251-162.oc.oc.cox.net> <4284B55C.7010202@pobox.com> <20050513142336.GA6174@nevyn.them.org> <4284BA90.5080508@pobox.com> <20050513171300.GA30909@hexapodia.org> <Pine.LNX.4.58.0505131129060.6631@shell1.sea5.speakeasy.net>
+Message-ID: <20050513190549.GB47131@muc.de>
+References: <1115963481.1723.3.camel@alderaan.trey.hu> <m164xnatpt.fsf@muc.de> <1116009483.4689.803.camel@rebel.corp.whenu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0505131129060.6631@shell1.sea5.speakeasy.net>
-User-Agent: Mutt/1.4.2i
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
+In-Reply-To: <1116009483.4689.803.camel@rebel.corp.whenu.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 13, 2005 at 11:30:27AM -0700, Vadim Lobanov wrote:
-> On Fri, 13 May 2005, Andy Isaacson wrote:
-> > It's a side channel timing attack on data-dependent computation through
-> > the L1 and L2 caches.  Nice work.  In-the-wild exploitation is
-> > difficult, though; your timing gets screwed up if you get scheduled away
-> > from your victim, and you don't even know, because you can't tell where
-> > you were scheduled, so on any reasonably busy multiuser system it's not
-> > clear that the attack is practical.
+On Fri, May 13, 2005 at 02:38:03PM -0400, Richard F. Rebel wrote:
+> On Fri, 2005-05-13 at 20:03 +0200, Andi Kleen wrote:
+> > This is not a kernel problem, but a user space problem. The fix 
+> > is to change the user space crypto code to need the same number of cache line
+> > accesses on all keys. 
+> > 
+> > Disabling HT for this would the totally wrong approach, like throwing
+> > out the baby with the bath water.
+> > 
+> > -Andi
 > 
-> Wouldn't scheduling appear as a rather big time delta (in measuring the
-> cache access times), so you would know to disregard that data point?
-> 
-> (Just wondering... :-) )
+> Why?  It's certainly reasonable to disable it for the time being and
+> even prudent to do so.
 
-Good question.  Yes, you can probably filter the data.  The question is,
-how hard is it to set up the conditions to acquire the data?  You have
-to be scheduled on the same core as the target process (sibling
-threads).  And you don't know when the target is going to be scheduled,
-and on a real-world system, there are other threads competing for
-scheduling; if it's SMP (2 core, 4 thread) with perfect 100% utilization
-then you've only got a 33% chance of being scheduled on the right
-thread, and it gets worse if the machine is idle since the kernel should
-schedule you and the OpenSSL process on different cores...
+No, i strongly disagree on that. The reasonable thing to do is
+to fix the crypto code which has this vulnerability, not break
+a useful performance enhancement for everybody else.
 
-Getting the conditions right is challenging.  Not impossible, but
-neither is it a foregone conclusion.
-
--andy
+-Andi

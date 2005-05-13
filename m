@@ -1,717 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbVEML2p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261430AbVEML25@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261373AbVEML2p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 07:28:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbVEML2p
+	id S261430AbVEML25 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 07:28:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbVEML25
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 07:28:45 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:24540 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S261373AbVEMLYl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 07:24:41 -0400
-From: Yoshihiro MATSUYAMA <y.matsu@jp.fujitsu.com>
-To: David Howells <dhowells@redhat.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] FRV: Add defconfig
-Date: Fri, 13 May 2005 20:23:59 +0900
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: TuruKame 4.13 (WinNT,500)
-Message-Id: <86C557AE41D8C0y.matsu@jp.fujitsu.com>
+	Fri, 13 May 2005 07:28:57 -0400
+Received: from smtpout.mac.com ([17.250.248.44]:21244 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261430AbVEML0X convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 07:26:23 -0400
+In-Reply-To: <20050513080137.GA9255@wohnheim.fh-wedel.de>
+References: <20050509183135.GB27743@mary> <20050512121842.GA20388@wohnheim.fh-wedel.de> <20050512164413.GA14099@mary> <2F200E69-465D-46ED-9D3A-5ED5C9FEAC9A@mac.com> <20050513080137.GA9255@wohnheim.fh-wedel.de>
+Mime-Version: 1.0 (Apple Message framework v728)
+Content-Type: text/plain; charset=ISO-8859-1; delsp=yes; format=flowed
+Message-Id: <7E4FD3AB-54F6-43D5-9340-ECEEA2E55C0B@mac.com>
+Cc: Markus Klotzbuecher <mk@creamnet.de>, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8BIT
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [ANNOUNCE] mini_fo-0.6.0 overlay file system
+Date: Fri, 13 May 2005 07:26:14 -0400
+To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+X-Mailer: Apple Mail (2.728)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On May 13, 2005, at 04:01:37, Jörn Engel wrote:
+> Doesn't even have to be interruptable.
 
-The attached patch adds defconfig for FRV.
+Well, I wrote in my first mail:
 
-David,
-Would you check this configuration?
-I've confirmed boot on FR451 (MB93091-CB70 CPU board+ MB93091-MB00 
-motherboard).
+> On Thu, 12 May 2005 23:18:36 -0400, Kyle Moffett wrote:
+>> 1) This system should be a first-class VFS element, IE: -o union  
+>> should
+>> work on all filesystems, regardless of feature support.
 
-...loadable module support needs some works.
-Do you have a plan on this?
+I'd like to have -o union work not just on ext2/3.  It could  
+potentially be
+very _slow_ on other filesystems, until they get nonresident file  
+support,
+but it would definitely need to be an interruptible page copy in that  
+case.
 
-Thanks,
+> Your trick, if I understand it correctly, is to copy data up on a  
+> block
+> level, not on a file level.
 
-Signed-Off-By: Yoshihiro MATSUYAMA <y.matsu@jp.fujitsu.com>
+Precisely.
 
----
+>> That way, if I later unmounted the unioned ext3 fs and remounted it
+>> elsewhere without the underlying storage, I would be able to  
+>> access the
+>> parts of the directory structure and files that are resident, and the
+>> rest would fail with a new error code ENONRESIDENT or similar.
+>
+> ENONRESIDENT bugs me somehow.  I guess EIO would be quite sufficient.
 
- linux-2.6.12-rc4-mm1/arch/frv/defconfig      |  627 +++++++++++++++++++
-++++++++
- linux-2.6.12-rc4-mm1/arch/frv/kernel/setup.c |    2 
- linux-2.6.12-rc4-mm1/include/asm-frv/pci.h   |    2 
- 3 files changed, 630 insertions(+), 1 deletion(-)
+Hmm.  Ideally a program like tar would be able to determine which  
+pages of
+a file are resident in memory and only store those.  How does this  
+currently
+work for sparse files?
 
-diff -puN /dev/null linux-2.6.12-rc4-mm1/arch/frv/defconfig
---- /dev/null	2005-05-13 08:26:46.161652216 +0000
-+++ tmp2-matsu/linux-2.6.12-rc4-mm1/arch/frv/defconfig	2005-05-13 17:
-50:58.796082968 +0000
-@@ -0,0 +1,627 @@
-+#
-+# Automatically generated make config: don't edit
-+# Linux kernel version: 2.6.11.8
-+# Fri May 13 17:16:03 2005
-+#
-+CONFIG_FRV=y
-+CONFIG_UID16=y
-+CONFIG_RWSEM_GENERIC_SPINLOCK=y
-+CONFIG_GENERIC_FIND_NEXT_BIT=y
-+# CONFIG_GENERIC_CALIBRATE_DELAY is not set
-+# CONFIG_GENERIC_HARDIRQS is not set
-+
-+#
-+# Code maturity level options
-+#
-+CONFIG_EXPERIMENTAL=y
-+CONFIG_CLEAN_COMPILE=y
-+CONFIG_BROKEN_ON_SMP=y
-+CONFIG_INIT_ENV_ARG_LIMIT=32
-+
-+#
-+# General setup
-+#
-+CONFIG_LOCALVERSION=""
-+CONFIG_SWAP=y
-+CONFIG_SYSVIPC=y
-+CONFIG_POSIX_MQUEUE=y
-+# CONFIG_BSD_PROCESS_ACCT is not set
-+CONFIG_SYSCTL=y
-+# CONFIG_AUDIT is not set
-+# CONFIG_HOTPLUG is not set
-+# CONFIG_KOBJECT_UEVENT is not set
-+# CONFIG_IKCONFIG is not set
-+CONFIG_EMBEDDED=y
-+CONFIG_KALLSYMS=y
-+# CONFIG_KALLSYMS_ALL is not set
-+# CONFIG_KALLSYMS_EXTRA_PASS is not set
-+CONFIG_PRINTK=y
-+CONFIG_BUG=y
-+CONFIG_BASE_FULL=y
-+CONFIG_FUTEX=y
-+CONFIG_EPOLL=y
-+# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
-+CONFIG_SHMEM=y
-+CONFIG_CC_ALIGN_FUNCTIONS=0
-+CONFIG_CC_ALIGN_LABELS=0
-+CONFIG_CC_ALIGN_LOOPS=0
-+CONFIG_CC_ALIGN_JUMPS=0
-+# CONFIG_TINY_SHMEM is not set
-+CONFIG_BASE_SMALL=0
-+
-+#
-+# Loadable module support
-+#
-+# CONFIG_MODULES is not set
-+
-+#
-+# Fujitsu FR-V system setup
-+#
-+CONFIG_MMU=y
-+CONFIG_FRV_OUTOFLINE_ATOMIC_OPS=y
-+CONFIG_HIGHMEM=y
-+CONFIG_HIGHPTE=y
-+CONFIG_SELECT_MEMORY_MODEL=y
-+CONFIG_FLATMEM_MANUAL=y
-+# CONFIG_DISCONTIGMEM_MANUAL is not set
-+# CONFIG_SPARSEMEM_MANUAL is not set
-+CONFIG_FLATMEM=y
-+CONFIG_FLAT_NODE_MEM_MAP=y
-+# CONFIG_FRV_DEFL_CACHE_WBACK is not set
-+# CONFIG_FRV_DEFL_CACHE_WBEHIND is not set
-+CONFIG_FRV_DEFL_CACHE_WTHRU=y
-+# CONFIG_FRV_DEFL_CACHE_DISABLED is not set
-+
-+#
-+# CPU core support
-+#
-+CONFIG_CPU_FR451=y
-+CONFIG_CPU_FR451_COMPILE=y
-+CONFIG_FRV_L1_CACHE_SHIFT=5
-+CONFIG_MB93091_VDK=y
-+# CONFIG_MB93093_PDK is not set
-+CONFIG_MB93090_MB00=y
-+# CONFIG_MB93091_NO_MB is not set
-+# CONFIG_GPREL_DATA_8 is not set
-+CONFIG_GPREL_DATA_4=y
-+# CONFIG_GPREL_DATA_NONE is not set
-+CONFIG_PCI=y
-+# CONFIG_PCI_LEGACY_PROC is not set
-+# CONFIG_PCI_NAMES is not set
-+# CONFIG_PCI_DEBUG is not set
-+# CONFIG_PCMCIA is not set
-+
-+#
-+# Power management options
-+#
-+# CONFIG_PM is not set
-+
-+#
-+# Executable formats
-+#
-+# CONFIG_BINFMT_ELF is not set
-+CONFIG_BINFMT_ELF_FDPIC=y
-+# CONFIG_BINFMT_MISC is not set
-+
-+#
-+# Device Drivers
-+#
-+
-+#
-+# Generic Driver Options
-+#
-+# CONFIG_STANDALONE is not set
-+# CONFIG_PREVENT_FIRMWARE_BUILD is not set
-+# CONFIG_FW_LOADER is not set
-+# CONFIG_DEBUG_DRIVER is not set
-+
-+#
-+# Connector - unified userspace <-> kernelspace linker
-+#
-+# CONFIG_CONNECTOR is not set
-+# CONFIG_FORK_CONNECTOR is not set
-+
-+#
-+# Memory Technology Devices (MTD)
-+#
-+# CONFIG_MTD is not set
-+
-+#
-+# Parallel port support
-+#
-+# CONFIG_PARPORT is not set
-+
-+#
-+# Plug and Play support
-+#
-+
-+#
-+# Block devices
-+#
-+# CONFIG_BLK_DEV_FD is not set
-+# CONFIG_BLK_CPQ_DA is not set
-+# CONFIG_BLK_CPQ_CISS_DA is not set
-+# CONFIG_BLK_DEV_DAC960 is not set
-+# CONFIG_BLK_DEV_UMEM is not set
-+# CONFIG_BLK_DEV_COW_COMMON is not set
-+# CONFIG_BLK_DEV_LOOP is not set
-+# CONFIG_BLK_DEV_NBD is not set
-+# CONFIG_BLK_DEV_SX8 is not set
-+# CONFIG_BLK_DEV_RAM is not set
-+CONFIG_BLK_DEV_RAM_COUNT=16
-+CONFIG_INITRAMFS_SOURCE=""
-+# CONFIG_CDROM_PKTCDVD is not set
-+
-+#
-+# IO Schedulers
-+#
-+CONFIG_IOSCHED_NOOP=y
-+CONFIG_IOSCHED_AS=y
-+CONFIG_IOSCHED_DEADLINE=y
-+CONFIG_IOSCHED_CFQ=y
-+# CONFIG_ATA_OVER_ETH is not set
-+
-+#
-+# ATA/ATAPI/MFM/RLL support
-+#
-+# CONFIG_IDE is not set
-+
-+#
-+# SCSI device support
-+#
-+# CONFIG_SCSI is not set
-+
-+#
-+# Multi-device support (RAID and LVM)
-+#
-+# CONFIG_MD is not set
-+
-+#
-+# Fusion MPT device support
-+#
-+# CONFIG_FUSION is not set
-+
-+#
-+# IEEE 1394 (FireWire) support
-+#
-+# CONFIG_IEEE1394 is not set
-+
-+#
-+# I2O device support
-+#
-+# CONFIG_I2O is not set
-+
-+#
-+# Networking support
-+#
-+CONFIG_NET=y
-+
-+#
-+# Networking options
-+#
-+CONFIG_PACKET=y
-+# CONFIG_PACKET_MMAP is not set
-+CONFIG_UNIX=y
-+# CONFIG_NET_KEY is not set
-+CONFIG_INET=y
-+# CONFIG_IP_MULTICAST is not set
-+# CONFIG_IP_ADVANCED_ROUTER is not set
-+CONFIG_IP_PNP=y
-+# CONFIG_IP_PNP_DHCP is not set
-+# CONFIG_IP_PNP_BOOTP is not set
-+# CONFIG_IP_PNP_RARP is not set
-+# CONFIG_NET_IPIP is not set
-+# CONFIG_NET_IPGRE is not set
-+# CONFIG_ARPD is not set
-+# CONFIG_SYN_COOKIES is not set
-+# CONFIG_INET_AH is not set
-+# CONFIG_INET_ESP is not set
-+# CONFIG_INET_IPCOMP is not set
-+# CONFIG_INET_TUNNEL is not set
-+# CONFIG_IP_TCPDIAG is not set
-+# CONFIG_IP_TCPDIAG_IPV6 is not set
-+# CONFIG_IPV6 is not set
-+# CONFIG_NETFILTER is not set
-+
-+#
-+# SCTP Configuration (EXPERIMENTAL)
-+#
-+# CONFIG_IP_SCTP is not set
-+# CONFIG_ATM is not set
-+# CONFIG_BRIDGE is not set
-+# CONFIG_VLAN_8021Q is not set
-+# CONFIG_DECNET is not set
-+# CONFIG_LLC2 is not set
-+# CONFIG_IPX is not set
-+# CONFIG_ATALK is not set
-+# CONFIG_X25 is not set
-+# CONFIG_LAPB is not set
-+# CONFIG_NET_DIVERT is not set
-+# CONFIG_ECONET is not set
-+# CONFIG_WAN_ROUTER is not set
-+
-+#
-+# QoS and/or fair queueing
-+#
-+# CONFIG_NET_SCHED is not set
-+# CONFIG_NET_CLS_ROUTE is not set
-+
-+#
-+# Network testing
-+#
-+# CONFIG_NET_PKTGEN is not set
-+# CONFIG_KGDBOE is not set
-+# CONFIG_NETPOLL is not set
-+# CONFIG_NETPOLL_RX is not set
-+# CONFIG_NETPOLL_TRAP is not set
-+# CONFIG_NET_POLL_CONTROLLER is not set
-+# CONFIG_HAMRADIO is not set
-+# CONFIG_IRDA is not set
-+# CONFIG_BT is not set
-+# CONFIG_IEEE80211 is not set
-+CONFIG_NETDEVICES=y
-+# CONFIG_DUMMY is not set
-+# CONFIG_BONDING is not set
-+# CONFIG_EQUALIZER is not set
-+# CONFIG_TUN is not set
-+
-+#
-+# ARCnet devices
-+#
-+# CONFIG_ARCNET is not set
-+
-+#
-+# Ethernet (10 or 100Mbit)
-+#
-+CONFIG_NET_ETHERNET=y
-+CONFIG_MII=y
-+# CONFIG_HAPPYMEAL is not set
-+# CONFIG_SUNGEM is not set
-+# CONFIG_NET_VENDOR_3COM is not set
-+
-+#
-+# Tulip family network device support
-+#
-+# CONFIG_NET_TULIP is not set
-+# CONFIG_HP100 is not set
-+CONFIG_NET_PCI=y
-+# CONFIG_PCNET32 is not set
-+# CONFIG_AMD8111_ETH is not set
-+# CONFIG_ADAPTEC_STARFIRE is not set
-+# CONFIG_B44 is not set
-+# CONFIG_FORCEDETH is not set
-+# CONFIG_DGRS is not set
-+# CONFIG_EEPRO100 is not set
-+# CONFIG_E100 is not set
-+# CONFIG_FEALNX is not set
-+# CONFIG_NATSEMI is not set
-+CONFIG_NE2K_PCI=y
-+# CONFIG_8139CP is not set
-+# CONFIG_8139TOO is not set
-+# CONFIG_SIS900 is not set
-+# CONFIG_EPIC100 is not set
-+# CONFIG_SUNDANCE is not set
-+# CONFIG_TLAN is not set
-+# CONFIG_VIA_RHINE is not set
-+
-+#
-+# Ethernet (1000 Mbit)
-+#
-+# CONFIG_ACENIC is not set
-+# CONFIG_DL2K is not set
-+# CONFIG_E1000 is not set
-+# CONFIG_NS83820 is not set
-+# CONFIG_HAMACHI is not set
-+# CONFIG_YELLOWFIN is not set
-+# CONFIG_R8169 is not set
-+# CONFIG_SKGE is not set
-+# CONFIG_SK98LIN is not set
-+# CONFIG_VIA_VELOCITY is not set
-+# CONFIG_TIGON3 is not set
-+
-+#
-+# Ethernet (10000 Mbit)
-+#
-+# CONFIG_CHELSIO_T1 is not set
-+# CONFIG_IXGB is not set
-+# CONFIG_S2IO is not set
-+
-+#
-+# Token Ring devices
-+#
-+# CONFIG_TR is not set
-+
-+#
-+# Wireless LAN (non-hamradio)
-+#
-+# CONFIG_NET_RADIO is not set
-+
-+#
-+# Wan interfaces
-+#
-+# CONFIG_WAN is not set
-+# CONFIG_FDDI is not set
-+# CONFIG_HIPPI is not set
-+# CONFIG_PPP is not set
-+# CONFIG_SLIP is not set
-+# CONFIG_SHAPER is not set
-+# CONFIG_NETCONSOLE is not set
-+
-+#
-+# ISDN subsystem
-+#
-+# CONFIG_ISDN is not set
-+
-+#
-+# Telephony Support
-+#
-+# CONFIG_PHONE is not set
-+
-+#
-+# Input device support
-+#
-+# CONFIG_INPUT is not set
-+
-+#
-+# Hardware I/O ports
-+#
-+# CONFIG_SERIO is not set
-+# CONFIG_GAMEPORT is not set
-+
-+#
-+# Character devices
-+#
-+# CONFIG_VT is not set
-+# CONFIG_SERIAL_NONSTANDARD is not set
-+
-+#
-+# Serial drivers
-+#
-+CONFIG_SERIAL_8250=y
-+CONFIG_SERIAL_8250_CONSOLE=y
-+CONFIG_SERIAL_8250_NR_UARTS=1
-+CONFIG_SERIAL_8250_EXTENDED=y
-+# CONFIG_SERIAL_8250_MANY_PORTS is not set
-+CONFIG_SERIAL_8250_SHARE_IRQ=y
-+# CONFIG_SERIAL_8250_DETECT_IRQ is not set
-+# CONFIG_SERIAL_8250_MULTIPORT is not set
-+# CONFIG_SERIAL_8250_RSA is not set
-+
-+#
-+# Non-8250 serial port support
-+#
-+CONFIG_SERIAL_CORE=y
-+CONFIG_SERIAL_CORE_CONSOLE=y
-+# CONFIG_SERIAL_JSM is not set
-+CONFIG_UNIX98_PTYS=y
-+# CONFIG_LEGACY_PTYS is not set
-+
-+#
-+# IPMI
-+#
-+# CONFIG_IPMI_HANDLER is not set
-+
-+#
-+# Watchdog Cards
-+#
-+# CONFIG_WATCHDOG is not set
-+# CONFIG_RTC is not set
-+# CONFIG_GEN_RTC is not set
-+# CONFIG_DTLK is not set
-+# CONFIG_R3964 is not set
-+# CONFIG_APPLICOM is not set
-+
-+#
-+# Ftape, the floppy tape device driver
-+#
-+# CONFIG_DRM is not set
-+# CONFIG_RAW_DRIVER is not set
-+
-+#
-+# TPM devices
-+#
-+# CONFIG_TCG_TPM is not set
-+
-+#
-+# I2C support
-+#
-+# CONFIG_I2C is not set
-+
-+#
-+# Dallas's 1-wire bus
-+#
-+# CONFIG_W1 is not set
-+
-+#
-+# Misc devices
-+#
-+
-+#
-+# Multimedia devices
-+#
-+# CONFIG_VIDEO_DEV is not set
-+
-+#
-+# Digital Video Broadcasting Devices
-+#
-+# CONFIG_DVB is not set
-+
-+#
-+# Graphics support
-+#
-+# CONFIG_FB is not set
-+
-+#
-+# Sound
-+#
-+# CONFIG_SOUND is not set
-+
-+#
-+# USB support
-+#
-+CONFIG_USB_ARCH_HAS_HCD=y
-+CONFIG_USB_ARCH_HAS_OHCI=y
-+# CONFIG_USB is not set
-+
-+#
-+# USB Gadget Support
-+#
-+# CONFIG_USB_GADGET is not set
-+
-+#
-+# MMC/SD Card support
-+#
-+# CONFIG_MMC is not set
-+
-+#
-+# InfiniBand support
-+#
-+# CONFIG_INFINIBAND is not set
-+
-+#
-+# File systems
-+#
-+# CONFIG_EXT2_FS is not set
-+# CONFIG_EXT3_FS is not set
-+# CONFIG_JBD is not set
-+# CONFIG_REISER4_FS is not set
-+# CONFIG_REISERFS_FS is not set
-+# CONFIG_JFS_FS is not set
-+
-+#
-+# XFS support
-+#
-+# CONFIG_XFS_FS is not set
-+# CONFIG_MINIX_FS is not set
-+# CONFIG_ROMFS_FS is not set
-+CONFIG_INOTIFY=y
-+# CONFIG_QUOTA is not set
-+CONFIG_DNOTIFY=y
-+# CONFIG_AUTOFS_FS is not set
-+# CONFIG_AUTOFS4_FS is not set
-+
-+#
-+# Caches
-+#
-+# CONFIG_FSCACHE is not set
-+# CONFIG_FUSE_FS is not set
-+
-+#
-+# CD-ROM/DVD Filesystems
-+#
-+# CONFIG_ISO9660_FS is not set
-+# CONFIG_UDF_FS is not set
-+
-+#
-+# DOS/FAT/NT Filesystems
-+#
-+# CONFIG_MSDOS_FS is not set
-+# CONFIG_VFAT_FS is not set
-+# CONFIG_NTFS_FS is not set
-+
-+#
-+# Pseudo filesystems
-+#
-+CONFIG_PROC_FS=y
-+# CONFIG_PROC_KCORE is not set
-+CONFIG_SYSFS=y
-+# CONFIG_DEVFS_FS is not set
-+# CONFIG_DEVPTS_FS_XATTR is not set
-+CONFIG_TMPFS=y
-+# CONFIG_TMPFS_XATTR is not set
-+# CONFIG_HUGETLB_PAGE is not set
-+CONFIG_RAMFS=y
-+# CONFIG_RELAYFS_FS is not set
-+
-+#
-+# Miscellaneous filesystems
-+#
-+# CONFIG_ADFS_FS is not set
-+# CONFIG_AFFS_FS is not set
-+# CONFIG_HFS_FS is not set
-+# CONFIG_HFSPLUS_FS is not set
-+# CONFIG_BEFS_FS is not set
-+# CONFIG_BFS_FS is not set
-+# CONFIG_EFS_FS is not set
-+# CONFIG_CRAMFS is not set
-+# CONFIG_VXFS_FS is not set
-+# CONFIG_HPFS_FS is not set
-+# CONFIG_QNX4FS_FS is not set
-+# CONFIG_SYSV_FS is not set
-+# CONFIG_UFS_FS is not set
-+
-+#
-+# Network File Systems
-+#
-+CONFIG_NFS_FS=y
-+# CONFIG_NFS_V3 is not set
-+# CONFIG_NFS_V4 is not set
-+# CONFIG_NFS_DIRECTIO is not set
-+# CONFIG_NFSD is not set
-+CONFIG_ROOT_NFS=y
-+CONFIG_LOCKD=y
-+CONFIG_NFS_COMMON=y
-+CONFIG_SUNRPC=y
-+# CONFIG_RPCSEC_GSS_KRB5 is not set
-+# CONFIG_RPCSEC_GSS_SPKM3 is not set
-+# CONFIG_SMB_FS is not set
-+# CONFIG_CIFS is not set
-+# CONFIG_NCP_FS is not set
-+# CONFIG_CODA_FS is not set
-+# CONFIG_AFS_FS is not set
-+
-+#
-+# Partition Types
-+#
-+# CONFIG_PARTITION_ADVANCED is not set
-+CONFIG_MSDOS_PARTITION=y
-+
-+#
-+# Native Language Support
-+#
-+# CONFIG_NLS is not set
-+
-+#
-+# Kernel hacking
-+#
-+# CONFIG_PRINTK_TIME is not set
-+CONFIG_DEBUG_KERNEL=y
-+# CONFIG_MAGIC_SYSRQ is not set
-+CONFIG_LOG_BUF_SHIFT=14
-+CONFIG_DETECT_SOFTLOCKUP=y
-+# CONFIG_SCHEDSTATS is not set
-+# CONFIG_DEBUG_SLAB is not set
-+# CONFIG_DEBUG_SPINLOCK is not set
-+# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
-+# CONFIG_DEBUG_KOBJECT is not set
-+# CONFIG_DEBUG_HIGHMEM is not set
-+# CONFIG_DEBUG_BUGVERBOSE is not set
-+# CONFIG_DEBUG_INFO is not set
-+# CONFIG_DEBUG_FS is not set
-+# CONFIG_FRAME_POINTER is not set
-+# CONFIG_EARLY_PRINTK is not set
-+CONFIG_DEBUG_STACKOVERFLOW=y
-+# CONFIG_DEBUG_PAGEALLOC is not set
-+# CONFIG_GDBSTUB is not set
-+
-+#
-+# Security options
-+#
-+# CONFIG_KEYS is not set
-+# CONFIG_SECURITY is not set
-+
-+#
-+# Cryptographic options
-+#
-+# CONFIG_CRYPTO is not set
-+
-+#
-+# Hardware crypto devices
-+#
-+
-+#
-+# Library routines
-+#
-+# CONFIG_CRC_CCITT is not set
-+CONFIG_CRC32=y
-+# CONFIG_LIBCRC32C is not set
-diff -puN linux-2.6.12-rc4-mm1/arch/frv/kernel/setup.c~frv-defconfig 
-linux-2.6.12-rc4-mm1/arch/frv/kernel/setup.c
---- tmp2/linux-2.6.12-rc4-mm1/arch/frv/kernel/setup.c~frv-defconfig	2005
--05-13 17:48:55.048895400 +0000
-+++ tmp2-matsu/linux-2.6.12-rc4-mm1/arch/frv/kernel/setup.c	2005-05-13 
-17:50:25.779102312 +0000
-@@ -201,6 +201,7 @@ static struct uart_port __initdata __frv
- 	.regshift		= 3,
- 	.iotype			= UPIO_MEM,
- 	.flags			= UPF_BOOT_AUTOCONF | UPF_SKIP_TEST,
-+	.line			= 0,
- };
- 
- static struct uart_port __initdata __frv_uart1 = {
-@@ -210,6 +211,7 @@ static struct uart_port __initdata __frv
- 	.regshift		= 3,
- 	.iotype			= UPIO_MEM,
- 	.flags			= UPF_BOOT_AUTOCONF | UPF_SKIP_TEST,
-+	.line			= 1,
- };
- 
- #if 0
-diff -puN linux-2.6.12-rc4-mm1/include/asm-frv/pci.h~frv-defconfig linux
--2.6.12-rc4-mm1/include/asm-frv/pci.h
---- tmp2/linux-2.6.12-rc4-mm1/include/asm-frv/pci.h~frv-defconfig	2005
--05-13 17:48:55.730791736 +0000
-+++ tmp2-matsu/linux-2.6.12-rc4-mm1/include/asm-frv/pci.h	2005-05-13 
-17:50:25.779102312 +0000
-@@ -29,7 +29,7 @@ static inline void pcibios_add_platform_
- 
- extern void pcibios_set_master(struct pci_dev *dev);
- 
--extern void pcibios_penalize_isa_irq(int irq);
-+extern void pcibios_penalize_isa_irq(int irq, int active);
- 
- #ifdef CONFIG_MMU
- extern void *consistent_alloc(int gfp, size_t size, dma_addr_t *
-dma_handle);
-_
+> Maybe you also want a new incompatible fs flag, just to make sure old
+> kernels without proper understanding don't mess up the fs.
+
+Definitely.  You'd only need to set this if there were any  
+nonresident files,
+however, and those would probably only be created if you union  
+mounted with
+"-o nonres" or similar.
+
+>> If they deleted /dev/hdb1, but still wanted whatever changes they had
+>> made on /dev/hdb2, they could always get at them by remounting / 
+>> dev/hdb2
+>> somewhere _without_ "-o union", and use a modified tar to package  
+>> up the
+>> resident portions of files the same way it does for sparse files.
+>> Naturally there would need to be a way to mark a sparse file's empty
+>> spaces as nonresident if so desired when untarring.
+>
+> That's the old well-known (to some people) union-mount behaviour.
+
+I'm just describing the whole idea in totality, so that everybody can  
+get an
+idea of what's going on.
+
+> Really, your idea of a block (page, whatever) level granularity for
+> copying data is nice.
+
+I liked the idea of the existing linux sparse file support, so I  
+based it off
+that.
+
+> It solves the biggest concern I had left for union mount.  Actually
+> implementing it, though, depends on quite a bit of infrastructure  
+> that just
+> doesn't exist yet.  Still, a very interesting idea.
+
+For ext2/ext3, the sparse-file-support _does_ exist, so the only  
+major parts
+that need to be added are:
+     o An extra ext2/ext3 flag that indicates nonresidence (For both  
+sparse
+       files, normal files, and directories).
+     o VFS-level support for the union operation with hooks to let each
+       filesystem do something special.
+
+
+
+
+
+Cheers,
+Kyle Moffett
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$  
+r  !y?(-)
+------END GEEK CODE BLOCK------
+
+
+

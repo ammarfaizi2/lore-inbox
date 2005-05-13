@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262550AbVEMVBi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262533AbVEMVAm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262550AbVEMVBi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 17:01:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262526AbVEMVBF
+	id S262533AbVEMVAm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 17:00:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262526AbVEMU5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 17:01:05 -0400
-Received: from smtpout.mac.com ([17.250.248.46]:56269 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S262543AbVEMU6H convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 16:58:07 -0400
-In-Reply-To: <20050513122451.GD9255@wohnheim.fh-wedel.de>
-References: <20050509183135.GB27743@mary> <20050512121842.GA20388@wohnheim.fh-wedel.de> <20050512164413.GA14099@mary> <2F200E69-465D-46ED-9D3A-5ED5C9FEAC9A@mac.com> <20050513080137.GA9255@wohnheim.fh-wedel.de> <7E4FD3AB-54F6-43D5-9340-ECEEA2E55C0B@mac.com> <20050513122451.GD9255@wohnheim.fh-wedel.de>
-Mime-Version: 1.0 (Apple Message framework v728)
-Content-Type: text/plain; charset=ISO-8859-1; delsp=yes; format=flowed
-Message-Id: <5A04827D-95AF-4AD2-A656-12C66C875F29@mac.com>
-Cc: Markus Klotzbuecher <mk@creamnet.de>, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 8BIT
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [ANNOUNCE] mini_fo-0.6.0 overlay file system
-Date: Fri, 13 May 2005 16:57:52 -0400
-To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-X-Mailer: Apple Mail (2.728)
+	Fri, 13 May 2005 16:57:55 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:33425 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262543AbVEMU5O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 16:57:14 -0400
+In-Reply-To: <1115946620.6248.299.camel@localhost>
+To: linuxram@us.ibm.com
+Cc: 7eggert@gmx.de, ericvh@gmail.com, hch@infradead.org, jamie@shareable.org,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Miklos Szeredi <miklos@szeredi.hu>, smfrench@austin.rr.com
+MIME-Version: 1.0
+Subject: Re: [RCF] [PATCH] unprivileged mount/umount
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OFEFDF2D93.56922D33-ON88257000.0072463B-88257000.00730C46@us.ibm.com>
+From: Bryan Henderson <hbryan@us.ibm.com>
+Date: Fri, 13 May 2005 13:56:06 -0700
+X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Build V70_04122005|April 12, 2005) at
+ 05/13/2005 16:57:08,
+	Serialize complete at 05/13/2005 16:57:08
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On May 13, 2005, at 08:24:51, Jörn Engel wrote:
-> That and replacing the page cache by something different.  Page cache
-> is referencing pages by inode,offset pairs.  Having a potentially
-> infinite amount of inodes to look at, in order, may require a tiny bit
-> of patching. ;)
+>Sorry if I am saying something dumb here.
+>Correct me.  When a file descriptor is sent from one process to other,
 
-Why modify the page cache (much)?  In the sparse-nonresident-file case,
-when a filesystem is asked to return a page-cache page mapped to the
-file, it looks it up in itself.  If that call returns ENONRESIDENT or
-similar, the VFS union code would go to the next filesystem in the
-stack and attempt a similar lookup.  If any filesystem but the root
-returns a page, then the unionfs code would map it read-only and COW.
-When the COW triggers, it will call into the VFS union code, which will
-either:
-     (a) If the topmost filesystem supports sparse-nonresident, then
-         have it allocate the new page on-disk.
-     (b) Otherwise, copy the whole file and modify the page.
+This confusion, incidentally, is brought to you by the ambiguous use of 
+the term "file descriptor."  In classic Unix, the "file descriptor" is the 
+integer that open() returns.  It's an improper use of the term 
+"descriptor," as this value does not describe but identifies.  But in the 
+SCM_RIGHTS context, the term "file descriptor" is used to refer to a 
+handle for a file image.  While it's true that a file descriptor goes in 
+one end of the pipe and a (generally different) file descriptor comes out 
+the other end, what's being passed is a handle for a file image (aka open 
+instance).
 
-Then it would return the new now-writeable pagecache page.
-
-Cheers,
-Kyle Moffett
-
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$  
-r  !y?(-)
-------END GEEK CODE BLOCK------
-
-
+--
+Bryan Henderson                          IBM Almaden Research Center
+San Jose CA                              Filesystems
 

@@ -1,59 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262285AbVEMH5o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262287AbVEMH7s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262285AbVEMH5o (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 03:57:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbVEMH5o
+	id S262287AbVEMH7s (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 03:59:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbVEMH7s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 03:57:44 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48565 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262285AbVEMH5h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 03:57:37 -0400
-Date: Fri, 13 May 2005 08:57:43 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Jim Washer <e2big@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CONFIRMED bug in do_generic_file_read
-Message-ID: <20050513075743.GG1150@parcelfarce.linux.theplanet.co.uk>
-References: <200505130057.j4D0vvh08761@crg8.beaverton.ibm.com>
+	Fri, 13 May 2005 03:59:48 -0400
+Received: from gate.crashing.org ([63.228.1.57]:30393 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262287AbVEMH7l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 03:59:41 -0400
+Subject: Re: [PATCH] Updated: fix-pci-mmap-on-ppc-and-ppc64.patch
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: michael@ellerman.id.au
+Cc: Andrew Morton <akpm@osdl.org>, PPC64-dev <linuxppc64-dev@ozlabs.org>,
+       LKML <linux-kernel@vger.kernel.org>, linux-pci@atrey.karlin.mff.cuni.cz
+In-Reply-To: <200505131744.11095.michael@ellerman.id.au>
+References: <200505131744.11095.michael@ellerman.id.au>
+Content-Type: text/plain
+Date: Fri, 13 May 2005 17:59:06 +1000
+Message-Id: <1115971146.5128.16.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200505130057.j4D0vvh08761@crg8.beaverton.ibm.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 12, 2005 at 05:57:57PM -0700, Jim Washer wrote:
-> Well, my original post got ZERO responses, but I've continued to look 
-> at this, and with the help of a colleague I think we've bottomed out.
+On Fri, 2005-05-13 at 17:44 +1000, Michael Ellerman wrote:
+> Hi Andrew,
+> 
+> This is an updated version of Ben's fix-pci-mmap-on-ppc-and-ppc64.patch
+> which is in 2.6.12-rc4-mm1.
+> 
+> It fixes the patch to work on PPC iSeries, removes some debug printks
+> at Ben's request, and incorporates your 
+> fix-pci-mmap-on-ppc-and-ppc64-fix.patch also.
+> 
+> cheers
+> 
+> Signed-off-by: Michael Ellerman <michael@ellerman.id.au>
 
-> do_generic_file_read does indeed have a bug, as mentioned below. However, 
-> this bug is generally not hit as the call to a_ops->readpage (normally 
-> pointing at blkdev_readpage) NEVER returns an error. However, the Veritas 
-> code's readpage does return errors, and this triggers this KERNEL BUG.
+Acked-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-Hardly.  What it does, apparently, is extra page_cache_release().
- 
-> I don't know enough about the page cache to know if simply NULLing the 
-> page->mapping pointer is safe.
 
-Analysis above is BS.
-	a) page with non-NULL ->mapping == page in cache.  Code that adds
-page to page cache grabs a reference before putting it on the lists.
-	b) code that evicts page from cache drops a reference after getting
-the sucker off lists.
-	c) final page_cache_release() while page is still in cache is,
-indeed, a bug.  Of memory-corrupting variety.
-	d) ->readpage() has no fscking business playing with any of the above.
-	e) while we are at it, -EFAULT is a hell of a strange error for
-->readpage(), but that's a separate story.
-
-Check for unbalanced page_cache_release() in their code.
-
-> Anyone care to address this?
-
-See above.  Anything beyond that requires
-	1) access to their code
-	2) good supply of industrial-strength barf-bags to deal with
-inevitable consequences of (1).

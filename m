@@ -1,81 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262398AbVEMPSL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262402AbVEMPRo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262398AbVEMPSL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 11:18:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262403AbVEMPSL
+	id S262402AbVEMPRo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 11:17:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbVEMPRo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 11:18:11 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:42655 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262398AbVEMPR5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 11:17:57 -0400
-Message-ID: <4284C54E.3060907@linux.intel.com>
-Date: Fri, 13 May 2005 10:18:38 -0500
-From: James Ketrenos <jketreno@linux.intel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050423
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Netdev <netdev@oss.sgi.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: git repository for net drivers available
-References: <42841A3F.7020909@pobox.com>
-In-Reply-To: <42841A3F.7020909@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 13 May 2005 11:17:44 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56477 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262405AbVEMPRc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 11:17:32 -0400
+Date: Fri, 13 May 2005 16:17:44 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: James Washer <washer@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, washer@beaverton.ibm.com
+Subject: Re: CONFIRMED bug in do_generic_file_read
+Message-ID: <20050513151744.GH1150@parcelfarce.linux.theplanet.co.uk>
+References: <20050513075743.GG1150@parcelfarce.linux.theplanet.co.uk> <OFF1B70B69.DFDD4B59-ON88257000.004A3F64-88257000.004B2949@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OFF1B70B69.DFDD4B59-ON88257000.004A3F64-88257000.004B2949@us.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+On Fri, May 13, 2005 at 06:42:50AM -0700, James Washer wrote:
+> Al, relax.. as I said, I don't know much about page cache code. 
+> 
+> So, let me ask a question, if I can, with out upsetting you further.
+> 
+> You say the analysis is, ah, incorrect.
+> 
+> Can you help me understand what a readpage routine SHOULD do with a page 
+> when it finds it cannot "arrange" a successful read? Is simply returning 
+> an error incorrect behaviour? If so, what should the readpage do?
 
->
-> This includes the wireless-2.6 repository.
->
-> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
->
-> The main branch is fairly irrelevant, as you must choose the branch
-> you wish:
->
->> [jgarzik@pretzel netdev-2.6]$ ls .git/branches/
->> 8139cp         e1000        ixgb     r8169            skge          
->> we18
->> 8139too-iomap  forcedeth    janitor  register-netdev  smc91x        
->> wifi
->> amd8111        ieee80211    orinoco  remove-drivers   smc91x-eeprom
->> e100           iff-running  ppp      sis900           starfire
->
-Ok, I'll bite.  Hopefully I'm not the only one tripping on shoe laces...
+It is a perfectly acceptable behaviour.  And it works just fine - e.g.
+nfs_readpage() does that in quite a few cases.
 
-Here is what I did -- what am I doing wrong?
+What you are missing is the fact that page_cache_release() frees the
+page only when it drops the final reference.  And pages are pinned
+down while they are in page cache.
 
-Following is using cogito 0.10:
+If you see page_cache_release() right after ->readpage() triggering that
+check, you've got out of ->readpage() with
+	* only one reference to page remaining
+	* one reference to that page acquired earlier in do_generic_file_read()
+and not dropped until now.
+	* one reference to that page acquired back when it had been put
+in page cache.  Matching page_cache_release() would be done when page
+is removed from page cache, but places that do it would remove the page
+from cache first.  Which would set ->mapping to NULL.
 
-REPO=rsync://rsync.kernel.org/pubs/scm/linux/kernel/git/jgarzik/netdev-2.6.git
-cg-clone ${REPO}
-.... get coffee, etc. ... come back and I have a netdev-2.6 tree ...
-cg-branch-add wifi ${REPO}#wifi
-cg-update wifi
-.... connects and attempts to download but fails out with:
-
-----------------
-receiving file list ... done
-client: nothing to do: perhaps you need to specify some filenames or the
---recursive option?
-
-rsync: link_stat
-"/scm/linux/kernel/git/jgarzik/netdev-2.6.git/heads/wifi" (in pub)
-failed: No such file or directory (2)
-rsync error: some files could not be transferred (code 23) at main.c(653)
-receiving file list ... done
-client: nothing to do: perhaps you need to specify some filenames or the
---recursive option?
-cg-pull: unable to get the head pointer of branch wifi
-----------------
-
-Should it be trying to get 'wifi' from ...netdev-2.6.git/branches (vs.
-heads)? 
-
-Tool problem, user problem, complete lack of knowledge re: git and
-cogito, or a combination of the above?
-
-Thanks,
-James
+Conclusion: something had done an unbalanced page_cache_release().  That
+happened after the moment when do_generic_file_read() had found the page
+and pinned it down and before the end of ->readpage().  Most likely -
+->readpage() itself or something called by it.
+the page, but

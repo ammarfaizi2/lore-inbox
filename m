@@ -1,74 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262385AbVEMOdG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262393AbVEMOj3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262385AbVEMOdG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 10:33:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262388AbVEMOdF
+	id S262393AbVEMOj3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 10:39:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262395AbVEMOjW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 10:33:05 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:52180 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262385AbVEMOc5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 10:32:57 -0400
-Message-ID: <4284BA90.5080508@pobox.com>
-Date: Fri, 13 May 2005 10:32:48 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Daniel Jacobowitz <dan@debian.org>
-CC: "Barry K. Nathan" <barryn@pobox.com>, Gabor MICSKO <gmicsko@szintezis.hu>,
+	Fri, 13 May 2005 10:39:22 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:3334 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262393AbVEMOhW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 10:37:22 -0400
+Date: Fri, 13 May 2005 16:37:20 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, perex@suse.cz, alsa-devel@alsa-project.org,
        linux-kernel@vger.kernel.org
-Subject: Re: Hyper-Threading Vulnerability
-References: <1115963481.1723.3.camel@alderaan.trey.hu> <20050513124735.GA7436@ip68-225-251-162.oc.oc.cox.net> <4284B55C.7010202@pobox.com> <20050513142336.GA6174@nevyn.them.org>
-In-Reply-To: <20050513142336.GA6174@nevyn.them.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Subject: Re: [Alsa-devel] [2.6 patch] sound/isa/: possible cleanups
+Message-ID: <20050513143720.GH16549@stusta.de>
+References: <20050513140053.GF16549@stusta.de> <s5hd5rvryaw.wl@alsa2.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <s5hd5rvryaw.wl@alsa2.suse.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Jacobowitz wrote:
-> On Fri, May 13, 2005 at 10:10:36AM -0400, Jeff Garzik wrote:
-> 
->>Barry K. Nathan wrote:
->>
->>>On Fri, May 13, 2005 at 07:51:20AM +0200, Gabor MICSKO wrote:
->>>
->>>
->>>>Is this flaw affects the current stable Linux kernels? Workaround?
->>>>Patch?
->>
->>Simple.  Just boot a uniprocessor kernel, and/or disable HT in BIOS.
->>
->>
->>
->>>Some pages with relevant information:
->>>http://www.ussg.iu.edu/hypermail/linux/kernel/0403.2/0920.html
->>>http://bugzilla.kernel.org/show_bug.cgi?id=2317
->>
->>These pages have zero information on the "flaw."  In fact, I can see no 
->>information at all proving that there is even a problem here.
->>
->>Classic "I found a problem, but I'm keeping the info a secret" security 
->>crapola.
-> 
-> 
-> FYI:
->   http://www.daemonology.net/hyperthreading-considered-harmful/
+On Fri, May 13, 2005 at 04:32:55PM +0200, Takashi Iwai wrote:
+>...
+> The unused stuff in sound/isa/gus/* are for (everlasting :) future
+> development, e.g. WaveTable synth support.  So I don't think it's a
+> good idea to remove completely them.
+>...
 
-Already read it.  This link provides no more information than either of 
-the above links provide.
+Would a patch to #if 0 them away be OK?
 
+> Takashi
 
-> I don't much agree with Colin about the severity of the problem, but
-> I've read his paper, which should be generally available later today.
-> It's definitely a legitimate issue.
+cu
+Adrian
 
-We'll see...
+-- 
 
-As of this moment, there continues to be _zero_ information proving that 
-a problem exists.
-
-	Jeff
-
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

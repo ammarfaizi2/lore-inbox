@@ -1,91 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262511AbVEMVaT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261527AbVEMVdk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262511AbVEMVaT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 17:30:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262552AbVEMVaR
+	id S261527AbVEMVdk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 17:33:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262503AbVEMVbb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 17:30:17 -0400
-Received: from zak.futurequest.net ([69.5.6.152]:47759 "HELO
-	zak.futurequest.net") by vger.kernel.org with SMTP id S262554AbVEMV2S
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 17:28:18 -0400
-Date: Fri, 13 May 2005 15:28:16 -0600
-From: Bruce Guenter <bruceg@em.ca>
-To: linux-kernel@vger.kernel.org
-Subject: Re: How to diagnose a kernel memory leak
-Message-ID: <20050513212816.GA29230@em.ca>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20050509035823.GA13715@em.ca> <1115627361.936.11.camel@localhost.localdomain> <20050511193726.GA29463@em.ca> <20050512171825.12599c1e.akpm@osdl.org>
+	Fri, 13 May 2005 17:31:31 -0400
+Received: from straum.hexapodia.org ([64.81.70.185]:19318 "EHLO
+	straum.hexapodia.org") by vger.kernel.org with ESMTP
+	id S261527AbVEMV0n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 17:26:43 -0400
+Date: Fri, 13 May 2005 14:26:20 -0700
+From: Andy Isaacson <adi@hexapodia.org>
+To: Andi Kleen <ak@muc.de>
+Cc: "Richard F. Rebel" <rrebel@whenu.com>, Gabor MICSKO <gmicsko@szintezis.hu>,
+       linux-kernel@vger.kernel.org, mpm@selenic.com, tytso@mit.edu
+Subject: Re: Hyper-Threading Vulnerability
+Message-ID: <20050513212620.GA12522@hexapodia.org>
+References: <1115963481.1723.3.camel@alderaan.trey.hu> <m164xnatpt.fsf@muc.de> <1116009483.4689.803.camel@rebel.corp.whenu.com> <20050513190549.GB47131@muc.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3V7upXqbjpZ4EhLz"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050512171825.12599c1e.akpm@osdl.org>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <20050513190549.GB47131@muc.de>
+User-Agent: Mutt/1.4.2i
+X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
+X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, May 13, 2005 at 09:05:49PM +0200, Andi Kleen wrote:
+> On Fri, May 13, 2005 at 02:38:03PM -0400, Richard F. Rebel wrote:
+> > Why?  It's certainly reasonable to disable it for the time being and
+> > even prudent to do so.
+> 
+> No, i strongly disagree on that. The reasonable thing to do is
+> to fix the crypto code which has this vulnerability, not break
+> a useful performance enhancement for everybody else.
 
---3V7upXqbjpZ4EhLz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Pardon me for saying so, but that's bullshit.  You're asking the crypto
+guys to give up a 5x performance gain (that's my wild guess) by giving
+up all their data-dependent algorithms and contorting their code wildly,
+to avoid a microarchitectural problem with Intel's HT implementation.
 
-On Thu, May 12, 2005 at 05:18:25PM -0700, Andrew Morton wrote:
-> It all looks pretty innocent.  Please send the contents of /proc/meminfo
-> rather than the `free' output.  /proc/meminfo has much more info.=20
+There are three places to cut off the side channel, none of which is
+obviously the right one.
+1. The HT implementation could do the cache tricks Colin suggested in
+   his paper.  Fairly large performance hit to address a fairly small
+   problem.
+2. The OS could do the scheduler tricks to avoid scheduling unfriendly
+   threads on the same core.  You're leaving a lot of the benefit of HT
+   on the floor by doing so.
+3. Every security-sensitive app can be rigorously audited and re-written
+   to avoid *ever* referencing memory with the address determined by
+   private data.
 
-Here are the current meminfo numbers:
+(3) is a complete non-starter.  It's just not feasible to rewrite all
+that code.  Furthermore, there's no way to know what code needs to be
+rewritten!  (Until someone publishes an advisory, that is...)
 
-MemTotal:      2055648 kB
-MemFree:         56512 kB
-Buffers:        236880 kB
-Cached:         869616 kB
-SwapCached:          0 kB
-Active:        1004124 kB
-Inactive:       729732 kB
-HighTotal:     1179072 kB
-HighFree:         3584 kB
-LowTotal:       876576 kB
-LowFree:         52928 kB
-SwapTotal:     1028152 kB
-SwapFree:      1028096 kB
-Dirty:            1036 kB
-Writeback:           0 kB
-Mapped:          13100 kB
-Slab:           252444 kB
-CommitLimit:   2055976 kB
-Committed_AS:    25704 kB
-PageTables:       1060 kB
-VmallocTotal:   114680 kB
-VmallocUsed:      4700 kB
-VmallocChunk:   109836 kB
+Hmm, I can't think of any reason that this technique wouldn't work to
+extract information from kernel secrets, as well... 
 
-If I am counting right, free+buffers+cached+slab comes to 1415452 kB.
-Of course, at this point, it is far from out of memory like it has been
-in the past.  I am continuing to monitor, and will post numbers when it
-gets closer to what I have previously observed.
+If SHA has plaintext-dependent memory references, Colin's technique
+would enable an adversary to extract the contents of the /dev/random
+pools.  I don't *think* SHA does, based on a quick reading of
+lib/sha1.c, but someone with an actual clue should probably take a look.
 
-> If the /proc/meminfo output indicates that there are a lot of slab pages
-> then /proc/slabinfo should be looked at.
+Andi, are you prepared to *require* that no code ever make a memory
+reference as a function of a secret?  Because that's what you're
+suggesting the crypto people should do.
 
-That was my first thought, yes.  However, when it has run out of memory,
-even the slab totals were low (my first post showed only about 60 MB in
-slab).
---=20
-Bruce Guenter <bruceg@em.ca> http://em.ca/~bruceg/ http://untroubled.org/
-OpenPGP key: 699980E8 / D0B7 C8DD 365D A395 29DA  2E2A E96F B2DC 6999 80E8
-
---3V7upXqbjpZ4EhLz
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFChRvw6W+y3GmZgOgRAsStAJ0W456kmKiTtFk46bDOyu/TFyABYQCfcFKc
-dgAd0hf06TM970M7pEkjU4Q=
-=Hqjg
------END PGP SIGNATURE-----
-
---3V7upXqbjpZ4EhLz--
+-andy

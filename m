@@ -1,45 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262230AbVEMEQ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262232AbVEME1v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262230AbVEMEQ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 00:16:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262232AbVEMEQ1
+	id S262232AbVEME1v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 00:27:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262233AbVEME1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 00:16:27 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:38669 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262230AbVEMEQY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 00:16:24 -0400
-Date: Fri, 13 May 2005 06:16:22 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Julian Anastasov <ja@ssi.bg>,
-       Wensong Zhang <wensong@linuxvirtualserver.org>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Status of net/ipv4/ipvs/ip_vs_proto_icmp.c?
-Message-ID: <20050513041622.GE3603@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Fri, 13 May 2005 00:27:51 -0400
+Received: from Boole.cs.uh.edu ([129.7.240.11]:36300 "EHLO boole.cs.uh.edu")
+	by vger.kernel.org with ESMTP id S262232AbVEME1q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 00:27:46 -0400
+Message-ID: <3445.24.160.120.233.1115958466.squirrel@24.160.120.233>
+Date: Thu, 12 May 2005 23:27:46 -0500 (CDT)
+Subject: Unexpected behaviour of O(1) scheduler on SMP 2.6 Kernel
+From: "Deepti Vyas" <dvyas@cs.uh.edu>
+To: linux-kernel@vger.kernel.org
+Reply-To: dvyas@cs.uh.edu
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I am running some experiments with the new O(1) scheduler. I am running my
+experiments on a cluster of 10 machines, running Rocks4.0 Beta (which
+comes with 2.6 kernel and hence the new scheduler)
 
-can anyone explain the status of?
+The behaviour of scheduler is unexplained, and am getting some very
+unexpected results. I read about the design of O(1) scheduler, and my
+results completely DISAGREE with the theory. Any insight into explaining
+this will be helpful.
 
-This file is always included in the kernel if CONFIG_IP_VS=y, but it's 
-completely unused.
+--------------------------CASE 1-------------------------------------------
 
-Will it be made working in the forseeable future or is it a candidate 
-for removal?
+On a dual processor CPU, I have 2 processes running P1 and P2.
 
-TIA
-Adrian
+Here is snapshot of CPU utilization:
 
--- 
+	User	Sys	Nice
+CPU1	40	30	0	P1
+CPU2	40	30	0	P2
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Now I add a niced process with nice value =19. So I expect it to utilize
+the left over 30% CPU on either one of the CPUs. But instead the new
+snapshot of the system is
+
+
+	User	Sys	Nice
+CPU1	0	0	100	niced_process
+CPU2	50	40	0	P1 & P2
+
+So overall the nice process finishes in time. And normal process gets
+slowed down by 30-40 %.
+
+**NOTE: P1 and P2 and MPI jobs, so they wait on gettting data from other
+nodes and consume only 70% CPU max.
+nice process is cpu hog and consume 100% CPU
+---------------------------------------------------------------------
+
+
+
+--------------------------CASE 2-------------------------------------------
+
+On a dual processor CPU, I have 2 processes running P1 and P2. But this
+time P1 and P2 are CPU hogs themselves
+
+Here is snapshot of CPU utilization:
+
+	User	Sys	Nice
+CPU1	100	0	0	P1
+CPU2	100	0	0	P2
+
+Now I add a niced process with nice value =19.
+
+	User	Sys	Nice
+CPU1	100	0	0	P1
+CPU2	95	0	5	P2 & niced_process
+
+This is GREAT! As expected.
+
+
+But the CATCH is, if the niced_process is started first, and then P1 and
+P2 are initiated, the behaviour is completely unexpected.
+
+	User	Sys	Nice
+CPU1	0	0	100	niced_process
+CPU2	0	0	0	-
+
+Now I add P1 and P2
+
+	User	Sys	Nice
+CPU1	0	0	100	niced_process
+CPU2	100	0	0	P1 & P2
+
+
+I expected the nice process to give up CPU to either P1 and P2.
+
+NOTE: Here P1 , P2 and Niced_process are CPU hogs, and run at 100% cpu
+utilization
+
+---------------------------------------------------------------------
+
+
+Any comments will be appreciated.
+
+
+PLEASE EMAIL ME AT : dvyas@cs.uh.edu
+
+Thanks
+Deepti
 

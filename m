@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262539AbVEMUem@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262534AbVEMUel@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262539AbVEMUem (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 16:34:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262530AbVEMUdw
+	id S262534AbVEMUel (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 16:34:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262533AbVEMUeC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 16:33:52 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:34540 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262533AbVEMUVu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 16:21:50 -0400
-Subject: Re: iSCSI vs. NBD (was Re: ata over ethernet question)
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: Sander <sander@humilis.net>, David Hollis <dhollis@davehollis.com>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.60.0505132040400.8052@poirot.grange>
-References: <1416215015.20050504193114@dns.toxicfilms.tv>
-	 <1115236116.7761.19.camel@dhollis-lnx.sunera.com>
-	 <1104082357.20050504231722@dns.toxicfilms.tv>
-	 <1115305794.3071.5.camel@dhollis-lnx.sunera.com>
-	 <20050507150538.GA800@favonius>
-	 <Pine.LNX.4.60.0505102352430.9008@poirot.grange>
-	 <1115923927.5042.18.camel@mulgrave>
-	 <Pine.LNX.4.60.0505132040400.8052@poirot.grange>
-Content-Type: text/plain
-Date: Fri, 13 May 2005 16:21:33 -0400
-Message-Id: <1116015693.6639.4.camel@mulgrave>
+	Fri, 13 May 2005 16:34:02 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:25063 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262534AbVEMUWm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 16:22:42 -0400
+Date: Sat, 14 May 2005 01:50:59 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: vatsa@in.ibm.com, dino@in.ibm.com, ntl@pobox.com, Simon.Derr@bull.net,
+       lse-tech@lists.sourceforge.net, akpm@osdl.org, nickpiggin@yahoo.com.au,
+       linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+Subject: Re: [Lse-tech] Re: [PATCH] cpusets+hotplug+preepmt broken
+Message-ID: <20050513202058.GE5044@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20050511191654.GA3916@in.ibm.com> <20050511195156.GE3614@otto> <20050513123216.GB3968@in.ibm.com> <20050513172540.GA28018@in.ibm.com> <20050513125953.66a59436.pj@sgi.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050513125953.66a59436.pj@sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-05-13 at 20:50 +0200, Guennadi Liakhovetski wrote:
-> I'll try to get some (thoughts):-) BTW, who is the maintainer of nbd? No 
-> one in MAINTAINERS, in nbd.c only
->  * Copyright 1997-2000 Pavel Machek <pavel@ucw.cz>
->  * Parts copyright 2001 Steven Whitehouse <steve@chygwyn.com>
-> Is it Pavel then?
+On Fri, May 13, 2005 at 12:59:53PM -0700, Paul Jackson wrote:
+> Srivatsa, replying to Dinakar:
+> > This in fact was the reason that we added lock_cpu_hotplug
+> > in sched_setaffinity.
+> 
+> We do need to be clear about how these locks work, their semantics, what
+> they require and what they insure, and their various interactions.
+> 
+> This is not easy stuff to get right.
+> 
+> I notice that the documentation for lock_cpu_hotplug() is a tad on
+> the skimpy side:
+> 
+> 	/* Stop CPUs going up and down. */
+> 
+> That's it, so far as I can see.  Interaction of hotplug locking with
+> the rest of the kernel has been, is now, and will continue to be, a
+> difficult area.  More care than this needs to be put into explaining
+> the use, semantics and interactions of any locking involved.
+> 
+> In particular, in my view, locks should guard data.  What data does
+> lock_cpu_hotplug() guard?  I propose that it guards cpu_online_map.
+> 
+> I recommend considering a different name for this lock.  Perhaps
+> 'cpu_online_sem', instead of 'cpucontrol'?   And perhaps the
+> lock_cpu_hotplug() should be renamed, to say 'lock_cpu_online'?
 
-Well, my copy of the MAINTAINERS file has this:
+No. CPU hotplug uses two different locking - see both lock_cpu_hotplug()
+and __stop_machine_run(). Anyone reading cpu_online_map with
+preemption disabled is safe from cpu hotplug even without taking
+any lock.
 
-NETWORK BLOCK DEVICE
-P:      Paul Clements
-M:      Paul.Clements@steeleye.com
-S:      Maintained
-
-James
-
+Thanks
+Dipankar

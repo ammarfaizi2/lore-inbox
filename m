@@ -1,102 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262501AbVEMTFm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262480AbVEMS43@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262501AbVEMTFm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 15:05:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262498AbVEMTDB
+	id S262480AbVEMS43 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 14:56:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262488AbVEMSyg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 15:03:01 -0400
-Received: from kanga.kvack.org ([66.96.29.28]:37268 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S262487AbVEMS4k (ORCPT
+	Fri, 13 May 2005 14:54:36 -0400
+Received: from [24.24.2.57] ([24.24.2.57]:27132 "EHLO ms-smtp-03.nyroc.rr.com")
+	by vger.kernel.org with ESMTP id S262487AbVEMSwM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 14:56:40 -0400
-Date: Fri, 13 May 2005 14:58:50 -0400
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: jgarzik@pobox.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [rfc/patch] libata -- port configurable delays
-Message-ID: <20050513185850.GA5777@kvack.org>
+	Fri, 13 May 2005 14:52:12 -0400
+Subject: Re: Does smp_reschedule_interrupt really reschedule?
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050513182631.GA15916@elte.hu>
+References: <1116008299.4728.19.camel@localhost.localdomain>
+	 <20050513182631.GA15916@elte.hu>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Fri, 13 May 2005 14:51:20 -0400
+Message-Id: <1116010280.4728.29.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Jeff et al,
+On Fri, 2005-05-13 at 20:26 +0200, Ingo Molnar wrote:
+> it's all a bit tricky. The short story is that i think both vanilla and 
+> -RT kernels are fine.
+> 
+> Here is how smp_send_reschedule() is used:
+> 
+> 	CPU#0				CPU#1
+> 
+> 	set_tsk_need_resched(rq->curr);
+> 	...
+> 	smp_send_reschedule()
+> 			--- IPI --->
+> 					smp_reschedule_interrupt();
+> 					...
+> 					entry.S's need_resched check
+> 
 
-The patch below makes the delays in ata_pause() and ata_busy_wait() 
-configurable on a per-port basis, and enables the no delay flag on 
-the one chipset I've tested on.  Getting rid of the delays is worth 
-quite a bit: doing sequential 512 byte O_DIRECT AIO reads results in 
-a drop from 35.743s to 29.205s using simple-aio-min_nr 20480 10 (a copy 
-is available at http://www.kvack.org/~bcrl/simple-aio-min_nr.c).  
-Before this patch __delay() is the number one entry in oprofile 
-results for this workload.  Does this look like a reasonable approach 
-for chipsets that aren't completely braindead?  Cheers,
+OK, Forget about vanilla, I'm keeping to your kernel now ;-) 
 
-		-ben
--- 
-"Time is what keeps everything from happening all at once." -- John Wheeler
+In finish_task_switch, where is need_resched set?
 
-CPU: P4 / Xeon with 2 hyper-threads, speed 2994.52 MHz (estimated)
-Counted INSTR_RETIRED events (retired instructions) with a unit mask of 0x03 (mu
-ltiple flags) count 90000
-samples  %        app name                 symbol name
-6676     19.5011  vmlinux                  __delay
-923       2.6962  vmlinux                  __blockdev_direct_IO
-733       2.1411  vmlinux                  memset
-711       2.0769  vmlinux                  kmem_cache_alloc
-698       2.0389  vmlinux                  kmem_cache_free
-639       1.8666  vmlinux                  mempool_alloc
-455       1.3291  vmlinux                  as_insert_request
-440       1.2853  vmlinux                  scsi_request_fn
-404       1.1801  vmlinux                  ext3_get_branch
-404       1.1801  vmlinux                  mempool_free
-374       1.0925  vmlinux                  scsi_dispatch_cmd
-356       1.0399  vmlinux                  __mod_timer
-352       1.0282  vmlinux                  __make_request
-...
 
-Signed-off-by: Benjamin LaHaise <benjamin.c.lahaise@intel.com>
-diff -purN v2.6.12-rc4/drivers/scsi/ata_piix.c libata-rc4/drivers/scsi/ata_piix.c
---- v2.6.12-rc4/drivers/scsi/ata_piix.c	2005-04-28 11:01:54.000000000 -0400
-+++ libata-rc4/drivers/scsi/ata_piix.c	2005-05-13 13:30:39.000000000 -0400
-@@ -228,6 +228,7 @@ static struct ata_port_info piix_port_in
- 		.sht		= &piix_sht,
- 		.host_flags	= ATA_FLAG_SATA | ATA_FLAG_SRST |
- 				  PIIX_FLAG_COMBINED | PIIX_FLAG_CHECKINTR |
-+				  ATA_FLAG_NO_UDELAY |
- 				  ATA_FLAG_SLAVE_POSS,
- 		.pio_mask	= 0x1f,	/* pio0-4 */
- 		.mwdma_mask	= 0x07, /* mwdma0-2 */
-diff -purN v2.6.12-rc4/include/linux/libata.h libata-rc4/include/linux/libata.h
---- v2.6.12-rc4/include/linux/libata.h	2005-04-06 17:28:10.000000000 -0400
-+++ libata-rc4/include/linux/libata.h	2005-05-13 13:32:15.000000000 -0400
-@@ -113,6 +113,7 @@ enum {
- 	ATA_FLAG_MMIO		= (1 << 6), /* use MMIO, not PIO */
- 	ATA_FLAG_SATA_RESET	= (1 << 7), /* use COMRESET */
- 	ATA_FLAG_PIO_DMA	= (1 << 8), /* PIO cmds via DMA */
-+	ATA_FLAG_NO_UDELAY	= (1 << 9), /* don't udelay on port access */
- 
- 	ATA_QCFLAG_ACTIVE	= (1 << 1), /* cmd not yet ack'd to scsi lyer */
- 	ATA_QCFLAG_SG		= (1 << 3), /* have s/g table? */
-@@ -469,7 +470,8 @@ static inline u8 ata_chk_status(struct a
- static inline void ata_pause(struct ata_port *ap)
- {
- 	ata_altstatus(ap);
--	ndelay(400);
-+	if (!(ap->flags & ATA_FLAG_NO_UDELAY))
-+		ndelay(400);
- }
- 
- static inline u8 ata_busy_wait(struct ata_port *ap, unsigned int bits,
-@@ -478,7 +480,8 @@ static inline u8 ata_busy_wait(struct at
- 	u8 status;
- 
- 	do {
--		udelay(10);
-+		if (!(ap->flags & ATA_FLAG_NO_UDELAY))
-+			udelay(10);
- 		status = ata_chk_status(ap);
- 		max--;
- 	} while ((status & bits) && (max > 0));
+> _but_, this is intentionally racy: if CPU#1 happens to reschedule before 
+> the IPI reaches CPU#1 (an IPI can take 10 usecs easily so the window is 
+> not small), then need_resched might be cleared before the IPI hits. In 
+> that case you wont get a reschedule after the IPI hits, because it was 
+> done before!
+> 
+> so the correct thing to measure is what the -RT kernel's wakeup-latency 
+> timing feature does: the time from setting need_resched, to the point 
+> the task starts to run. The feature works on SMP too - and it doesnt 
+> show any large latencies.
+> 
+> are you seeing actual process delays? If not then i think those large 
+> latencies are just the result of the wrong assumptions in your 
+> measurement code.
+
+No this wasn't from real world applications yet. So the bug may rightly
+be with the placement of my timers.  I was looking at the code and
+didn't know how the reschedule takes place and started testing it.  Let
+me know where that need_resched is with that finish_task_switch code,
+and I'll probably be happy with just that.
+
+Thanks,
+
+-- Steve
+

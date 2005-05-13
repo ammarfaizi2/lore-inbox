@@ -1,58 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262353AbVEMPqS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262403AbVEMPtu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262353AbVEMPqS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 11:46:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262403AbVEMPqS
+	id S262403AbVEMPtu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 11:49:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262404AbVEMPtu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 11:46:18 -0400
-Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:24404 "EHLO
-	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
-	id S262353AbVEMPqB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 11:46:01 -0400
-X-SBRSScore: None
-X-IronPort-AV: i="3.93,107,1114984800"; 
-   d="scan'208"; a="9296105:sNHT27321732"
-Message-ID: <4284CBB5.6060609@fujitsu-siemens.com>
-Date: Fri, 13 May 2005 17:45:57 +0200
-From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
+	Fri, 13 May 2005 11:49:50 -0400
+Received: from agmk.net ([217.73.17.121]:58128 "EHLO mail.agmk.net")
+	by vger.kernel.org with ESMTP id S262403AbVEMPt3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 11:49:29 -0400
+From: Pawel Sikora <pluto@agmk.net>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6.8] OOPS and SIGSEGV on altivec instruction on PowerPC 7540.
+Date: Fri, 13 May 2005 17:49:20 +0200
+User-Agent: KMail/1.8
 MIME-Version: 1.0
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-CC: linux-kernel@vger.kernel.org, Ulrich Weigand <uweigand@de.ibm.com>
-Subject: Re: Again: UML on s390 (31Bit)
-References: <OFDFABA6D8.CD5E92EF-ONC1257000.0055D4CD-C1257000.00561400@de.ibm.com>
-In-Reply-To: <OFDFABA6D8.CD5E92EF-ONC1257000.0055D4CD-C1257000.00561400@de.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_AyMhC/oE5KK0LrJ"
+Message-Id: <200505131749.20752.pluto@agmk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Schwidefsky wrote:
->>BTW: I still can't see any loop in the kernel, that could call
->>do_signal() multiple times without returning to user in between.
->>For my understanding: do I miss something? If so, where is the loop?
-> 
-> 
-> do_signal sets up a signal frame for the user. It returns from it
-> by an svc and then another signal could be pending. It's not really
-> a loop. For every signal frame you end up at least once in user space
-> because we avoid creating multiple signal frames on the user stack.
-Yeah. That's what I saw.
+--Boundary-00=_AyMhC/oE5KK0LrJ
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Each time when the kernel is entered again and a signal is pending,
-do_signal() will be called on return to user with regs->trap setup
-freshly. So, I still believe the patch doesn't have *any* effect.
+Hi,
 
-Regards
-	Bodo
+simple runtime altivec detection from userspace causes an oops
+on the `vand` instruction. kernel was built *without* CONFIG_ALTIVEC.
+i think kernel should return a SIGILL instead of an oops ;-)
+
+Oops: kernel access of bad area, sig: 11 [#65]
+NIP: C0008B84 LR: C0007F2C SP: CF373F20 REGS: cf373e70 TRAP: 0300 Not taint=
+ed
+MSR: 00009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+DAR: 00000088, DSISR: 40000000
+TASK =3D c81e04f0[12983] 'altivec' THREAD: cf372000Last syscall: 174
+GPR00: C0007F2C CF373F20 C81E04F0 00000004 00000004 00030001 00000000 0FEE0=
+8D0
+GPR08: 0000F932 C0007F2C 00009032 C0350000 081E0788 00000000 00000000 100A3=
+7D8
+GPR16: 100A0000 00000000 100A0000 00000000 10070000 100A37C8 100AEF08 00000=
+000
+GPR24: 100A1108 00000000 100A59A8 3002AEF8 3002BB80 3002AE60 0FFEA6FC 00000=
+004
+Call trace: [c0007f2c]
 
 
-> 
-> blue skies,
->    Martin
-> 
-> Martin Schwidefsky
-> Linux for zSeries Development & Services
-> IBM Deutschland Entwicklung GmbH
-> 
+processor =C2=A0 =C2=A0 =C2=A0 : 0
+cpu =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 : 7450
+clock =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 : 700MHz
+revision =C2=A0 =C2=A0 =C2=A0 =C2=A0: 2.1 (pvr 8000 0201)
+bogomips =C2=A0 =C2=A0 =C2=A0 =C2=A0: 696.32
+machine =C2=A0 =C2=A0 =C2=A0 =C2=A0 : PowerMac4,4
+motherboard =C2=A0 =C2=A0 : PowerMac4,4 MacRISC2 MacRISC Power Macintosh
+detected as =C2=A0 =C2=A0 : 80 (eMac)
+pmac flags =C2=A0 =C2=A0 =C2=A0: 00000001
+L2 cache =C2=A0 =C2=A0 =C2=A0 =C2=A0: 256K unified
+memory =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0: 384MB
+pmac-generation : NewWorld
+
+=2D-=20
+The only thing necessary for the triumph of evil
+  is for good men to do nothing.
+                                           - Edmund Burke
+
+--Boundary-00=_AyMhC/oE5KK0LrJ
+Content-Type: text/x-csrc;
+  charset="utf-8";
+  name="altivec.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="altivec.c"
+
+#include <setjmp.h>
+#include <signal.h>
+
+static sigjmp_buf jmpbuf;
+static volatile sig_atomic_t canjump = 0;
+
+void sigill_handler(int sig)
+{
+        if (!canjump)
+        {
+                signal(sig, SIG_DFL);
+                raise(sig);
+        }
+        canjump = 0;
+        siglongjmp(jmpbuf, 1);
+}
+
+int arch_accel()
+{
+        signal(SIGILL, sigill_handler);
+        if (sigsetjmp(jmpbuf, 1))
+        {
+                signal(SIGILL, SIG_DFL);
+                return 0;
+        }
+        canjump = 1;
+        asm volatile
+        (
+                "mtspr 256, %0          \n\t"
+                "vand %%v0, %%v0, %%v0  \n\t"
+                :
+                : "r" (-1)
+        );
+        signal(SIGILL, SIG_DFL);
+        return 1;
+}
+
+int main(int argc, char** argv)
+{
+        return arch_accel();
+}
+
+--Boundary-00=_AyMhC/oE5KK0LrJ--

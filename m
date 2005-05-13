@@ -1,54 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262478AbVEMSx5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262494AbVEMS41@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262478AbVEMSx5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 14:53:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262476AbVEMSx5
+	id S262494AbVEMS41 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 14:56:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262476AbVEMSyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 14:53:57 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:61898 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262478AbVEMSrI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 14:47:08 -0400
-Subject: Re: [RCF] [PATCH] unprivileged mount/umount
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ram <linuxram@us.ibm.com>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, jamie@shareable.org, ericvh@gmail.com,
-       7eggert@gmx.de, linux-fsdevel@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       smfrench@austin.rr.com, hch@infradead.org
-In-Reply-To: <1116003238.6248.367.camel@localhost>
-References: <20050511170700.GC2141@mail.shareable.org>
-	 <E1DVwGn-0002BB-00@dorka.pomaz.szeredi.hu>
-	 <1115840139.6248.181.camel@localhost>
-	 <20050511212810.GD5093@mail.shareable.org>
-	 <1115851333.6248.225.camel@localhost>
-	 <a4e6962a0505111558337dd903@mail.gmail.com>
-	 <20050512010215.GB8457@mail.shareable.org>
-	 <a4e6962a05051119181e53634e@mail.gmail.com>
-	 <20050512064514.GA12315@mail.shareable.org>
-	 <a4e6962a0505120623645c0947@mail.gmail.com>
-	 <20050512151631.GA16310@mail.shareable.org>
-	 <E1DWIms-0005nC-00@dorka.pomaz.szeredi.hu>
-	 <1115946620.6248.299.camel@localhost> <1115969123.6248.336.camel@localhost>
-	 <1115974780.6248.346.camel@localhost>
-	 <E1DWWBo-00013Z-00@dorka.pomaz.szeredi.hu>
-	 <1116003238.6248.367.camel@localhost>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1116009860.1444.497.camel@localhost.localdomain>
+	Fri, 13 May 2005 14:54:16 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:47580 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262480AbVEMSsL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 14:48:11 -0400
+Date: Fri, 13 May 2005 14:48:06 -0400
+From: Dave Jones <davej@redhat.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: tickle nmi watchdog whilst doing serial writes.
+Message-ID: <20050513184806.GA24166@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 13 May 2005 19:44:23 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Right but this fix disallows fchdir into a directory belonging to
-> a different namespace.  And hence would disallow the ability to
-> cross mount across namespaces.
+This was fun. I inserted a music CD with some obnoxious copy-protection
+on it into the drive, and lots of SCSI errors went zipping over to
+the serial console. Unfortunatly, the box was also compiling a kernel,
+playing oggs, and doing a number of other things at the same time,
+so this happened..
 
-A helper can still pass file handles for you, you've changed the
-semantics a little (and I'm not clear if there is a need to) but I don't
-see it serves any fundamental purpose. Historical experience is that
-chroot exiting via fchdir is actually useful
+NMI Watchdog detected LOCKUP on CPU2CPU 2
+Modules linked in: loop usb_storage md5 ipv6 parport_pc lp parport autofs4 i2c_dev i2c_core rfcomm l2cap bluetooth sunrpc pcdPid: 3138, comm: gpm Not tainted 2.6.11-1.1290_FC4smp
+RIP: 0010:[<ffffffff80273b8a>] <ffffffff80273b8a>{serial_in+106}
+RSP: 0018:ffff81003afc3d50  EFLAGS: 00000002
+RAX: 0000000000000020 RBX: 0000000000000020 RCX: 0000000000000000
+RDX: 00000000000003fd RSI: 0000000000000005 RDI: ffffffff804dcd60
+RBP: 00000000000024fc R08: 000000000000000a R09: 0000000000000033
+R10: ffff81001beb7c20 R11: 0000000000000020 R12: ffffffff804dcd60
+R13: ffffffff804ade76 R14: 000000000000002b R15: 000000000000002c
+FS:  00002aaaaaac4920(0000) GS:ffffffff804fca00(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+CR2: 00002aaaaabcb000 CR3: 000000003c0d0000 CR4: 00000000000006e0
+Process gpm (pid: 3138, threadinfo ffff81003afc2000, task ffff81003eb63780)
+Stack: ffffffff80275f2e 0000000000000000 ffffffff80448380 0000000000007d6b
+       000000000000002c fffffffffffffbbf 0000000000000292 0000000000008000
+       ffffffff80138e8c 0000000000007d97
+Call Trace:<ffffffff80275f2e>{serial8250_console_write+270} <ffffffff80138e8c>{__call_console_drivers+76}
+       <ffffffff8013914b>{release_console_sem+315} <ffffffff80260325>{con_open+149}
+       <ffffffff80254e99>{tty_open+537} <ffffffff80192713>{chrdev_open+387}
+       <ffffffff80188824>{dentry_open+260} <ffffffff80188994>{filp_open+68}
+       <ffffffff80187b73>{get_unused_fd+227} <ffffffff80188a6c>{sys_open+76}
+       <ffffffff8010ebc6>{tracesys+209}
 
+Code: 0f b6 c0 c3 66 90 41 57 49 89 f7 41 56 41 be 00 01 00 00 41
+console shuts up ...
+
+
+Signed-off-by: Dave Jones <davej@redhat.com>
+
+--- linux-2.6.11/drivers/serial/8250.c~	2005-05-13 14:18:44.000000000 -0400
++++ linux-2.6.11/drivers/serial/8250.c	2005-05-13 14:30:56.000000000 -0400
+@@ -40,6 +40,7 @@
+ #include <linux/serial_core.h>
+ #include <linux/serial.h>
+ #include <linux/serial_8250.h>
++#include <linux/nmi.h>
+ 
+ #include <asm/io.h>
+ #include <asm/irq.h>
+@@ -2099,8 +2100,10 @@ static inline void wait_for_xmitr(struct
+ 	if (up->port.flags & UPF_CONS_FLOW) {
+ 		tmout = 1000000;
+ 		while (--tmout &&
+-		       ((serial_in(up, UART_MSR) & UART_MSR_CTS) == 0))
++		       ((serial_in(up, UART_MSR) & UART_MSR_CTS) == 0)) {
+ 			udelay(1);
++			touch_nmi_watchdog();
++		}
+ 	}
+ }
+ 
+
+We *could* tickle it less often, but given we're busy waiting anyway
+it probably doesnt make sense to not favour the more simple approach.
+Hmm, maybe we want a cpu_relax() in there too. opinions?
+
+		Dave
 

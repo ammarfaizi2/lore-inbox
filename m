@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262246AbVEMFcj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262249AbVEMFoh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262246AbVEMFcj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 01:32:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262245AbVEMFcj
+	id S262249AbVEMFoh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 01:44:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262252AbVEMFoh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 01:32:39 -0400
-Received: from relay1.tiscali.de ([62.26.116.129]:57999 "EHLO
-	webmail.tiscali.de") by vger.kernel.org with ESMTP id S262246AbVEMFci
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 01:32:38 -0400
-Message-ID: <42843BF0.5090607@tiscali.de>
-Date: Fri, 13 May 2005 07:32:32 +0200
-From: Matthias-Christian Ott <matthias.christian@tiscali.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kees Cook <kees@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: RSS feed for latest kernel versions
-References: <20050512215516.GF29634@osdl.org>
-In-Reply-To: <20050512215516.GF29634@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 13 May 2005 01:44:37 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:22245 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id S262249AbVEMFo0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 01:44:26 -0400
+Date: Fri, 13 May 2005 07:44:24 +0200
+From: Petr Baudis <pasky@ucw.cz>
+To: Daniel Barkalow <barkalow@iabervon.org>
+Cc: Matt Mackall <mpm@selenic.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org,
+       mercurial@selenic.com, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Mercurial 0.4e vs git network pull
+Message-ID: <20050513054424.GG16464@pasky.ji.cz>
+References: <20050512205735.GE5914@waste.org> <Pine.LNX.4.21.0505121709250.30848-100000@iabervon.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0505121709250.30848-100000@iabervon.org>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kees Cook wrote:
-> I've just added an RSS feed to kernel.org for tracking the latest kernel 
-> versions.  This is the same information as what's on the main page, but 
-> now it can appear in your RSS aggregator.  ;)  
-> 
-> Please set your refresh rate higher than normal; no one needs to check 
-> every hour for a new kernel.  :)
-> 
-> The direct URL is http://kernel.org/kdist/rss.xml
-> 
-> Have fun!
-> 
-A Atom Feed would be great too :)
+Dear diary, on Thu, May 12, 2005 at 11:24:27PM CEST, I got a letter
+where Daniel Barkalow <barkalow@iabervon.org> told me that...
+> In the present mainline, you first have to find the head commit you
+> want. I have a patch which does this for you over the same
+> connection. Starting from that point, it tracks reachability on the
+> receiving end, and requests anything it doesn't have.
 
-Matthias-Christian Ott
+Could we get the patch, please? :-)
+
+-- 
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+C++: an octopus made by nailing extra legs onto a dog. -- Steve Taylor

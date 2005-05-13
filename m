@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262307AbVEMIie@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262264AbVEMIpL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262307AbVEMIie (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 04:38:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262264AbVEMIid
+	id S262264AbVEMIpL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 04:45:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbVEMIpL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 04:38:33 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:19402 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262314AbVEMIiT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 04:38:19 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Pavel Machek <pavel@ucw.cz>, jketreno@linux.intel.com, netdev@oss.sgi.com,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ipw2100: intrusive cleanups, working this time ;-)
-Date: Fri, 13 May 2005 11:36:56 +0300
-User-Agent: KMail/1.5.4
-Cc: jbohac@suse.cz, jbenc@suse.cz
-References: <20050512225026.GA2822@elf.ucw.cz>
-In-Reply-To: <20050512225026.GA2822@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 13 May 2005 04:45:11 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:57820 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262264AbVEMIpG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 04:45:06 -0400
+Date: Fri, 13 May 2005 09:44:54 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, xfs-masters@oss.sgi.com, nathans@sgi.com,
+       linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] fs/xfs/: possible cleanups
+Message-ID: <20050513084454.GA918@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+	xfs-masters@oss.sgi.com, nathans@sgi.com, linux-xfs@oss.sgi.com,
+	linux-kernel@vger.kernel.org
+References: <20050513004721.GS3603@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200505131136.56641.vda@ilport.com.ua>
+In-Reply-To: <20050513004721.GS3603@stusta.de>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 13 May 2005 01:50, Pavel Machek wrote:
-> Hi!
+On Fri, May 13, 2005 at 02:47:21AM +0200, Adrian Bunk wrote:
+> This patch contains the following possible cleanups:
+> - make needlessly global code static
+> - remove the obsolete support/qsort.c
+> - debug.c: remove the read-only global variable doass
+>            (replaced by a #define)
+> - #if 0 the following unused global functions:
+>   - quota/xfs_dquot.c: xfs_qm_dqwarn
+>   - xfs_bmap_btree.c: xfs_bmbt_lookup_le
+>   - xfs_fsops.c: xfs_fs_log_dummy
+>   - xfs_inode.c: xfs_inobp_bwcheck
+>   - xfs_trans.c: xfs_trans_callback
+>   - xfs_trans_inode.c: xfs_trans_ihold_release
 > 
-> There's a lot to clean up in header file, too... And this time it
-> actually works.
+> Please check which of these changes do make sense.
 
-Since you apparently have this hardware,
-I'm going to hijack your attention for a second
-for the benefit of wireless crowd.
-
-How good it it? Signal strength/sensitivity?
-
-Does driver/fw/hw survive prolonged packet flood testing?
-I'm asking because so far I never saw 11g hw which does.
-I tried prism54 and acx111. Is ipw2000 worth buying?
---
-vda
-
+I'll take care of getting this patch into the XFS tree.  Hopefully
+we can just remove the unused global functions, but I'll have to check
+first whether they might be used by the userland tools.

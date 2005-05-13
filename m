@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262345AbVEMMXX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262348AbVEMMZF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262345AbVEMMXX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 08:23:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262348AbVEMMXX
+	id S262348AbVEMMZF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 08:25:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262349AbVEMMZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 08:23:23 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:54683 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262345AbVEMMXV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 08:23:21 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: "Srinivas G." <srinivasg@esntechnologies.co.in>,
-       "linux-kernel-Mailing-list" <linux-kernel@vger.kernel.org>
-Subject: Re: Y2K-like bug to hit Linux computers! - Info of the day
-Date: Fri, 13 May 2005 15:22:32 +0300
-User-Agent: KMail/1.5.4
-References: <4EE0CBA31942E547B99B3D4BFAB348114BED13@mail.esn.co.in>
-In-Reply-To: <4EE0CBA31942E547B99B3D4BFAB348114BED13@mail.esn.co.in>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 13 May 2005 08:25:05 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:48823 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262348AbVEMMYs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 08:24:48 -0400
+Date: Fri, 13 May 2005 14:24:51 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Markus Klotzbuecher <mk@creamnet.de>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] mini_fo-0.6.0 overlay file system
+Message-ID: <20050513122451.GD9255@wohnheim.fh-wedel.de>
+References: <20050509183135.GB27743@mary> <20050512121842.GA20388@wohnheim.fh-wedel.de> <20050512164413.GA14099@mary> <2F200E69-465D-46ED-9D3A-5ED5C9FEAC9A@mac.com> <20050513080137.GA9255@wohnheim.fh-wedel.de> <7E4FD3AB-54F6-43D5-9340-ECEEA2E55C0B@mac.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200505131522.32403.vda@ilport.com.ua>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <7E4FD3AB-54F6-43D5-9340-ECEEA2E55C0B@mac.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 13 May 2005 14:43, Srinivas G. wrote:
-> But what about the present? Many applications running on Linux could
-> soon be making calculations for dates 30 years away -- say, for mortgage
-> and insurance calculations -- and could start giving out error messages
-> well before D-day. The problem could be widespread because more and more
-> corporates today are migrating to Linux because of the better security
-> it offers. 
-...
-> How can the problem be sorted? Modern Linux programs could use 64-bit or
-> longer time_t data storage to overcome the problem. As for the existing
-  ^^^^^^
-Looks like someone is contemplating a mortgage which expire well beyond
-Solar system lifetime.
---
-vda
+On Fri, 13 May 2005 07:26:14 -0400, Kyle Moffett wrote:
+> 
+> >It solves the biggest concern I had left for union mount.  Actually
+> >implementing it, though, depends on quite a bit of infrastructure  
+> >that just
+> >doesn't exist yet.  Still, a very interesting idea.
+> 
+> For ext2/ext3, the sparse-file-support _does_ exist, so the only  
+> major parts
+> that need to be added are:
+>     o An extra ext2/ext3 flag that indicates nonresidence (For both  
+> sparse
+>       files, normal files, and directories).
+>     o VFS-level support for the union operation with hooks to let each
+>       filesystem do something special.
 
+That and replacing the page cache by something different.  Page cache
+is referencing pages by inode,offset pairs.  Having a potentially
+infinite amount of inodes to look at, in order, may require a tiny bit
+of patching. ;)
+
+Jörn
+
+-- 
+Linux [...] existed just for discussion between people who wanted
+to show off how geeky they were.
+-- Rob Enderle

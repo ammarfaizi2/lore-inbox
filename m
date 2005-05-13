@@ -1,120 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262224AbVEMDSv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262225AbVEMDly@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262224AbVEMDSv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 23:18:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbVEMDSv
+	id S262225AbVEMDly (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 23:41:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262226AbVEMDly
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 23:18:51 -0400
-Received: from smtpout.mac.com ([17.250.248.84]:65217 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S262224AbVEMDSq convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 23:18:46 -0400
-In-Reply-To: <20050512164413.GA14099@mary>
-References: <20050509183135.GB27743@mary> <20050512121842.GA20388@wohnheim.fh-wedel.de> <20050512164413.GA14099@mary>
-Mime-Version: 1.0 (Apple Message framework v728)
-Content-Type: text/plain; charset=ISO-8859-1; delsp=yes; format=flowed
-Message-Id: <2F200E69-465D-46ED-9D3A-5ED5C9FEAC9A@mac.com>
-Cc: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
-       linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 8BIT
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [ANNOUNCE] mini_fo-0.6.0 overlay file system
-Date: Thu, 12 May 2005 23:18:36 -0400
-To: Markus Klotzbuecher <mk@creamnet.de>
-X-Mailer: Apple Mail (2.728)
+	Thu, 12 May 2005 23:41:54 -0400
+Received: from mail.ccur.com ([208.248.32.212]:40853 "EHLO flmx.iccur.com")
+	by vger.kernel.org with ESMTP id S262225AbVEMDlu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 23:41:50 -0400
+Subject: Re: NFS: msync required for data writes to server?
+From: Linda Dunaphant <linda.dunaphant@ccur.com>
+Reply-To: linda.dunaphant@ccur.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
+In-Reply-To: <20050512194210.10a9dc93.akpm@osdl.org>
+References: <1115925686.6319.3.camel@lindad>
+	 <20050512175720.74ea6a3e.akpm@osdl.org> <1115950903.6319.25.camel@lindad>
+	 <20050512194210.10a9dc93.akpm@osdl.org>
+Content-Type: text/plain
+Organization: CCUR
+Message-Id: <1115955709.6319.66.camel@lindad>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Thu, 12 May 2005 23:41:49 -0400
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 May 2005 03:41:50.0169 (UTC) FILETIME=[B2241C90:01C5576D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On May 12, 2005, at 12:44:13, Markus Klotzbuecher wrote:
-> Hi Joern,
->
-> On Thu, May 12, 2005 at 02:18:42PM +0200, Jörn Engel wrote:
->> Just out of curiosity: how do you perform the copy-up operation?
->> In-kernel copies of large files are a huge problem and for union- 
->> mount
->> purposes, I'm clueless about how to fix things.
->>
->
-> Basically I open the source and the target file on the lower file
-> systems for reading and writing respectively, then read and write page
-> sized chunks of data until all has been copied. Obviously not ideal
-> for large files, but I had no better idea so far.
+On Thu, 2005-05-12 at 22:42, Andrew Morton wrote:
+> Linda Dunaphant <linda.dunaphant@ccur.com> wrote:
+> >
+> > The behavior that you describe is what I expected to see. However, with
+> >  my test program that mmap's the NFS file on the client, writes the data,
+> >  and then munmap's the file, this wasn't the case with the 2.6.9 based
+> >  kernel I was using. The file data was NEVER being written to the server.
+> 
+> There's something very wrong with that.
+> 
+> >  This afternoon I downloaded and built several later kernels. I found
+> >  that with 2.6.11, the problem still occurred. With 2.6.12-rc1, the
+> >  problem did not occur. I could see the proper data on the server. 
+> > 
+> >  Looking at the differences in fs/nfs between these trees I found a
+> >  change to nfs_file_release() in fs/nfs/file.c. When I applied this
+> >  change to my 2.6.9 tree, the data was written out to the server.
+> > 
+> >  @@ -105,6 +108,9 @@
+> >   static int
+> >   nfs_file_release(struct inode *inode, struct file *filp)
+> >   {
+> >  +       /* Ensure that dirty pages are flushed out with the right creds
+> >  */
+> >  +       if (filp->f_mode & FMODE_WRITE)
+> >  +               filemap_fdatawrite(filp->f_mapping);
+> >          return NFS_PROTO(inode)->file_release(inode, filp);
+> >   }
+> 
+> Well yes, that'll sync the file on close, but it doesn't explain the
+> original problem.
+> 
 
-I've been thinking about a "-o union" mount option for a while now, and
-I had a couple ideas on this topic.
+The original problem that I was trying to track down occurred with an
+Ada test suite. During the initialization phase it creates several data
+files with mmap(MAP_SHARED) that contain information that is used by
+later phases of the test. We were getting test failures on random tests
+because the testsuite running on the client was occasionally reading
+nulls from these files. Using ethereal to trace several testruns (~2.5
+hrs for a complete run), I never saw any writes for these files being
+issued to the server. My original theory was that as long as the pages
+associated with the file were still in memory, the data was correct for
+applications running on the client - but if a page is being dropped
+without being written to the server, and someone references that offset
+later, the data would be reread from the server and nulls would be
+returned.  
 
-1) This system should be a first-class VFS element, IE: -o union should
-work on all filesystems, regardless of feature support. (As long as you
-can read/write from/to the unioned fs and read from the underlying fs)
+After I found Trond's statement that msync was required to flush the
+data to the server, I created a small test program that creates a file,
+ftruncates it to 16384 bytes, mmaps it, closes it, writes the data, then
+munmaps it. With the 2.6.9 based kernel, I never saw the correct data on
+the server, even if I waited over an hour. If I looked at the file from
+the client, I would see the correct data. I also tried unmounting the
+filesystem to see if the data flush would occur, but it never did. We
+also tried adding msync calls to the testsuite and the original problem
+we had went away. This was the reason I posted my original question
+whether an msync is required if the file is NFS. 
 
-2) When forced to copy data, the copy should be done in the context of
-whatever process is doing the "write" operation, and be interruptible,
-etc.  The end result is that if you union an nfs mount over another one,
-it will just seem like a write to a big file takes a _really_ long time
-to complete.
+Tomorrow we will try running the testsuite with the above change in
+place to see if it helps the original problem. I suspect the potential
+still exists for a page to be dropped before the file release that could
+still cause incorrect data to be read back from the server.
 
-3) ext2/3 should get an extra flag for files and directories that
-indicates nonresidence.  This would be used by the VFS union layer to
-map existence/nonexistence to the unioned filesystem (If it's ext2/3).
-That way, if I later unmounted the unioned ext3 fs and remounted it
-elsewhere without the underlying storage, I would be able to access the
-parts of the directory structure and files that are resident, and the
-rest would fail with a new error code ENONRESIDENT or similar.
-
-For example, if I have two ext3 filesystems on /dev/hdb1 and /dev/hdb2,
-then I could do this:
-
-mount -t ext3 -o ro /dev/hdb1 /mnt
-mount -t ext3 -o rw,union /dev/hdb2 /mnt
-
-The on-disk structures might look like this:
-
-/dev/hdb1:
-     foo/
-         bar => blocks(1-4)
-         baz => blocks(1-8)
-     oof/
-         xuuq => blocks(1-2)
-
-/dev/hdb2:
-     foo/
-         bar => sparse,nonresident,blocks(2,4)
-         baz => sparse,nonresident,blocks(1-4,9-12)
-         quux => blocks(1-32)
-     oof/ => nonresident
-     mumble/
-         grumble => blocks(1-4)
-
-The resultant view to the user:
-
-/mnt
-     foo/
-         bar => blocks(1-4)
-         baz => blocks(1-12)
-         quux => blocks(1-32)
-     oof/
-         xuuq => blocks(1-2)
-     mumble/
-         grumble => blocks(1-4)
-
-If they deleted /dev/hdb1, but still wanted whatever changes they had
-made on /dev/hdb2, they could always get at them by remounting /dev/hdb2
-somewhere _without_ "-o union", and use a modified tar to package up the
-resident portions of files the same way it does for sparse files.
-Naturally there would need to be a way to mark a sparse file's empty
-spaces as nonresident if so desired when untarring.
-
-
-Cheers,
-Kyle Moffett
-
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$  
-r  !y?(-)
-------END GEEK CODE BLOCK------
-
-
+Linda
 

@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262327AbVEMPk7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262299AbVEMPkz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262327AbVEMPk7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 11:40:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbVEMPk6
+	id S262299AbVEMPkz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 11:40:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbVEMPky
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 11:40:58 -0400
-Received: from smtp111.mail.sc5.yahoo.com ([66.163.170.9]:6808 "HELO
-	smtp111.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262353AbVEMPjH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 11:39:07 -0400
-Subject: Re: several messages
-From: Dmitry Yusupov <dmitry_yus@yahoo.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: mingz@ele.uri.edu, Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
-       FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>,
-       Vladislav Bolkhovitin <vst@vlnb.net>,
-       iet-dev <iscsitarget-devel@lists.sourceforge.net>,
-       linux-scsi <linux-scsi@vger.kernel.org>, Sander <sander@humilis.net>,
-       David Hollis <dhollis@davehollis.com>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050513150701.GA6307@infradead.org>
-References: <1104082357.20050504231722@dns.toxicfilms.tv>
-	 <1115305794.3071.5.camel@dhollis-lnx.sunera.com>
-	 <20050507150538.GA800@favonius>
-	 <Pine.LNX.4.60.0505102352430.9008@poirot.grange> <4281C8A3.20804@vlnb.net>
-	 <Pine.LNX.4.60.0505112309430.8122@poirot.grange>
-	 <1115864176.5513.37.camel@localhost.localdomain>
-	 <1115922732.25161.143.camel@beastie> <20050513081230.GA32546@infradead.org>
-	 <1115996656.14477.34.camel@mylaptop>  <20050513150701.GA6307@infradead.org>
-Content-Type: text/plain
-Date: Fri, 13 May 2005 08:38:55 -0700
-Message-Id: <1115998735.15862.0.camel@mylaptop>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Fri, 13 May 2005 11:40:54 -0400
+Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:50488 "EHLO
+	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
+	id S262299AbVEMPhM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 11:37:12 -0400
+X-SBRSScore: None
+X-IronPort-AV: i="3.93,107,1114984800"; 
+   d="scan'208"; a="9295733:sNHT26934400"
+Message-ID: <4284C9A7.7010400@fujitsu-siemens.com>
+Date: Fri, 13 May 2005 17:37:11 +0200
+From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+CC: linux-kernel@vger.kernel.org, Ulrich Weigand <uweigand@de.ibm.com>
+Subject: Re: Again: UML on s390 (31Bit)
+References: <OFA2B0C767.4C8614D3-ONC1257000.00541583-C1257000.0054CC70@de.ibm.com>
+In-Reply-To: <OFA2B0C767.4C8614D3-ONC1257000.00541583-C1257000.0054CC70@de.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-05-13 at 16:07 +0100, Christoph Hellwig wrote:
-> On Fri, May 13, 2005 at 08:04:16AM -0700, Dmitry Yusupov wrote:
-> > You could tell this to school's computer class teacher... Serious SAN
-> > deployment will always be based either on FC or iSCSI for the reasons I
-> > explained before.
+Martin Schwidefsky wrote:
+>>Meanwhile I've tried.
+>>
+>>Your patch absolutely doesn't change host's behavior in the situation,
+>>that is relevant to UML.
 > 
-> Just FYI Steeleye ships a very successful clustering product that builds
-> on nbd.
+> 
+> And as I understand that is because the SIGTRAP is not delivered
+> by the normal signal mechanism.
+Yes.
 
-AFAIK, it is used for Data Replication purposes only. Correct me if I'm
-wrong...
+BTW: I still can't see any loop in the kernel, that could call
+do_signal() multiple times without returning to user in between.
+For my understanding: do I miss something? If so, where is the loop?
 
+Regards
+	Bodo
 
+> 
+> 
+>>I've prepared and attached a small program that easily can reproduce
+>>the problem. I hope this will help to find a viable solution.
+> 
+> 
+> That is cool, thanks. Will certainly speed up debugging on my side.
+> 
+> blue skies,
+>    Martin
+> 
+> Martin Schwidefsky
+> Linux for zSeries Development & Services
+> IBM Deutschland Entwicklung GmbH
+> 

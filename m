@@ -1,63 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262181AbVELXg1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262187AbVEMATI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262181AbVELXg1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 19:36:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262182AbVELXg1
+	id S262187AbVEMATI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 20:19:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbVEMATI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 19:36:27 -0400
-Received: from zproxy.gmail.com ([64.233.162.199]:42596 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262181AbVELXgX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 19:36:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=damyzKSLbgy5LHME0uPsCziYj/0CvlWjXinczB694vfxZTd1E/LEkMLi2IaH3xeBuz13a0vj4MaLsst4F+Z/+/TnB11a9jcLSmRQBOSOzi96IsVZ0+P9GSfVn+t+8UoNugTzBuk98u3VB82oXFCwJWdjV41FFpkpl2WSPAtiKok=
-Message-ID: <5fc59ff305051216367e3054cd@mail.gmail.com>
-Date: Thu, 12 May 2005 16:36:23 -0700
-From: Ganesh Venkatesan <ganesh.venkatesan@gmail.com>
-Reply-To: Ganesh Venkatesan <ganesh.venkatesan@gmail.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Subject: Re: [RFC][PATCH] timers fixes/improvements
-Cc: "David S.Miller" <davem@davemloft.net>, christoph@lameter.com,
-       akpm@osdl.org, linux-kernel@vger.kernel.org,
-       "Venkatesan, Ganesh" <ganesh.venkatesan@intel.com>
-In-Reply-To: <42821F65.3FEA7939@tv-sign.ru>
+	Thu, 12 May 2005 20:19:08 -0400
+Received: from fire.osdl.org ([65.172.181.4]:19382 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262187AbVEMATG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 20:19:06 -0400
+Date: Thu, 12 May 2005 17:18:25 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Bruce Guenter <bruceg@em.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to diagnose a kernel memory leak
+Message-Id: <20050512171825.12599c1e.akpm@osdl.org>
+In-Reply-To: <20050511193726.GA29463@em.ca>
+References: <20050509035823.GA13715@em.ca>
+	<1115627361.936.11.camel@localhost.localdomain>
+	<20050511193726.GA29463@em.ca>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.58.0505091449580.29090@graphe.net>
-	 <42808B84.BCC00574@tv-sign.ru>
-	 <Pine.LNX.4.58.0505101212350.20718@graphe.net>
-	 <20050510.125301.59655362.davem@davemloft.net>
-	 <42821F65.3FEA7939@tv-sign.ru>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Linville, who originally proposed the patch (to add
-e1000_watchdog_task and related code) has since withdrawn the patch.
 
-e1000_down may still be suffering from the del_timer_sync race
-condition that Oleg identified at the start of this thread.
+(Please always do reply-to-all)
 
-ganesh.
-
-On 5/11/05, Oleg Nesterov <oleg@tv-sign.ru> wrote:
-> Btw, i think that drivers/net/e1000/e1000_main.c:e1000_down() is buggy.
-> 
-> It calls del_timer_sync(&adapter->watchdog_timer), but e1000_watchdog()
-> calls schedule_work(e1000_watchdog_task), so the work could be queued
-> after del_timer_sync().
-> 
-> And e1000_watchdog_task() arms timers again.
-> 
-> Note that it's not enough to do flush_scheduled_work() here.
-> 
-> Oleg.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Bruce Guenter <bruceg@em.ca> wrote:
 >
+> On Mon, May 09, 2005 at 10:29:21AM +0200, Alexander Nyberg wrote:
+> > the patch below might help as it works on a lower
+> > level. It accounts for bare pages in the system available
+> > from /proc/page_owner. So a cat /proc/page_owner > tmpfile would be good
+> > when the system starts to go low. There's a sorting program in
+> > Documentation/page_owner.c used to sort the rather large output.
+> 
+> I've been running this for a day and a half now, and a few hundred megs
+> of memory is now missing:
+> 
+> # free
+>              total       used       free     shared    buffers     cached
+> Mem:       2055648    2001884      53764          0     259024     868484
+> -/+ buffers/cache:     874376    1181272
+> Swap:      1028152         56    1028096
+> 
+> I've put the output from the sorting program up at
+> 	http://untroubled.org/misc/page_owner_sorted
+> 
+> Is this useful information yet, or is there still too much in cached
+> pages to really identify the source?
+
+It all looks pretty innocent.  Please send the contents of /proc/meminfo
+rather than the `free' output.  /proc/meminfo has much more info. 
+Sometimes /proc/vmstat is also useful.
+
+If the /proc/meminfo output indicates that there are a lot of slab pages
+then /proc/slabinfo should be looked at.
+
+

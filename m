@@ -1,41 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262475AbVEMSiF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262482AbVEMSmW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262475AbVEMSiF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 14:38:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262476AbVEMSiF
+	id S262482AbVEMSmW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 14:42:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262480AbVEMSmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 14:38:05 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:58314 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262475AbVEMShw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 14:37:52 -0400
-Subject: Re: Hyper-Threading Vulnerability
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andi Kleen <ak@muc.de>
-Cc: Gabor MICSKO <gmicsko@szintezis.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <m164xnatpt.fsf@muc.de>
-References: <1115963481.1723.3.camel@alderaan.trey.hu>
-	 <m164xnatpt.fsf@muc.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1116009347.1448.489.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 13 May 2005 19:35:48 +0100
+	Fri, 13 May 2005 14:42:21 -0400
+Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:25864 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262478AbVEMSkw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 14:40:52 -0400
+To: linuxram@us.ibm.com
+CC: viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-reply-to: <1116005355.6248.372.camel@localhost> (message from Ram on Fri,
+	13 May 2005 10:29:16 -0700)
+Subject: Re: [PATCH] namespace.c: fix bind mount from foreign namespace
+References: <E1DWXeF-00017l-00@dorka.pomaz.szeredi.hu>
+	 <20050513170602.GI1150@parcelfarce.linux.theplanet.co.uk>
+	 <E1DWdn9-0004O2-00@dorka.pomaz.szeredi.hu> <1116005355.6248.372.camel@localhost>
+Message-Id: <E1DWf54-0004Z8-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Fri, 13 May 2005 20:40:14 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This is not a kernel problem, but a user space problem. The fix 
-> is to change the user space crypto code to need the same number of cache line
-> accesses on all keys. 
+> > > > Bind mount from a foreign namespace results in
+> > > 
+> > > ... -EINVAL
+> > 
+> > Wrong answer.  Look again, you wrote the code, so you _should_ know ;)
+> 
+> I guess Al agrees that bind mount from foreign namespace must be
+> disallowed.
+> 
+> Which means what Jamie pointed to was right. Attached the patch which
+> fixes it.
 
-You actually also need to hit the same cache line sequence on all keys
-if you take a bit more care about it.
+You are very quick fixing things which are not broken :)
 
-> Disabling HT for this would the totally wrong approach, like throwing
-> out the baby with the bath water.
+And BTW Jamie was saying, the checks should be removed, not that more
+checks should be added (as your patch does).
 
-HT for most users is pretty irrelevant, its a neat idea but the
-benchmarks don't suggest its too big a hit
+Jamie Lokier wrote:
+> I agree about the bug (and it's why I think the current->namespace
+> checks in fs/namespace.c should be killed - the _only_ effect is to
+> make un-removable mounts like the above, and the checks are completely
+> redundant for "normal" namespace operations).
+
+The checks are actually not redundant, but only because of locking
+reasons, not because of security reasons.  So I agree with Jamie, that
+in the long run it makes sense to relax those checks.
+
+Miklos
 

@@ -1,100 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262454AbVEMSSj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262465AbVEMSUv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262454AbVEMSSj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 14:18:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262465AbVEMSSj
+	id S262465AbVEMSUv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 14:20:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262467AbVEMSUu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 14:18:39 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:9125 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S262454AbVEMSSa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 14:18:30 -0400
-Subject: Does smp_reschedule_interrupt really reschedule?
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Fri, 13 May 2005 14:18:19 -0400
-Message-Id: <1116008299.4728.19.camel@localhost.localdomain>
+	Fri, 13 May 2005 14:20:50 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18874 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262465AbVEMSUm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 14:20:42 -0400
+Date: Fri, 13 May 2005 19:20:56 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: James Washer <washer@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, washer@beaverton.ibm.com
+Subject: Re: CONFIRMED bug in do_generic_file_read
+Message-ID: <20050513182056.GK1150@parcelfarce.linux.theplanet.co.uk>
+References: <20050513151744.GH1150@parcelfarce.linux.theplanet.co.uk> <OF77CCCDF4.63E93C67-ON88257000.0060D4EE-88257000.006248F5@us.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF77CCCDF4.63E93C67-ON88257000.0060D4EE-88257000.006248F5@us.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm working mostly with Ingo's RT patched kernel, but this may also be a
-problem with the vanilla kernel.
+On Fri, May 13, 2005 at 10:55:24AM -0700, James Washer wrote:
+> In do_generic_file_read(), when the page is not found, it is created, and 
 
-Sending out a smp_send_reschedule which causes the
-smp_reschedule_interrupt to go off on each CPU. (In Ingo's I was more
-concerned with the smp_send_reschedule_allbutself).  In
-arch/i386/kernel/smp.c there's the following code:
+.. with refcount 1
 
-/*
- * Reschedule call back. Nothing to do,
- * all the work is done automatically when
- * we return from the interrupt.
- */
-fastcall void smp_reschedule_interrupt(struct pt_regs *regs)
-{
-        ack_APIC_irq();
-}
+> __add_to_page_cache() is called, which will in turn call page_cache_get() 
+> which gives us a page->count of 1, no?
 
+That would be 2.
 
+> Now, we "goto reapage",  which calls a_op->readpage. If this readpage 
+> simply returns an error, without any other actions, we drop  down to the 
+> page_cache_release(). Finding the page->count==0, we'll proceed to call 
+> __free_page(), which calls __free_pages() which decrements and tests 
+> page->count via put_page_testzero(), returning true as page->count is now 
+> zero...  and were off to __free_pages_ok() and our panic...
+> 
+> What did I miss? Forgive me being dense, if I'm missing something here. 
+> And thanks again for you help understanding this.
 
-As the comment says, do nothing since all the work is automatically done
-at the return from interrupt. But is it?  Doesn't the need_resched need
-to be set?  Here's what I'm seeing with Ingo's kernel.  I capture the
-time in sched.c when the smp_send_reschedule_allbutself is called, and
-also a capture of the time when the schedule actually takes place.  I'm
-finding differences up to 2 tenths of a second.  That's TENTHS!  I added
-the following patch:
+	Think for a minute - we allocate a refcounted object.  That means
+getting (the only) reference to it.  That means refcount equal to 1.  It's
+a fairly common idiom - not just pages are handled that way.
 
---- arch/i386/kernel/smp.c	(revision 181)
-+++ arch/i386/kernel/smp.c	(working copy)
-@@ -593,6 +593,7 @@
- {
- 	trace_special(regs->eip, 0, 0);
- 	ack_APIC_irq();
-+	set_tsk_need_resched(current);
- }
- 
- fastcall void smp_call_function_interrupt(struct pt_regs *regs)
-
-
-(OK the trace_special is from Ingo's patch, but that's what I was
-working with)
-
-Now the largest latency between the call smp_send_reschedule and
-schedule being called on another CPU is now 200 micro seconds, which is
-much more reasonable.  But it also shows that a schedule is not taking
-place without it.
-
-Now, is there more logic that I'm missing to determine if the schedule
-is not needed.  With Ingo's patch, he sends this when two RT tasks are
-scheduled on the same CPU and one should migrate.  But the time this
-takes varies tremendously.
-
-Thanks,
-
-
--- Steve
-
-
-Here's the patch for 2.6.11.6, just in case this is an issue. You just
-need to delete the one for Ingo's. And Ingo would need to delete this.
-Then again, the above is for a -p0 and this is -p1.
-
---- a/arch/i386/kernel/smp.c.orig	2005-05-13 14:06:54.000000000 -0400
-+++ a/arch/i386/kernel/smp.c	2005-05-13 14:07:28.000000000 -0400
-@@ -582,6 +582,7 @@
- fastcall void smp_reschedule_interrupt(struct pt_regs *regs)
- {
- 	ack_APIC_irq();
-+	set_tsk_need_resched(current);
- }
- 
- fastcall void smp_call_function_interrupt(struct pt_regs *regs)
-
-
+	What happens is:
+* We created a page.  We have a reference to it.
+* We put it into cache.  Now there are two ways to reach it - our reference
+and global search structure.
+* We do ->readpage() - we know that we have a reference, so it's not going
+away
+* We drop our reference.  That does not affect the presence in cache - it's
+not our responsibility anymore.  We are done with this page; if somebody
+decides to kick it out of cache, it will be their resposibility to drop the
+reference created when putting into cache.

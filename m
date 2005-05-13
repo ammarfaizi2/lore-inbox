@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262344AbVEMMVQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262345AbVEMMXX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262344AbVEMMVQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 08:21:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbVEMMVQ
+	id S262345AbVEMMXX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 08:23:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262348AbVEMMXX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 08:21:16 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:60098 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262344AbVEMMVO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 08:21:14 -0400
-Date: Fri, 13 May 2005 18:02:17 +0530
-From: Dinakar Guniguntala <dino@in.ibm.com>
-To: Nathan Lynch <ntl@pobox.com>
-Cc: Paul Jackson <pj@sgi.com>, Simon.Derr@bull.net,
-       lse-tech@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, V Srivatsa <vatsa@in.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Lse-tech] Re: [PATCH] cpusets+hotplug+preepmt broken
-Message-ID: <20050513123216.GB3968@in.ibm.com>
-Reply-To: dino@in.ibm.com
-References: <20050511191654.GA3916@in.ibm.com> <20050511195156.GE3614@otto>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 13 May 2005 08:23:23 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:54683 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262345AbVEMMXV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 08:23:21 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: "Srinivas G." <srinivasg@esntechnologies.co.in>,
+       "linux-kernel-Mailing-list" <linux-kernel@vger.kernel.org>
+Subject: Re: Y2K-like bug to hit Linux computers! - Info of the day
+Date: Fri, 13 May 2005 15:22:32 +0300
+User-Agent: KMail/1.5.4
+References: <4EE0CBA31942E547B99B3D4BFAB348114BED13@mail.esn.co.in>
+In-Reply-To: <4EE0CBA31942E547B99B3D4BFAB348114BED13@mail.esn.co.in>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050511195156.GE3614@otto>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200505131522.32403.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 11, 2005 at 02:51:56PM -0500, Nathan Lynch wrote:
+On Friday 13 May 2005 14:43, Srinivas G. wrote:
+> But what about the present? Many applications running on Linux could
+> soon be making calculations for dates 30 years away -- say, for mortgage
+> and insurance calculations -- and could start giving out error messages
+> well before D-day. The problem could be widespread because more and more
+> corporates today are migrating to Linux because of the better security
+> it offers. 
+...
+> How can the problem be sorted? Modern Linux programs could use 64-bit or
+> longer time_t data storage to overcome the problem. As for the existing
+  ^^^^^^
+Looks like someone is contemplating a mortgage which expire well beyond
+Solar system lifetime.
+--
+vda
 
-> This trace is what should be fixed -- we're trying to schedule while
-> the machine is "stopped" (all cpus except for one spinning with
-> interrupts off).  I'm not too familiar with the cpusets code but I
-> would like to stay away from nesting these semaphores if at all
-> possible.
-
-Vatsa pointed out another scenario where cpusets+hotplug is currently
-broken. attach_task in cpuset.c is called without holding the hotplug 
-lock and it is possible to call set_cpus_allowed for a task with no 
-online cpus. 
-Given this I think the patch I sent first is the most appropriate
-patch. In addition we also need to take hotplug lock in the cpusets
-code whenever we are modifying cpus_allowed of a task. IOW make cpusets 
-and hotplug operations completly exclusive to each other. The same 
-applies to memory hotplug code once it gets in.
-
-However on the downside this would mean 
-1. A lot of nested locks (mostly in cpuset_common_file_write)
-2. Taking of hotplug (cpu now and later memory) locks for operations
-   that may just be updating a flag
-
-
-	-Dinakar

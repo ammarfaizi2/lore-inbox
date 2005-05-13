@@ -1,82 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262426AbVEMQUP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262420AbVEMQVF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262426AbVEMQUP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 12:20:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbVEMQUO
+	id S262420AbVEMQVF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 12:21:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262421AbVEMQVE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 12:20:14 -0400
-Received: from host207-193-149-62.serverdedicati.aruba.it ([62.149.193.207]:18659
-	"EHLO chernobyl.investici.org") by vger.kernel.org with ESMTP
-	id S262420AbVEMQTq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 12:19:46 -0400
-Date: Fri, 13 May 2005 18:19:37 +0200
-From: giskard <giskard@autistici.org>
-To: luming.yu@intel.com, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: error on handling I/O ports
-Message-ID: <20050513181937.471934b2@localhost.localdomain>
-X-Mailer: Sylpheed-Claws 1.9.6cvs45 (GTK+ 2.6.4; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed;
- boundary=Signature_Fri__13_May_2005_18_19_37_+0200_j3ilgoCZacTa+t6Q;
- protocol="application/pgp-signature"; micalg=pgp-sha1
+	Fri, 13 May 2005 12:21:04 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:33478 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262420AbVEMQU6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 12:20:58 -0400
+Date: Fri, 13 May 2005 09:20:34 -0700 (PDT)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       shai@scalex86.org, steiner@sgi.com, Andy Whitcroft <apw@shadowen.org>
+Subject: Re: NUMA aware slab allocator V2
+In-Reply-To: <1115992613.7129.10.camel@localhost>
+Message-ID: <Pine.LNX.4.58.0505130915400.4500@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com> 
+ <20050512000444.641f44a9.akpm@osdl.org>  <Pine.LNX.4.58.0505121252390.32276@schroedinger.engr.sgi.com>
+  <20050513000648.7d341710.akpm@osdl.org>  <Pine.LNX.4.58.0505130411300.4500@schroedinger.engr.sgi.com>
+  <20050513043311.7961e694.akpm@osdl.org>  <Pine.LNX.4.58.0505130436380.4500@schroedinger.engr.sgi.com>
+ <1115992613.7129.10.camel@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature_Fri__13_May_2005_18_19_37_+0200_j3ilgoCZacTa+t6Q
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+On Fri, 13 May 2005, Dave Hansen wrote:
 
->Could you just try acpi=3Doff ?
+> I think I found the problem.  Could you try the attached patch?
 
-pcmcia seems work with acpi=3Doff but obviously battery and cpu scaling
-are not supported. any hint?
-
-On Monday 25 April 2005 22:09, giskard wrote:
-> hi all,
->
-> The 2.6.* kernel doesn't seems to handle properly the I/O ports for
-> devices.
->
-> I bought a toshiba satellite a80-111 and with 2.4 series all devices
-> work good, with 2.6 series i get some errors:
->
-> - the 2.4 kernel uses ide-generic (with sata support) for use the
->   hd, with 2.6 i need libata SATA support because i get this error
->
->   ide0: I/O resource 0x1F0-0x1F7 not free.
->   ide0: ports already in use, skipping probe
->
-> - i have a 0000:06:04.0 CardBus bridge: Texas Instruments Texas
->   Instruments PCIxx21/ x515 Cardbus Controller
->
->   i can get it work with the 2.4 series with no problem (yenta
->   socket), the  2.6 series uses also yenta sockets but when i start
->   pcmcia service (/ etc/ init.d/pcmcia start) the kernel freezes when
-> it checks the i/o ports.
->
->
-> mrspurr:/usr/src/linux# uname -a
-> Linux mrspurr 2.6.11.7 #12 Mon Apr 18 01:51:04 CEST 2005 i686 GNU/
-> Linux
->
-> i attached lspci -vvv log, iomem log, ioports log, cpuinfo log
->
-> thank you in advance
---=20
-ciao giskard
-
-spero nel ritorno del grande bastardo.
-
-
---Signature_Fri__13_May_2005_18_19_37_+0200_j3ilgoCZacTa+t6Q
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFChNOZokwHIYS/ecgRAgunAJ0RcuR8feNONl5sL87UfYDOEMqBXgCePEHC
-BdXyeOLaFp4Mu+M5v89n5CM=
-=sQVW
------END PGP SIGNATURE-----
-
---Signature_Fri__13_May_2005_18_19_37_+0200_j3ilgoCZacTa+t6Q--
+Ok. That is a part of the problem. The other issue that I saw while
+testing is that the new slab allocator fails on 64 bit non NUMA platforms
+because the bootstrap does not work right. The size of struct kmem_list3
+may become > 64 bytes (with preempt etc on which increases the size of the
+spinlock_t) which requires an additional slab to be handled in a special
+way during bootstrap. I hope I will have an updated patch soon.

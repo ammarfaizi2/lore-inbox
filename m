@@ -1,55 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262576AbVEMWnF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262575AbVEMXCg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262576AbVEMWnF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 18:43:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262590AbVEMWmA
+	id S262575AbVEMXCg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 19:02:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262612AbVEMXCS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 18:42:00 -0400
-Received: from mail.kroah.org ([69.55.234.183]:34533 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262603AbVEMWgP (ORCPT
+	Fri, 13 May 2005 19:02:18 -0400
+Received: from Mail.MNSU.EDU ([134.29.1.12]:18633 "EHLO mail.mnsu.edu")
+	by vger.kernel.org with ESMTP id S262590AbVEMXBl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 18:36:15 -0400
-Date: Fri, 13 May 2005 15:36:12 -0700
-From: Greg KH <greg@kroah.com>
-To: Christoph Lameter <christoph@lameter.com>, dely.l.sy@intel.com
-Cc: Oleg Nesterov <oleg@tv-sign.ru>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, mingo@elte.hu, kenneth.w.chen@intel.com,
-       shai@scalex86.org
-Subject: Re: [RFC][PATCH] timers fixes/improvements
-Message-ID: <20050513223611.GB15601@kroah.com>
-References: <424D373F.1BCBF2AC@tv-sign.ru> <424E6441.12A6BC03@tv-sign.ru> <Pine.LNX.4.58.0505091312490.27740@graphe.net> <20050509144255.17d3b9aa.akpm@osdl.org> <Pine.LNX.4.58.0505091449580.29090@graphe.net> <42808B84.BCC00574@tv-sign.ru> <Pine.LNX.4.58.0505101212350.20718@graphe.net> <4281DC03.36011256@tv-sign.ru> <Pine.LNX.4.58.0505110804540.10451@graphe.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0505110804540.10451@graphe.net>
-User-Agent: Mutt/1.5.8i
+	Fri, 13 May 2005 19:01:41 -0400
+Message-ID: <428531CE.4090006@mnsu.edu>
+Date: Fri, 13 May 2005 18:01:34 -0500
+From: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: mhw@wittsend.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Sync option destroys flash!
+References: <1116001207.5239.38.camel@localhost.localdomain>	 <1116009619.9371.494.camel@localhost.localdomain>	 <1116011430.5239.108.camel@localhost.localdomain> <1116021632.20550.11.camel@localhost.localdomain>
+In-Reply-To: <1116021632.20550.11.camel@localhost.localdomain>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 11, 2005 at 08:12:16AM -0700, Christoph Lameter wrote:
-> We found that this has nothing to do with the timer patches. There is a
-> scribble in pcie_rootport_aspm_quirk that overwrites ptype_all.
+Alan Cox wrote:
 
-Ick.
+>On Gwe, 2005-05-13 at 20:10, Michael H. Warfield wrote:
+>  
+>
+>>>It sounds like your need to find a vendor who makes decent keys. For
+>>>that matter several vendors now offer life time guarantees with their
+>>>USB flash media.
+>>>      
+>>>
+>>	Now THAT I gotta check into.  I never noticed anything on the packaging
+>>about a guarantee, but I will now.
+>>    
+>>
+> 
+>Most of them have guarantees of some form (this URL might be useful
+>since it lists the guarantee times for a lot of the media - EU
+>guarantees anyway, US often seem to be a lot different)
+>
+>http://www.valuemedia.co.uk/compact_flash.htm
+>
+>As you'll see Lexar for example offer lifetime guarantees on their
+>units. I believe Kingston also do.
+>
+>  
+>
+>> But how do you determine which are
+>>"decent" keys?  They don't put stickers on them saying "this one is
+>>decent" and "this one is junk" and I'm an old cynic who has learned that
+>>price is not always a good indicator either.  Maybe the guarantee will
+>>be a clue.  I've just got to shop for it more.
+>>    
+>>
+>
+>Or it may even be cheaper to "burn" a few - buy one of each type from
+>various shops, do 2 million writes to the same sector and take them back
+>the next day if they died [And publish the review data 8))]
+>
+>  
+>
+If someone has a contact at the Linux Journal (or other magazine) it
+might be good to suggest this for an article.
 
-> quirk_aspm_offset[GET_INDEX(pdev->device, dev->devfn)]= cap_base + 0x10;
-> 
-> does the evil deed. The array offset calculated by GET_INDEX is out of
-> bounds.
-> 
-> The definition of GET_INDEX is suspect:
-> 
-> #define GET_INDEX(a, b) (((a - PCI_DEVICE_ID_INTEL_MCH_PA) << 3) + b)
-> 
-> should this not be
-> 
-> #define GET_INDEX(a, b) ((((a) - PCI_DEVICE_ID_INTEL_MCH_PA) << 3) + \
-> 				((b) & 7))
-> 
-> ?
+-- 
+Jeffrey Hundstad
 
-Dely, any thoughts about this, or know who would know about it?
-
-thanks,
-
-greg k-h

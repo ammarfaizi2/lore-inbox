@@ -1,57 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262635AbVEMXjS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262643AbVEMXm2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262635AbVEMXjS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 19:39:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262630AbVEMXiK
+	id S262643AbVEMXm2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 19:42:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262641AbVEMXji
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 19:38:10 -0400
-Received: from terminus.zytor.com ([209.128.68.124]:6564 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S262592AbVEMXg0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 19:36:26 -0400
-Message-ID: <428539EA.7000406@zytor.com>
-Date: Fri, 13 May 2005 16:36:10 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Fri, 13 May 2005 19:39:38 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:54957 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262592AbVEMXiR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 19:38:17 -0400
+Subject: Re: Hyper-Threading Vulnerability
+From: Lee Revell <rlrevell@joe-job.com>
 To: Dave Jones <davej@redhat.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Cachemap for 2.6.12rc4-mm1.  Was Re: [PATCH] enhance x86
- MTRR handling
-References: <s2832b02.028@emea1-mh.id2.novell.com> <20050512161825.GC17618@redhat.com> <20050512214118.GA25065@redhat.com> <42852CE2.4090102@zytor.com> <20050513232357.GB13846@redhat.com>
-In-Reply-To: <20050513232357.GB13846@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Matt Mackall <mpm@selenic.com>,
+       Andy Isaacson <adi@hexapodia.org>, Andi Kleen <ak@muc.de>,
+       "Richard F. Rebel" <rrebel@whenu.com>,
+       Gabor MICSKO <gmicsko@szintezis.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, tytso@mit.edu
+In-Reply-To: <20050513232708.GC13846@redhat.com>
+References: <1115963481.1723.3.camel@alderaan.trey.hu>
+	 <m164xnatpt.fsf@muc.de> <1116009483.4689.803.camel@rebel.corp.whenu.com>
+	 <20050513190549.GB47131@muc.de> <20050513212620.GA12522@hexapodia.org>
+	 <20050513215905.GY5914@waste.org>
+	 <1116024419.20646.41.camel@localhost.localdomain>
+	 <1116025212.6380.50.camel@mindpipe>  <20050513232708.GC13846@redhat.com>
+Content-Type: text/plain
+Date: Fri, 13 May 2005 19:38:08 -0400
+Message-Id: <1116027488.6380.55.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
+On Fri, 2005-05-13 at 19:27 -0400, Dave Jones wrote:
+> On Fri, May 13, 2005 at 07:00:12PM -0400, Lee Revell wrote:
+>  > On Fri, 2005-05-13 at 23:47 +0100, Alan Cox wrote:
+>  > > On Gwe, 2005-05-13 at 22:59, Matt Mackall wrote:
+>  > > > It might not be much of a problem though. If he's a bit off per guess
+>  > > > (really impressive), he'll still be many bits off by the time there's
+>  > > > enough entropy in the primary pool to reseed the secondary pool so he
+>  > > > can check his guesswork.
+>  > > 
+>  > > You can also disable the tsc to user space in the intel processors.
+>  > > Thats something they anticipated as being neccessary in secure
+>  > > environments long ago. This makes the attack much harder.
 >  > 
->  > Drop the vendor check; PAT is a generic x86 feature.  If AMD is not 
->  > compatible (see below), then use X86_VENDOR_AMD: and default:.
+>  > And break the hundreds of apps that depend on rdtsc?  Am I missing
+>  > something?
 > 
-> Done. Does transmeta have PAT btw ? I know newer VIA has it,
-> but I haven't looked through the docs to double check its
-> implementation yet.
+> If those apps depend on rdtsc being a) present, and b) working
+> without providing fallbacks, they're already broken.
 > 
-
-The Efficeon (TM8xxx) series does have PAT.
-> 
->  > >+ * Note: On Athlon cpus PAT2/PAT3 & PAT6/PAT7 are both Uncacheable since 
->  > >+ *	 there is no uncached type.
->  > If one sets the PAT to "uncached", does one get the same function as 
->  > "uncachable"?
-> 
-> AIUI, only as long as we don't have an MTRR covering the same range marked WC.
-> It seems to be the only thing I could find documenting the differences
-> between 'uncached' and 'uncacheable' in this context.
-> Though I've only looked through the Intel & AMD K8 docs, I don't have
-> the K7 ones to hand.
+> There's a reason its displayed in /proc/cpuinfo's flags field,
+> and visible through cpuid. Apps should be testing for presence
+> before assuming features are present.
 > 
 
-I mean, on the Athlon series, is it really necessary to use a different 
-value?
+Well yes but you would still have to recompile those apps.  And take the
+big performance hit from using gettimeofday vs rdtsc.  Disabling HT by
+default looks pretty good by comparison.
 
-	-hpa
+Lee
 

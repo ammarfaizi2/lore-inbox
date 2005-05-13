@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262309AbVEMIel@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262304AbVEMIeV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262309AbVEMIel (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 04:34:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbVEMIe1
+	id S262304AbVEMIeV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 04:34:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbVEMIeU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 04:34:27 -0400
-Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:32271 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262306AbVEMIeR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 04:34:17 -0400
-To: bulb@ucw.cz
-CC: hbryan@us.ibm.com, ericvh@gmail.com, hch@infradead.org,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       smfrench@austin.rr.com
-In-reply-to: <20050513071924.GA9667@vagabond> (message from Jan Hudec on Fri,
-	13 May 2005 09:19:24 +0200)
-Subject: Re: [RCF] [PATCH] unprivileged mount/umount
-References: <OF1BD633A3.AED1499B-ON88256FFF.006E4A76-88256FFF.00742B3D@us.ibm.com> <E1DWT0t-0000of-00@dorka.pomaz.szeredi.hu> <20050513071924.GA9667@vagabond>
-Message-Id: <E1DWVby-0000zz-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Fri, 13 May 2005 10:33:34 +0200
+	Fri, 13 May 2005 04:34:20 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:57244 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S262304AbVEMIeP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 04:34:15 -0400
+From: Mikael Pettersson <mikpe@user.it.uu.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17028.26204.8545.584415@alkaid.it.uu.se>
+Date: Fri, 13 May 2005 10:33:31 +0200
+To: marcelo.tosatti@cyclades.com, ak@suse.de
+Subject: [PATCH 2.4.31-pre2] x86_64 linkage error on UP_IOAPIC
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > You could argue about the usefulness of ptrace.  The point is, that
-> > suid/sgid programs _can_ be discerned, and ptrace _needs_ to discern
-> > them.
-> 
-> I actually neither needs to, nor does. For ptrace the definition is:
->     If the tracee has different privilegies, than the tracer, than it
->     can't be traced.
+When 2.4.31-pre2 is configured for X86_64 && !SMP && UP_IOAPIC
+it fails to link:
 
-Right.  I was talking about suid/sgid because with private namespaces
-(unless there's a way to enter them externally) only suid/sgid
-programs will have different privileges.
+arch/x86_64/kernel/kernel.o(.text+0x4591): In function `enable_irq':
+: undefined reference to `send_IPI_self'
+make: *** [vmlinux] Error 1
 
-> For this definition, the check is not a hack. It's the only way to go.
-> 
-> Now this definition is really what is needed for the filesystem case
-> too, so I think it's not a hack either. 
+A broken change in 2.4.31-pre{1,2} made the UP kernel reference
+a symbol which is only defined in the SMP kernel.
 
-Fully agreed.
+The patch below fixes this by reverting that change.
 
-Miklos
+Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
+
+diff -rupN linux-2.4.31-pre2/include/asm-x86_64/hw_irq.h linux-2.4.31-pre2.x86_64-fix/include/asm-x86_64/hw_irq.h
+--- linux-2.4.31-pre2/include/asm-x86_64/hw_irq.h	2005-05-13 00:05:51.000000000 +0200
++++ linux-2.4.31-pre2.x86_64-fix/include/asm-x86_64/hw_irq.h	2005-05-13 00:35:59.000000000 +0200
+@@ -156,7 +156,7 @@ static inline void x86_do_profile (unsig
+ 	atomic_inc((atomic_t *)&prof_buffer[eip]);
+ }
+ 
+-#ifdef CONFIG_X86_IO_APIC
++#ifdef CONFIG_SMP /*more of this file should probably be ifdefed SMP */
+ static inline void hw_resend_irq(struct hw_interrupt_type *h, unsigned int i) {
+ 	if (IO_APIC_IRQ(i))
+ 		send_IPI_self(IO_APIC_VECTOR(i));

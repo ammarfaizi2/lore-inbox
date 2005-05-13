@@ -1,48 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262339AbVEMLiQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262252AbVEMLsR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262339AbVEMLiQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 07:38:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262340AbVEMLiQ
+	id S262252AbVEMLsR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 07:48:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbVEMLsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 07:38:16 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:12246 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262339AbVEMLiC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 07:38:02 -0400
-Date: Fri, 13 May 2005 04:37:49 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, shai@scalex86.org,
-       steiner@sgi.com
-Subject: Re: NUMA aware slab allocator V2
-In-Reply-To: <20050513043311.7961e694.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0505130436380.4500@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com>
- <20050512000444.641f44a9.akpm@osdl.org> <Pine.LNX.4.58.0505121252390.32276@schroedinger.engr.sgi.com>
- <20050513000648.7d341710.akpm@osdl.org> <Pine.LNX.4.58.0505130411300.4500@schroedinger.engr.sgi.com>
- <20050513043311.7961e694.akpm@osdl.org>
+	Fri, 13 May 2005 07:48:17 -0400
+Received: from relay1.tiscali.de ([62.26.116.129]:54415 "EHLO
+	webmail.tiscali.de") by vger.kernel.org with ESMTP id S262252AbVEMLsI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 07:48:08 -0400
+Message-ID: <428493F1.8040307@tiscali.de>
+Date: Fri, 13 May 2005 13:48:01 +0200
+From: Matthias-Christian Ott <matthias.christian@tiscali.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Srinivas G." <srinivasg@esntechnologies.co.in>
+CC: linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: Y2K-like bug to hit Linux computers! - Info of the day
+References: <4EE0CBA31942E547B99B3D4BFAB348114BED13@mail.esn.co.in>
+In-Reply-To: <4EE0CBA31942E547B99B3D4BFAB348114BED13@mail.esn.co.in>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 May 2005, Andrew Morton wrote:
+Srinivas G. wrote:
+> Tuesday, January 19 2038. Time: 03:14:07 GMT. If Linux programmers get
+> nightmares, it's about this date and time. Immediately after that second
+> is crossed, current computer systems running on Linux will grind to a
+> halt or go into a loop. This will trip up a lot of databases. No, this
+> is not another hoax raised by some anti-Linux lobby. It is Linux's own
+> Y2K nightmare, says Businessworld. 
+> 
+> If you ask what this 2038 bug is, you will have to put up some technical
+> argot. The bug has its origins in the way the C language, which has been
+> used to write Linux, calculates time. C uses the 'time_t' data type to
+> represent dates and times. ('time_t' is an integer that counts the
+> number of seconds since 12.00 a.m. GMT,  January 1 1970.) 
+> 
+> This data is stored in 32 bits, or units of memory. The first of these
+> bits is for the positive or negative sign, and the remaining 31 are used
+> to store the number. The highest number that these 31 bits can store
+> works out to 2147483647. 
+> 
+> Calculated from the start of January 1 1970, this number would represent
+> the 2038 time and date given at the top. Problems would arise when the
+> system times of computers running on Linux reach this number. They can't
+> go any forward and their value actually would change to -- 2147483647,
+> which translated to December 13 1901! That will lead many programs to
+> return errors or crash altogether. 
+> 
+> It's more damaging than the Y2K bug. That's because Y2K mostly involved
+> higher-level applications such as credit card payment and inventory
+> management. The 2038 bug, on the other hand, affects the basic
+> time-keeping function. 
+> 
+> "I would guess the biggest issue would be in the embedded field, where
+> software isn't changed all that often, if at all. Process controllers,
+> routers, mobile phones, game consoles, telecom switches and the like
+> would be the biggest victims," says Raju Mathur, GNU and Linux
+> consultant and president of the Linux Delhi Users Group. 
+> 
+> He, however, adds that the rate at which we are changing technology,
+> most systems are unlikely to use 32-bit processing by the time we get to
+> 2038. 
+> 
+> But what about the present? Many applications running on Linux could
+> soon be making calculations for dates 30 years away -- say, for mortgage
+> and insurance calculations -- and could start giving out error messages
+> well before D-day. The problem could be widespread because more and more
+> corporates today are migrating to Linux because of the better security
+> it offers. 
+> 
+> "The problem is not on the radar of most people, except the techies,"
+> says Charles Assissi, editor, Chip magazine. 
+> 
+> How can the problem be sorted? Modern Linux programs could use 64-bit or
+> longer time_t data storage to overcome the problem. As for the existing
+> systems, the way the C language stores time_t data could be changed and
+> then all the programs could be recompiled. All this is easier said than
+> done. 
+> 
+> "There must be millions, if not billions of lines of C code floating
+> around that use the time_t value. Locating them, changing them, managing
+> programs for which source isn't available, updating embedded systems,
+> redeploying, is, in my opinion, an impossible task," says Mathur. Will
+> that be another lucrative opportunity for India's army of coders?
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+I think the most time value aren't timestamps (it's slower than a timestamp but works). So don't worry.
 
-> > The definition for the number of NUMA nodes is dependent on
-> > CONFIG_FLATMEM instead of CONFIG_NUMA in mm.
-> > CONFIG_FLATMEM is not set on ppc64 because CONFIG_DISCONTIG is set! And
-> > consequently nodes exist in a non NUMA config.
->
-> I was testing 2.6.12-rc4 base.
-
-There we still have the notion of nodes depending on CONFIG_DISCONTIG and
-not on CONFIG_NUMA. The node stuff needs to be
-
-#ifdef CONFIG_FLATMEM
-
-or
-
-#ifdef CONFIG_DISCONTIG
-
-??
-
+Matthias-Christian Ott

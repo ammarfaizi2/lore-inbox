@@ -1,73 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262392AbVEMOxl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262357AbVEMOx3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262392AbVEMOxl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 10:53:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262395AbVEMOxl
+	id S262357AbVEMOx3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 10:53:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262392AbVEMOx2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 10:53:41 -0400
-Received: from relay1.tiscali.de ([62.26.116.129]:663 "EHLO webmail.tiscali.de")
-	by vger.kernel.org with ESMTP id S262392AbVEMOxf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 10:53:35 -0400
-Message-ID: <4284BF3C.4030501@tiscali.de>
-Date: Fri, 13 May 2005 16:52:44 +0200
-From: Matthias-Christian Ott <matthias.christian@tiscali.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
+	Fri, 13 May 2005 10:53:28 -0400
+Received: from smtp-server.carlislefsp.com ([12.28.84.26]:34446 "EHLO
+	imail.carlislefsp.com") by vger.kernel.org with ESMTP
+	id S262357AbVEMOxY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 10:53:24 -0400
+X-Archive-Filename: imail111599598668225587 
+X-Qmail-Scanner-Mail-From: steve@friservices.com via imail
+X-Qmail-Scanner: 1.24st (Clear:RC:1(10.10.2.206):. Processed in 0.725442 secs Process 25587)
+Message-ID: <4284BF66.1050704@friservices.com>
+Date: Fri, 13 May 2005 09:53:26 -0500
+From: steve <steve@friservices.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Tetsuji \"Maverick\" Rai" <tetsuji.rai@gmail.com>
-CC: Chris Friesen <cfriesen@nortel.com>, linux-os@analogic.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Need kernel patch to compile with Intel compiler
-References: <377362e105051207461ff85b87@mail.gmail.com>	 <Pine.LNX.4.61.0505121130030.31719@chaos.analogic.com>	 <42837C2E.9000506@nortel.com> <377362e105051306506e3870a6@mail.gmail.com>
-In-Reply-To: <377362e105051306506e3870a6@mail.gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc4-mm1
+References: <20050512033100.017958f6.akpm@osdl.org>
+In-Reply-To: <20050512033100.017958f6.akpm@osdl.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tetsuji "Maverick" Rai wrote:
-> On 5/13/05, Chris Friesen <cfriesen@nortel.com> wrote:
-> 
->>Richard B. Johnson wrote:
->>
->>
->>>The kernel is designed to be compiled with the GNU 'C' compler
->>>supplied with every distribution. It uses a lot of __asm__()
->>>statements and other GNU-specific constructions.
->>
->>Yep.  And Intel added a bunch of them to their compiler so that they
->>could build a kernel with it.
->>
->>
->>>Why would you even attempt to convert the kernel sources to
->>>be compiled with some other tools?
->>
->>The Intel compiler is quite good at optimizing for their processors (and
->>ironically for AMD ones as well).  However, I think that a lot of the
->>gains come from the vectorizer, which of course can't be used with
->>kernel code.
->>
->>Chris
->>
-> 
-> 
-> Yes, that's why I wanted to use Intel's compiler for kernel (of course
-> I didn't mean to use C++; the product's name is C++, it doesn't sell C
-> alone.)    Its vectorization is so nice that SETI@home calculates
-> 20-30% faster than the original one compiled with gcc.
-> 
-> But I thought it's not such a good idea to build kernel with Intel
-> compiler, because kernel's speed doesn't affect so much in my case. 
-> And that vectorization isn't so effective in kernel.  PGO (profile
-> guided optimization) is the only effective optimization in the kernel
-> according to
-> http://softwareforums.intel.com/ids/board/message?board.id=16&message.id=1504
-> 
-> So I decided not to try this...looks like too much effort and little
-> gain.  and I guess that's why nobody is trying this now.
-> 
-Yeah that's what the 2.6.5 patch does. Some People talked about 20% more speed with this patch last year. If anyone is 
-able to patch the current kernel the patch should be in -mm.
+a bug that appeared after running for about 2 hours:
 
-Matthias-Christian Ott
+May 13 09:32:34 localhost kernel: BUG: atomic counter underflow at:
+May 13 09:32:34 localhost kernel:  [reiserfs_clear_inode+129/176] 
+reiserfs_clear_inode+0x81/0xb0
+May 13 09:32:34 localhost kernel:  [clear_inode+228/304] 
+clear_inode+0xe4/0x130
+May 13 09:32:34 localhost kernel:  [dispose_list+112/304] 
+dispose_list+0x70/0x130
+May 13 09:32:34 localhost kernel:  [prune_icache+191/432] 
+prune_icache+0xbf/0x1b0
+May 13 09:32:34 localhost kernel:  [shrink_icache_memory+20/64] 
+shrink_icache_memory+0x14/0x40
+May 13 09:32:34 localhost kernel:  [shrink_slab+345/416] 
+shrink_slab+0x159/0x1a0
+May 13 09:32:34 localhost kernel:  [balance_pgdat+695/944] 
+balance_pgdat+0x2b7/0x3b0
+May 13 09:32:34 localhost kernel:  [kswapd+210/240] kswapd+0xd2/0xf0
+May 13 09:32:34 localhost kernel:  [autoremove_wake_function+0/80] 
+autoremove_wake_function+0x0/0x50
+May 13 09:32:34 localhost kernel:  [ret_from_fork+6/20] 
+ret_from_fork+0x6/0x14
+May 13 09:32:34 localhost kernel:  [autoremove_wake_function+0/80] 
+autoremove_wake_function+0x0/0x50
+May 13 09:32:34 localhost kernel:  [kswapd+0/240] kswapd+0x0/0xf0
+May 13 09:32:34 localhost kernel:  [kernel_thread_helper+5/24] 
+kernel_thread_helper+0x5/0x18
+
+
+the system still runs fine, just figured i'd let you guys know.
+
+Steve

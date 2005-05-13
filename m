@@ -1,92 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262428AbVEMQsX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262430AbVEMQuW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262428AbVEMQsX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 12:48:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbVEMQsX
+	id S262430AbVEMQuW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 12:50:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbVEMQuW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 12:48:23 -0400
-Received: from mail.kroah.org ([69.55.234.183]:20429 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262428AbVEMQsI (ORCPT
+	Fri, 13 May 2005 12:50:22 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:47500 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262429AbVEMQt5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 12:48:08 -0400
-Date: Fri, 13 May 2005 09:48:05 -0700
-From: Greg KH <greg@kroah.com>
-To: James Ketrenos <jketreno@linux.intel.com>
-Cc: Pavel Machek <pavel@ucw.cz>, netdev@oss.sgi.com,
-       kernel list <linux-kernel@vger.kernel.org>, jbohac@suse.cz,
-       jbenc@suse.cz
-Subject: Re: ipw2100: intrusive cleanups, working this time ;-)
-Message-ID: <20050513164804.GI11089@kroah.com>
-References: <20050512225026.GA2822@elf.ucw.cz> <4283FA4D.3010208@linux.intel.com> <20050513034201.GA11817@kroah.com> <42844876.8060907@linux.intel.com>
+	Fri, 13 May 2005 12:49:57 -0400
+Subject: Re: [PATCH] namespace.c: fix bind mount from foreign namespace
+From: Ram <linuxram@us.ibm.com>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+In-Reply-To: <E1DWXeF-00017l-00@dorka.pomaz.szeredi.hu>
+References: <E1DWXeF-00017l-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain
+Organization: IBM 
+Message-Id: <1116002952.6248.361.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42844876.8060907@linux.intel.com>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 13 May 2005 09:49:12 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 13, 2005 at 01:25:58AM -0500, James Ketrenos wrote:
-> Greg KH wrote:
-> >On Thu, May 12, 2005 at 07:52:29PM -0500, James Ketrenos wrote:
-> >>Part of the process we have in place is to try and make sure that the
-> >>versions that get picked up by distros and the majority of users have a
-> >>'known' level of quality.  As part of that, we only want to get changes
-> >>pushed to -mm and eventual mainline that have gone through regression
-> >>testing.
-> >
-> >Any chance of making those regression tests public so we can all do this
-> >kind of testing on any future changes that might be made to the driver?
+On Fri, 2005-05-13 at 03:44, Miklos Szeredi wrote:
+> Bind mount from a foreign namespace results in an un-removable mount.
+
+i wonder, should we even allow the ability to bind mount 
+from a foreign namespace?  
+
+The only time this is allowed is while creating a new namespace.
+
+RP
+
+
+> The reason is that mnt->mnt_namespace is copied from the old mount in
+> clone_mnt().  Because of this, check_mnt() in sys_umount() will fail.
 > 
-> I believe all of our test plans are available publically.  We just put
-> up test runner on our bugzilla server so that we can better track which
-> tests have been run by users, etc.  Some tests are automated, some are
-> manual. 
+> The solution is to set mnt->mnt_namespace to current->namespace.
 > 
-> The bugzilla site is http://bughost.org and test tracker is toward the
-> bottom of that page.
+> clone_mnt() is either called from do_loopback() or copy_tree().
+> copy_tree() is called from do_loopback() or copy_namespace().
 > 
-> You can also find information at http://ipw2200.sf.net/validation.php
-
-Nice, thanks for the pointers.
-
-> >Remember, once it hits mainline, lots of different people will be
-> >touching it for various reasons at times...
-> >  
-> >
-> I am hopeful that if we can get a process streamlined enough so that
-> regression passes can occur quickly, we will be able to keep pace w/ any
-> critical fixes or changes that are desired to go into mainline.
+> When called (directly or indirectly) from do_loopback(), always
+> current->namspace is being modified: check_mnt(nd->mnt).  So setting
+> mnt->mnt_namespace to current->namspace is the right thing to do.
 > 
-> What is driving the approach is that our customers want to build
-> solutions with drivers that have gone through a known level of
-> interoperability and functionality testing. 
+> When called from copy_namespace(), the setting of mnt_namespace is
+> irrelevant, since mnt_namespace is reset later in that function for
+> all copied mounts.
+
+
 > 
-> We ideally want to be able to say "you can either download the driver
-> version X from http://whatever, or any mainline kernel newer than
-> 2.6.13+".  However we can only do that if the code that is pulled into
-> mainline /has/ gone through all of that testing.
+> Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+> 
+> Index: linux/fs/namespace.c
+> ===================================================================
+> --- linux.orig/fs/namespace.c	2005-05-13 12:22:52.000000000 +0200
+> +++ linux/fs/namespace.c	2005-05-13 12:32:36.000000000 +0200
+> @@ -160,7 +160,7 @@ clone_mnt(struct vfsmount *old, struct d
+>  		mnt->mnt_root = dget(root);
+>  		mnt->mnt_mountpoint = mnt->mnt_root;
+>  		mnt->mnt_parent = mnt;
+> -		mnt->mnt_namespace = old->mnt_namespace;
+> +		mnt->mnt_namespace = current->namespace;
+>  
+>  		/* stick the duplicate mount on the same expiry list
+>  		 * as the original if that was on one */
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-Of course.
-
-> The reality of the community process may require that we can only say
-> "version X from http://whatever or versions 2.6.{x,y,z} of the kernel"
-> if patches are accepted into the tree that haven't been sufficiently tested.
-
-Good luck testing every kernel release :)
-
-Perhaps you might want to automate this with a test against the
-kernel-of-the-day once the driver makes it into mainline?  I know some
-people who are working on a kernel tinderbox that this kind of effort
-would tie nicely into.
-
-> We want to have a process that meets the needs of the end users, the
-> ipw* and kernel development communities, the platform manufacturers, and
-> the distros.
-
-That's a good goal, sounds like you are well on your way.  Now if only
-everyone would have test suites for drivers...
-
-thanks,
-
-greg k-h

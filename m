@@ -1,124 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262216AbVEMBIK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262191AbVEMBSQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262216AbVEMBIK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 21:08:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262209AbVEMBGh
+	id S262191AbVEMBSQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 21:18:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262209AbVEMBRd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 21:06:37 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:41227 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262207AbVEMArd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 20:47:33 -0400
-Date: Fri, 13 May 2005 02:47:31 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [RFC: 2.6 patch] ext2: make ext2_count_free a static inline
-Message-ID: <20050513004731.GU3603@stusta.de>
+	Thu, 12 May 2005 21:17:33 -0400
+Received: from waste.org ([216.27.176.166]:11221 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262191AbVEMBL5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 May 2005 21:11:57 -0400
+Date: Thu, 12 May 2005 18:11:49 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: Daniel Barkalow <barkalow@iabervon.org>
+Cc: Petr Baudis <pasky@ucw.cz>, linux-kernel <linux-kernel@vger.kernel.org>,
+       git@vger.kernel.org, mercurial@selenic.com,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Mercurial 0.4e vs git network pull
+Message-ID: <20050513011149.GK5914@waste.org>
+References: <20050512222943.GI5914@waste.org> <Pine.LNX.4.21.0505121949210.30848-100000@iabervon.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0505121949210.30848-100000@iabervon.org>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ext2_count_free is a small function that is only used
-#ifdef EXT2FS_DEBUG.
+On Thu, May 12, 2005 at 08:33:56PM -0400, Daniel Barkalow wrote:
+> On Thu, 12 May 2005, Matt Mackall wrote:
+> 
+> > On Thu, May 12, 2005 at 05:24:27PM -0400, Daniel Barkalow wrote:
+> > > On Thu, 12 May 2005, Matt Mackall wrote:
+> > > 
+> > > > Does this need an HTTP request (and round trip) per object? It appears
+> > > > to. That's 2200 requests/round trips for my 800 patch benchmark.
+> > > 
+> > > It requires a request per object, but it should be possible (with
+> > > somewhat more complicated code) to overlap them such that it doesn't
+> > > require a serial round trip for each. Since the server is sending static
+> > > files, the overhead for each should be minimal.
+> > 
+> > It's not minimal. The size of an HTTP request is often not much
+> > different than the size of a compressed file delta.
+> 
+> I was thinking of server-side processing overhead, not bandwidth. It's
+> true that the bandwidth could be noticeable for these small files.
+> 
+> > All the junk that gets bundled in an http request/response will be
+> > similar in size to the stuff in the third column.
+> 
+> kernel.org seems to send 283-byte responses, to be completely
+> precise. This could be cut down substantially if Apache were tweaked a bit
+> to skip all the optional headers which are useless or wrong in this
+> context. (E.g., that includes sending a content-type of "text/plain" for
+> the binary data)
+> 
+> > Does it do this recursively? Eg, if the server has 800 new linear
+> > commits, does the client have to do 800 round trips following parent
+> > pointers to find all the new changesets? 
+> 
+> Yes, although that also includes pulling the commits, and may be
+> interleaved with pulling the trees and objects to cover the
+> latency. (I.e., one round trip gets the new head hash; the second gets
+> that commit; on the third the tree and the parent(s) can be requested at
+> once; on the fouth the contents of the tree and the grandparents, at
+> which point the bandwidth will probably be the limiting factor for the
+> rest of the operation.)
 
-We could offer the function itself only #ifdef EXT2FS_DEBUG, but what 
-about this patch to change ot to a static inline?
+What if a changeset is smaller than the bandwidth-delay product of
+your link? As an extreme example, Mercurial is currently at a point
+where its -entire repo- changegroup (set of all changesets) can be in
+flight on the wire on a typical link.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> > In this case, Mercurial does about 6 round trips, totalling less than
+> > 1K, plus one requests that pulls everything.
+> 
+> I must be misunderstanding your numbers, because 6 HTTP responses is more
+> than 1K, ignoring any actual content from the server, and 1K for 800
+> commits is less than 2 bytes per commit.
 
----
+1k of application-level data, sorry. And my whole point is that I
+don't send those 800 commit identifiers (which are 40 bytes each as
+hex). I send about 30 or so. It's basically a negotiation to find the
+earliest commits not known to the client with a minimum of round trips
+and data exchange.
 
-This patch was already sent on:
-- 30 Apr 2005
-- 23 Apr 2005
+> I'm also worried about testing on 800 linear commits, since the projects
+> under consideration tend to have very non-linear histories. 
 
- fs/ext2/Makefile |    2 +-
- fs/ext2/bitmap.c |   25 -------------------------
- fs/ext2/ext2.h   |   18 +++++++++++++++++-
- 3 files changed, 18 insertions(+), 27 deletions(-)
+Not true at all. Dumps from Andrew to Linus via patch bombs will
+result in runs of hundreds of linear commits on a regular basis.
+Linear patch series are the preferred way to make changes and series
+of 30 or 40 small patches are not at all uncommon.
 
---- linux-2.6.12-rc2-mm3-full/fs/ext2/ext2.h.old	2005-04-20 23:08:52.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/fs/ext2/ext2.h	2005-04-20 23:14:21.000000000 +0200
-@@ -1,5 +1,6 @@
- #include <linux/fs.h>
- #include <linux/ext2_fs.h>
-+#include <linux/buffer_head.h>
- 
- /*
-  * second extended file system inode data in memory
-@@ -79,6 +80,22 @@
- 	return container_of(inode, struct ext2_inode_info, vfs_inode);
- }
- 
-+static int nibblemap[] = {4, 3, 3, 2, 3, 2, 2, 1, 3, 2, 2, 1, 2, 1, 1, 0};
-+
-+static inline unsigned long ext2_count_free (struct buffer_head * map,
-+					     unsigned int numchars)
-+{
-+	unsigned int i;
-+	unsigned long sum = 0;
-+	
-+	if (!map) 
-+		return (0);
-+	for (i = 0; i < numchars; i++)
-+		sum += nibblemap[map->b_data[i] & 0xf] +
-+			nibblemap[(map->b_data[i] >> 4) & 0xf];
-+	return (sum);
-+}
-+
- /* balloc.c */
- extern int ext2_bg_has_super(struct super_block *sb, int group);
- extern unsigned long ext2_bg_num_gdb(struct super_block *sb, int group);
-@@ -111,7 +128,6 @@
- extern void ext2_free_inode (struct inode *);
- extern unsigned long ext2_count_free_inodes (struct super_block *);
- extern void ext2_check_inodes_bitmap (struct super_block *);
--extern unsigned long ext2_count_free (struct buffer_head *, unsigned);
- 
- /* inode.c */
- extern void ext2_read_inode (struct inode *);
---- linux-2.6.12-rc2-mm3-full/fs/ext2/Makefile.old	2005-04-20 23:14:35.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/fs/ext2/Makefile	2005-04-20 23:14:45.000000000 +0200
-@@ -4,7 +4,7 @@
- 
- obj-$(CONFIG_EXT2_FS) += ext2.o
- 
--ext2-y := balloc.o bitmap.o dir.o file.o fsync.o ialloc.o inode.o \
-+ext2-y := balloc.o dir.o file.o fsync.o ialloc.o inode.o \
- 	  ioctl.o namei.o super.o symlink.o
- 
- ext2-$(CONFIG_EXT2_FS_XATTR)	 += xattr.o xattr_user.o xattr_trusted.o
---- linux-2.6.12-rc2-mm3-full/fs/ext2/bitmap.c	2005-03-02 08:38:08.000000000 +0100
-+++ /dev/null	2005-03-19 22:42:59.000000000 +0100
-@@ -1,25 +0,0 @@
--/*
-- *  linux/fs/ext2/bitmap.c
-- *
-- * Copyright (C) 1992, 1993, 1994, 1995
-- * Remy Card (card@masi.ibp.fr)
-- * Laboratoire MASI - Institut Blaise Pascal
-- * Universite Pierre et Marie Curie (Paris VI)
-- */
--
--#include <linux/buffer_head.h>
--
--static int nibblemap[] = {4, 3, 3, 2, 3, 2, 2, 1, 3, 2, 2, 1, 2, 1, 1, 0};
--
--unsigned long ext2_count_free (struct buffer_head * map, unsigned int numchars)
--{
--	unsigned int i;
--	unsigned long sum = 0;
--	
--	if (!map) 
--		return (0);
--	for (i = 0; i < numchars; i++)
--		sum += nibblemap[map->b_data[i] & 0xf] +
--			nibblemap[(map->b_data[i] >> 4) & 0xf];
--	return (sum);
--}
-
-
+-- 
+Mathematics is the supreme nostalgia of our time.

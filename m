@@ -1,36 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262361AbVEMNcB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262363AbVEMNqh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262361AbVEMNcB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 09:32:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262362AbVEMNcA
+	id S262363AbVEMNqh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 09:46:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262364AbVEMNqh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 09:32:00 -0400
-Received: from main.gmane.org ([80.91.229.2]:9126 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S262361AbVEMNbu (ORCPT
+	Fri, 13 May 2005 09:46:37 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:14785 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262363AbVEMNqf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 09:31:50 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Andy Hawkins <andy@gently.org.uk>
-Subject: Re: RSS feed for latest kernel versions
-Date: Fri, 13 May 2005 13:25:11 +0000 (UTC)
-Organization: Gently
-Message-ID: <slrnd89aln.1p5.andy@gently.org.uk>
-References: <20050512215516.GF29634@osdl.org>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: cpc7-swin2-3-0-cust161.brhm.cable.ntl.com
-User-Agent: slrn/0.9.7.4 (Linux)
+	Fri, 13 May 2005 09:46:35 -0400
+Subject: Re: NUMA aware slab allocator V2
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       shai@scalex86.org, steiner@sgi.com
+In-Reply-To: <Pine.LNX.4.58.0505130411300.4500@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com>
+	 <20050512000444.641f44a9.akpm@osdl.org>
+	 <Pine.LNX.4.58.0505121252390.32276@schroedinger.engr.sgi.com>
+	 <20050513000648.7d341710.akpm@osdl.org>
+	 <Pine.LNX.4.58.0505130411300.4500@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Date: Fri, 13 May 2005 06:46:17 -0700
+Message-Id: <1115991978.7129.3.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 2005-05-13 at 04:21 -0700, Christoph Lameter wrote:
+> The definition for the number of NUMA nodes is dependent on
+> CONFIG_FLATMEM instead of CONFIG_NUMA in mm.
+> CONFIG_FLATMEM is not set on ppc64 because CONFIG_DISCONTIG is set! And
+> consequently nodes exist in a non NUMA config.
+> 
+> s/CONFIG_NUMA/CONFIG_FLATMEM/ ??
 
-In article <20050512215516.GF29634@osdl.org>,
-           Kees Cook<kees@osdl.org> wrote:
-> The direct URL is http://kernel.org/kdist/rss.xml
+FLATMEM effectively means that you have a contiguous, single mem_map[];
+it isn't directly related to NUMA.
 
-In my client, the 'C' and 'Changelog' links for each item point to 'file://'
-URLs.
+Could you point me to the code that you're looking at?  We shouldn't
+have numbers of NUMA nodes is dependent on CONFIG_FLATMEM, at least
+directly.  
 
-Andy
+-- Dave
 

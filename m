@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262565AbVEMWFc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262566AbVEMWJy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262565AbVEMWFc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 18:05:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbVEMWFc
+	id S262566AbVEMWJy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 18:09:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262567AbVEMWJy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 18:05:32 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:12447 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262565AbVEMWF1
+	Fri, 13 May 2005 18:09:54 -0400
+Received: from ipx10786.ipxserver.de ([80.190.251.108]:59552 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262566AbVEMWJw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 18:05:27 -0400
-Subject: 2.6.11.x: kernel-8250_pci driver
-From: "V. ANANDA KRISHNAN" <mansarov@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Fri, 13 May 2005 17:02:15 -0500
-Message-Id: <1116021735.19302.23.camel@siliver.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-13) 
-Content-Transfer-Encoding: 7bit
+	Fri, 13 May 2005 18:09:52 -0400
+Message-Id: <20050513220019.907667000@abc>
+Date: Sat, 14 May 2005 00:00:19 +0200
+From: Johannes Stezenbach <js@linuxtv.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+X-SA-Exim-Connect-IP: 217.231.56.126
+Subject: [DVB patch 00/11] B2C2 / FlexCop driver rewrite
+X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
+X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Andrew,
 
-  I would like to request some help from the device drivers experts.
-The 8250_pci driver has pci_boards[] array, enumeration constants (enum
-pci_board_num_t) and also pci_serial_quirk[] array for storing the data
-of PCI boards from various vendors such as HP, Intel etc.,
+the following patchset adds a refactored driver for
+DVB PCI cards and USB devices based on the FlexCopII
+or FlexCopIII chips by B2C2. It consists of the
+following parts:
 
-  Should the order of data in the pci_boards[] array and
-pci_serial_quirk[] be according to the enumeration constants ordered in
-the pci_board_num_t ?  
+- drop the abandoned attempt to add USB support based on the
+  existing skystar2 driver
+- add a modular flexcop driver
+- a bunch of fixes for the new driver from CVS
 
-  The procedure 
-	static int __devinit pciserial_init_one(struct pci_dev *dev, const
-struct pci_device_id *ent)
-  has the dev and ent structures to hold info on a given PCI board. When
-and where from these variables get their data?  Can some one help me by
-answering the above two questions?  I could not get much info from the
-documentation or the Device Drivers book.  Thanks in advance.
+The second patch is probably too large to make it to
+the list (130K) but I see no reasonable way to split it.
+Just in case, it is also available here:
+http://linuxtv.org/downloads/patches/2.6.12-rc4-2/quilt/dvb-b2c2-refactoring.patch
 
-V. Ananda Krishnan
+This driver has been in CVS for two months so I
+believe it is quite stable by now, and IMHO good for 2.6.12.
 
- 
+Please apply.
+
+Thanks,
+Johannes
 

@@ -1,114 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262440AbVEMPys@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262413AbVEMQDy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262440AbVEMPys (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 11:54:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262442AbVEMPyb
+	id S262413AbVEMQDy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 12:03:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262414AbVEMQDy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 11:54:31 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:14464 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262419AbVEMPwt (ORCPT
+	Fri, 13 May 2005 12:03:54 -0400
+Received: from az33egw02.freescale.net ([192.88.158.103]:19120 "EHLO
+	az33egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S262413AbVEMQDv convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 11:52:49 -0400
-Date: Fri, 13 May 2005 11:52:41 -0400
-From: Dave Jones <davej@redhat.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, tripperda@nvidia.com
-Subject: Re: [RFC] Cachemap for 2.6.12rc4-mm1.  Was Re: [PATCH] enhance x86 MTRR handling
-Message-ID: <20050513155241.GA3522@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
-	linux-kernel@vger.kernel.org, tripperda@nvidia.com
-References: <s2832b02.028@emea1-mh.id2.novell.com> <20050512161825.GC17618@redhat.com> <20050512214118.GA25065@redhat.com> <20050513132945.GB16088@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050513132945.GB16088@wotan.suse.de>
-User-Agent: Mutt/1.4.1i
+	Fri, 13 May 2005 12:03:51 -0400
+In-Reply-To: <200505131749.20752.pluto@agmk.net>
+References: <200505131749.20752.pluto@agmk.net>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Message-Id: <54f0f21514487ab2492daa91cc630a58@freescale.com>
+Content-Transfer-Encoding: 8BIT
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>
+From: Kumar Gala <kumar.gala@freescale.com>
+Subject: Re: [2.6.8] OOPS and SIGSEGV on altivec instruction on PowerPC 7540.
+Date: Fri, 13 May 2005 11:03:35 -0500
+To: "Pawel Sikora" <pluto@agmk.net>
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andi,
+This is odd. the 2.6.8 kernel should have the code that causes a SIGILL 
+if !CONFIG_ALTIVEC.  Can you enable CONFIG_KALLSYMS.
 
-On Fri, May 13, 2005 at 03:29:45PM +0200, Andi Kleen wrote:
+- kumar
 
- > For memory (pfn_valid == 1) it would be more memory efficient to use a few bits
- > in struct page->flags
+On May 13, 2005, at 10:49 AM, Pawel Sikora wrote:
 
-Maybe.
-
- > In general because there are lots of uses of "range lists" it would be better
- > to put it as a library into lib.
-
-Ditto.
-
- > Coding style needs some work.
-
-Yep.
-
- > Too many printks.
-
-At least whilst this is getting polished, its worth keeping these
-around. Once its stable, I agree, they can go (or at least be
-demoted to dprintk's).   It seems that theres some problems with
-the current code, so they're definitly useful..
-
-for eg..
-
-CMAP: cmap_request_range: 0xf8000000 - 0xf8100fff (1)
-CMAP:     cachings mismatch (4 != 1)
-CMAP: cmap_request_range: 0xf8101000 - 0xf8101fff (1)
-CMAP:     cachings mismatch (4 != 1)
-CMAP: cmap_request_range: 0xf8102000 - 0xf8301fff (1)
-CMAP:     cachings mismatch (4 != 1)
-[drm:radeon_do_init_cp] *ERROR* could not find ioremap agp regions!
-CMAP: cmap_release_range: 0xff8f0000 - 0xff96efff
-CMAP:    last user, freeing
-CMAP:    last user, freeing
-CMAP:    release_range successful!!
-
-I'm not sure where that's coming from yet.  There's also a few
-failures to release regions which need to be double checked.
-
- > I am not sure yet the cmaps don't need reference counting. For some
- > cases (user space support) they probably will.
-
-Asides from cmap_entry->count ?
-Hmm, there doesn't seem to be anything guarding concurrent accesses
-to that.
-
- > Need user space support, e.g. using the existing ioctls for /proc/bus/pci/*
- > (they are currently not implemented on i386/x86-64 but should with this)
- > Then someone would need to change the X server to use this.
-
-By hooking into ioremap(), we're getting this done automatically.
-
-01:00.0 VGA compatible controller: ATI Technologies Inc Radeon RV200 QW [Radeon 7500] (prog-if 00 [VGA])
-        Subsystem: PC Partner Limited RV200 QW [Radeon 7500 LE]
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR+ FastB2B-
-        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32 (2000ns min), Cache Line Size 08
-        Interrupt: pin A routed to IRQ 225
-        Region 0: Memory at e8000000 (32-bit, prefetchable) [size=128M]
-        Region 1: I/O ports at c800 [size=256]
-        Region 2: Memory at ff8f0000 (32-bit, non-prefetchable) [size=64K]
-        Expansion ROM at ff8c0000 [disabled] [size=128K]
-        Capabilities: <available only to root>
-
-(10:39:17:davej@dhcp83-2:~)$ grep e8000000 /proc/cachemap
- 0xe8000000 - 0xebffffff: 0x0004 1
-
-Though I agree a userspace interface could be useful.
-
- > Need to figure out if CMAP_ALLOW_OVERLAPPING should be set or not.
-
-*nod*, and if it should, lose the ifdef completely.
- 
- > Probably need to go over the combining rule etc. with a fine comb
-
-agreed.  There's a bunch of errata on older CPUs that should probably
-be checked too.
-
-Thanks for the comments.  I'm not working on this full-time, but
-I'll continue to poke at it occasionally, especially if theres
-interest from anyone else.
-
-		Dave
+> Hi,
+>
+> simple runtime altivec detection from userspace causes an oops
+>  on the `vand` instruction. kernel was built *without* CONFIG_ALTIVEC.
+> i think kernel should return a SIGILL instead of an oops ;-)
+>
+> Oops: kernel access of bad area, sig: 11 [#65]
+>  NIP: C0008B84 LR: C0007F2C SP: CF373F20 REGS: cf373e70 TRAP: 0300 Not 
+> tainted
+>  MSR: 00009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+>  DAR: 00000088, DSISR: 40000000
+>  TASK = c81e04f0[12983] 'altivec' THREAD: cf372000Last syscall: 174
+>  GPR00: C0007F2C CF373F20 C81E04F0 00000004 00000004 00030001 00000000 
+> 0FEE08D0
+>  GPR08: 0000F932 C0007F2C 00009032 C0350000 081E0788 00000000 00000000 
+> 100A37D8
+>  GPR16: 100A0000 00000000 100A0000 00000000 10070000 100A37C8 100AEF08 
+> 00000000
+>  GPR24: 100A1108 00000000 100A59A8 3002AEF8 3002BB80 3002AE60 0FFEA6FC 
+> 00000004
+>  Call trace: [c0007f2c]
+>
+>
+>
+> processor       : 0
+>  cpu             : 7450
+>  clock           : 700MHz
+>  revision        : 2.1 (pvr 8000 0201)
+>  bogomips        : 696.32
+>  machine         : PowerMac4,4
+>  motherboard     : PowerMac4,4 MacRISC2 MacRISC Power Macintosh
+>  detected as     : 80 (eMac)
+>  pmac flags      : 00000001
+>  L2 cache        : 256K unified
+> memory          : 384MB
+>  pmac-generation : NewWorld
+>
+> -- 
+> The only thing necessary for the triumph of evil
+>    is for good men to do nothing.
+>                                             - Edmund Burke
+> <altivec.c>

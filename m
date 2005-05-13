@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261642AbVEMVeQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262474AbVEMVeR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261642AbVEMVeQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 17:34:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262492AbVEMVbA
+	id S262474AbVEMVeR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 17:34:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262552AbVEMVaj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 17:31:00 -0400
-Received: from orb.pobox.com ([207.8.226.5]:7882 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S261642AbVEMV1y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 17:27:54 -0400
-Date: Fri, 13 May 2005 16:27:45 -0500
-From: Nathan Lynch <ntl@pobox.com>
-To: Dinakar Guniguntala <dino@in.ibm.com>
-Cc: Paul Jackson <pj@sgi.com>, Simon.Derr@bull.net,
-       lse-tech@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, V Srivatsa <vatsa@in.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Lse-tech] Re: [PATCH] cpusets+hotplug+preepmt broken
-Message-ID: <20050513212745.GJ3614@otto>
-References: <20050511191654.GA3916@in.ibm.com> <20050511195156.GE3614@otto> <20050513123216.GB3968@in.ibm.com>
+	Fri, 13 May 2005 17:30:39 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:46247 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262503AbVEMV16 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 17:27:58 -0400
+Subject: Re: [discuss] Re: [PATCH] adjust x86-64 watchdog tick calculation
+From: Lee Revell <rlrevell@joe-job.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Andi Kleen <ak@suse.de>, Alexander Nyberg <alexn@telia.com>,
+       Jan Beulich <JBeulich@novell.com>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050513195215.GC3135@elf.ucw.cz>
+References: <s2832159.057@emea1-mh.id2.novell.com>
+	 <1115892008.918.7.camel@localhost.localdomain>
+	 <20050512142920.GA7079@openzaurus.ucw.cz>
+	 <20050513113023.GD15755@wotan.suse.de>  <20050513195215.GC3135@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Fri, 13 May 2005 17:27:56 -0400
+Message-Id: <1116019676.6380.37.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050513123216.GB3968@in.ibm.com>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 13, 2005 at 06:02:17PM +0530, Dinakar Guniguntala wrote:
-> On Wed, May 11, 2005 at 02:51:56PM -0500, Nathan Lynch wrote:
+On Fri, 2005-05-13 at 21:52 +0200, Pavel Machek wrote:
+> On Pá 13-05-05 13:30:23, Andi Kleen wrote:
+> > > Because it kills machine when interrupt latency gets too high?
+> > > Like reading battery status using i2c...
+> > 
+> > That's a bug in the I2C reader then. Don't shot the messenger for bad news.
 > 
-> > This trace is what should be fixed -- we're trying to schedule while
-> > the machine is "stopped" (all cpus except for one spinning with
-> > interrupts off).  I'm not too familiar with the cpusets code but I
-> > would like to stay away from nesting these semaphores if at all
-> > possible.
+> Disagreed.
 > 
-> Vatsa pointed out another scenario where cpusets+hotplug is currently
-> broken. attach_task in cpuset.c is called without holding the hotplug 
-> lock and it is possible to call set_cpus_allowed for a task with no 
-> online cpus. 
-> Given this I think the patch I sent first is the most appropriate
-> patch.
+> Linux is not real time OS. Perhaps some real-time constraints "may not
+> spend > 100msec with interrupts disabled" would be healthy
+             ^^^^
+You mean "microseconds", right?  100ms will be perceived by the user as,
+well, their machine freezing for 100ms...
 
-Your original patch is deadlocky since cpuset_cpus_allowed() does
-task_lock() while write_lock_irq(&tasklist_lock) is already held by
-migrate_live_tasks().
+Lee
 
-
-Nathan

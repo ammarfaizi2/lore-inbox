@@ -1,59 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262631AbVENAA6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262628AbVENABg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262631AbVENAA6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 20:00:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262627AbVENAA6
+	id S262628AbVENABg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 20:01:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262627AbVENABg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 20:00:58 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:52662 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262625AbVENAAc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 20:00:32 -0400
-In-Reply-To: <428482A1.5090107@vlnb.net>
-To: Vladislav Bolkhovitin <vst@vlnb.net>
-Cc: David Hollis <dhollis@davehollis.com>, dmitry_yus@yahoo.com,
-       FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>,
-       Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
-       iscsitarget-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, Sander <sander@humilis.net>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>
-MIME-Version: 1.0
-Subject: Re: SCSI/ISCSI, hardware/software
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OF7E993A36.0D88FEC0-ON88257000.0082C701-88257000.0083CAAD@us.ibm.com>
-From: Bryan Henderson <hbryan@us.ibm.com>
-Date: Fri, 13 May 2005 16:58:59 -0700
-X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Build V70_04122005|April 12, 2005) at
- 05/13/2005 20:00:11,
-	Serialize complete at 05/13/2005 20:00:11
-Content-Type: text/plain; charset="US-ASCII"
+	Fri, 13 May 2005 20:01:36 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:28993 "EHLO
+	pd3mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S262628AbVENABT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 20:01:19 -0400
+Date: Fri, 13 May 2005 17:59:49 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Sync option destroys flash!
+In-reply-to: <43MVz-2hL-1@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <42853F75.8030408@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <43Ldl-NM-25@gated-at.bofh.it> <43M9s-1B8-39@gated-at.bofh.it>
+ <43MCx-1UF-27@gated-at.bofh.it> <43MVz-2hL-1@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Such iSCSI card from a user point of view as well as for system running 
->on a computer with it is just another SCSI card, not matter which 
->transport it uses and how much software it runs onboard, so for they it 
->doesn't differ from FC or parallel SCSI one, which I think you would not 
->call a software unit.  As usually, you only need appropriate driver for 
->_SCSI_ subsystem.
+Lennart Sorensen wrote:
+ > Well perhaps what windows does is write the hole file, then update the
+ > fat, then call sync immediately afterwards, or whenever a file is
+ > closed, it calls sync on that file's information.
 
-The point I'd like to make is that _I_ would not call it a software unit 
-or a hardware unit, because I don't think in most contexts (including that 
-of this thread), it makes any difference which technology is used in the 
-implementation.  What _does_ matter is 1) this card comes preassembled.  I 
-don't have to find and load independently produced software onto it, or 
-worry about interoperability.  2) It's below the Linux kernel, which means 
-I won't need to mess with Linux applications or kernels except to load a 
-low level SCSI driver.  It also means it doesn't place any load on my main 
-CPU and probably goes faster than something implemented in or above my 
-Linux kernel would.
+Probably something like that.. Windows does default to disabling write 
+caching on removable drives, to prevent data loss if a device is removed 
+without being stopped first, but I think it's quite a bit less 
+aggressive about updating the FAT than the original poster's description 
+suggests Linux is doing with the sync option (i.e. only updating after 
+each user-level write call or something).
 
-And there's the separate point that it would be a misnomer to say that 
-this card is an ISCSI initiator (it's only part of one); so even if the 
-card itself can be called hardware, that still doesn't mean you can say 
-you have a hardware ISCSI initiator.  Same is true of a parallel SCSI host 
-adapter card.
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
---
-Bryan Henderson                          IBM Almaden Research Center
-San Jose CA                              Filesystems

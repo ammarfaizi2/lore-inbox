@@ -1,49 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262304AbVEMIeV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262308AbVEMIgj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262304AbVEMIeV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 04:34:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbVEMIeU
+	id S262308AbVEMIgj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 04:36:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262264AbVEMIgi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 04:34:20 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:57244 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S262304AbVEMIeP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 04:34:15 -0400
-From: Mikael Pettersson <mikpe@user.it.uu.se>
+	Fri, 13 May 2005 04:36:38 -0400
+Received: from cad.csie.ncku.edu.tw ([140.116.247.47]:55021 "EHLO
+	ismp.csie.ncku.edu.tw") by vger.kernel.org with ESMTP
+	id S262308AbVEMIel (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 04:34:41 -0400
+Message-Id: <200505130838.j4D8bo8R026303@ismp.csie.ncku.edu.tw>
+From: "Wayne Lee" <wnlee@cad.csie.ncku.edu.tw>
+To: "'uClinux development list'" <uclinux-dev@uclinux.org>,
+       <linux-arm-kernel@lists.arm.linux.org.uk>,
+       <linux-kernel@vger.kernel.org>
+Cc: "'CE Linux Developers List'" <celinux-dev@tree.celinuxforum.org>
+Subject: RE: [uClinux-dev] [Benchmark] Linux 2.6.11.6 ARM MMU mode vs. noMMU mode vs. MVista 2.4.20
+Date: Fri, 13 May 2005 16:33:46 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-ID: <17028.26204.8545.584415@alkaid.it.uu.se>
-Date: Fri, 13 May 2005 10:33:31 +0200
-To: marcelo.tosatti@cyclades.com, ak@suse.de
-Subject: [PATCH 2.4.31-pre2] x86_64 linkage error on UP_IOAPIC
-Cc: linux-kernel@vger.kernel.org
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <0IFW003QR79WYC@mmp1.samsung.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Thread-Index: AcU1BWcNVc0V74LDSaahcUiPaBabRQAAA+EQAF6QSaAGQZe5wAAAYLmAAgOYOTA=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When 2.4.31-pre2 is configured for X86_64 && !SMP && UP_IOAPIC
-it fails to link:
 
-arch/x86_64/kernel/kernel.o(.text+0x4591): In function `enable_irq':
-: undefined reference to `send_IPI_self'
-make: *** [vmlinux] Error 1
+Hello Hyok,
 
-A broken change in 2.4.31-pre{1,2} made the UP kernel reference
-a symbol which is only defined in the SMP kernel.
+How can we reproduce your experiments on s3c24a0 ports?
+Do you release the lmbench for s3c24a0?
 
-The patch below fixes this by reverting that change.
+Regards,
+Wayne
 
-Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
+-----Original Message-----
+From: uclinux-dev-bounces@uclinux.org
+[mailto:uclinux-dev-bounces@uclinux.org] On Behalf Of Hyok S. Choi
+Sent: Tuesday, May 03, 2005 10:36 AM
+To: uClinux development list; linux-arm-kernel@lists.arm.linux.org.uk;
+linux-kernel@vger.kernel.org
+Cc: CE Linux Developers List
+Subject: [uClinux-dev] [Benchmark] Linux 2.6.11.6 ARM MMU mode vs. noMMU
+mode vs. MVista 2.4.20
 
-diff -rupN linux-2.4.31-pre2/include/asm-x86_64/hw_irq.h linux-2.4.31-pre2.x86_64-fix/include/asm-x86_64/hw_irq.h
---- linux-2.4.31-pre2/include/asm-x86_64/hw_irq.h	2005-05-13 00:05:51.000000000 +0200
-+++ linux-2.4.31-pre2.x86_64-fix/include/asm-x86_64/hw_irq.h	2005-05-13 00:35:59.000000000 +0200
-@@ -156,7 +156,7 @@ static inline void x86_do_profile (unsig
- 	atomic_inc((atomic_t *)&prof_buffer[eip]);
- }
- 
--#ifdef CONFIG_X86_IO_APIC
-+#ifdef CONFIG_SMP /*more of this file should probably be ifdefed SMP */
- static inline void hw_resend_irq(struct hw_interrupt_type *h, unsigned int i) {
- 	if (IO_APIC_IRQ(i))
- 		send_IPI_self(IO_APIC_VECTOR(i));
+FYI,
+
+I just put an newer lmbench lat_ctx benchmark result chart,
+among linux 2.6.11.6 noMMU mode vs. MMU mode vs. montavista
+linux(2.4.20-mvista) at:
+http://opensrc.sec.samsung.com/document/ctx-perf-linux-2.6.11.6.pdf
+
+you can find some graphs also at :
+http://opensrc.sec.samsung.com/document.html
+
+Hyok
+
+
+
+_______________________________________________
+uClinux-dev mailing list
+uClinux-dev@uclinux.org
+http://mailman.uclinux.org/mailman/listinfo/uclinux-dev
+This message was resent by uclinux-dev@uclinux.org
+
+

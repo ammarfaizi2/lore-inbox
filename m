@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbVEMWxR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262617AbVEMWy6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262605AbVEMWxR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 18:53:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262590AbVEMWvI
+	id S262617AbVEMWy6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 18:54:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262615AbVEMWxt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 18:51:08 -0400
-Received: from pop.gmx.net ([213.165.64.20]:2950 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262605AbVEMWul (ORCPT
+	Fri, 13 May 2005 18:53:49 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:21139 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262610AbVEMWvY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 18:50:41 -0400
-X-Authenticated: #20450766
-Date: Sat, 14 May 2005 00:49:25 +0200 (CEST)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-cc: Sander <sander@humilis.net>, David Hollis <dhollis@davehollis.com>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: iSCSI vs. NBD (was Re: ata over ethernet question)
-In-Reply-To: <1116015693.6639.4.camel@mulgrave>
-Message-ID: <Pine.LNX.4.60.0505140048050.15724@poirot.grange>
-References: <1416215015.20050504193114@dns.toxicfilms.tv> 
- <1115236116.7761.19.camel@dhollis-lnx.sunera.com>  <1104082357.20050504231722@dns.toxicfilms.tv>
-  <1115305794.3071.5.camel@dhollis-lnx.sunera.com>  <20050507150538.GA800@favonius>
-  <Pine.LNX.4.60.0505102352430.9008@poirot.grange>  <1115923927.5042.18.camel@mulgrave>
-  <Pine.LNX.4.60.0505132040400.8052@poirot.grange> <1116015693.6639.4.camel@mulgrave>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Y-GMX-Trusted: 0
+	Fri, 13 May 2005 18:51:24 -0400
+Date: Sat, 14 May 2005 00:51:27 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Andi Kleen <ak@suse.de>, Alexander Nyberg <alexn@telia.com>,
+       Jan Beulich <JBeulich@novell.com>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [discuss] Re: [PATCH] adjust x86-64 watchdog tick calculation
+Message-ID: <20050513225127.GB2016@elf.ucw.cz>
+References: <s2832159.057@emea1-mh.id2.novell.com> <1115892008.918.7.camel@localhost.localdomain> <20050512142920.GA7079@openzaurus.ucw.cz> <20050513113023.GD15755@wotan.suse.de> <20050513195215.GC3135@elf.ucw.cz> <1116019676.6380.37.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1116019676.6380.37.camel@mindpipe>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 May 2005, James Bottomley wrote:
+Hi!
 
-> Well, my copy of the MAINTAINERS file has this:
-> 
-> NETWORK BLOCK DEVICE
-> P:      Paul Clements
-> M:      Paul.Clements@steeleye.com
-> S:      Maintained
+> > > > Because it kills machine when interrupt latency gets too high?
+> > > > Like reading battery status using i2c...
+> > > 
+> > > That's a bug in the I2C reader then. Don't shot the messenger for bad news.
+> > 
+> > Disagreed.
+> > 
+> > Linux is not real time OS. Perhaps some real-time constraints "may not
+> > spend > 100msec with interrupts disabled" would be healthy
+>              ^^^^
+> You mean "microseconds", right?  100ms will be perceived by the user as,
+> well, their machine freezing for 100ms...
 
-Auch, `grep -i nbd MAINTAINERS`:-)))
-
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
-
+I did mean miliseconds. IIRC current watchdog is at one second and it
+still triggers even in cases when operation just takes too long.
+								Pavel
+-- 
+Boycott Kodak -- for their patent abuse against Java.

@@ -1,68 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262622AbVEMXd1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262615AbVEMX0I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262622AbVEMXd1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 19:33:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262611AbVEMXay
+	id S262615AbVEMX0I (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 19:26:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262483AbVEMXZ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 19:30:54 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:2524 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262647AbVEMX3t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 19:29:49 -0400
-Date: Fri, 13 May 2005 19:29:38 -0400
-From: Dave Jones <davej@redhat.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Pavel Machek <pavel@suse.cz>, Andi Kleen <ak@suse.de>,
-       Alexander Nyberg <alexn@telia.com>, Jan Beulich <JBeulich@novell.com>,
-       discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] Re: [PATCH] adjust x86-64 watchdog tick calculation
-Message-ID: <20050513232938.GD13846@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Lee Revell <rlrevell@joe-job.com>, Pavel Machek <pavel@suse.cz>,
-	Andi Kleen <ak@suse.de>, Alexander Nyberg <alexn@telia.com>,
-	Jan Beulich <JBeulich@novell.com>, discuss@x86-64.org,
-	linux-kernel@vger.kernel.org
-References: <s2832159.057@emea1-mh.id2.novell.com> <1115892008.918.7.camel@localhost.localdomain> <20050512142920.GA7079@openzaurus.ucw.cz> <20050513113023.GD15755@wotan.suse.de> <20050513195215.GC3135@elf.ucw.cz> <1116019676.6380.37.camel@mindpipe> <20050513225127.GB2016@elf.ucw.cz> <1116024993.6380.47.camel@mindpipe>
+	Fri, 13 May 2005 19:25:59 -0400
+Received: from zproxy.gmail.com ([64.233.162.198]:28102 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262615AbVEMXYP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 19:24:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=c3T66JTxRAHWf5x1hDO56RsYuY1PYR2+etMNsTP+u/WHj8/Agse6HA2r36V0IIWHKX6/qjScCEyGIGO3guqvdQcXX2WOuSHWzzXUPcCZGN7ueFs7+NkZyJfW7mPQMkGobuQT5eHghJfwTRMOV8Ox4IT6lCL/IRfzXwazg1adpI8=
+Message-ID: <35fb2e5905051316247eb5d4f6@mail.gmail.com>
+Date: Sat, 14 May 2005 00:24:15 +0100
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Subject: Re: Sync option destroys flash!
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <yw1xbr7eydeg.fsf@ford.inprovide.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <1116024993.6380.47.camel@mindpipe>
-User-Agent: Mutt/1.4.1i
+References: <1116001207.5239.38.camel@localhost.localdomain>
+	 <1116009619.9371.494.camel@localhost.localdomain>
+	 <1116011430.5239.108.camel@localhost.localdomain>
+	 <1116021632.20550.11.camel@localhost.localdomain>
+	 <yw1xbr7eydeg.fsf@ford.inprovide.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 13, 2005 at 06:56:33PM -0400, Lee Revell wrote:
- > On Sat, 2005-05-14 at 00:51 +0200, Pavel Machek wrote:
- > > Hi!
- > > 
- > > > > > > Because it kills machine when interrupt latency gets too high?
- > > > > > > Like reading battery status using i2c...
- > > > > > 
- > > > > > That's a bug in the I2C reader then. Don't shot the messenger for bad news.
- > > > > 
- > > > > Disagreed.
- > > > > 
- > > > > Linux is not real time OS. Perhaps some real-time constraints "may not
- > > > > spend > 100msec with interrupts disabled" would be healthy
- > > >              ^^^^
- > > > You mean "microseconds", right?  100ms will be perceived by the user as,
- > > > well, their machine freezing for 100ms...
- > > 
- > > I did mean miliseconds. IIRC current watchdog is at one second and it
- > > still triggers even in cases when operation just takes too long.
- > 
- > I thought there was an understanding that 1 ms would be the target for
- > desktop responsiveness.  So yes, disabling interrupts for more than 1ms
- > is considered a bug.
- > 
- > Why do you need to disable interrupts for 100ms to read the battery
- > status exactly?
+On 5/13/05, Måns Rullgård <mru@inprovide.com> wrote:
 
-On some unfortunate hardware, we can go away even longer whilst
-the BIOS does various SMI voodoo.  It got so bad in some situations
-that the maintainers of the gnome battery app lowered the frequency
-at which the poll the acpi interface.
+> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-		Dave
+> > On Gwe, 2005-05-13 at 20:10, Michael H. Warfield wrote:
 
+> >>  But how do you determine which are
+> >> "decent" keys?  They don't put stickers on them saying "this one is
+> >> decent" and "this one is junk" and I'm an old cynic who has learned that
+> >> price is not always a good indicator either.  Maybe the guarantee will
+> >> be a clue.  I've just got to shop for it more.
+> >
+> > Or it may even be cheaper to "burn" a few - buy one of each type from
+> > various shops, do 2 million writes to the same sector and take them back
+> > the next day if they died [And publish the review data 8))]
+> 
+> It's probably a good idea to get from different shops, or someone
+> might get suspicious when you take them back.
 
+Not really. I doubt the person in the shop will care.
+
+Incidentally, I've discovered that you really don't want to buy flash
+devices from camera shops. It would seem that, like I guess might be
+the case with certain "audio CD" blanks you buy in stores, they don't
+seem to care about selling you a device with one or two known-bad
+sectors. You won't notice 512 bytes of lost data in many JPEG images
+(not that I am saying it's a good practice to have) but my Zaurus
+/did/ notice when I couldn't reflash it from a CF card with a fault
+somewhere around 8MB. After quite some time of screwing around with
+the filesystem by hand, I was able to ensure that something else was
+occupying the sector in question and eventually was able to reflash
+(all because it was a Sunday afternoon and we have silly Sunday
+trading laws here).
+
+When I took the CF card back to the camera shop, I took the Zaurus and
+did a test on potential replacement cards while in the store -
+explaining that my PDA had a "CompactFlash tester" installed, or
+something like that. It's amazing what you can get away with - akin to
+spending an hour in the store when I got my replacement Powerbook
+after finding a single bad pixel, testing every unit to find one
+without any, just to be happy :-)
+
+Jon.

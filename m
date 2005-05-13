@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262533AbVEMVAm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261652AbVEMUrl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262533AbVEMVAm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 17:00:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262526AbVEMU5z
+	id S261652AbVEMUrl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 16:47:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262511AbVEMUdR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 16:57:55 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:33425 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262543AbVEMU5O (ORCPT
+	Fri, 13 May 2005 16:33:17 -0400
+Received: from pop.gmx.net ([213.165.64.20]:44775 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262492AbVEMUJw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 16:57:14 -0400
-In-Reply-To: <1115946620.6248.299.camel@localhost>
-To: linuxram@us.ibm.com
-Cc: 7eggert@gmx.de, ericvh@gmail.com, hch@infradead.org, jamie@shareable.org,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Miklos Szeredi <miklos@szeredi.hu>, smfrench@austin.rr.com
+	Fri, 13 May 2005 16:09:52 -0400
+X-Authenticated: #20450766
+Date: Fri, 13 May 2005 20:50:18 +0200 (CEST)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+cc: Sander <sander@humilis.net>, David Hollis <dhollis@davehollis.com>,
+       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: iSCSI vs. NBD (was Re: ata over ethernet question)
+In-Reply-To: <1115923927.5042.18.camel@mulgrave>
+Message-ID: <Pine.LNX.4.60.0505132040400.8052@poirot.grange>
+References: <1416215015.20050504193114@dns.toxicfilms.tv> 
+ <1115236116.7761.19.camel@dhollis-lnx.sunera.com>  <1104082357.20050504231722@dns.toxicfilms.tv>
+  <1115305794.3071.5.camel@dhollis-lnx.sunera.com>  <20050507150538.GA800@favonius>
+  <Pine.LNX.4.60.0505102352430.9008@poirot.grange> <1115923927.5042.18.camel@mulgrave>
 MIME-Version: 1.0
-Subject: Re: [RCF] [PATCH] unprivileged mount/umount
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OFEFDF2D93.56922D33-ON88257000.0072463B-88257000.00730C46@us.ibm.com>
-From: Bryan Henderson <hbryan@us.ibm.com>
-Date: Fri, 13 May 2005 13:56:06 -0700
-X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Build V70_04122005|April 12, 2005) at
- 05/13/2005 16:57:08,
-	Serialize complete at 05/13/2005 16:57:08
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Sorry if I am saying something dumb here.
->Correct me.  When a file descriptor is sent from one process to other,
+On Thu, 12 May 2005, James Bottomley wrote:
 
-This confusion, incidentally, is brought to you by the ambiguous use of 
-the term "file descriptor."  In classic Unix, the "file descriptor" is the 
-integer that open() returns.  It's an improper use of the term 
-"descriptor," as this value does not describe but identifies.  But in the 
-SCM_RIGHTS context, the term "file descriptor" is used to refer to a 
-handle for a file image.  While it's true that a file descriptor goes in 
-one end of the pipe and a (generally different) file descriptor comes out 
-the other end, what's being passed is a handle for a file image (aka open 
-instance).
+> However, there is room for improvement in nbd, notably the handling of
+> packet commands, which looks to be eminently doable in the current
+> infrastructure (this would basically make nbd a replicator for the linux
+> block system, and would probably necessitate some client side changes to
+> achieve).  If you have any thoughts in this direction, you could drop an
+> email to the maintainer.
 
---
-Bryan Henderson                          IBM Almaden Research Center
-San Jose CA                              Filesystems
+Thanks, James
+
+I'll try to get some (thoughts):-) BTW, who is the maintainer of nbd? No 
+one in MAINTAINERS, in nbd.c only
+ * Copyright 1997-2000 Pavel Machek <pavel@ucw.cz>
+ * Parts copyright 2001 Steven Whitehouse <steve@chygwyn.com>
+Is it Pavel then?
+
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski
 

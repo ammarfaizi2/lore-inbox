@@ -1,64 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262416AbVEMQHM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262415AbVEMQIm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262416AbVEMQHM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 12:07:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262419AbVEMQHL
+	id S262415AbVEMQIm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 12:08:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262419AbVEMQIm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 12:07:11 -0400
-Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:55195 "EHLO
-	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
-	id S262415AbVEMQG6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 12:06:58 -0400
-X-SBRSScore: None
-X-IronPort-AV: i="3.93,107,1114984800"; 
-   d="scan'208"; a="9296951:sNHT29356740"
-Message-ID: <4284D0A0.5010809@fujitsu-siemens.com>
-Date: Fri, 13 May 2005 18:06:56 +0200
-From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-CC: linux-kernel@vger.kernel.org, Ulrich Weigand <uweigand@de.ibm.com>
-Subject: Re: Again: UML on s390 (31Bit)
-References: <OF004E24A7.29043C55-ONC1257000.0056CCB5-C1257000.00570853@de.ibm.com>
-In-Reply-To: <OF004E24A7.29043C55-ONC1257000.0056CCB5-C1257000.00570853@de.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 13 May 2005 12:08:42 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:17814 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262415AbVEMQHn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 12:07:43 -0400
+Subject: Re: Y2K-like bug to hit Linux computers! - Info of the day
+From: Lee Revell <rlrevell@joe-job.com>
+To: linux-os@analogic.com
+Cc: "Srinivas G." <srinivasg@esntechnologies.co.in>,
+       linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.6912311752220.4361@chaos.analogic.com>
+References: <4EE0CBA31942E547B99B3D4BFAB348114BED13@mail.esn.co.in>
+	 <Pine.LNX.4.61.6912311752220.4361@chaos.analogic.com>
+Content-Type: text/plain
+Date: Fri, 13 May 2005 12:07:40 -0400
+Message-Id: <1116000461.5846.4.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Schwidefsky wrote:
->>Each time when the kernel is entered again and a signal is pending,
->>do_signal() will be called on return to user with regs->trap setup
->>freshly. So, I still believe the patch doesn't have *any* effect.
+On Wed, 1969-12-31 at 17:54 -0500, Richard B. Johnson wrote:
+> On Fri, 13 May 2005, Srinivas G. wrote:
 > 
+> > Tuesday, January 19 2038. Time: 03:14:07 GMT. If Linux programmers get
+> > nightmares, it's about this date and time. Immediately after that second
+> > is crossed, current computer systems running on Linux will grind to a
+> > halt or go into a loop. This will trip up a lot of databases. No, this
+> > is not another hoax raised by some anti-Linux lobby. It is Linux's own
+> > Y2K nightmare, says Businessworld.
+> >
+> [SNIPPED...]
 > 
-> Oh, the patch does have an effect for the debugger. If the debugger
-> stopped on the sys_sig_return system call and does e.g. an inferior
-> function call, then the kernel might want to restart a system call
-> that isn't there because the debugger did a "jump" but could not
-> change regs->trap.
+> It's simply not true. It's more FUD. Look at the date on this email.
+> Also, calculating 30-year mortgages doesn't use time_t. Code certianly
+> doesn't set the time 30 years ahead to see what the cost is. It's
+> just FUD.
 
-AFAICS, it not even has an effect for the debugger.
+Please don't screw up thousands of people's inbox to make a point.  Many
+people sort their mail into folders by date.
 
-do_signal() is the only routine, that examines regs->trap. On each
-kernel-entry, regs->trap is set freshly. What will be the effect of
-changing it *after* it had been examined?
+Lee
 
-The only exceptions are sys_(rt_)sigsuspend. Here do_signal() might
-be called twice, while *and* after processing the syscall. But even
-here the patch has no effect, as regs->gprs[2] contains -EINTR, if
-so_signal is called by sys_(rt_)sigreturn.
-
-Regards
-	Bodo
-
-> 
-> blue skies,
->    Martin
-> 
-> Martin Schwidefsky
-> Linux for zSeries Development & Services
-> IBM Deutschland Entwicklung GmbH
-> 

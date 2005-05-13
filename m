@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262455AbVEMXWU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262578AbVEMWkw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262455AbVEMXWU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 19:22:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262622AbVEMXWT
+	id S262578AbVEMWkw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 18:40:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262579AbVEMWkL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 19:22:19 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:52879 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262455AbVEMXVx (ORCPT
+	Fri, 13 May 2005 18:40:11 -0400
+Received: from coderock.org ([193.77.147.115]:54677 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S262589AbVEMWZC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 19:21:53 -0400
-Message-ID: <42853687.1050402@pobox.com>
-Date: Fri, 13 May 2005 19:21:43 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Benjamin LaHaise <bcrl@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [rfc/patch] libata -- port configurable delays
-References: <20050513185850.GA5777@kvack.org> <1116019231.26693.499.camel@localhost.localdomain>
-In-Reply-To: <1116019231.26693.499.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Fri, 13 May 2005 18:25:02 -0400
+Message-Id: <20050513222405.913399000@nd47.coderock.org>
+Date: Sat, 14 May 2005 00:24:06 +0200
+From: domen@coderock.org
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, Christophe Lucas <clucas@rotomalug.org>,
+       domen@coderock.org
+Subject: [patch 1/3] drivers/char/ip2/i2lib.c: replace direct assignment with set_current_state()
+Content-Disposition: inline; filename=set_current_state-drivers_char_ip2_i2lib
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Gwe, 2005-05-13 at 19:58, Benjamin LaHaise wrote:
-> 
->>is available at http://www.kvack.org/~bcrl/simple-aio-min_nr.c).  
->>Before this patch __delay() is the number one entry in oprofile 
->>results for this workload.  Does this look like a reasonable approach 
->>for chipsets that aren't completely braindead?  Cheers,
-> 
-> 
-> If your chipset implements the 400nS lockout in hardware it certainly
-> seems to make sense. Nice to know someone has put it in hardware
-
-No, it's just mostly irrelevant under SATA.
-
-Under SATA you are -not- talking to a device when you touch 
-Status/AltStatus, you are talking to the host controller.  Specifically, 
-you're talking to a controller buffer that stores a copy of the ATA 
-shadow registers.
-
-The ATA registers are transmitted to the device in a single packet, 
-called a FIS, when the Command or Device Control register is written.
-
-When the device updates its status, or completes a command, it sends a 
-FIS from device to controller, instructing the controller to update its 
-cached copy of the Status register.
-
-You're bitbanging a buffer, in SATA.
-
-	Jeff
+From: Christophe Lucas <clucas@rotomalug.org>
 
 
+
+Use set_current_state() instead of direct assignment of
+current->state.
+
+Signed-off-by: Christophe Lucas <clucas@rotomalug.org>
+Signed-off-by: Domen Puncer <domen@coderock.org>
+
+
+---
+ i2lib.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+Index: quilt/drivers/char/ip2/i2lib.c
+===================================================================
+--- quilt.orig/drivers/char/ip2/i2lib.c
++++ quilt/drivers/char/ip2/i2lib.c
+@@ -655,7 +655,7 @@ i2QueueCommands(int type, i2ChanStrPtr p
+ 			timeout--;   // So negative values == forever
+ 		
+ 		if (!in_interrupt()) {
+-			current->state = TASK_INTERRUPTIBLE;
++			set_current_state(TASK_INTERRUPTIBLE);
+ 			schedule_timeout(1);	// short nap 
+ 		} else {
+ 			// we cannot sched/sleep in interrrupt silly
+@@ -1132,7 +1132,7 @@ i2Output(i2ChanStrPtr pCh, const char *p
+ 
+ 					ip2trace (CHANN, ITRC_OUTPUT, 61, 0 );
+ 
+-					current->state = TASK_INTERRUPTIBLE;
++					set_current_state(TASK_INTERRUPTIBLE);
+ 					schedule_timeout(2);
+ 					if (signal_pending(current)) {
+ 						break;
+
+--

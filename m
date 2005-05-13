@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262536AbVEMUwN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262544AbVEMU4V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262536AbVEMUwN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 16:52:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262513AbVEMUvU
+	id S262544AbVEMU4V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 16:56:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbVEMUxy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 16:51:20 -0400
-Received: from [212.45.14.9] ([212.45.14.9]:3281 "EHLO ari.home")
-	by vger.kernel.org with ESMTP id S261465AbVEMUsD (ORCPT
+	Fri, 13 May 2005 16:53:54 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:54451 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262544AbVEMUx2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 16:48:03 -0400
-Date: Sat, 14 May 2005 00:47:51 +0400 (MSD)
-From: "Lev A. Melnikovsky" <leva@despammed.com>
-To: ajoshi@kernel.crashing.org
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix radeonfb MAX_MAPPED_VRAM in 2.4.30
-Message-ID: <Pine.LNX.4.62.0505140019290.7998@nev.ubzr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 13 May 2005 16:53:28 -0400
+Date: Fri, 13 May 2005 13:52:33 -0700
+From: Paul Jackson <pj@sgi.com>
+To: dipankar@in.ibm.com
+Cc: vatsa@in.ibm.com, dino@in.ibm.com, ntl@pobox.com, Simon.Derr@bull.net,
+       lse-tech@lists.sourceforge.net, akpm@osdl.org, nickpiggin@yahoo.com.au,
+       linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+Subject: Re: [Lse-tech] Re: [PATCH] cpusets+hotplug+preepmt broken
+Message-Id: <20050513135233.6eba49df.pj@sgi.com>
+In-Reply-To: <20050513202058.GE5044@in.ibm.com>
+References: <20050511191654.GA3916@in.ibm.com>
+	<20050511195156.GE3614@otto>
+	<20050513123216.GB3968@in.ibm.com>
+	<20050513172540.GA28018@in.ibm.com>
+	<20050513125953.66a59436.pj@sgi.com>
+	<20050513202058.GE5044@in.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> No. 
 
-Starting from 2.4.29 (that is under 2.4.29 and 2.4.30) xorg fails to start 
-fbdev driver on the top of radeonfb (ATI Radeon RV100 QY [Radeon 7000/VE]) 
-and reports:
+What part of what I wrote are you saying "No" to?
 
-(EE) FBDEV(0): mmap fbmem: Invalid argument
-(EE) FBDEV(0): Map vid mem failed
+And what does that have to do with the two different
+locking mechanisms for hotplug?
 
-I've managed to repair it by doubling the MAX_MAPPED_VRAM define. The 
-patch is attached.
--L.
-
---- drivers/video/radeonfb.c.orig       2005-01-19 17:10:10.000000000 +0300
-+++ drivers/video/radeonfb.c    2005-05-07 17:55:03.000000000 +0400
-@@ -176,7 +176,7 @@
-  #define RTRACE         if(0) printk
-  #endif
-
--#define MAX_MAPPED_VRAM (2048*2048*4)
-+#define MAX_MAPPED_VRAM (2048*2048*8)
-  #define MIN_MAPPED_VRAM (1024*768*1)
-
-  enum radeon_chips {
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

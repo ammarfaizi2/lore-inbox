@@ -1,95 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262297AbVEMP3l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262327AbVEMPk7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262297AbVEMP3l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 11:29:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262299AbVEMP3k
+	id S262327AbVEMPk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 11:40:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbVEMPk6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 11:29:40 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:19157 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262297AbVEMP3g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 11:29:36 -0400
-Message-ID: <4284C7DA.1020707@pobox.com>
-Date: Fri, 13 May 2005 11:29:30 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: James Ketrenos <jketreno@linux.intel.com>
-CC: Netdev <netdev@oss.sgi.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: git repository for net drivers available
-References: <42841A3F.7020909@pobox.com> <4284C54E.3060907@linux.intel.com>
-In-Reply-To: <4284C54E.3060907@linux.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 13 May 2005 11:40:58 -0400
+Received: from smtp111.mail.sc5.yahoo.com ([66.163.170.9]:6808 "HELO
+	smtp111.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262353AbVEMPjH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 11:39:07 -0400
+Subject: Re: several messages
+From: Dmitry Yusupov <dmitry_yus@yahoo.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: mingz@ele.uri.edu, Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
+       FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>,
+       Vladislav Bolkhovitin <vst@vlnb.net>,
+       iet-dev <iscsitarget-devel@lists.sourceforge.net>,
+       linux-scsi <linux-scsi@vger.kernel.org>, Sander <sander@humilis.net>,
+       David Hollis <dhollis@davehollis.com>,
+       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050513150701.GA6307@infradead.org>
+References: <1104082357.20050504231722@dns.toxicfilms.tv>
+	 <1115305794.3071.5.camel@dhollis-lnx.sunera.com>
+	 <20050507150538.GA800@favonius>
+	 <Pine.LNX.4.60.0505102352430.9008@poirot.grange> <4281C8A3.20804@vlnb.net>
+	 <Pine.LNX.4.60.0505112309430.8122@poirot.grange>
+	 <1115864176.5513.37.camel@localhost.localdomain>
+	 <1115922732.25161.143.camel@beastie> <20050513081230.GA32546@infradead.org>
+	 <1115996656.14477.34.camel@mylaptop>  <20050513150701.GA6307@infradead.org>
+Content-Type: text/plain
+Date: Fri, 13 May 2005 08:38:55 -0700
+Message-Id: <1115998735.15862.0.camel@mylaptop>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Ketrenos wrote:
-> Jeff Garzik wrote:
+On Fri, 2005-05-13 at 16:07 +0100, Christoph Hellwig wrote:
+> On Fri, May 13, 2005 at 08:04:16AM -0700, Dmitry Yusupov wrote:
+> > You could tell this to school's computer class teacher... Serious SAN
+> > deployment will always be based either on FC or iSCSI for the reasons I
+> > explained before.
 > 
-> 
->>This includes the wireless-2.6 repository.
->>
->>rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
->>
->>The main branch is fairly irrelevant, as you must choose the branch
->>you wish:
->>
->>
->>>[jgarzik@pretzel netdev-2.6]$ ls .git/branches/
->>>8139cp         e1000        ixgb     r8169            skge          
->>>we18
->>>8139too-iomap  forcedeth    janitor  register-netdev  smc91x        
->>>wifi
->>>amd8111        ieee80211    orinoco  remove-drivers   smc91x-eeprom
->>>e100           iff-running  ppp      sis900           starfire
->>
-> Ok, I'll bite.  Hopefully I'm not the only one tripping on shoe laces...
-> 
-> Here is what I did -- what am I doing wrong?
-> 
-> Following is using cogito 0.10:
-> 
-> REPO=rsync://rsync.kernel.org/pubs/scm/linux/kernel/git/jgarzik/netdev-2.6.git
-> cg-clone ${REPO}
-> .... get coffee, etc. ... come back and I have a netdev-2.6 tree ...
-> cg-branch-add wifi ${REPO}#wifi
-> cg-update wifi
-> .... connects and attempts to download but fails out with:
-> 
-> ----------------
-> receiving file list ... done
-> client: nothing to do: perhaps you need to specify some filenames or the
-> --recursive option?
-> 
-> rsync: link_stat
-> "/scm/linux/kernel/git/jgarzik/netdev-2.6.git/heads/wifi" (in pub)
-> failed: No such file or directory (2)
+> Just FYI Steeleye ships a very successful clustering product that builds
+> on nbd.
 
-Looks like cogito is using $repo/heads/$branch, whereas my git repo is 
-using $repo/branches/$branch.
-
-You can achieve what's necessary with
-
-> rsync --verbose --delete --stats --progress \
-> -a rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git/ .git
-
-and then
-
-> ( cd .git ; rm -f HEAD ; ln -s branches/wifi HEAD )
-
-and then
-
-> git-read-tree $(cat .git/HEAD) && git-checkout-cache -q -f -a && git-update-cache --refresh
-
-
-
-For what it's worth, this is only netdev-2.6 as it appeared in 
-BitKeeper.  I am only now merging all the emailed patches since BK devel 
-stopped into git, which includes the ipw code you submitted.
-
-	Jeff
+AFAIK, it is used for Data Replication purposes only. Correct me if I'm
+wrong...
 
 

@@ -1,134 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262443AbVEMRTO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262445AbVEMRXJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262443AbVEMRTO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 13:19:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262441AbVEMRTN
+	id S262445AbVEMRXJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 13:23:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262441AbVEMRXJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 13:19:13 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:11732 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S262443AbVEMRSC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 13:18:02 -0400
-Date: Fri, 13 May 2005 13:17:58 -0400
-To: "Michael H. Warfield" <mhw@wittsend.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Sync option destroys flash!
-Message-ID: <20050513171758.GB23621@csclub.uwaterloo.ca>
-References: <1116001207.5239.38.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1116001207.5239.38.camel@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+	Fri, 13 May 2005 13:23:09 -0400
+Received: from mail.timesys.com ([65.117.135.102]:34325 "EHLO
+	exchange.timesys.com") by vger.kernel.org with ESMTP
+	id S262445AbVEMRT6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 13:19:58 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+X-Mailer: Evolution 2.0.4-3mdk 
+Content-Type: multipart/signed;
+	micalg=pgp-sha1;
+	protocol="application/pgp-signature";
+	boundary="=-zMi6LM/foYZulUBaAEOS"
+Content-Class: urn:content-classes:message
+Date: Fri, 13 May 2005 13:19:55 -0400
+Subject: [PATCH 2.6.11.7] ATA Over Ethernet Root
+Message-ID: <1116004796.9050.83.camel@jmcmullan.timesys>
+Date: Fri, 13 May 2005 13:14:04 -0400
+MIME-Version: 1.0
+Message-ID: <1116004796.9050.83.camel@jmcmullan.timesys>
+X-Mailer: Evolution 2.0.4-3mdk 
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 2.6.11.7] ATA Over Ethernet Root
+thread-index: AcVX3yofkwIVGIjFQVeZVY1Ha51mxg==
+From: "McMullan, Jason" <jason.mcmullan@timesys.com>
+To: <PPC_LINUX@vger.kernel.org>, "Linux Kernel" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 13, 2005 at 12:20:06PM -0400, Michael H. Warfield wrote:
-> 	I found this out the hard way.  (Kissed one brand new $70 USD 1GB flash
-> drive good-bye.)  According to the man pages for mount, FAT and VFAT
-> file systems ignore the "sync" option.  It lies.  Maybe it use to be
-> true, but it certainly lies now.  A simple test can verify this.  Mount
-> a flash drive with a FAT/VFAT file system without the sync option and
-> writes to the drive go very fast.  Typing "sync" or unmounting the drive
-> afterwards, takes time as the buffered data is written to the flash
-> drive.  This is as it should be.  Mount it with the sync option and
-> writes are really REALLY slow (worse than they should be just from
-> copying the data through USB) but sync and umount come back immediately
-> and result in no additional writing to the drive.  [Do the preceding
-> with only a few files and less than a few meg of data if you value that
-> flash.]  So...  FAT and VFAT are honoring the sync option.  This is very
-> VERY bad.  It's bad for floppies, it's bad for hard drives, it's FATAL
-> for flash drives.
 
-Certainly causes lots of unnecesary writes which flash doesn't like.
-Given sync doesn't appear to be the default, whyever would you add sync
-to vfat?
+--=-zMi6LM/foYZulUBaAEOS
+Content-Type: multipart/mixed; boundary="=-jSDE+74k4Sof97xCqbgz"
 
-> 	Flash drives have a limited number of write cycles.  Many many
-> thousands of write cycles, but limited, none the less.  They are also
-> written in blocks which are much larger than the "sector" size report
-> (several K in a physical nand flash block, IRC).
-> 
-> 	What happens, with the sync option on a VFAT file system, is that the
-> FAT tables are getting pounded and over-written over and over and over
-> again as each and every block/cluster is allocated while a new file is
-> written out.  This constant overwriting eventually wears out the first
-> block or two of the flash drive.
 
-All the flash I have used do automatic wear leveling.  Maybe I have only
-used high quality flash media (given I am doing work with embedded
-industrial grade gear, that is quite plausible).  Of course wear
-leveling doesn't mean you aren't doing way more writes than necesary,
-but it helps spread the load away from the FAT, which would otherwise
-quickly die on most flash cards no matter what system you use for
-writing to it.
+--=-jSDE+74k4Sof97xCqbgz
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> 	I had lost a couple of flash keys previously, without realizing what
-> was going on, but what send me off investigating this was when I copied
-> a 700 Meg file to a brand new 1G USB 2.0 flash memory key in a USB 2.0
-> slot.  It took over a half an hour to copy to the drive, which really
-> had me wondering WTF was wrong!  Then, when I went to use the key, I
-> found the first couple of blocks were totally destroyed.  Read errors
-> immediately upon insertion.  Then I started digging and found the
-> hotplug / HAL / fstab-sync stuff on Fedora Core was mounting USB drives
-> with the "sync" option (if less than 2 Gig).  I knew from previous
-> experience (CF backup cards in a PDA) that repeated pounding on the FAT
-> tables would destroy a flash card with a FAT file system.  So I reported
-> this on the Fedora list.  Someone else noticed that the man pages for
-> mount state that FAT and VFAT ignore the sync option.  Not so,
-> obviously...  Copying that 700 Meg file resulted in thousands upon
-> thousands upon thousands of writes to the FAT table and backup FAT
-> table.  It simply blew through all the rewrites for those blocks and
-> burned them up.  Bye bye flash key...
+This patch allows you to use ATA Over Ethernet as your root device,
+with 'root=3D/dev/etherd/eX.Y/disc'
 
-700M = 1.4M 512byte sectors.  I guess if it actually writes one sector
-at a time and syncs, and it's not a media with good wear leveling, then
-yes that would destroy the sectors holding the FAT.  Ouch.  Crappy
-media, and bad way to treat it.  Unfortunately there is no bug, just
-user error, and potentially badly designed flash media firmware.
+Limited testing, just for ya'lls review.
 
-> 	On a floppy, this would result in an insane amount of jacking around
-> back and forth between data sectors and the FAT sectors.  In addition to
-> taking forever, that would shorten the life of the diskettes and the
-> drive itself, but who cares about floppies any more.  On a real hard
-> drive, this will cause "head resonances" as the heads go through
-> constant high speed seeks between the cylinder with the FAT tables and
-> the data cylinders.  That can't be good, on a continuous basis, for
-> drive life.  But it's really a disaster for flash memory.  It's going to
-> cause premature failure in most flash memory, even if it doesn't kill
-> them right off as it did in my case with a 700 Meg file.
-> 
-> 	Can we go back to ignoring "sync" on FAT and VFAT?  I can't see where
-> it does much good.  You might corrupt a file system if you unplugged it
-> while dirty but it beats the hell out of physically burning it up and
-> destroying the drive!
+--=20
+Jason McMullan <jason.mcmullan@timesys.com>
+TimeSys Corporation
 
-How about you just don't use the sync option with fat when you don't
-mean to use sync?  sync does exactly what it should, which just happens
-to not be what you want, so don't use it.
 
-> 	If it's decided that the FAT and VFAT file systems MUST obey the sync
-> option then please do something about a special case for the FAT tables!
-> Sync the data if thou must buti...  Thou shalt not, must not, whack off
-> on the FAT tables!!!
+--=-jSDE+74k4Sof97xCqbgz
+Content-Disposition: attachment; filename=aoe-root.patch
+Content-Transfer-Encoding: base64
+Content-Type: text/x-patch; name=aoe-root.patch; charset=ISO-8859-1
 
-Then the sync option wouldn't be much use anymore.
+RGVzY3JpcHRpb246IEFUQSBPdmVyIEV0aGVybmV0IHJvb3QgZGV2aWNlDQoJaWUgJ3Jvb3Q9L2Rl
+di9ldGhlcmQvZTAuMC9kaXNjJyBvbiB0aGUga2VybmVsIGNvbW1hbmQgbGluZQ0KU2lnbmVkLU9m
+Zi1CeTogSmFzb24gTWNNdWxsYW4gPGphc29uLm1jbXVsbGFuQHRpbWVzeXMuY29tPg0KDQotLS0g
+bGludXgtb3JpZy9kcml2ZXJzL2Jsb2NrL0tjb25maWcNCisrKyBsaW51eC9kcml2ZXJzL2Jsb2Nr
+L0tjb25maWcNCkBAIC01MDYsNCArNTA2LDE5IEBADQogCVRoaXMgZHJpdmVyIHByb3ZpZGVzIFN1
+cHBvcnQgZm9yIEFUQSBvdmVyIEV0aGVybmV0IGJsb2NrDQogCWRldmljZXMgbGlrZSB0aGUgQ29y
+YWlkIEV0aGVyRHJpdmUgKFIpIFN0b3JhZ2UgQmxhZGUuDQogDQorY29uZmlnIEFUQV9PVkVSX0VU
+SF9ST09UDQorCWJvb2wgIkFUQSBvdmVyIEV0aGVybmV0IHJvb3QgZGV2aWNlIg0KKwlkZXBlbmRz
+IG9uIEFUQV9PVkVSX0VUSD15DQorCWhlbHANCisJICBJZiB5b3Ugd2FudCB0byB1c2UgQVRBIE92
+ZXIgRXRoZXJuZXQgYXMgdGhlIHJvb3QgZGV2aWNlLA0KKwkgIHNldCB0aGlzIHRvICd5Jw0KKw0K
+K2NvbmZpZyBBVEFfT1ZFUl9FVEhfUk9PVF9TSEVMRg0KKwlpbnQgIlNoZWxmIElEIg0KKwlkZXBl
+bmRzIG9uIEFUQV9PVkVSX0VUSF9ST09UDQorCQ0KK2NvbmZpZyBBVEFfT1ZFUl9FVEhfUk9PVF9T
+TE9UDQorCWludCAiU2xvdCBJRCINCisJZGVwZW5kcyBvbiBBVEFfT1ZFUl9FVEhfUk9PVA0KKw0K
+IGVuZG1lbnUNCi0tLSBsaW51eC1vcmlnL2RyaXZlcnMvYmxvY2svYW9lL2FvZS5oDQorKysgbGlu
+dXgvZHJpdmVycy9ibG9jay9hb2UvYW9lLmgNCkBAIC0xNTMsNiArMTUzLDcgQEANCiBpbnQgYW9l
+ZGV2X2luaXQodm9pZCk7DQogdm9pZCBhb2VkZXZfZXhpdCh2b2lkKTsNCiBzdHJ1Y3QgYW9lZGV2
+ICphb2VkZXZfYnltYWModW5zaWduZWQgY2hhciAqKTsNCitzdHJ1Y3QgYW9lZGV2ICphb2VkZXZf
+YnltYWpvcl9taW5vcih1bG9uZyBtYWpvciwgdWxvbmcgbWlub3IpOw0KIHZvaWQgYW9lZGV2X2Rv
+d25kZXYoc3RydWN0IGFvZWRldiAqZCk7DQogc3RydWN0IGFvZWRldiAqYW9lZGV2X3NldCh1bG9u
+ZywgdW5zaWduZWQgY2hhciAqLCBzdHJ1Y3QgbmV0X2RldmljZSAqLCB1bG9uZyk7DQogaW50IGFv
+ZWRldl9idXN5KHZvaWQpOw0KLS0tIGxpbnV4LW9yaWcvZHJpdmVycy9ibG9jay9hb2UvYW9lYmxr
+LmMNCisrKyBsaW51eC9kcml2ZXJzL2Jsb2NrL2FvZS9hb2VibGsuYw0KQEAgLTIyOSw2ICsyMjks
+NyBAQA0KIAlnZC0+Y2FwYWNpdHkgPSBkLT5zc2l6ZTsNCiAJc25wcmludGYoZ2QtPmRpc2tfbmFt
+ZSwgc2l6ZW9mIGdkLT5kaXNrX25hbWUsICJldGhlcmQvZSVsZC4lbGQiLA0KIAkJZC0+YW9lbWFq
+b3IsIGQtPmFvZW1pbm9yKTsNCisJc3RybmNweShnZC0+ZGV2ZnNfbmFtZSwgZ2QtPmRpc2tfbmFt
+ZSwgc2l6ZW9mIGdkLT5kZXZmc19uYW1lKTsNCiANCiAJZ2QtPnF1ZXVlID0gJmQtPmJsa3E7DQog
+CWQtPmdkID0gZ2Q7DQotLS0gbGludXgtb3JpZy9kcml2ZXJzL2Jsb2NrL2FvZS9hb2VkZXYuYw0K
+KysrIGxpbnV4L2RyaXZlcnMvYmxvY2svYW9lL2FvZWRldi5jDQpAQCAtMjgsNiArMjgsMjMgQEAN
+CiAJcmV0dXJuIGQ7DQogfQ0KIA0KK3N0cnVjdCBhb2VkZXYgKg0KK2FvZWRldl9ieW1ham9yX21p
+bm9yKHVsb25nIG1ham9yLCB1bG9uZyBtaW5vcikNCit7DQorCXN0cnVjdCBhb2VkZXYgKmQ7DQor
+CXVsb25nIGZsYWdzOw0KKw0KKwlzcGluX2xvY2tfaXJxc2F2ZSgmZGV2bGlzdF9sb2NrLCBmbGFn
+cyk7DQorDQorCWZvciAoZD1kZXZsaXN0OyBkOyBkPWQtPm5leHQpDQorCQlpZiAoZC0+YW9lbWFq
+b3IgPT0gbWFqb3IgJiYgZC0+YW9lbWlub3IgPT0gbWlub3IpDQorCQkJYnJlYWs7DQorDQorCXNw
+aW5fdW5sb2NrX2lycXJlc3RvcmUoJmRldmxpc3RfbG9jaywgZmxhZ3MpOw0KKwlyZXR1cm4gZDsN
+Cit9DQorDQorDQogLyogY2FsbGVkIHdpdGggZGV2bGlzdCBsb2NrIGhlbGQgKi8NCiBzdGF0aWMg
+c3RydWN0IGFvZWRldiAqDQogYW9lZGV2X25ld2Rldih1bG9uZyBuZnJhbWVzKQ0KLS0tIGxpbnV4
+LW9yaWcvZHJpdmVycy9ibG9jay9hb2UvYW9lbWFpbi5jDQorKysgbGludXgvZHJpdmVycy9ibG9j
+ay9hb2UvYW9lbWFpbi5jDQpAQCAtNyw2ICs3LDEzIEBADQogI2luY2x1ZGUgPGxpbnV4L2hkcmVn
+Lmg+DQogI2luY2x1ZGUgPGxpbnV4L2Jsa2Rldi5oPg0KICNpbmNsdWRlIDxsaW51eC9tb2R1bGUu
+aD4NCisjaW5jbHVkZSA8bGludXgvZGV2ZnNfZnNfa2VybmVsLmg+DQorI2lmZGVmIENPTkZJR19B
+VEFfT1ZFUl9FVEhfUk9PVA0KKyNpbmNsdWRlIDxsaW51eC9kZWxheS5oPg0KKyNpbmNsdWRlIDxs
+aW51eC9ydG5ldGxpbmsuaD4NCisjaW5jbHVkZSA8bGludXgvbmV0ZGV2aWNlLmg+DQorI2luY2x1
+ZGUgPG5ldC9zb2NrLmg+DQorI2VuZGlmDQogI2luY2x1ZGUgImFvZS5oIg0KIA0KIE1PRFVMRV9M
+SUNFTlNFKCJHUEwiKTsNCkBAIC01Myw2ICs2MCw0MyBAQA0KIAl9DQogfQ0KIA0KKyNpZmRlZiBD
+T05GSUdfQVRBX09WRVJfRVRIX1JPT1QNCit2b2lkIGFvZV9yb290KHVuc2lnbmVkIGxvbmcgbWFq
+b3IsIHVuc2lnbmVkIGxvbmcgbWlub3IpDQorew0KKwlzdHJ1Y3QgbmV0X2RldmljZSAqZGV2Ow0K
+Kw0KKwlwcmludGsoS0VSTl9JTkZPDQorCQkiYW9lOiBXYWl0aW5nIGZvciByb290IEFPRSBkZXZp
+Y2UgZSVsZC4lbGRcbiIsIG1ham9yLCBtaW5vcik7DQorDQorCS8qIEdpdmUgaGFyZHdhcmUgYSBj
+aGFuY2UgdG8gc2V0dGxlICovDQorCW1zbGVlcCg1MDApOw0KKw0KKwlydG5sX3NobG9jaygpOw0K
+KwkvKiBicmluZyBsb29wYmFjayBkZXZpY2UgdXAgZmlyc3QgKi8NCitwcmludGsoIkJyaW5nIHVw
+IGxvb3BiYWNrLi4uXG4iKTsNCisJaWYgKGRldl9jaGFuZ2VfZmxhZ3MoJmxvb3BiYWNrX2Rldiwg
+bG9vcGJhY2tfZGV2LmZsYWdzIHwgSUZGX1VQKSA8IDApDQorCQlwcmludGsoS0VSTl9FUlIgIkFP
+RSBSb290OiBGYWlsZWQgdG8gb3BlbiAlc1xuIiwgbG9vcGJhY2tfZGV2Lm5hbWUpOw0KKw0KKwkv
+KiBTZXR1cCBhbGwgbmV0d29yayBkZXZpY2VzICovDQorCWZvciAoZGV2ID0gZGV2X2Jhc2U7IGRl
+diA7IGRldiA9IGRldi0+bmV4dCkgew0KKwkJaWYgKGRldiA9PSAmbG9vcGJhY2tfZGV2KQ0KKwkJ
+CWNvbnRpbnVlOw0KK3ByaW50aygiQnJpbmcgdXAgJXMuLi5cbiIsZGV2LT5uYW1lKTsNCisJCWRl
+dl9jaGFuZ2VfZmxhZ3MoZGV2LCBkZXYtPmZsYWdzIHwgSUZGX1VQKTsNCisJfQ0KKwlydG5sX3No
+dW5sb2NrKCk7DQorDQorCS8qIEdpdmUgZHJpdmVycyBhIGNoYW5jZSB0byBzZXR0bGUgKi8NCisJ
+c3NsZWVwKDEpOw0KKw0KKwlkbyB7DQorCQlhb2VjbWRfY2ZnKG1ham9yLCBtaW5vcik7DQorCQlt
+c2xlZXAoMSk7DQorCX0gd2hpbGUgKCFhb2VkZXZfYnltYWpvcl9taW5vcihDT05GSUdfQVRBX09W
+RVJfRVRIX1JPT1RfU0hFTEYsQ09ORklHX0FUQV9PVkVSX0VUSF9ST09UX1NMT1QpKTsNCisNCit9
+DQorI2VuZGlmDQorDQogc3RhdGljIHZvaWQNCiBhb2VfZXhpdCh2b2lkKQ0KIHsNCkBAIC02Myw2
+ICsxMDcsNyBAQA0KIAlhb2VjaHJfZXhpdCgpOw0KIAlhb2VkZXZfZXhpdCgpOw0KIAlhb2VibGtf
+ZXhpdCgpOwkJLyogZnJlZSBjYWNoZSBhZnRlciBkZS1hbGxvY2F0aW5nIGJ1ZnMgKi8NCisJZGV2
+ZnNfcmVtb3ZlKCJldGhlcmQiKTsNCiB9DQogDQogc3RhdGljIGludCBfX2luaXQNCkBAIC03MCw2
+ICsxMTUsOCBAQA0KIHsNCiAJaW50IHJldDsNCiANCisJZGV2ZnNfbWtfZGlyKCJldGhlcmQiKTsN
+CisJICAgICAgICANCiAJcmV0ID0gYW9lZGV2X2luaXQoKTsNCiAJaWYgKHJldCkNCiAJCXJldHVy
+biByZXQ7DQpAQCAtOTEsNiArMTM4LDkgQEANCiAJcHJpbnRrKEtFUk5fSU5GTw0KIAkgICAgICAg
+ImFvZTogYW9lX2luaXQ6IEFvRSB2Mi42LSVzIGluaXRpYWxpc2VkLlxuIiwNCiAJICAgICAgIFZF
+UlNJT04pOw0KKyNpZmRlZiBDT05GSUdfQVRBX09WRVJfRVRIX1JPT1QNCisJYW9lX3Jvb3QoQ09O
+RklHX0FUQV9PVkVSX0VUSF9ST09UX1NIRUxGLENPTkZJR19BVEFfT1ZFUl9FVEhfUk9PVF9TTE9U
+KTsNCisjZW5kaWYNCiAJZGlzY292ZXJfdGltZXIoVElOSVQpOw0KIAlyZXR1cm4gMDsNCiANCkBA
+IC0xMDIsNiArMTUyLDcgQEANCiAJYW9lY2hyX2V4aXQoKTsNCiAgY2hyX2ZhaWw6DQogCWFvZWRl
+dl9leGl0KCk7DQorCWRldmZzX3JlbW92ZSgiZXRoZXJkIik7DQogCQ0KIAlwcmludGsoS0VSTl9J
+TkZPICJhb2U6IGFvZV9pbml0OiBpbml0aWFsaXNhdGlvbiBmYWlsdXJlLlxuIik7DQogCXJldHVy
+biByZXQ7DQo=
 
-> 	Another option would be to only sync the FAT and VFAT file systems upon
-> close of the file being written or upon close of the last file open on
-> the file system (fs not busy) but that might not help in the case of a
-> whole lotta little files...
 
-Again not very useful then.
+--=-jSDE+74k4Sof97xCqbgz--
 
-> 	I'm also going to file a couple of bug reports in bugzilla at RedHat
-> but this seems to be a more fundamental problem than a RedHat specific
-> problem.  But, IMHO, they should never be setting that damn sync flag
-> arbitrarily.
+--=-zMi6LM/foYZulUBaAEOS
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-No they certainly should not, but it may have something to do with
-making life easier for kde/gnome desktops and automatic mount/umount of
-media.  Dumb idea still, but that happens sometimes.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
-Len Sorensen
+iD8DBQBChOG78/0vJ5szK6kRAp2rAKCikLAQdAJsyhMyYrj3EyLTfi6H3gCffv2D
+J28sNrFtNTIXigJUeFkf4/s=
+=lMet
+-----END PGP SIGNATURE-----
+
+--=-zMi6LM/foYZulUBaAEOS--

@@ -1,89 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262483AbVEMX0J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262650AbVEMXaW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262483AbVEMX0J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 19:26:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262611AbVEMXZQ
+	id S262650AbVEMXaW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 19:30:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262643AbVEMX3f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 19:25:16 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:29658 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262483AbVEMXX6 (ORCPT
+	Fri, 13 May 2005 19:29:35 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:34011 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262626AbVEMX1g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 19:23:58 -0400
-Date: Fri, 13 May 2005 19:23:57 -0400
+	Fri, 13 May 2005 19:27:36 -0400
+Date: Fri, 13 May 2005 19:27:08 -0400
 From: Dave Jones <davej@redhat.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Cachemap for 2.6.12rc4-mm1.  Was Re: [PATCH] enhance x86 MTRR handling
-Message-ID: <20050513232357.GB13846@redhat.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Matt Mackall <mpm@selenic.com>,
+       Andy Isaacson <adi@hexapodia.org>, Andi Kleen <ak@muc.de>,
+       "Richard F. Rebel" <rrebel@whenu.com>,
+       Gabor MICSKO <gmicsko@szintezis.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, tytso@mit.edu
+Subject: Re: Hyper-Threading Vulnerability
+Message-ID: <20050513232708.GC13846@redhat.com>
 Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <s2832b02.028@emea1-mh.id2.novell.com> <20050512161825.GC17618@redhat.com> <20050512214118.GA25065@redhat.com> <42852CE2.4090102@zytor.com>
+	Lee Revell <rlrevell@joe-job.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Matt Mackall <mpm@selenic.com>,
+	Andy Isaacson <adi@hexapodia.org>, Andi Kleen <ak@muc.de>,
+	"Richard F. Rebel" <rrebel@whenu.com>,
+	Gabor MICSKO <gmicsko@szintezis.hu>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	tytso@mit.edu
+References: <1115963481.1723.3.camel@alderaan.trey.hu> <m164xnatpt.fsf@muc.de> <1116009483.4689.803.camel@rebel.corp.whenu.com> <20050513190549.GB47131@muc.de> <20050513212620.GA12522@hexapodia.org> <20050513215905.GY5914@waste.org> <1116024419.20646.41.camel@localhost.localdomain> <1116025212.6380.50.camel@mindpipe>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42852CE2.4090102@zytor.com>
+In-Reply-To: <1116025212.6380.50.camel@mindpipe>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 13, 2005 at 03:40:34PM -0700, H. Peter Anvin wrote:
- > Dave Jones wrote:
+On Fri, May 13, 2005 at 07:00:12PM -0400, Lee Revell wrote:
+ > On Fri, 2005-05-13 at 23:47 +0100, Alan Cox wrote:
+ > > On Gwe, 2005-05-13 at 22:59, Matt Mackall wrote:
+ > > > It might not be much of a problem though. If he's a bit off per guess
+ > > > (really impressive), he'll still be many bits off by the time there's
+ > > > enough entropy in the primary pool to reseed the secondary pool so he
+ > > > can check his guesswork.
+ > > 
+ > > You can also disable the tsc to user space in the intel processors.
+ > > Thats something they anticipated as being neccessary in secure
+ > > environments long ago. This makes the attack much harder.
  > 
- > >+	switch (boot_cpu_data.x86_vendor) {
- > >+	case X86_VENDOR_AMD:
- > >+		wrmsr(IA32_CR_PAT, AMD_PAT_31_0, AMD_PAT_63_32);
- > >+		atomic_inc(&pat_cpus_enabled);
- > >+		break;
- > >+	case X86_VENDOR_INTEL:
- > >+		wrmsr(IA32_CR_PAT, INTEL_PAT_31_0, INTEL_PAT_63_32);
- > >+		atomic_inc(&pat_cpus_enabled);
- > >+		break;
- > >+	default:
- > >+		printk("Unknown vendor in setup_pat()\n");
- > >+	}
- > 
- > Drop the vendor check; PAT is a generic x86 feature.  If AMD is not 
- > compatible (see below), then use X86_VENDOR_AMD: and default:.
+ > And break the hundreds of apps that depend on rdtsc?  Am I missing
+ > something?
 
-Done. Does transmeta have PAT btw ? I know newer VIA has it,
-but I haven't looked through the docs to double check its
-implementation yet.
+If those apps depend on rdtsc being a) present, and b) working
+without providing fallbacks, they're already broken.
 
- > >+	/* checks copied from arch/i386/kernel/cpu/mtrr/main.c */
- > >+	/* do these only apply to mtrrs or pat as well? */
- > 
- > It would apply to both; the chipset wouldn't even know how it got invoked.
-
-ACK, Comment dropped.
-
- > >+/* Here is the PAT's default layout on ia32 cpus when we are done.
- > >+ * PAT0: Write Back
- > >+ * PAT1: Write Combine
- > >+ * PAT2: Uncached
- > >+ * PAT3: Uncacheable
- > >+ * PAT4: Write Through
- > >+ * PAT5: Write Protect
- > >+ * PAT6: Uncached
- > >+ * PAT7: Uncacheable
- > 
- > Bad move.  Some (Intel) processors drop the top bit, so it's much better 
- > to pick the protection methods one cares about (usually WB, WC, UC) and 
- > stick them in the first four, then duplicate the whole thing in the 
- > second half.
-
-Noted.
-
- > >+ * Note: On Athlon cpus PAT2/PAT3 & PAT6/PAT7 are both Uncacheable since 
- > >+ *	 there is no uncached type.
- > If one sets the PAT to "uncached", does one get the same function as 
- > "uncachable"?
-
-AIUI, only as long as we don't have an MTRR covering the same range marked WC.
-It seems to be the only thing I could find documenting the differences
-between 'uncached' and 'uncacheable' in this context.
-Though I've only looked through the Intel & AMD K8 docs, I don't have
-the K7 ones to hand.
+There's a reason its displayed in /proc/cpuinfo's flags field,
+and visible through cpuid. Apps should be testing for presence
+before assuming features are present.
 
 		Dave
 

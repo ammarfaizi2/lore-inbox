@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262564AbVEMWCU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262565AbVEMWFc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262564AbVEMWCU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 18:02:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262565AbVEMWCU
+	id S262565AbVEMWFc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 18:05:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbVEMWFc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 18:02:20 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:33995 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262564AbVEMWCJ
+	Fri, 13 May 2005 18:05:32 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:12447 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262565AbVEMWF1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 18:02:09 -0400
-Subject: Re: Sync option destroys flash!
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: mhw@wittsend.com
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1116011430.5239.108.camel@localhost.localdomain>
-References: <1116001207.5239.38.camel@localhost.localdomain>
-	 <1116009619.9371.494.camel@localhost.localdomain>
-	 <1116011430.5239.108.camel@localhost.localdomain>
+	Fri, 13 May 2005 18:05:27 -0400
+Subject: 2.6.11.x: kernel-8250_pci driver
+From: "V. ANANDA KRISHNAN" <mansarov@us.ibm.com>
+To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1116021632.20550.11.camel@localhost.localdomain>
+Date: Fri, 13 May 2005 17:02:15 -0500
+Message-Id: <1116021735.19302.23.camel@siliver.austin.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 13 May 2005 23:00:34 +0100
+X-Mailer: Evolution 2.0.2 (2.0.2-13) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-05-13 at 20:10, Michael H. Warfield wrote:
-> > It sounds like your need to find a vendor who makes decent keys. For
-> > that matter several vendors now offer life time guarantees with their
-> > USB flash media.
-> 
-> 	Now THAT I gotta check into.  I never noticed anything on the packaging
-> about a guarantee, but I will now.
+Hi,
+
+  I would like to request some help from the device drivers experts.
+The 8250_pci driver has pci_boards[] array, enumeration constants (enum
+pci_board_num_t) and also pci_serial_quirk[] array for storing the data
+of PCI boards from various vendors such as HP, Intel etc.,
+
+  Should the order of data in the pci_boards[] array and
+pci_serial_quirk[] be according to the enumeration constants ordered in
+the pci_board_num_t ?  
+
+  The procedure 
+	static int __devinit pciserial_init_one(struct pci_dev *dev, const
+struct pci_device_id *ent)
+  has the dev and ent structures to hold info on a given PCI board. When
+and where from these variables get their data?  Can some one help me by
+answering the above two questions?  I could not get much info from the
+documentation or the Device Drivers book.  Thanks in advance.
+
+V. Ananda Krishnan
+
  
-Most of them have guarantees of some form (this URL might be useful
-since it lists the guarantee times for a lot of the media - EU
-guarantees anyway, US often seem to be a lot different)
-
-http://www.valuemedia.co.uk/compact_flash.htm
-
-As you'll see Lexar for example offer lifetime guarantees on their
-units. I believe Kingston also do.
-
->  But how do you determine which are
-> "decent" keys?  They don't put stickers on them saying "this one is
-> decent" and "this one is junk" and I'm an old cynic who has learned that
-> price is not always a good indicator either.  Maybe the guarantee will
-> be a clue.  I've just got to shop for it more.
-
-Or it may even be cheaper to "burn" a few - buy one of each type from
-various shops, do 2 million writes to the same sector and take them back
-the next day if they died [And publish the review data 8))]
-
-Alan
 

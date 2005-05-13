@@ -1,78 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262193AbVEMAe4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262196AbVEMAeh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262193AbVEMAe4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 May 2005 20:34:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262179AbVEMAet
+	id S262196AbVEMAeh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 May 2005 20:34:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbVEMAe3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 May 2005 20:34:49 -0400
-Received: from iabervon.org ([66.92.72.58]:22791 "EHLO iabervon.org")
-	by vger.kernel.org with ESMTP id S262191AbVEMAeW (ORCPT
+	Thu, 12 May 2005 20:34:29 -0400
+Received: from orb.pobox.com ([207.8.226.5]:47827 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S262179AbVEMAeS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 May 2005 20:34:22 -0400
-Date: Thu, 12 May 2005 20:33:56 -0400 (EDT)
-From: Daniel Barkalow <barkalow@iabervon.org>
-To: Matt Mackall <mpm@selenic.com>
-cc: Petr Baudis <pasky@ucw.cz>, linux-kernel <linux-kernel@vger.kernel.org>,
-       git@vger.kernel.org, mercurial@selenic.com,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Mercurial 0.4e vs git network pull
-In-Reply-To: <20050512222943.GI5914@waste.org>
-Message-ID: <Pine.LNX.4.21.0505121949210.30848-100000@iabervon.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 12 May 2005 20:34:18 -0400
+Date: Thu, 12 May 2005 19:34:08 -0500
+From: Nathan Lynch <ntl@pobox.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: dino@in.ibm.com, Simon.Derr@bull.net, lse-tech@lists.sourceforge.net,
+       akpm@osdl.org, nickpiggin@yahoo.com.au, vatsa@in.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cpusets+hotplug+preepmt broken
+Message-ID: <20050513003408.GG3614@otto>
+References: <20050511191654.GA3916@in.ibm.com> <20050511195156.GE3614@otto> <20050511134235.5cecf85c.pj@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050511134235.5cecf85c.pj@sgi.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 May 2005, Matt Mackall wrote:
-
-> On Thu, May 12, 2005 at 05:24:27PM -0400, Daniel Barkalow wrote:
-> > On Thu, 12 May 2005, Matt Mackall wrote:
-> > 
-> > > Does this need an HTTP request (and round trip) per object? It appears
-> > > to. That's 2200 requests/round trips for my 800 patch benchmark.
-> > 
-> > It requires a request per object, but it should be possible (with
-> > somewhat more complicated code) to overlap them such that it doesn't
-> > require a serial round trip for each. Since the server is sending static
-> > files, the overhead for each should be minimal.
+Paul Jackson wrote:
 > 
-> It's not minimal. The size of an HTTP request is often not much
-> different than the size of a compressed file delta.
+> I share you preference for not nesting these semaphores.
+> 
+> The other choice I am aware of would be for the hotplug code to be less
+> cpuset-friendly.  In the move_task_off_dead_cpu() code, at the point it
+> says "No more Mr. Nice Guy", instead of looking for the nearest
+> enclosing cpuset that has something online, which is what the
+> cpuset_cpus_allowed() does, instead we could just take any damn cpu that
+> was online.
+> 
+> Something along the lines of the following fix:
+> 
+> --- pj/kernel.old/sched.c	2005-05-11 13:00:17.000000000 -0700
+> +++ pj/kernel.new/sched.c	2005-05-11 13:02:24.000000000 -0700
+> @@ -4229,7 +4229,7 @@ static void move_task_off_dead_cpu(int d
+>  
+>  	/* No more Mr. Nice Guy. */
+>  	if (dest_cpu == NR_CPUS) {
+> -		tsk->cpus_allowed = cpuset_cpus_allowed(tsk);
+> +		tsk->cpus_allowed = cpu_online_map;
+>  		dest_cpu = any_online_cpu(tsk->cpus_allowed);
 
-I was thinking of server-side processing overhead, not bandwidth. It's
-true that the bandwidth could be noticeable for these small files.
+Well, CPU_MASK_ALL rather than cpu_online_map, I would think.  That is
+what the behavior was before the cpuset merge, anyway.  It might be
+the best short term solution, more below...
 
-> All the junk that gets bundled in an http request/response will be
-> similar in size to the stuff in the third column.
+> So what we'd really like to do would be to first fallback to all the
+> cpus allowed in the specified tasks cpuset (no walking the cpuset
+> hierarchy), and see if any of those cpus are still online to receive
+> this orphan task.  Unless someone has botched the system configuration,
+> and taken offline all the cpus in a cpuset, this should yield up a cpu
+> that is still both allowed and online.  If that fails, then to heck with
+> honoring cpuset placement - just take the first online cpu we can find.
+> 
+> This is doable without holding cpuset_sem.  We can look at a current
+> tasks cpuset without cpuset_sem, just with the task lock.
 
-kernel.org seems to send 283-byte responses, to be completely
-precise. This could be cut down substantially if Apache were tweaked a bit
-to skip all the optional headers which are useless or wrong in this
-context. (E.g., that includes sending a content-type of "text/plain" for
-the binary data)
+Yes, but your patch doesn't lock the task itself (unless I'm
+misreading patches again).  However, have a look at the comments above
+task_lock in sched.h:
 
-> Does it do this recursively? Eg, if the server has 800 new linear
-> commits, does the client have to do 800 round trips following parent
-> pointers to find all the new changesets? 
+/*
+ * Protects ->fs, ->files, ->mm, ->ptrace, ->group_info, ->comm, keyring
+ * subscriptions and synchronises with wait4().  Also used in procfs.
+ *
+ * Nests both inside and outside of read_lock(&tasklist_lock).
+ * It must not be nested with write_lock_irq(&tasklist_lock),
+ * neither inside nor outside.
+ */
+static inline void task_lock(struct task_struct *p)
+{
+        spin_lock(&p->alloc_lock);
+}
 
-Yes, although that also includes pulling the commits, and may be
-interleaved with pulling the trees and objects to cover the
-latency. (I.e., one round trip gets the new head hash; the second gets
-that commit; on the third the tree and the parent(s) can be requested at
-once; on the fouth the contents of the tree and the grandparents, at
-which point the bandwidth will probably be the limiting factor for the
-rest of the operation.)
 
-> In this case, Mercurial does about 6 round trips, totalling less than
-> 1K, plus one requests that pulls everything.
+Unfortunately, move_task_off_dead_cpu is called from
+migrate_live_tasks while the latter has a write_lock_irq on
+tasklist_lock.  So we can't use task_lock in this context, assuming
+the comments are valid.  Right?
 
-I must be misunderstanding your numbers, because 6 HTTP responses is more
-than 1K, ignoring any actual content from the server, and 1K for 800
-commits is less than 2 bytes per commit.
 
-I'm also worried about testing on 800 linear commits, since the projects
-under consideration tend to have very non-linear histories. 
-
-	-Daniel
-*This .sig left intentionally blank*
-
+Nathan

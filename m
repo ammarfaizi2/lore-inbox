@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262619AbVEMWxk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbVEMWxR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262619AbVEMWxk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 18:53:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262617AbVEMWxc
+	id S262605AbVEMWxR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 18:53:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262590AbVEMWvI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 18:53:32 -0400
-Received: from science.horizon.com ([192.35.100.1]:49197 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S262608AbVEMWvi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 18:51:38 -0400
-Date: 13 May 2005 22:51:35 -0000
-Message-ID: <20050513225135.20005.qmail@science.horizon.com>
-From: linux@horizon.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: Hyper-Threading Vulnerability
+	Fri, 13 May 2005 18:51:08 -0400
+Received: from pop.gmx.net ([213.165.64.20]:2950 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262605AbVEMWul (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 18:50:41 -0400
+X-Authenticated: #20450766
+Date: Sat, 14 May 2005 00:49:25 +0200 (CEST)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+cc: Sander <sander@humilis.net>, David Hollis <dhollis@davehollis.com>,
+       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: iSCSI vs. NBD (was Re: ata over ethernet question)
+In-Reply-To: <1116015693.6639.4.camel@mulgrave>
+Message-ID: <Pine.LNX.4.60.0505140048050.15724@poirot.grange>
+References: <1416215015.20050504193114@dns.toxicfilms.tv> 
+ <1115236116.7761.19.camel@dhollis-lnx.sunera.com>  <1104082357.20050504231722@dns.toxicfilms.tv>
+  <1115305794.3071.5.camel@dhollis-lnx.sunera.com>  <20050507150538.GA800@favonius>
+  <Pine.LNX.4.60.0505102352430.9008@poirot.grange>  <1115923927.5042.18.camel@mulgrave>
+  <Pine.LNX.4.60.0505132040400.8052@poirot.grange> <1116015693.6639.4.camel@mulgrave>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The problem is with the *combination* of fine-grained multithreading,
-a shared cache, *and* high-resolution timing via RDTSC.
+On Fri, 13 May 2005, James Bottomley wrote:
 
-A far easier fix would be to disable RDTSC.
-(A third possibility would be to disable the cache, but I assume that's
-too horrible to contemplate.)
+> Well, my copy of the MAINTAINERS file has this:
+> 
+> NETWORK BLOCK DEVICE
+> P:      Paul Clements
+> M:      Paul.Clements@steeleye.com
+> S:      Maintained
 
-When Intel implemented RDTSC, they were quite aware that it made a good
-covert channel and provided an enable bit (bit 2 of CR4) to control
-user-space access.
+Auch, `grep -i nbd MAINTAINERS`:-)))
 
-This attack is just showing that, with the tight coupling provided
-by hyperthreading, it's possible to receive "interesting" data from a
-process that is *not* deliberately transmitting.  (Whereas the classic
-problem enfocing the Bell-Lapadula model comes from preventing
-*deliberate* transmission.)
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski
 
-
-If you don't want to disable it universally, how about providing,
-at the OS level, a way for a task to request that RDTSC be disabled
-while it is running?  If another task tries to use it, it traps and one
-of the two (doesn't matter which!) gets rescheduled later when the other
-is not running.
-
-If RDTSC is too annoying to disable, just interpret the same flag as a
-"schedule me solo" flag that prevents scheduling anything else (at least,
-not sharing the same ->mm) on the other virtual processor.  (Of course,
-the time should count double for scheduler fairness purposes.)

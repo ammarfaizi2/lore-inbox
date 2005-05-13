@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262522AbVEMUTU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262521AbVEMUVx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262522AbVEMUTU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 16:19:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262533AbVEMUTT
+	id S262521AbVEMUVx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 16:21:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262534AbVEMUVx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 16:19:19 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:60380 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262522AbVEMUAU
+	Fri, 13 May 2005 16:21:53 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:56562 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262521AbVEMUAU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 13 May 2005 16:00:20 -0400
 From: Arnd Bergmann <arnd@arndb.de>
 To: linuxppc64-dev@ozlabs.org
-Subject: [PATCH 5/8] ppc64: Add driver for BPA interrupt controllers
-Date: Fri, 13 May 2005 21:26:20 +0200
+Subject: [PATCH 4/8] ppc64: add BPA platform type
+Date: Fri, 13 May 2005 21:25:33 +0200
 User-Agent: KMail/1.7.2
 Cc: linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>,
        Anton Blanchard <anton@samba.org>,
@@ -24,790 +24,541 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200505132126.21571.arnd@arndb.de>
+Message-Id: <200505132125.34358.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add support for the integrated interrupt controller on BPA
-CPUs. There is one of those for each SMT thread.
+This adds the basic support for running on BPA machines.
+So far, this is only the IBM workstation, and it will
+not run on others without a little more generalization.
 
-The mapping of interrupt numbers to HW interrupt sources
-is described in arch/ppc64/kernel/bpa_iic.h.
-
-This version hardcodes the 'Spider' chip as the secondary
-interrupt controller. That is not really generic for the
-architecture, but at the moment it is the only secondary
-PIC that exists.
-
-A little more work will be needed on this as soon as
-we have boards with multiple external interrupt controllers.
+It should be possible to configure a kernel for any
+combination of CONFIG_PPC_BPA with any of the other
+multiplatform targets.
 
 Signed-off-by: Arnd Bergmann <arndb@de.ibm.com>
 
+Index: linus-2.5/MAINTAINERS
+===================================================================
+--- linus-2.5.orig/MAINTAINERS	2005-05-09 08:14:59.000000000 +0200
++++ linus-2.5/MAINTAINERS	2005-05-09 08:17:38.000000000 +0200
+@@ -493,6 +493,13 @@
+ W:   http://sourceforge.net/projects/bonding/
+ S:   Supported
+ 
++BROADBAND PROCESSOR ARCHITECTURE
++P:	Arnd Bergmann
++M:	arnd@arndb.de
++L:	linuxppc64-dev@ozlabs.org
++W:	http://linuxppc64.org
++S:	Supported
++
+ BTTV VIDEO4LINUX DRIVER
+ P:	Gerd Knorr
+ M:	kraxel@bytesex.org
 Index: linus-2.5/arch/ppc64/Kconfig
 ===================================================================
---- linus-2.5.orig/arch/ppc64/Kconfig	2005-04-22 06:59:52.000000000 +0200
-+++ linus-2.5/arch/ppc64/Kconfig	2005-04-22 06:59:58.000000000 +0200
-@@ -106,6 +106,21 @@
- 	bool
+--- linus-2.5.orig/arch/ppc64/Kconfig	2005-05-09 08:15:08.000000000 +0200
++++ linus-2.5/arch/ppc64/Kconfig	2005-05-09 08:17:38.000000000 +0200
+@@ -77,6 +77,10 @@
+ 	bool "  IBM pSeries & new iSeries"
  	default y
  
-+config XICS
-+	depends on PPC_PSERIES
-+	bool
-+	default y
++config PPC_BPA
++	bool "  Broadband Processor Architecture"
++	depends on PPC_MULTIPLATFORM
 +
-+config MPIC
-+	depends on PPC_PSERIES || PPC_PMAC || PPC_MAPLE
-+	bool
-+	default y
-+
-+config BPA_IIC
-+	depends on PPC_BPA
-+	bool
-+	default y
-+
- # VMX is pSeries only for now until somebody writes the iSeries
- # exception vectors for it
- config ALTIVEC
+ config PPC_PMAC
+ 	depends on PPC_MULTIPLATFORM
+ 	bool "  Apple G5 based machines"
+@@ -256,7 +260,7 @@
+ 
+ config PPC_RTAS
+ 	bool
+-	depends on PPC_PSERIES
++	depends on PPC_PSERIES || PPC_BPA
+ 	default y
+ 
+ config RTAS_PROC
+Index: linus-2.5/arch/ppc64/Makefile
+===================================================================
+--- linus-2.5.orig/arch/ppc64/Makefile	2005-05-09 08:15:08.000000000 +0200
++++ linus-2.5/arch/ppc64/Makefile	2005-05-09 08:17:38.000000000 +0200
+@@ -90,12 +90,14 @@
+ boottarget-$(CONFIG_PPC_PSERIES) := zImage zImage.initrd
+ boottarget-$(CONFIG_PPC_MAPLE) := zImage zImage.initrd
+ boottarget-$(CONFIG_PPC_ISERIES) := vmlinux.sminitrd vmlinux.initrd vmlinux.sm
++boottarget-$(CONFIG_PPC_BPA) := zImage zImage.initrd
+ $(boottarget-y): vmlinux
+ 	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
+ 
+ bootimage-$(CONFIG_PPC_PSERIES) := $(boot)/zImage
+ bootimage-$(CONFIG_PPC_PMAC) := vmlinux
+ bootimage-$(CONFIG_PPC_MAPLE) := $(boot)/zImage
++bootimage-$(CONFIG_PPC_BPA) := zImage
+ bootimage-$(CONFIG_PPC_ISERIES) := vmlinux
+ BOOTIMAGE := $(bootimage-y)
+ install: vmlinux
 Index: linus-2.5/arch/ppc64/kernel/Makefile
 ===================================================================
---- linus-2.5.orig/arch/ppc64/kernel/Makefile	2005-04-22 06:59:52.000000000 +0200
-+++ linus-2.5/arch/ppc64/kernel/Makefile	2005-04-22 07:01:07.000000000 +0200
-@@ -28,13 +28,13 @@
- 			     mf.o HvLpEvent.o iSeries_proc.o iSeries_htab.o \
- 			     iSeries_iommu.o
- 
--obj-$(CONFIG_PPC_MULTIPLATFORM) += nvram.o i8259.o prom_init.o prom.o mpic.o
-+obj-$(CONFIG_PPC_MULTIPLATFORM) += nvram.o i8259.o prom_init.o prom.o
- 
- obj-$(CONFIG_PPC_PSERIES) += pSeries_pci.o pSeries_lpar.o pSeries_hvCall.o \
+--- linus-2.5.orig/arch/ppc64/kernel/Makefile	2005-05-09 08:16:57.000000000 +0200
++++ linus-2.5/arch/ppc64/kernel/Makefile	2005-05-09 08:17:38.000000000 +0200
+@@ -34,6 +34,8 @@
  			     pSeries_nvram.o rtasd.o ras.o pSeries_reconfig.o \
--			     xics.o pSeries_setup.o pSeries_iommu.o
-+			     pSeries_setup.o pSeries_iommu.o
+ 			     xics.o pSeries_setup.o pSeries_iommu.o
  
--obj-$(CONFIG_PPC_BPA) += bpa_setup.o bpa_nvram.o
-+obj-$(CONFIG_PPC_BPA) += bpa_setup.o bpa_nvram.o bpa_iic.o spider-pic.o
- 
++obj-$(CONFIG_PPC_BPA) += bpa_setup.o bpa_nvram.o
++
  obj-$(CONFIG_EEH)		+= eeh.o
  obj-$(CONFIG_PROC_FS)		+= proc_ppc64.o
-@@ -50,6 +50,8 @@
- obj-$(CONFIG_BOOTX_TEXT)	+= btext.o
- obj-$(CONFIG_HVCS)		+= hvcserver.o
- obj-$(CONFIG_IBMVIO)		+= vio.o
-+obj-$(CONFIG_XICS)		+= xics.o
-+obj-$(CONFIG_MPIC)		+= mpic.o
+ obj-$(CONFIG_RTAS_FLASH)	+= rtas_flash.o
+@@ -60,6 +62,7 @@
+ obj-$(CONFIG_PPC_PMAC)		+= pmac_smp.o smp-tbsync.o
+ obj-$(CONFIG_PPC_ISERIES)	+= iSeries_smp.o
+ obj-$(CONFIG_PPC_PSERIES)	+= pSeries_smp.o
++obj-$(CONFIG_PPC_BPA)		+= pSeries_smp.o
+ obj-$(CONFIG_PPC_MAPLE)		+= smp-tbsync.o
+ endif
  
- obj-$(CONFIG_PPC_PMAC)		+= pmac_setup.o pmac_feature.o pmac_pci.o \
- 				   pmac_time.o pmac_nvram.o pmac_low_i2c.o
-Index: linus-2.5/arch/ppc64/kernel/bpa_iic.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linus-2.5/arch/ppc64/kernel/bpa_iic.c	2005-04-22 06:59:58.000000000 +0200
-@@ -0,0 +1,270 @@
-+/*
-+ * BPA Internal Interrupt Controller
-+ *
-+ * (C) Copyright IBM Deutschland Entwicklung GmbH 2005
-+ *
-+ * Author: Arnd Bergmann <arndb@de.ibm.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2, or (at your option)
-+ * any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/interrupt.h>
-+#include <linux/irq.h>
-+#include <linux/percpu.h>
-+#include <linux/types.h>
-+
-+#include <asm/io.h>
-+#include <asm/pgtable.h>
-+#include <asm/prom.h>
-+#include <asm/ptrace.h>
-+
-+#include "bpa_iic.h"
-+
-+struct iic_pending_bits {
-+	u32 data;
-+	u8 flags;
-+	u8 class;
-+	u8 source;
-+	u8 prio;
-+};
-+
-+enum iic_pending_flags {
-+	IIC_VALID = 0x80,
-+	IIC_IPI   = 0x40,
-+};
-+
-+struct iic_regs {
-+	struct iic_pending_bits pending;
-+	struct iic_pending_bits pending_destr;
-+	u64 generate;
-+	u64 prio;
-+};
-+
-+struct iic {
-+	struct iic_regs __iomem *regs;
-+};
-+
-+static DEFINE_PER_CPU(struct iic, iic);
-+
-+void iic_local_enable(void)
-+{
-+	out_be64(&__get_cpu_var(iic).regs->prio, 0xff);
-+}
-+
-+void iic_local_disable(void)
-+{
-+	out_be64(&__get_cpu_var(iic).regs->prio, 0x0);
-+}
-+
-+static unsigned int iic_startup(unsigned int irq)
-+{
-+	return 0;
-+}
-+
-+static void iic_enable(unsigned int irq)
-+{
-+	iic_local_enable();
-+}
-+
-+static void iic_disable(unsigned int irq)
-+{
-+}
-+
-+static void iic_end(unsigned int irq)
-+{
-+	iic_local_enable();
-+}
-+
-+static struct hw_interrupt_type iic_pic = {
-+	.typename = " BPA-IIC  ",
-+	.startup = iic_startup,
-+	.enable = iic_enable,
-+	.disable = iic_disable,
-+	.end = iic_end,
-+};
-+
-+static int iic_external_get_irq(struct iic_pending_bits pending)
-+{
-+	int irq;
-+	unsigned char node, unit;
-+
-+	node = pending.source >> 4;
-+	unit = pending.source & 0xf;
-+	irq = -1;
-+
-+	/*
-+	 * This mapping is specific to the Broadband
-+	 * Engine. We might need to get the numbers
-+	 * from the device tree to support future CPUs.
-+	 */
-+	switch (unit) {
-+	case 0x00:
-+	case 0x0b:
-+		/*
-+		 * One of these units can be connected
-+		 * to an external interrupt controller.
-+		 */
-+		if (pending.prio > 0x3f ||
-+		    pending.class != 2)
-+			break;
-+		irq = IIC_EXT_OFFSET
-+			+ spider_get_irq(pending.prio + node * IIC_NODE_STRIDE)
-+			+ node * IIC_NODE_STRIDE;
-+		break;
-+	case 0x01 ... 0x04:
-+	case 0x07 ... 0x0a:
-+		/*
-+		 * These units are connected to the SPEs
-+		 */
-+		if (pending.class > 2)
-+			break;
-+		irq = IIC_SPE_OFFSET
-+			+ pending.class * IIC_CLASS_STRIDE
-+			+ node * IIC_NODE_STRIDE
-+			+ unit;
-+		break;
-+	}
-+	if (irq == -1)
-+		printk(KERN_WARNING "Unexpected interrupt class %02x, "
-+			"source %02x, prio %02x, cpu %02x\n", pending.class,
-+			pending.source, pending.prio, smp_processor_id());
-+	return irq;
-+}
-+
-+/* Get an IRQ number from the pending state register of the IIC */
-+int iic_get_irq(struct pt_regs *regs)
-+{
-+	struct iic *iic;
-+	int irq;
-+	struct iic_pending_bits pending;
-+
-+	iic = &__get_cpu_var(iic);
-+	*(unsigned long *) &pending = 
-+		in_be64((unsigned long __iomem *) &iic->regs->pending_destr);
-+
-+	irq = -1;
-+	if (pending.flags & IIC_VALID) {
-+		if (pending.flags & IIC_IPI) {
-+			irq = IIC_IPI_OFFSET + (pending.prio >> 4);
-+/*
-+			if (irq > 0x80)
-+				printk(KERN_WARNING "Unexpected IPI prio %02x"
-+					"on CPU %02x\n", pending.prio,
-+							smp_processor_id());
-+*/
-+		} else {
-+			irq = iic_external_get_irq(pending);
-+		}
-+	}
-+	return irq;
-+}
-+
-+static struct iic_regs __iomem *find_iic(int cpu)
-+{
-+	struct device_node *np;
-+	int nodeid = cpu / 2;
-+	unsigned long regs;
-+	struct iic_regs __iomem *iic_regs;
-+
-+	for (np = of_find_node_by_type(NULL, "cpu");
-+	     np;
-+	     np = of_find_node_by_type(np, "cpu")) {
-+		if (nodeid == *(int *)get_property(np, "node-id", NULL))
-+			break;
-+	}
-+
-+	if (!np) {
-+		printk(KERN_WARNING "IIC: CPU %d not found\n", cpu);
-+		iic_regs = NULL;
-+	} else {
-+		regs = *(long *)get_property(np, "iic", NULL);
-+
-+		/* hack until we have decided on the devtree info */
-+		regs += 0x400;
-+		if (cpu & 1)
-+			regs += 0x20;
-+
-+		printk(KERN_DEBUG "IIC for CPU %d at %lx\n", cpu, regs);
-+		iic_regs = __ioremap(regs, sizeof(struct iic_regs),
-+						 _PAGE_NO_CACHE);
-+	}
-+	return iic_regs;
-+}
-+
-+#ifdef CONFIG_SMP
-+void iic_setup_cpu(void)
-+{
-+	out_be64(&__get_cpu_var(iic).regs->prio, 0xff);
-+}
-+
-+void iic_cause_IPI(int cpu, int mesg)
-+{
-+	out_be64(&per_cpu(iic, cpu).regs->generate, mesg);
-+}
-+
-+static irqreturn_t iic_ipi_action(int irq, void *dev_id, struct pt_regs *regs)
-+{
-+
-+	smp_message_recv(irq - IIC_IPI_OFFSET, regs);
-+	return IRQ_HANDLED;
-+}
-+
-+static void iic_request_ipi(int irq, const char *name)
-+{
-+	/* IPIs are marked SA_INTERRUPT as they must run with irqs
-+	 * disabled */
-+	get_irq_desc(irq)->handler = &iic_pic;
-+	get_irq_desc(irq)->status |= IRQ_PER_CPU;
-+	request_irq(irq, iic_ipi_action, SA_INTERRUPT, name, NULL);
-+}
-+
-+void iic_request_IPIs(void)
-+{
-+	iic_request_ipi(IIC_IPI_OFFSET + PPC_MSG_CALL_FUNCTION, "IPI-call");
-+	iic_request_ipi(IIC_IPI_OFFSET + PPC_MSG_RESCHEDULE, "IPI-resched");
-+#ifdef CONFIG_DEBUGGER
-+	iic_request_ipi(IIC_IPI_OFFSET + PPC_MSG_DEBUGGER_BREAK, "IPI-debug");
-+#endif /* CONFIG_DEBUGGER */
-+}
-+#endif /* CONFIG_SMP */
-+
-+static void iic_setup_spe_handlers(void)
-+{
-+	int be, isrc;
-+
-+	/* Assume two threads per BE are present */
-+	for (be=0; be < num_present_cpus() / 2; be++) {
-+		for (isrc = 0; isrc < IIC_CLASS_STRIDE * 3; isrc++) {
-+			int irq = IIC_NODE_STRIDE * be + IIC_SPE_OFFSET + isrc;
-+			get_irq_desc(irq)->handler = &iic_pic;
-+		}
-+	}
-+}
-+
-+void iic_init_IRQ(void)
-+{
-+	int cpu, irq_offset;
-+	struct iic *iic;
-+
-+	irq_offset = 0;
-+	for_each_cpu(cpu) {
-+		iic = &per_cpu(iic, cpu);
-+		iic->regs = find_iic(cpu);
-+		if (iic->regs)
-+			out_be64(&iic->regs->prio, 0xff);
-+	}
-+	iic_setup_spe_handlers();
-+}
-Index: linus-2.5/arch/ppc64/kernel/bpa_iic.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linus-2.5/arch/ppc64/kernel/bpa_iic.h	2005-04-22 06:59:58.000000000 +0200
-@@ -0,0 +1,62 @@
-+#ifndef ASM_BPA_IIC_H
-+#define ASM_BPA_IIC_H
-+#ifdef __KERNEL__
-+/*
-+ * Mapping of IIC pending bits into per-node
-+ * interrupt numbers.
-+ *
-+ * IRQ     FF CC SS PP   FF CC SS PP	Description
-+ *
-+ * 00-3f   80 02 +0 00 - 80 02 +0 3f	South Bridge
-+ * 00-3f   80 02 +b 00 - 80 02 +b 3f	South Bridge
-+ * 41-4a   80 00 +1 ** - 80 00 +a **	SPU Class 0
-+ * 51-5a   80 01 +1 ** - 80 01 +a **	SPU Class 1
-+ * 61-6a   80 02 +1 ** - 80 02 +a **	SPU Class 2
-+ * 70-7f   C0 ** ** 00 - C0 ** ** 0f	IPI
-+ *
-+ *    F flags
-+ *    C class
-+ *    S source
-+ *    P Priority
-+ *    + node number
-+ *    * don't care
-+ *
-+ * A node consists of a Broadband Engine and an optional
-+ * south bridge device providing a maximum of 64 IRQs.
-+ * The south bridge may be connected to either IOIF0
-+ * or IOIF1.
-+ * Each SPE is represented as three IRQ lines, one per
-+ * interrupt class.
-+ * 16 IRQ numbers are reserved for inter processor
-+ * interruptions, although these are only used in the
-+ * range of the first node.
-+ *
-+ * This scheme needs 128 IRQ numbers per BIF node ID,
-+ * which means that with the total of 512 lines
-+ * available, we can have a maximum of four nodes.
-+ */
-+
-+enum {
-+	IIC_EXT_OFFSET   = 0x00, /* Start of south bridge IRQs */
-+	IIC_NUM_EXT      = 0x40, /* Number of south bridge IRQs */
-+	IIC_SPE_OFFSET   = 0x40, /* Start of SPE interrupts */
-+	IIC_CLASS_STRIDE = 0x10, /* SPE IRQs per class    */
-+	IIC_IPI_OFFSET   = 0x70, /* Start of IPI IRQs */
-+	IIC_NUM_IPIS     = 0x10, /* IRQs reserved for IPI */
-+	IIC_NODE_STRIDE  = 0x80, /* Total IRQs per node   */
-+};
-+
-+extern void iic_init_IRQ(void);
-+extern int  iic_get_irq(struct pt_regs *regs);
-+extern void iic_cause_IPI(int cpu, int mesg);
-+extern void iic_request_IPIs(void);
-+extern void iic_setup_cpu(void);
-+extern void iic_local_enable(void);
-+extern void iic_local_disable(void);
-+
-+
-+extern void spider_init_IRQ(void);
-+extern int spider_get_irq(unsigned long int_pending);
-+
-+#endif
-+#endif /* ASM_BPA_IIC_H */
 Index: linus-2.5/arch/ppc64/kernel/bpa_setup.c
 ===================================================================
---- linus-2.5.orig/arch/ppc64/kernel/bpa_setup.c	2005-04-22 06:59:52.000000000 +0200
-+++ linus-2.5/arch/ppc64/kernel/bpa_setup.c	2005-04-22 06:59:58.000000000 +0200
-@@ -45,6 +45,7 @@
- #include <asm/cputable.h>
- 
- #include "pci.h"
-+#include "bpa_iic.h"
- 
- #ifdef DEBUG
- #define DBG(fmt...) udbg_printf(fmt)
-@@ -143,6 +144,9 @@
- 
- static void __init bpa_setup_arch(void)
- {
-+	ppc_md.init_IRQ       = iic_init_IRQ;
-+	ppc_md.get_irq        = iic_get_irq;
-+
- #ifdef CONFIG_SMP
- 	smp_init_pSeries();
- #endif
-@@ -158,7 +162,7 @@
- 	/* Find and initialize PCI host bridges */
- 	init_pci_config_tokens();
- 	find_and_init_phbs();
--
-+	spider_init_IRQ();
- #ifdef CONFIG_DUMMY_CONSOLE
- 	conswitchp = &dummy_con;
- #endif
-Index: linus-2.5/arch/ppc64/kernel/pSeries_smp.c
-===================================================================
---- linus-2.5.orig/arch/ppc64/kernel/pSeries_smp.c	2005-04-22 06:58:22.000000000 +0200
-+++ linus-2.5/arch/ppc64/kernel/pSeries_smp.c	2005-04-22 06:59:58.000000000 +0200
-@@ -1,5 +1,5 @@
- /*
-- * SMP support for pSeries machines.
-+ * SMP support for pSeries and BPA machines.
-  *
-  * Dave Engebretsen, Peter Bergner, and
-  * Mike Corrigan {engebret|bergner|mikec}@us.ibm.com
-@@ -47,6 +47,7 @@
- #include <asm/pSeries_reconfig.h>
- 
- #include "mpic.h"
-+#include "bpa_iic.h"
- 
- #ifdef DEBUG
- #define DBG(fmt...) udbg_printf(fmt)
-@@ -286,6 +287,7 @@
- 	return 1;
- }
- 
-+#ifdef CONFIG_XICS
- static inline void smp_xics_do_message(int cpu, int msg)
- {
- 	set_bit(msg, &xics_ipi_message[cpu].value);
-@@ -334,6 +336,37 @@
- 	rtas_set_indicator(GLOBAL_INTERRUPT_QUEUE,
- 		(1UL << interrupt_server_size) - 1 - default_distrib_server, 1);
- }
-+#endif /* CONFIG_XICS */
-+#ifdef CONFIG_BPA_IIC
-+static void smp_iic_message_pass(int target, int msg)
-+{
-+	unsigned int i;
-+
-+	if (target < NR_CPUS) {
-+		iic_cause_IPI(target, msg);
-+	} else {
-+		for_each_online_cpu(i) {
-+			if (target == MSG_ALL_BUT_SELF
-+			    && i == smp_processor_id())
-+				continue;
-+			iic_cause_IPI(i, msg);
-+		}
-+	}
-+}
-+
-+static int __init smp_iic_probe(void)
-+{
-+	iic_request_IPIs();
-+
-+	return cpus_weight(cpu_possible_map);
-+}
-+
-+static void __devinit smp_iic_setup_cpu(int cpu)
-+{
-+	if (cpu != boot_cpuid)
-+		iic_setup_cpu();
-+}
-+#endif /* CONFIG_BPA_IIC */
- 
- static DEFINE_SPINLOCK(timebase_lock);
- static unsigned long timebase = 0;
-@@ -388,14 +421,15 @@
- 
- 	return 1;
- }
--
-+#ifdef CONFIG_MPIC
- static struct smp_ops_t pSeries_mpic_smp_ops = {
- 	.message_pass	= smp_mpic_message_pass,
- 	.probe		= smp_mpic_probe,
- 	.kick_cpu	= smp_pSeries_kick_cpu,
- 	.setup_cpu	= smp_mpic_setup_cpu,
- };
--
-+#endif
-+#ifdef CONFIG_XICS
- static struct smp_ops_t pSeries_xics_smp_ops = {
- 	.message_pass	= smp_xics_message_pass,
- 	.probe		= smp_xics_probe,
-@@ -403,6 +437,16 @@
- 	.setup_cpu	= smp_xics_setup_cpu,
- 	.cpu_bootable	= smp_pSeries_cpu_bootable,
- };
-+#endif
-+#ifdef CONFIG_BPA_IIC
-+static struct smp_ops_t bpa_iic_smp_ops = {
-+	.message_pass	= smp_iic_message_pass,
-+	.probe		= smp_iic_probe,
-+	.kick_cpu	= smp_pSeries_kick_cpu,
-+	.setup_cpu	= smp_iic_setup_cpu,
-+	.cpu_bootable	= smp_pSeries_cpu_bootable,
-+};
-+#endif
- 
- /* This is called very early */
- void __init smp_init_pSeries(void)
-@@ -411,10 +455,25 @@
- 
- 	DBG(" -> smp_init_pSeries()\n");
- 
--	if (ppc64_interrupt_controller == IC_OPEN_PIC)
-+	switch (ppc64_interrupt_controller) {
-+#ifdef CONFIG_MPIC
-+	case IC_OPEN_PIC:
- 		smp_ops = &pSeries_mpic_smp_ops;
--	else
-+		break;
-+#endif
-+#ifdef CONFIG_XICS
-+	case IC_PPC_XIC:
- 		smp_ops = &pSeries_xics_smp_ops;
-+		break;
-+#endif
-+#ifdef CONFIG_BPA_IIC
-+	case IC_BPA_IIC:
-+		smp_ops = &bpa_iic_smp_ops;
-+		break;
-+#endif
-+	default:
-+		panic("Invalid interrupt controller");
-+	}
- 
- #ifdef CONFIG_HOTPLUG_CPU
- 	smp_ops->cpu_disable = pSeries_cpu_disable;
-Index: linus-2.5/arch/ppc64/kernel/smp.c
-===================================================================
---- linus-2.5.orig/arch/ppc64/kernel/smp.c	2005-04-22 06:58:22.000000000 +0200
-+++ linus-2.5/arch/ppc64/kernel/smp.c	2005-04-22 06:59:58.000000000 +0200
-@@ -71,7 +71,7 @@
- 
- int smt_enabled_at_boot = 1;
- 
--#ifdef CONFIG_PPC_MULTIPLATFORM
-+#if defined(CONFIG_PPC_PSERIES) || defined(CONFIG_PPC_PMAC) || defined(CONFIG_PPC_MAPLE)
- void smp_mpic_message_pass(int target, int msg)
- {
- 	/* make sure we're sending something that translates to an IPI */
-Index: linus-2.5/arch/ppc64/kernel/spider-pic.c
-===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linus-2.5/arch/ppc64/kernel/spider-pic.c	2005-04-22 06:59:58.000000000 +0200
-@@ -0,0 +1,191 @@
++++ linus-2.5/arch/ppc64/kernel/bpa_setup.c	2005-05-09 08:17:38.000000000 +0200
+@@ -0,0 +1,207 @@
 +/*
-+ * External Interrupt Controller on Spider South Bridge
++ *  linux/arch/ppc/kernel/bpa_setup.c
 + *
-+ * (C) Copyright IBM Deutschland Entwicklung GmbH 2005
++ *  Copyright (C) 1995  Linus Torvalds
++ *  Adapted from 'alpha' version by Gary Thomas
++ *  Modified by Cort Dougan (cort@cs.nmt.edu)
++ *  Modified by PPC64 Team, IBM Corp
++ *  Modified by BPA Team, IBM Deutschland Entwicklung GmbH
 + *
-+ * Author: Arnd Bergmann <arndb@de.ibm.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2, or (at your option)
-+ * any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version
++ * 2 of the License, or (at your option) any later version.
 + */
++#undef DEBUG
 +
-+#include <linux/interrupt.h>
++#include <linux/config.h>
++#include <linux/sched.h>
++#include <linux/kernel.h>
++#include <linux/mm.h>
++#include <linux/stddef.h>
++#include <linux/unistd.h>
++#include <linux/slab.h>
++#include <linux/user.h>
++#include <linux/reboot.h>
++#include <linux/init.h>
++#include <linux/delay.h>
 +#include <linux/irq.h>
++#include <linux/seq_file.h>
++#include <linux/root_dev.h>
++#include <linux/console.h>
 +
++#include <asm/mmu.h>
++#include <asm/processor.h>
++#include <asm/io.h>
 +#include <asm/pgtable.h>
 +#include <asm/prom.h>
-+#include <asm/io.h>
++#include <asm/rtas.h>
++#include <asm/pci-bridge.h>
++#include <asm/iommu.h>
++#include <asm/dma.h>
++#include <asm/machdep.h>
++#include <asm/time.h>
++#include <asm/nvram.h>
++#include <asm/cputable.h>
 +
-+#include "bpa_iic.h"
++#include "pci.h"
 +
-+/* register layout taken from Spider spec, table 7.4-4 */
-+enum {
-+	TIR_DEN		= 0x004, /* Detection Enable Register */
-+	TIR_MSK		= 0x084, /* Mask Level Register */
-+	TIR_EDC		= 0x0c0, /* Edge Detection Clear Register */
-+	TIR_PNDA	= 0x100, /* Pending Register A */
-+	TIR_PNDB	= 0x104, /* Pending Register B */
-+	TIR_CS		= 0x144, /* Current Status Register */
-+	TIR_LCSA	= 0x150, /* Level Current Status Register A */
-+	TIR_LCSB	= 0x154, /* Level Current Status Register B */
-+	TIR_LCSC	= 0x158, /* Level Current Status Register C */
-+	TIR_LCSD	= 0x15c, /* Level Current Status Register D */
-+	TIR_CFGA	= 0x200, /* Setting Register A0 */
-+	TIR_CFGB	= 0x204, /* Setting Register B0 */
-+			/* 0x208 ... 0x3ff Setting Register An/Bn */
-+	TIR_PPNDA	= 0x400, /* Packet Pending Register A */
-+	TIR_PPNDB	= 0x404, /* Packet Pending Register B */
-+	TIR_PIERA	= 0x408, /* Packet Output Error Register A */
-+	TIR_PIERB	= 0x40c, /* Packet Output Error Register B */
-+	TIR_PIEN	= 0x444, /* Packet Output Enable Register */
-+	TIR_PIPND	= 0x454, /* Packet Output Pending Register */
-+	TIRDID		= 0x484, /* Spider Device ID Register */
-+	REISTIM		= 0x500, /* Reissue Command Timeout Time Setting */
-+	REISTIMEN	= 0x504, /* Reissue Command Timeout Setting */
-+	REISWAITEN	= 0x508, /* Reissue Wait Control*/
-+};
++#ifdef DEBUG
++#define DBG(fmt...) udbg_printf(fmt)
++#else
++#define DBG(fmt...)
++#endif
 +
-+static void __iomem *spider_pics[4];
++extern void pSeries_get_boot_time(struct rtc_time *rtc_time);
++extern void pSeries_get_rtc_time(struct rtc_time *rtc_time);
++extern int  pSeries_set_rtc_time(struct rtc_time *rtc_time);
 +
-+static void __iomem *spider_get_pic(int irq)
++extern unsigned long ppc_proc_freq;
++extern unsigned long ppc_tb_freq;
++
++void bpa_get_cpuinfo(struct seq_file *m)
 +{
-+	int node = irq / IIC_NODE_STRIDE;
-+	irq %= IIC_NODE_STRIDE;
++	struct device_node *root;
++	const char *model = "";
 +
-+	if (irq >= IIC_EXT_OFFSET &&
-+	    irq < IIC_EXT_OFFSET + IIC_NUM_EXT &&
-+	    spider_pics)
-+		return spider_pics[node];
-+	return NULL;
++	root = of_find_node_by_path("/");
++	if (root)
++		model = get_property(root, "model", NULL);
++	seq_printf(m, "machine\t\t: BPA %s\n", model);
++	of_node_put(root);
 +}
 +
-+static int spider_get_nr(unsigned int irq)
++static void __init bpa_progress(char *s, unsigned short hex)
 +{
-+	return (irq % IIC_NODE_STRIDE) - IIC_EXT_OFFSET;
++	printk("*** %04x : %s\n", hex, s ? s : "");
 +}
 +
-+static void __iomem *spider_get_irq_config(int irq)
++extern void setup_default_decr(void);
++
++/* Some sane defaults: 125 MHz timebase, 1GHz processor */
++#define DEFAULT_TB_FREQ		125000000UL
++#define DEFAULT_PROC_FREQ	(DEFAULT_TB_FREQ * 8)
++
++/* FIXME: consolidate this into rtas.c or similar */
++static void __init pSeries_calibrate_decr(void)
 +{
-+	void __iomem *pic;
-+	pic = spider_get_pic(irq);
-+	return pic + TIR_CFGA + 8 * spider_get_nr(irq);
-+}
++	struct device_node *cpu;
++	struct div_result divres;
++	unsigned int *fp;
++	int node_found;
 +
-+static void spider_enable_irq(unsigned int irq)
-+{
-+	void __iomem *cfg = spider_get_irq_config(irq);
-+	irq = spider_get_nr(irq);
++	/*
++	 * The cpu node should have a timebase-frequency property
++	 * to tell us the rate at which the decrementer counts.
++	 */
++	cpu = of_find_node_by_type(NULL, "cpu");
 +
-+	out_be32(cfg, in_be32(cfg) | 0x3107000eu);
-+	out_be32(cfg + 4, in_be32(cfg + 4) | 0x00020000u | irq);
-+}
-+
-+static void spider_disable_irq(unsigned int irq)
-+{
-+	void __iomem *cfg = spider_get_irq_config(irq);
-+	irq = spider_get_nr(irq);
-+
-+	out_be32(cfg, in_be32(cfg) & ~0x30000000u);
-+}
-+
-+static unsigned int spider_startup_irq(unsigned int irq)
-+{
-+	spider_enable_irq(irq);
-+	return 0;
-+}
-+
-+static void spider_shutdown_irq(unsigned int irq)
-+{
-+	spider_disable_irq(irq);
-+}
-+
-+static void spider_end_irq(unsigned int irq)
-+{
-+	spider_enable_irq(irq);
-+}
-+
-+static void spider_ack_irq(unsigned int irq)
-+{
-+	spider_disable_irq(irq);
-+	iic_local_enable();
-+}
-+
-+static struct hw_interrupt_type spider_pic = {
-+	.typename = " SPIDER  ",
-+	.startup = spider_startup_irq,
-+	.shutdown = spider_shutdown_irq,
-+	.enable = spider_enable_irq,
-+	.disable = spider_disable_irq,
-+	.ack = spider_ack_irq,
-+	.end = spider_end_irq,
-+};
-+
-+
-+int spider_get_irq(unsigned long int_pending)
-+{
-+	void __iomem *regs = spider_get_pic(int_pending);
-+	unsigned long cs;
-+	int irq;
-+
-+	cs = in_be32(regs + TIR_CS);
-+
-+	irq = cs >> 24;
-+	if (irq != 63)
-+		return irq;
-+
-+	return -1;
-+}
-+ 
-+void spider_init_IRQ(void)
-+{
-+	int node;
-+	struct device_node *dn;
-+	unsigned int *property;
-+	long spiderpic;
-+	int n;
-+
-+/* FIXME: detect multiple PICs as soon as the device tree has them */
-+	for (node = 0; node < 1; node++) {
-+		dn = of_find_node_by_path("/");
-+		n = prom_n_addr_cells(dn);
-+		property = (unsigned int *) get_property(dn,
-+				"platform-spider-pic", NULL);
-+
-+		if (!property)
-+			continue;
-+		for (spiderpic = 0; n > 0; --n)
-+			spiderpic = (spiderpic << 32) + *property++;
-+		printk(KERN_DEBUG "SPIDER addr: %lx\n", spiderpic);
-+		spider_pics[node] = __ioremap(spiderpic, 0x800, _PAGE_NO_CACHE);
-+		for (n = 0; n < IIC_NUM_EXT; n++) {
-+			int irq = n + IIC_EXT_OFFSET + node * IIC_NODE_STRIDE;
-+			get_irq_desc(irq)->handler = &spider_pic;
-+
-+ 		/* do not mask any interrupts because of level */
-+ 		out_be32(spider_pics[node] + TIR_MSK, 0x0);
-+ 		
-+ 		/* disable edge detection clear */
-+ 		/* out_be32(spider_pics[node] + TIR_EDC, 0x0); */
-+ 		
-+ 		/* enable interrupt packets to be output */
-+ 		out_be32(spider_pics[node] + TIR_PIEN,
-+			in_be32(spider_pics[node] + TIR_PIEN) | 0x1);
-+ 		
-+ 		/* Enable the interrupt detection enable bit. Do this last! */
-+ 		out_be32(spider_pics[node] + TIR_DEN,
-+			in_be32(spider_pics[node] +TIR_DEN) | 0x1);
-+
++	ppc_tb_freq = DEFAULT_TB_FREQ;		/* hardcoded default */
++	node_found = 0;
++	if (cpu != 0) {
++		fp = (unsigned int *)get_property(cpu, "timebase-frequency",
++						  NULL);
++		if (fp != 0) {
++			node_found = 1;
++			ppc_tb_freq = *fp;
 +		}
 +	}
++	if (!node_found)
++		printk(KERN_ERR "WARNING: Estimating decrementer frequency "
++				"(not found)\n");
++
++	ppc_proc_freq = DEFAULT_PROC_FREQ;
++	node_found = 0;
++	if (cpu != 0) {
++		fp = (unsigned int *)get_property(cpu, "clock-frequency",
++						  NULL);
++		if (fp != 0) {
++			node_found = 1;
++			ppc_proc_freq = *fp;
++		}
++	}
++	if (!node_found)
++		printk(KERN_ERR "WARNING: Estimating processor frequency "
++				"(not found)\n");
++
++	of_node_put(cpu);
++
++	printk(KERN_INFO "time_init: decrementer frequency = %lu.%.6lu MHz\n",
++	       ppc_tb_freq/1000000, ppc_tb_freq%1000000);
++	printk(KERN_INFO "time_init: processor frequency   = %lu.%.6lu MHz\n",
++	       ppc_proc_freq/1000000, ppc_proc_freq%1000000);
++
++	tb_ticks_per_jiffy = ppc_tb_freq / HZ;
++	tb_ticks_per_sec = tb_ticks_per_jiffy * HZ;
++	tb_ticks_per_usec = ppc_tb_freq / 1000000;
++	tb_to_us = mulhwu_scale_factor(ppc_tb_freq, 1000000);
++	div128_by_32(1024*1024, 0, tb_ticks_per_sec, &divres);
++	tb_to_xs = divres.result_low;
++
++	setup_default_decr();
 +}
++
++static void __init bpa_setup_arch(void)
++{
++#ifdef CONFIG_SMP
++	smp_init_pSeries();
++#endif
++
++	/* init to some ~sane value until calibrate_delay() runs */
++	loops_per_jiffy = 50000000;
++
++	if (ROOT_DEV == 0) {
++		printk("No ramdisk, default root is /dev/hda2\n");
++		ROOT_DEV = Root_HDA2;
++	}
++
++	/* Find and initialize PCI host bridges */
++	init_pci_config_tokens();
++	find_and_init_phbs();
++
++#ifdef CONFIG_DUMMY_CONSOLE
++	conswitchp = &dummy_con;
++#endif
++
++	// bpa_nvram_init();
++}
++
++/*
++ * Early initialization.  Relocation is on but do not reference unbolted pages
++ */
++static void __init bpa_init_early(void)
++{
++	DBG(" -> bpa_init_early()\n");
++
++	hpte_init_native();
++
++	pci_direct_iommu_init();
++
++	ppc64_interrupt_controller = IC_BPA_IIC;
++
++	DBG(" <- bpa_init_early()\n");
++}
++
++
++static int __init bpa_probe(int platform)
++{
++	if (platform != PLATFORM_BPA)
++		return 0;
++
++	return 1;
++}
++
++struct machdep_calls __initdata bpa_md = {
++	.probe			= bpa_probe,
++	.setup_arch		= bpa_setup_arch,
++	.init_early		= bpa_init_early,
++	.get_cpuinfo		= bpa_get_cpuinfo,
++	.restart		= rtas_restart,
++	.power_off		= rtas_power_off,
++	.halt			= rtas_halt,
++	.get_boot_time		= pSeries_get_boot_time,
++	.get_rtc_time		= pSeries_get_rtc_time,
++	.set_rtc_time		= pSeries_set_rtc_time,
++	.calibrate_decr		= pSeries_calibrate_decr,
++	.progress		= bpa_progress,
++};
+Index: linus-2.5/arch/ppc64/kernel/cpu_setup_power4.S
+===================================================================
+--- linus-2.5.orig/arch/ppc64/kernel/cpu_setup_power4.S	2005-05-08 09:51:35.000000000 +0200
++++ linus-2.5/arch/ppc64/kernel/cpu_setup_power4.S	2005-05-09 08:17:38.000000000 +0200
+@@ -73,7 +73,21 @@
+ 
+ _GLOBAL(__setup_cpu_power4)
+ 	blr
+-	
++
++_GLOBAL(__setup_cpu_be)
++        /* Set large page sizes LP=0: 16MB, LP=1: 64KB */
++        addi    r3, 0,  0
++        ori     r3, r3, HID6_LB
++        sldi    r3, r3, 32
++        nor     r3, r3, r3
++        mfspr   r4, SPRN_HID6
++        and     r4, r4, r3
++        addi    r3, 0, 0x02000
++        sldi    r3, r3, 32
++        or      r4, r4, r3
++        mtspr   SPRN_HID6, r4
++	blr
++
+ _GLOBAL(__setup_cpu_ppc970)
+ 	mfspr	r0,SPRN_HID0
+ 	li	r11,5			/* clear DOZE and SLEEP */
+Index: linus-2.5/arch/ppc64/kernel/cputable.c
+===================================================================
+--- linus-2.5.orig/arch/ppc64/kernel/cputable.c	2005-05-08 09:51:35.000000000 +0200
++++ linus-2.5/arch/ppc64/kernel/cputable.c	2005-05-09 08:17:38.000000000 +0200
+@@ -34,6 +34,7 @@
+ extern void __setup_cpu_power3(unsigned long offset, struct cpu_spec* spec);
+ extern void __setup_cpu_power4(unsigned long offset, struct cpu_spec* spec);
+ extern void __setup_cpu_ppc970(unsigned long offset, struct cpu_spec* spec);
++extern void __setup_cpu_be(unsigned long offset, struct cpu_spec* spec);
+ 
+ 
+ /* We only set the altivec features if the kernel was compiled with altivec
+@@ -162,6 +163,16 @@
+ 	    __setup_cpu_power4,
+ 	    COMMON_PPC64_FW
+     },
++    {	/* BE DD1.x  */
++	    0xffff0000, 0x00700000, "Broadband Engine",
++	    CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB | CPU_FTR_HPTE_TABLE |
++		    CPU_FTR_PPCAS_ARCH_V2 | CPU_FTR_ALTIVEC_COMP |
++		    CPU_FTR_SMT,
++	    COMMON_USER_PPC64 | PPC_FEATURE_HAS_ALTIVEC_COMP,
++	    128, 128,
++	    __setup_cpu_be,
++	    COMMON_PPC64_FW
++    },
+     {	/* default match */
+ 	    0x00000000, 0x00000000, "POWER4 (compatible)",
+   	    CPU_FTR_SPLIT_ID_CACHE | CPU_FTR_USE_TB | CPU_FTR_HPTE_TABLE |
+Index: linus-2.5/arch/ppc64/kernel/irq.c
+===================================================================
+--- linus-2.5.orig/arch/ppc64/kernel/irq.c	2005-05-08 09:51:35.000000000 +0200
++++ linus-2.5/arch/ppc64/kernel/irq.c	2005-05-09 08:17:38.000000000 +0200
+@@ -395,6 +395,9 @@
+ 	if (ppc64_interrupt_controller == IC_OPEN_PIC)
+ 		return real_irq;	/* no mapping for openpic (for now) */
+ 
++	if (ppc64_interrupt_controller == IC_BPA_IIC)
++		return real_irq;	/* no mapping for iic either */
++
+ 	/* don't map interrupts < MIN_VIRT_IRQ */
+ 	if (real_irq < MIN_VIRT_IRQ) {
+ 		virt_irq_to_real_map[real_irq] = real_irq;
+Index: linus-2.5/arch/ppc64/kernel/proc_ppc64.c
+===================================================================
+--- linus-2.5.orig/arch/ppc64/kernel/proc_ppc64.c	2005-05-08 09:51:35.000000000 +0200
++++ linus-2.5/arch/ppc64/kernel/proc_ppc64.c	2005-05-09 08:17:38.000000000 +0200
+@@ -53,7 +53,7 @@
+ 	if (!root)
+ 		return 1;
+ 
+-	if (!(systemcfg->platform & PLATFORM_PSERIES))
++	if (!(systemcfg->platform & (PLATFORM_PSERIES | PLATFORM_BPA)))
+ 		return 0;
+ 
+ 	if (!proc_mkdir("rtas", root))
+Index: linus-2.5/arch/ppc64/kernel/prom_init.c
+===================================================================
+--- linus-2.5.orig/arch/ppc64/kernel/prom_init.c	2005-05-09 08:15:08.000000000 +0200
++++ linus-2.5/arch/ppc64/kernel/prom_init.c	2005-05-09 08:17:38.000000000 +0200
+@@ -1844,9 +1844,9 @@
+ 		     &getprop_rval, sizeof(getprop_rval));
+ 
+ 	/*
+-	 * On pSeries, copy the CPU hold code
++	 * On pSeries and BPA, copy the CPU hold code
+ 	 */
+-       	if (RELOC(of_platform) & PLATFORM_PSERIES)
++       	if (RELOC(of_platform) & (PLATFORM_PSERIES | PLATFORM_BPA))
+        		copy_and_flush(0, KERNELBASE - offset, 0x100, 0);
+ 
+ 	/*
+Index: linus-2.5/arch/ppc64/kernel/setup.c
+===================================================================
+--- linus-2.5.orig/arch/ppc64/kernel/setup.c	2005-05-08 09:51:35.000000000 +0200
++++ linus-2.5/arch/ppc64/kernel/setup.c	2005-05-09 08:17:38.000000000 +0200
+@@ -348,6 +348,7 @@
+ extern struct machdep_calls pSeries_md;
+ extern struct machdep_calls pmac_md;
+ extern struct machdep_calls maple_md;
++extern struct machdep_calls bpa_md;
+ 
+ /* Ultimately, stuff them in an elf section like initcalls... */
+ static struct machdep_calls __initdata *machines[] = {
+@@ -360,6 +361,9 @@
+ #ifdef CONFIG_PPC_MAPLE
+ 	&maple_md,
+ #endif /* CONFIG_PPC_MAPLE */
++#ifdef CONFIG_PPC_BPA
++	&bpa_md,
++#endif
+ 	NULL
+ };
+ 
+Index: linus-2.5/arch/ppc64/kernel/traps.c
+===================================================================
+--- linus-2.5.orig/arch/ppc64/kernel/traps.c	2005-05-09 08:04:31.000000000 +0200
++++ linus-2.5/arch/ppc64/kernel/traps.c	2005-05-09 08:17:38.000000000 +0200
+@@ -126,6 +126,10 @@
+ 			printk("POWERMAC ");
+ 			nl = 1;
+ 			break;
++		case PLATFORM_BPA:
++			printk("BPA ");
++			nl = 1;
++			break;
+ 	}
+ 	if (nl)
+ 		printk("\n");
+Index: linus-2.5/include/asm-ppc64/mmu.h
+===================================================================
+--- linus-2.5.orig/include/asm-ppc64/mmu.h	2005-05-09 08:15:42.000000000 +0200
++++ linus-2.5/include/asm-ppc64/mmu.h	2005-05-09 08:20:31.000000000 +0200
+@@ -47,9 +47,10 @@
+ #define SLB_VSID_KS		ASM_CONST(0x0000000000000800)
+ #define SLB_VSID_KP		ASM_CONST(0x0000000000000400)
+ #define SLB_VSID_N		ASM_CONST(0x0000000000000200) /* no-execute */
+-#define SLB_VSID_L		ASM_CONST(0x0000000000000100) /* largepage 16M */
++#define SLB_VSID_L		ASM_CONST(0x0000000000000100) /* largepage */
+ #define SLB_VSID_C		ASM_CONST(0x0000000000000080) /* class */
+-
++#define SLB_VSID_LS		ASM_CONST(0x0000000000000070) /* size of largepage */
++ 
+ #define SLB_VSID_KERNEL		(SLB_VSID_KP|SLB_VSID_C)
+ #define SLB_VSID_USER		(SLB_VSID_KP|SLB_VSID_KS)
+ 
+Index: linus-2.5/include/asm-ppc64/processor.h
+===================================================================
+--- linus-2.5.orig/include/asm-ppc64/processor.h	2005-05-09 08:04:46.000000000 +0200
++++ linus-2.5/include/asm-ppc64/processor.h	2005-05-09 08:17:38.000000000 +0200
+@@ -217,14 +217,22 @@
+ #define   HID0_ABE	(1<<3)		/* Address Broadcast Enable */
+ #define	  HID0_BHTE	(1<<2)		/* Branch History Table Enable */
+ #define	  HID0_BTCD	(1<<1)		/* Branch target cache disable */
++#define	SPRN_HID6	0x3F9	/* Hardware Implementation Register 6 */
++#define	  HID6_LB	(0x0F<<12)	/* Concurrent Large Page Modes */
++#define	  HID6_DLP	(1<<20)		/* Disable all large page modes (4K only) */
+ #define	SPRN_MSRDORM	0x3F1	/* Hardware Implementation Register 1 */
+ #define SPRN_HID1	0x3F1	/* Hardware Implementation Register 1 */
+ #define	SPRN_IABR	0x3F2	/* Instruction Address Breakpoint Register */
+ #define	SPRN_NIADORM	0x3F3	/* Hardware Implementation Register 2 */
+ #define SPRN_HID4	0x3F4	/* 970 HID4 */
+ #define SPRN_HID5	0x3F6	/* 970 HID5 */
+-#define	SPRN_TSC 	0x3FD	/* Thread switch control */
+-#define	SPRN_TST 	0x3FC	/* Thread switch timeout */
++#define	SPRN_TSCR	0x399   /* Thread switch control on BE */
++#define	SPRN_TTR	0x39A   /* Thread switch timeout on BE */
++#define	  TSCR_DEC_ENABLE	0x200000 /* Decrementer Interrupt */
++#define	  TSCR_EE_ENABLE	0x100000 /* External Interrupt */
++#define	  TSCR_EE_BOOST		0x080000 /* External Interrupt Boost */
++#define	SPRN_TSC 	0x3FD	/* Thread switch control on others */
++#define	SPRN_TST 	0x3FC	/* Thread switch timeout on others */
+ #define	SPRN_IAC1	0x3F4	/* Instruction Address Compare 1 */
+ #define	SPRN_IAC2	0x3F5	/* Instruction Address Compare 2 */
+ #define	SPRN_ICCR	0x3FB	/* Instruction Cache Cacheability Register */
+@@ -411,8 +419,9 @@
+ #define	PV_POWER5	0x003A
+ #define PV_POWER5p	0x003B
+ #define PV_970FX	0x003C
+-#define	PV_630        	0x0040
+-#define	PV_630p	        0x0041
++#define	PV_630		0x0040
++#define	PV_630p		0x0041
++#define	PV_BE		0x0070
+ 
+ /* Platforms supported by PPC64 */
+ #define PLATFORM_PSERIES      0x0100
+@@ -421,6 +430,7 @@
+ #define PLATFORM_LPAR         0x0001
+ #define PLATFORM_POWERMAC     0x0400
+ #define PLATFORM_MAPLE        0x0500
++#define PLATFORM_BPA          0x1000
+ 
+ /* Compatibility with drivers coming from PPC32 world */
+ #define _machine	(systemcfg->platform)
+@@ -432,6 +442,7 @@
+ #define IC_INVALID    0
+ #define IC_OPEN_PIC   1
+ #define IC_PPC_XIC    2
++#define IC_BPA_IIC    3
+ 
+ #define XGLUE(a,b) a##b
+ #define GLUE(a,b) XGLUE(a,b)
+Index: linus-2.5/include/asm-ppc64/smp.h
+===================================================================
+--- linus-2.5.orig/include/asm-ppc64/smp.h	2005-05-08 09:51:35.000000000 +0200
++++ linus-2.5/include/asm-ppc64/smp.h	2005-05-09 08:17:38.000000000 +0200
+@@ -85,6 +85,14 @@
+ 
+ extern struct smp_ops_t *smp_ops;
+ 
++#ifdef CONFIG_PPC_PSERIES
++void vpa_init(int cpu);
++#else
++static inline void vpa_init(int cpu)
++{
++}
++#endif /* CONFIG_PPC_PSERIES */
++
+ #endif /* __ASSEMBLY__ */
+ 
+ #endif /* !(_PPC64_SMP_H) */
 

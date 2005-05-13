@@ -1,76 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262469AbVEMS1b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262472AbVEMSav@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262469AbVEMS1b (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 14:27:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262472AbVEMS1a
+	id S262472AbVEMSav (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 14:30:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262470AbVEMSav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 14:27:30 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:22171 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262469AbVEMS1W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 14:27:22 -0400
-Date: Fri, 13 May 2005 20:26:31 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Does smp_reschedule_interrupt really reschedule?
-Message-ID: <20050513182631.GA15916@elte.hu>
-References: <1116008299.4728.19.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1116008299.4728.19.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 13 May 2005 14:30:51 -0400
+Received: from mail21.sea5.speakeasy.net ([69.17.117.23]:43171 "EHLO
+	mail21.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S262473AbVEMSa3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 14:30:29 -0400
+Date: Fri, 13 May 2005 11:30:27 -0700 (PDT)
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+X-X-Sender: vlobanov@shell1.sea5.speakeasy.net
+To: Andy Isaacson <adi@hexapodia.org>
+cc: Jeff Garzik <jgarzik@pobox.com>, Daniel Jacobowitz <dan@debian.org>,
+       "Barry K. Nathan" <barryn@pobox.com>,
+       Gabor MICSKO <gmicsko@szintezis.hu>, linux-kernel@vger.kernel.org
+Subject: Re: Hyper-Threading Vulnerability
+In-Reply-To: <20050513171300.GA30909@hexapodia.org>
+Message-ID: <Pine.LNX.4.58.0505131129060.6631@shell1.sea5.speakeasy.net>
+References: <1115963481.1723.3.camel@alderaan.trey.hu>
+ <20050513124735.GA7436@ip68-225-251-162.oc.oc.cox.net> <4284B55C.7010202@pobox.com>
+ <20050513142336.GA6174@nevyn.them.org> <4284BA90.5080508@pobox.com>
+ <20050513171300.GA30909@hexapodia.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 13 May 2005, Andy Isaacson wrote:
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+> On Fri, May 13, 2005 at 10:32:48AM -0400, Jeff Garzik wrote:
+> > Daniel Jacobowitz wrote:
+> > >  http://www.daemonology.net/hyperthreading-considered-harmful/
+> >
+> > Already read it.  This link provides no more information than either of
+> > the above links provide.
+>
+> He's posted his paper now.
+>
+> http://www.daemonology.net/papers/htt.pdf
+>
+> It's a side channel timing attack on data-dependent computation through
+> the L1 and L2 caches.  Nice work.  In-the-wild exploitation is
+> difficult, though; your timing gets screwed up if you get scheduled away
+> from your victim, and you don't even know, because you can't tell where
+> you were scheduled, so on any reasonably busy multiuser system it's not
+> clear that the attack is practical.
+>
+> -andy
+> -
 
-> As the comment says, do nothing since all the work is automatically 
-> done at the return from interrupt. But is it?  Doesn't the 
-> need_resched need to be set?  Here's what I'm seeing with Ingo's 
-> kernel.  I capture the time in sched.c when the 
-> smp_send_reschedule_allbutself is called, and also a capture of the 
-> time when the schedule actually takes place.  I'm finding differences 
-> up to 2 tenths of a second.  That's TENTHS!  I added the following 
-> patch:
+Wouldn't scheduling appear as a rather big time delta (in measuring the
+cache access times), so you would know to disregard that data point?
 
-it's all a bit tricky. The short story is that i think both vanilla and 
--RT kernels are fine.
+(Just wondering... :-) )
 
-Here is how smp_send_reschedule() is used:
-
-	CPU#0				CPU#1
-
-	set_tsk_need_resched(rq->curr);
-	...
-	smp_send_reschedule()
-			--- IPI --->
-					smp_reschedule_interrupt();
-					...
-					entry.S's need_resched check
-
-_but_, this is intentionally racy: if CPU#1 happens to reschedule before 
-the IPI reaches CPU#1 (an IPI can take 10 usecs easily so the window is 
-not small), then need_resched might be cleared before the IPI hits. In 
-that case you wont get a reschedule after the IPI hits, because it was 
-done before!
-
-so the correct thing to measure is what the -RT kernel's wakeup-latency 
-timing feature does: the time from setting need_resched, to the point 
-the task starts to run. The feature works on SMP too - and it doesnt 
-show any large latencies.
-
-are you seeing actual process delays? If not then i think those large 
-latencies are just the result of the wrong assumptions in your 
-measurement code.
-
-	Ingo
+-Vadim

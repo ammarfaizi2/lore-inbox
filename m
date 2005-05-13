@@ -1,64 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262251AbVEMFro@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262253AbVEMFvm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262251AbVEMFro (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 01:47:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbVEMFro
+	id S262253AbVEMFvm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 01:51:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262255AbVEMFvm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 01:47:44 -0400
-Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:49419 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262251AbVEMFrj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 01:47:39 -0400
-To: hbryan@us.ibm.com
-CC: ericvh@gmail.com, hch@infradead.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, smfrench@austin.rr.com
-In-reply-to: <OF1BD633A3.AED1499B-ON88256FFF.006E4A76-88256FFF.00742B3D@us.ibm.com>
-	(message from Bryan Henderson on Thu, 12 May 2005 14:08:21 -0700)
-Subject: Re: [RCF] [PATCH] unprivileged mount/umount
-References: <OF1BD633A3.AED1499B-ON88256FFF.006E4A76-88256FFF.00742B3D@us.ibm.com>
-Message-Id: <E1DWT0t-0000of-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Fri, 13 May 2005 07:47:07 +0200
+	Fri, 13 May 2005 01:51:42 -0400
+Received: from dio.mail.t-online.hu ([195.228.240.89]:55763 "EHLO
+	dio.mail.t-online.hu") by vger.kernel.org with ESMTP
+	id S262253AbVEMFvj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 01:51:39 -0400
+Subject: Hyper-Threading Vulnerability
+From: Gabor MICSKO <gmicsko@szintezis.hu>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-GQXYYQD4LSzG/2lDNhBj"
+Date: Fri, 13 May 2005 07:51:20 +0200
+Message-Id: <1115963481.1723.3.camel@alderaan.trey.hu>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+X-VBMilter: scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > So if a user creates a private namespace, it should have the choice of:
-> > 
-> >    1) Giving up all suid rights (i.e. all mounts are cloned and
-> >       propagated with nosuid)
-> > 
-> >    2) Not giving up suid for cloned and propagated mounts, but having
-> >       extra limitations (suid/sgid programs cannot access unprivileged
-> >       "synthetic" mounts)
-> 
-> (2) isn't realistic.  There's no such thing as a suid program.  Suid is a 
-> characteristic of a _file_.  There's no way to know whether a given 
-> executing program is running with privileges that came from a suid file 
-> getting exec'ed.  Bear in mind that that exec could be pretty remote -- 
-> done by a now-dead ancestor with three more execs in between.
-> 
-> Many user space programs contain hacks to try to discern this information, 
-> and they often cause me headaches and I have to fix them.  The usual hacks 
-> are euid==uid, euid==suid, and/or euid==0.  It would be an order of 
-> magnitude worse for the kernel to contain such a hack.
 
-Guess what?  It's already there.  Look in ptrace_attach() in
-kernel/ptrace.c
+--=-GQXYYQD4LSzG/2lDNhBj
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-You could argue about the usefulness of ptrace.  The point is, that
-suid/sgid programs _can_ be discerned, and ptrace _needs_ to discern
-them.
+Hi!
 
-And for the same reason, user controlled filesystems also need to do
-this check.  See Documentation/filesystems/fuse.txt in -mm and later
-discussion in this thread for more information.
+=46rom http://kerneltrap.org/node/5103
 
-The strange thing is that people argue so vehemently about this on
-theoretical grounds.  But practice shows, that there's in fact no
-problem with it whatsoever.  This check (or something similar), has
-been in FUSE for more than 3 years, used by thousands of people, and
-it didn't cause _any_ problems, except various sub-mount related
-things, which we are trying to solve properly, by making mount
-unprivileged.
+``Hyper-Threading, as currently implemented on Intel Pentium Extreme
+Edition, Pentium 4, Mobile Pentium 4, and Xeon processors, suffers from
+a serious security flaw," Colin explains. "This flaw permits local
+information disclosure, including allowing an unprivileged user to steal
+an RSA private key being used on the same machine. Administrators of
+multi-user systems are strongly advised to take action to disable
+Hyper-Threading immediately."
 
-Miklos
+``More'' info here:
+http://www.daemonology.net/hyperthreading-considered-harmful/
+
+Is this flaw affects the current stable Linux kernels? Workaround?
+Patch?
+
+Thanks.
+
+-
+MG
+
+--=-GQXYYQD4LSzG/2lDNhBj
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ez az =?ISO-8859-1?Q?=FCzenetr=E9sz?=
+	=?ISO-8859-1?Q?_digit=E1lis?= =?ISO-8859-1?Q?_al=E1=EDr=E1ssal?= van
+	=?ISO-8859-1?Q?ell=E1tva?=
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBChEBYo75Oas+VX1ARAtNaAJ9Ld/EsVKjh9Ayi10NgjDF22zFnywCgoCNy
+JFtWXFWAEa3Gs5qZkq2JvPo=
+=45Sy
+-----END PGP SIGNATURE-----
+
+--=-GQXYYQD4LSzG/2lDNhBj--
+

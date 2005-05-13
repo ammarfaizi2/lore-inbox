@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262433AbVEMXIS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262579AbVEMWkw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262433AbVEMXIS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 19:08:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262610AbVEMXIJ
+	id S262579AbVEMWkw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 18:40:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262572AbVEMWjc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 19:08:09 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:47503 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262433AbVEMXHi (ORCPT
+	Fri, 13 May 2005 18:39:32 -0400
+Received: from coderock.org ([193.77.147.115]:31125 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S262586AbVEMWXS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 19:07:38 -0400
-Message-ID: <4285332D.1060808@pobox.com>
-Date: Fri, 13 May 2005 19:07:25 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Benjamin LaHaise <bcrl@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: [rfc/patch] libata -- port configurable delays
-References: <20050513185850.GA5777@kvack.org> <4284FC6E.7060300@pobox.com>	 <20050513200312.GA6555@kvack.org> <1116021178.20545.3.camel@localhost.localdomain>
-In-Reply-To: <1116021178.20545.3.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Fri, 13 May 2005 18:23:18 -0400
+Message-Id: <20050513222312.458729000@nd47.coderock.org>
+Date: Sat, 14 May 2005 00:23:13 +0200
+From: domen@coderock.org
+To: emoenke@gwdg.de
+Cc: linux-kernel@vger.kernel.org, Christophe Lucas <clucas@rotomalug.org>,
+       domen@coderock.org
+Subject: [patch 1/1] drivers/cdrom/sbpcd.c: replace direct assignment with set_current_state()
+Content-Disposition: inline; filename=set_current_state-drivers_cdrom_sbpcd
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
->>>4) It may be worthwhile to rewrite the loop to check the Status register 
->>>_first_, then delay.
-> 
-> 
-> The 400nS delay after a command is required before status becomes valid.
-> This isn't about 'incorrect' devices in the command case. It is about
-> strictly correct behaviour and propogation/response times. For the cases
-> its not required and you wan to keep PCI load down then checking first
-> is clearly logical.
-
-The 400nS delay isn't the one in the loop.  I was referring to the other 
-delay.
-
-Putting the Status register read first will also flush out any posted 
-writes, before delaying, and potentially exit more rapidly if the device 
-is immediately ready.
-
-	Jeff
+From: Christophe Lucas <clucas@rotomalug.org>
 
 
+
+Use set_current_state() instead of direct assignment of
+current->state.
+
+Signed-off-by: Christophe Lucas <clucas@rotomalug.org>
+Signed-off-by: Domen Puncer <domen@coderock.org>
+
+
+---
+ sbpcd.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+Index: quilt/drivers/cdrom/sbpcd.c
+===================================================================
+--- quilt.orig/drivers/cdrom/sbpcd.c
++++ quilt/drivers/cdrom/sbpcd.c
+@@ -830,7 +830,7 @@ static void mark_timeout_audio(u_long i)
+ static void sbp_sleep(u_int time)
+ {
+ 	sti();
+-	current->state = TASK_INTERRUPTIBLE;
++	set_current_state(TASK_INTERRUPTIBLE);
+ 	schedule_timeout(time);
+ 	sti();
+ }
+
+--

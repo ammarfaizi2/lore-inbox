@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262634AbVEMXey@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262577AbVEMXne@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262634AbVEMXey (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 19:34:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262629AbVEMXdm
+	id S262577AbVEMXne (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 19:43:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262639AbVEMXnM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 19:33:42 -0400
-Received: from hibernia.jakma.org ([212.17.55.49]:2453 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S262630AbVEMXdJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 19:33:09 -0400
-Date: Sat, 14 May 2005 00:32:40 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@sheen.jakma.org
-To: Andi Kleen <ak@muc.de>
-cc: "Richard F. Rebel" <rrebel@whenu.com>, Gabor MICSKO <gmicsko@szintezis.hu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Hyper-Threading Vulnerability
-In-Reply-To: <20050513190549.GB47131@muc.de>
-Message-ID: <Pine.LNX.4.62.0505140030130.27240@sheen.jakma.org>
-References: <1115963481.1723.3.camel@alderaan.trey.hu> <m164xnatpt.fsf@muc.de>
- <1116009483.4689.803.camel@rebel.corp.whenu.com> <20050513190549.GB47131@muc.de>
-Mail-Followup-To: paul@hibernia.jakma.org
-X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 13 May 2005 19:43:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:17631 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262601AbVEMXmP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 19:42:15 -0400
+Date: Fri, 13 May 2005 19:42:11 -0400
+From: Dave Jones <davej@redhat.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Cachemap for 2.6.12rc4-mm1.  Was Re: [PATCH] enhance x86 MTRR handling
+Message-ID: <20050513234211.GF13846@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <s2832b02.028@emea1-mh.id2.novell.com> <20050512161825.GC17618@redhat.com> <20050512214118.GA25065@redhat.com> <42852CE2.4090102@zytor.com> <20050513232357.GB13846@redhat.com> <428539EA.7000406@zytor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <428539EA.7000406@zytor.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 May 2005, Andi Kleen wrote:
+On Fri, May 13, 2005 at 04:36:10PM -0700, H. Peter Anvin wrote:
 
-> No, i strongly disagree on that. The reasonable thing to do is to 
-> fix the crypto code which has this vulnerability, not break a 
-> useful performance enhancement for everybody else.
+ > The Efficeon (TM8xxx) series does have PAT.
 
-Already done:
+1:1 with the Intel implementation I assume based on your earlier comments?
 
-http://www.openssl.org/news/secadv_20030317.txt
+ > > > >+ * Note: On Athlon cpus PAT2/PAT3 & PAT6/PAT7 are both Uncacheable 
+ > > since > >+ *	 there is no uncached type.
+ > > > If one sets the PAT to "uncached", does one get the same function as 
+ > > > "uncachable"?
+ > >
+ > >AIUI, only as long as we don't have an MTRR covering the same range marked 
+ > >WC.
+ > >It seems to be the only thing I could find documenting the differences
+ > >between 'uncached' and 'uncacheable' in this context.
+ > >Though I've only looked through the Intel & AMD K8 docs, I don't have
+ > >the K7 ones to hand.
+ > >
+ > 
+ > I mean, on the Athlon series, is it really necessary to use a different 
+ > value?
 
-This is old news it seems, a timing attack that has long been known 
-about and fixed.
+I'd have to dig out the docs and check.
 
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-Fortune:
-What happens when you cut back the jungle?  It recedes.
+		Dave

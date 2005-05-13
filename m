@@ -1,69 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262592AbVEMXr5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262622AbVEMXd1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262592AbVEMXr5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 19:47:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262630AbVEMXrH
+	id S262622AbVEMXd1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 19:33:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262611AbVEMXay
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 19:47:07 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:60127 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262640AbVEMXoe (ORCPT
+	Fri, 13 May 2005 19:30:54 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:2524 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262647AbVEMX3t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 19:44:34 -0400
-Date: Fri, 13 May 2005 19:44:06 -0400
+	Fri, 13 May 2005 19:29:49 -0400
+Date: Fri, 13 May 2005 19:29:38 -0400
 From: Dave Jones <davej@redhat.com>
 To: Lee Revell <rlrevell@joe-job.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Matt Mackall <mpm@selenic.com>,
-       Andy Isaacson <adi@hexapodia.org>, Andi Kleen <ak@muc.de>,
-       "Richard F. Rebel" <rrebel@whenu.com>,
-       Gabor MICSKO <gmicsko@szintezis.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, tytso@mit.edu
-Subject: Re: Hyper-Threading Vulnerability
-Message-ID: <20050513234406.GG13846@redhat.com>
+Cc: Pavel Machek <pavel@suse.cz>, Andi Kleen <ak@suse.de>,
+       Alexander Nyberg <alexn@telia.com>, Jan Beulich <JBeulich@novell.com>,
+       discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: [discuss] Re: [PATCH] adjust x86-64 watchdog tick calculation
+Message-ID: <20050513232938.GD13846@redhat.com>
 Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Lee Revell <rlrevell@joe-job.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Matt Mackall <mpm@selenic.com>,
-	Andy Isaacson <adi@hexapodia.org>, Andi Kleen <ak@muc.de>,
-	"Richard F. Rebel" <rrebel@whenu.com>,
-	Gabor MICSKO <gmicsko@szintezis.hu>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	tytso@mit.edu
-References: <1115963481.1723.3.camel@alderaan.trey.hu> <m164xnatpt.fsf@muc.de> <1116009483.4689.803.camel@rebel.corp.whenu.com> <20050513190549.GB47131@muc.de> <20050513212620.GA12522@hexapodia.org> <20050513215905.GY5914@waste.org> <1116024419.20646.41.camel@localhost.localdomain> <1116025212.6380.50.camel@mindpipe> <20050513232708.GC13846@redhat.com> <1116027488.6380.55.camel@mindpipe>
+	Lee Revell <rlrevell@joe-job.com>, Pavel Machek <pavel@suse.cz>,
+	Andi Kleen <ak@suse.de>, Alexander Nyberg <alexn@telia.com>,
+	Jan Beulich <JBeulich@novell.com>, discuss@x86-64.org,
+	linux-kernel@vger.kernel.org
+References: <s2832159.057@emea1-mh.id2.novell.com> <1115892008.918.7.camel@localhost.localdomain> <20050512142920.GA7079@openzaurus.ucw.cz> <20050513113023.GD15755@wotan.suse.de> <20050513195215.GC3135@elf.ucw.cz> <1116019676.6380.37.camel@mindpipe> <20050513225127.GB2016@elf.ucw.cz> <1116024993.6380.47.camel@mindpipe>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1116027488.6380.55.camel@mindpipe>
+In-Reply-To: <1116024993.6380.47.camel@mindpipe>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 13, 2005 at 07:38:08PM -0400, Lee Revell wrote:
- > On Fri, 2005-05-13 at 19:27 -0400, Dave Jones wrote:
- > > On Fri, May 13, 2005 at 07:00:12PM -0400, Lee Revell wrote:
- > >  > On Fri, 2005-05-13 at 23:47 +0100, Alan Cox wrote:
- > >  > > On Gwe, 2005-05-13 at 22:59, Matt Mackall wrote:
- > >  > > > It might not be much of a problem though. If he's a bit off per guess
- > >  > > > (really impressive), he'll still be many bits off by the time there's
- > >  > > > enough entropy in the primary pool to reseed the secondary pool so he
- > >  > > > can check his guesswork.
- > >  > > 
- > >  > > You can also disable the tsc to user space in the intel processors.
- > >  > > Thats something they anticipated as being neccessary in secure
- > >  > > environments long ago. This makes the attack much harder.
- > >  > 
- > >  > And break the hundreds of apps that depend on rdtsc?  Am I missing
- > >  > something?
+On Fri, May 13, 2005 at 06:56:33PM -0400, Lee Revell wrote:
+ > On Sat, 2005-05-14 at 00:51 +0200, Pavel Machek wrote:
+ > > Hi!
  > > 
- > > If those apps depend on rdtsc being a) present, and b) working
- > > without providing fallbacks, they're already broken.
+ > > > > > > Because it kills machine when interrupt latency gets too high?
+ > > > > > > Like reading battery status using i2c...
+ > > > > > 
+ > > > > > That's a bug in the I2C reader then. Don't shot the messenger for bad news.
+ > > > > 
+ > > > > Disagreed.
+ > > > > 
+ > > > > Linux is not real time OS. Perhaps some real-time constraints "may not
+ > > > > spend > 100msec with interrupts disabled" would be healthy
+ > > >              ^^^^
+ > > > You mean "microseconds", right?  100ms will be perceived by the user as,
+ > > > well, their machine freezing for 100ms...
  > > 
- > > There's a reason its displayed in /proc/cpuinfo's flags field,
- > > and visible through cpuid. Apps should be testing for presence
- > > before assuming features are present.
- > > 
+ > > I did mean miliseconds. IIRC current watchdog is at one second and it
+ > > still triggers even in cases when operation just takes too long.
  > 
- > Well yes but you would still have to recompile those apps.
+ > I thought there was an understanding that 1 ms would be the target for
+ > desktop responsiveness.  So yes, disabling interrupts for more than 1ms
+ > is considered a bug.
+ > 
+ > Why do you need to disable interrupts for 100ms to read the battery
+ > status exactly?
 
-Not if the app is written correctly. See above.
+On some unfortunate hardware, we can go away even longer whilst
+the BIOS does various SMI voodoo.  It got so bad in some situations
+that the maintainers of the gnome battery app lowered the frequency
+at which the poll the acpi interface.
 
 		Dave
+
 

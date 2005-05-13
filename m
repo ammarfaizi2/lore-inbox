@@ -1,62 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262497AbVEMTaA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262509AbVEMT37@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262497AbVEMTaA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 15:30:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262490AbVEMTZv
+	id S262509AbVEMT37 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 15:29:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbVEMTWg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 15:25:51 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:36480 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262503AbVEMTXj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 15:23:39 -0400
-Date: Fri, 13 May 2005 15:23:28 -0400
-From: Dave Jones <davej@redhat.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: tickle nmi watchdog whilst doing serial writes.
-Message-ID: <20050513192328.GB24166@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Arjan van de Ven <arjan@infradead.org>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20050513184806.GA24166@redhat.com> <1116011692.6694.19.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1116011692.6694.19.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.1i
+	Fri, 13 May 2005 15:22:36 -0400
+Received: from mail.timesys.com ([65.117.135.102]:23133 "EHLO
+	exchange.timesys.com") by vger.kernel.org with ESMTP
+	id S262490AbVEMTSC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 15:18:02 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+X-Mailer: Evolution 2.0.4-3mdk 
+Content-Type: multipart/signed;
+	micalg=pgp-sha1;
+	protocol="application/pgp-signature";
+	boundary="=-1s30lE676ScUP47dQ9WY"
+Content-Class: urn:content-classes:message
+Date: Fri, 13 May 2005 15:17:58 -0400
+Subject: [PATCH 2.6.11.7] ATA Over Ethernet Root, Mark 2
+Message-ID: <1116011879.9050.92.camel@jmcmullan.timesys>
+Date: Fri, 13 May 2005 15:12:07 -0400
+MIME-Version: 1.0
+Message-ID: <1116011879.9050.92.camel@jmcmullan.timesys>
+X-Mailer: Evolution 2.0.4-3mdk 
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 2.6.11.7] ATA Over Ethernet Root, Mark 2
+thread-index: AcVX76fJsgR1nzfyQ6KbAbCWpQ2xCA==
+From: "McMullan, Jason" <jason.mcmullan@timesys.com>
+To: "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       "PPC_LINUX" <linuxppc-embedded@ozlabs.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 13, 2005 at 09:14:52PM +0200, Arjan van de Ven wrote:
- > On Fri, 2005-05-13 at 14:48 -0400, Dave Jones wrote:
- > >  	if (up->port.flags & UPF_CONS_FLOW) {
- > >  		tmout = 1000000;
- > >  		while (--tmout &&
- > > -		       ((serial_in(up, UART_MSR) & UART_MSR_CTS) == 0))
- > > +		       ((serial_in(up, UART_MSR) & UART_MSR_CTS) == 0)) {
- > >  			udelay(1);
- > > +			touch_nmi_watchdog();
- > > +		}
- > >  	}
- > >  }
- > >  
- > > 
- > > We *could* tickle it less often, but given we're busy waiting anyway
- > > it probably doesnt make sense to not favour the more simple approach.
- > > Hmm, maybe we want a cpu_relax() in there too. opinions?
- > 
- > udelay() includes cpu_relax() already so that is futile.
- > 
- > However.. this is a hack. Do we really need to do busy waiting here for
- > this long??
 
-Ohhhhh no. I've fallen into this trap before.
-I'm not looking any further into serial code than I have to :)
+--=-1s30lE676ScUP47dQ9WY
+Content-Type: multipart/mixed; boundary="=-ER3Ts8eIi2roJJOQ+zOR"
 
-Russell / dwmw2 may have a more definitive answers as to why
-we have such a long wait here, but every time I learn something
-about the serial layer I end up regretting it, so mine is a
-drive-by patching only :-)
 
-		Dave
+--=-ER3Ts8eIi2roJJOQ+zOR
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+Second revision of my ATA Over Ethernet root device patch, now with
+white space correction and removed debugging crud.
+
+Any more comment, suggestions?
+
+--=20
+Jason McMullan <jason.mcmullan@timesys.com>
+TimeSys Corporation
+
+
+--=-ER3Ts8eIi2roJJOQ+zOR
+Content-Disposition: attachment; filename=aoe-root.patch
+Content-Transfer-Encoding: base64
+Content-Type: text/x-patch; name=aoe-root.patch; charset=ISO-8859-1
+
+IyMjIyBBdXRvLWdlbmVyYXRlZCBwYXRjaCAjIyMjDQpEYXRlOiAgICAgICAgRnJpLCAxMyBNYXkg
+MjAwNSAxNToxNTowNCAtMDQwMA0KU2lnbmVkLU9mZi1CeTogSmFzb24gTWNNdWxsYW4gPGphc29u
+Lm1jbXVsbGFuQHRpbWVzeXMuY29tPg0KRGVzY3JpcHRpb246IEFUQSBPdmVyIEV0aGVybmV0IHJv
+b3QgZGV2aWNlDQoJaWUgJ3Jvb3Q9L2Rldi9ldGhlcmQvZTAuMC9kaXNjJyBvbiB0aGUga2VybmVs
+IGNvbW1hbmQgbGluZQ0KRGVwZW5kczoNCglsaW51eC0yLjYuMTEuNw0KDQojIyMjIyMjIyMjIyMj
+IyMjIyMjIyMjIyMjIyMjIyMjDQoNCkluZGV4IG9mIGNoYW5nZXM6DQoNCiBLY29uZmlnICAgICAg
+IHwgICAxNSArKysrKysrKysrKysrKysNCiBhb2UvYW9lLmggICAgIHwgICAgMSArDQogYW9lL2Fv
+ZWJsay5jICB8ICAgIDEgKw0KIGFvZS9hb2VkZXYuYyAgfCAgIDE2ICsrKysrKysrKysrKysrKysN
+CiBhb2UvYW9lbWFpbi5jIHwgICA1MCArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKw0KIDUgZmlsZXMgY2hhbmdlZCwgODMgaW5zZXJ0aW9ucygrKQ0KDQoN
+Ci0tLSBsaW51eC1vcmlnL2RyaXZlcnMvYmxvY2svS2NvbmZpZw0KKysrIGxpbnV4L2RyaXZlcnMv
+YmxvY2svS2NvbmZpZw0KQEAgLTUwNiw0ICs1MDYsMTkgQEANCiAJVGhpcyBkcml2ZXIgcHJvdmlk
+ZXMgU3VwcG9ydCBmb3IgQVRBIG92ZXIgRXRoZXJuZXQgYmxvY2sNCiAJZGV2aWNlcyBsaWtlIHRo
+ZSBDb3JhaWQgRXRoZXJEcml2ZSAoUikgU3RvcmFnZSBCbGFkZS4NCiANCitjb25maWcgQVRBX09W
+RVJfRVRIX1JPT1QNCisJYm9vbCAiQVRBIG92ZXIgRXRoZXJuZXQgcm9vdCBkZXZpY2UiDQorCWRl
+cGVuZHMgb24gQVRBX09WRVJfRVRIPXkNCisJaGVscA0KKwkgIElmIHlvdSB3YW50IHRvIHVzZSBB
+VEEgT3ZlciBFdGhlcm5ldCBhcyB0aGUgcm9vdCBkZXZpY2UsDQorCSAgc2V0IHRoaXMgdG8gJ3kn
+DQorDQorY29uZmlnIEFUQV9PVkVSX0VUSF9ST09UX1NIRUxGDQorCWludCAiU2hlbGYgSUQiDQor
+CWRlcGVuZHMgb24gQVRBX09WRVJfRVRIX1JPT1QNCisJDQorY29uZmlnIEFUQV9PVkVSX0VUSF9S
+T09UX1NMT1QNCisJaW50ICJTbG90IElEIg0KKwlkZXBlbmRzIG9uIEFUQV9PVkVSX0VUSF9ST09U
+DQorDQogZW5kbWVudQ0KLS0tIGxpbnV4LW9yaWcvZHJpdmVycy9ibG9jay9hb2UvYW9lLmgNCisr
+KyBsaW51eC9kcml2ZXJzL2Jsb2NrL2FvZS9hb2UuaA0KQEAgLTE1Myw2ICsxNTMsNyBAQA0KIGlu
+dCBhb2VkZXZfaW5pdCh2b2lkKTsNCiB2b2lkIGFvZWRldl9leGl0KHZvaWQpOw0KIHN0cnVjdCBh
+b2VkZXYgKmFvZWRldl9ieW1hYyh1bnNpZ25lZCBjaGFyICopOw0KK3N0cnVjdCBhb2VkZXYgKmFv
+ZWRldl9ieW1ham9yX21pbm9yKHVsb25nIG1ham9yLCB1bG9uZyBtaW5vcik7DQogdm9pZCBhb2Vk
+ZXZfZG93bmRldihzdHJ1Y3QgYW9lZGV2ICpkKTsNCiBzdHJ1Y3QgYW9lZGV2ICphb2VkZXZfc2V0
+KHVsb25nLCB1bnNpZ25lZCBjaGFyICosIHN0cnVjdCBuZXRfZGV2aWNlICosIHVsb25nKTsNCiBp
+bnQgYW9lZGV2X2J1c3kodm9pZCk7DQotLS0gbGludXgtb3JpZy9kcml2ZXJzL2Jsb2NrL2FvZS9h
+b2VibGsuYw0KKysrIGxpbnV4L2RyaXZlcnMvYmxvY2svYW9lL2FvZWJsay5jDQpAQCAtMjI5LDYg
+KzIyOSw3IEBADQogCWdkLT5jYXBhY2l0eSA9IGQtPnNzaXplOw0KIAlzbnByaW50ZihnZC0+ZGlz
+a19uYW1lLCBzaXplb2YgZ2QtPmRpc2tfbmFtZSwgImV0aGVyZC9lJWxkLiVsZCIsDQogCQlkLT5h
+b2VtYWpvciwgZC0+YW9lbWlub3IpOw0KKwlzdHJuY3B5KGdkLT5kZXZmc19uYW1lLCBnZC0+ZGlz
+a19uYW1lLCBzaXplb2YgZ2QtPmRldmZzX25hbWUpOw0KIA0KIAlnZC0+cXVldWUgPSAmZC0+Ymxr
+cTsNCiAJZC0+Z2QgPSBnZDsNCi0tLSBsaW51eC1vcmlnL2RyaXZlcnMvYmxvY2svYW9lL2FvZWRl
+di5jDQorKysgbGludXgvZHJpdmVycy9ibG9jay9hb2UvYW9lZGV2LmMNCkBAIC0yOCw2ICsyOCwy
+MiBAQA0KIAlyZXR1cm4gZDsNCiB9DQogDQorc3RydWN0IGFvZWRldiAqYW9lZGV2X2J5bWFqb3Jf
+bWlub3IodWxvbmcgbWFqb3IsIHVsb25nIG1pbm9yKQ0KK3sNCisJc3RydWN0IGFvZWRldiAqZDsN
+CisJdWxvbmcgZmxhZ3M7DQorDQorCXNwaW5fbG9ja19pcnFzYXZlKCZkZXZsaXN0X2xvY2ssIGZs
+YWdzKTsNCisNCisJZm9yIChkID0gZGV2bGlzdDsgZDsgZCA9IGQtPm5leHQpDQorCQlpZiAoZC0+
+YW9lbWFqb3IgPT0gbWFqb3IgJiYgZC0+YW9lbWlub3IgPT0gbWlub3IpDQorCQkJYnJlYWs7DQor
+DQorCXNwaW5fdW5sb2NrX2lycXJlc3RvcmUoJmRldmxpc3RfbG9jaywgZmxhZ3MpOw0KKwlyZXR1
+cm4gZDsNCit9DQorDQorDQogLyogY2FsbGVkIHdpdGggZGV2bGlzdCBsb2NrIGhlbGQgKi8NCiBz
+dGF0aWMgc3RydWN0IGFvZWRldiAqDQogYW9lZGV2X25ld2Rldih1bG9uZyBuZnJhbWVzKQ0KLS0t
+IGxpbnV4LW9yaWcvZHJpdmVycy9ibG9jay9hb2UvYW9lbWFpbi5jDQorKysgbGludXgvZHJpdmVy
+cy9ibG9jay9hb2UvYW9lbWFpbi5jDQpAQCAtNyw2ICs3LDE0IEBADQogI2luY2x1ZGUgPGxpbnV4
+L2hkcmVnLmg+DQogI2luY2x1ZGUgPGxpbnV4L2Jsa2Rldi5oPg0KICNpbmNsdWRlIDxsaW51eC9t
+b2R1bGUuaD4NCisjaW5jbHVkZSA8bGludXgvZGV2ZnNfZnNfa2VybmVsLmg+DQorDQorLyogQU9F
+IFJvb3QgZGV2aWNlIGluY2x1ZGVzICovDQorI2luY2x1ZGUgPGxpbnV4L2RlbGF5Lmg+DQorI2lu
+Y2x1ZGUgPGxpbnV4L3J0bmV0bGluay5oPg0KKyNpbmNsdWRlIDxsaW51eC9uZXRkZXZpY2UuaD4N
+CisjaW5jbHVkZSA8bmV0L3NvY2suaD4NCisNCiAjaW5jbHVkZSAiYW9lLmgiDQogDQogTU9EVUxF
+X0xJQ0VOU0UoIkdQTCIpOw0KQEAgLTUzLDYgKzYxLDQxIEBADQogCX0NCiB9DQogDQorI2lmZGVm
+IENPTkZJR19BVEFfT1ZFUl9FVEhfUk9PVA0KK3ZvaWQgYW9lX3Jvb3QodW5zaWduZWQgbG9uZyBt
+YWpvciwgdW5zaWduZWQgbG9uZyBtaW5vcikNCit7DQorCXN0cnVjdCBuZXRfZGV2aWNlICpkZXY7
+DQorDQorCXByaW50ayhLRVJOX0lORk8NCisJCSJhb2U6IFdhaXRpbmcgZm9yIHJvb3QgQU9FIGRl
+dmljZSBlJWxkLiVsZFxuIiwgbWFqb3IsIG1pbm9yKTsNCisNCisJLyogR2l2ZSBoYXJkd2FyZSBh
+IGNoYW5jZSB0byBzZXR0bGUgKi8NCisJbXNsZWVwKDUwMCk7DQorDQorCXJ0bmxfc2hsb2NrKCk7
+DQorCS8qIGJyaW5nIGxvb3BiYWNrIGRldmljZSB1cCBmaXJzdCAqLw0KKwlpZiAoZGV2X2NoYW5n
+ZV9mbGFncygmbG9vcGJhY2tfZGV2LCBsb29wYmFja19kZXYuZmxhZ3MgfCBJRkZfVVApIDwgMCkN
+CisJCXByaW50ayhLRVJOX0VSUiAiQU9FIFJvb3Q6IEZhaWxlZCB0byBvcGVuICVzXG4iLCBsb29w
+YmFja19kZXYubmFtZSk7DQorDQorCS8qIFNldHVwIGFsbCBuZXR3b3JrIGRldmljZXMgKi8NCisJ
+Zm9yIChkZXYgPSBkZXZfYmFzZTsgZGV2IDsgZGV2ID0gZGV2LT5uZXh0KSB7DQorCQlpZiAoZGV2
+ID09ICZsb29wYmFja19kZXYpDQorCQkJY29udGludWU7DQorCQlkZXZfY2hhbmdlX2ZsYWdzKGRl
+diwgZGV2LT5mbGFncyB8IElGRl9VUCk7DQorCX0NCisJcnRubF9zaHVubG9jaygpOw0KKw0KKwkv
+KiBHaXZlIGRyaXZlcnMgYSBjaGFuY2UgdG8gc2V0dGxlICovDQorCXNzbGVlcCgxKTsNCisNCisJ
+ZG8gew0KKwkJYW9lY21kX2NmZyhtYWpvciwgbWlub3IpOw0KKwkJbXNsZWVwKDEpOw0KKwl9IHdo
+aWxlICghYW9lZGV2X2J5bWFqb3JfbWlub3IoQ09ORklHX0FUQV9PVkVSX0VUSF9ST09UX1NIRUxG
+LENPTkZJR19BVEFfT1ZFUl9FVEhfUk9PVF9TTE9UKSk7DQorDQorfQ0KKyNlbmRpZg0KKw0KIHN0
+YXRpYyB2b2lkDQogYW9lX2V4aXQodm9pZCkNCiB7DQpAQCAtNjMsNiArMTA2LDcgQEANCiAJYW9l
+Y2hyX2V4aXQoKTsNCiAJYW9lZGV2X2V4aXQoKTsNCiAJYW9lYmxrX2V4aXQoKTsJCS8qIGZyZWUg
+Y2FjaGUgYWZ0ZXIgZGUtYWxsb2NhdGluZyBidWZzICovDQorCWRldmZzX3JlbW92ZSgiZXRoZXJk
+Iik7DQogfQ0KIA0KIHN0YXRpYyBpbnQgX19pbml0DQpAQCAtNzAsNiArMTE0LDggQEANCiB7DQog
+CWludCByZXQ7DQogDQorCWRldmZzX21rX2RpcigiZXRoZXJkIik7DQorCSAgICAgICAgDQogCXJl
+dCA9IGFvZWRldl9pbml0KCk7DQogCWlmIChyZXQpDQogCQlyZXR1cm4gcmV0Ow0KQEAgLTkxLDYg
+KzEzNyw5IEBADQogCXByaW50ayhLRVJOX0lORk8NCiAJICAgICAgICJhb2U6IGFvZV9pbml0OiBB
+b0UgdjIuNi0lcyBpbml0aWFsaXNlZC5cbiIsDQogCSAgICAgICBWRVJTSU9OKTsNCisjaWZkZWYg
+Q09ORklHX0FUQV9PVkVSX0VUSF9ST09UDQorCWFvZV9yb290KENPTkZJR19BVEFfT1ZFUl9FVEhf
+Uk9PVF9TSEVMRixDT05GSUdfQVRBX09WRVJfRVRIX1JPT1RfU0xPVCk7DQorI2VuZGlmDQogCWRp
+c2NvdmVyX3RpbWVyKFRJTklUKTsNCiAJcmV0dXJuIDA7DQogDQpAQCAtMTAyLDYgKzE1MSw3IEBA
+DQogCWFvZWNocl9leGl0KCk7DQogIGNocl9mYWlsOg0KIAlhb2VkZXZfZXhpdCgpOw0KKwlkZXZm
+c19yZW1vdmUoImV0aGVyZCIpOw0KIAkNCiAJcHJpbnRrKEtFUk5fSU5GTyAiYW9lOiBhb2VfaW5p
+dDogaW5pdGlhbGlzYXRpb24gZmFpbHVyZS5cbiIpOw0KIAlyZXR1cm4gcmV0Ow0K
+
+
+--=-ER3Ts8eIi2roJJOQ+zOR--
+
+--=-1s30lE676ScUP47dQ9WY
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBChP1m8/0vJ5szK6kRAslIAKClmuDNMgWFWcPMKfqld0UsyGvzbwCeJHdE
+UzVzNQit0GZQ0lhpXB8lcmI=
+=tCAu
+-----END PGP SIGNATURE-----
+
+--=-1s30lE676ScUP47dQ9WY--

@@ -1,59 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262402AbVEMPRo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262412AbVEMPU2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262402AbVEMPRo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 11:17:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbVEMPRo
+	id S262412AbVEMPU2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 11:20:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262411AbVEMPU1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 11:17:44 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56477 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262405AbVEMPRc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 11:17:32 -0400
-Date: Fri, 13 May 2005 16:17:44 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: James Washer <washer@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, washer@beaverton.ibm.com
-Subject: Re: CONFIRMED bug in do_generic_file_read
-Message-ID: <20050513151744.GH1150@parcelfarce.linux.theplanet.co.uk>
-References: <20050513075743.GG1150@parcelfarce.linux.theplanet.co.uk> <OFF1B70B69.DFDD4B59-ON88257000.004A3F64-88257000.004B2949@us.ibm.com>
+	Fri, 13 May 2005 11:20:27 -0400
+Received: from titan.genwebhost.com ([209.9.226.66]:21190 "EHLO
+	titan.genwebhost.com") by vger.kernel.org with ESMTP
+	id S262404AbVEMPT5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 11:19:57 -0400
+Date: Fri, 13 May 2005 08:19:47 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: DervishD <lkml@dervishd.net>
+Cc: srinivasg@esntechnologies.co.in, linux-kernel@vger.kernel.org
+Subject: Re: Y2K-like bug to hit Linux computers! - Info of the day
+Message-Id: <20050513081947.3d448d61.rdunlap@xenotime.net>
+In-Reply-To: <20050513143736.GA1019@DervishD>
+References: <4EE0CBA31942E547B99B3D4BFAB348114BED13@mail.esn.co.in>
+	<20050513143736.GA1019@DervishD>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OFF1B70B69.DFDD4B59-ON88257000.004A3F64-88257000.004B2949@us.ibm.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - titan.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 13, 2005 at 06:42:50AM -0700, James Washer wrote:
-> Al, relax.. as I said, I don't know much about page cache code. 
-> 
-> So, let me ask a question, if I can, with out upsetting you further.
-> 
-> You say the analysis is, ah, incorrect.
-> 
-> Can you help me understand what a readpage routine SHOULD do with a page 
-> when it finds it cannot "arrange" a successful read? Is simply returning 
-> an error incorrect behaviour? If so, what should the readpage do?
+On Fri, 13 May 2005 16:37:36 +0200 DervishD wrote:
 
-It is a perfectly acceptable behaviour.  And it works just fine - e.g.
-nfs_readpage() does that in quite a few cases.
+|     Hi :)
+| 
+|  * Srinivas G. <srinivasg@esntechnologies.co.in> dixit:
+| > Tuesday, January 19 2038. Time: 03:14:07 GMT. If Linux programmers get
+| > nightmares, it's about this date and time. Immediately after that second
+| > is crossed, current computer systems running on Linux will grind to a
+| > halt or go into a loop. This will trip up a lot of databases. No, this
+| > is not another hoax raised by some anti-Linux lobby. It is Linux's own
+| > Y2K nightmare, says Businessworld. 
+| 
+|     Do you mean we have less than 33 years to switch to a longer type
+| to store timestamps? I'm *seriously* frightened. I'm only 32, so I
+| think I will manage to spend another half of my life switching to 64
+| bits timestamps.
+| 
+|     But we shouldn't worry, anyway, because the end of the world is
+| scheduled to be much sooner. I've heard rumours about a hyperspace
+| speedway that must pass *just* over this tiny little planet we call
+| home. Maybe the answer is 42.
 
-What you are missing is the fact that page_cache_release() frees the
-page only when it drops the final reference.  And pages are pinned
-down while they are in page cache.
+but that begs the question, "to what question is 42 the answer?"   8;)
 
-If you see page_cache_release() right after ->readpage() triggering that
-check, you've got out of ->readpage() with
-	* only one reference to page remaining
-	* one reference to that page acquired earlier in do_generic_file_read()
-and not dropped until now.
-	* one reference to that page acquired back when it had been put
-in page cache.  Matching page_cache_release() would be done when page
-is removed from page cache, but places that do it would remove the page
-from cache first.  Which would set ->mapping to NULL.
-
-Conclusion: something had done an unbalanced page_cache_release().  That
-happened after the moment when do_generic_file_read() had found the page
-and pinned it down and before the end of ->readpage().  Most likely -
-->readpage() itself or something called by it.
-the page, but
+---
+~Randy

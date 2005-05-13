@@ -1,67 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262320AbVEMJLF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262321AbVEMJTh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262320AbVEMJLF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 05:11:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbVEMJLF
+	id S262321AbVEMJTh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 05:19:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbVEMJTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 05:11:05 -0400
-Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:37390 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262317AbVEMJK4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 05:10:56 -0400
-To: linuxram@us.ibm.com
-CC: jamie@shareable.org, ericvh@gmail.com, 7eggert@gmx.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       smfrench@austin.rr.com, hch@infradead.org
-In-reply-to: <1115974780.6248.346.camel@localhost> (message from Ram on Fri,
-	13 May 2005 01:59:40 -0700)
-Subject: Re: [RCF] [PATCH] unprivileged mount/umount
-References: <20050511170700.GC2141@mail.shareable.org>
-	 <E1DVwGn-0002BB-00@dorka.pomaz.szeredi.hu>
-	 <1115840139.6248.181.camel@localhost>
-	 <20050511212810.GD5093@mail.shareable.org>
-	 <1115851333.6248.225.camel@localhost>
-	 <a4e6962a0505111558337dd903@mail.gmail.com>
-	 <20050512010215.GB8457@mail.shareable.org>
-	 <a4e6962a05051119181e53634e@mail.gmail.com>
-	 <20050512064514.GA12315@mail.shareable.org>
-	 <a4e6962a0505120623645c0947@mail.gmail.com>
-	 <20050512151631.GA16310@mail.shareable.org>
-	 <E1DWIms-0005nC-00@dorka.pomaz.szeredi.hu>
-	 <1115946620.6248.299.camel@localhost> <1115969123.6248.336.camel@localhost> <1115974780.6248.346.camel@localhost>
-Message-Id: <E1DWWBo-00013Z-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Fri, 13 May 2005 11:10:36 +0200
+	Fri, 13 May 2005 05:19:31 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:26280 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262316AbVEMJTZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 05:19:25 -0400
+Date: Fri, 13 May 2005 14:49:24 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Ingo Molnar <mingo@elte.hu>, Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       george@mvista.com, jdike@addtoit.com,
+       Jesse Barnes <jesse.barnes@intel.com>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, Tony Lindgren <tony@atomide.com>
+Subject: Re: [RFC] (How to) Let idle CPUs sleep
+Message-ID: <20050513091924.GG23705@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20050512171251.GA21656@in.ibm.com> <OF86BA5D99.FE159896-ONC1256FFF.0062E865-C1256FFF.0063A681@de.ibm.com> <20050513062330.GD23705@in.ibm.com> <42845456.3080908@yahoo.com.au> <20050513080424.GA31206@elte.hu> <428464D5.10702@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <428464D5.10702@yahoo.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, May 13, 2005 at 08:29:17AM +0000, Nick Piggin wrote:
+> And don't forget that the watchdog approach can just as easily deep
+> sleep a CPU only to immediately wake it up again if it detects an
+> imbalance.
 
->  	dentry = file->f_dentry;
->  	mnt = file->f_vfsmnt;
->  	inode = dentry->d_inode;
-> +	if(mnt->mnt_namespace != current->namespace)
-> +		goto out_putf;
->  
->  	error = -ENOTDIR;
->  	if (!S_ISDIR(inode->i_mode))
-> 
+I think we should increase the threshold beyond which the idle CPU
+is woken up (more than the imbalance_pct that exists already). This
+should justify waking up the CPU.
 
-Does this actually fix the problem?  The open is done in the right
-namespace, and mount() doesn't call open().
+> And the CPU usage / wakeup cost arguments cut both ways. The busy
+> CPUs have to do extra work in the watchdog case.
 
-I think the right fix is something like this:
+Maybe with a really smart watchdog solution, we can cut down this overhead.
+I did think of other schemes - a dedicated CPU per node acting as watchdog 
+for that node and per-node wacthdog kernel threads? - to name a few. What I had
+proposed was the best I thought. But maybe we can look at improving it 
+to see if the overhead concern you have can be reduced - meeting the interests
+of both the worlds :)
 
-Index: linux/fs/namespace.c
-===================================================================
---- linux.orig/fs/namespace.c	2005-05-13 11:03:50.000000000 +0200
-+++ linux/fs/namespace.c	2005-05-13 11:05:06.000000000 +0200
-@@ -160,7 +160,7 @@ clone_mnt(struct vfsmount *old, struct d
- 		mnt->mnt_root = dget(root);
- 		mnt->mnt_mountpoint = mnt->mnt_root;
- 		mnt->mnt_parent = mnt;
--		mnt->mnt_namespace = old->mnt_namespace;
-+		mnt->mnt_namespace = current->namespace;
- 
- 		/* stick the duplicate mount on the same expiry list
- 		 * as the original if that was on one */
 
+-- 
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

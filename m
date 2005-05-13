@@ -1,75 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262480AbVEMS43@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262496AbVEMTLs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262480AbVEMS43 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 14:56:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262488AbVEMSyg
+	id S262496AbVEMTLs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 15:11:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262495AbVEMTGN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 14:54:36 -0400
-Received: from [24.24.2.57] ([24.24.2.57]:27132 "EHLO ms-smtp-03.nyroc.rr.com")
-	by vger.kernel.org with ESMTP id S262487AbVEMSwM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 14:52:12 -0400
-Subject: Re: Does smp_reschedule_interrupt really reschedule?
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050513182631.GA15916@elte.hu>
-References: <1116008299.4728.19.camel@localhost.localdomain>
-	 <20050513182631.GA15916@elte.hu>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Fri, 13 May 2005 14:51:20 -0400
-Message-Id: <1116010280.4728.29.camel@localhost.localdomain>
+	Fri, 13 May 2005 15:06:13 -0400
+Received: from metis.extern.pengutronix.de ([83.236.181.26]:743 "EHLO
+	metis.extern.pengutronix.de") by vger.kernel.org with ESMTP
+	id S262496AbVEMTES (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 15:04:18 -0400
+Date: Fri, 13 May 2005 21:04:15 +0200
+From: Sascha Hauer <s.hauer@pengutronix.de>
+To: linux-kernel@vger.kernel.org
+Cc: Jochen Karrer <j.karrer@lightmaze.com>
+Subject: [PATCH] DM9000 network driver bugfix
+Message-ID: <20050513190415.GA18358@metis.pengutronix.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-05-13 at 20:26 +0200, Ingo Molnar wrote:
-> it's all a bit tricky. The short story is that i think both vanilla and 
-> -RT kernels are fine.
-> 
-> Here is how smp_send_reschedule() is used:
-> 
-> 	CPU#0				CPU#1
-> 
-> 	set_tsk_need_resched(rq->curr);
-> 	...
-> 	smp_send_reschedule()
-> 			--- IPI --->
-> 					smp_reschedule_interrupt();
-> 					...
-> 					entry.S's need_resched check
-> 
+This patch fixes two bugs in the dm9000 network driver:
+- Don't read one byte too much in 8bit mode.
+- release correct resource
 
-OK, Forget about vanilla, I'm keeping to your kernel now ;-) 
+Signed-off-by: Jochen Karrer <j.karrer@xxxxxxxxxxxxxxxx>
+Signed-off-by: Sascha Hauer <s.hauer@xxxxxxxxxxxxxxxx>
 
-In finish_task_switch, where is need_resched set?
-
-
-> _but_, this is intentionally racy: if CPU#1 happens to reschedule before 
-> the IPI reaches CPU#1 (an IPI can take 10 usecs easily so the window is 
-> not small), then need_resched might be cleared before the IPI hits. In 
-> that case you wont get a reschedule after the IPI hits, because it was 
-> done before!
-> 
-> so the correct thing to measure is what the -RT kernel's wakeup-latency 
-> timing feature does: the time from setting need_resched, to the point 
-> the task starts to run. The feature works on SMP too - and it doesnt 
-> show any large latencies.
-> 
-> are you seeing actual process delays? If not then i think those large 
-> latencies are just the result of the wrong assumptions in your 
-> measurement code.
-
-No this wasn't from real world applications yet. So the bug may rightly
-be with the placement of my timers.  I was looking at the code and
-didn't know how the reschedule takes place and started testing it.  Let
-me know where that need_resched is with that finish_task_switch code,
-and I'll probably be happy with just that.
-
-Thanks,
-
--- Steve
+diff -urN linux-2.6.12-rc4-mm1/drivers/net/dm9000.c linux-2.6.12-rc4-mm1-work/drivers/net/dm9000.c
+--- linux-2.6.12-rc4-mm1/drivers/net/dm9000.c	2005-05-13 12:10:42.000000000 +0200
++++ linux-2.6.12-rc4-mm1-work/drivers/net/dm9000.c	2005-05-13 12:14:38.000000000 +0200
+@@ -224,7 +224,7 @@
+ 
+ static void dm9000_inblk_8bit(void __iomem *reg, void *data, int count)
+ {
+-	readsb(reg, data, count+1);
++	readsb(reg, data, count);
+ }
+ 
+ 
+@@ -364,7 +364,7 @@
+ 	}
+ 
+ 	if (db->addr_res != NULL) {
+-		release_resource(db->data_req);
++		release_resource(db->addr_res);
+ 		kfree(db->addr_req);
+ 	}
+ }
 

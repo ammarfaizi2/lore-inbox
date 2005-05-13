@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262301AbVEMIUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262298AbVEMIYY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262301AbVEMIUF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 04:20:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbVEMIUF
+	id S262298AbVEMIYY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 04:24:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbVEMIYW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 04:20:05 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:32605 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S262301AbVEMITd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 04:19:33 -0400
-Message-ID: <42846310.1000807@tls.msk.ru>
-Date: Fri, 13 May 2005 12:19:28 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] hotplug-ng 002 release
-References: <20050506212227.GA24066@kroah.com> <Pine.LNX.4.63.0505090025280.7682@1-1-2-5a.f.sth.bostream.se> <20050509211323.GB5297@tsiryulnik> <20050512214229.GA30233@kroah.com>
-In-Reply-To: <20050512214229.GA30233@kroah.com>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 13 May 2005 04:24:22 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:26844 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262298AbVEMIVr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 04:21:47 -0400
+Date: Fri, 13 May 2005 09:21:43 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: James Ketrenos <jketreno@linux.intel.com>
+Cc: Pavel Machek <pavel@ucw.cz>, netdev@oss.sgi.com,
+       kernel list <linux-kernel@vger.kernel.org>, jbohac@suse.cz,
+       jbenc@suse.cz
+Subject: Re: ipw2100: intrusive cleanups, working this time ;-)
+Message-ID: <20050513082143.GA553@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	James Ketrenos <jketreno@linux.intel.com>,
+	Pavel Machek <pavel@ucw.cz>, netdev@oss.sgi.com,
+	kernel list <linux-kernel@vger.kernel.org>, jbohac@suse.cz,
+	jbenc@suse.cz
+References: <20050512225026.GA2822@elf.ucw.cz> <4283FA4D.3010208@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4283FA4D.3010208@linux.intel.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-[]
-> Subject: PCI: add MODALIAS to hotplug event for pci devices
-> --- gregkh-2.6.orig/drivers/pci/hotplug.c	2005-05-12 14:28:39.000000000 -0700
-> +++ gregkh-2.6/drivers/pci/hotplug.c	2005-05-12 14:28:47.000000000 -0700
-> @@ -52,6 +52,16 @@
->  	if ((buffer_size - length <= 0) || (i >= num_envp))
->  		return -ENOMEM;
->  
-> +	envp[i++] = scratch;
-> +	length += scnprintf (scratch, buffer_size - length,
-> +			    "MODALIAS=pci:v%08Xd%08Xsv%08Xsd%08Xbc%02Xsc%02Xi%02x\n",
-[]
-> Subject: PCI: add modalias sysfs file for pci devices
-> --- gregkh-2.6.orig/drivers/pci/pci-sysfs.c	2005-05-12 14:28:25.000000000 -0700
-> +++ gregkh-2.6/drivers/pci/pci-sysfs.c	2005-05-12 14:28:40.000000000 -0700
-> +	return sprintf(buf, "pci:v%08Xd%08Xsv%08Xsd%08Xbc%02Xsc%02Xi%02x\n",
-> +		       pci_dev->vendor, pci_dev->device,
-> +		       pci_dev->subsystem_vendor, pci_dev->subsystem_device,
-> +		       (u8)(pci_dev->class >> 16), (u8)(pci_dev->class >> 8),
+On Thu, May 12, 2005 at 07:52:29PM -0500, James Ketrenos wrote:
+> Part of the process we have in place is to try and make sure that the
+> versions that get picked up by distros and the majority of users have a
+> 'known' level of quality.  As part of that, we only want to get changes
+> pushed to -mm and eventual mainline that have gone through regression
+> testing.
 
-Just a small note/suggestion... Looks like it's worth to create a common
-routine for the two cases.  Just to be sure the value in $MODALIAS and in
-devices/xx/modalias are the same.  I think.
+The only wait to make that works is to opensource the testsuites and allow
+the distros to run the QA test themselves.  Except for maybe SuSE no one
+will pick up a driver version just because you say so.
 
-/mjt
+p.s. please remove the part of the mail you follow up to that's not relevant
+	yo your posting.  thanks.

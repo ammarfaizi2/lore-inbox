@@ -1,33 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262770AbVENN6W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262625AbVENN5x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262770AbVENN6W (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 09:58:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262767AbVENN6T
+	id S262625AbVENN5x (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 09:57:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262762AbVENN5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 09:58:19 -0400
-Received: from rproxy.gmail.com ([64.233.170.198]:52307 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262640AbVENN5n (ORCPT
+	Sat, 14 May 2005 09:57:53 -0400
+Received: from wproxy.gmail.com ([64.233.184.193]:1229 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262625AbVENN5j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 09:57:43 -0400
+	Sat, 14 May 2005 09:57:39 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:from:to:cc:user-agent:content-type:references:in-reply-to:subject:message-id:date;
-        b=hsCYJMYhp1kxbKpmSGmUTm4zJEktNZex9v2R71uukniJ3vanWtraA6twmjI8ngjm3W/uXVJ6fSZ7TlVJLm+HZgoX5iWsVAn32qGn1F7+D1mm9SyGAiFCZ7a8QoSc+sNKgkyCuDNkYPGot8L78a+TgWwdax1D3xjNW/YO+o/PVdY=
+        h=received:from:to:cc:user-agent:content-type:subject:message-id:date;
+        b=AGWub1J9pCk7tjUEy1adyeARrEoOXm4qZAaq385Oml1s0afIXwWp5PneMhiziTcKIvYce1vhpNPeEi/PdmDE879lw9mrn7/8tKt/XP1UrdDFHxAQ4VhOv0YZIqMMZ1Yyxna9jgyTamsuZbekPdJmdNz6owRyMYXhY3TgsOfHlU0=
 From: Tejun Heo <htejun@gmail.com>
 To: James.Bottomley@steeleye.com, axboe@suse.de,
        Christoph Hellwig <hch@infradead.org>
 Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
 User-Agent: lksp 0.3
 Content-Type: text/plain; charset=US-ASCII
-References: <20050514135610.81030F26@htj.dyndns.org>
-In-Reply-To: <20050514135610.81030F26@htj.dyndns.org>
-Subject: Re: [PATCH scsi-misc-2.6 01/04] scsi: consolidate error handling out of scsi_init_io() into scsi_prep_fn()
-Message-ID: <20050514135610.536D5170@htj.dyndns.org>
-Date: Sat, 14 May 2005 22:57:38 +0900 (KST)
+Subject: [PATCH scsi-misc-2.6 00/04] scsi: scsi_request_fn() reimplementation
+Message-ID: <20050514135610.81030F26@htj.dyndns.org>
+Date: Sat, 14 May 2005 22:57:33 +0900 (KST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ Hello, James.
+
+ This is repost of reqfn-reimplmentation patchset posted about a month
+ago.  As REQ_SPECIAL semantics patchset, which this patchset depends
+on, has been accepted with slight modification (REQ_SOFTBARRIER
+handled by blk layer), this patchset is adjusted accordingly.  Also,
+it's updated to use original scsi_add_timer function as timer API
+change patch isn't accepted yet.
+
+ scsi_reqfn_reimplementation patch depends on the timer update
+patchset I've posted yesterday.  The only dependency is the removal of
+scsi_dispatch_cmd() because the timer patchset modifies
+scsi_queue_insert() call in that function.  If you decide to not
+accept the timer updates, just removing scsi_cmd_get_serial() and
+scsi_dispatch_cmd() by hand should suffice.
+
+ Original description follows.
+
+ This patchset reimplements scsi_request_fn().  All prep's are moved
+into prep_fn and all state checking/issueing are moved into
+scsi_reqfn.  prep_fn() only terminates/defers unpreparable requests
+and all requests are terminated through scsi midlayer.
+
+[ Start of patch descriptions ]
+
 01_scsi_reqfn_consolidate_error_handling.patch
+	: consolidate error handling out of scsi_init_io() into scsi_prep_fn()
 
 	This patch fixes a queue stall bug which occurred when sgtable
 	allocation failed and device_busy == 0.  When scsi_init_io()
@@ -42,83 +66,86 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 	ret value checking was changed to switch() as in James's
 	patch.  Also, kill: comment is copied from James's patch.
 
-Signed-off-by: Tejun Heo <htejun@gmail.com>
+02_scsi_reqfn_move_preps_to_prep_fn.patch
+	: move request preps in other places into prep_fn()
 
- scsi_lib.c |   40 ++++++++++++++++++++++++++++------------
- 1 files changed, 28 insertions(+), 12 deletions(-)
+	Move request preparations scattered in scsi_request_fn() and
+	scsi_dispatch_cmd() into scsi_prep_fn()
 
-Index: scsi-reqfn-export/drivers/scsi/scsi_lib.c
-===================================================================
---- scsi-reqfn-export.orig/drivers/scsi/scsi_lib.c	2005-05-14 22:35:18.000000000 +0900
-+++ scsi-reqfn-export/drivers/scsi/scsi_lib.c	2005-05-14 22:35:18.000000000 +0900
-@@ -977,9 +977,6 @@ static int scsi_init_io(struct scsi_cmnd
- 	printk(KERN_ERR "req nr_sec %lu, cur_nr_sec %u\n", req->nr_sectors,
- 			req->current_nr_sectors);
- 
--	/* release the command and kill it */
--	scsi_release_buffers(cmd);
--	scsi_put_command(cmd);
- 	return BLKPREP_KILL;
- }
- 
-@@ -1147,18 +1144,24 @@ static int scsi_prep_fn(struct request_q
- 		 * required).
- 		 */
- 		ret = scsi_init_io(cmd);
--		if (ret)	/* BLKPREP_KILL return also releases the command */
--			return ret;
-+		switch (ret) {
-+		case 0:
-+			/* Successful initialization. */
-+			break;
-+		case BLKPREP_DEFER:
-+			goto defer;
-+		default:
-+			/* Unknown return value, fall through. */
-+		case BLKPREP_KILL:
-+			goto kill;
-+		}
- 		
- 		/*
- 		 * Initialize the actual SCSI command for this request.
- 		 */
- 		drv = *(struct scsi_driver **)req->rq_disk->private_data;
--		if (unlikely(!drv->init_command(cmd))) {
--			scsi_release_buffers(cmd);
--			scsi_put_command(cmd);
--			return BLKPREP_KILL;
--		}
-+		if (unlikely(!drv->init_command(cmd)))
-+			goto kill;
- 	}
- 
- 	/*
-@@ -1168,12 +1171,25 @@ static int scsi_prep_fn(struct request_q
- 	return BLKPREP_OK;
- 
-  defer:
--	/* If we defer, the elv_next_request() returns NULL, but the
-+	/*
-+	 * If we defer, the elv_next_request() returns NULL, but the
- 	 * queue must be restarted, so we plug here if no returning
--	 * command will automatically do that. */
-+	 * command will automatically do that.
-+	 */
- 	if (sdev->device_busy == 0)
- 		blk_plug_device(q);
- 	return BLKPREP_DEFER;
-+
-+ kill:
-+	/*
-+	 * Here we have to release every resource associated with the
-+	 * request because this will complete at the request level
-+	 * (req->end_io), not the scsi command level, so no scsi
-+	 * routine will get to free the associated resources.
-+	 */
-+	scsi_release_buffers(cmd);
-+	scsi_put_command(cmd);
-+	return BLKPREP_KILL;
- }
- 
- /*
+	* CDB_SIZE check in scsi_dispatch_cmd()
+	* SCSI-2 LUN preparation in scsi_dispatch_cmd()
+
+	No invalid request reaches scsi_request_fn() anymore.
+
+	Note that scsi_init_cmd_errh() is still left in
+	scsi_request_fn().  As all requeued requests need its sense
+	buffer and result value cleared, we can't move this to
+	prep_fn() yet.  This is moved into prep_fn in the following
+	requeue path consoildation patchset.
+
+03_scsi_reqfn_reimplementation.patch
+	: reimplement scsi_request_fn()
+
+	New scsi_request_fn() is formatted mostly as Chistoph Hellwig
+	suggested.
+
+	This patch rewrites scsi_request_fn().	scsi_dispatch_cmd() is
+	merged into scsi_request_fn().	Goals are
+
+	* Remove unnecessary operations (host_lock unlocking/locking,
+	  recursing into scsi_run_queue(), ...)
+	* Consolidate defer/kill paths.
+	* Be concise.
+
+	The following bugs are fixed.
+
+	* All killed requests now get fully prep'ed and pass through
+	  __scsi_done().  This is the only kill path.
+		- scsi_cmnd leak in offline-kill path removed
+		- unfinished request bug in
+		  scsi_dispatch_cmd():SDEV_DEL-kill path removed.
+		- commands are never terminated directly from blk
+		  layer unless they are invalid, so no need to supply
+		  req->end_io callback for special requests.
+	* Timer is added while holding host_lock, after all conditions
+	  are checked and serial number is assigned.  This guarantees
+	  that until host_lock is released, the scsi_cmnd pointed to
+	  by cmd isn't released.  That didn't hold in the original
+	  code and, theoretically, the original code could access
+	  already released cmd.
+	* For the same reason, if shost->hostt->queuecommand() fails,
+	  we try to delete the timer before releasing host_lock.
+
+	Other changes/notes
+
+	* host_lock is acquired and released only once.
+	  enter (qlocked) -> enter loop -> dev-prep -> switch to hlock -\
+			  ^---- switch to qlock <- issue <- host-prep <-/
+	* unnecessary if () on get_device() removed.
+	* loop on elv_next_request() instead of blk_queue_plugged().
+	  We now explicitly break out of loop when we plug and check if
+	  the queue has been plugged underneath us at the end of loop.
+	* All device/host state checks are done in this function and
+	  done only once while holding qlock/host_lock respectively.
+	* Requests which get deferred during dev-prep are never
+	  removed from request queue, so deferring is achieved by
+	  simply breaking out of the loop and returning.
+	* Failure of blk_queue_start_tag() on tagged queue is a BUG
+	  now.	This condition should have been catched by
+	  scsi_dev_queue_ready().
+	* req->special == NULL test removed.  This just can't happen,
+	  and even if it ever happens, scsi_request_fn() will
+	  deterministically oops.
+	* Requests which gets deferred during host-prep are requeued
+	  using blk_requeue_request().	This is the only requeue path.
+
+04_scsi_reqfn_remove_wait_req_end_io.patch
+	: remove unnecessary scsi_wait_req_end_io()
+
+	As all requests are now terminated via scsi midlayer, we don't
+	need to set end_io for special reqs, remove it.
+
+[ End of patch descriptions ]
+
+ Thanks a lot.
 

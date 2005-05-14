@@ -1,94 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbVENVeZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261479AbVENVnk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261499AbVENVeZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 17:34:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261511AbVENVeZ
+	id S261479AbVENVnk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 17:43:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261511AbVENVnj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 17:34:25 -0400
-Received: from mail.kroah.org ([69.55.234.183]:31652 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261499AbVENVeR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 17:34:17 -0400
-Date: Sat, 14 May 2005 14:34:21 -0700
-From: Greg KH <greg@kroah.com>
-To: Yani Ioannou <yani.ioannou@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.12-rc4 1/12] (dynamic sysfs callbacks) update device attribute callbacks
-Message-ID: <20050514213421.GC5198@kroah.com>
-References: <2538186705051402237a79225@mail.gmail.com> <20050514112242.A24975@flint.arm.linux.org.uk> <2538186705051412462d6db2d2@mail.gmail.com> <20050514221838.A15061@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050514221838.A15061@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.8i
+	Sat, 14 May 2005 17:43:39 -0400
+Received: from mta9.adelphia.net ([68.168.78.199]:27787 "EHLO
+	mta9.adelphia.net") by vger.kernel.org with ESMTP id S261479AbVENVng
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 May 2005 17:43:36 -0400
+Message-ID: <42867104.60307@adelphia.net>
+Date: Sat, 14 May 2005 17:43:32 -0400
+From: "Rinaldi J. Montessi" <rinaldij@adelphia.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8b2) Gecko/20050513
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: SCSI/libata/SATA problem
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 14, 2005 at 10:18:38PM +0100, Russell King wrote:
-> On Sat, May 14, 2005 at 03:46:31PM -0400, Yani Ioannou wrote:
-> > My first post to LKML on the patch:
-> > http://lkml.org/lkml/2005/5/7/60
-> > 
-> > The idea originated in the lm_sensors mailing list, so you might want
-> > to take a look at the lm_sensors archive is you are interested, in
-> > particular the following thread:
-> > ...
-> > 
-> > This isn't changing, although there are cases where it is
-> > necessary/preferable to dynamically create the attributes (again see
-> > previous discussion). This patch helps both static and dynamically
-> > created attributes. The adm1026 example I posted to the mailing list
-> > earlier uses entirely static attributes still (and hence the need for
-> > the new macros my latest patch adds), and I expect most attributes
-> > will remain static.
-> 
-> Ok.  I do wonder if the better solution would be to encapsulate
-> "device_attribute" where this extra information is required, and
-> pass a pointer to device_attribute to its methods, in much the
-> same way as "sysfs_ops" works.
-> 
-> This means your attributes in adm1016 become:
-> 
-> struct adm1016_attr {
-> 	struct device_attribute	dev_attr;
-> 	int			nr;
-> };
-> 
-> #define ADM1016_ATTR(_name,_mode,_show,_store,_nr)		\
-> 	struct adm1016_attr adm_attr_##_name = {		\
-> 		.dev_attr = __ATTR(_name,_mode,_show,_store),	\
-> 		.nr = _nr,					\
-> 	}
-> 
-> static ssize_t show_temp_max(struct device *dev, struct device_attribute *attr, char *buf)
-> {
-> 	struct adm1016_attr *adm_attr = to_adm_attr(attr);
-> 	struct adm1026_data *data = adm1026_update_device(dev);
-> 	return sprintf(buf,"%d\n", TEMP_FROM_REG(data->temp_max[adm_attr->nr]));
-> }
-> 
-> #define temp_reg(offset)					\
-> ...
-> static ADM1016_ATTR(temp##offset##_max, S_IRUGO | S_IWUSR,	\
-> 	show_temp_max, set_temp_max, offset)
-> 
-> There are two advantages to this way:
-> 
-> 1. you're not having to impose the extra void * pointer in the
->    attribute on everyone.
-> 2. you allow people to add whatever data they please to the attribute
->    in whatever format they wish - whether it be a void pointer, integer,
->    or whatever.
-> 
-> This seems far more flexible to me, at least.
 
-Ah, nice, I hadn't thought about that.  But yes, it would be much
-smaller and simpler to do this, very good idea.
+About the time the SCSI subsystem driver is loaded the hard drive
+activity light comes on and never goes out.  The drive is a Western
+Digital, Vendor: ATA Model: WDC WD1200JD-00H  Rev: 08.0.
 
-And if enough i2c drivers want to do this, just make a i2c driver
-attribute that they all use to achieve this.
+The motherboard is an ASUS P5DA2-E Deluxe (intel 925x chipset).
 
-Yani, what do you think?
+Western Digital and ASUS both recommended I check the jumper settings,
+which I had done.  ASUS also sent me a CD containing updates for the
+Windows drivers.  I don't use Windows, and presume the disk to be
+irrelevant to solving the problem.
 
-thanks,
+There appears to be no problems with data corruption; meaning if I copy
+large files from sda1 to hda1 drives the files show no difference.
 
-greg k-h
+If I boot only to hda1 and not automount the SATA drive (/home, /usr)
+things appear normal (no LED except when there is activity).
+
+I saw some libata changes in the latest 31-pre2 so compiled and rebooted
+with no difference in behavior.
+
+Links to dmesg, .config, and lspci output at bottom.
+
+Same behavior in the latest 2.6.11 kernel (same drivers back ported?)
+
+I am not subscribed to the list but do follow it via USENET.
+
+uname -a
+Linux Senior 2.4.30 #12 Wed May 11 21:15:29 EDT 2005 i686 unknown
+unknown GNU/Linux
+
+cat /proc/cmdline
+BOOT_IMAGE=2.4.30_hda1 ro root=301 hde=ide-cd hdg=ide-cd hdh=ide-cd
+ata2=none ata3=none ata4=none
+
+dmesg | grep -i scsi
+SCSI subsystem driver Revision: 1.00
+scsi0 : ahci
+scsi1 : ahci
+scsi2 : ahci
+scsi3 : ahci
+     Type:   Direct-Access                      ANSI SCSI revision: 05
+Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
+SCSI device sda: 234441648 512-byte hdwr sectors (120034 MB)
+
+dmesg | grep libata
+libata version 1.10 loaded.
+
+dmesg | grep SATA
+ahci(00:1f.2) AHCI 0001.0000 32 slots 4 ports 1.5 Gbps 0xf impl SATA mode
+ata1: SATA max UDMA/133 cmd 0xF8800D00 ctl 0x0 bmdma 0x0 irq 19
+ata2: SATA max UDMA/133 cmd 0xF8800D80 ctl 0x0 bmdma 0x0 irq 19
+ata3: SATA max UDMA/133 cmd 0xF8800E00 ctl 0x0 bmdma 0x0 irq 19
+ata4: SATA max UDMA/133 cmd 0xF8800E80 ctl 0x0 bmdma 0x0 irq 19
+
+http://users.adelphia.net/~rinaldij/lspci.log
+http://users.adelphia.net/~rinaldij/dmesg.log
+http://users.adelphia.net/~rinaldij/kernel.cfg
+
+Rinaldi
+-- 
+The day after tomorrow is the third day of the rest of your life.
+
+

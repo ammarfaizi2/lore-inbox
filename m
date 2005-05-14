@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262764AbVENOFu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262784AbVENOKv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262764AbVENOFu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 10:05:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbVENOD4
+	id S262784AbVENOKv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 10:10:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262765AbVENOHh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 10:03:56 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:14738 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262768AbVENOC4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 10:02:56 -0400
-Message-ID: <42860502.6090808@pobox.com>
-Date: Sat, 14 May 2005 10:02:42 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
+	Sat, 14 May 2005 10:07:37 -0400
+Received: from cmsout02.mbox.net ([165.212.64.32]:19451 "EHLO
+	cmsout02.mbox.net") by vger.kernel.org with ESMTP id S262640AbVENOGk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 May 2005 10:06:40 -0400
+X-USANET-Source: 165.212.11.131  IN   matt@finaldraftbooks.com uadvg131.cms.usa.net
+X-USANET-MsgId: XID236JeNogn3817X02
+X-USANET-Auth: 67.20.172.234   AUTH mrsinger@usa.net PlanetX
+Reply-To: <matt@finaldraftbooks.com>
+From: "Matthew Singer" <matt@finaldraftbooks.com>
+To: "'linux-kernel-Mailing-list'" <linux-kernel@vger.kernel.org>,
+       <linux-smp@vger.kernel.org>
+Subject: SMP Large Buffers
+Date: Sat, 14 May 2005 10:06:34 -0400
+Organization: Final Draft Booksellers
 MIME-Version: 1.0
-To: Krzysztof Halasa <khc@pm.waw.pl>
-CC: Netdev <netdev@oss.sgi.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: git repository for net drivers available
-References: <42841A3F.7020909@pobox.com> <m3oebe2hy8.fsf@defiant.localdomain>
-In-Reply-To: <m3oebe2hy8.fsf@defiant.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Thread-Index: AcVYjZlh3GFp9ubZSRC9nzoBUOhqUw==
+Message-ID: <127JeNogl0267M31@uadvg131.cms.usa.net>
+Z-USANET-MsgId: XID127JeNogM0267X31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Krzysztof Halasa wrote:
-> Hi,
-> 
-> Jeff Garzik <jgarzik@pobox.com> writes:
-> 
-> 
->>Although I have over 200 net driver patches to go through in my
->>'Pending' folder, I have fully converted the existing netdev-2.6
->>repository from BitKeeper to git.  This includes the wireless-2.6
->>repository.
-> 
-> 
-> Do you prefer plain patches or GIT repository on kernel.org to merge
-> for future (and "current") updates?
-> I haven't set a public repo up yet, but it's a matter of seconds.
+I'm working with a driver that needs dma buffers larger than 128K.  The
+system is a 2 processor SMP with 2 gig total ram.
 
-For now, plain patches.
+Using GRUB, we set mem= to be 1984M, leaving 64M reserved.
 
-FWIW, I do still have your WAN update patch.
+doing  ioremap(0x7c000000, 0x4000000)
+       followed by an access to x7c000000 results in an OOPS.
 
-	Jeff
+is this an SMP issue regarding how memory in each node is mapped? (in that
+you can't do it this way) as it works fine on a uniprocessor machine.
+
+
+
+
 
 

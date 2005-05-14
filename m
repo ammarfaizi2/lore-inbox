@@ -1,83 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262743AbVENL1h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262741AbVENLcq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262743AbVENL1h (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 07:27:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262742AbVENL1h
+	id S262741AbVENLcq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 07:32:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262742AbVENLcq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 07:27:37 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:41425 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S262743AbVENL1c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 07:27:32 -0400
-Message-ID: <01a101c55877$e84e1130$0f01a8c0@max>
-From: "Richard Purdie" <rpurdie@rpsys.net>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <20050512033100.017958f6.akpm@osdl.org>
-Subject: Re: 2.6.12-rc4-mm1
-Date: Sat, 14 May 2005 12:27:21 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+	Sat, 14 May 2005 07:32:46 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:34477 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262741AbVENLcl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 May 2005 07:32:41 -0400
+Subject: Re: Does smp_reschedule_interrupt really reschedule?
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050514063741.GA12217@elte.hu>
+References: <1116008299.4728.19.camel@localhost.localdomain>
+	 <20050513182631.GA15916@elte.hu>
+	 <1116010280.4728.29.camel@localhost.localdomain>
+	 <20050514063741.GA12217@elte.hu>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Sat, 14 May 2005 07:32:29 -0400
+Message-Id: <1116070349.1604.20.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2527
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.12-rc4-mm1 on a Sharp Zaurus (arm pxa255) results in:
+On Sat, 2005-05-14 at 08:37 +0200, Ingo Molnar wrote:
+> * Steven Rostedt <rostedt@goodmis.org> wrote:
+> 
+> > In finish_task_switch, where is need_resched set?
+> 
+> why should it be set? It's the final portion of a context-switch, not 
+> the initiator of a context-switch. need_resched is usually set by the 
+> wakeup code, or by the preemption code.
+> 
 
-VFS: Mounted root (jffs2 filesystem) readonly.
-Freeing init memory: 76K
-Kernel panic - not syncing: Attempted to kill init!
- <3>BUG: soft lockup detected on CPU#0!
+Sorry, I'm still not seeing it. I'll explain my confusion a little more
+detailed now.
 
-Pid: 1, comm:                 init
-CPU: 0
-PC is at __delay+0x0/0xc
-LR is at panic+0x108/0x130
-pc : [<c00f71ac>]    lr : [<c0037140>]    Not tainted
-sp : c0301f4c  ip : c0301f4c  fp : c0301f58
-r10: 4001d000  r9 : c0300000  r8 : 00007f00
-r7 : c0300000  r6 : c027a3e8  r5 : c027a3e4  r4 : 0000240b
-r3 : 60000013  r2 : 000003ca  r1 : 00000000  r0 : 00017133
-Flags: nzCv  IRQs on  FIQs on  Mode SVC_32  Segment user
-Control: 397F  Table: A1CB0000  DAC: 00000015
-[<c0059c90>] (softlockup_tick+0x0/0xa0) from [<c0021020>] 
-(timer_tick+0xb4/0xf8)
- r5 = C0300000  r4 = C0301F04
-[<c0020f6c>] (timer_tick+0x0/0xf8) from [<c00277e0>] 
-(pxa_timer_interrupt+0x48/0xa8)
- r6 = C0301F04  r5 = C0300000  r4 = F2A00000
-[<c0027798>] (pxa_timer_interrupt+0x0/0xa8) from [<c001cbc4>] 
-(__do_irq+0x6c/0xc4)
- r8 = C0301F04  r7 = 00000000  r6 = 00000000  r5 = C0300000
- r4 = C0230374
-[<c001cb58>] (__do_irq+0x0/0xc4) from [<c001ce48>] (do_level_IRQ+0x68/0xb8)
-[<c001cde0>] (do_level_IRQ+0x0/0xb8) from [<c001ceec>] 
-(asm_do_IRQ+0x54/0x160)
- r6 = 04000000  r5 = F2D00000  r4 = FFFFFFFF
-[<c001ce98>] (asm_do_IRQ+0x0/0x160) from [<c001ba14>] (__irq_svc+0x34/0x74)
-[<c0037038>] (panic+0x0/0x130) from [<c003a22c>] (do_exit+0x7c8/0xda4)
- r3 = 00000001  r2 = C02E8E40  r1 = C02E8D60  r0 = C02004C0
-[<c0039a64>] (do_exit+0x0/0xda4) from [<c003a900>] 
-(do_group_exit+0xc0/0x104)
-[<c003a840>] (do_group_exit+0x0/0x104) from [<c001be20>] 
-(ret_fast_syscall+0x0/0x2c)
- r5 = 00000000  r4 = 0000002F
+Lets say we have a SMP machine with two CPUs.  CPU0 has a RT task
+running and CPU1 has a non-RT task.   A RT task wakes up on CPU0 that is
+higher priority than the current running RT task on CPU0. Lets add that
+this newly woken up RT task has set affinity to only run on CPU0.
 
-There was an extremely long pause after it printed "Kernel panic ..." before 
-it printed the traceback.
+So in try_to_wake_up...  Lets assume that the wake up happened on CPU1. 
 
-2.6.12-rc4 doesn't do this, neither does 2.6.12-rc3-mm2.
+	if (cpu == this_cpu || unlikely(!cpu_isset(this_cpu, p->cpus_allowed)))
+		goto out_set_cpu;
 
-Any ideas where the problem is before I start looking?
+cpu = the task's cpu = CPU0
+this_cpu = CPU1
 
-Regards,
+cpu_isset(this_cpu, p->cpus_allowed) returns false so we goto
+out_set_cpu.
 
-Richard 
+out_set_cpu:
+	new_cpu = wake_idle(new_cpu, p);   <--- new_cpu would still equal cpu.
+	if (new_cpu != cpu) {
+
+	} else {
+		/*
+		 * If a newly woken up RT task cannot preempt the
+		 * current (RT) task then try to find another
+		 * CPU it can preempt:
+		 */
+p can preempt current, so this is also false.
+		if (rt_task(p) && !TASK_PREEMPTS_CURR(p, rq)) {
+			smp_send_reschedule_allbutself();
+			rt_overload_wakeup++;
+		}
+	}
+
+
+Next we activate the newly woken up RT task.
+
+	activate_task(p, rq, cpu == this_cpu);
+	if (!sync || cpu != this_cpu) {
+		if (TASK_PREEMPTS_CURR(p, rq))
+			resched_task(rq->curr);
+	}
+
+
+So now the newly woken up RT task preempts the other RT task on CPU0.
+
+preempt_schedule is called and then schedule. 
+
+Now the booted RT task should now be transferred to CPU1, since it can
+run there, and CPU1 doesn't have a RT task running.
+
+In finish_task_switch, we have:
+
+#if defined(CONFIG_PREEMPT_RT) && defined(CONFIG_SMP)
+	/*
+	 * If we pushed an RT task off the runqueue,
+	 * then kick other CPUs, they might run it:
+	 */
+	if (unlikely(rt_task(current) && prev->array && rt_task(prev))) {
+		rt_overload_schedule++;
+		smp_send_reschedule_allbutself();
+	}
+#endif
+
+
+Here's my question, where does CPU1 get need_resched set?  As discussed
+earlier, smp_send_reschedule_allbutself doesn't do it.
+
+Thanks,
+
+-- Steve
+
+
 

@@ -1,56 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262748AbVENLtj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262746AbVENLzF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262748AbVENLtj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 07:49:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262746AbVENLtj
+	id S262746AbVENLzF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 07:55:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262747AbVENLzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 07:49:39 -0400
-Received: from mail.shareable.org ([81.29.64.88]:15830 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S262744AbVENLtf
+	Sat, 14 May 2005 07:55:05 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:2994 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S262746AbVENLy6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 07:49:35 -0400
-Date: Sat, 14 May 2005 12:49:15 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Bryan Henderson <hbryan@us.ibm.com>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, bulb@ucw.cz, ericvh@gmail.com,
-       hch@infradead.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, smfrench@austin.rr.com
-Subject: Re: [RCF] [PATCH] unprivileged mount/umount
-Message-ID: <20050514114915.GA19703@mail.shareable.org>
-References: <E1DWVby-0000zz-00@dorka.pomaz.szeredi.hu> <OF61E069CA.D46E38EE-ON88257000.00738E9B-88257000.007F4E51@us.ibm.com>
+	Sat, 14 May 2005 07:54:58 -0400
+Subject: Re: Billionton bluetooth USB: how to make it work
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050514001050.GA1896@elf.ucw.cz>
+References: <20050512233902.GA3157@elf.ucw.cz>
+	 <1115942337.18499.86.camel@pegasus> <20050513004606.GA1957@elf.ucw.cz>
+	 <1115975517.18499.100.camel@pegasus> <20050513101739.GI1780@elf.ucw.cz>
+	 <20050514001050.GA1896@elf.ucw.cz>
+Content-Type: text/plain
+Date: Sat, 14 May 2005 13:55:05 +0200
+Message-Id: <1116071705.8886.15.camel@pegasus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF61E069CA.D46E38EE-ON88257000.00738E9B-88257000.007F4E51@us.ibm.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bryan Henderson wrote:
-> 2) after the private mount, don't let a program that has gained privileges 
-> via set-uid see the user-made names.
+Hi Pavel,
+
+I have no idea what USB have to do with it and why you posted it to
+LKML, but it seems you got it.
+
+> Okay, so the magic sequence seems to be:
 > 
-> My point is still that (2) can't be done because you can't know that a 
-> program has gained privileged via set-uid.
-> 
-> If it's really not about set-uid, but about ptrace-like privilege 
-> borrowing, please enlighten me.
+> # Take 2.6.12-rc3-mm3
+> #
+> # PCMCIA config:
+> # card "Cyber-blue Compact Flash Card"
+> #   manfid 0x0279, 0x950b
+> #   bind "serial_cs"
+> #
+> killall hciattach
+> sleep .1
+> setserial /dev/ttyS4 baud_base 921600
+> hciattach -s 921600 /dev/ttyS4 bcsp
+> hciconfig
+> hciconfig hci0 up
+> hciconfig
 
-Note that not all setuid programs gain *capabilities*.
+Verfied with my card and a 2.6.12-rc4.
 
-You appear to be talking about setuid-root, but there is also
-setuid-some-other-user, where the capabilities don't change but the
-priveleges switch to those of another uid.
+hci0:   Type: UART
+        BD Address: 00:10:60:xx:xx:xx ACL MTU: 192:8 SCO MTU: 64:8
+        HCI Ver: 1.1 (0x1) HCI Rev: 0x33c LMP Ver: 1.1 (0x1) LMP Subver: 0x33c
+        Manufacturer: Cambridge Silicon Radio (10)
+        Features: 0xff 0xff 0x0f 0x00 0x00 0x00 0x00 0x00
+                <3-slot packets> <5-slot packets> <encryption> <slot offset> 
+                <timing accuracy> <role switch> <hold mode> <sniff mode> 
+                <park state> <RSSI> <channel quality> <SCO link> <HV2 packets> 
+                <HV3 packets> <u-law log> <A-law log> <CVSD> <paging scheme> 
+                <power control> <transparent SCO> 
+        HCI 16.14
+        Chip version: BlueCore02-External
+        Max key size: 56 bit
+        SCO mapping:  HCI
 
-The right thing to do in that case is tricky.  For example, suppose
-you have a program that's setuid to the "printer" user, which can copy
-the caller's file to the printer queue directories in
-/var/spool/printer.  Ideally, that program should be able to read the
-calling user's file, looking up the path in the calling user's
-namespace (that's important, because the path is provided by the
-calling user), and then write to /var/spool/printer.  (*Really*
-ideally /var/spool/printer wouldn't be visible in the calling user's
-namespace, but that sort of design is straying far indeed from a unix
-model).
+> It took me a hour trying to debug weird stuff before I realized that I
+> need to do hciconfig up... to see some results...
 
--- Jamie
+Or make sure that hcid is running. It will bring up your device.
+
+Regards
+
+Marcel
+
+

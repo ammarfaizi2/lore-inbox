@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262763AbVENNlX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262760AbVENNlt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262763AbVENNlX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 09:41:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbVENNlX
+	id S262760AbVENNlt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 09:41:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbVENNl3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 09:41:23 -0400
-Received: from mail2.swva.net ([66.37.69.253]:2788 "EHLO swva.net")
-	by vger.kernel.org with ESMTP id S262231AbVENNlS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 09:41:18 -0400
-Message-Id: <6.2.1.2.0.20050514093000.0554c1c8@mail.swva.net>
-X-Mailer: QUALCOMM Windows Eudora Version 6.2.1.2
-Date: Sat, 14 May 2005 09:30:21 -0400
-To: earth@honeyfrog.com
-From: VoIP PC Phone Link <luis@honeyfrog.com>
-Subject: How are you involved with Telephony?
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed; x-avg-checked=avg-ok-56117DB4
-X-Server: High Performance Mail Server - http://surgemail.com
+	Sat, 14 May 2005 09:41:29 -0400
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:25483 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S262760AbVENNlW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 May 2005 09:41:22 -0400
+From: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
+	<7eggert@gmx.de>
+Subject: Re: Y2K-like bug to hit Linux computers! - Info of the day
+To: "Srinivas G." <srinivasg@esntechnologies.co.in>,
+       linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
+Reply-To: 7eggert@gmx.de
+Date: Sat, 14 May 2005 15:41:52 +0200
+References: <43GQ7-5qy-5@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+Message-Id: <E1DWwtu-0000mS-AY@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---------------------------------
+Srinivas G. <srinivasg@esntechnologies.co.in> wrote:
 
-Would you like to add your hardware or services into our shopping cart? 
-PCPhoneLink.com is an online marketing network that has capitalized on the 
-excitement VoIP brings to the Internet. Our website is self-replicating and 
-our marketing platform is "viral", allowing us to acquire 100 new customers 
-per month. Would you be interested in merging your idea with our vision?
+> But what about the present? Many applications running on Linux could
+> soon be making calculations for dates 30 years away -- say, for mortgage
+> and insurance calculations -- and could start giving out error messages
+> well before D-day. The problem could be widespread because more and more
+> corporates today are migrating to Linux because of the better security
+> it offers.
 
-Luis A. Garcia
-President & Founder
-http://www.pcphonelink.com
-(540)-320-1045
+time_t is for systems times only, and it is not to be manipulated directly.
+If you'd do that, you'll miss leap seconds and have additional leap years.
+Besides that, it's not portable to different EPOCHs.
 
-
+Therefore, apllications MUST use their own time types.
 -- 
-No virus found in this outgoing message.
-Checked by AVG Anti-Virus.
-Version: 7.0.308 / Virus Database: 266.11.10 - Release Date: 5/13/2005
-
+            A. Top posters
+            Q. What's the most annoying thing on Usenet?
 

@@ -1,67 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262712AbVENKCS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262738AbVENKEy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262712AbVENKCS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 06:02:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262727AbVENKBi
+	id S262738AbVENKEy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 06:04:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262727AbVENKCT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 06:01:38 -0400
-Received: from rproxy.gmail.com ([64.233.170.201]:7348 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262712AbVENJeS (ORCPT
+	Sat, 14 May 2005 06:02:19 -0400
+Received: from rproxy.gmail.com ([64.233.170.206]:47644 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262485AbVENJiu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 05:34:18 -0400
+	Sat, 14 May 2005 05:38:50 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type;
-        b=lsxS1r94rDqohLV/6rP/x0fnkLI3fWuMfoUJbm/WnvxKJet06XuxIVjsPA/W1W3xP8hZpiUjlLw+QklBV88GLLk5tYIO0GTtOeWfOyHdiHAl8/3YUDABRiCgCD2DiNY8gvHB20RLerkcPNoFS/BfJ2V3uk25lvoxGEad9VzsvmU=
-Message-ID: <2538186705051402346e9a6a85@mail.gmail.com>
-Date: Sat, 14 May 2005 05:34:14 -0400
+        b=dYmtSII84oF9TBBYdMmtP8Q/oXMR4UOP0azLZnH/rgpQ5v0zppwjwrqowgeCiGKwi6oMy7tPgW12lq00lCe0TrAgJWFHBzf5zepWZM3DjbtLddDv35nz0QQ3114NQaFOKoZiDxvFCulnUexDogMonhn1tciElrdFx+fyJOTbAYs=
+Message-ID: <2538186705051402386375a3d9@mail.gmail.com>
+Date: Sat, 14 May 2005 05:38:43 -0400
 From: Yani Ioannou <yani.ioannou@gmail.com>
 Reply-To: Yani Ioannou <yani.ioannou@gmail.com>
 To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.12-rc4 12/12] include: (dynamic sysfs callbacks) update device attribute callbacks
+Subject: [PATCH 2.6.12-rc4] include/linux:(dynamic sysfs callbacks) new attribute macros
 Mime-Version: 1.0
 Content-Type: multipart/mixed; 
-	boundary="----=_Part_1455_22384685.1116063254826"
+	boundary="----=_Part_1471_28009831.1116063523907"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_1455_22384685.1116063254826
+------=_Part_1471_28009831.1116063523907
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
+Hi,
+
+The following patch adds a new __ATTR_PRIVATE macro and a
+DEVICE_ATTR_PRIVATE macro to be used when creating static device
+attributes with a void * member.
+
+
 Signed-off-by: Yani Ioannou <yani.ioannou@gmail.com>
 
+Thanks,
+Yani
+
+---
+ device.h |    3 +++
+ sysfs.h  |   11 +++++++++++
+ 2 files changed, 14 insertions(+)
 ---
 
-------=_Part_1455_22384685.1116063254826
-Content-Type: text/plain; 
-	name=patch-linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn.diff-include.diff.diffstat.txt; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="patch-linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn.diff-include.diff.diffstat.txt"
-
- ocp.h |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-
-
-------=_Part_1455_22384685.1116063254826
+------=_Part_1471_28009831.1116063523907
 Content-Type: text/x-patch; 
-	name=patch-linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn.diff-include.diff; charset=us-ascii
+	name=patch-linux-2.6.12-rc4-sysfsdyncallback-deviceattr-macro.diff; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="patch-linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn.diff-include.diff"
+Content-Disposition: attachment; filename="patch-linux-2.6.12-rc4-sysfsdyncallback-deviceattr-macro.diff"
 
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/include/asm-ppc/ocp.h linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/include/asm-ppc/ocp.h
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/include/asm-ppc/ocp.h	2005-05-11 00:28:15.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/include/asm-ppc/ocp.h	2005-05-11 00:35:02.000000000 -0400
-@@ -189,7 +189,7 @@ extern void ocp_for_each_device(void(*ca
- /* Sysfs support */
- #define OCP_SYSFS_ADDTL(type, format, name, field)			\
- static ssize_t								\
--show_##name##_##field(struct device *dev, char *buf)			\
-+show_##name##_##field(struct device *dev, char *buf, void *private)			\
- {									\
- 	struct ocp_device *odev = to_ocp_dev(dev);			\
- 	type *add = odev->def->additions;				\
+diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/include/linux/device.h linux-2.6.12-rc4-sysfsdyncallback-deviceattr-macro/include/linux/device.h
+--- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/include/linux/device.h	2005-05-13 01:02:10.000000000 -0400
++++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-macro/include/linux/device.h	2005-05-13 01:09:27.000000000 -0400
+@@ -343,6 +343,9 @@ struct device_attribute {
+ #define DEVICE_ATTR(_name,_mode,_show,_store) \
+ struct device_attribute dev_attr_##_name = __ATTR(_name,_mode,_show,_store)
+ 
++#define DEVICE_ATTR_PRIVATE(_name,_mode,_show,_store,_private)	\
++struct device_attribute dev_attr_##_name = 			\
++	__ATTR_PRIVATE(_name,_mode,_show,_store,_private)
+ 
+ extern int device_create_file(struct device *device, struct device_attribute * entry);
+ extern void device_remove_file(struct device * dev, struct device_attribute * attr);
+diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/include/linux/sysfs.h linux-2.6.12-rc4-sysfsdyncallback-deviceattr-macro/include/linux/sysfs.h
+--- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/include/linux/sysfs.h	2005-05-13 01:02:10.000000000 -0400
++++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-macro/include/linux/sysfs.h	2005-05-13 01:08:09.000000000 -0400
+@@ -45,6 +45,17 @@ struct attribute_group {
+ 	.store	= _store,			\
+ }
+ 
++#define __ATTR_PRIVATE(_name,_mode,_show,_store,_private) {	\
++	.attr = {						\
++		.name = __stringify(_name),			\
++		.mode = _mode,					\
++		.private = _private,				\
++		.owner = THIS_MODULE,				\
++	}, 							\
++	.show	= _show,					\
++	.store	= _store,					\
++}
++
+ #define __ATTR_RO(_name) {			\
+ 	.attr	= {				\
+ 		.name = __stringify(_name),	\
 
-------=_Part_1455_22384685.1116063254826--
+
+
+
+------=_Part_1471_28009831.1116063523907--

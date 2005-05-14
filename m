@@ -1,79 +1,165 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbVENPdP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262786AbVENPqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261418AbVENPdP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 11:33:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261424AbVENPdP
+	id S262786AbVENPqE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 11:46:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbVENPqD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 11:33:15 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:16409
-	"EHLO g5.random") by vger.kernel.org with ESMTP id S261418AbVENPdJ
+	Sat, 14 May 2005 11:46:03 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:60971
+	"EHLO g5.random") by vger.kernel.org with ESMTP id S262786AbVENPpk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 11:33:09 -0400
-Date: Sat, 14 May 2005 17:33:07 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Dave Jones <davej@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Sat, 14 May 2005 11:45:40 -0400
+Date: Sat, 14 May 2005 17:45:38 +0200
+From: andrea@cpushare.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Lee Revell <rlrevell@joe-job.com>, Dave Jones <davej@redhat.com>,
        Matt Mackall <mpm@selenic.com>, Andy Isaacson <adi@hexapodia.org>,
        Andi Kleen <ak@muc.de>, "Richard F. Rebel" <rrebel@whenu.com>,
        Gabor MICSKO <gmicsko@szintezis.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, tytso@mit.edu
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, tytso@mit.edu,
+       Andrew Morton <akpm@osdl.org>
 Subject: Re: Hyper-Threading Vulnerability
-Message-ID: <20050514153307.GA6695@g5.random>
-References: <1116009483.4689.803.camel@rebel.corp.whenu.com> <20050513190549.GB47131@muc.de> <20050513212620.GA12522@hexapodia.org> <20050513215905.GY5914@waste.org> <1116024419.20646.41.camel@localhost.localdomain> <1116025212.6380.50.camel@mindpipe> <20050513232708.GC13846@redhat.com> <1116027488.6380.55.camel@mindpipe> <20050513234406.GG13846@redhat.com> <1116056238.7360.9.camel@mindpipe>
+Message-ID: <20050514154538.GB6695@g5.random>
+References: <m164xnatpt.fsf@muc.de> <1116009483.4689.803.camel@rebel.corp.whenu.com> <20050513190549.GB47131@muc.de> <20050513212620.GA12522@hexapodia.org> <20050513215905.GY5914@waste.org> <1116024419.20646.41.camel@localhost.localdomain> <1116025212.6380.50.camel@mindpipe> <20050513232708.GC13846@redhat.com> <1116027488.6380.55.camel@mindpipe> <1116084186.20545.47.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1116056238.7360.9.camel@mindpipe>
+In-Reply-To: <1116084186.20545.47.camel@localhost.localdomain>
 X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 14, 2005 at 03:37:18AM -0400, Lee Revell wrote:
-> The apps that bother to use rdtsc vs. gettimeofday need a cheap high res
-> timer more than a correct one anyway - it's not guaranteed that rdtsc
-> provides a reliable time source at all, due to SMP and frequency scaling
-> issues.
+On Sat, May 14, 2005 at 04:23:10PM +0100, Alan Cox wrote:
+> You cannot use rdtsc for anything but rough instruction timing. The
+> timers for different processors run at different speeds on some SMP
+> systems, the timer rates vary as processors change clock rate nowdays.
+> Rdtsc may also jump dramatically on a suspend/resume.
 
-On x86-64 the cost of gettimeofday is the same of the tsc, turning off
-tsc on x86-64 is not nice (even if we usually have HPET there, so
-perhaps it wouldn't be too bad). TSC is something only the kernel (or a
-person with some kernel/hardware knowledge) can do safely knowing it'll
-work fine. But on x86-64 parts of the kernel runs in userland...
+x86-64 uses it for vgettimeofday very safely (i386 could do too but it
+doesn't).
 
-Preventing tasks with different uid to run on the same physical cpu was
-my first idea, disabled by default via sysctl, so only if one is
-paranoid can enable it.
+Anyway I believe at least for seccomp it's worth to turn off the tsc,
+not just for HT but for the L2 cache too. So it's up to you, either you
+turn it off completely (which isn't very nice IMHO) or I recommend to
+apply this below patch. This has been tested successfully on x86-64
+against current cogito repository (i686 compiles so I didn't bother
+testing ;). People selling the cpu through cpushare may appreciate this
+bit for a peace of mind. There's no way to get any timing info anymore
+with this applied (gettimeofday is forbidden of course). The seccomp
+environment is completely deterministic so it can't be allowed to get
+timing info, it has to be deterministic so in the future I can enable a
+computing mode that does a parallel computing for each task with server
+side transparent checkpointing and verification that the output is the
+same from all the 2/3 seller computers for each task, without the buyer
+even noticing (for now the verification is left to the buyer client
+side and there's no checkpointing, since that would require more kernel
+changes to track the dirty bits but it'll be easy to extend once the
+basic mode is finished).
 
-But before touching the kernel in any way it would be really nice if
-somebody could bother to demonstrate this is real because I've an hard
-time to believe this is not purely vapourware. On artificial
-environments a computer can recognize the difference between two faces
-too, no big deal, but that doesn't mean the same software is going to
-recognize million of different faces at the airport too. So nothing has
-been demonstrated in practical terms yet.
+Thanks.
 
-Nobody runs openssl -sign thousand of times in a row on a pure idle
-system without noticing the 100% load on the other cpu for months (and
-he's not root so he can't hide his runaway 100% process, if he was root
-and he could modify the kernel or ps/top to hide the runaway process,
-he'd have faster ways to sniff).
+Signed-off-by: Andrea Arcangeli <andrea@cpushare.com>
 
-So to me this sounds a purerly theoretical problem. Cache covert
-channels are possible too as the paper states, next time somebody will
-find how to sniff a letter out of a pdf document on a UP no-HT system by
-opening and closing it some million of times on a otherwise idle system.
-We're sure not going to flush the l2 cache because of that (at least not
-by default ;).
-
-This was an interesting read, but in practice I'd rate this to have
-severity 1 on a 0-100 scale, unless somebody bothers to demonstrate it
-in a remotely realistic environment.
-
-Even if this would be real if they sniff a openssl key, unless they also
-crack the dns the browser will complain (not very different from not
-having a certificate authority signature on a fake key). And if the
-server is remotely serious they'll notice the 100% runaway process way
-before he can sniff the whole key (the 100% runaway load cannot be
-hidden). Most servers have some statistics so a 100% load for weeks or
-months isn't very likely to be overlooked.
+Index: arch/i386/kernel/process.c
+===================================================================
+--- eed337ef5e9ae7d62caa84b7974a11fddc7f06e0/arch/i386/kernel/process.c  (mode:100644)
++++ uncommitted/arch/i386/kernel/process.c  (mode:100644)
+@@ -561,6 +561,25 @@
+ }
+ 
+ /*
++ * This function selects if the context switch from prev to next
++ * has to tweak the TSC disable bit in the cr4.
++ */
++static void disable_tsc(struct thread_info *prev,
++			struct thread_info *next)
++{
++	if (unlikely(has_secure_computing(prev) ||
++		     has_secure_computing(next))) {
++		/* slow path here */
++		if (has_secure_computing(prev) &&
++		    !has_secure_computing(next)) {
++			clear_in_cr4(X86_CR4_TSD);
++		} else if (!has_secure_computing(prev) &&
++			   has_secure_computing(next))
++			set_in_cr4(X86_CR4_TSD);
++	}
++}
++
++/*
+  *	switch_to(x,yn) should switch tasks from x to y.
+  *
+  * We fsave/fwait so that an exception goes off at the right time
+@@ -639,6 +658,8 @@
+ 	if (unlikely(prev->io_bitmap_ptr || next->io_bitmap_ptr))
+ 		handle_io_bitmap(next, tss);
+ 
++	disable_tsc(prev_p->thread_info, next_p->thread_info);
++
+ 	return prev_p;
+ }
+ 
+Index: arch/x86_64/kernel/process.c
+===================================================================
+--- eed337ef5e9ae7d62caa84b7974a11fddc7f06e0/arch/x86_64/kernel/process.c  (mode:100644)
++++ uncommitted/arch/x86_64/kernel/process.c  (mode:100644)
+@@ -439,6 +439,25 @@
+ }
+ 
+ /*
++ * This function selects if the context switch from prev to next
++ * has to tweak the TSC disable bit in the cr4.
++ */
++static void disable_tsc(struct thread_info *prev,
++			struct thread_info *next)
++{
++	if (unlikely(has_secure_computing(prev) ||
++		     has_secure_computing(next))) {
++		/* slow path here */
++		if (has_secure_computing(prev) &&
++		    !has_secure_computing(next)) {
++			clear_in_cr4(X86_CR4_TSD);
++		} else if (!has_secure_computing(prev) &&
++			   has_secure_computing(next))
++			set_in_cr4(X86_CR4_TSD);
++	}
++}
++
++/*
+  * This special macro can be used to load a debugging register
+  */
+ #define loaddebug(thread,r) set_debug(thread->debugreg ## r, r)
+@@ -556,6 +575,8 @@
+ 		}
+ 	}
+ 
++	disable_tsc(prev_p->thread_info, next_p->thread_info);
++
+ 	return prev_p;
+ }
+ 
+Index: include/linux/seccomp.h
+===================================================================
+--- eed337ef5e9ae7d62caa84b7974a11fddc7f06e0/include/linux/seccomp.h  (mode:100644)
++++ uncommitted/include/linux/seccomp.h  (mode:100644)
+@@ -19,6 +19,11 @@
+ 		__secure_computing(this_syscall);
+ }
+ 
++static inline int has_secure_computing(struct thread_info *ti)
++{
++	return unlikely(test_ti_thread_flag(ti, TIF_SECCOMP));
++}
++
+ #else /* CONFIG_SECCOMP */
+ 
+ #if (__GNUC__ > 2)
+@@ -28,6 +33,7 @@
+ #endif
+ 
+ #define secure_computing(x) do { } while (0)
++#define has_secure_computing(x) 0
+ 
+ #endif /* CONFIG_SECCOMP */
+ 

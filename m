@@ -1,119 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262692AbVENHIj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262694AbVENHJu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262692AbVENHIj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 03:08:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbVENHIj
+	id S262694AbVENHJu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 03:09:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262695AbVENHJu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 03:08:39 -0400
-Received: from fire.osdl.org ([65.172.181.4]:12218 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262692AbVENHIN (ORCPT
+	Sat, 14 May 2005 03:09:50 -0400
+Received: from ja.ssi.bg ([217.79.71.194]:6784 "EHLO u.domain.uli")
+	by vger.kernel.org with ESMTP id S262694AbVENHJb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 03:08:13 -0400
-Date: Sat, 14 May 2005 00:07:23 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dave Jones <davej@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: tickle nmi watchdog whilst doing serial writes.
-Message-Id: <20050514000723.73bd6e5a.akpm@osdl.org>
-In-Reply-To: <20050514065753.GA28213@redhat.com>
-References: <20050513184806.GA24166@redhat.com>
-	<20050513234331.0d097cb1.akpm@osdl.org>
-	<20050514065753.GA28213@redhat.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 14 May 2005 03:09:31 -0400
+Date: Sat, 14 May 2005 10:17:53 +0300 (EEST)
+From: Julian Anastasov <ja@ssi.bg>
+X-X-Sender: ja@u.domain.uli
+To: Adrian Bunk <bunk@stusta.de>
+cc: Wensong Zhang <wensong@LinuxVirtualServer.org>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Status of net/ipv4/ipvs/ip_vs_proto_icmp.c?
+In-Reply-To: <20050513041622.GE3603@stusta.de>
+Message-ID: <Pine.LNX.4.58.0505141013520.1568@u.domain.uli>
+References: <20050513041622.GE3603@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@redhat.com> wrote:
->
-> On Fri, May 13, 2005 at 11:43:31PM -0700, Andrew Morton wrote:
->  > Dave Jones <davej@redhat.com> wrote:
->  > >
->  > > This was fun. I inserted a music CD with some obnoxious copy-protection
->  > >  on it into the drive, and lots of SCSI errors went zipping over to
->  > >  the serial console. Unfortunatly, the box was also compiling a kernel,
->  > >  playing oggs, and doing a number of other things at the same time,
->  > >  so this happened..
->  > > 
->  > >  NMI Watchdog detected LOCKUP on CPU2CPU 2
->  > 
->  > OK..  But calling touch_nmi_watchdog() at 1MHz seems a bit excessive, and
->  > might perturb the finely-tuned timing in there.
->  > 
->  > How's about this?
-> 
-> Umm..  Despite it being past my bedtime, I'm pretty sure I'm
-> missing something here...
-> 
->  > +		while (!(serial_in(up, UART_MSR) & UART_MSR_CTS) && --tmout)
->  >  			udelay(1);
-> 
-> I don't see how this is any better than the current code.
-> We're doing 1000000 udelays. Whilst we're doing that,
-> the nmi watchdog goes bonkers.
->  
->  > +		if (tmout < 1000000)
->  > +			touch_nmi_watchdog();
-> 
-> So by the time we do this, its already triggered.
 
-But the NMI watchdog won't expire after one second - normally it's set to
-fixe seconds.
+	Hello,
 
-> How about..
-> 
-> --- linux-2.6.11/drivers/serial/8250.c~	2005-05-14 02:49:02.000000000 -0400
-> +++ linux-2.6.11/drivers/serial/8250.c	2005-05-14 02:54:30.000000000 -0400
-> @@ -40,6 +40,7 @@
->  #include <linux/serial_core.h>
->  #include <linux/serial.h>
->  #include <linux/serial_8250.h>
-> +#include <linux/nmi.h>
->  
->  #include <asm/io.h>
->  #include <asm/irq.h>
-> @@ -2099,8 +2100,15 @@ static inline void wait_for_xmitr(struct
->  	if (up->port.flags & UPF_CONS_FLOW) {
->  		tmout = 1000000;
->  		while (--tmout &&
-> -		       ((serial_in(up, UART_MSR) & UART_MSR_CTS) == 0))
-> +		       ((serial_in(up, UART_MSR) & UART_MSR_CTS) == 0)) {
-> +			int cnt=0;
->  			udelay(1);
-> +			cnt++;
-> +			if (cnt==100) {
-> +				touch_nmi_watchdog();
-> +				cnt=0;
-> +			}
-> +		}
+On Fri, 13 May 2005, Adrian Bunk wrote:
 
-<obwhitespacewhine> spose so.
+> Will it be made working in the forseeable future or is it a candidate
+> for removal?
 
---- 25/drivers/serial/8250.c~tickle-nmi-watchdog-whilst-doing-serial-writes	2005-05-14 00:03:09.000000000 -0700
-+++ 25-akpm/drivers/serial/8250.c	2005-05-14 00:06:53.000000000 -0700
-@@ -40,6 +40,7 @@
- #include <linux/serial_core.h>
- #include <linux/serial.h>
- #include <linux/serial_8250.h>
-+#include <linux/nmi.h>
- 
- #include <asm/io.h>
- #include <asm/irq.h>
-@@ -2098,9 +2099,11 @@ static inline void wait_for_xmitr(struct
- 	/* Wait up to 1s for flow control if necessary */
- 	if (up->port.flags & UPF_CONS_FLOW) {
- 		tmout = 1000000;
--		while (--tmout &&
--		       ((serial_in(up, UART_MSR) & UART_MSR_CTS) == 0))
-+		while (!(serial_in(up, UART_MSR) & UART_MSR_CTS) && --tmout) {
- 			udelay(1);
-+			if ((tmout % 1000) == 0)
-+				touch_nmi_watchdog();
-+		}
- 	}
- }
- 
-_
+	IMO, it can be removed as it was never finished. We can always
+add it later.
 
+Regards
+
+--
+Julian Anastasov <ja@ssi.bg>

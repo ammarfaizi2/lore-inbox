@@ -1,68 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262816AbVENR6S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262817AbVENSBr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262816AbVENR6S (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 13:58:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262817AbVENR6R
+	id S262817AbVENSBr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 14:01:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262818AbVENSBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 13:58:17 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:28073 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262816AbVENR6C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 13:58:02 -0400
-Date: Sat, 14 May 2005 10:57:16 -0700
-From: Paul Jackson <pj@sgi.com>
-To: vatsa@in.ibm.com
-Cc: dipankar@in.ibm.com, dino@in.ibm.com, ntl@pobox.com, akpm@osdl.org,
-       lse-tech@lists.sourceforge.net, nickpiggin@yahoo.com.au,
-       linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Subject: Re: [Lse-tech] Re: [PATCH] cpusets+hotplug+preepmt broken
-Message-Id: <20050514105716.69ff1745.pj@sgi.com>
-In-Reply-To: <20050514160945.GA32720@in.ibm.com>
-References: <20050511191654.GA3916@in.ibm.com>
-	<20050511195156.GE3614@otto>
-	<20050513123216.GB3968@in.ibm.com>
-	<20050513172540.GA28018@in.ibm.com>
-	<20050513125953.66a59436.pj@sgi.com>
-	<20050513202058.GE5044@in.ibm.com>
-	<20050513135233.6eba49df.pj@sgi.com>
-	<20050513210251.GI5044@in.ibm.com>
-	<20050513195851.5d6665d0.pj@sgi.com>
-	<20050514160945.GA32720@in.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 14 May 2005 14:01:47 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:56709 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262817AbVENSBn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 May 2005 14:01:43 -0400
+Subject: Re: Hyper-Threading Vulnerability
+From: Arjan van de Ven <arjan@infradead.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Jones <davej@redhat.com>,
+       Matt Mackall <mpm@selenic.com>, Andy Isaacson <adi@hexapodia.org>,
+       Andi Kleen <ak@muc.de>, "Richard F. Rebel" <rrebel@whenu.com>,
+       Gabor MICSKO <gmicsko@szintezis.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, tytso@mit.edu
+In-Reply-To: <1116093396.9141.11.camel@mindpipe>
+References: <1115963481.1723.3.camel@alderaan.trey.hu>
+	 <m164xnatpt.fsf@muc.de> <1116009483.4689.803.camel@rebel.corp.whenu.com>
+	 <20050513190549.GB47131@muc.de> <20050513212620.GA12522@hexapodia.org>
+	 <20050513215905.GY5914@waste.org>
+	 <1116024419.20646.41.camel@localhost.localdomain>
+	 <1116025212.6380.50.camel@mindpipe>  <20050513232708.GC13846@redhat.com>
+	 <1116027488.6380.55.camel@mindpipe>
+	 <1116084186.20545.47.camel@localhost.localdomain>
+	 <1116088229.8880.7.camel@mindpipe>
+	 <1116089068.6007.13.camel@laptopd505.fenrus.org>
+	 <1116093396.9141.11.camel@mindpipe>
+Content-Type: text/plain
+Date: Sat, 14 May 2005 20:01:33 +0200
+Message-Id: <1116093694.6007.15.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Srivatsa wrote:
-> We don't bother about arch'es which dont support CPU Hotplug. 
-> ...
-> Apart from being buggy on this count (that they don't lock_cpu_hotplug
-> and/or don't check return value), they will also be buggy if ...
+On Sat, 2005-05-14 at 13:56 -0400, Lee Revell wrote:
+> On Sat, 2005-05-14 at 18:44 +0200, Arjan van de Ven wrote:
+> > then JACK is terminally broken if it doesn't have a fallback for non-
+> > rdtsc cpus. 
+> 
+> It does have a fallback, but the selection is done at compile time.  It
+> uses rdtsc for all x86 CPUs except pre-i586 SMP systems.
+> 
+> Maybe we should check at runtime,
 
-Ok.  That makes sense.
+it's probably a sign that JACK isn't used on SMP systems much, at least
+not on the bigger systems (like IBM's x440's) where the tsc *will*
+differ wildly between cpus...
 
-Though it is a bit worrisome.
 
-One of the two key ways to document something is to have all existing
-code examples doing it the right way.  Then someone adding a new
-architecture, or adding hotplug to an existing architecture, will tend
-to do the right thing, simply by doing what others have done.
-
-Here we seem to have some cases where the "normal" ways to code some
-things are broken for hotplug.  But most of the arch's still have the
-broken code patterns.
-
-The other way to document something is with comments and Doc files.
-
-It would seem that hotplug still has opportunities for improvement,
-on both fronts.
-
-Good luck ;).
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

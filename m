@@ -1,43 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262593AbVENGiC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262687AbVENGoW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262593AbVENGiC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 02:38:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbVENGiB
+	id S262687AbVENGoW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 02:44:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262689AbVENGoW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 02:38:01 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:19351 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262593AbVENGh5 (ORCPT
+	Sat, 14 May 2005 02:44:22 -0400
+Received: from fire.osdl.org ([65.172.181.4]:20151 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262687AbVENGoQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 02:37:57 -0400
-Date: Sat, 14 May 2005 08:37:41 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Does smp_reschedule_interrupt really reschedule?
-Message-ID: <20050514063741.GA12217@elte.hu>
-References: <1116008299.4728.19.camel@localhost.localdomain> <20050513182631.GA15916@elte.hu> <1116010280.4728.29.camel@localhost.localdomain>
+	Sat, 14 May 2005 02:44:16 -0400
+Date: Fri, 13 May 2005 23:43:31 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Jones <davej@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: tickle nmi watchdog whilst doing serial writes.
+Message-Id: <20050513234331.0d097cb1.akpm@osdl.org>
+In-Reply-To: <20050513184806.GA24166@redhat.com>
+References: <20050513184806.GA24166@redhat.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1116010280.4728.29.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dave Jones <davej@redhat.com> wrote:
+>
+> This was fun. I inserted a music CD with some obnoxious copy-protection
+>  on it into the drive, and lots of SCSI errors went zipping over to
+>  the serial console. Unfortunatly, the box was also compiling a kernel,
+>  playing oggs, and doing a number of other things at the same time,
+>  so this happened..
+> 
+>  NMI Watchdog detected LOCKUP on CPU2CPU 2
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+OK..  But calling touch_nmi_watchdog() at 1MHz seems a bit excessive, and
+might perturb the finely-tuned timing in there.
 
-> In finish_task_switch, where is need_resched set?
+How's about this?
 
-why should it be set? It's the final portion of a context-switch, not 
-the initiator of a context-switch. need_resched is usually set by the 
-wakeup code, or by the preemption code.
+--- 25/drivers/serial/8250.c~tickle-nmi-watchdog-whilst-doing-serial-writes	2005-05-13 23:37:57.000000000 -0700
++++ 25-akpm/drivers/serial/8250.c	2005-05-13 23:41:36.000000000 -0700
+@@ -40,6 +40,7 @@
+ #include <linux/serial_core.h>
+ #include <linux/serial.h>
+ #include <linux/serial_8250.h>
++#include <linux/nmi.h>
+ 
+ #include <asm/io.h>
+ #include <asm/irq.h>
+@@ -2098,9 +2099,10 @@ static inline void wait_for_xmitr(struct
+ 	/* Wait up to 1s for flow control if necessary */
+ 	if (up->port.flags & UPF_CONS_FLOW) {
+ 		tmout = 1000000;
+-		while (--tmout &&
+-		       ((serial_in(up, UART_MSR) & UART_MSR_CTS) == 0))
++		while (!(serial_in(up, UART_MSR) & UART_MSR_CTS) && --tmout)
+ 			udelay(1);
++		if (tmout < 1000000)
++			touch_nmi_watchdog();
+ 	}
+ }
+ 
+_
 
-	Ingo

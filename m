@@ -1,45 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261432AbVENQDH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262790AbVENQJr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261432AbVENQDH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 12:03:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbVENQDG
+	id S262790AbVENQJr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 12:09:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262791AbVENQJr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 12:03:06 -0400
-Received: from wproxy.gmail.com ([64.233.184.199]:35260 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261432AbVENQDE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 12:03:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=RYeYrEsuJ2ERNDHHc2A4gz0B57k2sP7MUjnVd7d2XGw4gKn3kqwK1cKJzUqTBBIzUIWhqHRxwvBmLKmIB3O1AwkeSQW+0Cn6Aoz1/aOszZ5+07BPhkO5q1pLjas5QS17NHob+0lWMHe4g7d8t+BLEPlQNBjkjEnVoNHW4zp5gmo=
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] DIE "Russel", DIE! 2
-Date: Sat, 14 May 2005 20:06:58 +0400
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sat, 14 May 2005 12:09:47 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:16769 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262790AbVENQJo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 May 2005 12:09:44 -0400
+Date: Sat, 14 May 2005 21:39:45 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: dipankar@in.ibm.com, dino@in.ibm.com, ntl@pobox.com,
+       Andrew Morton <akpm@osdl.org>, lse-tech@lists.sourceforge.net,
+       akpm@osdl.org, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
+       rusty@rustcorp.com.au
+Subject: Re: [Lse-tech] Re: [PATCH] cpusets+hotplug+preepmt broken
+Message-ID: <20050514160945.GA32720@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20050511191654.GA3916@in.ibm.com> <20050511195156.GE3614@otto> <20050513123216.GB3968@in.ibm.com> <20050513172540.GA28018@in.ibm.com> <20050513125953.66a59436.pj@sgi.com> <20050513202058.GE5044@in.ibm.com> <20050513135233.6eba49df.pj@sgi.com> <20050513210251.GI5044@in.ibm.com> <20050513195851.5d6665d0.pj@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200505142006.58691.adobriyan@gmail.com>
+In-Reply-To: <20050513195851.5d6665d0.pj@sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Third part of the movie will hit cinemas around 29 Apr 2008. ;-)
+On Fri, May 13, 2005 at 07:58:51PM -0700, Paul Jackson wrote:
+> Why just in sched_setaffinity()?  What about the other 60+ calls to
+> set_cpus_allowed().  
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+Most of the 60+ calls seem to be in arch-specific code. We don't bother
+about arch'es which dont support CPU Hotplug. AFAIK, only ppc64, ia64
+and s390 support it (as of today that is :)
 
---- linux-vanilla/drivers/video/pm3fb.c	2005-05-13 17:55:13.000000000 +0400
-+++ linux-russell/drivers/video/pm3fb.c	2005-05-14 19:39:58.000000000 +0400
-@@ -5,7 +5,7 @@
-  *  Based on code written by:
-  *           Sven Luther, <luther@dpt-info.u-strasbg.fr>
-  *           Alan Hourihane, <alanh@fairlite.demon.co.uk>
-- *           Russel King, <rmk@arm.linux.org.uk>
-+ *           Russell King, <rmk@arm.linux.org.uk>
-  *  Based on linux/drivers/video/skeletonfb.c:
-  *	Copyright (C) 1997 Geert Uytterhoeven
-  *  Based on linux/driver/video/pm2fb.c:
+> Shouldn't most of those calls be checking that the
+> passed in cpus are online (holding lock_cpu_hotplug while doing all
+> this)?  Either that, or at least handling the error from
+> set_cpus_allowed() if the requested cpus end up not being online?  
+
+Yes, if these calls can run on CPU Hotplug supported platforms.
+
+Apart from being buggy on this count (that they don't lock_cpu_hotplug
+and/or don't check return value), they will also be buggy
+if any code uses set_cpus_allowed against a user-space task to
+migrate to a different CPU. Something like:
+
+	old_allowed = tsk->cpus_allowed;
+	set_cpus_allowed(tsk, new_mask);
+	/* Do something */
+	/* Restore mask */
+	set_cpus_allowed(tsk, old_allowed);
+
+This is buggy because it can race with sched_setaffinity against the same task.
+
+Having said that, the major remaining offenders (in arch-independent code) seem
+to be cpufreq, sn_hwperf, acpi, perfctr/virtual.c, attach_task :), 
+net/core/pktgen.c (needs to be converted over to kthread_start/stop interface).
+
+Now how much of this actually runs on the CPU Hotplug supported platforms?
+Don't know ..But it is neverthless good to fix few of these ..
+
+In fact, some of these and other set_cpus_allowed woes were discussed here:
+
+http://sourceforge.net/mailarchive/forum.php?thread_id=3582487&forum_id=35582
+
+
+
+-- 
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

@@ -1,65 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbVENVXo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbVENVeZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbVENVXo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 17:23:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261499AbVENVXo
+	id S261499AbVENVeZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 17:34:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261511AbVENVeZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 17:23:44 -0400
-Received: from CPE0020e06a7211-CM0011ae8cd564.cpe.net.cable.rogers.com ([70.28.191.94]:27267
-	"EHLO kenichi") by vger.kernel.org with ESMTP id S261500AbVENVXi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 17:23:38 -0400
-From: Andrew James Wade 
-	<ajwade@cpe0020e06a7211-cm0011ae8cd564.cpe.net.cable.rogers.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.12-rc4-mm1
-Date: Sat, 14 May 2005 17:19:17 -0400
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <20050512033100.017958f6.akpm@osdl.org> <42834E6D.8060408@reub.net>
-In-Reply-To: <42834E6D.8060408@reub.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 14 May 2005 17:34:25 -0400
+Received: from mail.kroah.org ([69.55.234.183]:31652 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261499AbVENVeR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 May 2005 17:34:17 -0400
+Date: Sat, 14 May 2005 14:34:21 -0700
+From: Greg KH <greg@kroah.com>
+To: Yani Ioannou <yani.ioannou@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.12-rc4 1/12] (dynamic sysfs callbacks) update device attribute callbacks
+Message-ID: <20050514213421.GC5198@kroah.com>
+References: <2538186705051402237a79225@mail.gmail.com> <20050514112242.A24975@flint.arm.linux.org.uk> <2538186705051412462d6db2d2@mail.gmail.com> <20050514221838.A15061@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200505141719.17595.ajwade@cpe0020e06a7211-cm0011ae8cd564.cpe.net.cable.rogers.com>
+In-Reply-To: <20050514221838.A15061@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got a similar but slightly different bug:
+On Sat, May 14, 2005 at 10:18:38PM +0100, Russell King wrote:
+> On Sat, May 14, 2005 at 03:46:31PM -0400, Yani Ioannou wrote:
+> > My first post to LKML on the patch:
+> > http://lkml.org/lkml/2005/5/7/60
+> > 
+> > The idea originated in the lm_sensors mailing list, so you might want
+> > to take a look at the lm_sensors archive is you are interested, in
+> > particular the following thread:
+> > ...
+> > 
+> > This isn't changing, although there are cases where it is
+> > necessary/preferable to dynamically create the attributes (again see
+> > previous discussion). This patch helps both static and dynamically
+> > created attributes. The adm1026 example I posted to the mailing list
+> > earlier uses entirely static attributes still (and hence the need for
+> > the new macros my latest patch adds), and I expect most attributes
+> > will remain static.
+> 
+> Ok.  I do wonder if the better solution would be to encapsulate
+> "device_attribute" where this extra information is required, and
+> pass a pointer to device_attribute to its methods, in much the
+> same way as "sysfs_ops" works.
+> 
+> This means your attributes in adm1016 become:
+> 
+> struct adm1016_attr {
+> 	struct device_attribute	dev_attr;
+> 	int			nr;
+> };
+> 
+> #define ADM1016_ATTR(_name,_mode,_show,_store,_nr)		\
+> 	struct adm1016_attr adm_attr_##_name = {		\
+> 		.dev_attr = __ATTR(_name,_mode,_show,_store),	\
+> 		.nr = _nr,					\
+> 	}
+> 
+> static ssize_t show_temp_max(struct device *dev, struct device_attribute *attr, char *buf)
+> {
+> 	struct adm1016_attr *adm_attr = to_adm_attr(attr);
+> 	struct adm1026_data *data = adm1026_update_device(dev);
+> 	return sprintf(buf,"%d\n", TEMP_FROM_REG(data->temp_max[adm_attr->nr]));
+> }
+> 
+> #define temp_reg(offset)					\
+> ...
+> static ADM1016_ATTR(temp##offset##_max, S_IRUGO | S_IWUSR,	\
+> 	show_temp_max, set_temp_max, offset)
+> 
+> There are two advantages to this way:
+> 
+> 1. you're not having to impose the extra void * pointer in the
+>    attribute on everyone.
+> 2. you allow people to add whatever data they please to the attribute
+>    in whatever format they wish - whether it be a void pointer, integer,
+>    or whatever.
+> 
+> This seems far more flexible to me, at least.
 
-kernel BUG at kernel/sched.c:2731!
-invalid operand: 0000 [#1]
-PREEMPT
-CPU:    0
-EIP:    0060:[<c01160d5>]    Not tainted VLI
-EFLAGS: 00010202   (2.6.12-rc4-mm1)
-EIP is at sub_preempt_count+0x35/0x40
-eax: dfbbe000   ebx: dfbbfe98   ecx: dfc1b4cc   edx: 00000001
-esi: dfc1b450   edi: dfbbfdf4   ebp: dfbbfde4   esp: dfbbfde4
-ds: 007b   es: 007b   ss: 0068
-Process mount (pid: 450, threadinfo=dfbbe000 task=dfcac5e0)
-Stack: c14d6000 c01dc3a4 dfc1b450 dfbbfe98 4b1b5d0b 00000000 00000001 dfbbfe00
-      dfbbfe00 00000000 dfbbfe0c dfbbfe0c 00000000 00000000 00000000 00000000
-      00000000 dfbbfe28 dfbbfe28 dfbbfe34 00000000 00000001 00000000 dfbbfe40
-Call Trace:
-[<c01dc3a4>] reiser4_sync_inodes+0x44/0x90
-[<c017c83e>] sync_sb_inodes+0x2e/0x40
-[<c017c9c4>] sync_inodes_sb+0x74/0x80
-[<c0158af8>] fsync_super+0x18/0xb0
-[<c015e87d>] do_remount_sb+0x3d/0x100
-[<c0175c23>] do_remount+0x93/0xd0
-[<c01766c7>] do_mount+0x187/0x1a0
-[<c01764e3>] copy_mount_options+0x63/0xc0
-[<c0176b2f>] sys_mount+0x9f/0xe0
-[<c0102fc1>] syscall_call+0x7/0xb
-Code: 89 e5 3b 50 14 7f 24 81 fa fe 00 00 00 76 0c b8 00 e0 ff ff 21 e0 29 50 14 c9 c3 80 78 14 00 75 ee 0f 0b af 0a d2 85 3f c0 eb e4 <0f> 0b ab 0a d2
-85 3f c0 eb d2 90 55 89 e5 8b 45 08 8b 50 04 89
-/etc/init.d/rcS: line 290:   450 Segmentation fault      mount -n -o remount,$rootopts,$rootmode $fstabroot / 2>/dev/null
+Ah, nice, I hadn't thought about that.  But yes, it would be much
+smaller and simpler to do this, very good idea.
 
-I'm assuming the source is the same.
+And if enough i2c drivers want to do this, just make a i2c driver
+attribute that they all use to achieve this.
 
-Unfortunately, I'm going to be away until Tuesday.
+Yani, what do you think?
 
-Andrew Wade
+thanks,
+
+greg k-h

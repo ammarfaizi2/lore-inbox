@@ -1,293 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262757AbVENMt4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262755AbVENMtz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262757AbVENMt4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 08:49:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262760AbVENMsX
+	id S262755AbVENMtz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 08:49:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbVENMtI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 08:48:23 -0400
-Received: from mail.donpac.ru ([80.254.111.2]:7075 "EHLO relay.rost.ru")
-	by vger.kernel.org with ESMTP id S262757AbVENMo5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 08:44:57 -0400
-Subject: [PATCH 2.6.12-rc4-mm1 3/3] DMI code spring cleanup
-In-Reply-To: <11160746964048@donpac.ru>
-Date: Sat, 14 May 2005 16:44:56 +0400
-Message-Id: <11160746963933@donpac.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Andrey Panin <pazke@donpac.ru>
+	Sat, 14 May 2005 08:49:08 -0400
+Received: from plato.arts.usyd.edu.au ([129.78.16.1]:11233 "EHLO
+	plato.arts.usyd.edu.au") by vger.kernel.org with ESMTP
+	id S262755AbVENMrB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 May 2005 08:47:01 -0400
+Message-ID: <4285F337.7010301@arts.usyd.edu.au>
+Date: Sat, 14 May 2005 22:46:47 +1000
+From: Matthew Geier <matthew@arts.usyd.edu.au>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Y2K-like bug to hit Linux computers! - Info of the day
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms050406070300030905090501"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a cryptographically signed message in MIME format.
 
-Whitespace and CodingStyle cleanup. No functionality changes.
+--------------ms050406070300030905090501
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Andrey Panin <pazke@donpac.ru>
 
- arch/i386/kernel/dmi_scan.c |  163 ++++++++++++++++++--------------------------
- 1 files changed, 70 insertions(+), 93 deletions(-)
+On Sat, May 14, 2005 at 10:09:04AM +0100, christos gentsis wrote:
 
-diff -urdpNX dontdiff linux-2.6.12-rc4-mm1.vanilla/arch/i386/kernel/dmi_scan.c linux-2.6.12-rc4-mm1/arch/i386/kernel/dmi_scan.c
---- linux-2.6.12-rc4-mm1.vanilla/arch/i386/kernel/dmi_scan.c	2005-05-04 15:54:52.000000000 +0400
-+++ linux-2.6.12-rc4-mm1/arch/i386/kernel/dmi_scan.c	2005-05-04 15:59:08.000000000 +0400
-@@ -1,22 +1,15 @@
- #include <linux/types.h>
--#include <linux/kernel.h>
- #include <linux/string.h>
- #include <linux/init.h>
- #include <linux/module.h>
--#include <linux/slab.h>
--#include <linux/acpi.h>
--#include <asm/io.h>
--#include <linux/pm.h>
--#include <asm/system.h>
- #include <linux/dmi.h>
- #include <linux/bootmem.h>
- 
- 
--struct dmi_header
--{
--	u8	type;
--	u8	length;
--	u16	handle;
-+struct dmi_header {
-+	u8 type;
-+	u8 length;
-+	u16 handle;
- };
- 
- #undef DMI_DEBUG
-@@ -29,15 +22,13 @@ struct dmi_header
- 
- static char * __init dmi_string(struct dmi_header *dm, u8 s)
- {
--	u8 *bp=(u8 *)dm;
--	bp+=dm->length;
--	if(!s)
-+	u8 *bp = ((u8 *) dm) + dm->length;
-+
-+	if (!s)
- 		return "";
- 	s--;
--	while(s>0 && *bp)
--	{
--		bp+=strlen(bp);
--		bp++;
-+	while (s > 0 && *bp) {
-+		bp += strlen(bp) + 1;
- 		s--;
- 	}
- 	return bp;
-@@ -47,16 +38,14 @@ static char * __init dmi_string(struct d
-  *	We have to be cautious here. We have seen BIOSes with DMI pointers
-  *	pointing to completely the wrong place for example
-  */
-- 
--static int __init dmi_table(u32 base, int len, int num, void (*decode)(struct dmi_header *))
-+static int __init dmi_table(u32 base, int len, int num,
-+			    void (*decode)(struct dmi_header *))
- {
--	u8 *buf;
--	struct dmi_header *dm;
--	u8 *data;
--	int i=0;
-+	u8 *buf, *data;
-+	int i = 0;
- 		
- 	buf = bt_ioremap(base, len);
--	if(buf==NULL)
-+	if (buf == NULL)
- 		return -1;
- 
- 	data = buf;
-@@ -65,36 +54,34 @@ static int __init dmi_table(u32 base, in
-  	 *	Stop when we see all the items the table claimed to have
-  	 *	OR we run off the end of the table (also happens)
-  	 */
-- 
--	while(i<num && data-buf+sizeof(struct dmi_header)<=len)
--	{
--		dm=(struct dmi_header *)data;
-+	while ((i < num) && (data - buf + sizeof(struct dmi_header)) <= len) {
-+		struct dmi_header *dm = (struct dmi_header *)data;
- 		/*
- 		 *  We want to know the total length (formated area and strings)
- 		 *  before decoding to make sure we won't run off the table in
- 		 *  dmi_decode or dmi_string
- 		 */
--		data+=dm->length;
--		while(data-buf<len-1 && (data[0] || data[1]))
-+		data += dm->length;
-+		while ((data - buf < len - 1) && (data[0] || data[1]))
- 			data++;
--		if(data-buf<len-1)
-+		if (data - buf < len - 1)
- 			decode(dm);
--		data+=2;
-+		data += 2;
- 		i++;
- 	}
- 	bt_iounmap(buf, len);
- 	return 0;
- }
- 
--
--inline static int __init dmi_checksum(u8 *buf)
-+static int __init dmi_checksum(u8 *buf)
- {
--	u8 sum=0;
-+	u8 sum = 0;
- 	int a;
- 	
--	for(a=0; a<15; a++)
--		sum+=buf[a];
--	return (sum==0);
-+	for (a = 0; a < 15; a++)
-+		sum += buf[a];
-+
-+	return sum == 0;
- }
- 
- static int __init dmi_iterate(void (*decode)(struct dmi_header *))
-@@ -110,28 +97,30 @@ static int __init dmi_iterate(void (*dec
- 	p = ioremap(0xF0000, 0x10000);
- 	if (p == NULL)
- 		return -1;
-+
- 	for (q = p; q < p + 0x10000; q += 16) {
- 		memcpy_fromio(buf, q, 15);
--		if(memcmp(buf, "_DMI_", 5)==0 && dmi_checksum(buf))
--		{
--			u16 num=buf[13]<<8|buf[12];
--			u16 len=buf[7]<<8|buf[6];
--			u32 base=buf[11]<<24|buf[10]<<16|buf[9]<<8|buf[8];
-+		if ((memcmp(buf, "_DMI_", 5) == 0) && dmi_checksum(buf)) {
-+			u16 num = (buf[13] << 8) | buf[12];
-+			u16 len = (buf[7] << 8) | buf[6];
-+			u32 base = (buf[11] << 24) | (buf[10] << 16) |
-+				   (buf[9] << 8) | buf[8];
- 
- 			/*
- 			 * DMI version 0.0 means that the real version is taken from
- 			 * the SMBIOS version, which we don't know at this point.
- 			 */
--			if(buf[14]!=0)
-+			if (buf[14] != 0)
- 				printk(KERN_INFO "DMI %d.%d present.\n",
--					buf[14]>>4, buf[14]&0x0F);
-+					buf[14] >> 4, buf[14] & 0xF);
- 			else
- 				printk(KERN_INFO "DMI present.\n");
-+
- 			dmi_printk((KERN_INFO "%d structures occupying %d bytes.\n",
- 				num, len));
--			dmi_printk((KERN_INFO "DMI table at 0x%08X.\n",
--				base));
--			if(dmi_table(base,len, num, decode)==0)
-+			dmi_printk((KERN_INFO "DMI table at 0x%08X.\n", base));
-+
-+			if (dmi_table(base,len, num, decode) == 0)
- 				return 0;
- 		}
- 	}
-@@ -143,16 +132,17 @@ static char *dmi_ident[DMI_STRING_MAX];
- /*
-  *	Save a DMI string
-  */
-- 
- static void __init dmi_save_ident(struct dmi_header *dm, int slot, int string)
- {
- 	char *d = (char*)dm;
- 	char *p = dmi_string(dm, d[string]);
--	if(p==NULL || *p == 0)
-+
-+	if (p == NULL || *p == 0)
- 		return;
- 	if (dmi_ident[slot])
- 		return;
--	dmi_ident[slot] = alloc_bootmem(strlen(p)+1);
-+
-+	dmi_ident[slot] = alloc_bootmem(strlen(p) + 1);
- 	if(dmi_ident[slot])
- 		strcpy(dmi_ident[slot], p);
- 	else
-@@ -166,48 +156,35 @@ static void __init dmi_save_ident(struct
-  */
- static void __init dmi_decode(struct dmi_header *dm)
- {
--#ifdef DMI_DEBUG
--	u8 *data = (u8 *)dm;
--#endif
-+	u8 *data __attribute__((__unused__)) = (u8 *)dm;
- 	
--	switch(dm->type)
--	{
--		case  0:
--			dmi_printk(("BIOS Vendor: %s\n",
--				dmi_string(dm, data[4])));
--			dmi_save_ident(dm, DMI_BIOS_VENDOR, 4);
--			dmi_printk(("BIOS Version: %s\n", 
--				dmi_string(dm, data[5])));
--			dmi_save_ident(dm, DMI_BIOS_VERSION, 5);
--			dmi_printk(("BIOS Release: %s\n",
--				dmi_string(dm, data[8])));
--			dmi_save_ident(dm, DMI_BIOS_DATE, 8);
--			break;
--		case 1:
--			dmi_printk(("System Vendor: %s\n",
--				dmi_string(dm, data[4])));
--			dmi_save_ident(dm, DMI_SYS_VENDOR, 4);
--			dmi_printk(("Product Name: %s\n",
--				dmi_string(dm, data[5])));
--			dmi_save_ident(dm, DMI_PRODUCT_NAME, 5);
--			dmi_printk(("Version: %s\n",
--				dmi_string(dm, data[6])));
--			dmi_save_ident(dm, DMI_PRODUCT_VERSION, 6);
--			dmi_printk(("Serial Number: %s\n",
--				dmi_string(dm, data[7])));
--			dmi_save_ident(dm, DMI_PRODUCT_SERIAL, 7);
--			break;
--		case 2:
--			dmi_printk(("Board Vendor: %s\n",
--				dmi_string(dm, data[4])));
--			dmi_save_ident(dm, DMI_BOARD_VENDOR, 4);
--			dmi_printk(("Board Name: %s\n",
--				dmi_string(dm, data[5])));
--			dmi_save_ident(dm, DMI_BOARD_NAME, 5);
--			dmi_printk(("Board Version: %s\n",
--				dmi_string(dm, data[6])));
--			dmi_save_ident(dm, DMI_BOARD_VERSION, 6);
--			break;
-+	switch(dm->type) {
-+	case  0:
-+		dmi_printk(("BIOS Vendor: %s\n", dmi_string(dm, data[4])));
-+		dmi_save_ident(dm, DMI_BIOS_VENDOR, 4);
-+		dmi_printk(("BIOS Version: %s\n", dmi_string(dm, data[5])));
-+		dmi_save_ident(dm, DMI_BIOS_VERSION, 5);
-+		dmi_printk(("BIOS Release: %s\n", dmi_string(dm, data[8])));
-+		dmi_save_ident(dm, DMI_BIOS_DATE, 8);
-+		break;
-+	case 1:
-+		dmi_printk(("System Vendor: %s\n", dmi_string(dm, data[4])));
-+		dmi_save_ident(dm, DMI_SYS_VENDOR, 4);
-+		dmi_printk(("Product Name: %s\n", dmi_string(dm, data[5])));
-+		dmi_save_ident(dm, DMI_PRODUCT_NAME, 5);
-+		dmi_printk(("Version: %s\n", dmi_string(dm, data[6])));
-+		dmi_save_ident(dm, DMI_PRODUCT_VERSION, 6);
-+		dmi_printk(("Serial Number: %s\n", dmi_string(dm, data[7])));
-+		dmi_save_ident(dm, DMI_PRODUCT_SERIAL, 7);
-+		break;
-+	case 2:
-+		dmi_printk(("Board Vendor: %s\n", dmi_string(dm, data[4])));
-+		dmi_save_ident(dm, DMI_BOARD_VENDOR, 4);
-+		dmi_printk(("Board Name: %s\n", dmi_string(dm, data[5])));
-+		dmi_save_ident(dm, DMI_BOARD_NAME, 5);
-+		dmi_printk(("Board Version: %s\n", dmi_string(dm, data[6])));
-+		dmi_save_ident(dm, DMI_BOARD_VERSION, 6);
-+		break;
- 	}
- }
- 
+ > BTW is there anyone that plan to use his embedded devise until 2038????
+ > i would happy to see that :P any way embedded devises are there so they
+ > will have sort life cycle... how long are you going to use them 6
+ > months???? maximum 1-2 years....
+ > so there is no any problem....
 
+  I assume you are thinking of 'consumer' devices here, ADSL routers, 
+Satelite 'Set top boxes' and the like that have short lives.
+
+  Embeded computing is much bigger than that. I've got a 20 year old 
+embedded processor controlled microwave oven. (It still knows how to 
+cook better than I do :-).
+
+  All sorts of Industrial machinery have embeded CPUs. I'm a train nut. 
+In just this field, railways - equipment is expected to have a 30 year 
+operational life span, and much of it is now driven by embeded 
+computers, from traffic control signaling systems that have to be 
+absolutely safe from 'wrong side failures', 'fly by wire' traction power 
+control to regulate the trains speed, to monitoring the temprature of 
+the air-conditioning. A train being built right at this very moment, 
+with a 'train operating system' computer controlling every aspect of 
+it's operation will probably still be in service in 2038.
+
+  With any luck however, the people writing the software for these 
+things are aware of this issue and are not blindly using signed 32 bit 
+absolute time values from 1970.
+
+  BTW, the machine i'm typing this on WONT have this problem. (Doubt 
+that it will be still around in 2038 anyway). It's a 64bit platform and 
+time_t is 64 bit.
+
+  It isn't just a linux problem either, it's a generic Unix/C library 
+problem. Any software system that uses a signed 32bit number from 1970 
+to represent time. I have a vague recolection that there was another 
+popular system around that also used signed 32bit time, only it's epoch 
+is 1980. Those systems will go belly up 10 years after all the ancient 
+Unix systems. :-)
+
+
+--------------ms050406070300030905090501
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIJmzCC
+AygwggKRoAMCAQICAw55LjANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UE
+ChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNv
+bmFsIEZyZWVtYWlsIElzc3VpbmcgQ0EwHhcNMDUwNDEzMTkzMDIwWhcNMDYwNDEzMTkzMDIw
+WjB3MR8wHQYDVQQDExZUaGF3dGUgRnJlZW1haWwgTWVtYmVyMScwJQYJKoZIhvcNAQkBFhht
+YXR0aGV3QGFydHMudXN5ZC5lZHUuYXUxKzApBgkqhkiG9w0BCQEWHG1hdHRoZXdAc2xlZXBl
+ci5hcGFuYS5vcmcuYXUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDXkCTIaYZN
+CnrMwBhEoQSyjebUbVD4S1s2iJYrcAVGCJNiyu8Fw2f7FAWWAUQ5eNENQiNIOGOmx1Zf4HEu
+coIemGRlAXw0sAQgSACm6czK+lgqUGEPhYS8JictipFdr1BJoAkoqEY0excbi3T4q/4qLEfl
+tBwP2s5L/SNuLGPrvMq0jp8KuD1tGpY21/hYUpgYrMX+IiQUfAlg+3VZxO3tt9b8TvNo0g4l
+gBUrqpuqPt3ZLV/6wEsMGTtd0kR+qnlXWdKHU9VTTSonJbjemQQiTq1KmoW6AGtSyPRqoIGB
+ha3RhkcujyQCFKnAs7tE+gHFCGe2Xc59O3nVP760XwKPAgMBAAGjUzBRMEEGA1UdEQQ6MDiB
+GG1hdHRoZXdAYXJ0cy51c3lkLmVkdS5hdYEcbWF0dGhld0BzbGVlcGVyLmFwYW5hLm9yZy5h
+dTAMBgNVHRMBAf8EAjAAMA0GCSqGSIb3DQEBBAUAA4GBABoavSh8uOJsULhbTSlF0vlmPGTd
+r82KhGkRc0LnHAZ/VWscd4+pUXYxoh6uq4JCB+69tPrdDiSeAMvenLURsv9D/fBLh3E1fKVR
+na78r2adw0Xja3/pf7AimdN6Gbl79hRwzyVe8YJtImC1+0/L8B7i4KmBa43oO9u8yz41/f3I
+MIIDKDCCApGgAwIBAgIDDnkuMA0GCSqGSIb3DQEBBAUAMGIxCzAJBgNVBAYTAlpBMSUwIwYD
+VQQKExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVy
+c29uYWwgRnJlZW1haWwgSXNzdWluZyBDQTAeFw0wNTA0MTMxOTMwMjBaFw0wNjA0MTMxOTMw
+MjBaMHcxHzAdBgNVBAMTFlRoYXd0ZSBGcmVlbWFpbCBNZW1iZXIxJzAlBgkqhkiG9w0BCQEW
+GG1hdHRoZXdAYXJ0cy51c3lkLmVkdS5hdTErMCkGCSqGSIb3DQEJARYcbWF0dGhld0BzbGVl
+cGVyLmFwYW5hLm9yZy5hdTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANeQJMhp
+hk0KeszAGEShBLKN5tRtUPhLWzaIlitwBUYIk2LK7wXDZ/sUBZYBRDl40Q1CI0g4Y6bHVl/g
+cS5ygh6YZGUBfDSwBCBIAKbpzMr6WCpQYQ+FhLwmJy2KkV2vUEmgCSioRjR7FxuLdPir/ios
+R+W0HA/azkv9I24sY+u8yrSOnwq4PW0aljbX+FhSmBisxf4iJBR8CWD7dVnE7e231vxO82jS
+DiWAFSuqm6o+3dktX/rASwwZO13SRH6qeVdZ0odT1VNNKicluN6ZBCJOrUqahboAa1LI9Gqg
+gYGFrdGGRy6PJAIUqcCzu0T6AcUIZ7Zdzn07edU/vrRfAo8CAwEAAaNTMFEwQQYDVR0RBDow
+OIEYbWF0dGhld0BhcnRzLnVzeWQuZWR1LmF1gRxtYXR0aGV3QHNsZWVwZXIuYXBhbmEub3Jn
+LmF1MAwGA1UdEwEB/wQCMAAwDQYJKoZIhvcNAQEEBQADgYEAGhq9KHy44mxQuFtNKUXS+WY8
+ZN2vzYqEaRFzQuccBn9Vaxx3j6lRdjGiHq6rgkIH7r20+t0OJJ4Ay96ctRGy/0P98EuHcTV8
+pVGdrvyvZp3DReNrf+l/sCKZ03oZuXv2FHDPJV7xgm0iYLX7T8vwHuLgqYFrjeg727zLPjX9
+/cgwggM/MIICqKADAgECAgENMA0GCSqGSIb3DQEBBQUAMIHRMQswCQYDVQQGEwJaQTEVMBMG
+A1UECBMMV2VzdGVybiBDYXBlMRIwEAYDVQQHEwlDYXBlIFRvd24xGjAYBgNVBAoTEVRoYXd0
+ZSBDb25zdWx0aW5nMSgwJgYDVQQLEx9DZXJ0aWZpY2F0aW9uIFNlcnZpY2VzIERpdmlzaW9u
+MSQwIgYDVQQDExtUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgQ0ExKzApBgkqhkiG9w0BCQEW
+HHBlcnNvbmFsLWZyZWVtYWlsQHRoYXd0ZS5jb20wHhcNMDMwNzE3MDAwMDAwWhcNMTMwNzE2
+MjM1OTU5WjBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0
+eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0Ew
+gZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMSmPFVzVftOucqZWh5owHUEcJ3f6f+jHuy9
+zfVb8hp2vX8MOmHyv1HOAdTlUAow1wJjWiyJFXCO3cnwK4Vaqj9xVsuvPAsH5/EfkTYkKhPP
+K9Xzgnc9A74r/rsYPge/QIACZNenprufZdHFKlSFD0gEf6e20TxhBEAeZBlyYLf7AgMBAAGj
+gZQwgZEwEgYDVR0TAQH/BAgwBgEB/wIBADBDBgNVHR8EPDA6MDigNqA0hjJodHRwOi8vY3Js
+LnRoYXd0ZS5jb20vVGhhd3RlUGVyc29uYWxGcmVlbWFpbENBLmNybDALBgNVHQ8EBAMCAQYw
+KQYDVR0RBCIwIKQeMBwxGjAYBgNVBAMTEVByaXZhdGVMYWJlbDItMTM4MA0GCSqGSIb3DQEB
+BQUAA4GBAEiM0VCD6gsuzA2jZqxnD3+vrL7CF6FDlpSdf0whuPg2H6otnzYvwPQcUCCTcDz9
+reFhYsPZOhl+hLGZGwDFGguCdJ4lUJRix9sncVcljd2pnDmOjCBPZV+V2vf3h9bGCE6u9uo0
+5RAaWzVNd+NWIXiC3CEZNd4ksdMdRv9dX2VPMYIDOzCCAzcCAQEwaTBiMQswCQYDVQQGEwJa
+QTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhh
+d3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0ECAw55LjAJBgUrDgMCGgUAoIIBpzAY
+BgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0wNTA1MTQxMjQ2NDda
+MCMGCSqGSIb3DQEJBDEWBBTwUy0Bpn9O8GygJpaN55Rv6b+cVzBSBgkqhkiG9w0BCQ8xRTBD
+MAoGCCqGSIb3DQMHMA4GCCqGSIb3DQMCAgIAgDANBggqhkiG9w0DAgIBQDAHBgUrDgMCBzAN
+BggqhkiG9w0DAgIBKDB4BgkrBgEEAYI3EAQxazBpMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQK
+ExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29u
+YWwgRnJlZW1haWwgSXNzdWluZyBDQQIDDnkuMHoGCyqGSIb3DQEJEAILMWugaTBiMQswCQYD
+VQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UE
+AxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0ECAw55LjANBgkqhkiG9w0B
+AQEFAASCAQDH40aBLaBP+JPHIAVznz9lvbcxhUFdAlOZGTpbSsfaYkME1EF27XiYzmEOjkcS
+WtfhJ6n7KmjeaLDue0cTmLt5GhzezWJ+j55tTVi8cP16nirgDTcZtMq+zxsiNmerR67uZXop
+NgTo2wk/tbJ137qrA4/rN3nZ1PolnNXnoHxNphkSRnrcx5EFyuD6sGqykPUdWQyvpnpjmISl
+4OiNpfF0AJn+Gn0lvvsIOCyyGiBxoZMGfPqrs8dHbXugF9brctpHRBzGQGisTs/2R00lomvl
+Vxc42tfUpwlVurjWrrjLfZbM81jiRh9oi8Sah8ltxui9FJXwj4Ed9USK6oVUM/4sAAAAAAAA
+
+--------------ms050406070300030905090501--

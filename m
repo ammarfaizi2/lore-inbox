@@ -1,62 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262666AbVENBjG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262678AbVENBvb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262666AbVENBjG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 21:39:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262668AbVENBjG
+	id S262678AbVENBvb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 21:51:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262676AbVENBvb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 21:39:06 -0400
-Received: from thoth.sophic.org ([70.88.204.20]:51410 "EHLO thoth.sophic.org")
-	by vger.kernel.org with ESMTP id S262666AbVENBjB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 21:39:01 -0400
-Date: Fri, 13 May 2005 21:39:01 -0400
-From: Derek Martin <code@pizzashack.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: SCSI debug info
-Message-ID: <20050514013900.GA15652@sophic.org>
-References: <20050513183323.GA14547@sophic.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3MwIy2ne0vdjdPXF"
-Content-Disposition: inline
-In-Reply-To: <20050513183323.GA14547@sophic.org>
-User-Agent: Mutt/1.5.6i
+	Fri, 13 May 2005 21:51:31 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:60172 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S262675AbVENBva
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 21:51:30 -0400
+Message-ID: <428559A4.1060300@rtr.ca>
+Date: Fri, 13 May 2005 21:51:32 -0400
+From: Mark Lord <liml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050420 Debian/1.7.7-2
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Benjamin LaHaise <bcrl@kvack.org>, linux-kernel@vger.kernel.org,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [rfc/patch] libata -- port configurable delays
+References: <20050513185850.GA5777@kvack.org> <4284FC6E.7060300@pobox.com>
+In-Reply-To: <4284FC6E.7060300@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+PIIX chips should be fine w.r.t. unnecessary delays (or lack thereof).
 
---3MwIy2ne0vdjdPXF
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+I recall only one situation WAY BACK in time that had an issue with
+continuous banging, but don't remember anything of the details
+other than that this was circa 1995 or so.
 
-On Fri, May 13, 2005 at 02:33:23PM -0400, Derek Martin wrote:
-> I'm wondering if there is any documentation which can explain how to
-> interpret the error messages which the kernel reports, for those of us
-> who are mere mortals (i.e. neither experienced Linux kernel developers
-> nor SCSI gods).  
-
-Somebody replied to this off-list... but that reply had an unfortunate
-accident before I could read it.  If you could resend, I'd appreciate
-it.
-
-Thanks much!
-
--- 
-Derek D. Martin
-http://www.pizzashack.org/
-GPG Key ID: 0x81CFE75D
-
-
---3MwIy2ne0vdjdPXF
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFChVa0djdlQoHP510RAm2AAJ0Vt0jXLdavtzyVlr6QHjrwU/lnQwCdGu+9
-+LGe0OUVwiisNWwsweoRFhU=
-=Jlmf
------END PGP SIGNATURE-----
-
---3MwIy2ne0vdjdPXF--
+Cheers

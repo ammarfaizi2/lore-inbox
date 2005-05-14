@@ -1,71 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262751AbVENMOq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262756AbVENMpE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262751AbVENMOq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 08:14:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262750AbVENMOq
+	id S262756AbVENMpE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 08:45:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbVENMpD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 08:14:46 -0400
-Received: from orb.pobox.com ([207.8.226.5]:5257 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S262753AbVENMOn (ORCPT
+	Sat, 14 May 2005 08:45:03 -0400
+Received: from mail.donpac.ru ([80.254.111.2]:6307 "EHLO relay.rost.ru")
+	by vger.kernel.org with ESMTP id S262756AbVENMo5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 08:14:43 -0400
-Date: Sat, 14 May 2005 07:14:34 -0500
-From: Nathan Lynch <ntl@pobox.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: dino@in.ibm.com, Simon.Derr@bull.net, lse-tech@lists.sourceforge.net,
-       akpm@osdl.org, nickpiggin@yahoo.com.au, vatsa@in.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cpusets+hotplug+preepmt broken
-Message-ID: <20050514121434.GK3614@otto>
-References: <20050511191654.GA3916@in.ibm.com> <20050511195156.GE3614@otto> <20050511134235.5cecf85c.pj@sgi.com> <20050511135850.3df60a9f.pj@sgi.com> <20050513192331.2244ada9.pj@sgi.com>
+	Sat, 14 May 2005 08:44:57 -0400
+Subject: [PATCH 2.6.12-rc4-mm1 2/3] DMI, remove central blacklist
+In-Reply-To: <11160746962011@donpac.ru>
+Date: Sat, 14 May 2005 16:44:56 +0400
+Message-Id: <11160746964048@donpac.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050513192331.2244ada9.pj@sgi.com>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Andrey Panin <pazke@donpac.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson wrote:
-> 
-> Ah to heck with it.  This subtle distinction over what level of cpuset
-> we fall back to when a hot unplug leaves a task with no online cpuset in
-> its current allowed set is not worth it.
-> 
-> Every variation I consider is either sufficiently complicated that I
-> can't be sure it's right, or sufficiently simple that it's obviously
-> broken.
 
-Heh, I feel your pain.
+Since last dmi quirk looks useless (it just prints 404 compliant url)
+we can finally remove central dmi blacklist.
 
-> diff -Naurp 2.6.12-rc1-mm4.orig/kernel/sched.c 2.6.12-rc1-mm4/kernel/sched.c
-> --- 2.6.12-rc1-mm4.orig/kernel/sched.c	2005-05-13 18:39:54.000000000 -0700
-> +++ 2.6.12-rc1-mm4/kernel/sched.c	2005-05-13 19:02:49.000000000 -0700
-> @@ -4301,7 +4301,8 @@ static void move_task_off_dead_cpu(int d
->  
->  	/* No more Mr. Nice Guy. */
->  	if (dest_cpu == NR_CPUS) {
-> -		tsk->cpus_allowed = cpuset_cpus_allowed(tsk);
-> +		cpus_setall(tsk->cpus_allowed);
-> +		tsk->cpuset = &top_cpuset;
+Signed-off-by: Andrey Panin <pazke@donpac.ru>
 
-Hmm, tsk->cpuset will break the build if !CONFIG_CPUSETS, no?  Plus,
-the task's original cpuset->count will be unbalanced and it will never
-be released, methinks.
+ arch/i386/kernel/dmi_scan.c |   45 --------------------------------------------
+ 1 files changed, 1 insertion(+), 44 deletions(-)
 
-As a short-term (i.e. 2.6.12) solution, would it be terrible to set
-tsk->cpus_allowed to the default value without messing with the
-cpuset?  That is, is it Bad for a task's cpus_allowed to be a superset
-of its cpuset's cpus_allowed?  I ran Dinakar's test on 2.6.12-rc4 +
-this proposed "fix" on ppc64 without any crashes or warnings, but I
-would need you to confirm that this doesn't violate some fundamental
-cpuset constraint.
+diff -urdpNX dontdiff linux-2.6.12-rc4-mm1.vanilla/arch/i386/kernel/dmi_scan.c linux-2.6.12-rc4-mm1/arch/i386/kernel/dmi_scan.c
+--- linux-2.6.12-rc4-mm1.vanilla/arch/i386/kernel/dmi_scan.c	2005-05-04 15:26:52.000000000 +0400
++++ linux-2.6.12-rc4-mm1/arch/i386/kernel/dmi_scan.c	2005-05-04 15:27:36.000000000 +0400
+@@ -160,50 +160,10 @@ static void __init dmi_save_ident(struct
+ }
+ 
+ /*
+- * Ugly compatibility crap.
+- */
+-#define dmi_blacklist	dmi_system_id
+-#define NO_MATCH	{ DMI_NONE, NULL}
+-#define MATCH		DMI_MATCH
+-
+-/*
+- * Toshiba keyboard likes to repeat keys when they are not repeated.
+- */
+-
+-static __init int broken_toshiba_keyboard(struct dmi_blacklist *d)
+-{
+-	printk(KERN_WARNING "Toshiba with broken keyboard detected. If your keyboard sometimes generates 3 keypresses instead of one, see http://davyd.ucc.asn.au/projects/toshiba/README\n");
+-	return 0;
+-}
+-
+-
+-
+-/*
+- *	Process the DMI blacklists
+- */
+- 
+-
+-/*
+- *	This will be expanded over time to force things like the APM 
+- *	interrupt mask settings according to the laptop
+- */
+- 
+-static __initdata struct dmi_blacklist dmi_blacklist[]={
+-
+-	{ broken_toshiba_keyboard, "Toshiba Satellite 4030cdt", { /* Keyboard generates spurious repeats */
+-			MATCH(DMI_PRODUCT_NAME, "S4030CDT/4.3"),
+-			NO_MATCH, NO_MATCH, NO_MATCH
+-			} },
+-
+-	{ NULL, }
+-};
+-
+-/*
+  *	Process a DMI table entry. Right now all we care about are the BIOS
+  *	and machine entries. For 2.5 we should pull the smbus controller info
+  *	out of here.
+  */
+-
+ static void __init dmi_decode(struct dmi_header *dm)
+ {
+ #ifdef DMI_DEBUG
+@@ -253,10 +213,7 @@ static void __init dmi_decode(struct dmi
+ 
+ void __init dmi_scan_machine(void)
+ {
+-	int err = dmi_iterate(dmi_decode);
+-	if(err == 0)
+- 		dmi_check_system(dmi_blacklist);
+-	else
++	if (dmi_iterate(dmi_decode))
+ 		printk(KERN_INFO "DMI not present.\n");
+ }
+ 
 
-However, I think making a best effort to honor the task's cpuset is a
-reasonable goal in this context.  But it will require some nontrivial
-changes to the code for migrating tasks off the dead cpu, as well as
-some changes to the cpuset code.  Not 2.6.12 material.
-
-I'll patch soon.
-
-Nathan

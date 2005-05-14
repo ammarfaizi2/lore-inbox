@@ -1,138 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbVENX0L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbVENXbg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbVENX0L (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 19:26:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbVENX0L
+	id S261354AbVENXbg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 19:31:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261372AbVENXbf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 19:26:11 -0400
-Received: from smtp.freestart.hu ([213.197.64.6]:46085 "EHLO
-	relay.freestart.hu") by vger.kernel.org with ESMTP id S261262AbVENXZ7
+	Sat, 14 May 2005 19:31:35 -0400
+Received: from rproxy.gmail.com ([64.233.170.200]:22536 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261354AbVENXbb convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 19:25:59 -0400
-Message-ID: <002e01c558dc$485ed0f0$2f47c5d5@windows>
-From: "Green Brain" <greenbrain@freemail.hu>
-To: <linux-kernel@vger.kernel.org>
-Subject: ICH5 MODEM in NASM - pci_dev
-Date: Sun, 15 May 2005 01:09:18 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-X-freestart-banner: Yes
+	Sat, 14 May 2005 19:31:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=YrxW2KfYTSJX1d7lr5KM7I8E6DAol/eKlPcvjaqjjkMRbxEWppcjuApq6JwQ4XO75EPyzQkJqbAqRnOrlYP/MMTrupbyj4ki2SFcrjjY74dg211SOOqec7Q+TZJFuKB1g2L0ozlecNh6bNmlK1NGB2eUUsRyCDbPa5vReWGB648=
+Message-ID: <25381867050514163114d50e82@mail.gmail.com>
+Date: Sat, 14 May 2005 19:31:31 -0400
+From: Yani Ioannou <yani.ioannou@gmail.com>
+Reply-To: Yani Ioannou <yani.ioannou@gmail.com>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 2.6.12-rc4 1/12] (dynamic sysfs callbacks) update device attribute callbacks
+Cc: linux-kernel@vger.kernel.org, LM Sensors <sensors@stimpy.netroedge.com>
+In-Reply-To: <20050514213421.GC5198@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <2538186705051402237a79225@mail.gmail.com>
+	 <20050514112242.A24975@flint.arm.linux.org.uk>
+	 <2538186705051412462d6db2d2@mail.gmail.com>
+	 <20050514221838.A15061@flint.arm.linux.org.uk>
+	 <20050514213421.GC5198@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would like to write a kernel module (driver) to the ICH5 SmartLink
-SoftModem. The project is on my assembly.uw.hu website. If you can write PCI
-driver please help me!
+On 5/14/05, Greg KH <greg@kroah.com> wrote:
+> On Sat, May 14, 2005 at 10:18:38PM +0100, Russell King wrote:
+> > There are two advantages to this way:
+> >
+> > 1. you're not having to impose the extra void * pointer in the
+> >    attribute on everyone.
 
-What is wrong with this offset array? (This is a NASM implementation of the
-pci_dev structude from pci.h file.
+Well this is less of an advantage when you consider that most sysfs
+attributes in the kernel should be taking advantage of it. A quick
+look through the various sysfs attributes (e.g. class_attribute,
+device_attribute, etc) in the kernel and how they are used quickly
+convinces you that the idea doesn't just address a problem in one or
+two drivers, or even one particular type of attribute, but most of the
+kernel sysfs attributes. Of course that problem is more obvious in
+some sections of the kernel than others.
 
+> > 2. you allow people to add whatever data they please to the attribute
+> >    in whatever format they wish - whether it be a void pointer, integer,
+> >    or whatever.
 
+You can do just as much with a void * , e.g. define a struct with
+whatever in it and point to it is functionally the same thing, and my
+net-sysfs.c patch did this (see lm_sensors archive again), but this is
+much more obvious, transparent and less error prone (in my opinion).
+However I never liked passing an int via a pointer for adm1026,
+despite how 'natural' Greg claims it is ;-).
 
-;The pci_dev structure is used to describe both PCI and ISAPnP devices.
+> Ah, nice, I hadn't thought about that.  But yes, it would be much
+> smaller and simpler to do this, very good idea.
+>
+> Yani, what do you think?
 
-; NAME OFFSET SIZE
+I like it and think its a good idea, just not for the advantages
+Russell listed :-). Functionally it does the same thing, but in a much
+more semantically appropriate way:
 
-%assign pci_dev.global_list 0 ;8 node in list of all PCI devices
+- It is much more obvious by passing the attribute pointer to the
+callbacks what that extra parameter is used for (identifying which
+attribute the callback is for).
+- No awkward and error-prone casting when all you want to do is pass an int.
+- It will be much more transparent to an outsider reading through the
+sysfs attribute code that adm1026_attribute represents an adm1026
+sensors attribute, and how, etc.
 
-%assign pci_dev.bus_list 8 ;8 node in per-bus list
+> And if enough i2c drivers want to do this, just make a i2c driver
+> attribute that they all use to achieve this.
 
-%assign pci_dev.bus 16 ;4 pci_bus bus this device is on
+This sounds like a good idea for the majority of i2c chip drivers,
+however in special cases like bmcsensors it might have to use it's own
+attribute type (which in bmcsensor's case would contain the sdr_data
+struct).
 
-%assign pci_dev.subordinate 20 ;4 pci_bus bus this device bridges to
+My only present worry is that this makes the creation of a standard
+method to dynamically allocate and create derived sysfs attributes a
+lot harder (impossible?)...
 
-%assign pci_dev.sysdata 24 ;4 void hook for sys-specific extension
-
-%assign pci_dev.procent 28 ;4 struct proc_dir_entry device entry in
-/proc/bus/pci
-
-%assign pci_dev.devfn 32 ;4 encoded device & function index
-
-%assign pci_dev.vendor 36 ;2
-
-%assign pci_dev.device 38 ;2
-
-%assign pci_dev.subsystem_vendor 40 ;2
-
-%assign pci_dev.subsystem_device 42 ;2
-
-%assign pci_dev.class 44 ;4 3 bytes: (base,sub,prog-if)
-
-%assign pci_dev.hdr_type 48 ;1 PCI header type (`multi' flag masked out)
-
-%assign pci_dev.rom_base_reg 49 ;1 which config register controls the ROM
-
-%assign pci_dev.driver 50 ;4 pci_driver which driver has allocated this
-device
-
-%assign pci_dev.driver_data 54 ;4 void data private to the driver
-
-%assign pci_dev.dma_mask 58 ;4 Mask of the bits of bus aequress this
-
-;HERE IS AN ERROR! DMA_MASK<>FFFFFFFF! FIX ME! ; device implements. Normally
-this is
-
-; 0xffffffff. You only need to change
-
-; this if your device has broken DMA
-
-; or supports 64-bit transfers.
-
-%assign pci_dev.current_state 62 ;4 ;Current operating state. In ACPI-speak,
-
-; this is D0-D3, D0 being fully functional,
-
-; and D3 being off.
-
-;device is compatible with these IDs
-
-%assign pci_dev.vendor_compatible 66 ;8 [DEVICE_COUNT_COMPATIBLE]=4;
-
-%assign pci_dev.device_compatible 74 ;8 [DEVICE_COUNT_COMPATIBLE]=4;
-
-;Instead of touching interrupt line and base aequress registers
-
-;directly, use the values stored here. They might be different!
-
-%assign pci_dev.irq 82 ;4
-
-;==========================
-
-%assign pci_dev.resource 86 ;12 resource*12 [DEVICE_COUNT_RESOURCE]=12 I/O
-and memory regions + expansion ROMs
-
-%assign pci_dev.dma_resource 98 ;2 resource*2 [DEVICE_COUNT_DMA]=2
-
-%assign pci_dev.irq_resource 100 ;2 resource*2 [DEVICE_COUNT_IRQ]=2
-
-%assign pci_dev.name 102 ;80 [80] device name
-
-%assign pci_dev.slot_name 182 ;8 [8] slot name
-
-%assign pci_dev.active 190 ;4 ISAPnP: device is active
-
-%assign pci_dev.ro 194 ;4 ISAPnP: read only
-
-%assign pci_dev.regs 198 ;2 ISAPnP: supported registers
-
-%assign pci_dev.prepare 200 ;4 (struct pci_dev *dev) ISAPnP hooks
-
-%assign pci_dev.activate 204 ;4 (struct pci_dev *dev)
-
-%assign pci_dev.deactivate 208 ;4 (struct pci_dev *dev)
-
-
-
-Thanks in advance!
-
-
-
-
-____________________________________________________________________
-Miert fizetsz az internetert? Korlatlan, ingyenes internet hozzaferes a FreeStarttol.
-Probald ki most! http://www.freestart.hu
+Thanks,
+Yani

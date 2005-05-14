@@ -1,44 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVENS1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261457AbVENSrZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261455AbVENS1y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 14:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbVENS1y
+	id S261457AbVENSrZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 14:47:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVENSrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 14:27:54 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:17865 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261455AbVENS1w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 14:27:52 -0400
-Subject: Re: Hyper-Threading Vulnerability
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <d65b2m$atq$1@sea.gmane.org>
-References: <1115963481.1723.3.camel@alderaan.trey.hu>
-	 <m164xnatpt.fsf@muc.de> <1116009483.4689.803.camel@rebel.corp.whenu.com>
-	 <20050513190549.GB47131@muc.de> <20050513212620.GA12522@hexapodia.org>
-	 <20050513215905.GY5914@waste.org>
-	 <1116024419.20646.41.camel@localhost.localdomain>
-	 <1116025212.6380.50.camel@mindpipe>  <20050513232708.GC13846@redhat.com>
-	 <1116027488.6380.55.camel@mindpipe>
-	 <1116084186.20545.47.camel@localhost.localdomain>
-	 <1116088229.8880.7.camel@mindpipe>  <d65b2m$atq$1@sea.gmane.org>
-Content-Type: text/plain
-Date: Sat, 14 May 2005 14:27:51 -0400
-Message-Id: <1116095271.9141.15.camel@mindpipe>
+	Sat, 14 May 2005 14:47:24 -0400
+Received: from pimout4-ext.prodigy.net ([207.115.63.98]:56011 "EHLO
+	pimout4-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S261457AbVENSrW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 May 2005 14:47:22 -0400
+Date: Sat, 14 May 2005 11:47:11 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Gregory Brauer <greg@wildbrain.com>
+Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: kernel OOPS for XFS in xfs_iget_core (using NFS+SMP+MD)
+Message-ID: <20050514184711.GA27565@taniwha.stupidest.org>
+References: <428511F8.6020303@wildbrain.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <428511F8.6020303@wildbrain.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-05-14 at 19:04 +0200, Jindrich Makovicka wrote:
-> AFAIK, mplayer actually uses gettimeofday(). rdtsc is used in some
-> places for profiling and debugging purposes and not compiled in by default.
-> 
+On Fri, May 13, 2005 at 01:45:44PM -0700, Gregory Brauer wrote:
 
-OK.  The comments in the JACK code say it was copied from mplayer.  I
-guess the usage is not the same.
+> I have seen some references to a similar bug in other kernel list
+> posts from October 2004 and am trying to figure out if this is the
+> same problem, or something new related to the xfs_iget_core patch in
+> 2.6.11.  This seems to be a very hard to reproduce bug, but we've
+> seen this problem twice in a week of testing under Fedora
+> Core 3 on the following kernel:
 
-Lee
-
+does disabling CONFIG_4K_STACKS help?

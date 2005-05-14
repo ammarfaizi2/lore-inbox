@@ -1,86 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262667AbVENAty@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262657AbVENAzY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262667AbVENAty (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 20:49:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262648AbVENAqy
+	id S262657AbVENAzY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 20:55:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262658AbVENAzX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 20:46:54 -0400
-Received: from rproxy.gmail.com ([64.233.170.203]:4519 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262649AbVENAqM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 20:46:12 -0400
+	Fri, 13 May 2005 20:55:23 -0400
+Received: from wproxy.gmail.com ([64.233.184.204]:29972 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262657AbVENAxL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 20:53:11 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:from:to:cc:user-agent:content-type:references:in-reply-to:subject:message-id:date;
-        b=KseZyq6OUmx+rgyVKONy3kCTU0cGWlIPQC69qFUIdlMM9G3PMXjUGGEOmOf4V5o5IpdT6jPGBiSHN9E2Tljf02Lo4zjvcqGGliOo04mhu04fjH8Q32Q/ZM7JdA5e9baNdrBujlpz84pkDYUwWa7Ty/M/s1qGjwRrRHwW3GBXKWw=
-From: Tejun Heo <htejun@gmail.com>
-To: James.Bottomley@steeleye.com
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-User-Agent: lksp 0.3
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=dBCkwDt0ZZ9e4ijdhBTYAmleZMJzjRv1XlcJI6SGBjyufRX5ZiVpUxvYVSQzqMrp0bp+CmswGd0GsTsTqozzKRlxB1/ICsjUmBGgnaTLeCjJlow5KYGR/y6RxdgAgbcdhGXhdbUouMKGJ2SfZ4UeBgqweMrCJ3SMVeI7mDrFtBs=
+Message-ID: <fc67f8b70505131753103d2dc7@mail.gmail.com>
+Date: Fri, 13 May 2005 20:53:11 -0400
+From: Ritesh Kumar <digitalove@gmail.com>
+Reply-To: ritesh@cs.unc.edu
+To: Jakub Jelinek <jakub@redhat.com>
+Subject: Re: NPTL: stack limit limiting number of threads
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050514000643.GI17420@devserv.devel.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-References: <20050514004601.783910E3@htj.dyndns.org>
-In-Reply-To: <20050514004601.783910E3@htj.dyndns.org>
-Subject: Re: [PATCH scsi-misc-2.6 01/03] scsi: remove a timer race in scsi_queue_insert()
-Message-ID: <20050514004601.9B37DCE8@htj.dyndns.org>
-Date: Sat, 14 May 2005 09:46:08 +0900 (KST)
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <fc67f8b705051312494a0badf7@mail.gmail.com>
+	 <20050513202346.GG17420@devserv.devel.redhat.com>
+	 <fc67f8b705051317023859c443@mail.gmail.com>
+	 <20050514000643.GI17420@devserv.devel.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-01_scsi_timer_dispatch_race_fix.patch
+On 5/13/05, Jakub Jelinek <jakub@redhat.com> wrote:
+> On Fri, May 13, 2005 at 08:02:48PM -0400, Ritesh Kumar wrote:
+> >     Thanks for your reply. I actually went ahead after getting your
+> > mail and coded up a small program to check the stack limit
+> > deliberately. The program is shown inline.
+> >
+> > #include <stdio.h>
+> >
+> > #define BUF_SIZE 1024000
+> >
+> > void recurse(int n){
+> >       char ch[BUF_SIZE];
+> >       if(n<=0)
+> >               return;
+> >       else
+> >               recurse(n-1);
+> > }
+> >
+> > int main(argc, argv)
+> >       int argc;
+> >       char **argv;
+> > {
+> >       if(argc!=2){
+> >               printf("Usage: %s <n (megabytes)>\n", argv[0]);
+> >               return 1;
+> >       }
+> >       printf("Checking for %dMB\n", atoi(argv[1]));
+> >       recurse(atoi(argv[1]));
+> > }
+> >
+> > Its a fairly crude way to find out the actual stack limit. Basically,
+> > the resurse function recurses each time allocating ~1MB of space on
+> > the stack. The program segfaults exactly at the ulimit -s value of
+> > stack size on both linux and freebsd. So it does seem that the ulimit
+> > -s is the value of stack limit used on FreeBSD.
+> 
+> For the main stack sure.  But now try to call that recurse in
+> some other thread.
+> 
+>         Jakub
+> 
 
-	scsi_queue_insert() has four callers.  Three callers call with
-	timer disabled and one (the second invocation in
-	scsi_dispatch_cmd()) calls with timer activated.
-	scsi_queue_insert() used to always call scsi_delete_timer()
-	and ignore the return value.  This results in race with timer
-	expiration.  Remove scsi_delete_timer() call from
-	scsi_queue_insert() and make the caller delete timer and check
-	the return value.
+Oh great... I see your point now. I called the same recurse in an
+alternative thread and found the limit to be 8M on Linux ( and Mac OS
+X (Panther)) but around 1MB on FreeBSD. Thanks for the clarification!
 
-Signed-off-by: Tejun Heo <htejun@gmail.com>
+Ritesh 
 
- scsi.c     |   10 ++++++----
- scsi_lib.c |    8 +-------
- 2 files changed, 7 insertions(+), 11 deletions(-)
-
-Index: scsi-reqfn-export/drivers/scsi/scsi.c
-===================================================================
---- scsi-reqfn-export.orig/drivers/scsi/scsi.c	2005-05-14 09:43:18.000000000 +0900
-+++ scsi-reqfn-export/drivers/scsi/scsi.c	2005-05-14 09:45:59.000000000 +0900
-@@ -638,10 +638,12 @@ int scsi_dispatch_cmd(struct scsi_cmnd *
- 	}
- 	spin_unlock_irqrestore(host->host_lock, flags);
- 	if (rtn) {
--		atomic_inc(&cmd->device->iodone_cnt);
--		scsi_queue_insert(cmd,
--				(rtn == SCSI_MLQUEUE_DEVICE_BUSY) ?
--				 rtn : SCSI_MLQUEUE_HOST_BUSY);
-+		if (scsi_delete_timer(cmd)) {
-+			atomic_inc(&cmd->device->iodone_cnt);
-+			scsi_queue_insert(cmd,
-+					  (rtn == SCSI_MLQUEUE_DEVICE_BUSY) ?
-+					  rtn : SCSI_MLQUEUE_HOST_BUSY);
-+		}
- 		SCSI_LOG_MLQUEUE(3,
- 		    printk("queuecommand : request rejected\n"));
- 	}
-Index: scsi-reqfn-export/drivers/scsi/scsi_lib.c
-===================================================================
---- scsi-reqfn-export.orig/drivers/scsi/scsi_lib.c	2005-05-14 09:43:18.000000000 +0900
-+++ scsi-reqfn-export/drivers/scsi/scsi_lib.c	2005-05-14 09:45:59.000000000 +0900
-@@ -128,13 +128,7 @@ int scsi_queue_insert(struct scsi_cmnd *
- 		 printk("Inserting command %p into mlqueue\n", cmd));
- 
- 	/*
--	 * We are inserting the command into the ml queue.  First, we
--	 * cancel the timer, so it doesn't time out.
--	 */
--	scsi_delete_timer(cmd);
--
--	/*
--	 * Next, set the appropriate busy bit for the device/host.
-+	 * Set the appropriate busy bit for the device/host.
- 	 *
- 	 * If the host/device isn't busy, assume that something actually
- 	 * completed, and that we should be able to queue a command now.
-
+-- 
+http://www.cs.unc.edu/~ritesh/

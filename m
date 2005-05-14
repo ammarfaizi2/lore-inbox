@@ -1,44 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262524AbVENKdd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262715AbVENKxQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262524AbVENKdd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 06:33:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262618AbVENKdd
+	id S262715AbVENKxQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 06:53:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262716AbVENKxQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 06:33:33 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:20747 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S262524AbVENKdO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 06:33:14 -0400
-Date: Sat, 14 May 2005 12:20:51 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: christos gentsis <christos_gentsis@yahoo.co.uk>
-Cc: Valdis.Kletnieks@vt.edu, Bill Davidsen <davidsen@tmr.com>,
-       linux-os@analogic.com, "Srinivas G." <srinivasg@esntechnologies.co.in>,
-       linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: Y2K-like bug to hit Linux computers! - Info of the day
-Message-ID: <20050514102051.GD18600@alpha.home.local>
-References: <4EE0CBA31942E547B99B3D4BFAB348114BED13@mail.esn.co.in> <200505131522.32403.vda@ilport.com.ua> <Pine.LNX.4.61.0505130825310.4428@chaos.analogic.com> <Pine.LNX.4.61.0505130837390.4781@chaos.analogic.com> <42850FC7.7010603@tmr.com> <200505132047.j4DKlcgV025923@turing-police.cc.vt.edu> <4285C030.1080706@yahoo.co.uk>
+	Sat, 14 May 2005 06:53:16 -0400
+Received: from mailfe01.swip.net ([212.247.154.1]:3977 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S262715AbVENKxK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 May 2005 06:53:10 -0400
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Subject: Re: tickle nmi watchdog whilst doing serial writes.
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: Ed Tomlinson <tomlins@cam.org>
+Cc: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200505140631.59336.tomlins@cam.org>
+References: <20050513184806.GA24166@redhat.com>
+	 <20050514065753.GA28213@redhat.com> <20050514000723.73bd6e5a.akpm@osdl.org>
+	 <200505140631.59336.tomlins@cam.org>
+Content-Type: text/plain
+Date: Sat, 14 May 2005 12:53:07 +0200
+Message-Id: <1116067987.1183.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4285C030.1080706@yahoo.co.uk>
-User-Agent: Mutt/1.4i
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 14, 2005 at 10:09:04AM +0100, christos gentsis wrote:
- 
-> BTW is there anyone that plan to use his embedded devise until 2038???? 
-> i would happy to see that :P any way embedded devises are there so they 
-> will have sort life cycle... how long are you going to use them 6 
-> months???? maximum 1-2 years....
-> so there is no any problem....
+> Hi,
+> 
+> Suspect this can be triggered using alt+sysreq+T on a busy system with a slow 
+> serial console.  Might be a easy way to see if this patch fixes the issue?
+> 
 
-That depends on what you're building. If you're designing an ADSL router,
-then yes, a few years are enough. If you're making a deep space probe,
-considering that voyager and pioneer have been in space for more than
-30 years, you might want to ensure there's no problem.
+Sysrq-t already tickles the watchdog between the printing of each task
+so you'll have to remove the nmi tickling in show_state() if you want to
+use it as a test case.
 
-Regards,
-Willy
+But uhm, it should take at least 5 seconds of no-interrupts before the
+NMI watchdog decides the box is dead so this is kind of weird.
+
+
+> > <obwhitespacewhine> spose so.
+> > 
+> > --- 25/drivers/serial/8250.c~tickle-nmi-watchdog-whilst-doing-serial-writes	2005-05-14 00:03:09.000000000 -0700
+> > +++ 25-akpm/drivers/serial/8250.c	2005-05-14 00:06:53.000000000 -0700
+> > @@ -40,6 +40,7 @@
+> >  #include <linux/serial_core.h>
+> >  #include <linux/serial.h>
+> >  #include <linux/serial_8250.h>
+> > +#include <linux/nmi.h>
+> >  
+> >  #include <asm/io.h>
+> >  #include <asm/irq.h>
+> > @@ -2098,9 +2099,11 @@ static inline void wait_for_xmitr(struct
+> >  	/* Wait up to 1s for flow control if necessary */
+> >  	if (up->port.flags & UPF_CONS_FLOW) {
+> >  		tmout = 1000000;
+> > -		while (--tmout &&
+> > -		       ((serial_in(up, UART_MSR) & UART_MSR_CTS) == 0))
+> > +		while (!(serial_in(up, UART_MSR) & UART_MSR_CTS) && --tmout) {
+> >  			udelay(1);
+> > +			if ((tmout % 1000) == 0)
+> > +				touch_nmi_watchdog();
+> > +		}
+> >  	}
+> >  }
+> >  
 

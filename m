@@ -1,60 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262276AbVENKQL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262355AbVENKRb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262276AbVENKQL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 06:16:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262355AbVENKQL
+	id S262355AbVENKRb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 06:17:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262466AbVENKRa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 06:16:11 -0400
-Received: from rly-ip04.mx.aol.com ([64.12.138.8]:21890 "EHLO
-	rly-ip04.mx.aol.com") by vger.kernel.org with ESMTP id S262276AbVENKQG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 06:16:06 -0400
-Message-ID: <4285D4E9.9090208@yahoo.co.uk>
-Date: Sat, 14 May 2005 11:37:29 +0100
-From: christos gentsis <christos_gentsis@yahoo.co.uk>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: jnf <jnf@innocence-lost.us>
-CC: linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: Y2K-like bug to hit Linux computers! - Info of the day
-References: <4EE0CBA31942E547B99B3D4BFAB348114BED13@mail.esn.co.in> <200505131522.32403.vda@ilport.com.ua> <Pine.LNX.4.61.0505130825310.4428@chaos.analogic.com> <Pine.LNX.4.61.0505130837390.4781@chaos.analogic.com>            <42850FC7.7010603@tmr.com> <200505132047.j4DKlcgV025923@turing-police.cc.vt.edu> <4285C030.1080706@yahoo.co.uk> <Pine.LNX.4.62.0505140240250.14650@fhozvffvba.vaabprapr-ybfg.arg>
-In-Reply-To: <Pine.LNX.4.62.0505140240250.14650@fhozvffvba.vaabprapr-ybfg.arg>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AOL-IP: 195.93.24.100
+	Sat, 14 May 2005 06:17:30 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:54659 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262355AbVENKRI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 May 2005 06:17:08 -0400
+Date: Sat, 14 May 2005 12:17:07 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: mhw@wittsend.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Sync option destroys flash!
+Message-ID: <20050514101707.GB7963@wohnheim.fh-wedel.de>
+References: <1116001207.5239.38.camel@localhost.localdomain> <1116009619.9371.494.camel@localhost.localdomain> <1116011430.5239.108.camel@localhost.localdomain> <1116021632.20550.11.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1116021632.20550.11.camel@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jnf wrote:
+On Fri, 13 May 2005 23:00:34 +0100, Alan Cox wrote:
+> 
+> Or it may even be cheaper to "burn" a few - buy one of each type from
+> various shops, do 2 million writes to the same sector and take them back
+> the next day if they died [And publish the review data 8))]
 
->submission$ cat test.c
->int main(void) {
->        signed short int count = 0;
->
->        while(count >= 0 ) {
->                printf("count: %d\n", count++ );
->        }
->        printf("count: %d\n");
->}
->submission$ gcc -o test test.c
->submission$ ./test
->[...]
->count: 32767
->count: -1
->
->  
->
-correct but i didn't mean that... i mean how to become negative with out
-an overflow...
+Or just accept the fact that flashes are a tad different from spinning
+rust.  Expecting a decent wear levelling on the cheap USB sticks and
+other forms of flash is plain unrealistic.
 
->I could be wrong here, but I don't think the hardware even keeps track of
->the clock ticks, rather it just ticks and lets the software keep track.
->
->  
->
-it has to have hardware because if there is not so how the time is
-updated then the system is turned off? ;)
-it has to be hardware that keeps working...
+USB stick are a bit better than old 3.5" floppies were - if both are
+used with fat, minix, ext, etc.  At least they don't die by lying in a
+dark drawer.  But if you want them to last, your best bet is currently
+to use JFFS2 on them.
 
+Of course, JFFS2 sucks performance-wise, so the end result currently
+is that USB sticks suck in some way, no matter what you try.
 
+Jörn
+
+-- 
+Fools ignore complexity.  Pragmatists suffer it.
+Some can avoid it.  Geniuses remove it.
+-- Perlis's Programming Proverb #58, SIGPLAN Notices, Sept.  1982

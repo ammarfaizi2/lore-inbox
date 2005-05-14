@@ -1,89 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262651AbVENAnI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262642AbVENAqk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262651AbVENAnI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 20:43:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262642AbVENAmA
+	id S262642AbVENAqk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 May 2005 20:46:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262646AbVENAq2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 20:42:00 -0400
-Received: from twinlark.arctic.org ([207.7.145.18]:14976 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP id S262651AbVENAj3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 20:39:29 -0400
-Date: Fri, 13 May 2005 17:39:25 -0700 (PDT)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Andy Isaacson <adi@hexapodia.org>
-cc: Andi Kleen <ak@muc.de>, "Richard F. Rebel" <rrebel@whenu.com>,
-       Gabor MICSKO <gmicsko@szintezis.hu>, linux-kernel@vger.kernel.org,
-       mpm@selenic.com, tytso@mit.edu
-Subject: Re: Hyper-Threading Vulnerability
-In-Reply-To: <20050513212620.GA12522@hexapodia.org>
-Message-ID: <Pine.LNX.4.62.0505131701450.31431@twinlark.arctic.org>
-References: <1115963481.1723.3.camel@alderaan.trey.hu> <m164xnatpt.fsf@muc.de>
- <1116009483.4689.803.camel@rebel.corp.whenu.com> <20050513190549.GB47131@muc.de>
- <20050513212620.GA12522@hexapodia.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 13 May 2005 20:46:28 -0400
+Received: from rproxy.gmail.com ([64.233.170.202]:39887 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262642AbVENAqI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 May 2005 20:46:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:cc:user-agent:content-type:subject:message-id:date;
+        b=GvP18OLtQMYDDdOa1RfQWjgy1hs8nGiVIlA1C+TCPrND9n6BQom6C5CooSuElfcmz9DgN8Ublcptb9146u54/6kPz/OGHVFNz50PgoihGee3ra+SPEkcchSNHq8vNrW0FEE24m1QGbtAiKIiVN4ZZfybdgeUzkGlnx0DJQbMtXU=
+From: Tejun Heo <htejun@gmail.com>
+To: James.Bottomley@steeleye.com
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+User-Agent: lksp 0.3
+Content-Type: text/plain; charset=US-ASCII
+Subject: [PATCH scsi-misc-2.6 00/03] scsi: misc timer fixes (again)
+Message-ID: <20050514004601.783910E3@htj.dyndns.org>
+Date: Sat, 14 May 2005 09:46:03 +0900 (KST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 May 2005, Andy Isaacson wrote:
+ Hello, James.
 
-> On Fri, May 13, 2005 at 09:05:49PM +0200, Andi Kleen wrote:
-> > On Fri, May 13, 2005 at 02:38:03PM -0400, Richard F. Rebel wrote:
-> > > Why?  It's certainly reasonable to disable it for the time being and
-> > > even prudent to do so.
-> > 
-> > No, i strongly disagree on that. The reasonable thing to do is
-> > to fix the crypto code which has this vulnerability, not break
-> > a useful performance enhancement for everybody else.
-> 
-> Pardon me for saying so, but that's bullshit.  You're asking the crypto
-> guys to give up a 5x performance gain (that's my wild guess) by giving
-> up all their data-dependent algorithms and contorting their code wildly,
-> to avoid a microarchitectural problem with Intel's HT implementation.
+ It's been a while, but I'm finally settled with git. :-)
 
-i think your wild guess is way off.  i can think of several approaches to 
-fix these problems which won't be anywhere near 5x.
+ This is repost of the previous scsi timer patchset.  After thinking
+about it a while, the first patch seemed unnecessary as you told, so
+it's dropped and the others are regenerated.
 
-the problem is that an attacker can observe which cache indices (rows) are 
-in use.  one workaround is to overload the possible secrets which each 
-index represents.
+ aic79xx_osm.c DV still uses eh_timeout.  Is it gonna be updated like
+aic7xxx_osm.c is updated?  If not, I have a patch to fix the eh timer
+part.  I have a patcheset waiting for it to be clared - unexporting
+SCSI timer as the semantics is very specific and nothing good can come
+from tempering with it.  Once aic79xx_osm.c is cleared, I'll post the
+patches.
 
-you can overload the secrets in each cache line:  for example when doing 
-exponentiation there is an array of bignums x**(2*n).  bignums themselves 
-are arrays (which span multiple cache lines).  do a "row/column transpose" 
-on this array of arrays -- suddenly each cache line contains a number of 
-possible secrets.  if you're operating with 32-bit words in a 64 byte line 
-then you've achieved a 16-fold reduction in exposed information by this 
-transpose.  there'll be almost no performance penalty.
+[ Start of patch descriptions ]
 
-you can overload the secrets in each cache index:  abuse the associativity 
-of the cache.  the affected processors are all 8-way associative.  
-ideally you'd want to arrange your data so that it all collides within the 
-same cache index -- and get an 8-fold reduction in exposure.  the trick 
-here is the L2 is physically indexed, and userland code can perform only 
-virtual allocations.  but it's not too hard to discover physical conflicts 
-if you really want to (using rdtsc) -- it would be done early in the 
-initialization of the program because it involves asking for enough memory 
-until the kernel gives you enough colliding pages.  (a system call could 
-help with this if we really wanted it.)
+01_scsi_timer_dispatch_race_fix.patch
+	: remove a timer race in scsi_queue_insert()
 
-my not-so-wild guess is a 128-fold reduction for less than 10% perf hit...
+	scsi_queue_insert() has four callers.  Three callers call with
+	timer disabled and one (the second invocation in
+	scsi_dispatch_cmd()) calls with timer activated.
+	scsi_queue_insert() used to always call scsi_delete_timer()
+	and ignore the return value.  This results in race with timer
+	expiration.  Remove scsi_delete_timer() call from
+	scsi_queue_insert() and make the caller delete timer and check
+	the return value.
 
-i think there's possibly another approach involving a permuted array of 
-indirection pointers... which is going to affect perf a bit due to the 
-extra indirection required, but we're talking <10% here.  (i'm just not 
-convinced yet you can select a permutation in a manner which doesn't leak 
-information when the attacker can view multiple invocations of the crypto 
-for example.)
+02_scsi_timer_remove_delete_timer_from_reset_provider.patch
+	: remove unnecessary scsi_delete_timer() call in scsi_reset_provider()
 
+	scsi_reset_provider() calls scsi_delete_timer() on exit which
+	isn't necessary.  Remove it.
 
-> If SHA has plaintext-dependent memory references, Colin's technique
-> would enable an adversary to extract the contents of the /dev/random
-> pools.  I don't *think* SHA does, based on a quick reading of
-> lib/sha1.c, but someone with an actual clue should probably take a look.
+03_scsi_timer_eh_timer_remove_spurious_if.patch
+	: remove spurious if tests from scsi_eh_{times_out|done}
 
-the SHA family do not have any data-dependencies in their memory access 
-patterns.
+	'if' tests which check if eh_action isn't NULL in both
+	functions are always true.  Remove the redundant if's as it
+	can give wrong impressions.
 
--dean
+[ End of patch descriptions ]
+
+ Thanks.
+

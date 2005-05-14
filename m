@@ -1,116 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262741AbVENLcq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262745AbVENLkQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262741AbVENLcq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 07:32:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262742AbVENLcq
+	id S262745AbVENLkQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 07:40:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262747AbVENLkQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 07:32:46 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:34477 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S262741AbVENLcl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 07:32:41 -0400
-Subject: Re: Does smp_reschedule_interrupt really reschedule?
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050514063741.GA12217@elte.hu>
-References: <1116008299.4728.19.camel@localhost.localdomain>
-	 <20050513182631.GA15916@elte.hu>
-	 <1116010280.4728.29.camel@localhost.localdomain>
-	 <20050514063741.GA12217@elte.hu>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Sat, 14 May 2005 07:32:29 -0400
-Message-Id: <1116070349.1604.20.camel@localhost.localdomain>
+	Sat, 14 May 2005 07:40:16 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:39068 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262745AbVENLkL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 May 2005 07:40:11 -0400
+Date: Sat, 14 May 2005 02:10:50 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Marcel Holtmann <holtmann@suse.de>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Billionton bluetooth USB: how to make it work
+Message-ID: <20050514001050.GA1896@elf.ucw.cz>
+References: <20050512233902.GA3157@elf.ucw.cz> <1115942337.18499.86.camel@pegasus> <20050513004606.GA1957@elf.ucw.cz> <1115975517.18499.100.camel@pegasus> <20050513101739.GI1780@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050513101739.GI1780@elf.ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-05-14 at 08:37 +0200, Ingo Molnar wrote:
-> * Steven Rostedt <rostedt@goodmis.org> wrote:
-> 
-> > In finish_task_switch, where is need_resched set?
-> 
-> why should it be set? It's the final portion of a context-switch, not 
-> the initiator of a context-switch. need_resched is usually set by the 
-> wakeup code, or by the preemption code.
-> 
+Hi!
 
-Sorry, I'm still not seeing it. I'll explain my confusion a little more
-detailed now.
+Okay, so the magic sequence seems to be:
 
-Lets say we have a SMP machine with two CPUs.  CPU0 has a RT task
-running and CPU1 has a non-RT task.   A RT task wakes up on CPU0 that is
-higher priority than the current running RT task on CPU0. Lets add that
-this newly woken up RT task has set affinity to only run on CPU0.
+# Take 2.6.12-rc3-mm3
+#
+# PCMCIA config:
+# card "Cyber-blue Compact Flash Card"
+#   manfid 0x0279, 0x950b
+#   bind "serial_cs"
+#
+killall hciattach
+sleep .1
+setserial /dev/ttyS4 baud_base 921600
+hciattach -s 921600 /dev/ttyS4 bcsp
+hciconfig
+hciconfig hci0 up
+hciconfig
 
-So in try_to_wake_up...  Lets assume that the wake up happened on CPU1. 
+It took me a hour trying to debug weird stuff before I realized that I
+need to do hciconfig up... to see some results...
 
-	if (cpu == this_cpu || unlikely(!cpu_isset(this_cpu, p->cpus_allowed)))
-		goto out_set_cpu;
+								Pavel
 
-cpu = the task's cpu = CPU0
-this_cpu = CPU1
-
-cpu_isset(this_cpu, p->cpus_allowed) returns false so we goto
-out_set_cpu.
-
-out_set_cpu:
-	new_cpu = wake_idle(new_cpu, p);   <--- new_cpu would still equal cpu.
-	if (new_cpu != cpu) {
-
-	} else {
-		/*
-		 * If a newly woken up RT task cannot preempt the
-		 * current (RT) task then try to find another
-		 * CPU it can preempt:
-		 */
-p can preempt current, so this is also false.
-		if (rt_task(p) && !TASK_PREEMPTS_CURR(p, rq)) {
-			smp_send_reschedule_allbutself();
-			rt_overload_wakeup++;
-		}
-	}
-
-
-Next we activate the newly woken up RT task.
-
-	activate_task(p, rq, cpu == this_cpu);
-	if (!sync || cpu != this_cpu) {
-		if (TASK_PREEMPTS_CURR(p, rq))
-			resched_task(rq->curr);
-	}
-
-
-So now the newly woken up RT task preempts the other RT task on CPU0.
-
-preempt_schedule is called and then schedule. 
-
-Now the booted RT task should now be transferred to CPU1, since it can
-run there, and CPU1 doesn't have a RT task running.
-
-In finish_task_switch, we have:
-
-#if defined(CONFIG_PREEMPT_RT) && defined(CONFIG_SMP)
-	/*
-	 * If we pushed an RT task off the runqueue,
-	 * then kick other CPUs, they might run it:
-	 */
-	if (unlikely(rt_task(current) && prev->array && rt_task(prev))) {
-		rt_overload_schedule++;
-		smp_send_reschedule_allbutself();
-	}
-#endif
-
-
-Here's my question, where does CPU1 get need_resched set?  As discussed
-earlier, smp_send_reschedule_allbutself doesn't do it.
-
-Thanks,
-
--- Steve
-
-
-
+-- 
+Boycott Kodak -- for their patent abuse against Java.

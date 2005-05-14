@@ -1,74 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262806AbVENRWY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262809AbVENRXs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262806AbVENRWY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 13:22:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262807AbVENRWX
+	id S262809AbVENRXs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 13:23:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262808AbVENRXs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 13:22:23 -0400
-Received: from titan.genwebhost.com ([209.9.226.66]:51850 "EHLO
-	titan.genwebhost.com") by vger.kernel.org with ESMTP
-	id S262806AbVENRWS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 13:22:18 -0400
-Date: Sat, 14 May 2005 10:22:13 -0700
-From: randy_dunlap <rdunlap@xenotime.net>
-To: Wakko Warner <wakko@animx.eu.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, linux@dominikbrodowski.net
-Subject: Re: [PATCH] pcmcia/ds: handle any error code
-Message-Id: <20050514102213.3440c526.rdunlap@xenotime.net>
-In-Reply-To: <20050513194549.GB3519@animx.eu.org>
-References: <20050512015220.GA31634@animx.eu.org>
-	<20050512230206.GA1380@animx.eu.org>
-	<20050512222038.325081b2.rdunlap@xenotime.net>
-	<20050513194549.GB3519@animx.eu.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 14 May 2005 13:23:48 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:7142 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262807AbVENRXQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 May 2005 13:23:16 -0400
+Date: Sat, 14 May 2005 22:53:17 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Nathan Lynch <ntl@pobox.com>
+Cc: Paul Jackson <pj@sgi.com>, dipankar@in.ibm.com, dino@in.ibm.com,
+       Simon.Derr@bull.net, lse-tech@lists.sourceforge.net, akpm@osdl.org,
+       nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
+       rusty@rustcorp.com.au
+Subject: Re: [Lse-tech] Re: [PATCH] cpusets+hotplug+preepmt broken
+Message-ID: <20050514172317.GD32720@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20050511191654.GA3916@in.ibm.com> <20050511195156.GE3614@otto> <20050513123216.GB3968@in.ibm.com> <20050513172540.GA28018@in.ibm.com> <20050513125953.66a59436.pj@sgi.com> <20050513202058.GE5044@in.ibm.com> <20050513135233.6eba49df.pj@sgi.com> <20050513210251.GI5044@in.ibm.com> <20050513195851.5d6665d0.pj@sgi.com> <20050514163012.GL3614@otto>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - titan.genwebhost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - xenotime.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050514163012.GL3614@otto>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 May 2005 15:45:49 -0400 Wakko Warner wrote:
+On Sat, May 14, 2005 at 11:30:12AM -0500, Nathan Lynch wrote:
+> I suspect that the lock_cpu_hotplug is no longer necessary in
+> sched_setaffinity.  
 
-| randy_dunlap wrote:
-| > On Thu, 12 May 2005 19:02:06 -0400 Wakko Warner wrote:
-| > There is some small difference in locking in fs/char_dev.c between
-| > 2.6.12-rc4 and 2.6.11.8, but I don't yet see why it would cause a
-| > failure in register_chrdev().
-| > 
-| > Oh, there's a big difference in drivers/pcmcia/ds.c, lots of probe
-| > changes.  This is where to look further (but not tonight).
-| > The question then becomes is this a real regression?
-| > 
-| > Do you suspect a problem with -Os code generation?
-| 
-| I just tried it, it doesn't give me any errors.  This is strange considering
-| that I a) use a pristine tree for each kernel (only coping the .config) and
-| b) the patch doesn't do anything except report the error.  I made my boot
-| floppy (the scripts I use pull from the kernel tree I specify and make the
-| image I need) and booted from it.  I placed the modules on my stage2 disk
-| that was made and it works.
-| 
-| I don't have the time this week to try again from scratch.  I'll see if I
-| can do it next week.
+Digging harder into my memory, I think the primary reason why lock_cpu_hotplug
+was added in sched_setaffinity was this: some code wants to temporarily
+override a (user-space) task's cpu mask. Before stop_machine came along, module
+code was doing that (again if my memory serves me right). With stop_machine,
+temporary changing of user-space (rmmod's) cpus_allowed is not reqd.
+However I still see other code (like acpi_processor_set_performance) which
+does something like this:
 
-I'm currently running a kernel built with -Os.  I can successfully
-load pcmcia_core.ko and pcmcia.ko.  I added debug printk's in
-drivers/pcmcia/ds.c and it allocates the dynamic major dev
-successfully:
-[4294809.055000] register_chrdev: returning 254
-[4294809.060000] pcmcia major device = 254
+        saved_mask = current->cpus_allowed;
+
+        set_cpus_allowed(current, new_mask);
+
+        /* Do something ..Could block */
+
+        set_cpus_allowed(current, saved_mask);
+
+How do you ensure that saved_mask has not changed since the time
+we took a snapshot of it (bcoz of sched_setaffinity having
+changed it)? lock_cpu_hotplug could serialize such pieces of code
+
+> I found the original changeset which introduced
+> it, and it's short enough that I'll just duplicate it here:
+
+[snip]
+
+> The lock/unlock_cpu_hotplug is no longer there in sched_migrate_task.
+
+Essentialy, if I remember correct, sched_migrate_task was also doing
+something like acpi_processor_set_performance to migrate a task to a new cpu. 
+Thats why we discussed that sched_migrate_task should take lock_cpu_hotplug.  
+But I don't think it ever went in. There were concerns of cache-line bounces 
+on NUMA m/c bcoz of lock_cpu_hotplug in a frequently executed code like 
+sched_migrate_task. Moreover sched_migrate_task no longer behaves like 
+acpi_processor_set_performance when it wants to migrate a user-space task to a 
+different CPU. It now seems to take the help of migration thread (which is 
+much neater compared to what was there earlier i guess).
+
+> The changelog leads me to believe that it was intended that the same
+> change should have been made to sched_setaffinity by now.  I think
+> it's safe to remove it; I can't see why it would be necessary any
+> more.
+
+I recommend that we keep the lock_cpu_hotplug in sched_affinity
+unless we figure out a different way of solving the race I highlighted above
+or we ban code like that in acpi_processor_set_performance :)
 
 
-What gcc version are you using?  (gcc 4.0 has a few known issues.)
 
----
-~Randy
+
+-- 
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

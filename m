@@ -1,92 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262554AbVENF70@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262557AbVENGMj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262554AbVENF70 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 01:59:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262556AbVENF70
+	id S262557AbVENGMj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 02:12:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbVENGMj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 01:59:26 -0400
-Received: from mail.kroah.org ([69.55.234.183]:26021 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262554AbVENF7S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 01:59:18 -0400
-Date: Fri, 13 May 2005 22:59:16 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] hotplug-ng 002 release
-Message-ID: <20050514055916.GA19188@kroah.com>
-References: <20050506212227.GA24066@kroah.com> <Pine.LNX.4.63.0505090025280.7682@1-1-2-5a.f.sth.bostream.se> <20050509211323.GB5297@tsiryulnik> <20050512214229.GA30233@kroah.com> <20050513231917.GA1770@tsiryulnik>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050513231917.GA1770@tsiryulnik>
-User-Agent: Mutt/1.5.8i
+	Sat, 14 May 2005 02:12:39 -0400
+Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:25610 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262557AbVENGM0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 May 2005 02:12:26 -0400
+To: linuxram@us.ibm.com
+CC: viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-reply-to: <1116013840.6248.429.camel@localhost> (message from Ram on Fri,
+	13 May 2005 12:50:40 -0700)
+Subject: Re: [PATCH] namespace.c: fix bind mount from foreign namespace
+References: <E1DWXeF-00017l-00@dorka.pomaz.szeredi.hu>
+	 <20050513170602.GI1150@parcelfarce.linux.theplanet.co.uk>
+	 <E1DWdn9-0004O2-00@dorka.pomaz.szeredi.hu>
+	 <1116005355.6248.372.camel@localhost>
+	 <E1DWf54-0004Z8-00@dorka.pomaz.szeredi.hu>
+	 <1116012287.6248.410.camel@localhost>
+	 <E1DWfqJ-0004eP-00@dorka.pomaz.szeredi.hu> <1116013840.6248.429.camel@localhost>
+Message-Id: <E1DWprs-0005D1-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Sat, 14 May 2005 08:11:20 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 14, 2005 at 01:21:33AM +0200, Per Svennerbrandt wrote:
-> * On Fri, 13 May 2005, Greg KH (greg@kroah.com) wrote:
-> > Ok, as you never posted your patch, I had to do it myself :)
+(CC restored, because I think this is interesting to others as well)
+
+> > > I dont get it...
+> > > 
+> > > do you agree that bind mounts accross namespaces should be disallowed?
+> > 
+> > No.  I think it's a useful feature.  It's actually been discussed at
+> > length earlier, that it makes sense if the user can copy private
+> > mounts from one session to the other (or even automate this with pam,
+> > and a daemon).  Why should they be disallowed?
 > 
-> Oh, crap! Seems like I'm forever doomed to be sitting on my patches for
-> six months thinking they arn't good enough, only to then repeatedly 
-> getting beaten by couple of hours when finally deciding on submitting
-> them then... ;) ;)
+> I understand that feature and the way to do it is through shared
+> subtrees.  
+
+I agree fully, that shared subtrees would be very useful.
+
+> I am against a mount in one namespace being bind mounted in
+> another namespace(which Al Viro has implied in his mail). 
+
+I'd rather not speculate on what Al Viro was thinking, it may have
+been just a misunderstanding.
+
+> With shared subtree if a bind mount is done
+> in one namespace, the bind happens within the same namespace.
+
+Yes.  But that's not fundamentally different from explicitly passing a
+mount (through a file descriptor) to a process in a different
+namespace, and allowing that process to bind mount it in it's native
+namespace.
+
+The end result can be exactly the same, only in the shared subtree
+case the binding is implicit, while in the other case it's explicit on
+both sides (which makes it perfectly secure even for unprivileged use)
+
+Please explain why you think it's wrong to be able to bind mount from
+a different namespace?
+
 > 
-> I guess I'l just have to dedicate more time if I'm ever going to get any
-> code into the kernel.
-
-Or just send those patches earlier :)
-
-> This is pretty much identical to my patch except mine also converts PCI
-> into using add_hotplug_env_var().
-
-That would be nice to do, but it would have been doing 2 things in one
-patch, not good.  
-
-> > +static ssize_t show_modalias(struct device *dev, char *buf)
-> > +{
-> > +	struct usb_interface *intf;
-> > +	struct usb_device *udev;
-> > +
-> > +	intf = to_usb_interface(dev);
-> > +	udev = interface_to_usbdev(intf);
-> > +	if (udev->descriptor.bDeviceClass == 0) {
-> > +		struct usb_host_interface *alt = intf->cur_altsetting;
-> > +
-> > +		return sprintf(buf, "usb:v%04Xp%04Xd%04Xdc%02Xdsc%02Xdp%02Xic%02Xisc%02Xip%02X\n",
-> > +			       le16_to_cpu(udev->descriptor.idVendor),
-> > +			       le16_to_cpu(udev->descriptor.idProduct),
-> > +			       le16_to_cpu(udev->descriptor.bcdDevice),
-> > +			       udev->descriptor.bDeviceClass,
-> > +			       udev->descriptor.bDeviceSubClass,
-> > +			       udev->descriptor.bDeviceProtocol,
-> > +			       alt->desc.bInterfaceClass,
-> > +			       alt->desc.bInterfaceSubClass,
-> > +			       alt->desc.bInterfaceProtocol);
+> However the operation is mirrored to other namespaces
+> that has the same heridity link to this namespace.
 > 
-> Are you sure this is correct?
+> probably I can give an example:
+> 
+> if namespace  n1 has the following tree
+>                    v11
+>                   /  \
+>                  v12  v13
+> 
+> v1 is mark shared. (mount --make-shared v1) [ for simplicity I vxy
+> means  yth vfsmount in xth namespace ]
+> 
+> and than n2 is cloned out of n1, than in n2 we have 
+>                       v21
+>                       / \
+>                     v22  v23
+> 
+> now a bind mount in n1 
+>          mount --bind v12 v13
+> 
+>    will first change the tree in n1 as follows:
+> 
+>                  v11
+>                 /   \
+>               v12   v13
+>                       \
+>                       v14
+> where v14 is a bind mount of v12
+> 
+> 
+>   and than due to propogation the tree in n2 will also change to
+>                     v21
+>                    /   \
+>                   v22   v23
+>                           \
+>                           v24
+>   where v24 is a bind mount of v22
+> 
+> 
+> Essentially there is no cross-contamination, as well as it meets
+> the requirement of per-user-namespace.
 
-Works for me :)
+What do you mean by cross contamination?
 
-> I had problems with alt (intf->cur_altsetting) beeing null and actually 
-> ended up ignoring the interface bits altogether. I'm bretty sure the 
-> above will crash repeatedly on at least some of my machines.
-
-Please let me know if it does.  Did you put the modalias on the
-usb_device or the interface?  It belongs on the interface, as this patch
-does.
-
-cur_altsetting could be NULL pretty early in the initialization phase of
-a USB device, but by the time these files are created, it should be fine
-(otherwise this same check in the hotplug call would also fail, right?)
-
-> So now that I'm not able to submit it toghether with a mixture of other,
-> at least slightly, related things that I actually *do believe* have a
-> small possibility of beeing accepted: How do I get my request_modalias
-> patch in? ;) ;)
-
-Send them on, let's see what you have, and we can take it from there.
-
-thanks,
-
-greg k-h
+Thanks,
+Miklos

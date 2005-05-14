@@ -1,115 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262557AbVENGMj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262556AbVENGgq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262557AbVENGMj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 02:12:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbVENGMj
+	id S262556AbVENGgq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 02:36:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262593AbVENGgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 02:12:39 -0400
-Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:25610 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262557AbVENGM0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 02:12:26 -0400
-To: linuxram@us.ibm.com
-CC: viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <1116013840.6248.429.camel@localhost> (message from Ram on Fri,
-	13 May 2005 12:50:40 -0700)
-Subject: Re: [PATCH] namespace.c: fix bind mount from foreign namespace
-References: <E1DWXeF-00017l-00@dorka.pomaz.szeredi.hu>
-	 <20050513170602.GI1150@parcelfarce.linux.theplanet.co.uk>
-	 <E1DWdn9-0004O2-00@dorka.pomaz.szeredi.hu>
-	 <1116005355.6248.372.camel@localhost>
-	 <E1DWf54-0004Z8-00@dorka.pomaz.szeredi.hu>
-	 <1116012287.6248.410.camel@localhost>
-	 <E1DWfqJ-0004eP-00@dorka.pomaz.szeredi.hu> <1116013840.6248.429.camel@localhost>
-Message-Id: <E1DWprs-0005D1-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Sat, 14 May 2005 08:11:20 +0200
+	Sat, 14 May 2005 02:36:45 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:42899 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S262556AbVENGgg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 May 2005 02:36:36 -0400
+Date: Fri, 13 May 2005 23:11:14 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: linux-ia64@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: new beta perfmon code base with IA-64/Pentium M/X86-64 support
+Message-ID: <20050514061114.GA3957@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(CC restored, because I think this is interesting to others as well)
+Hello everyone,
 
-> > > I dont get it...
-> > > 
-> > > do you agree that bind mounts accross namespaces should be disallowed?
-> > 
-> > No.  I think it's a useful feature.  It's actually been discussed at
-> > length earlier, that it makes sense if the user can copy private
-> > mounts from one session to the other (or even automate this with pam,
-> > and a daemon).  Why should they be disallowed?
-> 
-> I understand that feature and the way to do it is through shared
-> subtrees.  
+I am happy to announce that I have now released a first version of
+the new code base for the perfmon subsystem. As of now this is still
+beta code and it is not meant for production systems nor any official
+kernel. It is primarily targeted at OS and tool developers. 
 
-I agree fully, that shared subtrees would be very useful.
+This new code base follows fairly closely the specification
+that was released as an HPLabs technical report (HPL-2004-200R1).
+Yet there are a few changes which are not yet reflected in the
+published document (I will get to that soon, hopefully).
 
-> I am against a mount in one namespace being bind mounted in
-> another namespace(which Al Viro has implied in his mail). 
+Among the new features:
+	- support for Pentium M processors
+	- support for AMD's X86-64 (64-bit mode) processor family
 
-I'd rather not speculate on what Al Viro was thinking, it may have
-been just a misunderstanding.
+	- support for kernel level event sets
+	- support for time-based and overflow-based event set switching
+	- support for idle-task exclusion in system-wide mode
+	- On IA-64, option to monitor or exclude interrupt-only execution (system-wide)
+	- a new portable default sampling format
+	- PMU description tables are now kernel modules
+	- new config commands: PFM_GETINFO_PMCS, PFM_GETINFO_PMDS
+	- new config parameters to control resource usage
+	- code is now split between machine independent and dependent
 
-> With shared subtree if a bind mount is done
-> in one namespace, the bind happens within the same namespace.
+On IA-64, full source AND binary compatibility is retained for existing
+pefmon2-based applications. However, it is advised that people should try
+and migrate to the new commands and features for portability. The
+compatibility support is turned on by default, and can be turned off by
+undefining PFM_IA64_PERFMON_COMPAT.  Look in include/asm-ia64/perfmon_compat.h
+for migration help. On all other platforms, there is obviously no 
+backward compatibility mode.
 
-Yes.  But that's not fundamentally different from explicitly passing a
-mount (through a file descriptor) to a process in a different
-namespace, and allowing that process to bind mount it in it's native
-namespace.
+The set of software features is IDENTICAL on all platforms. That
+means that on IA-64, X86-64 and Pentium M, you can benefit from:
 
-The end result can be exactly the same, only in the shared subtree
-case the binding is implicit, while in the other case it's explicit on
-both sides (which makes it perfectly secure even for unprivileged use)
+	- per-thread and system wide monitoring
+	- simple counting and sampling
+	- multiple sampling periods
+	- kernel level sampling buffer with remapping
+	- custom sampling buffer formats via kernel modules
+	- message-based overflow notification w/ poll/select support
+	- event sets
+	- time and overflow-based set switching
+	- idle-task exclusion in system-wide
+	- randomization of sampling periods
 
-Please explain why you think it's wrong to be able to bind mount from
-a different namespace?
+The code for X86-64 and Pentium M is beta and there are certainly
+things that can be improved. Both ports are meant as validation
+tests for the interface and also as examples of how to add support
+for other processors.
 
-> 
-> However the operation is mirrored to other namespaces
-> that has the same heridity link to this namespace.
-> 
-> probably I can give an example:
-> 
-> if namespace  n1 has the following tree
->                    v11
->                   /  \
->                  v12  v13
-> 
-> v1 is mark shared. (mount --make-shared v1) [ for simplicity I vxy
-> means  yth vfsmount in xth namespace ]
-> 
-> and than n2 is cloned out of n1, than in n2 we have 
->                       v21
->                       / \
->                     v22  v23
-> 
-> now a bind mount in n1 
->          mount --bind v12 v13
-> 
->    will first change the tree in n1 as follows:
-> 
->                  v11
->                 /   \
->               v12   v13
->                       \
->                       v14
-> where v14 is a bind mount of v12
-> 
-> 
->   and than due to propogation the tree in n2 will also change to
->                     v21
->                    /   \
->                   v22   v23
->                           \
->                           v24
->   where v24 is a bind mount of v22
-> 
-> 
-> Essentially there is no cross-contamination, as well as it meets
-> the requirement of per-user-namespace.
+It is important to note that the interface to arch-specific
+code is not frozen. It can certainly still evolve to accomodate
+unforseen arch-specific behaviors. Similarly suggestions
+on how to improve the interface are welcome.
 
-What do you mean by cross contamination?
+The new code based is distributed as a tarball containing a kernel patch
+against 2.6.12-rc3 from the (IA-64 test-2.6) GIT repository at kernel.org
+and a small porting guide. The patch should be fairly easy to apply to newer
+kernels. Being kernel code, the patch is released under the GPL license.
 
-Thanks,
-Miklos
+Not being an IA-32 expert myself, I would like to recognize
+Mikael Pettersson for his work on perfctr from which some small
+pieces of code for X86-64/Pentium M are inspired. I have more or
+less used the same hooks and I have certainly tried to minimze
+the number of places where hooks are needed. I also put a lot of
+effort is trying to keep this as clean as possible. 
+
+I am planning some more cleanups and a couple more features requested
+by users.
+
+I hope people will find the multi-platform support useful and will
+contribute ports to the other important processors.
+
+You can download the package at:
+	ftp://ftp.hpl.hp.com/pub/linux-ia64/perfmon-new-base-050513.tar.gz
+	MD5SUM: 24205b9a82e3f5d840b876845cc7edb5
+
+Enjoy,
+
+-- 
+-Stephane

@@ -1,95 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262738AbVENKEy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262727AbVENKE6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262738AbVENKEy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 06:04:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262727AbVENKCT
+	id S262727AbVENKE6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 06:04:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262485AbVENKDB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 06:02:19 -0400
-Received: from rproxy.gmail.com ([64.233.170.206]:47644 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262485AbVENJiu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 05:38:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type;
-        b=dYmtSII84oF9TBBYdMmtP8Q/oXMR4UOP0azLZnH/rgpQ5v0zppwjwrqowgeCiGKwi6oMy7tPgW12lq00lCe0TrAgJWFHBzf5zepWZM3DjbtLddDv35nz0QQ3114NQaFOKoZiDxvFCulnUexDogMonhn1tciElrdFx+fyJOTbAYs=
-Message-ID: <2538186705051402386375a3d9@mail.gmail.com>
-Date: Sat, 14 May 2005 05:38:43 -0400
-From: Yani Ioannou <yani.ioannou@gmail.com>
-Reply-To: Yani Ioannou <yani.ioannou@gmail.com>
-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.12-rc4] include/linux:(dynamic sysfs callbacks) new attribute macros
-Mime-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_1471_28009831.1116063523907"
+	Sat, 14 May 2005 06:03:01 -0400
+Received: from innocence-lost.us ([66.93.152.112]:20100 "EHLO
+	innocence-lost.net") by vger.kernel.org with ESMTP id S262715AbVENJqi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 May 2005 05:46:38 -0400
+Date: Sat, 14 May 2005 02:46:30 -0700 (MST)
+From: jnf <jnf@innocence-lost.us>
+To: christos gentsis <christos_gentsis@yahoo.co.uk>
+cc: Valdis.Kletnieks@vt.edu, Bill Davidsen <davidsen@tmr.com>,
+       linux-os@analogic.com, "Srinivas G." <srinivasg@esntechnologies.co.in>,
+       linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: Y2K-like bug to hit Linux computers! - Info of the day
+In-Reply-To: <4285C030.1080706@yahoo.co.uk>
+Message-ID: <Pine.LNX.4.62.0505140240250.14650@fhozvffvba.vaabprapr-ybfg.arg>
+References: <4EE0CBA31942E547B99B3D4BFAB348114BED13@mail.esn.co.in>
+ <200505131522.32403.vda@ilport.com.ua> <Pine.LNX.4.61.0505130825310.4428@chaos.analogic.com>
+ <Pine.LNX.4.61.0505130837390.4781@chaos.analogic.com>           
+ <42850FC7.7010603@tmr.com> <200505132047.j4DKlcgV025923@turing-police.cc.vt.edu>
+ <4285C030.1080706@yahoo.co.uk>
+X-GPG-PUBLIC_KEY: http://innocence-lost.net/jnf-pubkey.asc
+X-GPG-FINGRPRINT: E24B 994F D483 12EF 61D4  A384 1F16 EFD1 E1A7 954C
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_1471_28009831.1116063523907
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-Hi,
+firstly lemme say im hardly any authority, so feel free to disregard
+anything I have to say, lord knows everyone else does.
 
-The following patch adds a new __ATTR_PRIVATE macro and a
-DEVICE_ATTR_PRIVATE macro to be used when creating static device
-attributes with a void * member.
+I would say that this is more or less a known issue, and not really an
+issue- at least not as far as I can see- I would hope that by 2038 64b (or
+larger) int's would be standard.
 
+> but shall i ask how
+> counting something that increase can give a negative number?
 
-Signed-off-by: Yani Ioannou <yani.ioannou@gmail.com>
+what would you expect MAX_INT+1 to yield?
+as a short example:
 
-Thanks,
-Yani
+submission$ cat test.c
+int main(void) {
+        signed short int count = 0;
 
----
- device.h |    3 +++
- sysfs.h  |   11 +++++++++++
- 2 files changed, 14 insertions(+)
----
-
-------=_Part_1471_28009831.1116063523907
-Content-Type: text/x-patch; 
-	name=patch-linux-2.6.12-rc4-sysfsdyncallback-deviceattr-macro.diff; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="patch-linux-2.6.12-rc4-sysfsdyncallback-deviceattr-macro.diff"
-
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/include/linux/device.h linux-2.6.12-rc4-sysfsdyncallback-deviceattr-macro/include/linux/device.h
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/include/linux/device.h	2005-05-13 01:02:10.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-macro/include/linux/device.h	2005-05-13 01:09:27.000000000 -0400
-@@ -343,6 +343,9 @@ struct device_attribute {
- #define DEVICE_ATTR(_name,_mode,_show,_store) \
- struct device_attribute dev_attr_##_name = __ATTR(_name,_mode,_show,_store)
- 
-+#define DEVICE_ATTR_PRIVATE(_name,_mode,_show,_store,_private)	\
-+struct device_attribute dev_attr_##_name = 			\
-+	__ATTR_PRIVATE(_name,_mode,_show,_store,_private)
- 
- extern int device_create_file(struct device *device, struct device_attribute * entry);
- extern void device_remove_file(struct device * dev, struct device_attribute * attr);
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/include/linux/sysfs.h linux-2.6.12-rc4-sysfsdyncallback-deviceattr-macro/include/linux/sysfs.h
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/include/linux/sysfs.h	2005-05-13 01:02:10.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-macro/include/linux/sysfs.h	2005-05-13 01:08:09.000000000 -0400
-@@ -45,6 +45,17 @@ struct attribute_group {
- 	.store	= _store,			\
- }
- 
-+#define __ATTR_PRIVATE(_name,_mode,_show,_store,_private) {	\
-+	.attr = {						\
-+		.name = __stringify(_name),			\
-+		.mode = _mode,					\
-+		.private = _private,				\
-+		.owner = THIS_MODULE,				\
-+	}, 							\
-+	.show	= _show,					\
-+	.store	= _store,					\
-+}
-+
- #define __ATTR_RO(_name) {			\
- 	.attr	= {				\
- 		.name = __stringify(_name),	\
+        while(count >= 0 ) {
+                printf("count: %d\n", count++ );
+        }
+        printf("count: %d\n");
+}
+submission$ gcc -o test test.c
+submission$ ./test
+[...]
+count: 32767
+count: -1
 
 
+> second... is the counter on the software? until now i thought that the counter
+> is a clock on the hardware...
 
+IIRC the software keeps track of the count, so even though its physically
+a hardware clock, the software still has to count it- if a 32b int can
+only represent 2^32-1, then we will hit a wall, for our purposes this will
+be in 2038, unless by then linux switches to a 64b counter, which is quite
+probably (and possibly already done under amd64 and the likes?)
 
-------=_Part_1471_28009831.1116063523907--
+> so how is this related with Linux? then the
+> counter overflow... this will be a hardware issue... not a software issue (
+> the software will have to support the bigger hardware counter but to do that
+> the bigger hardware has to exist first...)
+
+I could be wrong here, but I don't think the hardware even keeps track of
+the clock ticks, rather it just ticks and lets the software keep track.
+
+> BTW is there anyone that plan to use his embedded devise until 2038????
+
+not exactly an embedded device however I have my feet resting on an ibm
+ps/2 286 running minix. Some people hold onto things longer than other
+people.
+

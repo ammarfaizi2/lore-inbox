@@ -1,89 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbVENVSr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbVENVU2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261494AbVENVSr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 17:18:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261496AbVENVSq
+	id S261496AbVENVU2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 17:20:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbVENVU2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 17:18:46 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:62736 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261494AbVENVSn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 17:18:43 -0400
-Date: Sat, 14 May 2005 22:18:38 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Yani Ioannou <yani.ioannou@gmail.com>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.12-rc4 1/12] (dynamic sysfs callbacks) update device attribute callbacks
-Message-ID: <20050514221838.A15061@flint.arm.linux.org.uk>
-Mail-Followup-To: Yani Ioannou <yani.ioannou@gmail.com>,
-	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-References: <2538186705051402237a79225@mail.gmail.com> <20050514112242.A24975@flint.arm.linux.org.uk> <2538186705051412462d6db2d2@mail.gmail.com>
+	Sat, 14 May 2005 17:20:28 -0400
+Received: from h80ad255c.async.vt.edu ([128.173.37.92]:32529 "EHLO
+	h80ad255c.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261496AbVENVTj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 May 2005 17:19:39 -0400
+Message-Id: <200505142119.j4ELJRAV032512@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: christos gentsis <christos_gentsis@yahoo.co.uk>
+Cc: Matthew Geier <matthew@arts.usyd.edu.au>, linux-kernel@vger.kernel.org
+Subject: Re: Y2K-like bug to hit Linux computers! - Info of the day 
+In-Reply-To: Your message of "Sat, 14 May 2005 21:27:11 BST."
+             <42865F1F.8000204@yahoo.co.uk> 
+From: Valdis.Kletnieks@vt.edu
+References: <4285F337.7010301@arts.usyd.edu.au>
+            <42865F1F.8000204@yahoo.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <2538186705051412462d6db2d2@mail.gmail.com>; from yani.ioannou@gmail.com on Sat, May 14, 2005 at 03:46:31PM -0400
+Content-Type: multipart/signed; boundary="==_Exmh_1116105566_5152P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sat, 14 May 2005 17:19:27 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 14, 2005 at 03:46:31PM -0400, Yani Ioannou wrote:
-> My first post to LKML on the patch:
-> http://lkml.org/lkml/2005/5/7/60
+--==_Exmh_1116105566_5152P
+Content-Type: text/plain; charset=us-ascii
+
+On Sat, 14 May 2005 21:27:11 BST, christos gentsis said:
+> Matthew Geier wrote:
 > 
-> The idea originated in the lm_sensors mailing list, so you might want
-> to take a look at the lm_sensors archive is you are interested, in
-> particular the following thread:
-> ...
-> 
-> This isn't changing, although there are cases where it is
-> necessary/preferable to dynamically create the attributes (again see
-> previous discussion). This patch helps both static and dynamically
-> created attributes. The adm1026 example I posted to the mailing list
-> earlier uses entirely static attributes still (and hence the need for
-> the new macros my latest patch adds), and I expect most attributes
-> will remain static.
+> >
+> >  Embeded computing is much bigger than that. I've got a 20 year old 
+> > embedded processor controlled microwave oven. (It still knows how to 
+> > cook better than I do :-).
+> >
+> why anyone that refer to an embedded device mean a microwave????
 
-Ok.  I do wonder if the better solution would be to encapsulate
-"device_attribute" where this extra information is required, and
-pass a pointer to device_attribute to its methods, in much the
-same way as "sysfs_ops" works.
+Microwaves. Alarm clocks. Stereos. DVD players. Tivo units. Your car, most
+likely, unless it's *so* ancient it predates fuel injection (my '87 Tercel
+didn't have any once the radio died.  My '94 Camry has at least 4 that I know
+of).
 
-This means your attributes in adm1016 become:
+Almost anything that has a display more intelligent than wiring one end of an
+LED to ground, the other to +5V (with a 5K resistor in there), and using it as
+a "power on" indicator. This includes essentially all multi-segment LED and all
+LCD displays.
 
-struct adm1016_attr {
-	struct device_attribute	dev_attr;
-	int			nr;
-};
+We *could* itemize all these things, or just generalize to "anything that's
+at least as smart as a microwave probably has an embedded CPU".
 
-#define ADM1016_ATTR(_name,_mode,_show,_store,_nr)		\
-	struct adm1016_attr adm_attr_##_name = {		\
-		.dev_attr = __ATTR(_name,_mode,_show,_store),	\
-		.nr = _nr,					\
-	}
+--==_Exmh_1116105566_5152P
+Content-Type: application/pgp-signature
 
-static ssize_t show_temp_max(struct device *dev, struct device_attribute *attr, char *buf)
-{
-	struct adm1016_attr *adm_attr = to_adm_attr(attr);
-	struct adm1026_data *data = adm1026_update_device(dev);
-	return sprintf(buf,"%d\n", TEMP_FROM_REG(data->temp_max[adm_attr->nr]));
-}
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-#define temp_reg(offset)					\
-...
-static ADM1016_ATTR(temp##offset##_max, S_IRUGO | S_IWUSR,	\
-	show_temp_max, set_temp_max, offset)
+iD8DBQFChmtecC3lWbTT17ARAgGCAKCjSsIt2YDy+ETZB/NzZu6lWGHvPwCfdKHV
+yhikmcBQDOKuOsNdk/6YCa0=
+=IqZ9
+-----END PGP SIGNATURE-----
 
-There are two advantages to this way:
-
-1. you're not having to impose the extra void * pointer in the
-   attribute on everyone.
-2. you allow people to add whatever data they please to the attribute
-   in whatever format they wish - whether it be a void pointer, integer,
-   or whatever.
-
-This seems far more flexible to me, at least.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+--==_Exmh_1116105566_5152P--

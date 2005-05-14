@@ -1,148 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262808AbVENR3h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262810AbVENRc1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262808AbVENR3h (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 13:29:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbVENR3d
+	id S262810AbVENRc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 13:32:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262812AbVENRc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 13:29:33 -0400
-Received: from mail.toyon.com ([65.160.147.241]:18632 "EHLO mail.toyon.com")
-	by vger.kernel.org with ESMTP id S262808AbVENR3N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 13:29:13 -0400
-Message-ID: <00bb01c558aa$75bb2210$1600a8c0@toyon.corp>
-From: "Peter J. Stieber" <developer@toyon.com>
-To: <linux-kernel@vger.kernel.org>
-References: <20050419133509.GF7715@wotan.suse.de> <Pine.LNX.4.61.0504191636570.13422@goblin.wat.veritas.com> <1114773179.9543.14.camel@jasmine> <20050429173216.GB1832@redhat.com> <20050502170042.GJ7342@wotan.suse.de> <1115047729.19314.1.camel@jasmine> <1115717814.7679.2.camel@jasmine> <20050510163851.GA1128@redhat.com> <20050510164649.GL25612@wotan.suse.de> <20050510165938.GA11835@redhat.com> <20050512212319.GE15965@wotan.suse.de> <01cd01c55805$df437cf0$1600a8c0@toyon.corp>
-Subject: Re: x86-64 bad pmds in 2.6.11.6 II
-Date: Sat, 14 May 2005 10:29:19 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=response
+	Sat, 14 May 2005 13:32:27 -0400
+Received: from titan.genwebhost.com ([209.9.226.66]:59069 "EHLO
+	titan.genwebhost.com") by vger.kernel.org with ESMTP
+	id S262810AbVENRcL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 May 2005 13:32:11 -0400
+Date: Sat, 14 May 2005 10:32:05 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: Wakko Warner <wakko@animx.eu.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, linux@dominikbrodowski.net
+Subject: Re: [PATCH] pcmcia/ds: handle any error code
+Message-Id: <20050514103205.7718d5f6.rdunlap@xenotime.net>
+In-Reply-To: <20050514172619.GA5835@animx.eu.org>
+References: <20050512015220.GA31634@animx.eu.org>
+	<20050512230206.GA1380@animx.eu.org>
+	<20050512222038.325081b2.rdunlap@xenotime.net>
+	<20050513194549.GB3519@animx.eu.org>
+	<20050514102213.3440c526.rdunlap@xenotime.net>
+	<20050514172619.GA5835@animx.eu.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2527
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - titan.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CW = Christopher Warner
-CW>>>>>> 2.6.11.5 kernel,
-CW>>>>>> Tyan S2882/dual AMD 246 opterons
-CW>>>>>> sh:18983: mm/memory.c:99: bad pmd
-CW>>>>>> ffff810005974cc8(00007ffffffffe46).
-CW>>>>>> sh:18983: mm/memory.c:99: bad pmd
-CW>>>>>> ffff810005974cd0(00007ffffffffe47).
+On Sat, 14 May 2005 13:26:19 -0400 Wakko Warner wrote:
 
-DJ = Dave Jones
-DJ>>>>> That's the 3rd or 4th time I've seen this
-DJ>>>>> reported on this hardware.
-DJ>>>>> It's not exclusive to it, but it does seem more
-DJ>>>>> susceptible for some reason. Spooky.
+| randy_dunlap wrote:
+| > On Fri, 13 May 2005 15:45:49 -0400 Wakko Warner wrote:
+| > | I just tried it, it doesn't give me any errors.  This is strange considering
+| > | that I a) use a pristine tree for each kernel (only coping the .config) and
+| > | b) the patch doesn't do anything except report the error.  I made my boot
+| > | floppy (the scripts I use pull from the kernel tree I specify and make the
+| > | image I need) and booted from it.  I placed the modules on my stage2 disk
+| > | that was made and it works.
+| > | 
+| > | I don't have the time this week to try again from scratch.  I'll see if I
+| > | can do it next week.
+| > 
+| > I'm currently running a kernel built with -Os.  I can successfully
+| > load pcmcia_core.ko and pcmcia.ko.  I added debug printk's in
+| > drivers/pcmcia/ds.c and it allocates the dynamic major dev
+| > successfully:
+| 
+| I noticed this too.  I can't figure out why it wasn't working before.  I
+| don't believe the method of loading the kernel (hdd, usb, floppy) would
+| cause this.  Next week when I get a chance to work more on this project,
+| I'll wipe out my entire kernel tree (saving the .config) and try again (I
+| keep pristine sources in /usr/src/linux/dist/<kernel vers>)
+| 
+| > What gcc version are you using?  (gcc 4.0 has a few known issues.)
+| 
+| gcc (GCC) 3.4.4 20050314 (prerelease) (Debian 3.4.3-12)
+| 
+| I have gcc-3.3 also installed.  Should I use it instead?
 
-AK = Andi Kleen wrote:
-AK>>>> It seems to be clear now that it is hardware
-AK>>>> independent.
-AK>>>>
-AK>>>> I actually got it once now too, but only after
-AK>>>> 24+h stress test :/
-AK>>>>
-AK>>>> I have a better debugging patch now that I will be
-AK>>>> testing soon, hopefully that turns something up.
+I guess it's worth a try, although suspecting code generation is really
+low on my list.  (I used gcc 3.3.3.)
 
-DJ = Dave Jones
-DJ>>> Ok, I'm respinning the Fedora update kernel today
-DJ>>> for other reasons, if you have that patch in time,
-DJ>>> I'll toss it in too.
-DJ>>>
-DJ>>> Though as yet, no further reports from our users.
-
-PJS = Peter J. Stieber
-PJS> I posted some information on the fedora-list
-PJS> concerning my experience with this problem. I
-PJS> am using a Tyan S2885/dual 244 Opterons. For HW and
-PJS> driver details see:
-PJS> https://www.redhat.com/archives/fedora-list/2005-May/msg01690.html
-PJS> I have been using Dave's FC3 test kernel
-PJS> (2.6.11-1.24_FC3smp) for a little over a day and
-PJS> have been unable to generate the problem with the
-PJS> computer under a larger than normal load.
-PJS>
-PJS> Prior to May 12, I had been seeing the problem very
-PJS> regularly. It started around April 14. I believe this
-PJS> is about the time I first started using the
-PJS> 2.6.11-1.14_FC3smp kernel. I remember I had to get a
-PJS> BIOS upgrade from Tyan
-PJS> (http://www.tyan.com/support/html/b_s2885.html
-PJS> unfortunately a Beta release) to get my network back
-PJS> once I started using the new kernel. After that the
-PJS> memory.c messages started showing up. I though it
-PJS> might be BIOS related (see the note on the referenced
-PJS> Tyan page), but when I saw Christopher's post I
-PJS> thought maybe it was the kernel because his MOBO
-PJS> doesn't have a Beta BIOS release. I googled and
-PJS> found this thread, and subscribed to this list.
-PJS>
-PJS> I have "memory.c:97 bad pmd" entries in my
-PJS> /var/log/messages files going back to April 14.
-PJS> The only days I don't have them are April 20, 22, 23,
-PJS> 24 and April 29 (22, 23, and 24 are a weekend with
-PJS> less activity). I have had them every day in May
-PJS> until I installed Dave's test kernel.
-PJS>
-PJS> I am very computer literate, but not a kernel
-PJS> developer. I hope I didn't offend you guys by
-PJS> posting here. I would be willing to be your guinea
-PJS> pig for testing. Currently I am unable to reproduce
-PJS> the problem. If I am able to reproduce the problem,
-PJS> would you prefer I post here or on the
-PJS> fedora list?
-PJS>
-PJS> Thanks for all of your efforts,
-
-My Tyan S2885 just exhibited the problem with Dave's test FC3 kernel
-(2.6.11-1.24_FC3smp):
-
-May 14 10:00:18 maggie kernel: collect2:14167: mm/memory.c:98: bad pmd
-ffff81005856d008(0000000000000008).
-May 14 10:00:18 maggie kernel: collect2:14167: mm/memory.c:98: bad pmd
-ffff81005856d018(0000000000000009).
-May 14 10:00:18 maggie kernel: collect2:14167: mm/memory.c:98: bad pmd
-ffff81005856d020(0000000000401b80).
-May 14 10:00:18 maggie kernel: collect2:14167: mm/memory.c:98: bad pmd
-ffff81005856d028(000000000000000b).
-May 14 10:00:18 maggie kernel: collect2:14167: mm/memory.c:98: bad pmd
-ffff81005856d030(00000000000001f4).
-May 14 10:00:18 maggie kernel: collect2:14167: mm/memory.c:98: bad pmd
-ffff81005856d038(000000000000000c).
-May 14 10:00:18 maggie kernel: collect2:14167: mm/memory.c:98: bad pmd
-ffff81005856d040(00000000000001f4).
-May 14 10:00:18 maggie kernel: collect2:14167: mm/memory.c:98: bad pmd
-ffff81005856d048(000000000000000d).
-May 14 10:00:18 maggie kernel: collect2:14167: mm/memory.c:98: bad pmd
-ffff81005856d050(00000000000001f7).
-May 14 10:00:18 maggie kernel: collect2:14167: mm/memory.c:98: bad pmd
-ffff81005856d058(000000000000000e).
-May 14 10:00:18 maggie kernel: collect2:14167: mm/memory.c:98: bad pmd
-ffff81005856d060(00000000000001f7).
-May 14 10:00:18 maggie kernel: collect2:14167: mm/memory.c:98: bad pmd
-ffff81005856d068(0000000000000017).
-May 14 10:00:18 maggie kernel: collect2:14167: mm/memory.c:98: bad pmd
-ffff81005856d078(000000000000000f).
-May 14 10:00:18 maggie kernel: collect2:14167: mm/memory.c:98: bad pmd
-ffff81005856d080(00007ffffffff0a4).
-May 14 10:00:18 maggie kernel: collect2:14167: mm/memory.c:98: bad pmd
-ffff81005856d0a0(5f36387800000000).
-May 14 10:00:18 maggie kernel: collect2:14167: mm/memory.c:98: bad pmd
-ffff81005856d0a8(0000000000003436).
-
-It died while running configure. It was attempting to use gcc to make
-sure C compiling was possible. In the past, if I run the script a second
-time it works.
-
-Sorry for my ignorance, but what other information do you need?
-Pete 
+| I follow the list somewhat (only interesting sujects =) and I have noticed
+| that 4.0 has some problems.
 
 
+---
+~Randy

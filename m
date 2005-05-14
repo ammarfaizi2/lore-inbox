@@ -1,73 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261462AbVENTVu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261473AbVENTqj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261462AbVENTVu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 15:21:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbVENTVu
+	id S261473AbVENTqj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 15:46:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbVENTqg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 15:21:50 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:16846 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261462AbVENTVr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 15:21:47 -0400
-Subject: Re: Hyper-Threading Vulnerability
-From: Lee Revell <rlrevell@joe-job.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Jones <davej@redhat.com>,
-       Matt Mackall <mpm@selenic.com>, Andy Isaacson <adi@hexapodia.org>,
-       Andi Kleen <ak@muc.de>, "Richard F. Rebel" <rrebel@whenu.com>,
-       Gabor MICSKO <gmicsko@szintezis.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, tytso@mit.edu
-In-Reply-To: <1116093694.6007.15.camel@laptopd505.fenrus.org>
-References: <1115963481.1723.3.camel@alderaan.trey.hu>
-	 <m164xnatpt.fsf@muc.de> <1116009483.4689.803.camel@rebel.corp.whenu.com>
-	 <20050513190549.GB47131@muc.de> <20050513212620.GA12522@hexapodia.org>
-	 <20050513215905.GY5914@waste.org>
-	 <1116024419.20646.41.camel@localhost.localdomain>
-	 <1116025212.6380.50.camel@mindpipe>  <20050513232708.GC13846@redhat.com>
-	 <1116027488.6380.55.camel@mindpipe>
-	 <1116084186.20545.47.camel@localhost.localdomain>
-	 <1116088229.8880.7.camel@mindpipe>
-	 <1116089068.6007.13.camel@laptopd505.fenrus.org>
-	 <1116093396.9141.11.camel@mindpipe>
-	 <1116093694.6007.15.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Date: Sat, 14 May 2005 15:21:44 -0400
-Message-Id: <1116098504.9141.31.camel@mindpipe>
+	Sat, 14 May 2005 15:46:36 -0400
+Received: from rproxy.gmail.com ([64.233.170.200]:35544 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261468AbVENTqc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 May 2005 15:46:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iG0fW8PMCSsl6Kmmj67oEUaIrEADnQROuOMcrWsdF28OiquCyqaUR98+BhDI5ZzRq2wIXg8Q7xXzWPm8y346dJ241tAmvlqnHlTNH16zI7O8r9hWP4ADDlaoHGk8cccWIlCe3VeFZoWMig0ZioHPZ396ULKA21zuRKNb1iTLb+o=
+Message-ID: <2538186705051412462d6db2d2@mail.gmail.com>
+Date: Sat, 14 May 2005 15:46:31 -0400
+From: Yani Ioannou <yani.ioannou@gmail.com>
+Reply-To: Yani Ioannou <yani.ioannou@gmail.com>
+To: Yani Ioannou <yani.ioannou@gmail.com>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.12-rc4 1/12] (dynamic sysfs callbacks) update device attribute callbacks
+In-Reply-To: <20050514112242.A24975@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <2538186705051402237a79225@mail.gmail.com>
+	 <20050514112242.A24975@flint.arm.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-05-14 at 20:01 +0200, Arjan van de Ven wrote:
-> On Sat, 2005-05-14 at 13:56 -0400, Lee Revell wrote:
-> > On Sat, 2005-05-14 at 18:44 +0200, Arjan van de Ven wrote:
-> > > then JACK is terminally broken if it doesn't have a fallback for non-
-> > > rdtsc cpus. 
-> > 
-> > It does have a fallback, but the selection is done at compile time.  It
-> > uses rdtsc for all x86 CPUs except pre-i586 SMP systems.
-> > 
-> > Maybe we should check at runtime,
-> 
-> it's probably a sign that JACK isn't used on SMP systems much, at least
-> not on the bigger systems (like IBM's x440's) where the tsc *will*
-> differ wildly between cpus...
+Hi Russell,
 
-Correct.  The only bug reports we have seen related to the use of the
-TSC is due to CPU frequency scaling.  The fix is to not use it - people
-who want to use their PC as a DSP for audio probably don't want their
-processor slowing down anyway.  And JACK is targeted at desktop and
-smaller systems, it would be kind of crazy to run it on a big iron.
-Well, maybe there are people who like to record sessions or practice
-guitar in the server room...
+> I missed commenting on this first time round.  What is the purpose behind
+> this idea?
 
-If gettimeofday is really as cheap as rdtsc on x86_64, we should use it.
-But it's too expensive for slower x86 systems.  Anyway, Andi's fix
-disables *all* high res timing including gettimeofday.  Obviously no
-multimedia app can tolerate this, so discussing rdtsc is really a red
-herring.  But multimedia apps aren't much in seccomp environments
-either.
+My first post to LKML on the patch:
+http://lkml.org/lkml/2005/5/7/60
 
-Lee
+The idea originated in the lm_sensors mailing list, so you might want
+to take a look at the lm_sensors archive is you are interested, in
+particular the following thread:
 
+http://archives.andrew.net.au/lm-sensors/msg31162.html
+
+> Currently, sysfs attributes are generally static structures which don't
+> require allocation, and are shared between all objects.  I'm unable to
+> see what advantage adding this void pointer is supposed to give us,
+> other than having to dynamically allocate these structures if we want
+> to use them.
+
+This isn't changing, although there are cases where it is
+necessary/preferable to dynamically create the attributes (again see
+previous discussion). This patch helps both static and dynamically
+created attributes. The adm1026 example I posted to the mailing list
+earlier uses entirely static attributes still (and hence the need for
+the new macros my latest patch adds), and I expect most attributes
+will remain static.
+
+> What's more, I don't really see what adding this buys us - we already
+> have the pointer which is supposed to identify the object passed in.
+
+Using device_attribute as an example (most other derived sysfs
+attributes have near identical callbacks):
+
+struct device_attribute {
+        struct attribute        attr;
+        ssize_t (*show)(struct device * dev, char * buf);
+        ssize_t (*store)(struct device * dev, const char * buf, size_t count);
+};
+
+The only pointer passed in the present callbacks is the device
+structure, this doesn't help at all identify what attribute the
+callback is for when a device can have many attributes.
+
+> There's another question - how is the lifetime of the object pointed
+> to by this void pointer managed?
+
+Think of the pointer like the the driver_data pointer in struct device
+(http://lxr.linux.no/source/include/linux/device.h#L270), except
+instead of driver specific data pointer, this is attribute specific
+data pointer, and might not even be used (i.e. NULL). What the pointer
+points to should managed by whatever created that entity... I kind of
+like Greg's renaming of the void * to private for reasons along those
+lines. Your question about lifetime seems to imply that that entity
+must be dynamically allocated, but that is not necessarily so.
+
+Thanks,
+Yani

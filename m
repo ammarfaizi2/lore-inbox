@@ -1,165 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262786AbVENPqE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262788AbVENPr6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262786AbVENPqE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 11:46:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbVENPqD
+	id S262788AbVENPr6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 11:47:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262789AbVENPr6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 11:46:03 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:60971
-	"EHLO g5.random") by vger.kernel.org with ESMTP id S262786AbVENPpk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 11:45:40 -0400
-Date: Sat, 14 May 2005 17:45:38 +0200
-From: andrea@cpushare.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Lee Revell <rlrevell@joe-job.com>, Dave Jones <davej@redhat.com>,
-       Matt Mackall <mpm@selenic.com>, Andy Isaacson <adi@hexapodia.org>,
-       Andi Kleen <ak@muc.de>, "Richard F. Rebel" <rrebel@whenu.com>,
-       Gabor MICSKO <gmicsko@szintezis.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, tytso@mit.edu,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Hyper-Threading Vulnerability
-Message-ID: <20050514154538.GB6695@g5.random>
-References: <m164xnatpt.fsf@muc.de> <1116009483.4689.803.camel@rebel.corp.whenu.com> <20050513190549.GB47131@muc.de> <20050513212620.GA12522@hexapodia.org> <20050513215905.GY5914@waste.org> <1116024419.20646.41.camel@localhost.localdomain> <1116025212.6380.50.camel@mindpipe> <20050513232708.GC13846@redhat.com> <1116027488.6380.55.camel@mindpipe> <1116084186.20545.47.camel@localhost.localdomain>
+	Sat, 14 May 2005 11:47:58 -0400
+Received: from rproxy.gmail.com ([64.233.170.192]:17049 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262788AbVENPrm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 May 2005 11:47:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=M/fOC6Ggl4cVpGq/gf69Ltj8IePL4yl60SOP0Jb2mslbcixWjSY8vUKE+4KLzTOyzSJKbL6cklMsg8kYHH6/Ff0KfgvLpr0+ZoXM1r91j/tcCfbyj00g2abg5y4O/kbM+fSIUQwjfeupONnVKZWSRta0M2KiXDF2t163Cr/rZE4=
+Date: Sun, 15 May 2005 00:47:33 +0900
+From: Tejun Heo <htejun@gmail.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Jens Axboe <axboe@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH scsi-misc-2.6 04/04] scsi: remove unnecessary scsi_wait_req_end_io()
+Message-ID: <20050514154733.GA5557@htj.dyndns.org>
+References: <20050514135610.81030F26@htj.dyndns.org> <20050514135610.50606F9C@htj.dyndns.org> <1116084383.5049.18.camel@mulgrave>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1116084186.20545.47.camel@localhost.localdomain>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+In-Reply-To: <1116084383.5049.18.camel@mulgrave>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 14, 2005 at 04:23:10PM +0100, Alan Cox wrote:
-> You cannot use rdtsc for anything but rough instruction timing. The
-> timers for different processors run at different speeds on some SMP
-> systems, the timer rates vary as processors change clock rate nowdays.
-> Rdtsc may also jump dramatically on a suspend/resume.
+ Hello, James.
 
-x86-64 uses it for vgettimeofday very safely (i386 could do too but it
-doesn't).
+On Sat, May 14, 2005 at 11:26:23AM -0400, James Bottomley wrote:
+> On Sat, 2005-05-14 at 22:57 +0900, Tejun Heo wrote:
+> > 	As all requests are now terminated via scsi midlayer, we don't
+> > 	need to set end_io for special reqs, remove it.
+> 
+> This statement is untrue as long as the prep function can return
+> BLKPREP_KILL, which it still does even after your patch set, so the
+> scsi_wait_req_end_io() is still necessary to catch this case.
 
-Anyway I believe at least for seccomp it's worth to turn off the tsc,
-not just for HT but for the L2 cache too. So it's up to you, either you
-turn it off completely (which isn't very nice IMHO) or I recommend to
-apply this below patch. This has been tested successfully on x86-64
-against current cogito repository (i686 compiles so I didn't bother
-testing ;). People selling the cpu through cpushare may appreciate this
-bit for a peace of mind. There's no way to get any timing info anymore
-with this applied (gettimeofday is forbidden of course). The seccomp
-environment is completely deterministic so it can't be allowed to get
-timing info, it has to be deterministic so in the future I can enable a
-computing mode that does a parallel computing for each task with server
-side transparent checkpointing and verification that the output is the
-same from all the 2/3 seller computers for each task, without the buyer
-even noticing (for now the verification is left to the buyer client
-side and there's no checkpointing, since that would require more kernel
-changes to track the dirty bits but it'll be easy to extend once the
-basic mode is finished).
+ BLKPREP_KILL is only used to kill illegal (unpreparable, way-off)
+requests.  Actually, for special requests, the only tests performed
+are req->flags and CDB_SIZE tests.  I don't think anyone does/will
+submit that illegal requests via scsi_wait_req().  And if so, it will
+be a bug.
 
-Thanks.
+ I don't feel strong against keeping the end_io routine but, if you
+decide to keep the routine, please consider adding a comment
+explaining the peculiar path the routine might be used, such that
+other people don't have to wander through the code.
 
-Signed-off-by: Andrea Arcangeli <andrea@cpushare.com>
+ Thanks.
 
-Index: arch/i386/kernel/process.c
-===================================================================
---- eed337ef5e9ae7d62caa84b7974a11fddc7f06e0/arch/i386/kernel/process.c  (mode:100644)
-+++ uncommitted/arch/i386/kernel/process.c  (mode:100644)
-@@ -561,6 +561,25 @@
- }
- 
- /*
-+ * This function selects if the context switch from prev to next
-+ * has to tweak the TSC disable bit in the cr4.
-+ */
-+static void disable_tsc(struct thread_info *prev,
-+			struct thread_info *next)
-+{
-+	if (unlikely(has_secure_computing(prev) ||
-+		     has_secure_computing(next))) {
-+		/* slow path here */
-+		if (has_secure_computing(prev) &&
-+		    !has_secure_computing(next)) {
-+			clear_in_cr4(X86_CR4_TSD);
-+		} else if (!has_secure_computing(prev) &&
-+			   has_secure_computing(next))
-+			set_in_cr4(X86_CR4_TSD);
-+	}
-+}
-+
-+/*
-  *	switch_to(x,yn) should switch tasks from x to y.
-  *
-  * We fsave/fwait so that an exception goes off at the right time
-@@ -639,6 +658,8 @@
- 	if (unlikely(prev->io_bitmap_ptr || next->io_bitmap_ptr))
- 		handle_io_bitmap(next, tss);
- 
-+	disable_tsc(prev_p->thread_info, next_p->thread_info);
-+
- 	return prev_p;
- }
- 
-Index: arch/x86_64/kernel/process.c
-===================================================================
---- eed337ef5e9ae7d62caa84b7974a11fddc7f06e0/arch/x86_64/kernel/process.c  (mode:100644)
-+++ uncommitted/arch/x86_64/kernel/process.c  (mode:100644)
-@@ -439,6 +439,25 @@
- }
- 
- /*
-+ * This function selects if the context switch from prev to next
-+ * has to tweak the TSC disable bit in the cr4.
-+ */
-+static void disable_tsc(struct thread_info *prev,
-+			struct thread_info *next)
-+{
-+	if (unlikely(has_secure_computing(prev) ||
-+		     has_secure_computing(next))) {
-+		/* slow path here */
-+		if (has_secure_computing(prev) &&
-+		    !has_secure_computing(next)) {
-+			clear_in_cr4(X86_CR4_TSD);
-+		} else if (!has_secure_computing(prev) &&
-+			   has_secure_computing(next))
-+			set_in_cr4(X86_CR4_TSD);
-+	}
-+}
-+
-+/*
-  * This special macro can be used to load a debugging register
-  */
- #define loaddebug(thread,r) set_debug(thread->debugreg ## r, r)
-@@ -556,6 +575,8 @@
- 		}
- 	}
- 
-+	disable_tsc(prev_p->thread_info, next_p->thread_info);
-+
- 	return prev_p;
- }
- 
-Index: include/linux/seccomp.h
-===================================================================
---- eed337ef5e9ae7d62caa84b7974a11fddc7f06e0/include/linux/seccomp.h  (mode:100644)
-+++ uncommitted/include/linux/seccomp.h  (mode:100644)
-@@ -19,6 +19,11 @@
- 		__secure_computing(this_syscall);
- }
- 
-+static inline int has_secure_computing(struct thread_info *ti)
-+{
-+	return unlikely(test_ti_thread_flag(ti, TIF_SECCOMP));
-+}
-+
- #else /* CONFIG_SECCOMP */
- 
- #if (__GNUC__ > 2)
-@@ -28,6 +33,7 @@
- #endif
- 
- #define secure_computing(x) do { } while (0)
-+#define has_secure_computing(x) 0
- 
- #endif /* CONFIG_SECCOMP */
- 
+-- 
+tejun

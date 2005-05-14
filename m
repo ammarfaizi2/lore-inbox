@@ -1,66 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262686AbVENC7Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbVENEej@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262686AbVENC7Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 May 2005 22:59:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbVENC7Q
+	id S261154AbVENEej (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 00:34:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262463AbVENEej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 May 2005 22:59:16 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:32941 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262686AbVENC7L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 May 2005 22:59:11 -0400
-Date: Fri, 13 May 2005 19:58:51 -0700
-From: Paul Jackson <pj@sgi.com>
-To: dipankar@in.ibm.com
-Cc: vatsa@in.ibm.com, dino@in.ibm.com, ntl@pobox.com, Simon.Derr@bull.net,
-       lse-tech@lists.sourceforge.net, akpm@osdl.org, nickpiggin@yahoo.com.au,
-       linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Subject: Re: [Lse-tech] Re: [PATCH] cpusets+hotplug+preepmt broken
-Message-Id: <20050513195851.5d6665d0.pj@sgi.com>
-In-Reply-To: <20050513210251.GI5044@in.ibm.com>
-References: <20050511191654.GA3916@in.ibm.com>
-	<20050511195156.GE3614@otto>
-	<20050513123216.GB3968@in.ibm.com>
-	<20050513172540.GA28018@in.ibm.com>
-	<20050513125953.66a59436.pj@sgi.com>
-	<20050513202058.GE5044@in.ibm.com>
-	<20050513135233.6eba49df.pj@sgi.com>
-	<20050513210251.GI5044@in.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 14 May 2005 00:34:39 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:61750 "EHLO
+	pd2mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S261154AbVENEeX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 May 2005 00:34:23 -0400
+Date: Fri, 13 May 2005 22:34:19 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Sync option destroys flash!
+In-reply-to: <43UT5-jT-3@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <42857FCB.80606@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <43UT5-jT-3@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dipankar, replying to pj:
-> > What part of what I wrote are you saying "No" to?
+linux@horizon.com wrote:
+> I would have though so, but I can say from personal experience that
+> SanDisk brand CF cards respond to losing power during a write by producing
+> a bad sector.  I had assumed that a sensible implementation would take
+> advantage of the out-of-place writing by doing a two-phase commit at
+> write time, so writes would be atomic.
 > 
-> The question right above "No" :)
+> Does anyone know of a CF manufacturer that *does* guarantee atomic writes?
+> Obviously, if power is lost during a write, it's not clear whether
+> I'll get the old or the new contents, but I want one or ther other and
+> not -EIO.
+> 
+> Given that SanDisk first developed the CompactFlash card, you'd think they'd
+> be a fairly reputable brand...
 
-Well ... that was less than obvious.  You quoted too much, and
-responded with information about other semaphores, not about
-why other duties of _this_ semaphore made such a rename wrong.
-
-Fortunately, Nathan clarified matters.
-
-So how would you, or Srivatsa or Nathan, respond to my more substantive
-point, to repeat:
-
-Srivatsa, replying to Dinakar:
-> This in fact was the reason that we added lock_cpu_hotplug
-> in sched_setaffinity.
-
-Why just in sched_setaffinity()?  What about the other 60+ calls to
-set_cpus_allowed().  Shouldn't most of those calls be checking that the
-passed in cpus are online (holding lock_cpu_hotplug while doing all
-this)?  Either that, or at least handling the error from
-set_cpus_allowed() if the requested cpus end up not being online?  I see
-only 2 set_cpus_allowed() calls that make any pretense of examining the
-return value.
+I think it would be a fair bit of work to guarantee this, unless you add 
+enough capacitive energy storage or something onboard to ensure that the 
+write can complete even if power is lost. Some hard drives have the same 
+problem, actually, where a bad sector can be produced if it was being 
+written at the time power was lost.
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+
+

@@ -1,31 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262721AbVENJun@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262728AbVENJ4J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262721AbVENJun (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 05:50:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262735AbVENJum
+	id S262728AbVENJ4J (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 05:56:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262732AbVENJ4I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 05:50:42 -0400
-Received: from rproxy.gmail.com ([64.233.170.196]:13743 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262721AbVENJbU (ORCPT
+	Sat, 14 May 2005 05:56:08 -0400
+Received: from rproxy.gmail.com ([64.233.170.202]:53832 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262728AbVENJcU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 05:31:20 -0400
+	Sat, 14 May 2005 05:32:20 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type;
-        b=fKclGPcmNFZs50O+dZOlxc3T0HoeIEFoRmYfUIP93/fqucx5Hip4MdX7Lge3khaSDoFKyDv4nvDIlP+A2bWIEQbTzLUz3bOvnk6wWTEsG8Mf1KSsTXdyI90CkkUgkhOZ2yEeepnpv0osC1A5vD3eWx30aTO8i7ELEQ+n0QVlXLg=
-Message-ID: <2538186705051402313a727ab2@mail.gmail.com>
-Date: Sat, 14 May 2005 05:31:16 -0400
+        b=ne++Gu4MC2pBZQd9tPy6ujMP2lWEtEYJQcEpNibMof6uPjrhciCvckpaACX5jVZV0dbBuz7wdpK08CA2tjoZ8enveG5huJ77KcxJRtn81FwO8HZcPpc4g7OJebawrBsDNEA5c2zpDhd/UEF2JSZBDTYe/oDsKqkTIJ8Edx7cde4=
+Message-ID: <2538186705051402321221b43b@mail.gmail.com>
+Date: Sat, 14 May 2005 05:32:19 -0400
 From: Yani Ioannou <yani.ioannou@gmail.com>
 Reply-To: Yani Ioannou <yani.ioannou@gmail.com>
 To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.12-rc4 8/12] drivers/ieee1394/nodemgr.c - drivers/s390/cio/cmf.c: (dynamic sysfs callbacks) update device attribute callbacks
+Subject: [PATCH 2.6.12-rc4 9/12] drivers/cio/device.c - drivers/scsi/zfcp_scsi.c: (dynamic sysfs callbacks) update device attribute callbacks
 Mime-Version: 1.0
 Content-Type: multipart/mixed; 
-	boundary="----=_Part_1435_4460224.1116063076755"
+	boundary="----=_Part_1443_10671669.1116063139622"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_1435_4460224.1116063076755
+------=_Part_1443_10671669.1116063139622
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
@@ -34,895 +34,1136 @@ Signed-off-by: Yani Ioannou <yani.ioannou@gmail.com>
 
 ---
 
-------=_Part_1435_4460224.1116063076755
+------=_Part_1443_10671669.1116063139622
 Content-Type: text/plain; 
-	name=patch-linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn.diff-drivers.diff.4.diff.diffstat.txt; charset=us-ascii
+	name=patch-linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn.diff-drivers.diff.5.diff.diffstat.txt; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="patch-linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn.diff-drivers.diff.4.diff.diffstat.txt"
+Content-Disposition: attachment; filename="patch-linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn.diff-drivers.diff.5.diff.diffstat.txt"
 
- ieee1394/nodemgr.c           |   16 ++++++++--------
- ieee1394/sbp2.c              |    2 +-
- input/gameport/gameport.c    |    4 ++--
- input/keyboard/atkbd.c       |    4 ++--
- input/mouse/psmouse.h        |    4 ++--
- input/serio/serio.c          |   16 ++++++++--------
- macintosh/therm_adt746x.c    |    8 ++++----
- macintosh/therm_pm72.c       |    4 ++--
- macintosh/therm_windtunnel.c |    4 ++--
- mca/mca-bus.c                |    4 ++--
- message/fusion/mptscsih.c    |    2 +-
- mmc/mmc_sysfs.c              |    2 +-
- pci/hotplug/cpqphp_sysfs.c   |    4 ++--
- pci/hotplug/shpchp_sysfs.c   |    4 ++--
- pci/pci-sysfs.c              |    6 +++---
- pcmcia/ds.c                  |    4 ++--
- pnp/card.c                   |    4 ++--
- pnp/interface.c              |    8 ++++----
- s390/block/dasd_devmap.c     |   10 +++++-----
- s390/block/dcssblk.c         |   24 ++++++++++++------------
- s390/char/raw3270.c          |    6 +++---
- s390/char/tape_core.c        |   10 +++++-----
- s390/char/vmlogrdr.c         |   12 ++++++------
- s390/cio/ccwgroup.c          |    6 +++---
- s390/cio/chsc.c              |    6 +++---
- s390/cio/cmf.c               |   12 ++++++------
- 26 files changed, 93 insertions(+), 93 deletions(-)
+ cio/device.c     |   14 +++---
+ net/claw.c       |   40 ++++++++---------
+ net/ctcmain.c    |   18 +++----
+ net/lcs.c        |   10 ++--
+ net/netiucv.c    |   44 +++++++++----------
+ net/qeth_sys.c   |  126 +++++++++++++++++++++++++++----------------------------
+ scsi/zfcp_scsi.c |    2 
+ 7 files changed, 127 insertions(+), 127 deletions(-)
 
-------=_Part_1435_4460224.1116063076755
+
+
+------=_Part_1443_10671669.1116063139622
 Content-Type: text/x-patch; 
-	name=patch-linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn.diff-drivers.diff.4.diff; charset=us-ascii
+	name=patch-linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn.diff-drivers.diff.5.diff; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="patch-linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn.diff-drivers.diff.4.diff"
+Content-Disposition: attachment; filename="patch-linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn.diff-drivers.diff.5.diff"
 
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/ieee1394/nodemgr.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/ieee1394/nodemgr.c
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/ieee1394/nodemgr.c	2005-05-11 00:28:12.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/ieee1394/nodemgr.c	2005-05-11 00:33:44.000000000 -0400
-@@ -220,7 +220,7 @@ struct device nodemgr_dev_template_host 
- 
- 
- #define fw_attr(class, class_type, field, type, format_string)		\
--static ssize_t fw_show_##class##_##field (struct device *dev, char *buf)\
-+static ssize_t fw_show_##class##_##field (struct device *dev, char *buf, void *private)\
- {									\
- 	class_type *class;						\
- 	class = container_of(dev, class_type, device);			\
-@@ -232,7 +232,7 @@ static struct device_attribute dev_attr_
- };
- 
- #define fw_attr_td(class, class_type, td_kv)				\
--static ssize_t fw_show_##class##_##td_kv (struct device *dev, char *buf)\
-+static ssize_t fw_show_##class##_##td_kv (struct device *dev, char *buf, void *private)\
- {									\
- 	int len;							\
- 	class_type *class = container_of(dev, class_type, device);	\
-@@ -265,7 +265,7 @@ static struct driver_attribute driver_at
- };
- 
- 
--static ssize_t fw_show_ne_bus_options(struct device *dev, char *buf)
-+static ssize_t fw_show_ne_bus_options(struct device *dev, char *buf, void *private)
- {
- 	struct node_entry *ne = container_of(dev, struct node_entry, device);
- 
-@@ -281,7 +281,7 @@ static ssize_t fw_show_ne_bus_options(st
- static DEVICE_ATTR(bus_options,S_IRUGO,fw_show_ne_bus_options,NULL);
- 
- 
--static ssize_t fw_show_ne_tlabels_free(struct device *dev, char *buf)
-+static ssize_t fw_show_ne_tlabels_free(struct device *dev, char *buf, void *private)
- {
- 	struct node_entry *ne = container_of(dev, struct node_entry, device);
- 	return sprintf(buf, "%d\n", atomic_read(&ne->tpool->count.count) + 1);
-@@ -289,7 +289,7 @@ static ssize_t fw_show_ne_tlabels_free(s
- static DEVICE_ATTR(tlabels_free,S_IRUGO,fw_show_ne_tlabels_free,NULL);
- 
- 
--static ssize_t fw_show_ne_tlabels_allocations(struct device *dev, char *buf)
-+static ssize_t fw_show_ne_tlabels_allocations(struct device *dev, char *buf, void *private)
- {
- 	struct node_entry *ne = container_of(dev, struct node_entry, device);
- 	return sprintf(buf, "%u\n", ne->tpool->allocations);
-@@ -297,7 +297,7 @@ static ssize_t fw_show_ne_tlabels_alloca
- static DEVICE_ATTR(tlabels_allocations,S_IRUGO,fw_show_ne_tlabels_allocations,NULL);
- 
- 
--static ssize_t fw_show_ne_tlabels_mask(struct device *dev, char *buf)
-+static ssize_t fw_show_ne_tlabels_mask(struct device *dev, char *buf, void *private)
- {
- 	struct node_entry *ne = container_of(dev, struct node_entry, device);
- #if (BITS_PER_LONG <= 32)
-@@ -309,7 +309,7 @@ static ssize_t fw_show_ne_tlabels_mask(s
- static DEVICE_ATTR(tlabels_mask, S_IRUGO, fw_show_ne_tlabels_mask, NULL);
- 
- 
--static ssize_t fw_set_ignore_driver(struct device *dev, const char *buf, size_t count)
-+static ssize_t fw_set_ignore_driver(struct device *dev, const char *buf, size_t count, void *private)
- {
- 	struct unit_directory *ud = container_of(dev, struct unit_directory, device);
- 	int state = simple_strtoul(buf, NULL, 10);
-@@ -324,7 +324,7 @@ static ssize_t fw_set_ignore_driver(stru
- 
- 	return count;
- }
--static ssize_t fw_get_ignore_driver(struct device *dev, char *buf)
-+static ssize_t fw_get_ignore_driver(struct device *dev, char *buf, void *private)
- {
- 	struct unit_directory *ud = container_of(dev, struct unit_directory, device);
- 
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/ieee1394/sbp2.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/ieee1394/sbp2.c
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/ieee1394/sbp2.c	2005-05-11 00:28:12.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/ieee1394/sbp2.c	2005-05-11 00:33:45.000000000 -0400
-@@ -2766,7 +2766,7 @@ static const char *sbp2scsi_info (struct
-         return "SCSI emulation for IEEE-1394 SBP-2 Devices";
- }
- 
--static ssize_t sbp2_sysfs_ieee1394_id_show(struct device *dev, char *buf)
-+static ssize_t sbp2_sysfs_ieee1394_id_show(struct device *dev, char *buf, void *private)
- {
- 	struct scsi_device *sdev;
- 	struct scsi_id_instance_data *scsi_id;
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/input/gameport/gameport.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/input/gameport/gameport.c
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/input/gameport/gameport.c	2005-05-11 00:28:12.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/input/gameport/gameport.c	2005-05-11 00:33:30.000000000 -0400
-@@ -453,13 +453,13 @@ static int gameport_thread(void *nothing
-  * Gameport port operations
-  */
- 
--static ssize_t gameport_show_description(struct device *dev, char *buf)
-+static ssize_t gameport_show_description(struct device *dev, char *buf, void *private)
- {
- 	struct gameport *gameport = to_gameport_port(dev);
- 	return sprintf(buf, "%s\n", gameport->name);
- }
- 
--static ssize_t gameport_rebind_driver(struct device *dev, const char *buf, size_t count)
-+static ssize_t gameport_rebind_driver(struct device *dev, const char *buf, size_t count, void *private)
- {
- 	struct gameport *gameport = to_gameport_port(dev);
- 	struct device_driver *drv;
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/input/keyboard/atkbd.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/input/keyboard/atkbd.c
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/input/keyboard/atkbd.c	2005-05-11 00:28:12.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/input/keyboard/atkbd.c	2005-05-11 00:33:30.000000000 -0400
-@@ -219,11 +219,11 @@ static ssize_t atkbd_attr_set_helper(str
- #define ATKBD_DEFINE_ATTR(_name)						\
- static ssize_t atkbd_show_##_name(struct atkbd *, char *);			\
- static ssize_t atkbd_set_##_name(struct atkbd *, const char *, size_t);		\
--static ssize_t atkbd_do_show_##_name(struct device *d, char *b)			\
-+static ssize_t atkbd_do_show_##_name(struct device *d, char *b, void *private)			\
- {										\
- 	return atkbd_attr_show_helper(d, b, atkbd_show_##_name);		\
- }										\
--static ssize_t atkbd_do_set_##_name(struct device *d, const char *b, size_t s)	\
-+static ssize_t atkbd_do_set_##_name(struct device *d, const char *b, size_t s, void *private)	\
- {										\
- 	return atkbd_attr_set_helper(d, b, s, atkbd_set_##_name);		\
- }										\
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/input/mouse/psmouse.h linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/input/mouse/psmouse.h
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/input/mouse/psmouse.h	2005-05-11 00:28:12.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/input/mouse/psmouse.h	2005-05-11 00:33:29.000000000 -0400
-@@ -91,11 +91,11 @@ ssize_t psmouse_attr_set_helper(struct d
- #define PSMOUSE_DEFINE_ATTR(_name)						\
- static ssize_t psmouse_attr_show_##_name(struct psmouse *, char *);		\
- static ssize_t psmouse_attr_set_##_name(struct psmouse *, const char *, size_t);\
--static ssize_t psmouse_do_show_##_name(struct device *d, char *b)		\
-+static ssize_t psmouse_do_show_##_name(struct device *d, char *b, void *private)		\
- {										\
- 	return psmouse_attr_show_helper(d, b, psmouse_attr_show_##_name);	\
- }										\
--static ssize_t psmouse_do_set_##_name(struct device *d, const char *b, size_t s)\
-+static ssize_t psmouse_do_set_##_name(struct device *d, const char *b, size_t s, void *private)\
- {										\
- 	return psmouse_attr_set_helper(d, b, s, psmouse_attr_set_##_name);	\
- }										\
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/input/serio/serio.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/input/serio/serio.c
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/input/serio/serio.c	2005-05-11 00:28:12.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/input/serio/serio.c	2005-05-11 00:33:29.000000000 -0400
-@@ -358,37 +358,37 @@ static int serio_thread(void *nothing)
-  * Serio port operations
-  */
- 
--static ssize_t serio_show_description(struct device *dev, char *buf)
-+static ssize_t serio_show_description(struct device *dev, char *buf, void *private)
- {
- 	struct serio *serio = to_serio_port(dev);
- 	return sprintf(buf, "%s\n", serio->name);
- }
- 
--static ssize_t serio_show_id_type(struct device *dev, char *buf)
-+static ssize_t serio_show_id_type(struct device *dev, char *buf, void *private)
- {
- 	struct serio *serio = to_serio_port(dev);
- 	return sprintf(buf, "%02x\n", serio->id.type);
- }
- 
--static ssize_t serio_show_id_proto(struct device *dev, char *buf)
-+static ssize_t serio_show_id_proto(struct device *dev, char *buf, void *private)
- {
- 	struct serio *serio = to_serio_port(dev);
- 	return sprintf(buf, "%02x\n", serio->id.proto);
- }
- 
--static ssize_t serio_show_id_id(struct device *dev, char *buf)
-+static ssize_t serio_show_id_id(struct device *dev, char *buf, void *private)
- {
- 	struct serio *serio = to_serio_port(dev);
- 	return sprintf(buf, "%02x\n", serio->id.id);
- }
- 
--static ssize_t serio_show_id_extra(struct device *dev, char *buf)
-+static ssize_t serio_show_id_extra(struct device *dev, char *buf, void *private)
- {
- 	struct serio *serio = to_serio_port(dev);
- 	return sprintf(buf, "%02x\n", serio->id.extra);
- }
- 
--static ssize_t serio_rebind_driver(struct device *dev, const char *buf, size_t count)
-+static ssize_t serio_rebind_driver(struct device *dev, const char *buf, size_t count, void *private)
- {
- 	struct serio *serio = to_serio_port(dev);
- 	struct device_driver *drv;
-@@ -419,13 +419,13 @@ static ssize_t serio_rebind_driver(struc
- 	return retval;
- }
- 
--static ssize_t serio_show_bind_mode(struct device *dev, char *buf)
-+static ssize_t serio_show_bind_mode(struct device *dev, char *buf, void *private)
- {
- 	struct serio *serio = to_serio_port(dev);
- 	return sprintf(buf, "%s\n", serio->manual_bind ? "manual" : "auto");
- }
- 
--static ssize_t serio_set_bind_mode(struct device *dev, const char *buf, size_t count)
-+static ssize_t serio_set_bind_mode(struct device *dev, const char *buf, size_t count, void *private)
- {
- 	struct serio *serio = to_serio_port(dev);
- 	int retval;
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/macintosh/therm_adt746x.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/macintosh/therm_adt746x.c
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/macintosh/therm_adt746x.c	2005-05-11 00:28:12.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/macintosh/therm_adt746x.c	2005-05-11 00:33:49.000000000 -0400
-@@ -456,13 +456,13 @@ static int attach_one_thermostat(struct 
-  *
-  */
- #define BUILD_SHOW_FUNC_INT(name, data)				\
--static ssize_t show_##name(struct device *dev, char *buf)	\
-+static ssize_t show_##name(struct device *dev, char *buf, void *private)	\
- {								\
- 	return sprintf(buf, "%d\n", data);			\
- }
- 
- #define BUILD_SHOW_FUNC_FAN(name, data)				\
--static ssize_t show_##name(struct device *dev, char *buf)       \
-+static ssize_t show_##name(struct device *dev, char *buf, void *private)       \
- {								\
- 	return sprintf(buf, "%d (%d rpm)\n", 			\
- 		thermostat->last_speed[data],			\
-@@ -471,7 +471,7 @@ static ssize_t show_##name(struct device
- }
- 
- #define BUILD_STORE_FUNC_DEG(name, data)			\
--static ssize_t store_##name(struct device *dev, const char *buf, size_t n) \
-+static ssize_t store_##name(struct device *dev, const char *buf, size_t n, void *private) \
- {								\
- 	int val;						\
- 	int i;							\
-@@ -484,7 +484,7 @@ static ssize_t store_##name(struct devic
- }
- 
- #define BUILD_STORE_FUNC_INT(name, data)			\
--static ssize_t store_##name(struct device *dev, const char *buf, size_t n) \
-+static ssize_t store_##name(struct device *dev, const char *buf, size_t n, void *private) \
- {								\
- 	u32 val;						\
- 	val = simple_strtoul(buf, NULL, 10);			\
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/macintosh/therm_pm72.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/macintosh/therm_pm72.c
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/macintosh/therm_pm72.c	2005-05-11 00:28:12.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/macintosh/therm_pm72.c	2005-05-11 00:33:49.000000000 -0400
-@@ -685,7 +685,7 @@ static void fetch_cpu_pumps_minmax(void)
-  * the input twice... I accept patches :)
-  */
- #define BUILD_SHOW_FUNC_FIX(name, data)				\
--static ssize_t show_##name(struct device *dev, char *buf)	\
-+static ssize_t show_##name(struct device *dev, char *buf, void *private)	\
- {								\
- 	ssize_t r;						\
- 	down(&driver_lock);					\
-@@ -694,7 +694,7 @@ static ssize_t show_##name(struct device
- 	return r;						\
- }
- #define BUILD_SHOW_FUNC_INT(name, data)				\
--static ssize_t show_##name(struct device *dev, char *buf)	\
-+static ssize_t show_##name(struct device *dev, char *buf, void *private)	\
- {								\
- 	return sprintf(buf, "%d", data);			\
- }
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/macintosh/therm_windtunnel.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/macintosh/therm_windtunnel.c
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/macintosh/therm_windtunnel.c	2005-05-11 00:28:12.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/macintosh/therm_windtunnel.c	2005-05-11 00:33:49.000000000 -0400
-@@ -107,13 +107,13 @@ print_temp( const char *s, int temp )
- }
- 
- static ssize_t
--show_cpu_temperature( struct device *dev, char *buf )
-+show_cpu_temperature( struct device *dev, char *buf, void *private)
- {
- 	return sprintf(buf, "%d.%d\n", x.temp>>8, (x.temp & 255)*10/256 );
- }
- 
- static ssize_t
--show_case_temperature( struct device *dev, char *buf )
-+show_case_temperature( struct device *dev, char *buf, void *private)
- {
- 	return sprintf(buf, "%d.%d\n", x.casetemp>>8, (x.casetemp & 255)*10/256 );
- }
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/mca/mca-bus.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/mca/mca-bus.c
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/mca/mca-bus.c	2005-05-11 00:28:08.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/mca/mca-bus.c	2005-05-11 00:32:32.000000000 -0400
-@@ -69,7 +69,7 @@ struct bus_type mca_bus_type = {
- };
- EXPORT_SYMBOL (mca_bus_type);
- 
--static ssize_t mca_show_pos_id(struct device *dev, char *buf)
-+static ssize_t mca_show_pos_id(struct device *dev, char *buf, void *private)
- {
- 	/* four digits, \n and trailing \0 */
- 	struct mca_device *mca_dev = to_mca_device(dev);
-@@ -81,7 +81,7 @@ static ssize_t mca_show_pos_id(struct de
- 		len = sprintf(buf, "none\n");
- 	return len;
- }
--static ssize_t mca_show_pos(struct device *dev, char *buf)
-+static ssize_t mca_show_pos(struct device *dev, char *buf, void *private)
- {
- 	/* enough for 8 two byte hex chars plus space and new line */
- 	int j, len=0;
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/message/fusion/mptscsih.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/message/fusion/mptscsih.c
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/message/fusion/mptscsih.c	2005-05-11 00:28:12.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/message/fusion/mptscsih.c	2005-05-11 00:33:43.000000000 -0400
-@@ -2759,7 +2759,7 @@ slave_configure_exit:
- }
- 
- static ssize_t
--mptscsih_store_queue_depth(struct device *dev, const char *buf, size_t count)
-+mptscsih_store_queue_depth(struct device *dev, const char *buf, size_t count, void *private)
- {
- 	int			 depth;
- 	struct scsi_device	*sdev = to_scsi_device(dev);
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/mmc/mmc_sysfs.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/mmc/mmc_sysfs.c
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/mmc/mmc_sysfs.c	2005-05-11 00:28:08.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/mmc/mmc_sysfs.c	2005-05-11 00:32:32.000000000 -0400
-@@ -22,7 +22,7 @@
- #define to_mmc_driver(d)	container_of(d, struct mmc_driver, drv)
- 
- #define MMC_ATTR(name, fmt, args...)					\
--static ssize_t mmc_##name##_show (struct device *dev, char *buf)	\
-+static ssize_t mmc_##name##_show (struct device *dev, char *buf, void *private)	\
- {									\
- 	struct mmc_card *card = dev_to_mmc_card(dev);			\
- 	return sprintf(buf, fmt, args);					\
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/pci/hotplug/cpqphp_sysfs.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/pci/hotplug/cpqphp_sysfs.c
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/pci/hotplug/cpqphp_sysfs.c	2005-05-11 00:28:09.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/pci/hotplug/cpqphp_sysfs.c	2005-05-11 00:32:47.000000000 -0400
-@@ -38,7 +38,7 @@
- 
- /* A few routines that create sysfs entries for the hot plug controller */
- 
--static ssize_t show_ctrl (struct device *dev, char *buf)
-+static ssize_t show_ctrl (struct device *dev, char *buf, void *private)
- {
- 	struct pci_dev *pci_dev;
- 	struct controller *ctrl;
-@@ -82,7 +82,7 @@ static ssize_t show_ctrl (struct device 
- }
- static DEVICE_ATTR (ctrl, S_IRUGO, show_ctrl, NULL);
- 
--static ssize_t show_dev (struct device *dev, char *buf)
-+static ssize_t show_dev (struct device *dev, char *buf, void *private)
- {
- 	struct pci_dev *pci_dev;
- 	struct controller *ctrl;
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/pci/hotplug/shpchp_sysfs.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/pci/hotplug/shpchp_sysfs.c
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/pci/hotplug/shpchp_sysfs.c	2005-05-11 00:28:09.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/pci/hotplug/shpchp_sysfs.c	2005-05-11 00:32:47.000000000 -0400
-@@ -38,7 +38,7 @@
- 
- /* A few routines that create sysfs entries for the hot plug controller */
- 
--static ssize_t show_ctrl (struct device *dev, char *buf)
-+static ssize_t show_ctrl (struct device *dev, char *buf, void *private)
- {
- 	struct pci_dev *pci_dev;
- 	struct controller *ctrl;
-@@ -82,7 +82,7 @@ static ssize_t show_ctrl (struct device 
- }
- static DEVICE_ATTR (ctrl, S_IRUGO, show_ctrl, NULL);
- 
--static ssize_t show_dev (struct device *dev, char *buf)
-+static ssize_t show_dev (struct device *dev, char *buf, void *private)
- {
- 	struct pci_dev *pci_dev;
- 	struct controller *ctrl;
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/pci/pci-sysfs.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/pci/pci-sysfs.c
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/pci/pci-sysfs.c	2005-05-11 00:28:09.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/pci/pci-sysfs.c	2005-05-11 00:32:46.000000000 -0400
-@@ -29,7 +29,7 @@ static int sysfs_initialized;	/* = 0 */
- /* show configuration fields */
- #define pci_config_attr(field, format_string)				\
- static ssize_t								\
--field##_show(struct device *dev, char *buf)				\
-+field##_show(struct device *dev, char *buf, void *private)				\
- {									\
- 	struct pci_dev *pdev;						\
- 									\
-@@ -44,7 +44,7 @@ pci_config_attr(subsystem_device, "0x%04
- pci_config_attr(class, "0x%06x\n");
- pci_config_attr(irq, "%u\n");
- 
--static ssize_t local_cpus_show(struct device *dev, char *buf)
-+static ssize_t local_cpus_show(struct device *dev, char *buf, void *private)
- {		
- 	cpumask_t mask = pcibus_to_cpumask(to_pci_dev(dev)->bus);
- 	int len = cpumask_scnprintf(buf, PAGE_SIZE-2, mask);
-@@ -54,7 +54,7 @@ static ssize_t local_cpus_show(struct de
- 
- /* show resources */
- static ssize_t
--resource_show(struct device * dev, char * buf)
-+resource_show(struct device * dev, char * buf, void *private)
- {
- 	struct pci_dev * pci_dev = to_pci_dev(dev);
- 	char * str = buf;
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/pcmcia/ds.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/pcmcia/ds.c
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/pcmcia/ds.c	2005-05-11 00:28:12.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/pcmcia/ds.c	2005-05-11 00:33:46.000000000 -0400
-@@ -604,14 +604,14 @@ static int pcmcia_bus_match(struct devic
- /************************ per-device sysfs output ***************************/
- 
- #define pcmcia_device_attr(field, test, format)				\
--static ssize_t field##_show (struct device *dev, char *buf)		\
-+static ssize_t field##_show (struct device *dev, char *buf, void *private)		\
- {									\
- 	struct pcmcia_device *p_dev = to_pcmcia_dev(dev);		\
- 	return p_dev->test ? sprintf (buf, format, p_dev->field) : -ENODEV; \
- }
- 
- #define pcmcia_device_stringattr(name, field)					\
--static ssize_t name##_show (struct device *dev, char *buf)		\
-+static ssize_t name##_show (struct device *dev, char *buf, void *private)		\
- {									\
- 	struct pcmcia_device *p_dev = to_pcmcia_dev(dev);		\
- 	return p_dev->field ? sprintf (buf, "%s\n", p_dev->field) : -ENODEV; \
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/pnp/card.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/pnp/card.c
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/pnp/card.c	2005-05-11 00:28:09.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/pnp/card.c	2005-05-11 00:32:48.000000000 -0400
-@@ -140,7 +140,7 @@ static void pnp_release_card(struct devi
- }
- 
- 
--static ssize_t pnp_show_card_name(struct device *dmdev, char *buf)
-+static ssize_t pnp_show_card_name(struct device *dmdev, char *buf, void *private)
- {
- 	char *str = buf;
- 	struct pnp_card *card = to_pnp_card(dmdev);
-@@ -150,7 +150,7 @@ static ssize_t pnp_show_card_name(struct
- 
- static DEVICE_ATTR(name,S_IRUGO,pnp_show_card_name,NULL);
- 
--static ssize_t pnp_show_card_ids(struct device *dmdev, char *buf)
-+static ssize_t pnp_show_card_ids(struct device *dmdev, char *buf, void *private)
- {
- 	char *str = buf;
- 	struct pnp_card *card = to_pnp_card(dmdev);
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/pnp/interface.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/pnp/interface.c
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/pnp/interface.c	2005-05-11 00:28:09.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/pnp/interface.c	2005-05-11 00:32:48.000000000 -0400
-@@ -205,7 +205,7 @@ static void pnp_print_option(pnp_info_bu
- }
- 
- 
--static ssize_t pnp_show_options(struct device *dmdev, char *buf)
-+static ssize_t pnp_show_options(struct device *dmdev, char *buf, void *private)
- {
- 	struct pnp_dev *dev = to_pnp_dev(dmdev);
- 	struct pnp_option * independent = dev->independent;
-@@ -236,7 +236,7 @@ static ssize_t pnp_show_options(struct d
- static DEVICE_ATTR(options,S_IRUGO,pnp_show_options,NULL);
- 
- 
--static ssize_t pnp_show_current_resources(struct device *dmdev, char *buf)
-+static ssize_t pnp_show_current_resources(struct device *dmdev, char *buf, void *private)
- {
- 	struct pnp_dev *dev = to_pnp_dev(dmdev);
- 	int i, ret;
-@@ -308,7 +308,7 @@ static ssize_t pnp_show_current_resource
- extern struct semaphore pnp_res_mutex;
- 
- static ssize_t
--pnp_set_current_resources(struct device * dmdev, const char * ubuf, size_t count)
-+pnp_set_current_resources(struct device * dmdev, const char * ubuf, size_t count, void *private)
- {
- 	struct pnp_dev *dev = to_pnp_dev(dmdev);
- 	char	*buf = (void *)ubuf;
-@@ -444,7 +444,7 @@ pnp_set_current_resources(struct device 
- static DEVICE_ATTR(resources,S_IRUGO | S_IWUSR,
- 		   pnp_show_current_resources,pnp_set_current_resources);
- 
--static ssize_t pnp_show_current_ids(struct device *dmdev, char *buf)
-+static ssize_t pnp_show_current_ids(struct device *dmdev, char *buf, void *private)
- {
- 	char *str = buf;
- 	struct pnp_dev *dev = to_pnp_dev(dmdev);
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/block/dasd_devmap.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/block/dasd_devmap.c
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/block/dasd_devmap.c	2005-05-11 00:28:10.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/block/dasd_devmap.c	2005-05-11 00:33:16.000000000 -0400
-@@ -615,7 +615,7 @@ dasd_device_from_cdev(struct ccw_device 
-  * readonly controls the readonly status of a dasd
+diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/cio/device.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/cio/device.c
+--- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/cio/device.c	2005-05-11 00:28:10.000000000 -0400
++++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/cio/device.c	2005-05-11 00:33:15.000000000 -0400
+@@ -204,7 +204,7 @@ module_exit(cleanup_ccw_bus_type);
+  * TODO: Split chpids and pimpampom up? Where is "in use" in the tree?
   */
  static ssize_t
--dasd_ro_show(struct device *dev, char *buf)
-+dasd_ro_show(struct device *dev, char *buf, void *private)
+-chpids_show (struct device * dev, char * buf)
++chpids_show (struct device * dev, char * buf, void *private)
  {
- 	struct dasd_devmap *devmap;
- 	int ro_flag;
-@@ -629,7 +629,7 @@ dasd_ro_show(struct device *dev, char *b
+ 	struct subchannel *sch = to_subchannel(dev);
+ 	struct ssd_info *ssd = &sch->ssd_info;
+@@ -219,7 +219,7 @@ chpids_show (struct device * dev, char *
  }
  
  static ssize_t
--dasd_ro_store(struct device *dev, const char *buf, size_t count)
-+dasd_ro_store(struct device *dev, const char *buf, size_t count, void *private)
+-pimpampom_show (struct device * dev, char * buf)
++pimpampom_show (struct device * dev, char * buf, void *private)
  {
- 	struct dasd_devmap *devmap;
- 	int ro_flag;
-@@ -656,7 +656,7 @@ static DEVICE_ATTR(readonly, 0644, dasd_
-  * to talk to the device
-  */
- static ssize_t 
--dasd_use_diag_show(struct device *dev, char *buf)
-+dasd_use_diag_show(struct device *dev, char *buf, void *private)
- {
- 	struct dasd_devmap *devmap;
- 	int use_diag;
-@@ -670,7 +670,7 @@ dasd_use_diag_show(struct device *dev, c
+ 	struct subchannel *sch = to_subchannel(dev);
+ 	struct pmcw *pmcw = &sch->schib.pmcw;
+@@ -229,7 +229,7 @@ pimpampom_show (struct device * dev, cha
  }
  
  static ssize_t
--dasd_use_diag_store(struct device *dev, const char *buf, size_t count)
-+dasd_use_diag_store(struct device *dev, const char *buf, size_t count, void *private)
+-devtype_show (struct device *dev, char *buf)
++devtype_show (struct device *dev, char *buf, void *private)
  {
- 	struct dasd_devmap *devmap;
- 	ssize_t rc;
-@@ -698,7 +698,7 @@ static
- DEVICE_ATTR(use_diag, 0644, dasd_use_diag_show, dasd_use_diag_store);
- 
- static ssize_t
--dasd_discipline_show(struct device *dev, char *buf)
-+dasd_discipline_show(struct device *dev, char *buf, void *private)
- {
- 	struct dasd_devmap *devmap;
- 	char *dname;
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/block/dcssblk.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/block/dcssblk.c
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/block/dcssblk.c	2005-05-11 00:28:10.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/block/dcssblk.c	2005-05-11 00:33:16.000000000 -0400
-@@ -46,15 +46,15 @@ static struct block_device_operations dc
- };
- 
- static ssize_t dcssblk_add_store(struct device * dev, const char * buf,
--				  size_t count);
-+				  size_t count, void *private);
- static ssize_t dcssblk_remove_store(struct device * dev, const char * buf,
--				  size_t count);
-+				  size_t count, void *private);
- static ssize_t dcssblk_save_store(struct device * dev, const char * buf,
--				  size_t count);
--static ssize_t dcssblk_save_show(struct device *dev, char *buf);
-+				  size_t count, void *private);
-+static ssize_t dcssblk_save_show(struct device *dev, char *buf, void *private);
- static ssize_t dcssblk_shared_store(struct device * dev, const char * buf,
--				  size_t count);
--static ssize_t dcssblk_shared_show(struct device *dev, char *buf);
-+				  size_t count, void *private);
-+static ssize_t dcssblk_shared_show(struct device *dev, char *buf, void *private);
- 
- static DEVICE_ATTR(add, S_IWUSR, NULL, dcssblk_add_store);
- static DEVICE_ATTR(remove, S_IWUSR, NULL, dcssblk_remove_store);
-@@ -195,7 +195,7 @@ dcssblk_segment_warn(int rc, char* seg_n
-  * operation (show + store)
-  */
- static ssize_t
--dcssblk_shared_show(struct device *dev, char *buf)
-+dcssblk_shared_show(struct device *dev, char *buf, void *private)
- {
- 	struct dcssblk_dev_info *dev_info;
- 
-@@ -204,7 +204,7 @@ dcssblk_shared_show(struct device *dev, 
+ 	struct ccw_device *cdev = to_ccwdev(dev);
+ 	struct ccw_device_id *id = &(cdev->id);
+@@ -242,7 +242,7 @@ devtype_show (struct device *dev, char *
  }
  
  static ssize_t
--dcssblk_shared_store(struct device *dev, const char *inbuf, size_t count)
-+dcssblk_shared_store(struct device *dev, const char *inbuf, size_t count, void *private)
+-cutype_show (struct device *dev, char *buf)
++cutype_show (struct device *dev, char *buf, void *private)
  {
- 	struct dcssblk_dev_info *dev_info;
- 	int rc;
-@@ -288,7 +288,7 @@ out:
-  * (show + store)
-  */
- static ssize_t
--dcssblk_save_show(struct device *dev, char *buf)
-+dcssblk_save_show(struct device *dev, char *buf, void *private)
- {
- 	struct dcssblk_dev_info *dev_info;
- 
-@@ -297,7 +297,7 @@ dcssblk_save_show(struct device *dev, ch
+ 	struct ccw_device *cdev = to_ccwdev(dev);
+ 	struct ccw_device_id *id = &(cdev->id);
+@@ -252,7 +252,7 @@ cutype_show (struct device *dev, char *b
  }
  
  static ssize_t
--dcssblk_save_store(struct device *dev, const char *inbuf, size_t count)
-+dcssblk_save_store(struct device *dev, const char *inbuf, size_t count, void *private)
+-online_show (struct device *dev, char *buf)
++online_show (struct device *dev, char *buf, void *private)
  {
- 	struct dcssblk_dev_info *dev_info;
+ 	struct ccw_device *cdev = to_ccwdev(dev);
  
-@@ -343,7 +343,7 @@ dcssblk_save_store(struct device *dev, c
-  * device attribute for adding devices
+@@ -350,7 +350,7 @@ ccw_device_set_online(struct ccw_device 
+ }
+ 
+ static ssize_t
+-online_store (struct device *dev, const char *buf, size_t count)
++online_store (struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct ccw_device *cdev = to_ccwdev(dev);
+ 	int i, force, ret;
+@@ -422,7 +422,7 @@ online_store (struct device *dev, const 
+ }
+ 
+ static ssize_t
+-available_show (struct device *dev, char *buf)
++available_show (struct device *dev, char *buf, void *private)
+ {
+ 	struct ccw_device *cdev = to_ccwdev(dev);
+ 	struct subchannel *sch;
+diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/net/claw.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/net/claw.c
+--- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/net/claw.c	2005-05-11 00:28:10.000000000 -0400
++++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/net/claw.c	2005-05-11 00:33:15.000000000 -0400
+@@ -241,21 +241,21 @@ static struct sk_buff *claw_pack_skb(str
+ static void dumpit (char *buf, int len);
+ #endif
+ /* sysfs Functions */
+-static ssize_t claw_hname_show(struct device *dev, char *buf);
++static ssize_t claw_hname_show(struct device *dev, char *buf, void *private);
+ static ssize_t claw_hname_write(struct device *dev,
+-	const char *buf, size_t count);
+-static ssize_t claw_adname_show(struct device *dev, char *buf);
++	const char *buf, size_t count, void *private);
++static ssize_t claw_adname_show(struct device *dev, char *buf, void *private);
+ static ssize_t claw_adname_write(struct device *dev,
+-	const char *buf, size_t count);
+-static ssize_t claw_apname_show(struct device *dev, char *buf);
++	const char *buf, size_t count, void *private);
++static ssize_t claw_apname_show(struct device *dev, char *buf, void *private);
+ static ssize_t claw_apname_write(struct device *dev,
+-	const char *buf, size_t count);
+-static ssize_t claw_wbuff_show(struct device *dev, char *buf);
++	const char *buf, size_t count, void *private);
++static ssize_t claw_wbuff_show(struct device *dev, char *buf, void *private);
+ static ssize_t claw_wbuff_write(struct device *dev,
+-	const char *buf, size_t count);
+-static ssize_t claw_rbuff_show(struct device *dev, char *buf);
++	const char *buf, size_t count, void *private);
++static ssize_t claw_rbuff_show(struct device *dev, char *buf, void *private);
+ static ssize_t claw_rbuff_write(struct device *dev,
+-	const char *buf, size_t count);
++	const char *buf, size_t count, void *private);
+ static int claw_add_files(struct device *dev);
+ static void claw_remove_files(struct device *dev);
+ 
+@@ -4149,7 +4149,7 @@ claw_remove_device(struct ccwgroup_devic
+  * sysfs attributes
   */
  static ssize_t
--dcssblk_add_store(struct device *dev, const char *buf, size_t count)
-+dcssblk_add_store(struct device *dev, const char *buf, size_t count, void *private)
+-claw_hname_show(struct device *dev, char *buf)
++claw_hname_show(struct device *dev, char *buf, void *private)
  {
- 	int rc, i;
- 	struct dcssblk_dev_info *dev_info;
-@@ -517,7 +517,7 @@ out_nobuf:
-  * device attribute for removing devices
+ 	struct claw_privbk *priv;
+ 	struct claw_env *  p_env;
+@@ -4162,7 +4162,7 @@ claw_hname_show(struct device *dev, char
+ }
+ 
+ static ssize_t
+-claw_hname_write(struct device *dev, const char *buf, size_t count)
++claw_hname_write(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct claw_privbk *priv;
+ 	struct claw_env *  p_env;
+@@ -4186,7 +4186,7 @@ claw_hname_write(struct device *dev, con
+ static DEVICE_ATTR(host_name, 0644, claw_hname_show, claw_hname_write);
+ 
+ static ssize_t
+-claw_adname_show(struct device *dev, char *buf)
++claw_adname_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct claw_privbk *priv;
+ 	struct claw_env *  p_env;
+@@ -4199,7 +4199,7 @@ claw_adname_show(struct device *dev, cha
+ }
+ 
+ static ssize_t
+-claw_adname_write(struct device *dev, const char *buf, size_t count)
++claw_adname_write(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct claw_privbk *priv;
+ 	struct claw_env *  p_env;
+@@ -4223,7 +4223,7 @@ claw_adname_write(struct device *dev, co
+ static DEVICE_ATTR(adapter_name, 0644, claw_adname_show, claw_adname_write);
+ 
+ static ssize_t
+-claw_apname_show(struct device *dev, char *buf)
++claw_apname_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct claw_privbk *priv;
+ 	struct claw_env *  p_env;
+@@ -4237,7 +4237,7 @@ claw_apname_show(struct device *dev, cha
+ }
+ 
+ static ssize_t
+-claw_apname_write(struct device *dev, const char *buf, size_t count)
++claw_apname_write(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct claw_privbk *priv;
+ 	struct claw_env *  p_env;
+@@ -4271,7 +4271,7 @@ claw_apname_write(struct device *dev, co
+ static DEVICE_ATTR(api_type, 0644, claw_apname_show, claw_apname_write);
+ 
+ static ssize_t
+-claw_wbuff_show(struct device *dev, char *buf)
++claw_wbuff_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct claw_privbk *priv;
+ 	struct claw_env * p_env;
+@@ -4284,7 +4284,7 @@ claw_wbuff_show(struct device *dev, char
+ }
+ 
+ static ssize_t
+-claw_wbuff_write(struct device *dev, const char *buf, size_t count)
++claw_wbuff_write(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct claw_privbk *priv;
+ 	struct claw_env *  p_env;
+@@ -4312,7 +4312,7 @@ claw_wbuff_write(struct device *dev, con
+ static DEVICE_ATTR(write_buffer, 0644, claw_wbuff_show, claw_wbuff_write);
+ 
+ static ssize_t
+-claw_rbuff_show(struct device *dev, char *buf)
++claw_rbuff_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct claw_privbk *priv;
+ 	struct claw_env *  p_env;
+@@ -4325,7 +4325,7 @@ claw_rbuff_show(struct device *dev, char
+ }
+ 
+ static ssize_t
+-claw_rbuff_write(struct device *dev, const char *buf, size_t count)
++claw_rbuff_write(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct claw_privbk *priv;
+ 	struct claw_env *p_env;
+diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/net/ctcmain.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/net/ctcmain.c
+--- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/net/ctcmain.c	2005-05-11 00:28:10.000000000 -0400
++++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/net/ctcmain.c	2005-05-11 00:33:15.000000000 -0400
+@@ -2698,7 +2698,7 @@ ctc_stats(struct net_device * dev)
+  * sysfs attributes
   */
  static ssize_t
--dcssblk_remove_store(struct device *dev, const char *buf, size_t count)
-+dcssblk_remove_store(struct device *dev, const char *buf, size_t count, void *private)
+-buffer_show(struct device *dev, char *buf)
++buffer_show(struct device *dev, char *buf, void *private)
  {
- 	struct dcssblk_dev_info *dev_info;
- 	int rc, i;
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/char/raw3270.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/char/raw3270.c
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/char/raw3270.c	2005-05-11 00:28:10.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/char/raw3270.c	2005-05-11 00:33:15.000000000 -0400
-@@ -1084,7 +1084,7 @@ raw3270_probe (struct ccw_device *cdev)
-  * Additional attributes for a 3270 device
+ 	struct ctc_priv *priv;
+ 
+@@ -2710,7 +2710,7 @@ buffer_show(struct device *dev, char *bu
+ }
+ 
+ static ssize_t
+-buffer_write(struct device *dev, const char *buf, size_t count)
++buffer_write(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct ctc_priv *priv;
+ 	struct net_device *ndev;
+@@ -2746,7 +2746,7 @@ buffer_write(struct device *dev, const c
+ }
+ 
+ static ssize_t
+-loglevel_show(struct device *dev, char *buf)
++loglevel_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct ctc_priv *priv;
+ 
+@@ -2757,7 +2757,7 @@ loglevel_show(struct device *dev, char *
+ }
+ 
+ static ssize_t
+-loglevel_write(struct device *dev, const char *buf, size_t count)
++loglevel_write(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct ctc_priv *priv;
+ 	int ll1;
+@@ -2814,7 +2814,7 @@ ctc_print_statistics(struct ctc_priv *pr
+ }
+ 
+ static ssize_t
+-stats_show(struct device *dev, char *buf)
++stats_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct ctc_priv *priv = dev->driver_data;
+ 	if (!priv)
+@@ -2824,7 +2824,7 @@ stats_show(struct device *dev, char *buf
+ }
+ 
+ static ssize_t
+-stats_write(struct device *dev, const char *buf, size_t count)
++stats_write(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct ctc_priv *priv = dev->driver_data;
+ 	if (!priv)
+@@ -2946,7 +2946,7 @@ ctc_init_netdevice(struct net_device * d
+ }
+ 
+ static ssize_t
+-ctc_proto_show(struct device *dev, char *buf)
++ctc_proto_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct ctc_priv *priv;
+ 
+@@ -2958,7 +2958,7 @@ ctc_proto_show(struct device *dev, char 
+ }
+ 
+ static ssize_t
+-ctc_proto_store(struct device *dev, const char *buf, size_t count)
++ctc_proto_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct ctc_priv *priv;
+ 	int value;
+@@ -2980,7 +2980,7 @@ ctc_proto_store(struct device *dev, cons
+ static DEVICE_ATTR(protocol, 0644, ctc_proto_show, ctc_proto_store);
+ 
+ static ssize_t
+-ctc_type_show(struct device *dev, char *buf)
++ctc_type_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct ccwgroup_device *cgdev;
+ 
+diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/net/lcs.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/net/lcs.c
+--- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/net/lcs.c	2005-05-11 00:28:10.000000000 -0400
++++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/net/lcs.c	2005-05-11 00:33:15.000000000 -0400
+@@ -1992,7 +1992,7 @@ lcs_open_device(struct net_device *dev)
+  * show function for portno called by cat or similar things
   */
  static ssize_t
--raw3270_model_show(struct device *dev, char *buf)
-+raw3270_model_show(struct device *dev, char *buf, void *private)
+-lcs_portno_show (struct device *dev, char *buf)
++lcs_portno_show (struct device *dev, char *buf, void *private)
  {
- 	return snprintf(buf, PAGE_SIZE, "%i\n",
- 			((struct raw3270 *) dev->driver_data)->model);
-@@ -1092,7 +1092,7 @@ raw3270_model_show(struct device *dev, c
- static DEVICE_ATTR(model, 0444, raw3270_model_show, 0);
+         struct lcs_card *card;
  
- static ssize_t
--raw3270_rows_show(struct device *dev, char *buf)
-+raw3270_rows_show(struct device *dev, char *buf, void *private)
- {
- 	return snprintf(buf, PAGE_SIZE, "%i\n",
- 			((struct raw3270 *) dev->driver_data)->rows);
-@@ -1100,7 +1100,7 @@ raw3270_rows_show(struct device *dev, ch
- static DEVICE_ATTR(rows, 0444, raw3270_rows_show, 0);
- 
- static ssize_t
--raw3270_columns_show(struct device *dev, char *buf)
-+raw3270_columns_show(struct device *dev, char *buf, void *private)
- {
- 	return snprintf(buf, PAGE_SIZE, "%i\n",
- 			((struct raw3270 *) dev->driver_data)->cols);
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/char/tape_core.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/char/tape_core.c
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/char/tape_core.c	2005-05-11 00:28:10.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/char/tape_core.c	2005-05-11 00:33:16.000000000 -0400
-@@ -107,7 +107,7 @@ busid_to_int(char *bus_id)
-  *        replaced by a link to the cdev tree.
+@@ -2008,7 +2008,7 @@ lcs_portno_show (struct device *dev, cha
+  * store the value which is piped to file portno
   */
  static ssize_t
--tape_medium_state_show(struct device *dev, char *buf)
-+tape_medium_state_show(struct device *dev, char *buf, void *private)
+-lcs_portno_store (struct device *dev, const char *buf, size_t count)
++lcs_portno_store (struct device *dev, const char *buf, size_t count, void *private)
  {
- 	struct tape_device *tdev;
- 
-@@ -119,7 +119,7 @@ static
- DEVICE_ATTR(medium_state, 0444, tape_medium_state_show, NULL);
+         struct lcs_card *card;
+         int value;
+@@ -2029,7 +2029,7 @@ lcs_portno_store (struct device *dev, co
+ static DEVICE_ATTR(portno, 0644, lcs_portno_show, lcs_portno_store);
  
  static ssize_t
--tape_first_minor_show(struct device *dev, char *buf)
-+tape_first_minor_show(struct device *dev, char *buf, void *private)
+-lcs_type_show(struct device *dev, char *buf)
++lcs_type_show(struct device *dev, char *buf, void *private)
  {
- 	struct tape_device *tdev;
+ 	struct ccwgroup_device *cgdev;
  
-@@ -131,7 +131,7 @@ static
- DEVICE_ATTR(first_minor, 0444, tape_first_minor_show, NULL);
+@@ -2043,7 +2043,7 @@ lcs_type_show(struct device *dev, char *
+ static DEVICE_ATTR(type, 0444, lcs_type_show, NULL);
  
  static ssize_t
--tape_state_show(struct device *dev, char *buf)
-+tape_state_show(struct device *dev, char *buf, void *private)
+-lcs_timeout_show(struct device *dev, char *buf)
++lcs_timeout_show(struct device *dev, char *buf, void *private)
  {
- 	struct tape_device *tdev;
+ 	struct lcs_card *card;
  
-@@ -144,7 +144,7 @@ static
- DEVICE_ATTR(state, 0444, tape_state_show, NULL);
- 
- static ssize_t
--tape_operation_show(struct device *dev, char *buf)
-+tape_operation_show(struct device *dev, char *buf, void *private)
- {
- 	struct tape_device *tdev;
- 	ssize_t rc;
-@@ -171,7 +171,7 @@ static
- DEVICE_ATTR(operation, 0444, tape_operation_show, NULL);
- 
- static ssize_t
--tape_blocksize_show(struct device *dev, char *buf)
-+tape_blocksize_show(struct device *dev, char *buf, void *private)
- {
- 	struct tape_device *tdev;
- 
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/char/vmlogrdr.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/char/vmlogrdr.c
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/char/vmlogrdr.c	2005-05-11 00:28:10.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/char/vmlogrdr.c	2005-05-11 00:33:16.000000000 -0400
-@@ -548,7 +548,7 @@ vmlogrdr_read (struct file *filp, char *
+@@ -2053,7 +2053,7 @@ lcs_timeout_show(struct device *dev, cha
  }
  
  static ssize_t
--vmlogrdr_autopurge_store(struct device * dev, const char * buf, size_t count) {
-+vmlogrdr_autopurge_store(struct device * dev, const char * buf, size_t count, void *private) {
- 	struct vmlogrdr_priv_t *priv = dev->driver_data;
- 	ssize_t ret = count;
- 
-@@ -567,7 +567,7 @@ vmlogrdr_autopurge_store(struct device *
- 
+-lcs_timeout_store (struct device *dev, const char *buf, size_t count)
++lcs_timeout_store (struct device *dev, const char *buf, size_t count, void *private)
+ {
+         struct lcs_card *card;
+         int value;
+diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/net/netiucv.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/net/netiucv.c
+--- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/net/netiucv.c	2005-05-11 00:28:10.000000000 -0400
++++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/net/netiucv.c	2005-05-11 00:33:15.000000000 -0400
+@@ -1356,7 +1356,7 @@ netiucv_change_mtu (struct net_device * 
+  *****************************************************************************/
  
  static ssize_t
--vmlogrdr_autopurge_show(struct device *dev, char *buf) {
-+vmlogrdr_autopurge_show(struct device *dev, char *buf, void *private) {
- 	struct vmlogrdr_priv_t *priv = dev->driver_data;
- 	return sprintf(buf, "%u\n", priv->autopurge);
+-user_show (struct device *dev, char *buf)
++user_show (struct device *dev, char *buf, void *private)
+ {
+ 	struct netiucv_priv *priv = dev->driver_data;
+ 
+@@ -1365,7 +1365,7 @@ user_show (struct device *dev, char *buf
  }
-@@ -578,7 +578,7 @@ static DEVICE_ATTR(autopurge, 0644, vmlo
- 
  
  static ssize_t
--vmlogrdr_purge_store(struct device * dev, const char * buf, size_t count) {
-+vmlogrdr_purge_store(struct device * dev, const char * buf, size_t count, void *private) {
- 
- 	char cp_command[80];
- 	char cp_response[80];
-@@ -620,7 +620,7 @@ static DEVICE_ATTR(purge, 0200, NULL, vm
- 
- static ssize_t
- vmlogrdr_autorecording_store(struct device *dev, const char *buf,
--			     size_t count) {
-+			     size_t count, void *private) {
- 	struct vmlogrdr_priv_t *priv = dev->driver_data;
- 	ssize_t ret = count;
- 
-@@ -639,7 +639,7 @@ vmlogrdr_autorecording_store(struct devi
- 
+-user_write (struct device *dev, const char *buf, size_t count)
++user_write (struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct netiucv_priv *priv = dev->driver_data;
+ 	struct net_device *ndev = priv->conn->netdev;
+@@ -1422,7 +1422,7 @@ user_write (struct device *dev, const ch
+ static DEVICE_ATTR(user, 0644, user_show, user_write);
  
  static ssize_t
--vmlogrdr_autorecording_show(struct device *dev, char *buf) {
-+vmlogrdr_autorecording_show(struct device *dev, char *buf, void *private) {
- 	struct vmlogrdr_priv_t *priv = dev->driver_data;
- 	return sprintf(buf, "%u\n", priv->autorecording);
+-buffer_show (struct device *dev, char *buf)
++buffer_show (struct device *dev, char *buf, void *private)
+ {
+ 	struct netiucv_priv *priv = dev->driver_data;
+ 
+@@ -1431,7 +1431,7 @@ buffer_show (struct device *dev, char *b
  }
-@@ -650,7 +650,7 @@ static DEVICE_ATTR(autorecording, 0644, 
+ 
+ static ssize_t
+-buffer_write (struct device *dev, const char *buf, size_t count)
++buffer_write (struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct netiucv_priv *priv = dev->driver_data;
+ 	struct net_device *ndev = priv->conn->netdev;
+@@ -1486,7 +1486,7 @@ buffer_write (struct device *dev, const 
+ static DEVICE_ATTR(buffer, 0644, buffer_show, buffer_write);
+ 
+ static ssize_t
+-dev_fsm_show (struct device *dev, char *buf)
++dev_fsm_show (struct device *dev, char *buf, void *private)
+ {
+ 	struct netiucv_priv *priv = dev->driver_data;
+ 
+@@ -1497,7 +1497,7 @@ dev_fsm_show (struct device *dev, char *
+ static DEVICE_ATTR(device_fsm_state, 0444, dev_fsm_show, NULL);
+ 
+ static ssize_t
+-conn_fsm_show (struct device *dev, char *buf)
++conn_fsm_show (struct device *dev, char *buf, void *private)
+ {
+ 	struct netiucv_priv *priv = dev->driver_data;
+ 
+@@ -1508,7 +1508,7 @@ conn_fsm_show (struct device *dev, char 
+ static DEVICE_ATTR(connection_fsm_state, 0444, conn_fsm_show, NULL);
+ 
+ static ssize_t
+-maxmulti_show (struct device *dev, char *buf)
++maxmulti_show (struct device *dev, char *buf, void *private)
+ {
+ 	struct netiucv_priv *priv = dev->driver_data;
+ 
+@@ -1517,7 +1517,7 @@ maxmulti_show (struct device *dev, char 
+ }
+ 
+ static ssize_t
+-maxmulti_write (struct device *dev, const char *buf, size_t count)
++maxmulti_write (struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct netiucv_priv *priv = dev->driver_data;
+ 
+@@ -1529,7 +1529,7 @@ maxmulti_write (struct device *dev, cons
+ static DEVICE_ATTR(max_tx_buffer_used, 0644, maxmulti_show, maxmulti_write);
+ 
+ static ssize_t
+-maxcq_show (struct device *dev, char *buf)
++maxcq_show (struct device *dev, char *buf, void *private)
+ {
+ 	struct netiucv_priv *priv = dev->driver_data;
+ 
+@@ -1538,7 +1538,7 @@ maxcq_show (struct device *dev, char *bu
+ }
+ 
+ static ssize_t
+-maxcq_write (struct device *dev, const char *buf, size_t count)
++maxcq_write (struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct netiucv_priv *priv = dev->driver_data;
+ 	
+@@ -1550,7 +1550,7 @@ maxcq_write (struct device *dev, const c
+ static DEVICE_ATTR(max_chained_skbs, 0644, maxcq_show, maxcq_write);
+ 
+ static ssize_t
+-sdoio_show (struct device *dev, char *buf)
++sdoio_show (struct device *dev, char *buf, void *private)
+ {
+ 	struct netiucv_priv *priv = dev->driver_data;
+ 
+@@ -1559,7 +1559,7 @@ sdoio_show (struct device *dev, char *bu
+ }
+ 
+ static ssize_t
+-sdoio_write (struct device *dev, const char *buf, size_t count)
++sdoio_write (struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct netiucv_priv *priv = dev->driver_data;
+ 	
+@@ -1571,7 +1571,7 @@ sdoio_write (struct device *dev, const c
+ static DEVICE_ATTR(tx_single_write_ops, 0644, sdoio_show, sdoio_write);
+ 
+ static ssize_t
+-mdoio_show (struct device *dev, char *buf)
++mdoio_show (struct device *dev, char *buf, void *private)
+ {
+ 	struct netiucv_priv *priv = dev->driver_data;
+ 
+@@ -1580,7 +1580,7 @@ mdoio_show (struct device *dev, char *bu
+ }
+ 
+ static ssize_t
+-mdoio_write (struct device *dev, const char *buf, size_t count)
++mdoio_write (struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct netiucv_priv *priv = dev->driver_data;
+ 	
+@@ -1592,7 +1592,7 @@ mdoio_write (struct device *dev, const c
+ static DEVICE_ATTR(tx_multi_write_ops, 0644, mdoio_show, mdoio_write);
+ 
+ static ssize_t
+-txlen_show (struct device *dev, char *buf)
++txlen_show (struct device *dev, char *buf, void *private)
+ {
+ 	struct netiucv_priv *priv = dev->driver_data;
+ 
+@@ -1601,7 +1601,7 @@ txlen_show (struct device *dev, char *bu
+ }
+ 
+ static ssize_t
+-txlen_write (struct device *dev, const char *buf, size_t count)
++txlen_write (struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct netiucv_priv *priv = dev->driver_data;
+ 	
+@@ -1613,7 +1613,7 @@ txlen_write (struct device *dev, const c
+ static DEVICE_ATTR(netto_bytes, 0644, txlen_show, txlen_write);
+ 
+ static ssize_t
+-txtime_show (struct device *dev, char *buf)
++txtime_show (struct device *dev, char *buf, void *private)
+ {
+ 	struct netiucv_priv *priv = dev->driver_data;
+ 
+@@ -1622,7 +1622,7 @@ txtime_show (struct device *dev, char *b
+ }
+ 
+ static ssize_t
+-txtime_write (struct device *dev, const char *buf, size_t count)
++txtime_write (struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct netiucv_priv *priv = dev->driver_data;
+ 	
+@@ -1634,7 +1634,7 @@ txtime_write (struct device *dev, const 
+ static DEVICE_ATTR(max_tx_io_time, 0644, txtime_show, txtime_write);
+ 
+ static ssize_t
+-txpend_show (struct device *dev, char *buf)
++txpend_show (struct device *dev, char *buf, void *private)
+ {
+ 	struct netiucv_priv *priv = dev->driver_data;
+ 
+@@ -1643,7 +1643,7 @@ txpend_show (struct device *dev, char *b
+ }
+ 
+ static ssize_t
+-txpend_write (struct device *dev, const char *buf, size_t count)
++txpend_write (struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct netiucv_priv *priv = dev->driver_data;
+ 
+@@ -1655,7 +1655,7 @@ txpend_write (struct device *dev, const 
+ static DEVICE_ATTR(tx_pending, 0644, txpend_show, txpend_write);
+ 
+ static ssize_t
+-txmpnd_show (struct device *dev, char *buf)
++txmpnd_show (struct device *dev, char *buf, void *private)
+ {
+ 	struct netiucv_priv *priv = dev->driver_data;
+ 
+@@ -1664,7 +1664,7 @@ txmpnd_show (struct device *dev, char *b
+ }
+ 
+ static ssize_t
+-txmpnd_write (struct device *dev, const char *buf, size_t count)
++txmpnd_write (struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct netiucv_priv *priv = dev->driver_data;
+ 
+diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/net/qeth_sys.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/net/qeth_sys.c
+--- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/net/qeth_sys.c	2005-05-11 00:28:10.000000000 -0400
++++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/net/qeth_sys.c	2005-05-11 00:33:15.000000000 -0400
+@@ -30,7 +30,7 @@ const char *VERSION_QETH_SYS_C = "$Revis
+ //low/high watermark
+ 
+ static ssize_t
+-qeth_dev_state_show(struct device *dev, char *buf)
++qeth_dev_state_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 	if (!card)
+@@ -58,7 +58,7 @@ qeth_dev_state_show(struct device *dev, 
+ static DEVICE_ATTR(state, 0444, qeth_dev_state_show, NULL);
+ 
+ static ssize_t
+-qeth_dev_chpid_show(struct device *dev, char *buf)
++qeth_dev_chpid_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 	if (!card)
+@@ -70,7 +70,7 @@ qeth_dev_chpid_show(struct device *dev, 
+ static DEVICE_ATTR(chpid, 0444, qeth_dev_chpid_show, NULL);
+ 
+ static ssize_t
+-qeth_dev_if_name_show(struct device *dev, char *buf)
++qeth_dev_if_name_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 	if (!card)
+@@ -81,7 +81,7 @@ qeth_dev_if_name_show(struct device *dev
+ static DEVICE_ATTR(if_name, 0444, qeth_dev_if_name_show, NULL);
+ 
+ static ssize_t
+-qeth_dev_card_type_show(struct device *dev, char *buf)
++qeth_dev_card_type_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 	if (!card)
+@@ -93,7 +93,7 @@ qeth_dev_card_type_show(struct device *d
+ static DEVICE_ATTR(card_type, 0444, qeth_dev_card_type_show, NULL);
+ 
+ static ssize_t
+-qeth_dev_portno_show(struct device *dev, char *buf)
++qeth_dev_portno_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 	if (!card)
+@@ -103,7 +103,7 @@ qeth_dev_portno_show(struct device *dev,
+ }
+ 
+ static ssize_t
+-qeth_dev_portno_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_portno_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 	char *tmp;
+@@ -129,7 +129,7 @@ qeth_dev_portno_store(struct device *dev
+ static DEVICE_ATTR(portno, 0644, qeth_dev_portno_show, qeth_dev_portno_store);
+ 
+ static ssize_t
+-qeth_dev_portname_show(struct device *dev, char *buf)
++qeth_dev_portname_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 	char portname[9] = {0, };
+@@ -146,7 +146,7 @@ qeth_dev_portname_show(struct device *de
+ }
+ 
+ static ssize_t
+-qeth_dev_portname_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_portname_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 	char *tmp;
+@@ -177,7 +177,7 @@ static DEVICE_ATTR(portname, 0644, qeth_
+ 		qeth_dev_portname_store);
+ 
+ static ssize_t
+-qeth_dev_checksum_show(struct device *dev, char *buf)
++qeth_dev_checksum_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -188,7 +188,7 @@ qeth_dev_checksum_show(struct device *de
+ }
+ 
+ static ssize_t
+-qeth_dev_checksum_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_checksum_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 	char *tmp;
+@@ -218,7 +218,7 @@ static DEVICE_ATTR(checksumming, 0644, q
+ 		qeth_dev_checksum_store);
+ 
+ static ssize_t
+-qeth_dev_prioqing_show(struct device *dev, char *buf)
++qeth_dev_prioqing_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -237,7 +237,7 @@ qeth_dev_prioqing_show(struct device *de
+ }
+ 
+ static ssize_t
+-qeth_dev_prioqing_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_prioqing_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 	char *tmp;
+@@ -290,7 +290,7 @@ static DEVICE_ATTR(priority_queueing, 06
+ 		qeth_dev_prioqing_store);
+ 
+ static ssize_t
+-qeth_dev_bufcnt_show(struct device *dev, char *buf)
++qeth_dev_bufcnt_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -301,7 +301,7 @@ qeth_dev_bufcnt_show(struct device *dev,
+ }
+ 
+ static ssize_t
+-qeth_dev_bufcnt_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_bufcnt_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 	char *tmp;
+@@ -360,7 +360,7 @@ qeth_dev_route_show(struct qeth_card *ca
+ }
+ 
+ static ssize_t
+-qeth_dev_route4_show(struct device *dev, char *buf)
++qeth_dev_route4_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -410,7 +410,7 @@ qeth_dev_route_store(struct qeth_card *c
+ }
+ 
+ static ssize_t
+-qeth_dev_route4_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_route4_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -425,7 +425,7 @@ static DEVICE_ATTR(route4, 0644, qeth_de
+ 
+ #ifdef CONFIG_QETH_IPV6
+ static ssize_t
+-qeth_dev_route6_show(struct device *dev, char *buf)
++qeth_dev_route6_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -439,7 +439,7 @@ qeth_dev_route6_show(struct device *dev,
+ }
+ 
+ static ssize_t
+-qeth_dev_route6_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_route6_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -461,7 +461,7 @@ static DEVICE_ATTR(route6, 0644, qeth_de
+ #endif
+ 
+ static ssize_t
+-qeth_dev_add_hhlen_show(struct device *dev, char *buf)
++qeth_dev_add_hhlen_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -472,7 +472,7 @@ qeth_dev_add_hhlen_show(struct device *d
+ }
+ 
+ static ssize_t
+-qeth_dev_add_hhlen_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_add_hhlen_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 	char *tmp;
+@@ -499,7 +499,7 @@ static DEVICE_ATTR(add_hhlen, 0644, qeth
+ 		   qeth_dev_add_hhlen_store);
+ 
+ static ssize_t
+-qeth_dev_fake_ll_show(struct device *dev, char *buf)
++qeth_dev_fake_ll_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -510,7 +510,7 @@ qeth_dev_fake_ll_show(struct device *dev
+ }
+ 
+ static ssize_t
+-qeth_dev_fake_ll_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_fake_ll_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 	char *tmp;
+@@ -536,7 +536,7 @@ static DEVICE_ATTR(fake_ll, 0644, qeth_d
+ 		   qeth_dev_fake_ll_store);
+ 
+ static ssize_t
+-qeth_dev_fake_broadcast_show(struct device *dev, char *buf)
++qeth_dev_fake_broadcast_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -547,7 +547,7 @@ qeth_dev_fake_broadcast_show(struct devi
+ }
+ 
+ static ssize_t
+-qeth_dev_fake_broadcast_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_fake_broadcast_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 	char *tmp;
+@@ -574,7 +574,7 @@ static DEVICE_ATTR(fake_broadcast, 0644,
+ 		   qeth_dev_fake_broadcast_store);
+ 
+ static ssize_t
+-qeth_dev_recover_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_recover_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 	char *tmp;
+@@ -596,7 +596,7 @@ qeth_dev_recover_store(struct device *de
+ static DEVICE_ATTR(recover, 0200, NULL, qeth_dev_recover_store);
+ 
+ static ssize_t
+-qeth_dev_broadcast_mode_show(struct device *dev, char *buf)
++qeth_dev_broadcast_mode_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -613,7 +613,7 @@ qeth_dev_broadcast_mode_show(struct devi
+ }
+ 
+ static ssize_t
+-qeth_dev_broadcast_mode_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_broadcast_mode_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 	char *tmp;
+@@ -651,7 +651,7 @@ static DEVICE_ATTR(broadcast_mode, 0644,
+ 		   qeth_dev_broadcast_mode_store);
+ 
+ static ssize_t
+-qeth_dev_canonical_macaddr_show(struct device *dev, char *buf)
++qeth_dev_canonical_macaddr_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -668,7 +668,7 @@ qeth_dev_canonical_macaddr_show(struct d
+ 
+ static ssize_t
+ qeth_dev_canonical_macaddr_store(struct device *dev, const char *buf,
+-				  size_t count)
++				  size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 	char *tmp;
+@@ -703,7 +703,7 @@ static DEVICE_ATTR(canonical_macaddr, 06
+ 		   qeth_dev_canonical_macaddr_store);
+ 
+ static ssize_t
+-qeth_dev_layer2_show(struct device *dev, char *buf)
++qeth_dev_layer2_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -714,7 +714,7 @@ qeth_dev_layer2_show(struct device *dev,
+ }
+ 
+ static ssize_t
+-qeth_dev_layer2_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_layer2_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 	char *tmp;
+@@ -742,7 +742,7 @@ static DEVICE_ATTR(layer2, 0644, qeth_de
+ 		   qeth_dev_layer2_store);
+ 
+ static ssize_t
+-qeth_dev_large_send_show(struct device *dev, char *buf)
++qeth_dev_large_send_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -762,7 +762,7 @@ qeth_dev_large_send_show(struct device *
+ }
+ 
+ static ssize_t
+-qeth_dev_large_send_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_large_send_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 	enum qeth_large_send_types type;
+@@ -832,7 +832,7 @@ qeth_dev_blkt_store(struct qeth_card *ca
+ }
+ 
+ static ssize_t
+-qeth_dev_blkt_total_show(struct device *dev, char *buf)
++qeth_dev_blkt_total_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -841,7 +841,7 @@ qeth_dev_blkt_total_show(struct device *
  
  
  static ssize_t
--vmlogrdr_recording_store(struct device * dev, const char * buf, size_t count) {
-+vmlogrdr_recording_store(struct device * dev, const char * buf, size_t count, void *private) {
+-qeth_dev_blkt_total_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_blkt_total_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
  
- 	struct vmlogrdr_priv_t *priv = dev->driver_data;
- 	ssize_t ret;
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/cio/ccwgroup.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/cio/ccwgroup.c
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/cio/ccwgroup.c	2005-05-11 00:28:10.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/cio/ccwgroup.c	2005-05-11 00:33:15.000000000 -0400
-@@ -77,7 +77,7 @@ __ccwgroup_remove_symlinks(struct ccwgro
-  * longer needed or accidentially created. Saves memory :)
+@@ -855,7 +855,7 @@ static DEVICE_ATTR(total, 0644, qeth_dev
+ 		   qeth_dev_blkt_total_store);
+ 
+ static ssize_t
+-qeth_dev_blkt_inter_show(struct device *dev, char *buf)
++qeth_dev_blkt_inter_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -864,7 +864,7 @@ qeth_dev_blkt_inter_show(struct device *
+ 
+ 
+ static ssize_t
+-qeth_dev_blkt_inter_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_blkt_inter_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -876,7 +876,7 @@ static DEVICE_ATTR(inter, 0644, qeth_dev
+ 		   qeth_dev_blkt_inter_store);
+ 
+ static ssize_t
+-qeth_dev_blkt_inter_jumbo_show(struct device *dev, char *buf)
++qeth_dev_blkt_inter_jumbo_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -886,7 +886,7 @@ qeth_dev_blkt_inter_jumbo_show(struct de
+ 
+ 
+ static ssize_t
+-qeth_dev_blkt_inter_jumbo_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_blkt_inter_jumbo_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -956,7 +956,7 @@ qeth_check_layer2(struct qeth_card *card
+ 
+ 
+ static ssize_t
+-qeth_dev_ipato_enable_show(struct device *dev, char *buf)
++qeth_dev_ipato_enable_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -969,7 +969,7 @@ qeth_dev_ipato_enable_show(struct device
+ }
+ 
+ static ssize_t
+-qeth_dev_ipato_enable_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_ipato_enable_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 	char *tmp;
+@@ -1004,7 +1004,7 @@ static QETH_DEVICE_ATTR(ipato_enable, en
+ 			qeth_dev_ipato_enable_store);
+ 
+ static ssize_t
+-qeth_dev_ipato_invert4_show(struct device *dev, char *buf)
++qeth_dev_ipato_invert4_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -1018,7 +1018,7 @@ qeth_dev_ipato_invert4_show(struct devic
+ }
+ 
+ static ssize_t
+-qeth_dev_ipato_invert4_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_ipato_invert4_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 	char *tmp;
+@@ -1084,7 +1084,7 @@ qeth_dev_ipato_add_show(char *buf, struc
+ }
+ 
+ static ssize_t
+-qeth_dev_ipato_add4_show(struct device *dev, char *buf)
++qeth_dev_ipato_add4_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -1153,7 +1153,7 @@ qeth_dev_ipato_add_store(const char *buf
+ }
+ 
+ static ssize_t
+-qeth_dev_ipato_add4_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_ipato_add4_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -1186,7 +1186,7 @@ qeth_dev_ipato_del_store(const char *buf
+ }
+ 
+ static ssize_t
+-qeth_dev_ipato_del4_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_ipato_del4_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -1201,7 +1201,7 @@ static QETH_DEVICE_ATTR(ipato_del4, del4
+ 
+ #ifdef CONFIG_QETH_IPV6
+ static ssize_t
+-qeth_dev_ipato_invert6_show(struct device *dev, char *buf)
++qeth_dev_ipato_invert6_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -1215,7 +1215,7 @@ qeth_dev_ipato_invert6_show(struct devic
+ }
+ 
+ static ssize_t
+-qeth_dev_ipato_invert6_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_ipato_invert6_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 	char *tmp;
+@@ -1247,7 +1247,7 @@ static QETH_DEVICE_ATTR(ipato_invert6, i
+ 
+ 
+ static ssize_t
+-qeth_dev_ipato_add6_show(struct device *dev, char *buf)
++qeth_dev_ipato_add6_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -1258,7 +1258,7 @@ qeth_dev_ipato_add6_show(struct device *
+ }
+ 
+ static ssize_t
+-qeth_dev_ipato_add6_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_ipato_add6_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -1273,7 +1273,7 @@ static QETH_DEVICE_ATTR(ipato_add6, add6
+ 			qeth_dev_ipato_add6_store);
+ 
+ static ssize_t
+-qeth_dev_ipato_del6_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_ipato_del6_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -1341,7 +1341,7 @@ qeth_dev_vipa_add_show(char *buf, struct
+ }
+ 
+ static ssize_t
+-qeth_dev_vipa_add4_show(struct device *dev, char *buf)
++qeth_dev_vipa_add4_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -1381,7 +1381,7 @@ qeth_dev_vipa_add_store(const char *buf,
+ }
+ 
+ static ssize_t
+-qeth_dev_vipa_add4_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_vipa_add4_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -1413,7 +1413,7 @@ qeth_dev_vipa_del_store(const char *buf,
+ }
+ 
+ static ssize_t
+-qeth_dev_vipa_del4_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_vipa_del4_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -1428,7 +1428,7 @@ static QETH_DEVICE_ATTR(vipa_del4, del4,
+ 
+ #ifdef CONFIG_QETH_IPV6
+ static ssize_t
+-qeth_dev_vipa_add6_show(struct device *dev, char *buf)
++qeth_dev_vipa_add6_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -1439,7 +1439,7 @@ qeth_dev_vipa_add6_show(struct device *d
+ }
+ 
+ static ssize_t
+-qeth_dev_vipa_add6_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_vipa_add6_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -1454,7 +1454,7 @@ static QETH_DEVICE_ATTR(vipa_add6, add6,
+ 			qeth_dev_vipa_add6_store);
+ 
+ static ssize_t
+-qeth_dev_vipa_del6_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_vipa_del6_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -1522,7 +1522,7 @@ qeth_dev_rxip_add_show(char *buf, struct
+ }
+ 
+ static ssize_t
+-qeth_dev_rxip_add4_show(struct device *dev, char *buf)
++qeth_dev_rxip_add4_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -1562,7 +1562,7 @@ qeth_dev_rxip_add_store(const char *buf,
+ }
+ 
+ static ssize_t
+-qeth_dev_rxip_add4_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_rxip_add4_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -1594,7 +1594,7 @@ qeth_dev_rxip_del_store(const char *buf,
+ }
+ 
+ static ssize_t
+-qeth_dev_rxip_del4_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_rxip_del4_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -1609,7 +1609,7 @@ static QETH_DEVICE_ATTR(rxip_del4, del4,
+ 
+ #ifdef CONFIG_QETH_IPV6
+ static ssize_t
+-qeth_dev_rxip_add6_show(struct device *dev, char *buf)
++qeth_dev_rxip_add6_show(struct device *dev, char *buf, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -1620,7 +1620,7 @@ qeth_dev_rxip_add6_show(struct device *d
+ }
+ 
+ static ssize_t
+-qeth_dev_rxip_add6_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_rxip_add6_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+@@ -1635,7 +1635,7 @@ static QETH_DEVICE_ATTR(rxip_add6, add6,
+ 			qeth_dev_rxip_add6_store);
+ 
+ static ssize_t
+-qeth_dev_rxip_del6_store(struct device *dev, const char *buf, size_t count)
++qeth_dev_rxip_del6_store(struct device *dev, const char *buf, size_t count, void *private)
+ {
+ 	struct qeth_card *card = dev->driver_data;
+ 
+diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/scsi/zfcp_scsi.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/scsi/zfcp_scsi.c
+--- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/scsi/zfcp_scsi.c	2005-05-11 00:28:10.000000000 -0400
++++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/scsi/zfcp_scsi.c	2005-05-11 00:33:16.000000000 -0400
+@@ -923,7 +923,7 @@ struct fc_function_template zfcp_transpo
   */
- static ssize_t
--ccwgroup_ungroup_store(struct device *dev, const char *buf, size_t count)
-+ccwgroup_ungroup_store(struct device *dev, const char *buf, size_t count, void *private)
- {
- 	struct ccwgroup_device *gdev;
- 
-@@ -310,7 +310,7 @@ ccwgroup_set_offline(struct ccwgroup_dev
- }
- 
- static ssize_t
--ccwgroup_online_store (struct device *dev, const char *buf, size_t count)
-+ccwgroup_online_store (struct device *dev, const char *buf, size_t count, void *private)
- {
- 	struct ccwgroup_device *gdev;
- 	struct ccwgroup_driver *gdrv;
-@@ -338,7 +338,7 @@ ccwgroup_online_store (struct device *de
- }
- 
- static ssize_t
--ccwgroup_online_show (struct device *dev, char *buf)
-+ccwgroup_online_show (struct device *dev, char *buf, void *private)
- {
- 	int online;
- 
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/cio/chsc.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/cio/chsc.c
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/cio/chsc.c	2005-05-11 00:28:10.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/cio/chsc.c	2005-05-11 00:33:15.000000000 -0400
-@@ -852,7 +852,7 @@ out:
-  * Files for the channel path entries.
-  */
- static ssize_t
--chp_status_show(struct device *dev, char *buf)
-+chp_status_show(struct device *dev, char *buf, void *private)
- {
- 	struct channel_path *chp = container_of(dev, struct channel_path, dev);
- 
-@@ -863,7 +863,7 @@ chp_status_show(struct device *dev, char
- }
- 
- static ssize_t
--chp_status_write(struct device *dev, const char *buf, size_t count)
-+chp_status_write(struct device *dev, const char *buf, size_t count, void *private)
- {
- 	struct channel_path *cp = container_of(dev, struct channel_path, dev);
- 	char cmd[10];
-@@ -888,7 +888,7 @@ chp_status_write(struct device *dev, con
- static DEVICE_ATTR(status, 0644, chp_status_show, chp_status_write);
- 
- static ssize_t
--chp_type_show(struct device *dev, char *buf)
-+chp_type_show(struct device *dev, char *buf, void *private)
- {
- 	struct channel_path *chp = container_of(dev, struct channel_path, dev);
- 
-diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/cio/cmf.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/cio/cmf.c
---- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/s390/cio/cmf.c	2005-05-11 00:28:10.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-nowarn/drivers/s390/cio/cmf.c	2005-05-11 00:33:15.000000000 -0400
-@@ -796,7 +796,7 @@ cmb_show_attr(struct device *dev, char *
- }
- 
- static ssize_t
--cmb_show_avg_sample_interval(struct device *dev, char *buf)
-+cmb_show_avg_sample_interval(struct device *dev, char *buf, void *private)
- {
- 	struct ccw_device *cdev;
- 	long interval;
-@@ -813,7 +813,7 @@ cmb_show_avg_sample_interval(struct devi
- }
- 
- static ssize_t
--cmb_show_avg_utilization(struct device *dev, char *buf)
-+cmb_show_avg_utilization(struct device *dev, char *buf, void *private)
- {
- 	struct cmbdata data;
- 	u64 utilization;
-@@ -842,12 +842,12 @@ cmb_show_avg_utilization(struct device *
- }
- 
- #define cmf_attr(name) \
--static ssize_t show_ ## name (struct device * dev, char * buf) \
-+static ssize_t show_ ## name (struct device * dev, char * buf, void *private) \
- { return cmb_show_attr((dev), buf, cmb_ ## name); } \
- static DEVICE_ATTR(name, 0444, show_ ## name, NULL);
- 
- #define cmf_attr_avg(name) \
--static ssize_t show_avg_ ## name (struct device * dev, char * buf) \
-+static ssize_t show_avg_ ## name (struct device * dev, char * buf, void *private) \
- { return cmb_show_attr((dev), buf, cmb_ ## name); } \
- static DEVICE_ATTR(avg_ ## name, 0444, show_avg_ ## name, NULL);
- 
-@@ -902,12 +902,12 @@ static struct attribute_group cmf_attr_g
- 	.attrs = cmf_attributes_ext,
- };
- 
--static ssize_t cmb_enable_show(struct device *dev, char *buf)
-+static ssize_t cmb_enable_show(struct device *dev, char *buf, void *private)
- {
- 	return sprintf(buf, "%d\n", to_ccwdev(dev)->private->cmb ? 1 : 0);
- }
- 
--static ssize_t cmb_enable_store(struct device *dev, const char *buf, size_t c)
-+static ssize_t cmb_enable_store(struct device *dev, const char *buf, size_t c, void *private)
- {
- 	struct ccw_device *cdev;
- 	int ret;
+ #define ZFCP_DEFINE_SCSI_ATTR(_name, _format, _value)                    \
+ static ssize_t zfcp_sysfs_scsi_##_name##_show(struct device *dev,        \
+-                                              char *buf)                 \
++                                              char *buf, void *private)                 \
+ {                                                                        \
+         struct scsi_device *sdev;                                        \
+         struct zfcp_unit *unit;                                          \
 
-------=_Part_1435_4460224.1116063076755--
+
+
+------=_Part_1443_10671669.1116063139622--

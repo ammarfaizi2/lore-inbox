@@ -1,52 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261538AbVEOHE2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261539AbVEOHat@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261538AbVEOHE2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 03:04:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbVEOHEW
+	id S261539AbVEOHat (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 03:30:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbVEOHat
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 03:04:22 -0400
-Received: from ZIVLNX17.UNI-MUENSTER.DE ([128.176.188.79]:25005 "EHLO
-	ZIVLNX17.uni-muenster.de") by vger.kernel.org with ESMTP
-	id S261538AbVEOHES (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 03:04:18 -0400
-From: Borislav Petkov <petkov@uni-muenster.de>
-To: Edgar Toernig <froese@gmx.de>
-Subject: Re: Automatic .config generation
-Date: Sun, 15 May 2005 09:03:42 +0200
-User-Agent: KMail/1.7.2
-Cc: jmerkey <jmerkey@utah-nac.org>, Scott Robert Ladd <lkml@coyotegulch.com>,
-       linux-kernel@vger.kernel.org
-References: <42839AF7.4030708@coyotegulch.com> <42838D4C.3040207@utah-nac.org> <20050512231726.6198bbc6.froese@gmx.de>
-In-Reply-To: <20050512231726.6198bbc6.froese@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 15 May 2005 03:30:49 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:33423 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261539AbVEOHao (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 03:30:44 -0400
+Subject: Re: Hyper-Threading Vulnerability
+From: Arjan van de Ven <arjan@infradead.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Jones <davej@redhat.com>,
+       Matt Mackall <mpm@selenic.com>, Andy Isaacson <adi@hexapodia.org>,
+       Andi Kleen <ak@muc.de>, "Richard F. Rebel" <rrebel@whenu.com>,
+       Gabor MICSKO <gmicsko@szintezis.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, tytso@mit.edu
+In-Reply-To: <1116114052.9141.38.camel@mindpipe>
+References: <1115963481.1723.3.camel@alderaan.trey.hu>
+	 <m164xnatpt.fsf@muc.de> <1116009483.4689.803.camel@rebel.corp.whenu.com>
+	 <20050513190549.GB47131@muc.de> <20050513212620.GA12522@hexapodia.org>
+	 <20050513215905.GY5914@waste.org>
+	 <1116024419.20646.41.camel@localhost.localdomain>
+	 <1116025212.6380.50.camel@mindpipe>  <20050513232708.GC13846@redhat.com>
+	 <1116027488.6380.55.camel@mindpipe>
+	 <1116084186.20545.47.camel@localhost.localdomain>
+	 <1116088229.8880.7.camel@mindpipe>
+	 <1116089068.6007.13.camel@laptopd505.fenrus.org>
+	 <1116093396.9141.11.camel@mindpipe>
+	 <1116093694.6007.15.camel@laptopd505.fenrus.org>
+	 <1116098504.9141.31.camel@mindpipe>
+	 <1116100126.6007.17.camel@laptopd505.fenrus.org>
+	 <1116114052.9141.38.camel@mindpipe>
+Content-Type: text/plain
+Date: Sun, 15 May 2005 09:30:33 +0200
+Message-Id: <1116142233.6270.9.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200505150903.42212.petkov@uni-muenster.de>
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 12 May 2005 23:17, Edgar Toernig wrote:
-> jmerkey wrote:
-> > Scott Robert Ladd wrote:
-> > >Is there a utility that creates a .config based on analysis of the
-> > >target system?
-> >
-> > Now that's a great idea ..... :-)
->
-> Not really new though :-)
->
->     http://sourceforge.net/projects/kautoconfigure/
->
-> Ciao, ET.
+On Sat, 2005-05-14 at 19:40 -0400, Lee Revell wrote:
+> > it's a matter of time (my estimate is a year or two) before processors
+> > get variable frequencies based on temperature targets etc...
+> > and then rdtsc is really useless for this kind of thing..
+> 
+> I was under the impression that P4 and later processors do not vary the
+> TSC rate when doing frequency scaling.  This is mentioned in the
+> documentation for the high res timers patch.
 
-how about /proc/config.gz.. although this was pretty recent IIRC.
+seems not the case, and worse, during idle time the clock is allowed to
+stop entirely.... (and that is also happening more and more and linux is
+getting more agressive idle support (eg no timer tick and such patches)
+which will trigger bios thresholds for this even more too.
 
-Regards,
-Boris.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+
+

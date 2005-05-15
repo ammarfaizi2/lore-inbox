@@ -1,64 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVEOS5N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbVEOTA4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261199AbVEOS5N (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 14:57:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbVEOS5N
+	id S261201AbVEOTA4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 15:00:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbVEOTA4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 14:57:13 -0400
-Received: from rutherford.zen.co.uk ([212.23.3.142]:26269 "EHLO
-	rutherford.zen.co.uk") by vger.kernel.org with ESMTP
-	id S261199AbVEOS5J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 14:57:09 -0400
-Date: Sun, 15 May 2005 19:56:42 +0100
-From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-To: David Schwartz <davids@webmaster.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Hyper-Threading Vulnerability
-Message-ID: <20050515185642.GH7100@gallifrey>
-References: <20050515094352.GB68736@muc.de> <MDEHLPKNGKAHNMBLJOLKGEADDNAB.davids@webmaster.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 15 May 2005 15:00:56 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:2177 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261201AbVEOTAp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 15:00:45 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: mhw@wittsend.com, linux-kernel@vger.kernel.org
+Subject: Re: Sync option destroys flash!
+Date: Sun, 15 May 2005 22:00:26 +0300
+User-Agent: KMail/1.5.4
+References: <1116001207.5239.38.camel@localhost.localdomain>
+In-Reply-To: <1116001207.5239.38.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKGEADDNAB.davids@webmaster.com>
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.6.10-5-k7-smp (i686)
-X-Uptime: 19:53:06 up 1 day,  7:26,  3 users,  load average: 2.05, 2.07, 2.02
-User-Agent: Mutt/1.5.6+20040907i
-X-Originating-Rutherford-IP: [212.23.14.246]
+Message-Id: <200505152200.26432.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* David Schwartz (davids@webmaster.com) wrote:
+On Friday 13 May 2005 19:20, Michael H. Warfield wrote:
+> 	Under the right circumstances, even copying a single file to a flash
+> drive mounted with the "sync" option can destroy the entire drive!
 > 
-> Andi Kleen wrote:
+> 	Now that I have your attention!
 > 
-> > And what you're doing is to ask all the non crypto guys to give
-> > up an useful optimization just to fix a problem in the crypto guy's
-> > code. The cache line information leak is just a information leak
-> > bug in the crypto code, not a general problem.
+> 	I found this out the hard way.  (Kissed one brand new $70 USD 1GB flash
+> drive good-bye.)  According to the man pages for mount, FAT and VFAT
+> file systems ignore the "sync" option.  It lies.  Maybe it use to be
+> true, but it certainly lies now.  A simple test can verify this.  Mount
+> a flash drive with a FAT/VFAT file system without the sync option and
+> writes to the drive go very fast.  Typing "sync" or unmounting the drive
+> afterwards, takes time as the buffered data is written to the flash
+> drive.  This is as it should be.  Mount it with the sync option and
+> writes are really REALLY slow (worse than they should be just from
+> copying the data through USB) but sync and umount come back immediately
+> and result in no additional writing to the drive.  [Do the preceding
+> with only a few files and less than a few meg of data if you value that
+> flash.]  So...  FAT and VFAT are honoring the sync option.  This is very
+> VERY bad.  It's bad for floppies, it's bad for hard drives, it's FATAL
+> for flash drives.
 > 
-> 	Portable code shouldn't even have to know that there is such a thing as a
-> cache line. It should be able to rely on the operating system not to let
-> other tasks with a different security context spy on the details of its
-> operation.
+> 	Flash drives have a limited number of write cycles.  Many many
+> thousands of write cycles, but limited, none the less.  They are also
+> written in blocks which are much larger than the "sector" size report
+> (several K in a physical nand flash block, IRC).
+> 
+> 	What happens, with the sync option on a VFAT file system, is that the
+> FAT tables are getting pounded and over-written over and over and over
+> again as each and every block/cluster is allocated while a new file is
+> written out.  This constant overwriting eventually wears out the first
+> block or two of the flash drive.
 
-I find it interesting to compare this thread with a thread from about
-a week ago talking about how /proc/cpuinfo wasn't consistent
-across architectures - where we come round to the view of whether
-the application writers shouldn't care/are too dumb/shouldn't need
-to know about/can't be trusted  with knowing about what the real
-hardware is.
+What we really need, is a less thorough version of O_SYNC.
+O_SYNC currently guarantees that when syscall returns, data
+is on media (or at least in disk drive's internal cache :).
 
-Personally I think this is a good case of where the application
-should take care of it - with whatever support the OS can really
-give.
+This is exactly what really paranoid people want.
+Journalling labels, all that good stuff.
 
-(That is if this is actually a real problem and not just
-purely theoretical - my crypto knowledge isn't good enough
-to answer that - but it feels very very abstract).
+But there are many cases where people just want to say
+'write out dirty data asap for this device', so that
+I can copy files to floppy, wait till it stops making
+noise, and eject a disk. Samr for flash if it has write
+indicator (mine has a diode).
 
-Dave
- -----Open up your eyes, open up your mind, open up your code -------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+The difference from O_SYNC is that in this O_LAZY_SYNC mode
+writes return early, just filling pagecache, but writeout
+is started immediately and continues until there is no dirty
+O_LAZY_SYNC data.
+
+This mode won't eat flash as fast as O_SYNC does.
+--
+vda
+

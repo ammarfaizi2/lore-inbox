@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVEOJDu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261569AbVEOJH3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261567AbVEOJDu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 05:03:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbVEOJDu
+	id S261569AbVEOJH3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 05:07:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbVEOJH2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 05:03:50 -0400
-Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:5618 "EHLO
-	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S261567AbVEOJDr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 05:03:47 -0400
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH][CFT] CDRW/DVD packet writing data corruption fix
-From: Peter Osterlund <petero2@telia.com>
-Date: 15 May 2005 11:03:44 +0200
-Message-ID: <m3wtq0svwv.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Sun, 15 May 2005 05:07:28 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:54937 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261569AbVEOJHZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 05:07:25 -0400
+Date: Sun, 15 May 2005 11:07:05 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>,
+       Anton Blanchard <anton@samba.org>
+Subject: Re: [PATCH 7/8] ppc64: SPU file system
+Message-ID: <20050515090705.GA2343@elf.ucw.cz>
+References: <200505132117.37461.arnd@arndb.de> <200505132129.07603.arnd@arndb.de> <1116027079.5128.32.camel@gaston>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1116027079.5128.32.camel@gaston>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I found a bug in the packet writing driver that could cause data
-corruption. The problem arised if the driver got a write request for a
-sector in a "zone" it was already working on. In that case it was
-supposed to queue the write request until it was done processing
-earlier requests for the same zone, and instead work on some other
-zone in the mean time. However, if there was no other zone to work on,
-the driver would initiate two packet_data objects for the same zone,
-causing unpredictable things to happen.
+Hi!
 
-I haven't tested this as much as I want yet, so I don't know if there
-are more data corruption bugs in the driver. Test reports would be
-appreciated.
+> > /run	A stub file that lets us do ioctl. The only ioctl
+> > 	method we need is the spu_run() call. spu_run suspends
+> > 	the current thread from the host CPU and transfers
+> > 	the flow of execution to the SPU.
+> > 	The ioctl call return to the calling thread when a state
+> > 	is entered that can not be handled by the kernel, e.g.
+> > 	an error in the SPU code or an exit() from it.
+> > 	When a signal is pending for the host CPU thread, the
+> > 	ioctl is interrupted and the SPU stopped in order to
+> > 	call the signal handler.
+> 
+> ioctl's are generally considered evil ... what about a write() method
+> writing a command ?
 
-Signed-off-by: Peter Osterlund <petero2@telia.com>
----
-
- linux-petero/drivers/block/pktcdvd.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletion(-)
-
-diff -puN drivers/block/pktcdvd.c~packet-corruption-fix drivers/block/pktcdvd.c
---- linux/drivers/block/pktcdvd.c~packet-corruption-fix	2005-05-15 10:53:00.000000000 +0200
-+++ linux-petero/drivers/block/pktcdvd.c	2005-05-15 10:53:00.000000000 +0200
-@@ -926,8 +926,10 @@ static int pkt_handle_queue(struct pktcd
- 		bio = node->bio;
- 		zone = ZONE(bio->bi_sector, pd);
- 		list_for_each_entry(p, &pd->cdrw.pkt_active_list, list) {
--			if (p->sector == zone)
-+			if (p->sector == zone) {
-+				bio = NULL;
- 				goto try_next_bio;
-+			}
- 		}
- 		break;
- try_next_bio:
-_
-
+That's even more evil than ioctl()... Try doing 32-vs-64bit conversion
+on write...
+								Pavel
 -- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340
+Boycott Kodak -- for their patent abuse against Java.

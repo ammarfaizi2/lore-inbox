@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbVEONvK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261632AbVEONwa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261626AbVEONvK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 09:51:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261632AbVEONvK
+	id S261632AbVEONwa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 09:52:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261633AbVEONw3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 09:51:10 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:45489 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261626AbVEONvF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 09:51:05 -0400
-Date: Sun, 15 May 2005 15:51:05 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Andi Kleen <ak@muc.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Hyper-Threading Vulnerability
-In-Reply-To: <20050515095446.GE68736@muc.de>
-Message-ID: <Pine.LNX.4.58.0505151550160.8633@artax.karlin.mff.cuni.cz>
-References: <1115963481.1723.3.camel@alderaan.trey.hu> <m164xnatpt.fsf@muc.de>
- <20050513211609.75216bf8.diegocg@gmail.com> <20050515095446.GE68736@muc.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 15 May 2005 09:52:29 -0400
+Received: from rproxy.gmail.com ([64.233.170.199]:20524 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261632AbVEONwK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 09:52:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=mQfUSMT9Edm6Of28CKqtKUxMB0hDOsNZu6dZuqw+fcbNEbJKd99gRFg8CX9qpBQxBTDyA9/ecYgCnxvG9hcF7mrrG2pXcILIxI9TjbGvABOF0wN5vQIlyfWDUB242D9ffnvVPKdUeS4T5t0ih66dUkAS8IcgjIhYLWqNTmMoHqo=
+Message-ID: <9cde8bff050515065269c4c50e@mail.gmail.com>
+Date: Sun, 15 May 2005 22:52:10 +0900
+From: aq <aquynh@gmail.com>
+Reply-To: aq <aquynh@gmail.com>
+To: Edgar Toernig <froese@gmx.de>
+Subject: Re: Automatic .config generation
+Cc: jmerkey <jmerkey@utah-nac.org>, Scott Robert Ladd <lkml@coyotegulch.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050512231726.6198bbc6.froese@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <42839AF7.4030708@coyotegulch.com> <42838D4C.3040207@utah-nac.org>
+	 <20050512231726.6198bbc6.froese@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 15 May 2005, Andi Kleen wrote:
-
-> On Fri, May 13, 2005 at 09:16:09PM +0200, Diego Calleja wrote:
-> > El Fri, 13 May 2005 20:03:58 +0200,
-> > Andi Kleen <ak@muc.de> escribi?:
+On 5/13/05, Edgar Toernig <froese@gmx.de> wrote:
+> jmerkey wrote:
 > >
+> > Scott Robert Ladd wrote:
+> > >
+> > >Is there a utility that creates a .config based on analysis of the
+> > >target system?
 > >
-> > > This is not a kernel problem, but a user space problem. The fix
-> > > is to change the user space crypto code to need the same number of cache line
-> > > accesses on all keys.
-> >
-> >
-> > However they've patched the FreeBSD kernel to "workaround?" it:
-> > ftp://ftp.freebsd.org/pub/FreeBSD/CERT/patches/SA-05:09/htt5.patch
->
-> That's a similar stupid idea as they did with the disk write
-> cache (lowering the MTBFs of their disks by considerable factors,
-> which is much worse than the power off data loss problem)
-> Let's not go down this path please.
+> > Now that's a great idea ..... :-)
+> 
+> Not really new though :-)
+> 
+>    http://sourceforge.net/projects/kautoconfigure/
+> 
 
-What wrong did they do with disk write cache?
+is this project basically dead?
 
-Mikulas
+this idea is not new, but still top of my wish-list for kernel
+compiling. just wonder when such a great tool come up?
 
-> -Andi
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+regards,
+aq

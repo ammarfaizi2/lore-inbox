@@ -1,66 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262818AbVEOMG3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262820AbVEOMIG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262818AbVEOMG3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 08:06:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262819AbVEOMG3
+	id S262820AbVEOMIG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 08:08:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262819AbVEOMIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 08:06:29 -0400
-Received: from natsmtp00.rzone.de ([81.169.145.165]:42213 "EHLO
-	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S262818AbVEOMGT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 08:06:19 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH 7/8] ppc64: SPU file system
-Date: Sun, 15 May 2005 13:50:04 +0200
-User-Agent: KMail/1.7.2
-Cc: Greg KH <greg@kroah.com>, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>,
-       Anton Blanchard <anton@samba.org>
-References: <200505132117.37461.arnd@arndb.de> <1116138546.5095.6.camel@gaston> <200505151208.54229.arnd@arndb.de>
-In-Reply-To: <200505151208.54229.arnd@arndb.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Sun, 15 May 2005 08:08:06 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54034 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262820AbVEOMHt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 08:07:49 -0400
+Date: Sun, 15 May 2005 13:07:42 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andi Kleen <ak@muc.de>
+Cc: Dave Jones <davej@redhat.com>, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: tickle nmi watchdog whilst doing serial writes.
+Message-ID: <20050515130742.A29619@flint.arm.linux.org.uk>
+Mail-Followup-To: Andi Kleen <ak@muc.de>, Dave Jones <davej@redhat.com>,
+	akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <20050513184806.GA24166@redhat.com> <m1u0l4afdx.fsf@muc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200505151350.05692.arnd@arndb.de>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <m1u0l4afdx.fsf@muc.de>; from ak@muc.de on Sun, May 15, 2005 at 01:38:02PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sünndag 15 Mai 2005 12:08, Arnd Bergmann wrote:
-> On Sünndag 15 Mai 2005 08:29, Benjamin Herrenschmidt wrote:
-> > Why not just write(pc) to start and read back status from the same
-> > file ?
+On Sun, May 15, 2005 at 01:38:02PM +0200, Andi Kleen wrote:
+> Dave Jones <davej@redhat.com> writes:
+> >  
+> >  #include <asm/io.h>
+> >  #include <asm/irq.h>
+> > @@ -2099,8 +2100,10 @@ static inline void wait_for_xmitr(struct
+> >  	if (up->port.flags & UPF_CONS_FLOW) {
+> >  		tmout = 1000000;
+> >  		while (--tmout &&
+> > -		       ((serial_in(up, UART_MSR) & UART_MSR_CTS) == 0))
+> > +		       ((serial_in(up, UART_MSR) & UART_MSR_CTS) == 0)) {
+> >  			udelay(1);
+> > +			touch_nmi_watchdog();
+> 
+> Note that touch_nmi_watchdog is not exported on i386 - Linus vetoed
+> that some time ago. The real fix of course is to use schedule_timeout(),
+> but that might break printk() with interrupts off :/
 
-I just remembered the strongest reason against using write() to set
-the instruction pointer: It breaks signal delivery during execution
-of SPU code. With an ioctl or system call based interface, the kernel
-simply updates the instruction pointer in process memory before
-calling a signal handler. When/if the signal handler returns, it
-does the same call again with the updated argument and the SPU
-continues to fetch code at the point where it stopped.
+Not to mention printk() from atomic contexts and panic().  No,
+schedule_timeout() is _not_ a "real fix" but a kludge.
 
-If I do a read() based interface, there are no input parameters
-at all, so restarted system calls work as well.
-
-How about this one:
-
-read() starts execution and returns the status value in a four
-byte buffer.
-Calling lseek() on the "run" file updates the instruction pointer,
-so the library call can work like this plus error handling:
-
-extern char *mapped_local_store;
-uint32_t status;
-int runfd = open("run", O_RDONLY);
-lseek(runfd, INITIAL_INSTRUCTION, SEEK_SET);
-do {
-	read(runfd, &status, 4);
-	if (status == SPU_DO_LIBRARY_CALL) {
-		size_t arg = lseek(runfd, 4, SEEK_CUR) - 4;
-		do_library_call(mapped_local_store + arg);
-	}
-} while (status != SPU_EXIT);
-
-	Arnd <><
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

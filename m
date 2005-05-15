@@ -1,51 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbVEOVqV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbVEOV71@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261268AbVEOVqV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 17:46:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbVEOVqV
+	id S261263AbVEOV71 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 17:59:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbVEOV71
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 17:46:21 -0400
-Received: from fed1rmmtao09.cox.net ([68.230.241.30]:45816 "EHLO
-	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
-	id S261261AbVEOVqQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 17:46:16 -0400
-To: Petr Baudis <pasky@ucw.cz>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-Subject: Re: git repository for net drivers available
-References: <42841A3F.7020909@pobox.com> <4284C54E.3060907@linux.intel.com>
-	<4284C7DA.1020707@pobox.com> <20050515200514.GA31414@pasky.ji.cz>
-From: Junio C Hamano <junkio@cox.net>
-Date: Sun, 15 May 2005 14:46:11 -0700
-In-Reply-To: <20050515200514.GA31414@pasky.ji.cz> (Petr Baudis's message of
- "Sun, 15 May 2005 22:05:14 +0200")
-Message-ID: <7vacmwqi1o.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Sun, 15 May 2005 17:59:27 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:11672 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261263AbVEOV7Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 17:59:25 -0400
+Message-ID: <4287C637.4030206@pobox.com>
+Date: Sun, 15 May 2005 17:59:19 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Adrian Bunk <bunk@stusta.de>
+CC: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] document that 8139TOO supports 8129/8130
+References: <20050513040445.GD3603@stusta.de>
+In-Reply-To: <20050513040445.GD3603@stusta.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "PB" == Petr Baudis <pasky@ucw.cz> writes:
+Adrian Bunk wrote:
+> +	  the RTL 8129/81308139 chips. If you have one of those, say Y and
 
-PB> Dear diary, on Fri, May 13, 2005 at 05:29:30PM CEST, I got a letter
-PB> where Jeff Garzik <jgarzik@pobox.com> told me that...
->> Looks like cogito is using $repo/heads/$branch, whereas my git repo is 
->> using $repo/branches/$branch.
-
-PB> Would it be a big problem to use refs/heads/$branch? That's the
-PB> currently commonly agreed convention about location for storing branch
-PB> heads, not just some weird Cogito-specific invention. And it'd be very
-PB> nice to have those locations consistent across git repositories.
-
-Since Jeff brought up $repo/branches/$branch, you may also want
-to add that $repo/branches/$branch is used to record the URL of
-the remote $branch (the information used to be in a flat file
-$repo/remotes, branch name and URL separated by shell $IFS, one
-record on each line), and is quite different from those 40-byte
-SHA1 plus LF files you see in $repo/refs/*/ directory.
-
-I think it is a reasonable one, I also follow the
-$repo/branches/$branch convention Cogito uses, and I would
-encorage other Porcelain implementations to follow suit.
+typo:  "81308139"
 

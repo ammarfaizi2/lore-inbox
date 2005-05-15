@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbVEOTLw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbVEOTaN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261204AbVEOTLw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 15:11:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVEOTLw
+	id S261210AbVEOTaN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 15:30:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbVEOTaM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 15:11:52 -0400
-Received: from mta-fs-be-04.sunrise.ch ([194.158.229.33]:19114 "EHLO
-	mail-fs.sunrise.ch") by vger.kernel.org with ESMTP id S261204AbVEOTLu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 15:11:50 -0400
-Message-ID: <42879F6F.6040008@email.it>
-Date: Sun, 15 May 2005 21:13:51 +0200
-From: Fabio Rosciano <malmostoso@email.it>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050401)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [2.6.12-rc4] Oops in reiserfs_panic [please CC]
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 15 May 2005 15:30:12 -0400
+Received: from sabe.cs.wisc.edu ([128.105.6.20]:48844 "EHLO sabe.cs.wisc.edu")
+	by vger.kernel.org with ESMTP id S261210AbVEOTaG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 15:30:06 -0400
+Subject: [PATCH 1/3] add open iscsi netlink interface to iscsi transport
+	class
+From: Mike Christie <michaelc@cs.wisc.edu>
+To: open-iscsi@googlegroups.com, netdev@oss.sgi.com,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       inux-iscsi-devel@lists.sourceforge.netl
+Content-Type: text/plain
+Message-Id: <1116185397.17312.10.camel@mina>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 15 May 2005 12:29:57 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi list,
+include/linux/netlink.h changes (added new protocol NETLINK_ISCSI)
 
-I have tried to compile 2.6.12-rc4 on my iBook G4 running Debian Sid, 
-with custom 2.6.9 kernel.
-2.6.9 works absolutely wonderful on this machine, so I used the same 
-.config file to compile 2.6.12-rc4, downloaded as a complete tarball.
-Upon rebooting with the new kernel, my reiserfs partition (/ actually) 
-is correctly seen and checked, but then (before syslogd starts) I get an 
-Oops. I transcribe here the first lines:
+Thanks,
 
-REISERFS: panic
-Kernel BUG in reiserfs_panic at fs/reiserfs/panic.c:362!
-Oops: Exception in kernel mode, sig:5 [#1]
+Linux-iscsi Team
 
-If you need any other info I will be glad to report them. Thanks for any 
-help.
+Signed-off-by: Alex Aizman <itn780@yahoo.com>
+Signed-off-by: Dmitry Yusupov <dmitry_yus@yahoo.com>
+Signed-off-by: Mike Christie <michaelc@cs.wisc.edu>
+
+
+--- linux-2.6.12-rc3.orig/include/linux/netlink.h	2005-04-20 17:03:16.000000000 -0700
++++ linux-2.6.12-rc3/include/linux/netlink.h	2005-05-04 18:06:44.000000000 -0700
+@@ -14,6 +14,7 @@
+ #define NETLINK_SELINUX		7	/* SELinux event notifications */
+ #define NETLINK_ARPD		8
+ #define NETLINK_AUDIT		9	/* auditing */
++#define NETLINK_ISCSI		10	/* iSCSI Open Interface */
+ #define NETLINK_ROUTE6		11	/* af_inet6 route comm channel */
+ #define NETLINK_IP6_FW		13
+ #define NETLINK_DNRTMSG		14	/* DECnet routing messages */
+
+

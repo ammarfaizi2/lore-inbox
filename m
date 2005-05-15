@@ -1,76 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVEOJMK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbVEOJbY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261579AbVEOJMK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 05:12:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261574AbVEOJMK
+	id S261582AbVEOJbY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 05:31:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261583AbVEOJbY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 05:12:10 -0400
-Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:57360 "EHLO
-	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
-	id S261570AbVEOJMC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 05:12:02 -0400
-Message-ID: <428722E3.6040202@superbug.co.uk>
-Date: Sun, 15 May 2005 11:22:27 +0100
-From: James Courtier-Dutton <James@superbug.co.uk>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050416)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Lameter <clameter@engr.sgi.com>
-CC: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
-       Nishanth Aravamudan <nacc@us.ibm.com>, Darren Hart <darren@dvhart.com>,
-       "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
-       benh@kernel.crashing.org, linux-ia64@vger.kernel.org
-Subject: Re: IA64 implementation of timesource for new time of day subsystem
-References: <1116029796.26454.2.camel@cog.beaverton.ibm.com>  <1116029872.26454.4.camel@cog.beaverton.ibm.com>  <1116029971.26454.7.camel@cog.beaverton.ibm.com>  <1116030058.26454.10.camel@cog.beaverton.ibm.com> <1116030139.26454.13.camel@cog.beaverton.ibm.com> <Pine.LNX.4.62.0505141251490.18681@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.62.0505141251490.18681@schroedinger.engr.sgi.com>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sun, 15 May 2005 05:31:24 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:3343 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261582AbVEOJbV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 05:31:21 -0400
+Date: Sun, 15 May 2005 11:31:17 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andy Isaacson <adi@hexapodia.org>
+Cc: Vadim Lobanov <vlobanov@speakeasy.net>, Jeff Garzik <jgarzik@pobox.com>,
+       Daniel Jacobowitz <dan@debian.org>,
+       "Barry K. Nathan" <barryn@pobox.com>,
+       Gabor MICSKO <gmicsko@szintezis.hu>, linux-kernel@vger.kernel.org
+Subject: Re: Hyper-Threading Vulnerability
+Message-ID: <20050515093117.GM16549@stusta.de>
+References: <1115963481.1723.3.camel@alderaan.trey.hu> <20050513124735.GA7436@ip68-225-251-162.oc.oc.cox.net> <4284B55C.7010202@pobox.com> <20050513142336.GA6174@nevyn.them.org> <4284BA90.5080508@pobox.com> <20050513171300.GA30909@hexapodia.org> <Pine.LNX.4.58.0505131129060.6631@shell1.sea5.speakeasy.net> <20050513190244.GA4167@hexapodia.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050513190244.GA4167@hexapodia.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> On Fri, 13 May 2005, john stultz wrote:
+On Fri, May 13, 2005 at 12:02:44PM -0700, Andy Isaacson wrote:
+> On Fri, May 13, 2005 at 11:30:27AM -0700, Vadim Lobanov wrote:
+> > On Fri, 13 May 2005, Andy Isaacson wrote:
+> > > It's a side channel timing attack on data-dependent computation through
+> > > the L1 and L2 caches.  Nice work.  In-the-wild exploitation is
+> > > difficult, though; your timing gets screwed up if you get scheduled away
+> > > from your victim, and you don't even know, because you can't tell where
+> > > you were scheduled, so on any reasonably busy multiuser system it's not
+> > > clear that the attack is practical.
+> > 
+> > Wouldn't scheduling appear as a rather big time delta (in measuring the
+> > cache access times), so you would know to disregard that data point?
+> > 
+> > (Just wondering... :-) )
 > 
-> 
->>I look forward to your comments and feedback.
-> 
-> 
-> Here is the implementation of the IA64 timesources for the new time of 
-> day subsystem.
-> 
-> This is quite straighforward. Thanks John. However, the ITC
-> interpolator can no longer use MMIO in SMP situations since there is no 
-> provision for jitter compensation in the new time of day subsystem. I have
-> implemented that via a function now which will slow down clock access
-> for non SGI IA64 hardware significantly since it will not be able to use
-> the fastcall anymore.
-> 
-> I am working on the fastcall but I would need a couple of changes
-> to the core code to make the following symbols non-static since they
-> will need to be accessed from the fast syscall handler:
-> 
-> timesource
-> system_time
-> wall_time_offset
-> offset_base
-> 
+> Good question.  Yes, you can probably filter the data.  The question is,
+> how hard is it to set up the conditions to acquire the data?  You have
+> to be scheduled on the same core as the target process (sibling
+> threads).  And you don't know when the target is going to be scheduled,
+> and on a real-world system, there are other threads competing for
+> scheduling; if it's SMP (2 core, 4 thread) with perfect 100% utilization
+> then you've only got a 33% chance of being scheduled on the right
+> thread, and it gets worse if the machine is idle since the kernel should
+> schedule you and the OpenSSL process on different cores...
+>...
 
-Will this mean that Linux will have a monotonic time source?
-For media players we need a timesource that does not change under any
-circumstances. e.g. User changes the clock time, the monotonic time
-source should not change. The monotonic time source should just start at
-0 at power on, and continually increase accurately over time. I.e. A
-very accurate "uptime" measurement.
+But if you start 3 processes in the idle case you might get a 100% 
+chance?
 
-James
+> -andy
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

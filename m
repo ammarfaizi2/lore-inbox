@@ -1,73 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261539AbVEOHat@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261544AbVEOHnJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261539AbVEOHat (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 03:30:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbVEOHat
+	id S261544AbVEOHnJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 03:43:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbVEOHnJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 03:30:49 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:33423 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261539AbVEOHao (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 03:30:44 -0400
-Subject: Re: Hyper-Threading Vulnerability
-From: Arjan van de Ven <arjan@infradead.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Jones <davej@redhat.com>,
-       Matt Mackall <mpm@selenic.com>, Andy Isaacson <adi@hexapodia.org>,
-       Andi Kleen <ak@muc.de>, "Richard F. Rebel" <rrebel@whenu.com>,
-       Gabor MICSKO <gmicsko@szintezis.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, tytso@mit.edu
-In-Reply-To: <1116114052.9141.38.camel@mindpipe>
-References: <1115963481.1723.3.camel@alderaan.trey.hu>
-	 <m164xnatpt.fsf@muc.de> <1116009483.4689.803.camel@rebel.corp.whenu.com>
-	 <20050513190549.GB47131@muc.de> <20050513212620.GA12522@hexapodia.org>
-	 <20050513215905.GY5914@waste.org>
-	 <1116024419.20646.41.camel@localhost.localdomain>
-	 <1116025212.6380.50.camel@mindpipe>  <20050513232708.GC13846@redhat.com>
-	 <1116027488.6380.55.camel@mindpipe>
-	 <1116084186.20545.47.camel@localhost.localdomain>
-	 <1116088229.8880.7.camel@mindpipe>
-	 <1116089068.6007.13.camel@laptopd505.fenrus.org>
-	 <1116093396.9141.11.camel@mindpipe>
-	 <1116093694.6007.15.camel@laptopd505.fenrus.org>
-	 <1116098504.9141.31.camel@mindpipe>
-	 <1116100126.6007.17.camel@laptopd505.fenrus.org>
-	 <1116114052.9141.38.camel@mindpipe>
-Content-Type: text/plain
-Date: Sun, 15 May 2005 09:30:33 +0200
-Message-Id: <1116142233.6270.9.camel@laptopd505.fenrus.org>
+	Sun, 15 May 2005 03:43:09 -0400
+Received: from h80ad2528.async.vt.edu ([128.173.37.40]:55556 "EHLO
+	h80ad2528.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261544AbVEOHnE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 03:43:04 -0400
+Message-Id: <200505150742.j4F7gds1020180@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Borislav Petkov <petkov@uni-muenster.de>
+Cc: Edgar Toernig <froese@gmx.de>, jmerkey <jmerkey@utah-nac.org>,
+       Scott Robert Ladd <lkml@coyotegulch.com>, linux-kernel@vger.kernel.org
+Subject: Re: Automatic .config generation 
+In-Reply-To: Your message of "Sun, 15 May 2005 09:03:42 +0200."
+             <200505150903.42212.petkov@uni-muenster.de> 
+From: Valdis.Kletnieks@vt.edu
+References: <42839AF7.4030708@coyotegulch.com> <42838D4C.3040207@utah-nac.org> <20050512231726.6198bbc6.froese@gmx.de>
+            <200505150903.42212.petkov@uni-muenster.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Type: multipart/signed; boundary="==_Exmh_1116142954_5152P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Date: Sun, 15 May 2005 03:42:35 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-05-14 at 19:40 -0400, Lee Revell wrote:
-> > it's a matter of time (my estimate is a year or two) before processors
-> > get variable frequencies based on temperature targets etc...
-> > and then rdtsc is really useless for this kind of thing..
-> 
-> I was under the impression that P4 and later processors do not vary the
-> TSC rate when doing frequency scaling.  This is mentioned in the
-> documentation for the high res timers patch.
+--==_Exmh_1116142954_5152P
+Content-Type: text/plain; charset=us-ascii
 
-seems not the case, and worse, during idle time the clock is allowed to
-stop entirely.... (and that is also happening more and more and linux is
-getting more agressive idle support (eg no timer tick and such patches)
-which will trigger bios thresholds for this even more too.
+On Sun, 15 May 2005 09:03:42 +0200, Borislav Petkov said:
+> On Thursday 12 May 2005 23:17, Edgar Toernig wrote:
+> > jmerkey wrote:
+> > > Scott Robert Ladd wrote:
+> > > >Is there a utility that creates a .config based on analysis of the
+> > > >target system?
 
+> how about /proc/config.gz.. although this was pretty recent IIRC.
 
+That describes the currently running kernel *as built* - so for instance
+booting a RedHat kernel on almost anything will show 3 zillion things
+built as modules - including 2.5 zillion things that aren't needed in the
+current config (for instance, every single sound card driver may be included).
 
+What is desired is a utility that will do an lspci/lsusb/etc and build up
+a .config that matches *the current hardware* (for instance, only including
+a module for the one sound card that's actually installed).
+
+--==_Exmh_1116142954_5152P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFChv1qcC3lWbTT17ARAsgmAJ9uPxOUuHr7GzrgLmmpS2wcK1+hfACfcycT
+8PC+gsnbDk5RMphYgDQ7E9Y=
+=f9Df
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1116142954_5152P--

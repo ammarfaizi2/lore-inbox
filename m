@@ -1,113 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261672AbVEOPxi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbVEOP6x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261672AbVEOPxi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 11:53:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261676AbVEOPxi
+	id S261682AbVEOP6x (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 11:58:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbVEOP6x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 11:53:38 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:52190 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261672AbVEOPxd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 11:53:33 -0400
-Message-ID: <42877245.DD23EBB4@tv-sign.ru>
-Date: Sun, 15 May 2005 20:01:09 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] factor out common code in sys_fsync/sys_fdatasync
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Sun, 15 May 2005 11:58:53 -0400
+Received: from ns9.hostinglmi.net ([213.194.149.146]:23464 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S261682AbVEOP6v
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 11:58:51 -0400
+Date: Sun, 15 May 2005 18:00:37 +0200
+From: DervishD <lkml@dervishd.net>
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: ext2 optimal partition size
+Message-ID: <20050515160037.GE134@DervishD>
+Mail-Followup-To: Linux-kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch consolidates sys_fsync and sys_fdatasync. The only
-difference between them is a 'datasync' parameter of ->fsync().
+    Hi all :)
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+    Let's assume I want to partition a hard disk so the partition
+size is optimal for a given block size and bytes per inode ratio in
+an ext2/ext3 filesystem. By 'optimal' I mean that no space in the
+partition is wasted, that is, the metadata and the data blocks fit
+perfectly in the partition, and no space is left unused because that
+space is less than a data block.
 
---- 2.6.12-rc4/fs/buffer.c~	2005-05-09 16:37:16.000000000 +0400
-+++ 2.6.12-rc4/fs/buffer.c	2005-05-15 22:38:42.000000000 +0400
-@@ -331,7 +331,7 @@ int file_fsync(struct file *filp, struct
- 	return ret;
- }
- 
--asmlinkage long sys_fsync(unsigned int fd)
-+static long do_fsync(unsigned int fd, int datasync)
- {
- 	struct file * file;
- 	struct address_space *mapping;
-@@ -342,14 +342,14 @@ asmlinkage long sys_fsync(unsigned int f
- 	if (!file)
- 		goto out;
- 
--	mapping = file->f_mapping;
--
- 	ret = -EINVAL;
- 	if (!file->f_op || !file->f_op->fsync) {
- 		/* Why?  We can still call filemap_fdatawrite */
- 		goto out_putf;
- 	}
- 
-+	mapping = file->f_mapping;
-+
- 	current->flags |= PF_SYNCWRITE;
- 	ret = filemap_fdatawrite(mapping);
- 
-@@ -358,7 +358,7 @@ asmlinkage long sys_fsync(unsigned int f
- 	 * which could cause livelocks in fsync_buffers_list
- 	 */
- 	down(&mapping->host->i_sem);
--	err = file->f_op->fsync(file, file->f_dentry, 0);
-+	err = file->f_op->fsync(file, file->f_dentry, datasync);
- 	if (!ret)
- 		ret = err;
- 	up(&mapping->host->i_sem);
-@@ -373,39 +373,14 @@ out:
- 	return ret;
- }
- 
--asmlinkage long sys_fdatasync(unsigned int fd)
-+asmlinkage long sys_fsync(unsigned int fd)
- {
--	struct file * file;
--	struct address_space *mapping;
--	int ret, err;
--
--	ret = -EBADF;
--	file = fget(fd);
--	if (!file)
--		goto out;
--
--	ret = -EINVAL;
--	if (!file->f_op || !file->f_op->fsync)
--		goto out_putf;
--
--	mapping = file->f_mapping;
--
--	current->flags |= PF_SYNCWRITE;
--	ret = filemap_fdatawrite(mapping);
--	down(&mapping->host->i_sem);
--	err = file->f_op->fsync(file, file->f_dentry, 1);
--	if (!ret)
--		ret = err;
--	up(&mapping->host->i_sem);
--	err = filemap_fdatawait(mapping);
--	if (!ret)
--		ret = err;
--	current->flags &= ~PF_SYNCWRITE;
-+	return do_fsync(fd, 0);
-+}
- 
--out_putf:
--	fput(file);
--out:
--	return ret;
-+asmlinkage long sys_fdatasync(unsigned int fd)
-+{
-+	return do_fsync(fd, 1);
- }
- 
- /*
+    For example, if disk structures occupy 1024 bytes and each data
+block is 1024 bytes too, the partition size must be a multiple of
+1024: if I allocate 2049 bytes for the partition, then one byte will
+be lost because ext2/3 cannot have blocks smaller than the block
+size.
+
+    So: which is the optimal partition size for a given block size
+and a given bytes per inode ratio? Can it be easily calculated?
+
+    Thanks a lot in advance :)
+
+    Raúl Núñez de Arenas Coronado
+
+-- 
+Linux Registered User 88736 | http://www.dervishd.net
+http://www.pleyades.net & http://www.gotesdelluna.net
+It's my PC and I'll cry if I want to...

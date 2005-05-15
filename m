@@ -1,50 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261569AbVEOJH3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVEOJMK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261569AbVEOJH3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 05:07:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbVEOJH2
+	id S261579AbVEOJMK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 05:12:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261574AbVEOJMK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 05:07:28 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:54937 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261569AbVEOJHZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 05:07:25 -0400
-Date: Sun, 15 May 2005 11:07:05 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>,
-       Anton Blanchard <anton@samba.org>
-Subject: Re: [PATCH 7/8] ppc64: SPU file system
-Message-ID: <20050515090705.GA2343@elf.ucw.cz>
-References: <200505132117.37461.arnd@arndb.de> <200505132129.07603.arnd@arndb.de> <1116027079.5128.32.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1116027079.5128.32.camel@gaston>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Sun, 15 May 2005 05:12:10 -0400
+Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:57360 "EHLO
+	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
+	id S261570AbVEOJMC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 05:12:02 -0400
+Message-ID: <428722E3.6040202@superbug.co.uk>
+Date: Sun, 15 May 2005 11:22:27 +0100
+From: James Courtier-Dutton <James@superbug.co.uk>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050416)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Lameter <clameter@engr.sgi.com>
+CC: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
+       paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
+       Nishanth Aravamudan <nacc@us.ibm.com>, Darren Hart <darren@dvhart.com>,
+       "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
+       benh@kernel.crashing.org, linux-ia64@vger.kernel.org
+Subject: Re: IA64 implementation of timesource for new time of day subsystem
+References: <1116029796.26454.2.camel@cog.beaverton.ibm.com>  <1116029872.26454.4.camel@cog.beaverton.ibm.com>  <1116029971.26454.7.camel@cog.beaverton.ibm.com>  <1116030058.26454.10.camel@cog.beaverton.ibm.com> <1116030139.26454.13.camel@cog.beaverton.ibm.com> <Pine.LNX.4.62.0505141251490.18681@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0505141251490.18681@schroedinger.engr.sgi.com>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > /run	A stub file that lets us do ioctl. The only ioctl
-> > 	method we need is the spu_run() call. spu_run suspends
-> > 	the current thread from the host CPU and transfers
-> > 	the flow of execution to the SPU.
-> > 	The ioctl call return to the calling thread when a state
-> > 	is entered that can not be handled by the kernel, e.g.
-> > 	an error in the SPU code or an exit() from it.
-> > 	When a signal is pending for the host CPU thread, the
-> > 	ioctl is interrupted and the SPU stopped in order to
-> > 	call the signal handler.
+Christoph Lameter wrote:
+> On Fri, 13 May 2005, john stultz wrote:
 > 
-> ioctl's are generally considered evil ... what about a write() method
-> writing a command ?
+> 
+>>I look forward to your comments and feedback.
+> 
+> 
+> Here is the implementation of the IA64 timesources for the new time of 
+> day subsystem.
+> 
+> This is quite straighforward. Thanks John. However, the ITC
+> interpolator can no longer use MMIO in SMP situations since there is no 
+> provision for jitter compensation in the new time of day subsystem. I have
+> implemented that via a function now which will slow down clock access
+> for non SGI IA64 hardware significantly since it will not be able to use
+> the fastcall anymore.
+> 
+> I am working on the fastcall but I would need a couple of changes
+> to the core code to make the following symbols non-static since they
+> will need to be accessed from the fast syscall handler:
+> 
+> timesource
+> system_time
+> wall_time_offset
+> offset_base
+> 
 
-That's even more evil than ioctl()... Try doing 32-vs-64bit conversion
-on write...
-								Pavel
--- 
-Boycott Kodak -- for their patent abuse against Java.
+Will this mean that Linux will have a monotonic time source?
+For media players we need a timesource that does not change under any
+circumstances. e.g. User changes the clock time, the monotonic time
+source should not change. The monotonic time source should just start at
+0 at power on, and continually increase accurately over time. I.e. A
+very accurate "uptime" measurement.
+
+James

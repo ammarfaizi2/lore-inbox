@@ -1,73 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261587AbVEOKzX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVEOLOk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261587AbVEOKzX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 06:55:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbVEOKzX
+	id S261607AbVEOLOk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 07:14:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbVEOLOk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 06:55:23 -0400
-Received: from cantor.suse.de ([195.135.220.2]:50055 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261587AbVEOKy7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 06:54:59 -0400
-Date: Sun, 15 May 2005 12:54:55 +0200
-From: Andi Kleen <ak@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Andi Kleen <ak@suse.de>, Alexander Nyberg <alexn@telia.com>,
-       Jan Beulich <JBeulich@novell.com>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [discuss] Re: [PATCH] adjust x86-64 watchdog tick calculation
-Message-ID: <20050515105455.GK26242@wotan.suse.de>
-References: <s2832159.057@emea1-mh.id2.novell.com> <1115892008.918.7.camel@localhost.localdomain> <20050512142920.GA7079@openzaurus.ucw.cz> <20050513113023.GD15755@wotan.suse.de> <20050513195215.GC3135@elf.ucw.cz> <20050515103646.GF26242@wotan.suse.de> <20050515105100.GB2223@elf.ucw.cz>
+	Sun, 15 May 2005 07:14:40 -0400
+Received: from h80ad250f.async.vt.edu ([128.173.37.15]:40205 "EHLO
+	h80ad250f.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261607AbVEOLO3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 07:14:29 -0400
+Message-Id: <200505151113.j4FBDf2a011875@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: Borislav Petkov <petkov@uni-muenster.de>, Edgar Toernig <froese@gmx.de>,
+       jmerkey <jmerkey@utah-nac.org>,
+       Scott Robert Ladd <lkml@coyotegulch.com>, linux-kernel@vger.kernel.org
+Subject: Re: Automatic .config generation 
+In-Reply-To: Your message of "Sun, 15 May 2005 11:52:51 +0200."
+             <Pine.LNX.4.62.0505151148220.2387@dragon.hyggekrogen.localhost> 
+From: Valdis.Kletnieks@vt.edu
+References: <200505150742.j4F7gds1020180@turing-police.cc.vt.edu>
+            <Pine.LNX.4.62.0505151148220.2387@dragon.hyggekrogen.localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050515105100.GB2223@elf.ucw.cz>
+Content-Type: multipart/signed; boundary="==_Exmh_1116155620_5152P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 15 May 2005 07:13:41 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 15, 2005 at 12:51:00PM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > > > > Because it kills machine when interrupt latency gets too high?
-> > > > > Like reading battery status using i2c...
-> > > > 
-> > > > That's a bug in the I2C reader then. Don't shot the messenger for bad news.
-> > > 
-> > > Disagreed.
-> > > 
-> > > Linux is not real time OS. Perhaps some real-time constraints "may not
-> > > spend > 100msec with interrupts disabled" would be healthy, but it
-> > > certainly needs more discussion than "lets enable NMI
-> > > watchdog.". It needs to be written somewhere in big bold letters, too.
-> > 
-> > While linux is not a real time OS it has been always known that
-> > turning off interrupts for a long time is extremly rude.
-> 
-> Yes, it is rude, but it should not panic machines.
+--==_Exmh_1116155620_5152P
+Content-Type: text/plain; charset=us-ascii
 
-Disagreed. It is a bug and needs to panic machines.
+On Sun, 15 May 2005 11:52:51 +0200, Jesper Juhl said:
+> What's the big gain? Where's the harm in just building all the sound
+> modules - you only load one in the end anyway, and the space taken by the
+> other modules is negligible with the disk sizes of today I'd say (ok,
+> there's some extra build time involved, but that shouldn't be a big deal
 
-> 
-> > If you really want you can use touch_nmi_watchdog in the delay
-> > loop then.  But note you have to compile it in, because touch_nmi_watchdog
-> > is not exported (Linus vetoed that for good reasons).
-> > 
-> > But again do you really need to disable interrupts during this
-> > i2c access? Can't you just use a schedule_timeout() and a semaphore?
-> > Why would other interrupts cause a problem during such a long delay?
-> 
-> In this case it is "AML code told you to disable interrupts, and do
-> this kind of bitbang". AML interpretter has no idea of what that code
-> does... Perhaps we could sprinkle touch_nmi_watchdog all over the
-> interpretter, but that's just ugly.
+If you're doing building and testing on an older/slower box, the build
+time and disk size matters - there's 481 'y' or 'm' in my current .config, versus
+1701 in the Fedora -1287 kernel.  Being able to do 3 build/reboot loops in
+an hour versus one every 90 mins makes a big difference.  Being able to do a
+build in 400M instead of 2G means that a 7G /usr/src/ partition can hold 8 or 9
+trees, rather than 3 (useful for those "when did this start" regressions, especially
+in combo with that 20 min versus 90 build time. ;)
 
-Actually that's wrong. Because I fixed that code long ago if
-you mean the access in battery.c
-(if you search the ACPI mailing list for my name you should find it)
-And there was no AML code involved here.
+> you want. Besides, it's not as if you have to redo your kernel config from
+> scratch every time you want a new kernel. Make your favorite config once, 
+> build and install that kernel and then when you want a newer kernel simply 
+> either cd linux-<version>; zcat /proc/config.gz > .config ; make oldconfig 
+> and then build the new kernel using your previous config.
 
-For some reason the ACPI guys didn't merge my patch though,
-but that just needs to be revisited.
+Yes, that's easy if you're working on *the same hardware*, so new device drivers
+aren't of interest, and the only thing 'make oldconfig' will prompt you for is
+new non-driver functionality. However, that's not everybody...
 
--Andi
+The function is for building streamlined configs for new systems - you get
+in a Frobozz2005 laptop, and although you probably have your own favorite set
+of values for things like which netfilter modules to build, you probably have
+*no* idea right off what device drivers you need. So you end up either going
+the RedHat route and building it *all* anyhow, or spending a lot of time
+figuring out which drivers you need for *this* box.  And you can't even trust
+the vendor sometimes - the Dell laptop I'm typing on was part of a larger order.
+A co-worker got another C840, and we had both ordered the same CD/RW-DVD drive.
+Machines had consecutive Dell service/serial numbers - and different vendor
+drives (mine had a Toshiba, his had something else).
 
+I won't even *start* on the number of subtly different AC'97-ish sound chips
+Dell has gone through.. ;)
+
+If you have a better solution to the "minimize *total* time to build optimized
+kernels for 12 different machines that just got dropped on your workbench
+this morning" feel free to share.. ;)
+
+--==_Exmh_1116155620_5152P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFChy7kcC3lWbTT17ARAgg6AKDubzrWwOr438w2SUFf5Coq5jpl5gCfb2JN
+FV9FAFemlI93V4wQdAoxuPQ=
+=nvpy
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1116155620_5152P--

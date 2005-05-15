@@ -1,73 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262787AbVEOLzL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262791AbVEOL5b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262787AbVEOLzL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 07:55:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262791AbVEOLzL
+	id S262791AbVEOL5b (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 07:57:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262811AbVEOL5a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 07:55:11 -0400
-Received: from web60514.mail.yahoo.com ([209.73.178.177]:64390 "HELO
-	web60514.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262787AbVEOLzD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 07:55:03 -0400
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=LoPQnyxWnCekqmtaqyDrOAaIIjRDVverjyfyu/veE2WJDDlNohNeZOoMUEExubM40zPuc3wnONbcp8v3OoeJPsxRP3PhrqWuddqgev0i/8fQt5yO+/47F18kuiGDzZQn88qFnt74SsdfKcvrHttWoSL9o3A1D9zOz83+rOoKFuE=  ;
-Message-ID: <20050515115459.55864.qmail@web60514.mail.yahoo.com>
-Date: Sun, 15 May 2005 04:54:59 -0700 (PDT)
-From: li nux <lnxluv@yahoo.com>
-Subject: Re: oprofile: enabling cpu events
-To: Philippe Elie <phil.el@wanadoo.fr>
-Cc: Baruch Even <baruch@ev-en.org>, linux <linux-kernel@vger.kernel.org>
-In-Reply-To: 6667
-MIME-Version: 1.0
+	Sun, 15 May 2005 07:57:30 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:45072 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262791AbVEOL5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 07:57:17 -0400
+Date: Sun, 15 May 2005 13:57:12 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [-mm patch] i386: enable REGPARM by default
+Message-ID: <20050515115712.GQ16549@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Philippe,
-You are right, it seems that apci is off by default.
-How to turn it on ?
-the flags in /proc/cpuinfo does not show acpi
-cat /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 5
-model name      : Pentium II (Deschutes)
-stepping        : 3
-cpu MHz         : 450.008
-cache size      : 1024 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8
-sep mtrr pge mca cmov pat pse36 mmx fxsr
-bogomips        : 886.78
+This patch should _not_ go into Linus' tree.
 
---- Philippe Elie <phil.el@wanadoo.fr> wrote:
-> On Sun, 08 May 2005 at 00:20 +0000, li nux wrote:
-> 
-> > Thanks Baruch,
-> > # opcontrol --setup  --event=CPU_CLK_UNHALTED
-> >  You cannot specify any performance counter events
-> >  because OProfile is in timer mode.
->  
-> 
-> check if local apic support is turned on.
-> 
-> Philippe Elie
-> 
+At some time in the future, we want to unconditionally enable REGPARM on 
+i386.
 
+Let's give it a bit broader testing coverage among -mm users.
 
+This patch:
+- removes the dependency of REGPARM on EXPERIMENTAL
+- let REGPARM default to y
 
-		
-Yahoo! Mail
-Stay connected, organized, and protected. Take the tour:
-http://tour.mail.yahoo.com/mailtour.html
+This patch assumes that people who use -mm are willing to test some more 
+experimental features.
+
+After this patch, REGPARM is still a config option users can disable.
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.12-rc4-mm1-full/arch/i386/Kconfig.old	2005-05-15 12:03:28.000000000 +0200
++++ linux-2.6.12-rc4-mm1-full/arch/i386/Kconfig	2005-05-15 12:03:54.000000000 +0200
+@@ -911,9 +911,8 @@
+ 	default y
+ 
+ config REGPARM
+-	bool "Use register arguments (EXPERIMENTAL)"
+-	depends on EXPERIMENTAL
+-	default n
++	bool "Use register arguments"
++	default y
+ 	help
+ 	Compile the kernel with -mregparm=3. This uses a different ABI
+ 	and passes the first three arguments of a function call in registers.
 

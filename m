@@ -1,161 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbVEOUv5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVEOVLE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261241AbVEOUv5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 16:51:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbVEOUv5
+	id S261243AbVEOVLE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 17:11:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbVEOVLE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 16:51:57 -0400
-Received: from pne-smtpout1-sn2.hy.skanova.net ([81.228.8.83]:18408 "EHLO
-	pne-smtpout1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S261241AbVEOUuw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 16:50:52 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Improve CD/DVD packet driver write performance
-From: Peter Osterlund <petero2@telia.com>
-Date: 15 May 2005 22:50:39 +0200
-Message-ID: <m3ekc8nrhc.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 15 May 2005 17:11:04 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:46509 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261243AbVEOVLB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 17:11:01 -0400
+Subject: Re: Hyper-Threading Vulnerability
+From: Lee Revell <rlrevell@joe-job.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Jones <davej@redhat.com>,
+       Matt Mackall <mpm@selenic.com>, Andy Isaacson <adi@hexapodia.org>,
+       Andi Kleen <ak@muc.de>, "Richard F. Rebel" <rrebel@whenu.com>,
+       Gabor MICSKO <gmicsko@szintezis.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, tytso@mit.edu
+In-Reply-To: <1116190107.6270.34.camel@laptopd505.fenrus.org>
+References: <1115963481.1723.3.camel@alderaan.trey.hu>
+	 <m164xnatpt.fsf@muc.de> <1116009483.4689.803.camel@rebel.corp.whenu.com>
+	 <20050513190549.GB47131@muc.de> <20050513212620.GA12522@hexapodia.org>
+	 <20050513215905.GY5914@waste.org>
+	 <1116024419.20646.41.camel@localhost.localdomain>
+	 <1116025212.6380.50.camel@mindpipe>  <20050513232708.GC13846@redhat.com>
+	 <1116027488.6380.55.camel@mindpipe>
+	 <1116084186.20545.47.camel@localhost.localdomain>
+	 <1116088229.8880.7.camel@mindpipe>
+	 <1116089068.6007.13.camel@laptopd505.fenrus.org>
+	 <1116093396.9141.11.camel@mindpipe>
+	 <1116093694.6007.15.camel@laptopd505.fenrus.org>
+	 <1116098504.9141.31.camel@mindpipe>
+	 <1116100126.6007.17.camel@laptopd505.fenrus.org>
+	 <1116114052.9141.38.camel@mindpipe>
+	 <1116142233.6270.9.camel@laptopd505.fenrus.org>
+	 <1116189693.17990.1.camel@localhost.localdomain>
+	 <1116190107.6270.34.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Date: Sun, 15 May 2005 17:10:59 -0400
+Message-Id: <1116191459.10653.16.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch improves write performance for the CD/DVD packet writing
-driver. The logic for switching between reading and writing has been
-changed so that streaming writes are no longer interrupted by read
-requests.
+On Sun, 2005-05-15 at 22:48 +0200, Arjan van de Ven wrote:
+> On Sun, 2005-05-15 at 21:41 +0100, Alan Cox wrote:
+> > On Sul, 2005-05-15 at 08:30, Arjan van de Ven wrote:
+> > > stop entirely.... (and that is also happening more and more and linux is
+> > > getting more agressive idle support (eg no timer tick and such patches)
+> > > which will trigger bios thresholds for this even more too.
+> > 
+> > Cyrix did TSC stop on halt a long long time ago, back when it was worth
+> > the power difference.
+> 
+> With linux going to ACPI C2 mode more... tsc is defined to halt in C2...
 
-Signed-off-by: Peter Osterlund <petero2@telia.com>
----
+JACK doesn't care about any of this now, the behavior when you
+suspend/resume with a running jackd is undefined.  Eventually we should
+handle it, but there's no point until the ALSA drivers get proper
+suspend/resume support.
 
- linux-petero/drivers/block/pktcdvd.c |   36 +++++++++++++++++++----------------
- linux-petero/include/linux/pktcdvd.h |    2 -
- 2 files changed, 21 insertions(+), 17 deletions(-)
+Lee
 
-diff -puN drivers/block/pktcdvd.c~packet-ioschedule drivers/block/pktcdvd.c
---- linux/drivers/block/pktcdvd.c~packet-ioschedule	2005-05-15 22:34:16.000000000 +0200
-+++ linux-petero/drivers/block/pktcdvd.c	2005-05-15 22:37:45.000000000 +0200
-@@ -467,14 +467,12 @@ static int pkt_set_speed(struct pktcdvd_
-  * Queue a bio for processing by the low-level CD device. Must be called
-  * from process context.
-  */
--static void pkt_queue_bio(struct pktcdvd_device *pd, struct bio *bio, int high_prio_read)
-+static void pkt_queue_bio(struct pktcdvd_device *pd, struct bio *bio)
- {
- 	spin_lock(&pd->iosched.lock);
- 	if (bio_data_dir(bio) == READ) {
- 		pkt_add_list_last(bio, &pd->iosched.read_queue,
- 				  &pd->iosched.read_queue_tail);
--		if (high_prio_read)
--			pd->iosched.high_prio_read = 1;
- 	} else {
- 		pkt_add_list_last(bio, &pd->iosched.write_queue,
- 				  &pd->iosched.write_queue_tail);
-@@ -490,15 +488,16 @@ static void pkt_queue_bio(struct pktcdvd
-  * requirements for CDRW drives:
-  * - A cache flush command must be inserted before a read request if the
-  *   previous request was a write.
-- * - Switching between reading and writing is slow, so don't it more often
-+ * - Switching between reading and writing is slow, so don't do it more often
-  *   than necessary.
-+ * - Optimize for throughput at the expense of latency. This means that streaming
-+ *   writes will never be interrupted by a read, but if the drive has to seek
-+ *   before the next write, switch to reading instead if there are any pending
-+ *   read requests.
-  * - Set the read speed according to current usage pattern. When only reading
-  *   from the device, it's best to use the highest possible read speed, but
-  *   when switching often between reading and writing, it's better to have the
-  *   same read and write speeds.
-- * - Reads originating from user space should have higher priority than reads
-- *   originating from pkt_gather_data, because some process is usually waiting
-- *   on reads of the first kind.
-  */
- static void pkt_iosched_process_queue(struct pktcdvd_device *pd)
- {
-@@ -512,21 +511,24 @@ static void pkt_iosched_process_queue(st
- 
- 	for (;;) {
- 		struct bio *bio;
--		int reads_queued, writes_queued, high_prio_read;
-+		int reads_queued, writes_queued;
- 
- 		spin_lock(&pd->iosched.lock);
- 		reads_queued = (pd->iosched.read_queue != NULL);
- 		writes_queued = (pd->iosched.write_queue != NULL);
--		if (!reads_queued)
--			pd->iosched.high_prio_read = 0;
--		high_prio_read = pd->iosched.high_prio_read;
- 		spin_unlock(&pd->iosched.lock);
- 
- 		if (!reads_queued && !writes_queued)
- 			break;
- 
- 		if (pd->iosched.writing) {
--			if (high_prio_read || (!writes_queued && reads_queued)) {
-+			int need_write_seek = 1;
-+			spin_lock(&pd->iosched.lock);
-+			bio = pd->iosched.write_queue;
-+			spin_unlock(&pd->iosched.lock);
-+			if (bio && (bio->bi_sector == pd->iosched.last_write))
-+				need_write_seek = 0;
-+			if (need_write_seek && reads_queued) {
- 				if (atomic_read(&pd->cdrw.pending_bios) > 0) {
- 					VPRINTK("pktcdvd: write, waiting\n");
- 					break;
-@@ -559,8 +561,10 @@ static void pkt_iosched_process_queue(st
- 
- 		if (bio_data_dir(bio) == READ)
- 			pd->iosched.successive_reads += bio->bi_size >> 10;
--		else
-+		else {
- 			pd->iosched.successive_reads = 0;
-+			pd->iosched.last_write = bio->bi_sector + bio_sectors(bio);
-+		}
- 		if (pd->iosched.successive_reads >= HI_SPEED_SWITCH) {
- 			if (pd->read_speed == pd->write_speed) {
- 				pd->read_speed = MAX_SPEED;
-@@ -765,7 +769,7 @@ static void pkt_gather_data(struct pktcd
- 
- 		atomic_inc(&pkt->io_wait);
- 		bio->bi_rw = READ;
--		pkt_queue_bio(pd, bio, 0);
-+		pkt_queue_bio(pd, bio);
- 		frames_read++;
- 	}
- 
-@@ -1062,7 +1066,7 @@ static void pkt_start_write(struct pktcd
- 
- 	atomic_set(&pkt->io_wait, 1);
- 	pkt->w_bio->bi_rw = WRITE;
--	pkt_queue_bio(pd, pkt->w_bio, 0);
-+	pkt_queue_bio(pd, pkt->w_bio);
- }
- 
- static void pkt_finish_packet(struct packet_data *pkt, int uptodate)
-@@ -2114,7 +2118,7 @@ static int pkt_make_request(request_queu
- 		cloned_bio->bi_private = psd;
- 		cloned_bio->bi_end_io = pkt_end_io_read_cloned;
- 		pd->stats.secs_r += bio->bi_size >> 9;
--		pkt_queue_bio(pd, cloned_bio, 1);
-+		pkt_queue_bio(pd, cloned_bio);
- 		return 0;
- 	}
- 
-diff -puN include/linux/pktcdvd.h~packet-ioschedule include/linux/pktcdvd.h
---- linux/include/linux/pktcdvd.h~packet-ioschedule	2005-05-15 22:34:16.000000000 +0200
-+++ linux-petero/include/linux/pktcdvd.h	2005-05-15 22:34:16.000000000 +0200
-@@ -159,7 +159,7 @@ struct packet_iosched
- 	struct bio		*read_queue_tail;
- 	struct bio		*write_queue;
- 	struct bio		*write_queue_tail;
--	int			high_prio_read;	/* An important read request has been queued */
-+	sector_t		last_write;	/* The sector where the last write ended */
- 	int			successive_reads;
- };
- 
-_
-
--- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340

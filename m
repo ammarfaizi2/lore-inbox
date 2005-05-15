@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261633AbVEOOKZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbVEOOM1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261633AbVEOOKZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 10:10:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbVEOOKY
+	id S261604AbVEOOM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 10:12:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261650AbVEOOM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 10:10:24 -0400
-Received: from smtpout03-04.mesa1.secureserver.net ([64.202.165.74]:15291 "HELO
-	smtpout03-04.mesa1.secureserver.net") by vger.kernel.org with SMTP
-	id S261657AbVEOOJw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 10:09:52 -0400
-Message-ID: <428757F7.1030700@coyotegulch.com>
-Date: Sun, 15 May 2005 10:08:55 -0400
-From: Scott Robert Ladd <lkml@coyotegulch.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050512)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jesper Juhl <juhl-lkml@dif.dk>
-CC: Valdis.Kletnieks@vt.edu, Borislav Petkov <petkov@uni-muenster.de>,
-       Edgar Toernig <froese@gmx.de>, jmerkey <jmerkey@utah-nac.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Automatic .config generation
-References: <200505150742.j4F7gds1020180@turing-police.cc.vt.edu> <Pine.LNX.4.62.0505151148220.2387@dragon.hyggekrogen.localhost>
-In-Reply-To: <Pine.LNX.4.62.0505151148220.2387@dragon.hyggekrogen.localhost>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sun, 15 May 2005 10:12:26 -0400
+Received: from colin.muc.de ([193.149.48.1]:21776 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S261604AbVEOOMK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 10:12:10 -0400
+Date: 15 May 2005 16:12:07 +0200
+Date: Sun, 15 May 2005 16:12:07 +0200
+From: Andi Kleen <ak@muc.de>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Hyper-Threading Vulnerability
+Message-ID: <20050515141207.GB94354@muc.de>
+References: <1115963481.1723.3.camel@alderaan.trey.hu> <m164xnatpt.fsf@muc.de> <20050513211609.75216bf8.diegocg@gmail.com> <20050515095446.GE68736@muc.de> <Pine.LNX.4.58.0505151550160.8633@artax.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0505151550160.8633@artax.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
-> Where's the harm in just building all the sound 
-> modules - you only load one in the end anyway, and the space taken by the 
-> other modules is negligible with the disk sizes of today I'd say (ok, 
-> there's some extra build time involved, but that shouldn't be a big deal 
-> either).
+On Sun, May 15, 2005 at 03:51:05PM +0200, Mikulas Patocka wrote:
+> 
+> 
+> On Sun, 15 May 2005, Andi Kleen wrote:
+> 
+> > On Fri, May 13, 2005 at 09:16:09PM +0200, Diego Calleja wrote:
+> > > El Fri, 13 May 2005 20:03:58 +0200,
+> > > Andi Kleen <ak@muc.de> escribi?:
+> > >
+> > >
+> > > > This is not a kernel problem, but a user space problem. The fix
+> > > > is to change the user space crypto code to need the same number of cache line
+> > > > accesses on all keys.
+> > >
+> > >
+> > > However they've patched the FreeBSD kernel to "workaround?" it:
+> > > ftp://ftp.freebsd.org/pub/FreeBSD/CERT/patches/SA-05:09/htt5.patch
+> >
+> > That's a similar stupid idea as they did with the disk write
+> > cache (lowering the MTBFs of their disks by considerable factors,
+> > which is much worse than the power off data loss problem)
+> > Let's not go down this path please.
+> 
+> What wrong did they do with disk write cache?
 
-A desktop computer with a large hard drive may be the norm for kernel
-developers, but it isn't (by far) the only environment where the kernel
-is built. Embedded devices, small systems, older hardware, and
-heterogenous networks all require a bit more finesse than a simple
-"build it all and throw the mess at the hardware" approach.
+They turned it off by default, which according to disk vendors
+lowers the MTBF of your disk to a fraction of the original value.
 
-The complexity of the kernel is growing, making it more difficult for
-people to understand what they need and how to get it. It seems to me
-that a computer can analyze itself to determine the "best" build
-options. That's part of the reasoning behind my Acovea technology --
-reducing complexity through smarter software.
+I bet the total amount of valuable data lost for FreeBSD users because
+of broken disks is much much bigger than what they gained from not losing
+in the rather hard to hit power off cases.
 
-    http://www.coyotegulch.com/products/acovea
-
-Acovea isn't directly applicable to the kernel, but the idea of the
-computer performing self-discovery is certainly valid. Once I get
-another project finished, I'm going to take a more formal look at kernel
-configuration, and see what might be done.
-
-..Scott
+-Andi

@@ -1,130 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261603AbVEOKsx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbVEOKv2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261603AbVEOKsx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 06:48:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbVEOKsx
+	id S261446AbVEOKv2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 06:51:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbVEOKv2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 06:48:53 -0400
-Received: from mo00.iij4u.or.jp ([210.130.0.19]:20444 "EHLO mo00.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S261603AbVEOKsr (ORCPT
+	Sun, 15 May 2005 06:51:28 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5356 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261446AbVEOKvU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 06:48:47 -0400
-Date: Sun, 15 May 2005 19:48:28 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: Andrew Morton <akpm@osdl.org>
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6.12-rc4] mips: add resource management to pmu
-Message-Id: <20050515194828.55ca082f.yuasa@hh.iij4u.or.jp>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Sun, 15 May 2005 06:51:20 -0400
+Date: Sun, 15 May 2005 12:51:00 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Andi Kleen <ak@suse.de>
+Cc: Alexander Nyberg <alexn@telia.com>, Jan Beulich <JBeulich@novell.com>,
+       discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: [discuss] Re: [PATCH] adjust x86-64 watchdog tick calculation
+Message-ID: <20050515105100.GB2223@elf.ucw.cz>
+References: <s2832159.057@emea1-mh.id2.novell.com> <1115892008.918.7.camel@localhost.localdomain> <20050512142920.GA7079@openzaurus.ucw.cz> <20050513113023.GD15755@wotan.suse.de> <20050513195215.GC3135@elf.ucw.cz> <20050515103646.GF26242@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050515103646.GF26242@wotan.suse.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch had added resource management to vr41xx's pmu.
+Hi!
 
-Yoichi
+> > > > Because it kills machine when interrupt latency gets too high?
+> > > > Like reading battery status using i2c...
+> > > 
+> > > That's a bug in the I2C reader then. Don't shot the messenger for bad news.
+> > 
+> > Disagreed.
+> > 
+> > Linux is not real time OS. Perhaps some real-time constraints "may not
+> > spend > 100msec with interrupts disabled" would be healthy, but it
+> > certainly needs more discussion than "lets enable NMI
+> > watchdog.". It needs to be written somewhere in big bold letters, too.
+> 
+> While linux is not a real time OS it has been always known that
+> turning off interrupts for a long time is extremly rude.
 
-Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+Yes, it is rude, but it should not panic machines.
 
-diff -urN -X dontdiff rc4-orig/arch/mips/vr41xx/common/pmu.c rc4/arch/mips/vr41xx/common/pmu.c
---- rc4-orig/arch/mips/vr41xx/common/pmu.c	Sat May  7 14:20:31 2005
-+++ rc4/arch/mips/vr41xx/common/pmu.c	Sun May 15 18:14:50 2005
-@@ -1,7 +1,7 @@
- /*
-  *  pmu.c, Power Management Unit routines for NEC VR4100 series.
-  *
-- *  Copyright (C) 2003-2004  Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-+ *  Copyright (C) 2003-2005  Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-  *
-  *  This program is free software; you can redistribute it and/or modify
-  *  it under the terms of the GNU General Public License as published by
-@@ -17,7 +17,9 @@
-  *  along with this program; if not, write to the Free Software
-  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-  */
-+#include <linux/errno.h>
- #include <linux/init.h>
-+#include <linux/ioport.h>
- #include <linux/kernel.h>
- #include <linux/smp.h>
- #include <linux/types.h>
-@@ -27,20 +29,31 @@
- #include <asm/reboot.h>
- #include <asm/system.h>
- 
--#define PMUCNT2REG	KSEG1ADDR(0x0f0000c6)
-+#define PMU_TYPE1_BASE	0x0b0000a0UL
-+#define PMU_TYPE1_SIZE	0x0eUL
-+
-+#define PMU_TYPE2_BASE	0x0f0000c0UL
-+#define PMU_TYPE2_SIZE	0x10UL
-+
-+#define PMUCNT2REG	0x06
-  #define SOFTRST	0x0010
- 
-+static void __iomem *pmu_base;
-+
-+#define pmu_read(offset)		readw(pmu_base + (offset))
-+#define pmu_write(offset, value)	writew((value), pmu_base + (offset))
-+
- static inline void software_reset(void)
- {
--	uint16_t val;
-+	uint16_t pmucnt2;
- 
- 	switch (current_cpu_data.cputype) {
- 	case CPU_VR4122:
- 	case CPU_VR4131:
- 	case CPU_VR4133:
--		val = readw(PMUCNT2REG);
--		val |= SOFTRST;
--		writew(val, PMUCNT2REG);
-+		pmucnt2 = pmu_read(PMUCNT2REG);
-+		pmucnt2 |= SOFTRST;
-+		pmu_write(PMUCNT2REG, pmucnt2);
- 		break;
- 	default:
- 		break;
-@@ -71,6 +84,34 @@
- 
- static int __init vr41xx_pmu_init(void)
- {
-+	unsigned long start, size;
-+
-+	switch (current_cpu_data.cputype) {
-+	case CPU_VR4111:
-+	case CPU_VR4121:
-+		start = PMU_TYPE1_BASE;
-+		size = PMU_TYPE1_SIZE;
-+		break;
-+	case CPU_VR4122:
-+	case CPU_VR4131:
-+	case CPU_VR4133:
-+		start = PMU_TYPE2_BASE;
-+		size = PMU_TYPE2_SIZE;
-+		break;
-+	default:
-+		printk("Unexpected CPU of NEC VR4100 series\n");
-+		return -ENODEV;
-+	}
-+
-+	if (request_mem_region(start, size, "PMU") == NULL)
-+		return -EBUSY;
-+
-+	pmu_base = ioremap(start, size);
-+	if (pmu_base == NULL) {
-+		release_mem_region(start, size);
-+		return -EBUSY;
-+	}
-+
- 	_machine_restart = vr41xx_restart;
- 	_machine_halt = vr41xx_halt;
- 	_machine_power_off = vr41xx_power_off;
-@@ -78,4 +119,4 @@
- 	return 0;
- }
- 
--early_initcall(vr41xx_pmu_init);
-+core_initcall(vr41xx_pmu_init);
+> If you really want you can use touch_nmi_watchdog in the delay
+> loop then.  But note you have to compile it in, because touch_nmi_watchdog
+> is not exported (Linus vetoed that for good reasons).
+> 
+> But again do you really need to disable interrupts during this
+> i2c access? Can't you just use a schedule_timeout() and a semaphore?
+> Why would other interrupts cause a problem during such a long delay?
+
+In this case it is "AML code told you to disable interrupts, and do
+this kind of bitbang". AML interpretter has no idea of what that code
+does... Perhaps we could sprinkle touch_nmi_watchdog all over the
+interpretter, but that's just ugly.
+								Pavel
+-- 
+Boycott Kodak -- for their patent abuse against Java.

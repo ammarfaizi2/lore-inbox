@@ -1,82 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261660AbVEOPaU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261672AbVEOPxi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261660AbVEOPaU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 11:30:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbVEOPaT
+	id S261672AbVEOPxi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 11:53:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261676AbVEOPxi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 11:30:19 -0400
-Received: from atlmail.prod.rxgsys.com ([69.61.70.25]:32704 "EHLO
-	bastet.signetmail.com") by vger.kernel.org with ESMTP
-	id S261660AbVEOPaJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 11:30:09 -0400
-Date: Sun, 15 May 2005 11:29:56 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Disk write cache (Was: Hyper-Threading Vulnerability)
-Message-ID: <20050515152956.GA25143@havoc.gtf.org>
-References: <1115963481.1723.3.camel@alderaan.trey.hu> <20050515145241.GA5627@irc.pl> <Pine.LNX.4.58.0505151657230.19181@artax.karlin.mff.cuni.cz> <200505151121.36243.gene.heskett@verizon.net>
-Mime-Version: 1.0
+	Sun, 15 May 2005 11:53:38 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:52190 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S261672AbVEOPxd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 11:53:33 -0400
+Message-ID: <42877245.DD23EBB4@tv-sign.ru>
+Date: Sun, 15 May 2005 20:01:09 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] factor out common code in sys_fsync/sys_fdatasync
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200505151121.36243.gene.heskett@verizon.net>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 15, 2005 at 11:21:36AM -0400, Gene Heskett wrote:
-> On Sunday 15 May 2005 11:00, Mikulas Patocka wrote:
-> >On Sun, 15 May 2005, Tomasz Torcz wrote:
-> >> On Sun, May 15, 2005 at 04:12:07PM +0200, Andi Kleen wrote:
-> >> > > > > However they've patched the FreeBSD kernel to
-> >> > > > > "workaround?" it:
-> >> > > > > ftp://ftp.freebsd.org/pub/FreeBSD/CERT/patches/SA-05:09/ht
-> >> > > > >t5.patch
-> >> > > >
-> >> > > > That's a similar stupid idea as they did with the disk write
-> >> > > > cache (lowering the MTBFs of their disks by considerable
-> >> > > > factors, which is much worse than the power off data loss
-> >> > > > problem) Let's not go down this path please.
-> >> > >
-> >> > > What wrong did they do with disk write cache?
-> >> >
-> >> > They turned it off by default, which according to disk vendors
-> >> > lowers the MTBF of your disk to a fraction of the original
-> >> > value.
-> >> >
-> >> > I bet the total amount of valuable data lost for FreeBSD users
-> >> > because of broken disks is much much bigger than what they
-> >> > gained from not losing in the rather hard to hit power off
-> >> > cases.
-> >>
-> >>  Aren't I/O barriers a way to safely use write cache?
-> >
-> >FreeBSD used these barriers (FLUSH CACHE command) long time ago.
-> >
-> >There are rumors that some disks ignore FLUSH CACHE command just to
-> > get higher benchmarks in Windows. But I haven't heart of any proof.
-> > Does anybody know, what companies fake this command?
-> >
-> >From a story I read elsewhere just a few days ago, this problem is 
-> virtually universal even in the umpty-bucks 15,000 rpm scsi server 
-> drives.  It appears that this is just another way to crank up the 
-> numbers and make each drive seem faster than its competition.
-> 
-> My gut feeling is that if this gets enough ink to get under the drive 
-> makers skins, we will see the issuance of a utility from the makers 
-> that will re-program the drives therefore enabling the proper 
-> handling of the FLUSH CACHE command.  This would be an excellent 
-> chance IMO, to make a bit of noise if the utility comes out, but only 
-> runs on windows.  In that event, we hold their feet to the fire (the 
-> prefereable method), or a wrapper is written that allows it to run on 
-> any os with a bash-like shell manager.
+This patch consolidates sys_fsync and sys_fdatasync. The only
+difference between them is a 'datasync' parameter of ->fsync().
 
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-There is a large amount of yammering and speculation in this thread.
-
-Most disks do seem to obey SYNC CACHE / FLUSH CACHE.
-
-	Jeff
-
-
-
+--- 2.6.12-rc4/fs/buffer.c~	2005-05-09 16:37:16.000000000 +0400
++++ 2.6.12-rc4/fs/buffer.c	2005-05-15 22:38:42.000000000 +0400
+@@ -331,7 +331,7 @@ int file_fsync(struct file *filp, struct
+ 	return ret;
+ }
+ 
+-asmlinkage long sys_fsync(unsigned int fd)
++static long do_fsync(unsigned int fd, int datasync)
+ {
+ 	struct file * file;
+ 	struct address_space *mapping;
+@@ -342,14 +342,14 @@ asmlinkage long sys_fsync(unsigned int f
+ 	if (!file)
+ 		goto out;
+ 
+-	mapping = file->f_mapping;
+-
+ 	ret = -EINVAL;
+ 	if (!file->f_op || !file->f_op->fsync) {
+ 		/* Why?  We can still call filemap_fdatawrite */
+ 		goto out_putf;
+ 	}
+ 
++	mapping = file->f_mapping;
++
+ 	current->flags |= PF_SYNCWRITE;
+ 	ret = filemap_fdatawrite(mapping);
+ 
+@@ -358,7 +358,7 @@ asmlinkage long sys_fsync(unsigned int f
+ 	 * which could cause livelocks in fsync_buffers_list
+ 	 */
+ 	down(&mapping->host->i_sem);
+-	err = file->f_op->fsync(file, file->f_dentry, 0);
++	err = file->f_op->fsync(file, file->f_dentry, datasync);
+ 	if (!ret)
+ 		ret = err;
+ 	up(&mapping->host->i_sem);
+@@ -373,39 +373,14 @@ out:
+ 	return ret;
+ }
+ 
+-asmlinkage long sys_fdatasync(unsigned int fd)
++asmlinkage long sys_fsync(unsigned int fd)
+ {
+-	struct file * file;
+-	struct address_space *mapping;
+-	int ret, err;
+-
+-	ret = -EBADF;
+-	file = fget(fd);
+-	if (!file)
+-		goto out;
+-
+-	ret = -EINVAL;
+-	if (!file->f_op || !file->f_op->fsync)
+-		goto out_putf;
+-
+-	mapping = file->f_mapping;
+-
+-	current->flags |= PF_SYNCWRITE;
+-	ret = filemap_fdatawrite(mapping);
+-	down(&mapping->host->i_sem);
+-	err = file->f_op->fsync(file, file->f_dentry, 1);
+-	if (!ret)
+-		ret = err;
+-	up(&mapping->host->i_sem);
+-	err = filemap_fdatawait(mapping);
+-	if (!ret)
+-		ret = err;
+-	current->flags &= ~PF_SYNCWRITE;
++	return do_fsync(fd, 0);
++}
+ 
+-out_putf:
+-	fput(file);
+-out:
+-	return ret;
++asmlinkage long sys_fdatasync(unsigned int fd)
++{
++	return do_fsync(fd, 1);
+ }
+ 
+ /*

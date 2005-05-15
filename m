@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbVEOKZV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261599AbVEOKgu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261596AbVEOKZV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 06:25:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261599AbVEOKZV
+	id S261599AbVEOKgu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 06:36:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261603AbVEOKgu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 06:25:21 -0400
-Received: from natsmtp00.rzone.de ([81.169.145.165]:1726 "EHLO
-	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S261596AbVEOKZP convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 06:25:15 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH 7/8] ppc64: SPU file system
-Date: Sun, 15 May 2005 12:08:52 +0200
-User-Agent: KMail/1.7.2
-Cc: Greg KH <greg@kroah.com>, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>,
-       Anton Blanchard <anton@samba.org>
-References: <200505132117.37461.arnd@arndb.de> <200505141505.08999.arnd@arndb.de> <1116138546.5095.6.camel@gaston>
-In-Reply-To: <1116138546.5095.6.camel@gaston>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Sun, 15 May 2005 06:36:50 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:15573 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261599AbVEOKgs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 06:36:48 -0400
+Date: Sun, 15 May 2005 12:36:46 +0200
+From: Andi Kleen <ak@suse.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Andi Kleen <ak@suse.de>, Alexander Nyberg <alexn@telia.com>,
+       Jan Beulich <JBeulich@novell.com>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [discuss] Re: [PATCH] adjust x86-64 watchdog tick calculation
+Message-ID: <20050515103646.GF26242@wotan.suse.de>
+References: <s2832159.057@emea1-mh.id2.novell.com> <1115892008.918.7.camel@localhost.localdomain> <20050512142920.GA7079@openzaurus.ucw.cz> <20050513113023.GD15755@wotan.suse.de> <20050513195215.GC3135@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200505151208.54229.arnd@arndb.de>
+In-Reply-To: <20050513195215.GC3135@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sünndag 15 Mai 2005 08:29, Benjamin Herrenschmidt wrote:
-> Why not just write(pc) to start and read back status from the same
-> file ?
+On Fri, May 13, 2005 at 09:52:15PM +0200, Pavel Machek wrote:
+> On P? 13-05-05 13:30:23, Andi Kleen wrote:
+> > > Because it kills machine when interrupt latency gets too high?
+> > > Like reading battery status using i2c...
+> > 
+> > That's a bug in the I2C reader then. Don't shot the messenger for bad news.
+> 
+> Disagreed.
+> 
+> Linux is not real time OS. Perhaps some real-time constraints "may not
+> spend > 100msec with interrupts disabled" would be healthy, but it
+> certainly needs more discussion than "lets enable NMI
+> watchdog.". It needs to be written somewhere in big bold letters, too.
 
-I suppose you are thinking of the simple_transaction_read() style
-interface. I've got the feeling that this is generally even
-less popular than ioctl because 
+While linux is not a real time OS it has been always known that
+turning off interrupts for a long time is extremly rude.
 
-- it is still an untyped interface (as would be a read() based one)
-- you can't do 32 bit emulation (doesn't matter for me, we only
-  have 32 bit data)
-- it is non-atomic
-- it doubles the system call overhead
+If you really want you can use touch_nmi_watchdog in the delay
+loop then.  But note you have to compile it in, because touch_nmi_watchdog
+is not exported (Linus vetoed that for good reasons).
 
-One operation that I want to allow is to have an infinite loop
-running on the SPU that does a simple operation (e.g. process
-one MPEG macroblock) and have that called by multiple unrelated
-processes in turns. When my operation is not atomic, users need
-to have additional IPC serialization of their accesses. Most
-would want that anyway, but it is not a requirement with an
-interface that needs only a single system call.
+But again do you really need to disable interrupts during this
+i2c access? Can't you just use a schedule_timeout() and a semaphore?
+Why would other interrupts cause a problem during such a long delay?
 
-For the extra syscall overhead, I would like to see measurements
-of a real world application before I change to an interface that
-is slower in theory. Do you have measurements for the time spent
-in a trivial system call on G5 or Power4?
-
-	Arnd <><
+-Andi

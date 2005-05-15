@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262819AbVEOMMe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262823AbVEOMUV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262819AbVEOMMe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 08:12:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262821AbVEOMMe
+	id S262823AbVEOMUV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 08:20:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262822AbVEOMUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 08:12:34 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:53520 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262819AbVEOMM1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 08:12:27 -0400
-Date: Sun, 15 May 2005 14:12:22 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] make MII no longer user visible
-Message-ID: <20050515121222.GR16549@stusta.de>
-References: <20050513035257.GC3603@stusta.de> <4284DD16.8090405@pobox.com>
-Mime-Version: 1.0
+	Sun, 15 May 2005 08:20:21 -0400
+Received: from one.firstfloor.org ([213.235.205.2]:8833 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S262823AbVEOMUP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 08:20:15 -0400
+To: Dave Jones <davej@redhat.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: tickle nmi watchdog whilst doing serial writes.
+References: <20050513184806.GA24166@redhat.com> <m1u0l4afdx.fsf@muc.de>
+	<20050515130742.A29619@flint.arm.linux.org.uk>
+From: Andi Kleen <ak@muc.de>
+Date: Sun, 15 May 2005 14:20:14 +0200
+In-Reply-To: <20050515130742.A29619@flint.arm.linux.org.uk> (Russell King's
+ message of "Sun, 15 May 2005 13:07:42 +0100")
+Message-ID: <m1ekc8adfl.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4284DD16.8090405@pobox.com>
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 13, 2005 at 01:00:06PM -0400, Jeff Garzik wrote:
-> Adrian Bunk wrote:
-> >MII is a classical example of a helper option no user should ever see.
-> 
-> Incorrect.
-> 
-> It's the classic example of an option that distributors may want to 
-> build as a module, even if no shipped modules need it, to enable net 
-> driver development and use in their kernel.
+Russell King <rmk+lkml@arm.linux.org.uk> writes:
 
-Every distibutor will have more than one net driver select'ing MII 
-enabled.
+> On Sun, May 15, 2005 at 01:38:02PM +0200, Andi Kleen wrote:
+>> Dave Jones <davej@redhat.com> writes:
+>> >  
+>> >  #include <asm/io.h>
+>> >  #include <asm/irq.h>
+>> > @@ -2099,8 +2100,10 @@ static inline void wait_for_xmitr(struct
+>> >  	if (up->port.flags & UPF_CONS_FLOW) {
+>> >  		tmout = 1000000;
+>> >  		while (--tmout &&
+>> > -		       ((serial_in(up, UART_MSR) & UART_MSR_CTS) == 0))
+>> > +		       ((serial_in(up, UART_MSR) & UART_MSR_CTS) == 0)) {
+>> >  			udelay(1);
+>> > +			touch_nmi_watchdog();
+>> 
+>> Note that touch_nmi_watchdog is not exported on i386 - Linus vetoed
+>> that some time ago. The real fix of course is to use schedule_timeout(),
+>> but that might break printk() with interrupts off :/
+>
+> Not to mention printk() from atomic contexts and panic().  No,
+> schedule_timeout() is _not_ a "real fix" but a kludge.
 
-And if you are doing net driver development, you can always enable it in 
-your kernel.
+Then someone needs to convince Linus to export touch_nmi_watchdog
+again. 
 
-> 	Jeff
+Or how about checking if interrupts are off here (iirc we have 
+a generic function for that now) and then using
+a smaller timeout and otherwise schedule_timeout() ?
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+-Andi

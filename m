@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261493AbVEOGYx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261518AbVEOGbg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261493AbVEOGYx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 02:24:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVEOGYx
+	id S261518AbVEOGbg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 02:31:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbVEOGbg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 02:24:53 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:46271 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261493AbVEOGYt (ORCPT
+	Sun, 15 May 2005 02:31:36 -0400
+Received: from gate.crashing.org ([63.228.1.57]:3278 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261518AbVEOGbf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 02:24:49 -0400
-Date: Sun, 15 May 2005 08:22:43 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Petr Baudis <pasky@ucw.cz>
-Cc: Matt Mackall <mpm@selenic.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org,
-       mercurial@selenic.com, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Mercurial 0.4e vs git network pull
-Message-ID: <20050515062243.GA22021@elte.hu>
-References: <20050512094406.GZ5914@waste.org> <20050512182340.GA324@pasky.ji.cz>
+	Sun, 15 May 2005 02:31:35 -0400
+Subject: Re: [PATCH 7/8] ppc64: SPU file system
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Greg KH <greg@kroah.com>, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>,
+       Anton Blanchard <anton@samba.org>
+In-Reply-To: <200505141505.08999.arnd@arndb.de>
+References: <200505132117.37461.arnd@arndb.de>
+	 <200505132129.07603.arnd@arndb.de> <20050514074524.GC20021@kroah.com>
+	 <200505141505.08999.arnd@arndb.de>
+Content-Type: text/plain
+Date: Sun, 15 May 2005 16:29:06 +1000
+Message-Id: <1116138546.5095.6.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050512182340.GA324@pasky.ji.cz>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Petr Baudis <pasky@ucw.cz> wrote:
+> Using a write call instead of read makes the interface even more
+> complicated because it would require the user to read the status
+> from a separate file after write returns to check what needs to
+> be done and then use lseek() or yet another file to access the
+> instruction pointer.
 
-> > Mercurial is also much smarter than rsync at determining what
-> > outstanding changesets exist. Here's an empty pull as a demonstration:
-> > 
-> >  $ time hg merge hg://selenic.com/linux-hg/
-> >  retrieving changegroup
-> > 
-> >  real    0m0.363s
-> >  user    0m0.083s
-> >  sys     0m0.007s
-> > 
-> > That's a single http request and a one line response.
-> 
-> So, what about comparing it with something comparable, say git pull 
-> over HTTP? :-)
+Why not just write(pc) to start and read back status from the same
+file ?
 
-Matt, did you get around to do such a comparison?
+Ben.
 
-	Ingo
+

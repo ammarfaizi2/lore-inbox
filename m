@@ -1,64 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261544AbVEOHnJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261547AbVEOI1Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261544AbVEOHnJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 03:43:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbVEOHnJ
+	id S261547AbVEOI1Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 04:27:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261548AbVEOI1Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 03:43:09 -0400
-Received: from h80ad2528.async.vt.edu ([128.173.37.40]:55556 "EHLO
-	h80ad2528.async.vt.edu") by vger.kernel.org with ESMTP
-	id S261544AbVEOHnE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 03:43:04 -0400
-Message-Id: <200505150742.j4F7gds1020180@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Borislav Petkov <petkov@uni-muenster.de>
-Cc: Edgar Toernig <froese@gmx.de>, jmerkey <jmerkey@utah-nac.org>,
-       Scott Robert Ladd <lkml@coyotegulch.com>, linux-kernel@vger.kernel.org
-Subject: Re: Automatic .config generation 
-In-Reply-To: Your message of "Sun, 15 May 2005 09:03:42 +0200."
-             <200505150903.42212.petkov@uni-muenster.de> 
-From: Valdis.Kletnieks@vt.edu
-References: <42839AF7.4030708@coyotegulch.com> <42838D4C.3040207@utah-nac.org> <20050512231726.6198bbc6.froese@gmx.de>
-            <200505150903.42212.petkov@uni-muenster.de>
+	Sun, 15 May 2005 04:27:16 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:42510 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261547AbVEOI1L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 04:27:11 -0400
+Date: Sun, 15 May 2005 10:27:06 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andres Salomon <dilinger@athenacr.com>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: Status of net/ipv4/ipvs/ip_vs_proto_icmp.c?
+Message-ID: <20050515082706.GK16549@stusta.de>
+References: <20050513041622.GE3603@stusta.de> <pan.2005.05.13.19.09.00.598647@athenacr.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1116142954_5152P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sun, 15 May 2005 03:42:35 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <pan.2005.05.13.19.09.00.598647@athenacr.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1116142954_5152P
-Content-Type: text/plain; charset=us-ascii
+On Fri, May 13, 2005 at 03:09:01PM -0400, Andres Salomon wrote:
+> On Fri, 13 May 2005 06:16:22 +0200, Adrian Bunk wrote:
+> 
+> > Hi,
+> > 
+> > can anyone explain the status of?
+> > 
+> > This file is always included in the kernel if CONFIG_IP_VS=y, but it's 
+> > completely unused.
+> > 
+> > Will it be made working in the forseeable future or is it a candidate 
+> > for removal?
+> > 
+> > TIA
+> > Adrian
+> 
+> The people/places to ask would probably be:
+> 
+> IPVS
+> P:      Wensong Zhang
+> M:      wensong@linux-vs.org
+> P:      Julian Anastasov
+> M:      ja@ssi.bg
+> S:      Maintained
+>...
 
-On Sun, 15 May 2005 09:03:42 +0200, Borislav Petkov said:
-> On Thursday 12 May 2005 23:17, Edgar Toernig wrote:
-> > jmerkey wrote:
-> > > Scott Robert Ladd wrote:
-> > > >Is there a utility that creates a .config based on analysis of the
-> > > >target system?
+And these are exactly the people in the To-header of the email asking 
+this question.
 
-> how about /proc/config.gz.. although this was pretty recent IIRC.
+cu
+Adrian
 
-That describes the currently running kernel *as built* - so for instance
-booting a RedHat kernel on almost anything will show 3 zillion things
-built as modules - including 2.5 zillion things that aren't needed in the
-current config (for instance, every single sound card driver may be included).
+-- 
 
-What is desired is a utility that will do an lspci/lsusb/etc and build up
-a .config that matches *the current hardware* (for instance, only including
-a module for the one sound card that's actually installed).
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
---==_Exmh_1116142954_5152P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFChv1qcC3lWbTT17ARAsgmAJ9uPxOUuHr7GzrgLmmpS2wcK1+hfACfcycT
-8PC+gsnbDk5RMphYgDQ7E9Y=
-=f9Df
------END PGP SIGNATURE-----
-
---==_Exmh_1116142954_5152P--

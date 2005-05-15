@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbVEOVgX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbVEOVqV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261259AbVEOVgX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 17:36:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261261AbVEOVgX
+	id S261268AbVEOVqV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 17:46:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbVEOVqV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 17:36:23 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:39947 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261259AbVEOVgT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 17:36:19 -0400
-Date: Sun, 15 May 2005 23:38:32 +0200
-From: Tomasz Torcz <zdzichu@irc.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Disk write cache (Was: Hyper-Threading Vulnerability)
-Message-ID: <20050515213832.GB24179@irc.pl>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <1115963481.1723.3.camel@alderaan.trey.hu> <20050515145241.GA5627@irc.pl> <Pine.LNX.4.58.0505151657230.19181@artax.karlin.mff.cuni.cz> <200505151121.36243.gene.heskett@verizon.net>
-Mime-Version: 1.0
+	Sun, 15 May 2005 17:46:21 -0400
+Received: from fed1rmmtao09.cox.net ([68.230.241.30]:45816 "EHLO
+	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
+	id S261261AbVEOVqQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 17:46:16 -0400
+To: Petr Baudis <pasky@ucw.cz>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
+Subject: Re: git repository for net drivers available
+References: <42841A3F.7020909@pobox.com> <4284C54E.3060907@linux.intel.com>
+	<4284C7DA.1020707@pobox.com> <20050515200514.GA31414@pasky.ji.cz>
+From: Junio C Hamano <junkio@cox.net>
+Date: Sun, 15 May 2005 14:46:11 -0700
+In-Reply-To: <20050515200514.GA31414@pasky.ji.cz> (Petr Baudis's message of
+ "Sun, 15 May 2005 22:05:14 +0200")
+Message-ID: <7vacmwqi1o.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200505151121.36243.gene.heskett@verizon.net>
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 15, 2005 at 11:21:36AM -0400, Gene Heskett wrote:
-> >FreeBSD used these barriers (FLUSH CACHE command) long time ago.
-> >
-> >There are rumors that some disks ignore FLUSH CACHE command just to
-> > get higher benchmarks in Windows. But I haven't heart of any proof.
-> > Does anybody know, what companies fake this command?
-> >
-> >From a story I read elsewhere just a few days ago, this problem is 
-> virtually universal even in the umpty-bucks 15,000 rpm scsi server 
-> drives.  It appears that this is just another way to crank up the 
-> numbers and make each drive seem faster than its competition.
+>>>>> "PB" == Petr Baudis <pasky@ucw.cz> writes:
 
- Probably you talking about this: http://www.livejournal.com/~brad/2116715.html
-It has hit Slashdot yesterday.
+PB> Dear diary, on Fri, May 13, 2005 at 05:29:30PM CEST, I got a letter
+PB> where Jeff Garzik <jgarzik@pobox.com> told me that...
+>> Looks like cogito is using $repo/heads/$branch, whereas my git repo is 
+>> using $repo/branches/$branch.
 
--- 
-Tomasz Torcz                 "God, root, what's the difference?"
-zdzichu@irc.-nie.spam-.pl         "God is more forgiving."
+PB> Would it be a big problem to use refs/heads/$branch? That's the
+PB> currently commonly agreed convention about location for storing branch
+PB> heads, not just some weird Cogito-specific invention. And it'd be very
+PB> nice to have those locations consistent across git repositories.
+
+Since Jeff brought up $repo/branches/$branch, you may also want
+to add that $repo/branches/$branch is used to record the URL of
+the remote $branch (the information used to be in a flat file
+$repo/remotes, branch name and URL separated by shell $IFS, one
+record on each line), and is quite different from those 40-byte
+SHA1 plus LF files you see in $repo/refs/*/ directory.
+
+I think it is a reasonable one, I also follow the
+$repo/branches/$branch convention Cogito uses, and I would
+encorage other Porcelain implementations to follow suit.
 

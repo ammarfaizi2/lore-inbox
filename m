@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261547AbVEOI1Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVEOIuZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261547AbVEOI1Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 04:27:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261548AbVEOI1Q
+	id S261552AbVEOIuZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 04:50:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbVEOIuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 04:27:16 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:42510 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261547AbVEOI1L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 04:27:11 -0400
-Date: Sun, 15 May 2005 10:27:06 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andres Salomon <dilinger@athenacr.com>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: Status of net/ipv4/ipvs/ip_vs_proto_icmp.c?
-Message-ID: <20050515082706.GK16549@stusta.de>
-References: <20050513041622.GE3603@stusta.de> <pan.2005.05.13.19.09.00.598647@athenacr.com>
+	Sun, 15 May 2005 04:50:24 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:48300 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id S261552AbVEOIuU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 04:50:20 -0400
+Date: Sun, 15 May 2005 10:50:18 +0200
+From: Petr Baudis <pasky@ucw.cz>
+To: Christian Kujau <evil@g-house.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Mercurial 0.4e vs git network pull
+Message-ID: <20050515085018.GA13024@pasky.ji.cz>
+References: <20050512094406.GZ5914@waste.org> <20050512182340.GA324@pasky.ji.cz> <20050512201116.GC5914@waste.org> <20050512201406.GJ324@pasky.ji.cz> <42869A6E.4080107@g-house.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <pan.2005.05.13.19.09.00.598647@athenacr.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <42869A6E.4080107@g-house.de>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 13, 2005 at 03:09:01PM -0400, Andres Salomon wrote:
-> On Fri, 13 May 2005 06:16:22 +0200, Adrian Bunk wrote:
+Dear diary, on Sun, May 15, 2005 at 02:40:14AM CEST, I got a letter
+where Christian Kujau <evil@g-house.de> told me that...
+> Petr Baudis wrote:
+> > remote HEAD you want to fetch, and the URL; see
+> > Documentation/git-http-pull.txt).
 > 
-> > Hi,
-> > 
-> > can anyone explain the status of?
-> > 
-> > This file is always included in the kernel if CONFIG_IP_VS=y, but it's 
-> > completely unused.
-> > 
-> > Will it be made working in the forseeable future or is it a candidate 
-> > for removal?
-> > 
-> > TIA
-> > Adrian
+> where did you get this file from?
 > 
-> The people/places to ask would probably be:
+> % ls Documentation/git-http-pull.txt
+> ls: Documentation/git-http-pull.txt: No such file or directory
 > 
-> IPVS
-> P:      Wensong Zhang
-> M:      wensong@linux-vs.org
-> P:      Julian Anastasov
-> M:      ja@ssi.bg
-> S:      Maintained
->...
+> % find . -iname "*git*"   <-- returns nothing...
 
-And these are exactly the people in the To-header of the email asking 
-this question.
-
-cu
-Adrian
+It's in the git-pb and cogito trees. Linus is on holiday. :-)
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+C++: an octopus made by nailing extra legs onto a dog. -- Steve Taylor

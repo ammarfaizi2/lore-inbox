@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262823AbVEOMUV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262824AbVEOMWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262823AbVEOMUV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 08:20:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262822AbVEOMUV
+	id S262824AbVEOMWj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 08:22:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262825AbVEOMWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 08:20:21 -0400
-Received: from one.firstfloor.org ([213.235.205.2]:8833 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S262823AbVEOMUP
+	Sun, 15 May 2005 08:22:39 -0400
+Received: from one.firstfloor.org ([213.235.205.2]:9345 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S262824AbVEOMWf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 08:20:15 -0400
-To: Dave Jones <davej@redhat.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: tickle nmi watchdog whilst doing serial writes.
-References: <20050513184806.GA24166@redhat.com> <m1u0l4afdx.fsf@muc.de>
-	<20050515130742.A29619@flint.arm.linux.org.uk>
+	Sun, 15 May 2005 08:22:35 -0400
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [-mm patch] i386: enable REGPARM by default
+References: <20050515115712.GQ16549@stusta.de>
 From: Andi Kleen <ak@muc.de>
-Date: Sun, 15 May 2005 14:20:14 +0200
-In-Reply-To: <20050515130742.A29619@flint.arm.linux.org.uk> (Russell King's
- message of "Sun, 15 May 2005 13:07:42 +0100")
-Message-ID: <m1ekc8adfl.fsf@muc.de>
+Date: Sun, 15 May 2005 14:22:34 +0200
+In-Reply-To: <20050515115712.GQ16549@stusta.de> (Adrian Bunk's message of
+ "Sun, 15 May 2005 13:57:12 +0200")
+Message-ID: <m1acmwadbp.fsf@muc.de>
 User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> writes:
+Adrian Bunk <bunk@stusta.de> writes:
 
-> On Sun, May 15, 2005 at 01:38:02PM +0200, Andi Kleen wrote:
->> Dave Jones <davej@redhat.com> writes:
->> >  
->> >  #include <asm/io.h>
->> >  #include <asm/irq.h>
->> > @@ -2099,8 +2100,10 @@ static inline void wait_for_xmitr(struct
->> >  	if (up->port.flags & UPF_CONS_FLOW) {
->> >  		tmout = 1000000;
->> >  		while (--tmout &&
->> > -		       ((serial_in(up, UART_MSR) & UART_MSR_CTS) == 0))
->> > +		       ((serial_in(up, UART_MSR) & UART_MSR_CTS) == 0)) {
->> >  			udelay(1);
->> > +			touch_nmi_watchdog();
->> 
->> Note that touch_nmi_watchdog is not exported on i386 - Linus vetoed
->> that some time ago. The real fix of course is to use schedule_timeout(),
->> but that might break printk() with interrupts off :/
+> This patch should _not_ go into Linus' tree.
 >
-> Not to mention printk() from atomic contexts and panic().  No,
-> schedule_timeout() is _not_ a "real fix" but a kludge.
+> At some time in the future, we want to unconditionally enable REGPARM on 
+> i386.
+>
+> Let's give it a bit broader testing coverage among -mm users.
 
-Then someone needs to convince Linus to export touch_nmi_watchdog
-again. 
+iirc problem is that gcc 2.95 and possibly 3.0.x have some known
+miscompilations with regparams. That is why it was only used
+with fastcall for a long time. One 3.1.x+ it should be safe.
+But you cannot express dependencies on the compiler version
+in Kconfig right now.
 
-Or how about checking if interrupts are off here (iirc we have 
-a generic function for that now) and then using
-a smaller timeout and otherwise schedule_timeout() ?
+Of course getting rid of gcc 2.95 and 3.0.x support would be a good idea,
+that would allow many other nice things.
 
 -Andi
+

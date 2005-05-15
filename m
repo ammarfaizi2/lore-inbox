@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261592AbVEOJnq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262056AbVEOJsz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261592AbVEOJnq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 05:43:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbVEOJnq
+	id S262056AbVEOJsz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 05:48:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262058AbVEOJsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 05:43:46 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:21007 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261592AbVEOJno (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 05:43:44 -0400
-Date: Sun, 15 May 2005 11:43:40 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, David Brownell <david-b@pacbell.net>
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
-       linux-usb-devel@lists.sourceforge.net
-Subject: 2.6.12-rc4-mm1: drivers/usb/gadget/ether.c compile error
-Message-ID: <20050515094339.GO16549@stusta.de>
-References: <20050512033100.017958f6.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050512033100.017958f6.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+	Sun, 15 May 2005 05:48:55 -0400
+Received: from mail.dif.dk ([193.138.115.101]:30693 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S262056AbVEOJsw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 05:48:52 -0400
+Date: Sun, 15 May 2005 11:52:51 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Valdis.Kletnieks@vt.edu
+Cc: Borislav Petkov <petkov@uni-muenster.de>, Edgar Toernig <froese@gmx.de>,
+       jmerkey <jmerkey@utah-nac.org>,
+       Scott Robert Ladd <lkml@coyotegulch.com>, linux-kernel@vger.kernel.org
+Subject: Re: Automatic .config generation 
+In-Reply-To: <200505150742.j4F7gds1020180@turing-police.cc.vt.edu>
+Message-ID: <Pine.LNX.4.62.0505151148220.2387@dragon.hyggekrogen.localhost>
+References: <200505150742.j4F7gds1020180@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 12, 2005 at 03:31:00AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.12-rc3-mm3:
->...
-> +gregkh-04-USB-gregkh-usb-031_usb-ethernet_gadget_cleanups.patch
->...
->  USB tree
->...
+On Sun, 15 May 2005 Valdis.Kletnieks@vt.edu wrote:
 
-This patch breaks compilation with CONFIG_USB_ETH=y and 
-CONFIG_USB_ETH_RNDIS=n:
-
-<--  snip  -->
-
-...
-  CC      drivers/usb/gadget/ether.o
-drivers/usb/gadget/ether.c: In function `rx_submit':
-drivers/usb/gadget/ether.c:1620: error: invalid application of `sizeof' to incomplete type `rndis_packet_msg_type' 
-make[2]: *** [drivers/usb/gadget/ether.o] Error 1
-
-<--  snip  -->
-
-cu
-Adrian
+> On Sun, 15 May 2005 09:03:42 +0200, Borislav Petkov said:
+> > On Thursday 12 May 2005 23:17, Edgar Toernig wrote:
+> > > jmerkey wrote:
+> > > > Scott Robert Ladd wrote:
+> > > > >Is there a utility that creates a .config based on analysis of
+> the
+> > > > >target system?
+> > how about /proc/config.gz.. although this was pretty recent IIRC.
+> That describes the currently running kernel *as built* - so for instance
+> booting a RedHat kernel on almost anything will show 3 zillion things
+> built as modules - including 2.5 zillion things that aren't needed in
+> the
+> current config (for instance, every single sound card driver may be
+> included).
+> What is desired is a utility that will do an lspci/lsusb/etc and build
+> up
+> a .config that matches *the current hardware* (for instance, only
+> including
+> a module for the one sound card that's actually installed).
+> 
+What's the big gain? Where's the harm in just building all the sound 
+modules - you only load one in the end anyway, and the space taken by the 
+other modules is negligible with the disk sizes of today I'd say (ok, 
+there's some extra build time involved, but that shouldn't be a big deal 
+either). Or just use good old "make menuconfig" to only enable the module 
+you want. Besides, it's not as if you have to redo your kernel config from 
+scratch every time you want a new kernel. Make your favorite config once, 
+build and install that kernel and then when you want a newer kernel simply 
+either cd linux-<version>; zcat /proc/config.gz > .config ; make oldconfig 
+and then build the new kernel using your previous config.
 
 -- 
+Jesper Juhl
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

@@ -1,75 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261372AbVENXlB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261388AbVEOAEG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261372AbVENXlB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 19:41:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbVENXlA
+	id S261388AbVEOAEG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 May 2005 20:04:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbVEOAEG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 19:41:00 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:25060 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261372AbVENXkx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 19:40:53 -0400
-Subject: Re: Hyper-Threading Vulnerability
-From: Lee Revell <rlrevell@joe-job.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Jones <davej@redhat.com>,
-       Matt Mackall <mpm@selenic.com>, Andy Isaacson <adi@hexapodia.org>,
-       Andi Kleen <ak@muc.de>, "Richard F. Rebel" <rrebel@whenu.com>,
-       Gabor MICSKO <gmicsko@szintezis.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, tytso@mit.edu
-In-Reply-To: <1116100126.6007.17.camel@laptopd505.fenrus.org>
-References: <1115963481.1723.3.camel@alderaan.trey.hu>
-	 <m164xnatpt.fsf@muc.de> <1116009483.4689.803.camel@rebel.corp.whenu.com>
-	 <20050513190549.GB47131@muc.de> <20050513212620.GA12522@hexapodia.org>
-	 <20050513215905.GY5914@waste.org>
-	 <1116024419.20646.41.camel@localhost.localdomain>
-	 <1116025212.6380.50.camel@mindpipe>  <20050513232708.GC13846@redhat.com>
-	 <1116027488.6380.55.camel@mindpipe>
-	 <1116084186.20545.47.camel@localhost.localdomain>
-	 <1116088229.8880.7.camel@mindpipe>
-	 <1116089068.6007.13.camel@laptopd505.fenrus.org>
-	 <1116093396.9141.11.camel@mindpipe>
-	 <1116093694.6007.15.camel@laptopd505.fenrus.org>
-	 <1116098504.9141.31.camel@mindpipe>
-	 <1116100126.6007.17.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Date: Sat, 14 May 2005 19:40:52 -0400
-Message-Id: <1116114052.9141.38.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
+	Sat, 14 May 2005 20:04:06 -0400
+Received: from ns1.g-housing.de ([62.75.136.201]:45232 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S261388AbVEOAD6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 May 2005 20:03:58 -0400
+Message-ID: <428691E3.9040800@g-house.de>
+Date: Sun, 15 May 2005 02:03:47 +0200
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050326)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: Andrew Morton <akpm@osdl.org>
+Subject: probably NFS related Oops during shutdown with 2.6.12-rc3-mm3
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-05-14 at 21:48 +0200, Arjan van de Ven wrote:
-> On Sat, 2005-05-14 at 15:21 -0400, Lee Revell wrote:
-> > On Sat, 2005-05-14 at 20:01 +0200, Arjan van de Ven wrote:
-> > > On Sat, 2005-05-14 at 13:56 -0400, Lee Revell wrote:
-> > > > On Sat, 2005-05-14 at 18:44 +0200, Arjan van de Ven wrote:
-> > > > > then JACK is terminally broken if it doesn't have a fallback for non-
-> > > > > rdtsc cpus. 
-> > > > 
-> > > > It does have a fallback, but the selection is done at compile time.  It
-> > > > uses rdtsc for all x86 CPUs except pre-i586 SMP systems.
-> > > > 
-> > > > Maybe we should check at runtime,
-> > > 
-> > > it's probably a sign that JACK isn't used on SMP systems much, at least
-> > > not on the bigger systems (like IBM's x440's) where the tsc *will*
-> > > differ wildly between cpus...
-> > 
-> > Correct.  The only bug reports we have seen related to the use of the
-> > TSC is due to CPU frequency scaling.  The fix is to not use it - people
-> > who want to use their PC as a DSP for audio probably don't want their
-> > processor slowing down anyway. 
-> 
-> it's a matter of time (my estimate is a year or two) before processors
-> get variable frequencies based on temperature targets etc...
-> and then rdtsc is really useless for this kind of thing..
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I was under the impression that P4 and later processors do not vary the
-TSC rate when doing frequency scaling.  This is mentioned in the
-documentation for the high res timers patch.
+hi,
 
-Lee
+i noticed that i get an Oops during shutdown and it says something about
+rpciod/0 and i do have NFSv3 volumes mounted (and thus unmounted on
+shutdown), full log, dmesg, .config here:
 
+    http://nerdbynature.de/bits/prinz/2.6.12-rc3-mm3/
+
+CPU:    0
+EIP:    0060:[<00000000>]    Not tainted VLI
+EFLAGS: 00010282   (2.6.12-rc3-mm3)
+EIP is at _stext+0x3feffdd8/0x8
+eax: c1628ec0   ebx: c1628ec0   ecx: 00000000   edx: dfa600b0
+esi: 00000000   edi: c1628f34   ebp: de9327c0   esp: de413f24
+ds: 007b   es: 007b   ss: 0068
+Process rpciod/0 (pid: 8245, threadinfo=de412000 task=dfa600b0)
+
+Stack:
+c039942b
+dfa600b0
+dfa601d8
+00000292
+c1628f3c
+00000297
+c1628f40
+c012b31e
+
+
+00000000
+00000000
+dffc4550
+de412000
+de9327d8
+de9327c8
+de9327d0
+de412000
+
+
+c1628ec0
+c0399560
+de412000
+ffffffff
+ffffffff
+00000001
+00000000
+c0117cf0
+
+
+Call Trace:
+[<c039942b>] __rpc_execute+0x14b/0x250
+[<c012b31e>] worker_thread+0x1ae/0x280
+[<c0399560>] rpc_async_schedule+0x0/0x10
+[<c0117cf0>] default_wake_function+0x0/0x10
+[<c0117d37>] __wake_up_common+0x37/0x60
+[<c0117cf0>] default_wake_function+0x0/0x10
+[<c012b170>] worker_thread+0x0/0x280
+[<c012f615>] kthread+0x95/0xd0
+[<c012f580>] kthread+0x0/0xd0
+[<c010136d>] kernel_thread_helper+0x5/0x18
+
+
+thank you,
+Christian.
+
+PS: i'm booting with netconsole which is *really* great for such things,
+because the oops did not make it to the disk, as the local-filesystems are
+already unmonted (shutdown!). but: the output is really odd. for example
+the first line after the Call Trace looked like this:
+
+Call Trace:
+[<c039942b>]
+ __rpc_execute+0x14b/0x250
+
+
+ok, easy - just delete the linewrap. but i really wonder if the Stack:
+above is readable at all (i haven't touched it)
+
+- --
+BOFH excuse #69:
+
+knot in cables caused data stream to become twisted and kinked
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFChpHj+A7rjkF8z0wRAiSwAJ9LwFJT268TJMkNDEQ0asxMsxPfeACeKJzl
+0aRaGxGJXfEsWBgjMJVQrHI=
+=Vz3W
+-----END PGP SIGNATURE-----

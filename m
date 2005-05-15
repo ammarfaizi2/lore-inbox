@@ -1,81 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261475AbVEOEAX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261493AbVEOGYx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261475AbVEOEAX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 00:00:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261466AbVEOEAX
+	id S261493AbVEOGYx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 02:24:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVEOGYx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 00:00:23 -0400
-Received: from mail01.syd.optusnet.com.au ([211.29.132.182]:53430 "EHLO
-	mail01.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261475AbVEOEAN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 00:00:13 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: ck@vds.kolivas.org,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.6.11-ck8
-Date: Sun, 15 May 2005 14:00:33 +1000
-User-Agent: KMail/1.8
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart5412822.YH7f5a6OS1";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200505151400.37805.kernel@kolivas.org>
+	Sun, 15 May 2005 02:24:53 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:46271 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261493AbVEOGYt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 02:24:49 -0400
+Date: Sun, 15 May 2005 08:22:43 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Petr Baudis <pasky@ucw.cz>
+Cc: Matt Mackall <mpm@selenic.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org,
+       mercurial@selenic.com, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Mercurial 0.4e vs git network pull
+Message-ID: <20050515062243.GA22021@elte.hu>
+References: <20050512094406.GZ5914@waste.org> <20050512182340.GA324@pasky.ji.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050512182340.GA324@pasky.ji.cz>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart5412822.YH7f5a6OS1
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-These are patches designed to improve system responsiveness and interactivi=
-ty.=20
-It is configurable to any workload but the default ck* patch is aimed at th=
-e=20
-desktop and ck*-server is available with more emphasis on serverspace.
+* Petr Baudis <pasky@ucw.cz> wrote:
 
-Apply to 2.6.11 (already contains latest 4 point stable release):
-http://ck.kolivas.org/patches/2.6/2.6.11/2.6.11-ck8/patch-2.6.11-ck8.bz2
-or
-http://ck.kolivas.org/patches/2.6/2.6.11/2.6.11-ck8/patch-2.6.11-ck8-server=
-=2Ebz2
+> > Mercurial is also much smarter than rsync at determining what
+> > outstanding changesets exist. Here's an empty pull as a demonstration:
+> > 
+> >  $ time hg merge hg://selenic.com/linux-hg/
+> >  retrieving changegroup
+> > 
+> >  real    0m0.363s
+> >  user    0m0.083s
+> >  sys     0m0.007s
+> > 
+> > That's a single http request and a one line response.
+> 
+> So, what about comparing it with something comparable, say git pull 
+> over HTTP? :-)
 
-web:
-http://kernel.kolivas.org
-all patches:
-http://ck.kolivas.org/patches/
-Split patches available.
+Matt, did you get around to do such a comparison?
 
-
-Changes since 2.6.11-ck7:
-+s11.1_s11.2.diff
-Small staircase cpu scheduler update for variable overflow on 32bit. May ca=
-use=20
-noticeable improvements.
-
-+patch-2.6.11.9
-Latest stable version
-
-+2611ck8-version.diff
-=2Dpatch-2.6.11.8
-=2D2611ck7-version.diff
-
-
-Cheers,
-Con
-
---nextPart5412822.YH7f5a6OS1
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBChsllZUg7+tp6mRURAikKAKCH2DzN4Nq3wkK7Osq+4/inIiNghACeJ5lF
-BeeAj4rnh2Kr8rY0TjuqbrE=
-=08Vj
------END PGP SIGNATURE-----
-
---nextPart5412822.YH7f5a6OS1--
+	Ingo

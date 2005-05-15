@@ -1,53 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbVEONMm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261510AbVEONQe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbVEONMm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 09:12:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbVEONMm
+	id S261510AbVEONQe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 09:16:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbVEONQe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 09:12:42 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:18068 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261595AbVEONMk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 09:12:40 -0400
-Subject: Re: [-mm patch] i386: enable REGPARM by default
-From: Arjan van de Ven <arjan@infradead.org>
+	Sun, 15 May 2005 09:16:34 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:19729 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261510AbVEONQb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 09:16:31 -0400
+Date: Sun, 15 May 2005 15:16:25 +0200
+From: Adrian Bunk <bunk@stusta.de>
 To: Andi Kleen <ak@muc.de>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050515130008.GA72644@muc.de>
-References: <20050515115712.GQ16549@stusta.de> <m1acmwadbp.fsf@muc.de>
-	 <20050515123729.GT16549@stusta.de>  <20050515130008.GA72644@muc.de>
-Content-Type: text/plain
-Date: Sun, 15 May 2005 15:12:32 +0200
-Message-Id: <1116162752.6270.23.camel@laptopd505.fenrus.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [-mm patch] i386: enable REGPARM by default
+Message-ID: <20050515131625.GU16549@stusta.de>
+References: <20050515115712.GQ16549@stusta.de> <m1acmwadbp.fsf@muc.de> <20050515123729.GT16549@stusta.de> <20050515130008.GA72644@muc.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050515130008.GA72644@muc.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
+On Sun, May 15, 2005 at 03:00:08PM +0200, Andi Kleen wrote:
+> On Sun, May 15, 2005 at 02:37:31PM +0200, Adrian Bunk wrote:
+> > On Sun, May 15, 2005 at 02:22:34PM +0200, Andi Kleen wrote:
+> > > Adrian Bunk <bunk@stusta.de> writes:
+> > > 
+> > > > This patch should _not_ go into Linus' tree.
+> > > >
+> > > > At some time in the future, we want to unconditionally enable REGPARM on 
+> > > > i386.
+> > > >
+> > > > Let's give it a bit broader testing coverage among -mm users.
+> > > 
+> > > iirc problem is that gcc 2.95 and possibly 3.0.x have some known
+> > > miscompilations with regparams. That is why it was only used
+> > > with fastcall for a long time. One 3.1.x+ it should be safe.
+> > > But you cannot express dependencies on the compiler version
+> > > in Kconfig right now.
+> > > 
+> > > Of course getting rid of gcc 2.95 and 3.0.x support would be a good idea,
+> > > that would allow many other nice things.
+> > 
+> > If you'd read either arch/i386/Makefile or the help text for 
+> > CONFIG_REGPARM, you'd have noticed that we do never use regparm with
+> > gcc < 3.0 .
 > 
 > Yes, this means you cannot have binary compatible kernels compiled
-> with different compilers. Which might be a bad thing. 
+> with different compilers. Which might be a bad thing.  For that
+> reason alone I would keep the config.
 
-you already have that anyway!
-There are several kernel data structures that have padding in them
-ifdef'd on older gcc versions just to work around bugs; gcc2 -> gcc3 as
-a result has a major different abi anyway so I don't think your argument
-holds.. (and in 2.6, the gcc version is part of the VERMAGIC so the
-exact compiler is enforced anyway)
+We never guarantee binary compatibility with different compilers.
 
+And gcc 2 <-> gcc 3 is an example where it's easy to see that there's no 
+binary compatibility in the kernel.
+
+> -Andi
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

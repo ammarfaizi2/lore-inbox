@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262820AbVEOMIG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262819AbVEOMMe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262820AbVEOMIG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 08:08:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262819AbVEOMIG
+	id S262819AbVEOMMe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 08:12:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262821AbVEOMMe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 08:08:06 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54034 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262820AbVEOMHt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 08:07:49 -0400
-Date: Sun, 15 May 2005 13:07:42 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andi Kleen <ak@muc.de>
-Cc: Dave Jones <davej@redhat.com>, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: tickle nmi watchdog whilst doing serial writes.
-Message-ID: <20050515130742.A29619@flint.arm.linux.org.uk>
-Mail-Followup-To: Andi Kleen <ak@muc.de>, Dave Jones <davej@redhat.com>,
-	akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <20050513184806.GA24166@redhat.com> <m1u0l4afdx.fsf@muc.de>
+	Sun, 15 May 2005 08:12:34 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:53520 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262819AbVEOMM1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 08:12:27 -0400
+Date: Sun, 15 May 2005 14:12:22 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC: 2.6 patch] make MII no longer user visible
+Message-ID: <20050515121222.GR16549@stusta.de>
+References: <20050513035257.GC3603@stusta.de> <4284DD16.8090405@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <m1u0l4afdx.fsf@muc.de>; from ak@muc.de on Sun, May 15, 2005 at 01:38:02PM +0200
+In-Reply-To: <4284DD16.8090405@pobox.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 15, 2005 at 01:38:02PM +0200, Andi Kleen wrote:
-> Dave Jones <davej@redhat.com> writes:
-> >  
-> >  #include <asm/io.h>
-> >  #include <asm/irq.h>
-> > @@ -2099,8 +2100,10 @@ static inline void wait_for_xmitr(struct
-> >  	if (up->port.flags & UPF_CONS_FLOW) {
-> >  		tmout = 1000000;
-> >  		while (--tmout &&
-> > -		       ((serial_in(up, UART_MSR) & UART_MSR_CTS) == 0))
-> > +		       ((serial_in(up, UART_MSR) & UART_MSR_CTS) == 0)) {
-> >  			udelay(1);
-> > +			touch_nmi_watchdog();
+On Fri, May 13, 2005 at 01:00:06PM -0400, Jeff Garzik wrote:
+> Adrian Bunk wrote:
+> >MII is a classical example of a helper option no user should ever see.
 > 
-> Note that touch_nmi_watchdog is not exported on i386 - Linus vetoed
-> that some time ago. The real fix of course is to use schedule_timeout(),
-> but that might break printk() with interrupts off :/
+> Incorrect.
+> 
+> It's the classic example of an option that distributors may want to 
+> build as a module, even if no shipped modules need it, to enable net 
+> driver development and use in their kernel.
 
-Not to mention printk() from atomic contexts and panic().  No,
-schedule_timeout() is _not_ a "real fix" but a kludge.
+Every distibutor will have more than one net driver select'ing MII 
+enabled.
+
+And if you are doing net driver development, you can always enable it in 
+your kernel.
+
+> 	Jeff
+
+cu
+Adrian
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

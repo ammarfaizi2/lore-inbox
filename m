@@ -1,66 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVEOVLE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbVEOVgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261243AbVEOVLE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 17:11:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbVEOVLE
+	id S261259AbVEOVgX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 17:36:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261261AbVEOVgX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 17:11:04 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:46509 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261243AbVEOVLB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 17:11:01 -0400
-Subject: Re: Hyper-Threading Vulnerability
-From: Lee Revell <rlrevell@joe-job.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Jones <davej@redhat.com>,
-       Matt Mackall <mpm@selenic.com>, Andy Isaacson <adi@hexapodia.org>,
-       Andi Kleen <ak@muc.de>, "Richard F. Rebel" <rrebel@whenu.com>,
-       Gabor MICSKO <gmicsko@szintezis.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, tytso@mit.edu
-In-Reply-To: <1116190107.6270.34.camel@laptopd505.fenrus.org>
-References: <1115963481.1723.3.camel@alderaan.trey.hu>
-	 <m164xnatpt.fsf@muc.de> <1116009483.4689.803.camel@rebel.corp.whenu.com>
-	 <20050513190549.GB47131@muc.de> <20050513212620.GA12522@hexapodia.org>
-	 <20050513215905.GY5914@waste.org>
-	 <1116024419.20646.41.camel@localhost.localdomain>
-	 <1116025212.6380.50.camel@mindpipe>  <20050513232708.GC13846@redhat.com>
-	 <1116027488.6380.55.camel@mindpipe>
-	 <1116084186.20545.47.camel@localhost.localdomain>
-	 <1116088229.8880.7.camel@mindpipe>
-	 <1116089068.6007.13.camel@laptopd505.fenrus.org>
-	 <1116093396.9141.11.camel@mindpipe>
-	 <1116093694.6007.15.camel@laptopd505.fenrus.org>
-	 <1116098504.9141.31.camel@mindpipe>
-	 <1116100126.6007.17.camel@laptopd505.fenrus.org>
-	 <1116114052.9141.38.camel@mindpipe>
-	 <1116142233.6270.9.camel@laptopd505.fenrus.org>
-	 <1116189693.17990.1.camel@localhost.localdomain>
-	 <1116190107.6270.34.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Date: Sun, 15 May 2005 17:10:59 -0400
-Message-Id: <1116191459.10653.16.camel@mindpipe>
+	Sun, 15 May 2005 17:36:23 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:39947 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261259AbVEOVgT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 17:36:19 -0400
+Date: Sun, 15 May 2005 23:38:32 +0200
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Disk write cache (Was: Hyper-Threading Vulnerability)
+Message-ID: <20050515213832.GB24179@irc.pl>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <1115963481.1723.3.camel@alderaan.trey.hu> <20050515145241.GA5627@irc.pl> <Pine.LNX.4.58.0505151657230.19181@artax.karlin.mff.cuni.cz> <200505151121.36243.gene.heskett@verizon.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200505151121.36243.gene.heskett@verizon.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-05-15 at 22:48 +0200, Arjan van de Ven wrote:
-> On Sun, 2005-05-15 at 21:41 +0100, Alan Cox wrote:
-> > On Sul, 2005-05-15 at 08:30, Arjan van de Ven wrote:
-> > > stop entirely.... (and that is also happening more and more and linux is
-> > > getting more agressive idle support (eg no timer tick and such patches)
-> > > which will trigger bios thresholds for this even more too.
-> > 
-> > Cyrix did TSC stop on halt a long long time ago, back when it was worth
-> > the power difference.
-> 
-> With linux going to ACPI C2 mode more... tsc is defined to halt in C2...
+On Sun, May 15, 2005 at 11:21:36AM -0400, Gene Heskett wrote:
+> >FreeBSD used these barriers (FLUSH CACHE command) long time ago.
+> >
+> >There are rumors that some disks ignore FLUSH CACHE command just to
+> > get higher benchmarks in Windows. But I haven't heart of any proof.
+> > Does anybody know, what companies fake this command?
+> >
+> >From a story I read elsewhere just a few days ago, this problem is 
+> virtually universal even in the umpty-bucks 15,000 rpm scsi server 
+> drives.  It appears that this is just another way to crank up the 
+> numbers and make each drive seem faster than its competition.
 
-JACK doesn't care about any of this now, the behavior when you
-suspend/resume with a running jackd is undefined.  Eventually we should
-handle it, but there's no point until the ALSA drivers get proper
-suspend/resume support.
+ Probably you talking about this: http://www.livejournal.com/~brad/2116715.html
+It has hit Slashdot yesterday.
 
-Lee
+-- 
+Tomasz Torcz                 "God, root, what's the difference?"
+zdzichu@irc.-nie.spam-.pl         "God is more forgiving."
 

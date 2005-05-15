@@ -1,55 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbVEODT0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261475AbVEOEAX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261463AbVEODT0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 May 2005 23:19:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbVEODT0
+	id S261475AbVEOEAX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 00:00:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261466AbVEOEAX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 May 2005 23:19:26 -0400
-Received: from twinlark.arctic.org ([207.7.145.18]:22976 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP id S261466AbVEODTW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 May 2005 23:19:22 -0400
-Date: Sat, 14 May 2005 20:19:21 -0700 (PDT)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Arjan van de Ven <arjan@infradead.org>
-cc: Lee Revell <rlrevell@joe-job.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Dave Jones <davej@redhat.com>, Matt Mackall <mpm@selenic.com>,
-       Andy Isaacson <adi@hexapodia.org>, Andi Kleen <ak@muc.de>,
-       "Richard F. Rebel" <rrebel@whenu.com>,
-       Gabor MICSKO <gmicsko@szintezis.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, tytso@mit.edu
-Subject: Re: Hyper-Threading Vulnerability
-In-Reply-To: <1116100126.6007.17.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.62.0505142013080.1621@twinlark.arctic.org>
-References: <1115963481.1723.3.camel@alderaan.trey.hu>  <m164xnatpt.fsf@muc.de>
- <1116009483.4689.803.camel@rebel.corp.whenu.com>  <20050513190549.GB47131@muc.de>
- <20050513212620.GA12522@hexapodia.org>  <20050513215905.GY5914@waste.org> 
- <1116024419.20646.41.camel@localhost.localdomain>  <1116025212.6380.50.camel@mindpipe>
-  <20050513232708.GC13846@redhat.com>  <1116027488.6380.55.camel@mindpipe> 
- <1116084186.20545.47.camel@localhost.localdomain>  <1116088229.8880.7.camel@mindpipe>
-  <1116089068.6007.13.camel@laptopd505.fenrus.org>  <1116093396.9141.11.camel@mindpipe>
-  <1116093694.6007.15.camel@laptopd505.fenrus.org>  <1116098504.9141.31.camel@mindpipe>
- <1116100126.6007.17.camel@laptopd505.fenrus.org>
+	Sun, 15 May 2005 00:00:23 -0400
+Received: from mail01.syd.optusnet.com.au ([211.29.132.182]:53430 "EHLO
+	mail01.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261475AbVEOEAN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 00:00:13 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: ck@vds.kolivas.org,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: 2.6.11-ck8
+Date: Sun, 15 May 2005 14:00:33 +1000
+User-Agent: KMail/1.8
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed;
+  boundary="nextPart5412822.YH7f5a6OS1";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200505151400.37805.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 14 May 2005, Arjan van de Ven wrote:
+--nextPart5412822.YH7f5a6OS1
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> it's a matter of time (my estimate is a year or two) before processors
-> get variable frequencies based on temperature targets etc...
-> and then rdtsc is really useless for this kind of thing..
+These are patches designed to improve system responsiveness and interactivi=
+ty.=20
+It is configurable to any workload but the default ck* patch is aimed at th=
+e=20
+desktop and ck*-server is available with more emphasis on serverspace.
 
-what do you mean "a year or two"?  processors have been doing this for 
-many years now.
+Apply to 2.6.11 (already contains latest 4 point stable release):
+http://ck.kolivas.org/patches/2.6/2.6.11/2.6.11-ck8/patch-2.6.11-ck8.bz2
+or
+http://ck.kolivas.org/patches/2.6/2.6.11/2.6.11-ck8/patch-2.6.11-ck8-server=
+=2Ebz2
 
-i'm biased, but i still think transmeta did this the right way... the tsc 
-operates at the top frequency of the processor always.
+web:
+http://kernel.kolivas.org
+all patches:
+http://ck.kolivas.org/patches/
+Split patches available.
 
-i do a hell of a lot of microbenchmarking on various processors and i 
-always use tsc -- but i'm just smart enough to take multiple samples and i 
-try to make each sample smaller than a time slice... which avoids most of 
-the pitfalls, and would even work on smp boxes with tsc differences.
 
--dean
+Changes since 2.6.11-ck7:
++s11.1_s11.2.diff
+Small staircase cpu scheduler update for variable overflow on 32bit. May ca=
+use=20
+noticeable improvements.
+
++patch-2.6.11.9
+Latest stable version
+
++2611ck8-version.diff
+=2Dpatch-2.6.11.8
+=2D2611ck7-version.diff
+
+
+Cheers,
+Con
+
+--nextPart5412822.YH7f5a6OS1
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBChsllZUg7+tp6mRURAikKAKCH2DzN4Nq3wkK7Osq+4/inIiNghACeJ5lF
+BeeAj4rnh2Kr8rY0TjuqbrE=
+=08Vj
+-----END PGP SIGNATURE-----
+
+--nextPart5412822.YH7f5a6OS1--

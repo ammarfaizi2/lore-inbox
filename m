@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261562AbVEOLce@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbVEOLiF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261562AbVEOLce (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 07:32:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbVEOLce
+	id S261610AbVEOLiF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 07:38:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbVEOLiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 07:32:34 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:15376 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261562AbVEOLc3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 07:32:29 -0400
-Date: Sun, 15 May 2005 13:32:24 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Andy Whitcroft <apw@shadowen.org>
-Cc: linux-kernel@vger.kernel.org, Dave Hansen <haveblue@us.ibm.com>,
-       Martin Bligh <mbligh@aracnet.com>
-Subject: [-mm patch] arch/i386/Kconfig: SELECT_MEMORY_MODEL -> ARCH_SELECT_MEMORY_MODEL
-Message-ID: <20050515113224.GP16549@stusta.de>
-References: <20050512033100.017958f6.akpm@osdl.org>
-Mime-Version: 1.0
+	Sun, 15 May 2005 07:38:05 -0400
+Received: from one.firstfloor.org ([213.235.205.2]:5505 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S261610AbVEOLiC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 07:38:02 -0400
+To: Dave Jones <davej@redhat.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: tickle nmi watchdog whilst doing serial writes.
+References: <20050513184806.GA24166@redhat.com>
+From: Andi Kleen <ak@muc.de>
+Date: Sun, 15 May 2005 13:38:02 +0200
+In-Reply-To: <20050513184806.GA24166@redhat.com> (Dave Jones's message of
+ "Fri, 13 May 2005 14:48:06 -0400")
+Message-ID: <m1u0l4afdx.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050512033100.017958f6.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 12, 2005 at 03:31:00AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.12-rc3-mm3:
->...
-> +sparsemem-memory-model-for-i386.patch
->...
->  More sparsemem stuff
->...
+Dave Jones <davej@redhat.com> writes:
+>  
+>  #include <asm/io.h>
+>  #include <asm/irq.h>
+> @@ -2099,8 +2100,10 @@ static inline void wait_for_xmitr(struct
+>  	if (up->port.flags & UPF_CONS_FLOW) {
+>  		tmout = 1000000;
+>  		while (--tmout &&
+> -		       ((serial_in(up, UART_MSR) & UART_MSR_CTS) == 0))
+> +		       ((serial_in(up, UART_MSR) & UART_MSR_CTS) == 0)) {
+>  			udelay(1);
+> +			touch_nmi_watchdog();
 
-As far as I understand it, the following additional patch makes it look 
-more as it was intended.
+Note that touch_nmi_watchdog is not exported on i386 - Linus vetoed
+that some time ago. The real fix of course is to use schedule_timeout(),
+but that might break printk() with interrupts off :/
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.12-rc4-mm1-full/arch/i386/Kconfig.old	2005-05-15 13:27:59.000000000 +0200
-+++ linux-2.6.12-rc4-mm1-full/arch/i386/Kconfig	2005-05-15 13:28:10.000000000 +0200
-@@ -794,7 +794,7 @@
- 	def_bool y
- 	depends on NUMA
- 
--config SELECT_MEMORY_MODEL
-+config ARCH_SELECT_MEMORY_MODEL
- 	def_bool y
- 	depends on ARCH_SPARSEMEM_ENABLE
- 
+-Andi

@@ -1,55 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbVEPQrv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261747AbVEPQvq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261745AbVEPQrv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 12:47:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261747AbVEPQru
+	id S261747AbVEPQvq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 12:51:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261742AbVEPQvp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 12:47:50 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:61607 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261745AbVEPQre (ORCPT
+	Mon, 16 May 2005 12:51:45 -0400
+Received: from mail.dif.dk ([193.138.115.101]:57799 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261747AbVEPQvi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 12:47:34 -0400
-Date: Mon, 16 May 2005 09:47:08 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       shai@scalex86.org, steiner@sgi.com
-Subject: Re: NUMA aware slab allocator V3
-In-Reply-To: <1116251568.1005.29.camel@localhost>
-Message-ID: <Pine.LNX.4.62.0505160943140.1330@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com> 
- <20050512000444.641f44a9.akpm@osdl.org>  <Pine.LNX.4.58.0505121252390.32276@schroedinger.engr.sgi.com>
-  <20050513000648.7d341710.akpm@osdl.org>  <Pine.LNX.4.58.0505130411300.4500@schroedinger.engr.sgi.com>
-  <20050513043311.7961e694.akpm@osdl.org>  <Pine.LNX.4.62.0505131823210.12315@schroedinger.engr.sgi.com>
- <1116251568.1005.29.camel@localhost>
+	Mon, 16 May 2005 12:51:38 -0400
+Date: Mon, 16 May 2005 18:55:41 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: "James E.J. Bottomley" <James.Bottomley@SteelEye.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Eric Youngdale <eric@andante.org>, linux-scsi@vger.kernel.org
+Subject: Re: test of 'good_bytes' in scsi_io_completion is always true (in
+ drivers/scsi/scsi_lib.c)
+In-Reply-To: <Pine.LNX.4.62.0504200030180.2074@dragon.hyggekrogen.localhost>
+Message-ID: <Pine.LNX.4.62.0505161852550.3101@dragon.hyggekrogen.localhost>
+References: <Pine.LNX.4.62.0504200030180.2074@dragon.hyggekrogen.localhost>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 May 2005, Dave Hansen wrote:
+(please keep me on the CC list when replying)
 
-> There are some broken assumptions in the kernel that
-> CONFIG_DISCONTIG==CONFIG_NUMA.  These usually manifest when code assumes
-> that one pg_data_t means one NUMA node.
+
+Hi James,
+
+I never got any response to the mail below, so I'll try again :)
+Should we just get rid of the code in the 'if' since it'll never trigger, 
+or was the intention actually to test  if (good_bytes > 0)  ?  If so, then 
+the patch should make good sense...
+
+Comments ?
+
+-- 
+Jesper Juhl
+
+
+On Wed, 20 Apr 2005, Jesper Juhl wrote:
+
 > 
-> However, NUMA node ids are actually distinct from "discontigmem nodes".
-> A "discontigmem node" is just one physically contiguous area of memory,
-> thus one pg_data_t.  Some (non-NUMA) Mac G5's have a gap in their
-> address space, so they get two discontigmem nodes.
-
-I thought the discontigous memory in one node was handled through zones? 
-I.e. ZONE_HIGHMEM in i386?
-
-> So, that #error is bogus.  It's perfectly valid to have multiple
-> discontigmem nodes, when the number of NUMA nodes is 1.  MAX_NUMNODES
-> refers to discontigmem nodes, not NUMA nodes.
-
-Ok. We looked through the code and saw that the check may be removed 
-without causing problems. However, there is still a feeling of uneasiness 
-about this.
-
-To what node does numa_node_id() refer? And it is legit to use 
-numa_node_id() to index cpu maps and stuff? How do the concepts of numa 
-node id relate to discontig node ids?
+> in drivers/scsi/scsi_lib.c::scsi_io_completion() 'good_bytes' is tested 
+> for being >= 0, but 'good_bytes' is an unsigned int, so that test is 
+> always true. My *guess* is that what was intended was to test if 
+> good_bytes is > 0, but I don't know this code well enough to be sure. 
+> The patch below makes the change to test if it's > 0, but if the code in 
+> the 'if' really wants to run if it's >= 0, then we might as well just 
+> remove the 'if'.
+> 
+> In any case, the current code looks fishy.
+> 
+> 
+> Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+> 
+> --- linux-2.6.12-rc2-mm3-orig/drivers/scsi/scsi_lib.c	2005-04-11 21:20:49.000000000 +0200
+> +++ linux-2.6.12-rc2-mm3/drivers/scsi/scsi_lib.c	2005-04-20 00:29:14.000000000 +0200
+> @@ -766,7 +766,7 @@ void scsi_io_completion(struct scsi_cmnd
+>  	 * Next deal with any sectors which we were able to correctly
+>  	 * handle.
+>  	 */
+> -	if (good_bytes >= 0) {
+> +	if (good_bytes > 0) {
+>  		SCSI_LOG_HLCOMPLETE(1, printk("%ld sectors total, %d bytes done.\n",
+>  					      req->nr_sectors, good_bytes));
+>  		SCSI_LOG_HLCOMPLETE(1, printk("use_sg is %d\n", cmd->use_sg));
+> 
+> 
+> 
+> 
+> Please keep me on CC:
+> 

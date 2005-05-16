@@ -1,57 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261761AbVEPRHF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261764AbVEPRLs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261761AbVEPRHF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 13:07:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261765AbVEPRHE
+	id S261764AbVEPRLs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 13:11:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261765AbVEPRLr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 13:07:04 -0400
-Received: from ns1.coraid.com ([65.14.39.133]:28496 "EHLO coraid.com")
-	by vger.kernel.org with ESMTP id S261761AbVEPRGs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 13:06:48 -0400
-To: Greg KH <greg@kroah.com>
-Cc: "McMullan, Jason" <jason.mcmullan@timesys.com>, akpm@zip.com.au,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       PPC_LINUX <linuxppc-embedded@ozlabs.org>
-Subject: Re: [PATCH 2.6.11.7] ATA Over Ethernet Root, Mark 2
-References: <1116011879.9050.92.camel@jmcmullan.timesys>
-	<20050514072826.GB20021@kroah.com>
-	<1116249602.9050.105.camel@jmcmullan.timesys>
-	<20050516162011.GA8716@kroah.com>
-From: Ed L Cashin <ecashin@coraid.com>
-Date: Mon, 16 May 2005 13:03:22 -0400
-In-Reply-To: <20050516162011.GA8716@kroah.com> (Greg KH's message of "Mon,
- 16 May 2005 09:20:11 -0700")
-Message-ID: <87wtpz5cit.fsf@coraid.com>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 16 May 2005 13:11:47 -0400
+Received: from ncc1701.cistron.net ([62.216.30.38]:35510 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S261764AbVEPRLh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 13:11:37 -0400
+From: dth@picard.cistron.nl (Danny ter Haar)
+Subject: Re: 2.6.12-rc4-mm2
+Date: Mon, 16 May 2005 17:11:37 +0000 (UTC)
+Organization: Cistron
+Message-ID: <d6ak89$vr8$1@news.cistron.nl>
+References: <20050516021302.13bd285a.akpm@osdl.org> <200505161517.40802.adobriyan@gmail.com> <d6a0oj$akh$1@news.cistron.nl> <200505161615.50884.adobriyan@gmail.com>
+X-Trace: ncc1701.cistron.net 1116263497 32616 62.216.30.70 (16 May 2005 17:11:37 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: dth@picard.cistron.nl (Danny ter Haar)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> writes:
+Alexey Dobriyan  <adobriyan@gmail.com> wrote:
+>> Alexey Dobriyan  <adobriyan@gmail.com> wrote:
+>> >Does this help?
+>> Nope, (unfortunatly)
+>Please, try this.
 
-> On Mon, May 16, 2005 at 09:14:02AM -0400, McMullan, Jason wrote:
-...
-[gregkh writes]
->> > Also, please CC the aoe maintainer, that's documented in
->> > Documentation/SubmittingPatches :)
->> 
->>   I did to support@coraid.com, in a separate message.
->
-> That's not the email address listed in MAINTAINERS, is it?
+[Patch #2 applied]
 
-I did get it, though.  I didn't realize that the reason for the patch
-is for use on systems that have so little RAM that they can't have an
-initrd.
+Still not succesful..
 
-It seems like the system will hang forever with no diagnostics if the
-root device isn't found.  Perhaps an error message would be helpul?
+Error is at
+http://newsgate.newsserver.nl/kernel/2.6.12-rc4-mm2-patch%232-error-out.txt
 
-I do wonder whether the problem this patch solves might be a special
-case that doesn't merit the extra complexity of a Kconfig knob.  It is
-certainly a useful patch for some users, but I don't know how many.
+btw:
+newsgate:/usr/src/linux-2.6.12-rc4-mm2# gcc -v
+Reading specs from /usr/lib/gcc-lib/x86_64-linux/3.3.6/specs
+Configured with: ../src/configure -v
+--enable-languages=c,c++,java,f77,pascal,objc,ada,treelang
+--prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info
+--with-gxx-include-dir=/usr/include/c++/3.3 --enable-shared
+--enable-__cxa_atexit --with-system-zlib --enable-nls
+--without-included-gettext --enable-clocale=gnu --enable-debug
+--enable-java-gc=boehm --enable-java-awt=xlib --enable-objc-gc
+--disable-multilib x86_64-linux
+Thread model: posix
+gcc version 3.3.6 (Debian 1:3.3.6-4)
 
+newsgate:/var/www/kernel# ls -lrt
+-rw-r--r--  1 root root  3638 May 16 13:36 2.6.12-rc4-mm2-error-out.txt
+-rw-r--r--  1 root root  5389 May 16 19:07 2.6.12-rc4-mm2-patch#2-error-out.txt
+
+Thanks for your efforts to help me!
+
+
+Danny
 -- 
-  Ed L Cashin <ecashin@coraid.com>
+The foundation of evil is made up of lies and marketing - UF2004
 

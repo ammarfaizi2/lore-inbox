@@ -1,76 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbVEPUnu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261865AbVEPUro@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261852AbVEPUnu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 16:43:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbVEPUnt
+	id S261865AbVEPUro (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 16:47:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbVEPUrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 16:43:49 -0400
-Received: from serv01.siteground.net ([70.85.91.68]:60076 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S261852AbVEPUnj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 16:43:39 -0400
-Date: Mon, 16 May 2005 12:45:29 -0700 (PDT)
-From: christoph <christoph@scalex86.org>
-X-X-Sender: christoph@ScMPusgw
-To: linux-kernel@vger.kernel.org
-cc: shai@scalex86.org, akpm@osdl.org
-Subject: [PATCH] i386: Selectable Frequency of the Timer Interrupt.
-Message-ID: <Pine.LNX.4.62.0505161243580.13692@ScMPusgw>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Mon, 16 May 2005 16:47:43 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:35743 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261865AbVEPUrg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 16:47:36 -0400
+Subject: Re: [PATCH] Factor in buddy allocator alignment requirements in
+	node memory alignment
+From: Dave Hansen <haveblue@us.ibm.com>
+To: christoph <christoph@scalex86.org>
+Cc: linux-mm <linux-mm@kvack.org>, shai@scalex86.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.62.0505161240240.13692@ScMPusgw>
+References: <Pine.LNX.4.62.0505161204540.4977@ScMPusgw>
+	 <1116274451.1005.106.camel@localhost>
+	 <Pine.LNX.4.62.0505161240240.13692@ScMPusgw>
+Content-Type: text/plain
+Date: Mon, 16 May 2005 13:47:19 -0700
+Message-Id: <1116276439.1005.110.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Make the timer frequency selectable. The timer interrupt may cause bus
-and memory contention in large NUMA systems since the interrupt occurs
-on each processor HZ times per second.
+On Mon, 2005-05-16 at 12:43 -0700, christoph wrote:
+> On Mon, 16 May 2005, Dave Hansen wrote:
+> > On Mon, 2005-05-16 at 12:05 -0700, christoph wrote:
+> > > Memory for nodes on i386 is currently aligned on 2 MB boundaries.
+> > > However, the buddy allocator needs pages to be aligned on
+> > > PAGE_SIZE << MAX_ORDER which is 8MB if MAX_ORDER = 11.
+> > 
+> > Why do you need this?  Are you planning on allowing NUMA KVA remap pages
+> > to be handed over to the buddy allocator?  That would be a major
+> > departure from what we do now, and I'd be very interested in seeing how
+> > that is implemented before a infrastructure for it goes in.
+> 
+> Because the buddy allocator is complaining about wrongly allocated zones!
 
-Signed-off-by: Christoph Lameter <christoph@scale86.org>
-Signed-off-by: Shai Fultheim <shai@scalex86.org>
+Just because it complains doesn't mean that anything is actually
+wrong :)
 
-Index: linux-2.6.11/arch/i386/Kconfig
-===================================================================
---- linux-2.6.11.orig/arch/i386/Kconfig	2005-05-16 12:07:31.000000000 -0700
-+++ linux-2.6.11/arch/i386/Kconfig	2005-05-16 12:39:48.000000000 -0700
-@@ -939,6 +939,20 @@ config SECCOMP
- 
- 	  If unsure, say Y. Only embedded should say N here.
- 
-+config HZ
-+	int "Frequency of the Timer Interrupt (1000 or 100)"
-+	range 100 1000
-+	default 1000
-+	help
-+	  Allows the configuration of the timer frequency. It is customary
-+	  to have the timer interrupt run at 1000 HZ but 100 HZ may be more
-+	  beneficial for servers and NUMA systems that do not need to have
-+	  a fast response for user interaction and that may experience bus
-+	  contention and cacheline bounces as a result of timer interrupts.
-+	  Note that the timer interrupt occurs on each processor in an SMP
-+	  environment leading to NR_CPUS * HZ number of timer interrupts
-+	  per second.
-+
- endmenu
- 
- 
-Index: linux-2.6.11/include/asm-i386/param.h
-===================================================================
---- linux-2.6.11.orig/include/asm-i386/param.h	2005-05-16 12:07:25.000000000 -0700
-+++ linux-2.6.11/include/asm-i386/param.h	2005-05-16 12:09:04.000000000 -0700
-@@ -2,7 +2,7 @@
- #define _ASMi386_PARAM_H
- 
- #ifdef __KERNEL__
--# define HZ		1000		/* Internal kernel timer frequency */
-+# define HZ		CONFIG_HZ	/* Internal kernel timer frequency */
- # define USER_HZ	100		/* .. some user interfaces are in "ticks" */
- # define CLOCKS_PER_SEC		(USER_HZ)	/* like times() */
- #endif
+Do you know which pieces of code actually break if the alignment doesn't
+meet what that warning says?
+
+-- Dave
+

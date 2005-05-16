@@ -1,71 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261863AbVEPUcD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261869AbVEPUgg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261863AbVEPUcD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 16:32:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbVEPUcD
+	id S261869AbVEPUgg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 16:36:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbVEPUgg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 16:32:03 -0400
-Received: from igw2.watson.ibm.com ([129.34.20.6]:59884 "EHLO
-	igw2.watson.ibm.com") by vger.kernel.org with ESMTP id S261852AbVEPUbn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 16:31:43 -0400
-Date: Mon, 16 May 2005 16:30:19 -0400 (Eastern Daylight Time)
-From: Reiner Sailer <sailer@us.ibm.com>
-To: Chris Wright <chrisw@osdl.org>
-cc: davem@davemloft.net, herbert@gondor.apana.org.au,
-       linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: crypto api initialized late
-Message-ID: <Pine.WNT.4.63.0505161627130.820@laptop>
-X-Warning: UNAuthenticated Sender
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 16 May 2005 16:36:36 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:13074 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261849AbVEPUgV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 16:36:21 -0400
+Message-Id: <200505162035.j4GKZVCc018357@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Kenichi Okuyama <okuyamak@dd.iij4u.or.jp>
+Cc: fs@ercist.iscas.ac.cn, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [RFD] What error should FS return when I/O failure occurs? 
+In-Reply-To: Your message of "Tue, 17 May 2005 05:11:13 +0900."
+             <20050517.051113.132843723.okuyamak@dd.iij4u.or.jp> 
+From: Valdis.Kletnieks@vt.edu
+References: <1116263665.2434.69.camel@CoolQ> <200505160635.j4G6ZUcX023810@turing-police.cc.vt.edu>
+            <20050517.051113.132843723.okuyamak@dd.iij4u.or.jp>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1116275730_5623P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 16 May 2005 16:35:31 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_1116275730_5623P
+Content-Type: text/plain; charset=us-ascii
 
-Chris Wright <chrisw@osdl.org> wrote on 05/16/2005 04:03:17 PM:
+On Tue, 17 May 2005 05:11:13 +0900, Kenichi Okuyama said:
 
-> * Reiner Sailer (sailer@us.ibm.com) wrote:
-> >
-> > I am writing a Linux Security Module that needs SHA1 support very  early in
-> > the kernel startup (before any fs are mounted,modules are loaded,  or
-> > files are mapped; including initrd). Therefore, I use the __initcall
-> > to initialize the security module. SHA1 can currently be used only
-> > through the crypto-api (static definitions and hidden context structure).
-> >
-> > This crypto-API, however, initializes AFTER the security module
-> > code in the __initicall block. Currently, I use the following patch into
-> > the main Linux Makefile to start up the crypto-API earlier:
-> >
-> > diff -uprN linux-2.6.12-rc3_orig/Makefile
-> > linux-2.6.12-rc3-ima-newpatch/Makefile
-> > --- linux-2.6.12-rc3_orig/Makefile   2005-04-20 20:03:12.000000000 -0400
-> > +++ linux-2.6.12-rc3-ima-newpatch/Makefile   2005-05-11
-> > 15:18:32.000000000 -0400
-> > @@ -560,7 +560,7 @@ export MODLIB
-> >
-> >
-> >  ifeq ($(KBUILD_EXTMOD),)
-> > -core-y      += kernel/ mm/ fs/ ipc/ security/ crypto/
-> > +core-y      += kernel/ mm/ fs/ ipc/ crypto/ security/
->
-> I'm surprised this helps at all.  Does this mean you are not using
-> security_initcall() in your module?
->
-> thanks,
-> -chris
+> According to QuFuPing's test, USB cable was UNPLUGGED. That means,
+> device is gone, and device driver instantly (well.. within second or
+> two) detected that fact.  How could ext3 mounted device that does
+> not exist, as Read Only?
 
-I use simply __initcall, which is the same level as the
-module_initcall used in the crypto functions (sha1.c). Looking into
-init.h, security_initcall should resolve to __initcall as well.
+I thought we were talking about write requests - which were getting short-circuited
+because the file system was R/O before we even tried to talk to the actual
+file system.  No sense in queueing a write I/O when it's known to be R/O.
 
-Changing the compile sequence orders, the crypto init and sha1
-registration happens just ahead of my security module because
-(so I assume) the order of the compilation determines the order
-of the init calls inside the same initcall block.
+If you're trying to *read* from the now-absent disk and encounter a page
+that's not already in the cache, yes, you'll probably be returning an EIO.
 
-Going later and using late_initcall, I seemed to sometimes loose
-the mapping of the "nash" executed from the initrd.
+> I don't see the reason why cache is still available.
+> # I mean why such a implementation is valid.
+> 
+> If storage is known to be lost by device driver, we should not use
+> that cache anymore.
 
-Reiner
+Why?  If the disk disappeared out from under us because it was an unplugged USB
+device, there's at least a possibility of it reappearing via hotplug - presumably
+if you verify the UUID that it's the *same* file system, hotplug could do a
+'mount -o remount' and recover the situation....
 
+(Of course, this may not be practical if we've already tried a write-out due to
+memory pressure or the like, and may not fit well into the innards of the VFS - but
+it's certainly not an outrageously daft thing to attempt - "User unplugged before
+we finished writing, but we still have all the needed pages, so we can re-drive
+the sync to disk as if nothing happened"....)
+
+
+--==_Exmh_1116275730_5623P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCiQQScC3lWbTT17ARAr9hAJ9NpepLCRx73ETGA+uqSjmxweKI8gCgmzJZ
+A17HwQwZ5Qn2pzjYOJQ7T3Y=
+=PY+V
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1116275730_5623P--

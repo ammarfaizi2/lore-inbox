@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261619AbVEPN2L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVEPNl2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261619AbVEPN2L (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 09:28:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261620AbVEPN2L
+	id S261551AbVEPNl2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 09:41:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbVEPNl2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 09:28:11 -0400
-Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:59154 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261619AbVEPN2C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 09:28:02 -0400
-To: jamie@shareable.org
-CC: linuxram@us.ibm.com, viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <20050516112648.GB21145@mail.shareable.org> (message from Jamie
-	Lokier on Mon, 16 May 2005 12:26:48 +0100)
-Subject: Re: [PATCH] namespace.c: fix bind mount from foreign namespace
-References: <20050513170602.GI1150@parcelfarce.linux.theplanet.co.uk> <E1DWdn9-0004O2-00@dorka.pomaz.szeredi.hu> <1116005355.6248.372.camel@localhost> <E1DWf54-0004Z8-00@dorka.pomaz.szeredi.hu> <1116012287.6248.410.camel@localhost> <E1DWfqJ-0004eP-00@dorka.pomaz.szeredi.hu> <1116013840.6248.429.camel@localhost> <E1DWprs-0005D1-00@dorka.pomaz.szeredi.hu> <1116256279.4154.41.camel@localhost> <E1DXbD5-0007UI-00@dorka.pomaz.szeredi.hu> <20050516112648.GB21145@mail.shareable.org>
-Message-Id: <E1DXfZa-0007lS-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Mon, 16 May 2005 15:23:54 +0200
+	Mon, 16 May 2005 09:41:28 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:34376
+	"EHLO g5.random") by vger.kernel.org with ESMTP id S261551AbVEPNlZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 09:41:25 -0400
+Date: Mon, 16 May 2005 15:41:14 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+Cc: Andy Isaacson <adi@hexapodia.org>, Andi Kleen <ak@muc.de>,
+       "Richard F. Rebel" <rrebel@whenu.com>,
+       Gabor MICSKO <gmicsko@szintezis.hu>, linux-kernel@vger.kernel.org,
+       mpm@selenic.com, tytso@mit.edu
+Subject: Re: Hyper-Threading Vulnerability
+Message-ID: <20050516134114.GH26073@g5.random>
+References: <1115963481.1723.3.camel@alderaan.trey.hu> <m164xnatpt.fsf@muc.de> <1116009483.4689.803.camel@rebel.corp.whenu.com> <20050513190549.GB47131@muc.de> <20050513212620.GA12522@hexapodia.org> <Pine.LNX.4.62.0505131701450.31431@twinlark.arctic.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0505131701450.31431@twinlark.arctic.org>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 1) you need not recursively bind the whole tree of the private
-> >    namespace.  In fact you can only do that by hand, since the kernel
-> >    won't do it (!recurse || check_mnt(old_nd.mnt) in do_loopback).
-> 
-> That would be easy to change if it was desired though, by taking both
-> namespace semaphores when two namespaces are involved.
+On Fri, May 13, 2005 at 05:39:25PM -0700, dean gaudet wrote:
+> same cache index -- and get an 8-fold reduction in exposure.  the trick 
+> here is the L2 is physically indexed, and userland code can perform only 
+> virtual allocations.  but it's not too hard to discover physical conflicts 
+> if you really want to (using rdtsc) -- it would be done early in the 
+> initialization of the program because it involves asking for enough memory 
+> until the kernel gives you enough colliding pages.  (a system call could 
+> help with this if we really wanted it.)
 
-Yes.
+A 8-way set associative 1M cache is guaranteed to go at l2 speed only
+up to 128K (no matter what the kernel does), but even if the secret
+payload is larger than 128K as long as the load is still distributed
+evenly at each pass for each page, there's not going to be any covert
+channel, simply the process will run slower than it could if it had a
+better page coloring.
 
-The other check_mnt() calls could be removed by taking
-nd.mnt->mnt_namespace->sem instead of current->namespace->sem in the
-relevant functions.
-
-It does make sense IMO, even if it won't be used very often, since
-only very little extra complexity is involved.
-
-> > 4) in fact, the process in the originating namespace can single out a
-> >    mount and just send a file descriptor refering to that mount
-> >    (e.g. by binding it to a temporary directory, opening the root,
-> >    detaching from the mountpoint, and then sending the file descriptor
-> >    to the receiving process).  This way the receiving process will see
-> >    no other mounts in the originating namespace, and can only bind
-> >    from that single mount.
-> 
-> Nice.  The process in the originating namespace can also bind a small,
-> carefully selected tree of mounts to a tree in that temporary
-> directory before passing it, so the recipient can chroot/chdir into
-> the set of mounts and get only those explicitly authorised by the
-> originating process.
-
-That won't work, since detach (umount -l) will break up the tree, and
-the file descriptor will hold a reference to only one vfsmount/dentry.
-
-Miklos
+So I don't see the need of kernel support, all it needs to do is to know
+the page size, and that's provided to userland already.

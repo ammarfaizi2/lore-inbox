@@ -1,62 +1,149 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261750AbVEPQ5G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261754AbVEPQ7C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261750AbVEPQ5G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 12:57:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbVEPQ5F
+	id S261754AbVEPQ7C (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 12:59:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261760AbVEPQ7C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 12:57:05 -0400
-Received: from zproxy.gmail.com ([64.233.162.203]:44187 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261750AbVEPQ4z (ORCPT
+	Mon, 16 May 2005 12:59:02 -0400
+Received: from mail.ccur.com ([208.248.32.212]:59348 "EHLO flmx.iccur.com")
+	by vger.kernel.org with ESMTP id S261754AbVEPQ6T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 12:56:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=IIDc4DCxmnp05F/4FTUv3w31QoaMguRKhZyW/rmfwonZAS67cH9FG1V0v9UNj5z6iDT5CfHsJWf44MSIarTCjrR9PDCi+X1BofGvegAPd2ui9QaCLwAiyKZJBuy8oawF8GGM+TQhxf92EWSn+mlenAkjpb6bkb+waoLvvSyzDmk=
-Message-ID: <4288D0D0.7070903@gmail.com>
-Date: Tue, 17 May 2005 01:56:48 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050402)
+	Mon, 16 May 2005 12:58:19 -0400
+Message-ID: <4288D128.3030401@ccur.com>
+Date: Mon, 16 May 2005 12:58:16 -0400
+From: John Blackwood <john.blackwood@ccur.com>
+Reply-To: john.blackwood@ccur.com
+Organization: Concurrent Computer Corporation
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.4) Gecko/20050318 Red Hat/1.4.4-1.3.5
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-CC: Jens Axboe <axboe@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH scsi-misc-2.6 04/04] scsi: remove unnecessary	scsi_wait_req_end_io()
-References: <20050514135610.81030F26@htj.dyndns.org>	 <20050514135610.50606F9C@htj.dyndns.org>	 <1116084383.5049.18.camel@mulgrave> <20050514154733.GA5557@htj.dyndns.org>	 <1116087547.5049.25.camel@mulgrave> <20050515011532.GA26421@htj.dyndns.org> <1116259652.5040.17.camel@mulgrave>
-In-Reply-To: <1116259652.5040.17.camel@mulgrave>
-Content-Type: text/plain; charset=EUC-KR
+To: linux-kernel@vger.kernel.org
+CC: ak@suse
+Subject: [PATCH] arch/x86_64/kernel/ptrace.c linux-2.6.11.8
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 May 2005 16:58:17.0533 (UTC) FILETIME=[74DE6ED0:01C55A38]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
-> On Sun, 2005-05-15 at 10:15 +0900, Tejun Heo wrote:
-> 
->> I've made two new versions of the same patch.  The first one just
->>BUG() such cases, and the second one makes scsi_prep_fn() tell
->>scsi_request_fn() to kill requests instead of doing itself w/
->>BLKPREP_KILL.  In both cases, I made req->flags error case a BUG().
->>If you don't like it, feel free to drop that part.
->>
->> Oh... one more thing.  I forgot to mention the scsi_kill_requests()
->>path.  As it's a temporary fix, I just left it as it is (terminate
->>commands w/ end_that_*).  I guess this patch should be pushed after
->>removal of that kludge.  But with or without this patch, that path
->>will leak resources.
-> 
-> 
-> I suppose it's not surprising that I don't like either.
-> 
-> You remove the code that handles the BLKPREP_KILL case and then contort
-> the request functions to try not to do it.  We have to handle this case,
-> it's not optional, so just leave the code that does it in.
+Hi Andi,
 
- IMHO, as special request BLKPREP_KILL path is a kernel bug, code that
-try to handle it normally is unnecessary, but it's your call.
+We have noticed a small hole in the x86_64 version of sys_ptrace() for
+the PTRACE_PEEKUSR and PTRACE_POKEUSR commands, where if you specify the
+offset/addr location just beyond the end of the user_regs_struct, the
+code incorrectly lets you peek or (more importantly) poke that location.
 
- Thanks.
+Also included is a small example test to show the problem.
 
--- 
-tejun
+Thank you for your time and consideration.
+
+
+diff -ru linux-2.6.11.8/arch/x86_64/kernel/ptrace.c 
+new/arch/x86_64/kernel/ptrace.c
+--- linux-2.6.11.8/arch/x86_64/kernel/ptrace.c	2005-05-16 
+11:56:52.121795891 -0400
++++ new/arch/x86_64/kernel/ptrace.c	2005-05-16 10:59:56.970748305 -0400
+@@ -247,7 +247,8 @@
+  			break;
+
+  		switch (addr) {
+-		case 0 ... sizeof(struct user_regs_struct):
++		case 0 ... (sizeof(struct user_regs_struct)
++			- sizeof(unsigned long)):
+  			tmp = getreg(child, addr);
+  			break;
+  		case offsetof(struct user, u_debugreg[0]):
+@@ -292,7 +293,8 @@
+  			break;
+
+  		switch (addr) {
+-		case 0 ... sizeof(struct user_regs_struct):
++		case 0 ... (sizeof(struct user_regs_struct)
++			- sizeof(unsigned long)):
+  			ret = putreg(child, addr, data);
+  			break;
+  		/* Disallows to set a breakpoint into the vsyscall */
+
+
+
+
+----------------------------------------------------------------------
+example test:   gcc -o test test.c
+----------------------------------------------------------------------
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/user.h>
+#include <linux/ptrace.h>
+#include <errno.h>
+
+static void
+do_pokeusr_test(pid_t child)
+{
+	int was_error = 0;
+	long pstatus;
+
+	printf("calling PTRACE_POKEUSR with offset 0x%lx (%ld) data 0\n",
+		sizeof(struct user_regs_struct),
+		sizeof(struct user_regs_struct));
+	pstatus = ptrace(PTRACE_POKEUSR,
+		child, (void *)(sizeof(struct user_regs_struct)), (void *)0);
+	if (pstatus)
+		printf("ptrace pokeusr returned %d\n", errno);
+}
+
+static void child_process(void)
+{
+	printf("child pid %d parent pid %d\n", getpid(), getppid());
+	while ( sleep(5)) ;
+	exit(0);
+}
+
+int
+main(int argc, char *argv[])
+{
+	int status, child_status;
+	long pstatus;
+	pid_t child;
+
+	child = fork();
+	if (child == -1) {
+		printf("ERROR: fork returned errno %d\n", errno);
+		exit(1);
+	}
+	if (!child)
+		child_process();
+	sleep(1);
+	printf("Attaching to child ...\n");
+	pstatus = ptrace(PTRACE_ATTACH, child, (void *)0, (void *)0);
+	if (pstatus == ~0l) {
+		printf("ERROR: attach failed.  errno %d\n", errno);
+		exit(1);
+	}
+	status = waitpid(-1, &child_status, WUNTRACED);
+	if (status == -1) {
+	    printf("ERROR: waitpid() returned errno %d\n", errno);
+	    printf("---- Test Failed. ----\n");
+	    exit(1);
+	}
+	printf("waitpid(): child pid %d child_status %d\n",
+		status, child_status);
+
+	do_pokeusr_test(child);
+
+	printf("Continuing child process.\n");
+	pstatus = ptrace(PTRACE_CONT, (pid_t)child, (void *)0, (void *)0);
+	if (pstatus) {
+		printf("ERROR: ptrace continue returned %d\n", errno);
+		exit(1);
+	}
+	status = waitpid(-1, &child_status, WUNTRACED);
+	if (status == -1) {
+	    printf("ERROR: waitpid() returned errno %d\n", errno);
+	    printf("---- Test Failed. ----\n");
+	    exit(1);
+	}
+	printf("waitpid(): child pid %d child_status %d\n",
+		status, child_status);
+	return 0;
+}
+

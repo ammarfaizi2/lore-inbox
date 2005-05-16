@@ -1,802 +1,323 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbVEPWXU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261961AbVEPWZB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261925AbVEPWXU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 18:23:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbVEPWXT
+	id S261961AbVEPWZB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 18:25:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbVEPWZA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 18:23:19 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:64520 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261925AbVEPWKc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 18:10:32 -0400
-Date: Tue, 17 May 2005 00:10:27 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/scsi/aic7xxx/: possible cleanups
-Message-ID: <20050516221027.GL5112@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Mon, 16 May 2005 18:25:00 -0400
+Received: from dvhart.com ([64.146.134.43]:64417 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S261964AbVEPWOz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 18:14:55 -0400
+Date: Mon, 16 May 2005 15:14:47 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc4-mm2 boot failure
+Message-ID: <751400000.1116281687@flay>
+In-Reply-To: <Pine.LNX.4.62.0505161439100.2927@schroedinger.engr.sgi.com>
+References: <735450000.1116277481@flay> <20050516142504.696b443b.akpm@osdl.org><743780000.1116279381@flay> <Pine.LNX.4.62.0505161439100.2927@schroedinger.engr.sgi.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="==========1175648336=========="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- make needlessly global code static
-- #if 0 the following unused global functions:
-  - aic79xx_core.c: ahd_print_scb
-  - aic79xx_core.c: ahd_suspend
-  - aic79xx_core.c: ahd_resume
-  - aic79xx_core.c: ahd_dump_all_cards_state
-  - aic79xx_core.c: ahd_dump_scbs
+--==========1175648336==========
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+--On Monday, May 16, 2005 14:40:57 -0700 Christoph Lameter <clameter@engr.sgi.com> wrote:
 
----
+> On Mon, 16 May 2005, Martin J. Bligh wrote:
+> 
+>> --On Monday, May 16, 2005 14:25:04 -0700 Andrew Morton <akpm@osdl.org> wrote:
+>> 
+>> > "Martin J. Bligh" <mbligh@mbligh.org> wrote:
+>> >> 
+>> >> PPC64 NUMA box. Maybe this is the same NUMA slab problem you were 
+>> >> hitting before ...
+>> > 
+>> > Probably.  Christoph, this patch has crossed the grief threshold - I'll
+>> > drop it.
+>> 
+>> OK, fair enough. Christoph, I am interested in seeing your patch work 
+>> ... is something that's needed. If you want, I can help you offline 
+>> with some testing on a variety of platforms.
+> 
+> Some description of the failure would be helpful. A boot log? .config?
+> 
+> Does the box have CONFIG_NUMA off and CONFIG_DISCONTIG on?
 
-This patch was already sent on:
-- 24 Apr 2005
+attatched boot log. Config file is here:
 
- drivers/scsi/aic7xxx/aic79xx.h         |   49 ------
- drivers/scsi/aic7xxx/aic79xx_core.c    |  180 +++++++++++++++++--------
- drivers/scsi/aic7xxx/aic79xx_inline.h  |   30 ----
- drivers/scsi/aic7xxx/aic79xx_osm.c     |    2 
- drivers/scsi/aic7xxx/aic79xx_osm.h     |    2 
- drivers/scsi/aic7xxx/aic79xx_osm_pci.c |    2 
- drivers/scsi/aic7xxx/aic79xx_pci.c     |    7 
- drivers/scsi/aic7xxx/aic7xxx.h         |    2 
- drivers/scsi/aic7xxx/aic7xxx_osm.c     |    2 
- drivers/scsi/aic7xxx/aic7xxx_osm.h     |    2 
- drivers/scsi/aic7xxx/aic7xxx_osm_pci.c |    2 
- drivers/scsi/aic7xxx/aic7xxx_pci.c     |    4 
- 12 files changed, 136 insertions(+), 148 deletions(-)
+http://ftp.kernel.org/pub/linux/kernel/people/mbligh/config/abat/p570
 
---- linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic79xx.h.old	2005-04-23 23:10:12.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic79xx.h	2005-04-23 23:59:29.000000000 +0200
-@@ -974,8 +974,6 @@
- 
- int		ahd_write_seeprom(struct ahd_softc *ahd, uint16_t *buf,
- 				  u_int start_addr, u_int count);
--int		ahd_wait_seeprom(struct ahd_softc *ahd);
--int		ahd_verify_vpd_cksum(struct vpd_config *vpd);
- int		ahd_verify_cksum(struct seeprom_config *sc);
- int		ahd_acquire_seeprom(struct ahd_softc *ahd);
- void		ahd_release_seeprom(struct ahd_softc *ahd);
-@@ -1311,8 +1309,6 @@
- 	char			*name;
- 	ahd_device_setup_t	*setup;
- };
--extern struct ahd_pci_identity ahd_pci_ident_table [];
--extern const u_int ahd_num_pci_devs;
- 
- /***************************** VL/EISA Declarations ***************************/
- struct aic7770_identity {
-@@ -1330,15 +1326,6 @@
- /*************************** Function Declarations ****************************/
- /******************************************************************************/
- void			ahd_reset_cmds_pending(struct ahd_softc *ahd);
--u_int			ahd_find_busy_tcl(struct ahd_softc *ahd, u_int tcl);
--void			ahd_busy_tcl(struct ahd_softc *ahd,
--				     u_int tcl, u_int busyid);
--static __inline void	ahd_unbusy_tcl(struct ahd_softc *ahd, u_int tcl);
--static __inline void
--ahd_unbusy_tcl(struct ahd_softc *ahd, u_int tcl)
--{
--	ahd_busy_tcl(ahd, tcl, SCB_LIST_NULL);
--}
- 
- /***************************** PCI Front End *********************************/
- struct	ahd_pci_identity *ahd_find_pci_device(ahd_dev_softc_t);
-@@ -1347,12 +1334,8 @@
- int	ahd_pci_test_register_access(struct ahd_softc *);
- 
- /************************** SCB and SCB queue management **********************/
--int		ahd_probe_scbs(struct ahd_softc *);
- void		ahd_qinfifo_requeue_tail(struct ahd_softc *ahd,
- 					 struct scb *scb);
--int		ahd_match_scb(struct ahd_softc *ahd, struct scb *scb,
--			      int target, char channel, int lun,
--			      u_int tag, role_t role);
- 
- /****************************** Initialization ********************************/
- struct ahd_softc	*ahd_alloc(void *platform_arg, char *name);
-@@ -1365,35 +1348,22 @@
- int			 ahd_parse_cfgdata(struct ahd_softc *ahd,
- 					   struct seeprom_config *sc);
- void			 ahd_intr_enable(struct ahd_softc *ahd, int enable);
--void			 ahd_update_coalescing_values(struct ahd_softc *ahd,
--						      u_int timer,
--						      u_int maxcmds,
--						      u_int mincmds);
--void			 ahd_enable_coalescing(struct ahd_softc *ahd,
--					       int enable);
- void			 ahd_pause_and_flushwork(struct ahd_softc *ahd);
- int			 ahd_suspend(struct ahd_softc *ahd); 
--int			 ahd_resume(struct ahd_softc *ahd);
- void			 ahd_softc_insert(struct ahd_softc *);
- struct ahd_softc	*ahd_find_softc(struct ahd_softc *ahd);
- void			 ahd_set_unit(struct ahd_softc *, int);
- void			 ahd_set_name(struct ahd_softc *, char *);
- struct scb		*ahd_get_scb(struct ahd_softc *ahd, u_int col_idx);
- void			 ahd_free_scb(struct ahd_softc *ahd, struct scb *scb);
--void			 ahd_alloc_scbs(struct ahd_softc *ahd);
- void			 ahd_free(struct ahd_softc *ahd);
- int			 ahd_reset(struct ahd_softc *ahd, int reinit);
--void			 ahd_shutdown(void *arg);
- int			 ahd_write_flexport(struct ahd_softc *ahd,
- 					    u_int addr, u_int value);
- int			 ahd_read_flexport(struct ahd_softc *ahd, u_int addr,
- 					   uint8_t *value);
--int			 ahd_wait_flexport(struct ahd_softc *ahd);
- 
- /*************************** Interrupt Services *******************************/
--void			ahd_pci_intr(struct ahd_softc *ahd);
--void			ahd_clear_intstat(struct ahd_softc *ahd);
--void			ahd_flush_qoutfifo(struct ahd_softc *ahd);
- void			ahd_run_qoutfifo(struct ahd_softc *ahd);
- #ifdef AHD_TARGET_MODE
- void			ahd_run_tqinfifo(struct ahd_softc *ahd, int paused);
-@@ -1402,7 +1372,6 @@
- void			ahd_handle_seqint(struct ahd_softc *ahd, u_int intstat);
- void			ahd_handle_scsiint(struct ahd_softc *ahd,
- 					   u_int intstat);
--void			ahd_clear_critical_section(struct ahd_softc *ahd);
- 
- /***************************** Error Recovery *********************************/
- typedef enum {
-@@ -1419,23 +1388,9 @@
- 					     char channel, int lun, u_int tag,
- 					     int stop_on_first, int remove,
- 					     int save_state);
--void			ahd_freeze_devq(struct ahd_softc *ahd, struct scb *scb);
- int			ahd_reset_channel(struct ahd_softc *ahd, char channel,
- 					  int initiate_reset);
--int			ahd_abort_scbs(struct ahd_softc *ahd, int target,
--				       char channel, int lun, u_int tag,
--				       role_t role, uint32_t status);
--void			ahd_restart(struct ahd_softc *ahd);
--void			ahd_clear_fifo(struct ahd_softc *ahd, u_int fifo);
--void			ahd_handle_scb_status(struct ahd_softc *ahd,
--					      struct scb *scb);
--void			ahd_handle_scsi_status(struct ahd_softc *ahd,
--					       struct scb *scb);
--void			ahd_calc_residual(struct ahd_softc *ahd,
--					  struct scb *scb);
- /*************************** Utility Functions ********************************/
--struct ahd_phase_table_entry*
--			ahd_lookup_phase_entry(int phase);
- void			ahd_compile_devinfo(struct ahd_devinfo *devinfo,
- 					    u_int our_id, u_int target,
- 					    u_int lun, char channel,
-@@ -1520,11 +1475,8 @@
- #define AHD_SHOW_INT_COALESCING	0x10000
- #define AHD_DEBUG_SEQUENCER	0x20000
- #endif
--void			ahd_print_scb(struct scb *scb);
- void			ahd_print_devinfo(struct ahd_softc *ahd,
- 					  struct ahd_devinfo *devinfo);
--void			ahd_dump_sglist(struct scb *scb);
--void			ahd_dump_all_cards_state(void);
- void			ahd_dump_card_state(struct ahd_softc *ahd);
- int			ahd_print_register(ahd_reg_parse_entry_t *table,
- 					   u_int num_entries,
-@@ -1533,5 +1485,4 @@
- 					   u_int value,
- 					   u_int *cur_column,
- 					   u_int wrap_point);
--void			ahd_dump_scbs(struct ahd_softc *ahd);
- #endif /* _AIC79XX_H_ */
---- linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic79xx_inline.h.old	2005-04-23 23:24:26.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic79xx_inline.h	2005-04-23 23:36:45.000000000 +0200
-@@ -418,10 +418,6 @@
- }
- 
- /*********************** Miscelaneous Support Functions ***********************/
--static __inline void	ahd_complete_scb(struct ahd_softc *ahd,
--					 struct scb *scb);
--static __inline void	ahd_update_residual(struct ahd_softc *ahd,
--					    struct scb *scb);
- static __inline struct ahd_initiator_tinfo *
- 			ahd_fetch_transinfo(struct ahd_softc *ahd,
- 					    char channel, u_int our_id,
-@@ -467,32 +463,6 @@
- 			ahd_get_sense_bufaddr(struct ahd_softc *ahd,
- 					      struct scb *scb);
- 
--static __inline void
--ahd_complete_scb(struct ahd_softc *ahd, struct scb *scb)
--{
--	uint32_t sgptr;
--
--	sgptr = ahd_le32toh(scb->hscb->sgptr);
--	if ((sgptr & SG_STATUS_VALID) != 0)
--		ahd_handle_scb_status(ahd, scb);
--	else
--		ahd_done(ahd, scb);
--}
--
--/*
-- * Determine whether the sequencer reported a residual
-- * for this SCB/transaction.
-- */
--static __inline void
--ahd_update_residual(struct ahd_softc *ahd, struct scb *scb)
--{
--	uint32_t sgptr;
--
--	sgptr = ahd_le32toh(scb->hscb->sgptr);
--	if ((sgptr & SG_STATUS_VALID) != 0)
--		ahd_calc_residual(ahd, scb);
--}
--
- /*
-  * Return pointers to the transfer negotiation information
-  * for the specified our_id/remote_id pair.
---- linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic79xx_core.c.old	2005-04-23 23:10:26.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic79xx_core.c	2005-04-23 23:46:10.000000000 +0200
-@@ -56,7 +56,7 @@
- struct ahd_softc_tailq ahd_tailq = TAILQ_HEAD_INITIALIZER(ahd_tailq);
- 
- /***************************** Lookup Tables **********************************/
--char *ahd_chip_names[] =
-+static char *ahd_chip_names[] =
- {
- 	"NONE",
- 	"aic7901",
-@@ -159,7 +159,7 @@
- 	AHDMSG_1B,
- 	AHDMSG_2B,
- 	AHDMSG_EXT
--} ahd_msgtype;
-+	} ahd_msgtype;
- static int		ahd_sent_msg(struct ahd_softc *ahd, ahd_msgtype type,
- 				     u_int msgval, int full);
- static int		ahd_parse_msg(struct ahd_softc *ahd,
-@@ -241,10 +241,37 @@
- 					      struct target_cmd *cmd);
- #endif
- 
-+static int		ahd_abort_scbs(struct ahd_softc *ahd, int target,
-+				       char channel, int lun, u_int tag,
-+				       role_t role, uint32_t status);
-+static void		ahd_alloc_scbs(struct ahd_softc *ahd);
-+static void		ahd_busy_tcl(struct ahd_softc *ahd, u_int tcl,
-+				     u_int scbid);
-+static void		ahd_calc_residual(struct ahd_softc *ahd,
-+					  struct scb *scb);
-+static void		ahd_clear_critical_section(struct ahd_softc *ahd);
-+static void		ahd_clear_intstat(struct ahd_softc *ahd);
-+static void		ahd_dump_sglist(struct scb *scb);
-+static void		ahd_enable_coalescing(struct ahd_softc *ahd,
-+					      int enable);
-+static u_int		ahd_find_busy_tcl(struct ahd_softc *ahd, u_int tcl);
-+static void		ahd_freeze_devq(struct ahd_softc *ahd,
-+					struct scb *scb);
-+static void		ahd_handle_scb_status(struct ahd_softc *ahd,
-+					      struct scb *scb);
-+static struct ahd_phase_table_entry* ahd_lookup_phase_entry(int phase);
-+static int		ahd_match_scb(struct ahd_softc *ahd, struct scb *scb,
-+				      int target, char channel, int lun,
-+				      u_int tag, role_t role);
-+static void		ahd_shutdown(void *arg);
-+static void		ahd_update_coalescing_values(struct ahd_softc *ahd,
-+						     u_int timer,
-+						     u_int maxcmds,
-+						     u_int mincmds);
-+static int		ahd_verify_vpd_cksum(struct vpd_config *vpd);
-+static int		ahd_wait_seeprom(struct ahd_softc *ahd);
-+
- /******************************** Private Inlines *****************************/
--static __inline void	ahd_assert_atn(struct ahd_softc *ahd);
--static __inline int	ahd_currently_packetized(struct ahd_softc *ahd);
--static __inline int	ahd_set_active_fifo(struct ahd_softc *ahd);
- 
- static __inline void
- ahd_assert_atn(struct ahd_softc *ahd)
-@@ -298,11 +325,44 @@
- 	}
- }
- 
-+static __inline void
-+ahd_unbusy_tcl(struct ahd_softc *ahd, u_int tcl)
-+{
-+	ahd_busy_tcl(ahd, tcl, SCB_LIST_NULL);
-+}
-+
-+/*
-+ * Determine whether the sequencer reported a residual
-+ * for this SCB/transaction.
-+ */
-+static __inline void
-+ahd_update_residual(struct ahd_softc *ahd, struct scb *scb)
-+{
-+	uint32_t sgptr;
-+
-+	sgptr = ahd_le32toh(scb->hscb->sgptr);
-+	if ((sgptr & SG_STATUS_VALID) != 0)
-+		ahd_calc_residual(ahd, scb);
-+}
-+
-+static __inline void
-+ahd_complete_scb(struct ahd_softc *ahd, struct scb *scb)
-+{
-+	uint32_t sgptr;
-+
-+	sgptr = ahd_le32toh(scb->hscb->sgptr);
-+	if ((sgptr & SG_STATUS_VALID) != 0)
-+		ahd_handle_scb_status(ahd, scb);
-+	else
-+		ahd_done(ahd, scb);
-+}
-+
-+
- /************************* Sequencer Execution Control ************************/
- /*
-  * Restart the sequencer program from address zero
-  */
--void
-+static void
- ahd_restart(struct ahd_softc *ahd)
- {
- 
-@@ -338,7 +398,7 @@
- 	ahd_unpause(ahd);
- }
- 
--void
-+static void
- ahd_clear_fifo(struct ahd_softc *ahd, u_int fifo)
- {
- 	ahd_mode_state	 saved_modes;
-@@ -362,7 +422,7 @@
-  * Flush and completed commands that are sitting in the command
-  * complete queues down on the chip but have yet to be dma'ed back up.
-  */
--void
-+static void
- ahd_flush_qoutfifo(struct ahd_softc *ahd)
- {
- 	struct		scb *scb;
-@@ -2441,7 +2501,7 @@
- }
- 
- #define AHD_MAX_STEPS 2000
--void
-+static void
- ahd_clear_critical_section(struct ahd_softc *ahd)
- {
- 	ahd_mode_state	saved_modes;
-@@ -2565,7 +2625,7 @@
- /*
-  * Clear any pending interrupt status.
-  */
--void
-+static void
- ahd_clear_intstat(struct ahd_softc *ahd)
- {
- 	AHD_ASSERT_MODES(ahd, ~(AHD_MODE_UNKNOWN_MSK|AHD_MODE_CFG_MSK),
-@@ -2596,6 +2656,8 @@
- #ifdef AHD_DEBUG
- uint32_t ahd_debug = AHD_DEBUG_OPTS;
- #endif
-+
-+#if 0	
- void
- ahd_print_scb(struct scb *scb)
- {
-@@ -2620,8 +2682,9 @@
- 	       SCB_GET_TAG(scb));
- 	ahd_dump_sglist(scb);
- }
-+#endif  /*  0  */
- 
--void
-+static void
- ahd_dump_sglist(struct scb *scb)
- {
- 	int i;
-@@ -3365,7 +3428,7 @@
- 	       devinfo->target, devinfo->lun);
- }
- 
--struct ahd_phase_table_entry*
-+static struct ahd_phase_table_entry*
- ahd_lookup_phase_entry(int phase)
- {
- 	struct ahd_phase_table_entry *entry;
-@@ -5336,7 +5399,7 @@
- 	return;
- }
- 
--void
-+static void
- ahd_shutdown(void *arg)
- {
- 	struct	ahd_softc *ahd;
-@@ -5465,7 +5528,7 @@
- /*
-  * Determine the number of SCBs available on the controller
-  */
--int
-+static int
- ahd_probe_scbs(struct ahd_softc *ahd) {
- 	int i;
- 
-@@ -5914,7 +5977,7 @@
- 	ahd_platform_scb_free(ahd, scb);
- }
- 
--void
-+static void
- ahd_alloc_scbs(struct ahd_softc *ahd)
- {
- 	struct scb_data *scb_data;
-@@ -6954,7 +7017,7 @@
- 	ahd_outb(ahd, HCNTRL, hcntrl);
- }
- 
--void
-+static void
- ahd_update_coalescing_values(struct ahd_softc *ahd, u_int timer, u_int maxcmds,
- 			     u_int mincmds)
- {
-@@ -6972,7 +7035,7 @@
- 	ahd_outb(ahd, INT_COALESCING_MINCMDS, -mincmds);
- }
- 
--void
-+static void
- ahd_enable_coalescing(struct ahd_softc *ahd, int enable)
- {
- 
-@@ -7061,6 +7124,7 @@
- 	ahd->flags &= ~AHD_ALL_INTERRUPTS;
- }
- 
-+#if 0
- int
- ahd_suspend(struct ahd_softc *ahd)
- {
-@@ -7074,7 +7138,9 @@
- 	ahd_shutdown(ahd);
- 	return (0);
- }
-+#endif  /*  0  */
- 
-+#if 0
- int
- ahd_resume(struct ahd_softc *ahd)
- {
-@@ -7084,6 +7150,7 @@
- 	ahd_restart(ahd);
- 	return (0);
- }
-+#endif  /*  0  */
- 
- /************************** Busy Target Table *********************************/
- /*
-@@ -7116,7 +7183,7 @@
- /*
-  * Return the untagged transaction id for a given target/channel lun.
-  */
--u_int
-+static u_int
- ahd_find_busy_tcl(struct ahd_softc *ahd, u_int tcl)
- {
- 	u_int scbid;
-@@ -7129,7 +7196,7 @@
- 	return (scbid);
- }
- 
--void
-+static void
- ahd_busy_tcl(struct ahd_softc *ahd, u_int tcl, u_int scbid)
- {
- 	u_int scb_offset;
-@@ -7141,7 +7208,7 @@
- }
- 
- /************************** SCB and SCB queue management **********************/
--int
-+static int
- ahd_match_scb(struct ahd_softc *ahd, struct scb *scb, int target,
- 	      char channel, int lun, u_int tag, role_t role)
- {
-@@ -7177,7 +7244,7 @@
- 	return match;
- }
- 
--void
-+static void
- ahd_freeze_devq(struct ahd_softc *ahd, struct scb *scb)
- {
- 	int	target;
-@@ -7618,7 +7685,7 @@
-  * been modified from CAM_REQ_INPROG.  This routine assumes that the sequencer
-  * is paused before it is called.
-  */
--int
-+static int
- ahd_abort_scbs(struct ahd_softc *ahd, int target, char channel,
- 	       int lun, u_int tag, role_t role, uint32_t status)
- {
-@@ -7985,18 +8052,8 @@
- }
- 
- /****************************** Status Processing *****************************/
--void
--ahd_handle_scb_status(struct ahd_softc *ahd, struct scb *scb)
--{
--	if (scb->hscb->shared_data.istatus.scsi_status != 0) {
--		ahd_handle_scsi_status(ahd, scb);
--	} else {
--		ahd_calc_residual(ahd, scb);
--		ahd_done(ahd, scb);
--	}
--}
- 
--void
-+static void
- ahd_handle_scsi_status(struct ahd_softc *ahd, struct scb *scb)
- {
- 	struct hardware_scb *hscb;
-@@ -8204,10 +8261,21 @@
- 	}
- }
- 
-+static void
-+ahd_handle_scb_status(struct ahd_softc *ahd, struct scb *scb)
-+{
-+	if (scb->hscb->shared_data.istatus.scsi_status != 0) {
-+		ahd_handle_scsi_status(ahd, scb);
-+	} else {
-+		ahd_calc_residual(ahd, scb);
-+		ahd_done(ahd, scb);
-+	}
-+}
-+
- /*
-  * Calculate the residual for a just completed SCB.
-  */
--void
-+static void
- ahd_calc_residual(struct ahd_softc *ahd, struct scb *scb)
- {
- 	struct hardware_scb *hscb;
-@@ -8745,6 +8813,7 @@
- 	return (last_probe);
- }
- 
-+#if 0
- void
- ahd_dump_all_cards_state(void)
- {
-@@ -8754,6 +8823,7 @@
- 		ahd_dump_card_state(list_ahd);
- 	}
- }
-+#endif  /*  0  */
- 
- int
- ahd_print_register(ahd_reg_parse_entry_t *table, u_int num_entries,
-@@ -9045,6 +9115,7 @@
- 		ahd_unpause(ahd);
- }
- 
-+#if 0
- void
- ahd_dump_scbs(struct ahd_softc *ahd)
- {
-@@ -9070,6 +9141,7 @@
- 	ahd_set_scbptr(ahd, saved_scb_index);
- 	ahd_restore_modes(ahd, saved_modes);
- }
-+#endif  /*  0  */
- 
- /**************************** Flexport Logic **********************************/
- /*
-@@ -9172,7 +9244,7 @@
- /*
-  * Wait ~100us for the serial eeprom to satisfy our request.
-  */
--int
-+static int
- ahd_wait_seeprom(struct ahd_softc *ahd)
- {
- 	int cnt;
-@@ -9190,7 +9262,7 @@
-  * Validate the two checksums in the per_channel
-  * vital product data struct.
-  */
--int
-+static int
- ahd_verify_vpd_cksum(struct vpd_config *vpd)
- {
- 	int i;
-@@ -9269,6 +9341,24 @@
- 	/* Currently a no-op */
- }
- 
-+/*
-+ * Wait at most 2 seconds for flexport arbitration to succeed.
-+ */
-+static int
-+ahd_wait_flexport(struct ahd_softc *ahd)
-+{
-+	int cnt;
-+
-+	AHD_ASSERT_MODES(ahd, AHD_MODE_SCSI_MSK, AHD_MODE_SCSI_MSK);
-+	cnt = 1000000 * 2 / 5;
-+	while ((ahd_inb(ahd, BRDCTL) & FLXARBACK) == 0 && --cnt)
-+		ahd_delay(5);
-+
-+	if (cnt == 0)
-+		return (ETIMEDOUT);
-+	return (0);
-+}
-+
- int
- ahd_write_flexport(struct ahd_softc *ahd, u_int addr, u_int value)
- {
-@@ -9310,24 +9400,6 @@
- 	return (0);
- }
- 
--/*
-- * Wait at most 2 seconds for flexport arbitration to succeed.
-- */
--int
--ahd_wait_flexport(struct ahd_softc *ahd)
--{
--	int cnt;
--
--	AHD_ASSERT_MODES(ahd, AHD_MODE_SCSI_MSK, AHD_MODE_SCSI_MSK);
--	cnt = 1000000 * 2 / 5;
--	while ((ahd_inb(ahd, BRDCTL) & FLXARBACK) == 0 && --cnt)
--		ahd_delay(5);
--
--	if (cnt == 0)
--		return (ETIMEDOUT);
--	return (0);
--}
--
- /************************* Target Mode ****************************************/
- #ifdef AHD_TARGET_MODE
- cam_status
---- linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic79xx_osm.h.old	2005-04-23 23:49:47.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic79xx_osm.h	2005-04-23 23:49:53.000000000 +0200
-@@ -837,8 +837,6 @@
- #define PCIXM_STATUS_MAXCRDS	0x1C00	/* Maximum Cumulative Read Size */
- #define PCIXM_STATUS_RCVDSCEM	0x2000	/* Received a Split Comp w/Error msg */
- 
--extern struct pci_driver aic79xx_pci_driver;
--
- typedef enum
- {
- 	AHD_POWER_STATE_D0,
---- linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic79xx_osm_pci.c.old	2005-04-23 23:50:00.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic79xx_osm_pci.c	2005-04-23 23:50:07.000000000 +0200
-@@ -82,7 +82,7 @@
- 
- MODULE_DEVICE_TABLE(pci, ahd_linux_pci_id_table);
- 
--struct pci_driver aic79xx_pci_driver = {
-+static struct pci_driver aic79xx_pci_driver = {
- 	.name		= "aic79xx",
- 	.probe		= ahd_linux_pci_dev_probe,
- 	.remove		= ahd_linux_pci_dev_remove,
---- linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic79xx_pci.c.old	2005-04-23 23:50:48.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic79xx_pci.c	2005-04-23 23:51:52.000000000 +0200
-@@ -99,7 +99,7 @@
- static ahd_device_setup_t ahd_aic7902_setup;
- static ahd_device_setup_t ahd_aic790X_setup;
- 
--struct ahd_pci_identity ahd_pci_ident_table [] =
-+static struct ahd_pci_identity ahd_pci_ident_table [] =
- {
- 	/* aic7901 based controllers */
- 	{
-@@ -196,7 +196,7 @@
- 	}
- };
- 
--const u_int ahd_num_pci_devs = NUM_ELEMENTS(ahd_pci_ident_table);
-+static const u_int ahd_num_pci_devs = NUM_ELEMENTS(ahd_pci_ident_table);
- 		
- #define	DEVCONFIG		0x40
- #define		PCIXINITPAT	0x0000E000ul
-@@ -240,6 +240,7 @@
- static void	ahd_configure_termination(struct ahd_softc *ahd,
- 					  u_int adapter_control);
- static void	ahd_pci_split_intr(struct ahd_softc *ahd, u_int intstat);
-+static void	ahd_pci_intr(struct ahd_softc *ahd);
- 
- struct ahd_pci_identity *
- ahd_find_pci_device(ahd_dev_softc_t pci)
-@@ -759,7 +760,7 @@
- 	"%s: Address or Write Phase Parity Error Detected in %s.\n"
- };
- 
--void
-+static void
- ahd_pci_intr(struct ahd_softc *ahd)
- {
- 	uint8_t		pci_status[8];
---- linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic79xx_osm.c.old	2005-04-24 00:04:27.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic79xx_osm.c	2005-04-24 00:04:34.000000000 +0200
-@@ -401,7 +401,7 @@
-  * force all outstanding transactions to be serviced prior to a new
-  * transaction.
-  */
--uint32_t aic79xx_periodic_otag;
-+static uint32_t aic79xx_periodic_otag;
- 
- /*
-  * Module information and settable options.
---- linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic7xxx_osm.c.old	2005-04-23 23:54:42.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic7xxx_osm.c	2005-04-23 23:54:52.000000000 +0200
-@@ -421,7 +421,7 @@
-  * force all outstanding transactions to be serviced prior to a new
-  * transaction.
-  */
--uint32_t aic7xxx_periodic_otag;
-+static uint32_t aic7xxx_periodic_otag;
- 
- /*
-  * Module information and settable options.
---- linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic7xxx_osm.h.old	2005-04-23 23:55:09.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic7xxx_osm.h	2005-04-23 23:55:14.000000000 +0200
-@@ -797,8 +797,6 @@
- #define PCIR_SUBVEND_0	0x2c
- #define PCIR_SUBDEV_0	0x2e
- 
--extern struct pci_driver aic7xxx_pci_driver;
--
- typedef enum
- {
- 	AHC_POWER_STATE_D0,
---- linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c.old	2005-04-23 23:55:21.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c	2005-04-23 23:55:27.000000000 +0200
-@@ -130,7 +130,7 @@
- 
- MODULE_DEVICE_TABLE(pci, ahc_linux_pci_id_table);
- 
--struct pci_driver aic7xxx_pci_driver = {
-+static struct pci_driver aic7xxx_pci_driver = {
- 	.name		= "aic7xxx",
- 	.probe		= ahc_linux_pci_dev_probe,
- 	.remove		= ahc_linux_pci_dev_remove,
---- linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic7xxx.h.old	2005-04-23 23:55:43.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic7xxx.h	2005-04-23 23:56:30.000000000 +0200
-@@ -1143,8 +1143,6 @@
- 	char			*name;
- 	ahc_device_setup_t	*setup;
- };
--extern struct ahc_pci_identity ahc_pci_ident_table[];
--extern const u_int ahc_num_pci_devs;
- 
- /***************************** VL/EISA Declarations ***************************/
- struct aic7770_identity {
---- linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic7xxx_pci.c.old	2005-04-23 23:56:00.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/scsi/aic7xxx/aic7xxx_pci.c	2005-04-23 23:56:35.000000000 +0200
-@@ -164,7 +164,7 @@
- static ahc_device_setup_t ahc_aha494XX_setup;
- static ahc_device_setup_t ahc_aha398XX_setup;
- 
--struct ahc_pci_identity ahc_pci_ident_table [] =
-+static struct ahc_pci_identity ahc_pci_ident_table [] =
- {
- 	/* aic7850 based controllers */
- 	{
-@@ -549,7 +549,7 @@
- 	}
- };
- 
--const u_int ahc_num_pci_devs = NUM_ELEMENTS(ahc_pci_ident_table);
-+static const u_int ahc_num_pci_devs = NUM_ELEMENTS(ahc_pci_ident_table);
- 		
- #define AHC_394X_SLOT_CHANNEL_A	4
- #define AHC_394X_SLOT_CHANNEL_B	5
+M.
+
+--==========1175648336==========
+Content-Type: application/octet-stream; name="boot_failure.log"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="boot_failure.log"; size=14565
+
+Q29ubmVjdGVkIHRvIHBTZXJpZXMtMTAxIGNvbnNvbGUgW2NoYW5uZWwgY29ubmVjdGVkXSAofiRx
+dWl0IHRvIGV4aXQpCi0tIDA6Y29ubXV4LWNvbnRyb2wgLS0gdGltZS1zdGFtcCAtLSBNYXkvMTYv
+MDUgIDk6NTE6MTQgLS0KLS0gMDpjb25tdXgtY29udHJvbCAtLSB0aW1lLXN0YW1wIC0tIE1heS8x
+Ni8wNSAgOTo1NDo0MCAtLQpJTklUOiBTd2l0Y2hpbmcgdG8gcnVubGV2ZWw6IDYNDQpJTklUOiBT
+ZW5kaW5nIHByb2Nlc3NlcyB0aGUgVEVSTSBzaWduYWwNDQ0KQm9vdCBsb2dnaW5nIHN0YXJ0ZWQg
+b24gL2Rldi9odmMwKC9kZXYvY29uc29sZSkgYXQgTW9uIE1heSAxNiAwODo0MzoyMCAyMDA1DQ0N
+Ck1hc3RlciBSZXNvdXJjZSBDb250cm9sOiBwcmV2aW91cyBydW5sZXZlbDogMywgc3dpdGNoaW5n
+IHRvIHJ1bmxldmVsOiAbWzgwQxtbMTBEG1sxbTYbW20PDQ0NChtbbQ8bWz8yNWhTaHV0dGluZyBk
+b3duIHhpbmV0ZDobNxtbPzI1bBtbODBDG1sxMEQbWzE7MzJtZG9uZRtbbQ8bOBtbPzI1aA0NDQpT
+aHV0dGluZyBkb3duIENST04gZGFlbW9uGzcbWz8yNWwbWzgwQxtbMTBEG1sxOzMybWRvbmUbW20P
+GzgbWz8yNWgNDQ0KG1ttDxtbPzI1aFNodXR0aW5nIGRvd24gbWFpbCBzZXJ2aWNlIChQb3N0Zml4
+KRs3G1s/MjVsG1s4MEMbWzEwRBtbMTszMm1kb25lG1ttDxs4G1s/MjVoDQ0NChtbbQ8bWz8yNWhT
+aHV0dGluZyBkb3duIE5hbWUgU2VydmljZSBDYWNoZSBEYWVtb24bNxtbPzI1bBtbODBDG1sxMEQb
+WzE7MzJtZG9uZRtbbQ8bOBtbPzI1aA0NDQpTaHV0dGluZyBkb3duIERIQ1Agc2VydmVyIBs3G1s/
+MjVsG1s4MEMbWzEwRBtbMTszMm1kb25lG1ttDxs4G1s/MjVoDQ0NChtbbQ8bWz8yNWhTaHV0dGlu
+ZyBkb3duIGN1cHNkGzcbWz8yNWwbWzgwQxtbMTBEG1sxOzMybWRvbmUbW20PGzgbWz8yNWgNDQ0K
+G1ttDxtbPzI1aFNodXR0aW5nIGRvd24gc2xwZCAbNxtbPzI1bBtbODBDG1sxMEQbWzE7MzJtZG9u
+ZRtbbQ8bOBtbPzI1aA0NDQobW20PG1s/MjVoU2h1dHRpbmcgZG93biBpcHIgZHVtcCBkYWVtb24g
+G1s4MEMbWzEwRBtbMTszMm1kb25lG1ttDw0NDQobW20PG1s/MjVoU2h1dHRpbmcgZG93biBpcHIg
+dXBkYXRlIGRhZW1vbiAbWzgwQxtbMTBEG1sxOzMybWRvbmUbW20PDQ0NClNodXR0aW5nIGRvd24g
+c291bmQgZHJpdmVyGzcbWz8yNWwbWzgwQxtbMTBEG1sxOzMybWRvbmUbW20PGzgbWz8yNWgNDQ0K
+U2h1dHRpbmcgZG93biBTU0ggZGFlbW9uGzcbWz8yNWwbWzgwQxtbMTBEG1sxOzMybWRvbmUbW20P
+GzgbWz8yNWgNDQ0KU2h1dHRpbmcgZG93biBpcHIgaW5pdGlhbGl6YXRpb24gZGFlbW9uIBtbODBD
+G1sxMEQbWzE7MzJtZG9uZRtbbQ8NDQ0KG1ttDxtbPzI1aFJlbW92ZSBOZXQgRmlsZSBTeXN0ZW0g
+KE5GUykbWzgwQxtbMTBEG1sxbXVudXNlZBtbbQ8NDQ0KG1ttDxtbPzI1aFVtb3VudCBTTUIvIENJ
+RlMgRmlsZSBTeXN0ZW1zIBs3G1s/MjVsG1s4MEMbWzEwRBtbMTszMm1kb25lG1ttDxs4G1s/MjVo
+DQ0NClNodXR0aW5nIGRvd24gcmVzb3VyY2UgbWFuYWdlchs3G1s/MjVsG1s4MEMbWzEwRBtbMTsz
+Mm1kb25lG1ttDxs4G1s/MjVoDQ0NClNodXR0aW5nIGRvd24gUlBDIHBvcnRtYXAgZGFlbW9uGzcb
+Wz8yNWwbWzgwQxtbMTBEG1sxOzMybWRvbmUbW20PGzgbWz8yNWgNDQ0KG1ttDxtbPzI1aFNodXR0
+aW5nIGRvd24gc3lzbG9nIHNlcnZpY2VzGzcbWz8yNWwbWzgwQxtbMTBEG1sxOzMybWRvbmUbW20P
+GzgbWz8yNWgNDQ0KG1ttDxtbPzI1aFNodXR0aW5nIGRvd24gbmV0d29yayBpbnRlcmZhY2VzOg0N
+CiAgICBldGgwICAgICAgZGV2aWNlOiBJbnRlbCBDb3JwLiA4MjU0NUVNIEdpZ2FiaXQgRXRoZXJu
+ZXQgQ29udHJvbGxlciAoQ29wcGVyKSAocmV2IDAxKQ0NCiAgICBldGgwICAgICAgY29uZmlndXJh
+dGlvbjogZXRoLWlkLTAwOjAyOjU1OjUzOjdjOjM5DQ0KGzcbWz8yNWwbWzFBG1s4MEMbWzEwRBtb
+MTszMm1kb25lG1ttDxs4G1s/MjVoU2h1dHRpbmcgZG93biBzZXJ2aWNlIG5ldHdvcmsgIC4gIC4g
+IC4gIC4gIC4gIC4gIC4gIC4gIC4gIC4gIC4gIC4gIC4gIC4gIC4bNxtbPzI1bA0bWzgwQxtbMTBE
+G1sxOzMybWRvbmUbW20PGzgbWz8yNWgNDQ0KG1ttDxtbPzI1aBs3G1s/MjVsG1s4MEMbWzEwRBtb
+MTszMm1kb25lG1ttDxs4G1s/MjVoDQ0NChtbbQ8bWz8yNWhkaXNhYmxpbmcgSG90cGx1ZyAbNxtb
+PzI1bBtbODBDG1sxMEQbWzE7MzJtZG9uZRtbbQ8bOBtbPzI1aA0NDQpTYXZpbmcgcmFuZG9tIHNl
+ZWQbNxtbPzI1bBtbODBDG1sxMEQbWzE7MzJtZG9uZRtbbQ8bOBtbPzI1aA0NDQpVbmxvYWRpbmcg
+SVNETiBkcml2ZXIgGzcbWz8yNWwbWzgwQxtbMTBEG1sxOzMybWRvbmUbW20PGzgbWz8yNWgNDQ0K
+G1ttDxtbPzI1aFJ1bm5pbmcgL2V0Yy9pbml0LmQvaGFsdC5sb2NhbA0NChs3G1s/MjVsG1sxQRtb
+ODBDG1sxMEQbWzE7MzJtZG9uZRtbbQ8bOBtbPzI1aFNlbmRpbmcgYWxsIHByb2Nlc3NlcyB0aGUg
+VEVSTSBzaWduYWwuLi4NDQ0KUmVjZWl2ZWQgc2lnbmFsIDE1IChTSUdURVJNKQ0NClNUQUZQcm9j
+IGVuZGluZyBub3JtYWxseQ0NChtbMUEbWzgwQxtbMTBEG1sxOzMybWRvbmUbW20PDQ0NClNlbmRp
+bmcgYWxsIHByb2Nlc3NlcyB0aGUgS0lMTCBzaWduYWwuLi4NChtbMUEbWzgwQxtbMTBEG1sxOzMy
+bWRvbmUbW20PDQ0KGzcbWz8yNWwbWzgwQxtbMTBEG1sxOzMxbW1pc3NpbmcbW20PGzgbWz8yNWgN
+DQpTZXQgSGFyZHdhcmUgQ2xvY2sgdG8gdGhlIGN1cnJlbnQgU3lzdGVtIFRpbWUbNxtbPzI1bBtb
+ODBDG1sxMEQbWzE7MzJtZG9uZRtbbQ8bOBtbPzI1aA0NClR1cm5pbmcgb2ZmIHN3YXANChs3G1s/
+MjVsG1sxQRtbODBDG1sxMEQbWzE7MzJtZG9uZRtbbQ8bOBtbPzI1aFJlc3RvcmUgZGV2aWNlIHBl
+cm1pc3Npb25zGzcbWz8yNWwNG1s4MEMbWzEwRBtbMTszMm1kb25lG1ttDxs4G1s/MjVoDQ0KVW5t
+b3VudGluZyBmaWxlIHN5c3RlbXMNCi9kZXYvY2Ryb20gdW1vdW50ZWQNCmRldnB0cyB1bW91bnRl
+ZA0KdG1wZnMgdW1vdW50ZWQNCi9kZXYvc2RhMyB1bW91bnRlZA0KGzcbWz8yNWwbWzFBG1s4MEMb
+WzEwRBtbMTszMm1kb25lG1ttDxs4G1s/MjVoGzcbWz8yNWwNG1s4MEMbWzEwRBtbMTszMm1kb25l
+G1ttDxs4G1s/MjVoDQ0KG1s4MEMbWzEwRBtbMTszM21za2lwcGVkG1ttDw0NCnByb2MgdW1vdW50
+ZWQNChtbMTA7NDQwXQdQbGVhc2Ugc3RhbmQgYnkgd2hpbGUgcmVib290aW5nIHRoZSBzeXN0ZW0u
+Li4NCgdtZDogc3RvcHBpbmcgYWxsIG1kIGRldmljZXMuDQptZDogbWQwIHN3aXRjaGVkIHRvIHJl
+YWQtb25seSBtb2RlLg0KUmVzdGFydGluZyBzeXN0ZW0uDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0K
+DQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA0KICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgDQogICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgIA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgIA0KICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICANCiAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA0KICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgDQogICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgIA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+DQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgIA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICANCiAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgDQoNCiAgICAgICAgICAxID0gU01TIE1lbnUgICAgICAgICAgICAg
+ICAgICAgICAgICAgIDUgPSBEZWZhdWx0IEJvb3QgTGlzdA0KICAgICAgICAgIDYgPSBTdG9yZWQg
+Qm9vdCBMaXN0ICAgICAgICAgICAgICAgICAgOCA9IE9wZW4gRmlybXdhcmUgUHJvbXB0DQoNCg0K
+ICAgICBtZW1vcnkgICAgICBrZXlib2FyZCAgICAgbmV0d29yayAgICAgc2NzaSAgICAgc3BlYWtl
+ciANCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgDQogICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA0KICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgDQogICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgIA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA0KICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAN
+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA0KICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgDQogICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgIA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICBTVEFSVElORyBTT0ZUV0FSRSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA0K
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFBMRUFTRSBXQUlULi4uICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICANCiAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA0KICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICANCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgDQogICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgIA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgDQog
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgIA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICANCiAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA0KIC0IXAh8CC8ILQhcCHwI
+LwgtCFwIfAgvCC0IXAh8CC8ILQhcCHwILwgtCFwIfAgvCC0IXAh8CC8ILQhcCHwILwgtCFwIfAgv
+CC0IXAh8CC8ILQhcCHwILwgtCFwIfAgvCC0IXAh8CC8ILQhcCHwILwgtCFwIfAgvCC0IXAh8CA0K
+RWxhcHNlZCB0aW1lIHNpbmNlIHJlbGVhc2Ugb2Ygc3lzdGVtIHByb2Nlc3NvcnM6IDQ3MjM3IG1p
+bnMgNTYgc2Vjcw0KDQpDb25maWcgZmlsZSByZWFkLCAxMTEyIGJ5dGVzDQoMV2VsY29tZSB0byB5
+YWJvb3QgdmVyc2lvbiAxLjMuMTEuU3VTRQ0KRW50ZXIgImhlbHAiIHRvIGdldCBzb21lIGJhc2lj
+IHVzYWdlIGluZm9ybWF0aW9uDQpib290OiBhdXRvYmVuY2ggDQpQbGVhc2Ugd2FpdCwgbG9hZGlu
+ZyBrZXJuZWwuLi4NCiAgIEVsZjMyIGtlcm5lbCBsb2FkZWQuLi4NCgp6SW1hZ2Ugc3RhcnRpbmc6
+IGxvYWRlZCBhdCAweDQwMDAwMA0KQWxsb2NhdGluZyAweDgwMzAwMCBieXRlcyBmb3Iga2VybmVs
+IC4uLg0KZ3VuemlwcGluZyAoMHgzYTAwMDAwIDwtIDB4NDA3MDAwOjB4Njg5ZDY0KS4uLmRvbmUg
+MHg2ZDM0MDggYnl0ZXMNCjB4ZGIzOCBieXRlcyBvZiBoZWFwIGNvbnN1bWVkLCBtYXggaW4gdXNl
+IDB4YTQ1OA0KaW5pdHJkIGhlYWQ6IDB4MzgxMzAwDQpPRiBzdGRvdXQgZGV2aWNlIGlzOiAvdmRl
+dmljZS92dHlAMA0NCkh5cGVydGFzIGRldGVjdGVkLCBhc3N1bWluZyBMUEFSICENCmNvbW1hbmQg
+bGluZTogcm9vdD0vZGV2L3NkYTMgc2VsaW51eD0wIGVsZXZhdG9yPWNmcSBhdXRvYmVuY2hfYXJn
+czogcHJvZmlsZT0yIHByb2ZpbGU9MiANCm1lbW9yeSBsYXlvdXQgYXQgaW5pdDoNCiAgbWVtb3J5
+X2xpbWl0IDogMDAwMDAwMDAwMDAwMDAwMCAoMTYgTUIgYWxpZ25lZCkNCiAgYWxsb2NfYm90dG9t
+IDogMDAwMDAwMDAwNDExNzAwMA0KICBhbGxvY190b3AgICAgOiAwMDAwMDAwNDAwMDAwMDAwDQog
+IGFsbG9jX3RvcF9oaSA6IDAwMDAwMDA3ODAwMDAwMDANCiAgcm1vX3RvcCAgICAgIDogMDAwMDAw
+MDQwMDAwMDAwMA0KICByYW1fdG9wICAgICAgOiAwMDAwMDAwNzgwMDAwMDAwDQpMb29raW5nIGZv
+ciBkaXNwbGF5cw0KaW5zdGFudGlhdGluZyBydGFzIGF0IDB4MDAwMDAwMDBmZmQzYTAwMC4uLiBk
+b25lDQowMDAwMDAwMDAwMDAwMDAwIDogYm9vdCBjcHUgICAgIDAwMDAwMDAwMDAwMDAwMDANCjAw
+MDAwMDAwMDAwMDAwMDEgOiBzdGFydGluZyBjcHUgaHcgaWR4IDAwMDAwMDAwMDAwMDAwMDEuLi4g
+ZG9uZQ0KMDAwMDAwMDAwMDAwMDAwMiA6IHN0YXJ0aW5nIGNwdSBodyBpZHggMDAwMDAwMDAwMDAw
+MDAwMi4uLiBkb25lDQowMDAwMDAwMDAwMDAwMDAzIDogc3RhcnRpbmcgY3B1IGh3IGlkeCAwMDAw
+MDAwMDAwMDAwMDAzLi4uIGRvbmUNCmNvcHlpbmcgT0YgZGV2aWNlIHRyZWUgLi4uDQpCdWlsZGlu
+ZyBkdCBzdHJpbmdzLi4uDQpCdWlsZGluZyBkdCBzdHJ1Y3R1cmUuLi4NCkRldmljZSB0cmVlIHN0
+cmluZ3MgMHgwMDAwMDAwMDA0MjE4MDAwIC0+IDB4MDAwMDAwMDAwNDIxOTM4YQ0KRGV2aWNlIHRy
+ZWUgc3RydWN0ICAweDAwMDAwMDAwMDQyMWEwMDAgLT4gMHgwMDAwMDAwMDA0MjI0MDAwDQpDYWxs
+aW5nIHF1aWVzY2UgLi4uDQpyZXR1cm5pbmcgZnJvbSBwcm9tX2luaXQNCmZpcm13YXJlX2ZlYXR1
+cmVzID0gMHhkN2YNClBhcnRpdGlvbiBjb25maWd1cmVkIGZvciAxNiBjcHVzLg0KU3RhcnRpbmcg
+TGludXggUFBDNjQgMi42LjEyLXJjNC1tbTItYXV0b2tlcm4xDQotLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQ0KcHBjNjRfcGZ0X3NpemUgICAgICAg
+ICAgICAgICAgPSAweDFkDQpwcGM2NF9kZWJ1Z19zd2l0Y2ggICAgICAgICAgICA9IDB4MA0KcHBj
+NjRfaW50ZXJydXB0X2NvbnRyb2xsZXIgICAgPSAweDINCnN5c3RlbWNmZyAgICAgICAgICAgICAg
+ICAgICAgID0gMHhjMDAwMDAwMDAwNTdjMDAwDQpzeXN0ZW1jZmctPnBsYXRmb3JtICAgICAgICAg
+ICA9IDB4MTAxDQpzeXN0ZW1jZmctPnByb2Nlc3NvckNvdW50ICAgICA9IDB4NA0Kc3lzdGVtY2Zn
+LT5waHlzaWNhbE1lbW9yeVNpemUgPSAweDc4MDAwMDAwMA0KcHBjNjRfY2FjaGVzLmRjYWNoZV9s
+aW5lX3NpemUgPSAweDgwDQpwcGM2NF9jYWNoZXMuaWNhY2hlX2xpbmVfc2l6ZSA9IDB4ODANCmh0
+YWJfYWRkcmVzcyAgICAgICAgICAgICAgICAgID0gMHgwMDAwMDAwMDAwMDAwMDAwDQpodGFiX2hh
+c2hfbWFzayAgICAgICAgICAgICAgICA9IDB4M2ZmZmZmDQotLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQ0KW2Jvb3RdMDEwMCBNTSBJbml0DQpbYm9v
+dF0wMTAwIE1NIEluaXQgRG9uZQ0KTGludXggdmVyc2lvbiAyLjYuMTItcmM0LW1tMi1hdXRva2Vy
+bjEgKHJvb3RAZWw5LTkyLTEwMSkgKGdjYyB2ZXJzaW9uIDMuMy4zLWhhbW1lcikgIzEgU01QIE1v
+biBNYXkgMTYgMDg6NDI6MDAgUERUIDIwMDUNCltib290XTAwMTIgU2V0dXAgQXJjaA0KVG9wIG9m
+IFJBTTogMHg3ODAwMDAwMDAsIFRvdGFsIFJBTTogMHg3ODAwMDAwMDANCk1lbW9yeSBob2xlIHNp
+emU6IDBNQg0KU3lzY2FsbCBtYXAgc2V0dXAsIDIzMiAzMiBiaXRzIGFuZCAyMDggNjQgYml0cyBz
+eXNjYWxscw0KTm8gcmFtZGlzaywgZGVmYXVsdCByb290IGlzIC9kZXYvc2RhMg0KRUVIOiBQQ0kg
+RW5oYW5jZWQgSS9PIEVycm9yIEhhbmRsaW5nIEVuYWJsZWQNClBQQzY0IG52cmFtIGNvbnRhaW5z
+IDIwNDgwIGJ5dGVzDQpVc2luZyBkZWZhdWx0IGlkbGUgbG9vcA0KW2Jvb3RdMDAxNSBTZXR1cCBE
+b25lDQpCdWlsdCAxIHpvbmVsaXN0cw0KS2VybmVsIGNvbW1hbmQgbGluZTogcm9vdD0vZGV2L3Nk
+YTMgc2VsaW51eD0wIGVsZXZhdG9yPWNmcSBhdXRvYmVuY2hfYXJnczogcHJvZmlsZT0yIHByb2Zp
+bGU9MiANCmtlcm5lbCBwcm9maWxpbmcgZW5hYmxlZCAoc2hpZnQ6IDIpDQprZXJuZWwgcHJvZmls
+aW5nIGVuYWJsZWQgKHNoaWZ0OiAyKQ0KW2Jvb3RdMDAyMCBYSUNTIEluaXQNCnhpY3M6IG5vIElT
+QSBpbnRlcnJ1cHQgY29udHJvbGxlcg0KW2Jvb3RdMDAyMSBYSUNTIERvbmUNClBJRCBoYXNoIHRh
+YmxlIGVudHJpZXM6IDQwOTYgKG9yZGVyOiAxMiwgMTMxMDcyIGJ5dGVzKQ0KdGltZV9pbml0OiBk
+ZWNyZW1lbnRlciBmcmVxdWVuY3kgPSAyMTIuOTk1ODQyIE1Ieg0KdGltZV9pbml0OiBwcm9jZXNz
+b3IgZnJlcXVlbmN5ICAgPSAxNzAzLjk2NjczNiBNSHoNCmZpcm13YXJlX2ZlYXR1cmVzID0gMHhk
+N2YNClBhcnRpdGlvbiBjb25maWd1cmVkIGZvciAxNiBjcHVzLg0KU3RhcnRpbmcgTGludXggUFBD
+NjQgMi42LjEyLXJjNC1tbTItYXV0b2tlcm4xDQotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQ0KcHBjNjRfcGZ0X3NpemUgICAgICAgICAgICAgICAg
+PSAweDFkDQpwcGM2NF9kZWJ1Z19zd2l0Y2ggICAgICAgICAgICA9IDB4MA0KcHBjNjRfaW50ZXJy
+dXB0X2NvbnRyb2xsZXIgICAgPSAweDINCnN5c3RlbWNmZyAgICAgICAgICAgICAgICAgICAgID0g
+MHhjMDAwMDAwMDAwNTdjMDAwDQpzeXN0ZW1jZmctPnBsYXRmb3JtICAgICAgICAgICA9IDB4MTAx
+DQpzeXN0ZW1jZmctPnByb2Nlc3NvckNvdW50ICAgICA9IDB4NA0Kc3lzdGVtY2ZnLT5waHlzaWNh
+bE1lbW9yeVNpemUgPSAweDc4MDAwMDAwMA0KcHBjNjRfY2FjaGVzLmRjYWNoZV9saW5lX3NpemUg
+PSAweDgwDQpwcGM2NF9jYWNoZXMuaWNhY2hlX2xpbmVfc2l6ZSA9IDB4ODANCmh0YWJfYWRkcmVz
+cyAgICAgICAgICAgICAgICAgID0gMHgwMDAwMDAwMDAwMDAwMDAwDQpodGFiX2hhc2hfbWFzayAg
+ICAgICAgICAgICAgICA9IDB4M2ZmZmZmDQotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLQ0KW2Jvb3RdMDEwMCBNTSBJbml0DQpbYm9vdF0wMTAwIE1N
+IEluaXQgRG9uZQ0KTGludXggdmVyc2lvbiAyLjYuMTItcmM0LW1tMi1hdXRva2VybjEgKHJvb3RA
+ZWw5LTkyLTEwMSkgKGdjYyB2ZXJzaW9uIDMuMy4zLWhhbW1lcikgIzEgU01QIE1vbiBNYXkgMTYg
+MDg6NDI6MDAgUERUIDIwMDUNCltib290XTAwMTIgU2V0dXAgQXJjaA0KVG9wIG9mIFJBTTogMHg3
+ODAwMDAwMDAsIFRvdGFsIFJBTTogMHg3ODAwMDAwMDANCk1lbW9yeSBob2xlIHNpemU6IDBNQg0K
+U3lzY2FsbCBtYXAgc2V0dXAsIDIzMiAzMiBiaXRzIGFuZCAyMDggNjQgYml0cyBzeXNjYWxscw0K
+Tm8gcmFtZGlzaywgZGVmYXVsdCByb290IGlzIC9kZXYvc2RhMg0KRUVIOiBQQ0kgRW5oYW5jZWQg
+SS9PIEVycm9yIEhhbmRsaW5nIEVuYWJsZWQNClBQQzY0IG52cmFtIGNvbnRhaW5zIDIwNDgwIGJ5
+dGVzDQpVc2luZyBkZWZhdWx0IGlkbGUgbG9vcA0KW2Jvb3RdMDAxNSBTZXR1cCBEb25lDQpCdWls
+dCAxIHpvbmVsaXN0cw0KS2VybmVsIGNvbW1hbmQgbGluZTogcm9vdD0vZGV2L3NkYTMgc2VsaW51
+eD0wIGVsZXZhdG9yPWNmcSBhdXRvYmVuY2hfYXJnczogcHJvZmlsZT0yIHByb2ZpbGU9MiANCmtl
+cm5lbCBwcm9maWxpbmcgZW5hYmxlZCAoc2hpZnQ6IDIpDQprZXJuZWwgcHJvZmlsaW5nIGVuYWJs
+ZWQgKHNoaWZ0OiAyKQ0KW2Jvb3RdMDAyMCBYSUNTIEluaXQNCnhpY3M6IG5vIElTQSBpbnRlcnJ1
+cHQgY29udHJvbGxlcg0KW2Jvb3RdMDAyMSBYSUNTIERvbmUNClBJRCBoYXNoIHRhYmxlIGVudHJp
+ZXM6IDQwOTYgKG9yZGVyOiAxMiwgMTMxMDcyIGJ5dGVzKQ0KdGltZV9pbml0OiBkZWNyZW1lbnRl
+ciBmcmVxdWVuY3kgPSAyMTIuOTk1ODQyIE1Ieg0KdGltZV9pbml0OiBwcm9jZXNzb3IgZnJlcXVl
+bmN5ICAgPSAxNzAzLjk2NjczNiBNSHoNCkNvbnNvbGU6IGNvbG91ciBkdW1teSBkZXZpY2UgODB4
+MjUNCkRlbnRyeSBjYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDQxOTQzMDQgKG9yZGVyOiAxMywg
+MzM1NTQ0MzIgYnl0ZXMpDQpJbm9kZS1jYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDIwOTcxNTIg
+KG9yZGVyOiAxMiwgMTY3NzcyMTYgYnl0ZXMpDQpmcmVlaW5nIGJvb3RtZW0gbm9kZSAwDQpNZW1v
+cnk6IDMwOTYxNDg0ay8zMTQ1NzI4MGsgYXZhaWxhYmxlICg0MzMyayBrZXJuZWwgY29kZSwgNDk1
+MTA0ayByZXNlcnZlZCwgMTMwNGsgZGF0YSwgMjcyayBic3MsIDcwOGsgaW5pdCkNCmtlcm5lbCBC
+VUcgaW4gaW50ZXJsZWF2ZV9ub2RlcyBhdCBtbS9tZW1wb2xpY3kuYzo3MDEhDQpPb3BzOiBFeGNl
+cHRpb24gaW4ga2VybmVsIG1vZGUsIHNpZzogNSBbIzFdDQpTTVAgTlJfQ1BVUz0zMiBOVU1BIFBT
+RVJJRVMgTFBBUiANCk1vZHVsZXMgbGlua2VkIGluOg0KTklQOiBDMDAwMDAwMDAwMDk5NjI0IFhF
+UjogMDAwMDAwMDAgTFI6IEMwMDAwMDAwMDAwOUEwMTQgQ1RSOiBDMDAwMDAwMDAwMjhDMEQ0DQpS
+RUdTOiBjMDAwMDAwMDAwNTdiYTEwIFRSQVA6IDA3MDAgICBOb3QgdGFpbnRlZCAgKDIuNi4xMi1y
+YzQtbW0yLWF1dG9rZXJuMSkNCk1TUjogODAwMDAwMDAwMDAyOTAzMiBFRTogMSBQUjogMCBGUDog
+MCBNRTogMSBJUi9EUjogMTEgQ1I6IDI0MDA0MDIyDQpEQVI6IDgwMDAwMDAwMDAwMDkwMzIgRFNJ
+U1I6IGMwMDAwMDAwMDA2YzgyYmYNClRBU0s6IGMwMDAwMDAwMDA1ZTIxMDBbMF0gJ3N3YXBwZXIn
+IFRIUkVBRDogYzAwMDAwMDAwMDU3ODAwMCBDUFU6IDANCkdQUjAwOiAwMDAwMDAwMDAwMDAwMDAx
+IEMwMDAwMDAwMDA1N0JDOTAgQzAwMDAwMDAwMDZDMDU2OCBDMDAwMDAwNzdGRkQyNTkwIA0KR1BS
+MDQ6IDAwMDAwMDAwMDAwMDAwMDAgRkZGRkZGRkZGRkZGRkZGRiBDMDAwMDAwMDAwNkM4M0QwIEMw
+MDAwMDAwMDA1RTNBMjQgDQpHUFIwODogQzAwMDAwMDAwMDVFM0ExOCAwMDAwMDAwMDAwMDAwMDAw
+IEMwMDAwMDAwMDA2QzgzQzggQzAwMDAwMDAwMDZDODJFOCANCkdQUjEyOiAwMDAwMDAwMDAwMDAw
+MDBBIEMwMDAwMDAwMDA1Q0QwMDAgMDAwMDAwMDAwMDAwMDAwMCAwMDAwMDAwMDAwMDAwMDAwIA0K
+R1BSMTY6IDAwMDAwMDAwMDAwMDAwMDAgMDAwMDAwMDAwMDAwMDAwMCAwMDAwMDAwMDAwMDAwMDAw
+IDAwMDAwMDAwMDAwMDAwMDAgDQpHUFIyMDogMDAwMDAwMDAwMDIzMDAwMCAwMDAwMDAwMDAzQTEw
+MDAwIDAwMDAwMDAwMDAwMDAwNjAgMDAwMDAwMDAwM0YxNDNDOCANCkdQUjI0OiBDMDAwMDAwMDAw
+NUNEMDAwIEMwMDAwMDAwMDA2QkUyMDggQzAwMDAwMDAwMDU3N0Q2OCAwMDAwMDAwMDAwMDA4MDAw
+IA0KR1BSMjg6IDAwMDAwMDAwMDAwMDAwMDAgMDAwMDAwMDAwMDAwODBEMCBDMDAwMDAwMDAwNUUy
+MTAwIDAwMDAwMDAwMDAwMDAwMDEgDQpOSVAgW2MwMDAwMDAwMDAwOTk2MjRdIC5pbnRlcmxlYXZl
+X25vZGVzKzB4MzgvMHhkMA0KTFIgW2MwMDAwMDAwMDAwOWEwMTRdIC5hbGxvY19wYWdlc19jdXJy
+ZW50KzB4MTAwLzB4MTM0DQpDYWxsIFRyYWNlOg0KW2MwMDAwMDAwMDA1N2JjOTBdIFswMDAwMDAw
+MDAwMDAwMDFkXSAweDFkICh1bnJlbGlhYmxlKQ0KW2MwMDAwMDAwMDA1N2JkMjBdIFtjMDAwMDAw
+MDAwMDlhMDE0XSAuYWxsb2NfcGFnZXNfY3VycmVudCsweDEwMC8weDEzNA0KW2MwMDAwMDAwMDA1
+N2JkYzBdIFtjMDAwMDAwMDAwMDdhYmQ0XSAuZ2V0X3plcm9lZF9wYWdlKzB4MjgvMHg5MA0KW2Mw
+MDAwMDAwMDA1N2JlNDBdIFtjMDAwMDAwMDAwNGUyZTY4XSAucGlkbWFwX2luaXQrMHgyNC8weGEw
+DQpbYzAwMDAwMDAwMDU3YmVkMF0gW2MwMDAwMDAwMDA0Yzc3MzRdIC5zdGFydF9rZXJuZWwrMHgy
+MWMvMHgzMGMNCltjMDAwMDAwMDAwNTdiZjkwXSBbYzAwMDAwMDAwMDAwYzAxMF0gLl9fc2V0dXBf
+Y3B1X3Bvd2VyMysweDAvMHg0DQpJbnN0cnVjdGlvbiBkdW1wOg0KZmJhMWZmZTggZmJjMWZmZjAg
+ZjgwMTAwMTAgZjgyMWZmNzEgNjAwMDAwMDAgZWJjZDAxNjAgYTkzZTA3ODggNzkzZjAwMjAgDQo3
+ZmU5ZmU3MCA3ZDIwZmE3OCA3YzAwNDg1MCA1NDAwMGZmZSA8MGIwMDAwMDA+IDNiYTMwMDEwIDM4
+YmYwMDAxIDM4ODAwMDAxIA0KIDwwPktlcm5lbCBwYW5pYyAtIG5vdCBzeW5jaW5nOiBBdHRlbXB0
+ZWQgdG8ga2lsbCB0aGUgaWRsZSB0YXNrIQ0KIC0tIDA6Y29ubXV4LWNvbnRyb2wgLS0gdGltZS1z
+dGFtcCAtLSBNYXkvMTYvMDUgMTA6MDA6MzAgLS0K
+
+--==========1175648336==========--
 

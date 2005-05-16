@@ -1,96 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261802AbVEPSOU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbVEPSSP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261802AbVEPSOU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 14:14:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbVEPSM2
+	id S261786AbVEPSSP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 14:18:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbVEPSLu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 14:12:28 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:1180 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261786AbVEPSLZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 14:11:25 -0400
-Date: Mon, 16 May 2005 11:09:05 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: john stultz <johnstul@us.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
-       Nishanth Aravamudan <nacc@us.ibm.com>, Darren Hart <darren@dvhart.com>,
-       "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
-       benh@kernel.crashing.org, linux-ia64@vger.kernel.org
-Subject: Re: IA64 implementation of timesource for new time of day subsystem
-In-Reply-To: <1116264858.26990.39.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.62.0505161100240.1653@schroedinger.engr.sgi.com>
-References: <1116029796.26454.2.camel@cog.beaverton.ibm.com> 
- <1116029872.26454.4.camel@cog.beaverton.ibm.com>  <1116029971.26454.7.camel@cog.beaverton.ibm.com>
-  <1116030058.26454.10.camel@cog.beaverton.ibm.com> 
- <1116030139.26454.13.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.62.0505141251490.18681@schroedinger.engr.sgi.com>
- <1116264858.26990.39.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 May 2005 14:11:50 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:22546 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261791AbVEPSL1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 14:11:27 -0400
+Message-Id: <200505161811.j4GIB3XF010414@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: Disk write cache (Was: Hyper-Threading Vulnerability) 
+In-Reply-To: Your message of "Mon, 16 May 2005 10:33:30 EDT."
+             <4288AF3A.2000008@pobox.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <1115963481.1723.3.camel@alderaan.trey.hu> <20050515145241.GA5627@irc.pl> <Pine.LNX.4.58.0505151657230.19181@artax.karlin.mff.cuni.cz> <200505151121.36243.gene.heskett@verizon.net> <Pine.LNX.4.58.0505151809240.26531@artax.karlin.mff.cuni.cz> <20050516111859.GB13387@merlin.emma.line.org>
+            <4288AF3A.2000008@pobox.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1116267062_5623P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 16 May 2005 14:11:03 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 May 2005, john stultz wrote:
+--==_Exmh_1116267062_5623P
+Content-Type: text/plain; charset=us-ascii
 
-> Actually that shouldn't be necessary. Look at my arch-x86-64 patch or
-> vsyscall-i386 patch for how the arch_vsyscall_gtod_update() function is
-> used. It provides an arch specific hook called by the timeofday core to
-> provide the information you desire. 
-> 
-> Please let me know if it is not sufficient for some reason. 
+On Mon, 16 May 2005 10:33:30 EDT, Jeff Garzik said:
 
-Obviously this wont work since you cannot execute C code nor functions in 
-an ia64 fastcall. I need the variables exported.
+> Upon power loss, at least one ATA vendor's disks try to write out as 
+> much data as possible.
 
-> > I would recommend to add jitter compensation to the time sources. Otherwise
-> > each ITC/TSC like timesource will have to implement that on its own.
-> 
-> Just to clarify for others, this is the same unsynced cpu cycle counter
-> problem that affects the TSC on i386 and x86-64. ia64 gets around the
-> problem by checking on every call to gettimeofday() if the ITC value is
-> less then the ITC value used on the previous call to gettimeofday(). If
-> the value is less (ie: would result in time going backwards) it just
-> uses the last value to calculate time. It then uses cmpxchg to
-> atomically update the last ITC value. 
+Does the firmware for this vendor's disks have enough smarts to reserve that
+last little bit of power to park the heads so it's not actively writing when
+it finally loses entirely?
 
-Nope. You are way off here. Unsynched cpu cycle counters lead to the ITC 
-timesource not being registered.
+--==_Exmh_1116267062_5623P
+Content-Type: application/pgp-signature
 
-> The problem I have with this is it that if the ITCs are not synced, they
-> really are not good timesources. If one cpu's ITC is behind another, the
-> net result of the above algorithm is cpu 2 will always just use cpu 1's
-> last calculated time. This could cause jumps in time when a process
-> moves from cpu2 to cpu1.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Note again that the use of cmpxchg is NOT covering the case of ITCs not 
-being synced. If the ITCs are not synced then no timesource will be 
-established for ITC!
+iD8DBQFCiOI2cC3lWbTT17ARAl/nAKCvrVwYufm1LUz2+7+R/lzlbYvNogCghqKP
+YVm7Hg6xNAOESoJBSagzMhg=
+=hoVa
+-----END PGP SIGNATURE-----
 
-This is the case of ITC's running synchronous but at a tiny offset. The 
-startup on IA64 syncs the ITCs but cannot guarantee a complete sync. There 
-may be a small offset of a few clock ticks. The cmpxchg is 
-needed to compensate for that small offset. I imagine that other 
-architectures have similar issues.
-
-> Since it only affects the TSC and ITC, I think keeping the decision to
-> use cmpxchg in the timesource code, as you've implemented with the ITC
-> is the best way to go. If you really want to you can special case the
-> arch specific fsyscall code by switching on the time source .name, and
-> that would allow you to use a similar cmpxchg algorithm there as well. 
-
-Again this will not work on IA64 since it does the fast system calls in a 
-different way.
-
-Clock jitter can affect multiple clock sources that may fluctuate
-in a minor way due to a variety of influences. Jitter compensation may 
-help in these situations.
-
+--==_Exmh_1116267062_5623P--

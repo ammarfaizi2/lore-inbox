@@ -1,148 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261766AbVEPRUR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261749AbVEPRWm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261766AbVEPRUR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 13:20:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261767AbVEPRUR
+	id S261749AbVEPRWm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 13:22:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261767AbVEPRWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 13:20:17 -0400
-Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:20493 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S261766AbVEPRTo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 13:19:44 -0400
-Date: Mon, 16 May 2005 19:19:42 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Alexey Fisher <fishor@gmx.net>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: clean up and warnings patch for 2.6.12-rc4-mm1 i2c-chip
-Message-Id: <20050516191942.0cd51155.khali@linux-fr.org>
-In-Reply-To: <200505160014.36016.fishor@gmx.net>
-References: <200505160014.36016.fishor@gmx.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 16 May 2005 13:22:42 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:57835 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261749AbVEPRWb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 13:22:31 -0400
+Subject: Re: NUMA aware slab allocator V3
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       shai@scalex86.org, steiner@sgi.com
+In-Reply-To: <Pine.LNX.4.62.0505160943140.1330@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com>
+	 <20050512000444.641f44a9.akpm@osdl.org>
+	 <Pine.LNX.4.58.0505121252390.32276@schroedinger.engr.sgi.com>
+	 <20050513000648.7d341710.akpm@osdl.org>
+	 <Pine.LNX.4.58.0505130411300.4500@schroedinger.engr.sgi.com>
+	 <20050513043311.7961e694.akpm@osdl.org>
+	 <Pine.LNX.4.62.0505131823210.12315@schroedinger.engr.sgi.com>
+	 <1116251568.1005.29.camel@localhost>
+	 <Pine.LNX.4.62.0505160943140.1330@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Date: Mon, 16 May 2005 10:22:15 -0700
+Message-Id: <1116264135.1005.73.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alexey,
+On Mon, 2005-05-16 at 09:47 -0700, Christoph Lameter wrote:
+> On Mon, 16 May 2005, Dave Hansen wrote:
+> > There are some broken assumptions in the kernel that
+> > CONFIG_DISCONTIG==CONFIG_NUMA.  These usually manifest when code assumes
+> > that one pg_data_t means one NUMA node.
+> > 
+> > However, NUMA node ids are actually distinct from "discontigmem nodes".
+> > A "discontigmem node" is just one physically contiguous area of memory,
+> > thus one pg_data_t.  Some (non-NUMA) Mac G5's have a gap in their
+> > address space, so they get two discontigmem nodes.
+> 
+> I thought the discontigous memory in one node was handled through zones? 
+> I.e. ZONE_HIGHMEM in i386?
 
-> Hi here is some clean ups for Kconfig in i2c/chips subdirectory and
-> error handling fix up for chip max1619. Best  regards.
+You can only have one zone of each type under each pg_data_t.  For
+instance, you can't properly represent (DMA, NORMAL, HIGHMEM, <GAP>,
+HIGHMEM) in a single pg_data_t without wasting node_mem_map[] space.
+The "proper" discontig way of representing that is like this:
 
-Thanks for the patch, see my comments inline.
+        pg_data_t[0] (DMA, NORMAL, HIGHMEM)
+        <GAP>
+        pg_data_t[1] (---, ------, HIGHMEM)
 
-> diff -uprN linux/drivers/i2c/chips/Kconfig linux-2.6-dev/drivers/i2c/chips/Kconfig
-> --- linux/drivers/i2c/chips/Kconfig	2005-05-15 22:49:31.000000000 +0200
-> +++ linux-2.6-dev/drivers/i2c/chips/Kconfig	2005-05-15 22:58:28.000000000 +0200
-> @@ -29,6 +29,7 @@ config SENSORS_ADM1025
->  	help
->  	  If you say yes here you get support for Analog Devices ADM1025
->  	  and Philips NE1619 sensor chips.
-> +	  
->  	  This driver can also be built as a module.  If so, the module
->  	  will be called adm1025.
->  
-> @@ -38,6 +39,7 @@ config SENSORS_ADM1026
->  	select I2C_SENSOR
->  	help
->  	  If you say yes here you get support for Analog Devices ADM1026
-> +	  
->  	  This driver can also be built as a module.  If so, the module
->  	  will be called adm1026.
->  
-> @@ -48,6 +50,7 @@ config SENSORS_ADM1031
->  	help
->  	  If you say yes here you get support for Analog Devices ADM1031
->  	   and ADM1030 sensor chips.
-> +	  
->  	  This driver can also be built as a module.  If so, the module
->  	  will be called adm1031.
->  
-> @@ -198,8 +201,7 @@ config SENSORS_LM78
->  	select I2C_SENSOR
->  	help
->  	  If you say yes here you get support for National Semiconductor
->  	  LM78,
-> -	  LM78-J and LM79.  This can also be built as a module which can be
-> -	  inserted and removed while the kernel is running.
-> +	  LM78-J and LM79.
->  
->  	  This driver can also be built as a module.  If so, the module
->  	  will be called lm78.
-> @@ -232,7 +234,7 @@ config SENSORS_LM85
->  	select I2C_SENSOR
->  	help
->  	  If you say yes here you get support for National Semiconductor
->  	  LM85
-> -	  sensor chips and clones: ADT7463 and ADM1027.
-> +	  sensor chips and clones: ADT7463, EMC6D100, EMC6D102 and ADM1027.
->  
->  	  This driver can also be built as a module.  If so, the module
->  	  will be called lm85.
+Where pg_data_t[1] has empty DMA and NORMAL zones.  Also, remember that
+both of these could theoretically be on the same NUMA node.  But, I
+don't think we ever do that in practice.
 
-Yes, these fixes to Kconfig are all correct.
+> > So, that #error is bogus.  It's perfectly valid to have multiple
+> > discontigmem nodes, when the number of NUMA nodes is 1.  MAX_NUMNODES
+> > refers to discontigmem nodes, not NUMA nodes.
+> 
+> Ok. We looked through the code and saw that the check may be removed 
+> without causing problems. However, there is still a feeling of uneasiness 
+> about this.
 
-> diff -uprN linux/drivers/i2c/chips/max1619.c linux-2.6-dev/drivers/i2c/chips/max1619.c
-> --- linux/drivers/i2c/chips/max1619.c	2005-05-15 22:49:31.000000000 +0200
-> +++ linux-2.6-dev/drivers/i2c/chips/max1619.c	2005-05-15 21:05:56.000000000 +0200
-> @@ -195,6 +195,7 @@ static int max1619_detect(struct i2c_ada
->  	u8 reg_config=0, reg_convrate=0, reg_status=0;
->  	u8 man_id, chip_id;
->  	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA))
-> +		err = -ENODEV;
->  		goto exit;
->  
->  	if (!(data = kmalloc(sizeof(struct max1619_data), GFP_KERNEL)))
->  	{
-> @@ -234,6 +235,7 @@ static int max1619_detect(struct i2c_ada
->  			dev_dbg(&adapter->dev,
->  				"MAX1619 detection failed at 0x%02x.\n",
->  				address);
-> +			return -ENODEV;
->  			goto exit_free;
->  		}
->  	}
-> @@ -254,6 +256,7 @@ static int max1619_detect(struct i2c_ada
->  			dev_info(&adapter->dev,
->  			    "Unsupported chip (man_id=0x%02X, "
->  			    "chip_id=0x%02X).\n", man_id, chip_id);
-> +			return -ENODEV;
->  			goto exit_free;
->  		}
->  	
+I don't blame you :)
 
-No, these changes are not correct. Due to the fact i2c_detect() is
-designed, i2c detection functions should never return -ENODEV. Doing so
-would result in i2c_detect() to skip the probing of remaining addresses
-for a given chip driver. We might change i2c_detect() to make it behave
-differently at some point, but for now your previous code is correct and
-should not be changed.
+> To what node does numa_node_id() refer?
 
-(Also note that the code of your changes itself is not correct at all,
-as was pointed out elsewhere in this thread - but it doesn't really
-matter now.)
+That refers to the NUMA node that you're thinking of.  Close CPUs and
+memory and I/O, etc...
 
-> diff -uprN linux/drivers/pci/pci.ids linux-2.6-dev/drivers/pci/pci.ids
-> --- linux/drivers/pci/pci.ids	2005-05-07 07:20:31.000000000 +0200
-> +++ linux-2.6-dev/drivers/pci/pci.ids	2005-05-15 23:16:21.000000000 +0200
-> @@ -5322,6 +5322,7 @@
->  	0459  LT WinModem
->  	045a  LT WinModem
->  	045c  LT WinModem
-> +	045d  LT WinModem
->  	0461  V90 WildWire Modem
->  	0462  V90 WildWire Modem
->  	0480  Venus Modem (V90, 56KFlex)
+> And it is legit to use 
+> numa_node_id() to index cpu maps and stuff?
 
-This is a completely different change. Please submit unrelated changes
-as different patches, because they will be applied by different persons
-so it's way more convenient that way.
+Yes, those are all NUMA nodes.
 
-If you resubmit a patch with only the drivers/i2c/chips/Kconfig changes,
-I'll get it applied. Don't forget a desription of the patch and the
-Signed-Off-By line with your name and mail address at the top of the
-post.
+> How do the concepts of numa node id relate to discontig node ids?
 
-Thanks,
--- 
-Jean Delvare
+I believe there are quite a few assumptions on some architectures that,
+when NUMA is on, they are equivalent.  It appears to be pretty much
+assumed everywhere that CONFIG_NUMA=y means one pg_data_t per NUMA node.
+
+Remember, as you saw, you can't assume that MAX_NUMNODES=1 when NUMA=n
+because of the DISCONTIG=y case.
+
+So, in summary, if you want to do it right: use the
+CONFIG_NEED_MULTIPLE_NODES that you see in -mm.  As plain DISCONTIG=y
+gets replaced by sparsemem any code using this is likely to stay
+working.
+
+-- Dave
+

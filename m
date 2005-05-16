@@ -1,78 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261653AbVEPOC7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261665AbVEPOEo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261653AbVEPOC7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 10:02:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbVEPOC7
+	id S261665AbVEPOEo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 10:04:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbVEPOEg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 10:02:59 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:56237 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261653AbVEPOCo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 10:02:44 -0400
-Subject: Re: Linux does not care for data integrity (was: Disk write cache)
-From: Arjan van de Ven <arjan@infradead.org>
-To: Matthias Andree <matthias.andree@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050516112956.GC13387@merlin.emma.line.org>
-References: <Pine.LNX.4.58.0505151657230.19181@artax.karlin.mff.cuni.cz>
-	 <200505151121.36243.gene.heskett@verizon.net>
-	 <20050515152956.GA25143@havoc.gtf.org>
-	 <20050516.012740.93615022.okuyamak@dd.iij4u.or.jp>
-	 <42877C1B.2030008@pobox.com> <20050516110203.GA13387@merlin.emma.line.org>
-	 <1116241957.6274.36.camel@laptopd505.fenrus.org>
-	 <20050516112956.GC13387@merlin.emma.line.org>
-Content-Type: text/plain
-Date: Mon, 16 May 2005 16:02:37 +0200
-Message-Id: <1116252157.6274.41.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Mon, 16 May 2005 10:04:36 -0400
+Received: from iai.speak-friend.de ([62.75.222.128]:64644 "EHLO
+	iai.speak-friend.de") by vger.kernel.org with ESMTP id S261659AbVEPOEP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 10:04:15 -0400
+From: Christian Parpart <trapni@gentoo.org>
+Organization: Gentoo Linux Foundation
+To: linux-kernel@vger.kernel.org
+Subject: I'm having 4GB RAM, but Linux sees just 3GB???
+Date: Mon, 16 May 2005 16:04:09 +0200
+User-Agent: KMail/1.8
+X-Face: $-3HTEy*5}2A{'R'VPim$,8KKX$l|:P^RhP{;yQ)g;]4isyohrOfk\)=?utf-8?q?Q=2Ep=23F3RWB=7D!m=24zn=0A=097=5CPUKBYRKDFUU=3A=5CZ+U=5Fa-/=5BhI?=
+ =?utf-8?q?8DJZ?="WPC2j~}(N."(JB&VNb}kU&`>
+ =?utf-8?q?9=3B=5FN=3BfnM=7BD=7B8=2EI+5=0A=09dg=60p=5EQ?=(:yE{eVgArPf190vEkbGis0vx];"
+ =?utf-8?q?1O!L=7ByKN4J=5B4=27=7E=7Eh+o+=7D=2EgzkmqNs=60=7D=7C0uq8a=0A=09?=
+ =?utf-8?q?=25WQg=3F=3D=25y7X74tMWEkL=5DQQ?=(_Yc"m*aC+HD%!,6/k>L7S%'<}_B2&cI}/W(p+;rJ%2`0A<)
+ =?utf-8?q?F=0A=09P7P=2E=60=3Dy=7C=7DU=7E=3F!?=<z?6Bj!TDP-w|q0K<{P)%u~}q3&#|Zh)Fa]!D8t
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart3429283.na5uEsPg8r";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200505161604.10881.trapni@gentoo.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-05-16 at 13:29 +0200, Matthias Andree wrote:
-> On Mon, 16 May 2005, Arjan van de Ven wrote:
-> 
-> > I think you missed the part where disabling the writecache decreases the
-> > mtbf of your disk by like a factor 100 or so. At which point your
-> > dataloss opportunity INCREASES by doing this.
-> 
-> Nah, if that were a factor of 100, then it should have been in the OEM
-> manuals, no?
+--nextPart3429283.na5uEsPg8r
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Why would they? Windows doesn't do it.  They only need to advertise MTBF
-in the default settings (and I guess in Windows).
+Hi all,
 
-They do talk about this if you ask them.
+I was asking this in gentoo-server mailing list before, however, they final=
+ly=20
+pointed me to this place as it could also be a bug in the kernel.
 
->  So?
+I'm having a TYAN board with two AMD Opteron 248 and 4x 1GB ECC RAM on it. =
+The=20
+BIOS reflects what I've plugged in, however, the operating system does not.
 
-one sample doesn't prove the statistics are wrong.
+my `uname -a` output is:
+Linux battousai 2.6.11-gentoo-r8 #1 SMP Sat May 14 02:42:15 CEST 2005 x86_6=
+4=20
+AMD Opteron(tm) Processor 248 AuthenticAMD GNU/Linux
 
-> 
-> > Sure you can waive rethorics around, but the fact is that linux is
-> > improving; there now is write barrier support for ext3 (and I assume
-> > reiserfs) for at least IDE and iirc selected scsi too. 
-> 
-> See the problem: "I assume", "IIRC selected...". There is no
-> list of corroborated facts which systems work and which don't. I have
-> made several attempts in compiling one, posting public calls for data
-> here, no response.
+and my `dmidecode` output is located at [0]. For ANY reason, dmidecode even=
+=20
+knows about my 4GB RAM, but `free -m` nor `kinfocenter` of KDE claims to se=
+e=20
+just 3GB.
 
-well what stops you from building that list yourself by doing the actual
-work yourself?
+free -m:
+             total       used       free     shared    buffers     cached
+Mem:          3015       2993         22          0         15       2638
+=2D/+ buffers/cache:        338       2677
+Swap:          511          1        510
 
+This is rather sad to see 1GB RAM plugged in for nothing.
 
+Has anyone a hint for my WHY this is happening and HOW I could get rid of i=
+t?
+
+Thanks in advance,
+Christian Parpart.
+
+[0] http://dev.gentoo.org/~trapni/dmidecode.txt
+
+=2D-=20
+Netiquette: http://www.ietf.org/rfc/rfc1855.txt
+ 15:59:12 up 54 days,  5:05,  0 users,  load average: 0.77, 0.51, 0.41
+
+--nextPart3429283.na5uEsPg8r
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBCiKhaPpa2GmDVhK0RAn78AJ40KEE0YfKeKZe50DCC1qn/A2mJxACffIoR
+HJZ1MJgRQD2+cUZgaYryXVQ=
+=6g54
+-----END PGP SIGNATURE-----
+
+--nextPart3429283.na5uEsPg8r--

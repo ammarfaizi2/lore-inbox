@@ -1,105 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbVEPIkx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbVEPItX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261485AbVEPIkx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 04:40:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbVEPIeI
+	id S261482AbVEPItX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 04:49:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261467AbVEPIrL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 04:34:08 -0400
-Received: from fire.osdl.org ([65.172.181.4]:1457 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261467AbVEPH51 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 03:57:27 -0400
-Date: Mon, 16 May 2005 00:56:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Adam Belay <ambx1@neo.rr.com>
-Cc: kaneshige.kenji@jp.fujitsu.com, greg@kroah.org, pavel@ucw.cz,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: [patch] properly stop devices before poweroff
-Message-Id: <20050516005639.274d13d1.akpm@osdl.org>
-In-Reply-To: <20050501221637.GE3951@neo.rr.com>
-References: <20050421111346.GA21421@elf.ucw.cz>
-	<20050429061825.36f98cc0.akpm@osdl.org>
-	<42752954.5050600@jp.fujitsu.com>
-	<20050501221637.GE3951@neo.rr.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 16 May 2005 04:47:11 -0400
+Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:26381 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261405AbVEPIpX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 04:45:23 -0400
+To: linuxram@us.ibm.com
+CC: viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-reply-to: <1116256279.4154.41.camel@localhost> (message from Ram on Mon, 16
+	May 2005 08:11:19 -0700)
+Subject: Re: [PATCH] namespace.c: fix bind mount from foreign namespace
+References: <E1DWXeF-00017l-00@dorka.pomaz.szeredi.hu>
+	 <20050513170602.GI1150@parcelfarce.linux.theplanet.co.uk>
+	 <E1DWdn9-0004O2-00@dorka.pomaz.szeredi.hu>
+	 <1116005355.6248.372.camel@localhost>
+	 <E1DWf54-0004Z8-00@dorka.pomaz.szeredi.hu>
+	 <1116012287.6248.410.camel@localhost>
+	 <E1DWfqJ-0004eP-00@dorka.pomaz.szeredi.hu>
+	 <1116013840.6248.429.camel@localhost>
+	 <E1DWprs-0005D1-00@dorka.pomaz.szeredi.hu> <1116256279.4154.41.camel@localhost>
+Message-Id: <E1DXbD5-0007UI-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Mon, 16 May 2005 10:44:23 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Belay <ambx1@neo.rr.com> wrote:
->
-> On Mon, May 02, 2005 at 04:09:08AM +0900, Kenji Kaneshige wrote:
-> > Hi,
-> > 
-> > Andrew Morton wrote:
-> > >Pavel Machek <pavel@ucw.cz> wrote:
-> > >
-> > >>
-> > >>Without this patch, Linux provokes emergency disk shutdowns and
-> > >>similar nastiness. It was in SuSE kernels for some time, IIRC.
-> > >>
-> > >
-> > >
-> > >With this patch when running `halt -p' my ia64 Tiger (using
-> > >tiger_defconfig) gets a stream of badnesses in iosapic_unregister_intr()
-> > >and then hangs up.
+> Can somebody who know internals of Al Viro's thinking help here?
 
-A little reminder that this bug remains unfixed...
+There's only one person... :)
 
-> > >Unfortunately it all seems to happen after the serial port has been
-> > >disabled because nothing comes out.  I set the console to a squitty font
-> > >and took a piccy.  See
-> > >http://www.zip.com.au/~akpm/linux/patches/stuff/dsc02505.jpg
-> > >
-> > >I guess it's an ia64 problem.  I'll leave the patch in -mm for now.
-> > >
-> > 
-> > I guess the stream of badness was occured as follows:
-> > 
-> >    pcibios_disable_device() for ia64 assumes that pci_enable_device()
-> >    and pci_disable_device() are balanced. But with 'properly stop
-> >    devices before power off' patch, pci_disable_device() becomes to be
-> >    called twice for e1000 device at halt time, through reboot_notifier_list
-> >    callback and through device_suspend(). As a result, 
-> >    iosapic_unregister_intr()
-> >    was called for already unregistered gsi and then stream of badness
-> >    was displayed.
-> > 
-> > I think the following patch will remove this stream of badness. I'm
-> > sorry but I have not checked if the stream of badness is actually
-> > removed because I'm on vacation and I can't look at my display
-> > (I'm working via remote console). Could you try this patch?
-> > 
-> > By the way, I don't think this stream of badness is related to hang up,
-> > because the problem (hang up) was reproduced even on my test kernel that
-> > doesn't call pcibios_disable_device().
-> > 
-> > Thanks,
-> > Kenji Kaneshige
-> > ---
-> > 
-> > 
-> > There might be some cases that pci_disable_device() is called even if
-> > the device is already disabled. In this case, pcibios_disable_device()
-> > should not call acpi_pci_irq_disable() for the device.
-> > 
-> > Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-> > 
+> > Please explain why you think it's wrong to be able to bind mount from
+> > a different namespace?
 > 
-> Although this would solve the problem, it may or may not be the right thing to
-> do.  The bug is not in pci_disable_device(), it's in the fact that we're
-> calling pci_disable_device() twice.  Whether pci_disable_device() should ignore
-> this or create an error is an implementation decision.  It might make sense to
-> have it print a warning. Greg, what are your thoughts?
 > 
-> What's important is that we don't want to suspend the device twice (in this
-> case suspend and reboot_notifier).
+> If It is allowed, the concept of namespaces itself becomes
+> nebulous.  one could bind mount the root vfsmount of all the other
+> namespace in their own namespace and then it all becomes one big tree
+> with all the other namespaces as a subtree.
+
+1) you need not recursively bind the whole tree of the private
+   namespace.  In fact you can only do that by hand, since the kernel
+   won't do it (!recurse || check_mnt(old_nd.mnt) in do_loopback).
+
+2) you won't see changes made in other namespace, they are still
+   separate, they are just sharing some filesystems, just as after
+   clone, or just as after propagation within a shared subtree.
+
+3) this is not automatic, so no filesystems in the other namespace are
+   visible unless there's an explicit action by processes both in the
+   originating namespace and the destination namespace.
+
+4) in fact, the process in the originating namespace can single out a
+   mount and just send a file descriptor refering to that mount
+   (e.g. by binding it to a temporary directory, opening the root,
+   detaching from the mountpoint, and then sending the file descriptor
+   to the receiving process).  This way the receiving process will see
+   no other mounts in the originating namespace, and can only bind
+   from that single mount.
+
+> why would we need this feature? what extra advantage would this feature
+> provide us? Is the advantage of this feature already discussed in this
+> thread? (maybe i missed it).
+
+http://lkml.org/lkml/2005/4/25/47
+
+It was suggested as a way of sharing mounts between sessions (as
+opposed to shared subtrees, which shares mounts between parent/child
+process).
+
+I'm not saying that that this is the way to do it.  But it does seem
+to me a useful feature.
+
+And since it doesn't add _any_ complexity to the kernel, I think it
+would be rather stupid to remove it.
+
+> > What do you mean by cross contamination?
 > 
-> Thanks,
-> Adam
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-ia64" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> A vfsmount in one namespace bound to a mountpoint in another 
+> namespace.
+
+A vfsmount can only be in a single namespace at a time, since each
+mount tree is rooted in a single namespace.  So what you are saying is
+impossible.
+
+This feature is about binding a mount (copying a vfsmount in
+clone_mnt()), which happens to be in a different namespace.  After the
+vfsmount is cloned, and is attached to the process's native namespace
+it's in that namespace solely.
+
+The bug being discussed, is an administrative error, of setting
+mnt_namespace to the wrong value, which causes the mount to be
+un-removable.  So there was never a question of "cross contamination".
+
+Miklos

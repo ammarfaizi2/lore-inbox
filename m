@@ -1,52 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261663AbVEPOdi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261664AbVEPOna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261663AbVEPOdi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 10:33:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbVEPOdi
+	id S261664AbVEPOna (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 10:43:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbVEPOn3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 10:33:38 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:54939 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261663AbVEPOdg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 10:33:36 -0400
-Message-ID: <4288AF3A.2000008@pobox.com>
-Date: Mon, 16 May 2005 10:33:30 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+	Mon, 16 May 2005 10:43:29 -0400
+Received: from quark.didntduck.org ([69.55.226.66]:50139 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP id S261664AbVEPOnZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 10:43:25 -0400
+Message-ID: <4288B1BC.5050207@didntduck.org>
+Date: Mon, 16 May 2005 10:44:12 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Matthias Andree <matthias.andree@gmx.de>
+To: Christian Parpart <trapni@gentoo.org>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: Disk write cache (Was: Hyper-Threading Vulnerability)
-References: <1115963481.1723.3.camel@alderaan.trey.hu> <20050515145241.GA5627@irc.pl> <Pine.LNX.4.58.0505151657230.19181@artax.karlin.mff.cuni.cz> <200505151121.36243.gene.heskett@verizon.net> <Pine.LNX.4.58.0505151809240.26531@artax.karlin.mff.cuni.cz> <20050516111859.GB13387@merlin.emma.line.org>
-In-Reply-To: <20050516111859.GB13387@merlin.emma.line.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: Re: I'm having 4GB RAM, but Linux sees just 3GB???
+References: <200505161604.10881.trapni@gentoo.org>
+In-Reply-To: <200505161604.10881.trapni@gentoo.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree wrote:
-> On Sun, 15 May 2005, Mikulas Patocka wrote:
+Christian Parpart wrote:
+> Hi all,
 > 
+> I was asking this in gentoo-server mailing list before, however, they finally 
+> pointed me to this place as it could also be a bug in the kernel.
 > 
->>Note that disk can still ignore FLUSH CACHE command cached data are small
->>enough to be written on power loss, so small FLUSH CACHE time doesn't
->>prove disk cheating.
+> I'm having a TYAN board with two AMD Opteron 248 and 4x 1GB ECC RAM on it. The 
+> BIOS reflects what I've plugged in, however, the operating system does not.
 > 
+> my `uname -a` output is:
+> Linux battousai 2.6.11-gentoo-r8 #1 SMP Sat May 14 02:42:15 CEST 2005 x86_64 
+> AMD Opteron(tm) Processor 248 AuthenticAMD GNU/Linux
 > 
-> Have you seen a drive yet that writes back blocks after power loss?
+> and my `dmidecode` output is located at [0]. For ANY reason, dmidecode even 
+> knows about my 4GB RAM, but `free -m` nor `kinfocenter` of KDE claims to see 
+> just 3GB.
 > 
-> I have heard rumors about this, but all OEM manuals I looked at for
-> drives I bought or recommended simply stated that the block currently
-> being written at power loss can become damaged (with write cache off),
-> and that the drive can lose the full write cache at power loss (with
-> write cache on) so this looks like daydreaming manifested as rumor.
+> free -m:
+>              total       used       free     shared    buffers     cached
+> Mem:          3015       2993         22          0         15       2638
+> -/+ buffers/cache:        338       2677
+> Swap:          511          1        510
+> 
+> This is rather sad to see 1GB RAM plugged in for nothing.
+> 
+> Has anyone a hint for my WHY this is happening and HOW I could get rid of it?
+> 
+> Thanks in advance,
+> Christian Parpart.
+> 
+> [0] http://dev.gentoo.org/~trapni/dmidecode.txt
+> 
 
-Upon power loss, at least one ATA vendor's disks try to write out as 
-much data as possible.
+Are you running a 64-bit kernel?  What does "dmesg | grep e820" show?
 
-	Jeff
-
-
-
+--
+				Brian Gerst

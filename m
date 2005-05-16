@@ -1,149 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261754AbVEPQ7C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261758AbVEPQ7R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261754AbVEPQ7C (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 12:59:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261760AbVEPQ7C
+	id S261758AbVEPQ7R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 12:59:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbVEPQ7R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 12:59:02 -0400
-Received: from mail.ccur.com ([208.248.32.212]:59348 "EHLO flmx.iccur.com")
-	by vger.kernel.org with ESMTP id S261754AbVEPQ6T (ORCPT
+	Mon, 16 May 2005 12:59:17 -0400
+Received: from fire.osdl.org ([65.172.181.4]:48611 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261758AbVEPQ6c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 12:58:19 -0400
-Message-ID: <4288D128.3030401@ccur.com>
-Date: Mon, 16 May 2005 12:58:16 -0400
-From: John Blackwood <john.blackwood@ccur.com>
-Reply-To: john.blackwood@ccur.com
-Organization: Concurrent Computer Corporation
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.4) Gecko/20050318 Red Hat/1.4.4-1.3.5
-X-Accept-Language: en-us, en
+	Mon, 16 May 2005 12:58:32 -0400
+Date: Mon, 16 May 2005 10:00:20 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Scott Robert Ladd <lkml@coyotegulch.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@muc.de>,
+       Gabor MICSKO <gmicsko@szintezis.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Hyper-Threading Vulnerability
+In-Reply-To: <4284F6B5.2080308@coyotegulch.com>
+Message-ID: <Pine.LNX.4.58.0505160945280.28162@ppc970.osdl.org>
+References: <1115963481.1723.3.camel@alderaan.trey.hu>  <m164xnatpt.fsf@muc.de>
+ <1116009347.1448.489.camel@localhost.localdomain> <4284F6B5.2080308@coyotegulch.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: ak@suse
-Subject: [PATCH] arch/x86_64/kernel/ptrace.c linux-2.6.11.8
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 May 2005 16:58:17.0533 (UTC) FILETIME=[74DE6ED0:01C55A38]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andi,
-
-We have noticed a small hole in the x86_64 version of sys_ptrace() for
-the PTRACE_PEEKUSR and PTRACE_POKEUSR commands, where if you specify the
-offset/addr location just beyond the end of the user_regs_struct, the
-code incorrectly lets you peek or (more importantly) poke that location.
-
-Also included is a small example test to show the problem.
-
-Thank you for your time and consideration.
 
 
-diff -ru linux-2.6.11.8/arch/x86_64/kernel/ptrace.c 
-new/arch/x86_64/kernel/ptrace.c
---- linux-2.6.11.8/arch/x86_64/kernel/ptrace.c	2005-05-16 
-11:56:52.121795891 -0400
-+++ new/arch/x86_64/kernel/ptrace.c	2005-05-16 10:59:56.970748305 -0400
-@@ -247,7 +247,8 @@
-  			break;
+On Fri, 13 May 2005, Scott Robert Ladd wrote:
+>
+> Alan Cox wrote:
+> > HT for most users is pretty irrelevant, its a neat idea but the
+> > benchmarks don't suggest its too big a hit
+> 
+> On real-world applications, I haven't seen HT boost performance by more
+> than 15% on a Pentium 4 -- and the usual gain is around 5%, if anything
+> at all. HT is a nice idea, but I don't enable it on my systems.
 
-  		switch (addr) {
--		case 0 ... sizeof(struct user_regs_struct):
-+		case 0 ... (sizeof(struct user_regs_struct)
-+			- sizeof(unsigned long)):
-  			tmp = getreg(child, addr);
-  			break;
-  		case offsetof(struct user, u_debugreg[0]):
-@@ -292,7 +293,8 @@
-  			break;
+HT is _wonderful_ for latency reduction. 
 
-  		switch (addr) {
--		case 0 ... sizeof(struct user_regs_struct):
-+		case 0 ... (sizeof(struct user_regs_struct)
-+			- sizeof(unsigned long)):
-  			ret = putreg(child, addr, data);
-  			break;
-  		/* Disallows to set a breakpoint into the vsyscall */
+Why people think "performace" means "throughput" is something I'll never
+understand. Throughput is _always_ secondary to latency, and really only
+becomes interesting when it becomes a latency number (ie "I need higher
+throughput in order to process these jobs in 4 hours instead of 8" -
+notice how the real issue was again about _latency_).
 
+Now, Linux tends to have pretty good CPU latency anyway, so it's not
+usually that big of a deal, but I definitely enjoyed having a HT machine
+over a regular UP one. I'm told the effect was even more pronounced on 
+XP. 
 
+Of course, these days I enjoy having dual cores more, though, and with
+multiple cores, the latency advantages of HT become much less pronounced.
 
+As to the HT "vulnerability", it really seems to be not a whole lot
+different than what people saw with early SMP and (small) direct-mapped
+caches. Thank God those days are gone.
 
-----------------------------------------------------------------------
-example test:   gcc -o test test.c
-----------------------------------------------------------------------
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/user.h>
-#include <linux/ptrace.h>
-#include <errno.h>
+I'd be really surprised if somebody is actually able to get a real-world
+attack on a real-world pgp key usage or similar out of it (and as to the
+covert channel, nobody cares). It's a fairly interesting approach, but
+it's certainly neither new nor HT-specific, or necessarily seem all that
+worrying in real life.
 
-static void
-do_pokeusr_test(pid_t child)
-{
-	int was_error = 0;
-	long pstatus;
+(HT and modern CPU speeds just means that the covert channel is _faster_
+than it has been before, since you can test the L1 at core speeds. I doubt
+it helps the key attack much, though, since faster in that case cuts both
+ways: the speed of testing the cache eviction may have gone up, but so has
+the speed of the operation you're trying to follow, and you'd likely have
+a really hard time trying to catch things in real life).
 
-	printf("calling PTRACE_POKEUSR with offset 0x%lx (%ld) data 0\n",
-		sizeof(struct user_regs_struct),
-		sizeof(struct user_regs_struct));
-	pstatus = ptrace(PTRACE_POKEUSR,
-		child, (void *)(sizeof(struct user_regs_struct)), (void *)0);
-	if (pstatus)
-		printf("ptrace pokeusr returned %d\n", errno);
-}
+It does show that if you want to hide key operations, you want to be 
+careful. I don't think HT is at fault per se. 
 
-static void child_process(void)
-{
-	printf("child pid %d parent pid %d\n", getpid(), getppid());
-	while ( sleep(5)) ;
-	exit(0);
-}
-
-int
-main(int argc, char *argv[])
-{
-	int status, child_status;
-	long pstatus;
-	pid_t child;
-
-	child = fork();
-	if (child == -1) {
-		printf("ERROR: fork returned errno %d\n", errno);
-		exit(1);
-	}
-	if (!child)
-		child_process();
-	sleep(1);
-	printf("Attaching to child ...\n");
-	pstatus = ptrace(PTRACE_ATTACH, child, (void *)0, (void *)0);
-	if (pstatus == ~0l) {
-		printf("ERROR: attach failed.  errno %d\n", errno);
-		exit(1);
-	}
-	status = waitpid(-1, &child_status, WUNTRACED);
-	if (status == -1) {
-	    printf("ERROR: waitpid() returned errno %d\n", errno);
-	    printf("---- Test Failed. ----\n");
-	    exit(1);
-	}
-	printf("waitpid(): child pid %d child_status %d\n",
-		status, child_status);
-
-	do_pokeusr_test(child);
-
-	printf("Continuing child process.\n");
-	pstatus = ptrace(PTRACE_CONT, (pid_t)child, (void *)0, (void *)0);
-	if (pstatus) {
-		printf("ERROR: ptrace continue returned %d\n", errno);
-		exit(1);
-	}
-	status = waitpid(-1, &child_status, WUNTRACED);
-	if (status == -1) {
-	    printf("ERROR: waitpid() returned errno %d\n", errno);
-	    printf("---- Test Failed. ----\n");
-	    exit(1);
-	}
-	printf("waitpid(): child pid %d child_status %d\n",
-		status, child_status);
-	return 0;
-}
-
+		Linus

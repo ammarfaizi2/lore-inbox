@@ -1,50 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbVEPOyV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbVEPOz5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261673AbVEPOyV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 10:54:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbVEPOwr
+	id S261681AbVEPOz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 10:55:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbVEPOz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 10:52:47 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:49375 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261673AbVEPOwE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 10:52:04 -0400
-Subject: Re: Disk write cache (Was: Hyper-Threading Vulnerability)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: Tomasz Torcz <zdzichu@irc.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0505151657230.19181@artax.karlin.mff.cuni.cz>
-References: <1115963481.1723.3.camel@alderaan.trey.hu>
-	 <m164xnatpt.fsf@muc.de> <20050513211609.75216bf8.diegocg@gmail.com>
-	 <20050515095446.GE68736@muc.de>
-	 <Pine.LNX.4.58.0505151550160.8633@artax.karlin.mff.cuni.cz>
-	 <20050515141207.GB94354@muc.de> <20050515145241.GA5627@irc.pl>
-	 <Pine.LNX.4.58.0505151657230.19181@artax.karlin.mff.cuni.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1116255017.21358.40.camel@localhost.localdomain>
+	Mon, 16 May 2005 10:55:56 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:943 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261676AbVEPOzU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 10:55:20 -0400
+Date: Mon, 16 May 2005 15:55:16 +0100
+From: "'Christoph Hellwig'" <hch@infradead.org>
+To: "Bagalkote, Sreenivas" <sreenib@lsil.com>
+Cc: "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
+       Andrew Morton <akpm@osdl.org>,
+       "'Christoph Hellwig'" <hch@infradead.org>,
+       "'James Bottomley'" <James.Bottomley@SteelEye.com>
+Subject: Re: [PATCH 2.6.12-rc4-mm1 4/4] megaraid_sas: updating the driver
+Message-ID: <20050516145516.GB25156@infradead.org>
+Mail-Followup-To: 'Christoph Hellwig' <hch@infradead.org>,
+	"Bagalkote, Sreenivas" <sreenib@lsil.com>,
+	"'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+	"'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
+	Andrew Morton <akpm@osdl.org>,
+	'James Bottomley' <James.Bottomley@SteelEye.com>
+References: <0E3FA95632D6D047BA649F95DAB60E57060CCE7D@exa-atlanta>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 16 May 2005 15:50:20 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E57060CCE7D@exa-atlanta>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2005-05-15 at 16:00, Mikulas Patocka wrote:
-> There are rumors that some disks ignore FLUSH CACHE command just to get
-> higher benchmarks in Windows. But I haven't heart of any proof. Does
-> anybody know, what companies fake this command?
+On Mon, May 16, 2005 at 02:59:44AM -0400, Bagalkote, Sreenivas wrote:
+> +#include <linux/ioctl32.h>
 
-The specification was intentionally written so that his command has to
-do what it is specified to or be unknown and thus error and not be in
-the ident info.
+this isn't needed in any driver these days.
 
-That was done by people who wanted to be very sure that any vendor who
-tried to shortcut the command would have "sue me" written on their
-forehead.
+> +/*
+> + * All MFI register set macros accept megasas_register_set*
+> + */
+> +#define RD_OB_MSG_0(regs)	readl((void*)(&(regs)->outbound_msg_0))
+> +#define WR_IN_MSG_0(v, regs)	writel((v),(void*)(&(regs)->inbound_msg_0))
+> +#define WR_IN_DOORBELL(v, regs)
+> writel((v),(void*)(&(regs)->inbound_doorbell))
+> +#define WR_IN_QPORT(v, regs)
+> writel((v),(void*)(&(regs)->inbound_queue_port))
+> +
+> +#define RD_OB_INTR_STATUS(regs)
+> readl((void*)(&(regs)->outbound_intr_status))
+> +#define WR_OB_INTR_STATUS(v, regs)
+> writel((v),(&(regs)->outbound_intr_status))
 
-There are problems with a few older drives which have a write cache but
-don't support cache commands.
+The void * casats are not okay.  Please make sure all your variable
+holding the I/O address are of type void __iomem * and use sparse to check
+it.  I would have sent you sparse output if your mailer didn't mangle
+the patch so it couldn't be applied..
 
-Alan
+Also the driver might be a lot more readable if you just removed this
+macros.
 
+> +#define SCP2HOST(scp)		(scp)->device->host	// to host
+> +#define SCP2HOSTDATA(scp)	SCP2HOST(scp)->hostdata	// to soft state
+> +#define SCP2CHANNEL(scp)	(scp)->device->channel	// to channel
+> +#define SCP2TARGET(scp)		(scp)->device->id	// to target
+> +#define SCP2LUN(scp)		(scp)->device->lun	// to LUN
+
+Please remove all these macros.
+
+> +#define SCSIHOST2ADAP(host)	(((caddr_t *)(host->hostdata))[0])
+> +#define SCP2ADAPTER(scp)	(struct
+> megasas_instance*)SCSIHOST2ADAP(SCP2HOST(scp))
+
+please don't use caddr_t.
+
+
+Also I can't find any endianess handling.  You should probably declare
+all hardware structures __le* and use proper le*_to_cpu/cpu_to_le* when
+accessing them.  sparse -Wbitwise helps finding errors in endianess handling

@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261878AbVEPVED@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261888AbVEPVFz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261878AbVEPVED (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 17:04:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbVEPVB1
+	id S261888AbVEPVFz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 17:05:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbVEPVER
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 17:01:27 -0400
-Received: from dvhart.com ([64.146.134.43]:57505 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S261884AbVEPVAP (ORCPT
+	Mon, 16 May 2005 17:04:17 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:9393 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261888AbVEPVCZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 17:00:15 -0400
-Date: Mon, 16 May 2005 14:00:09 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.12-rc4-mm2 build failure
-Message-ID: <734820000.1116277209@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Mon, 16 May 2005 17:02:25 -0400
+Date: Mon, 16 May 2005 17:02:17 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: linux-kernel@vger.kernel.org
+cc: xen-devel@lists.xensource.com
+Subject: [PATCH] Makefile include path ordering
+Message-ID: <Pine.LNX.4.61.0505161700150.14180@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ppc64 box
+The arch Makefile may override the include path order, which is
+used by Xen (and UML?) to make sure include/asm-xen is searched
+before include/asm-i386.
 
-drivers/ide/ide-probe.c: In function `ide_init_queue':
-drivers/ide/ide-probe.c:982: warning: implicit declaration of function `pcibus_to_node'
-drivers/ide/ide-disk.c: In function `ide_disk_probe':
-drivers/ide/ide-disk.c:1225: warning: implicit declaration of function `pcibus_to_node'
-drivers/built-in.o(.text+0xaee4c): In function `.init_irq':
-: undefined reference to `.pcibus_to_node'
-drivers/built-in.o(.text+0xaf01c): In function `.init_irq':
-: undefined reference to `.pcibus_to_node'
-drivers/built-in.o(.text+0xb7808): In function `.ide_disk_probe':
-: undefined reference to `.pcibus_to_node'
-make: *** [.tmp_vmlinux1] Error 1
-05/16/05-07:36:03 Build the kernel. Failed rc = 2
-05/16/05-07:36:03 build: kernel build Failed rc = 1
+The Makefile change to 2.6.12-rc4 made the top Makefile always
+override the value specified by the arch Makefile.  This trivial
+patch makes the Xen kernel compile again.
 
+Signed-off-by: Rik van Riel <riel@redhat.com>
 
+--- linux-2.6.11/Makefile.order	2005-05-16 16:20:20.000000000 -0400
++++ linux-2.6.11/Makefile	2005-05-16 16:21:30.000000000 -0400
+@@ -530,7 +530,7 @@
+ include $(srctree)/arch/$(ARCH)/Makefile
+ 
+ # arch Makefile may override CC so keep this after arch Makefile is included
+-NOSTDINC_FLAGS := -nostdinc -isystem $(shell $(CC) -print-file-name=include)
++NOSTDINC_FLAGS += -nostdinc -isystem $(shell $(CC) -print-file-name=include)
+ CHECKFLAGS     += $(NOSTDINC_FLAGS)
+ 
+ # warn about C99 declaration after statement

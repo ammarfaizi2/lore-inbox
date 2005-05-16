@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261257AbVEPDRh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbVEPDTL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261257AbVEPDRh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 23:17:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbVEPDRd
+	id S261258AbVEPDTL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 23:19:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVEPDTL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 23:17:33 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:61849 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261257AbVEPDRb (ORCPT
+	Sun, 15 May 2005 23:19:11 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:63385 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261258AbVEPDTE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 23:17:31 -0400
-Message-ID: <428810C3.3060308@pobox.com>
-Date: Sun, 15 May 2005 23:17:23 -0400
+	Sun, 15 May 2005 23:19:04 -0400
+Message-ID: <42881122.9070005@pobox.com>
+Date: Sun, 15 May 2005 23:18:58 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] hp100: fix card names
-References: <20050421111541.GA24697@elf.ucw.cz>
-In-Reply-To: <20050421111541.GA24697@elf.ucw.cz>
+To: Jiri Benc <jbenc@suse.cz>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Typo in tulip driver
+References: <20050427124856.3abe369f@griffin.suse.cz>
+In-Reply-To: <20050427124856.3abe369f@griffin.suse.cz>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Those cards really need A in their names. Otherwise it is pretty hard
-> to find anything about them on the net.
+Jiri Benc wrote:
+> This patch fixes a typo in tulip driver in 2.6.12-rc3.
 > 
-> Signed-off-by: Pavel Machek <pavel@suse.cz>
 > 
-> --- clean/drivers/net/hp100.c	2005-03-03 12:34:19.000000000 +0100
-> +++ linux/drivers/net/hp100.c	2005-03-22 12:20:53.000000000 +0100
-> @@ -13,8 +13,8 @@
->  ** This driver has only been tested with
->  ** -- HP J2585B 10/100 Mbit/s PCI Busmaster
->  ** -- HP J2585A 10/100 Mbit/s PCI 
-> -** -- HP J2970  10 Mbit/s PCI Combo 10base-T/BNC
-> -** -- HP J2973  10 Mbit/s PCI 10base-T
-> +** -- HP J2970A 10 Mbit/s PCI Combo 10base-T/BNC
-> +** -- HP J2973A 10 Mbit/s PCI 10base-T
+> --- linux-2.6.12-rc3/drivers/net/tulip/tulip_core.c
+> +++ linux-2.6.12-rc3-patched/drivers/net/tulip/tulip_core.c
+> @@ -1104,7 +1109,7 @@ static void set_rx_mode(struct net_devic
+>  			if (entry != 0) {
+>  				/* Avoid a chip errata by prefixing a dummy entry. Don't do
+>  				   this on the ULI526X as it triggers a different problem */
+> -				if (!(tp->chip_id == ULI526X && (tp->revision = 0x40 || tp->revision == 0x50))) {
+> +				if (!(tp->chip_id == ULI526X && (tp->revision == 0x40 || tp->revision == 0x50))) {
 
 
-OK, but failed to apply.
-
+applied
 

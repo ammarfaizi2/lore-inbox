@@ -1,56 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbVEPIgP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbVEPIgP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261416AbVEPIgP (ORCPT <rfc822;willy@w.ods.org>);
+	id S261445AbVEPIgP (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 16 May 2005 04:36:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbVEPIf1
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbVEPIex
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 04:35:27 -0400
-Received: from exo1066.net2.nerim.net ([213.41.175.60]:24764 "EHLO
-	mail-out1.exosec.net") by vger.kernel.org with ESMTP
-	id S261459AbVEPIcg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 04:32:36 -0400
-Date: Mon, 16 May 2005 10:32:34 +0200
-From: Willy Tarreau <wtarreau@exosec.fr>
-To: marcelo.tosatti@cyclades.com
-Cc: linux-kernel@vger.kernel.org, David.Monniaux@ens.fr
-Subject: Re: Linux 2.4.31-pre2
-Message-ID: <20050516083234.GE11282@exosec.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Mon, 16 May 2005 04:34:53 -0400
+Received: from camppool10.emailebay.com ([216.33.244.109]:54709 "EHLO
+	camp10.sjc.ebay.com") by vger.kernel.org with ESMTP id S261472AbVEPIRZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 04:17:25 -0400
+Date: Mon, 16 May 2005 01:17:10 -0700 (PDT)
+From: Unexpected reply handler <cmuser@hoho.sjc.ebay.com>
+Message-Id: <200505160817.j4G8HA518877@hoho.sjc.ebay.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Your software
+References: <200505160814.j4G8EG0x003719@mailhost6.sjc.ebay.com>
+In-Reply-To: <200505160814.j4G8EG0x003719@mailhost6.sjc.ebay.com>
+X-Loop: reply@reply.ebay.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
-
-moxa does not compile anymore in 2.4.31-pre2, because a variable is used
-before being declared. Since I fixed it on the fly in -hf, I thought that I
-had reported it, but I don't find any trace of it, so I might have dreamed...
-
-Here's the fix anyway.
-Regards,
-Willy
-
-diff -urN linux-2.4.31-pre2/drivers/char/moxa.c linux-2.4.31-pre2-moxa-fix/drivers/char/moxa.c
---- linux-2.4.31-pre2/drivers/char/moxa.c	2005-05-16 10:26:12.000000000 +0200
-+++ linux-2.4.31-pre2-moxa-fix/drivers/char/moxa.c	2005-05-16 10:26:29.000000000 +0200
-@@ -294,6 +294,7 @@
- static int moxa_get_serial_info(struct moxa_str *, struct serial_struct *);
- static int moxa_set_serial_info(struct moxa_str *, struct serial_struct *);
- static void MoxaSetFifo(int port, int enable);
-+static unsigned long moxaIntPend[MAX_BOARDS];
+Thank you for your response. Please don't reply to this message - it is an automated response and your reply will not be received.
  
- #ifdef MODULE
- int init_module(void)
-@@ -1579,7 +1580,6 @@
- 
- static unsigned char moxaBuff[10240];
- static unsigned long moxaIntNdx[MAX_BOARDS];
--static unsigned long moxaIntPend[MAX_BOARDS];
- static unsigned long moxaIntTable[MAX_BOARDS];
- static char moxaChkPort[MAX_PORTS];
- static char moxaLineCtrl[MAX_PORTS];
+If you have a question for eBay Customer Support, please visit the following eBay Help page. This page will help you locate the answer to your question, or assist you in contacting us:
+
+ http://pages.ebay.com/help/index.html
+
+If you would like to change your notification preferences, which determine what type of email you receive from eBay, please follow the steps below:
+
+1. Click "My eBay" located at the top of all eBay pages. You may be asked to sign in.
+
+2. Click the "eBay Preferences" link located under the "My Account" heading.
+
+3. Click the "view/change" link to the right of "Notification Preferences." You may be asked to sign in once more.
+
+4. On the "Change Your Notification Preferences" page, check the boxes to indicate the types of messages you'd like to receive from eBay. Then, uncheck the boxes to indicate the types of messages you don't want to receive from us.
+
+5. Once you're done, be sure to click the "Save Changes" button at the top or bottom of the page. 
+
+Again, thanks for writing eBay.
 
 
+-- 

@@ -1,56 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261887AbVEPV0C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbVEPVeQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261887AbVEPV0C (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 17:26:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbVEPVWg
+	id S261900AbVEPVeQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 17:34:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbVEPVeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 17:22:36 -0400
-Received: from dvhart.com ([64.146.134.43]:60065 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S261887AbVEPVVG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 17:21:06 -0400
-Date: Mon, 16 May 2005 14:21:01 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Jesse Barnes <jbarnes@virtuousgeek.org>
-Cc: Christoph Lameter <clameter@engr.sgi.com>,
-       Dave Hansen <haveblue@us.ibm.com>, Andy Whitcroft <apw@shadowen.org>,
-       Andrew Morton <akpm@osdl.org>, linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       shai@scalex86.org, steiner@sgi.com
-Subject: Re: NUMA aware slab allocator V3
-Message-ID: <740100000.1116278461@flay>
-In-Reply-To: <200505161410.43382.jbarnes@virtuousgeek.org>
-References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com> <Pine.LNX.4.62.0505161046430.1653@schroedinger.engr.sgi.com> <714210000.1116266915@flay> <200505161410.43382.jbarnes@virtuousgeek.org>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Mon, 16 May 2005 17:34:11 -0400
+Received: from ezoffice.mandriva.com ([84.14.106.134]:39432 "EHLO
+	ezoffice.mandriva.com") by vger.kernel.org with ESMTP
+	id S261905AbVEPVdI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 17:33:08 -0400
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>
+Cc: Yann Droneaud <ydroneaud@mandriva.com>
+From: Yann Droneaud <ydroneaud@mandriva.com>
+Subject: Oops with IPMI and ACPI disabled on command line
+Date: 16 May 2005 23:33:01 +0200
+Message-ID: <m27jhyzwj6.fsf@firedrake.mandriva.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Right, the SGI boxes have discontiguous memory within a node, but it's 
-> not represented by pgdats (like you said, one 'virtual memmap' spans 
-> the whole address space of a node).  Sparse can help simplify this 
-> across platforms, but has the potential to be more expensive for 
-> systems with dynamically sized holes, due to the additional calculation 
-> and potential cache miss associated with indexing into the correct 
-> memmap (Dave can probably correct me here, it's been awhile).  With a 
-> virtual memmap, you only occasionally take a TLB miss on the struct 
-> page access after indexing into the array.
 
-That's exactly what was brilliant about Andy's code ... it fixed that,
-there shouldn't be extra references ...
- 
->> transition config options are a bit of a mess ... Andy, I presume
->> CONFIG_NEED_MULTIPLE_NODES is really CONFIG_NEED_MULTIPLE_PGDATS ?
-> 
-> Yeah, makes sense for the NUMA aware slab allocator to depend on 
-> CONFIG_NUMA.
+Hi,
 
-Andy confirmed offline that this is really CONFIG_NEED_MULTIPLE_PGDATS,
-and is just named wrong.
+I encounter an Oops with IPMI modules using acpi=ht|off,
+I fixed it (only the Oops, IPMI is still not available on the system),
+by two patches which follows.
 
-M.
+Here is the Oops messages for reference:
 
+May 16 11:18:29 localhost kernel: ipmi message handler version v33
+May 16 11:18:29 localhost kernel: IPMI System Interface driver version v33, KCS version v33, SMIC version v33, BT version v33
+May 16 11:18:29 localhost kernel:     ACPI-0166: *** Error: Invalid address flags 8
+May 16 11:18:29 localhost kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000004
+May 16 11:18:29 localhost kernel:  printing eip:
+May 16 11:18:29 localhost kernel: c01ff793
+May 16 11:18:29 localhost kernel: *pde = 3764b001
+May 16 11:18:29 localhost kernel: Oops: 0000 [#1]
+May 16 11:18:29 localhost kernel: SMP
+May 16 11:18:29 localhost kernel: Modules linked in: ipmi_si ipmi_msghandler af_packet floppy bcm5700 isofs nls_base md ehci_
+hcd uhci_hcd usbcore genrtc unix sd_mod qla2300 qla2xxx scsi_transport_fc cciss ata_piix libata
+May 16 11:18:29 localhost kernel: CPU:    0
+May 16 11:18:29 localhost kernel: EIP:    0060:[acpi_get_firmware_table+630/694]    Not tainted VLI
+May 16 11:18:29 localhost kernel: EIP:    0060:[<c01ff793>]    Not tainted VLI
+May 16 11:18:29 localhost kernel: EFLAGS: 00010202   (2.6.11.9-mdvc)
+May 16 11:18:29 localhost kernel: EIP is at acpi_get_firmware_table+0x276/0x2b6
+May 16 11:18:29 localhost kernel: eax: 00000000   ebx: c21602c0   ecx: 00000000   edx: c21602c0
+May 16 11:18:29 localhost ipmi: Starting IPMI failed
+May 16 11:18:29 localhost kernel: esi: 00001001   edi: c02bfc49   ebp: 00000008   esp: f7f11eec
+May 16 11:18:30 localhost kernel: ds: 007b   es: 007b   ss: 0068
+May 16 11:18:30 localhost kernel: Process modprobe (pid: 2413, threadinfo=f7f11000 task=f744d540)
+May 16 11:18:30 localhost kernel: Stack: c0119583 f76bff44 00000001 00000000 00000000 00000000 00000008 7fff32c0
+May 16 11:18:30 localhost kernel:        00000000 f7f11f40 ffffffed 00000000 00000000 00000000 f8b81453 f8b851f9
+May 16 11:18:30 localhost kernel:        00000001 00000008 f7f11f3c 000047d9 00000296 ffffffed f7f11f78 00000000
+May 16 11:18:30 localhost kernel: Call Trace:
+May 16 11:18:30 localhost kernel:  [__wake_up_common+63/94] __wake_up_common+0x3f/0x5e
+May 16 11:18:30 localhost kernel:  [<c0119583>] __wake_up_common+0x3f/0x5e
+May 16 11:18:30 localhost kernel:  [pg0+947508307/1069655040] try_init_acpi+0x41/0x2a9 [ipmi_si]
+May 16 11:18:30 localhost kernel:  [<f8b81453>] try_init_acpi+0x41/0x2a9 [ipmi_si]
+May 16 11:18:30 localhost kernel:  [pg0+947512705/1069655040] init_one_smi+0x4e2/0x57d [ipmi_si]
+May 16 11:18:30 localhost kernel:  [<f8b82581>] init_one_smi+0x4e2/0x57d [ipmi_si]
+May 16 11:18:30 localhost kernel:  [vprintk+312/367] vprintk+0x138/0x16f
+May 16 11:18:30 localhost kernel:  [<c011dc62>] vprintk+0x138/0x16f
+May 16 11:18:30 localhost kernel:  [pg0+944169095/1069655040] init_ipmi_si+0x87/0x22f [ipmi_si]
+May 16 11:18:30 localhost kernel:  [<f8852087>] init_ipmi_si+0x87/0x22f [ipmi_si]
+May 16 11:18:30 localhost kernel:  [sys_init_module+371/531] sys_init_module+0x173/0x213
+May 16 11:18:30 localhost kernel:  [<c01361d9>] sys_init_module+0x173/0x213
+May 16 11:18:30 localhost kernel:  [sysenter_past_esp+82/117] sysenter_past_esp+0x52/0x75
+May 16 11:18:30 localhost kernel:  [<c0102fd5>] sysenter_past_esp+0x52/0x75
+May 16 11:18:30 localhost kernel: Code: ff 83 c4 0c 85 c0 89 c6 75 1e 8b 54 24 10 8b 42 0c 8b 54 24 48 89 02 eb 0f 45 3b 6c 24 0c e9 4e ff ff ff be 06 00 00 00 8b 43 0c <ff> 70 04 50 e8 16 c5 fe ff 53 e8 a7 c4 fe ff 83 c4 0c 83 7c 24
+
+Regards
+
+-- 
+Yann Droneaud <ydroneaud@mandriva.com>
+Consulting Engineer
+Professional Services
+Mandriva http://mandriva.com/ (previously known as Mandrakesoft)

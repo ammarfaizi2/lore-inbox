@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261911AbVEPVud@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261923AbVEPVt6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261911AbVEPVud (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 17:50:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261896AbVEPVuU
+	id S261923AbVEPVt6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 17:49:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261896AbVEPVmb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 17:50:20 -0400
-Received: from ezoffice.mandriva.com ([84.14.106.134]:40968 "EHLO
-	ezoffice.mandriva.com") by vger.kernel.org with ESMTP
-	id S261917AbVEPVrx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 17:47:53 -0400
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-Cc: Yann Droneaud <ydroneaud@mandriva.com>
-From: Yann Droneaud <ydroneaud@mandriva.com>
-In-Reply-To: <m27jhyzwj6.fsf@firedrake.mandriva.com>
-References: <m27jhyzwj6.fsf@firedrake.mandriva.com>
-Subject: [PATCH 2/2] IPMI and acpi=off|ht : ipmi_si_intf-acpi-disabled
-Date: 16 May 2005 23:47:52 +0200
-Message-ID: <m2y8aeyh9z.fsf@firedrake.mandriva.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Mon, 16 May 2005 17:42:31 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:50842 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261889AbVEPVlS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 17:41:18 -0400
+Date: Mon, 16 May 2005 14:40:57 -0700 (PDT)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc4-mm2 boot failure
+In-Reply-To: <743780000.1116279381@flay>
+Message-ID: <Pine.LNX.4.62.0505161439100.2927@schroedinger.engr.sgi.com>
+References: <735450000.1116277481@flay> <20050516142504.696b443b.akpm@osdl.org>
+ <743780000.1116279381@flay>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 16 May 2005, Martin J. Bligh wrote:
 
-This patch fix ipmi_si_intf to not use ACPI tables if the ACPI
-subsystem is disabled.
+> --On Monday, May 16, 2005 14:25:04 -0700 Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > "Martin J. Bligh" <mbligh@mbligh.org> wrote:
+> >> 
+> >> PPC64 NUMA box. Maybe this is the same NUMA slab problem you were 
+> >> hitting before ...
+> > 
+> > Probably.  Christoph, this patch has crossed the grief threshold - I'll
+> > drop it.
+> 
+> OK, fair enough. Christoph, I am interested in seeing your patch work 
+> ... is something that's needed. If you want, I can help you offline 
+> with some testing on a variety of platforms.
 
---- linux-2.6.11.9/drivers/char/ipmi/ipmi_si_intf.c	2005-05-11 18:41:12.000000000 -0400
-+++ linux-2.6.11.9-fixes/drivers/char/ipmi/ipmi_si_intf.c	2005-05-16 16:38:11.780589696 -0400
-@@ -1443,6 +1443,9 @@ static int try_init_acpi(int intf_num, s
- 	char             *io_type;
- 	u8 		 addr_space;
- 
-+	if (acpi_disabled)
-+		return -ENODEV;
-+
- 	if (acpi_failure)
- 		return -ENODEV;
- 
+Some description of the failure would be helpful. A boot log? .config?
 
-Signed-Off-by: ydroneaud@mandriva.com
+Does the box have CONFIG_NUMA off and CONFIG_DISCONTIG on?
 
--- 
-Yann Droneaud <ydroneaud@mandriva.com>
-Consulting Engineer
-Professional Services
-Mandriva http://mandriva.com/ (previously known as Mandrakesoft)

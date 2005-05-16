@@ -1,58 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbVEPLab@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261560AbVEPLeJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261554AbVEPLab (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 07:30:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbVEPLaa
+	id S261560AbVEPLeJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 07:34:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbVEPLeJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 07:30:30 -0400
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:31646 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S261560AbVEPLaA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 07:30:00 -0400
-Date: Mon, 16 May 2005 13:29:56 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: Linux does not care for data integrity (was: Disk write cache)
-Message-ID: <20050516112956.GC13387@merlin.emma.line.org>
-Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0505151657230.19181@artax.karlin.mff.cuni.cz> <200505151121.36243.gene.heskett@verizon.net> <20050515152956.GA25143@havoc.gtf.org> <20050516.012740.93615022.okuyamak@dd.iij4u.or.jp> <42877C1B.2030008@pobox.com> <20050516110203.GA13387@merlin.emma.line.org> <1116241957.6274.36.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1116241957.6274.36.camel@laptopd505.fenrus.org>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.9i
+	Mon, 16 May 2005 07:34:09 -0400
+Received: from mail18.syd.optusnet.com.au ([211.29.132.199]:25831 "EHLO
+	mail18.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261551AbVEPLd1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 07:33:27 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: AndrewMorton <akpm@osdl.org>
+Subject: Re: [SMP NICE] [PATCH] SCHED: Implement nice support across physical cpus on SMP
+Date: Mon, 16 May 2005 21:33:09 +1000
+User-Agent: KMail/1.8
+Cc: Carlos Carvalho <carlos@fisica.ufpr.br>, ck@vds.kolivas.org,
+       Ingo Molnar <mingo@elte.hu>,
+       Markus =?iso-8859-1?q?T=F6rnqvist?= <mjt@nysv.org>,
+       linux-kernel@vger.kernel.org
+References: <20050509112446.GZ1399@nysv.org> <17023.63512.319555.552924@fisica.ufpr.br> <200505111304.06853.kernel@kolivas.org>
+In-Reply-To: <200505111304.06853.kernel@kolivas.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart3324502.NxN9umJa87";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200505162133.13399.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 May 2005, Arjan van de Ven wrote:
+--nextPart3324502.NxN9umJa87
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> I think you missed the part where disabling the writecache decreases the
-> mtbf of your disk by like a factor 100 or so. At which point your
-> dataloss opportunity INCREASES by doing this.
+On Wed, 11 May 2005 13:04, Con Kolivas wrote:
+> Andrew please consider for inclusion in -mm
 
-Nah, if that were a factor of 100, then it should have been in the OEM
-manuals, no?
+It looks like I missed my window of opportunity and the SMP balancing desig=
+n=20
+has been restructured in latest -mm again so this patch will have to wait=20
+another generation. Carlos, Markus you'll have to wait till that code settl=
+es=20
+down (if ever) before I (or someone else) rewrites it for it to get include=
+d=20
+in -mm followed by mainline. The patch you currently have will work fine fo=
+r=20
+2.6.11* and 2.6.12*
 
-Besides that, although my small sample is not representative, I have
-older drives still alive & kicking - an MTBF of 1/100 of what the vendor
-stated would mean the chance of failure way above 90 % by now, the drive
-has seen 22,000 POH with write cache off and has been a system drive for
-like 14,000 POH. So?
+Cheers,
+Con
 
-> Sure you can waive rethorics around, but the fact is that linux is
-> improving; there now is write barrier support for ext3 (and I assume
-> reiserfs) for at least IDE and iirc selected scsi too. 
+--nextPart3324502.NxN9umJa87
+Content-Type: application/pgp-signature
 
-See the problem: "I assume", "IIRC selected...". There is no
-list of corroborated facts which systems work and which don't. I have
-made several attempts in compiling one, posting public calls for data
-here, no response.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-I don't blame you personally, but the lack of documentation about such
-crucial facts or generally documentation in Linux environments in general.
+iD8DBQBCiIT5ZUg7+tp6mRURAv+aAJ97siSMCJRg/FTi1pSUfDOULRPESwCfaqap
+2BTcEJV7dm3m9Pi9LT6oTXM=
+=5a6L
+-----END PGP SIGNATURE-----
 
--- 
-Matthias Andree
+--nextPart3324502.NxN9umJa87--

@@ -1,71 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261818AbVEPTfa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261839AbVEPTfY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261818AbVEPTfa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 15:35:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbVEPTda
+	id S261839AbVEPTfY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 15:35:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVEPTdl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 15:33:30 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:33415 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261852AbVEPT0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 15:26:08 -0400
-Date: Mon, 16 May 2005 12:24:08 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: john stultz <johnstul@us.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
-       Nishanth Aravamudan <nacc@us.ibm.com>, Darren Hart <darren@dvhart.com>,
-       "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
-       benh@kernel.crashing.org, linux-ia64@vger.kernel.org
-Subject: Re: IA64 implementation of timesource for new time of day subsystem
-In-Reply-To: <1116269136.26990.67.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.62.0505161219570.2158@schroedinger.engr.sgi.com>
-References: <1116029796.26454.2.camel@cog.beaverton.ibm.com> 
- <1116029872.26454.4.camel@cog.beaverton.ibm.com>  <1116029971.26454.7.camel@cog.beaverton.ibm.com>
-  <1116030058.26454.10.camel@cog.beaverton.ibm.com> 
- <1116030139.26454.13.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.62.0505141251490.18681@schroedinger.engr.sgi.com> 
- <1116264858.26990.39.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.62.0505161100240.1653@schroedinger.engr.sgi.com>
- <1116269136.26990.67.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 May 2005 15:33:41 -0400
+Received: from ncc1701.cistron.net ([62.216.30.38]:57015 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S261816AbVEPTaz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 15:30:55 -0400
+From: dth@picard.cistron.nl (Danny ter Haar)
+Subject: Re: 2.6.12-rc4-mm2
+Date: Mon, 16 May 2005 19:30:54 +0000 (UTC)
+Organization: Cistron
+Message-ID: <d6asde$92k$1@news.cistron.nl>
+References: <20050516021302.13bd285a.akpm@osdl.org> <200505161615.50884.adobriyan@gmail.com> <d6ak89$vr8$1@news.cistron.nl> <200505162143.08155.adobriyan@gmail.com>
+X-Trace: ncc1701.cistron.net 1116271854 9300 62.216.30.70 (16 May 2005 19:30:54 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: dth@picard.cistron.nl (Danny ter Haar)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 May 2005, john stultz wrote:
+Alexey Dobriyan  <adobriyan@gmail.com> wrote:
+>Urgh... ACPI uses catch-all header file.
+>If this won't work, I'll get a cross-compiler.
 
-> In pseudo code, all you would need to do is something like:
-> 
-> arch_update_vsyscall_gtod(wall_time, offset_base, timesource, ntp_adj):
-> 
-> 	fastcall_data.wall = wall_time
-> 	fastcall_data.base = offset_base
-> 	fastcall_data.ts = timesource
-> 	fastcall_data.ntpadj = ntp_adj
+take #3
+
+still no luck.
+
+Less output then previous trial.
+
+Danny
+PS: need an account so you can compile on the machine in question ? 
 
 
-Ahh. Thanks.
+-- 
+The foundation of evil is made up of lies and marketing - UF2004
 
-> > Clock jitter can affect multiple clock sources that may fluctuate
-> > in a minor way due to a variety of influences. Jitter compensation may 
-> > help in these situations.
-> 
-> Forgive me as I'm just not aware of these, and am thus hesitant to
-> change the core code for two known cases that can be cleanly dealt with
-> in the timesource driver code.
-
-I am happy to leave the situation as is since it does not affect SGI. 
-We have a memory mapped timer that does not need this jitter compensation.
-
-Other IA64 vendors will see that their timer performance drops 
-significantly after the new timer subsystem is in. IBM no longer 
-has IA64 systems that rely on ITC?

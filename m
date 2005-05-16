@@ -1,64 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbVEPNxV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261646AbVEPNyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261630AbVEPNxV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 09:53:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbVEPNxU
+	id S261646AbVEPNyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 09:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbVEPNyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 09:53:20 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:50891 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261630AbVEPNxH (ORCPT
+	Mon, 16 May 2005 09:54:16 -0400
+Received: from vana.vc.cvut.cz ([147.32.240.58]:47767 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S261646AbVEPNxo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 09:53:07 -0400
-Subject: Re: NUMA aware slab allocator V3
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       shai@scalex86.org, steiner@sgi.com
-In-Reply-To: <Pine.LNX.4.62.0505131823210.12315@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com>
-	 <20050512000444.641f44a9.akpm@osdl.org>
-	 <Pine.LNX.4.58.0505121252390.32276@schroedinger.engr.sgi.com>
-	 <20050513000648.7d341710.akpm@osdl.org>
-	 <Pine.LNX.4.58.0505130411300.4500@schroedinger.engr.sgi.com>
-	 <20050513043311.7961e694.akpm@osdl.org>
-	 <Pine.LNX.4.62.0505131823210.12315@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Date: Mon, 16 May 2005 06:52:48 -0700
-Message-Id: <1116251568.1005.29.camel@localhost>
+	Mon, 16 May 2005 09:53:44 -0400
+Date: Mon, 16 May 2005 15:49:10 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, rmk+serial@arm.linux.org.uk
+Subject: [PATCH] serial_cs broken on 2.6.12-rc4/2.6.12-rc4-mm2
+Message-ID: <20050516134910.GA8565@vana.vc.cvut.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-05-13 at 18:24 -0700, Christoph Lameter wrote: 
->  /*
-> + * Some Linux kernels currently have weird notions of NUMA. Make sure that
-> + * there is only a single node if CONFIG_NUMA is not set. Remove this check
-> + * after the situation has stabilized.
-> + */
-> +#ifndef CONFIG_NUMA
-> +#if MAX_NUMNODES != 1
-> +#error "Broken Configuration: CONFIG_NUMA not set but MAX_NUMNODES !=1 !!"
-> +#endif
-> +#endif
+Hello,
+  serial_cs's vendor/device identification got broken by Yum Rayan's
+change '[PATCH] serial_cs: Reduce stack usage in serial_event()' - it
+changed buf type from u_short* to char*, breaking device manufacturer
+& card number retrieval.  Due to this my modem stopped from being
+recognized as special case.
 
-There are some broken assumptions in the kernel that
-CONFIG_DISCONTIG==CONFIG_NUMA.  These usually manifest when code assumes
-that one pg_data_t means one NUMA node.
+  Code will work much better if we'll rely on first_tuple's parser
+instead of doing parse ourselves.  Code also looks simpler after
+change.
+					Thanks,
+						Petr Vandrovec
 
-However, NUMA node ids are actually distinct from "discontigmem nodes".
-A "discontigmem node" is just one physically contiguous area of memory,
-thus one pg_data_t.  Some (non-NUMA) Mac G5's have a gap in their
-address space, so they get two discontigmem nodes.
+Signed-off-by: Petr Vandrovec <vandrove@vc.cvut.cz>
 
-So, that #error is bogus.  It's perfectly valid to have multiple
-discontigmem nodes, when the number of NUMA nodes is 1.  MAX_NUMNODES
-refers to discontigmem nodes, not NUMA nodes.
 
-In current -mm, you can use CONFIG_NEED_MULTIPLE_NODES to mean 'NUMA ||
-DISCONTIG'.  
+Apply directly on top of RC4.  You'll have to redo my other serial_cs
+changes you have in the tree so you end up with state in second patch
+below after applying them...  I have no quilt exprience...
 
--- Dave
+--- linux-2.6.12-rc4/drivers/serial/serial_cs.c	2005-05-07 04:21:33.000000000 +0200
++++ linux-2.6.12-rc4/drivers/serial/serial_cs.c	2005-05-16 15:34:27.000000000 +0200
+@@ -661,10 +661,10 @@
+ 	/* Is this a multiport card? */
+ 	tuple->DesiredTuple = CISTPL_MANFID;
+ 	if (first_tuple(handle, tuple, parse) == CS_SUCCESS) {
+-		info->manfid = le16_to_cpu(buf[0]);
++		info->manfid = parse->manfid.manf;
+ 		for (i = 0; i < MULTI_COUNT; i++)
+ 			if ((info->manfid == multi_id[i].manfid) &&
+-			    (le16_to_cpu(buf[1]) == multi_id[i].prodid))
++			    (parse->manfid.card == multi_id[i].prodid))
+ 				break;
+ 		if (i < MULTI_COUNT)
+ 			info->multi = multi_id[i].multi;
 
+
+Apply on top of MM2:
+--- linux-2.6.12-rc4-mm2/drivers/serial/serial_cs.c	2005-05-16 13:19:29.000000000 +0200
++++ linux-2.6.12-rc4-mm2/drivers/serial/serial_cs.c	2005-05-16 13:28:08.000000000 +0200
+@@ -700,8 +700,8 @@
+ 	/* Is this a multiport card? */
+ 	tuple->DesiredTuple = CISTPL_MANFID;
+ 	if (first_tuple(handle, tuple, parse) == CS_SUCCESS) {
+-		info->manfid = le16_to_cpu(buf[0]);
+-		info->prodid = le16_to_cpu(buf[1]);
++		info->manfid = parse->manfid.manf;
++		info->prodid = parse->manfid.card;
+ 		for (i = 0; i < MULTI_COUNT; i++)
+ 			if ((info->manfid == multi_id[i].manfid) &&
+ 			    (info->prodid == multi_id[i].prodid))

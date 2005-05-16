@@ -1,60 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbVEPFFr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbVEPFMw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261277AbVEPFFr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 01:05:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVEPFFq
+	id S261331AbVEPFMw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 01:12:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbVEPFMw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 01:05:46 -0400
-Received: from colo.lackof.org ([198.49.126.79]:40328 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S261277AbVEPFFj (ORCPT
+	Mon, 16 May 2005 01:12:52 -0400
+Received: from stark.xeocode.com ([216.58.44.227]:9924 "EHLO stark.xeocode.com")
+	by vger.kernel.org with ESMTP id S261331AbVEPFMu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 01:05:39 -0400
-Date: Sun, 15 May 2005 23:08:43 -0600
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: akpm@osdl.org, T-Bone@parisc-linux.org, grundler@parisc-linux.org,
-       varenet@parisc-linux.org, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Netdev <netdev@oss.sgi.com>
-Subject: Re: patch tulip-natsemi-dp83840a-phy-fix.patch added to -mm tree
-Message-ID: <20050516050843.GA20107@colo.lackof.org>
-References: <200505101955.j4AJtX9x032464@shell0.pdx.osdl.net> <42881C58.40001@pobox.com>
-Mime-Version: 1.0
+	Mon, 16 May 2005 01:12:50 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Problem report: 2.6.12-rc4 ps2 keyboard being misdetected as /dev/input/mouse0
+From: Greg Stark <gsstark@mit.edu>
+Organization: The Emacs Conspiracy; member since 1992
+Date: 16 May 2005 01:12:41 -0400
+Message-ID: <87zmuveoty.fsf@stark.xeocode.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42881C58.40001@pobox.com>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 16, 2005 at 12:06:48AM -0400, Jeff Garzik wrote:
-> Note that while the patch creates the correct behavior, the delays above 
-> occur inside spin_lock_irqsave() and/or timer context.
 
-Yes. Agreed.  So what?
+I just updated to 2.6.12-rc4 and now /dev/input/mouse0 seems to be my ps2
+keyboard. My ps2 mouse is now on /dev/input/mouse1.
 
-If tulip phy init code is hit so often *and* seeing the worst case
-2ms delay that it's a problem, the delay doesn't matter.
-Something else is fundamentally wrong.
 
-Fixing code that doesn't comply with published specs and has
-been proven to not work on at least 3 archs seems a bit more
-important than an occasional < 1ms (normal case) delay.
+Good thing to catch before you release 2.6.12 and get the usual swarm of "my
+mouse stopped working" reports. It seems to be getting to be a pattern:
+upgrade linux kernel -- debug why mouse stopped working.
 
-> I have been to get HP to fix this patch's delay problem for -years-.
+-- 
+greg
 
-I was "encouraged" to rewrite the tulip phy init sequence in 2002
-to use schedule_timeout() and heard a claim it would be trivial.
-
-I looked into it and concluded it was NOT trivial.
-I approached Jeff at OLS2002 (or 2003) and explained why I thought it
-was NOT trivial.  Didn't get a response that resolved any of the
-concerns I raised. I'd be willing to take another look at fresh
-ideas once all of the tulip patches I have ouststanding go in.
-
-If the original suggestion really were trivial, we wouldn't be having
-this conversation now.  Some high school student would have taken care
-of it by now, right?
-
-thanks,
-grant

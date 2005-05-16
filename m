@@ -1,42 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261839AbVEPTfY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261826AbVEPTfb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261839AbVEPTfY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 15:35:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVEPTdl
+	id S261826AbVEPTfb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 15:35:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261833AbVEPTdh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 15:33:41 -0400
-Received: from ncc1701.cistron.net ([62.216.30.38]:57015 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S261816AbVEPTaz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 15:30:55 -0400
-From: dth@picard.cistron.nl (Danny ter Haar)
-Subject: Re: 2.6.12-rc4-mm2
-Date: Mon, 16 May 2005 19:30:54 +0000 (UTC)
-Organization: Cistron
-Message-ID: <d6asde$92k$1@news.cistron.nl>
-References: <20050516021302.13bd285a.akpm@osdl.org> <200505161615.50884.adobriyan@gmail.com> <d6ak89$vr8$1@news.cistron.nl> <200505162143.08155.adobriyan@gmail.com>
-X-Trace: ncc1701.cistron.net 1116271854 9300 62.216.30.70 (16 May 2005 19:30:54 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: dth@picard.cistron.nl (Danny ter Haar)
-To: linux-kernel@vger.kernel.org
+	Mon, 16 May 2005 15:33:37 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:16829 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S261818AbVEPT3f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 15:29:35 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17032.62615.750699.18847@napali.hpl.hp.com>
+Date: Mon, 16 May 2005 12:29:27 -0700
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
+       paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
+       Nishanth Aravamudan <nacc@us.ibm.com>, Darren Hart <darren@dvhart.com>,
+       "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
+       benh@kernel.crashing.org, linux-ia64@vger.kernel.org
+Subject: Re: IA64 implementation of timesource for new time of day subsystem
+In-Reply-To: <Pine.LNX.4.62.0505161219570.2158@schroedinger.engr.sgi.com>
+References: <1116029796.26454.2.camel@cog.beaverton.ibm.com>
+	<1116029872.26454.4.camel@cog.beaverton.ibm.com>
+	<1116029971.26454.7.camel@cog.beaverton.ibm.com>
+	<1116030058.26454.10.camel@cog.beaverton.ibm.com>
+	<1116030139.26454.13.camel@cog.beaverton.ibm.com>
+	<Pine.LNX.4.62.0505141251490.18681@schroedinger.engr.sgi.com>
+	<1116264858.26990.39.camel@cog.beaverton.ibm.com>
+	<Pine.LNX.4.62.0505161100240.1653@schroedinger.engr.sgi.com>
+	<1116269136.26990.67.camel@cog.beaverton.ibm.com>
+	<Pine.LNX.4.62.0505161219570.2158@schroedinger.engr.sgi.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexey Dobriyan  <adobriyan@gmail.com> wrote:
->Urgh... ACPI uses catch-all header file.
->If this won't work, I'll get a cross-compiler.
+>>>>> On Mon, 16 May 2005 12:24:08 -0700 (PDT), Christoph Lameter <clameter@engr.sgi.com> said:
 
-take #3
+  Christoph> Other IA64 vendors will see that their timer performance
+  Christoph> drops significantly after the new timer subsystem is
+  Christoph> in. IBM no longer has IA64 systems that rely on ITC?
 
-still no luck.
+Would that somehow make it ok to break existing and working code?
 
-Less output then previous trial.
-
-Danny
-PS: need an account so you can compile on the machine in question ? 
-
-
--- 
-The foundation of evil is made up of lies and marketing - UF2004
-
+	--david

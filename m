@@ -1,67 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261560AbVEPLeJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261550AbVEPLjC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261560AbVEPLeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 07:34:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbVEPLeJ
+	id S261550AbVEPLjC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 07:39:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbVEPLjC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 07:34:09 -0400
-Received: from mail18.syd.optusnet.com.au ([211.29.132.199]:25831 "EHLO
-	mail18.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261551AbVEPLd1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 07:33:27 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: AndrewMorton <akpm@osdl.org>
-Subject: Re: [SMP NICE] [PATCH] SCHED: Implement nice support across physical cpus on SMP
-Date: Mon, 16 May 2005 21:33:09 +1000
-User-Agent: KMail/1.8
-Cc: Carlos Carvalho <carlos@fisica.ufpr.br>, ck@vds.kolivas.org,
-       Ingo Molnar <mingo@elte.hu>,
-       Markus =?iso-8859-1?q?T=F6rnqvist?= <mjt@nysv.org>,
-       linux-kernel@vger.kernel.org
-References: <20050509112446.GZ1399@nysv.org> <17023.63512.319555.552924@fisica.ufpr.br> <200505111304.06853.kernel@kolivas.org>
-In-Reply-To: <200505111304.06853.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3324502.NxN9umJa87";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200505162133.13399.kernel@kolivas.org>
+	Mon, 16 May 2005 07:39:02 -0400
+Received: from news.cistron.nl ([62.216.30.38]:47027 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S261550AbVEPLjA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 07:39:00 -0400
+From: dth@picard.cistron.nl (Danny ter Haar)
+Subject: Re: 2.6.12-rc4-mm2
+Date: Mon, 16 May 2005 11:38:59 +0000 (UTC)
+Organization: Cistron
+Message-ID: <d6a0oj$akh$1@news.cistron.nl>
+References: <20050516021302.13bd285a.akpm@osdl.org> <d69ttf$782$1@news.cistron.nl> <200505161517.40802.adobriyan@gmail.com>
+X-Trace: ncc1701.cistron.net 1116243539 10897 62.216.30.70 (16 May 2005 11:38:59 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: dth@picard.cistron.nl (Danny ter Haar)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3324502.NxN9umJa87
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Alexey Dobriyan  <adobriyan@gmail.com> wrote:
+>Does this help?
+>--- linux-2.6.12-rc4-mm2/include/acpi/achware.h	2005-05-16 14:24:02.000000000 +0400
+>+++ linux-2.6.12-rc4-mm2-acpi/include/acpi/achware.h	2005-05-16 15:11:39.000000000 +0400
 
-On Wed, 11 May 2005 13:04, Con Kolivas wrote:
-> Andrew please consider for inclusion in -mm
+[SNIP]
 
-It looks like I missed my window of opportunity and the SMP balancing desig=
-n=20
-has been restructured in latest -mm again so this patch will have to wait=20
-another generation. Carlos, Markus you'll have to wait till that code settl=
-es=20
-down (if ever) before I (or someone else) rewrites it for it to get include=
-d=20
-in -mm followed by mainline. The patch you currently have will work fine fo=
-r=20
-2.6.11* and 2.6.12*
+[PATCH APPLIED]
 
-Cheers,
-Con
 
---nextPart3324502.NxN9umJa87
-Content-Type: application/pgp-signature
+Nope, (unfortunatly)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Complete error is at: 
 
-iD8DBQBCiIT5ZUg7+tp6mRURAv+aAJ97siSMCJRg/FTi1pSUfDOULRPESwCfaqap
-2BTcEJV7dm3m9Pi9LT6oTXM=
-=5a6L
------END PGP SIGNATURE-----
+http://newsgate.newsserver.nl/kernel/2.6.12-rc4-mm2-error-out.txt
 
---nextPart3324502.NxN9umJa87--
+Danny
+-- 
+The foundation of evil is made up of lies and marketing - UF2004
+

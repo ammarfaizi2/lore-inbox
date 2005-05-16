@@ -1,54 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261670AbVEPO6z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261691AbVEPPCZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261670AbVEPO6z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 10:58:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261676AbVEPO6l
+	id S261691AbVEPPCZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 11:02:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbVEPPA7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 10:58:41 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:4015 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261670AbVEPO4N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 10:56:13 -0400
-Date: Mon, 16 May 2005 15:56:07 +0100
-From: "'Christoph Hellwig'" <hch@infradead.org>
-To: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-Cc: "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
-       Andrew Morton <akpm@osdl.org>,
-       "'Christoph Hellwig'" <hch@infradead.org>,
-       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       "Ju, Seokmann" <sju@lsil.com>, "Doelfel, Hardy" <hdoelfel@lsil.com>
-Subject: Re: [PATCH 2.6.12-rc4-mm1 1/4] megaraid_sas: updating the driver
-Message-ID: <20050516145607.GC25156@infradead.org>
-Mail-Followup-To: 'Christoph Hellwig' <hch@infradead.org>,
-	"Bagalkote, Sreenivas" <sreenib@lsil.com>,
-	"'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-	"'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
-	Andrew Morton <akpm@osdl.org>,
-	'James Bottomley' <James.Bottomley@SteelEye.com>,
-	"Ju, Seokmann" <sju@lsil.com>, "Doelfel, Hardy" <hdoelfel@lsil.com>
-References: <0E3FA95632D6D047BA649F95DAB60E57060CCE7A@exa-atlanta>
+	Mon, 16 May 2005 11:00:59 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:52447 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261676AbVEPO7R
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 10:59:17 -0400
+Subject: Re: Linux does not care for data integrity (was: Disk write cache)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Matthias Andree <matthias.andree@gmx.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1116241957.6274.36.camel@laptopd505.fenrus.org>
+References: <Pine.LNX.4.58.0505151657230.19181@artax.karlin.mff.cuni.cz>
+	 <200505151121.36243.gene.heskett@verizon.net>
+	 <20050515152956.GA25143@havoc.gtf.org>
+	 <20050516.012740.93615022.okuyamak@dd.iij4u.or.jp>
+	 <42877C1B.2030008@pobox.com>  <20050516110203.GA13387@merlin.emma.line.org>
+	 <1116241957.6274.36.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1116255439.21388.45.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E57060CCE7A@exa-atlanta>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 16 May 2005 15:57:22 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 16, 2005 at 02:51:22AM -0400, Bagalkote, Sreenivas wrote:
-> Hello All,
-> 
-> Please review this update to the previously submitted megaraid_sas driver.
-> I have adopted all the feedback received for the initial submission. Since
-> most of the code is rearranged, I have split the patches into four parts - 
-> the first two remove the original code and the second two add the new code.
+On Llu, 2005-05-16 at 12:12, Arjan van de Ven wrote:
+> Sure you can waive rethorics around, but the fact is that linux is
+> improving; there now is write barrier support for ext3 (and I assume
+> reiserfs) for at least IDE and iirc selected scsi too. 
 
-As your driver is not in the scsi tree yet please send diff in future that
-just apply against the scsi-misc tree.  Also please use a mailer that
-doesn't mangle the patches.
+scsi supports tagging so ext3 at least is just fine.
 

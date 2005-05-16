@@ -1,62 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261820AbVEPS4B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261627AbVEPTLQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261820AbVEPS4B (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 14:56:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbVEPS4B
+	id S261627AbVEPTLQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 15:11:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261739AbVEPTLP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 14:56:01 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:63890 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261814AbVEPSzt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 14:55:49 -0400
-Subject: Re: IA64 implementation of timesource for new time of day subsystem
-From: john stultz <johnstul@us.ibm.com>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
-       Nishanth Aravamudan <nacc@us.ibm.com>, Darren Hart <darren@dvhart.com>,
-       "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
-       benh@kernel.crashing.org, linux-ia64@vger.kernel.org
-In-Reply-To: <1116269136.26990.67.camel@cog.beaverton.ibm.com>
-References: <1116029796.26454.2.camel@cog.beaverton.ibm.com>
-	 <1116029872.26454.4.camel@cog.beaverton.ibm.com>
-	 <1116029971.26454.7.camel@cog.beaverton.ibm.com>
-	 <1116030058.26454.10.camel@cog.beaverton.ibm.com>
-	 <1116030139.26454.13.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.62.0505141251490.18681@schroedinger.engr.sgi.com>
-	 <1116264858.26990.39.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.62.0505161100240.1653@schroedinger.engr.sgi.com>
-	 <1116269136.26990.67.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain
-Date: Mon, 16 May 2005 11:55:42 -0700
-Message-Id: <1116269742.26990.74.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Mon, 16 May 2005 15:11:15 -0400
+Received: from mail.enyo.de ([212.9.189.167]:59803 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S261627AbVEPTLM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 15:11:12 -0400
+From: Florian Weimer <fw@deneb.enyo.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Matthias Andree <matthias.andree@gmx.de>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux does not care for data integrity
+References: <200505151121.36243.gene.heskett@verizon.net>
+	<20050515152956.GA25143@havoc.gtf.org>
+	<20050516.012740.93615022.okuyamak@dd.iij4u.or.jp>
+	<42877C1B.2030008@pobox.com>
+	<20050516110203.GA13387@merlin.emma.line.org>
+	<1116241957.6274.36.camel@laptopd505.fenrus.org>
+	<20050516112956.GC13387@merlin.emma.line.org>
+	<1116252157.6274.41.camel@laptopd505.fenrus.org>
+	<20050516144831.GA949@merlin.emma.line.org>
+	<1116256005.21388.55.camel@localhost.localdomain>
+	<20050516154020.GD949@merlin.emma.line.org>
+	<1116266671.21452.94.camel@localhost.localdomain>
+Date: Mon, 16 May 2005 21:11:02 +0200
+In-Reply-To: <1116266671.21452.94.camel@localhost.localdomain> (Alan Cox's
+	message of "Mon, 16 May 2005 19:04:32 +0100")
+Message-ID: <87fywn0ywp.fsf@deneb.enyo.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-05-16 at 11:45 -0700, john stultz wrote:
-> All you need is to do is define  implement an ia64 version of
-> arch_update_vsyscall_gtod() which can then export the values passed to
-> it in whatever form you desire so it can be used by the fastcall.
+* Alan Cox:
 
+> On Llu, 2005-05-16 at 16:40, Matthias Andree wrote:
+>> On Mon, 16 May 2005, Alan Cox wrote:
+>> Is tagged command queueing (we'll need the ordered tag here) compatible
+>> with all SCSI adaptors that Linux supports?
+>
+> TCQ is a device not controller property.
 
-Sorry, that first sentence wasn't complete, I went to go look up the
-reference and got distracted with something else.
-
-It should be "All you need to do is define NEWTOD_VSYSCALL and
-implement.."
-
-time for more coffee :)
--john
-
-
+I suppose it's one in RAID controllers.

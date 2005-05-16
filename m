@@ -1,24 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261876AbVEPVJV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261892AbVEPVMI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261876AbVEPVJV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 17:09:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbVEPVHy
+	id S261892AbVEPVMI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 17:12:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbVEPVJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 17:07:54 -0400
-Received: from dvhart.com ([64.146.134.43]:58529 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S261876AbVEPVGX (ORCPT
+	Mon, 16 May 2005 17:09:53 -0400
+Received: from dvhart.com ([64.146.134.43]:58017 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S261881AbVEPVEo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 17:06:23 -0400
-Date: Mon, 16 May 2005 14:06:14 -0700
+	Mon, 16 May 2005 17:04:44 -0400
+Date: Mon, 16 May 2005 14:04:41 -0700
 From: "Martin J. Bligh" <mbligh@mbligh.org>
 Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: christoph <christoph@scalex86.org>, Dave Hansen <haveblue@us.ibm.com>
-Cc: linux-mm <linux-mm@kvack.org>, shai@scalex86.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Factor in buddy allocator alignment requirements in node memory alignment
-Message-ID: <737010000.1116277574@flay>
-In-Reply-To: <Pine.LNX.4.62.0505161253090.20839@ScMPusgw>
-References: <Pine.LNX.4.62.0505161204540.4977@ScMPusgw> <1116274451.1005.106.camel@localhost>  <Pine.LNX.4.62.0505161240240.13692@ScMPusgw><1116276439.1005.110.camel@localhost> <Pine.LNX.4.62.0505161253090.20839@ScMPusgw>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.12-rc4-mm2 boot failure
+Message-ID: <735450000.1116277481@flay>
 X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -27,31 +24,36 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+PPC64 NUMA box. Maybe this is the same NUMA slab problem you were 
+hitting before ...
 
-
---On Monday, May 16, 2005 12:55:39 -0700 christoph <christoph@scalex86.org> wrote:
-
-> On Mon, 16 May 2005, Dave Hansen wrote:
-> 
->> > Because the buddy allocator is complaining about wrongly allocated zones!
->> 
->> Just because it complains doesn't mean that anything is actually
->> wrong :)
->> 
->> Do you know which pieces of code actually break if the alignment doesn't
->> meet what that warning says?
-> 
-> I have seen nothing break but 4 MB allocations f.e. will not be allocated 
-> on a 4MB boundary with a 2 MB zone alignment. The page allocator always 
-> returnes properly aligned pages but 4MB allocations are an exception? 
-> 
-> Some present or future hardware device or some other code may find that 
-> surprising and crash.
-
-Now that it's fixed it is meant to notice that the start of the zone is
-not aligned, and not key off that, but the aligment itself ... the start
-and end roundoff bits shouldn't throw the rest out of alignment, as long
-as we do the calculation sensibly for how we regroup buddies.
-
-M.
+Oops: Exception in kernel mode, sig: 5 [#1]^M
+SMP NR_CPUS=32 NUMA PSERIES LPAR ^M
+Modules linked in:^M
+NIP: C000000000099624 XER: 00000000 LR: C00000000009A014 CTR: C00000000028C0D4^M
+REGS: c00000000057ba10 TRAP: 0700   Not tainted  (2.6.12-rc4-mm2-autokern1)^M
+MSR: 8000000000029032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11 CR: 24004022^M
+DAR: 8000000000009032 DSISR: c0000000006c82bf^M
+TASK: c0000000005e2100[0] 'swapper' THREAD: c000000000578000 CPU: 0^M
+GPR00: 0000000000000001 C00000000057BC90 C0000000006C0568 C00000077FFD2590 ^M
+GPR04: 0000000000000000 FFFFFFFFFFFFFFFF C0000000006C83D0 C0000000005E3A24 ^M
+GPR08: C0000000005E3A18 0000000000000000 C0000000006C83C8 C0000000006C82E8 ^M
+GPR12: 000000000000000A C0000000005CD000 0000000000000000 0000000000000000 ^M
+GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000 ^M
+GPR20: 0000000000230000 0000000003A10000 0000000000000060 0000000003F143C8 ^M
+GPR24: C0000000005CD000 C0000000006BE208 C000000000577D68 0000000000008000 ^M
+GPR28: 0000000000000000 00000000000080D0 C0000000005E2100 0000000000000001 ^M
+NIP [c000000000099624] .interleave_nodes+0x38/0xd0^M
+LR [c00000000009a014] .alloc_pages_current+0x100/0x134^M
+Call Trace:^M
+[c00000000057bc90] [000000000000001d] 0x1d (unreliable)^M
+[c00000000057bd20] [c00000000009a014] .alloc_pages_current+0x100/0x134^M
+[c00000000057bdc0] [c00000000007abd4] .get_zeroed_page+0x28/0x90^M
+[c00000000057be40] [c0000000004e2e68] .pidmap_init+0x24/0xa0^M
+[c00000000057bed0] [c0000000004c7734] .start_kernel+0x21c/0x30c^M
+[c00000000057bf90] [c00000000000c010] .__setup_cpu_power3+0x0/0x4^M
+Instruction dump:^M
+fba1ffe8 fbc1fff0 f8010010 f821ff71 60000000 ebcd0160 a93e0788 793f0020 ^M
+7fe9fe70 7d20fa78 7c004850 54000ffe <0b000000> 3ba30010 38bf0001 38800001 ^M
+ <0>Kernel panic - not syncing: Attempted to kill the idle task!^M
 

@@ -1,71 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261928AbVEPWDM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261948AbVEPWIH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261928AbVEPWDM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 18:03:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVEPV7Z
+	id S261948AbVEPWIH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 18:08:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbVEPWHv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 17:59:25 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:6879 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261896AbVEPV4h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 17:56:37 -0400
-Date: Mon, 16 May 2005 14:53:00 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: john stultz <johnstul@us.ibm.com>
-cc: David Mosberger <davidm@hpl.hp.com>, lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Dominik Brodowski <linux@dominikbrodowski.de>, Andi Kleen <ak@suse.de>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
-       Nishanth Aravamudan <nacc@us.ibm.com>, Darren Hart <darren@dvhart.com>,
-       "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
-       benh@kernel.crashing.org, linux-ia64@vger.kernel.org
-Subject: Re: IA64 implementation of timesource for new time of day subsystem
-In-Reply-To: <1116279338.13867.30.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.62.0505161445020.3010@schroedinger.engr.sgi.com>
-References: <1116029796.26454.2.camel@cog.beaverton.ibm.com> 
- <1116029872.26454.4.camel@cog.beaverton.ibm.com>  <1116029971.26454.7.camel@cog.beaverton.ibm.com>
-  <1116030058.26454.10.camel@cog.beaverton.ibm.com> 
- <1116030139.26454.13.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.62.0505141251490.18681@schroedinger.engr.sgi.com> 
- <1116264858.26990.39.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.62.0505161100240.1653@schroedinger.engr.sgi.com> 
- <1116269136.26990.67.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.62.0505161219570.2158@schroedinger.engr.sgi.com> 
- <17032.62615.750699.18847@napali.hpl.hp.com>  <1116273055.13867.5.camel@cog.beaverton.ibm.com>
-  <Pine.LNX.4.62.0505161325330.2509@schroedinger.engr.sgi.com> 
- <1116276824.13867.15.camel@cog.beaverton.ibm.com>  <17033.2445.545597.210557@napali.hpl.hp.com>
- <1116279338.13867.30.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 May 2005 18:07:51 -0400
+Received: from adsl-216-102-214-42.dsl.snfc21.pacbell.net ([216.102.214.42]:62216
+	"EHLO cynthia.pants.nu") by vger.kernel.org with ESMTP
+	id S261935AbVEPWEs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 18:04:48 -0400
+Date: Mon, 16 May 2005 15:04:45 -0700
+From: Brad Boyer <flar@allandria.com>
+To: Kenichi Okuyama <okuyamak@dd.iij4u.or.jp>
+Cc: Valdis.Kletnieks@vt.edu, fs@ercist.iscas.ac.cn,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [RFD] What error should FS return when I/O failure occurs?
+Message-ID: <20050516220445.GA3681@pants.nu>
+References: <200505160635.j4G6ZUcX023810@turing-police.cc.vt.edu> <20050517.051113.132843723.okuyamak@dd.iij4u.or.jp> <200505162035.j4GKZVCc018357@turing-police.cc.vt.edu> <20050517.063931.91280786.okuyamak@dd.iij4u.or.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050517.063931.91280786.okuyamak@dd.iij4u.or.jp>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 May 2005, john stultz wrote:
+On Tue, May 17, 2005 at 06:39:31AM +0900, Kenichi Okuyama wrote:
+> USB storage is gone. And it SEEMS to came back.
+> But how do you know that it's images were not changed.
+> 
+> Blocks you have cached might have different image. If you remount
+> the file system, the cache image should be updated as well.
+> 
+> But very fact that *cache image should be updated* means, old cache
+> image was invalid. And when did it become invalid?
+> 
+> When it was gone.
+> 
+> Think about thing this way. There was USB storage and it's cached
+> image. Storage is somewhat gone. It never returned before reboot.
+> Was cache image valid after storage gone? Ofcourse not. That cache
+> is nothing more than old data which came from LOST, and NEVER COMING
+> BACK device.
+> 
+> If device did come back but with change, we must read the data from
+> storage again. Old cache image was useless, and was harmful.
+> If device did come back without change, we can read the data from
+> storage again.
+> 
+> No need to keep the cache image, taking risk of cache not being
+> valid, especially while you have no control over the storage.
 
-> Since its possible to do jitter compensation within the itc timesource
-> driver (and within the fastcall code to preserve the existing
-> performance), would it be reasonable to deffer making the jitter
-> compensation code generic until another timesource needs it? It should
-> be a fairly simple change.
+This is a difficult problem, but it's not as completely invalid as
+you seem to think. The use case I remember taking advantage of in
+actual experience is from the classic MacOS. The way the mac handled
+floppies was very interesting. There was a way to eject an HFS floppy
+without unmounting it. Using this trick, you could have multiple disks
+mounted using the same physical drive. It kept as much as it could
+in RAM to be able to use the files, and the system would block on
+unknown sectors until the correct disk was reinserted. However, it's
+very difficult to get this level of usage without full knowledge all
+the way from the device driver up to the UI. Since Apple controlled
+the whole thing, they could get away with this. I'm not sure we could
+do an equivalent thing in as different of an environment as we have.
+They could tell apart each filesystem, notify the user when a different
+disk was needed, and everything else to have a seamless experience.
 
-Well looks that we will start out with the new time subsystem by putting 
-some hacks in. I need to check in the funky routine (for setting up the 
-fastcall configuration) if the function pointer passed == jitter-compensated-itc
-and depending on that set a special flag that makes the asm code do jitter
-compensation.
-
-> Or is this just something I'm being hard-headed about?
-
-Looks like it. Its not that difficult. Add a jitter compensation flag to
-timesource. Check on retrieving from a timesource if its less than last if 
-flag is set. Pass the field to the funky function to setup the 
-vsyscalls.
-
-Maybe add a general flags field? There may be other things that need to be 
-added in the future.
+	Brad Boyer
+	flar@allandria.com
 

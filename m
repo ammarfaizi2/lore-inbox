@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261157AbVEPAXi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbVEPA5x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261157AbVEPAXi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 20:23:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261194AbVEPAXi
+	id S261205AbVEPA5x (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 20:57:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVEPA5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 20:23:38 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:39953 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S261157AbVEPAXg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 20:23:36 -0400
-Message-ID: <4287E807.6070502@rtr.ca>
-Date: Sun, 15 May 2005 20:23:35 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050420 Debian/1.7.7-2
-X-Accept-Language: en, en-us
+	Sun, 15 May 2005 20:57:53 -0400
+Received: from mail09.syd.optusnet.com.au ([211.29.132.190]:9610 "EHLO
+	mail09.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261205AbVEPA5v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 20:57:51 -0400
 MIME-Version: 1.0
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: mhw@wittsend.com, linux-kernel@vger.kernel.org
-Subject: Re: Sync option destroys flash!
-References: <1116001207.5239.38.camel@localhost.localdomain> <200505152200.26432.vda@ilport.com.ua>
-In-Reply-To: <200505152200.26432.vda@ilport.com.ua>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17031.61437.279517.139691@wombat.chubb.wattle.id.au>
+Date: Mon, 16 May 2005 10:57:33 +1000
+From: Peter Chubb <peterc@gelato.unsw.edu.au>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Need kernel patch to compile with Intel compiler
+In-Reply-To: <1115933336l.8448l.0l@werewolf.able.es>
+References: <377362e105051207461ff85b87@mail.gmail.com>
+	<Pine.LNX.4.61.0505121130030.31719@chaos.analogic.com>
+	<1115933336l.8448l.0l@werewolf.able.es>
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All flashcards (other than dumb "smart media" cards) have integrated
-NAND controllers which perform automatic page/block remapping and
-which implement various wear-leveling algorithms.  Rewriting "Sector 0"
-10000 times probably only writes once to the first sector of a 1GB card.
-The other writes are spread around the rest of the card, and remapped
-logically by the integrated controller.
+>>>>> "J" == J A Magallon <J.A.> writes:
 
-Linux could be more clever about it all, though.  Wear-leveling can only
-be done efficiently on "unused" or "rewritten" blocks/pages on the cards,
-and not so well with areas that hold large static data files (from the point
-of view of the flash controller, not the O/S).
+J> On 05.12, Richard B. Johnson wrote:
+>> On Thu, 12 May 2005, Tetsuji "Maverick" Rai wrote:
+>> 
+>> > In this mailing list archive I found a discussion on how to
+>> compile > kenrel 2.6.x with Intel C++ compiler, but it was a bit
+>> old, and only > kernel patch for version 2.6.5 or around so can be
+>> found.  As mine is > HT enabled, I want newer one.
+>> >
 
-If we were really clever about it, then when Linux deletes a file from a
-flashcard device, it would also issue CFA ERASE commands for the newly
-freed sectors.  This would let the card's controller know that it can
-remap/reuse that area of the card as it sees fit.
+>> Why would you even attempt to convert the kernel sources to be
+>> compiled with some other tools? Also C++ won't work because the
+>> kernel is all about method, i.e., procedures. You need a procedural
+>> compiler for most of it, not an object-oriented one.
 
-But it's dubious that a *short term* use (minutes/hours) of O_SYNC
-would have killed a new 1GB card.
+J> Intel's is a C/C++/Fortran compiler.
 
-Cheers
+J> Last time I checked (a year or so ago) gcc catched the intel
+J> compiler for equivalent options, or say it the other way, adjusting
+J> gcc options you could get more or less the same performance. There
+J> were even places where gcc generated faster code than icc. And that
+J> was gcc-3.0.x, I think.
+
+For IA64, the intel compiler generates *much* better code than gcc.
+Depending on the source, you can get factor of two or better,
+particularly for crypto code like rc4.
+
+-- 
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*

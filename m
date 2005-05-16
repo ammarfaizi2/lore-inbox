@@ -1,92 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261488AbVEPIkw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261423AbVEPI6i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261488AbVEPIkw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 04:40:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbVEPIi5
+	id S261423AbVEPI6i (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 04:58:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261459AbVEPI6h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 04:38:57 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:46748 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261459AbVEPIhu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 04:37:50 -0400
-Date: Mon, 16 May 2005 14:06:23 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Alexander Nyberg <alexn@telia.com>
-Cc: vatsa@in.ibm.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       fastboot@lists.osdl.org, Andrew Morton <akpm@osdl.org>,
-       Badari Pulavarty <pbadari@us.ibm.com>, Vivek Goyal <vgoyal@in.ibm.com>
-Subject: Re: [Fastboot] kexec+kdump testing with 2.6.12-rc3-mm3
-Message-ID: <20050516083623.GA3794@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <1115769558.26913.1046.camel@dyn318077bld.beaverton.ibm.com> <20050511025325.GA3638@in.ibm.com> <1115824847.26913.1061.camel@dyn318077bld.beaverton.ibm.com> <20050512054424.GC3838@in.ibm.com> <20050512102230.GB3870@in.ibm.com> <20050512112807.GA21343@in.ibm.com> <1116066796.919.26.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1116066796.919.26.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 16 May 2005 04:58:37 -0400
+Received: from lantana.tenet.res.in ([202.144.28.166]:9877 "EHLO
+	lantana.cs.iitm.ernet.in") by vger.kernel.org with ESMTP
+	id S261423AbVEPI63 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 04:58:29 -0400
+Date: Mon, 16 May 2005 14:28:32 +0530 (IST)
+From: "P.Manohar" <pmanohar@lantana.cs.iitm.ernet.in>
+To: Marcel Holtmann <marcel@holtmann.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ioctl to keyboard device file
+In-Reply-To: <1115892091.18499.17.camel@pegasus>
+Message-ID: <Pine.LNX.4.60.0505161418470.31612@lantana.cs.iitm.ernet.in>
+References: <Pine.LNX.4.60.0505112207300.21632@lantana.cs.iitm.ernet.in> 
+ <1115831651.23458.74.camel@pegasus>  <Pine.LNX.4.60.0505112301350.31722@lantana.cs.iitm.ernet.in>
+  <1115834000.23458.77.camel@pegasus>  <Pine.LNX.4.60.0505121454240.26644@lantana.cs.iitm.ernet.in>
+ <1115892091.18499.17.camel@pegasus>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Mail-scanner Found to be clean
+X-MailScanner-From: pmanohar@lantana.cs.iitm.ernet.in
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 14, 2005 at 12:33:16PM +0200, Alexander Nyberg wrote:
-> > Probably you need another loop here for iterating thr' all the
-> > threads of a task? do_each_thread/while_each_thread macros give
-> > the details.
-> > 
-> > Basically the macros can be modified as:
-> > 
-> > set $tasks_off=((size_t)&((struct task_struct *)0)->tasks)
-> > set $pid_off=((size_t)&((struct task_struct *)0)->pids[1].pid_list.next)
-> > set $init_t=&init_task
-> > set $next_t=(((char *)($init_t->tasks).next) - $tasks_off)
-> > while ($next_t != $init_t)
-> > set $next_t=(struct task_struct *)$next_t
-> > printf "\n%s:\n", $next_t.comm
-> > printf "PID = %d\n", $next_t.pid
-> > printf "Stack dump:\n"
-> > x/40x $next_t.thread.esp
-> > set $next_th=(((char *)$next_t->pids[1].pid_list.next) - $pid_off)
-> > while ($next_th != $next_t)
-> > set $next_th=(struct task_struct *)$next_th
-> > printf "\n%s:\n", $next_th.comm
-> > printf "PID = %d\n", $next_th.pid
-> > printf "Stack dump:\n"
-> > x/40x $next_th.thread.esp
-> > set $next_th=(((char *)$next_th->pids[1].pid_list.next) - $pid_off)
-> > end
-> > set $next_t=(char *)($next_t->tasks.next) - $tasks_off
-> > end
-> 
-> When looking at this I thought of what information we want to save in
-> the ELF header to be examined after a crash. I'm currently working on
-> some patches to save all threads in the kernel down into the PT_NOTE
-> section. But do we really need this if we instead have a suite of gdb
-> scripts and other user-space analyzers that can find the requested
-> information?
-> 
+hai,
 
-That's right, we should try to do minimum stuff at the time of crash,
-which are absolutely necessary. Analysis tools like gdb or crash should
-be able to extract or format useful things from the dump.
+     My task is to send the characters to any application as if the input 
+is coming from keyboard. For that I created one character device file. To 
+it I am sending input characters through ioctl. In the character device 
+ioctl definition I am copying these user characters to kernel space and 
+sending these characters to handle_scancode function. What is the wrong 
+with this solution. This solution is working now. But waht I am asking is
+istead of sending our ioctl to newly created device file, can we able to 
+send ioctl to the keyboard buffer, so that avoiding the use of new 
+character device file , whose purpose is just to handle ioctl.
 
-> This would simplify aspects such as not having to fiddle with the crash
-> ELF header in the kernel. I can't see a gain in dumping a bunch of
-> NT_PRSTATUS or NT_TASKSTRUCT in the notes section if we can find the
-> same information in gdb/user-space after a crash-dump.
-> 
-> We should be able to get get (symbol) backtraces from each task with
-> some gdb scripts too, so I think most analyzis can be done from
-> user-space. Am I missing something?
-> 
+I think now u got my doubt.
 
-no...
+One more is, uinput case,
 
-Thanks
-Maneesh
+Whether uinput also doing the same thing, waht I am doing?
+For sending user data to kernel sapce we should use ioctl ,is it right?
 
--- 
-Maneesh Soni
-Linux Technology Center, 
-IBM India Software Labs,
-Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-25044990
+Plz  cc (mail) me with ur comments.
+
+Regards,
+Manohar.
+On Thu, 12 May 2005, Marcel Holtmann wrote:
+
+> Hi,
+>
+>>>>>>       I want to add a new ioctl to keyboard driver device file which will
+>>>>>> perform the work of copying user space data  sent to it into kernel
+>>>>>> space and send those characters  to handle_scancode function of keyboard
+>>>>>> driver.. Now I want to know
+>>>>>>
+>>>>>> 1) what is the device file corresponding to keyboard (is it
+>>>>>> /dev/input/keyboard).
+>>>>>> 2) where file operations structure is defined for that.
+>>>>>> 3) where the those ioctls handled(not found in keyboard.c).
+>>>>>>
+>>>>>> Any small help is appreciated.
+>>>>>
+>>>>> why not using uinput for this job?
+>>>>
+>>>>    Thanks for the solution.  I did the above task, by defining a new
+>>>> character device driver and sending ioctl to it. and calling
+>>>> handle_scancode from it. Now I want
+>>>> to do the same task with in the keyboard driver. For that I need to send
+>>>> ioctl to keyboard device file.
+>>>> For that only I asked the
+>>>> above doubts.
+>>>
+>>> what your are trying to do looks wrong to me. Why don't you use uinput.
+>>> It is there and it is the correct thing for the job.
+>>>
+>>
+>> Can u pl. tell what uinput will do,
+>> Can u have any idea about the way That I want it to do.
+>
+> with uinput you can write your own input driver (keyboards, mice etc.)
+> in the userspace. So you create a keyboard device driven by uinput and
+> feed your key strokes from the other machine to it.
+>
+> Regards
+>
+> Marcel
+>
+>

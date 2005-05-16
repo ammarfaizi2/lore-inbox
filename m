@@ -1,89 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261756AbVEPRB1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261760AbVEPRGW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261756AbVEPRB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 13:01:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261760AbVEPQ7g
+	id S261760AbVEPRGW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 13:06:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbVEPRGV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 12:59:36 -0400
-Received: from mail.dif.dk ([193.138.115.101]:18376 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261756AbVEPQ7I (ORCPT
+	Mon, 16 May 2005 13:06:21 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:21130 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261760AbVEPRF7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 12:59:08 -0400
-Date: Mon, 16 May 2005 19:03:11 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: "James E.J. Bottomley" <James.Bottomley@SteelEye.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Eric Youngdale <eric@andante.org>, linux-scsi@vger.kernel.org
-Subject: Re: test of 'good_bytes' in scsi_io_completion is always true (in
- drivers/scsi/scsi_lib.c)
-In-Reply-To: <Pine.LNX.4.62.0505161852550.3101@dragon.hyggekrogen.localhost>
-Message-ID: <Pine.LNX.4.62.0505161902330.3101@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0504200030180.2074@dragon.hyggekrogen.localhost>
- <Pine.LNX.4.62.0505161852550.3101@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 May 2005 13:05:59 -0400
+Date: Mon, 16 May 2005 18:42:30 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Mark Lord <lkml@rtr.ca>, Denis Vlasenko <vda@ilport.com.ua>,
+       mhw@wittsend.com, linux-kernel@vger.kernel.org
+Subject: Re: Sync option destroys flash!
+Message-ID: <20050516164230.GA1762@elf.ucw.cz>
+References: <1116001207.5239.38.camel@localhost.localdomain> <200505152200.26432.vda@ilport.com.ua> <4287E807.6070502@rtr.ca> <1116235789.25594.19.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1116235789.25594.19.camel@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 May 2005, Jesper Juhl wrote:
+Hi!
 
-> (please keep me on the CC list when replying)
+> > All flashcards (other than dumb "smart media" cards) have integrated
+> > NAND controllers which perform automatic page/block remapping and
+> > which implement various wear-leveling algorithms. Rewriting "Sector 0"
+> > 10000 times probably only writes once to the first sector of a 1GB card.
+> > The other writes are spread around the rest of the card, and remapped
+> > logically by the integrated controller.
 > 
-> 
-> Hi James,
-> 
-> I never got any response to the mail below, so I'll try again :)
-> Should we just get rid of the code in the 'if' since it'll never trigger, 
+> Assuming the firmware of the card is written with a modicum of clue,
+> this is true. It's not clear how valid that assumption is, in the
+> general case. There are reports of cards behaving as if they have almost
+> no wear levelling at all.
 
-I mean get rid of the "if", not "the code in the if" of course..
-
-
-> or was the intention actually to test  if (good_bytes > 0)  ?  If so, then 
-> the patch should make good sense...
-> 
-> Comments ?
-> 
-> -- 
-> Jesper Juhl
-> 
-> 
-> On Wed, 20 Apr 2005, Jesper Juhl wrote:
-> 
-> > 
-> > in drivers/scsi/scsi_lib.c::scsi_io_completion() 'good_bytes' is tested 
-> > for being >= 0, but 'good_bytes' is an unsigned int, so that test is 
-> > always true. My *guess* is that what was intended was to test if 
-> > good_bytes is > 0, but I don't know this code well enough to be sure. 
-> > The patch below makes the change to test if it's > 0, but if the code in 
-> > the 'if' really wants to run if it's >= 0, then we might as well just 
-> > remove the 'if'.
-> > 
-> > In any case, the current code looks fishy.
-> > 
-> > 
-> > Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-> > 
-> > --- linux-2.6.12-rc2-mm3-orig/drivers/scsi/scsi_lib.c	2005-04-11 21:20:49.000000000 +0200
-> > +++ linux-2.6.12-rc2-mm3/drivers/scsi/scsi_lib.c	2005-04-20 00:29:14.000000000 +0200
-> > @@ -766,7 +766,7 @@ void scsi_io_completion(struct scsi_cmnd
-> >  	 * Next deal with any sectors which we were able to correctly
-> >  	 * handle.
-> >  	 */
-> > -	if (good_bytes >= 0) {
-> > +	if (good_bytes > 0) {
-> >  		SCSI_LOG_HLCOMPLETE(1, printk("%ld sectors total, %d bytes done.\n",
-> >  					      req->nr_sectors, good_bytes));
-> >  		SCSI_LOG_HLCOMPLETE(1, printk("use_sg is %d\n", cmd->use_sg));
-> > 
-> > 
-> > 
-> > 
-> > Please keep me on CC:
-> > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+I have seen card marked "3.3V/5V", but it only really worked on
+3.3V. Linux used 5V and quickly killed it.
+								Pavel
+-- 
+Boycott Kodak -- for their patent abuse against Java.

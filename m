@@ -1,68 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261719AbVEPUbO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261863AbVEPUcD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261719AbVEPUbO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 16:31:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbVEPUbO
+	id S261863AbVEPUcD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 16:32:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbVEPUcD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 16:31:14 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:15322 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261719AbVEPUbC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 16:31:02 -0400
-Date: Mon, 16 May 2005 13:27:36 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: john stultz <johnstul@us.ibm.com>
-cc: David Mosberger <davidm@hpl.hp.com>, lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Dominik Brodowski <linux@dominikbrodowski.de>, Andi Kleen <ak@suse.de>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
-       Nishanth Aravamudan <nacc@us.ibm.com>, Darren Hart <darren@dvhart.com>,
-       "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
-       benh@kernel.crashing.org, linux-ia64@vger.kernel.org
-Subject: Re: IA64 implementation of timesource for new time of day subsystem
-In-Reply-To: <1116273055.13867.5.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.62.0505161325330.2509@schroedinger.engr.sgi.com>
-References: <1116029796.26454.2.camel@cog.beaverton.ibm.com> 
- <1116029872.26454.4.camel@cog.beaverton.ibm.com>  <1116029971.26454.7.camel@cog.beaverton.ibm.com>
-  <1116030058.26454.10.camel@cog.beaverton.ibm.com> 
- <1116030139.26454.13.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.62.0505141251490.18681@schroedinger.engr.sgi.com> 
- <1116264858.26990.39.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.62.0505161100240.1653@schroedinger.engr.sgi.com> 
- <1116269136.26990.67.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.62.0505161219570.2158@schroedinger.engr.sgi.com> 
- <17032.62615.750699.18847@napali.hpl.hp.com> <1116273055.13867.5.camel@cog.beaverton.ibm.com>
+	Mon, 16 May 2005 16:32:03 -0400
+Received: from igw2.watson.ibm.com ([129.34.20.6]:59884 "EHLO
+	igw2.watson.ibm.com") by vger.kernel.org with ESMTP id S261852AbVEPUbn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 16:31:43 -0400
+Date: Mon, 16 May 2005 16:30:19 -0400 (Eastern Daylight Time)
+From: Reiner Sailer <sailer@us.ibm.com>
+To: Chris Wright <chrisw@osdl.org>
+cc: davem@davemloft.net, herbert@gondor.apana.org.au,
+       linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: crypto api initialized late
+Message-ID: <Pine.WNT.4.63.0505161627130.820@laptop>
+X-Warning: UNAuthenticated Sender
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 May 2005, john stultz wrote:
 
-> 
-> No. I intend to preserve the existing functionality (and performance) of
-> the current code. The current timeofday core should allow for this (as I
-> described in my last mail), so really its just a matter of either me or
-> someone else getting around to properly converting that arch with the
-> help of the arch maintainer. Until the arch is really ready to use the
-> new timeofday core, no changes are necessary.
+Chris Wright <chrisw@osdl.org> wrote on 05/16/2005 04:03:17 PM:
 
-Its not an arch specific issue. The time sources need to have a field that 
-specifies that jitter protection is needed and there needs to be some 
-logic to implement it. Otherwise we have to develop special functions for 
-each timesource that deal with jitter protection. Function will make a 
-fastcall for the clocks that use jitter protection not possible and thus 
-timer access will slow down.
+> * Reiner Sailer (sailer@us.ibm.com) wrote:
+> >
+> > I am writing a Linux Security Module that needs SHA1 support very  early in
+> > the kernel startup (before any fs are mounted,modules are loaded,  or
+> > files are mapped; including initrd). Therefore, I use the __initcall
+> > to initialize the security module. SHA1 can currently be used only
+> > through the crypto-api (static definitions and hidden context structure).
+> >
+> > This crypto-API, however, initializes AFTER the security module
+> > code in the __initicall block. Currently, I use the following patch into
+> > the main Linux Makefile to start up the crypto-API earlier:
+> >
+> > diff -uprN linux-2.6.12-rc3_orig/Makefile
+> > linux-2.6.12-rc3-ima-newpatch/Makefile
+> > --- linux-2.6.12-rc3_orig/Makefile   2005-04-20 20:03:12.000000000 -0400
+> > +++ linux-2.6.12-rc3-ima-newpatch/Makefile   2005-05-11
+> > 15:18:32.000000000 -0400
+> > @@ -560,7 +560,7 @@ export MODLIB
+> >
+> >
+> >  ifeq ($(KBUILD_EXTMOD),)
+> > -core-y      += kernel/ mm/ fs/ ipc/ security/ crypto/
+> > +core-y      += kernel/ mm/ fs/ ipc/ crypto/ security/
+>
+> I'm surprised this helps at all.  Does this mean you are not using
+> security_initcall() in your module?
+>
+> thanks,
+> -chris
 
-> What I'm trying to shake out, with Christoph's help, is any major
-> limitations in the core timeofday code that would keep an arch from
-> being able to use it.  I feel Christoph's concerns have been addressed,
-> but please let me know if you disagree.
+I use simply __initcall, which is the same level as the
+module_initcall used in the crypto functions (sha1.c). Looking into
+init.h, security_initcall should resolve to __initcall as well.
 
-Please add jitter protection to the arch independent code.
+Changing the compile sequence orders, the crypto init and sha1
+registration happens just ahead of my security module because
+(so I assume) the order of the compilation determines the order
+of the init calls inside the same initcall block.
+
+Going later and using late_initcall, I seemed to sometimes loose
+the mapping of the "nash" executed from the initrd.
+
+Reiner
 

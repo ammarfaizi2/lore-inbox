@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261649AbVEPN6D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261658AbVEPN7E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261649AbVEPN6D (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 09:58:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261650AbVEPN6D
+	id S261658AbVEPN7E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 09:59:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261653AbVEPN7E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 09:58:03 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:47516 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261649AbVEPN5q
+	Mon, 16 May 2005 09:59:04 -0400
+Received: from alog0701.analogic.com ([208.224.223.238]:55195 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261662AbVEPN6l
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 09:57:46 -0400
-Date: Mon, 16 May 2005 08:56:45 -0500
-From: serue@us.ibm.com
-To: Lai Zit Seng <lzs@pobox.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: pivot_root()
-Message-ID: <20050516135645.GA5842@serge.austin.ibm.com>
-References: <42887147.9000302@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42887147.9000302@pobox.com>
-User-Agent: Mutt/1.5.8i
+	Mon, 16 May 2005 09:58:41 -0400
+Date: Mon, 16 May 2005 09:58:25 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: linux <kernel@wired-net.gr>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6 Kernel Threads
+In-Reply-To: <002f01c55a1a$7c2cfda0$0101010a@dioxide>
+Message-ID: <Pine.LNX.4.61.0505160956570.18329@chaos.analogic.com>
+References: <002f01c55a1a$7c2cfda0$0101010a@dioxide>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Lai Zit Seng (lzs@pobox.com):
-> Not sure where to post this, forgive me if there is a better place to 
-> post...
-> 
-> I'm trying to use pivot_root() to change root to a directory that is not 
-> a mount point, i.e. it is under a mount point of a different device from 
-> the current root device.
-> 
-> E.g.
-> 
-> # /root is mounted from /dev/sda1
-> pivot_root("/root/somewhere", "/root/somewhere/initrd");
-> 
-> But pivot_root() returns EINVAL. Both /root/somewhere and 
-> /root/somewhere/initrd exists.
-> 
-> Any pointers about what might be wrong? Many thanks :)
+On Mon, 16 May 2005, linux wrote:
 
-Try first doing
+> Hi all,
+> can u tell how i can start/stop a kernel thread in 2.6.x series kernel???
+>
+>
+> Thanks in advance.
 
-	mount --bind <newroot> <newroot>
+You send it a signal. There are several drivers that use kernel threads.
+You can see how they synchronize shut-down for module removal by
+using a semaphone and a signal.
 
-See the comments above fs/namespace.c:sys_pivot_root() for the
-explanation.
 
--serge
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

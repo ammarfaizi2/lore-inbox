@@ -1,85 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261242AbVEPCZH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbVEPCcF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261242AbVEPCZH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 22:25:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVEPCZH
+	id S261248AbVEPCcF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 22:32:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbVEPCcF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 22:25:07 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:409 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261242AbVEPCY7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 22:24:59 -0400
-Date: Mon, 16 May 2005 04:24:58 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+	Sun, 15 May 2005 22:32:05 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:61959 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S261248AbVEPCcD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 22:32:03 -0400
+Message-ID: <42880620.8000300@rtr.ca>
+Date: Sun, 15 May 2005 22:32:00 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050420 Debian/1.7.7-2
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
 To: Gene Heskett <gene.heskett@verizon.net>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: Disk write cache (Was: Hyper-Threading Vulnerability)
+References: <1115963481.1723.3.camel@alderaan.trey.hu> <200505151121.36243.gene.heskett@verizon.net> <20050515152956.GA25143@havoc.gtf.org> <200505152156.18194.gene.heskett@verizon.net>
 In-Reply-To: <200505152156.18194.gene.heskett@verizon.net>
-Message-ID: <Pine.LNX.4.58.0505160414170.6560@artax.karlin.mff.cuni.cz>
-References: <1115963481.1723.3.camel@alderaan.trey.hu>
- <200505151121.36243.gene.heskett@verizon.net> <20050515152956.GA25143@havoc.gtf.org>
- <200505152156.18194.gene.heskett@verizon.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ >took place on another list, and wrote a test gizmo that copied a
+ >large file, then slept for 1 second and issued a sync command.  No
+ >drive led activity until the usual 5 second delay of the filesystem
+ >had expired.  To me, that indicated that the sync command was being
 
+There's your clue.  The drive LEDs normally reflect activity
+over the ATA bus (the cable!). If they're not on, then the drive
+isn't receiving data/commands from the host.
 
-On Sun, 15 May 2005, Gene Heskett wrote:
-
-> >There is a large amount of yammering and speculation in this thread.
->
-> I agree, and frankly I'm just another  of the yammerers as I don't
-> have the clout to be otherwise.
->
-> >Most disks do seem to obey SYNC CACHE / FLUSH CACHE.
-> >
-> > Jeff
->
-> I don't think I have any drives here that do obey that, Jeff.  I got
-> curious about this, oh, maybe a year back when this discussion first
-> took place on another list, and wrote a test gizmo that copied a
-> large file, then slept for 1 second and issued a sync command.  No
-> drive led activity until the usual 5 second delay of the filesystem
-> had expired.  To me, that indicated that the sync command was being
-> returned as completed without error and I had my shell prompt back
-> long before the drives leds came on.  Admittedly that may not be a
-> 100% valid test, but I really did expect to see the leds come on as
-> the sync command was executed.
->
-> I also have some setup stuff for heyu that runs at various times of
-> the day, reconfigureing how heyu and xtend run 3 times a day here,
-> which depends on a valid disk file, and I've had to use sleeps for
-> guaranteeing the proper sequencing, where if the sync command
-> actually worked, I could get the job done quite a bit faster.
->
-> Again, probably not a valid test of the sync command, but thats the
-> evidence I have.  I do not believe it works here, with any of the 5
-> drives currently spinning in these two boxes.
-
-Note, that Linux can't send FLUSH CACHE command at all (until very recent
-2.6 kernels). So write cache is always dangerous under Linux, no matter if
-disk is broken or not.
-
-Another note: according to posix, sync() is asynchronous --- i.e. it
-initiates write, but doesn't have to wait for complete. In linux, sync()
-waits for writes to complete, but it doesn't have to in other OSes.
-
-Mikulas
-
-> --
-> Cheers, Gene
-> "There are four boxes to be used in defense of liberty:
->  soap, ballot, jury, and ammo. Please use in that order."
-> -Ed Howdershelt (Author)
-> 99.34% setiathome rank, not too shabby for a WV hillbilly
-> Yahoo.com and AOL/TW attorneys please note, additions to the above
-> message by Gene Heskett are:
-> Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Cheers

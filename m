@@ -1,89 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbVEPPaY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261703AbVEPPfw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261705AbVEPPaY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 11:30:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbVEPP2C
+	id S261703AbVEPPfw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 11:35:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbVEPPfY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 11:28:02 -0400
-Received: from alog0210.analogic.com ([208.224.220.225]:43689 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261705AbVEPP1I
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 11:27:08 -0400
-Date: Mon, 16 May 2005 11:26:38 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: Disk write cache (Was: Hyper-Threading Vulnerability)
-In-Reply-To: <4288AF3A.2000008@pobox.com>
-Message-ID: <Pine.LNX.4.61.0505161057570.18962@chaos.analogic.com>
-References: <1115963481.1723.3.camel@alderaan.trey.hu> <20050515145241.GA5627@irc.pl>
- <Pine.LNX.4.58.0505151657230.19181@artax.karlin.mff.cuni.cz>
- <200505151121.36243.gene.heskett@verizon.net>
- <Pine.LNX.4.58.0505151809240.26531@artax.karlin.mff.cuni.cz>
- <20050516111859.GB13387@merlin.emma.line.org> <4288AF3A.2000008@pobox.com>
+	Mon, 16 May 2005 11:35:24 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:45952 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261697AbVEPPb2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 11:31:28 -0400
+Message-ID: <4288BCA6.9000002@nortel.com>
+Date: Mon, 16 May 2005 09:30:46 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Andi Kleen <ak@suse.de>
+CC: James Courtier-Dutton <James@superbug.co.uk>,
+       Christoph Lameter <clameter@engr.sgi.com>,
+       john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, paulus@samba.org,
+       schwidefsky@de.ibm.com, keith maanthey <kmannth@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>, Max Asbock <masbock@us.ibm.com>,
+       mahuja@us.ibm.com, Nishanth Aravamudan <nacc@us.ibm.com>,
+       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
+       benh@kernel.crashing.org, linux-ia64@vger.kernel.org
+Subject: Re: IA64 implementation of timesource for new time of day subsystem
+References: <1116029796.26454.2.camel@cog.beaverton.ibm.com> <1116029872.26454.4.camel@cog.beaverton.ibm.com> <1116029971.26454.7.camel@cog.beaverton.ibm.com> <1116030058.26454.10.camel@cog.beaverton.ibm.com> <1116030139.26454.13.camel@cog.beaverton.ibm.com> <Pine.LNX.4.62.0505141251490.18681@schroedinger.engr.sgi.com> <428722E3.6040202@superbug.co.uk> <20050515101705.GC26242@wotan.suse.de>
+In-Reply-To: <20050515101705.GC26242@wotan.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 May 2005, Jeff Garzik wrote:
+Andi Kleen wrote:
+>>Will this mean that Linux will have a monotonic time source?
+> 
+> 2.6 has had one for a long time (posix_gettime(CLOCK_MONOTONIC))
 
-> Matthias Andree wrote:
->> On Sun, 15 May 2005, Mikulas Patocka wrote:
->>
->>
->>> Note that disk can still ignore FLUSH CACHE command cached data are small
->>> enough to be written on power loss, so small FLUSH CACHE time doesn't
->>> prove disk cheating.
->>
->> Have you seen a drive yet that writes back blocks after power loss?
->>
->> I have heard rumors about this, but all OEM manuals I looked at for
->> drives I bought or recommended simply stated that the block currently
->> being written at power loss can become damaged (with write cache off),
->> and that the drive can lose the full write cache at power loss (with
->> write cache on) so this looks like daydreaming manifested as rumor.
->
-> Upon power loss, at least one ATA vendor's disks try to write out as
-> much data as possible.
->
-> 	Jeff
+I think that's clock_gettime(), no?
 
-Then I suggest you never use such a drive. Anything that does this,
-will end up replacing a good track with garbage. Unless a disk drive
-has a built-in power source such as super-capacitors or batteries, what
-happens during a power-failure is that all electronics stops and
-the discs start coasting. Eventually the heads will crash onto
-the platter. Older discs had a magnetically released latch which would
-send the heads to an inside landing zone. Nobody bothers anymore.
-
-Many high-quality drives cache data. Fortunately, upon power loss
-these data are NOT attempted to be written. This means that,
-although you may have incomplete or even bad data on the physical
-medium, at least the medium can be read and written. The sectoring
-has not been corrupted (read destroyed).
-
-If you think about the physical process necessary to write data to
-the medium, you will understand that without a large amount of
-energy storage capacity on the disk, it's just not possible.
-
-To write a sector, one needs to cache the data in a sector-buffer
-putting on a sector header and trailing CRC, wait for the write-
-splice from the previous sector (could be almost one rotation),
-then write data and sync to the sector. If the disc is too slow,
-these data will be underwrite the sector. Also, if the disc
-was only 5 percent slow, the clock recovery on a subsequent
-read will be off by 5 percent, outside the range of PLL lock-in,
-so you write something that can never be read, a guaranteed bad block.
-
-Combinations of journalizing on media that can be completely flushed,
-and ordinary cache-intensive discs can result in reliable data
-storage. However a single ATA or SCSI disk just isn't a perfectly
-reliable storage medium although it's usually good enough.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+Chris

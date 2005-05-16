@@ -1,47 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbVEPMMa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbVEPMbP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261568AbVEPMMa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 08:12:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbVEPMMa
+	id S261285AbVEPMbP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 08:31:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbVEPMbP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 08:12:30 -0400
-Received: from ns.suse.de ([195.135.220.2]:32988 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261568AbVEPMMZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 08:12:25 -0400
-From: Chris Mason <mason@suse.com>
-To: Christoph Hellwig <hch@lst.de>
-Subject: Re: finding out whether a device supports ordered writes ahead of time
-Date: Mon, 16 May 2005 08:12:13 -0400
-User-Agent: KMail/1.8
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
-References: <20050516112722.GA9736@lst.de>
-In-Reply-To: <20050516112722.GA9736@lst.de>
+	Mon, 16 May 2005 08:31:15 -0400
+Received: from bernache.ens-lyon.fr ([140.77.167.10]:11940 "EHLO
+	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S261285AbVEPMbL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 08:31:11 -0400
+Message-ID: <42889283.9030104@ens-lyon.org>
+Date: Mon, 16 May 2005 14:30:59 +0200
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200505160812.15362.mason@suse.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc4-mm2
+References: <20050516021302.13bd285a.akpm@osdl.org>
+In-Reply-To: <20050516021302.13bd285a.akpm@osdl.org>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: multipart/mixed;
+ boundary="------------040308090803010200010601"
+X-Spam-Report: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 16 May 2005 07:27, Christoph Hellwig wrote:
-> Currently ext3 and reiserfs submit bios with BIO_RW_BARRIER and when the
-> device doesn't support it it returns EOPNOTUPP.  This scheme doesn't
-> work at all for XFS because our I/O submission path keeps around far too
-> much state (XFS supports multi-page metadata buffers).  From looking at
-> the code it seems that we can assume such a submission will just work
-> if q->ordered is not QUEUE_ORDERED_NONE.  Is that a valid assumption?
-> and if yes should we look directly at the queue or provide an assecor?
+This is a multi-part message in MIME format.
+--------------040308090803010200010601
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 
-I think Jens currently has things set to trust the drive's advertisement of 
-the cache flush feature.  But I don't think we've looked hard for drives that 
-advertise and then fail the barriers, it wouldn't surprise me if one existed.
+Andrew Morton a écrit :
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc4/2.6.12-rc4-mm2/
+> 
+> 
+> - davem has set up a mm-commits mailing list so people can review things
+>   which are added to or removed from the -mm tree.  Do
+> 
+> 	echo subscribe mm-commits | mail majordomo@vger.kernel.org
+> 
+> - x86_64 architecture update from Andi.
+> 
+> - Everything up to and including `spurious-interrupt-fix.patch' is planned
+>   for 2.6.12 merging.  Plus a few other things in there.
+> 
+> - Another DVB subsystem update
 
-What you could do is issue a barrier write during mount to test things.  If 
-that works any failed barrier later could be considered an io error.  Don't 
-use blkdev_issue_flush for this, since it will work on scsi drives that don't 
-support the BIO_RW_BARRIER.
+Hi Andrew,
 
--chris
+CONFIG_PPP_MPPE can be enabled without CONFIG_CRYPTO.
+This results in this warning when running make modules_install:
+if [ -r System.map -a -x /sbin/depmod ]; then /sbin/depmod -ae -F
+System.map  2.6.12-rc4-mm2=LoulousMobile; fi
+WARNING:
+/lib/modules/2.6.12-rc4-mm2=LoulousMobile/kernel/drivers/net/ppp_mppe.ko
+needs unknown symbol crypto_alloc_tfm
+WARNING:
+/lib/modules/2.6.12-rc4-mm2=LoulousMobile/kernel/drivers/net/ppp_mppe.ko
+needs unknown symbol crypto_free_tfm
+
+By the way, looking at drivers/net/ppp_mppe.c, it looks like sha1 and
+arc4 are needed at runtime.
+
+The attached patch selects all these when PPP_MPPE is selected.
+
+Signed-off-by: Brice Goglin <Brice.Goglin@ens-lyon.org>
+
+Brice
+
+--------------040308090803010200010601
+Content-Type: text/x-patch;
+ name="fix_ppp-mppe_dependencies.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="fix_ppp-mppe_dependencies.patch"
+
+--- linux-mm/drivers/net/Kconfig.old	2005-05-16 14:15:29.000000000 +0200
++++ linux-mm/drivers/net/Kconfig	2005-05-16 14:24:44.000000000 +0200
+@@ -2431,6 +2431,9 @@ config PPP_BSDCOMP
+ config PPP_MPPE
+        tristate "PPP MPPE compression (encryption) (EXPERIMENTAL)"
+        depends on PPP && EXPERIMENTAL
++       select CRYPTO
++       select CRYPTO_SHA1
++       select CRYPTO_ARC4
+        ---help---
+          Support for the MPPE Encryption protocol, as employed by the
+ 	 Microsoft Point-to-Point Tunneling Protocol.
+
+--------------040308090803010200010601--

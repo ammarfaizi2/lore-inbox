@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbVEPJBA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbVEPJDk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261480AbVEPJBA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 05:01:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261470AbVEPJA7
+	id S261467AbVEPJDk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 05:03:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbVEPJDk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 05:00:59 -0400
-Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:23558 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261459AbVEPJAy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 05:00:54 -0400
-To: miklos@szeredi.hu
-CC: linuxram@us.ibm.com, viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <E1DXbD5-0007UI-00@dorka.pomaz.szeredi.hu> (message from Miklos
-	Szeredi on Mon, 16 May 2005 10:44:23 +0200)
-Subject: Re: [PATCH] namespace.c: fix bind mount from foreign namespace
-References: <E1DWXeF-00017l-00@dorka.pomaz.szeredi.hu>
-	 <20050513170602.GI1150@parcelfarce.linux.theplanet.co.uk>
-	 <E1DWdn9-0004O2-00@dorka.pomaz.szeredi.hu>
-	 <1116005355.6248.372.camel@localhost>
-	 <E1DWf54-0004Z8-00@dorka.pomaz.szeredi.hu>
-	 <1116012287.6248.410.camel@localhost>
-	 <E1DWfqJ-0004eP-00@dorka.pomaz.szeredi.hu>
-	 <1116013840.6248.429.camel@localhost>
-	 <E1DWprs-0005D1-00@dorka.pomaz.szeredi.hu> <1116256279.4154.41.camel@localhost> <E1DXbD5-0007UI-00@dorka.pomaz.szeredi.hu>
-Message-Id: <E1DXbSB-0007Wb-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Mon, 16 May 2005 10:59:59 +0200
+	Mon, 16 May 2005 05:03:40 -0400
+Received: from rproxy.gmail.com ([64.233.170.200]:59063 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261467AbVEPJDf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 05:03:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:to:subject:message-id:mime-version:content-type:content-disposition:content-transfer-encoding:user-agent:from;
+        b=PlXNVxv82QP172M84HHJfPX0ninNhfNBtuwqJQggYGGgCysz88x6/EfpKBBl4nam3vRxu5Ishq62DWpyCq4rwYGjdn9FuIYGubKRiykPNRgDgC4XH8oV5Axv+x/7czhBQli2ras3Nxx2z7smjSPDeMfBWvuWrtAXxRn0Ze95yrY=
+Date: Mon, 16 May 2005 10:58:32 +0200
+To: linux-kernel@vger.kernel.org
+Subject: What breaks aic7xxx in post 2.6.12-rc2 ?
+Message-ID: <20050516085832.GA9558@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.6i
+From: =?iso-8859-1?Q?Gr=E9goire?= Favre <gregoire.favre@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> A vfsmount can only be in a single namespace at a time, since each
-> mount tree is rooted in a single namespace.  So what you are saying is
-> impossible.
+Hello,
 
-To be more precise a vfsmount can only be in _at_ _most_ one
-namespace.  When it is detached from a mount tree, it's no longer in
-_any_ namespace.
+as I reported in
+http://marc.theaimsgroup.com/?l=linux-kernel&m=111554477416794&w=2
 
-There even seems to be some confusion about that in namespace.c.  I
-think mnt_namespace should be set to NULL in detach_mnt() instead of
-__put_namespace().
+I have lots of problem with aic7xxx (and till 2.6.12-rc2 everything
+works perfectly). I have tried to compil 2.6.12-rc4-mm1 without probe
+all Lun and it don't change anything at all to this problem.
 
-Miklos
+I have two different controllers :
+
+0000:00:05.0 SCSI storage controller: Adaptec AIC-7892A U160/m (rev 02)
+0000:00:0a.0 SCSI storage controller: Adaptec AHA-2940U/UW/D / AIC-7881U
+
+And I also use libsata.
+
+Anyone got an idea on what's going wrong ?
+
+Please CC to me : I am not on this mailinglist.
+-- 
+	Grégoire Favre

@@ -1,49 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbVEPSG2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261790AbVEPSLa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261776AbVEPSG2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 14:06:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbVEPSG2
+	id S261790AbVEPSLa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 14:11:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbVEPSLS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 14:06:28 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:3041 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261776AbVEPSGV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 14:06:21 -0400
-Subject: Re: Linux does not care for data integrity (was: Disk write cache)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Matthias Andree <matthias.andree@gmx.de>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050516154020.GD949@merlin.emma.line.org>
-References: <200505151121.36243.gene.heskett@verizon.net>
-	 <20050515152956.GA25143@havoc.gtf.org>
-	 <20050516.012740.93615022.okuyamak@dd.iij4u.or.jp>
-	 <42877C1B.2030008@pobox.com> <20050516110203.GA13387@merlin.emma.line.org>
-	 <1116241957.6274.36.camel@laptopd505.fenrus.org>
-	 <20050516112956.GC13387@merlin.emma.line.org>
-	 <1116252157.6274.41.camel@laptopd505.fenrus.org>
-	 <20050516144831.GA949@merlin.emma.line.org>
-	 <1116256005.21388.55.camel@localhost.localdomain>
-	 <20050516154020.GD949@merlin.emma.line.org>
-Content-Type: text/plain
+	Mon, 16 May 2005 14:11:18 -0400
+Received: from dvhart.com ([64.146.134.43]:50593 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S261786AbVEPSIk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 14:08:40 -0400
+Date: Mon, 16 May 2005 11:08:35 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Christoph Lameter <clameter@engr.sgi.com>,
+       Dave Hansen <haveblue@us.ibm.com>, Andy Whitcroft <apw@shadowen.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       shai@scalex86.org, steiner@sgi.com
+Subject: Re: NUMA aware slab allocator V3
+Message-ID: <714210000.1116266915@flay>
+In-Reply-To: <Pine.LNX.4.62.0505161046430.1653@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com> <20050512000444.641f44a9.akpm@osdl.org>  <Pine.LNX.4.58.0505121252390.32276@schroedinger.engr.sgi.com> <20050513000648.7d341710.akpm@osdl.org>  <Pine.LNX.4.58.0505130411300.4500@schroedinger.engr.sgi.com> <20050513043311.7961e694.akpm@osdl.org>  <Pine.LNX.4.62.0505131823210.12315@schroedinger.engr.sgi.com> <1116251568.1005.29.camel@localhost>  <Pine.LNX.4.62.0505160943140.1330@schroedinger.engr.sgi.com><1116264135.1005.73.camel@localhost> <Pine.LNX.4.62.0505161046430.1653@schroedinger.engr.sgi.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <1116266671.21452.94.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 16 May 2005 19:04:32 +0100
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2005-05-16 at 16:40, Matthias Andree wrote:
-> On Mon, 16 May 2005, Alan Cox wrote:
-> Is tagged command queueing (we'll need the ordered tag here) compatible
-> with all SCSI adaptors that Linux supports?
+>> > How do the concepts of numa node id relate to discontig node ids?
+>> 
+>> I believe there are quite a few assumptions on some architectures that,
+>> when NUMA is on, they are equivalent.  It appears to be pretty much
+>> assumed everywhere that CONFIG_NUMA=y means one pg_data_t per NUMA node.
+> 
+> Ah. That sounds much better.
+> 
+>> Remember, as you saw, you can't assume that MAX_NUMNODES=1 when NUMA=n
+>> because of the DISCONTIG=y case.
+> 
+> I have never seen such a machine. A SMP machine with multiple 
+> "nodes"? So essentially one NUMA node has multiple discontig "nodes"?
 
-TCQ is a device not controller property.
+I believe you (SGI) make one ;-) Anywhere where you have large gaps in
+the physical address range within a node, this is what you really need.
+Except ia64 has this wierd virtual mem_map thing that can go away once
+we have sparsemem.
 
-> What if tagged command queueing is switched off for some reason
-> (adaptor or HW incapability, user override) and the drive still has
-> write cache enable = true and queue algorithm modifier = 1 (which
+> This means that the concept of a node suddenly changes if there is just 
+> one numa node(CONFIG_NUMA off implies one numa node)? 
 
-We turn the write back cache off if TCQ isn't available.
+The end point of where we're getting to is 1 node = 1 pgdat (which we can
+then rename to struct node or something). All this confusing mess of 
+config options is just a migration path, which I'll leave it to Andy to
+explain ;-)
 
+> s/CONFIG_NUMA/CONFIG_NEED_MULTIPLE_NODES?
+> 
+> That will not work because the idea is the localize the slabs to each 
+> node. 
+> 
+> If there are multiple nodes per numa node then invariable one node in the 
+> numa node (sorry for this duplication of what node means but I did not 
+> do it) must be preferred since numa_node_id() does not return a set of 
+> discontig nodes.
+>  
+> Sorry but this all sounds like an flaw in the design. There is no 
+> consistent notion of node. Are you sure that this is not a ppc64 screwup?
+
+No, it's a discontigmem screwup. Currently a pgdat represents 2 different
+scenarios: 
+
+(1) physically discontiguous memory chunk.
+(2) a NUMA node.
+
+I don't think we support both at the same time with the old code. So it
+seems to me like your numa aware slab code (which I'm still intending to
+go read, but haven't yet) is only interested in real nodes. Logically
+speaking, that would be CONFIG_NUMA. The current transition config options
+are a bit of a mess ... Andy, I presume CONFIG_NEED_MULTIPLE_NODES is
+really CONFIG_NEED_MULTIPLE_PGDATS ?
+
+M.

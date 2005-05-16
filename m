@@ -1,79 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261904AbVEPW0o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261968AbVEPW2v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261904AbVEPW0o (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 18:26:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261963AbVEPWZ0
+	id S261968AbVEPW2v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 18:28:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbVEPW1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 18:25:26 -0400
-Received: from natnoddy.rzone.de ([81.169.145.166]:29645 "EHLO
-	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S261904AbVEPWSZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 18:18:25 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 7/8] ppc64: SPU file system
-Date: Tue, 17 May 2005 00:01:05 +0200
-User-Agent: KMail/1.7.2
-Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-References: <200505132117.37461.arnd@arndb.de> <200505141505.08999.arnd@arndb.de> <20050516205825.GB11938@kroah.com>
-In-Reply-To: <20050516205825.GB11938@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 16 May 2005 18:27:09 -0400
+Received: from main.gmane.org ([80.91.229.2]:16564 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261966AbVEPW02 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 18:26:28 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Tristan Wibberley <maihem@maihem.org>
+Subject: Re: Mercurial 0.4e vs git network pull
+Date: Mon, 16 May 2005 23:22:11 +0100
+Message-ID: <1116282131.6141.8.camel@localhost.localdomain>
+References: <200505151122.j4FBMJa01073@adam.yggdrasil.com>
+	 <20050515124042.GE13024@pasky.ji.cz>
+Mime-Version: 1.0
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200505170001.10405.arnd@arndb.de>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: host81-156-255-228.range81-156.btcentralplus.com
+In-Reply-To: <20050515124042.GE13024@pasky.ji.cz>
+X-Mailer: Evolution 2.2.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maandag 16 Mai 2005 22:58, Greg KH wrote:
-> On Sat, May 14, 2005 at 03:05:06PM +0200, Arnd Bergmann wrote:
-
-> > 2. sys_spufs_run(int fd, __u32 pc, __u32 *new_pc, __u32 *status):
-> >  pro:
-> >      - strong types
-> >      - can have both input and output arguments
-> >  contra:
-> >      - does not fit file system semantics well
-> >      - bad for prototyping
+On Sun, 2005-05-15 at 14:40 +0200, Petr Baudis wrote:
+> Dear diary, on Sun, May 15, 2005 at 01:22:19PM CEST, I got a letter
+> where "Adam J. Richter" <adam@yggdrasil.com> told me that...
+> > 
+> > 	I don't understand what was wrong with Jeff Garzik's previous
+> > suggestion of using http/1.1 pipelining to coalesce the round trips.
+> > If you're worried about queuing too many http/1.1 requests, the client
+> > could adopt a policy of not having more than a certain number of
+> > requests outstanding or perhaps even making a new http connection
+> > after a certain number of requests to avoid starving other clients
+> > when the number of clients doing one of these transfers exceeds the
+> > number of threads that the http server uses.
 > 
-> I suggest you do this.  Based on what you say you want the code to do, I
-> agree, write() doesn't really work out well
-
-The syscall approach has another small disadvantage in that I need to
-do a callback registration mechanism for it if I want to have spufs as
-a loadable module. I could of course require spufs to be builtin, but
-that complicates prototype testing (as mentioned) and enlarges combined
-pSeries/powermac/BPA distro kernels.
-
-I think I'll leave the ioctl for now and add a note saying that I need
-to replace it with a syscall or the write/read or lseek/read based
-approach when I arrive at a more feature complete point.
-
-> (but it might, and if you 
-> want an example of how to do it, look at the ibmasm driver, it
-> implements write() in a way much like what you are wanting to do.)
-
-That would be the same write/read combination as Ben's second
-proposal and the nfsctl file system, right?
-
-> > My solution was to force the dentries in each directory to be
-> > present. When the directory is created, the files are already
-> > there and unlinking a single file is impossible. To destroy the
-> > spu context, the user has to rmdir it, which will either remove
-> > all files in there as well or fail in the case that any file is
-> > still open.
+> The problem is that to fetch a revision tree, you have to
 > 
-> Ick.
-> 
-> > Of course that is not really Posix behavior, but it avoids some
-> > other pitfalls.
-> 
-> Go with a syscall :)
+> 	send request for commit A
+> 	receive commit A
+> 	look at commit A for list of its parents
+> 	send request for the parents
+> 	receive the parents
+> 	look inside for list of its parents
+> 	...
 
-Sorry, I'm not following that reasoning. How does a syscall help
-with the problem of atomic context destruction?
+What about IMAP? You could ask for just the parents for several messages
+(via a message header), then start asking for message bodies (with the
+juicy stuff in). You could also ask for a list of the new commits then
+ask for each of the bodies (several at a time). Not as good as a "Just
+give me all new data", but an *awful* lot more efficient than HTTP. And
+very flexible. You just need to map changesets to IMAP messages (if such
+a mapping can actually make sense :)
 
-	Arnd <><
+Prolly a bit more work though.
+
+--
+Tristan Wibberley
+
+The opinions expressed in this message are my own opinions and not those
+of my employer.
+
+

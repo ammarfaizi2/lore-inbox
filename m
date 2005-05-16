@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261223AbVEPORY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261666AbVEPOSj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261223AbVEPORY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 10:17:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbVEPORY
+	id S261666AbVEPOSj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 10:18:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbVEPOSj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 10:17:24 -0400
-Received: from gw1.cosmosbay.com ([62.23.185.226]:18644 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S261223AbVEPORV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 10:17:21 -0400
-Message-ID: <4288AB6A.3060106@cosmosbay.com>
-Date: Mon, 16 May 2005 16:17:14 +0200
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Roberto Fichera <kernel@tekno-soft.it>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: How to use memory over 4GB
-References: <6.2.1.2.2.20050516142516.0313e860@mail.tekno-soft.it> <428898CF.5060908@cosmosbay.com> <6.2.1.2.2.20050516151659.077cceb0@mail.tekno-soft.it>
-In-Reply-To: <6.2.1.2.2.20050516151659.077cceb0@mail.tekno-soft.it>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Mon, 16 May 2005 16:17:15 +0200 (CEST)
+	Mon, 16 May 2005 10:18:39 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:12716 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261659AbVEPOS2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 10:18:28 -0400
+Subject: Re: [PATCH 2.6.12-rc4-mm1 3/4] megaraid_sas: updating the driver
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: "Bagalkote, Sreenivas" <sreenib@lsil.com>,
+       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
+       Andrew Morton <akpm@osdl.org>,
+       "'Christoph Hellwig'" <hch@infradead.org>
+In-Reply-To: <1116230776.6274.20.camel@laptopd505.fenrus.org>
+References: <0E3FA95632D6D047BA649F95DAB60E57060CCE7C@exa-atlanta>
+	 <1116230776.6274.20.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Date: Mon, 16 May 2005 09:18:03 -0500
+Message-Id: <1116253084.5040.1.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roberto Fichera a écrit :
-
+On Mon, 2005-05-16 at 10:06 +0200, Arjan van de Ven wrote:
+> > +			spin_lock( instance->host_lock );
+> > +			cmd->scmd->scsi_done( cmd->scmd );
+> > +			spin_unlock( instance->host_lock );
 > 
->> But still you need a 4GB/4GB user/kernel split, because the standard 
->> is 3GB/1GB.
-> 
-> 
-> Why I need 4GB/4GB split? What are the beneficts?
+> are you really sure you don't want to use spin_lock_irqsave() here ?
 
-Well... 4GB for your process is better than 3GB, that's 33% more space...
+Actually, don't bother with the lock at all.  scsi_done() is designed to
+be called locklessly.
 
-If your process is cpu bounded (and not issuing too many system calls),
-then 4GB/4GB split let it address more ram, reducing the need to shift windows in
-mmaped files for example.
-
-Eric
+James
 
 

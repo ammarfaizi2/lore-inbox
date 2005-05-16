@@ -1,58 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261736AbVEPQgK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261737AbVEPQis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261736AbVEPQgK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 12:36:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261737AbVEPQgJ
+	id S261737AbVEPQis (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 12:38:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbVEPQis
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 12:36:09 -0400
-Received: from web60414.mail.yahoo.com ([209.73.178.157]:34170 "HELO
-	web60414.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261736AbVEPQgF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 12:36:05 -0400
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=IJNvJ1TZ8dxeSX4LiSMup4KYCIyIH/rJQ9Nh1/O16xqz2eIVsc6x1LGAeeeKfWFNohhUwTyKhm9Vge+dA+WXXuy0vRZ5/3KbQ0Pyix+7T+x2Y19F5PSEyhj8OhxoFV6DsEMTN0R0GEGGM61b2uGzHsdLH66NcPOXImEmZ+hBBTQ=  ;
-Message-ID: <20050516163601.59819.qmail@web60414.mail.yahoo.com>
-Date: Mon, 16 May 2005 09:36:00 -0700 (PDT)
-From: Mike Smith <mks_2981@yahoo.com>
-Subject: Accessing non-current process' logical address space
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 16 May 2005 12:38:48 -0400
+Received: from [80.247.74.3] ([80.247.74.3]:45966 "EHLO tavolara.isolaweb.it")
+	by vger.kernel.org with ESMTP id S261737AbVEPQif (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 12:38:35 -0400
+Message-Id: <6.2.1.2.2.20050516180151.04bc1eb0@mail.tekno-soft.it>
+X-Mailer: QUALCOMM Windows Eudora Version 6.2.1.2
+Date: Mon, 16 May 2005 18:37:50 +0200
+To: William Lee Irwin III <wli@holomorphy.com>
+From: Roberto Fichera <kernel@tekno-soft.it>
+Subject: Re: How to use memory over 4GB
+Cc: Michael Tokarev <mjt@tls.msk.ru>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050516155422.GM9304@holomorphy.com>
+References: <6.2.1.2.2.20050516142516.0313e860@mail.tekno-soft.it>
+ <42889890.8090505@tls.msk.ru>
+ <6.2.1.2.2.20050516150628.06682cd0@mail.tekno-soft.it>
+ <20050516151023.GK9304@holomorphy.com>
+ <6.2.1.2.2.20050516174053.07185270@mail.tekno-soft.it>
+ <20050516155422.GM9304@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-IsolaWeb-MailScanner-Information: Please contact the ISP for more information
+X-IsolaWeb-MailScanner: Found to be clean
+X-MailScanner-From: kernel@tekno-soft.it
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+At 17.54 16/05/2005, William Lee Irwin III wrote:
+>At 17.10 16/05/2005, William Lee Irwin III wrote:
+> >> This approach has already been used in production by various major
+> >> applications and is even obsolete, now replaced by remap_file_pages()
+> >> (in Linux), where it and its counterparts in other operating systems
+> >> have been in use in production by various major applications for some 
+> time.
+> >> remap_file_pages() allows virtual pages in an mmap() area to correspond
+> >> in an unrestricted fashion to the pages of the underlying file, and to
+> >> alter this correspondence at will.
+> >> In particular, Oracle's "vlm" option does this.
+>
+>On Mon, May 16, 2005 at 05:47:31PM +0200, Roberto Fichera wrote:
+> > So, you are suggesting to create one big tmpfs area, 6GB for example, than
+> > mmap() it to the user process and use the remap_file_pages() for all
+> > the objects I want make "addressable" on the user process taking care
+> > the return value of -1 which implies to munmap() something to free vm 
+> space?
+>
+>I don't have any specific suggestion regarding layout or usage patterns
+>besides pointing to remap_file_pages() being significantly lighter-weight
+>than mmap() for the purposes of virtual windowing. The other aspects of
+>all this (and even the use of remap_file_pages() at all) are, of course,
+>at your own discretion. It is, however, notable that Oracle has had some
+>success with a tactic similar to what you describe, where few objects are
+>used and the application instead manages space within the objects
+>dedicated to various purposes.
+>
+>In general, I'd recommend experimenting with different strategies to see
+>which works best for you. This is all rather vague, and the mechanics of
+>getting all this working with your application are sure to have enough
+>alternative implementations to merit some decision-making and the like.
 
-I'm in the process of modifying the 2.4.28 Linux
-Kernel.  As part of my research I’m implementing a
-special system call where I need to be able to read
-and write to another processes’ logical-address space.
-
-Given a process (struct task_struct* P) a logical
-address space pointer (char* logical_address_ptr) and
-a value (char x) is there a way to put x into P's
-logical address space where logical_address_ptr points
-to?  I have it organized so that process P is
-expecting the value at logical_address_ptr to be
-modified and P is on a wait queue until it gets
-modified.
-
-I know about all the *_user macros in
-include/asm-i386/uaccess.h.  All of these macros act
-on the current process logical address space.  Are
-there any similar functions that act on any arbitrary
-process’ logical address space?  If not, are there any
-thoughts on how I should go about implementing them?
-
-Thanks in advance,
-Mike
+Thanks to pointing me to another solution, I will start to experimenting 
+very soon :-)!
 
 
 
-		
-Yahoo! Mail
-Stay connected, organized, and protected. Take the tour:
-http://tour.mail.yahoo.com/mailtour.html
+>-- wli
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+
+Roberto Fichera. 
 

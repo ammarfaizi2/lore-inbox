@@ -1,99 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261749AbVEPRWm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261767AbVEPR0R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261749AbVEPRWm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 13:22:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261767AbVEPRWm
+	id S261767AbVEPR0R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 13:26:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbVEPR0R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 13:22:42 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:57835 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261749AbVEPRWb
+	Mon, 16 May 2005 13:26:17 -0400
+Received: from alog0086.analogic.com ([208.224.220.101]:12502 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261767AbVEPR0J
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 13:22:31 -0400
-Subject: Re: NUMA aware slab allocator V3
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       shai@scalex86.org, steiner@sgi.com
-In-Reply-To: <Pine.LNX.4.62.0505160943140.1330@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com>
-	 <20050512000444.641f44a9.akpm@osdl.org>
-	 <Pine.LNX.4.58.0505121252390.32276@schroedinger.engr.sgi.com>
-	 <20050513000648.7d341710.akpm@osdl.org>
-	 <Pine.LNX.4.58.0505130411300.4500@schroedinger.engr.sgi.com>
-	 <20050513043311.7961e694.akpm@osdl.org>
-	 <Pine.LNX.4.62.0505131823210.12315@schroedinger.engr.sgi.com>
-	 <1116251568.1005.29.camel@localhost>
-	 <Pine.LNX.4.62.0505160943140.1330@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Date: Mon, 16 May 2005 10:22:15 -0700
-Message-Id: <1116264135.1005.73.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Mon, 16 May 2005 13:26:09 -0400
+Date: Mon, 16 May 2005 13:25:53 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Patch -Wshadow jiffies.h
+Message-ID: <Pine.LNX.4.61.0505161323450.7164@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="1879706418-78814821-1116264353=:7164"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-05-16 at 09:47 -0700, Christoph Lameter wrote:
-> On Mon, 16 May 2005, Dave Hansen wrote:
-> > There are some broken assumptions in the kernel that
-> > CONFIG_DISCONTIG==CONFIG_NUMA.  These usually manifest when code assumes
-> > that one pg_data_t means one NUMA node.
-> > 
-> > However, NUMA node ids are actually distinct from "discontigmem nodes".
-> > A "discontigmem node" is just one physically contiguous area of memory,
-> > thus one pg_data_t.  Some (non-NUMA) Mac G5's have a gap in their
-> > address space, so they get two discontigmem nodes.
-> 
-> I thought the discontigous memory in one node was handled through zones? 
-> I.e. ZONE_HIGHMEM in i386?
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-You can only have one zone of each type under each pg_data_t.  For
-instance, you can't properly represent (DMA, NORMAL, HIGHMEM, <GAP>,
-HIGHMEM) in a single pg_data_t without wasting node_mem_map[] space.
-The "proper" discontig way of representing that is like this:
+--1879706418-78814821-1116264353=:7164
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 
-        pg_data_t[0] (DMA, NORMAL, HIGHMEM)
-        <GAP>
-        pg_data_t[1] (---, ------, HIGHMEM)
 
-Where pg_data_t[1] has empty DMA and NORMAL zones.  Also, remember that
-both of these could theoretically be on the same NUMA node.  But, I
-don't think we ever do that in practice.
+Many developers use -Wshadow when compiling so that they
+don't accidentally use some global variable. Recent kernels
+are compiled without this so some headers ended up with
+local variables that shadow global ones.
 
-> > So, that #error is bogus.  It's perfectly valid to have multiple
-> > discontigmem nodes, when the number of NUMA nodes is 1.  MAX_NUMNODES
-> > refers to discontigmem nodes, not NUMA nodes.
-> 
-> Ok. We looked through the code and saw that the check may be removed 
-> without causing problems. However, there is still a feeling of uneasiness 
-> about this.
+Here is a patch for linux-2.6.11.9 that changes two variable
+names in jiffies.h. This was previously submitted, but ignored.
 
-I don't blame you :)
+The trivial patch is attached. Hopefully our global M$ mailer
+doesn't kill it.
 
-> To what node does numa_node_id() refer?
+Signed-off-by: Richard B. Johnson linux-os@analogic.com
 
-That refers to the NUMA node that you're thinking of.  Close CPUs and
-memory and I/O, etc...
 
-> And it is legit to use 
-> numa_node_id() to index cpu maps and stuff?
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.
+--1879706418-78814821-1116264353=:7164
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="jiffie.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.61.0505161325530.7164@chaos.analogic.com>
+Content-Description: 
+Content-Disposition: attachment; filename="jiffie.patch"
 
-Yes, those are all NUMA nodes.
+LS0tIGxpbnV4LTIuNi4xMS45L2luY2x1ZGUvbGludXgvamlmZmllcy5oLm9y
+aWcJMjAwNS0wNS0xNiAxMzowNzoyOS4wMDAwMDAwMDAgLTA0MDANCisrKyBs
+aW51eC0yLjYuMTEuOS9pbmNsdWRlL2xpbnV4L2ppZmZpZXMuaAkyMDA1LTA1
+LTE2IDEzOjEwOjIyLjAwMDAwMDAwMCAtMDQwMA0KQEAgLTMyOCwxMyArMzI4
+LDEzIEBADQogfQ0KIA0KIHN0YXRpYyBfX2lubGluZV9fIHZvaWQNCi1qaWZm
+aWVzX3RvX3RpbWVzcGVjKGNvbnN0IHVuc2lnbmVkIGxvbmcgamlmZmllcywg
+c3RydWN0IHRpbWVzcGVjICp2YWx1ZSkNCitqaWZmaWVzX3RvX3RpbWVzcGVj
+KGNvbnN0IHVuc2lnbmVkIGxvbmcgamlmZnksIHN0cnVjdCB0aW1lc3BlYyAq
+dmFsdWUpDQogew0KIAkvKg0KIAkgKiBDb252ZXJ0IGppZmZpZXMgdG8gbmFu
+b3NlY29uZHMgYW5kIHNlcGFyYXRlIHdpdGgNCiAJICogb25lIGRpdmlkZS4N
+CiAJICovDQotCXU2NCBuc2VjID0gKHU2NClqaWZmaWVzICogVElDS19OU0VD
+Ow0KKwl1NjQgbnNlYyA9ICh1NjQpamlmZnkgKiBUSUNLX05TRUM7DQogCXZh
+bHVlLT50dl9zZWMgPSBkaXZfbG9uZ19sb25nX3JlbShuc2VjLCBOU0VDX1BF
+Ul9TRUMsICZ2YWx1ZS0+dHZfbnNlYyk7DQogfQ0KIA0KQEAgLTM2NiwxMyAr
+MzY2LDEzIEBADQogfQ0KIA0KIHN0YXRpYyBfX2lubGluZV9fIHZvaWQNCi1q
+aWZmaWVzX3RvX3RpbWV2YWwoY29uc3QgdW5zaWduZWQgbG9uZyBqaWZmaWVz
+LCBzdHJ1Y3QgdGltZXZhbCAqdmFsdWUpDQoramlmZmllc190b190aW1ldmFs
+KGNvbnN0IHVuc2lnbmVkIGxvbmcgamlmZnksIHN0cnVjdCB0aW1ldmFsICp2
+YWx1ZSkNCiB7DQogCS8qDQogCSAqIENvbnZlcnQgamlmZmllcyB0byBuYW5v
+c2Vjb25kcyBhbmQgc2VwYXJhdGUgd2l0aA0KIAkgKiBvbmUgZGl2aWRlLg0K
+IAkgKi8NCi0JdTY0IG5zZWMgPSAodTY0KWppZmZpZXMgKiBUSUNLX05TRUM7
+DQorCXU2NCBuc2VjID0gKHU2NClqaWZmeSAqIFRJQ0tfTlNFQzsNCiAJdmFs
+dWUtPnR2X3NlYyA9IGRpdl9sb25nX2xvbmdfcmVtKG5zZWMsIE5TRUNfUEVS
+X1NFQywgJnZhbHVlLT50dl91c2VjKTsNCiAJdmFsdWUtPnR2X3VzZWMgLz0g
+TlNFQ19QRVJfVVNFQzsNCiB9DQo=
 
-> How do the concepts of numa node id relate to discontig node ids?
-
-I believe there are quite a few assumptions on some architectures that,
-when NUMA is on, they are equivalent.  It appears to be pretty much
-assumed everywhere that CONFIG_NUMA=y means one pg_data_t per NUMA node.
-
-Remember, as you saw, you can't assume that MAX_NUMNODES=1 when NUMA=n
-because of the DISCONTIG=y case.
-
-So, in summary, if you want to do it right: use the
-CONFIG_NEED_MULTIPLE_NODES that you see in -mm.  As plain DISCONTIG=y
-gets replaced by sparsemem any code using this is likely to stay
-working.
-
--- Dave
-
+--1879706418-78814821-1116264353=:7164--

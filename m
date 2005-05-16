@@ -1,70 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261519AbVEPJlH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261529AbVEPJyV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261519AbVEPJlH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 05:41:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbVEPJlH
+	id S261529AbVEPJyV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 05:54:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261542AbVEPJyV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 05:41:07 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:14504 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261519AbVEPJkw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 05:40:52 -0400
-Date: Mon, 16 May 2005 10:40:51 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Xavier Roche <roche+kml2@exalead.com>
+	Mon, 16 May 2005 05:54:21 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:60594 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S261529AbVEPJyR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 05:54:17 -0400
+Subject: Re: ioctl to keyboard device file
+From: Marcel Holtmann <marcel@holtmann.org>
+To: "P.Manohar" <pmanohar@lantana.cs.iitm.ernet.in>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [XFS] Kernel (2.6.11) deadlock (kernel hang) in user mode when writing data through mmap on large files (64-bit systems)
-Message-ID: <20050516094051.GA20828@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Xavier Roche <roche+kml2@exalead.com>, linux-kernel@vger.kernel.org
-References: <427F6310.9020709@exalead.com> <4280D292.2030509@exalead.com> <20050510170129.GA1320@infradead.org> <42831F85.1000208@exalead.com>
+In-Reply-To: <Pine.LNX.4.60.0505161418470.31612@lantana.cs.iitm.ernet.in>
+References: <Pine.LNX.4.60.0505112207300.21632@lantana.cs.iitm.ernet.in>
+	 <1115831651.23458.74.camel@pegasus>
+	 <Pine.LNX.4.60.0505112301350.31722@lantana.cs.iitm.ernet.in>
+	 <1115834000.23458.77.camel@pegasus>
+	 <Pine.LNX.4.60.0505121454240.26644@lantana.cs.iitm.ernet.in>
+	 <1115892091.18499.17.camel@pegasus>
+	 <Pine.LNX.4.60.0505161418470.31612@lantana.cs.iitm.ernet.in>
+Content-Type: text/plain
+Date: Mon, 16 May 2005 11:54:01 +0200
+Message-Id: <1116237241.10063.3.camel@pegasus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42831F85.1000208@exalead.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 12, 2005 at 11:19:01AM +0200, Xavier Roche wrote:
-> It seems that the file was really *badly* fragmented. The reason, as far 
-> as we understand the problem, was:
+Hi,
+
+>      My task is to send the characters to any application as if the input 
+> is coming from keyboard. For that I created one character device file. To 
+> it I am sending input characters through ioctl. In the character device 
+> ioctl definition I am copying these user characters to kernel space and 
+> sending these characters to handle_scancode function. What is the wrong 
+> with this solution. This solution is working now. But waht I am asking is
+> istead of sending our ioctl to newly created device file, can we able to 
+> send ioctl to the keyboard buffer, so that avoiding the use of new 
+> character device file , whose purpose is just to handle ioctl.
+
+using uinput is the way to achieve this goal. What you did is an ugly
+hack and I don't see any chance to get it merged back mainline.
+
+> One more is, uinput case,
 > 
-> - a file "truncated" to _expand_ its size (using ftruncate() with a size 
-> MUCH larger that the current size, which is == 0), leading to create a 
-> "big sparse file" area
-> - sequential write in this file (_NOT_ random) using the corresponding 
-> mmapp'ed data segment
-> - random (!) flush from kswapd leading to allocate fragmented pages 
-> (sparse file)
+> Whether uinput also doing the same thing, waht I am doing?
+> For sending user data to kernel sapce we should use ioctl ,is it right?
 
-..
+This has nothing to do with ioctl() versus write(). Forget about it and
+start using uinput.
 
-> >You're seeing allocation errors where we are trying to realloc that memory
-> >block.
-> >Could you try the patches that Nikita posted to -mm that should improve
-> >this behaviour?
-> 
-> Well, the reasons seems to clearly be this anormal number fo fragments - 
-> is there any potential solution (in the kernel/mm), or the olny solution 
-> is a patch to ensure that ftruncate() is replaced by regulars 
-> fwrite()-zero calls ?
-> 
+Regards
 
-Yes.  Currently the kernel is doing very badly about clustering these
-kinds of allocations.  Can you test whether the patches at:
+Marcel
 
-	http://marc.theaimsgroup.com/?l=linux-mm&m=111375946911468&w=2
-	http://marc.theaimsgroup.com/?l=linux-mm&m=111375947014227&w=2
-	http://marc.theaimsgroup.com/?l=linux-mm&m=111375947006819&w=2
-	http://marc.theaimsgroup.com/?l=linux-mm&m=111375947029723&w=2
-	http://marc.theaimsgroup.com/?l=linux-mm&m=111375947010814&w=2
-	http://marc.theaimsgroup.com/?l=linux-mm&m=111375990000352&w=2
-	http://marc.theaimsgroup.com/?l=linux-mm&m=111375990030384&w=2
-	http://marc.theaimsgroup.com/?l=linux-mm&m=111375990032680&w=2
-	http://marc.theaimsgroup.com/?l=linux-mm&m=111375990019453&w=2
-
-make any difference to you?
 

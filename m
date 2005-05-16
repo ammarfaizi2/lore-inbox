@@ -1,39 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261991AbVEPWks@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbVEPWtQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261991AbVEPWks (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 18:40:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbVEPWZH
+	id S261290AbVEPWtQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 18:49:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbVEPWtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 18:25:07 -0400
-Received: from lyle.provo.novell.com ([137.65.81.174]:13853 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S261965AbVEPWPU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 18:15:20 -0400
-Date: Mon, 16 May 2005 15:15:23 -0700
-From: Greg KH <gregkh@suse.de>
-To: Florian Weimer <fw@deneb.enyo.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.11.10
-Message-ID: <20050516221523.GA12974@suse.de>
-References: <20050516182544.GA9960@kroah.com> <87sm0mx50e.fsf@deneb.enyo.de>
+	Mon, 16 May 2005 18:49:16 -0400
+Received: from mail.kroah.org ([69.55.234.183]:44218 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261290AbVEPWtL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 18:49:11 -0400
+Date: Mon, 16 May 2005 15:49:10 -0700
+From: Greg KH <greg@kroah.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH 7/8] ppc64: SPU file system
+Message-ID: <20050516224909.GB13866@kroah.com>
+References: <200505132117.37461.arnd@arndb.de> <200505170001.10405.arnd@arndb.de> <20050516222736.GA13350@kroah.com> <200505170022.57662.arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87sm0mx50e.fsf@deneb.enyo.de>
+In-Reply-To: <200505170022.57662.arnd@arndb.de>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 16, 2005 at 10:58:09PM +0200, Florian Weimer wrote:
-> * Greg KH:
+On Tue, May 17, 2005 at 12:22:56AM +0200, Arnd Bergmann wrote:
+> On Dinsdag 17 Mai 2005 00:27, Greg KH wrote:
+> > Huh? ?We can handle syscalls in modules these days pretty simply. ?Look
+> > at how nfs and others do it.
 > 
-> > Due to a recently announced security issue with the current kernel, we
-> > (the -stable team) are announcing the release of the 2.6.11.10 kernel.
+> Well afaics, nfs works around this issue by having fs/nfsctl.o always
+> as a builtin and abstract the calls through a file system using
+> read/write. That would be Ben's idea again, i.e. not actually
+> using a system call.
 > 
-> Would it be possible to cross-reference the vulnerabilities in a
-> precise manner, maybe using CVE names?
+> The only widely used module that I'm aware of ever implementing a system
+> call was the TUX web accelerator that that used a hack in entry.S
+> and its own dynamic registration.
 
-Sorry, I'll put the CVE names in the announce email from now on.
+Sorry, but I was thinking of the cond_syscall() stuff, to allow syscalls
+in modules or code that just happens to not be built into the kernel.
 
 thanks,
 

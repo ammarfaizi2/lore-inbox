@@ -1,50 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261639AbVEPNuS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbVEPNxV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261639AbVEPNuS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 09:50:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbVEPNuS
+	id S261630AbVEPNxV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 09:53:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbVEPNxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 09:50:18 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:64261 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S261639AbVEPNtB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 09:49:01 -0400
-Message-ID: <4288A4CA.7000009@rtr.ca>
-Date: Mon, 16 May 2005 09:48:58 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050420 Debian/1.7.7-2
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Matthias Andree <matthias.andree@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux does not care for data integrity
-References: <Pine.LNX.4.58.0505151657230.19181@artax.karlin.mff.cuni.cz> <200505151121.36243.gene.heskett@verizon.net> <20050515152956.GA25143@havoc.gtf.org> <20050516.012740.93615022.okuyamak@dd.iij4u.or.jp> <42877C1B.2030008@pobox.com> <20050516110203.GA13387@merlin.emma.line.org>
-In-Reply-To: <20050516110203.GA13387@merlin.emma.line.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 16 May 2005 09:53:20 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:50891 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261630AbVEPNxH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 09:53:07 -0400
+Subject: Re: NUMA aware slab allocator V3
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       shai@scalex86.org, steiner@sgi.com
+In-Reply-To: <Pine.LNX.4.62.0505131823210.12315@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com>
+	 <20050512000444.641f44a9.akpm@osdl.org>
+	 <Pine.LNX.4.58.0505121252390.32276@schroedinger.engr.sgi.com>
+	 <20050513000648.7d341710.akpm@osdl.org>
+	 <Pine.LNX.4.58.0505130411300.4500@schroedinger.engr.sgi.com>
+	 <20050513043311.7961e694.akpm@osdl.org>
+	 <Pine.LNX.4.62.0505131823210.12315@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Date: Mon, 16 May 2005 06:52:48 -0700
+Message-Id: <1116251568.1005.29.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- >To make this explicit and unmistakable, Linux should be ashamed of
- >having put its users' data at risk for as long as it has existed, and
- >looking at how often I still get "barrier synch failed", it still does
- >with the kernel SUSE Linux 9.3 shipped with.
+On Fri, 2005-05-13 at 18:24 -0700, Christoph Lameter wrote: 
+>  /*
+> + * Some Linux kernels currently have weird notions of NUMA. Make sure that
+> + * there is only a single node if CONFIG_NUMA is not set. Remove this check
+> + * after the situation has stabilized.
+> + */
+> +#ifndef CONFIG_NUMA
+> +#if MAX_NUMNODES != 1
+> +#error "Broken Configuration: CONFIG_NUMA not set but MAX_NUMNODES !=1 !!"
+> +#endif
+> +#endif
 
-With ATA drives, this is strictly a userspace "policy" decision.
+There are some broken assumptions in the kernel that
+CONFIG_DISCONTIG==CONFIG_NUMA.  These usually manifest when code assumes
+that one pg_data_t means one NUMA node.
 
-Most of us want longer lifespan and 2X the performance from our hardware,
-and use UPSs to guarantee continuous power & survivability.
+However, NUMA node ids are actually distinct from "discontigmem nodes".
+A "discontigmem node" is just one physically contiguous area of memory,
+thus one pg_data_t.  Some (non-NUMA) Mac G5's have a gap in their
+address space, so they get two discontigmem nodes.
 
-Others want to live more dangerously on the power supply end,
-but still be safe on the filesystem end -- no guarantees there,
-even with "hdparm -W0" to disable the on-drive cache.
+So, that #error is bogus.  It's perfectly valid to have multiple
+discontigmem nodes, when the number of NUMA nodes is 1.  MAX_NUMNODES
+refers to discontigmem nodes, not NUMA nodes.
 
-Pulling power from a writing drive is ALWAYS a bad idea,
-and can permanently corrupt the track/cylinder that was being
-written.  This will toast a filesystem regardless of how careful
-or proper the write flushes were done.
+In current -mm, you can use CONFIG_NEED_MULTIPLE_NODES to mean 'NUMA ||
+DISCONTIG'.  
 
-Write caching on the drive is not as big an issue as
-good reliable power for this.
+-- Dave
 
-Cheers

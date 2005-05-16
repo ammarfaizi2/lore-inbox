@@ -1,66 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261591AbVEPM4I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbVEPM6D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261591AbVEPM4I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 08:56:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVEPM4I
+	id S261598AbVEPM6D (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 08:58:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbVEPM6C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 08:56:08 -0400
-Received: from ns1.g-housing.de ([62.75.136.201]:28328 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S261591AbVEPMz4 (ORCPT
+	Mon, 16 May 2005 08:58:02 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:7767 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S261598AbVEPM4v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 08:55:56 -0400
-Message-ID: <42889858.1040009@g-house.de>
-Date: Mon, 16 May 2005 14:55:52 +0200
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050326)
+	Mon, 16 May 2005 08:56:51 -0400
+Message-ID: <42889890.8090505@tls.msk.ru>
+Date: Mon, 16 May 2005 16:56:48 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: maneesh@in.ibm.com
-CC: linux-kernel@vger.kernel.org, trond.myklebust@fys.uio.no,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: probably NFS related Oops during shutdown with 2.6.12-rc3-mm3
-References: <428691E3.9040800@g-house.de> <1116116799.14297.29.camel@lade.trondhjem.org> <17923.195.126.66.126.1116177426.squirrel@housecafe.dyndns.org> <20050516063136.GB13091@in.ibm.com>
-In-Reply-To: <20050516063136.GB13091@in.ibm.com>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
+To: Roberto Fichera <kernel@tekno-soft.it>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: How to use memory over 4GB
+References: <6.2.1.2.2.20050516142516.0313e860@mail.tekno-soft.it>
+In-Reply-To: <6.2.1.2.2.20050516142516.0313e860@mail.tekno-soft.it>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Roberto Fichera wrote:
+> Hi All,
+> 
+> I've a dual Xeon 3.2GHz HT with 8GB of memory running kernel 2.6.11.
+> I whould like to know the way how to use all the memory in a single
+> process, the application is a big simulation which needs big memory
+> chuncks.
+> I have readed about hugetlbfs, shmfs and tmpfs, but don't understand how
+> I can access
+> the whole memory. Ok! I can create a big file on tmpfs using shm_open() and
+> than map it by using mmap() or mmap2() but how can I access over 4GB using
+> standard pointers (if I had to use it)?
 
-Maneesh Soni wrote:
-> Could you try configuring kdump and get a crashdump when the system 
-> crashes(oops). Please refer to Documentation/kdump.txt in -mm kernel tree.
-> You might also want to set /proc/sys/kernel/panic_on_oops to 1, so as to
-> initiate kernel panic during oops.
+There's no "standard" and simple way to utilize more than 4Gb memory on
+i386 hardware, especially in a userspace.  That is, the size of a pointer
+is 32bits, which is 4GB addresspace maximum.  i386 architecture just can't
+have a pointer of greather size.
 
-i've done so, but..hmm...no panic was triggered, because the Oops is gone.
-but it *was* there, i swear ;-)
+All "extra" (>4GB) space can be used like a file in a filesystem, not like
+a plain memory.  Think of read()/write() (or pread()/pwrite() for that matter),
+but much faster ones compared to disk-based storage -- in tmpfs.  You can
+also mmap() *parts* of such a file, but will be still limited to 4GB at
+once -- in order to have more, you will have to unmap() something.
 
-http://nerdbynature.de/bits/prinz/2.6.12-rc3-mm3/prinz-nc_2.6.12-rc4-mm1.log
-(but this time with a tainted kernel)
+All the "large applications" (most notable large database systems such as
+Oracle) can't use more than 4GB memory directly, but can utilize it for
+database cache.  In directly-addressible space there's a "table of content"
+of cached buffers is keept, and when a buffer is needed, it is mmap()'ed
+into the application's address space, and unmapped right away when it isn't
+needed anymore (but it is still in memory).  Ofcourse you can't have
+usual pointers into that memory, but you can use something like
+(block-number,offset) instead of a pointer (pagetables).
 
-now i can boot 2.6.12-rc4-mm1 (tainted/not tainted), but the oops does not
-show up anymore.
-
-but thanks for the hint, i'll keep that in mind next time [1]
-
-Christian.
-
-[1] when will it be? even the -mm kernel is pretty rock-solid for me.
-    great job!
-- --
-BOFH excuse #415:
-
-Maintenance window broken
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCiJhY+A7rjkF8z0wRAqJbAJ9zIhAoIGfzLqrNgewmgqR7FafdSQCeOQMM
-U6VPMiAOlofUVPl64lf7HdM=
-=T0dN
------END PGP SIGNATURE-----
+/mjt

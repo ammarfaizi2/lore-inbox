@@ -1,110 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261972AbVEPWzV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbVEPW5v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261972AbVEPWzV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 18:55:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbVEPWzV
+	id S261299AbVEPW5v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 18:57:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261303AbVEPW5k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 18:55:21 -0400
-Received: from wproxy.gmail.com ([64.233.184.193]:449 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261958AbVEPWyb convert rfc822-to-8bit
+	Mon, 16 May 2005 18:57:40 -0400
+Received: from wproxy.gmail.com ([64.233.184.204]:7144 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261299AbVEPW5L convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 18:54:31 -0400
+	Mon, 16 May 2005 18:57:11 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=qHAnr/CyFa572jBZI2FeIefaxY3a+jIcZtuEjvlmGBVfgF/aamdf3uAjqbUq8NxeOvSi8YDFMwEO2Xvfq0dpECyqSTbfX39pbkSdWmZJKDXEmxkgY40L9M9LKHKIeqJAAWJJ64KLNAdYJEaMr7gVbjTZJNXPHoeWUrVj4hr06Vs=
-Message-ID: <2cd57c90050516155413b18b41@mail.gmail.com>
-Date: Tue, 17 May 2005 06:54:28 +0800
+        b=oE0q8uy7tt9zZ7JtYuVqqUCa39G/CJH28yM3162MkCLtW2vwRRhtQ7yD1Zn05U6gh8bH2+1k8DwhV6KTwHBzyA6YdRyTTeHF7pDwLex2ICQ/mglZd5uMAlL5cS9yUZ3CdxHOnxeO+g9eBwcN2nlwEt84speer3n6+aVPUHv7wTY=
+Message-ID: <2cd57c90050516155720b0f3be@mail.gmail.com>
+Date: Tue, 17 May 2005 06:57:10 +0800
 From: Coywolf Qi Hunt <coywolf@gmail.com>
 Reply-To: coywolf@lovecn.org
 To: Kenichi Okuyama <okuyamak@dd.iij4u.or.jp>
 Subject: Re: [RFD] What error should FS return when I/O failure occurs?
 Cc: Valdis.Kletnieks@vt.edu, fs@ercist.iscas.ac.cn,
        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <20050517.051113.132843723.okuyamak@dd.iij4u.or.jp>
+In-Reply-To: <20050517.063931.91280786.okuyamak@dd.iij4u.or.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <1116263665.2434.69.camel@CoolQ>
-	 <200505160635.j4G6ZUcX023810@turing-police.cc.vt.edu>
+References: <200505160635.j4G6ZUcX023810@turing-police.cc.vt.edu>
 	 <20050517.051113.132843723.okuyamak@dd.iij4u.or.jp>
+	 <200505162035.j4GKZVCc018357@turing-police.cc.vt.edu>
+	 <20050517.063931.91280786.okuyamak@dd.iij4u.or.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On 5/17/05, Kenichi Okuyama <okuyamak@dd.iij4u.or.jp> wrote:
-> Dear Valdis,
+> >>>>> "Valdis" == Valdis Kletnieks <Valdis.Kletnieks@vt.edu> writes:
 > 
-> >>>>> "VK" == Valdis Kletnieks <Valdis.Kletnieks@vt.edu> writes:
-> >> 1. For EXT3 partition , we mount it as RW, but when I/O occurs, the
-> >> I/O related functions return EROFS(ReadOnly?), while other FSes
-> >> return EIO.
-> VK> Only the request that actually caused the I/O error (and thus causing the
-> VK> system to re-mount the ext3 partition R/O) should get EIO. EROFS is
-> VK> the proper error for subsequent requests - because they're being rejected
-> VK> because the filesystem is R/O.
+> Valdis> On Tue, 17 May 2005 05:11:13 +0900, Kenichi Okuyama said:
+> >> According to QuFuPing's test, USB cable was UNPLUGGED. That means,
+> >> device is gone, and device driver instantly (well.. within second or
+> >> two) detected that fact.  How could ext3 mounted device that does
+> >> not exist, as Read Only?
 > 
-> I don't see your point.
+> Valdis> I thought we were talking about write requests - which were getting short-circuited
+> Valdis> because the file system was R/O before we even tried to talk to the actual
+> Valdis> file system.  No sense in queueing a write I/O when it's known to be R/O.
 > 
-> According to QuFuPing's test, USB cable was UNPLUGGED. That means,
-> device is gone, and device driver instantly (well.. within second or
-> two) detected that fact.  How could ext3 mounted device that does
-> not exist, as Read Only?
+> Wrong. Did you check what Qu have said?
 > 
+> 1) USB storage exist as READ/WRITE mounted.
+> 2) Then he unplugged USB cable, making USB storage unavailble.
+> 3) EXT3 FS reported the error EROFS.
 > 
-> >> 2. Assume a program doing the following: open - write(async) - close
-> >> When user-mode app calls sys_write, for EXT2/JFS, no error
-> >> returns, for EXT3, EROFS returns, for XFS/ReiserFS, EIO returns.
-> VK> Remember that the request that actually hits an error could be from a
-> VK> process that isn't even in existence anymore, if the page has been sitting
-> VK> in the cache for a while and we're finally sending it to disk.
+> So, it is at the time somewhere between "after USB cable unplug" and
+> "write(2) return" that EXT3 remounted the file system as RO.
+> It was not RO from beginning.
 > 
-> I don't see the reason why cache is still available.
-> # I mean why such a implementation is valid.
+> Valdis> If you're trying to *read* from the now-absent disk and encounter a page
+> Valdis> that's not already in the cache, yes, you'll probably be returning an EIO.
+> >> I don't see the reason why cache is still available.
+> >> # I mean why such a implementation is valid.
+> >>
+> >> If storage is known to be lost by device driver, we should not use
+> >> that cache anymore.
 > 
-> If storage is known to be lost by device driver, we should not use
-> that cache anymore.
+> Valdis> Why?  If the disk disappeared out from under us because it was an unplugged USB
+> Valdis> device, there's at least a possibility of it reappearing via hotplug - presumably
+> Valdis> if you verify the UUID that it's the *same* file system, hotplug could do a
+> Valdis> 'mount -o remount' and recover the situation....
 > 
-> Think about what the cached data means.
+> I don't think that's good idea.
 > 
-> Cache image is the data image which original data exist in some
-> device. Image on memory can be used as cache because consistency is
-> managed by device driver.
+> USB storage is gone. And it SEEMS to came back.
+> But how do you know that it's images were not changed.
 > 
-> If device no longer exist within reach of OS, device driver will not
-> be able to manage the consistency between cache image and what
-> device really have. Hence, if device driver lost control over
-> device somehow, CACHE IMAGE SHOULD BECOME INVALID.
+> Blocks you have cached might have different image. If you remount
+> the file system, the cache image should be updated as well.
 > 
-> So, even for asynchronous IO, or read, or open, or close which only
-> may require cached image, IF DEVICE DRIVER HAVE ALREADY DETECTED THE
-> HW FAIURE ( please keep in mind that I did not add case which device
-> driver did not detcted HW failure yet. I think this is important to
-> meet the ASYNC requirement ), system should invalidate the cache
-> image related to that storage before hand. That means, even for
-> asynchronous IO request, file system should, at least, ask device
-> driver if they have ALREADY detectED any HW failure.
-> # And that means, device driver should have such interface.
+> But very fact that *cache image should be updated* means, old cache
+> image was invalid. And when did it become invalid?
 > 
-> Since device driver have already detected HW failure, whether you
-> really will cause IO or not doesn't matter, EIO should be the
-> correct return of error for this case.
+> When it was gone.
 > 
-> EXT3 should never succeed in remounting lost device as Read Only.
+> Think about thing this way. There was USB storage and it's cached
+> image. Storage is somewhat gone. It never returned before reboot.
+> Was cache image valid after storage gone? Ofcourse not. That cache
+> is nothing more than old data which came from LOST, and NEVER COMING
+> BACK device.
+> 
+> If device did come back but with change, we must read the data from
+> storage again. Old cache image was useless, and was harmful.
+> If device did come back without change, we can read the data from
+> storage again.
+> 
+> No need to keep the cache image, taking risk of cache not being
+> valid, especially while you have no control over the storage.
+> 
+> By the way.
+> 
+> Try umount, and then mount it again manually for any device.  You'll
+> find all the cache images for that file system are gone.
+> If your assumption about cache is correct, why isn't this
+> umount/remount feature keeping the cache image?
 
+When there's umount, the kernel has no way to know whether it will
+come back (mount) or not.  When there's mount -o remount, the device
+has never gone.
 
-Two kinds of HW failure,
-
-   1. still readable, only write failure. 
-   2. unreadable, unwriteable.
-
-For the first case, if mount option errors=remount-ro is given or implied,
-EROFS is appropriate, otherwise EIO.  For the second case, always EIO.
-
-The current VFS design does not try to hide the problems from its
-underlying fs'.
-No need to make it transparent. Userland programs need to consider
-both EROFS and EIO.
+> 
+> You'll, at least, see that there is some inconsistency about cache
+> handling when we *umount->mount* and *remount*.
 
 
 -- 

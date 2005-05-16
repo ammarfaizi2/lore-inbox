@@ -1,68 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261542AbVEPRy7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261533AbVEPR4A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261542AbVEPRy7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 13:54:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbVEPRy7
+	id S261533AbVEPR4A (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 13:56:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbVEPR4A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 13:54:59 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:20950 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261712AbVEPRyt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 13:54:49 -0400
-Date: Mon, 16 May 2005 10:54:33 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       shai@scalex86.org, steiner@sgi.com
-Subject: Re: NUMA aware slab allocator V3
-In-Reply-To: <1116264135.1005.73.camel@localhost>
-Message-ID: <Pine.LNX.4.62.0505161046430.1653@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com> 
- <20050512000444.641f44a9.akpm@osdl.org>  <Pine.LNX.4.58.0505121252390.32276@schroedinger.engr.sgi.com>
-  <20050513000648.7d341710.akpm@osdl.org>  <Pine.LNX.4.58.0505130411300.4500@schroedinger.engr.sgi.com>
-  <20050513043311.7961e694.akpm@osdl.org>  <Pine.LNX.4.62.0505131823210.12315@schroedinger.engr.sgi.com>
-  <1116251568.1005.29.camel@localhost>  <Pine.LNX.4.62.0505160943140.1330@schroedinger.engr.sgi.com>
- <1116264135.1005.73.camel@localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 May 2005 13:56:00 -0400
+Received: from wproxy.gmail.com ([64.233.184.203]:56755 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261533AbVEPRzz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 13:55:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=iF6Huypup2OkK7VqBqMHaT7M+FDrb9fYB5ab3yPMdyAcfdPHwgO0l5oEmzNveGF9TEqpHFI2f7VXP0Dg7OLHMP9gnLQhB8d3ZHzjMafxbx1SinKf56IJeHhZxEgAm9U9/sAkvcZBM2ym8eF0AlJ37cLzNA8X0uRLwJ5W/hNYBlY=
+Message-ID: <e8be733905051610556a199637@mail.gmail.com>
+Date: Mon, 16 May 2005 19:55:53 +0200
+From: Andreas Pokorny <andreas.pokorny@gmail.com>
+Reply-To: Andreas Pokorny <andreas.pokorny@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: ioctl entries for joystick in compat_ioctl.h
+Cc: jakub@redhat.com, ecd@skynet.be, pavel@suse.cz
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 May 2005, Dave Hansen wrote:
+Hi there, 
 
-> > How do the concepts of numa node id relate to discontig node ids?
-> 
-> I believe there are quite a few assumptions on some architectures that,
-> when NUMA is on, they are equivalent.  It appears to be pretty much
-> assumed everywhere that CONFIG_NUMA=y means one pg_data_t per NUMA node.
+What happened to the patch discribed in: 
+http://www.ussg.iu.edu/hypermail/linux/kernel/0412.1/0185.html
 
-Ah. That sounds much better.
+The patch only worked particularly, there are still some ioctl errors
+when running 32bit games like vendetta on x86_64:
 
-> Remember, as you saw, you can't assume that MAX_NUMNODES=1 when NUMA=n
-> because of the DISCONTIG=y case.
+ioctl32(vendetta:29822): Unknown cmd fd(6) cmd(80806a13){00}
+arg(08301694) on /dev/input/js0
 
-I have never seen such a machine. A SMP machine with multiple 
-"nodes"? So essentially one NUMA node has multiple discontig "nodes"?
+But the game is fully playable. I would really like to see that patch
+in the vanilla kernel.
 
-This means that the concept of a node suddenly changes if there is just 
-one numa node(CONFIG_NUMA off implies one numa node)? 
-
-> So, in summary, if you want to do it right: use the
-> CONFIG_NEED_MULTIPLE_NODES that you see in -mm.  As plain DISCONTIG=y
-> gets replaced by sparsemem any code using this is likely to stay
-> working.
-
-s/CONFIG_NUMA/CONFIG_NEED_MULTIPLE_NODES?
-
-That will not work because the idea is the localize the slabs to each 
-node. 
-
-If there are multiple nodes per numa node then invariable one node in the 
-numa node (sorry for this duplication of what node means but I did not 
-do it) must be preferred since numa_node_id() does not return a set of 
-discontig nodes.
- 
-Sorry but this all sounds like an flaw in the design. There is no 
-consistent notion of node. Are you sure that this is not a ppc64 screwup?
-
+Regards
+Andreas Pokorny

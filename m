@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbVEPLMm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbVEPLOA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbVEPLMm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 07:12:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261478AbVEPLMm
+	id S261478AbVEPLOA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 07:14:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261542AbVEPLOA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 07:12:42 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:4010 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261405AbVEPLMk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 07:12:40 -0400
-Subject: Re: Linux does not care for data integrity (was: Disk write cache)
-From: Arjan van de Ven <arjan@infradead.org>
-To: Matthias Andree <matthias.andree@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050516110203.GA13387@merlin.emma.line.org>
-References: <Pine.LNX.4.58.0505151657230.19181@artax.karlin.mff.cuni.cz>
-	 <200505151121.36243.gene.heskett@verizon.net>
-	 <20050515152956.GA25143@havoc.gtf.org>
-	 <20050516.012740.93615022.okuyamak@dd.iij4u.or.jp>
-	 <42877C1B.2030008@pobox.com>  <20050516110203.GA13387@merlin.emma.line.org>
-Content-Type: text/plain
-Date: Mon, 16 May 2005 13:12:36 +0200
-Message-Id: <1116241957.6274.36.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Mon, 16 May 2005 07:14:00 -0400
+Received: from wproxy.gmail.com ([64.233.184.198]:40538 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261478AbVEPLNp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 07:13:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=NblKyLn9dZsGFnf7ZzmhRroZxVcaLxzOPgCyqy/nPEdwWM3SNI1rk0vikCUmkFv1VgGmjM1Nw9uN8XSMDG3uWmoNQKRsbnM/a4bIILxtjmApW4aG4G/PnYANsSSFDPGw5dhZuRxrBgJsCPKweDIyiwmGMYNKL4dXk7EDzqxLdBk=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Danny ter Haar <dth@picard.cistron.nl>
+Subject: Re: 2.6.12-rc4-mm2
+Date: Mon, 16 May 2005 15:17:40 +0400
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <20050516021302.13bd285a.akpm@osdl.org> <d69ttf$782$1@news.cistron.nl>
+In-Reply-To: <d69ttf$782$1@news.cistron.nl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200505161517.40802.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  and
-> request that the kernel switches off the drive's write cache in all
-> drives unless the whole fsync() stuff works (unless defeated by a
-> "benchmark" kernel boot parameter).
+On Monday 16 May 2005 14:50, Danny ter Haar wrote:
+> Andrew Morton  <akpm@osdl.org> wrote:
+> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc4/2.6.12-rc4-mm2/
+> 
+> include/acpi/achware.h:159: warning: `struct acpi_gpe_block_info' declared inside parameter list
+> include/acpi/achware.h:159: warning: `struct acpi_gpe_xrupt_info' declared inside parameter list
+> include/acpi/achware.h:159: warning: type defaults to `int' in declaration of `acpi_hw_enable_runtime_gpe_block'
+> include/acpi/achware.h:159: warning: data definition has no type or storage class
+> make[2]: *** [arch/x86_64/kernel/time.o] Error 1
 
-I think you missed the part where disabling the writecache decreases the
-mtbf of your disk by like a factor 100 or so. At which point your
-dataloss opportunity INCREASES by doing this.
+Does this help?
 
-Sure you can waive rethorics around, but the fact is that linux is
-improving; there now is write barrier support for ext3 (and I assume
-reiserfs) for at least IDE and iirc selected scsi too. 
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
 
-Lets repeat that again: disabling the writecache altogether is bad for
-your disk. really bad. Barriers aren't brilliant for it either but a
-heck of a lot better. Lacking barriers, it's probably safer for your
-data to have write cache on than off.
-
-
+--- linux-2.6.12-rc4-mm2/include/acpi/achware.h	2005-05-16 14:24:02.000000000 +0400
++++ linux-2.6.12-rc4-mm2-acpi/include/acpi/achware.h	2005-05-16 15:11:39.000000000 +0400
+@@ -44,6 +44,14 @@
+ #ifndef __ACHWARE_H__
+ #define __ACHWARE_H__
+ 
++#include <linux/types.h>
++#include <acpi/actypes.h>
++
++struct acpi_bit_register_info;
++struct acpi_generic_address;
++struct acpi_gpe_event_info;
++struct acpi_gpe_xrupt_info;
++struct acpi_gpe_block_info;
+ 
+ /* PM Timer ticks per second (HZ) */
+ 

@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261377AbVEPFeS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261391AbVEPFgs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261377AbVEPFeS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 01:34:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261385AbVEPFeS
+	id S261391AbVEPFgs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 01:36:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVEPFgs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 01:34:18 -0400
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:29866 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261377AbVEPFeN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 01:34:13 -0400
-Message-ID: <428830CE.6010602@yahoo.com.au>
-Date: Mon, 16 May 2005 15:34:06 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
+	Mon, 16 May 2005 01:36:48 -0400
+Received: from smtp801.mail.sc5.yahoo.com ([66.163.168.180]:5006 "HELO
+	smtp801.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261391AbVEPFgh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 01:36:37 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Problem report: 2.6.12-rc4 ps2 keyboard being misdetected as /dev/input/mouse0
+Date: Mon, 16 May 2005 00:36:30 -0500
+User-Agent: KMail/1.8
+Cc: Greg Stark <gsstark@mit.edu>
+References: <87zmuveoty.fsf@stark.xeocode.com>
+In-Reply-To: <87zmuveoty.fsf@stark.xeocode.com>
 MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: anton@samba.org, paulus@samba.org, linux-ia64@vger.kernel.org,
-       mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [patch] improve SMP reschedule and idle routines
-References: <42881FE2.2000302@yahoo.com.au>	<20050515.220455.59467677.davem@davemloft.net>	<42882D44.50302@yahoo.com.au> <20050515.222722.63128129.davem@davemloft.net>
-In-Reply-To: <20050515.222722.63128129.davem@davemloft.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200505160036.30628.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> From: Nick Piggin <nickpiggin@yahoo.com.au>
-> Date: Mon, 16 May 2005 15:19:00 +1000
+On Monday 16 May 2005 00:12, Greg Stark wrote:
+> 
+> I just updated to 2.6.12-rc4 and now /dev/input/mouse0 seems to be my ps2
+> keyboard. My ps2 mouse is now on /dev/input/mouse1.
 > 
 > 
->>The other obvious problem with sparc64 that I didn't tackle is
->>your secondary CPU bringup - those CPUs will be calling cpu_idle
->>with preempt enabled as was previously required, but now should
->>have preempt disabled (ie. arch/sparc64/kernel/trampoline.S:
->>call cpu_idle)
-> 
-> 
-> And adding a preempt_disable() call to the end of
-> arch/sparc64/kernel/smp.c:smp_callin() won't work
-> because?
-> 
+> Good thing to catch before you release 2.6.12 and get the usual swarm of "my
+> mouse stopped working" reports. It seems to be getting to be a pattern:
+> upgrade linux kernel -- debug why mouse stopped working.
+>
 
-No that looks like it should work. If that is the "right"
-place to put it, then that's perfect. I'll resend the patch
-to you privately.
-
+atkbd's scroll support was turned on by default causing mouse moved over a
+bit.
+ 
+Please use /dev/input/mice for accessing your mouse. /dev/input/mouseX are
+not guaranteed to be stable, if you need stable names you'll have to adjust
+your hotplug scripts.
+ 
+-- 
+Dmitry

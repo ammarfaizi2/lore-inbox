@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbVEPQHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261727AbVEPQQm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261728AbVEPQHw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 12:07:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVEPQHw
+	id S261727AbVEPQQm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 12:16:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbVEPQQl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 12:07:52 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:60589 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261723AbVEPQHq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 12:07:46 -0400
-Subject: Re: [PATCH scsi-misc-2.6 04/04] scsi: remove unnecessary
-	scsi_wait_req_end_io()
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Tejun Heo <htejun@gmail.com>
-Cc: Jens Axboe <axboe@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050515011532.GA26421@htj.dyndns.org>
-References: <20050514135610.81030F26@htj.dyndns.org>
-	 <20050514135610.50606F9C@htj.dyndns.org>
-	 <1116084383.5049.18.camel@mulgrave> <20050514154733.GA5557@htj.dyndns.org>
-	 <1116087547.5049.25.camel@mulgrave> <20050515011532.GA26421@htj.dyndns.org>
-Content-Type: text/plain
-Date: Mon, 16 May 2005 11:07:32 -0500
-Message-Id: <1116259652.5040.17.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Mon, 16 May 2005 12:16:41 -0400
+Received: from w240.dkm.cz ([62.24.88.240]:15370 "EHLO mail.spitalnik.net")
+	by vger.kernel.org with ESMTP id S261727AbVEPQQj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 12:16:39 -0400
+From: Jan Spitalnik <jan@spitalnik.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RR for route
+Date: Mon, 16 May 2005 18:16:30 +0200
+User-Agent: KMail/1.8.50
+References: <Pine.LNX.4.61.0505161803180.26484@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0505161803180.26484@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200505161816.31171.jan@spitalnik.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-05-15 at 10:15 +0900, Tejun Heo wrote:
->  I've made two new versions of the same patch.  The first one just
-> BUG() such cases, and the second one makes scsi_prep_fn() tell
-> scsi_request_fn() to kill requests instead of doing itself w/
-> BLKPREP_KILL.  In both cases, I made req->flags error case a BUG().
-> If you don't like it, feel free to drop that part.
-> 
->  Oh... one more thing.  I forgot to mention the scsi_kill_requests()
-> path.  As it's a temporary fix, I just left it as it is (terminate
-> commands w/ end_that_*).  I guess this patch should be pushed after
-> removal of that kludge.  But with or without this patch, that path
-> will leak resources.
+Dne po 16. kvìtna 2005 18:04 Jan Engelhardt napsal(a):
+> Hello,
+>
+>
+> does anybody know of a way to round-robin over multiple default gateways
+> with the same metric? Currently, it looks like it's always the first GW
+> which is taken.
+>
+>
+> Jan Engelhardt
 
-I suppose it's not surprising that I don't like either.
+Hi,
 
-You remove the code that handles the BLKPREP_KILL case and then contort
-the request functions to try not to do it.  We have to handle this case,
-it's not optional, so just leave the code that does it in.
+this not round robin but the traffic is spread over more GW's
 
-James
+config IP_ROUTE_MULTIPATH
+        bool "IP: equal cost multipath"
+        depends on IP_ADVANCED_ROUTER
+        help
+          Normally, the routing tables specify a single action to be taken in
+          a deterministic manner for a given packet. If you say Y here
+          however, it becomes possible to attach several actions to a packet
+          pattern, in effect specifying several alternative paths to travel
+          for those packets. The router considers all these paths to be of
+          equal "cost" and chooses one of them in a non-deterministic fashion
+          if a matching packet arrives.
 
+-- 
+Jan Spitalnik
+jan@spitalnik.net
 
+If everyone used log base e, we'd all be happy!

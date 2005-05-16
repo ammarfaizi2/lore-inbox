@@ -1,76 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261758AbVEPQ7R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261757AbVEPRC1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261758AbVEPQ7R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 12:59:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbVEPQ7R
+	id S261757AbVEPRC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 13:02:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261760AbVEPRC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 12:59:17 -0400
-Received: from fire.osdl.org ([65.172.181.4]:48611 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261758AbVEPQ6c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 12:58:32 -0400
-Date: Mon, 16 May 2005 10:00:20 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Scott Robert Ladd <lkml@coyotegulch.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@muc.de>,
-       Gabor MICSKO <gmicsko@szintezis.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Hyper-Threading Vulnerability
-In-Reply-To: <4284F6B5.2080308@coyotegulch.com>
-Message-ID: <Pine.LNX.4.58.0505160945280.28162@ppc970.osdl.org>
-References: <1115963481.1723.3.camel@alderaan.trey.hu>  <m164xnatpt.fsf@muc.de>
- <1116009347.1448.489.camel@localhost.localdomain> <4284F6B5.2080308@coyotegulch.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 May 2005 13:02:27 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:27345 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261757AbVEPRBm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 13:01:42 -0400
+Subject: Re: Share Wait Queue between different modules ?
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Dinesh Ahuja <mdlinux7@yahoo.co.in>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050516151107.62046.qmail@web8502.mail.in.yahoo.com>
+References: <20050516151107.62046.qmail@web8502.mail.in.yahoo.com>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Mon, 16 May 2005 13:01:35 -0400
+Message-Id: <1116262895.10107.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 13 May 2005, Scott Robert Ladd wrote:
->
-> Alan Cox wrote:
-> > HT for most users is pretty irrelevant, its a neat idea but the
-> > benchmarks don't suggest its too big a hit
+On Mon, 2005-05-16 at 16:11 +0100, Dinesh Ahuja wrote:
+> Hi ,
 > 
-> On real-world applications, I haven't seen HT boost performance by more
-> than 15% on a Pentium 4 -- and the usual gain is around 5%, if anything
-> at all. HT is a nice idea, but I don't enable it on my systems.
+> Just trying to explore a situation where different
+> modules may need to share same wait queues. Could
+> anyone tell me the pratical situation where we need to
+> have above mentioned situation ?
+> 
 
-HT is _wonderful_ for latency reduction. 
+Have an example of this situation?
 
-Why people think "performace" means "throughput" is something I'll never
-understand. Throughput is _always_ secondary to latency, and really only
-becomes interesting when it becomes a latency number (ie "I need higher
-throughput in order to process these jobs in 4 hours instead of 8" -
-notice how the real issue was again about _latency_).
+> Please clarify me on below point : 
+> We say that kernel stack is very much limited around
+> 8KB.
+> Does all the running processes share this stack or
+> each process has 8KB of the space which process can
+> access when it is running in kernel mode.
+> 
 
-Now, Linux tends to have pretty good CPU latency anyway, so it's not
-usually that big of a deal, but I definitely enjoyed having a HT machine
-over a regular UP one. I'm told the effect was even more pronounced on 
-XP. 
+The later.  Each process has its own kernel stack when in kernel mode.
 
-Of course, these days I enjoy having dual cores more, though, and with
-multiple cores, the latency advantages of HT become much less pronounced.
+> Sharing wait queues will be difficult if the kernel
+> space is 8KB for all the ready processes because then
+> the no of wait_queue_t elements which can be added
+> will be limited.
+> 
 
-As to the HT "vulnerability", it really seems to be not a whole lot
-different than what people saw with early SMP and (small) direct-mapped
-caches. Thank God those days are gone.
+As mentioned above, each process has its own kernel stack.
 
-I'd be really surprised if somebody is actually able to get a real-world
-attack on a real-world pgp key usage or similar out of it (and as to the
-covert channel, nobody cares). It's a fairly interesting approach, but
-it's certainly neither new nor HT-specific, or necessarily seem all that
-worrying in real life.
 
-(HT and modern CPU speeds just means that the covert channel is _faster_
-than it has been before, since you can test the L1 at core speeds. I doubt
-it helps the key attack much, though, since faster in that case cuts both
-ways: the speed of testing the cache eviction may have gone up, but so has
-the speed of the operation you're trying to follow, and you'd likely have
-a really hard time trying to catch things in real life).
+-- Steve
 
-It does show that if you want to hide key operations, you want to be 
-careful. I don't think HT is at fault per se. 
 
-		Linus

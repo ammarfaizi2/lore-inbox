@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbVEPWtQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261823AbVEPWxN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261290AbVEPWtQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 18:49:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbVEPWtQ
+	id S261823AbVEPWxN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 18:53:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbVEPWxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 18:49:16 -0400
-Received: from mail.kroah.org ([69.55.234.183]:44218 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261290AbVEPWtL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 18:49:11 -0400
-Date: Mon, 16 May 2005 15:49:10 -0700
-From: Greg KH <greg@kroah.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH 7/8] ppc64: SPU file system
-Message-ID: <20050516224909.GB13866@kroah.com>
-References: <200505132117.37461.arnd@arndb.de> <200505170001.10405.arnd@arndb.de> <20050516222736.GA13350@kroah.com> <200505170022.57662.arnd@arndb.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200505170022.57662.arnd@arndb.de>
-User-Agent: Mutt/1.5.8i
+	Mon, 16 May 2005 18:53:13 -0400
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:39817 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261823AbVEPWxI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 18:53:08 -0400
+Message-ID: <42892447.5000304@yahoo.com.au>
+Date: Tue, 17 May 2005 08:52:55 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Oleg Nesterov <oleg@tv-sign.ru>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [patch] improve SMP reschedule and idle routines
+References: <4288A55B.10F7240E@tv-sign.ru>
+In-Reply-To: <4288A55B.10F7240E@tv-sign.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 17, 2005 at 12:22:56AM +0200, Arnd Bergmann wrote:
-> On Dinsdag 17 Mai 2005 00:27, Greg KH wrote:
-> > Huh? ?We can handle syscalls in modules these days pretty simply. ?Look
-> > at how nfs and others do it.
+Oleg Nesterov wrote:
+> Nick Piggin wrote:
 > 
-> Well afaics, nfs works around this issue by having fs/nfsctl.o always
-> as a builtin and abstract the calls through a file system using
-> read/write. That would be Ben's idea again, i.e. not actually
-> using a system call.
+>> void default_idle(void)
+>> {
+>>+	local_irq_enable();
+>>+
 > 
-> The only widely used module that I'm aware of ever implementing a system
-> call was the TUX web accelerator that that used a hack in entry.S
-> and its own dynamic registration.
+> 
+> Stupid question. Why is this sti() needed?
+> 
+> Interrupts are enabled in start_secondary() before cpu_idle()
+> call, and they can't be disabled after return from schedule().
+> 
+> The same question applies to poll_idle/mwait_idle.
+> 
 
-Sorry, but I was thinking of the cond_syscall() stuff, to allow syscalls
-in modules or code that just happens to not be built into the kernel.
+IIRC I tried to do that, but I think I ran into problems with
+acpi_processor_idle which looks like it can call the cpu idle
+routines with interrupts disabled. I definitely ran into problems
+with something.
 
-thanks,
+That should really be cleaned up though (whether we go one way
+or the other doesn't matter as much as it being consistent),
+I think.
 
-greg k-h
+But I wanted to try to keep this patch to a minimum.
+
+-- 
+SUSE Labs, Novell Inc.
+

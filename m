@@ -1,67 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261957AbVEPW0o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261904AbVEPW0o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261957AbVEPW0o (ORCPT <rfc822;willy@w.ods.org>);
+	id S261904AbVEPW0o (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 16 May 2005 18:26:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbVEPWZq
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261963AbVEPWZ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 18:25:46 -0400
-Received: from colo.lackof.org ([198.49.126.79]:17303 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S261957AbVEPWXM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 18:23:12 -0400
-Date: Mon, 16 May 2005 16:26:12 -0600
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Grant Grundler <grundler@parisc-linux.org>, akpm@osdl.org,
-       T-Bone@parisc-linux.org, varenet@parisc-linux.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Netdev <netdev@oss.sgi.com>
-Subject: Re: patch tulip-natsemi-dp83840a-phy-fix.patch added to -mm tree
-Message-ID: <20050516222612.GD9282@colo.lackof.org>
-References: <200505101955.j4AJtX9x032464@shell0.pdx.osdl.net> <42881C58.40001@pobox.com> <20050516050843.GA20107@colo.lackof.org> <4288CE51.1050703@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 16 May 2005 18:25:26 -0400
+Received: from natnoddy.rzone.de ([81.169.145.166]:29645 "EHLO
+	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S261904AbVEPWSZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 18:18:25 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 7/8] ppc64: SPU file system
+Date: Tue, 17 May 2005 00:01:05 +0200
+User-Agent: KMail/1.7.2
+Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+References: <200505132117.37461.arnd@arndb.de> <200505141505.08999.arnd@arndb.de> <20050516205825.GB11938@kroah.com>
+In-Reply-To: <20050516205825.GB11938@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4288CE51.1050703@pobox.com>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.9i
+Message-Id: <200505170001.10405.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 16, 2005 at 12:46:09PM -0400, Jeff Garzik wrote:
-> Simply ensure that tulip_select_media() is always called from a process 
-> context. Then can you delay all you want.  Several of the calls are 
-> already this way, so that leaves two cases:
+On Maandag 16 Mai 2005 22:58, Greg KH wrote:
+> On Sat, May 14, 2005 at 03:05:06PM +0200, Arnd Bergmann wrote:
+
+> > 2. sys_spufs_run(int fd, __u32 pc, __u32 *new_pc, __u32 *status):
+> >  pro:
+> >      - strong types
+> >      - can have both input and output arguments
+> >  contra:
+> >      - does not fit file system semantics well
+> >      - bad for prototyping
 > 
-> 1) called from timer context, from the media poll timer
+> I suggest you do this.  Based on what you say you want the code to do, I
+> agree, write() doesn't really work out well
+
+The syscall approach has another small disadvantage in that I need to
+do a callback registration mechanism for it if I want to have spufs as
+a loadable module. I could of course require spufs to be builtin, but
+that complicates prototype testing (as mentioned) and enlarges combined
+pSeries/powermac/BPA distro kernels.
+
+I think I'll leave the ioctl for now and add a note saying that I need
+to replace it with a syscall or the write/read or lseek/read based
+approach when I arrive at a more feature complete point.
+
+> (but it might, and if you 
+> want an example of how to do it, look at the ibmasm driver, it
+> implements write() in a way much like what you are wanting to do.)
+
+That would be the same write/read combination as Ben's second
+proposal and the nfsctl file system, right?
+
+> > My solution was to force the dentries in each directory to be
+> > present. When the directory is created, the files are already
+> > there and unlinking a single file is impossible. To destroy the
+> > spu context, the user has to rmdir it, which will either remove
+> > all files in there as well or fail in the case that any file is
+> > still open.
 > 
-> 2) called from spin_lock_irqsave() context, in the ->tx_timeout hook.
+> Ick.
 > 
-> The first case can be fixed by moved all the timer code to a workqueue. 
-> Then when the existing timer fires, kick the workqueue.
+> > Of course that is not really Posix behavior, but it avoids some
+> > other pitfalls.
 > 
-> The second case can be fixed by kicking the workqueue upon tx_timeout 
-> (which is the reason why I did not suggest queue_delayed_work() use).
+> Go with a syscall :)
 
-Thanks - the above guidance has much more detail than you offered before
-and is much more useful.
-Too bad that schedule_timeout() was the only option at the time. :^(
+Sorry, I'm not following that reasoning. How does a syscall help
+with the problem of atomic context destruction?
 
-And I apologize I don't recall what the issues were with schedule_timeout().
-I suspect they will rear their ugly head with the workqueue
-implementation as well. But if they don't, that will be great.
-
-> See, it's not rocket science :)
-
-Well, then it's a great opportunity for someone interested in hacking
-NIC drivers to cut their teeth on. :^)
-
-After three years of using/maintaining the (trivial) tulip patch
-in parisc-linux tree (and shipped with RH/SuSe ia64 releases),
-I don't recall anyone complaining that udelays in tulip phy reset
-caused them problems. Sorry, I'm unmotivated to revisit this.
-Convince someone else to make tulip to use workqueues and I'll
-resubmit a clean patch on top of that for the phy init sequences.
-
-thanks,
-grant
+	Arnd <><

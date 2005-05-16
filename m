@@ -1,75 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbVEPBJC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbVEPBM0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261226AbVEPBJC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 21:09:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbVEPBJC
+	id S261215AbVEPBM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 21:12:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261229AbVEPBM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 21:09:02 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:11466 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261207AbVEPBIz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 21:08:55 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C559B3.D3672E87"
-Subject: [PATCH] Haunted spurious interrupt
-Date: Mon, 16 May 2005 09:07:25 +0800
-Message-ID: <8126E4F969BA254AB43EA03C59F44E8402142C6A@pdsmsx404>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Haunted spurious interrupt
-Thread-Index: AcVZs59eJ4x7ieyoQYGNwkAE8aiIeA==
-From: "Zhang, Yanmin" <yanmin.zhang@intel.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <linux-ia64@vger.kernel.org>
-X-OriginalArrivalTime: 16 May 2005 01:08:53.0431 (UTC) FILETIME=[D39E4470:01C559B3]
+	Sun, 15 May 2005 21:12:26 -0400
+Received: from waste.org ([216.27.176.166]:61313 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261211AbVEPBMQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 21:12:16 -0400
+Date: Sun, 15 May 2005 18:12:09 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: "Adam J. Richter" <adam@yggdrasil.com>, pasky@ucw.cz, git@vger.kernel.org,
+       linux-kernel@vger.kernel.org, mercurial@selenic.com, torvalds@osdl.org
+Subject: Re: Mercurial 0.4e vs git network pull
+Message-ID: <20050516011209.GM5914@waste.org>
+References: <200505151122.j4FBMJa01073@adam.yggdrasil.com> <20050515173923.GK5914@waste.org> <428793A1.5070004@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <428793A1.5070004@pobox.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Sun, May 15, 2005 at 02:23:29PM -0400, Jeff Garzik wrote:
+> Matt Mackall wrote:
+> >On Sun, May 15, 2005 at 04:22:19AM -0700, Adam J. Richter wrote:
+> >
+> >>On Sun, 15 May 2005 10:54:05 +0200, Petr Baudis wrote:
+> >>
+> >>>Dear diary, on Thu, May 12, 2005 at 10:57:35PM CEST, I got a letter
+> >>>where Matt Mackall <mpm@selenic.com> told me that...
+> >>>
+> >>>>Does this need an HTTP request (and round trip) per object? It appears
+> >>>>to. That's 2200 requests/round trips for my 800 patch benchmark.
+> >>
+> >>>Yes it does. On the other side, it needs no server-side CGI. But I guess
+> >>>it should be pretty easy to write some kind of server-side CGI streamer,
+> >>>and it would then easily take just a single HTTP request (telling the
+> >>>server the commit ID and receiving back all the objects).
+> >>
+> >>	I don't understand what was wrong with Jeff Garzik's previous
+> >>suggestion of using http/1.1 pipelining to coalesce the round trips.
+> >
+> >
+> >You can't do pipelining if you can't look ahead far enough to fill the 
+> >pipe.
+> 
+> Even if you cannot fill a pipeline, HTTP/1.1 is sufficiently useful 
+> simply by removing the per-request connection overhead.
 
-------_=_NextPart_001_01C559B3.D3672E87
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Sure. It cuts round trips by a factor of 2. But that's just about all
+it does.
 
-On my IA64 machine, after kernel 2.6.12-rc3 boots, an edge-triggered
-interrupt (IRQ 46) keeps triggered over and over again. There is no IRQ
-46 interrupt action handler. It has lots of impact on performance.
-Kernel 2.6.10 and its prior versions have no the problem. Basically,
-kernel 2.6.10 will mask the spurious edge interrupt if the interrupt is
-triggered for the second time and its status includes
-IRQ_DISABLE|IRQ_PENDING. Originally, IA64 kernel has its own specific
-_irq_desc definitions in file arch/ia64/kernel/irq.c. The definition
-initiates _irq_desc[irq].status to IRQ_DISABLE. Since kernel 2.6.11, it
-was moved to architecture independent codes, i.e. kernel/irq/handle.c,
-but kernel/irq/handle.c initiates _irq_desc[irq].status to 0 instead of
-IRQ_DISABLE.
+Mercurial already does:
+  - approximately O(log(new changesets)) requests/data to find new changesets
+  - one request to get an entire changegroup (set of all new
+    changesets), which comes back all nicely pipelined and sorted by file
+  - delta transfer
 
-The attachment is a patch against kernel 2.6.12-rc3. I tested it on my
-IA64 and IA32 machines.
+In "dumb http" mode, ie what's been there since about day three, it
+can do:
+  - one request (size proportional to total number of changesets) to
+    find new changesets
+  - approximately two requests per changed file to pull all deltas
+    (vs request per file revision)
+  - delta transfer
 
-Signed-off-by: Zhang Yanmin <yanmin.zhang@intel.com>
-
- <<haunted_interrupt_2.6.12-rc3.patch>>=20
-
-------_=_NextPart_001_01C559B3.D3672E87
-Content-Type: application/octet-stream;
-	name="haunted_interrupt_2.6.12-rc3.patch"
-Content-Transfer-Encoding: base64
-Content-Description: haunted_interrupt_2.6.12-rc3.patch
-Content-Disposition: attachment;
-	filename="haunted_interrupt_2.6.12-rc3.patch"
-
-ZGlmZiAtTnJhdXAgbGludXgtMi42LjEyLXJjMy9rZXJuZWwvaXJxL2hhbmRsZS5jIGxpbnV4LTIu
-Ni4xMi1yYzNfZml4L2tlcm5lbC9pcnEvaGFuZGxlLmMKLS0tIGxpbnV4LTIuNi4xMi1yYzMva2Vy
-bmVsL2lycS9oYW5kbGUuYwkyMDA1LTA0LTIyIDAwOjI0OjQwLjAwMDAwMDAwMCArMDgwMAorKysg
-bGludXgtMi42LjEyLXJjM19maXgva2VybmVsL2lycS9oYW5kbGUuYwkyMDA1LTA1LTEyIDEyOjIx
-OjE0LjkzNDMzMjc1NiArMDgwMApAQCAtMzAsNiArMzAsNyBAQAogICovCiBpcnFfZGVzY190IGly
-cV9kZXNjW05SX0lSUVNdIF9fY2FjaGVsaW5lX2FsaWduZWQgPSB7CiAJWzAgLi4uIE5SX0lSUVMt
-MV0gPSB7CisJCS5zdGF0dXMgPSBJUlFfRElTQUJMRUQsCiAJCS5oYW5kbGVyID0gJm5vX2lycV90
-eXBlLAogCQkubG9jayA9IFNQSU5fTE9DS19VTkxPQ0tFRAogCX0K
-
-------_=_NextPart_001_01C559B3.D3672E87--
+-- 
+Mathematics is the supreme nostalgia of our time.

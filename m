@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261278AbVEPWfu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261993AbVEPWl0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261278AbVEPWfu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 18:35:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261963AbVEPWf1
+	id S261993AbVEPWl0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 18:41:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbVEPWlQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 18:35:27 -0400
-Received: from dvhart.com ([64.146.134.43]:1954 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S261278AbVEPWeT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 18:34:19 -0400
-Date: Mon, 16 May 2005 15:34:15 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] NMI lockup and AltSysRq-P dumping calltraces on _all_ cpus via NMI IPI
-Message-ID: <768860000.1116282855@flay>
-In-Reply-To: <42822B5F.8040901@sw.ru>
-References: <42822B5F.8040901@sw.ru>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Mon, 16 May 2005 18:41:16 -0400
+Received: from natnoddy.rzone.de ([81.169.145.166]:57854 "EHLO
+	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S261965AbVEPWjH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 18:39:07 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 7/8] ppc64: SPU file system
+Date: Tue, 17 May 2005 00:22:56 +0200
+User-Agent: KMail/1.7.2
+Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+References: <200505132117.37461.arnd@arndb.de> <200505170001.10405.arnd@arndb.de> <20050516222736.GA13350@kroah.com>
+In-Reply-To: <20050516222736.GA13350@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
+Message-Id: <200505170022.57662.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Wednesday, May 11, 2005 19:57:19 +0400 Kirill Korotaev <dev@sw.ru> wrote:
+On Dinsdag 17 Mai 2005 00:27, Greg KH wrote:
+> Huh?  We can handle syscalls in modules these days pretty simply.  Look
+> at how nfs and others do it.
 
-> against 2.6.12-rc4
-> 
-> This patch adds dumping of calltraces on _all_ CPUs
-> on AltSysRq-P and NMI LOCKUP. It does this via sending
-> NMI IPI interrupts to the cpus.
-> 
-> I saw the same patch in RedHat kernels, here goes our own version of the patch, not sure it will be accepted, but I think it can be used by some people at least for debugging lockups etc.
+Well afaics, nfs works around this issue by having fs/nfsctl.o always
+as a builtin and abstract the calls through a file system using
+read/write. That would be Ben's idea again, i.e. not actually
+using a system call.
 
-I'd done a similar thing, but just using smp_call_function (I hacked the
-interrupt routine to fish pt_regs back out, and override *info in some
-cases). Doing NMIs, as you've done, is probably nicer, but a lot more
-work.
+The only widely used module that I'm aware of ever implementing a system
+call was the TUX web accelerator that that used a hack in entry.S
+and its own dynamic registration.
 
-The problem with it (and my patch too) is that you're hooking into arch
-specific code from generic code, which means you'll break every other
-arch apart from i386. Fixing this is a pain in the rear end, but would
-be needed to merge the patch. OTOH, the patch is extremely useful, so
-would be nice to fix if you have the energy ...
-
-M.
-
-
+	Arnd <><

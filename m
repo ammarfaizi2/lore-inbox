@@ -1,67 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbVEPFBK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbVEPFFr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261266AbVEPFBK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 01:01:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbVEPFBK
+	id S261277AbVEPFFr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 01:05:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVEPFFq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 01:01:10 -0400
-Received: from fire.osdl.org ([65.172.181.4]:17803 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261266AbVEPFBG (ORCPT
+	Mon, 16 May 2005 01:05:46 -0400
+Received: from colo.lackof.org ([198.49.126.79]:40328 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S261277AbVEPFFj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 01:01:06 -0400
-Date: Sun, 15 May 2005 22:00:17 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, shai@scalex86.org,
-       steiner@sgi.com
-Subject: Re: NUMA aware slab allocator V3
-Message-Id: <20050515220017.6271c55e.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.62.0505140908480.17517@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com>
-	<20050512000444.641f44a9.akpm@osdl.org>
-	<Pine.LNX.4.58.0505121252390.32276@schroedinger.engr.sgi.com>
-	<20050513000648.7d341710.akpm@osdl.org>
-	<Pine.LNX.4.58.0505130411300.4500@schroedinger.engr.sgi.com>
-	<20050513043311.7961e694.akpm@osdl.org>
-	<Pine.LNX.4.62.0505131823210.12315@schroedinger.engr.sgi.com>
-	<20050514004204.2302dc52.akpm@osdl.org>
-	<Pine.LNX.4.62.0505140908480.17517@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Mon, 16 May 2005 01:05:39 -0400
+Date: Sun, 15 May 2005 23:08:43 -0600
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: akpm@osdl.org, T-Bone@parisc-linux.org, grundler@parisc-linux.org,
+       varenet@parisc-linux.org, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Netdev <netdev@oss.sgi.com>
+Subject: Re: patch tulip-natsemi-dp83840a-phy-fix.patch added to -mm tree
+Message-ID: <20050516050843.GA20107@colo.lackof.org>
+References: <200505101955.j4AJtX9x032464@shell0.pdx.osdl.net> <42881C58.40001@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42881C58.40001@pobox.com>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <clameter@engr.sgi.com> wrote:
->
-> Here is Dave's patch again:
-> 
->  =====================================================================
->  I think I found the problem.  Could you try the attached patch?
-> 
->  As I said before FLATMEM is really referring to things like the
->  mem_map[] or max_mapnr.
-> 
->  CONFIG_NEED_MULTIPLE_NODES is what gets turned on for DISCONTIG or for
->  NUMA.  We'll slowly be removing all of the DISCONTIG cases, so
->  eventually it will merge back to be one with NUMA.
-> 
->  -- Dave
-> 
->  --- clean/include/linux/numa.h.orig     2005-05-13 06:44:56.000000000 
->  -0700
->  +++ clean/include/linux/numa.h  2005-05-13 06:52:05.000000000 -0700
->  @@ -3,7 +3,7 @@
-> 
->   #include <linux/config.h>
-> 
->  -#ifndef CONFIG_FLATMEM
->  +#ifdef CONFIG_NEED_MULTIPLE_NODES
->   #include <asm/numnodes.h>
->   #endif
+On Mon, May 16, 2005 at 12:06:48AM -0400, Jeff Garzik wrote:
+> Note that while the patch creates the correct behavior, the delays above 
+> occur inside spin_lock_irqsave() and/or timer context.
 
-Nope.
+Yes. Agreed.  So what?
 
-mm/slab.c:117:2: #error "Broken Configuration: CONFIG_NUMA not set but MAX_NUMNODES !=1 !!"
+If tulip phy init code is hit so often *and* seeing the worst case
+2ms delay that it's a problem, the delay doesn't matter.
+Something else is fundamentally wrong.
 
+Fixing code that doesn't comply with published specs and has
+been proven to not work on at least 3 archs seems a bit more
+important than an occasional < 1ms (normal case) delay.
+
+> I have been to get HP to fix this patch's delay problem for -years-.
+
+I was "encouraged" to rewrite the tulip phy init sequence in 2002
+to use schedule_timeout() and heard a claim it would be trivial.
+
+I looked into it and concluded it was NOT trivial.
+I approached Jeff at OLS2002 (or 2003) and explained why I thought it
+was NOT trivial.  Didn't get a response that resolved any of the
+concerns I raised. I'd be willing to take another look at fresh
+ideas once all of the tulip patches I have ouststanding go in.
+
+If the original suggestion really were trivial, we wouldn't be having
+this conversation now.  Some high school student would have taken care
+of it by now, right?
+
+thanks,
+grant

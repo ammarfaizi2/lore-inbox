@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261700AbVEPPLH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbVEPPMh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261700AbVEPPLH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 11:11:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbVEPPIT
+	id S261704AbVEPPMh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 11:12:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbVEPPLW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 11:08:19 -0400
-Received: from mavis.erg.abdn.ac.uk ([139.133.204.77]:10426 "EHLO
-	erg.abdn.ac.uk") by vger.kernel.org with ESMTP id S261687AbVEPPGm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 11:06:42 -0400
-Message-Id: <200505161505.j4GF5tAY026358@erg.abdn.ac.uk>
-Reply-To: <william@erg.abdn.ac.uk>
-From: "William StanisLaus" <william@erg.abdn.ac.uk>
-To: <linux-kernel@vger.kernel.org>
-Date: Mon, 16 May 2005 16:05:47 +0100
-Organization: University of Aberdeen
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-In-Reply-To: 
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-thread-index: AcVX0WFU1/EHkgVNRYCJav5G5NMrqQCVtdjg
-X-ERG-MailScanner: Found to be clean
-X-ERG-MailScanner-From: william@erg.abdn.ac.uk
-Subject: UDP-Lite Patch for linux kernel 2.6.11.x
+	Mon, 16 May 2005 11:11:22 -0400
+Received: from holomorphy.com ([66.93.40.71]:50650 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261697AbVEPPKq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 11:10:46 -0400
+Date: Mon, 16 May 2005 08:10:23 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Roberto Fichera <kernel@tekno-soft.it>
+Cc: Michael Tokarev <mjt@tls.msk.ru>, linux-kernel@vger.kernel.org
+Subject: Re: How to use memory over 4GB
+Message-ID: <20050516151023.GK9304@holomorphy.com>
+References: <6.2.1.2.2.20050516142516.0313e860@mail.tekno-soft.it> <42889890.8090505@tls.msk.ru> <6.2.1.2.2.20050516150628.06682cd0@mail.tekno-soft.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6.2.1.2.2.20050516150628.06682cd0@mail.tekno-soft.it>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please take a look at UDP-Lite document @
-http://www.erg.abdn.ac.uk/users/william/udp-lite/Linux%20Kernel%20Update%20f
-or%20UDPLite%20protocol.doc
+On Mon, May 16, 2005 at 03:16:28PM +0200, Roberto Fichera wrote:
+> I was thinking to create as many object I need by the usual shm_open(), 
+> than mmap() it on a process until I get ENOMEM. So, when I get a
+> ENOMEM I start to munmap() objects in order to free some user space
+> memory and create the needed space to complete mmap() for the
+> requested object.
 
-Which contains patch for UDP-Lite for linux kernel 2.6.11
+This approach has already been used in production by various major
+applications and is even obsolete, now replaced by remap_file_pages()
+(in Linux), where it and its counterparts in other operating systems
+have been in use in production by various major applications for some time.
 
-and help in testing and updating linux kernel for UDP-Lite protocol, RFC
-3828.
+remap_file_pages() allows virtual pages in an mmap() area to correspond
+in an unrestricted fashion to the pages of the underlying file, and to
+alter this correspondence at will.
 
-Thanks in advance.
-
-Best Regards,
-William StanisLaus | Research Student
-Electronic Research Group | University of Aberdeen
-email: william@erg.abdn.ac.uk | Mobile: (+44) (0) 7821870521
-www.erg.abdn.ac.uk
+In particular, Oracle's "vlm" option does this.
 
 
+-- wli

@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbVEPLPT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbVEPLTL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261548AbVEPLPT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 07:15:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261541AbVEPLPS
+	id S261549AbVEPLTL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 07:19:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261545AbVEPLTL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 07:15:18 -0400
-Received: from mail.shareable.org ([81.29.64.88]:6871 "EHLO mail.shareable.org")
-	by vger.kernel.org with ESMTP id S261523AbVEPLOc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 07:14:32 -0400
-Date: Mon, 16 May 2005 12:14:08 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Ram <linuxram@us.ibm.com>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, viro@parcelfarce.linux.theplanet.co.uk,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] namespace.c: fix bind mount from foreign namespace
-Message-ID: <20050516111408.GA21145@mail.shareable.org>
-References: <E1DWXeF-00017l-00@dorka.pomaz.szeredi.hu> <20050513170602.GI1150@parcelfarce.linux.theplanet.co.uk> <E1DWdn9-0004O2-00@dorka.pomaz.szeredi.hu> <1116005355.6248.372.camel@localhost> <E1DWf54-0004Z8-00@dorka.pomaz.szeredi.hu> <1116012287.6248.410.camel@localhost> <E1DWfqJ-0004eP-00@dorka.pomaz.szeredi.hu> <1116013840.6248.429.camel@localhost> <E1DWprs-0005D1-00@dorka.pomaz.szeredi.hu> <1116256279.4154.41.camel@localhost>
+	Mon, 16 May 2005 07:19:11 -0400
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:27038 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S261523AbVEPLTE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 07:19:04 -0400
+Date: Mon, 16 May 2005 13:18:59 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Disk write cache (Was: Hyper-Threading Vulnerability)
+Message-ID: <20050516111859.GB13387@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <1115963481.1723.3.camel@alderaan.trey.hu> <20050515145241.GA5627@irc.pl> <Pine.LNX.4.58.0505151657230.19181@artax.karlin.mff.cuni.cz> <200505151121.36243.gene.heskett@verizon.net> <Pine.LNX.4.58.0505151809240.26531@artax.karlin.mff.cuni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1116256279.4154.41.camel@localhost>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.58.0505151809240.26531@artax.karlin.mff.cuni.cz>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ram wrote:
-> > I'd rather not speculate on what Al Viro was thinking, it may have
-> > been just a misunderstanding.
-> 
-> Can somebody who know internals of Al Viro's thinking help here?
+On Sun, 15 May 2005, Mikulas Patocka wrote:
 
-Presumably he wrote this line:
+> Note that disk can still ignore FLUSH CACHE command cached data are small
+> enough to be written on power loss, so small FLUSH CACHE time doesn't
+> prove disk cheating.
 
-	if (check_mnt(nd->mnt) && (!recurse || check_mnt(old_nd.mnt))) {
+Have you seen a drive yet that writes back blocks after power loss?
 
-Which /explicitly/ permits bind mounts between namespaces if it's not
-recursive.  It's not accidental: that !recurse is blatantly making a
-point of allowing it.
+I have heard rumors about this, but all OEM manuals I looked at for
+drives I bought or recommended simply stated that the block currently
+being written at power loss can become damaged (with write cache off),
+and that the drive can lose the full write cache at power loss (with
+write cache on) so this looks like daydreaming manifested as rumor.
 
-I take that to mean that /at least at one time/ Al chose to allow it.
+I've heard that drives would be taking rotational energy from their
+rotating platters and such, but never heard how the hardware compensates
+the dilation with decreasing rotational frequency, which also requires
+changed filter settings for the write channel, block encoding, delays,
+possibly stepping the heads and so on. I don't believe these stories
+until I see evidence.
 
-Then again, he also wrote this:
-
-> > Bind mount from a foreign namespace results in
-> 
-> ... -EINVAL
-
-Which means that /at another time/ Al thought he'd disallowed it.
-
-This is a bit like arguing over what the Founding Fathers of the US
-Constitution meant.  Does it matter?  We really should ask what
-behaviour makes sense now.  Should we add more explicit restrictions
-to the code, making the concept of namespaces more restrictive?  Or
-remove the restrictions, on the grounds that they don't really add any
-security, it'd be useful to relax them, and the code would be simpler?
-
--- Jamie
+These are corner cases that a vendor would hardly optimize for.
+If you know a disk drive (not battery-backed disk controller!) that
+flashes its cache to NVRAM, or uses rotational energy to save its cache
+on the platters, please name brand and model and where I can download
+the material that documents this behavior.

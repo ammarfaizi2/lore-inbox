@@ -1,63 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261930AbVEPV7B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbVEPV6r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261930AbVEPV7B (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 17:59:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261902AbVEPV6y
+	id S261929AbVEPV6r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 17:58:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261917AbVEPVye
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 17:58:54 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:3850 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S261908AbVEPV4t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 17:56:49 -0400
-Date: Tue, 17 May 2005 00:01:56 +0200
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ext2 optimal partition size
-Message-ID: <20050516220156.GA8032@hh.idb.hist.no>
-References: <20050515160037.GE134@DervishD> <20050515164307.GB26197@hh.idb.hist.no> <20050515171437.GC248@DervishD>
+	Mon, 16 May 2005 17:54:34 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:16572 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261908AbVEPVxi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 17:53:38 -0400
+Subject: Re: [RFC][PATCH (7/7)] new timeofday i386 vsyscall proof of
+	concept (v A5)
+From: john stultz <johnstul@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Christoph Lameter <clameter@sgi.com>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
+       paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
+       Nishanth Aravamudan <nacc@us.ibm.com>, Darren Hart <darren@dvhart.com>,
+       "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
+       benh@kernel.crashing.org
+In-Reply-To: <1116030428.26990.1.camel@cog.beaverton.ibm.com>
+References: <1116029796.26454.2.camel@cog.beaverton.ibm.com>
+	 <1116029872.26454.4.camel@cog.beaverton.ibm.com>
+	 <1116029971.26454.7.camel@cog.beaverton.ibm.com>
+	 <1116030058.26454.10.camel@cog.beaverton.ibm.com>
+	 <1116030139.26454.13.camel@cog.beaverton.ibm.com>
+	 <1116030222.26454.16.camel@cog.beaverton.ibm.com>
+	 <1116030428.26990.1.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Mon, 16 May 2005 14:53:32 -0700
+Message-Id: <1116280412.13867.33.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050515171437.GC248@DervishD>
-User-Agent: Mutt/1.5.9i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 15, 2005 at 07:14:37PM +0200, DervishD wrote:
->     Hi Helge :)
-> 
->     That's was just an example, and anyway I can create an ext2/3
-> filesystem on a file.
+All,
+        Yikes, here is another small fix a last minute function name
+change caused, this time in the vsyscall-i386 patch.  This small fix
+applies on top of my timeofday-vsyscall-i386_A5 patch to resolve the
+issue.
 
-Sure.  It won't be a "partition" though.
->  
-> > Just make sure your partition is a whole number of blocks,
-> > ext2/ext3 should then be able to utilize the partition fully to the
-> > last block.
-> 
->     Do that means that metadata (disk structures, block groups
-> structs and the like) all fits in block-size chunks???
+Also it was noted that the vsyscall-i386 patch puts the vsyscall config
+option in a bad place. I'll fix that in my next release.
 
-fs-blocksize chunks, yes.  (i.e. 1K or 4K blocks, not the
-512 byte disk blocks.)
+Sorry about that.
 
-I don't know if aøll metadata fits iarbitrary number of block-sized chunks, 
-but that cannot matter.  Any "extra" block can surely be utilized for
-file data.
+thanks
+-john
+
+arch/i386/kernel/vsyscall-gtod.c: needs update
+Index: arch/i386/kernel/vsyscall-gtod.c
+===================================================================
+--- 9d016193cc103e4ba0026e943774ef0f774bf72f/arch/i386/kernel/vsyscall-gtod.c  (mode:100644)
++++ uncommitted/arch/i386/kernel/vsyscall-gtod.c  (mode:100644)
+@@ -113,7 +113,7 @@
+ 	}
+ 
+ 	/* save off wall time as timeval */
+-	vsyscall_gtod_data.wall_time_tv = ns2timeval(wall_time);
++	vsyscall_gtod_data.wall_time_tv = ns_to_timeval(wall_time);
+ 
+ 	/* save offset_base */
+ 	vsyscall_gtod_data.offset_base = offset_base;
 
 
->  
-> > Using a blocksize equal to the pagesize (i.e. 4096) is usually optimal.
-> 
->     Thanks, I'll try it :) My main doubt was if the metadata was
-> managed in block-sized chunks, it seems so.
 
-Managing everything in block-sized chunks is a common design in unix filesystems.
-It avoids many problems and allows arbitrary filesystem sizes.
-Of course some structures will need quite a few blocks, but the number
-of blocks will depend on the size of the filesystem and will therefore
-always fit in the available space.  (Well, unless you try creating
-something silly like a 1-block fs. :-)
-
-Helge Hafting
